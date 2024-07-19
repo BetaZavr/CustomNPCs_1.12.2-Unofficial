@@ -12,13 +12,13 @@ public interface ILabel extends ICustomGuiComponent {
 
 	int getWidth();
 
-	boolean isShedow();
+	boolean isShadow();
 
 	ILabel setColor(int color);
 
 	ILabel setScale(float scale);
 
-	void setShedow(boolean showShedow);
+	void setShadow(boolean showShadow);
 
 	ILabel setSize(int width, int height);
 

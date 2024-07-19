@@ -1,11 +1,8 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +49,7 @@ public class DropController {
 
 	private String filePath;
 
-	public final Map<String, DropsTemplate> templates = Maps.<String, DropsTemplate>newTreeMap();
+	public final Map<String, DropsTemplate> templates = Maps.newTreeMap();
 
 	public DropController() {
 		this.filePath = CustomNpcs.Dir.getAbsolutePath();
@@ -61,7 +58,7 @@ public class DropController {
 	}
 
 	public List<IItemStack> createDrops(String saveDropsName, double ch, boolean isLooted, EntityLivingBase attacking) {
-		List<IItemStack> list = Lists.<IItemStack>newArrayList();
+		List<IItemStack> list = Lists.newArrayList();
 		if (saveDropsName == null || saveDropsName.isEmpty() || !this.templates.containsKey(saveDropsName)) {
 			return list;
 		}
@@ -98,8 +95,9 @@ public class DropController {
 
 	private void loadDefaultDrops() {
 		NpcAPI api = NpcAPI.Instance();
+		if (api == null) { return; }
 		DropsTemplate temp = new DropsTemplate();
-		temp.groups.put(0, Maps.<Integer, DropSet>newTreeMap());
+		temp.groups.put(0, Maps.newTreeMap());
 		DropSet ds0 = new DropSet(null);
 		ds0.amount[0] = 5;
 		ds0.amount[1] = 8;
@@ -129,7 +127,7 @@ public class DropController {
 		ds3.pos = 3;
 		temp.groups.get(0).put(3, ds3);
 
-		temp.groups.put(1, Maps.<Integer, DropSet>newTreeMap());
+		temp.groups.put(1, Maps.newTreeMap());
 		DropSet df0 = new DropSet(null);
 		df0.amount[0] = 1;
 		df0.amount[1] = 1;
@@ -155,31 +153,27 @@ public class DropController {
 			File file = new File(CustomNpcs.Dir, "drops.dat");
 			if (file.exists()) {
 				try {
-					NBTTagCompound nbtFile = CompressedStreamTools
-							.readCompressed((InputStream) new FileInputStream(file));
+					NBTTagCompound nbtFile = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
 					this.loadNBTData(nbtFile);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			} else {
 				this.templates.clear();
 				this.loadDefaultDrops();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogWriter.error("Error:", e);
 			try {
 				File file2 = new File(CustomNpcs.Dir, "recipes.dat_old");
 				if (file2.exists()) {
 					try {
-						NBTTagCompound nbtFile = CompressedStreamTools
-								.readCompressed((InputStream) new FileInputStream(file2));
+						NBTTagCompound nbtFile = CompressedStreamTools.readCompressed(Files.newInputStream(file2.toPath()));
 						this.loadNBTData(nbtFile);
 					} catch (IOException err) {
-						err.printStackTrace();
+						LogWriter.error("Error:", err);
 					}
 				}
 			} catch (Exception ee) {
-				e.printStackTrace();
+				LogWriter.error("Error:", ee);
 			}
 		}
 	}
@@ -203,14 +197,11 @@ public class DropController {
 
 	public void save() {
 		try {
-			CompressedStreamTools.writeCompressed(this.getNBT(),
-					(OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "drops.dat")));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "drops.dat").toPath()));
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
-	public void setdTo(EntityPlayerMP player) {
+	public void sendTo(EntityPlayerMP player) {
 		Server.sendData(player, EnumPacketClient.DROP_GROUP_DATA, new NBTTagCompound());
 		for (String template : this.templates.keySet()) {
 			NBTTagCompound nbtTemplate = new NBTTagCompound();
@@ -230,7 +221,7 @@ public class DropController {
 			return;
 		}
 		Client.sendDirectData(EnumPacketServer.DropTemplateSave, 0);
-		Map<String, DropsTemplate> tempMap = Maps.<String, DropsTemplate>newTreeMap();
+		Map<String, DropsTemplate> tempMap = Maps.newTreeMap();
 		tempMap.putAll(this.templates);
 		for (String template : tempMap.keySet()) {
 			NBTTagCompound nbtTemplate = new NBTTagCompound();

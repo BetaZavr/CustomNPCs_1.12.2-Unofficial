@@ -5,12 +5,10 @@ import java.util.Random;
 import nikedemos.markovnames.MarkovDictionary;
 
 public class MarkovRoman extends MarkovGenerator {
+
 	public MarkovDictionary markov2;
 	public MarkovDictionary markov3;
 
-	public MarkovRoman() {
-		this(3, new Random());
-	}
 
 	public MarkovRoman(int seqlen) {
 		this(seqlen, new Random());
@@ -25,10 +23,8 @@ public class MarkovRoman extends MarkovGenerator {
 
 	@Override
 	public String feminize(String element, boolean flag) {
-		if (element.endsWith("us")) {
-			element = element.substring(0, element.length() - 2) + "a";
-		} else if (element.endsWith("o")) {
-			element = element.substring(0, element.length() - 2) + "a";
+		if (element.endsWith("us") || element.endsWith("o")) {
+			return element.substring(0, element.length() - 2) + "a";
 		}
 		return element;
 	}

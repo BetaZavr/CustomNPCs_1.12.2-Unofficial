@@ -11,11 +11,12 @@ import com.google.common.collect.Maps;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.DamageSource;
+import noppes.npcs.LogWriter;
 
 public class Resistances {
 
 	public static final List<String> allDamageNames = Lists.newArrayList();
-	public final Map<String, Float> data = Maps.<String, Float>newHashMap();
+	public final Map<String, Float> data = Maps.newHashMap();
 
 	public Resistances() {
 		this.data.put("arrow", 1.0f);
@@ -34,7 +35,7 @@ public class Resistances {
 				if (name.equals("generic") || name.equals("outOfWorld")) { continue; }
 				allDamageNames.add(name);
 			}
-			catch (Exception e) { }
+			catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 	}
 

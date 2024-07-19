@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.google.common.collect.Lists;
 
@@ -39,7 +40,7 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 	@Override
 	public ILayerModel createLayerModel() {
 		ILayerModel[] ls = new ILayerModel[this.tile.layers.length + 1];
-		int i = 0;
+		int i;
 		for (i = 0; i < this.tile.layers.length; i++) {
 			((LayerModel) this.tile.layers[i]).pos = i;
 			ls[i] = this.tile.layers[i];
@@ -51,8 +52,8 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 
 	@Override
 	public String executeCommand(String command) {
-		if (!this.tile.getWorld().getMinecraftServer().isCommandBlockEnabled()) {
-			throw new CustomNPCsException("Command blocks need to be enabled to executeCommands", new Object[0]);
+		if (!Objects.requireNonNull(this.tile.getWorld().getMinecraftServer()).isCommandBlockEnabled()) {
+			throw new CustomNPCsException("Command blocks need to be enabled to executeCommands");
 		}
 		FakePlayer player = EntityNPCInterface.CommandPlayer;
 		player.setWorld(this.tile.getWorld());
@@ -72,8 +73,8 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 	}
 
 	@Override
-	public boolean getIsPassible() {
-		return this.tile.isPassible;
+	public boolean getIsPassable() {
+		return this.tile.isPassable;
 	}
 
 	@Override
@@ -91,7 +92,7 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 
 	@Override
 	public IItemStack getModel() {
-		return NpcAPI.Instance().getIItemStack(this.tile.itemModel);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.tile.itemModel);
 	}
 
 	@Override
@@ -184,7 +185,7 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 			}
 		}
 		if (found) {
-			this.tile.layers = newLM.toArray(new ILayerModel[newLM.size()]);
+			this.tile.layers = newLM.toArray(new ILayerModel[0]);
 		}
 		return found;
 	}
@@ -203,7 +204,7 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 				newLM.add(this.tile.layers[i]);
 			}
 		}
-		this.tile.layers = newLM.toArray(new ILayerModel[newLM.size()]);
+		this.tile.layers = newLM.toArray(new ILayerModel[0]);
 		return true;
 	}
 
@@ -219,8 +220,8 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 	}
 
 	@Override
-	public void setIsPassible(boolean bo) {
-		this.tile.isPassible = bo;
+	public void setIsPassable(boolean passable) {
+		this.tile.isPassable = passable;
 		this.tile.needsClientUpdate = true;
 	}
 
@@ -234,7 +235,7 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 		if (iblock == null || iblock.getMCBlock() == null || iblock.getWorld() == null) {
 			this.tile.setItemModel(null, null);
 		} else {
-			this.setModel(iblock.getMCBlock().getRegistryName().toString(), iblock.getMetadata());
+			this.setModel(Objects.requireNonNull(iblock.getMCBlock().getRegistryName()).toString(), iblock.getMetadata());
 		}
 	}
 
@@ -254,7 +255,7 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 		} else {
 			ResourceLocation loc = new ResourceLocation(name);
 			Block block = Block.REGISTRY.getObject(loc);
-			this.tile.setItemModel(new ItemStack((Item) Item.REGISTRY.getObject(loc)), block);
+			this.tile.setItemModel(new ItemStack(Objects.requireNonNull(Item.REGISTRY.getObject(loc))), block);
 		}
 	}
 
@@ -267,15 +268,13 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 			Block block = Block.REGISTRY.getObject(loc);
 			ItemStack stack = new ItemStack(Item.getItemFromBlock(block));
 			if (stack.isEmpty()) {
-				stack = new ItemStack(Item.getByNameOrId(blockName));
+				stack = new ItemStack(Objects.requireNonNull(Item.getByNameOrId(blockName)));
 			}
 			try {
 				@SuppressWarnings("deprecation")
 				IBlockState state = block.getStateFromMeta(meta);
-				if (state != null) {
-					block = state.getBlock();
-				}
-			} catch (Exception e) {
+                block = state.getBlock();
+            } catch (Exception e) {
 				meta = 0;
 			}
 			this.tile.setItemModel(stack, block, meta);

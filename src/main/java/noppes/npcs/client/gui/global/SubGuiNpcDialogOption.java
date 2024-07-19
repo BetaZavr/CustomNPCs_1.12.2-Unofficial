@@ -34,7 +34,7 @@ public class SubGuiNpcDialogOption extends SubGuiInterface
 	public static int LastColor = 0xE0E0E0;
 
 	private final Map<String, OptionDialogID> data; // {scrollTitle, dialogID}
-	private DialogOption option;
+	private final DialogOption option;
 	private GuiCustomScroll scroll;
 	private String select;
 
@@ -45,7 +45,7 @@ public class SubGuiNpcDialogOption extends SubGuiInterface
 		this.ySize = 216;
 		this.closeOnEsc = true;
 		this.select = "";
-		this.data = Maps.<String, OptionDialogID>newHashMap();
+		this.data = Maps.newHashMap();
 	}
 
 	@Override
@@ -170,12 +170,11 @@ public class SubGuiNpcDialogOption extends SubGuiInterface
 		this.addLabel(new GuiNpcLabel(0, "gui.title", this.guiLeft + 4, this.guiTop + 20));
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 40, this.guiTop + 15, 196, 20,
 				this.option.title));
-		String color;
-		for (color = Integer.toHexString(this.option.optionColor); color.length() < 6; color = 0 + color) {
-		}
+		StringBuilder color = new StringBuilder(Integer.toHexString(this.option.optionColor));
+		while (color.length() < 6) { color.insert(0, 0); }
 
 		this.addLabel(new GuiNpcLabel(2, "gui.color", this.guiLeft + 4, this.guiTop + 45));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 62, this.guiTop + 40, 92, 20, color));
+		this.addButton(new GuiNpcButton(2, this.guiLeft + 62, this.guiTop + 40, 92, 20, color.toString()));
 		this.getButton(2).setTextColor(this.option.optionColor);
 
 		List<String> list = Lists.newArrayList("");
@@ -184,7 +183,7 @@ public class SubGuiNpcDialogOption extends SubGuiInterface
 		}
 		this.addLabel(new GuiNpcLabel(9, "dialog.icon", this.guiLeft + 159, this.guiTop + 61));
 		this.addButton(new GuiNpcButton(9, this.guiLeft + 210, this.guiTop + 45, 32, 32,
-				list.toArray(new String[list.size()]), this.option.iconId));
+				list.toArray(new String[0]), this.option.iconId));
 		this.getButton(9).hasDefBack = true;
 		this.getButton(9).texture = GuiDialogInteract.icons.get(this.option.iconId);
 		this.getButton(9).txrW = 256;

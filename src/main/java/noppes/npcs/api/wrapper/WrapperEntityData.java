@@ -1,5 +1,6 @@
 package noppes.npcs.api.wrapper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,11 +34,13 @@ import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.util.ObfuscationHelper;
 
+import javax.annotation.Nonnull;
+
 public class WrapperEntityData implements IWrapperEntityDataHandler, ICapabilityProvider {
 
 	@CapabilityInject(IWrapperEntityDataHandler.class)
 	public static Capability<IWrapperEntityDataHandler> WRAPPER_ENTITY_DATA_CAPABILITY = null;
-	private static ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "entitydata");
+	private static final ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "entitydata");
 
 	public static IEntity<?> get(Entity entity) {
 		if (entity == null || entity.world == null) {
@@ -46,8 +49,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 		WrapperEntityData data = (WrapperEntityData) entity
 				.getCapability(WrapperEntityData.WRAPPER_ENTITY_DATA_CAPABILITY, null);
 		if (entity instanceof EntityPlayer) {
-			String k = (entity.world == null || entity.world.isRemote ? "client_" : "server_")
-					+ entity.getUniqueID().toString();
+			String k = (entity.world == null || entity.world.isRemote ? "client_" : "server_") + entity.getUniqueID();
 			if (data != null && !PlayerWrapper.map.containsKey(k)) {
 				PlayerWrapper.map.put(k, data);
 			}
@@ -63,18 +65,16 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 					CapabilityDispatcher.class);
 			if (capabilities != null) {
 				ICapabilityProvider[] caps = ObfuscationHelper.getValue(CapabilityDispatcher.class, capabilities, 0);
-				List<ICapabilityProvider> list = Lists.newArrayList();
-				for (ICapabilityProvider cap : caps) {
-					list.add(cap);
+				if (caps != null) {
+					List<ICapabilityProvider> list = Lists.newArrayList();
+                    Collections.addAll(list, caps);
+					list.add(ret);
+					ObfuscationHelper.setValue(CapabilityDispatcher.class, capabilities, list.toArray(new ICapabilityProvider[0]), 0);
 				}
-				list.add(ret);
-				ObfuscationHelper.setValue(CapabilityDispatcher.class, capabilities,
-						list.toArray(new ICapabilityProvider[list.size()]), 0);
 			} else {
-				Map<ResourceLocation, ICapabilityProvider> m = Maps.<ResourceLocation, ICapabilityProvider>newHashMap();
+				Map<ResourceLocation, ICapabilityProvider> m = Maps.newHashMap();
 				m.put(WrapperEntityData.key, ret);
-				ObfuscationHelper.setValue(Entity.class, entity, new CapabilityDispatcher(m, null),
-						CapabilityDispatcher.class);
+				ObfuscationHelper.setValue(Entity.class, entity, new CapabilityDispatcher(m, null), CapabilityDispatcher.class);
 			}
 			return ret.base;
 		}
@@ -91,6 +91,9 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 		if (PixelmonHelper.isPixelmon(entity)) {
 			return new WrapperEntityData(new PixelmonWrapper<EntityTameable>((EntityTameable) entity));
 		}
+		if (entity instanceof EntityVillager) {
+			return new WrapperEntityData(new VillagerWrapper<EntityVillager>((EntityVillager) entity));
+		}
 		if (entity instanceof EntityAnimal) {
 			return new WrapperEntityData(new AnimalWrapper<EntityAnimal>((EntityAnimal) entity));
 		}
@@ -102,9 +105,6 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 		}
 		if (entity instanceof EntityLivingBase) {
 			return new WrapperEntityData(new EntityLivingBaseWrapper<EntityLivingBase>((EntityLivingBase) entity));
-		}
-		if (entity instanceof EntityVillager) {
-			return new WrapperEntityData(new VillagerWrapper<EntityVillager>((EntityVillager) entity));
 		}
 		if (entity instanceof EntityItem) {
 			return new WrapperEntityData(new EntityItemWrapper<EntityItem>((EntityItem) entity));
@@ -129,16 +129,14 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 		if (oldData == null || newData == null || oldData.base == null || newData.base == null) {
 			return;
 		}
-		if (oldData.base.getTempdata().getKeys().length > 0) {
-			for (String key : oldData.base.getTempdata().getKeys()) {
-				try {
-					newData.base.getTempdata().put(key, oldData.base.getTempdata().get(key));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+        oldData.base.getTempdata().getKeys();
+        for (String key : oldData.base.getTempdata().getKeys()) {
+            try {
+                newData.base.getTempdata().put(key, oldData.base.getTempdata().get(key));
+            }
+			catch (Exception e) { LogWriter.error("Error:", e); }
+        }
+    }
 
 	public IEntity<?> base;
 
@@ -150,7 +148,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+	public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing facing) {
 		if (this.hasCapability(capability, facing)) {
 			return (T) this;
 		}
@@ -162,7 +160,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 		return new NBTTagCompound();
 	}
 
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+	public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing) {
 		return capability == WrapperEntityData.WRAPPER_ENTITY_DATA_CAPABILITY;
 	}
 

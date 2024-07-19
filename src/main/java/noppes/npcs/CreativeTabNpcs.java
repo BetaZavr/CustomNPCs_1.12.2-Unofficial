@@ -5,6 +5,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 public class CreativeTabNpcs extends CreativeTabs {
 
 	public Item item;
@@ -17,7 +19,7 @@ public class CreativeTabNpcs extends CreativeTabs {
 	}
 
 	@Override
-	public ItemStack getTabIconItem() {
+	public @Nonnull ItemStack getTabIconItem() {
 		return new ItemStack(this.item, 1, this.meta);
 	}
 

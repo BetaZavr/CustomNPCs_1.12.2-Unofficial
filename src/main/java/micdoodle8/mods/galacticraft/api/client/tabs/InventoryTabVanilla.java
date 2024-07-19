@@ -1,7 +1,8 @@
 package micdoodle8.mods.galacticraft.api.client.tabs;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -14,17 +15,16 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.util.ObfuscationHelper;
 
+import javax.annotation.Nonnull;
+
 public class InventoryTabVanilla extends AbstractTab {
 	public InventoryTabVanilla() {
 		super(0, 0, 0, new ItemStack(Blocks.CRAFTING_TABLE));
-		this.displayString = NoppesStringUtils.translate("stats.rarity.normal") + " ("
-				+ GameSettings.getKeyDisplayString(((KeyBinding) ObfuscationHelper.getValue(GameSettings.class,
-						Minecraft.getMinecraft().gameSettings, 62)).getKeyCode())
-				+ ")";
+		this.displayString = NoppesStringUtils.translate("stats.rarity.normal") + " (" + GameSettings.getKeyDisplayString(((KeyBinding) Objects.requireNonNull(ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 62))).getKeyCode()) + ")";
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.enabled || !this.visible) {
 			super.drawButton(mc, mouseX, mouseY, partialTicks);
 			return;
@@ -34,7 +34,7 @@ public class InventoryTabVanilla extends AbstractTab {
 		if (hovered) {
 			int x = mouseX + mc.fontRenderer.getStringWidth(this.displayString);
 			GlStateManager.translate(x, (this.y + 2), 0.0f);
-			this.drawHoveringText(Arrays.asList(this.displayString), 0, 0, mc.fontRenderer);
+			this.drawHoveringText(Collections.singletonList(this.displayString), 0, 0, mc.fontRenderer);
 			GlStateManager.translate((-x), (-(this.y + 2)), 0.0f);
 		}
 		super.drawButton(mc, mouseX, mouseY, partialTicks);

@@ -7,12 +7,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.event.CustomGuiEvent;
-import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
@@ -36,67 +34,57 @@ public class CustomGuiController {
 		return null;
 	}
 
-	public static IItemStack[] getSlotContents(EntityPlayer player) {
-		IItemStack[] slotContents = new IItemStack[0];
-		if (player.openContainer instanceof ContainerCustomGui) {
-			ContainerCustomGui container = (ContainerCustomGui) player.openContainer;
-			slotContents = new IItemStack[container.guiInventory.getSizeInventory()];
-			for (int i = 0; i < container.guiInventory.getSizeInventory(); ++i) {
-				slotContents[i] = NpcAPI.Instance().getIItemStack(container.guiInventory.getStackInSlot(i));
-			}
-		}
-		return slotContents;
-	}
-
 	public static void onButton(CustomGuiEvent.ButtonEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
-		if (checkGui(event) && getOpenGui(player).getScriptHandler() != null) {
-			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_BUTTON.function, event, true);
+		CustomGuiWrapper gui = getOpenGui(player);
+		if (checkGui(event) && gui != null && gui.getScriptHandler() != null) {
+			gui.getScriptHandler().run(EnumScriptType.CUSTOM_GUI_BUTTON.function, event, true);
 		}
-		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+		WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 
 	public static void onClose(CustomGuiEvent.CloseEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
 		CustomGuiWrapper gui = getOpenGui(player);
-		if (checkGui(event) && gui.getScriptHandler() != null) { // Changed
+		if (checkGui(event) && gui != null && gui.getScriptHandler() != null) { // Changed
 			gui.getScriptHandler().run(EnumScriptType.CUSTOM_GUI_CLOSED.function, event, true);
 			event.player.closeGui();
 		}
-		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+		WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 
 	public static void onScrollClick(CustomGuiEvent.ScrollEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
-		if (checkGui(event) && getOpenGui(player).getScriptHandler() != null) {
-			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SCROLL.function, event, true);
+		CustomGuiWrapper gui = getOpenGui(player);
+		if (checkGui(event) && gui != null && gui.getScriptHandler() != null) {
+			gui.getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SCROLL.function, event, true);
 		}
-		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+		WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 
 	public static void onSlotChange(CustomGuiEvent.SlotEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
-		if (checkGui(event) && getOpenGui(player).getScriptHandler() != null) {
-			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SLOT.function, event, true);
+		CustomGuiWrapper gui = getOpenGui(player);
+		if (checkGui(event) && gui != null && gui.getScriptHandler() != null) {
+			gui.getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SLOT.function, event, true);
 		}
-		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+		WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 
 	public static boolean onSlotClick(CustomGuiEvent.SlotClickEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
-		if (checkGui(event) && getOpenGui(player).getScriptHandler() != null) {
-			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SLOT_CLICKED.function, event, true);
+		CustomGuiWrapper gui = getOpenGui(player);
+		if (checkGui(event) && gui != null && gui.getScriptHandler() != null) {
+			gui.getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SLOT_CLICKED.function, event, true);
 		}
-		return WrapperNpcAPI.EVENT_BUS.post((Event) event);
+		return WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 
 	public static void openGui(PlayerWrapper<?> player, CustomGuiWrapper gui) {
 		EntityPlayerMP pl = (EntityPlayerMP) player.getMCEntity();
 		gui.setPlayer(pl);
 		pl.openGui(CustomNpcs.instance, EnumGuiType.CustomGui.ordinal(), pl.world, gui.getSlots().length, 0, 0);
-		CustomNPCsScheduler.runTack(() -> {
-			Server.sendDataChecked(pl, EnumPacketClient.GUI_DATA, gui.toNBT());
-		});
+		CustomNPCsScheduler.runTack(() -> Server.sendDataChecked(pl, EnumPacketClient.GUI_DATA, gui.toNBT()));
 		((ContainerCustomGui) pl.openContainer).setGui(gui, pl);
 	}
 
@@ -109,19 +97,16 @@ public class CustomGuiController {
 			}
 			return selection;
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogWriter.error("Error:", e);
 			return null;
 		}
 	}
 
-	public static boolean updateGui(PlayerWrapper<?> player, CustomGuiWrapper gui) {
+	public static void updateGui(PlayerWrapper<?> player, CustomGuiWrapper gui) {
 		EntityPlayerMP pl = (EntityPlayerMP) player.getMCEntity();
 		if (!(pl.openContainer instanceof ContainerCustomGui)) {
-			return false;
+			return;
 		}
-		CustomNPCsScheduler.runTack(() -> {
-			Server.sendDataChecked(pl, EnumPacketClient.GUI_DATA, gui.toNBT());
-		});
-		return true;
+		CustomNPCsScheduler.runTack(() -> Server.sendDataChecked(pl, EnumPacketClient.GUI_DATA, gui.toNBT()));
 	}
 }

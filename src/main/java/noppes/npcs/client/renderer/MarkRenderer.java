@@ -2,6 +2,7 @@ package noppes.npcs.client.renderer;
 
 import java.nio.FloatBuffer;
 
+import noppes.npcs.LogWriter;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
@@ -28,7 +29,7 @@ public class MarkRenderer {
 	public static ResourceLocation markSkull = new ResourceLocation(CustomNpcs.MODID, "textures/marks/skull.png");
 	public static ResourceLocation markStar = new ResourceLocation(CustomNpcs.MODID, "textures/marks/star.png");
 	public static boolean needReload = false;
-	private static FloatBuffer COLOR_BUFFER = GLAllocation.createDirectFloatBuffer(4);
+	private static final FloatBuffer COLOR_BUFFER = GLAllocation.createDirectFloatBuffer(4);
 	private static final Vec3d LIGHT0_POS = (new Vec3d(0.2D, 1.0D, -0.7D)).normalize();
 	private static final Vec3d LIGHT1_POS = (new Vec3d(-0.2D, 1.0D, 0.7D)).normalize();
 
@@ -131,9 +132,7 @@ public class MarkRenderer {
 			}
 			GlStateManager.popMatrix();
 			RenderHelper.enableStandardItemLighting();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	private static FloatBuffer setColorBuffer(float red, float green, float blue, float alpha) {

@@ -20,9 +20,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.entity.EntityProjectile;
 
+import javax.annotation.Nonnull;
+
 @SideOnly(Side.CLIENT)
 public class RenderProjectile<T extends Entity> extends Render<T> {
-	private static ResourceLocation ARROW_TEXTURES;
+
+	private static final ResourceLocation ARROW_TEXTURES;
+
 	static {
 		ARROW_TEXTURES = new ResourceLocation("textures/entity/arrow.png");
 		new ResourceLocation("textures/misc/enchanted_item_glint.png");
@@ -39,13 +43,12 @@ public class RenderProjectile<T extends Entity> extends Render<T> {
 		this.crash2 = false;
 	}
 
-	public void doRender(Entity par1Entity, double par2, double par4, double par6, float par8, float par9) {
-		this.doRenderProjectile((EntityProjectile) par1Entity, par2, par4, par6, par8, par9);
+	public void doRender(@Nonnull Entity entity, double par2, double par4, double par6, float par8, float par9) {
+		this.doRenderProjectile((EntityProjectile) entity, par2, par4, par6, par9);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void doRenderProjectile(EntityProjectile projectile, double x, double y, double z, float entityYaw,
-			float partialTicks) {
+	public void doRenderProjectile(EntityProjectile projectile, double x, double y, double z, float partialTicks) {
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
@@ -55,23 +58,19 @@ public class RenderProjectile<T extends Entity> extends Render<T> {
 		GlStateManager.scale(scale, scale, scale);
 		if (projectile.isArrow()) {
 			this.bindEntityTexture((T) projectile);
-			GlStateManager.rotate(projectile.prevRotationYaw
-					+ (projectile.rotationYaw - projectile.prevRotationYaw) * partialTicks - 90.0f, 0.0f, 1.0f, 0.0f);
+			GlStateManager.rotate(projectile.prevRotationYaw + (projectile.rotationYaw - projectile.prevRotationYaw) * partialTicks - 90.0f, 0.0f, 1.0f, 0.0f);
 			GlStateManager.rotate(
-					projectile.prevRotationPitch
-							+ (projectile.rotationPitch - projectile.prevRotationPitch) * partialTicks,
-					0.0f, 0.0f, 1.0f);
+					projectile.prevRotationPitch + (projectile.rotationPitch - projectile.prevRotationPitch) * partialTicks, 0.0f, 0.0f, 1.0f);
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder BufferBuilder = tessellator.getBuffer();
-			int i = 0;
 			float f = 0.0f;
 			float f2 = 0.5f;
-			float f3 = (0 + i * 10) / 32.0f;
-			float f4 = (5 + i * 10) / 32.0f;
+			float f3 = 0.0f;
+			float f4 = 5.0f / 32.0f;
 			float f5 = 0.0f;
 			float f6 = 0.15625f;
-			float f7 = (5 + i * 10) / 32.0f;
-			float f8 = (10 + i * 10) / 32.0f;
+			float f7 = 5.0f / 32.0f;
+			float f8 = 10.0f / 32.0f;
 			float f9 = 0.05625f;
 			GlStateManager.enableRescaleNormal();
 			float f10 = projectile.arrowShake - partialTicks;
@@ -170,7 +169,7 @@ public class RenderProjectile<T extends Entity> extends Render<T> {
 		return projectile.isArrow() ? RenderProjectile.ARROW_TEXTURES : TextureMap.LOCATION_BLOCKS_TEXTURE;
 	}
 
-	protected ResourceLocation getEntityTexture(Entity par1Entity) {
-		return this.func_110779_a((EntityProjectile) par1Entity);
+	protected ResourceLocation getEntityTexture(@Nonnull Entity entity) {
+		return this.func_110779_a((EntityProjectile) entity);
 	}
 }

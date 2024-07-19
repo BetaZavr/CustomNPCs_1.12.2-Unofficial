@@ -12,7 +12,8 @@ import noppes.npcs.controllers.data.SpawnData;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class SubGuiNpcBiomes extends SubGuiInterface {
-	private SpawnData data;
+
+	private final SpawnData data;
 	private GuiCustomScroll scroll1;
 	private GuiCustomScroll scroll2;
 
@@ -29,8 +30,7 @@ public class SubGuiNpcBiomes extends SubGuiInterface {
 		if (button.id == 1 && this.scroll1.hasSelected()) {
 			this.data.biomes.add(this.scroll1.getSelected());
 			this.scroll1.selected = -1;
-			this.scroll1.selected = -1;
-			this.initGui();
+            this.initGui();
 		}
 		if (button.id == 2 && this.scroll2.hasSelected()) {
 			this.data.biomes.remove(this.scroll2.getSelected());
@@ -41,16 +41,14 @@ public class SubGuiNpcBiomes extends SubGuiInterface {
 			this.data.biomes.clear();
 			for (Biome base : Biome.REGISTRY) {
 				if (base != null) {
-					this.data.biomes.add((String) ObfuscationHelper.getValue(Biome.class, base, 17));
+					this.data.biomes.add(ObfuscationHelper.getValue(Biome.class, base, 17));
 				}
 			}
-			this.scroll1.selected = -1;
 			this.scroll1.selected = -1;
 			this.initGui();
 		}
 		if (button.id == 4) {
 			this.data.biomes.clear();
-			this.scroll1.selected = -1;
 			this.scroll1.selected = -1;
 			this.initGui();
 		}
@@ -76,7 +74,7 @@ public class SubGuiNpcBiomes extends SubGuiInterface {
 		this.scroll2.guiTop = this.guiTop + 14;
 		this.addScroll(this.scroll2);
 		this.addLabel(new GuiNpcLabel(2, "spawning.spawningBiomes", this.guiLeft + 200, this.guiTop + 4));
-		List<String> biomes = new ArrayList<String>();
+		List<String> biomes = new ArrayList<>();
 		for (Biome base : Biome.REGISTRY) {
 			String name = ObfuscationHelper.getValue(Biome.class, base, 17);
 			if (base != null && name != null && !this.data.biomes.contains(name)) {

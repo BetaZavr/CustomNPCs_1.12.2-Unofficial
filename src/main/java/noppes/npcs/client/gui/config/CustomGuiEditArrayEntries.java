@@ -104,10 +104,8 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 				IConfigElement configElement, boolean value) {
 			super(owningScreen, owningEntryList, configElement);
 			this.value = value;
-			this.btnValue = new GuiButtonExt(0, 0, 0, owningEntryList.controlWidth, 18,
-					I18n.format(String.valueOf(value)));
-			boolean enabled = ObfuscationHelper.getValue(GuiEditArray.class, owningScreen, boolean.class);
-			this.btnValue.enabled = enabled;
+			this.btnValue = new GuiButtonExt(0, 0, 0, owningEntryList.controlWidth, 18, I18n.format(String.valueOf(value)));
+            this.btnValue.enabled = ObfuscationHelper.getValue(GuiEditArray.class, owningScreen, boolean.class);
 			this.isValidated = false;
 		}
 
@@ -164,8 +162,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 			super(owningScreen, owningEntryList, configElement);
 			value = string;
 			btnValue = new GuiButtonExt(0, 0, 0, owningEntryList.controlWidth, 18, I18n.format(String.valueOf(value)));
-			boolean enabled = ObfuscationHelper.getValue(GuiEditArray.class, owningScreen, boolean.class);
-			btnValue.enabled = enabled;
+            btnValue.enabled = ObfuscationHelper.getValue(GuiEditArray.class, owningScreen, boolean.class);
 			isValidated = false;
 		}
 
@@ -193,7 +190,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 			GuiUtils.drawGradientRect(0, left + 1, y + 1, right - 1, y + 17, color, color);
 		}
 
-		public GuiButtonExt getButon() {
+		public GuiButtonExt getButton() {
 			return btnValue;
 		}
 
@@ -259,12 +256,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 				if (!textFieldValue.getText().trim().isEmpty() && !textFieldValue.getText().trim().equals("-")) {
 					try {
 						double value = Double.parseDouble(textFieldValue.getText().trim());
-						if (value < Double.valueOf(configElement.getMinValue().toString())
-								|| value > Double.valueOf(configElement.getMaxValue().toString())) {
-							this.isValidValue = false;
-						} else {
-							this.isValidValue = true;
-						}
+                        this.isValidValue = !(value < Double.parseDouble(configElement.getMinValue().toString())) && !(value > Double.parseDouble(configElement.getMaxValue().toString()));
 					} catch (Throwable e) {
 						this.isValidValue = false;
 					}
@@ -309,11 +301,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 				if (!textFieldValue.getText().trim().isEmpty() && !textFieldValue.getText().trim().equals("-")) {
 					try {
 						long value = Long.parseLong(textFieldValue.getText().trim());
-						if (value < Integer.valueOf(configElement.getMinValue().toString())
-								|| value > Integer.valueOf(configElement.getMaxValue().toString()))
-							this.isValidValue = false;
-						else
-							this.isValidValue = true;
+                        this.isValidValue = value >= Integer.parseInt(configElement.getMinValue().toString()) && value <= Integer.parseInt(configElement.getMaxValue().toString());
 					} catch (Throwable e) {
 						this.isValidValue = false;
 					}
@@ -336,11 +324,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 			this.textFieldValue.setText(value.toString());
 			this.isValidated = configElement.getValidationPattern() != null;
 			if (configElement.getValidationPattern() != null) {
-				if (configElement.getValidationPattern().matcher(this.textFieldValue.getText().trim()).matches()) {
-					isValidValue = true;
-				} else {
-					isValidValue = false;
-				}
+                isValidValue = configElement.getValidationPattern().matcher(this.textFieldValue.getText().trim()).matches();
 			}
 		}
 
@@ -369,11 +353,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 					|| eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END) {
 				this.textFieldValue.textboxKeyTyped((enabled ? eventChar : Keyboard.CHAR_NONE), eventKey);
 				if (configElement.getValidationPattern() != null) {
-					if (configElement.getValidationPattern().matcher(this.textFieldValue.getText().trim()).matches()) {
-						isValidValue = true;
-					} else {
-						isValidValue = false;
-					}
+                    isValidValue = configElement.getValidationPattern().matcher(this.textFieldValue.getText().trim()).matches();
 				}
 			}
 		}
@@ -417,27 +397,21 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 		isDefault = Arrays.deepEquals(currentValues, configElement.getDefaults());
 		canAddMoreEntries = !configElement.isListLengthFixed()
 				&& (configElement.getMaxListLength() == -1 || currentValues.length < configElement.getMaxListLength());
-		listEntries = new ArrayList<IArrayEntry>();
+		listEntries = new ArrayList<>();
 		controlWidth = (parent.width / 2) - (configElement.isListLengthFixed() ? 0 : 48);
 		if (configElement.isList() && configElement.getArrayEntryClass() != null) {
-			Class<? extends IArrayEntry> clazz = (Class<? extends IArrayEntry>) configElement.getArrayEntryClass();
+			Class<? extends IArrayEntry> clazz = configElement.getArrayEntryClass();
 			for (Object value : currentValues) {
 				try {
-					listEntries
-							.add(clazz
-									.getConstructor(GuiEditArray.class, CustomGuiEditArrayEntries.class,
-											IConfigElement.class, Object.class)
-									.newInstance(this.owningGui, this, configElement, value));
+					listEntries.add(clazz.getConstructor(GuiEditArray.class, CustomGuiEditArrayEntries.class, IConfigElement.class, Object.class).newInstance(this.owningGui, this, configElement, value));
 				} catch (Throwable e) {
-					FMLLog.log.error(
-							"There was a critical error instantiating the custom IGuiEditListEntry for property {}.",
-							configElement.getName(), e);
+					FMLLog.log.error("There was a critical error instantiating the custom IGuiEditListEntry for property {}.", configElement.getName(), e);
 				}
 			}
 		} else if (configElement.isList() && configElement.getType().equals(ConfigGuiType.BOOLEAN)) {
 			for (Object value : currentValues) {
 				listEntries
-						.add(new BooleanEntry(this.owningGui, this, configElement, Boolean.valueOf(value.toString())));
+						.add(new BooleanEntry(this.owningGui, this, configElement, Boolean.parseBoolean(value.toString())));
 			}
 		} else if (configElement.isList() && configElement.getType().equals(ConfigGuiType.INTEGER)) {
 			for (Object value : currentValues) {
@@ -482,16 +456,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 		return owningGui.width;
 	}
 
-	public Minecraft getMC() {
-		return this.mc;
-	}
-
-	@Override
-	protected int getScrollBarX() {
-		return width - (width / 4);
-	}
-
-	@Override
+    @Override
 	protected int getSize() {
 		return listEntries.size();
 	}
@@ -556,8 +521,8 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 		int listLength = configElement.isListLengthFixed() ? listEntries.size() : listEntries.size() - 1;
 		int slotIndex = ObfuscationHelper.getValue(GuiEditArray.class, owningGui, int.class);
 		GuiScreen parentScreen = ObfuscationHelper.getValue(GuiEditArray.class, owningGui, GuiScreen.class);
-		if (slotIndex != -1 && parentScreen != null && parentScreen instanceof GuiConfig
-				&& ((GuiConfig) parentScreen).entryList.getListEntry(slotIndex) instanceof ArrayEntry) {
+		if (slotIndex != -1 && parentScreen instanceof GuiConfig
+                && ((GuiConfig) parentScreen).entryList.getListEntry(slotIndex) instanceof ArrayEntry) {
 			ArrayEntry entry = (ArrayEntry) ((GuiConfig) parentScreen).entryList.getListEntry(slotIndex);
 			Object[] ao = new Object[listLength];
 			for (int i = 0; i < listLength; i++) {

@@ -12,15 +12,14 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.DataRanged;
 
 public class SubGuiNpcProjectiles extends SubGuiInterface implements ITextfieldListener {
-	private String[] potionNames;
-	private DataRanged stats;
-	private String[] trailNames;
+
+	private final String[] potionNames;
+	private final DataRanged stats;
+	private final String[] trailNames;
 
 	public SubGuiNpcProjectiles(DataRanged stats) {
-		this.potionNames = new String[] { "gui.none", "tile.fire.name", "effect.poison", "effect.hunger",
-				"effect.weakness", "effect.moveSlowdown", "effect.confusion", "effect.blindness", "effect.wither" };
-		this.trailNames = new String[] { "gui.none", "Smoke", "Portal", "Redstone", "Lightning", "LargeSmoke", "Magic",
-				"Enchant" };
+		this.potionNames = new String[] { "gui.none", "tile.fire.name", "effect.poison", "effect.hunger", "effect.weakness", "effect.moveSlowdown", "effect.confusion", "effect.blindness", "effect.wither" };
+		this.trailNames = new String[] { "gui.none", "Smoke", "Portal", "Redstone", "Lightning", "LargeSmoke", "Magic", "Enchant" };
 		this.stats = stats;
 		this.setBackground("menubg.png");
 		this.xSize = 256;
@@ -79,9 +78,9 @@ public class SubGuiNpcProjectiles extends SubGuiInterface implements ITextfieldL
 		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.attack.knockback").getFormattedText());
 		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.size").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("stats.hover.bullet.size").getFormattedText());
 		} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.speed").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("stats.hover.bullet.speed").getFormattedText());
 		} else if (this.getTextField(5) != null && this.getTextField(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.attack.effect").getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
@@ -97,11 +96,11 @@ public class SubGuiNpcProjectiles extends SubGuiInterface implements ITextfieldL
 		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.in.fire").getFormattedText());
 		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.3d").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("stats.hover.bullet.3d").getFormattedText());
 		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.rotate").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("stats.hover.bullet.rotate").getFormattedText());
 		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.cling").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("stats.hover.bullet.cling").getFormattedText());
 		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.effect.power").getFormattedText());
 		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {

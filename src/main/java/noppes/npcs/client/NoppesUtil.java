@@ -9,11 +9,11 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Vector;
 
+import noppes.npcs.LogWriter;
 import org.lwjgl.Sys;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,7 +33,8 @@ import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class NoppesUtil {
-	private static HashMap<String, Integer> data = new HashMap<String, Integer>();
+
+	private static final HashMap<String, Integer> data = new HashMap<>();
 	private static EntityNPCInterface lastNpc;
 
 	public static void addScrollData(ByteBuf buffer) {
@@ -48,8 +49,7 @@ public class NoppesUtil {
 	}
 
 	public static void clickSound() {
-		Minecraft.getMinecraft().getSoundHandler()
-				.playSound((ISound) PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+		Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 	}
 
 	public static EntityNPCInterface getLastNpc() {
@@ -58,11 +58,11 @@ public class NoppesUtil {
 
 	public static void openDialog(Dialog dialog, EntityNPCInterface npc, EntityPlayer player) {
 		GuiScreen gui = Minecraft.getMinecraft().currentScreen;
-		if (gui == null || !(gui instanceof GuiDialogInteract)) {
+		if (!(gui instanceof GuiDialogInteract)) {
 			CustomNpcs.proxy.openGui(player, new GuiDialogInteract(npc, dialog));
 		} else {
-			((GuiDialogInteract) gui).initGui();
-			((GuiDialogInteract) gui).appenedDialog(dialog);
+			gui.initGui();
+			((GuiDialogInteract) gui).appendDialog(dialog);
 		}
 	}
 
@@ -82,14 +82,13 @@ public class NoppesUtil {
 				try {
 					Runtime.getRuntime().exec(s2);
 					return;
-				} catch (IOException ex2) {
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 		}
 		boolean flag = false;
 		try {
 			Class<?> oclass = Class.forName("java.awt.Desktop");
-			Object object = oclass.getMethod("getDesktop", (Class[]) new Class[0]).invoke(null, new Object[0]);
+			Object object = oclass.getMethod("getDesktop", new Class[0]).invoke(null);
 			oclass.getMethod("browse", URI.class).invoke(object, dir.toURI());
 		} catch (Throwable throwable) {
 			flag = true;
@@ -133,10 +132,9 @@ public class NoppesUtil {
 		for (Entry<Object, Object> entry : map.entrySet()) {
 			try {
 				NoppesUtil.data.put((String) entry.getKey(), (int) entry.getValue());
-			} catch (Exception ex) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		((IScrollData) gui).setData(new Vector<String>(NoppesUtil.data.keySet()), NoppesUtil.data);
+		((IScrollData) gui).setData(new Vector<>(NoppesUtil.data.keySet()), NoppesUtil.data);
 		NoppesUtil.data.clear();
 	}
 
@@ -145,16 +143,15 @@ public class NoppesUtil {
 		if (gui instanceof GuiNPCInterface && ((GuiNPCInterface) gui).hasSubGui()) {
 			gui = ((GuiNPCInterface) gui).getSubGui();
 		}
-		if (gui == null || !(gui instanceof IScrollData)) {
+		if (!(gui instanceof IScrollData)) {
 			return;
 		}
-		Vector<String> data = new Vector<String>();
+		Vector<String> data = new Vector<>();
 		try {
 			for (int size = buffer.readInt(), i = 0; i < size; ++i) {
 				data.add(Server.readString(buffer));
 			}
-		} catch (Exception ex) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		((IScrollData) gui).setData(data, null);
 	}
 
@@ -167,14 +164,11 @@ public class NoppesUtil {
 		String particle = Server.readString(buffer);
 		World world = Minecraft.getMinecraft().world;
 		Random rand = world.rand;
-		if (particle.equals("heal")) {
+        assert particle != null;
+        if (particle.equals("heal")) {
 			for (int k = 0; k < 6; ++k) {
-				world.spawnParticle(EnumParticleTypes.SPELL_INSTANT, posX + (rand.nextDouble() - 0.5) * width,
-						posY + rand.nextDouble() * height, posZ + (rand.nextDouble() - 0.5) * width, 0.0, 0.0, 0.0,
-						new int[0]);
-				world.spawnParticle(EnumParticleTypes.SPELL, posX + (rand.nextDouble() - 0.5) * width,
-						posY + rand.nextDouble() * height, posZ + (rand.nextDouble() - 0.5) * width, 0.0, 0.0, 0.0,
-						new int[0]);
+				world.spawnParticle(EnumParticleTypes.SPELL_INSTANT, posX + (rand.nextDouble() - 0.5) * width, posY + rand.nextDouble() * height, posZ + (rand.nextDouble() - 0.5) * width, 0.0, 0.0, 0.0);
+				world.spawnParticle(EnumParticleTypes.SPELL, posX + (rand.nextDouble() - 0.5) * width, posY + rand.nextDouble() * height, posZ + (rand.nextDouble() - 0.5) * width, 0.0, 0.0, 0.0);
 			}
 		}
 	}

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
@@ -40,16 +39,15 @@ import noppes.npcs.util.CustomNPCsScheduler;
 public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 
 	private static boolean all = false;
-	private HashMap<String, Integer> dataIDs;
+	private final HashMap<String, Integer> dataIDs = new HashMap<>();
 	private GuiCustomScroll scroll;
 	private String search = "";
 	private List<String> list;
 	public Entity selectEntity;
-	private DecimalFormat df = new DecimalFormat("#.#");
-	private char chr = ((char) 167);
+	private final DecimalFormat df = new DecimalFormat("#.#");
+	private final char chr = ((char) 167);
 
 	public GuiNpcRemoteEditor() {
-		this.dataIDs = new HashMap<String, Integer>();
 		this.xSize = 256;
 		this.setBackground("menubg.png");
 	}
@@ -84,9 +82,9 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 			if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
 				return;
 			}
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.scroll.getSelected(),
+			GuiYesNo guiyesno = new GuiYesNo(this, this.scroll.getSelected(),
 					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 2: {
@@ -95,7 +93,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 			}
 			Client.sendData(EnumPacketServer.RemoteReset, this.dataIDs.get(this.scroll.getSelected()));
 			Entity entity2 = this.player.world.getEntityByID(this.dataIDs.get(this.scroll.getSelected()));
-			if (entity2 != null && entity2 instanceof EntityNPCInterface) {
+			if (entity2 instanceof EntityNPCInterface) {
 				((EntityNPCInterface) entity2).reset();
 			}
 			break;
@@ -109,16 +107,14 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 				return;
 			}
 			Client.sendData(EnumPacketServer.RemoteTpToNpc, this.dataIDs.get(this.scroll.getSelected()));
-			CustomNPCsScheduler.runTack(() -> {
-				Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
-			}, 250);
+			CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all), 250);
 			break;
 		}
 		case 5: {
 			for (int ids : this.dataIDs.values()) {
 				Client.sendData(EnumPacketServer.RemoteReset, ids);
 				Entity entity = this.player.world.getEntityByID(ids);
-				if (entity != null && entity instanceof EntityNPCInterface) {
+				if (entity instanceof EntityNPCInterface) {
 					((EntityNPCInterface) entity).reset();
 				}
 			}
@@ -146,7 +142,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 			}
 		}
 		CustomNPCsScheduler.runTack(() -> {
-			NoppesUtil.openGUI((EntityPlayer) this.player, this);
+			NoppesUtil.openGUI(this.player, this);
 			Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
 		}, 250);
 
@@ -207,9 +203,9 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 
 	private List<String> getSearchList() {
 		if (this.search.isEmpty()) {
-			return new ArrayList<String>(this.list);
+			return new ArrayList<>(this.list);
 		}
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (String name : this.list) {
 			if (name.toLowerCase().contains(this.search)) {
 				list.add(name);
@@ -312,7 +308,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		NBTTagList nbtlist = compound.getTagList("Data", 10);
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		String[][] hs = new String[nbtlist.tagCount()][];
 		this.dataIDs.clear();
 		for (int i = 0; i < nbtlist.tagCount(); ++i) {
@@ -356,7 +352,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 			if (entity != null) {
 				float distance = this.player.getDistance(entity);
 				for (int i = 0; i < this.scroll.getList().size(); i++) {
-					if (this.scroll.getList().get(i).indexOf("ID:" + id + " ") != -1) {
+					if (this.scroll.getList().get(i).contains("ID:" + id + " ")) {
 						this.scroll.hoversTexts[i] = new String[] {
 								chr + "7Name: " + chr + "r"
 										+ new TextComponentTranslation(entity.getName()).getFormattedText(),

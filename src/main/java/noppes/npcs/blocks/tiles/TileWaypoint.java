@@ -2,6 +2,7 @@ package noppes.npcs.blocks.tiles;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -21,18 +22,19 @@ import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.quests.QuestInterface;
 import noppes.npcs.quests.QuestObjective;
 
+import javax.annotation.Nonnull;
+
 public class TileWaypoint extends TileNpcEntity implements ITickable {
 
 	public String name;
 	public int range;
 	private List<EntityPlayer> recentlyChecked;
 	private int ticks;
-	private List<EntityPlayer> toCheck;
 
-	public TileWaypoint() {
+    public TileWaypoint() {
 		this.name = "";
 		this.ticks = 10;
-		this.recentlyChecked = new ArrayList<EntityPlayer>();
+		this.recentlyChecked = new ArrayList<>();
 		this.range = 10;
 	}
 
@@ -42,7 +44,7 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		this.name = compound.getString("LocationName");
 		this.range = compound.getInteger("LocationRange");
@@ -63,20 +65,21 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 
 		List<EntityPlayer> around = this.getPlayerList(this.range, this.range, this.range);
 		if (around.isEmpty()) {
-			this.recentlyChecked = new ArrayList<EntityPlayer>();
+			this.recentlyChecked = new ArrayList<>();
 			return;
 		}
-		(this.toCheck = around).removeAll(this.recentlyChecked);
-		int rng = this.range + (this.range < 10 ? this.range : 10); // Changed
+        List<EntityPlayer> toCheck;
+        (toCheck = around).removeAll(this.recentlyChecked);
+		int rng = this.range + (Math.min(this.range, 10)); // Changed
 		List<EntityPlayer> listMax = this.getPlayerList(rng, rng, rng);
 
 		this.recentlyChecked.retainAll(listMax);
-		this.toCheck.addAll(this.recentlyChecked);
+		toCheck.addAll(this.recentlyChecked);
 
-		if (this.toCheck.isEmpty()) {
+		if (toCheck.isEmpty()) {
 			return;
 		}
-		for (EntityPlayer player : this.toCheck) {
+		for (EntityPlayer player : toCheck) {
 			PlayerData pdata = PlayerData.get(player);
 			PlayerQuestData questData = pdata.questData;
 			for (QuestData data : questData.activeQuests.values()) {
@@ -85,13 +88,13 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 				}
 				boolean bo = data.quest.step == 1;
 				for (IQuestObjective obj : data.quest
-						.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+						.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 					if (data.quest.step == 1 && !bo) {
 						break;
 					}
 					bo = obj.isCompleted();
 					if (((QuestObjective) obj).getEnumType() != EnumQuestTask.LOCATION
-							|| !((QuestObjective) obj).getTargetName().equals(this.name)) {
+							|| !obj.getTargetName().equals(this.name)) {
 						continue;
 					}
 
@@ -104,13 +107,13 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 						compound.setInteger("QuestID", data.quest.id);
 						compound.setString("Type", "location");
 						compound.setIntArray("Progress", new int[] { 1, 1 });
-						compound.setString("TargetName", ((QuestObjective) obj).getTargetName());
+						compound.setString("TargetName", obj.getTargetName());
 						compound.setInteger("MessageType", 0);
 						Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
 					}
 					if (data.quest.showProgressInChat) {
 						player.sendMessage(new TextComponentTranslation("quest.message.location.1",
-								new TextComponentTranslation(((QuestObjective) obj).getTargetName()).getFormattedText(),
+								new TextComponentTranslation(obj.getTargetName()).getFormattedText(),
 								data.quest.getTitle()));
 					}
 
@@ -121,8 +124,9 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 		}
 	}
 
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		if (!this.name.isEmpty()) {
 			compound.setString("LocationName", this.name);
 		}

@@ -5,9 +5,6 @@ import java.util.Random;
 import nikedemos.markovnames.MarkovDictionary;
 
 public class MarkovSlavic extends MarkovGenerator {
-	public MarkovSlavic() {
-		this(3, new Random());
-	}
 
 	public MarkovSlavic(int seqlen) {
 		this(seqlen, new Random());

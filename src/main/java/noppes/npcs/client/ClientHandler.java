@@ -21,7 +21,7 @@ public class ClientHandler {
 	TreeSet<Integer> customDimensions;
 
 	public ClientHandler() {
-		this.customDimensions = Sets.<Integer>newTreeSet();
+		this.customDimensions = Sets.newTreeSet();
 	}
 
 	public void cleanUp() {
@@ -42,13 +42,12 @@ public class ClientHandler {
 	public void sync(int[] dimensions) {
 		this.cleanUp();
 		this.customDimensions.clear();
-		for (int i = 0; i < dimensions.length; i++) {
-			int id = dimensions[i];
-			this.customDimensions.add(id);
-			if (!DimensionManager.isDimensionRegistered(id)) {
-				DimensionManager.registerDimension(id, CustomNpcs.customDimensionType);
-			}
-		}
+        for (int id : dimensions) {
+            this.customDimensions.add(id);
+            if (!DimensionManager.isDimensionRegistered(id)) {
+                DimensionManager.registerDimension(id, CustomNpcs.customDimensionType);
+            }
+        }
 	}
 
 }

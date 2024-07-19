@@ -19,7 +19,7 @@ import noppes.npcs.entity.data.DataScenes;
 public class GuiNPCScenes extends GuiNPCInterface2 {
 
 	private DataScenes.SceneContainer scene;
-	private DataScenes scenes;
+	private final DataScenes scenes;
 
 	public GuiNPCScenes(EntityNPCInterface npc) {
 		super(npc);
@@ -74,7 +74,7 @@ public class GuiNPCScenes extends GuiNPCInterface2 {
 		int y = this.guiTop + 14;
 		for (int i = 0; i < this.scenes.scenes.size(); ++i) {
 			DataScenes.SceneContainer scene = this.scenes.scenes.get(i);
-			this.addLabel(new GuiNpcLabel(0 + i * 10, scene.name, this.guiLeft + 10, y + 5));
+			this.addLabel(new GuiNpcLabel(i * 10, scene.name, this.guiLeft + 10, y + 5));
 			this.addButton(new GuiNpcButton(1 + i * 10, this.guiLeft + 120, y, 60, 20,
 					new String[] { "gui.disabled", "gui.enabled" }, (scene.enabled ? 1 : 0)));
 			this.addButton(new GuiNpcButton(2 + i * 10, this.guiLeft + 181, y, 50, 20, "selectServer.edit"));

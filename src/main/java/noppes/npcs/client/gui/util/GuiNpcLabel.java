@@ -10,6 +10,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.util.AdditionalMethods;
 
@@ -44,8 +45,8 @@ implements IComponentGui {
 		this.x += (width - this.width) / 2;
 	}
 
-	public void drawLabel(GuiScreen gui, FontRenderer fontRenderer, int mouseX, int mouseY, float partialTicks) {
-		if (this.enabled && this.label != null && this.label.size() != 0) {
+	public void drawLabel(GuiScreen gui, FontRenderer fontRenderer, int mouseX, int mouseY) {
+		if (this.enabled && this.label != null && !this.label.isEmpty()) {
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
 					&& mouseY < this.y + this.height;
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -122,8 +123,7 @@ implements IComponentGui {
 			String str = labels.toString();
 			try {
 				str = new TextComponentTranslation(labels.toString()).getFormattedText();
-			} catch (Exception e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e);}
 			this.label = Lists.newArrayList(str);
 			this.height = 10;
 			this.width = Minecraft.getMinecraft().fontRenderer

@@ -9,7 +9,6 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -21,7 +20,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
@@ -35,12 +33,12 @@ import noppes.npcs.util.ObfuscationHelper;
 
 public class NPCSpawning {
 
-	private static Set<ChunkPos> eligibleChunksForSpawning = Sets.newHashSet();
+	private static final Set<ChunkPos> eligibleChunksForSpawning = Sets.newHashSet();
 
 	// World generation in progress
 	public static void performWorldGenSpawning(World world, int x, int z, Random rand) {
 		Biome biome = world.getBiomeForCoordsBody(new BlockPos(x + 8, 0, z + 8));
-		SpawnData data = SpawnController.instance.getRandomSpawnData(ObfuscationHelper.getValue(Biome.class, biome, 17), true);
+		SpawnData data = SpawnController.instance.getRandomSpawnData(ObfuscationHelper.getValue(Biome.class, biome, 17));
 		if (data == null) { return; }
 		int size = 16;
 		int posX = x + rand.nextInt(size);
@@ -51,16 +49,16 @@ public class NPCSpawning {
 			BlockPos pos = world.getTopSolidOrLiquidBlock(new BlockPos(posX, 0, posZ));
 			if (rand.nextFloat() > data.itemWeight / 100.0f) { continue; }
 			Entity entity = null;
-			try { entity = EntityList.createEntityFromNBT(data.compound1, world); } catch (Exception e) { e.printStackTrace(); }
-			if (entity == null || !(entity instanceof EntityLiving)) { return; }
+			try { entity = EntityList.createEntityFromNBT(data.compound1, world); } catch (Exception e) { LogWriter.error("Error:", e); }
+			if (!(entity instanceof EntityLiving)) { return; }
 			if (!canCreatureTypeSpawnAtLocation(data, (EntityLiving) entity, world, pos)) {
 				for (posX += rand.nextInt(5) - rand.nextInt(5), posZ += rand.nextInt(5) - rand.nextInt(5); posX < x || posX >= x + size || posZ < z || posZ >= z + size; posX = basePosX + rand.nextInt(5) - rand.nextInt(5), posZ = basePosZ + rand.nextInt(5) - rand.nextInt(5)) {
 					if (canCreatureTypeSpawnAtLocation(data, (EntityLiving) entity, world, pos)) {
-						if (spawnData(data, (EntityLiving) entity, world, pos)) { break; }
+						if (spawnData((EntityLiving) entity, world, pos)) { break; }
 					}
 				}
 			}
-			else { spawnData(data, (EntityLiving) entity, world, pos); }
+			else { spawnData((EntityLiving) entity, world, pos); }
 		}
 	}
 	
@@ -86,7 +84,7 @@ public class NPCSpawning {
 				}
 			}
 		}
-		ArrayList<ChunkPos> tmp = new ArrayList<ChunkPos>(NPCSpawning.eligibleChunksForSpawning);
+		ArrayList<ChunkPos> tmp = new ArrayList<>(NPCSpawning.eligibleChunksForSpawning);
 		Collections.shuffle(tmp);
 		for (ChunkPos chunkcoordintpair2 : tmp) {
 			BlockPos chunkposition = getChunk(world, chunkcoordintpair2.x, chunkcoordintpair2.z);
@@ -95,22 +93,19 @@ public class NPCSpawning {
 			int basePosZ = chunkposition.getZ();
 			for (int summons = 0; summons < 3; ++summons) {
 				int posX = basePosX;
-				int posY = basePosY;
 				int posZ = basePosZ;
 				byte range = 6;
 				posX += world.rand.nextInt(range) - world.rand.nextInt(range);
-				posY += world.rand.nextInt(1) - world.rand.nextInt(1);
 				posZ += world.rand.nextInt(range) - world.rand.nextInt(range);
-				BlockPos pos = new BlockPos(posX, posY, posZ);
-				IBlockState state = world.getBlockState(pos);
-				String name = ObfuscationHelper.getValue(Biome.class, world.getBiomeForCoordsBody(pos), 17);
-				SpawnData data = SpawnController.instance.getRandomSpawnData(name, state.getMaterial() == Material.AIR);
+				BlockPos pos = new BlockPos(posX, basePosY, posZ);
+                String name = ObfuscationHelper.getValue(Biome.class, world.getBiomeForCoordsBody(pos), 17);
+				SpawnData data = SpawnController.instance.getRandomSpawnData(name);
 				if (data == null || world.rand.nextFloat() > data.itemWeight / 100.0f) { continue; }
 				Entity entity = null;
-				try { entity = EntityList.createEntityFromNBT(data.compound1, world); } catch (Exception e) { e.printStackTrace(); }
-				if (entity == null || !(entity instanceof EntityLiving)) { continue; }
+				try { entity = EntityList.createEntityFromNBT(data.compound1, world); } catch (Exception e) { LogWriter.error("Error:", e); }
+				if (!(entity instanceof EntityLiving)) { continue; }
 				if (canCreatureTypeSpawnAtLocation(data, (EntityLiving) entity, world, pos)) {
-					spawnData(data, (EntityLiving) entity, world, pos);
+					spawnData((EntityLiving) entity, world, pos);
 				}
 			}
 		}
@@ -129,9 +124,9 @@ public class NPCSpawning {
 		if (!state2.isSideSolid(world, blockpos1, EnumFacing.UP)) { return false; }
 		boolean flag = block2 != Blocks.BEDROCK && block2 != Blocks.BARRIER;
 		BlockPos down = blockpos1.down();
-		flag |= world.getBlockState(down).getBlock().canCreatureSpawn(world.getBlockState(down), (IBlockAccess) world, down, EntityLiving.SpawnPlacementType.ON_GROUND);
+		flag |= world.getBlockState(down).getBlock().canCreatureSpawn(world.getBlockState(down), world, down, EntityLiving.SpawnPlacementType.ON_GROUND);
 		int count = 0;
-		List<Entity> list = (List<Entity>) world.loadedEntityList;
+		List<Entity> list = world.loadedEntityList;
 		for (Entity e : list) {
 			if (e.isDead) { continue; }
 			if (e.getClass() != entity.getClass() || (e instanceof EntityNPCInterface && ((EntityNPCInterface) e).stats.spawnCycle != 4)) { continue; }
@@ -143,10 +138,10 @@ public class NPCSpawning {
 		return flag && !state.isNormalCube() && !state.getMaterial().isLiquid() && !world.getBlockState(pos.up()).isNormalCube();
 	}
 	
-	private static boolean cheakData(EntityLiving entity, World world) {
+	private static boolean checkData(EntityLiving entity, World world) {
 		if (entity == null || world == null) { return false; }
 		int totalCount = 0, countInPlayer = 0;
-		List<Entity> list = (List<Entity>) world.loadedEntityList;
+		List<Entity> list = world.loadedEntityList;
 		for (Entity e : list) {
 			if (e.isDead) { continue; }
 			boolean isType = e.getClass() == entity.getClass();
@@ -160,9 +155,8 @@ public class NPCSpawning {
 			}
 		}
 		if (totalCount > NPCSpawning.eligibleChunksForSpawning.size() / 16) {
-			if (countInPlayer == 0) { return true; }
-			return false;
-		}
+            return countInPlayer == 0;
+        }
 		return true;
 	}
 
@@ -175,8 +169,8 @@ public class NPCSpawning {
 		return new BlockPos(posX, posY, posZ);
 	}
 
-	private static boolean spawnData(SpawnData data, EntityLiving entity, World world, BlockPos pos) {
-		if (entity == null || !cheakData(entity, world)) { return false; }
+	private static boolean spawnData(EntityLiving entity, World world, BlockPos pos) {
+		if (!checkData(entity, world)) { return false; }
 		if (entity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
 			npc.stats.spawnCycle = 4;

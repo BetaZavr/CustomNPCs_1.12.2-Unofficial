@@ -1,9 +1,9 @@
 package net.minecraftforge.fml.common.network.internal;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import io.netty.buffer.ByteBuf;
+import noppes.npcs.LogWriter;
 
 public class EntitySpawnMessageHelper {
 	static EntitySpawnHandler handler = new EntitySpawnHandler();
@@ -23,13 +23,8 @@ public class EntitySpawnMessageHelper {
 		msg.fromBytes(buffer);
 		try {
 			EntitySpawnMessageHelper.spawn.invoke(EntitySpawnMessageHelper.handler, msg);
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e2) {
-			e2.printStackTrace();
-		} catch (InvocationTargetException e3) {
-			e3.printStackTrace();
 		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public static void toBytes(FMLMessage.EntitySpawnMessage m, ByteBuf buf) {

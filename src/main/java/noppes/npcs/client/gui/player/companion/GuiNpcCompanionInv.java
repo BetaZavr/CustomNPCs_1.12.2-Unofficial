@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui.player.companion;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
@@ -13,11 +12,13 @@ import noppes.npcs.containers.ContainerNPCCompanion;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 
+import javax.annotation.Nonnull;
+
 public class GuiNpcCompanionInv extends GuiContainerNPCInterface {
 
-	private EntityNPCInterface npc;
-	private ResourceLocation resource;
-	private RoleCompanion role;
+	private final EntityNPCInterface npc;
+	private final ResourceLocation resource;
+	private final RoleCompanion role;
 
 	public GuiNpcCompanionInv(EntityNPCInterface npc, ContainerNPCCompanion container) {
 		super(npc, container);
@@ -29,7 +30,7 @@ public class GuiNpcCompanionInv extends GuiContainerNPCInterface {
 		this.ySize = 166;
 	}
 
-	public void actionPerformed(GuiButton guibutton) {
+	public void actionPerformed(@Nonnull GuiButton guibutton) {
 		super.actionPerformed(guibutton);
 		int id = guibutton.id;
 		if (id == 1) {
@@ -56,20 +57,15 @@ public class GuiNpcCompanionInv extends GuiContainerNPCInterface {
 			this.drawTexturedModalRect(this.guiLeft + 78, this.guiTop + 16, 0,
 					(this.npc.inventory.weapons.get(0) == null) ? 18 : 0, 18, 18);
 		}
-		if (this.role.getTalentLevel(EnumCompanionTalent.RANGED) > 0) {
-		}
-		if (this.role.talents.containsKey(EnumCompanionTalent.INVENTORY)) {
+        this.role.getTalentLevel(EnumCompanionTalent.RANGED);
+        if (this.role.talents.containsKey(EnumCompanionTalent.INVENTORY)) {
 			for (int size = (this.role.getTalentLevel(EnumCompanionTalent.INVENTORY) + 1) * 2, j = 0; j < size; ++j) {
 				this.drawTexturedModalRect(this.guiLeft + 113 + j % 3 * 18, this.guiTop + 7 + j / 3 * 18, 0, 0, 18, 18);
 			}
 		}
 	}
 
-	@Override
-	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-	}
-
-	@Override
+    @Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
 		super.drawNpc(52, 70);
@@ -78,7 +74,7 @@ public class GuiNpcCompanionInv extends GuiContainerNPCInterface {
 	@Override
 	public void initGui() {
 		super.initGui();
-		GuiNpcCompanionStats.addTopMenu(this.role, (GuiScreen) this, 3);
+		GuiNpcCompanionStats.addTopMenu(this.role, this, 3);
 	}
 
 	@Override

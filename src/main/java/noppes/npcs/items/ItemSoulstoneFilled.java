@@ -24,6 +24,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleFollower;
 
+import javax.annotation.Nonnull;
+
 public class ItemSoulstoneFilled extends Item {
 
 	public static Entity Spawn(EntityPlayer player, ItemStack stack, World world, BlockPos pos) {
@@ -61,7 +63,7 @@ public class ItemSoulstoneFilled extends Item {
 			}
 		}
 		if (!world.spawnEntity(entity)) {
-			player.sendMessage(new TextComponentTranslation("error.failedToSpawn", new Object[0]));
+			if (player != null) { player.sendMessage(new TextComponentTranslation("error.failedToSpawn")); }
 			return null;
 		}
 		return entity;
@@ -74,7 +76,7 @@ public class ItemSoulstoneFilled extends Item {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, World world, List<String> list, ITooltipFlag flag) {
+	public void addInformation(@Nonnull ItemStack stack, World world, @Nonnull List<String> list, @Nonnull ITooltipFlag flag) {
 		NBTTagCompound compound = stack.getTagCompound();
 		if (compound == null || !compound.hasKey("Entity", 10)) {
 			list.add(TextFormatting.RED + "Error");
@@ -86,16 +88,15 @@ public class ItemSoulstoneFilled extends Item {
 		}
 		list.add(TextFormatting.BLUE + name);
 		if (stack.getTagCompound().hasKey("ExtraText")) {
-			String text = "";
+			StringBuilder text = new StringBuilder();
 			for (String s : compound.getString("ExtraText").split(",")) {
-				text += new TextComponentTranslation(s).getFormattedText();
+				text.append(new TextComponentTranslation(s).getFormattedText());
 			}
-			list.add(text);
+			list.add(text.toString());
 		}
 	}
 
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side,
-			float hitX, float hitY, float hitZ) {
+	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (world.isRemote) {
 			return EnumActionResult.SUCCESS;
 		}

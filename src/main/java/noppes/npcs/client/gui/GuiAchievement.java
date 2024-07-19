@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.toasts.GuiToast;
@@ -11,11 +12,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiAchievement implements IToast {
+
 	private long firstDrawTime;
 	private boolean newDisplay;
 	private String subtitle;
 	private String title;
-	private int type;
+	private final int type;
 
 	public GuiAchievement(ITextComponent titleComponent, ITextComponent subtitleComponent, int type) {
 		this.title = titleComponent.getUnformattedText();
@@ -23,7 +25,7 @@ public class GuiAchievement implements IToast {
 		this.type = type;
 	}
 
-	public IToast.Visibility draw(GuiToast toastGui, long delta) {
+	public @Nonnull IToast.Visibility draw(@Nonnull GuiToast toastGui, long delta) {
 		if (this.newDisplay) {
 			this.firstDrawTime = delta;
 			this.newDisplay = false;

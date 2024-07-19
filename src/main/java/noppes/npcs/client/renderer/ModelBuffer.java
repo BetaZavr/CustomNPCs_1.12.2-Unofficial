@@ -1,7 +1,7 @@
 package noppes.npcs.client.renderer;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -24,13 +24,11 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import noppes.npcs.LogWriter;
-import noppes.npcs.client.model.ModelBipedAlt;
 import noppes.npcs.client.model.ModelOBJPlayerArmor;
 import noppes.npcs.client.renderer.data.CustomOBJState;
 import noppes.npcs.client.renderer.data.ParameterizedModel;
@@ -40,11 +38,11 @@ import noppes.npcs.items.CustomArmor;
 
 public class ModelBuffer {
 
-	private static List<ParameterizedModel> MODELS = Lists.<ParameterizedModel>newArrayList(); // list of parameterized
-																								// rendered models
-	public static List<ResourceLocation> NOT_FOUND = Lists.<ResourceLocation>newArrayList(); // list of missing models
-																								// so as not to freeze
-																								// the client
+	private static final List<ParameterizedModel> MODELS = Lists.newArrayList(); // list of parameterized
+																									// rendered models
+	public static List<ResourceLocation> NOT_FOUND = Lists.newArrayList();	// list of missing models
+																				// so as not to freeze
+																				// the client
 	private static ModelOBJPlayerArmor objModel;
 
 	/**
@@ -74,12 +72,6 @@ public class ModelBuffer {
 		if (model.listId < 0) {
 			try {
 				model.iModel = (OBJModel) OBJLoader.INSTANCE.loadModel(model.file);
-				if (model.iModel == null) {
-					LogWriter.error("Error: OBJ model\"" + objModel + "\" file not found");
-					ModelBuffer.NOT_FOUND.add(objModel);
-					return -1;
-				}
-				// model.iModel.process(ImmutableMap.of("flip-v", "true"));
 				GL11.glPushMatrix();
 				GL11.glNewList(model.listId = GL11.glGenLists(1), GL11.GL_COMPILE);
 				Function<ResourceLocation, TextureAtlasSprite> spriteFunction = location -> {
@@ -89,7 +81,7 @@ public class ModelBuffer {
 					ResourceLocation loc = location;
 					if (replacesMaterialTextures != null && replacesMaterialTextures.containsKey(location.toString())) {
 						loc = new ResourceLocation(replacesMaterialTextures.get(location.toString()));
-						LogWriter.debug("Replase texture: " + location + " -> " + loc);
+						LogWriter.debug("Replace texture: " + location + " -> " + loc);
 					}
 					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc.toString());
 					if (sprite == Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite()) {
@@ -97,8 +89,8 @@ public class ModelBuffer {
 					}
 					return sprite;
 				};
-				if (model.visibleMeshes == null || model.visibleMeshes.size() == 0) {
-					model.visibleMeshes = Lists.<String>newArrayList(model.iModel.getMatLib().getGroups().keySet());
+				if (model.visibleMeshes == null || model.visibleMeshes.isEmpty()) {
+					model.visibleMeshes = Lists.newArrayList(model.iModel.getMatLib().getGroups().keySet());
 				}
 				@SuppressWarnings("deprecation")
 				OBJBakedModel bakedmodel = (OBJBakedModel) model.iModel.bake(new OBJModel.OBJState(ImmutableList.copyOf(model.visibleMeshes), true), DefaultVertexFormats.ITEM, spriteFunction);
@@ -116,7 +108,6 @@ public class ModelBuffer {
 			} catch (Exception e) {
 				ModelBuffer.NOT_FOUND.add(objModel);
 				LogWriter.error("Error create OBJ \"" + objModel + "\" render list");
-				e.printStackTrace();
 			}
 		}
 		return model.listId;
@@ -126,35 +117,31 @@ public class ModelBuffer {
 		try {
 			ResourceLocation location = new ResourceLocation(objModel.getResourceDomain(), objModel.getResourcePath().replace(".obj", ".mtl"));
 			IResource res = Minecraft.getMinecraft().getResourceManager().getResource(location);
-			if (res != null) {
-				String mat_lib = IOUtils.toString(res.getInputStream(), Charset.forName("UTF-8"));
-				if (mat_lib.indexOf("map_Kd") != -1) {
-					int endIndex = mat_lib.indexOf("" + ((char) 10), mat_lib.indexOf("map_Kd"));
-					if (endIndex == -1) {
-						endIndex = mat_lib.length();
-					}
-					String txtr = mat_lib.substring(mat_lib.indexOf(" ", mat_lib.indexOf("map_Kd")) + 1, endIndex);
-					String domain = "", path = "";
-					if (txtr.indexOf(":") == -1) {
-						path = txtr;
-					} else {
-						domain = txtr.substring(0, txtr.indexOf(":"));
-						path = txtr.substring(txtr.indexOf(":") + 1);
-					}
-					return new ResourceLocation(domain, path);
-				}
-			}
-		} catch (IOException e) {
-		}
+            String mat_lib = IOUtils.toString(res.getInputStream(), StandardCharsets.UTF_8);
+            if (mat_lib.contains("map_Kd")) {
+                int endIndex = mat_lib.indexOf("" + ((char) 10), mat_lib.indexOf("map_Kd"));
+                if (endIndex == -1) {
+                    endIndex = mat_lib.length();
+                }
+                String txtr = mat_lib.substring(mat_lib.indexOf(" ", mat_lib.indexOf("map_Kd")) + 1, endIndex);
+                String domain = "", path;
+                if (!txtr.contains(":")) {
+                    path = txtr;
+                } else {
+                    domain = txtr.substring(0, txtr.indexOf(":"));
+                    path = txtr.substring(txtr.indexOf(":") + 1);
+                }
+                return new ResourceLocation(domain, path);
+            }
+        } catch (IOException e) { LogWriter.error("Error:", e); }
 		return null;
 	}
 
-	public static ModelBiped getOBJModelBiped(CustomArmor armor, EntityLivingBase entity, ItemStack stack,
-			EntityEquipmentSlot slot, ModelBiped defModel) {
+	public static ModelBiped getOBJModelBiped(CustomArmor armor, EntityLivingBase entity, ModelBiped defModel) {
 		if (!(entity instanceof EntityPlayer) && !(entity instanceof EntityNPCInterface)) {
 			return null;
 		}
-		if (entity instanceof EntityNPCInterface) { return (ModelBipedAlt) defModel; }
+		if (entity instanceof EntityNPCInterface) { return defModel; }
 		if (ModelBuffer.objModel == null) {
 			ModelBuffer.objModel = new ModelOBJPlayerArmor(armor);
 		}
@@ -163,7 +150,7 @@ public class ModelBuffer {
 
 	public static IBakedModel getIBakedModel(CustomArmor armor) {
 		if (armor.objModel == null) { return null; }
-		List<String> visibleMeshes = Lists.<String>newArrayList();
+		List<String> visibleMeshes = Lists.newArrayList();
 		if (armor.getEquipmentSlot() == EntityEquipmentSlot.HEAD) {
 			visibleMeshes.addAll(armor.getMeshNames(EnumParts.HEAD));
 			visibleMeshes.addAll(armor.getMeshNames(EnumParts.MOHAWK));
@@ -185,8 +172,7 @@ public class ModelBuffer {
 		} else { return null; }
 		try {
 			OBJModel iModel = (OBJModel) OBJLoader.INSTANCE.loadModel(armor.objModel);
-			if (iModel == null) { return null; }
-			Function<ResourceLocation, TextureAtlasSprite> spriteFunction = location -> {
+            Function<ResourceLocation, TextureAtlasSprite> spriteFunction = location -> {
 				if (location.toString().equals("minecraft:missingno") || location.toString().equals("minecraft:builtin/white")) {
 					return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
 				}
@@ -197,7 +183,7 @@ public class ModelBuffer {
 				return sprite;
 			};
 			return iModel.bake(new CustomOBJState(ImmutableList.copyOf(visibleMeshes), true, armor), DefaultVertexFormats.ITEM, spriteFunction);
-		} catch (Exception e) { }
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		return null;
 	}
 	

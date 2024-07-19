@@ -1,5 +1,6 @@
 package noppes.npcs.items;
 
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -21,6 +22,8 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.IPermission;
+
+import javax.annotation.Nonnull;
 
 public class CustomItem extends Item implements IPermission, ICustomElement {
 
@@ -116,17 +119,16 @@ public class CustomItem extends Item implements IPermission, ICustomElement {
 			return Item.ToolMaterial.STONE;
 		}
 	}
-	protected NBTTagCompound nbtData = new NBTTagCompound();
+	protected NBTTagCompound nbtData;
 	protected int enchantability = 10;
 
-	protected int harvestLevel = -1;
 	protected ItemStack repairItemStack = ItemStack.EMPTY;
 	protected Item.ToolMaterial toolMaterial;
 	protected Material collectionMaterial = null;
 
 	protected float speedCollectionMaterial = 1.0f;
 	protected float efficiency = 1.0f;
-	protected Set<Block> effectiveBlocks = Sets.<Block>newHashSet();
+	protected Set<Block> effectiveBlocks = Sets.newHashSet();
 
 	protected double attackDamage = 0.0f;
 
@@ -176,7 +178,7 @@ public class CustomItem extends Item implements IPermission, ICustomElement {
 				}
 			}
 		}
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
+		this.setCreativeTab(CustomRegisters.tabItems);
 		this.setHasSubtypes(true);
 	}
 
@@ -187,10 +189,10 @@ public class CustomItem extends Item implements IPermission, ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public float getDestroySpeed(ItemStack stack, IBlockState state) {
+	public float getDestroySpeed(@Nonnull ItemStack stack, @Nonnull IBlockState state) {
 		if (state.getMaterial() == this.collectionMaterial) {
 			return this.speedCollectionMaterial;
 		} else if (this.effectiveBlocks.contains(state.getBlock())) {
@@ -207,14 +209,14 @@ public class CustomItem extends Item implements IPermission, ICustomElement {
 	}
 
 	@Override
-	public double getDurabilityForDisplay(ItemStack stack) {
+	public double getDurabilityForDisplay(@Nonnull ItemStack stack) {
 		if (this.nbtData != null && this.nbtData.hasKey("DurabilityValue", 6)) {
 			return 1.0 - this.nbtData.getDouble("DurabilityValue");
 		}
 		return super.getDurabilityForDisplay(stack);
 	}
 
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
@@ -228,7 +230,7 @@ public class CustomItem extends Item implements IPermission, ICustomElement {
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return (int) this.nbtData.getByte("ItemType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return this.nbtData.getByte("ItemType"); }
 		return 9;
 	}
 

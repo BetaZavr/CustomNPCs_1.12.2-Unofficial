@@ -12,7 +12,7 @@ public class DataMelee implements INPCMelee {
 	private int attackSpeed;
 	private int attackStrength;
 	private int knockback;
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 	private int potionAmp;
 	private int potionDuration;
 	private int potionType;

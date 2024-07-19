@@ -20,11 +20,8 @@ public class ModelPartConfig {
 		if (given < min) {
 			return min;
 		}
-		if (given > max) {
-			return max;
-		}
-		return given;
-	}
+        return Math.min(given, max);
+    }
 
 	public void copyValues(ModelPartConfig config) {
 		for (int i = 0; i < 3; i++) {

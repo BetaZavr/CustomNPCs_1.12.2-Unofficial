@@ -8,7 +8,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class GameProfileAlt extends GameProfile {
-	private static UUID id = UUID.fromString("c9c843f8-4cb1-4c82-aa61-e264291b7bd6");
+	private static final UUID id = UUID.fromString("c9c843f8-4cb1-4c82-aa61-e264291b7bd6");
 	public EntityNPCInterface npc;
 
 	public GameProfileAlt() {

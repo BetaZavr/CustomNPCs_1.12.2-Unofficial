@@ -17,7 +17,7 @@ import noppes.npcs.controllers.data.PlayerMail;
 
 public class SubGuiMailmanSendSetup extends SubGuiInterface implements ITextfieldListener, GuiSelectionListener {
 
-	private PlayerMail mail;
+	private final PlayerMail mail;
 
 	public SubGuiMailmanSendSetup(PlayerMail mail) {
 		this.xSize = 256;
@@ -75,11 +75,7 @@ public class SubGuiMailmanSendSetup extends SubGuiInterface implements ITextfiel
 		}
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void selected(int ob, String name) {
 		this.mail.questId = ob;
 		this.initGui();

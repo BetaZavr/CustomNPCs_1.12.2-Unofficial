@@ -12,14 +12,15 @@ import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Quest;
 
+import javax.annotation.Nonnull;
+
 public class ContainerNpcQuestRewardItem extends Container {
 
 	public NpcMiscInventory inv;
-	private Quest quest;
 
-	public ContainerNpcQuestRewardItem(EntityPlayer player, int questId) {
-		this.quest = (Quest) QuestController.instance.get(questId);
-		List<ItemStack> its = new ArrayList<ItemStack>();
+    public ContainerNpcQuestRewardItem(int questId) {
+        Quest quest = (Quest) QuestController.instance.get(questId);
+		List<ItemStack> its = new ArrayList<>();
 		for (ItemStack item : quest.rewardItems.items) {
 			if (item.isEmpty()) {
 				continue;
@@ -39,17 +40,17 @@ public class ContainerNpcQuestRewardItem extends Container {
 		}
 	}
 
-	public boolean canInteractWith(EntityPlayer entityplayer) {
+	public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
 		return true;
 	}
 
 	@Override
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
+	public @Nonnull ItemStack slotClick(int slotId, int dragType, @Nonnull ClickType clickTypeIn, @Nonnull EntityPlayer player) {
 		return ItemStack.EMPTY;
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
-		return null;
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) {
+		return ItemStack.EMPTY;
 	}
 
 }

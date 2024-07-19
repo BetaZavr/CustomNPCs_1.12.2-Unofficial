@@ -31,13 +31,13 @@ import noppes.npcs.util.CustomNPCsScheduler;
 
 public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 
-	public final Map<Integer, MarkupData> markup = Maps.<Integer, MarkupData>newTreeMap();
-	public final Map<ItemStack, Integer> inventory = Maps.<ItemStack, Integer>newHashMap();
-	public final Map<Integer, MarcetSection> sections = Maps.<Integer, MarcetSection>newTreeMap(); // [TabID, Section]
+	public final Map<Integer, MarkupData> markup = Maps.newTreeMap();
+	public final Map<ItemStack, Integer> inventory = Maps.newHashMap();
+	public final Map<Integer, MarcetSection> sections = Maps.newTreeMap(); // [TabID, Section]
 	private int id;
 	public boolean isLimited, showXP;
 	public long lastTime;
-	public List<EntityPlayer> listeners = Lists.<EntityPlayer>newArrayList();
+	public List<EntityPlayer> listeners = Lists.newArrayList();
 	public String name;
 	public long nextTime;
 	public int updateTime;
@@ -68,7 +68,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 				continue;
 			}
 			boolean added = false;
-			List<ItemStack> del = Lists.<ItemStack>newArrayList();
+			List<ItemStack> del = Lists.newArrayList();
 			for (ItemStack st : this.inventory.keySet()) {
 				if (NoppesUtilServer.IsItemStackNull(st)) {
 					del.add(st);
@@ -116,9 +116,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 			if (!(player instanceof EntityPlayerMP)) {
 				return;
 			}
-			CustomNPCsScheduler.runTack(() -> {
-				((EntityPlayerMP) player).closeScreen();
-			}, 250);
+			CustomNPCsScheduler.runTack(player::closeScreen, 250);
 		}
 	}
 
@@ -139,13 +137,11 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 
 	@Override
 	public IDeal[] getAllDeals() {
-		List<IDeal> list = Lists.<IDeal>newArrayList();
+		List<IDeal> list = Lists.newArrayList();
 		for (MarcetSection ms : sections.values()) {
-			for (Deal deal : ms.deals) {
-				list.add(deal);
-			}
+            list.addAll(ms.deals);
 		}
-		return list.toArray(new IDeal[list.size()]);
+		return list.toArray(new IDeal[0]);
 	}
 
 	public Deal getDeal(int dealID) {
@@ -164,11 +160,9 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 		if (!sections.containsKey(section)) {
 			return new IDeal[0];
 		}
-		List<IDeal> list = Lists.<IDeal>newArrayList();
-		for (Deal deal : sections.get(section).deals) {
-			list.add(deal);
-		}
-		return list.toArray(new IDeal[list.size()]);
+		List<IDeal> list = Lists.newArrayList();
+        list.addAll(sections.get(section).deals);
+		return list.toArray(new IDeal[0]);
 	}
 
 	@Override
@@ -200,13 +194,8 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 		return new TextComponentTranslation(this.name).getFormattedText();
 	}
 
-	public boolean hasListener(EntityPlayer player) {
-		for (EntityPlayer listener : this.listeners) {
-			if (listener.equals(player)) {
-				return true;
-			}
-		}
-		return false;
+	public boolean notHasListener(EntityPlayer player) {
+		return !listeners.contains(player);
 	}
 
 	public boolean isEmpty() {
@@ -266,7 +255,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 		}
 
 		this.sections.clear();
-		Map<Integer, MarcetSection> newsec = Maps.<Integer, MarcetSection>newTreeMap();
+		Map<Integer, MarcetSection> newsec = Maps.newTreeMap();
 		if (!compound.hasKey("Sections", 9) || compound.getTagList("Sections", 10).tagCount() == 0) {
 			newsec.put(0, new MarcetSection(0));
 		} else {
@@ -276,7 +265,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 				newsec.put(ms.getId(), MarcetSection.create(nbt));
 			}
 			// Sorting
-			Map<Integer, MarcetSection> sec = Maps.<Integer, MarcetSection>newTreeMap();
+			Map<Integer, MarcetSection> sec = Maps.newTreeMap();
 			int i = 0;
 			for (MarcetSection ms : newsec.values()) {
 				sec.put(i, ms);
@@ -300,7 +289,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 			if (NoppesUtilServer.IsItemStackNull(stack)) {
 				continue;
 			}
-			List<ItemStack> del = Lists.<ItemStack>newArrayList();
+			List<ItemStack> del = Lists.newArrayList();
 			for (ItemStack st : this.inventory.keySet()) {
 				if (NoppesUtilServer.IsItemStackNull(st)) {
 					del.add(st);

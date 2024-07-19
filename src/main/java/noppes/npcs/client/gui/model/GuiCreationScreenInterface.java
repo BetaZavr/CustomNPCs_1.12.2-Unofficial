@@ -26,11 +26,12 @@ import noppes.npcs.client.gui.util.ISliderListener;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.part.ModelData;
-import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+
+import javax.annotation.Nonnull;
 
 public abstract class GuiCreationScreenInterface
 extends GuiNPCInterface
@@ -42,9 +43,9 @@ implements ISubGuiListener, ISliderListener {
 	public EntityLivingBase entity;
 	protected boolean hasSaving;
 	protected NBTTagCompound original;
-	private EntityPlayer player;
+	private final EntityPlayer player;
 	public ModelData playerdata;
-	private boolean saving;
+	private final boolean saving;
 	public int xOffset;
 	public EntityLivingBase showEntity;
 
@@ -60,12 +61,12 @@ implements ISubGuiListener, ISliderListener {
 		this.xSize = 400;
 		this.ySize = 240;
 		this.xOffset = 140;
-		this.player = (EntityPlayer) Minecraft.getMinecraft().player;
+		this.player = Minecraft.getMinecraft().player;
 		this.closeOnEsc = true;
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton btn) {
+	protected void actionPerformed(@Nonnull GuiButton btn) {
 		super.actionPerformed(btn);
 		if (btn.id == 1) {
 			this.openGui(new GuiCreationEntities(this.npc));
@@ -102,7 +103,7 @@ implements ISubGuiListener, ISliderListener {
 		if (this.subgui != null) { return; }
 		if (this.showEntity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) this.showEntity;
-			if (npc.equals(this.npc) && this.npc != null) {
+			if (npc.equals(this.npc)) {
 				NBTTagCompound npcNbt = new NBTTagCompound();
 				this.npc.writeEntityToNBT(npcNbt);
 				this.npc.writeToNBTOptional(npcNbt);
@@ -119,9 +120,9 @@ implements ISubGuiListener, ISliderListener {
 			npc.ais.setStandingType(1);
 			npc.ticksExisted = 100;
 			if (npc instanceof EntityCustomNpc && this.npc instanceof EntityCustomNpc
-					&& ((EntityCustomNpc) npc).modelData instanceof ModelDataShared
-					&& ((EntityCustomNpc) this.npc).modelData instanceof ModelDataShared) {
-				((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) this.npc).modelData).entity;
+					&& ((EntityCustomNpc) npc).modelData != null
+					&& ((EntityCustomNpc) this.npc).modelData != null) {
+				((EntityCustomNpc) npc).modelData.entity = ((EntityCustomNpc) this.npc).modelData.entity;
 			}
 			npc.rotationYaw = 0;
 			npc.prevRotationYaw = 0;
@@ -136,8 +137,6 @@ implements ISubGuiListener, ISliderListener {
 		}
 		
 		if (this instanceof GuiCreationParts && ((GuiCreationParts) this).getPart() instanceof GuiPartEyes) {
-			int r = (int) (GuiCreationScreenInterface.rotation * 120.0f - 60.0f);
-			if (r < -60) { r = -60; } else if (r > 60) { r = 60; }
 			this.showEntity.ticksExisted = this.player.ticksExisted;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0.0f, 0.0f, -300.0f);
@@ -164,7 +163,7 @@ implements ISubGuiListener, ISliderListener {
 			if (!gui.getData(this.entity).isEmpty()) {
 				this.addButton(new GuiNpcButton(2, this.guiLeft, this.guiTop + 23, 60, 20, "gui.extra"));
 			} else if (this.active == 2) {
-				this.mc.displayGuiScreen((GuiScreen) new GuiCreationEntities(this.npc));
+				this.mc.displayGuiScreen(new GuiCreationEntities(this.npc));
 				return;
 			}
 		}

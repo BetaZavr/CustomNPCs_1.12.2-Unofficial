@@ -16,7 +16,6 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiData;
@@ -27,29 +26,19 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class GuiNPCSelection extends SubGuiInterface implements IGuiData, ICustomScrollListener {
 
 	public EntityNPCInterface selectEntity, main;
-	private HashMap<String, Integer> dataIDs;
+	private final HashMap<String, Integer> dataIDs;
 	private GuiCustomScroll scroll;
 	private String search = "";
 	private List<String> list;
-	private DecimalFormat df = new DecimalFormat("#.#");
-	private char chr = ((char) 167);
+	private final DecimalFormat df = new DecimalFormat("#.#");
+	private final char chr = ((char) 167);
 
 	public GuiNPCSelection(EntityNPCInterface completer) {
 		this.selectEntity = completer;
 		this.main = completer;
-		this.dataIDs = new HashMap<String, Integer>();
+		this.dataIDs = new HashMap<>();
 		this.xSize = 256;
 		this.setBackground("menubg.png");
-	}
-
-	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
-		case 0: {
-
-			break;
-		}
-		}
 	}
 
 	@Override
@@ -57,8 +46,7 @@ public class GuiNPCSelection extends SubGuiInterface implements IGuiData, ICusto
 		if (this.subgui == null) {
 			GlStateManager.pushMatrix();
 			if (this.selectEntity != null) {
-				this.drawNpc(this.selectEntity, 221, 162, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360),
-						0, 0);
+				this.drawNpc(this.selectEntity, 221, 162, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0, 0);
 			}
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			Gui.drawRect(this.guiLeft + 191, this.guiTop + 85, this.guiLeft + 252, this.guiTop + 171, 0xFF808080);
@@ -80,9 +68,9 @@ public class GuiNPCSelection extends SubGuiInterface implements IGuiData, ICusto
 
 	private List<String> getSearchList() {
 		if (this.search.isEmpty()) {
-			return new ArrayList<String>(this.list);
+			return new ArrayList<>(this.list);
 		}
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (String name : this.list) {
 			if (name.toLowerCase().contains(this.search)) {
 				list.add(name);
@@ -144,11 +132,7 @@ public class GuiNPCSelection extends SubGuiInterface implements IGuiData, ICusto
 		}
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		this.resetEntity();
 		this.initGui();
@@ -162,7 +146,7 @@ public class GuiNPCSelection extends SubGuiInterface implements IGuiData, ICusto
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		NBTTagList nbtlist = compound.getTagList("Data", 10);
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		String[][] hs = new String[nbtlist.tagCount()][];
 		this.dataIDs.clear();
 		String mainKey = chr + "aID:-1 " + chr + "r" + this.main.getName() + " " + chr + "7" + this.df.format(-1.0f);
@@ -200,7 +184,7 @@ public class GuiNPCSelection extends SubGuiInterface implements IGuiData, ICusto
 			if (entity != null) {
 				float distance = this.player.getDistance(entity);
 				for (int i = 0; i < this.scroll.getList().size(); i++) {
-					if (this.scroll.getList().get(i).indexOf("ID:" + id + " ") != -1) {
+					if (this.scroll.getList().get(i).contains("ID:" + id + " ")) {
 						this.scroll.hoversTexts[i] = new String[] {
 								chr + "7Name: " + chr + "r"
 										+ new TextComponentTranslation(entity.getName()).getFormattedText(),

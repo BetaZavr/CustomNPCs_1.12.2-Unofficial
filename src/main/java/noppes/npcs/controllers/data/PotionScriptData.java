@@ -5,6 +5,7 @@ import java.util.Iterator;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.EventHooks;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
@@ -29,7 +30,7 @@ extends BaseScriptData {
 			char chr = Character.toChars(0x000A)[0];
 			script.script = "// IPotion.getCustomName() - String (custom potion name)" + chr
 					+ "// IPotion.getNbt() - INbt (nbt data)" + chr + "function isReady(event) {" + chr
-					+ "  /* event.potion - IPotion" + chr + "     event.duration - int (tiks)" + chr
+					+ "  /* event.potion - IPotion" + chr + "     event.duration - int (ticks)" + chr
 					+ "     event.amplifier - int (potion power) */" + chr + "}" + chr
 					+ "function performEffect(event) {" + chr + "  /* event.potion - IPotion" + chr
 					+ "     event.entity - IEntity" + chr + "     event.amplifier - int (potion power) */" + chr + "}"
@@ -57,7 +58,7 @@ extends BaseScriptData {
 			if (ScriptController.Instance.lastLoaded > this.lastInited) {
 				this.lastInited = ScriptController.Instance.lastLoaded;
 				if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
-					EventHooks.onPotoinInit(this);
+					EventHooks.onPotionInit(this);
 				}
 			}
 			Iterator<ScriptContainer> iterator = this.scripts.iterator();
@@ -65,8 +66,7 @@ extends BaseScriptData {
 			while (iterator.hasNext()) {
 				iterator.next().run(type, event, bo);
 			}
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error run script:", e); }
 	}
 	
 }

@@ -2,11 +2,9 @@ package noppes.npcs.blocks;
 
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -21,6 +19,8 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.blocks.tiles.TileBlockAnvil;
 import noppes.npcs.constants.EnumGuiType;
 
+import javax.annotation.Nonnull;
+
 public class BlockCarpentryBench extends BlockInterface {
 
 	public static PropertyInteger ROTATION = PropertyInteger.create("rotation", 0, 3);
@@ -30,36 +30,35 @@ public class BlockCarpentryBench extends BlockInterface {
 		this.setName("npccarpentybench");
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 		this.setSoundType(SoundType.WOOD);
 	}
 
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { BlockCarpentryBench.ROTATION });
+	protected @Nonnull BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, BlockCarpentryBench.ROTATION);
 	}
 
-	public TileEntity createNewTileEntity(World var1, int var2) {
+	public TileEntity createNewTileEntity(@Nonnull World var1, int var2) {
 		return new TileBlockAnvil();
 	}
 
-	public int getMetaFromState(IBlockState state) {
+	public int getMetaFromState(@Nonnull IBlockState state) {
 		return state.getValue(BlockCarpentryBench.ROTATION);
 	}
 
-	public IBlockState getStateFromMeta(int meta) {
+	public @Nonnull IBlockState getStateFromMeta(int meta) {
 		return this.getDefaultState().withProperty(BlockCarpentryBench.ROTATION, (meta % 4));
 	}
 
-	public boolean isFullCube(IBlockState state) {
+	public boolean isFullCube(@Nonnull IBlockState state) {
 		return false;
 	}
 
-	public boolean isOpaqueCube(IBlockState state) {
+	public boolean isOpaqueCube(@Nonnull IBlockState state) {
 		return false;
 	}
 
-	public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer player,
-			EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(@Nonnull World par1World, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (!par1World.isRemote) {
 			player.openGui(CustomNpcs.instance, EnumGuiType.PlayerAnvil.ordinal(), par1World, pos.getX(), pos.getY(),
 					pos.getZ());
@@ -67,8 +66,7 @@ public class BlockCarpentryBench extends BlockInterface {
 		return true;
 	}
 
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity,
-			ItemStack stack) {
+	public void onBlockPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityLivingBase entity, @Nonnull ItemStack stack) {
 		int var6 = MathHelper.floor(entity.rotationYaw / 90.0f + 0.5) & 0x3;
 		world.setBlockState(pos, state.withProperty(BlockCarpentryBench.ROTATION, var6), 2);
 	}

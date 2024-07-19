@@ -4,8 +4,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
@@ -28,9 +26,9 @@ public class PixelmonHelper {
 
 	public static Object getModel(EntityLivingBase entity) {
 		try {
-			return PixelmonHelper.getPixelmonModel.invoke(entity, new Object[0]);
+			return PixelmonHelper.getPixelmonModel.invoke(entity);
 		} catch (Exception e) {
-			LogManager.getLogger().error("getModel", (Throwable) e);
+			LogWriter.error("getModel:", e);
 			return null;
 		}
 	}
@@ -40,10 +38,10 @@ public class PixelmonHelper {
 			return "";
 		}
 		try {
-			Method m = entity.getClass().getMethod("getName", (Class<?>[]) new Class[0]);
-			return m.invoke(entity, new Object[0]).toString();
+			Method m = entity.getClass().getMethod("getName");
+			return m.invoke(entity).toString();
 		} catch (Exception e) {
-			LogManager.getLogger().error("getName", (Throwable) e);
+			LogWriter.error("getName:", e);
 			return "";
 		}
 	}
@@ -52,7 +50,7 @@ public class PixelmonHelper {
 		try {
 			return PixelmonHelper.getPartyStorage.invoke(PixelmonHelper.storageManager, player);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogWriter.error("Error:", e);
 			return null;
 		}
 	}
@@ -61,7 +59,7 @@ public class PixelmonHelper {
 		try {
 			return PixelmonHelper.getPcStorage.invoke(PixelmonHelper.storageManager, player);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogWriter.error("getPc:", e);
 			return null;
 		}
 	}
@@ -71,7 +69,7 @@ public class PixelmonHelper {
 	}
 
 	public static List<String> getPixelmonList() {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		if (!PixelmonHelper.Enabled) {
 			return list;
 		}
@@ -81,16 +79,16 @@ public class PixelmonHelper {
 				list.add(ob.toString());
 			}
 		} catch (Exception e) {
-			LogManager.getLogger().error("getPixelmonList", (Throwable) e);
+			LogWriter.error("getPixelmonList:", e);
 		}
 		return list;
 	}
 
 	public static Object getPokemonData(Entity entity) {
 		try {
-			return PixelmonHelper.getPokemonData.invoke(entity, new Object[0]);
+			return PixelmonHelper.getPokemonData.invoke(entity);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogWriter.error("getPokemonData:", e);
 			return null;
 		}
 	}
@@ -115,8 +113,7 @@ public class PixelmonHelper {
 			PixelmonHelper.getPartyStorage = c.getMethod("getParty", EntityPlayerMP.class);
 			PixelmonHelper.getPcStorage = c.getMethod("getPCForPlayer", EntityPlayerMP.class);
 			PixelmonHelper.pixelmonClass = Class.forName("com.pixelmonmod.pixelmon.entities.pixelmon.Entity1Base");
-			PixelmonHelper.getPokemonData = PixelmonHelper.pixelmonClass.getMethod("getPokemonData",
-					(Class[]) new Class[0]);
+			PixelmonHelper.getPokemonData = PixelmonHelper.pixelmonClass.getMethod("getPokemonData");
 		} catch (Exception e) {
 			LogWriter.except(e);
 			PixelmonHelper.Enabled = false;
@@ -129,7 +126,7 @@ public class PixelmonHelper {
 		}
 		try {
 			Class<?> c = Class.forName("com.pixelmonmod.pixelmon.entities.pixelmon.Entity2Client");
-			PixelmonHelper.getPixelmonModel = c.getMethod("getModel", (Class[]) new Class[0]);
+			PixelmonHelper.getPixelmonModel = c.getMethod("getModel");
 			PixelmonHelper.modelSetupClass = Class.forName("com.pixelmonmod.pixelmon.client.models.PixelmonModelSmd");
 			PixelmonHelper.modelSetupMethod = PixelmonHelper.modelSetupClass.getMethod("setupForRender", c);
 		} catch (Exception e) {
@@ -144,7 +141,7 @@ public class PixelmonHelper {
 				PixelmonHelper.modelSetupMethod.invoke(model, entity);
 			}
 		} catch (Exception e) {
-			LogManager.getLogger().error("setupModel", (Throwable) e);
+			LogWriter.error("setupModel:", e);
 		}
 	}
 

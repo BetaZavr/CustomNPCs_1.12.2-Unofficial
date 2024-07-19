@@ -19,7 +19,7 @@ import noppes.npcs.roles.JobConversation;
 
 public class GuiNpcConversation extends GuiNPCInterface2 implements ITextfieldListener, GuiSelectionListener {
 
-	private JobConversation job;
+	private final JobConversation job;
 	private int slot;
 
 	public GuiNpcConversation(EntityNPCInterface npc) {

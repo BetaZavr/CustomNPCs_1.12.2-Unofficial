@@ -16,8 +16,8 @@ public class VillagerWrapper<T extends EntityVillager> extends EntityLivingWrapp
 	}
 
 	public String getCareer() {
-		return this.entity.getProfessionForge()
-				.getCareer(ObfuscationHelper.getValue(EntityVillager.class, this.entity, 13)).getName();
+		Object careerID = ObfuscationHelper.getValue(EntityVillager.class, this.entity, 13);
+		return this.entity.getProfessionForge().getCareer(careerID != null ? (int) careerID : 0).getName();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -27,7 +27,7 @@ public class VillagerWrapper<T extends EntityVillager> extends EntityLivingWrapp
 
 	@Override
 	public MerchantRecipeList getRecipes(IPlayer player) {
-		return ((EntityVillager) this.entity).getRecipes(player.getMCEntity());
+		return this.entity.getRecipes(player.getMCEntity());
 	}
 
 	@Override
@@ -37,7 +37,7 @@ public class VillagerWrapper<T extends EntityVillager> extends EntityLivingWrapp
 
 	@Override
 	public IInventory getVillagerInventory() {
-		return ((EntityVillager) this.entity).getVillagerInventory();
+		return this.entity.getVillagerInventory();
 	}
 
 	@Override

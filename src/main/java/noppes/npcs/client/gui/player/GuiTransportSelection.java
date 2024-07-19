@@ -38,7 +38,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 
 	private boolean canTransport;
 	protected int bxSize, bySize;
-	private ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
+	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
 	private GuiCustomScroll scroll;
 	private final Map<String, Integer> data;
 	private TransportLocation locSel;
@@ -49,7 +49,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 		this.xSize = 176;
 		this.drawDefaultBackground = false;
 		this.title = "";
-		this.data = Maps.<String, Integer>newTreeMap();
+		this.data = Maps.newTreeMap();
 		this.locSel = null;
 		this.canTransport = true;
 		this.bxSize = 0;
@@ -151,13 +151,10 @@ public class GuiTransportSelection extends GuiNPCInterface
 					RenderHelper.disableStandardItemLighting();
 					GlStateManager.popMatrix();
 					if (isMouseHover(i, j, u, v, 18, 18)) {
-						List<String> list = new ArrayList<String>();
-						// list.add(new
-						// TextComponentTranslation("market.hover.item").getFormattedText());
-						list.addAll(stack.getTooltip(this.mc.player,
-								this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED
-										: TooltipFlags.NORMAL));
-						this.hoverText = list.toArray(new String[list.size()]);
+                        List<String> list = new ArrayList<>(stack.getTooltip(this.mc.player,
+                                this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED
+                                        : TooltipFlags.NORMAL));
+						this.hoverText = list.toArray(new String[0]);
 					}
 
 					slot++;
@@ -210,8 +207,8 @@ public class GuiTransportSelection extends GuiNPCInterface
 		List<String> list = Lists.newArrayList(this.data.keySet());
 		this.scroll.setList(list);
 		if (!this.data.isEmpty()) {
-			List<String> suffixs = Lists.<String>newArrayList();
-			List<Integer> colors = Lists.<Integer>newArrayList();
+			List<String> suffixs = Lists.newArrayList();
+			List<Integer> colors = Lists.newArrayList();
 			for (String name : list) {
 				int color = 0xFF00FF00;
 				String sfx = "";

@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.custom.components;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
@@ -42,9 +43,9 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 		return entt;
 	}
 
-	int id = 0, x = 0, y = 0, width = 53, height = 70, rotType = 0, rotYaw = 0, rotPitch = 0;
+	int id, x, y, width = 53, height = 70, rotType, rotYaw, rotPitch;
 	long initTime = System.currentTimeMillis();
-	boolean hasBorder = false, showArmor = true;
+	boolean hasBorder, showArmor;
 	String[] hoverText;
 	GuiCustom parent;
 	float scale;
@@ -98,10 +99,9 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 						Map<UUID, NetworkPlayerInfo> playerInfoMap = ObfuscationHelper.getValue(NetHandlerPlayClient.class, netHandler, Map.class);
 						if (playerInfoMap.containsKey(uuid)) {
 							NetworkPlayerInfo npi = playerInfoMap.get(uuid);
-							if (npi.getLocationSkin() != null) {
-								npc.display.setSkinTexture(npi.getLocationSkin().toString());
-							}
-							if (npi.getLocationCape() != null) {
+                            npi.getLocationSkin();
+                            npc.display.setSkinTexture(npi.getLocationSkin().toString());
+                            if (npi.getLocationCape() != null) {
 								npc.display.setCapeTexture(npi.getLocationCape().toString());
 							}
 						}
@@ -113,22 +113,22 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 					for (int i = 0; i < inv.tagCount(); i++) {
 						NBTTagCompound nbtSlotStack = inv.getCompoundTagAt(i);
 						if (nbtSlotStack.getByte("Slot") == 100) {
-							npc.inventory.armor.put(3, NpcAPI.Instance().getIItemStack(new ItemStack(nbtSlotStack)));
+							npc.inventory.armor.put(3, Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtSlotStack)));
 						}
 						if (nbtSlotStack.getByte("Slot") == 101) {
-							npc.inventory.armor.put(2, NpcAPI.Instance().getIItemStack(new ItemStack(nbtSlotStack)));
+							npc.inventory.armor.put(2, Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtSlotStack)));
 						}
 						if (nbtSlotStack.getByte("Slot") == 102) {
-							npc.inventory.armor.put(1, NpcAPI.Instance().getIItemStack(new ItemStack(nbtSlotStack)));
+							npc.inventory.armor.put(1, Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtSlotStack)));
 						}
 						if (nbtSlotStack.getByte("Slot") == 103) {
-							npc.inventory.armor.put(0, NpcAPI.Instance().getIItemStack(new ItemStack(nbtSlotStack)));
+							npc.inventory.armor.put(0, Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtSlotStack)));
 						}
 						if (nbtSlotStack.getByte("Slot") == mainStackSlot) {
-							npc.inventory.weapons.put(0, NpcAPI.Instance().getIItemStack(new ItemStack(nbtSlotStack)));
+							npc.inventory.weapons.put(0, Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtSlotStack)));
 						}
 						if (nbtSlotStack.getByte("Slot") == -106 || nbtSlotStack.getByte("Slot") == 106) {
-							npc.inventory.weapons.put(2, NpcAPI.Instance().getIItemStack(new ItemStack(nbtSlotStack)));
+							npc.inventory.weapons.put(2, Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtSlotStack)));
 						}
 					}
 				}
@@ -152,8 +152,7 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 		if (entity instanceof EntityNPCInterface) {
 			entity = AdditionalMethods.copyToGUI((EntityNPCInterface) entity, mc.world, false);
 			String skin = ((EntityNPCInterface) entity).display.getSkinTexture();
-			if (skin.equals("minecraft:textures/entity/alex.png") || skin.toLowerCase().indexOf("alex") != -1
-					|| skin.toLowerCase().indexOf("/female") != -1) {
+			if (skin.equals("minecraft:textures/entity/alex.png") || skin.toLowerCase().contains("alex") || skin.toLowerCase().contains("/female")) {
 				((EntityNPCInterface) entity).display.setModel("customnpcs:customnpcalex");
 			}
 		}
@@ -304,7 +303,7 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 
 	@Override
 	public ICustomGuiComponent toComponent() {
-		CustomGuiEntityWrapper component = new CustomGuiEntityWrapper(id, x, y, NpcAPI.Instance().getIEntity(entity));
+		CustomGuiEntityWrapper component = new CustomGuiEntityWrapper(id, x, y, Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity));
 		component.entityNbt = this.entityNbt;
 		component.setHoverText(this.hoverText);
 		return component;

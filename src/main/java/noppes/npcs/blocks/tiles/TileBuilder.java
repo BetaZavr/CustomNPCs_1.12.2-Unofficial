@@ -16,7 +16,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.NBTTags;
@@ -27,9 +26,11 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobBuilder;
 import noppes.npcs.schematics.SchematicWrapper;
 
+import javax.annotation.Nonnull;
+
 public class TileBuilder extends TileEntity implements ITickable {
 
-	public static List<BlockPos> DrawPoses = Lists.<BlockPos>newArrayList();
+	public static List<BlockPos> DrawPoses = Lists.newArrayList();
 	public static boolean has(BlockPos pos) {
 		if (pos == null) {
 			return false;
@@ -57,18 +58,18 @@ public class TileBuilder extends TileEntity implements ITickable {
 
 	private int ticks;
 
-	public int yOffest;
+	public int yOffset;
 
 	public TileBuilder() {
 		this.schematic = null;
 		this.rotation = 0;
-		this.yOffest = 0;
+		this.yOffset = 0;
 		this.enabled = false;
 		this.started = false;
 		this.finished = false;
 		this.availability = new Availability();
-		this.positions = new Stack<Integer>();
-		this.positionsSecond = new Stack<Integer>();
+		this.positions = new Stack<>();
+		this.positionsSecond = new Stack<>();
 		this.ticks = 20;
 	}
 
@@ -77,7 +78,7 @@ public class TileBuilder extends TileEntity implements ITickable {
 			return null;
 		}
 		boolean bo = this.positions.isEmpty();
-		Stack<BlockData> list = new Stack<BlockData>();
+		Stack<BlockData> list = new Stack<>();
 		int size = this.schematic.schema.getWidth() * this.schematic.schema.getLength() / 4;
 		if (size > 30) {
 			size = 30;
@@ -95,8 +96,7 @@ public class TileBuilder extends TileEntity implements ITickable {
 				if (!state.isFullBlock() && !bo && state.getBlock() != Blocks.AIR) {
 					this.positionsSecond.add(0, pos);
 				} else {
-					BlockPos blockPos = this.getPos().add(1, this.yOffest, 1)
-							.add((Vec3i) this.schematic.rotatePos(x, y, z, this.rotation));
+					BlockPos blockPos = this.getPos().add(1, this.yOffset, 1).add(this.schematic.rotatePos(x, y, z, this.rotation));
 					IBlockState original = this.world.getBlockState(blockPos);
 					if (Block.getStateId(state) != Block.getStateId(original)) {
 						state = SchematicWrapper.rotationState(state, this.rotation);
@@ -126,15 +126,15 @@ public class TileBuilder extends TileEntity implements ITickable {
 		return this.schematic != null;
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		if (compound.hasKey("SchematicName")) {
 			this.schematic = SchematicController.Instance.load(compound.getString("SchematicName"));
 		}
-		Stack<Integer> positions = new Stack<Integer>();
+		Stack<Integer> positions = new Stack<>();
 		positions.addAll(NBTTags.getIntegerList(compound.getTagList("Positions", 10)));
 		this.positions = positions;
-		positions = new Stack<Integer>();
+		positions = new Stack<>();
 		positions.addAll(NBTTags.getIntegerList(compound.getTagList("PositionsSecond", 10)));
 		this.positionsSecond = positions;
 		this.readPartNBT(compound);
@@ -142,7 +142,7 @@ public class TileBuilder extends TileEntity implements ITickable {
 
 	public void readPartNBT(NBTTagCompound compound) {
 		this.rotation = compound.getInteger("Rotation");
-		this.yOffest = compound.getInteger("YOffset");
+		this.yOffset = compound.getInteger("YOffset");
 		this.enabled = compound.getBoolean("Enabled");
 		this.started = compound.getBoolean("Started");
 		this.finished = compound.getBoolean("Finished");
@@ -161,7 +161,7 @@ public class TileBuilder extends TileEntity implements ITickable {
 			this.positionsSecond.clear();
 			return;
 		}
-		Stack<Integer> positions = new Stack<Integer>();
+		Stack<Integer> positions = new Stack<>();
 		for (int y = 0; y < schematics.schema.getHeight(); ++y) {
 			for (int z = 0; z < schematics.schema.getLength() / 2; ++z) {
 				for (int x = 0; x < schematics.schema.getWidth() / 2; ++x) {
@@ -227,7 +227,7 @@ public class TileBuilder extends TileEntity implements ITickable {
 
 	public NBTTagCompound writePartNBT(NBTTagCompound compound) {
 		compound.setInteger("Rotation", this.rotation);
-		compound.setInteger("YOffset", this.yOffest);
+		compound.setInteger("YOffset", this.yOffset);
 		compound.setBoolean("Enabled", this.enabled);
 		compound.setBoolean("Started", this.started);
 		compound.setBoolean("Finished", this.finished);
@@ -235,13 +235,13 @@ public class TileBuilder extends TileEntity implements ITickable {
 		return compound;
 	}
 
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		if (this.schematic != null) {
 			compound.setString("SchematicName", this.schematic.schema.getName());
 		}
-		compound.setTag("Positions", NBTTags.nbtIntegerCollection(new ArrayList<Integer>(this.positions)));
-		compound.setTag("PositionsSecond", NBTTags.nbtIntegerCollection(new ArrayList<Integer>(this.positionsSecond)));
+		compound.setTag("Positions", NBTTags.nbtIntegerCollection(new ArrayList<>(this.positions)));
+		compound.setTag("PositionsSecond", NBTTags.nbtIntegerCollection(new ArrayList<>(this.positionsSecond)));
 		this.writePartNBT(compound);
 		return compound;
 	}

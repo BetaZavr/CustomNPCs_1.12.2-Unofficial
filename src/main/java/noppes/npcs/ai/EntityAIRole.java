@@ -4,7 +4,8 @@ import net.minecraft.entity.ai.EntityAIBase;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIRole extends EntityAIBase {
-	private EntityNPCInterface npc;
+
+	private final EntityNPCInterface npc;
 
 	public EntityAIRole(EntityNPCInterface npc) {
 		this.npc = npc;

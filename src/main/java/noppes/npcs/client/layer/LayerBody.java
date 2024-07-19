@@ -1,6 +1,5 @@
 package noppes.npcs.client.layer;
 
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
@@ -12,6 +11,7 @@ import noppes.npcs.client.model.ModelPlaneRenderer;
 import noppes.npcs.constants.EnumParts;
 
 public class LayerBody<T extends EntityLivingBase> extends LayerInterface<T> {
+
 	private Model2DRenderer breasts;
 	private ModelRenderer breasts2;
 	private ModelRenderer breasts3;
@@ -26,82 +26,79 @@ public class LayerBody<T extends EntityLivingBase> extends LayerInterface<T> {
 	}
 
 	private void createParts() {
-		this.lWing = new Model2DRenderer((ModelBase) this.model, 56.0f, 16.0f, 8, 16);
+		this.lWing = new Model2DRenderer(this.model, 56.0f, 16.0f, 8, 16);
 		this.lWing.mirror = true;
 		this.lWing.setRotationPoint(2.0f, 2.5f, 1.0f);
 		this.lWing.setRotationOffset(8.0f, 14.0f, 0.0f);
 		this.setRotation(this.lWing, 0.7141593f, -0.5235988f, -0.5090659f);
-		(this.rWing = new Model2DRenderer((ModelBase) this.model, 56.0f, 16.0f, 8, 16)).setRotationPoint(-2.0f, 2.5f,
-				1.0f);
+		(this.rWing = new Model2DRenderer(this.model, 56.0f, 16.0f, 8, 16)).setRotationPoint(-2.0f, 2.5f, 1.0f);
 		this.rWing.setRotationOffset(-8.0f, 14.0f, 0.0f);
 		this.setRotation(this.rWing, 0.7141593f, 0.5235988f, 0.5090659f);
-		(this.breasts = new Model2DRenderer((ModelBase) this.model, 20.0f, 22.0f, 8, 3)).setRotationPoint(-3.6f, 5.2f,
-				-3.0f);
+		(this.breasts = new Model2DRenderer(this.model, 20.0f, 22.0f, 8, 3)).setRotationPoint(-3.6f, 5.2f, -3.0f);
 		this.breasts.setScale(0.17f, 0.19f);
 		this.breasts.setThickness(1.0f);
-		this.breasts2 = new ModelRenderer((ModelBase) this.model);
-		Model2DRenderer bottom = new Model2DRenderer((ModelBase) this.model, 20.0f, 22.0f, 8, 4);
+		this.breasts2 = new ModelRenderer(this.model);
+		Model2DRenderer bottom = new Model2DRenderer(this.model, 20.0f, 22.0f, 8, 4);
 		bottom.setRotationPoint(-3.6f, 5.0f, -3.1f);
 		bottom.setScale(0.225f, 0.2f);
 		bottom.setThickness(2.0f);
 		bottom.rotateAngleX = -0.31415927f;
-		this.breasts2.addChild((ModelRenderer) bottom);
-		this.breasts3 = new ModelRenderer((ModelBase) this.model);
-		Model2DRenderer right = new Model2DRenderer((ModelBase) this.model, 20.0f, 23.0f, 3, 2);
+		this.breasts2.addChild(bottom);
+		this.breasts3 = new ModelRenderer(this.model);
+		Model2DRenderer right = new Model2DRenderer(this.model, 20.0f, 23.0f, 3, 2);
 		right.setRotationPoint(-3.8f, 5.3f, -3.6f);
 		right.setScale(0.12f, 0.14f);
 		right.setThickness(1.75f);
-		this.breasts3.addChild((ModelRenderer) right);
-		Model2DRenderer right2 = new Model2DRenderer((ModelBase) this.model, 20.0f, 22.0f, 3, 1);
+		this.breasts3.addChild(right);
+		Model2DRenderer right2 = new Model2DRenderer(this.model, 20.0f, 22.0f, 3, 1);
 		right2.setRotationPoint(-3.79f, 4.1f, -3.14f);
 		right2.setScale(0.06f, 0.07f);
 		right2.setThickness(1.75f);
 		right2.rotateAngleX = 0.34906584f;
-		this.breasts3.addChild((ModelRenderer) right2);
-		Model2DRenderer right3 = new Model2DRenderer((ModelBase) this.model, 20.0f, 24.0f, 3, 1);
+		this.breasts3.addChild(right2);
+		Model2DRenderer right3 = new Model2DRenderer(this.model, 20.0f, 24.0f, 3, 1);
 		right3.setRotationPoint(-3.79f, 5.3f, -3.6f);
 		right3.setScale(0.06f, 0.07f);
 		right3.setThickness(1.75f);
 		right3.rotateAngleX = -0.34906584f;
-		this.breasts3.addChild((ModelRenderer) right3);
-		Model2DRenderer right4 = new Model2DRenderer((ModelBase) this.model, 21.0f, 23.0f, 1, 2);
+		this.breasts3.addChild(right3);
+		Model2DRenderer right4 = new Model2DRenderer(this.model, 21.0f, 23.0f, 1, 2);
 		right4.setRotationPoint(-1.8f, 5.3f, -3.14f);
 		right4.setScale(0.12f, 0.14f);
 		right4.setThickness(1.75f);
 		right4.rotateAngleY = 0.34906584f;
-		this.breasts3.addChild((ModelRenderer) right4);
-		Model2DRenderer left = new Model2DRenderer((ModelBase) this.model, 25.0f, 23.0f, 3, 2);
+		this.breasts3.addChild(right4);
+		Model2DRenderer left = new Model2DRenderer(this.model, 25.0f, 23.0f, 3, 2);
 		left.setRotationPoint(0.8f, 5.3f, -3.6f);
 		left.setScale(0.12f, 0.14f);
 		left.setThickness(1.75f);
-		this.breasts3.addChild((ModelRenderer) left);
-		Model2DRenderer left2 = new Model2DRenderer((ModelBase) this.model, 25.0f, 22.0f, 3, 1);
+		this.breasts3.addChild(left);
+		Model2DRenderer left2 = new Model2DRenderer(this.model, 25.0f, 22.0f, 3, 1);
 		left2.setRotationPoint(0.81f, 4.1f, -3.18f);
 		left2.setScale(0.06f, 0.07f);
 		left2.setThickness(1.75f);
 		left2.rotateAngleX = 0.34906584f;
-		this.breasts3.addChild((ModelRenderer) left2);
-		Model2DRenderer left3 = new Model2DRenderer((ModelBase) this.model, 25.0f, 24.0f, 3, 1);
+		this.breasts3.addChild(left2);
+		Model2DRenderer left3 = new Model2DRenderer(this.model, 25.0f, 24.0f, 3, 1);
 		left3.setRotationPoint(0.81f, 5.3f, -3.6f);
 		left3.setScale(0.06f, 0.07f);
 		left3.setThickness(1.75f);
 		left3.rotateAngleX = -0.34906584f;
-		this.breasts3.addChild((ModelRenderer) left3);
-		Model2DRenderer left4 = new Model2DRenderer((ModelBase) this.model, 24.0f, 23.0f, 1, 2);
+		this.breasts3.addChild(left3);
+		Model2DRenderer left4 = new Model2DRenderer(this.model, 24.0f, 23.0f, 1, 2);
 		left4.setRotationPoint(0.8f, 5.3f, -3.6f);
 		left4.setScale(0.12f, 0.14f);
 		left4.setThickness(1.75f);
 		left4.rotateAngleY = -0.34906584f;
-		this.breasts3.addChild((ModelRenderer) left4);
-		(this.skirt = new ModelPlaneRenderer((ModelBase) this.model, 58, 18)).addSidePlane(0.0f, 0.0f, 0.0f, 9, 2);
-		ModelPlaneRenderer part1 = new ModelPlaneRenderer((ModelBase) this.model, 58, 18);
+		this.breasts3.addChild(left4);
+		(this.skirt = new ModelPlaneRenderer(this.model, 58, 18)).addSidePlane(0.0f, 0.0f, 0.0f, 9, 2);
+		ModelPlaneRenderer part1 = new ModelPlaneRenderer(this.model, 58, 18);
 		part1.addSidePlane(2.0f, 0.0f, 0.0f, 9, 2);
 		part1.rotateAngleY = -1.5707964f;
-		this.skirt.addChild((ModelRenderer) part1);
+		this.skirt.addChild(part1);
 		this.skirt.setRotationPoint(2.4f, 8.8f, 0.0f);
 		this.setRotation(this.skirt, 0.3f, -0.2f, -0.2f);
-		(this.fin = new Model2DRenderer((ModelBase) this.model, 56.0f, 20.0f, 8, 12)).setRotationPoint(-0.5f, 12.0f,
-				10.0f);
+		(this.fin = new Model2DRenderer(this.model, 56.0f, 20.0f, 8, 12)).setRotationPoint(-0.5f, 12.0f, 10.0f);
 		this.fin.setScale(0.74f);
 		this.fin.rotateAngleY = 1.5707964f;
 	}

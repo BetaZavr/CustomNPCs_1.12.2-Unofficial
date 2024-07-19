@@ -74,7 +74,7 @@ public class CustomNpcsConfigGui extends GuiConfig implements ISubGuiListener {
 			GuiUtils.drawGradientRect(0, left + 1, y + 1, right - 1, y + 17, color, color);
 		}
 
-		public GuiButtonExt getButon() {
+		public GuiButtonExt getButton() {
 			return btnValue;
 		}
 
@@ -241,7 +241,7 @@ public class CustomNpcsConfigGui extends GuiConfig implements ISubGuiListener {
 			String color = ((SubGuiColorSelector) subgui).getColor().toUpperCase();
 			if (subgui.object instanceof CustomGuiEditArrayEntries.ColorEntry) {
 				ConfigElement element = (ConfigElement) ((CustomGuiEditArrayEntries.ColorEntry) subgui.object).configElement;
-				((CustomGuiEditArrayEntries.ColorEntry) subgui.object).getButon().displayString = color;
+				((CustomGuiEditArrayEntries.ColorEntry) subgui.object).getButton().displayString = color;
 				((CustomGuiEditArrayEntries.ColorEntry) subgui.object).value = color;
 				element.set(color);
 			}
@@ -299,7 +299,7 @@ public class CustomNpcsConfigGui extends GuiConfig implements ISubGuiListener {
 
 	@Override
 	public void drawToolTip(List<String> stringList, int x, int y) {
-		List<String> newToolTip = Lists.<String>newArrayList();
+		List<String> newToolTip = Lists.newArrayList();
 		String name = "";
 		for (String str : stringList) {
 			if (name != null) {
@@ -387,7 +387,7 @@ public class CustomNpcsConfigGui extends GuiConfig implements ISubGuiListener {
 		String color = ((SubGuiColorSelector) subgui).getColor().toUpperCase();
 		if (subgui.object instanceof ColorEntry) {
 			ConfigElement element = (ConfigElement) ((ColorEntry) subgui.object).getConfigElement();
-			((ColorEntry) subgui.object).getButon().displayString = color;
+			((ColorEntry) subgui.object).getButton().displayString = color;
 			((ColorEntry) subgui.object).currentValue = color;
 			element.set(color);
 		}

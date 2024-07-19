@@ -19,7 +19,7 @@ public class MarkovGenerator {
 		this(seqlen, new Random());
 	}
 
-	public MarkovGenerator(int seqlen, Random rng) {
+	public MarkovGenerator(int ignoredSeqlen, Random rng) {
 		this.rng = rng;
 	}
 

@@ -5,10 +5,13 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.ModelPartData;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumParts;
+
+import javax.annotation.Nonnull;
 
 public class EntityCustomNpc extends EntityNPCFlying {
 
@@ -23,7 +26,7 @@ public class EntityCustomNpc extends EntityNPCFlying {
 	@Override
 	public void onUpdate() {
 		super.onUpdate();
-		if (this.isRemote()) {
+		if (!this.isServerWorld()) {
 			ModelPartData particles = this.modelData.getPartData(EnumParts.PARTICLES);
 			if (particles != null && !this.isKilled()) {
 				CustomNpcs.proxy.spawnParticle(this, "ModelData", this.modelData, particles);
@@ -32,8 +35,7 @@ public class EntityCustomNpc extends EntityNPCFlying {
 			if (entity != null) {
 				try {
 					entity.onUpdate();
-				} catch (Exception ex) {
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 				EntityUtil.Copy(this, entity);
 			}
 		}
@@ -41,14 +43,14 @@ public class EntityCustomNpc extends EntityNPCFlying {
 	}
 
 	@Override
-	public void readEntityFromNBT(NBTTagCompound compound) {
+	public void readEntityFromNBT(@Nonnull NBTTagCompound compound) {
 		if (compound.hasKey("NpcModelData")) {
 			this.modelData.readFromNBT(compound.getCompoundTag("NpcModelData"));
 		}
 		super.readEntityFromNBT(compound);
 	}
 
-	public boolean startRiding(Entity par1Entity, boolean force) {
+	public boolean startRiding(@Nonnull Entity par1Entity, boolean force) {
 		boolean b = super.startRiding(par1Entity, force);
 		this.updateHitbox();
 		return b;
@@ -58,7 +60,8 @@ public class EntityCustomNpc extends EntityNPCFlying {
 	public void updateHitbox() {
 		Entity entity = this.modelData.getEntity(this);
 		if (this.modelData == null || entity == null) {
-			this.baseHeight = 1.9f - this.modelData.getBodyY()
+            assert this.modelData != null;
+            this.baseHeight = 1.9f - this.modelData.getBodyY()
 					+ (this.modelData.getPartConfig(EnumParts.HEAD).scale[1] - 1.0f) / 2.0f;
 			super.updateHitbox();
 		} else {
@@ -85,27 +88,29 @@ public class EntityCustomNpc extends EntityNPCFlying {
 	}
 
 	@Override
-	public void writeEntityToNBT(NBTTagCompound compound) {
+	public void writeEntityToNBT(@Nonnull NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);
 		compound.setTag("NpcModelData", this.modelData.writeToNBT());
 	}
 
-	public boolean writeToNBTAtomically(NBTTagCompound compound) {
+	public boolean writeToNBTAtomically(@Nonnull NBTTagCompound compound) {
 		boolean bo = super.writeToNBTAtomically(compound);
 		if (bo) {
 			String s = this.getEntityString();
-			if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) {
+            assert s != null;
+            if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) {
 				compound.setString("id", CustomNpcs.MODID + ":customnpc");
 			}
 		}
 		return bo;
 	}
 
-	public boolean writeToNBTOptional(NBTTagCompound compound) {
+	public boolean writeToNBTOptional(@Nonnull NBTTagCompound compound) {
 		boolean bo = super.writeToNBTAtomically(compound);
 		if (bo) {
 			String s = this.getEntityString();
-			if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) {
+            assert s != null;
+            if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) {
 				compound.setString("id", CustomNpcs.MODID + ":customnpc");
 			}
 		}

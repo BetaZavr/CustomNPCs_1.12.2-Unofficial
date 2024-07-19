@@ -34,7 +34,7 @@ public class RoleBank extends RoleInterface implements IRoleBank {
 		if (data == null) {
 			return;
 		}
-		data.openBankGui(player, this.npc, this.bankId, 0);
+		data.openBankGui(player, this.npc, 0);
 		this.npc.say(player, this.npc.advanced.getInteractLine());
 	}
 

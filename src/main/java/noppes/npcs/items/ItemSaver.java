@@ -2,10 +2,10 @@ package noppes.npcs.items;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -30,22 +30,19 @@ public class ItemSaver
 extends Item
 implements IPermission, ISpecBuilder {
 
-	private EnumGuiType guiType = EnumGuiType.SaverSetting;
+	private final EnumGuiType guiType = EnumGuiType.SaverSetting;
 	
 	public ItemSaver() {
 		this.setRegistryName(CustomNpcs.MODID, "npcsaver");
 		this.setUnlocalizedName("npcsaver");
 		this.maxStackSize = 1;
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list == null) {
-			return;
-		}
-		BuilderData builder = ItemBuilder.getBuilder(stack, null);
+	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<String> list, @Nonnull ITooltipFlag flagIn) {
+        BuilderData builder = ItemBuilder.getBuilder(stack, null);
 		list.add(new TextComponentTranslation("info.item.builder.main.0").getFormattedText());
 		list.add(new TextComponentTranslation("info.item.builder.main.1").getFormattedText());
 		if (builder != null) {
@@ -56,9 +53,12 @@ implements IPermission, ISpecBuilder {
 			list.add(new TextComponentTranslation("info.item.builder.range.1", "" + builder.region[0], "" + builder.region[1], "" + builder.region[2]).getFormattedText());
 		} else {
 			list.add(new TextComponentTranslation("info.item.builder.main.2").getFormattedText());
-			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("ID", 8) && stack.getTagCompound().hasKey("BuilderType", 3)) {
-				NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.GetBuildData, stack, 2000, stack.getTagCompound().getString("ID"), stack.getTagCompound().getInteger("BuilderType"));
-			}
+            if (stack.hasTagCompound()) {
+                assert stack.getTagCompound() != null;
+                if (stack.getTagCompound().hasKey("ID", 8) && stack.getTagCompound().hasKey("BuilderType", 3)) {
+                    NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.GetBuildData, stack, 2000, stack.getTagCompound().getString("ID"), stack.getTagCompound().getInteger("BuilderType"));
+                }
+            }
 		}
 	}
 	
@@ -76,7 +76,7 @@ implements IPermission, ISpecBuilder {
 			NoppesUtilServer.sendOpenGui(player, this.guiType, null, -1, this.getType(), 0);
 			return;
 		}
-		if (data.hud.hasOrKeysPressed(new int[] { 29, 157 })) { // Ctrl pressed <-
+		if (data.hud.hasOrKeysPressed(29, 157)) { // Ctrl pressed <-
 			builder.undo();
 			return;
 		}
@@ -92,7 +92,7 @@ implements IPermission, ISpecBuilder {
 			NoppesUtilServer.sendOpenGui(player, this.guiType, null, -1, this.getType(), 0);
 			return;
 		}
-		if (data.hud.hasOrKeysPressed(new int[] { 29, 157 })) { // Ctrl pressed ->
+		if (data.hud.hasOrKeysPressed(29, 157)) { // Ctrl pressed ->
 			builder.redo();
 			return;
 		}

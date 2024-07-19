@@ -23,7 +23,7 @@ public class JobGuard extends JobInterface implements IJobGuard {
 
 	public JobGuard(EntityNPCInterface npc) {
 		super(npc);
-		this.targets = new ArrayList<String>();
+		this.targets = new ArrayList<>();
 		this.type = JobType.GUARD;
 	}
 
@@ -38,7 +38,7 @@ public class JobGuard extends JobInterface implements IJobGuard {
 		this.targets = NBTTags.getStringList(compound.getTagList("GuardTargets", 10));
 		if (compound.getBoolean("GuardAttackAnimals")) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
+				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
 				if (EntityAnimal.class.isAssignableFrom(cl) && !this.targets.contains(name)) {
 					this.targets.add(name);
@@ -47,7 +47,7 @@ public class JobGuard extends JobInterface implements IJobGuard {
 		}
 		if (compound.getBoolean("GuardAttackMobs")) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
+				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
 				if (EntityMob.class.isAssignableFrom(cl) && !EntityCreeper.class.isAssignableFrom(cl)
 						&& !this.targets.contains(name)) {
@@ -57,7 +57,7 @@ public class JobGuard extends JobInterface implements IJobGuard {
 		}
 		if (compound.getBoolean("GuardAttackCreepers")) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
+				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
 				if (EntityCreeper.class.isAssignableFrom(cl) && !this.targets.contains(name)) {
 					this.targets.add(name);

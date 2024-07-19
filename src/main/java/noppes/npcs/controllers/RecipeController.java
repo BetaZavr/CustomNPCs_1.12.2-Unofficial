@@ -1,13 +1,11 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -64,20 +62,19 @@ public class RecipeController implements IRecipeHandler {
 	public Map<String, List<INpcRecipe>> modList; // [GroupName, RecipeList]
 
 	public RecipeController() {
-		this.globalList = Maps.<String, List<INpcRecipe>>newHashMap();
-		this.modList = Maps.<String, List<INpcRecipe>>newHashMap();
+		this.globalList = Maps.newHashMap();
+		this.modList = Maps.newHashMap();
 		RecipeController.instance = this;
 		this.filePath = CustomNpcs.Dir.getAbsolutePath();
 		this.load();
 	}
 
 	@Override
-	public INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, int width,
-			int height, ItemStack[] stacks) {
+	public INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, int width, int height, ItemStack[] stacks) {
 		NonNullList<Ingredient> list = NonNullList.create();
 		for (ItemStack item : stacks) {
 			if (!item.isEmpty()) {
-				list.add(Ingredient.fromStacks(new ItemStack[] { item }));
+				list.add(Ingredient.fromStacks(item));
 			}
 		}
 		INpcRecipe recipe;
@@ -86,7 +83,7 @@ public class RecipeController implements IRecipeHandler {
 			((NpcShapedRecipes) recipe).known = known;
 		} else {
 			recipe = new NpcShapelessRecipes(group, name, list, result);
-			((NpcShapedRecipes) recipe).known = known;
+			((NpcShapelessRecipes) recipe).known = known;
 		}
 		return this.putRecipe(recipe);
 	}
@@ -97,12 +94,11 @@ public class RecipeController implements IRecipeHandler {
 		INpcRecipe recipe;
 		if (known) {
 			recipe = NpcShapedRecipes.createRecipe(group, name, global, result, objects);
-			((NpcShapedRecipes) recipe).known = known;
-		} else {
+        } else {
 			recipe = NpcShapelessRecipes.createRecipe(group, name, global, result, objects);
-			((NpcShapedRecipes) recipe).known = known;
-		}
-		return this.putRecipe(recipe);
+        }
+        ((NpcShapedRecipes) recipe).known = known;
+        return this.putRecipe(recipe);
 	}
 
 	public void addRecipe(String group, String name, Object ob, boolean global, boolean known, boolean shaped,
@@ -115,7 +111,7 @@ public class RecipeController implements IRecipeHandler {
 		} else {
 			item = (ItemStack) ob;
 		}
-		INpcRecipe recipe = null;
+		INpcRecipe recipe;
 		if (shaped) {
 			recipe = NpcShapedRecipes.createRecipe(group, name, global, item, objects);
 			((NpcShapedRecipes) recipe).known = known;
@@ -162,13 +158,11 @@ public class RecipeController implements IRecipeHandler {
 				if (!recipe.isValid()) {
 					continue;
 				}
-				if (recipe instanceof NpcShapedRecipes
-						&& ((NpcShapedRecipes) recipe).matches(inventoryCrafting, null)) {
-					return (INpcRecipe) recipe;
+				if (recipe instanceof NpcShapedRecipes && ((NpcShapedRecipes) recipe).matches(inventoryCrafting, null)) {
+					return recipe;
 				}
-				if (recipe instanceof NpcShapelessRecipes
-						&& ((NpcShapelessRecipes) recipe).matches(inventoryCrafting, null)) {
-					return (INpcRecipe) recipe;
+				if (recipe instanceof NpcShapelessRecipes && ((NpcShapelessRecipes) recipe).matches(inventoryCrafting, null)) {
+					return recipe;
 				}
 			}
 		}
@@ -177,38 +171,34 @@ public class RecipeController implements IRecipeHandler {
 
 	@Override
 	public INpcRecipe[] getCarpentryData() {
-		List<INpcRecipe> list = Lists.<INpcRecipe>newArrayList();
+		List<INpcRecipe> list = Lists.newArrayList();
 		for (List<INpcRecipe> rs : this.modList.values()) {
-			for (INpcRecipe recipe : rs) {
-				list.add(recipe);
-			}
+            list.addAll(rs);
 		}
-		return list.toArray(new INpcRecipe[list.size()]);
+		return list.toArray(new INpcRecipe[0]);
 	}
 
 	@Override
 	public INpcRecipe[] getCarpentryRecipes(String group) {
-		return this.modList.get(group).toArray(new INpcRecipe[this.modList.get(group).size()]);
+		return this.modList.get(group).toArray(new INpcRecipe[0]);
 	}
 
 	@Override
 	public INpcRecipe[] getGlobalData() {
-		List<INpcRecipe> list = Lists.<INpcRecipe>newArrayList();
+		List<INpcRecipe> list = Lists.newArrayList();
 		for (List<INpcRecipe> rs : this.globalList.values()) {
-			for (INpcRecipe recipe : rs) {
-				list.add(recipe);
-			}
+            list.addAll(rs);
 		}
-		return list.toArray(new INpcRecipe[list.size()]);
+		return list.toArray(new INpcRecipe[0]);
 	}
 
 	@Override
 	public INpcRecipe[] getGlobalRecipes(String group) {
-		return this.globalList.get(group).toArray(new INpcRecipe[this.globalList.get(group).size()]);
+		return this.globalList.get(group).toArray(new INpcRecipe[0]);
 	}
 
 	public List<IRecipe> getKnownRecipes() {
-		List<IRecipe> list = Lists.<IRecipe>newArrayList();
+		List<IRecipe> list = Lists.newArrayList();
 		for (int i = 0; i < 2; i++) {
 			for (List<INpcRecipe> rs : (i == 0 ? this.globalList.values() : this.modList.values())) {
 				for (INpcRecipe recipe : rs) {
@@ -262,7 +252,7 @@ public class RecipeController implements IRecipeHandler {
 		for (int i = 0; i < 2; i++) {
 			for (List<INpcRecipe> list : (i == 0 ? this.globalList.values() : this.modList.values())) {
 				for (INpcRecipe recipe : list) {
-					if (((IRecipe) recipe).getRegistryName().toString().equals(regName.toString())) {
+					if (Objects.requireNonNull(((IRecipe) recipe).getRegistryName()).toString().equals(regName.toString())) {
 						return recipe;
 					}
 				}
@@ -391,32 +381,28 @@ public class RecipeController implements IRecipeHandler {
 			File file = new File(CustomNpcs.Dir, "recipes.dat");
 			if (file.exists()) {
 				try {
-					NBTTagCompound nbtFile = CompressedStreamTools
-							.readCompressed((InputStream) new FileInputStream(file));
+					NBTTagCompound nbtFile = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
 					this.loadNBTData(nbtFile);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			} else {
 				this.globalList.clear();
 				this.modList.clear();
 				this.loadDefaultRecipes(-1);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogWriter.error("Error:", e);
 			try {
 				File file2 = new File(CustomNpcs.Dir, "recipes.dat_old");
 				if (file2.exists()) {
 					try {
-						NBTTagCompound nbtFile = CompressedStreamTools
-								.readCompressed((InputStream) new FileInputStream(file2));
+						NBTTagCompound nbtFile = CompressedStreamTools.readCompressed(Files.newInputStream(file2.toPath()));
 						this.loadNBTData(nbtFile);
 					} catch (IOException err) {
-						err.printStackTrace();
+						LogWriter.error("Error:", err);
 					}
 				}
 			} catch (Exception ee) {
-				e.printStackTrace();
+				LogWriter.error("Error:", ee);
 			}
 		}
 	}
@@ -432,7 +418,7 @@ public class RecipeController implements IRecipeHandler {
 				}
 				Map<String, List<INpcRecipe>> map = nbtG.getBoolean("isGlobal") ? this.globalList : this.modList;
 				if (!map.containsKey(nbtG.getString("GroupName"))) {
-					map.put(nbtG.getString("GroupName"), Lists.<INpcRecipe>newArrayList());
+					map.put(nbtG.getString("GroupName"), Lists.newArrayList());
 				}
 				for (int j = 0; j < nbtG.getTagList("Recipes", 10).tagCount(); j++) {
 					NBTTagCompound nbtRecipe = nbtG.getTagList("Recipes", 10).getCompoundTagAt(j);
@@ -456,7 +442,7 @@ public class RecipeController implements IRecipeHandler {
 
 		Map<String, List<INpcRecipe>> map = recipe.isGlobal() ? this.globalList : this.modList;
 		if (!map.containsKey(recipe.getNpcGroup())) {
-			map.put(recipe.getNpcGroup(), Lists.<INpcRecipe>newArrayList());
+			map.put(recipe.getNpcGroup(), Lists.newArrayList());
 		}
 
 		boolean needAdd = true;
@@ -466,12 +452,11 @@ public class RecipeController implements IRecipeHandler {
 					rec.copy(recipe);
 					needAdd = false;
 					recipe = rec;
-					break;
-				} else {
+                } else {
 					map.get(recipe.getNpcGroup()).remove(rec);
-					break;
-				}
-			}
+                }
+                break;
+            }
 		}
 		if (needAdd) {
 			while (this.getRecipe(recipe.getNpcGroup(), recipe.getName()) != null) {
@@ -483,8 +468,6 @@ public class RecipeController implements IRecipeHandler {
 			}
 			map.get(recipe.getNpcGroup()).add(recipe);
 		}
-		// LogWriter.debug((needAdd ? "Add New" : "Reset")+" recipe: "+((IRecipe)
-		// recipe).getRegistryName());
 		CustomNpcs.proxy.updateRecipes(recipe, true, false, "RecipeController.putRecipe()");
 		int id = RecipeController.Registry.getID((IRecipe) recipe);
 		if (recipe instanceof NpcShapedRecipes) {
@@ -497,10 +480,9 @@ public class RecipeController implements IRecipeHandler {
 
 	public void save() {
 		try {
-			CompressedStreamTools.writeCompressed(this.getNBT(),
-					(OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "recipes.dat")));
+			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "recipes.dat").toPath()));
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogWriter.error("Error:", e);
 		}
 	}
 

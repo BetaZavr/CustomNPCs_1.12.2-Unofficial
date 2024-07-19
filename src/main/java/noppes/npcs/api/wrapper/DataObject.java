@@ -11,15 +11,15 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.handler.data.IDataElement;
-import noppes.npcs.api.wrapper.data.DataElement;
 import noppes.npcs.util.AdditionalMethods;
 
 public class DataObject implements IDataObject {
 
-	public List<IDataElement> data = Lists.newArrayList();
-	public Object object = null;
+	public List<IDataElement> data;
+	public Object object;
 
 	public DataObject(Object obj) {
 		this.object = obj;
@@ -30,7 +30,7 @@ public class DataObject implements IDataObject {
 	public String get() {
 		StringBuilder builder = new StringBuilder();
 		String enter = new String(Character.toChars(0xA));
-		builder.append("Class \"" + this.object + "\":");
+		builder.append("Class \"").append(this.object).append("\":");
 		IDataElement[] cs = this.getClasses();
 		if (cs.length > 0) {
 			List<String> list = Lists.newArrayList();
@@ -39,7 +39,7 @@ public class DataObject implements IDataObject {
 			}
 			Collections.sort(list);
 			int i = 0;
-			builder.append(enter + "Classes:[");
+			builder.append(enter).append("Classes:[");
 			for (String str : list) {
 				builder.append(str);
 				if (i < list.size() - 1) {
@@ -57,7 +57,7 @@ public class DataObject implements IDataObject {
 			}
 			Collections.sort(list);
 			int i = 0;
-			builder.append(enter + "Fields:[");
+			builder.append(enter).append("Fields:[");
 			for (String str : list) {
 				builder.append(str);
 				if (i < list.size() - 1) {
@@ -75,7 +75,7 @@ public class DataObject implements IDataObject {
 			}
 			Collections.sort(list);
 			int i = 0;
-			builder.append(enter + "Methods:[");
+			builder.append(enter).append("Methods:[");
 			for (String str : list) {
 				builder.append(str);
 				if (i < list.size() - 1) {
@@ -96,7 +96,7 @@ public class DataObject implements IDataObject {
 				c.add(de);
 			}
 		}
-		return c.toArray(new DataElement[c.size()]);
+		return c.toArray(new IDataElement[0]);
 	}
 
 	@Override
@@ -109,15 +109,15 @@ public class DataObject implements IDataObject {
 			}
 		}
 		int i = 0;
-		if (c.size() > 0) {
+		if (!c.isEmpty()) {
 			String enter = new String(Character.toChars(0xA));
-			builder.append("Classes: [" + enter);
-			String sp = " ";
+			builder.append("Classes: [").append(enter);
+			StringBuilder sp = new StringBuilder(" ");
 			for (int j = 0; j < String.valueOf(c.size()).length() - String.valueOf(i).length(); j++) {
-				sp += " ";
+				sp.append(" ");
 			}
 			for (IDataElement de : c) {
-				builder.append(i + sp + de.getData() + enter);
+				builder.append(i).append(sp).append(de.getData()).append(enter);
 				i++;
 			}
 			builder.append("]");
@@ -143,7 +143,7 @@ public class DataObject implements IDataObject {
 				c.add(de);
 			}
 		}
-		return c.toArray(new DataElement[c.size()]);
+		return c.toArray(new IDataElement[0]);
 	}
 
 	@Override
@@ -156,15 +156,15 @@ public class DataObject implements IDataObject {
 			}
 		}
 		int i = 0;
-		if (c.size() > 0) {
+		if (!c.isEmpty()) {
 			String enter = new String(Character.toChars(0xA));
-			builder.append("Constructors: [" + enter);
-			String sp = " ";
+			builder.append("Constructors: [").append(enter);
+			StringBuilder sp = new StringBuilder(" ");
 			for (int j = 0; j < String.valueOf(c.size()).length() - String.valueOf(i).length(); j++) {
-				sp += " ";
+				sp.append(" ");
 			}
 			for (IDataElement de : c) {
-				builder.append(i + sp + de.getData() + enter);
+				builder.append(i).append(sp).append(de.getData()).append(enter);
 				i++;
 			}
 			builder.append("]");
@@ -177,7 +177,7 @@ public class DataObject implements IDataObject {
 		int pos = -1;
 		try {
 			pos = Integer.parseInt(name);
-		} catch (Exception e) { }
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		int i = 0;
 		for (IDataElement de : this.data) {
 			if (i == pos || de.getObject() instanceof Field && de.getName().equals(name)) {
@@ -196,7 +196,7 @@ public class DataObject implements IDataObject {
 				f.add(de);
 			}
 		}
-		return f.toArray(new DataElement[f.size()]);
+		return f.toArray(new IDataElement[0]);
 	}
 
 	@Override
@@ -209,7 +209,7 @@ public class DataObject implements IDataObject {
 			}
 		}
 		int i = 0;
-		if (f.size() > 0) {
+		if (!f.isEmpty()) {
 			String enter = new String(Character.toChars(0xA));
 			List<String> names = Lists.newArrayList(f.keySet());
 			Collections.sort(names);
@@ -222,23 +222,22 @@ public class DataObject implements IDataObject {
 					maxValue = "" + de.getValue();
 				}
 			}
-			i = 0;
-			builder.append("Fields: [" + enter);
+            builder.append("Fields: [").append(enter);
 			for (String name : names) {
 				IDataElement de = f.get(name);
-				String sp = " ", fx = "", sx = "";
-				for (int j = 0; j < String.valueOf(names.size()).length() - String.valueOf(i).length(); j++) {
-					sp += " ";
+				StringBuilder sp = new StringBuilder(" ");
+                StringBuilder fx = new StringBuilder();
+                StringBuilder sx = new StringBuilder();
+                for (int j = 0; j < String.valueOf(names.size()).length() - String.valueOf(i).length(); j++) {
+					sp.append(" ");
 				}
 				for (int j = 0; j < maxKey.length() - de.getData().length(); j++) {
-					fx += " ";
+					fx.append(" ");
 				}
 				for (int j = 0; j < maxValue.length() - ("" + de.getValue()).length(); j++) {
-					sx += " ";
+					sx.append(" ");
 				}
-				builder.append(i + sp + de.getData() + fx + " = " + de.getValue()
-						+ (!de.isBelong(this.object.getClass()) ? sx + " [" + de.getParent().getName() + "]" : "")
-						+ enter);
+				builder.append(i).append(sp).append(de.getData()).append(fx).append(" = ").append(de.getValue()).append(!de.isBelong(this.object.getClass()) ? sx + " [" + de.getParent().getName() + "]" : "").append(enter);
 				i++;
 			}
 			builder.append("]");
@@ -264,15 +263,14 @@ public class DataObject implements IDataObject {
 		if (Modifier.isInterface(md)) {
 			key += "Interface";
 		}
-		builder.append(
-				key + "Class: \"" + this.object.getClass().getName() + "\"; value = " + this.object.toString() + enter);
-		/** Constructors */
-		builder.append(this.getConstructorsInfo() + enter);
-		/** Classes */
-		builder.append(this.getClassesInfo() + enter);
-		/** Fields */
-		builder.append(this.getFieldsInfo() + enter);
-		/** Methods */
+		builder.append(key).append("Class: \"").append(this.object.getClass().getName()).append("\"; value = ").append(this.object).append(enter);
+		// Constructors
+		builder.append(this.getConstructorsInfo()).append(enter);
+		// Classes
+		builder.append(this.getClassesInfo()).append(enter);
+		// Fields
+		builder.append(this.getFieldsInfo()).append(enter);
+		// Methods
 		builder.append(this.getMethodsInfo());
 		return builder.toString();
 	}
@@ -282,8 +280,7 @@ public class DataObject implements IDataObject {
 		int pos = -1;
 		try {
 			pos = Integer.parseInt(name);
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		int i = 0;
 		for (IDataElement de : this.data) {
 			if (i == pos || de.getObject() instanceof Method && de.getName().equals(name)) {
@@ -302,7 +299,7 @@ public class DataObject implements IDataObject {
 				m.add(de);
 			}
 		}
-		return m.toArray(new DataElement[m.size()]);
+		return m.toArray(new IDataElement[0]);
 	}
 
 	@Override
@@ -314,8 +311,8 @@ public class DataObject implements IDataObject {
 				m.put(de.getName(), de);
 			}
 		}
-		int i = 0;
-		if (m.size() > 0) {
+		int i;
+		if (!m.isEmpty()) {
 			String enter = new String(Character.toChars(0xA));
 			List<String> names = Lists.newArrayList(m.keySet());
 			Collections.sort(names);
@@ -329,22 +326,22 @@ public class DataObject implements IDataObject {
 				}
 			}
 			i = 0;
-			builder.append("Methods: [" + enter);
+			builder.append("Methods: [").append(enter);
 			for (String name : names) {
 				IDataElement de = m.get(name);
-				String sp = " ", fx = "", sx = "";
-				for (int j = 0; j < String.valueOf(names.size()).length() - String.valueOf(i).length(); j++) {
-					sp += " ";
+				StringBuilder sp = new StringBuilder(" ");
+                StringBuilder fx = new StringBuilder();
+                StringBuilder sx = new StringBuilder();
+                for (int j = 0; j < String.valueOf(names.size()).length() - String.valueOf(i).length(); j++) {
+					sp.append(" ");
 				}
 				for (int j = 0; j < maxKey.length() - de.getData().length(); j++) {
-					fx += " ";
+					fx.append(" ");
 				}
 				for (int j = 0; j < maxValue.length() - ("" + de.getValue()).length(); j++) {
-					sx += " ";
+					sx.append(" ");
 				}
-				builder.append(i + sp + de.getData() + fx + " = " + de.getValue()
-						+ (!de.isBelong(this.object.getClass()) ? sx + " [" + de.getParent().getName() + "]" : "")
-						+ enter);
+				builder.append(i).append(sp).append(de.getData()).append(fx).append(" = ").append(de.getValue()).append(!de.isBelong(this.object.getClass()) ? sx + " [" + de.getParent().getName() + "]" : "").append(enter);
 				i++;
 			}
 			builder.append("]");

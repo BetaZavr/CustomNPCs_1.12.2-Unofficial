@@ -13,6 +13,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import noppes.npcs.entity.EntityNPCInterface;
 
+import javax.annotation.Nonnull;
+
 public class ContainerNPCInv extends Container {
 
 	public ContainerNPCInv(EntityNPCInterface npc, EntityPlayer player) {
@@ -38,12 +40,12 @@ public class ContainerNPCInv extends Container {
 	}
 
 	@Override
-	public boolean canInteractWith(EntityPlayer entityplayer) {
+	public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
 		return true;
 	}
 
 	@Override
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
+	public @Nonnull ItemStack slotClick(int slotId, int dragType, @Nonnull ClickType clickTypeIn, @Nonnull EntityPlayer player) {
 		if (clickTypeIn == ClickType.QUICK_MOVE && dragType == 0) { // shift + LMB
 			if (slotId < 0) {
 				return ItemStack.EMPTY;
@@ -110,7 +112,7 @@ public class ContainerNPCInv extends Container {
 	}
 
 	@Override
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer playerIn, int index) {
 		return ItemStack.EMPTY;
 	}
 

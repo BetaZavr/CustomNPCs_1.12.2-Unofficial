@@ -19,7 +19,7 @@ import noppes.npcs.roles.JobBuilder;
 import noppes.npcs.roles.JobFarmer;
 
 public class DataAI
-implements INPCAi {
+		implements INPCAi {
 
 	public int animationType = 0;
 	public boolean attackInvisible = false;
@@ -34,20 +34,20 @@ implements INPCAi {
 	public boolean directLOS = true;
 	public int doorInteract = 2;
 	public int findShelter = 2;
-	public int movementType = 0;
+	public int movementType = 0; // 0:Ground, 1:Flying, 2:Swimming
 	private int moveSpeed = 5;
-	private List<int[]> movingPath = Lists.<int[]>newArrayList();
-	public int movingPattern = 0;
-	public boolean movingPause = true;
-	public int movingPos = 0;
-	private int movingType = 0;
-	private EntityNPCInterface npc;
+	private List<int[]> movingPath = Lists.newArrayList();
+	public int movingPattern = 0; // -> EntityAIMovingPath
+	public boolean movingPause = true; // -> EntityAIMovingPath
+	public int movingPos = 0; // -> EntityAIMovingPath
+	private int movingType = 0; // 0:Standing, 1:Wandering, 2:MovingPath -> EntityAIMovingPath
+	private final EntityNPCInterface npc;
 	public boolean npcInteracting = true;
-	public int onAttack = 0;
+	public int onAttack = 0; // 0:Normal, 1:Panic, 2:Retreat, 3:Nothing
 	public int orientation = 0;
 	public boolean reactsToFire = false;
 	public boolean returnToStart = true;
-	private int standingType = 0;
+	private int standingType = 0; // 0:NoRotation, 1:RotateBody, 2:Stalking, 3:HeadRotation
 	private BlockPos startPos = null;
 	public boolean stopAndInteract = true;
 	private int tacticalRadius = 8;
@@ -55,6 +55,8 @@ implements INPCAi {
 	public int walkingRange = 10;
 	public float stepheight = 0.6f;
 	public boolean aiDisabled = false;
+
+	private int maxHurtResistantTime = 20;
 
 	public DataAI(EntityNPCInterface npc) {
 		this.npc = npc;
@@ -161,8 +163,7 @@ implements INPCAi {
 				this.movingPath.add(this.getStartArray());
 			} else {
 				int[] arr = this.movingPath.get(0);
-				if (arr[0] != this.startPos.getX() || arr[1] != this.startPos.getY()
-						|| arr[2] != this.startPos.getZ()) {
+				if (arr[0] != this.startPos.getX() || arr[1] != this.startPos.getY() || arr[2] != this.startPos.getZ()) {
 					this.movingPath.remove(0);
 					this.movingPath.add(0, this.getStartArray());
 				}
@@ -218,6 +219,9 @@ implements INPCAi {
 		return this.findShelter;
 	}
 
+	/**
+	 * 0:NoRotation, 1:RotateBody, 2:Stalking, 3:HeadRotation, 4:EyeRotation
+	 */
 	@Override
 	public int getStandingType() {
 		return this.standingType;
@@ -256,6 +260,12 @@ implements INPCAi {
 	public int getWanderingRange() {
 		return this.walkingRange;
 	}
+
+	@Override
+	public int getMaxHurtResistantTime() {
+		return this.maxHurtResistantTime;
+	}
+
 
 	public void incrementMovingPath() {
 		List<int[]> list = this.getMovingPath();
@@ -310,6 +320,12 @@ implements INPCAi {
 			this.startPos = new BlockPos(startPos[0], startPos[1], startPos[2]);
 		}
 		this.npc.stepHeight = this.stepheight;
+		if (standingType != 0 && standingType != 2) {
+			this.npc.setRotationYawHead(this.orientation);
+		}
+
+		if (compound.hasKey("MaxHurtResistantTime", 3)) { this.maxHurtResistantTime = compound.getInteger("MaxHurtResistantTime"); }
+		this.npc.maxHurtResistantTime = this.maxHurtResistantTime;
 	}
 
 	@Override
@@ -375,8 +391,8 @@ implements INPCAi {
 
 	@Override
 	public void setMovingPathType(int type, boolean pauses) {
-		if (type < 0 && type > 1) {
-			throw new CustomNPCsException("Moving path type: " + type, new Object[0]);
+		if (type != 0 && type != 1) {
+			throw new CustomNPCsException("Moving path type: " + type);
 		}
 		this.movingPattern = type;
 		this.movingPause = pauses;
@@ -389,7 +405,7 @@ implements INPCAi {
 	@Override
 	public void setMovingType(int type) {
 		if (type < 0 || type > 2) {
-			throw new CustomNPCsException("Unknown moving type: " + type, new Object[0]);
+			throw new CustomNPCsException("Unknown moving type: " + type);
 		}
 		this.movingType = type;
 		this.npc.updateAI = true;
@@ -403,7 +419,7 @@ implements INPCAi {
 	@Override
 	public void setRetaliateType(int type) {
 		if (type < 0 || type > 3) {
-			throw new CustomNPCsException("[0 / 3] ]Unknown retaliation type: " + type, new Object[0]);
+			throw new CustomNPCsException("[0 / 3] ]Unknown retaliation type: " + type);
 		}
 		this.onAttack = type;
 		this.npc.updateAI = true;
@@ -423,7 +439,7 @@ implements INPCAi {
 	@Override
 	public void setStandingType(int type) {
 		if (type < 0 || type > 4) {
-			throw new CustomNPCsException("Unknown standing type: " + type, new Object[0]);
+			throw new CustomNPCsException("Unknown standing type: " + type);
 		}
 		this.standingType = type;
 		this.npc.updateAI = true;
@@ -460,7 +476,7 @@ implements INPCAi {
 	@Override
 	public void setWalkingSpeed(int speed) {
 		if (speed < 0 || speed > 10) {
-			throw new CustomNPCsException("Wrong speed: " + speed, new Object[0]);
+			throw new CustomNPCsException("Wrong speed: " + speed);
 		}
 		this.moveSpeed = speed;
 		this.npc.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(this.npc.getSpeed());
@@ -470,17 +486,19 @@ implements INPCAi {
 	@Override
 	public void setWanderingRange(int range) {
 		if (range < 1 || range > 50) {
-			throw new CustomNPCsException("Bad wandering range: " + range, new Object[0]);
+			throw new CustomNPCsException("Bad wandering range: " + range + " (1 - 50)");
 		}
 		this.walkingRange = range;
 	}
 
+	@Override
+	public void setMaxHurtResistantTime(int ticks) {
+		if (ticks < 0) { ticks *= -1; }
+		this.maxHurtResistantTime = ticks;
+	}
+
 	public boolean shouldReturnHome() {
-		return (!(this.npc.advanced.jobInterface instanceof JobBuilder)
-				|| !((JobBuilder) this.npc.advanced.jobInterface).isBuilding())
-				&& (!(this.npc.advanced.jobInterface instanceof JobFarmer)
-						|| !((JobFarmer) this.npc.advanced.jobInterface).isPlucking())
-				&& this.returnToStart;
+		return (!(this.npc.advanced.jobInterface instanceof JobBuilder) || !((JobBuilder) this.npc.advanced.jobInterface).isBuilding()) && (!(this.npc.advanced.jobInterface instanceof JobFarmer) || !((JobFarmer) this.npc.advanced.jobInterface).isPlucking()) && this.returnToStart;
 	}
 
 	public BlockPos startPos() {
@@ -491,6 +509,7 @@ implements INPCAi {
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		this.setAvoidsWater(this.avoidsWater);
 		compound.setBoolean("CanSwim", this.canSwim);
 		compound.setBoolean("ReactsToFire", this.reactsToFire);
 		compound.setBoolean("AvoidsWater", this.avoidsWater);
@@ -522,9 +541,10 @@ implements INPCAi {
 		compound.setTag("MovingPathNew", NBTTags.nbtIntegerArraySet(this.movingPath));
 		compound.setInteger("MovingPos", this.movingPos);
 		compound.setInteger("MovingPatern", this.movingPattern);
-		this.setAvoidsWater(this.avoidsWater);
 		compound.setIntArray("StartPosNew", this.getStartArray());
 		compound.setBoolean("AttackInvisible", this.attackInvisible);
+
+		compound.setInteger("MaxHurtResistantTime", this.maxHurtResistantTime);
 		return compound;
 	}
 
@@ -533,5 +553,5 @@ implements INPCAi {
 
 	@Override
 	public void setIsAIDisabled(boolean bo) { this.aiDisabled = bo; }
-	
+
 }

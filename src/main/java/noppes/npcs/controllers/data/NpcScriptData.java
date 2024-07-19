@@ -1,12 +1,9 @@
 package noppes.npcs.controllers.data;
 
-import java.util.Iterator;
-
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
-import noppes.npcs.NBTTags;
+import noppes.npcs.LogWriter;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -32,20 +29,10 @@ extends BaseScriptData {
 						EventHooks.onNPCsInit(this);
 					}
 				}
-				Iterator<ScriptContainer> iterator = this.scripts.iterator();
-				while (iterator.hasNext()) {
-					((ScriptContainer) iterator.next()).run(type, event, !this.isClient());
-				}
+                for (ScriptContainer script : this.scripts) {
+                    script.run(type, event, !this.isClient());
+                }
 			});
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
-	
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setTag("Scripts", NBTTags.NBTScript(this.scripts));
-		compound.setString("ScriptLanguage", this.scriptLanguage);
-		compound.setBoolean("ScriptEnabled", this.enabled);
-		return compound;
-	}
-	
 }

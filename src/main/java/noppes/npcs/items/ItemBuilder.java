@@ -1,12 +1,13 @@
 package noppes.npcs.items;
 
 import java.util.List;
+import java.util.Objects;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -38,22 +39,19 @@ public class ItemBuilder // set schematics
 extends Item
 implements IPermission, ISpecBuilder {
 	
-	private EnumGuiType guiType = EnumGuiType.BuilderSetting;
+	private final EnumGuiType guiType = EnumGuiType.BuilderSetting;
 	
 	public ItemBuilder() {
 		this.setRegistryName(CustomNpcs.MODID, "npcbuilder");
 		this.setUnlocalizedName("npcbuilder");
 		this.maxStackSize = 1;
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 		this.setHasSubtypes(true);
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list == null) {
-			return;
-		}
+	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<String> list, @Nonnull ITooltipFlag flagIn) {
 		BuilderData builder = ItemBuilder.getBuilder(stack, null);
 		list.add(new TextComponentTranslation("info.item.builder.main.0").getFormattedText());
 		list.add(new TextComponentTranslation("info.item.builder.main.1").getFormattedText());
@@ -65,8 +63,8 @@ implements IPermission, ISpecBuilder {
 			list.add(new TextComponentTranslation("info.item.builder.range.0", "" + builder.region[0], "" + builder.region[1], "" + builder.region[2]).getFormattedText());
 		} else {
 			list.add(new TextComponentTranslation("info.item.builder.main.2").getFormattedText());
-			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("ID", 3) && stack.getTagCompound().hasKey("BuilderType", 3)) {
-				NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.GetBuildData, stack, 2000, stack.getTagCompound().getInteger("ID"), stack.getTagCompound().getInteger("BuilderType"));
+			if (stack.hasTagCompound() && stack.getTagCompound() != null  && stack.getTagCompound().hasKey("ID", 3) && stack.getTagCompound().hasKey("BuilderType", 3)) {
+				NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.GetBuildData, stack, 2000, stack.getTagCompound().getInteger("ID"), stack.getTagCompound().getInteger("BuilderType"));
 			}
 		}
 	}
@@ -85,7 +83,7 @@ implements IPermission, ISpecBuilder {
 			NoppesUtilServer.sendOpenGui(player, this.guiType, null, -1, this.getType(), 0);
 			return;
 		}
-		if (data.hud.hasOrKeysPressed(new int[] { 29, 157 })) { // Ctrl pressed <-
+		if (data.hud.hasOrKeysPressed(29, 157)) { // Ctrl pressed <-
 			builder.undo();
 			return;
 		}
@@ -96,7 +94,7 @@ implements IPermission, ISpecBuilder {
 		}
 		TileEntity tile = player.world.getTileEntity(pos);
 		if (tile != null) { st.setTagCompound(tile.writeToNBT(new NBTTagCompound())); }
-		String name = st.getItem().getRegistryName().toString() + (st.getItemDamage() != 0 ? " [" + st.getItemDamage() + "]" : "");
+		String name = Objects.requireNonNull(st.getItem().getRegistryName()) + (st.getItemDamage() != 0 ? " [" + st.getItemDamage() + "]" : "");
 		int emp = 0;
 		for (int i = 1; i < 10; i++) {
 			if (emp == 0 && builder.inv.getStackInSlot(i).isEmpty()) {
@@ -129,7 +127,7 @@ implements IPermission, ISpecBuilder {
 			NoppesUtilServer.sendOpenGui(player, this.guiType, null, -1, this.getType(), 0);
 			return;
 		}
-		if (data.hud.hasOrKeysPressed(new int[] { 29, 157 })) { // Ctrl pressed ->
+		if (data.hud.hasOrKeysPressed(29, 157)) { // Ctrl pressed ->
 			builder.redo();
 			return;
 		}
@@ -140,7 +138,7 @@ implements IPermission, ISpecBuilder {
 	public int getType() { return 1; }
 
 	public static BuilderData getBuilder(ItemStack stack, EntityPlayer player) {
-		if (stack.getItem() instanceof ISpecBuilder && stack.hasTagCompound() && stack.getTagCompound().hasKey("ID", 3)) {
+		if (stack.getItem() instanceof ISpecBuilder && stack.hasTagCompound() && stack.getTagCompound() != null && stack.getTagCompound().hasKey("ID", 3)) {
 			BuilderData builder = SyncController.dataBuilder.get(stack.getTagCompound().getInteger("ID"));
 			if (builder == null) {
 				builder = new BuilderData(stack.getTagCompound().getInteger("ID"), ((ISpecBuilder) stack.getItem()).getType());
@@ -154,7 +152,7 @@ implements IPermission, ISpecBuilder {
 	}
 	
 	public static boolean isBuilder(ItemStack stack, BuilderData bd) {
-		if (stack.getItem() instanceof ISpecBuilder && stack.hasTagCompound() && stack.getTagCompound().hasKey("ID", 3)) {
+		if (stack.getItem() instanceof ISpecBuilder && stack.hasTagCompound() && stack.getTagCompound() != null && stack.getTagCompound().hasKey("ID", 3)) {
 			BuilderData baseBD = SyncController.dataBuilder.get(stack.getTagCompound().getInteger("ID"));
 			return baseBD != null && baseBD.getID() == bd.getID() && baseBD.getType() == bd.getType();
 		}

@@ -2,11 +2,12 @@ package noppes.npcs.client.gui.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+
+import javax.annotation.Nonnull;
 
 public class GuiMenuLeftButton extends GuiNpcButton {
 
@@ -15,15 +16,6 @@ public class GuiMenuLeftButton extends GuiNpcButton {
 	public int width, height, offsetYtext, data;
 	public IButtonListener listener;
 	public boolean rotated;
-
-	public GuiMenuLeftButton(int i, GuiButton parent, String s) {
-		this(i, parent.x + parent.width, parent.y, s);
-	}
-
-	public GuiMenuLeftButton(int i, GuiButton parent, String s, IButtonListener listener) {
-		this(i, parent, s);
-		this.listener = listener;
-	}
 
 	public GuiMenuLeftButton(int i, int j, int k, String s) {
 		super(i, j, k, new TextComponentTranslation(s).getFormattedText());
@@ -35,7 +27,7 @@ public class GuiMenuLeftButton extends GuiNpcButton {
 		this.x -= this.width;
 	}
 
-	public void drawButton(Minecraft minecraft, int i, int j, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft minecraft, int i, int j, float partialTicks) {
 		if (!this.getVisible()) {
 			return;
 		}
@@ -84,20 +76,17 @@ public class GuiMenuLeftButton extends GuiNpcButton {
 		return byte0;
 	}
 
-	protected void mouseDragged(Minecraft minecraft, int i, int j) {
+	protected void mouseDragged(@Nonnull Minecraft minecraft, int i, int j) {
 	}
 
 	@Override
-	public boolean mousePressed(Minecraft minecraft, int i, int j) {
+	public boolean mousePressed(@Nonnull Minecraft minecraft, int i, int j) {
 		boolean bo = !this.active && this.getVisible() && this.hovered;
 		if (bo && this.listener != null) {
 			this.listener.actionPerformed(this);
 			return false;
 		}
 		return bo;
-	}
-
-	public void mouseReleased(int i, int j) {
 	}
 
 }

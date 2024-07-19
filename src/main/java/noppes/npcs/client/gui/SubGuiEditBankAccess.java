@@ -32,6 +32,7 @@ public class SubGuiEditBankAccess extends SubGuiInterface implements ICustomScro
 		this.names = Lists.newArrayList(bank.access);
 		this.white = bank.isWhiteList;
 		this.sel = "";
+		this.id = id;
 
 		this.setBackground("smallbg.png");
 		this.xSize = 176;

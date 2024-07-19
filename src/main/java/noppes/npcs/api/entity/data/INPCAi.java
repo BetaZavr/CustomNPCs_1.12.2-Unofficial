@@ -46,7 +46,9 @@ public interface INPCAi {
 
 	int getWanderingRange();
 
-	void setAnimation(int type);
+    int getMaxHurtResistantTime();
+
+    void setAnimation(int type);
 
 	void setAttackInvisible(boolean attack);
 
@@ -85,7 +87,9 @@ public interface INPCAi {
 	void setWalkingSpeed(int speed);
 
 	void setWanderingRange(int range);
-	
+
+	void setMaxHurtResistantTime(int ticks);
+
 	boolean isAIDisabled();
 	
 	void setIsAIDisabled(boolean aiDisabled);

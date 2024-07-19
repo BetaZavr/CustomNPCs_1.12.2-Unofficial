@@ -1,10 +1,8 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,6 +16,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.handler.IBorderHandler;
@@ -49,13 +48,13 @@ public class BorderController implements IBorderHandler {
 	public BorderController() {
 		BorderController.instance = this;
 		this.filePath = CustomNpcs.getWorldSaveDirectory().getAbsolutePath();
-		this.regions = Maps.<Integer, Zone3D>newHashMap();
+		this.regions = Maps.newHashMap();
 		this.loadRegions();
 	}
 
 	public Zone3D createNew(int dimensionID, BlockPos pos) {
 		if (this.regions == null) {
-			this.regions = Maps.<Integer, Zone3D>newHashMap();
+			this.regions = Maps.newHashMap();
 		}
 		Zone3D reg = new Zone3D(this.getUnusedId(), dimensionID, pos.getX(), pos.getY(), pos.getZ());
 		this.regions.put(reg.getId(), reg);
@@ -69,7 +68,7 @@ public class BorderController implements IBorderHandler {
 
 	@Override
 	public IBorder[] getAllRegions() {
-		return this.regions.values().toArray(new IBorder[this.regions.size()]);
+		return this.regions.values().toArray(new IBorder[0]);
 	}
 
 	public NBTTagCompound getNBT() {
@@ -91,17 +90,17 @@ public class BorderController implements IBorderHandler {
 
 	@Override
 	public IBorder[] getRegions(int dimensionID) {
-		List<IBorder> regs = Lists.<IBorder>newArrayList();
+		List<IBorder> regs = Lists.newArrayList();
 		for (Zone3D reg : this.regions.values()) {
 			if (reg.dimensionID == dimensionID) {
 				regs.add(reg);
 			}
 		}
-		return regs.toArray(new IBorder[regs.size()]);
+		return regs.toArray(new IBorder[0]);
 	}
 
 	public List<Zone3D> getRegionsInWorld(int dimensionID) {
-		List<Zone3D> regs = Lists.<Zone3D>newArrayList();
+		List<Zone3D> regs = Lists.newArrayList();
 		for (Zone3D reg : this.regions.values()) {
 			if (reg.dimensionID == dimensionID) {
 				regs.add(reg);
@@ -111,9 +110,8 @@ public class BorderController implements IBorderHandler {
 	}
 
 	public int getUnusedId() {
-		int id;
-		for (id = 0; this.regions.containsKey(id); ++id) {
-		}
+		int id = 0;
+		while (this.regions.containsKey(id)) { id++; }
 		return id;
 	}
 
@@ -152,21 +150,20 @@ public class BorderController implements IBorderHandler {
 				if (file2.exists()) {
 					this.loadRegions(file2);
 				}
-			} catch (Exception ex) {
-			}
+			} catch (Exception ex) { LogWriter.error("Error:", ex); }
 		}
 		CustomNpcs.debugData.endDebug("Common", null, "loadRegions");
 	}
 
 	private void loadRegions(File file) throws IOException {
-		this.loadRegions(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+		this.loadRegions(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath())));
 	}
 
-	public void loadRegions(NBTTagCompound compound) throws IOException {
+	public void loadRegions(NBTTagCompound compound) {
 		if (this.regions != null) {
 			this.regions.clear();
 		} else {
-			this.regions = Maps.<Integer, Zone3D>newHashMap();
+			this.regions = Maps.newHashMap();
 		}
 		if (compound.hasKey("Data", 9)) {
 			for (int i = 0; i < compound.getTagList("Data", 10).tagCount(); ++i) {
@@ -177,7 +174,7 @@ public class BorderController implements IBorderHandler {
 
 	@Override
 	public boolean removeRegion(int region) {
-		if (region < 0 || this.regions.size() == 0) {
+		if (region < 0 || this.regions.isEmpty()) {
 			return false;
 		}
 		this.regions.remove(region);
@@ -191,7 +188,7 @@ public class BorderController implements IBorderHandler {
 			File file = new File(saveDir, "borders.dat_new");
 			File file2 = new File(saveDir, "borders.dat_old");
 			File file3 = new File(saveDir, "borders.dat");
-			CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(file));
+			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(file.toPath()));
 			if (file2.exists()) {
 				file2.delete();
 			}
@@ -203,13 +200,7 @@ public class BorderController implements IBorderHandler {
 			if (file.exists()) {
 				file.delete();
 			}
-			/*
-			 * if (CustomNpcs.VerboseDebug) { NBTJsonUtil.SaveFile(new File(saveDir,
-			 * "borders.json"), this.getNBT()); }
-			 */
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void sendTo(EntityPlayerMP player) {
@@ -226,8 +217,7 @@ public class BorderController implements IBorderHandler {
 	}
 
 	public void update() {
-		if (CustomNpcs.Server == null || CustomNpcs.Server.getPlayerList().getOnlinePlayerNames().length == 0
-				|| this.regions.size() == 0) {
+		if (CustomNpcs.Server == null || CustomNpcs.Server.getPlayerList().getOnlinePlayerNames().length == 0 || this.regions.isEmpty()) {
 			return;
 		}
 		for (Zone3D reg : this.regions.values()) {

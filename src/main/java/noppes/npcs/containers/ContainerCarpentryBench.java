@@ -20,20 +20,23 @@ import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class ContainerCarpentryBench extends Container {
+
 	public InventoryCrafting craftMatrix = new InventoryCrafting(this, 4, 4);
 	public InventoryCraftResult craftResult = new InventoryCraftResult();
-	private EntityPlayer player;
-	private BlockPos pos;
-	private World world;
+	private final EntityPlayer player;
+	private final BlockPos pos;
+	private final World world;
 	public int x = 125, y = 30;
 
 	public ContainerCarpentryBench(InventoryPlayer playerInventory, World worldIn, BlockPos posIn) {
 		this.world = worldIn;
 		this.pos = posIn;
 		this.player = playerInventory.player;
-		this.addSlotToContainer(
-				(Slot) new SlotNpcCrafting(playerInventory.player, this.craftMatrix, this.craftResult, 0, 140, 41));
+		this.addSlotToContainer(new SlotNpcCrafting(playerInventory.player, this.craftMatrix, this.craftResult, 0, 140, 41));
 		for (int var6 = 0; var6 < 4; ++var6) {
 			for (int var7 = 0; var7 < 4; ++var7) {
 				this.addSlotToContainer(new Slot(this.craftMatrix, var7 + var6 * 4, 30 + var7 * 18, 14 + var6 * 18));
@@ -50,43 +53,32 @@ public class ContainerCarpentryBench extends Container {
 		this.onCraftMatrixChanged(this.craftMatrix);
 	}
 
-	public boolean canInteractWith(EntityPlayer playerIn) {
+	public boolean canInteractWith(@Nonnull EntityPlayer playerIn) {
 		if (this.world.getBlockState(this.pos).getBlock() != CustomRegisters.carpentyBench) {
 			return false;
 		} else {
 			return playerIn.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D,
 					(double) this.pos.getZ() + 0.5D) <= 64.0D;
 		}
-		// return this.world.getBlockState(this.pos).getBlock() ==
-		// CustomRegisters.carpentyBench &&
-		// par1EntityPlayer.getDistanceSq(this.pos.getX() +
-		// 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5) <= 64.0;
 	}
 
-	public boolean canMergeSlot(ItemStack stack, Slot slotIn) {
+	public boolean canMergeSlot(@Nonnull ItemStack stack, @Nonnull Slot slotIn) {
 		return slotIn.inventory != this.craftResult && super.canMergeSlot(stack, slotIn);
 	}
 
-	public void onContainerClosed(EntityPlayer playerIn) {
+	public void onContainerClosed(@Nonnull EntityPlayer playerIn) {
 		super.onContainerClosed(playerIn);
 		if (!this.world.isRemote) {
 			this.clearContainer(playerIn, this.world, this.craftMatrix);
-			/*
-			 * for (int var2 = 0; var2 < 16; ++var2) { ItemStack var3 =
-			 * this.craftMatrix.removeStackFromSlot(var2); if (var3 != null) {
-			 * par1EntityPlayer.dropItem(var3, false); } }
-			 */
 		}
 	}
 
-	public void onCraftMatrixChanged(IInventory inventoryIn) {
-		// this.slotChangedCraftingGrid(this.world, this.player, this.craftMatrix,
-		// this.craftResult);
+	public void onCraftMatrixChanged(@Nonnull IInventory inventoryIn) {
 		if (!this.world.isRemote) {
 			INpcRecipe recipe = RecipeController.getInstance().findMatchingRecipe(this.craftMatrix);
 			ItemStack item = ItemStack.EMPTY;
 			if (recipe != null
-					&& recipe.getAvailability().isAvailable((IPlayer<?>) NpcAPI.Instance().getIEntity(this.player))) {
+					&& recipe.getAvailability().isAvailable((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player))) {
 				if (recipe instanceof NpcShapedRecipes) {
 					item = ((NpcShapedRecipes) recipe).getCraftingResult(this.craftMatrix);
 				} else {
@@ -94,8 +86,7 @@ public class ContainerCarpentryBench extends Container {
 				}
 			}
 			this.craftResult.setInventorySlotContents(0, item);
-			EntityPlayerMP plmp = (EntityPlayerMP) this.player;
-			plmp.connection.sendPacket(new SPacketSetSlot(this.windowId, 0, item));
+			((EntityPlayerMP) this.player).connection.sendPacket(new SPacketSetSlot(this.windowId, 0, item));
 		}
 	}
 
@@ -112,7 +103,7 @@ public class ContainerCarpentryBench extends Container {
 		}
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer playerIn, int index) {
 		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = this.inventorySlots.get(index);
 		if (slot != null && slot.getHasStack()) {

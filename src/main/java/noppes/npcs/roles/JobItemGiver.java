@@ -1,7 +1,6 @@
 package noppes.npcs.roles;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -9,7 +8,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcMiscInventory;
@@ -31,7 +29,7 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 	public NpcMiscInventory inventory;
 	public int itemGiverId;
 	public List<String> lines;
-	private List<EntityPlayer> recentlyChecked;
+	private final List<EntityPlayer> recentlyChecked;
 	private int ticks;
 	private List<EntityPlayer> toCheck;
 
@@ -41,9 +39,9 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 		this.givingMethod = 0;
 		this.cooldown = 10;
 		this.itemGiverId = 0;
-		this.lines = new ArrayList<String>();
+		this.lines = new ArrayList<>();
 		this.ticks = 10;
-		this.recentlyChecked = new ArrayList<EntityPlayer>();
+		this.recentlyChecked = new ArrayList<>();
 		this.availability = new Availability();
 		this.inventory = new NpcMiscInventory(9);
 		this.lines.add("Have these items {player}");
@@ -71,7 +69,7 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 				this.npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0));
 		this.recentlyChecked.retainAll(listMax);
 		this.recentlyChecked.addAll(this.toCheck);
-		return this.toCheck.size() > 0;
+		return !this.toCheck.isEmpty();
 	}
 
 	@Override
@@ -89,20 +87,15 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 			return false;
 		}
 		if (this.isOnTimer()) {
-			return !data.hasInteractedBefore(this)
-					|| data.getTime(this) + this.cooldown * 1000 < System.currentTimeMillis();
+			return data.notInteractedBefore(this) || data.getTime(this) + this.cooldown * 1000L < System.currentTimeMillis();
 		}
 		if (this.isGiveOnce()) {
-			return !data.hasInteractedBefore(this);
+			return data.notInteractedBefore(this);
 		}
-		return this.isDaily() && (!data.hasInteractedBefore(this) || this.getDay() > data.getTime(this));
+		return this.isDaily() && (data.notInteractedBefore(this) || this.getDay() > data.getTime(this));
 	}
 
-	@Override
-	public void delete() {
-	}
-
-	private int freeInventorySlots(EntityPlayer player) {
+    private int freeInventorySlots(EntityPlayer player) {
 		int i = 0;
 		for (ItemStack is : player.inventory.mainInventory) {
 			if (NoppesUtilServer.IsItemStackNull(is)) {
@@ -116,24 +109,13 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 		return (int) (this.npc.world.getTotalWorldTime() / 24000L);
 	}
 
-	public HashMap<String, Long> getNBTLines(NBTTagList tagList) {
-		HashMap<String, Long> map = new HashMap<String, Long>();
-		for (int i = 0; i < tagList.tagCount(); ++i) {
-			NBTTagCompound nbttagcompound = tagList.getCompoundTagAt(i);
-			String line = nbttagcompound.getString("Line");
-			long time = nbttagcompound.getLong("Time");
-			map.put(line, time);
-		}
-		return map;
-	}
-
 	private boolean giveItems(EntityPlayer player) {
 		PlayerItemGiverData data = PlayerData.get(player).itemgiverData;
 		if (!this.canPlayerInteract(data)) {
 			return false;
 		}
-		Vector<ItemStack> items = new Vector<ItemStack>();
-		Vector<ItemStack> toGive = new Vector<ItemStack>();
+		Vector<ItemStack> items = new Vector<>();
+		Vector<ItemStack> toGive = new Vector<>();
 		for (ItemStack is : this.inventory.items) {
 			if (!is.isEmpty()) {
 				items.add(is.copy());
@@ -208,11 +190,10 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 		return true;
 	}
 
-	private boolean interact(EntityPlayer player) {
+	private void interact(EntityPlayer player) {
 		if (!this.giveItems(player)) {
 			this.npc.say(player, this.npc.advanced.getInteractLine());
 		}
-		return true;
 	}
 
 	private boolean isAllGiver() {
@@ -245,22 +226,6 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 
 	private boolean isRemainingGiver() {
 		return this.givingMethod == 2;
-	}
-
-	@Override
-	public void killed() {
-	}
-
-	public NBTTagList newHashMapNBTList(HashMap<String, Long> lines) {
-		NBTTagList nbttaglist = new NBTTagList();
-		HashMap<String, Long> lines2 = lines;
-		for (String s : lines2.keySet()) {
-			NBTTagCompound nbttagcompound = new NBTTagCompound();
-			nbttagcompound.setString("Line", s);
-			nbttagcompound.setLong("Time", (long) lines.get(s));
-			nbttaglist.appendTag(nbttagcompound);
-		}
-		return nbttaglist;
 	}
 
 	private boolean playerHasItem(EntityPlayer player, Item item) {

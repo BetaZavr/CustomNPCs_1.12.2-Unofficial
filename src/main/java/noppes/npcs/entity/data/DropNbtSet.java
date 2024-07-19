@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.entity.data.IDropNbtSet;
 import noppes.npcs.api.wrapper.NBTWrapper;
@@ -18,7 +19,7 @@ import noppes.npcs.util.ValueUtil;
 public class DropNbtSet implements IDropNbtSet {
 
 	public double chance;
-	private DropSet parent;
+	private final DropSet parent;
 	public String path;
 	public int type;
 	public int typeList;
@@ -33,79 +34,72 @@ public class DropNbtSet implements IDropNbtSet {
 		this.chance = 100.0d;
 	}
 
-	public String cheakValue(String value, int type) {
+	public String checkValue(String value, int type) {
 		switch (type) {
 		case 0: { // boolean
 			try {
-				boolean b = Boolean.valueOf(value);
+				boolean b = Boolean.parseBoolean(value);
 				return String.valueOf(b);
-			} catch (Exception e) {
 			}
+			catch (Exception e) { LogWriter.error("Error:", e); }
 			break;
 		}
 		case 1: { // byte
 			try {
-				byte b = Byte.valueOf(value);
+				byte b = Byte.parseByte(value);
 				return String.valueOf(b);
-			} catch (Exception e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 			break;
 		}
 		case 2: { // short
 			try {
-				short s = Short.valueOf(value);
+				short s = Short.parseShort(value);
 				return String.valueOf(s);
-			} catch (Exception e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 			break;
 		}
 		case 3: { // integer
 			try {
-				int b = Integer.valueOf(value);
+				int b = Integer.parseInt(value);
 				return String.valueOf(b);
-			} catch (Exception e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 			break;
 		}
 		case 4: { // long
 			try {
-				long l = Long.valueOf(value);
+				long l = Long.parseLong(value);
 				return String.valueOf(l);
-			} catch (Exception e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 			break;
 		}
 		case 5: { // float
 			try {
-				float f = Float.valueOf(value);
+				float f = Float.parseFloat(value);
 				return String.valueOf(f);
-			} catch (Exception e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 			break;
 		}
 		case 6: { // double
 			try {
-				double d = Double.valueOf(value);
+				double d = Double.parseDouble(value);
 				return String.valueOf(d);
-			} catch (Exception e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 			break;
 		}
 		case 7: { // byte array
 			String[] br = value.split(",");
-			String text = "";
+			StringBuilder text = new StringBuilder();
 			for (String str : br) {
 				try {
-					byte b = Byte.valueOf(str);
+					byte b = Byte.parseByte(str);
 					if (text.length() > 0) {
-						text += ",";
+						text.append(",");
 					}
-					text += String.valueOf(b);
-				} catch (Exception e) {
-				}
+					text.append(String.valueOf(b));
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			if (text.length() > 0) {
-				return text;
+				return text.toString();
 			}
 			break;
 		}
@@ -114,44 +108,42 @@ public class DropNbtSet implements IDropNbtSet {
 		}
 		case 9: { // list
 			String[] br = value.split(",");
-			String text = "";
+			StringBuilder text = new StringBuilder();
 			for (String str : br) {
 				try {
-					String sc = cheakValue(str, this.typeList);
+					String sc = checkValue(str, this.typeList);
 					if (sc != null) {
 						if (text.length() > 0) {
-							text += ",";
+							text.append(",");
 						}
-						text += sc;
+						text.append(sc);
 					}
-				} catch (Exception e) {
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			if (text.length() > 0) {
-				return text;
+				return text.toString();
 			}
 			break;
 		}
 		case 11: { // integer array
 			String[] br = value.split(",");
-			String text = "";
+			StringBuilder text = new StringBuilder();
 			for (String str : br) {
 				try {
-					int i = Integer.valueOf(str);
+					int i = Integer.parseInt(str);
 					if (text.length() > 0) {
 						if (type == this.type) {
-							text += ",";
+							text.append(",");
 						}
 						{
-							text += ";";
+							text.append(";");
 						}
 					}
-					text += String.valueOf(i);
-				} catch (Exception e) {
-				}
+					text.append(i);
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			if (text.length() > 0) {
-				return text;
+				return text.toString();
 			}
 			break;
 		}
@@ -168,9 +160,9 @@ public class DropNbtSet implements IDropNbtSet {
 	public INbt getConstructoredTag(INbt nbt) {
 		NBTTagCompound pos = nbt.getMCNBT();
 		String key = this.path;
-		if (this.path.indexOf(".") != -1) {
-			String keyName = "";
-			while (key.indexOf(".") != -1) {
+		if (this.path.contains(".")) {
+			String keyName;
+			while (key.contains(".")) {
 				keyName = key.substring(0, key.indexOf("."));
 				if (!pos.hasKey(keyName, 10)) {
 					pos.setTag(keyName, new NBTTagCompound());
@@ -185,39 +177,39 @@ public class DropNbtSet implements IDropNbtSet {
 		}
 		String value = this.values[idx];
 		switch (this.type) {
-		case 0: { // booleab
-			pos.setBoolean(key, Boolean.valueOf(value));
+		case 0: { // boolean
+			pos.setBoolean(key, Boolean.parseBoolean(value));
 			break;
 		}
 		case 1: { // byte
-			pos.setByte(key, Byte.valueOf(value));
+			pos.setByte(key, Byte.parseByte(value));
 			break;
 		}
 		case 2: { // short
-			pos.setShort(key, Short.valueOf(value));
+			pos.setShort(key, Short.parseShort(value));
 			break;
 		}
 		case 3: { // integer
-			pos.setInteger(key, Integer.valueOf(value));
+			pos.setInteger(key, Integer.parseInt(value));
 			break;
 		}
 		case 4: { // long
-			pos.setLong(key, Long.valueOf(value));
+			pos.setLong(key, Long.parseLong(value));
 			break;
 		}
 		case 5: { // float
-			pos.setFloat(key, Float.valueOf(value));
+			pos.setFloat(key, Float.parseFloat(value));
 			break;
 		}
 		case 6: { // double
-			pos.setDouble(key, Double.valueOf(value));
+			pos.setDouble(key, Double.parseDouble(value));
 			break;
 		}
 		case 7: { // byte array
 			String[] brs = value.split(",");
 			byte[] br = new byte[brs.length];
 			for (int i = 0; i < brs.length; i++) {
-				br[i] = Byte.valueOf(brs[i]);
+				br[i] = Byte.parseByte(brs[i]);
 			}
 			pos.setByteArray(key, br);
 			break;
@@ -229,24 +221,24 @@ public class DropNbtSet implements IDropNbtSet {
 		case 9: { // list
 			String[] brs = value.split(",");
 			NBTTagList list = new NBTTagList();
-			for (int i = 0; i < brs.length; i++) {
-				if (this.typeList == 3) {
-					list.appendTag(new NBTTagInt(Integer.valueOf(brs[i])));
-				} else if (this.typeList == 5) {
-					list.appendTag(new NBTTagFloat(Float.valueOf(brs[i])));
-				} else if (this.typeList == 6) {
-					list.appendTag(new NBTTagDouble(Double.valueOf(brs[i])));
-				} else if (this.typeList == 8) {
-					list.appendTag(new NBTTagString(brs[i]));
-				} else if (this.typeList == 11) {
-					String[] ints = brs[i].split(";");
-					int[] is = new int[ints.length];
-					for (int j = 0; j < ints.length; j++) {
-						is[j] = Integer.valueOf(ints[j]);
-					}
-					list.appendTag(new NBTTagIntArray(is));
-				}
-			}
+            for (String br : brs) {
+                if (this.typeList == 3) {
+                    list.appendTag(new NBTTagInt(Integer.parseInt(br)));
+                } else if (this.typeList == 5) {
+                    list.appendTag(new NBTTagFloat(Float.parseFloat(br)));
+                } else if (this.typeList == 6) {
+                    list.appendTag(new NBTTagDouble(Double.parseDouble(br)));
+                } else if (this.typeList == 8) {
+                    list.appendTag(new NBTTagString(br));
+                } else if (this.typeList == 11) {
+                    String[] ints = br.split(";");
+                    int[] is = new int[ints.length];
+                    for (int j = 0; j < ints.length; j++) {
+                        is[j] = Integer.parseInt(ints[j]);
+                    }
+                    list.appendTag(new NBTTagIntArray(is));
+                }
+            }
 			pos.setTag(key, list);
 			break;
 		}
@@ -254,7 +246,7 @@ public class DropNbtSet implements IDropNbtSet {
 			String[] ints = value.split(",");
 			int[] is = new int[ints.length];
 			for (int i = 0; i < ints.length; i++) {
-				is[i] = Integer.valueOf(ints[i]);
+				is[i] = Integer.parseInt(ints[i]);
 			}
 			pos.setIntArray(key, is);
 			break;
@@ -275,15 +267,15 @@ public class DropNbtSet implements IDropNbtSet {
 		keyName += c + "e" + chance;
 
 		String key = this.path;
-		if (this.path.indexOf(".") != -1) {
-			List<String> keys = new ArrayList<String>();
+		if (this.path.contains(".")) {
+			List<String> keys = new ArrayList<>();
 			String preKey = "";
-			while (key.indexOf(".") != -1) {
+			while (key.contains(".")) {
 				preKey = key.substring(0, key.indexOf("."));
 				keys.add(preKey);
 				key = key.substring(key.indexOf(".") + 1);
 			}
-			String lastKey = "" + key;
+			String lastKey = key;
 			keys.add(key);
 			key = preKey + "." + lastKey;
 			if (keys.size() > 2) {
@@ -345,7 +337,7 @@ public class DropNbtSet implements IDropNbtSet {
 		this.chance = nbtDS.getDouble("Chance");
 		String[] vs = new String[nbtDS.getTagList("Values", 8).tagCount()];
 		for (int i = 0; i < nbtDS.getTagList("Values", 8).tagCount(); i++) {
-			String ch = cheakValue(nbtDS.getTagList("Values", 8).getStringTagAt(i), this.type);
+			String ch = checkValue(nbtDS.getTagList("Values", 8).getStringTagAt(i), this.type);
 			if (ch != null) {
 				vs[i] = ch;
 			}
@@ -355,7 +347,7 @@ public class DropNbtSet implements IDropNbtSet {
 
 	@Override
 	public void remove() {
-		this.parent.removeDropNbt((DropNbtSet) this);
+		this.parent.removeDropNbt(this);
 	}
 
 	@Override
@@ -365,8 +357,8 @@ public class DropNbtSet implements IDropNbtSet {
 	}
 
 	@Override
-	public void setPath(String paht) {
-		this.path = paht;
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 	@Override
@@ -386,10 +378,10 @@ public class DropNbtSet implements IDropNbtSet {
 
 	@Override
 	public void setValues(String values) {
-		if (values.indexOf("|") != -1) {
-			List<String> nal = new ArrayList<String>();
-			while (values.indexOf("|") != -1) {
-				String key = cheakValue(values.substring(0, values.indexOf("|")), this.type);
+		if (values.contains("|")) {
+			List<String> nal = new ArrayList<>();
+			while (values.contains("|")) {
+				String key = checkValue(values.substring(0, values.indexOf("|")), this.type);
 				if (key != null) {
 					nal.add(key);
 				}
@@ -402,7 +394,7 @@ public class DropNbtSet implements IDropNbtSet {
 			}
 			this.values = svs;
 		} else {
-			String ch = cheakValue(values, this.type);
+			String ch = checkValue(values, this.type);
 			if (ch != null) {
 				this.values = new String[] { ch };
 			}
@@ -411,9 +403,9 @@ public class DropNbtSet implements IDropNbtSet {
 
 	@Override
 	public void setValues(String[] values) {
-		List<String> nal = new ArrayList<String>();
+		List<String> nal = new ArrayList<>();
 		for (String str : values) {
-			String key = cheakValue(str, this.type);
+			String key = checkValue(str, this.type);
 			if (key != null) {
 				nal.add(key);
 			}

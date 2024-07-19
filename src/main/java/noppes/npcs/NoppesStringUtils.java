@@ -63,10 +63,6 @@ public class NoppesStringUtils {
 		return removeHidden(result);
 	}
 
-	public static String newLine() {
-		return System.getProperty("line.separator");
-	}
-
 	public static int parseInt(String s, int i) {
 		try {
 			return Integer.parseInt(s);
@@ -82,16 +78,15 @@ public class NoppesStringUtils {
 			int codePoint = text.codePointAt(offset);
 			offset += Character.charCount(codePoint);
 			switch (Character.getType(codePoint)) {
-			case 0:
-			case 16:
-			case 18:
-			case 19: {
-				continue;
-			}
-			default: {
-				newString.append(Character.toChars(codePoint));
-				continue;
-			}
+				case 0:
+				case 16:
+				case 18:
+				case 19: {
+					continue;
+				}
+				default: {
+					newString.append(Character.toChars(codePoint));
+				}
 			}
 		}
 		return newString.toString();
@@ -104,19 +99,15 @@ public class NoppesStringUtils {
 		});
 	}
 
-	public static String[] splitLines(String s) {
-		return s.split("\r\n|\r|\n");
-	}
-
 	public static String translate(Object... arr) {
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for (Object str : arr) {
 			try {
-				s += new TextComponentTranslation(str.toString()).getFormattedText();
+				s.append(new TextComponentTranslation(str.toString()).getFormattedText());
 			} catch (Exception e) {
-				s += str;
+				s.append(str);
 			}
 		}
-		return s;
+		return s.toString();
 	}
 }

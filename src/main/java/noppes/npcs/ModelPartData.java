@@ -8,7 +8,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class ModelPartData {
 
-	private static Map<String, ResourceLocation> resources = new HashMap<String, ResourceLocation>();
+	private static final Map<String, ResourceLocation> resources = new HashMap<>();
 
 	public int color;
 	public int colorPattern;
@@ -28,10 +28,9 @@ public class ModelPartData {
 	}
 
 	public String getColor() {
-		String str;
-		for (str = Integer.toHexString(this.color); str.length() < 6; str = "0" + str) {
-		}
-		return str;
+		StringBuilder str = new StringBuilder(Integer.toHexString(this.color));
+		while (str.length() < 6) { str.insert(0, "0"); }
+		return str.toString();
 	}
 
 	public ResourceLocation getResource() {

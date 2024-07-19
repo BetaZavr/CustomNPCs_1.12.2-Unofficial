@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import noppes.npcs.LogWriter;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -37,7 +38,7 @@ public class CustomSkinModelRenderHelper {
 
 	public CustomSkinModelRenderHelper() {
 		INSTANCE = this;
-		helperModelsMap = Maps.<String, Object>newHashMap();
+		helperModelsMap = Maps.newHashMap();
 		helperModelsMap.put("armourers:head", new CustomModelSkinHead());
 		helperModelsMap.put("armourers:chest", new CustomModelSkinChest());
 		helperModelsMap.put("armourers:legs", new CustomModelSkinLegs());
@@ -74,9 +75,8 @@ public class CustomSkinModelRenderHelper {
 					break;
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public boolean renderEquipmentPart(ISkin skin, Object renderData, EntityNPCInterface npc, ModelBiped modelBiped, float scale, Map<EnumParts, Boolean> ba) {
@@ -96,24 +96,31 @@ public class CustomSkinModelRenderHelper {
 			GlStateManager.enableBlend();
 			GlStateManager.enableRescaleNormal();
 			boolean canDraw = true;
-			if (key.equals("armourers:wings")) {
-				modelBiped.bipedBody.postRender(scale);
-			} else if (key.equals("armourers:head")) {
-				((CustomModelSkinHead) model).render(npc, skin, modelBiped, renderData, scale, ba);
-				canDraw = false;
-			} else if (key.equals("armourers:chest")) {
-				((CustomModelSkinChest) model).render(npc, skin, modelBiped, renderData, scale, ba);
-				canDraw = false;
-			} else if (key.equals("armourers:legs")) {
-				((CustomModelSkinLegs) model).render(npc, skin, modelBiped, renderData, scale, ba);
-				canDraw = false;
-			} else if (key.equals("armourers:feet")) {
-				((CustomModelSkinFeet) model).render(npc, skin, modelBiped, renderData, scale, ba);
-				canDraw = false;
-			} else if (key.equals("armourers:outfit")) {
-				((CustomModelSkinOutfit) model).render(npc, skin, modelBiped, renderData, scale, ba);
-				canDraw = false;
-			}
+            switch (key) {
+                case "armourers:wings":
+                    modelBiped.bipedBody.postRender(scale);
+                    break;
+                case "armourers:head":
+                    ((CustomModelSkinHead) model).render(npc, skin, modelBiped, renderData, scale, ba);
+                    canDraw = false;
+                    break;
+                case "armourers:chest":
+                    ((CustomModelSkinChest) model).render(npc, skin, modelBiped, renderData, scale, ba);
+                    canDraw = false;
+                    break;
+                case "armourers:legs":
+                    ((CustomModelSkinLegs) model).render(npc, skin, modelBiped, renderData, scale, ba);
+                    canDraw = false;
+                    break;
+                case "armourers:feet":
+                    ((CustomModelSkinFeet) model).render(npc, skin, modelBiped, renderData, scale, ba);
+                    canDraw = false;
+                    break;
+                case "armourers:outfit":
+                    ((CustomModelSkinOutfit) model).render(npc, skin, modelBiped, renderData, scale, ba);
+                    canDraw = false;
+                    break;
+            }
 			if (canDraw) {
 				render.invoke(model, npc, skin, modelBiped, renderData);
 			}
@@ -123,9 +130,7 @@ public class CustomSkinModelRenderHelper {
 			GlStateManager.popAttrib();
 			GlStateManager.popMatrix();
 			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		return false;
 	}
 

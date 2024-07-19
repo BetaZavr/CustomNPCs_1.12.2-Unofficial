@@ -11,7 +11,7 @@ import noppes.npcs.controllers.data.PotionScriptData;
 
 public class GuiScriptPotion extends GuiScriptInterface implements ISubGuiListener {
 
-	private PotionScriptData script;
+	private final PotionScriptData script;
 
 	public GuiScriptPotion() {
 		this.script = new PotionScriptData();
@@ -36,12 +36,11 @@ public class GuiScriptPotion extends GuiScriptInterface implements ISubGuiListen
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			this.script.writeToNBT(nbt);
-			String p = new String(this.path);
-			while (p.indexOf("\\") != -1) {
+			String p = this.path;
+			while (p.contains("\\")) {
 				p = p.replace("\\", "/");
 			}
-			nbt.setString("Name",
-					((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
+			nbt.setString("Name", subgui.getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", p + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", this.activeTab - 1);
 			nbt.setByte("Type", (byte) 4);

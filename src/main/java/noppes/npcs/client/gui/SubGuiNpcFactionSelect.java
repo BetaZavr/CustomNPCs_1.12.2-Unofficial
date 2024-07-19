@@ -1,8 +1,6 @@
 package noppes.npcs.client.gui;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,9 +25,9 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomScrollListener {
 
-	private String name;
-	private HashMap<String, Integer> base;
-	private Map<String, Integer> data;
+	private final String name;
+	private final HashMap<String, Integer> base;
+	private final Map<String, Integer> data = Maps.newLinkedHashMap();
 	private GuiCustomScroll scrollHostileFactions;
 	public HashSet<Integer> selectFactions;
 
@@ -40,9 +38,8 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 		this.closeOnEsc = true;
 		this.id = id;
 		this.name = name;
-		this.selectFactions = Sets.<Integer>newHashSet(setFactions);
 		this.base = base;
-		this.data = Maps.<String, Integer>newLinkedHashMap();
+		this.selectFactions = Sets.newHashSet(setFactions);
 	}
 
 	@Override
@@ -84,21 +81,19 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 	public void initGui() {
 		super.initGui();
 		List<Entry<String, Integer>> newList = Lists.newArrayList(this.base.entrySet());
-		Collections.sort(newList, new Comparator<Entry<String, Integer>>() {
-			public int compare(Entry<String, Integer> f_0, Entry<String, Integer> f_1) {
-				if (GuiNPCManageFactions.isName) {
-					return f_0.getKey().compareTo(f_1.getKey());
-				} else {
-					return f_0.getValue().compareTo(f_1.getValue());
-				}
-			}
-		});
-		HashSet<String> set = Sets.<String>newHashSet();
+		newList.sort((f_0, f_1) -> {
+            if (GuiNPCManageFactions.isName) {
+                return f_0.getKey().compareTo(f_1.getKey());
+            } else {
+                return f_0.getValue().compareTo(f_1.getValue());
+            }
+        });
+		HashSet<String> set = Sets.newHashSet();
 		this.data.clear();
 		for (Entry<String, Integer> entry : newList) {
 			int id = entry.getValue();
 			String name = AdditionalMethods.instance.deleteColor(entry.getKey());
-			if (name.indexOf("ID:" + id + " ") >= 0) {
+			if (name.contains("ID:" + id + " ")) {
 				name = name.substring(name.indexOf(" ") + 3);
 			}
 			String key = ((char) 167) + "7ID:" + id + " " + ((char) 167) + "r" + name;
@@ -116,32 +111,26 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 		}
 		this.scrollHostileFactions.guiLeft = this.guiLeft + 4;
 		this.scrollHostileFactions.guiTop = this.guiTop + 28;
-		this.scrollHostileFactions.setListNotSorted(Lists.<String>newArrayList(this.data.keySet()));
+		this.scrollHostileFactions.setListNotSorted(Lists.newArrayList(this.data.keySet()));
 		this.scrollHostileFactions.setSelectedList(set);
 
 		this.addScroll(this.scrollHostileFactions);
-		this.addLabel(new GuiNpcLabel(0, AdditionalMethods.instance.deleteColor(this.name), this.guiLeft + 4,
-				this.guiTop + 4));
+		this.addLabel(new GuiNpcLabel(0, AdditionalMethods.instance.deleteColor(this.name), this.guiLeft + 4, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(1, "faction.select", this.guiLeft + 4, this.guiTop + 16));
 
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 123, this.guiTop + 6, 45, 20, "gui.done"));
 
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, this.guiLeft + 91, this.guiTop + 6, 30, 12,
-				GuiNPCManageFactions.isName ? "gui.name" : "ID");
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, this.guiLeft + 91, this.guiTop + 6, 30, 12, GuiNPCManageFactions.isName ? "gui.name" : "ID");
 		checkBox.setSelected(GuiNPCManageFactions.isName);
 		this.addButton(checkBox);
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		if (scroll.id == 1) {
-			HashSet<Integer> set = Sets.<Integer>newHashSet();
+			HashSet<Integer> set = Sets.newHashSet();
 			HashSet<String> list = scroll.getSelectedList();
-			HashSet<String> newlist = Sets.<String>newHashSet();
+			HashSet<String> newlist = Sets.newHashSet();
 			for (String key : this.data.keySet()) {
 				int id = this.data.get(key);
 				if (!list.contains(key)) {

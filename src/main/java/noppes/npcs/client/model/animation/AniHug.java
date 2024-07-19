@@ -7,7 +7,7 @@ import noppes.npcs.client.model.ModelRendererAlt;
 
 public class AniHug {
 	
-	public static void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entity, ModelBiped model) {
+	public static void setRotationAngles(float ignoredLimbSwing, float ignoredLimbSwingAmount, float ageInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScale, Entity ignoredEntity, ModelBiped model) {
 		float f6 = MathHelper.sin(model.swingProgress * 3.141593f);
 		float f7 = MathHelper.sin((1.0f - (1.0f - model.swingProgress) * (1.0f - model.swingProgress)) * 3.141593f);
 		if (model.bipedLeftArm instanceof ModelRendererAlt) { ((ModelRendererAlt) model.bipedLeftArm).setIsNormal(true); }

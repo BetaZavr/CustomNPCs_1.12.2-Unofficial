@@ -21,12 +21,12 @@ public class ParameterizedModel {
 		this.listId = list;
 		this.file = file;
 		this.iModel = null;
-		this.visibleMeshes = Lists.<String>newArrayList();
-		this.materialTextures = Maps.<String, String>newHashMap();
+		this.visibleMeshes = Lists.newArrayList();
+		this.materialTextures = Maps.newHashMap();
 		if (visibleMeshes != null && !visibleMeshes.isEmpty()) {
 			this.visibleMeshes = visibleMeshes;
 		}
-		if (replacesMaterialTextures != null && replacesMaterialTextures.size() > 0) {
+		if (replacesMaterialTextures != null && !replacesMaterialTextures.isEmpty()) {
 			this.materialTextures = replacesMaterialTextures;
 		}
 	}
@@ -42,16 +42,15 @@ public class ParameterizedModel {
 		if (!this.file.equals(objPM.file)) {
 			return false;
 		}
-		if (this.visibleMeshes.size() == 0 && this.materialTextures.size() == 0 && objPM.visibleMeshes.size() == 0
-				&& objPM.materialTextures.size() == 0) {
+		if (this.visibleMeshes.isEmpty() && this.materialTextures.isEmpty() && objPM.visibleMeshes.isEmpty() && objPM.materialTextures.isEmpty()) {
 			return true;
 		}
 		if (this.visibleMeshes.size() != objPM.visibleMeshes.size()) {
-			if (objPM.visibleMeshes.size() > 0) {
+			if (!objPM.visibleMeshes.isEmpty()) {
 				return false;
 			}
 		}
-		if (this.visibleMeshes.size() > 0 && objPM.visibleMeshes.size() > 0) {
+		if (!this.visibleMeshes.isEmpty() && !objPM.visibleMeshes.isEmpty()) {
 			for (String name : this.visibleMeshes) {
 				if (!objPM.visibleMeshes.contains(name)) {
 					return false;
@@ -59,14 +58,13 @@ public class ParameterizedModel {
 			}
 		}
 		if (this.materialTextures.size() != objPM.materialTextures.size()) {
-			if (objPM.materialTextures.size() > 0) {
+			if (!objPM.materialTextures.isEmpty()) {
 				return false;
 			}
 		}
-		if (this.materialTextures.size() > 0 && objPM.materialTextures.size() > 0) {
+		if (!this.materialTextures.isEmpty() && !objPM.materialTextures.isEmpty()) {
 			for (String name : this.materialTextures.keySet()) {
-				if (!objPM.materialTextures.containsKey(name)
-						|| !objPM.materialTextures.get(name).equals(this.materialTextures.get(name))) {
+				if (!objPM.materialTextures.containsKey(name) || !objPM.materialTextures.get(name).equals(this.materialTextures.get(name))) {
 					return false;
 				}
 			}

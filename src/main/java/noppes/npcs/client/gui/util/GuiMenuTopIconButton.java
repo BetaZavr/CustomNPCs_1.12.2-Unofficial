@@ -1,6 +1,6 @@
 package noppes.npcs.client.gui.util;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -9,36 +9,21 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 public class GuiMenuTopIconButton extends GuiMenuTopButton {
 	protected static RenderItem itemRender;
-	private static ResourceLocation resource = new ResourceLocation(
-			"textures/gui/container/creative_inventory/tabs.png");
-	private ItemStack item;
-
-	public GuiMenuTopIconButton(int i, GuiButton parent, String s, IButtonListener listener, ItemStack item) {
-		super(i, parent, s, listener);
-		this.width = 28;
-		this.height = 28;
-		this.item = item;
-	}
+	private static final ResourceLocation resource = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
+	private final ItemStack item;
 
 	public GuiMenuTopIconButton(int i, GuiButton parent, String s, ItemStack item) {
 		super(i, parent, s);
 		this.width = 28;
 		this.height = 28;
 		this.item = item;
-	}
-
-	public GuiMenuTopIconButton(int i, int x, int y, String s, IButtonListener listener, ItemStack item) {
-		super(i, x, y, s);
-		this.width = 28;
-		this.height = 28;
-		this.item = item;
-		this.listener = listener;
 	}
 
 	public GuiMenuTopIconButton(int i, int x, int y, String s, ItemStack item) {
@@ -50,19 +35,17 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
 	}
 
 	@Override
-	public void drawButton(Minecraft minecraft, int i, int j, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft minecraft, int i, int j, float partialTicks) {
 		if (!this.getVisible()) {
 			return;
 		}
-		if (this.item.getItem() == null) {
-			this.item = new ItemStack(Blocks.DIRT);
-		}
-		this.hover = (i >= this.x && j >= this.y && i < this.x + this.getWidth() && j < this.y + this.height);
+        this.item.getItem();
+        this.hover = (i >= this.x && j >= this.y && i < this.x + this.getWidth() && j < this.y + this.height);
 		Minecraft mc = Minecraft.getMinecraft();
 		if (this.hover && !this.active) {
 			int x = i + mc.fontRenderer.getStringWidth(this.displayString);
 			GlStateManager.translate(x, (this.y + 2), 0.0f);
-			this.drawHoveringText(Arrays.asList(this.displayString), 0, 0, mc.fontRenderer);
+			this.drawHoveringText(Collections.singletonList(this.displayString), 0, 0, mc.fontRenderer);
 			GlStateManager.translate((-x), (-(this.y + 2)), 0.0f);
 		}
 		mc.renderEngine.bindTexture(GuiMenuTopIconButton.resource);

@@ -3,7 +3,6 @@ package noppes.npcs.particles;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -13,6 +12,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IWorld;
@@ -22,15 +22,20 @@ import noppes.npcs.api.handler.data.ICustomParticle;
 import noppes.npcs.client.ClientGuiEventHandler;
 import noppes.npcs.controllers.ScriptController;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class CustomParticle extends Particle implements ICustomElement, ICustomParticle {
+
 	public NBTTagCompound nbtData;
 	public ResourceLocation texture, obj;
 	public boolean full = false;
 	public int objList;
-	protected float particleAngleX, particleAngleZ;
+	protected float particleAngleX;
+	protected float particleAngleZ;
 	protected long rndStart;
 
-	public CustomParticle(NBTTagCompound data, TextureManager textureManager, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... parametrs) {
+	public CustomParticle(NBTTagCompound data, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
 		this.nbtData = data;
 		this.objList = -1;
@@ -118,7 +123,7 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
 	@Override
@@ -143,7 +148,7 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 
 	@Override
 	public float getRotationY() {
-		return this.particleAngleX;
+        return this.particleAngleX;
 	}
 
 	@Override
@@ -173,7 +178,7 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 
 	@Override
 	public IWorld getWorld() {
-		return NpcAPI.Instance().getIWorld(this.world);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIWorld(this.world);
 	}
 
 	@Override
@@ -234,8 +239,7 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 		return this.posZ;
 	}
 
-	public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX,
-			float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
+	public void renderParticle(@Nonnull BufferBuilder buffer, @Nonnull Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		CustomParticleEvent.RenderEvent event = new CustomParticleEvent.RenderEvent(this,
 				Minecraft.getMinecraft().player);
 		EventHooks.onEvent(ScriptController.Instance.clientScripts, "customParticleRenderEvent", event);
@@ -274,14 +278,10 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 			int j = i >> 16 & 65535;
 			int k = i & 65535;
 			Vec3d[] avec3d = new Vec3d[] {
-					new Vec3d((double) (-rotationX * f4 - rotationXY * f4), (double) (-rotationZ * f4),
-							(double) (-rotationYZ * f4 - rotationXZ * f4)),
-					new Vec3d((double) (-rotationX * f4 + rotationXY * f4), (double) (rotationZ * f4),
-							(double) (-rotationYZ * f4 + rotationXZ * f4)),
-					new Vec3d((double) (rotationX * f4 + rotationXY * f4), (double) (rotationZ * f4),
-							(double) (rotationYZ * f4 + rotationXZ * f4)),
-					new Vec3d((double) (rotationX * f4 - rotationXY * f4), (double) (-rotationZ * f4),
-							(double) (rotationYZ * f4 - rotationXZ * f4)) };
+					new Vec3d(-rotationX * f4 - rotationXY * f4, -rotationZ * f4, -rotationYZ * f4 - rotationXZ * f4),
+					new Vec3d(-rotationX * f4 + rotationXY * f4, rotationZ * f4, -rotationYZ * f4 + rotationXZ * f4),
+					new Vec3d(rotationX * f4 + rotationXY * f4, rotationZ * f4, rotationYZ * f4 + rotationXZ * f4),
+					new Vec3d(rotationX * f4 - rotationXY * f4, -rotationZ * f4, rotationYZ * f4 - rotationXZ * f4) };
 
 			if (this.particleAngle != 0.0F) {
 				float f8 = this.particleAngle + (this.particleAngle - this.prevParticleAngle) * partialTicks;
@@ -289,31 +289,30 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 				float f10 = MathHelper.sin(f8 * 0.5F) * (float) cameraViewDir.x;
 				float f11 = MathHelper.sin(f8 * 0.5F) * (float) cameraViewDir.y;
 				float f12 = MathHelper.sin(f8 * 0.5F) * (float) cameraViewDir.z;
-				Vec3d vec3d = new Vec3d((double) f10, (double) f11, (double) f12);
+				Vec3d vec3d = new Vec3d(f10, f11, f12);
 				for (int l = 0; l < 4; ++l) {
 					avec3d[l] = vec3d.scale(2.0D * avec3d[l].dotProduct(vec3d))
 							.add(avec3d[l].scale((double) (f9 * f9) - vec3d.dotProduct(vec3d)))
-							.add(vec3d.crossProduct(avec3d[l]).scale((double) (2.0F * f9)));
+							.add(vec3d.crossProduct(avec3d[l]).scale(2.0F * f9));
 				}
 			}
 			buffer.pos((double) f5 + avec3d[0].x, (double) f6 + avec3d[0].y, (double) f7 + avec3d[0].z)
-					.tex((double) f1, (double) f3)
+					.tex(f1, f3)
 					.color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k)
 					.endVertex();
 			buffer.pos((double) f5 + avec3d[1].x, (double) f6 + avec3d[1].y, (double) f7 + avec3d[1].z)
-					.tex((double) f1, (double) f2)
+					.tex(f1, f2)
 					.color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k)
 					.endVertex();
 			buffer.pos((double) f5 + avec3d[2].x, (double) f6 + avec3d[2].y, (double) f7 + avec3d[2].z)
-					.tex((double) f, (double) f2)
+					.tex(f, f2)
 					.color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k)
 					.endVertex();
 			buffer.pos((double) f5 + avec3d[3].x, (double) f6 + avec3d[3].y, (double) f7 + avec3d[3].z)
-					.tex((double) f, (double) f3)
+					.tex(f, f3)
 					.color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k)
 					.endVertex();
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	@Override

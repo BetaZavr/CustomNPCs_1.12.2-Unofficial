@@ -13,8 +13,12 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.INpcRecipe;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class SlotNpcCrafting extends SlotCrafting {
-	private InventoryCrafting craftMatrix;
+
+	private final InventoryCrafting craftMatrix;
 
 	public SlotNpcCrafting(EntityPlayer player, InventoryCrafting craftingInventory, IInventory inventory,
 			int slotIndex, int x, int y) {
@@ -23,24 +27,21 @@ public class SlotNpcCrafting extends SlotCrafting {
 	}
 
 	@Override
-	protected void onCrafting(ItemStack stack) {
+	protected void onCrafting(@Nonnull ItemStack stack) {
 		super.onCrafting(stack);
 	}
 
-	public ItemStack onTake(EntityPlayer player, ItemStack itemStack) {
+	public @Nonnull ItemStack onTake(@Nonnull EntityPlayer player, @Nonnull ItemStack itemStack) {
 		InventoryCraftResult inventorycraftresult = (InventoryCraftResult) this.inventory;
 		IRecipe irecipe = inventorycraftresult.getRecipeUsed();
 		if (irecipe instanceof INpcRecipe) { // Availability
-			if (!((INpcRecipe) irecipe).getAvailability()
-					.isAvailable((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+			if (!((INpcRecipe) irecipe).getAvailability().isAvailable((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 				if (!player.world.isRemote) {
 					player.sendMessage(new TextComponentTranslation("item.craft.not.availability"));
 				}
 				return ItemStack.EMPTY;
 			}
 		}
-		// FMLCommonHandler.instance().firePlayerCraftingEvent(player, itemStack,
-		// (IInventory)this.craftMatrix);
 		this.onCrafting(itemStack);
 		for (int i = 0; i < this.craftMatrix.getSizeInventory(); ++i) {
 			ItemStack itemstack1 = this.craftMatrix.getStackInSlot(i);

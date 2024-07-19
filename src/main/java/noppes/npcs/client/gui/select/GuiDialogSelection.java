@@ -27,8 +27,8 @@ public class GuiDialogSelection extends SubGuiInterface implements ICustomScroll
 
 	public GuiDialogSelection(int dialog, int id) {
 		this.id = id;
-		this.categoryData = new HashMap<String, DialogCategory>();
-		this.dialogData = new HashMap<String, Dialog>();
+		this.categoryData = new HashMap<>();
+		this.dialogData = new HashMap<>();
 		this.drawDefaultBackground = false;
 		this.title = "";
 		this.setBackground("menubg.png");
@@ -60,8 +60,8 @@ public class GuiDialogSelection extends SubGuiInterface implements ICustomScroll
 		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 8, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(1, "dialog.dialogs", this.guiLeft + 175, this.guiTop + 4));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + this.xSize - 26, this.guiTop + 4, 20, 20, "X"));
-		HashMap<String, DialogCategory> categoryData = new HashMap<String, DialogCategory>();
-		HashMap<String, Dialog> dialogData = new HashMap<String, Dialog>();
+		HashMap<String, DialogCategory> categoryData = new HashMap<>();
+		HashMap<String, Dialog> dialogData = new HashMap<>();
 		for (DialogCategory category : DialogController.instance.categories.values()) {
 			categoryData.put(category.title, category);
 		}

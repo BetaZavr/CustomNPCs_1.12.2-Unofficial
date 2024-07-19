@@ -10,8 +10,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 
-	private ResourceLocation background;
-	private GuiNpcMenu menu;
+	private final ResourceLocation background;
+	private final GuiNpcMenu menu;
 
 	public GuiNPCInterface2(EntityNPCInterface npc) {
 		this(npc, -1);
@@ -54,7 +54,7 @@ public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 		if (this.hasSubGui()) {
 			y = (x = 0);
 		}
-		this.menu.drawElements(this.getFontRenderer(), x, y, this.mc, partialTicks);
+		this.menu.drawElements(x, y, this.mc, partialTicks);
 		boolean bo = this.drawDefaultBackground;
 		this.drawDefaultBackground = false;
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -62,12 +62,12 @@ public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		if (this.menu != null && this.menu.getTopButtons().length > 0) {
+		if (this.menu.getTopButtons().length > 0) {
 			char chr = ((char) 167);
 			for (GuiMenuTopButton tab : this.menu.getTopButtons()) {
 				if (tab.isMouseOver()) {
 					String text = new TextComponentTranslation("display.hover." + tab.lable).getFormattedText();
-					String str = "";
+					String str;
 					switch (tab.lable) {
 					case "menu.display": {
 						text += "<br>" + chr + "7" + new TextComponentTranslation("gui.name").getFormattedText() + chr

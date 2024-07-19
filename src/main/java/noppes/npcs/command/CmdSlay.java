@@ -1,10 +1,10 @@
 package noppes.npcs.command;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -25,33 +25,35 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.entity.EntityNPCInterface;
 
+import javax.annotation.Nonnull;
+
 public class CmdSlay extends CommandNoppesBase {
-	public Map<String, Class<?>> SlayMap;
+	public Map<String, Class<?>> slayMap = Maps.newHashMap();
 
 	public CmdSlay() {
-		(this.SlayMap = new LinkedHashMap<String, Class<?>>()).clear();
-		this.SlayMap.put("all", EntityLivingBase.class);
-		this.SlayMap.put("mobs", EntityMob.class);
-		this.SlayMap.put("animals", EntityAnimal.class);
-		this.SlayMap.put("items", EntityItem.class);
-		this.SlayMap.put("xporbs", EntityXPOrb.class);
-		this.SlayMap.put("npcs", EntityNPCInterface.class);
+        this.slayMap.put("all", EntityLivingBase.class);
+		this.slayMap.put("mobs", EntityMob.class);
+		this.slayMap.put("animals", EntityAnimal.class);
+		this.slayMap.put("items", EntityItem.class);
+		this.slayMap.put("xporbs", EntityXPOrb.class);
+		this.slayMap.put("npcs", EntityNPCInterface.class);
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			String name = ent.getName();
-			Class<? extends Entity> cls = (Class<? extends Entity>) ent.getEntityClass();
+			Class<? extends Entity> cls = ent.getEntityClass();
 			if (EntityNPCInterface.class.isAssignableFrom(cls)) {
 				continue;
 			}
 			if (!EntityLivingBase.class.isAssignableFrom(cls)) {
 				continue;
 			}
-			this.SlayMap.put(name.toLowerCase(), cls);
+			this.slayMap.put(name.toLowerCase(), cls);
 		}
-		this.SlayMap.remove("monster");
-		this.SlayMap.remove("mob");
+		this.slayMap.remove("monster");
+		this.slayMap.remove("mob");
 	}
 
 	private boolean delete(Entity entity, ArrayList<Class<?>> toDelete) {
@@ -68,11 +70,11 @@ public class CmdSlay extends CommandNoppesBase {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		ArrayList<Class<?>> toDelete = new ArrayList<Class<?>>();
+		ArrayList<Class<?>> toDelete = new ArrayList<>();
 		boolean deleteNPCs = false;
 		for (String delete : args) {
 			delete = delete.toLowerCase();
-			Class<?> cls = this.SlayMap.get(delete);
+			Class<?> cls = this.slayMap.get(delete);
 			if (cls != null) {
 				toDelete.add(cls);
 			}
@@ -88,12 +90,9 @@ public class CmdSlay extends CommandNoppesBase {
 		int range = 120;
 		try {
 			range = Integer.parseInt(args[args.length - 1]);
-		} catch (NumberFormatException ex) {
-		}
-		AxisAlignedBB box = new AxisAlignedBB(sender.getPosition(), sender.getPosition().add(1, 1, 1)).grow(range,
-				range, range);
-		List<? extends Entity> list = (List<? extends Entity>) sender.getEntityWorld()
-				.getEntitiesWithinAABB(EntityLivingBase.class, box);
+		} catch (Exception e) { LogWriter.error("Error:", e); }
+		AxisAlignedBB box = new AxisAlignedBB(sender.getPosition(), sender.getPosition().add(1, 1, 1)).grow(range, range, range);
+		List<? extends Entity> list = sender.getEntityWorld().getEntitiesWithinAABB(EntityLivingBase.class, box);
 		for (Entity entity : list) {
 			if (entity instanceof EntityPlayer) {
 				continue;
@@ -110,20 +109,20 @@ public class CmdSlay extends CommandNoppesBase {
 			++count;
 		}
 		if (toDelete.contains(EntityXPOrb.class)) {
-			list = (List<? extends Entity>) sender.getEntityWorld().getEntitiesWithinAABB(EntityXPOrb.class, box);
+			list = sender.getEntityWorld().getEntitiesWithinAABB(EntityXPOrb.class, box);
 			for (Entity entity : list) {
 				entity.isDead = true;
 				++count;
 			}
 		}
 		if (toDelete.contains(EntityItem.class)) {
-			list = (List<? extends Entity>) sender.getEntityWorld().getEntitiesWithinAABB(EntityItem.class, box);
+			list = sender.getEntityWorld().getEntitiesWithinAABB(EntityItem.class, box);
 			for (Entity entity : list) {
 				entity.isDead = true;
 				++count;
 			}
 		}
-		sender.sendMessage(new TextComponentTranslation(count + " entities deleted", new Object[0]));
+		sender.sendMessage(new TextComponentTranslation(count + " entities deleted"));
 	}
 
 	@Override
@@ -131,13 +130,13 @@ public class CmdSlay extends CommandNoppesBase {
 		return "Kills given entity within range. Also has all, mobs, animal options. Can have multiple types";
 	}
 
+	@Nonnull
 	public String getName() {
 		return "slay";
 	}
 
-	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
-		return CommandBase.getListOfStringsMatchingLastWord(args,
-				(String[]) this.SlayMap.keySet().toArray(new String[this.SlayMap.size()]));
+	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
+		return CommandBase.getListOfStringsMatchingLastWord(args, this.slayMap.keySet().toArray(new String[0]));
 	}
 
 	@Override

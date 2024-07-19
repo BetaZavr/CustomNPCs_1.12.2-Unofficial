@@ -2,7 +2,6 @@ package noppes.npcs.blocks;
 
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
@@ -45,13 +44,14 @@ import noppes.npcs.blocks.tiles.CustomTileEntityChest;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.util.AdditionalMethods;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class CustomChest extends BlockInterface implements ICustomElement {
 
 	public static final PropertyDirection FACING = BlockHorizontal.FACING;
-
-	protected static final AxisAlignedBB CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D,
-			0.9375D);
-	public NBTTagCompound nbtData = new NBTTagCompound();
+	protected static final AxisAlignedBB CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
+	public NBTTagCompound nbtData;
 	private AxisAlignedBB FULL_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
 
 	public boolean isChest = false;
@@ -83,27 +83,29 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 		this.setCreativeTab(CustomRegisters.tabBlocks);
 	}
 
-	public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
+	public void breakBlock(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
 		TileEntity tile = worldIn.getTileEntity(pos);
-		InventoryHelper.dropInventoryItems(worldIn, pos, (CustomTileEntityChest) tile);
+		if (tile instanceof CustomTileEntityChest) {
+			InventoryHelper.dropInventoryItems(worldIn, pos, (CustomTileEntityChest) tile);
+		}
 		worldIn.updateComparatorOutputLevel(pos, this);
 		super.breakBlock(worldIn, pos, state);
 	}
 
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { CustomChest.FACING });
+	protected @Nonnull BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, CustomChest.FACING);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) {
+	public TileEntity createNewTileEntity(@Nonnull World worldIn, int meta) {
 		return new CustomTileEntityChest();
 	}
 
-	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+	public @Nonnull BlockFaceShape getBlockFaceShape(@Nonnull IBlockAccess worldIn, @Nonnull IBlockState state, @Nonnull BlockPos pos, @Nonnull EnumFacing face) {
 		return BlockFaceShape.UNDEFINED;
 	}
 
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+	public @Nonnull AxisAlignedBB getBoundingBox(@Nonnull IBlockState state, @Nonnull IBlockAccess source, @Nonnull BlockPos pos) {
 		if (this.isChest) {
 			return CHEST_AABB;
 		}
@@ -117,26 +119,25 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public int getMetaFromState(IBlockState state) {
-		return ((EnumFacing) state.getValue(CustomChest.FACING)).getIndex();
+	public int getMetaFromState(@Nonnull IBlockState state) {
+		return state.getValue(CustomChest.FACING).getIndex();
 	}
 
-	public EnumBlockRenderType getRenderType(IBlockState state) {
+	public @Nonnull EnumBlockRenderType getRenderType(@Nonnull IBlockState state) {
 		if (this.isChest) {
 			return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
 		}
 		return EnumBlockRenderType.MODEL;
 	}
 
-	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY,
-			float hitZ, int meta, EntityLivingBase placer) {
+	public @Nonnull IBlockState getStateForPlacement(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer) {
 		return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
 	}
 
-	public IBlockState getStateFromMeta(int meta) {
+	public @Nonnull IBlockState getStateFromMeta(int meta) {
 		EnumFacing enumfacing = EnumFacing.getFront(meta);
 		if (enumfacing.getAxis() == EnumFacing.Axis.Y) {
 			enumfacing = EnumFacing.NORTH;
@@ -145,7 +146,7 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 	}
 
 	@Override
-	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubBlocks(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabBlocks && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
 				&& !this.nbtData.getBoolean("ShowInCreative")) {
@@ -156,20 +157,19 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public boolean hasCustomBreakingProgress(IBlockState state) {
+	public boolean hasCustomBreakingProgress(@Nonnull IBlockState state) {
 		return true;
 	}
 
-	public boolean isFullCube(IBlockState state) {
+	public boolean isFullCube(@Nonnull IBlockState state) {
 		return false;
 	}
 
-	public boolean isOpaqueCube(IBlockState state) {
+	public boolean isOpaqueCube(@Nonnull IBlockState state) {
 		return false;
 	}
 
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
 		if (worldIn.isRemote || !(playerIn instanceof EntityPlayerMP)) {
 			return true;
 		}
@@ -181,12 +181,11 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 		if (tile instanceof CustomTileEntityChest) {
 			if (((CustomTileEntityChest) tile).isLocked()) {
 				boolean isOwner = false;
-				ITextComponent message = new TextComponentTranslation("container.isLocked",
-						new Object[] { "" + ((char) 167) + "r" + ((CustomTileEntityChest) tile).getName() });
+				ITextComponent message = new TextComponentTranslation("container.isLocked", ((char) 167) + "r" + ((CustomTileEntityChest) tile).getName());
 				message.getStyle().setColor(TextFormatting.RED);
 				if (!((CustomTileEntityChest) tile).getLockCode().isEmpty()) {
 					String locked = ((CustomTileEntityChest) tile).getLockCode().getLock();
-					isOwner = locked.indexOf(playerIn.getName()) != -1;
+					isOwner = locked.contains(playerIn.getName());
 					ITextComponent added = new TextComponentString(" ");
 					added.getStyle().setColor(TextFormatting.GRAY);
 					added.appendSibling(new TextComponentTranslation("companion.owner"));
@@ -197,12 +196,10 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 				}
 				if (!isOwner) {
 					playerIn.sendMessage(message);
-					if (playerIn instanceof EntityPlayerMP) {
-						((EntityPlayerMP) playerIn).connection
-								.sendPacket(new SPacketSoundEffect(SoundEvents.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS,
-										pos.getX(), pos.getY(), pos.getZ(), 1.0F, 1.0F));
-					}
-					if (!playerIn.isCreative()) {
+                    ((EntityPlayerMP) playerIn).connection
+                            .sendPacket(new SPacketSoundEffect(SoundEvents.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS,
+                                    pos.getX(), pos.getY(), pos.getZ(), 1.0F, 1.0F));
+                    if (!playerIn.isCreative()) {
 						return true;
 					} else {
 						playerIn.sendMessage(new TextComponentTranslation("gui.allowed"));
@@ -223,7 +220,7 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 		return true;
 	}
 
-	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
+	public void onBlockAdded(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
 		if (worldIn.isRemote || CustomChest.FACING == null) {
 			return;
 		}
@@ -231,7 +228,7 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 		IBlockState iblockstate1 = worldIn.getBlockState(pos.south());
 		IBlockState iblockstate2 = worldIn.getBlockState(pos.west());
 		IBlockState iblockstate3 = worldIn.getBlockState(pos.east());
-		EnumFacing enumfacing = (EnumFacing) state.getValue(CustomChest.FACING);
+		EnumFacing enumfacing = state.getValue(CustomChest.FACING);
 		if (enumfacing == EnumFacing.NORTH && iblockstate.isFullBlock() && !iblockstate1.isFullBlock()) {
 			enumfacing = EnumFacing.SOUTH;
 		} else if (enumfacing == EnumFacing.SOUTH && iblockstate1.isFullBlock() && !iblockstate.isFullBlock()) {
@@ -248,14 +245,13 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 		}
 	}
 
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer,
-			ItemStack stack) {
+	public void onBlockPlacedBy(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityLivingBase placer,  @Nonnull ItemStack stack) {
 		worldIn.setBlockState(pos, state.withProperty(CustomChest.FACING, placer.getHorizontalFacing().getOpposite()),
 				2);
 		TileEntity tile = worldIn.getTileEntity(pos);
 		if (tile instanceof CustomTileEntityChest) {
-			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("BlockEntityTag")) {
-				((CustomTileEntityChest) tile).readFromNBT(stack.getTagCompound().getCompoundTag("BlockEntityTag"));
+			if (stack.hasTagCompound() && stack.getTagCompound() != null  && stack.getTagCompound().hasKey("BlockEntityTag")) {
+				tile.readFromNBT(stack.getTagCompound().getCompoundTag("BlockEntityTag"));
 			} else {
 				((CustomTileEntityChest) tile).setBlock(this);
 			}
@@ -274,17 +270,17 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 		this.FULL_AABB = new AxisAlignedBB(v[0], v[1], v[2], v[3], v[4], v[5]);
 	}
 
-	public IBlockState withMirror(IBlockState state, Mirror mirrorIn) {
-		return state.withRotation(mirrorIn.toRotation((EnumFacing) state.getValue(CustomChest.FACING)));
+	public @Nonnull IBlockState withMirror(@Nonnull IBlockState state, @Nonnull Mirror mirrorIn) {
+		return state.withRotation(mirrorIn.toRotation(state.getValue(CustomChest.FACING)));
 	}
 
-	public IBlockState withRotation(IBlockState state, Rotation rot) {
-		return state.withProperty(CustomChest.FACING, rot.rotate((EnumFacing) state.getValue(CustomChest.FACING)));
+	public @Nonnull IBlockState withRotation(@Nonnull IBlockState state, @Nonnull Rotation rot) {
+		return state.withProperty(CustomChest.FACING, rot.rotate(state.getValue(CustomChest.FACING)));
 	}
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return this.nbtData.getByte("BlockType"); }
 		return 2;
 	}
 	

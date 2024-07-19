@@ -11,6 +11,8 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.entity.EntityProjectile;
 
+import java.util.Objects;
+
 @SuppressWarnings("rawtypes")
 public class ProjectileWrapper<T extends EntityProjectile> extends ThrowableWrapper<T> implements IProjectile {
 
@@ -21,7 +23,7 @@ public class ProjectileWrapper<T extends EntityProjectile> extends ThrowableWrap
 	@Override
 	public void enableEvents() {
 		if (ScriptContainer.Current == null) {
-			throw new CustomNPCsException("Can only be called during scripts", new Object[0]);
+			throw new CustomNPCsException("Can only be called during scripts");
 		}
 		if (!this.entity.scripts.contains(ScriptContainer.Current)) {
 			this.entity.scripts.add(ScriptContainer.Current);
@@ -40,7 +42,7 @@ public class ProjectileWrapper<T extends EntityProjectile> extends ThrowableWrap
 
 	@Override
 	public IItemStack getItem() {
-		return NpcAPI.Instance().getIItemStack(this.entity.getItemDisplay());
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.entity.getItemDisplay());
 	}
 
 	@Override
@@ -64,7 +66,7 @@ public class ProjectileWrapper<T extends EntityProjectile> extends ThrowableWrap
 		y -= this.entity.posY;
 		z -= this.entity.posZ;
 		float varF = this.entity.hasGravity() ? MathHelper.sqrt(x * x + z * z) : 0.0f;
-		float angle = this.entity.getAngleForXYZ(x, y, z, varF, false);
+		float angle = this.entity.getAngleForXYZ(y, varF, false);
 		float acc = 20.0f - MathHelper.floor(this.entity.accuracy / 5.0f);
 		this.entity.shoot(x, y, z, angle, acc);
 	}

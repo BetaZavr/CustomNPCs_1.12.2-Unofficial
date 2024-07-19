@@ -19,12 +19,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.client.ClientProxy;
 
+import javax.annotation.Nonnull;
+
 @SideOnly(Side.CLIENT)
 public class GuiNpcButtonRecipeTab extends GuiButtonToggle {
 
 	private float animationTime;
 	private final CreativeTabs category;
-	private boolean isGlobal = true;
+	private final boolean isGlobal;
 
 	public GuiNpcButtonRecipeTab(int buttonId, CreativeTabs tab, boolean globalRecipes) {
 		super(buttonId, 0, 0, 35, 27, false);
@@ -36,12 +38,12 @@ public class GuiNpcButtonRecipeTab extends GuiButtonToggle {
 	/**
 	 * Draws this button to the screen.
 	 */
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.visible) {
 			return;
 		}
 		if (this.animationTime > 0.0F) {
-			float f = 1.0F + 0.1F * (float) Math.sin((double) (this.animationTime / 15.0F * (float) Math.PI));
+			float f = 1.0F + 0.1F * (float) Math.sin(this.animationTime / 15.0F * (float) Math.PI);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate((float) (this.x + 8), (float) (this.y + 12), 0.0F);
 			GlStateManager.scale(1.0F, f, 1.0F);
@@ -112,7 +114,7 @@ public class GuiNpcButtonRecipeTab extends GuiButtonToggle {
 				if (!iterator.hasNext()) {
 					continue label21;
 				}
-				IRecipe irecipe = (IRecipe) iterator.next();
+				IRecipe irecipe = iterator.next();
 				if (recipebook.isNew(irecipe)) {
 					break;
 				}

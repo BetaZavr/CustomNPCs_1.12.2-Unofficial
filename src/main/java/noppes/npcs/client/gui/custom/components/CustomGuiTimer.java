@@ -15,31 +15,28 @@ import noppes.npcs.util.AdditionalMethods;
 public class CustomGuiTimer extends GuiLabel implements IGuiComponent {
 
 	public static CustomGuiTimer fromComponent(CustomGuiTimerWrapper component) {
-		CustomGuiTimer tirem = new CustomGuiTimer(component.start, component.end, component.reverse, component.getId(),
+		CustomGuiTimer timer = new CustomGuiTimer(component.start, component.end, component.reverse, component.getId(),
 				component.getPosX(), component.getPosY(), component.getWidth(), component.getHeight(),
 				component.getColor());
-		tirem.setScale(component.getScale());
+		timer.setScale(component.getScale());
 		if (component.hasHoverText()) {
-			tirem.hoverText = component.getHoverText();
+			timer.hoverText = component.getHoverText();
 		}
-		return tirem;
+		return timer;
 	}
 
 	int colour;
-	String fullLabel;
 	String[] hoverText;
 	GuiCustom parent;
 	float scale;
-	private long start, now, end;
-	private boolean reverse;
+	private final long start;
+    private final long now;
+    private final long end;
+	private final boolean reverse;
 	private final FontRenderer fontRenderer;
 	private int offsetType;
 	private final int textColor;
 	private final int[] offsets;
-
-	public CustomGuiTimer(long start, long end, boolean reverse, int id, int x, int y, int width, int height) {
-		this(start, end, reverse, id, x, y, width, height, 16777215);
-	}
 
 	public CustomGuiTimer(long start, long end, boolean reverse, int id, int x, int y, int width, int height,
 			int colour) {
@@ -73,7 +70,7 @@ public class CustomGuiTimer extends GuiLabel implements IGuiComponent {
 			time = this.start - time;
 		}
 		if (time < 0 || (!this.reverse && time > this.end)) {
-			NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.HudTimerEnd, this, 250, this.id, this.offsetType);
+			NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.HudTimerEnd, this, 250, this.id, this.offsetType);
 		}
 		if (this.reverse) {
 			time += 20;
@@ -115,7 +112,7 @@ public class CustomGuiTimer extends GuiLabel implements IGuiComponent {
 		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y - this.height;
 		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y, this.id < 1000 ? this.id : 1000);
+		GlStateManager.translate(x, y, Math.min(this.id, 1000));
 		GlStateManager.scale(this.scale, this.scale, 0.0f);
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,

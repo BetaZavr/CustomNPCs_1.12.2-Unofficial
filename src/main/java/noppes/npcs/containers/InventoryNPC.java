@@ -10,12 +10,14 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.NoppesUtilServer;
 
+import javax.annotation.Nonnull;
+
 public class InventoryNPC implements IInventory {
 
-	private Container con;
+	private final Container con;
 	public NonNullList<ItemStack> inventoryContents;
-	private String inventoryTitle;
-	private int slotsCount;
+	private final String inventoryTitle;
+	private final int slotsCount;
 
 	public InventoryNPC(String s, int i, Container con) {
 		this.con = con;
@@ -27,15 +29,15 @@ public class InventoryNPC implements IInventory {
 	public void clear() {
 	}
 
-	public void closeInventory(EntityPlayer player) {
+	public void closeInventory(@Nonnull EntityPlayer player) {
 	}
 
-	public ItemStack decrStackSize(int index, int count) {
+	public @Nonnull ItemStack decrStackSize(int index, int count) {
 		return ItemStackHelper.getAndSplit(this.inventoryContents, index, count);
 	}
 
-	public ITextComponent getDisplayName() {
-		return new TextComponentString(this.inventoryTitle);
+	public @Nonnull ITextComponent getDisplayName() {
+		return new TextComponentString(getName());
 	}
 
 	public int getField(int id) {
@@ -50,15 +52,15 @@ public class InventoryNPC implements IInventory {
 		return 64;
 	}
 
-	public String getName() {
-		return null;
+	public @Nonnull String getName() {
+		return this.inventoryTitle;
 	}
 
 	public int getSizeInventory() {
 		return this.slotsCount;
 	}
 
-	public ItemStack getStackInSlot(int i) {
+	public @Nonnull ItemStack getStackInSlot(int i) {
 		return this.inventoryContents.get(i);
 	}
 
@@ -76,29 +78,29 @@ public class InventoryNPC implements IInventory {
 		return true;
 	}
 
-	public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+	public boolean isItemValidForSlot(int i, @Nonnull ItemStack itemstack) {
 		return true;
 	}
 
-	public boolean isUsableByPlayer(EntityPlayer entityplayer) {
+	public boolean isUsableByPlayer(@Nonnull EntityPlayer entityplayer) {
 		return false;
 	}
 
 	public void markDirty() {
-		this.con.onCraftMatrixChanged((IInventory) this);
+		this.con.onCraftMatrixChanged(this);
 	}
 
-	public void openInventory(EntityPlayer player) {
+	public void openInventory(@Nonnull EntityPlayer player) {
 	}
 
-	public ItemStack removeStackFromSlot(int i) {
+	public @Nonnull ItemStack removeStackFromSlot(int i) {
 		return ItemStackHelper.getAndRemove(this.inventoryContents, i);
 	}
 
 	public void setField(int id, int value) {
 	}
 
-	public void setInventorySlotContents(int index, ItemStack stack) {
+	public void setInventorySlotContents(int index, @Nonnull ItemStack stack) {
 		this.inventoryContents.set(index, stack);
 		if (!stack.isEmpty() && stack.getCount() > this.getInventoryStackLimit()) {
 			stack.setCount(this.getInventoryStackLimit());

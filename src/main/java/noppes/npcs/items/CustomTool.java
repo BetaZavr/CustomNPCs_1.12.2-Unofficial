@@ -1,5 +1,6 @@
 package noppes.npcs.items;
 
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.Multimap;
@@ -26,14 +27,17 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class CustomTool
 extends ItemTool
 implements ICustomElement {
 
-	protected NBTTagCompound nbtData = new NBTTagCompound();
+	protected NBTTagCompound nbtData;
 	protected Material collectionMaterial = null;
 	protected float speedCollectionMaterial = 1.0f;
-	protected ItemStack repairItemStack = ItemStack.EMPTY;
+	protected ItemStack repairItemStack;
 	protected int enchantability = 0;
 
 	protected int harvestLevel = 0;
@@ -75,7 +79,7 @@ implements ICustomElement {
 		if (nbtItem.hasKey("ToolClass", 8)) {
 			ObfuscationHelper.setValue(ItemTool.class, this, nbtItem.getString("ToolClass"), String.class);
 		}
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
+		this.setCreativeTab(CustomRegisters.tabItems);
 	}
 
 	@Override
@@ -85,10 +89,10 @@ implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public float getDestroySpeed(ItemStack stack, IBlockState state) {
+	public float getDestroySpeed(@Nonnull ItemStack stack, @Nonnull IBlockState state) {
 		if (state.getMaterial() == this.collectionMaterial) {
 			return this.speedCollectionMaterial;
 		}
@@ -96,16 +100,14 @@ implements ICustomElement {
 	}
 
 	@Override
-	public int getHarvestLevel(ItemStack stack, String toolClass,
-			@javax.annotation.Nullable net.minecraft.entity.player.EntityPlayer player,
-			@javax.annotation.Nullable IBlockState blockState) {
+	public int getHarvestLevel(@Nonnull ItemStack stack, @Nonnull String toolClass, @Nullable net.minecraft.entity.player.EntityPlayer player, @Nullable IBlockState blockState) {
 		if (this.harvestLevel > -1) {
 			return this.harvestLevel;
 		}
 		return super.getHarvestLevel(stack, toolClass, player, blockState);
 	}
 
-	public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+	public boolean getIsRepairable(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
 		ItemStack mat = this.repairItemStack;
 		if (this.repairItemStack.isEmpty()) {
 			mat = this.toolMaterial.getRepairItemStack();
@@ -116,7 +118,7 @@ implements ICustomElement {
 		return super.getIsRepairable(toRepair, repair);
 	}
 
-	public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot) {
+	public @Nonnull Multimap<String, AttributeModifier> getItemAttributeModifiers(@Nonnull EntityEquipmentSlot equipmentSlot) {
 		Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
 		if (equipmentSlot == EntityEquipmentSlot.MAINHAND) {
 			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(),
@@ -134,7 +136,7 @@ implements ICustomElement {
 		return super.getItemEnchantability();
 	}
 
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
@@ -148,7 +150,7 @@ implements ICustomElement {
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return this.nbtData.getByte("BlockType"); }
 		return 2;
 	}
 

@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
@@ -19,12 +20,12 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class GuiScriptList extends SubGuiInterface implements ICustomScrollListener {
 
-	private ScriptContainer container;
+	private final ScriptContainer container;
 	private final Map<String, Long> scripts;
-	private final Map<ResourceLocation, String> data;
+	private final Map<ResourceLocation, String> data = Maps.newTreeMap();
 	private GuiCustomScroll base;
 	private GuiCustomScroll selected;
-	private String back = "   " + Character.toChars(0x2190)[0] + " (" + new TextComponentTranslation("gui.back").getFormattedText() + ")";
+	private final String back = "   " + Character.toChars(0x2190)[0] + " (" + new TextComponentTranslation("gui.back").getFormattedText() + ")";
 	private String path = "";
 
 	public GuiScriptList(Map<String, Long> scripts, ScriptContainer container) {
@@ -33,12 +34,11 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		this.setBackground("menubg.png");
 		this.xSize = 346;
 		this.ySize = 216;
-		if (scripts == null) { scripts = Maps.<String, Long>newTreeMap(); }
+		if (scripts == null) { scripts = Maps.newTreeMap(); }
 		this.scripts = scripts;
-		this.data = Maps.<ResourceLocation, String>newTreeMap();
 		for (String path : this.scripts.keySet()) {
 			ResourceLocation res;
-			if (path.indexOf("/") != -1) {res = new ResourceLocation(path.substring(0, path.lastIndexOf("/")), path.substring(path.lastIndexOf("/") + 1)); }
+			if (path.contains("/")) {res = new ResourceLocation(path.substring(0, path.lastIndexOf("/")), path.substring(path.lastIndexOf("/") + 1)); }
 			else { res = new ResourceLocation("base", path); }
 			this.data.put(res, res.getResourcePath());
 		}
@@ -46,7 +46,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		String file = "";
+		String file;
 		if (button.id == 1 && this.base.hasSelected()) {
 			try {
 				file = this.base.hoversTexts[this.base.selected][0];
@@ -69,9 +69,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		}
 		if (button.id == 3) {
 			this.container.scripts.clear();
-			for (String script : this.scripts.keySet()) {
-				this.container.scripts.add(script);
-			}
+            this.container.scripts.addAll(this.scripts.keySet());
 			this.base.selected = -1;
 			this.initGui();
 		}
@@ -109,22 +107,22 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		}
 		this.addLabel(new GuiNpcLabel(3, ((char) 167) + "0" + ((char) 167) + "l" + p, this.guiLeft + 4, this.guiTop + 16 + this.base.height));
 
-		List<String> temp = new ArrayList<String>(this.scripts.keySet());
+		List<String> temp = new ArrayList<>(this.scripts.keySet());
 		temp.removeAll(this.container.scripts);
 
-		Map<String, Long> ds = Maps.<String, Long>newTreeMap();
-		Map<String, Long> fs = Maps.<String, Long>newTreeMap();
-		Map<String, Long> dt = Maps.<String, Long>newTreeMap();
-		Map<String, Long> ft = Maps.<String, Long>newTreeMap();
+		Map<String, Long> ds = Maps.newTreeMap();
+		Map<String, Long> fs = Maps.newTreeMap();
 
-		List<String> listBase = Lists.<String>newArrayList();
-		List<Integer> colorsBase = Lists.<Integer>newArrayList();
-		List<String> suffixsBase = Lists.<String>newArrayList();
-		List<String> list = Lists.<String>newArrayList();
-		List<Integer> colors = Lists.<Integer>newArrayList();
-		List<String> suffixs = Lists.<String>newArrayList();
+		Map<String, Long> ft = Maps.newTreeMap();
 
-		Map<String, String> hs = Maps.<String, String>newTreeMap();
+		List<String> listBase = Lists.newArrayList();
+		List<Integer> colorsBase = Lists.newArrayList();
+		List<String> suffixsBase = Lists.newArrayList();
+		List<String> list = Lists.newArrayList();
+		List<Integer> colors = Lists.newArrayList();
+		List<String> suffixs = Lists.newArrayList();
+
+		Map<String, String> hs = Maps.newTreeMap();
 		char c = ((char) 167);
 		int t = 1;
 		if (!this.path.isEmpty()) {
@@ -137,42 +135,42 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 			if (temp.contains(file) || this.container.scripts.contains(file)) {
 				boolean isBase = temp.contains(file);
 				if (isBase) {
-					String foder = hasDir ? res.getResourceDomain() : "";
-					if (foder.isEmpty() && this.path.isEmpty()) {
-						(isBase ? fs : ft).put(key, this.scripts.get(file));
+					String folder = hasDir ? res.getResourceDomain() : "";
+					if (folder.isEmpty() && this.path.isEmpty()) {
+						fs.put(key, this.scripts.get(file));
 						hs.put(key, file);
 						continue;
 					}
-					if (foder.isEmpty() && !this.path.isEmpty()) {
+					if (folder.isEmpty()) {
 						continue;
 					}
 					if (!this.path.isEmpty()) {
-						if (foder.indexOf(this.path) != 0) {
+						if (folder.indexOf(this.path) != 0) {
 							continue;
 						}
-						foder = foder.replace(this.path, "");
-						if (foder.indexOf("/") == 0) {
-							foder = foder.substring(1);
+						folder = folder.replace(this.path, "");
+						if (folder.indexOf("/") == 0) {
+							folder = folder.substring(1);
 						}
 					}
-					if (foder.indexOf("/") != -1) {
-						foder = foder.substring(0, foder.indexOf("/"));
+					if (folder.contains("/")) {
+						folder = folder.substring(0, folder.indexOf("/"));
 					}
 
-					if (this.path.isEmpty() && !foder.isEmpty()) {
-						(isBase ? ds : dt).put(foder, 0L);
-						hs.put(foder, foder);
+					if (this.path.isEmpty() && !folder.isEmpty()) {
+						ds.put(folder, 0L);
+						hs.put(folder, folder);
 						continue;
 					}
-					if (foder.isEmpty()) {
-						(isBase ? fs : ft).put(key, this.scripts.get(file));
+					if (folder.isEmpty()) {
+						fs.put(key, this.scripts.get(file));
 						hs.put(key, file);
 					} else {
-						(isBase ? ds : dt).put(foder, 0L);
-						hs.put(foder, this.path + (this.path.isEmpty() ? "" : "/") + foder);
+						ds.put(folder, 0L);
+						hs.put(folder, this.path + (this.path.isEmpty() ? "" : "/") + folder);
 					}
 				} else {
-					(isBase ? fs : ft).put(c + "7" + t + ":" + c + "r " + key, this.scripts.get(file));
+					ft.put(c + "7" + t + ":" + c + "r " + key, this.scripts.get(file));
 					hs.put(c + "7" + t + ":" + c + "r " + key, file);
 					t++;
 				}
@@ -212,17 +210,8 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 			i++;
 		}
 
-		this.selected.hoversTexts = new String[dt.size() + ft.size()][];
+		this.selected.hoversTexts = new String[ft.size()][];
 		i = 0;
-		for (String key : dt.keySet()) {
-			colors.add(0xF3BE1E);
-			suffixs.add("");
-			list.add(key);
-			if (hs.containsKey(key)) {
-				this.selected.hoversTexts[i] = new String[] { hs.get(key) };
-			}
-			i++;
-		}
 		for (String key : ft.keySet()) {
 			long l = ft.get(key);
 			colors.add(l >= 0 ? 0xCAEAEA : 0xEAEACA);
@@ -259,14 +248,10 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		this.addButton(new GuiNpcButton(2, x, (y += 22), 55, 20, "<", this.selected.hasSelected()));
 		this.addButton(new GuiNpcButton(3, x, (y += 44), 55, 20, ">>", !temp.isEmpty()));
 		this.addButton(new GuiNpcButton(4, x, (y += 22), 55, 20, "<<", !this.container.scripts.isEmpty()));
-		this.addButton(new GuiNpcButton(66, x, (y += 46), 55, 20, "gui.done"));
+		this.addButton(new GuiNpcButton(66, x, (y + 46), 55, 20, "gui.done"));
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		if (scroll.id == 0) {
 			if (scroll.getSelected().equals(this.back)) {
@@ -292,8 +277,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		String file = "";
 		try {
 			file = scroll.hoversTexts[scroll.selected][0];
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		if (file.isEmpty()) {
 			return;
 		}

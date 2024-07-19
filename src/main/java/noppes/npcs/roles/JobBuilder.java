@@ -1,5 +1,6 @@
 package noppes.npcs.roles;
 
+import java.util.Objects;
 import java.util.Stack;
 
 import net.minecraft.block.ITileEntityProvider;
@@ -11,6 +12,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.JobType;
@@ -95,7 +97,7 @@ public class JobBuilder extends JobInterface implements IJobBuilder {
 
 	private String blockToString(BlockData data) {
 		if (data.state.getBlock() == Blocks.AIR) {
-			return Items.IRON_PICKAXE.getRegistryName().toString();
+			return Objects.requireNonNull(Items.IRON_PICKAXE.getRegistryName()).toString();
 		}
 		return this.itemToString(data.getStack());
 	}
@@ -107,7 +109,7 @@ public class JobBuilder extends JobInterface implements IJobBuilder {
 		if (item.isEmpty()) {
 			return this.npc.inventory.weapons.get(0);
 		}
-		return NpcAPI.Instance().getIItemStack(item);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(item);
 	}
 
 	@Override
@@ -127,8 +129,7 @@ public class JobBuilder extends JobInterface implements IJobBuilder {
 			if (tile != null) {
 				try {
 					tile.readFromNBT(this.placing.tile);
-				} catch (Exception ex) {
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		}
 		this.placing = null;
@@ -142,7 +143,7 @@ public class JobBuilder extends JobInterface implements IJobBuilder {
 					compound.getInteger("BuildZ"));
 		}
 		if (this.possibleBuildPos != null && compound.hasKey("Placing")) {
-			Stack<BlockData> placing = new Stack<BlockData>();
+			Stack<BlockData> placing = new Stack<>();
 			NBTTagList list = compound.getTagList("Placing", 10);
 			for (int i = 0; i < list.tagCount(); ++i) {
 				BlockData data = BlockData.getData(list.getCompoundTagAt(i));

@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.common.collect.Maps;
 
@@ -63,7 +64,6 @@ import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.ScriptContainer;
-import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.PlayerData;
@@ -81,7 +81,7 @@ import noppes.npcs.util.ValueUtil;
 @SuppressWarnings("rawtypes")
 public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapper<T> implements IPlayer {
 
-	public static Map<String, WrapperEntityData> map = Maps.<String, WrapperEntityData>newHashMap();
+	public static Map<String, WrapperEntityData> map = Maps.newHashMap();
 	private PlayerData data;
 	private IContainer inventory;
 	private Object pixelmonPartyStorage;
@@ -102,7 +102,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	@Override
 	public void addFactionPoints(int faction, int points) {
 		PlayerData data = this.getData();
-		data.factionData.increasePoints((EntityPlayer) this.entity, faction, points);
+		data.factionData.increasePoints(this.entity, faction, points);
 		data.save(true);
 	}
 
@@ -133,7 +133,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public boolean canQuestBeAccepted(int questId) {
-		return PlayerQuestController.canQuestBeAccepted((EntityPlayer) this.entity, questId);
+		return PlayerQuestController.canQuestBeAccepted(this.entity, questId);
 	}
 
 	@Override
@@ -160,9 +160,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		}
 		PlayerData data = this.getData();
 		data.questData.finishedQuests.put(id, System.currentTimeMillis());
-		if (data.questData.activeQuests.containsKey(id)) {
-			data.questData.activeQuests.remove(id);
-		}
+        data.questData.activeQuests.remove(id);
 		if (this.entity instanceof EntityPlayerMP) {
 			Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.MESSAGE, "quest.completed", quest.getTitle(),
 					2);
@@ -176,7 +174,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	public int factionStatus(int factionId) {
 		Faction faction = FactionController.instance.getFaction(factionId);
 		if (faction == null) {
-			throw new CustomNPCsException("Unknown faction: " + factionId, new Object[0]);
+			throw new CustomNPCsException("Unknown faction: " + factionId);
 		}
 		return faction.playerStatus(this);
 	}
@@ -207,14 +205,14 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	@Override
 	public IQuest[] getActiveQuests() {
 		PlayerQuestData data = this.getData().questData;
-		List<IQuest> quests = new ArrayList<IQuest>();
+		List<IQuest> quests = new ArrayList<>();
 		for (int id : data.activeQuests.keySet()) {
 			IQuest quest = QuestController.instance.quests.get(id);
 			if (quest != null) {
 				quests.add(quest);
 			}
 		}
-		return quests.toArray(new IQuest[quests.size()]);
+		return quests.toArray(new IQuest[0]);
 	}
 
 	@Override
@@ -227,7 +225,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 					if (!m.isAccessible()) {
 						m.setAccessible(true);
 					}
-					invBubbles = new ContainerWrapper((IInventory) m.invoke(apiBubbles, (EntityPlayer) this.entity));
+					invBubbles = new ContainerWrapper((IInventory) m.invoke(apiBubbles, this.entity));
 					break;
 				}
 			}
@@ -247,7 +245,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	public PlayerData getData() {
 		if (this.data == null) {
-			this.data = PlayerData.get((EntityPlayer) this.entity);
+			this.data = PlayerData.get(this.entity);
 		}
 		return this.data;
 	}
@@ -264,26 +262,26 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public int getFactionPoints(int faction) {
-		return this.getData().factionData.getFactionPoints((EntityPlayer) this.entity, faction);
+		return this.getData().factionData.getFactionPoints(this.entity, faction);
 	}
 
 	@Override
 	public IQuest[] getFinishedQuests() {
 		PlayerQuestData data = this.getData().questData;
-		List<IQuest> quests = new ArrayList<IQuest>();
+		List<IQuest> quests = new ArrayList<>();
 		for (int id : data.finishedQuests.keySet()) {
 			IQuest quest = QuestController.instance.quests.get(id);
 			if (quest != null) {
 				quests.add(quest);
 			}
 		}
-		return quests.toArray(new IQuest[quests.size()]);
+		return quests.toArray(new IQuest[0]);
 	}
 
 	@Override
 	public int getGamemode() {
 		if (!(this.entity instanceof EntityPlayerMP)) {
-			if (this.entity instanceof EntityPlayer && ((EntityPlayer) this.entity).capabilities.isCreativeMode) {
+			if (this.entity != null && this.entity.capabilities.isCreativeMode) {
 				return 1;
 			}
 			return 0;
@@ -299,14 +297,14 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	@Override
 	public IContainer getInventory() {
 		if (this.inventory == null) {
-			this.inventory = new ContainerWrapper((IInventory) this.entity.inventory);
+			this.inventory = new ContainerWrapper(this.entity.inventory);
 		}
 		return this.inventory;
 	}
 
 	@Override
 	public IItemStack getInventoryHeldItem() {
-		return NpcAPI.Instance().getIItemStack(this.entity.inventory.getItemStack());
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.entity.inventory.getItemStack());
 	}
 
 	// New
@@ -345,18 +343,18 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public IContainer getOpenContainer() {
-		return NpcAPI.Instance().getIContainer(this.entity.openContainer);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIContainer(this.entity.openContainer);
 	}
 
 	@Override
 	public IOverlayHUD getOverlayHUD() {
-		return (IOverlayHUD) this.getData().hud;
+		return this.getData().hud;
 	}
 
 	@Override
 	public IPixelmonPlayerData getPixelmonData() {
 		if (!PixelmonHelper.Enabled) {
-			throw new CustomNPCsException("Pixelmon isnt installed", new Object[0]);
+			throw new CustomNPCsException("Pixelmon not installed");
 		}
 		return new IPixelmonPlayerData() {
 			@Override
@@ -383,7 +381,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		if (this.entity.getRidingEntity() == null) {
 			return null;
 		}
-		return NpcAPI.Instance().getIEntity(this.entity.getRidingEntity());
+		return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity.getRidingEntity());
 	}
 
 	@Override
@@ -393,11 +391,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public IBlock getSpawnPoint() {
-		BlockPos pos = this.entity.getBedLocation();
-		if (pos == null) {
-			return this.getWorld().getSpawnPoint();
-		}
-		return NpcAPI.Instance().getIBlock(this.entity.world, pos);
+        return Objects.requireNonNull(NpcAPI.Instance()).getIBlock(this.entity.world, this.entity.getBedLocation());
 	}
 
 	@Override
@@ -437,12 +431,12 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public boolean giveItem(String id, int damage, int amount) {
-		Item item = (Item) Item.REGISTRY.getObject(new ResourceLocation(id));
+		Item item = Item.REGISTRY.getObject(new ResourceLocation(id));
 		if (item == null) {
 			return false;
 		}
 		ItemStack mcStack = new ItemStack(item);
-		IItemStack itemStack = NpcAPI.Instance().getIItemStack(mcStack);
+		IItemStack itemStack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(mcStack);
 		itemStack.setStackSize(amount);
 		itemStack.setItemDamage(damage);
 		return this.giveItem(itemStack);
@@ -451,7 +445,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	@Override
 	public boolean hasAchievement(String achievement) {
 		StatBase statbase = StatList.getOneShotStat(achievement);
-		return statbase.isIndependent;
+        return statbase != null && statbase.isIndependent;
 	}
 
 	@Override
@@ -478,7 +472,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public boolean hasPermission(String permission) {
-		return CustomNpcsPermissions.hasPermissionString((EntityPlayer) this.entity, permission);
+		return CustomNpcsPermissions.hasPermissionString(this.entity, permission);
 	}
 
 	@Override
@@ -487,13 +481,12 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		return data.dialogsRead.contains(id);
 	}
 
-	@Deprecated
 	@Override
 	public int inventoryItemCount(IItemStack item) {
 		int count = 0;
 		for (int i = 0; i < this.entity.inventory.getSizeInventory(); ++i) {
 			ItemStack is = this.entity.inventory.getStackInSlot(i);
-			if (is != null && this.isItemEqual(item.getMCItemStack(), is)) {
+			if (this.isItemEqual(item.getMCItemStack(), is)) {
 				count += is.getCount();
 			}
 		}
@@ -502,22 +495,21 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public int inventoryItemCount(IItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
-		return AdditionalMethods.inventoryItemCount((EntityPlayer) this.entity, stack.getMCItemStack(),
-				(Availability) null, ignoreDamage, ignoreNBT);
+		return AdditionalMethods.inventoryItemCount(this.entity, stack.getMCItemStack(), null, ignoreDamage, ignoreNBT);
 	}
 
 	@Deprecated
 	@Override
 	public int inventoryItemCount(String id, int damage) {
-		Item item = (Item) Item.REGISTRY.getObject(new ResourceLocation(id));
+		Item item = Item.REGISTRY.getObject(new ResourceLocation(id));
 		if (item == null) {
-			throw new CustomNPCsException("Unknown item id: " + id, new Object[0]);
+			throw new CustomNPCsException("Unknown item id: " + id);
 		}
-		return this.inventoryItemCount(NpcAPI.Instance().getIItemStack(new ItemStack(item, 1, damage)));
+		return this.inventoryItemCount(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(item, 1, damage)));
 	}
 
 	@Override
-	public boolean isComleteQuest(int id) {
+	public boolean isCompleteQuest(int id) {
 		PlayerQuestData data = this.getData().questData;
 		if (data.finishedQuests.containsKey(id)) {
 			return true;
@@ -529,10 +521,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		if (qData.isCompleted) {
 			return true;
 		}
-		Quest quest = (Quest) NpcAPI.Instance().getQuests().get(id);
-		if (quest == null) {
-			return false;
-		}
+		Quest quest = (Quest) Objects.requireNonNull(NpcAPI.Instance()).getQuests().get(id);
 		return quest.questInterface.isCompleted(this.getMCEntity());
 	}
 
@@ -551,7 +540,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		if (!(this.entity instanceof EntityPlayerMP)) {
 			return;
 		}
-		((EntityPlayerMP) this.entity).connection.disconnect(new TextComponentTranslation(message, new Object[0]));
+		((EntityPlayerMP) this.entity).connection.disconnect(new TextComponentTranslation(message));
 	}
 
 	public void message(ITextComponent message) {
@@ -590,7 +579,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	public void removeAllItems(IItemStack item) {
 		for (int i = 0; i < this.entity.inventory.getSizeInventory(); ++i) {
 			ItemStack is = this.entity.inventory.getStackInSlot(i);
-			if (is != null && is.isItemEqual(item.getMCItemStack())) {
+			if (is.isItemEqual(item.getMCItemStack())) {
 				this.entity.inventory.setInventorySlotContents(i, ItemStack.EMPTY);
 			}
 		}
@@ -614,7 +603,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		} else {
 			for (int i = 0; i < this.entity.inventory.getSizeInventory(); ++i) {
 				ItemStack is = this.entity.inventory.getStackInSlot(i);
-				if (is != null && this.isItemEqual(item.getMCItemStack(), is)) {
+				if (this.isItemEqual(item.getMCItemStack(), is)) {
 					if (amount < is.getCount()) {
 						is.splitStack(amount);
 						break;
@@ -630,11 +619,11 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public boolean removeItem(String id, int damage, int amount) {
-		Item item = (Item) Item.REGISTRY.getObject(new ResourceLocation(id));
+		Item item = Item.REGISTRY.getObject(new ResourceLocation(id));
 		if (item == null) {
-			throw new CustomNPCsException("Unknown item id: " + id, new Object[0]);
+			throw new CustomNPCsException("Unknown item id: " + id);
 		}
-		return this.removeItem(NpcAPI.Instance().getIItemStack(new ItemStack(item, 1, damage)), amount);
+		return this.removeItem(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(item, 1, damage)), amount);
 	}
 
 	@Override
@@ -651,13 +640,12 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public void resetSpawnpoint() {
-		this.entity.setSpawnPoint((BlockPos) null, false);
+		this.entity.setSpawnPoint(this.entity.world.getSpawnPoint(), false);
 	}
 
 	@Override
 	public void sendMail(IPlayerMail mail) {
-		PlayerDataController.instance.addPlayerMessage(this.entity.world.getMinecraftServer(), this.entity.getName(),
-				(PlayerMail) mail);
+		PlayerDataController.instance.addPlayerMessage(this.entity.world.getMinecraftServer(), this.entity.getName(), (PlayerMail) mail);
 	}
 
 	@Override
@@ -666,7 +654,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 			return;
 		}
 		if (type < 0 || type > 3) {
-			throw new CustomNPCsException("Wrong type value given " + type, new Object[0]);
+			throw new CustomNPCsException("Wrong type value given " + type);
 		}
 		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.MESSAGE, title, msg, type);
 	}
@@ -706,9 +694,6 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	@Override
 	public void setPos(IPos pos) {
 		this.setPosition(pos.getX(), pos.getY(), pos.getZ());
-		if (!(this.entity instanceof EntityPlayerMP)) {
-			return;
-		}
 	}
 
 	@Override
@@ -751,8 +736,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		ScriptContainer current = ScriptContainer.Current;
 		this.entity.closeScreen();
 		this.entity.openGui(CustomNpcs.instance, EnumGuiType.CustomChest.ordinal(), this.entity.world, rows, 0, 0);
-		ContainerCustomChestWrapper container = (ContainerCustomChestWrapper) NpcAPI.Instance()
-				.getIContainer(this.entity.openContainer);
+		ContainerCustomChestWrapper container = (ContainerCustomChestWrapper) Objects.requireNonNull(NpcAPI.Instance()).getIContainer(this.entity.openContainer);
 		container.script = current;
 		return container;
 	}
@@ -766,16 +750,16 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	public void showDialog(int id, String name) {
 		Dialog dialog = DialogController.instance.dialogs.get(id);
 		if (dialog == null) {
-			throw new CustomNPCsException("Unknown Dialog id: " + id, new Object[0]);
+			throw new CustomNPCsException("Unknown Dialog id: " + id);
 		}
-		if (!dialog.availability.isAvailable((EntityPlayer) this.entity)) {
+		if (!dialog.availability.isAvailable(this.entity)) {
 			return;
 		}
 		EntityDialogNpc npc = new EntityDialogNpc(this.getWorld().getMCWorld());
 		npc.display.setName(name);
 		EntityUtil.Copy(this.entity, npc);
 		npc.dialogs = new int[] { id };
-		NoppesUtilServer.openDialog((EntityPlayer) this.entity, npc, dialog);
+		NoppesUtilServer.openDialog(this.entity, npc, dialog);
 	}
 
 	@Override
@@ -787,7 +771,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		if (quest == null) {
 			return;
 		}
-		PlayerQuestController.addActiveQuest(quest, (EntityPlayerMP) entity, true);
+		PlayerQuestController.addActiveQuest(quest, entity, true);
 	}
 
 	public void startRiding(IEntity<?> e) {
@@ -838,7 +822,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		PlayerQuestData playerdata = this.getData().questData;
 		for (QuestData data : playerdata.activeQuests.values()) { // Changed
 			for (IQuestObjective obj : data.quest
-					.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(this.entity))) {
+					.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity))) {
 				if (obj.getType() != 0) {
 					continue;
 				}

@@ -7,11 +7,11 @@ import noppes.npcs.entity.EntityNPCInterface;
 public abstract class AbstractAbility implements IAbility {
 
 	private long cooldown;
-	private int cooldownTime;
+	private final int cooldownTime;
 	public float maxHP;
 	public float minHP;
 	protected EntityNPCInterface npc;
-	private int startCooldownTime;
+	private final int startCooldownTime;
 
 	public AbstractAbility(EntityNPCInterface npc) {
 		this.cooldown = 0L;
@@ -35,7 +35,7 @@ public abstract class AbstractAbility implements IAbility {
 
 	@Override
 	public void endAbility() {
-		this.cooldown = System.currentTimeMillis() + this.cooldownTime * 1000;
+		this.cooldown = System.currentTimeMillis() + this.cooldownTime * 1000L;
 	}
 
 	@Override
@@ -51,6 +51,6 @@ public abstract class AbstractAbility implements IAbility {
 
 	@Override
 	public void startCombat() {
-		this.cooldown = System.currentTimeMillis() + this.startCooldownTime * 1000;
+		this.cooldown = System.currentTimeMillis() + this.startCooldownTime * 1000L;
 	}
 }

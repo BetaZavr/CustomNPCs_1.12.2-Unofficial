@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class LRUHashMap<K, V> extends LinkedHashMap<K, V> {
 	private static final long serialVersionUID = 2L;
-	private int maxSize;
+	private final int maxSize;
 
 	public LRUHashMap(int size) {
 		super(size, 0.75f, true);

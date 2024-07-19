@@ -18,12 +18,12 @@ public class ChunkController implements ForgeChunkManager.LoadingCallback {
 	private HashMap<Entity, ForgeChunkManager.Ticket> tickets;
 
 	public ChunkController() {
-		this.tickets = new HashMap<Entity, ForgeChunkManager.Ticket>();
+		this.tickets = new HashMap<>();
 		ChunkController.instance = this;
 	}
 
 	public void clear() {
-		this.tickets = new HashMap<Entity, ForgeChunkManager.Ticket>();
+		this.tickets = new HashMap<>();
 	}
 
 	public void deleteNPC(EntityNPCInterface npc) {
@@ -64,13 +64,13 @@ public class ChunkController implements ForgeChunkManager.LoadingCallback {
 				continue;
 			}
 			EntityNPCInterface npc = (EntityNPCInterface) ticket.getEntity();
-			if (npc.advanced.jobInterface.getEnumType() != JobType.CHUNK_LOADER || tickets.contains(npc)) {
+			if (npc.advanced.jobInterface.getEnumType() != JobType.CHUNK_LOADER) {
 				continue;
 			}
 			this.tickets.put(npc, ticket);
 			// New 3x3
-			int x = (int) MathHelper.floor(npc.posX);
-			int z = (int) MathHelper.floor(npc.posZ);
+			int x = MathHelper.floor(npc.posX);
+			int z = MathHelper.floor(npc.posZ);
 			for (int u = -1; u < 2; u++) {
 				for (int v = -1; v < 2; v++) {
 					ForgeChunkManager.forceChunk(ticket, new ChunkPos(x + u, z + v));

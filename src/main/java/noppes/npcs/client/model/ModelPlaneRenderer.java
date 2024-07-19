@@ -7,19 +7,19 @@ import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.client.renderer.BufferBuilder;
 
+import javax.annotation.Nonnull;
+
 public class ModelPlaneRenderer extends ModelRenderer {
+
 	public enum EnumPlanePosition {
-		BACK, BOTTOM, FRONT, LEFT, RIGHT, TOP;
+		BACK, BOTTOM, FRONT, LEFT, RIGHT, TOP
 	}
 
-	public class ModelPlane extends ModelBox {
+	public static class ModelPlane extends ModelBox {
 		private TexturedQuad quad;
-		private PositionTextureVertex[] vertexs;
 
-		public ModelPlane(ModelRenderer par1ModelRenderer, int textureOffsetX, int textureOffsetY, float par4,
-				float par5, float par6, int par7, int par8, int par9, float par10, EnumPlanePosition position) {
+        public ModelPlane(ModelRenderer par1ModelRenderer, int textureOffsetX, int textureOffsetY, float par4, float par5, float par6, int par7, int par8, int par9, float par10, EnumPlanePosition position) {
 			super(par1ModelRenderer, textureOffsetX, textureOffsetY, par4, par5, par6, par7, par8, par9, par10);
-			this.vertexs = new PositionTextureVertex[8];
 			float var11 = par4 + par7;
 			float var12 = par5 + par8;
 			float var13 = par6 + par9;
@@ -41,16 +41,7 @@ public class ModelPlaneRenderer extends ModelRenderer {
 			PositionTextureVertex var19 = new PositionTextureVertex(par4, par5, var13, 0.0f, 0.0f);
 			PositionTextureVertex var20 = new PositionTextureVertex(var11, par5, var13, 0.0f, 8.0f);
 			PositionTextureVertex var21 = new PositionTextureVertex(var11, var12, var13, 8.0f, 8.0f);
-			PositionTextureVertex var22 = new PositionTextureVertex(par4, var12, var13, 8.0f, 0.0f);
-			this.vertexs[0] = var15;
-			this.vertexs[1] = var16;
-			this.vertexs[2] = var17;
-			this.vertexs[3] = var18;
-			this.vertexs[4] = var19;
-			this.vertexs[5] = var20;
-			this.vertexs[6] = var21;
-			this.vertexs[7] = var22;
-			if (position == EnumPlanePosition.LEFT) {
+            if (position == EnumPlanePosition.LEFT) {
 				this.quad = new TexturedQuad(new PositionTextureVertex[] { var20, var16, var17, var21 }, textureOffsetX,
 						textureOffsetY, textureOffsetX + par9, textureOffsetY + par8, par1ModelRenderer.textureWidth,
 						par1ModelRenderer.textureHeight);
@@ -70,14 +61,13 @@ public class ModelPlaneRenderer extends ModelRenderer {
 			}
 		}
 
-		public void render(BufferBuilder par1Tessellator, float par2) {
-			this.quad.draw(par1Tessellator, par2);
+		public void render(@Nonnull BufferBuilder tessellator, float par2) {
+			this.quad.draw(tessellator, par2);
 		}
 	}
 
-	private int textureOffsetX;
-
-	private int textureOffsetY;
+	private final int textureOffsetX;
+	private final int textureOffsetY;
 
 	public ModelPlaneRenderer(ModelBase modelbase, int i, int j) {
 		super(modelbase, i, j);
@@ -96,7 +86,7 @@ public class ModelPlaneRenderer extends ModelRenderer {
 	public void addPlane(float par1, float par2, float par3, int par4, int par5, int par6, float f3,
 			EnumPlanePosition pos) {
 		this.cubeList.add(new ModelPlane(this, this.textureOffsetX, this.textureOffsetY, par1, par2, par3, par4, par5,
-				par6, f3, pos));
+                par6, f3, pos));
 	}
 
 	public void addSidePlane(float f, float f1, float f2, int j, int k) {

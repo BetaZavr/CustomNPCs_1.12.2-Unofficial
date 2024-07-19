@@ -9,7 +9,7 @@ public class CustomPacketHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		PackageReceived ev = new PackageReceived(ctx, msg,
-				ctx.name().toString().equals(CustomNpcs.MODID + ":custom_packet_handler_server"));
+				ctx.name().equals(CustomNpcs.MODID + ":custom_packet_handler_server"));
 		EventHooks.onPackageReceived(ev);
 		if (ev.isCanceled()) {
 			return;

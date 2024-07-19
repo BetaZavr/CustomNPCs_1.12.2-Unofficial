@@ -1,7 +1,5 @@
 package noppes.npcs.client.gui.script;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomRegisters;
@@ -15,11 +13,10 @@ import noppes.npcs.constants.EnumPlayerPacket;
 
 public class GuiScriptItem extends GuiScriptInterface implements ISubGuiListener {
 
-	private ItemScriptedWrapper item;
+	private final ItemScriptedWrapper item;
 
-	public GuiScriptItem(EntityPlayer player) {
-		ItemScriptedWrapper itemScriptedWrapper = new ItemScriptedWrapper(
-				new ItemStack((Item) CustomRegisters.scripted_item));
+	public GuiScriptItem() {
+		ItemScriptedWrapper itemScriptedWrapper = new ItemScriptedWrapper(new ItemStack(CustomRegisters.scripted_item));
 		this.item = itemScriptedWrapper;
 		this.handler = itemScriptedWrapper;
 		Client.sendData(EnumPacketServer.ScriptItemDataGet);
@@ -42,12 +39,11 @@ public class GuiScriptItem extends GuiScriptInterface implements ISubGuiListener
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			((ItemScriptedWrapper) this.handler).getScriptNBT(nbt);
-			String p = new String(this.path);
-			while (p.indexOf("\\") != -1) {
+			String p = this.path;
+			while (p.contains("\\")) {
 				p = p.replace("\\", "/");
 			}
-			nbt.setString("Name",
-					((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
+			nbt.setString("Name", subgui.getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", p + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", this.activeTab - 1);
 			nbt.setByte("Type", (byte) 3);

@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import java.util.Map;
+import java.util.Objects;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -12,7 +13,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fluids.BlockFluidBase;
@@ -34,7 +34,7 @@ import noppes.npcs.util.LRUHashMap;
 
 public class BlockWrapper implements IBlock {
 
-	public static Map<String, BlockWrapper> blockCache = new LRUHashMap<String, BlockWrapper>(400);
+	public static Map<String, BlockWrapper> blockCache = new LRUHashMap<>(400);
 
 	public static void clearCache() {
 		BlockWrapper.blockCache.clear();
@@ -44,7 +44,7 @@ public class BlockWrapper implements IBlock {
 	@Deprecated
 	public static IBlock createNew(World world, BlockPos pos, IBlockState state) {
 		Block block = state.getBlock();
-		String key = state.toString() + pos.toString();
+		String key = state + pos.toString();
 		BlockWrapper b = BlockWrapper.blockCache.get(key);
 		if (b == null) {
 			if (block instanceof BlockScripted) {
@@ -58,18 +58,15 @@ public class BlockWrapper implements IBlock {
 			}
 			BlockWrapper.blockCache.put(key, b);
 		}
-		if (b != null) {
-			b.setTile(world.getTileEntity(pos));
-		}
-		return b;
+        b.setTile(world.getTileEntity(pos));
+        return b;
 	}
 	protected Block block;
 	protected BlockPosWrapper bPos;
 	protected BlockPos pos;
 	public TileNpcEntity storage;
-	private IData storeddata;
-
-	private IData tempdata;
+	private final IData storeddata;
+	private final IData tempdata;
 	public TileEntity tile;
 
 	protected IWorld world;
@@ -80,7 +77,7 @@ public class BlockWrapper implements IBlock {
 		this.storeddata = new StoredData(this);
 
 		if (world instanceof WorldServer) {
-			this.world = NpcAPI.Instance().getIWorld((WorldServer) world);
+			this.world = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(world);
 		} else if (world != null) {
 			WorldWrapper w = WrapperNpcAPI.worldCache.get(world.provider.getDimension());
 			if (w != null) {
@@ -88,14 +85,15 @@ public class BlockWrapper implements IBlock {
 					w.world = world;
 				}
 			} else {
-				w = WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world));
+				w = WorldWrapper.createNew(world);
+				WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w);
 			}
 			this.world = w;
 		}
 		this.block = block;
 		this.pos = pos;
 		this.bPos = new BlockPosWrapper(pos);
-		this.setTile(world.getTileEntity(pos));
+        if (world != null) { this.setTile(world.getTileEntity(pos)); }
 	}
 
 	@Override
@@ -106,9 +104,9 @@ public class BlockWrapper implements IBlock {
 	@Override
 	public IContainer getContainer() {
 		if (!this.isContainer()) {
-			throw new CustomNPCsException("This block is not a container", new Object[0]);
+			throw new CustomNPCsException("This block is not a container");
 		}
-		return NpcAPI.Instance().getIContainer((IInventory) this.tile);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIContainer((IInventory) this.tile);
 	}
 
 	@Override
@@ -116,7 +114,7 @@ public class BlockWrapper implements IBlock {
 		if (this.tile == null) {
 			return this.getName();
 		}
-		return this.tile.getDisplayName().getUnformattedText();
+		return Objects.requireNonNull(this.tile.getDisplayName()).getUnformattedText();
 	}
 
 	@Override
@@ -163,7 +161,7 @@ public class BlockWrapper implements IBlock {
 	public INbt getTileEntityNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
 		this.tile.writeToNBT(compound);
-		return NpcAPI.Instance().getINbt(compound);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound);
 	}
 
 	@Override
@@ -193,18 +191,18 @@ public class BlockWrapper implements IBlock {
 
 	@Override
 	public void interact(int side) {
-		EntityPlayer player = (EntityPlayer) EntityNPCInterface.GenericPlayer;
+		EntityPlayer player = EntityNPCInterface.GenericPlayer;
 		World w = this.world.getMCWorld();
 		player.setWorld(w);
 		player.setPosition(this.pos.getX(), this.pos.getY(), this.pos.getZ());
 		this.block.onBlockActivated(w, this.pos, w.getBlockState(this.pos),
-				(EntityPlayer) EntityNPCInterface.CommandPlayer, EnumHand.MAIN_HAND, EnumFacing.values()[side], 0.0f,
+                EntityNPCInterface.CommandPlayer, EnumHand.MAIN_HAND, EnumFacing.values()[side], 0.0f,
 				0.0f, 0.0f);
 	}
 
 	@Override
 	public boolean isAir() {
-		return this.block.isAir(this.world.getMCWorld().getBlockState(this.pos), (IBlockAccess) this.world.getMCWorld(),
+		return this.block.isAir(this.world.getMCWorld().getBlockState(this.pos), this.world.getMCWorld(),
 				this.pos);
 	}
 
@@ -215,8 +213,7 @@ public class BlockWrapper implements IBlock {
 
 	@Override
 	public boolean isRemoved() {
-		IBlockState state = this.world.getMCWorld().getBlockState(this.pos);
-		return state == null || state.getBlock() != this.block;
+		return this.world.getMCWorld().getBlockState(this.pos).getBlock() != this.block;
 	}
 
 	@Override
@@ -233,10 +230,7 @@ public class BlockWrapper implements IBlock {
 	@Override
 	public BlockWrapper setBlock(String name) {
 		Block block = Block.REGISTRY.getObject(new ResourceLocation(name));
-		if (block == null) {
-			return this;
-		}
-		this.world.getMCWorld().setBlockState(this.pos, block.getDefaultState());
+        this.world.getMCWorld().setBlockState(this.pos, block.getDefaultState());
 		return new BlockWrapper(this.world.getMCWorld(), block, this.pos);
 	}
 

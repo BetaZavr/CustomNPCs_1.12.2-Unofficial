@@ -8,7 +8,6 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.init.Items;
@@ -16,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.data.IDeal;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
@@ -39,15 +39,14 @@ import noppes.npcs.controllers.data.MarcetSection;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class GuiNPCManageMarcets extends GuiNPCInterface2
-		implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
+public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 
 	public static int marcetId, dealId;
 	private static Marcet selectedMarcet;
 	private static Deal selectedDeal;
 
-	private final Map<String, Integer> dataDeals = Maps.<String, Integer>newLinkedHashMap();
-	private final Map<String, Integer> dataMarcets = Maps.<String, Integer>newTreeMap();
+	private final Map<String, Integer> dataDeals = Maps.newLinkedHashMap();
+	private final Map<String, Integer> dataMarcets = Maps.newTreeMap();
 	private GuiCustomScroll scrollMarcets, scrollDeals, scrollAllDeals;
 	private MarcetController mData;
 	private int tabSelect;
@@ -80,15 +79,13 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 				selectedMarcet = (Marcet) mData.addMarcet();
 				marcetId = selectedMarcet.getId();
 				initGui();
-				CustomNPCsScheduler.runTack(() -> {
-					setSubGui(new SubGuiNpcMarketSettings(selectedMarcet));
-				}, 50);
+				CustomNPCsScheduler.runTack(() -> setSubGui(new SubGuiNpcMarketSettings(selectedMarcet)), 50);
 				break;
 			}
 			case 1: { // Del market
-				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, scrollMarcets.getSelected(),
+				GuiYesNo guiyesno = new GuiYesNo(this, scrollMarcets.getSelected(),
 						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-				displayGuiScreen((GuiScreen) guiyesno);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 2: { // Market settings
@@ -101,9 +98,8 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 				break;
 			}
 			case 4: { // Del deal
-				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, scrollDeals.getSelected(),
-						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
-				displayGuiScreen((GuiScreen) guiyesno);
+				GuiYesNo guiyesno = new GuiYesNo(this, scrollDeals.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 5: { // Deal settings
@@ -251,10 +247,10 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 		// Marcets:
 		scrollMarcets.setListNotSorted(Lists.newArrayList(dataMarcets.keySet()));
 		if (!dataMarcets.isEmpty()) {
-			List<String[]> infoList = new ArrayList<String[]>();
+			List<String[]> infoList = new ArrayList<>();
 			for (int id : dataMarcets.values()) {
 				Marcet marcet = (Marcet) mData.getMarcet(id);
-				List<String> info = new ArrayList<String>();
+				List<String> info = new ArrayList<>();
 				info.add(((char) 167) + "7ID: " + ((char) 167) + "r" + marcet.getId());
 				info.add(((char) 167) + "7" + new TextComponentTranslation("gui.name").getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "r" + marcet.name);
 				if (!marcet.isValid()) {
@@ -282,7 +278,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 						break;
 					}
 				}
-				infoList.add(info.toArray(new String[info.size()]));
+				infoList.add(info.toArray(new String[0]));
 			}
 			scrollMarcets.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
 		} else {
@@ -293,22 +289,22 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 		// Deals:
 		scrollAllDeals.setListNotSorted(Lists.newArrayList(dataDeals.keySet()));
 		if (!dataDeals.isEmpty()) {
-			List<String[]> infoList = Lists.<String[]>newArrayList();
-			List<ItemStack> stacks = Lists.<ItemStack>newArrayList();
+			List<String[]> infoList = Lists.newArrayList();
+			List<ItemStack> stacks = Lists.newArrayList();
 
-			List<String> marcetDeals = Lists.<String>newArrayList();
-			List<String[]> marcetInfoList = Lists.<String[]>newArrayList();
-			List<ItemStack> marcetStacks = Lists.<ItemStack>newArrayList();
+			List<String> marcetDeals = Lists.newArrayList();
+			List<String[]> marcetInfoList = Lists.newArrayList();
+			List<ItemStack> marcetStacks = Lists.newArrayList();
 			for (String key : dataDeals.keySet()) {
 				int dealID = dataDeals.get(key);
 				Deal deal = (Deal) mData.getDeal(dealID);
-				List<String> totalInfo = Lists.<String>newArrayList();
+				List<String> totalInfo = Lists.newArrayList();
 				totalInfo.add(((char) 167) + "7ID: " + ((char) 167) + "r" + dealID);
-				List<String> marcetInfo = Lists.<String>newArrayList();
+				List<String> marcetInfo = Lists.newArrayList();
 				marcetInfo.add(((char) 167) + "7ID: " + ((char) 167) + "r" + dealID);
 				DealMarkup dm = new DealMarkup();
 				if (deal != null) {
-					dm.set((Deal) deal);
+					dm.set(deal);
 				}
 				ItemStack stack = ItemStack.EMPTY;
 				int tab = selectedMarcet.getSection(dealID);
@@ -328,12 +324,10 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 						}
 					}
 				} else {
-					String section = "";
+					String section;
 					if (tab == tabSelect) {
-						section = "\"" + (new TextComponentTranslation(selectedMarcet.sections.get(tab).name)
-								.getFormattedText()) + "\"";
-						marcetInfo.add(
-								((char) 167) + "7" + new TextComponentTranslation("gui.sections").getFormattedText()
+						section = "\"" + (new TextComponentTranslation(selectedMarcet.sections.get(tab).name).getFormattedText()) + "\"";
+						marcetInfo.add(((char) 167) + "7" + new TextComponentTranslation("gui.sections").getFormattedText()
 										+ " ID: " + ((char) 167) + "r" + tab + ((char) 167) + "7; "
 										+ new TextComponentTranslation("gui.name").getFormattedText() + ((char) 167)
 										+ "7: " + ((char) 167) + "r" + section);
@@ -344,8 +338,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 
 					marcetInfo.add(new TextComponentTranslation("market.hover.product").getFormattedText());
 					marcetInfo.add(dm.main.getDisplayName() + " x" + dm.count
-							+ (deal.getMaxCount() > 0 ? " " + new TextComponentTranslation("market.hover.item.amount",
-									new Object[] { "" + deal.getAmount() }).getFormattedText() : ""));
+							+ (deal.getMaxCount() > 0 ? " " + new TextComponentTranslation("market.hover.item.amount", "" + deal.getAmount()).getFormattedText() : ""));
 					if (!dm.baseItems.isEmpty()) {
 						totalInfo.add(new TextComponentTranslation("market.hover.item").getFormattedText());
 						for (ItemStack curr : dm.baseItems.keySet()) {
@@ -354,16 +347,13 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 					}
 					if (dm.baseMoney > 0) {
 						totalInfo.add(new TextComponentTranslation("market.hover.currency").getFormattedText());
-						totalInfo.add("" + dm.baseMoney + CustomNpcs.displayCurrencies);
+						totalInfo.add(dm.baseMoney + CustomNpcs.displayCurrencies);
 					}
-					totalInfo.add(
-							((char) 167) + "e" + (new TextComponentTranslation("market.deal.type." + dm.deal.getType())
-									.getFormattedText()));
-					totalInfo.add(((char) 167) + "6" + (new TextComponentTranslation("drop.chance").getFormattedText()
-							+ ((char) 167) + "6: " + ((char) 167) + "r" + dm.deal.getChance() + "%"));
+					totalInfo.add(((char) 167) + "e" + (new TextComponentTranslation("market.deal.type." + dm.deal.getType()).getFormattedText()));
+					totalInfo.add(((char) 167) + "6" + (new TextComponentTranslation("drop.chance").getFormattedText() + ((char) 167) + "6: " + ((char) 167) + "r" + dm.deal.getChance() + "%"));
 				}
-				infoList.add(totalInfo.toArray(new String[totalInfo.size()]));
-				marcetInfoList.add(marcetInfo.toArray(new String[marcetInfo.size()]));
+				infoList.add(totalInfo.toArray(new String[0]));
+				marcetInfoList.add(marcetInfo.toArray(new String[0]));
 				stacks.add(stack);
 				if (tabSelect == tab) {
 					marcetDeals.add(key);
@@ -397,7 +387,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 		int lId = 0;
 		addLabel(new GuiNpcLabel(lId++, "global.market", x0 + 2, y - 9));
 		addLabel(new GuiNpcLabel(lId++, "market.deals", x1, y - 9));
-		addLabel(new GuiNpcLabel(lId++, "market.all.deals", x2, y - 9));
+		addLabel(new GuiNpcLabel(lId, "market.all.deals", x2, y - 9));
 
 		y += scrollMarcets.height + 2;
 		int bw = (w - 2) / 3;
@@ -430,7 +420,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 		getButton(8).setEnabled(scrollDeals.hasSelected());
 		addButton(new GuiNpcButton(9, x3, y += 22, 41, 20, "<<"));
 		getButton(9).setEnabled(!dataDeals.isEmpty());
-		addButton(new GuiNpcButton(10, x3, y += 22, 41, 20, ">>"));
+		addButton(new GuiNpcButton(10, x3, y + 22, 41, 20, ">>"));
 		getButton(10).setEnabled(!scrollDeals.getList().isEmpty());
 	}
 
@@ -476,7 +466,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 					break;
 				}
 			}
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	@Override

@@ -17,7 +17,6 @@ import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.controllers.data.MarkData;
@@ -28,9 +27,9 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData {
 
-	private EntityNPCInterface npc;
-	private ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/follower.png");
-	private RoleFollower role;
+	private final EntityNPCInterface npc;
+	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/follower.png");
+	private final RoleFollower role;
 	private EntityNPCInterface displayNPC;
 
 	public GuiNpcFollower(EntityNPCInterface npc, ContainerNPCFollowerHire container) {
@@ -39,7 +38,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 		this.npc = npc;
 		this.role = (RoleFollower) npc.advanced.roleInterface;
 		this.closeOnEsc = true;
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.RoleGet, new Object[0]);
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.RoleGet);
 		NBTTagCompound npcNbt = new NBTTagCompound();
 		npc.writeEntityToNBT(npcNbt);
 		npc.writeToNBTOptional(npcNbt);
@@ -53,9 +52,9 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 			this.displayNPC.ais.orientation = npc.ais.orientation;
 			this.displayNPC.ais.setStandingType(1);
 			if (npc instanceof EntityCustomNpc && displayNPC instanceof EntityCustomNpc
-					&& ((EntityCustomNpc) npc).modelData instanceof ModelDataShared
-					&& ((EntityCustomNpc) displayNPC).modelData instanceof ModelDataShared) {
-				((ModelDataShared) ((EntityCustomNpc) displayNPC).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity;
+					&& ((EntityCustomNpc) npc).modelData != null
+					&& ((EntityCustomNpc) displayNPC).modelData != null) {
+				((EntityCustomNpc) displayNPC).modelData.entity = ((EntityCustomNpc) npc).modelData.entity;
 			}
 		}
 	}
@@ -208,8 +207,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 			}
 		}
 		if (this.role.rates.containsKey(3) && this.role.rentalMoney > 0) {
-			this.addButton(new GuiNpcButton(3, x, y += 16, 60, 13,
-					new TextComponentTranslation("follower.extend").getFormattedText()));
+			this.addButton(new GuiNpcButton(3, x, y + 16, 60, 13, new TextComponentTranslation("follower.extend").getFormattedText()));
 		}
 		x += 52;
 		y = this.guiTop + 105;

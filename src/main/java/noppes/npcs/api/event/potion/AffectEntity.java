@@ -11,11 +11,10 @@ public class AffectEntity extends CustomPotionEvent {
 	public int amplifier;
 	public double health;
 
-	public AffectEntity(ICustomElement potion, Entity source, Entity indirectSource,
-			EntityLivingBase entityLivingBaseIn, int amplifier, double health) {
+	public AffectEntity(ICustomElement potion, Entity source, Entity indirectSource, EntityLivingBase entityLivingBaseIn, int amplifier, double health) {
 		super(potion);
-		this.source = entityLivingBaseIn != null ? this.API.getIEntity(entityLivingBaseIn) : null;
-		this.indirectSource = entityLivingBaseIn != null ? this.API.getIEntity(entityLivingBaseIn) : null;
+		this.source = source != null ? this.API.getIEntity(source) : null;
+		this.indirectSource = indirectSource != null ? this.API.getIEntity(indirectSource) : null;
 		this.entity = this.API.getIEntity(entityLivingBaseIn);
 		this.amplifier = amplifier;
 		this.health = health;

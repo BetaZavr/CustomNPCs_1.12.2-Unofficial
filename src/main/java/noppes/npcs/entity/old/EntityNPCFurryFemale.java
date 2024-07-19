@@ -12,10 +12,10 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class EntityNPCFurryFemale extends EntityNPCInterface {
 	public EntityNPCFurryFemale(World world) {
 		super(world);
-		float scaleX = 0.9075f;
-		this.scaleZ = scaleX;
-		this.scaleY = scaleX;
-		this.scaleX = scaleX;
+		float f = 0.9075f;
+		this.scaleZ = f;
+		this.scaleY = f;
+		this.scaleX = f;
 		this.display.setSkinTexture(CustomNpcs.MODID + ":textures/entity/furryfemale/WolfBlack.png");
 	}
 

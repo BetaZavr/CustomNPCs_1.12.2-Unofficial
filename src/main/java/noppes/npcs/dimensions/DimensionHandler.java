@@ -2,11 +2,8 @@ package noppes.npcs.dimensions;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 
@@ -21,8 +18,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.ServerWorldEventHandler;
@@ -46,12 +41,14 @@ import noppes.npcs.api.handler.IDimensionHandler;
 import noppes.npcs.api.handler.data.IWorldInfo;
 import noppes.npcs.constants.EnumPacketClient;
 
+import javax.annotation.Nonnull;
+
 public class DimensionHandler extends WorldSavedData implements IDimensionHandler {
 	static String NAME = "CustomNpcsHandler";
 
 	public static DimensionHandler getInstance() {
-		DimensionHandler INSTANCE = (DimensionHandler) FMLCommonHandler.instance().getMinecraftServerInstance()
-				.getEntityWorld().getMapStorage().getOrLoadData(DimensionHandler.class, DimensionHandler.NAME);
+		DimensionHandler INSTANCE = (DimensionHandler) Objects.requireNonNull(FMLCommonHandler.instance().getMinecraftServerInstance()
+                .getEntityWorld().getMapStorage()).getOrLoadData(DimensionHandler.class, DimensionHandler.NAME);
 		if (INSTANCE == null) {
 			INSTANCE = new DimensionHandler();
 			FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld().getMapStorage()
@@ -59,18 +56,12 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 		}
 		return INSTANCE;
 	}
-	private Map<Integer, CustomWorldInfo> dimensionInfo = Maps.<Integer, CustomWorldInfo>newTreeMap();
+	private final Map<Integer, CustomWorldInfo> dimensionInfo = Maps.newTreeMap();
 
-	private Map<Integer, UUID> toBeDeleted = Maps.<Integer, UUID>newTreeMap();
+	private final Map<Integer, UUID> toBeDeleted = Maps.newTreeMap();
 
 	public DimensionHandler() {
 		super(DimensionHandler.NAME);
-		this.dimensionInfo = new HashMap<Integer, CustomWorldInfo>();
-		this.toBeDeleted = new HashMap<Integer, UUID>();
-	}
-
-	public DimensionHandler(String name) {
-		super(name);
 	}
 
 	@Override
@@ -104,8 +95,8 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 			return;
 		}
 		World worldObj = DimensionManager.getWorld(dimensionID);
-		if (worldObj.playerEntities.size() > 0) {
-			WorldServer world = sender.getServer().getWorld(0);
+		if (!worldObj.playerEntities.isEmpty()) {
+			WorldServer world = Objects.requireNonNull(sender.getServer()).getWorld(0);
 			BlockPos coords = world.getSpawnCoordinate();
 			if (coords == null) {
 				coords = world.getSpawnPoint();
@@ -120,7 +111,7 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 					}
 				}
 			}
-			List<EntityPlayerMP> players = Lists.<EntityPlayerMP>newArrayList();
+			List<EntityPlayerMP> players = Lists.newArrayList();
 			for (EntityPlayer player : worldObj.playerEntities) {
 				if (!(player instanceof EntityPlayerMP)) {
 					continue;
@@ -146,7 +137,7 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 			}
 		}
 		if (CustomNpcs.Server.worlds.length != list.size()) {
-			CustomNpcs.Server.worlds = list.toArray(new WorldServer[list.size()]);
+			CustomNpcs.Server.worlds = list.toArray(new WorldServer[0]);
 		}
 	}
 
@@ -163,24 +154,6 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 		return currentID;
 	}
 
-	public ITextComponent generateList() {
-		StringBuilder stringBuilder = new StringBuilder();
-		if (this.dimensionInfo.isEmpty()) {
-			return new TextComponentTranslation("dimensions.nodimensions");
-		} else {
-			int counter = 0;
-			for (Entry<Integer, CustomWorldInfo> entry : this.dimensionInfo.entrySet()) {
-				stringBuilder.append(
-						String.format("%s %s", "DIM " + entry.getKey(), "(" + entry.getValue().getWorldName() + ")"));
-				counter++;
-				if (counter < dimensionInfo.size()) {
-					stringBuilder.append("\n");
-				}
-			}
-			return new TextComponentString(stringBuilder.toString());
-		}
-	}
-
 	@Override
 	public int[] getAllIDs() {
 		int[] arr = new int[this.dimensionInfo.size()];
@@ -195,30 +168,22 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 		return arr;
 	}
 
-	public Map<Integer, CustomWorldInfo> getDimensionInfo() {
-		return this.dimensionInfo;
-	}
-
-	public String getDimensionName(int dimensionId) {
-		return this.dimensionInfo.get(dimensionId).getWorldName();
-	}
-
 	public Map<String, Integer> getMapDimensionsIDs() {
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		HashMap<String, Integer> map = new HashMap<>();
 		for (int id : DimensionManager.getStaticDimensionIDs()) {
 			WorldProvider provider = DimensionManager.createProviderFor(id);
-			String key = (DimensionManager.getWorld(id) != null) + "&" + provider.getDimensionType().getName();
+			StringBuilder key = new StringBuilder((DimensionManager.getWorld(id) != null) + "&" + provider.getDimensionType().getName());
 			if (this.dimensionInfo.containsKey(id)) {
 				if (this.toBeDeleted.containsKey(id)) {
 					continue;
 				}
-				key = (DimensionManager.getWorld(id) != null) + "&" + this.dimensionInfo.get(id).getWorldName();
+				key = new StringBuilder((DimensionManager.getWorld(id) != null) + "&" + this.dimensionInfo.get(id).getWorldName());
 			}
 			while (map.containsKey(key + "&" + provider.getDimensionType().getSuffix())) {
-				key += "_";
+				key.append("_");
 			}
-			key += "&" + provider.getDimensionType().getSuffix();
-			map.put(key, id);
+			key.append("&").append(provider.getDimensionType().getSuffix());
+			map.put(key.toString(), id);
 		}
 		return map;
 	}
@@ -232,7 +197,7 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 	public INbt getNbt() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		this.writeToNBT(nbt);
-		return NpcAPI.Instance().getINbt(nbt);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbt);
 	}
 
 	public boolean isDelete(int id) {
@@ -246,10 +211,7 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 
 	private void loadDimension(int dimensionID, WorldInfo worldInfo) {
 		WorldServer overworld = (WorldServer) FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
-		if (overworld == null) {
-			throw new RuntimeException("Cannot Hotload Dim: Overworld is not Loaded!");
-		}
-		try {
+        try {
 			DimensionManager.getProviderType(dimensionID);
 		} catch (Exception e) {
 			LogWriter.error("Cannot Hotload Dim: " + e);
@@ -257,16 +219,15 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 		}
 		MinecraftServer mcServer = overworld.getMinecraftServer();
 		ISaveHandler savehandler = overworld.getSaveHandler();
-		EnumDifficulty difficulty = mcServer.getEntityWorld().getDifficulty();
+        assert mcServer != null;
+        EnumDifficulty difficulty = mcServer.getEntityWorld().getDifficulty();
 		WorldServer world = (WorldServer) (new WorldCustom(worldInfo, mcServer, savehandler, dimensionID, overworld,
 				mcServer.profiler).init());
 		world.addEventListener(new ServerWorldEventHandler(mcServer, world));
 		LogWriter.debug("Try Load World: " + dimensionID + "; world = " + world);
 		try {
-			Class<?> as = Class.forName("org.orecruncher.dsurround.server.services.AtmosphereService");
-			if (as != null) {
-			}
-		} catch (ClassNotFoundException e) {
+			Class.forName("org.orecruncher.dsurround.server.services.AtmosphereService");
+        } catch (ClassNotFoundException e) {
 			MinecraftForge.EVENT_BUS.post(new WorldEvent.Load(world));
 		}
 		if (!mcServer.isSinglePlayer()) {
@@ -283,13 +244,12 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 				loadDimension(dimensionID, entry.getValue());
 			} catch (Exception e) {
 				LogWriter.error("Error Load Custom Dimensions [" + dimensionID + "]: ", e);
-				continue;
-			}
+            }
 		}
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt) {
+	public void readFromNBT(@Nonnull NBTTagCompound nbt) {
 		NBTTagList nbtList = nbt.getTagList("dimensionInfo", 10);
 		for (int i = 0; i < nbtList.tagCount(); i++) {
 			NBTTagCompound compound = nbtList.getCompoundTagAt(i);
@@ -304,7 +264,8 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 	}
 
 	private void syncWithClients() {
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.DIMENSIOS_IDS, this.getAllIDs());
+		Object ids = this.getAllIDs();
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.DIMENSION_IDS, ids);
 	}
 
 	public void unload(World world, int dimensionID) {
@@ -325,13 +286,13 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 			try {
 				FileUtils.deleteDirectory(dimensionFolder);
 			} catch (IOException e) {
-				e.printStackTrace();
+				LogWriter.error("Error:", e);
 				if (player != null) {
 					player.sendMessage(new TextComponentTranslation("message.dimensions.err.notmod", "" + dimensionID));
 				}
 			} finally {
 				if (player != null) {
-					player.sendMessage(new TextComponentTranslation("message.dimensions.del.foder", "" + dimensionID));
+					player.sendMessage(new TextComponentTranslation("message.dimensions.del.folder", "" + dimensionID));
 				}
 			}
 			syncWithClients();
@@ -339,7 +300,7 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+	public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt) {
 		NBTTagList nbtList = new NBTTagList();
 		for (Entry<Integer, CustomWorldInfo> entry : this.dimensionInfo.entrySet()) {
 			if (this.toBeDeleted.containsKey(entry.getKey())) {

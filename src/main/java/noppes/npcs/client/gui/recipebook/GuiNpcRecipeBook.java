@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.lwjgl.input.Keyboard;
@@ -53,15 +54,14 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 	private GuiNpcButtonRecipeTab currentTab;
 	private final NPCGhostRecipe ghostRecipe = new NPCGhostRecipe();
 	private int height;
-	// New
-	public boolean isGlobal = true;
+	public boolean isGlobal;
 	private String lastSearch = "";
 	private Minecraft mc;
 	public RecipeBook recipeBook;
-	private NpcRecipeBookPage recipeBookPage;
-	private List<GuiNpcButtonRecipeTab> recipeTabs;
+	private final NpcRecipeBookPage recipeBookPage;
+	private final List<GuiNpcButtonRecipeTab> recipeTabs;
 	private GuiTextField searchBar;
-	private RecipeItemHelper stackedContents = new RecipeItemHelper();
+	private final RecipeItemHelper stackedContents = new RecipeItemHelper();
 	private int timesInventoryChanged;
 	private GuiButtonToggle toggleRecipesBtn;
 	private int width;
@@ -77,7 +77,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 				new GuiNpcButtonRecipeTab(0, CreativeTabs.REDSTONE, isGlobal));
 	}
 
-	public void func_194303_a(int width, int height, Minecraft mc, boolean widthTooNarrow, InventoryCrafting inv) {
+	public void func_194303_a(int width, int height, @Nonnull Minecraft mc, boolean widthTooNarrow, @Nonnull InventoryCrafting inv) {
 		this.mc = mc;
 		this.width = width;
 		this.height = height;
@@ -109,7 +109,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 		}
 	}
 
-	public void initVisuals(boolean widthTooNarrow, InventoryCrafting inv) {
+	public void initVisuals(boolean widthTooNarrow, @Nonnull InventoryCrafting inv) {
 		this.xOffset = widthTooNarrow ? 0 : 86;
 		int i = (this.width - 147) / 2 - this.xOffset;
 		int j = (this.height - 166) / 2;
@@ -130,7 +130,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 		this.updateTabs();
 	}
 
-	private boolean isOffsetNextToMainGUI() {
+	private boolean notOffsetNextToMainGUI() {
 		return this.xOffset == 86;
 	}
 
@@ -140,7 +140,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 
 	public boolean keyPressed(char typedChar, int keycode) {
 		if (this.isVisible() && !this.mc.player.isSpectator()) {
-			if (keycode == 1 && !this.isOffsetNextToMainGUI()) {
+			if (keycode == 1 && this.notOffsetNextToMainGUI()) {
 				this.setVisible(false);
 				return true;
 			} else {
@@ -182,7 +182,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 					NoppesUtilPlayer.sendData(EnumPlayerPacket.GetGhostRecipe, this.mc.player.openContainer.windowId,
 							((INpcRecipe) irecipe).getId(), GuiScreen.isShiftKeyDown());
 				}
-				if (!this.isOffsetNextToMainGUI() && mouseButton == 0) {
+				if (this.notOffsetNextToMainGUI() && mouseButton == 0) {
 					this.setVisible(false);
 				}
 			}
@@ -234,7 +234,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 		}
 	}
 
-	public void recipesShown(List<IRecipe> recipes) {
+	public void recipesShown(@Nonnull List<IRecipe> recipes) {
 		for (IRecipe irecipe : recipes) {
 			this.mc.player.removeRecipeHighlight(irecipe);
 		}
@@ -247,11 +247,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 		}
 	}
 
-	public void removed() {
-		Keyboard.enableRepeatEvents(false);
-	}
-
-	public void render(int mouseX, int mouseY, float partialTicks) {
+    public void render(int mouseX, int mouseY, float partialTicks) {
 		if (!this.isVisible() || this.searchBar == null) {
 			return;
 		}
@@ -299,8 +295,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 			this.recipeBookPage.renderTooltip(mouseButton, p_191876_4_);
 			if (this.toggleRecipesBtn.isMouseOver()) {
 				String s1 = I18n
-						.format(this.toggleRecipesBtn.isStateTriggered() ? "gui.recipebook.toggleRecipes.craftable"
-								: "gui.recipebook.toggleRecipes.all");
+						.format(this.toggleRecipesBtn.isStateTriggered() ? "gui.recipebook.toggleRecipes.craftable" : "gui.recipebook.toggleRecipes.all");
 				if (this.mc.currentScreen != null) {
 					this.mc.currentScreen.drawHoveringText(s1, mouseButton, p_191876_4_);
 				}
@@ -316,7 +311,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 		}
 	}
 
-	public void setupGhostRecipe(IRecipe recipe, List<Slot> slots) {
+	public void setupGhostRecipe(@Nonnull IRecipe recipe, @Nonnull List<Slot> slots) {
 		ItemStack itemstack = recipe.getRecipeOutput();
 		this.ghostRecipe.setRecipe(recipe);
 		this.ghostRecipe.addIngredient(Ingredient.fromStacks(itemstack),
@@ -383,29 +378,17 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 		if (!this.isGlobal) {
 			recipes = ClientProxy.MOD_RECIPES_BY_TAB.get(this.currentTab.getCategory());
 		}
-		recipes.forEach((recipeList) -> {
-			recipeList.canCraft(this.stackedContents, this.craftingSlots.getWidth(), this.craftingSlots.getHeight(),
-					this.recipeBook);
-		});
+		recipes.forEach((recipeList) -> recipeList.canCraft(this.stackedContents, this.craftingSlots.getWidth(), this.craftingSlots.getHeight(), this.recipeBook));
 		List<RecipeList> list = Lists.newArrayList(recipes);
-		list.removeIf((recipeList) -> {
-			return !recipeList.isNotEmpty();
-		});
-		list.removeIf((recipeList) -> {
-			return !recipeList.containsValidRecipes();
-		});
+		list.removeIf((recipeList) -> !recipeList.isNotEmpty());
+		list.removeIf((recipeList) -> !recipeList.containsValidRecipes());
 		String s = this.searchBar.getText();
 		if (!s.isEmpty()) {
-			ObjectSet<RecipeList> objectset = new ObjectLinkedOpenHashSet<RecipeList>(
-					this.mc.getSearchTree(SearchTreeManager.RECIPES).search(s.toLowerCase(Locale.ROOT)));
-			list.removeIf((recipeList) -> {
-				return !objectset.contains(recipeList);
-			});
+			ObjectSet<RecipeList> objectset = new ObjectLinkedOpenHashSet<>(this.mc.getSearchTree(SearchTreeManager.RECIPES).search(s.toLowerCase(Locale.ROOT)));
+			list.removeIf((recipeList) -> !objectset.contains(recipeList));
 		}
 		if (this.recipeBook.isFilteringCraftable()) {
-			list.removeIf((recipeList) -> {
-				return !recipeList.containsCraftableRecipes();
-			});
+			list.removeIf((recipeList) -> !recipeList.containsCraftableRecipes());
 		}
 		this.recipeBookPage.updateLists(list, bo);
 	}

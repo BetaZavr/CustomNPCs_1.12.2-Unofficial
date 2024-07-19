@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.entity.Entity;
@@ -22,9 +21,9 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCall
 
 	private static boolean serverSide = false;
 	private static int tab = 1;
-	private NBTTagCompound compound;
-	private Entity toClone;
-	private String[] arrSmbls = new String[] { "\\", "/", ":", "*", "?", "\"", "<", ">", "|" };
+	private final NBTTagCompound compound;
+	private final Entity toClone;
+	private final String[] arrSymbols = new String[] { "\\", "/", ":", "*", "?", "\"", "<", ">", "|" };
 
 	public GuiNpcMobSpawnerAdd(NBTTagCompound compound) {
 		this.toClone = EntityList.createEntityFromNBT(compound, Minecraft.getMinecraft().world);
@@ -44,8 +43,7 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCall
 			int tab = button.getValue() + 1;
 			if (!GuiNpcMobSpawnerAdd.serverSide) {
 				if (ClientCloneController.Instance.getCloneData(null, name, tab) != null) {
-					this.displayGuiScreen((GuiScreen) new GuiYesNo((GuiYesNoCallback) this, "",
-							new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
+					this.displayGuiScreen(new GuiYesNo(this, "", new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
 				} else {
 					this.confirmClicked(true, 0);
 				}
@@ -82,8 +80,8 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCall
 	public void initGui() {
 		super.initGui();
 		String name = this.toClone.getName();
-		for (String c : this.arrSmbls) {
-			while (name.indexOf(c) > -1) {
+		for (String c : this.arrSymbols) {
+			while (name.contains(c)) {
 				name = name.replace(c, "_");
 			}
 		}
@@ -107,8 +105,7 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCall
 	public void setGuiData(NBTTagCompound compound) {
 		if (compound.hasKey("NameExists")) {
 			if (compound.getBoolean("NameExists")) {
-				this.displayGuiScreen((GuiScreen) new GuiYesNo((GuiYesNoCallback) this, "",
-						new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
+				this.displayGuiScreen(new GuiYesNo(this, "", new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
 			} else {
 				this.confirmClicked(true, 0);
 			}
@@ -118,8 +115,8 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCall
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
 		String name = textField.getText();
-		for (String c : this.arrSmbls) {
-			while (name.indexOf(c) > -1) {
+		for (String c : this.arrSymbols) {
+			while (name.contains(c)) {
 				name = name.replace(c, "_");
 			}
 		}

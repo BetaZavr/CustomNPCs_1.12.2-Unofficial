@@ -3,7 +3,6 @@ package noppes.npcs.dimensions;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.village.VillageCollection;
-import net.minecraft.world.MinecraftException;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.border.IBorderListener;
@@ -11,41 +10,42 @@ import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 
+import javax.annotation.Nonnull;
+
 public class WorldCustom extends WorldServer {
 
-	private WorldServer delegate;
-	private IBorderListener borderListener;
+	private final WorldServer delegate;
+	private final IBorderListener borderListener;
 
-	public WorldCustom(WorldInfo worldInfo, MinecraftServer server, ISaveHandler saveHandlerIn, int dimensionId,
-			WorldServer delegate, Profiler profilerIn) {
+	public WorldCustom(WorldInfo worldInfo, MinecraftServer server, ISaveHandler saveHandlerIn, int dimensionId, WorldServer delegate, Profiler profilerIn) {
 		super(server, saveHandlerIn, worldInfo, dimensionId, profilerIn);
 		this.delegate = delegate;
 		this.borderListener = new IBorderListener() {
-			public void onCenterChanged(WorldBorder border, double x, double z) {
+			public void onCenterChanged(@Nonnull WorldBorder border, double x, double z) {
 				WorldCustom.this.getWorldBorder().setCenter(x, z);
 			}
 
-			public void onDamageAmountChanged(WorldBorder border, double newAmount) {
+			public void onDamageAmountChanged(@Nonnull WorldBorder border, double newAmount) {
 				WorldCustom.this.getWorldBorder().setDamageAmount(newAmount);
 			}
 
-			public void onDamageBufferChanged(WorldBorder border, double newSize) {
+			public void onDamageBufferChanged(@Nonnull WorldBorder border, double newSize) {
 				WorldCustom.this.getWorldBorder().setDamageBuffer(newSize);
 			}
 
-			public void onSizeChanged(WorldBorder border, double newSize) {
+			public void onSizeChanged(@Nonnull WorldBorder border, double newSize) {
 				WorldCustom.this.getWorldBorder().setTransition(newSize);
 			}
 
-			public void onTransitionStarted(WorldBorder border, double oldSize, double newSize, long time) {
+			public void onTransitionStarted(@Nonnull WorldBorder border, double oldSize, double newSize, long time) {
 				WorldCustom.this.getWorldBorder().setTransition(oldSize, newSize, time);
 			}
 
-			public void onWarningDistanceChanged(WorldBorder border, int newDistance) {
+			public void onWarningDistanceChanged(@Nonnull WorldBorder border, int newDistance) {
 				WorldCustom.this.getWorldBorder().setWarningDistance(newDistance);
 			}
 
-			public void onWarningTimeChanged(WorldBorder border, int newTime) {
+			public void onWarningTimeChanged(@Nonnull WorldBorder border, int newTime) {
 				WorldCustom.this.getWorldBorder().setWarningTime(newTime);
 			}
 
@@ -59,7 +59,7 @@ public class WorldCustom extends WorldServer {
 		this.delegate.getWorldBorder().removeListener(this.borderListener); // Unlink ourselves, to prevent world leak.
 	}
 
-	public World init() {
+	public @Nonnull World init() {
 		this.mapStorage = this.delegate.getMapStorage();
 		this.worldScoreboard = this.delegate.getScoreboard();
 		this.lootTable = this.delegate.getLootTableManager();
@@ -76,11 +76,7 @@ public class WorldCustom extends WorldServer {
 		return this;
 	}
 
-	public void saveAdditionalData() {
-		this.provider.onWorldSave();
-	}
-
-	protected void saveLevel() throws MinecraftException {
+	protected void saveLevel() {
 		this.perWorldStorage.saveAllData();
 	}
 

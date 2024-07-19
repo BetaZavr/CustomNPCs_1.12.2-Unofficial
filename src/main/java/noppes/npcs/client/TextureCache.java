@@ -2,8 +2,8 @@ package noppes.npcs.client;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
 import net.minecraft.client.Minecraft;
@@ -14,6 +14,7 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.LogWriter;
 
 public class TextureCache extends SimpleTexture {
+
 	private BufferedImage bufferedImage;
 	private boolean textureUploaded;
 
@@ -37,7 +38,7 @@ public class TextureCache extends SimpleTexture {
 		return super.getGlTextureId();
 	}
 
-	public void loadTexture(IResourceManager resourceManager) throws IOException {
+	public void loadTexture(@Nonnull IResourceManager resourceManager) {
 	}
 
 	public void setImage(ResourceLocation location) {

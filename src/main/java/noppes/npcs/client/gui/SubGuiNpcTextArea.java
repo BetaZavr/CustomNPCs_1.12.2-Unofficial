@@ -77,7 +77,7 @@ public class SubGuiNpcTextArea extends SubGuiInterface implements ITextChangeLis
 			this.text = this.textarea.getText();
 		}
 		int yoffset = (int) (this.ySize * 0.02);
-		(this.textarea = new GuiTextArea(2, this, this.guiLeft + 1 + yoffset, this.guiTop + yoffset,
+		(this.textarea = new GuiTextArea(2, this.guiLeft + 1 + yoffset, this.guiTop + yoffset,
 				this.xSize - 100 - yoffset, this.ySize - yoffset * 2, this.text)).setListener(this);
 		if (this.highlighting) {
 			this.textarea.enableCodeHighlighting();

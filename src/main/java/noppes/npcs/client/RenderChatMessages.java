@@ -22,14 +22,14 @@ import noppes.npcs.IChatMessages;
 
 public class RenderChatMessages implements IChatMessages {
 
-	private int boxLength;
+	private final int boxLength;
 	private String lastMessage;
 	private long lastMessageTime;
 	private Map<Long, TextBlockClient> messages;
-	private float scale;
+	private final float scale;
 
 	public RenderChatMessages() {
-		this.messages = new TreeMap<Long, TextBlockClient>();
+		this.messages = new TreeMap<>();
 		this.boxLength = 46;
 		this.scale = 0.5f;
 		this.lastMessage = "";
@@ -45,9 +45,8 @@ public class RenderChatMessages implements IChatMessages {
 		if (message.equals(this.lastMessage) && this.lastMessageTime + 5000L > time) {
 			return;
 		}
-		Map<Long, TextBlockClient> messages = new TreeMap<Long, TextBlockClient>(this.messages);
-		messages.put(time, new TextBlockClient(message, this.boxLength * 4, true, entity,
-				new Object[] { Minecraft.getMinecraft().player, entity }));
+		Map<Long, TextBlockClient> messages = new TreeMap<>(this.messages);
+		messages.put(time, new TextBlockClient(message, this.boxLength * 4, true, entity, Minecraft.getMinecraft().player, entity));
 		if (messages.size() > 3) {
 			messages.remove(messages.keySet().iterator().next());
 		}
@@ -56,33 +55,33 @@ public class RenderChatMessages implements IChatMessages {
 		this.lastMessageTime = time;
 	}
 
-	private void drawRect(int x0, int y0, int z0, int x1, int y1, double z1) {
-		if (x0 < z0) {
-			int j1 = x0;
-			x0 = z0;
-			z0 = j1;
+	private void drawRect(int left, int top, int right, int bottom, int color, double zlevel) {
+		if (left < right) {
+			int j1 = left;
+			left = right;
+			right = j1;
 		}
-		if (y0 < x1) {
-			int j1 = y0;
-			y0 = x1;
-			x1 = j1;
+		if (top < bottom) {
+			int j1 = top;
+			top = bottom;
+			bottom = j1;
 		}
-		float f = (y1 >> 24 & 0xFF) / 255.0f;
-		float f2 = (y1 >> 16 & 0xFF) / 255.0f;
-		float f3 = (y1 >> 8 & 0xFF) / 255.0f;
-		float f4 = (y1 & 0xFF) / 255.0f;
+		float f = (color >> 24 & 0xFF) / 255.0f;
+		float f2 = (color >> 16 & 0xFF) / 255.0f;
+		float f3 = (color >> 8 & 0xFF) / 255.0f;
+		float f4 = (color & 0xFF) / 255.0f;
 		BufferBuilder tessellator = Tessellator.getInstance().getBuffer();
 		GlStateManager.color(f2, f3, f4, f);
 		tessellator.begin(7, DefaultVertexFormats.POSITION);
-		tessellator.pos(x0, x1, z1).endVertex();
-		tessellator.pos(z0, x1, z1).endVertex();
-		tessellator.pos(z0, y0, z1).endVertex();
-		tessellator.pos(x0, y0, z1).endVertex();
+		tessellator.pos(left, bottom, zlevel).endVertex();
+		tessellator.pos(right, bottom, zlevel).endVertex();
+		tessellator.pos(right, top, zlevel).endVertex();
+		tessellator.pos(left, top, zlevel).endVertex();
 		Tessellator.getInstance().draw();
 	}
 
 	private Map<Long, TextBlockClient> getMessages() {
-		Map<Long, TextBlockClient> messages = new TreeMap<Long, TextBlockClient>();
+		Map<Long, TextBlockClient> messages = new TreeMap<>();
 		long time = System.currentTimeMillis();
 		for (Map.Entry<Long, TextBlockClient> entry : this.messages.entrySet()) {
 			if (time > entry.getKey() + 10000L) {
@@ -98,7 +97,7 @@ public class RenderChatMessages implements IChatMessages {
 		float var13 = 1.6f;
 		float var14 = 0.016666668f * var13;
 		int size = 0;
-		List<Long> del = Lists.<Long>newArrayList();
+		List<Long> del = Lists.newArrayList();
 		for (Long time : this.messages.keySet()) {
 			TextBlockClient block = this.messages.get(time);
 			if (block.entity != null && !block.entity.isEntityAlive()) {

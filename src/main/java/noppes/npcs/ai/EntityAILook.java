@@ -5,19 +5,22 @@ import java.util.Iterator;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
+import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAILook
-extends EntityAIBase {
-	
+		extends EntityAIBase {
+
 	private boolean forced;
 	private Entity forcedEntity;
 	private int idle;
 	private double lookX;
 	private double lookZ;
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 	boolean rotatebody;
+	public boolean fastRotation = false;
 
 	public EntityAILook(EntityNPCInterface npc) {
 		this.idle = 0;
@@ -47,7 +50,7 @@ extends EntityAIBase {
 
 	public boolean shouldExecute() {
 		return !this.npc.isAttacking() && this.npc.getNavigator().noPath() && !this.npc.isPlayerSleeping()
-				&& this.npc.isEntityAlive();
+				&& this.npc.isEntityAlive() && (!CustomNpcs.ShowCustomAnimation || !this.npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES));
 	}
 
 	public void startExecuting() {
@@ -56,9 +59,11 @@ extends EntityAIBase {
 
 	public void updateTask() {
 		Entity lookat = null;
+		// has Target Entity
 		if (this.forced && this.forcedEntity != null) {
 			lookat = this.forcedEntity;
-		} else if (this.npc.isInteracting()) {
+		}
+		else if (this.npc.isInteracting()) {
 			Iterator<EntityLivingBase> ita = this.npc.interactingEntities.iterator();
 			double closestDistance = 12.0;
 			while (ita.hasNext()) {
@@ -80,22 +85,21 @@ extends EntityAIBase {
 		if (lookat != null) {
 			this.npc.updateLook = this.npc.lookat == null || !this.npc.lookat.equals(lookat);
 			this.npc.lookat = lookat;
-			if (this.npc.ais.getStandingType() == 4) {
-				this.npc.renderYawOffset = this.npc.ais.orientation;
-				this.npc.rotationYaw = this.npc.ais.orientation;
-				this.npc.rotationYawHead = this.npc.ais.orientation;
-			}
-			else { this.npc.getLookHelper().setLookPositionWithEntity(lookat, 4.5f, this.npc.getVerticalFaceSpeed()); }
+			double posY;
+			if (lookat instanceof EntityLivingBase) { posY = lookat.posY + (double)lookat.getEyeHeight(); }
+			else { posY = (lookat.getEntityBoundingBox().minY + lookat.getEntityBoundingBox().maxY) / 2.0D; }
+			this.setLookPosition(lookat.posX, posY, lookat.posZ, this.npc.getVerticalFaceSpeed());
 			return;
 		}
+
+		// any Look
 		this.npc.updateLook = this.npc.lookat != null;
 		this.npc.lookat = null;
 		if (this.rotatebody) {
 			if (this.idle == 0 && this.npc.getRNG().nextFloat() < 0.004f) {
 				double var1 = 6.283185307179586 * this.npc.getRNG().nextDouble();
 				if (this.npc.ais.getStandingType() == 3) {
-					var1 = 0.017453292519943295 * this.npc.ais.orientation + 0.6283185307179586
-							+ 1.8849555921538759 * this.npc.getRNG().nextDouble();
+					var1 = 0.017453292519943295 * this.npc.ais.orientation + 0.6283185307179586 + 1.8849555921538759 * this.npc.getRNG().nextDouble();
 				}
 				this.lookX = Math.cos(var1);
 				this.lookZ = Math.sin(var1);
@@ -103,15 +107,19 @@ extends EntityAIBase {
 			}
 			if (this.idle > 0) {
 				--this.idle;
-				this.npc.getLookHelper().setLookPosition(this.npc.posX + this.lookX,
-						this.npc.posY + this.npc.getEyeHeight(), this.npc.posZ + this.lookZ, 6.5f,
-						this.npc.getVerticalFaceSpeed());
+				this.setLookPosition(this.npc.posX + this.lookX, this.npc.posY + this.npc.getEyeHeight(), this.npc.posZ + this.lookZ, this.npc.getVerticalFaceSpeed());
 			}
 		}
-		if (this.npc.ais.getStandingType() == 1 && !this.forced) {
+		if ((this.npc.ais.getStandingType() == 1 || this.npc.ais.getStandingType() == 4) && !this.forced) {
 			this.npc.renderYawOffset = this.npc.ais.orientation;
 			this.npc.rotationYaw = this.npc.ais.orientation;
 			this.npc.rotationYawHead = this.npc.ais.orientation;
+		}
+	}
+
+	private void setLookPosition(double x, double y, double z, int verticalFaceSpeed) {
+		if (!CustomNpcs.ShowCustomAnimation || !this.npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES)) {
+			this.npc.getLookHelper().setLookPosition(x, y, z, 10.0f, verticalFaceSpeed);
 		}
 	}
 

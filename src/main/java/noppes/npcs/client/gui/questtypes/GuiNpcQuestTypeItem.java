@@ -36,28 +36,29 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.CustomNPCsScheduler;
 
+import javax.annotation.Nonnull;
+
 //Changed
 public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITextfieldListener {
 
 	// private Quest quest; // Changed
-	private static ResourceLocation back = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
-	private static ResourceLocation inv = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
+	private static final ResourceLocation back = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
+	private static final ResourceLocation inv = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
 	// New
 	private final QuestObjective task;
-	private Map<Integer, Integer> dataDimIDs = Maps.<Integer, Integer>newHashMap();
+	private final Map<Integer, Integer> dataDimIDs = Maps.newHashMap();
 
 	public GuiNpcQuestTypeItem(EntityNPCInterface npc, ContainerNpcQuestTypeItem container, QuestObjective task) {
 		super(npc, container);
 		this.title = "";
 		this.ySize = 192;
 		this.closeOnEsc = false;
-		// New
 		this.task = task;
 		this.npc = npc;
 	}
 
 	@Override
-	public void actionPerformed(GuiButton guibutton) {
+	public void actionPerformed(@Nonnull GuiButton guibutton) {
 		super.actionPerformed(guibutton);
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
@@ -107,8 +108,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 			if (this.task == null) {
 				return;
 			}
-			Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.task.dimensionID, this.task.pos.getX(),
-					this.task.pos.getY(), this.task.pos.getZ() });
+			Client.sendData(EnumPacketServer.TeleportTo, this.task.dimensionID, this.task.pos.getX(), this.task.pos.getY(), this.task.pos.getZ());
 			break;
 		}
 		case 66: {
@@ -117,8 +117,8 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 				NoppesUtilServer.getEditingQuest(this.player).questInterface.removeTask(this.task);
 			} else {
 				if (((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui instanceof GuiQuestEdit) {
-					((GuiQuestEdit) ((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui).subgui = null;
-					((GuiQuestEdit) ((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui).initGui();
+					((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.subgui = null;
+					((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.initGui();
 				}
 			}
 			NoppesUtil.openGUI(this.player, GuiNPCManageQuest.Instance);
@@ -202,11 +202,9 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 	}
 
 	@Override
-	protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type) {
+	protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
 		super.handleMouseClick(slotIn, slotId, mouseButton, type);
-		CustomNPCsScheduler.runTack(() -> {
-			this.initGui();
-		}, 200);
+		CustomNPCsScheduler.runTack(this::initGui, 200);
 	}
 
 	@Override
@@ -220,40 +218,39 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 				this.task != null && this.task.isItemLeave() ? 0 : 1)); // Changed
 
 		this.addLabel(new GuiNpcLabel(1, "gui.ignoreDamage", x, (y += 15) + 2));
-		this.addButton(new GuiNpcButtonYesNo(1, x1, y, 50, 14, this.task != null ? this.task.isIgnoreDamage() : true));
+		this.addButton(new GuiNpcButtonYesNo(1, x1, y, 50, 14, this.task == null || this.task.isIgnoreDamage()));
 
 		this.addLabel(new GuiNpcLabel(2, "gui.ignoreNBT", x, (y += 15) + 2));
-		this.addButton(new GuiNpcButtonYesNo(2, x1, y, 50, 14, this.task != null ? this.task.isItemIgnoreNBT() : true));
+		this.addButton(new GuiNpcButtonYesNo(2, x1, y, 50, 14, this.task == null || this.task.isItemIgnoreNBT()));
 
 		this.addButton(new GuiNpcButton(66, x, this.guiTop + this.ySize, 40, 20, "gui.back"));
 		// New
 		this.addLabel(new GuiNpcLabel(3, "quest.itemamount", x, (y += 15) + 2));
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, x1 + 1, y + 1, 48, 12,
-				this.task.getMaxProgress() + ""));
+        this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, x1 + 1, y + 1, 48, 12, this.task != null ? this.task.getMaxProgress() + "" : "0"));
 		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, 576, 1);
 
 		this.addLabel(new GuiNpcLabel(11, "X:", x, (y += 16) + 2));
 		this.addTextField(
-				new GuiNpcTextField(10, this, this.fontRenderer, x + 8, y, 40, 12, "" + this.task.pos.getX()));
+				new GuiNpcTextField(10, this, this.fontRenderer, x + 8, y, 40, 12, this.task != null ? "" + this.task.pos.getX() : "0"));
 		this.getTextField(10).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(12, "Y:", x + 51, y + 2));
 		this.addTextField(
-				new GuiNpcTextField(11, this, this.fontRenderer, x + 58, y, 40, 12, "" + this.task.pos.getY()));
+				new GuiNpcTextField(11, this, this.fontRenderer, x + 58, y, 40, 12, this.task != null ? "" + this.task.pos.getY() : "0"));
 		this.getTextField(11).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(13, "Z:", x + 101, y + 2));
 		this.addTextField(
-				new GuiNpcTextField(12, this, this.fontRenderer, x + 109, y, 40, 12, "" + this.task.pos.getZ()));
+				new GuiNpcTextField(12, this, this.fontRenderer, x + 109, y, 40, 12, this.task != null ? "" + this.task.pos.getZ() : "0"));
 		this.getTextField(12).setNumbersOnly();
 		this.addButton(new GuiNpcButton(11, x + 151, y - 1, 14, 14, "TP"));
 
 		this.addLabel(new GuiNpcLabel(15, "R:", x, (y += 14) + 2));
 		this.addTextField(
-				new GuiNpcTextField(14, this, this.fontRenderer, x + 8, y, 25, 12, "" + this.task.rangeCompass));
+				new GuiNpcTextField(14, this, this.fontRenderer, x + 8, y, 25, 12, this.task != null ? "" + this.task.rangeCompass : "0"));
 		this.getTextField(14).setNumbersOnly();
-		this.getTextField(14).setMinMaxDefault(0, 64, this.task.rangeCompass);
+		this.getTextField(14).setMinMaxDefault(0, 64, this.task != null ? this.task.rangeCompass : 0);
 		this.addLabel(new GuiNpcLabel(16, "N:", x + 36, y + 2));
-		this.addTextField(new GuiNpcTextField(15, this, this.fontRenderer, x + 44, y, 120, 12, this.task.entityName));
+		this.addTextField(new GuiNpcTextField(15, this, this.fontRenderer, x + 44, y, 120, 12, this.task != null ? this.task.entityName : ""));
 
 		this.addLabel(new GuiNpcLabel(14, "D:", x + 21, (y += 16) + 2));
 		int p = 0, i = 0;
@@ -263,7 +260,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 		for (int id : ids) {
 			dimIDs[i] = id + "";
 			dataDimIDs.put(i, id);
-			if (id == this.task.dimensionID) {
+			if (this.task != null && id == this.task.dimensionID) {
 				p = i;
 			}
 			i++;
@@ -271,8 +268,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 		this.addButton(new GuiButtonBiDirectional(4, x + 28, y - 1, 60, 16, dimIDs, p));
 		this.addButton(new GuiNpcButton(10, x + 103, y - 1, 60, 16, "gui.set"));
 
-		this.addButton(new GuiNpcCheckBox(5, x + 42, this.guiTop + this.ySize, 123, 16, "quest.set.minimap.point",
-				this.task.isSetPointOnMiniMap()));
+		this.addButton(new GuiNpcCheckBox(5, x + 42, this.guiTop + this.ySize, 123, 16, "quest.set.minimap.point", this.task != null && this.task.isSetPointOnMiniMap()));
 	}
 
 	@Override

@@ -35,9 +35,8 @@ import noppes.npcs.roles.data.SpawnNPCData;
 
 public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustomScrollListener, ITextfieldListener {
 
-	private JobSpawner job;
+	private final JobSpawner job;
 	private int slot;
-	// New
 	private GuiCustomScroll deadScroll, aliveScroll;
 	public EntityLivingBase selectNpc;
 	private boolean isDead = false;
@@ -46,7 +45,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 		super(npc);
 		this.slot = -1;
 		this.job = (JobSpawner) npc.advanced.jobInterface;
-		Client.sendData(EnumPacketServer.JobGet, new Object[0]);
+		Client.sendData(EnumPacketServer.JobGet);
 	}
 
 	@Override
@@ -290,7 +289,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 				this.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset",
 						(t % 3 == 0 ? "X" : t % 3 == 1 ? "Y" : "Z"))
 								.appendSibling(
-										new TextComponentTranslation("spawner.hover.sp." + ((int) Math.floor(t / 3))))
+										new TextComponentTranslation("spawner.hover.sp." + ((int) Math.floor(t / 3.0d))))
 								.getFormattedText());
 				return;
 			}
@@ -380,7 +379,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 		button.enabled = !this.isDead && this.slot >= 0 && this.slot < (this.aliveScroll.getList().size() - 1);
 		this.addButton(button);
 		button = new GuiNpcButton(6, this.guiLeft + 121, this.guiTop + 138, 56, 20, "gui.clear");
-		button.enabled = this.aliveScroll.getList().size() > 0;
+		button.enabled = !this.aliveScroll.getList().isEmpty();
 		this.addButton(button);
 
 		this.addLabel(new GuiNpcLabel(4, "type.offset", this.guiLeft + 6, this.guiTop + 166));
@@ -391,9 +390,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 		}
 		if (set.length != 3) {
 			int[] ns = new int[] { 0, 0, 0 };
-			for (int i = 0; i < set.length; i++) {
-				ns[i] = set[i];
-			}
+            System.arraycopy(set, 0, ns, 0, set.length);
 			set = ns;
 		}
 		GuiNpcTextField tf = new GuiNpcTextField(0, this, this.guiLeft + 52, this.guiTop + 161, 35, 15, "" + set[0]);
@@ -437,7 +434,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 		button.enabled = this.isDead && this.slot >= 0 && this.slot < (this.deadScroll.getList().size() - 1);
 		this.addButton(button);
 		button = new GuiNpcButton(14, this.guiLeft + 296, this.guiTop + 138, 56, 20, "gui.clear");
-		button.enabled = this.deadScroll.getList().size() > 0;
+		button.enabled = !this.deadScroll.getList().isEmpty();
 		this.addButton(button);
 
 		this.addLabel(new GuiNpcLabel(9, "type.offset", this.guiLeft + 181, this.guiTop + 166));
@@ -448,9 +445,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 		}
 		if (set.length != 3) {
 			int[] ns = new int[] { 0, 0, 0 };
-			for (int i = 0; i < set.length; i++) {
-				ns[i] = set[i];
-			}
+            System.arraycopy(set, 0, ns, 0, set.length);
 			set = ns;
 		}
 		tf = new GuiNpcTextField(3, this, this.guiLeft + 227, this.guiTop + 161, 35, 15, "" + set[0]);
@@ -487,13 +482,12 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 		this.addButton(checkBox);
 
 		GuiNpcLabel label = new GuiNpcLabel(14, "spawner.cooldown", this.guiLeft + 358, this.guiTop + 132);
-		label.enabled = this.aliveScroll.getList().size() > 0;
+		label.enabled = !this.aliveScroll.getList().isEmpty();
 		this.addLabel(label);
-		tf = new GuiNpcTextField(6, this, this.guiLeft + 357, this.guiTop + 144, 55, 15,
-				"" + this.job.getCooldown() / 50L);
+		tf = new GuiNpcTextField(6, this, this.guiLeft + 357, this.guiTop + 144, 55, 15, "" + this.job.getCooldown() / 50L);
 		tf.setNumbersOnly();
 		tf.setMinMaxDefault(0, 6000, (int) (this.job.getCooldown() / 50L));
-		tf.setVisible(this.aliveScroll.getList().size() > 0);
+		tf.setVisible(!this.aliveScroll.getList().isEmpty());
 		this.addTextField(tf);
 	}
 
@@ -617,7 +611,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 			this.job.getOffset(true)[2] = textField.getInteger();
 			break;
 		}
-		case 6: { // cooldawn
+		case 6: { // cooldown
 			this.job.setCooldown(textField.getInteger());
 			break;
 		}

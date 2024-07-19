@@ -22,12 +22,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 
+import javax.annotation.Nonnull;
+
 @SideOnly(Side.CLIENT)
 public class GuiNpcRecipeOverlay extends GuiRecipeOverlay {
 	@SideOnly(Side.CLIENT)
 	class Button extends GuiButton {
 		private final boolean isCraftable;
-		private boolean isGlobal;
+		private final boolean isGlobal;
 		private final IRecipe recipe;
 
 		public Button(int x, int y, IRecipe recipe, boolean craftable, boolean global) {
@@ -39,7 +41,7 @@ public class GuiNpcRecipeOverlay extends GuiRecipeOverlay {
 			this.isGlobal = global;
 		}
 
-		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.enableAlpha();
 			mc.renderEngine.bindTexture(GuiNpcRecipeOverlay.RECIPE_BOOK_TEXTURE);
@@ -74,7 +76,7 @@ public class GuiNpcRecipeOverlay extends GuiRecipeOverlay {
 				int j1 = 3 + i1 * 7;
 				for (int k1 = 0; k1 < k; ++k1) {
 					if (iterator.hasNext()) {
-						ItemStack[] aitemstack = ((Ingredient) iterator.next()).getMatchingStacks();
+						ItemStack[] aitemstack = iterator.next().getMatchingStacks();
 						if (aitemstack.length != 0) {
 							int l1 = 3 + k1 * 7;
 							GlStateManager.pushMatrix();
@@ -100,7 +102,7 @@ public class GuiNpcRecipeOverlay extends GuiRecipeOverlay {
 
 	private static final ResourceLocation RECIPE_BOOK_TEXTURE = new ResourceLocation("textures/gui/recipe_book.png");
 	private static final ResourceLocation SPRITE = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
-	private final List<GuiNpcRecipeOverlay.Button> buttonList = Lists.<GuiNpcRecipeOverlay.Button>newArrayList();
+	private final List<GuiNpcRecipeOverlay.Button> buttonList = Lists.newArrayList();
 	public boolean isGlobal;
 	private IRecipe lastRecipeClicked;
 	private Minecraft mc;
@@ -128,16 +130,17 @@ public class GuiNpcRecipeOverlay extends GuiRecipeOverlay {
 		return false;
 	}
 
+	@Nonnull
 	public IRecipe getLastRecipeClicked() {
 		return this.lastRecipeClicked;
 	}
 
+	@Nonnull
 	public RecipeList getRecipeList() {
 		return this.recipeList;
 	}
 
-	public void init(Minecraft mcIn, RecipeList recipeListIn, int x, int y, int width, int height, float partialTicks,
-			RecipeBook book) {
+	public void init(@Nonnull Minecraft mcIn, @Nonnull RecipeList recipeListIn, int x, int y, int width, int height, float partialTicks, @Nonnull RecipeBook book) {
 		this.mc = mcIn;
 		this.recipeList = recipeListIn;
 		boolean flag = book.isFilteringCraftable();
@@ -146,7 +149,7 @@ public class GuiNpcRecipeOverlay extends GuiRecipeOverlay {
 		int i = list.size();
 		int j = i + list1.size();
 		int k = j <= 16 ? 4 : 5;
-		int l = (int) Math.ceil((double) ((float) j / (float) k));
+		int l = (int) Math.ceil((float) j / (float) k);
 		this.x = x;
 		this.y = y;
 		int offset = this.isGlobal ? 25 : 33;
@@ -169,56 +172,10 @@ public class GuiNpcRecipeOverlay extends GuiRecipeOverlay {
 		this.buttonList.clear();
 		for (int j1 = 0; j1 < j; ++j1) {
 			boolean flag1 = j1 < i;
-			this.buttonList
-					.add(new GuiNpcRecipeOverlay.Button(this.x + 4 + offset * (j1 % k), this.y + 5 + offset * (j1 / k),
-							flag1 ? (IRecipe) list.get(j1) : (IRecipe) list1.get(j1 - i), flag1, this.isGlobal));
+			this.buttonList.add(new GuiNpcRecipeOverlay.Button(this.x + 4 + offset * (j1 % k), this.y + 5 + offset * (j1 / k), flag1 ? list.get(j1) : list1.get(j1 - i), flag1, this.isGlobal));
 		}
 		this.lastRecipeClicked = null;
 	}
-
-	/*
-	 * Changed private void nineInchSprite(int rows, int columns, int width, int
-	 * p_191846_4_, int u, int v) { this.drawTexturedModalRect(this.x, this.y, u, v,
-	 * p_191846_4_, p_191846_4_); this.drawTexturedModalRect(this.x + p_191846_4_ *
-	 * 2 + rows * width, this.y, u + width + p_191846_4_, v, p_191846_4_,
-	 * p_191846_4_); this.drawTexturedModalRect(this.x, this.y + p_191846_4_ * 2 +
-	 * columns * width, u, v + width + p_191846_4_, p_191846_4_, p_191846_4_);
-	 * this.drawTexturedModalRect(this.x + p_191846_4_ * 2 + rows * width, this.y +
-	 * p_191846_4_ * 2 + columns * width, u + width + p_191846_4_, v + width +
-	 * p_191846_4_, p_191846_4_, p_191846_4_);
-	 * 
-	 * for (int i = 0; i < rows; ++i) { this.drawTexturedModalRect(this.x +
-	 * p_191846_4_ + i * width, this.y, u + p_191846_4_, v, width, p_191846_4_);
-	 * this.drawTexturedModalRect(this.x + p_191846_4_ + (i + 1) * width, this.y, u
-	 * + p_191846_4_, v, p_191846_4_, p_191846_4_);
-	 * 
-	 * for (int j = 0; j < columns; ++j) { if (i == 0) {
-	 * this.drawTexturedModalRect(this.x, this.y + p_191846_4_ + j * width, u, v +
-	 * p_191846_4_, p_191846_4_, width); this.drawTexturedModalRect(this.x, this.y +
-	 * p_191846_4_ + (j + 1) * width, u, v + p_191846_4_, p_191846_4_, p_191846_4_);
-	 * }
-	 * 
-	 * this.drawTexturedModalRect(this.x + p_191846_4_ + i * width, this.y +
-	 * p_191846_4_ + j * width, u + p_191846_4_, v + p_191846_4_, width, width);
-	 * this.drawTexturedModalRect(this.x + p_191846_4_ + (i + 1) * width, this.y +
-	 * p_191846_4_ + j * width, u + p_191846_4_, v + p_191846_4_, p_191846_4_,
-	 * width); this.drawTexturedModalRect(this.x + p_191846_4_ + i * width, this.y +
-	 * p_191846_4_ + (j + 1) * width, u + p_191846_4_, v + p_191846_4_, width,
-	 * p_191846_4_); this.drawTexturedModalRect(this.x + p_191846_4_ + (i + 1) *
-	 * width - 1, this.y + p_191846_4_ + (j + 1) * width - 1, u + p_191846_4_, v +
-	 * p_191846_4_, p_191846_4_ + 1, p_191846_4_ + 1);
-	 * 
-	 * if (i == rows - 1) { this.drawTexturedModalRect(this.x + p_191846_4_ * 2 +
-	 * rows * width, this.y + p_191846_4_ + j * width, u + width + p_191846_4_, v +
-	 * p_191846_4_, p_191846_4_, width); this.drawTexturedModalRect(this.x +
-	 * p_191846_4_ * 2 + rows * width, this.y + p_191846_4_ + (j + 1) * width, u +
-	 * width + p_191846_4_, v + p_191846_4_, p_191846_4_, p_191846_4_); } }
-	 * this.drawTexturedModalRect(this.x + p_191846_4_ + i * width, this.y +
-	 * p_191846_4_ * 2 + columns * width, u + p_191846_4_, v + width + p_191846_4_,
-	 * width, p_191846_4_); this.drawTexturedModalRect(this.x + p_191846_4_ + (i +
-	 * 1) * width, this.y + p_191846_4_ * 2 + columns * width, u + p_191846_4_, v +
-	 * width + p_191846_4_, p_191846_4_, p_191846_4_); } }
-	 */
 
 	public boolean isVisible() {
 		return this.visible;

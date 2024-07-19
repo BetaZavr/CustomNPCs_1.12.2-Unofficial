@@ -5,8 +5,9 @@ import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIWorldLines extends EntityAIBase {
+
 	private int cooldown;
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 
 	public EntityAIWorldLines(EntityNPCInterface npc) {
 		this.cooldown = 100;

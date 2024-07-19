@@ -10,16 +10,10 @@ import noppes.npcs.CustomNpcs;
 
 public class PlayerMailData {
 
-	/*
-	 * chek in - 110: ServerTickHandler.onPlayerTick() 175:
-	 * ClientTickHandler.npcClientTick() show in - 157:
-	 * ClientGuiEventHandler.npcRenderOverlay()
-	 */
-
 	public final List<PlayerMail> playermail;
 
 	public PlayerMailData() {
-		this.playermail = Lists.<PlayerMail>newArrayList();
+		this.playermail = Lists.newArrayList();
 	}
 
 	public void addMail(PlayerMail mail) {
@@ -63,10 +57,6 @@ public class PlayerMailData {
 		return null;
 	}
 
-	public List<PlayerMail> getPlayerMail() {
-		return this.playermail;
-	}
-
 	public boolean hasMail() {
 		for (PlayerMail mail : this.playermail) {
 			if (!mail.beenRead) {
@@ -78,10 +68,7 @@ public class PlayerMailData {
 
 	public void loadNBTData(NBTTagCompound compound) {
 		NBTTagList list = compound.getTagList("MailData", 10);
-		if (list == null) {
-			return;
-		}
-		this.playermail.clear();
+        this.playermail.clear();
 		for (int i = 0; i < list.tagCount(); ++i) {
 			PlayerMail mail = new PlayerMail();
 			mail.readNBT(list.getCompoundTagAt(i));

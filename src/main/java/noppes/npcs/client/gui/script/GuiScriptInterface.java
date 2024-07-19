@@ -18,6 +18,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -34,22 +35,23 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 
+import javax.annotation.Nonnull;
+
 public class GuiScriptInterface
 extends GuiNPCInterface
 implements IGuiData, ITextChangeListener {
 	
 	protected int activeTab;
 	public IScriptHandler handler;
-	public Map<String, Map<String, Long>> languages;
+	public Map<String, Map<String, Long>> languages = new HashMap<>();
 	public String path, ext;
-	private String web_site = "http://www.kodevelopment.nl/minecraft/customnpcs/scripting";
-	private String api_doc_site = "https://github.com/BetaZavr/CustomNPCsAPI-Unofficial";
-	private String api_site = "https://github.com/BetaZavr/CustomNPCsAPI-Unofficial";
-	private String dis_site = "https://discord.gg/RGb4JqE6Qz";
+	private static final String web_site = "http://www.kodevelopment.nl/minecraft/customnpcs/scripting";
+	private static final String api_doc_site = "https://github.com/BetaZavr/CustomNPCsAPI-Unofficial";
+	private static final String api_site = "https://github.com/BetaZavr/CustomNPCsAPI-Unofficial";
+	private static final String dis_site = "https://discord.gg/RGb4JqE6Qz";
 
 	public GuiScriptInterface() {
 		this.activeTab = 0;
-		this.languages = new HashMap<String, Map<String, Long>>();
 		this.drawDefaultBackground = true;
 		this.closeOnEsc = true;
 		this.xSize = 420;
@@ -57,7 +59,7 @@ implements IGuiData, ITextChangeListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
+	protected void actionPerformed(@Nonnull GuiButton guibutton) {
 		if (guibutton.id >= 0 && guibutton.id < CustomNpcs.ScriptMaxTabs) {
 			this.setScript();
 			this.activeTab = guibutton.id;
@@ -90,7 +92,7 @@ implements IGuiData, ITextChangeListener {
 			this.initGui();
 		}
 		if (guibutton.id == 103) {
-			this.handler.setLanguage(((GuiNpcButton) guibutton).displayString);
+			this.handler.setLanguage(guibutton.displayString);
 		}
 		if (guibutton.id == 104) {
 			this.handler.setEnabled(((GuiNpcButton) guibutton).getValue() == 1);
@@ -116,16 +118,16 @@ implements IGuiData, ITextChangeListener {
 			}
 		}
 		if (guibutton.id == 109) {
-			this.displayGuiScreen(new GuiConfirmOpenLink(this, this.web_site , 0, true));
+			this.displayGuiScreen(new GuiConfirmOpenLink(this, web_site , 0, true));
 		}
 		if (guibutton.id == 110) {
-			this.displayGuiScreen(new GuiConfirmOpenLink(this, this.api_doc_site, 1, true));
+			this.displayGuiScreen(new GuiConfirmOpenLink(this, api_doc_site, 1, true));
 		}
 		if (guibutton.id == 111) {
-			this.displayGuiScreen(new GuiConfirmOpenLink(this, this.api_site, 2, true));
+			this.displayGuiScreen(new GuiConfirmOpenLink(this, api_site, 2, true));
 		}
 		if (guibutton.id == 112) {
-			this.displayGuiScreen(new GuiConfirmOpenLink(this, this.dis_site, 3, true));
+			this.displayGuiScreen(new GuiConfirmOpenLink(this, dis_site, 3, true));
 		}
 		if (guibutton.id == 115) {
 			GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.remove.all").getFormattedText(),
@@ -143,10 +145,10 @@ implements IGuiData, ITextChangeListener {
 	@Override
 	public void confirmClicked(boolean flag, int i) {
 		if (flag) {
-			if (i == 0) { this.openLink(this.web_site); }
-			if (i == 1) { this.openLink(this.api_doc_site); }
-			if (i == 2) { this.openLink(this.api_site); }
-			if (i == 3) { this.openLink(this.dis_site); }
+			if (i == 0) { this.openLink(web_site); }
+			if (i == 1) { this.openLink(api_doc_site); }
+			if (i == 2) { this.openLink(api_site); }
+			if (i == 3) { this.openLink(dis_site); }
 			if (i == 4) {
 				this.handler.getScripts().clear();
 				this.activeTab = 0;
@@ -195,7 +197,7 @@ implements IGuiData, ITextChangeListener {
 						if (this.getButton(101).enabled && !e) { this.getButton(101).setEnabled(false); }
 						else if (!this.getButton(101).enabled && e) { this.getButton(101).setEnabled(true); }
 					}
-					catch (Exception ex) { }
+					catch (Exception ee) { LogWriter.error("Error:", ee); }
 				}
 			} else {
 				boolean e = this.handler == null || this.handler.getConsoleText().isEmpty();
@@ -255,7 +257,7 @@ implements IGuiData, ITextChangeListener {
 			this.addTopButton(top = new GuiMenuTopButton(i + 1, top, i + 1 + ""));
 		}
 		if (this.handler.getScripts().size() < CustomNpcs.ScriptMaxTabs) {
-			this.addTopButton(top = new GuiMenuTopButton(CustomNpcs.ScriptMaxTabs + 1, top, "+"));
+			this.addTopButton(new GuiMenuTopButton(CustomNpcs.ScriptMaxTabs + 1, top, "+"));
 		}
 		top = this.getTopButton(this.activeTab);
 		if (top == null) {
@@ -265,7 +267,7 @@ implements IGuiData, ITextChangeListener {
 		top.active = true;
 		if (this.activeTab > 0) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
-			GuiTextArea ta = new GuiTextArea(2, this, this.guiLeft + 1 + yoffset, this.guiTop + yoffset,
+			GuiTextArea ta = new GuiTextArea(2, this.guiLeft + 1 + yoffset, this.guiTop + yoffset,
 					this.xSize - 108 - yoffset, (int) ((this.ySize * 0.96) - yoffset * 2),
 					(container == null) ? "" : container.script);
 			ta.enableCodeHighlighting();
@@ -289,7 +291,7 @@ implements IGuiData, ITextChangeListener {
 			this.addButton(
 					new GuiNpcButton(118, left, this.guiTop + 90 + yoffset + scroll.height, 80, 20, "gui.encrypt"));
 		} else {
-			GuiTextArea ta2 = new GuiTextArea(2, this, this.guiLeft + 4 + yoffset, this.guiTop + 6 + yoffset,
+			GuiTextArea ta2 = new GuiTextArea(2, this.guiLeft + 4 + yoffset, this.guiTop + 6 + yoffset,
 					this.xSize - 160 - yoffset, (int) ((this.ySize * 0.92f) - yoffset * 2), this.getConsoleText());
 			ta2.enabled = false;
 			this.add(ta2);
@@ -298,9 +300,9 @@ implements IGuiData, ITextChangeListener {
 			this.addButton(new GuiNpcButton(102, left2, this.guiTop + 146, 60, 20, "gui.clear"));
 			this.addLabel(new GuiNpcLabel(1, "script.language", left2, this.guiTop + 15));
 			this.addButton(new GuiNpcButton(103, left2 + 60, this.guiTop + 10, 80, 20,
-					this.languages.keySet().toArray(new String[this.languages.keySet().size()]),
+					this.languages.keySet().toArray(new String[0]),
 					this.getScriptIndex()));
-			this.getButton(103).enabled = (this.languages.size() > 0);
+			this.getButton(103).enabled = (!this.languages.isEmpty());
 			this.addLabel(new GuiNpcLabel(2, "gui.enabled", left2, this.guiTop + 36));
 			this.addButton(new GuiNpcButton(104, left2 + 60, this.guiTop + 31, 50, 20,
 					new String[] { "gui.no", "gui.yes" }, (this.handler.getEnabled() ? 1 : 0)));
@@ -324,17 +326,19 @@ implements IGuiData, ITextChangeListener {
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		NBTTagList data = compound.getTagList("Languages", 10);
-		Map<String, Map<String, Long>> languages = new HashMap<String, Map<String, Long>>();
+		Map<String, Map<String, Long>> languages = new HashMap<>();
 		for (int i = 0; i < data.tagCount(); ++i) {
 			NBTTagCompound comp = data.getCompoundTagAt(i);
-			Map<String, Long> scripts = Maps.<String, Long>newTreeMap();
+			Map<String, Long> scripts = Maps.newTreeMap();
 			NBTTagList list = comp.getTagList("Scripts", 8);
 			long[] ld = new long[list.tagCount()];
 			if (comp.hasKey("sizes", 12)) {
 				ld = ObfuscationHelper.getValue(NBTTagLongArray.class, (NBTTagLongArray) comp.getTag("sizes"), 0);
 			}
-			for (int j = 0; j < list.tagCount(); ++j) {
-				scripts.put(list.getStringTagAt(j), ld[j]);
+			if (ld != null) {
+				for (int j = 0; j < list.tagCount(); ++j) {
+					scripts.put(list.getStringTagAt(j), ld[j]);
+				}
 			}
 			languages.put(comp.getString("Language"), scripts);
 			if (AdditionalMethods.equalsDeleteColor(comp.getString("Language"), this.handler.getLanguage(), false)) {

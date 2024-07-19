@@ -18,6 +18,9 @@ import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.client.gui.custom.components.CustomGuiSlot;
 import noppes.npcs.util.CustomNPCsScheduler;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class ContainerCustomGui extends Container {
 
 	public IContainer container;
@@ -27,31 +30,31 @@ public class ContainerCustomGui extends Container {
 	public IInventory guiInventory;
 	int slotCount;
 
-	public ContainerCustomGui(EntityPlayer player, IInventory inventory) { // Changed
+	public ContainerCustomGui(IInventory inventory) { // Changed
 		this.slotCount = 0;
 		this.guiInventory = inventory;
 		this.cx = 0;
 		this.cy = 0;
-		this.container = NpcAPI.Instance().getIContainer(this);
+		this.container = Objects.requireNonNull(NpcAPI.Instance()).getIContainer(this);
 	}
 
 	void addPlayerInventory(EntityPlayer player, int x, int y) {
 		for (int row = 0; row < 3; ++row) {
 			for (int col = 0; col < 9; ++col) {
 				this.addSlotToContainer(
-						new Slot((IInventory) player.inventory, col + row * 9 + 9, x + col * 18, y + row * 18));
+						new Slot(player.inventory, col + row * 9 + 9, x + col * 18, y + row * 18));
 			}
 		}
 		for (int row = 0; row < 9; ++row) {
-			this.addSlotToContainer(new Slot((IInventory) player.inventory, row, x + row * 18, y + 58));
+			this.addSlotToContainer(new Slot(player.inventory, row, x + row * 18, y + 58));
 		}
 	}
 
-	public boolean canInteractWith(EntityPlayer playerIn) {
+	public boolean canInteractWith(@Nonnull EntityPlayer playerIn) {
 		return true;
 	}
 
-	public Slot getSlot(int slotId) {
+	public @Nonnull Slot getSlot(int slotId) {
 		if (slotId >= this.inventorySlots.size()) {
 			return new Slot(this.guiInventory, 0, 0, 0);
 		}
@@ -60,7 +63,7 @@ public class ContainerCustomGui extends Container {
 
 	public void setGui(CustomGuiWrapper gui, EntityPlayer player) {
 		this.customGui = gui;
-		// coorector position
+		// corrector position
 		if (this.customGui != null) {
 			this.cx = -40 + (256 - this.customGui.getWidth()) / 2;
 			this.cy = -45 + (256 - this.customGui.getHeight()) / 2;
@@ -81,25 +84,25 @@ public class ContainerCustomGui extends Container {
 		}
 	}
 
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
+	public @Nonnull ItemStack slotClick(int slotId, int dragType, @Nonnull ClickType clickTypeIn, @Nonnull EntityPlayer player) {
 		if (slotId < 0) {
 			return super.slotClick(slotId, dragType, clickTypeIn, player);
 		}
-		if (!player.world.isRemote && slotId >= 0) {
-			IItemStack heldItem = NpcAPI.Instance().getIItemStack(player.inventory.getItemStack());
-			if (!EventHooks.onCustomGuiSlotClicked((PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player),
+		if (!player.world.isRemote) {
+			IItemStack heldItem = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(player.inventory.getItemStack());
+			if (!EventHooks.onCustomGuiSlotClicked((PlayerWrapper<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player),
 					((ContainerCustomGui) player.openContainer).customGui, slotId, dragType, clickTypeIn.toString(),
 					heldItem, this.inventorySlots.get(slotId))) {
 				ItemStack item = super.slotClick(slotId, dragType, clickTypeIn, player);
 				EntityPlayerMP p = (EntityPlayerMP) player;
-				CustomNPCsScheduler.runTack(() -> p.sendContainerToPlayer((Container) this), 10);
+				CustomNPCsScheduler.runTack(() -> p.sendContainerToPlayer(this), 10);
 				return item;
 			}
 		}
 		return ItemStack.EMPTY;
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer playerIn, int index) {
 		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = this.inventorySlots.get(index);
 		if (slot != null && slot.getHasStack()) {

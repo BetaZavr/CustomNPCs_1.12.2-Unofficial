@@ -17,11 +17,11 @@ public class TransportCategory {
 	public TransportCategory() {
 		this.id = -1;
 		this.title = "";
-		this.locations = Maps.<Integer, TransportLocation>newTreeMap();
+		this.locations = Maps.newTreeMap();
 	}
 
 	public Vector<TransportLocation> getDefaultLocations() {
-		Vector<TransportLocation> list = new Vector<TransportLocation>();
+		Vector<TransportLocation> list = new Vector<>();
 		for (TransportLocation loc : this.locations.values()) {
 			if (loc.isDefault()) {
 				list.add(loc);
@@ -37,7 +37,7 @@ public class TransportCategory {
 			this.title = "Default";
 		}
 		NBTTagList locs = compound.getTagList("CategoryLocations", 10);
-		if (locs == null || locs.tagCount() == 0) {
+		if (locs.tagCount() == 0) {
 			return;
 		}
 		for (int ii = 0; ii < locs.tagCount(); ++ii) {

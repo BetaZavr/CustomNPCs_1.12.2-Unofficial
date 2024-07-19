@@ -25,34 +25,37 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermission {
 
 	@Override
-	public void breakBlock(World world, BlockPos pos, IBlockState state) {
+	public void breakBlock(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
 		BlockPos blockpos1 = (state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) ? pos
 				: pos.down();
 		IBlockState iblockstate1 = pos.equals(blockpos1) ? state : world.getBlockState(blockpos1);
 		if (!world.isRemote && iblockstate1.getBlock() == this) {
 			TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(pos);
-			EventHooks.onScriptBlockBreak(tile);
+			if (tile != null) { EventHooks.onScriptBlockBreak(tile); }
 		}
 		super.breakBlock(world, pos, state);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) {
+	public TileEntity createNewTileEntity(@Nonnull World worldIn, int meta) {
 		return new TileScriptedDoor();
 	}
 
-	public float getBlockHardness(IBlockState state, World world, BlockPos pos) {
-		return ((TileScriptedDoor) world.getTileEntity(pos)).blockHardness;
+	public float getBlockHardness(@Nonnull IBlockState state, @Nonnull World world, @Nonnull BlockPos pos) {
+		return ((TileScriptedDoor) Objects.requireNonNull(world.getTileEntity(pos))).blockHardness;
 	}
 
-	public float getExplosionResistance(World world, BlockPos pos, Entity exploder, Explosion explosion) {
-		return ((TileScriptedDoor) world.getTileEntity(pos)).blockResistance;
+	public float getExplosionResistance(@Nonnull World world, @Nonnull BlockPos pos, Entity exploder, @Nonnull Explosion explosion) {
+		return ((TileScriptedDoor) Objects.requireNonNull(world.getTileEntity(pos))).blockResistance;
 	}
 
-	public EnumBlockRenderType getRenderType(IBlockState state) {
+	public @Nonnull EnumBlockRenderType getRenderType(@Nonnull IBlockState state) {
 		return EnumBlockRenderType.INVISIBLE;
 	}
 
@@ -61,7 +64,7 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermiss
 		return e == EnumPacketServer.ScriptDoorDataSave;
 	}
 
-	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block neighborBlock, BlockPos pos2) {
+	public void neighborChanged(@Nonnull IBlockState state, @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull Block neighborBlock, @Nonnull BlockPos pos2) {
 		if (state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.UPPER) {
 			BlockPos blockpos1 = pos.down();
 			IBlockState iblockstate1 = worldIn.getBlockState(blockpos1);
@@ -77,14 +80,14 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermiss
 				worldIn.setBlockToAir(pos);
 			} else {
 				TileScriptedDoor tile = (TileScriptedDoor) worldIn.getTileEntity(pos);
-				if (!worldIn.isRemote) {
+				if (!worldIn.isRemote && tile != null) {
 					EventHooks.onScriptBlockNeighborChanged(tile, pos2);
 				}
 				boolean flag = worldIn.isBlockPowered(pos) || worldIn.isBlockPowered(blockpos2);
 				if ((flag || neighborBlock.getDefaultState().canProvidePower()) && neighborBlock != this
-						&& flag != (boolean) iblockstate2.getValue(BlockScriptedDoor.POWERED)) {
+						&& flag != iblockstate2.getValue(BlockScriptedDoor.POWERED)) {
 					worldIn.setBlockState(blockpos2, iblockstate2.withProperty(BlockScriptedDoor.POWERED, flag), 2);
-					if (flag != (boolean) state.getValue(BlockScriptedDoor.OPEN)) {
+					if (flag != state.getValue(BlockScriptedDoor.OPEN)) {
 						this.toggleDoor(worldIn, pos, flag);
 					}
 				}
@@ -95,13 +98,14 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermiss
 						power = p;
 					}
 				}
-				tile.newPower = power;
+                if (tile != null) {
+					tile.newPower = power;
+				}
 			}
 		}
 	}
 
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-			EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (world.isRemote) {
 			return true;
 		}
@@ -112,37 +116,34 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermiss
 			return false;
 		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem != null
-				&& (currentItem.getItem() == CustomRegisters.wand || currentItem.getItem() == CustomRegisters.scripter
-						|| currentItem.getItem() == CustomRegisters.scriptedDoorTool)) {
+		if (currentItem.getItem() == CustomRegisters.wand || currentItem.getItem() == CustomRegisters.scripter || currentItem.getItem() == CustomRegisters.scriptedDoorTool) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.ScriptDoor, null, blockpos1.getX(), blockpos1.getY(),
 					blockpos1.getZ());
 			return true;
 		}
 		TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(blockpos1);
-		if (EventHooks.onScriptBlockInteract(tile, player, side.getIndex(), hitX, hitY, hitZ)) {
+		if (tile != null && EventHooks.onScriptBlockInteract(tile, player, side.getIndex(), hitX, hitY, hitZ)) {
 			return false;
 		}
-		this.toggleDoor(world, blockpos1, ((Boolean) iblockstate1.getValue(BlockDoor.OPEN)).equals(false));
+		this.toggleDoor(world, blockpos1, iblockstate1.getValue(BlockDoor.OPEN).equals(false));
 		return true;
 	}
 
-	public void onBlockClicked(World world, BlockPos pos, EntityPlayer playerIn) {
+	public void onBlockClicked(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer playerIn) {
 		if (world.isRemote) {
 			return;
 		}
 		IBlockState state = world.getBlockState(pos);
-		BlockPos blockpos1 = (state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) ? pos
-				: pos.down();
+		BlockPos blockpos1 = (state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) ? pos : pos.down();
 		IBlockState iblockstate1 = pos.equals(blockpos1) ? state : world.getBlockState(blockpos1);
 		if (iblockstate1.getBlock() != this) {
 			return;
 		}
 		TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(blockpos1);
-		EventHooks.onScriptBlockClicked(tile, playerIn);
+		if (tile != null) { EventHooks.onScriptBlockClicked(tile, playerIn); }
 	}
 
-	public void onBlockHarvested(World world, BlockPos pos, IBlockState state, EntityPlayer player) {
+	public void onBlockHarvested(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player) {
 		BlockPos blockpos1 = (state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) ? pos
 				: pos.down();
 		IBlockState iblockstate1 = pos.equals(blockpos1) ? state : world.getBlockState(blockpos1);
@@ -153,45 +154,44 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermiss
 		}
 	}
 
-	public void onEntityCollision(World world, BlockPos pos, IBlockState state, Entity entityIn) {
+	public void onEntityCollidedWithBlock(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull Entity entityIn) {
 		if (world.isRemote) {
 			return;
 		}
 		TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(pos);
-		EventHooks.onScriptBlockCollide(tile, entityIn);
+		if (tile != null) { EventHooks.onScriptBlockCollide(tile, entityIn); }
 	}
 
-	public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player,
-			boolean willHarvest) {
+	public boolean removedByPlayer(@Nonnull IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest) {
 		if (!world.isRemote) {
 			TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(pos);
-			if (EventHooks.onScriptBlockHarvest(tile, player)) {
+			if (tile != null && EventHooks.onScriptBlockHarvest(tile, player)) {
 				return false;
 			}
 		}
 		return super.removedByPlayer(state, world, pos, player, willHarvest);
 	}
 
-	public void toggleDoor(World world, BlockPos pos, boolean open) {
+	public void toggleDoor(@Nonnull World world, @Nonnull BlockPos pos, boolean open) {
 		TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(pos);
-		if (EventHooks.onScriptBlockDoorToggle(tile)) {
+		if (tile != null && EventHooks.onScriptBlockDoorToggle(tile)) {
 			return;
 		}
-		// super.toggleDoor(world, pos, open);
 		IBlockState iblockstate = world.getBlockState(pos);
 		if (iblockstate.getBlock() == this) {
 			BlockPos blockpos = iblockstate.getValue(HALF) == BlockDoor.EnumDoorHalf.LOWER ? pos : pos.down();
 			IBlockState iblockstate1 = pos == blockpos ? iblockstate : world.getBlockState(blockpos);
-			if (iblockstate1.getBlock() == this && ((Boolean) iblockstate1.getValue(OPEN)).booleanValue() != open) {
-				world.setBlockState(blockpos, iblockstate1.withProperty(OPEN, Boolean.valueOf(open)), 10);
+			if (iblockstate1.getBlock() == this && iblockstate1.getValue(OPEN) != open) {
+				world.setBlockState(blockpos, iblockstate1.withProperty(OPEN, open), 10);
 				world.markBlockRangeForRenderUpdate(blockpos, pos);
-				String sound = open ? tile.openSound : tile.closeSound;
-				if (sound != null && !sound.isEmpty()) {
-					Server.sendRangedData(world, pos, 32, EnumPacketClient.FORCE_PLAY_SOUND,
-							SoundCategory.NEUTRAL.ordinal(), sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
-				} else {
-					world.playEvent((EntityPlayer) null, open ? this.blockMaterial == Material.IRON ? 1005 : 1006
-							: this.blockMaterial == Material.IRON ? 1011 : 1012, pos, 0);
+				if (tile != null) {
+					String sound = open ? tile.openSound : tile.closeSound;
+					if (sound != null && !sound.isEmpty()) {
+						Server.sendRangedData(world, pos, 32, EnumPacketClient.FORCE_PLAY_SOUND,
+								SoundCategory.NEUTRAL.ordinal(), sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
+					} else {
+						world.playEvent(null, open ? this.blockMaterial == Material.IRON ? 1005 : 1006 : this.blockMaterial == Material.IRON ? 1011 : 1012, pos, 0);
+					}
 				}
 			}
 		}

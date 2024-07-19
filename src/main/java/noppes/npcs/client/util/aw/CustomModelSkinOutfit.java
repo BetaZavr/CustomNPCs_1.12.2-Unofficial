@@ -3,6 +3,7 @@ package noppes.npcs.client.util.aw;
 import java.util.ArrayList;
 import java.util.Map;
 
+import noppes.npcs.LogWriter;
 import org.lwjgl.opengl.GL11;
 
 import moe.plushie.armourers_workshop.api.common.skin.Point3D;
@@ -173,9 +174,7 @@ public class CustomModelSkinOutfit extends ModelBiped {
 			}
 			GlStateManager.popAttrib();
 			GlStateManager.color(1F, 1F, 1F, 1F);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	private void renderLeftWing(ArmourersWorkshopUtil awu, Object partRenderData, double angle) {
@@ -227,18 +226,14 @@ public class CustomModelSkinOutfit extends ModelBiped {
 
 			renderPart(partRenderData);
 			GL11.glPopMatrix();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	private void renderPart(Object partRenderData) {
 		try {
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
 			awu.renderPart.invoke(awu.skinPartRenderer, partRenderData);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	private void renderRightWing(ArmourersWorkshopUtil awu, Object partRenderData, double angle) {
@@ -291,9 +286,7 @@ public class CustomModelSkinOutfit extends ModelBiped {
 
 			renderPart(partRenderData);
 			GL11.glPopMatrix();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 }

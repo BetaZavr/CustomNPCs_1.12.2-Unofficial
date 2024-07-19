@@ -9,7 +9,7 @@ import noppes.npcs.NBTTags;
 
 public class SpawnData extends WeightedRandom.Item {
 	
-	public List<String> biomes = new ArrayList<String>();
+	public List<String> biomes = new ArrayList<>();
 	public NBTTagCompound compound1 = new NBTTagCompound();
 	public int id = -1;
 	public boolean liquid = false;

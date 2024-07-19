@@ -29,22 +29,21 @@ import noppes.npcs.roles.JobGuard;
 
 public class GuiNpcGuard extends GuiNPCInterface2 {
 
-	private JobGuard role;
+	private final JobGuard role;
 	private GuiCustomScroll scroll1;
 	private GuiCustomScroll scroll2;
-	private final Map<String, String> data;
+	private final Map<String, String> data = Maps.newHashMap();
 
 	public GuiNpcGuard(EntityNPCInterface npc) {
 		super(npc);
 		this.role = (JobGuard) npc.advanced.jobInterface;
-		this.data = Maps.<String, String>newHashMap();
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
+				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
 				if (EntityAnimal.class.isAssignableFrom(cl) && !this.role.targets.contains(name)) {
 					this.role.targets.add(name);
@@ -56,7 +55,7 @@ public class GuiNpcGuard extends GuiNPCInterface2 {
 		}
 		if (button.id == 1) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
+				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
 				if (EntityMob.class.isAssignableFrom(cl) && !EntityCreeper.class.isAssignableFrom(cl)
 						&& !this.role.targets.contains(name)) {
@@ -69,7 +68,7 @@ public class GuiNpcGuard extends GuiNPCInterface2 {
 		}
 		if (button.id == 2) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
+				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
 				if (EntityCreeper.class.isAssignableFrom(cl) && !this.role.targets.contains(name)) {
 					this.role.targets.add(name);
@@ -92,9 +91,9 @@ public class GuiNpcGuard extends GuiNPCInterface2 {
 		}
 		if (button.id == 13) {
 			this.role.targets.clear();
-			List<String> all = new ArrayList<String>();
+			List<String> all = new ArrayList<>();
 			for (EntityEntry ent2 : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl2 = (Class<? extends Entity>) ent2.getEntityClass();
+				Class<? extends Entity> cl2 = ent2.getEntityClass();
 				String name2 = "entity." + ent2.getName() + ".name";
 				if (EntityLivingBase.class.isAssignableFrom(cl2) && !EntityNPCInterface.class.isAssignableFrom(cl2)) {
 					all.add(name2);
@@ -133,10 +132,10 @@ public class GuiNpcGuard extends GuiNPCInterface2 {
 		this.scroll2.guiTop = this.guiTop + 58;
 		this.addScroll(this.scroll2);
 		this.addLabel(new GuiNpcLabel(12, "guard.currentTargets", this.guiLeft + 235, this.guiTop + 48));
-		List<String> all = Lists.<String>newArrayList();
+		List<String> all = Lists.newArrayList();
 		this.data.clear();
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-			Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
+			Class<? extends Entity> cl = ent.getEntityClass();
 			String name = "entity." + ent.getName() + ".name";
 			if (!this.role.targets.contains(name)) {
 				if (EntityNPCInterface.class.isAssignableFrom(cl)) {
@@ -151,7 +150,7 @@ public class GuiNpcGuard extends GuiNPCInterface2 {
 			}
 		}
 		this.scroll1.setList(all);
-		List<String> trgs = Lists.<String>newArrayList();
+		List<String> trgs = Lists.newArrayList();
 		for (String name : this.role.targets) {
 			String key = new TextComponentTranslation(name).getFormattedText();
 			trgs.add(key);

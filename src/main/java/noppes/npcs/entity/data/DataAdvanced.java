@@ -34,7 +34,7 @@ public class DataAdvanced implements INPCAdvanced {
 	public JobInterface jobInterface;
 	public RoleInterface roleInterface;
 	private String angrySound, deathSound, hurtSound, idleSound, stepSound;
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 	public Lines interactLines, npcInteractLines, worldLines, attackLines, killedLines, killLines;
 	public FactionOptions factions;
 	public EntityNPCInterface spawner;
@@ -43,6 +43,7 @@ public class DataAdvanced implements INPCAdvanced {
 	public HashSet<Integer> attackFactions, frendFactions;
 
 	public DataAdvanced(EntityNPCInterface npc) {
+		this.npc = npc;
 		this.interactLines = new Lines();
 		this.worldLines = new Lines();
 		this.attackLines = new Lines();
@@ -56,16 +57,15 @@ public class DataAdvanced implements INPCAdvanced {
 		this.deathSound = "minecraft:entity.player.hurt";
 		this.stepSound = "";
 		this.factions = new FactionOptions();
-		this.jobInterface = new JobInterface(this.npc);
-		this.roleInterface = new RoleInterface(this.npc);
+		this.jobInterface = new JobInterface(npc);
+		this.roleInterface = new RoleInterface(npc);
 		this.attackOtherFactions = false;
 		this.defendFaction = false;
 		this.disablePitch = false;
 		this.throughWalls = true;
-		this.npc = npc;
 		this.scenes = new DataScenes(npc);
-		this.attackFactions = Sets.<Integer>newHashSet();
-		this.frendFactions = Sets.<Integer>newHashSet();
+		this.attackFactions = Sets.newHashSet();
+		this.frendFactions = Sets.newHashSet();
 	}
 
 	public Line getAttackLine() {
@@ -86,16 +86,21 @@ public class DataAdvanced implements INPCAdvanced {
 
 	@Override
 	public String getLine(int type, int slot) {
-		Line line = this.getLines(type).lines.get(slot);
-		if (line == null) {
-			return null;
-		}
-		return line.getText();
-	}
+		Lines lines = this.getLines(type);
+        if (lines == null) {
+            return null;
+        }
+		Line line = lines.lines.get(slot);
+        if (line == null) {
+            return null;
+        }
+        return line.getText();
+    }
 
 	@Override
 	public int getLineCount(int type) {
-		return this.getLines(type).lines.size();
+		Lines lines = this.getLines(type);
+		return lines == null ? 0 : lines.lines.size();
 	}
 
 	private Lines getLines(int type) {
@@ -173,12 +178,9 @@ public class DataAdvanced implements INPCAdvanced {
 	}
 
 	public boolean isAggressiveToNpc(EntityNPCInterface entity) {
-		if (this.attackOtherFactions
-				&& (this.npc.faction.isAggressiveToNpc(entity) || this.attackFactions.contains(entity.faction.id))) {
-			return true;
-		}
-		return false;
-	}
+        return this.attackOtherFactions
+                && (this.npc.faction.isAggressiveToNpc(entity) || this.attackFactions.contains(entity.faction.id));
+    }
 
 	public boolean isAggressiveToPlayer(EntityPlayer player) {
 		if (player.capabilities.isCreativeMode) {
@@ -255,7 +257,7 @@ public class DataAdvanced implements INPCAdvanced {
 		}
 
 		if (this.roleInterface instanceof RoleTrader && compound.hasKey("MarketID", 3)) {
-			((RoleTrader) this.roleInterface).readFromNBT(compound);
+			this.roleInterface.readFromNBT(compound);
 		}
 		if (compound.hasKey("NPCDialogOptions", 11)) {
 			this.npc.dialogs = compound.getIntArray("NPCDialogOptions"); // new
@@ -281,14 +283,12 @@ public class DataAdvanced implements INPCAdvanced {
 	public void setLine(int type, int slot, String text, String sound) {
 		slot = ValueUtil.correctInt(slot, 0, 7);
 		Lines lines = this.getLines(type);
+		if (lines == null) { return; }
 		if (text == null || text.isEmpty()) {
 			lines.lines.remove(slot);
 		} else {
-			Line line = lines.lines.get(slot);
-			if (line == null) {
-				lines.lines.put(slot, line = new Line());
-			}
-			line.setText(text);
+            Line line = lines.lines.computeIfAbsent(slot, k -> new Line());
+            line.setText(text);
 			line.setSound(sound);
 		}
 	}

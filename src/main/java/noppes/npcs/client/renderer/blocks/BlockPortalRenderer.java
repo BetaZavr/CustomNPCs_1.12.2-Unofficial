@@ -13,6 +13,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import noppes.npcs.blocks.tiles.CustomTileEntityPortal;
 
+import javax.annotation.Nullable;
+
 public class BlockPortalRenderer<T extends CustomTileEntityPortal> extends TileEntitySpecialRenderer<T> {
 
 	private static final Random RANDOM = new Random(31100L);
@@ -20,9 +22,9 @@ public class BlockPortalRenderer<T extends CustomTileEntityPortal> extends TileE
 	private static final FloatBuffer PROJECTION = GLAllocation.createDirectFloatBuffer(16);
 	private final FloatBuffer buffer = GLAllocation.createDirectFloatBuffer(16);
 
-	private FloatBuffer getBuffer(float red, float green, float blue, float alpha) {
+	private FloatBuffer getBuffer(float red, float green, float blue) {
 		this.buffer.clear();
-		this.buffer.put(red).put(green).put(blue).put(alpha);
+		this.buffer.put(red).put(green).put(blue).put((float) 0.0);
 		this.buffer.flip();
 		return this.buffer;
 	}
@@ -52,7 +54,8 @@ public class BlockPortalRenderer<T extends CustomTileEntityPortal> extends TileE
 		return i;
 	}
 
-	public void render(T te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+	public void render(@Nullable T te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+		if (te == null) { return; }
 		GlStateManager.disableLighting();
 		RANDOM.setSeed(31100L);
 		GlStateManager.getFloat(2982, MODELVIEW);
@@ -83,9 +86,9 @@ public class BlockPortalRenderer<T extends CustomTileEntityPortal> extends TileE
 			GlStateManager.texGen(GlStateManager.TexGen.S, 9216);
 			GlStateManager.texGen(GlStateManager.TexGen.T, 9216);
 			GlStateManager.texGen(GlStateManager.TexGen.R, 9216);
-			GlStateManager.texGen(GlStateManager.TexGen.S, 9474, this.getBuffer(1.0F, 0.0F, 0.0F, 0.0F));
-			GlStateManager.texGen(GlStateManager.TexGen.T, 9474, this.getBuffer(0.0F, 1.0F, 0.0F, 0.0F));
-			GlStateManager.texGen(GlStateManager.TexGen.R, 9474, this.getBuffer(0.0F, 0.0F, 1.0F, 0.0F));
+			GlStateManager.texGen(GlStateManager.TexGen.S, 9474, this.getBuffer(1.0F, 0.0F, 0.0F));
+			GlStateManager.texGen(GlStateManager.TexGen.T, 9474, this.getBuffer(0.0F, 1.0F, 0.0F));
+			GlStateManager.texGen(GlStateManager.TexGen.R, 9474, this.getBuffer(0.0F, 0.0F, 1.0F));
 			GlStateManager.enableTexGenCoord(GlStateManager.TexGen.S);
 			GlStateManager.enableTexGenCoord(GlStateManager.TexGen.T);
 			GlStateManager.enableTexGenCoord(GlStateManager.TexGen.R);

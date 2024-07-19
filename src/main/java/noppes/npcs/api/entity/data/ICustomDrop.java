@@ -6,7 +6,7 @@ public interface ICustomDrop {
 
 	IAttributeSet addAttribute(String attributeName);
 
-	IDropNbtSet addDropNbtSet(int type, double chance, String paht, String[] values);
+	IDropNbtSet addDropNbtSet(int type, double chance, String path, String[] values);
 
 	IEnchantSet addEnchant(int enchantId);
 

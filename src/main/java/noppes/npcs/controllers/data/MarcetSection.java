@@ -17,20 +17,18 @@ public class MarcetSection {
 		ms.name = compound.getString("Name");
 
 		NBTTagList list = compound.getTagList("Deals", 10);
-		if (list != null) {
-			for (NBTBase nbt : list) {
-				Deal deal = new Deal();
-				deal.readDataNBT((NBTTagCompound) nbt);
-				ms.deals.add(deal);
-			}
-		}
+        for (NBTBase nbt : list) {
+            Deal deal = new Deal();
+            deal.readDataNBT((NBTTagCompound) nbt);
+            ms.deals.add(deal);
+        }
 
-		return ms;
+        return ms;
 	}
-	private int id = 0;
+	private final int id;
 	public String name = "market.default.section";
 
-	public List<Deal> deals = Lists.<Deal>newArrayList();
+	public List<Deal> deals = Lists.newArrayList();
 
 	public MarcetSection(int id) {
 		this.id = id;
@@ -70,13 +68,13 @@ public class MarcetSection {
 		deals.clear();
 	}
 
-	public boolean removeDeal(int dealId) {
+	public void removeDeal(int dealId) {
 		for (Deal deal : deals) {
 			if (deal.getId() == dealId) {
-				return deals.remove(deal);
+				deals.remove(deal);
+				return;
 			}
 		}
-		return false;
 	}
 
 	public NBTTagCompound save() {

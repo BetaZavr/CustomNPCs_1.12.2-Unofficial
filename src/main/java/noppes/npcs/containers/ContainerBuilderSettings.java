@@ -10,6 +10,8 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.util.BuilderData;
 
+import javax.annotation.Nonnull;
+
 public class ContainerBuilderSettings extends Container {
 
 	public BuilderData builderData;
@@ -22,7 +24,7 @@ public class ContainerBuilderSettings extends Container {
 		if (base != null) { this.builderData = base; }
 		else { this.builderData = new BuilderData(id, type); }
 		
-		if (this.builderData != null && this.builderData.getType() < 3) {
+		if (this.builderData.getType() < 3) {
 			for (int i = 0; i < 9; ++i) {
 				this.addSlotToContainer(new Slot(player.inventory, i, i * 18 + 8, 194));
 			}
@@ -42,11 +44,11 @@ public class ContainerBuilderSettings extends Container {
 	}
 
 	@Override
-	public boolean canInteractWith(EntityPlayer playerIn) {
+	public boolean canInteractWith(@Nonnull EntityPlayer playerIn) {
 		return true;
 	}
 
-	public boolean canMergeSlot(ItemStack stack, Slot slotId) {
+	public boolean canMergeSlot(@Nonnull ItemStack stack, @Nonnull Slot slotId) {
 		return slotId.inventory == this.player.inventory;
 	}
 
@@ -60,7 +62,7 @@ public class ContainerBuilderSettings extends Container {
 		}
 	}
 
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickType, EntityPlayer player) {
+	public @Nonnull ItemStack slotClick(int slotId, int dragType, @Nonnull ClickType clickType, @Nonnull EntityPlayer player) {
 		if (clickType == ClickType.QUICK_MOVE || clickType == ClickType.QUICK_CRAFT) {
 			return ItemStack.EMPTY;
 		}
@@ -84,7 +86,7 @@ public class ContainerBuilderSettings extends Container {
 						break;
 					}
 				}
-				if (!has && b != null && b != Blocks.AIR) {
+				if (!has && b != Blocks.AIR) {
 					slot.putStack(stack);
 					return ItemStack.EMPTY;
 				}

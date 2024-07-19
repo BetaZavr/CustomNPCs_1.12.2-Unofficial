@@ -4,7 +4,8 @@ import net.minecraft.scoreboard.Score;
 import noppes.npcs.api.IScoreboardScore;
 
 public class ScoreboardScoreWrapper implements IScoreboardScore {
-	private Score score;
+
+	private final Score score;
 
 	public ScoreboardScoreWrapper(Score score) {
 		this.score = score;

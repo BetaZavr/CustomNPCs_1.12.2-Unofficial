@@ -1,6 +1,7 @@
 package noppes.npcs.dimensions;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.common.collect.Maps;
 
@@ -18,9 +19,10 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IWorldInfo;
 
+import javax.annotation.Nonnull;
+
 public class CustomWorldInfo extends WorldInfo implements IWorldInfo {
 
-	public static final EnumDifficulty DEFAULT_DIFFICULTY = EnumDifficulty.NORMAL;
 	WorldInfo superInfo;
 	public int id = 100;
 	public String versionName;
@@ -63,7 +65,6 @@ public class CustomWorldInfo extends WorldInfo implements IWorldInfo {
 	public int borderWarningTime = 15;
 	public final Map<Integer, NBTTagCompound> dimensionData = Maps.newHashMap();
 	public GameRules gameRules = new GameRules();
-	public java.util.Map<String, net.minecraft.nbt.NBTBase> additionalProperties;
 
 	public CustomWorldInfo(NBTTagCompound nbt) {
 		super(nbt);
@@ -80,17 +81,17 @@ public class CustomWorldInfo extends WorldInfo implements IWorldInfo {
 	}
 
 	@Override
-	public EnumDifficulty getDifficulty() {
+	public @Nonnull EnumDifficulty getDifficulty() {
 		return superInfo.getDifficulty();
 	}
 
 	@Override
-	public GameRules getGameRulesInstance() {
+	public @Nonnull GameRules getGameRulesInstance() {
 		return superInfo.getGameRulesInstance();
 	}
 
 	@Override
-	public GameType getGameType() {
+	public @Nonnull GameType getGameType() {
 		return superInfo.getGameType();
 	}
 
@@ -107,11 +108,11 @@ public class CustomWorldInfo extends WorldInfo implements IWorldInfo {
 
 	@Override
 	public INbt getNbt() {
-		return NpcAPI.Instance().getINbt(this.read());
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.read());
 	}
 
 	@Override
-	public NBTTagCompound getPlayerNBTTagCompound() {
+	public @Nonnull NBTTagCompound getPlayerNBTTagCompound() {
 		return superInfo.getPlayerNBTTagCompound();
 	}
 
@@ -138,15 +139,13 @@ public class CustomWorldInfo extends WorldInfo implements IWorldInfo {
 		if (nbt.hasKey("generatorName", 8)) {
 			String s1 = nbt.getString("generatorName");
 			this.terrainType = WorldType.parseWorldType(s1);
-			if (this.terrainType == null) {
-				this.terrainType = WorldType.DEFAULT;
-			} else if (this.terrainType.isVersioned()) {
-				int i = 0;
-				if (nbt.hasKey("generatorVersion", 99)) {
-					i = nbt.getInteger("generatorVersion");
-				}
-				this.terrainType = this.terrainType.getWorldTypeForGeneratorVersion(i);
-			}
+            if (this.terrainType.isVersioned()) {
+                int i = 0;
+                if (nbt.hasKey("generatorVersion", 99)) {
+                    i = nbt.getInteger("generatorVersion");
+                }
+                this.terrainType = this.terrainType.getWorldTypeForGeneratorVersion(i);
+            }
 			if (nbt.hasKey("generatorOptions", 8)) {
 				this.generatorOptions = nbt.getString("generatorOptions");
 			}
@@ -243,9 +242,9 @@ public class CustomWorldInfo extends WorldInfo implements IWorldInfo {
 		}
 
 		if (nbt.hasKey("DimensionData", 10)) {
-			NBTTagCompound nbttagcompound1 = nbt.getCompoundTag("DimensionData");
-			for (String s : nbttagcompound1.getKeySet()) {
-				this.dimensionData.put(Integer.parseInt(s), nbttagcompound1.getCompoundTag(s));
+			NBTTagCompound compound = nbt.getCompoundTag("DimensionData");
+			for (String s : compound.getKeySet()) {
+				this.dimensionData.put(Integer.parseInt(s), compound.getCompoundTag(s));
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package noppes.npcs.api.event;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.common.collect.Maps;
 
@@ -67,14 +68,14 @@ public class RoleEvent extends CustomNPCsEvent {
 
 		public TradeFailedEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, Map<ItemStack, Integer> items) {
 			super(player, npc);
-			this.currency = Maps.<IItemStack, Integer>newLinkedHashMap();
+			this.currency = Maps.newLinkedHashMap();
 			for (ItemStack stack : items.keySet()) {
 				if (stack == null || stack.isEmpty()) {
 					continue;
 				}
-				this.currency.put(NpcAPI.Instance().getIItemStack(stack), items.get(stack));
+				this.currency.put(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack), items.get(stack));
 			}
-			this.sold = NpcAPI.Instance().getIItemStack(sold.copy());
+			this.sold = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(sold.copy());
 		}
 	}
 
@@ -86,14 +87,14 @@ public class RoleEvent extends CustomNPCsEvent {
 
 		public TraderEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, Map<ItemStack, Integer> items) {
 			super(player, npc);
-			this.currency = Maps.<IItemStack, Integer>newLinkedHashMap();
+			this.currency = Maps.newLinkedHashMap();
 			for (ItemStack stack : items.keySet()) {
 				if (stack == null || stack.isEmpty()) {
 					continue;
 				}
-				this.currency.put(NpcAPI.Instance().getIItemStack(stack), items.get(stack));
+				this.currency.put(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack), items.get(stack));
 			}
-			this.sold = NpcAPI.Instance().getIItemStack(sold);
+			this.sold = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(sold);
 		}
 	}
 
@@ -120,7 +121,7 @@ public class RoleEvent extends CustomNPCsEvent {
 
 	public RoleEvent(EntityPlayer player, ICustomNpc<?> npc) {
 		this.npc = npc;
-		this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
+		this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 	}
 
 }

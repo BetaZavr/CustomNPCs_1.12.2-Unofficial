@@ -8,10 +8,6 @@ public class FactionOption {
 	public int factionId = -1;
 	public int factionPoints = 100;
 
-	public FactionOption() {
-
-	}
-
 	public FactionOption(int factionId, int factionPoints, boolean take) {
 		this.factionId = factionId;
 		this.factionPoints = factionPoints;
@@ -22,14 +18,10 @@ public class FactionOption {
 		this.readFromNBT(compound);
 	}
 
-	public void cheak() {
+	public void check() {
 		if (this.factionPoints < 0) {
 			this.factionPoints *= -1;
-			if (this.decreaseFactionPoints) {
-				this.decreaseFactionPoints = false;
-			} else {
-				this.decreaseFactionPoints = true;
-			}
+            this.decreaseFactionPoints = !this.decreaseFactionPoints;
 		}
 	}
 

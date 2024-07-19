@@ -6,7 +6,7 @@ public interface IMiniMapData {
 
 	int getColor();
 
-	int[] getDimentions();
+	int[] getDimensions();
 
 	String getIcon();
 
@@ -26,7 +26,7 @@ public interface IMiniMapData {
 
 	void setColor(int color);
 
-	void setDimentions(int[] dims);
+	void setDimensions(int[] dims);
 
 	void setIcon(String icon);
 

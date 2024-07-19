@@ -7,6 +7,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 
+import javax.annotation.Nonnull;
+
 public class GuiMenuTopButton extends GuiNpcButton {
 
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menutopbutton.png");
@@ -34,7 +36,7 @@ public class GuiMenuTopButton extends GuiNpcButton {
 		this.height = 20;
 	}
 
-	public void drawButton(Minecraft minecraft, int i, int j, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft minecraft, int i, int j, float partialTicks) {
 		if (!this.getVisible()) {
 			return;
 		}
@@ -74,20 +76,17 @@ public class GuiMenuTopButton extends GuiNpcButton {
 		return byte0;
 	}
 
-	protected void mouseDragged(Minecraft minecraft, int i, int j) {
+	protected void mouseDragged(@Nonnull Minecraft minecraft, int i, int j) {
 	}
 
 	@Override
-	public boolean mousePressed(Minecraft minecraft, int i, int j) {
+	public boolean mousePressed(@Nonnull Minecraft minecraft, int i, int j) {
 		boolean bo = !this.active && this.getVisible() && this.hover;
 		if (bo && this.listener != null) {
 			this.listener.actionPerformed(this);
 			return false;
 		}
 		return bo;
-	}
-
-	public void mouseReleased(int i, int j) {
 	}
 
 }

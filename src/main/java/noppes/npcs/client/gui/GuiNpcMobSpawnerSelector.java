@@ -3,6 +3,7 @@ package noppes.npcs.client.gui;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -13,13 +14,12 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.controllers.ClientCloneController;
@@ -38,15 +38,13 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.data.SpawnNPCData;
 import noppes.npcs.util.AdditionalMethods;
 
-public class GuiNpcMobSpawnerSelector extends SubGuiInterface
-		implements IGuiData, ICustomScrollListener, ITextfieldListener {
+public class GuiNpcMobSpawnerSelector extends SubGuiInterface implements IGuiData, ICustomScrollListener, ITextfieldListener {
 
 	private static String search = "";
-	public int activeTab = 1;
-	public int showingClones = 0;
+	public int activeTab;
+	public int showingClones;
 	private List<String> list;
 	private GuiCustomScroll scroll;
-	// new
 	public EntityLivingBase selectNpc;
 	public SpawnNPCData spawnData;
 
@@ -119,7 +117,7 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 			else {
 				for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 					if (ent.getName().equals(sel)) {
-						Entity entity = EntityList.createEntityByIDFromName(ent.getRegistryName(), Minecraft.getMinecraft().world);
+						Entity entity = EntityList.createEntityByIDFromName(Objects.requireNonNull(ent.getRegistryName()), Minecraft.getMinecraft().world);
 						if (entity instanceof EntityLivingBase) {
 							nbtEntity = entity.writeToNBT(new NBTTagCompound());
 							nbtEntity.setString("id", ent.getRegistryName().toString());
@@ -133,9 +131,9 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 
 	private List<String> getSearchList() {
 		if (GuiNpcMobSpawnerSelector.search.isEmpty()) {
-			return new ArrayList<String>(this.list);
+			return new ArrayList<>(this.list);
 		}
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (String name : this.list) {
 			if (name.toLowerCase().contains(GuiNpcMobSpawnerSelector.search)) {
 				list.add(name);
@@ -204,7 +202,7 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
-		if (!GuiNpcMobSpawnerSelector.search.equals(this.getTextField(1).getText())) { // filter
+		if (!GuiNpcMobSpawnerSelector.search.equals(this.getTextField(1).getText())) {
 			GuiNpcMobSpawnerSelector.search = this.getTextField(1).getText().toLowerCase();
 			this.scroll.setList(this.getSearchList());
 		}
@@ -212,16 +210,6 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 				|| i == ClientProxy.backButton.getKeyCode()) {
 			this.resetEntity();
 		}
-	}
-
-	protected NBTTagList newDoubleNBTList(double... par1ArrayOfDouble) {
-		NBTTagList nbttaglist = new NBTTagList();
-		double[] adouble = par1ArrayOfDouble;
-		for (int i = par1ArrayOfDouble.length, j = 0; j < i; ++j) {
-			double d1 = adouble[j];
-			nbttaglist.appendTag(new NBTTagDouble(d1));
-		}
-		return nbttaglist;
 	}
 
 	private void resetEntity() {
@@ -242,7 +230,7 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 		} else if (this.showingClones == 1) { // mob
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				if (ent.getName().equals(sel)) {
-					Entity entity = EntityList.createEntityByIDFromName(ent.getRegistryName(), Minecraft.getMinecraft().world);
+					Entity entity = EntityList.createEntityByIDFromName(Objects.requireNonNull(ent.getRegistryName()), Minecraft.getMinecraft().world);
 					if (entity instanceof EntityLivingBase) {
 						this.selectNpc = (EntityLivingBase) entity;
 						if (this.spawnData != null) {
@@ -264,11 +252,7 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 		}
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		String sel = this.scroll.getSelected();
 		if (sel == null) { return; }
@@ -288,7 +272,7 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 			return;
 		}
 		NBTTagList nbtlist = compound.getTagList("List", 8);
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (int i = 0; i < nbtlist.tagCount(); ++i) {
 			list.add(nbtlist.getStringTagAt(i));
 		}
@@ -317,22 +301,21 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 			Client.sendData(EnumPacketServer.CloneList, this.activeTab);
 			return;
 		}
-		this.list = new ArrayList<String>(ClientCloneController.Instance.getClones(this.activeTab));
+		this.list = new ArrayList<>(ClientCloneController.Instance.getClones(this.activeTab));
 		this.scroll.setList(this.getSearchList());
 	}
 
 	private void showEntities() {
-		ArrayList<String> list = new ArrayList<String>();
-		List<Class<? extends Entity>> classes = new ArrayList<Class<? extends Entity>>();
+		ArrayList<String> list = new ArrayList<>();
+		List<Class<? extends Entity>> classes = new ArrayList<>();
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-			if (ent.getRegistryName().getResourceDomain().equals(CustomNpcs.MODID)) {
+			if (Objects.requireNonNull(ent.getRegistryName()).getResourceDomain().equals(CustomNpcs.MODID)) {
 				continue;
 			}
-			Class<? extends Entity> c = (Class<? extends Entity>) ent.getEntityClass();
+			Class<? extends Entity> c = ent.getEntityClass();
 			String name = ent.getName();
 			try {
-				if (classes.contains(c) || !EntityLiving.class.isAssignableFrom(c)
-						|| c.getConstructor(World.class) == null || Modifier.isAbstract(c.getModifiers())) {
+				if (classes.contains(c) || !EntityLiving.class.isAssignableFrom(c) || Modifier.isAbstract(c.getModifiers())) {
 					continue;
 				}
 				Entity entity = EntityList.createEntityByIDFromName(ent.getRegistryName(),
@@ -340,12 +323,9 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 				if (!(entity instanceof EntityMob)) {
 					continue;
 				}
-				list.add(name.toString());
+				list.add(name);
 				classes.add(c);
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException ex) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		this.list = list;
 		this.scroll.setList(this.getSearchList());

@@ -26,21 +26,18 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCDialogNpcOptions extends GuiNPCInterface2
-		implements GuiSelectionListener, IGuiData, ICustomScrollListener, ISubGuiListener {
+public class GuiNPCDialogNpcOptions extends GuiNPCInterface2 implements GuiSelectionListener, IGuiData, ICustomScrollListener, ISubGuiListener {
 
-	private HashMap<Integer, NBTTagCompound> data; // slotID, dialogData
-	private int selectedSlot;
+	private final HashMap<Integer, NBTTagCompound> data = new HashMap<>(); // slotID, dialogData
+	private int selectedSlot = -1;
 	// New
 	private GuiCustomScroll scroll;
 	private int error = 0;
 
 	public GuiNPCDialogNpcOptions(EntityNPCInterface npc) {
 		super(npc);
-		this.data = new HashMap<Integer, NBTTagCompound>();
 		this.drawDefaultBackground = true;
-		this.selectedSlot = -1;
-		Client.sendData(EnumPacketServer.DialogNpcGet, new Object[0]);
+		Client.sendData(EnumPacketServer.DialogNpcGet);
 	}
 
 	@Override
@@ -141,7 +138,7 @@ public class GuiNPCDialogNpcOptions extends GuiNPCInterface2
 	@Override
 	public void initGui() {
 		super.initGui();
-		List<String> dialogs = new ArrayList<String>();
+		List<String> dialogs = new ArrayList<>();
 		for (int slot : this.data.keySet()) {
 			NBTTagCompound nbt = this.data.get(slot);
 			String str = (slot + 1) + "; " + ((char) 167) + "7" + "ID:" + nbt.getInteger("Id") + " - ";
@@ -242,13 +239,9 @@ public class GuiNPCDialogNpcOptions extends GuiNPCInterface2
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		if (compound.getKeySet().size() > 0) {
+		if (!compound.getKeySet().isEmpty()) {
 			int pos = compound.getInteger("Slot");
 			this.data.put(pos, compound);
-			/*
-			 * compound.setInteger("Id", d.id); compound.setString("Category",
-			 * d.category.title); compound.setString("Title", d.title);
-			 */
 		}
 		this.initGui();
 	}

@@ -5,8 +5,8 @@ import noppes.npcs.api.IDimension;
 
 public class DimensionWrapper implements IDimension {
 
-	private int id;
-	private DimensionType type;
+	private final int id;
+	private final DimensionType type;
 
 	public DimensionWrapper(int id, DimensionType type) {
 		this.id = id;

@@ -3,8 +3,8 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
@@ -45,7 +45,7 @@ public class LinkedNpcController {
 	public List<LinkedData> list;
 
 	public LinkedNpcController() {
-		this.list = new ArrayList<LinkedData>();
+		this.list = new ArrayList<>();
 		(LinkedNpcController.Instance = this).load();
 	}
 
@@ -99,7 +99,7 @@ public class LinkedNpcController {
 			npc.linkedData = null;
 		} else {
 			npc.linkedData = data;
-			if (npc.posX == 0.0 && npc.posY == 0.0 && npc.posX == 0.0) {
+			if (npc.posX == 0.0 && npc.posY == 0.0 && npc.posZ == 0.0) {
 				return;
 			}
 			npc.linkedLast = data.time;
@@ -123,8 +123,8 @@ public class LinkedNpcController {
 		LogWriter.info("Loading Linked Npcs");
 		File dir = this.getDir();
 		if (dir.exists()) {
-			List<LinkedData> list = new ArrayList<LinkedData>();
-			for (File file : dir.listFiles()) {
+			List<LinkedData> list = new ArrayList<>();
+			for (File file : Objects.requireNonNull(dir.listFiles())) {
 				if (file.getName().endsWith(".json")) {
 					try {
 						NBTTagCompound compound = NBTJsonUtil.LoadFile(file);
@@ -154,12 +154,7 @@ public class LinkedNpcController {
 	}
 
 	public void removeData(String name) {
-		Iterator<LinkedData> ita = this.list.iterator();
-		while (ita.hasNext()) {
-			if (ita.next().name.equalsIgnoreCase(name)) {
-				ita.remove();
-			}
-		}
+        this.list.removeIf(linkedData -> linkedData.name.equalsIgnoreCase(name));
 		this.save();
 	}
 

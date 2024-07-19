@@ -8,6 +8,8 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IDialogOption;
 
+import java.util.Objects;
+
 public class DialogEvent extends NpcEvent {
 
 	public static class CloseEvent extends DialogEvent {
@@ -40,6 +42,6 @@ public class DialogEvent extends NpcEvent {
 	public DialogEvent(ICustomNpc<?> npc, EntityPlayer player, IDialog dialog) {
 		super(npc);
 		this.dialog = dialog;
-		this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
+		this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 	}
 }

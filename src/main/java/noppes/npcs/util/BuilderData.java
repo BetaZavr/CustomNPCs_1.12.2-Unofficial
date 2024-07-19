@@ -25,35 +25,35 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
-import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicBlockData;
 
 public class BuilderData {
 
 	// General
-	private int type = 0; // 0:remover; 1:builder; 2:replace; 3:placer; 4:saver
-	private int id = -1;
+	private int type; // 0:remover; 1:builder; 2:replace; 3:placer; 4:saver
+	private int id;
 	
 	public int[] region = new int[] { 5, 2, 3 };
-	public int fasing = 0;
+	public int facing = 0;
 	public NpcMiscInventory inv = new NpcMiscInventory(10);
 	public EntityPlayer player = null;
-	public boolean addAir = false, replaseAir = false, isSolid = false;
-	public Map<Integer, Integer> chances = Maps.<Integer, Integer>newTreeMap();;
-	private Random rnd = new Random();
-	// Schematica
-	public Map<Integer, BlockPos> schMap = Maps.<Integer, BlockPos>newTreeMap();
-	public String schematicaName = "";
+	public boolean addAir = false, replaceAir = false, isSolid = false;
+	public Map<Integer, Integer> chances = Maps.newTreeMap();
+	private final Random rnd = new Random();
+	// Schematic
+	public Map<Integer, BlockPos> schMap = Maps.newTreeMap();
+	public String schematicName = "";
 	// undo / redo
 	public int doPos = 0;
-	public Map<Integer, List<SchematicBlockData>> doMap = Maps.<Integer, List<SchematicBlockData>>newTreeMap();
-	public Map<Integer, List<Entity>> enMap = Maps.<Integer, List<Entity>>newTreeMap();
-	// tecnical
+	public Map<Integer, List<SchematicBlockData>> doMap = Maps.newTreeMap();
+	public Map<Integer, List<Entity>> enMap = Maps.newTreeMap();
+	// technical
 	private long lastWork = 0L, lastMessage = 0L;
 
 	public BuilderData(int id, int type) {
@@ -65,8 +65,8 @@ public class BuilderData {
 		if (this.doPos == 9) {
 			this.doMap.remove(0);
 			this.enMap.remove(0);
-			Map<Integer, List<SchematicBlockData>> db = Maps.<Integer, List<SchematicBlockData>>newTreeMap();
-			Map<Integer, List<Entity>> de = Maps.<Integer, List<Entity>>newTreeMap();
+			Map<Integer, List<SchematicBlockData>> db = Maps.newTreeMap();
+			Map<Integer, List<Entity>> de = Maps.newTreeMap();
 			for (int i = 0; i < 9; i++) {
 				db.put(i, this.doMap.get(i + 1));
 				de.put(i, this.enMap.get(i + 1));
@@ -95,7 +95,7 @@ public class BuilderData {
 		switch (player.getHorizontalFacing()) {
 		case SOUTH: {
 			if (vertical == 1) { // down
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[0] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[1] / 2.0d);
@@ -123,7 +123,7 @@ public class BuilderData {
 				}
 				}
 			} else if (vertical == 2) { // up
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[0] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[1] / 2.0d);
@@ -151,7 +151,7 @@ public class BuilderData {
 				}
 				}
 			} else { // wall
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[0] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[2] / 2.0d);
@@ -183,7 +183,7 @@ public class BuilderData {
 		}
 		case EAST: {
 			if (vertical == 1) { // down
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[2] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[1] / 2.0d);
@@ -211,7 +211,7 @@ public class BuilderData {
 				}
 				}
 			} else if (vertical == 2) { // up
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[2] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[1] / 2.0d);
@@ -239,7 +239,7 @@ public class BuilderData {
 				}
 				}
 			} else { // wall
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[1] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[2] / 2.0d);
@@ -271,7 +271,7 @@ public class BuilderData {
 		}
 		case NORTH: {
 			if (vertical == 1) { // down
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[0] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[1] / 2.0d);
@@ -299,7 +299,7 @@ public class BuilderData {
 				}
 				}
 			} else if (vertical == 2) { // up
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[0] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[1] / 2.0d);
@@ -327,7 +327,7 @@ public class BuilderData {
 				}
 				}
 			} else { // wall
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[0] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[2] / 2.0d);
@@ -359,7 +359,7 @@ public class BuilderData {
 		}
 		case WEST: {
 			if (vertical == 1) { // down
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[2] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[1] / 2.0d);
@@ -387,7 +387,7 @@ public class BuilderData {
 				}
 				}
 			} else if (vertical == 2) { // up
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[2] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[1] / 2.0d);
@@ -415,7 +415,7 @@ public class BuilderData {
 				}
 				}
 			} else { // wall
-				switch (this.fasing) {
+				switch (this.facing) {
 				case 1: { // center
 					d[0] = -1 * (int) Math.floor((double) this.region[1] / 2.0d);
 					d[1] = -1 * (int) Math.floor((double) this.region[2] / 2.0d);
@@ -454,21 +454,21 @@ public class BuilderData {
 	public NBTTagCompound getNbt() {
 		NBTTagCompound nbtData = new NBTTagCompound();
 		nbtData.setInteger("BuilderType", this.type);
-		nbtData.setInteger("BuilderFasing", this.fasing);
+		nbtData.setInteger("BuilderFasing", this.facing);
 		nbtData.setIntArray("Region", this.region);
 		nbtData.setInteger("ID", this.id);
 		nbtData.setBoolean("AddAir", this.addAir);
-		nbtData.setBoolean("ReplaseAir", this.replaseAir);
+		nbtData.setBoolean("ReplaceAir", this.replaceAir);
 		nbtData.setBoolean("IsSolid", this.isSolid);
 
 		NBTTagCompound sch = new NBTTagCompound();
-		sch.setString("FileName", this.schematicaName);
+		sch.setString("FileName", this.schematicName);
 		NBTTagList selectMap = new NBTTagList();
 		for (BlockPos pos : this.schMap.values()) {
 			selectMap.appendTag(new NBTTagIntArray(new int[] { pos.getX(), pos.getY(), pos.getZ() }));
 		}
 		sch.setTag("SelectMap", selectMap);
-		nbtData.setTag("Schematica", sch);
+		nbtData.setTag("Schematic", sch);
 
 		NBTTagList chList = new NBTTagList();
 		for (int slot : this.chances.keySet()) {
@@ -490,7 +490,7 @@ public class BuilderData {
 			this.type = nbtData.getInteger("BuilderType");
 		}
 		if (nbtData.hasKey("BuilderFasing", 3)) {
-			this.fasing = nbtData.getInteger("BuilderFasing");
+			this.facing = nbtData.getInteger("BuilderFasing");
 		}
 		if (nbtData.hasKey("Region", 11)) {
 			this.region = nbtData.getIntArray("Region");
@@ -501,16 +501,16 @@ public class BuilderData {
 		if (nbtData.hasKey("AddAir", 1)) {
 			this.addAir = nbtData.getBoolean("AddAir");
 		}
-		if (nbtData.hasKey("ReplaseAir", 1)) {
-			this.replaseAir = nbtData.getBoolean("ReplaseAir");
+		if (nbtData.hasKey("ReplaceAir", 1)) {
+			this.replaceAir = nbtData.getBoolean("ReplaceAir");
 		}
 		if (nbtData.hasKey("IsSolid", 1)) {
 			this.isSolid = nbtData.getBoolean("IsSolid");
 		}
-		if (nbtData.hasKey("Schematica", 10)) {
-			NBTTagCompound sch = nbtData.getCompoundTag("Schematica");
+		if (nbtData.hasKey("Schematic", 10)) {
+			NBTTagCompound sch = nbtData.getCompoundTag("Schematic");
 			if (sch.hasKey("FileName", 8)) {
-				this.schematicaName = sch.getString("FileName");
+				this.schematicName = sch.getString("FileName");
 			}
 			if (sch.hasKey("SelectMap", 9)) {
 				this.schMap.clear();
@@ -539,8 +539,8 @@ public class BuilderData {
 		if (!this.doMap.containsKey(this.doPos + 1)) {
 			return;
 		}
-		List<SchematicBlockData> listB = Lists.<SchematicBlockData>newArrayList();
-		List<Entity> listE = Lists.<Entity>newArrayList();
+		List<SchematicBlockData> listB = Lists.newArrayList();
+		List<Entity> listE = Lists.newArrayList();
 		// Get Zone
 		int mx = Integer.MAX_VALUE, my = Integer.MAX_VALUE, mz = Integer.MAX_VALUE;
 		int nx = Integer.MIN_VALUE, ny = Integer.MIN_VALUE, nz = Integer.MIN_VALUE;
@@ -572,14 +572,15 @@ public class BuilderData {
 			}
 		}
 		// remove Entity
-		for (Entity e : world.getEntitiesWithinAABB(Entity.class,
-				new AxisAlignedBB(mx - 0.5d, my - 0.5d, mz - 0.5d, nx + 0.5d, ny + 1.5d, nz + 1.5d))) {
-			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow
-					|| e instanceof EntityPlayer) {
-				continue;
+		if (world != null) {
+			for (Entity e : world.getEntitiesWithinAABB(Entity.class,
+					new AxisAlignedBB(mx - 0.5d, my - 0.5d, mz - 0.5d, nx + 0.5d, ny + 1.5d, nz + 1.5d))) {
+				if (e instanceof EntityThrowable || e instanceof EntityArrow || e instanceof EntityPlayer) {
+					continue;
+				}
+				listE.add(e);
+				e.isDead = true;
 			}
-			listE.add(e);
-			e.isDead = true;
 		}
 		// Set Blocks
 		for (SchematicBlockData bd : this.doMap.get(this.doPos + 1)) {
@@ -587,25 +588,27 @@ public class BuilderData {
 			bd.set(bd.pos);
 		}
 		// Spawn Entities
-		for (Entity entity : this.enMap.get(this.doPos + 1)) {
-			entity.isDead = false;
-			UUID uuid = entity.getUniqueID();
-			while (uuid != null) {
-				boolean has = false;
-				for (Entity e : world.loadedEntityList) {
-					if (e.getUniqueID().equals(entity.getUniqueID())) {
-						uuid = UUID.randomUUID();
-						entity.setUniqueId(uuid);
-						has = true;
-						break;
+		if (world != null) {
+			for (Entity entity : this.enMap.get(this.doPos + 1)) {
+				entity.isDead = false;
+				UUID uuid = entity.getUniqueID();
+				while (uuid != null) {
+					boolean has = false;
+					for (Entity e : world.loadedEntityList) {
+						if (e.getUniqueID().equals(entity.getUniqueID())) {
+							uuid = UUID.randomUUID();
+							entity.setUniqueId(uuid);
+							has = true;
+							break;
+						}
 					}
+					if (has) {
+						continue;
+					}
+					uuid = null;
 				}
-				if (has) {
-					continue;
-				}
-				uuid = null;
+				world.spawnEntity(entity);
 			}
-			world.spawnEntity(entity);
 		}
 		this.enMap.put(this.doPos + 1, listE);
 		this.doMap.put(this.doPos + 1, listB);
@@ -616,8 +619,8 @@ public class BuilderData {
 		this.doPos++;
 	}
 
-	public void saveBlocks(EntityPlayerMP player, BlockPos pos, int size) { // Schematica Save
-		if (this.schematicaName.isEmpty()) {
+	public void saveBlocks(EntityPlayerMP player, BlockPos pos, int size) { // Schematic Save
+		if (this.schematicName.isEmpty()) {
 			this.sendMessage("builder.err.file.name");
 			return;
 		}
@@ -628,7 +631,7 @@ public class BuilderData {
 			switch (this.schMap.size()) {
 			case 1: {
 				this.schMap.put(1, pos);
-				player.sendMessage(new TextComponentTranslation("builder.set.point.1", x, y, z, this.schematicaName));
+				player.sendMessage(new TextComponentTranslation("builder.set.point.1", x, y, z, this.schematicName));
 				break;
 			}
 			case 2: {
@@ -636,12 +639,12 @@ public class BuilderData {
 				if (p.equals(pos)) {
 					return;
 				}
-				player.sendMessage(new TextComponentTranslation("builder.set.point.2", x, y, z, this.schematicaName));
+				player.sendMessage(new TextComponentTranslation("builder.set.point.2", x, y, z, this.schematicName));
 				this.schMap.put(2, pos);
 				break;
 			}
 			default: {
-				player.sendMessage(new TextComponentTranslation("builder.set.point.0", x, y, z, this.schematicaName));
+				player.sendMessage(new TextComponentTranslation("builder.set.point.0", x, y, z, this.schematicName));
 				this.schMap.put(0, pos);
 			}
 			}
@@ -650,7 +653,7 @@ public class BuilderData {
 			return;
 		}
 		this.lastWork = System.currentTimeMillis() - size;
-		Schematic schema = Schematic.create(player.world, player.getHorizontalFacing(), this.schematicaName + ".schematic", this.schMap);
+		Schematic schema = Schematic.create(player.world, player.getHorizontalFacing(), this.schematicName + ".schematic", this.schMap);
 		Server.sendData(player, EnumPacketClient.SAVE_SCHEMATIC, schema.getNBT());
 	}
 
@@ -666,33 +669,35 @@ public class BuilderData {
 		int[] d = this.getDirections(player);
 		int cx = 0, cy = 0, cz = 0;
 		int size = this.region[0] * this.region[1] * this.region[2];
-		List<SchematicBlockData> listB = Lists.<SchematicBlockData>newArrayList();
-		List<Entity> listE = Lists.<Entity>newArrayList();
+		List<SchematicBlockData> listB = Lists.newArrayList();
+		List<Entity> listE = Lists.newArrayList();
 		// remove Entity
 		for (Entity e : player.world.getEntitiesWithinAABB(Entity.class,
 				new AxisAlignedBB(d[0] - 0.25d, d[1] - 0.25d, d[2] - 0.25d, d[3] + 0.25d, d[4] + 0.25d, d[5] + 0.25d).offset(pos))) {
-			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow || e instanceof EntityPlayer) {
+			if (e instanceof EntityThrowable || e instanceof EntityArrow || e instanceof EntityPlayer) {
 				continue;
 			}
 			listE.add(e);
 			e.isDead = true;
 		}
 		// Create block data to work
-		Map<Integer, SchematicBlockData> tempBlocks = Maps.<Integer, SchematicBlockData>newHashMap();
+		Map<Integer, SchematicBlockData> tempBlocks = Maps.newHashMap();
 		SchematicBlockData main = null;
 		if (this.type != 0) {
 			int total = 0, mPos = -1, max = -1;
-			Map<Integer, Integer> bls = Maps.<Integer, Integer>newHashMap(); // [slot, chance]
-			if (!this.inv.getStackInSlot(0).isEmpty()
-					&& Block.getBlockFromItem(this.inv.getStackInSlot(0).getItem()) != null) {
-				main = new SchematicBlockData(player.world, this.inv.getStackInSlot(0));
-			}
+			Map<Integer, Integer> bls = Maps.newHashMap(); // [slot, chance]
+			if (!this.inv.getStackInSlot(0).isEmpty()) {
+                Block.getBlockFromItem(this.inv.getStackInSlot(0).getItem());
+                main = new SchematicBlockData(player.world, this.inv.getStackInSlot(0));
+            }
 			for (int i = 1; i < 10; i++) {
 				ItemStack stack = this.inv.getStackInSlot(i);
-				if (stack.isEmpty() || Block.getBlockFromItem(stack.getItem()) == null) {
+				if (stack.isEmpty()) {
 					continue;
-				}
-				int c = 100;
+				} else {
+                    Block.getBlockFromItem(stack.getItem());
+                }
+                int c = 100;
 				if (this.chances.containsKey(i)) {
 					c = this.chances.get(i);
 				}
@@ -705,13 +710,13 @@ public class BuilderData {
 			}
 			if (this.addAir) {
 				int airV = 100;
-				if (bls.size() > 0) {
+				if (!bls.isEmpty()) {
 					airV = total / bls.size();
 				}
 				total += airV;
 				bls.put(mPos + 1, airV);
 			}
-			if (bls.size() == 0 && (this.type == 1 || this.type == 2)) {
+			if (bls.isEmpty() && (this.type == 1 || this.type == 2)) {
 				this.sendMessage("builder.err.not.blocks");
 				return;
 			}
@@ -725,8 +730,8 @@ public class BuilderData {
 			if (fix < size && mPos >= 0) {
 				bls.put(mPos, bls.get(mPos) + size - fix);
 			}
-			Map<Integer, SchematicBlockData> amount = Maps.<Integer, SchematicBlockData>newHashMap(); // [slot, block]
-			List<Integer> slots = Lists.<Integer>newArrayList();
+			Map<Integer, SchematicBlockData> amount = Maps.newHashMap(); // [slot, block]
+			List<Integer> slots = Lists.newArrayList();
 			for (int slot : bls.keySet()) {
 				SchematicBlockData bd;
 				if (slot >= 10) { // Air
@@ -749,10 +754,12 @@ public class BuilderData {
 		} else {
 			for (int i = 1; i < 10; i++) {
 				ItemStack stack = this.inv.getStackInSlot(i);
-				if (stack.isEmpty() || Block.getBlockFromItem(stack.getItem()) == null) {
+				if (stack.isEmpty()) {
 					continue;
-				}
-				tempBlocks.put(i, new SchematicBlockData(player.world, stack));
+				} else {
+                    Block.getBlockFromItem(stack.getItem());
+                }
+                tempBlocks.put(i, new SchematicBlockData(player.world, stack));
 			}
 		}
 		if (tempBlocks.isEmpty() && this.type != 0) {
@@ -790,8 +797,8 @@ public class BuilderData {
 						bd.pos = new BlockPos(p);
 						bd.world = player.world;
 						bd.set(bd.pos);
-					} else if (this.type == 2) { // replase
-						if (!this.replaseAir && state.getBlock() == Blocks.AIR) {
+					} else if (this.type == 2) { // replace
+						if (!this.replaceAir && state.getBlock() == Blocks.AIR) {
 							continue;
 						}
 						if (main != null && !main.state.getBlock().equals(state.getBlock())) {
@@ -806,11 +813,10 @@ public class BuilderData {
 								if (state.getBlock() instanceof BlockSlab) {
 									bd.state.withProperty(BlockSlab.HALF, state.getValue(BlockSlab.HALF));
 								}
-							} catch (Exception e) {
-							}
+							} catch (Exception e) { LogWriter.error("Error:", e); }
 							bd.set(bd.pos);
 						} else {
-							SchematicBlockData bd = tempBlocks.get(sum - 1);
+							SchematicBlockData bd = new SchematicBlockData(player.world, ItemStack.EMPTY);
 							listB.add(new SchematicBlockData(player.world, state, p));
 							bd.pos = new BlockPos(p);
 							bd.world = player.world;
@@ -824,7 +830,7 @@ public class BuilderData {
 			cy++;
 			cz = 0;
 		}
-		this.sendMessage("builder.end.work." + (listB.size() > 0), "" + listB.size());
+		this.sendMessage("builder.end.work." + (!listB.isEmpty()), "" + listB.size());
 		if (!listB.isEmpty() || !listE.isEmpty()) {
 			this.add(listB, listE);
 		}
@@ -837,8 +843,8 @@ public class BuilderData {
 		if (!this.doMap.containsKey(this.doPos)) {
 			return;
 		}
-		List<SchematicBlockData> listB = Lists.<SchematicBlockData>newArrayList();
-		List<Entity> listE = Lists.<Entity>newArrayList();
+		List<SchematicBlockData> listB = Lists.newArrayList();
+		List<Entity> listE = Lists.newArrayList();
 		// Get Zone
 		int mx = Integer.MAX_VALUE, my = Integer.MAX_VALUE, mz = Integer.MAX_VALUE;
 		int nx = Integer.MIN_VALUE, ny = Integer.MIN_VALUE, nz = Integer.MIN_VALUE;
@@ -870,14 +876,14 @@ public class BuilderData {
 			}
 		}
 		// remove Entity
-		for (Entity e : world.getEntitiesWithinAABB(Entity.class,
-				new AxisAlignedBB(mx - 0.5d, my - 0.5d, mz - 0.5d, nx + 0.5d, ny + 1.5d, nz + 1.5d))) {
-			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow
-					|| e instanceof EntityPlayer) {
-				continue;
+		if (world != null) {
+			for (Entity e : world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(mx - 0.5d, my - 0.5d, mz - 0.5d, nx + 0.5d, ny + 1.5d, nz + 1.5d))) {
+				if (e instanceof EntityThrowable || e instanceof EntityArrow || e instanceof EntityPlayer) {
+					continue;
+				}
+				listE.add(e);
+				e.isDead = true;
 			}
-			listE.add(e);
-			e.isDead = true;
 		}
 		// Set Blocks
 		for (SchematicBlockData bd : this.doMap.get(this.doPos)) {
@@ -885,25 +891,27 @@ public class BuilderData {
 			bd.set(bd.pos);
 		}
 		// Spawn Entities
-		for (Entity entity : this.enMap.get(this.doPos)) {
-			entity.isDead = false;
-			UUID uuid = entity.getUniqueID();
-			while (uuid != null) {
-				boolean has = false;
-				for (Entity e : world.loadedEntityList) {
-					if (e.getUniqueID().equals(entity.getUniqueID())) {
-						uuid = UUID.randomUUID();
-						entity.setUniqueId(uuid);
-						has = true;
-						break;
+		if (world != null) {
+			for (Entity entity : this.enMap.get(this.doPos)) {
+				entity.isDead = false;
+				UUID uuid = entity.getUniqueID();
+				while (uuid != null) {
+					boolean has = false;
+					for (Entity e : world.loadedEntityList) {
+						if (e.getUniqueID().equals(entity.getUniqueID())) {
+							uuid = UUID.randomUUID();
+							entity.setUniqueId(uuid);
+							has = true;
+							break;
+						}
 					}
+					if (has) {
+						continue;
+					}
+					uuid = null;
 				}
-				if (has) {
-					continue;
-				}
-				uuid = null;
+				world.spawnEntity(entity);
 			}
-			world.spawnEntity(entity);
 		}
 		this.enMap.put(this.doPos, listE);
 		this.doMap.put(this.doPos, listB);

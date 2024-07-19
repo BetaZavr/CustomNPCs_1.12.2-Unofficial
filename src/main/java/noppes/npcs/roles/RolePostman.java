@@ -20,34 +20,29 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class RolePostman extends RoleInterface implements IRolePostman {
 
 	public NpcMiscInventory inventory;
-	private List<EntityPlayer> recentlyChecked;
-	private List<EntityPlayer> toCheck;
+	private final List<EntityPlayer> recentlyChecked;
 
-	public RolePostman(EntityNPCInterface npc) {
+    public RolePostman(EntityNPCInterface npc) {
 		super(npc);
 		this.inventory = new NpcMiscInventory(1);
-		this.recentlyChecked = new ArrayList<EntityPlayer>();
+		this.recentlyChecked = new ArrayList<>();
 		this.type = RoleType.POSTMAN;
 	}
 
-	@Override
-	public boolean aiContinueExecute() {
-		return false;
-	}
-
-	@Override
+    @Override
 	public boolean aiShouldExecute() {
 		if (this.npc.ticksExisted % 20 != 0) {
 			return false;
 		}
-		(this.toCheck = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
+        List<EntityPlayer> toCheck;
+        (toCheck = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
 				this.npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0))).removeAll(this.recentlyChecked);
 
 		List<EntityPlayer> listMax = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
 				this.npc.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
 		this.recentlyChecked.retainAll(listMax);
-		this.recentlyChecked.addAll(this.toCheck);
-		for (EntityPlayer player : this.toCheck) {
+		this.recentlyChecked.addAll(toCheck);
+		for (EntityPlayer player : toCheck) {
 			if (PlayerData.get(player).mailData.hasMail()) {
 				this.npc.say(player,
 						new Line(new TextComponentTranslation("mail.player.has.letter").getFormattedText()));
@@ -59,8 +54,6 @@ public class RolePostman extends RoleInterface implements IRolePostman {
 	@Override
 	public void interact(EntityPlayer player) {
 		Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI, EnumGuiType.PlayerMailbox, 1, 1, 0);
-		// player.openGui(CustomNpcs.instance, EnumGuiType.PlayerMailbox.ordinal(),
-		// player.world, 1, 1, 0);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package noppes.npcs.roles;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -66,7 +67,7 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 
 	@Override
 	public TransportLocation getLocation() {
-		if (this.npc.isRemote()) {
+		if (!this.npc.isServerWorld()) {
 			return null;
 		}
 		return TransportController.getInstance().getTransport(this.transportId);
@@ -112,11 +113,11 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 
 	public void transport(EntityPlayerMP player, int id) {
 		TransportLocation loc = TransportController.getInstance().getTransport(id);
-		PlayerData playerdata = PlayerData.get((EntityPlayer) player);
+		PlayerData playerdata = PlayerData.get(player);
 		if (loc == null || (!loc.isDefault() && !playerdata.transportData.transports.contains(loc.id))) {
 			return;
 		}
-		RoleEvent.TransporterUseEvent event = new RoleEvent.TransporterUseEvent((EntityPlayer) player,
+		RoleEvent.TransporterUseEvent event = new RoleEvent.TransporterUseEvent(player,
 				this.npc.wrappedNPC, loc.copy());
 		if (EventHooks.onNPCRole(this.npc, event) || event.location == null) {
 			return;
@@ -143,7 +144,7 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 					int amount = stack.getCount();
 					for (int i = 0; i < player.inventory.getSizeInventory(); ++i) {
 						ItemStack is = player.inventory.getStackInSlot(i);
-						if (is != null && this.isItemEqual(stack, is)) {
+						if (this.isItemEqual(stack, is)) {
 							if (amount < is.getCount()) {
 								is.splitStack(amount);
 								break;
@@ -156,7 +157,7 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 				player.inventoryContainer.detectAndSendChanges();
 				for (QuestData data : playerdata.questData.activeQuests.values()) {
 					for (IQuestObjective obj : data.quest
-							.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+							.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 						if (obj.getType() != 0) {
 							continue;
 						}

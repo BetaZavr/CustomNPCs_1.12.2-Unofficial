@@ -7,8 +7,7 @@ import noppes.npcs.client.model.ModelRendererAlt;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class AniBow {
-	public static void setRotationAngles(float par1, float par2, float par3, float par4, float par5, float par6,
-			Entity entity, ModelBiped model) {
+	public static void setRotationAngles(float ignoredLimbSwing, float ignoredLimbSwingAmount, float ignoredAgeInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScale, Entity entity, ModelBiped model) {
 		float ticks = (entity.ticksExisted - ((EntityNPCInterface) entity).animationStart) / 10.0f;
 		if (ticks > 1.0f) {
 			ticks = 1.0f;

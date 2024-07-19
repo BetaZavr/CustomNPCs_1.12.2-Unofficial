@@ -2,9 +2,7 @@ package noppes.npcs.client.gui.global;
 
 import java.util.Arrays;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -21,10 +19,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNpcQuestReward extends GuiContainerNPCInterface implements ITextfieldListener {
 
-	// new
 	int maxXp = 99999, maxMoney = 99999999;
-	private Quest quest;
-	private ResourceLocation resource;
+	private final Quest quest;
+	private final ResourceLocation resource;
 
 	public GuiNpcQuestReward(EntityNPCInterface npc, ContainerNpcQuestReward container) {
 		super(npc, container);
@@ -44,7 +41,7 @@ public class GuiNpcQuestReward extends GuiContainerNPCInterface implements IText
 
 	@Override
 	public void close() {
-		NoppesUtil.openGUI((EntityPlayer) this.player, GuiNPCManageQuest.Instance);
+		NoppesUtil.openGUI(this.player, GuiNPCManageQuest.Instance);
 	}
 
 	@Override
@@ -93,13 +90,13 @@ public class GuiNpcQuestReward extends GuiContainerNPCInterface implements IText
 		this.addButton(new GuiNpcButton(5, x + this.xSize - 20, y - 10, 12, 12, "X"));
 
 		this.addLabel(new GuiNpcLabel(1, "quest.exp", x + 1, (y += 22) + 5));
-		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, x + 35, y, 60, 18,
+		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, x + 35, y, 60, 18,
 				this.quest.rewardExp + ""));
 		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, this.maxXp, this.quest.rewardExp);
 
 		this.addLabel(new GuiNpcLabel(2, "gui.money", x + 1, (y += 21) + 5));
-		this.addTextField(new GuiNpcTextField(1, (GuiScreen) this, this.fontRenderer, x + 35, y, 60, 18,
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, x + 35, y, 60, 18,
 				this.quest.rewardMoney + ""));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(0, this.maxMoney, this.quest.rewardMoney);

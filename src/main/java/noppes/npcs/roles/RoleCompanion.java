@@ -1,15 +1,7 @@
 package noppes.npcs.roles;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -27,6 +19,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.api.NpcAPI;
@@ -67,10 +60,10 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 		super(npc);
 		this.uuid = "";
 		this.ownerName = "";
-		this.talents = new TreeMap<EnumCompanionTalent, Integer>();
+		this.talents = new TreeMap<>();
 		this.canAge = true;
 		this.ticksActive = 0L;
-		this.stage = EnumCompanionStage.FULLGROWN;
+		this.stage = EnumCompanionStage.FULL_GROWN;
 		this.owner = null;
 		this.job = EnumCompanionJobs.NONE;
 		this.jobInterface = null;
@@ -158,7 +151,7 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 			this.npc.setRoleData("");
 		}
 		++this.ticksActive;
-		if (this.canAge && this.stage != EnumCompanionStage.FULLGROWN) {
+		if (this.canAge && this.stage != EnumCompanionStage.FULL_GROWN) {
 			if (this.stage == EnumCompanionStage.BABY && this.ticksActive > EnumCompanionStage.CHILD.matureAge) {
 				this.matureTo(EnumCompanionStage.CHILD);
 			} else if (this.stage == EnumCompanionStage.CHILD && this.ticksActive > EnumCompanionStage.TEEN.matureAge) {
@@ -166,8 +159,8 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 			} else if (this.stage == EnumCompanionStage.TEEN && this.ticksActive > EnumCompanionStage.ADULT.matureAge) {
 				this.matureTo(EnumCompanionStage.ADULT);
 			} else if (this.stage == EnumCompanionStage.ADULT
-					&& this.ticksActive > EnumCompanionStage.FULLGROWN.matureAge) {
-				this.matureTo(EnumCompanionStage.FULLGROWN);
+					&& this.ticksActive > EnumCompanionStage.FULL_GROWN.matureAge) {
+				this.matureTo(EnumCompanionStage.FULL_GROWN);
 			}
 		}
 	}
@@ -185,7 +178,7 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 		return damage;
 	}
 
-	public void attackedEntity(Entity entity) {
+	public void attackedEntity() {
 		IItemStack weapon = this.npc.inventory.getRightHand();
 		this.gainExp((weapon == null) ? 8 : 4);
 		if (weapon == null) {
@@ -211,29 +204,16 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 			return true;
 		}
 		ItemArmor armor = (ItemArmor) item.getItem();
-		int reduction = ObfuscationHelper.getValue(ItemArmor.ArmorMaterial.class, armor.getArmorMaterial(), 6);
-		return (reduction <= 5 && level >= 1) || (reduction <= 7 && level >= 2) || (reduction <= 15 && level >= 3)
-				|| (reduction <= 33 && level >= 4);
+		Object r = ObfuscationHelper.getValue(ItemArmor.ArmorMaterial.class, armor.getArmorMaterial(), 6);
+		if (r == null) { return false; }
+		int reduction = (int) r;
+		return reduction <= 5 || reduction <= 7 && level >= 2 || reduction <= 15 && level >= 3 || reduction <= 33 && level == 4;
 	}
 
 	public boolean canWearSword(IItemStack item) {
 		int level = this.getTalentLevel(EnumCompanionTalent.SWORD);
 		return item != null && item.getMCItemStack().getItem() instanceof ItemSword && level > 0
 				&& (level >= 5 || this.getSwordDamage(item) - level < 4.0);
-	}
-
-	public boolean canWearWeapon(IItemStack stack) {
-		if (stack == null || stack.getMCItemStack().getItem() == null) {
-			return false;
-		}
-		Item item = stack.getMCItemStack().getItem();
-		if (item instanceof ItemSword) {
-			return this.canWearSword(stack);
-		}
-		if (item instanceof ItemBow) {
-			return this.getTalentLevel(EnumCompanionTalent.RANGED) > 2;
-		}
-		return item == Item.getItemFromBlock(Blocks.COBBLESTONE) && this.getTalentLevel(EnumCompanionTalent.RANGED) > 1;
 	}
 
 	@Override
@@ -275,8 +255,8 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 
 	@Override
 	public boolean defendOwner() {
-		return this.defendOwner && this.owner != null && this.stage != EnumCompanionStage.BABY
-				&& (this.jobInterface == null || !this.jobInterface.isSelfSufficient());
+		return !this.defendOwner || this.owner == null || this.stage == EnumCompanionStage.BABY
+                || (this.jobInterface != null && this.jobInterface.isSelfSufficient());
 	}
 
 	private void doEating() {
@@ -296,12 +276,9 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 				vec4.rotatePitch(-this.npc.renderYawOffset * 3.1415927f / 180.0f);
 				vec4 = vec4.addVector(this.npc.posX, this.npc.posY + this.npc.height + 0.1, this.npc.posZ);
 				if (eating.getHasSubtypes()) {
-					this.npc.world.spawnParticle(EnumParticleTypes.ITEM_CRACK, vec4.x, vec4.y, vec4.z, vec3.x,
-							vec3.y + 0.05, vec3.z,
-							new int[] { Item.getIdFromItem(eating.getItem()), eating.getMetadata() });
+					this.npc.world.spawnParticle(EnumParticleTypes.ITEM_CRACK, vec4.x, vec4.y, vec4.z, vec3.x, vec3.y + 0.05, vec3.z, Item.getIdFromItem(eating.getItem()), eating.getMetadata());
 				} else {
-					this.npc.world.spawnParticle(EnumParticleTypes.ITEM_CRACK, vec4.x, vec4.y, vec4.z, vec3.x,
-							vec3.y + 0.05, vec3.z, new int[] { Item.getIdFromItem(eating.getItem()) });
+					this.npc.world.spawnParticle(EnumParticleTypes.ITEM_CRACK, vec4.x, vec4.y, vec4.z, vec3.x, vec3.y + 0.05, vec3.z, Item.getIdFromItem(eating.getItem()));
 				}
 			}
 		} else {
@@ -315,11 +292,9 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 				}
 				this.eatingDelay = 20;
 				this.npc.setRoleData("");
-				eating = null;
-			} else if (this.eatingTicks > 3 && this.eatingTicks % 2 == 0) {
+            } else if (this.eatingTicks > 3 && this.eatingTicks % 2 == 0) {
 				Random rand = this.npc.getRNG();
-				this.npc.playSound(SoundEvents.ENTITY_GENERIC_EAT, 0.5f + 0.5f * rand.nextInt(2),
-						(rand.nextFloat() - rand.nextFloat()) * 0.2f + 1.0f);
+				this.npc.playSound(SoundEvents.ENTITY_GENERIC_EAT, 0.5f + 0.5f * rand.nextInt(2), (rand.nextFloat() - rand.nextFloat()) * 0.2f + 1.0f);
 			}
 		}
 	}
@@ -338,7 +313,7 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 	}
 
 	private IItemStack getFood() {
-		List<ItemStack> food = new ArrayList<ItemStack>((Collection<? extends ItemStack>) this.inventory.items);
+		List<ItemStack> food = new ArrayList<>(this.inventory.items);
 		Iterator<ItemStack> ite = food.iterator();
 		int i = -1;
 		while (ite.hasNext()) {
@@ -346,7 +321,7 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 			if (is.isEmpty() || !(is.getItem() instanceof ItemFood)) {
 				ite.remove();
 			} else {
-				int amount = ((ItemFood) is.getItem()).getDamage(is);
+				int amount = is.getItem().getDamage(is);
 				if (i != -1 && amount >= i) {
 					continue;
 				}
@@ -354,8 +329,8 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 			}
 		}
 		for (ItemStack is2 : food) {
-			if (((ItemFood) is2.getItem()).getDamage(is2) == i) {
-				return NpcAPI.Instance().getIItemStack(is2);
+			if (is2.getItem().getDamage(is2) == i) {
+				return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(is2);
 			}
 		}
 		return null;
@@ -398,11 +373,8 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 		}
 		try {
 			UUID id = UUID.fromString(this.uuid);
-			if (id != null) {
-				return NoppesUtilServer.getPlayer(this.npc.getServer(), id);
-			}
-		} catch (IllegalArgumentException ex) {
-		}
+            return NoppesUtilServer.getPlayer(Objects.requireNonNull(this.npc.getServer()), id);
+        } catch (Exception e) { LogWriter.error("Error:", e); }
 		return null;
 	}
 
@@ -479,7 +451,8 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 		if (player != this.owner || !this.npc.isEntityAlive() || this.npc.isAttacking()) {
 			return;
 		}
-		if (player.isSneaking() || openGui) {
+        assert player != null;
+        if (player.isSneaking() || openGui) {
 			this.openGui(player);
 		} else {
 			this.setSitting(!this.isSitting());
@@ -498,18 +471,6 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 
 	public boolean isSitting() {
 		return this.npc.ais.animationType == 1;
-	}
-
-	public boolean isWeapon(ItemStack item) {
-		return item != null && item.getItem() != null && (item.getItem() instanceof ItemSword
-				|| item.getItem() instanceof ItemBow || item.getItem() == Item.getItemFromBlock(Blocks.COBBLESTONE));
-	}
-
-	public void levelTalent(EnumCompanionTalent talent, int exp) {
-		if (!this.talents.containsKey(EnumCompanionTalent.SWORD)) {
-			return;
-		}
-		this.talents.put(talent, exp + this.talents.get(talent));
 	}
 
 	public void matureTo(EnumCompanionStage stage) {
@@ -549,7 +510,7 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 				this.talents.put(EnumCompanionTalent.ARMOR, 0);
 			}
 		}
-		if (stage == EnumCompanionStage.ADULT || stage == EnumCompanionStage.FULLGROWN) {
+		if (stage == EnumCompanionStage.ADULT || stage == EnumCompanionStage.FULL_GROWN) {
 			npc.modelData.getPartConfig(EnumParts.ARM_LEFT).setScale(1.0f, 1.0f, 1.0f);
 			npc.modelData.getPartConfig(EnumParts.LEG_LEFT).setScale(1.0f, 1.0f, 1.0f);
 			npc.modelData.getPartConfig(EnumParts.BODY).setScale(1.0f, 1.0f, 1.0f);
@@ -578,7 +539,7 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 		this.defendOwner = compound.getBoolean("CompanionDefendOwner");
 		this.foodstats.readNBT(compound);
 		NBTTagList list = compound.getTagList("CompanionTalents", 10);
-		Map<EnumCompanionTalent, Integer> talents = new TreeMap<EnumCompanionTalent, Integer>();
+		Map<EnumCompanionTalent, Integer> talents = new TreeMap<>();
 		for (int i = 0; i < list.tagCount(); ++i) {
 			NBTTagCompound c = list.getCompoundTagAt(i);
 			EnumCompanionTalent talent = EnumCompanionTalent.values()[c.getInteger("Talent")];
@@ -616,22 +577,6 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 		this.uuid = player.getUniqueID().toString();
 	}
 
-	public void setSelfsuficient(boolean bo) {
-		if (this.owner == null || (this.jobInterface != null && bo == this.jobInterface.isSelfSufficient())) {
-			return;
-		}
-		PlayerData data = PlayerData.get(this.owner);
-		if (!bo && data.hasCompanion()) {
-			return;
-		}
-		data.setCompanion(bo ? null : this.npc);
-		if (this.job == EnumCompanionJobs.GUARD) {
-			((CompanionGuard) this.jobInterface).isStanding = bo;
-		} else if (this.job == EnumCompanionJobs.FARMER) {
-			((CompanionFarmer) this.jobInterface).isStanding = bo;
-		}
-	}
-
 	public void setSitting(boolean sit) {
 		if (sit) {
 			this.npc.ais.animationType = 1;
@@ -654,11 +599,11 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 		int ranged = this.getTalentLevel(EnumCompanionTalent.RANGED);
 		if (ranged > 0 && weapon != null) {
 			Item item = weapon.getMCItemStack().getItem();
-			if (ranged > 0 && item == Item.getItemFromBlock(Blocks.COBBLESTONE)) {
+			if (item == Item.getItemFromBlock(Blocks.COBBLESTONE)) {
 				this.npc.inventory.setProjectile(weapon);
 			}
-			if (ranged > 0 && item instanceof ItemBow) {
-				this.npc.inventory.setProjectile(NpcAPI.Instance().getIItemStack(new ItemStack(Items.ARROW)));
+			if (item instanceof ItemBow) {
+				this.npc.inventory.setProjectile(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(Items.ARROW)));
 			}
 		}
 		this.inventory.setSize(2 + this.getTalentLevel(EnumCompanionTalent.INVENTORY) * 2);

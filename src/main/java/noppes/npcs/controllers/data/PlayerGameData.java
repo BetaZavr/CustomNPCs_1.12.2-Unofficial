@@ -15,7 +15,7 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class PlayerGameData {
 
-	public class FollowerSet {
+	public static class FollowerSet {
 
 		public UUID id;
 		public int dimId;
@@ -36,10 +36,10 @@ public class PlayerGameData {
 	private long money;
 	public boolean updateClient; // ServerTickHandler.onPlayerTick() 122
 	public boolean op = false; // ServerTickHandler.onPlayerTick() 62
-	public final List<MarkupData> marketData = Lists.<MarkupData>newArrayList(); // ID market, slot
+	public final List<MarkupData> marketData = Lists.newArrayList(); // ID market, slot
 
 	public double[] logPos;
-	private final List<FollowerSet> followers = Lists.<FollowerSet>newArrayList();
+	private final List<FollowerSet> followers = Lists.newArrayList();
 
 	public int dimID = 0;
 
@@ -70,10 +70,8 @@ public class PlayerGameData {
 		this.money += money;
 		if (this.money < 0L) {
 			this.money = 0L;
-		} else if (this.money > Long.MAX_VALUE) {
-			this.money = Long.MAX_VALUE;
 		}
-		this.updateClient = true;
+        this.updateClient = true;
 	}
 
 	public FollowerSet getFollower(EntityNPCInterface npc) {
@@ -109,7 +107,7 @@ public class PlayerGameData {
 	}
 
 	public List<EntityNPCInterface> getMercenaries() {
-		List<EntityNPCInterface> npcs = Lists.<EntityNPCInterface>newArrayList();
+		List<EntityNPCInterface> npcs = Lists.newArrayList();
 		for (FollowerSet fs : followers) {
 			if (fs.npc != null && !fs.npc.isDead) {
 				npcs.add(fs.npc);
@@ -141,10 +139,10 @@ public class PlayerGameData {
 
 		NBTTagList fls = new NBTTagList();
 		for (FollowerSet fs : followers) {
-			NBTTagCompound fnbt = new NBTTagCompound();
-			fnbt.setString("UUID", fs.id.toString());
-			fnbt.setInteger("DimID", fs.dimId);
-			fls.appendTag(fnbt);
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setString("UUID", fs.id.toString());
+			nbt.setInteger("DimID", fs.dimId);
+			fls.appendTag(nbt);
 		}
 		compound.setTag("Followers", fls);
 
@@ -183,14 +181,13 @@ public class PlayerGameData {
 		}
 	}
 
-	public boolean removeFollower(EntityNPCInterface npc) {
+	public void removeFollower(EntityNPCInterface npc) {
 		for (FollowerSet fs : followers) {
 			if (fs.id.equals(npc.getUniqueID())) {
 				followers.remove(fs);
-				return true;
+				return;
 			}
 		}
-		return false;
 	}
 
 	public void removeFollower(FollowerSet fs) {
@@ -202,17 +199,11 @@ public class PlayerGameData {
 		return compound;
 	}
 
-	public void setMarkupLevel(int marketID, int level) {
-		this.getMarkupData(marketID).level = level;
-	}
-
 	public void setMoney(long money) {
 		if (money < 0L) {
 			money = 0L;
-		} else if (money > Long.MAX_VALUE) {
-			money = Long.MAX_VALUE;
 		}
-		this.money = money;
+        this.money = money;
 		this.updateClient = true;
 	}
 

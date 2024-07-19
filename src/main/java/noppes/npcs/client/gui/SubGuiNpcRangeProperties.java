@@ -20,10 +20,10 @@ public class SubGuiNpcRangeProperties
 extends SubGuiInterface
 implements ITextfieldListener, ISubGuiListener {
 
-	private DataRanged ranged;
+	private final DataRanged ranged;
 	private GuiNpcTextField soundSelected;
-	private DataStats stats;
-	private String[] fireType = new String[] { "gui.no", "gui.whendistant", "gui.whenhidden" };
+	private final DataStats stats;
+	private final String[] fireType = new String[] { "gui.no", "gui.whendistant", "gui.whenhidden" };
 
 	public SubGuiNpcRangeProperties(DataStats stats) {
 		this.soundSelected = null;
@@ -97,7 +97,7 @@ implements ITextfieldListener, ISubGuiListener {
 			ITextComponent hover = new TextComponentTranslation("stats.hover.availability");
 			hover.appendSibling(new TextComponentTranslation("stats.hover.availability." + this.ranged.getFireType(),
 					new TextComponentTranslation(this.fireType[this.ranged.getFireType()]).getFormattedText(),
-					"" + ((double) this.ranged.getRange() / 2.0d)));
+					"" + (this.ranged.getRange() / 2.0d)));
 			if (this.ranged.getFireType() != 0) {
 				hover.appendSibling(new TextComponentTranslation("stats.hover.availability.3"));
 			}

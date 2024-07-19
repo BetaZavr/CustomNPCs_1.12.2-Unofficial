@@ -16,8 +16,8 @@ import noppes.npcs.quests.QuestInterface;
 
 public class PlayerQuestData {
 
-	public HashMap<Integer, QuestData> activeQuests = new HashMap<Integer, QuestData>(); // [qID, data]
-	public HashMap<Integer, Long> finishedQuests = new HashMap<Integer, Long>(); // [qID, time]
+	public HashMap<Integer, QuestData> activeQuests = new HashMap<>(); // [qID, data]
+	public HashMap<Integer, Long> finishedQuests = new HashMap<>(); // [qID, time]
 	public boolean updateClient; // ServerTickHandler.onPlayerTick() 114
 
 	public PlayerQuestData() {
@@ -58,7 +58,7 @@ public class PlayerQuestData {
 		}
 		NBTTagCompound compound = mainCompound.getCompoundTag("QuestData");
 
-		HashMap<Integer, Long> finishedMap = new HashMap<Integer, Long>();
+		HashMap<Integer, Long> finishedMap = new HashMap<>();
 		if (compound.hasKey("CompletedQuests", 9) && compound.getTagList("CompletedQuests", 10).tagCount() > 0) {
 			for (int i = 0; i < compound.getTagList("CompletedQuests", 10).tagCount(); ++i) {
 				NBTTagCompound dataNBT = compound.getTagList("CompletedQuests", 10).getCompoundTagAt(i);
@@ -67,7 +67,7 @@ public class PlayerQuestData {
 		}
 		this.finishedQuests = finishedMap;
 
-		HashMap<Integer, QuestData> activeMap = new HashMap<Integer, QuestData>();
+		HashMap<Integer, QuestData> activeMap = new HashMap<>();
 		if (compound.hasKey("ActiveQuests", 9) && compound.getTagList("ActiveQuests", 10).tagCount() > 0) {
 			for (int i = 0; i < compound.getTagList("ActiveQuests", 10).tagCount(); ++i) {
 				NBTTagCompound dataNBT = compound.getTagList("ActiveQuests", 10).getCompoundTagAt(i);
@@ -91,7 +91,7 @@ public class PlayerQuestData {
 		for (int quest : this.finishedQuests.keySet()) {
 			NBTTagCompound nbttagcompound = new NBTTagCompound();
 			nbttagcompound.setInteger("Quest", quest);
-			nbttagcompound.setLong("Date", (long) this.finishedQuests.get(quest));
+			nbttagcompound.setLong("Date", this.finishedQuests.get(quest));
 			finishedList.appendTag(nbttagcompound);
 		}
 		compound.setTag("CompletedQuests", finishedList);

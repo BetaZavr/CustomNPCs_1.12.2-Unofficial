@@ -9,7 +9,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import moe.plushie.armourers_workshop.api.ArmourersWorkshopClientApi;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
@@ -47,11 +46,10 @@ import noppes.npcs.util.AdditionalMethods;
 public class GuiNPCInv
 extends GuiContainerNPCInterface2
 implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, ITextfieldListener {
-	
-	// private HashMap<Integer, Integer> chances; Changed
-	private ContainerNPCInv container;
-	private Map<String, DropSet> dropsData = new HashMap<String, DropSet>();
-	private DataInventory inventory;
+
+	private final ContainerNPCInv container;
+	private final Map<String, DropSet> dropsData = new HashMap<>();
+	private final DataInventory inventory;
 	private DropsTemplate temp;
 	private int groupId;
 	private GuiCustomScroll scrollTemplate, scrollDrops;
@@ -114,8 +112,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			}
 			case 7: { // del template
 				if (scrollTemplate == null || !scrollTemplate.hasSelected()) { return; }
-				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, scrollTemplate.getSelected(), new TextComponentTranslation("gui.clearMessage").getFormattedText(), 0);
-				this.displayGuiScreen((GuiScreen) guiyesno);
+				GuiYesNo guiyesno = new GuiYesNo(this, scrollTemplate.getSelected(), new TextComponentTranslation("gui.clearMessage").getFormattedText(), 0);
+				this.displayGuiScreen(guiyesno);
 			}
 			case 8: { // group ID
 				this.groupId = button.getValue();
@@ -124,7 +122,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			}
 			case 9: { // add Drop
 				this.groupId = this.temp.groups.size();
-				this.temp.groups.put(this.groupId, Maps.<Integer, DropSet>newTreeMap());
+				this.temp.groups.put(this.groupId, Maps.newTreeMap());
 				this.initGui();
 				break;
 			}
@@ -135,7 +133,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			case 11: { // copy Group
 				if (this.temp == null) { return; }
 				Map<Integer, DropSet> parent = this.temp.groups.get(this.groupId);
-				Map<Integer, DropSet> newGroup = Maps.<Integer, DropSet>newTreeMap();
+				Map<Integer, DropSet> newGroup = Maps.newTreeMap();
 				for (int id : parent.keySet()) {
 					DropSet ds = new DropSet(this.inventory);
 					ds.load(parent.get(id).getNBT());
@@ -147,21 +145,21 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 				break;
 			}
 			case 12: { // del Group
-				if (this.temp == null || this.temp.groups.size() < 1 || this.groupId <= 0) { return; }
+				if (this.temp == null || this.temp.groups.isEmpty() || this.groupId <= 0) { return; }
 				if (this.temp.groups.get(this.groupId).isEmpty()) {
 					this.temp.removeGroup(this.groupId);
 					this.groupId--;
 					this.initGui();
 				} else {
-					GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new TextComponentTranslation("gui.group").getFormattedText() + " ID: " + this.groupId, new TextComponentTranslation("gui.clearMessage").getFormattedText(), 1);
-					this.displayGuiScreen((GuiScreen) guiyesno);
+					GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.group").getFormattedText() + " ID: " + this.groupId, new TextComponentTranslation("gui.clearMessage").getFormattedText(), 1);
+					this.displayGuiScreen(guiyesno);
 				}
 				break;
 			}
 		}
 	}
 
-	private void saveTemlate() {
+	private void saveTemplate() {
 		if (this.inventory.dropType == 1 && this.inventory.saveDropsName != null && this.inventory.saveDropsName.isEmpty()) {
 			DropController.getInstance().sendToServer(this.inventory.saveDropsName);
 		}
@@ -178,7 +176,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			this.initGui();
 		}
 		else if (id == 1) { // del group
-			if (this.temp == null || this.temp.groups.size() < 1) { return; }
+			if (this.temp == null || this.temp.groups.isEmpty()) { return; }
 			this.temp.removeGroup(this.groupId);
 			this.groupId--;
 			this.initGui();
@@ -203,7 +201,6 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 					this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 					GlStateManager.popMatrix();
 				}
-				continue;
 			} else if (slot.getHasStack()) {
 				this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 0, 0, 18, 18);
 			}
@@ -239,11 +236,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("inv.hover.drops.type").getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.add.drop", new Object[] { this.inventory.dropType != 1 ? "" + CustomNpcs.MaxItemInDropsNPC : "9000" }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("inv.hover.add.drop", this.inventory.dropType != 1 ? "" + CustomNpcs.MaxItemInDropsNPC : "9000").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.edit.drop", new Object[] { dropName }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("inv.hover.edit.drop", dropName).getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.del.drop", new Object[] { dropName }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("inv.hover.del.drop", dropName).getFormattedText());
 		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("inv.hover.new.template").getFormattedText());
 		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
@@ -274,11 +271,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 	public void initGui() {
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(0, "inv.minExp", this.guiLeft + 108, this.guiTop + 18));
-		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 29, 60, 20, this.inventory.getExpMin() + ""));
+		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 29, 60, 20, this.inventory.getExpMin() + ""));
 		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, 32767, 0);
 		this.addLabel(new GuiNpcLabel(1, "inv.maxExp", this.guiLeft + 108, this.guiTop + 52));
-		this.addTextField(new GuiNpcTextField(1, (GuiScreen) this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 63, 60, 20, this.inventory.getExpMax() + ""));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 63, 60, 20, this.inventory.getExpMax() + ""));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(0, 32767, 0);
 		this.addButton(new GuiNpcButton(10, this.guiLeft + 107, this.guiTop + 88, 62, 20, new String[] { "stats.normal", "inv.auto" }, this.inventory.lootMode ? 1 : 0)); // Changed
@@ -340,15 +337,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			this.addButton(new GuiNpcButton(7, this.guiLeft + 225, this.guiTop + 197, 48, 15, "gui.remove", !this.inventory.saveDropsName.isEmpty()));
 			this.addLabel(new GuiNpcLabel(5, "gui.groups", this.guiLeft + 277, this.guiTop + 30));
 
-			List<String> l = Lists.<String>newArrayList();
+			List<String> l = Lists.newArrayList();
 			int g = 1;
-			if (this.temp != null && this.temp.groups.size() > 0) {
+			if (this.temp != null && !this.temp.groups.isEmpty()) {
 				g = this.temp.groups.size();
 			}
 			for (int i = 0; i < g; i++) {
 				l.add(i + " / " + (g - 1));
 			}
-			this.addButton(new GuiNpcButton(8, this.guiLeft + 346, this.guiTop + 27, 70, 15, l.toArray(new String[l.size()]), this.groupId));
+			this.addButton(new GuiNpcButton(8, this.guiLeft + 346, this.guiTop + 27, 70, 15, l.toArray(new String[0]), this.groupId));
 
 			if (this.scrollDrops == null) {
 				this.scrollDrops = new GuiCustomScroll(this, 1);
@@ -410,7 +407,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 	
 	@Override
 	public void save() {
-		this.saveTemlate();
+		this.saveTemplate();
 		Client.sendData(EnumPacketServer.MainmenuInvSave, this.inventory.writeEntityToNBT(new NBTTagCompound()));
 	}
 
@@ -421,7 +418,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 		}
 		if (scroll.id == 0) {
 			if (scroll.getSelected().equals(this.inventory.saveDropsName)) { return; }
-			this.saveTemlate();
+			this.saveTemplate();
 			this.inventory.saveDropsName = scroll.getSelected();
 			this.initGui();
 		}
@@ -434,7 +431,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
 		if (scroll.id == 1) {
 			if (this.dropsData.get(this.scrollDrops.getSelected()) != null) {
-				this.saveTemlate();
+				this.saveTemplate();
 				NoppesUtil.requestOpenGUI(EnumGuiType.MainMenuInvDrop, this.inventory.dropType, this.groupId, this.scrollDrops.selected);
 			}
 		}
@@ -448,11 +445,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof SubGuiEditText && ((SubGuiEditText) subgui).cancelled) {
+		if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).cancelled) {
 			return;
 		}
 		DropController dData = DropController.getInstance();
-		String name = ((SubGuiEditText) subgui).text[0];
+        String name = ((SubGuiEditText) subgui).text[0];
 		if (subgui.id == 1) { // new template
 			while (dData.templates.containsKey(name)) { name += "_"; }
 			this.inventory.saveDropsName = name;

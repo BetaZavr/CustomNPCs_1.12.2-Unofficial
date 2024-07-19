@@ -23,12 +23,12 @@ import noppes.npcs.roles.RoleCompanion;
 
 public class GuiNpcCompanion extends GuiNPCInterface2 implements ITextfieldListener, ISliderListener {
 
-	private RoleCompanion role;
+	private final RoleCompanion role;
 	private List<GuiNpcCompanionTalents.GuiTalent> talents;
 
 	public GuiNpcCompanion(EntityNPCInterface npc) {
 		super(npc);
-		this.talents = new ArrayList<GuiNpcCompanionTalents.GuiTalent>();
+		this.talents = new ArrayList<>();
 		this.role = (RoleCompanion) npc.advanced.roleInterface;
 	}
 
@@ -53,7 +53,7 @@ public class GuiNpcCompanion extends GuiNPCInterface2 implements ITextfieldListe
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		for (GuiNpcCompanionTalents.GuiTalent talent : new ArrayList<GuiNpcCompanionTalents.GuiTalent>(this.talents)) {
+		for (GuiNpcCompanionTalents.GuiTalent talent : new ArrayList<>(this.talents)) {
 			talent.drawScreen(i, j, f);
 		}
 	}
@@ -65,12 +65,12 @@ public class GuiNpcCompanion extends GuiNPCInterface2 implements ITextfieldListe
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.talents = new ArrayList<GuiNpcCompanionTalents.GuiTalent>();
+		this.talents = new ArrayList<>();
 		int y = this.guiTop + 4;
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 70, y, 90, 20,
 				new String[] { EnumCompanionStage.BABY.name, EnumCompanionStage.CHILD.name,
 						EnumCompanionStage.TEEN.name, EnumCompanionStage.ADULT.name,
-						EnumCompanionStage.FULLGROWN.name },
+						EnumCompanionStage.FULL_GROWN.name },
 				this.role.stage.ordinal()));
 		this.addLabel(new GuiNpcLabel(0, "companion.stage", this.guiLeft + 4, y + 5));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 162, y, 90, 20, "gui.update"));

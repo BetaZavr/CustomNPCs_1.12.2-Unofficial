@@ -1,9 +1,10 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import com.google.common.collect.Maps;
@@ -38,9 +39,9 @@ public class DialogController implements IDialogHandler {
 	private int lastUsedDialogID;
 
 	public DialogController() {
-		this.categoriesSync = Maps.<Integer, DialogCategory>newTreeMap();
-		this.categories = Maps.<Integer, DialogCategory>newTreeMap();
-		this.dialogs = Maps.<Integer, Dialog>newTreeMap();
+		this.categoriesSync = Maps.newTreeMap();
+		this.categories = Maps.newTreeMap();
+		this.dialogs = Maps.newTreeMap();
 		this.lastUsedDialogID = 0;
 		this.lastUsedCatID = 0;
 		DialogController.instance = this;
@@ -48,7 +49,7 @@ public class DialogController implements IDialogHandler {
 
 	@Override
 	public IDialogCategory[] categories() {
-		return this.categories.values().toArray(new IDialogCategory[this.categories.size()]);
+		return this.categories.values().toArray(new IDialogCategory[0]);
 	}
 
 	public boolean containsCategoryName(DialogCategory category) {
@@ -118,7 +119,7 @@ public class DialogController implements IDialogHandler {
 			dir.mkdir();
 			this.loadDefaultDialogs();
 		} else {
-			for (File file2 : dir.listFiles()) {
+			for (File file2 : Objects.requireNonNull(dir.listFiles())) {
 				if (file2.isDirectory()) {
 					DialogCategory category = this.loadCategoryDir(file2);
 					Iterator<Map.Entry<Integer, Dialog>> ite = category.dialogs.entrySet().iterator();
@@ -145,12 +146,9 @@ public class DialogController implements IDialogHandler {
 	}
 
 	private void loadCategoriesOld(File file) throws Exception {
-		NBTTagCompound nbttagcompound1 = CompressedStreamTools.readCompressed(new FileInputStream(file));
-		NBTTagList list = nbttagcompound1.getTagList("Data", 10);
-		if (list == null) {
-			return;
-		}
-		for (int i = 0; i < list.tagCount(); ++i) {
+		NBTTagCompound compound = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
+		NBTTagList list = compound.getTagList("Data", 10);
+        for (int i = 0; i < list.tagCount(); ++i) {
 			DialogCategory category = new DialogCategory();
 			category.readNBT(list.getCompoundTagAt(i));
 			this.saveCategory(category);
@@ -171,7 +169,7 @@ public class DialogController implements IDialogHandler {
 	private DialogCategory loadCategoryDir(File dir) {
 		DialogCategory category = new DialogCategory();
 		category.title = dir.getName();
-		for (File file : dir.listFiles()) {
+		for (File file : Objects.requireNonNull(dir.listFiles())) {
 			if (file.isFile()) {
 				if (file.getName().endsWith(".json")) {
 					try {
@@ -248,7 +246,7 @@ public class DialogController implements IDialogHandler {
 		// if (!dir.delete()) { return; } Changed
 		// New
 		if (!AdditionalMethods.removeFile(dir)) {
-			LogWriter.error("Error delite " + dir + "; no access or file not uploaded!");
+			LogWriter.error("Error delete " + dir + "; no access or file not uploaded!");
 		}
 		for (int dia : cat.dialogs.keySet()) {
 			this.dialogs.remove(dia);
@@ -271,17 +269,20 @@ public class DialogController implements IDialogHandler {
 	public void saveCategory(DialogCategory category) {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
-			category.title = "default";
+			StringBuilder title = new StringBuilder("default");
 			while (this.containsCategoryName(category)) {
-				category.title += "_";
+				title.append("_");
 			}
+			category.title = title.toString();
 		}
 		if (this.categories.containsKey(category.id)) {
 			DialogCategory currentCategory = this.categories.get(category.id);
 			if (!currentCategory.title.equals(category.title)) {
+				StringBuilder title = new StringBuilder(category.title);
 				while (this.containsCategoryName(category)) {
-					category.title += "_";
+					title.append("_");
 				}
+				category.title = title.toString();
 				File newdir = new File(this.getDir(), category.title);
 				File olddir = new File(this.getDir(), currentCategory.title);
 				if (newdir.exists() || !olddir.renameTo(newdir)) {
@@ -295,9 +296,11 @@ public class DialogController implements IDialogHandler {
 				++this.lastUsedCatID;
 				category.id = this.lastUsedCatID;
 			}
+			StringBuilder title = new StringBuilder(category.title);
 			while (this.containsCategoryName(category)) {
-				category.title += "_";
+				title.append("_");
 			}
+			category.title = title.toString();
 			File dir = new File(this.getDir(), category.title);
 			if (!dir.exists()) {
 				dir.mkdirs();
@@ -313,13 +316,15 @@ public class DialogController implements IDialogHandler {
 				category.writeNBT(new NBTTagCompound()));
 	}
 
-	public Dialog saveDialog(DialogCategory category, Dialog dialog) {
+	public void saveDialog(DialogCategory category, Dialog dialog) {
 		if (category == null) {
-			return dialog;
+			return;
 		}
+		StringBuilder title = new StringBuilder(dialog.title);
 		while (this.containsDialogName(dialog.category, dialog)) {
-			dialog.title += "_";
+			title.append("_");
 		}
+		dialog.title = title.toString();
 		if (dialog.id < 0) {
 			++this.lastUsedDialogID;
 			dialog.id = this.lastUsedDialogID;
@@ -344,7 +349,6 @@ public class DialogController implements IDialogHandler {
 		} catch (Exception e) {
 			LogWriter.except(e);
 		}
-		return dialog;
 	}
 
 }

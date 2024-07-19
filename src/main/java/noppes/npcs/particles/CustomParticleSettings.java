@@ -5,10 +5,12 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 
+import java.util.Objects;
+
 public class CustomParticleSettings implements ICustomElement {
 
 	public NBTTagCompound nbtData;
-	public int id = 0, argumentCount = 0;
+	public int id, argumentCount = 0;
 	public boolean shouldIgnoreRange = false;
 	public String enumName;
 	public String name;
@@ -17,7 +19,7 @@ public class CustomParticleSettings implements ICustomElement {
 		this.nbtData = nbtParticle;
 		this.id = id;
 		this.enumName = nbtParticle.getString("RegistryName").toUpperCase();
-		while (this.enumName.indexOf(" ") != -1) {
+		while (this.enumName.contains(" ")) {
 			this.enumName = this.enumName.replace(" ", "_");
 		}
 		nbtParticle.setString("RegistryName", this.enumName);
@@ -38,7 +40,7 @@ public class CustomParticleSettings implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
 	@Override

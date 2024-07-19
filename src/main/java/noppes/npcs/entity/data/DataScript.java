@@ -24,7 +24,7 @@ public class DataScript implements IScriptHandler {
 	public long lastInited = -1L;
 	public EntityNPCInterface npc;
 	private String scriptLanguage = "ECMAScript";
-	private List<ScriptContainer> scripts = Lists.<ScriptContainer>newArrayList();
+	private List<ScriptContainer> scripts = Lists.newArrayList();
 
 	public DataScript(EntityNPCInterface npc) {
 		this.npc = npc;
@@ -39,7 +39,7 @@ public class DataScript implements IScriptHandler {
 
 	@Override
 	public Map<Long, String> getConsoleText() {
-		Map<Long, String> map = new TreeMap<Long, String>();
+		Map<Long, String> map = new TreeMap<>();
 		int tab = 0;
 		for (ScriptContainer script : this.getScripts()) {
 			++tab;
@@ -67,7 +67,7 @@ public class DataScript implements IScriptHandler {
 
 	@Override
 	public boolean isClient() {
-		return Thread.currentThread().getName().toLowerCase().indexOf("client") != -1;
+		return Thread.currentThread().getName().toLowerCase().contains("client");
 	}
 
 	public boolean isEnabled() {

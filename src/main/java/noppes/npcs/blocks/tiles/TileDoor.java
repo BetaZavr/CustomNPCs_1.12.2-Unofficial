@@ -13,6 +13,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import noppes.npcs.CustomRegisters;
 
+import javax.annotation.Nonnull;
+
 public class TileDoor extends TileNpcEntity implements ITickable {
 
 	public Block blockModel;
@@ -30,41 +32,41 @@ public class TileDoor extends TileNpcEntity implements ITickable {
 		this.renderTileUpdate = null;
 	}
 
-	public NBTTagCompound getDoorNBT(NBTTagCompound compound) {
+	public void writeDoorNBT(NBTTagCompound compound) {
 		compound.setString("ScriptDoorBlockModel", Block.REGISTRY.getNameForObject(this.blockModel) + "");
-		return compound;
 	}
 
 	public SPacketUpdateTileEntity getUpdatePacket() {
 		return new SPacketUpdateTileEntity(this.pos, 0, this.getUpdateTag());
 	}
 
+	@Nonnull
 	public NBTTagCompound getUpdateTag() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("x", this.pos.getX());
 		compound.setInteger("y", this.pos.getY());
 		compound.setInteger("z", this.pos.getZ());
-		this.getDoorNBT(compound);
+		this.writeDoorNBT(compound);
 		return compound;
 	}
 
-	public void handleUpdateTag(NBTTagCompound compound) {
+	public void handleUpdateTag(@Nonnull NBTTagCompound compound) {
 		this.setDoorNBT(compound);
 	}
 
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+	public void onDataPacket(@Nonnull NetworkManager net, @Nonnull SPacketUpdateTileEntity pkt) {
 		this.handleUpdateTag(pkt.getNbtCompound());
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		this.setDoorNBT(compound);
 	}
 
 	public void setDoorNBT(NBTTagCompound compound) {
 		this.blockModel = Block.REGISTRY.getObject(new ResourceLocation(compound.getString("ScriptDoorBlockModel")));
-		if (this.blockModel == null || !(this.blockModel instanceof BlockDoor)) {
+		if (!(this.blockModel instanceof BlockDoor)) {
 			this.blockModel = CustomRegisters.scriptedDoor;
 		}
 		this.renderTileUpdate = null;
@@ -73,7 +75,7 @@ public class TileDoor extends TileNpcEntity implements ITickable {
 	}
 
 	public void setItemModel(Block block) {
-		if (block == null || !(block instanceof BlockDoor)) {
+		if (!(block instanceof BlockDoor)) {
 			block = CustomRegisters.scriptedDoor;
 		}
 		if (this.blockModel == block) {
@@ -83,7 +85,7 @@ public class TileDoor extends TileNpcEntity implements ITickable {
 		this.needsClientUpdate = true;
 	}
 
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+	public boolean shouldRefresh(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState) {
 		return oldState.getBlock() != newState.getBlock();
 	}
 
@@ -107,9 +109,10 @@ public class TileDoor extends TileNpcEntity implements ITickable {
 		}
 	}
 
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		this.getDoorNBT(compound);
+	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
+		this.writeDoorNBT(compound);
 		return super.writeToNBT(compound);
 	}
 }

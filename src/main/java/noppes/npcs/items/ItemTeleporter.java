@@ -2,10 +2,10 @@ package noppes.npcs.items;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,16 +38,13 @@ public class ItemTeleporter extends Item implements IPermission {
 		this.setUnlocalizedName("npcteleporter");
 		this.setFull3D();
 		this.maxStackSize = 1;
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list == null) {
-			return;
-		}
-		list.add(new TextComponentTranslation("info.item.teleporter").getFormattedText());
+	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<String> list, @Nonnull ITooltipFlag flagIn) {
+        list.add(new TextComponentTranslation("info.item.teleporter").getFormattedText());
 		list.add(new TextComponentTranslation("info.item.teleporter.0").getFormattedText());
 	}
 
@@ -56,7 +53,7 @@ public class ItemTeleporter extends Item implements IPermission {
 				|| e == EnumPacketServer.DimensionDelete || e == EnumPacketServer.DimensionSettings;
 	}
 
-	public boolean onEntitySwing(EntityLivingBase par3EntityPlayer, ItemStack stack) {
+	public boolean onEntitySwing(@Nonnull EntityLivingBase par3EntityPlayer, @Nonnull ItemStack stack) {
 		if (par3EntityPlayer.world.isRemote) {
 			return false;
 		}
@@ -84,39 +81,34 @@ public class ItemTeleporter extends Item implements IPermission {
 		Vec3d vec5 = par3EntityPlayer.getLook(f);
 		boolean flag = false;
 		float f10 = 1.0f;
-		List<Entity> list = par3EntityPlayer.world.getEntitiesWithinAABBExcludingEntity(par3EntityPlayer,
-				par3EntityPlayer.getEntityBoundingBox().grow(vec5.x * d4, vec5.y * d4, vec5.z * d4).grow(f10, f10,
-						f10));
-		for (int i = 0; i < list.size(); ++i) {
-			Entity entity = list.get(i);
-			if (entity.canBeCollidedWith()) {
-				float f11 = entity.getCollisionBorderSize();
-				AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox().grow(f11, f11, f11);
-				if (axisalignedbb.contains(vec3)) {
-					flag = true;
-				}
-			}
-		}
+		List<Entity> list = par3EntityPlayer.world.getEntitiesWithinAABBExcludingEntity(par3EntityPlayer, par3EntityPlayer.getEntityBoundingBox().grow(vec5.x * d4, vec5.y * d4, vec5.z * d4).grow(f10, f10, f10));
+        for (Entity entity : list) {
+            if (entity.canBeCollidedWith()) {
+                float f11 = entity.getCollisionBorderSize();
+                AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox().grow(f11, f11, f11);
+                if (axisalignedbb.contains(vec3)) {
+                    flag = true;
+                }
+            }
+        }
 		if (flag) {
 			return false;
 		}
 		if (movingobjectposition.typeOfHit == RayTraceResult.Type.BLOCK) {
-			BlockPos pos;
-			for (pos = movingobjectposition.getBlockPos(); par3EntityPlayer.world.getBlockState(pos)
-					.getBlock() != Blocks.AIR; pos = pos.up()) {
-			}
+			BlockPos pos = movingobjectposition.getBlockPos();
+			while (par3EntityPlayer.world.getBlockState(pos).getBlock() != Blocks.AIR && pos.getY() < 256) { pos = pos.up(); }
 			par3EntityPlayer.setPositionAndUpdate((pos.getX() + 0.5f), (pos.getY() + 1.0f), (pos.getZ() + 0.5f));
 		}
 		return true;
 	}
 
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+	public @Nonnull ActionResult<ItemStack> onItemRightClick(@Nonnull World world, @Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
 		ItemStack itemstack = player.getHeldItem(hand);
 		if (!world.isRemote) {
-			return (ActionResult<ItemStack>) new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
+			return new ActionResult<>(EnumActionResult.SUCCESS, itemstack);
 		}
 		CustomNpcs.proxy.openGui((EntityNPCInterface) null, EnumGuiType.NpcDimensions);
-		return (ActionResult<ItemStack>) new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
+		return new ActionResult<>(EnumActionResult.SUCCESS, itemstack);
 	}
 
 }

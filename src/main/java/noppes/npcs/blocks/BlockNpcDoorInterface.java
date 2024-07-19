@@ -16,6 +16,8 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.blocks.tiles.TileDoor;
 
+import javax.annotation.Nonnull;
+
 public abstract class BlockNpcDoorInterface extends BlockDoor implements ITileEntityProvider {
 
 	public BlockNpcDoorInterface() {
@@ -28,16 +30,16 @@ public abstract class BlockNpcDoorInterface extends BlockDoor implements ITileEn
 		this.hasTileEntity = true;
 	}
 
-	public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
+	public void breakBlock(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
 		super.breakBlock(worldIn, pos, state);
 		worldIn.removeTileEntity(pos);
 	}
 
-	public TileEntity createNewTileEntity(World worldIn, int meta) {
+	public TileEntity createNewTileEntity(@Nonnull World worldIn, int meta) {
 		return new TileDoor();
 	}
 
-	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
+	public @Nonnull IBlockState getActualState(@Nonnull IBlockState state, @Nonnull IBlockAccess worldIn, @Nonnull BlockPos pos) {
 		if (state.getValue(BlockNpcDoorInterface.HALF) == BlockDoor.EnumDoorHalf.LOWER) {
 			IBlockState iblockstate1 = worldIn.getBlockState(pos.up());
 			if (iblockstate1.getBlock() == this) {
@@ -57,15 +59,15 @@ public abstract class BlockNpcDoorInterface extends BlockDoor implements ITileEn
 		return state;
 	}
 
-	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+	public @Nonnull ItemStack getItem(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
 		return new ItemStack(CustomRegisters.scriptedDoorTool, 1, this.damageDropped(state));
 	}
 
-	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-		return null;
+	public @Nonnull Item getItemDropped(@Nonnull IBlockState state, @Nonnull Random rand, int fortune) {
+		return ItemStack.EMPTY.getItem();
 	}
 
-	public boolean hasTileEntity(IBlockState state) {
+	public boolean hasTileEntity(@Nonnull IBlockState state) {
 		return true;
 	}
 

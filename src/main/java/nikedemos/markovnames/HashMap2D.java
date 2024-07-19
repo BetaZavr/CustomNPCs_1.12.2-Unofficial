@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HashMap2D<T1, T2, T3> {
+
 	public Map<T1, Map<T2, T3>> mMap;
 
 	public HashMap2D() {
-		this.mMap = new HashMap<T1, Map<T2, T3>>();
+		this.mMap = new HashMap<>();
 	}
 
 	public void clear() {
@@ -30,7 +31,7 @@ public class HashMap2D<T1, T2, T3> {
 		if (this.mMap.containsKey(key1)) {
 			map = this.mMap.get(key1);
 		} else {
-			map = new HashMap<T2, T3>();
+			map = new HashMap<>();
 			this.mMap.put(key1, map);
 		}
 		return map.put(key2, value);

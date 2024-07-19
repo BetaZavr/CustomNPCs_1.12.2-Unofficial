@@ -7,11 +7,9 @@ import java.util.Vector;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -42,24 +40,17 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 		implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 
-	private Bank bank;
-	private ContainerManageBanks container;
-	private HashMap<String, Integer> data;
+	private Bank bank = new Bank();
+	private final ContainerManageBanks container;
+	private final HashMap<String, Integer> data = new HashMap<>();
 	private GuiCustomScroll scroll;
-	private String selected;
-	private int ceil, waitTime;
+	private String selected = "";
+	private int ceil = 0, waitTime = 30;
 	private boolean isWait;
 
 	public GuiNPCManageBanks(EntityNPCInterface npc, ContainerManageBanks container) {
 		super(npc, container);
-		this.data = new HashMap<String, Integer>();
-		this.bank = new Bank();
-		this.selected = "";
 		this.container = container;
-		this.ceil = 0;
-		this.isWait = false;
-		this.waitTime = 30;
-
 		this.drawDefaultBackground = false;
 		this.setBackground("inventorymenu.png");
 		this.ySize = 200;
@@ -93,15 +84,15 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 				return;
 			}
 			String msg = new TextComponentTranslation("bank.hover.ceil.del").getFormattedText();
-			while (msg.indexOf("<br>") != -1) {
+			while (msg.contains("<br>")) {
 				msg = msg.replace("<br>", "" + ((char) 10));
 			}
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("gui.bank", ": ID:" + this.bank.id + " \"" + this.bank.name + "\"; "
 							+ new TextComponentTranslation("gui.ceil", ": ID:" + (this.ceil + 1)).getFormattedText())
 									.getFormattedText(),
 					msg, 1);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 3: { // public
@@ -114,8 +105,9 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 		case 6: { // add bank
 			this.save();
 			this.scroll.clear();
-			for (this.selected = "New"; this.data.containsKey(this.selected); this.selected += "_") {
-			}
+			StringBuilder t = new StringBuilder("New");
+			while (this.data.containsKey(t.toString())) { t.append("_"); }
+			this.selected = t.toString();
 			Bank bank = new Bank();
 			bank.name = this.selected;
 			NBTTagCompound compound = new NBTTagCompound();
@@ -131,14 +123,14 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 				return;
 			}
 			String msg = new TextComponentTranslation("bank.hover.del").getFormattedText();
-			while (msg.indexOf("<br>") != -1) {
+			while (msg.contains("<br>")) {
 				msg = msg.replace("<br>", "" + ((char) 10));
 			}
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("gui.bank", ": ID:" + this.bank.id + " \"" + this.bank.name + "\"")
 							.getFormattedText(),
 					msg, 0);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 8: { // settings
@@ -177,7 +169,7 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 
 	@Override
 	public void confirmClicked(boolean result, int id) {
-		NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		NoppesUtil.openGUI(this.player, this);
 		if (!result) {
 			return;
 		}
@@ -213,11 +205,7 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		for (int slotId = 0; slotId < 2; ++slotId) {
-			if (this.inventorySlots.getSlot(slotId) == null) {
-				return;
-			}
-
-			this.inventorySlots.getSlot(slotId).xPos = this.selected.isEmpty() ? -5000 : 180;
+            this.inventorySlots.getSlot(slotId).xPos = this.selected.isEmpty() ? -5000 : 180;
 			this.inventorySlots.getSlot(slotId).yPos = this.selected.isEmpty() ? -5000 : slotId == 0 ? 123 : 159;
 
 			int x = this.guiLeft + this.inventorySlots.getSlot(slotId).xPos;
@@ -243,7 +231,7 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 			this.fontRenderer.drawString(new TextComponentTranslation("bank.tab.cost").getFormattedText() + ":", x, y,
 					CustomNpcResourceListener.DefaultTextColor);
 			this.fontRenderer.drawString(new TextComponentTranslation("bank.upg.cost").getFormattedText() + ":", x,
-					(y += 36), CustomNpcResourceListener.DefaultTextColor);
+					y + 36, CustomNpcResourceListener.DefaultTextColor);
 		}
 	}
 
@@ -354,13 +342,13 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 		this.getTextField(0).setVisible(!this.selected.isEmpty());
 
 		y += 22;
-		List<String> csIds = Lists.<String>newArrayList();
+		List<String> csIds = Lists.newArrayList();
 		if (this.bank != null) {
 			for (int i = 0; i < this.bank.ceilSettings.size(); i++) {
 				csIds.add("" + (i + 1));
 			}
 		}
-		this.addButton(new GuiButtonBiDirectional(0, x, y, 50, 20, csIds.toArray(new String[csIds.size()]), this.ceil));
+		this.addButton(new GuiButtonBiDirectional(0, x, y, 50, 20, csIds.toArray(new String[0]), this.ceil));
 		this.getButton(0).visible = !this.selected.isEmpty();
 
 		this.addButton(new GuiNpcButton(1, x + 55, y, 50, 20, "gui.add"));
@@ -396,7 +384,7 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 
 	@Override
 	public void initPacket() {
-		Client.sendData(EnumPacketServer.BanksGet, new Object[0]);
+		Client.sendData(EnumPacketServer.BanksGet);
 		this.isWait = false;
 		this.waitTime = 30;
 	}

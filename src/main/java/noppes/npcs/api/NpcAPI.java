@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
@@ -47,9 +48,8 @@ public abstract class NpcAPI {
 		}
 		try {
 			NpcAPI.instance = WrapperNpcAPI.Instance();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
 		return NpcAPI.instance;
 	}
 
@@ -75,7 +75,7 @@ public abstract class NpcAPI {
 
 	public abstract ICloneHandler getClones();
 
-	public abstract IDimensionHandler getCustomDimention();
+	public abstract IDimensionHandler getCustomDimension();
 
 	public abstract IDialogHandler getDialogs();
 
@@ -117,7 +117,7 @@ public abstract class NpcAPI {
 
 	public abstract IMarcetHandler getMarkets();
 
-	public abstract IMetods getMetods();
+	public abstract IMethods getMethods();
 
 	public abstract IQuestHandler getQuests();
 

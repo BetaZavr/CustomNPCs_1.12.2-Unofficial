@@ -3,6 +3,7 @@ package noppes.npcs.client.renderer;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
@@ -20,6 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomRegisters;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.layer.LayerArms;
@@ -31,10 +33,13 @@ import noppes.npcs.client.layer.LayerHead;
 import noppes.npcs.client.layer.LayerLegs;
 import noppes.npcs.client.layer.LayerNpcCloak;
 import noppes.npcs.client.layer.LayerPreRender;
+import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+
+import javax.annotation.Nonnull;
 
 public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterface<T> {
 
@@ -46,7 +51,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public RenderCustomNpc(ModelBiped model) {
-		super((ModelBase) model, 0.5f);
+		super(model, 0.5f);
 		this.npcmodel = (ModelBiped) this.mainModel;
 		this.layerRenderers.add(new LayerEyes(this));
 		this.layerRenderers.add(new LayerHead(this));
@@ -56,24 +61,26 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 		this.layerRenderers.add(new LayerNpcCloak(this));
 		this.addLayer(new LayerCustomHead(this.npcmodel.bipedHead));
 		this.addLayer(new LayerCustomHeldItem(this));
-		this.addLayer(new LayerCustomArmor(this));
+		boolean smallArmsIn = model instanceof ModelNpcAlt && ((ModelNpcAlt) model).smallArmsIn;
+		boolean isClassicPlayer = model instanceof ModelNpcAlt && ((ModelNpcAlt) model).isClassicPlayer;
+		this.addLayer(new LayerCustomArmor(this, false, smallArmsIn, isClassicPlayer));
 		for (Method m : RenderLivingBase.class.getDeclaredMethods()) {
 			if (m.getName().equals("applyRotations")) {
 				try {
 					this.applyRotations = m;
 					this.applyRotations.setAccessible(true);
-				} catch (Exception e) { e.printStackTrace(); }
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 				break;
 			}
 		}
 	}
 
 	@Override
-	protected void applyRotations(T npc, float handleRotation, float rotationYaw, float partialTicks) {
+	protected void applyRotations(@Nonnull T npc, float handleRotation, float rotationYaw, float partialTicks) {
 		if (this.renderEntity != null) {
 			if (this.applyRotations != null) {
 				try { this.applyRotations.invoke(this.renderEntity, npc, handleRotation, rotationYaw, partialTicks); }
-				catch (Exception e) { e.printStackTrace(); }
+				catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			return;
 		}
@@ -94,7 +101,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			GlStateManager.rotate(f * this.getDeathMaxRotation(npc), 0.0F, 0.0F, 1.0F);
 		} else {
 			String s = TextFormatting.getTextWithoutFormattingCodes(npc.getName());
-			if (s != null && ("Dinnerbone".equals(s) || "Grumm".equals(s))) {
+			if (("Dinnerbone".equals(s) || "Grumm".equals(s))) {
 				GlStateManager.translate(0.0F, npc.height + 0.1F, 0.0F);
 				GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
 			}
@@ -103,7 +110,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void doRender(T npc, double d, double d1, double d2, float f, float partialTicks) {
+	public void doRender(@Nonnull T npc, double d, double d1, double d2, float f, float partialTicks) {
 		this.partialTicks = partialTicks;
 		this.entity = npc.modelData.getEntity(npc);
 		if (this.entity != null) {
@@ -116,7 +123,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			}
 		} else {
 			this.renderEntity = null;
-			List<LayerRenderer<T>> list = (List<LayerRenderer<T>>)this.layerRenderers;
+			List<LayerRenderer<T>> list = this.layerRenderers;
 			for (LayerRenderer<T> layer : list) {
 				if (layer instanceof LayerPreRender) {
 					((LayerPreRender)layer).preRender(npc);
@@ -145,7 +152,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 	}
 
 	@Override
-	protected float handleRotationFloat(T par1EntityLivingBase, float partialTicks) {
+	protected float handleRotationFloat(@Nonnull T par1EntityLivingBase, float partialTicks) {
 		if (this.renderEntity != null) {
 			return NPCRendererHelper.handleRotationFloat(this.entity, partialTicks, this.renderEntity);
 		}
@@ -153,7 +160,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 	}
 
 	@Override
-	protected void preRenderCallback(T npc, float f) {
+	protected void preRenderCallback(@Nonnull T npc, float f) {
 		if (this.renderEntity != null) {
 			this.renderColor(npc);
 			int size = npc.display.getSize();
@@ -168,11 +175,11 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 		}
 	}
 
-	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
+	protected void renderLayers(@Nonnull T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
 		if (this.entity != null && this.renderEntity != null) {
 			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, this.renderEntity);
 		} else {
-			Map<EnumParts, Boolean> sp = ((EntityCustomNpc) entitylivingbaseIn).animation.showParts;
+			Map<EnumParts, Boolean> sp = entitylivingbaseIn.animation.showParts;
 			for (LayerRenderer<T> layerrenderer : this.layerRenderers) {
 				if ((layerrenderer instanceof LayerEyes || layerrenderer instanceof LayerHead
 						|| layerrenderer.getClass().getSimpleName().equals("LayerCustomHead")) && !sp.get(EnumParts.HEAD)) {
@@ -196,7 +203,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 	}
 
 	@Override
-	protected void renderModel(T npc, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor) {
+	protected void renderModel(@Nonnull T npc, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor) {
 		if (this.renderEntity != null) {
 			boolean isInvisible = npc.isInvisible();
 			if (npc.display.getVisible() == 1) {
@@ -221,7 +228,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			model.setLivingAnimations(this.entity, limbSwing, limbSwingAmount, this.partialTicks);
 			model.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.entity);
 			model.isChild = this.entity.isChild();
-			NPCRendererHelper.renderModel(this.entity, npc, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.renderEntity, model, this.getEntityTexture(npc));
+			NPCRendererHelper.renderModel(this.entity, npc, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.renderEntity, model, Objects.requireNonNull(this.getEntityTexture(npc)));
 			if (!npc.display.getOverlayTexture().isEmpty()) {
 				GlStateManager.depthFunc(515);
 				if (npc.textureGlowLocation == null) {
@@ -231,8 +238,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 				GlStateManager.enableBlend();
 				GlStateManager.blendFunc(1, 1);
 				GlStateManager.disableLighting();
-				if (npc.isInvisible()) { GlStateManager.depthMask(false); }
-				else { GlStateManager.depthMask(true); }
+                GlStateManager.depthMask(!npc.isInvisible());
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(1.001f, 1.001f, 1.001f);
@@ -253,7 +259,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setLightmap(EntityCustomNpc npc) {
+	public void setLightmap(@Nonnull EntityCustomNpc npc) {
 		super.setLightmap((T) npc);
 	}
 

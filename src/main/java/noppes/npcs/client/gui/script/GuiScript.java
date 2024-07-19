@@ -8,13 +8,13 @@ import noppes.npcs.entity.data.DataScript;
 
 public class GuiScript extends GuiScriptInterface {
 
-	private DataScript script;
+	private final DataScript script;
 
 	public GuiScript(EntityNPCInterface npc) {
 		DataScript script = npc.script;
 		this.script = script;
 		this.handler = script;
-		Client.sendData(EnumPacketServer.ScriptDataGet, new Object[0]);
+		Client.sendData(EnumPacketServer.ScriptDataGet);
 	}
 
 	@Override

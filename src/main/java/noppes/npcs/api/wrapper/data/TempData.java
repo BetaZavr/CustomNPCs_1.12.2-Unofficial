@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper.data;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
@@ -21,7 +22,7 @@ public class TempData implements IData {
 	private BlockWrapper block;
 
 	public TempData() {
-		this.map = Maps.<String, Object>newTreeMap();
+		this.map = Maps.newTreeMap();
 	}
 
 	public TempData(BlockWrapper wrapper) {
@@ -45,7 +46,7 @@ public class TempData implements IData {
 	public String[] getKeys() {
 		this.resetData();
 		Set<String> sets = this.map.keySet();
-		return sets.toArray(new String[sets.size()]);
+		return sets.toArray(new String[0]);
 	}
 
 	@Override
@@ -58,7 +59,7 @@ public class TempData implements IData {
 				compound.setTag(key, nbt);
 			}
 		}
-		return NpcAPI.Instance().getINbt(compound);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound);
 	}
 
 	@Override
@@ -89,8 +90,7 @@ public class TempData implements IData {
 				return;
 			}
 			this.map = this.block.storage.tempData;
-			return;
-		}
+        }
 	}
 
 	@Override
@@ -99,18 +99,21 @@ public class TempData implements IData {
 		List<String> del = Lists.newArrayList();
 		for (String key : this.map.keySet()) {
 			Object value = this.map.get(key);
-			if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long
-					|| value instanceof Float || value instanceof Double || value instanceof String) {
+			if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long || value instanceof Float || value instanceof Double || value instanceof String) {
 				del.add(key);
 			}
 			if (value.getClass().isArray()) {
-				Object[] vs = (Object[]) value;
+                assert value instanceof Object[];
+                Object[] vs = (Object[]) value;
 				if (vs.length > 0 && vs[0] instanceof Byte || vs[0] instanceof Short || vs[0] instanceof Integer
 						|| vs[0] instanceof Long || vs[0] instanceof Float || vs[0] instanceof Double
 						|| vs[0] instanceof String) {
 					del.add(key);
 				}
 			}
+		}
+		for (String key : del) {
+			this.map.remove(key);
 		}
 		for (String key : nbt.getMCNBT().getKeySet()) {
 			Object value = AdditionalMethods.instance.readObjectFromNbt(nbt.getMCNBT().getTag(key));

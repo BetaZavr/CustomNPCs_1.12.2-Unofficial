@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.FMLLog;
 public class ObfuscationHelper {
 
 	private static boolean checkMethod(Method method, Object[] args) {
-		if (args == null || args.length <= 0) {
+		if (args == null || args.length == 0) {
 			return true;
 		}
 		if (args.length == method.getParameters().length) {
@@ -174,7 +174,7 @@ public class ObfuscationHelper {
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) { }
+			} catch (IllegalAccessException ignored) { }
 		}
 		return null;
 	}
@@ -215,7 +215,7 @@ public class ObfuscationHelper {
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) { }
+			} catch (IllegalAccessException ignored) { }
 		}
 		return null;
 	}
@@ -252,7 +252,7 @@ public class ObfuscationHelper {
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) { }
+			} catch (IllegalAccessException ignored) { }
 		}
 		return null;
 	}
@@ -292,7 +292,7 @@ public class ObfuscationHelper {
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) { }
+			} catch (IllegalAccessException ignored) { }
 		}
 		return null;
 	}
@@ -317,7 +317,7 @@ public class ObfuscationHelper {
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) { }
+			} catch (IllegalAccessException ignored) { }
 		}
 		return null;
 	}
@@ -340,34 +340,29 @@ public class ObfuscationHelper {
 	public static Object invoke(Class<?> clazz, Object instance, Class<?> methodReturnType, Object... args) {
 		Method m = ObfuscationHelper.getMethod(clazz, methodReturnType, args);
 		if (m == null) {
-			FMLLog.log.info("Unable to locate any metod {} on type {}", methodReturnType.getSimpleName(),
-					clazz.getSimpleName());
+			ObfuscationHelper.info("method {}", methodReturnType.getSimpleName(), clazz.getSimpleName());
 			return null;
 		}
 		m.setAccessible(true);
 		try {
 			return m.invoke(instance, args);
 		} catch (IllegalAccessException e) {
-			FMLLog.log.error("Unable to access any metod {} on class {}", methodReturnType.getSimpleName(),
+			FMLLog.log.error("Unable to access any method {} on class {}", methodReturnType.getSimpleName(),
 					clazz.getSimpleName(), e);
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
+			} catch (IllegalAccessException ignored) {
 			}
 		} catch (IllegalArgumentException e) {
-			if (m != null) {
-				FMLLog.log.error("Method type mismatch {} on {}", methodReturnType.getSimpleName(),
-						m.getReturnType().getSimpleName(), e);
-			}
-			throw e;
+            FMLLog.log.error("Method type mismatch {} on {}", methodReturnType.getSimpleName(),
+                    m.getReturnType().getSimpleName(), e);
+            throw e;
 		} catch (Exception e) {
-			if (m != null) {
-				FMLLog.log.error("Type mismatch of one of the parameters of Method {}",
-						methodReturnType.getSimpleName(), e);
-			}
-			try {
+            FMLLog.log.error("Type mismatch of one of the parameters of Method {}",
+                    methodReturnType.getSimpleName(), e);
+            try {
 				throw e;
-			} catch (InvocationTargetException e1) { }
+			} catch (InvocationTargetException ignored) { }
 		}
 		return null;
 	}
@@ -390,31 +385,27 @@ public class ObfuscationHelper {
 	public static Object invoke(Class<?> clazz, Object instance, int index, Object... args) {
 		Method m = ObfuscationHelper.getMethod(clazz, index, args);
 		if (m == null) {
-			FMLLog.log.info("Unable to locate any metod {} on type {}", "Index:" + index, clazz.getSimpleName());
+			ObfuscationHelper.info("method {}", "Index:" + index, clazz.getSimpleName());
 			return null;
 		}
 		m.setAccessible(true);
 		try {
 			return m.invoke(instance, args);
 		} catch (IllegalAccessException e) {
-			FMLLog.log.error("Unable to access any metod {} on class {}", "Index:" + index, clazz.getSimpleName(), e);
+			FMLLog.log.error("Unable to access any method {} on class {}", "Index:" + index, clazz.getSimpleName(), e);
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
+			} catch (IllegalAccessException ignored) {
 			}
 		} catch (IllegalArgumentException e) {
-			if (m != null) {
-				FMLLog.log.error("Method type mismatch {} on {}", "Index:" + index, m.getReturnType().getSimpleName(),
-						e);
-			}
-			throw e;
+            FMLLog.log.error("Method type mismatch {} on {}", "Index:" + index, m.getReturnType().getSimpleName(),
+                    e);
+            throw e;
 		} catch (Exception e) {
-			if (m != null) {
-				FMLLog.log.error("Type mismatch of one of the parameters of Method {}", "Index:" + index, e);
-			}
-			try {
+            FMLLog.log.error("Type mismatch of one of the parameters of Method {}", "Index:" + index, e);
+            try {
 				throw e;
-			} catch (InvocationTargetException e1) { }
+			} catch (InvocationTargetException ignored) { }
 		}
 		return null;
 	}
@@ -437,32 +428,28 @@ public class ObfuscationHelper {
 	public static Object invoke(Class<?> clazz, Object instance, String methodName, Object... args) {
 		Method m = ObfuscationHelper.getMethod(clazz, methodName, args);
 		if (m == null) {
-			FMLLog.log.info("Unable to locate any metod {} on type {}", "Name:" + methodName, clazz.getSimpleName());
+			ObfuscationHelper.info("method {}", "Name:" + methodName, clazz.getSimpleName());
 			return null;
 		}
 		m.setAccessible(true);
 		try {
 			return m.invoke(instance, args);
 		} catch (IllegalAccessException e) {
-			FMLLog.log.error("Unable to access any metod {} on class {}", "Name:" + methodName, clazz.getSimpleName(),
+			FMLLog.log.error("Unable to access any method {} on class {}", "Name:" + methodName, clazz.getSimpleName(),
 					e);
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
+			} catch (IllegalAccessException ignored) {
 			}
 		} catch (IllegalArgumentException e) {
-			if (m != null) {
-				FMLLog.log.error("Method type mismatch {} on {}", "Name:" + methodName,
-						m.getReturnType().getSimpleName(), e);
-			}
-			throw e;
+            FMLLog.log.error("Method type mismatch {} on {}", "Name:" + methodName,
+                    m.getReturnType().getSimpleName(), e);
+            throw e;
 		} catch (Exception e) {
-			if (m != null) {
-				FMLLog.log.error("Type mismatch of one of the parameters of Method {}", "Name:" + methodName, e);
-			}
-			try {
+            FMLLog.log.error("Type mismatch of one of the parameters of Method {}", "Name:" + methodName, e);
+            try {
 				throw e;
-			} catch (InvocationTargetException e1) { }
+			} catch (InvocationTargetException ignored) { }
 		}
 		return null;
 	}
@@ -490,13 +477,13 @@ public class ObfuscationHelper {
 		}
 	}
 
-	public static <T, E> void setValue(Class<? super T> clazz, Object value, int index) {
+	public static <T> void setValue(Class<? super T> clazz, Object value, int index) {
 		if (index < 0) {
 			return;
 		}
 		Field f = ObfuscationHelper.getField(clazz, index);
 		if (f == null) {
-			FMLLog.log.info("Unable to locate any field {} on type {}", "Index:" + index, clazz.getSimpleName());
+			ObfuscationHelper.info("field {}", "Index:" + index, clazz.getSimpleName());
 			return;
 		}
 		f.setAccessible(true);
@@ -515,19 +502,20 @@ public class ObfuscationHelper {
 		try {
 			f.set(clazz, value);
 		} catch (IllegalArgumentException e) {
-			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Index:" + index,
-						f.getType().getSimpleName(), value, e);
-			}
-			throw e;
+            FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Index:" + index,
+                    f.getType().getSimpleName(), value, e);
+            throw e;
 		} catch (Exception e) {
-			if (f != null) {
-				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
-			}
-			try {
+            FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
+            try {
 				throw e;
-			} catch (IllegalAccessException e1) { }
+			} catch (IllegalAccessException ignored) { }
 		}
+	}
+
+	private static void info(String type, String index, String className) {
+		String message = "Unable to locate any " + type + " on type {}";
+		FMLLog.log.info(message, index, className);
 	}
 
 	/**
@@ -543,13 +531,13 @@ public class ObfuscationHelper {
 	 * @param fieldType
 	 *            - class as field content (not interface)
 	 */
-	public static <T, E> void setValue(Class<? super T> clazz, T instance, Object value, Class<?> fieldType) {
+	public static <T> void setValue(Class<? super T> clazz, T instance, Object value, Class<?> fieldType) {
 		if (fieldType == null) {
 			return;
 		}
 		Field f = ObfuscationHelper.getField(clazz, fieldType);
 		if (f == null) {
-			FMLLog.log.info("Unable to locate any field {} on type {}", "Type:" + fieldType.getSimpleName(), clazz.getSimpleName());
+			ObfuscationHelper.info("field {}", "Type:" + fieldType.getSimpleName(), clazz.getSimpleName());
 			return;
 		}
 		f.setAccessible(true);
@@ -566,18 +554,14 @@ public class ObfuscationHelper {
 		try {
 			f.set(instance, value);
 		} catch (IllegalArgumentException e) {
-			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Type:" + fieldType.getSimpleName(),
-						f.getType().getSimpleName(), value, e);
-			}
-			throw e;
+            FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Type:" + fieldType.getSimpleName(),
+                    f.getType().getSimpleName(), value, e);
+            throw e;
 		} catch (Exception e) {
-			if (f != null) {
-				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
-			}
-			try {
+            FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
+            try {
 				throw e;
-			} catch (IllegalAccessException e1) {
+			} catch (IllegalAccessException ignored) {
 			}
 		}
 	}
@@ -595,13 +579,13 @@ public class ObfuscationHelper {
 	 * @param index
 	 *            - field registration number
 	 */
-	public static <T, E> void setValue(Class<? super T> clazz, T instance, Object value, int index) {
+	public static <T> void setValue(Class<? super T> clazz, T instance, Object value, int index) {
 		if (index < 0) {
 			return;
 		}
 		Field f = ObfuscationHelper.getField(clazz, index);
 		if (f == null) {
-			FMLLog.log.info("Unable to locate any field {} on type {}", "Index:" + index, clazz.getSimpleName());
+			ObfuscationHelper.info("field {}", "Index:" + index, clazz.getSimpleName());
 			return;
 		}
 		f.setAccessible(true);
@@ -618,18 +602,14 @@ public class ObfuscationHelper {
 		try {
 			f.set(instance, value);
 		} catch (IllegalArgumentException e) {
-			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Index:" + index,
-						f.getType().getSimpleName(), value, e);
-			}
-			throw e;
+            FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Index:" + index,
+                    f.getType().getSimpleName(), value, e);
+            throw e;
 		} catch (Exception e) {
-			if (f != null) {
-				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
-			}
-			try {
+            FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
+            try {
 				throw e;
-			} catch (IllegalAccessException e1) { }
+			} catch (IllegalAccessException ignored) { }
 		}
 	}
 
@@ -646,13 +626,13 @@ public class ObfuscationHelper {
 	 * @param fieldName
 	 *            - field name
 	 */
-	public static <T, E> void setValue(Class<? super T> clazz, T instance, Object value, String fieldName) {
+	public static <T> void setValue(Class<? super T> clazz, T instance, Object value, String fieldName) {
 		if (fieldName == null || fieldName.isEmpty()) {
 			return;
 		}
 		Field f = ObfuscationHelper.getField(clazz, fieldName);
 		if (f == null) {
-			FMLLog.log.info("Unable to locate any field {} on type {}", "Name:" + fieldName, clazz.getSimpleName());
+			ObfuscationHelper.info("field {}", "Name:" + fieldName, clazz.getSimpleName());
 			return;
 		}
 		f.setAccessible(true);
@@ -669,18 +649,14 @@ public class ObfuscationHelper {
 		try {
 			f.set(instance, value);
 		} catch (IllegalArgumentException e) {
-			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Name:" + fieldName,
-						f.getType().getSimpleName(), value, e);
-			}
-			throw e;
+            FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Name:" + fieldName,
+                    f.getType().getSimpleName(), value, e);
+            throw e;
 		} catch (Exception e) {
-			if (f != null) {
-				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
-			}
-			try {
+            FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
+            try {
 				throw e;
-			} catch (IllegalAccessException e1) { }
+			} catch (IllegalAccessException ignored) { }
 		}
 	}
 

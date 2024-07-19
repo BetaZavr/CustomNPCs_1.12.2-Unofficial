@@ -6,9 +6,9 @@ import noppes.npcs.api.block.IBlock;
 
 public class RayTraceWrapper implements IRayTrace {
 
-	private IBlock block;
+	private final IBlock block;
 	public IPos pos;
-	private int sideHit;
+	private final int sideHit;
 
 	public RayTraceWrapper(IBlock block, int sideHit) {
 		this.block = block;

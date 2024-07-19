@@ -16,10 +16,12 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.util.CustomNPCsScheduler;
 
+import javax.annotation.Nonnull;
+
 public class CmdDebug extends CommandNoppesBase {
 
 	@SubCommand(desc = "Enable or disable debugging")
-	public void activate(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+	public void activate(MinecraftServer server, ICommandSender sender, String[] args) {
 		CustomNpcs.VerboseDebug = !CustomNpcs.VerboseDebug;
 		if (sender instanceof EntityPlayerMP) {
 			NBTTagCompound nbt = new NBTTagCompound();
@@ -44,19 +46,17 @@ public class CmdDebug extends CommandNoppesBase {
 		return "Debug control";
 	}
 
+	@Nonnull
 	@Override
 	public String getName() {
 		return "debug";
 	}
 
 	@SubCommand(desc = "Will display the current mod debug report")
-	public void report(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+	public void report(MinecraftServer server, ICommandSender sender, String[] args) {
 		List<String> list = CustomNpcs.showDebugs();
 		if (sender instanceof EntityPlayerMP) {
-			CustomNPCsScheduler.runTack(() -> {
-				Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_ADD, EnumSync.Debug,
-						new NBTTagCompound());
-			}, 500);
+			CustomNPCsScheduler.runTack(() -> Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_ADD, EnumSync.Debug, new NBTTagCompound()), 500);
 		}
 		for (String str : list) {
 			sender.sendMessage(new TextComponentString(str));

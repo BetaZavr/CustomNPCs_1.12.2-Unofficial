@@ -7,13 +7,14 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 
-public class ContainerNPCFollowerSetup extends Container {
-	private RoleFollower role;
+import javax.annotation.Nonnull;
 
-	public ContainerNPCFollowerSetup(EntityNPCInterface npc, EntityPlayer player) {
-		this.role = (RoleFollower) npc.advanced.roleInterface;
+public class ContainerNPCFollowerSetup extends Container {
+
+    public ContainerNPCFollowerSetup(EntityNPCInterface npc, EntityPlayer player) {
+        RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
 		for (int i1 = 0; i1 < 3; ++i1) {
-			this.addSlotToContainer(new Slot(this.role.rentalItems, i1, 44, 39 + i1 * 25));
+			this.addSlotToContainer(new Slot(role.rentalItems, i1, 44, 39 + i1 * 25));
 		}
 		for (int i1 = 0; i1 < 3; ++i1) {
 			for (int l1 = 0; l1 < 9; ++l1) {
@@ -25,25 +26,25 @@ public class ContainerNPCFollowerSetup extends Container {
 		}
 	}
 
-	public boolean canInteractWith(EntityPlayer entityplayer) {
+	public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
 		return true;
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) {
 		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = this.inventorySlots.get(i);
 		if (slot != null && slot.getHasStack()) {
 			ItemStack itemstack2 = slot.getStack();
 			itemstack = itemstack2.copy();
-			if (i >= 0 && i < 3) {
+			if (i < 3) {
 				if (!this.mergeItemStack(itemstack2, 3, 38, true)) {
 					return ItemStack.EMPTY;
 				}
-			} else if (i >= 3 && i < 30) {
+			} else if (i < 30) {
 				if (!this.mergeItemStack(itemstack2, 30, 38, false)) {
 					return ItemStack.EMPTY;
 				}
-			} else if (i >= 30 && i < 38) {
+			} else if (i < 38) {
 				if (!this.mergeItemStack(itemstack2, 3, 29, false)) {
 					return ItemStack.EMPTY;
 				}
@@ -58,7 +59,7 @@ public class ContainerNPCFollowerSetup extends Container {
 			if (itemstack2.getCount() == itemstack.getCount()) {
 				return ItemStack.EMPTY;
 			}
-			slot.onTake(par1EntityPlayer, itemstack2);
+			slot.onTake(player, itemstack2);
 		}
 		return itemstack;
 	}

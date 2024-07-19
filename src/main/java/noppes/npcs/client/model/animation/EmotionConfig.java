@@ -11,9 +11,7 @@ import noppes.npcs.api.entity.data.IEmotion;
 import noppes.npcs.api.entity.data.IEmotionPart;
 
 public class EmotionConfig
-implements IEmotion {
-
-	public static final EmotionFrame EMPTY_PART = new EmotionFrame(null);
+		implements IEmotion {
 
 	public final Map<Integer, EmotionFrame> frames;
 	public int id = 0;
@@ -21,12 +19,14 @@ implements IEmotion {
 	public String name = "Default Emotion";
 	public boolean canBlink = true;
 
+	public boolean immutable = false;
+
 	public EmotionConfig() {
-		this.frames = Maps.<Integer, EmotionFrame>newTreeMap();
+		this.frames = Maps.newTreeMap();
 		this.frames.put(0, new EmotionFrame(0));
 	}
 
-	public void readFromNBT(NBTTagCompound nbtEmotion) {
+	public void read(NBTTagCompound nbtEmotion) {
 		this.frames.clear();
 		for (int i = 0; i < nbtEmotion.getTagList("FrameConfigs", 10).tagCount(); i++) {
 			EmotionFrame ef = new EmotionFrame(i);
@@ -34,7 +34,7 @@ implements IEmotion {
 			ef.id = i;
 			this.frames.put(i, ef);
 		}
-		if (this.frames.size() == 0) {
+		if (this.frames.isEmpty()) {
 			this.frames.put(0, new EmotionFrame(0));
 		}
 		this.id = nbtEmotion.getInteger("ID");
@@ -42,8 +42,9 @@ implements IEmotion {
 		this.repeatLast = nbtEmotion.getInteger("EmotionRepeat");
 		this.canBlink = nbtEmotion.getBoolean("CanBlink");
 	}
-	
-	public NBTTagCompound writeToNBT(NBTTagCompound nbtEmotion) {
+
+	public NBTTagCompound save() {
+		NBTTagCompound nbtEmotion = new NBTTagCompound();
 		NBTTagList list = new NBTTagList();
 		for (EmotionFrame ef : this.frames.values()) { list.appendTag(ef.writeToNBT()); }
 		nbtEmotion.setTag("FrameConfigs", list);
@@ -59,7 +60,7 @@ implements IEmotion {
 
 	public EmotionConfig copy() {
 		EmotionConfig ec = new EmotionConfig();
-		ec.readFromNBT(this.writeToNBT(new NBTTagCompound()));
+		ec.read(this.save());
 		return ec;
 	}
 
@@ -76,14 +77,14 @@ implements IEmotion {
 
 	@Override
 	public void setCanBlink(boolean bo) { canBlink = bo; }
-	
+
 	@Override
 	public IEmotionPart addFrame() {
 		int f = this.frames.size();
 		this.frames.put(f, new EmotionFrame(f));
 		return this.frames.get(f);
 	}
-	
+
 	@Override
 	public IEmotionPart addFrame(IEmotionPart frame) {
 		if (frame == null) { return this.addFrame(); }
@@ -92,7 +93,7 @@ implements IEmotion {
 		this.frames.get(f).id = f;
 		return this.frames.get(f);
 	}
-	
+
 	@Override
 	public boolean removeFrame(IEmotionPart frame) {
 		if (frame == null || this.frames.size() <= 1) {
@@ -115,7 +116,7 @@ implements IEmotion {
 		if (!this.frames.containsKey(frameId)) {
 			throw new CustomNPCsException("Unknown frame ID:" + frameId);
 		}
-		Map<Integer, EmotionFrame> newData = Maps.<Integer, EmotionFrame>newTreeMap();
+		Map<Integer, EmotionFrame> newData = Maps.newTreeMap();
 		int i = 0;
 		boolean isDel = false;
 		for (int f : this.frames.keySet()) {
@@ -129,12 +130,12 @@ implements IEmotion {
 		}
 		if (isDel) {
 			this.frames.clear();
-			if (newData.size() == 0) {
+			if (newData.isEmpty()) {
 				newData.put(0, new EmotionFrame(0));
 			}
 			this.frames.putAll(newData);
 		}
 		return isDel;
 	}
-	
+
 }

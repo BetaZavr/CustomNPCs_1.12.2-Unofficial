@@ -1,9 +1,6 @@
 package noppes.npcs.controllers.data;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import com.google.common.collect.Lists;
@@ -19,17 +16,17 @@ public class DealMarkup {
 
 	public ItemStack main = ItemStack.EMPTY;
 	public int count = 0;
-	public final Map<ItemStack, Integer> baseItems = Maps.<ItemStack, Integer>newLinkedHashMap(); // base ItemStacks
-	public Map<ItemStack, Integer> buyItems = Maps.<ItemStack, Integer>newLinkedHashMap(); // ItemStacks required for
+	public final Map<ItemStack, Integer> baseItems = Maps.newLinkedHashMap(); // base ItemStacks
+	public Map<ItemStack, Integer> buyItems = Maps.newLinkedHashMap(); // ItemStacks required for
 																							// purchase
-	public Map<ItemStack, Integer> sellItems = Maps.<ItemStack, Integer>newLinkedHashMap(); // ItemStacks received upon
+	public Map<ItemStack, Integer> sellItems = Maps.newLinkedHashMap(); // ItemStacks received upon
 																							// sale
-	public final Map<ItemStack, Boolean> baseHasPlayerItems = Maps.<ItemStack, Boolean>newLinkedHashMap(); // base
+	public final Map<ItemStack, Boolean> baseHasPlayerItems = Maps.newLinkedHashMap(); // base
 																											// ItemStacks
-	public Map<ItemStack, Boolean> buyHasPlayerItems = Maps.<ItemStack, Boolean>newLinkedHashMap(); // ItemStacks
+	public Map<ItemStack, Boolean> buyHasPlayerItems = Maps.newLinkedHashMap(); // ItemStacks
 																									// required for
 																									// purchase
-	public Map<ItemStack, Boolean> sellHasPlayerItems = Maps.<ItemStack, Boolean>newLinkedHashMap(); // ItemStacks
+	public Map<ItemStack, Boolean> sellHasPlayerItems = Maps.newLinkedHashMap(); // ItemStacks
 																										// received upon
 																										// sale
 	public long baseMoney = 0L, buyMoney = 0L, sellMoney = 0L;
@@ -37,21 +34,20 @@ public class DealMarkup {
 			ignoreDamage = false;
 	public Deal deal = null;
 
-	public void cheak(NonNullList<ItemStack> inventory) {
+	public void check(NonNullList<ItemStack> inventory) {
 		this.baseHasPlayerItems.clear();
 		this.buyHasPlayerItems.clear();
 		this.sellHasPlayerItems.clear();
 		for (ItemStack stack : this.baseItems.keySet()) {
 			int count = 0;
-			for (int i = 0; i < inventory.size(); ++i) {
-				ItemStack s = inventory.get(i);
-				if (NoppesUtilServer.IsItemStackNull(s)) {
-					continue;
-				}
-				if (NoppesUtilPlayer.compareItems(stack, s, this.ignoreDamage, this.ignoreNBT)) {
-					count += s.getCount();
-				}
-			}
+            for (ItemStack s : inventory) {
+                if (NoppesUtilServer.IsItemStackNull(s)) {
+                    continue;
+                }
+                if (NoppesUtilPlayer.compareItems(stack, s, this.ignoreDamage, this.ignoreNBT)) {
+                    count += s.getCount();
+                }
+            }
 			this.baseHasPlayerItems.put(stack, count >= this.baseItems.get(stack));
 			this.buyHasPlayerItems.put(stack, this.buyItems.containsKey(stack) && count >= this.buyItems.get(stack));
 			this.sellHasPlayerItems.put(stack, this.sellItems.containsKey(stack) && count >= this.sellItems.get(stack));
@@ -122,8 +118,8 @@ public class DealMarkup {
 	public void set(IInventory inventory) {
 		this.baseItems.clear();
 		if (inventory == null || !inventory.isEmpty()) {
-			Map<ItemStack, Integer> map = Maps.<ItemStack, Integer>newHashMap();
-			for (int slot = 0; slot < inventory.getSizeInventory(); slot++) {
+			Map<ItemStack, Integer> map = Maps.newHashMap();
+			for (int slot = 0; slot < Objects.requireNonNull(inventory).getSizeInventory(); slot++) {
 				ItemStack stack = inventory.getStackInSlot(slot);
 				if (NoppesUtilServer.IsItemStackNull(stack)) {
 					continue;
@@ -145,11 +141,7 @@ public class DealMarkup {
 				}
 			}
 			List<Entry<ItemStack, Integer>> list = Lists.newArrayList(map.entrySet());
-			Collections.sort(list, new Comparator<Entry<ItemStack, Integer>>() {
-				public int compare(Entry<ItemStack, Integer> st_0, Entry<ItemStack, Integer> st_1) {
-					return ((Integer) st_1.getValue()).compareTo((Integer) st_0.getValue());
-				}
-			});
+			list.sort((st_0, st_1) -> st_1.getValue().compareTo(st_0.getValue()));
 			for (Entry<ItemStack, Integer> entry : list) {
 				this.baseItems.put(entry.getKey(), entry.getValue());
 			}

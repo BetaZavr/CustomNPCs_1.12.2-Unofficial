@@ -18,9 +18,8 @@ public class TextBlockClient extends TextBlock {
 
 	public int color;
 	private String name;
-	private String corr = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
-	private ICommandSender sender;
-	private Style style;
+    private ICommandSender sender;
+	private final Style style;
 	public Entity entity;
 	public String text;
 
@@ -61,24 +60,8 @@ public class TextBlockClient extends TextBlock {
 
 	public void resetWidth(int lineWidth, boolean mcFont) {
 		String line = "";
-		String tempText = new String(this.text);
-		List<String> tempList = Lists.newArrayList();
-		int fm;
-		while (true) {
-			fm = -1;
-			for (int i = 0; i < corr.length(); i++) {
-				int found = tempText.indexOf("" + corr.charAt(i));
-				if (found != -1 && (found < fm || fm == -1)) { fm = found; }
-			}
-			if (fm >= 0) {
-				String subWorld = tempText.substring(0, fm + 1);
-				tempList.add(subWorld);
-				tempText = tempText.substring(fm + 1);
-			}
-			else { break; }
-		}
-		tempList.add(tempText);
-		String[] words = tempList.toArray(new String[tempList.size()]);
+		final List<String> tempList = getStrings();
+		String[] words = tempList.toArray(new String[0]);
 		FontRenderer font = Minecraft.getMinecraft().fontRenderer;
 		String color = ((char) 167) + "r";
 		for (String word : words) {
@@ -104,6 +87,28 @@ public class TextBlockClient extends TextBlock {
 		if (!line.isEmpty()) {
 			this.addLine(color + line);
 		}
+	}
+
+	private List<String> getStrings() {
+		String tempText = this.text;
+		List<String> tempList = Lists.newArrayList();
+		int fm;
+		while (true) {
+			fm = -1;
+            String corr = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
+            for (int i = 0; i < corr.length(); i++) {
+				int found = tempText.indexOf("" + corr.charAt(i));
+				if (found != -1 && (found < fm || fm == -1)) { fm = found; }
+			}
+			if (fm >= 0) {
+				String subWorld = tempText.substring(0, fm + 1);
+				tempList.add(subWorld);
+				tempText = tempText.substring(fm + 1);
+			}
+			else { break; }
+		}
+		tempList.add(tempText);
+		return tempList;
 	}
 
 }

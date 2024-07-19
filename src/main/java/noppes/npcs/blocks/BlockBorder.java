@@ -2,11 +2,9 @@ package noppes.npcs.blocks;
 
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -29,6 +27,8 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
+import javax.annotation.Nonnull;
+
 public class BlockBorder extends BlockInterface implements IPermission {
 	public static PropertyInteger ROTATION = PropertyInteger.create("rotation", 0, 3);
 
@@ -38,38 +38,38 @@ public class BlockBorder extends BlockInterface implements IPermission {
 		this.setSoundType(SoundType.STONE);
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 		this.setBlockUnbreakable();
 	}
 
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { BlockBorder.ROTATION });
+	protected @Nonnull BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, BlockBorder.ROTATION);
 	}
 
-	public TileEntity createNewTileEntity(World var1, int var2) {
+	public TileEntity createNewTileEntity(@Nonnull World var1, int var2) {
 		return new TileBorder();
 	}
 
 	@SideOnly(Side.CLIENT)
-	public BlockRenderLayer getBlockLayer() {
+	public @Nonnull BlockRenderLayer getBlockLayer() {
 		return BlockRenderLayer.CUTOUT;
 	}
 
-	public int getMetaFromState(IBlockState state) {
+	public int getMetaFromState(@Nonnull IBlockState state) {
 		return state.getValue(BlockBorder.ROTATION);
 	}
 
-	public EnumBlockRenderType getRenderType(IBlockState state) {
+	public @Nonnull EnumBlockRenderType getRenderType(@Nonnull IBlockState state) {
 		return EnumBlockRenderType.MODEL;
 	}
 
-	public IBlockState getStateFromMeta(int meta) {
+	public @Nonnull IBlockState getStateFromMeta(int meta) {
 		return this.getDefaultState().withProperty(BlockBorder.ROTATION, meta);
 	}
 
 	private TileBorder getTile(World world, BlockPos pos) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (tile != null && tile instanceof TileBorder) {
+		if (tile instanceof TileBorder) {
 			return (TileBorder) tile;
 		}
 		return null;
@@ -80,29 +80,26 @@ public class BlockBorder extends BlockInterface implements IPermission {
 		return e == EnumPacketServer.SaveTileEntity;
 	}
 
-	public boolean isFullCube(IBlockState state) {
+	public boolean isFullCube(@Nonnull IBlockState state) {
 		return false;
 	}
 
-	public boolean isOpaqueCube(IBlockState state) {
+	public boolean isOpaqueCube(@Nonnull IBlockState state) {
 		return false;
 	}
 
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-			EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (!world.isRemote && currentItem != null && currentItem.getItem() == CustomRegisters.wand) {
+		if (!world.isRemote && currentItem.getItem() == CustomRegisters.wand) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.Border, null, pos.getX(), pos.getY(), pos.getZ());
 			return true;
 		}
 		return false;
 	}
 
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity,
-			ItemStack stack) {
+	public void onBlockPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityLivingBase entity, @Nonnull ItemStack stack) {
 		int l = MathHelper.floor(entity.rotationYaw * 4.0f / 360.0f + 0.5) & 0x3;
-		l %= 4;
-		world.setBlockState(pos, state.withProperty(BlockBorder.ROTATION, l));
+        world.setBlockState(pos, state.withProperty(BlockBorder.ROTATION, l));
 		TileBorder tile = (TileBorder) world.getTileEntity(pos);
 		TileBorder adjacent = this.getTile(world, pos.south());
 		if (adjacent == null) {
@@ -221,15 +218,14 @@ public class BlockBorder extends BlockInterface implements IPermission {
 		if (adjacent != null) {
 			NBTTagCompound compound = new NBTTagCompound();
 			adjacent.writeExtraNBT(compound);
-			tile.readExtraNBT(compound);
+			if (tile != null) { tile.readExtraNBT(compound); }
 		}
-		tile.rotation = l;
+		if (tile != null) { tile.rotation = l; }
 		if (entity instanceof EntityPlayer && !world.isRemote) {
 			if (adjacent == null) { // New
-				NoppesUtilServer.sendOpenGui((EntityPlayer) entity, EnumGuiType.Border, null, pos.getX(), pos.getY(),
-						pos.getZ());
+				NoppesUtilServer.sendOpenGui((EntityPlayer) entity, EnumGuiType.Border, null, pos.getX(), pos.getY(), pos.getZ());
 			} else { // Copy
-				((EntityPlayer) entity).sendMessage(new TextComponentTranslation("barrier.copied.around"));
+				entity.sendMessage(new TextComponentTranslation("barrier.copied.around"));
 			}
 		}
 	}

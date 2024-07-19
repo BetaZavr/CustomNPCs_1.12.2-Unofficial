@@ -14,9 +14,12 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.AdditionalMethods;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class CustomBlockStairs extends BlockStairs implements ICustomElement {
 
-	public NBTTagCompound nbtData = new NBTTagCompound();
+	public NBTTagCompound nbtData;
 
 	public CustomBlockStairs(NBTTagCompound nbtBlock) {
 		super(Blocks.COBBLESTONE.getDefaultState());
@@ -45,7 +48,7 @@ public class CustomBlockStairs extends BlockStairs implements ICustomElement {
 
 		this.setSoundType(CustomBlock.getNbtSoundType(nbtBlock.getString("SoundType")));
 
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tabBlocks);
+		this.setCreativeTab(CustomRegisters.tabBlocks);
 	}
 
 	@Override
@@ -55,11 +58,11 @@ public class CustomBlockStairs extends BlockStairs implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
 	@Override
-	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubBlocks(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabBlocks && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
 				&& !this.nbtData.getBoolean("ShowInCreative")) {
@@ -71,7 +74,7 @@ public class CustomBlockStairs extends BlockStairs implements ICustomElement {
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return this.nbtData.getByte("BlockType"); }
 		return 3;
 	}
 

@@ -1,6 +1,5 @@
 package noppes.npcs.ai.target;
 
-import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAITarget;
 import noppes.npcs.constants.AiMutex;
@@ -12,14 +11,14 @@ public class EntityAIOwnerHurtTarget extends EntityAITarget {
 	private int timestamp;
 
 	public EntityAIOwnerHurtTarget(EntityNPCInterface npc) {
-		super((EntityCreature) npc, false);
+		super(npc, false);
 		this.npc = npc;
 		this.setMutexBits(AiMutex.PASSIVE);
 	}
 
 	public boolean shouldExecute() {
 		if (!this.npc.isFollower() || this.npc.advanced.roleInterface == null
-				|| !this.npc.advanced.roleInterface.defendOwner()) {
+				|| this.npc.advanced.roleInterface.defendOwner()) {
 			return false;
 		}
 		EntityLivingBase entitylivingbase = this.npc.getOwner();

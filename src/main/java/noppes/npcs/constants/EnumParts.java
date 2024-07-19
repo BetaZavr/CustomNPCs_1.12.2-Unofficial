@@ -34,10 +34,10 @@ public enum EnumParts
 	FEET_RIGHT("bootright", 5),
 	CUSTOM("custom", -2);
 	
-	public String name;
-	public int patterns;
+	public final String name;
+	public final int patterns;
 	
-	private EnumParts(String name, int id) {
+	EnumParts(String name, int id) {
 		this.patterns = id;
 		this.name = name;
 	}

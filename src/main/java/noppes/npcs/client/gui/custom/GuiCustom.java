@@ -11,12 +11,9 @@ import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -50,6 +47,8 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomGui;
 
+import javax.annotation.Nonnull;
+
 public class GuiCustom extends GuiContainer implements ICustomScrollListener, IGuiData {
 
 	public static int guiLeft, guiTop;
@@ -67,11 +66,11 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 	public String[] hoverText;
 
 	public GuiCustom(ContainerCustomGui container) {
-		super((Container) container);
-		components = new HashMap<Integer, IGuiComponent>();
-		clickListeners = new ArrayList<IClickListener>();
-		keyListeners = new ArrayList<ICustomKeyListener>();
-		dataHolders = new ArrayList<IDataHolder>();
+		super(container);
+		components = new HashMap<>();
+		clickListeners = new ArrayList<>();
+		keyListeners = new ArrayList<>();
+		dataHolders = new ArrayList<>();
 		stretched = 0;
 		bgW = 0;
 		bgH = 0;
@@ -79,7 +78,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 		bgTy = 256;
 	}
 
-	protected void actionPerformed(GuiButton button) throws IOException {
+	protected void actionPerformed(@Nonnull GuiButton button) throws IOException {
 		super.actionPerformed(button);
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiButton, this.updateGui().toNBT(), button.id);
 	}
@@ -120,8 +119,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 			break;
 		}
 		case 4: {
-			CustomGuiScrollComponent scroll = new CustomGuiScrollComponent(this.mc, (GuiScreen) this, component.getId(),
-					(CustomGuiScrollWrapper) component);
+			CustomGuiScrollComponent scroll = new CustomGuiScrollComponent(this.mc, this, component.getId(), (CustomGuiScrollWrapper) component);
 			scroll.fromComponent((CustomGuiScrollWrapper) component);
 			scroll.setParent(this);
 			this.components.put(scroll.getId(), scroll);
@@ -180,7 +178,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 					}
 				}
 				while (hS > 0) {
-					int height = hS < stepH ? hS : stepH;
+					int height = Math.min(hS, stepH);
 					int startV = h * stepH;
 					int textureV = this.bgTy;
 					if (this.stretched == 2) {
@@ -201,7 +199,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 					}
 					int wS = this.xSize, w = 0;
 					while (wS > 0) {
-						int width = wS < stepW ? wS : stepW;
+						int width = Math.min(wS, stepW);
 						int startU = w * stepW;
 						int textureU = this.bgTx;
 						if (this.stretched == 2) {
@@ -346,7 +344,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 
 		Minecraft mc = Minecraft.getMinecraft();
 		CustomGuiWrapper gui = (CustomGuiWrapper) new CustomGuiWrapper(mc.player).fromNBT(compound);
-		((ContainerCustomGui) this.inventorySlots).setGui(gui, (EntityPlayer) mc.player);
+		((ContainerCustomGui) this.inventorySlots).setGui(gui, mc.player);
 		this.gui = gui;
 
 		this.xSize = gui.getWidth();

@@ -1,6 +1,6 @@
 package micdoodle8.mods.galacticraft.api.client.tabs;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -13,14 +13,20 @@ import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.util.CustomNPCsScheduler;
 
+import javax.annotation.Nonnull;
+
 public class InventoryTabFactions extends AbstractTab {
 	public InventoryTabFactions() {
 		super(0, 0, 0, new ItemStack(Items.BANNER, 1, 1));
 		this.displayString = NoppesStringUtils.translate("menu.factions");
 	}
 
+	private static void run() {
+		Minecraft.getMinecraft().displayGuiScreen(new GuiLog(1));
+	}
+
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.enabled || !this.visible) {
 			super.drawButton(mc, mouseX, mouseY, partialTicks);
 			return;
@@ -30,7 +36,7 @@ public class InventoryTabFactions extends AbstractTab {
 		if (hovered) {
 			int x = mouseX + mc.fontRenderer.getStringWidth(this.displayString);
 			GlStateManager.translate(x, (this.y + 2), 0.0f);
-			this.drawHoveringText(Arrays.asList(this.displayString), 0, 0, mc.fontRenderer);
+			this.drawHoveringText(Collections.singletonList(this.displayString), 0, 0, mc.fontRenderer);
 			GlStateManager.translate((-x), (-(this.y + 2)), 0.0f);
 		}
 		super.drawButton(mc, mouseX, mouseY, partialTicks);
@@ -95,9 +101,7 @@ public class InventoryTabFactions extends AbstractTab {
 
 	@Override
 	public void onTabClicked() {
-		CustomNPCsScheduler.runTack(() -> {
-			Minecraft.getMinecraft().displayGuiScreen(new GuiLog(1));
-		});
+		CustomNPCsScheduler.runTack(InventoryTabFactions::run);
 	}
 
 	@Override

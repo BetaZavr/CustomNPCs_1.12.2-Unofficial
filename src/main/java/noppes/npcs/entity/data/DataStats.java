@@ -25,20 +25,20 @@ public class DataStats implements INPCStats {
 	public boolean hideKilledBody;
 	public boolean ignoreCobweb;
 	public boolean immuneToFire;
-	// New
-	private int level = 1;
+	private int level;
 	private String rarityTitle;
 	private EnumCreatureRarity rarity;
 
 	public double maxHealth;
 	public DataMelee melee;
 	public boolean noFallDamage;
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 	public boolean potionImmune;
 	public DataRanged ranged;
 	public Resistances resistances;
 	public int respawnTime;
 	public int spawnCycle;
+	private float chanceBlockDamage = 2.0f;
 
 	public DataStats(EntityNPCInterface npc) {
 		this.aggroRange = 16;
@@ -116,7 +116,7 @@ public class DataStats implements INPCStats {
 			hp = Math.ceil(hp);
 		}
 		if (hp > (double) corr[1]) {
-			hp = (double) corr[1];
+			hp = corr[1];
 		}
 		return hp;
 	}
@@ -137,7 +137,7 @@ public class DataStats implements INPCStats {
 		case 5:
 			return this.ignoreCobweb;
 		}
-		throw new CustomNPCsException("Unknown immune type: " + type, new Object[0]);
+		throw new CustomNPCsException("Unknown immune type: " + type);
 	}
 
 	// new
@@ -161,33 +161,9 @@ public class DataStats implements INPCStats {
 		return this.melee;
 	}
 
-	public int getMellePower() {
-		int[] corr = CustomNpcs.DamageNormal;
-		if (this.rarity == EnumCreatureRarity.ELITE) {
-			corr = CustomNpcs.DamageElite;
-		} else if (this.rarity == EnumCreatureRarity.BOSS) {
-			corr = CustomNpcs.DamageBoss;
-		}
-		double a = ((double) corr[0] - (double) corr[1]) / (1 - Math.pow(CustomNpcs.MaxLv, 2));
-		double b = (double) corr[0] - a;
-		return (int) Math.round(a * Math.pow(this.level, 2) + b);
-	}
-
 	@Override
 	public INPCRanged getRanged() {
 		return this.ranged;
-	}
-
-	public int getRangePower() {
-		int[] corr = CustomNpcs.DamageNormal;
-		if (this.rarity == EnumCreatureRarity.ELITE) {
-			corr = CustomNpcs.DamageElite;
-		} else if (this.rarity == EnumCreatureRarity.BOSS) {
-			corr = CustomNpcs.DamageBoss;
-		}
-		double a = ((double) corr[2] - (double) corr[3]) / (1 - Math.pow(CustomNpcs.MaxLv, 2));
-		double b = (double) corr[2] - a;
-		return (int) Math.round(a * Math.pow(this.level, 2) + b);
 	}
 
 	@Override
@@ -202,7 +178,7 @@ public class DataStats implements INPCStats {
 
 	@Override
 	public String[] getResistanceKeys() {
-		return this.resistances.data.keySet().toArray(new String[this.resistances.data.size()]);
+		return this.resistances.data.keySet().toArray(new String[0]);
 	}
 	
 	@Override
@@ -218,41 +194,6 @@ public class DataStats implements INPCStats {
 	@Override
 	public int getRespawnType() {
 		return this.spawnCycle;
-	}
-
-	public int[] getXP() {
-		float[] corr = new float[] { (float) CustomNpcs.Experience[0], (float) CustomNpcs.Experience[1],
-				(float) CustomNpcs.Experience[2], (float) CustomNpcs.Experience[3] };
-		if (this.rarity == EnumCreatureRarity.ELITE) {
-			corr[0] *= 1.75f;
-			corr[1] *= 1.75f;
-			corr[2] *= 1.75f;
-			corr[3] *= 1.75f;
-		} else if (this.rarity == EnumCreatureRarity.BOSS) {
-			corr[0] *= 4.75f;
-			corr[1] *= 4.75f;
-			corr[2] *= 4.75f;
-			corr[3] *= 4.75f;
-		}
-		int subMinLv = CustomNpcs.MaxLv / 3;
-		int subMaxLv = CustomNpcs.MaxLv * 2 / 3;
-		float subMinXP = corr[1] / 3.0f;
-		float subMaxXP = corr[1] * 2.0f / 3.0f;
-		float subMinXPM = corr[3] / 3.0f;
-		float subMaxXPM = corr[3] * 2.0f / 3.0f;
-		double a = ((subMaxXP - corr[1]) * (1 - subMinLv) - (corr[0] - subMinXP) * (subMaxLv - CustomNpcs.MaxLv))
-				/ ((subMaxLv - CustomNpcs.MaxLv) * (Math.pow(subMinLv, 2) - 1)
-						- (1 - subMinLv) * (Math.pow(CustomNpcs.MaxLv, 2) - Math.pow(subMaxLv, 2)));
-		double b = (corr[0] - subMinXP + a * (Math.pow(subMinLv, 2) - 1)) / (1 - subMinLv);
-		double c = corr[0] - a - b;
-		int min = (int) (Math.pow(this.level, 2) * a + this.level * b + c);
-		a = ((subMaxXPM - corr[3]) * (1 - subMinLv) - (corr[2] - subMinXPM) * (subMaxLv - CustomNpcs.MaxLv))
-				/ ((subMaxLv - CustomNpcs.MaxLv) * (Math.pow(subMinLv, 2) - 1)
-						- (1 - subMinLv) * (Math.pow(CustomNpcs.MaxLv, 2) - Math.pow(subMaxLv, 2)));
-		b = (corr[2] - subMinXPM + a * (Math.pow(subMinLv, 2) - 1)) / (1 - subMinLv);
-		c = corr[2] - a - b;
-		int max = (int) (Math.pow(this.level, 2) * a + this.level * b + c);
-		return new int[] { min, max };
 	}
 
 	@Override
@@ -293,10 +234,10 @@ public class DataStats implements INPCStats {
 			this.aggroRange = 1;
 		}
 		IAttributeInstance follow_range = this.npc.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-		if (follow_range != null) {
-			follow_range.setBaseValue(this.aggroRange);
-		}
-	}
+        follow_range.setBaseValue(this.aggroRange);
+
+		if (compound.hasKey("ChanceBlockDamage", 5)) { this.setChanceBlockDamage(compound.getFloat("ChanceBlockDamage")); }
+    }
 
 	@Override
 	public void setAggroRange(int range) {
@@ -343,7 +284,7 @@ public class DataStats implements INPCStats {
 			this.canDrown = !bo;
 		} else {
 			if (type != 5) {
-				throw new CustomNPCsException("Unknown immune type: " + type, new Object[0]);
+				throw new CustomNPCsException("Unknown immune type: " + type);
 			}
 			this.ignoreCobweb = bo;
 		}
@@ -403,6 +344,16 @@ public class DataStats implements INPCStats {
 		this.spawnCycle = type;
 	}
 
+	@Override
+	public float getChanceBlockDamage() { return this.chanceBlockDamage; }
+
+	@Override
+	public void setChanceBlockDamage(float chance) {
+		if (chance < 0.0f) { chance *= -1.0f; }
+		if (chance > 100.0f) { chance = 100.0f; }
+		this.chanceBlockDamage = chance;
+	}
+
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setTag("Resistances", this.resistances.writeToNBT());
 		compound.setDouble("MaxHealth", this.maxHealth);
@@ -421,11 +372,11 @@ public class DataStats implements INPCStats {
 		compound.setBoolean("IgnoreCobweb", this.ignoreCobweb);
 		this.melee.writeToNBT(compound);
 		this.ranged.writeToNBT(compound);
-		// New
 		compound.setInteger("NPCLevel", this.level);
 		compound.setInteger("NPCRarity", this.rarity.ordinal());
 		compound.setString("RarityTitle", this.rarityTitle);
 		compound.setBoolean("CalmdownRange", this.calmdown);
+		compound.setFloat("ChanceBlockDamage", this.chanceBlockDamage);
 		return compound;
 	}
 

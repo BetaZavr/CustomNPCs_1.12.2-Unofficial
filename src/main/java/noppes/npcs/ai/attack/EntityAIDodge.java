@@ -7,6 +7,8 @@ import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.math.Vec3d;
 import noppes.npcs.util.AdditionalMethods;
 
+import java.util.Objects;
+
 public class EntityAIDodge extends EntityAICustom {
 
 	private int[] dodgePos;
@@ -32,7 +34,7 @@ public class EntityAIDodge extends EntityAICustom {
 				if (this.dodgePos == null) {
 					this.npc.getNavigator().clearPath();
 				} else {
-					PathPoint point = this.npc.getNavigator().getPath().getFinalPathPoint();
+					PathPoint point = Objects.requireNonNull(this.npc.getNavigator().getPath()).getFinalPathPoint();
 					if (point == null || point.x < this.dodgePos[0] - 2 && point.x > this.dodgePos[0] + 2
 							|| point.y < this.dodgePos[1] - 2 && point.y > this.dodgePos[1] + 2
 							|| point.z < this.dodgePos[2] - 2 && point.z > this.dodgePos[2] + 2) {
@@ -53,7 +55,7 @@ public class EntityAIDodge extends EntityAICustom {
 			int error = 0, attempts = 0;
 			this.dodgePos = null;
 			Path path = null;
-			while ((dist < this.tacticalRange || dist < (double) (this.isRanged ? this.range / 2.0d : this.range)
+			while ((dist < this.tacticalRange || dist < (this.isRanged ? this.range / 2.0d : this.range)
 					|| dist > this.npc.stats.aggroRange) && error < 3 && attempts < 8) {
 				attempts++;
 				Vec3d vec = RandomPositionGenerator.findRandomTarget(this.npc, this.tacticalRange, 2);

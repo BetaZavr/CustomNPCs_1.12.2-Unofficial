@@ -1,7 +1,8 @@
 package noppes.npcs.ai;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -10,14 +11,16 @@ import net.minecraft.util.DamageSource;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.ability.AbstractAbility;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class CombatHandler {
-	private Map<EntityLivingBase, Float> aggressors;
+
+	public final Map<EntityLivingBase, Long> lastDamages = Maps.newHashMap();
+	public final Map<EntityLivingBase, Float> aggressors = Maps.newHashMap();
 	private int combatResetTimer;
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 
 	public CombatHandler(EntityNPCInterface npc) {
-		this.aggressors = new HashMap<EntityLivingBase, Float>();
 		this.combatResetTimer = 0;
 		this.npc = npc;
 	}
@@ -53,10 +56,9 @@ public class CombatHandler {
 		if (e instanceof EntityLivingBase) {
 			EntityLivingBase el = (EntityLivingBase) e;
 			Float f = this.aggressors.get(el);
-			if (f == null) {
-				f = 0.0f;
-			}
+			if (f == null) { f = 0.0f; }
 			this.aggressors.put(el, f + damageAmount);
+			this.lastDamages.put(el, this.npc.world.getTotalWorldTime());
 		}
 	}
 
@@ -69,6 +71,7 @@ public class CombatHandler {
 	public void reset() {
 		this.combatResetTimer = 0;
 		this.aggressors.clear();
+		this.lastDamages.clear();
 		this.npc.getDataManager().set(EntityNPCInterface.Attacking, false);
 	}
 
@@ -78,7 +81,6 @@ public class CombatHandler {
 
 	public void start() {
 		this.combatResetTimer = 0;
-		this.npc.world.getWorldInfo().getWorldTotalTime();
 		this.npc.getDataManager().set(EntityNPCInterface.Attacking, true);
 		for (AbstractAbility ab : this.npc.abilities.abilities) {
 			ab.startCombat();
@@ -103,4 +105,21 @@ public class CombatHandler {
 		}
 		this.combatResetTimer = 0;
 	}
+
+	public boolean canDamage(DamageSource damagesource, float amount) {
+		Entity entity = NoppesUtilServer.GetDamageSourcee(damagesource);
+		if (!(entity instanceof EntityLivingBase)) {
+			if (this.npc.ais.getMaxHurtResistantTime() != 0 && this.npc.hurtResistantTime > this.npc.ais.getMaxHurtResistantTime() / 2.0F) {
+				Object baseAmount = ObfuscationHelper.getValue(EntityLivingBase.class, this.npc, 48);
+                return !(amount <= (baseAmount != null ? (float) baseAmount : 0.0f));
+			}
+			return true;
+		}
+		if (!this.lastDamages.containsKey(entity) || this.npc.ais.getMaxHurtResistantTime() == 0 || (this.lastDamages.get(entity) + this.npc.ais.getMaxHurtResistantTime() / 2) < this.npc.world.getTotalWorldTime()) {
+			this.lastDamages.put((EntityLivingBase) entity, this.npc.world.getTotalWorldTime());
+			return true;
+		}
+		return false;
+	}
+
 }

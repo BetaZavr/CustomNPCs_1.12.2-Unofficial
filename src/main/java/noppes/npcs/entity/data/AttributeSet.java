@@ -62,7 +62,7 @@ public class AttributeSet implements IAttributeSet {
 		} else {
 			keyName += c + "7[" + c + "6" + tv0 + c + "7-" + c + "6" + tv1 + c + "7] ";
 		}
-		String name = new TextComponentTranslation("attribute.name." + this.attr.getName(), new Object[0])
+		String name = new TextComponentTranslation("attribute.name." + this.attr.getName())
 				.getFormattedText();
 		if (name.equals("attribute.name." + this.attr.getName()) || name.equals("attribute.name.")) {
 			name = this.attr.getName();
@@ -112,7 +112,7 @@ public class AttributeSet implements IAttributeSet {
 
 	@Override
 	public void remove() {
-		this.parent.removeAttribute((AttributeSet) this);
+		this.parent.removeAttribute(this);
 	}
 
 	public void setAttribute(IAttribute attribute) {
@@ -121,26 +121,36 @@ public class AttributeSet implements IAttributeSet {
 
 	@Override
 	public void setAttribute(String name) {
-		if (name.equals("generic.maxHealth")) {
-			this.attr = SharedMonsterAttributes.MAX_HEALTH;
-		} else if (name.equals("generic.followRange")) {
-			this.attr = SharedMonsterAttributes.FOLLOW_RANGE;
-		} else if (name.equals("generic.knockbackResistance")) {
-			this.attr = SharedMonsterAttributes.KNOCKBACK_RESISTANCE;
-		} else if (name.equals("generic.movementSpeed")) {
-			this.attr = SharedMonsterAttributes.MOVEMENT_SPEED;
-		} else if (name.equals("generic.attackDamage")) {
-			this.attr = SharedMonsterAttributes.ATTACK_DAMAGE;
-		} else if (name.equals("generic.attackSpeed")) {
-			this.attr = SharedMonsterAttributes.ATTACK_SPEED;
-		} else if (name.equals("generic.armor")) {
-			this.attr = SharedMonsterAttributes.ARMOR;
-		} else if (name.equals("generic.luck")) {
-			this.attr = SharedMonsterAttributes.LUCK;
-		} else { // new
-			this.attr = (IAttribute) (new RangedAttribute((IAttribute) null, name, 0.0D, -1024.0D, 1024.0D))
-					.setShouldWatch(true);
-		}
+        switch (name) {
+            case "generic.maxHealth":
+                this.attr = SharedMonsterAttributes.MAX_HEALTH;
+                break;
+            case "generic.followRange":
+                this.attr = SharedMonsterAttributes.FOLLOW_RANGE;
+                break;
+            case "generic.knockbackResistance":
+                this.attr = SharedMonsterAttributes.KNOCKBACK_RESISTANCE;
+                break;
+            case "generic.movementSpeed":
+                this.attr = SharedMonsterAttributes.MOVEMENT_SPEED;
+                break;
+            case "generic.attackDamage":
+                this.attr = SharedMonsterAttributes.ATTACK_DAMAGE;
+                break;
+            case "generic.attackSpeed":
+                this.attr = SharedMonsterAttributes.ATTACK_SPEED;
+                break;
+            case "generic.armor":
+                this.attr = SharedMonsterAttributes.ARMOR;
+                break;
+            case "generic.luck":
+                this.attr = SharedMonsterAttributes.LUCK;
+                break;
+            default:  // new
+                this.attr = (new RangedAttribute(null, name, 0.0D, -1024.0D, 1024.0D))
+                        .setShouldWatch(true);
+                break;
+        }
 	}
 
 	@Override
@@ -152,7 +162,7 @@ public class AttributeSet implements IAttributeSet {
 	@Override
 	public void setSlot(int slot) {
 		if (slot < -1 || slot > 5) {
-			throw new CustomNPCsException("Slot has to be between -1 and 5, given was: " + slot, new Object[0]);
+			throw new CustomNPCsException("Slot has to be between -1 and 5, given was: " + slot);
 		}
 		this.slot = slot;
 	}

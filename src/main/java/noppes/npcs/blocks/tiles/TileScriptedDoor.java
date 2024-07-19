@@ -20,6 +20,8 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.data.DataTimers;
 
+import javax.annotation.Nonnull;
+
 public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBlockHandler {
 
 	private IBlock blockDummy;
@@ -36,7 +38,7 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 	public DataTimers timers;
 
 	public TileScriptedDoor() {
-		this.scripts = new ArrayList<ScriptContainer>();
+		this.scripts = new ArrayList<>();
 		this.shouldRefreshData = false;
 		this.scriptLanguage = "ECMAScript";
 		this.closeSound = "";
@@ -66,7 +68,7 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 	}
 
 	public Map<Long, String> getConsoleText() {
-		Map<Long, String> map = new TreeMap<Long, String>();
+		Map<Long, String> map = new TreeMap<>();
 		int tab = 0;
 		for (ScriptContainer script : this.getScripts()) {
 			++tab;
@@ -101,7 +103,7 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		return this.scripts;
 	}
 
-	public String getSoung(boolean isOpen) {
+	public String getSound(boolean isOpen) {
 		if (isOpen) {
 			return this.openSound;
 		}
@@ -123,7 +125,7 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		this.setNBT(compound);
 		this.timers.readFromNBT(compound);
@@ -195,8 +197,9 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		}
 	}
 
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		this.getNBT(compound);
 		this.timers.writeToNBT(compound);
 		return super.writeToNBT(compound);

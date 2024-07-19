@@ -1,5 +1,6 @@
 package noppes.npcs.items;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.creativetab.CreativeTabs;
@@ -31,15 +32,17 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.AdditionalMethods;
 
+import java.util.Objects;
+
 public class CustomBow extends ItemBow implements ICustomElement {
 
-	protected NBTTagCompound nbtData = new NBTTagCompound();
-	protected ItemStack repairItemStack = ItemStack.EMPTY;
+	protected NBTTagCompound nbtData;
+	protected ItemStack repairItemStack;
 	protected int enchantability = 0;
-	private Item.ToolMaterial material = Item.ToolMaterial.WOOD;
+	private final Item.ToolMaterial material;
 
-	public ItemStack itemArrow = ItemStack.EMPTY;
-	protected boolean isFlame = false;
+	public ItemStack itemArrow;
+	protected boolean isFlame;
 	private float critChance = 0.0f;
 	private double attackDamage = 2.0d;
 
@@ -75,11 +78,11 @@ public class CustomBow extends ItemBow implements ICustomElement {
 		if (nbtItem.hasKey("IsFull3D", 1) && nbtItem.getBoolean("IsFull3D")) {
 			this.setFull3D();
 		}
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
+		this.setCreativeTab(CustomRegisters.tabItems);
 
 		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
+			public float apply(@Nonnull ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
 				float f = 0.0f;
 				if (entityIn != null) {
 					f = (!(entityIn.getActiveItemStack().getItem() instanceof ItemBow)) ? 0.0F
@@ -91,7 +94,7 @@ public class CustomBow extends ItemBow implements ICustomElement {
 		});
 	}
 
-	protected ItemStack findAmmo(EntityPlayer player) {
+	protected @Nonnull ItemStack findAmmo(@Nonnull EntityPlayer player) {
 		if (this.isArrow(player.getHeldItem(EnumHand.OFF_HAND))) {
 			return player.getHeldItem(EnumHand.OFF_HAND);
 		} else if (this.isArrow(player.getHeldItem(EnumHand.MAIN_HAND))) {
@@ -114,10 +117,10 @@ public class CustomBow extends ItemBow implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+	public boolean getIsRepairable(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
 		ItemStack mat = this.repairItemStack;
 		if (this.repairItemStack.isEmpty()) {
 			mat = this.material.getRepairItemStack();
@@ -135,21 +138,21 @@ public class CustomBow extends ItemBow implements ICustomElement {
 		return super.getItemEnchantability();
 	}
 
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
 		if (tab == CustomRegisters.tabItems) { AdditionalMethods.instance.sort(items); }
 	}
 
-	protected boolean isArrow(ItemStack stack) {
+	protected boolean isArrow(@Nonnull ItemStack stack) {
 		if (this.itemArrow != null && !this.itemArrow.isEmpty()) {
 			return stack.isItemEqualIgnoreDurability(this.itemArrow);
 		}
 		return stack.getItem() instanceof ItemArrow;
 	}
 
-	public void onPlayerStoppedUsing(ItemStack stack, World worldIn, EntityLivingBase entityLiving, int timeLeft) {
+	public void onPlayerStoppedUsing(@Nonnull ItemStack stack, @Nonnull World worldIn, @Nonnull EntityLivingBase entityLiving, int timeLeft) {
 		if (!(entityLiving instanceof EntityPlayer)) {
 			return;
 		}
@@ -178,9 +181,7 @@ public class CustomBow extends ItemBow implements ICustomElement {
 			EntityArrow entityarrow = itemarrow.createArrow(worldIn, itemstack, entityplayer);
 			entityarrow.shoot(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, f * 3.0F, 1.0F);
 			if (f == 1.0F) {
-				entityarrow.setIsCritical(
-						this.critChance > 0.0f && this.critChance <= 1.0f ? Item.itemRand.nextFloat() < this.critChance
-								: true);
+				entityarrow.setIsCritical(!(this.critChance > 0.0f) || !(this.critChance <= 1.0f) || Item.itemRand.nextFloat() < this.critChance);
 			}
 			int j = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, stack);
 			double damage = (this.attackDamage > 0.0d ? this.attackDamage : entityarrow.getDamage())
@@ -206,7 +207,7 @@ public class CustomBow extends ItemBow implements ICustomElement {
 			}
 			worldIn.spawnEntity(entityarrow);
 		}
-		worldIn.playSound((EntityPlayer) null, entityplayer.posX, entityplayer.posY, entityplayer.posZ,
+		worldIn.playSound(null, entityplayer.posX, entityplayer.posY, entityplayer.posZ,
 				SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F,
 				1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
 		if (!flag1 && !entityplayer.capabilities.isCreativeMode) {
@@ -215,12 +216,12 @@ public class CustomBow extends ItemBow implements ICustomElement {
 				entityplayer.inventory.deleteStack(itemstack);
 			}
 		}
-		entityplayer.addStat(StatList.getObjectUseStats(this));
+		entityplayer.addStat(Objects.requireNonNull(StatList.getObjectUseStats(this)));
 	}
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return (int) this.nbtData.getByte("ItemType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return this.nbtData.getByte("ItemType"); }
 		return 5;
 	}
 

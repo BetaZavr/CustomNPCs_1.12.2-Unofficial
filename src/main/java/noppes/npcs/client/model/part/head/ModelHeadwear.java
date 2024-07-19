@@ -9,7 +9,7 @@ import noppes.npcs.constants.EnumParts;
 public class ModelHeadwear
 extends ModelRendererAlt {
 	
-	int size = 64;
+	int size;
 	
 	public ModelHeadwear(ModelBase modelBase, EnumParts part, int size) {
 		this(modelBase, size);

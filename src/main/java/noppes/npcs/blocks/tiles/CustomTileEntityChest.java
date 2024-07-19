@@ -20,6 +20,9 @@ import noppes.npcs.blocks.CustomChest;
 import noppes.npcs.containers.ContainerChestCustom;
 import noppes.npcs.util.ObfuscationHelper;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class CustomTileEntityChest extends TileEntityLockableLoot implements ITickable {
 
 	public float lidAngle;
@@ -39,7 +42,7 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 	}
 
 	@Override
-	public void closeInventory(EntityPlayer player) {
+	public void closeInventory(@Nonnull EntityPlayer player) {
 		if (this.world == null) {
 			return;
 		}
@@ -55,13 +58,13 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 	}
 
 	@Override
-	public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn) {
+	public @Nonnull Container createContainer(@Nonnull InventoryPlayer playerInventory, @Nonnull EntityPlayer playerIn) {
 		this.fillWithLoot(playerIn);
 		return new ContainerChestCustom(playerInventory, this, playerIn);
 	}
 
 	@Override
-	public String getGuiID() {
+	public @Nonnull String getGuiID() {
 		return this.blockName;
 	}
 
@@ -71,12 +74,12 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 	}
 
 	@Override
-	protected NonNullList<ItemStack> getItems() {
+	protected @Nonnull NonNullList<ItemStack> getItems() {
 		return this.inventory;
 	}
 
 	@Override
-	public String getName() {
+	public @Nonnull String getName() {
 		if (this.name.isEmpty()) {
 			return "custom.chest.chestexample";
 		}
@@ -99,7 +102,7 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 	}
 
 	@Override
-	public void openInventory(EntityPlayer player) {
+	public void openInventory(@Nonnull EntityPlayer player) {
 		if (this.inventory == null || this.world == null) {
 			return;
 		}
@@ -108,7 +111,7 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 		this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockType(), false);
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		if (!compound.hasKey("Items", 9)) {
 			return;
@@ -135,7 +138,7 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 			this.sound_close = soundclose;
 		}
 		if (this.size != this.inventory.size()) {
-			this.inventory = NonNullList.<ItemStack>withSize(this.size, ItemStack.EMPTY);
+			this.inventory = NonNullList.withSize(this.size, ItemStack.EMPTY);
 		}
 		this.inventory.clear();
 		ItemStackHelper.loadAllItems(compound, this.inventory);
@@ -146,7 +149,7 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 		this.isChest = block.isChest;
 		this.name = "custom.chest." + block.getCustomName();
 		this.size = 9;
-		this.blockName = block.getRegistryName().toString();
+		this.blockName = Objects.requireNonNull(block.getRegistryName()).toString();
 		this.chestTexture = block.nbtData.getKeySet().isEmpty() ? null
 				: new ResourceLocation(CustomNpcs.MODID,
 						"textures/entity/chest/" + block.getRegistryName().getResourcePath() + ".png");
@@ -168,12 +171,12 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 		if (this.size > 189) {
 			this.size = 189;
 		}
-		this.inventory = NonNullList.<ItemStack>withSize(this.size, ItemStack.EMPTY);
+		this.inventory = NonNullList.withSize(this.size, ItemStack.EMPTY);
 	}
 
 	@Override
 	public void update() {
-		if ((this.inventory.size() == 0 || this.chestTexture == null) && this.world != null && this.world.isRemote) {
+		if ((this.inventory.isEmpty() || this.chestTexture == null) && this.world != null && this.world.isRemote) {
 			if (this.world.getTotalWorldTime() % 20 == 0) {
 				CustomNpcs.proxy.fixTileEntityData(this);
 			}
@@ -182,15 +185,16 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 		if (this.numPlayersUsing < 0) {
 			this.numPlayersUsing = 0;
 		}
-		if (!this.world.isRemote && this.numPlayersUsing != 0
+        if (this.world != null && !this.world.isRemote && this.numPlayersUsing != 0
 				&& (this.world.getTotalWorldTime() + this.pos.getX() + this.pos.getY() + this.pos.getZ()) % 20 == 0) {
 			this.numPlayersUsing = 0;
 			for (EntityPlayer entityplayer : this.world.getEntitiesWithinAABB(EntityPlayer.class,
-					new AxisAlignedBB((double) ((float) this.pos.getX() - 5.0F),
-							(double) ((float) this.pos.getY() - 5.0F), (double) ((float) pos.getZ() - 5.0F),
-							(double) ((float) (this.pos.getX() + 1) + 5.0F),
-							(double) ((float) (this.pos.getY() + 1) + 5.0F),
-							(double) ((float) (this.pos.getZ() + 1) + 5.0F)))) {
+					new AxisAlignedBB((float) this.pos.getX() - 5.0F,
+                            (float) this.pos.getY() - 5.0F,
+							(float) pos.getZ() - 5.0F,
+                            (float) (this.pos.getX() + 1) + 5.0F,
+                            (float) (this.pos.getY() + 1) + 5.0F,
+                            (float) (this.pos.getZ() + 1) + 5.0F))) {
 				if (entityplayer.openContainer instanceof ContainerChestCustom) {
 					if (((ContainerChestCustom) entityplayer.openContainer).getPos().equals(this.pos)) {
 						++this.numPlayersUsing;
@@ -202,7 +206,7 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 		if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F) {
 			double d1 = (double) this.pos.getX() + 0.5D;
 			double d2 = (double) this.pos.getZ() + 0.5D;
-			this.world.playSound((EntityPlayer) null, d1, (double) this.pos.getY() + 0.5D, d2, this.sound_open,
+			this.world.playSound(null, d1, (double) this.pos.getY() + 0.5D, d2, this.sound_open,
 					SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
 		}
 		if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F) {
@@ -218,8 +222,7 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 			if (this.lidAngle < 0.5F && f2 >= 0.5F) {
 				double d3 = (double) this.pos.getX() + 0.5D;
 				double d0 = (double) this.pos.getZ() + 0.5D;
-				this.world.playSound((EntityPlayer) null, d3, (double) this.pos.getY() + 0.5D, d0, this.sound_close,
-						SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+				this.world.playSound(null, d3, (double) this.pos.getY() + 0.5D, d0, this.sound_close, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
 			}
 			if (this.lidAngle < 0.0F) {
 				this.lidAngle = 0.0F;
@@ -227,7 +230,7 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 		}
 	}
 
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		compound.setBoolean("IsChest", this.isChest);
 		compound.setInteger("Size", this.size);
@@ -241,8 +244,8 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 		if (this.guiColorArr != null) {
 			compound.setIntArray("GUIColor", this.guiColorArr);
 		}
-		compound.setString("SoundOpen", ObfuscationHelper.getValue(SoundEvent.class, this.sound_open, 1).toString());
-		compound.setString("SoundClose", ObfuscationHelper.getValue(SoundEvent.class, this.sound_close, 1).toString());
+		compound.setString("SoundOpen", Objects.requireNonNull(ObfuscationHelper.getValue(SoundEvent.class, this.sound_open, 1)).toString());
+		compound.setString("SoundClose", Objects.requireNonNull(ObfuscationHelper.getValue(SoundEvent.class, this.sound_close, 1)).toString());
 		ItemStackHelper.saveAllItems(compound, this.inventory);
 		return compound;
 	}

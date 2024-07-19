@@ -1,7 +1,6 @@
 package noppes.npcs;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +13,7 @@ public class CustomNpcsPermissions {
 
 	public static class Permission {
 
-		private static List<Permission> permissions = new ArrayList<Permission>();
+		private final static List<Permission> permissions = new ArrayList<>();
 
 		public boolean defaultValue;
 
@@ -41,7 +40,7 @@ public class CustomNpcsPermissions {
 	public static Permission GLOBAL_DIALOG = new Permission(CustomNpcs.MODID + ".global.dialog");
 	public static Permission GLOBAL_FACTION = new Permission(CustomNpcs.MODID + ".global.faction");
 	public static Permission GLOBAL_LINKED = new Permission(CustomNpcs.MODID + ".global.linked");
-	public static Permission GLOBAL_MARCET = new Permission(CustomNpcs.MODID + ".global.marcet"); // New
+	public static Permission GLOBAL_MARCET = new Permission(CustomNpcs.MODID + ".global.marcet");
 	public static Permission GLOBAL_NATURALSPAWN = new Permission(CustomNpcs.MODID + ".global.naturalspawn");
 	public static Permission GLOBAL_PLAYERDATA = new Permission(CustomNpcs.MODID + ".global.playerdata");
 	public static Permission GLOBAL_QUEST = new Permission(CustomNpcs.MODID + ".global.quest");
@@ -84,10 +83,9 @@ public class CustomNpcsPermissions {
 		CustomNpcsPermissions.Instance = this;
 		if (!CustomNpcs.DisablePermissions) {
 			LogManager.getLogger(CustomNpcs.class).info("CustomNPC Permissions available:");
-			Collections.sort(Permission.permissions, (o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+			Permission.permissions.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
 			for (Permission p : Permission.permissions) {
-				PermissionAPI.registerNode(p.name,
-						p.defaultValue ? DefaultPermissionLevel.ALL : DefaultPermissionLevel.OP, p.name);
+				PermissionAPI.registerNode(p.name, p.defaultValue ? DefaultPermissionLevel.ALL : DefaultPermissionLevel.OP, p.name);
 				LogManager.getLogger(CustomNpcs.class).info(p.name);
 			}
 		}

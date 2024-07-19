@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
+import noppes.npcs.LogWriter;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -33,50 +34,51 @@ import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class ModelRendererAlt
-extends ModelRenderer {
-	// Base
-	private static float limit = (float) (Math.PI / 2.0f);
-	public static Field a;
+public class ModelRendererAlt extends ModelRenderer {
+
+    public static Field a;
 	public static Field colorState;
-	
+
 	static {
 		try {
 			ModelRendererAlt.colorState = ObfuscationHelper.getField(GlStateManager.class, 21);
-			ModelRendererAlt.colorState.setAccessible(true);
-			Object colorState = ModelRendererAlt.colorState.get(null);
-			ModelRendererAlt.a = colorState.getClass().getDeclaredFields()[3];
-			ModelRendererAlt.a.setAccessible(true);
-		} catch (Exception e) { e.printStackTrace(); }
+            if (ModelRendererAlt.colorState != null) {
+				ModelRendererAlt.colorState.setAccessible(true);
+				Object colorState = ModelRendererAlt.colorState.get(null);
+				ModelRendererAlt.a = colorState.getClass().getDeclaredFields()[3];
+				ModelRendererAlt.a.setAccessible(true);
+			}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	// Data
 	public EnumParts part;
 	public int idPart;
-	
-	private final Map<Integer, PositionTextureVertex> vs = Maps.<Integer, PositionTextureVertex>newHashMap(); // vs
-    private final Map<Integer, TexturedQuad> quads = Maps.<Integer, TexturedQuad>newHashMap(); // fases
+
+	private final Map<Integer, PositionTextureVertex> vs = Maps.newHashMap(); // vs
+	private final Map<Integer, TexturedQuad> quads = Maps.newHashMap(); // fases
 	private final Vec2f[] tvs = new Vec2f[8];
-	
+
 	public float x, y, z, xe, ye0, ye1, ye2, ze, dx, dy0, dy1, dy2, dz, u, v;
-    
-    private int displayList, displayOBJListUp, displayOBJListDown;
+
+	private int displayList, displayOBJListUp, displayOBJListDown;
 	public float rotateAngleX1 = 0.0f;
 	public float rotateAngleY1 = 0.0f;
-	
+
 	public float scaleX = 1.0f, scaleY = 1.0f, scaleZ = 1.0f;
 	public float offsetAnimX = 0.0f, offsetAnimY = 0.0f, offsetAnimZ = 0.0f;
 	private boolean normalTop = false;
 	public boolean isNormal = false;
-	
+
 	public boolean smallArms;
 	public boolean isAnimPart;
-	private float r = 1.0f, g = 1.0f, b = 1.0f;
-	
+	private float r = 1.0f, g = 1.0f, b = 1.0f, al = 0.0f;
+	private final float[] baseRotationPoint;
+
 	// Custom
 	public ResourceLocation location = null;
 	public boolean isArmor;
-	
+
 	public ModelRendererAlt(ModelBase model, EnumParts part, int textureU, int textureV, boolean isNormal) {
 		super(model, textureU, textureV);
 		this.part = part;
@@ -84,10 +86,11 @@ extends ModelRenderer {
 		this.u = textureU;
 		this.v = textureV;
 		this.isNormal = isNormal;
+		this.baseRotationPoint = new float[] { this.rotationPointX, this.rotationPointY, this.rotationPointZ };
 	}
-	
-	public ModelRendererAlt(AddedPartConfig part, DataAnimation animation) {
-		super(null, part.textureU, part.textureV);
+
+	public ModelRendererAlt(ModelBase baseModel, AddedPartConfig part, DataAnimation animation) {
+		super(baseModel, part.textureU, part.textureV);
 		this.part = EnumParts.CUSTOM;
 		this.idPart = part.id;
 		this.u = part.textureU;
@@ -97,14 +100,20 @@ extends ModelRenderer {
 		this.setBox(part.pos[0], part.pos[1], part.pos[2], part.size[0], part.size[1], part.size[2], part.size[3], part.size[4], 0.0f);
 		this.setRotationPoint(part.rot[0], part.rot[1], part.rot[2]);
 		this.setAnimation(animation);
+		this.baseRotationPoint = new float[] { this.rotationPointX, this.rotationPointY, this.rotationPointZ };
+	}
+
+	public ModelRendererAlt(ModelBase model) {
+		super(model);
+		this.baseRotationPoint = new float[] { this.rotationPointX, this.rotationPointY, this.rotationPointZ };
 	}
 
 	public void setBox(float x, float y, float z, float dx, float dy0, float dy1, float dy2, float dz, float wear) {
-		this.xe = x + (float) dx + wear;
-		this.ye0 = y + (float) dy0;
-		this.ye1 = y + (float) (dy0 + dy1);
-		this.ye2 = y + (float) (dy0 + dy1 + dy2) + wear;
-		this.ze = z + (float) dz + wear;
+		this.xe = x + dx + wear;
+		this.ye0 = y + dy0;
+		this.ye1 = y + dy0 + dy1;
+		this.ye2 = y + dy0 + dy1 + dy2 + wear;
+		this.ze = z + dz + wear;
 		this.x = x - wear;
 		this.y = y - wear;
 		this.z = z - wear;
@@ -123,16 +132,24 @@ extends ModelRenderer {
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void postRender(float scale) {
-		if (this.offsetAnimX != 0.0f || this.offsetAnimY != 0.0f || this.offsetAnimZ != 0.0f) {
-			GlStateManager.translate(this.offsetAnimX, this.offsetAnimY, this.offsetAnimZ);
+		if (this.offsetAnimX != 0.0f || this.offsetAnimY != 0.0f || this.offsetAnimZ != 0.0f || this.smallArms) {
+			float ox = this.offsetAnimX;
+			if (this.smallArms) { ox += this.part == EnumParts.ARM_LEFT ? -0.020833f : 0.020833f; }
+			GlStateManager.translate(ox, this.offsetAnimY, this.offsetAnimZ);
 		}
 		GlStateManager.translate(this.rotationPointX * scale, (this.rotationPointY + this.offsetAnimY) * scale, (this.rotationPointZ + this.offsetAnimZ) * scale);
+
 		if (this.rotateAngleZ != 0.0F) { GlStateManager.rotate(this.rotateAngleZ * (180F / (float)Math.PI), 0.0F, 0.0F, 1.0F); }
 		if (this.rotateAngleY != 0.0F) { GlStateManager.rotate(this.rotateAngleY * (180F / (float)Math.PI), 0.0F, 1.0F, 0.0F); }
 		if (this.rotateAngleX != 0.0F) { GlStateManager.rotate(this.rotateAngleX * (180F / (float)Math.PI), 1.0F, 0.0F, 0.0F); }
-		if (this.scaleX != 1.0f || this.scaleY != 1.0f || this.scaleZ != 1.0f) { GlStateManager.scale(this.scaleX, this.scaleY, this.scaleZ); }
+
+		if (this.scaleX != 1.0f || this.scaleY != 1.0f || this.scaleZ != 1.0f || this.smallArms) {
+			float sx = this.scaleX;
+			if (this.smallArms) { sx *= this.dx / (this.dx + 1.0f); }
+			GlStateManager.scale(sx, this.scaleY, this.scaleZ);
+		}
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void render(float scale) {
@@ -140,14 +157,18 @@ extends ModelRenderer {
 		GlStateManager.pushMatrix();
 		this.postRender(scale);
 		// Tint
-		if (ModelRendererAlt.a != null) {
-			try { GlStateManager.color(this.r, this.g, this.b, ModelRendererAlt.a.getFloat(ModelRendererAlt.colorState.get(null))); }
-			catch (Exception e) { }
+		if (this.al != 0.0f) {
+			GlStateManager.color(this.r, this.g, this.b, this.al);
+		} else if (ModelRendererAlt.a != null) {
+			try {
+				GlStateManager.color(this.r, this.g, this.b, ModelRendererAlt.a.getFloat(ModelRendererAlt.colorState.get(null)));
+			}
+			catch (Exception e) { LogWriter.error("Error:", e); }
 		} else {
 			GlStateManager.color(this.r, this.g, this.b);
 		}
 		// render
-		if (this.displayOBJListUp > 0 || this.displayOBJListDown > 0) { this.objDraw(scale); }
+		if (this.displayOBJListUp > 0 || this.displayOBJListDown > 0) { this.objDraw(); }
 		else {
 			this.clearData();
 			if (this.location != null) { Minecraft.getMinecraft().renderEngine.bindTexture(this.location); }
@@ -160,16 +181,19 @@ extends ModelRenderer {
 		}
 		// Child Models
 		if (this.childModels != null && !this.childModels.isEmpty()) {
-			List<ModelRenderer> del = Lists.<ModelRenderer>newArrayList();
+			List<ModelRenderer> del = Lists.newArrayList();
 			for (ModelRenderer model : this.childModels) {
-				if (model instanceof ModelRendererAlt && ((ModelRendererAlt) model).part == EnumParts.CUSTOM) { del.add(model); }
+				if (model instanceof ModelRendererAlt) {
+					((ModelRendererAlt) model).checkBacklightColor(r, g, b);
+					if (((ModelRendererAlt) model).part == EnumParts.CUSTOM) { del.add(model); }
+				}
 				model.render(scale);
 			}
 			for (ModelRenderer model : del) { this.childModels.remove(model); }
 		}
 		GlStateManager.popMatrix();
 	}
-	
+
 	private void clearData() {
 		vs.clear();
 		quads.clear();
@@ -189,7 +213,9 @@ extends ModelRenderer {
 				this.normalTop = true;
 			}
 		} else { // rotate
-			if (this.rotateAngleY1 > limit) { this.rotateAngleY1 = limit; }
+            // Base
+            float limit = (float) (Math.PI / 2.0f);
+            if (this.rotateAngleY1 > limit) { this.rotateAngleY1 = limit; }
 			if (this.rotateAngleY1 < -limit) { this.rotateAngleY1 = -limit; }
 			double cos = Math.cos(-this.rotateAngleY1);
 			double sin = Math.sin(-this.rotateAngleY1);
@@ -208,32 +234,21 @@ extends ModelRenderer {
 			this.normalTop = false;
 		}
 	}
-	
+
 	// 3D part model
-	private void objDraw(float scale) {
+	private void objDraw() {
 		switch (this.part) {
-			case HEAD: {
+			case HEAD:
+            case BODY: {
 				GlStateManager.translate(0.0f, 1.5f, 0.0f);
 				break;
 			}
-			case BODY: {
-				GlStateManager.translate(0.0f, 1.5f, 0.0f);
-				break;
-			}
-			case ARM_RIGHT: {
-				if (this.smallArms) {
-					GlStateManager.scale(0.75f, 1.0f, 1.0f);
-				}
-				float addX = this.smallArms ? 0.0175f : 0.0f;
-				GlStateManager.translate(0.3175f + addX, 1.375f, 0.0f);
+            case ARM_RIGHT: {
+				GlStateManager.translate(0.3175f, 1.375f, 0.0f);
 				break;
 			}
 			case ARM_LEFT: {
-				if (this.smallArms) {
-					GlStateManager.scale(0.75f, 1.0f, 1.0f);
-				}
-				float addX = this.smallArms ? -0.0175f : 0.0f;
-				GlStateManager.translate(-0.3175f + addX, 1.375f, 0.0f);
+				GlStateManager.translate(-0.3175f, 1.375f, 0.0f);
 				break;
 			}
 			case LEG_RIGHT: {
@@ -256,7 +271,7 @@ extends ModelRenderer {
 		}
 		if (this.displayOBJListDown > 0) {
 			if (this.rotateAngleX1 != 0.0f) {
-				boolean isArm = this.part.name().toLowerCase().indexOf("arm") != -1;
+				boolean isArm = this.part.name().toLowerCase().contains("arm");
 				float ofsY = dy2 - dy0;
 				if (isArm) {
 					GlStateManager.translate(0.0f, 0.75f, 0.0f);
@@ -270,8 +285,8 @@ extends ModelRenderer {
 				}
 			}
 			if (this.rotateAngleY1 != 0.0f) {
-				boolean isArm = this.part.name().toLowerCase().indexOf("arm") != -1;
-				float ofs = (this.part.name().toLowerCase().indexOf("right") != -1 ? -1.0f : 1.0f) * (isArm ? 0.375f : 0.125f);
+				boolean isArm = this.part.name().toLowerCase().contains("arm");
+				float ofs = (this.part.name().toLowerCase().contains("right") ? -1.0f : 1.0f) * (isArm ? 0.375f : 0.125f);
 				GlStateManager.translate(ofs, 0.0f, 0.0f);
 				GlStateManager.rotate(this.rotateAngleY1 * 180.0f / (float) Math.PI, 0.0f, 1.0f, 0.0f);
 				GlStateManager.translate(-ofs, 0.0f, 0.0f);
@@ -287,9 +302,9 @@ extends ModelRenderer {
 		if (this.displayList > 0) {
 			GlStateManager.callList(this.displayList);
 			if (this.childModels != null) {
-				for (int i = 0; i < this.childModels.size(); ++i) {
-					this.childModels.get(i).render(scale);
-				}
+                for (ModelRenderer childModel : this.childModels) {
+                    childModel.render(scale);
+                }
 			}
 			return;
 		}
@@ -307,18 +322,18 @@ extends ModelRenderer {
 			this.setQuard(1, vs.get(7), vs.get(6), vs.get(5), vs.get(4), u + 2 * dz + dx, v, u + dz + dx, v + dz); // down
 			this.setQuard(2, vs.get(0), vs.get(1), vs.get(5), vs.get(4), u + dz + dx, v + dz, u + dz, v + dz + dy2); // front
 			this.setQuard(3, vs.get(2), vs.get(3), vs.get(7), vs.get(6), u + 2 * (dz + dx), v + dz, u + 2 * dz + dx, v + dz + dy2); // back
-			this.setQuard(4, vs.get(1), vs.get(2), vs.get(6), vs.get(5), u + 2 * dz + dx, v + dz, u + dz + dx, v + dz + dy2); // in side
-			this.setQuard(5, vs.get(3), vs.get(0), vs.get(4), vs.get(7), u + dz, v + dz, u, v + dz + dy2); // out side
+			this.setQuard(4, vs.get(1), vs.get(2), vs.get(6), vs.get(5), u + 2 * dz + dx, v + dz, u + dz + dx, v + dz + dy2); // inside
+			this.setQuard(5, vs.get(3), vs.get(0), vs.get(4), vs.get(7), u + dz, v + dz, u, v + dz + dy2); // outside
 		}
 		else {
 			this.setQuard(0, vs.get(2), vs.get(3), vs.get(0), vs.get(1), u + dz, v, u + dz + dx, v + dz); // up
 			this.setQuard(1, vs.get(6), vs.get(7), vs.get(4), vs.get(5), u + dz + dx, v, u + 2 * dz + dx, v + dz); // down
 			this.setQuard(2, vs.get(1), vs.get(0), vs.get(4), vs.get(5), u + dz, v + dz, u + dz + dx, v + dz + dy2); // front
 			this.setQuard(3, vs.get(3), vs.get(2), vs.get(6), vs.get(7), u + 2 * dz + dx, v + dz, u + 2 * (dz + dx), v + dz + dy2); // back
-			this.setQuard(4, vs.get(2), vs.get(1), vs.get(5), vs.get(6), u + dz + dx, v + dz, u + 2 * dz + dx, v + dz + dy2); // in side
-			this.setQuard(5, vs.get(0), vs.get(3), vs.get(7), vs.get(4), u, v + dz, u + dz, v + dz + dy2); // out side
+			this.setQuard(4, vs.get(2), vs.get(1), vs.get(5), vs.get(6), u + dz + dx, v + dz, u + 2 * dz + dx, v + dz + dy2); // inside
+			this.setQuard(5, vs.get(0), vs.get(3), vs.get(7), vs.get(4), u, v + dz, u + dz, v + dz + dy2); // outside
 		}
-		
+
 		GlStateManager.glNewList(this.displayList = GLAllocation.generateDisplayLists(1), 4864);
 		this.draw(scale);
 		GL11.glEndList();
@@ -326,7 +341,7 @@ extends ModelRenderer {
 
 	// Joint and rotate Top
 	private void drawJoint(float scale) {
-		// Counterclock-wise
+		// Counter clock-wise
 		boolean c = this.rotateAngleY1 <= 0.0f;
 		if (this.isArmor && this.part != EnumParts.ARM_RIGHT && this.part != EnumParts.LEG_RIGHT) { c = !c; }
 		vs.put(0, new PositionTextureVertex(x, y, z, 0.0F, 0.0F));
@@ -341,13 +356,17 @@ extends ModelRenderer {
 		float cos1 = (float) Math.cos(-this.rotateAngleX1 / 1.5f), sin1 = (float) Math.sin(-this.rotateAngleX1 / 1.5f);
 		float cos2 = (float) Math.cos(-this.rotateAngleX1), sin2 = (float) Math.sin(-this.rotateAngleX1);
 		float tan = (float) Math.tan(-this.rotateAngleX1 / 2.0f);
-		Vec2f cr = new Vec2f(ye0, this.rotateAngleX1 * -ze / (float) -Math.PI); // centr
-		if (this.rotateAngleX1 < 0.0f) {
+		Vec2f cr = new Vec2f(ye0, this.rotateAngleX1 * -ze / (float) -Math.PI); // center
+        Vec2f g0;
+        Vec2f g1;
+        Vec2f g2;
+        float t;// down
+        if (this.rotateAngleX1 < 0.0f) {
 			// Calculated fillet positions
-			Vec2f g0 = new Vec2f(cr.x + (ze - cr.y) * sin0 + (ye0 - cr.x) * cos0, cr.y + (ze - cr.y) * cos0 - (ye0 - cr.x) * sin0);
-			Vec2f g1 = new Vec2f(cr.x + (ze - cr.y) * sin1 + (ye0 - cr.x) * cos1, cr.y + (ze - cr.y) * cos1 - (ye0 - cr.x) * sin1);
-			Vec2f g2 = new Vec2f(cr.x + (ze - cr.y) * sin2 + (ye0 - cr.x) * cos2, cr.y + (ze - cr.y) * cos2 - (ye0 - cr.x) * sin2);
-			float t = (z - cr.y) * tan;
+            g0 = new Vec2f(cr.x + (ze - cr.y) * sin0 + (ye0 - cr.x) * cos0, cr.y + (ze - cr.y) * cos0 - (ye0 - cr.x) * sin0);
+            g1 = new Vec2f(cr.x + (ze - cr.y) * sin1 + (ye0 - cr.x) * cos1, cr.y + (ze - cr.y) * cos1 - (ye0 - cr.x) * sin1);
+            g2 = new Vec2f(cr.x + (ze - cr.y) * sin2 + (ye0 - cr.x) * cos2, cr.y + (ze - cr.y) * cos2 - (ye0 - cr.x) * sin2);
+            t = (z - cr.y) * tan;
 			Vec2f g3 = new Vec2f(ye0 + t, z);
 			float d0 = (float) Math.hypot(g0.x-g1.x, g0.y-g1.y);
 			float n0 = dy0 / (dy0 + d0 * 1.5f) * d0 * 1.5f;
@@ -363,12 +382,12 @@ extends ModelRenderer {
 			// level #0
 			this.setQuard(i++, vs.get(1), vs.get(0), vs.get(4), vs.get(5), u + dz, v + dz, u + dz + dx, v + dz + dy0); // front
 			this.setQuard(i++, vs.get(3), vs.get(2), vs.get(6), vs.get(7), u + 2 * dz + dx, v + dz, u + 2 * (dz + dx), v + dz + dy00); // back
-			this.setQuard(i++, vs.get(1), vs.get(2), vs.get(6), vs.get(5), // in side
+			this.setQuard(i++, vs.get(1), vs.get(2), vs.get(6), vs.get(5), // inside
 					u + dz + dx, v + dz,
 					u + 2 * dz + dx, v + dz,
 					u + 2 * dz + dx, v + dz + dy00,
 					u + dz + dx, v + dz + dy0);
-			this.setQuard(i++, vs.get(0), vs.get(3), vs.get(7), vs.get(4), // out side
+			this.setQuard(i++, vs.get(0), vs.get(3), vs.get(7), vs.get(4), // outside
 					u + dz, v + dz,
 					u, v + dz,
 					u, v + dz + dy00,
@@ -381,12 +400,12 @@ extends ModelRenderer {
 					u + 2 * dz + dx, v + dz + dy00,
 					u + 2 * dz + dx, v + dz + dy01,
 					u + 2 * (dz + dx), v + dz + dy01);
-			this.setQuard(i++, vs.get(5), vs.get(6), vs.get(8), vs.get(5), // in side
+			this.setQuard(i++, vs.get(5), vs.get(6), vs.get(8), vs.get(5), // inside
 					u + dz + dx, v + dz + dy0,
 					u + 2 * dz + dx, v + dz + dy00,
 					u + 2 * dz + dx, v + dz + dy01,
 					u + dz + dx, v + dz + dy0);
-			this.setQuard(i++, vs.get(4), vs.get(7), vs.get(9), vs.get(4), // out side
+			this.setQuard(i++, vs.get(4), vs.get(7), vs.get(9), vs.get(4), // outside
 					u + dz, v + dz + dy0,
 					u, v + dz + dy00,
 					u, v + dz + dy01,
@@ -399,12 +418,12 @@ extends ModelRenderer {
 					u + 2 * dz + dx, v + dz + dy01,
 					u + 2 * dz + dx, v + dz + dy02,
 					u + 2 * (dz + dx), v + dz + dy02);
-			this.setQuard(i++, vs.get(5), vs.get(8), vs.get(10), vs.get(5), // in side
+			this.setQuard(i++, vs.get(5), vs.get(8), vs.get(10), vs.get(5), // inside
 					u + dz + dx, v + dz + dy0,
 					u + 2 * dz + dx, v + dz + dy01,
 					u + 2 * dz + dx, v + dz + dy02,
 					u + dz + dx, v + dz + dy0);
-			this.setQuard(i++, vs.get(4), vs.get(9), vs.get(11), vs.get(4), // out side
+			this.setQuard(i++, vs.get(4), vs.get(9), vs.get(11), vs.get(4), // outside
 					u + dz, v + dz + dy0,
 					u, v + dz + dy01,
 					u, v + dz + dy02,
@@ -417,12 +436,12 @@ extends ModelRenderer {
 					u + 2 * dz + dx, v + dz + dy02,
 					u + 2 * dz + dx, v + dz + dy03,
 					u + 2 * (dz + dx), v + dz + dy03);
-			this.setQuard(i++, vs.get(5), vs.get(10), vs.get(12), vs.get(5), // in side
+			this.setQuard(i++, vs.get(5), vs.get(10), vs.get(12), vs.get(5), // inside
 					u + dz + dx, v + dz + dy0,
 					u + 2 * dz + dx, v + dz + dy02,
 					u + 2 * dz + dx, v + dz + dy03,
 					u + dz + dx, v + dz + dy0);
-			this.setQuard(i++, vs.get(4), vs.get(11), vs.get(13), vs.get(4), // out side
+			this.setQuard(i++, vs.get(4), vs.get(11), vs.get(13), vs.get(4), // outside
 					u + dz, v + dz + dy0,
 					u, v + dz + dy02,
 					u, v + dz + dy03,
@@ -452,22 +471,22 @@ extends ModelRenderer {
 						u + 2 * (dz + dx), v + dz + dy03,
 						u + 2 * (dz + dx), v + dz + dy1,
 						u + 2 * dz + dx, v + dz + dy1);
-				this.setQuard(i++, vs.get(12), vs.get(5), vs.get(16), vs.get(16), // in side 0
+				this.setQuard(i++, vs.get(12), vs.get(5), vs.get(16), vs.get(16), // inside 0
 						u + 2 * dz + dx, v + dz + dy03,
 						u + dz + dx, v + dz + dy0,
 						u + 2 * dz + dx, v + dz + dy1,
 						u + 2 * dz + dx, v + dz + dy1);
-				this.setQuard(i++, vs.get(16), vs.get(5), vs.get(15), vs.get(15), // in side 1
+				this.setQuard(i++, vs.get(16), vs.get(5), vs.get(15), vs.get(15), // inside 1
 						u + 2 * dz + dx, v + dz + dy1,
 						u + dz + dx, v + dz + dy0,
 						u + dz + dx, v + dz + dy1,
 						u + dz + dx, v + dz + dy1);
-				this.setQuard(i++, vs.get(4), vs.get(13), vs.get(14), vs.get(14), // out side 0
+				this.setQuard(i++, vs.get(4), vs.get(13), vs.get(14), vs.get(14), // outside 0
 						u + dz, v + dz + dy0,
 						u, v + dz + dy03,
 						u + dz, v + dz + dy1,
 						u + dz, v + dz + dy1);
-				this.setQuard(i++, vs.get(14), vs.get(13), vs.get(17), vs.get(17), // out side 1
+				this.setQuard(i++, vs.get(14), vs.get(13), vs.get(17), vs.get(17), // outside 1
 						u + dz, v + dz + dy1,
 						u, v + dz + dy03,
 						u, v + dz + dy1,
@@ -475,12 +494,12 @@ extends ModelRenderer {
 			} else {
 				this.setQuard(i++, vs.get(5), vs.get(4), vs.get(14), vs.get(15), u + dz, v + dz + dy0, u + dz + dx, v + dz + dy1); // front
 				this.setQuard(i++, vs.get(13), vs.get(12), vs.get(16), vs.get(17), u + 2 * dz + dx, v + dz + dy03, u + 2 * (dz + dx), v + dz + dy1); // back
-				this.setQuard(i++, vs.get(12), vs.get(5), vs.get(15), vs.get(16), // in side
+				this.setQuard(i++, vs.get(12), vs.get(5), vs.get(15), vs.get(16), // inside
 						u + 2 * dz + dx, v + dz + dy03,
 						u + dz + dx, v + dz + dy0,
 						u + dz + dx, v + dz + dy1,
 						u + 2 * dz + dx, v + dz + dy1);
-				this.setQuard(i++, vs.get(4), vs.get(13), vs.get(17), vs.get(14), // out side
+				this.setQuard(i++, vs.get(4), vs.get(13), vs.get(17), vs.get(14), // outside
 						u + dz, v + dz + dy0,
 						u, v + dz + dy03,
 						u, v + dz + dy1,
@@ -495,17 +514,12 @@ extends ModelRenderer {
 			vs.put(19, new PositionTextureVertex(tvs[5].x, yz19.x, yz19.y, 0.0F, 0.0F));
 			vs.put(20, new PositionTextureVertex(tvs[6].x, yz20.x, yz20.y, 0.0F, 0.0F));
 			vs.put(21, new PositionTextureVertex(tvs[7].x, yz21.x, yz21.y, 0.0F, 0.0F));
-			this.setQuard(i++, vs.get(15), vs.get(14), vs.get(18), vs.get(19), u + dz, v + dz + dy1, u + dz + dx, v + dz + dy2); // front
-			this.setQuard(i++, vs.get(17), vs.get(16), vs.get(20), vs.get(21), u + 2 * dz + dx, v + dz + dy1, u + 2 * (dz + dx), v + dz + dy2); // back
-			this.setQuard(i++, vs.get(16), vs.get(15), vs.get(19), vs.get(20), u + dz + dx, v + dz + dy1, u + 2 * dz + dx, v + dz + dy2);// in side
-			this.setQuard(i++, vs.get(14), vs.get(17), vs.get(21), vs.get(18), u, v + dz + dy1, u + dz, v + dz + dy2);// out side
-			this.setQuard(i++, vs.get(19), vs.get(18), vs.get(21), vs.get(20), u + dz + dx, v, u + 2 * dz + dx, v + dz); // down
-		} else {
+        } else {
 			// Calculated fillet positions
-			Vec2f g0 = new Vec2f(cr.x + (z - cr.y) * sin0 + (ye0 - cr.x) * cos0, cr.y + (z - cr.y) * cos0 - (ye0 - cr.x) * sin0);
-			Vec2f g1 = new Vec2f(cr.x + (z - cr.y) * sin1 + (ye0 - cr.x) * cos1, cr.y + (z - cr.y) * cos1 - (ye0 - cr.x) * sin1);
-			Vec2f g2 = new Vec2f(cr.x + (z - cr.y) * sin2 + (ye0 - cr.x) * cos2, cr.y + (z - cr.y) * cos2 - (ye0 - cr.x) * sin2);
-			float t = (ze - cr.y) * tan;
+            g0 = new Vec2f(cr.x + (z - cr.y) * sin0 + (ye0 - cr.x) * cos0, cr.y + (z - cr.y) * cos0 - (ye0 - cr.x) * sin0);
+            g1 = new Vec2f(cr.x + (z - cr.y) * sin1 + (ye0 - cr.x) * cos1, cr.y + (z - cr.y) * cos1 - (ye0 - cr.x) * sin1);
+            g2 = new Vec2f(cr.x + (z - cr.y) * sin2 + (ye0 - cr.x) * cos2, cr.y + (z - cr.y) * cos2 - (ye0 - cr.x) * sin2);
+            t = (ze - cr.y) * tan;
 			Vec2f g3 = new Vec2f(ye0 + t, ze);
 			float d0 = (float) Math.hypot(g0.x-g1.x, g0.y-g1.y);
 			float n0 = dy0 / (dy0 + d0 * 1.5f) * d0 * 1.5f;
@@ -521,14 +535,14 @@ extends ModelRenderer {
 			// level #0
 			this.setQuard(i++, vs.get(1), vs.get(0), vs.get(4), vs.get(5), u + dz, v + dz, u + dz + dx, v + dz + dy00); // front
 			this.setQuard(i++, vs.get(3), vs.get(2), vs.get(6), vs.get(7), u + 2 * dz + dx, v + dz, u + 2 * (dz + dx), v + dz + dy0); // back
-			this.setQuard(i++, vs.get(1), vs.get(2), vs.get(6), vs.get(5), // in side
+			this.setQuard(i++, vs.get(1), vs.get(2), vs.get(6), vs.get(5), // inside
 					u + dz + dx, v + dz,
 					u + 2 * dz + dx, v + dz,
 					u + 2 * dz + dx, v + dz + dy0,
 					u + dz + dx, v + dz + dy00);
-			this.setQuard(i++, vs.get(0), vs.get(3), vs.get(7), vs.get(4), // out side
+			this.setQuard(i++, vs.get(0), vs.get(3), vs.get(7), vs.get(4), // outside
 					u + dz, v + dz,
-					u, v + dz, 
+					u, v + dz,
 					u, v + dz + dy0,
 					u + dz, v + dz + dy00);
 			// level #1
@@ -539,12 +553,12 @@ extends ModelRenderer {
 					u + dz + dx, v + dz + dy00,
 					u + dz + dx, v + dz + dy01,
 					u + dz, v + dz + dy01);
-			this.setQuard(i++, vs.get(5), vs.get(6), vs.get(8), vs.get(5), // in side
+			this.setQuard(i++, vs.get(5), vs.get(6), vs.get(8), vs.get(5), // inside
 					u + dz + dx, v + dz + dy00,
 					u + 2 * dz + dx, v + dz + dy0,
 					u + dz + dx, v + dz + dy01,
 					u + dz + dx, v + dz + dy00);
-			this.setQuard(i++, vs.get(4), vs.get(7), vs.get(9), vs.get(4), // out side
+			this.setQuard(i++, vs.get(4), vs.get(7), vs.get(9), vs.get(4), // outside
 					u + dz, v + dz + dy00,
 					u, v + dz + dy0,
 					u + dz, v + dz + dy01,
@@ -557,12 +571,12 @@ extends ModelRenderer {
 					u + dz + dx, v + dz + dy01,
 					u + dz + dx, v + dz + dy02,
 					u + dz, v + dz + dy02);
-			this.setQuard(i++, vs.get(8), vs.get(6), vs.get(10), vs.get(8), // in side
+			this.setQuard(i++, vs.get(8), vs.get(6), vs.get(10), vs.get(8), // inside
 					u + dz + dx, v + dz + dy01,
 					u + 2 * dz + dx, v + dz + dy0,
 					u + dz + dx, v + dz + dy02,
 					u + dz + dx, v + dz + dy01);
-			this.setQuard(i++, vs.get(9), vs.get(7), vs.get(11), vs.get(9), // out side
+			this.setQuard(i++, vs.get(9), vs.get(7), vs.get(11), vs.get(9), // outside
 					u + dz, v + dz + dy01,
 					u, v + dz + dy0,
 					u + dz, v + dz + dy02,
@@ -575,12 +589,12 @@ extends ModelRenderer {
 					u + dz + dx, v + dz + dy02,
 					u + dz + dx, v + dz + dy03,
 					u + dz, v + dz + dy03);
-			this.setQuard(i++, vs.get(10), vs.get(6), vs.get(12), vs.get(10), // in side
+			this.setQuard(i++, vs.get(10), vs.get(6), vs.get(12), vs.get(10), // inside
 					u + dz + dx, v + dz + dy02,
 					u + 2 * dz + dx, v + dz + dy0,
 					u + dz + dx, v + dz + dy03,
 					u + dz + dx, v + dz + dy02);
-			this.setQuard(i++, vs.get(11), vs.get(7), vs.get(13), vs.get(11), // out side
+			this.setQuard(i++, vs.get(11), vs.get(7), vs.get(13), vs.get(11), // outside
 					u + dz, v + dz + dy02,
 					u, v + dz + dy0,
 					u + dz, v + dz + dy03,
@@ -617,12 +631,12 @@ extends ModelRenderer {
 						u + 2 * dz + dx, v + dz + dy1,
 						u + dz + dx, v + dz + dy1,
 						u + dz + dx, v + dz + dy1);
-				this.setQuard(i++, vs.get(13), vs.get(7), vs.get(14), vs.get(14), // out side 0
+				this.setQuard(i++, vs.get(13), vs.get(7), vs.get(14), vs.get(14), // outside 0
 						u + dz, v + dz + dy03,
 						u, v + dz + dy0,
 						u + dz, v + dz + dy1,
 						u + dz, v + dz + dy1);
-				this.setQuard(i++, vs.get(14), vs.get(7), vs.get(17), vs.get(14), // out side 1
+				this.setQuard(i++, vs.get(14), vs.get(7), vs.get(17), vs.get(14), // outside 1
 						u + dz, v + dz + dy1,
 						u, v + dz + dy0,
 						u, v + dz + dy1,
@@ -644,22 +658,22 @@ extends ModelRenderer {
 						u + 2 * dz + dx, v + dz + dy1,
 						u + 2 * (dz + dx), v + dz + dy1,
 						u + 2 * (dz + dx), v + dz + dy1);
-				this.setQuard(i++, vs.get(12), vs.get(6), vs.get(15), vs.get(15), // in side 0
+				this.setQuard(i++, vs.get(12), vs.get(6), vs.get(15), vs.get(15), // inside 0
 						u + dz + dx, v + dz + dy03,
 						u + 2 * dz + dx, v + dz + dy0,
 						u + dz + dx, v + dz + dy1,
 						u + dz + dx, v + dz + dy1);
-				this.setQuard(i++, vs.get(15), vs.get(6), vs.get(16), vs.get(16), // in side 1
+				this.setQuard(i++, vs.get(15), vs.get(6), vs.get(16), vs.get(16), // inside 1
 						u + dz + dx, v + dz + dy1,
 						u + 2 * dz + dx, v + dz + dy0,
 						u + 2 * dz + dx, v + dz + dy1,
 						u + 2 * dz + dx, v + dz + dy1);
-				this.setQuard(i++, vs.get(13), vs.get(7), vs.get(17), vs.get(17), // out side 0
+				this.setQuard(i++, vs.get(13), vs.get(7), vs.get(17), vs.get(17), // outside 0
 						u + dz, v + dz + dy03,
 						u, v + dz + dy0,
 						u, v + dz + dy1,
 						u, v + dz + dy1);
-				this.setQuard(i++, vs.get(13), vs.get(17), vs.get(14), vs.get(14), // out side 1
+				this.setQuard(i++, vs.get(13), vs.get(17), vs.get(14), vs.get(14), // outside 1
 						u + dz, v + dz + dy03,
 						u, v + dz + dy1,
 						u + dz, v + dz + dy1,
@@ -674,13 +688,13 @@ extends ModelRenderer {
 			vs.put(19, new PositionTextureVertex(tvs[5].x, yz19.x, yz19.y, 0.0F, 0.0F));
 			vs.put(20, new PositionTextureVertex(tvs[6].x, yz20.x, yz20.y, 0.0F, 0.0F));
 			vs.put(21, new PositionTextureVertex(tvs[7].x, yz21.x, yz21.y, 0.0F, 0.0F));
-			this.setQuard(i++, vs.get(15), vs.get(14), vs.get(18), vs.get(19), u + dz, v + dz + dy1, u + dz + dx, v + dz + dy2); // front
-			this.setQuard(i++, vs.get(17), vs.get(16), vs.get(20), vs.get(21), u + 2 * dz + dx, v + dz + dy1, u + 2 * (dz + dx), v + dz + dy2); // back
-			this.setQuard(i++, vs.get(16), vs.get(15), vs.get(19), vs.get(20), u + dz + dx, v + dz + dy1, u + 2 * dz + dx, v + dz + dy2);// in side
-			this.setQuard(i++, vs.get(14), vs.get(17), vs.get(21), vs.get(18), u, v + dz + dy1, u + dz, v + dz + dy2);// out side
-			this.setQuard(i++, vs.get(19), vs.get(18), vs.get(21), vs.get(20), u + dz + dx, v, u + 2 * dz + dx, v + dz); // down
-		}
-		this.draw(scale);
+        }
+        this.setQuard(i++, vs.get(15), vs.get(14), vs.get(18), vs.get(19), u + dz, v + dz + dy1, u + dz + dx, v + dz + dy2); // front
+        this.setQuard(i++, vs.get(17), vs.get(16), vs.get(20), vs.get(21), u + 2 * dz + dx, v + dz + dy1, u + 2 * (dz + dx), v + dz + dy2); // back
+        this.setQuard(i++, vs.get(16), vs.get(15), vs.get(19), vs.get(20), u + dz + dx, v + dz + dy1, u + 2 * dz + dx, v + dz + dy2);// inside
+        this.setQuard(i++, vs.get(14), vs.get(17), vs.get(21), vs.get(18), u, v + dz + dy1, u + dz, v + dz + dy2);// outside
+        this.setQuard(i, vs.get(19), vs.get(18), vs.get(21), vs.get(20), u + dz + dx, v, u + 2 * dz + dx, v + dz); // down
+        this.draw(scale);
 	}
 
 	private void draw(float scale) {
@@ -692,9 +706,9 @@ extends ModelRenderer {
 		}
 	}
 
-	private Vec2f rotate(Vec2f centr, Vec2f vertex, double cos, double sin) {
-		float y = (float) (centr.y + (vertex.y - centr.y) * cos - (vertex.x - centr.x) * sin);
-		float x = (float) (centr.x + (vertex.y - centr.y) * sin + (vertex.x - centr.x) * cos);
+	private Vec2f rotate(Vec2f center, Vec2f vertex, double cos, double sin) {
+		float y = (float) (center.y + (vertex.y - center.y) * cos - (vertex.x - center.x) * sin);
+		float x = (float) (center.x + (vertex.y - center.y) * sin + (vertex.x - center.x) * cos);
 		return new Vec2f(x, y);
 	}
 
@@ -705,7 +719,7 @@ extends ModelRenderer {
 		quads.get(i).vertexPositions[2] = ptv2.setTexturePosition(u1 / this.textureWidth, v2 / this.textureHeight);
 		quads.get(i).vertexPositions[3] = ptv3.setTexturePosition(u2 / this.textureWidth, v2 / this.textureHeight);
 	}
-	
+
 	private void setQuard(int i, PositionTextureVertex ptv0, PositionTextureVertex ptv1, PositionTextureVertex ptv2, PositionTextureVertex ptv3, float u0, float v0, float u1, float v1, float u2, float v2, float u3, float v3) {
 		quads.put(i, new TexturedQuad(new PositionTextureVertex[] { ptv0, ptv1, ptv2, ptv3}));
 		quads.get(i).vertexPositions[0] = ptv0.setTexturePosition(u0 / this.textureWidth, v0 / this.textureHeight);
@@ -713,7 +727,7 @@ extends ModelRenderer {
 		quads.get(i).vertexPositions[2] = ptv2.setTexturePosition(u2 / this.textureWidth, v2 / this.textureHeight);
 		quads.get(i).vertexPositions[3] = ptv3.setTexturePosition(u3 / this.textureWidth, v3 / this.textureHeight);
 	}
-	
+
 	public void setIsNormal(boolean bo) { this.isNormal = bo; }
 
 	public void copyModelAngles(ModelRendererAlt source) {
@@ -733,16 +747,20 @@ extends ModelRenderer {
 		this.offsetAnimZ = source.offsetAnimZ;
 	}
 
-	public void chechBacklightColor(float r, float g, float b) {
-		if (ModelNpcAlt.editAnimDataSelect.isNPC && ModelNpcAlt.editAnimDataSelect.part == this.part) {
-			this.r = ModelNpcAlt.editAnimDataSelect.red;
-			this.g = ModelNpcAlt.editAnimDataSelect.green;
-			this.b = ModelNpcAlt.editAnimDataSelect.blue;
-		}
-		else {
-			this.r = r;
-			this.g = g;
-			this.b = b;
+	public void checkBacklightColor(float r, float g, float b) {
+		this.r = r;
+		this.g = g;
+		this.b = b;
+		this.al = 0.0f;
+		if (ModelNpcAlt.editAnimDataSelect.isNPC) {
+			if (ModelNpcAlt.editAnimDataSelect.part == this.part) {
+				this.r = ModelNpcAlt.editAnimDataSelect.red;
+				this.g = ModelNpcAlt.editAnimDataSelect.green;
+				this.b = ModelNpcAlt.editAnimDataSelect.blue;
+				this.al = 1.0f;
+			} else {
+				this.al = ModelNpcAlt.editAnimDataSelect.alpha;
+			}
 		}
 	}
 
@@ -759,15 +777,15 @@ extends ModelRenderer {
 		}
 		CustomArmor armor = (CustomArmor) stack.getItem();
 		Map<String, String> map = null;
-		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("OBJTexture")) {
+		if (stack.hasTagCompound() && stack.getTagCompound() != null && stack.getTagCompound().hasKey("OBJTexture")) {
 			ResourceLocation mainTexture = ModelBuffer.getMainOBJTexture(armor.objModel);
 			if (mainTexture != null) {
-				map = Maps.<String, String>newHashMap();
+				map = Maps.newHashMap();
 				map.put(mainTexture.toString(), stack.getTagCompound().getString("OBJTexture"));
 			}
 		}
 		if ((this.part == EnumParts.LEG_RIGHT && part == EnumParts.FEET_RIGHT) ||
-			(this.part == EnumParts.LEG_LEFT && part == EnumParts.FEET_LEFT)) {
+				(this.part == EnumParts.LEG_LEFT && part == EnumParts.FEET_LEFT)) {
 			this.displayOBJListDown = ModelBuffer.getDisplayList(armor.objModel, armor.getMeshNames(part), map);
 		}
 		else {
@@ -794,8 +812,8 @@ extends ModelRenderer {
 		}
 	}
 
-	public boolean isOBJModel() {
-		return this.displayOBJListUp > 0 || this.displayOBJListDown > 0;
+	public boolean notOBJModel() {
+		return this.displayOBJListUp <= 0 && this.displayOBJListDown <= 0;
 	}
 
 	public void setBaseData(ModelPartConfig config) {
@@ -815,9 +833,8 @@ extends ModelRenderer {
 		this.scaleY = config.scale[1];
 		this.scaleZ = config.scale[2];
 	}
-	
+
 	/**
-	 * @param model 
 	 * @param animation = rots[ 0:rotX, 1:rotY, 2:rotZ, 3:ofsX, 4:ofsY, 5:ofsZ, 6:scX, 7:scY, 8:scZ, 9:rotX1, 10:rotY1 ]
 	 */
 	public void setAnimation(DataAnimation animation) {
@@ -837,21 +854,38 @@ extends ModelRenderer {
 			this.scaleX *= partSets[6];
 			this.scaleY *= partSets[7];
 			this.scaleZ *= partSets[8];
-			if (!this.isNormal) {
+			if (partSets[9] != 0.0f && partSets[10] != 0.0f) {
 				this.rotateAngleX1 = partSets[9];
 				this.rotateAngleY1 = partSets[10];
+				if (this.isNormal) { this.isNormal = false; }
 			}
 			this.isAnimPart = partSets[0] != 0.0f || partSets[1] != 0.0f || partSets[2] != 0.0f || partSets[3] != 0.0f || partSets[4] != 0.0f || partSets[5] != 0.0f || partSets[6] != 1.0f || partSets[7] != 1.0f || partSets[8] != 1.0f || partSets[9] != 0.0f || partSets[10] != 0.0f;
 		}
 		if (animation.addParts.containsKey(this.idPart)) {
-			for (AddedPartConfig part : animation.addParts.get(this.idPart)) {
-				ModelRendererAlt child = new ModelRendererAlt(part, animation);
-				this.addChild(child);
+			ModelBase baseModel = ObfuscationHelper.getValue(ModelRenderer.class, this, ModelBase.class);
+			if (baseModel != null) {
+				for (AddedPartConfig part : animation.addParts.get(this.idPart)) {
+					ModelRendererAlt child = new ModelRendererAlt(baseModel, part, animation);
+					this.addChild(child);
+				}
 			}
 		}
 	}
 
+	@Override
+	public void setRotationPoint(float rotationPointXIn, float rotationPointYIn, float rotationPointZIn) {
+		this.rotationPointX = rotationPointXIn;
+		this.rotationPointY = rotationPointYIn;
+		this.rotationPointZ = rotationPointZIn;
+		this.baseRotationPoint[0] = rotationPointXIn;
+		this.baseRotationPoint[1] = rotationPointYIn;
+		this.baseRotationPoint[2] = rotationPointZIn;
+	}
+
 	public void clearRotations() {
+		this.rotationPointX = this.baseRotationPoint[0];
+		this.rotationPointY = this.baseRotationPoint[1];
+		this.rotationPointZ = this.baseRotationPoint[2];
 		this.rotateAngleX = 0.0f;
 		this.rotateAngleY = 0.0f;
 		this.rotateAngleZ = 0.0f;
@@ -864,6 +898,7 @@ extends ModelRenderer {
 		this.scaleY = 1.0f;
 		this.scaleZ = 1.0f;
 		this.isAnimPart = false;
+		this.showModel = true;
 	}
 
 }

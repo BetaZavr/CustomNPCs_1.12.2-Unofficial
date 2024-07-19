@@ -2,13 +2,13 @@ package noppes.npcs.containers;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.TransportCategory;
 import noppes.npcs.controllers.data.TransportLocation;
+
+import javax.annotation.Nonnull;
 
 public class ContainerNPCTransportSetup extends Container {
 
@@ -27,15 +27,15 @@ public class ContainerNPCTransportSetup extends Container {
 		for (int i2 = 0; i2 < 3; ++i2) {
 			for (int l1 = 0; l1 < 9; ++l1) {
 				this.addSlotToContainer(
-						new Slot((IInventory) player.inventory, l1 + i2 * 9 + 9, 48 + l1 * 18, 137 + i2 * 18));
+						new Slot(player.inventory, l1 + i2 * 9 + 9, 48 + l1 * 18, 137 + i2 * 18));
 			}
 		}
 		for (int j1 = 0; j1 < 9; ++j1) {
-			this.addSlotToContainer(new Slot((IInventory) player.inventory, j1, 48 + j1 * 18, 195));
+			this.addSlotToContainer(new Slot(player.inventory, j1, 48 + j1 * 18, 195));
 		}
 	}
 
-	public boolean canInteractWith(EntityPlayer entityplayer) {
+	public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
 		return true;
 	}
 
@@ -52,17 +52,7 @@ public class ContainerNPCTransportSetup extends Container {
 		return compound;
 	}
 
-	public void setDeal(Deal deal) {
-		/*
-		 * this.deal = deal; this.getSlot(0).putStack(deal!=null ?
-		 * deal.inventorySold.getStackInSlot(0) : ItemStack.EMPTY); for (int v = 0; v <
-		 * 3; ++v) { for (int u = 0; u < 3; ++u) { int pos = u + v * 3;
-		 * this.getSlot(pos+1).putStack(deal!=null ?
-		 * deal.inventoryCurrency.getStackInSlot(pos) : ItemStack.EMPTY); } }
-		 */
-	}
-
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) {
 		return ItemStack.EMPTY;
 	}
 

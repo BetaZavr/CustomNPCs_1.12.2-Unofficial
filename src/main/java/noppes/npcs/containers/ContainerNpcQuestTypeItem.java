@@ -7,6 +7,8 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.controllers.data.Quest;
 
+import javax.annotation.Nonnull;
+
 public class ContainerNpcQuestTypeItem extends Container {
 
 	public int slotID;
@@ -26,12 +28,12 @@ public class ContainerNpcQuestTypeItem extends Container {
 		}
 	}
 
-	public boolean canInteractWith(EntityPlayer entityplayer) {
+	public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
 		return true;
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
-		return null;
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) {
+		return ItemStack.EMPTY;
 	}
 
 }

@@ -25,15 +25,14 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCFactionSetup extends GuiNPCInterface2
-		implements IScrollData, ICustomScrollListener, ISubGuiListener {
+public class GuiNPCFactionSetup extends GuiNPCInterface2 implements IScrollData, ICustomScrollListener, ISubGuiListener {
 
-	private HashMap<String, Integer> data;
+	private final HashMap<String, Integer> data;
 	private GuiCustomScroll scrollFactions;
 
 	public GuiNPCFactionSetup(EntityNPCInterface npc) {
 		super(npc);
-		this.data = Maps.<String, Integer>newHashMap();
+		this.data = Maps.newHashMap();
 	}
 
 	@Override
@@ -49,7 +48,7 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2
 			break;
 		}
 		case 2: {
-			HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
+			HashMap<String, Integer> corData = Maps.newHashMap();
 			for (String name : this.data.keySet()) {
 				int id = this.data.get(name);
 				if (this.npc.faction.id == id || this.npc.faction.attackFactions.contains(id)
@@ -63,7 +62,7 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2
 			break;
 		}
 		case 3: {
-			HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
+			HashMap<String, Integer> corData = Maps.newHashMap();
 			for (String name : this.data.keySet()) {
 				int id = this.data.get(name);
 				if (this.npc.faction.id == id || this.npc.faction.attackFactions.contains(id)
@@ -132,11 +131,9 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2
 					"faction.through.walls");
 			checkBox.setSelected(this.npc.advanced.throughWalls);
 			this.addButton(checkBox);
-			y += 32;
-		} else {
-			y += 32;
-		}
-		this.addLabel(new GuiNpcLabel(2, "faction.friends", this.guiLeft + 4, this.guiTop + y + 5));
+        }
+        y += 32;
+        this.addLabel(new GuiNpcLabel(2, "faction.friends", this.guiLeft + 4, this.guiTop + y + 5));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 124, this.guiTop + y, 60, 20, "selectServer.edit"));
 		y += 22;
 		this.addLabel(new GuiNpcLabel(3, "faction.hostiles", this.guiLeft + 4, this.guiTop + y + 5));
@@ -151,7 +148,7 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2
 		this.scrollFactions.guiLeft = this.guiLeft + 200;
 		this.scrollFactions.guiTop = this.guiTop + 4;
 		this.addScroll(this.scrollFactions);
-		Client.sendData(EnumPacketServer.FactionsGet, new Object[0]);
+		Client.sendData(EnumPacketServer.FactionsGet);
 	}
 
 	@Override

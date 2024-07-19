@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui.custom.components;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -72,8 +71,7 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 
 	public boolean mouseClicked(GuiCustom gui, int mouseX, int mouseY, int mouseButton) {
 		if (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height) {
-			Minecraft.getMinecraft().getSoundHandler()
-					.playSound((ISound) PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 			gui.buttonClick(this);
 			return true;
 		}
@@ -139,10 +137,7 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 			GlStateManager.translate(0.0, 0.0, 0.1);
 			this.drawCenteredString(fontRenderer, this.displayString, this.x + this.width / 2,
 					this.y + (this.height - 8) / 2, j);
-			if (this.hovered && this.hoverText != null && this.hoverText.length > 0) {
-				this.parent.hoverText = this.hoverText;
-			}
-		} else {
+        } else {
 			mc.renderEngine.bindTexture(this.texture);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			int i = this.hoverState(this.hovered);
@@ -156,15 +151,11 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 					this.height);
 			this.drawCenteredString(fontRenderer, this.label, this.x + this.width / 2, this.y + (this.height - 8) / 2,
 					this.colour);
-			if (this.hovered && this.hoverText != null && this.hoverText.length > 0) {
-				this.parent.hoverText = this.hoverText;
-			}
-		}
-		GlStateManager.popMatrix();
-	}
-
-	public void setColour(int colour) {
-		this.colour = colour;
+        }
+        if (this.hovered && this.hoverText != null && this.hoverText.length > 0) {
+            this.parent.hoverText = this.hoverText;
+        }
+        GlStateManager.popMatrix();
 	}
 
 	public void setParent(GuiCustom parent) {

@@ -13,8 +13,8 @@ public class EntityAIMoveIndoors extends EntityAIBase {
 	private double shelterX;
 	private double shelterY;
 	private double shelterZ;
-	private EntityCreature theCreature;
-	private World world;
+	private final EntityCreature theCreature;
+	private final World world;
 
 	public EntityAIMoveIndoors(EntityCreature par1EntityCreature) {
 		this.theCreature = par1EntityCreature;

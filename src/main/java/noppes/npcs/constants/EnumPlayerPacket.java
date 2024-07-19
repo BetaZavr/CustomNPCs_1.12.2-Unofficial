@@ -73,6 +73,5 @@ public enum EnumPlayerPacket
 	PlayerSkinSet,
 	ScriptEncrypt,
 	MiniMapData,
-	InGame;
-	
+	InGame
 }

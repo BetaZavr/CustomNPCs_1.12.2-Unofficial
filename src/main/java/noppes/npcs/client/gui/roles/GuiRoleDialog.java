@@ -19,7 +19,7 @@ import noppes.npcs.roles.RoleDialog;
 
 public class GuiRoleDialog extends GuiNPCInterface2 implements ISubGuiListener {
 
-	private RoleDialog role;
+	private final RoleDialog role;
 	private int slot;
 
 	public GuiRoleDialog(EntityNPCInterface npc) {
@@ -73,7 +73,7 @@ public class GuiRoleDialog extends GuiNPCInterface2 implements ISubGuiListener {
 
 	@Override
 	public void save() {
-		HashMap<Integer, String> map = new HashMap<Integer, String>();
+		HashMap<Integer, String> map = new HashMap<>();
 		for (int i = 1; i <= 6; ++i) {
 			String text = this.getTextField(i).getText();
 			if (!text.isEmpty()) {

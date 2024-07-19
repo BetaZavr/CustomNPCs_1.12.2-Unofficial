@@ -13,9 +13,11 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.NBTJsonUtil;
 
+import java.util.Objects;
+
 public class NBTWrapper implements INbt {
 
-	private NBTTagCompound compound;
+	private final NBTTagCompound compound;
 
 	public NBTWrapper(NBTTagCompound compound) {
 		this.compound = compound;
@@ -45,7 +47,7 @@ public class NBTWrapper implements INbt {
 
 	@Override
 	public INbt getCompound(String key) {
-		return NpcAPI.Instance().getINbt(this.compound.getCompoundTag(key));
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.compound.getCompoundTag(key));
 	}
 
 	@Override
@@ -70,7 +72,7 @@ public class NBTWrapper implements INbt {
 
 	@Override
 	public String[] getKeys() {
-		return this.compound.getKeySet().toArray(new String[this.compound.getKeySet().size()]);
+		return this.compound.getKeySet().toArray(new String[0]);
 	}
 
 	@Override
@@ -79,7 +81,7 @@ public class NBTWrapper implements INbt {
 		Object[] nbts = new Object[list.tagCount()];
 		for (int i = 0; i < list.tagCount(); ++i) {
 			if (list.getTagType() == 10) {
-				nbts[i] = NpcAPI.Instance().getINbt(list.getCompoundTagAt(i));
+				nbts[i] = Objects.requireNonNull(NpcAPI.Instance()).getINbt(list.getCompoundTagAt(i));
 			} else if (list.getTagType() == 8) {
 				nbts[i] = list.getStringTagAt(i);
 			} else if (list.getTagType() == 6) {
@@ -98,11 +100,8 @@ public class NBTWrapper implements INbt {
 	@Override
 	public int getListType(String key) {
 		NBTBase b = this.compound.getTag(key);
-		if (b == null) {
-			return 0;
-		}
-		if (b.getId() != 9) {
-			throw new CustomNPCsException("NBT tag " + key + " isn't a list", new Object[0]);
+        if (b.getId() != 9) {
+			throw new CustomNPCsException("NBT tag " + key + " isn't a list");
 		}
 		return ((NBTTagList) b).getTagType();
 	}
@@ -170,7 +169,7 @@ public class NBTWrapper implements INbt {
 	@Override
 	public void setCompound(String key, INbt value) {
 		if (value == null) {
-			throw new CustomNPCsException("Value cant be null", new Object[0]);
+			throw new CustomNPCsException("Value cant be null");
 		}
 		this.compound.setTag(key, value.getMCNBT());
 	}

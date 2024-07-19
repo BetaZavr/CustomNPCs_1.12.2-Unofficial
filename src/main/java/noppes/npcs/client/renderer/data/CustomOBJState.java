@@ -10,6 +10,8 @@ import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 import noppes.npcs.items.CustomArmor;
 
+import javax.annotation.Nonnull;
+
 @SuppressWarnings("deprecation")
 public class CustomOBJState extends OBJModel.OBJState implements IModelState {
 	
@@ -25,10 +27,11 @@ public class CustomOBJState extends OBJModel.OBJState implements IModelState {
 	}
 	
 	@Override
-	public Optional<TRSRTransformation> apply(Optional<? extends IModelPart> part) {
-		if (!(part.get() instanceof TransformType) || this.armor == null) { return super.apply(part); }
-		Optional<TRSRTransformation> result = this.armor.getOptional((TransformType) part.get());
-		return result != null ? result : super.apply(part);
+	public @Nonnull Optional<TRSRTransformation> apply(@Nonnull Optional<? extends IModelPart> part) {
+		IModelPart p = part.orElse(null);
+		if (!(p instanceof TransformType) || this.armor == null) { return super.apply(part); }
+		Optional<TRSRTransformation> result = this.armor.getOptional((TransformType) p);
+		return result.isPresent() ? result : super.apply(part);
 	}
 
 }

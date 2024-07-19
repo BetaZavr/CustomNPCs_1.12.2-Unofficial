@@ -15,9 +15,12 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class CustomFood extends ItemFood implements ICustomElement {
 
-	protected NBTTagCompound nbtData = new NBTTagCompound();
+	protected NBTTagCompound nbtData;
 
 	public CustomFood(int amount, float saturation, boolean isWolfFood, NBTTagCompound nbtItem) {
 		super(amount, saturation, isWolfFood);
@@ -44,7 +47,7 @@ public class CustomFood extends ItemFood implements ICustomElement {
 		if (nbtItem.hasKey("IsFull3D", 1) && nbtItem.getBoolean("IsFull3D")) {
 			this.setFull3D();
 		}
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
+		this.setCreativeTab(CustomRegisters.tabItems);
 	}
 
 	@Override
@@ -54,14 +57,15 @@ public class CustomFood extends ItemFood implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public int getMaxItemUseDuration(ItemStack stack) {
-		return ObfuscationHelper.getValue(ItemFood.class, this, 0);
+	public int getMaxItemUseDuration(@Nonnull ItemStack stack) {
+		Object used = ObfuscationHelper.getValue(ItemFood.class, this, 0);
+		return used instanceof Integer ? (int) used : 32;
 	}
 
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
@@ -70,7 +74,7 @@ public class CustomFood extends ItemFood implements ICustomElement {
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return (int) this.nbtData.getByte("ItemType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return this.nbtData.getByte("ItemType"); }
 		return 6;
 	}
 

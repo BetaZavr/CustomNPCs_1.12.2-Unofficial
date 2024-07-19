@@ -1,10 +1,10 @@
 package noppes.npcs.api.constants;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import noppes.npcs.LogWriter;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobBard;
 import noppes.npcs.roles.JobBuilder;
@@ -40,14 +40,12 @@ public enum JobType {
 		for (JobType ej : JobType.values()) {
 			list.add(ej.name);
 		}
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
-	private int type;
-	public String name;
-
-	public boolean hasSettings;
-
-	private Class<?> parent;
+	private final int type;
+	public final String name;
+	public final boolean hasSettings;
+	private final Class<?> parent;
 
 	JobType(Class<?> clazz, String named, int t, boolean hasSet) {
 		this.type = t;
@@ -60,16 +58,11 @@ public enum JobType {
 		return this.type;
 	}
 
-	public boolean isClass(JobInterface jobInterface) {
-		return jobInterface.getClass() == parent;
-	}
-
 	public void setToNpc(EntityNPCInterface npc) {
 		try {
 			npc.advanced.jobInterface = (JobInterface) parent.getConstructor(EntityNPCInterface.class).newInstance(npc);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			LogWriter.error("Error:", e);
 		}
 	}
 

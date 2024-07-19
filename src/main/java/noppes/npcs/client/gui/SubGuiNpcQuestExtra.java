@@ -2,6 +2,7 @@ package noppes.npcs.client.gui;
 
 import java.util.Arrays;
 
+import noppes.npcs.LogWriter;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.gui.ScaledResolution;
@@ -30,8 +31,8 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldListener, ISubGuiListener {
 
-	private static ResourceLocation sheet = new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_3.png");
-	private static ResourceLocation tabs = new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_4.png");
+	private static final ResourceLocation sheet = new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_3.png");
+	private static final ResourceLocation tabs = new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_4.png");
 	private EntityNPCInterface showNpc;
 	public Quest quest;
 	private ScaledResolution sw;
@@ -175,8 +176,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			this.mc.renderEngine.bindTexture(SubGuiNpcQuestExtra.tabs);
 			this.drawTexturedModalRect(0, 0, 193, 0, 63, 52);
 			String name = ((char) 167) + "l" + this.quest.completer.getName();
-			this.mc.fontRenderer.drawString(name, 32 - this.mc.fontRenderer.getStringWidth(name) / 2, 50,
-					CustomNpcs.QuestLogColor.getRGB(), false);
+			this.mc.fontRenderer.drawString(name, 32 - (float) this.mc.fontRenderer.getStringWidth(name) / 2, 50, CustomNpcs.QuestLogColor.getRGB(), false);
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
@@ -249,8 +249,8 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			try {
 				this.mc.renderEngine.bindTexture(this.quest.texture);
 				this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
-			} catch (Exception e) {
 			}
+			catch (Exception e) { LogWriter.error("Error:", e); }
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
@@ -302,34 +302,27 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 		int lId = 0;
 		this.addLabel(new GuiNpcLabel(lId++, "quest.icon", x + 1, y + 2));
 		this.addButton(new GuiNpcButton(0, x + 144, y, 60, 14, "availability.select"));
-		this.addTextField(
-				new GuiNpcTextField(0, this, this.fontRenderer, x, y += 16, 203, 16, this.quest.icon.toString()));
+		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, x, y += 16, 203, 16, this.quest.icon.toString()));
 
 		this.addLabel(new GuiNpcLabel(lId++, "quest.texture", x + 1, (y += 18) + 2));
 		this.addButton(new GuiNpcButton(3, x + 144, y, 60, 14, "availability.select"));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, x, y += 16, 203, 16,
-				this.quest.texture == null ? "" : this.quest.texture.toString()));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, x, y += 16, 203, 16, this.quest.texture == null ? "" : this.quest.texture.toString()));
 
-		this.addButton(new GuiNpcButton(1, x, y += 18, 100, 14, new String[] { "quest.npc", "quest.instant" },
-				this.quest.completion.ordinal()));
+		this.addButton(new GuiNpcButton(1, x, y += 18, 100, 14, new String[] { "quest.npc", "quest.instant" }, this.quest.completion.ordinal()));
 		this.addButton(new GuiNpcButton(2, x + 105, y, 60, 14, "availability.select"));
 
 		this.addLabel(new GuiNpcLabel(lId++, "quest.questrewardtext", this.guiLeft + 5, (y += 16) + 2));
-		this.addButton(new GuiNpcButton(4, x + 105, y, 60, 14,
-				this.quest.rewardText.isEmpty() ? "selectServer.edit" : "advanced.editingmode"));
+		this.addButton(new GuiNpcButton(4, x + 105, y, 60, 14, this.quest.rewardText.isEmpty() ? "selectServer.edit" : "advanced.editing mode"));
 
 		this.addLabel(new GuiNpcLabel(lId++, "quest.extra.button.type", this.guiLeft + 5, (y += 16) + 2));
-		this.addButton(new GuiButtonBiDirectional(5, x + 105, y, 60, 14,
-				new String[] { "gui.none", "1", "2", "3", "4", "5" }, quest.extraButton));
+		this.addButton(new GuiButtonBiDirectional(5, x + 105, y, 60, 14, new String[] { "gui.none", "1", "2", "3", "4", "5" }, quest.extraButton));
 
-		this.addLabel(new GuiNpcLabel(lId++, "quest.extra.button.text", this.guiLeft + 5, (y += 16) + 2));
+		this.addLabel(new GuiNpcLabel(lId, "quest.extra.button.text", this.guiLeft + 5, (y += 16) + 2));
 		this.addButton(new GuiNpcButton(6, x + 105, y, 60, 14, "selectServer.edit"));
 		this.getButton(6).enabled = quest.extraButton > 0;
 
-		this.addButton(new GuiNpcCheckBox(7, x, (y += 17), 239, 14, "quest.show.progress.in.chat",
-				this.quest.showProgressInChat));
-		this.addButton(new GuiNpcCheckBox(8, x, (y += 16), 239, 14, "quest.show.progress.in.window",
-				this.quest.showProgressInWindow));
+		this.addButton(new GuiNpcCheckBox(7, x, (y += 17), 239, 14, "quest.show.progress.in.chat", this.quest.showProgressInChat));
+		this.addButton(new GuiNpcCheckBox(8, x, y + 16, 239, 14, "quest.show.progress.in.window", this.quest.showProgressInWindow));
 
 		this.addButton(new GuiNpcButton(66, x, this.guiTop + this.ySize - 19, 60, 14, "gui.done"));
 	}
@@ -365,7 +358,6 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 		}
 		if (this.isMouseHover(mouseX, mouseY, guiLeft + 182, guiTop + 95, 65, 65)) {
 			this.setSubGui(new GuiNPCSelection(this.quest.completer));
-			return;
 		}
 	}
 
@@ -379,7 +371,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			}
 			this.initGui();
 		} else if (subgui instanceof GuiTextureSelection) {
-			if (((GuiTextureSelection) subgui).id == 0) {
+			if (subgui.id == 0) {
 				this.quest.icon = ((GuiTextureSelection) subgui).resource;
 				if (this.quest.icon == null) {
 					this.quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");

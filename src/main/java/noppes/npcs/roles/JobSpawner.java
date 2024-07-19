@@ -3,6 +3,7 @@ package noppes.npcs.roles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -36,12 +37,12 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 
 	private SpawnNPCData[][] dataEntitys;// 0/false=alive | 1/true=dead
 	public final int[][] offset;
-	private int[] spawnType; // 0 =one, 1 = all, 2 = random
-	private int[] number; // curent pos
+	private final int[] spawnType; // 0 =one, 1 = all, 2 = random
+	private final int[] number; // current pos
 	private long cooldownSet; // setting time cooldown
 	private long cooldown; // cooldown time if alive
-	private boolean[] desTargetLost; // despawnOnTargetLost
-	private Map<Boolean, List<EntityLivingBase>> spawnedEntitys;
+	private final boolean[] desTargetLost; // despawnOnTargetLost
+	private final Map<Boolean, List<EntityLivingBase>> spawnedEntitys;
 	private EntityLivingBase target;
 	public boolean exact;
 	public boolean resetUpdate;
@@ -63,9 +64,9 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 		this.cooldownSet = 3000L;
 		this.desTargetLost = new boolean[] { true, true };
 
-		this.spawnedEntitys = Maps.<Boolean, List<EntityLivingBase>>newHashMap();
-		this.spawnedEntitys.put(false, Lists.<EntityLivingBase>newArrayList());
-		this.spawnedEntitys.put(true, Lists.<EntityLivingBase>newArrayList());
+		this.spawnedEntitys = Maps.newHashMap();
+		this.spawnedEntitys.put(false, Lists.newArrayList());
+		this.spawnedEntitys.put(true, Lists.newArrayList());
 		this.cooldown = System.currentTimeMillis() + this.cooldownSet;
 
 		this.exact = false;
@@ -76,16 +77,14 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 	public SpawnNPCData add(SpawnNPCData sd, boolean isDead) {
 		int type = isDead ? 1 : 0;
 		SpawnNPCData[] newSData = new SpawnNPCData[this.dataEntitys[type].length + 1];
-		for (int i = 0; i < this.dataEntitys[type].length; i++) {
-			newSData[i] = this.dataEntitys[type][i];
-		}
+        System.arraycopy(this.dataEntitys[type], 0, newSData, 0, this.dataEntitys[type].length);
 		newSData[this.dataEntitys[type].length] = sd;
 		this.dataEntitys[type] = newSData;
 		return sd;
 	}
 
 	@Override
-	public void aiDeathExecute(Entity attackingEntity) { // whent death
+	public void aiDeathExecute(Entity attackingEntity) { // went death
 		if (attackingEntity instanceof EntityLivingBase) {
 			this.target = (EntityLivingBase) attackingEntity;
 		}
@@ -134,7 +133,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 		if (this.getTarget() == null) {
 			return;
 		}
-		if (!isDead && this.isOnCooldown(isDead)) {
+		if (!isDead && this.isOnCooldown()) {
 			return;
 		} // is Alive and or Cooldown
 		int type = isDead ? 1 : 0;
@@ -170,7 +169,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 
 	public void checkSpawns() {
 		for (int i = 0; i < 2; i++) {
-			List<EntityLivingBase> toDespawn = Lists.<EntityLivingBase>newArrayList();
+			List<EntityLivingBase> toDespawn = Lists.newArrayList();
 			for (EntityLivingBase spawn : this.spawnedEntitys.get(i == 0)) {
 				if (this.shouldDelete(spawn)) {
 					spawn.isDead = true;
@@ -202,21 +201,19 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 			for (int j = 0; j < compound.getTagList(key, 10).tagCount(); j++) {
 				NBTTagCompound sdNbt = compound.getTagList(key, 10).getCompoundTagAt(j).getCompoundTag("EntityNBT");
 				String name = "type.empty";
-				if (sdNbt != null) {
-					sdNbt = sdNbt.copy();
-					if (sdNbt.hasKey("ClonedName", 8)) {
-						name = sdNbt.getString("ClonedName");
-					} else if (sdNbt.hasKey("Name", 8)) {
-						name = sdNbt.getString("Name");
-					} else if (sdNbt.hasKey("id", 8)) {
-						Entity entity = EntityList.createEntityByIDFromName(new ResourceLocation(sdNbt.getString("id")),
-								Minecraft.getMinecraft().world);
-						if (entity != null) {
-							name = entity.getName();
-						}
-					}
-				}
-				compound.getTagList(key, 10).getCompoundTagAt(j).removeTag("EntityNBT");
+                sdNbt = sdNbt.copy();
+                if (sdNbt.hasKey("ClonedName", 8)) {
+                    name = sdNbt.getString("ClonedName");
+                } else if (sdNbt.hasKey("Name", 8)) {
+                    name = sdNbt.getString("Name");
+                } else if (sdNbt.hasKey("id", 8)) {
+                    Entity entity = EntityList.createEntityByIDFromName(new ResourceLocation(sdNbt.getString("id")),
+                            Minecraft.getMinecraft().world);
+                    if (entity != null) {
+                        name = entity.getName();
+                    }
+                }
+                compound.getTagList(key, 10).getCompoundTagAt(j).removeTag("EntityNBT");
 				compound.getTagList(key, 10).getCompoundTagAt(j).setString("Name", name);
 				if (sdNbt.hasKey("ClonedName", 8)) {
 					compound.getTagList(key, 10).getCompoundTagAt(j).setString("ClonedName",
@@ -254,7 +251,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 	}
 
 	private List<EntityLivingBase> getNearbySpawned(boolean isDead) {
-		List<EntityLivingBase> spawnList = new ArrayList<EntityLivingBase>();
+		List<EntityLivingBase> spawnList = new ArrayList<>();
 		List<EntityLivingBase> list = this.npc.world.getEntitiesWithinAABB(EntityLivingBase.class,
 				this.npc.getEntityBoundingBox().grow(60.0, 60.0, 60.0));
 		for (EntityLivingBase entity : list) {
@@ -310,17 +307,6 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 		return null;
 	}
 
-	public boolean hasPixelmon() {
-		for (int i = 0; i < 2; i++) {
-			for (SpawnNPCData sd : this.dataEntitys[i]) {
-				if (sd.compound != null && sd.compound.getString("id").equals("pixelmontainer")) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	private boolean isEmpty(boolean isDead) {
 		for (SpawnNPCData sd : this.dataEntitys[isDead ? 1 : 0]) {
 			if (sd.compound != null && sd.compound.hasKey("id")) {
@@ -330,7 +316,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 		return true;
 	}
 
-	public boolean isOnCooldown(boolean isDead) {
+	public boolean isOnCooldown() {
 		return System.currentTimeMillis() < this.cooldown;
 	}
 
@@ -353,14 +339,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 
 			int[] osD = new int[] { compound.getInteger("SpawnerXOffset"), compound.getInteger("SpawnerYOffset"),
 					compound.getInteger("SpawnerZOffset") };
-			if (osD.length != 3) {
-				int[] ns = new int[] { 0, 0, 0 };
-				for (int i = 0; i < osD.length; i++) {
-					ns[i] = osD[i];
-				}
-				osD = ns;
-			}
-			List<SpawnNPCData> sDs = Lists.newArrayList();
+            List<SpawnNPCData> sDs = Lists.newArrayList();
 			for (int i = 1; i < 7; i++) {
 				if (!compound.hasKey("SpawnerNBT" + i, 10)) {
 					continue;
@@ -370,7 +349,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 				sDs.add(sd);
 			}
 			int i = 0;
-			if (compound.getBoolean("SpawnerDoesntDie")) { // dosent Dead
+			if (compound.getBoolean("SpawnerDoesntDie")) { // doesn't Dead
 				this.spawnType[0] = 0;
 				this.spawnType[1] = compound.getInteger("SpawnerType");
 				this.offset[0] = new int[] { 0, 0, 0 };
@@ -407,9 +386,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 		for (int j = 0; j < 2; j++) {
 			if (this.offset[j].length != 3) {
 				int[] ns = new int[] { 0, 0, 0 };
-				for (int i = 0; i < this.offset[j].length; i++) {
-					ns[i] = this.offset[j][i];
-				}
+                System.arraycopy(this.offset[j], 0, ns, 0, this.offset[j].length);
 				this.offset[j] = ns;
 			}
 		}
@@ -455,10 +432,10 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 		}
 	}
 
-	public boolean removeSpawned(int slot, boolean isDead) {
+	public void removeSpawned(int slot, boolean isDead) {
 		int type = isDead ? 1 : 0;
 		if (slot < 0 || slot >= this.dataEntitys[type].length) {
-			return false;
+			return;
 		}
 		SpawnNPCData[] newSData = new SpawnNPCData[this.dataEntitys[type].length - 1];
 		for (int i = 0, j = 0; i < this.dataEntitys[type].length; i++) {
@@ -469,7 +446,6 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 			j++;
 		}
 		this.dataEntitys[type] = newSData;
-		return true;
 	}
 
 	@Override
@@ -512,12 +488,6 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 
 	public void setDespawnOnTargetLost(boolean isDead, boolean isLost) {
 		this.desTargetLost[isDead ? 1 : 0] = isLost;
-	}
-
-	public void setOffset(boolean isDead, int[] offset) {
-		for (int i = 0; i < 4; i++) {
-			this.offset[isDead ? 1 : 0][i] = offset[i];
-		}
 	}
 
 	public void setSpawnType(boolean isDead, int readInt) {
@@ -597,7 +567,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 		if (base == null) {
 			return null;
 		}
-		return (IEntityLivingBase<?>) NpcAPI.Instance().getIEntity(base);
+		return (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(base);
 	}
 
 	public EntityLivingBase spawnEntity(SpawnNPCData sd, boolean isDead, EntityLivingBase base) {

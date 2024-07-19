@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import noppes.npcs.LogWriter;
 import noppes.npcs.ModelPartConfig;
 import noppes.npcs.ModelPartData;
 import noppes.npcs.constants.EnumParts;
@@ -29,7 +30,7 @@ public class ModelDataShared {
 	protected ModelPartConfig leg3 = new ModelPartConfig();
 	protected ModelPartConfig leg4 = new ModelPartConfig();
 	protected ModelPartData legParts = new ModelPartData("legs");
-	protected HashMap<EnumParts, ModelPartData> parts = new HashMap<EnumParts, ModelPartData>();
+	protected HashMap<EnumParts, ModelPartData> parts = new HashMap<>();
 
 	public ModelDataShared() {
 	}
@@ -94,13 +95,6 @@ public class ModelDataShared {
 		return this.parts.get(type);
 	}
 
-	public float offsetY() {
-		if (this.entity == null) {
-			return -this.getBodyY();
-		}
-		return this.entity.height - 1.8f;
-	}
-
 	public void readFromNBT(NBTTagCompound compound) {
 		this.setEntityName(compound.getString("EntityClass"));
 		this.arm1.readFromNBT(compound.getCompoundTag("ArmsConfig"));
@@ -120,7 +114,7 @@ public class ModelDataShared {
 		this.legParts.readFromNBT(compound.getCompoundTag("LegParts"));
 		this.eyes.readFromNBT(compound.getCompoundTag("Eyes"));
 		this.extra = compound.getCompoundTag("ExtraData");
-		HashMap<EnumParts, ModelPartData> parts = new HashMap<EnumParts, ModelPartData>();
+		HashMap<EnumParts, ModelPartData> parts = new HashMap<>();
 		NBTTagList list = compound.getTagList("Parts", 10);
 		for (int i = 0; i < list.tagCount(); ++i) {
 			NBTTagCompound item = list.getCompoundTagAt(i);
@@ -133,7 +127,7 @@ public class ModelDataShared {
 			}
 		}
 		this.parts = parts;
-		this.updateTransate();
+		this.updateTranslate();
 	}
 
 	public void removePart(EnumParts type) {
@@ -151,18 +145,16 @@ public class ModelDataShared {
 		this.entity = null;
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			try {
-				Class<? extends Entity> c = (Class<? extends Entity>) ent.getEntityClass();
+				Class<? extends Entity> c = ent.getEntityClass();
 				if (c.getCanonicalName().equals(string) && EntityLivingBase.class.isAssignableFrom(c)) {
 					this.entityClass = c.asSubclass(EntityLivingBase.class);
 					break;
 				}
-				continue;
-			} catch (Throwable t) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 	}
 
-	private void updateTransate() {
+	private void updateTranslate() {
 		for (EnumParts part : EnumParts.values()) {
 			ModelPartConfig config = this.getPartConfig(part);
 			if (config != null) {

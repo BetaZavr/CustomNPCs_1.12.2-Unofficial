@@ -6,20 +6,22 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 
+import javax.annotation.Nonnull;
+
 public class GuiButtonBiDirectional extends GuiNpcButton {
 
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/arrowbuttons.png");
-	public boolean cheakWidth, showShedow;
-	private int color;
+	public boolean checkWidth, showShadow;
+	private final int color;
 
 	public GuiButtonBiDirectional(int id, int x, int y, int width, int height, String[] arr, int current) {
 		super(id, x, y, width, height, arr, current);
-		this.cheakWidth = true;
+		this.checkWidth = true;
 		this.color = CustomNpcs.MainColor.getRGB();
-		this.showShedow = true;
+		this.showShadow = true;
 	}
 
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.visible) {
 			return;
 		}
@@ -66,7 +68,7 @@ public class GuiButtonBiDirectional extends GuiNpcButton {
 
 		String text = "";
 		float maxWidth = (this.width - 36);
-		if (this.cheakWidth && mc.fontRenderer.getStringWidth(this.displayString) > maxWidth) {
+		if (this.checkWidth && mc.fontRenderer.getStringWidth(this.displayString) > maxWidth) {
 			for (int h = 0; h < this.displayString.length(); ++h) {
 				char c = this.displayString.charAt(h);
 				text += c;
@@ -82,17 +84,17 @@ public class GuiButtonBiDirectional extends GuiNpcButton {
 			text = ((char) 167) + "n" + text;
 		}
 
-		if (this.showShedow) {
+		if (this.showShadow) {
 			this.drawCenteredString(mc.fontRenderer, text, this.x + this.width / 2, this.y + (this.height - 10) / 2, l);
 		} else {
-			mc.fontRenderer.drawString(text, this.x + (this.width - mc.fontRenderer.getStringWidth(text)) / 2,
-					this.y + (this.height - 10) / 2, l, false);
+			mc.fontRenderer.drawString(text, this.x + (float) (this.width - mc.fontRenderer.getStringWidth(text)) / 2,
+					this.y + (float) (this.height - 10) / 2, l, false);
 		}
 
 	}
 
 	@Override
-	public boolean mousePressed(Minecraft minecraft, int mouseX, int mouseY) {
+	public boolean mousePressed(@Nonnull Minecraft minecraft, int mouseX, int mouseY) {
 		int value = this.getValue();
 		boolean bo = super.mousePressed(minecraft, mouseX, mouseY);
 		if (bo && this.display != null && this.display.length != 0) {

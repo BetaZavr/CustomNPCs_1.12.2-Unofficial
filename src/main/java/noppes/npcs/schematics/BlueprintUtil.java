@@ -1,15 +1,12 @@
 package noppes.npcs.schematics;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -20,24 +17,23 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Loader;
 
 public class BlueprintUtil {
-	private static int[] convertBlocksToSaveData(short[][][] multDimArray, short sizeX, short sizeY, short sizeZ) {
+	private static int[] convertBlocksToSaveData(short[][][] multiDimArray, short sizeX, short sizeY, short sizeZ) {
 		short[] oneDimArray = new short[sizeX * sizeY * sizeZ];
 		int j = 0;
 		for (short y = 0; y < sizeY; ++y) {
 			for (short z = 0; z < sizeZ; ++z) {
 				for (short x = 0; x < sizeX; ++x) {
-					oneDimArray[j++] = multDimArray[y][z][x];
+					oneDimArray[j++] = multiDimArray[y][z][x];
 				}
 			}
 		}
 		int[] ints = new int[(int) Math.ceil(oneDimArray.length / 2.0f)];
-		int currentInt = 0;
+		int currentInt;
 		for (int i = 1; i < oneDimArray.length; i += 2) {
 			currentInt = oneDimArray[i - 1];
 			currentInt = (currentInt << 16 | oneDimArray[i]);
 			ints[(int) (Math.ceil(i / 2.0f) - 1)] = currentInt;
-			currentInt = 0;
-		}
+        }
 		if (oneDimArray.length % 2 == 1) {
 			currentInt = oneDimArray[oneDimArray.length - 1] << 16;
 			ints[ints.length - 1] = currentInt;
@@ -51,34 +47,34 @@ public class BlueprintUtil {
 			oneDimArray[i * 2] = (short) (ints[i] >> 16);
 			oneDimArray[i * 2 + 1] = (short) ints[i];
 		}
-		short[][][] multDimArray = new short[sizeY][sizeZ][sizeX];
+		short[][][] multiDimArray = new short[sizeY][sizeZ][sizeX];
 		int j = 0;
 		for (short y = 0; y < sizeY; ++y) {
 			for (short z = 0; z < sizeZ; ++z) {
 				for (short x = 0; x < sizeX; ++x) {
-					multDimArray[y][z][x] = oneDimArray[j++];
+					multiDimArray[y][z][x] = oneDimArray[j++];
 				}
 			}
 		}
-		return multDimArray;
+		return multiDimArray;
 	}
 
 	public static Blueprint createBlueprint(World world, BlockPos pos, short sizeX, short sizeY, short sizeZ) {
-		return createBlueprint(world, pos, sizeX, sizeY, sizeZ, null, new String[0]);
+		return createBlueprint(world, pos, sizeX, sizeY, sizeZ, null);
 	}
 
 	public static Blueprint createBlueprint(World world, BlockPos pos, short sizeX, short sizeY, short sizeZ,
 			String name, String... architects) {
-		List<IBlockState> pallete = new ArrayList<IBlockState>();
+		List<IBlockState> palette = new ArrayList<>();
 		short[][][] structure = new short[sizeY][sizeZ][sizeX];
-		List<NBTTagCompound> tileEntities = new ArrayList<NBTTagCompound>();
-		List<String> requiredMods = new ArrayList<String>();
+		List<NBTTagCompound> tileEntities = new ArrayList<>();
+		List<String> requiredMods = new ArrayList<>();
 		for (short y = 0; y < sizeY; ++y) {
 			for (short z = 0; z < sizeZ; ++z) {
 				for (short x = 0; x < sizeX; ++x) {
 					IBlockState state = world.getBlockState(pos.add(x, y, z));
 					String modName;
-					if (!requiredMods.contains(modName = state.getBlock().getRegistryName().getResourceDomain())) {
+					if (!requiredMods.contains(modName = Objects.requireNonNull(state.getBlock().getRegistryName()).getResourceDomain())) {
 						requiredMods.add(modName);
 					}
 					TileEntity te = world.getTileEntity(pos.add(x, y, z));
@@ -89,18 +85,18 @@ public class BlueprintUtil {
 						teTag.setShort("z", z);
 						tileEntities.add(teTag);
 					}
-					if (!pallete.contains(state)) {
-						pallete.add(state);
+					if (!palette.contains(state)) {
+						palette.add(state);
 					}
-					structure[y][z][x] = (short) pallete.indexOf(state);
+					structure[y][z][x] = (short) palette.indexOf(state);
 				}
 			}
 		}
-		IBlockState[] states = new IBlockState[pallete.size()];
-		states = pallete.toArray(states);
+		IBlockState[] states = new IBlockState[palette.size()];
+		states = palette.toArray(states);
 		NBTTagCompound[] tes = new NBTTagCompound[tileEntities.size()];
 		tes = tileEntities.toArray(tes);
-		Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (byte) pallete.size(), states, structure, tes,
+		Blueprint schem = new Blueprint(sizeX, sizeY, sizeZ, (byte) palette.size(), states, structure, tes,
 				requiredMods);
 		if (name != null) {
 			schem.setName(name);
@@ -117,12 +113,12 @@ public class BlueprintUtil {
 			short sizeX = tag.getShort("size_x");
 			short sizeY = tag.getShort("size_y");
 			short sizeZ = tag.getShort("size_z");
-			List<String> requiredMods = new ArrayList<String>();
+			List<String> requiredMods = new ArrayList<>();
 			NBTTagList modsList = (NBTTagList) tag.getTag("required_mods");
 			short modListSize = (short) modsList.tagCount();
 			for (int i = 0; i < modListSize; ++i) {
 				requiredMods.add(((NBTTagString) modsList.get(i)).getString());
-				if (!Loader.isModLoaded((String) requiredMods.get(i))) {
+				if (!Loader.isModLoaded(requiredMods.get(i))) {
 					Logger.getGlobal().log(Level.WARNING,
 							"Couldn't load Blueprint, the following mod is missing: " + requiredMods.get(i));
 					return null;
@@ -158,25 +154,15 @@ public class BlueprintUtil {
 		return null;
 	}
 
-	public static Blueprint readFromFile(InputStream is) {
-		try {
-			NBTTagCompound tag = CompressedStreamTools.readCompressed(is);
-			return readBlueprintFromNBT(tag);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
 	public static NBTTagCompound writeBlueprintToNBT(Blueprint schem) {
 		NBTTagCompound tag = new NBTTagCompound();
 		tag.setByte("version", (byte) 1);
 		tag.setShort("size_x", schem.getSizeX());
 		tag.setShort("size_y", schem.getSizeY());
 		tag.setShort("size_z", schem.getSizeZ());
-		IBlockState[] palette = schem.getPallete();
+		IBlockState[] palette = schem.getPalette();
 		NBTTagList paletteTag = new NBTTagList();
-		for (short i = 0; i < schem.getPalleteSize(); ++i) {
+		for (short i = 0; i < schem.getPaletteSize(); ++i) {
 			NBTTagCompound state = new NBTTagCompound();
 			NBTUtil.writeBlockState(state, palette[i]);
 			paletteTag.appendTag(state);
@@ -187,15 +173,15 @@ public class BlueprintUtil {
 		tag.setIntArray("blocks", blockInt);
 		NBTTagList finishedTes = new NBTTagList();
 		NBTTagCompound[] tes = schem.getTileEntities();
-		for (int j = 0; j < tes.length; ++j) {
-			finishedTes.appendTag(tes[j]);
-		}
+        for (NBTTagCompound te : tes) {
+            finishedTes.appendTag(te);
+        }
 		tag.setTag("tile_entities", finishedTes);
 		List<String> requiredMods = schem.getRequiredMods();
 		NBTTagList modsList = new NBTTagList();
-		for (int k = 0; k < requiredMods.size(); ++k) {
-			modsList.appendTag(new NBTTagString((String) requiredMods.get(k)));
-		}
+        for (String requiredMod : requiredMods) {
+            modsList.appendTag(new NBTTagString(requiredMod));
+        }
 		tag.setTag("required_mods", modsList);
 		String name = schem.getName();
 		String[] architects = schem.getArchitects();
@@ -212,11 +198,4 @@ public class BlueprintUtil {
 		return tag;
 	}
 
-	public static void writeToFile(OutputStream os, Blueprint schem) {
-		try {
-			CompressedStreamTools.writeCompressed(writeBlueprintToNBT(schem), os);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 }

@@ -20,7 +20,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.AdditionalMethods;
 
 public class GuiBorderBlock extends GuiNPCInterface implements IGuiData {
-	private TileBorder tile;
+
+	private final TileBorder tile;
 
 	public GuiBorderBlock(int x, int y, int z) {
 		this.tile = (TileBorder) this.player.world.getTileEntity(new BlockPos(x, y, z));

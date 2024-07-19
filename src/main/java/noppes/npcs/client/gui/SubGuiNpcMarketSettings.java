@@ -7,10 +7,8 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.NoppesUtil;
@@ -28,12 +26,11 @@ import noppes.npcs.controllers.data.MarcetSection;
 import noppes.npcs.controllers.data.MarkupData;
 import noppes.npcs.util.AdditionalMethods;
 
-public class SubGuiNpcMarketSettings extends SubGuiInterface
-		implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoCallback {
+public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoCallback {
 
 	public Marcet marcet;
 	public int level;
-	private Map<String, Integer> data;
+	private final Map<String, Integer> data;
 	private GuiCustomScroll scroll;
 
 	public SubGuiNpcMarketSettings(Marcet marcet) {
@@ -44,7 +41,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 		this.ySize = 217;
 		this.closeOnEsc = true;
 		this.level = 0;
-		this.data = Maps.<String, Integer>newHashMap();
+		this.data = Maps.newHashMap();
 	}
 
 	@Override
@@ -88,10 +85,10 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 			if (this.scroll.selected < 0) {
 				return;
 			}
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("gui.sections").getFormattedText() + ": " + this.scroll.getSelected(),
 					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 66: { // exit
@@ -102,7 +99,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 	}
 
 	public void confirmClicked(boolean result, int id) {
-		NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		NoppesUtil.openGUI(this.player, this);
 		if (!result || this.scroll.selected < 0 || !this.data.containsKey(this.scroll.getSelected())
 				|| this.marcet.sections.size() < 2) {
 			return;
@@ -121,10 +118,8 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 			return;
 		}
 		if (this.getButton(4) != null) {
-			this.drawHorizontalLine(this.guiLeft + 4, this.guiLeft + this.xSize - 4, this.getButton(4).y - 3,
-					0x80000000);
-			this.drawHorizontalLine(this.guiLeft + 4, this.guiLeft + this.xSize - 4, this.getButton(4).y + 44,
-					0x80000000);
+			this.drawHorizontalLine(this.guiLeft + 4, this.guiLeft + this.xSize - 4, this.getButton(4).y - 3, 0x80000000);
+			this.drawHorizontalLine(this.guiLeft + 4, this.guiLeft + this.xSize - 4, this.getButton(4).y + 44, 0x80000000);
 		}
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
@@ -133,10 +128,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 			this.setHoverText(new TextComponentTranslation("market.hover.set.name",
 					new TextComponentTranslation(this.marcet.name).getFormattedText()).getFormattedText());
 		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.set.update",
-					new Object[] {
-							AdditionalMethods.ticksToElapsedTime(this.marcet.updateTime * 1200, false, false, false) })
-									.getFormattedText());
+			this.setHoverText(new TextComponentTranslation("market.hover.set.update", AdditionalMethods.ticksToElapsedTime(this.marcet.updateTime * 1200L, false, false, false)).getFormattedText());
 		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.extra.buy").getFormattedText());
 		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
@@ -144,8 +136,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 		} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.xp").getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.only.ñurrency." + this.getButton(0).getValue())
-					.getFormattedText());
+			this.setHoverText(new TextComponentTranslation("market.hover.only.currency." + this.getButton(0).getValue()).getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.message").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
@@ -171,8 +162,8 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 	public void initGui() {
 		super.initGui();
 		int lID = 0, x = this.guiLeft + 4, y = this.guiTop + 5;
-		this.addLabel(new GuiNpcLabel(lID++, "role.marketname", x + 2, y + 5));
-		this.addTextField(new GuiNpcTextField(0, this, x + 80, y, 167, 18, "" + this.marcet.name));
+		this.addLabel(new GuiNpcLabel(lID++, "role.marketer", x + 2, y + 5));
+		this.addTextField(new GuiNpcTextField(0, this, x + 80, y, 167, 18, this.marcet.name));
 
 		y += 22;
 		this.addLabel(new GuiNpcLabel(lID++, "market.uptime", x + 2, y + 5));
@@ -181,9 +172,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 		this.getTextField(1).setMinMaxDefault(0, 360, this.marcet.updateTime);
 		if (this.marcet.updateTime >= 5) {
 			y += 22;
-			this.addButton(new GuiNpcButton(0, x, y, 170, 20,
-					new String[] { "market.limited.0", "market.limited.1", "market.limited.2" },
-					this.marcet.limitedType));
+			this.addButton(new GuiNpcButton(0, x, y, 170, 20, new String[] { "market.limited.0", "market.limited.1", "market.limited.2" }, this.marcet.limitedType));
 		}
 
 		this.addLabel(new GuiNpcLabel(lID++, "gui.sections", x + 176, y - 17));
@@ -192,13 +181,12 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 		}
 		this.scroll.guiLeft = x + 175;
 		this.scroll.guiTop = y;
-		List<String> list = Lists.<String>newArrayList();
+		List<String> list = Lists.newArrayList();
 		this.scroll.hoversTexts = new String[this.marcet.sections.size()][];
 		int i = 0;
 		this.data.clear();
 		for (int id : this.marcet.sections.keySet()) {
-			this.scroll.hoversTexts[i] = new String[] { "ID: " + id,
-					new TextComponentTranslation("gui.name").getFormattedText() + ": " + this.marcet.sections.get(id) };
+			this.scroll.hoversTexts[i] = new String[] { "ID: " + id, new TextComponentTranslation("gui.name").getFormattedText() + ": " + this.marcet.sections.get(id) };
 			String key = this.marcet.sections.get(id).name;
 			this.data.put(key, id);
 			list.add(key);
@@ -256,7 +244,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 		this.getTextField(3).setMinMaxDoubleDefault(-500, 100, (int) (md.sell * 100.0f));
 
 		y += 22;
-		this.addLabel(new GuiNpcLabel(lID++, "quest.exp", x + 76, y + 5));
+		this.addLabel(new GuiNpcLabel(lID, "quest.exp", x + 76, y + 5));
 		this.addTextField(new GuiNpcTextField(4, this, x + 120, y, 50, 20, "" + md.xp));
 		this.getTextField(4).setNumbersOnly();
 		this.getTextField(4).setMinMaxDefault(0, Integer.MAX_VALUE, md.xp);
@@ -286,15 +274,25 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 			if (((SubGuiEditText) subgui).cancelled) {
 				return;
 			}
-			if (((SubGuiEditText) subgui).id == 1) {
+			if (subgui.id == 1) {
 				String name = ((SubGuiEditText) subgui).text[0];
-				while (this.marcet.sections.containsValue(name)) {
-					name += "_";
+				boolean has = true;
+				while (has) {
+					has = false;
+					for (MarcetSection s : this.marcet.sections.values()) {
+						if (s.name.equals(name)) {
+							has = true;
+							break;
+						}
+					}
+					if (has) {
+						name += "_";
+					}
 				}
 				MarcetSection ms = new MarcetSection(this.marcet.sections.size());
 				ms.name = name;
 				this.marcet.sections.put(ms.getId(), ms);
-			} else if (((SubGuiEditText) subgui).id == 2) {
+			} else if (subgui.id == 2) {
 				if (!this.data.containsKey(this.scroll.getSelected())) {
 					return;
 				}
@@ -307,7 +305,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 						if (id == idSel) {
 							continue;
 						}
-						if (this.marcet.sections.get(id).equals(name)) {
+						if (this.marcet.sections.get(id).name.equals(name)) {
 							name += "_";
 							next = true;
 							break;

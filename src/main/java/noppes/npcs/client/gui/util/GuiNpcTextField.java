@@ -4,15 +4,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import noppes.npcs.LogWriter;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class GuiNpcTextField
-extends GuiTextField
-implements IComponentGui {
+		extends GuiTextField
+		implements IComponentGui {
 
 	public static char[] filePath = new char[] { ':', '*', '?', '"', '<', '>', '&', '|' };
 
-	private static GuiNpcTextField activeTextfield = null;
+	public static GuiNpcTextField activeTextfield = null;
+
 	public static boolean isActive() {
 		return GuiNpcTextField.activeTextfield != null;
 	}
@@ -23,7 +25,7 @@ implements IComponentGui {
 			prev.unFocused();
 		}
 	}
-	private int[] allowedSpecialKeys;
+	private final int[] allowedSpecialKeys;
 	public char[] prohibitedSpecialChars;
 	public boolean enabled, inMenu, hovered;
 	protected boolean canEdit;
@@ -35,8 +37,7 @@ implements IComponentGui {
 
 	public double minD, maxD, defD;
 
-	public GuiNpcTextField(int id, GuiScreen parent, FontRenderer fontRenderer, int x, int y, int width, int height,
-			String text) {
+	public GuiNpcTextField(int id, GuiScreen parent, FontRenderer fontRenderer, int x, int y, int width, int height, String text) {
 		super(id, fontRenderer, x, y, width, height);
 		this.enabled = true;
 		this.inMenu = true;
@@ -69,12 +70,12 @@ implements IComponentGui {
 				return false;
 			}
 		}
-		if (!this.numbersOnly || Character.isDigit(c) || (c == '-' && this.getText().length() == 0)) {
+		if (!this.numbersOnly || Character.isDigit(c) || (c == '-' && this.getText().isEmpty())) {
 			return true;
 		}
 		// New
-		if (!this.doubleNumbersOnly || Character.isDigit(c) || (c == '-' && this.getText().length() == 0)
-				|| (c == '.' && this.getText().indexOf(".") != -1)) {
+		if (!this.doubleNumbersOnly || Character.isDigit(c) || (c == '-' && this.getText().isEmpty())
+				|| (c == '.' && this.getText().contains("."))) {
 			return true;
 		}
 		for (int j : this.allowedSpecialKeys) {
@@ -101,8 +102,7 @@ implements IComponentGui {
 		double d = 0.0d;
 		try {
 			d = Double.parseDouble(this.getText().replace(",", "."));
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		return d;
 	}
 
@@ -110,8 +110,7 @@ implements IComponentGui {
 		int i = 0;
 		try {
 			i = Integer.parseInt(this.getText());
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		return i;
 	}
 
@@ -119,8 +118,7 @@ implements IComponentGui {
 		long i = 0L;
 		try {
 			i = Long.parseLong(this.getText());
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		return i;
 	}
 
@@ -128,21 +126,19 @@ implements IComponentGui {
 		try {
 			Double.parseDouble(this.getText().replace(",", "."));
 			return true;
-		} catch (NumberFormatException e) {
-		}
+		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		return false;
 	}
 
 	public boolean isEmpty() {
-		return this.getText().trim().length() == 0;
+		return this.getText().trim().isEmpty();
 	}
 
 	public boolean isInteger() {
 		try {
 			Integer.parseInt(this.getText());
 			return true;
-		} catch (NumberFormatException e) {
-		}
+		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		return false;
 	}
 
@@ -150,8 +146,7 @@ implements IComponentGui {
 		try {
 			Long.parseLong(this.getText());
 			return true;
-		} catch (NumberFormatException e) {
-		}
+		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		return false;
 	}
 
@@ -164,17 +159,20 @@ implements IComponentGui {
 			return false;
 		}
 		boolean isFocused = this.isFocused();
-		boolean clicked = hovered;
-		if ((boolean) ObfuscationHelper.getValue(GuiTextField.class, this, 10)) {
+		boolean clicked;
+		boolean bo = Boolean.TRUE.equals(ObfuscationHelper.getValue(GuiTextField.class, this, 10));
+		if (bo) {
 			this.setFocused(hovered);
 		} // canLoseFocus
 		if (isFocused && hovered && mouseButton == 0) {
 			int i = mouseX - this.x;
-			if ((boolean) ObfuscationHelper.getValue(GuiTextField.class, this, 9)) {
+			boolean bi = Boolean.TRUE.equals(ObfuscationHelper.getValue(GuiTextField.class, this, 9));
+			if (bi) {
 				i -= 4;
 			} // enableBackgroundDrawing
 			FontRenderer fontRenderer = ObfuscationHelper.getValue(GuiTextField.class, this, FontRenderer.class);
-			int lineScrollOffset = ObfuscationHelper.getValue(GuiTextField.class, this, 13);
+			Object ii = ObfuscationHelper.getValue(GuiTextField.class, this, 13);
+			int lineScrollOffset = ii != null ? (int) ii : 0;
 			String s = fontRenderer.trimStringToWidth(this.getText().substring(lineScrollOffset), this.getWidth());
 			this.setCursorPosition(fontRenderer.trimStringToWidth(s, i).length() + lineScrollOffset);
 			return true;
@@ -242,11 +240,12 @@ implements IComponentGui {
 		if (this == GuiNpcTextField.activeTextfield) {
 			GuiNpcTextField.activeTextfield = null;
 		}
+		this.setFocused(false);
 	}
 
 	@Override
 	public int[] getCenter() {
 		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
 	}
-	
+
 }

@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.mainmenu;
 import java.util.Arrays;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -12,7 +11,7 @@ import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.SubGuiNpcSelectTraider;
+import noppes.npcs.client.gui.SubGuiNpcSelectTrader;
 import noppes.npcs.client.gui.advanced.GuiNPCAdvancedLinkedNpc;
 import noppes.npcs.client.gui.advanced.GuiNPCDialogNpcOptions;
 import noppes.npcs.client.gui.advanced.GuiNPCFactionSetup;
@@ -50,7 +49,7 @@ import noppes.npcs.roles.RoleTrader;
 public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGuiListener {
 
 	private boolean hasChanges;
-	private DataAI ais;
+	private final DataAI ais;
 
 	public GuiNpcAdvanced(EntityNPCInterface npc) {
 		super(npc, 4);
@@ -81,7 +80,7 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 			break;
 		}
 		case 7: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCLinesMenu(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNPCLinesMenu(this.npc));
 			break;
 		}
 		case 8: {
@@ -91,39 +90,39 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 			break;
 		}
 		case 9: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCFactionSetup(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNPCFactionSetup(this.npc));
 			break;
 		}
 		case 10: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCDialogNpcOptions(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNPCDialogNpcOptions(this.npc));
 			break;
 		}
 		case 11: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCSoundsMenu(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNPCSoundsMenu(this.npc));
 			break;
 		}
 		case 12: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCNightSetup(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNPCNightSetup(this.npc));
 			break;
 		}
 		case 13: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCAdvancedLinkedNpc(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNPCAdvancedLinkedNpc(this.npc));
 			break;
 		}
 		case 14: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCScenes(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNPCScenes(this.npc));
 			break;
 		}
 		case 15: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCMarks(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNPCMarks(this.npc));
 			break;
 		}
 		case 16: { // Animation Settings
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcAnimation((EntityCustomNpc) this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNpcAnimation((EntityCustomNpc) this.npc));
 			break;
 		}
 		case 18: { // Emotion Settings
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcEmotion((EntityCustomNpc) this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNpcEmotion((EntityCustomNpc) this.npc));
 			break;
 		}
 		}
@@ -216,7 +215,7 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 		boolean bo = model == null;
 		this.addButton(new GuiNpcButton(16, x, y += 22, 195, 20, "movement.animation"));
 		this.getButton(16).setEnabled(bo);
-		this.addButton(new GuiNpcButton(18, x, y += 22, 195, 20, "advanced.emotion"));
+		this.addButton(new GuiNpcButton(18, x, y + 22, 195, 20, "advanced.emotion"));
 		this.getButton(18).setEnabled(bo);
 	}
 
@@ -234,76 +233,80 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 			if (this.npc.advanced.roleInterface != null) {
 				this.npc.advanced.roleInterface.readFromNBT(compound);
 			}
-			switch (this.npc.advanced.roleInterface.getEnumType()) {
-			case TRADER: {
-				RoleTrader role = (RoleTrader) this.npc.advanced.roleInterface;
-				this.setSubGui(new SubGuiNpcSelectTraider(role.getMarketID()));
-				break;
-			}
-			case FOLLOWER: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.SetupFollower);
-				break;
-			}
-			case BANK: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.SetupBank);
-				break;
-			}
-			case TRANSPORTER: {
-				this.displayGuiScreen(new GuiNpcTransporter(this.npc));
-				break;
-			}
-			case COMPANION: {
-				this.displayGuiScreen(new GuiNpcCompanion(this.npc));
-				break;
-			}
-			case DIALOG: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiRoleDialog(this.npc));
-				break;
-			}
-			default: {
-				break;
-			}
+			if (this.npc.advanced.roleInterface != null) {
+				switch (this.npc.advanced.roleInterface.getEnumType()) {
+					case TRADER: {
+						RoleTrader role = (RoleTrader) this.npc.advanced.roleInterface;
+						this.setSubGui(new SubGuiNpcSelectTrader(role.getMarketID()));
+						break;
+					}
+					case FOLLOWER: {
+						NoppesUtil.requestOpenGUI(EnumGuiType.SetupFollower);
+						break;
+					}
+					case BANK: {
+						NoppesUtil.requestOpenGUI(EnumGuiType.SetupBank);
+						break;
+					}
+					case TRANSPORTER: {
+						this.displayGuiScreen(new GuiNpcTransporter(this.npc));
+						break;
+					}
+					case COMPANION: {
+						this.displayGuiScreen(new GuiNpcCompanion(this.npc));
+						break;
+					}
+					case DIALOG: {
+						NoppesUtil.openGUI(this.player, new GuiRoleDialog(this.npc));
+						break;
+					}
+					default: {
+						break;
+					}
+				}
 			}
 		} else if (compound.hasKey("JobData")) {
 			if (this.npc.advanced.jobInterface != null) {
 				this.npc.advanced.jobInterface.readFromNBT(compound);
 			}
-			switch (this.npc.advanced.jobInterface.getEnumType()) {
-			case BARD: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcBard(this.npc));
-				break;
-			}
-			case HEALER: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcHealer(this.npc));
-				break;
-			}
-			case GUARD: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcGuard(this.npc));
-				break;
-			}
-			case ITEM_GIVER: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.SetupItemGiver);
-				break;
-			}
-			case FOLLOWER: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcFollowerJob(this.npc));
-				break;
-			}
-			case SPAWNER: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcSpawner(this.npc));
-				break;
-			}
-			case CONVERSATION: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcConversation(this.npc));
-				break;
-			}
-			case FARMER: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiJobFarmer(this.npc));
-				break;
-			}
-			default: {
-				break;
-			}
+			if (this.npc.advanced.jobInterface != null) {
+				switch (this.npc.advanced.jobInterface.getEnumType()) {
+					case BARD: {
+						NoppesUtil.openGUI(this.player, new GuiNpcBard(this.npc));
+						break;
+					}
+					case HEALER: {
+						NoppesUtil.openGUI(this.player, new GuiNpcHealer(this.npc));
+						break;
+					}
+					case GUARD: {
+						NoppesUtil.openGUI(this.player, new GuiNpcGuard(this.npc));
+						break;
+					}
+					case ITEM_GIVER: {
+						NoppesUtil.requestOpenGUI(EnumGuiType.SetupItemGiver);
+						break;
+					}
+					case FOLLOWER: {
+						NoppesUtil.openGUI(this.player, new GuiNpcFollowerJob(this.npc));
+						break;
+					}
+					case SPAWNER: {
+						NoppesUtil.openGUI(this.player, new GuiNpcSpawner(this.npc));
+						break;
+					}
+					case CONVERSATION: {
+						NoppesUtil.openGUI(this.player, new GuiNpcConversation(this.npc));
+						break;
+					}
+					case FARMER: {
+						NoppesUtil.openGUI(this.player, new GuiJobFarmer(this.npc));
+						break;
+					}
+					default: {
+						break;
+					}
+				}
 			}
 		} else if (compound.hasKey("NpcInteractLines", 10)) {
 			this.npc.advanced.readToNBT(compound);
@@ -318,10 +321,10 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof SubGuiNpcSelectTraider) {
+		if (subgui instanceof SubGuiNpcSelectTrader) {
 			this.hasChanges = true;
 			RoleTrader role = (RoleTrader) this.npc.advanced.roleInterface;
-			role.setMarket((((SubGuiNpcSelectTraider) subgui)).id);
+			role.setMarket((((SubGuiNpcSelectTrader) subgui)).id);
 			this.save();
 		}
 	}

@@ -13,7 +13,8 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.DataDisplay;
 
 public class SubGuiNpcName extends SubGuiInterface implements ITextfieldListener {
-	private DataDisplay display;
+
+	private final DataDisplay display;
 
 	public SubGuiNpcName(DataDisplay display) {
 		this.display = display;

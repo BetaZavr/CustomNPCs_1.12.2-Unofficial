@@ -1,6 +1,7 @@
 package noppes.npcs.controllers.data;
 
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.CustomNPCsException;
@@ -38,11 +39,8 @@ public class KeyConfig implements IKeySetting {
 		if (this.id != key.id || this.keyId != key.keyId || this.modifer != key.modifer) {
 			return false;
 		}
-		if (!this.name.equals(key.name) || !this.category.equals(key.category)) {
-			return false;
-		}
-		return true;
-	}
+        return this.name.equals(key.name) && this.category.equals(key.category);
+    }
 
 	@Override
 	public String getCategory() {
@@ -71,7 +69,7 @@ public class KeyConfig implements IKeySetting {
 
 	@Override
 	public INbt getNbt() {
-		return NpcAPI.Instance().getINbt(this.write());
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.write());
 	}
 
 	public boolean isActive(int key, List<Integer> keyPress) {

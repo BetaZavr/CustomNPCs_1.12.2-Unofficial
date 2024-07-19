@@ -11,8 +11,8 @@ import noppes.npcs.api.IScoreboardScore;
 
 public class ScoreboardObjectiveWrapper implements IScoreboardObjective {
 
-	private Scoreboard board;
-	private ScoreObjective objective;
+	private final Scoreboard board;
+	private final ScoreObjective objective;
 
 	protected ScoreboardObjectiveWrapper(Scoreboard board, ScoreObjective objective) {
 		this.objective = objective;
@@ -49,7 +49,7 @@ public class ScoreboardObjectiveWrapper implements IScoreboardObjective {
 
 	@Override
 	public IScoreboardScore[] getScores() {
-		Collection<Score> list = (Collection<Score>) this.board.getSortedScores(this.objective);
+		Collection<Score> list = this.board.getSortedScores(this.objective);
 		IScoreboardScore[] scores = new IScoreboardScore[list.size()];
 		int i = 0;
 		for (Score score : list) {
@@ -76,9 +76,8 @@ public class ScoreboardObjectiveWrapper implements IScoreboardObjective {
 
 	@Override
 	public void setDisplayName(String name) {
-		if (name.length() <= 0 || name.length() > 16) {
-			throw new CustomNPCsException("Score objective display name must be between 1-16 characters: %s",
-					new Object[] { name });
+		if (name.isEmpty() || name.length() > 16) {
+			throw new CustomNPCsException("Score objective display name must be between 1-16 characters: %s", name);
 		}
 		this.objective.setDisplayName(name);
 	}

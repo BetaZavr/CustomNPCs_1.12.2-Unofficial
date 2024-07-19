@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.lwjgl.input.Keyboard;
 
@@ -17,7 +18,6 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -59,9 +59,9 @@ import noppes.npcs.util.TempFile;
 
 public class ClientTickHandler {
 
-	public static boolean cheakMails = false;
+	public static boolean checkMails = false;
 	public static boolean inGame = false;
-	public static Map<ISound, MusicData> musics = Maps.<ISound, MusicData>newHashMap();
+	public static Map<ISound, MusicData> musics = Maps.newHashMap();
 	
 	public static void loadFiles() {
 		if (ClientProxy.loadFiles.isEmpty()) {
@@ -71,7 +71,7 @@ public class ClientTickHandler {
 		for (String key : ClientProxy.loadFiles.keySet()) {
 			TempFile file = ClientProxy.loadFiles.get(key);
 			if (file.lastLoad == 0) {
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPatr(), key);
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPart(), key);
 				file.lastLoad = System.currentTimeMillis();
 			} else if (file.lastLoad + 12000L < System.currentTimeMillis()) {
 				file.tryLoads++;
@@ -79,7 +79,7 @@ public class ClientTickHandler {
 					LogWriter.error("Failed to load file after 10 attempts: \"" + key + "\"");
 					isDel = key;
 				} else {
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPatr(), key);
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPart(), key);
 					file.lastLoad = System.currentTimeMillis();
 				}
 			}
@@ -92,12 +92,11 @@ public class ClientTickHandler {
 	}
 	private boolean otherContainer;
 	private World prevWorld;
-
-	private Map<String, ISound> nowPlayingSounds;
+	private final Map<String, ISound> nowPlayingSounds;
 
 	public ClientTickHandler() {
 		this.otherContainer = false;
-		this.nowPlayingSounds = Maps.<String, ISound>newHashMap();
+		this.nowPlayingSounds = Maps.newHashMap();
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
@@ -105,6 +104,9 @@ public class ClientTickHandler {
 		if (event.phase == TickEvent.Phase.END) { return; }
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcClientTick");
 		Minecraft mc = Minecraft.getMinecraft();
+		if (mc.player != null && ClientProxy.playerData.getPlayer() == null) {
+			ClientProxy.playerData.setPlayer(mc.player);
+		}
 		if (mc.player != null && mc.player.openContainer instanceof ContainerPlayer) {
 			if (this.otherContainer) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
@@ -118,7 +120,7 @@ public class ClientTickHandler {
 				LogWriter.debug("Client Player: Exit game");
 				ClientTickHandler.inGame = false;
 				ScriptController.Instance.clientScripts.saveDefaultScripts();
-				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGOUT, new PlayerEvent.LogoutEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player)));
+				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGOUT, new PlayerEvent.LogoutEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player)));
 				if (CustomNpcs.VerboseDebug) { CustomNpcs.showDebugs(); }
 			} else if (!ScriptController.Instance.clientScripts.loadDefault) {
 				ScriptController.Instance.clientScripts.loadDefaultScripts();
@@ -147,49 +149,49 @@ public class ClientTickHandler {
 		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, mc.getSoundHandler(), SoundManager.class);
 		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
 		List<String> del = Lists.newArrayList();
-		for (String uuid : playingSounds.keySet()) { // is played
-			try {
-				if (!this.nowPlayingSounds.containsKey(uuid)
-						|| !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
-					ISound sound = playingSounds.get(uuid);
-					if (sound.getCategory() == SoundCategory.MUSIC && !ClientTickHandler.musics.containsKey(sound)) {
-						ClientTickHandler.musics.put(sound, new MusicData(sound, uuid, sm));
+        if (playingSounds != null) {
+			for (String uuid : playingSounds.keySet()) { // is played
+				try {
+					if (!this.nowPlayingSounds.containsKey(uuid)
+							|| !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
+						ISound sound = playingSounds.get(uuid);
+						if (sound.getCategory() == SoundCategory.MUSIC && !ClientTickHandler.musics.containsKey(sound)) {
+							ClientTickHandler.musics.put(sound, new MusicData(sound, uuid, sm));
+						}
+						this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
+						NoppesUtilPlayer.sendData(EnumPlayerPacket.PlaySound, sound.getSound().getSoundLocation(),
+								sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(),
+								sound.getZPosF(), sound.getVolume(), sound.getPitch());
+						EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_PLAY,
+								new PlayerEvent.PlayerSound((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player),
+										sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(),
+										sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(),
+										sound.getVolume(), sound.getPitch()));
 					}
-					this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.PlaySound, sound.getSound().getSoundLocation(),
-							sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(),
-							sound.getZPosF(), sound.getVolume(), sound.getPitch());
-					EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_PLAY,
-							new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player),
-									sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(),
-									sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(),
-									sound.getVolume(), sound.getPitch()));
-				}
-			} catch (Exception e) {
-				LogWriter.error("Error set played sound: " + e);
-				del.add(uuid);
-			}
-		}
-		for (String uuid : this.nowPlayingSounds.keySet()) { // is stoped
-			try {
-				if (!playingSounds.containsKey(uuid) || !playingSounds.containsValue(this.nowPlayingSounds.get(uuid))) {
-					ISound sound = this.nowPlayingSounds.get(uuid);
-					if (ClientTickHandler.musics.containsKey(sound)) {
-						ClientTickHandler.musics.remove(sound);
-					}
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.StopSound, sound.getSound().getSoundLocation(),
-							sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(),
-							sound.getZPosF(), sound.getVolume(), sound.getPitch());
-					EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_STOP,
-							new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player),
-									sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(),
-									sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(),
-									sound.getVolume(), sound.getPitch()));
+				} catch (Exception e) {
+					LogWriter.error("Error set played sound: " + e);
 					del.add(uuid);
 				}
-			} catch (Exception e) {
-				LogWriter.error("Error stop played sound: " + e);
-				del.add(uuid);
+			}
+			for (String uuid : this.nowPlayingSounds.keySet()) { // is stoped
+				try {
+					if (!playingSounds.containsKey(uuid) || !playingSounds.containsValue(this.nowPlayingSounds.get(uuid))) {
+						ISound sound = this.nowPlayingSounds.get(uuid);
+						ClientTickHandler.musics.remove(sound);
+						NoppesUtilPlayer.sendData(EnumPlayerPacket.StopSound, sound.getSound().getSoundLocation(),
+								sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(),
+								sound.getZPosF(), sound.getVolume(), sound.getPitch());
+						EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_STOP,
+								new PlayerEvent.PlayerSound((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player),
+										sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(),
+										sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(),
+										sound.getVolume(), sound.getPitch()));
+						del.add(uuid);
+					}
+				} catch (Exception e) {
+					LogWriter.error("Error stop played sound: " + e);
+					del.add(uuid);
+				}
 			}
 		}
 		for (String uuid : del) {
@@ -203,13 +205,13 @@ public class ClientTickHandler {
 		}
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
-			MusicController.Instance.cheakBards(mc.player);
+			MusicController.Instance.checkBards(mc.player);
 			ClientTickHandler.loadFiles();
 		}
 		if (ScriptController.Instance.clientScripts.isEnabled()) {
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new PlayerEvent.UpdateEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player)));
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new PlayerEvent.UpdateEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player)));
 		}
-		if (ClientTickHandler.cheakMails || CustomNpcs.MailWindow != -1 && CustomNpcs.ticks % 100 == 0) {
+		if (ClientTickHandler.checkMails || CustomNpcs.MailWindow != -1 && CustomNpcs.ticks % 100 == 0) {
 			boolean hasNewMail = false;
 			long time = System.currentTimeMillis();
 			for (PlayerMail mail : ClientProxy.playerData.mailData.playermail) {
@@ -226,23 +228,23 @@ public class ClientTickHandler {
 					mc.player.sendMessage(new TextComponentTranslation("mailbox.new.letters.received"));
 				}
 			}
-			ClientTickHandler.cheakMails = false;
+			ClientTickHandler.checkMails = false;
 		}
 		if (mc.currentScreen != null) {
-			if (ClientProxy.playerData.hud.keyPress.size() > 0) {
+			if (!ClientProxy.playerData.hud.keyPress.isEmpty()) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 				ClientProxy.playerData.hud.keyPress.clear();
 			}
-			if (ClientProxy.playerData.hud.mousePress.size() > 0) {
+			if (!ClientProxy.playerData.hud.mousePress.isEmpty()) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
 				ClientProxy.playerData.hud.mousePress.clear();
 			}
 		}
 		if (mc.currentScreen instanceof GuiNPCInterface || mc.currentScreen instanceof GuiContainerNPCInterface) {
-			SubGuiInterface subGui = null;
+			SubGuiInterface subGui;
 			if (mc.currentScreen instanceof GuiNPCInterface) {
 				subGui = ((GuiNPCInterface) mc.currentScreen).getSubGui();
-			} else if (mc.currentScreen instanceof GuiContainerNPCInterface) {
+			} else {
 				subGui = ((GuiContainerNPCInterface) mc.currentScreen).getSubGui();
 			}
 			if (subGui != null && subGui.getSubGui() != null) {
@@ -252,7 +254,7 @@ public class ClientTickHandler {
 			}
 			if (ClientEventHandler.subgui != subGui) {
 				LogWriter.debug(
-						((subGui == null ? "Cloce SubGUI " : "Open SubGUI - " + subGui.getClass()) + "; SubOLD - "
+						((subGui == null ? "Close SubGUI " : "Open SubGUI - " + subGui.getClass()) + "; SubOLD - "
 								+ (ClientEventHandler.subgui == null ? "null"
 										: ClientEventHandler.subgui.getClass().getSimpleName()))
 								+ "; in GUI "
@@ -277,13 +279,13 @@ public class ClientTickHandler {
 				Client.sendData(EnumPacketServer.SceneStart, 3);
 			}
 			if (ClientProxy.SceneReset.isPressed()) {
-				Client.sendData(EnumPacketServer.SceneReset, new Object[0]);
+				Client.sendData(EnumPacketServer.SceneReset);
 			}
 		}
 		Minecraft mc = Minecraft.getMinecraft();
 		if (ClientProxy.QuestLog.isPressed()) {
 			if (mc.currentScreen == null) {
-				NoppesUtil.openGUI((EntityPlayer) mc.player, new GuiLog(0));
+				NoppesUtil.openGUI(mc.player, new GuiLog(0));
 			} else if (mc.currentScreen instanceof GuiLog) {
 				mc.setIngameFocus();
 			}
@@ -313,7 +315,7 @@ public class ClientTickHandler {
 			}
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved, ClientProxy.playerData.hud.hasOrKeysPressed(ClientProxy.frontButton.getKeyCode(), ClientProxy.backButton.getKeyCode(), ClientProxy.leftButton.getKeyCode(), ClientProxy.rightButton.getKeyCode()));
-		} else if (ClientProxy.playerData.hud.keyPress.size() > 0) {
+		} else if (!ClientProxy.playerData.hud.keyPress.isEmpty()) {
 			ClientProxy.playerData.hud.keyPress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 		}
@@ -325,7 +327,7 @@ public class ClientTickHandler {
 		if (event.getHand() != EnumHand.MAIN_HAND) {
 			return;
 		}
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.LeftClick, new Object[0]);
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.LeftClick);
 	}
 
 	@SubscribeEvent
@@ -350,11 +352,11 @@ public class ClientTickHandler {
 			CustomNpcs.debugData.endDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
 			return;
 		}
-		List<ResourceLocation> objTextures = Lists.<ResourceLocation>newArrayList();
+		List<ResourceLocation> objTextures = Lists.newArrayList();
 		for (File file : AdditionalMethods.getFiles(assets, ".mtl")) {
 			try {
 				for (String line : Files.readAllLines(file.toPath())) {
-					if (line.indexOf("map_Kd") == -1) {
+					if (!line.contains("map_Kd")) {
 						continue;
 					}
 					int endIndex = line.indexOf("" + ((char) 10), line.indexOf("map_Kd"));
@@ -362,8 +364,8 @@ public class ClientTickHandler {
 						endIndex = line.length();
 					}
 					String txtr = line.substring(line.indexOf(" ", line.indexOf("map_Kd")) + 1, endIndex);
-					String domain = "", path = "";
-					if (txtr.indexOf(":") == -1) {
+					String domain = "", path;
+					if (!txtr.contains(":")) {
 						path = txtr;
 					} else {
 						domain = txtr.substring(0, txtr.indexOf(":"));
@@ -371,9 +373,7 @@ public class ClientTickHandler {
 					}
 					objTextures.add(new ResourceLocation(domain, path));
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
 		for (ResourceLocation res : objTextures) {
 			if (event.getMap().getTextureExtry(res.toString()) != null) {
@@ -406,7 +406,7 @@ public class ClientTickHandler {
 			}
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, key, isDown, isCtrlPressed, isShiftPressed,
 					isAltPressed, isMetaPressed);
-		} else if (ClientProxy.playerData.hud.mousePress.size() > 0) {
+		} else if (!ClientProxy.playerData.hud.mousePress.isEmpty()) {
 			ClientProxy.playerData.hud.mousePress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
 		}

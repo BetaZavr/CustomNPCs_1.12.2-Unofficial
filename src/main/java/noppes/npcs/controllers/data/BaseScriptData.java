@@ -22,10 +22,10 @@ implements IScriptHandler {
 	public boolean hadInteract = true;
 	public long lastInited = -1L;
 	protected String scriptLanguage = "ECMAScript";
-	protected List<ScriptContainer> scripts = Lists.<ScriptContainer>newArrayList();
+	protected List<ScriptContainer> scripts = Lists.newArrayList();
 
 	public void clear() {
-		this.scripts = new ArrayList<ScriptContainer>();
+		this.scripts = new ArrayList<>();
 	}
 
 	@Override
@@ -37,7 +37,7 @@ implements IScriptHandler {
 
 	@Override
 	public Map<Long, String> getConsoleText() {
-		Map<Long, String> map = new TreeMap<Long, String>();
+		Map<Long, String> map = new TreeMap<>();
 		int tab = 0;
 		for (ScriptContainer script : this.getScripts()) {
 			++tab;
@@ -65,11 +65,11 @@ implements IScriptHandler {
 
 	@Override
 	public boolean isClient() {
-		return Thread.currentThread().getName().toLowerCase().indexOf("client") != -1;
+		return Thread.currentThread().getName().toLowerCase().contains("client");
 	}
 
 	public boolean isEnabled() {
-		return this.enabled && ScriptController.HasStart && this.scripts.size() > 0;
+		return this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();
 	}
 
 	@Override
@@ -83,9 +83,7 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) { return; }
-	}
+	public void runScript(String type, Event event) { }
 
 	@Override
 	public void setEnabled(boolean bo) {

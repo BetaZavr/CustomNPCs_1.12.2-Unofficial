@@ -5,12 +5,9 @@ import java.util.Random;
 import nikedemos.markovnames.MarkovDictionary;
 
 public class MarkovJapanese extends MarkovGenerator {
+
 	public MarkovDictionary markov2;
 	public MarkovDictionary markov3;
-
-	public MarkovJapanese() {
-		this(4, new Random());
-	}
 
 	public MarkovJapanese(int seqlen) {
 		this(seqlen, new Random());

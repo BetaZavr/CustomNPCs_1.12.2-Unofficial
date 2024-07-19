@@ -1,11 +1,11 @@
 package noppes.npcs.blocks;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyInteger;
@@ -38,21 +38,21 @@ import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.IPermission;
 import noppes.npcs.util.ObfuscationHelper;
 
+import java.util.Objects;
+
 public class CustomBlock extends BlockInterface implements IPermission, ICustomElement {
 
 	public static EnumBlockRenderType getNbtRenderType(String name) {
-		while (name.indexOf(" ") != -1) {
+		while (name.contains(" ")) {
 			name = name.replace(" ", "_");
 		}
 		switch (name.toLowerCase()) {
-		case "invisible":
-			return EnumBlockRenderType.INVISIBLE;
-		case "liquid":
-			return EnumBlockRenderType.MODEL;
-		case "entityblock_animated":
-			return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
-		default:
-			return EnumBlockRenderType.MODEL;
+			case "invisible":
+				return EnumBlockRenderType.INVISIBLE;
+            case "entityblock_animated":
+				return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
+			default:
+				return EnumBlockRenderType.MODEL;
 		}
 	}
 	public static SoundType getNbtSoundType(String soundName) {
@@ -83,7 +83,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 			return SoundType.STONE;
 		}
 	}
-	public NBTTagCompound nbtData = new NBTTagCompound();
+	public NBTTagCompound nbtData;
 	public AxisAlignedBB FULL_BLOCK_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
 	public AxisAlignedBB EAST_BLOCK_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
 	public AxisAlignedBB SOUTH_BLOCK_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
@@ -147,41 +147,41 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 		this.setCreativeTab(CustomRegisters.tabBlocks);
 	}
 
-	protected BlockStateContainer createBlockState() {
+	protected @Nonnull BlockStateContainer createBlockState() {
 		if (this.nbtData != null && this.nbtData.hasKey("Property", 10)) {
 			NBTTagCompound nbtProperty = this.nbtData.getCompoundTag("Property");
 			switch (nbtProperty.getByte("Type")) {
 			case (byte) 1: {
 				this.BO = PropertyBool.create(nbtProperty.getString("Name"));
-				return new BlockStateContainer(this, new IProperty[] { this.BO });
+				return new BlockStateContainer(this, this.BO);
 			}
 			case (byte) 3: {
 				this.INT = PropertyInteger.create(nbtProperty.getString("Name"), nbtProperty.getInteger("Min"),
 						nbtProperty.getInteger("Max"));
-				return new BlockStateContainer(this, new IProperty[] { this.INT });
+				return new BlockStateContainer(this, this.INT);
 			}
 			case (byte) 4: {
 				this.FACING = PropertyDirection.create(nbtProperty.getString("Name"), EnumFacing.Plane.HORIZONTAL);
-				return new BlockStateContainer(this, new IProperty[] { this.FACING });
+				return new BlockStateContainer(this, this.FACING);
 			}
 			}
 		}
-		return new BlockStateContainer(this, new IProperty[0]);
+		return new BlockStateContainer(this);
 
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) {
+	public TileEntity createNewTileEntity(@Nonnull World worldIn, int meta) {
 		return null;
 	}
 
 	@SideOnly(Side.CLIENT)
-	public BlockRenderLayer getBlockLayer() {
+	public @Nonnull BlockRenderLayer getBlockLayer() {
 		String name = "";
 		if (this.nbtData != null && this.nbtData.hasKey("BlockLayer", 8)) {
 			name = this.nbtData.getString("BlockLayer");
 		}
-		while (name.indexOf(" ") != -1) {
+		while (name.contains(" ")) {
 			name = name.replace(" ", "_");
 		}
 		switch (name.toLowerCase()) {
@@ -197,7 +197,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 	}
 
 	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+	public @Nonnull AxisAlignedBB getBoundingBox(@Nonnull IBlockState state, @Nonnull IBlockAccess source, @Nonnull BlockPos pos) {
 		if (this.FACING != null) {
 			EnumFacing v = state.getValue(this.FACING);
 			if (v == EnumFacing.EAST) {
@@ -211,9 +211,8 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 		return this.FULL_BLOCK_AABB;
 	}
 
-	@Nullable
 	@Override
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
+	public @Nullable AxisAlignedBB getCollisionBoundingBox(@Nonnull IBlockState blockState, @Nonnull IBlockAccess worldIn, @Nonnull BlockPos pos) {
 		if (this.nbtData != null && this.nbtData.getBoolean("IsPassable")) {
 			return NULL_AABB;
 		}
@@ -239,26 +238,25 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
 	@Override
-	public int getMetaFromState(IBlockState state) {
+	public int getMetaFromState(@Nonnull IBlockState state) {
 		if (this.FACING != null) {
-			return ((EnumFacing) state.getValue(this.FACING)).getIndex();
+			return state.getValue(this.FACING).getIndex();
 		}
 		return super.getMetaFromState(state);
 	}
 
 	@Override
-	public EnumBlockRenderType getRenderType(IBlockState state) {
+	public @Nonnull EnumBlockRenderType getRenderType(@Nonnull IBlockState state) {
 		return this.renderType;
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY,
-			float hitZ, int meta, EntityLivingBase placer) {
+	public @Nonnull IBlockState getStateForPlacement(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer) {
 		if (this.FACING != null) {
 			return this.getDefaultState().withProperty(this.FACING, placer.getHorizontalFacing().getOpposite());
 		}
@@ -266,7 +264,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 	}
 
 	@Override
-	public IBlockState getStateFromMeta(int meta) {
+	public @Nonnull IBlockState getStateFromMeta(int meta) {
 		IBlockState state = this.getDefaultState();
 		if (this.FACING != null) {
 			EnumFacing enumfacing = EnumFacing.getFront(meta);
@@ -285,7 +283,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 	}
 
 	@Override
-	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubBlocks(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabBlocks && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
 				&& !this.nbtData.getBoolean("ShowInCreative")) {
@@ -310,24 +308,22 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 	}
 
 	@Override
-	public boolean isFullCube(IBlockState state) {
-		return this.nbtData == null || !this.nbtData.hasKey("IsFullCube") ? true
-				: this.nbtData.getBoolean("IsFullCube");
+	public boolean isFullCube(@Nonnull IBlockState state) {
+		return this.nbtData == null || !this.nbtData.hasKey("IsFullCube") || this.nbtData.getBoolean("IsFullCube");
 	}
 
 	@Override
-	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) {
+	public boolean isLadder(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull EntityLivingBase entity) {
 		return this.nbtData.getBoolean("IsLadder");
 	}
 
 	@Override
-	public boolean isOpaqueCube(IBlockState state) {
-		return this.nbtData == null || !this.nbtData.hasKey("IsOpaqueCube") ? true
-				: this.nbtData.getBoolean("IsOpaqueCube");
+	public boolean isOpaqueCube(@Nonnull IBlockState state) {
+		return this.nbtData == null || !this.nbtData.hasKey("IsOpaqueCube") || this.nbtData.getBoolean("IsOpaqueCube");
 	}
 
 	@Override
-	public boolean isPassable(IBlockAccess worldIn, BlockPos pos) {
+	public boolean isPassable(@Nonnull IBlockAccess worldIn, @Nonnull BlockPos pos) {
 		if (this.nbtData == null || !this.nbtData.hasKey("IsPassable", 3)) {
 			return !this.blockMaterial.blocksMovement();
 		}
@@ -335,7 +331,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 	}
 
 	@Override
-	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
+	public void onBlockAdded(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
 		if (worldIn.isRemote || this.FACING == null) {
 			return;
 		}
@@ -343,7 +339,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 		IBlockState iblockstate1 = worldIn.getBlockState(pos.south());
 		IBlockState iblockstate2 = worldIn.getBlockState(pos.west());
 		IBlockState iblockstate3 = worldIn.getBlockState(pos.east());
-		EnumFacing enumfacing = (EnumFacing) state.getValue(this.FACING);
+		EnumFacing enumfacing = state.getValue(this.FACING);
 		if (enumfacing == EnumFacing.NORTH && iblockstate.isFullBlock() && !iblockstate1.isFullBlock()) {
 			enumfacing = EnumFacing.SOUTH;
 		} else if (enumfacing == EnumFacing.SOUTH && iblockstate1.isFullBlock() && !iblockstate.isFullBlock()) {
@@ -356,8 +352,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 		worldIn.setBlockState(pos, state.withProperty(this.FACING, enumfacing), 2);
 	}
 
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer,
-			ItemStack stack) {
+	public void onBlockPlacedBy(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityLivingBase placer, @Nonnull ItemStack stack) {
 		if (this.FACING != null) {
 			worldIn.setBlockState(pos, state.withProperty(this.FACING, placer.getHorizontalFacing().getOpposite()), 2);
 		}
@@ -383,25 +378,25 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public IBlockState withMirror(IBlockState state, Mirror mirrorIn) {
+	public @Nonnull IBlockState withMirror(@Nonnull IBlockState state, @Nonnull Mirror mirrorIn) {
 		if (this.FACING != null) {
-			return state.withRotation(mirrorIn.toRotation((EnumFacing) state.getValue(this.FACING)));
+			return state.withRotation(mirrorIn.toRotation(state.getValue(this.FACING)));
 		}
 		return super.withMirror(state, mirrorIn);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public IBlockState withRotation(IBlockState state, Rotation rot) {
+	public @Nonnull IBlockState withRotation(@Nonnull IBlockState state, @Nonnull Rotation rot) {
 		if (this.FACING != null) {
-			return state.withProperty(this.FACING, rot.rotate((EnumFacing) state.getValue(FACING)));
+			return state.withProperty(this.FACING, rot.rotate(state.getValue(FACING)));
 		}
 		return super.withRotation(state, rot);
 	}
 	
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return this.nbtData.getByte("BlockType"); }
 		return 0;
 	}
 

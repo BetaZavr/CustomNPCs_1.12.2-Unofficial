@@ -30,17 +30,14 @@ public class TileEntityCustomBannerRenderer extends TileEntityBannerRenderer {
 		customBannerSlate.addBox(-10.0F, -32.0F, -2.0F, 20, 40, 1, 0.0F);
 		ModelBox list = customBannerSlate.cubeList.get(0);
 		PositionTextureVertex[] vp = ObfuscationHelper.getValue(ModelBox.class, list, 0);
+		if (vp == null) { return; }
 		TexturedQuad[] quadList = new TexturedQuad[6];
-		quadList[0] = new TexturedQuad(new PositionTextureVertex[] { vp[5], vp[1], vp[2], vp[6] }, 11, 1, 12, 17, 64,
-				32); // right
+		quadList[0] = new TexturedQuad(new PositionTextureVertex[] { vp[5], vp[1], vp[2], vp[6] }, 11, 1, 12, 17, 64, 32); // right
 		quadList[1] = new TexturedQuad(new PositionTextureVertex[] { vp[0], vp[4], vp[7], vp[3] }, 0, 1, 1, 17, 64, 32); // left
 		quadList[2] = new TexturedQuad(new PositionTextureVertex[] { vp[5], vp[4], vp[0], vp[1] }, 1, 0, 11, 0, 64, 32); // top
-		quadList[3] = new TexturedQuad(new PositionTextureVertex[] { vp[2], vp[3], vp[7], vp[6] }, 11, 0, 21, 1, 64,
-				32); // bottom
-		quadList[4] = new TexturedQuad(new PositionTextureVertex[] { vp[1], vp[0], vp[3], vp[2] }, 1, 1, 11, 17, 64,
-				32); // front
-		quadList[5] = new TexturedQuad(new PositionTextureVertex[] { vp[4], vp[5], vp[6], vp[7] }, 12, 1, 22, 17, 64,
-				32); // back
+		quadList[3] = new TexturedQuad(new PositionTextureVertex[] { vp[2], vp[3], vp[7], vp[6] }, 11, 0, 21, 1, 64, 32); // bottom
+		quadList[4] = new TexturedQuad(new PositionTextureVertex[] { vp[1], vp[0], vp[3], vp[2] }, 1, 1, 11, 17, 64, 32); // front
+		quadList[5] = new TexturedQuad(new PositionTextureVertex[] { vp[4], vp[5], vp[6], vp[7] }, 12, 1, 22, 17, 64, 32); // back
 		ObfuscationHelper.setValue(ModelBox.class, list, quadList, 1);
 	}
 
@@ -50,12 +47,11 @@ public class TileEntityCustomBannerRenderer extends TileEntityBannerRenderer {
 				bannerObj.getPatternList(), bannerObj.getColorList());
 	}
 
-	public void render(TileEntityBanner te, double x, double y, double z, float partialTicks, int destroyStage,
-			float alpha) {
-		boolean hasWorld = te.getWorld() != null;
-		boolean isStanding = !hasWorld || te.getBlockType() == Blocks.STANDING_BANNER;
-		int meta = hasWorld ? te.getBlockMetadata() : 0;
-		float ticks = hasWorld ? te.getWorld().getTotalWorldTime() : 0.0f;
+	public void render(@Nullable TileEntityBanner te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+		if (te == null) { return; }
+		boolean isStanding = !te.hasWorld() || te.getBlockType() == Blocks.STANDING_BANNER;
+		int meta = te.hasWorld() ? te.getBlockMetadata() : 0;
+		float ticks = te.hasWorld() ? te.getWorld().getTotalWorldTime() : 0.0f;
 		GlStateManager.pushMatrix();
 
 		if (isStanding) {

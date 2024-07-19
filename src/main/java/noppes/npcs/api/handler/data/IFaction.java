@@ -41,7 +41,7 @@ public interface IFaction {
 
 	void setDefaultPoints(int points);
 
-	void setDescription(String descr);
+	void setDescription(String description);
 
 	void setFlag(String flagPath);
 

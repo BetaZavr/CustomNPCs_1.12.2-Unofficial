@@ -92,7 +92,7 @@ public class CustomGuiScrollComponent extends GuiCustomScroll implements IDataHo
 		int y = this.offsets[1] == 0 ? this.guiTop : this.offsets[1] - this.guiTop;
 		this.hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
 		GlStateManager.translate(x - this.guiLeft, y - this.guiTop, this.id);
-		super.drawScreen(mouseX, mouseY, partialTicks, mouseWheel);
+		super.drawScreen(mouseX, mouseY, mouseWheel);
 		if (this.hovered && this.component.hasHoverText()) {
 			this.parent.hoverText = this.component.getHoverText();
 		}
@@ -111,7 +111,7 @@ public class CustomGuiScrollComponent extends GuiCustomScroll implements IDataHo
 
 	public ICustomGuiComponent toComponent() {
 		List<String> list = this.getList();
-		this.component.setList(list.toArray(new String[list.size()]));
+		this.component.setList(list.toArray(new String[0]));
 		return this.component;
 	}
 

@@ -1,15 +1,7 @@
 package noppes.npcs;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.zip.GZIPOutputStream;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -27,7 +19,6 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -39,8 +30,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.WeightedSpawnerEntity;
@@ -86,47 +75,28 @@ import noppes.npcs.controllers.data.TransportCategory;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.items.crafting.NpcShapedRecipes;
-import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import noppes.npcs.roles.JobSpawner;
 import noppes.npcs.roles.RoleTransporter;
-import noppes.npcs.roles.data.SpawnNPCData;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.CustomNPCsScheduler;
 
+import javax.annotation.Nonnull;
+
 public class NoppesUtilServer {
 
-	private static HashMap<UUID, Quest> editingQuests = new HashMap<UUID, Quest>();
-	private static HashMap<UUID, Quest> editingQuestsClient = new HashMap<UUID, Quest>();
-
-	public static ItemStack ChangeItemStack(ItemStack is, Item item) {
-		NBTTagCompound comp = is.writeToNBT(new NBTTagCompound());
-		ResourceLocation resourcelocation = Item.REGISTRY.getNameForObject(item);
-		comp.setString("id", (resourcelocation == null) ? "minecraft:air" : resourcelocation.toString());
-		return new ItemStack(comp);
-	}
-
-	public static void consumeItemStack(int i, EntityPlayer player) {
-		ItemStack item = player.inventory.getCurrentItem();
-		if (player.capabilities.isCreativeMode || item == null || item.isEmpty()) {
-			return;
-		}
-		item.shrink(1);
-		if (item.getCount() <= 0) {
-			player.setHeldItem(EnumHand.MAIN_HAND, null);
-		}
-	}
+	private static final HashMap<UUID, Quest> editingQuests = new HashMap<>();
+	private static final HashMap<UUID, Quest> editingQuestsClient = new HashMap<>();
 
 	public static void createMobSpawner(BlockPos pos, NBTTagCompound comp, EntityPlayer player) {
 		ServerCloneController.Instance.cleanTags(comp);
 		if (comp.getString("id").equalsIgnoreCase("entityhorse")) {
-			player.sendMessage(new TextComponentTranslation(
-					"Currently you cant create horse spawner, its a minecraft bug", new Object[0]));
+			player.sendMessage(new TextComponentTranslation("Currently you cant create horse spawner, its a minecraft bug"));
 			return;
 		}
 		player.world.setBlockState(pos, Blocks.MOB_SPAWNER.getDefaultState());
 		TileEntityMobSpawner tile = (TileEntityMobSpawner) player.world.getTileEntity(pos);
-		MobSpawnerBaseLogic logic = tile.getSpawnerBaseLogic();
+        assert tile != null;
+        MobSpawnerBaseLogic logic = tile.getSpawnerBaseLogic();
 		if (!comp.hasKey("id", 8)) {
 			comp.setString("id", "Pig");
 		}
@@ -134,7 +104,7 @@ public class NoppesUtilServer {
 		logic.setNextSpawnData(new WeightedSpawnerEntity(1, comp));
 	}
 
-	public static void deleteEntity(EntityLivingBase entity, EntityPlayer player) {
+	public static void deleteEntity(EntityLivingBase entity) {
 		Server.sendAssociatedData(entity, EnumPacketClient.DELETE_ENTITY, entity.getEntityId());
 	}
 
@@ -166,10 +136,6 @@ public class NoppesUtilServer {
 		return entity;
 	}
 
-	public static DataOutputStream getDataOutputStream(ByteArrayOutputStream stream) throws IOException {
-		return new DataOutputStream(new GZIPOutputStream(stream));
-	}
-
 	public static EntityNPCInterface getEditingNpc(EntityPlayer player) {
 		PlayerData data = PlayerData.get(player);
 		return data.editingNpc;
@@ -183,7 +149,7 @@ public class NoppesUtilServer {
 	}
 
 	public static EntityPlayer getPlayer(MinecraftServer minecraftserver, UUID id) {
-		List<EntityPlayerMP> list = (List<EntityPlayerMP>) minecraftserver.getPlayerList().getPlayers();
+		List<EntityPlayerMP> list = minecraftserver.getPlayerList().getPlayers();
 		for (EntityPlayer player : list) {
 			if (id.equals(player.getUniqueID())) {
 				return player;
@@ -193,7 +159,7 @@ public class NoppesUtilServer {
 	}
 
 	private static Map<String, Integer> getScrollData(EntityPlayer player, EnumGuiType gui, EntityNPCInterface npc) {
-		Map<String, Integer> map = Maps.<String, Integer>newHashMap();
+		Map<String, Integer> map = Maps.newHashMap();
 		if (gui == EnumGuiType.PlayerTransporter) {
 			RoleTransporter role = (RoleTransporter) npc.advanced.roleInterface;
 			TransportLocation location = role.getLocation();
@@ -229,14 +195,14 @@ public class NoppesUtilServer {
 		entity.world.spawnEntity(entityitem);
 		int i = item.getCount();
 		if (player.inventory.addItemStackToInventory(item)) {
-			entity.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ,
+			entity.world.playSound(null, player.posX, player.posY, player.posZ,
 					SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f,
 					((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
 			player.onItemPickup(entityitem, i);
 			PlayerQuestData playerdata = PlayerData.get(player).questData;
 			for (QuestData data : playerdata.activeQuests.values()) { // Changed
 				for (IQuestObjective obj : data.quest
-						.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+						.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 					if (obj.getType() != EnumQuestTask.ITEM.ordinal()) {
 						continue;
 					}
@@ -250,11 +216,11 @@ public class NoppesUtilServer {
 	}
 
 	public static boolean IsItemStackNull(ItemStack is) {
-		return is == null || is.isEmpty() || is == ItemStack.EMPTY || is.getItem() == null;
+		return is == null || is.isEmpty();
 	}
 
 	public static boolean isOp(EntityPlayer player) {
-		return player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
+		return Objects.requireNonNull(player.getServer()).getPlayerList().canSendCommands(player.getGameProfile());
 	}
 
 	public static void moveNpcDialogs(EntityPlayer player, int slot, boolean isUp) {
@@ -294,16 +260,6 @@ public class NoppesUtilServer {
 		if ((isUp && slot <= 0) || (!isUp && slot >= (job.size(isDead) - 1))) {
 			return;
 		}
-		SpawnNPCData[] newIDs = new SpawnNPCData[job.size(isDead)];
-		for (int s = 0; s < job.size(isDead); s++) {
-			if ((s + (isUp ? 1 : -1)) == slot) {
-				newIDs[s] = job.get(s + (isUp ? 1 : -1), isDead);
-			} else if (s == slot) {
-				newIDs[s] = job.get(s + (isUp ? -1 : 1), isDead);
-			} else {
-				newIDs[s] = job.get(s, isDead);
-			}
-		}
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setBoolean("JobData", true);
 		npc.advanced.jobInterface.writeToNBT(compound);
@@ -314,7 +270,7 @@ public class NoppesUtilServer {
 	public static void NotifyOPs(String message, Object... obs) {
 		TextComponentTranslation chatcomponenttranslation = new TextComponentTranslation(message, obs);
 		chatcomponenttranslation.getStyle().setColor(TextFormatting.GRAY);
-		chatcomponenttranslation.getStyle().setItalic(Boolean.valueOf(true));
+		chatcomponenttranslation.getStyle().setItalic(Boolean.TRUE);
 		for (EntityPlayer entityplayer : CustomNpcs.Server.getPlayerList().getPlayers()) {
 			if (entityplayer.sendCommandFeedback() && isOp(entityplayer)) {
 				entityplayer.sendMessage(chatcomponenttranslation);
@@ -360,7 +316,7 @@ public class NoppesUtilServer {
 		}
 		setEditingNpc(player, npc);
 		for (QuestData qdata : playerdata.questData.activeQuests.values()) { // Changed
-			for (IQuestObjective obj : qdata.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+			for (IQuestObjective obj : qdata.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 				if (obj.getType() != EnumQuestTask.DIALOG.ordinal()) {
 					continue;
 				}
@@ -370,15 +326,15 @@ public class NoppesUtilServer {
 	}
 
 	public static void playSound(EntityLivingBase entity, SoundEvent sound, float volume, float pitch) {
-		entity.world.playSound((EntityPlayer) null, entity.posX, entity.posY, entity.posZ, sound, SoundCategory.NEUTRAL, volume, pitch);
+		entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, sound, SoundCategory.NEUTRAL, volume, pitch);
 	}
 
 	public static void playSound(World world, BlockPos pos, SoundEvent sound, SoundCategory cat, float volume,
 			float pitch) {
-		world.playSound((EntityPlayer) null, pos, sound, cat, volume, pitch);
+		world.playSound(null, pos, sound, cat, volume, pitch);
 	}
 
-	public static void removePlayerData(int id, ByteBuf buffer, EntityPlayerMP player) throws IOException {
+	public static void removePlayerData(int id, ByteBuf buffer, EntityPlayerMP player) {
 		if (EnumPlayerData.values().length <= id) {
 			return;
 		}
@@ -387,8 +343,8 @@ public class NoppesUtilServer {
 			return;
 		}
 		EnumPlayerData type = EnumPlayerData.values()[id];
-		EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(name);
-		PlayerData playerdata = null;
+		EntityPlayerMP pl = Objects.requireNonNull(player.getServer()).getPlayerList().getPlayerByUsername(name);
+		PlayerData playerdata;
 		if (pl == null) {
 			playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), name);
 		} else {
@@ -405,11 +361,9 @@ public class NoppesUtilServer {
 				playerdata.save(true);
 				return;
 			}
-		} else if (type == EnumPlayerData.Wipe) {
-
 		}
 		if (pl != null) {
-			SyncController.syncPlayer((EntityPlayerMP) pl);
+			SyncController.syncPlayer(pl);
 		}
 		sendPlayerData(type, player, name);
 	}
@@ -420,7 +374,7 @@ public class NoppesUtilServer {
 
 	public static String runCommand(World world, BlockPos pos, String name, String command, EntityPlayer player,
 			ICommandSender executer) {
-		if (!world.getMinecraftServer().isCommandBlockEnabled()) {
+		if (!Objects.requireNonNull(world.getMinecraftServer()).isCommandBlockEnabled()) {
 			LogWriter.warn("Cant run commands if CommandBlocks are disabled");
 			return "Cant run commands if CommandBlocks are disabled";
 		}
@@ -430,7 +384,7 @@ public class NoppesUtilServer {
 		command = command.replace("@npc", name);
 		TextComponentString output = new TextComponentString("");
 		ICommandSender icommandsender = new RConConsoleSource(world.getMinecraftServer()) {
-			public boolean canUseCommand(int permLevel, String commandName) {
+			public boolean canUseCommand(int permLevel, @Nonnull String commandName) {
 				return CustomNpcs.NpcUseOpCommands || permLevel <= 2;
 			}
 
@@ -441,31 +395,31 @@ public class NoppesUtilServer {
 				return executer.getCommandSenderEntity();
 			}
 
-			public ITextComponent getDisplayName() {
+			public @Nonnull ITextComponent getDisplayName() {
 				return new TextComponentString(this.getName());
 			}
 
-			public World getEntityWorld() {
+			public @Nonnull World getEntityWorld() {
 				return world;
 			}
 
-			public String getName() {
+			public @Nonnull String getName() {
 				return "@CustomNPCs-" + name;
 			}
 
-			public BlockPos getPosition() {
+			public @Nonnull BlockPos getPosition() {
 				return pos;
 			}
 
-			public Vec3d getPositionVector() {
+			public @Nonnull Vec3d getPositionVector() {
 				return new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
 			}
 
 			public boolean sendCommandFeedback() {
-				return this.getServer().worlds[0].getGameRules().getBoolean("commandBlockOutput");
+				return Objects.requireNonNull(this.getServer()).worlds[0].getGameRules().getBoolean("commandBlockOutput");
 			}
 
-			public void sendMessage(ITextComponent component) {
+			public void sendMessage(@Nonnull ITextComponent component) {
 				output.appendSibling(component);
 			}
 		};
@@ -491,7 +445,7 @@ public class NoppesUtilServer {
 	public static void sendBank(EntityPlayerMP player, Bank bank, int ceil) {
 		NBTTagCompound compound = new NBTTagCompound();
 		bank.writeToNBT(compound);
-		compound.setInteger("CurrentCeil", ceil < 0 ? 0 : ceil);
+		compound.setInteger("CurrentCeil", Math.max(ceil, 0));
 		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		if (player.openContainer instanceof ContainerManageBanks) {
 			((ContainerManageBanks) player.openContainer).setBank(bank, ceil);
@@ -500,23 +454,21 @@ public class NoppesUtilServer {
 	}
 
 	public static void sendBankDataAll(EntityPlayerMP player) {
-		Map<String, Integer> map = new HashMap<String, Integer>();
+		Map<String, Integer> map = new HashMap<>();
 		for (Bank bank : BankController.getInstance().banks.values()) {
 			map.put(bank.name, bank.id);
 		}
 		sendScrollData(player, map);
 	}
 
-	private static void sendExtraData(EntityPlayer player, EntityNPCInterface npc, EnumGuiType gui, int x, int y,
-			int z) {
-		if (gui == EnumGuiType.PlayerFollower || gui == EnumGuiType.PlayerFollowerHire
-				|| gui == EnumGuiType.PlayerTrader || gui == EnumGuiType.PlayerTransporter) {
+	private static void sendExtraData(EntityPlayer player, EntityNPCInterface npc, EnumGuiType gui) {
+		if (gui == EnumGuiType.PlayerFollower || gui == EnumGuiType.PlayerFollowerHire || gui == EnumGuiType.PlayerTrader || gui == EnumGuiType.PlayerTransporter) {
 			sendRoleData(player, npc);
 		}
 	}
 
 	public static void sendFactionDataAll(EntityPlayerMP player) {
-		Map<String, Integer> map = new HashMap<String, Integer>();
+		Map<String, Integer> map = new HashMap<>();
 		for (Faction faction : FactionController.instance.factions.values()) {
 			map.put(faction.name, faction.id);
 		}
@@ -532,9 +484,9 @@ public class NoppesUtilServer {
 	}
 
 	public static void sendNearbyEntitys(EntityPlayerMP player, boolean all) {
-		HashMap<Float, NBTTagCompound> map = new HashMap<Float, NBTTagCompound>();
-		List<Float> alist = Lists.<Float>newArrayList();
-		List<Float> nlist = Lists.<Float>newArrayList();
+		HashMap<Float, NBTTagCompound> map = new HashMap<>();
+		List<Float> alist = Lists.newArrayList();
+		List<Float> nlist = Lists.newArrayList();
 		NBTTagCompound compound = new NBTTagCompound();
 		NBTTagList list = new NBTTagList();
 		for (Entity entity : player.world.loadedEntityList) {
@@ -564,7 +516,7 @@ public class NoppesUtilServer {
 			list.appendTag(map.get(d));
 		}
 		compound.setTag("Data", list);
-		Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI_DATA, compound);
+		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 	}
 
 	public static void sendNpcDialogs(EntityPlayer player) {
@@ -597,7 +549,7 @@ public class NoppesUtilServer {
 			return;
 		}
 		setEditingNpc(player, npc);
-		sendExtraData(player, npc, gui, x, y, z);
+		sendExtraData(player, npc, gui);
 		CustomNPCsScheduler.runTack(() -> {
 			try {
 				if (CustomNpcs.proxy.getServerGuiElement(gui.ordinal(), player, player.world, x, y, z) != null) {
@@ -607,21 +559,22 @@ public class NoppesUtilServer {
 					Map<String, Integer> map = getScrollData(player, gui, npc);
 					sendScrollData((EntityPlayerMP) player, map);
 				}
-			} catch (Exception e) { e.printStackTrace(); }
+			}
+			catch (Exception e) { LogWriter.error("Error:", e); }
 		}, 100);
 	}
 
 	public static void sendPlayerData(EnumPlayerData type, EntityPlayerMP player, String name) {
-		Map<String, Integer> map = new HashMap<String, Integer>();
+		Map<String, Integer> map = new HashMap<>();
 		if (type == EnumPlayerData.Players) {
 			for (String username : PlayerDataController.instance.getPlayerNames()) {
 				map.put(username, 0);
 			}
-			for (String username : player.getServer().getPlayerList().getOnlinePlayerNames()) {
+			for (String username : Objects.requireNonNull(player.getServer()).getPlayerList().getOnlinePlayerNames()) {
 				map.put(username, 1);
 			}
 		} else {
-			PlayerData playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), name);
+			PlayerData playerdata = PlayerDataController.instance.getDataFromUsername(Objects.requireNonNull(player.getServer()), name);
 			if (type == EnumPlayerData.Dialog) {
 				PlayerDialogData data = playerdata.dialogData;
 				for (int questId : data.dialogsRead) {
@@ -656,8 +609,7 @@ public class NoppesUtilServer {
 					}
 					map.put(location.category.title + ": " + location.name, transportId);
 				}
-			} else if (type == EnumPlayerData.Bank) {
-				/*
+				/*} else if (type == EnumPlayerData.Bank) {
 				 * PlayerBankData data4 = playerdata.bankData; for (int bankId :
 				 * data4.banks.keySet()) { Bank bank =
 				 * BankController.getInstance().banks.get(bankId); if (bank == null) { continue;
@@ -670,7 +622,7 @@ public class NoppesUtilServer {
 					if (faction == null) {
 						continue;
 					}
-					map.put(faction.name + ";" + data5.getFactionPoints((EntityPlayer) player, factionId), factionId);
+					map.put(faction.name + ";" + data5.getFactionPoints(player, factionId), factionId);
 				}
 			} else if (type == EnumPlayerData.Game) {
 				Server.sendData(player, EnumPacketClient.GUI_DATA, playerdata.game.saveNBTData(new NBTTagCompound()));
@@ -713,12 +665,12 @@ public class NoppesUtilServer {
 	}
 
 	public static void sendScrollData(EntityPlayerMP player, Map<String, Integer> map) {
-		Map<String, Integer> send = new HashMap<String, Integer>();
+		Map<String, Integer> send = new HashMap<>();
 		for (String key : map.keySet()) {
 			send.put(key, map.get(key));
 			if (send.size() == 100) {
 				Server.sendData(player, EnumPacketClient.SCROLL_DATA_PART, send);
-				send = new HashMap<String, Integer>();
+				send = new HashMap<>();
 			}
 		}
 		Server.sendData(player, EnumPacketClient.SCROLL_DATA, send);
@@ -732,7 +684,7 @@ public class NoppesUtilServer {
 
 	public static void sendTransportData(EntityPlayerMP player, int categoryid) {
 		TransportCategory category = TransportController.getInstance().categories.get(categoryid);
-		HashMap<String, Integer> map = Maps.<String, Integer>newHashMap();
+		HashMap<String, Integer> map = Maps.newHashMap();
 		if (category != null) {
 			for (TransportLocation transport : category.locations.values()) {
 				map.put(transport.name, transport.id);
@@ -771,9 +723,7 @@ public class NoppesUtilServer {
 		} // change
 		else { // add
 			int[] newIDs = new int[npc.dialogs.length + 1];
-			for (int i = 0; i < npc.dialogs.length; i++) {
-				newIDs[i] = npc.dialogs[i];
-			}
+            System.arraycopy(npc.dialogs, 0, newIDs, 0, npc.dialogs.length);
 			slot = npc.dialogs.length;
 			newIDs[slot] = dialogId;
 			npc.dialogs = newIDs;
@@ -797,23 +747,18 @@ public class NoppesUtilServer {
 		ContainerManageRecipes container = (ContainerManageRecipes) player.openContainer;
 		container.setRecipe(recipe);
 		NBTTagCompound compound = new NBTTagCompound();
-		if (recipe.isShaped()) {
-			compound.setTag("SelectRecipe", ((NpcShapedRecipes) recipe).getNbt().getMCNBT());
-		} else {
-			compound.setTag("SelectRecipe", ((NpcShapelessRecipes) recipe).getNbt().getMCNBT());
-		}
-		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
+        compound.setTag("SelectRecipe", recipe.getNbt().getMCNBT());
+        Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 	}
 
 	public static Entity spawnClone(NBTTagCompound compound, double x, double y, double z, World world) {
 		if (world == null || world.isRemote) {
-			LogWriter.error("Clone summoning Error: World is Client: " + (world == null ? "null" : world.isRemote)
-					+ " - " + world);
+			LogWriter.error("Clone summoning Error: World is Client: " + (world == null ? "null" : "true") + " - " + world);
 			return null;
 		}
 		if (compound == null) {
 			LogWriter.error("Clone summoning Error: Missing NBT Tags: "
-					+ (compound == null ? "null" : compound.toString().length()) + " or World: "
+					+ "null or World: "
 					+ world.provider.getDimension());
 			return null;
 		}
@@ -833,9 +778,8 @@ public class NoppesUtilServer {
 		return entity;
 	}
 
-	public static void spawnParticle(Entity entity, String particle, int dimension) {
-		Server.sendAssociatedData(entity, EnumPacketClient.PARTICLE, entity.posX, entity.posY, entity.posZ,
-				entity.height, entity.width, particle);
+	public static void spawnParticle(Entity entity, String particle) {
+		Server.sendAssociatedData(entity, EnumPacketClient.PARTICLE, entity.posX, entity.posY, entity.posZ, entity.height, entity.width, particle);
 	}
 
 }

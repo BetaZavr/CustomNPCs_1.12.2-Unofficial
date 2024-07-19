@@ -4,22 +4,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import moe.plushie.armourers_workshop.api.ArmourersWorkshopApi;
 import moe.plushie.armourers_workshop.api.common.IExtraColours;
-import moe.plushie.armourers_workshop.api.common.capability.IEntitySkinCapability;
-import moe.plushie.armourers_workshop.api.common.capability.IWardrobeCap;
-import moe.plushie.armourers_workshop.api.common.skin.data.ISkin;
 import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDescriptor;
 import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDye;
 import moe.plushie.armourers_workshop.api.common.skin.type.ISkinType;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.entity.EntityCustomNpc;
+import noppes.npcs.LogWriter;
 
 public class ArmourersWorkshopUtil {
 
@@ -267,52 +259,8 @@ public class ArmourersWorkshopUtil {
 			getChildren = ap.getDeclaredMethod("getChildren");
 			posAP = ap.getDeclaredField("pos");
 			rotationAngle = ap.getDeclaredField("rotationAngle");
-
-		} catch (Exception e) {
 		}
-	}
-
-	/** standard aw_mor part render */
-	public void renderPart(int slotId, ItemStack stack, EntityCustomNpc entity, ModelBiped modelBiped, float scale) {
-		IEntitySkinCapability skinCapability = ArmourersWorkshopApi.getEntitySkinCapability(entity);
-		if (skinCapability == null) {
-			return;
-		}
-		double distance = Minecraft.getMinecraft().player.getDistance(entity.posX, entity.posY, entity.posZ);
-		int d;
-		try {
-			d = (int) renderDistanceSkin.get(configHandlerClient);
-		} catch (Exception e1) {
-			return;
-		}
-		if (distance > d) {
-			return;
-		}
-		IWardrobeCap wardrobe = ArmourersWorkshopApi.getEntityWardrobeCapability(entity);
-		if (wardrobe != null) {
-			extraColours = wardrobe.getExtraColours();
-		}
-		GlStateManager.enableRescaleNormal();
-		ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(stack);
-		if (skinDescriptor != null) {
-			try {
-				ISkin skin = (ISkin) getSkin.invoke(clientSkinCache, skinDescriptor); // Skin
-				if (skin != null) {
-					ISkinDye dye = (ISkinDye) skinDyeConstructor.newInstance(wardrobe.getDye());
-					for (int dyeIndex = 0; dyeIndex < 8; dyeIndex++) {
-						if (skinDescriptor.getSkinDye().haveDyeInSlot(dyeIndex)) {
-							dye.addDye(dyeIndex, skinDescriptor.getSkinDye().getDyeColour(dyeIndex));
-						}
-					}
-					ResourceLocation texture = DefaultPlayerSkin.getDefaultSkinLegacy();
-					Object skinRender = skinRenderDataConstructor.newInstance(scale, dye, extraColours, distance, true,
-							true, false, texture);
-					renderEquipmentPart.invoke(skinModelRenderHelper, skin, skinRender, entity, modelBiped);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		catch (Exception e) { LogWriter.debug("Armourers Workshop Util created: " + e); }
 	}
 
 }

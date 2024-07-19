@@ -5,13 +5,14 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import noppes.npcs.blocks.tiles.CustomTileEntityChest;
 
+import javax.annotation.Nullable;
+
 public class BlockChestRenderer<T extends CustomTileEntityChest> extends TileEntitySpecialRenderer<T> {
 
 	private final ModelChest modelChest = new ModelChest();
 
-	public void render(CustomTileEntityChest te, double x, double y, double z, float partialTicks, int destroyStage,
-			float alpha) {
-		if (!te.isChest || te.chestTexture == null) {
+	public void render(@Nullable CustomTileEntityChest te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+		if (te == null || !te.isChest || te.chestTexture == null) {
 			return;
 		}
 		int i = 0;
@@ -39,10 +40,7 @@ public class BlockChestRenderer<T extends CustomTileEntityChest> extends TileEnt
 		if (i == 2) {
 			j = 180;
 		}
-		if (i == 3) {
-			j = 0;
-		}
-		if (i == 4) {
+        if (i == 4) {
 			j = 90;
 		}
 		if (i == 5) {

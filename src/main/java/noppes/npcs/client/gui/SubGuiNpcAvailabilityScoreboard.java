@@ -20,26 +20,22 @@ import noppes.npcs.constants.EnumAvailabilityScoreboard;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.AvailabilityScoreboardData;
 
-public class SubGuiNpcAvailabilityScoreboard extends SubGuiInterface
-		implements ICustomScrollListener, ITextfieldListener {
+public class SubGuiNpcAvailabilityScoreboard extends SubGuiInterface implements ICustomScrollListener, ITextfieldListener {
 
-	private Availability availabitily;
-	private String chr = "" + ((char) 167);
-	private Map<String, String> dataNames;
-	private Map<String, AvailabilityScoreboardData> dataSets;
+	private final Availability availability;
+	private final String chr = "" + ((char) 167);
+	private final Map<String, String> dataNames = new HashMap<>();
+	private final Map<String, AvailabilityScoreboardData> dataSets = new HashMap<>();
 	// New
 	private GuiCustomScroll scroll;
 	private String select;
 
-	public SubGuiNpcAvailabilityScoreboard(Availability availabitily) {
-		this.availabitily = availabitily;
+	public SubGuiNpcAvailabilityScoreboard(Availability availability) {
+		this.availability = availability;
 		this.setBackground("menubg.png");
 		this.xSize = 316;
 		this.ySize = 217;
 		this.closeOnEsc = true;
-		// New
-		this.dataNames = new HashMap<String, String>();
-		this.dataSets = new HashMap<String, AvailabilityScoreboardData>();
 		this.select = "";
 	}
 
@@ -50,16 +46,16 @@ public class SubGuiNpcAvailabilityScoreboard extends SubGuiInterface
 				return;
 			}
 			String obj = this.dataNames.get(this.select);
-			AvailabilityScoreboardData asd = this.availabitily.scoreboards.get(obj);
+			AvailabilityScoreboardData asd = this.availability.scoreboards.get(obj);
 			asd.scoreboardType = EnumAvailabilityScoreboard.values()[button.getValue()];
-			this.availabitily.scoreboards.put(obj, asd);
+			this.availability.scoreboards.put(obj, asd);
 			this.select = obj + " - " + chr + "7 (" + chr + "3"
 					+ new TextComponentTranslation(("availability." + asd.scoreboardType).toLowerCase())
 							.getFormattedText()
 					+ chr + "7: " + chr + "9" + asd.scoreboardValue + chr + "7)";
 			this.initGui();
 		} else if (button.id == 2) {
-			this.availabitily.scoreboards.remove(this.dataNames.get(this.select));
+			this.availability.scoreboards.remove(this.dataNames.get(this.select));
 			this.select = "";
 			this.initGui();
 		} else if (button.id == 3) { // More
@@ -77,15 +73,15 @@ public class SubGuiNpcAvailabilityScoreboard extends SubGuiInterface
 			return;
 		}
 		if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + this.ySize - 46, 50, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.enum.type").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.enum.type").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 59, this.guiTop + this.ySize - 46, 189, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.scoreboard.name").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.scoreboard.name").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 252, this.guiTop + this.ySize - 46, 36, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.scoreboard.value").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.scoreboard.value").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 290, this.guiTop + this.ySize - 46, 20, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.remove").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.remove").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + this.xSize - 76, this.guiTop + 192, 70, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.more").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.more").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + 192, 70, 20)) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
@@ -104,10 +100,10 @@ public class SubGuiNpcAvailabilityScoreboard extends SubGuiInterface
 		if (this.scroll == null) {
 			(this.scroll = new GuiCustomScroll(this, 6)).setSize(this.xSize - 12, this.ySize - 66);
 		}
-		this.dataNames = new HashMap<String, String>();
-		this.dataSets = new HashMap<String, AvailabilityScoreboardData>();
-		for (String obj : this.availabitily.scoreboards.keySet()) {
-			AvailabilityScoreboardData asd = this.availabitily.scoreboards.get(obj);
+		this.dataNames.clear();
+		this.dataSets.clear();
+		for (String obj : this.availability.scoreboards.keySet()) {
+			AvailabilityScoreboardData asd = this.availability.scoreboards.get(obj);
 			String key = obj + " - " + chr + "7 (" + chr + "3"
 					+ new TextComponentTranslation(("availability." + asd.scoreboardType).toLowerCase())
 							.getFormattedText()
@@ -162,7 +158,7 @@ public class SubGuiNpcAvailabilityScoreboard extends SubGuiInterface
 		EnumAvailabilityScoreboard eas = EnumAvailabilityScoreboard.values()[this.getButton(0).getValue()];
 		int value = NoppesStringUtils.parseInt(this.getTextField(1).getText(), 0);
 		String obj = this.dataNames.get(this.select);
-		this.availabitily.scoreboards.put(obj, new AvailabilityScoreboardData(eas, value));
+		this.availability.scoreboards.put(obj, new AvailabilityScoreboardData(eas, value));
 		this.select = "";
 	}
 
@@ -186,7 +182,7 @@ public class SubGuiNpcAvailabilityScoreboard extends SubGuiInterface
 		int value = NoppesStringUtils.parseInt(this.getTextField(1).getText(), 0);
 		if (!this.select.isEmpty()) {
 			obj = this.dataNames.get(this.select);
-			asd = this.availabitily.scoreboards.get(obj);
+			asd = this.availability.scoreboards.get(obj);
 		}
 		if (textfield.getId() == 0) {
 			if (obj == null || obj.isEmpty() || asd == null) {
@@ -197,7 +193,7 @@ public class SubGuiNpcAvailabilityScoreboard extends SubGuiInterface
 					return;
 				}
 				obj = textfield.getText();
-				this.availabitily.scoreboards.remove(this.dataNames.get(this.select));
+				this.availability.scoreboards.remove(this.dataNames.get(this.select));
 			}
 		} else if (textfield.getId() == 1) {
 			if (asd == null || asd.scoreboardValue == value) {
@@ -205,10 +201,12 @@ public class SubGuiNpcAvailabilityScoreboard extends SubGuiInterface
 			}
 			asd.scoreboardValue = value;
 		}
-		this.availabitily.scoreboards.put(obj, asd);
-		this.select = obj + " - " + chr + "7 (" + chr + "3"
-				+ new TextComponentTranslation(("availability." + asd.scoreboardType).toLowerCase()).getFormattedText()
-				+ chr + "7: " + chr + "9" + asd.scoreboardValue + chr + "7)";
+		if (asd != null) {
+			this.availability.scoreboards.put(obj, asd);
+			this.select = obj + " - " + chr + "7 (" + chr + "3"
+					+ new TextComponentTranslation(("availability." + asd.scoreboardType).toLowerCase()).getFormattedText()
+					+ chr + "7: " + chr + "9" + asd.scoreboardValue + chr + "7)";
+		}
 		this.initGui();
 	}
 

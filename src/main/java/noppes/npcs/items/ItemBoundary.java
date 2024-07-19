@@ -2,11 +2,12 @@ package noppes.npcs.items;
 
 import java.awt.Point;
 import java.util.List;
+import java.util.Objects;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -20,6 +21,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumGuiType;
@@ -35,19 +37,16 @@ public class ItemBoundary extends Item implements IPermission {
 		this.setRegistryName(CustomNpcs.MODID, "npcboundary");
 		this.setUnlocalizedName("npcboundary");
 		this.maxStackSize = 1;
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list == null) {
-			return;
-		}
+	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<String> list, @Nonnull ITooltipFlag flagIn) {
 		list.add(new TextComponentTranslation("info.item.boundary",
 				new TextComponentTranslation("tile.npcborder.name").getFormattedText()).getFormattedText());
 		Zone3D reg = null;
-		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("RegionID", 3)) {
+		if (stack.hasTagCompound() && stack.getTagCompound() != null && stack.getTagCompound().hasKey("RegionID", 3)) {
 			reg = (Zone3D) BorderController.getInstance().getRegion(stack.getTagCompound().getInteger("RegionID"));
 		}
 		if (reg == null) {
@@ -77,50 +76,49 @@ public class ItemBoundary extends Item implements IPermission {
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 5.0d, vec3d2.y * 5.0d, vec3d2.z * 5.0d);
 		RayTraceResult result = player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
 		BlockPos pos = null;
-		if (result != null && result.getBlockPos() != null) {
-			int x = result.getBlockPos().getX();
-			int y = result.getBlockPos().getY();
-			int z = result.getBlockPos().getZ();
-			try {
-				switch (result.sideHit) {
-				case UP: {
-					y += 1;
-					break;
-				}
-				case NORTH: {
-					z -= 1;
-					break;
-				}
-				case SOUTH: {
-					z += 1;
-					break;
-				}
-				case WEST: {
-					x -= 1;
-					break;
-				}
-				case EAST: {
-					x += 1;
-					break;
-				}
-				default: {
-					y -= 1;
-					break;
-				}
-				}
-			} catch (Exception e) {
-			}
-			pos = new BlockPos(x, y, z);
-		}
+		if (result != null) {
+            int x = result.getBlockPos().getX();
+            int y = result.getBlockPos().getY();
+            int z = result.getBlockPos().getZ();
+            try {
+                switch (result.sideHit) {
+                    case UP: {
+                        y += 1;
+                        break;
+                    }
+                    case NORTH: {
+                        z -= 1;
+                        break;
+                    }
+                    case SOUTH: {
+                        z += 1;
+                        break;
+                    }
+                    case WEST: {
+                        x -= 1;
+                        break;
+                    }
+                    case EAST: {
+                        x += 1;
+                        break;
+                    }
+                    default: {
+                        y -= 1;
+                        break;
+                    }
+                }
+            } catch (Exception e) { LogWriter.error("Error:", e); }
+            pos = new BlockPos(x, y, z);
+        }
 		if (pos == null) {
 			return;
 		}
 		BorderController bData = BorderController.getInstance();
-		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("RegionID", 3)) {
+		if (stack.hasTagCompound() && stack.getTagCompound() != null && stack.getTagCompound().hasKey("RegionID", 3)) {
 			id = stack.getTagCompound().getInteger("RegionID");
 		}
 		// Shift + LMB = New Region
-		if (data.hud.hasOrKeysPressed(new int[] { 42, 54 })) {
+		if (data.hud.hasOrKeysPressed(42, 54)) {
 			Zone3D reg = bData.createNew(player.world.provider.getDimension(), pos);
 			bData.saveRegions();
 			bData.update(reg.getId());
@@ -163,53 +161,51 @@ public class ItemBoundary extends Item implements IPermission {
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 5.0d, vec3d2.y * 5.0d, vec3d2.z * 5.0d);
 		RayTraceResult result = player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
 		BlockPos pos = null;
-		if (result != null && result.getBlockPos() != null) {
-			int x = result.getBlockPos().getX();
-			int y = result.getBlockPos().getY();
-			int z = result.getBlockPos().getZ();
-			try {
-				switch (result.sideHit) {
-				case UP: {
-					y += 1;
-					break;
-				}
-				case NORTH: {
-					z -= 1;
-					break;
-				}
-				case SOUTH: {
-					z += 1;
-					break;
-				}
-				case WEST: {
-					x -= 1;
-					break;
-				}
-				case EAST: {
-					x += 1;
-					break;
-				}
-				default: {
-					y -= 1;
-					break;
-				}
-				}
-			} catch (Exception e) {
-			}
-			pos = new BlockPos(x, y, z);
-		}
-		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("RegionID", 3)) {
+		if (result != null) {
+            int x = result.getBlockPos().getX();
+            int y = result.getBlockPos().getY();
+            int z = result.getBlockPos().getZ();
+            try {
+                switch (result.sideHit) {
+                    case UP: {
+                        y += 1;
+                        break;
+                    }
+                    case NORTH: {
+                        z -= 1;
+                        break;
+                    }
+                    case SOUTH: {
+                        z += 1;
+                        break;
+                    }
+                    case WEST: {
+                        x -= 1;
+                        break;
+                    }
+                    case EAST: {
+                        x += 1;
+                        break;
+                    }
+                    default: {
+                        y -= 1;
+                        break;
+                    }
+                }
+            } catch (Exception e) { LogWriter.error("Error:", e); }
+            pos = new BlockPos(x, y, z);
+        }
+		if (stack.hasTagCompound() && stack.getTagCompound() != null && stack.getTagCompound().hasKey("RegionID", 3)) {
 			id = stack.getTagCompound().getInteger("RegionID");
 		}
 		Zone3D reg = (Zone3D) bData.getRegion(id);
 		// Shift + RMB = Show Region settings
-		if (reg == null || data.hud.hasOrKeysPressed(new int[] { 42, 54 })) { // Shift pressed
+		if (reg == null || data.hud.hasOrKeysPressed(42, 54)) { // Shift pressed
 			if (reg != null && pos == null) {
 				pos = player.getPosition();
 			}
-			if (bData.regions.size() > 0) {
-				NoppesUtilServer.sendOpenGui(player, EnumGuiType.BoundarySetting, null, id,
-						reg == null ? -1 : reg.getIdNearestPoint(pos), 0);
+			if (!bData.regions.isEmpty()) {
+				NoppesUtilServer.sendOpenGui(player, EnumGuiType.BoundarySetting, null, id, reg == null ? -1 : reg.getIdNearestPoint(pos), 0);
 			}
 			return;
 		}
@@ -230,7 +226,7 @@ public class ItemBoundary extends Item implements IPermission {
 				add = true;
 			} else { // add new point
 				add = reg.insertPoint(pos.getX(), pos.getY(), pos.getZ(),
-						NpcAPI.Instance().getIPos(player.posX, player.posY, player.posZ));
+						Objects.requireNonNull(NpcAPI.Instance()).getIPos(player.posX, player.posY, player.posZ));
 				player.sendMessage(new TextComponentTranslation("message.boundary.add.vertex." + add, "" + pos.getX(),
 						"" + pos.getY(), "" + pos.getZ(), reg.toString()));
 			}

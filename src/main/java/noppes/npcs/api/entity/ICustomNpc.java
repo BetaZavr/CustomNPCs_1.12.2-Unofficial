@@ -69,4 +69,13 @@ public interface ICustomNpc<T extends EntityCreature> extends IEntityLiving<T> {
 	void trigger(int id, Object... arguments);
 
 	void updateClient();
+
+	int getOffsetX();
+
+	int getOffsetY();
+
+	int getOffsetZ();
+
+	void setOffset(int x, int y, int z);
+
 }

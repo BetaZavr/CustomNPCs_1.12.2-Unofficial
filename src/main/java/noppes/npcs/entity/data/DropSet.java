@@ -1,9 +1,6 @@
 package noppes.npcs.entity.data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 
@@ -15,6 +12,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
@@ -29,14 +27,16 @@ import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.util.ValueUtil;
 
+import javax.annotation.Nonnull;
+
 public class DropSet implements IInventory, ICustomDrop {
 
-	private Map<String, Integer> attributeSlotsName;
-	private DataInventory npcInv;
-	public List<AttributeSet> attributes = Lists.<AttributeSet>newArrayList();
-	public List<EnchantSet> enchants = Lists.<EnchantSet>newArrayList();
-	public List<DropNbtSet> tags = Lists.<DropNbtSet>newArrayList();
-	public IItemStack item = NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
+	private final Map<String, Integer> attributeSlotsName;
+	private final DataInventory npcInv;
+	public List<AttributeSet> attributes = Lists.newArrayList();
+	public List<EnchantSet> enchants = Lists.newArrayList();
+	public List<DropNbtSet> tags = Lists.newArrayList();
+	public IItemStack item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(ItemStack.EMPTY);
 	public int questId = 0;
 	public int pos = 0;
 	public int npcLevel;
@@ -48,7 +48,7 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	public DropSet(DataInventory ni) {
 		this.npcInv = ni;
-		Map<String, Integer> sln = new HashMap<String, Integer>();
+		Map<String, Integer> sln = new HashMap<>();
 		sln.put("mainhand", 0);
 		sln.put("offhand", 1);
 		sln.put("feet", 2);
@@ -69,7 +69,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		AttributeSet newAS = new AttributeSet(this);
 		newAS.setAttribute(attributeName);
 		this.attributes.add(newAS);
-		return (IAttributeSet) newAS;
+		return newAS;
 	}
 
 	public IDropNbtSet addDropNbtSet(IDropNbtSet nbtDS) {
@@ -78,11 +78,11 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public IDropNbtSet addDropNbtSet(int type, double chance, String paht, String[] values) {
+	public IDropNbtSet addDropNbtSet(int type, double chance, String path, String[] values) {
 		DropNbtSet dns = new DropNbtSet(this);
 		dns.setType(type);
 		dns.setChance(chance);
-		dns.setPath(paht);
+		dns.setPath(path);
 		dns.setValues(values);
 		this.tags.add(dns);
 		return dns;
@@ -93,7 +93,7 @@ public class DropSet implements IInventory, ICustomDrop {
 			EnchantSet newES = new EnchantSet(this);
 			newES.setEnchant(enchant);
 			this.enchants.add(newES);
-			return (IEnchantSet) newES;
+			return newES;
 		}
 		return null;
 	}
@@ -118,11 +118,11 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public void clear() {
-		this.item = NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
+		this.item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(ItemStack.EMPTY);
 	}
 
 	@Override
-	public void closeInventory(EntityPlayer player) {
+	public void closeInventory(@Nonnull EntityPlayer player) {
 	}
 
 	@Override
@@ -141,9 +141,9 @@ public class DropSet implements IInventory, ICustomDrop {
 		dItem.setCount(a);
 		// Damage
 		if (dItem.getMaxDamage() > 0 && (this.damage < 1.0f)) {
-			int d = 0, max = dItem.getMaxDamage();
+			int d, max = dItem.getMaxDamage();
 			if (this.tiedToLevel) {
-				d = (int) Math
+				d = Math
 						.round((1.0f - this.damage) * (float) max * (float) this.npcLevel / (float) CustomNpcs.MaxLv);
 			} else {
 				d = (int) Math.round((1.0f - this.damage) * (float) max * Math.random());
@@ -151,7 +151,7 @@ public class DropSet implements IInventory, ICustomDrop {
 			dItem.setItemDamage(d);
 		}
 		// Enchants
-		if (this.enchants.size() > 0) {
+		if (!this.enchants.isEmpty()) {
 			for (EnchantSet es : this.enchants) {
 				if (es.chance >= 1.0d || es.chance * addChance / 100.0d < Math.random()) {
 					int lvlM = es.getMinLevel();
@@ -174,7 +174,7 @@ public class DropSet implements IInventory, ICustomDrop {
 
 		}
 		// Attributes
-		if (this.attributes.size() > 0) {
+		if (!this.attributes.isEmpty()) {
 			for (AttributeSet as : this.attributes) {
 				if (as.chance >= 1.0d || as.chance * addChance / 100.0d < Math.random()) {
 					double vM = as.getMinValue();
@@ -192,12 +192,12 @@ public class DropSet implements IInventory, ICustomDrop {
 							v = Math.round((vM + (vN - vM) * Math.random()) * 10000.0d) / 10000.0d;
 						}
 					}
-					(NpcAPI.Instance().getIItemStack(dItem)).setAttribute(as.getAttribute(), v, as.getSlot());
+					(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(dItem)).setAttribute(as.getAttribute(), v, as.getSlot());
 				}
 			}
 		}
 		// Tags
-		if (this.tags.size() > 0) {
+		if (!this.tags.isEmpty()) {
 			NBTTagCompound tag = dItem.getTagCompound();
 			if (tag == null) {
 				dItem.setTagCompound(tag = new NBTTagCompound());
@@ -208,21 +208,21 @@ public class DropSet implements IInventory, ICustomDrop {
 				}
 			}
 		}
-		return NpcAPI.Instance().getIItemStack(dItem);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(dItem);
 	}
 
 	@Override
-	public ItemStack decrStackSize(int index, int count) {
+	public @Nonnull ItemStack decrStackSize(int index, int count) {
 		if (index == 0) {
 			ItemStack it;
 			if (this.item.getMCItemStack().getCount() <= count) {
 				it = this.item.getMCItemStack().copy();
-				this.item = NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
+				this.item = ItemStackWrapper.AIR;
 			} else {
 				this.item.getMCItemStack().splitStack(count);
 				it = this.item.getMCItemStack().copy();
 				if (this.item.getMCItemStack().getCount() == 0) {
-					this.item = NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
+					this.item = ItemStackWrapper.AIR;
 				}
 			}
 			return it;
@@ -235,7 +235,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		IAttributeSet[] ass = new IAttributeSet[this.attributes.size()];
 		int i = 0;
 		for (AttributeSet as : this.attributes) {
-			ass[i] = (IAttributeSet) as;
+			ass[i] = as;
 			i++;
 		}
 		return ass;
@@ -252,8 +252,8 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public ITextComponent getDisplayName() {
-		return null;
+	public @Nonnull ITextComponent getDisplayName() {
+		return new TextComponentString(getName());
 	}
 
 	@Override
@@ -261,7 +261,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		IDropNbtSet[] nts = new IDropNbtSet[this.tags.size()];
 		int i = 0;
 		for (DropNbtSet ts : this.tags) {
-			nts[i] = (IDropNbtSet) ts;
+			nts[i] = ts;
 			i++;
 		}
 		return nts;
@@ -272,7 +272,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		IEnchantSet[] ess = new IEnchantSet[this.enchants.size()];
 		int i = 0;
 		for (EnchantSet es : this.enchants) {
-			ess[i] = (IEnchantSet) es;
+			ess[i] = es;
 			i++;
 		}
 		return ess;
@@ -299,7 +299,7 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	public String getKey() {
-		String keyName = "";
+		String keyName;
 		char c = ((char) 167);
 		if (this.item == null) {
 			return "null";
@@ -360,7 +360,7 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	// inventory
 	@Override
-	public String getName() {
+	public @Nonnull String getName() {
 		return "NPC Drop";
 	}
 
@@ -403,11 +403,11 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public ItemStack getStackInSlot(int index) {
+	public @Nonnull ItemStack getStackInSlot(int index) {
 		if (index == 0) {
 			return ItemStackWrapper.MCItem(this.item);
 		}
-		return ItemStackWrapper.MCItem(NpcAPI.Instance().getIItemStack(ItemStack.EMPTY));
+		return ItemStack.EMPTY;
 	}
 
 	@Override
@@ -422,24 +422,21 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public boolean isEmpty() {
-		if (!NoppesUtilServer.IsItemStackNull(this.item.getMCItemStack()) && !item.isEmpty()) {
-			return false;
-		}
+        return NoppesUtilServer.IsItemStackNull(this.item.getMCItemStack()) || item.isEmpty();
+    }
+
+	@Override
+	public boolean isItemValidForSlot(int index, @Nonnull ItemStack stack) {
 		return true;
 	}
 
 	@Override
-	public boolean isItemValidForSlot(int index, ItemStack stack) {
-		return true;
-	}
-
-	@Override
-	public boolean isUsableByPlayer(EntityPlayer player) {
+	public boolean isUsableByPlayer(@Nonnull EntityPlayer player) {
 		return true;
 	}
 
 	public void load(NBTTagCompound nbtDS) {
-		this.item = NpcAPI.Instance().getIItemStack(new ItemStack(nbtDS.getCompoundTag("Item")));
+		this.item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtDS.getCompoundTag("Item")));
 		this.chance = nbtDS.getDouble("Chance");
 		this.damage = nbtDS.getFloat("DamageToItem");
 		this.lootMode = nbtDS.getBoolean("LootMode");
@@ -462,21 +459,21 @@ public class DropSet implements IInventory, ICustomDrop {
 			}
 			cnts = new int[] { m, n };
 		}
-		List<EnchantSet> ench = new ArrayList<EnchantSet>();
+		List<EnchantSet> ench = new ArrayList<>();
 		for (NBTBase ne : nbtDS.getTagList("EnchantSettings", 10)) {
 			EnchantSet es = new EnchantSet(this);
 			es.load((NBTTagCompound) ne);
 			ench.add(es);
 		}
 		this.enchants = ench;
-		List<AttributeSet> attr = new ArrayList<AttributeSet>();
+		List<AttributeSet> attr = new ArrayList<>();
 		for (NBTBase na : nbtDS.getTagList("AttributeSettings", 10)) {
 			AttributeSet as = new AttributeSet(this);
 			as.load((NBTTagCompound) na);
 			attr.add(as);
 		}
 		this.attributes = attr;
-		List<DropNbtSet> tgsl = new ArrayList<DropNbtSet>();
+		List<DropNbtSet> tgsl = new ArrayList<>();
 		for (NBTBase na : nbtDS.getTagList("TagSettings", 10)) {
 			DropNbtSet ts = new DropNbtSet(this);
 			ts.load((NBTTagCompound) na);
@@ -492,13 +489,13 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public void openInventory(EntityPlayer player) {
+	public void openInventory(@Nonnull EntityPlayer player) {
 	}
 
 	@Override
 	public void remove() {
 		if (this.npcInv != null) {
-			this.npcInv.removeDrop((ICustomDrop) this);
+			this.npcInv.removeDrop(this);
 		}
 	}
 
@@ -518,10 +515,10 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public ItemStack removeStackFromSlot(int index) {
+	public @Nonnull ItemStack removeStackFromSlot(int index) {
 		if (index == 0) {
 			ItemStack it = this.item.getMCItemStack();
-			this.item = NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
+			this.item = ItemStackWrapper.AIR;
 			return it;
 		}
 		return ItemStack.EMPTY;
@@ -539,9 +536,9 @@ public class DropSet implements IInventory, ICustomDrop {
 		this.damage = 1.0f;
 		this.lootMode = false;
 		this.tiedToLevel = false;
-		this.enchants = new ArrayList<EnchantSet>();
-		this.attributes = new ArrayList<AttributeSet>();
-		this.tags = new ArrayList<DropNbtSet>();
+		this.enchants = new ArrayList<>();
+		this.attributes = new ArrayList<>();
+		this.tags = new ArrayList<>();
 		// Item Damage
 		if (item.getAttackDamage() > 1.0d) {
 			if (item.getItemDamage() == item.getMaxItemDamage()) {
@@ -560,9 +557,9 @@ public class DropSet implements IInventory, ICustomDrop {
 		// Enchants
 		if (itemNbt.hasKey("ench")) {
 			this.lootMode = true;
-			ch /= (double) itemNbt.getTagList("ench", 10).tagCount();
+			ch /= itemNbt.getTagList("ench", 10).tagCount();
 			for (NBTBase nbtEnch : itemNbt.getTagList("ench", 10)) {
-				IEnchantSet es = addEnchant((int) ((NBTTagCompound) nbtEnch).getShort("id"));
+				IEnchantSet es = addEnchant(((NBTTagCompound) nbtEnch).getShort("id"));
 				if (es != null) {
 					es.setLevels(0, ((NBTTagCompound) nbtEnch).getShort("lvl"));
 					es.setChance(85.0d / (double) itemNbt.getTagList("ench", 10).tagCount());
@@ -573,7 +570,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		// Attributes
 		if (itemNbt.hasKey("AttributeModifiers")) {
 			this.lootMode = true;
-			ch /= (double) itemNbt.getTagList("AttributeModifiers", 10).tagCount();
+			ch /= itemNbt.getTagList("AttributeModifiers", 10).tagCount();
 			for (NBTBase nbtAttr : itemNbt.getTagList("AttributeModifiers", 10)) {
 				IAttributeSet as = addAttribute(((NBTTagCompound) nbtAttr).getString("AttributeName"));
 				if (as != null) {
@@ -601,7 +598,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		NBTTagCompound itemFromNbt = new NBTTagCompound();
 		item.getMCItemStack().writeToNBT(itemFromNbt);
 		itemFromNbt.setTag("tag", itemNbt);
-		IItemStack newItem = NpcAPI.Instance().getIItemStack(new ItemStack(itemFromNbt));
+		IItemStack newItem = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(itemFromNbt));
 		newItem.setStackSize(1);
 		if (newItem.getAttackDamage() > 1) {
 			newItem.setItemDamage(0);
@@ -649,9 +646,9 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public void setInventorySlotContents(int index, ItemStack stack) {
+	public void setInventorySlotContents(int index, @Nonnull ItemStack stack) {
 		if (index == 0) {
-			this.item = NpcAPI.Instance().getIItemStack(stack);
+			this.item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
 		}
 	}
 
@@ -667,14 +664,14 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public void setQuestID(int id) {
-		List<Integer> ids = new ArrayList<Integer>();
-		for (IQuestCategory cat : NpcAPI.Instance().getQuests().categories()) {
+		List<Integer> ids = new ArrayList<>();
+		for (IQuestCategory cat : Objects.requireNonNull(NpcAPI.Instance()).getQuests().categories()) {
 			for (IQuest q : cat.quests()) {
 				ids.add(q.getId());
 			}
 		}
 		if (ids.contains(id)) {
-			this.questId = (int) id;
+			this.questId = id;
 		}
 	}
 

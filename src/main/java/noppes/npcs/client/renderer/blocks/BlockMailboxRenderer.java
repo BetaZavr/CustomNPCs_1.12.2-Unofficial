@@ -9,14 +9,16 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.model.blocks.ModelMailboxUS;
 import noppes.npcs.client.model.blocks.ModelMailboxWow;
 
+import javax.annotation.Nullable;
+
 public class BlockMailboxRenderer<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
 
-	private static ResourceLocation text1 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox1.png");
-	private static ResourceLocation text2 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox2.png");
-	private static ResourceLocation text3 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox3.png");;
-	private ModelMailboxUS model;;
-	private ModelMailboxWow model2;;
-	private int type;
+	private static final ResourceLocation text1 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox1.png");
+	private static final ResourceLocation text2 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox2.png");
+	private static final ResourceLocation text3 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox3.png");
+	private final ModelMailboxUS model;
+	private final ModelMailboxWow model2;
+	private final int type;
 
 	public BlockMailboxRenderer(int i) {
 		this.model = new ModelMailboxUS();
@@ -24,7 +26,7 @@ public class BlockMailboxRenderer<T extends TileEntity> extends TileEntitySpecia
 		this.type = i;
 	}
 
-	public void render(TileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+	public void render(@Nullable TileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		int meta = 0;
 		int type = this.type;
 		if (te != null && te.getPos() != BlockPos.ORIGIN) {
@@ -39,15 +41,15 @@ public class BlockMailboxRenderer<T extends TileEntity> extends TileEntitySpecia
 		GlStateManager.rotate((90 * meta), 0.0f, 1.0f, 0.0f);
 		if (type == 0) {
 			this.bindTexture(BlockMailboxRenderer.text1);
-			this.model.render(null, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f);
+			this.model.render(0.0625f);
 		}
 		if (type == 1) {
 			this.bindTexture(BlockMailboxRenderer.text2);
-			this.model2.render(null, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f);
+			this.model2.render(0.0625f);
 		}
 		if (type == 2) {
 			this.bindTexture(BlockMailboxRenderer.text3);
-			this.model2.render(null, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f);
+			this.model2.render(0.0625f);
 		}
 		GlStateManager.popMatrix();
 	}

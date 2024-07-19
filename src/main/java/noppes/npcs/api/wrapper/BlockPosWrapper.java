@@ -2,12 +2,11 @@ package noppes.npcs.api.wrapper;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import noppes.npcs.api.IPos;
 
 public class BlockPosWrapper implements IPos {
 
-	private BlockPos blockPos;
+	private final BlockPos blockPos;
 
 	public BlockPosWrapper(BlockPos pos) {
 		this.blockPos = pos;
@@ -20,7 +19,7 @@ public class BlockPosWrapper implements IPos {
 
 	@Override
 	public IPos add(IPos pos) {
-		return new BlockPosWrapper(this.blockPos.add((Vec3i) pos.getMCBlockPos()));
+		return new BlockPosWrapper(this.blockPos.add(pos.getMCBlockPos()));
 	}
 
 	@Override

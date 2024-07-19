@@ -21,7 +21,7 @@ public class JobChunkLoader extends JobInterface implements IJobChunkLoader {
 
 	public JobChunkLoader(EntityNPCInterface npc) {
 		super(npc);
-		this.chunks = new ArrayList<ChunkPos>();
+		this.chunks = new ArrayList<>();
 		this.ticks = 20;
 		this.playerLastSeen = 0L;
 		this.type = JobType.CHUNK_LOADER;
@@ -53,10 +53,10 @@ public class JobChunkLoader extends JobInterface implements IJobChunkLoader {
 		if (ticket == null) {
 			return false;
 		}
-		List<ChunkPos> list = new ArrayList<ChunkPos>();
+		List<ChunkPos> list = new ArrayList<>();
 		// New 3x3
-		int x = (int) MathHelper.floor(this.npc.posX);
-		int z = (int) MathHelper.floor(this.npc.posZ);
+		int x = MathHelper.floor(this.npc.posX);
+		int z = MathHelper.floor(this.npc.posZ);
 		for (int u = -1; u < 2; u++) {
 			for (int v = -1; v < 2; v++) {
 				list.add(new ChunkPos(x + u, z + v));
@@ -76,11 +76,7 @@ public class JobChunkLoader extends JobInterface implements IJobChunkLoader {
 		return false;
 	}
 
-	@Override
-	public void delete() {
-	}
-
-	@Override
+    @Override
 	public void readFromNBT(NBTTagCompound compound) {
 		this.type = JobType.CHUNK_LOADER;
 		this.playerLastSeen = compound.getLong("ChunkPlayerLastSeen");

@@ -13,9 +13,11 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.part.ModelData;
 
+import javax.annotation.Nonnull;
+
 public class GuiPresetSave extends SubGuiInterface {
 
-	private ModelData data;
+	private final ModelData data;
 	public GuiScreen parent;
 
 	public GuiPresetSave(GuiScreen parent, ModelData data) {
@@ -26,7 +28,7 @@ public class GuiPresetSave extends SubGuiInterface {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton btn) {
+	protected void actionPerformed(@Nonnull GuiButton btn) {
 		super.actionPerformed(btn);
 		GuiNpcButton button = (GuiNpcButton) btn;
 		if (button.id == 0) {

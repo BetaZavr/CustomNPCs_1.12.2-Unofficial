@@ -24,7 +24,7 @@ import noppes.npcs.roles.JobBard;
 
 public class GuiNpcBard extends GuiNPCInterface2 implements ISubGuiListener, ITextfieldListener {
 
-	private JobBard job;
+	private final JobBard job;
 
 	public GuiNpcBard(EntityNPCInterface npc) {
 		super(npc);

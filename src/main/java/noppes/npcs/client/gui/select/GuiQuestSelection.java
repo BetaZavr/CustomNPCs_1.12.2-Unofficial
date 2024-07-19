@@ -25,8 +25,8 @@ public class GuiQuestSelection extends SubGuiInterface implements ICustomScrollL
 	public Quest selectedQuest;
 
 	public GuiQuestSelection(int quest) {
-		this.categoryData = new HashMap<String, QuestCategory>();
-		this.questData = new HashMap<String, Quest>();
+		this.categoryData = new HashMap<>();
+		this.questData = new HashMap<>();
 		this.drawDefaultBackground = false;
 		this.title = "";
 		this.setBackground("menubg.png");
@@ -58,8 +58,8 @@ public class GuiQuestSelection extends SubGuiInterface implements ICustomScrollL
 		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 8, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(1, "quest.quests", this.guiLeft + 175, this.guiTop + 4));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + this.xSize - 26, this.guiTop + 4, 20, 20, "X"));
-		HashMap<String, QuestCategory> categoryData = new HashMap<String, QuestCategory>();
-		HashMap<String, Quest> questData = new HashMap<String, Quest>();
+		HashMap<String, QuestCategory> categoryData = new HashMap<>();
+		HashMap<String, Quest> questData = new HashMap<>();
 		for (QuestCategory category : QuestController.instance.categories.values()) {
 			categoryData.put(category.title, category);
 		}

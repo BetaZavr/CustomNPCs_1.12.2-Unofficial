@@ -9,6 +9,8 @@ import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DropSet;
 
+import javax.annotation.Nonnull;
+
 public class ContainerNPCDropSetup extends Container {
 
 	public DropSet inventoryDS;
@@ -40,11 +42,11 @@ public class ContainerNPCDropSetup extends Container {
 		}
 	}
 
-	public boolean canInteractWith(EntityPlayer entityplayer) {
+	public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
 		return true;
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) {
 		return ItemStack.EMPTY;
 	}
 }

@@ -10,7 +10,7 @@ public class EmotionFrame
 implements IEmotionPart {
 
 	public static final EmotionFrame EMPTY_PART = new EmotionFrame(0);
-	public int id = 0;
+	public int id;
 	public int speed = 20;
 	public int delay = 0;
 	public boolean smooth = true;
@@ -38,10 +38,6 @@ implements IEmotionPart {
 	public EntityNPCInterface npc;
 	
 	public EmotionFrame(int id) { this.id = id; }
-	
-	public EmotionFrame(EntityNPCInterface npc) {
-		this.npc = npc;
-	}
 
 	@Override
 	public boolean isBlink() { return blink; }
@@ -55,7 +51,7 @@ implements IEmotionPart {
 	public void setEndBlink(boolean bo) { this.endBlink = bo; }
 	
 	public void readFromNBT(NBTTagCompound compound) {
-		if (compound.getKeySet().size() == 0) { return; }
+		if (compound.getKeySet().isEmpty()) { return; }
 		this.id = compound.getInteger("Part");
 		this.setSpeed(compound.getInteger("Speed"));
 		this.setEndDelay(compound.getInteger("EndDelay"));
@@ -102,18 +98,7 @@ implements IEmotionPart {
 	}
 
 	public NBTTagCompound writeToNBT() {
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("Part", this.id);
-		compound.setInteger("Speed", this.speed);
-		compound.setInteger("EndDelay", this.delay);
-		compound.setBoolean("IsSmooth", this.smooth);
-		compound.setBoolean("IsDisable", this.disable);
-		compound.setBoolean("IsBlink", this.blink);
-		compound.setBoolean("IsEndBlink", this.endBlink);
-		compound.setBoolean("IsRandomMouth", this.rndMouth);
-		compound.setBoolean("ShowMouth", this.showMouth);
-
-		compound.setFloat("RotationMouth", this.rotMouth);
+		final NBTTagCompound compound = getCompound();
 		NBTTagList listRotEye = new NBTTagList();
 		NBTTagList listOffEye = new NBTTagList();
 		NBTTagList listScEye = new NBTTagList();
@@ -158,6 +143,21 @@ implements IEmotionPart {
 		return compound;
 	}
 
+	private NBTTagCompound getCompound() {
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setInteger("Part", this.id);
+		compound.setInteger("Speed", this.speed);
+		compound.setInteger("EndDelay", this.delay);
+		compound.setBoolean("IsSmooth", this.smooth);
+		compound.setBoolean("IsDisable", this.disable);
+		compound.setBoolean("IsBlink", this.blink);
+		compound.setBoolean("IsEndBlink", this.endBlink);
+		compound.setBoolean("IsRandomMouth", this.rndMouth);
+		compound.setBoolean("ShowMouth", this.showMouth);
+		compound.setFloat("RotationMouth", this.rotMouth);
+		return compound;
+	}
+
 	@Override
 	public int getSpeed() { return speed; }
 
@@ -189,8 +189,6 @@ implements IEmotionPart {
 
 	@Override
 	public void setDisable(boolean bo) { this.disable = bo; }
-
-	public boolean startBlink() { return blink; }
 
 	public EmotionFrame copy() {
 		EmotionFrame newEf = new EmotionFrame(0);

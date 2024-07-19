@@ -2,11 +2,11 @@ package noppes.npcs.command;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -15,13 +15,15 @@ import net.minecraft.util.math.BlockPos;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.api.CustomNPCsException;
 
+import javax.annotation.Nonnull;
+
 public class CommandNoppes extends CommandBase {
 
 	public CmdHelp help;
 	public Map<String, CommandNoppesBase> map;
 
 	public CommandNoppes() {
-		this.map = new HashMap<String, CommandNoppesBase>();
+		this.map = new HashMap<>();
 		this.help = new CmdHelp(this);
 		this.registerCommand(this.help);
 		this.registerCommand(new CmdScript());
@@ -40,20 +42,19 @@ public class CommandNoppes extends CommandBase {
 		this.registerCommand(new CmdDebug());
 	}
 
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+	public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args) throws CommandException {
 		if (args.length == 0) {
 			this.help.execute(server, sender, args);
 			return;
 		}
 		CommandNoppesBase command = this.getCommand(args);
 		if (command == null) {
-			throw new CommandException("Unknown command " + args[0], new Object[0]);
+			throw new CommandException("Unknown command " + args[0]);
 		}
 		args = Arrays.copyOfRange(args, 1, args.length);
 		if (command.subcommands.isEmpty() || !command.runSubCommands()) {
-			if (!sender.canUseCommand(command.getRequiredPermissionLevel(),
-					"commands.noppes." + command.getName().toLowerCase())) {
-				throw new CommandException("You are not allowed to use this command", new Object[0]);
+			if (!sender.canUseCommand(command.getRequiredPermissionLevel(), "commands.noppes." + command.getName().toLowerCase())) {
+				throw new CommandException("You are not allowed to use this command");
 			}
 			command.canRun(server, sender, command.getUsage(), args);
 			command.execute(server, sender, args);
@@ -73,7 +74,7 @@ public class CommandNoppes extends CommandBase {
 		return this.map.get(args[0].toLowerCase());
 	}
 
-	public String getName() {
+	public @Nonnull String getName() {
 		return "noppes";
 	}
 
@@ -81,16 +82,16 @@ public class CommandNoppes extends CommandBase {
 		return 2;
 	}
 
-	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
+	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
 		if (args.length == 1) {
-			return CommandBase.getListOfStringsMatchingLastWord(args, (Collection<String>) this.map.keySet());
+			return CommandBase.getListOfStringsMatchingLastWord(args, this.map.keySet());
 		}
 		CommandNoppesBase command = this.getCommand(args);
 		if (command == null) {
-			return null;
+			return Lists.newArrayList();
 		}
 		if (args.length == 2 && command.runSubCommands()) {
-			return CommandBase.getListOfStringsMatchingLastWord(args, (Collection<?>) command.subcommands.keySet());
+			return CommandBase.getListOfStringsMatchingLastWord(args, command.subcommands.keySet());
 		}
 		String[] useArgs = command.getUsage().split(" ");
 		if (command.runSubCommands()) {
@@ -105,17 +106,17 @@ public class CommandNoppes extends CommandBase {
 				return CommandBase.getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
 			}
 		}
-		return command.getTabCompletions(server, sender, (String[]) Arrays.copyOfRange(args, 1, args.length), pos);
+		return command.getTabCompletions(server, sender, Arrays.copyOfRange(args, 1, args.length), pos);
 	}
 
-	public String getUsage(ICommandSender sender) {
+	public @Nonnull String getUsage(@Nonnull ICommandSender sender) {
 		return "Use as /noppes subcommand";
 	}
 
 	public void registerCommand(CommandNoppesBase command) {
 		String name = command.getName().toLowerCase();
 		if (this.map.containsKey(name)) {
-			throw new CustomNPCsException("Already a subcommand with the name: " + name, new Object[0]);
+			throw new CustomNPCsException("Already a subcommand with the name: " + name);
 		}
 		this.map.put(name, command);
 	}

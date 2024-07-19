@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.util;
 
 import java.io.IOException;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
@@ -16,7 +15,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 
 	protected ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
 	protected ResourceLocation defaultBackground = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
-	private GuiNpcMenu menu;
+	private final GuiNpcMenu menu;
 	public int menuYOffset;
 
 	public GuiContainerNPCInterface2(EntityNPCInterface npc, Container cont) {
@@ -27,7 +26,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 		super(npc, cont);
 		this.menuYOffset = 0;
 		this.xSize = 420;
-		this.menu = new GuiNpcMenu((GuiScreen) this, activeMenu, npc);
+		this.menu = new GuiNpcMenu(this, activeMenu, npc);
 		this.title = "";
 		this.closeOnEsc = true;
 	}
@@ -57,7 +56,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.renderEngine.bindTexture(this.defaultBackground);
 		this.drawTexturedModalRect(this.guiLeft + this.xSize - 200, this.guiTop, 26, 0, 200, 220);
-		this.menu.drawElements(this.fontRenderer, i, j, this.mc, f);
+		this.menu.drawElements(i, j, this.mc, f);
 		super.drawGuiContainerBackgroundLayer(f, i, j);
 	}
 
@@ -72,7 +71,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 			for (GuiMenuTopButton tab : this.menu.getTopButtons()) {
 				if (tab.isMouseOver()) {
 					String text = new TextComponentTranslation("display.hover." + tab.lable).getFormattedText();
-					String str = "";
+					String str;
 					switch (tab.lable) {
 					case "menu.display": {
 						text += "<br>" + chr + "7" + new TextComponentTranslation("gui.name").getFormattedText() + chr
@@ -189,12 +188,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 		}
 	}
 
-	@Override
-	public ResourceLocation getResource(String texture) {
-		return new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture);
-	}
-
-	@Override
+    @Override
 	public void initGui() {
 		super.initGui();
 		this.menu.initGui(this.guiLeft, this.guiTop + this.menuYOffset, this.xSize);

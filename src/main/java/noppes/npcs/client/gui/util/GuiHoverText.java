@@ -12,9 +12,9 @@ public class GuiHoverText extends GuiScreen {
 
 	protected static ResourceLocation buttonTextures = new ResourceLocation(CustomNpcs.MODID, "textures/gui/info.png");
 	public int id;
-	private String text;
-	private int x;
-	private int y;
+	private final String text;
+	private final int x;
+	private final int y;
 
 	public GuiHoverText(int id, String text, int x, int y) {
 		this.text = text;
@@ -28,7 +28,7 @@ public class GuiHoverText extends GuiScreen {
 		this.mc.renderEngine.bindTexture(GuiHoverText.buttonTextures);
 		this.drawTexturedModalRect(this.x, this.y, 0, 0, 12, 12);
 		if (this.inArea(this.x, this.y, 12, 12, par1, par2)) {
-			List<String> lines = new ArrayList<String>();
+			List<String> lines = new ArrayList<>();
 			lines.add(this.text);
 			this.drawHoveringText(lines, this.x + 8, this.y + 6, this.fontRenderer);
 			GlStateManager.disableLighting();

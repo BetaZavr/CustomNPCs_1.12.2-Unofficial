@@ -13,7 +13,7 @@ import noppes.npcs.util.ObfuscationHelper;
 
 public class NPCRendererHelper {
 
-	private static ModelWrapper wrapper = new ModelWrapper();
+	private static final ModelWrapper wrapper = new ModelWrapper();
 
 	public static void drawLayers(EntityLivingBase entity, float p_177093_2_, float p_177093_3_, float p_177093_4_,
 			float p_177093_5_, float p_177093_6_, float p_177093_7_, float p_177093_8_,
@@ -56,7 +56,7 @@ public class NPCRendererHelper {
 						ObfuscationHelper.setValue(EntityLivingBase.class, entity, entity.rotationPitch, 59);
 					}
 				}
-				catch (Exception e) { }
+				catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			render.renderModel(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
 		} catch (Exception e) {

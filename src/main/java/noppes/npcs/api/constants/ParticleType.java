@@ -34,7 +34,7 @@ public enum ParticleType {
 		return null;
 	}
 
-	int type = -1;
+	final int type;
 
 	ParticleType(int t) {
 		this.type = t;

@@ -7,11 +7,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.BankData;
 import noppes.npcs.controllers.data.PlayerData;
+
+import javax.annotation.Nonnull;
 
 public class ContainerNPCBank extends ContainerNpcInterface {
 
@@ -45,9 +48,7 @@ public class ContainerNPCBank extends ContainerNpcInterface {
 					if (!list.isEmpty()) {
 						pd = list.get(0);
 					}
-				} catch (CommandException e) {
-					e.printStackTrace();
-				}
+				} catch (CommandException e) { LogWriter.error("Error:", e); }
 			} else {
 				pd = PlayerData.get(player);
 			}
@@ -97,7 +98,7 @@ public class ContainerNPCBank extends ContainerNpcInterface {
 		}
 	}
 
-	public void onContainerClosed(EntityPlayer player) {
+	public void onContainerClosed(@Nonnull EntityPlayer player) {
 		super.onContainerClosed(player);
 		if (!player.world.isRemote && this.data != null) { // save
 			if (this.bank.isPublic) {
@@ -110,10 +111,10 @@ public class ContainerNPCBank extends ContainerNpcInterface {
 		}
 	}
 
-	public void onCraftMatrixChanged(IInventory inv) {
+	public void onCraftMatrixChanged(@Nonnull IInventory inv) {
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer playerIn, int index) {
 		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = this.inventorySlots.get(index);
 		if (slot != null && slot.getHasStack()) {

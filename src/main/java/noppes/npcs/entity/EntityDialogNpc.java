@@ -4,6 +4,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
+
 public class EntityDialogNpc extends EntityNPCInterface {
 
 	public EntityDialogNpc(World world) {
@@ -16,7 +18,7 @@ public class EntityDialogNpc extends EntityNPCInterface {
 	}
 
 	@Override
-	public boolean isInvisibleToPlayer(EntityPlayer player) {
+	public boolean isInvisibleToPlayer(@Nonnull EntityPlayer player) {
 		return true;
 	}
 
@@ -25,7 +27,7 @@ public class EntityDialogNpc extends EntityNPCInterface {
 	}
 
 	@Override
-	public boolean processInteract(EntityPlayer player, EnumHand hand) {
+	public boolean processInteract(@Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
 		return false;
 	}
 

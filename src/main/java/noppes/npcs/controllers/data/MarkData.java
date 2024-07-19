@@ -20,6 +20,8 @@ import noppes.npcs.api.handler.capability.IMarkDataHandler;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.constants.EnumPacketClient;
 
+import javax.annotation.Nonnull;
+
 public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 
 	public class Mark implements IMark {
@@ -90,14 +92,14 @@ public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 
 	@CapabilityInject(IMarkDataHandler.class)
 	public static Capability<IMarkDataHandler> CNPCS_MARKDATA_CAPABILITY = null;
-	private static ResourceLocation CNPCS_CAPKEY = new ResourceLocation(CustomNpcs.MODID, "markdata");
+	private static final ResourceLocation CNPCS_CAPKEY = new ResourceLocation(CustomNpcs.MODID, "markdata");
 
 	public static MarkData get(EntityLivingBase entity) {
 		if (!(entity.getCapability(MarkData.CNPCS_MARKDATA_CAPABILITY, null) instanceof MarkData)) {
 			return new MarkData();
 		}
 		MarkData data = (MarkData) entity.getCapability(MarkData.CNPCS_MARKDATA_CAPABILITY, null);
-		if (data.entity == null) {
+		if (data != null && data.entity == null) {
 			data.entity = entity;
 			data.setNBT(entity.getEntityData().getCompoundTag("cnpcmarkdata"));
 		}
@@ -105,7 +107,7 @@ public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 	}
 
 	public static void register(AttachCapabilitiesEvent<Entity> event) {
-		event.addCapability(MarkData.CNPCS_CAPKEY, (ICapabilityProvider) new MarkData());
+		event.addCapability(MarkData.CNPCS_CAPKEY, new MarkData());
 	}
 
 	public EntityLivingBase entity;
@@ -113,7 +115,7 @@ public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 	public List<Mark> marks;
 
 	public MarkData() {
-		this.marks = new ArrayList<Mark>();
+		this.marks = new ArrayList<>();
 	}
 
 	public IMark addMark(int type) {
@@ -124,17 +126,16 @@ public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 		return m;
 	}
 
-	public IMark addMark(int type, int color) {
+	public void addMark(int type, int color) {
 		Mark m = new Mark();
 		m.type = type;
 		m.color = color;
 		this.marks.add(m);
 		this.syncClients();
-		return m;
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+	public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing facing) {
 		if (this.hasCapability(capability, facing)) {
 			return (T) this;
 		}
@@ -163,7 +164,7 @@ public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 		return new Mark();
 	}
 
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+	public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing) {
 		return capability == MarkData.CNPCS_MARKDATA_CAPABILITY;
 	}
 
@@ -173,7 +174,7 @@ public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 
 	@Override
 	public void setNBT(NBTTagCompound compound) {
-		List<Mark> marks = new ArrayList<Mark>();
+		List<Mark> marks = new ArrayList<>();
 		NBTTagList list = compound.getTagList("marks", 10);
 		for (int i = 0; i < list.tagCount(); ++i) {
 			NBTTagCompound c = list.getCompoundTagAt(i);

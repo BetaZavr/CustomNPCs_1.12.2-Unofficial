@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -13,9 +14,11 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.blocks.tiles.TileCopy;
 import noppes.npcs.schematics.Schematic;
 
-public class BlockCopyRenderer<T extends TileEntity> extends BlockRendererInterface<T> {
+import javax.annotation.Nullable;
 
-	private static ItemStack item = new ItemStack(CustomRegisters.copy);
+public class BlockCopyRenderer<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
+
+	private static final ItemStack item = new ItemStack(CustomRegisters.copy);
 	public static BlockPos pos = null;
 	public static Schematic schematic = null;
 
@@ -33,8 +36,9 @@ public class BlockCopyRenderer<T extends TileEntity> extends BlockRendererInterf
 		GlStateManager.disableBlend();
 	}
 
-	public void render(TileEntity var1, double x, double y, double z, float var8, int blockDamage, float alpha) {
-		TileCopy tile = (TileCopy) var1;
+	public void render(@Nullable TileEntity te, double x, double y, double z, float var8, int blockDamage, float alpha) {
+		if (te == null) { return; }
+		TileCopy tile = (TileCopy) te;
 
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);

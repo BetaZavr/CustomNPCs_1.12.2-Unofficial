@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -46,8 +47,8 @@ public class CustomGuiWrapper implements ICustomGui {
 
 	public CustomGuiWrapper(EntityPlayer player) {
 		this.backgroundTexture = "";
-		this.components = new ArrayList<ICustomGuiComponent>();
-		this.slots = new ArrayList<IItemSlot>();
+		this.components = new ArrayList<>();
+		this.slots = new ArrayList<>();
 		this.isIndependent = false;
 		this.showPlayerSlots = true;
 		this.player = player;
@@ -59,22 +60,12 @@ public class CustomGuiWrapper implements ICustomGui {
 	}
 
 	public CustomGuiWrapper(int id, int width, int height, boolean pauseGame, EntityPlayer player) {
-		this.backgroundTexture = "";
-		this.components = new ArrayList<ICustomGuiComponent>();
-		this.slots = new ArrayList<IItemSlot>();
+		this(player);
 		this.id = id;
 		this.width = width;
 		this.height = height;
 		this.pauseGame = pauseGame;
 		this.scriptHandler = ScriptContainer.Current;
-		this.isIndependent = false;
-		this.showPlayerSlots = true;
-		this.player = player;
-		this.stretched = 0;
-		this.bgW = 0;
-		this.bgH = 0;
-		this.bgTx = 256;
-		this.bgTy = 256;
 	}
 
 	@Override
@@ -182,14 +173,14 @@ public class CustomGuiWrapper implements ICustomGui {
 		this.bgTx = tag.getInteger("bgTextureX");
 		this.bgTy = tag.getInteger("bgTextureY");
 		this.isIndependent = tag.getBoolean("isIndependent");
-		List<ICustomGuiComponent> components = new ArrayList<ICustomGuiComponent>();
+		List<ICustomGuiComponent> components = new ArrayList<>();
 		NBTTagList list = tag.getTagList("components", 10);
 		for (NBTBase b : list) {
 			CustomGuiComponentWrapper component = CustomGuiComponentWrapper.createFromNBT((NBTTagCompound) b);
 			components.add(component);
 		}
 		this.components = components;
-		List<IItemSlot> slots = new ArrayList<IItemSlot>();
+		List<IItemSlot> slots = new ArrayList<>();
 		list = tag.getTagList("slots", 10);
 		for (NBTBase b2 : list) {
 			CustomGuiItemSlotWrapper component2 = (CustomGuiItemSlotWrapper) CustomGuiComponentWrapper
@@ -225,7 +216,7 @@ public class CustomGuiWrapper implements ICustomGui {
 
 	@Override
 	public ICustomGuiComponent[] getComponents() {
-		return this.components.toArray(new ICustomGuiComponent[this.components.size()]);
+		return this.components.toArray(new ICustomGuiComponent[0]);
 	}
 
 	public boolean getDoesPauseGame() {
@@ -267,7 +258,7 @@ public class CustomGuiWrapper implements ICustomGui {
 		if (this.player instanceof EntityPlayerMP) {
 			this.setPlayer((EntityPlayerMP) this.player);
 		}
-		return this.slots.toArray(new IItemSlot[this.slots.size()]);
+		return this.slots.toArray(new IItemSlot[0]);
 	}
 
 	@Override
@@ -281,7 +272,7 @@ public class CustomGuiWrapper implements ICustomGui {
 			if (this.components.get(i).getId() == componentID) {
 				this.components.remove(i);
 				if (this.player instanceof EntityPlayerMP) { // New
-					this.update((IPlayer<?>) NpcAPI.Instance().getIEntity(this.player));
+					this.update((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player));
 				}
 				return;
 			}
@@ -317,7 +308,7 @@ public class CustomGuiWrapper implements ICustomGui {
 	// New
 	public void setPlayer(EntityPlayerMP player) {
 		this.player = player;
-		if (this.slots.size() == 0) {
+		if (this.slots.isEmpty()) {
 			return;
 		}
 		for (int i = 0; i < this.slots.size(); i++) {
@@ -398,7 +389,7 @@ public class CustomGuiWrapper implements ICustomGui {
 			if (c.getId() == component.getId()) {
 				this.components.set(i, component);
 				if (this.player instanceof EntityPlayerMP) { // New
-					this.update((IPlayer<?>) NpcAPI.Instance().getIEntity(this.player));
+					this.update((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player));
 				}
 				return;
 			}

@@ -22,6 +22,8 @@ import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.item.IItemStack;
 
+import java.util.Objects;
+
 public class PlayerEvent extends CustomNPCsEvent {
 
 	@Cancelable
@@ -99,9 +101,9 @@ public class PlayerEvent extends CustomNPCsEvent {
 
 		public DamagedEntityEvent(IPlayer<?> player, Entity target, float damage, DamageSource damagesource) {
 			super(player);
-			this.target = NpcAPI.Instance().getIEntity(target);
+			this.target = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(target);
 			this.damage = damage;
-			this.damageSource = NpcAPI.Instance().getIDamageSource(damagesource);
+			this.damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
 		}
 	}
 
@@ -116,9 +118,9 @@ public class PlayerEvent extends CustomNPCsEvent {
 		public DamagedEvent(IPlayer<?> player, Entity source, float damage, DamageSource damagesource) {
 			super(player);
 			this.clearTarget = false;
-			this.source = NpcAPI.Instance().getIEntity(source);
+			this.source = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(source);
 			this.damage = damage;
-			this.damageSource = NpcAPI.Instance().getIDamageSource(damagesource);
+			this.damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
 		}
 	}
 
@@ -131,8 +133,8 @@ public class PlayerEvent extends CustomNPCsEvent {
 		public DiedEvent(IPlayer<?> player, DamageSource damagesource, Entity entity) {
 			super(player);
 			this.type = damagesource.damageType;
-			this.source = NpcAPI.Instance().getIEntity(entity);
-			this.damageSource = NpcAPI.Instance().getIDamageSource(damagesource);
+			this.source = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
+			this.damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
 		}
 	}
 
@@ -191,7 +193,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 			super(player);
 			this.stacks = new IItemStack[drops.size()];
 			for (int i = 0; i < drops.size(); i++) {
-				this.stacks[i] = NpcAPI.Instance().getIItemStack(drops.get(i));
+				this.stacks[i] = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(drops.get(i));
 			}
 			this.rodDamage = rodDamage;
 		}
@@ -232,7 +234,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 
 		public KilledEntityEvent(IPlayer<?> player, EntityLivingBase entity) {
 			super(player);
-			this.entity = (IEntityLivingBase<?>) NpcAPI.Instance().getIEntity(entity);
+			this.entity = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
 		}
 	}
 
@@ -318,7 +320,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 			this.name = name;
 			this.resource = resource;
 			this.category = category;
-			this.pos = NpcAPI.Instance().getIPos(x, y, z);
+			this.pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(x, y, z);
 			this.volume = volume;
 			this.pitch = pitch;
 		}

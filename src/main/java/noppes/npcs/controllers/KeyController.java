@@ -1,9 +1,8 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.TreeMap;
 
 import com.google.common.collect.Maps;
@@ -12,6 +11,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.handler.IKeyBinding;
 import noppes.npcs.api.handler.data.IKeySetting;
@@ -22,7 +22,6 @@ import noppes.npcs.controllers.data.KeyConfig;
 public class KeyController implements IKeyBinding {
 
 	private static KeyController instance;
-	public static int version = 0;
 	public static KeyController getInstance() {
 		if (newInstance()) {
 			KeyController.instance = new KeyController();
@@ -43,7 +42,7 @@ public class KeyController implements IKeyBinding {
 	public KeyController() {
 		KeyController.instance = this;
 		this.filePath = CustomNpcs.Dir.getAbsolutePath();
-		this.keybindings = Maps.<Integer, IKeySetting>newTreeMap();
+		this.keybindings = Maps.newTreeMap();
 		this.loadKeys();
 	}
 
@@ -94,7 +93,7 @@ public class KeyController implements IKeyBinding {
 
 	@Override
 	public IKeySetting[] getKeySettings() {
-		return this.keybindings.values().toArray(new IKeySetting[this.keybindings.size()]);
+		return this.keybindings.values().toArray(new IKeySetting[0]);
 	}
 
 	public NBTTagCompound getNBT() {
@@ -119,29 +118,27 @@ public class KeyController implements IKeyBinding {
 		return id;
 	}
 
-	private void loadDefaultKeys(int version) {
-		if (version == KeyController.version) {
-			return;
-		}
+	private void loadDefaultKeys() {
 		KeyConfig ac = new KeyConfig(0);
 		this.keybindings.put(0, ac);
 		this.save();
 	}
 
-	public IKeySetting loadKey(NBTTagCompound nbtKey) {
+	public void loadKey(NBTTagCompound nbtKey) {
 		if (nbtKey == null || !nbtKey.hasKey("ID", 3) || nbtKey.getInteger("ID") < 0) {
-			return null;
+			return;
 		}
 		int id = nbtKey.getInteger("ID");
 		KeyConfig ac;
 		if (this.keybindings.containsKey(id)) {
 			((KeyConfig) this.keybindings.get(id)).read(nbtKey);
-			return this.keybindings.get(id);
+			this.keybindings.get(id);
+			return;
 		}
 		ac = new KeyConfig(id);
 		ac.read(nbtKey);
 		this.keybindings.put(id, ac);
-		return this.keybindings.get(id);
+		this.keybindings.get(id);
 	}
 
 	private void loadKeys() {
@@ -158,16 +155,16 @@ public class KeyController implements IKeyBinding {
 			if (file.exists()) {
 				this.loadKeys(file);
 			} else {
-				this.loadDefaultKeys(-1);
+				this.loadDefaultKeys();
 			}
 		} catch (Exception e) {
-			this.loadDefaultKeys(-1);
+			this.loadDefaultKeys();
 		}
 		CustomNpcs.debugData.endDebug("Common", null, "loadKeys");
 	}
 
 	private void loadKeys(File file) throws IOException {
-		this.loadKeys(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+		this.loadKeys(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath())));
 	}
 
 	public void loadKeys(NBTTagCompound compound) {
@@ -183,17 +180,15 @@ public class KeyController implements IKeyBinding {
 	}
 
 	@Override
-	public boolean removeKeySetting(int id) {
-		return this.keybindings.remove(id) != null;
+	public void removeKeySetting(int id) {
+		this.keybindings.remove(id);
 	}
 
 	public void save() {
 		CustomNpcs.debugData.startDebug("Common", null, "saveKeys");
 		try {
-			CompressedStreamTools.writeCompressed(this.getNBT(),
-					new FileOutputStream(new File(CustomNpcs.Dir, "keys.dat")));
-		} catch (Exception e) {
-		}
+			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "keys.dat").toPath()));
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		CustomNpcs.debugData.startDebug("Common", null, "saveKeys");
 	}
 

@@ -7,7 +7,8 @@ import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIMovingPath extends EntityAIBase {
-	private EntityNPCInterface npc;
+	
+	private final EntityNPCInterface npc;
 	private int[] pos;
 	private int retries;
 

@@ -1,7 +1,7 @@
 package noppes.npcs.controllers.data;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,7 +29,7 @@ public class BankData {
 
 	public Bank bank;
 	public final Map<Integer, NpcMiscInventory> ceils;
-	private String uuid;
+	private final String uuid;
 
 	public BankData(Bank bank, String uuid) {
 		this.bank = bank;
@@ -37,7 +37,7 @@ public class BankData {
 		if (this.bank == null) {
 			this.bank = new Bank();
 		}
-		this.ceils = Maps.<Integer, NpcMiscInventory>newTreeMap();
+		this.ceils = Maps.newTreeMap();
 		this.clear();
 	}
 
@@ -73,7 +73,7 @@ public class BankData {
 		return UUID.fromString(this.uuid);
 	}
 
-	public void openBankGui(EntityPlayer player, EntityNPCInterface npc, int bankId, int ceil) {
+	public void openBankGui(EntityPlayer player, EntityNPCInterface npc, int ceil) {
 		if (!this.ceils.containsKey(ceil) || !(player instanceof EntityPlayerMP)) {
 			return;
 		}
@@ -106,27 +106,22 @@ public class BankData {
 
 	public void save() {
 		File bankFile;
-		if (this.bank.isPublic) {
-			File dir = CustomNpcs.getWorldSaveDirectory("banks");
-			bankFile = new File(dir, this.bank.id + ".dat");
-		} else {
-			File dir = CustomNpcs.getWorldSaveDirectory("playerdata/" + this.uuid + "/banks");
-			bankFile = new File(dir, this.bank.id + ".dat");
-		}
-		if (!bankFile.exists()) {
+        File dir;
+        if (this.bank.isPublic) {
+            dir = CustomNpcs.getWorldSaveDirectory("banks");
+        } else {
+            dir = CustomNpcs.getWorldSaveDirectory("playerdata/" + this.uuid + "/banks");
+        }
+        bankFile = new File(dir, this.bank.id + ".dat");
+        if (!bankFile.exists()) {
 			try {
 				bankFile.createNewFile();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		LogWriter.debug("Bank ID: " + this.bank.id + " save "
-				+ (this.bank.isPublic ? "Public" : "Player \"" + this.uuid + "\"") + " Inventoryes");
+		LogWriter.debug("Bank ID: " + this.bank.id + " save " + (this.bank.isPublic ? "Public" : "Player \"" + this.uuid + "\"") + " Inventory's");
 		try {
-			CompressedStreamTools.writeCompressed(this.getNBT(), new FileOutputStream(bankFile));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(bankFile.toPath()));
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void setNBT(NBTTagCompound nbtBD) {

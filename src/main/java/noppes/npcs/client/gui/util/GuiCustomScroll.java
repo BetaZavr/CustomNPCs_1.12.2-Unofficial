@@ -1,10 +1,10 @@
 package noppes.npcs.client.gui.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import noppes.npcs.LogWriter;
 import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Lists;
@@ -76,15 +76,14 @@ implements IComponentGui {
 		this.height = 159;
 		this.selected = -1;
 		this.hover = -1;
-		this.selectedList = new HashSet<String>();
+		this.selectedList = new HashSet<>();
 		this.listHeight = 0;
 		this.scrollY = 0;
 		this.scrollHeight = 0;
 		this.isScrolling = false;
 		this.setParent(parent);
-		this.list = new ArrayList<String>();
+		this.list = new ArrayList<>();
 		this.id = id;
-		// New
 		this.hoversTexts = null;
 		this.colors = null;
 		this.stacks = null;
@@ -118,11 +117,10 @@ implements IComponentGui {
 			if (k < 4 || k + 10 > this.height) {
 				continue;
 			}
-			String displayString = this.list.get(i) == null ? "null" : this.list.get(i).toString();
+			String displayString = this.list.get(i) == null ? "null" : this.list.get(i);
 			try {
-				displayString = new TextComponentTranslation(this.list.get(i).toString()).getFormattedText();
-			} catch (Exception e) {
-			}
+				displayString = new TextComponentTranslation(this.list.get(i)).getFormattedText();
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 
 			String text = "";
 			float maxWidth = (this.width + xOffset - 8) * 0.8f;
@@ -189,7 +187,7 @@ implements IComponentGui {
 			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.translate(0.5f, k - 1.5f + rd.tH, 0.0f); // position X, Y, Z
-			float scale = 12.0f / (float) (rd.width > rd.height ? rd.width : rd.height);
+			float scale = 12.0f / (float) (Math.max(rd.width, rd.height));
 			GlStateManager.scale(scale, scale, scale);
 			Minecraft.getMinecraft().renderEngine.bindTexture(rd.resource);
 			this.drawTexturedModalRect(0, 0, rd.u, rd.v, rd.width, rd.height);
@@ -197,7 +195,7 @@ implements IComponentGui {
 		}
 	}
 
-	public void drawScreen(int mouseX, int mouseY, float partialTicks, int mouseScrolled) {
+	public void drawScreen(int mouseX, int mouseY, int mouseScrolled) {
 		if (!this.visible) {
 			return;
 		}
@@ -273,7 +271,7 @@ implements IComponentGui {
 					texts = this.hoversTexts[this.hover];
 				} else if (this.stacks != null && this.hover < this.stacks.size()) {
 					List<String> l = this.stacks.get(this.hover).getTooltip(this.mc.player, TooltipFlags.NORMAL);
-					texts = l.toArray(new String[l.size()]);
+					texts = l.toArray(new String[0]);
 				}
 				if (texts != null) {
 					if (this.parent instanceof GuiNPCInterface) {
@@ -343,7 +341,7 @@ implements IComponentGui {
 	}
 
 	public int getPos(String select) {
-		if (select == null || select.isEmpty() || this.list == null || this.list.size() == 0) {
+		if (select == null || select.isEmpty() || this.list == null || this.list.isEmpty()) {
 			return -1;
 		}
 		for (int i = 0; i < this.list.size(); i++) {
@@ -363,13 +361,6 @@ implements IComponentGui {
 
 	public HashSet<String> getSelectedList() {
 		return this.selectedList;
-	}
-
-	public String getSuffixs(int pos) {
-		if (this.suffixs == null || this.suffixs.isEmpty()) {
-			return null;
-		}
-		return this.suffixs.get(pos);
 	}
 
 	public int getWidth() {
@@ -452,10 +443,8 @@ implements IComponentGui {
 				this.selectedList.add(this.list.get(this.hover));
 			}
 		} else {
-			if (this.hover >= 0) {
-				this.selected = this.hover;
-			}
-			this.hover = -1;
+            this.selected = this.hover;
+            this.hover = -1;
 		}
 		if (this.listener != null) {
 			long time = System.currentTimeMillis();
@@ -483,7 +472,7 @@ implements IComponentGui {
 		this.list.remove(oldName);
 		this.list.add(i, newName);
 		if (this.isSorted) {
-			Collections.sort(this.list, new NaturalOrderComparator());
+			this.list.sort(new NaturalOrderComparator());
 		}
 		if (oldName.equals(select)) {
 			select = newName;
@@ -530,14 +519,14 @@ implements IComponentGui {
 
 	public void setList(List<String> list) {
 		if (list == null) {
-			list = Lists.<String>newArrayList();
+			list = Lists.newArrayList();
 		}
 		if (this.isSameList(list)) {
 			return;
 		}
 		this.isSorted = true;
 		this.scrollY = 0;
-		Collections.sort(list, new NaturalOrderComparator());
+		list.sort(new NaturalOrderComparator());
 		this.list.clear();
 		this.list.addAll(list);
 		this.setSize(this.width, this.height);

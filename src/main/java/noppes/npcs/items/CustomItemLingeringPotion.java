@@ -12,6 +12,8 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.potions.PotionData;
 import noppes.npcs.util.AdditionalMethods;
 
+import javax.annotation.Nonnull;
+
 public class CustomItemLingeringPotion extends ItemLingeringPotion {
 
 	public CustomItemLingeringPotion() {
@@ -20,7 +22,7 @@ public class CustomItemLingeringPotion extends ItemLingeringPotion {
 		this.setUnlocalizedName("lingering_potion");
 	}
 
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (this.getCreativeTab() == null) {
 			return;
 		}
@@ -48,8 +50,7 @@ public class CustomItemLingeringPotion extends ItemLingeringPotion {
 					stack.setCount(count);
 				}
 				items.add(stack);
-				continue;
-			} else if (tab == CreativeTabs.SEARCH
+            } else if (tab == CreativeTabs.SEARCH
 					|| (tab == this.getCreativeTab() && !CustomRegisters.custompotiontypes.containsKey(potiontype))) {
 				items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
 			}

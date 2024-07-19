@@ -14,21 +14,23 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.entity.EntityNPCInterface;
 
+import javax.annotation.Nonnull;
+
 public class GuiCreationLoad extends GuiCreationScreenInterface implements ICustomScrollListener {
 
-	private List<String> list;
+	private final List<String> list;
 	private GuiCustomScroll scroll;
 
 	public GuiCreationLoad(EntityNPCInterface npc) {
 		super(npc);
-		this.list = new ArrayList<String>();
+		this.list = new ArrayList<>();
 		this.active = 5;
 		this.xOffset = 60;
 		PresetController.instance.load();
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton btn) {
+	protected void actionPerformed(@Nonnull GuiButton btn) {
 		super.actionPerformed(btn);
 		if (btn.id == 10 && this.scroll.hasSelected()) {
 			PresetController.instance.removePreset(this.scroll.getSelected());

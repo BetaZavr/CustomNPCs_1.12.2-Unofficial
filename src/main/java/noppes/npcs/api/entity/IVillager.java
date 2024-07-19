@@ -10,4 +10,8 @@ public interface IVillager<T extends EntityMob> extends IEntityLiving<T> {
 
 	IInventory getVillagerInventory();
 
+	String getCareer();
+
+	int getProfession();
+
 }

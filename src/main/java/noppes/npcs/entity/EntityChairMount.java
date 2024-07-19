@@ -8,21 +8,16 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+
 public class EntityChairMount extends Entity {
+
 	public EntityChairMount(World world) {
 		super(world);
 		this.setSize(0.0f, 0.0f);
 	}
 
-	public boolean canBeCollidedWith() {
-		return false;
-	}
-
-	public boolean canBePushed() {
-		return false;
-	}
-
-	protected void entityInit() {
+    protected void entityInit() {
 	}
 
 	public void fall(float distance, float damageMultiplier) {
@@ -32,7 +27,7 @@ public class EntityChairMount extends Entity {
 		return 0.5;
 	}
 
-	public boolean isEntityInvulnerable(DamageSource source) {
+	public boolean isEntityInvulnerable(@Nonnull DamageSource source) {
 		return true;
 	}
 
@@ -40,7 +35,7 @@ public class EntityChairMount extends Entity {
 		return true;
 	}
 
-	public void move(MoverType type, double x, double y, double z) {
+	public void move(@Nonnull MoverType type, double x, double y, double z) {
 	}
 
 	public void onEntityUpdate() {
@@ -50,7 +45,7 @@ public class EntityChairMount extends Entity {
 		}
 	}
 
-	protected void readEntityFromNBT(NBTTagCompound tagCompound) {
+	protected void readEntityFromNBT(@Nonnull NBTTagCompound tagCompound) {
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -60,6 +55,6 @@ public class EntityChairMount extends Entity {
 		this.setRotation(yaw, pitch);
 	}
 
-	protected void writeEntityToNBT(NBTTagCompound tagCompound) {
+	protected void writeEntityToNBT(@Nonnull NBTTagCompound tagCompound) {
 	}
 }

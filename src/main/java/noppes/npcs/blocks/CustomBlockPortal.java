@@ -1,11 +1,11 @@
 package noppes.npcs.blocks;
 
+import java.util.Objects;
 import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEndPortal;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -44,13 +44,15 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.CustomNPCsScheduler;
 
+import javax.annotation.Nonnull;
+
 public class CustomBlockPortal extends BlockEndPortal implements ICustomElement {
 
 	public static AxisAlignedBB PORTAL_AABB_0 = new AxisAlignedBB(0.0D, 0.26D, 0.0D, 1.0D, 0.74D, 1.0D);
 	public static AxisAlignedBB PORTAL_AABB_1 = new AxisAlignedBB(0.0D, 0.0D, 0.26D, 1.0D, 1.0D, 0.74D);
 	public static AxisAlignedBB PORTAL_AABB_2 = new AxisAlignedBB(0.26D, 0.0D, 0.0D, 0.74D, 1.0D, 1.0D);
 	public static PropertyInteger TYPE = PropertyInteger.create("type", 0, 2);
-	public NBTTagCompound nbtData = new NBTTagCompound();
+	public NBTTagCompound nbtData;
 
 	public CustomBlockPortal(Material material, NBTTagCompound nbtBlock) {
 		super(material);
@@ -71,26 +73,26 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 			this.setLightLevel(nbtBlock.getFloat("LightLevel"));
 		}
 
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tabBlocks);
+		this.setCreativeTab(CustomRegisters.tabBlocks);
 	}
 
 	@Override
-	public boolean canEntityDestroy(IBlockState state, IBlockAccess world, BlockPos pos, Entity entity) {
+	public boolean canEntityDestroy(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull Entity entity) {
 		return false;
 	}
 
 	@Override
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { CustomBlockPortal.TYPE });
+	protected @Nonnull BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, CustomBlockPortal.TYPE);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) {
+	public TileEntity createNewTileEntity(@Nonnull World worldIn, int meta) {
 		return new CustomTileEntityPortal();
 	}
 
 	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+	public @Nonnull AxisAlignedBB getBoundingBox(@Nonnull IBlockState state, @Nonnull IBlockAccess source, @Nonnull BlockPos pos) {
 		int meta = this.getMetaFromState(state);
 		if (meta == 1) {
 			return PORTAL_AABB_1;
@@ -108,27 +110,26 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
 	@Override
-	public int getMetaFromState(IBlockState state) {
+	public int getMetaFromState(@Nonnull IBlockState state) {
 		return state.getValue(CustomBlockPortal.TYPE);
 	}
 
 	@Override
-	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos,
-			EntityPlayer player) {
+	public @Nonnull ItemStack getPickBlock(@Nonnull IBlockState state, @Nonnull RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player) {
 		return new ItemStack(Item.getItemFromBlock(this), 1, 0);
 	}
 
 	@Override
-	public IBlockState getStateFromMeta(int meta) {
+	public @Nonnull IBlockState getStateFromMeta(int meta) {
 		return this.getDefaultState().withProperty(CustomBlockPortal.TYPE, meta % 3);
 	}
 
 	@Override
-	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubBlocks(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabBlocks && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
 				&& !this.nbtData.getBoolean("ShowInCreative")) {
@@ -149,10 +150,9 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 	}
 
 	@Override
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer,
-			ItemStack stack) {
+	public void onBlockPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityLivingBase placer, @Nonnull ItemStack stack) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (tile instanceof CustomTileEntityPortal && placer != null) {
+		if (tile instanceof CustomTileEntityPortal) {
 			int type = placer.rotationPitch < -45 || placer.rotationPitch > 45 ? 0 : 1;
 			if (type == 1 && (placer.getHorizontalFacing() == EnumFacing.EAST
 					|| placer.getHorizontalFacing() == EnumFacing.WEST)) {
@@ -241,13 +241,13 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
+	public void onEntityCollidedWithBlock(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull Entity entityIn) {
 		int id = 0, homeId = 0;
-		if (this.nbtData.hasKey("DimentionID", 3)) {
-			id = this.nbtData.getInteger("DimentionID");
+		if (this.nbtData.hasKey("DimensionID", 3)) {
+			id = this.nbtData.getInteger("DimensionID");
 		}
-		if (this.nbtData.hasKey("HomeDimentionID", 3)) {
-			homeId = this.nbtData.getInteger("HomeDimentionID");
+		if (this.nbtData.hasKey("HomeDimensionID", 3)) {
+			homeId = this.nbtData.getInteger("HomeDimensionID");
 		}
 		TileEntity tile = worldIn.getTileEntity(pos);
 		if (tile instanceof CustomTileEntityPortal) {
@@ -272,28 +272,23 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 				p = ((CustomTileEntityPortal) tile).getPosTp(isHome);
 			}
 			if (p == null) {
-				WorldServer world = entityIn.getServer().getWorld(isHome ? homeId : id);
+				WorldServer world = Objects.requireNonNull(entityIn.getServer()).getWorld(isHome ? homeId : id);
 				p = world.getSpawnCoordinate();
 				if (p == null) {
 					p = world.getSpawnPoint();
 				}
-				if (p != null) {
-					if (!world.isAirBlock(p)) {
-						p = world.getTopSolidOrLiquidBlock(p);
-					} else if (!world.isAirBlock(p.up())) {
-						while (world.isAirBlock(p) && p.getY() > 0) {
-							p = p.down();
-						}
-						if (p.getY() == 0) {
-							p = world.getTopSolidOrLiquidBlock(p);
-						}
-					}
-				}
-			}
-			if (p == null) {
-				return;
-			}
-			if (entityIn instanceof EntityPlayerMP) {
+                if (!world.isAirBlock(p)) {
+                    p = world.getTopSolidOrLiquidBlock(p);
+                } else if (!world.isAirBlock(p.up())) {
+                    while (world.isAirBlock(p) && p.getY() > 0) {
+                        p = p.down();
+                    }
+                    if (p.getY() == 0) {
+                        p = world.getTopSolidOrLiquidBlock(p);
+                    }
+                }
+            }
+            if (entityIn instanceof EntityPlayerMP) {
 				CustomTeleport event = EventHooks.onPlayerTeleport((EntityPlayerMP) entityIn, p, pos,
 						isHome ? homeId : id);
 				if (!event.isCanceled()) {
@@ -305,22 +300,24 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 				if (entityIn instanceof EntityNPCInterface) {
 					CustomNpcTeleport event = EventHooks.onNpcTeleport((EntityNPCInterface) entityIn, p, pos,
 							isHome ? homeId : id);
-					if (event.isCanceled() || entityIn == null || entityIn.isDead) {
+					if (event.isCanceled() || entityIn.isDead) {
 						return;
 					}
 				}
 				entityIn = AdditionalMethods.travelEntity(CustomNpcs.Server, entityIn, isHome ? homeId : id);
-				entityIn.setPosition(p.getX() + 0.5d, p.getY(), p.getZ() + 0.5d);
+                if (entityIn != null) {
+					entityIn.setPosition(p.getX() + 0.5d, p.getY(), p.getZ() + 0.5d);
+				}
 			}
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {
+	public void randomDisplayTick(@Nonnull IBlockState stateIn, @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull Random rand) {
 		if (this.nbtData.hasKey("RenderData", 10) && Math.random() < 0.25f) {
-			double d0 = (double) ((float) pos.getX() + rand.nextFloat());
-			double d1 = (double) ((float) pos.getY() + 0.8F);
-			double d2 = (double) ((float) pos.getZ() + rand.nextFloat());
+			double d0 = (float) pos.getX() + rand.nextFloat();
+			double d1 = (float) pos.getY() + 0.8F;
+			double d2 = (float) pos.getZ() + rand.nextFloat();
 			EnumParticleTypes p = EnumParticleTypes.CRIT;
 			for (EnumParticleTypes ept : EnumParticleTypes.values()) {
 				if (ept.name().equalsIgnoreCase(this.nbtData.getCompoundTag("RenderData").getString("SpawnParticle"))) {
@@ -334,14 +331,13 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos,
-			EnumFacing side) {
-		return side == EnumFacing.DOWN ? super.shouldSideBeRendered(blockState, blockAccess, pos, side) : false;
+	public boolean shouldSideBeRendered(@Nonnull IBlockState blockState, @Nonnull IBlockAccess blockAccess, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
+		return side == EnumFacing.DOWN && super.shouldSideBeRendered(blockState, blockAccess, pos, side);
 	}
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return this.nbtData.getByte("BlockType"); }
 		return 5;
 	}
 }

@@ -18,7 +18,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobConversation extends JobInterface implements IJobConversation {
 
-	public class ConversationLine extends Line {
+	public static class ConversationLine extends Line {
 		public int delay;
 		public String npc;
 
@@ -51,9 +51,9 @@ public class JobConversation extends JobInterface implements IJobConversation {
 	private boolean hasStarted;
 	public HashMap<Integer, ConversationLine> lines;
 	public int mode;
-	private ArrayList<String> names;
+	private final ArrayList<String> names;
 	private ConversationLine nextLine;
-	private HashMap<String, EntityNPCInterface> npcs;
+	private final HashMap<String, EntityNPCInterface> npcs;
 	public int quest;
 	public String questTitle;
 	public int range;
@@ -63,9 +63,9 @@ public class JobConversation extends JobInterface implements IJobConversation {
 	public JobConversation(EntityNPCInterface npc) {
 		super(npc);
 		this.availability = new Availability();
-		this.names = new ArrayList<String>();
-		this.npcs = new HashMap<String, EntityNPCInterface>();
-		this.lines = new HashMap<Integer, ConversationLine>();
+		this.names = new ArrayList<>();
+		this.npcs = new HashMap<>();
+		this.lines = new HashMap<>();
 		this.quest = -1;
 		this.questTitle = "";
 		this.generalDelay = 400;
@@ -166,7 +166,7 @@ public class JobConversation extends JobInterface implements IJobConversation {
 	}
 
 	public Quest getQuest() {
-		if (this.npc.isRemote()) {
+		if (!this.npc.isServerWorld()) {
 			return null;
 		}
 		return QuestController.instance.quests.get(this.quest);
@@ -192,7 +192,7 @@ public class JobConversation extends JobInterface implements IJobConversation {
 		this.range = compound.getInteger("ConversationRange");
 		this.mode = compound.getInteger("ConversationMode");
 		NBTTagList nbttaglist = compound.getTagList("ConversationLines", 10);
-		HashMap<Integer, ConversationLine> map = new HashMap<Integer, ConversationLine>();
+		HashMap<Integer, ConversationLine> map = new HashMap<>();
 		for (int i = 0; i < nbttaglist.tagCount(); ++i) {
 			NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
 			ConversationLine line = new ConversationLine();

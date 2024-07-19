@@ -1,17 +1,14 @@
 package noppes.npcs.containers;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Marcet;
+
+import javax.annotation.Nonnull;
 
 public class ContainerNPCTraderSetup extends Container {
 
@@ -33,34 +30,19 @@ public class ContainerNPCTraderSetup extends Container {
 		for (int i2 = 0; i2 < 3; ++i2) {
 			for (int l1 = 0; l1 < 9; ++l1) {
 				this.addSlotToContainer(
-						new Slot((IInventory) player.inventory, l1 + i2 * 9 + 9, 48 + l1 * 18, 137 + i2 * 18));
+						new Slot(player.inventory, l1 + i2 * 9 + 9, 48 + l1 * 18, 137 + i2 * 18));
 			}
 		}
 		for (int j1 = 0; j1 < 9; ++j1) {
-			this.addSlotToContainer(new Slot((IInventory) player.inventory, j1, 48 + j1 * 18, 195));
+			this.addSlotToContainer(new Slot(player.inventory, j1, 48 + j1 * 18, 195));
 		}
 	}
 
-	public boolean canInteractWith(EntityPlayer entityplayer) {
+	public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
 		return true;
 	}
 
-	public void saveMarcet() {
-		if (this.deal == null) {
-			return;
-		}
-		ItemStack product = this.getSlot(0).getStack();
-		List<ItemStack> list = Lists.<ItemStack>newArrayList();
-		for (int i = 1; i < 10; i++) {
-			if (this.getSlot(i).getStack().isEmpty()) {
-				continue;
-			}
-			list.add(this.getSlot(i).getStack());
-		}
-		this.deal.set(product, list.toArray(new ItemStack[list.size()]));
-	}
-
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) {
 		return ItemStack.EMPTY;
 	}
 

@@ -1,5 +1,5 @@
 package noppes.npcs.constants;
 
 public enum EnumAvailabilityStoredData {
-	ONLY, EXCEPT, SMALLER, EQUAL, BIGGER;
+	ONLY, EXCEPT, SMALLER, EQUAL, BIGGER
 }

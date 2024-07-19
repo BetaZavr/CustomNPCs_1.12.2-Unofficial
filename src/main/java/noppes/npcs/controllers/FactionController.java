@@ -3,10 +3,8 @@ package noppes.npcs.controllers;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -28,8 +26,8 @@ import noppes.npcs.controllers.data.Faction;
 public class FactionController implements IFactionHandler {
 
 	public static FactionController instance = new FactionController();
-	public final HashMap<Integer, Faction> factions = new HashMap<Integer, Faction>();;
-	public final HashMap<Integer, Faction> factionsSync = new HashMap<Integer, Faction>();;
+	public final HashMap<Integer, Faction> factions = new HashMap<>();
+	public final HashMap<Integer, Faction> factionsSync = new HashMap<>();
 	private int lastUsedID;
 
 	public FactionController() {
@@ -80,17 +78,13 @@ public class FactionController implements IFactionHandler {
 		return this.factions.get(faction);
 	}
 
-	public Faction getFactionFromName(String factioname) {
+	public Faction getFactionFromName(String faction) {
 		for (Map.Entry<Integer, Faction> entryfaction : this.factions.entrySet()) {
-			if (entryfaction.getValue().name.equalsIgnoreCase(factioname)) {
+			if (entryfaction.getValue().name.equalsIgnoreCase(faction)) {
 				return entryfaction.getValue();
 			}
 		}
 		return null;
-	}
-
-	public Faction getFirstFaction() {
-		return this.factions.values().iterator().next();
 	}
 
 	public int getFirstFactionId() {
@@ -146,7 +140,7 @@ public class FactionController implements IFactionHandler {
 
 	@Override
 	public IFaction[] list() {
-		return this.factions.values().toArray(new IFaction[this.factions.size()]);
+		return this.factions.values().toArray(new IFaction[0]);
 	}
 
 	public void load() {
@@ -174,8 +168,7 @@ public class FactionController implements IFactionHandler {
 					if (file2.exists()) {
 						this.loadFactionsFile(file2);
 					}
-				} catch (Exception ex) {
-				}
+				} catch (Exception ex) { LogWriter.error("Error:", ex); }
 			}
 		} finally {
 			EventHooks.onGlobalFactionsLoaded(this);
@@ -204,22 +197,19 @@ public class FactionController implements IFactionHandler {
 
 	public void loadFactions(DataInputStream stream) throws IOException {
 		factions.clear();
-		NBTTagCompound nbttagcompound1 = CompressedStreamTools.read(stream);
-		this.lastUsedID = nbttagcompound1.getInteger("lastID");
-		NBTTagList list = nbttagcompound1.getTagList("NPCFactions", 10);
-		if (list != null) {
-			for (int i = 0; i < list.tagCount(); ++i) {
-				NBTTagCompound nbttagcompound2 = list.getCompoundTagAt(i);
-				Faction faction = new Faction();
-				faction.readNBT(nbttagcompound2);
-				factions.put(faction.id, faction);
-			}
-		}
-	}
+		NBTTagCompound compound = CompressedStreamTools.read(stream);
+		this.lastUsedID = compound.getInteger("lastID");
+		NBTTagList list = compound.getTagList("NPCFactions", 10);
+        for (int i = 0; i < list.tagCount(); ++i) {
+            NBTTagCompound nbt = list.getCompoundTagAt(i);
+            Faction faction = new Faction();
+            faction.readNBT(nbt);
+            factions.put(faction.id, faction);
+        }
+    }
 
 	private void loadFactionsFile(File file) throws IOException {
-		DataInputStream var1 = new DataInputStream(
-				new BufferedInputStream(new GZIPInputStream(new FileInputStream(file))));
+		DataInputStream var1 = new DataInputStream(new BufferedInputStream(new GZIPInputStream(Files.newInputStream(file.toPath()))));
 		this.loadFactions(var1);
 		var1.close();
 	}
@@ -250,7 +240,7 @@ public class FactionController implements IFactionHandler {
 			File file = new File(saveDir, "factions.dat_new");
 			File file2 = new File(saveDir, "factions.dat_old");
 			File file3 = new File(saveDir, "factions.dat");
-			CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(file));
+			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(file.toPath()));
 			if (file2.exists()) {
 				file2.delete();
 			}

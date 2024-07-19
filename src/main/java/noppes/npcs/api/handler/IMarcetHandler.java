@@ -19,8 +19,8 @@ public interface IMarcetHandler {
 
 	int[] getMarketIDs();
 
-	boolean removeDeal(int dealID);
+	void removeDeal(int dealID);
 
-	boolean removeMarcet(int marcetID);
+	void removeMarcet(int marcetID);
 
 }

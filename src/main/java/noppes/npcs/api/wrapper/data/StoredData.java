@@ -1,5 +1,6 @@
 package noppes.npcs.api.wrapper.data;
 
+import java.util.Objects;
 import java.util.Set;
 
 import net.minecraft.command.CommandException;
@@ -12,7 +13,6 @@ import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.EntityWrapper;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
-import noppes.npcs.api.wrapper.WorldWrapper;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.util.AdditionalMethods;
@@ -23,7 +23,7 @@ public class StoredData implements IData {
 	private BlockWrapper block;
 	private EntityWrapper<?> entity;
 	private ItemStackWrapper stack;
-	private ScriptController controller;
+	private final ScriptController controller;
 
 	public StoredData() {
 		this.data = new NBTTagCompound();
@@ -42,19 +42,15 @@ public class StoredData implements IData {
 
 	public StoredData(ItemStackWrapper stack) {
 		this();
-		stack.storedData = new NBTTagCompound();
-		this.data = stack.storedData;
+		stack.storedNBT = new NBTTagCompound();
+		this.data = stack.storedNBT;
 		this.stack = stack;
-	}
-
-	public StoredData(WorldWrapper world) {
-		this();
 	}
 
 	@Override
 	public void clear() {
 		this.resetData();
-		for (String key : this.data.getKeySet().toArray(new String[this.data.getKeySet().size()])) {
+		for (String key : this.data.getKeySet().toArray(new String[0])) {
 			this.data.removeTag(key);
 		}
 		if (this.controller != null) {
@@ -75,13 +71,13 @@ public class StoredData implements IData {
 	public String[] getKeys() {
 		this.resetData();
 		Set<String> sets = this.data.getKeySet();
-		return sets.toArray(new String[sets.size()]);
+		return sets.toArray(new String[0]);
 	}
 
 	@Override
 	public INbt getNbt() {
 		this.resetData();
-		return NpcAPI.Instance().getINbt(this.data);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.data);
 	}
 
 	@Override
@@ -101,9 +97,7 @@ public class StoredData implements IData {
 			}
 			return;
 		}
-		throw new CommandException(
-				"Unsupported data type to put in StoredData. Key: \"" + key + "\"; Value: " + value.toString(),
-				new Object[0]);
+		throw new CommandException("Unsupported data type to put in StoredData. Key: \"" + key + "\"; Value: " + value.toString());
 	}
 
 	@Override
@@ -128,7 +122,6 @@ public class StoredData implements IData {
 				this.block.tile.getTileData().setTag("CustomNPCsData", new NBTTagCompound());
 			}
 			this.data = this.block.tile.getTileData().getCompoundTag("CustomNPCsData");
-			return;
 		} else if (this.entity != null) {
 			if (this.entity.getMCEntity() instanceof EntityPlayer) {
 				this.data = PlayerData.get((EntityPlayer) this.entity.getMCEntity()).scriptStoreddata;
@@ -139,7 +132,7 @@ public class StoredData implements IData {
 				this.data = this.entity.getMCEntity().getEntityData().getCompoundTag("CNPCStoredData");
 			}
 		} else if (this.stack != null) {
-			this.data = this.stack.storedData;
+			this.data = this.stack.storedNBT;
 		} else if (this.controller != null) {
 			this.data = this.controller.compound;
 		}

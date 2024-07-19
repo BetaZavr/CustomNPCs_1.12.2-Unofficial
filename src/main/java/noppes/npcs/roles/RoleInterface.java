@@ -20,7 +20,7 @@ public class RoleInterface implements INPCRole {
 		return false;
 	}
 
-	public void aiDeathExecute(Entity attackingEntity) {
+	public void aiDeathExecute(Entity ignoredAttackingEntity) {
 	}
 
 	public boolean aiShouldExecute() {
@@ -37,7 +37,7 @@ public class RoleInterface implements INPCRole {
 	}
 
 	public boolean defendOwner() {
-		return false;
+		return true;
 	}
 
 	public void delete() {
@@ -50,7 +50,7 @@ public class RoleInterface implements INPCRole {
 	@Override
 	public int getType() {
 		return this.type.get();
-	};
+	}
 
 	public void interact(EntityPlayer player) {
 	}

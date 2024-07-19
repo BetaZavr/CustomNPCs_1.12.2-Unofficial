@@ -7,31 +7,22 @@ public class ValueUtil {
 		if (given < min) {
 			return min;
 		}
-		if (given > max) {
-			return max;
-		}
-		return given;
-	}
+        return Math.min(given, max);
+    }
 
 	public static float correctFloat(float given, float min, float max) {
 		if (given < min) {
 			return min;
 		}
-		if (given > max) {
-			return max;
-		}
-		return given;
-	}
+        return Math.min(given, max);
+    }
 
 	public static int correctInt(int given, int min, int max) {
 		if (given < min) {
 			return min;
 		}
-		if (given > max) {
-			return max;
-		}
-		return given;
-	}
+        return Math.min(given, max);
+    }
 
 	public static double max(double... obj) {
 		if (obj == null || obj.length == 0) {

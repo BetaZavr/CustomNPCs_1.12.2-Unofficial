@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.Vector;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTUtil;
@@ -31,14 +29,14 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.schematics.ISchematic;
 import noppes.npcs.schematics.SchematicWrapper;
 
-public class GuiBlockBuilder extends GuiNPCInterface
-		implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
+public class GuiBlockBuilder extends GuiNPCInterface implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
+
 	private GuiCustomScroll scroll;
 	private ISchematic selected;
-	private TileBuilder tile;
-	private int x;
-	private int y;
-	private int z;
+	private final TileBuilder tile;
+	private final int x;
+	private final int y;
+	private final int z;
 
 	public GuiBlockBuilder(int x, int y, int z) {
 		this.selected = null;
@@ -81,9 +79,8 @@ public class GuiBlockBuilder extends GuiNPCInterface
 		}
 		if (button.id == 10) {
 			this.save();
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "",
-					new TextComponentTranslation("schematic.instantBuildText").getFormattedText(), 0);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("schematic.instantBuildText").getFormattedText(), 0);
+			this.displayGuiScreen(guiyesno);
 		}
 	}
 
@@ -93,7 +90,7 @@ public class GuiBlockBuilder extends GuiNPCInterface
 			this.close();
 			this.selected = null;
 		} else {
-			NoppesUtil.openGUI((EntityPlayer) this.player, this);
+			NoppesUtil.openGUI(this.player, this);
 		}
 	}
 
@@ -108,8 +105,6 @@ public class GuiBlockBuilder extends GuiNPCInterface
 		this.addScroll(this.scroll);
 		if (this.selected != null) {
 			int y = this.guiTop + 4;
-			// int size = this.selected.getWidth() * this.selected.getHeight() *
-			// this.selected.getLength();
 			this.addButton(new GuiNpcButtonYesNo(3, this.guiLeft + 200, y, TileBuilder.has(this.tile.getPos())));
 			this.addLabel(new GuiNpcLabel(3, "schematic.preview", this.guiLeft + 130, y + 5));
 			int id = 0;
@@ -151,7 +146,7 @@ public class GuiBlockBuilder extends GuiNPCInterface
 			int id7 = 9;
 			int i = this.guiLeft + 200;
 			y += 22;
-			this.addTextField(new GuiNpcTextField(id7, this, i, y, 50, 20, this.tile.yOffest + ""));
+			this.addTextField(new GuiNpcTextField(id7, this, i, y, 50, 20, this.tile.yOffset + ""));
 			this.addLabel(new GuiNpcLabel(9, new TextComponentTranslation("gui.yoffset").getFormattedText(),
 					this.guiLeft + 130, y + 5));
 			this.getTextField(9).setNumbersOnly();
@@ -182,7 +177,7 @@ public class GuiBlockBuilder extends GuiNPCInterface
 	@Override
 	public void save() {
 		if (this.getTextField(9) != null) {
-			this.tile.yOffest = this.getTextField(9).getInteger();
+			this.tile.yOffset = this.getTextField(9).getInteger();
 		}
 		Client.sendData(EnumPacketServer.SchematicsTileSave, this.x, this.y, this.z,
 				this.tile.writePartNBT(new NBTTagCompound()));
@@ -217,7 +212,7 @@ public class GuiBlockBuilder extends GuiNPCInterface
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		if (compound.hasKey("Width")) {
-			List<IBlockState> states = new ArrayList<IBlockState>();
+			List<IBlockState> states = new ArrayList<>();
 			NBTTagList list = compound.getTagList("Data", 10);
 			for (int i = 0; i < list.tagCount(); ++i) {
 				states.add(NBTUtil.readBlockState(list.getCompoundTagAt(i)));

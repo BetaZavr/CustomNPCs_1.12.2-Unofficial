@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -31,7 +30,7 @@ public class SubGuiDropEnchant extends SubGuiInterface implements ITextfieldList
 		this.ySize = 167;
 		this.closeOnEsc = true;
 
-		List<Integer> el = new ArrayList<Integer>();
+		List<Integer> el = new ArrayList<>();
 		for (Enchantment en : ForgeRegistries.ENCHANTMENTS.getValuesCollection()) {
 			el.add(Enchantment.getEnchantmentID(en));
 		}
@@ -45,7 +44,7 @@ public class SubGuiDropEnchant extends SubGuiInterface implements ITextfieldList
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 50) { // select
-			this.enchant.setEnchant(Integer.valueOf(button.getVariants()[button.getValue()]));
+			this.enchant.setEnchant(Integer.parseInt(button.getVariants()[button.getValue()]));
 			this.initGui();
 		} else if (button.id == 51) { // done
 			this.close();
@@ -58,21 +57,18 @@ public class SubGuiDropEnchant extends SubGuiInterface implements ITextfieldList
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		String tied = new TextComponentTranslation("drop.tied.random", new Object[0]).getFormattedText();
+		String tied = new TextComponentTranslation("drop.tied.random").getFormattedText();
 		if (this.enchant.parent.tiedToLevel) {
-			tied = new TextComponentTranslation("drop.tied.level", new Object[0]).getFormattedText();
+			tied = new TextComponentTranslation("drop.tied.level").getFormattedText();
 		}
 		if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 19, 76, 16)) {
-			this.setHoverText(
-					new TextComponentTranslation("drop.hover.enchant.list", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.enchant.list").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 41, 46, 24)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.enchant.levels",
-					new Object[] { "" + this.enchant.ench.getMaxLevel(), tied }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.enchant.levels", "" + this.enchant.ench.getMaxLevel(), tied).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 71, 46, 16)) {
-			this.setHoverText(
-					new TextComponentTranslation("drop.hover.enchant.chance", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.enchant.chance").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 144, 76, 16)) {
-			this.setHoverText(new TextComponentTranslation("hover.back", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
 		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
@@ -85,8 +81,7 @@ public class SubGuiDropEnchant extends SubGuiInterface implements ITextfieldList
 		super.initGui();
 		int anyIDs = 60;
 		// name
-		String name = new TextComponentTranslation("drop.enchants", new Object[0]).getFormattedText() + ": "
-				+ new TextComponentTranslation(this.enchant.getEnchant(), new Object[0]).getFormattedText();
+		String name = new TextComponentTranslation("drop.enchants").getFormattedText() + ": " + new TextComponentTranslation(this.enchant.getEnchant()).getFormattedText();
 		this.addLabel(new GuiNpcLabel(anyIDs++, name, this.guiLeft + 4, this.guiTop + 5));
 		// select
 		int posId = 0;
@@ -99,17 +94,15 @@ public class SubGuiDropEnchant extends SubGuiInterface implements ITextfieldList
 		// levels
 		this.levels = new int[] { this.enchant.getMinLevel(), this.enchant.getMaxLevel() };
 		this.addLabel(new GuiNpcLabel(anyIDs++, "type.level", this.guiLeft + 56, this.guiTop + 48));
-		GuiNpcTextField levelMin = new GuiNpcTextField(52, (GuiScreen) this, this.guiLeft + 4, this.guiTop + 39, 50, 14,
-				"" + this.levels[0]);
+		GuiNpcTextField levelMin = new GuiNpcTextField(52, this, this.guiLeft + 4, this.guiTop + 39, 50, 14, "" + this.levels[0]);
 		levelMin.setNumbersOnly().setMinMaxDefault(0, 100000, this.enchant.getMinLevel());
 		this.addTextField(levelMin);
-		GuiNpcTextField levelMax = new GuiNpcTextField(53, (GuiScreen) this, this.guiLeft + 4, this.guiTop + 53, 50, 14,
-				"" + this.levels[1]);
+		GuiNpcTextField levelMax = new GuiNpcTextField(53, this, this.guiLeft + 4, this.guiTop + 53, 50, 14, "" + this.levels[1]);
 		levelMax.setNumbersOnly().setMinMaxDefault(0, 100000, this.enchant.getMaxLevel());
 		this.addTextField(levelMax);
 		// chance
-		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.chance", this.guiLeft + 56, this.guiTop + 74));
-		GuiNpcTextField chanceE = new GuiNpcTextField(54, (GuiScreen) this, this.guiLeft + 4, this.guiTop + 69, 50, 20,
+		this.addLabel(new GuiNpcLabel(anyIDs, "drop.chance", this.guiLeft + 56, this.guiTop + 74));
+		GuiNpcTextField chanceE = new GuiNpcTextField(54, this, this.guiLeft + 4, this.guiTop + 69, 50, 20,
 				String.valueOf(this.enchant.getChance()));
 		chanceE.setDoubleNumbersOnly().setMinMaxDoubleDefault(0.0001d, 100.0d, this.enchant.getChance());
 		this.addTextField(chanceE);

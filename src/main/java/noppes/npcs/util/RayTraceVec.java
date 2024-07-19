@@ -12,14 +12,6 @@ public class RayTraceVec {
 		this.yaw = 0.0d;
 	}
 
-	public RayTraceVec(double x, double y, double z, double yaw) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.radius = 0.0d;
-		this.yaw = yaw;
-	}
-
 	public void calculatePos(double cx, double cy, double cz, double yaw, double pitch, double radius) {
 		if (radius < 0.0d) {
 			radius *= -1.0d;
@@ -45,10 +37,12 @@ public class RayTraceVec {
 
 		if (xVal == 0.0d) {
 			this.yaw = dz > mz ? 180.0d : 0.0d;
-		} else if (xVal <= 0.0d) {
-			this.yaw = 90.0d + Math.atan(zVal / xVal) * rad1;
 		} else {
-			this.yaw = 270.0d + Math.atan(zVal / xVal) * rad1;
+			if (xVal <= 0.0d) {
+				this.yaw = 90.0d + Math.atan(zVal / xVal) * rad1;
+			} else {
+				this.yaw = 270.0d + Math.atan(zVal / xVal) * rad1;
+			}
 		}
 		this.yaw %= 360.0d;
 		if (this.yaw < 0.0d) {

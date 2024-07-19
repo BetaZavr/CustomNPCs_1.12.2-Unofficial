@@ -3,6 +3,7 @@ package noppes.npcs.client.model.animation;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.entity.data.IAnimationPart;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.util.ValueUtil;
@@ -103,13 +104,13 @@ public class PartConfig implements IAnimationPart {
 
 	public void readNBT(NBTTagCompound compound) {
 		for (int i = 0; i < 3; i++) {
-			try { this.rotation[i] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { }
-			try { this.offset[i] = ValueUtil.correctFloat(compound.getTagList("Offset", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { }
-			try { this.scale[i] = ValueUtil.correctFloat(compound.getTagList("Scale", 5).getFloatAt(i), 0.0f, 5.0f); } catch (Exception e) { }
+			try { this.rotation[i] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { this.offset[i] = ValueUtil.correctFloat(compound.getTagList("Offset", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { this.scale[i] = ValueUtil.correctFloat(compound.getTagList("Scale", 5).getFloatAt(i), 0.0f, 5.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		if (compound.getTagList("Rotation", 5).tagCount() >= 5) {
-			try { this.rotation[3] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(3), -1.0f, 1.0f); } catch (Exception e) { }
-			try { this.rotation[4] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(4), -1.0f, 1.0f); } catch (Exception e) { }
+			try { this.rotation[3] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(3), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { this.rotation[4] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(4), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		this.id = compound.getInteger("Part");
 		this.disable = compound.getBoolean("Disabled");

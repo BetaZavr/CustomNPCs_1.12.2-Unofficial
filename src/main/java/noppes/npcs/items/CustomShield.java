@@ -16,9 +16,12 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.AdditionalMethods;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class CustomShield extends ItemShield implements ICustomElement {
 
-	protected NBTTagCompound nbtData = new NBTTagCompound();
+	protected NBTTagCompound nbtData;
 	protected ItemStack repairItemStack = ItemStack.EMPTY;
 	protected int enchantability = 0;
 	protected Item.ToolMaterial material = Item.ToolMaterial.WOOD;
@@ -48,7 +51,7 @@ public class CustomShield extends ItemShield implements ICustomElement {
 		if (nbtItem.hasKey("IsFull3D", 1) && nbtItem.getBoolean("IsFull3D")) {
 			this.setFull3D();
 		}
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
+		this.setCreativeTab(CustomRegisters.tabItems);
 	}
 
 	@Override
@@ -58,10 +61,10 @@ public class CustomShield extends ItemShield implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+	public boolean getIsRepairable(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
 		ItemStack mat = this.repairItemStack;
 		if (this.repairItemStack.isEmpty()) {
 			mat = this.material.getRepairItemStack();
@@ -79,11 +82,11 @@ public class CustomShield extends ItemShield implements ICustomElement {
 		return super.getItemEnchantability();
 	}
 
-	public String getItemStackDisplayName(ItemStack stack) {
+	public @Nonnull String getItemStackDisplayName(@Nonnull ItemStack stack) {
 		return new TextComponentTranslation(this.getUnlocalizedNameInefficiently(stack) + ".name").getFormattedText();
 	}
 
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
@@ -97,7 +100,7 @@ public class CustomShield extends ItemShield implements ICustomElement {
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return this.nbtData.getByte("BlockType"); }
 		return 4;
 	}
 

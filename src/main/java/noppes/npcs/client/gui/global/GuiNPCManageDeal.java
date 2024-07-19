@@ -23,7 +23,7 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements ITextfieldListener {
 
-	private Deal deal;
+	private final Deal deal;
 
 	public GuiNPCManageDeal(EntityNPCInterface npc, ContainerNPCTraderSetup cont) {
 		super(npc, cont);
@@ -74,10 +74,8 @@ public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements IText
 		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		for (int slotId = 0; slotId < 10; ++slotId) {
-			if (this.inventorySlots.getSlot(slotId) == null) {
-				return;
-			}
-			int x = this.guiLeft + this.inventorySlots.getSlot(slotId).xPos;
+            this.inventorySlots.getSlot(slotId);
+            int x = this.guiLeft + this.inventorySlots.getSlot(slotId).xPos;
 			int y = this.guiTop + this.inventorySlots.getSlot(slotId).yPos;
 			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -123,7 +121,7 @@ public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements IText
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("recipe.hover.nbt").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover").getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.set.type").getFormattedText());
 		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
@@ -191,7 +189,7 @@ public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements IText
 				new String[] { "market.deal.type.0", "market.deal.type.1", "market.deal.type.2" },
 				this.deal.getType()));
 
-		this.addButton(new GuiNpcButton(66, x, (y += 22), 80, 20, "gui.back"));
+		this.addButton(new GuiNpcButton(66, x, y + 22, 80, 20, "gui.back"));
 	}
 
 	@Override

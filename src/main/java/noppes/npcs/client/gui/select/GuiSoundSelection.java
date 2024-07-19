@@ -21,9 +21,11 @@ import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.util.ObfuscationHelper;
 
+import javax.annotation.Nonnull;
+
 public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollListener {
 
-	private HashMap<String, List<String>> domains;
+	private final HashMap<String, List<String>> domains;
 	private GuiCustomScroll scrollCategories;
 	private GuiCustomScroll scrollQuests;
 	private String selectedDomain;
@@ -31,22 +33,21 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 	private String oldPlay = "";
 
 	public GuiSoundSelection(String sound) {
-		this.domains = new HashMap<String, List<String>>();
+		this.domains = new HashMap<>();
 		this.drawDefaultBackground = false;
 		this.title = "";
 		this.setBackground("menubg.png");
 		this.xSize = 366;
 		this.ySize = 226;
 		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
-		SoundRegistry registry = (SoundRegistry) ObfuscationHelper.getValue(SoundHandler.class, handler, 4);
-		Set<ResourceLocation> set = registry.getKeys();
-		for (ResourceLocation location : set) {
-			List<String> list = this.domains.get(location.getResourceDomain());
-			if (list == null) {
-				this.domains.put(location.getResourceDomain(), list = new ArrayList<String>());
+		SoundRegistry registry = ObfuscationHelper.getValue(SoundHandler.class, handler, 4);
+		if (registry != null) {
+			Set<ResourceLocation> set = registry.getKeys();
+			for (ResourceLocation location : set) {
+				List<String> list = this.domains.computeIfAbsent(location.getResourceDomain(), k -> new ArrayList<>());
+				list.add(location.getResourcePath());
+				this.domains.put(location.getResourceDomain(), list);
 			}
-			list.add(location.getResourcePath());
-			this.domains.put(location.getResourceDomain(), list);
 		}
 		if (sound != null && !sound.isEmpty()) {
 			this.selectedResource = new ResourceLocation(sound);
@@ -58,7 +59,7 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 	}
 
 	@Override
-	public void actionPerformed(GuiButton guibutton) {
+	public void actionPerformed(@Nonnull GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		if (button.id == 1 && MusicController.Instance.isPlaying(this.oldPlay)) {
 			MusicController.Instance.stopSound(this.oldPlay, SoundCategory.PLAYERS);

@@ -24,8 +24,8 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 
 	public ContainerNPCFollowerHire container;
 	public EntityNPCInterface npc;
-	private ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/followerhire.png");
-	private RoleFollower role;
+	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/follower.png");
+	private final RoleFollower role;
 
 	public GuiNpcFollowerHire(EntityNPCInterface npc, ContainerNPCFollowerHire container) {
 		super(npc, container);
@@ -86,11 +86,7 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 		}
 	}
 
-	@Override
-	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-	}
-
-	@Override
+    @Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		for (int i = 0; i < 3; ++i) {
 			if (this.getButton(i) == null) {
@@ -136,8 +132,7 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 					new TextComponentTranslation("follower.hire").getFormattedText()));
 		}
 		if (this.role.rates.containsKey(3) && this.role.rentalMoney > 0) {
-			this.addButton(new GuiNpcButton(3, x, y += 18, 50, 14,
-					new TextComponentTranslation("follower.hire").getFormattedText()));
+			this.addButton(new GuiNpcButton(3, x, y + 18, 50, 14, new TextComponentTranslation("follower.hire").getFormattedText()));
 		}
 	}
 

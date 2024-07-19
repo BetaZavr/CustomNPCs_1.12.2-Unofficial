@@ -20,16 +20,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class NpcRecipeBookPage {
 
 	private GuiButtonToggle backButton;
-	private List<GuiNPCButtonRecipe> buttons = Lists.<GuiNPCButtonRecipe>newArrayListWithCapacity(20);
+	private final List<GuiNPCButtonRecipe> buttons = Lists.newArrayListWithCapacity(20);
 	private int currentPage;
 	private GuiButtonToggle forwardButton;
 	private GuiNPCButtonRecipe hoveredButton;
 	public boolean isGlobal;
 	private IRecipe lastClickedRecipe;
 	private RecipeList lastClickedRecipeList;
-	private List<IRecipeUpdateListener> listeners = Lists.<IRecipeUpdateListener>newArrayList();
+	private final List<IRecipeUpdateListener> listeners = Lists.newArrayList();
 	private Minecraft minecraft;
-	private GuiNpcRecipeOverlay overlay;
+	private final GuiNpcRecipeOverlay overlay;
 	private RecipeBook recipeBook;
 	private List<RecipeList> recipeLists;
 	private int totalPages;
@@ -61,7 +61,7 @@ public class NpcRecipeBookPage {
 		this.minecraft = mc;
 		this.recipeBook = mc.player.getRecipeBook();
 		for (int i = 0; i < this.buttons.size(); ++i) {
-			((GuiNPCButtonRecipe) this.buttons.get(i)).setPosition(u + 11 + 25 * (i % 5), v + 31 + 25 * (i / 5));
+			this.buttons.get(i).setPosition(u + 11 + 25 * (i % 5), v + 31 + 25 * (i / 5));
 		}
 		this.forwardButton = new GuiButtonToggle(0, u + 93, v + 137, 12, 17, false);
 		this.forwardButton.initTextureValues(1, 208, 13, 18, GuiNpcRecipeBook.RECIPE_BOOK);

@@ -1,28 +1,14 @@
 package noppes.npcs;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import com.google.common.reflect.ClassPath;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -47,7 +33,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
@@ -113,12 +98,13 @@ import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.quests.QuestObjective;
-import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
+
+import javax.annotation.Nonnull;
 
 public class PlayerEventHandler {
 
-	public class ForgeEventHandler {
+	public static class ForgeEventHandler {
 		@SubscribeEvent
 		public void forgeEntity(Event event) {
 			EventHooks.onForgeEvent(new ForgeEvent(event));
@@ -134,7 +120,7 @@ public class PlayerEventHandler {
 				continue;
 			}
 			boolean bo = data.quest.step == 1;
-			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 				if (data.quest.step == 1 && !bo) {
 					break;
 				}
@@ -207,14 +193,7 @@ public class PlayerEventHandler {
 		}
 	}
 
-	public boolean isReplaceable(World w, BlockPos pos) {
-		IBlockState state = w.getBlockState(pos);
-		Block b = state.getBlock();
-		return b.isLeaves(state, w, pos) || b.isWood(w, pos)
-				|| (state.getMaterial().isReplaceable() && !(b instanceof BlockLiquid));
-	}
-
-	@SubscribeEvent
+    @SubscribeEvent
 	public void npcArrowLooseEvent(ArrowLooseEvent event) {
 		if (event.getEntityPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
 			return;
@@ -234,7 +213,7 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcBlockBreakEvent");
 		PlayerScriptData handler = PlayerData.get(event.getPlayer()).scriptData;
 		PlayerEvent.BreakEvent ev = new PlayerEvent.BreakEvent(handler.getPlayer(),
-				NpcAPI.Instance().getIBlock(event.getWorld(), event.getPos()), event.getExpToDrop());
+				Objects.requireNonNull(NpcAPI.Instance()).getIBlock(event.getWorld(), event.getPos()), event.getExpToDrop());
 		event.setCanceled(EventHooks.onPlayerBreak(handler, ev));
 		event.setExpToDrop(ev.exp);
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcBlockBreakEvent");
@@ -282,7 +261,7 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcItemCraftedEvent");
 		EventHooks.onPlayerCrafted(PlayerData.get(event.player).scriptData, event.crafting, event.craftMatrix);
 		event.player.world.getChunkFromChunkCoords(0, 0).onLoad();
-		if (event.crafting != null && !event.crafting.isEmpty()) {
+		if (!event.crafting.isEmpty()) {
 			this.doCraftQuest(event);
 		}
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcItemCraftedEvent");
@@ -342,7 +321,7 @@ public class PlayerEventHandler {
 			PlayerData data = PlayerData.get((EntityPlayer) source);
 			PlayerScriptData handler = data.scriptData;
 			ItemStack item = ((EntityPlayer) source).getHeldItemMainhand();
-			IEntity<?> target = NpcAPI.Instance().getIEntity(event.getEntityLiving());
+			IEntity<?> target = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(event.getEntityLiving());
 			PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 1, target);
 			event.setCanceled(EventHooks.onPlayerAttack(handler, ev));
 			if (event.isCanceled() || ev.isCanceled()) {
@@ -358,28 +337,15 @@ public class PlayerEventHandler {
 				for (EntityNPCInterface npc : data.game.getMercenaries()) {
 					if (!npc.isAttacking()) {
 						npc.setAttackTarget(event.getEntityLiving());
-					} else if (npc.aiTargetAnalysis != null) {
-						npc.aiTargetAnalysis.addDamageFromEntity(event.getEntityLiving(), event.getAmount() * 1.2d);
-					}
-					if (event.getEntityLiving() instanceof EntityNPCInterface
-							&& ((EntityNPCInterface) event.getEntityLiving()).aiTargetAnalysis != null) {
-						((EntityNPCInterface) event.getEntityLiving()).aiTargetAnalysis.addDamageFromEntity(npc,
-								event.getAmount());
 					}
 				}
 			}
 		}
-		if (event.getEntityLiving() instanceof EntityPlayer && source instanceof EntityLivingBase
-				&& !event.isCanceled()) {
+		if (event.getEntityLiving() instanceof EntityPlayer && source instanceof EntityLivingBase && !event.isCanceled()) {
 			PlayerData data = PlayerData.get((EntityPlayer) event.getEntityLiving());
 			for (EntityNPCInterface npc : data.game.getMercenaries()) {
 				if (!npc.isAttacking()) {
 					npc.setAttackTarget((EntityLivingBase) source);
-				} else if (npc.aiTargetAnalysis != null) {
-					npc.aiTargetAnalysis.addDamageFromEntity((EntityLivingBase) source, event.getAmount() * 1.2d);
-				}
-				if (source instanceof EntityNPCInterface && ((EntityNPCInterface) source).aiTargetAnalysis != null) {
-					((EntityNPCInterface) source).aiTargetAnalysis.addDamageFromEntity(npc, event.getAmount());
 				}
 			}
 		}
@@ -469,13 +435,11 @@ public class PlayerEventHandler {
 			return;
 		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
-		PlayerEvent.InteractEvent ev = new PlayerEvent.InteractEvent(handler.getPlayer(), 1,
-				NpcAPI.Instance().getIEntity(event.getTarget()));
+		PlayerEvent.InteractEvent ev = new PlayerEvent.InteractEvent(handler.getPlayer(), 1, Objects.requireNonNull(NpcAPI.Instance()).getIEntity(event.getTarget()));
 		event.setCanceled(EventHooks.onPlayerInteract(handler, ev));
 		if (event.getItemStack().getItem() == CustomRegisters.scripted_item && !event.isCanceled()) {
 			ItemScriptedWrapper isw = ItemScripted.GetWrapper(event.getItemStack());
-			ItemEvent.InteractEvent eve = new ItemEvent.InteractEvent(isw, handler.getPlayer(), 1,
-					NpcAPI.Instance().getIEntity(event.getTarget()));
+			ItemEvent.InteractEvent eve = new ItemEvent.InteractEvent(isw, handler.getPlayer(), 1, Objects.requireNonNull(NpcAPI.Instance()).getIEntity(event.getTarget()));
 			event.setCanceled(EventHooks.onScriptItemInteract(isw, eve));
 		}
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerEntityInteractEvent");
@@ -501,13 +465,11 @@ public class PlayerEventHandler {
 			return;
 		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
-		PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 2,
-				NpcAPI.Instance().getIBlock(event.getWorld(), event.getPos()));
+		PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 2, Objects.requireNonNull(NpcAPI.Instance()).getIBlock(event.getWorld(), event.getPos()));
 		event.setCanceled(EventHooks.onPlayerAttack(handler, ev));
 		if (event.getItemStack().getItem() == CustomRegisters.scripted_item && !event.isCanceled()) {
 			ItemScriptedWrapper isw = ItemScripted.GetWrapper(event.getItemStack());
-			ItemEvent.AttackEvent eve = new ItemEvent.AttackEvent(isw, handler.getPlayer(), 2,
-					NpcAPI.Instance().getIBlock(event.getWorld(), event.getPos()));
+			ItemEvent.AttackEvent eve = new ItemEvent.AttackEvent(isw, handler.getPlayer(), 2, Objects.requireNonNull(NpcAPI.Instance()).getIBlock(event.getWorld(), event.getPos()));
 			eve.setCanceled(event.isCanceled());
 			event.setCanceled(EventHooks.onScriptItemAttack(isw, eve));
 		}
@@ -526,7 +488,8 @@ public class PlayerEventHandler {
 		EntityPlayerMP player = (EntityPlayerMP) event.player;
 		PlayerSkinController.getInstance().logged(player);
 		MinecraftServer server = event.player.getServer();
-		for (WorldServer world : server.worlds) {
+        assert server != null;
+        for (WorldServer world : server.worlds) {
 			ServerScoreboard board = (ServerScoreboard) world.getScoreboard();
 			for (String objective : Availability.scores) {
 				ScoreObjective so = board.getObjective(objective);
@@ -540,18 +503,18 @@ public class PlayerEventHandler {
 			}
 		}
 		event.player.inventoryContainer.addListener(new IContainerListener() {
-			public void sendAllContents(Container containerToSend, NonNullList<ItemStack> itemsList) {
+			public void sendAllContents(@Nonnull Container containerToSend, @Nonnull NonNullList<ItemStack> itemsList) {
 			}
 
-			public void sendAllWindowProperties(Container containerIn, IInventory inventory) {
+			public void sendAllWindowProperties(@Nonnull Container containerIn, @Nonnull IInventory inventory) {
 			}
 
-			public void sendSlotContents(Container containerToSend, int slotInd, ItemStack stack) {
+			public void sendSlotContents(@Nonnull Container containerToSend, int slotInd, @Nonnull ItemStack stack) {
 				if (player.world.isRemote) {
 					return;
 				}
 				for (QuestData qd : data.questData.activeQuests.values()) { // Changed
-					for (IQuestObjective obj : qd.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+					for (IQuestObjective obj : qd.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 						if (obj.getType() != 0) {
 							continue;
 						}
@@ -560,11 +523,11 @@ public class PlayerEventHandler {
 				}
 			}
 
-			public void sendWindowProperty(Container containerIn, int varToUpdate, int newValue) {
+			public void sendWindowProperty(@Nonnull Container containerIn, int varToUpdate, int newValue) {
 			}
 		});
 		if (server.isSnooperEnabled()) {
-			String serverName = null;
+			String serverName;
 			if (server.isDedicatedServer()) {
 				serverName = "server";
 			} else {
@@ -572,7 +535,8 @@ public class PlayerEventHandler {
 			}
 			AnalyticsTracking.sendData(event.player, "join", serverName);
 		}
-		Server.sendData(player, EnumPacketClient.DIMENSIOS_IDS, DimensionHandler.getInstance().getAllIDs());
+		Object array = DimensionHandler.getInstance().getAllIDs();
+		Server.sendData(player, EnumPacketClient.DIMENSION_IDS, array);
 		SyncController.syncPlayer((EntityPlayerMP) event.player);
 		if (data.game.logPos != null) { // protection against remote measurements
 			NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) event.player, data.game.logPos[0], data.game.logPos[1],
@@ -602,28 +566,25 @@ public class PlayerEventHandler {
 		if (dim instanceof CustomWorldInfo) { // protection against remote measurements
 			data.game.logPos = new double[] { event.player.posX, event.player.posY, event.player.posZ,
 					event.player.world.provider.getDimension() };
-			WorldServer world = event.player.getServer().getWorld(0);
+			WorldServer world = Objects.requireNonNull(event.player.getServer()).getWorld(0);
 			BlockPos coords = world.getSpawnCoordinate();
-			double x = 0, y = 70, z = 0;
 			if (coords == null) {
 				coords = world.getSpawnPoint();
 			}
-			if (coords != null) {
-				if (!world.isAirBlock(coords)) {
-					coords = world.getTopSolidOrLiquidBlock(coords);
-				} else if (!world.isAirBlock(coords.up())) {
-					while (world.isAirBlock(coords) && coords.getY() > 0) {
-						coords = coords.down();
-					}
-					if (coords.getY() == 0) {
-						coords = world.getTopSolidOrLiquidBlock(coords);
-					}
-				}
-				x = coords.getX();
-				y = coords.getY();
-				z = coords.getZ();
-			}
-			NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) event.player, x, y, z, 0, event.player.rotationYaw,
+            if (!world.isAirBlock(coords)) {
+                coords = world.getTopSolidOrLiquidBlock(coords);
+            } else if (!world.isAirBlock(coords.up())) {
+                while (world.isAirBlock(coords) && coords.getY() > 0) {
+                    coords = coords.down();
+                }
+                if (coords.getY() == 0) {
+                    coords = world.getTopSolidOrLiquidBlock(coords);
+                }
+            }
+			double x = coords.getX();
+			double y = coords.getY();
+			double z = coords.getZ();
+            NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) event.player, x, y, z, 0, event.player.rotationYaw,
 					event.player.rotationPitch);
 		} else {
 			data.game.logPos = null;
@@ -658,12 +619,12 @@ public class PlayerEventHandler {
 		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
 		handler.hadInteract = true;
-		PlayerEvent.InteractEvent ev = new PlayerEvent.InteractEvent(handler.getPlayer(), 2, NpcAPI.Instance().getIBlock(event.getWorld(), event.getPos()));
+		PlayerEvent.InteractEvent ev = new PlayerEvent.InteractEvent(handler.getPlayer(), 2, Objects.requireNonNull(NpcAPI.Instance()).getIBlock(event.getWorld(), event.getPos()));
 		event.setCanceled(EventHooks.onPlayerInteract(handler, ev));
 		if (event.getItemStack().getItem() == CustomRegisters.scripted_item && !event.isCanceled()) {
 			ItemScriptedWrapper isw = ItemScripted.GetWrapper(event.getItemStack());
 			ItemEvent.InteractEvent eve = new ItemEvent.InteractEvent(isw, handler.getPlayer(), 2,
-					NpcAPI.Instance().getIBlock(event.getWorld(), event.getPos()));
+					Objects.requireNonNull(NpcAPI.Instance()).getIBlock(event.getWorld(), event.getPos()));
 			event.setCanceled(EventHooks.onScriptItemInteract(isw, eve));
 		}
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
@@ -737,7 +698,7 @@ public class PlayerEventHandler {
 			return;
 		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcServerChatEvent");
-		PlayerScriptData handler = PlayerData.get((EntityPlayer) event.getPlayer()).scriptData;
+		PlayerScriptData handler = PlayerData.get(event.getPlayer()).scriptData;
 		String message = event.getMessage();
 		PlayerEvent.ChatEvent ev = new PlayerEvent.ChatEvent(handler.getPlayer(), event.getMessage());
 		EventHooks.onPlayerChat(handler, ev);
@@ -765,7 +726,7 @@ public class PlayerEventHandler {
 			for (int i = 0; i < player.inventory.getSizeInventory(); ++i) {
 				ItemStack item = player.inventory.getStackInSlot(i);
 				if (!item.isEmpty() && item.getItem() == CustomRegisters.scripted_item) {
-					ItemScriptedWrapper isw = (ItemScriptedWrapper) NpcAPI.Instance().getIItemStack(item);
+					ItemScriptedWrapper isw = (ItemScriptedWrapper) Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(item);
 					EventHooks.onScriptItemUpdate(isw, player);
 					if (isw.updateClient) {
 						isw.updateClient = false;
@@ -785,8 +746,8 @@ public class PlayerEventHandler {
 				player.setSpawnDimension(dimId);
 				player.setSpawnPoint(player.getPosition(), true);
 				player.setSpawnChunk(player.getPosition(), true, dimId);
-				try { ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 27); } catch (Exception e) { e.printStackTrace(); } // bedLocation
-				try { ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 32); } catch (Exception e) { e.printStackTrace(); } // spawnPos
+				try { ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 27); } catch (Exception e) { LogWriter.error("Error player set bed location:", e); } // bedLocation
+				try { ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 32); } catch (Exception e) { LogWriter.error("Error player set spawn pos:", e); } // spawnPos
 			}
 			data.game.dimID = event.player.world.provider.getDimension();
 		}
@@ -798,7 +759,7 @@ public class PlayerEventHandler {
 		LogWriter.info("CustomNpcs: Start load Forge Events:");
 		CustomNpcs.debugData.startDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		CustomNpcs.forgeEventNames.clear();
-		List<Class<?>> listCalsses = new ArrayList<Class<?>>();
+		List<Class<?>> listClasses = new ArrayList<>();
 		try {
 			// Get Maim mod Method for All Events
 			Method m = handler.getClass().getMethod("forgeEntity", Event.class);
@@ -809,20 +770,17 @@ public class PlayerEventHandler {
 			ClassPath loader = ClassPath.from(this.getClass().getClassLoader());
 
 			// Get all loaded Forge event classes
-			List<ClassPath.ClassInfo> list = new ArrayList<ClassPath.ClassInfo>(loader.getTopLevelClassesRecursive("net.minecraftforge.event"));
+			List<ClassPath.ClassInfo> list = new ArrayList<>(loader.getTopLevelClassesRecursive("net.minecraftforge.event"));
 			list.addAll(loader.getTopLevelClassesRecursive("net.minecraftforge.fml.common"));
-			// New
-			if (list.size() < 100) { // It shouldn't be like this, but perhaps the manual filling option
-				LogWriter.error("CustomNpcs Error: Not found Forge Events in Loaded Classes");
-				LogWriter.info("CustomNpcs: Trying to download manually");
-				int i = 0;
-				boolean notBreak = true;
-				while (notBreak) {
-					Class<?> c = null;
-					i++;
-					try {
-						switch (i) {
-						/** Forge Event Classes */
+
+			int i = 0;
+			boolean notBreak = true;
+			while (notBreak) {
+				Class<?> c = null;
+				i++;
+				try {
+					switch (i) {
+						// Forge Event Classes
 						case 1: {
 							c = Class.forName("net.minecraftforge.event.AnvilUpdateEvent");
 							break;
@@ -1284,40 +1242,38 @@ public class PlayerEventHandler {
 							notBreak = false;
 							break;
 						}
-						}
-					} catch (ClassNotFoundException e) {
-						continue;
 					}
-					if (c != null && !listCalsses.contains(c)) {
-						listCalsses.add(c);
-					}
+				} catch (ClassNotFoundException e) {
+					continue;
+				}
+				if (c != null && !listClasses.contains(c)) {
+					listClasses.add(c);
 				}
 			}
 			for (ClassPath.ClassInfo info : list) {
 				String name = info.getName();
 				if (name.startsWith("net.minecraftforge.event.terraingen")) { continue; }
-				try { listCalsses.add(info.load()); } catch (Throwable t) { t.printStackTrace(); }
+				try { listClasses.add(info.load()); } catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			// Not Assing List
-			List<Class<?>> notAssingException = new ArrayList<Class<?>>();
+			List<Class<?>> notAssingException = new ArrayList<>();
 			notAssingException.add(GenericEvent.class);
 			notAssingException.add(EntityEvent.EntityConstructing.class);
 			notAssingException.add(WorldEvent.PotentialSpawns.class);
 
-			List<Class<?>> isClientEvents = new ArrayList<Class<?>>();
+			List<Class<?>> isClientEvents = new ArrayList<>();
 			isClientEvents.add(ItemTooltipEvent.class);
 			isClientEvents.add(GetCollisionBoxesEvent.class);
 			isClientEvents.add(TickEvent.RenderTickEvent.class);
 			isClientEvents.add(TickEvent.ClientTickEvent.class);
 			isClientEvents.add(FMLNetworkEvent.ClientCustomPacketEvent.class);
 			// Set the main method of the mod for each event
-			for (Class<?> infoClass : listCalsses) {
+			for (Class<?> infoClass : listClasses) {
 				boolean isClient = false;
 				Class<?> debugClass = null;
 				try {
 					String pfx = "";
-					// if (ms.containsKey(infoClass)) { pfx = ms.get(infoClass); }
-					List<Class<?>> classes = new ArrayList<Class<?>>(Arrays.asList(infoClass.getDeclaredClasses()));
+					List<Class<?>> classes = new ArrayList<>(Arrays.asList(infoClass.getDeclaredClasses()));
 					if (classes.isEmpty()) {
 						classes.add(infoClass);
 					}
@@ -1325,7 +1281,7 @@ public class PlayerEventHandler {
 					// Registering events from classes
 					for (Class<?> c : classes) {
 						debugClass = c;
-						// Cheak
+						// Check
 						boolean canAdd = true;
 						for (Class<?> nae : notAssingException) {
 							if (nae.isAssignableFrom(c)) {
@@ -1348,25 +1304,15 @@ public class PlayerEventHandler {
 						// Put Name
 						String eventName = c.getName();
 						if (!isClient) {
-							isClient = eventName.toLowerCase().indexOf("client") != -1
-									|| eventName.toLowerCase().indexOf("render") != -1;
+							isClient = eventName.toLowerCase().contains("client") || eventName.toLowerCase().contains("render");
 						}
-						int i = eventName.lastIndexOf(".");
+						i = eventName.lastIndexOf(".");
 						eventName = pfx + StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
-						if (CustomNpcs.forgeEventNames.containsValue(eventName)) {
-							continue;
-						}
-						// Add
-						if (side == Side.CLIENT || !isClient) {
-							register.invoke(MinecraftForge.EVENT_BUS, c, handler, m,
-									Loader.instance().activeModContainer());
-						}
-						CustomNpcs.forgeClientEventNames.put(c, eventName);
-						if (!isClient) {
-							CustomNpcs.forgeEventNames.put(c, eventName);
-						}
-						// LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event
-						// "+c.getName());
+						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
+						register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
+						if (!isClient) { CustomNpcs.forgeEventNames.put(c, eventName); }
+						else { CustomNpcs.forgeClientEventNames.put(c, eventName); }
+						LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event " +c.getName());
 					}
 				} catch (Exception t) {
 					LogWriter.error("[" + side + "] CustomNpcs Error Register Forge " + (isClient ? "client" : "server")
@@ -1380,36 +1326,27 @@ public class PlayerEventHandler {
 					f.setAccessible(true);
 					ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 					@SuppressWarnings("unchecked")
-					List<Class<?>> classes2 = new ArrayList<Class<?>>(
-							(Collection<? extends Class<?>>) f.get(classLoader));
+					List<Class<?>> classes2 = new ArrayList<>((Collection<? extends Class<?>>) f.get(classLoader));
 					for (Class<?> c2 : classes2) {
 						if (c2.getName().startsWith("com.pixelmonmod.pixelmon.api.events")
 								&& Event.class.isAssignableFrom(c2) && !Modifier.isAbstract(c2.getModifiers())
 								&& Modifier.isPublic(c2.getModifiers())) {
-							if (CustomNpcs.forgeEventNames.containsKey(c2)) {
-								continue;
-							}
+							if (CustomNpcs.forgeEventNames.containsKey(c2)) { continue; }
 							// Put Name
 							String eventName = c2.getName();
-							int i = eventName.lastIndexOf(".");
+							i = eventName.lastIndexOf(".");
 							eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
-							if (CustomNpcs.forgeEventNames.containsValue(eventName)) {
-								continue;
-							}
+							if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
 							// Add
-							register.invoke(PixelmonHelper.EVENT_BUS, c2, handler, m,
-									Loader.instance().activeModContainer());
+							register.invoke(PixelmonHelper.EVENT_BUS, c2, handler, m, Loader.instance().activeModContainer());
 							CustomNpcs.forgeEventNames.put(c2, eventName);
-							LogWriter.debug(
-									"Add Pixelmon Event[" + CustomNpcs.forgeEventNames.size() + "]; " + c2.getName());
+							LogWriter.debug("Add Pixelmon Event[" + CustomNpcs.forgeEventNames.size() + "]; " + c2.getName());
 						}
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
-		} catch (Exception e) { e.printStackTrace(); }
-		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size() + "; Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listCalsses.size() + "] classes");
+		} catch (Exception e) { LogWriter.error("Error:", e); }
+		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size() + "; Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
 		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		return this;
 	}
@@ -1428,7 +1365,7 @@ public class PlayerEventHandler {
 			entity.isDead = true;
 		}*/
 		if (player instanceof EntityPlayerMP) {
-
+			//
 		} else {
 			try {
 				/*
@@ -1549,7 +1486,7 @@ public class PlayerEventHandler {
 				System.out.println("Total replaces: "+i);
 				/**/
 			} catch (Exception e) {
-				e.printStackTrace();
+				LogWriter.error("Error:", e);
 			}
 		}
 	}

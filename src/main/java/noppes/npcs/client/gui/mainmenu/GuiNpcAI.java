@@ -21,13 +21,12 @@ import noppes.npcs.entity.data.DataAI;
 
 public class GuiNpcAI extends GuiNPCInterface2 implements ITextfieldListener, IGuiData {
 
-	private DataAI ai;
-	private String[] tacts;
+	private final DataAI ai;
+	private final String[] tactics;
 
 	public GuiNpcAI(EntityNPCInterface npc) {
 		super(npc, 6);
-		this.tacts = new String[] { "aitactics.rush", "aitactics.stagger", "aitactics.orbit", "aitactics.hitandrun",
-				"aitactics.ñommander", "aitactics.stalk", "gui.none" };
+		this.tactics = new String[] { "aitactics.rush", "aitactics.stagger", "aitactics.orbit", "aitactics.hitandrun", "aitactics.commander", "aitactics.stalk", "gui.none" };
 		this.ai = npc.ais;
 		Client.sendData(EnumPacketServer.MainmenuAIGet);
 	}
@@ -76,6 +75,8 @@ public class GuiNpcAI extends GuiNPCInterface2 implements ITextfieldListener, IG
 		}
 		if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("ai.hover.attack.range").getFormattedText());
+		} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.hurt.resistant.time").getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			ITextComponent mess = new TextComponentTranslation("ai.hover.if.see")
 					.appendSibling(new TextComponentTranslation("ai.hover.if.see." + this.getButton(0).getValue()));
@@ -167,8 +168,13 @@ public class GuiNpcAI extends GuiNPCInterface2 implements ITextfieldListener, IG
 		this.addLabel(new GuiNpcLabel(lId++, "ai.cansprint", x, (y += 25) + 7));
 		this.addButton(new GuiNpcButton(16, x + 111, y, 60, 20, new String[] { "gui.no", "gui.yes" }, (this.ai.canSprint ? 1 : 0)));
 
+		this.addLabel(new GuiNpcLabel(lId++, "ai.hurtresistanttime", x, (y += 25) + 7));
+		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, x + 112, y + 1, 58, 18, (this.ai.getMaxHurtResistantTime() / 2) + ""));
+		this.getTextField(4).setNumbersOnly();
+		this.getTextField(4).setMinMaxDefault(0, 100, this.ai.getMaxHurtResistantTime() / 2);
+
 		this.addLabel(new GuiNpcLabel(lId++, "ai.tacticalvariant", x, (y += 50) + 7));
-		this.addButton(new GuiNpcButton(17, x + 111, y, 60, 20, this.tacts, this.ai.tacticalVariant));
+		this.addButton(new GuiNpcButton(17, x + 111, y, 60, 20, this.tactics, this.ai.tacticalVariant));
 		
 		if (this.ai.tacticalVariant != 0 && this.ai.tacticalVariant != 6) {
 			String label;
@@ -192,7 +198,7 @@ public class GuiNpcAI extends GuiNPCInterface2 implements ITextfieldListener, IG
 				label = "gui.engagedistance";
 				break;
 			}
-			this.addLabel(new GuiNpcLabel(lId++, label, x, (y += 25) + 7));
+			this.addLabel(new GuiNpcLabel(lId, label, x, (y += 25) + 7));
 			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, x + 112, y + 1, 58, 18,
 					this.ai.getTacticalRange() + ""));
 			this.getTextField(3).setNumbersOnly();
@@ -200,7 +206,6 @@ public class GuiNpcAI extends GuiNPCInterface2 implements ITextfieldListener, IG
 		}
 		this.getButton(15).setEnabled(!this.ai.aiDisabled && this.ai.onAttack == 0);
 		this.getButton(17).setEnabled(!this.ai.aiDisabled && this.ai.onAttack == 0);
-		this.getButton(10).setEnabled(this.ai.tacticalVariant != 5 || this.ai.tacticalVariant != 6);
 	}
 
 	@Override
@@ -218,6 +223,11 @@ public class GuiNpcAI extends GuiNPCInterface2 implements ITextfieldListener, IG
 	public void unFocused(GuiNpcTextField textfield) {
 		if (textfield.getId() == 3) {
 			this.ai.setTacticalRange(textfield.getInteger());
+		} else if (textfield.getId() == 4) {
+			this.ai.setMaxHurtResistantTime(textfield.getInteger() * 2);
+			if (textfield.getInteger() * 2 != this.ai.getMaxHurtResistantTime()) {
+				textfield.setText("" + this.ai.getMaxHurtResistantTime());
+			}
 		}
 	}
 

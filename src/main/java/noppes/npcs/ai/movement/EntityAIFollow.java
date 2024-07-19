@@ -8,7 +8,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class EntityAIFollow
 extends EntityAIBase {
 	
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 	private EntityLivingBase owner;
 	public int updateTick;
 

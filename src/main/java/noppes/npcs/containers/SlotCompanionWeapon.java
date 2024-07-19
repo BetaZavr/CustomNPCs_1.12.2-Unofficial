@@ -7,6 +7,9 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.roles.RoleCompanion;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 class SlotCompanionWeapon extends Slot {
 	RoleCompanion role;
 
@@ -19,8 +22,7 @@ class SlotCompanionWeapon extends Slot {
 		return 1;
 	}
 
-	public boolean isItemValid(ItemStack itemstack) {
-		return !NoppesUtilServer.IsItemStackNull(itemstack)
-				&& this.role.canWearSword(NpcAPI.Instance().getIItemStack(itemstack));
+	public boolean isItemValid(@Nonnull ItemStack itemstack) {
+		return !NoppesUtilServer.IsItemStackNull(itemstack) && this.role.canWearSword(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(itemstack));
 	}
 }

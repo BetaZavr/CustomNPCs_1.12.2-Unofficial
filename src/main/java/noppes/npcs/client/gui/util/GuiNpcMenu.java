@@ -3,11 +3,9 @@ package noppes.npcs.client.gui.util;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -22,8 +20,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class GuiNpcMenu implements GuiYesNoCallback {
 
 	public int activeMenu;
-	private EntityNPCInterface npc;
-	private GuiScreen parent;
+	private final EntityNPCInterface npc;
+	private final GuiScreen parent;
 	private GuiMenuTopButton[] topButtons;
 
 	public GuiNpcMenu(GuiScreen parent, int activeMenu, EntityNPCInterface npc) {
@@ -36,15 +34,15 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 	public void confirmClicked(boolean flag, int id) {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (flag) {
-			Client.sendData(EnumPacketServer.Delete, new Object[0]);
-			mc.displayGuiScreen((GuiScreen) null);
+			Client.sendData(EnumPacketServer.Delete);
+			mc.displayGuiScreen(null);
 			mc.setIngameFocus();
 		} else {
-			NoppesUtil.openGUI((EntityPlayer) mc.player, this.parent);
+			NoppesUtil.openGUI(mc.player, this.parent);
 		}
 	}
 
-	public void drawElements(FontRenderer fontRenderer, int i, int j, Minecraft mc, float f) {
+	public void drawElements(int i, int j, Minecraft mc, float f) {
 		for (GuiMenuTopButton button : this.getTopButtons()) {
 			button.drawButton(mc, i, j, f);
 		}
@@ -111,16 +109,15 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 			}
 			if (this.npc != null) {
 				this.npc.reset();
-				Client.sendData(EnumPacketServer.NpcMenuClose, new Object[0]);
+				Client.sendData(EnumPacketServer.NpcMenuClose);
 			}
 			mc.displayGuiScreen(null);
 			mc.setIngameFocus();
 			return;
 		}
 		if (id == 66) {
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "",
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			mc.displayGuiScreen((GuiScreen) guiyesno);
+			GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+			mc.displayGuiScreen(guiyesno);
 			return;
 		}
 		PlayerData.get(mc.player).editingNpc = npc;

@@ -13,7 +13,7 @@ public class QuestData {
 
 	public final NBTTagCompound extraData = new NBTTagCompound();
 	public boolean isCompleted = false;
-	public Quest quest = null;
+	public Quest quest;
 
 	public QuestData(Quest quest) {
 		this.quest = quest;

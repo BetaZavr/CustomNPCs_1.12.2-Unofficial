@@ -30,9 +30,10 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 		implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 
 	public Lines lines;
-	private Map<String, Integer> data;
+	private final Map<String, Integer> data;
 	private GuiCustomScroll scroll;
-	private String select, title;
+	private String select;
+    private final String title;
 
 	public SubGuiNPCLinesEdit(int id, EntityNPCInterface npc, Lines lines, String title) {
 		super();
@@ -43,7 +44,7 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 		this.xSize = 256;
 		this.ySize = 217;
 		this.closeOnEsc = true;
-		this.data = Maps.<String, Integer>newLinkedHashMap();
+		this.data = Maps.newLinkedHashMap();
 		this.select = "";
 		if (title == null) {
 			title = "";
@@ -125,7 +126,7 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 		t.getStyle().setColor(TextFormatting.GRAY);
 		m.getStyle().setColor(TextFormatting.GRAY);
 		s.getStyle().setColor(TextFormatting.GRAY);
-		List<String> suffixs = Lists.<String>newArrayList();
+		List<String> suffixs = Lists.newArrayList();
 		for (int i : this.lines.lines.keySet()) {
 			Line l = this.lines.lines.get(i);
 			this.data.put(((char) 167) + "7" + i + ": " + ((char) 167) + "r" + l.getText(), i);
@@ -142,7 +143,7 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 		if (this.scroll == null) {
 			(this.scroll = new GuiCustomScroll(this, 0)).setSize(this.xSize - 12, this.ySize - 63);
 		}
-		List<String> list = Lists.<String>newArrayList(this.data.keySet());
+		List<String> list = Lists.newArrayList(this.data.keySet());
 		this.scroll.setListNotSorted(list);
 		this.scroll.guiLeft = this.guiLeft + 6;
 		this.scroll.guiTop = this.guiTop + 14;
@@ -218,17 +219,14 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 		if (this.hasSubGui()) {
 			return;
 		}
-		switch (textField.getId()) {
-		case 0: {
-			if (!this.data.containsKey(this.select) || !this.lines.lines.containsKey(this.data.get(this.select))) {
-				return;
-			}
-			this.lines.lines.get(this.data.get(this.select)).setText(textField.getText());
-			this.select = textField.getText();
-			this.initGui();
-			break;
-		}
-		}
+        if (textField.getId() == 0) {
+            if (!this.data.containsKey(this.select) || !this.lines.lines.containsKey(this.data.get(this.select))) {
+                return;
+            }
+            this.lines.lines.get(this.data.get(this.select)).setText(textField.getText());
+            this.select = textField.getText();
+            this.initGui();
+        }
 	}
 
 }

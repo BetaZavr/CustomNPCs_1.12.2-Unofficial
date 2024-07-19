@@ -1,10 +1,9 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.google.common.collect.Maps;
@@ -16,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.util.AdditionalMethods;
@@ -38,10 +38,9 @@ public class PlayerSkinController {
 		File file = CustomNpcs.Dir;
 		return file != null && !PlayerSkinController.instance.filePath.equals(file.getName());
 	}
-	public final Map<UUID, String> playerNames = Maps.<UUID, String>newHashMap();
+	public final Map<UUID, String> playerNames = Maps.newHashMap();
 
-	public final Map<UUID, Map<Type, ResourceLocation>> playerTextures = Maps
-			.<UUID, Map<Type, ResourceLocation>>newHashMap();
+	public final Map<UUID, Map<Type, ResourceLocation>> playerTextures = Maps.newHashMap();
 
 	private String filePath;
 
@@ -158,21 +157,17 @@ public class PlayerSkinController {
 			if (file.exists()) {
 				this.loadPlayerSkins(file);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		CustomNpcs.debugData.endDebug("Common", null, "loadPlayerSkins");
 	}
 
 	private void loadPlayerSkins(File file) {
 		try {
-			loadPlayerSkins(CompressedStreamTools.readCompressed(new FileInputStream(file)));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			loadPlayerSkins(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath())));
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
-	public void loadPlayerSkins(NBTTagCompound compound) throws Exception {
+	public void loadPlayerSkins(NBTTagCompound compound) {
 		playerNames.clear();
 		playerTextures.clear();
 		if (compound.hasKey("Data", 9)) {
@@ -190,7 +185,7 @@ public class PlayerSkinController {
 		} else {
 			Server.sendData(player, EnumPacketClient.PLAYER_SKIN_GET);
 		}
-		for (EntityPlayerMP pl : player.getServer().getPlayerList().getPlayers()) {
+		for (EntityPlayerMP pl : Objects.requireNonNull(player.getServer()).getPlayerList().getPlayers()) {
 			if (pl.equals(player) || !playerTextures.containsKey(pl.getUniqueID())) {
 				continue;
 			}
@@ -200,11 +195,8 @@ public class PlayerSkinController {
 
 	public void save() {
 		try {
-			CompressedStreamTools.writeCompressed(this.getNBT(),
-					(OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "player_skins.dat")));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "player_skins.dat").toPath()));
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void sendToAll(EntityPlayerMP player) {
@@ -214,7 +206,7 @@ public class PlayerSkinController {
 		}
 		playerNames.put(uuid, player.getName());
 		NBTTagCompound nbtPlayer = getNBT(uuid);
-		for (EntityPlayerMP pl : player.getServer().getPlayerList().getPlayers()) {
+		for (EntityPlayerMP pl : Objects.requireNonNull(player.getServer()).getPlayerList().getPlayers()) {
 			Server.sendData(pl, EnumPacketClient.PLAYER_SKIN_ADD, nbtPlayer);
 		}
 	}
@@ -226,13 +218,13 @@ public class PlayerSkinController {
 			playerTextures.put(uuid, Maps.newEnumMap(Type.class));
 		}
 		Map<Type, ResourceLocation> data = getData(player.getUniqueID());
-		String path = "textures/entity/custom/" + (isSmallArms ? "female" : "male") + "_" + body + "_" + bodyColor + "_"
-				+ hair + "_" + hairColor + "_" + face + "_" + eyesColor + "_" + leg + "_" + jacket + "_" + shoes;
+		StringBuilder path = new StringBuilder("textures/entity/custom/" + (isSmallArms ? "female" : "male") + "_" + body + "_" + bodyColor + "_"
+                + hair + "_" + hairColor + "_" + face + "_" + eyesColor + "_" + leg + "_" + jacket + "_" + shoes);
 		for (int id : peculiarities) {
-			path += "_" + id;
+			path.append("_").append(id);
 		}
-		path += ".png";
-		data.put(Type.SKIN, new ResourceLocation(CustomNpcs.MODID, AdditionalMethods.instance.deleteColor(path)));
+		path.append(".png");
+		data.put(Type.SKIN, new ResourceLocation(CustomNpcs.MODID, AdditionalMethods.instance.deleteColor(path.toString())));
 		playerTextures.put(uuid, data);
 		sendToAll(player);
 	}

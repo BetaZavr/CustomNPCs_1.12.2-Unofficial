@@ -6,12 +6,9 @@ import nikedemos.markovnames.MarkovDictionary;
 import nikedemos.markovnames.MarkovDictionarySPA;
 
 public class MarkovSpanish extends MarkovGenerator {
+
 	public MarkovDictionary markov2;
 	public MarkovDictionary markov3;
-
-	public MarkovSpanish() {
-		this(3, new Random());
-	}
 
 	public MarkovSpanish(int seqlen) {
 		this(seqlen, new Random());
@@ -26,7 +23,7 @@ public class MarkovSpanish extends MarkovGenerator {
 
 	@Override
 	public String fetch(int gender) {
-		String giv = "";
+		String giv;
 		String sur = this.markov3.generateWord();
 		if (gender == 0) {
 			gender = (this.rng.nextBoolean() ? 1 : 2);

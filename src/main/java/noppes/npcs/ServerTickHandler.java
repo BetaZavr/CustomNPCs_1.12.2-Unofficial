@@ -1,7 +1,6 @@
 package noppes.npcs;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,8 +28,6 @@ import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.MassBlockController;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.controllers.SyncController;
-import noppes.npcs.controllers.VisibilityController;
-import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerGameData.FollowerSet;
@@ -46,9 +43,8 @@ import noppes.npcs.util.NBTJsonUtil;
 
 public class ServerTickHandler {
 
-	private static Map<EntityPlayerMP, GameType> visibleData = Maps.<EntityPlayerMP, GameType>newHashMap();
+	private final static Map<EntityPlayerMP, GameType> visibleData = Maps.newHashMap();
 	public static int ticks;
-	public long oldTime;
 
 	public ServerTickHandler() {
 		ServerTickHandler.ticks = 0;
@@ -65,7 +61,7 @@ public class ServerTickHandler {
 			player.setHealth(1.0f);
 		}
 		PlayerData data = PlayerData.get(player);
-		long resTime = (long) player.getName().codePointAt(0);
+		long resTime = player.getName().codePointAt(0);
 		if (!ServerTickHandler.visibleData.containsKey(player)
 				|| ServerTickHandler.visibleData.get(player) != player.interactionManager.getGameType()
 				|| player.world.getTotalWorldTime() % 100L == resTime % 100L
@@ -73,13 +69,12 @@ public class ServerTickHandler {
 						&& (data.prevHeldItem.getItem() == CustomRegisters.wand
 								|| player.getHeldItemMainhand().getItem() == CustomRegisters.wand))) {
 			ServerTickHandler.visibleData.put(player, player.interactionManager.getGameType());
-			VisibilityController.onUpdate(player);
+			CustomNpcs.visibilityController.onUpdate(player);
 		}
 		if (player.world.getTotalWorldTime() % 20L == resTime % 20L) {
 			data.hud.updateHud(player);
 			data.minimap.update(player);
-			if (player.getServer() != null && player.getServer().getPlayerList() != null
-					&& player.getGameProfile() != null) {
+			if (player.getServer() != null) {
 				boolean opn = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
 				if (data.game.op != opn) {
 					data.game.op = opn;
@@ -108,8 +103,8 @@ public class ServerTickHandler {
 					if (work) {
 						cs = c.bank.ceilSettings.get(c.ceil);
 						if (!cs.openStack.isEmpty()) {
-							int count = AdditionalMethods.inventoryItemCount((EntityPlayer) player, cs.openStack,
-									(Availability) null, false, false);
+							int count = AdditionalMethods.inventoryItemCount(player, cs.openStack,
+                                    null, false, false);
 							if (count < cs.openStack.getCount()) {
 								ceil = -1;
 							}
@@ -122,8 +117,8 @@ public class ServerTickHandler {
 					work = c.items.getSizeInventory() > 0 && c.items.getSizeInventory() < cs.maxCeils;
 					if (work) {
 						if (!cs.upgradeStack.isEmpty()) {
-							int count = AdditionalMethods.inventoryItemCount((EntityPlayer) player, cs.upgradeStack,
-									(Availability) null, false, false);
+							int count = AdditionalMethods.inventoryItemCount(player, cs.upgradeStack,
+                                    null, false, false);
 							if (count < cs.upgradeStack.getCount()) {
 								ceil = -1;
 							}
@@ -160,8 +155,7 @@ public class ServerTickHandler {
 				if (npc != null && npc.advanced.roleInterface instanceof RoleFollower) {
 					if (player.world.provider.getDimension() != npc.world.provider.getDimension()) {
 						try {
-							Entity entity = AdditionalMethods.teleportEntity(player.world.getMinecraftServer(), npc,
-									player.world.provider.getDimension(), player.posX, player.posY, player.posZ);
+							Entity entity = AdditionalMethods.teleportEntity(player.world.getMinecraftServer(), npc, player.world.provider.getDimension(), player.posX, player.posY, player.posZ);
 							if (entity instanceof EntityNPCInterface) {
 								fs.dimId = entity.world.provider.getDimension();
 								fs.id = entity.getUniqueID();
@@ -169,7 +163,7 @@ public class ServerTickHandler {
 										((EntityNPCInterface) entity).ais.canSprint ? 1.3 : 1.0d);
 							}
 						} catch (CommandException e) {
-							e.printStackTrace();
+							LogWriter.error("Error when trying to move an entity:", e);
 						}
 					} else if (npc.advanced.roleInterface instanceof RoleFollower
 							&& player.getDistance(npc) > ((RoleFollower) npc.advanced.roleInterface).getRange()) {
@@ -195,7 +189,7 @@ public class ServerTickHandler {
 				if (CustomNpcs.MailTimeWhenLettersWillBeDeleted > 0) {
 					timeToRemove = CustomNpcs.MailTimeWhenLettersWillBeDeleted * 86400000L;
 				}
-				List<PlayerMail> del = Lists.<PlayerMail>newArrayList();
+				List<PlayerMail> del = Lists.newArrayList();
 				for (PlayerMail mail : data.mailData.playermail) {
 					if (player.capabilities.isCreativeMode && mail.timeWillCome > 0L) {
 						mail.timeWillCome = 0L;
@@ -267,28 +261,27 @@ public class ServerTickHandler {
 				NBTJsonUtil.resetAddedMods(o, f1);
 			}
 		} catch (Exception e) {
+			LogWriter.error("Error NBTreset :", e);
 		}
 		if (event.phase == TickEvent.Phase.END) {
 			CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			return;
 		}
 		if ((ServerTickHandler.ticks++) % 20 == 0) {
-			Thread.currentThread();
 			SchematicController.Instance.updateBuilding();
 			MassBlockController.Update();
 			MarcetController.getInstance().update();
 			for (DataScenes.SceneState state : DataScenes.StartedScenes.values()) {
 				if (!state.paused) {
-					DataScenes.SceneState sceneState = state;
-					++sceneState.ticks;
+                    ++state.ticks;
 				}
 			}
 			for (DataScenes.SceneContainer entry : DataScenes.ScenesToRun) {
 				entry.update();
 			}
-			DataScenes.ScenesToRun = new ArrayList<DataScenes.SceneContainer>();
-			if (ServerTickHandler.ticks % 6000 == 0) { // Удаление строительной даты из базы каждые 5 min, для дат без игрока
-				List<Integer> del = Lists.<Integer>newArrayList();
+			DataScenes.ScenesToRun.clear();
+			if (ServerTickHandler.ticks % 6000 == 0) { // Deleting a construction date from the database every 5 min, for dates without a player
+				List<Integer> del = Lists.newArrayList();
 				for (int id : SyncController.dataBuilder.keySet()) {
 					BuilderData bd = SyncController.dataBuilder.get(id);
 					if (bd.player == null) {

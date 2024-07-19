@@ -53,11 +53,11 @@ extends GuiNPCInterface2
 implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener, ISliderListener, GuiYesNoCallback {
 
 	public static final ResourceLocation etns = new ResourceLocation(CustomNpcs.MODID, "textures/gui/emotion/buttons.png");
-	
-	private DataAnimation animation;
+
+	private final DataAnimation animation;
 	private GuiCustomScroll scroll;
-	private final Map<String, EmotionConfig> dataEmtns = Maps.<String, EmotionConfig>newTreeMap();
-	private String selEmtn = "";
+	private final Map<String, EmotionConfig> dataEmtns = Maps.newTreeMap();
+	private String selEmtn;
 	public EntityNPCInterface npcEmtn;
 	private AnimationController aData;
 	private ScaledResolution sw;
@@ -66,15 +66,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	public int elementType = 0; // 0 - eye, 1 - pupil, 2 - brow, 3 - mouth
 	public boolean isRight = true;
 	private ModelEyeData modelEye;
-	private String[] types = new String[] { "gui.small", "gui.normal", "gui.select" };
-	
+	private final String[] types = new String[] { "gui.small", "gui.normal", "gui.select" };
+
 	public GuiNpcEmotion(EntityCustomNpc npc) {
 		super(npc, 4);
 		this.closeOnEsc = true;
 		this.animation = new DataAnimation(npc);
 		this.animation.baseEmotionId = this.npc.animation.baseEmotionId;
 		this.setBackground("bgfilled.png");
-		
+
 		selEmtn = "";
 		npcEmtn = AdditionalMethods.copyToGUI(npc, mc.world, false);
 		Client.sendData(EnumPacketServer.AnimationGet);
@@ -113,19 +113,19 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			}
 			case 5: { // del frame
 				if (frame == null) { return; }
-				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+				GuiYesNo guiyesno = new GuiYesNo(this,
 						new TextComponentTranslation("animation.clear.frame", "" + (frame.id + 1)).getFormattedText(),
 						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-				this.displayGuiScreen((GuiScreen) guiyesno);
+				this.displayGuiScreen(guiyesno);
 				break;
 			}
 			case 6: { // clear frame
 				if (frame == null) { return; }
-				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+				GuiYesNo guiyesno = new GuiYesNo(this,
 						new TextComponentTranslation("animation.clear.frame", "" + (frame.id + 1)).getFormattedText(),
 						new TextComponentTranslation("gui.clearMessage").getFormattedText(),
 						GuiScreen.isShiftKeyDown() ? 4 : 1);
-				this.displayGuiScreen((GuiScreen) guiyesno);
+				this.displayGuiScreen(guiyesno);
 				break;
 			}
 			case 11: { // smooth
@@ -282,7 +282,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			case 38: { // disable pupil
 				if (frame == null) { return; }
 				frame.setDisable(((GuiNpcCheckBox) button).isSelected());
-				if (GuiScreen.isShiftKeyDown()) { // Shift pressed
+				if (GuiScreen.isShiftKeyDown() && emtn != null) { // Shift pressed
 					for (EmotionFrame f : emtn.frames.values()) {
 						f.setDisable(frame.isDisabled());
 					}
@@ -292,7 +292,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			}
 		}
 	}
-	
+
 	@Override
 	public void confirmClicked(boolean result, int id) {
 		this.displayGuiScreen(this);
@@ -322,7 +322,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			}
 		}
 	}
-		
+
 	@Override
 	public void initGui() {
 		super.initGui();
@@ -334,13 +334,13 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		this.scroll.guiLeft = x;
 		this.scroll.guiTop = y;
 		this.addScroll(this.scroll);
-		
+
 		this.addLabel(new GuiNpcLabel(lId++, "emotion.list", x + 1, y - 10));
-		
+
 		dataEmtns.clear();
 		aData = AnimationController.getInstance();
 		for (EmotionConfig ec : aData.emotions.values()) { dataEmtns.put(ec.getSettingName(), ec); }
-		this.scroll.setListNotSorted(Lists.<String>newArrayList(this.dataEmtns.keySet()));
+		this.scroll.setListNotSorted(Lists.newArrayList(this.dataEmtns.keySet()));
 		if (!selEmtn.isEmpty()) {
 			if (this.scroll.getList().contains(selEmtn)) { this.scroll.setSelected(selEmtn); }
 			else { selEmtn = ""; }
@@ -357,7 +357,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		this.getButton(0).enabled = dataEmtns.isEmpty();
 		this.addButton(new GuiNpcButton(1, x + 62, y + this.scroll.height + 1, 59, 20, "gui.remove"));
 		this.getButton(1).enabled = !selEmtn.isEmpty();
-		
+
 		EmotionConfig emtn = this.getEmtn();
 		if (emtn == null) { return; }
 		if (frame == null) {
@@ -366,7 +366,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		}
 		int wX = this.guiLeft + 274;
 		int wY = this.guiTop + 71;
-		
+
 		// Back color
 		GuiNpcButton button = new GuiNpcButton(2, wX, wY - 13, 8, 8, "");
 		button.layerColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
@@ -374,7 +374,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
-		
+
 		// Tool type
 		button = new GuiNpcButton(23, wX + 10, wY - 16, 14, 14, ""); // tool pos
 		button.texture = SubGuiEditAnimation.btns;
@@ -399,7 +399,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button.txrH = 24;
 		button.layerColor = toolType == 2 ? 0xFF8080FF : 0xFFFFFFFF;
 		this.addButton(button);
-		
+
 		button = new GuiNpcButton(26, wX + 78, wY - 16, 14, 14, ""); // element eye
 		button.texture = etns;
 		button.hasDefBack = false;
@@ -431,10 +431,10 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button.txrH = 24;
 		button.layerColor = elementType == 3 ? 0xFFFFFF80 : 0xFFFFFFFF;
 		this.addButton(button);
-		
+
 		button = new GuiButtonBiDirectional(32, wX + 58, wY - 48, 82, 14, this.types, (this.modelEye == null) ? 0 : this.modelEye.type);
 		this.addButton(button);
-		
+
 		button = new GuiNpcButton(33, wX, y - 10, 70, 14, "gui.set");
 		button.setEnabled(this.animation.baseEmotionId != emtn.id);
 		this.addButton(button);
@@ -447,19 +447,19 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
-		
+
 		// Name
 		x += this.scroll.width + 2;
 		y = this.guiTop + 14;
 		this.addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.name").getFormattedText() + ":", x + 1, y - 10));
 		GuiNpcTextField textField = new GuiNpcTextField(0, this, this.fontRenderer, x + 1, y, 135, 12, emtn.name);
 		this.addTextField(textField);
-		
+
 		// Frame
 		this.addLabel(new GuiNpcLabel(lId++, "animation.frames", x, (y += 26) - 10));
 		List<String> lFrames = Lists.newArrayList();
-		for (int i = 0; i < emtn.frames.size(); i++) { lFrames.add("" + (i + 1) + "/" + emtn.frames.size()); }
-		button = new GuiButtonBiDirectional(3, x, y, 60, 14, lFrames.toArray(new String[lFrames.size()]), emtn.id);
+		for (int i = 0; i < emtn.frames.size(); i++) { lFrames.add((i + 1) + "/" + emtn.frames.size()); }
+		button = new GuiButtonBiDirectional(3, x, y, 60, 14, lFrames.toArray(new String[0]), emtn.id);
 		button.setEnabled(emtn.frames.size() > 1);
 		this.addButton(button);
 		button = new GuiNpcButton(4, x + 62, y + 2, 10, 10, ""); // add frame
@@ -495,7 +495,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		textField.setNumbersOnly();
 		textField.setMinMaxDefault(0, 3600, frame.getEndDelay());
 		this.addTextField(textField);
-		
+
 		y += 13;
 		this.addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.repeat").getFormattedText() + ":", x, y + 5));
 		if (emtn.repeatLast < 0) { emtn.repeatLast *= -1; }
@@ -511,17 +511,17 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button = new GuiNpcCheckBox(38, x, y, 140, 14, "emotion.part.disable", frame.isDisabled());
 		this.addButton(button);
 		this.resetEmtns();
-		
+
 		y += 15;
 		button = new GuiNpcCheckBox(35, x, y, 140, 14, frame.isBlink() ? "emotion.blink" : "emotion.no.blink", frame.isBlink());
 		this.addButton(button);
-		
+
 		y += 15;
 		if (frame.isBlink()) {
 			button = new GuiNpcCheckBox(36, x, y, 140, 14, "emotion.end.blink", frame.isEndBlink());
 			this.addButton(button);
 		}
-		
+
 		// Tool sliders
 		y += 19;
 		int f = 18;
@@ -599,9 +599,9 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 					break;
 				}
 			}
-			
+
 			float[] datas = new float[2];
-			double m = 0.0d, n = 360.0d;
+			double m, n;
 			if (this.toolType == 1) { // offset
 				m = -0.5d;
 				n = 0.5d;
@@ -624,7 +624,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			this.addSlider(new GuiNpcSlider(this, i, x + 8, y + i * f, 128, 8, values[i]));
 			textField = new GuiNpcTextField(i + 5, this, x + 9, y + 9 + i * f, 56, 8, "" + datas[i]);
 			textField.setDoubleNumbersOnly();
-			textField.setMinMaxDoubleDefault(m, n, (double) datas[i]);
+			textField.setMinMaxDoubleDefault(m, n, datas[i]);
 			this.addTextField(textField);
 			button = new GuiNpcButton(30 + i, x + 67, y + 9 + i * f, 8, 8, "X");
 			button.texture = SubGuiEditAnimation.btns;
@@ -640,7 +640,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		this.addButton(button);
 		this.resetEmtns();
 	}
-	
+
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (this.subgui != null) {
@@ -655,28 +655,28 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			int wY = this.guiTop + 71;
 			int x = this.guiLeft + this.scroll.width + 10;
 			this.drawGradientRect(wX - 1, wY - 1, wX + 141, wY + 141, 0xFF808080, 0xFF808080);
-			
+
 			this.drawVerticalLine(wX - 5, this.guiTop + 4, this.guiTop + this.ySize + 12, 0xFF808080);
-			
+
 			this.drawHorizontalLine(x - 2, x + 138, this.guiTop + 28, 0xFF808080);
 			this.drawHorizontalLine(x - 2, x + 138, this.guiTop + 133, 0xFF808080);
 			this.drawHorizontalLine(x - 2, x + 138, this.guiTop + 172, 0xFF808080);
-			
+
 			GlStateManager.pushMatrix();
 			GL11.glEnable(GL11.GL_SCISSOR_TEST);
 			int c = sw.getScaledWidth() < this.mc.displayWidth ? (int) Math.round((double) this.mc.displayWidth / (double) sw.getScaledWidth()) : 1;
 			GL11.glScissor(wX * c, this.mc.displayHeight - (wY + 140) * c, 140 * c, 140 * c);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			
+
 			this.drawGradientRect(wX, wY, wX + 140, wY + 140, GuiNpcAnimation.backColor, GuiNpcAnimation.backColor);
 			this.drawNpc(this.npcEmtn, 344, 544, 8.2f, 0, 0, 0);
-			
+
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 			GlStateManager.popMatrix();
 		}
-		
+
 		if (!CustomNpcs.ShowDescriptions) { return; }
-		
+
 		if (this.getButton(23) != null && this.getButton(23).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.tool.0").getFormattedText());
 		} else if (this.getButton(24) != null && this.getButton(24).isMouseOver()) {
@@ -684,27 +684,27 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		} else if (this.getButton(25) != null && this.getButton(25).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.tool.2").getFormattedText());
 		}
-		
+
 		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
 			this.hoverText = null;
 		}
 	}
-	
+
 	@Override
 	public void close() {
 		this.save();
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setBoolean("save", true);
 		Client.sendData(EnumPacketServer.EmotionChange, nbt);
-		CustomNPCsScheduler.runTack(() -> { Client.sendData(EnumPacketServer.AnimationSave, this.animation.save(new NBTTagCompound())); }, 500);
+		CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.AnimationSave, this.animation.save(new NBTTagCompound())), 500);
 		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 	}
-	
+
 	@Override
 	public void save() {
 		EmotionConfig emtn = this.getEmtn();
-		if (emtn != null) { Client.sendData(EnumPacketServer.EmotionChange, emtn.writeToNBT(new NBTTagCompound())); }
+		if (emtn != null) { Client.sendData(EnumPacketServer.EmotionChange, emtn.save()); }
 	}
 
 	@Override
@@ -719,13 +719,13 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { this.initGui(); }
-	
+
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		this.animation.load(compound);
 		this.initGui();
 	}
-	
+
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		//EmotionConfig emtn = this.getEmtn();
@@ -734,11 +734,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			EmotionConfig newEmtn = (EmotionConfig) aData.createNewEmtn();
 			newEmtn.name = ((SubGuiEditText) subgui).text[0];
 			this.selEmtn = newEmtn.getSettingName();
-			Client.sendData(EnumPacketServer.EmotionChange, newEmtn.writeToNBT(new NBTTagCompound()));
+			Client.sendData(EnumPacketServer.EmotionChange, newEmtn.save());
 			this.initGui();
 		}
 	}
-	
+
 	private EmotionConfig getEmtn() {
 		if (!this.dataEmtns.containsKey(selEmtn)) { selEmtn = ""; }
 		if (selEmtn.isEmpty() || !this.dataEmtns.containsKey(selEmtn)) { return null; }
@@ -763,7 +763,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 	@Override
 	public void mouseDragged(GuiNpcSlider slider) {
-		float value = 0.0f;
+		float value;
 		int pos = slider.id + (this.isRight ? 0 : 2);
 		switch(this.elementType) {
 			case 1: { // pupil
@@ -857,7 +857,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 	@Override
 	public void mouseReleased(GuiNpcSlider slider) { }
-	
+
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
 		EmotionConfig emtn = this.getEmtn();

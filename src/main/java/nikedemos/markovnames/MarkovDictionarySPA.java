@@ -9,7 +9,7 @@ public class MarkovDictionarySPA extends MarkovDictionary {
 
 	public String getCapitalizedSPA(String str) {
 		String[] parts = str.split("#");
-		StringBuilder build = new StringBuilder("");
+		StringBuilder build = new StringBuilder();
 		for (int p = 0; p < parts.length; ++p) {
 			if (!parts[p].equals("de") && !parts[p].equals("del") && !parts[p].equals("la")
 					&& !parts[p].equals("los")) {

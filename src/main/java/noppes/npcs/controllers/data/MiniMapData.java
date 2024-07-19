@@ -1,6 +1,7 @@
 package noppes.npcs.controllers.data;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.common.collect.Maps;
 
@@ -24,9 +25,9 @@ public class MiniMapData implements IMiniMapData {
 	public String name = "default map point";
 	public String type = "Normal";
 	public String icon = "icon.png";
-	public IPos pos = NpcAPI.Instance().getIPos(BlockPos.ORIGIN);
+	public IPos pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(BlockPos.ORIGIN);
 	public boolean isEnable = true;
-	public Map<String, String> gsonData = Maps.<String, String>newTreeMap();
+	public Map<String, String> gsonData = Maps.newTreeMap();
 
 	public MiniMapData() {
 		this.color = (int) ((double) 0xFF000000 + Math.random() * (double) 0xFFFFFF);
@@ -57,7 +58,7 @@ public class MiniMapData implements IMiniMapData {
 	}
 
 	@Override
-	public int[] getDimentions() {
+	public int[] getDimensions() {
 		return this.dimIDs;
 	}
 
@@ -83,7 +84,7 @@ public class MiniMapData implements IMiniMapData {
 
 	@Override
 	public String[] getSpecificKeys() {
-		return gsonData.keySet().toArray(new String[gsonData.size()]);
+		return gsonData.keySet().toArray(new String[0]);
 	}
 
 	@Override
@@ -117,13 +118,13 @@ public class MiniMapData implements IMiniMapData {
 		isEnable = compound.getBoolean("IsEnable");
 		questId = compound.getInteger("QuestID");
 		taskId = compound.getInteger("TaskID");
-		dimIDs = compound.getIntArray("DimentionID");
+		dimIDs = compound.getIntArray("DimensionID");
 		color = compound.getInteger("Color");
 		id = compound.getInteger("ID");
 		type = compound.getString("Type");
 		name = AdditionalMethods.instance.deleteColor(compound.getString("Name"));
 		icon = compound.getString("Icon");
-		pos = NpcAPI.Instance().getIPos(BlockPos.fromLong(compound.getLong("Pos")));
+		pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(BlockPos.fromLong(compound.getLong("Pos")));
 
 		gsonData.clear();
 		for (int i = 0; i < compound.getTagList("GsonData", 10).tagCount(); i++) {
@@ -139,7 +140,7 @@ public class MiniMapData implements IMiniMapData {
 		compound.setBoolean("IsEnable", isEnable);
 		compound.setInteger("QuestID", questId);
 		compound.setInteger("TaskID", taskId);
-		compound.setIntArray("DimentionID", dimIDs);
+		compound.setIntArray("DimensionID", dimIDs);
 		compound.setInteger("Color", color);
 		compound.setInteger("ID", id);
 		compound.setString("Type", type);
@@ -169,7 +170,7 @@ public class MiniMapData implements IMiniMapData {
 	}
 
 	@Override
-	public void setDimentions(int[] dims) {
+	public void setDimensions(int[] dims) {
 		if (dims == null || dims.length == 0) { return; }
 		this.dimIDs = dims;
 	}
@@ -205,19 +206,19 @@ public class MiniMapData implements IMiniMapData {
 		if (pos.getMCBlockPos().equals(newPos)) {
 			return;
 		}
-		pos = NpcAPI.Instance().getIPos(newPos);
+		pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(newPos);
 		update = true;
 	}
 
 	@Override
 	public void setPos(IPos newPos) {
 		if (newPos == null) {
-			newPos = NpcAPI.Instance().getIPos(BlockPos.ORIGIN);
+			newPos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(BlockPos.ORIGIN);
 		}
 		if (pos.getMCBlockPos().equals(newPos.getMCBlockPos())) {
 			return;
 		}
-		pos = NpcAPI.Instance().getIPos(newPos.getMCBlockPos());
+		pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(newPos.getMCBlockPos());
 		update = true;
 	}
 
@@ -240,25 +241,25 @@ public class MiniMapData implements IMiniMapData {
 
 	@Override
 	public String toString() {
-		String gs = "empty";
+		StringBuilder gs = new StringBuilder("empty");
 		if (!gsonData.isEmpty()) {
-			gs = "";
+			gs = new StringBuilder();
 			for (String k : gsonData.keySet()) {
-				if (!gs.isEmpty()) {
-					gs += ", ";
+				if (gs.length() > 0) {
+					gs.append(", ");
 				}
-				gs += "(" + k + "=" + gsonData.get(k) + ")";
+				gs.append("(").append(k).append("=").append(gsonData.get(k)).append(")");
 			}
-			gs = "[" + gs + "]";
+			gs = new StringBuilder("[" + gs + "]");
 		}
-		String ds = "";
+		StringBuilder ds = new StringBuilder();
 		for (int id : this.dimIDs) {
-			if (!ds.isEmpty()) {
-				ds += ", ";
+			if (ds.length() > 0) {
+				ds.append(", ");
 			}
-			ds += id;
+			ds.append(id);
 		}
-		ds = "[" + ds + "]";
+		ds = new StringBuilder("[" + ds + "]");
 		String qd = "";
 		if (this.questId != -1) { qd = ", QuestID: " + this.questId + ", TaskID: " + this.taskId; }
 		return "Point Data: {ID: " + this.id + ", Name: " + this.name + ", Type: " + this.type + ", Icon: " + this.icon

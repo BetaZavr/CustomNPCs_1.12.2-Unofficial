@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
@@ -42,11 +42,13 @@ import noppes.npcs.entity.data.DropNbtSet;
 import noppes.npcs.entity.data.DropSet;
 import noppes.npcs.entity.data.EnchantSet;
 
+import javax.annotation.Nonnull;
+
 public class GuiDropEdit
 extends GuiContainerNPCInterface2
 implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 
-	private GuiContainer parent;
+	private final GuiContainer parent;
 	public DropSet drop;
 	private Map<String, AttributeSet> attributesData;
 	private Map<String, EnchantSet> enchantData;
@@ -115,7 +117,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 				break;
 			}
 			case 7: { // add tag
-				this.tag = (DropNbtSet) this.drop.addDropNbtSet(0, 100.0d, new String(), new String[0]);
+				this.tag = (DropNbtSet) this.drop.addDropNbtSet(0, 100.0d, "", new String[0]);
 				this.setSubGui(new SubGuiDropValueNbt(this.tag));
 				break;
 			}
@@ -136,7 +138,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 				this.drop.setTiedToLevel(button.getValue() == 1);
 				break;
 			}
-			case 12: { // quest selest
+			case 12: { // quest select
 				this.setSubGui(new GuiQuestSelection(this.drop.questId));
 				break;
 			}
@@ -166,83 +168,78 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		if (this.subgui != null) {
 			return;
 		}
-		if (this.inventorySlots.getSlot(0) != null && this.getButton(0) != null) {
+        this.inventorySlots.getSlot(0);
+        if (this.getButton(0) != null) {
 			ItemStack stack = this.inventorySlots.getSlot(0).getStack();
 			GuiNpcButton button = this.getButton(0);
 			if (button.enabled && stack.isEmpty()) {
-				this.drop.item = NpcAPI.Instance().getIItemStack(stack);
+				this.drop.item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
 			} else if (!button.enabled && !stack.isEmpty()) {
-				this.drop.item = NpcAPI.Instance().getIItemStack(stack);
+				this.drop.item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
 			}
 
 		}
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		String tied = new TextComponentTranslation("drop.tied.random", new Object[0]).getFormattedText();
+		String tied = new TextComponentTranslation("drop.tied.random").getFormattedText();
 		if (this.drop.tiedToLevel) {
-			tied = new TextComponentTranslation("drop.tied.level", new Object[0]).getFormattedText();
+			tied = new TextComponentTranslation("drop.tied.level").getFormattedText();
 		}
 		
 		if (isMouseHover(i, j, this.guiLeft + 171, this.guiTop + 139, 28, 10)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.slot", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.slot").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 4, this.guiTop + 5, 133, 10)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.enchants", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.enchants").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 143, this.guiTop + 5, 134, 10)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.attributes", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.attributes").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 283, this.guiTop + 5, 133, 10)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.tags", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.tags").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 173, this.guiTop + 171, 44, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.reset", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.reset").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 270, this.guiTop + 142, 46, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.chance", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.chance").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 368, this.guiTop + 138, 46, 24)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.amount", new Object[] { tied }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.amount", tied).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 270, this.guiTop + 171, 46, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.break", new Object[] { tied }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.break", tied).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 114, 39, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.enchant.add", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.enchant.add").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6 + 45, this.guiTop + 114, 39, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.enchant.del", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.enchant.del").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6 + 91, this.guiTop + 114, 39, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.enchant.edit", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.enchant.edit").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 145, this.guiTop + 114, 39, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.add", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.add").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 145 + 45, this.guiTop + 114, 40, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.del", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.del").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 145 + 91, this.guiTop + 114, 39, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.edit", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.edit").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 285, this.guiTop + 114, 39, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.tag.add", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.tag.add").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 285 + 45, this.guiTop + 114, 39, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.tag.del", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.tag.del").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 285 + 91, this.guiTop + 114, 39, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.tag.edit", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.tag.edit").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 331, this.guiTop + 171, 83, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.mode", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.mode").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 331, this.guiTop + 194, 83, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.tied", new Object[] { ((char) 167) + "b" + CustomNpcs.MaxLv, ((char) 167) + "7" + CustomNpcs.MaxLv, "" + ((int) (3 + (12 - 3) * 17 / CustomNpcs.MaxLv)) }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.tied", ((char) 167) + "b" + CustomNpcs.MaxLv, ((char) 167) + "7" + CustomNpcs.MaxLv, "" + (3 + (12 - 3) * 17 / CustomNpcs.MaxLv)).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 270, this.guiTop + 194, 46, 16)) {
-			String qname = "";
-			GuiNpcButton button = this.getButton(14);
+            GuiNpcButton button = this.getButton(14);
 			if (button != null && button.getValue() > 0) {
-				int id = Integer.valueOf(button.getVariants()[button.getValue()]);
-				for (IQuestCategory cat : NpcAPI.Instance().getQuests().categories()) {
+				int id = Integer.parseInt(button.getVariants()[button.getValue()]);
+				for (IQuestCategory cat : Objects.requireNonNull(NpcAPI.Instance()).getQuests().categories()) {
 					for (IQuest q : cat.quests()) {
 						if (q.getId() == id) {
-							this.setHoverText(
-									new TextComponentTranslation("drop.hover.quest", new Object[] { q.getName() })
-											.getFormattedText());
+							this.setHoverText(new TextComponentTranslation("drop.hover.quest", q.getName()).getFormattedText());
 							break;
 						}
 					}
-					if (qname.length() > 0) {
-						break;
-					}
-				}
+                }
 			} else {
 				this.setHoverText(
-						new TextComponentTranslation("drop.hover.any.quest", new Object[0]).getFormattedText());
+						new TextComponentTranslation("drop.hover.any.quest").getFormattedText());
 			}
 		}
 		if (this.hoverText != null) {
@@ -252,12 +249,10 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type) {
+	protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
 		super.handleMouseClick(slotIn, slotId, mouseButton, type);
-		if (slotIn != null) {
-			this.reset = 5;
-		}
-	}
+        this.reset = 5;
+    }
 
 	@Override
 	public void initGui() {
@@ -271,7 +266,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.slot", this.guiLeft + 171, this.guiTop + 139));
 		// chance
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.chance", this.guiLeft + 229, this.guiTop + 145));
-		GuiNpcTextField chance = new GuiNpcTextField(0, (GuiScreen) this, this.guiLeft + 268, this.guiTop + 140, 50, 20, String.valueOf(this.drop.getChance()));
+		GuiNpcTextField chance = new GuiNpcTextField(0, this, this.guiLeft + 268, this.guiTop + 140, 50, 20, String.valueOf(this.drop.getChance()));
 		chance.setDoubleNumbersOnly().setMinMaxDoubleDefault(0.0001d, 100.0d, this.drop.getChance());
 		chance.setEnabled(!this.drop.item.isEmpty());
 		this.addTextField(chance);
@@ -296,18 +291,18 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			this.drop.setAmount(this.amount[0], this.amount[1]);
 		}
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.amount", this.guiLeft + 329, this.guiTop + 145));
-		GuiNpcTextField countMin = new GuiNpcTextField(1, (GuiScreen) this, this.guiLeft + 366, this.guiTop + 136, 50, 14, "" + this.amount[0]);
+		GuiNpcTextField countMin = new GuiNpcTextField(1, this, this.guiLeft + 366, this.guiTop + 136, 50, 14, "" + this.amount[0]);
 		countMin.setNumbersOnly().setMinMaxDefault(1, this.drop.item.getMaxStackSize(), this.drop.item.getStackSize());
 		countMin.setEnabled(!this.drop.item.isEmpty());
 		this.addTextField(countMin);
-		GuiNpcTextField countMax = new GuiNpcTextField(2, (GuiScreen) this, this.guiLeft + 366, this.guiTop + 150, 50, 14, "" + this.amount[1]);
+		GuiNpcTextField countMax = new GuiNpcTextField(2, this, this.guiLeft + 366, this.guiTop + 150, 50, 14, "" + this.amount[1]);
 		countMax.setNumbersOnly().setMinMaxDefault(1, this.drop.item.getMaxStackSize(), this.drop.item.getStackSize());
 		countMax.setEnabled(!this.drop.item.isEmpty());
 		this.addTextField(countMax);
 		// damage
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.break", this.guiLeft + 229, this.guiTop + 174));
-		GuiNpcTextField damage = new GuiNpcTextField(3, (GuiScreen) this, this.guiLeft + 268, this.guiTop + 169, 50, 20, String.valueOf(this.drop.getDamage()));
-		damage.setDoubleNumbersOnly().setMinMaxDoubleDefault(0.0d, 1.0d, (double) this.drop.getDamage());
+		GuiNpcTextField damage = new GuiNpcTextField(3, this, this.guiLeft + 268, this.guiTop + 169, 50, 20, String.valueOf(this.drop.getDamage()));
+		damage.setDoubleNumbersOnly().setMinMaxDoubleDefault(0.0d, 1.0d, this.drop.getDamage());
 		damage.setEnabled(this.drop.item.getMaxItemDamage() != 0);
 		this.addTextField(damage);
 		// reset
@@ -315,7 +310,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		// Enchants:
 		// List
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.enchants", this.guiLeft + 4, this.guiTop + 5));
-		Map<String, EnchantSet> newEnchData = new HashMap<String, EnchantSet>();
+		Map<String, EnchantSet> newEnchData = new HashMap<>();
 		for (IEnchantSet ies : this.drop.getEnchantSets()) {
 			newEnchData.put(((EnchantSet) ies).getKey(), (EnchantSet) ies);
 		}
@@ -337,7 +332,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		// Attributes:
 		// List
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.attributes", this.guiLeft + 143, this.guiTop + 5));
-		Map<String, AttributeSet> newAttrData = new HashMap<String, AttributeSet>();
+		Map<String, AttributeSet> newAttrData = new HashMap<>();
 		for (IAttributeSet ias : this.drop.getAttributeSets()) {
 			newAttrData.put(((AttributeSet) ias).getKey(), ((AttributeSet) ias));
 		}
@@ -359,7 +354,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		// Tags:
 		// List
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.tags", this.guiLeft + 283, this.guiTop + 5));
-		Map<String, DropNbtSet> newTagsData = new HashMap<String, DropNbtSet>();
+		Map<String, DropNbtSet> newTagsData = new HashMap<>();
 		for (IDropNbtSet dns : this.drop.getDropNbtSets()) {
 			newTagsData.put(((DropNbtSet) dns).getKey(), (DropNbtSet) dns);
 		}
@@ -393,11 +388,8 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		this.addButton(new GuiNpcButton(11, this.guiLeft + 329, this.guiTop + 192, 87, 20, new String[] { "drop.type.random", "drop.type.level" }, ttl));
 		this.getButton(11).setEnabled(!this.drop.item.isEmpty());
 		// Quest ID
-		this.addLabel(new GuiNpcLabel(anyIDs++, "global.quests", this.guiLeft + 229, this.guiTop + 197));
-		int qid = 0;
-		if (this.drop.questId >= 0) {
-			qid = this.drop.questId;
-		}
+		this.addLabel(new GuiNpcLabel(anyIDs, "global.quests", this.guiLeft + 229, this.guiTop + 197));
+        int qid = Math.max(this.drop.questId, 0);
 		GuiNpcTextField questId = new GuiNpcTextField(4, this, this.guiLeft + 268, this.guiTop + 192, 50, 20, "" + qid);
 		questId.setNumbersOnly().setMinMaxDefault(0, Integer.MAX_VALUE, qid);
 		this.addTextField(questId);
@@ -406,7 +398,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 
 	@Override
 	protected void mouseClicked(int i, int j, int k) throws IOException {
-		// cheak error inventory gui
+		// check error inventory gui
 		if (this.isMouseHover(i, j, this.guiLeft, this.guiTop - 20, this.width, 20)) {
 			close();
 		} else {
@@ -476,14 +468,14 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			this.enchant.load(gui.enchant.getNBT());
 		} else if (subgui instanceof SubGuiDropAttribute) {
 			SubGuiDropAttribute gui = (SubGuiDropAttribute) subgui;
-			if (gui.attribute.getAttribute().length() == 0) {
+			if (gui.attribute.getAttribute().isEmpty()) {
 				this.drop.removeAttribute(this.attribute);
 			} else {
 				this.attribute.load(gui.attribute.getNBT());
 			}
 		} else if (subgui instanceof SubGuiDropValueNbt) {
 			SubGuiDropValueNbt gui = (SubGuiDropValueNbt) subgui;
-			if (gui.tag.getPath().length() == 0 || gui.tag.getValues().length == 0) {
+			if (gui.tag.getPath().isEmpty() || gui.tag.getValues().length == 0) {
 				this.drop.removeDropNbt(this.tag);
 			} else {
 				this.tag.load(gui.tag.getNBT());
@@ -516,12 +508,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			break;
 		}
 		case 4: { // quest set
-			int qid = textField.getInteger();
-			if (qid == 0) {
-				this.drop.questId = 0;
-			} else {
-				this.drop.questId = qid;
-			}
+            this.drop.questId = textField.getInteger();
 			break;
 		}
 		}

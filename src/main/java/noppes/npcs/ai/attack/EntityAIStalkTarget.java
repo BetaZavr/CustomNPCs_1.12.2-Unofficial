@@ -17,7 +17,7 @@ public class EntityAIStalkTarget extends EntityAICustom {
 
 	private void setDiscovered(boolean discovered) {
 		this.discovered = discovered;
-		if (this.npc.aiIsSneak != !this.discovered) {
+		if (this.npc.aiIsSneak == this.discovered) {
 			this.npc.aiIsSneak = !this.discovered;
 			this.npc.updateAiClient();
 		}

@@ -2,7 +2,7 @@ package noppes.npcs.api.entity.data;
 
 public interface IPlayerMiniMap {
 
-	IMiniMapData addPoint(int dimentionId);
+	IMiniMapData addPoint(int dimensionId);
 
 	IMiniMapData[] getAllPoints();
 
@@ -12,7 +12,7 @@ public interface IPlayerMiniMap {
 
 	IMiniMapData getPoint(String name);
 
-	IMiniMapData[] getPoints(int dimentionId);
+	IMiniMapData[] getPoints(int dimensionId);
 
 	String[] getSpecificKeys();
 
@@ -22,6 +22,6 @@ public interface IPlayerMiniMap {
 
 	boolean removePoint(String name);
 	
-	boolean removePoints(int dimentionId);
+	boolean removePoints(int dimensionId);
 
 }

@@ -5,8 +5,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -23,6 +25,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -44,18 +47,20 @@ import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
 import noppes.npcs.util.BuilderData;
 
+import javax.annotation.Nonnull;
+
 public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICustomScrollListener, ITextfieldListener {
 
-	private static Map<String, SchematicWrapper> basefiles = Maps.<String, SchematicWrapper>newTreeMap();
+	private static final Map<String, SchematicWrapper> basefiles = Maps.newTreeMap();
 	ContainerBuilderSettings container;
-	private ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
-	private ResourceLocation inventory = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
+	private final ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
+	private final ResourceLocation inventory = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
 
-	private ResourceLocation invRes = new ResourceLocation("textures/gui/container/inventory.png");
+	private final ResourceLocation invRes = new ResourceLocation("textures/gui/container/inventory.png");
 	private int maxRange;
 	private GuiCustomScroll schematics;
-	private BuilderData builder;
-	private Map<String, SchematicWrapper> files;
+	private final BuilderData builder;
+	private final Map<String, SchematicWrapper> files;
 
 	public GuiBuilderSetting(ContainerBuilderSettings cont) {
 		super(null, cont);
@@ -93,8 +98,10 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 						continue;
 					}
 					Blueprint bp = BlueprintUtil.readBlueprintFromNBT(compound);
-					bp.setName(name);
-					GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(bp));
+                    if (bp != null) {
+						bp.setName(name);
+						GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(bp));
+					}
 				}
 				if (compound.getKeySet().isEmpty() || !compound.hasKey("Width", 2) || !compound.hasKey("Length", 2)
 						|| !compound.hasKey("Height", 2)) {
@@ -107,19 +114,18 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				Schematic schema = new Schematic(name);
 				schema.load(compound);
 				GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(schema));
-			} catch (IOException e) {
-			}
+			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
-		this.files = Maps.<String, SchematicWrapper>newTreeMap();
+		this.files = Maps.newTreeMap();
 		this.files.putAll(GuiBuilderSetting.basefiles);
 		File schematicDir = SchematicController.getDir();
 		if (schematicDir.exists()) {
-			for (File f : schematicDir.listFiles()) {
+			for (File f : Objects.requireNonNull(schematicDir.listFiles())) {
 				if (!f.isFile() || !f.getName().endsWith(".schematic")) {
 					continue;
 				}
 				try {
-					NBTTagCompound compound = CompressedStreamTools.readCompressed(new FileInputStream(f));
+					NBTTagCompound compound = CompressedStreamTools.readCompressed(Files.newInputStream(f.toPath()));
 					if (compound.getKeySet().isEmpty() || !compound.hasKey("Width", 2) || !compound.hasKey("Length", 2)
 							|| !compound.hasKey("Height", 2)) {
 						continue;
@@ -132,8 +138,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 					Schematic schema = new Schematic(f.getName());
 					schema.load(compound);
 					this.files.put(f.getName(), new SchematicWrapper(schema));
-				} catch (Exception e) {
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		}
 	}
@@ -145,7 +150,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				if (this.builder == null) {
 					return;
 				}
-				this.builder.fasing = button.getValue();
+				this.builder.facing = button.getValue();
 				break;
 			}
 			case 2: { // reg[0]
@@ -176,11 +181,11 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				this.builder.addAir = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
-			case 6: { // replase Air
+			case 6: { // replace Air
 				if (this.builder == null) {
 					return;
 				}
-				this.builder.replaseAir = ((GuiNpcCheckBox) button).isSelected();
+				this.builder.replaceAir = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 7: { // is Solid
@@ -249,8 +254,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 					g = 1.0f;
 					b = 1.0f;
 				} else if (this.builder.getType() == 2) {
-					r = 1.0f;
-					g = 0.0f;
+                    g = 0.0f;
 					b = 1.0f;
 				}
 				float size = (float) this.builder.region[2] + (float) (this.builder.region[0] + this.builder.region[1]) / 2.0f;
@@ -269,9 +273,9 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				GlStateManager.rotate(30.0f, 1.0f, 0.0f, 1.0f);
 				RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d)), 1.0f,
 						1.0f, 1.0f, 1.0f);
-				if (this.builder.fasing == 0) {
+				if (this.builder.facing == 0) {
 					GlStateManager.translate(0.0f, 0.0f, 1.01f);
-				} else if (this.builder.fasing == 2) {
+				} else if (this.builder.facing == 2) {
 					GlStateManager.translate(0.0f, 0.0f, -1.1f);
 				}
 				RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d * (double) this.builder.region[0],
@@ -309,7 +313,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 			}
 		}
 		if (this.builder.addAir) {
-			t += t / (float) j;
+			t += (int) (t / (float) j);
 		}
 		for (int i = 1; i < 10; i++) {
 			if (this.getTextField(i) != null && this.getTextField(i).isMouseOver()) {
@@ -370,12 +374,9 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 	}
 
 	@Override
-	protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type) {
+	protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
 		super.handleMouseClick(slotIn, slotId, mouseButton, type);
-		if (slotIn == null) {
-			return;
-		}
-		if (slotId >= 36) {
+        if (slotId >= 36) {
 			int id = slotId - (this.builder.getType() == 2 ? 36 : 35);
 			GuiNpcTextField textField = this.getTextField(id);
 			if (textField == null) {
@@ -414,7 +415,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 			this.schematics.setList(Lists.newArrayList(this.files.keySet()));
 			this.schematics.guiLeft = this.guiLeft + 5;
 			this.schematics.guiTop = this.guiTop + 14;
-			if (!this.builder.schematicaName.isEmpty()) {
+			if (!this.builder.schematicName.isEmpty()) {
 				int i = 0;
 				for (String key : this.schematics.getList()) {
 					String fName = key;
@@ -423,7 +424,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 					} else if (key.endsWith(".blueprint")) {
 						fName = key.substring(0, key.lastIndexOf(".blueprint"));
 					}
-					if (fName.equals(this.builder.schematicaName)) {
+					if (fName.equals(this.builder.schematicName)) {
 						this.schematics.selected = i;
 						break;
 					}
@@ -435,7 +436,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 			}
 			this.addScroll(this.schematics);
 			this.addLabel(new GuiNpcLabel(6, new TextComponentTranslation("gui.name").getFormattedText() + ":", this.guiLeft + 120, this.guiTop + 40));
-			textField = new GuiNpcTextField(10, this, this.guiLeft + 120, this.guiTop + 54, 99, 15, "" + this.builder.schematicaName);
+			textField = new GuiNpcTextField(10, this, this.guiLeft + 120, this.guiTop + 54, 99, 15, this.builder.schematicName);
 			this.addTextField(textField);
 		}
 		if (type < 3) {
@@ -448,23 +449,23 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				textField.setMinMaxDefault(1, this.maxRange, this.builder.region[i]);
 				this.addTextField(textField);
 			}
-			this.addButton(new GuiButtonBiDirectional(1, this.guiLeft + 120, y += 18, 99, 20, new String[] { "builder.fasing.0", "builder.fasing.1", "builder.fasing.2" }, this.builder.fasing));
+			this.addButton(new GuiButtonBiDirectional(1, this.guiLeft + 120, y += 18, 99, 20, new String[] { "builder.fasing.0", "builder.fasing.1", "builder.fasing.2" }, this.builder.facing));
 			for (int i = 1; i < 10; i++) { // Blocks
 				textField = new GuiNpcTextField(i, this, this.guiLeft + 28 + (i / 6) * 54, this.guiTop + 17 + ((i < 6 ? 0 : -5) + i - 1) * 24, 28, 15, "" + (this.builder.chances.containsKey(i) ? this.builder.chances.get(i) : ""));
 				textField.setNumbersOnly();
-				textField.setMinMaxDefault(1, 100, this.builder.chances.containsKey(i) ? this.builder.chances.get(i) : 100);
+				textField.setMinMaxDefault(1, 100, this.builder.chances.getOrDefault(i, 100));
 				this.addTextField(textField);
 			}
 		} else {
 			this.addLabel(new GuiNpcLabel(5, new TextComponentTranslation("gui.file.list").getFormattedText() + " [?]:", this.guiLeft + 4, this.guiTop + 4));
 		}
 		if (type < 4) {
-			checkBox = new GuiNpcCheckBox(5, this.guiLeft + 120, y += 22, 99, 15, "tile.air.name");
+			checkBox = new GuiNpcCheckBox(5, this.guiLeft + 120, y + 22, 99, 15, "tile.air.name");
 			checkBox.setSelected(this.builder.addAir);
 			this.addButton(checkBox);
 			if (type == 2 || type == 3) {
 				checkBox = new GuiNpcCheckBox(6, this.guiLeft + 172 + (type == 3 ? -52 : 0), this.guiTop + 145 + (type == 3 ? -60 : 0), 70, 15, "drop.type.all");
-				checkBox.setSelected(this.builder.replaseAir);
+				checkBox.setSelected(this.builder.replaceAir);
 				this.addButton(checkBox);
 			}
 			if (type == 3) {
@@ -488,15 +489,15 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		// File List
-		this.builder.schematicaName = scroll.getSelected();
-		if (this.builder.schematicaName.endsWith(".schematic")) {
-			this.builder.schematicaName = this.builder.schematicaName.substring(0,
-					this.builder.schematicaName.lastIndexOf(".schematic"));
-		} else if (this.builder.schematicaName.endsWith(".blueprint")) {
-			this.builder.schematicaName = this.builder.schematicaName.substring(0,
-					this.builder.schematicaName.lastIndexOf(".blueprint"));
+		this.builder.schematicName = scroll.getSelected();
+		if (this.builder.schematicName.endsWith(".schematic")) {
+			this.builder.schematicName = this.builder.schematicName.substring(0,
+					this.builder.schematicName.lastIndexOf(".schematic"));
+		} else if (this.builder.schematicName.endsWith(".blueprint")) {
+			this.builder.schematicName = this.builder.schematicName.substring(0,
+					this.builder.schematicName.lastIndexOf(".blueprint"));
 		}
-		SchematicWrapper schema = SchematicController.Instance.getSchema(this.builder.schematicaName + ".schematic");
+		SchematicWrapper schema = SchematicController.Instance.getSchema(this.builder.schematicName + ".schematic");
 		if (schema != null) {
 			this.builder.region[0] = schema.schema.getLength();
 			this.builder.region[1] = schema.schema.getWidth();
@@ -504,7 +505,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 		}
 		GuiNpcTextField textField = this.getTextField(10);
 		if (textField != null) {
-			textField.setText(this.builder.schematicaName);
+			textField.setText(this.builder.schematicName);
 		}
 	}
 
@@ -530,7 +531,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 		}
 		if (this.builder.getType() == 3 || this.builder.getType() == 4) {
 			if (textField.getId() == 10) {
-				this.builder.schematicaName = textField.getText();
+				this.builder.schematicName = textField.getText();
 				this.initGui();
 			}
 		} else {

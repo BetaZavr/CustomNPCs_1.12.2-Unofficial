@@ -15,7 +15,7 @@ import noppes.npcs.entity.data.DataStats;
 
 public class SubGuiNpcRespawn extends SubGuiInterface implements ITextfieldListener {
 
-	private DataStats stats;
+	private final DataStats stats;
 
 	public SubGuiNpcRespawn(DataStats stats) {
 		this.stats = stats;
@@ -87,9 +87,9 @@ public class SubGuiNpcRespawn extends SubGuiInterface implements ITextfieldListe
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
-		if (textfield.getId() == 2) {
-			this.stats.respawnTime = textfield.getInteger();
+	public void unFocused(GuiNpcTextField textField) {
+		if (textField.getId() == 2) {
+			this.stats.respawnTime = textField.getInteger();
 		}
 	}
 }

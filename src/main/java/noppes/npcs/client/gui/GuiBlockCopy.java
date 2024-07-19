@@ -13,7 +13,8 @@ import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.constants.EnumPacketServer;
 
 public class GuiBlockCopy extends GuiNPCInterface implements IGuiData, ITextfieldListener {
-	private TileCopy tile;
+
+	private final TileCopy tile;
 	public int x, y, z;
 
 	public GuiBlockCopy(int x, int y, int z) {
@@ -72,7 +73,7 @@ public class GuiBlockCopy extends GuiNPCInterface implements IGuiData, ITextfiel
 		int l = 6;
 		int m = this.guiLeft + 5;
 		y += 23;
-		this.addButton(new GuiNpcButton(l, m, y, 200, 20, 0, new String[] { "copy.schematic", "copy.blueprint" }));
+		this.addButton(new GuiNpcButton(l, m, y, 200, 20, 0, "copy.schematic", "copy.blueprint"));
 		int i2 = 0;
 		int j2 = this.guiLeft + 5;
 		y += 30;
@@ -80,11 +81,7 @@ public class GuiBlockCopy extends GuiNPCInterface implements IGuiData, ITextfiel
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 67, y, 60, 20, "gui.cancel"));
 	}
 
-	@Override
-	public void initPacket() {
-	}
-
-	@Override
+    @Override
 	public void save() {
 		NBTTagCompound compound = new NBTTagCompound();
 		this.tile.writeToNBT(compound);

@@ -9,6 +9,8 @@ import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 
+import java.util.Objects;
+
 public class BlockEvent extends CustomNPCsEvent {
 
 	public static class BreakEvent extends BlockEvent {
@@ -22,7 +24,7 @@ public class BlockEvent extends CustomNPCsEvent {
 
 		public ClickedEvent(IBlock block, EntityPlayer player) {
 			super(block);
-			this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
+			this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 		}
 	}
 
@@ -31,7 +33,7 @@ public class BlockEvent extends CustomNPCsEvent {
 
 		public CollidedEvent(IBlock block, Entity entity) {
 			super(block);
-			this.entity = NpcAPI.Instance().getIEntity(entity);
+			this.entity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
 		}
 	}
 
@@ -50,7 +52,7 @@ public class BlockEvent extends CustomNPCsEvent {
 		public EntityFallenUponEvent(IBlock block, Entity entity, float distance) {
 			super(block);
 			this.distanceFallen = distance;
-			this.entity = NpcAPI.Instance().getIEntity(entity);
+			this.entity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
 		}
 	}
 
@@ -67,7 +69,7 @@ public class BlockEvent extends CustomNPCsEvent {
 
 		public HarvestedEvent(IBlock block, EntityPlayer player) {
 			super(block);
-			this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
+			this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 		}
 	}
 
@@ -87,7 +89,7 @@ public class BlockEvent extends CustomNPCsEvent {
 
 		public InteractEvent(IBlock block, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
 			super(block);
-			this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
+			this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 			this.hitX = hitX;
 			this.hitY = hitY;
 			this.hitZ = hitZ;

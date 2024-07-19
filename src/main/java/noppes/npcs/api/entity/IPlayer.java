@@ -111,7 +111,7 @@ public interface IPlayer<T extends EntityPlayer> extends IEntityLivingBase<T> {
 	@Deprecated
 	int inventoryItemCount(String id, int amount);
 
-	boolean isComleteQuest(int id);
+	boolean isCompleteQuest(int id);
 
 	boolean isMoved();
 
@@ -174,5 +174,7 @@ public interface IPlayer<T extends EntityPlayer> extends IEntityLivingBase<T> {
 	void trigger(int id, Object... arguments);
 
 	void updatePlayerInventory();
+
+	IEntity<?> getRidingEntity();
 
 }

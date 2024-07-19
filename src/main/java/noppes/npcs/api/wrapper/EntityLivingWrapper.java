@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.google.common.collect.Lists;
 
@@ -34,7 +35,7 @@ public class EntityLivingWrapper<T extends EntityLiving> extends EntityLivingBas
 
 	@Override
 	public IEntityLivingBase getAttackTarget() {
-		IEntityLivingBase base = (IEntityLivingBase) NpcAPI.Instance().getIEntity(this.entity.getAttackTarget());
+		IEntityLivingBase base = (IEntityLivingBase) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity.getAttackTarget());
 		return (base != null) ? base : super.getAttackTarget();
 	}
 
@@ -43,7 +44,7 @@ public class EntityLivingWrapper<T extends EntityLiving> extends EntityLivingBas
 		if (!this.isNavigating()) {
 			return null;
 		}
-		PathPoint point = this.entity.getNavigator().getPath().getFinalPathPoint();
+		PathPoint point = Objects.requireNonNull(this.entity.getNavigator().getPath()).getFinalPathPoint();
 		if (point == null) {
 			return null;
 		}
@@ -75,14 +76,14 @@ public class EntityLivingWrapper<T extends EntityLiving> extends EntityLivingBas
 	public void navigateTo(Integer[][] posses, double speed) {
 		PathNavigate nav = this.entity.getNavigator();
 		nav.clearPath();
-		List<PathPoint> points = Lists.<PathPoint>newArrayList();
+		List<PathPoint> points = Lists.newArrayList();
 		for (Integer[] posId : posses) {
 			if (posId == null || posId.length < 3) {
 				return;
 			}
 			points.add(new PathPoint(posId[0], posId[1], posId[2]));
 		}
-		nav.setPath(new Path(points.toArray(new PathPoint[points.size()])), speed);
+		nav.setPath(new Path(points.toArray(new PathPoint[0])), speed);
 	}
 
 	@Override

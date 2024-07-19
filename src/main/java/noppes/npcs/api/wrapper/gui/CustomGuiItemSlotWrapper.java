@@ -11,6 +11,8 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.containers.ContainerCustomGui;
 
+import java.util.Objects;
+
 public class CustomGuiItemSlotWrapper extends CustomGuiComponentWrapper implements IItemSlot {
 
 	public EntityPlayer player;
@@ -35,7 +37,7 @@ public class CustomGuiItemSlotWrapper extends CustomGuiComponentWrapper implemen
 	@Override
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
 		super.fromNBT(nbt);
-		this.setStack(NpcAPI.Instance().getIItemStack(new ItemStack(nbt.getCompoundTag("Stack"))));
+		this.setStack(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbt.getCompoundTag("Stack"))));
 		this.showBack = nbt.getBoolean("ShowBack");
 		return this;
 	}

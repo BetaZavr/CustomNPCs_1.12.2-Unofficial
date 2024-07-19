@@ -21,11 +21,7 @@ public class CompanionFarmer extends CompanionJobInterface {
 		return this.isStanding;
 	}
 
-	@Override
-	public void onUpdate() {
-	}
-
-	@Override
+    @Override
 	public void setNBT(NBTTagCompound compound) {
 		this.isStanding = compound.getBoolean("CompanionFarmerStanding");
 	}

@@ -2,10 +2,7 @@ package noppes.npcs.controllers.data;
 
 import java.awt.Point;
 import java.awt.Polygon;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeMap;
+import java.util.*;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
@@ -35,7 +32,7 @@ import noppes.npcs.util.RayTraceVec;
 
 public class Zone3D implements IBorder, Predicate<Entity> {
 
-	private class AntiLagTime {
+	private static class AntiLagTime {
 		private int count;
 		private long time;
 		private BlockPos pos;
@@ -63,15 +60,15 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 	private int id = -1;
 	public String name = "Default Region";
-	public TreeMap<Integer, Point> points = Maps.<Integer, Point>newTreeMap();
+	public TreeMap<Integer, Point> points = Maps.newTreeMap();
 	public int[] y = new int[] { 0, 255 };
 	public int dimensionID = 0;
 
 	public int color;
 	public Availability availability;
 	public String message;
-	private List<Entity> entitiesWithinRegion;
-	private Map<Entity, AntiLagTime> playerAntiLag;
+	private final List<Entity> entitiesWithinRegion;
+	private final Map<Entity, AntiLagTime> playerAntiLag;
 	public IPos homePos;
 	public boolean keepOut, showInClient;
 
@@ -81,8 +78,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		this.color = (new Random()).nextInt(0xFFFFFF);
 		this.availability = new Availability();
 		this.message = "availability.areaNotAvailble";
-		this.playerAntiLag = Maps.<Entity, AntiLagTime>newHashMap();
-		this.entitiesWithinRegion = Lists.<Entity>newArrayList();
+		this.playerAntiLag = Maps.newHashMap();
+		this.entitiesWithinRegion = Lists.newArrayList();
 		this.keepOut = false;
 		this.showInClient = false;
 		this.update = true;
@@ -106,7 +103,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Adds a new point to the end
 	 * 
-	 * @param position
+	 * @param position - block pos
 	 */
 	public Point addPoint(BlockPos position) {
 		return this.addPoint(position.getX(), position.getY(), position.getZ());
@@ -115,9 +112,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Adds a new point to the end
 	 * 
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param x - x pos
+	 * @param y - y pos
+	 * @param z - z pos
 	 */
 	@Override
 	public Point addPoint(int x, int y, int z) {
@@ -135,7 +132,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Adds a new point to the end
 	 * 
-	 * @param point
+	 * @param point - pos
+	 * @param y - height
 	 */
 	@Override
 	public Point addPoint(Point point, int y) {
@@ -161,13 +159,11 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public boolean apply(Entity entity) {
-		if (entity.isDead || (!(entity instanceof EntityPlayerMP) && !(entity instanceof EntityEnderPearl))) {
+		if (entity == null || entity.isDead || (!(entity instanceof EntityPlayerMP) && !(entity instanceof EntityEnderPearl))) {
 			return false;
 		}
-		EntityPlayerMP player = null;
-		if (entity instanceof EntityPlayerMP) {
-			player = (EntityPlayerMP) entity;
-		} else if (entity instanceof EntityEnderPearl) {
+		EntityPlayerMP player = entity instanceof EntityPlayerMP ? (EntityPlayerMP) entity : null;
+		if (entity instanceof EntityEnderPearl) {
 			if (((EntityEnderPearl) entity).getThrower() instanceof EntityPlayerMP) {
 				player = (EntityPlayerMP) ((EntityEnderPearl) entity).getThrower();
 			} else {
@@ -185,13 +181,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Offsets the position of the zone
 	 * 
-	 * @param position
-	 * @param typePos
-	 *            = 0 - relative to the zero coordinate;
-	 * @param typePos
-	 *            = 1 - relative to the center of the described contour;
-	 * @param typePos
-	 *            = 2 - relative to the center of mass
+	 * @param position - block pos
+	 * @param type = 0 - relative to the zero coordinate; 1 - relative to the center of the described contour; 2 - relative to the center of mass
 	 */
 	public void centerOffsetTo(BlockPos position, boolean type) {
 		this.centerOffsetTo(position.getX(), position.getY(), position.getZ(), type);
@@ -200,23 +191,22 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Offsets the position of the zone
 	 * 
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param type
-	 *            0 - relative to the zero coordinate, 1 - relative to the center of
+	 * @param x - x pos
+	 * @param y - y pos
+	 * @param z - z pos
+	 * @param type - 0 - relative to the zero coordinate, 1 - relative to the center of
 	 *            the described contour;
 	 */
 	@Override
 	public void centerOffsetTo(int x, int y, int z, boolean type) {
-		IPos ctr = null;
+		IPos ctr;
 		int ry = (this.y[1] - this.y[0]) / 2;
 		if (type) {
 			ctr = this.getCenter();
 			this.y[0] = y - ry;
 			this.y[1] = y + ry;
 		} else {
-			ctr = NpcAPI.Instance().getIPos(this.getMinX(), this.y[0], this.getMinZ());
+			ctr = Objects.requireNonNull(NpcAPI.Instance()).getIPos(this.getMinX(), this.y[0], this.getMinZ());
 			this.y[0] = y;
 			this.y[1] = y + ry * 2;
 		}
@@ -235,17 +225,12 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Offsets the position of the zone
 	 * 
-	 * @param point
-	 * @param typePos
-	 *            = 0 - relative to the zero coordinate;
-	 * @param typePos
-	 *            = 1 - relative to the center of the described contour;
-	 * @param typePos
-	 *            = 2 - relative to the center of mass
+	 * @param point - pos
+	 * @param type = 0 - relative to the zero coordinate; 1 - relative to the center of the described contour; 2 - relative to the center of mass
 	 */
 	@Override
 	public void centerOffsetTo(Point point, boolean type) {
-		this.centerOffsetTo(point.x, (int) ((this.y[0] + this.y[1]) / 2), point.y, type);
+		this.centerOffsetTo(point.x, (this.y[0] + this.y[1]) / 2, point.y, type);
 	}
 
 	@Override
@@ -345,9 +330,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	public void fix() {
 		if (this.points == null) {
-			this.points = Maps.<Integer, Point>newTreeMap();
+			this.points = Maps.newTreeMap();
 		}
-		TreeMap<Integer, Point> newList = Maps.<Integer, Point>newTreeMap();
+		TreeMap<Integer, Point> newList = Maps.newTreeMap();
 		int i = 0;
 		boolean needChange = false;
 		for (int pos : this.points.keySet()) {
@@ -375,19 +360,19 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	public IPos getCenter() {
 		double x = 0.0d, z = 0.0d;
 		for (Point v : this.points.values()) {
-			x += (double) v.x;
-			z += (double) v.y;
+			x += v.x;
+			z += v.y;
 		}
-		if (this.points.size() > 0) {
-			x /= (double) this.points.size();
-			z /= (double) this.points.size();
+		if (!this.points.isEmpty()) {
+			x /= this.points.size();
+			z /= this.points.size();
 		}
-		return NpcAPI.Instance().getIPos(x, (double) this.y[0] + ((double) this.y[1] - (double) this.y[0]) / 2.0d, z);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIPos(x, (double) this.y[0] + ((double) this.y[1] - (double) this.y[0]) / 2.0d, z);
 	}
 
 	@Override
 	public int getClosestPoint(Point point, IPos pos) {
-		if (this.points.size() == 0) {
+		if (this.points.isEmpty()) {
 			return -1;
 		}
 		if (this.points.size() == 1) {
@@ -458,7 +443,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		if (this.homePos == null || this.keepOut != this.contains(this.homePos.getX() + 0.5d,
 				this.homePos.getY() + 0.5d, this.homePos.getZ() + 0.5d, 0.0d)) {
 			this.homePos = this.getCenter();
-			if (this.keepOut && this.points.size() > 0) {
+			if (this.keepOut && !this.points.isEmpty()) {
 				for (int i = 0; i < 4; i++) {
 					int x = this.points.get(0).x, z = this.points.get(0).y;
 					switch (i) {
@@ -479,7 +464,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 					}
 					}
 					if (!this.contains(x, z)) {
-						this.homePos = NpcAPI.Instance().getIPos(x, this.y[0] + (this.y[1] - this.y[0]) / 2, z);
+						this.homePos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(x, this.y[0] + (double) (this.y[1] - this.y[0]) / 2, z);
 					}
 				}
 			}
@@ -493,7 +478,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 
 	public int getIdNearestPoint(BlockPos pos) {
-		if (this.points.size() == 0 || pos == null) {
+		if (this.points.isEmpty() || pos == null) {
 			return -1;
 		}
 		double min = Double.MAX_VALUE;
@@ -511,7 +496,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public int getMaxX() {
-		if (this.points.size() == 0) {
+		if (this.points.isEmpty()) {
 			return 0;
 		}
 		int value = this.points.get(0).x;
@@ -525,12 +510,12 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public int getMaxY() {
-		return this.y[0] > this.y[1] ? this.y[0] : this.y[1];
+		return Math.max(this.y[0], this.y[1]);
 	}
 
 	@Override
 	public int getMaxZ() {
-		if (this.points.size() == 0) {
+		if (this.points.isEmpty()) {
 			return 0;
 		}
 		int value = this.points.get(0).y;
@@ -549,7 +534,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public int getMinX() {
-		if (this.points.size() == 0) {
+		if (this.points.isEmpty()) {
 			return 0;
 		}
 		int value = this.points.get(0).x;
@@ -563,12 +548,12 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public int getMinY() {
-		return this.y[0] < this.y[1] ? this.y[0] : this.y[1];
+		return Math.min(this.y[0], this.y[1]);
 	}
 
 	@Override
 	public int getMinZ() {
-		if (this.points.size() == 0) {
+		if (this.points.isEmpty()) {
 			return 0;
 		}
 		int value = this.points.get(0).y;
@@ -589,18 +574,18 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	public INbt getNbt() {
 		NBTTagCompound nbtRegion = new NBTTagCompound();
 		this.readFromNBT(nbtRegion);
-		return NpcAPI.Instance().getINbt(nbtRegion);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtRegion);
 	}
 
 	private double[] getPlayerTeleportPosition(Entity entity) {
 		double x = 0.0d, z = 0.0d;
 		for (Point v : this.points.values()) {
-			x += (double) v.x;
-			z += (double) v.y;
+			x += v.x;
+			z += v.y;
 		}
-		if (this.points.size() > 0) {
-			x /= (double) this.points.size();
-			z /= (double) this.points.size();
+		if (!this.points.isEmpty()) {
+			x /= this.points.size();
+			z /= this.points.size();
 		}
 		double y = ((double) this.y[1] - (double) this.y[0]) / 2.0d;
 
@@ -640,17 +625,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		return p;
 	}
 
-	public List<Point> getPointList() {
-		List<Point> list = Lists.<Point>newArrayList();
-		for (Point p : this.points.values()) {
-			list.add(p);
-		}
-		return list;
-	}
-
 	@Override
 	public Point[] getPoints() {
-		return this.points.values().toArray(new Point[this.points.size()]);
+		return this.points.values().toArray(new Point[0]);
 	}
 
 	/**
@@ -671,21 +648,12 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		return x + "x" + y + "x" + z;
 	}
-
-	public int getWidthX() {
-		return this.getMaxX() - this.getMinX();
-	}
-
-	public int getWidthZ() {
-		return this.getMaxZ() - this.getMinZ();
-	}
-
 	/**
 	 * Adds a new point between two existing ones (through the smallest lengths)
 	 * 
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param x - x pos
+	 * @param y - y pos
+	 * @param z - z pos
 	 */
 	@Override
 	public boolean insertPoint(int x, int y, int z, IPos pos) {
@@ -698,7 +666,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Adds a new point between two existing ones (through the smallest lengths)
 	 * 
-	 * @param position
+	 * @param pos0 - start block pos
+	 * @param pos1 - end block pos
 	 */
 	@Override
 	public boolean insertPoint(IPos pos0, IPos pos1) {
@@ -723,7 +692,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			return this.addPoint(point, y) != null;
 		}
 		int n = this.getClosestPoint(point, pos);
-		TreeMap<Integer, Point> temp = Maps.<Integer, Point>newTreeMap();
+		TreeMap<Integer, Point> temp = Maps.newTreeMap();
 		for (int i = 0, j = 0; i < this.points.size(); i++) {
 			temp.put(i + j, this.points.get(i));
 			if (i == n) {
@@ -773,7 +742,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Offsets the entire zone by the specified value
 	 * 
-	 * @param position
+	 * @param position - block pos
 	 */
 	public void offset(BlockPos position) {
 		this.offset(position.getX(), position.getY(), position.getZ());
@@ -782,9 +751,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * (this.y[1]+this.y[0])/2 Offsets the entire zone by the specified value
 	 * 
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param x - x pos
+	 * @param y - y pos
+	 * @param z - z pos
 	 */
 	@Override
 	public void offset(int x, int y, int z) {
@@ -805,7 +774,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Offsets the entire zone by the specified value
 	 * 
-	 * @param point
+	 * @param point - pos
 	 */
 	@Override
 	public void offset(Point point) {
@@ -827,7 +796,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		if (this.y[1] > 255) {
 			this.y[1] = 255;
 		}
-		this.points = Maps.<Integer, Point>newTreeMap();
+		this.points = Maps.newTreeMap();
 		for (int i = 0; i < nbtRegion.getTagList("Points", 11).tagCount(); i++) {
 			int[] p = nbtRegion.getTagList("Points", 11).getIntArrayAt(i);
 			this.points.put(i, new Point(p[0], p[1]));
@@ -845,12 +814,12 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Remove point from polygon
 	 * 
-	 * @param x
-	 * @param z
+	 * @param x - x pos
+	 * @param z - z pos
 	 */
 	@Override
 	public boolean removePoint(int x, int z) {
-		if (this.points == null || this.points.size() == 0) {
+		if (this.points == null || this.points.isEmpty()) {
 			return false;
 		}
 		for (int key : this.points.keySet()) {
@@ -867,7 +836,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Remove point from polygon
 	 * 
-	 * @param point
+	 * @param point - pos
 	 */
 	@Override
 	public boolean removePoint(Point point) {
@@ -880,8 +849,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Expand or Shrink a zone outline by a specific value
 	 * 
-	 * @param pos
-	 *            - BlockPos
+	 * @param radius - distance
+	 * @param type - type
 	 */
 	@Override
 	public void scaling(double radius, boolean type) {
@@ -894,7 +863,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		if (type) {
 			pos = this.getCenter();
 		} else {
-			pos = NpcAPI.Instance().getIPos(this.getMinX(), this.y[0], this.getMinZ());
+			pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(this.getMinX(), this.y[0], this.getMinZ());
 		}
 		for (int key : this.points.keySet()) {
 			Point v = this.points.get(key);
@@ -909,10 +878,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Scale zone outline
 	 * 
-	 * @param scale
-	 *            - percentage where 100% = 1.0f
-	 * @param pos
-	 *            - BlockPos
+	 * @param scale - percentage where 100% = 1.0f
+	 * @param type - type
 	 */
 	@Override
 	public void scaling(float scale, boolean type) {
@@ -923,7 +890,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		if (type) {
 			pos = this.getCenter();
 		} else {
-			pos = NpcAPI.Instance().getIPos(this.getMinX(), this.y[0], this.getMinZ());
+			pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(this.getMinX(), this.y[0], this.getMinZ());
 		}
 		for (int key : this.points.keySet()) {
 			Point v = this.points.get(key);
@@ -959,7 +926,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		if (this.homePos == null || this.keepOut != this.contains(x + 0.5d, y, z + 0.5d, 0.0d)) {
 			return;
 		}
-		this.homePos = NpcAPI.Instance().getIPos(x, y, z);
+		this.homePos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(x, y, z);
 		this.update = true;
 	}
 
@@ -987,8 +954,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Sets a point instead of an existing one
 	 * 
-	 * @param index
-	 * @param position
+	 * @param index - index
+	 * @param position - new block pos
 	 */
 	public Point setPoint(int index, BlockPos position) {
 		return this.setPoint(index, position.getX(), position.getY(), position.getZ());
@@ -997,10 +964,10 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Sets a point instead of an existing one
 	 * 
-	 * @param index
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param index - index
+	 * @param x - new x pos
+	 * @param y - new y pos
+	 * @param z - new z pos
 	 */
 	@Override
 	public Point setPoint(int index, int x, int y, int z) {
@@ -1019,8 +986,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Sets a point instead of an existing one
 	 * 
-	 * @param index
-	 * @param point
+	 * @param index - index
+	 * @param point - new pos
 	 */
 	@Override
 	public Point setPoint(int index, Point point) {
@@ -1035,9 +1002,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	/**
 	 * Sets a point instead of an existing one
 	 * 
-	 * @param index
-	 * @param y
-	 * @param point
+	 * @param index - index
+	 * @param y - new height
+	 * @param point - new pos
 	 */
 	@Override
 	public Point setPoint(int index, Point point, int y) {
@@ -1081,7 +1048,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		this.update = true;
 	}
 
-	public void update(WorldServer worldsworld) {
+	public void update(WorldServer world) {
 		if (this.update) {
 			this.entitiesWithinRegion.clear();
 			this.playerAntiLag.clear();
@@ -1089,10 +1056,10 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			this.update = false;
 			return;
 		}
-		if (this.points.size() == 0 || this.dimensionID != worldsworld.provider.getDimension()) {
+		if (this.points.isEmpty() || this.dimensionID != world.provider.getDimension()) {
 			return;
 		}
-		List<Entity> listEntitiesInside = worldsworld.getEntities(Entity.class, this);
+		List<Entity> listEntitiesInside = world.getEntities(Entity.class, this);
 		for (Entity entity : listEntitiesInside) {
 			if (this.keepOut) {
 				this.kick(entity);
@@ -1102,7 +1069,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 				this.entitiesWithinRegion.add(entity);
 			}
 		}
-		List<Entity> del = Lists.<Entity>newArrayList();
+		List<Entity> del = Lists.newArrayList();
 		for (Entity entity : this.entitiesWithinRegion) {
 			if (entity.isDead || (!this.keepOut && listEntitiesInside.contains(entity))) {
 				if (entity.isDead) {

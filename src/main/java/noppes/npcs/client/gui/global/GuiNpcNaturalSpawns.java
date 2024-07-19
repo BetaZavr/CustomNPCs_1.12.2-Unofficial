@@ -37,16 +37,14 @@ public class GuiNpcNaturalSpawns
 extends GuiNPCInterface2
 implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISliderListener {
 
-	private HashMap<String, Integer> data;
+	private final HashMap<String, Integer> data = new HashMap<>();
 	private GuiCustomScroll scroll;
-	private SpawnData spawn;
+	private SpawnData spawn = new SpawnData();
 	private Entity displayNpc = null;
 
 	public GuiNpcNaturalSpawns(EntityNPCInterface npc) {
 		super(npc);
-		this.data = new HashMap<String, Integer>();
-		this.spawn = new SpawnData();
-		Client.sendData(EnumPacketServer.NaturalSpawnGetAll, new Object[0]);
+		Client.sendData(EnumPacketServer.NaturalSpawnGetAll);
 	}
 
 	@Override
@@ -54,8 +52,8 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 		switch(button.id) {
 			case 1: { // add
 				this.save();
-				String name;
-				for (name = new TextComponentTranslation("gui.new").getFormattedText(); this.data.containsKey(name); name += "_") { }
+				String name = new TextComponentTranslation("gui.new").getFormattedText();
+				while (this.data.containsKey(name)) { name += "_"; }
 				SpawnData spawn = new SpawnData();
 				spawn.name = name;
 				Client.sendData(EnumPacketServer.NaturalSpawnSave, spawn.writeNBT(new NBTTagCompound()));
@@ -280,7 +278,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(1, 8, this.spawn.group);
 
-		this.addLabel(new GuiNpcLabel(lId++, "spawning.range", x, (y += 22) + 5));
+		this.addLabel(new GuiNpcLabel(lId, "spawning.range", x, (y += 22) + 5));
 		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, x + 164, y, 42, 20, "" + this.spawn.range));
 		this.getTextField(4).setNumbersOnly();
 		this.getTextField(4).setMinMaxDefault(1, 16, this.spawn.range);

@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.INPCJob;
 import noppes.npcs.api.item.IItemStack;
@@ -95,8 +96,7 @@ public class JobInterface implements INPCJob {
 			if (split.length == 2) {
 				try {
 					damage = Integer.parseInt(split[1]);
-				} catch (NumberFormatException ex) {
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 				s = split[0];
 			}
 		}

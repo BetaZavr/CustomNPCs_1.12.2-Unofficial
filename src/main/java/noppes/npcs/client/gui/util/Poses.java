@@ -10,7 +10,7 @@ public class Poses {
 	public int y;
 
 	public Poses(GuiScreen gui, int i) {
-		ScaledResolution scaleW = null;
+		ScaledResolution scaleW;
 		if (gui.mc != null) {
 			scaleW = new ScaledResolution(gui.mc);
 		} else {

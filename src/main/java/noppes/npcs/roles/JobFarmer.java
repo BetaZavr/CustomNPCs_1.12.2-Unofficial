@@ -3,6 +3,7 @@ package noppes.npcs.roles;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockChest;
@@ -19,7 +20,6 @@ import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
@@ -46,7 +46,7 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 		super(npc);
 		this.range = 16;
 		this.chestMode = 1;
-		this.trackedBlocks = new ArrayList<BlockPos>();
+		this.trackedBlocks = new ArrayList<>();
 		this.ticks = 0;
 		this.walkTicks = 0;
 		this.blockTicks = 800;
@@ -111,7 +111,7 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 				}
 				this.ripe = pos;
 			} else if (b instanceof BlockStem) {
-				state = b.getActualState(state, (IBlockAccess) this.npc.world, pos);
+				state = b.getActualState(state, this.npc.world, pos);
 				EnumFacing facing = state.getValue(BlockStem.FACING);
 				if (facing == EnumFacing.UP) {
 					continue;
@@ -144,8 +144,8 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 			IBlockState state = this.npc.world.getBlockState(pos);
 			if (state.getBlock() instanceof BlockChest) {
 				TileEntityChest tile = (TileEntityChest) this.npc.world.getTileEntity(pos);
-				for (int i = 0; !this.holding.isEmpty() && i < tile.getSizeInventory(); ++i) {
-					this.holding = this.mergeStack((IInventory) tile, i, this.holding);
+				for (int i = 0; !this.holding.isEmpty() && i < Objects.requireNonNull(tile).getSizeInventory(); ++i) {
+					this.holding = this.mergeStack(tile, i, this.holding);
 				}
 				for (int i = 0; !this.holding.isEmpty() && i < tile.getSizeInventory(); ++i) {
 					ItemStack item = tile.getStackInSlot(i);
@@ -178,7 +178,7 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 		if (item.isEmpty()) {
 			return this.npc.inventory.weapons.get(0);
 		}
-		return NpcAPI.Instance().getIItemStack(item);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(item);
 	}
 
 	@Override
@@ -261,7 +261,7 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 
 	@Override
 	public void processed(List<BlockData> list) {
-		List<BlockPos> trackedBlocks = new ArrayList<BlockPos>();
+		List<BlockPos> trackedBlocks = new ArrayList<>();
 		BlockPos chest = null;
 		for (BlockData data : list) {
 			Block b = data.state.getBlock();

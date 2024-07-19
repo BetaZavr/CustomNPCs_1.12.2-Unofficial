@@ -49,8 +49,7 @@ public class JobFollower extends JobInterface implements IJobFollower {
 				return true;
 			}
 		}
-		this.following = null;
-		List<EntityNPCInterface> list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
+        List<EntityNPCInterface> list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
 				this.npc.getEntityBoundingBox().grow(this.getRange(), this.getRange(), this.getRange()));
 		for (EntityNPCInterface entity : list) {
 			if (entity == this.npc || entity.isKilled()) {
@@ -106,11 +105,7 @@ public class JobFollower extends JobInterface implements IJobFollower {
 		this.name = compound.getString("FollowingEntityName");
 	}
 
-	@Override
-	public void reset() {
-	}
-
-	@Override
+    @Override
 	public void resetTask() {
 		this.following = null;
 	}

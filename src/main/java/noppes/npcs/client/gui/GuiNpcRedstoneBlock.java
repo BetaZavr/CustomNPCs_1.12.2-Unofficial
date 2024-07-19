@@ -13,7 +13,8 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPacketServer;
 
 public class GuiNpcRedstoneBlock extends GuiNPCInterface implements IGuiData {
-	private TileRedstoneBlock tile;
+
+	private final TileRedstoneBlock tile;
 
 	public GuiNpcRedstoneBlock(int x, int y, int z) {
 		this.tile = (TileRedstoneBlock) this.player.world.getTileEntity(new BlockPos(x, y, z));

@@ -9,7 +9,6 @@ import java.util.Vector;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -26,11 +25,10 @@ import noppes.npcs.constants.EnumPacketServer;
 
 public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICustomScrollListener {
 
-	private HashMap<String, Integer> data;
+	private final HashMap<String, Integer> data = new HashMap<>();
 	private GuiCustomScroll scroll;
 
 	public GuiNpcDimension() {
-		this.data = new HashMap<String, Integer>();
 		this.xSize = 256;
 		this.setBackground("menubg.png");
 	}
@@ -47,11 +45,11 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 			if (!ClientHandler.getInstance().has(id)) {
 				return;
 			}
-			CustomNpcs.proxy.openGui(null, EnumGuiType.DimentionSetting, id, 0, 0);
+			CustomNpcs.proxy.openGui(null, EnumGuiType.DimensionSetting, id, 0, 0);
 			break;
 		}
 		case 2: { // add
-			CustomNpcs.proxy.openGui(null, EnumGuiType.DimentionSetting, 0, 0, 0);
+			CustomNpcs.proxy.openGui(null, EnumGuiType.DimensionSetting, 0, 0, 0);
 			break;
 		}
 		case 3: { // remove
@@ -76,7 +74,7 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 		if (flag) {
 			Client.sendData(EnumPacketServer.RemoteDelete, this.data.get(this.scroll.getSelected()));
 		}
-		NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		NoppesUtil.openGUI(this.player, this);
 	}
 
 	@Override
@@ -143,7 +141,7 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 
 	@Override
 	public void initPacket() {
-		Client.sendData(EnumPacketServer.DimensionsGet, new Object[0]);
+		Client.sendData(EnumPacketServer.DimensionsGet);
 	}
 
 	@Override
@@ -176,12 +174,12 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
 		this.data.clear();
-		TreeMap<Integer, String> m = Maps.<Integer, String>newTreeMap();
+		TreeMap<Integer, String> m = Maps.newTreeMap();
 		for (String key : data.keySet()) {
 			m.put(data.get(key), key);
 		}
-		List<String> l = Lists.<String>newArrayList();
-		List<String> s = Lists.<String>newArrayList();
+		List<String> l = Lists.newArrayList();
+		List<String> s = Lists.newArrayList();
 		String c = "" + ((char) 167);
 		for (int id : m.keySet()) {
 			String[] t = m.get(id).split("&");

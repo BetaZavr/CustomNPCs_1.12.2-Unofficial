@@ -6,7 +6,7 @@ import noppes.npcs.util.RayTraceResults;
 import noppes.npcs.util.RayTraceRotate;
 import noppes.npcs.util.RayTraceVec;
 
-public interface IMetods {
+public interface IMethods {
 
 	String deleteColor(String str);
 

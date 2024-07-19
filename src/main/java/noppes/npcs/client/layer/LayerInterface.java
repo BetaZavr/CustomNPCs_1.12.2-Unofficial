@@ -7,12 +7,13 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.ModelPartData;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.entity.EntityCustomNpc;
+
+import javax.annotation.Nonnull;
 
 public abstract class LayerInterface<T extends EntityLivingBase>
 implements LayerRenderer<T> {
@@ -27,28 +28,22 @@ implements LayerRenderer<T> {
 		this.model = (ModelBiped) render.getMainModel();
 	}
 
-	private int blend(int color1, int color2, float ratio) {
-		if (ratio >= 1.0f) {
-			return color2;
-		}
-		if (ratio <= 0.0f) {
-			return color1;
-		}
-		int aR = (color1 & 0xFF0000) >> 16;
+	private int blend(int color1, int color2) {
+        int aR = (color1 & 0xFF0000) >> 16;
 		int aG = (color1 & 0xFF00) >> 8;
 		int aB = color1 & 0xFF;
 		int bR = (color2 & 0xFF0000) >> 16;
 		int bG = (color2 & 0xFF00) >> 8;
 		int bB = color2 & 0xFF;
-		int R = (int) (aR + (bR - aR) * ratio);
-		int G = (int) (aG + (bG - aG) * ratio);
-		int B = (int) (aB + (bB - aB) * ratio);
+		int R = (int) (aR + (bR - aR) * (float) 0.5);
+		int G = (int) (aG + (bG - aG) * (float) 0.5);
+		int B = (int) (aB + (bB - aB) * (float) 0.5);
 		return R << 16 | G << 8 | B;
 	}
 
-	public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+	public void doRenderLayer(@Nonnull EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		this.npc = (EntityCustomNpc) entity;
-		if (this.npc.isInvisibleToPlayer((EntityPlayer) Minecraft.getMinecraft().player)) {
+		if (this.npc.isInvisibleToPlayer(Minecraft.getMinecraft().player)) {
 			return;
 		}
 		this.playerdata = this.npc.modelData;
@@ -94,7 +89,7 @@ implements LayerRenderer<T> {
 		int color = data.color;
 		if (this.npc.display.getTint() != 16777215) {
 			if (data.color != 16777215) {
-				color = this.blend(data.color, this.npc.display.getTint(), 0.5f);
+				color = this.blend(data.color, this.npc.display.getTint());
 			} else {
 				color = this.npc.display.getTint();
 			}
@@ -117,13 +112,11 @@ implements LayerRenderer<T> {
 		}
 	}
 
-	public abstract void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
-			float headPitch, float scale);
+	public abstract void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale);
 
-	public abstract void rotate(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
-			float headPitch, float scale);
+	public abstract void rotate(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale);
 
-	public void setColor(ModelPartData data, EntityLivingBase entity) {
+	public void setColor(ModelPartData ignoredData, EntityLivingBase ignoredEntity) {
 	}
 
 	public void setRotation(ModelRenderer model, float x, float y, float z) {

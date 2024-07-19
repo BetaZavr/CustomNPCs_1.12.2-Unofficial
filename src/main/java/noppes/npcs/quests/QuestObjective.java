@@ -1,6 +1,7 @@
 package noppes.npcs.quests;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -40,7 +41,7 @@ public class QuestObjective implements IQuestObjective {
 	private boolean notShowLogEntity = false;
 	private boolean setPointOnMiniMap = false;
 	private int id = 0;
-	private int parentID = 0;
+	private final int parentID;
 	private int maxProgress = 1;
 	private int range = 10;
 	private EnumQuestTask type = EnumQuestTask.ITEM;
@@ -98,7 +99,7 @@ public class QuestObjective implements IQuestObjective {
 
 	@Override
 	public IPos getCompassPos() {
-		return NpcAPI.Instance().getIPos(this.pos.getX(), this.pos.getY(), this.pos.getZ());
+		return Objects.requireNonNull(NpcAPI.Instance()).getIPos(this.pos.getX(), this.pos.getY(), this.pos.getZ());
 	}
 
 	@Override
@@ -119,7 +120,7 @@ public class QuestObjective implements IQuestObjective {
 
 	@Override
 	public IItemStack getItem() {
-		return NpcAPI.Instance().getIItemStack(this.item);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.item);
 	}
 
 	public ItemStack getItemStack() {
@@ -185,7 +186,7 @@ public class QuestObjective implements IQuestObjective {
 	public int getProgress() {
 		if (this.type == EnumQuestTask.ITEM) {
 			int count = 0;
-			for (int i = 0; i < this.player.inventory.getSizeInventory(); ++i) {
+			for (int i = 0; i < Objects.requireNonNull(this.player).inventory.getSizeInventory(); ++i) {
 				ItemStack item = this.player.inventory.getStackInSlot(i);
 				if (!NoppesUtilServer.IsItemStackNull(item)) {
 					if (NoppesUtilPlayer.compareItems(this.item, item, this.ignoreDamage, this.ignoreNBT)) {
@@ -268,7 +269,7 @@ public class QuestObjective implements IQuestObjective {
 		if (this.type == EnumQuestTask.KILL || this.type == EnumQuestTask.AREAKILL) { // Kill
 			String locName = "entity." + name + ".name";
 			String transName = new TextComponentTranslation(locName).getFormattedText();
-			if (transName.indexOf("entity.") >= 0 && transName.indexOf(".name") > 0) {
+			if (transName.contains("entity.") && transName.indexOf(".name") > 0) {
 				transName = name;
 			}
 			return transName + ": " + (this.isCompleted() ? colorG : colorD) + this.getProgress() + colorR + "/"
@@ -441,7 +442,7 @@ public class QuestObjective implements IQuestObjective {
 	}
 
 	public void setKilled(QuestData data, HashMap<String, Integer> killed) {
-		data.extraData.setTag("Targets", (NBTBase) NBTTags.nbtStringIntegerMap(killed));
+		data.extraData.setTag("Targets", NBTTags.nbtStringIntegerMap(killed));
 	}
 
 	@Override
@@ -509,7 +510,7 @@ public class QuestObjective implements IQuestObjective {
 					compound.setInteger("MessageType", 0);
 					Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
 				}
-				if (questData.quest.showProgressInChat) {
+				if (player != null && questData.quest.showProgressInChat) {
 					player.sendMessage(new TextComponentTranslation("quest.message.dialog." + progress,
 							new TextComponentTranslation(dialog).getFormattedText(), questData.quest.getTitle()));
 				}
@@ -555,8 +556,10 @@ public class QuestObjective implements IQuestObjective {
 				compound.setString("TargetName", this.name);
 				compound.setInteger("MessageType", 0);
 				Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
-				this.player.sendMessage(new TextComponentTranslation("quest.message.location." + progress,
-						new TextComponentTranslation(this.name).getFormattedText(), questData.quest.getTitle()));
+				if (player != null) {
+					this.player.sendMessage(new TextComponentTranslation("quest.message.location." + progress,
+							new TextComponentTranslation(this.name).getFormattedText(), questData.quest.getTitle()));
+				}
 			}
 			data.updateClient = true;
 		} else if (this.type == EnumQuestTask.KILL || this.type == EnumQuestTask.AREAKILL
@@ -578,13 +581,15 @@ public class QuestObjective implements IQuestObjective {
 				compound.setString("TargetName", this.name);
 				compound.setInteger("MessageType", 0);
 				Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
-				this.player.sendMessage(new TextComponentTranslation("quest.message." + key + ".0",
-						new TextComponentTranslation(this.name).getFormattedText(), "" + progress,
-						"" + this.maxProgress, questData.quest.getTitle()));
+				if (player != null) {
+					this.player.sendMessage(new TextComponentTranslation("quest.message." + key + ".0",
+							new TextComponentTranslation(this.name).getFormattedText(), "" + progress,
+							"" + this.maxProgress, questData.quest.getTitle()));
+				}
 			}
 			killed.put(this.name, progress);
 			this.setKilled(questData, killed);
-			if (progress >= this.maxProgress) {
+			if (player != null && progress >= this.maxProgress) {
 				this.player.sendMessage(new TextComponentTranslation("quest.message." + key + ".1",
 						new TextComponentTranslation(this.name).getFormattedText(), questData.quest.getTitle()));
 			}
@@ -613,17 +618,18 @@ public class QuestObjective implements IQuestObjective {
 			compound.setString("TargetName", this.item.getDisplayName());
 			compound.setInteger("MessageType", 0);
 			Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
-			if (progress >= this.maxProgress) {
-				this.player.sendMessage(new TextComponentTranslation("quest.message.craft.1",
-						this.item.getDisplayName(), questData.quest.getTitle()));
-			} else {
-				this.player.sendMessage(new TextComponentTranslation("quest.message.craft.0",
-						this.item.getDisplayName(), "" + progress, "" + this.maxProgress, questData.quest.getTitle()));
+			if (player != null) {
+				if (progress >= this.maxProgress) {
+					this.player.sendMessage(new TextComponentTranslation("quest.message.craft.1",
+							this.item.getDisplayName(), questData.quest.getTitle()));
+				} else {
+					this.player.sendMessage(new TextComponentTranslation("quest.message.craft.0",
+							this.item.getDisplayName(), "" + progress, "" + this.maxProgress, questData.quest.getTitle()));
+				}
 			}
-
 			data.updateClient = true;
 		}
-		for (IQuestObjective obj : questData.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+		for (IQuestObjective obj : questData.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 			if (((QuestObjective) obj).getEnumType() != this.type) {
 				continue;
 			}

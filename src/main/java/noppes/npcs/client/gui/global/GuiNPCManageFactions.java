@@ -1,8 +1,6 @@
 package noppes.npcs.client.gui.global;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +12,6 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -51,17 +48,15 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISubGuiListener, GuiYesNoCallback {
 
 	public static boolean isName = true;
-	private HashMap<String, Integer> base;
-	private Map<String, Integer> data;
+	private HashMap<String, Integer> base = Maps.newHashMap();
+	private final Map<String, Integer> data = Maps.newLinkedHashMap();
 	private Faction faction;
 	private GuiCustomScroll scrollFactions;
 
 	public GuiNPCManageFactions(EntityNPCInterface npc) {
 		super(npc);
-		this.base = Maps.<String, Integer>newHashMap();
-		this.data = Maps.<String, Integer>newLinkedHashMap();
 		this.faction = new Faction();
-		Client.sendData(EnumPacketServer.FactionsGet, new Object[0]);
+		Client.sendData(EnumPacketServer.FactionsGet);
 	}
 
 	@Override
@@ -69,9 +64,9 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		switch (button.id) {
 		case 0: {
 			this.save();
-			String name;
-			for (name = new TextComponentTranslation("gui.new").getFormattedText(); this.data
-					.containsKey(name); name += "_") {
+			String name = new TextComponentTranslation("gui.new").getFormattedText();
+			while (this.data.containsKey(name)) {
+				name += "_";
 			}
 			Faction faction = new Faction(-1, name, 65280, 1000);
 			NBTTagCompound compound = new NBTTagCompound();
@@ -109,7 +104,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 			if (this.scrollFactions.getSelected() == null) {
 				return;
 			}
-			HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
+			HashMap<String, Integer> corData = Maps.newHashMap();
 			for (String name : this.base.keySet()) {
 				int id = this.base.get(name);
 				if (this.faction.id == id || this.faction.frendFactions.contains(id)) {
@@ -125,7 +120,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 			if (this.scrollFactions.getSelected() == null) {
 				return;
 			}
-			HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
+			HashMap<String, Integer> corData = Maps.newHashMap();
 			for (String name : this.base.keySet()) {
 				int id = this.base.get(name);
 				if (this.faction.id == id || this.faction.attackFactions.contains(id)) {
@@ -167,16 +162,11 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 			GuiNPCManageFactions.isName = ((GuiNpcCheckBox) button).isSelected();
 			((GuiNpcCheckBox) button).setText(GuiNPCManageFactions.isName ? "gui.name" : "ID");
 			if (!this.base.isEmpty()) {
-				this.setData(new Vector<String>(this.base.keySet()), this.base);
+				this.setData(new Vector<>(this.base.keySet()), this.base);
 			}
 			break;
 		}
 		case 24: { // reset ID
-			// GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new
-			// TextComponentTranslation("message.change.id",
-			// ""+this.faction.id).getFormattedText(), new
-			// TextComponentTranslation("message.change").getFormattedText(), 0);
-			// this.displayGuiScreen((GuiScreen) guiyesno);
 			Client.sendData(EnumPacketServer.FactionMinID, this.faction.id);
 			break;
 		}
@@ -188,7 +178,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 
 	@Override
 	public void confirmClicked(boolean result, int id) {
-		NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		NoppesUtil.openGUI(this.player, this);
 		if (!result) {
 			return;
 		}
@@ -205,11 +195,10 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		this.drawGradientRect(0, 0, 20, 39, 0xFFA0A0A0, 0xFFA0A0A0);
 		if (faction != null && faction.id > -1) {
 			this.mc.renderEngine.bindTexture(faction.flag);
-			if (mc.renderEngine.getTexture(faction.flag) != null) {
-				GlStateManager.scale(0.5f, 0.305f, 1.0f);
-				this.drawTexturedModalRect(0, 0, 4, 4, 40, 128);
-			}
-		}
+            mc.renderEngine.getTexture(faction.flag);
+            GlStateManager.scale(0.5f, 0.305f, 1.0f);
+            this.drawTexturedModalRect(0, 0, 4, 4, 40, 128);
+        }
 		GlStateManager.popMatrix();
 		super.drawScreen(i, j, f);
 		if (this.scrollFactions.getSelected() == null && this.faction.id > -1
@@ -281,7 +270,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		this.scrollFactions.guiTop = this.guiTop + 4;
 		this.addScroll(this.scrollFactions);
 
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y += 18, 45, 12,
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y + 18, 45, 12,
 				GuiNPCManageFactions.isName ? "gui.name" : "ID");
 		checkBox.setSelected(GuiNPCManageFactions.isName);
 		this.addButton(checkBox);
@@ -289,17 +278,15 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 			return;
 		}
 
-		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 16,
-				AdditionalMethods.instance.deleteColor(this.faction.name)));
+		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 16, AdditionalMethods.instance.deleteColor(this.faction.name)));
 		this.getTextField(0).setMaxStringLength(50);
 
 		this.addLabel(new GuiNpcLabel(0, "gui.name", this.guiLeft + 8, this.guiTop + 9));
 		this.addLabel(new GuiNpcLabel(10, "ID", this.guiLeft + 178, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(11, this.faction.id + "", this.guiLeft + 178, this.guiTop + 14));
-		String color;
-		for (color = Integer.toHexString(this.faction.color); color.length() < 6; color = "0" + color) {
-		}
-		this.addButton(new GuiNpcButton(10, this.guiLeft + 40, this.guiTop + 26, 60, 16, color));
+		StringBuilder color = new StringBuilder(Integer.toHexString(this.faction.color));
+		while (color.length() < 6) { color.insert(0, "0"); }
+		this.addButton(new GuiNpcButton(10, this.guiLeft + 40, this.guiTop + 26, 60, 16, color.toString()));
 
 		this.addLabel(new GuiNpcLabel(1, "gui.color", this.guiLeft + 8, this.guiTop + 31));
 		this.getButton(10).setTextColor(this.faction.color);
@@ -310,11 +297,9 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		this.addLabel(new GuiNpcLabel(2, "faction.points", x0, (y += 18) + 5));
 		this.addButton(new GuiNpcButton(2, x, y, 45, 16, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(3, "faction.hidden", x0, (y += 18) + 5));
-		this.addButton(new GuiNpcButton(3, x, y, 45, 16, new String[] { "gui.no", "gui.yes" },
-				(this.faction.hideFaction ? 1 : 0)));
+		this.addButton(new GuiNpcButton(3, x, y, 45, 16, new String[] { "gui.no", "gui.yes" }, (this.faction.hideFaction ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(4, "faction.attacked", x0, (y += 18) + 5));
-		this.addButton(new GuiNpcButton(4, x, y, 45, 16, new String[] { "gui.no", "gui.yes" },
-				(this.faction.getsAttacked ? 1 : 0)));
+		this.addButton(new GuiNpcButton(4, x, y, 45, 16, new String[] { "gui.no", "gui.yes" }, (this.faction.getsAttacked ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(5, "faction.ondeath", x0, (y += 18) + 5));
 		this.addButton(new GuiNpcButton(5, x, y, 45, 16, "faction.points"));
 		this.addLabel(new GuiNpcLabel(6, "faction.hostiles", x0, (y += 18) + 5));
@@ -326,7 +311,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		this.addButton(new GuiNpcButton(8, x, y, 45, 16, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(9, "faction.flag", x0, (y += 18) + 5));
 		this.addButton(new GuiNpcButton(9, x, y, 45, 16, "selectServer.edit"));
-		this.addTextField(new GuiNpcTextField(1, this, x0, y += 18, 208, 16, this.faction.flag.toString()));
+		this.addTextField(new GuiNpcTextField(1, this, x0, y + 18, 208, 16, this.faction.flag.toString()));
 
 	}
 
@@ -369,24 +354,21 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		this.base = Maps.<String, Integer>newHashMap(data);
-		String select = this.scrollFactions == null || this.scrollFactions.getSelected() == null ? ""
-				: this.scrollFactions.getSelected();
+		this.base = Maps.newHashMap(data);
+		String select = this.scrollFactions == null || this.scrollFactions.getSelected() == null ? "" : this.scrollFactions.getSelected();
 		this.data.clear();
 		List<Entry<String, Integer>> newList = Lists.newArrayList(data.entrySet());
-		Collections.sort(newList, new Comparator<Entry<String, Integer>>() {
-			public int compare(Entry<String, Integer> f_0, Entry<String, Integer> f_1) {
-				if (GuiNPCManageFactions.isName) {
-					return f_0.getKey().compareTo(f_1.getKey());
-				} else {
-					return f_0.getValue().compareTo(f_1.getValue());
-				}
-			}
-		});
+		newList.sort((f_0, f_1) -> {
+            if (GuiNPCManageFactions.isName) {
+                return f_0.getKey().compareTo(f_1.getKey());
+            } else {
+                return f_0.getValue().compareTo(f_1.getValue());
+            }
+        });
 		for (Entry<String, Integer> entry : newList) {
 			int id = entry.getValue();
 			String name = AdditionalMethods.instance.deleteColor(entry.getKey());
-			if (name.indexOf("ID:" + id + " ") >= 0) {
+			if (name.contains("ID:" + id + " ")) {
 				name = name.substring(name.indexOf(" ") + 3);
 			}
 			String key = ((char) 167) + "7ID:" + id + " " + ((char) 167) + "r"
@@ -396,7 +378,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 				select = key;
 			}
 		}
-		this.scrollFactions.setListNotSorted(Lists.<String>newArrayList(this.data.keySet()));
+		this.scrollFactions.setListNotSorted(Lists.newArrayList(this.data.keySet()));
 		if (select != null && !select.isEmpty()) {
 			this.scrollFactions.setSelected(select);
 		}
@@ -426,7 +408,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 	@Override
 	public void setSelected(String selected) {
 		for (String key : this.scrollFactions.getList()) {
-			if (AdditionalMethods.instance.deleteColor(key + "").equals(selected) && this.data.containsKey(key)) {
+			if (AdditionalMethods.instance.deleteColor(key).equals(selected) && this.data.containsKey(key)) {
 				this.scrollFactions.setSelected(key);
 				return;
 			}
@@ -472,7 +454,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		if (textField.getId() == 0) {
 			String name = textField.getText();
 			if (!name.isEmpty() && !this.data.containsKey(name)) {
-				String old = "" + this.scrollFactions.getSelected();
+				String old = this.scrollFactions.getSelected();
 				this.data.remove(this.faction.name);
 				this.base.remove(this.faction.name);
 				this.faction.name = name;

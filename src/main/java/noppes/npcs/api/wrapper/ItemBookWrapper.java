@@ -31,12 +31,12 @@ public class ItemBookWrapper extends ItemStackWrapper implements IItemBook {
 
 	@Override
 	public String[] getText() {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		NBTTagList pages = this.getTag().getTagList("pages", 8);
 		for (int i = 0; i < pages.tagCount(); ++i) {
 			list.add(pages.getStringTagAt(i));
 		}
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class ItemBookWrapper extends ItemStackWrapper implements IItemBook {
 	@Override
 	public void setText(String[] pages) {
 		NBTTagList list = new NBTTagList();
-		if (pages != null && pages.length > 0) {
+		if (pages != null) {
 			for (String page : pages) {
 				list.appendTag(new NBTTagString(page));
 			}

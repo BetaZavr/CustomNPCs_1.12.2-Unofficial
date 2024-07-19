@@ -9,12 +9,13 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
 public class EntityAIWatchClosest extends EntityAIBase {
-	private float chance;
+
+	private final float chance;
 	protected Entity closestEntity;
 	private int lookTime;
-	private float maxDistance;
-	private EntityNPCInterface npc;
-	private Class<?> watchedClass;
+	private final float maxDistance;
+	private final EntityNPCInterface npc;
+	private final Class<?> watchedClass;
 
 	public EntityAIWatchClosest(EntityNPCInterface par1EntityLiving, Class<?> par2Class, float par3) {
 		this.npc = par1EntityLiving;

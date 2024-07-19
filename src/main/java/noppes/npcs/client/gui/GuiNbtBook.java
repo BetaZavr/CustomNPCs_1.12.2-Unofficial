@@ -22,6 +22,8 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 
+import java.util.Objects;
+
 public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 
 	private ItemStack blockStack;
@@ -33,10 +35,9 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 	private NBTTagCompound originalCompound;
 	private IBlockState state;
 	private TileEntity tile;
-	private int x;
-	private int y;
-	private int z;
-	// New
+	private final int x;
+	private final int y;
+	private final int z;
 	private ItemStack stack;
 
 	public GuiNbtBook(int x, int y, int z) {
@@ -125,7 +126,7 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 		}
 		if (this.entity instanceof EntityLivingBase) {
 			GlStateManager.pushMatrix();
-			this.drawNpc((EntityLivingBase) this.entity, 30, 80, 1.0f, 0, 0, 1);
+			this.drawNpc(this.entity, 30, 80, 1.0f, 0, 0, 1);
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			Gui.drawRect(this.guiLeft + 5, this.guiTop + 13, this.guiLeft + 55, this.guiTop + 99, 0xFF808080);
 			Gui.drawRect(this.guiLeft + 6, this.guiTop + 14, this.guiLeft + 54, this.guiTop + 98, 0xFF000000);
@@ -151,11 +152,11 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 		}
 		if (this.entity != null) {
 			this.addLabel(
-					new GuiNpcLabel(12, "id: " + EntityRegistry.getEntry(this.entity.getClass()).getRegistryName(),
+					new GuiNpcLabel(12, "id: " + Objects.requireNonNull(EntityRegistry.getEntry(this.entity.getClass())).getRegistryName(),
 							this.guiLeft + 60, this.guiTop + 6));
 		}
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 38, this.guiTop + 144, 180, 20, "nbt.edit"));
-		this.getButton(0).enabled = (this.compound != null && this.compound.getKeySet().size() > 0);
+		this.getButton(0).enabled = (this.compound != null && !this.compound.getKeySet().isEmpty());
 		this.addLabel(new GuiNpcLabel(0, "", this.guiLeft + 4, this.guiTop + 167));
 		this.addLabel(new GuiNpcLabel(1, "", this.guiLeft + 4, this.guiTop + 177));
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 128, this.guiTop + 190, 120, 20, "gui.close"));

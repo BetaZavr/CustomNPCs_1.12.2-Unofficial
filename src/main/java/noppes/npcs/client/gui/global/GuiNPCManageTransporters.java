@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditText;
@@ -38,22 +39,18 @@ import noppes.npcs.util.AdditionalMethods;
 public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 		implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener {
 
-	public final Map<String, Integer> dataCat, dataLoc;
-	private GuiCustomScroll categoryes, locations;
-	public String catSel, locSel;
-	private boolean wait;
-	private ContainerNPCTransportSetup container;
+	public final Map<String, Integer> dataCat = Maps.newTreeMap();
+	public final Map<String, Integer> dataLoc = Maps.newTreeMap();
+	private GuiCustomScroll categories, locations;
+	public String catSel = "", locSel = "";
+	private boolean wait = true;
+	private final ContainerNPCTransportSetup container;
 
 	public GuiNPCManageTransporters(EntityNPCInterface npc, ContainerNPCTransportSetup container) {
 		super(npc, container);
 		this.ySize = 200;
-		this.catSel = "";
-		this.locSel = "";
-		this.dataCat = Maps.<String, Integer>newTreeMap();
-		this.dataLoc = Maps.<String, Integer>newTreeMap();
 		Client.sendData(EnumPacketServer.TransportCategoriesGet);
 		this.setBackground("tradersetup.png");
-		this.wait = true;
 		this.container = container;
 		if (TransportController.getInstance().categories.containsKey(container.catId)) {
 			TransportCategory category = TransportController.getInstance().categories.get(container.catId);
@@ -129,10 +126,7 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 			}
 			this.drawVerticalLine(this.guiLeft + 418, this.guiTop + 4, this.guiTop + this.ySize + 12, 0x80000000);
 		}
-		if (this.subgui != null || this.wait) {
-			return;
-		}
-		if (this.subgui != null || !CustomNpcs.ShowDescriptions) {
+		if (this.subgui != null || this.wait || !CustomNpcs.ShowDescriptions) {
 			return;
 		}
 		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
@@ -175,19 +169,19 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 			return;
 		}
 		super.initGui();
-		if (this.categoryes == null) {
-			(this.categoryes = new GuiCustomScroll(this, 0)).setSize(100, 96);
+		if (this.categories == null) {
+			(this.categories = new GuiCustomScroll(this, 0)).setSize(100, 96);
 		}
-		this.categoryes.setListNotSorted(Lists.newArrayList(this.dataCat.keySet()));
+		this.categories.setListNotSorted(Lists.newArrayList(this.dataCat.keySet()));
 		int x = this.guiLeft + 5, y = this.guiTop + 14;
-		this.categoryes.guiLeft = x;
-		this.categoryes.guiTop = y;
-		this.addScroll(this.categoryes);
+		this.categories.guiLeft = x;
+		this.categories.guiTop = y;
+		this.addScroll(this.categories);
 		if (!this.catSel.isEmpty()) {
-			this.categoryes.setSelected(this.catSel);
+			this.categories.setSelected(this.catSel);
 		}
 		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 5, y - 10));
-		y += this.categoryes.height + 2;
+		y += this.categories.height + 2;
 		this.addButton(new GuiNpcButton(0, x, y, 49, 20, "gui.add"));
 		this.addButton(new GuiNpcButton(1, x + 52, y, 49, 20, "gui.remove"));
 		this.getButton(1).setEnabled(!this.catSel.isEmpty());
@@ -303,8 +297,7 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 				this.getTextField(7).getInteger());
 		try {
 			this.container.location.npc = UUID.fromString(this.getTextField(3).getText());
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		this.container.location.type = this.getButton(3).getValue();
 		Client.sendData(EnumPacketServer.TransportCategorySave, this.container.saveTransport(cat));
 	}
@@ -396,9 +389,7 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 		}
 		try {
 			Client.sendData(EnumPacketServer.TeleportTo, loc.dimension, loc.pos.getX(), loc.pos.getY(), loc.pos.getZ());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	@Override

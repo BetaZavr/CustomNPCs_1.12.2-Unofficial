@@ -9,7 +9,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+
 class SlotNPCArmor extends Slot {
+
 	EntityEquipmentSlot armorType;
 
 	SlotNPCArmor(IInventory iinventory, int i, int j, int k, EntityEquipmentSlot l) {
@@ -26,7 +29,7 @@ class SlotNPCArmor extends Slot {
 		return ItemArmor.EMPTY_SLOT_NAMES[this.armorType.getIndex()];
 	}
 
-	public boolean isItemValid(ItemStack itemstack) {
+	public boolean isItemValid(@Nonnull ItemStack itemstack) {
 		if (itemstack.getItem() instanceof ItemArmor) {
 			return ((ItemArmor) itemstack.getItem()).armorType == this.armorType;
 		}

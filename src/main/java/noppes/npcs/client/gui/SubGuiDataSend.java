@@ -18,9 +18,8 @@ public class SubGuiDataSend extends SubGuiInterface implements ITextfieldListene
 	public boolean cancelled;
 	public int day, month, year;
 	public long time;
-	private GregorianCalendar setCal;
 
-	public SubGuiDataSend(int id) {
+    public SubGuiDataSend(int id) {
 		this.id = id;
 		this.cancelled = true;
 		this.setBackground("smallbg.png");
@@ -109,8 +108,8 @@ public class SubGuiDataSend extends SubGuiInterface implements ITextfieldListene
 			this.day = 18;
 		}
 
-		this.setCal = new GregorianCalendar(this.year, this.month, this.day);
-		this.time = this.setCal.getTimeInMillis();
+        GregorianCalendar setCal = new GregorianCalendar(this.year, this.month, this.day);
+		this.time = setCal.getTimeInMillis();
 
 		this.addLabel(new GuiNpcLabel(0, "gui.setdata", this.guiLeft + 7, this.guiTop + 4));
 
@@ -118,7 +117,7 @@ public class SubGuiDataSend extends SubGuiInterface implements ITextfieldListene
 				new GuiNpcTextField(0, this.parent, this.guiLeft + 4, this.guiTop + 16, 54, 20, "" + this.day));
 		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(this.year == 2011 && this.month == 11 ? 18 : 1,
-				this.setCal.getActualMaximum(Calendar.DAY_OF_MONTH), this.day);
+				setCal.getActualMaximum(Calendar.DAY_OF_MONTH), this.day);
 
 		this.addTextField(new GuiNpcTextField(1, this.parent, this.guiLeft + 61, this.guiTop + 16, 54, 20,
 				"" + (this.month + 1)));
@@ -135,11 +134,7 @@ public class SubGuiDataSend extends SubGuiInterface implements ITextfieldListene
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 90, this.guiTop + 44, 80, 20, "gui.cancel"));
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void unFocused(GuiNpcTextField textField) {
 		if (!textField.isInteger()) {
 			return;

@@ -1,10 +1,9 @@
 package noppes.npcs.controllers.data;
 
-import java.util.Iterator;
-
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.event.ForgeEvent.RunNameEvent;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
@@ -29,15 +28,12 @@ extends BaseScriptData {
 						EventHooks.onForgeInit(this);
 					}
 				}
-				Iterator<ScriptContainer> iterator = this.scripts.iterator();
-				while (iterator.hasNext()) {
-					ScriptContainer script = (ScriptContainer) iterator.next();
-					script.run(type, new RunNameEvent(type), !this.isClient());
-					script.run(type, event, !this.isClient());
-				}
+                for (ScriptContainer script : this.scripts) {
+                    script.run(type, new RunNameEvent(type), !this.isClient());
+                    script.run(type, event, !this.isClient());
+                }
 			});
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 	
 }

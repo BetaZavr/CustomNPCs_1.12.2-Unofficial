@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
 import net.minecraft.client.gui.GuiButton;
@@ -11,6 +12,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ITextfieldListener;
@@ -18,7 +20,7 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 
 public class SubGuiColorSelector extends SubGuiInterface implements ITextfieldListener {
 
-	private static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/color.png");
+	private static final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/color.png");
 	public int color;
 	private int colorX;
 	private int colorY;
@@ -32,7 +34,7 @@ public class SubGuiColorSelector extends SubGuiInterface implements ITextfieldLi
 	}
 
 	@Override
-	public void actionPerformed(GuiButton guibutton) {
+	public void actionPerformed(@Nonnull GuiButton guibutton) {
 		super.actionPerformed(guibutton);
 		if (guibutton.id == 66) {
 			this.close();
@@ -64,10 +66,9 @@ public class SubGuiColorSelector extends SubGuiInterface implements ITextfieldLi
 	}
 
 	public String getColor() {
-		String str;
-		for (str = Integer.toHexString(this.color); str.length() < 6; str = "0" + str) {
-		}
-		return str;
+		StringBuilder str = new StringBuilder(Integer.toHexString(this.color));
+		while (str.length() < 6) { str.insert(0, "0"); }
+		return str.toString();
 	}
 
 	@Override
@@ -107,13 +108,13 @@ public class SubGuiColorSelector extends SubGuiInterface implements ITextfieldLi
 			BufferedImage bufferedimage = ImageIO.read(stream = iresource.getInputStream());
 			this.color = (bufferedimage.getRGB((i - this.guiLeft - 30) * 4, (j - this.guiTop - 50) * 4) & 0xFFFFFF);
 			this.textfield.setText(this.getColor());
-		} catch (IOException ex) {
+		} catch (IOException e) {
+			LogWriter.error("Error:", e);
 		} finally {
 			if (stream != null) {
 				try {
 					stream.close();
-				} catch (IOException ex2) {
-				}
+				} catch (IOException ex) { LogWriter.error("Error:", ex); }
 			}
 		}
 	}
@@ -122,8 +123,7 @@ public class SubGuiColorSelector extends SubGuiInterface implements ITextfieldLi
 	public void unFocused(GuiNpcTextField textfield) {
 		try {
 			color = Integer.parseInt(textfield.getText(), 16);
-		} catch (NumberFormatException e) {
-		}
+		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 	}
 
 }

@@ -14,6 +14,8 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.blocks.BlockNpcRedstone;
 import noppes.npcs.controllers.data.Availability;
 
+import javax.annotation.Nonnull;
+
 public class TileRedstoneBlock extends TileNpcEntity implements ITickable {
 	public Availability availability;
 	public boolean isActivated;
@@ -49,7 +51,7 @@ public class TileRedstoneBlock extends TileNpcEntity implements ITickable {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		this.onRange = compound.getInteger("BlockOnRange");
 		this.offRange = compound.getInteger("BlockOffRange");
@@ -78,7 +80,7 @@ public class TileRedstoneBlock extends TileNpcEntity implements ITickable {
 		block.onBlockAdded(this.world, this.pos, state);
 	}
 
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+	public boolean shouldRefresh(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState) {
 		return oldState.getBlock() != newState.getBlock();
 	}
 
@@ -92,7 +94,7 @@ public class TileRedstoneBlock extends TileNpcEntity implements ITickable {
 		}
 		this.ticks = ((this.onRange > 10) ? 20 : 10);
 		Block block = this.getBlockType();
-		if (block == null || !(block instanceof BlockNpcRedstone)) {
+		if (!(block instanceof BlockNpcRedstone)) {
 			return;
 		}
 		if (CustomNpcs.FreezeNPCs) {
@@ -128,8 +130,9 @@ public class TileRedstoneBlock extends TileNpcEntity implements ITickable {
 		}
 	}
 
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		compound.setInteger("BlockOnRange", this.onRange);
 		compound.setInteger("BlockOffRange", this.offRange);
 		compound.setBoolean("BlockActivated", this.isActivated);

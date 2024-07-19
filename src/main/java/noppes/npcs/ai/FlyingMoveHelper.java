@@ -7,8 +7,9 @@ import net.minecraft.util.math.MathHelper;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class FlyingMoveHelper extends EntityMoveHelper {
+
 	private int courseChangeCooldown;
-	private EntityNPCInterface entity;
+	private final EntityNPCInterface entity;
 
 	public FlyingMoveHelper(EntityNPCInterface entity) {
 		super(entity);

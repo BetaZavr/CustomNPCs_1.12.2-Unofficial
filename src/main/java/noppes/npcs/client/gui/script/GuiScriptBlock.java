@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.script;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.Client;
@@ -12,7 +13,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 
 public class GuiScriptBlock extends GuiScriptInterface implements ISubGuiListener {
 
-	private TileScripted script;
+	private final TileScripted script;
 
 	public GuiScriptBlock(int x, int y, int z) {
 		TileScripted tileScripted = (TileScripted) this.player.world.getTileEntity(new BlockPos(x, y, z));
@@ -27,8 +28,7 @@ public class GuiScriptBlock extends GuiScriptInterface implements ISubGuiListene
 		try {
 			BlockPos pos = this.script.getPos();
 			Client.sendData(EnumPacketServer.ScriptBlockDataSave, pos.getX(), pos.getY(), pos.getZ(), this.script.getNBT(new NBTTagCompound()));
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	@Override
@@ -48,12 +48,12 @@ public class GuiScriptBlock extends GuiScriptInterface implements ISubGuiListene
 			data.setInteger("z", pos.getZ());
 			nbt.setTag("data", data);
 			this.script.getNBT(nbt);
-			String p = new String(this.path);
-			while (p.indexOf("\\") != -1) {
+			String p = this.path;
+			while (p.contains("\\")) {
 				p = p.replace("\\", "/");
 			}
 			nbt.setString("Name",
-					((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
+					subgui.getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", p + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", this.activeTab - 1);
 			nbt.setByte("Type", (byte) 0);

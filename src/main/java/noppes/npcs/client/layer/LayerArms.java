@@ -1,6 +1,5 @@
 package noppes.npcs.client.layer;
 
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
 import noppes.npcs.ModelPartData;
@@ -18,12 +17,10 @@ public class LayerArms<T extends EntityLivingBase> extends LayerInterface<T> {
 	}
 
 	private void createParts() {
-		(this.lClaw = new Model2DRenderer((ModelBase) this.model, 0.0f, 16.0f, 4, 4)).setRotationPoint(3.0f, 14.0f,
-				-2.0f);
+		(this.lClaw = new Model2DRenderer(this.model, 0.0f, 16.0f, 4, 4)).setRotationPoint(3.0f, 14.0f, -2.0f);
 		this.lClaw.rotateAngleY = -1.5707964f;
 		this.lClaw.setScale(0.25f);
-		(this.rClaw = new Model2DRenderer((ModelBase) this.model, 0.0f, 16.0f, 4, 4)).setRotationPoint(-2.0f, 14.0f,
-				-2.0f);
+		(this.rClaw = new Model2DRenderer(this.model, 0.0f, 16.0f, 4, 4)).setRotationPoint(-2.0f, 14.0f, -2.0f);
 		this.rClaw.rotateAngleY = -1.5707964f;
 		this.rClaw.setScale(0.25f);
 	}

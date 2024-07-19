@@ -1,12 +1,10 @@
 package noppes.npcs.client;
 
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 
+import noppes.npcs.LogWriter;
+import noppes.npcs.containers.ContainerCustomGui;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -22,7 +20,6 @@ import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -101,39 +98,32 @@ import noppes.npcs.util.ValueUtil;
 @SideOnly(Side.CLIENT)
 public class ClientGuiEventHandler extends Gui {
 
-	private static final ResourceLocation CREATIVE_TABS = new ResourceLocation(
-			"textures/gui/container/creative_inventory/tabs.png");
+	private static final ResourceLocation CREATIVE_TABS = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
 	private static final ResourceLocation[] BORDER;
 
-	public static final ResourceLocation COIN_NPC = new ResourceLocation(CustomNpcs.MODID,
-			"textures/items/coin_gold.png");
-	public static final ResourceLocation RESOURCE_COMPASS = new ResourceLocation(
-			CustomNpcs.MODID + ":models/util/compass.obj");
+	public static final ResourceLocation COIN_NPC = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
+	public static final ResourceLocation RESOURCE_COMPASS = new ResourceLocation(CustomNpcs.MODID + ":models/util/compass.obj");
 	public static final CrashesData crashes = new CrashesData();
-	public static Entity entityPath;
-	public static final List<double[]> movingPath = Lists.<double[]>newArrayList();
+	public static final List<double[]> movingPath = Lists.newArrayList();
 	public static RayTraceResult result;
-	public static List<CustomParticle> customParticle = Lists.<CustomParticle>newArrayList();
+	public static List<CustomParticle> customParticle = Lists.newArrayList();
 	public static boolean hasNewMail = false;
-	public static long showNewMail = 0l, startMail = 0L;
+	public static long showNewMail = 0L, startMail = 0L;
 
 	static {
 		BORDER = new ResourceLocation[16];
 		for (int i = 0; i < 16; i++) {
-			BORDER[i] = new ResourceLocation(CustomNpcs.MODID,
-					"textures/util/border/" + (i < 10 ? "0" + i : i) + ".png");
+			BORDER[i] = new ResourceLocation(CustomNpcs.MODID, "textures/util/border/" + (i < 10 ? "0" + i : i) + ".png");
 		}
 	}
 	private Minecraft mc;
 	private ScaledResolution sw;
-	private BorderController bData;
-	private double dx, dy, dz;
+    private double dx, dy, dz;
 	private int qt = 0;
 
-	private List<Entity> tempEntity = Lists.<Entity>newArrayList();
+	private final List<Entity> tempEntity = Lists.newArrayList();
 
-	private void drawAddSegment(Point[] pns, Point p1, double minY, double maxY, float red, float green, float blue,
-			float alpha) {
+	private void drawAddSegment(Point[] pns, Point p1, double minY, double maxY) {
 		if (pns == null || pns.length != 2 || p1 == null) {
 			return;
 		}
@@ -155,23 +145,23 @@ public class ClientGuiEventHandler extends Gui {
 		GlStateManager.translate(-this.dx, -this.dy, -this.dz);
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
 
-		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
+		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
 
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
 
 		tessellator.draw();
 		GlStateManager.depthMask(true);
@@ -191,28 +181,28 @@ public class ClientGuiEventHandler extends Gui {
 		GlStateManager.depthMask(false);
 		GlStateManager.translate(-this.dx, -this.dy, -this.dz);
 		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color(red, green, blue, alpha).endVertex();
+		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
 		if (maxY - minY > 1) {
 			for (double i = 1.0d; i < maxY - minY; i++) {
-				buffer.pos(p0.x + 0.5d, minY + i, p0.y + 0.5d).color(red, green, blue, alpha).endVertex();
-				buffer.pos(p1.x + 0.5d, minY + i, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-				buffer.pos(p1.x + 0.5d, minY + i, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-				buffer.pos(p2.x + 0.5d, minY + i, p2.y + 0.5d).color(red, green, blue, alpha).endVertex();
+				buffer.pos(p0.x + 0.5d, minY + i, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+				buffer.pos(p1.x + 0.5d, minY + i, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+				buffer.pos(p1.x + 0.5d, minY + i, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+				buffer.pos(p2.x + 0.5d, minY + i, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
 			}
 		}
-		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color(red, green, blue, alpha).endVertex();
+		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
 		tessellator.draw();
 		GlStateManager.depthMask(true);
 		GlStateManager.enableTexture2D();
@@ -220,19 +210,18 @@ public class ClientGuiEventHandler extends Gui {
 		GlStateManager.popMatrix();
 	}
 
-	private void drawNpc(Entity entityIn, int x, int y, float zoomed, int rotation, int vertical) {
+	private void drawNpc(Entity entityIn) {
 		if (!(entityIn instanceof EntityLivingBase)) {
 			return;
 		}
 		EntityLivingBase entity = (EntityLivingBase) entityIn;
 		EntityNPCInterface npc = null;
 		if (entity instanceof EntityNPCInterface) {
-			npc = (EntityNPCInterface) entity;
-			NBTTagCompound compound = new NBTTagCompound();
+            NBTTagCompound compound = new NBTTagCompound();
 			entity.writeToNBTOptional(compound);
 			Entity e = EntityList.createEntityFromNBT(compound, entity.world);
-			if (entity instanceof EntityNPCInterface) {
-				npc = (EntityNPCInterface) e;
+            npc = (EntityNPCInterface) e;
+			if (e != null) {
 				e.setUniqueId(UUID.randomUUID());
 				e.setEntityId(-1);
 				if (npc.display.getVisible() == 1) {
@@ -241,17 +230,17 @@ public class ClientGuiEventHandler extends Gui {
 				npc.display.setShowName(0);
 				entity = npc;
 			}
-		}
+        }
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableColorMaterial();
 		GlStateManager.pushMatrix();
 
-		GlStateManager.translate(x, y, 50.0f);
+		GlStateManager.translate(-12, 10, 50.0f);
 		float scale = 1.0f;
 		if (entity.height > 2.4) {
 			scale = 2.0f / entity.height;
 		}
-		GlStateManager.scale(-30.0f * scale * zoomed, 30.0f * scale * zoomed, 30.0f * scale * zoomed);
+		GlStateManager.scale(-30.0f * scale * (float) 0.75, 30.0f * scale * (float) 0.75, 30.0f * scale * (float) 0.75);
 		GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
 		RenderHelper.enableStandardItemLighting();
 		float f2 = entity.renderYawOffset;
@@ -263,33 +252,25 @@ public class ClientGuiEventHandler extends Gui {
 		int orientation = 0;
 		if (npc != null) {
 			orientation = npc.ais.orientation;
-			npc.ais.orientation = rotation;
+			npc.ais.orientation = 0;
 		}
 		GlStateManager.rotate(135.0f, 0.0f, 1.0f, 0.0f);
 		GlStateManager.rotate(-135.0f, 0.0f, 1.0f, 0.0f);
 		GlStateManager.rotate((float) (-Math.atan(f7 / 40.0f) * 20.0f), 1.0f, 0.0f, 0.0f);
-		entity.renderYawOffset = rotation;
-		entity.rotationYaw = (float) (Math.atan(f6 / 80.0f) * 40.0f + rotation);
+		entity.renderYawOffset = 0;
+		entity.rotationYaw = (float) (Math.atan(f6 / 80.0f) * 40.0f + 0);
 		entity.rotationPitch = (float) (-Math.atan(f7 / 40.0f) * 20.0f);
 		entity.rotationYawHead = entity.rotationYaw;
 		this.mc.getRenderManager().playerViewY = 180.0f;
-		if (vertical != 0) {
-			GlStateManager.translate(0.0f, 1.0f - Math.cos((double) vertical * 3.14d / 180.0d), 0.0f);
-			GlStateManager.rotate(vertical, 1.0f, 0.0f, 0.0f);
-		}
-		this.mc.getRenderManager().renderEntity(entity, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
-		float n = f2;
-		entity.renderYawOffset = n;
-		entity.prevRenderYawOffset = n;
-		float n2 = f3;
-		entity.rotationYaw = n2;
-		entity.prevRotationYaw = n2;
-		float n3 = f4;
-		entity.rotationPitch = n3;
-		entity.prevRotationPitch = n3;
-		float n4 = f5;
-		entity.rotationYawHead = n4;
-		entity.prevRotationYawHead = n4;
+        this.mc.getRenderManager().renderEntity(entity, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
+        entity.renderYawOffset = f2;
+		entity.prevRenderYawOffset = f2;
+        entity.rotationYaw = f3;
+		entity.prevRotationYaw = f3;
+        entity.rotationPitch = f4;
+		entity.prevRotationPitch = f4;
+        entity.rotationYawHead = f5;
+		entity.prevRotationYawHead = f5;
 		if (npc != null) {
 			npc.ais.orientation = orientation;
 		}
@@ -302,93 +283,94 @@ public class ClientGuiEventHandler extends Gui {
 	}
 
 	private void drawNpcMovingPath(EntityCustomNpc npc) {
-		NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.MovingPathGet, npc, 5000, npc.getEntityId());
+		NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.MovingPathGet, npc, 5000, npc.getEntityId());
 		List<int[]> list = npc.ais.getMovingPath();
-		if (list.size() < 1) {
+		if (list.isEmpty()) {
 			ClientGuiEventHandler.movingPath.clear();
 			return;
 		}
 		boolean type = npc.ais.getMovingPathType() == 0;
 		// create path
-		if (npc.ais.getMovingType() == 2
-				&& (ClientGuiEventHandler.movingPath.isEmpty() || this.mc.world.getTotalWorldTime() % 100L == 0L)) {
+		if (npc.ais.getMovingType() == 2 && (ClientGuiEventHandler.movingPath.isEmpty() || this.mc.world.getTotalWorldTime() % 100L == 0L)) {
 			NBTTagCompound npcNbt = new NBTTagCompound();
 			npc.writeToNBTAtomically(npcNbt);
 			Entity entity = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
-			entity.setUniqueId(UUID.randomUUID());
-			if (entity instanceof EntityLiving) {
-				ClientGuiEventHandler.movingPath.clear();
-				EntityCustomNpc newNpc = (EntityCustomNpc) entity;
-				int[] pos = list.get(0);
-				double yo = 0.0d;
-				IBlockState state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
-				if (state != null && state.isFullBlock() || state.isFullCube()) {
-					yo = 1.0d;
-				}
-				newNpc.setPosition(pos[0], pos[1] + yo, pos[2]);
-				ClientGuiEventHandler.movingPath.add(new double[] { pos[0] + 0.5d, pos[1] + yo + 0.4d, pos[2] + 0.5d });
-				newNpc.display.setVisible(1);
-				newNpc.display.setSize(1);
-				newNpc.display.setShowName(1);
-				this.mc.world.spawnEntity(newNpc);
-				PathNavigate nv = newNpc.getNavigator();
-				for (int i = 1; i < list.size(); i++) {
-					pos = list.get(i);
-					nv.clearPath();
-					newNpc.motionX = 0.0d;
-					newNpc.motionY = 0.0d;
-					newNpc.motionZ = 0.0d;
-					Path path = nv.getPathToXYZ(pos[0], pos[1], pos[2]);
-					if (path == null) {
-						ClientGuiEventHandler.movingPath.add(new double[0]);
+			if (entity != null) {
+				entity.setUniqueId(UUID.randomUUID());
+				if (entity instanceof EntityLiving) {
+					ClientGuiEventHandler.movingPath.clear();
+					EntityCustomNpc newNpc = (EntityCustomNpc) entity;
+					int[] pos = list.get(0);
+					double yo = 0.0d;
+					IBlockState state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
+					if (state.isFullBlock() || state.isFullCube()) {
+						yo = 1.0d;
+					}
+					newNpc.setPosition(pos[0], pos[1] + yo, pos[2]);
+					ClientGuiEventHandler.movingPath.add(new double[]{pos[0] + 0.5d, pos[1] + yo + 0.4d, pos[2] + 0.5d});
+					newNpc.display.setVisible(1);
+					newNpc.display.setSize(1);
+					newNpc.display.setShowName(1);
+					this.mc.world.spawnEntity(newNpc);
+					PathNavigate nv = newNpc.getNavigator();
+					for (int i = 1; i < list.size(); i++) {
+						pos = list.get(i);
+						nv.clearPath();
+						newNpc.motionX = 0.0d;
+						newNpc.motionY = 0.0d;
+						newNpc.motionZ = 0.0d;
+						Path path = nv.getPathToXYZ(pos[0], pos[1], pos[2]);
+						if (path == null) {
+							ClientGuiEventHandler.movingPath.add(new double[0]);
+							yo = 0.0d;
+							state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
+							if (state.isFullBlock() || state.isFullCube()) {
+								yo = 1.0d;
+							}
+							newNpc.setPosition(pos[0], pos[1] + yo, pos[2]);
+							continue;
+						}
+						for (int p = 0; p < path.getCurrentPathLength(); p++) {
+							PathPoint pp = path.getPathPointFromIndex(p);
+							ClientGuiEventHandler.movingPath.add(new double[]{pp.x + 0.5d, pp.y + 0.4d, pp.z + 0.5d});
+						}
 						yo = 0.0d;
 						state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
-						if (state != null && state.isFullBlock() || state.isFullCube()) {
+						if (state.isFullBlock() || state.isFullCube()) {
 							yo = 1.0d;
 						}
 						newNpc.setPosition(pos[0], pos[1] + yo, pos[2]);
-						continue;
 					}
-					for (int p = 0; p < path.getCurrentPathLength(); p++) {
-						PathPoint pp = path.getPathPointFromIndex(p);
-						ClientGuiEventHandler.movingPath.add(new double[] { pp.x + 0.5d, pp.y + 0.4d, pp.z + 0.5d });
-					}
-					yo = 0.0d;
-					state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
-					if (state != null && state.isFullBlock() || state.isFullCube()) {
-						yo = 1.0d;
-					}
-					newNpc.setPosition(pos[0], pos[1] + yo, pos[2]);
-				}
-				if (type) {
-					nv.clearPath();
-					pos = list.get(list.size() - 1);
-					yo = 0.0d;
-					state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
-					if (state != null && state.isFullBlock() || state.isFullCube()) {
-						yo = 1.0d;
-					}
-					newNpc.setPosition(pos[0], pos[1] + yo, pos[2]);
-					newNpc.motionX = 0.0d;
-					newNpc.motionY = 0.0d;
-					newNpc.motionZ = 0.0d;
-					pos = list.get(0);
-					Path path = nv.getPathToXYZ(pos[0], pos[1], pos[2]);
-					if (path != null) {
-						for (int p = 0; p < path.getCurrentPathLength(); p++) {
-							PathPoint pp = path.getPathPointFromIndex(p);
-							ClientGuiEventHandler.movingPath
-									.add(new double[] { pp.x + 0.5d, pp.y + 0.4d, pp.z + 0.5d });
+					if (type) {
+						nv.clearPath();
+						pos = list.get(list.size() - 1);
+						yo = 0.0d;
+						state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
+						if (state.isFullBlock() || state.isFullCube()) {
+							yo = 1.0d;
+						}
+						newNpc.setPosition(pos[0], pos[1] + yo, pos[2]);
+						newNpc.motionX = 0.0d;
+						newNpc.motionY = 0.0d;
+						newNpc.motionZ = 0.0d;
+						pos = list.get(0);
+						Path path = nv.getPathToXYZ(pos[0], pos[1], pos[2]);
+						if (path != null) {
+							for (int p = 0; p < path.getCurrentPathLength(); p++) {
+								PathPoint pp = path.getPathPointFromIndex(p);
+								ClientGuiEventHandler.movingPath
+										.add(new double[]{pp.x + 0.5d, pp.y + 0.4d, pp.z + 0.5d});
+							}
 						}
 					}
 				}
+				entity.isDead = true;
+				this.mc.world.removeEntity(entity);
+				this.tempEntity.add(entity);
 			}
-			entity.isDead = true;
-			this.mc.world.removeEntity(entity);
-			this.tempEntity.add(entity);
 		}
 
-		double[] pre = null;
+		double[] pre;
 		float r = 0.75f, g = 0.75f, b = 0.75f, ag = 15.0f;
 
 		// HitBox
@@ -402,8 +384,7 @@ public class ClientGuiEventHandler extends Gui {
 		GlStateManager.depthMask(false);
 		GlStateManager.translate(npc.posX - this.dx, npc.posY - this.dy, npc.posZ - this.dz);
 		double w = npc.width / 2;
-		RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(w * -1.0d, 0.0d, w * -1.0d, w, npc.height, w)), r, g,
-				b, 1.0f);
+		RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(w * -1.0d, 0.0d, w * -1.0d, w, npc.height, w)), r, g, b, 1.0f);
 		GlStateManager.depthMask(true);
 		GlStateManager.enableTexture2D();
 		GlStateManager.disableBlend();
@@ -419,17 +400,14 @@ public class ClientGuiEventHandler extends Gui {
 		GlStateManager.disableTexture2D();
 		GlStateManager.depthMask(false);
 		GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-		RayTraceVec pHh = AdditionalMethods.instance.getPosition(npc.posX, npc.posY + npc.getEyeHeight(), npc.posZ,
-				npc.rotationYawHead, 0.0d, npc.width / 2.0d);
-		RayTraceVec pEr = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead,
-				npc.rotationPitch * -1.0d, 0.7d / 5.0d * npc.display.getSize());
+		RayTraceVec pHh = AdditionalMethods.instance.getPosition(npc.posX, npc.posY + npc.getEyeHeight(), npc.posZ, npc.rotationYawHead, 0.0d, npc.width / 2.0d);
+		RayTraceVec pEr = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead, npc.rotationPitch * -1.0d, 0.7d / 5.0d * npc.display.getSize());
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 		r = 0.25f;
 		g = 0.5f;
-		b = 0.75f;
-		buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
+        buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
 		buffer.pos(pEr.x, pEr.y, pEr.z).color(r, g, b, 1.0f).endVertex();
 		if (npc.ais.directLOS) {
 			RayTraceVec mr = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead + 60.0d,
@@ -500,54 +478,48 @@ public class ClientGuiEventHandler extends Gui {
 		// Now way
 		Path path = npc.getNavigator().getPath();
 		if (path != null) {
-			GlStateManager.pushMatrix();
-			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-					GlStateManager.DestFactor.ZERO);
-			GlStateManager.glLineWidth(3.0f);
-			GlStateManager.disableTexture2D();
-			GlStateManager.depthMask(false);
-			GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-			tessellator = Tessellator.getInstance();
-			buffer = tessellator.getBuffer();
-			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-
-			r = 0.156862f;
-			g = 0.705882f;
-			b = 0.352941f;
-			pre = null;
 			PathPoint[] points = ObfuscationHelper.getValue(Path.class, path, 0);
-			pre = new double[] { npc.posX, npc.posY + (double) npc.getEyeHeight(), npc.posZ };
-			int currentPath = points.length - 1;
-			double md = -1.0d;
-			for (int i = 0; i < points.length; i++) {
-				double d = npc.getDistance((double) points[i].x + 0.5d,
-						(double) points[i].y + (double) npc.getEyeHeight() / 2.0d, (double) points[i].z + 0.5d);
-				if (md == -1.0d || d <= md) {
-					md = d;
-					currentPath = i;
+			if (points != null) {
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
+				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+						GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+						GlStateManager.DestFactor.ZERO);
+				GlStateManager.glLineWidth(3.0f);
+				GlStateManager.disableTexture2D();
+				GlStateManager.depthMask(false);
+				GlStateManager.translate(-this.dx, -this.dy, -this.dz);
+				tessellator = Tessellator.getInstance();
+				buffer = tessellator.getBuffer();
+				buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+
+				r = 0.156862f;
+				g = 0.705882f;
+				b = 0.352941f;
+				pre = new double[]{npc.posX, npc.posY + (double) npc.getEyeHeight(), npc.posZ};
+				int currentPath = points.length - 1;
+				double md = -1.0d;
+				for (int i = 0; i < points.length; i++) {
+					double d = npc.getDistance((double) points[i].x + 0.5d,
+							(double) points[i].y + (double) npc.getEyeHeight() / 2.0d, (double) points[i].z + 0.5d);
+					if (md == -1.0d || d <= md) {
+						md = d;
+						currentPath = i;
+					}
 				}
+				for (int i = currentPath; i < points.length; i++) {
+					double[] pos = new double[]{(double) points[i].x + 0.5d, (double) points[i].y + (double) npc.getEyeHeight() / 2.0d, (double) points[i].z + 0.5d};
+                    double[] newPre = new double[]{pos[0], pos[1], pos[2]};
+                    buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
+                    buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
+                    pre = newPre;
+				}
+				tessellator.draw();
+				GlStateManager.depthMask(true);
+				GlStateManager.enableTexture2D();
+				GlStateManager.disableBlend();
+				GlStateManager.popMatrix();
 			}
-			for (int i = currentPath; i < points.length; i++) {
-				double[] pos = new double[] { (double) points[i].x + 0.5d,
-						(double) points[i].y + (double) npc.getEyeHeight() / 2.0d, (double) points[i].z + 0.5d };
-				if (pos.length == 0) {
-					pre = null;
-					continue;
-				}
-				double[] newPre = new double[] { pos[0], pos[1], pos[2] };
-				if (pre != null) {
-					buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
-					buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-				}
-				pre = newPre;
-			}
-			tessellator.draw();
-			GlStateManager.depthMask(true);
-			GlStateManager.enableTexture2D();
-			GlStateManager.disableBlend();
-			GlStateManager.popMatrix();
 		}
 
 		// Can Way
@@ -609,36 +581,34 @@ public class ClientGuiEventHandler extends Gui {
 			int[] pos = list.get(i);
 			double yo = 0.0d;
 			IBlockState state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
-			if (state != null && state.isFullBlock() || state.isFullCube()) {
+			if (state.isFullBlock() || state.isFullCube()) {
 				yo = 1.0d;
 			}
 			double[] newPre = new double[] { pos[0] + 0.5d, pos[1] + 0.5d + yo, pos[2] + 0.5d };
 			if (pre != null) {
 				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
 				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-				if (i != 0) {
-					RayTraceRotate d = AdditionalMethods.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0],
-							newPre[1], newPre[2]);
-					for (int h = 0; h < 4; h++) {
-						RayTraceVec p = AdditionalMethods.instance.getPosition(newPre[0], newPre[1], newPre[2],
-								360.0d - d.yaw + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d),
-								0.0 - d.pitch + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
-						buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-						buffer.pos(p.x, p.y, p.z).color(r, g, b, 1.0f).endVertex();
-					}
-					if (!type) {
-						d = AdditionalMethods.instance.getAngles3D(newPre[0], newPre[1], newPre[2], pre[0], pre[1],
-								pre[2]);
-						for (int h = 0; h < 4; h++) {
-							RayTraceVec p = AdditionalMethods.instance.getPosition(pre[0], pre[1], pre[2],
-									360.0d - d.yaw + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d),
-									0.0 - d.pitch + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
-							buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
-							buffer.pos(p.x, p.y, p.z).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex();
-						}
-					}
-				}
-			}
+                RayTraceRotate d = AdditionalMethods.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0],
+                        newPre[1], newPre[2]);
+                for (int h = 0; h < 4; h++) {
+                    RayTraceVec p = AdditionalMethods.instance.getPosition(newPre[0], newPre[1], newPre[2],
+                            360.0d - d.yaw + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d),
+                            0.0 - d.pitch + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
+                    buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
+                    buffer.pos(p.x, p.y, p.z).color(r, g, b, 1.0f).endVertex();
+                }
+                if (!type) {
+                    d = AdditionalMethods.instance.getAngles3D(newPre[0], newPre[1], newPre[2], pre[0], pre[1],
+                            pre[2]);
+                    for (int h = 0; h < 4; h++) {
+                        RayTraceVec p = AdditionalMethods.instance.getPosition(pre[0], pre[1], pre[2],
+                                360.0d - d.yaw + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d),
+                                0.0 - d.pitch + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
+                        buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
+                        buffer.pos(p.x, p.y, p.z).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex();
+                    }
+                }
+            }
 			pre = newPre;
 			if (type && i == list.size() - 1 && list.size() > 1) {
 				pos = list.get(0);
@@ -669,14 +639,12 @@ public class ClientGuiEventHandler extends Gui {
 				g = 0.8f;
 				b = 0.8f;
 			} else {
-				r = 0.8f;
-				g = 0.8f;
-				b = 0.0f;
+                b = 0.0f;
 			}
 			int[] pos = list.get(i);
 			double yo = 0.0d;
 			IBlockState state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
-			if (state != null && state.isFullBlock() || state.isFullCube()) {
+			if (state.isFullBlock() || state.isFullCube()) {
 				yo = 1.0d;
 			}
 			GlStateManager.pushMatrix();
@@ -712,7 +680,7 @@ public class ClientGuiEventHandler extends Gui {
 		// textured
 		int xm = reg.getMinX(), xs = reg.getMaxX() - reg.getMinX();
 		int zm = reg.getMinZ(), zs = reg.getMaxZ() - zm;
-		double size = (double) (xs > zs ? xs : zs) / 4.0D;
+		double size = (double) (Math.max(xs, zs)) / 4.0D;
 
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
@@ -759,11 +727,11 @@ public class ClientGuiEventHandler extends Gui {
 				// textured
 				buffer.pos(p0.x + 0.5d, (double) reg.y[1] + 1.0d, p0.y + 0.5d).tex(0.0D, size).endVertex();
 				buffer.pos(p1.x + 0.5d, (double) reg.y[1] + 1.0d, p1.y + 0.5d).tex(size, size).endVertex();
-				buffer.pos(p1.x + 0.5d, (double) reg.y[0], p1.y + 0.5d).tex(size, 0.0D).endVertex();
-				buffer.pos(p0.x + 0.5d, (double) reg.y[0], p0.y + 0.5d).tex(0.0D, 0.0D).endVertex();
+				buffer.pos(p1.x + 0.5d, reg.y[0], p1.y + 0.5d).tex(size, 0.0D).endVertex();
+				buffer.pos(p0.x + 0.5d, reg.y[0], p0.y + 0.5d).tex(0.0D, 0.0D).endVertex();
 
-				buffer.pos(p0.x + 0.5d, (double) reg.y[0], p0.y + 0.5d).tex(0.0D, 0.0D).endVertex();
-				buffer.pos(p1.x + 0.5d, (double) reg.y[0], p1.y + 0.5d).tex(size, 0.0D).endVertex();
+				buffer.pos(p0.x + 0.5d, reg.y[0], p0.y + 0.5d).tex(0.0D, 0.0D).endVertex();
+				buffer.pos(p1.x + 0.5d, reg.y[0], p1.y + 0.5d).tex(size, 0.0D).endVertex();
 				buffer.pos(p1.x + 0.5d, (double) reg.y[1] + 1.0d, p1.y + 0.5d).tex(size, size).endVertex();
 				buffer.pos(p0.x + 0.5d, (double) reg.y[1] + 1.0d, p0.y + 0.5d).tex(0.0D, size).endVertex();
 			}
@@ -791,12 +759,12 @@ public class ClientGuiEventHandler extends Gui {
 			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 			double x = 0.0d, z = 0.0d;
 			for (Point v : reg.points.values()) {
-				x += (double) v.x;
-				z += (double) v.y;
+				x += v.x;
+				z += v.y;
 			}
-			if (reg.points.size() > 0) {
-				x /= (double) reg.points.size();
-				z /= (double) reg.points.size();
+			if (!reg.points.isEmpty()) {
+				x /= reg.points.size();
+				z /= reg.points.size();
 			}
 			x += 0.5d;
 			z += 0.5d;
@@ -893,17 +861,16 @@ public class ClientGuiEventHandler extends Gui {
 				Point p1 = reg.points.get(i >= reg.points.size() - 1 ? 0 : (i + 1));
 				// vertex as * down and up
 				if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
-					drawVertex((double) p0.x + 0.5d, (double) reg.y[0], (double) p0.y + 0.5d, red, green, blue);
+					drawVertex((double) p0.x + 0.5d, reg.y[0], (double) p0.y + 0.5d, red, green, blue);
 					drawVertex((double) p0.x + 0.5d, (double) reg.y[1] + 1.0d, (double) p0.y + 0.5d, red, green, blue);
 				}
 				// Bound
-				drawSegment(p0, p1, (double) reg.y[0], (double) reg.y[1] + 1.0d, 2.0f, red, green, blue, 0.5f);
+				drawSegment(p0, p1, reg.y[0], (double) reg.y[1] + 1.0d, red, green, blue);
 			}
 		}
 	}
 
-	private void drawSegment(Point p0, Point p1, double minY, double maxY, float width, float red, float green,
-			float blue, float alpha) {
+	private void drawSegment(Point p0, Point p1, double minY, double maxY, float red, float green, float blue) {
 		if (p0 == null || p1 == null) {
 			return;
 		}
@@ -914,17 +881,17 @@ public class ClientGuiEventHandler extends Gui {
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
 				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
 				GlStateManager.DestFactor.ZERO);
-		GlStateManager.glLineWidth(width);
+		GlStateManager.glLineWidth((float) 2.0);
 		GlStateManager.disableTexture2D();
 		GlStateManager.depthMask(false);
 		GlStateManager.translate(-this.dx, -this.dy, -this.dz);
 		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(red, green, blue, alpha).endVertex(); // _
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(red, green, blue, alpha).endVertex(); // -
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex(); // |
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
+		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex(); // _
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex();
+		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex(); // -
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex(); // |
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex();
 		tessellator.draw();
 		GlStateManager.depthMask(true);
 		GlStateManager.enableTexture2D();
@@ -978,23 +945,20 @@ public class ClientGuiEventHandler extends Gui {
 			int[] s = new int[] { 0, 0, 0 };
 			int[] e = new int[] { 1, 1, 1 };
 			float r = 1.0f, g = 0.0f, b = 0.0f;
-			if (builder != null) {
-				int[] m = builder.getDirections(this.mc.player);
-				for (int j = 0; j < 3; j++) {
-					s[j] = m[j];
-					e[j] = m[j + 3];
-				}
-				if (builder.getType() == 1) {
-					r = 0.0f;
-					g = 1.0f;
-					b = 1.0f;
-				} else if (builder.getType() == 2) {
-					r = 1.0f;
-					g = 0.0f;
-					b = 1.0f;
-				}
-			}
-			GlStateManager.pushMatrix();
+            int[] m = builder.getDirections(this.mc.player);
+            for (int j = 0; j < 3; j++) {
+                s[j] = m[j];
+                e[j] = m[j + 3];
+            }
+            if (builder.getType() == 1) {
+                r = 0.0f;
+                g = 1.0f;
+                b = 1.0f;
+            } else if (builder.getType() == 2) {
+                g = 0.0f;
+                b = 1.0f;
+            }
+            GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
 					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
@@ -1019,8 +983,6 @@ public class ClientGuiEventHandler extends Gui {
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
 			GlStateManager.translate(pos.getX() - this.dx + 0.5d, pos.getY() - this.dy, pos.getZ() - this.dz + 0.5d);
-			// GlStateManager.rotate((System.currentTimeMillis()/15) % 360, 0.0f, 1.0f,
-			// 0.0f);
 			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d, 0.0d, -0.5d, 0.5d, 1.0d, 0.5d)), 1.0f, 1.0f,
 					1.0f, 1.0f);
 			GlStateManager.depthMask(true);
@@ -1105,25 +1067,21 @@ public class ClientGuiEventHandler extends Gui {
 	private int[] getOffset(int type) {
 		int[] offsets = new int[] { 0, 0 };
 		switch (type) {
-		case 1: { // left down
-			offsets[0] = 0;
-			offsets[1] = (int) this.sw.getScaledHeight_double();
-			break;
-		}
-		case 2: { // right up
-			offsets[0] = (int) this.sw.getScaledWidth_double();
-			offsets[1] = 0;
-			break;
-		}
-		case 3: { // right down
-			offsets[0] = (int) this.sw.getScaledWidth_double();
-			offsets[1] = (int) this.sw.getScaledHeight_double();
-			break;
-		}
-		default: { // left up
-			offsets[0] = 0;
-			offsets[1] = 0;
-		}
+			case 1: { // left down
+				offsets[1] = (int) this.sw.getScaledHeight_double();
+				break;
+			}
+			case 2: { // right up
+				offsets[0] = (int) this.sw.getScaledWidth_double();
+				break;
+			}
+			case 3: { // right down
+				offsets[0] = (int) this.sw.getScaledWidth_double();
+				offsets[1] = (int) this.sw.getScaledHeight_double();
+				break;
+			}
+			default: { // left up
+			}
 		}
 		return offsets;
 	}
@@ -1140,7 +1098,7 @@ public class ClientGuiEventHandler extends Gui {
 					event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
 					break;
 				}
-				case 1: { // horizont only
+				case 1: { // horizontal only
 					event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw());
 					break;
 				}
@@ -1148,7 +1106,7 @@ public class ClientGuiEventHandler extends Gui {
 					event.setRoll(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude);
 					break;
 				}
-				case 3: { // vertical and horizont
+				case 3: { // vertical and horizontal
 					event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
 					event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw());
 					break;
@@ -1170,7 +1128,7 @@ public class ClientGuiEventHandler extends Gui {
 		}
 	}
 
-	/** HUD Bar Interfase */
+	/** HUD Bar Interface */
 	@SuppressWarnings("unused")
 	@SubscribeEvent
 	public void npcRenderOverlay(RenderGameOverlayEvent.Text event) {
@@ -1179,9 +1137,9 @@ public class ClientGuiEventHandler extends Gui {
 		this.sw = new ScaledResolution(this.mc);
 		if (!this.tempEntity.isEmpty()) {
 			for (Entity entity : this.tempEntity) {
-				((WorldClient) entity.world).removeEntity(entity);
-				((WorldClient) entity.world).removeEntityDangerously(entity);
-				Chunk chunk = ((WorldClient) entity.world).getChunkFromChunkCoords(entity.chunkCoordX,
+				entity.world.removeEntity(entity);
+				entity.world.removeEntityDangerously(entity);
+				Chunk chunk = entity.world.getChunkFromChunkCoords(entity.chunkCoordX,
 						entity.chunkCoordZ);
 				if (entity.addedToChunk && chunk.isLoaded()) {
 					chunk.removeEntity(entity);
@@ -1193,32 +1151,10 @@ public class ClientGuiEventHandler extends Gui {
 		PlayerOverlayHUD hud = ClientProxy.playerData.hud;
 		if ((hasNewMail || startMail > 0L) && CustomNpcs.MailWindow != -1) { // Mail
 			CustomNpcs.MailWindow = 1;
-			int[] offsets = new int[] { 0, -5 };
-			float sr = 45.0f, su = 12.0f, sv = 32.0f; // sr = 45.0f, su = 12.0f, sv = 32.0f;
-			switch (CustomNpcs.MailWindow) {
-			case 1: { // left down
-				offsets[0] = 0;
-				offsets[1] = (int) hud.getWindowSize()[1] - 32;
-				sr = -45.0f;
-				sv = -32.0f;
-				break;
-			}
-			case 2: { // right up
-				offsets[0] = (int) hud.getWindowSize()[0] - 32;
-				offsets[1] = -5;
-				sr = -45.0f;
-				su = -12.0f;
-				break;
-			}
-			case 3: { // right down
-				offsets[0] = (int) hud.getWindowSize()[0] - 32;
-				offsets[1] = (int) hud.getWindowSize()[1] - 32;
-				sv = -32.0f;
-				su = -12.0f;
-				break;
-			}
-			}
-			GlStateManager.pushMatrix();
+			int[] offsets = new int[2];
+			float sr = -45.0f, su = 12.0f, sv = -32.0f; // sr = 45.0f, su = 12.0f, sv = 32.0f;
+			offsets[1] = (int) hud.getWindowSize()[1] - 32;
+            GlStateManager.pushMatrix();
 			GlStateManager.translate(offsets[0] + 16, offsets[1] + 16, 0);
 			if (startMail == 0L) {
 				startMail = System.currentTimeMillis();
@@ -1255,10 +1191,10 @@ public class ClientGuiEventHandler extends Gui {
 					GlStateManager.translate(-1.0f * (float) time / 500.0f, -5.0f * (float) time / 500.0f, 0);
 				} else if (time < 1250) {
 					GlStateManager.rotate(30.0f - 420.0f * (float) (time -= 500L) / 750.0f, 0.0f, 0.0f, 1.0f);
-					GlStateManager.translate(-1.0f + 1.0f * (float) time / 750.0f, -5.0f + 5.0f * (float) time / 750.0f,
+					GlStateManager.translate(-1.0f + (float) time / 750.0f, -5.0f + 5.0f * (float) time / 750.0f,
 							0);
 				} else {
-					GlStateManager.rotate(-30.0f + 30.0f * (float) (time -= 1250L) / 500.0f, 0.0f, 0.0f, 1.0f);
+					GlStateManager.rotate(-30.0f + 30.0f * (float) (time - 1250L) / 500.0f, 0.0f, 0.0f, 1.0f);
 				}
 			}
 			time = System.currentTimeMillis() % 3000;
@@ -1281,7 +1217,7 @@ public class ClientGuiEventHandler extends Gui {
 		// Custom HUD window
 		TreeMap<Integer, TreeMap<Integer, IGuiComponent>> mapC = hud.getGuiComponents();
 		if (!mapC.isEmpty()) {
-			GuiCustom gui = new GuiCustom(null);
+			GuiCustom gui = new GuiCustom(new ContainerCustomGui(Minecraft.getMinecraft().player.inventory));
 			GlStateManager.pushMatrix();
 			for (int type : mapC.keySet()) {
 				for (IGuiComponent component : mapC.get(type).values()) {
@@ -1310,8 +1246,7 @@ public class ClientGuiEventHandler extends Gui {
 					RenderHelper.enableStandardItemLighting();
 					this.mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 0, 0);
 					GlStateManager.translate(0.0f, 0.0f, 200.0f);
-					this.drawString(this.mc.fontRenderer, "" + stack.getCount(),
-							(int) (12 - (stack.getCount() > 9 ? 9 : 0)), 9, 0xFFFFFFFF);
+					this.drawString(this.mc.fontRenderer, "" + stack.getCount(), 12 - (stack.getCount() > 9 ? 9 : 0), 9, 0xFFFFFFFF);
 					RenderHelper.disableStandardItemLighting();
 				}
 				GlStateManager.popMatrix();
@@ -1342,8 +1277,7 @@ public class ClientGuiEventHandler extends Gui {
 					}
 				}
 			} else {
-				if (!ClientProxy.playerData.questData.activeQuests.containsKey(hud.questID)
-						|| (hud.questID <= 0 && ClientProxy.playerData.questData.activeQuests.size() > 0)) {
+				if (!ClientProxy.playerData.questData.activeQuests.containsKey(hud.questID) || hud.questID <= 0) {
 					for (int id : ClientProxy.playerData.questData.activeQuests.keySet()) {
 						if (ClientProxy.playerData.questData.activeQuests.get(id).quest.hasCompassSettings()
 								&& id != hud.questID && id > 0) {
@@ -1445,25 +1379,7 @@ public class ClientGuiEventHandler extends Gui {
 									.grow(64.0d, 128.0d, 64.0d);
 							List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
 									bb);
-							double d = 65535.0d;
-							Vec3i v = new Vec3i(p[0], p[1], p[2]);
-							EntityLivingBase et = null;
-							for (EntityLivingBase el : ents) {
-								if (!el.getName().equals(qData.quest.getCompleterNpc().getName())) {
-									continue;
-								}
-								double r = v.distanceSq((Vec3i) el.getPosition());
-								if (et == null) {
-									d = r;
-									et = el;
-								} else {
-									if (r >= d) {
-										continue;
-									}
-									d = r;
-									et = el;
-								}
-							}
+							final EntityLivingBase et = getEntityLivingBase(p, ents, qData);
 							if (et != null) {
 								p[0] = et.posX;
 								p[1] = et.posY;
@@ -1481,8 +1397,7 @@ public class ClientGuiEventHandler extends Gui {
 				List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
 				if (n.equals("Player")) {
 					EntityPlayer pl = this.mc.world.getClosestPlayerToEntity(this.mc.player, 32.0d);
-					if (pl != null && pl.getActivePotionEffect(
-							Potion.getPotionFromResourceLocation("minecraft:invisibility")) == null) {
+					if (pl != null && pl.getActivePotionEffect(  Objects.requireNonNull(Potion.getPotionFromResourceLocation("minecraft:invisibility"))) == null) {
 						e = pl;
 						range = 1;
 					}
@@ -1495,39 +1410,32 @@ public class ClientGuiEventHandler extends Gui {
 						if (!el.getName().equals(n)) {
 							continue;
 						}
-						double r = v.distanceSq((Vec3i) el.getPosition());
-						if (et == null) {
-							d = r;
-							et = el;
-						} else {
-							if (r >= d) {
-								continue;
-							}
-							d = r;
-							et = el;
-						}
-					}
+						double r = v.distanceSq(el.getPosition());
+                        if (et != null) {
+                            if (r >= d) {
+                                continue;
+                            }
+                        }
+                        d = r;
+                        et = el;
+                    }
 					if (et == null) {
-						bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(range, range,
-								range);
+						bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(range, range, range);
 						ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
 						d = range * range * range;
 						for (EntityLivingBase el : ents) {
 							if (!el.getName().equals(n)) {
 								continue;
 							}
-							double r = v.distanceSq((Vec3i) el.getPosition());
-							if (et == null) {
-								d = r;
-								et = el;
-							} else {
-								if (r >= d) {
-									continue;
-								}
-								d = r;
-								et = el;
-							}
-						}
+							double r = v.distanceSq(el.getPosition());
+                            if (et != null) {
+                                if (r >= d) {
+                                    continue;
+                                }
+                            }
+                            d = r;
+                            et = el;
+                        }
 					}
 					e = et;
 					range = 1;
@@ -1539,7 +1447,7 @@ public class ClientGuiEventHandler extends Gui {
 				}
 			}
 
-			if (p != null && p.length >= 3) {
+			if (p != null) {
 				RayTraceRotate angles = AdditionalMethods.instance.getAngles3D(this.mc.player.posX,
 						this.mc.player.posY + this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
 				float scale = -30.0f * hud.compassData.scale;
@@ -1552,12 +1460,9 @@ public class ClientGuiEventHandler extends Gui {
 				if (this.qt < 40) {
 
 					this.qt++;
-				} else if (this.qt > 0 && p == null) {
-
-					this.qt--;
 				}
 
-				GlStateManager.translate(uvPos[0], uvPos[1], 0.0d);
+                GlStateManager.translate(uvPos[0], uvPos[1], 0.0d);
 
 				// Named
 				GlStateManager.pushMatrix();
@@ -1588,15 +1493,13 @@ public class ClientGuiEventHandler extends Gui {
 
 				// Body
 				GlStateManager.pushMatrix();
-				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS,
-						Lists.<String>newArrayList("body"), null));
+				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("body"), null));
 				GlStateManager.popMatrix();
 
 				// Dial
 				GlStateManager.pushMatrix();
 				GlStateManager.rotate(-1.0f * this.mc.player.rotationYaw, 0.0f, 1.0f, 0.0f);
-				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS,
-						Lists.<String>newArrayList("dial"), null));
+				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("dial"), null));
 				GlStateManager.popMatrix();
 
 				// Arrow_0
@@ -1607,63 +1510,51 @@ public class ClientGuiEventHandler extends Gui {
 						yaw += 360.0f;
 					}
 					GlStateManager.rotate(180.0f + yaw - (float) angles.yaw, 0.0f, 1.0f, 0.0f);
-					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS,
-							Lists.<String>newArrayList("arrow_0"), null));
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_0"), null));
 				} else {
 					double t = System.currentTimeMillis() % 4000.0d;
 					double f0 = t < 2000.0d ? -0.00033d * t + 1.0d : 0.00033 * t - 0.30033d;
 					GlStateManager.scale(f0, f0, f0);
-					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS,
-							Lists.<String>newArrayList("arrow_3"), null));
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_3"), null));
 				}
 				GlStateManager.popMatrix();
 
 				// Arrow_1 upper
-				double yP = 0.0d;
-				if (p != null) {
-					yP = -0.25d * (this.mc.player.posY - p[1]) / (double) range;
-					GlStateManager.pushMatrix();
-					if (yP >= -0.25d && yP <= 0.25d) {
-						GlStateManager.translate(0.0d, yP, 0.0d);
-					} else {
-						if (yP > 0.25d) {
-							GlStateManager.translate(0.0d, 0.275d, 0.0d);
-						} else if (yP < -0.25d) {
-							GlStateManager.translate(0.0d, -0.275d, 0.0d);
-						}
-						double t = System.currentTimeMillis() % 1000.0d;
-						double f0 = t < 500.0d ? -0.025d + 0.05d * (t % 500.0d) / 500.0d
-								: 0.025d - 0.05d * (t % 500.0d) / 500.0d;
-						GlStateManager.translate(0.0d, f0, 0.0d);
-					}
-					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS,
-							Lists.<String>newArrayList("arrow_1"), null));
-					GlStateManager.popMatrix();
-				}
+				double yP;
+                yP = -0.25d * (this.mc.player.posY - p[1]) / (double) range;
+                GlStateManager.pushMatrix();
+                if (yP >= -0.25d && yP <= 0.25d) {
+                    GlStateManager.translate(0.0d, yP, 0.0d);
+                } else {
+                    if (yP > 0.25d) {
+                        GlStateManager.translate(0.0d, 0.275d, 0.0d);
+                    } else if (yP < -0.25d) {
+                        GlStateManager.translate(0.0d, -0.275d, 0.0d);
+                    }
+                    double t = System.currentTimeMillis() % 1000.0d;
+                    double f0 = t < 500.0d ? -0.025d + 0.05d * (t % 500.0d) / 500.0d
+                            : 0.025d - 0.05d * (t % 500.0d) / 500.0d;
+                    GlStateManager.translate(0.0d, f0, 0.0d);
+                }
+                GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_1"), null));
+                GlStateManager.popMatrix();
 
-				// Arrow_2
-				if (p != null) {
-					GlStateManager.pushMatrix();
-					if (yP > 0.25d) {
-						GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS,
-								Lists.<String>newArrayList("arrow_21"), null));
-					} else if (yP < -0.25d) {
-						GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS,
-								Lists.<String>newArrayList("arrow_22"), null));
-					} else {
-						GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS,
-								Lists.<String>newArrayList("arrow_20"), null));
-					}
-					GlStateManager.popMatrix();
-				}
+                // Arrow_2
+                GlStateManager.pushMatrix();
+                if (yP > 0.25d) {
+                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_21"), null));
+                } else if (yP < -0.25d) {
+                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_22"), null));
+                } else {
+                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_20"), null));
+                }
+                GlStateManager.popMatrix();
 
-				if (type >= 0 && type <= EnumQuestTask.values().length) {
-					Map<String, String> m = Maps.<String, String>newHashMap();
-					// type = 0;
+                if (type >= 0 && type <= EnumQuestTask.values().length) {
+					Map<String, String> m = Maps.newHashMap();
 					m.put("customnpcs:util/task_0", "customnpcs:util/task_" + type);
 					GlStateManager.pushMatrix();
-					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS,
-							Lists.<String>newArrayList("fase"), m));
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("fase"), m));
 					GlStateManager.popMatrix();
 				}
 
@@ -1677,7 +1568,7 @@ public class ClientGuiEventHandler extends Gui {
 			}
 		}
 		// Information from the NBT Book
-		String rayName = "", rayTitle = "";
+		String rayName, rayTitle = "";
 		if (this.mc.player != null && (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNbtBook
 				|| this.mc.player.getHeldItemOffhand().getItem() instanceof ItemNbtBook)) {
 			double distance = this.mc.gameSettings.getOptionFloatValue(GameSettings.Options.RENDER_DISTANCE) * 16.0d;
@@ -1691,15 +1582,12 @@ public class ClientGuiEventHandler extends Gui {
 				vec3d3 = new Vec3d(result.hitVec.x, result.hitVec.y, result.hitVec.z);
 				List<Entity> list = this.mc.player.world.getEntitiesWithinAABBExcludingEntity(this.mc.player,
 						this.mc.player.getEntityBoundingBox().grow(distance));
-				List<Entity> rs = new ArrayList<Entity>();
+				List<Entity> rs = new ArrayList<>();
 				for (Entity entity1 : list) {
 					if (entity1.canBeCollidedWith() && entity1 != this.mc.player) {
-						AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox()
-								.grow(entity1.getCollisionBorderSize());
-						RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d3);
-						if (raytraceresult1 == null) {
-							continue;
-						}
+						AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
+						RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d3);
+						if (raytraceresult == null) { continue; }
 						rs.add(entity1);
 					}
 				}
@@ -1717,13 +1605,13 @@ public class ClientGuiEventHandler extends Gui {
 				}
 				ItemStack st = null;
 				IBlockState state = null;
-				double dist = -1.0d;
+				double dist;
 				if (entity != null) {
 					dist = Math.round(this.mc.player.getDistance(entity) * 10.0d) / 10.0d;
 					ResourceLocation res = EntityList.getKey(entity);
 					rayName = ((char) 167) + "7 [" + entity.getClass().getSimpleName() + "]" + " " + ((char) 167) + "r"
 							+ entity.getName() + ((char) 167) + "2 " + dist;
-					rayTitle = (res != null ? ((char) 167) + "e" + res.toString() : "") + ((char) 167) + "b [X:"
+					rayTitle = (res != null ? ((char) 167) + "e" + res : "") + ((char) 167) + "b [X:"
 							+ ((char) 167) + "6" + Math.round(entity.posX * 10.0d) / 10.0d + ((char) 167) + "b, Y:"
 							+ ((char) 167) + "6" + Math.round(entity.posY * 10.0d) / 10.0d + ((char) 167) + "b, Z:"
 							+ ((char) 167) + "6" + Math.round(entity.posZ * 10.0d) / 10.0d + ((char) 167) + "b]";
@@ -1767,7 +1655,7 @@ public class ClientGuiEventHandler extends Gui {
 				GlStateManager.scale(1.005f, 1.005f, 1.005f);
 				if (entity != null) {
 					GlStateManager.pushMatrix();
-					this.drawNpc(entity, -12, 10, 0.75f, 0, 0);
+					this.drawNpc(entity);
 					GlStateManager.popMatrix();
 				} else if (state != null) {
 					st = new ItemStack(Item.getItemFromBlock(state.getBlock()), 1,
@@ -1799,6 +1687,26 @@ public class ClientGuiEventHandler extends Gui {
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
 	}
 
+	private static EntityLivingBase getEntityLivingBase(double[] p, List<EntityLivingBase> ents, QuestData qData) {
+		double d = 65535.0d;
+		Vec3i v = new Vec3i(p[0], p[1], p[2]);
+		EntityLivingBase et = null;
+		for (EntityLivingBase el : ents) {
+			if (!el.getName().equals(qData.quest.getCompleterNpc().getName())) {
+				continue;
+			}
+			double r = v.distanceSq(el.getPosition());
+if (et != null) {
+if (r >= d) {
+continue;
+}
+}
+d = r;
+et = el;
+}
+		return et;
+	}
+
 	/** Any Regions */
 	@SubscribeEvent
 	public void npcRenderWorldLastEvent(RenderWorldLastEvent event) {
@@ -1810,7 +1718,7 @@ public class ClientGuiEventHandler extends Gui {
 			this.sw = new ScaledResolution(this.mc);
 			return;
 		}
-		this.bData = BorderController.getInstance();
+        BorderController bData = BorderController.getInstance();
 		if (this.mc.player.world == null) {
 			return;
 		}
@@ -1824,7 +1732,7 @@ public class ClientGuiEventHandler extends Gui {
 				+ (this.mc.player.posZ - this.mc.player.lastTickPosZ) * (double) event.getPartialTicks();
 
 		if (!ClientGuiEventHandler.customParticle.isEmpty()) {
-			List<CustomParticle> del = Lists.<CustomParticle>newArrayList();
+			List<CustomParticle> del = Lists.newArrayList();
 			for (CustomParticle cp : ClientGuiEventHandler.customParticle) {
 				if (!cp.isAlive() || cp.obj == null) {
 					del.add(cp);
@@ -1862,6 +1770,9 @@ public class ClientGuiEventHandler extends Gui {
 				}
 				GlStateManager.popMatrix();
 			}
+			for (CustomParticle cp : del) {
+				ClientGuiEventHandler.customParticle.remove(cp);
+			}
 		}
 		BuilderData builder = ItemBuilder.getBuilder(this.mc.player.getHeldItemMainhand(), this.mc.player);
 		if (builder != null && builder.getID() > -1) {
@@ -1874,9 +1785,9 @@ public class ClientGuiEventHandler extends Gui {
 			Vec3d vec3d2 = this.mc.player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 5.0d, vec3d2.y * 5.0d, vec3d2.z * 5.0d);
 			ClientGuiEventHandler.result = this.mc.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
-			if (ClientGuiEventHandler.result != null && ClientGuiEventHandler.result.getBlockPos() != null) {
-				this.drawZone(builder, ClientGuiEventHandler.result.getBlockPos());
-			}
+			if (ClientGuiEventHandler.result != null) {
+                this.drawZone(builder, ClientGuiEventHandler.result.getBlockPos());
+            }
 		}
 		NBTTagCompound nbtMP = null;
 		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNpcMovingPath) {
@@ -1896,70 +1807,37 @@ public class ClientGuiEventHandler extends Gui {
 		// Show rayTrace point
 		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
 			if (this.mc.player.getHeldItemMainhand().hasTagCompound()
-					&& this.mc.player.getHeldItemMainhand().getTagCompound().hasKey("RegionID", 3)) {
+					&& Objects.requireNonNull(this.mc.player.getHeldItemMainhand().getTagCompound()).hasKey("RegionID", 3)) {
 				id = this.mc.player.getHeldItemMainhand().getTagCompound().getInteger("RegionID");
 			}
 			Vec3d vec3d = this.mc.player.getPositionEyes(1.0f);
 			Vec3d vec3d2 = this.mc.player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 5.0d, vec3d2.y * 5.0d, vec3d2.z * 5.0d);
 			ClientGuiEventHandler.result = this.mc.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
-			Zone3D reg = (Zone3D) this.bData.getRegion(id);
-			if (reg == null && ClientGuiEventHandler.result != null
-					&& ClientGuiEventHandler.result.getBlockPos() != null) {
-				int x = ClientGuiEventHandler.result.getBlockPos().getX();
-				int y = ClientGuiEventHandler.result.getBlockPos().getY();
-				int z = ClientGuiEventHandler.result.getBlockPos().getZ();
-				try {
-					switch (ClientGuiEventHandler.result.sideHit) {
-					case UP: {
-						y += 1;
-						break;
-					}
-					case NORTH: {
-						z -= 1;
-						break;
-					}
-					case SOUTH: {
-						z += 1;
-						break;
-					}
-					case WEST: {
-						x -= 1;
-						break;
-					}
-					case EAST: {
-						x += 1;
-						break;
-					}
-					default: {
-						y -= 1;
-						break;
-					}
-					}
-				} catch (Exception e) {
-				}
-				BlockPos pos = new BlockPos(x, y, z);
+			Zone3D reg = (Zone3D) bData.getRegion(id);
+			if (reg == null && ClientGuiEventHandler.result != null) {
+				final BlockPos pos = getPos();
 				GlStateManager.pushMatrix();
-				GlStateManager.enableBlend();
-				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-						GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-						GlStateManager.DestFactor.ZERO);
-				GlStateManager.glLineWidth(3.0F);
-				GlStateManager.disableTexture2D();
-				GlStateManager.depthMask(false);
-				GlStateManager.translate(pos.getX() - this.dx + 0.5d, pos.getY() - this.dy,
-						pos.getZ() - this.dz + 0.5d);
-				GlStateManager.rotate((System.currentTimeMillis() / 7) % 360, 0.0f, 1.0f, 0.0f);
-				RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.35d, 0.15d, -0.35d, 0.35d, 0.85d, 0.35d)),
-						1.0f, 0.50f, 1.0f, 1.0f);
-				GlStateManager.depthMask(true);
-				GlStateManager.enableTexture2D();
-				GlStateManager.disableBlend();
-				GlStateManager.popMatrix();
-			}
+                GlStateManager.enableBlend();
+                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+                        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+                        GlStateManager.DestFactor.ZERO);
+                GlStateManager.glLineWidth(3.0F);
+                GlStateManager.disableTexture2D();
+                GlStateManager.depthMask(false);
+                GlStateManager.translate(pos.getX() - this.dx + 0.5d, pos.getY() - this.dy,
+                        pos.getZ() - this.dz + 0.5d);
+                GlStateManager.rotate(((float) System.currentTimeMillis() / 7) % 360, 0.0f, 1.0f, 0.0f);
+                RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.35d, 0.15d, -0.35d, 0.35d, 0.85d, 0.35d)),
+                        1.0f, 0.50f, 1.0f, 1.0f);
+                GlStateManager.depthMask(true);
+                GlStateManager.enableTexture2D();
+                GlStateManager.disableBlend();
+                GlStateManager.popMatrix();
+            }
 		}
 		// Show Regions
-		for (Zone3D reg : this.bData.getRegionsInWorld(this.mc.player.world.provider.getDimension())) {
+		for (Zone3D reg : bData.getRegionsInWorld(this.mc.player.world.provider.getDimension())) {
 			if (reg == null || reg.dimensionID != this.mc.player.world.provider.getDimension()
 					|| reg.distanceTo(this.mc.player) > 250.0d) {
 				continue;
@@ -1973,7 +1851,43 @@ public class ClientGuiEventHandler extends Gui {
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
 	}
 
-	/** HUD Bar Interfase Canceled */
+	private static BlockPos getPos() {
+		int x = ClientGuiEventHandler.result.getBlockPos().getX();
+		int y = ClientGuiEventHandler.result.getBlockPos().getY();
+		int z = ClientGuiEventHandler.result.getBlockPos().getZ();
+		try {
+			switch (ClientGuiEventHandler.result.sideHit) {
+				case UP: {
+					y += 1;
+					break;
+				}
+				case NORTH: {
+					z -= 1;
+					break;
+				}
+				case SOUTH: {
+					z += 1;
+					break;
+				}
+				case WEST: {
+					x -= 1;
+					break;
+				}
+				case EAST: {
+					x += 1;
+					break;
+				}
+				default: {
+					y -= 1;
+					break;
+				}
+			}
+		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
+        return new BlockPos(x, y, z);
+	}
+
+	/** HUD Bar Interface Canceled */
 	@SubscribeEvent
 	public void npcScreenRenderPre(RenderGameOverlayEvent.Pre event) {
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcScreenRenderPre");
@@ -2013,8 +1927,10 @@ public class ClientGuiEventHandler extends Gui {
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			int x = 0, y = 0;
 			try {
-				x = ((GuiInventory) mc.currentScreen).getGuiLeft() + 122;
-				y = ((GuiInventory) mc.currentScreen).getGuiTop() + 61;
+				if (mc.currentScreen != null) {
+					x = ((GuiInventory) mc.currentScreen).getGuiLeft() + 122;
+					y = ((GuiInventory) mc.currentScreen).getGuiTop() + 61;
+				}
 			} catch (Exception e) {
 				return;
 			}
@@ -2026,23 +1942,22 @@ public class ClientGuiEventHandler extends Gui {
 			GlStateManager.popMatrix();
 
 			GlStateManager.pushMatrix();
-			mc.fontRenderer.drawString(text, x + 15, y + 8 / 2, CustomNpcs.LableColor.getRGB(), false);
+			mc.fontRenderer.drawString(text, x + 15, y + 8.0f / 2.0f, CustomNpcs.LableColor.getRGB(), false);
 			GlStateManager.popMatrix();
 			int xm = event.getMouseX(), ym = event.getMouseY();
 			if (xm > x && ym > y && xm < x + 50 && ym < y + 12) {
-				List<String> hoverText = new ArrayList<String>();
+				List<String> hoverText = new ArrayList<>();
 				hoverText.add(new TextComponentTranslation("inventory.hover.currency").getFormattedText());
 				hoverText.add("" + CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney());
 				event.getGui().drawHoveringText(hoverText, xm, ym);
 			}
 		} else if (event.getGui() instanceof GuiContainerCreative && CustomNpcs.ShowMoney) {
-			int x = 0, y = 0;
-			try {
+			int x;
+            int y;
+            try {
 				x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;
 				y = ((GuiContainerCreative) event.getGui()).getGuiTop() + 4;
-			} catch (Exception e) {
-				return;
-			}
+			} catch (Exception e) { return; }
 
 			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
@@ -2090,7 +2005,8 @@ public class ClientGuiEventHandler extends Gui {
 	public void onInitGuiEvent(GuiScreenEvent.InitGuiEvent.Post event) {
 		if (event.getGui() instanceof GuiContainerCreative) {
 			CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onInitGuiEvent");
-			int x = 0, y = 0;
+			int x;
+			int y;
 			try {
 				x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;
 				y = ((GuiContainerCreative) event.getGui()).getGuiTop() + 4;
@@ -2098,8 +2014,7 @@ public class ClientGuiEventHandler extends Gui {
 				return;
 			}
 			event.getButtonList().add(new GuiNpcButton(150, x, y, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
-			event.getButtonList()
-					.add(new GuiNpcButton(151, x, y + 28, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
+			event.getButtonList().add(new GuiNpcButton(151, x, y + 28, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
 			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_onInitGuiEvent");
 		}
 	}
@@ -2128,53 +2043,45 @@ public class ClientGuiEventHandler extends Gui {
 				nt[1] = (double) reg.y[1] + 1.175d;
 			}
 		}
-		if (ClientGuiEventHandler.result != null && ClientGuiEventHandler.result.sideHit != null
-				&& ClientGuiEventHandler.result.getBlockPos() != null) {
-			BlockPos p = ClientGuiEventHandler.result.getBlockPos();
-			double min = p.getY() < reg.y[0] ? (double) p.getY() : (double) reg.y[0];
-			double max = (p.getY() > reg.y[1] ? (double) p.getY() : (double) reg.y[1]) + 1.0d;
-			Point pb = new Point(p.getX(), p.getZ());
-			double px = p.getX(), x = px + 0.5d;
-			double py = p.getY(), y = py + 0.5d;
-			double pz = p.getZ(), z = pz + 0.5d;
-			switch (ClientGuiEventHandler.result.sideHit) {
-			case UP: {
-				y += 0.55d;
-				py += 2.0d;
-				break;
-			}
-			case NORTH: {
-				z -= 0.55d;
-				pz -= 1.0d;
-				break;
-			}
-			case SOUTH: {
-				z += 0.55d;
-				pz += 1.0d;
-				break;
-			}
-			case WEST: {
-				x -= 0.55d;
-				px -= 1.0d;
-				break;
-			}
-			case EAST: {
-				x += 0.55d;
-				px += 1.0d;
-				break;
-			}
-			default: {
-				y -= 0.55d;
-				py -= 1.0d;
-				break;
-			}
-			}
-			drawVertex(x, y, z, 1.0f, 1.0f, 0.0f);
-			// Bound
-			Point[] pns = reg.getClosestPoints(pb,
-					NpcAPI.Instance().getIPos(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ));
-			drawAddSegment(pns, pb, min, max, 0.75f, 0.75f, 0.75f, 1.0f);
-		}
+		if (ClientGuiEventHandler.result != null && ClientGuiEventHandler.result.sideHit != null) {
+            BlockPos p = ClientGuiEventHandler.result.getBlockPos();
+            double min = p.getY() < reg.y[0] ? (double) p.getY() : (double) reg.y[0];
+            double max = (p.getY() > reg.y[1] ? (double) p.getY() : (double) reg.y[1]) + 1.0d;
+            Point pb = new Point(p.getX(), p.getZ());
+            double px = p.getX(), x = px + 0.5d;
+            double py = p.getY(), y = py + 0.5d;
+            double pz = p.getZ(), z = pz + 0.5d;
+            switch (ClientGuiEventHandler.result.sideHit) {
+                case UP: {
+                    y += 0.55d;
+                    break;
+                }
+                case NORTH: {
+                    z -= 0.55d;
+                    break;
+                }
+                case SOUTH: {
+                    z += 0.55d;
+                    break;
+                }
+                case WEST: {
+                    x -= 0.55d;
+                    break;
+                }
+                case EAST: {
+                    x += 0.55d;
+                    break;
+                }
+                default: {
+                    y -= 0.55d;
+                    break;
+                }
+            }
+            drawVertex(x, y, z, 1.0f, 1.0f, 0.0f);
+            // Bound
+            Point[] pns = reg.getClosestPoints(pb, Objects.requireNonNull(NpcAPI.Instance()).getIPos(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ));
+            drawAddSegment(pns, pb, min, max);
+        }
 
 		if (nearestPoint != null) { // nearest vertex
 			GlStateManager.pushMatrix();

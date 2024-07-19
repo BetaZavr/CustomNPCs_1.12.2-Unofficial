@@ -89,12 +89,12 @@ implements IGlStateManager {
 	}
 	
 	@Override
-	public void drawTexture(String resourseLocation, double x, double y, double z, double u, double v, double width, double height, boolean revers) {
-		if (resourseLocation == null || resourseLocation.isEmpty()) { return; }
-		ResourceLocation loc = new ResourceLocation(resourseLocation);
+	public void drawTexture(String resourceLocation, double x, double y, double z, double u, double v, double width, double height, boolean revers) {
+		if (resourceLocation == null || resourceLocation.isEmpty()) { return; }
+		ResourceLocation loc = new ResourceLocation(resourceLocation);
 		this.minecraft.renderEngine.bindTexture(loc);
-		if (this.minecraft.renderEngine.getTexture(loc) == null) { return; }
-		float w = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
+        this.minecraft.renderEngine.getTexture(loc);
+        float w = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
 		float h = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
 		if (w > 256.0f) {
 			w = 256.0f;
@@ -110,10 +110,12 @@ implements IGlStateManager {
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		bufferbuilder.pos(x, y + height, z).tex((revers ? u + width : u) * f, (v + height) * f1).endVertex();
-		bufferbuilder.pos(x + width, y + height, z).tex((revers ? u : u + width) * f, (v + height) * f1).endVertex();
-		bufferbuilder.pos(x + width, y, z).tex((revers ? u : u + width) * f, v * f1).endVertex();
-		bufferbuilder.pos(x, y, z).tex((revers ? u + width : u) * f, v * f1).endVertex();
+		double us = (revers ? u + width : u) * f;
+		double ue = (revers ? u : u + width) * f;
+		bufferbuilder.pos(x, y + height, z).tex(us, (v + height) * f1).endVertex();
+		bufferbuilder.pos(x + width, y + height, z).tex(ue, (v + height) * f1).endVertex();
+		bufferbuilder.pos(x + width, y, z).tex(ue, v * f1).endVertex();
+		bufferbuilder.pos(x, y, z).tex(us, v * f1).endVertex();
 		tessellator.draw();
 	}
 

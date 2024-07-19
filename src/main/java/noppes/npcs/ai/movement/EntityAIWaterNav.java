@@ -5,7 +5,8 @@ import net.minecraft.pathfinding.PathNavigateGround;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIWaterNav extends EntityAIBase {
-	private EntityNPCInterface entity;
+
+	private final EntityNPCInterface entity;
 
 	public EntityAIWaterNav(EntityNPCInterface iNpc) {
 		this.entity = iNpc;

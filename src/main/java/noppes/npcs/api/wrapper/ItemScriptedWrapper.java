@@ -1,9 +1,6 @@
 package noppes.npcs.api.wrapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -36,7 +33,7 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 
 	public ItemScriptedWrapper(ItemStack item) {
 		super(item);
-		this.scripts = new ArrayList<ScriptContainer>();
+		this.scripts = new ArrayList<>();
 		this.scriptLanguage = "ECMAScript";
 		this.enabled = false;
 		this.lastInited = -1L;
@@ -63,7 +60,7 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 
 	@Override
 	public Map<Long, String> getConsoleText() {
-		Map<Long, String> map = new TreeMap<Long, String>();
+		Map<Long, String> map = new TreeMap<>();
 		int tab = 0;
 		for (ScriptContainer script : this.getScripts()) {
 			++tab;
@@ -238,7 +235,7 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 	@Override
 	public void setMaxStackSize(int size) {
 		if (size < 1 || size > 64) {
-			throw new CustomNPCsException("Stacksize has to be between 1 and 64", new Object[0]);
+			throw new CustomNPCsException("Stacksize has to be between 1 and 64");
 		}
 		this.stackSize = size;
 	}
@@ -268,10 +265,10 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 	@Override
 	public void setTexture(int damage, String texture) {
 		if (damage == 0) {
-			throw new CustomNPCsException("Can't set texture for 0", new Object[0]);
+			throw new CustomNPCsException("Can't set texture for 0");
 		}
 		String old = ItemScripted.Resources.get(damage);
-		if (old == texture || (old != null && texture != null && old.equals(texture))) {
+		if (Objects.equals(old, texture)) {
 			return;
 		}
 		ItemScripted.Resources.put(damage, texture);

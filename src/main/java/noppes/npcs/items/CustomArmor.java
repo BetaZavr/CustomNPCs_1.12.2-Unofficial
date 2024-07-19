@@ -2,6 +2,7 @@ package noppes.npcs.items;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.lwjgl.util.vector.Vector3f;
@@ -34,6 +35,8 @@ import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
+
+import javax.annotation.Nonnull;
 
 @SuppressWarnings("deprecation")
 public class CustomArmor extends ItemArmor implements ICustomElement {
@@ -68,15 +71,15 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 		}
 	}
 	
-	protected NBTTagCompound nbtData = new NBTTagCompound();
+	protected NBTTagCompound nbtData;
 	protected ItemStack repairItemStack = ItemStack.EMPTY;
 	protected int enchantability = 0;
 
 	public ResourceLocation objModel = null;
 
-	private final Map<EnumParts, List<String>> parts = Maps.<EnumParts, List<String>>newHashMap();
+	private final Map<EnumParts, List<String>> parts = Maps.newHashMap();
 	
-	private final Map<TransformType, Optional<TRSRTransformation>> cameraData = Maps.<TransformType, Optional<TRSRTransformation>>newHashMap();
+	private final Map<TransformType, Optional<TRSRTransformation>> cameraData = Maps.newHashMap();
 
 	public CustomArmor(ItemArmor.ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn, int maxStackDamage, int damageReduceAmount, float toughness, NBTTagCompound nbtItem) {
 		super(materialIn, renderIndexIn, equipmentSlotIn);
@@ -108,86 +111,86 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 		if (this.nbtData.hasKey("OBJData", 10)) {
 			NBTTagCompound data = this.nbtData.getCompoundTag("OBJData");
 			NBTTagList tagList = data.getTagList("Head Mesh Names", 8);
-			List<String> listHead = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listHead = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listHead.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.HEAD, listHead);
 			this.parts.put(EnumParts.MOHAWK, listHead);
 			tagList = data.getTagList("Body Mesh Names", 8);
-			List<String> listBody = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listBody = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listBody.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.BODY, listBody);
 			tagList = data.getTagList("Arm Right Mesh Names", 8);
-			List<String> listArmRight = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listArmRight = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listArmRight.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.ARM_RIGHT, listArmRight);
 			tagList = data.getTagList("Wrist Right Mesh Names", 8);
-			List<String> listWristRight = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listWristRight = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listWristRight.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.WRIST_RIGHT, listWristRight);
 			tagList = data.getTagList("Arm Left Mesh Names", 8);
-			List<String> listArmLeft = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listArmLeft = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listArmLeft.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.ARM_LEFT, listArmLeft);
 			tagList = data.getTagList("Wrist Left Mesh Names", 8);
-			List<String> listWristLeft = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listWristLeft = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listWristLeft.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.WRIST_LEFT, listWristLeft);
 			tagList = data.getTagList("Belt Mesh Names", 8);
-			List<String> listBelt = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listBelt = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listBelt.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.BELT, listBelt);
 			tagList = data.getTagList("Leg Right Mesh Names", 8);
-			List<String> listLegRight = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listLegRight = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listLegRight.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.LEG_RIGHT, listLegRight);
 			tagList = data.getTagList("Foot Right Mesh Names", 8);
-			List<String> listFootRight = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listFootRight = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listFootRight.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.FOOT_RIGHT, listFootRight);
 			tagList = data.getTagList("Leg Left Mesh Names", 8);
-			List<String> listLegLeft = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listLegLeft = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listLegLeft.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.LEG_LEFT, listLegLeft);
 			tagList = data.getTagList("Foot Left Mesh Names", 8);
-			List<String> listFootLeft = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listFootLeft = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listFootLeft.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.FOOT_LEFT, listFootLeft);
 			tagList = data.getTagList("Boot Right Mesh Names", 8);
-			List<String> listBootRight = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listBootRight = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listBootRight.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.FEET_RIGHT, listBootRight);
 			tagList = data.getTagList("Boot Left Mesh Names", 8);
-			List<String> listBootLeft = Lists.<String>newArrayList();
-			if (tagList != null && tagList.tagCount() > 0) {
+			List<String> listBootLeft = Lists.newArrayList();
+			if (tagList.tagCount() > 0) {
 				for (int i = 0; i < tagList.tagCount(); i++) { listBootLeft.add(tagList.getStringTagAt(i)); }
 			}
 			this.parts.put(EnumParts.FEET_LEFT, listBootLeft);
 			this.objModel = new ResourceLocation(CustomNpcs.MODID, "models/armor/" + nbtItem.getString("RegistryName") + ".obj");
-			if (Thread.currentThread().getName().toLowerCase().indexOf("client") != -1) {
+			if (Thread.currentThread().getName().toLowerCase().contains("client")) {
 				this.createCameraData();
 			}
 		}
@@ -196,15 +199,12 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 			for (EnumParts part : EnumParts.values()) {
 				NBTTagCompound nbt = null;
 				switch (part) {
-					case HEAD: {
+					case HEAD:
+                    case MOHAWK: {
 						nbt = data.getCompoundTagAt(0);
 						break;
 					}
-					case MOHAWK: {
-						nbt = data.getCompoundTagAt(0);
-						break;
-					}
-					case BODY: {
+                    case BODY: {
 						nbt = data.getCompoundTagAt(1);
 						break;
 					}
@@ -257,16 +257,14 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 					}
 				}
 				if (nbt == null) { continue; }
-				List<String> list = Lists.<String>newArrayList();
-				if (nbt != null) {
-					for (int i = 0; i < nbt.getTagList("meshes", 8).tagCount(); i++) {
-						list.add(nbt.getTagList("meshes", 8).getStringTagAt(i));
-					}
-				}
-				this.parts.put(part, list);
+				List<String> list = Lists.newArrayList();
+                for (int i = 0; i < nbt.getTagList("meshes", 8).tagCount(); i++) {
+                    list.add(nbt.getTagList("meshes", 8).getStringTagAt(i));
+                }
+                this.parts.put(part, list);
 			}
 			this.objModel = new ResourceLocation(CustomNpcs.MODID, "models/armor/" + nbtItem.getString("RegistryName") + ".obj");
-			if (Thread.currentThread().getName().toLowerCase().indexOf("client") != -1) {
+			if (Thread.currentThread().getName().toLowerCase().contains("client")) {
 				this.createCameraData();
 			}
 		}
@@ -274,17 +272,16 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public ModelBiped getArmorModel(EntityLivingBase entity, ItemStack itemStack, EntityEquipmentSlot slot,
-			ModelBiped defModel) {
+	public ModelBiped getArmorModel(@Nonnull EntityLivingBase entity, @Nonnull ItemStack itemStack, @Nonnull EntityEquipmentSlot slot, @Nonnull ModelBiped defModel) {
 		if (this.objModel != null) {
-			return ModelBuffer.getOBJModelBiped(this, entity, itemStack, slot, defModel);
+			return ModelBuffer.getOBJModelBiped(this, entity, defModel);
 		}
 		return super.getArmorModel(entity, itemStack, slot, defModel);
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type) {
+	public String getArmorTexture(@Nonnull ItemStack stack, @Nonnull Entity entity, @Nonnull EntityEquipmentSlot slot, @Nonnull String type) {
 		if (this.objModel != null) {
 			return CustomNpcs.MODID + ":textures/items/null.png";
 		}
@@ -299,10 +296,10 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+	public boolean getIsRepairable(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
 		ItemStack mat = this.repairItemStack;
 		if (this.repairItemStack.isEmpty()) {
 			mat = this.getArmorMaterial().getRepairItemStack();
@@ -322,7 +319,7 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 
 	public List<String> getMeshNames(EnumParts slot) {
 		if (this.parts.containsKey(slot)) { return this.parts.get(slot); }
-		return Lists.<String>newArrayList();
+		return Lists.newArrayList();
 	}
 
 	private void createCameraData() {
@@ -900,7 +897,7 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 
 	public Optional<TRSRTransformation> getOptional(TransformType transformType) { return this.cameraData.get(transformType); }
 
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
@@ -909,7 +906,7 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 	
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return (int) this.nbtData.getByte("ItemType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return this.nbtData.getByte("ItemType"); }
 		return 0;
 	}
 

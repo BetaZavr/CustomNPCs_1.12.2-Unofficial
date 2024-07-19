@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
 import net.minecraft.client.gui.Gui;
@@ -15,6 +16,7 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
@@ -27,10 +29,10 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		void color(int p0);
 	}
 
-	private static ResourceLocation colorgui = new ResourceLocation("moreplayermodels:textures/gui/color_gui.png");
-	private static ResourceLocation colorPicker = new ResourceLocation("moreplayermodels:textures/gui/color.png");
+	private static final ResourceLocation colorgui = new ResourceLocation("moreplayermodels:textures/gui/color_gui.png");
+	private static final ResourceLocation colorPicker = new ResourceLocation("moreplayermodels:textures/gui/color.png");
 	private ResourceLocation npcSkin;
-	private ColorCallback callback;
+	private final ColorCallback callback;
 	public int color, colorX, colorY, hover;
 	public boolean hovered;
 	public GuiScreen parent;
@@ -51,7 +53,7 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
+	protected void actionPerformed(@Nonnull GuiButton guibutton) {
 		if (guibutton.id == 66) {
 			this.close();
 		}
@@ -96,13 +98,13 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 			try {
 				IResource resource = this.mc.getResourceManager().getResource(this.npcSkin);
 				this.bufferSkin = ImageIO.read(stream = resource.getInputStream());
-			} catch (IOException ex) {
+			} catch (IOException e) {
+				LogWriter.error("Error:", e);
 			} finally {
 				if (stream != null) {
 					try {
 						stream.close();
-					} catch (IOException ex2) {
-					}
+					} catch (IOException ex) { LogWriter.error("Error:", ex); }
 				}
 			}
 		}
@@ -113,11 +115,11 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 				IResource resource = this.mc.getResourceManager().getResource(GuiModelColor.colorPicker);
 				this.bufferColor = ImageIO.read(stream = resource.getInputStream());
 			}
-			catch (IOException ex) { }
+			catch (IOException e) { LogWriter.error("Error:", e); }
 			finally {
 				if (stream != null) {
 					try { stream.close(); }
-					catch (IOException ex2) { }
+					catch (IOException ex) { LogWriter.error("Error:", ex); }
 				}
 			}
 		}
@@ -142,8 +144,8 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 				float yb = (float) (mouseY - y) / 0.458823f;
 				float w = 256.0f / (float) this.bufferSkin.getWidth();
 				float h = 256.0f / (float) this.bufferSkin.getHeight();
-				try { this.hover = this.bufferSkin.getRGB((int) ((float) xb / w), (int) ((float) yb / h)) & 0xFFFFFF; }
-				catch (Exception e) { }
+				try { this.hover = this.bufferSkin.getRGB((int) (xb / w), (int) (yb / h)) & 0xFFFFFF; }
+				catch (Exception e) { LogWriter.error("Error:", e); }
 				this.hovered = true;
 			}
 		}
@@ -169,10 +171,9 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 	}
 
 	public String getColor() {
-		String str;
-		for (str = Integer.toHexString(this.color); str.length() < 6; str = "0" + str) {
-		}
-		return str;
+		StringBuilder str = new StringBuilder(Integer.toHexString(this.color));
+		while (str.length() < 6) { str.insert(0, "0"); }
+		return str.toString();
 	}
 
 	@Override
@@ -210,11 +211,7 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		}
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void unFocused(GuiNpcTextField textfield) {
 		try {
 			this.color = Integer.parseInt(textfield.getText(), 16);

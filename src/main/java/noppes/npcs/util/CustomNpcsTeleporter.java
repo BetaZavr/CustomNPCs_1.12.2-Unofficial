@@ -4,6 +4,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldServer;
 
+import javax.annotation.Nonnull;
+
 public class CustomNpcsTeleporter extends Teleporter {
 
 	public CustomNpcsTeleporter(WorldServer worldIn) {
@@ -11,17 +13,17 @@ public class CustomNpcsTeleporter extends Teleporter {
 	}
 
 	@Override
-	public boolean makePortal(Entity p_85188_1_) {
+	public boolean makePortal(@Nonnull Entity p_85188_1_) {
 		return true;
 	}
 
 	@Override
-	public boolean placeInExistingPortal(Entity entityIn, float p_180620_2_) {
+	public boolean placeInExistingPortal(@Nonnull Entity entityIn, float p_180620_2_) {
 		return true;
 	}
 
 	@Override
-	public void placeInPortal(Entity entityIn, float rotationYaw) {
+	public void placeInPortal(@Nonnull Entity entityIn, float rotationYaw) {
 	}
 
 	@Override

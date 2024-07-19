@@ -19,7 +19,7 @@ public class QuestCategory implements IQuestCategory {
 	public QuestCategory() {
 		this.id = -1;
 		this.title = "";
-		this.quests = Maps.<Integer, Quest>newTreeMap();
+		this.quests = Maps.newTreeMap();
 	}
 
 	public QuestCategory copy() {
@@ -40,22 +40,20 @@ public class QuestCategory implements IQuestCategory {
 
 	@Override
 	public IQuest[] quests() {
-		return this.quests.values().toArray(new IQuest[this.quests.size()]);
+		return this.quests.values().toArray(new IQuest[0]);
 	}
 
 	public void readNBT(NBTTagCompound nbttagcompound) {
 		this.id = nbttagcompound.getInteger("Slot");
 		this.title = nbttagcompound.getString("Title");
 		NBTTagList dialogsList = nbttagcompound.getTagList("Dialogs", 10);
-		if (dialogsList != null) {
-			for (int ii = 0; ii < dialogsList.tagCount(); ++ii) {
-				NBTTagCompound nbttagcompound2 = dialogsList.getCompoundTagAt(ii);
-				Quest quest = new Quest(this);
-				quest.readNBT(nbttagcompound2);
-				this.quests.put(quest.id, quest);
-			}
-		}
-	}
+        for (int ii = 0; ii < dialogsList.tagCount(); ++ii) {
+            NBTTagCompound compound = dialogsList.getCompoundTagAt(ii);
+            Quest quest = new Quest(this);
+            quest.readNBT(compound);
+            this.quests.put(quest.id, quest);
+        }
+    }
 
 	public NBTTagCompound writeNBT(NBTTagCompound nbttagcompound) {
 		nbttagcompound.setInteger("Slot", this.id);

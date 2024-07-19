@@ -1,7 +1,5 @@
 package noppes.npcs.client.gui.script;
 
-import java.util.List;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
@@ -11,10 +9,14 @@ import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.constants.EnumScriptType;
 
+import javax.annotation.Nonnull;
+
 public class GuiScriptGlobal extends GuiNPCInterface {
 
-	private String playerEventsList, npcEventsList, potionEventsList;
-	private ResourceLocation resource;
+	private final String playerEventsList;
+    private final String npcEventsList;
+    private final String potionEventsList;
+	private final ResourceLocation resource;
 
 	public GuiScriptGlobal() {
 		this.resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
@@ -23,30 +25,30 @@ public class GuiScriptGlobal extends GuiNPCInterface {
 		this.drawDefaultBackground = false;
 		this.title = "";
 		// Player
-		List<EnumScriptType> functions = EnumScriptType.getAllFunctions(0);
-		this.playerEventsList = "";
-		for (EnumScriptType est : functions) {
-			if (!this.playerEventsList.isEmpty()) { this.playerEventsList += ", "; }
-			this.playerEventsList += est.function;
+		StringBuilder sb = new StringBuilder();
+		for (EnumScriptType est : EnumScriptType.getAllFunctions(0)) {
+			if (sb.length() != 0) { sb.append(", "); }
+			sb.append(est.function);
 		}
+		this.playerEventsList = sb.toString();
 		// NPC
-		functions = EnumScriptType.getAllFunctions(1);
-		this.npcEventsList = "";
-		for (EnumScriptType est : functions) {
-			if (!this.npcEventsList.isEmpty()) { this.npcEventsList += ", "; }
-			this.npcEventsList += est.function;
+		StringBuilder sb1 = new StringBuilder();
+		for (EnumScriptType est : EnumScriptType.getAllFunctions(1)) {
+			if (sb1.length() != 0) { sb1.append(", "); }
+			sb1.append(est.function);
 		}
+		this.npcEventsList = sb1.toString();
 		// Potions
-		functions = EnumScriptType.getAllFunctions(5);
-		this.potionEventsList = "";
-		for (EnumScriptType est : functions) {
-			if (!this.potionEventsList.isEmpty()) { this.potionEventsList += ", "; }
-			this.potionEventsList += est.function;
+		StringBuilder sb2 = new StringBuilder();
+		for (EnumScriptType est : EnumScriptType.getAllFunctions(5)) {
+			if (sb2.length() != 0) { sb2.append(", "); }
+			sb2.append(est.function);
 		}
+		this.potionEventsList = sb2.toString();
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
+	protected void actionPerformed(@Nonnull GuiButton guibutton) {
 		switch (guibutton.id) {
 			case 1: {
 				this.displayGuiScreen(new GuiScriptNPCs());
@@ -79,13 +81,13 @@ public class GuiScriptGlobal extends GuiNPCInterface {
 		super.drawScreen(i, j, f);
 		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("script.hover.players", new Object[] { this.playerEventsList }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("script.hover.players", this.playerEventsList).getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("script.hover.npcs", new Object[] { this.npcEventsList }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("script.hover.npcs", this.npcEventsList).getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("script.hover.forge").getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("script.hover.potion", new Object[] { this.potionEventsList }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("script.hover.potion", this.potionEventsList).getFormattedText());
 		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("script.hover.client").getFormattedText());
 		}

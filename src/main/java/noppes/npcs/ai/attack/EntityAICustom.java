@@ -24,7 +24,8 @@ public class EntityAICustom extends EntityAIBase {
 	public EntityAICustom(EntityNPCInterface npc) {
 		this.npc = npc;
 		this.navOverride(true);
-		this.tickRate = ObfuscationHelper.getValue(EntityAITasks.class, this.npc.tasks, 5);
+		Object rate = ObfuscationHelper.getValue(EntityAITasks.class, this.npc.tasks, 5);
+		this.tickRate = rate != null ? (int) rate : 3 ;
 		this.step = 0;
 		this.distance = -1.0d;
 	}
@@ -35,7 +36,8 @@ public class EntityAICustom extends EntityAIBase {
 		}
 		this.npc = (EntityNPCInterface) npc;
 		this.navOverride(true);
-		this.tickRate = ObfuscationHelper.getValue(EntityAITasks.class, this.npc.tasks, 5);
+		Object rate = ObfuscationHelper.getValue(EntityAITasks.class, this.npc.tasks, 5);
+		this.tickRate = rate != null ? (int) rate : 3 ;
 		this.distance = -1.0d;
 	}
 
@@ -96,10 +98,6 @@ public class EntityAICustom extends EntityAIBase {
 		this.isFrend = this.npc.isFrend(this.target);
 		CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_shouldExecute");
 		return true;
-	}
-
-	@Override
-	public void startExecuting() {
 	}
 
 	protected void tryMoveToTarget() {

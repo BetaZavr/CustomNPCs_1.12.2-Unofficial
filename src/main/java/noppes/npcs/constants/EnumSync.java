@@ -2,28 +2,28 @@ package noppes.npcs.constants;
 
 public enum EnumSync {
 
-	FactionsData, // 1
-	QuestData, // 2
-	QuestCategoriesData, // 3
-	DialogData, // 4
-	DialogCategoriesData, // 5
-	RecipesData, // 6
-	ModData, // 7
-	PlayerData, // 8
-	ItemScriptedModels, // 9
-	KeysData, // 10
-	TransportData, // 11
-	PlayerQuestData, // 12
-	PlayerGameData,
-	AnimationData,
-	EmotionData,
-	MarcetDeal,
-	MarcetData,
-	BankCeil,
-	BankData,
-	GameData,
-	MailData,
-	BuilderData,
-	Debug;
+    AnimationData,
+    BankCeil,
+    BankData,
+    BuilderData,
+    Debug,
+    DialogCategoriesData, // 5
+    DialogData, // 4
+    EmotionData,
+    FactionsData, // 1
+    GameData,
+    ItemScriptedModels, // 9
+    KeysData, // 10
+    MailData,
+    MarcetData,
+    MarcetDeal,
+    ModData, // 7
+    PlayerData, // 8
+    PlayerGameData,
+    PlayerQuestData, // 12
+    QuestCategoriesData, // 3
+    QuestData, // 2
+    RecipesData, // 6
+    TransportData // 11
 
 }

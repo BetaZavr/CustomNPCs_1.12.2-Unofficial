@@ -1,5 +1,7 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.item.IItemStack;
+
 public interface IAnimationFrame {
 
 	int getEndDelay();
@@ -23,5 +25,23 @@ public interface IAnimationFrame {
 	int getStartEmotion();
 
 	void setStartEmotion(int id);
+
+	boolean isNowDamage();
+
+	int getHoldRightStackType();
+
+	int getHoldLeftStackType();
+
+	IItemStack getHoldRightStack();
+
+	IItemStack getHoldLeftStack();
+
+	void setHoldRightStackType(int type);
+
+	void setHoldLeftStackType(int type);
+
+	void setHoldRightStack(IItemStack stack);
+
+	void setHoldLeftStack(IItemStack stack);
 
 }

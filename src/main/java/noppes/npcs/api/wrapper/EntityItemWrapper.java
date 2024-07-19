@@ -8,6 +8,8 @@ import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.util.ObfuscationHelper;
 
+import java.util.Objects;
+
 @SuppressWarnings("rawtypes")
 public class EntityItemWrapper<T extends EntityItem> extends EntityWrapper<T> implements IEntityItem {
 
@@ -17,12 +19,13 @@ public class EntityItemWrapper<T extends EntityItem> extends EntityWrapper<T> im
 
 	@Override
 	public long getAge() {
-		return ObfuscationHelper.getValue(EntityItem.class, this.entity, 2);
+		Object l = ObfuscationHelper.getValue(EntityItem.class, this.entity, 2);
+		return l != null ? (long) l : 0L;
 	}
 
 	@Override
 	public IItemStack getItem() {
-		return NpcAPI.Instance().getIItemStack(this.entity.getItem());
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.entity.getItem());
 	}
 
 	@Override
@@ -37,7 +40,8 @@ public class EntityItemWrapper<T extends EntityItem> extends EntityWrapper<T> im
 
 	@Override
 	public int getPickupDelay() {
-		return ObfuscationHelper.getValue(EntityItem.class, this.entity, 3);
+		Object pd = ObfuscationHelper.getValue(EntityItem.class, this.entity, 3);
+		return pd != null ? (int) pd : 10;
 	}
 
 	@Override

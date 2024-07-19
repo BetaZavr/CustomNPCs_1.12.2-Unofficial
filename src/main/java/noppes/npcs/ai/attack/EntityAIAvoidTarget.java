@@ -9,6 +9,8 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import noppes.npcs.entity.EntityNPCInterface;
 
+import java.util.Objects;
+
 public class EntityAIAvoidTarget extends EntityAICustom {
 
 	private int[] runPos;
@@ -23,7 +25,7 @@ public class EntityAIAvoidTarget extends EntityAICustom {
 		if (this.isFrend || this.npc.ticksExisted % (this.tickRate * 2) > 3) {
 			return;
 		}
-		range = npc.stats.aggroRange / 2;
+		range = (double) npc.stats.aggroRange / 2;
 		tacticalRange = (int) range;
 		if (range < 4) {
 			range = 4;
@@ -36,7 +38,7 @@ public class EntityAIAvoidTarget extends EntityAICustom {
 			if (this.runPos == null) {
 				this.npc.getNavigator().clearPath();
 			} else {
-				PathPoint point = this.npc.getNavigator().getPath().getFinalPathPoint();
+				PathPoint point = Objects.requireNonNull(this.npc.getNavigator().getPath()).getFinalPathPoint();
 				if (point == null || point.x < this.runPos[0] - 2 && point.x > this.runPos[0] + 2
 						|| point.y < this.runPos[1] - 2 && point.y > this.runPos[1] + 2
 						|| point.z < this.runPos[2] - 2 && point.z > this.runPos[2] + 2) {
@@ -49,23 +51,7 @@ public class EntityAIAvoidTarget extends EntityAICustom {
 			Path path = null;
 			Vec3d vec3d = npc.getPositionEyes(1.0f);
 
-			float yaw = npc.rotationYawHead;
-			double xVal = npc.posX - target.posX, zVal = npc.posZ - target.posZ;
-			double rad = 180.0d / Math.PI;
-			if (xVal == 0.0d) {
-				yaw = (float) (target.posZ > npc.posZ ? 180.0d : 0.0d);
-			} else if (xVal <= 0.0d) {
-				yaw = (float) (90.0d + Math.atan(zVal / xVal) * rad);
-			} else {
-				yaw = (float) (270.0d + Math.atan(zVal / xVal) * rad);
-			}
-			yaw %= 360.0d;
-
-			float f = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI);
-			float f1 = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI);
-			float f2 = -MathHelper.cos(-0.0f);
-			float f3 = MathHelper.sin(-0.0f);
-			Vec3d vec3d2 = new Vec3d((double) (f1 * f2), (double) f3, (double) (f * f2));
+			final Vec3d vec3d2 = getVec3d();
 
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * tacticalRange, vec3d2.y * tacticalRange,
 					vec3d2.z * tacticalRange);
@@ -89,14 +75,37 @@ public class EntityAIAvoidTarget extends EntityAICustom {
 					if (this.runPos == null) {
 						this.runPos = new int[] { point.x, point.y, point.z };
 					} else {
-						this.runPos[0] = (int) point.x;
-						this.runPos[1] = (int) point.y;
-						this.runPos[2] = (int) point.z;
+						this.runPos[0] = point.x;
+						this.runPos[1] = point.y;
+						this.runPos[2] = point.z;
 					}
 				}
 			}
 		}
 
+	}
+
+	private Vec3d getVec3d() {
+		float yaw;
+		double xVal = npc.posX - target.posX, zVal = npc.posZ - target.posZ;
+		double rad = 180.0d / Math.PI;
+		if (xVal == 0.0d) {
+			yaw = (float) (target.posZ > npc.posZ ? 180.0d : 0.0d);
+		} else {
+			final double v = Math.atan(zVal / xVal) * rad;
+			if (xVal <= 0.0d) {
+				yaw = (float) (90.0d + v);
+			} else {
+				yaw = (float) (270.0d + v);
+			}
+		}
+		yaw %= 360.0F;
+
+		float f = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI);
+		float f1 = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI);
+		float f2 = -MathHelper.cos(-0.0f);
+		float f3 = MathHelper.sin(-0.0f);
+        return new Vec3d(f1 * f2, f3, f * f2);
 	}
 
 }

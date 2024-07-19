@@ -3,11 +3,7 @@ package noppes.npcs.client;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.lwjgl.opengl.GL11;
 
@@ -53,7 +49,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -96,14 +91,14 @@ import noppes.npcs.util.ObfuscationHelper;
 
 public class ClientEventHandler {
 
-	public static final Map<EntityPlayer, RenderChatMessages> chatMessages = Maps.<EntityPlayer, RenderChatMessages>newHashMap();
+	public static final Map<EntityPlayer, RenderChatMessages> chatMessages = Maps.newHashMap();
 	public static GuiScreen gui;
 
 	public static SubGuiInterface subgui;
-	public static Map<ISchematic, Integer> displayMap = Maps.<ISchematic, Integer>newHashMap();
-	public static BlockPos schemaPos;;
+	public static Map<ISchematic, Integer> displayMap = Maps.newHashMap();
+	public static BlockPos schemaPos;
 	public static Schematic schema;
-	public static int rotaion;
+	public static int rotation;
 	public static long secs;
 	private boolean miniMapLoaded;
 
@@ -119,7 +114,7 @@ public class ClientEventHandler {
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientEventHandler_onOpenGUIEvent");
 		ClientEventHandler.gui = event.getGui();
 		ClientEventHandler.subgui = null;
-		LogWriter.debug(((event.getGui() == null ? "Cloce GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
+		LogWriter.debug(((event.getGui() == null ? "Close GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
 		mc.getRenderPartialTicks();
 		
 		String newGUI = event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName();
@@ -144,9 +139,12 @@ public class ClientEventHandler {
 				BuilderData builder = ItemBuilder.getBuilder(mc.player.getHeldItemMainhand(), mc.player);
 				int id = builder == null ? -1 : builder.getID();
 				int type = builder == null ? item.getType() : builder.getType();
-				if (id > -1) { NoppesUtilPlayer.sendData(EnumPlayerPacket.GetBuildData, id, type); }
-				CustomNPCsScheduler.runTack(() -> { Client.sendData(EnumPacketServer.Gui, item.getGUIType(), id, type, 0); }, 100);
-				return;
+				if (id > -1) { NoppesUtilPlayer.sendData(EnumPlayerPacket.GetBuildData, id, type);
+                    CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.Gui, item.getGUIType(), id, type, 0), 100);
+                } else {
+                    CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.Gui, item.getGUIType(), id, type, 0), 100);
+                }
+                return;
 			} else if (!mc.player.capabilities.isCreativeMode) {
 				AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
 				event.getGui().mc = mc;
@@ -184,15 +182,16 @@ public class ClientEventHandler {
 			}
 		}
 		if (event.getEntity() instanceof EntityPlayer && ClientEventHandler.chatMessages.containsKey((EntityPlayer) event.getEntity())) {
+			EntityPlayer player = (EntityPlayer) event.getEntity();
 			float height = event.getEntity().height + 0.9f;
-			ClientEventHandler.chatMessages.get(event.getEntity()).renderPlayerMessages(event.getX(), event.getY() + height, event.getZ(), 0.666667f * height, this.isInRange(Minecraft.getMinecraft().player, event.getX(), event.getY() + 1.2d, event.getZ(), 16.0f));
+			ClientEventHandler.chatMessages.get(player).renderPlayerMessages(event.getX(), event.getY() + height, event.getZ(), 0.666667f * height, this.isInRange(Minecraft.getMinecraft().player, event.getX(), event.getY() + 1.2d, event.getZ()));
 		}
 		CustomNpcs.debugData.endDebug("Client", event.getEntity(), "ClientEventHandler_postRenderLivingEvent");
 	}
 
 	@SubscribeEvent
 	public void cnpcRenderTick(RenderWorldLastEvent event) {
-		EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().player;
+		EntityPlayer player = Minecraft.getMinecraft().player;
 		CustomNpcs.debugData.startDebug("Client", player, "ClientEventHandler_onRenderTick");
 		ClientEventHandler.schema = null;
 		ClientEventHandler.schemaPos = null;
@@ -201,71 +200,70 @@ public class ClientEventHandler {
 			this.miniMapLoaded = false;
 			this.updateMiniMaps(true);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.InGame);
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGIN, new PlayerEvent.LoginEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(player)));
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGIN, new PlayerEvent.LoginEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player)));
 			LogWriter.debug("Client Player: Start game");
 		}
 		BuilderData bd = ItemBuilder.getBuilder(player.getHeldItemMainhand(), player);
-		if (bd != null && ClientGuiEventHandler.result != null && ClientGuiEventHandler.result.getBlockPos() != null) {
-			if (bd.getType() == 3 && !bd.schematicaName.isEmpty()) {
-				SchematicWrapper schema = SchematicController.Instance.getSchema(bd.schematicaName + ".schematic");
-				if (schema != null) {
-					Schematic sc = (Schematic) schema.schema;
-					ClientEventHandler.schemaPos = ClientGuiEventHandler.result.getBlockPos();
-					ClientEventHandler.rotaion = MathHelper.floor(player.rotationYaw / 90.0f + 0.5f) & 0x3;
-					int x = -1, y = 0, z = -1;
-					boolean has = sc.offset != null
-							&& (sc.offset.getX() != 0 || sc.offset.getY() != 0 || sc.offset.getZ() != 0);
-					switch (ClientEventHandler.rotaion) {
-					case 1: {
-						if (has) {
-							x = -1 * sc.offset.getZ() - sc.getLength();
-							y = sc.offset.getY();
-							z = sc.offset.getX() - 1;
-						} else {
-							x = -1 * sc.getLength();
-							z = (int) (-1 * Math.ceil((double) sc.getWidth() / 2.0d));
-						}
-						break;
-					}
-					case 2: {
-						if (has) {
-							x = -1 * sc.offset.getX() - sc.getWidth();
-							y = sc.offset.getY();
-							z = -1 * sc.offset.getZ() - sc.getLength();
-						} else {
-							x = (int) (-1 * Math.ceil((double) sc.getWidth() / 2.0d));
-							z = -1 * sc.getLength();
-						}
-						break;
-					}
-					case 3: {
-						if (has) {
-							x = sc.offset.getZ() - 1;
-							y = sc.offset.getY();
-							z = -1 * sc.offset.getX() - sc.getWidth();
-						} else {
-							x = -1;
-							z = (int) (-1 * Math.ceil((double) sc.getWidth() / 2.0d));
-						}
-						break;
-					}
-					default: {
-						if (has) {
-							x = sc.offset.getX() - 1;
-							y = sc.offset.getY();
-							z = sc.offset.getZ() - 1;
-						} else {
-							x = (int) (-1 * Math.ceil((double) sc.getWidth() / 2.0d));
-						}
-						break;
-					}
-					}
-					ClientEventHandler.schema = sc;
-					ClientEventHandler.schemaPos = ClientEventHandler.schemaPos.add(x, y, z);
-					this.drawSchematic(ClientEventHandler.schemaPos, schema, 0, ClientEventHandler.rotaion);
-				}
-			}
-		}
+		if (bd != null && ClientGuiEventHandler.result != null) {
+            if (bd.getType() == 3 && !bd.schematicName.isEmpty()) {
+                SchematicWrapper schema = SchematicController.Instance.getSchema(bd.schematicName + ".schematic");
+                if (schema != null) {
+                    Schematic sc = (Schematic) schema.schema;
+                    ClientEventHandler.schemaPos = ClientGuiEventHandler.result.getBlockPos();
+                    ClientEventHandler.rotation = MathHelper.floor(player.rotationYaw / 90.0f + 0.5f) & 0x3;
+                    int x, y = 0, z = -1;
+                    boolean has = sc.offset != null  && (sc.offset.getX() != 0 || sc.offset.getY() != 0 || sc.offset.getZ() != 0);
+                    switch (ClientEventHandler.rotation) {
+                        case 1: {
+                            if (has) {
+                                x = -1 * sc.offset.getZ() - sc.getLength();
+                                y = sc.offset.getY();
+                                z = sc.offset.getX() - 1;
+                            } else {
+                                x = -1 * sc.getLength();
+                                z = (int) (-1 * Math.ceil((double) sc.getWidth() / 2.0d));
+                            }
+                            break;
+                        }
+                        case 2: {
+                            if (has) {
+                                x = -1 * sc.offset.getX() - sc.getWidth();
+                                y = sc.offset.getY();
+                                z = -1 * sc.offset.getZ() - sc.getLength();
+                            } else {
+                                x = (int) (-1 * Math.ceil((double) sc.getWidth() / 2.0d));
+                                z = -1 * sc.getLength();
+                            }
+                            break;
+                        }
+                        case 3: {
+                            if (has) {
+                                x = sc.offset.getZ() - 1;
+                                y = sc.offset.getY();
+                                z = -1 * sc.offset.getX() - sc.getWidth();
+                            } else {
+                                x = -1;
+                                z = (int) (-1 * Math.ceil((double) sc.getWidth() / 2.0d));
+                            }
+                            break;
+                        }
+                        default: {
+                            if (has) {
+                                x = sc.offset.getX() - 1;
+                                y = sc.offset.getY();
+                                z = sc.offset.getZ() - 1;
+                            } else {
+                                x = (int) (-1 * Math.ceil((double) sc.getWidth() / 2.0d));
+                            }
+                            break;
+                        }
+                    }
+                    ClientEventHandler.schema = sc;
+                    ClientEventHandler.schemaPos = ClientEventHandler.schemaPos.add(x, y, z);
+                    this.drawSchematic(ClientEventHandler.schemaPos, schema, 0, ClientEventHandler.rotation);
+                }
+            }
+        }
 		if (player.world.getTotalWorldTime() % 100 == 0 && secs != System.currentTimeMillis() / 1000) {
 			secs = System.currentTimeMillis() / 1000;
 			this.updateMiniMaps(false);
@@ -275,20 +273,20 @@ public class ClientEventHandler {
 			return;
 		}
 		for (BlockPos pos : TileBuilder.DrawPoses) {
-			if (pos == null || player == null || pos.distanceSq((Vec3i) player.getPosition()) > 10000.0) {
+			if (pos == null || pos.distanceSq(player.getPosition()) > 10000.0) {
 				continue;
 			}
 			TileEntity te = player.world.getTileEntity(pos);
 			if (!(te instanceof TileBuilder)) {
 				continue;
 			}
-			this.drawSchematic(pos, ((TileBuilder) te).getSchematic(), ((TileBuilder) te).yOffest,
+			this.drawSchematic(pos, ((TileBuilder) te).getSchematic(), ((TileBuilder) te).yOffset,
 					((TileBuilder) te).rotation);
 		}
 		CustomNpcs.debugData.endDebug("Client", player, "ClientEventHandler_onRenderTick");
 	}
 
-	private void drawSchematic(BlockPos pos, SchematicWrapper schem, int yOffest, int rotation) {
+	private void drawSchematic(BlockPos pos, SchematicWrapper schem, int yOffset, int rotation) {
 		if (pos == null || schem == null) {
 			return;
 		}
@@ -297,7 +295,7 @@ public class ClientEventHandler {
 		GlStateManager.translate(pos.getX() - TileEntityRendererDispatcher.staticPlayerX,
 				pos.getY() - TileEntityRendererDispatcher.staticPlayerY + 0.01,
 				pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ);
-		GlStateManager.translate(1.0f, yOffest, 1.0f);
+		GlStateManager.translate(1.0f, yOffset, 1.0f);
 		// Bound
 		if (rotation % 2 == 0) {
 			this.drawSelectionBox(
@@ -329,7 +327,8 @@ public class ClientEventHandler {
 							if (GL11.glGetError() != 0) {
 								break;
 							}
-						} catch (Exception ex) {
+						} catch (Exception e) {
+							LogWriter.error("Error:", e);
 						} finally {
 							GlStateManager.popAttrib();
 							GlStateManager.disableRescaleNormal();
@@ -382,14 +381,14 @@ public class ClientEventHandler {
 		GlStateManager.disableBlend();
 	}
 
-	private boolean isInRange(EntityPlayer player, double posX, double posY, double posZ, double range) {
+	private boolean isInRange(EntityPlayer player, double posX, double posY, double posZ) {
 		double y = Math.abs(player.posY - posY);
-		if (posY >= 0.0 && y > range) {
+		if (posY >= 0.0 && y > 16.0) {
 			return false;
 		}
 		double x = Math.abs(player.posX - posX);
 		double z = Math.abs(player.posZ - posZ);
-		return x <= range && z <= range;
+		return x <= 16.0 && z <= 16.0;
 	}
 
 	@SubscribeEvent
@@ -410,7 +409,7 @@ public class ClientEventHandler {
 			BlockModelRenderer bmr = ObfuscationHelper.getValue(BlockRendererDispatcher.class, dispatcher,
 					BlockModelRenderer.class);
 			BlockColors bc = ObfuscationHelper.getValue(BlockModelRenderer.class, bmr, BlockColors.class);
-			int color = bc.colorMultiplier(state, (IBlockAccess) null, (BlockPos) null, 0);
+			int color = bc.colorMultiplier(state, null, null, 0);
 			if (EntityRenderer.anaglyphEnable) {
 				color = TextureUtil.anaglyphColor(color);
 			}
@@ -420,15 +419,13 @@ public class ClientEventHandler {
 			for (EnumFacing enumfacing : EnumFacing.values()) {
 				this.renderModelBlockQuads(ibakedmodel.getQuads(state, enumfacing, 0L), r, g, b);
 			}
-			this.renderModelBlockQuads(ibakedmodel.getQuads(state, (EnumFacing) null, 0L), r, g, b);
+			this.renderModelBlockQuads(ibakedmodel.getQuads(state, null, 0L), r, g, b);
 			break;
 		case ENTITYBLOCK_ANIMATED:
 			ChestRenderer chestRenderer = ObfuscationHelper.getValue(BlockRendererDispatcher.class, dispatcher,
 					ChestRenderer.class);
 			chestRenderer.renderChestBrightness(state.getBlock(), 1.0f);
-		case LIQUID:
-			break;
-		default:
+            default:
 			break;
 		}
 	}
@@ -472,28 +469,28 @@ public class ClientEventHandler {
 		}
 		// If name is changed:
 		if (!hasJourneyMap) {
+			Class<?> jm = null;
 			try {
-				Class<?> jm = Class.forName("journeymap.client.model.Waypoint");
-				hasJourneyMap = jm != null;
-			} catch (Exception e) {
-			}
+				jm = Class.forName("journeymap.client.model.Waypoint");
+				hasJourneyMap = true;
+			} catch (Exception e) { LogWriter.debug("JourneyMap is missing: "+jm); }
 		}
 		if (!hasXaeroMap) {
+			Class<?> xm = null;
 			try {
-				Class<?> xm = Class.forName("xaero.common.minimap.waypoints.Waypoint");
-				hasXaeroMap = xm != null;
-			} catch (Exception e) {
-			}
+				xm = Class.forName("xaero.common.minimap.waypoints.Waypoint");
+				hasXaeroMap = true;
+			} catch (Exception e) { LogWriter.debug("XaeroMap is missing: "+xm);}
 		}
 		if (!hasVoxelMap) {
+			Class<?> vm = null;
 			try {
-				Class<?> vm = Class.forName("com.mamiyaotaru.voxelmap.VoxelMap");
-				hasVoxelMap = vm != null;
-			} catch (Exception e) {
-			}
+				vm = Class.forName("com.mamiyaotaru.voxelmap.VoxelMap");
+				hasVoxelMap = true;
+			} catch (Exception e) { LogWriter.debug("VoxelMap is missing: "+vm); }
 		}
-		// Cheak save client Points:
-		List<MiniMapData> points = Lists.<MiniMapData>newArrayList();
+		// Check save client Points:
+		List<MiniMapData> points = Lists.newArrayList();
 		if (hasJourneyMap) {
 			mm.addData.clear();
 			if (!mm.modName.equals("journeymap")) {
@@ -504,9 +501,7 @@ public class ClientEventHandler {
 				Class<?> ws = Class.forName("journeymap.client.waypoint.WaypointStore");
 				miniMapLoaded = (boolean) ws.getDeclaredMethod("hasLoaded").invoke(ws.getEnumConstants()[0]);
 				if (!miniMapLoaded) {
-					CustomNPCsScheduler.runTack(() -> {
-						this.updateMiniMaps(true);
-					}, 50);
+					CustomNPCsScheduler.runTack(() -> this.updateMiniMaps(true), 50);
 					return;
 				}
 				Collection<Object> waypoints = (Collection<Object>) ws.getDeclaredMethod("getAll")
@@ -518,8 +513,7 @@ public class ClientEventHandler {
 					mmd.name = (String) wc.getDeclaredMethod("getName").invoke(waypoint);
 					mmd.type = wc.getDeclaredMethod("getType").invoke(waypoint).toString();
 					mmd.icon = (String) wc.getDeclaredMethod("getIcon").invoke(waypoint);
-					mmd.pos = NpcAPI.Instance()
-							.getIPos((BlockPos) wc.getDeclaredMethod("getBlockPos").invoke(waypoint));
+					mmd.pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos((BlockPos) wc.getDeclaredMethod("getBlockPos").invoke(waypoint));
 					mmd.color = new Color((int) wc.getDeclaredMethod("getR").invoke(waypoint),
 							(int) wc.getDeclaredMethod("getG").invoke(waypoint),
 							(int) wc.getDeclaredMethod("getB").invoke(waypoint)).getRGB();
@@ -539,7 +533,7 @@ public class ClientEventHandler {
 					MiniMapData mmp = mm.get(mmd);
 					if (mmp != null) { mmd.setQuest(mmp); } else { update = true; }
 				}
-			} catch (Exception e) { }
+			} catch (Exception e) { LogWriter.debug("JourneyMap tried to collect its points"); }
 		}
 		else if (hasXaeroMap) {
 			if (!mm.modName.equals("xaerominimap")) {
@@ -557,9 +551,7 @@ public class ClientEventHandler {
 					miniMapLoaded = false;
 				}
 				if (!miniMapLoaded) {
-					CustomNPCsScheduler.runTack(() -> {
-						this.updateMiniMaps(true);
-					}, 50);
+					CustomNPCsScheduler.runTack(() -> this.updateMiniMaps(true), 50);
 					return;
 				}
 
@@ -612,7 +604,7 @@ public class ClientEventHandler {
 									int x = (int) wc.getDeclaredMethod("getX").invoke(waypoint);
 									int y = (int) wc.getDeclaredMethod("getY").invoke(waypoint);
 									int z = (int) wc.getDeclaredMethod("getZ").invoke(waypoint);
-									mmd.pos = NpcAPI.Instance().getIPos(new BlockPos(x, y, z));
+									mmd.pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(new BlockPos(x, y, z));
 									mmd.color = (int) wc.getDeclaredMethod("getColor").invoke(waypoint);
 									mmd.isEnable = !((boolean) wc.getDeclaredMethod("isDisabled").invoke(waypoint));
 									mmd.dimIDs = new int[] { dimId };
@@ -629,9 +621,7 @@ public class ClientEventHandler {
 						}
 					}
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			} catch (Exception e) {LogWriter.debug("XaeroMap tried to collect its points");}
 		}
 		else if (hasVoxelMap) {
 			mm.addData.clear();
@@ -648,9 +638,7 @@ public class ClientEventHandler {
 				fl.setAccessible(true);
 				miniMapLoaded = fl.getBoolean(waypointManager);
 				if (!miniMapLoaded) {
-					CustomNPCsScheduler.runTack(() -> {
-						this.updateMiniMaps(true);
-					}, 50);
+					CustomNPCsScheduler.runTack(() -> this.updateMiniMaps(true), 50);
 					return;
 				}
 				List<Object> waypoints = (List<Object>) waypointManager.getClass().getMethod("getWaypoints").invoke(waypointManager);
@@ -663,7 +651,7 @@ public class ClientEventHandler {
 					int x = (int) wc.getDeclaredField("x").get(waypoint);
 					int y = (int) wc.getDeclaredField("y").get(waypoint);
 					int z = (int) wc.getDeclaredField("z").get(waypoint);
-					mmd.pos = NpcAPI.Instance().getIPos(x, y, z);
+					mmd.pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(x, y, z);
 					mmd.color = new Color((float) wc.getDeclaredField("red").get(waypoint),
 							(float) wc.getDeclaredField("green").get(waypoint),
 							(float) wc.getDeclaredField("blue").get(waypoint)).getRGB();
@@ -681,9 +669,7 @@ public class ClientEventHandler {
 					MiniMapData mmp = mm.get(mmd);
 					if (mmp != null) { mmd.setQuest(mmp); } else { update = true; }
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			} catch (Exception e) {LogWriter.debug("VoxelMap tried to collect its points");}
 		} else {
 			mm.addData.clear();
 			if (!mm.modName.equals("non")) {

@@ -1,6 +1,7 @@
 package noppes.npcs.roles;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 import net.minecraft.command.CommandException;
@@ -11,12 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
-import noppes.npcs.EventHooks;
-import noppes.npcs.NBTTags;
-import noppes.npcs.NoppesStringUtils;
-import noppes.npcs.NoppesUtilServer;
-import noppes.npcs.NpcMiscInventory;
+import noppes.npcs.*;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.constants.RoleType;
@@ -58,7 +54,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 		this.rentalMoney = 0;
 		this.rentalItems = new NpcMiscInventory(3);
 		this.inventory = new NpcMiscInventory(0);
-		this.rates = new HashMap<Integer, Integer>();
+		this.rates = new HashMap<>();
 		this.type = RoleType.FOLLOWER;
 		this.waitTime = 0;
 	}
@@ -84,9 +80,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 				AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 						this.npc.homeDimensionId, this.npc.getStartXPos(), this.npc.getStartYPos(),
 						this.npc.getStartZPos());
-			} catch (CommandException e) {
-				e.printStackTrace();
-			}
+			} catch (CommandException e) { LogWriter.error("Error:", e); }
 			return false;
 		}
 		PlayerData plData = this.getOwnerData();
@@ -96,16 +90,13 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 			}
 			return false;
 		}
-		FollowerSet fs = null;
-		if (plData != null) {
-			fs = plData.game.getFollower(this.npc);
-			if (fs == null) {
-				fs = plData.game.addFollower(this.npc);
-			}
-			fs.dimId = this.npc.world.provider.getDimension();
-			fs.npc = this.npc;
-		}
-		this.owner = this.getOwner();
+		FollowerSet fs = plData.game.getFollower(this.npc);
+        if (fs == null) {
+            fs = plData.game.addFollower(this.npc);
+        }
+        fs.dimId = this.npc.world.provider.getDimension();
+        fs.npc = this.npc;
+        this.owner = this.getOwner();
 		if (!this.infiniteDays && (System.currentTimeMillis() - this.hiredTime) > this.getDays() * 1440000L) {
 			RoleEvent.FollowerFinishedEvent event = new RoleEvent.FollowerFinishedEvent(this.owner,
 					this.npc.wrappedNPC);
@@ -117,10 +108,8 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 				this.owner.sendMessage(new TextComponentTranslation(
 						NoppesStringUtils.formatText(this.dialogFarewell, this.owner, this.npc)));
 			}
-			if (plData != null && fs != null) {
-				plData.game.removeFollower(this.npc);
-			}
-			this.killed();
+            plData.game.removeFollower(this.npc);
+            this.killed();
 		}
 		if (this.npc.getAttackTarget() != null) {
 			return false;
@@ -139,15 +128,13 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 			try {
 				Entity entity = AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 						this.owner.world.provider.getDimension(), this.owner.posX, this.owner.posY, this.owner.posZ);
-				if (entity instanceof EntityNPCInterface && fs != null) {
+				if (entity instanceof EntityNPCInterface) {
 					fs.dimId = entity.world.provider.getDimension();
 					fs.id = entity.getUniqueID();
 					((EntityNPCInterface) entity).getNavigator().tryMoveToEntityLiving(this.owner,
 							this.npc.ais.canSprint ? 1.3 : 1.0d);
 				}
-			} catch (CommandException e) {
-				e.printStackTrace();
-			}
+			} catch (CommandException e) { LogWriter.error("Error:", e); }
 		} else if (dist <= 2.5d) {
 			if (!this.npc.getNavigator().noPath()) {
 				this.npc.getNavigator().clearPath();
@@ -175,14 +162,10 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 
 	@Override
 	public boolean defendOwner() {
-		return this.isFollowing() && this.npc.advanced.jobInterface.getEnumType() == JobType.GUARD;
+		return !this.isFollowing() || this.npc.advanced.jobInterface.getEnumType() != JobType.GUARD;
 	}
 
-	@Override
-	public void delete() {
-	}
-
-	@Override
+    @Override
 	public int getDays() {
 		if (this.infiniteDays) {
 			return 100;
@@ -198,7 +181,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 	public IPlayer<?> getFollowing() {
 		EntityPlayer owner = this.getOwner();
 		if (owner != null) {
-			return (IPlayer<?>) NpcAPI.Instance().getIEntity(owner);
+			return (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(owner);
 		}
 		return null;
 	}
@@ -219,21 +202,19 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 		}
 		try {
 			UUID uuid = UUID.fromString(this.ownerUUID);
-			if (uuid != null) {
-				MinecraftServer server = null;
-				if (this.npc.world != null) {
-					server = this.npc.world.getMinecraftServer();
-				}
-				if (server == null && CustomNpcs.Server != null) {
-					server = CustomNpcs.Server;
-				}
-				if (server != null) {
-					return server.getPlayerList().getPlayerByUUID(uuid);
-				}
-			}
-		} catch (IllegalArgumentException ex) {
-		}
-		return this.npc.world.getPlayerEntityByName(this.ownerUUID);
+            MinecraftServer server = null;
+            if (this.npc.world != null) {
+                server = this.npc.world.getMinecraftServer();
+            }
+            if (server == null && CustomNpcs.Server != null) {
+                server = CustomNpcs.Server;
+            }
+            if (server != null) {
+                return server.getPlayerList().getPlayerByUUID(uuid);
+            }
+        } catch (Exception e) { LogWriter.error("Error:", e); }
+        assert this.npc.world != null;
+        return this.npc.world.getPlayerEntityByName(this.ownerUUID);
 	}
 
 	private PlayerData getOwnerData() {
@@ -343,7 +324,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 	@Override
 	public void setFollowing(IPlayer<?> player) {
 		if (player == null) {
-			this.setOwner(null);
+			this.ownerUUID = null;
 		} else {
 			this.setOwner(player.getMCEntity());
 		}
@@ -361,7 +342,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 
 	public void setOwner(EntityPlayer player) {
 		UUID id = player.getUniqueID();
-		if (this.ownerUUID == null || id == null || !this.ownerUUID.equals(id.toString())) {
+		if (this.ownerUUID == null || !this.ownerUUID.equals(id.toString())) {
 			this.killed();
 		}
 		this.ownerUUID = id.toString();

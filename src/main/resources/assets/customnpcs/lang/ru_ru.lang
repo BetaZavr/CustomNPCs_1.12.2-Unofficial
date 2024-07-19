@@ -1698,7 +1698,7 @@ message.change.mod.data=§2CustomNPCs§7: Замечательная админ�
 message.data.cleaning.false=§2CustomNPCs§7: Неактивных игроков за указанный период не обнаружено. Всего: §6%s
 message.data.cleaning.true=§2CustomNPCs§7: Удалены данные неактивных игроков. Удалено: §6%s§7 из §6%s
 message.dimensions.created=§2CustomNPCs§a: Создано новое Измерение "%s§a", используйте ID:%s
-message.dimensions.del.foder=§2CustomNPCs§a: Директория Измерения ID:%s§a - удалена.
+message.dimensions.del.folder=§2CustomNPCs§a: Директория Измерения ID:%s§a - удалена.
 message.dimensions.err.del=§2CustomNPCs§c: Это измерение будет удалено после перезагрузки сервера!
 message.dimensions.err.del.foder=§2CustomNPCs§c: Ошибка удаления директории Измерения ID:%s§c. Необходимо удалить вручную.
 message.dimensions.err.notmod=§2CustomNPCs§c: Это измерение не пренадлежит модификации §6CustomNPCs §bUnofficial§c!

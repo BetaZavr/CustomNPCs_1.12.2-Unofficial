@@ -9,14 +9,17 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.controllers.data.PlayerMailData;
 
+import javax.annotation.Nonnull;
+
 public class ContainerMail extends ContainerNpcInterface {
+
 	public static PlayerMail staticmail = new PlayerMail();
-	private boolean canEdit, canSend;
+	private final boolean canEdit;
+    private final boolean canSend;
 	public PlayerMail mail;
 
 	public ContainerMail(EntityPlayer player, boolean canEdit, boolean canSend) {
 		super(player);
-		this.mail = new PlayerMail();
 		this.mail = ContainerMail.staticmail;
 		ContainerMail.staticmail = new PlayerMail();
 		this.canEdit = canEdit;
@@ -35,7 +38,7 @@ public class ContainerMail extends ContainerNpcInterface {
 		}
 	}
 
-	public void onContainerClosed(EntityPlayer player) {
+	public void onContainerClosed(@Nonnull EntityPlayer player) {
 		super.onContainerClosed(player);
 		if (player.world.isRemote) {
 			return;
@@ -51,7 +54,7 @@ public class ContainerMail extends ContainerNpcInterface {
 		} else {
 			for (int i = 0; i < 4; i++) {
 				Slot slot = this.getSlot(i);
-				if (slot == null || !slot.getHasStack()) {
+				if (!slot.getHasStack()) {
 					continue;
 				}
 				EntityItem entityitem = new EntityItem(player.world, player.posX, player.posY + 0.16f, player.posZ,
@@ -64,18 +67,18 @@ public class ContainerMail extends ContainerNpcInterface {
 	}
 
 	@Override
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
+	public @Nonnull ItemStack slotClick(int slotId, int dragType, @Nonnull ClickType clickTypeIn, @Nonnull EntityPlayer player) {
 		if (!this.canEdit && !this.canSend && slotId > -1 && slotId < 4) {
 			Slot slot = this.inventorySlots.get(slotId);
 			if (slot != null && slot.getHasStack()) {
-				return super.slotClick(slotId, 0, ClickType.QUICK_MOVE, player); // taked
+				return super.slotClick(slotId, 0, ClickType.QUICK_MOVE, player); // take
 			}
 		}
 		return super.slotClick(slotId, dragType, clickTypeIn, player);
 	}
 
 	@Override
-	public ItemStack transferStackInSlot(EntityPlayer player, int slotId) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int slotId) {
 		ItemStack stack = ItemStack.EMPTY;
 		Slot slot = this.inventorySlots.get(slotId);
 		if (slot != null && slot.getHasStack()) {

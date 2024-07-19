@@ -26,22 +26,18 @@ public class SubGuiNpcAvailabilityQuest
 extends SubGuiInterface
 implements ICustomScrollListener, GuiSelectionListener {
 
-	private Availability availabitily;
-	private String chr = "" + ((char) 167);
-	private Map<String, EnumAvailabilityQuest> dataEnum;
-	private Map<String, Integer> dataIDs;
-	// New
+	private final Availability availability;
+	private final String chr = "" + ((char) 167);
+	private final Map<String, EnumAvailabilityQuest> dataEnum = new HashMap<>();
+	private final Map<String, Integer> dataIDs = new HashMap<>();
 	private GuiCustomScroll scroll;
 	private String select;
 
-	public SubGuiNpcAvailabilityQuest(Availability availabitily) {
-		this.availabitily = availabitily;
+	public SubGuiNpcAvailabilityQuest(Availability availability) {
+		this.availability = availability;
 		setBackground("menubg.png");
 		xSize = 316;
 		ySize = 217;
-
-		dataIDs = new HashMap<String, Integer>();
-		dataEnum = new HashMap<String, EnumAvailabilityQuest>();
 		select = "";
 		closeOnEsc = true;
 	}
@@ -54,11 +50,11 @@ implements ICustomScrollListener, GuiSelectionListener {
 			}
 			EnumAvailabilityQuest ead = EnumAvailabilityQuest.values()[button.getValue()];
 			int id = this.dataIDs.get(this.select);
-			this.availabitily.quests.put(id, ead);
+			this.availability.quests.put(id, ead);
 			Quest quest = QuestController.instance.quests.get(this.dataIDs.get(this.select));
 			this.select = "ID:" + id + " - ";
 			if (quest == null) {
-				this.select += chr + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
+				this.select += chr + "4" + (new TextComponentTranslation("quest.found").getFormattedText());
 			} else {
 				this.select += chr + "7" + quest.getCategory().getName() + "/" + chr + "r" + quest.getName() + chr
 						+ "7 (" + chr + "9"
@@ -71,7 +67,7 @@ implements ICustomScrollListener, GuiSelectionListener {
 			this.setSubGui(new GuiQuestSelection(this.select.isEmpty() ? 0 : this.dataIDs.get(this.select)));
 		}
 		if (button.id == 2) {
-			this.availabitily.quests.remove(this.dataIDs.get(this.select));
+			this.availability.quests.remove(this.dataIDs.get(this.select));
 			this.select = "";
 			this.initGui();
 		}
@@ -88,14 +84,14 @@ implements ICustomScrollListener, GuiSelectionListener {
 	@Override
 	public void close() {
 		super.close();
-		List<Integer> delete = new ArrayList<Integer>();
-		for (int id : this.availabitily.quests.keySet()) {
-			if (this.availabitily.quests.get(id) == EnumAvailabilityQuest.Always) {
+		List<Integer> delete = new ArrayList<>();
+		for (int id : this.availability.quests.keySet()) {
+			if (this.availability.quests.get(id) == EnumAvailabilityQuest.Always) {
 				delete.add(id);
 			}
 		}
 		for (int id : delete) {
-			this.availabitily.quests.remove(id);
+			this.availability.quests.remove(id);
 		}
 	}
 
@@ -103,13 +99,13 @@ implements ICustomScrollListener, GuiSelectionListener {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + this.ySize - 46, 100, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.enum.type").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.enum.type").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 108, this.guiTop + this.ySize - 46, 180, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.quest").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.quest").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 290, this.guiTop + this.ySize - 46, 20, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.remove").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.remove").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + this.xSize - 76, this.guiTop + 192, 70, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.more").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.more").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + 192, 70, 20)) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
@@ -130,9 +126,9 @@ implements ICustomScrollListener, GuiSelectionListener {
 		if (this.scroll == null) {
 			(this.scroll = new GuiCustomScroll(this, 6)).setSize(this.xSize - 12, this.ySize - 66);
 		}
-		this.dataIDs = new HashMap<String, Integer>();
-		this.dataEnum = new HashMap<String, EnumAvailabilityQuest>();
-		for (int id : this.availabitily.quests.keySet()) {
+		this.dataIDs.clear();
+		this.dataEnum.clear();
+		for (int id : this.availability.quests.keySet()) {
 			String key = "ID:" + id + " - ";
 			IQuest q = QuestController.instance.get(id);
 			if (q == null) {
@@ -140,11 +136,11 @@ implements ICustomScrollListener, GuiSelectionListener {
 			} else {
 				key += chr + "7" + q.getCategory().getName() + "/" + chr + "r" + q.getName() + chr + "7 (" + chr + "9"
 						+ new TextComponentTranslation(
-								("availability." + this.availabitily.quests.get(id)).toLowerCase()).getFormattedText()
+								("availability." + this.availability.quests.get(id)).toLowerCase()).getFormattedText()
 						+ chr + "7)";
 			}
 			this.dataIDs.put(key, id);
-			this.dataEnum.put(key, this.availabitily.quests.get(id));
+			this.dataEnum.put(key, this.availability.quests.get(id));
 		}
 		if (!this.select.isEmpty() && !this.dataIDs.containsKey(this.select)) {
 			this.select = "";
@@ -183,10 +179,10 @@ implements ICustomScrollListener, GuiSelectionListener {
 		EnumAvailabilityQuest ead = EnumAvailabilityQuest.values()[this.getButton(0).getValue()];
 		int id = this.dataIDs.get(this.select);
 		if (ead != EnumAvailabilityQuest.Always) {
-			this.availabitily.quests.put(id, ead);
+			this.availability.quests.put(id, ead);
 			this.dataEnum.put(this.select, ead);
 		} else {
-			this.availabitily.quests.remove(id);
+			this.availability.quests.remove(id);
 		}
 		this.select = "";
 	}
@@ -208,13 +204,13 @@ implements ICustomScrollListener, GuiSelectionListener {
 			return;
 		}
 		if (!this.select.isEmpty()) {
-			this.availabitily.quests.remove(this.dataIDs.get(this.select));
+			this.availability.quests.remove(this.dataIDs.get(this.select));
 		}
 		Quest quest = QuestController.instance.quests.get(id);
 		this.select = "ID:" + id + " - " + chr + "7" + quest.category.getName() + "/" + chr + "r" + quest.getName()
 				+ chr + "7 (" + chr + "9" + new TextComponentTranslation("availability.after").getFormattedText() + chr
 				+ "7)";
-		this.availabitily.quests.put(id, EnumAvailabilityQuest.After);
+		this.availability.quests.put(id, EnumAvailabilityQuest.After);
 		this.initGui();
 		this.updateGuiButtons();
 	}

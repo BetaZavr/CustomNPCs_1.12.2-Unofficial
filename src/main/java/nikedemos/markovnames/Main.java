@@ -14,10 +14,8 @@ import nikedemos.markovnames.generators.MarkovSlavic;
 import nikedemos.markovnames.generators.MarkovWelsh;
 
 public class Main {
-	public static int GENDER_FEMALE = 2;
-	public static int GENDER_MALE = 1;
-	public static int GENDER_RANDOM = 0;
-	public static HashMap<String, MarkovGenerator> GENERATORS = new HashMap<String, MarkovGenerator>();
+
+	public static HashMap<String, MarkovGenerator> GENERATORS = new HashMap<>();
 
 	public static void main(String[] args) {
 		Main.GENERATORS.put("ROMAN", new MarkovRoman(3));

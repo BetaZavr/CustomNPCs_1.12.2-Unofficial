@@ -1,7 +1,7 @@
 package noppes.npcs.schematics;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -31,9 +31,9 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.controllers.SchematicController;
-import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class Schematic implements ISchematic {
@@ -116,7 +116,7 @@ public class Schematic implements ISchematic {
 			}
 		}
 
-		/** Added by mod */
+		// Added by mod
 		schema.offset = new BlockPos(bb.minX - p.getX(), 1 + (int) (bb.minY - p.getY()), (int) (bb.minZ - p.getZ()));
 		switch (fase) {
 		case EAST: {
@@ -142,8 +142,7 @@ public class Schematic implements ISchematic {
 				bb.maxY + 0.25d, bb.maxZ + 0.25d);
 		List<Entity> list = world.getEntitiesWithinAABB(Entity.class, bbE);
 		for (Entity e : list) {
-			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow
-					|| e instanceof EntityPlayer) {
+			if (e instanceof EntityThrowable || e instanceof EntityArrow || e instanceof EntityPlayer) {
 				continue;
 			}
 			NBTTagCompound nbtEntity = new NBTTagCompound();
@@ -237,7 +236,7 @@ public class Schematic implements ISchematic {
 		int size = height * width * length;
 		schema.blockIdsArray = new short[size];
 		schema.blockMetadataArray = new byte[size];
-		NoppesUtilServer.NotifyOPs("Creating schematic at: " + pos + " might lag slightly", new Object[0]);
+		NoppesUtilServer.NotifyOPs("Creating schematic at: " + pos + " might lag slightly");
 		schema.tileList = new NBTTagList();
 		for (int i = 0; i < size; ++i) {
 			int x = i % width;
@@ -251,7 +250,8 @@ public class Schematic implements ISchematic {
 					if (state.getBlock() instanceof ITileEntityProvider) {
 						TileEntity tile = world.getTileEntity(pos.add(x, y, z));
 						NBTTagCompound compound = new NBTTagCompound();
-						tile.writeToNBT(compound);
+                        assert tile != null;
+                        tile.writeToNBT(compound);
 						compound.setInteger("x", x);
 						compound.setInteger("y", y);
 						compound.setInteger("z", z);
@@ -270,7 +270,7 @@ public class Schematic implements ISchematic {
 	public short length = 0; // Z axis
 	public short width = 0; // X axis
 
-	public String name = "";
+	public String name;
 
 	public BlockPos offset = BlockPos.ORIGIN;
 
@@ -279,7 +279,7 @@ public class Schematic implements ISchematic {
 	}
 
 	public boolean equals(Object obj) {
-		if (obj == null || !(obj instanceof Schematic)) {
+		if (!(obj instanceof Schematic)) {
 			return false;
 		}
 		Schematic s = (Schematic) obj;
@@ -340,10 +340,7 @@ public class Schematic implements ISchematic {
 	@Override
 	public IBlockState getBlockState(int i) {
 		Block b = Block.getBlockById(this.blockIdsArray[i]);
-		if (b == null) {
-			return Blocks.AIR.getDefaultState();
-		}
-		if (i < b.getBlockState().getValidStates().size()) {
+        if (i < b.getBlockState().getValidStates().size()) {
 			return b.getBlockState().getValidStates().get(i);
 		}
 		return b.getStateFromMeta(this.blockMetadataArray[i]);
@@ -354,10 +351,7 @@ public class Schematic implements ISchematic {
 	public IBlockState getBlockState(int x, int y, int z) {
 		int i = this.xyzToIndex(x, y, z);
 		Block b = Block.getBlockById(this.blockIdsArray[i]);
-		if (b == null) {
-			return Blocks.AIR.getDefaultState();
-		}
-		return b.getStateFromMeta(this.blockMetadataArray[i]);
+        return b.getStateFromMeta(this.blockMetadataArray[i]);
 	}
 
 	@Override
@@ -443,7 +437,7 @@ public class Schematic implements ISchematic {
 		this.entityList = compound.getTagList("Entities", 10);
 		// New
 		int[] arr = compound.getIntArray("Offset");
-		if (arr != null && arr.length >= 3) {
+		if (arr.length >= 3) {
 			this.offset = new BlockPos(arr[0], arr[1], arr[2]);
 		} else {
 			this.offset = BlockPos.ORIGIN;
@@ -457,7 +451,7 @@ public class Schematic implements ISchematic {
 		}
 		try {
 			File file = new File(SchematicController.getDir(), this.name);
-			CompressedStreamTools.writeCompressed(this.getNBT(), new FileOutputStream(file));
+			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(file.toPath()));
 			ITextComponent component = new TextComponentString("Save Schematic file: \"" + file + "\"");
 			component.getStyle().setColor(TextFormatting.GRAY);
 			player.sendMessage(component);
@@ -469,8 +463,7 @@ public class Schematic implements ISchematic {
 				file = new File(SchematicController.getDir(), this.name.replace(".schematic", "") + ".json");
 				NBTJsonUtil.SaveFile(file, this.getNBT());
 			}
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void setBlockBytes(byte[] blockId, byte[] addId) {
@@ -480,9 +473,9 @@ public class Schematic implements ISchematic {
 			short id = (short) (blockId[index] & 0xFF);
 			if (index >> 1 < addId.length) {
 				if ((index & 0x1) == 0x0) {
-					id += ((addId[index >> 1] & 0xF) << 8);
+					id += (short) ((addId[index >> 1] & 0xF) << 8);
 				} else {
-					id += ((addId[index >> 1] & 0xF0) << 4);
+					id += (short) ((addId[index >> 1] & 0xF0) << 4);
 				}
 			}
 			this.blockIdsArray[index] = id;

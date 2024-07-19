@@ -2,8 +2,6 @@ package noppes.npcs.client.gui.player;
 
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.client.CustomNpcResourceListener;
@@ -12,13 +10,12 @@ import noppes.npcs.containers.ContainerCustomChest;
 
 public class GuiCustomChest extends GuiContainer {
 
-	private static ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
-	private int inventoryRows;
+	private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
+	private final int inventoryRows;
 	public String title;
-	public IInventory upperChestInventory;
 
 	public GuiCustomChest(ContainerCustomChest container) {
-		super((Container) container);
+		super(container);
 		this.title = null;
 		this.inventoryRows = container.rows;
 	}
@@ -44,7 +41,7 @@ public class GuiCustomChest extends GuiContainer {
 
 	public void onGuiClosed() {
 		super.onGuiClosed();
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.CloseGui, new Object[0]);
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.CloseGui);
 	}
 
 }

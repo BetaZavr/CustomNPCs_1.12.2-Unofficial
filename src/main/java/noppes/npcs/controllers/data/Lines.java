@@ -11,13 +11,13 @@ import net.minecraft.nbt.NBTTagList;
 
 public class Lines {
 
-	private static Random random = new Random();
+	private static final Random random = new Random();
 	private int lastLine;
 	public Map<Integer, Line> lines;
 
 	public Lines() {
 		this.lastLine = -1;
-		this.lines = Maps.<Integer, Line>newTreeMap();
+		this.lines = Maps.newTreeMap();
 	}
 
 	public Lines copy() {
@@ -29,7 +29,7 @@ public class Lines {
 	}
 
 	public void correctLines() {
-		Map<Integer, Line> newLines = Maps.<Integer, Line>newTreeMap();
+		Map<Integer, Line> newLines = Maps.newTreeMap();
 		int i = 0;
 		boolean isChanged = false;
 		for (int pos : this.lines.keySet()) {
@@ -84,7 +84,7 @@ public class Lines {
 
 	public void readNBT(NBTTagCompound compound) {
 		NBTTagList nbttaglist = compound.getTagList("Lines", 10);
-		HashMap<Integer, Line> map = new HashMap<Integer, Line>();
+		HashMap<Integer, Line> map = new HashMap<>();
 		for (int i = 0; i < nbttaglist.tagCount(); ++i) {
 			NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
 			Line line = new Line();

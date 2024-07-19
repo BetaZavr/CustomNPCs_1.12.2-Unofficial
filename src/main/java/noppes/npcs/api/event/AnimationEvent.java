@@ -1,47 +1,75 @@
 package noppes.npcs.api.event;
 
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.client.model.animation.AnimationConfig;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class AnimationEvent extends CustomNPCsEvent {
 
 	public static class NextFrameEvent extends AnimationEvent {
-		public NextFrameEvent(EntityNPCInterface npc, AnimationConfig anim) {
-			super(npc, anim, "animationNextFrameEvent");
+		public NextFrameEvent(EntityLivingBase entity, AnimationConfig anim) {
+			super(entity, anim, "animationNextFrameEvent");
 		}
 	}
 
 	public static class StartEvent extends AnimationEvent {
-		public StartEvent(EntityNPCInterface npc, AnimationConfig anim) {
-			super(npc, anim, "animationStartEvent");
+		public StartEvent(EntityLivingBase entity, AnimationConfig anim) {
+			super(entity, anim, "animationStartEvent");
 		}
 	}
 
 	public static class StopEvent extends AnimationEvent {
-		public StopEvent(EntityNPCInterface npc, AnimationConfig anim) {
-			super(npc, anim, "animationStopEvent");
+		public StopEvent(EntityLivingBase entity, AnimationConfig anim) {
+			super(entity, anim, "animationStopEvent");
 		}
 	}
 
 	public static class UpdateEvent extends AnimationEvent {
-		public UpdateEvent(EntityNPCInterface npc, AnimationConfig anim) {
-			super(npc, anim, "animationUpdateEvent");
+		public UpdateEvent(EntityLivingBase entity, AnimationConfig anim) {
+			super(entity, anim, "animationUpdateEvent");
 		}
 	}
 
-	public EntityNPCInterface npc;
+	public EntityLivingBase entity;
 	public AnimationConfig animation;
 	public int frameId;
 	public long ticks;
 	public String nameEvent;
 
-	public AnimationEvent(EntityNPCInterface npc, AnimationConfig anim, String name) {
+	public AnimationEvent(EntityLivingBase entity, AnimationConfig anim, String name) {
 		super();
-		this.npc = npc;
+		this.entity = entity;
 		nameEvent = name;
 		animation = anim;
-		frameId = npc.animation.animationFrame;
-		ticks = npc.world.getTotalWorldTime() - npc.animation.startAnimationTime;
+		if (entity instanceof EntityNPCInterface) {
+			if (((EntityNPCInterface) entity).animation == null) {
+				frameId = -1;
+				ticks = -1;
+			} else {
+				frameId = ((EntityNPCInterface) entity).animation.animationFrame;
+				int startFrameTick;
+				if (!anim.ticks.containsKey(this.frameId)) { startFrameTick = anim.ticks.get(0); }
+				else { startFrameTick = anim.ticks.get(this.frameId); }
+				ticks = (int) (this.entity.world.getTotalWorldTime() - ((EntityNPCInterface) entity).animation.startAnimationTime)- startFrameTick;
+			}
+		}
+		if (entity instanceof EntityPlayer) {
+			PlayerData data = PlayerData.get((EntityPlayer) entity);
+			if (data != null) {
+				if (data.animation == null) {
+					frameId = -1;
+					ticks = -1;
+				} else {
+					frameId = data.animation.animationFrame;
+					int startFrameTick;
+					if (!anim.ticks.containsKey(this.frameId)) { startFrameTick = anim.ticks.get(0); }
+					else { startFrameTick = anim.ticks.get(this.frameId); }
+					ticks = (int) (this.entity.world.getTotalWorldTime() - data.animation.startAnimationTime) - startFrameTick;
+				}
+			}
+		}
 	}
 
 }

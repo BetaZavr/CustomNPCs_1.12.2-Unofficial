@@ -5,11 +5,8 @@ import java.util.Random;
 import nikedemos.markovnames.MarkovDictionary;
 
 public class MarkovAncientGreek extends MarkovGenerator {
-	public MarkovDictionary markov2;
 
-	public MarkovAncientGreek() {
-		this(3, new Random());
-	}
+	public MarkovDictionary markov2;
 
 	public MarkovAncientGreek(int seqlen) {
 		this(seqlen, new Random());

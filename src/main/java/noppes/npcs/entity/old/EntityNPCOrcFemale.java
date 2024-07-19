@@ -11,10 +11,10 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class EntityNPCOrcFemale extends EntityNPCInterface {
 	public EntityNPCOrcFemale(World world) {
 		super(world);
-		float scaleX = 0.9375f;
-		this.scaleZ = scaleX;
-		this.scaleY = scaleX;
-		this.scaleX = scaleX;
+		float f = 0.9375f;
+		this.scaleZ = f;
+		this.scaleY = f;
+		this.scaleX = f;
 		this.display.setSkinTexture(CustomNpcs.MODID + ":textures/entity/orcfemale/StrandedFemaleOrc.png");
 	}
 

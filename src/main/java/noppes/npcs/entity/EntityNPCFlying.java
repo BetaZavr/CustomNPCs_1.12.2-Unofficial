@@ -6,6 +6,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
+
 public abstract class EntityNPCFlying extends EntityNPCInterface {
 
 	public EntityNPCFlying(World world) {
@@ -81,7 +83,7 @@ public abstract class EntityNPCFlying extends EntityNPCInterface {
 		this.limbSwing += this.limbSwingAmount;
 	}
 
-	protected void updateFallState(double y, boolean onGroundIn, IBlockState state, BlockPos pos) {
+	protected void updateFallState(double y, boolean onGroundIn, @Nonnull IBlockState state, @Nonnull BlockPos pos) {
 		if (!this.canFly()) {
 			super.updateFallState(y, onGroundIn, state, pos);
 		}

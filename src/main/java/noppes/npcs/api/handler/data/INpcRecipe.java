@@ -41,15 +41,9 @@ public interface INpcRecipe {
 
 	boolean isValid();
 
-	boolean saves();
-
-	void saves(boolean bo);
-
 	void setIgnoreDamage(boolean bo);
 
 	void setIgnoreNBT(boolean bo);
-
-	void setIsGlobal(boolean bo);
 
 	void setKnown(boolean known);
 

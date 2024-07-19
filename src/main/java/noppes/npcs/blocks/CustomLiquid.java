@@ -11,9 +11,12 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class CustomLiquid extends BlockFluidClassic implements ICustomElement {
 
-	public NBTTagCompound nbtData = new NBTTagCompound();
+	public NBTTagCompound nbtData;
 
 	public CustomLiquid(Fluid fluid, Material material, NBTTagCompound nbtBlock) {
 		super(fluid, material);
@@ -30,16 +33,16 @@ public class CustomLiquid extends BlockFluidClassic implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos) {
+	public boolean isReplaceable(@Nonnull IBlockAccess worldIn, @Nonnull BlockPos pos) {
 		return true;
 	}
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return this.nbtData.getByte("BlockType"); }
 		return 1;
 	}
 

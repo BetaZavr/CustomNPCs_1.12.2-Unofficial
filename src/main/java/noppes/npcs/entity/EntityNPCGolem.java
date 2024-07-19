@@ -1,6 +1,5 @@
 package noppes.npcs.entity;
 
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
@@ -24,7 +23,7 @@ public class EntityNPCGolem extends EntityNPCInterface {
 			EntityCustomNpc npc = new EntityCustomNpc(this.world);
 			npc.readFromNBT(compound);
 			ModelData data = npc.modelData;
-			data.setEntityClass((Class<? extends EntityLivingBase>) EntityNPCGolem.class);
+			data.setEntityClass(EntityNPCGolem.class);
 			this.world.spawnEntity(npc);
 		}
 		super.onUpdate();

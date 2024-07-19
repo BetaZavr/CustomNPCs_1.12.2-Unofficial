@@ -33,9 +33,10 @@ import noppes.npcs.roles.data.HealerSettings;
 public class GuiNpcHealer extends GuiNPCInterface2
 		implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 
-	private Map<String, String> displays_0, displays_1; // [display name, registry name] (0-options, 1-configured)
-	private Map<String, Integer> potions; // [registry name, registry ID]
-	private JobHealer job;
+	private final Map<String, String> displays_0;
+    private final Map<String, String> displays_1; // [display name, registry name] (0-options, 1-configured)
+	private final Map<String, Integer> potions; // [registry name, registry ID]
+	private final JobHealer job;
 	private int range, speed, amplifier;
 	private byte type;
 	private GuiCustomScroll options, configured;
@@ -47,9 +48,9 @@ public class GuiNpcHealer extends GuiNPCInterface2
 		this.amplifier = 0;
 		this.type = (byte) 2;
 		this.job = (JobHealer) npc.advanced.jobInterface;
-		this.potions = Maps.<String, Integer>newTreeMap();
-		this.displays_0 = Maps.<String, String>newTreeMap();
-		this.displays_1 = Maps.<String, String>newTreeMap();
+		this.potions = Maps.newTreeMap();
+		this.displays_0 = Maps.newTreeMap();
+		this.displays_1 = Maps.newTreeMap();
 		for (Potion p : Potion.REGISTRY) {
 			this.potions.put(p.getName(), Potion.getIdFromPotion(p));
 		}
@@ -185,11 +186,11 @@ public class GuiNpcHealer extends GuiNPCInterface2
 		this.addLabel(new GuiNpcLabel(12, "beacon.currentEffects", this.guiLeft + 235, y - 10));
 		this.displays_0.clear();
 		this.displays_1.clear();
-		List<String> h_0 = Lists.<String>newArrayList(), h_1 = Lists.<String>newArrayList();
+		List<String> h_0 = Lists.newArrayList(), h_1 = Lists.newArrayList();
 		ITextComponent r = new TextComponentTranslation("gui.range");
 		ITextComponent s = new TextComponentTranslation("gui.repeatable");
 		ITextComponent b = new TextComponentTranslation("gui.blocks");
-		ITextComponent ñ = new TextComponentTranslation("gui.sec");
+		ITextComponent c = new TextComponentTranslation("gui.sec");
 		ITextComponent t = new TextComponentTranslation("gui.time");
 		ITextComponent p = new TextComponentTranslation("beacon.amplifier");
 		ITextComponent l = new TextComponentTranslation("parameter.level");
@@ -197,7 +198,7 @@ public class GuiNpcHealer extends GuiNPCInterface2
 		ITextComponent u = new TextComponentTranslation("script.target");
 		r.getStyle().setColor(TextFormatting.GRAY);
 		s.getStyle().setColor(TextFormatting.GRAY);
-		ñ.getStyle().setColor(TextFormatting.GRAY);
+		c.getStyle().setColor(TextFormatting.GRAY);
 		b.getStyle().setColor(TextFormatting.GRAY);
 		t.getStyle().setColor(TextFormatting.GRAY);
 		p.getStyle().setColor(TextFormatting.GRAY);
@@ -205,32 +206,32 @@ public class GuiNpcHealer extends GuiNPCInterface2
 		j.getStyle().setColor(TextFormatting.GRAY);
 		u.getStyle().setColor(TextFormatting.GRAY);
 
-		for (String potinName : this.potions.keySet()) {
-			int id = this.potions.get(potinName);
+		for (String pointName : this.potions.keySet()) {
+			int id = this.potions.get(pointName);
 			Potion potion = Potion.getPotionById(id);
 			String name = ((char) 167) + (potion == null ? "5" : potion.isBadEffect() ? "c" : "a")
-					+ new TextComponentTranslation(potinName).getFormattedText();
+					+ new TextComponentTranslation(pointName).getFormattedText();
 			if (!this.job.effects.containsKey(id)) { // has potion ID
-				this.displays_0.put(name, potinName);
+				this.displays_0.put(name, pointName);
 				h_0.add("ID: " + ((char) 167) + "6" + id);
 			} else { // to setts
 				HealerSettings hs = this.job.effects.get(id);
 				this.displays_1.put(
 						name + " "
 								+ new TextComponentTranslation("enchantment.level." + hs.amplifier).getFormattedText(),
-						potinName);
+						pointName);
 				ITextComponent f = new TextComponentTranslation(hs.type == (byte) 0 ? "faction.friendly"
 						: hs.type == (byte) 1 ? "faction.unfriendly" : "spawner.all");
 				f.getStyle().setColor(hs.type == (byte) 0 ? TextFormatting.GREEN
-						: hs.type == (byte) 0 ? TextFormatting.RED : TextFormatting.DARK_AQUA);
+						: TextFormatting.DARK_AQUA);
 				ITextComponent h = new TextComponentTranslation(hs.isMassive ? "beacon.massive" : "beacon.not.massive");
 				h.getStyle().setColor(hs.isMassive ? TextFormatting.DARK_PURPLE : TextFormatting.YELLOW);
 				h_1.add("ID: " + ((char) 167) + "6" + id + "<br>" + r.getFormattedText() + ((char) 167) + "7: "
 						+ ((char) 167) + "e" + hs.range + " " + b.getFormattedText() + "<br>" + s.getFormattedText()
 						+ ((char) 167) + "7: " + ((char) 167) + "b" + (Math.round((double) hs.speed / 2.0d) / 10.0d)
-						+ " " + ñ.getFormattedText() + "<br>" + t.getFormattedText() + ((char) 167) + "7: "
+						+ " " + c.getFormattedText() + "<br>" + t.getFormattedText() + ((char) 167) + "7: "
 						+ ((char) 167) + "a" + (Math.round((double) hs.time / 2.0d) / 10.0d) + " "
-						+ ñ.getFormattedText() + "<br>" + p.getFormattedText() + ((char) 167) + "7: " + ((char) 167)
+						+ c.getFormattedText() + "<br>" + p.getFormattedText() + ((char) 167) + "7: " + ((char) 167)
 						+ "c" + (hs.amplifier + 1) + " " + l.getFormattedText() + "<br>" + j.getFormattedText()
 						+ ((char) 167) + "7: " + ((char) 167) + "c" + f.getFormattedText() + "<br>"
 						+ u.getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "c" + h.getFormattedText());
@@ -282,7 +283,7 @@ public class GuiNpcHealer extends GuiNPCInterface2
 		this.getButton(13).enabled = !this.displays_0.isEmpty();
 		this.addButton(new GuiNpcButton(14, this.guiLeft + 177, (y += 22), 61, 20, "<<"));
 		this.getButton(14).enabled = !this.displays_1.isEmpty();
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 177, (y += 33), 61, 20, "gui.edit"));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 177, y + 33, 61, 20, "gui.edit"));
 		this.getButton(0).enabled = this.configured.selected != -1;
 	}
 

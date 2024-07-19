@@ -21,7 +21,7 @@ public class EntityAICommanderTarget extends EntityAICustom {
 
 	public EntityAICommanderTarget(IRangedAttackMob npc) {
 		super(npc);
-		this.npcs = Lists.<EntityNPCInterface>newArrayList();
+		this.npcs = Lists.newArrayList();
 		this.done = false;
 		this.baseAnimation = this.npc.currentAnimation;
 		this.time = 0;

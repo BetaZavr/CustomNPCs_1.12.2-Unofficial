@@ -14,7 +14,7 @@ public interface IBlockScripted extends IBlock {
 
 	boolean getIsLadder();
 
-	boolean getIsPassible();
+	boolean getIsPassable();
 
 	ILayerModel[] getLayerModels();
 
@@ -60,7 +60,7 @@ public interface IBlockScripted extends IBlock {
 
 	void setIsLadder(boolean enabled);
 
-	void setIsPassible(boolean passible);
+	void setIsPassable(boolean passable);
 
 	void setLight(int value);
 

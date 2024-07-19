@@ -6,9 +6,10 @@ import net.minecraft.util.math.MathHelper;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIPounceTarget extends EntityAIBase {
-	private float leapSpeed;
+
+	private final float leapSpeed;
 	private EntityLivingBase leapTarget;
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 
 	public EntityAIPounceTarget(EntityNPCInterface leapingEntity) {
 		this.leapSpeed = 1.3f;
@@ -16,18 +17,17 @@ public class EntityAIPounceTarget extends EntityAIBase {
 		this.setMutexBits(4);
 	}
 
-	public float getAngleForXYZ(double varX, double varY, double varZ, double horiDist) {
+	public float getAngleForXYZ(double varY, double horizontalDist) {
 		float g = 0.1f;
 		float var1 = this.leapSpeed * this.leapSpeed;
-		double var2 = g * horiDist;
-		double var3 = g * horiDist * horiDist + 2.0 * varY * var1;
+		double var2 = g * horizontalDist;
+		double var3 = g * horizontalDist * horizontalDist + 2.0 * varY * var1;
 		double var4 = var1 * var1 - g * var3;
 		if (var4 < 0.0) {
 			return 90.0f;
 		}
 		float var5 = var1 - MathHelper.sqrt(var4);
-		float var6 = (float) Math.atan2(var5, var2) * 180.0f / 3.141592653589793f;
-		return var6;
+        return (float) Math.atan2(var5, var2) * 180.0f / 3.141592653589793f;
 	}
 
 	public boolean shouldContinueExecuting() {
@@ -49,7 +49,7 @@ public class EntityAIPounceTarget extends EntityAIBase {
 		double varY = this.leapTarget.getEntityBoundingBox().minY - this.npc.getEntityBoundingBox().minY;
 		double varZ = this.leapTarget.posZ - this.npc.posZ;
 		float varF = MathHelper.sqrt(varX * varX + varZ * varZ);
-		float angle = this.getAngleForXYZ(varX, varY, varZ, varF);
+		float angle = this.getAngleForXYZ(varY, varF);
 		float yaw = (float) Math.atan2(varX, varZ) * 180.0f / 3.141592653589793f;
 		this.npc.motionX = MathHelper.sin(yaw / 180.0f * 3.1415927f) * MathHelper.cos(angle / 180.0f * 3.1415927f);
 		this.npc.motionZ = MathHelper.cos(yaw / 180.0f * 3.1415927f) * MathHelper.cos(angle / 180.0f * 3.1415927f);

@@ -6,14 +6,15 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class DataDebug {
 
-	public class Debug {
+	public static class Debug {
 
 		public long max = 0L;
-		Map<String, Long> starteds = Maps.newHashMap(); // temp time [Name, start time]
+		Map<String, Long> starters = Maps.newHashMap(); // temp time [Name, start time]
 		public Map<String, Map<String, Long[]>> times = Maps.newHashMap(); // Name, [count, all time in work]
 
 		public void end(String eventName, String eventTarget) {
@@ -21,7 +22,7 @@ public class DataDebug {
 				return;
 			}
 			String key = eventName + ":" + eventTarget;
-			if (!this.starteds.containsKey(key) || this.starteds.get(key) <= 0L) {
+			if (!this.starters.containsKey(key) || this.starters.get(key) <= 0L) {
 				return;
 			}
 			if (!this.times.containsKey(eventName)) {
@@ -32,13 +33,13 @@ public class DataDebug {
 			}
 			Long[] arr = this.times.get(eventName).get(eventTarget);
 			arr[0]++;
-			long r = System.currentTimeMillis() - this.starteds.get(key);
+			long r = System.currentTimeMillis() - this.starters.get(key);
 			arr[1] += r;
 			if (this.max < arr[1]) {
 				this.max = arr[1];
 			}
 			this.times.get(eventName).put(eventTarget, arr);
-			this.starteds.put(key, 0L);
+			this.starters.put(key, 0L);
 		}
 
 		public void start(String eventName, String eventTarget) {
@@ -46,13 +47,13 @@ public class DataDebug {
 				return;
 			}
 			String key = eventName + ":" + eventTarget;
-			if (!this.starteds.containsKey(key)) {
-				this.starteds.put(key, 0L);
+			if (!this.starters.containsKey(key)) {
+				this.starters.put(key, 0L);
 			}
-			if (this.starteds.get(key) > 0L) {
+			if (this.starters.get(key) > 0L) {
 				return;
 			}
-			this.starteds.put(key, System.currentTimeMillis());
+			this.starters.put(key, System.currentTimeMillis());
 		}
 	}
 
@@ -62,7 +63,7 @@ public class DataDebug {
 		this.data.clear();
 	}
 
-	public void endDebug(String side, Object target, String classMetod) {
+	public void endDebug(String side, Object target, String classMethod) {
 		if (!CustomNpcs.VerboseDebug) {
 			return;
 		}
@@ -80,12 +81,11 @@ public class DataDebug {
 			} else if (target instanceof EntityNPCInterface) {
 				t = "NPC";
 			}
-			this.data.get(side).end(classMetod, t);
-		} catch (Exception e) {
-		}
+			this.data.get(side).end(classMethod, t);
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
-	public void startDebug(String side, Object target, String classMetod) {
+	public void startDebug(String side, Object target, String classMethod) {
 		if (!CustomNpcs.VerboseDebug) {
 			return;
 		}
@@ -103,9 +103,8 @@ public class DataDebug {
 			} else if (target instanceof EntityNPCInterface) {
 				t = "NPC";
 			}
-			this.data.get(side).start(classMetod, t);
-		} catch (Exception e) {
-		}
+			this.data.get(side).start(classMethod, t);
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void stopAll() {
@@ -113,7 +112,7 @@ public class DataDebug {
 			return;
 		}
 		for (String side : this.data.keySet()) {
-			for (String k : this.data.get(side).starteds.keySet()) {
+			for (String k : this.data.get(side).starters.keySet()) {
 				this.data.get(side).end(k.substring(0, k.indexOf(':')), k.substring(k.indexOf(':') + 1));
 			}
 		}

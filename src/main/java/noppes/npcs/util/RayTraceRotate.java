@@ -11,13 +11,6 @@ public class RayTraceRotate {
 		this.distance = 0.0d;
 	}
 
-	public RayTraceRotate(double yaw, double pitch, double radiusXZ, double dist) {
-		this.yaw = yaw;
-		this.pitch = pitch;
-		this.radiusXZ = radiusXZ;
-		this.distance = dist;
-	}
-
 	public void calculate(double dx, double dy, double dz, double mx, double my, double mz) {
 		double xVal = mx - dx, yVal = my - dy, zVal = mz - dz;
 		this.radiusXZ = Math.sqrt(Math.pow(xVal, 2) + Math.pow(zVal, 2));
@@ -34,10 +27,12 @@ public class RayTraceRotate {
 
 		if (xVal == 0.0d) {
 			this.yaw = dz > mz ? 180.0d : 0.0d;
-		} else if (xVal <= 0.0d) {
-			this.yaw = 90.0d + Math.atan(zVal / xVal) * rad;
 		} else {
-			this.yaw = 270.0d + Math.atan(zVal / xVal) * rad;
+			if (xVal <= 0.0d) {
+				this.yaw = 90.0d + Math.atan(zVal / xVal) * rad;
+			} else {
+				this.yaw = 270.0d + Math.atan(zVal / xVal) * rad;
+			}
 		}
 		this.yaw %= 360.0d;
 		if (this.yaw < 0.0d) {

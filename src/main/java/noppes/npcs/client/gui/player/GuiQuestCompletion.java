@@ -20,10 +20,10 @@ public class GuiQuestCompletion
 extends GuiNPCInterface
 implements ITopButtonListener {
 
-	private static ResourceLocation bookGuiTextures = new ResourceLocation("textures/gui/book.png");
+	private static final ResourceLocation bookGuiTextures = new ResourceLocation("textures/gui/book.png");
 	
-	private IQuest quest;
-	private ResourceLocation resource;
+	private final IQuest quest;
+	private final ResourceLocation resource;
 	TextBlockClient textBlockClient;
 	int maxLine, currentPage, hover;
 
@@ -59,7 +59,7 @@ implements ITopButtonListener {
 		this.drawQuestText();
 		hover = -1;
 		if (textBlockClient.lines.size() * this.fontRenderer.FONT_HEIGHT > maxLine) {
-			String page = "" + (currentPage + 1) + "/" + ((int) Math.ceil((double) textBlockClient.lines.size() / (double) maxLine));
+			String page = (currentPage + 1) + "/" + ((int) Math.ceil((double) textBlockClient.lines.size() / (double) maxLine));
 			this.fontRenderer.drawString(page, this.guiLeft + 150 - this.fontRenderer.getStringWidth(page), this.guiTop + this.ySize - 20, CustomNpcResourceListener.DefaultTextColor);
 			if (currentPage > 0) {
 				GlStateManager.pushMatrix();
@@ -89,7 +89,7 @@ implements ITopButtonListener {
 		String questTitle = new TextComponentTranslation("questlog.completed").getFormattedText() + new TextComponentTranslation(this.quest.getName()).getFormattedText();
 		int left = (this.xSize - this.fontRenderer.getStringWidth(questTitle)) / 2;
 		this.addLabel(new GuiNpcLabel(0, questTitle, this.guiLeft + left, this.guiTop + 4));
-		textBlockClient = new TextBlockClient(this.quest.getCompleteText(), 170, true, this.npc, new Object[] { this.player });
+		textBlockClient = new TextBlockClient(this.quest.getCompleteText(), 170, true, this.npc, this.player);
 		maxLine = 180 / this.fontRenderer.FONT_HEIGHT;
 		GuiNpcButton button;
 		if (textBlockClient.lines.size() > maxLine) { button = new GuiNpcButton(0, this.guiLeft + 28, this.guiTop + this.ySize - 24, 80, 20, new TextComponentTranslation("quest.complete").getFormattedText()); }

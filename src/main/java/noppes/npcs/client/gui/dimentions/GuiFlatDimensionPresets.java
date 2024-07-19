@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.dimentions;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.lwjgl.input.Keyboard;
@@ -31,6 +32,8 @@ import net.minecraft.world.gen.FlatGeneratorInfo;
 import net.minecraft.world.gen.FlatLayerInfo;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
 public class GuiFlatDimensionPresets extends GuiScreen {
@@ -66,56 +69,32 @@ public class GuiFlatDimensionPresets extends GuiScreen {
 
 		protected void drawSlot(int entryID, int insideLeft, int yPos, int insideSlotHeight, int mouseXIn, int mouseYIn,
 				float partialTicks) {
-			GuiFlatDimensionPresets.LayerItem guiflatpresets$layeritem = (GuiFlatDimensionPresets.LayerItem) GuiFlatDimensionPresets.FLAT_WORLD_PRESETS
-					.get(entryID);
+			GuiFlatDimensionPresets.LayerItem guiflatpresets$layeritem = GuiFlatDimensionPresets.FLAT_WORLD_PRESETS.get(entryID);
 			this.renderIcon(insideLeft, yPos, guiflatpresets$layeritem.icon, guiflatpresets$layeritem.iconMetadata);
-			GuiFlatDimensionPresets.this.fontRenderer.drawString(guiflatpresets$layeritem.name, insideLeft + 18 + 5,
-					yPos + 6, 16777215);
+			GuiFlatDimensionPresets.this.fontRenderer.drawString(guiflatpresets$layeritem.name, insideLeft + 18 + 5, yPos + 6, 16777215);
 		}
 
 		protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY) {
 			this.field_148175_k = slotIndex;
 			GuiFlatDimensionPresets.this.func_146426_g();
-			GuiFlatDimensionPresets.this.field_146433_u
-					.setText(((GuiFlatDimensionPresets.LayerItem) GuiFlatDimensionPresets.FLAT_WORLD_PRESETS
-							.get(GuiFlatDimensionPresets.this.field_146435_s.field_148175_k)).generatorInfo);
+			GuiFlatDimensionPresets.this.field_146433_u.setText(GuiFlatDimensionPresets.FLAT_WORLD_PRESETS.get(GuiFlatDimensionPresets.this.field_146435_s.field_148175_k).generatorInfo);
 		}
 
-		private void func_148171_c(int p_148171_1_, int p_148171_2_, int p_148171_3_, int p_148171_4_) {
+		private void func_148171_c(int p_148171_1_, int p_148171_2_) {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			this.mc.renderEngine.bindTexture(Gui.STAT_ICONS);
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder vertexbuffer = tessellator.getBuffer();
 			vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-			vertexbuffer
-					.pos((double) (p_148171_1_ + 0), (double) (p_148171_2_ + 18),
-							(double) GuiFlatDimensionPresets.this.zLevel)
-					.tex((double) ((float) (p_148171_3_ + 0) * 0.0078125F),
-							(double) ((float) (p_148171_4_ + 18) * 0.0078125F))
-					.endVertex();
-			vertexbuffer
-					.pos((double) (p_148171_1_ + 18), (double) (p_148171_2_ + 18),
-							(double) GuiFlatDimensionPresets.this.zLevel)
-					.tex((double) ((float) (p_148171_3_ + 18) * 0.0078125F),
-							(double) ((float) (p_148171_4_ + 18) * 0.0078125F))
-					.endVertex();
-			vertexbuffer
-					.pos((double) (p_148171_1_ + 18), (double) (p_148171_2_ + 0),
-							(double) GuiFlatDimensionPresets.this.zLevel)
-					.tex((double) ((float) (p_148171_3_ + 18) * 0.0078125F),
-							(double) ((float) (p_148171_4_ + 0) * 0.0078125F))
-					.endVertex();
-			vertexbuffer
-					.pos((double) (p_148171_1_ + 0), (double) (p_148171_2_ + 0),
-							(double) GuiFlatDimensionPresets.this.zLevel)
-					.tex((double) ((float) (p_148171_3_ + 0) * 0.0078125F),
-							(double) ((float) (p_148171_4_ + 0) * 0.0078125F))
-					.endVertex();
+			vertexbuffer.pos(p_148171_1_, p_148171_2_ + 18.0F, GuiFlatDimensionPresets.this.zLevel).tex(0, 18.0F * 0.0078125F).endVertex();
+			vertexbuffer.pos(p_148171_1_ + 18.0F, p_148171_2_ + 18.0F, GuiFlatDimensionPresets.this.zLevel).tex(0.140625F, 0.140625F).endVertex();
+			vertexbuffer.pos(p_148171_1_ + 18.0F, p_148171_2_, GuiFlatDimensionPresets.this.zLevel).tex(0.140625F, 0.0F).endVertex();
+			vertexbuffer.pos(p_148171_1_, p_148171_2_, GuiFlatDimensionPresets.this.zLevel).tex(0.0F, 0.0F).endVertex();
 			tessellator.draw();
 		}
 
 		private void func_148173_e(int p_148173_1_, int p_148173_2_) {
-			this.func_148171_c(p_148173_1_, p_148173_2_, 0, 0);
+			this.func_148171_c(p_148173_1_, p_148173_2_);
 		}
 
 		protected int getSize() {
@@ -137,57 +116,53 @@ public class GuiFlatDimensionPresets extends GuiScreen {
 		}
 
 	}
-	private static final List<GuiFlatDimensionPresets.LayerItem> FLAT_WORLD_PRESETS = Lists.<GuiFlatDimensionPresets.LayerItem>newArrayList();
+	private static final List<GuiFlatDimensionPresets.LayerItem> FLAT_WORLD_PRESETS = Lists.newArrayList();
 	static {
 		registerPreset("Classic Flat", Item.getItemFromBlock(Blocks.GRASS), Biomes.PLAINS,
-				Arrays.<String>asList(new String[] { "village" }),
-				new FlatLayerInfo[] { new FlatLayerInfo(1, Blocks.GRASS), new FlatLayerInfo(2, Blocks.DIRT),
-						new FlatLayerInfo(1, Blocks.BEDROCK) });
-		registerPreset("Tunnelers\' Dream", Item.getItemFromBlock(Blocks.STONE), Biomes.EXTREME_HILLS,
-				Arrays.<String>asList(new String[] { "biome_1", "dungeon", "decoration", "stronghold", "mineshaft" }),
-				new FlatLayerInfo[] { new FlatLayerInfo(1, Blocks.GRASS), new FlatLayerInfo(5, Blocks.DIRT),
-						new FlatLayerInfo(230, Blocks.STONE), new FlatLayerInfo(1, Blocks.BEDROCK) });
+                Collections.singletonList("village"),
+                new FlatLayerInfo(1, Blocks.GRASS), new FlatLayerInfo(2, Blocks.DIRT),
+                new FlatLayerInfo(1, Blocks.BEDROCK));
+		registerPreset("Tunnelers' Dream", Item.getItemFromBlock(Blocks.STONE), Biomes.EXTREME_HILLS,
+				Arrays.asList("biome_1", "dungeon", "decoration", "stronghold", "mineshaft"),
+                new FlatLayerInfo(1, Blocks.GRASS), new FlatLayerInfo(5, Blocks.DIRT),
+                new FlatLayerInfo(230, Blocks.STONE), new FlatLayerInfo(1, Blocks.BEDROCK));
 		registerPreset("Water World", Items.WATER_BUCKET, Biomes.DEEP_OCEAN,
-				Arrays.<String>asList(new String[] { "biome_1", "oceanmonument" }),
-				new FlatLayerInfo[] { new FlatLayerInfo(90, Blocks.WATER), new FlatLayerInfo(5, Blocks.SAND),
-						new FlatLayerInfo(5, Blocks.DIRT), new FlatLayerInfo(5, Blocks.STONE),
-						new FlatLayerInfo(1, Blocks.BEDROCK) });
+				Arrays.asList("biome_1", "oceanmonument"),
+                new FlatLayerInfo(90, Blocks.WATER), new FlatLayerInfo(5, Blocks.SAND),
+                new FlatLayerInfo(5, Blocks.DIRT), new FlatLayerInfo(5, Blocks.STONE),
+                new FlatLayerInfo(1, Blocks.BEDROCK));
 		registerPreset("Overworld", Item.getItemFromBlock(Blocks.TALLGRASS), BlockTallGrass.EnumType.GRASS.getMeta(),
 				Biomes.PLAINS,
-				Arrays.<String>asList(new String[] { "village", "biome_1", "decoration", "stronghold", "mineshaft",
-						"dungeon", "lake", "lava_lake" }),
-				new FlatLayerInfo[] { new FlatLayerInfo(1, Blocks.GRASS), new FlatLayerInfo(3, Blocks.DIRT),
-						new FlatLayerInfo(59, Blocks.STONE), new FlatLayerInfo(1, Blocks.BEDROCK) });
+				Arrays.asList("village", "biome_1", "decoration", "stronghold", "mineshaft", "dungeon", "lake", "lava_lake"),
+                new FlatLayerInfo(1, Blocks.GRASS), new FlatLayerInfo(3, Blocks.DIRT),
+                new FlatLayerInfo(59, Blocks.STONE), new FlatLayerInfo(1, Blocks.BEDROCK));
 		registerPreset("Snowy Kingdom", Item.getItemFromBlock(Blocks.SNOW_LAYER), Biomes.ICE_PLAINS,
-				Arrays.<String>asList(new String[] { "village", "biome_1" }),
-				new FlatLayerInfo[] { new FlatLayerInfo(1, Blocks.SNOW_LAYER), new FlatLayerInfo(1, Blocks.GRASS),
-						new FlatLayerInfo(3, Blocks.DIRT), new FlatLayerInfo(59, Blocks.STONE),
-						new FlatLayerInfo(1, Blocks.BEDROCK) });
+				Arrays.asList("village", "biome_1"),
+                new FlatLayerInfo(1, Blocks.SNOW_LAYER), new FlatLayerInfo(1, Blocks.GRASS),
+                new FlatLayerInfo(3, Blocks.DIRT), new FlatLayerInfo(59, Blocks.STONE),
+                new FlatLayerInfo(1, Blocks.BEDROCK));
 		registerPreset("Bottomless Pit", Items.FEATHER, Biomes.PLAINS,
-				Arrays.<String>asList(new String[] { "village", "biome_1" }),
-				new FlatLayerInfo[] { new FlatLayerInfo(1, Blocks.GRASS), new FlatLayerInfo(3, Blocks.DIRT),
-						new FlatLayerInfo(2, Blocks.COBBLESTONE) });
+				Arrays.asList("village", "biome_1"),
+                new FlatLayerInfo(1, Blocks.GRASS), new FlatLayerInfo(3, Blocks.DIRT),
+                new FlatLayerInfo(2, Blocks.COBBLESTONE));
 		registerPreset("Desert", Item.getItemFromBlock(Blocks.SAND), Biomes.DESERT,
-				Arrays.<String>asList(
-						new String[] { "village", "biome_1", "decoration", "stronghold", "mineshaft", "dungeon" }),
-				new FlatLayerInfo[] { new FlatLayerInfo(8, Blocks.SAND), new FlatLayerInfo(52, Blocks.SANDSTONE),
-						new FlatLayerInfo(3, Blocks.STONE), new FlatLayerInfo(1, Blocks.BEDROCK) });
-		registerPreset("Redstone Ready", Items.REDSTONE, Biomes.DESERT,
-				new FlatLayerInfo[] { new FlatLayerInfo(52, Blocks.SANDSTONE), new FlatLayerInfo(3, Blocks.STONE),
-						new FlatLayerInfo(1, Blocks.BEDROCK) });
+				Arrays.asList("village", "biome_1", "decoration", "stronghold", "mineshaft", "dungeon"),
+                new FlatLayerInfo(8, Blocks.SAND), new FlatLayerInfo(52, Blocks.SANDSTONE),
+                new FlatLayerInfo(3, Blocks.STONE), new FlatLayerInfo(1, Blocks.BEDROCK));
+		registerPreset(
+				new FlatLayerInfo(52, Blocks.SANDSTONE), new FlatLayerInfo(3, Blocks.STONE),
+                new FlatLayerInfo(1, Blocks.BEDROCK));
 		registerPreset("The Void", Item.getItemFromBlock(Blocks.BARRIER), Biomes.VOID,
-				Arrays.<String>asList(new String[] { "decoration" }),
-				new FlatLayerInfo[] { new FlatLayerInfo(1, Blocks.AIR) });
+                Collections.singletonList("decoration"),
+                new FlatLayerInfo(1, Blocks.AIR));
 	}
-	private static void registerPreset(String name, Item icon, Biome biome, FlatLayerInfo... layers) {
-		registerPreset(name, icon, 0, biome, (List<String>) null, layers);
+	private static void registerPreset(FlatLayerInfo... layers) {
+		registerPreset("Redstone Ready", Items.REDSTONE, 0, Biomes.DESERT, null, layers);
 	}
-	private static void registerPreset(String name, Item icon, Biome biome, List<String> features,
-			FlatLayerInfo... layers) {
+	private static void registerPreset(String name, Item icon, Biome biome, List<String> features, FlatLayerInfo... layers) {
 		registerPreset(name, icon, 0, biome, features, layers);
 	}
-	private static void registerPreset(String name, Item icon, int iconMetadata, Biome biome, List<String> features,
-			FlatLayerInfo... layers) {
+	private static void registerPreset(String name, Item icon, int iconMetadata, Biome biome, List<String> features, FlatLayerInfo... layers) {
 		FlatGeneratorInfo flatgeneratorinfo = new FlatGeneratorInfo();
 		for (int i = layers.length - 1; i >= 0; --i) {
 			flatgeneratorinfo.getFlatLayers().add(layers[i]);
@@ -196,11 +171,10 @@ public class GuiFlatDimensionPresets extends GuiScreen {
 		flatgeneratorinfo.updateLayers();
 		if (features != null) {
 			for (String s : features) {
-				flatgeneratorinfo.getWorldFeatures().put(s, Maps.<String, String>newHashMap());
+				flatgeneratorinfo.getWorldFeatures().put(s, Maps.newHashMap());
 			}
 		}
-		FLAT_WORLD_PRESETS
-				.add(new GuiFlatDimensionPresets.LayerItem(icon, iconMetadata, name, flatgeneratorinfo.toString()));
+		FLAT_WORLD_PRESETS.add(new GuiFlatDimensionPresets.LayerItem(icon, iconMetadata, name, flatgeneratorinfo.toString()));
 	}
 	private final GuiCreateFlatDimension parentScreen;
 
@@ -220,7 +194,7 @@ public class GuiFlatDimensionPresets extends GuiScreen {
 		this.parentScreen = p_i46318_1_;
 	}
 
-	protected void actionPerformed(GuiButton button) throws IOException {
+	protected void actionPerformed(@Nonnull GuiButton button) throws IOException {
 		if (button.id == 0 && this.func_146430_p()) {
 			this.parentScreen.setPreset(this.field_146433_u.getText());
 			this.mc.displayGuiScreen(this.parentScreen);
@@ -240,8 +214,7 @@ public class GuiFlatDimensionPresets extends GuiScreen {
 	}
 
 	public void func_146426_g() {
-		boolean flag = this.func_146430_p();
-		this.field_146434_t.enabled = flag;
+        this.field_146434_t.enabled = this.func_146430_p();
 	}
 
 	private boolean func_146430_p() {

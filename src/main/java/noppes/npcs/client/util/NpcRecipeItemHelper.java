@@ -3,6 +3,7 @@ package noppes.npcs.client.util;
 import java.util.BitSet;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
@@ -25,19 +26,17 @@ public class NpcRecipeItemHelper extends RecipeItemHelper {
 
 	class RecipePicker {
 		private final IRecipe recipe;
-		private final List<Ingredient> ingredients = Lists.<Ingredient>newArrayList();
+		private final List<Ingredient> ingredients = Lists.newArrayList();
 		private final int ingredientCount;
 		private final int[] possessedIngredientStacks;
 		private final int possessedIngredientStackCount;
 		private final BitSet data;
-		private IntList path = new IntArrayList();
+		private final IntList path = new IntArrayList();
 
 		public RecipePicker(IRecipe p_i47608_2_) {
 			this.recipe = p_i47608_2_;
 			this.ingredients.addAll(p_i47608_2_.getIngredients());
-			this.ingredients.removeIf((p_194103_0_) -> {
-				return p_194103_0_ == Ingredient.EMPTY;
-			});
+			this.ingredients.removeIf((p_194103_0_) -> p_194103_0_ == Ingredient.EMPTY);
 			this.ingredientCount = this.ingredients.size();
 			this.possessedIngredientStacks = this.getUniqueAvailIngredientItems();
 			this.possessedIngredientStackCount = this.possessedIngredientStacks.length;
@@ -45,8 +44,7 @@ public class NpcRecipeItemHelper extends RecipeItemHelper {
 					+ this.ingredientCount * this.possessedIngredientStackCount);
 
 			for (int i = 0; i < this.ingredients.size(); ++i) {
-				IntList intlist = ((Ingredient) this.ingredients.get(i)).getValidItemStacksPacked();
-
+				IntList intlist = this.ingredients.get(i).getValidItemStacksPacked();
 				for (int j = 0; j < this.possessedIngredientStackCount; ++j) {
 					if (intlist.contains(this.possessedIngredientStacks[j])) {
 						this.data.set(this.getIndex(true, j, i));
@@ -112,14 +110,13 @@ public class NpcRecipeItemHelper extends RecipeItemHelper {
 
 				for (IntListIterator intlistiterator = ingredient.getValidItemStacksPacked().iterator(); intlistiterator
 						.hasNext(); l = Math.max(l, NpcRecipeItemHelper.this.itemToCount.get(i1))) {
-					i1 = ((Integer) intlistiterator.next()).intValue();
+					i1 = intlistiterator.next();
 				}
 
 				if (k > 0) {
 					k = Math.min(k, l);
 				}
 			}
-
 			return k;
 		}
 
@@ -185,8 +182,7 @@ public class NpcRecipeItemHelper extends RecipeItemHelper {
 					this.setSatisfied(this.path.getInt(l));
 
 					for (int i1 = 0; i1 < l; ++i1) {
-						this.toggleResidual((i1 & 1) == 0, ((Integer) this.path.get(i1)).intValue(),
-								((Integer) this.path.get(i1 + 1)).intValue());
+						this.toggleResidual((i1 & 1) == 0, this.path.get(i1), this.path.get(i1 + 1));
 					}
 
 					this.path.clear();
@@ -204,24 +200,24 @@ public class NpcRecipeItemHelper extends RecipeItemHelper {
 				int j1 = 0;
 				List<Ingredient> list = this.recipe.getIngredients();
 
-				for (int k1 = 0; k1 < list.size(); ++k1) {
-					if (flag1 && list.get(k1) == Ingredient.EMPTY) {
-						itemIDs.add(0);
-					} else {
-						for (int l1 = 0; l1 < this.possessedIngredientStackCount; ++l1) {
-							if (this.hasResidual(false, j1, l1)) {
-								this.toggleResidual(true, l1, j1);
-								NpcRecipeItemHelper.this.increment(this.possessedIngredientStacks[l1], p_194092_1_);
+                for (Ingredient ingredient : list) {
+                    if (flag1 && ingredient == Ingredient.EMPTY) {
+                        itemIDs.add(0);
+                    } else {
+                        for (int l1 = 0; l1 < this.possessedIngredientStackCount; ++l1) {
+                            if (this.hasResidual(false, j1, l1)) {
+                                this.toggleResidual(true, l1, j1);
+                                NpcRecipeItemHelper.this.increment(this.possessedIngredientStacks[l1], p_194092_1_);
 
-								if (flag1) {
-									itemIDs.add(this.possessedIngredientStacks[l1]);
-								}
-							}
-						}
+                                if (flag1) {
+                                    itemIDs.add(this.possessedIngredientStacks[l1]);
+                                }
+                            }
+                        }
 
-						++j1;
-					}
-				}
+                        ++j1;
+                    }
+                }
 
 				return flag;
 			}
@@ -234,7 +230,7 @@ public class NpcRecipeItemHelper extends RecipeItemHelper {
 			while (true) {
 				int i1 = (k + l) / 2;
 
-				if (this.tryPick(i1, (IntList) null)) {
+				if (this.tryPick(i1, null)) {
 					if (l - k <= 1) {
 						if (i1 > 0) {
 							this.tryPick(i1, list);
@@ -256,25 +252,20 @@ public class NpcRecipeItemHelper extends RecipeItemHelper {
 		}
 	}
 
-	public static int pack(ItemStack stack) {
+	public static int pack(@Nonnull ItemStack stack) {
 		Item item = stack.getItem();
 		int i = item.getHasSubtypes() ? stack.getMetadata() : 0;
 		return Item.REGISTRY.getIDForObject(item) << 16 | i & 65535;
 	}
 
-	public static ItemStack unpack(int p_194115_0_) {
-		return p_194115_0_ == 0 ? ItemStack.EMPTY
-				: new ItemStack(Item.getItemById(p_194115_0_ >> 16 & 65535), 1, p_194115_0_ & 65535);
-	}
-
 	/** Map from {@link #pack} packed ids to counts */
 	public final Int2IntMap itemToCount = new Int2IntOpenHashMap();
 
-	public void accountStack(ItemStack stack) {
+	public void accountStack(@Nonnull ItemStack stack) {
 		this.accountStack(stack, -1);
 	}
 
-	public void accountStack(ItemStack stack, int forceCount) {
+	public void accountStack(@Nonnull ItemStack stack, int forceCount) {
 		if (!stack.isEmpty() && !stack.isItemDamaged() && !stack.isItemEnchanted() && !stack.hasDisplayName()) {
 			int i = pack(stack);
 			int j = forceCount == -1 ? stack.getCount() : forceCount;
@@ -282,11 +273,11 @@ public class NpcRecipeItemHelper extends RecipeItemHelper {
 		}
 	}
 
-	public boolean canCraft(IRecipe recipe, @Nullable IntList itemIDs) {
+	public boolean canCraft(@Nonnull IRecipe recipe, @Nullable IntList itemIDs) {
 		return this.canCraft(recipe, itemIDs, 1);
 	}
 
-	public boolean canCraft(IRecipe recipe, @Nullable IntList itemIDs, int p_194118_3_) {
+	public boolean canCraft(@Nonnull IRecipe recipe, @Nullable IntList itemIDs, int p_194118_3_) {
 		return (new NpcRecipeItemHelper.RecipePicker(recipe)).tryPick(p_194118_3_, itemIDs);
 	}
 
@@ -298,11 +289,11 @@ public class NpcRecipeItemHelper extends RecipeItemHelper {
 		return this.itemToCount.get(p_194120_1_) > 0;
 	}
 
-	public int getBiggestCraftableStack(IRecipe recipe, int p_194121_2_, @Nullable IntList p_194121_3_) {
+	public int getBiggestCraftableStack(@Nonnull IRecipe recipe, int p_194121_2_, @Nullable IntList p_194121_3_) {
 		return (new NpcRecipeItemHelper.RecipePicker(recipe)).tryPickAll(p_194121_2_, p_194121_3_);
 	}
 
-	public int getBiggestCraftableStack(IRecipe recipe, @Nullable IntList p_194114_2_) {
+	public int getBiggestCraftableStack(@Nonnull IRecipe recipe, @Nullable IntList p_194114_2_) {
 		return this.getBiggestCraftableStack(recipe, Integer.MAX_VALUE, p_194114_2_);
 	}
 

@@ -15,19 +15,21 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.entity.EntityNPCInterface;
 
+import javax.annotation.Nonnull;
+
 public class CmdClone extends CommandNoppesBase {
-	@SubCommand(desc = "Add NPC(s) to clone storage", usage = "<npc> <tab> [clonedname]", permission = 4)
+	@SubCommand(desc = "Add NPC(s) to clone storage", usage = "<npc> <tab> [clonedname]")
 	public void add(MinecraftServer server, ICommandSender sender, String[] args) {
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[1]);
-		} catch (NumberFormatException ex) {
-		}
-		List<EntityNPCInterface> list = this.getEntities((Class<? extends EntityNPCInterface>) EntityNPCInterface.class,
+		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		List<EntityNPCInterface> list = this.getEntities(EntityNPCInterface.class,
 				sender.getEntityWorld(), sender.getPosition(), 80);
 		for (EntityNPCInterface npc : list) {
 			if (npc.display.getName().equalsIgnoreCase(args[0])) {
@@ -44,22 +46,21 @@ public class CmdClone extends CommandNoppesBase {
 		}
 	}
 
-	@SubCommand(desc = "Remove NPC from clone storage", usage = "<name> <tab>", permission = 4)
+	@SubCommand(desc = "Remove NPC from clone storage", usage = "<name> <tab>")
 	public void del(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		String nametodel = args[0];
+		String namemodel = args[0];
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[1]);
-		} catch (NumberFormatException ex) {
-		}
+		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		for (String name : ServerCloneController.Instance.getClones(tab)) {
-			if (nametodel.equalsIgnoreCase(name)) {
+			if (namemodel.equalsIgnoreCase(name)) {
 				ServerCloneController.Instance.removeClone(name, tab);
 				break;
 			}
 		}
-		if (!ServerCloneController.Instance.removeClone(nametodel, tab)) {
-			throw new CommandException("Npc '%s' wasn't found", new Object[] { nametodel });
+		if (!ServerCloneController.Instance.removeClone(namemodel, tab)) {
+			throw new CommandException("Npc '%s' wasn't found", namemodel);
 		}
 	}
 
@@ -68,12 +69,11 @@ public class CmdClone extends CommandNoppesBase {
 		return "Clone operation (server side)";
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T extends Entity> List<T> getEntities(Class<? extends T> cls, World world, BlockPos pos, int range) {
-		return (List<T>) world.getEntitiesWithinAABB(cls,
-				new AxisAlignedBB(pos, pos.add(1, 1, 1)).grow(range, range, range));
+		return world.getEntitiesWithinAABB(cls, new AxisAlignedBB(pos, pos.add(1, 1, 1)).grow(range, range, range));
 	}
 
+	@Nonnull
 	public String getName() {
 		return "clone";
 	}
@@ -89,26 +89,25 @@ public class CmdClone extends CommandNoppesBase {
 		return null;
 	}
 
-	@SubCommand(desc = "Spawn multiple cloned NPC in a grid", usage = "<name> <tab> <lenght> <width> [[world:]x,y,z]] [newname]", permission = 2)
+	@SubCommand(desc = "Spawn multiple cloned NPC in a grid", usage = "<name> <tab> <length> <width> [[world:]x,y,z]] [newname]", permission = 2)
 	public boolean grid(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String name = args[0].replaceAll("%", " ");
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[1]);
-		} catch (NumberFormatException ex2) {
-		}
+		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		int width;
 		int height;
 		try {
 			width = Integer.parseInt(args[2]);
 			height = Integer.parseInt(args[3]);
 		} catch (NumberFormatException ex) {
-			throw new CommandException("lenght or width wasnt a number", new Object[0]);
+			throw new CommandException("Length or width want a number");
 		}
 		String newname = null;
 		NBTTagCompound compound = ServerCloneController.Instance.getCloneData(sender, name, tab);
 		if (compound == null) {
-			throw new CommandException("Unknown npc", new Object[0]);
+			throw new CommandException("Unknown npc");
 		}
 		World world = sender.getEntityWorld();
 		BlockPos curpos = sender.getPosition();
@@ -119,18 +118,18 @@ public class CmdClone extends CommandNoppesBase {
 				location = par[1];
 				world = this.getWorld(server, par[0]);
 				if (world == null) {
-					throw new CommandException("'%s' is an unknown world", new Object[] { par[0] });
+					throw new CommandException("'%s' is an unknown world", par[0]);
 				}
 			}
 			if (location.contains(",")) {
 				String[] par = location.split(",");
 				if (par.length != 3) {
-					throw new CommandException("Location need be x,y,z", new Object[0]);
+					throw new CommandException("Location need be x,y,z");
 				}
 				try {
 					curpos = CommandBase.parseBlockPos(sender, par, 0, false);
 				} catch (NumberInvalidException e) {
-					throw new CommandException("Location should be in numbers", new Object[0]);
+					throw new CommandException("Location should be in numbers");
 				}
 				if (args.length > 5) {
 					newname = args[5];
@@ -140,7 +139,7 @@ public class CmdClone extends CommandNoppesBase {
 			}
 		}
 		if (curpos.getX() == 0 && curpos.getY() == 0 && curpos.getZ() == 0) {
-			throw new CommandException("Location needed", new Object[0]);
+			throw new CommandException("Location needed");
 		}
 		for (int x = 0; x < width; ++x) {
 			for (int z = 0; z < height; ++z) {
@@ -156,15 +155,17 @@ public class CmdClone extends CommandNoppesBase {
 					}
 				}
 				Entity entity = EntityList.createEntityFromNBT(compound, world);
-				entity.setPosition(npcpos.getX() + 0.5, (npcpos.getY() + 1), npcpos.getZ() + 0.5);
-				if (entity instanceof EntityNPCInterface) {
-					EntityNPCInterface npc = (EntityNPCInterface) entity;
-					npc.ais.setStartPos(npcpos);
-					if (newname != null && !newname.isEmpty()) {
-						npc.display.setName(newname.replaceAll("%", " "));
+				if (entity != null) {
+					entity.setPosition(npcpos.getX() + 0.5, (npcpos.getY() + 1), npcpos.getZ() + 0.5);
+					if (entity instanceof EntityNPCInterface) {
+						EntityNPCInterface npc = (EntityNPCInterface) entity;
+						npc.ais.setStartPos(npcpos);
+						if (newname != null && !newname.isEmpty()) {
+							npc.display.setName(newname.replaceAll("%", " "));
+						}
 					}
+					world.spawnEntity(entity);
 				}
-				world.spawnEntity(entity);
 			}
 		}
 		return true;
@@ -172,16 +173,15 @@ public class CmdClone extends CommandNoppesBase {
 
 	@SubCommand(desc = "List NPC from clone storage", usage = "<tab>", permission = 2)
 	public void list(MinecraftServer server, ICommandSender sender, String[] args) {
-		this.sendMessage(sender, "--- Stored NPCs --- (server side)", new Object[0]);
+		this.sendMessage(sender, "--- Stored NPCs --- (server side)");
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[0]);
-		} catch (NumberFormatException ex) {
-		}
+		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		for (String name : ServerCloneController.Instance.getClones(tab)) {
-			this.sendMessage(sender, name, new Object[0]);
+			this.sendMessage(sender, name);
 		}
-		this.sendMessage(sender, "------------------------------------", new Object[0]);
+		this.sendMessage(sender, "------------------------------------");
 	}
 
 	@SubCommand(desc = "Spawn cloned NPC", usage = "<name> <tab> [[world:]x,y,z]] [newname]", permission = 2)
@@ -190,12 +190,11 @@ public class CmdClone extends CommandNoppesBase {
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[1]);
-		} catch (NumberFormatException ex) {
-		}
+		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		String newname = null;
 		NBTTagCompound compound = ServerCloneController.Instance.getCloneData(sender, name, tab);
 		if (compound == null) {
-			throw new CommandException("Unknown npc", new Object[0]);
+			throw new CommandException("Unknown npc");
 		}
 		World world = sender.getEntityWorld();
 		BlockPos pos = sender.getPosition();
@@ -206,18 +205,18 @@ public class CmdClone extends CommandNoppesBase {
 				location = par[1];
 				world = this.getWorld(server, par[0]);
 				if (world == null) {
-					throw new CommandException("'%s' is an unknown world", new Object[] { par[0] });
+					throw new CommandException("'%s' is an unknown world", par[0]);
 				}
 			}
 			if (location.contains(",")) {
 				String[] par = location.split(",");
 				if (par.length != 3) {
-					throw new CommandException("Location need be x,y,z", new Object[0]);
+					throw new CommandException("Location need be x,y,z");
 				}
 				try {
 					pos = CommandBase.parseBlockPos(sender, par, 0, false);
 				} catch (NumberInvalidException e) {
-					throw new CommandException("Location should be in numbers", new Object[0]);
+					throw new CommandException("Location should be in numbers");
 				}
 				if (args.length > 3) {
 					newname = args[3];
@@ -227,17 +226,19 @@ public class CmdClone extends CommandNoppesBase {
 			}
 		}
 		if (pos.getX() == 0 && pos.getY() == 0 && pos.getZ() == 0) {
-			throw new CommandException("Location needed", new Object[0]);
+			throw new CommandException("Location needed");
 		}
 		Entity entity = EntityList.createEntityFromNBT(compound, world);
-		entity.setPosition(pos.getX() + 0.5, (pos.getY() + 1), pos.getZ() + 0.5);
-		if (entity instanceof EntityNPCInterface) {
-			EntityNPCInterface npc = (EntityNPCInterface) entity;
-			npc.ais.setStartPos(pos);
-			if (newname != null && !newname.isEmpty()) {
-				npc.display.setName(newname.replaceAll("%", " "));
+		if (entity != null) {
+			entity.setPosition(pos.getX() + 0.5, (pos.getY() + 1), pos.getZ() + 0.5);
+			if (entity instanceof EntityNPCInterface) {
+				EntityNPCInterface npc = (EntityNPCInterface) entity;
+				npc.ais.setStartPos(pos);
+				if (newname != null && !newname.isEmpty()) {
+					npc.display.setName(newname.replaceAll("%", " "));
+				}
 			}
+			world.spawnEntity(entity);
 		}
-		world.spawnEntity(entity);
 	}
 }

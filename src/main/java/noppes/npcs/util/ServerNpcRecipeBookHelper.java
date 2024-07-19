@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntListIterator;
 import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -81,7 +80,7 @@ public class ServerNpcRecipeBookHelper {
 
 	private void fillMaxCraftInv() {
 		boolean matches = this.recipe.matches(this.craftMatrix, this.player.world);
-		int i = this.recipeItemHelper.getBiggestCraftableStack(this.recipe, (IntList) null);
+		int i = this.recipeItemHelper.getBiggestCraftableStack(this.recipe, null);
 		if (matches) {
 			boolean hasStack = true;
 			for (int j = 0; j < this.craftMatrix.getSizeInventory(); ++j) {
@@ -100,14 +99,12 @@ public class ServerNpcRecipeBookHelper {
 			return;
 		}
 		int j1 = row;
-		IntListIterator intlistiterator = intlist.iterator();
-		while (intlistiterator.hasNext()) {
-			int k = ((Integer) intlistiterator.next()).intValue();
-			int l = RecipeItemHelper.unpack(k).getMaxStackSize();
-			if (l < j1) {
-				j1 = l;
-			}
-		}
+        for (int k : intlist) {
+            int l = RecipeItemHelper.unpack(k).getMaxStackSize();
+            if (l < j1) {
+                j1 = l;
+            }
+        }
 		if (this.recipeItemHelper.canCraft(this.recipe, intlist, j1)) {
 			this.fillCraftInvWithPlayerStacks();
 			this.fillSlot(j1, intlist);
@@ -131,16 +128,14 @@ public class ServerNpcRecipeBookHelper {
 					break;
 				}
 				Slot slot = this.slots.get(j1);
-				ItemStack itemstack = RecipeItemHelper.unpack(((Integer) iterator.next()).intValue());
-				if (itemstack.isEmpty()) {
-					++j1;
-				} else {
-					for (int i1 = 0; i1 < id; ++i1) {
-						this.hasStack(slot, itemstack);
-					}
-					++j1;
-				}
-			}
+				ItemStack itemstack = RecipeItemHelper.unpack(iterator.next());
+                if (!itemstack.isEmpty()) {
+                    for (int i1 = 0; i1 < id; ++i1) {
+                        this.hasStack(slot, itemstack);
+                    }
+                }
+                ++j1;
+            }
 			if (!iterator.hasNext()) {
 				break;
 			}
@@ -181,7 +176,7 @@ public class ServerNpcRecipeBookHelper {
 		player.inventory.fillStackedContents(this.recipeItemHelper, false);
 		this.craftMatrix.fillStackedContents(this.recipeItemHelper);
 
-		if (this.recipeItemHelper.canCraft(recipe, (IntList) null)) {
+		if (this.recipeItemHelper.canCraft(recipe, null)) {
 			this.fillMaxCraftInv();
 		} else {
 			this.fillCraftInvWithPlayerStacks();

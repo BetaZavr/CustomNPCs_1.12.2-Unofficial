@@ -30,10 +30,10 @@ import noppes.npcs.entity.data.DataStats;
 
 public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener, IGuiData {
 
-	private DataAI ais;
-	private DataDisplay display;
-	private DataInventory inventory;
-	private DataStats stats;
+	private final DataAI ais;
+	private final DataDisplay display;
+	private final DataInventory inventory;
+	private final DataStats stats;
 
 	public GuiNpcStats(EntityNPCInterface npc) {
 		super(npc, 2);
@@ -42,7 +42,6 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		this.ais = npc.ais;
 		this.inventory = npc.inventory;
 		Client.sendData(EnumPacketServer.MainmenuStatsGet);
-		// New
 		Client.sendData(EnumPacketServer.MainmenuDisplayGet);
 		Client.sendData(EnumPacketServer.MainmenuAIGet);
 		Client.sendData(EnumPacketServer.MainmenuInvGet);
@@ -203,7 +202,7 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 			hp = Math.ceil(hp);
 		}
 		if (hp > (double) corr[1]) {
-			hp = (double) corr[1];
+			hp = corr[1];
 		}
 		return hp;
 	}
@@ -283,7 +282,7 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 
 		this.addLabel(new GuiNpcLabel(34, "stats.creaturetype", this.guiLeft + 140, y + 5));
 		this.addButton(new GuiButtonBiDirectional(8, this.guiLeft + 217, y, 56, 20, new String[] { "stats.normal", "stats.undead", "stats.arthropod" }, this.stats.creatureType.ordinal()));
-		((GuiButtonBiDirectional) this.getButton(8)).cheakWidth = false;
+		((GuiButtonBiDirectional) this.getButton(8)).checkWidth = false;
 		y += 22;
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 82, y, 56, 20, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(2, "stats.respawn", this.guiLeft + 5, y + 5));
@@ -320,15 +319,11 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		this.addLabel(new GuiNpcLabel(17, "stats.potionImmune", this.guiLeft + 5, y + 5));
 		this.addLabel(new GuiNpcLabel(22, "ai.cobwebAffected", this.guiLeft + 140, y + 5));
 		this.addButton(new GuiNpcButton(22, this.guiLeft + 217, y, 56, 20, new String[] { "gui.no", "gui.yes" }, (this.stats.ignoreCobweb ? 0 : 1)));
-		// new
 		String[] lvls = new String[CustomNpcs.MaxLv]; // level
 		for (int g = 0; g < CustomNpcs.MaxLv; g++) {
 			lvls[g] = "" + (g + 1);
 		}
-		// this.addButton(new GuiNpcButton(40, this.guiLeft + 217, this.guiTop +32, 56,
-		// 20, "selectServer.edit"));
 		this.addButton(new GuiButtonBiDirectional(41, this.guiLeft + 217, this.guiTop + 32, 56, 20, lvls, this.stats.getLevel() - 1));
-		// this.getButton(40).setEnabled(false);
 		this.addLabel(new GuiNpcLabel(42, "stats.level", this.guiLeft + 139, this.guiTop + 37));
 		this.addButton(new GuiNpcButton(43, this.guiLeft + 217, this.guiTop + 54, 56, 20,
 				new String[] { "stats.rarity.normal", "stats.rarity.elite", "stats.rarity.boss" },
@@ -376,8 +371,6 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		} else {
 			if (lv <= 30) {
 				time = (int) (90.0d + (Math.round(((double) lv + 5.5d) / 10.0d) - 1.0d) * 30.0d);
-			} else {
-				time = 180;
 			}
 		}
 		this.display.setSize(sizeModel[type]);
@@ -396,7 +389,7 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		this.stats.ranged.setStrength(getRangePower());
 		this.stats.ranged.setAccuracy((int) Math.round((lv + 94.3333d) / 1.4667d));
 		// Speed
-		double sp = Math.round((0.000081d * Math.pow(lv, 2) - 0.07272d * lv + 22.072639d) * 1.0d);
+		double sp = Math.round((0.000081d * Math.pow(lv, 2) - 0.07272d * lv + 22.072639d));
 		this.stats.melee.setDelay((int) sp);
 		this.stats.ranged.setDelay((int) sp, (int) sp * 2);
 		this.ais.setWalkingSpeed((int) Math.ceil((sp - 7) / 3));

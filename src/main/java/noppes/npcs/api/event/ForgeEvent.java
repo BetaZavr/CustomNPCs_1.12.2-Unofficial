@@ -2,6 +2,7 @@ package noppes.npcs.api.event;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -17,6 +18,7 @@ import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
@@ -99,34 +101,32 @@ public class ForgeEvent extends CustomNPCsEvent {
 		Class<?> sp = event.getClass();
 		while (this.entity == null && sp.getSuperclass() != null && sp.getSuperclass() != Event.class) {
 			for (Field f : sp.getDeclaredFields()) {
-				if (this.entity == null && f.getType().getSimpleName().indexOf("EntityPlayer") == -1
+				if (this.entity == null && !f.getType().getSimpleName().contains("EntityPlayer")
 						&& (f.getType() == Entity.class || f.getType() == EntityLiving.class
 								|| f.getType() == EntityLivingBase.class)) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.entity = NpcAPI.Instance().getIEntity((Entity) f.get(event));
-					} catch (Exception e) {
+						this.entity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity((Entity) f.get(event));
 					}
+					catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
-				if (this.player == null && f.getType().getSimpleName().indexOf("EntityPlayer") != -1) {
+				if (this.player == null && f.getType().getSimpleName().contains("EntityPlayer")) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity((Entity) f.get(event));
-					} catch (Exception e) {
-					}
+						this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity((Entity) f.get(event));
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if (this.npc == null && f.getType() == EntityNPCInterface.class) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.npc = (ICustomNpc<?>) NpcAPI.Instance().getIEntity((EntityNPCInterface) f.get(event));
-					} catch (Exception e) {
-					}
+						this.npc = (ICustomNpc<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity((EntityNPCInterface) f.get(event));
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if (this.world == null && (f.getType().getSimpleName().equals("WorldClient")
 						|| f.getType() == WorldServer.class || f.getType() == World.class)) {
@@ -134,27 +134,24 @@ public class ForgeEvent extends CustomNPCsEvent {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.world = NpcAPI.Instance().getIWorld((World) f.get(event));
-					} catch (Exception e) {
-					}
+						this.world = Objects.requireNonNull(NpcAPI.Instance()).getIWorld((World) f.get(event));
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if (this.pos == null && f.getType() == BlockPos.class) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.pos = NpcAPI.Instance().getIPos((BlockPos) f.get(event));
-					} catch (Exception e) {
-					}
+						this.pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos((BlockPos) f.get(event));
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if (this.stack == null && f.getType() == ItemStack.class) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.stack = NpcAPI.Instance().getIItemStack((ItemStack) f.get(event));
-					} catch (Exception e) {
-					}
+						this.stack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack((ItemStack) f.get(event));
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if ((bl == null || st == null) && (f.getType() == Block.class || f.getType() == IBlockState.class)) {
 					try {
@@ -166,15 +163,14 @@ public class ForgeEvent extends CustomNPCsEvent {
 						} else {
 							st = (IBlockState) f.get(event);
 						}
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 			}
 			for (Method m : sp.getDeclaredMethods()) {
 				if (m.getParameterCount() != 0) {
 					continue;
 				}
-				if (this.entity == null && m.getReturnType().getName().indexOf(".EntityPlayer") == -1
+				if (this.entity == null && !m.getReturnType().getName().contains(".EntityPlayer")
 						&& (m.getReturnType() == Entity.class || m.getReturnType() == EntityLiving.class
 								|| m.getReturnType() == EntityLivingBase.class)) {
 					try {
@@ -182,18 +178,16 @@ public class ForgeEvent extends CustomNPCsEvent {
 							m.setAccessible(true);
 						}
 						this.entity = NpcAPI.Instance().getIEntity((EntityPlayer) m.invoke(event));
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 
-				if (this.player == null && m.getReturnType().getName().indexOf(".EntityPlayer") != -1) {
+				if (this.player == null && m.getReturnType().getName().contains(".EntityPlayer")) {
 					try {
 						if (!m.isAccessible()) {
 							m.setAccessible(true);
 						}
 						this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayer) m.invoke(event));
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if (this.npc == null && m.getReturnType() == EntityNPCInterface.class) {
 					try {
@@ -201,8 +195,7 @@ public class ForgeEvent extends CustomNPCsEvent {
 							m.setAccessible(true);
 						}
 						this.npc = (ICustomNpc<?>) NpcAPI.Instance().getIEntity((EntityNPCInterface) m.invoke(event));
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if (this.world == null && (m.getReturnType().getSimpleName().equals("WorldClient")
 						|| m.getReturnType() == WorldServer.class || m.getReturnType() == World.class)) {
@@ -211,8 +204,7 @@ public class ForgeEvent extends CustomNPCsEvent {
 							m.setAccessible(true);
 						}
 						this.world = NpcAPI.Instance().getIWorld((World) m.invoke(event));
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if (this.pos == null && m.getReturnType() == BlockPos.class) {
 					try {
@@ -220,8 +212,7 @@ public class ForgeEvent extends CustomNPCsEvent {
 							m.setAccessible(true);
 						}
 						this.pos = NpcAPI.Instance().getIPos((BlockPos) m.invoke(event));
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if (this.stack == null && m.getReturnType() == ItemStack.class) {
 					try {
@@ -229,8 +220,7 @@ public class ForgeEvent extends CustomNPCsEvent {
 							m.setAccessible(true);
 						}
 						this.stack = NpcAPI.Instance().getIItemStack((ItemStack) m.invoke(event));
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if ((bl == null || st == null)
 						&& (m.getReturnType() == Block.class || m.getReturnType() == IBlockState.class)) {
@@ -243,8 +233,7 @@ public class ForgeEvent extends CustomNPCsEvent {
 						} else {
 							st = (IBlockState) m.invoke(event);
 						}
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 			}
 			sp = sp.getSuperclass();
@@ -305,9 +294,9 @@ public class ForgeEvent extends CustomNPCsEvent {
 		World w = this.world.getMCWorld();
 		if (state != null) {
 			block = state.getBlock();
-			key = state.toString() + p.toString();
+			key = state + p.toString();
 		} else {
-			key = block.getDefaultState().toString() + p.toString();
+			key = block.getDefaultState() + p.toString();
 		}
 		if (!BlockWrapper.blockCache.containsKey(key)) {
 			if (block instanceof BlockScripted) {

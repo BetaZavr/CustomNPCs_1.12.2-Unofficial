@@ -1,20 +1,18 @@
 package noppes.npcs.controllers.data;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
-import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.ForgeEvent.RunNameEvent;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.wrapper.data.StoredData;
@@ -52,7 +50,7 @@ extends BaseScriptData {
 		if (this.script == null) {
 			this.createScript();
 		}
-		return Lists.<ScriptContainer>newArrayList(this.script);
+		return Lists.newArrayList(this.script);
 	}
 
 	@Override
@@ -153,12 +151,11 @@ extends BaseScriptData {
 				this.readFromNBT(nbt);
 				LogWriter.debug("Load default client scripts - done: " + nbt.getCompoundTag("Scripts").toString().length() + " size.");
 			}
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.INIT, new PlayerEvent.InitEvent((IPlayer<?>) null));
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.INIT, new PlayerEvent.InitEvent(null));
 		} catch (Exception e) {
 			LogWriter.error("Error Default loading: " + file.getName(), e);
 		}
 		this.loadDefault = true;
-		return;
 	}
 
 	public void saveDefaultScripts() {
@@ -180,8 +177,8 @@ extends BaseScriptData {
 				try {
 					File f = new File(saveDir, name);
 					if (!f.getParentFile().exists()) { f.getParentFile().mkdirs(); }
-					Files.write(ScriptController.Instance.clients.get(name).getBytes(), new File(saveDir, name));
-				} catch (IOException e) {
+					CommonProxy.saveFile(new File(saveDir, name), ScriptController.Instance.clients.get(name));
+				} catch (Exception e) {
 					LogWriter.error("Error Default saving: " + name, e);
 				}
 			}

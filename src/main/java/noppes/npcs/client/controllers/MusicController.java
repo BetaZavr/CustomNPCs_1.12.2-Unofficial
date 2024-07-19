@@ -61,7 +61,7 @@ public class MusicController {
 				isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC, 1.0f, 1.0f, false, 0, aType, x, y, z));
 	}
 
-	public void cheakBards(EntityPlayer player) {
+	public void checkBards(EntityPlayer player) {
 		if (this.music.isEmpty()) {
 			if (this.musicBard != null) {
 				this.musicBard = null;
@@ -154,6 +154,7 @@ public class MusicController {
 		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, Minecraft.getMinecraft().getSoundHandler(),
 				SoundManager.class);
 		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
+		if (playingSounds == null) { return false; }
 		for (ISound sound : playingSounds.values()) {
 			if (sound.getSound().getSoundLocation().equals(resource) || sound.getSoundLocation().equals(resource)) {
 				return true;
@@ -185,6 +186,7 @@ public class MusicController {
 		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, Minecraft.getMinecraft().getSoundHandler(),
 				SoundManager.class);
 		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
+		if (playingSounds == null) { return; }
 		String uuid = null;
 		for (String id : playingSounds.keySet()) {
 			ISound sound = playingSounds.get(id);
@@ -202,6 +204,7 @@ public class MusicController {
 		if (uuid != null) {
 			SoundSystem sndSystem = ObfuscationHelper.getValue(SoundManager.class, sm, SoundSystem.class);
 			Library soundLibrary = ObfuscationHelper.getValue(SoundSystem.class, sndSystem, 4);
+			if (soundLibrary == null) { return; }
 			Source source = soundLibrary.getSources().get(uuid);
 			if (source != null && source.position != null) {
 				source.position.x = x;

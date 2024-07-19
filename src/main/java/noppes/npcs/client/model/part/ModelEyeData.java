@@ -34,7 +34,7 @@ extends ModelPartData {
 	public ResourceLocation browRight = new ResourceLocation("moreplayermodels:textures/eyes/brow_0.png");
 	public ResourceLocation glintRes = new ResourceLocation("moreplayermodels:textures/eyes/glint.png");
 
-	private Random rnd = new Random();
+	private final Random rnd = new Random();
 	public boolean activeLeft = true;
 	public boolean activeRight = true;
 	public int ticks = -1;
@@ -86,7 +86,7 @@ extends ModelPartData {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		if (compound.getKeySet().size() == 0) { return; }
+		if (compound.getKeySet().isEmpty()) { return; }
 		super.readFromNBT(compound);
 		this.glint = compound.getBoolean("Glint");
 		
@@ -140,8 +140,8 @@ extends ModelPartData {
 			if (npc.isDead || npc.isPlayerSleeping()) { return; }
 			if (this.rnd.nextInt(150) == 1) { // 140
 				this.blinkStart = System.currentTimeMillis();
-				if (npc != null) { Server.sendAssociatedData(npc, EnumPacketClient.EYE_BLINK, npc.getEntityId()); }
-			}
+                Server.sendAssociatedData(npc, EnumPacketClient.EYE_BLINK, npc.getEntityId());
+            }
 		} else if (System.currentTimeMillis() - this.blinkStart > 300L) {
 			this.blinkStart = -20L;
 		}

@@ -8,15 +8,16 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.controllers.data.Bank;
 
+import javax.annotation.Nonnull;
+
 public class ContainerManageBanks extends Container {
 
 	public static Object bank = null;
-	private IInventory inv;
 
-	public ContainerManageBanks(EntityPlayer player) {
-		this.inv = new NpcMiscInventory(2);
-		this.addSlotToContainer(new Slot(this.inv, 0, -5000, -5000));
-		this.addSlotToContainer(new Slot(this.inv, 1, -5000, -5000));
+    public ContainerManageBanks(EntityPlayer player) {
+        IInventory inv = new NpcMiscInventory(2);
+		this.addSlotToContainer(new Slot(inv, 0, -5000, -5000));
+		this.addSlotToContainer(new Slot(inv, 1, -5000, -5000));
 		for (int i = 0; i < 3; ++i) {
 			for (int j = 0; j < 9; ++j) {
 				this.addSlotToContainer(new Slot(player.inventory, j + i * 9 + 9, j * 18 + 8, 113 + i * 18));
@@ -27,7 +28,7 @@ public class ContainerManageBanks extends Container {
 		}
 	}
 
-	public boolean canInteractWith(EntityPlayer entityplayer) {
+	public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
 		return true;
 	}
 
@@ -41,7 +42,7 @@ public class ContainerManageBanks extends Container {
 		this.detectAndSendChanges();
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) {
 		return ItemStack.EMPTY;
 	}
 

@@ -1,11 +1,8 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.util.*;
 
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
@@ -32,10 +29,9 @@ public class ServerCloneController implements ICloneHandler {
 		this.loadClones();
 	}
 
-	public String addClone(NBTTagCompound nbttagcompound, String name, int tab) {
+	public void addClone(NBTTagCompound nbttagcompound, String name, int tab) {
 		this.cleanTags(nbttagcompound);
 		this.saveClone(tab, name, nbttagcompound);
-		return name;
 	}
 
 	public void cleanTags(NBTTagCompound nbttagcompound) {
@@ -84,14 +80,14 @@ public class ServerCloneController implements ICloneHandler {
 	public IEntity<?> get(int tab, String name, IWorld world) {
 		NBTTagCompound compound = this.getCloneData(null, name, tab);
 		if (compound == null) {
-			throw new CustomNPCsException("Unknown clone tab:" + tab + " name:" + name, new Object[0]);
+			throw new CustomNPCsException("Unknown clone tab:" + tab + " name:" + name);
 		}
 		ServerCloneController.Instance.cleanTags(compound);
 		Entity entity = EntityList.createEntityFromNBT(compound, world.getMCWorld());
 		if (entity == null) {
 			return null;
 		}
-		return NpcAPI.Instance().getIEntity(entity);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
 	}
 
 	public NBTTagCompound getCloneData(ICommandSender player, String name, int tab) {
@@ -117,12 +113,12 @@ public class ServerCloneController implements ICloneHandler {
 	}
 
 	public List<String> getClones(int tab) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		File dir = new File(this.getDir(), tab + "");
 		if (!dir.exists() || !dir.isDirectory()) {
 			return list;
 		}
-		for (String file : dir.list()) {
+		for (String file : Objects.requireNonNull(dir.list())) {
 			if (file.endsWith(".json")) {
 				list.add(file.substring(0, file.length() - 5));
 			}
@@ -132,9 +128,7 @@ public class ServerCloneController implements ICloneHandler {
 
 	public File getDir() {
 		File dir = new File(CustomNpcs.getWorldSaveDirectory(), "clones");
-		if (!dir.exists()) {
-			dir.mkdir();
-		}
+		if (!dir.exists() && !dir.mkdir()) { return null; }
 		return dir;
 	}
 
@@ -162,22 +156,16 @@ public class ServerCloneController implements ICloneHandler {
 	}
 
 	private Map<Integer, Map<String, NBTTagCompound>> loadOldClones(File file) throws Exception {
-		Map<Integer, Map<String, NBTTagCompound>> clones = new HashMap<Integer, Map<String, NBTTagCompound>>();
-		NBTTagCompound nbttagcompound1 = CompressedStreamTools.readCompressed(new FileInputStream(file));
-		NBTTagList list = nbttagcompound1.getTagList("Data", 10);
-		if (list == null) {
-			return clones;
-		}
-		for (int i = 0; i < list.tagCount(); ++i) {
+		Map<Integer, Map<String, NBTTagCompound>> clones = new HashMap<>();
+		NBTTagCompound nbt = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
+		NBTTagList list = nbt.getTagList("Data", 10);
+        for (int i = 0; i < list.tagCount(); ++i) {
 			NBTTagCompound compound = list.getCompoundTagAt(i);
 			if (!compound.hasKey("ClonedTab")) {
 				compound.setInteger("ClonedTab", 1);
 			}
-			Map<String, NBTTagCompound> tab = clones.get(compound.getInteger("ClonedTab"));
-			if (tab == null) {
-				clones.put(compound.getInteger("ClonedTab"), tab = new HashMap<String, NBTTagCompound>());
-			}
-			String name = compound.getString("ClonedName");
+            Map<String, NBTTagCompound> tab = clones.computeIfAbsent(compound.getInteger("ClonedTab"), k -> new HashMap<>());
+            String name = compound.getString("ClonedName");
 			for (int number = 1; tab
 					.containsKey(name); name = String.format("%s%s", compound.getString("ClonedName"), number)) {
 				++number;
@@ -228,7 +216,7 @@ public class ServerCloneController implements ICloneHandler {
 	public void set(int tab, String name, IEntity<?> entity) {
 		NBTTagCompound compound = new NBTTagCompound();
 		if (!entity.getMCEntity().writeToNBTAtomically(compound)) {
-			throw new CustomNPCsException("Cannot save dead entities", new Object[0]);
+			throw new CustomNPCsException("Cannot save dead entities");
 		}
 		this.cleanTags(compound);
 		this.saveClone(tab, name, compound);
@@ -243,15 +231,15 @@ public class ServerCloneController implements ICloneHandler {
 		}
 		NBTTagCompound compound = this.getCloneData(null, name, tab);
 		if (compound == null) {
-			throw new CustomNPCsException("Unknown clone tab:" + tab + " name:" + name, new Object[0]);
+			throw new CustomNPCsException("Unknown clone tab:" + tab + " name:" + name);
 		}
 		Entity entity = NoppesUtilServer.spawnClone(compound, x, y, z, world.getMCWorld());
 		if (entity == null) {
 			LogWriter.debug(
-					"CloneHandler summoning error: Failed to create an entity based on tab: " + tab + "; name: \""
-							+ name + "\"; compound:" + (compound == null ? "null" : compound.toString().length()));
+                    "CloneHandler summoning error: Failed to create an entity based on tab: " + tab + "; name: \""
+                            + name + "\"; compound:" + compound.toString().length());
 			return null;
 		}
-		return NpcAPI.Instance().getIEntity(entity);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
 	}
 }

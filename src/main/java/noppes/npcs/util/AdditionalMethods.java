@@ -1,20 +1,12 @@
 package noppes.npcs.util;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -22,19 +14,10 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import org.apache.commons.codec.binary.Base64;
+import noppes.npcs.*;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.yggdrasil.response.MinecraftTexturesPayload;
-import com.mojang.util.UUIDTypeAdapter;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -47,7 +30,6 @@ import net.minecraft.client.util.RecipeBookClient;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandBase.CoordinateArg;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.NumberInvalidException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -94,12 +76,8 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomNpcs;
-import noppes.npcs.CustomRegisters;
-import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.ICustomElement;
-import noppes.npcs.api.IMetods;
+import noppes.npcs.api.IMethods;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
@@ -112,7 +90,6 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.client.gui.recipebook.GuiNpcButtonRecipeTab;
 import noppes.npcs.client.gui.recipebook.GuiNpcRecipeBook;
-import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.containers.SlotNpcCrafting;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Availability;
@@ -124,7 +101,7 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
 
-public class AdditionalMethods implements IMetods {
+public class AdditionalMethods implements IMethods {
 
 	public final static AdditionalMethods instance = new AdditionalMethods();
 	
@@ -133,7 +110,7 @@ public class AdditionalMethods implements IMetods {
 		if (inventory == null || addStack.isEmpty()) {
 			return false;
 		}
-		NonNullList<ItemStack> inv = NonNullList.<ItemStack>withSize(inventory.size(), ItemStack.EMPTY);
+		NonNullList<ItemStack> inv = NonNullList.withSize(inventory.size(), ItemStack.EMPTY);
 		for (int i = 0; i < inventory.size(); ++i) {
 			if (NoppesUtilServer.IsItemStackNull(inventory.get(i))) {
 				continue;
@@ -167,19 +144,12 @@ public class AdditionalMethods implements IMetods {
 				}
 			}
 		}
-		for (int i = 0; i < inv.size(); ++i) {
-			if (inv.get(i).isEmpty() || NoppesUtilPlayer.compareItems(addStack, inv.get(i), ignoreDamage, ignoreNBT)) {
-				return true;
-			}
-		}
+        for (ItemStack itemStack : inv) {
+            if (itemStack.isEmpty() || NoppesUtilPlayer.compareItems(addStack, itemStack, ignoreDamage, ignoreNBT)) {
+                return true;
+            }
+        }
 		return false;
-	}
-
-	public static boolean canMergeStacks(ItemStack stack1, ItemStack stack2) {
-		return !stack1.isEmpty() && stack1.getItem() == stack2.getItem()
-				&& (!stack1.getHasSubtypes() || stack1.getMetadata() == stack2.getMetadata())
-				&& ItemStack.areItemStackTagsEqual(stack1, stack2) && stack1.isStackable()
-				&& stack1.getCount() < stack1.getMaxStackSize();
 	}
 
 	public static boolean canRemoveItems(Map<ItemStack, Integer> inventory, Map<ItemStack, Integer> items,
@@ -207,50 +177,12 @@ public class AdditionalMethods implements IMetods {
 		return true;
 	}
 
-	public static boolean canRemoveItems(Map<ItemStack, Integer> inventory, NonNullList<ItemStack> items,
-			boolean ignoreDamage, boolean ignoreNBT) {
-		if (inventory == null || items.isEmpty()) {
-			return false;
-		}
-		Map<ItemStack, Integer> inv = Maps.<ItemStack, Integer>newLinkedHashMap();
-		if (items == null || !items.isEmpty()) {
-			Map<ItemStack, Integer> map = Maps.<ItemStack, Integer>newHashMap();
-			for (int slot = 0; slot < items.size(); slot++) {
-				ItemStack stack = items.get(slot);
-				if (NoppesUtilServer.IsItemStackNull(stack)) {
-					continue;
-				}
-				boolean has = false;
-				for (ItemStack s : map.keySet()) {
-					if (NoppesUtilPlayer.compareItems(stack, s, ignoreDamage, ignoreNBT)) {
-						has = true;
-						map.put(s, map.get(s) + stack.getCount());
-						break;
-					}
-				}
-				if (!has) {
-					map.put(stack, stack.getCount());
-				}
-			}
-			List<Entry<ItemStack, Integer>> list = Lists.newArrayList(map.entrySet());
-			Collections.sort(list, new Comparator<Entry<ItemStack, Integer>>() {
-				public int compare(Entry<ItemStack, Integer> st_0, Entry<ItemStack, Integer> st_1) {
-					return ((Integer) st_1.getValue()).compareTo((Integer) st_0.getValue());
-				}
-			});
-			for (Entry<ItemStack, Integer> entry : list) {
-				inv.put(entry.getKey(), entry.getValue());
-			}
-		}
-		return AdditionalMethods.canRemoveItems(inventory, inv, ignoreDamage, ignoreNBT);
-	}
-
 	public static boolean canRemoveItems(NonNullList<ItemStack> inventory, ItemStack stack, boolean ignoreDamage,
 			boolean ignoreNBT) {
 		if (stack == null || stack.isEmpty()) {
 			return false;
 		}
-		Map<ItemStack, Integer> items = Maps.<ItemStack, Integer>newHashMap();
+		Map<ItemStack, Integer> items = Maps.newHashMap();
 		items.put(stack, stack.getCount());
 		return AdditionalMethods.canRemoveItems(inventory, items, ignoreDamage, ignoreNBT);
 	}
@@ -263,27 +195,26 @@ public class AdditionalMethods implements IMetods {
 		if (items == null || items.isEmpty()) {
 			return true;
 		}
-		Map<ItemStack, Integer> inv = Maps.<ItemStack, Integer>newHashMap();
-		for (int i = 0; i < inventory.size(); ++i) {
-			ItemStack stack = inventory.get(i);
-			if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) {
-				continue;
-			}
-			boolean found = false;
-			for (ItemStack st : inv.keySet()) {
-				if (NoppesUtilServer.IsItemStackNull(st) || st.isEmpty()) {
-					continue;
-				}
-				if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
-					inv.put(st, inv.get(st) + stack.getCount());
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				inv.put(stack, stack.getCount());
-			}
-		}
+		Map<ItemStack, Integer> inv = Maps.newHashMap();
+        for (ItemStack stack : inventory) {
+            if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) {
+                continue;
+            }
+            boolean found = false;
+            for (ItemStack st : inv.keySet()) {
+                if (NoppesUtilServer.IsItemStackNull(st) || st.isEmpty()) {
+                    continue;
+                }
+                if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
+                    inv.put(st, inv.get(st) + stack.getCount());
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                inv.put(stack, stack.getCount());
+            }
+        }
 		return AdditionalMethods.canRemoveItems(inv, items, ignoreDamage, ignoreNBT);
 	}
 
@@ -304,7 +235,8 @@ public class AdditionalMethods implements IMetods {
 		if (npcParent == null) {
 			npcParent = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), world);
 		}
-		npcParent.writeEntityToNBT(npcNbt);
+        assert npcParent != null;
+        npcParent.writeEntityToNBT(npcNbt);
 		npcParent.writeToNBTOptional(npcNbt);
 		Entity entity = EntityList.createEntityFromNBT(npcNbt, world);
 		if (!(entity instanceof EntityNPCInterface)) {
@@ -337,41 +269,16 @@ public class AdditionalMethods implements IMetods {
 		}
 		npc.ais.setStandingType(1);
 		npc.ticksExisted = 100;
-		if (npc instanceof EntityCustomNpc && npcParent instanceof EntityCustomNpc
-				&& ((EntityCustomNpc) npc).modelData instanceof ModelDataShared
-				&& ((EntityCustomNpc) npcParent).modelData instanceof ModelDataShared) {
-			((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npcParent).modelData).entity;
+		if (npc instanceof EntityCustomNpc && npcParent instanceof EntityCustomNpc) {
+			((EntityCustomNpc) npc).modelData.entity = ((EntityCustomNpc) npcParent).modelData.entity;
 		}
 		return npc;
-	}
-
-	public static String deleteSpase(String str) {
-		if (str == null || str.isEmpty()) {
-			return str;
-		}
-		while (str.indexOf(" ") != -1) {
-			str = str.replace(" ", "");
-		}
-		while (str.indexOf("" + ((char) 9)) != -1) {
-			str = str.replace("" + ((char) 9), "");
-		}
-		return str;
-	}
-
-	public static double distanceTo(BlockPos pos0, BlockPos pos1) {
-		return AdditionalMethods.instance.distanceTo(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(),
-				pos1.getZ());
 	}
 
 	public static boolean equalsDeleteColor(String str0, String str1, boolean ignoreCase) {
 		str0 = AdditionalMethods.instance.deleteColor(str0);
 		str1 = AdditionalMethods.instance.deleteColor(str1);
 		return ignoreCase ? str0.equalsIgnoreCase(str1) : str0.equals(str1);
-	}
-
-	public static RayTraceRotate getAngles3D(BlockPos pos0, BlockPos pos1) {
-		return AdditionalMethods.instance.getAngles3D(pos0.getX() + 0.5d, pos0.getY() + 0.5d, pos0.getZ() + 0.5d,
-				pos1.getX() + 0.5d, pos1.getY() + 0.5d, pos1.getZ() + 0.5d);
 	}
 
 	public static RayTraceRotate getAngles3D(Entity entity, Entity target) {
@@ -382,7 +289,7 @@ public class AdditionalMethods implements IMetods {
 	public static List<IDataElement> getClassData(Object obj, boolean onlyPublic, boolean addConstructor) {
 		List<IDataElement> list = Lists.newArrayList();
 		Class<?> cz = (obj instanceof Class) ? (Class<?>) obj : obj.getClass();
-		/** Constructors */
+		// Constructors
 		if (addConstructor) {
 			Constructor<?>[] cns = onlyPublic ? cz.getConstructors() : cz.getDeclaredConstructors();
 			for (Constructor<?> c : cns) {
@@ -398,7 +305,7 @@ public class AdditionalMethods implements IMetods {
 				classes.put(cl.getSimpleName(), cl);
 			}
 		}
-		/** Data */
+		// Data
 		List<Class<?>> czs = Lists.newArrayList();
 		czs.add(cz);
 		while (cz.getSuperclass() != Object.class && !czs.contains(cz.getSuperclass())) {
@@ -417,8 +324,8 @@ public class AdditionalMethods implements IMetods {
 				}
 			}
 		}
-		/** Fields */
-		if (fields.size() > 0) {
+		// Fields
+		if (!fields.isEmpty()) {
 			List<String> sortNames = Lists.newArrayList(fields.keySet());
 			Collections.sort(sortNames);
 			List<String> names = Lists.newArrayList();
@@ -441,8 +348,8 @@ public class AdditionalMethods implements IMetods {
 				names.add(f.getName());
 			}
 		}
-		/** Methods */
-		if (methods.size() > 0) {
+		// Methods
+		if (!methods.isEmpty()) {
 			List<String> sortNames = Lists.newArrayList(methods.keySet());
 			Collections.sort(sortNames);
 			List<String> names = Lists.newArrayList();
@@ -465,8 +372,8 @@ public class AdditionalMethods implements IMetods {
 				names.add(m.getName());
 			}
 		}
-		/** Classes */
-		if (classes.size() > 0) {
+		// Classes
+		if (!classes.isEmpty()) {
 			List<String> sortNames = Lists.newArrayList(classes.keySet());
 			Collections.sort(sortNames);
 			for (String name : sortNames) {
@@ -474,15 +381,6 @@ public class AdditionalMethods implements IMetods {
 			}
 		}
 		return list;
-	}
-
-	public static String getDeleteColor(Map<?, ?> map, String str0, boolean isKey, boolean ignoreCase) {
-		for (Object obj : (isKey ? map.keySet() : map.values())) {
-			if (AdditionalMethods.equalsDeleteColor(obj.toString(), str0, ignoreCase)) {
-				return obj.toString();
-			}
-		}
-		return "";
 	}
 
 	public static Entity getEntityByUUID(UUID uuid, World startWorld) {
@@ -516,9 +414,11 @@ public class AdditionalMethods implements IMetods {
 			}
 		}
 		List<Entity> unloadedEntityList = ObfuscationHelper.getValue(World.class, world, 4);
-		for (Entity entity : unloadedEntityList) {
-			if (entity.getUniqueID().equals(uuid)) {
-				return entity;
+		if (unloadedEntityList != null) {
+			for (Entity entity : unloadedEntityList) {
+				if (entity.getUniqueID().equals(uuid)) {
+					return entity;
+				}
 			}
 		}
 		return null;
@@ -529,7 +429,7 @@ public class AdditionalMethods implements IMetods {
 		if (dir == null || !dir.exists() || !dir.isDirectory()) {
 			return list;
 		}
-		for (File f : dir.listFiles()) {
+		for (File f : Objects.requireNonNull(dir.listFiles())) {
 			if (f.isDirectory()) {
 				list.addAll(AdditionalMethods.getFiles(f, index));
 				continue;
@@ -551,9 +451,9 @@ public class AdditionalMethods implements IMetods {
 	}
 
 	public static Map<ItemStack, Boolean> getInventoryItemCount(EntityPlayer player, IInventory inventory) {
-		Map<ItemStack, Integer> counts = Maps.<ItemStack, Integer>newHashMap();
-		Map<ItemStack, ItemStack> base = Maps.<ItemStack, ItemStack>newHashMap();
-		List<ItemStack> list = Lists.<ItemStack>newArrayList();
+		Map<ItemStack, Integer> counts = Maps.newHashMap();
+		Map<ItemStack, ItemStack> base = Maps.newHashMap();
+		List<ItemStack> list = Lists.newArrayList();
 		for (int i = 0; i < inventory.getSizeInventory(); i++) {
 			ItemStack stack = inventory.getStackInSlot(i);
 			if (NoppesUtilServer.IsItemStackNull(stack)) {
@@ -582,11 +482,7 @@ public class AdditionalMethods implements IMetods {
 				list.add(stack.copy());
 			}
 		}
-		Collections.sort(list, new Comparator<ItemStack>() {
-			public int compare(ItemStack st_0, ItemStack st_1) {
-				return ((Integer) st_1.getCount()).compareTo((Integer) st_0.getCount());
-			}
-		});
+		list.sort((st_0, st_1) -> Integer.compare(st_1.getCount(), st_0.getCount()));
 		for (ItemStack stack : list) {
 			for (ItemStack s : counts.keySet()) {
 				if (NoppesUtilPlayer.compareItems(stack, s, false, false)) {
@@ -601,7 +497,7 @@ public class AdditionalMethods implements IMetods {
 				base.put(stack, stack);
 			}
 		}
-		Map<ItemStack, Boolean> map = Maps.<ItemStack, Boolean>newHashMap();
+		Map<ItemStack, Boolean> map = Maps.newHashMap();
 		for (ItemStack stack : counts.keySet()) {
 			int count = 0;
 			for (int i = 0; i < player.inventory.mainInventory.size(); ++i) {
@@ -620,7 +516,7 @@ public class AdditionalMethods implements IMetods {
 				}
 			}
 		}
-		Map<ItemStack, Boolean> total = Maps.<ItemStack, Boolean>newLinkedHashMap();
+		Map<ItemStack, Boolean> total = Maps.newLinkedHashMap();
 		for (ItemStack stack : list) {
 			total.put(stack, map.get(stack));
 		}
@@ -659,28 +555,24 @@ public class AdditionalMethods implements IMetods {
 	 * @return string
 	 */
 	public static String getTextReducedNumber(double value, boolean isInteger, boolean color, boolean notPfx) {
-		if (value == 0) {
-			return "0";
-		}
-		String chr = "" + ((char) 167);
-		String chrPR = new String(Character.toChars(0x2248));
-		chrPR = "";
-		String type = "";
-		String sufc = "";
-		if (value == 0L) {
+		if (value == 0.0d) {
 			return String.valueOf(value).replace(".", ",");
 		}
+		String chr = "" + ((char) 167);
+		String chrPR= ""; // (char) 8776
+		String type = "";
+		String sufc = "";
 		double corr = value;
-		int exp = 0;
+		int exp;
 		boolean negatively = false;
 
 		if (value <= 0) {
 			negatively = true;
 			value *= -1.0d;
 		}
-		if (value < Math.pow(10, 3)) { /* xxxx,x hecto */
+		if (value < Math.pow(10, 3)) { // xxxx,x hecto
 			corr = Math.round(value * 10.0d) / 10.0d;
-		} else if (value < Math.pow(10, 6)) { /* xxx,xxK kilo */
+		} else if (value < Math.pow(10, 6)) { // xxx,xxK kilo
 			corr = Math.round(value / 100.0d) / 10.0d;
 			if (color) {
 				type = chr + "e";
@@ -689,7 +581,7 @@ public class AdditionalMethods implements IMetods {
 			if (corr * Math.pow(10, 3) != value) {
 				sufc = chrPR;
 			}
-		} else if (value < Math.pow(10, 9)) { /* xxx,xxM mega */
+		} else if (value < Math.pow(10, 9)) { // xxx,xxM mega
 			corr = Math.round(value / Math.pow(10, 3)) / 10.0d;
 			if (color) {
 				type = chr + "a";
@@ -698,7 +590,7 @@ public class AdditionalMethods implements IMetods {
 			if (corr * Math.pow(10, 6) != value) {
 				sufc = chrPR;
 			}
-		} else if (value < Math.pow(10, 12)) { /* xxx,xxG giga */
+		} else if (value < Math.pow(10, 12)) { // xxx,xxG giga
 			corr = Math.round(value / Math.pow(10, 6)) / 10.0d;
 			if (color) {
 				type = chr + "2";
@@ -707,7 +599,7 @@ public class AdditionalMethods implements IMetods {
 			if (corr * Math.pow(10, 9) != value) {
 				sufc = chrPR;
 			}
-		} else if (value < Math.pow(10, 15)) { /* xxx,xxT tera */
+		} else if (value < Math.pow(10, 15)) { // xxx,xxT tera
 			corr = Math.round(value / Math.pow(10, 9)) / 10.0d;
 			if (color) {
 				type = chr + "b";
@@ -716,7 +608,7 @@ public class AdditionalMethods implements IMetods {
 			if (corr * Math.pow(10, 12) != value) {
 				sufc = chrPR;
 			}
-		} else if (value < Math.pow(10, 18)) { /* xxx,xxP peta */
+		} else if (value < Math.pow(10, 18)) { // xxx, xxP peta
 			corr = Math.round(value / Math.pow(10, 12)) / 10.0d;
 			if (color) {
 				type = chr + "3";
@@ -725,7 +617,7 @@ public class AdditionalMethods implements IMetods {
 			if (corr * Math.pow(10, 15) != value) {
 				sufc = chrPR;
 			}
-		} else if (value < Math.pow(10, 21)) { /* xxx,xxE hexa */
+		} else if (value < Math.pow(10, 21)) { // xxx, xxE hexa
 			corr = Math.round(value / Math.pow(10, 15)) / 10.0d;
 			if (color) {
 				type = chr + "9";
@@ -734,7 +626,7 @@ public class AdditionalMethods implements IMetods {
 			if (corr * Math.pow(10, 18) != value) {
 				sufc = chrPR;
 			}
-		} else if (value < Math.pow(10, 24)) { /* xxx,xxZ zetta */
+		} else if (value < Math.pow(10, 24)) { // xxx, xxZ zetta
 			corr = Math.round(value / Math.pow(10, 18)) / 10.0d;
 			if (color) {
 				type = chr + "d";
@@ -743,7 +635,7 @@ public class AdditionalMethods implements IMetods {
 			if (corr * Math.pow(10, 21) != value) {
 				sufc = chrPR;
 			}
-		} else if (value < Math.pow(10, 27)) { /* xxx,xxY yotta */
+		} else if (value < Math.pow(10, 27)) { // xxx, xxY yotta
 			corr = Math.round(value / Math.pow(10, 21)) / 10.0d;
 			if (color) {
 				type = chr + "5";
@@ -752,27 +644,24 @@ public class AdditionalMethods implements IMetods {
 			if (corr * Math.pow(10, 24) != value) {
 				sufc = chrPR;
 			}
-		} else { /* x,xxxe+exp */
-			if (String.valueOf(value).indexOf("e+") >= 0 || String.valueOf(value).indexOf("E+") >= 0) {
+		} else { // x, xxxe + exp
+			if (String.valueOf(value).contains("e+") || String.valueOf(value).contains("E+")) {
 				String index = "e+";
-				if (String.valueOf(value).indexOf("E+") >= 0) {
+				if (String.valueOf(value).contains("E+")) {
 					index = "E+";
 				}
-				exp = Integer.valueOf(String.valueOf(value).substring(String.valueOf(value).indexOf(index) + 2));
+				exp = Integer.parseInt(String.valueOf(value).substring(String.valueOf(value).indexOf(index) + 2));
 				corr = Math
-						.round(Integer.valueOf(String.valueOf(value).substring(0, String.valueOf(value).indexOf(index)))
+						.round(Integer.parseInt(String.valueOf(value).substring(0, String.valueOf(value).indexOf(index)))
 								* 1000.0d)
 						/ 1000.0d;
 			} else {
 				exp = String.valueOf(corr).length();
 				corr = value;
 			}
-			if (color) {
-				type = chr + "4";
-			}
 			type = "E+" + exp;
 		}
-		if (negatively) { /* отрицательное или ноль */
+		if (negatively) { // negative or zero
 			if (color) {
 				sufc = chr + "c";
 			}
@@ -789,11 +678,6 @@ public class AdditionalMethods implements IMetods {
 		}
 		String num = isInteger ? ("" + (long) corr) : ("" + corr).replace(".", ",");
 		return sufc + num + type + end;
-	}
-
-	public static RayTraceVec getVector3D(BlockPos pos0, BlockPos pos1) {
-		return AdditionalMethods.instance.getVector3D(pos0.getX() + 0.5d, pos0.getY() + 0.5d, pos0.getZ() + 0.5d,
-				pos1.getX() + 0.5d, pos1.getY() + 0.5d, pos1.getZ() + 0.5d);
 	}
 
 	public static int inventoryItemCount(EntityPlayer player, ItemStack stack, Availability availability,
@@ -814,51 +698,6 @@ public class AdditionalMethods implements IMetods {
 		return count;
 	}
 
-	public static String match(String text, int pos, String startCharts, String endCharts) {
-		try {
-			int s = 0, e = text.length();
-			for (int i = pos - 1; i >= 0 && i < text.length(); i--) {
-				char c = text.charAt(i);
-				if (startCharts != null) {
-					if (startCharts.indexOf("" + c) != -1) {
-						s = i + 1;
-						break;
-					}
-					continue;
-				}
-				if (((char) 9) == c || ((char) 10) == c || !Character.isAlphabetic(c) && !Character.isDigit(c)) {
-					if (c == '.' || c == '(' || ((char) 10) == c) {
-						s = i + 1;
-					} else {
-						s = i + 1;
-					}
-					break;
-				}
-			}
-			for (int i = pos; i >= 0 && i < text.length(); i++) {
-				char c = text.charAt(i);
-				if (endCharts != null) {
-					if (startCharts.indexOf("" + c) != -1) {
-						e = i;
-						break;
-					}
-					continue;
-				}
-				if (!Character.isAlphabetic(text.charAt(i)) && !Character.isDigit(text.charAt(i))) {
-					e = i;
-					break;
-				}
-			}
-			String key = text.substring(s, e);
-			while (key.indexOf(" ") != -1) {
-				key = key.replace(" ", "");
-			}
-			return key;
-		} catch (Exception e) {
-		}
-		return "";
-	}
-
 	@SuppressWarnings("deprecation")
 	public static boolean npcCanSeeTarget(EntityLivingBase entity, EntityLivingBase target, boolean toShoot,
 			boolean directLOS) {
@@ -866,7 +705,7 @@ public class AdditionalMethods implements IMetods {
 			return false;
 		}
 		IAttributeInstance follow_range = entity.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-		double aggroRange = (follow_range == null ? 16.0d : follow_range.getAttributeValue());
+		double aggroRange = follow_range.getAttributeValue();
 		if (entity.isPlayerSleeping()) {
 			aggroRange /= 4.0d;
 		}
@@ -882,7 +721,7 @@ public class AdditionalMethods implements IMetods {
 			unseenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 2);
 		}
 		if (rtr.distance > aggroRange) {
-			if (seenEntities != null && seenEntities.contains(target)) {
+			if (seenEntities != null) {
 				seenEntities.remove(target);
 			}
 			if (unseenEntities != null && !unseenEntities.contains(target)) {
@@ -897,7 +736,7 @@ public class AdditionalMethods implements IMetods {
 				double d = AdditionalMethods.instance.distanceTo(entity, target);
 				for (IEntity<?> ei : rtrs.entitys) {
 					if (d > AdditionalMethods.instance.distanceTo(entity, ei.getMCEntity())) {
-						if (seenEntities != null && seenEntities.contains(target)) {
+						if (seenEntities != null) {
 							seenEntities.remove(target);
 						}
 						if (unseenEntities != null && !unseenEntities.contains(target)) {
@@ -911,7 +750,7 @@ public class AdditionalMethods implements IMetods {
 					|| ((EntityNPCInterface) entity).stats.ranged.getFireType() != 2);
 			for (IBlock bi : rtrs.blocks) {
 				if (shoot && !bi.getMCBlock().isPassable(entity.world, bi.getPos().getMCBlockPos())) {
-					if (seenEntities != null && seenEntities.contains(target)) {
+					if (seenEntities != null) {
 						seenEntities.remove(target);
 					}
 					if (unseenEntities != null && !unseenEntities.contains(target)) {
@@ -919,7 +758,7 @@ public class AdditionalMethods implements IMetods {
 					}
 					return false;
 				} else if (bi.getMCBlock().isOpaqueCube(entity.world.getBlockState(bi.getPos().getMCBlockPos()))) {
-					if (seenEntities != null && seenEntities.contains(target)) {
+					if (seenEntities != null) {
 						seenEntities.remove(target);
 					}
 					if (unseenEntities != null && !unseenEntities.contains(target)) {
@@ -937,7 +776,7 @@ public class AdditionalMethods implements IMetods {
 				yaw += 360.0d;
 			}
 			if (!(yaw <= 60.0d || yaw >= 300.0d) || !(pitch <= 60.0d || pitch >= -60.0d)) {
-				if (seenEntities != null && seenEntities.contains(target)) {
+				if (seenEntities != null) {
 					seenEntities.remove(target);
 				}
 				if (unseenEntities != null && !unseenEntities.contains(target)) {
@@ -946,11 +785,30 @@ public class AdditionalMethods implements IMetods {
 				return false;
 			}
 		}
-		int invis = 1 + (!target.isPotionActive(MobEffects.INVISIBILITY) ? -1
-				: target.getActivePotionEffect(MobEffects.INVISIBILITY).getAmplifier());
-		double chance = invis == 0 ? 1.0d
-				: -0.00026d * Math.pow((double) invis, 3.0d) + 0.00489d * Math.pow((double) invis, 2.0d)
-						- 0.03166 * (double) invis + 0.08d;
+		int invisible = 1 + (!target.isPotionActive(MobEffects.INVISIBILITY) ? -1
+				: Objects.requireNonNull(target.getActivePotionEffect(MobEffects.INVISIBILITY)).getAmplifier());
+		final double chance = getChance(invisible, rtr, aggroRange);
+		boolean canSee = chance > Math.random();
+		if (canSee) {
+			if (seenEntities != null && !seenEntities.contains(target)) {
+				seenEntities.add(target);
+			}
+			if (unseenEntities != null) {
+				unseenEntities.remove(target);
+			}
+		} else {
+			if (seenEntities != null) {
+				seenEntities.remove(target);
+			}
+			if (unseenEntities != null && !unseenEntities.contains(target)) {
+				unseenEntities.add(target);
+			}
+		}
+		return canSee;
+	}
+
+	private static double getChance(int invisible, RayTraceRotate rtr, double aggroRange) {
+		double chance = invisible == 0 ? 1.0d : -0.00026d * Math.pow(invisible, 3.0d) + 0.00489d * Math.pow(invisible, 2.0d) - 0.03166 * (double) invisible + 0.08d;
 		if (chance > 1.0d) {
 			chance = 1.0d;
 		}
@@ -970,23 +828,7 @@ public class AdditionalMethods implements IMetods {
 		if (chance < 0.0005d) {
 			chance = 0.0005d;
 		}
-		boolean canSee = chance > Math.random();
-		if (canSee) {
-			if (seenEntities != null && !seenEntities.contains(target)) {
-				seenEntities.add(target);
-			}
-			if (unseenEntities != null && unseenEntities.contains(target)) {
-				unseenEntities.remove(target);
-			}
-		} else {
-			if (seenEntities != null && seenEntities.contains(target)) {
-				seenEntities.remove(target);
-			}
-			if (unseenEntities != null && !unseenEntities.contains(target)) {
-				unseenEntities.add(target);
-			}
-		}
-		return canSee;
+		return chance;
 	}
 
 	/** Correct deletion of folders */
@@ -1037,7 +879,7 @@ public class AdditionalMethods implements IMetods {
 	public static void resetRecipes(EntityPlayer player, GuiContainer gui) {
 		CustomNpcs.proxy.updateRecipes(null, false, false, "this.resetRecipes()");
 
-		Container conteiner = null;
+		Container container = null;
 		SlotCrafting slotIn = null;
 		List<RecipeList> lists = null;
 
@@ -1046,9 +888,9 @@ public class AdditionalMethods implements IMetods {
 			recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomRegisters.tab, true));
 			ObfuscationHelper.setValue(GuiCrafting.class, (GuiCrafting) gui, recipeBookGui, GuiRecipeBook.class);
 
-			conteiner = (ContainerWorkbench) gui.inventorySlots;
-			slotIn = new SlotNpcCrafting(player, ((ContainerWorkbench) conteiner).craftMatrix,
-					((ContainerWorkbench) conteiner).craftResult, 0, 124, 35);
+			container = gui.inventorySlots;
+			slotIn = new SlotNpcCrafting(player, ((ContainerWorkbench) container).craftMatrix,
+					((ContainerWorkbench) container).craftResult, 0, 124, 35);
 			slotIn.slotNumber = 0;
 			lists = RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab);
 		} else if (gui instanceof GuiInventory) {
@@ -1056,82 +898,33 @@ public class AdditionalMethods implements IMetods {
 			recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomRegisters.tab, true));
 			ObfuscationHelper.setValue(GuiInventory.class, (GuiInventory) gui, recipeBookGui, 3);
 
-			conteiner = (ContainerPlayer) gui.inventorySlots;
-			slotIn = new SlotNpcCrafting(player, ((ContainerPlayer) conteiner).craftMatrix,
-					((ContainerPlayer) conteiner).craftResult, 0, 154, 28);
+			container = gui.inventorySlots;
+			slotIn = new SlotNpcCrafting(player, ((ContainerPlayer) container).craftMatrix,
+					((ContainerPlayer) container).craftResult, 0, 154, 28);
 			slotIn.slotNumber = 0;
 			lists = RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab);
 		}
 		if (gui instanceof GuiNpcCarpentryBench) {
 			lists = ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab);
 		}
-		if (slotIn != null && conteiner != null) {
-			conteiner.inventorySlots.remove(slotIn.slotNumber);
-			conteiner.inventoryItemStacks.remove(slotIn.slotNumber);
-			conteiner.inventorySlots.add(slotIn.slotNumber, slotIn);
-			conteiner.inventoryItemStacks.add(slotIn.slotNumber, ItemStack.EMPTY);
+		if (slotIn != null) {
+			container.inventorySlots.remove(slotIn.slotNumber);
+			container.inventoryItemStacks.remove(slotIn.slotNumber);
+			container.inventorySlots.add(slotIn.slotNumber, slotIn);
+			container.inventoryItemStacks.add(slotIn.slotNumber, ItemStack.EMPTY);
 		}
 		RecipeBook book = ((EntityPlayerSP) player).getRecipeBook();
-		if (book != null && lists != null) {
+		if (lists != null) {
 			for (RecipeList list : lists) {
 				list.updateKnownRecipes(book);
 			}
 		}
 	}
 
-	public static GameProfile setSkinsToProfile(GameProfile profile, String skinUrl, String capeUrl, String elytraUrl) {
-		if ((skinUrl == null || skinUrl.isEmpty()) && (capeUrl == null || capeUrl.isEmpty())
-				&& (elytraUrl == null || elytraUrl.isEmpty())) {
-			return profile;
-		}
-		Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
-		Property property = Iterables.getFirst(profile.getProperties().get("textures"), null);
-		if (property != null) {
-			try {
-				// String json = new String(Base64.decodeBase64(property.getValue()),
-				// Charset.forName("UTF-8"));
-				// MinecraftTexturesPayload parent = gson.fromJson(json,
-				// MinecraftTexturesPayload.class);
-			} catch (final JsonParseException e) {
-			}
-			profile.getProperties().remove("textures", property);
-		}
-		MinecraftTexturesPayload textures = new MinecraftTexturesPayload();
-		ObfuscationHelper.setValue(MinecraftTexturesPayload.class, textures, Long.valueOf(System.currentTimeMillis()),
-				long.class);
-		ObfuscationHelper.setValue(MinecraftTexturesPayload.class, textures, profile.getId(), UUID.class);
-		ObfuscationHelper.setValue(MinecraftTexturesPayload.class, textures, profile.getName(), String.class);
-		ObfuscationHelper.setValue(MinecraftTexturesPayload.class, textures, true, boolean.class);
-		Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> mapTs = Maps.<MinecraftProfileTexture.Type, MinecraftProfileTexture>newHashMap();
-		ObfuscationHelper.setValue(MinecraftTexturesPayload.class, textures, mapTs, Map.class);
-
-		if (skinUrl != null && !skinUrl.isEmpty()) {
-			mapTs.put(MinecraftProfileTexture.Type.SKIN, new MinecraftProfileTexture(skinUrl, null));
-		}
-		if (capeUrl != null && !capeUrl.isEmpty()) {
-			mapTs.put(MinecraftProfileTexture.Type.CAPE, new MinecraftProfileTexture(capeUrl, null));
-		}
-		if (elytraUrl != null && !elytraUrl.isEmpty()) {
-			mapTs.put(MinecraftProfileTexture.Type.ELYTRA, new MinecraftProfileTexture(elytraUrl, null));
-		}
-
-		if (!mapTs.isEmpty()) {
-			try {
-				profile.getProperties().put("textures",
-						new Property("textures", Base64.encodeBase64String(gson.toJson(textures).getBytes())));
-			} catch (final JsonParseException e) {
-				e.printStackTrace();
-			}
-		}
-		return profile;
-	}
-
-	/* Vanila Teleport in world */
-	public static Entity teleportEntity(Entity entityIn, CommandBase.CoordinateArg argX, CommandBase.CoordinateArg argY,
-			CommandBase.CoordinateArg argZ, CommandBase.CoordinateArg argYaw, CommandBase.CoordinateArg argPitch) {
+	/* Vanilla Teleport in world */
+	public static void teleportEntity(Entity entityIn, CoordinateArg argX, CoordinateArg argY, CoordinateArg argZ, CoordinateArg argYaw, CoordinateArg argPitch) {
 		if (entityIn instanceof EntityPlayerMP) {
-			Set<SPacketPlayerPosLook.EnumFlags> set = EnumSet.<SPacketPlayerPosLook.EnumFlags>noneOf(
-					SPacketPlayerPosLook.EnumFlags.class);
+			Set<SPacketPlayerPosLook.EnumFlags> set = EnumSet.noneOf(SPacketPlayerPosLook.EnumFlags.class);
 			if (argX.isRelative()) {
 				set.add(SPacketPlayerPosLook.EnumFlags.X);
 			}
@@ -1170,32 +963,11 @@ public class AdditionalMethods implements IMetods {
 			entityIn.motionY = 0.0D;
 			entityIn.onGround = true;
 		}
-		return entityIn;
-	}
-
-	public static Entity teleportEntity(Entity entityIn, double x, double y, double z) {
-		return teleportEntity(entityIn, x, y, z, 0.0f, 0.0f);
-	}
-
-	public static Entity teleportEntity(Entity entityIn, double x, double y, double z, float yaw, float pitch) {
-		try {
-			CommandBase.CoordinateArg argX = CommandBase.parseCoordinate(entityIn.posX, "" + x, true);
-			CommandBase.CoordinateArg argY = CommandBase.parseCoordinate(entityIn.posY, "" + y, -4096, 4096, false);
-			CommandBase.CoordinateArg argZ = CommandBase.parseCoordinate(entityIn.posZ, "" + z, true);
-			CommandBase.CoordinateArg argYaw = CommandBase.parseCoordinate((double) entityIn.rotationYaw, "" + yaw,
-					false);
-			CommandBase.CoordinateArg argPitch = CommandBase.parseCoordinate((double) entityIn.rotationPitch,
-					"" + pitch, false);
-			return teleportEntity(entityIn, argX, argY, argZ, argYaw, argPitch);
-		} catch (NumberInvalidException e) {
-		}
-		return null;
 	}
 
 	public static Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, BlockPos pos)
 			throws CommandException {
-		return AdditionalMethods.teleportEntity(server, entity, dimension, (double) pos.getX() + 0.5d,
-				(double) pos.getY(), (double) pos.getZ() + 0.5d);
+		return AdditionalMethods.teleportEntity(server, entity, dimension, pos.getX() + 0.5d, pos.getY(), pos.getZ() + 0.5d);
 	}
 
 	public static Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, double x, double y,
@@ -1219,8 +991,8 @@ public class AdditionalMethods implements IMetods {
 		CoordinateArg xn = CommandBase.parseCoordinate(entity.posX, "" + x, true);
 		CoordinateArg yn = CommandBase.parseCoordinate(entity.posY, "" + y, -4096, 4096, false);
 		CoordinateArg zn = CommandBase.parseCoordinate(entity.posZ, "" + z, true);
-		CoordinateArg w = CommandBase.parseCoordinate((double) entity.rotationYaw, "~", false);
-		CoordinateArg p = CommandBase.parseCoordinate((double) entity.rotationPitch, "~", false);
+		CoordinateArg w = CommandBase.parseCoordinate(entity.rotationYaw, "~", false);
+		CoordinateArg p = CommandBase.parseCoordinate(entity.rotationPitch, "~", false);
 		teleportEntity(entity, xn, yn, zn, w, p);
 		return entity;
 	}
@@ -1230,13 +1002,12 @@ public class AdditionalMethods implements IMetods {
 	 *            - time
 	 * @param isMilliSeconds
 	 *            = true - milliseconds (1 sec = 1000 ms)
-	 * @param isMilliSeconds
 	 *            = false - minecraft time (1 sec = 20 tick)
 	 * @param colored
 	 *            - added color
 	 * @param upped
 	 *            - only the maximum period (years or months or days, etc.)
-	 * @return
+	 * @return String
 	 */
 	public static String ticksToElapsedTime(long ticks, boolean isMilliSeconds, boolean colored, boolean upped) {
 		String time = isMilliSeconds ? "0.000" : "--/--";
@@ -1271,7 +1042,7 @@ public class AdditionalMethods implements IMetods {
 				time += year + "y ";
 			}
 		}
-		if (upped && time.length() > 0) {
+		if (upped && !time.isEmpty()) {
 			return time;
 		}
 		if (month > 0) {
@@ -1281,7 +1052,7 @@ public class AdditionalMethods implements IMetods {
 				time += month + "m ";
 			}
 		}
-		if (upped && time.length() > 0) {
+		if (upped && !time.isEmpty()) {
 			return time;
 		}
 		if (day > 0) {
@@ -1291,7 +1062,7 @@ public class AdditionalMethods implements IMetods {
 				time += day + "d ";
 			}
 		}
-		if (upped && time.length() > 0) {
+		if (upped && !time.isEmpty()) {
 			return time;
 		}
 		if (hour > 0 || year > 0 || month > 0 || day > 0) {
@@ -1313,13 +1084,8 @@ public class AdditionalMethods implements IMetods {
 		if (server == null) {
 			throw new CommandException("Server cannot have value Null");
 		}
-		World world = server.getWorld(dimension);
-		if (world == null) {
-			throw new CommandException("Couldn't find dimension " + dimension);
-		}
-		if (entity instanceof EntityPlayerMP) {
-			server.getPlayerList().transferPlayerToDimension((EntityPlayerMP) entity, dimension,
-					new CustomNpcsTeleporter((WorldServer) server.getEntityWorld()));
+        if (entity instanceof EntityPlayerMP) {
+			server.getPlayerList().transferPlayerToDimension((EntityPlayerMP) entity, dimension, new CustomNpcsTeleporter((WorldServer) server.getEntityWorld()));
 			return entity;
 		} else {
 			return travelEntity(server, entity, dimension);
@@ -1337,34 +1103,31 @@ public class AdditionalMethods implements IMetods {
 		WorldServer worldserverStart = server.getWorld(dimensionStart);
 		WorldServer worldserverEnd = server.getWorld(dimensionId);
 		entity.dimension = dimensionId;
-		Entity newEntity = EntityList.createEntityByIDFromName(EntityList.getKey(entity.getClass()), worldserverEnd);
+		Entity newEntity = EntityList.createEntityByIDFromName(Objects.requireNonNull(EntityList.getKey(entity.getClass())), worldserverEnd);
 		if (newEntity != null) {
 			try {
 				AdditionalMethods.instance.copyDataFromOld.invoke(newEntity, entity);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 			entity.world.removeEntity(entity);
 			newEntity.forceSpawn = true;
 			worldserverEnd.spawnEntity(newEntity);
 		}
 		try {
-			worldserverEnd.updateEntityWithOptionalForce(newEntity, true);
+            assert newEntity != null;
+            worldserverEnd.updateEntityWithOptionalForce(newEntity, true);
 			entity.isDead = true;
 			entity.world.profiler.endSection();
 			worldserverStart.resetUpdateEntityTick();
 			worldserverEnd.resetUpdateEntityTick();
 			entity.world.profiler.endSection();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		return newEntity;
 	}
 
 	public static void updatePlayerInventory(EntityPlayerMP player) {
 		PlayerQuestData playerdata = PlayerData.get(player).questData;
 		for (QuestData data : playerdata.activeQuests.values()) {
-			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 				if (obj.getType() != 0) {
 					continue;
 				}
@@ -1382,12 +1145,10 @@ public class AdditionalMethods implements IMetods {
 							: "func_180432_n",
 					Entity.class);
 			this.copyDataFromOld.setAccessible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
-	/** Stripping a string of color */
+	// Stripping a string of color
 	@Override
 	public String deleteColor(String str) {
 		if (str == null) {
@@ -1404,12 +1165,11 @@ public class AdditionalMethods implements IMetods {
 				chr = "" + ((char) 65535);
 			}
 			try {
-				while (str.indexOf(chr) != (-1)) {
+				while (str.contains(chr)) {
 					int p = str.indexOf(chr);
 					str = (p > 0 ? str.substring(0, p) : "") + (p + 2 == str.length() ? "" : str.substring(p + 2));
 				}
-			} catch (Exception e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		return str;
 	}
@@ -1446,32 +1206,31 @@ public class AdditionalMethods implements IMetods {
 
 	@Override
 	public String getJSONStringFromObject(Object obj) {
-		String str = "";
+		StringBuilder str = new StringBuilder();
 		if (obj.getClass().isArray()) {
-			str = "[";
+			str = new StringBuilder("[");
 			for (Object value : (Object[]) obj) {
 				String s = this.getJSONStringFromObject(value);
-				if (!str.isEmpty()) {
-					str += ", ";
+				if (str.length() > 0) {
+					str.append(", ");
 				}
-				str += s;
+				str.append(s);
 			}
-			str += "]";
+			str.append("]");
 		} else if (obj instanceof Number) {
-			str = obj.toString();
+			str = new StringBuilder(obj.toString());
 		} else if (obj instanceof String) {
-			str = "'" + obj.toString() + "'";
+			str = new StringBuilder("'" + obj + "'");
 		} else if (obj instanceof Bindings) {
 			ScriptEngine engine = ScriptController.Instance.getEngineByName("ECMAScript");
 			if (engine != null) {
 				engine.put("temp", obj);
 				try {
-					str = (String) engine.eval("JSON.stringify(temp)");
-				} catch (ScriptException e) {
-				}
+					str = new StringBuilder((String) engine.eval("JSON.stringify(temp)"));
+				} catch (ScriptException e) { LogWriter.error("Error:", e); }
 			}
 		}
-		return str;
+		return str.toString();
 	}
 
 	public InputStream getModInputStream(String fileName) {
@@ -1480,15 +1239,13 @@ public class AdditionalMethods implements IMetods {
 		}
 		InputStream inputStream = null;
 		for (ModContainer mod : Loader.instance().getModList()) {
-			if (mod.getSource().exists() && mod.getSource().getName().equals(CustomNpcs.MODID)
-					|| mod.getSource().getName().endsWith("bin") || mod.getSource().getName().endsWith("main")) {
-				if (!mod.getSource().isDirectory()
-						&& (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
+			if (mod.getSource().exists() && mod.getSource().getName().equals(CustomNpcs.MODID) || mod.getSource().getName().endsWith("bin") || mod.getSource().getName().endsWith("main")) {
+				if (!mod.getSource().isDirectory() && (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
 					try {
 						ZipFile zip = new ZipFile(mod.getSource());
 						Enumeration<? extends ZipEntry> entries = zip.entries();
 						while (entries.hasMoreElements()) {
-							ZipEntry zipentry = (ZipEntry) entries.nextElement();
+							ZipEntry zipentry = entries.nextElement();
 							if (zipentry.isDirectory() || !zipentry.getName().endsWith(fileName)) {
 								continue;
 							}
@@ -1496,19 +1253,14 @@ public class AdditionalMethods implements IMetods {
 							break;
 						}
 						zip.close();
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.error("Error:", e); }
 				} else {
-					List<File> list = AdditionalMethods.getFiles(mod.getSource(),
-							fileName.substring(fileName.lastIndexOf(".")));
+					List<File> list = AdditionalMethods.getFiles(mod.getSource(), fileName.substring(fileName.lastIndexOf(".")));
 					for (File file : list) {
-						if (!file.isFile() || !file.getName().equals(fileName)) {
-							continue;
-						}
+						if (!file.isFile() || !file.getName().equals(fileName)) { continue; }
 						try {
-							inputStream = new FileInputStream(file);
-						} catch (Exception e) {
-						}
+							inputStream = Files.newInputStream(file.toPath());
+						} catch (Exception e) { LogWriter.error("Error:", e); }
 						break;
 					}
 				}
@@ -1561,7 +1313,7 @@ public class AdditionalMethods implements IMetods {
 		double f1 = Math.sin(-yaw * rad - Math.PI);
 		double f2 = -Math.cos(-pitch * rad);
 		double f3 = Math.sin(-pitch * rad);
-		Vec3d vecLook = new Vec3d((double) (f1 * f2), (double) f3, (double) (f * f2));
+		Vec3d vecLook = new Vec3d(f1 * f2, f3, f * f2);
 		Vec3d vecEnd = vecStart.addVector(vecLook.x * distance, vecLook.y * distance, vecLook.z * distance);
 		rtrs.add(entity, distance, vecStart, vecEnd);
 
@@ -1699,9 +1451,9 @@ public class AdditionalMethods implements IMetods {
 				return null;
 			}
 			try {
-				String str = "JSON.parse('" + (isArray ? "[" : "{");
+				StringBuilder str = new StringBuilder("JSON.parse('" + (isArray ? "[" : "{"));
 				Set<String> sets = ((NBTTagCompound) tag).getKeySet();
-				Map<String, Object> map = Maps.<String, Object>newTreeMap();
+				Map<String, Object> map = Maps.newTreeMap();
 				for (String k : sets) {
 					if (k.equals("IsArray")) {
 						continue;
@@ -1714,18 +1466,17 @@ public class AdditionalMethods implements IMetods {
 				for (String k : map.keySet()) {
 					String s = this.getJSONStringFromObject(map.get(k));
 					if (isArray) {
-						str += s + ", ";
+						str.append(s).append(", ");
 					} else {
-						str += "\"" + k + "\":" + s + ", ";
+						str.append("\"").append(k).append("\":").append(s).append(", ");
 					}
 				}
 				if (!map.isEmpty()) {
-					str = str.substring(0, str.length() - 2);
+					str = new StringBuilder(str.substring(0, str.length() - 2));
 				}
-				str += (isArray ? "]" : "}") + "')";
-				return engine.eval(str);
-			} catch (Exception e) {
-			}
+				str.append(isArray ? "]" : "}").append("')");
+				return engine.eval(str.toString());
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		} else if (tag instanceof NBTTagList) {
 			Object[] arr = new Object[((NBTTagList) tag).tagCount()];
 			int i = 0;
@@ -1748,10 +1499,9 @@ public class AdditionalMethods implements IMetods {
 			} else {
 				e = AdditionalMethods.travelAndCopyEntity(CustomNpcs.Server, entity.getMCEntity(), dimension);
 			}
-		} catch (CommandException error) {
-		}
+		} catch (Exception ee) { LogWriter.error("Error:", ee); }
 		if (e != null) {
-			return NpcAPI.Instance().getIEntity(e);
+			return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e);
 		}
 		return entity;
 	}
@@ -1764,7 +1514,7 @@ public class AdditionalMethods implements IMetods {
 				return new NBTTagList();
 			}
 			if (vs[0] instanceof Byte) {
-				List<Byte> l = Lists.<Byte>newArrayList();
+				List<Byte> l = Lists.newArrayList();
 				for (Object v : vs) {
 					if (v instanceof Byte) {
 						l.add((Byte) v);
@@ -1778,7 +1528,7 @@ public class AdditionalMethods implements IMetods {
 				}
 				return new NBTTagByteArray(arr);
 			} else if (vs[0] instanceof Integer) {
-				List<Integer> l = Lists.<Integer>newArrayList();
+				List<Integer> l = Lists.newArrayList();
 				for (Object v : vs) {
 					if (v instanceof Integer) {
 						l.add((Integer) v);
@@ -1792,7 +1542,7 @@ public class AdditionalMethods implements IMetods {
 				}
 				return new NBTTagIntArray(arr);
 			} else if (vs[0] instanceof Long) {
-				List<Long> l = Lists.<Long>newArrayList();
+				List<Long> l = Lists.newArrayList();
 				for (Object v : vs) {
 					if (v instanceof Long) {
 						l.add((Long) v);
@@ -1853,7 +1603,7 @@ public class AdditionalMethods implements IMetods {
 						continue;
 					}
 					if (vs[0] instanceof Byte) {
-						List<Byte> l = Lists.<Byte>newArrayList();
+						List<Byte> l = Lists.newArrayList();
 						for (Object va : vs) {
 							if (va instanceof Byte) {
 								l.add((Byte) va);
@@ -1867,7 +1617,7 @@ public class AdditionalMethods implements IMetods {
 						}
 						nbt.setByteArray(scopeEntry.getKey(), arr);
 					} else if (vs[0] instanceof Integer) {
-						List<Integer> l = Lists.<Integer>newArrayList();
+						List<Integer> l = Lists.newArrayList();
 						for (Object va : vs) {
 							if (va instanceof Integer) {
 								l.add((Integer) va);
@@ -1881,7 +1631,7 @@ public class AdditionalMethods implements IMetods {
 						}
 						nbt.setIntArray(scopeEntry.getKey(), arr);
 					} else if (vs[0] instanceof Long) {
-						List<Long> l = Lists.<Long>newArrayList();
+						List<Long> l = Lists.newArrayList();
 						for (Object va : vs) {
 							if (va instanceof Long) {
 								l.add((Long) va);
@@ -1938,67 +1688,53 @@ public class AdditionalMethods implements IMetods {
 	}
 
 	public void sort(NonNullList<ItemStack> items) {
-		Map<String, List<ItemStack>> mapArmor = Maps.<String, List<ItemStack>>newTreeMap();
-		Map<String, List<ItemStack>> mapPotion = Maps.<String, List<ItemStack>>newTreeMap();
-		Map<Integer, List<ItemStack>> mapSimple = Maps.<Integer, List<ItemStack>>newTreeMap();
-		Map<String, List<ItemStack>> mapAny = Maps.<String, List<ItemStack>>newTreeMap();
+		Map<String, List<ItemStack>> mapArmor = Maps.newTreeMap();
+		Map<String, List<ItemStack>> mapPotion = Maps.newTreeMap();
+		Map<Integer, List<ItemStack>> mapSimple = Maps.newTreeMap();
+		Map<String, List<ItemStack>> mapAny = Maps.newTreeMap();
 		// Collect
 		for (ItemStack stack : items) {
 			if (stack.getItem() instanceof CustomArmor) {
 				String key = ((CustomArmor) stack.getItem()).getCustomName();
-				if (!mapArmor.containsKey(key)) { mapArmor.put(key, Lists.<ItemStack>newArrayList()); }
+				if (!mapArmor.containsKey(key)) { mapArmor.put(key, Lists.newArrayList()); }
 				mapArmor.get(key).add(stack);
 			}
 			else if (stack.getItem() instanceof ItemPotion) {
 				String key = stack.getItem().getClass().getSimpleName();
-				if (!mapPotion.containsKey(key)) { mapPotion.put(key, Lists.<ItemStack>newArrayList()); }
+				if (!mapPotion.containsKey(key)) { mapPotion.put(key, Lists.newArrayList()); }
 				mapPotion.get(key).add(stack);
 			}
 			else if (stack.getItem() instanceof ICustomElement) {
 				int key = ((ICustomElement) stack.getItem()).getType();
-				if (!mapSimple.containsKey(key)) { mapSimple.put(key, Lists.<ItemStack>newArrayList()); }
+				if (!mapSimple.containsKey(key)) { mapSimple.put(key, Lists.newArrayList()); }
 				mapSimple.get(key).add(stack);
 			}
 			else {
 				String key = stack.getItem().getClass().getSimpleName();
-				if (!mapAny.containsKey(key)) { mapAny.put(key, Lists.<ItemStack>newArrayList()); }
+				if (!mapAny.containsKey(key)) { mapAny.put(key, Lists.newArrayList()); }
 				mapAny.get(key).add(stack);
 			}
 		}
 		items.clear();
 		// sort
 		for (List<ItemStack> list: mapArmor.values()) {
-			Collections.sort(list, new Comparator<ItemStack>() {
-				public int compare(ItemStack st_0, ItemStack st_1) {
-					CustomArmor a_0 = (CustomArmor) st_0.getItem();
-					CustomArmor a_1 = (CustomArmor) st_1.getItem();
-					return Integer.compare(a_0.getEquipmentSlot().ordinal(), a_1.getEquipmentSlot().ordinal());
-				}
-			});
+			list.sort((st_0, st_1) -> {
+                CustomArmor a_0 = (CustomArmor) st_0.getItem();
+                CustomArmor a_1 = (CustomArmor) st_1.getItem();
+                return Integer.compare(a_0.getEquipmentSlot().ordinal(), a_1.getEquipmentSlot().ordinal());
+            });
 			items.addAll(list);
 		}
 		for (List<ItemStack> list: mapPotion.values()) {
-			Collections.sort(list, new Comparator<ItemStack>() {
-				public int compare(ItemStack st_0, ItemStack st_1) {
-					return st_1.getDisplayName().compareTo(st_0.getDisplayName());
-				}
-			});
+			list.sort((st_0, st_1) -> st_1.getDisplayName().compareTo(st_0.getDisplayName()));
 			items.addAll(list);
 		}
 		for (List<ItemStack> list: mapSimple.values()) {
-			Collections.sort(list, new Comparator<ItemStack>() {
-				public int compare(ItemStack st_0, ItemStack st_1) {
-					return st_1.getDisplayName().compareTo(st_0.getDisplayName());
-				}
-			});
+			list.sort((st_0, st_1) -> st_1.getDisplayName().compareTo(st_0.getDisplayName()));
 			items.addAll(list);
 		}
 		for (List<ItemStack> list: mapAny.values()) {
-			Collections.sort(list, new Comparator<ItemStack>() {
-				public int compare(ItemStack st_0, ItemStack st_1) {
-					return st_1.getDisplayName().compareTo(st_0.getDisplayName());
-				}
-			});
+			list.sort((st_0, st_1) -> st_1.getDisplayName().compareTo(st_0.getDisplayName()));
 			items.addAll(list);
 		}
 	}

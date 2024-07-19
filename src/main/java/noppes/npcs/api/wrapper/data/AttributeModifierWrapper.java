@@ -8,8 +8,8 @@ import noppes.npcs.util.ValueUtil;
 
 public class AttributeModifierWrapper implements IAttributeModifier {
 
-	private INpcAttribute parent;
-	private AttributeModifier modifer;
+	private final INpcAttribute parent;
+	private final AttributeModifier modifer;
 
 	public AttributeModifierWrapper(INpcAttribute attribute, AttributeModifier modifer) {
 		this.modifer = modifer;

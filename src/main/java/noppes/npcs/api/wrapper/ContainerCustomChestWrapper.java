@@ -2,7 +2,6 @@ package noppes.npcs.api.wrapper;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import noppes.npcs.Server;
 import noppes.npcs.api.IContainerCustomChest;
 import noppes.npcs.constants.EnumPacketClient;
@@ -16,12 +15,6 @@ public class ContainerCustomChestWrapper extends ContainerWrapper implements ICo
 
 	public ContainerCustomChestWrapper(Container container) {
 		super(container);
-		this.script = null;
-		this.name = "";
-	}
-
-	public ContainerCustomChestWrapper(IInventory inventory) {
-		super(inventory);
 		this.script = null;
 		this.name = "";
 	}

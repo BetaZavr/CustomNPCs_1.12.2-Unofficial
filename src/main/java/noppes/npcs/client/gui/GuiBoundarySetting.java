@@ -36,9 +36,9 @@ import noppes.npcs.controllers.data.Zone3D;
 public class GuiBoundarySetting extends GuiNPCInterface
 		implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
-	private int regID;
-	private TreeMap<Integer, String> dataRegions;
-	private TreeMap<Integer, String> dataPoints;
+	private final int regID;
+	private final TreeMap<Integer, String> dataRegions = Maps.newTreeMap();
+	private final TreeMap<Integer, String> dataPoints = Maps.newTreeMap();
 	private GuiCustomScroll regions, points;
 	private Point point;
 	private Zone3D region;
@@ -48,8 +48,6 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		this.xSize = 405;
 		this.ySize = 216;
 		this.closeOnEsc = true;
-		this.dataRegions = Maps.<Integer, String>newTreeMap();
-		this.dataPoints = Maps.<Integer, String>newTreeMap();
 		this.regID = idReg;
 		this.region = (Zone3D) BorderController.getInstance().getRegion(this.regID);
 		if (this.region != null && this.region.points.containsKey(idPoint)) {
@@ -111,7 +109,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 			if (this.region == null || this.point == null) {
 				return;
 			}
-			TreeMap<Integer, Point> map = Maps.<Integer, Point>newTreeMap();
+			TreeMap<Integer, Point> map = Maps.newTreeMap();
 			int i = 0;
 			for (int pos : this.region.points.keySet()) {
 				Point p = this.region.points.get(pos);
@@ -138,7 +136,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 			if (this.region == null || this.point == null) {
 				return;
 			}
-			TreeMap<Integer, Point> map = Maps.<Integer, Point>newTreeMap();
+			TreeMap<Integer, Point> map = Maps.newTreeMap();
 			int i = 0;
 			for (int pos : this.region.points.keySet()) {
 				Point p = this.region.points.get(pos);
@@ -222,13 +220,12 @@ public class GuiBoundarySetting extends GuiNPCInterface
 				return;
 			}
 			if (this.point != null) {
-				Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.region.dimensionID, this.point.x,
-						this.region.y[0] + (this.region.y[1] - this.region.y[0]) / 2, this.point.y });
+				Client.sendData(EnumPacketServer.TeleportTo, this.region.dimensionID, this.point.x,
+                        this.region.y[0] + (this.region.y[1] - this.region.y[0]) / 2, this.point.y);
 				return;
 			}
 			IPos pos = this.region.getCenter();
-			Client.sendData(EnumPacketServer.TeleportTo,
-					new Object[] { this.region.dimensionID, pos.getX(), pos.getY(), pos.getZ() });
+			Client.sendData(EnumPacketServer.TeleportTo, this.region.dimensionID, pos.getX(), pos.getY(), pos.getZ());
 			return;
 		}
 		case 25: { // Keep Out Type
@@ -271,14 +268,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		GlStateManager.disableBlend();
 	}
 
-	private void drawMap(int work) {
-		if (this.region == null) {
-			return;
-		}
-		// MiniMap draw
-	}
-
-	private void drawRegion(int work, double mu, double mv, double su, double sv, double sy, int color) {
+	private void drawRegion(int work, double mu, double mv, double su, double sv, double sy) {
 		if (this.region == null) {
 			return;
 		}
@@ -298,11 +288,11 @@ public class GuiBoundarySetting extends GuiNPCInterface
 			v0 = (p0.y - mv) * sv;
 			u1 = (p1.x - mu) * su;
 			v1 = (p1.y - mv) * sv;
-			GuiBoundarySetting.drawLine(u0, v0, u1, v1, color, 2.0f);
+			GuiBoundarySetting.drawLine(u0, v0, u1, v1, -16776961, 2.0f);
 		}
-		v0 = (this.region.y[1] > 255 ? 255 : this.region.y[1]) * sy;
-		v1 = (this.region.y[0] < 0 ? 0 : this.region.y[0]) * sy;
-		drawLine(work + 12, v0, work + 13, v1, color, 2.0f);
+		v0 = (Math.min(this.region.y[1], 255)) * sy;
+		v1 = (Math.max(this.region.y[0], 0)) * sy;
+		drawLine(work + 12, v0, work + 13, v1, -16776961, 2.0f);
 	}
 
 	@Override
@@ -341,21 +331,20 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		Gui.drawRect(6, 6, side - 6, side - 6, 0xA0000000); // Work Place
 		Gui.drawRect(side - 2, 6, side + 9, side - 6, 0xA0000000); // Height place
 		GlStateManager.translate(6, 6, 0.0d);
-		this.drawMap(work);
 		if (this.region == null) {
 			GlStateManager.popMatrix();
 			return;
 		}
-		double mu = (double) this.region.getMinX();
-		double mv = (double) this.region.getMinZ();
-		double nu = (double) this.region.getMaxX();
-		double nv = (double) this.region.getMaxZ();
+		double mu = this.region.getMinX();
+		double mv = this.region.getMinZ();
+		double nu = this.region.getMaxX();
+		double nv = this.region.getMaxZ();
 		double su = (double) (work) / (nu - mu);
 		double sv = (double) (work) / (nv - mv);
 		double sy = (double) (work) / 255.0d;
 		// Selected InSide Blue
 		if (this.region.size() >= 3) {
-			this.drawRegion(work, mu, mv, su, sv, sy, 0xFF0000FF);
+			this.drawRegion(work, mu, mv, su, sv, sy);
 		}
 
 		int hx, hz;
@@ -463,7 +452,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.color").getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.delete").getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
@@ -548,7 +537,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		}
 		if (this.region != null && this.point != null && !this.region.contains(this.point.x, this.point.y)) {
 			this.point = null;
-			if (this.region.points.size() > 0) {
+			if (!this.region.points.isEmpty()) {
 				this.point = this.region.points.get(0);
 			}
 		}
@@ -596,8 +585,9 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		// ID 0 - color
 		String color = "gui.color";
 		if (this.region != null) {
-			for (color = Integer.toHexString(this.region.color); color.length() < 6; color = "0" + color) {
-			}
+			StringBuilder c = new StringBuilder(Integer.toHexString(this.region.color));
+			while (c.length() < 6) { c.insert(0, "0"); }
+			color = c.toString();
 		}
 		GuiNpcButton button = new GuiNpcButton(0, this.guiLeft + 5, this.guiTop + 162, 60, 13, color);
 		button.enabled = this.region != null;
@@ -683,14 +673,14 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		// ID 25 - Keep Out Type
 		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(25, this.guiLeft + 5, this.guiTop + side + 9, 110, 12,
 				"region.keepout." + (this.region != null ? this.region.keepOut : "false"));
-		checkBox.setSelected(this.region != null ? this.region.keepOut : false);
+		checkBox.setSelected(this.region != null && this.region.keepOut);
 		this.addButton(checkBox);
 		// ID 26 - Keep Out Type
 		checkBox = new GuiNpcCheckBox(26, this.guiLeft + 275, this.guiTop + side + 9, 110, 12,
 				"region.show.in.client." + (this.region != null ? this.region.keepOut : "false"));
-		checkBox.setSelected(this.region != null ? this.region.showInClient : false);
+		checkBox.setSelected(this.region != null && this.region.showInClient);
 		this.addButton(checkBox);
-		/** TextFields */
+		// TextFields
 		// X Point pos
 		GuiNpcTextField textField = new GuiNpcTextField(16, this, r1 + 39, h0 + 17, 31, 15,
 				"" + (this.point != null ? this.point.x : 0));
@@ -718,7 +708,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		this.addTextField(textField);
 		// ID 24 - Name
 		textField = new GuiNpcTextField(24, this, this.guiLeft + 5, this.guiTop + 178, 110, 15,
-				"" + (this.region != null ? this.region.name : ""));
+                this.region != null ? this.region.name : "");
 		textField.enabled = this.region != null && this.point != null;
 		this.addTextField(textField);
 		// ID 25 - Home X
@@ -736,7 +726,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 				"" + (this.region != null ? this.region.homePos.getZ() : ""));
 		textField.enabled = this.region != null && this.point != null;
 		this.addTextField(textField);
-		/** Lables */
+		// Labels
 		// ID 99 - Home Pos
 		this.addLabel(new GuiNpcLabel(99, "Home POS:", r0, this.guiTop + side + 13, 0xFF202020));
 		// ID 100 - Min XZ Pos
@@ -780,7 +770,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 				if (this.dataRegions.get(id).equals(scroll.getSelected()) && bData.regions.containsKey(id)) {
 					this.region = (Zone3D) bData.getRegion(id);
 					this.point = null;
-					if (this.region.points.size() > 0) {
+					if (!this.region.points.isEmpty()) {
 						this.point = this.region.points.get(0);
 					}
 					Client.sendData(EnumPacketServer.RegionData, 0, id);
@@ -814,8 +804,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 				return;
 			}
 			IPos pos = this.region.getCenter();
-			Client.sendData(EnumPacketServer.TeleportTo,
-					new Object[] { this.region.dimensionID, pos.getX(), pos.getY(), pos.getZ() });
+			Client.sendData(EnumPacketServer.TeleportTo, this.region.dimensionID, pos.getX(), pos.getY(), pos.getZ());
 			Client.sendData(EnumPacketServer.RegionData, 0, this.region.getId());
 			this.close();
 			break;
@@ -824,8 +813,8 @@ public class GuiBoundarySetting extends GuiNPCInterface
 			if (this.region == null || this.point == null) {
 				return;
 			}
-			Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.region.dimensionID, this.point.x,
-					this.region.y[0] + (this.region.y[1] - this.region.y[0]) / 2, this.point.y });
+			Client.sendData(EnumPacketServer.TeleportTo, this.region.dimensionID, this.point.x,
+                    this.region.y[0] + (this.region.y[1] - this.region.y[0]) / 2, this.point.y);
 			Client.sendData(EnumPacketServer.RegionData, 0, this.region.getId());
 			this.close();
 			break;

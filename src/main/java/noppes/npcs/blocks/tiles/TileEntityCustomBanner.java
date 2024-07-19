@@ -7,6 +7,8 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.data.Faction;
 
+import javax.annotation.Nonnull;
+
 public class TileEntityCustomBanner extends TileEntityBanner {
 
 	public int factionId = -1;
@@ -16,7 +18,7 @@ public class TileEntityCustomBanner extends TileEntityBanner {
 		return f == null ? null : f.flag;
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		if (compound.hasKey("FactionID", 3)) {
 			factionId = compound.getInteger("FactionID");
@@ -24,7 +26,7 @@ public class TileEntityCustomBanner extends TileEntityBanner {
 	}
 
 	@Override
-	public void setItemValues(ItemStack stack, boolean bo) {
+	public void setItemValues(@Nonnull ItemStack stack, boolean bo) {
 		super.setItemValues(stack, bo);
 		factionId = -1;
 		NBTTagCompound nbt = stack.getTagCompound();
@@ -34,7 +36,7 @@ public class TileEntityCustomBanner extends TileEntityBanner {
 		}
 	}
 
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		compound.setInteger("FactionID", factionId);
 		return compound;

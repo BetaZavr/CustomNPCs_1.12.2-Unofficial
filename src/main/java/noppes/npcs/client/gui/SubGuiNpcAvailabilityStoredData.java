@@ -19,23 +19,22 @@ import noppes.npcs.constants.EnumAvailabilityStoredData;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.AvailabilityStoredData;
 
-public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
-		implements ICustomScrollListener, ITextfieldListener {
+public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface implements ICustomScrollListener, ITextfieldListener {
 
-	private Availability availabitily;
+	private final Availability availability;
 	private final Map<String, AvailabilityStoredData> data;
 	private GuiCustomScroll scroll;
 	private AvailabilityStoredData select;
 	private int keyError;
 
-	public SubGuiNpcAvailabilityStoredData(Availability availabitily) {
-		this.availabitily = availabitily;
+	public SubGuiNpcAvailabilityStoredData(Availability availability) {
+		this.availability = availability;
 		this.setBackground("menubg.png");
 		this.xSize = 316;
 		this.ySize = 217;
 		this.closeOnEsc = true;
 
-		this.data = Maps.<String, AvailabilityStoredData>newTreeMap();
+		this.data = Maps.newTreeMap();
 		this.select = null;
 	}
 
@@ -52,7 +51,7 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 			if (this.select == null) {
 				return;
 			}
-			this.availabitily.storeddata.remove(this.select);
+			this.availability.storeddata.remove(this.select);
 			this.select = null;
 			this.initGui();
 			break;
@@ -61,42 +60,34 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 			if (this.getTextField(0) == null || this.getTextField(1) == null || this.getButton(0) == null) {
 				return;
 			}
-			if (this.select != null) {
-				String key = this.getTextField(0).getText();
-				int i = 0;
-				while (true) {
-					if (i >= this.availabitily.storeddata.size()) {
-						break;
-					}
-					AvailabilityStoredData asd = this.availabitily.storeddata.get(i);
-					i++;
-					if (asd == this.select) {
-						continue;
-					}
-					if (asd.key.equals(key)) {
-						key += "_";
-						i = 0;
-					}
-				}
+            String key = this.getTextField(0).getText();
+            int i = 0;
+            if (this.select != null) {
+                while (i < this.availability.storeddata.size()) {
+                    AvailabilityStoredData asd = this.availability.storeddata.get(i);
+                    i++;
+                    if (asd == this.select) {
+                        continue;
+                    }
+                    if (asd.key.equals(key)) {
+                        key += "_";
+                        i = 0;
+                    }
+                }
 				this.select.key = key;
 				this.select.value = this.getTextField(1).getText();
 				this.select.type = EnumAvailabilityStoredData.values()[this.getButton(0).getValue()];
 				this.select = null;
 			} else {
-				String key = this.getTextField(0).getText();
-				int i = 0;
-				while (true) {
-					if (i >= this.availabitily.storeddata.size()) {
-						break;
-					}
-					AvailabilityStoredData asd = this.availabitily.storeddata.get(i);
-					i++;
-					if (asd.key.equals(key)) {
-						key += "_";
-						i = 0;
-					}
-				}
-				this.availabitily.storeddata.add(new AvailabilityStoredData(key, this.getTextField(1).getText(), EnumAvailabilityStoredData.values()[this.getButton(0).getValue()]));
+                while (i < this.availability.storeddata.size()) {
+                    AvailabilityStoredData asd = this.availability.storeddata.get(i);
+                    i++;
+                    if (asd.key.equals(key)) {
+                        key += "_";
+                        i = 0;
+                    }
+                }
+				this.availability.storeddata.add(new AvailabilityStoredData(key, this.getTextField(1).getText(), EnumAvailabilityStoredData.values()[this.getButton(0).getValue()]));
 			}
 			this.initGui();
 			break;
@@ -131,15 +122,15 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 			return;
 		}
 		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.sd.key").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.sd.key").getFormattedText());
 		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.sd.value").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.sd.value").getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.sdtype." + this.getButton(0).getValue()).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.sdtype." + this.getButton(0).getValue()).getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.remove").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.remove").getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.more").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.more").getFormattedText());
 		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
@@ -158,7 +149,7 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 6, y + 22, 70, 20, "gui.done"));
 		this.data.clear();
 		String selKey = "";
-		for (AvailabilityStoredData sd : this.availabitily.storeddata) {
+		for (AvailabilityStoredData sd : this.availability.storeddata) {
 			String type = "" + ((char) 167);
 			switch(sd.type) {
 				case ONLY: type += "a+"; break;
@@ -209,11 +200,7 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 		this.addButton(new GuiNpcButton(3, this.guiLeft + this.xSize - 76, y + 22, 70, 20, "availability.more"));
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		if (!this.data.containsKey(scroll.getSelected())) {
 			return;
@@ -235,20 +222,17 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 			}
 			String key = textfield.getText();
 			int i = 0;
-			while (true) {
-				if (i >= this.availabitily.storeddata.size()) {
-					break;
-				}
-				AvailabilityStoredData asd = this.availabitily.storeddata.get(i);
-				i++;
-				if (asd == this.select) {
-					continue;
-				}
-				if (asd.key.equals(key)) {
-					key += "_";
-					i = 0;
-				}
-			}
+            while (i < this.availability.storeddata.size()) {
+                AvailabilityStoredData asd = this.availability.storeddata.get(i);
+                i++;
+                if (asd == this.select) {
+                    continue;
+                }
+                if (asd.key.equals(key)) {
+                    key += "_";
+                    i = 0;
+                }
+            }
 			if (!textfield.getText().equals(key)) {
 				textfield.setText(key);
 				this.keyError = 60;

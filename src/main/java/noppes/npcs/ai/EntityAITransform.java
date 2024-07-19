@@ -5,7 +5,8 @@ import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAITransform extends EntityAIBase {
-	private EntityNPCInterface npc;
+
+	private final EntityNPCInterface npc;
 
 	public EntityAITransform(EntityNPCInterface npc) {
 		this.npc = npc;
@@ -14,8 +15,7 @@ public class EntityAITransform extends EntityAIBase {
 
 	public boolean shouldExecute() {
 		return !this.npc.isKilled() && !this.npc.isAttacking() && !this.npc.transform.editingModus
-				&& ((this.npc.world.getWorldTime() % 24000L < 12000L) ? this.npc.transform.isActive
-						: (!this.npc.transform.isActive));
+				&& ((this.npc.world.getWorldTime() % 24000L < 12000L) == this.npc.transform.isActive);
 	}
 
 	public void startExecuting() {

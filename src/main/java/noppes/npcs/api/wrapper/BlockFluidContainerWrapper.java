@@ -2,14 +2,13 @@ package noppes.npcs.api.wrapper;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.BlockFluidBase;
 import noppes.npcs.api.block.IBlockFluidContainer;
 
 public class BlockFluidContainerWrapper extends BlockWrapper implements IBlockFluidContainer {
 
-	private BlockFluidBase block;
+	private final BlockFluidBase block;
 
 	public BlockFluidContainerWrapper(World world, Block block, BlockPos pos) {
 		super(world, block, pos);
@@ -28,16 +27,16 @@ public class BlockFluidContainerWrapper extends BlockWrapper implements IBlockFl
 
 	@Override
 	public float getFluidValue() {
-		return this.block.getQuantaValue((IBlockAccess) this.world.getMCWorld(), this.pos);
+		return this.block.getQuantaValue(this.world.getMCWorld(), this.pos);
 	}
 
 	@Override
-	public float getFuildDensity() {
-		return BlockFluidBase.getDensity((IBlockAccess) this.world.getMCWorld(), this.pos);
+	public float getFluidDensity() {
+		return BlockFluidBase.getDensity(this.world.getMCWorld(), this.pos);
 	}
 
 	@Override
-	public float getFuildTemperature() {
-		return BlockFluidBase.getTemperature((IBlockAccess) this.world.getMCWorld(), this.pos);
+	public float getFluidTemperature() {
+		return BlockFluidBase.getTemperature(this.world.getMCWorld(), this.pos);
 	}
 }

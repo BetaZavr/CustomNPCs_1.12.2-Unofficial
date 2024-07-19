@@ -11,6 +11,8 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.NBTWrapper;
 
+import java.util.Objects;
+
 public class LayerModel implements ILayerModel {
 
 	public ItemStack model = ItemStack.EMPTY;
@@ -33,7 +35,7 @@ public class LayerModel implements ILayerModel {
 
 	@Override
 	public IItemStack getModel() {
-		return NpcAPI.Instance().getIItemStack(this.model);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.model);
 	}
 
 	@Override
@@ -63,7 +65,7 @@ public class LayerModel implements ILayerModel {
 		nbtLayer.setByteArray("isRotate", this.isRotate);
 		nbtLayer.setInteger("Pos", this.pos);
 		nbtLayer.setInteger("Speed", this.rotateSpeed);
-		return NpcAPI.Instance().getINbt(nbtLayer);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtLayer);
 	}
 
 	@Override

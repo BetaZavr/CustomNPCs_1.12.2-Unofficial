@@ -3,15 +3,10 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Files;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -39,15 +34,15 @@ public class SchematicController {
 	public static SchematicController Instance = new SchematicController();
 	public static long time = 50L;
 
-	public static void buildBlocks(EntityPlayerMP player, BlockPos pos, int rotaion, Schematic schema) { // Schematica
+	public static void buildBlocks(EntityPlayerMP player, BlockPos pos, int rotation, Schematic schema) { // Schematic
 																											// Build
 		if (player == null || pos == null || schema == null) {
 			return;
 		}
-		long ticks = 3000L + schema.blockIdsArray.length * SchematicController.time + (long) Math.floor(schema.blockIdsArray.length / CustomNpcs.MaxBuilderBlocks) * 1000L;
+		long ticks = 3000L + schema.blockIdsArray.length * SchematicController.time + (long) Math.floor((double) schema.blockIdsArray.length / CustomNpcs.MaxBuilderBlocks) * 1000L;
 		player.sendMessage(new TextComponentTranslation("schematic.info.started", schema.name, "" + pos.getX(), "" + pos.getY(), "" + pos.getZ(), AdditionalMethods.ticksToElapsedTime(ticks, true, true, false)));
 		SchematicWrapper sw = new SchematicWrapper(schema);
-		sw.init(pos.east().south(), player.world, rotaion * 90);
+		sw.init(pos.east().south(), player.world, rotation * 90);
 		SchematicController.Instance.build(sw, player);
 	}
 	
@@ -66,15 +61,15 @@ public class SchematicController {
 		}
 		return schematicDir;
 	}
-	private List<SchematicWrapper> buildingList;
+	private final List<SchematicWrapper> buildingList;
 	public List<String> included;
 
 	public Map<String, SchematicWrapper> map;
 
-	private char chr = ((char) 167);
+	private final char chr = ((char) 167);
 
 	public SchematicController() {
-		this.buildingList = Lists.<SchematicWrapper>newArrayList();
+		this.buildingList = Lists.newArrayList();
 		this.included = Arrays.asList("archery_range.schematic", "bakery.schematic", "barn.schematic",
 				"building_site.schematic", "chapel.schematic", "church.schematic", "gate.schematic",
 				"glassworks.schematic", "guard_Tower.schematic", "guild_house.schematic", "house.schematic",
@@ -82,7 +77,7 @@ public class SchematicController {
 				"observatory.schematic", "ship.schematic", "shop.schematic", "stall.schematic", "stall2.schematic",
 				"stall3.schematic", "tier_house1.schematic", "tier_house2.schematic", "tier_house3.schematic",
 				"tower.schematic", "wall.schematic", "wall_corner.schematic");
-		this.map = Maps.<String, SchematicWrapper>newHashMap();
+		this.map = Maps.newHashMap();
 	}
 
 	public void build(SchematicWrapper schema, ICommandSender sender) {
@@ -120,9 +115,8 @@ public class SchematicController {
 	}
 
 	public List<String> list() {
-		List<String> list = new ArrayList<String>();
-		list.addAll(this.included);
-		for (File file : SchematicController.getDir().listFiles()) {
+        List<String> list = new ArrayList<>(this.included);
+		for (File file : Objects.requireNonNull(SchematicController.getDir().listFiles())) {
 			String name = file.getName();
 			if (name.toLowerCase().endsWith(".schematic") || name.toLowerCase().endsWith(".blueprint")) {
 				list.add(name);
@@ -140,7 +134,7 @@ public class SchematicController {
 		if (stream == null) {
 			File file = new File(SchematicController.getDir(), name);
 			if (!file.exists()) {
-				for (File f : SchematicController.getDir().listFiles()) {
+				for (File f : Objects.requireNonNull(SchematicController.getDir().listFiles())) {
 					if (f.getName().equalsIgnoreCase(name)) {
 						file = f;
 						break;
@@ -162,8 +156,10 @@ public class SchematicController {
 			stream.close();
 			if (name.toLowerCase().endsWith(".blueprint")) {
 				Blueprint bp = BlueprintUtil.readBlueprintFromNBT(compound);
-				bp.setName(name);
-				schemaWr = new SchematicWrapper(bp);
+				if (bp != null){
+					bp.setName(name);
+					schemaWr = new SchematicWrapper(bp);
+				}
 			}
 			Schematic schema = new Schematic(name);
 			schema.load(compound);
@@ -193,12 +189,12 @@ public class SchematicController {
 			file = new File(SchematicController.getDir(), name + ".blueprint");
 			schema = BlueprintUtil.createBlueprint(world, pos, width, length, height);
 		}
-		NoppesUtilServer.NotifyOPs("Schematic " + name + " succesfully created", new Object[0]);
+		NoppesUtilServer.NotifyOPs("Schematic " + name + " succesfully created");
 		try {
-			CompressedStreamTools.writeCompressed(schema.getNBT(), (OutputStream) new FileOutputStream(file));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			if (schema != null) {
+				CompressedStreamTools.writeCompressed(schema.getNBT(), Files.newOutputStream(file.toPath()));
+			}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	private void sendMessage(ICommandSender sender, String message, Object... objs) {
@@ -212,15 +208,14 @@ public class SchematicController {
 		if (this.buildingList == null || this.buildingList.isEmpty()) {
 			this.sendMessage(sender, "schematic.info.build.empty");
 		} else {
-			String smts = "";
+			StringBuilder smts = new StringBuilder();
 			for (SchematicWrapper sm : this.buildingList) {
-				if (!smts.isEmpty()) {
-					smts += ";" + ((char) 10);
+				if (smts.length() > 0) {
+					smts.append(";" + ((char) 10));
 				}
-				smts += this.chr + "7\"" + sm.schema.getName() + "\" in [" + sm.start.getX() + ", " + sm.start.getY()
-						+ ", " + sm.start.getZ() + "]";
+				smts.append(this.chr).append("7\"").append(sm.schema.getName()).append("\" in [").append(sm.start.getX()).append(", ").append(sm.start.getY()).append(", ").append(sm.start.getZ()).append("]");
 			}
-			this.sendMessage(sender, "schematic.info.build.stop", smts);
+			this.sendMessage(sender, "schematic.info.build.stop", smts.toString());
 			this.buildingList.clear();
 		}
 	}

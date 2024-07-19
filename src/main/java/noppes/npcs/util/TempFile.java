@@ -1,27 +1,24 @@
 package noppes.npcs.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.util.NBTJsonUtil.JsonException;
 
 public class TempFile {
 
-	private static int maxPart = 30000;
+	private static final int maxPart = 30000;
 
 	public String name;
-	public final Map<Integer, String> data = Maps.<Integer, String>newTreeMap();
+	public final Map<Integer, String> data = Maps.newTreeMap();
 	public int fileType; // 0 - simple text, 1 - nbt json, 2 - compressed nbt
 	public int saveType; // 0 - temp file, 1 - client script, 2 - normal save
 	public int tryLoads;
@@ -35,16 +32,6 @@ public class TempFile {
 		this.size = 0;
 		this.tryLoads = 0;
 		this.lastLoad = System.currentTimeMillis();
-	}
-
-	public TempFile(File file) {
-		this.name = file.getAbsolutePath();
-		this.fileType = 0;
-		this.saveType = 0;
-		this.size = file.length();
-		this.tryLoads = 0;
-		this.lastLoad = System.currentTimeMillis();
-		this.reset(file);
 	}
 
 	public TempFile(String name, int filetype, int savetype, long size) {
@@ -62,20 +49,19 @@ public class TempFile {
 		}
 		try {
 			return NBTJsonUtil.Convert(this.getDataText());
-		} catch (JsonException e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		return null;
 	}
 
 	public String getDataText() {
-		String text = "";
+		StringBuilder text = new StringBuilder();
 		for (String str : this.data.values()) {
-			text += str;
+			text.append(str);
 		}
-		return text;
+		return text.toString();
 	}
 
-	public int getNextPatr() {
+	public int getNextPart() {
 		if (this.data.isEmpty()) {
 			return -1;
 		}
@@ -111,7 +97,7 @@ public class TempFile {
 		return true;
 	}
 
-	public void reset(File file) {
+	public void reset(File file) throws IOException {
 		if (file == null || !file.exists()) {
 			this.data.clear();
 			this.size = -1;
@@ -120,23 +106,18 @@ public class TempFile {
 		this.saveType = 0;
 		this.size = file.length();
 		try {
-			NBTTagCompound nbt = CompressedStreamTools.readCompressed(new FileInputStream(file));
+			NBTTagCompound nbt = CompressedStreamTools.readCompressed(java.nio.file.Files.newInputStream(file.toPath()));
 			this.fileType = 2;
 			this.reset(NBTJsonUtil.Convert(nbt));
 			return;
-		} catch (IOException e) {
-		}
+		} catch (IOException e) { LogWriter.error("Error:", e); }
 
-		String text = "";
-		try {
-			text = Files.toString(file, Charset.forName("UTF-8"));
-		} catch (IOException e) {
-		}
+		String text = CommonProxy.loadFile(file);
+
 		try {
 			NBTJsonUtil.Convert(text);
 			this.fileType = 1;
-		} catch (JsonException e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		this.reset(text);
 	}
 
@@ -151,11 +132,8 @@ public class TempFile {
 		}
 		int part = 0;
 		while (!text.isEmpty()) {
-			int end = text.length() < TempFile.maxPart ? text.length() : TempFile.maxPart;
-			if (end == 0) {
-				break;
-			}
-			this.data.put(part, text.substring(0, end));
+			int end = Math.min(text.length(), TempFile.maxPart);
+            this.data.put(part, text.substring(0, end));
 			if (end == text.length()) {
 				break;
 			}
@@ -164,29 +142,24 @@ public class TempFile {
 		}
 	}
 
-	public void save() {
+	public void save() throws IOException {
 		if (!this.isLoad()) {
 			return;
 		}
 		File file = new File(this.name);
 		if (this.saveType == 0) {
 			File dir = new File(CustomNpcs.Dir, "temp files");
-			if (!dir.exists()) {
-				dir.mkdir();
+			if (dir.exists() || dir.mkdir()) {
+				file = new File(dir, file.getName());
 			}
-			file = new File(dir, file.getName());
 		} else if (this.saveType == 1) {
 			File dir = new File(CustomNpcs.Dir, "client scripts/ecmascript");
-			if (!dir.exists()) {
-				dir.mkdir();
+			if (dir.exists() || dir.mkdir()) {
+				file = new File(dir, file.getName());
 			}
-			file = new File(dir, file.getName());
 		}
-		if (!file.exists()) {
-			try {
-				file.createNewFile();
-			} catch (IOException e) {
-			}
+		if (!file.exists() && !file.createNewFile()) {
+			return;
 		}
 		if (file.exists()) {
 			this.saveTo(file);
@@ -208,7 +181,7 @@ public class TempFile {
 		}
 		case 2: {
 			try {
-				CompressedStreamTools.writeCompressed(this.getDataNbt(), new FileOutputStream(file));
+				CompressedStreamTools.writeCompressed(this.getDataNbt(), java.nio.file.Files.newOutputStream(file.toPath()));
 				LogWriter.debug("Save nbt compressed to file: " + file.getAbsolutePath());
 			} catch (IOException e) {
 				LogWriter.error("Error save nbt compressed to file: " + file.getAbsolutePath(), e);
@@ -216,12 +189,7 @@ public class TempFile {
 			break;
 		}
 		default: {
-			try {
-				Files.write(this.getDataText().getBytes(), file);
-				LogWriter.debug("Save text to file: " + file.getAbsolutePath());
-			} catch (IOException e) {
-				LogWriter.error("Error save text to file: " + file.getAbsolutePath(), e);
-			}
+			if (CommonProxy.saveFile(file, this.getDataText())) { LogWriter.debug("Save text to file: " + file.getAbsolutePath()); }
 			break;
 		}
 		}

@@ -13,18 +13,18 @@ public class CustomGuiLabelWrapper extends CustomGuiComponentWrapper implements 
 	String label;
 	float scale;
 	int width;
-	boolean showShedow;
+	boolean showShadow;
 
 	public CustomGuiLabelWrapper() {
 		this.color = CustomNpcs.LableColor.getRGB();
 		this.scale = 1.0f;
-		this.showShedow = false;
+		this.showShadow = false;
 	}
 
 	public CustomGuiLabelWrapper(int id, String label, int x, int y, int width, int height) {
 		this.color = CustomNpcs.LableColor.getRGB();
 		this.scale = 1.0f;
-		this.showShedow = false;
+		this.showShadow = false;
 		this.setId(id);
 		this.setText(label);
 		this.setPos(x, y);
@@ -43,7 +43,7 @@ public class CustomGuiLabelWrapper extends CustomGuiComponentWrapper implements 
 		this.setSize(nbt.getIntArray("size")[0], nbt.getIntArray("size")[1]);
 		this.setColor(nbt.getInteger("color"));
 		this.setScale(nbt.getFloat("scale"));
-		this.showShedow = nbt.getBoolean("shedow");
+		this.showShadow = nbt.getBoolean("shadow");
 		return this;
 	}
 
@@ -78,8 +78,8 @@ public class CustomGuiLabelWrapper extends CustomGuiComponentWrapper implements 
 	}
 
 	@Override
-	public boolean isShedow() {
-		return this.showShedow;
+	public boolean isShadow() {
+		return this.showShadow;
 	}
 
 	@Override
@@ -95,8 +95,8 @@ public class CustomGuiLabelWrapper extends CustomGuiComponentWrapper implements 
 	}
 
 	@Override
-	public void setShedow(boolean showShedow) {
-		this.showShedow = showShedow;
+	public void setShadow(boolean showShadow) {
+		this.showShadow = showShadow;
 	}
 
 	@Override
@@ -122,7 +122,7 @@ public class CustomGuiLabelWrapper extends CustomGuiComponentWrapper implements 
 		nbt.setIntArray("size", new int[] { this.width, this.height });
 		nbt.setInteger("color", this.color);
 		nbt.setFloat("scale", this.scale);
-		nbt.setBoolean("shedow", this.showShedow);
+		nbt.setBoolean("shadow", this.showShadow);
 		return nbt;
 	}
 }

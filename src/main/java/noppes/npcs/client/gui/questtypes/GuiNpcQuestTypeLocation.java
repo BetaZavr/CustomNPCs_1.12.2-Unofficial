@@ -30,11 +30,13 @@ import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
 
+import javax.annotation.Nonnull;
+
 public class GuiNpcQuestTypeLocation extends SubGuiInterface implements ITextfieldListener {
 
 	public GuiScreen parent;
-	private QuestObjective task;
-	private Map<Integer, Integer> dataDimIDs = Maps.<Integer, Integer>newHashMap();
+	private final QuestObjective task;
+	private final Map<Integer, Integer> dataDimIDs = Maps.newHashMap();
 
 	public GuiNpcQuestTypeLocation(EntityNPCInterface npc, QuestObjective task, GuiScreen parent) {
 		this.npc = npc;
@@ -48,7 +50,7 @@ public class GuiNpcQuestTypeLocation extends SubGuiInterface implements ITextfie
 	}
 
 	@Override
-	public void actionPerformed(GuiButton guibutton) {
+	public void actionPerformed(@Nonnull GuiButton guibutton) {
 		super.actionPerformed(guibutton);
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
@@ -77,8 +79,7 @@ public class GuiNpcQuestTypeLocation extends SubGuiInterface implements ITextfie
 			if (this.task == null) {
 				return;
 			}
-			Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.task.dimensionID, this.task.pos.getX(),
-					this.task.pos.getY(), this.task.pos.getZ() });
+			Client.sendData(EnumPacketServer.TeleportTo, this.task.dimensionID, this.task.pos.getX(), this.task.pos.getY(), this.task.pos.getZ());
 			break;
 		}
 		case 66: {
@@ -199,8 +200,8 @@ public class GuiNpcQuestTypeLocation extends SubGuiInterface implements ITextfie
 			NoppesUtilServer.getEditingQuest(this.player).questInterface.removeTask(this.task);
 		} else {
 			if (((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui instanceof GuiQuestEdit) {
-				((GuiQuestEdit) ((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui).subgui = null;
-				((GuiQuestEdit) ((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui).initGui();
+				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.subgui = null;
+				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.initGui();
 			}
 		}
 	}

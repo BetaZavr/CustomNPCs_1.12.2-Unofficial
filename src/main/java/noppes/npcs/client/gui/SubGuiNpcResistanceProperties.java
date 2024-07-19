@@ -31,8 +31,8 @@ public class SubGuiNpcResistanceProperties
 extends SubGuiInterface
 implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListener {
 
-	private Resistances resistances;
-	private final Map<String, String> data = Maps.<String, String>newHashMap();
+	private final Resistances resistances;
+	private final Map<String, String> data = Maps.newHashMap();
 	private GuiCustomScroll scroll;
 	private String select = "";
 
@@ -77,9 +77,8 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 	@Override
 	public void initGui() {
 		super.initGui();
-		
-		List<String> names = Lists.<String>newArrayList();
-		List<String> notList = Lists.<String>newArrayList();
+		List<String> names = Lists.newArrayList();
+		List<String> notList = Lists.newArrayList();
 		Map<String, String> mapSfx = Maps.newHashMap();
 		for (String name : this.data.keySet()) {
 			if (this.resistances.data.containsKey(this.data.get(name))) {
@@ -99,8 +98,8 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 		names.addAll(notList);
 		if (this.select.isEmpty() && !names.isEmpty()) { this.select = AdditionalMethods.instance.deleteColor(names.get(0)); }
 		
-		List<String> suffixs = Lists.<String>newArrayList();
-		for (String key : names) { suffixs.add("" + mapSfx.get(key)); }
+		List<String> suffixs = Lists.newArrayList();
+		for (String key : names) { suffixs.add(mapSfx.get(key)); }
 		
 		if (this.scroll == null) { (this.scroll = new GuiCustomScroll(this, 0)).setSize(248, 176); }
 		this.scroll.guiLeft = this.guiLeft + 4;

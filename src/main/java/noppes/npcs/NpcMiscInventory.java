@@ -7,6 +7,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+
+import javax.annotation.Nonnull;
 
 public class NpcMiscInventory implements IInventory {
 
@@ -18,40 +21,36 @@ public class NpcMiscInventory implements IInventory {
 		this.items = NonNullList.withSize(size, ItemStack.EMPTY);
 	}
 
-	public boolean addItemStack(ItemStack item) {
-		boolean merged = false;
-		ItemStack mergable;
+	public void addItemStack(ItemStack item) {
+        ItemStack mergable;
 		while (!(mergable = this.getMergableItem(item)).isEmpty() && mergable.getCount() > 0) {
 			int size = mergable.getMaxStackSize() - mergable.getCount();
 			if (size > item.getCount()) {
 				mergable.setCount(mergable.getMaxStackSize());
 				item.setCount(item.getCount() - size);
-				merged = true;
-			} else {
+            } else {
 				mergable.setCount(mergable.getCount() + item.getCount());
 				item.setCount(0);
 			}
 		}
 		if (item.getCount() <= 0) {
-			return true;
+			return;
 		}
 		int slot = this.firstFreeSlot();
 		if (slot >= 0) {
 			this.items.set(slot, item.copy());
 			item.setCount(0);
-			return true;
 		}
-		return merged;
 	}
 
 	public void clear() {
 		this.items.clear();
 	}
 
-	public void closeInventory(EntityPlayer player) {
+	public void closeInventory(@Nonnull EntityPlayer player) {
 	}
 
-	public ItemStack decrStackSize(int index, int count) {
+	public @Nonnull ItemStack decrStackSize(int index, int count) {
 		return ItemStackHelper.getAndSplit(this.items, index, count);
 	}
 
@@ -71,7 +70,7 @@ public class NpcMiscInventory implements IInventory {
 
 	public NpcMiscInventory fill(NpcMiscInventory inv) {
 		this.items.clear();
-		for (int i = 0; i < this.items.size() && i < inv.items.size(); i++) {
+		for (int i = 0; i < this.getSizeInventory() && i < inv.getSizeInventory(); i++) {
 			this.items.set(i, inv.items.get(i));
 		}
 		return this;
@@ -88,7 +87,7 @@ public class NpcMiscInventory implements IInventory {
 
 	public int getCountEmpty() {
 		int c = 0;
-		for (int s = 0; s < this.items.size(); ++s) {
+		for (int s = 0; s < this.getSizeInventory(); ++s) {
 			if (this.items.get(s).isEmpty()) {
 				c++;
 			}
@@ -96,8 +95,8 @@ public class NpcMiscInventory implements IInventory {
 		return c;
 	}
 
-	public ITextComponent getDisplayName() {
-		return null;
+	public @Nonnull ITextComponent getDisplayName() {
+		return new TextComponentString("Custom Inventory");
 	}
 
 	public int getField(int id) {
@@ -121,7 +120,7 @@ public class NpcMiscInventory implements IInventory {
 		return ItemStack.EMPTY;
 	}
 
-	public String getName() {
+	public @Nonnull String getName() {
 		return "Npc Misc Inventory";
 	}
 
@@ -129,10 +128,8 @@ public class NpcMiscInventory implements IInventory {
 		return this.items.size();
 	}
 
-	public ItemStack getStackInSlot(int index) {
-		if (index < 0 || index >= this.items.size()) {
-			return null;
-		}
+	public @Nonnull ItemStack getStackInSlot(int index) {
+		if (index < 0 || index >= this.items.size()) { return ItemStack.EMPTY; }
 		return this.items.get(index);
 	}
 
@@ -166,21 +163,21 @@ public class NpcMiscInventory implements IInventory {
 		return true;
 	}
 
-	public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+	public boolean isItemValidForSlot(int i, @Nonnull ItemStack itemstack) {
 		return true;
 	}
 
-	public boolean isUsableByPlayer(EntityPlayer var1) {
+	public boolean isUsableByPlayer(@Nonnull EntityPlayer var1) {
 		return true;
 	}
 
 	public void markDirty() {
 	}
 
-	public void openInventory(EntityPlayer player) {
+	public void openInventory(@Nonnull EntityPlayer player) {
 	}
 
-	public ItemStack removeStackFromSlot(int slotId) {
+	public @Nonnull ItemStack removeStackFromSlot(int slotId) {
 		return this.items.set(slotId, ItemStack.EMPTY);
 	}
 
@@ -191,7 +188,7 @@ public class NpcMiscInventory implements IInventory {
 		NBTTags.getItemStackList(nbttagcompound.getTagList("NpcMiscInv", 10), this.items);
 	}
 
-	public void setInventorySlotContents(int var1, ItemStack var2) {
+	public void setInventorySlotContents(int var1, @Nonnull ItemStack var2) {
 		if (var1 >= this.getSizeInventory()) {
 			return;
 		}

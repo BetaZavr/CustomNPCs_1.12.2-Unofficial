@@ -8,7 +8,6 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -26,22 +25,18 @@ import noppes.npcs.controllers.data.Faction;
 
 public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 		implements ICustomScrollListener, GuiSelectionListener {
-	private Availability availabitily;
-	private String chr = "" + ((char) 167);
-	private Map<String, Integer> dataIDs;
-	private Map<String, AvailabilityFactionData> dataSets;
+	private final Availability availability;
+	private final String chr = "" + ((char) 167);
+	private final Map<String, Integer> dataIDs = new HashMap<>();
+	private final Map<String, AvailabilityFactionData> dataSets = new HashMap<>();
 	private GuiCustomScroll scroll;
-	private String select;
+	private String select = "";
 
-	public SubGuiNpcAvailabilityFaction(Availability availabitily) {
-		this.availabitily = availabitily;
+	public SubGuiNpcAvailabilityFaction(Availability availability) {
+		this.availability = availability;
 		this.setBackground("menubg.png");
 		this.xSize = 316;
 		this.ySize = 217;
-		this.closeOnEsc = true;
-		this.dataIDs = new HashMap<String, Integer>();
-		this.dataSets = new HashMap<String, AvailabilityFactionData>();
-		this.select = "";
 		this.closeOnEsc = true;
 	}
 
@@ -52,9 +47,9 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 				return;
 			}
 			int id = this.dataIDs.get(this.select);
-			AvailabilityFactionData afd = this.availabitily.factions.get(id);
+			AvailabilityFactionData afd = this.availability.factions.get(id);
 			afd.factionAvailable = EnumAvailabilityFactionType.values()[button.getValue()];
-			this.availabitily.factions.put(id, afd);
+			this.availability.factions.put(id, afd);
 			this.select = "ID:" + id + " - ";
 			Faction faction = FactionController.instance.factions.get(id);
 			if (faction == null) {
@@ -88,10 +83,10 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 			GuiNPCFactionSelection gui = new GuiNPCFactionSelection(this.npc, this.getParent(),
 					this.select.isEmpty() ? 0 : this.dataIDs.get(this.select));
 			gui.listener = this;
-			NoppesUtil.openGUI((EntityPlayer) this.player, gui);
+			NoppesUtil.openGUI(this.player, gui);
 		}
 		if (button.id == 2) {
-			this.availabitily.factions.remove(this.dataIDs.get(this.select));
+			this.availability.factions.remove(this.dataIDs.get(this.select));
 			this.select = "";
 			this.initGui();
 		}
@@ -105,9 +100,9 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 			}
 			EnumAvailabilityFaction eaf = EnumAvailabilityFaction.values()[button.getValue()];
 			int id = this.dataIDs.get(this.select);
-			AvailabilityFactionData afd = this.availabitily.factions.get(id);
+			AvailabilityFactionData afd = this.availability.factions.get(id);
 			afd.factionStance = eaf;
-			this.availabitily.factions.put(id, afd);
+			this.availability.factions.put(id, afd);
 			this.select = "ID:" + id + " - ";
 			Faction faction = FactionController.instance.factions.get(id);
 			if (faction == null) {
@@ -144,14 +139,14 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 	@Override
 	public void close() {
 		super.close();
-		List<Integer> delete = new ArrayList<Integer>();
-		for (int id : this.availabitily.factions.keySet()) {
-			if (this.availabitily.factions.get(id).factionAvailable == EnumAvailabilityFactionType.Always) {
+		List<Integer> delete = new ArrayList<>();
+		for (int id : this.availability.factions.keySet()) {
+			if (this.availability.factions.get(id).factionAvailable == EnumAvailabilityFactionType.Always) {
 				delete.add(id);
 			}
 		}
 		for (int id : delete) {
-			this.availabitily.factions.remove(id);
+			this.availability.factions.remove(id);
 		}
 	}
 
@@ -159,13 +154,13 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + this.ySize - 46, 102, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.enum.type").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.enum.type").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 110, this.guiTop + this.ySize - 46, 178, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.faction").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.faction").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 290, this.guiTop + this.ySize - 46, 20, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.remove").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.remove").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + this.xSize - 76, this.guiTop + 192, 70, 20)) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.more").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.more").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + 192, 70, 20)) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
@@ -184,12 +179,12 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 		if (this.scroll == null) {
 			(this.scroll = new GuiCustomScroll(this, 6)).setSize(this.xSize - 12, this.ySize - 66);
 		}
-		this.dataIDs = new HashMap<String, Integer>();
-		this.dataSets = new HashMap<String, AvailabilityFactionData>();
-		for (int id : this.availabitily.factions.keySet()) {
+		this.dataIDs.clear();
+		this.dataSets.clear();
+		for (int id : this.availability.factions.keySet()) {
 			String key = "ID:" + id + " - ";
 			Faction faction = FactionController.instance.factions.get(id);
-			AvailabilityFactionData afd = this.availabitily.factions.get(id);
+			AvailabilityFactionData afd = this.availability.factions.get(id);
 			if (faction == null) {
 				key += chr + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
 			} else {
@@ -215,7 +210,7 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 						+ chr + "7)";
 			}
 			this.dataIDs.put(key, id);
-			this.dataSets.put(key, this.availabitily.factions.get(id));
+			this.dataSets.put(key, this.availability.factions.get(id));
 		}
 		if (!this.select.isEmpty() && !this.dataIDs.containsKey(this.select)) {
 			this.select = "";
@@ -256,10 +251,10 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 		AvailabilityFactionData afd = new AvailabilityFactionData(eaft, eaf);
 		int id = this.dataIDs.get(this.select);
 		if (eaft != EnumAvailabilityFactionType.Always) {
-			this.availabitily.factions.put(id, afd);
+			this.availability.factions.put(id, afd);
 			this.dataSets.put(this.select, afd);
 		} else {
-			this.availabitily.factions.remove(id);
+			this.availability.factions.remove(id);
 		}
 		this.select = "";
 	}
@@ -275,7 +270,7 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 		GuiNPCFactionSelection gui = new GuiNPCFactionSelection(this.npc, this.getParent(),
 				this.dataIDs.get(this.select));
 		gui.listener = this;
-		NoppesUtil.openGUI((EntityPlayer) this.player, gui);
+		NoppesUtil.openGUI(this.player, gui);
 	}
 
 	@Override
@@ -284,7 +279,7 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 			return;
 		}
 		if (!this.select.isEmpty()) {
-			this.availabitily.factions.remove(this.dataIDs.get(this.select));
+			this.availability.factions.remove(this.dataIDs.get(this.select));
 		}
 		Faction faction = FactionController.instance.factions.get(id);
 		AvailabilityFactionData afd = new AvailabilityFactionData(EnumAvailabilityFactionType.Is,
@@ -297,7 +292,7 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 					+ new TextComponentTranslation("availability.is").getFormattedText() + chr + "7)" + chr + "7 ("
 					+ chr + "9" + new TextComponentTranslation("faction.friendly").getFormattedText() + chr + "7)";
 		}
-		this.availabitily.factions.put(id, afd);
+		this.availability.factions.put(id, afd);
 		this.initGui();
 		this.updateGuiButtons();
 	}

@@ -45,11 +45,10 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScrollListener, IGuiData {
 
-	private Map<String, Deal> data;
+	private final Map<String, Deal> data = Maps.newTreeMap();
 	int px, py, colorP = 0x01000000;
-	private ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trader.png");
+	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trader.png");
 	private GuiCustomScroll scroll;
-	boolean showHasItems = false;
 	boolean wait = false;
 	private int canBuy = 0, canSell = 0, ceilPos, section;
 	private DealMarkup selectDealData;
@@ -63,7 +62,6 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		this.xSize = 224;
 		this.title = "role.trader";
 		this.marcet = container.marcet;
-		this.data = Maps.<String, Deal>newTreeMap();
 		this.money = 0L;
 		this.ceilPos = -1;
 		this.section = -1;
@@ -191,8 +189,8 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.drawTexturedModalRect(this.guiLeft + 6, this.guiTop + 139, 234, 0, 22, 76);
 			MarkupData md = ClientProxy.playerData.game.getMarkupData(this.marcet.getId());
-			double plXP = (double) md.xp;
-			double mXP = (double) this.marcet.markup.get(md.level).xp;
+			double plXP = md.xp;
+			double mXP = this.marcet.markup.get(md.level).xp;
 			if (plXP > mXP) {
 				plXP = mXP;
 			}
@@ -219,7 +217,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			if (lv.equals("enchantment.level." + md.level)) {
 				lv = "" + md.level;
 			}
-			this.mc.fontRenderer.drawString(lv, this.guiLeft + 16 - this.mc.fontRenderer.getStringWidth(lv) / 2,
+			this.mc.fontRenderer.drawString(lv, this.guiLeft + 16 - (float) this.mc.fontRenderer.getStringWidth(lv) / 2,
 					this.guiTop + 205, CustomNpcs.MainColor.getRGB(), true);
 		}
 		if (this.subgui != null) {
@@ -267,11 +265,11 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
 			if (isMouseHover(i, j, this.guiLeft + 150, this.guiTop + 14, 25, 25)) {
-				List<String> list = new ArrayList<String>();
+				List<String> list = new ArrayList<>();
 				list.add(new TextComponentTranslation("market.hover.product").getFormattedText());
 				list.addAll(this.selectDealData.main.getTooltip(this.mc.player,
 						this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
-				this.hoverText = list.toArray(new String[list.size()]);
+				this.hoverText = list.toArray(new String[0]);
 			}
 			if (!this.selectDealData.buyItems.isEmpty()) {
 				int slot = 0;
@@ -289,12 +287,12 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 					RenderHelper.disableStandardItemLighting();
 					GlStateManager.popMatrix();
 					if (isMouseHover(i, j, u, v, 18, 18)) {
-						List<String> list = new ArrayList<String>();
+						List<String> list = new ArrayList<>();
 						list.add(new TextComponentTranslation("market.hover.item").getFormattedText());
 						list.addAll(curr.getTooltip(this.mc.player,
 								this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED
 										: TooltipFlags.NORMAL));
-						this.hoverText = list.toArray(new String[list.size()]);
+						this.hoverText = list.toArray(new String[0]);
 					}
 					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 					this.drawTexturedModalRect(u, v, 0, 0, 18, 18);
@@ -304,11 +302,10 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		}
 		if (this.getLabel(6) != null && this.getLabel(6).enabled) {
 			this.getLabel(6)
-					.setLabel(new TextComponentTranslation("market.uptime", new Object[] {
-							AdditionalMethods.ticksToElapsedTime(this.marcet.nextTime / 50, false, false, false) })
+					.setLabel(new TextComponentTranslation("market.uptime", AdditionalMethods.ticksToElapsedTime(this.marcet.nextTime / 50, false, false, false))
 									.getFormattedText());
 			if (this.marcet.nextTime <= 0) {
-				NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.MarketTime, this, 2500, this.marcet.getId());
+				NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.MarketTime, this, 2500, this.marcet.getId());
 			}
 		}
 		super.drawScreen(i, j, f);
@@ -321,16 +318,14 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			if (this.selectDealData != null && this.selectDealData.buyMoney > 0) {
 				buyMoney = (int) this.selectDealData.buyMoney;
 			}
-			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0",
-					new Object[] { "" + buyMoney, CustomNpcs.displayCurrencies, "" + this.money,
-							CustomNpcs.displayCurrencies });
+			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", "" + buyMoney, CustomNpcs.displayCurrencies, "" + this.money,
+                    CustomNpcs.displayCurrencies);
 			if (this.marcet.isLimited) {
 				text.appendSibling(new TextComponentTranslation("market.hover.currency.1", "" + this.marcet.money));
 			}
 			this.setHoverText(text.getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).visible && this.getButton(0).isMouseOver()) {
-			ITextComponent text = new TextComponentTranslation("market.hover.buy",
-					new Object[] { stack.getDisplayName() });
+			ITextComponent text = new TextComponentTranslation("market.hover.buy", stack.getDisplayName());
 			if (this.canBuy != 0) {
 				text.appendSibling(new TextComponentTranslation("market.hover.notbuy." + this.canBuy));
 			}
@@ -359,9 +354,8 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 										: " x" + (this.selectDealData.sellItems.get(s)))));
 					}
 				}
-				if (this.selectDealData.sellMoney > 0) {
-					text.appendSibling(new TextComponentTranslation("market.hover.sell.2",
-							new Object[] { "" + this.selectDealData.sellMoney, CustomNpcs.displayCurrencies }));
+				if (this.selectDealData != null && this.selectDealData.sellMoney > 0) {
+					text.appendSibling(new TextComponentTranslation("market.hover.sell.2", "" + this.selectDealData.sellMoney, CustomNpcs.displayCurrencies));
 				}
 			}
 			this.setHoverText(text.getFormattedText());
@@ -369,7 +363,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		if (this.marcet.showXP && isMouseHover(i, j, this.guiLeft + 7, this.guiTop + 140, 22, 74)) {
 			MarkupData md = ClientProxy.playerData.game.getMarkupData(this.marcet.getId());
 			MarkupData mm = this.marcet.markup.get(md.level);
-			int pXP = md.xp > mm.xp ? mm.xp : md.xp;
+			int pXP = Math.min(md.xp, mm.xp);
 			this.setHoverText(new TextComponentTranslation("market.hover.you.level", "" + (md.level + 1), "" + pXP,
 					"" + mm.xp, "" + (int) (mm.buy * 100.0f), "" + (int) (mm.sell * 100.0f)).getFormattedText());
 
@@ -378,8 +372,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		} else if (this.selectDealData.deal != null && this.selectDealData.deal.getMaxCount() > 0
 				&& isMouseHover(i, j, this.guiLeft + 177, this.guiTop + 24, 45, 14)) {
 			this.setHoverText(this.selectDealData.deal.getMaxCount() > 0
-					? new TextComponentTranslation("market.hover.item.amount",
-							new Object[] { "" + this.selectDealData.deal.getAmount() }).getFormattedText()
+					? new TextComponentTranslation("market.hover.item.amount", "" + this.selectDealData.deal.getAmount()).getFormattedText()
 					: "");
 		} else if (this.getLabel(6) != null && this.getLabel(6).enabled && this.getLabel(6).hovered) {
 			this.setHoverText(new TextComponentTranslation("market.hover.update").getFormattedText());
@@ -426,8 +419,8 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				this.addButton(tab);
 			}
 		}
-		List<String> sel = new ArrayList<String>();
-		List<String> selNot = new ArrayList<String>();
+		List<String> sel = new ArrayList<>();
+		List<String> selNot = new ArrayList<>();
 		int level = ClientProxy.playerData.game.getMarcetLevel(this.marcet.getId());
 		MarcetController mData = MarcetController.getInstance();
 		MarcetSection ms = marcet.sections.get(section);
@@ -439,7 +432,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				} else {
 					sel.add(key);
 				}
-				data.put(key, (Deal) deal);
+				data.put(key, deal);
 				if (selectDealData != null && selectDealData.deal != null
 						&& selectDealData.deal.getId() == deal.getId()) {
 					selectDealData = mData.getBuyData(marcet, deal, level);
@@ -452,14 +445,14 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		Collections.sort(sel);
 		Collections.sort(selNot);
 		sel.addAll(selNot);
-		List<ItemStack> stacks = Lists.<ItemStack>newArrayList();
-		List<String> suffixs = Lists.<String>newArrayList();
-		List<String[]> infoList = Lists.<String[]>newArrayList();
+		List<ItemStack> stacks = Lists.newArrayList();
+		List<String> suffixs = Lists.newArrayList();
+		List<String[]> infoList = Lists.newArrayList();
 		for (String key : sel) {
 			Deal deal = this.data.get(key);
 			DealMarkup dm = mData.getBuyData(this.marcet, deal, level);
 			stacks.add(dm.main);
-			List<String> info = new ArrayList<String>();
+			List<String> info = new ArrayList<>();
 			info.add(new TextComponentTranslation("market.hover.product").getFormattedText());
 
 			if (deal.getMaxCount() > 0) {
@@ -472,8 +465,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			}
 			info.add(dm.main.getDisplayName() + " x" + dm.count + " "
 					+ (new TextComponentTranslation("market.hover.item."
-							+ (deal.getMaxCount() > 0 ? "amount" : deal.getAmount() == 0 ? "not" : "infinitely"),
-							new Object[] { "" + deal.getAmount() }).getFormattedText()));
+							+ (deal.getMaxCount() > 0 ? "amount" : deal.getAmount() == 0 ? "not" : "infinitely"), "" + deal.getAmount()).getFormattedText()));
 			if (!dm.buyItems.isEmpty()) {
 				info.add(new TextComponentTranslation("market.hover.item").getFormattedText());
 				for (ItemStack curr : dm.buyItems.keySet()) {
@@ -482,14 +474,14 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			}
 			if (dm.buyMoney > 0) {
 				info.add(new TextComponentTranslation("market.hover.currency").getFormattedText());
-				info.add("" + dm.buyMoney + CustomNpcs.displayCurrencies);
+				info.add(dm.buyMoney + CustomNpcs.displayCurrencies);
 			}
-			infoList.add(info.toArray(new String[info.size()]));
+			infoList.add(info.toArray(new String[0]));
 		}
 		if (this.selectDealData == null || this.selectDealData.deal == null) {
 			this.selectDealData = mData.getBuyData(this.marcet, this.data.get(sel.get(0)), level);
 		}
-		this.selectDealData.cheak(this.mc.player.inventory.mainInventory);
+		this.selectDealData.check(this.mc.player.inventory.mainInventory);
 		this.scroll.setListNotSorted(sel);
 		this.scroll.setStacks(stacks);
 		this.scroll.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
@@ -573,7 +565,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 					this.canBuy = 5;
 				}
 			}
-			this.getButton(0).setEnabled(this.canBuy == 0 && this.canBuy != 6);
+			this.getButton(0).setEnabled(this.canBuy == 0);
 		}
 
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 70, this.guiTop + 117, 64, 20, "gui.sell"));

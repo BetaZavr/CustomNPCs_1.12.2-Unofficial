@@ -3,13 +3,16 @@ package noppes.npcs.potions;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -41,11 +44,10 @@ import noppes.npcs.util.ValueUtil;
 
 public class CustomPotion extends Potion implements ICustomElement {
 
-	protected NBTTagCompound nbtData = new NBTTagCompound();
+	protected NBTTagCompound nbtData;
 	protected ResourceLocation resource;
 	protected ItemStack cureItem = ItemStack.EMPTY;
-	protected final Map<IAttribute, AttributeModifier> attributeModifierMap = Maps
-			.<IAttribute, AttributeModifier>newHashMap(); // RangedAttribute, AttributeModifier
+	protected final Map<IAttribute, AttributeModifier> attributeModifierMap = Maps.newHashMap(); // RangedAttribute, AttributeModifier
 
 	public CustomPotion(NBTTagCompound nbtPotion) {
 		super(nbtPotion.getBoolean("IsBadEffect"), nbtPotion.getInteger("LiquidColor"));
@@ -74,13 +76,10 @@ public class CustomPotion extends Potion implements ICustomElement {
 						uuid = UUID.randomUUID();
 					}
 					this.attributeModifierMap.put(
-							new RangedAttribute((IAttribute) null, potionModifier.getString("AttributeName"),
-									ValueUtil.correctDouble(d, m, n), ValueUtil.min(m, n), ValueUtil.max(m, n)),
-							new AttributeModifier(uuid, this.getName(), potionModifier.getDouble("Ammount"),
-									potionModifier.getInteger("Operation")));
+							new RangedAttribute(null, potionModifier.getString("AttributeName"), ValueUtil.correctDouble(d, m, n), ValueUtil.min(m, n), ValueUtil.max(m, n)),
+							new AttributeModifier(uuid, this.getName(), potionModifier.getDouble("Amount"), potionModifier.getInteger("Operation")));
 				} catch (Exception e) {
-					LogWriter.error("Error create or added attribute modifier #" + i + " to custom potion: \""
-							+ this.getCustomName() + "\"", e);
+					LogWriter.error("Error create or added attribute modifier #" + i + " to custom potion: \"" + this.getCustomName() + "\"", e);
 				}
 			}
 		}
@@ -89,36 +88,30 @@ public class CustomPotion extends Potion implements ICustomElement {
 	}
 
 	@Override
-	public void affectEntity(@Nullable Entity source, @Nullable Entity indirectSource,
-			EntityLivingBase entityLivingBaseIn, int amplifier, double health) {
+	public void affectEntity(@Nullable Entity source, @Nullable Entity indirectSource, @Nonnull EntityLivingBase entityLivingBaseIn, int amplifier, double health) {
 		AffectEntity event = new AffectEntity(this, source, indirectSource, entityLivingBaseIn, amplifier, health);
 		EventHooks.onCustomPotionAffectEntity(event);
 		EventHooks.onEvent(ScriptController.Instance.potionScripts, "customPotionAffectEntity", event);
 	}
 
 	@Override
-	public void applyAttributesModifiersToEntity(EntityLivingBase entityLivingBaseIn,
-			AbstractAttributeMap attributeMapIn, int amplifier) {
+	public void applyAttributesModifiersToEntity(@Nonnull EntityLivingBase entityLivingBaseIn, @Nonnull AbstractAttributeMap attributeMapIn, int amplifier) {
 		for (Entry<IAttribute, AttributeModifier> entry : this.attributeModifierMap.entrySet()) {
 			IAttributeInstance iattributeinstance = attributeMapIn.getAttributeInstance(entry.getKey());
-			if (iattributeinstance != null) {
-				AttributeModifier attributemodifier = entry.getValue();
-				iattributeinstance.removeModifier(attributemodifier);
-				iattributeinstance.applyModifier(new AttributeModifier(attributemodifier.getID(),
-						this.getName() + " " + amplifier, this.getAttributeModifierAmount(amplifier, attributemodifier),
-						attributemodifier.getOperation()));
-			}
-		}
+            AttributeModifier attributemodifier = entry.getValue();
+            iattributeinstance.removeModifier(attributemodifier);
+            iattributeinstance.applyModifier(new AttributeModifier(attributemodifier.getID(), this.getName() + " " + amplifier, this.getAttributeModifierAmount(amplifier, attributemodifier), attributemodifier.getOperation()));
+        }
 	}
 
 	@SideOnly(Side.CLIENT)
-	public Map<IAttribute, AttributeModifier> getAttributeModifierMap() {
+	public @Nonnull Map<IAttribute, AttributeModifier> getAttributeModifierMap() {
 		return this.attributeModifierMap;
 	}
 
 	@Override
-	public java.util.List<net.minecraft.item.ItemStack> getCurativeItems() {
-		List<ItemStack> ret = Lists.<ItemStack>newArrayList();
+	public @Nonnull java.util.List<net.minecraft.item.ItemStack> getCurativeItems() {
+		List<ItemStack> ret = Lists.newArrayList();
 		if (!this.cureItem.isEmpty()) {
 			ret.add(this.cureItem);
 		} else {
@@ -134,7 +127,7 @@ public class CustomPotion extends Potion implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
 	@Override
@@ -158,30 +151,25 @@ public class CustomPotion extends Potion implements ICustomElement {
 	}
 
 	@Override
-	public void performEffect(EntityLivingBase entityLivingBaseIn, int amplifier) {
+	public void performEffect(@Nonnull EntityLivingBase entityLivingBaseIn, int amplifier) {
 		PerformEffect event = new PerformEffect(this, entityLivingBaseIn, amplifier);
 		EventHooks.onCustomPotionPerformEffect(event);
 		EventHooks.onEvent(ScriptController.Instance.potionScripts, "customPotionPerformEffect", event);
 	}
 
 	@Override
-	public Potion registerPotionAttributeModifier(IAttribute attribute, String uniqueId, double ammount,
-			int operation) {
-		AttributeModifier attributemodifier = new AttributeModifier(UUID.fromString(uniqueId), this.getName(), ammount,
-				operation);
+	public @Nonnull Potion registerPotionAttributeModifier(@Nonnull IAttribute attribute, @Nonnull String uniqueId, double amount, int operation) {
+		AttributeModifier attributemodifier = new AttributeModifier(UUID.fromString(uniqueId), this.getName(), amount, operation);
 		this.attributeModifierMap.put(attribute, attributemodifier);
 		return this;
 	}
 
 	@Override
-	public void removeAttributesModifiersFromEntity(EntityLivingBase entityLivingBaseIn,
-			AbstractAttributeMap attributeMapIn, int amplifier) {
+	public void removeAttributesModifiersFromEntity(@Nonnull EntityLivingBase entityLivingBaseIn, @Nonnull AbstractAttributeMap attributeMapIn, int amplifier) {
 		for (Entry<IAttribute, AttributeModifier> entry : this.attributeModifierMap.entrySet()) {
 			IAttributeInstance iattributeinstance = attributeMapIn.getAttributeInstance(entry.getKey());
-			if (iattributeinstance != null) {
-				iattributeinstance.removeModifier(entry.getValue());
-			}
-		}
+            iattributeinstance.removeModifier(entry.getValue());
+        }
 		EndEffect event = new EndEffect(this, entityLivingBaseIn, amplifier);
 		EventHooks.onCustomPotionEndEffect(event);
 		EventHooks.onEvent(ScriptController.Instance.potionScripts, "customPotionEndEffect", event);
@@ -189,14 +177,14 @@ public class CustomPotion extends Potion implements ICustomElement {
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void renderHUDEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc, float alpha) {
+	public void renderHUDEffect(int x, int y, @Nonnull PotionEffect effect, @Nonnull Minecraft mc, float alpha) {
 		mc.renderEngine.bindTexture(this.resource);
 		Gui.drawModalRectWithCustomSizedTexture(x + 3, y + 3, 0, 0, 18, 18, 18, 18);
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void renderInventoryEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc) {
+	public void renderInventoryEffect(int x, int y, @Nonnull PotionEffect effect, @Nonnull Minecraft mc) {
 		if (mc.currentScreen != null) {
 			mc.renderEngine.bindTexture(this.resource);
 			Gui.drawModalRectWithCustomSizedTexture(x + 6, y + 7, 0, 0, 18, 18, 18, 18);

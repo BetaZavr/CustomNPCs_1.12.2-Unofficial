@@ -20,12 +20,16 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.CustomBlockTypes;
 import noppes.npcs.items.CustomItem;
 import noppes.npcs.util.AdditionalMethods;
+
+import javax.annotation.Nonnull;
+import java.util.Objects;
 
 public abstract class CustomBlockSlab extends BlockSlab implements ICustomElement {
 
@@ -40,7 +44,7 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 			this.setUnlocalizedName(name.toLowerCase());
 		}
 
-		public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+		public void getSubBlocks(@Nonnull CreativeTabs itemIn, @Nonnull NonNullList<ItemStack> items) {
 		}
 
 		@Override
@@ -67,7 +71,7 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 		}
 
 		@Override
-		public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
+		public void getSubBlocks(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 			if (tab != CustomRegisters.tabBlocks && tab != CreativeTabs.SEARCH) { return; }
 			if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
 					&& !this.nbtData.getBoolean("ShowInCreative")) {
@@ -78,7 +82,7 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 		}
 
 		@Override
-		public boolean getUseNeighborBrightness(IBlockState state) {
+		public boolean getUseNeighborBrightness(@Nonnull IBlockState state) {
 			return true;
 		}
 
@@ -124,14 +128,14 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 		}
 
 		this.setSoundType(CustomBlock.getNbtSoundType(nbtBlock.getString("SoundType")));
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tabBlocks);
+		this.setCreativeTab(CustomRegisters.tabBlocks);
 	}
 
-	protected BlockStateContainer createBlockState() {
+	protected @Nonnull BlockStateContainer createBlockState() {
 		return this.isDouble() ? new BlockStateContainer(this, VARIANT) : new BlockStateContainer(this, HALF, VARIANT);
 	}
 
-	public int damageDropped(IBlockState state) {
+	public int damageDropped(@Nonnull IBlockState state) {
 		return state.getValue(VARIANT).ordinal();
 	}
 
@@ -142,14 +146,14 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
+	public @Nonnull MapColor getMapColor(@Nonnull IBlockState state, @Nonnull IBlockAccess worldIn, @Nonnull BlockPos pos) {
 		return state.getValue(VARIANT).getMapColor();
 	}
 
-	public int getMetaFromState(IBlockState state) {
+	public int getMetaFromState(@Nonnull IBlockState state) {
 		int i = 0;
 		i = i | state.getValue(VARIANT).ordinal();
 		if (!isDouble() && state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP) {
@@ -159,15 +163,12 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 	}
 
 	@Override
-	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos,
-			EntityPlayer player) {
-		ItemStack stack = super.getPickBlock(state, target, world, pos, player);
-		return stack;
+	public @Nonnull ItemStack getPickBlock(@Nonnull IBlockState state, @Nonnull RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player) {
+        return super.getPickBlock(state, target, world, pos, player);
 	}
 
 	@Override
-	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY,
-			float hitZ, int meta, EntityLivingBase placer) {
+	public @Nonnull IBlockState getStateForPlacement(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer) {
 		if (this.isDouble()) {
 			return this.getDefaultState();
 		}
@@ -177,12 +178,11 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 				: iblockstate.withProperty(HALF, BlockSlab.EnumBlockHalf.TOP);
 	}
 
-	public IBlockState getStateFromMeta(int meta) {
+	public @Nonnull IBlockState getStateFromMeta(int meta) {
 		IBlockState iblockstate = getDefaultState();
 		try {
 			iblockstate = iblockstate.withProperty(VARIANT, CustomBlockTypes.TreeType.values()[meta & 7]);
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		if (!isDouble()) {
 			iblockstate = iblockstate.withProperty(HALF,
 					(meta & 8) == 0 ? BlockSlab.EnumBlockHalf.BOTTOM : BlockSlab.EnumBlockHalf.TOP);
@@ -190,22 +190,22 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 		return iblockstate;
 	}
 
-	public Comparable<?> getTypeForItem(ItemStack stack) {
+	public @Nonnull Comparable<?> getTypeForItem(@Nonnull ItemStack stack) {
 		return CustomBlockTypes.TreeType.values()[stack.getItemDamage() & 7];
 	}
 
 	@Override
-	public String getUnlocalizedName(int meta) {
+	public @Nonnull String getUnlocalizedName(int meta) {
 		return this.getUnlocalizedName() + this.getStateFromMeta(meta).getValue(VARIANT).getName().toLowerCase();
 	}
 
-	public IProperty<?> getVariantProperty() {
+	public @Nonnull IProperty<?> getVariantProperty() {
 		return VARIANT;
 	}
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return this.nbtData.getByte("BlockType"); }
 		return 4;
 	}
 

@@ -3,10 +3,8 @@ package noppes.npcs.controllers;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,22 +28,19 @@ public class SpawnController {
 	public Random random;
 
 	public SpawnController() {
-		this.biomes = new HashMap<String, List<SpawnData>>();
-		this.data = new ArrayList<SpawnData>();
+		this.biomes = new HashMap<>();
+		this.data = new ArrayList<>();
 		this.random = new Random();
 		this.lastUsedID = 0;
 		(SpawnController.instance = this).loadData();
 	}
 
 	private void fillBiomeData() {
-		HashMap<String, List<SpawnData>> biomes = new HashMap<String, List<SpawnData>>();
+		HashMap<String, List<SpawnData>> biomes = new HashMap<>();
 		for (SpawnData spawn : this.data) {
 			for (String s : spawn.biomes) {
-				List<SpawnData> list = biomes.get(s);
-				if (list == null) {
-					biomes.put(s, list = new ArrayList<SpawnData>());
-				}
-				list.add(spawn);
+                List<SpawnData> list = biomes.computeIfAbsent(s, k -> new ArrayList<>());
+                list.add(spawn);
 			}
 		}
 		this.biomes = biomes;
@@ -64,14 +59,14 @@ public class SpawnController {
 		return nbttagcompound;
 	}
 
-	public SpawnData getRandomSpawnData(String biome, boolean isAir) {
+	public SpawnData getRandomSpawnData(String biome) {
 		List<SpawnData> list = this.getSpawnList(biome);
 		if (list == null || list.isEmpty()) { return null; }
 		return WeightedRandom.getRandomItem(this.random, list);
 	}
 
 	public Map<String, Integer> getScroll() {
-		Map<String, Integer> map = new HashMap<String, Integer>();
+		Map<String, Integer> map = new HashMap<>();
 		for (SpawnData spawn : this.data) {
 			map.put(spawn.name, spawn.id);
 		}
@@ -109,37 +104,33 @@ public class SpawnController {
 				if (oldFile.exists()) {
 					this.loadDataFile(oldFile);
 				}
-			} catch (Exception ex) {
-			}
+			} catch (Exception e1) { LogWriter.error("Error:", e1); }
 		}
 	}
 
 	public void loadData(DataInputStream stream) throws IOException {
-		ArrayList<SpawnData> data = new ArrayList<SpawnData>();
-		NBTTagCompound nbttagcompound1 = CompressedStreamTools.read(stream);
-		this.lastUsedID = nbttagcompound1.getInteger("lastID");
-		NBTTagList nbtlist = nbttagcompound1.getTagList("NPCSpawnData", 10);
-		if (nbtlist != null) {
-			for (int i = 0; i < nbtlist.tagCount(); ++i) {
-				NBTTagCompound nbttagcompound2 = nbtlist.getCompoundTagAt(i);
-				SpawnData spawn = new SpawnData();
-				spawn.readNBT(nbttagcompound2);
-				data.add(spawn);
-			}
-		}
-		this.data = data;
+		ArrayList<SpawnData> data = new ArrayList<>();
+		NBTTagCompound compound = CompressedStreamTools.read(stream);
+		this.lastUsedID = compound.getInteger("lastID");
+		NBTTagList nbtlist = compound.getTagList("NPCSpawnData", 10);
+        for (int i = 0; i < nbtlist.tagCount(); ++i) {
+            NBTTagCompound nbt = nbtlist.getCompoundTagAt(i);
+            SpawnData spawn = new SpawnData();
+            spawn.readNBT(nbt);
+            data.add(spawn);
+        }
+        this.data = data;
 		this.fillBiomeData();
 	}
 
 	private void loadDataFile(File file) throws IOException {
-		DataInputStream var1 = new DataInputStream(
-				new BufferedInputStream(new GZIPInputStream(new FileInputStream(file))));
+		DataInputStream var1 = new DataInputStream(new BufferedInputStream(new GZIPInputStream(Files.newInputStream(file.toPath()))));
 		this.loadData(var1);
 		var1.close();
 	}
 
 	public void removeSpawnData(int id) {
-		ArrayList<SpawnData> data = new ArrayList<SpawnData>();
+		ArrayList<SpawnData> data = new ArrayList<>();
 		for (SpawnData spawn : this.data) {
 			if (spawn.id == id) {
 				continue;
@@ -157,7 +148,7 @@ public class SpawnController {
 			File file = new File(saveDir, "spawns.dat_new");
 			File file2 = new File(saveDir, "spawns.dat_old");
 			File file3 = new File(saveDir, "spawns.dat");
-			CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(file));
+			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(file.toPath()));
 			if (file2.exists()) {
 				file2.delete();
 			}

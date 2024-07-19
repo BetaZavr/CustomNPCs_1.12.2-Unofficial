@@ -31,19 +31,17 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, ICustomScrollListener {
 
-	private MarkData data;
-	private MarkData dataDisplay;
-	private String[] marks;
-	private EntityNPCInterface npcDisplay;
-	// New
+	private final MarkData data;
+	private final MarkData dataDisplay;
+	private final String[] marks;
+	private final EntityNPCInterface npcDisplay;
 	private GuiCustomScroll scroll;
 	private MarkData.Mark selectedMark;
 	private String selMark;
 
 	public GuiNPCMarks(EntityNPCInterface npc) {
 		super(npc);
-		this.marks = new String[] { "gui.none", "mark.question", "mark.exclamation", "mark.pointer", "mark.skull",
-				"mark.cross", "mark.star" };
+		this.marks = new String[] { "gui.none", "mark.question", "mark.exclamation", "mark.pointer", "mark.skull", "mark.cross", "mark.star" };
 		this.data = MarkData.get(npc);
 		this.npcDisplay = new EntityCustomNpc(npc.world);
 		NBTTagCompound nbtData = new NBTTagCompound();
@@ -61,7 +59,7 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, IC
 		}
 		switch (button.id) {
 		case 0: {
-			this.selectedMark.type = ((GuiNpcButton) button).getValue();
+			this.selectedMark.type = button.getValue();
 			this.initGui();
 			break;
 		}
@@ -94,12 +92,12 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, IC
 			break;
 		}
 		case 5: {
-			this.selectedMark.rotate = ((GuiNpcButton) button).getValue() == 0;
+			this.selectedMark.rotate = button.getValue() == 0;
 			this.initGui();
 			break;
 		}
 		case 6: {
-			this.selectedMark.is3d = ((GuiNpcButton) button).getValue() == 0;
+			this.selectedMark.is3d = button.getValue() == 0;
 			MarkRenderer.needReload = true;
 			this.initGui();
 			break;
@@ -131,7 +129,7 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, IC
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("color.hover").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover").getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("mark.hover.add").getFormattedText());
 		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
@@ -150,8 +148,8 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, IC
 	@Override
 	public void initGui() {
 		super.initGui();
-		List<String> ds = new ArrayList<String>();
-		List<Integer> colors = new ArrayList<Integer>();
+		List<String> ds = new ArrayList<>();
+		List<Integer> colors = new ArrayList<>();
 		int i = 0;
 		for (Mark mark : this.data.marks) {
 			String name = i + ": " + new TextComponentTranslation(this.marks[mark.type]).getFormattedText();
@@ -178,10 +176,9 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, IC
 		}
 		this.addButton(new GuiButtonBiDirectional(0, this.guiLeft + 140, this.guiTop + 14, 120, 20, this.marks,
 				this.selectedMark.getType()));
-		String color;
-		for (color = Integer.toHexString(this.selectedMark.getColor()); color.length() < 6; color = "0" + color) {
-		}
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 140, this.guiTop + 36, 120, 20, color));
+		StringBuilder color = new StringBuilder(Integer.toHexString(this.selectedMark.getColor()));
+		while (color.length() < 6) { color.insert(0, "0"); }
+		this.addButton(new GuiNpcButton(1, this.guiLeft + 140, this.guiTop + 36, 120, 20, color.toString()));
 		this.getButton(1).setTextColor(this.selectedMark.getColor());
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 140, this.guiTop + 58, 120, 20, "availability.options"));
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 5, this.guiTop + this.ySize - 9, 64, 20, "gui.add"));

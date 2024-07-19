@@ -12,7 +12,7 @@ public interface IBlockScriptedDoor extends IBlock {
 
 	float getResistance();
 
-	String getSoung(boolean isOpen);
+	String getSound(boolean isOpen);
 
 	ITimers getTimers();
 

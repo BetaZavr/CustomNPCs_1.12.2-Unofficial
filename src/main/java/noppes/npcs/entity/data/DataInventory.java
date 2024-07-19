@@ -1,9 +1,6 @@
 package noppes.npcs.entity.data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -25,6 +22,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.ForgeHooks;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
@@ -46,6 +44,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.ValueUtil;
 
+import javax.annotation.Nonnull;
+
 public class DataInventory implements IInventory, INPCInventory {
 
 	public Map<Integer, IItemStack> armor;
@@ -62,10 +62,10 @@ public class DataInventory implements IInventory, INPCInventory {
 	public int limitation;
 
 	public DataInventory(EntityNPCInterface npc) {
-		this.awItems = Maps.<Integer, IItemStack>newHashMap();
-		this.weapons = Maps.<Integer, IItemStack>newHashMap();
-		this.armor = Maps.<Integer, IItemStack>newHashMap();
-		this.drops = Maps.<Integer, DropSet>newTreeMap();
+		this.awItems = Maps.newHashMap();
+		this.weapons = Maps.newHashMap();
+		this.armor = Maps.newHashMap();
+		this.drops = Maps.newTreeMap();
 		this.minExp = 0;
 		this.maxExp = 0;
 		this.npc = npc;
@@ -85,9 +85,9 @@ public class DataInventory implements IInventory, INPCInventory {
 		DropSet ds = new DropSet(this);
 		ds.item = item;
 		ds.chance = chance;
-		ds.pos = 0 + this.drops.size();
+		ds.pos = this.drops.size();
 		this.drops.put(ds.pos, ds);
-		return (ICustomDrop) ds;
+		return ds;
 	}
 
 	public void clear() {
@@ -99,15 +99,15 @@ public class DataInventory implements IInventory, INPCInventory {
 		this.maxExp = 0;
 	}
 
-	public void closeInventory(EntityPlayer player) {
+	public void closeInventory(@Nonnull EntityPlayer player) {
 	}
 
 	private IItemStack[] createDrops(boolean isLooted, EntityLivingBase attacking) {
-		List<IItemStack> prelist = Lists.<IItemStack>newArrayList();
+		List<IItemStack> prelist = Lists.newArrayList();
 		double ch = 1.0d;
 		if (attacking != null) {
 			IAttributeInstance l = attacking.getEntityAttribute(SharedMonsterAttributes.LUCK);
-			if (l != null && l.getAttributeValue() != 0) {
+			if (l.getAttributeValue() != 0) {
 				double v = l.getAttributeValue();
 				if (v < 0) {
 					v *= -1;
@@ -118,7 +118,7 @@ public class DataInventory implements IInventory, INPCInventory {
 			}
 			ItemStack held = attacking.getHeldItemMainhand();
 			if (held.isItemEnchanted()) {
-				double lv = (double) EnchantmentHelper.getLootingModifier(attacking);
+				double lv = EnchantmentHelper.getLootingModifier(attacking);
 				if (lv > 0.0d) {
 					ch += lv * lv * 0.000555d + lv * 0.019444d; // 1lv = +2%$ 10lv = +25%
 				}
@@ -170,21 +170,12 @@ public class DataInventory implements IInventory, INPCInventory {
 				}
 			}
 		}
-		if (this.limitation > 0 && this.limitation > prelist.size()) {
-			while (prelist.size() > this.limitation) {
-				int index = (int) (Math.random() * prelist.size());
-				if (index == prelist.size()) {
-					index = prelist.size() - 1;
-				}
-				prelist.remove(index);
-			}
-		}
-		return prelist.toArray(new IItemStack[prelist.size()]);
+        return prelist.toArray(new IItemStack[0]);
 	}
 
-	public ItemStack decrStackSize(int slot0, int slot1) {
-		int i = 0;
-		Map<Integer, IItemStack> var3 = new HashMap<Integer, IItemStack>();
+	public @Nonnull ItemStack decrStackSize(int slot0, int slot1) {
+		int i;
+		Map<Integer, IItemStack> var3;
 		ItemStack var4 = null;
 		if (slot0 >= 7) {
 			var3 = this.awItems;
@@ -214,7 +205,7 @@ public class DataInventory implements IInventory, INPCInventory {
 			this.weapons = var3;
 		} else if (i == 2) {
 			this.armor = var3;
-		} else if (i == 3) {
+		} else {
 			this.awItems = var3;
 		}
 		if (var4 == null) {
@@ -224,7 +215,7 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public void dropStuff(NpcEvent.DiedEvent event, Entity entity, DamageSource damagesource) {
-		ArrayList<EntityItem> list = Lists.<EntityItem>newArrayList();
+		ArrayList<EntityItem> list = Lists.newArrayList();
 		if (event.droppedItems != null) {
 			for (IItemStack itemD : event.droppedItems) {
 				if (itemD == null || itemD.isEmpty()) {
@@ -238,15 +229,13 @@ public class DataInventory implements IInventory, INPCInventory {
 		}
 		boolean b = ForgeHooks.onLivingDrops(this.npc, damagesource, list, 0, true);
 		if (!b) {
-			if (list != null) {
-				for (EntityItem e : list) {
-					if (e == null) {
-						continue;
-					}
-					this.npc.world.spawnEntity(e);
-				}
-			}
-			if (event.lootedItems != null) {
+            for (EntityItem e : list) {
+                if (e == null) {
+                    continue;
+                }
+                this.npc.world.spawnEntity(e);
+            }
+            if (event.lootedItems != null) {
 				for (IItemStack itemL : event.lootedItems) {
 					if (itemL == null || itemL.isEmpty()) {
 						continue;
@@ -258,21 +247,21 @@ public class DataInventory implements IInventory, INPCInventory {
 					if (entity instanceof EntityPlayer) {
 						EntityPlayer player = (EntityPlayer) entity;
 						e.setPickupDelay(2);
-						this.npc.world.spawnEntity((Entity) e);
+						this.npc.world.spawnEntity(e);
 						ItemStack stack = e.getItem();
 						int i = stack.getCount();
 						if (!player.inventory.addItemStackToInventory(stack)) {
 							continue;
 						}
-						entity.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ,
+						entity.world.playSound(null, player.posX, player.posY, player.posZ,
 								SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f,
 								((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
-						player.onItemPickup((Entity) e, i);
+						player.onItemPickup(e, i);
 						if (stack.getCount() <= 0) {
 							e.setDead();
 						}
 					} else {
-						this.npc.world.spawnEntity((Entity) e);
+						this.npc.world.spawnEntity(e);
 					}
 				}
 			}
@@ -294,23 +283,20 @@ public class DataInventory implements IInventory, INPCInventory {
 		return this.armor.get(slot);
 	}
 
-	public ITextComponent getDisplayName() {
-		return null;
+	public @Nonnull ITextComponent getDisplayName() {
+		return new TextComponentString(getName());
 	}
 
 	public ICustomDrop getDrop(int slot) {
 		if (slot < 0 || slot >= this.drops.size()) {
-			throw new CustomNPCsException("Bad slot number: " + slot + " in " + this.drops.size() + " maximum",
-					new Object[0]);
+			throw new CustomNPCsException("Bad slot number: " + slot + " in " + this.drops.size() + " maximum");
 		}
-		DropSet g = this.drops.get(slot);
-		return (ICustomDrop) g;
+        return this.drops.get(slot);
 	}
 
 	public IItemStack getDropItem(int slot) {
 		if (slot < 0 || slot >= this.drops.size()) {
-			throw new CustomNPCsException("Bad slot number: " + slot + " in " + this.drops.size() + " maximum",
-					new Object[0]);
+			throw new CustomNPCsException("Bad slot number: " + slot + " in " + this.drops.size() + " maximum");
 		}
 		DropSet g = this.drops.get(slot);
 		return g.getItem();
@@ -320,7 +306,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		ICustomDrop[] dss = new ICustomDrop[this.drops.size()];
 		int i = 0;
 		for (DropSet ds : this.drops.values()) {
-			dss[i] = (ICustomDrop) ds;
+			dss[i] = ds;
 			i++;
 		}
 		return dss;
@@ -383,7 +369,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		return this.weapons.get(2);
 	}
 
-	public String getName() {
+	public @Nonnull String getName() {
 		return "NPC Inventory";
 	}
 
@@ -399,7 +385,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		return 7 + this.drops.size();
 	}
 
-	public ItemStack getStackInSlot(int slot) {
+	public @Nonnull ItemStack getStackInSlot(int slot) {
 		if (slot < 4) {
 			return ItemStackWrapper.MCItem(this.getArmor(slot));
 		}
@@ -409,7 +395,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		if (slot < 9) {
 			return ItemStackWrapper.MCItem(this.awItems.get(slot - 7));
 		}
-		return ItemStackWrapper.MCItem(NpcAPI.Instance().getIItemStack(ItemStack.EMPTY));
+		return ItemStack.EMPTY;
 	}
 
 	public boolean getXPLootMode() {
@@ -430,18 +416,18 @@ public class DataInventory implements IInventory, INPCInventory {
 		return true;
 	}
 
-	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
+	public boolean isItemValidForSlot(int slot, @Nonnull ItemStack itemstack) {
 		return true;
 	}
 
-	public boolean isUsableByPlayer(EntityPlayer player) {
+	public boolean isUsableByPlayer(@Nonnull EntityPlayer player) {
 		return true;
 	}
 
 	public void markDirty() {
 	}
 
-	public void openInventory(EntityPlayer player) {
+	public void openInventory(@Nonnull EntityPlayer player) {
 	}
 
 	public void readEntityFromNBT(NBTTagCompound compound) {
@@ -451,7 +437,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		this.weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
 		this.awItems = NBTTags.getIItemStackMap(compound.getTagList("AWModItems", 10));
 
-		Map<Integer, DropSet> drs = new HashMap<Integer, DropSet>();
+		Map<Integer, DropSet> drs = new HashMap<>();
 		if (compound.hasKey("DropChance", 9)) { // if old items
 			Map<Integer, IItemStack> d_old = NBTTags.getIItemStackMap(compound.getTagList("NpcInv", 10));
 			Map<Integer, Integer> dc_old = NBTTags.getIntegerIntegerMap(compound.getTagList("DropChance", 10));
@@ -495,7 +481,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		boolean del = false;
 		int j = 0;
 		for (int slot : this.drops.keySet()) {
-			if (this.drops.get(slot) == (DropSet) drop) {
+			if (this.drops.get(slot) == drop) {
 				del = true;
 				continue;
 			}
@@ -530,9 +516,9 @@ public class DataInventory implements IInventory, INPCInventory {
 		return false;
 	}
 
-	public ItemStack removeStackFromSlot(int slot) {
-		int i = 0;
-		Map<Integer, IItemStack> var2 = new HashMap<Integer, IItemStack>();
+	public @Nonnull ItemStack removeStackFromSlot(int slot) {
+		int i;
+		Map<Integer, IItemStack> var2;
 		if (slot >= 7) {
 			var2 = this.awItems;
 			slot -= 7;
@@ -552,7 +538,7 @@ public class DataInventory implements IInventory, INPCInventory {
 				this.weapons = var2;
 			} else if (i == 2) {
 				this.armor = var2;
-			} else if (i == 3) {
+			} else {
 				this.awItems = var2;
 			}
 			return var3;
@@ -574,9 +560,9 @@ public class DataInventory implements IInventory, INPCInventory {
 	public void setField(int id, int value) {
 	}
 
-	public void setInventorySlotContents(int slot, ItemStack item) {
-		int i = 0;
-		Map<Integer, IItemStack> var3 = new HashMap<Integer, IItemStack>();
+	public void setInventorySlotContents(int slot, @Nonnull ItemStack item) {
+		int i;
+		Map<Integer, IItemStack> var3;
 		if (slot >= 7) {
 			var3 = this.awItems;
 			slot -= 7;
@@ -589,12 +575,12 @@ public class DataInventory implements IInventory, INPCInventory {
 			var3 = this.armor;
 			i = 2;
 		}
-		var3.put(slot, NpcAPI.Instance().getIItemStack(item));
+		var3.put(slot, Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(item));
 		if (i == 1) {
 			this.weapons = var3;
 		} else if (i == 2) {
 			this.armor = var3;
-		} else if (i == 3) {
+		} else {
 			this.awItems = var3;
 		}
 	}

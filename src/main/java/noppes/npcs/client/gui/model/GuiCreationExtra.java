@@ -1,12 +1,7 @@
 package noppes.npcs.client.gui.model;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.entity.NPCRendererHelper;
@@ -18,6 +13,7 @@ import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -27,9 +23,11 @@ import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityFakeLiving;
 import noppes.npcs.entity.EntityNPCInterface;
 
+import javax.annotation.Nonnull;
+
 public class GuiCreationExtra extends GuiCreationScreenInterface implements ICustomScrollListener {
 
-	abstract class GuiType {
+	abstract static class GuiType {
 		public String name;
 
 		public GuiType(String name) {
@@ -78,7 +76,7 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 	}
 
 	class GuiTypeByte extends GuiType {
-		private byte b;
+		private final byte b;
 
 		public GuiTypeByte(String name, byte b) {
 			super(name);
@@ -123,17 +121,16 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 		public void initGui() {
 			Enum<?> breed = null;
 			try {
-				Method method = GuiCreationExtra.this.entity.getClass().getMethod("getBreedID",
-						(Class<?>[]) new Class[0]);
-				breed = (Enum<?>) method.invoke(GuiCreationExtra.this.entity, new Object[0]);
-			} catch (Exception ex) {
+				Method method = GuiCreationExtra.this.entity.getClass().getMethod("getBreedID", Class[].class);
+				breed = (Enum<?>) method.invoke(GuiCreationExtra.this.entity, (Object) new Class[0]);
+			} catch (Exception e) { LogWriter.error("Error:", e); }
+            if (breed != null) {
+				GuiCreationExtra.this.addButton(new GuiButtonBiDirectional(11, GuiCreationExtra.this.guiLeft + 120,
+								GuiCreationExtra.this.guiTop + 45, 50, 20,
+								new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
+										"14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26"},
+								breed.ordinal()));
 			}
-			GuiCreationExtra.this
-					.addButton(new GuiButtonBiDirectional(11, GuiCreationExtra.this.guiLeft + 120,
-							GuiCreationExtra.this.guiTop + 45, 50, 20,
-							new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
-									"14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26" },
-							breed.ordinal()));
 		}
 	}
 
@@ -165,7 +162,7 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 
 	private Map<String, GuiType> data;
 
-	private String[] ignoredTags;
+	private final String[] ignoredTags;
 
 	private GuiCustomScroll scroll;
 
@@ -175,12 +172,12 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 		super(npc);
 		this.ignoredTags = new String[] { "CanBreakDoors", "Bred", "PlayerCreated", "HasReproduced" };
 		this.booleanTags = new String[0];
-		this.data = new HashMap<String, GuiType>();
+		this.data = new HashMap<>();
 		this.active = 2;
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton btn) {
+	protected void actionPerformed(@Nonnull GuiButton btn) {
 		super.actionPerformed(btn);
 		if (this.selected != null) {
 			this.selected.actionPerformed(btn);
@@ -207,9 +204,9 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		} else if (this.scroll != null && this.scroll.hover > -1) {
-			this.drawHoveringText(Arrays.asList(new TextComponentTranslation(
-					"display.hover.part." + this.scroll.getList().get(this.scroll.hover).toLowerCase())
-							.getFormattedText()),
+			this.drawHoveringText(Collections.singletonList(new TextComponentTranslation(
+                            "display.hover.part." + this.scroll.getList().get(this.scroll.hover).toLowerCase())
+                            .getFormattedText()),
 					mouseX, mouseY, this.fontRenderer);
 		} else {
 			for (GuiButton b : this.buttonList) {
@@ -227,9 +224,9 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 	}
 
 	public Map<String, GuiType> getData(EntityLivingBase entity) {
-		Map<String, GuiType> data = new HashMap<String, GuiType>();
+		Map<String, GuiType> data = new HashMap<>();
 		NBTTagCompound compound = this.getExtras(entity);
-		Set<String> keys = (Set<String>) compound.getKeySet();
+		Set<String> keys = compound.getKeySet();
 		for (String name : keys) {
 			if (this.isIgnored(name)) {
 				continue;
@@ -256,7 +253,7 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 		if (PixelmonHelper.isPixelmon(entity)) {
 			data.put("Model", new GuiTypePixelmon("Model"));
 		}
-		if (EntityList.getEntityString(entity).equals("tgvstyle.Dog")) {
+		if (Objects.equals(EntityList.getEntityString(entity), "tgvstyle.Dog")) {
 			data.put("Breed", new GuiTypeDoggyStyle("Breed"));
 		}
 		return data;
@@ -268,9 +265,8 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 		NBTTagCompound compound = new NBTTagCompound();
 		try {
 			entity.writeEntityToNBT(compound);
-		} catch (Throwable t) {
-		}
-		Set<String> keys = (Set<String>) fake.getKeySet();
+		} catch (Exception e) { LogWriter.error("Error:", e); }
+		Set<String> keys = fake.getKeySet();
 		for (String name : keys) {
 			compound.removeTag(name);
 		}
@@ -287,7 +283,7 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 		if (this.scroll == null) {
 			this.data = this.getData(this.entity);
 			this.scroll = new GuiCustomScroll(this, 0);
-			List<String> list = new ArrayList<String>(this.data.keySet());
+			List<String> list = new ArrayList<>(this.data.keySet());
 			this.scroll.setList(list);
 			if (list.isEmpty()) {
 				return;
@@ -332,7 +328,8 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 		EntityLivingBase entity = this.playerdata.getEntity(this.npc);
 		@SuppressWarnings("rawtypes")
 		RenderLivingBase render = (RenderLivingBase) this.mc.getRenderManager().getEntityRenderObject(entity);
-		this.npc.display.setSkinTexture(NPCRendererHelper.getTexture(render, entity));
+        assert render != null;
+        this.npc.display.setSkinTexture(NPCRendererHelper.getTexture(render, entity));
 	}
 
 }

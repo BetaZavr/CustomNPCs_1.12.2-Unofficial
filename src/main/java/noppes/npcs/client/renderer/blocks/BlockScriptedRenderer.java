@@ -22,12 +22,13 @@ import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.util.LayerModel;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class BlockScriptedRenderer<T extends TileEntity> extends BlockRendererInterface<T> {
+import javax.annotation.Nullable;
+
+public class BlockScriptedRenderer<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
 
 	private void drawText(TileScripted.TextPlane text1, double x, double y, double z) {
 		if (text1.textBlock == null || text1.textHasChanged) {
-			text1.textBlock = new TextBlockClient(text1.text, 336, true, null,
-					new Object[] { Minecraft.getMinecraft().player });
+			text1.textBlock = new TextBlockClient(text1.text, 336, true, null, Minecraft.getMinecraft().player);
 			text1.textHasChanged = false;
 		}
 		GlStateManager.disableBlend();
@@ -65,11 +66,12 @@ public class BlockScriptedRenderer<T extends TileEntity> extends BlockRendererIn
 
 	private boolean overrideModel() {
 		ItemStack held = Minecraft.getMinecraft().player.getHeldItemMainhand();
-		return held != null && (held.getItem() == CustomRegisters.wand || held.getItem() == CustomRegisters.scripter);
+		return held.getItem() == CustomRegisters.wand || held.getItem() == CustomRegisters.scripter;
 	}
 
 	@SuppressWarnings("deprecation")
-	public void render(TileEntity te, double x, double y, double z, float partialTicks, int blockDamage, float alpha) {
+	public void render(@Nullable TileEntity te, double x, double y, double z, float partialTicks, int blockDamage, float alpha) {
+		if (te == null) { return; }
 		TileScripted tile = (TileScripted) te;
 		GlStateManager.pushMatrix();
 		GlStateManager.disableBlend();
@@ -92,22 +94,23 @@ public class BlockScriptedRenderer<T extends TileEntity> extends BlockRendererIn
 				this.renderItem(tile.itemModel); // Default model
 			} else {
 				IBlockState state = tile.getState();
-				this.renderBlock(tile, b, state);
+				this.renderBlock(state);
 				if (b.hasTileEntity(state) && !tile.renderTileErrored) {
 					try {
 						if (tile.renderTile == null) {
 							TileEntity entity = b.createTileEntity(this.getWorld(), state);
-							entity.setPos(tile.getPos());
-							entity.setWorld(this.getWorld());
-							ObfuscationHelper.setValue(TileEntity.class, entity, tile.metaModel, 5);
-							ObfuscationHelper.setValue(TileEntity.class, entity, b, 6);
-							tile.renderTile = entity;
-							if (entity instanceof ITickable) {
-								tile.renderTileUpdate = (ITickable) entity;
+							if (entity != null) {
+								entity.setPos(tile.getPos());
+								entity.setWorld(this.getWorld());
+								ObfuscationHelper.setValue(TileEntity.class, entity, tile.metaModel, 5);
+								ObfuscationHelper.setValue(TileEntity.class, entity, b, 6);
+								tile.renderTile = entity;
+								if (entity instanceof ITickable) {
+									tile.renderTileUpdate = (ITickable) entity;
+								}
 							}
 						}
-						TileEntitySpecialRenderer<TileEntity> renderer = TileEntityRendererDispatcher.instance
-								.getRenderer(tile.renderTile);
+						TileEntitySpecialRenderer<TileEntity> renderer = TileEntityRendererDispatcher.instance.getRenderer(tile.renderTile);
 						if (renderer != null) {
 							renderer.render(tile.renderTile, -0.5, 0.0, -0.5, partialTicks, blockDamage, alpha);
 						} else {
@@ -120,62 +123,60 @@ public class BlockScriptedRenderer<T extends TileEntity> extends BlockRendererIn
 			}
 		}
 		GlStateManager.popMatrix();
-		if (tile.layers.length > 0) {
-			for (ILayerModel il : tile.layers) {
-				LayerModel l = (LayerModel) il;
-				Block block = l.model.isEmpty() ? null : Block.getBlockFromItem(l.model.getItem());
-				if (l.model.isEmpty() && l.objModel == null) {
-					continue;
-				}
-				GlStateManager.pushMatrix();
-				GlStateManager.disableBlend();
-				RenderHelper.enableStandardItemLighting();
-				GlStateManager.translate(x + 0.5, y, z + 0.5);
-				GlStateManager.translate(l.offsetAxis[0], l.offsetAxis[1], l.offsetAxis[2]);
-				if (l.isRotate[1] == (byte) 1) {
-					GlStateManager.rotate((System.currentTimeMillis() / l.rotateSpeed) % 360, 0.0f, 1.0f, 0.0f);
-				} else {
-					GlStateManager.rotate(l.rotateAxis[1], 0.0f, 1.0f, 0.0f);
-				}
-				if (l.isRotate[0] == (byte) 1) {
-					GlStateManager.rotate((System.currentTimeMillis() / l.rotateSpeed) % 360, 1.0f, 0.0f, 0.0f);
-				} else {
-					GlStateManager.rotate(l.rotateAxis[0], 1.0f, 0.0f, 0.0f);
-				}
-				if (l.isRotate[2] == (byte) 1) {
-					GlStateManager.rotate((System.currentTimeMillis() / l.rotateSpeed) % 3602, 0.0f, 0.0f, 1.0f);
-				} else {
-					GlStateManager.rotate(l.rotateAxis[2], 0.0f, 0.0f, 1.0f);
-				}
-				GlStateManager.scale(l.scaleAxis[0], l.scaleAxis[1], l.scaleAxis[2]);
-				if (!l.model.isEmpty() && (block == null || block == Blocks.AIR)) {
-					GlStateManager.translate(0.0, 0.5, 0.0);
-					this.renderItem(l.model);
-				} else if (block != null) {
-					IBlockState state = block.getDefaultState();
-					if (l.model.getItemDamage() > 0) {
-						state = block.getStateFromMeta(l.model.getItemDamage());
-						int i = 0;
-						for (IBlockState ibs : block.getBlockState().getValidStates()) {
-							if (i == l.model.getItemDamage()) {
-								state = ibs;
-								break;
-							}
-							i++;
-						}
-					}
-					this.renderBlock(tile, block, state);
-				} else if (l.objModel != null) {
-					int displayList = ModelBuffer.getDisplayList(l.objModel, null, null);
-					if (displayList >= 0) {
-						Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-						GlStateManager.callList(displayList);
-					}
-				}
-				GlStateManager.popMatrix();
-			}
-		}
-		if (!tile.text1.text.isEmpty()) {
+        for (ILayerModel il : tile.layers) {
+            LayerModel l = (LayerModel) il;
+            Block block = l.model.isEmpty() ? null : Block.getBlockFromItem(l.model.getItem());
+            if (l.model.isEmpty() && l.objModel == null) {
+                continue;
+            }
+            GlStateManager.pushMatrix();
+            GlStateManager.disableBlend();
+            RenderHelper.enableStandardItemLighting();
+            GlStateManager.translate(x + 0.5, y, z + 0.5);
+            GlStateManager.translate(l.offsetAxis[0], l.offsetAxis[1], l.offsetAxis[2]);
+            if (l.isRotate[1] == (byte) 1) {
+                GlStateManager.rotate(((float) System.currentTimeMillis() / l.rotateSpeed) % 360, 0.0f, 1.0f, 0.0f);
+            } else {
+                GlStateManager.rotate(l.rotateAxis[1], 0.0f, 1.0f, 0.0f);
+            }
+            if (l.isRotate[0] == (byte) 1) {
+                GlStateManager.rotate(((float) System.currentTimeMillis() / l.rotateSpeed) % 360, 1.0f, 0.0f, 0.0f);
+            } else {
+                GlStateManager.rotate(l.rotateAxis[0], 1.0f, 0.0f, 0.0f);
+            }
+            if (l.isRotate[2] == (byte) 1) {
+                GlStateManager.rotate(((float) System.currentTimeMillis() / l.rotateSpeed) % 3602, 0.0f, 0.0f, 1.0f);
+            } else {
+                GlStateManager.rotate(l.rotateAxis[2], 0.0f, 0.0f, 1.0f);
+            }
+            GlStateManager.scale(l.scaleAxis[0], l.scaleAxis[1], l.scaleAxis[2]);
+            if (!l.model.isEmpty() && (block == null || block == Blocks.AIR)) {
+                GlStateManager.translate(0.0, 0.5, 0.0);
+                this.renderItem(l.model);
+            } else if (block != null) {
+                IBlockState state = block.getDefaultState();
+                if (l.model.getItemDamage() > 0) {
+                    state = block.getStateFromMeta(l.model.getItemDamage());
+                    int i = 0;
+                    for (IBlockState ibs : block.getBlockState().getValidStates()) {
+                        if (i == l.model.getItemDamage()) {
+                            state = ibs;
+                            break;
+                        }
+                        i++;
+                    }
+                }
+                this.renderBlock(state);
+            } else if (l.objModel != null) {
+                int displayList = ModelBuffer.getDisplayList(l.objModel, null, null);
+                if (displayList >= 0) {
+                    Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+                    GlStateManager.callList(displayList);
+                }
+            }
+            GlStateManager.popMatrix();
+        }
+        if (!tile.text1.text.isEmpty()) {
 			this.drawText(tile.text1, x, y, z);
 		}
 		if (!tile.text2.text.isEmpty()) {
@@ -195,7 +196,7 @@ public class BlockScriptedRenderer<T extends TileEntity> extends BlockRendererIn
 		}
 	}
 
-	private void renderBlock(TileScripted tile, Block b, IBlockState state) {
+	private void renderBlock(IBlockState state) {
 		GlStateManager.pushMatrix();
 		this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);

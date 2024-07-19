@@ -19,19 +19,17 @@ import noppes.npcs.controllers.data.Availability;
 
 public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICustomScrollListener, ISubGuiListener {
 
-	private Availability availabitily;
-	private final Map<String, EnumAvailabilityPlayerName> data;
+	private final Availability availability;
+	private final Map<String, EnumAvailabilityPlayerName> data = new HashMap<>();
 	private GuiCustomScroll scroll;
-	private String select;
+	private String select = "";
 
-	public SubGuiNpcAvailabilityNames(Availability availabitily) {
-		this.availabitily = availabitily;
+	public SubGuiNpcAvailabilityNames(Availability availability) {
+		this.availability = availability;
 		this.setBackground("menubg.png");
 		this.xSize = 256;
 		this.ySize = 217;
 		this.closeOnEsc = true;
-		this.data = new HashMap<String, EnumAvailabilityPlayerName>();
-		this.select = "";
 	}
 
 	@Override
@@ -42,18 +40,18 @@ public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICust
 				return;
 			}
 			EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.values()[button.getValue()];
-			this.availabitily.playerNames.put(this.select, eapn);
+			this.availability.playerNames.put(this.select, eapn);
 			this.initGui();
 			break;
 		}
 		case 1: {
 			SubGuiEditText subGui = new SubGuiEditText(0, this.select);
-			subGui.hovers[0] = "availabitily.hover.player.name";
+			subGui.hovers[0] = "availability.hover.player.name";
 			this.setSubGui(subGui);
 			break;
 		}
 		case 2: {
-			this.availabitily.playerNames.remove(this.select);
+			this.availability.playerNames.remove(this.select);
 			this.select = "";
 			this.initGui();
 			break;
@@ -80,14 +78,14 @@ public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICust
 			return;
 		}
 		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.name." + this.getButton(0).getValue())
+			this.setHoverText(new TextComponentTranslation("availability.hover.name." + this.getButton(0).getValue())
 					.getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.player.name").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.player.name").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.remove").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.remove").getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.more").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover.more").getFormattedText());
 		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
@@ -108,8 +106,8 @@ public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICust
 			(this.scroll = new GuiCustomScroll(this, 6)).setSize(this.xSize - 12, this.ySize - 66);
 		}
 		this.data.clear();
-		for (String name : this.availabitily.playerNames.keySet()) {
-			this.data.put(name, this.availabitily.playerNames.get(name));
+		for (String name : this.availability.playerNames.keySet()) {
+			this.data.put(name, this.availability.playerNames.get(name));
 		}
 		if (!this.select.isEmpty() && !this.data.containsKey(this.select)) {
 			this.select = "";
@@ -147,7 +145,7 @@ public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICust
 			return;
 		}
 		EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.values()[this.getButton(0).getValue()];
-		this.availabitily.playerNames.put(this.select, eapn);
+		this.availability.playerNames.put(this.select, eapn);
 		this.select = "";
 	}
 
@@ -160,7 +158,7 @@ public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICust
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
 		SubGuiEditText subGui = new SubGuiEditText(0, this.select);
-		subGui.hovers[0] = "availabitily.hover.player.name";
+		subGui.hovers[0] = "availability.hover.player.name";
 		this.setSubGui(subGui);
 	}
 
@@ -173,10 +171,10 @@ public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICust
 		EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.Only;
 		if (!this.select.isEmpty()) {
 			eapn = this.data.get(this.select);
-			this.availabitily.playerNames.remove(this.select);
+			this.availability.playerNames.remove(this.select);
 		}
 		this.select = selector.text[0];
-		this.availabitily.playerNames.put(this.select, eapn);
+		this.availability.playerNames.put(this.select, eapn);
 		this.initGui();
 	}
 

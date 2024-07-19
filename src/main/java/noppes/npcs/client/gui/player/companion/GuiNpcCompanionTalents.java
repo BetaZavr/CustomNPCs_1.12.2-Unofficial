@@ -11,7 +11,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
@@ -27,15 +26,17 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 
+import javax.annotation.Nonnull;
+
 public class GuiNpcCompanionTalents extends GuiNPCInterface {
 
 	public static class GuiTalent extends GuiScreen {
 
-		private static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/talent.png");
-		private RoleCompanion role;
-		private EnumCompanionTalent talent;
-		private int x;
-		private int y;
+		private static final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/talent.png");
+		private final RoleCompanion role;
+		private final EnumCompanionTalent talent;
+		private final int x;
+		private final int y;
 
 		public GuiTalent(RoleCompanion role, EnumCompanionTalent talent, int x, int y) {
 			this.talent = talent;
@@ -48,10 +49,8 @@ public class GuiNpcCompanionTalents extends GuiNPCInterface {
 			Minecraft mc = Minecraft.getMinecraft();
 			mc.renderEngine.bindTexture(GuiTalent.resource);
 			ItemStack item = this.talent.item;
-			if (item.getItem() == null) {
-				item = new ItemStack(Blocks.DIRT);
-			}
-			GlStateManager.pushMatrix();
+            item.getItem();
+            GlStateManager.pushMatrix();
 			GlStateManager.color(1.0f, 1.0f, 1.0f);
 			GlStateManager.enableBlend();
 			boolean hover = this.x < i && this.x + 24 > i && this.y < j && this.y + 24 > j;
@@ -76,7 +75,7 @@ public class GuiNpcCompanionTalents extends GuiNPCInterface {
 	}
 
 	private long lastPressedTime;
-	private RoleCompanion role;
+	private final RoleCompanion role;
 	private GuiNpcButton selected;
 	private long startPressedTime;
 
@@ -84,7 +83,7 @@ public class GuiNpcCompanionTalents extends GuiNPCInterface {
 
 	public GuiNpcCompanionTalents(EntityNPCInterface npc) {
 		super(npc);
-		this.talents = new HashMap<Integer, GuiTalent>();
+		this.talents = new HashMap<>();
 		this.lastPressedTime = 0L;
 		this.startPressedTime = 0L;
 		this.role = (RoleCompanion) npc.advanced.roleInterface;
@@ -94,14 +93,14 @@ public class GuiNpcCompanionTalents extends GuiNPCInterface {
 		this.ySize = 166;
 	}
 
-	public void actionPerformed(GuiButton guibutton) {
+	public void actionPerformed(@Nonnull GuiButton guibutton) {
 		super.actionPerformed(guibutton);
 		int id = guibutton.id;
 		if (id == 1) {
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.Companion);
 		}
 		if (id == 3) {
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.CompanionOpenInv, new Object[0]);
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.CompanionOpenInv);
 		}
 		if (id >= 10) {
 			this.selected = (GuiNpcButton) guibutton;
@@ -186,7 +185,7 @@ public class GuiNpcCompanionTalents extends GuiNPCInterface {
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.talents = new HashMap<Integer, GuiTalent>();
+		this.talents = new HashMap<>();
 		// int y = this.guiTop + 12;
 		this.addLabel(
 				new GuiNpcLabel(0, NoppesStringUtils.translate("quest.exp", ": "), this.guiLeft + 4, this.guiTop + 10));

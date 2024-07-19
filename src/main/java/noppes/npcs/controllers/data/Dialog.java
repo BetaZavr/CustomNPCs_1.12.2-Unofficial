@@ -38,7 +38,7 @@ public class Dialog implements ICompatibilty, IDialog {
 		this.text = "";
 		this.texture = "";
 		this.quest = -1;
-		this.options = Maps.<Integer, DialogOption>newTreeMap();
+		this.options = Maps.newTreeMap();
 		this.availability = new Availability();
 		this.factionOptions = new FactionOptions();
 		this.command = "";
@@ -93,7 +93,7 @@ public class Dialog implements ICompatibilty, IDialog {
 		if (!this.options.containsKey(optionId) || optionId < 0 || optionId >= this.options.size() - 1) {
 			return;
 		}
-		Map<Integer, DialogOption> newOptions = Maps.<Integer, DialogOption>newTreeMap();
+		Map<Integer, DialogOption> newOptions = Maps.newTreeMap();
 		for (int id : this.options.keySet()) {
 			DialogOption option = this.options.get(id);
 			if (id == optionId) {
@@ -109,11 +109,6 @@ public class Dialog implements ICompatibilty, IDialog {
 		}
 		this.options.clear();
 		this.options.putAll(newOptions);
-	}
-
-	public Map<Integer, DialogOption> fix(Map<Integer, DialogOption> newoptions) {
-
-		return newoptions;
 	}
 
 	@Override
@@ -150,14 +145,14 @@ public class Dialog implements ICompatibilty, IDialog {
 	public IDialogOption getOption(int slot) {
 		IDialogOption option = this.options.get(slot);
 		if (option == null) {
-			throw new CustomNPCsException("There is no DialogOption for slot: " + slot, new Object[0]);
+			throw new CustomNPCsException("There is no DialogOption for slot: " + slot);
 		}
 		return option;
 	}
 
 	@Override
 	public IDialogOption[] getOptions() {
-		return this.options.values().toArray(new IDialogOption[this.options.size()]);
+		return this.options.values().toArray(new IDialogOption[0]);
 	}
 
 	@Override
@@ -188,13 +183,13 @@ public class Dialog implements ICompatibilty, IDialog {
 		return false;
 	}
 
-	public boolean hasOtherOptions() {
+	public boolean notHasOtherOptions() {
 		for (DialogOption option : this.options.values()) {
 			if (option != null && option.optionType != OptionType.DISABLED) {
-				return true;
+				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 
 	public boolean hasQuest() {
@@ -226,7 +221,7 @@ public class Dialog implements ICompatibilty, IDialog {
 			this.stopSound = compound.getBoolean("DialogStopSound");
 		}
 		NBTTagList options = compound.getTagList("Options", 10);
-		Map<Integer, DialogOption> newoptions = new HashMap<Integer, DialogOption>();
+		Map<Integer, DialogOption> newoptions = new HashMap<>();
 		for (int i = 0; i < options.tagCount(); ++i) {
 			NBTTagCompound option = options.getCompoundTagAt(i);
 			int opslot = option.getInteger("OptionSlot");
@@ -268,7 +263,7 @@ public class Dialog implements ICompatibilty, IDialog {
 			this.quest = -1;
 		} else {
 			if (quest.getId() < 0) {
-				throw new CustomNPCsException("Quest id is lower than 0", new Object[0]);
+				throw new CustomNPCsException("Quest id is lower than 0");
 			}
 			this.quest = quest.getId();
 		}
@@ -288,7 +283,7 @@ public class Dialog implements ICompatibilty, IDialog {
 		if (!this.options.containsKey(optionId) || optionId <= 0) {
 			return;
 		}
-		Map<Integer, DialogOption> newOptions = Maps.<Integer, DialogOption>newTreeMap();
+		Map<Integer, DialogOption> newOptions = Maps.newTreeMap();
 		for (int id : this.options.keySet()) {
 			DialogOption option = this.options.get(id);
 			if (id == optionId - 1) {

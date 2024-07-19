@@ -7,9 +7,12 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 import noppes.npcs.client.model.ModelNpcSlime;
 
+import javax.annotation.Nonnull;
+
 public class LayerSlimeNpc<T extends EntityLivingBase> implements LayerRenderer<T> {
-	private RenderLiving<?> renderer;
-	private ModelBase slimeModel;
+
+	private final RenderLiving<?> renderer;
+	private final ModelBase slimeModel;
 
 	public LayerSlimeNpc(RenderLiving<?> renderer) {
 		this.slimeModel = new ModelNpcSlime(0);
@@ -17,8 +20,8 @@ public class LayerSlimeNpc<T extends EntityLivingBase> implements LayerRenderer<
 	}
 
 	@Override
-	public void doRenderLayer(T living, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks,
-			float netHeadYaw, float headPitch, float scale) {
+	public void doRenderLayer(@Nonnull T living, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks,
+							  float netHeadYaw, float headPitch, float scale) {
 		if (living.isInvisible()) {
 			return;
 		}

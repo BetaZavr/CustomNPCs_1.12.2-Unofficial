@@ -20,4 +20,5 @@ public class ThrowableWrapper<T extends EntityThrowable> extends EntityWrapper<T
 	public boolean typeOf(int type) {
 		return type == EntityType.THROWABLE.get() || super.typeOf(type);
 	}
+
 }

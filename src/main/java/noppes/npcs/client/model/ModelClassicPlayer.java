@@ -5,6 +5,8 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
+import javax.annotation.Nonnull;
+
 public class ModelClassicPlayer extends ModelPlayer {
 
 	public ModelClassicPlayer(float scale) {
@@ -12,7 +14,7 @@ public class ModelClassicPlayer extends ModelPlayer {
 	}
 
 	@Override
-	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
+	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, @Nonnull Entity entityIn) {
 		super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);
 		float j = 2.0f;
 		if (entityIn.isSprinting()) { j = 1.0f; }

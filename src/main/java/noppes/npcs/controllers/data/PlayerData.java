@@ -1,7 +1,7 @@
 package noppes.npcs.controllers.data;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.nio.file.Files;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,28 +20,33 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.capability.IPlayerDataHandler;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.entity.data.DataTimers;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.NBTJsonUtil;
+
+import javax.annotation.Nonnull;
 
 public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 
 	@CapabilityInject(IPlayerDataHandler.class)
 	public static Capability<IPlayerDataHandler> PLAYERDATA_CAPABILITY = null;
 
-	private static ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "playerdata");
+	private static final ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "playerdata");
+
 	public static PlayerData get(EntityPlayer player) {
 		if (player == null || player.world.isRemote) {
 			return CustomNpcs.proxy.getPlayerData(player);
 		}
 		PlayerData data = (PlayerData) player.getCapability(PlayerData.PLAYERDATA_CAPABILITY, null);
-		if (data.player == null) {
+		if (data != null && data.player == null) {
 			data.player = player;
 			data.playerLevel = player.experienceLevel;
+			data.animation = new DataAnimation(player);
 			data.scriptData = new PlayerScriptData(player);
 			NBTTagCompound compound = PlayerData.loadPlayerData(player.getPersistentID().toString(), player.getName());
-			if (compound.getKeySet().size() == 0) {
+			if (compound.getKeySet().isEmpty()) {
 				compound = loadPlayerDataOld(player.getPersistentID().toString(), player.getName());
 			}
 			data.setNBT(compound);
@@ -99,7 +104,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 		try {
 			File file = new File(saveDir, name);
 			if (file.exists()) {
-				NBTTagCompound comp = CompressedStreamTools.readCompressed(new FileInputStream(file));
+				NBTTagCompound comp = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
 				file.delete();
 				file = new File(saveDir, name + "_old");
 				if (file.exists()) {
@@ -113,7 +118,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 		try {
 			File file = new File(saveDir, name + "_old");
 			if (file.exists()) {
-				return CompressedStreamTools.readCompressed(new FileInputStream(file));
+				return CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
 			}
 		} catch (Exception e) {
 			LogWriter.except(e);
@@ -122,7 +127,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 	}
 	public static void register(AttachCapabilitiesEvent<Entity> event) {
 		if (event.getObject() instanceof EntityPlayer) {
-			event.addCapability(PlayerData.key, (ICapabilityProvider) new PlayerData());
+			event.addCapability(PlayerData.key, new PlayerData());
 		}
 	}
 	private EntityNPCInterface activeCompanion;
@@ -133,10 +138,10 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 	public int dialogId;
 	public EntityNPCInterface editingNpc;
 	public PlayerFactionData factionData;
-	// New
 	public PlayerGameData game;
 	public PlayerItemGiverData itemgiverData;
 	public PlayerMailData mailData;
+	public DataAnimation animation;
 
 	public PlayerOverlayHUD hud;
 	public PlayerQuestData questData;
@@ -182,7 +187,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+	public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing facing) {
 		if (this.hasCapability(capability, facing)) {
 			return (T) this;
 		}
@@ -203,10 +208,10 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 		this.itemgiverData.saveNBTData(compound);
 		this.mailData.saveNBTData(compound);
 		this.timers.writeToNBT(compound);
-		// New
 		this.hud.saveNBTData(compound);
 		this.game.saveNBTData(compound);
 		this.minimap.saveNBTData(compound);
+		if (this.animation != null) { this.animation.save(compound); }
 
 		compound.setInteger("PlayerCompanionId", this.companionID);
 		compound.setTag("ScriptStoreddata", this.scriptStoreddata);
@@ -233,7 +238,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 		return compound;
 	}
 
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+	public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing) {
 		return capability == PlayerData.PLAYERDATA_CAPABILITY;
 	}
 
@@ -274,10 +279,9 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 			return;
 		}
 		++this.companionID;
-		if ((this.activeCompanion = npc) != null) {
-			((RoleCompanion) npc.advanced.roleInterface).companionID = this.companionID;
-		}
-		this.save(false);
+		this.activeCompanion = npc;
+        ((RoleCompanion) npc.advanced.roleInterface).companionID = this.companionID;
+        this.save(false);
 	}
 
 	@Override
@@ -331,6 +335,19 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 		this.setCompanion(npc);
 		((RoleCompanion) npc.advanced.roleInterface).setSitting(false);
 		world.spawnEntity(npc);
+	}
+
+
+	public EntityPlayer getPlayer() { return this.player; }
+
+	public void setPlayer(EntityPlayer player) {
+		this.player = player;
+		if (player != null) {
+			NBTTagCompound compound = new NBTTagCompound();
+			if (this.animation != null) { this.animation.save(compound); }
+			this.animation = new DataAnimation(player);
+			if (!compound.hasNoTags()) { this.animation.load(compound); }
+		}
 	}
 
 }

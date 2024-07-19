@@ -11,8 +11,8 @@ public class PlayerItemGiverData {
 	private HashMap<Integer, Long> itemgivers;
 
 	public PlayerItemGiverData() {
-		this.itemgivers = new HashMap<Integer, Long>();
-		this.chained = new HashMap<Integer, Integer>();
+		this.itemgivers = new HashMap<>();
+		this.chained = new HashMap<>();
 	}
 
 	public int getItemIndex(JobItemGiver jobItemGiver) {
@@ -26,8 +26,8 @@ public class PlayerItemGiverData {
 		return this.itemgivers.get(jobItemGiver.itemGiverId);
 	}
 
-	public boolean hasInteractedBefore(JobItemGiver jobItemGiver) {
-		return this.itemgivers.containsKey(jobItemGiver.itemGiverId);
+	public boolean notInteractedBefore(JobItemGiver jobItemGiver) {
+		return !this.itemgivers.containsKey(jobItemGiver.itemGiverId);
 	}
 
 	public void loadNBTData(NBTTagCompound compound) {

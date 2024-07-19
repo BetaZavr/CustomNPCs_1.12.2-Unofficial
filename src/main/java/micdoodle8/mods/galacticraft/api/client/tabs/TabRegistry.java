@@ -5,38 +5,33 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketCloseWindow;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import noppes.npcs.LogWriter;
 
 public class TabRegistry {
+
 	private static Class<?> clazzJEIConfig = null;
 	public static Class<?> clazzNEIConfig = null;
 	private static boolean initWithPotion;
-	private static Minecraft mc = FMLClientHandler.instance().getClient();
-	private static ArrayList<AbstractTab> tabList = new ArrayList<AbstractTab>();
+	private static final Minecraft mc = FMLClientHandler.instance().getClient();
+	private static final ArrayList<AbstractTab> tabList = new ArrayList<>();
 
 	static {
 		try {
 			TabRegistry.clazzJEIConfig = Class.forName("mezz.jei.config.Config");
-		} catch (Exception ex) {
-		}
+		} catch (Exception e) { LogWriter.info("Mezz Config is missed:"); }
 		if (TabRegistry.clazzJEIConfig == null) {
 			try {
 				TabRegistry.clazzNEIConfig = Class.forName("codechicken.nei.NEIClientConfig");
-			} catch (Exception ex2) {
 			}
+			catch (Exception ee) { LogWriter.info("Code Chicken Config is missed:"); }
 		}
-	}
-
-	public static void addTabsToInventory(GuiContainer gui) {
 	}
 
 	public static void addTabsToList(List<GuiButton> buttonList) {
@@ -59,16 +54,14 @@ public class TabRegistry {
 	public static int getPotionOffsetJEI() {
 		if (TabRegistry.clazzJEIConfig != null) {
 			try {
-				Object enabled = TabRegistry.clazzJEIConfig.getMethod("isOverlayEnabled", (Class<?>[]) new Class[0])
-						.invoke(null, new Object[0]);
+				Object enabled = TabRegistry.clazzJEIConfig.getMethod("isOverlayEnabled", new Class[0]).invoke(null);
 				if (enabled instanceof Boolean) {
 					if (!(boolean) enabled) {
 						return 0;
 					}
 					return -60;
 				}
-			} catch (Exception ex) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		return 0;
 	}
@@ -76,18 +69,15 @@ public class TabRegistry {
 	public static int getPotionOffsetNEI() {
 		if (TabRegistry.initWithPotion && TabRegistry.clazzNEIConfig != null) {
 			try {
-				Object hidden = TabRegistry.clazzNEIConfig.getMethod("isHidden", (Class<?>[]) new Class[0]).invoke(null,
-						new Object[0]);
-				Object enabled = TabRegistry.clazzNEIConfig.getMethod("isEnabled", (Class<?>[]) new Class[0])
-						.invoke(null, new Object[0]);
+				Object hidden = TabRegistry.clazzNEIConfig.getMethod("isHidden", new Class[0]).invoke(null);
+				Object enabled = TabRegistry.clazzNEIConfig.getMethod("isEnabled", new Class[0]).invoke(null);
 				if (hidden instanceof Boolean && enabled instanceof Boolean) {
 					if ((boolean) hidden || !(boolean) enabled) {
 						return 0;
 					}
 					return -60;
 				}
-			} catch (Exception ex) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		return 0;
 	}
@@ -99,8 +89,8 @@ public class TabRegistry {
 	public static void openInventoryGui() {
 		TabRegistry.mc.player.connection
 				.sendPacket(new CPacketCloseWindow(TabRegistry.mc.player.openContainer.windowId));
-		GuiInventory inventory = new GuiInventory((EntityPlayer) TabRegistry.mc.player);
-		TabRegistry.mc.displayGuiScreen((GuiScreen) inventory);
+		GuiInventory inventory = new GuiInventory(TabRegistry.mc.player);
+		TabRegistry.mc.displayGuiScreen(inventory);
 	}
 
 	public static void registerTab(AbstractTab tab) { // Changed

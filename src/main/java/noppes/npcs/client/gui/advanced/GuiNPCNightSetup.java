@@ -13,12 +13,13 @@ import noppes.npcs.controllers.data.DataTransform;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCNightSetup extends GuiNPCInterface2 implements IGuiData {
-	private DataTransform data;
+
+	private final DataTransform data;
 
 	public GuiNPCNightSetup(EntityNPCInterface npc) {
 		super(npc);
 		this.data = npc.transform;
-		Client.sendData(EnumPacketServer.TransformGet, new Object[0]);
+		Client.sendData(EnumPacketServer.TransformGet);
 	}
 
 	@Override

@@ -19,11 +19,12 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.blocks.BlockBorder;
 import noppes.npcs.controllers.data.Availability;
 
+import javax.annotation.Nonnull;
+
 @SuppressWarnings("rawtypes")
 public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 
 	public Availability availability;
-	public AxisAlignedBB boundingbox;
 	public boolean creative;
 	public int height, rotation;
 	public String message;
@@ -40,7 +41,7 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 		return this.isEntityApplicable((Entity) ob);
 	}
 
-	private boolean cheakPlayer(EntityPlayer player, int startY) {
+	private boolean checkPlayer(EntityPlayer player, int startY) {
 		if ((player.capabilities.isCreativeMode && !this.creative) || this.availability.isAvailable(player)) {
 			return false;
 		}
@@ -61,7 +62,7 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 		}
 		player.setPositionAndUpdate(newPos.getX() + 0.5, newPos.getY(), newPos.getZ() + 0.5);
 		if (!this.message.isEmpty()) {
-			player.sendStatusMessage(new TextComponentTranslation(this.message, new Object[0]), true);
+			player.sendStatusMessage(new TextComponentTranslation(this.message), true);
 		}
 		return true;
 	}
@@ -70,7 +71,7 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 		return new SPacketUpdateTileEntity(this.pos, 0, this.getUpdateTag());
 	}
 
-	public NBTTagCompound getUpdateTag() {
+	public @Nonnull NBTTagCompound getUpdateTag() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("x", this.pos.getX());
 		compound.setInteger("y", this.pos.getY());
@@ -79,7 +80,7 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 		return compound;
 	}
 
-	public void handleUpdateTag(NBTTagCompound compound) {
+	public void handleUpdateTag(@Nonnull NBTTagCompound compound) {
 		this.rotation = compound.getInteger("Rotation");
 	}
 
@@ -87,7 +88,7 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 		return var1 instanceof EntityPlayerMP || var1 instanceof EntityEnderPearl;
 	}
 
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+	public void onDataPacket(@Nonnull NetworkManager net, @Nonnull SPacketUpdateTileEntity pkt) {
 		this.handleUpdateTag(pkt.getNbtCompound());
 	}
 
@@ -100,14 +101,11 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		this.readExtraNBT(compound);
-		if (this.getWorld() != null) {
-			this.getWorld().setBlockState(this.getPos(),
-					CustomRegisters.border.getDefaultState().withProperty(BlockBorder.ROTATION, this.rotation));
-		}
-	}
+        this.getWorld().setBlockState(this.getPos(), CustomRegisters.border.getDefaultState().withProperty(BlockBorder.ROTATION, this.rotation));
+    }
 
 	public void update() {
 		if (this.world.isRemote) {
@@ -121,15 +119,15 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 		AxisAlignedBB box = new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), (this.pos.getX() + 1),
 				(this.pos.getY() + this.height + 1), (this.pos.getZ() + 1));
 		@SuppressWarnings("unchecked")
-		List<Entity> list = this.world.getEntitiesWithinAABB(Entity.class, box, (Predicate) this);
+		List<Entity> list = this.world.getEntitiesWithinAABB(Entity.class, box, this);
 		for (Entity entity : list) {
 			if (entity instanceof EntityEnderPearl) {
 				EntityEnderPearl pearl = (EntityEnderPearl) entity;
 				if (pearl.getThrower() instanceof EntityPlayer) {
-					entity.isDead = this.cheakPlayer((EntityPlayer) pearl.getThrower(), (int) (entity.posY + 0.5d));
+					entity.isDead = this.checkPlayer((EntityPlayer) pearl.getThrower(), (int) (entity.posY + 0.5d));
 				}
 			} else if (entity instanceof EntityPlayer) {
-				this.cheakPlayer((EntityPlayer) entity, (int) (entity.posY + 0.5d));
+				this.checkPlayer((EntityPlayer) entity, (int) (entity.posY + 0.5d));
 			}
 		}
 	}
@@ -142,8 +140,9 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 		compound.setBoolean("Bordercreative", this.creative);
 	}
 
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		this.writeExtraNBT(compound);
 		return super.writeToNBT(compound);
 	}

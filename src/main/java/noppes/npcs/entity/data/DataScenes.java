@@ -1,11 +1,6 @@
 package noppes.npcs.entity.data;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -17,6 +12,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
@@ -25,6 +21,8 @@ import noppes.npcs.controllers.data.Line;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.util.ValueUtil;
+
+import javax.annotation.Nonnull;
 
 public class DataScenes {
 
@@ -44,7 +42,7 @@ public class DataScenes {
 			this.enabled = false;
 			this.ticks = -1;
 			this.state = null;
-			this.events = new ArrayList<SceneEvent>();
+			this.events = new ArrayList<>();
 		}
 
 		private void handle(SceneEvent event) throws Exception {
@@ -57,14 +55,11 @@ public class DataScenes {
 					} else if (!param[0].startsWith("tp")) {
 						break;
 					}
-					BlockPos pos = null;
+					BlockPos pos;
 					if (param[0].startsWith("@")) {
-						EntityLivingBase entitylivingbase = CommandBase.getEntity(DataScenes.this.npc.getServer(),
-								DataScenes.this.npc, param[0], EntityLivingBase.class);
-						if (entitylivingbase != null) {
-							pos = entitylivingbase.getPosition();
-						}
-						param = Arrays.copyOfRange(param, 2, param.length);
+						EntityLivingBase entitylivingbase = CommandBase.getEntity(Objects.requireNonNull(DataScenes.this.npc.getServer()), DataScenes.this.npc, param[0], EntityLivingBase.class);
+                        pos = entitylivingbase.getPosition();
+                        param = Arrays.copyOfRange(param, 2, param.length);
 					} else {
 						if (param.length < 4) {
 							return;
@@ -72,10 +67,7 @@ public class DataScenes {
 						pos = CommandBase.parseBlockPos(DataScenes.this.npc, param, 1, false);
 						param = Arrays.copyOfRange(param, 4, param.length);
 					}
-					if (pos == null) {
-						continue;
-					}
-					DataScenes.this.npc.ais.setStartPos(pos);
+                    DataScenes.this.npc.ais.setStartPos(pos);
 					DataScenes.this.npc.getNavigator().clearPath();
 					if (move) {
 						Path pathentity = DataScenes.this.npc.getNavigator().getPathToPos(pos);
@@ -92,7 +84,7 @@ public class DataScenes {
 			} else if (event.type == SceneType.ROTATE) {
 				DataScenes.this.npc.lookAi.resetTask();
 				if (event.param.startsWith("@")) {
-					EntityLivingBase entitylivingbase2 = CommandBase.getEntity(DataScenes.this.npc.getServer(),
+					EntityLivingBase entitylivingbase2 = CommandBase.getEntity(Objects.requireNonNull(DataScenes.this.npc.getServer()),
 							DataScenes.this.npc, event.param, EntityLivingBase.class);
 					DataScenes.this.npc.lookAi
 							.rotate(DataScenes.this.npc.world.getClosestPlayerToEntity(entitylivingbase2, 30.0));
@@ -109,7 +101,7 @@ public class DataScenes {
 					Item item = CommandBase.getItemByText(DataScenes.this.npc, args[1]);
 					int i = (args.length >= 3) ? CommandBase.parseInt(args[2], 1, 64) : 1;
 					int j = (args.length >= 4) ? CommandBase.parseInt(args[3]) : 0;
-					itemstack = NpcAPI.Instance().getIItemStack(new ItemStack(item, i, j));
+					itemstack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(item, i, j));
 				}
 				if (args[0].equalsIgnoreCase("main")) {
 					DataScenes.this.npc.inventory.weapons.put(0, itemstack);
@@ -130,20 +122,13 @@ public class DataScenes {
 				if (event.param.equals("none")) {
 					DataScenes.this.npc.setAttackTarget(null);
 				} else {
-					EntityLivingBase entity = CommandBase.getEntity(DataScenes.this.npc.getServer(),
-							DataScenes.this.npc, event.param, EntityLivingBase.class);
-					if (entity != null) {
-						DataScenes.this.npc.setAttackTarget(entity);
-					}
-				}
+					EntityLivingBase entity = CommandBase.getEntity(Objects.requireNonNull(DataScenes.this.npc.getServer()), DataScenes.this.npc, event.param, EntityLivingBase.class);
+                    DataScenes.this.npc.setAttackTarget(entity);
+                }
 			} else if (event.type == SceneType.THROW) {
 				String[] args = event.param.split(" ");
-				EntityLivingBase entity2 = CommandBase.getEntity(DataScenes.this.npc.getServer(), DataScenes.this.npc,
-						args[0], EntityLivingBase.class);
-				if (entity2 == null) {
-					return;
-				}
-				float damage = Float.parseFloat(args[1]);
+				EntityLivingBase entity2 = CommandBase.getEntity(Objects.requireNonNull(DataScenes.this.npc.getServer()), DataScenes.this.npc, args[0], EntityLivingBase.class);
+                float damage = Float.parseFloat(args[1]);
 				if (damage <= 0.0f) {
 					damage = 0.01f;
 				}
@@ -188,10 +173,10 @@ public class DataScenes {
 					} else if (type.equals("size")) {
 						DataScenes.this.npc.display.setSize(ValueUtil.correctInt(Integer.parseInt(value), 1, 30));
 					} else {
-						NoppesUtilServer.NotifyOPs("Unknown scene stat: " + type, new Object[0]);
+						NoppesUtilServer.NotifyOPs("Unknown scene stat: " + type);
 					}
 				} catch (NumberFormatException e) {
-					NoppesUtilServer.NotifyOPs("Unknown scene stat " + type + " value: " + value, new Object[0]);
+					NoppesUtilServer.NotifyOPs("Unknown scene stat " + type + " value: " + value);
 				}
 			} else if (event.type == SceneType.FACTION) {
 				DataScenes.this.npc.setFaction(Integer.parseInt(event.param));
@@ -200,12 +185,7 @@ public class DataScenes {
 					DataScenes.this.owner = null;
 					DataScenes.this.ownerScene = null;
 				} else {
-					EntityLivingBase entity = CommandBase.getEntity(DataScenes.this.npc.getServer(),
-							DataScenes.this.npc, event.param, EntityLivingBase.class);
-					if (entity == null) {
-						return;
-					}
-					DataScenes.this.owner = entity;
+                    DataScenes.this.owner = CommandBase.getEntity(Objects.requireNonNull(DataScenes.this.npc.getServer()), DataScenes.this.npc, event.param, EntityLivingBase.class);
 					DataScenes.this.ownerScene = this.name;
 				}
 			}
@@ -217,7 +197,7 @@ public class DataScenes {
 			this.lines = compound.getString("Lines");
 			this.btn = compound.getInteger("Button");
 			this.ticks = compound.getInteger("Ticks");
-			ArrayList<SceneEvent> events = new ArrayList<SceneEvent>();
+			ArrayList<SceneEvent> events = new ArrayList<>();
 			for (String line : this.lines.split("\r\n|\r|\n")) {
 				SceneEvent event = SceneEvent.parse(line);
 				if (event != null) {
@@ -241,8 +221,7 @@ public class DataScenes {
 				}
 				try {
 					this.handle(event);
-				} catch (Exception ex) {
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			this.ticks = this.state.ticks;
 		}
@@ -315,8 +294,8 @@ public class DataScenes {
 		}
 
 		@Override
-		public int compareTo(SceneEvent o) {
-			return this.ticks - o.ticks;
+		public int compareTo(@Nonnull SceneEvent event) {
+			return this.ticks - event.ticks;
 		}
 
 		@Override
@@ -336,18 +315,18 @@ public class DataScenes {
 	}
 
 	public enum SceneType {
-		ANIMATE, ATTACK, COMMAND, EQUIP, FACTION, FOLLOW, MOVE, ROTATE, SAY, STATS, THROW;
+		ANIMATE, ATTACK, COMMAND, EQUIP, FACTION, FOLLOW, MOVE, ROTATE, SAY, STATS, THROW
 	}
 
-	public static List<SceneContainer> ScenesToRun = new ArrayList<SceneContainer>();
-	public static Map<String, SceneState> StartedScenes = new HashMap<String, SceneState>();
+	public static List<SceneContainer> ScenesToRun = new ArrayList<>();
+	public static Map<String, SceneState> StartedScenes = new HashMap<>();
 
-	public static void Pause(ICommandSender sender, String id) {
+	public static void Pause(String id) {
 		if (id == null) {
 			for (SceneState state : DataScenes.StartedScenes.values()) {
 				state.paused = true;
 			}
-			NoppesUtilServer.NotifyOPs("Paused all scenes", new Object[0]);
+			NoppesUtilServer.NotifyOPs("Paused all scenes");
 		} else {
 			SceneState state2 = DataScenes.StartedScenes.get(id.toLowerCase());
 			state2.paused = true;
@@ -360,16 +339,16 @@ public class DataScenes {
 			if (DataScenes.StartedScenes.isEmpty()) {
 				return;
 			}
-			DataScenes.StartedScenes = new HashMap<String, SceneState>();
-			NoppesUtilServer.NotifyOPs("Reset all scene", new Object[0]);
+			DataScenes.StartedScenes = new HashMap<>();
+			NoppesUtilServer.NotifyOPs("Reset all scene");
 		} else if (DataScenes.StartedScenes.remove(id.toLowerCase()) == null) {
-			sender.sendMessage(new TextComponentTranslation("Unknown scene %s ", new Object[] { id }));
+			sender.sendMessage(new TextComponentTranslation("Unknown scene %s ", id));
 		} else {
 			NoppesUtilServer.NotifyOPs("Reset scene %s", id);
 		}
 	}
 
-	public static void Start(ICommandSender sender, String id) {
+	public static void Start(String id) {
 		SceneState state = DataScenes.StartedScenes.get(id.toLowerCase());
 		if (state == null) {
 			NoppesUtilServer.NotifyOPs("Started scene %s", id);
@@ -380,17 +359,17 @@ public class DataScenes {
 		}
 	}
 
-	public static void Toggle(ICommandSender sender, String id) {
+	public static void Toggle(String id) {
 		SceneState state = DataScenes.StartedScenes.get(id.toLowerCase());
 		if (state == null || state.paused) {
-			Start(sender, id);
+			Start(id);
 		} else {
 			state.paused = true;
 			NoppesUtilServer.NotifyOPs("Paused scene %s at %s", id, state.ticks);
 		}
 	}
 
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 
 	private EntityLivingBase owner;
 
@@ -399,7 +378,7 @@ public class DataScenes {
 	public List<SceneContainer> scenes;
 
 	public DataScenes(EntityNPCInterface npc) {
-		this.scenes = new ArrayList<SceneContainer>();
+		this.scenes = new ArrayList<>();
 		this.owner = null;
 		this.ownerScene = null;
 		this.npc = npc;
@@ -420,7 +399,7 @@ public class DataScenes {
 
 	public void readFromNBT(NBTTagCompound compound) {
 		NBTTagList list = compound.getTagList("Scenes", 10);
-		List<SceneContainer> scenes = new ArrayList<SceneContainer>();
+		List<SceneContainer> scenes = new ArrayList<>();
 		for (int i = 0; i < list.tagCount(); ++i) {
 			SceneContainer scene = new SceneContainer();
 			scene.readFromNBT(list.getCompoundTagAt(i));

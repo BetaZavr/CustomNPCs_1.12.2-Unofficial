@@ -1,6 +1,5 @@
 package noppes.npcs.client.layer;
 
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
@@ -23,6 +22,7 @@ import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
 
 public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> implements LayerPreRender {
+
 	private ModelDigitigradeLegs digitigrade;
 	private ModelRenderer dragon;
 	private ModelRenderer feathers;
@@ -47,26 +47,26 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 	private void createParts() {
 		this.spiderLegs = new ModelSpiderLegs(this.model);
 		this.horseLegs = new ModelHorseLegs(this.model);
-		this.naga = new ModelNagaLegs((ModelBase) this.model);
-		this.mermaid = new ModelMermaidLegs((ModelBase) this.model);
+		this.naga = new ModelNagaLegs(this.model);
+		this.mermaid = new ModelMermaidLegs(this.model);
 		this.digitigrade = new ModelDigitigradeLegs(this.model);
 		this.fox = new ModelCanineTail(this.model);
-		(this.tail = new ModelRenderer((ModelBase) this.model, 56, 21)).addBox(-1.0f, 0.0f, 0.0f, 2, 9, 2);
+		(this.tail = new ModelRenderer(this.model, 56, 21)).addBox(-1.0f, 0.0f, 0.0f, 2, 9, 2);
 		this.tail.setRotationPoint(0.0f, 0.0f, 1.0f);
 		this.setRotation(this.tail, 0.8714253f, 0.0f, 0.0f);
-		(this.horse = new ModelRenderer((ModelBase) this.model)).setTextureSize(32, 32);
+		(this.horse = new ModelRenderer(this.model)).setTextureSize(32, 32);
 		this.horse.setRotationPoint(0.0f, -1.0f, 1.0f);
-		ModelRenderer tailBase = new ModelRenderer((ModelBase) this.model, 0, 26);
+		ModelRenderer tailBase = new ModelRenderer(this.model, 0, 26);
 		tailBase.setTextureSize(32, 32);
 		tailBase.addBox(-1.0f, -1.0f, 0.0f, 2, 2, 3);
 		this.setRotation(tailBase, -1.134464f, 0.0f, 0.0f);
 		this.horse.addChild(tailBase);
-		ModelRenderer tailMiddle = new ModelRenderer((ModelBase) this.model, 0, 13);
+		ModelRenderer tailMiddle = new ModelRenderer(this.model, 0, 13);
 		tailMiddle.setTextureSize(32, 32);
 		tailMiddle.addBox(-1.5f, -2.0f, 3.0f, 3, 4, 7);
 		this.setRotation(tailMiddle, -1.134464f, 0.0f, 0.0f);
 		this.horse.addChild(tailMiddle);
-		ModelRenderer tailTip = new ModelRenderer((ModelBase) this.model, 0, 0);
+		ModelRenderer tailTip = new ModelRenderer(this.model, 0, 0);
 		tailTip.setTextureSize(32, 32);
 		tailTip.addBox(-1.5f, -4.5f, 9.0f, 3, 4, 7);
 		this.setRotation(tailTip, -1.40215f, 0.0f, 0.0f);
@@ -144,21 +144,17 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 		}
 		GlStateManager.pushMatrix();
 		ModelPartConfig config = this.playerdata.getPartConfig(EnumParts.LEG_LEFT);
-		GlStateManager.translate(config.offset[0] * par7, config.offset[1] + this.rotationPointY * par7,
-				config.offset[2] * par7 + this.rotationPointZ * par7);
+		GlStateManager.translate(config.offset[0] * par7, config.offset[1] + this.rotationPointY * par7, config.offset[2] * par7 + this.rotationPointZ * par7);
 		GlStateManager.translate(0.0f, 0.0f, (config.scale[2] - 1.0f) * 5.0f * par7);
 		GlStateManager.scale(config.scale[0], config.scale[1], config.scale[2]);
 		this.preRender(data);
 		if (data.type == 0) {
 			if (data.pattern == 1) {
 				this.tail.rotationPointX = -0.5f;
-				ModelRenderer tail = this.tail;
-				tail.rotateAngleY -= 0.2;
+				this.tail.rotateAngleY -= 0.2f;
 				this.tail.render(par7);
-				ModelRenderer tail2 = this.tail;
-				++tail2.rotationPointX;
-				ModelRenderer tail3 = this.tail;
-				tail3.rotateAngleY += 0.4;
+				++this.tail.rotationPointX;
+				this.tail.rotateAngleY += 0.4f;
 				this.tail.render(par7);
 				this.tail.rotationPointX = 0.0f;
 			} else {
@@ -213,25 +209,24 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 		ModelPartConfig config = this.playerdata.getPartConfig(EnumParts.LEG_LEFT);
 		float rotateAngleY = MathHelper.cos(par1 * 0.6662f) * 0.2f * par2;
 		float rotateAngleX = MathHelper.sin(par3 * 0.067f) * 0.05f;
-		this.rotationPointZ = 0.0f;
-		this.rotationPointY = 11.0f;
+        this.rotationPointY = 11.0f;
 		if (part.type == 2) {
 			this.rotationPointY = 12.0f + (config.scale[1] - 1.0f) * 3.0f;
 			this.rotationPointZ = 15.0f + (config.scale[2] - 1.0f) * 10.0f;
 			if (this.npc.isPlayerSleeping() || this.npc.currentAnimation == 7) {
 				this.rotationPointY = 12.0f + 16.0f * config.scale[2];
-				this.rotationPointZ = 1.0f * config.scale[1];
+				this.rotationPointZ = config.scale[1];
 				rotateAngleX = -0.7853982f;
 			}
 		} else if (part.type == 3) {
 			this.rotationPointY = 10.0f;
 			this.rotationPointZ = 16.0f + (config.scale[2] - 1.0f) * 12.0f;
 		} else {
-			this.rotationPointZ = (1.0f - config.scale[2]) * 1.0f;
+			this.rotationPointZ = 1.0f - config.scale[2];
 		}
 		if (partTail != null) {
 			if (partTail.type == 2) {
-				rotateAngleX += 0.5;
+				rotateAngleX += 0.5f;
 			}
 			if (partTail.type == 0) {
 				rotateAngleX += 0.87f;
@@ -241,39 +236,21 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 			}
 		}
 		this.rotationPointZ += this.model.bipedRightLeg.rotationPointZ + 0.5f;
-		ModelCanineTail fox = this.fox;
-		ModelRenderer tail = this.tail;
-		ModelRenderer feathers = this.feathers;
-		ModelRenderer dragon = this.dragon;
-		ModelRenderer squirrel = this.squirrel;
-		ModelRenderer horse = this.horse;
-		ModelRenderer fin = this.fin;
-		ModelRenderer rodent = this.rodent;
-		float n = rotateAngleX;
-		rodent.rotateAngleX = n;
-		fin.rotateAngleX = n;
-		horse.rotateAngleX = n;
-		squirrel.rotateAngleX = n;
-		dragon.rotateAngleX = n;
-		feathers.rotateAngleX = n;
-		tail.rotateAngleX = n;
-		fox.rotateAngleX = n;
-		ModelCanineTail fox2 = this.fox;
-		ModelRenderer tail2 = this.tail;
-		ModelRenderer feathers2 = this.feathers;
-		ModelRenderer dragon2 = this.dragon;
-		ModelRenderer squirrel2 = this.squirrel;
-		ModelRenderer horse2 = this.horse;
-		ModelRenderer fin2 = this.fin;
-		ModelRenderer rodent2 = this.rodent;
-		float n2 = rotateAngleY;
-		rodent2.rotateAngleY = n2;
-		fin2.rotateAngleY = n2;
-		horse2.rotateAngleY = n2;
-		squirrel2.rotateAngleY = n2;
-		dragon2.rotateAngleY = n2;
-		feathers2.rotateAngleY = n2;
-		tail2.rotateAngleY = n2;
-		fox2.rotateAngleY = n2;
+		this.rodent.rotateAngleX = rotateAngleX;
+		this.fin.rotateAngleX = rotateAngleX;
+		this.horse.rotateAngleX = rotateAngleX;
+		this.squirrel.rotateAngleX = rotateAngleX;
+		this.dragon.rotateAngleX = rotateAngleX;
+		this.feathers.rotateAngleX = rotateAngleX;
+		this.tail.rotateAngleX = rotateAngleX;
+		this.fox.rotateAngleX = rotateAngleX;
+		this.rodent.rotateAngleY = rotateAngleY;
+		this.fin.rotateAngleY = rotateAngleY;
+		this.horse.rotateAngleY = rotateAngleY;
+		this.squirrel.rotateAngleY = rotateAngleY;
+		this.dragon.rotateAngleY = rotateAngleY;
+		this.feathers.rotateAngleY = rotateAngleY;
+		this.tail.rotateAngleY = rotateAngleY;
+		this.fox.rotateAngleY = rotateAngleY;
 	}
 }

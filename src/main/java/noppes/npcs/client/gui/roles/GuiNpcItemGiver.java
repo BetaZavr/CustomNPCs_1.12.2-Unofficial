@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.roles;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -20,7 +19,7 @@ import noppes.npcs.roles.JobItemGiver;
 
 public class GuiNpcItemGiver extends GuiContainerNPCInterface2 {
 
-	private JobItemGiver role;
+	private final JobItemGiver role;
 
 	public GuiNpcItemGiver(EntityNPCInterface npc, ContainerNpcItemGiver container) {
 		super(npc, container);
@@ -54,7 +53,7 @@ public class GuiNpcItemGiver extends GuiContainerNPCInterface2 {
 						this.role.givingMethod));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 6, this.guiTop + 29, 140, 20,
 				new String[] { "Timer", "Give Only Once", "Daily" }, this.role.cooldownType));
-		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, this.guiLeft + 55,
+		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 55,
 				this.guiTop + 54, 90, 20, this.role.cooldown + ""));
 		this.getTextField(0).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(0, "Cooldown:", this.guiLeft + 6, this.guiTop + 59));
@@ -62,12 +61,12 @@ public class GuiNpcItemGiver extends GuiContainerNPCInterface2 {
 		this.getTextField(0).setNumbersOnly();
 		int i = 0;
 		for (String line : this.role.lines) {
-			this.addTextField(new GuiNpcTextField(i + 1, (GuiScreen) this, this.fontRenderer, this.guiLeft + 150,
+			this.addTextField(new GuiNpcTextField(i + 1, this, this.fontRenderer, this.guiLeft + 150,
 					this.guiTop + 6 + i * 24, 236, 20, line));
 			++i;
 		}
 		while (i < 3) {
-			this.addTextField(new GuiNpcTextField(i + 1, (GuiScreen) this, this.fontRenderer, this.guiLeft + 150,
+			this.addTextField(new GuiNpcTextField(i + 1, this, this.fontRenderer, this.guiLeft + 150,
 					this.guiTop + 6 + i * 24, 236, 20, ""));
 			++i;
 		}
@@ -88,7 +87,7 @@ public class GuiNpcItemGiver extends GuiContainerNPCInterface2 {
 
 	@Override
 	public void save() {
-		List<String> lines = new ArrayList<String>();
+		List<String> lines = new ArrayList<>();
 		for (int i = 1; i < 4; ++i) {
 			GuiNpcTextField tf = this.getTextField(i);
 			if (!tf.isEmpty()) {

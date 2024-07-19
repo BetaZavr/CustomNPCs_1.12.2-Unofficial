@@ -1,8 +1,6 @@
 package noppes.npcs.client.gui.global;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,7 +12,6 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -40,8 +37,7 @@ import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
-public class GuiNPCManageQuest extends GuiNPCInterface2
-		implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
+public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
 	public static GuiScreen Instance;
 	private static boolean isName = true;
@@ -56,8 +52,8 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 
 	public GuiNPCManageQuest(EntityNPCInterface npc) {
 		super(npc);
-		this.categoryData = Maps.<String, QuestCategory>newTreeMap();
-		this.questData = Maps.<String, Quest>newLinkedHashMap();
+		this.categoryData = Maps.newTreeMap();
+		this.questData = Maps.newLinkedHashMap();
 		GuiNPCManageQuest.Instance = this;
 		Client.sendData(EnumPacketServer.QuestCategoryGet);
 	}
@@ -66,18 +62,17 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 1: {
-			this.setSubGui(new SubGuiEditText(1, AdditionalMethods.instance
-					.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+			this.setSubGui(new SubGuiEditText(1, AdditionalMethods.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 			break;
 		}
 		case 2: {
 			if (!this.categoryData.containsKey(this.selectedCategory)) {
 				return;
 			}
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					this.categoryData.get(this.selectedCategory).title,
 					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 3: {
@@ -94,10 +89,21 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 			Quest quest = this.copyQuest.copy();
 			quest.id = -1;
 			quest.category = this.categoryData.get(this.selectedCategory);
-			while (QuestController.instance.containsQuestName(quest.category, quest)) {
-				quest.setName(quest.getName() + "_");
+
+			StringBuilder t = new StringBuilder(quest.title);
+			boolean has = true;
+			while (has) {
+				has = false;
+				for (Quest q : quest.category.quests.values()) {
+					if (quest.id != q.id && q.title.equalsIgnoreCase(t.toString())) {
+						has = true;
+						break;
+					}
+				}
+				if (has) { t.append("_"); }
 			}
-			this.selectedQuest = "" + quest.getTitle();
+			quest.setName(t.toString());
+			this.selectedQuest = quest.getTitle();
 			Client.sendData(EnumPacketServer.QuestSave, quest.category.id, quest.writeToNBT(new NBTTagCompound()));
 			this.initGui();
 			break;
@@ -119,9 +125,9 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 			if (!this.questData.containsKey(this.selectedQuest)) {
 				return;
 			}
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.questData.get(this.selectedQuest).getTitle(),
+			GuiYesNo guiyesno = new GuiYesNo(this, this.questData.get(this.selectedQuest).getTitle(),
 					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 13: {
@@ -145,7 +151,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 	}
 
 	public void confirmClicked(boolean result, int id) {
-		NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		NoppesUtil.openGUI(this.player, this);
 		if (!result) {
 			return;
 		}
@@ -217,7 +223,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 		}
 		if (!this.selectedCategory.isEmpty()) {
 			if (this.categoryData.containsKey(this.selectedCategory)) {
-				Map<String, Quest> map = Maps.<String, Quest>newTreeMap();
+				Map<String, Quest> map = Maps.newTreeMap();
 				for (Quest quest : this.categoryData.get(this.selectedCategory).quests.values()) {
 					boolean b = quest.isSetUp();
 					String key = chr + "7ID:" + quest.id + "-\"" + chr + "r" + quest.getTitle() + chr + "7\"" + chr
@@ -226,23 +232,15 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 					map.put(key, quest);
 				}
 				List<Entry<String, Quest>> list = Lists.newArrayList(map.entrySet());
-				Collections.sort(list, new Comparator<Entry<String, Quest>>() {
-					public int compare(Entry<String, Quest> d_0, Entry<String, Quest> d_1) {
-						if (GuiNPCManageQuest.isName) {
-							String n_0 = AdditionalMethods.instance
-									.deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText()
-											+ "_" + d_0.getValue().id)
-									.toLowerCase();
-							String n_1 = AdditionalMethods.instance
-									.deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText()
-											+ "_" + d_1.getValue().id)
-									.toLowerCase();
-							return n_0.compareTo(n_1);
-						} else {
-							return ((Integer) d_0.getValue().id).compareTo((Integer) d_1.getValue().id);
-						}
-					}
-				});
+				list.sort((d_0, d_1) -> {
+                    if (GuiNPCManageQuest.isName) {
+                        String n_0 = AdditionalMethods.instance.deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText() + "_" + d_0.getValue().id).toLowerCase();
+                        String n_1 = AdditionalMethods.instance.deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText() + "_" + d_1.getValue().id).toLowerCase();
+                        return n_0.compareTo(n_1);
+                    } else {
+                        return Integer.compare(d_0.getValue().id, d_1.getValue().id);
+                    }
+                });
 				for (Entry<String, Quest> entry : list) {
 					this.questData.put(entry.getKey(), entry.getValue());
 					if (this.selectedQuest.isEmpty()) {
@@ -259,42 +257,8 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 				ht = new String[this.questData.size()][];
 				DialogController dData = DialogController.instance;
 				for (Quest quest : this.questData.values()) {
-					List<String> h = Lists.newArrayList(), quests = Lists.newArrayList(),
-							dialogs = Lists.newArrayList();
-					h.add(new TextComponentTranslation(quest.title).getFormattedText() + ":");
-					for (Quest q : qData.quests.values()) {
-						if (q.nextQuestid != quest.id) {
-							continue;
-						}
-						quests.add(chr + "7ID:" + q.id + chr + "8 " + q.category.getName() + "/" + chr + "r"
-								+ q.getName());
-					}
-					for (Dialog d : dData.dialogs.values()) {
-						if (d.quest != quest.id) {
-							continue;
-						}
-						dialogs.add(chr + "7ID:" + d.id + chr + "8 " + d.category.getName() + "/" + chr + "r"
-								+ d.getName());
-					}
-
-					if (quests.isEmpty() && dialogs.isEmpty()) {
-						h.add(new TextComponentTranslation("quest.hover.quest.0").getFormattedText());
-					}
-
-					if (!quests.isEmpty()) {
-						h.add(new TextComponentTranslation("quest.hover.in.quests").getFormattedText());
-						h.addAll(quests);
-					} else {
-						h.add(new TextComponentTranslation("quest.hover.quest.1").getFormattedText());
-					}
-
-					if (!dialogs.isEmpty()) {
-						h.add(new TextComponentTranslation("quest.hover.in.dialogs").getFormattedText());
-						h.addAll(dialogs);
-					} else {
-						h.add(new TextComponentTranslation("quest.hover.quest.2").getFormattedText());
-					}
-					ht[pos] = h.toArray(new String[h.size()]);
+					final List<String> h = getStrings(quest, qData, dData);
+					ht[pos] = h.toArray(new String[0]);
 					pos++;
 				}
 			}
@@ -310,8 +274,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 		this.addButton(new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", this.copyQuest != null));
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y += 17, 64, 14,
-				GuiNPCManageQuest.isName ? "gui.name" : "ID");
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y + 17, 64, 14, GuiNPCManageQuest.isName ? "gui.name" : "ID");
 		checkBox.setSelected(GuiNPCManageQuest.isName);
 		this.addButton(checkBox);
 		// category buttons
@@ -319,7 +282,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 		this.addLabel(new GuiNpcLabel(2, "gui.categories", x + 2, y));
 		this.addButton(new GuiNpcButton(3, x, y += 10, 64, 15, "selectServer.edit", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(2, x, y += 17, 64, 15, "gui.remove", !this.selectedCategory.isEmpty()));
-		this.addButton(new GuiNpcButton(1, x, y += 17, 64, 15, "gui.add"));
+		this.addButton(new GuiNpcButton(1, x, y + 17, 64, 15, "gui.add"));
 
 		if (this.scrollCategories == null) {
 			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, this.ySize - 3);
@@ -345,6 +308,44 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 			this.scrollQuests.setSelected(this.selectedQuest);
 		}
 		this.addScroll(this.scrollQuests);
+	}
+
+	private List<String> getStrings(Quest quest, QuestController qData, DialogController dData) {
+		List<String> h = Lists.newArrayList(), quests = Lists.newArrayList(), dialogs = Lists.newArrayList();
+		h.add(new TextComponentTranslation(quest.title).getFormattedText() + ":");
+		for (Quest q : qData.quests.values()) {
+			if (q.nextQuestid != quest.id) {
+				continue;
+			}
+			quests.add(chr + "7ID:" + q.id + chr + "8 " + q.category.getName() + "/" + chr + "r"
+					+ q.getName());
+		}
+		for (Dialog d : dData.dialogs.values()) {
+			if (d.quest != quest.id) {
+				continue;
+			}
+			dialogs.add(chr + "7ID:" + d.id + chr + "8 " + d.category.getName() + "/" + chr + "r"
+					+ d.getName());
+		}
+
+		if (quests.isEmpty() && dialogs.isEmpty()) {
+			h.add(new TextComponentTranslation("quest.hover.quest.0").getFormattedText());
+		}
+
+		if (!quests.isEmpty()) {
+			h.add(new TextComponentTranslation("quest.hover.in.quests").getFormattedText());
+			h.addAll(quests);
+		} else {
+			h.add(new TextComponentTranslation("quest.hover.quest.1").getFormattedText());
+		}
+
+		if (!dialogs.isEmpty()) {
+			h.add(new TextComponentTranslation("quest.hover.in.dialogs").getFormattedText());
+			h.addAll(dialogs);
+		} else {
+			h.add(new TextComponentTranslation("quest.hover.quest.2").getFormattedText());
+		}
+		return h;
 	}
 
 	@Override
@@ -396,45 +397,72 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof SubGuiEditText && ((SubGuiEditText) subgui).cancelled) {
-			return;
-		}
-		if (subgui.id == 1) { // new category
-			QuestCategory category = new QuestCategory();
-			category.title = ((SubGuiEditText) subgui).text[0];
-			this.selectedCategory = category.title;
-			while (QuestController.instance.containsCategoryName(category)) {
-				StringBuilder sb = new StringBuilder();
-				QuestCategory questCategory = category;
-				questCategory.title = sb.append(questCategory.title).append("_").toString();
-				this.selectedCategory = questCategory.title;
+		if (subgui instanceof SubGuiEditText && !((SubGuiEditText) subgui).cancelled) {
+			if (subgui.id == 1) { // new category
+				QuestCategory category = new QuestCategory();
+				StringBuilder t = new StringBuilder(((SubGuiEditText) subgui).text[0]);
+				boolean has = true;
+				while (has) {
+					has = false;
+					for (QuestCategory cat : QuestController.instance.categories.values()) {
+						if (cat.id != category.id && cat.title.equalsIgnoreCase(t.toString())) {
+							has = true;
+							break;
+						}
+					}
+					if (has) { t.append("_"); }
+				}
+				category.title = t.toString();
+				this.selectedCategory = category.title;
+				Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
+				this.initGui();
 			}
-			Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
-			this.initGui();
-		}
-		if (subgui.id == 3) { // rename category
-			if (((SubGuiEditText) subgui).text[0].isEmpty() || !this.categoryData.containsKey(this.selectedCategory)) { return; }
-			QuestCategory category = this.categoryData.get(this.selectedCategory).copy();
-			if (category.title.equals(((SubGuiEditText) subgui).text[0])) { return; }
-			category.title = ((SubGuiEditText) subgui).text[0];
-			while (QuestController.instance.containsCategoryName(category)) { category.title += "_"; }
-			this.selectedCategory = category.title;
-			Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
-			this.initGui();
-		}
-		if (subgui.id == 11) { // new quest
-			if (((SubGuiEditText) subgui).text[0].isEmpty()) {
-				return;
+			if (subgui.id == 3) { // rename category
+				if (((SubGuiEditText) subgui).text[0].isEmpty() || !this.categoryData.containsKey(this.selectedCategory)) { return; }
+				QuestCategory category = this.categoryData.get(this.selectedCategory).copy();
+				if (category.title.equals(((SubGuiEditText) subgui).text[0])) { return; }
+
+				StringBuilder t = new StringBuilder(((SubGuiEditText) subgui).text[0]);
+				boolean has = true;
+				while (has) {
+					has = false;
+					for (QuestCategory cat : QuestController.instance.categories.values()) {
+						if (cat.id != category.id && cat.title.equalsIgnoreCase(t.toString())) {
+							has = true;
+							break;
+						}
+					}
+					if (has) { t.append("_"); }
+				}
+				category.title = t.toString();
+				this.selectedCategory = category.title;
+				Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
+				this.initGui();
 			}
-			Quest quest = new Quest(this.categoryData.get(this.selectedCategory));
-			quest.setName(((SubGuiEditText) subgui).text[0]);
-			while (QuestController.instance.containsQuestName(this.categoryData.get(this.selectedCategory), quest)) {
-				quest.setName(quest.getName() + "_");
+			if (subgui.id == 11) { // new quest
+				if (((SubGuiEditText) subgui).text[0].isEmpty()) {
+					return;
+				}
+				Quest quest = new Quest(this.categoryData.get(this.selectedCategory));
+
+				StringBuilder t = new StringBuilder(((SubGuiEditText) subgui).text[0]);
+				boolean has = true;
+				while (has) {
+					has = false;
+					for (Quest q : quest.category.quests.values()) {
+						if (quest.id != q.id && q.title.equalsIgnoreCase(t.toString())) {
+							has = true;
+							break;
+						}
+					}
+					if (has) { t.append("_"); }
+				}
+				quest.setName(t.toString());
+
+				this.selectedQuest = quest.getTitle();
+				Client.sendData(EnumPacketServer.QuestSave, this.categoryData.get(this.selectedCategory).id, quest.writeToNBT(new NBTTagCompound()));
+				this.initGui();
 			}
-			this.selectedQuest = "" + quest.getTitle();
-			Client.sendData(EnumPacketServer.QuestSave, this.categoryData.get(this.selectedCategory).id,
-					quest.writeToNBT(new NBTTagCompound()));
-			this.initGui();
 		}
 		if (subgui instanceof GuiQuestEdit) {
 			this.initGui();

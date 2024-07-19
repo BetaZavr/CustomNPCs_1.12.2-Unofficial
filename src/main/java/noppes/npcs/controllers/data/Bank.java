@@ -1,12 +1,12 @@
 package noppes.npcs.controllers.data;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -20,6 +20,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.controllers.BankController;
@@ -27,7 +28,7 @@ import noppes.npcs.controllers.PlayerDataController;
 
 public class Bank {
 
-	public class CeilSettings {
+	public static class CeilSettings {
 
 		public ItemStack openStack;
 		public ItemStack upgradeStack;
@@ -44,10 +45,6 @@ public class Bank {
 		public CeilSettings(NBTTagCompound nbtCeil) {
 			this();
 			this.read(nbtCeil);
-		}
-
-		public boolean canBeUpgraded() {
-			return this.startCeils < this.maxCeils && !this.upgradeStack.isEmpty();
 		}
 
 		public void read(NBTTagCompound nbtCeil) {
@@ -98,10 +95,10 @@ public class Bank {
 		this.id = -1;
 		this.name = "Default Bank";
 		this.owner = "";
-		this.ceilSettings = Maps.<Integer, CeilSettings>newTreeMap();
+		this.ceilSettings = Maps.newTreeMap();
 		this.isPublic = false;
 		this.isWhiteList = false;
-		this.access = Lists.<String>newArrayList();
+		this.access = Lists.newArrayList();
 		for (int ceil = 0; ceil < 2; ceil++) {
 			CeilSettings cs = new CeilSettings();
 			cs.ceil = ceil;
@@ -149,31 +146,28 @@ public class Bank {
 				File fileBank = new File(banksDir, this.id + ".dat");
 				BankData bd = new BankData(this, "");
 				try {
-					bd.readNBT(CompressedStreamTools.readCompressed(new FileInputStream(fileBank)));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+					bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 				if (!bd.ceils.containsKey(cs.ceil)) {
 					bd.ceils.put(cs.ceil, new NpcMiscInventory(0));
 					bd.save();
 				}
 			} else {
 				File datasDir = CustomNpcs.getWorldSaveDirectory("playerdata");
-				for (File playerDir : datasDir.listFiles()) {
+				if (datasDir == null) { return null; }
+				for (File playerDir : Objects.requireNonNull(datasDir.listFiles())) {
 					if (!playerDir.isDirectory()) {
 						continue;
 					}
-					for (File banksDir : playerDir.listFiles()) {
+					for (File banksDir : Objects.requireNonNull(playerDir.listFiles())) {
 						if (!banksDir.isDirectory() || !banksDir.getName().equals("banks")) {
 							continue;
 						}
 						File fileBank = new File(banksDir, this.id + ".dat");
 						BankData bd = new BankData(this, playerDir.getName());
 						try {
-							bd.readNBT(CompressedStreamTools.readCompressed(new FileInputStream(fileBank)));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+							bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
+						} catch (IOException e) { LogWriter.error("Error:", e); }
 						if (!bd.ceils.containsKey(cs.ceil)) {
 							bd.ceils.put(cs.ceil, new NpcMiscInventory(0));
 							bd.save();
@@ -199,18 +193,18 @@ public class Bank {
 		if (!file.exists()) { // create new
 			try {
 				file.createNewFile();
-				CompressedStreamTools.writeCompressed(this.lastBank.getNBT(), new FileOutputStream(file));
+				CompressedStreamTools.writeCompressed(this.lastBank.getNBT(), Files.newOutputStream(file.toPath()));
 			} catch (Exception e) {
-				e.printStackTrace();
+				LogWriter.error("Error:", e);
 				this.lastBank = null;
 				return null;
 			}
 		}
 		// load
 		try {
-			this.lastBank.setNBT(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+			this.lastBank.setNBT(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath())));
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogWriter.error("Error:", e);
 			this.lastBank = null;
 			return null;
 		}
@@ -218,10 +212,6 @@ public class Bank {
 			this.lastBank.clear();
 		}
 		return this.lastBank;
-	}
-
-	public int getMaxCeils() {
-		return this.ceilSettings.size();
 	}
 
 	public boolean hasBankData() {
@@ -234,7 +224,7 @@ public class Bank {
 		this.ceilSettings.clear();
 		this.access.clear();
 
-		String pldOwner = new String(this.owner);
+		String pldOwner = this.owner;
 		if (nbtBank.hasKey("StartSlots", 3)) {
 			this.isPublic = false;
 			this.isWhiteList = false;
@@ -285,7 +275,7 @@ public class Bank {
 				}
 			}
 			if (!this.access.isEmpty()) {
-				List<String> newAccess = Lists.<String>newArrayList();
+				List<String> newAccess = Lists.newArrayList();
 				boolean isChanged = false;
 				for (String acces : this.access) {
 					if (!names.contains(acces)) {
@@ -341,11 +331,9 @@ public class Bank {
 				File fileBank = new File(banksDir, this.id + ".dat");
 				BankData bd = new BankData(this, "");
 				try {
-					bd.readNBT(CompressedStreamTools.readCompressed(new FileInputStream(fileBank)));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				Map<Integer, NpcMiscInventory> newCeils = Maps.<Integer, NpcMiscInventory>newTreeMap();
+					bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
+				} catch (IOException e) { LogWriter.error("Error:", e); }
+				Map<Integer, NpcMiscInventory> newCeils = Maps.newTreeMap();
 				int i = 0;
 				for (NpcMiscInventory inv : bd.ceils.values()) {
 					if (i == ceilId) {
@@ -359,22 +347,21 @@ public class Bank {
 				bd.save();
 			} else {
 				File datasDir = CustomNpcs.getWorldSaveDirectory("playerdata");
-				for (File playerDir : datasDir.listFiles()) {
+                if (datasDir == null) { return; }
+                for (File playerDir : Objects.requireNonNull(datasDir.listFiles())) {
 					if (!playerDir.isDirectory()) {
 						continue;
 					}
-					for (File banksDir : playerDir.listFiles()) {
+					for (File banksDir : Objects.requireNonNull(playerDir.listFiles())) {
 						if (!banksDir.isDirectory() || !banksDir.getName().equals("banks")) {
 							continue;
 						}
 						File fileBank = new File(banksDir, this.id + ".dat");
 						BankData bd = new BankData(this, playerDir.getName());
 						try {
-							bd.readNBT(CompressedStreamTools.readCompressed(new FileInputStream(fileBank)));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						Map<Integer, NpcMiscInventory> newCeils = Maps.<Integer, NpcMiscInventory>newTreeMap();
+							bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
+						} catch (IOException e) { LogWriter.error("Error:", e); }
+						Map<Integer, NpcMiscInventory> newCeils = Maps.newTreeMap();
 						int i = 0;
 						for (int c : bd.ceils.keySet()) {
 							if (c == ceilId) {
@@ -390,7 +377,7 @@ public class Bank {
 				}
 			}
 		}
-		Map<Integer, CeilSettings> newCS = Maps.<Integer, CeilSettings>newTreeMap();
+		Map<Integer, CeilSettings> newCS = Maps.newTreeMap();
 		int i = 0;
 		for (int c : this.ceilSettings.keySet()) {
 			if (c == ceilId || this.ceilSettings.get(c).ceil == ceilId) {

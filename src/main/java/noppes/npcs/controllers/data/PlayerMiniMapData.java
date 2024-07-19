@@ -18,18 +18,18 @@ import noppes.npcs.util.AdditionalMethods;
 public class PlayerMiniMapData
 implements IPlayerMiniMap {
 
-	public final List<MiniMapData> points = Lists.<MiniMapData>newArrayList();
+	public final List<MiniMapData> points = Lists.newArrayList();
 	public String modName = "non";
 	private boolean update;
-	public Map<String, Object> addData = Maps.<String, Object>newHashMap();
+	public Map<String, Object> addData = Maps.newHashMap();
 
 	@Override
-	public IMiniMapData addPoint(int dimentionId) {
+	public IMiniMapData addPoint(int dimensionId) {
 		if (modName.equals("non")) {
 			return new MiniMapData();
 		}
 		MiniMapData mmd = new MiniMapData();
-		mmd.dimIDs = new int[] { dimentionId };
+		mmd.dimIDs = new int[] { dimensionId };
 		mmd.id = points.size();
 		if (modName.equals("voxelmap")) { mmd.icon = ""; }
 		points.add(mmd);
@@ -38,10 +38,10 @@ implements IPlayerMiniMap {
 	}
 
 	@Override
-	public IMiniMapData[] getAllPoints() { return points.toArray(new IMiniMapData[points.size()]); }
+	public IMiniMapData[] getAllPoints() { return points.toArray(new IMiniMapData[0]); }
 
 	@Override
-	public String getModName() { return new String(modName); }
+	public String getModName() { return modName; }
 
 	private NBTTagCompound getNBT() {
 		NBTTagCompound nbt = new NBTTagCompound();
@@ -54,7 +54,7 @@ implements IPlayerMiniMap {
 
 	@Override
 	public IMiniMapData getPoint(int id) {
-		if (id >=0 && id < points.size()) { return null; }
+		if (id < 0 || id >= points.size()) { return null; }
 		MiniMapData mmd = points.get(id);
 		if (mmd != null && mmd.id == id) { return mmd; }
 		for (MiniMapData mmdc : points) {
@@ -72,17 +72,17 @@ implements IPlayerMiniMap {
 	}
 
 	@Override
-	public IMiniMapData[] getPoints(int dimentionId) {
-		List<MiniMapData> list = Lists.<MiniMapData>newArrayList();
+	public IMiniMapData[] getPoints(int dimensionId) {
+		List<MiniMapData> list = Lists.newArrayList();
 		for (MiniMapData mmd : points) {
 			for (int id : mmd.dimIDs) {
-				if (id == dimentionId) {
+				if (id == dimensionId) {
 					list.add(mmd);
 					break;
 				}
 			}
 		}
-		return list.toArray(new IMiniMapData[list.size()]);
+		return list.toArray(new IMiniMapData[0]);
 	}
 
 	public MiniMapData getQuestTask(int questId, int taskId, String questName, int dimID) {
@@ -100,7 +100,7 @@ implements IPlayerMiniMap {
 
 	@Override
 	public String[] getSpecificKeys() {
-		return addData.keySet().toArray(new String[addData.size()]);
+		return addData.keySet().toArray(new String[0]);
 	}
 
 	@Override
@@ -117,7 +117,7 @@ implements IPlayerMiniMap {
 		if (list.tagCount() != 0) {
 			for (int i = 0; i < list.tagCount(); i++) {
 				NBTTagCompound nbtList = list.getCompoundTagAt(i);
-				if (nbtList.hasKey("Points", 9) || nbtList.hasKey("DimentionID", 3)) { // OLD
+				if (nbtList.hasKey("Points", 9) || nbtList.hasKey("DimensionID", 3)) { // OLD
 					for (int j = 0; j < nbtList.getTagList("Points", 10).tagCount(); j++) {
 						MiniMapData mmd = new MiniMapData();
 						mmd.load(nbtList.getTagList("Points", 10).getCompoundTagAt(j));
@@ -132,7 +132,7 @@ implements IPlayerMiniMap {
 		}
 	}
 	
-	public boolean removeQuestPoints(int questId) {
+	public void removeQuestPoints(int questId) {
 		boolean remove = false;
 		List<MiniMapData> tempList = Lists.newArrayList(points);
 		for (MiniMapData mmd : tempList) {
@@ -142,7 +142,6 @@ implements IPlayerMiniMap {
 			}
 		}
 		if (remove) { update = true; }
-		return remove;
 	}
 	
 	@Override
@@ -174,12 +173,12 @@ implements IPlayerMiniMap {
 	}
 	
 	@Override
-	public boolean removePoints(int dimentionId) {
+	public boolean removePoints(int dimensionId) {
 		boolean remove = false;
-		List<MiniMapData> tempList = Lists.<MiniMapData>newArrayList(points);
+		List<MiniMapData> tempList = Lists.newArrayList(points);
 		for (MiniMapData mmd : tempList) {
 			for (int id : mmd.dimIDs) {
-				if (id == dimentionId && points.remove(mmd)) {
+				if (id == dimensionId && points.remove(mmd)) {
 					remove = true;
 					break;
 				}

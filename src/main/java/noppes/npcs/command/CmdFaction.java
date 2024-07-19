@@ -3,6 +3,7 @@ package noppes.npcs.command;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -15,6 +16,8 @@ import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerFactionData;
 
+import javax.annotation.Nonnull;
+
 public class CmdFaction extends CommandNoppesBase {
 	public List<PlayerData> data;
 	public Faction selectedFaction;
@@ -25,7 +28,7 @@ public class CmdFaction extends CommandNoppesBase {
 		try {
 			points = Integer.parseInt(args[0]);
 		} catch (NumberFormatException ex) {
-			throw new CommandException("Must be an integer", new Object[0]);
+			throw new CommandException("Must be an integer");
 		}
 		int factionid = this.selectedFaction.id;
 		for (PlayerData playerdata : this.data) {
@@ -45,11 +48,12 @@ public class CmdFaction extends CommandNoppesBase {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		if (args == null) { return; }
 		String playername = args[0];
 		String factionname = args[1];
 		this.data = PlayerDataController.instance.getPlayersData(sender, playername);
 		if (this.data.isEmpty()) {
-			throw new CommandException("Unknow player '%s'", new Object[] { playername });
+			throw new CommandException("Unknown player '%s'", playername);
 		}
 		try {
 			this.selectedFaction = FactionController.instance.getFaction(Integer.parseInt(factionname));
@@ -57,7 +61,7 @@ public class CmdFaction extends CommandNoppesBase {
 			this.selectedFaction = FactionController.instance.getFactionFromName(factionname);
 		}
 		if (this.selectedFaction == null) {
-			throw new CommandException("Unknow facion '%s", new Object[] { factionname });
+			throw new CommandException("Unknown faction '%s", factionname);
 		}
 		this.executeSub(server, sender, args[2], Arrays.copyOfRange(args, 3, args.length));
 	}
@@ -67,16 +71,16 @@ public class CmdFaction extends CommandNoppesBase {
 		return "Faction operations";
 	}
 
+	@Nonnull
 	public String getName() {
 		return "faction";
 	}
 
-	public List<String> getTabCompletions(MinecraftServer server, ICommandSender par1, String[] args, BlockPos pos) {
+	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender par1, @Nonnull String[] args, BlockPos pos) {
 		if (args.length == 3) {
-			return CommandBase.getListOfStringsMatchingLastWord(args,
-					new String[] { "add", "subtract", "set", "reset", "drop", "create" });
+			return CommandBase.getListOfStringsMatchingLastWord(args, "add", "subtract", "set", "reset", "drop", "create");
 		}
-		return null;
+		return Lists.newArrayList();
 	}
 
 	@Override
@@ -103,7 +107,7 @@ public class CmdFaction extends CommandNoppesBase {
 		try {
 			points = Integer.parseInt(args[0]);
 		} catch (NumberFormatException ex) {
-			throw new CommandException("Must be an integer", new Object[0]);
+			throw new CommandException("Must be an integer");
 		}
 		for (PlayerData playerdata : this.data) {
 			PlayerFactionData playerfactiondata = playerdata.factionData;
@@ -112,13 +116,13 @@ public class CmdFaction extends CommandNoppesBase {
 		}
 	}
 
-	@SubCommand(desc = "Substract points", usage = "<points>")
+	@SubCommand(desc = "Subtract points", usage = "<points>")
 	public void subtract(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		int points;
 		try {
 			points = Integer.parseInt(args[0]);
 		} catch (NumberFormatException ex) {
-			throw new CommandException("Must be an integer", new Object[0]);
+			throw new CommandException("Must be an integer");
 		}
 		int factionid = this.selectedFaction.id;
 		for (PlayerData playerdata : this.data) {

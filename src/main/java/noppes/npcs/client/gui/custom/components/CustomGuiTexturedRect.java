@@ -97,7 +97,7 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y - this.height;
 		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
 		GlStateManager.pushMatrix();
-		int pos = this.id < 500 ? this.id : 500;
+		int pos = Math.min(this.id, 500);
 		GlStateManager.translate(0, 0, pos);
 		float a = (float) (this.color >> 24 & 255) / 255.0f;
 		float r = (float) (this.color >> 16 & 255) / 255.0f;
@@ -109,15 +109,10 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-		bufferbuilder.pos(x, (y + this.height * this.scale), pos)
-				.tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
-		bufferbuilder.pos((x + this.width * this.scale), (y + this.height * this.scale), pos)
-				.tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f))
-				.endVertex();
-		bufferbuilder.pos((x + this.width * this.scale), y, pos)
-				.tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + 0) * 0.00390625f)).endVertex();
-		bufferbuilder.pos(x, y, pos).tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + 0) * 0.00390625f))
-				.endVertex();
+		bufferbuilder.pos(x, (y + this.height * this.scale), pos).tex((this.textureX * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
+		bufferbuilder.pos((x + this.width * this.scale), (y + this.height * this.scale), pos).tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
+		bufferbuilder.pos((x + this.width * this.scale), y, pos).tex(((this.textureX + this.width) * 0.00390625f), (this.textureY * 0.00390625f)).endVertex();
+		bufferbuilder.pos(x, y, pos).tex((this.textureX * 0.00390625f), (this.textureY * 0.00390625f)).endVertex();
 		tessellator.draw();
 		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
 			this.parent.hoverText = this.hoverText;

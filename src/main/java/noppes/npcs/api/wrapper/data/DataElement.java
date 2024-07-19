@@ -2,19 +2,19 @@ package noppes.npcs.api.wrapper.data;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.data.IDataElement;
 
 public class DataElement implements IDataElement {
 
-	private Object data; // parent Object
+	private final Object data; // parent Object
 	private String name;
-	private Object object; // this
-	private Class<?> parent = null; // parent Class
+	private final Object object; // this
+	private Class<?> parent; // parent Class
 
 	public DataElement(Object object, Object clazz) {
 		this.object = object;
@@ -89,15 +89,15 @@ public class DataElement implements IDataElement {
 
 	@Override
 	public String getData() {
-		String key = "";
+		String key;
 		if (this.object instanceof Method) {
 			Method m = (Method) this.object;
-			String body = "(";
+			StringBuilder body = new StringBuilder("(");
 			for (Parameter p : m.getParameters()) {
-				if (!body.equals("(")) {
-					body += ", ";
+				if (!body.toString().equals("(")) {
+					body.append(", ");
 				}
-				body += p;
+				body.append(p);
 			}
 			int md = m.getModifiers();
 			key = m.getName() + body + ") ";
@@ -140,12 +140,12 @@ public class DataElement implements IDataElement {
 			}
 			f.setAccessible(true);
 		} else if (this.object instanceof Constructor) {
-			String body = "(";
+			StringBuilder body = new StringBuilder("(");
 			for (Parameter p : ((Constructor<?>) this.object).getParameters()) {
-				if (!body.equals("(")) {
-					body += ", ";
+				if (!body.toString().equals("(")) {
+					body.append(", ");
 				}
-				body += p;
+				body.append(p);
 			}
 			key = this.data.getClass().getSimpleName() + body + ")";
 		} else if (this.object instanceof Class) {
@@ -170,8 +170,7 @@ public class DataElement implements IDataElement {
 	public Class<?> getParent() {
 		try {
 			return this.parent != null ? this.parent : Class.forName("java.lang.Object");
-		} catch (ClassNotFoundException e) {
-		}
+		} catch (ClassNotFoundException e) { LogWriter.error("Error:", e); }
 		return null;
 	}
 
@@ -200,8 +199,7 @@ public class DataElement implements IDataElement {
 			((Field) this.object).setAccessible(true);
 			try {
 				return ((Field) this.object).get(this.data);
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		return this.object;
 	}
@@ -212,8 +210,7 @@ public class DataElement implements IDataElement {
 			((Method) this.object).setAccessible(true);
 			try {
 				((Method) this.object).invoke(this.data, values);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		return null;
 	}
@@ -249,7 +246,7 @@ public class DataElement implements IDataElement {
 					return true;
 				}
 				catch (Exception e) {
-					e.printStackTrace();
+					LogWriter.error("Error:", e);
 					return false;
 				}
 			}
@@ -298,7 +295,7 @@ public class DataElement implements IDataElement {
 				else { f.set(this.data, value); }
 				return true;
 			}
-			catch (Exception e) { e.printStackTrace(); }
+			catch (Exception e) {  LogWriter.error("Error:", e); }
 		}
 		return false;
 	}

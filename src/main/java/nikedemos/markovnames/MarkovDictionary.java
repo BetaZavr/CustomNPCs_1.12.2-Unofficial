@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -15,15 +13,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 
 public class MarkovDictionary {
-	public static String readFile(String path) throws IOException {
-		byte[] encoded = Files.readAllBytes(Paths.get(path, new String[0]));
-		return new String(encoded, Charset.forName("UTF-8"));
-	}
 
-	private HashMap2D<String, String, Integer> occurrences;
-	private Random rng;
+	private final HashMap2D<String, String, Integer> occurrences;
+	private final Random rng;
 
 	private int sequenceLen;
 
@@ -37,13 +32,11 @@ public class MarkovDictionary {
 
 	public MarkovDictionary(String dictionary, int seqlen, Random rng) {
 		this.sequenceLen = 3;
-		this.occurrences = new HashMap2D<String, String, Integer>();
+		this.occurrences = new HashMap2D<>();
 		this.rng = rng;
 		try {
 			this.applyDictionary(dictionary, seqlen);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public MarkovDictionary(String dictionary, Random rng) {
@@ -53,7 +46,7 @@ public class MarkovDictionary {
 	public void applyDictionary(String dictionaryFile, int seqLen) throws IOException {
 		StringBuilder input = new StringBuilder();
 		ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID + ":markovnames/" + dictionaryFile);
-		BufferedReader readIn = new BufferedReader(new InputStreamReader(this.getResource(resource), "UTF-8"));
+		BufferedReader readIn = new BufferedReader(new InputStreamReader(this.getResource(resource), StandardCharsets.UTF_8));
 		for (String line = readIn.readLine(); line != null; line = readIn.readLine()) {
 			input.append(line).append(" ");
 		}
@@ -70,8 +63,7 @@ public class MarkovDictionary {
 			String seqCurr = input_str.substring(i, i + this.sequenceLen);
 			String seqNext = input_str.substring(i + this.sequenceLen, i + this.sequenceLen + 1);
 			this.incrementSafe(seqCurr, seqNext);
-			StringBuilder meta = new StringBuilder("_").append(seqCurr).append("_");
-			this.incrementSafe(meta.toString(), "_TOTAL_");
+            this.incrementSafe("_" + seqCurr + "_", "_TOTAL_");
 		}
 	}
 
@@ -88,21 +80,21 @@ public class MarkovDictionary {
 		}
 		int randomNumber = this.rng.nextInt(allEntries);
 		Iterator<Map.Entry<String, Map<String, Integer>>> it = this.occurrences.mMap.entrySet().iterator();
-		StringBuilder sequence = new StringBuilder("");
+		StringBuilder sequence = new StringBuilder();
 		while (it.hasNext()) {
 			Map.Entry<String, Map<String, Integer>> pair2 = it.next();
 			String j = pair2.getKey();
 			if (j.startsWith("_[") && j.endsWith("_")) {
 				int topLevelEntries = this.occurrences.get(j, "_TOTAL_");
 				if (randomNumber < topLevelEntries) {
-					sequence.append(j.substring(1, this.sequenceLen + 1));
+					sequence.append(j, 1, this.sequenceLen + 1);
 					break;
 				}
 				randomNumber -= topLevelEntries;
 			}
 		}
-		StringBuilder word = new StringBuilder("");
-		word.append((CharSequence) sequence);
+		StringBuilder word = new StringBuilder();
+		word.append(sequence);
 		while (sequence.charAt(sequence.length() - 1) != ']') {
 			int subSize = 0;
 			for (Map.Entry<String, Integer> entry : this.occurrences.mMap.get(sequence.toString()).entrySet()) {
@@ -146,14 +138,11 @@ public class MarkovDictionary {
 		if (container == null) {
 			throw new RuntimeException("Failed to find current mod while looking for resource " + resourceLocation);
 		}
-		String resourcePath = String.format("/%s/%s/%s", "assets", resourceLocation.getResourceDomain(),
-				resourceLocation.getResourcePath());
+		String resourcePath = String.format("/%s/%s/%s", "assets", resourceLocation.getResourceDomain(), resourceLocation.getResourcePath());
 		InputStream resourceAsStream = null;
 		try {
 			resourceAsStream = container.getMod().getClass().getResourceAsStream(resourcePath);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		if (resourceAsStream != null) {
 			return resourceAsStream;
 		}

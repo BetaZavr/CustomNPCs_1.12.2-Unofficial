@@ -1,6 +1,7 @@
 package noppes.npcs.controllers;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Vector;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,13 +39,13 @@ public class PlayerQuestController {
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE, "quest.newquest", quest.getTitle(), 2);
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT, "quest.newquest", ": ", quest.getTitle());
 			playerdata.updateClient = true;
-			if (!(player instanceof EntityPlayerMP)) {
+			if (player == null) {
 				return;
 			}
 			int taskId = 0;
-			for (IQuestObjective obj : quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayerMP) player))) {
+			for (IQuestObjective obj : quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 				if (obj.getType() == EnumQuestTask.ITEM.ordinal()) {
-					playerdata.questData.checkQuestCompletion((EntityPlayer) player, playerdata.questData.activeQuests.get(quest.id));
+					playerdata.questData.checkQuestCompletion(player, playerdata.questData.activeQuests.get(quest.id));
 				}
 				if (obj.isSetPointOnMiniMap() && !playerdata.minimap.modName.equals("non")) {
 					String name = quest.getTitle() + "_";
@@ -104,7 +105,7 @@ public class PlayerQuestController {
 	}
 
 	public static Vector<Quest> getActiveQuests(EntityPlayer player) {
-		Vector<Quest> quests = new Vector<Quest>();
+		Vector<Quest> quests = new Vector<>();
 		PlayerQuestData data = PlayerData.get(player).questData;
 		for (QuestData questdata : data.activeQuests.values()) {
 			if (questdata.quest == null) {
@@ -120,23 +121,19 @@ public class PlayerQuestController {
 		PlayerQuestData data = playerdata.questData;
 		playerdata.minimap.removeQuestPoints(id);
 		if (!data.activeQuests.containsKey(id)) { return false; }
-		HashMap<Integer, QuestData> newData = new HashMap<Integer, QuestData>();
+		HashMap<Integer, QuestData> newData = new HashMap<>();
 		boolean del = false;
 		for (int qid : data.activeQuests.keySet()) {
 			if (qid == id) {
 				del = true;
 				Quest quest = QuestController.instance.quests.get(id);
-				if (quest.forgetDialogues.length > 0) {
-					for (int dialogId : quest.forgetDialogues) {
-						playerdata.dialogData.dialogsRead.remove(dialogId);
-					}
-				}
-				if (quest.forgetQuests.length > 0) {
-					for (int questId : quest.forgetQuests) {
-						playerdata.questData.finishedQuests.remove(questId);
-					}
-				}
-				continue;
+                for (int dialogId : quest.forgetDialogues) {
+                    playerdata.dialogData.dialogsRead.remove(dialogId);
+                }
+                for (int questId : quest.forgetQuests) {
+                    playerdata.questData.finishedQuests.remove(questId);
+                }
+                continue;
 			}
 			newData.put(qid, data.activeQuests.get(qid));
 		}
@@ -145,11 +142,6 @@ public class PlayerQuestController {
 			playerdata.updateClient = true;
 		}
 		return del;
-	}
-
-	public static boolean hasActiveQuests(EntityPlayer player) {
-		PlayerQuestData data = PlayerData.get(player).questData;
-		return !data.activeQuests.isEmpty();
 	}
 
 	public static boolean isQuestActive(EntityPlayer player, int quest) {

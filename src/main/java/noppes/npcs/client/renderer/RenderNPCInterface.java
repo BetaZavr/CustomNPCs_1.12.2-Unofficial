@@ -1,10 +1,11 @@
 package noppes.npcs.client.renderer;
 
 import java.awt.Color;
-import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Map;
 
+import noppes.npcs.LogWriter;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
@@ -14,11 +15,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.Entity;
@@ -27,13 +26,14 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.constants.AnimationKind;
-import noppes.npcs.client.ImageDownloadAlt;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+
+import javax.annotation.Nonnull;
 
 public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLiving<T> {
 
@@ -45,14 +45,14 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	@Override
-	protected void applyRotations(T npc, float handleRotation, float rotationYaw, float partialTicks) {
+	protected void applyRotations(@Nonnull T npc, float handleRotation, float rotationYaw, float partialTicks) {
 		if (npc.isPlayerSleeping()) {
 			GlStateManager.rotate(npc.ais.orientation, 0.0f, 1.0f, 0.0f);
 			GlStateManager.rotate(this.getDeathMaxRotation(npc), 0.0f, 0.0f, 1.0f);
 			GlStateManager.rotate(270.0f, 0.0f, 1.0f, 0.0f);
 		} else if (npc.currentAnimation == 7) {
 			GlStateManager.rotate(270.0f - rotationYaw, 0.0f, 1.0f, 0.0f);
-			float scale = ((EntityCustomNpc) npc).display.getSize() / 5.0f;
+			float scale = npc.display.getSize() / 5.0f;
 			GlStateManager.translate(-scale + ((EntityCustomNpc) npc).modelData.getLegsY() * scale, 0.14f, 0.0f);
 			GlStateManager.rotate(270.0f, 0.0f, 0.0f, 1.0f);
 			GlStateManager.rotate(270.0f, 0.0f, 1.0f, 0.0f);
@@ -61,7 +61,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 	}
 
-	public void doRender(T npc, double x, double y, double z, float entityYaw, float partialTicks) {
+	public void doRender(@Nonnull T npc, double x, double y, double z, float entityYaw, float partialTicks) {
 		if (npc.isInvisibleToPlayer(Minecraft.getMinecraft().player) || npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) {
 			return;
 		}
@@ -74,12 +74,11 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 			super.doRender(npc, x, y, z, entityYaw, partialTicks);
 			GlStateManager.disableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
-		} catch (Throwable t) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
-	public void doRenderShadowAndFire(Entity par1Entity, double par2, double par4, double par6, float par8, float par9) {
-		EntityNPCInterface npc = (EntityNPCInterface) par1Entity;
+	public void doRenderShadowAndFire(@Nonnull Entity entity, double par2, double par4, double par6, float par8, float par9) {
+		EntityNPCInterface npc = (EntityNPCInterface) entity;
 		this.shadowSize = npc.width / 1.25f * npc.display.shadowSize;
 		if (!npc.isKilled()) {
 			if (npc.display.getVisible() == 1 && npc.isInvisibleToPlayer(Minecraft.getMinecraft().player)) {
@@ -89,11 +88,11 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			} else {
 				this.shadowOpaque = 1.0f;
 			}
-			super.doRenderShadowAndFire(par1Entity, par2, par4, par6, par8, par9);
+			super.doRenderShadowAndFire(entity, par2, par4, par6, par8, par9);
 		}
 	}
 
-	public ResourceLocation getEntityTexture(T npc) {
+	public ResourceLocation getEntityTexture(@Nonnull T npc) {
 		return RenderNPCInterface.getNpcTexture(npc);
 	}
 	
@@ -118,19 +117,19 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 							Minecraft minecraft = Minecraft.getMinecraft();
 							Map<Type, MinecraftProfileTexture> mapMC = minecraft.getSkinManager().loadSkinFromCache(npc.display.playerProfile);
 							if (mapMC.containsKey(MinecraftProfileTexture.Type.SKIN)) {
-								npc.textureLocation = minecraft.getSkinManager().loadSkin((MinecraftProfileTexture) mapMC.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN);
+								npc.textureLocation = minecraft.getSkinManager().loadSkin(mapMC.get(Type.SKIN), MinecraftProfileTexture.Type.SKIN);
 							}
 						}
 					}
 				} else if (npc.display.skinType == 2) {
 					try {
 						MessageDigest digest = MessageDigest.getInstance("MD5");
-						byte[] hash = digest.digest(npc.display.getSkinUrl().getBytes("UTF-8"));
+						byte[] hash = digest.digest(npc.display.getSkinUrl().getBytes(StandardCharsets.UTF_8));
 						StringBuilder sb = new StringBuilder(2 * hash.length);
 						for (byte b : hash) { sb.append(String.format("%02x", b & 0xFF)); }
-						RenderNPCInterface.loadSkin(null, npc.textureLocation = new ResourceLocation("skins/" + sb.toString()), npc.display.getSkinUrl());
+						RenderNPCInterface.loadSkin(npc.textureLocation = new ResourceLocation("skins/" + sb));
 					}
-					catch (Exception ex) { }
+					catch (Exception e) { LogWriter.error("Error:", e); }
 				}
 			}
 		}
@@ -151,21 +150,17 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		return npc.textureLocation;
 	}
 
-	protected float handleRotationFloat(T npc, float par2) {
+	protected float handleRotationFloat(@Nonnull T npc, float par2) {
 		if (npc.isKilled() || !npc.display.getHasLivingAnimation()) { return 0.0f; }
 		return super.handleRotationFloat(npc, par2);
 	}
 
-	private static void loadSkin(File file, ResourceLocation resource, String par1Str) {
+	private static void loadSkin(ResourceLocation resource) {
 		TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
-		if (texturemanager.getTexture(resource) != null) {
-			return;
-		}
-		ITextureObject object = (ITextureObject) new ImageDownloadAlt(file, par1Str, DefaultPlayerSkin.getDefaultSkinLegacy(), (IImageBuffer) new ImageBufferDownloadAlt());
-		texturemanager.loadTexture(resource, object);
-	}
+        texturemanager.getTexture(resource);
+    }
 
-	protected void preRenderCallback(T npc, float f) {
+	protected void preRenderCallback(@Nonnull T npc, float f) {
 		this.renderColor(npc);
 		int size = npc.display.getSize();
 		GlStateManager.scale(npc.scaleX / 5.0f * size, npc.scaleY / 5.0f * size, npc.scaleZ / 5.0f * size);
@@ -180,7 +175,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 	}
 
-	protected void renderLivingAt(T npc, double d, double d1, double d2) {
+	protected void renderLivingAt(@Nonnull T npc, double d, double d1, double d2) {
 		this.shadowSize = npc.display.getSize() / 10.0f;
 		float xOffset = 0.0f;
 		float yOffset = (npc.currentAnimation == 0) ? (npc.ais.bodyOffsetY / 10.0f - 0.5f) : 0.0f;
@@ -200,7 +195,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		super.renderLivingAt(npc, d + xOffset, d1 + yOffset, d2 + zOffset);
 	}
 
-	protected void renderLivingLabel(EntityNPCInterface npc, double x, double y, double z, int i, String name, String title) {
+	protected void renderLivingLabel(EntityNPCInterface npc, double x, double y, double z, String name, String title) {
 		FontRenderer fontrenderer = this.getFontRendererFromRenderManager();
 		float f1 = npc.baseHeight / 5.0f * npc.display.getSize();
 		float f2 = 0.01666667f * f1;
@@ -271,7 +266,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		GlStateManager.popMatrix();
 	}
 
-	protected void renderModel(T npc, float par2, float par3, float par4, float par5, float par6, float par7) {
+	protected void renderModel(@Nonnull T npc, float par2, float par3, float par4, float par5, float par6, float par7) {
 		boolean isInvisible = false;
 		if (npc.display.getVisible() == 1) {
 			isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand && npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player);
@@ -297,11 +292,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			GlStateManager.enableBlend();
 			GlStateManager.blendFunc(1, 1);
 			GlStateManager.disableLighting();
-			if (isInvisible) {
-				GlStateManager.depthMask(false);
-			} else {
-				GlStateManager.depthMask(true);
-			}
+            GlStateManager.depthMask(!isInvisible);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(1.001f, 1.001f, 1.001f);
@@ -314,8 +305,8 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 	}
 
-	public void renderName(T npc, double d, double d1, double d2) {
-		if (npc == null || !this.canRenderName(npc) || this.renderManager.renderViewEntity == null) {
+	public void renderName(@Nonnull T npc, double d, double d1, double d2) {
+		if (!this.canRenderName(npc) || this.renderManager.renderViewEntity == null) {
 			return;
 		}
 		double d3 = npc.getDistance(this.renderManager.renderViewEntity);
@@ -334,19 +325,19 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			if (npc.currentAnimation == 1) {
 				d1 -= 0.35f;
 			}
-			this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, 64, npc.getName(),
+			this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, npc.getName(),
 					npc.display.getTitle());
 			if (!CustomNpcs.ShowLR) {
 				return;
 			}
-			NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.NpcVisualData, npc, 5000, npc.getEntityId());
+			NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.NpcVisualData, npc, 5000, npc.getEntityId());
 			if (!npc.stats.getRarityTitle().isEmpty()) {
-				this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, 64, "", npc.stats.getRarityTitle());
+				this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, "", npc.stats.getRarityTitle());
 			}
 		}
 	}
 
-	protected boolean setBrightness(T npc, float partialTicks, boolean combineTextures) {
+	protected boolean setBrightness(@Nonnull T npc, float partialTicks, boolean combineTextures) {
 		float f = npc.getBrightness();
 		int i = this.getColorMultiplier(npc, f, partialTicks);
 		boolean flag = (i >> 24 & 255) > 0;

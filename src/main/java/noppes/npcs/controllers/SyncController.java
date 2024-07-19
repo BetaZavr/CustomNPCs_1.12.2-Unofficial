@@ -14,6 +14,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
 import noppes.npcs.Server;
 import noppes.npcs.client.ClientProxy;
@@ -31,7 +32,7 @@ import noppes.npcs.util.BuilderData;
 
 public class SyncController {
 
-	public static final Map<Integer, BuilderData> dataBuilder = Maps.<Integer, BuilderData>newHashMap();
+	public static final Map<Integer, BuilderData> dataBuilder = Maps.newHashMap();
 	
 	// SYNC_ADD or SYNC_END
 	public static void add(EnumSync synctype, NBTTagCompound compound, boolean syncEnd, EntityPlayer player) {
@@ -47,21 +48,21 @@ public class SyncController {
 				FactionController fData = FactionController.instance;
 				fData.factions.clear();
 				for (int id : fData.factionsSync.keySet()) {
-					fData.factions.put(new Integer(id), fData.factionsSync.get(id));
+					fData.factions.put(id, fData.factionsSync.get(id));
 				}
 				fData.factionsSync.clear();
 			}
 			break;
 		}
 		case QuestCategoriesData: {
-			if (compound.getKeySet().size() > 0) {
+			if (!compound.getKeySet().isEmpty()) {
 				QuestCategory category = new QuestCategory();
 				category.readNBT(compound);
 				QuestController.instance.categoriesSync.put(category.id, category);
 			}
 			if (syncEnd) {
 				QuestController qData = QuestController.instance;
-				TreeMap<Integer, Quest> quests = Maps.<Integer, Quest>newTreeMap();
+				TreeMap<Integer, Quest> quests = Maps.newTreeMap();
 				for (QuestCategory category2 : qData.categoriesSync.values()) {
 					for (Quest quest : category2.quests.values()) {
 						quests.put(quest.id, quest);
@@ -76,14 +77,14 @@ public class SyncController {
 			break;
 		}
 		case DialogCategoriesData: {
-			if (compound.getKeySet().size() > 0) {
+			if (!compound.getKeySet().isEmpty()) {
 				DialogCategory category3 = new DialogCategory();
 				category3.readNBT(compound);
 				DialogController.instance.categoriesSync.put(category3.id, category3);
 			}
 			if (syncEnd) {
 				DialogController dData = DialogController.instance;
-				TreeMap<Integer, Dialog> dialogs = Maps.<Integer, Dialog>newTreeMap();
+				TreeMap<Integer, Dialog> dialogs = Maps.newTreeMap();
 				for (DialogCategory category4 : dData.categoriesSync.values()) {
 					for (Dialog dialog : category4.dialogs.values()) {
 						dialogs.put(dialog.id, dialog);
@@ -125,13 +126,9 @@ public class SyncController {
 			CustomNpcs.DialogShowFitsSpeed = compound.getInteger("DialogFitsSpeed");
 			CustomNpcs.MailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
 			int[] vs = compound.getIntArray("LettersBeReceived");
-			for (int i = 0; i < vs.length; i++) {
-				CustomNpcs.MailTimeWhenLettersWillBeReceived[i] = vs[i];
-			}
+            System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
 			vs = compound.getIntArray("CostSendingLetter");
-			for (int i = 0; i < vs.length; i++) {
-				CustomNpcs.MailCostSendingLetter[i] = vs[i];
-			}
+            System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
 			CustomNpcs.forgeEventNames.clear();
 			for (int i = 0; i < compound.getTagList("ForgeEventNames", 10).tagCount(); i++) {
 				NBTTagCompound nbt = compound.getTagList("ForgeEventNames", 10).getCompoundTagAt(i);
@@ -139,8 +136,8 @@ public class SyncController {
 				Class<?> cls = null;
 				try {
 					cls = Class.forName(nbt.getString("Class"));
-				} catch (ClassNotFoundException e) {
 				}
+				catch (Exception e) { LogWriter.error("Error:", e); }
 				CustomNpcs.forgeEventNames.put(cls, name);
 			}
 			break;
@@ -168,75 +165,75 @@ public class SyncController {
 	}
 
 	// SYNC_REMOVE
-	public static void remove(EnumSync synctype, int id, EntityPlayer player, ByteBuf buffer) {
+	public static void remove(EnumSync synctype, int id, ByteBuf buffer) {
 		switch (synctype) {
-		case FactionsData: {
-			FactionController.instance.factions.remove(id);
-			break;
-		}
-		case QuestData: {
-			Quest quest = QuestController.instance.quests.remove(id);
-			if (quest != null) {
-				quest.category.quests.remove(id);
+			case FactionsData: {
+				FactionController.instance.factions.remove(id);
+				break;
 			}
-			break;
-		}
-		case QuestCategoriesData: {
-			QuestCategory category2 = QuestController.instance.categories.remove(id);
-			if (category2 != null) {
-				QuestController.instance.quests.keySet().removeAll(category2.quests.keySet());
+			case QuestData: {
+				Quest quest = QuestController.instance.quests.remove(id);
+				if (quest != null) {
+					quest.category.quests.remove(id);
+				}
+				break;
 			}
-			break;
-		}
-		case DialogData: {
-			Dialog dialog = DialogController.instance.dialogs.remove(id);
-			if (dialog != null) {
-				dialog.category.dialogs.remove(id);
+			case QuestCategoriesData: {
+				QuestCategory category2 = QuestController.instance.categories.remove(id);
+				if (category2 != null) {
+					QuestController.instance.quests.keySet().removeAll(category2.quests.keySet());
+				}
+				break;
 			}
-			break;
-		}
-		case DialogCategoriesData: {
-			DialogCategory category = DialogController.instance.categories.remove(id);
-			if (category != null) {
-				DialogController.instance.dialogs.keySet().removeAll(category.dialogs.keySet());
+			case DialogData: {
+				Dialog dialog = DialogController.instance.dialogs.remove(id);
+				if (dialog != null) {
+					dialog.category.dialogs.remove(id);
+				}
+				break;
 			}
-			break;
-		}
-		case RecipesData: {
-			RecipeController.getInstance().delete(id);
-			break;
-		}
-		case KeysData: {
-			KeyController.getInstance().removeKeySetting(id);
-			CustomNpcs.proxy.updateKeys();
-			break;
-		}
-		case MarcetData: {
-			MarcetController.getInstance().marcets.remove(id);
-			break;
-		}
-		case MarcetDeal: {
-			MarcetController.getInstance().deals.remove(id);
-			break;
-		}
-		case BankData: {
-			BankController.getInstance().banks.remove(id);
-			break;
-		}
-		case BankCeil: {
-			Bank bank = BankController.getInstance().banks.get(buffer.readInt());
-			if (bank != null) {
-				bank.removeCeil(id);
+			case DialogCategoriesData: {
+				DialogCategory category = DialogController.instance.categories.remove(id);
+				if (category != null) {
+					DialogController.instance.dialogs.keySet().removeAll(category.dialogs.keySet());
+				}
+				break;
 			}
-			break;
-		}
-		case Debug: {
-			CustomNpcs.debugData.clear();
-			break;
-		}
-		default: {
-			break;
-		}
+			case RecipesData: {
+				RecipeController.getInstance().delete(id);
+				break;
+			}
+			case KeysData: {
+				KeyController.getInstance().removeKeySetting(id);
+				CustomNpcs.proxy.updateKeys();
+				break;
+			}
+			case MarcetData: {
+				MarcetController.getInstance().marcets.remove(id);
+				break;
+			}
+			case MarcetDeal: {
+				MarcetController.getInstance().deals.remove(id);
+				break;
+			}
+			case BankData: {
+				BankController.getInstance().banks.remove(id);
+				break;
+			}
+			case BankCeil: {
+				Bank bank = BankController.getInstance().banks.get(buffer.readInt());
+				if (bank != null) {
+					bank.removeCeil(id);
+				}
+				break;
+			}
+			case Debug: {
+				CustomNpcs.debugData.clear();
+				break;
+			}
+			default: {
+				break;
+			}
 		}
 	}
 
@@ -258,7 +255,7 @@ public class SyncController {
 
 	public static void syncPlayer(EntityPlayerMP player) {
 		NBTTagList list = new NBTTagList();
-		NBTTagCompound compound = new NBTTagCompound();
+		NBTTagCompound compound;
 		for (Faction faction : FactionController.instance.factions.values()) {
 			list.appendTag(faction.writeNBT(new NBTTagCompound()));
 			if (list.tagCount() > 20) {
@@ -316,11 +313,10 @@ public class SyncController {
 		compound.setTag("ForgeEventNames", list);
 		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.ModData, compound);
 
-		PlayerData data = PlayerData.get((EntityPlayer) player);
-		if (player.getServer() != null && player.getServer().getPlayerList() != null
-				&& player.getGameProfile() != null) {
-			data.game.op = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
-		}
+		PlayerData data = PlayerData.get(player);
+		if (player.getServer() != null) {
+            data.game.op = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
+        }
 		compound = data.getNBT();
 		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.PlayerData, compound);
 
@@ -407,7 +403,7 @@ public class SyncController {
 			break;
 		}
 		case RecipesData: {
-			if (compound.getKeySet().size() == 0) {
+			if (compound.getKeySet().isEmpty()) {
 				if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
 					return;
 				}
@@ -421,7 +417,7 @@ public class SyncController {
 			break;
 		}
 		case AnimationData: {
-			if (compound.getKeySet().size() == 0) {
+			if (compound.getKeySet().isEmpty()) {
 				if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
 					return;
 				}
@@ -435,7 +431,7 @@ public class SyncController {
 			break;
 		}
 		case EmotionData: {
-			if (compound.getKeySet().size() == 0) {
+			if (compound.getKeySet().isEmpty()) {
 				if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
 					return;
 				}
@@ -492,15 +488,11 @@ public class SyncController {
 			}
 			if (compound.hasKey("LettersBeReceived", 11)) {
 				int[] vs = compound.getIntArray("LettersBeReceived");
-				for (int i = 0; i < vs.length; i++) {
-					CustomNpcs.MailTimeWhenLettersWillBeReceived[i] = vs[i];
-				}
+                System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
 			}
 			if (compound.hasKey("CostSendingLetter", 11)) {
 				int[] vs = compound.getIntArray("CostSendingLetter");
-				for (int i = 0; i < vs.length; i++) {
-					CustomNpcs.MailCostSendingLetter[i] = vs[i];
-				}
+                System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
 			}
 			if (compound.hasKey("SendToYourself", 1)) {
 				CustomNpcs.MailSendToYourself = compound.getBoolean("SendToYourself");

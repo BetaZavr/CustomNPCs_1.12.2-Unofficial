@@ -1,5 +1,6 @@
 package noppes.npcs.api.wrapper;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -45,8 +46,8 @@ public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrappe
 
 	@Override
 	public String executeCommand(String command) {
-		if (!this.entity.getServer().isCommandBlockEnabled()) {
-			throw new CustomNPCsException("Command blocks need to be enabled to executeCommands", new Object[0]);
+		if (!Objects.requireNonNull(this.entity.getServer()).isCommandBlockEnabled()) {
+			throw new CustomNPCsException("Command blocks need to be enabled to executeCommands");
 		}
 		return NoppesUtilServer.runCommand(this.entity, this.entity.getName(), command, null);
 	}
@@ -74,8 +75,7 @@ public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrappe
 	@Override
 	public IDialog getDialog(int slot) {
 		if (slot < 0 || slot >= this.entity.dialogs.length) {
-			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1),
-					new Object[0]);
+			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1));
 		}
 		IDialog dialog = null;
 		int s = 0;
@@ -147,7 +147,7 @@ public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrappe
 	public IEntityLivingBase getOwner() {
 		EntityLivingBase owner = this.entity.getOwner();
 		if (owner != null) {
-			return (IEntityLivingBase) NpcAPI.Instance().getIEntity(owner);
+			return (IEntityLivingBase) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(owner);
 		}
 		return null;
 	}
@@ -195,15 +195,13 @@ public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrappe
 	@Override
 	public void setDialog(int slot, IDialog dialog) {
 		if (slot < 0) {
-			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1),
-					new Object[0]);
+			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1));
 		}
 		if (dialog == null && slot >= this.entity.dialogs.length) {
-			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1),
-					new Object[0]);
+			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1));
 		}
 		int s = 0;
-		Set<Integer> newIds = Sets.<Integer>newHashSet();
+		Set<Integer> newIds = Sets.newHashSet();
 		for (int id : this.entity.dialogs) {
 			if (s == slot) {
 				if (dialog != null) {
@@ -226,7 +224,7 @@ public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrappe
 	public void setFaction(int id) {
 		Faction faction = FactionController.instance.getFaction(id);
 		if (faction == null) {
-			throw new CustomNPCsException("Unknown faction id: " + id, new Object[0]);
+			throw new CustomNPCsException("Unknown faction id: " + id);
 		}
 		this.entity.setFaction(id);
 	}
@@ -270,24 +268,22 @@ public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrappe
 	@Override
 	public IProjectile shootItem(double x, double y, double z, IItemStack item, int accuracy) {
 		if (item == null) {
-			throw new CustomNPCsException("No item was given", new Object[0]);
+			throw new CustomNPCsException("No item was given");
 		}
 		accuracy = ValueUtil.correctInt(accuracy, 1, 100);
-		return (IProjectile) NpcAPI.Instance()
-				.getIEntity(this.entity.shoot(x, y, z, accuracy, item.getMCItemStack(), false));
+		return (IProjectile) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity.shoot(x, y, z, accuracy, item.getMCItemStack(), false));
 	}
 
 	@Override
 	public IProjectile shootItem(IEntityLivingBase target, IItemStack item, int accuracy) {
 		if (item == null) {
-			throw new CustomNPCsException("No item was given", new Object[0]);
+			throw new CustomNPCsException("No item was given");
 		}
 		if (target == null) {
-			throw new CustomNPCsException("No target was given", new Object[0]);
+			throw new CustomNPCsException("No target was given");
 		}
 		accuracy = ValueUtil.correctInt(accuracy, 1, 100);
-		return (IProjectile) NpcAPI.Instance()
-				.getIEntity(this.entity.shoot(target.getMCEntity(), accuracy, item.getMCItemStack(), false));
+		return (IProjectile) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity.shoot(target.getMCEntity(), accuracy, item.getMCItemStack(), false));
 	}
 
 	@Override

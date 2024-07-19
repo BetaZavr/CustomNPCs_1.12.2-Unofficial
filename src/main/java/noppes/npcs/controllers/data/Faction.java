@@ -17,13 +17,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class Faction implements IFaction {
 
-	public static String formatName(String name) {
-		name = name.toLowerCase().trim();
-		return name.substring(0, 1).toUpperCase() + name.substring(1);
-	}
-
-	public HashSet<Integer> attackFactions = new HashSet<Integer>();
-	public HashSet<Integer> frendFactions = new HashSet<Integer>();
+	public HashSet<Integer> attackFactions = new HashSet<>();
+	public HashSet<Integer> frendFactions = new HashSet<>();
 	public int id = -1;
 	public int color = Integer.parseInt("FF00", 16);
 	public int defaultPoints = 1000;
@@ -50,7 +45,7 @@ public class Faction implements IFaction {
 	@Override
 	public void addHostile(int id) {
 		if (attackFactions.contains(id)) {
-			throw new CustomNPCsException("Faction " + id + " is already hostile to " + id, new Object[0]);
+			throw new CustomNPCsException("Faction " + id + " is already hostile to " + id);
 		}
 		attackFactions.add(id);
 	}
@@ -197,11 +192,9 @@ public class Faction implements IFaction {
 	}
 
 	@Override
-	public void setDescription(String descr) {
-		if (descr == null) {
-			descr = "";
-		}
-		description = descr;
+	public void setDescription(String description) {
+		if (description == null) { description = ""; }
+		this.description = description;
 	}
 
 	@Override

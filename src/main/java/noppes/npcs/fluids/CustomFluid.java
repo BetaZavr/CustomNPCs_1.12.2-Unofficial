@@ -9,7 +9,7 @@ public class CustomFluid extends Fluid {
 
 	private int mapColor;
 
-	public NBTTagCompound nbtData = new NBTTagCompound();
+	public NBTTagCompound nbtData;
 
 	public CustomFluid(NBTTagCompound nbtBlock) {
 		super("custom_fluid_" + nbtBlock.getString("RegistryName"),
@@ -22,7 +22,7 @@ public class CustomFluid extends Fluid {
 		this.nbtData = nbtBlock;
 		this.mapColor = nbtBlock.hasKey("Color", 3) ? nbtBlock.getInteger("Color") : 0xFFFFFFFF;
 		this.setDensity(nbtBlock.hasKey("Density", 3) ? nbtBlock.getInteger("Density") : 1100);
-		this.setGaseous(nbtBlock.hasKey("IsGaseous", 1) ? nbtBlock.getBoolean("IsGaseous") : false);
+		this.setGaseous(nbtBlock.hasKey("IsGaseous", 1) && nbtBlock.getBoolean("IsGaseous"));
 		this.setLuminosity(nbtBlock.hasKey("Luminosity", 3) ? nbtBlock.getInteger("Luminosity") : 5);
 		this.setViscosity(nbtBlock.hasKey("Viscosity", 3) ? nbtBlock.getInteger("Viscosity") : 900);
 		this.setTemperature(nbtBlock.hasKey("Temperature", 3) ? nbtBlock.getInteger("Temperature") : 300);

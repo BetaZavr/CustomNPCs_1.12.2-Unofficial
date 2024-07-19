@@ -7,6 +7,8 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.ICustomParticle;
 import noppes.npcs.particles.CustomParticle;
 
+import java.util.Objects;
+
 public class CustomParticleEvent extends CustomNPCsEvent {
 
 	public static class CreateEvent extends CustomParticleEvent {
@@ -41,7 +43,7 @@ public class CustomParticleEvent extends CustomNPCsEvent {
 	public CustomParticleEvent(CustomParticle particle, EntityPlayerSP player) {
 		super();
 		this.particle = particle;
-		this.player = player == null ? null : (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
+		this.player = player == null ? null : (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 	}
 
 }

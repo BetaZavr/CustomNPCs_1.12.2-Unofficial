@@ -86,7 +86,7 @@ public class EnchantSet implements IEnchantSet {
 
 	@Override
 	public void remove() {
-		this.parent.removeEnchant((EnchantSet) this);
+		this.parent.removeEnchant(this);
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class EnchantSet implements IEnchantSet {
 	@Override
 	public void setEnchant(Enchantment enchant) {
 		if (enchant == null) {
-			this.parent.removeEnchant((EnchantSet) this);
+			this.parent.removeEnchant(this);
 			return;
 		}
 		this.ench = enchant;

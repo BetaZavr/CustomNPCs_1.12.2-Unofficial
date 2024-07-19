@@ -15,6 +15,8 @@ import noppes.npcs.Server;
 import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.constants.EnumPacketClient;
 
+import javax.annotation.Nonnull;
+
 public class CustomTileEntityPortal extends TileEntityEndPortal {
 
 	public int dimensionId = 100, homeDimensionId = 0;
@@ -69,17 +71,15 @@ public class CustomTileEntityPortal extends TileEntityEndPortal {
 			if (p == null) {
 				p = world.getSpawnPoint();
 			}
-			if (p != null) {
-				pos[0] = p.getX();
-				pos[1] = p.getY();
-				pos[2] = p.getZ();
-			}
-		}
+            pos[0] = p.getX();
+            pos[1] = p.getY();
+            pos[2] = p.getZ();
+        }
 		if (pos == null) {
 			pos = new int[] { 0, 70, 0 };
 		}
 		BlockPos p = null;
-		if (pos != null && world != null) {
+		if (world != null) {
 			if (!world.isAirBlock(new BlockPos(pos[0], pos[1], pos[2]))) {
 				p = world.getTopSolidOrLiquidBlock(new BlockPos(pos[0], pos[1], pos[2]));
 			} else if (!world.isAirBlock(new BlockPos(pos[0], pos[1] + 1, pos[2]))) {
@@ -115,7 +115,7 @@ public class CustomTileEntityPortal extends TileEntityEndPortal {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		if (!compound.hasKey("DimensionID", 3)) {
 			CustomNpcs.proxy.fixTileEntityData(this);
@@ -125,13 +125,13 @@ public class CustomTileEntityPortal extends TileEntityEndPortal {
 		this.homeDimensionId = compound.getInteger("HomeDimensionID");
 		this.speed = compound.getFloat("SecondSpeed");
 		int[] p = compound.getIntArray("HomePosition");
-		if (p != null && p.length >= 3) {
+		if (p.length >= 3) {
 			this.posHomeTp[0] = p[0];
 			this.posHomeTp[1] = p[1];
 			this.posHomeTp[2] = p[2];
 		}
 		p = compound.getIntArray("TpPosition");
-		if (p != null && p.length >= 3) {
+		if (p.length >= 3) {
 			this.posTp[0] = p[0];
 			this.posTp[1] = p[1];
 			this.posTp[2] = p[2];
@@ -139,7 +139,7 @@ public class CustomTileEntityPortal extends TileEntityEndPortal {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public boolean shouldRenderFace(EnumFacing facing) {
+	public boolean shouldRenderFace(@Nonnull EnumFacing facing) {
 		if (this.type == 3 && this.world != null) {
 			IBlockState state = this.world.getBlockState(this.pos);
 			if (state.getBlock() instanceof CustomBlockPortal) {
@@ -164,7 +164,7 @@ public class CustomTileEntityPortal extends TileEntityEndPortal {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		compound.setInteger("DimensionID", this.dimensionId);
 		compound.setInteger("HomeDimensionID", this.homeDimensionId);

@@ -6,10 +6,12 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 
+import javax.annotation.Nonnull;
+
 public class ContainerNPCFollowerHire extends ContainerNpcInterface {
 
 	public RoleFollower role;
-	public int type = 0;
+	public int type;
 
 	public ContainerNPCFollowerHire(EntityNPCInterface npc, EntityPlayer player, int type) {
 		super(player);
@@ -43,12 +45,12 @@ public class ContainerNPCFollowerHire extends ContainerNpcInterface {
 		}
 	}
 
-	public void onContainerClosed(EntityPlayer entityplayer) {
+	public void onContainerClosed(@Nonnull EntityPlayer entityplayer) {
 		super.onContainerClosed(entityplayer);
 	}
 
 	@Override
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer playerIn, int index) {
 		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = this.inventorySlots.get(index);
 		if (slot != null && slot.getHasStack()) {

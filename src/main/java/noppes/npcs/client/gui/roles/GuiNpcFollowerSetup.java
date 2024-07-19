@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.roles;
 
 import java.util.HashMap;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -21,7 +20,7 @@ import noppes.npcs.roles.RoleFollower;
 
 public class GuiNpcFollowerSetup extends GuiContainerNPCInterface2 {
 
-	private RoleFollower role;
+	private final RoleFollower role;
 
 	public GuiNpcFollowerSetup(EntityNPCInterface npc, ContainerNPCFollowerSetup container) {
 		super(npc, container);
@@ -52,11 +51,7 @@ public class GuiNpcFollowerSetup extends GuiContainerNPCInterface2 {
 		}
 	}
 
-	@Override
-	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-	}
-
-	@Override
+    @Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (this.subgui != null || !CustomNpcs.ShowDescriptions) {
@@ -103,14 +98,14 @@ public class GuiNpcFollowerSetup extends GuiContainerNPCInterface2 {
 		int days;
 		GuiNpcTextField tf;
 		for (int i = 0; i < 3; ++i) {
-			days = this.role.rates.containsKey(i) ? this.role.rates.get(i) : 1;
+			days = this.role.rates.getOrDefault(i, 1);
 			this.addLabel(new GuiNpcLabel(lId++, "#" + (i + 1), x - 34, y + i * 25 + 4));
 			tf = new GuiNpcTextField(i, this, this.fontRenderer, x, y + i * 25, 24, 16, "" + days);
 			tf.setNumbersOnly();
 			tf.setMinMaxDefault(1, Integer.MAX_VALUE, days);
 			this.addTextField(tf);
 		}
-		days = this.role.rates.containsKey(3) ? this.role.rates.get(3) : 1;
+		days = this.role.rates.getOrDefault(3, 1);
 		tf = new GuiNpcTextField(3, this, this.fontRenderer, x, y + 100, 24, 16, "" + days);
 		tf.setNumbersOnly();
 		tf.setMinMaxDefault(1, Integer.MAX_VALUE, days);
@@ -118,18 +113,14 @@ public class GuiNpcFollowerSetup extends GuiContainerNPCInterface2 {
 
 		x += 34;
 		y -= 33;
-		this.addTextField(
-				new GuiNpcTextField(3, (GuiScreen) this, this.fontRenderer, x, y, 286, 16, this.role.dialogHire));
-		this.addTextField(new GuiNpcTextField(4, (GuiScreen) this, this.fontRenderer, x, y += 19, 286, 16,
-				this.role.dialogFarewell));
-		this.addTextField(new GuiNpcTextField(5, (GuiScreen) this, this.fontRenderer, x, y += 19, 286, 16,
-				this.role.dialogFired));
+		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, x, y, 286, 16, this.role.dialogHire));
+		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, x, y += 19, 286, 16, this.role.dialogFarewell));
+		this.addTextField(new GuiNpcTextField(5, this, this.fontRenderer, x, y += 19, 286, 16, this.role.dialogFired));
 
 		x += 73;
 		this.addButton(new GuiNpcCheckBox(7, x, y += 19, 120, 14, "follower.infiniteDays", this.role.infiniteDays));
 		this.addButton(new GuiNpcCheckBox(8, x, y += 16, 120, 14, "follower.guiDisabled", this.role.disableGui));
-		this.addButton(
-				new GuiNpcCheckBox(9, x, y += 16, 120, 14, "follower.allowSoulstone", this.role.refuseSoulStone));
+		this.addButton(new GuiNpcCheckBox(9, x, y += 16, 120, 14, "follower.allowSoulstone", this.role.refuseSoulStone));
 
 		tf = new GuiNpcTextField(6, this, this.fontRenderer, x + 45, y += 18, 60, 16, "" + this.role.rentalMoney);
 		this.addLabel(new GuiNpcLabel(lId++, "gui.money", x, y + 4));
@@ -138,20 +129,19 @@ public class GuiNpcFollowerSetup extends GuiContainerNPCInterface2 {
 		tf.setNumbersOnly();
 		tf.setMinMaxDefault(0L, 9999999999L, this.role.rentalMoney);
 		this.addTextField(tf);
-		days = this.role.rates.containsKey(3) ? this.role.rates.get(3) : 1;
+		days = this.role.rates.getOrDefault(3, 1);
 		tf = new GuiNpcTextField(7, this, this.fontRenderer, x + 120, y, 24, 16, "" + days);
 		tf.setNumbersOnly();
 		tf.setMinMaxDefault(1, Integer.MAX_VALUE, days);
 		this.addTextField(tf);
 
-		tf = new GuiNpcTextField(8, this, this.fontRenderer, x + 45, y += 19, 24, 16,
-				"" + this.role.inventory.getSizeInventory());
-		this.addLabel(new GuiNpcLabel(lId++, "gui.things", x, y + 4));
+		tf = new GuiNpcTextField(8, this, this.fontRenderer, x + 45, y += 19, 24, 16, "" + this.role.inventory.getSizeInventory());
+		this.addLabel(new GuiNpcLabel(lId, "gui.things", x, y + 4));
 		tf.setNumbersOnly();
 		tf.setMinMaxDefault(0L, 9L, this.role.inventory.getSizeInventory());
 		this.addTextField(tf);
 
-		this.addButton(new GuiNpcButton(10, x, y += 19, 100, 20, "remote.reset"));
+		this.addButton(new GuiNpcButton(10, x, y + 19, 100, 20, "remote.reset"));
 	}
 
 	@Override
@@ -165,7 +155,7 @@ public class GuiNpcFollowerSetup extends GuiContainerNPCInterface2 {
 
 	@Override
 	public void save() {
-		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> map = new HashMap<>();
 		for (int i = 0; i < 3; ++i) {
 			int days = 1;
 			if (!this.getTextField(i).isEmpty() && this.getTextField(i).isInteger()) {

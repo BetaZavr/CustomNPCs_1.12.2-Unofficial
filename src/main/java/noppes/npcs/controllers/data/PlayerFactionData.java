@@ -1,6 +1,7 @@
 package noppes.npcs.controllers.data;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,7 +16,7 @@ public class PlayerFactionData {
 	public HashMap<Integer, Integer> factionData;
 
 	public PlayerFactionData() {
-		this.factionData = new HashMap<Integer, Integer>();
+		this.factionData = new HashMap<>();
 	}
 
 	public int getFactionPoints(EntityPlayer player, int factionId) {
@@ -28,7 +29,7 @@ public class PlayerFactionData {
 				return faction.defaultPoints;
 			}
 			PlayerScriptData handler = PlayerData.get(player).scriptData;
-			PlayerWrapper<?> wrapper = (PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player);
+			PlayerWrapper<?> wrapper = (PlayerWrapper<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(wrapper, faction,
 					faction.defaultPoints, true);
 			EventHooks.onPlayerFactionChange(handler, event);
@@ -60,7 +61,7 @@ public class PlayerFactionData {
 			return;
 		}
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
-		PlayerWrapper<?> wrapper = (PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player);
+		PlayerWrapper<?> wrapper = (PlayerWrapper<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 		if (!this.factionData.containsKey(factionId)) {
 			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(wrapper, faction, faction.defaultPoints, true);
 			EventHooks.onPlayerFactionChange(handler, event);
@@ -72,15 +73,12 @@ public class PlayerFactionData {
 	}
 
 	public void loadNBTData(NBTTagCompound compound) {
-		HashMap<Integer, Integer> factionData = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> factionData = new HashMap<>();
 		if (compound == null) {
 			return;
 		}
 		NBTTagList list = compound.getTagList("FactionData", 10);
-		if (list == null) {
-			return;
-		}
-		for (int i = 0; i < list.tagCount(); ++i) {
+        for (int i = 0; i < list.tagCount(); ++i) {
 			NBTTagCompound nbttagcompound = list.getCompoundTagAt(i);
 			factionData.put(nbttagcompound.getInteger("Faction"), nbttagcompound.getInteger("Points"));
 		}

@@ -16,8 +16,8 @@ public class NaturalOrderComparator implements Comparator<Object> {
 		String b = o2.toString().toLowerCase();
 		int ia = 0;
 		int ib = 0;
-		int nza = 0;
-		int nzb = 0;
+		int nza;
+		int nzb;
 		while (true) {
 			nzb = (nza = 0);
 			char ca = charAt(a, ia);
@@ -81,7 +81,7 @@ public class NaturalOrderComparator implements Comparator<Object> {
 				if (bias == 0) {
 					bias = 1;
 				}
-			} else if (ca == '\0' && cb == '\0') {
+			} else if (ca == '\0') {
 				return bias;
 			}
 			++ia;

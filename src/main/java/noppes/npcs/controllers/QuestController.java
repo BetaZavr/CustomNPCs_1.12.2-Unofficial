@@ -1,9 +1,10 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import com.google.common.collect.Maps;
@@ -35,9 +36,9 @@ public class QuestController implements IQuestHandler {
 	private int lastUsedQuestID;
 
 	public QuestController() {
-		this.categoriesSync = Maps.<Integer, QuestCategory>newTreeMap();
-		this.categories = Maps.<Integer, QuestCategory>newTreeMap();
-		this.quests = Maps.<Integer, Quest>newTreeMap();
+		this.categoriesSync = Maps.newTreeMap();
+		this.categories = Maps.newTreeMap();
+		this.quests = Maps.newTreeMap();
 		this.lastUsedCatID = 0;
 		this.lastUsedQuestID = 0;
 		QuestController.instance = this;
@@ -45,7 +46,7 @@ public class QuestController implements IQuestHandler {
 
 	@Override
 	public IQuestCategory[] categories() {
-		return this.categories.values().toArray(new IQuestCategory[this.categories.size()]);
+		return this.categories.values().toArray(new IQuestCategory[0]);
 	}
 
 	public boolean containsCategoryName(QuestCategory category) {
@@ -91,13 +92,12 @@ public class QuestController implements IQuestHandler {
 				}
 				return;
 			}
-		} catch (Exception ex) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		File dir = this.getDir();
 		if (!dir.exists()) {
 			dir.mkdir();
 		} else {
-			for (File file2 : dir.listFiles()) {
+			for (File file2 : Objects.requireNonNull(dir.listFiles())) {
 				if (file2.isDirectory()) {
 					QuestCategory category = this.loadCategoryDir(file2);
 					Iterator<Integer> ite = category.quests.keySet().iterator();
@@ -123,35 +123,33 @@ public class QuestController implements IQuestHandler {
 	}
 
 	private void loadCategoriesOld(File file) throws Exception {
-		NBTTagCompound nbttagcompound1 = CompressedStreamTools.readCompressed(new FileInputStream(file));
-		this.lastUsedCatID = nbttagcompound1.getInteger("lastID");
-		this.lastUsedQuestID = nbttagcompound1.getInteger("lastQuestID");
-		NBTTagList list = nbttagcompound1.getTagList("Data", 10);
-		if (list != null) {
-			for (int i = 0; i < list.tagCount(); ++i) {
-				QuestCategory category = new QuestCategory();
-				category.readNBT(list.getCompoundTagAt(i));
-				this.categories.put(category.id, category);
-				this.saveCategory(category);
-				Iterator<Map.Entry<Integer, Quest>> ita = category.quests.entrySet().iterator();
-				while (ita.hasNext()) {
-					Map.Entry<Integer, Quest> entry = ita.next();
-					Quest quest = entry.getValue();
-					quest.id = entry.getKey();
-					if (this.quests.containsKey(quest.id)) {
-						ita.remove();
-					} else {
-						this.saveQuest(category, quest);
-					}
-				}
-			}
-		}
-	}
+		NBTTagCompound compound = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
+		this.lastUsedCatID = compound.getInteger("lastID");
+		this.lastUsedQuestID = compound.getInteger("lastQuestID");
+		NBTTagList list = compound.getTagList("Data", 10);
+        for (int i = 0; i < list.tagCount(); ++i) {
+            QuestCategory category = new QuestCategory();
+            category.readNBT(list.getCompoundTagAt(i));
+            this.categories.put(category.id, category);
+            this.saveCategory(category);
+            Iterator<Map.Entry<Integer, Quest>> ita = category.quests.entrySet().iterator();
+            while (ita.hasNext()) {
+                Map.Entry<Integer, Quest> entry = ita.next();
+                Quest quest = entry.getValue();
+                quest.id = entry.getKey();
+                if (this.quests.containsKey(quest.id)) {
+                    ita.remove();
+                } else {
+                    this.saveQuest(category, quest);
+                }
+            }
+        }
+    }
 
 	private QuestCategory loadCategoryDir(File dir) {
 		QuestCategory category = new QuestCategory();
 		category.title = dir.getName();
-		for (File file : dir.listFiles()) {
+		for (File file : Objects.requireNonNull(dir.listFiles())) {
 			if (file.isFile()) {
 				if (file.getName().endsWith(".json")) {
 					try {
@@ -177,7 +175,7 @@ public class QuestController implements IQuestHandler {
 		// if (!dir.delete()) { return; } Changed
 		// New
 		if (!AdditionalMethods.removeFile(dir)) {
-			LogWriter.error("Error delite " + dir + "; no access or file not uploaded!");
+			LogWriter.error("Error delete " + dir + "; no access or file not uploaded!");
 			return;
 		}
 		for (int dia : cat.quests.keySet()) {
@@ -195,9 +193,7 @@ public class QuestController implements IQuestHandler {
 		this.quests.remove(quest.id);
 		quest.category.quests.remove(quest.id);
 		for (QuestCategory cat : this.categories.values()) {
-			if (cat.quests.containsKey(quest.id)) {
-				cat.quests.remove(quest.id);
-			}
+            cat.quests.remove(quest.id);
 		}
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.QuestData, quest.id);
 	}
@@ -205,18 +201,21 @@ public class QuestController implements IQuestHandler {
 	public void saveCategory(QuestCategory category) {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
-			category.title = "default";
+			StringBuilder title = new StringBuilder("default");
 			while (this.containsCategoryName(category)) {
-				category.title += "_";
+				title.append("_");
 			}
+			category.title = title.toString();
 		}
 		if (categories.containsKey(category.id)) {
 			QuestCategory currentCategory = this.categories.get(category.id);
 			File newdir = new File(this.getDir(), category.title);
 			File olddir = new File(this.getDir(), currentCategory.title);
+			StringBuilder title = new StringBuilder(category.title);
 			while (this.containsCategoryName(category)) {
-				category.title += "_";
+				title.append("_");
 			}
+			category.title = title.toString();
 			if (newdir.exists() || !olddir.renameTo(newdir)) {
 				return;
 			}
@@ -227,9 +226,11 @@ public class QuestController implements IQuestHandler {
 				++this.lastUsedCatID;
 				category.id = this.lastUsedCatID;
 			}
+			StringBuilder title = new StringBuilder(category.title);
 			while (this.containsCategoryName(category)) {
-				category.title += "_";
+				title.append("_");
 			}
+			category.title = title.toString();
 			File dir = new File(this.getDir(), category.title);
 			if (!dir.exists()) {
 				dir.mkdirs();
@@ -272,9 +273,7 @@ public class QuestController implements IQuestHandler {
 			file.renameTo(file2);
 			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestData,
 					quest.writeToNBT(new NBTTagCompound()), category.id);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 }

@@ -10,8 +10,9 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IScoreboardTeam;
 
 public class ScoreboardTeamWrapper implements IScoreboardTeam {
-	private Scoreboard board;
-	private ScorePlayerTeam team;
+
+	private final Scoreboard board;
+	private final ScorePlayerTeam team;
 
 	protected ScoreboardTeamWrapper(ScorePlayerTeam team, Scoreboard board) {
 		this.team = team;
@@ -25,7 +26,7 @@ public class ScoreboardTeamWrapper implements IScoreboardTeam {
 
 	@Override
 	public void clearPlayers() {
-		List<String> list = new ArrayList<String>(this.team.getMembershipCollection());
+		List<String> list = new ArrayList<>(this.team.getMembershipCollection());
 		for (String player : list) {
 			this.board.removePlayerFromTeam(player, this.team);
 		}
@@ -34,7 +35,7 @@ public class ScoreboardTeamWrapper implements IScoreboardTeam {
 	@Override
 	public String getColor() {
 		String prefix = this.team.getPrefix();
-		if (prefix == null || prefix.isEmpty()) {
+		if (prefix.isEmpty()) {
 			return null;
 		}
 		for (TextFormatting format : TextFormatting.values()) {
@@ -62,8 +63,8 @@ public class ScoreboardTeamWrapper implements IScoreboardTeam {
 
 	@Override
 	public String[] getPlayers() {
-		List<String> list = new ArrayList<String>(this.team.getMembershipCollection());
-		return list.toArray(new String[list.size()]);
+		List<String> list = new ArrayList<>(this.team.getMembershipCollection());
+		return list.toArray(new String[0]);
 	}
 
 	@Override
@@ -85,7 +86,7 @@ public class ScoreboardTeamWrapper implements IScoreboardTeam {
 	public void setColor(String color) {
 		TextFormatting enumchatformatting = TextFormatting.getValueByName(color);
 		if (enumchatformatting == null || enumchatformatting.isFancyStyling()) {
-			throw new CustomNPCsException("Not a proper color name: %s", new Object[] { color });
+			throw new CustomNPCsException("Not a proper color name: %s", color);
 		}
 		this.team.setPrefix(enumchatformatting.toString());
 		this.team.setSuffix(TextFormatting.RESET.toString());
@@ -93,9 +94,8 @@ public class ScoreboardTeamWrapper implements IScoreboardTeam {
 
 	@Override
 	public void setDisplayName(String name) {
-		if (name.length() <= 0 || name.length() > 32) {
-			throw new CustomNPCsException("Score team display name must be between 1-32 characters: %s",
-					new Object[] { name });
+		if (name.isEmpty() || name.length() > 32) {
+			throw new CustomNPCsException("Score team display name must be between 1-32 characters: %s", name);
 		}
 		this.team.setDisplayName(name);
 	}

@@ -2,25 +2,16 @@ package noppes.npcs;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.nio.file.Files;
+import java.util.*;
 
 import com.google.common.collect.Lists;
-import com.mojang.authlib.GameProfile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockIce;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockVine;
 import net.minecraft.client.Minecraft;
-import net.minecraft.command.ICommand;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -169,11 +160,10 @@ public class CustomNpcs {
 	@ConfigProp(info = "Color of message bubbles above NPC head [text, frame, base]", def = "000000,000000,FFFFFF", type = Configuration.CATEGORY_CLIENT)
 	public static Color[] ChatNpcColors = new Color[] { new Color(0x000000), new Color(0x000000), new Color(0xFFFFFF) };
 	@ConfigProp(info = "Color of message bubbles above Player head [text, frame, base]", def = "000000,2C4C00,E0FFB0", type = Configuration.CATEGORY_CLIENT)
-	public static Color[] ChatPlayerColors = new Color[] { new Color(0x000000), new Color(0x2C4C00),
-			new Color(0xE0FFB0) };
+	public static Color[] ChatPlayerColors = new Color[] { new Color(0x000000), new Color(0x2C4C00), new Color(0xE0FFB0) };
 	@ConfigProp(info = "When set to Minecraft it will use minecrafts font, when Default it will use OpenSans. Can only use fonts installed on your PC", def = "Default")
 	public static String FontType = "Default";
-	@ConfigProp(info = "Type 0 = Normal, Type 1 = Solid", def = "1", min = "0", max = "1")
+	@ConfigProp(info = "Type 0=Normal; 1=Solid; 2=Not show", def = "1", min = "0", max = "1")
 	public static int HeadWearType = 1;
 	@ConfigProp(info = "Minimum and maximum health of NPCs for 1 and Maximum level, respectively (rarity Boss)", def = "250,20000", min = "1,1")
 	public static int[] HealthBoss = new int[] { 250, 20000 };
@@ -223,9 +213,6 @@ public class CustomNpcs {
 	public static boolean VineGrowthEnabled = true;
 	@ConfigProp(info = "Maximum blocks to install per second with the Builder item", def = "10000", min = "100", max = "100000000")
 	public static int MaxBuilderBlocks = 10000;
-	@ConfigProp(info = "Color of Script code elements. [Numbers, Functions, Strings, Comments]", type = Configuration.CATEGORY_CLIENT, def = "6,9,7,2")
-	public static String[] CharCodeColor = new String[] { "6", "9", "7", "2" };
-
 	@ConfigProp(info = "Maximum number of items in one Drop group", def = "32", min = "1", max = "64")
 	public static int MaxItemInDropsNPC = 32;
 	@ConfigProp(info = "Cancel the creation of variables in each Forge event (saves FPS)", def = "false")
@@ -255,7 +242,9 @@ public class CustomNpcs {
 	@ConfigProp(info = "When a player's dimension changes, their home position will change to portal position", def = "true")
 	public static boolean SetPlayerHomeWhenChangingDimension = true;
 	@ConfigProp(info = "Displaying joints on an NPC model", def = "true", type = Configuration.CATEGORY_CLIENT)
-	public static boolean ShowJoints = false;
+	public static boolean ShowJoints = true;
+	@ConfigProp(info = "Display custom NPC animations. Disable it if you have a weak computer", def = "true", type = Configuration.CATEGORY_CLIENT)
+	public static boolean ShowCustomAnimation = true;
 	@ConfigProp(info = "Send a message to the player's chat about a completed transaction", def = "false", type = Configuration.CATEGORY_CLIENT)
 	public static boolean sendMarcetInfo = false;
 
@@ -271,15 +260,15 @@ public class CustomNpcs {
 	public static MarkovGenerator[] MARKOV_GENERATOR = new MarkovGenerator[10];
 	public static MinecraftServer Server;
 	public static DataDebug debugData = new DataDebug();
-	public static final Map<Class<?>, String> forgeEventNames = new HashMap<Class<?>, String>();
-	public static final Map<Class<?>, String> forgeClientEventNames = new HashMap<Class<?>, String>();
+	public static final Map<Class<?>, String> forgeEventNames = new HashMap<>();
+	public static final Map<Class<?>, String> forgeClientEventNames = new HashMap<>();
 	public static boolean FreezeNPCs = false, showServerQuestCompass = true;
 	public static File Dir;
 	public static ConfigLoader Config;
-	public static ITextComponent prefix = new TextComponentString(
-			((char) 167) + "e[" + ((char) 167) + "2CustomNpcs" + ((char) 167) + "e]" + ((char) 167) + "r: ");
+	public static ITextComponent prefix = new TextComponentString(((char) 167) + "e[" + ((char) 167) + "2CustomNpcs" + ((char) 167) + "e]" + ((char) 167) + "r: ");
 	public static DimensionType customDimensionType;
 	public static ModContainer mod;
+	public static final VisibilityController visibilityController = new VisibilityController();
 	
 	public static int colorAnimHoverPart = 0xFA7800;
 
@@ -303,12 +292,10 @@ public class CustomNpcs {
 			if (s != null) {
 				dir = new File(dir, s);
 			}
-			if (!dir.exists()) {
-				dir.mkdirs();
-			}
-			return dir;
+			if (dir.exists() || dir.mkdirs()) { return dir; }
+			return null;
 		} catch (Exception e) {
-			LogWriter.error("Error getting worldsave", e);
+			LogWriter.error("Error getting world save", e);
 			return null;
 		}
 	}
@@ -360,17 +347,16 @@ public class CustomNpcs {
 				List<String> targets = Lists
 						.newArrayList(CustomNpcs.debugData.data.get(side).times.get(eventName).keySet());
 				Collections.sort(targets);
-				String log = "";
+				StringBuilder log = new StringBuilder();
 				for (String target : targets) {
 					Long[] time = CustomNpcs.debugData.data.get(side).times.get(eventName).get(target);
 					if (log.length() > 0) {
-						log += "; ";
+						log.append("; ");
 					}
 					if (time[0] <= 0) {
 						time[0] = 1L;
 					}
-					log += "[" + target + ", " + time[0] + ", "
-							+ AdditionalMethods.ticksToElapsedTime(time[1], true, false, false) + "]";
+					log.append("[").append(target).append(", ").append(time[0]).append(", ").append(AdditionalMethods.ticksToElapsedTime(time[1], true, false, false)).append("]");
 					if (time[1] == dd.max) {
 						maxName[0] = "\"" + eventName + "|" + target + "\": "
 								+ AdditionalMethods.ticksToElapsedTime(dd.max, true, false, false);
@@ -405,7 +391,7 @@ public class CustomNpcs {
 		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_load");
 		PixelmonHelper.load();
 		ScriptController controller = new ScriptController();
-		if (CustomNpcs.EnableScripting && controller.languages.size() > 0) {
+		if (CustomNpcs.EnableScripting && !controller.languages.isEmpty()) {
 			MinecraftForge.EVENT_BUS.register(controller);
 			MinecraftForge.EVENT_BUS.register(new PlayerEventHandler().registerForgeEvents(ev.getSide()));
 			MinecraftForge.EVENT_BUS.register(new ScriptItemEventHandler());
@@ -449,9 +435,9 @@ public class CustomNpcs {
 		MinecraftForge.EVENT_BUS.register(new ServerTickHandler());
 		MinecraftForge.EVENT_BUS.register(CustomNpcs.proxy);
 
-		NpcAPI.Instance().events().register(new AbilityEventHandler());
+		Objects.requireNonNull(NpcAPI.Instance()).events().register(new AbilityEventHandler());
 		ForgeChunkManager.setForcedChunkLoadingCallback(this,
-				(ForgeChunkManager.LoadingCallback) new ChunkController());
+                new ChunkController());
 
 		CustomNpcs.customDimensionType = DimensionType.register("CustomDimensions", "CustomNpcs",
 				"CustomDimensions".hashCode(), CustomWorldProvider.class, false);
@@ -465,46 +451,36 @@ public class CustomNpcs {
 	@Mod.EventHandler
 	public void serverstart(FMLServerStartingEvent event) {
 		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_serverstart");
-		event.registerServerCommand((ICommand) CustomNpcs.NoppesCommand);
-		EntityNPCInterface.ChatEventPlayer = new FakePlayer(event.getServer().getWorld(0),
-				(GameProfile) EntityNPCInterface.ChatEventProfile);
-		EntityNPCInterface.CommandPlayer = new FakePlayer(event.getServer().getWorld(0),
-				(GameProfile) EntityNPCInterface.CommandProfile);
-		EntityNPCInterface.GenericPlayer = new FakePlayer(event.getServer().getWorld(0),
-				(GameProfile) EntityNPCInterface.GenericProfile);
+		event.registerServerCommand(CustomNpcs.NoppesCommand);
+		EntityNPCInterface.ChatEventPlayer = new FakePlayer(event.getServer().getWorld(0), EntityNPCInterface.ChatEventProfile);
+		EntityNPCInterface.CommandPlayer = new FakePlayer(event.getServer().getWorld(0), EntityNPCInterface.CommandProfile);
+		EntityNPCInterface.GenericPlayer = new FakePlayer(event.getServer().getWorld(0), EntityNPCInterface.GenericProfile);
 		for (WorldServer world : CustomNpcs.Server.worlds) {
 			ServerScoreboard board = (ServerScoreboard) world.getScoreboard();
 			board.addDirtyRunnable(() -> {
-				Iterator<String> iterator = Availability.scores.iterator();
-				while (iterator.hasNext()) {
-					ScoreObjective so = board.getObjective(iterator.next());
-					if (so != null) {
-						Iterator<EntityPlayerMP> iterator2 = CustomNpcs.Server.getPlayerList().getPlayers().iterator();
-						while (iterator2.hasNext()) {
-							EntityPlayerMP player = iterator2.next();
-							if (!board.entityHasObjective(player.getName(), so)
-									&& board.getObjectiveDisplaySlotCount(so) == 0) {
-								player.connection.sendPacket(new SPacketScoreboardObjective(so, 0));
-							}
-							player.connection
-									.sendPacket(new SPacketUpdateScore(board.getOrCreateScore(player.getName(), so)));
-						}
-					}
-				}
-				return;
-			});
+                for (String s : Availability.scores) {
+                    ScoreObjective so = board.getObjective(s);
+                    if (so != null) {
+                        for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
+                            if (!board.entityHasObjective(player.getName(), so)
+                                    && board.getObjectiveDisplaySlotCount(so) == 0) {
+                                player.connection.sendPacket(new SPacketScoreboardObjective(so, 0));
+                            }
+                            player.connection
+                                    .sendPacket(new SPacketUpdateScore(board.getOrCreateScore(player.getName(), so)));
+                        }
+                    }
+                }
+            });
 			board.addDirtyRunnable(() -> {
-				Iterator<EntityPlayerMP> itrPlayer = FMLCommonHandler.instance().getMinecraftServerInstance()
-						.getPlayerList().getPlayers().iterator();
-				while (itrPlayer.hasNext()) {
-					EntityPlayerMP player = itrPlayer.next();
-					PlayerData data = PlayerData.get(player);
-					if (data != null) {
-						VisibilityController.onUpdate(player);
-					}
-				}
-				return;
-			});
+                for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance()
+                        .getPlayerList().getPlayers()) {
+                    PlayerData data = PlayerData.get(player);
+                    if (data != null) {
+						visibilityController.onUpdate(player);
+                    }
+                }
+            });
 		}
 		DimensionHandler.getInstance().loadDimensions();
 
@@ -529,7 +505,6 @@ public class CustomNpcs {
 		new LinkedNpcController();
 		new MassBlockController();
 		new PlayerSkinController();
-		new VisibilityController();
 		WrapperNpcAPI.clearCache();
 		Set<ResourceLocation> names = Block.REGISTRY.getKeys();
 		for (ResourceLocation name : names) {
@@ -548,9 +523,8 @@ public class CustomNpcs {
 		File level = new File(getWorldSaveDirectory().getParentFile(), "level.dat");
 		if (level.exists()) {
 			try {
-				NBTTagCompound nbt = CompressedStreamTools.readCompressed(new FileInputStream(level));
-				NBTTagList list = nbt.getCompoundTag("FML").getCompoundTag("Registries")
-						.getCompoundTag("minecraft:entities").getTagList("ids", 10);
+				NBTTagCompound nbt = CompressedStreamTools.readCompressed(Files.newInputStream(level.toPath()));
+				NBTTagList list = nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:entities").getTagList("ids", 10);
 				NBTTagList newList = new NBTTagList();
 				boolean resave = false;
 				for (int i = 0; i < list.tagCount(); i++) {
@@ -564,10 +538,10 @@ public class CustomNpcs {
 				if (resave) {
 					nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:entities")
 							.setTag("ids", newList);
-					CompressedStreamTools.writeCompressed(nbt, new FileOutputStream(level));
+					CompressedStreamTools.writeCompressed(nbt, Files.newOutputStream(level.toPath()));
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				LogWriter.error("Error:", e);
 			}
 		}
 

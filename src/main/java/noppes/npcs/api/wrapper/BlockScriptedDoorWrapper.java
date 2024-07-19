@@ -32,7 +32,7 @@ public class BlockScriptedDoorWrapper extends BlockWrapper implements IBlockScri
 	@Override
 	public boolean getOpen() {
 		IBlockState state = this.world.getMCWorld().getBlockState(this.pos);
-		return ((Boolean) state.getValue(BlockDoor.OPEN)).equals(true);
+		return state.getValue(BlockDoor.OPEN).equals(true);
 	}
 
 	@Override
@@ -41,8 +41,8 @@ public class BlockScriptedDoorWrapper extends BlockWrapper implements IBlockScri
 	}
 
 	@Override
-	public String getSoung(boolean isOpen) {
-		return this.tile.getSoung(isOpen);
+	public String getSound(boolean isOpen) {
+		return this.tile.getSound(isOpen);
 	}
 
 	@Override

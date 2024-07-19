@@ -14,34 +14,34 @@ public class Blueprint implements ISchematic {
 
 	private String[] architects;
 	private String name;
-	private IBlockState[] pallete;
-	private short palleteSize;
-	private List<String> requiredMods;
-	private short sizeX;
-	private short sizeY;
-	private short sizeZ;
-	private short[][][] structure;
-	private NBTTagCompound[] tileEntities;
+	private final IBlockState[] palette;
+	private final short paletteSize;
+	private final List<String> requiredMods;
+	private final short sizeX;
+	private final short sizeY;
+	private final short sizeZ;
+	private final short[][][] structure;
+	private final NBTTagCompound[] tileEntities;
 
-	public Blueprint(short sizeX, short sizeY, short sizeZ, short palleteSize, IBlockState[] pallete,
+	public Blueprint(short sizeX, short sizeY, short sizeZ, short paletteSize, IBlockState[] palette,
 			short[][][] structure, NBTTagCompound[] tileEntities, List<String> requiredMods) {
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.sizeZ = sizeZ;
-		this.palleteSize = palleteSize;
-		this.pallete = pallete;
+		this.paletteSize = paletteSize;
+		this.palette = palette;
 		this.structure = structure;
 		this.tileEntities = tileEntities;
 		this.requiredMods = requiredMods;
 	}
 
 	public void build(World world, BlockPos pos) {
-		IBlockState[] pallete = this.getPallete();
+		IBlockState[] palette = this.getPalette();
 		short[][][] structure = this.getStructure();
 		for (short y = 0; y < this.getSizeY(); ++y) {
 			for (short z = 0; z < this.getSizeZ(); ++z) {
 				for (short x = 0; x < this.getSizeX(); ++x) {
-					IBlockState state = pallete[structure[y][z][x] & 0xFFFF];
+					IBlockState state = palette[structure[y][z][x] & 0xFFFF];
 					if (state.getBlock() != Blocks.STRUCTURE_VOID) {
 						if (state.isFullCube()) {
 							world.setBlockState(pos.add(x, y, z), state, 2);
@@ -53,7 +53,7 @@ public class Blueprint implements ISchematic {
 		for (short y = 0; y < this.getSizeY(); ++y) {
 			for (short z = 0; z < this.getSizeZ(); ++z) {
 				for (short x = 0; x < this.getSizeX(); ++x) {
-					IBlockState state = pallete[structure[y][z][x]];
+					IBlockState state = palette[structure[y][z][x]];
 					if (state.getBlock() != Blocks.STRUCTURE_VOID) {
 						if (!state.isFullCube()) {
 							world.setBlockState(pos.add(x, y, z), state, 2);
@@ -68,7 +68,8 @@ public class Blueprint implements ISchematic {
 				tag.setInteger("x", pos.getX() + tag.getShort("x"));
 				tag.setInteger("y", pos.getY() + tag.getShort("y"));
 				tag.setInteger("z", pos.getZ() + tag.getShort("z"));
-				te.deserializeNBT(tag);
+                assert te != null;
+                te.deserializeNBT(tag);
 			}
 		}
 	}
@@ -87,7 +88,7 @@ public class Blueprint implements ISchematic {
 
 	@Override
 	public IBlockState getBlockState(int x, int y, int z) {
-		return this.pallete[this.structure[y][z][x]];
+		return this.palette[this.structure[y][z][x]];
 	}
 
 	@Override
@@ -120,12 +121,12 @@ public class Blueprint implements ISchematic {
 		return BlockPos.ORIGIN;
 	}
 
-	public IBlockState[] getPallete() {
-		return this.pallete;
+	public IBlockState[] getPalette() {
+		return this.palette;
 	}
 
-	public short getPalleteSize() {
-		return this.palleteSize;
+	public short getPaletteSize() {
+		return this.paletteSize;
 	}
 
 	public List<String> getRequiredMods() {

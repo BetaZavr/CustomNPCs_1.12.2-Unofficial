@@ -14,7 +14,7 @@ public class DataRanged implements INPCRanged {
 			pDamage, pDur, pEffAmp, pEffect, pSize, pSpeed, pTrail, shotCount;
 	private double rangedRange;
 	private String fireSound, groundSound, hitSound;
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 
 	public DataRanged(EntityNPCInterface npc) {
 		this.burstCount = 1;
@@ -212,7 +212,7 @@ public class DataRanged implements INPCRanged {
 		this.pArea = compound.getInteger("pArea");
 		this.pTrail = compound.getInteger("pTrail");
 		if (compound.hasKey("MaxFiringRange", 3)) {
-			this.rangedRange = (double) compound.getInteger("MaxFiringRange");
+			this.rangedRange = compound.getInteger("MaxFiringRange");
 		} else {
 			this.rangedRange = compound.getDouble("MaxFiringRange");
 		}

@@ -2,10 +2,8 @@ package noppes.npcs.client.gui.global;
 
 import java.util.Arrays;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -30,14 +28,12 @@ import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.PlayerMail;
 
-public class GuiDialogEdit extends SubGuiInterface
-		implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
+public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 
-	private Dialog dialog;
+	private final Dialog dialog;
 
 	public GuiDialogEdit(Dialog dialog) {
 		this.dialog = dialog;
@@ -117,10 +113,10 @@ public class GuiDialogEdit extends SubGuiInterface
 			break;
 		}
 		case 24: { // reset ID
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("message.change.id", "" + this.dialog.id).getFormattedText(),
 					new TextComponentTranslation("message.change").getFormattedText(), 0);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 66: {
@@ -134,9 +130,9 @@ public class GuiDialogEdit extends SubGuiInterface
 	public void confirmClicked(boolean result, int id) {
 		if (this.parent instanceof GuiNPCInterface2) {
 			((GuiNPCInterface) this.parent).setSubGui(this);
-			NoppesUtil.openGUI((EntityPlayer) this.player, this.parent);
+			NoppesUtil.openGUI(this.player, this.parent);
 		} else {
-			NoppesUtil.openGUI((EntityPlayer) this.player, this);
+			NoppesUtil.openGUI(this.player, this);
 		}
 		if (!result) {
 			return;
@@ -170,15 +166,15 @@ public class GuiDialogEdit extends SubGuiInterface
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.text").getFormattedText());
 		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availability.hover").getFormattedText());
 		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.faction").getFormattedText());
 		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.options").getFormattedText());
 		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("dialog.hover.quets").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("dialog.hover.quest").getFormattedText());
 		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("dialog.hover.quets.del").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("dialog.hover.quest.del").getFormattedText());
 		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.sound.del").getFormattedText());
 		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
@@ -230,7 +226,7 @@ public class GuiDialogEdit extends SubGuiInterface
 
 		this.addButton(new GuiNpcButton(66, x + 240, y, 20, 20, "X"));
 
-		this.addLabel(new GuiNpcLabel(++lID, "dialog.dialogtext", xl, (y += 22) + 5));
+		this.addLabel(new GuiNpcLabel(++lID, "dialog.dialogues", xl, (y += 22) + 5));
 		this.addButton(new GuiNpcButton(3, x, y, 50, 20, "selectServer.edit"));
 
 		this.addLabel(new GuiNpcLabel(++lID, "availability.options", xl, (y += 22) + 5));
@@ -264,7 +260,7 @@ public class GuiDialogEdit extends SubGuiInterface
 		this.addButton(new GuiNpcCheckBox(12, xl, y += 16, 180, 14, "dialog.showWheel", this.dialog.showWheel));
 		this.addButton(new GuiNpcCheckBox(15, xl, y += 16, 180, 14, "dialog.disableEsc", this.dialog.disableEsc));
 		this.addButton(new GuiNpcCheckBox(17, xl, y += 16, 180, 14, "dialog.sound.stop", this.dialog.stopSound));
-		this.addButton(new GuiNpcCheckBox(18, xl, y += 16, 180, 14, "dialog.showFits", this.dialog.showFits));
+		this.addButton(new GuiNpcCheckBox(18, xl, y + 16, 180, 14, "dialog.showFits", this.dialog.showFits));
 
 		y = this.guiTop + 137;
 		GuiNpcTextField textField = new GuiNpcTextField(3, this, this.fontRenderer, x + 1, y, 48, 18,
@@ -335,12 +331,19 @@ public class GuiDialogEdit extends SubGuiInterface
 	@Override
 	public void unFocused(GuiNpcTextField guiNpcTextField) {
 		if (guiNpcTextField.getId() == 1) {
-			this.dialog.title = guiNpcTextField.getText();
-			while (DialogController.instance.containsDialogName(this.dialog.category, this.dialog)) {
-				StringBuilder sb = new StringBuilder();
-				Dialog dialog = this.dialog;
-				dialog.title = sb.append(dialog.title).append("_").toString();
+			StringBuilder t = new StringBuilder(guiNpcTextField.getText());
+			boolean has = true;
+			while (has) {
+				has = false;
+				for (Dialog dia : this.dialog.category.dialogs.values()) {
+					if (dia.id != dialog.id && dia.title.equalsIgnoreCase(dialog.title)) {
+						has = true;
+						break;
+					}
+				}
+				if (has) { t.append("_"); }
 			}
+			this.dialog.title = t.toString();
 		} else if (guiNpcTextField.getId() == 2) {
 			this.dialog.sound = guiNpcTextField.getText();
 		} else if (guiNpcTextField.getId() == 3) {

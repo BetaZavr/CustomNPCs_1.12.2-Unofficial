@@ -14,7 +14,7 @@ public class DataAbilities {
 	public EntityNPCInterface npc;
 
 	public DataAbilities(EntityNPCInterface npc) {
-		this.abilities = new ArrayList<AbstractAbility>();
+		this.abilities = new ArrayList<>();
 		this.npc = npc;
 	}
 
@@ -28,7 +28,7 @@ public class DataAbilities {
 		return null;
 	}
 
-	public void readToNBT(NBTTagCompound compound) {
+	public void readToNBT() {
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {

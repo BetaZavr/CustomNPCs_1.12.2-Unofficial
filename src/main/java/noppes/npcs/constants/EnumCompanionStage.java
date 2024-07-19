@@ -6,15 +6,16 @@ public enum EnumCompanionStage
 	CHILD(72000, 0, "companion.child"), 
 	TEEN(180000, 0, "companion.teenager"), 
 	ADULT(324000, 0, "companion.adult"), 
-	FULLGROWN(450000, 0, "companion.fullgrown");
+	FULL_GROWN(450000, 0, "companion.fullgrown");
 	
-	public int matureAge;
-	public int animation;
-	public String name;
+	public final int matureAge;
+	public final int animation;
+	public final String name;
 	
-	private EnumCompanionStage(int age, int animation, String name) {
+	EnumCompanionStage(int age, int animation, String name) {
 		this.matureAge = age;
 		this.animation = animation;
 		this.name = name;
 	}
+
 }

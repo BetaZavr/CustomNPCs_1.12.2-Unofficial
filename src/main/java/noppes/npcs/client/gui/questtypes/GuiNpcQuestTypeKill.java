@@ -16,11 +16,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
@@ -39,12 +39,14 @@ import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
 
+import javax.annotation.Nonnull;
+
 public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldListener, ICustomScrollListener {
 
 	public GuiScreen parent;
 	private GuiCustomScroll scroll;
-	private QuestObjective task;
-	private Map<Integer, Integer> dataDimIDs = Maps.<Integer, Integer>newHashMap();
+	private final QuestObjective task;
+	private final Map<Integer, Integer> dataDimIDs = Maps.newHashMap();
 
 	public GuiNpcQuestTypeKill(EntityNPCInterface npc, QuestObjective task, GuiScreen parent) {
 		// Changed
@@ -59,7 +61,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 	}
 
 	@Override
-	public void actionPerformed(GuiButton guibutton) {
+	public void actionPerformed(@Nonnull GuiButton guibutton) {
 		super.actionPerformed(guibutton);
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
@@ -96,8 +98,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 			if (this.task == null) {
 				return;
 			}
-			Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.task.dimensionID, this.task.pos.getX(),
-					this.task.pos.getY(), this.task.pos.getZ() });
+			Client.sendData(EnumPacketServer.TeleportTo, this.task.dimensionID, this.task.pos.getX(), this.task.pos.getY(), this.task.pos.getZ());
 			break;
 		}
 		case 66: {
@@ -167,7 +168,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 		super.initGui();
 		int lId = 0;
 		String text = new TextComponentTranslation("quest.player.to").getFormattedText();
-		while (text.indexOf("<br>") != -1) {
+		while (text.contains("<br>")) {
 			text = text.replace("<br>", "" + ((char) 10));
 		}
 
@@ -189,20 +190,16 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(1, Integer.MAX_VALUE, 1);
 
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-			Class<? extends Entity> c = (Class<? extends Entity>) ent.getEntityClass();
+			Class<? extends Entity> c = ent.getEntityClass();
 			String name = ent.getName();
 			try {
-				if (!EntityLivingBase.class.isAssignableFrom(c) || EntityNPCInterface.class.isAssignableFrom(c)
-						|| c.getConstructor(World.class) == null || Modifier.isAbstract(c.getModifiers())) {
+				if (!EntityLivingBase.class.isAssignableFrom(c) || EntityNPCInterface.class.isAssignableFrom(c) || Modifier.isAbstract(c.getModifiers())) {
 					continue;
 				}
-				list.add(name.toString());
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException ex) {
-			}
+				list.add(name);
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		if (this.scroll == null) {
 			this.scroll = new GuiCustomScroll(this, 0);
@@ -257,7 +254,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 			i++;
 		}
 		this.addButton(new GuiButtonBiDirectional(4, x + 8, y - 1, 60, 16, dimIDs, p));
-		this.addLabel(new GuiNpcLabel(lId++, "N:", x + 71, y + 2));
+		this.addLabel(new GuiNpcLabel(lId, "N:", x + 71, y + 2));
 		this.addTextField(new GuiNpcTextField(15, this, this.fontRenderer, x + 79, y, 133, 14, this.task.entityName));
 
 		this.addButton(new GuiNpcButton(10, x + 150, y += 16, 60, 16, "gui.set"));
@@ -288,8 +285,8 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 			NoppesUtilServer.getEditingQuest(this.player).questInterface.removeTask(this.task);
 		} else {
 			if (((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui instanceof GuiQuestEdit) {
-				((GuiQuestEdit) ((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui).subgui = null;
-				((GuiQuestEdit) ((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui).initGui();
+				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.subgui = null;
+				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.initGui();
 			}
 		}
 	}

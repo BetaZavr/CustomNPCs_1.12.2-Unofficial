@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -17,15 +16,14 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCFactionSelection extends GuiNPCInterface implements IScrollData {
-	private HashMap<String, Integer> data;
+	private final HashMap<String, Integer> data = new HashMap<>();
 	private int factionId;
 	public GuiSelectionListener listener;
-	private GuiScreen parent;
+	private final GuiScreen parent;
 	private GuiNPCStringSlot slot;
 
 	public GuiNPCFactionSelection(EntityNPCInterface npc, GuiScreen parent, int dialog) {
 		super(npc);
-		this.data = new HashMap<String, Integer>();
 		this.drawDefaultBackground = false;
 		this.title = "Select Dialog Category";
 		this.parent = parent;
@@ -39,7 +37,7 @@ public class GuiNPCFactionSelection extends GuiNPCInterface implements IScrollDa
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 2) {
 			this.close();
-			NoppesUtil.openGUI((EntityPlayer) this.player, this.parent);
+			NoppesUtil.openGUI(this.player, this.parent);
 		}
 		if (button.id == 4) {
 			this.doubleClicked();
@@ -53,7 +51,7 @@ public class GuiNPCFactionSelection extends GuiNPCInterface implements IScrollDa
 		}
 		this.factionId = this.data.get(this.slot.selected);
 		this.close();
-		NoppesUtil.openGUI((EntityPlayer) this.player, this.parent);
+		NoppesUtil.openGUI(this.player, this.parent);
 	}
 
 	@Override
@@ -70,7 +68,7 @@ public class GuiNPCFactionSelection extends GuiNPCInterface implements IScrollDa
 	@Override
 	public void initGui() {
 		super.initGui();
-		Vector<String> list = new Vector<String>();
+		Vector<String> list = new Vector<>();
 		(this.slot = new GuiNPCStringSlot(list, this, false, 18)).registerScrollButtons(4, 5);
 		this.addButton(new GuiNpcButton(2, this.width / 2 - 100, this.height - 41, 98, 20, "gui.back"));
 		this.addButton(new GuiNpcButton(4, this.width / 2 + 2, this.height - 41, 98, 20, "mco.template.button.select"));
@@ -78,7 +76,7 @@ public class GuiNPCFactionSelection extends GuiNPCInterface implements IScrollDa
 
 	@Override
 	public void initPacket() {
-		Client.sendData(EnumPacketServer.FactionsGet, new Object[0]);
+		Client.sendData(EnumPacketServer.FactionsGet);
 	}
 
 	@Override

@@ -38,6 +38,8 @@ import noppes.npcs.entity.data.TextBlock;
 import noppes.npcs.util.LayerModel;
 import noppes.npcs.util.ValueUtil;
 
+import javax.annotation.Nonnull;
+
 public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlockHandler {
 
 	public class TextPlane implements ITextPlane {
@@ -215,7 +217,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 	public float blockResistance;
 	public boolean enabled;
 	public boolean isLadder;
-	public boolean isPassible;
+	public boolean isPassable;
 	public ItemStack itemModel;
 	public int metaModel; // New
 	public long lastInited;
@@ -248,7 +250,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 	public ILayerModel[] layers;
 
 	public TileScripted() {
-		this.scripts = new ArrayList<ScriptContainer>();
+		this.scripts = new ArrayList<>();
 		this.scriptLanguage = "ECMAScript";
 		this.enabled = false;
 		this.blockDummy = null;
@@ -262,7 +264,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		this.activePowering = 0;
 		this.newPower = 0;
 		this.prevPower = 0;
-		this.isPassible = false;
+		this.isPassable = false;
 		this.isLadder = false;
 		this.lightValue = 0;
 		this.blockHardness = 5.0f;
@@ -300,7 +302,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 	}
 
 	public Map<Long, String> getConsoleText() {
-		Map<Long, String> map = new TreeMap<Long, String>();
+		Map<Long, String> map = new TreeMap<>();
 		int tab = 0;
 		for (ScriptContainer script : this.getScripts()) {
 			++tab;
@@ -311,17 +313,17 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		return map;
 	}
 
-	public NBTTagCompound getDisplayNBT(NBTTagCompound compound) {
-		NBTTagCompound itemcompound = new NBTTagCompound();
-		this.itemModel.writeToNBT(itemcompound);
+	public void writeDisplayNBT(NBTTagCompound compound) {
+		NBTTagCompound stackcompound = new NBTTagCompound();
+		this.itemModel.writeToNBT(stackcompound);
 		if (this.blockModel != null) {
 			ResourceLocation resourcelocation = Block.REGISTRY.getNameForObject(this.blockModel);
-			compound.setString("ScriptBlockModelBlock", (resourcelocation == null) ? "" : resourcelocation.toString());
+			compound.setString("ScriptBlockModelBlock", resourcelocation.toString());
 		}
-		compound.setTag("ScriptBlockModel", itemcompound);
+		compound.setTag("ScriptBlockModel", stackcompound);
 		compound.setInteger("LightValue", this.lightValue);
 		compound.setBoolean("IsLadder", this.isLadder);
-		compound.setBoolean("IsPassible", this.isPassible);
+		compound.setBoolean("IsPassable", this.isPassable);
 		compound.setInteger("RotationX", this.rotationX);
 		compound.setInteger("RotationY", this.rotationY);
 		compound.setInteger("RotationZ", this.rotationZ);
@@ -337,11 +339,10 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		// New
 		compound.setInteger("ModelMeta", this.metaModel);
 		NBTTagList l = new NBTTagList();
-		for (int i = 0; i < this.layers.length; i++) {
-			l.appendTag(this.layers[i].getNbt().getMCNBT());
-		}
+        for (ILayerModel layer : this.layers) {
+            l.appendTag(layer.getNbt().getMCNBT());
+        }
 		compound.setTag("Layers", l);
-		return compound;
 	}
 
 	public boolean getEnabled() {
@@ -365,7 +366,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 	}
 
 	@SideOnly(Side.CLIENT)
-	public AxisAlignedBB getRenderBoundingBox() {
+	public @Nonnull AxisAlignedBB getRenderBoundingBox() {
 		return Block.FULL_BLOCK_AABB.offset(this.getPos());
 	}
 
@@ -404,17 +405,17 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		return new SPacketUpdateTileEntity(this.pos, 0, this.getUpdateTag());
 	}
 
-	public NBTTagCompound getUpdateTag() {
+	public @Nonnull NBTTagCompound getUpdateTag() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("x", this.pos.getX());
 		compound.setInteger("y", this.pos.getY());
 		compound.setInteger("z", this.pos.getZ());
-		this.getDisplayNBT(compound);
+		this.writeDisplayNBT(compound);
 		this.getNBT(compound);
 		return compound;
 	}
 
-	public void handleUpdateTag(NBTTagCompound tag) {
+	public void handleUpdateTag(@Nonnull NBTTagCompound tag) {
 		int light = this.lightValue;
 		this.setDisplayNBT(tag);
 		this.setNBT(tag);
@@ -437,12 +438,12 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 				.add("y", pos.getY()).add("z", pos.getZ()).toString();
 	}
 
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+	public void onDataPacket(@Nonnull NetworkManager net, @Nonnull SPacketUpdateTileEntity pkt) {
 		this.handleUpdateTag(pkt.getNbtCompound());
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		this.setNBT(compound);
 		this.setDisplayNBT(compound);
@@ -481,7 +482,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		this.renderTileErrored = false;
 		this.lightValue = compound.getInteger("LightValue");
 		this.isLadder = compound.getBoolean("IsLadder");
-		this.isPassible = compound.getBoolean("IsPassible");
+		this.isPassable = compound.getBoolean("IsPassable");
 		this.rotationX = compound.getInteger("RotationX");
 		this.rotationY = compound.getInteger("RotationY");
 		this.rotationZ = compound.getInteger("RotationZ");
@@ -618,10 +619,11 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		}
 	}
 
+	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		this.getNBT(compound);
-		this.getDisplayNBT(compound);
+		this.writeDisplayNBT(compound);
 		this.timers.writeToNBT(compound);
 		return super.writeToNBT(compound);
 	}

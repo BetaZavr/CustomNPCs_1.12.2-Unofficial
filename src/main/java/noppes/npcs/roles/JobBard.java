@@ -57,7 +57,7 @@ public class JobBard extends JobInterface implements IJobBard {
 	}
 
 	public void onLivingUpdate() {
-		if (!this.npc.isRemote() || this.song.isEmpty()) {
+		if (this.npc.isServerWorld() || this.song.isEmpty()) {
 			return;
 		}
 		MusicController mData = MusicController.Instance;
@@ -101,7 +101,7 @@ public class JobBard extends JobInterface implements IJobBard {
 			if (!mData.music.isEmpty() && this.npc.equals(mData.musicBard)) {
 				mData.stopSound(mData.music, SoundCategory.MUSIC);
 			}
-		} else if (!this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard)) { // cheak main NPC
+		} else if (!this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard)) { // check main NPC
 			EntityPlayer player = CustomNpcs.proxy.getPlayer();
 			if (player == null) {
 				return;
@@ -136,8 +136,8 @@ public class JobBard extends JobInterface implements IJobBard {
 					}
 				}
 			}
-		} else if (this.hasOffRange && this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard)) { // cheak
-																												// Distance
+		} else if (this.hasOffRange && this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard)) { // check
+			// Distance
 			AxisAlignedBB aabb = this.npc.getEntityBoundingBox();
 			if (this.isRange) {
 				aabb = aabb.grow(this.range[1], this.range[1], this.range[1]);
@@ -167,7 +167,6 @@ public class JobBard extends JobInterface implements IJobBard {
 			this.isRange = compound.getBoolean("BardIsRange");
 			byte[] data = compound.getByteArray("BardRangeData");
 			if (data.length > 1) {
-				getIntInByte(data[0]);
 				this.range = new int[] { getIntInByte(data[0]), getIntInByte(data[1]) };
 			}
 			if (data.length > 4) {

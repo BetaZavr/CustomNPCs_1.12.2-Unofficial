@@ -2,6 +2,7 @@ package noppes.npcs.controllers.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -12,11 +13,14 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.controllers.QuestController;
+
+import javax.annotation.Nonnull;
 
 public class PlayerMail implements IInventory, IPlayerMail {
 
@@ -51,7 +55,7 @@ public class PlayerMail implements IInventory, IPlayerMail {
 		this.timeWhenReceived = System.currentTimeMillis();
 	}
 
-	public void closeInventory(EntityPlayer player) {
+	public void closeInventory(@Nonnull EntityPlayer player) {
 	}
 
 	public PlayerMail copy() {
@@ -60,7 +64,7 @@ public class PlayerMail implements IInventory, IPlayerMail {
 		return mail;
 	}
 
-	public ItemStack decrStackSize(int slot, int count) {
+	public @Nonnull ItemStack decrStackSize(int slot, int count) {
 		ItemStack itemstack = ItemStackHelper.getAndSplit(this.items, slot, count);
 		if (!itemstack.isEmpty()) {
 			this.markDirty();
@@ -69,11 +73,11 @@ public class PlayerMail implements IInventory, IPlayerMail {
 	}
 
 	public IContainer getContainer() {
-		return NpcAPI.Instance().getIContainer((IInventory) this);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIContainer(this);
 	}
 
-	public ITextComponent getDisplayName() {
-		return null;
+	public @Nonnull ITextComponent getDisplayName() {
+		return new TextComponentString(getName());
 	}
 
 	public int getField(int id) {
@@ -93,8 +97,8 @@ public class PlayerMail implements IInventory, IPlayerMail {
 		return this.money;
 	}
 
-	public String getName() {
-		return null;
+	public @Nonnull String getName() {
+		return "Mail Inventory";
 	}
 
 	public Quest getQuest() {
@@ -114,7 +118,7 @@ public class PlayerMail implements IInventory, IPlayerMail {
 		return this.items.size();
 	}
 
-	public ItemStack getStackInSlot(int slot) {
+	public @Nonnull ItemStack getStackInSlot(int slot) {
 		return this.items.get(slot);
 	}
 
@@ -123,12 +127,12 @@ public class PlayerMail implements IInventory, IPlayerMail {
 	}
 
 	public String[] getText() {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		NBTTagList pages = this.message.getTagList("pages", 8);
 		for (int i = 0; i < pages.tagCount(); ++i) {
 			list.add(pages.getStringTagAt(i));
 		}
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	public boolean hasCustomName() {
@@ -149,7 +153,7 @@ public class PlayerMail implements IInventory, IPlayerMail {
 		return true;
 	}
 
-	public boolean isItemValidForSlot(int slot, ItemStack item) {
+	public boolean isItemValidForSlot(int slot, @Nonnull ItemStack item) {
 		return true;
 	}
 
@@ -157,18 +161,18 @@ public class PlayerMail implements IInventory, IPlayerMail {
 		return this.returned;
 	}
 
-	public boolean isUsableByPlayer(EntityPlayer player) {
+	public boolean isUsableByPlayer(@Nonnull EntityPlayer player) {
 		return true;
 	}
 
 	public boolean isValid() {
-		return !this.title.isEmpty() && this.message.getKeySet().size() > 0 && !this.sender.isEmpty();
+		return !this.title.isEmpty() && !this.message.getKeySet().isEmpty() && !this.sender.isEmpty();
 	}
 
 	public void markDirty() {
 	}
 
-	public void openInventory(EntityPlayer player) {
+	public void openInventory(@Nonnull EntityPlayer player) {
 	}
 
 	public void readNBT(NBTTagCompound compound) {
@@ -185,10 +189,10 @@ public class PlayerMail implements IInventory, IPlayerMail {
 		this.items.clear();
 		NBTTagList nbttaglist = compound.getTagList("MailItems", 10);
 		for (int i = 0; i < nbttaglist.tagCount(); ++i) {
-			NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
-			int j = nbttagcompound1.getByte("Slot") & 0xFF;
-			if (j >= 0 && j < this.items.size()) {
-				this.items.set(j, new ItemStack(nbttagcompound1));
+			NBTTagCompound nbt = nbttaglist.getCompoundTagAt(i);
+			int j = nbt.getByte("Slot") & 0xFF;
+			if (j < this.items.size()) {
+				this.items.set(j, new ItemStack(nbt));
 			}
 		}
 		// New
@@ -196,14 +200,14 @@ public class PlayerMail implements IInventory, IPlayerMail {
 		this.ransom = compound.getInteger("Ransom");
 	}
 
-	public ItemStack removeStackFromSlot(int slot) {
+	public @Nonnull ItemStack removeStackFromSlot(int slot) {
 		return this.items.set(slot, ItemStack.EMPTY);
 	}
 
 	public void setField(int id, int value) {
 	}
 
-	public void setInventorySlotContents(int index, ItemStack stack) {
+	public void setInventorySlotContents(int index, @Nonnull ItemStack stack) {
 		this.items.set(index, stack);
 		if (stack.getCount() > this.getInventoryStackLimit()) {
 			stack.setCount(this.getInventoryStackLimit());
@@ -241,7 +245,7 @@ public class PlayerMail implements IInventory, IPlayerMail {
 
 	public void setText(String[] pages) {
 		NBTTagList list = new NBTTagList();
-		if (pages != null && pages.length > 0) {
+		if (pages != null) {
 			for (String page : pages) {
 				list.appendTag(new NBTTagString(page));
 			}
@@ -267,10 +271,10 @@ public class PlayerMail implements IInventory, IPlayerMail {
 		NBTTagList nbttaglist = new NBTTagList();
 		for (int i = 0; i < this.items.size(); ++i) {
 			if (!(this.items.get(i)).isEmpty()) {
-				NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-				nbttagcompound1.setByte("Slot", (byte) i);
-				(this.items.get(i)).writeToNBT(nbttagcompound1);
-				nbttaglist.appendTag(nbttagcompound1);
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setByte("Slot", (byte) i);
+				(this.items.get(i)).writeToNBT(nbt);
+				nbttaglist.appendTag(nbt);
 			}
 		}
 		compound.setTag("MailItems", nbttaglist);

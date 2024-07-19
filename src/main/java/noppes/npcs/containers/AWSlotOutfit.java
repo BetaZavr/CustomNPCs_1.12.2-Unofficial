@@ -7,6 +7,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 public class AWSlotOutfit extends Slot {
 
 	public AWSlotOutfit(IInventory inventoryIn, int index, int xPosition, int yPosition) {
@@ -17,7 +19,7 @@ public class AWSlotOutfit extends Slot {
 		return 1;
 	}
 
-	public boolean isItemValid(ItemStack itemstack) {
+	public boolean isItemValid(@Nonnull ItemStack itemstack) {
 		if (ArmourersWorkshopClientApi.getSkinRenderHandler() == null) {
 			return false;
 		}

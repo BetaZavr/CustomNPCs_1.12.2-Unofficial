@@ -11,12 +11,12 @@ import noppes.npcs.controllers.data.PlayerScriptData;
 
 public class GuiScriptPlayers extends GuiScriptInterface implements ISubGuiListener {
 
-	private PlayerScriptData script;
+	private final PlayerScriptData script;
 
 	public GuiScriptPlayers() {
 		this.script = new PlayerScriptData(null);
 		this.handler = this.script;
-		Client.sendData(EnumPacketServer.ScriptPlayerGet, new Object[0]);
+		Client.sendData(EnumPacketServer.ScriptPlayerGet);
 	}
 
 	@Override
@@ -36,12 +36,11 @@ public class GuiScriptPlayers extends GuiScriptInterface implements ISubGuiListe
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			this.script.writeToNBT(nbt);
-			String p = new String(this.path);
-			while (p.indexOf("\\") != -1) {
+			String p = this.path;
+			while (p.contains("\\")) {
 				p = p.replace("\\", "/");
 			}
-			nbt.setString("Name",
-					((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
+			nbt.setString("Name", subgui.getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", p + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", this.activeTab - 1);
 			nbt.setByte("Type", (byte) 2);

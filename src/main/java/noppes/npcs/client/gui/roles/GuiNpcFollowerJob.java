@@ -18,10 +18,9 @@ import noppes.npcs.roles.JobFollower;
 
 public class GuiNpcFollowerJob extends GuiNPCInterface2 implements ICustomScrollListener {
 
-	private JobFollower job;
-	private GuiCustomScroll scroll;
+	private final JobFollower job;
 
-	public GuiNpcFollowerJob(EntityNPCInterface npc) {
+    public GuiNpcFollowerJob(EntityNPCInterface npc) {
 		super(npc);
 		this.job = (JobFollower) npc.advanced.jobInterface;
 	}
@@ -30,15 +29,14 @@ public class GuiNpcFollowerJob extends GuiNPCInterface2 implements ICustomScroll
 	public void initGui() {
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(1, "gui.name", this.guiLeft + 6, this.guiTop + 110));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 50, this.guiTop + 105, 200, 20,
-				this.job.name));
-		(this.scroll = new GuiCustomScroll(this, 0)).setSize(143, 208);
-		this.scroll.guiLeft = this.guiLeft + 268;
-		this.scroll.guiTop = this.guiTop + 4;
-		this.addScroll(this.scroll);
-		List<String> names = new ArrayList<String>();
-		List<EntityNPCInterface> list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
-				this.npc.getEntityBoundingBox().grow(40.0, 40.0, 40.0));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 50, this.guiTop + 105, 200, 20, this.job.name));
+        GuiCustomScroll scroll;
+        (scroll = new GuiCustomScroll(this, 0)).setSize(143, 208);
+		scroll.guiLeft = this.guiLeft + 268;
+		scroll.guiTop = this.guiTop + 4;
+		this.addScroll(scroll);
+		List<String> names = new ArrayList<>();
+		List<EntityNPCInterface> list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class, this.npc.getEntityBoundingBox().grow(40.0, 40.0, 40.0));
 		for (EntityNPCInterface npc : list) {
 			if (npc != this.npc) {
 				if (names.contains(npc.display.getName())) {
@@ -47,7 +45,7 @@ public class GuiNpcFollowerJob extends GuiNPCInterface2 implements ICustomScroll
 				names.add(npc.display.getName());
 			}
 		}
-		this.scroll.setList(names);
+		scroll.setList(names);
 	}
 
 	@Override

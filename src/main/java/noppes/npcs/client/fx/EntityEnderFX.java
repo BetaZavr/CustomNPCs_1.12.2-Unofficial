@@ -11,13 +11,16 @@ import noppes.npcs.ModelPartData;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.entity.EntityCustomNpc;
 
+import javax.annotation.Nonnull;
+
 public class EntityEnderFX extends ParticlePortal {
-	private static ResourceLocation resource = new ResourceLocation("textures/particle/particles.png");
-	private ResourceLocation location;
+
+	private static final ResourceLocation resource = new ResourceLocation("textures/particle/particles.png");
+	private final ResourceLocation location;
 	private boolean move;
-	private EntityCustomNpc npc;
-	private int particleNumber;
-	private float portalParticleScale;
+	private final EntityCustomNpc npc;
+	private final int particleNumber;
+	private final float portalParticleScale;
 	private float startX;
 	private float startY;
 	private float startZ;
@@ -50,12 +53,7 @@ public class EntityEnderFX extends ParticlePortal {
 		}
 	}
 
-	public int getFXLayer() {
-		return 0;
-	}
-
-	public void renderParticle(BufferBuilder renderer, Entity entity, float partialTicks, float par3, float par4,
-			float par5, float par6, float par7) {
+    public void renderParticle(@Nonnull BufferBuilder renderer, @Nonnull Entity entity, float partialTicks, float par3, float par4, float par5, float par6, float par7) {
 		if (this.move) {
 			this.startX = (float) (this.npc.prevPosX + (this.npc.posX - this.npc.prevPosX) * partialTicks);
 			this.startY = (float) (this.npc.prevPosY + (this.npc.posY - this.npc.prevPosY) * partialTicks);

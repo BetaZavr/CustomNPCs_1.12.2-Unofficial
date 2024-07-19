@@ -19,7 +19,7 @@ public class GuiNPCManageMail extends GuiNPCInterface2 implements IGuiData, ITex
 
 	public GuiNPCManageMail(EntityNPCInterface npc) {
 		super(npc);
-		Client.sendData(EnumPacketServer.PlayerMailsGet, new Object[0]);
+		Client.sendData(EnumPacketServer.PlayerMailsGet);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class GuiNPCManageMail extends GuiNPCInterface2 implements IGuiData, ITex
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.rec", x0, (y += 24) + 5));
 		int[] vd = CustomNpcs.MailTimeWhenLettersWillBeReceived;
 		if (vd[0] > vd[1]) {
-			int m = new Integer(vd[0]);
+			int m = vd[0];
 			vd[0] = vd[1];
 			vd[1] = m;
 		}
@@ -115,13 +115,13 @@ public class GuiNPCManageMail extends GuiNPCInterface2 implements IGuiData, ITex
 		this.getTextField(3).setMinMaxDefault(0, 100, CustomNpcs.MailCostSendingLetter[3]);
 
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.cost.4", x2, y + 5));
-		this.addLabel(new GuiNpcLabel(lID++, "%", x3 + 65, y + 5));
+		this.addLabel(new GuiNpcLabel(lID, "%", x3 + 65, y + 5));
 		this.addTextField(new GuiNpcTextField(7, this, x3, y, 60, 20, "" + CustomNpcs.MailCostSendingLetter[4]));
 		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(0, 100, CustomNpcs.MailCostSendingLetter[4]);
 
 		this.addButton(
-				new GuiNpcCheckBox(0, x0, (y += 24), 200, 14, "mail.send.yourself", CustomNpcs.MailSendToYourself));
+				new GuiNpcCheckBox(0, x0, y + 24, 200, 14, "mail.send.yourself", CustomNpcs.MailSendToYourself));
 	}
 
 	@Override
@@ -146,13 +146,9 @@ public class GuiNPCManageMail extends GuiNPCInterface2 implements IGuiData, ITex
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		int[] vs = compound.getIntArray("LettersBeReceived");
-		for (int i = 0; i < vs.length; i++) {
-			CustomNpcs.MailTimeWhenLettersWillBeReceived[i] = vs[i];
-		}
+        System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
 		vs = compound.getIntArray("CostSendingLetter");
-		for (int i = 0; i < vs.length; i++) {
-			CustomNpcs.MailCostSendingLetter[i] = vs[i];
-		}
+        System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
 		this.initGui();
 	}
 
@@ -178,7 +174,7 @@ public class GuiNPCManageMail extends GuiNPCInterface2 implements IGuiData, ITex
 			GuiNpcTextField textField2 = this.getTextField(2);
 			int[] vd = new int[] { textField.getInteger(), textField2.getInteger() };
 			if (vd[0] > vd[1]) {
-				int m = new Integer(vd[0]);
+				int m = vd[0];
 				vd[0] = vd[1];
 				vd[1] = m;
 			}
@@ -195,7 +191,7 @@ public class GuiNPCManageMail extends GuiNPCInterface2 implements IGuiData, ITex
 			GuiNpcTextField textField1 = this.getTextField(1);
 			int[] vd = new int[] { textField1.getInteger(), textField.getInteger() };
 			if (vd[0] > vd[1]) {
-				int m = new Integer(vd[0]);
+				int m = vd[0];
 				vd[0] = vd[1];
 				vd[1] = m;
 			}

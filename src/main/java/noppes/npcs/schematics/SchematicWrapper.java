@@ -39,7 +39,6 @@ import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemPlacer;
 import noppes.npcs.util.BuilderData;
@@ -48,7 +47,7 @@ public class SchematicWrapper {
 
 	public static Entity rotatePos(Entity entity, int rotation, BlockPos pos, BlockPos offset) {
 		if (entity == null) {
-			return entity;
+			return null;
 		}
 		double x, y, z;
 		if (entity instanceof EntityHanging) {
@@ -58,28 +57,26 @@ public class SchematicWrapper {
 			z = eh.posZ;
 			eh.rotationYaw = (eh.rotationYaw + (float) rotation * 90.0f) % 360.0f;
 			switch (rotation) {
-			case 1:
-				x += offset.getX() * -1.0d;
-				z += -1.0d - offset.getZ();
-				break;
-			case 2:
-				x += offset.getX() * -1.0d;
-				z += -1.0d - offset.getZ();
-				break;
-			case 3:
-				x += 1.0d + offset.getX() * -1.0d;
-				z += -1.0d - offset.getZ();
-				break;
-			default:
-				x -= offset.getX();
-				z -= offset.getZ();
-				break;
+				case 1:
+                case 2:
+					x += offset.getX() * -1.0d;
+					z += -1.0d - offset.getZ();
+					break;
+                case 3:
+					x += 1.0d + offset.getX() * -1.0d;
+					z += -1.0d - offset.getZ();
+					break;
+				default:
+					x -= offset.getX();
+					z -= offset.getZ();
+					break;
 			}
 			x += pos.getX();
 			y += pos.getY();
 			z += pos.getZ();
 			for (int i = 0; i < rotation; i++) {
-				eh.facingDirection = eh.facingDirection.rotateY();
+                assert eh.facingDirection != null;
+                eh.facingDirection = eh.facingDirection.rotateY();
 			}
 			entity.setPosition(x, y, z);
 			return entity;
@@ -144,12 +141,12 @@ public class SchematicWrapper {
 					break;
 				}
 			}
-			return state.getBlock().getDefaultState().withProperty(BlockVine.SOUTH, Boolean.valueOf((d & 1) > 0))
-					.withProperty(BlockVine.WEST, Boolean.valueOf((d & 2) > 0))
-					.withProperty(BlockVine.NORTH, Boolean.valueOf((d & 4) > 0))
-					.withProperty(BlockVine.EAST, Boolean.valueOf((d & 8) > 0));
+			return state.getBlock().getDefaultState().withProperty(BlockVine.SOUTH, (d & 1) > 0)
+					.withProperty(BlockVine.WEST, (d & 2) > 0)
+					.withProperty(BlockVine.NORTH, (d & 4) > 0)
+					.withProperty(BlockVine.EAST, (d & 8) > 0);
 		}
-		Set<IProperty<?>> set = (Set<IProperty<?>>) state.getProperties().keySet();
+		Set<IProperty<?>> set = state.getProperties().keySet();
 		for (@SuppressWarnings("rawtypes")
 		IProperty prop : set) {
 			if (prop.getValueClass() == EnumAxis.class) {
@@ -243,7 +240,7 @@ public class SchematicWrapper {
 				return state.withProperty(prop, d);
 			}
 			if (prop.getValueClass() == Integer.class) {
-				Integer d = (Integer) state.getValue(prop);
+				int d = (Integer) state.getValue(prop);
 				if (state.getBlock() instanceof BlockBannerStanding || state.getBlock() instanceof BlockStandingSign) {
 					d %= 16;
 					for (int i = 0; i < rotation; ++i) {
@@ -270,9 +267,9 @@ public class SchematicWrapper {
 	public ICommandSender sender;
 	private BuilderData builder;
 
-	private List<SchematicBlockData> listB = Lists.<SchematicBlockData>newArrayList();
+	private List<SchematicBlockData> listB = Lists.newArrayList();
 
-	private List<Entity> listE = Lists.<Entity>newArrayList();
+	private List<Entity> listE = Lists.newArrayList();
 
 	public SchematicWrapper(ISchematic schematic) {
 		this.start = BlockPos.ORIGIN;
@@ -282,7 +279,7 @@ public class SchematicWrapper {
 		this.isBlock = true;
 		this.schema = schematic;
 		this.size = schematic.getWidth() * schematic.getHeight() * schematic.getLength();
-		this.tileEntities = Maps.<String, NBTTagCompound>newHashMap();
+		this.tileEntities = Maps.newHashMap();
 		this.sender = null;
 		this.builder = null;
 		for (int i = 0; i < schematic.getTileEntitySize(); ++i) {
@@ -303,14 +300,13 @@ public class SchematicWrapper {
 		// blocks first and next types
 		if (this.layer < 2) {
 			if (this.layer == 0 && this.builder != null) { // remove Entity
-				this.listB = Lists.<SchematicBlockData>newArrayList();
-				this.listE = Lists.<Entity>newArrayList();
+				this.listB = Lists.newArrayList();
+				this.listE = Lists.newArrayList();
 				BlockPos ps = this.start;
 				BlockPos pe = this.start.add(this.rotation % 2 == 0 ? this.schema.getWidth() : this.schema.getLength(), this.schema.getHeight(), this.rotation % 2 == 0 ? this.schema.getLength() : this.schema.getWidth());
 				for (Entity e : this.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(ps.getX() - 0.5d,
 						ps.getY() - 0.5d, ps.getZ() - 0.5d, pe.getX() + 0.5d, pe.getY() + 0.5d, pe.getZ() + 0.5d))) {
-					if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow
-							|| e instanceof EntityPlayer) {
+					if (e instanceof EntityThrowable || e instanceof EntityArrow || e instanceof EntityPlayer) {
 						continue;
 					}
 					this.listE.add(e);
@@ -346,7 +342,7 @@ public class SchematicWrapper {
 				}
 				this.layer = 2;
 				SchematicController.time = this.time
-						/ (this.schema.getHeight() * this.schema.getLength() * this.schema.getWidth());
+						/ ((long) this.schema.getHeight() * this.schema.getLength() * this.schema.getWidth());
 				this.time = 0L;
 				break;
 			}
@@ -408,9 +404,6 @@ public class SchematicWrapper {
 		this.time = 0L;
 	}
 
-	public void load(Schematic s) {
-	}
-
 	/**
 	 * place block in world
 	 * 
@@ -434,7 +427,7 @@ public class SchematicWrapper {
 				return null;
 			} // not place air
 			if (sbd.state != null) {
-				if (!this.builder.replaseAir && sbd.state.getBlock() != Blocks.AIR && sbd.state.getBlock().canSpawnInBlock()) {
+				if (!this.builder.replaceAir && sbd.state.getBlock() != Blocks.AIR && sbd.state.getBlock().canSpawnInBlock()) {
 					return null;
 				} // not place solid
 				@SuppressWarnings("deprecation")

@@ -23,13 +23,14 @@ import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.IDamageSource;
 import noppes.npcs.api.IEntityDamageSource;
-import noppes.npcs.api.IMetods;
+import noppes.npcs.api.IMethods;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
@@ -77,7 +78,7 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	public static EventBus EVENT_BUS = new EventBus();
 	private static NpcAPI instance = null;
-	static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<Integer, WorldWrapper>(10);
+	static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<>(10);
 
 	public static void clearCache() {
 		WrapperNpcAPI.worldCache.clear();
@@ -93,7 +94,7 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	private void checkWorld() {
 		if (CustomNpcs.Server == null || CustomNpcs.Server.isServerStopped()) {
-			throw new CustomNPCsException("No world is loaded right now", new Object[0]);
+			throw new CustomNPCsException("No world is loaded right now");
 		}
 	}
 
@@ -143,7 +144,7 @@ public class WrapperNpcAPI extends NpcAPI {
 				list.add((IPlayer<?>) this.getIEntity(player));
 			}
 		}
-		return list.toArray(new IPlayer<?>[list.size()]);
+		return list.toArray(new IPlayer<?>[0]);
 	}
 
 	@Override
@@ -162,7 +163,7 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public IDimensionHandler getCustomDimention() {
+	public IDimensionHandler getCustomDimension() {
 		return DimensionHandler.getInstance();
 	}
 
@@ -195,8 +196,8 @@ public class WrapperNpcAPI extends NpcAPI {
 		}
 		try {
 			return BlockWrapper.createNew(world, pos, world.getBlockState(pos));
-		} catch (Exception e) {
 		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
 		return null;
 	}
 
@@ -261,8 +262,8 @@ public class WrapperNpcAPI extends NpcAPI {
 		if (player == null) {
 			try {
 				player = CustomNpcs.Server.getPlayerList().getPlayerByUUID(UUID.fromString(name));
-			} catch (Exception e) {
 			}
+			catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		if (player == null) {
 			for (EntityPlayerMP p : CustomNpcs.Server.getPlayerList().getPlayers()) {
@@ -292,7 +293,7 @@ public class WrapperNpcAPI extends NpcAPI {
 				return this.getIWorld(world);
 			}
 		}
-		throw new CustomNPCsException("Unknown dimension id: " + dimensionId, new Object[0]);
+		throw new CustomNPCsException("Unknown dimension id: " + dimensionId);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -325,7 +326,7 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public IMetods getMetods() {
+	public IMethods getMethods() {
 		return AdditionalMethods.instance;
 	}
 
@@ -348,7 +349,7 @@ public class WrapperNpcAPI extends NpcAPI {
 	@Override
 	public IRecipeHandler getRecipes() {
 		this.checkWorld();
-		return (IRecipeHandler) RecipeController.getInstance();
+		return RecipeController.getInstance();
 	}
 
 	@Override
@@ -369,10 +370,10 @@ public class WrapperNpcAPI extends NpcAPI {
 	@Override
 	public void registerPermissionNode(String permission, int defaultType) {
 		if (defaultType < 0 || defaultType > 2) {
-			throw new CustomNPCsException("Default type cant be smaller than 0 or larger than 2", new Object[0]);
+			throw new CustomNPCsException("Default type cant be smaller than 0 or larger than 2");
 		}
 		if (this.hasPermissionNode(permission)) {
-			throw new CustomNPCsException("Permission already exists", new Object[0]);
+			throw new CustomNPCsException("Permission already exists");
 		}
 		DefaultPermissionLevel level = DefaultPermissionLevel.values()[defaultType];
 		PermissionAPI.registerNode(permission, level, permission);
@@ -394,12 +395,12 @@ public class WrapperNpcAPI extends NpcAPI {
 	@Override
 	public INbt stringToNbt(String str) {
 		if (str == null || str.isEmpty()) {
-			throw new CustomNPCsException("Cant cast empty string to nbt", new Object[0]);
+			throw new CustomNPCsException("Cant cast empty string to nbt");
 		}
 		try {
 			return this.getINbt(NBTJsonUtil.Convert(str));
 		} catch (NBTJsonUtil.JsonException e) {
-			throw new CustomNPCsException(e, "Failed converting " + str, new Object[0]);
+			throw new CustomNPCsException(e, "Failed converting " + str);
 		}
 	}
 

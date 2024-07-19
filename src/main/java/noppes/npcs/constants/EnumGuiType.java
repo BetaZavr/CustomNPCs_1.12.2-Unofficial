@@ -65,7 +65,6 @@ public enum EnumGuiType
 	PlacerSetting,
 	SaverSetting,
 	RemoverSetting,
-	DimentionSetting,
-	CustomContainer;
-	
+	DimensionSetting,
+	CustomContainer
 }

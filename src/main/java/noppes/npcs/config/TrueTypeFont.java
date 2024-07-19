@@ -27,7 +27,8 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.util.LRUHashMap;
 
 public class TrueTypeFont {
-	class Glyph {
+
+	static class Glyph {
 		public boolean isColor = false;
 		GlyphType type;
 		int color;
@@ -44,19 +45,22 @@ public class TrueTypeFont {
 			this.c = c;
 		}
 	}
-	class GlyphCache {
+
+	static class GlyphCache {
 		public int width;
 		public int height;
 		List<Glyph> glyphs;
 
 		GlyphCache() {
-			this.glyphs = new ArrayList<Glyph>();
+			this.glyphs = new ArrayList<>();
 		}
 	}
+
 	enum GlyphType {
-		NORMAL, COLOR, RANDOM, BOLD, STRIKETHROUGH, UNDERLINE, ITALIC, RESET, OTHER;
+		NORMAL, COLOR, RANDOM, BOLD, STRIKETHROUGH, UNDERLINE, ITALIC, RESET, OTHER
 	}
-	class TextureCache {
+
+	static class TextureCache {
 		int x;
 		int y;
 		int textureId;
@@ -70,34 +74,28 @@ public class TrueTypeFont {
 			this.g = (Graphics2D) this.bufferedImage.getGraphics();
 		}
 	}
-	private static List<Font> allFonts;
+	private static final List<Font> allFonts;
 	static {
 		allFonts = Arrays.asList(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts());
 	}
-	private List<Font> usedFonts;
-	private LinkedHashMap<String, GlyphCache> textcache;
-	private Map<Character, Glyph> glyphcache;
-	private List<TextureCache> textures;
-
-	private Font font;
-
+	private final List<Font> usedFonts;
+	private final LinkedHashMap<String, GlyphCache> textcache;
+	private final Map<Character, Glyph> glyphcache;
+	private final List<TextureCache> textures;
+	private final Font font;
 	private int lineHeight;
-
-	private Graphics2D globalG;
-
+	private final Graphics2D globalG;
 	public float scale;
-
 	private char specialChar;
 
 	public TrueTypeFont(Font font, float scale) {
-		this.usedFonts = new ArrayList<Font>();
-		this.textcache = new LRUHashMap<String, GlyphCache>(100);
-		this.glyphcache = new HashMap<Character, Glyph>();
-		this.textures = new ArrayList<TextureCache>();
+		this.usedFonts = new ArrayList<>();
+		this.textcache = new LRUHashMap<>(100);
+		this.glyphcache = new HashMap<>();
+		this.textures = new ArrayList<>();
 		this.lineHeight = 1;
 		this.globalG = (Graphics2D) new BufferedImage(1, 1, 2).getGraphics();
-		this.scale = 1.0f;
-		this.specialChar = (char) 167;
+        this.specialChar = (char) 167;
 		this.font = font;
 		this.scale = scale;
 		this.globalG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -105,10 +103,10 @@ public class TrueTypeFont {
 	}
 
 	public TrueTypeFont(ResourceLocation resource, int fontSize, float scale) throws IOException, FontFormatException {
-		this.usedFonts = new ArrayList<Font>();
-		this.textcache = new LRUHashMap<String, GlyphCache>(100);
-		this.glyphcache = new HashMap<Character, Glyph>();
-		this.textures = new ArrayList<TextureCache>();
+		this.usedFonts = new ArrayList<>();
+		this.textcache = new LRUHashMap<>(100);
+		this.glyphcache = new HashMap<>();
+		this.textures = new ArrayList<>();
 		this.lineHeight = 1;
 		this.globalG = (Graphics2D) new BufferedImage(1, 1, 2).getGraphics();
 		this.scale = 1.0f;
@@ -117,7 +115,7 @@ public class TrueTypeFont {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		Font font = Font.createFont(0, stream);
 		ge.registerFont(font);
-		this.font = font.deriveFont(0, fontSize);
+		this.font = font.deriveFont(Font.PLAIN, fontSize);
 		this.scale = scale;
 		this.globalG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		this.lineHeight = this.globalG.getFontMetrics(font).getHeight();
@@ -164,10 +162,6 @@ public class TrueTypeFont {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	public void drawCentered(String text, float x, float y, int color) {
-		this.draw(text, x - this.width(text) / 2.0f, y, color);
-	}
-
 	public void drawTexturedModalRect(float x, float y, float textureX, float textureY, float width, float height) {
 		float f = 0.00390625f;
 		float f2 = 0.00390625f;
@@ -206,13 +200,13 @@ public class TrueTypeFont {
 				return f;
 			}
 		}
-		Font fa = new Font("Arial Unicode MS", 0, this.font.getSize());
+		Font fa = new Font("Arial Unicode MS", Font.PLAIN, this.font.getSize());
 		if (fa.canDisplay(c)) {
 			return fa;
 		}
 		for (Font f2 : TrueTypeFont.allFonts) {
 			if (f2.canDisplay(c)) {
-				this.usedFonts.add(f2 = f2.deriveFont(0, this.font.getSize()));
+				this.usedFonts.add(f2 = f2.deriveFont(Font.PLAIN, this.font.getSize()));
 				return f2;
 			}
 		}
@@ -263,7 +257,7 @@ public class TrueTypeFont {
 			}
 			Glyph g2 = this.getOrCreateGlyph(c);
 			cache.glyphs.add(g2);
-			if (c == '	' || c == (char) 9) { // Tabulation
+			if (c == '	') { // Tabulation
 				int nw = (int) (Math.ceil((double) cache.width / (double) tabStep) * (double) tabStep);
 				if (cache.width == nw) {
 					cache.width += tabStep;
@@ -284,7 +278,7 @@ public class TrueTypeFont {
 
 	private Glyph getOrCreateGlyph(char c) {
 		Glyph g = this.glyphcache.get(c);
-		if (g != null && c != '	' && c != (char) 9) {
+		if (g != null && c != '	') {
 			return g;
 		}
 		Font font = this.getFontForChar(c);
@@ -292,7 +286,7 @@ public class TrueTypeFont {
 		g = new Glyph(c);
 		g.width = Math.max(metrics.charWidth(c), 1);
 		g.height = Math.max(metrics.getHeight(), 1);
-		if (c == '	' || c == (char) 9) {
+		if (c == '	') {
 			g.width = metrics.charWidth((char) 32) * 6;
 		} // Tabulation
 		TextureCache cache = this.getCurrentTexture();

@@ -7,22 +7,24 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
+import javax.annotation.Nonnull;
+
 public class ModelNpcCrystal extends ModelBase {
-	private ModelRenderer field_41057_g;
-	private ModelRenderer field_41058_h;
-	private ModelRenderer field_41059_i;
+	private final ModelRenderer field_41057_g;
+	private final ModelRenderer field_41058_h;
+	private final ModelRenderer field_41059_i;
 	float ticks;
 
-	public ModelNpcCrystal(float par1) {
-		this.field_41058_h = new ModelRenderer((ModelBase) this, "glass");
+	public ModelNpcCrystal() {
+		this.field_41058_h = new ModelRenderer(this, "glass");
 		this.field_41058_h.setTextureOffset(0, 0).addBox(-4.0f, -4.0f, -4.0f, 8, 8, 8);
-		this.field_41057_g = new ModelRenderer((ModelBase) this, "cube");
+		this.field_41057_g = new ModelRenderer(this, "cube");
 		this.field_41057_g.setTextureOffset(32, 0).addBox(-4.0f, -4.0f, -4.0f, 8, 8, 8);
-		this.field_41059_i = new ModelRenderer((ModelBase) this, "base");
+		this.field_41059_i = new ModelRenderer(this, "base");
 		this.field_41059_i.setTextureOffset(0, 16).addBox(-6.0f, 16.0f, -6.0f, 12, 4, 12);
 	}
 
-	public void render(Entity par1Entity, float par2, float par3, float par4, float par5, float par6, float par7) {
+	public void render(@Nonnull Entity par1Entity, float par2, float par3, float par4, float par5, float par6, float par7) {
 		GlStateManager.pushMatrix();
 		GlStateManager.scale(2.0f, 2.0f, 2.0f);
 		GlStateManager.translate(0.0f, -0.5f, 0.0f);
@@ -48,7 +50,7 @@ public class ModelNpcCrystal extends ModelBase {
 		GlStateManager.popMatrix();
 	}
 
-	public void setLivingAnimations(EntityLivingBase par1EntityLiving, float f6, float f5, float par9) {
+	public void setLivingAnimations(@Nonnull EntityLivingBase entityLiving, float f6, float f5, float par9) {
 		this.ticks = par9;
 	}
 }

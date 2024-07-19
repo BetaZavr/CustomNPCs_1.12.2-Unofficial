@@ -1,12 +1,12 @@
 package noppes.npcs.ai.movement;
 
 import net.minecraft.command.CommandException;
-import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
@@ -17,7 +17,7 @@ public class EntityAIReturn extends EntityAIBase {
 	private double endPosX;
 	private double endPosY;
 	private double endPosZ;
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 	private double[] preAttackPos;
 	private int stuckCount;
 	private int stuckTicks;
@@ -69,8 +69,7 @@ public class EntityAIReturn extends EntityAIBase {
 			}
 			if (distance > 2) {
 				Vec3d start = new Vec3d(posX, posY, posZ);
-				Vec3d pos = RandomPositionGenerator.findRandomTargetBlockTowards((EntityCreature) this.npc, distance,
-						(distance / 2 > 7) ? 7 : (distance / 2), start);
+				Vec3d pos = RandomPositionGenerator.findRandomTargetBlockTowards(this.npc, distance, Math.min(distance / 2, 7), start);
 				if (pos != null) {
 					posX = pos.x;
 					posY = pos.y;
@@ -84,7 +83,7 @@ public class EntityAIReturn extends EntityAIBase {
 				AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 						this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
 			} catch (CommandException e) {
-				e.printStackTrace();
+				LogWriter.error("Error:", e);
 				this.npc.getNavigator().tryMoveToXYZ(posX, posY, posZ, 1.0);
 			}
 		} else {
@@ -186,7 +185,7 @@ public class EntityAIReturn extends EntityAIBase {
 					AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 							this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
 				} catch (CommandException e) {
-					e.printStackTrace();
+					LogWriter.error("Error:", e);
 					this.npc.setPosition(this.endPosX, this.endPosY, this.endPosZ);
 				}
 			} else {
@@ -206,7 +205,7 @@ public class EntityAIReturn extends EntityAIBase {
 						AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 								this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
 					} catch (CommandException e) {
-						e.printStackTrace();
+						LogWriter.error("Error:", e);
 						this.npc.setPosition(this.endPosX, this.endPosY, this.endPosZ);
 					}
 				} else {

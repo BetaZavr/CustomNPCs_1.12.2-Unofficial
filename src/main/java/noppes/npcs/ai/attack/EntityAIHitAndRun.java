@@ -9,6 +9,8 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.RayTraceVec;
 
+import java.util.Objects;
+
 public class EntityAIHitAndRun extends EntityAICustom {
 
 	private int[] runPos;
@@ -33,7 +35,7 @@ public class EntityAIHitAndRun extends EntityAICustom {
 				if (this.runPos == null) {
 					this.npc.getNavigator().clearPath();
 				} else {
-					PathPoint point = this.npc.getNavigator().getPath().getFinalPathPoint();
+					PathPoint point = Objects.requireNonNull(this.npc.getNavigator().getPath()).getFinalPathPoint();
 					if (point == null || point.x < this.runPos[0] - 2 && point.x > this.runPos[0] + 2
 							|| point.y < this.runPos[1] - 2 && point.y > this.runPos[1] + 2
 							|| point.z < this.runPos[2] - 2 && point.z > this.runPos[2] + 2) {
@@ -52,11 +54,10 @@ public class EntityAIHitAndRun extends EntityAICustom {
 
 		if (this.hasAttack) {
 			Path path = null;
-			RayTraceVec pos = null;
+			RayTraceVec pos;
 			this.runPos = null;
 			if (!this.isRanged || this.distance < this.tacticalRange) {
-				pos = AdditionalMethods.instance.getPosition(this.target.posX, this.target.posY, this.target.posZ,
-						this.target.rotationYaw + 180.0f, this.target.rotationPitch, this.tacticalRange);
+				pos = AdditionalMethods.instance.getPosition(this.target.posX, this.target.posY, this.target.posZ, this.target.rotationYaw + 180.0f, this.target.rotationPitch, this.tacticalRange);
 				path = this.npc.getNavigator().getPathToXYZ(pos.x, pos.y, pos.z);
 				if (path == null) {
 					Vec3d vec = RandomPositionGenerator.findRandomTarget(this.npc, this.tacticalRange, 2);
@@ -68,8 +69,7 @@ public class EntityAIHitAndRun extends EntityAICustom {
 			if (path == null) {
 				double dist = 0.0d;
 				int error = 0, attempts = 0;
-				while ((dist < this.tacticalRange || dist < (double) (this.isRanged ? this.range / 2.0d : this.range)
-						|| dist > this.npc.stats.aggroRange) && error < 3 && attempts < 8) {
+				while ((dist < this.tacticalRange || dist < (this.isRanged ? this.range / 2.0d : this.range) || dist > this.npc.stats.aggroRange) && error < 3 && attempts < 8) {
 					attempts++;
 					Vec3d vec = RandomPositionGenerator.findRandomTarget(this.npc, this.tacticalRange, 2);
 					if (vec == null) {
@@ -111,9 +111,9 @@ public class EntityAIHitAndRun extends EntityAICustom {
 					if (this.runPos == null) {
 						this.runPos = new int[] { point.x, point.y, point.z };
 					} else {
-						this.runPos[0] = (int) point.x;
-						this.runPos[1] = (int) point.y;
-						this.runPos[2] = (int) point.z;
+						this.runPos[0] = point.x;
+						this.runPos[1] = point.y;
+						this.runPos[2] = point.z;
 					}
 				}
 			}

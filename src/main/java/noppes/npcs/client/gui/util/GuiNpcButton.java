@@ -10,6 +10,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 
+import javax.annotation.Nonnull;
+
 public class GuiNpcButton
 extends GuiButton
 implements IComponentGui {
@@ -21,16 +23,14 @@ implements IComponentGui {
 	
 	protected String[] display;
 	private int displayValue;
-	public int id, mouseButtonId;
-	// New
-	public int layerColor = 0, txrX = 0, txrY = 0, txrW = 0, txrH = 0;
+	public int id;
+	public int layerColor, txrX = 0, txrY = 0, txrW = 0, txrH = 0;
 	public ResourceLocation texture = null;
 	public String lable = "";
 	public boolean dropShadow, hasDefBack, hasSound, isPressed;
 	public int textColor = CustomNpcs.MainColor.getRGB();
 
-	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY,
-			ResourceLocation texture) {
+	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
 		this.display = new String[] { "" };
 		this.displayValue = 0;
@@ -82,7 +82,7 @@ implements IComponentGui {
 	}
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.visible) {
 			return;
 		}
@@ -181,8 +181,8 @@ implements IComponentGui {
 			l = CustomNpcs.HoverColor.getRGB();
 		}
 		mc.fontRenderer.drawString(this.displayString,
-				this.x + (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2,
-				this.y + (this.height - 8) / 2, l, this.dropShadow);
+				this.x + (float) (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2,
+				this.y + (float) (this.height - 8) / 2, l, this.dropShadow);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
@@ -206,7 +206,7 @@ implements IComponentGui {
 		return this.width;
 	}
 
-	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+	public boolean mousePressed(@Nonnull Minecraft mc, int mouseX, int mouseY) {
 		boolean bo = super.mousePressed(mc, mouseX, mouseY);
 		if (bo && this.display != null && this.display.length != 0) {
 			this.displayValue = (this.displayValue + 1) % this.display.length;
@@ -215,7 +215,7 @@ implements IComponentGui {
 		return bo;
 	}
 
-	public void playPressSound(SoundHandler soundHandlerIn) {
+	public void playPressSound(@Nonnull SoundHandler soundHandlerIn) {
 		if (this.hasSound) {
 			super.playPressSound(soundHandlerIn);
 		}

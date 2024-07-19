@@ -8,16 +8,17 @@ import net.minecraft.util.math.BlockPos;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.model.blocks.ModelCarpentryBench;
 
+import javax.annotation.Nullable;
+
 public class BlockCarpentryBenchRenderer<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
-	private static ResourceLocation TEXTURE = new ResourceLocation(CustomNpcs.MODID,
-			"textures/models/carpentrybench.png");
-	private ModelCarpentryBench model;
+	private static final ResourceLocation TEXTURE = new ResourceLocation(CustomNpcs.MODID, "textures/models/carpentrybench.png");
+	private final ModelCarpentryBench model;
 
 	public BlockCarpentryBenchRenderer() {
 		this.model = new ModelCarpentryBench();
 	}
 
-	public void render(TileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+	public void render(@Nullable TileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		int rotation = 0;
 		if (te != null && te.getPos() != BlockPos.ORIGIN) {
 			rotation = te.getBlockMetadata() % 4;
@@ -30,7 +31,7 @@ public class BlockCarpentryBenchRenderer<T extends TileEntity> extends TileEntit
 		GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
 		GlStateManager.rotate((90 * rotation), 0.0f, 1.0f, 0.0f);
 		this.bindTexture(BlockCarpentryBenchRenderer.TEXTURE);
-		this.model.render(null, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f);
+		this.model.render(0.0625f);
 		GlStateManager.popMatrix();
 	}
 

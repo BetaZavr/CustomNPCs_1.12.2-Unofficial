@@ -3,6 +3,7 @@ package noppes.npcs.client.util.aw;
 import java.util.ArrayList;
 import java.util.Map;
 
+import noppes.npcs.LogWriter;
 import org.lwjgl.opengl.GL11;
 
 import moe.plushie.armourers_workshop.api.common.skin.data.ISkin;
@@ -60,54 +61,53 @@ public class CustomModelSkinLegs extends ModelBiped {
 				GL11.glPopMatrix();
 			}
 			boolean isAdvanced = false;
-			for (int i = 0; i < parts.size(); i++) {
-				ISkinPart part = parts.get(i);
-				GL11.glPushMatrix();
-				if (isChild) {
-					float f6 = 2.0F;
-					GL11.glScalef(1.0F / f6, 1.0F / f6, 1.0F / f6);
-					GL11.glTranslatef(0.0F, 24.0F * scale, 0.0F);
-				}
-				if (isSneak) {
-					GL11.glTranslatef(0.0F, 0.2F, 0.0F);
-					GL11.glTranslated(0, -3.0F * scale, 4.0F * scale);
-				}
+            for (ISkinPart part : parts) {
+                GL11.glPushMatrix();
+                if (isChild) {
+                    float f6 = 2.0F;
+                    GL11.glScalef(1.0F / f6, 1.0F / f6, 1.0F / f6);
+                    GL11.glTranslatef(0.0F, 24.0F * scale, 0.0F);
+                }
+                if (isSneak) {
+                    GL11.glTranslatef(0.0F, 0.2F, 0.0F);
+                    GL11.glTranslated(0, -3.0F * scale, 4.0F * scale);
+                }
 
-				if (part.getPartType().getRegistryName().equals("armourers:legs.leftLeg") && ba.get(EnumParts.LEG_LEFT)) {
-					GL11.glPushMatrix();
-					GlStateManager.translate(0.0f, -1.5f, 0.0f);
-					GlStateManager.scale(2.0f, 2.0f, 2.0f);
-					modelBiped.bipedLeftLeg.postRender(scale);
-					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
-					GL11.glPopMatrix();
-				} else if (part.getPartType().getRegistryName().equals("armourers:legs.rightLeg") && ba.get(EnumParts.LEG_RIGHT)) {
-					GL11.glPushMatrix();
-					GlStateManager.translate(0.0f, -1.5f, 0.0f);
-					GlStateManager.scale(2.0f, 2.0f, 2.0f);
-					modelBiped.bipedRightLeg.postRender(scale);
-					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
-					GL11.glPopMatrix();
-				} else if (part.getPartType().getRegistryName().equals("armourers:legs.skirt")) {
-					GL11.glPushMatrix();
-					GlStateManager.translate(0.0f, -1.5f, 0.0f);
-					GlStateManager.scale(2.0f, 2.0f, 2.0f);
-					modelBiped.bipedRightLeg.postRender(scale);
-					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
-					GL11.glPopMatrix();
-				} else if (part.getPartType().getPartName().equals("advanced_part")) {
-					isAdvanced = true;
-				}
-				GL11.glPopMatrix();
-			}
+                if (part.getPartType().getRegistryName().equals("armourers:legs.leftLeg") && ba.get(EnumParts.LEG_LEFT)) {
+                    GL11.glPushMatrix();
+                    GlStateManager.translate(0.0f, -1.5f, 0.0f);
+                    GlStateManager.scale(2.0f, 2.0f, 2.0f);
+                    modelBiped.bipedLeftLeg.postRender(scale);
+                    renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
+                    GL11.glPopMatrix();
+                } else if (part.getPartType().getRegistryName().equals("armourers:legs.rightLeg") && ba.get(EnumParts.LEG_RIGHT)) {
+                    GL11.glPushMatrix();
+                    GlStateManager.translate(0.0f, -1.5f, 0.0f);
+                    GlStateManager.scale(2.0f, 2.0f, 2.0f);
+                    modelBiped.bipedRightLeg.postRender(scale);
+                    renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
+                    GL11.glPopMatrix();
+                } else if (part.getPartType().getRegistryName().equals("armourers:legs.skirt")) {
+                    GL11.glPushMatrix();
+                    GlStateManager.translate(0.0f, -1.5f, 0.0f);
+                    GlStateManager.scale(2.0f, 2.0f, 2.0f);
+                    modelBiped.bipedRightLeg.postRender(scale);
+                    renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
+                    GL11.glPopMatrix();
+                } else if (part.getPartType().getPartName().equals("advanced_part")) {
+                    isAdvanced = true;
+                }
+                GL11.glPopMatrix();
+            }
 
 			if (isAdvanced) {
 
 				Object advancedData = awu.advancedData.newInstance();
 				int partCount = 4;
 				Object base = awu.advancedPart.newInstance(0, "base");
-				Object advParts1[] = new Object[partCount];
-				Object advParts2[] = new Object[partCount];
-				Object advParts3[] = new Object[partCount];
+				Object[] advParts1 = new Object[partCount];
+				Object[] advParts2 = new Object[partCount];
+				Object[] advParts3 = new Object[partCount];
 
 				for (int i = 0; i < partCount; i++) {
 					advParts1[i] = awu.advancedPart.newInstance(0, String.valueOf(i));
@@ -164,9 +164,7 @@ public class CustomModelSkinLegs extends ModelBiped {
 			}
 			GlStateManager.popAttrib();
 			GlStateManager.color(1F, 1F, 1F, 1F);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	private void renderAdvancedSkin(ISkin skin, Object renderData, EntityNPCInterface npc, Object advancedData,
@@ -174,18 +172,14 @@ public class CustomModelSkinLegs extends ModelBiped {
 		try {
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
 			awu.renderAdvancedSkin.invoke(awu.advancedPartRenderer, skin, renderData, npc, advancedData, base);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	private void renderPart(Object partRenderData) {
 		try {
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
 			awu.renderPart.invoke(awu.skinPartRenderer, partRenderData);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 }

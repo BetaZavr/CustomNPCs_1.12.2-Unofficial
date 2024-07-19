@@ -10,7 +10,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.roles.RoleCompanion;
 
+import javax.annotation.Nonnull;
+
 class SlotCompanionArmor extends Slot {
+
 	EntityEquipmentSlot armorType;
 	RoleCompanion role;
 
@@ -30,7 +33,7 @@ class SlotCompanionArmor extends Slot {
 		return ItemArmor.EMPTY_SLOT_NAMES[this.armorType.getIndex()];
 	}
 
-	public boolean isItemValid(ItemStack itemstack) {
+	public boolean isItemValid(@Nonnull ItemStack itemstack) {
 		if (itemstack.getItem() instanceof ItemArmor && this.role.canWearArmor(itemstack)) {
 			return ((ItemArmor) itemstack.getItem()).armorType == this.armorType;
 		}

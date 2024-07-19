@@ -7,20 +7,13 @@ import java.awt.image.RenderedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 
@@ -61,13 +54,13 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.client.resources.Locale;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.RecipeBookClient;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -82,7 +75,6 @@ import net.minecraft.stats.RecipeBook;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
@@ -186,7 +178,6 @@ import noppes.npcs.client.gui.script.GuiScriptGlobal;
 import noppes.npcs.client.gui.script.GuiScriptItem;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.model.ModelBipedAlt;
-import noppes.npcs.client.model.ModelClassicPlayer;
 import noppes.npcs.client.model.ModelNPCGolem;
 import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.client.model.ModelNpcCrystal;
@@ -276,7 +267,7 @@ public class ClientProxy extends CommonProxy {
 		public FontContainer(String fontType, int fontSize) {
 			this.textFont = null;
 			this.useCustomFont = true;
-			this.textFont = new TrueTypeFont(new Font(fontType, 0, fontSize), 1.0f);
+			this.textFont = new TrueTypeFont(new Font(fontType, java.awt.Font.PLAIN, fontSize), 1.0f);
 			this.useCustomFont = !fontType.equalsIgnoreCase("minecraft");
 			try {
 				if (!this.useCustomFont || fontType.isEmpty() || fontType.equalsIgnoreCase("default")) {
@@ -330,25 +321,22 @@ public class ClientProxy extends CommonProxy {
 			return Minecraft.getMinecraft().fontRenderer.getStringWidth(text);
 		}
 	}
-	public static KeyBinding frontButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 55); // w
-	public static KeyBinding leftButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 56); // a
-	public static KeyBinding backButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 57); // s
-	public static KeyBinding rightButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 58); // d
-	public static KeyBinding jumpButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 59); // space
+	public static KeyBinding frontButton = ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 55); // w
+	public static KeyBinding leftButton = ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 56); // a
+	public static KeyBinding backButton = ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 57); // s
+	public static KeyBinding rightButton = ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 58); // d
 
 	public static KeyBinding QuestLog = new KeyBinding("key.quest.log", 38, "key.categories.gameplay"), Scene1, Scene2, Scene3, SceneReset;
 	public static FontContainer Font;
 	public static PlayerData playerData = new PlayerData();
 
 	public static String recipeGroup, recipeName;
-	public static final Map<String, TempFile> loadFiles = Maps.<String, TempFile>newTreeMap();
-	public static Map<Integer, List<UUID>> notVisibleNPC = Maps.<Integer, List<UUID>>newHashMap();
-	public static final Map<CreativeTabs, List<RecipeList>> MOD_RECIPES_BY_TAB = Maps.<CreativeTabs, List<RecipeList>>newHashMap();
-
-	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.<String, Map<String, TreeMap<ResourceLocation, Long>>>newHashMap();
-
-	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.<Integer, KeyBinding>newHashMap();
-	public static IMinecraft mcWraper = null;
+	public static final Map<String, TempFile> loadFiles = Maps.newTreeMap();
+	public static Map<Integer, List<UUID>> notVisibleNPC = Maps.newHashMap();
+	public static final Map<CreativeTabs, List<RecipeList>> MOD_RECIPES_BY_TAB = Maps.newHashMap();
+	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.newHashMap();
+	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.newHashMap();
+	public static IMinecraft mcWrapper = null;
 
 	public static void bindTexture(ResourceLocation location) {
 		try {
@@ -357,13 +345,9 @@ public class ClientProxy extends CommonProxy {
 			}
 			TextureManager manager = Minecraft.getMinecraft().getTextureManager();
 			ITextureObject ob = manager.getTexture(location);
-			if (ob == null) {
-				ob = new SimpleTexture(location);
-				manager.loadTexture(location, ob);
-			}
-			GlStateManager.bindTexture(ob.getGlTextureId());
-		} catch (NullPointerException | ReportedException ex) {
+            GlStateManager.bindTexture(ob.getGlTextureId());
 		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public static void checkLocalization() {
@@ -374,18 +358,18 @@ public class ClientProxy extends CommonProxy {
 		LanguageManager languageManager = Minecraft.getMinecraft().getLanguageManager();
 		Locale locale = ObfuscationHelper.getValue(LanguageManager.class, languageManager, Locale.class);
 		LanguageMap localized = ObfuscationHelper.getValue(I18n.class, I18n.class, LanguageMap.class);
-		Map<String, String> properties = Maps.<String, String>newHashMap();
-		Map<String, String> languageList = Maps.<String, String>newHashMap();
+		Map<String, String> properties = Maps.newHashMap();
+		Map<String, String> languageList = Maps.newHashMap();
 		if (locale != null) {
 			properties = ObfuscationHelper.getValue(Locale.class, locale, Map.class);
 			if (properties == null) {
-				properties = Maps.<String, String>newHashMap();
+				properties = Maps.newHashMap();
 			}
 		}
 		if (localized != null) {
 			languageList = ObfuscationHelper.getValue(LanguageMap.class, localized, Map.class);
 			if (languageList == null) {
-				languageList = Maps.<String, String>newHashMap();
+				languageList = Maps.newHashMap();
 			}
 		}
 
@@ -403,8 +387,7 @@ public class ClientProxy extends CommonProxy {
 					languageList.put(loc[0], loc[1]);
 				}
 				reader.close();
-			} catch (IOException e) {
-			}
+			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
 		String currentLanguage = ObfuscationHelper.getValue(LanguageManager.class, languageManager, String.class);
 		if (ClientProxy.playerData != null && CustomNpcs.proxy.getPlayer() != null
@@ -428,8 +411,7 @@ public class ClientProxy extends CommonProxy {
 						languageList.put(loc[0], loc[1]);
 					}
 					reader.close();
-				} catch (IOException e) {
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 		}
 	}
@@ -454,7 +436,7 @@ public class ClientProxy extends CommonProxy {
 					continue;
 				}
 				int r0 = c >> 16 & 255, g0 = c >> 8 & 255, b0 = c & 255;
-				String a = Integer.toHexString((al + color.getAlpha()) > 255 ? 255 : (al + color.getAlpha()));
+				String a = Integer.toHexString(Math.min((al + color.getAlpha()), 255));
 				if (a.length() == 1) {
 					a = "0" + a;
 				}
@@ -485,8 +467,8 @@ public class ClientProxy extends CommonProxy {
 		}
 		int w0 = buffer_0.getWidth(), w1 = buffer_1.getWidth();
 		int h0 = buffer_0.getHeight(), h1 = buffer_1.getHeight();
-		int w = w0 >= w1 ? w0 : w1;
-		int h = h0 >= h1 ? h0 : h1;
+		int w = Math.max(w0, w1);
+		int h = Math.max(h0, h1);
 		float sw0 = (float) w0 / (float) w, sh0 = (float) h0 / (float) h;
 		float sw1 = (float) w1 / (float) w, sh1 = (float) h1 / (float) h;
 		BufferedImage total = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
@@ -505,7 +487,7 @@ public class ClientProxy extends CommonProxy {
 					} else {
 						int r0 = c0 >> 16 & 255, g0 = c0 >> 8 & 255, b0 = c0 & 255;
 						int r1 = c1 >> 16 & 255, g1 = c1 >> 8 & 255, b1 = c1 & 255;
-						String a = Integer.toHexString((a0 + a1) > 255 ? 255 : (a0 + a1));
+						String a = Integer.toHexString(Math.min((a0 + a1), 255));
 						if (a.length() == 1) {
 							a = "0" + a;
 						}
@@ -530,12 +512,9 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	private static ResourceLocation createPlayerSkin(ResourceLocation skin) {
-		/*LogWriter.debug("Check skin: " + skin + "; D: " + skin.getResourceDomain().equals(CustomNpcs.MODID)
-				+ "; isCombo: " + (skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/female_") != -1
-						|| skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/male_") != -1));*/
 		if (!skin.getResourceDomain().equals(CustomNpcs.MODID)
-				|| (skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/female_") == -1
-						&& skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/male_") == -1)) {
+				|| (!skin.getResourcePath().toLowerCase().contains("textures/entity/custom/female_")
+				&& !skin.getResourcePath().toLowerCase().contains("textures/entity/custom/male_"))) {
 			return skin;
 		}
 		String locSkin = String.format("%s/%s/%s", "assets", skin.getResourceDomain(), skin.getResourcePath());
@@ -554,8 +533,7 @@ public class ClientProxy extends CommonProxy {
 					TextureUtil.uploadTextureImageAllocate(texture.getGlTextureId(), skinImage, false, false);
 					mapTextureObjects.put(skin, texture);
 					ObfuscationHelper.setValue(TextureManager.class, re, mapTextureObjects, Map.class);
-				} catch (Exception e) {
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			return skin;
 		}
@@ -563,133 +541,150 @@ public class ClientProxy extends CommonProxy {
 		IResourceManager rm = Minecraft.getMinecraft().getResourceManager();
 		String[] path = skin.getResourcePath().replace(".png", "").split("_");
 		String gender = "male";
-		BufferedImage bodyImage = null, hairImage = null, faseImage = null, legsImage = null, jacketsImage = null,
-				shoesImage = null;
+		BufferedImage bodyImage = null, hairImage = null, faseImage = null, legsImage = null, jacketsImage = null,  shoesImage = null;
 		List<BufferedImage> listBuffers = Lists.newArrayList();
+		Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper.getValue(TextureManager.class, re, Map.class);
 		for (int i = 0; i < path.length; i++) {
+			int id = -1;
+			try {
+				id = Integer.parseInt(path[i]);
+			} catch (Exception e) { LogWriter.error("Error:", e); }
+
 			switch (i) {
-			case 0: {
-				if (path[i].toLowerCase().endsWith("female")) {
-					gender = "female";
+				case 0: {
+					if (path[i].toLowerCase().endsWith("female")) {
+						gender = "female";
+					}
+					break;
 				}
-				break;
-			}
-			case 1: { // body skin
-				ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID,
-						"textures/entity/custom/" + gender + "/torsos/" + path[i] + ".png");
-				re.bindTexture(loc);
-				if (re.getTexture(loc) == null) {
-					loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/torsos/0.png");
+				case 1: { // body skin
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/torsos/" + path[i] + ".png");
 					re.bindTexture(loc);
-				}
-				if (re.getTexture(loc) != null) {
+					if (!mapTextureObjects.containsKey(loc)) {
+						loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/torsos/0.png");
+						re.bindTexture(loc);
+					}
 					try {
 						bodyImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
-					} catch (Exception e) {
 					}
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					break;
 				}
-				break;
-			}
-			case 2: { // create body
-				try {
-					int c = Integer.parseInt(path[i]);
-					if (c != 0) {
-						bodyImage = colorTexture(bodyImage, new Color(c), false);
+				case 2: { // create body
+					try {
+						int c = Integer.parseInt(path[i]);
+						if (c != 0) {
+							bodyImage = colorTexture(bodyImage, new Color(c), false);
+						}
 					}
-				} catch (Exception e) {
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					break;
 				}
-				break;
-			}
-			case 3: { // hair skin
-				ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID,
-						"textures/entity/custom/" + gender + "/hairs/" + path[i] + ".png");
-				re.bindTexture(loc);
-				if (re.getTexture(loc) != null) {
+				case 3: { // hair skin
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/hairs/" + path[i] + ".png");
+					re.bindTexture(loc);
+					if (id > 0 && !mapTextureObjects.containsKey(loc)) {
+						loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/hairs/0.png");
+						re.bindTexture(loc);
+					}
 					try {
 						hairImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
-					} catch (Exception e) {
 					}
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					break;
 				}
-				break;
-			}
-			case 4: { // create hair
-				try {
-					int c = Integer.parseInt(path[i]);
-					if (c != 0) {
-						hairImage = colorTexture(hairImage, new Color(c), false);
+				case 4: { // create hair
+					try {
+						int c = Integer.parseInt(path[i]);
+						if (c != 0) {
+							hairImage = colorTexture(hairImage, new Color(c), false);
+						}
 					}
-				} catch (Exception e) {
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					break;
 				}
-				break;
-			}
-			case 5: { // fase
-				ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID,
-						"textures/entity/custom/" + gender + "/faces/" + path[i] + ".png");
-				re.bindTexture(loc);
-				if (re.getTexture(loc) != null) {
+				case 5: { // fase
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/faces/" + path[i] + ".png");
+					re.bindTexture(loc);
+					if (id > -1 && !mapTextureObjects.containsKey(loc)) {
+						loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/faces/0.png");
+						re.bindTexture(loc);
+					}
 					try {
 						faseImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
-					} catch (Exception e) {
 					}
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					break;
 				}
-				break;
-			}
-			case 6: { // create fase
-				try {
-					int c = Integer.parseInt(path[i]);
-					if (c != 0) {
-						faseImage = colorTexture(faseImage, new Color(c), true);
+				case 6: { // create fase
+					try {
+						int c = Integer.parseInt(path[i]);
+						if (c != 0) {
+							faseImage = colorTexture(faseImage, new Color(c), true);
+						}
 					}
-				} catch (Exception e) {
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					break;
 				}
-				break;
-			}
-			case 7: { // legs
-				ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID,
-						"textures/entity/custom/" + gender + "/legs/" + path[i] + ".png");
-				re.bindTexture(loc);
-				if (re.getTexture(loc) != null) {
+				case 7: { // legs
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/legs/" + path[i] + ".png");
+					re.bindTexture(loc);
+					if (id > 0 && !mapTextureObjects.containsKey(loc)) {
+						loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/legs/0.png");
+						re.bindTexture(loc);
+					}
 					try {
 						legsImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
-					} catch (Exception e) {
 					}
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					break;
 				}
-				break;
-			}
-			case 8: { // jacket
-				ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID,
-						"textures/entity/custom/" + gender + "/jackets/" + path[i] + ".png");
-				re.bindTexture(loc);
-				if (re.getTexture(loc) != null) {
+				case 8: { // jacket
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/jackets/" + path[i] + ".png");
+					re.bindTexture(loc);
+					if (id > 0 && !mapTextureObjects.containsKey(loc)) {
+						loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/jackets/0.png");
+						re.bindTexture(loc);
+					}
 					try {
 						jacketsImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
-					} catch (Exception e) {
 					}
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					break;
 				}
-				break;
-			}
-			case 9: { // shoes
-				ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID,
-						"textures/entity/custom/" + gender + "/shoes/" + path[i] + ".png");
-				re.bindTexture(loc);
-				if (re.getTexture(loc) != null) {
+				case 9: { // shoes
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/shoes/" + path[i] + ".png");
+					re.bindTexture(loc);
+					if (id > 0 && !mapTextureObjects.containsKey(loc)) {
+						loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/shoes/0.png");
+						re.bindTexture(loc);
+					}
 					try {
 						shoesImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
-					} catch (Exception e) {
 					}
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					break;
 				}
-				break;
-			}
-			default: {
-				break;
-			}
+				default: {
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/peculiarities/" + path[i] + ".png");
+					re.bindTexture(loc);
+					if (id > 0 && !mapTextureObjects.containsKey(loc)) {
+						loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/peculiarities/0.png");
+						re.bindTexture(loc);
+					}
+					try {
+						listBuffers.add(TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream()));
+					}
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					break;
+				}
 			}
 		}
 		// combine
 		BufferedImage skinImage = null;
 		try {
 			skinImage = combineTextures(bodyImage, TextureUtil.readBufferedImage(rm.getResource(
-					new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/torsos/-1.png"))
+							new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/" + gender + "/torsos/-1.png"))
 					.getInputStream()));
 			if (!listBuffers.isEmpty()) {
 				for (BufferedImage buffer : listBuffers) {
@@ -702,38 +697,21 @@ public class ClientProxy extends CommonProxy {
 			skinImage = combineTextures(skinImage, jacketsImage);
 			skinImage = combineTextures(skinImage, faseImage);
 			skinImage = combineTextures(skinImage, hairImage);
-		} catch (Exception e) {
 		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
 
 		try {
-			ImageIO.write(skinImage, "PNG", file);
-			re.bindTexture(skin);
-			LogWriter.debug("Create new player skin: " + file.getAbsolutePath());
-		} catch (Exception e) {
+			if (skinImage != null) {
+				ImageIO.write(skinImage, "PNG", file);
+				re.bindTexture(skin);
+				LogWriter.debug("Create new player skin: " + file.getAbsolutePath());
+			}
 		}
-
-		/*
-		 * if (rm instanceof SimpleReloadableResourceManager) { Map<String,
-		 * FallbackResourceManager> domainResourceManagers =
-		 * ObfuscationHelper.getValue(SimpleReloadableResourceManager.class,
-		 * (SimpleReloadableResourceManager) rm, Map.class); FallbackResourceManager
-		 * modf = domainResourceManagers.get(CustomNpcs.MODID); if (modf != null) {
-		 * List<IResourcePack> resourcePacks =
-		 * ObfuscationHelper.getValue(FallbackResourceManager.class, modf, List.class);
-		 * AbstractResourcePack pack = null; for (IResourcePack iPack: resourcePacks) {
-		 * if (iPack instanceof FMLFolderResourcePack) { pack = (AbstractResourcePack)
-		 * iPack; break; } } if (pack != null) { File resourcePackFile =
-		 * ObfuscationHelper.getValue(AbstractResourcePack.class, pack, File.class); try
-		 * { String locSkin = String.format("%s/%s/%s", "assets",
-		 * skin.getResourceDomain(), skin.getResourcePath()); ImageIO.write(skinImage,
-		 * "PNG", new File(resourcePackFile, locSkin)); } catch (Exception e) {
-		 * e.printStackTrace(); } } } }
-		 */
-
-		Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper.getValue(TextureManager.class, re,
-				Map.class);
+		catch (Exception e) { LogWriter.error("Error:", e); }
 		SimpleTexture texture = new SimpleTexture(skin);
-		TextureUtil.uploadTextureImageAllocate(texture.getGlTextureId(), skinImage, false, false);
+		if (skinImage != null) {
+			TextureUtil.uploadTextureImageAllocate(texture.getGlTextureId(), skinImage, false, false);
+		}
 		mapTextureObjects.put(skin, texture);
 		ObfuscationHelper.setValue(TextureManager.class, re, mapTextureObjects, Map.class);
 		return skin;
@@ -753,42 +731,33 @@ public class ClientProxy extends CommonProxy {
 		if (uuid == null || !pData.playerTextures.containsKey(uuid) || !pData.playerNames.containsKey(uuid)) {
 			return;
 		}
-		NetworkPlayerInfo npi = Minecraft.getMinecraft().getConnection().getPlayerInfo(uuid);
-		if (npi == null) {
-			return;
-		}
-		Map<MinecraftProfileTexture.Type, ResourceLocation> map = PlayerSkinController.getInstance().playerTextures
-				.get(uuid);
-		Map<Type, ResourceLocation> playerTextures = ObfuscationHelper.getValue(NetworkPlayerInfo.class, npi,
-				Map.class);
+		NetworkPlayerInfo npi = Objects.requireNonNull(Minecraft.getMinecraft().getConnection()).getPlayerInfo(uuid);
+        Map<MinecraftProfileTexture.Type, ResourceLocation> map = PlayerSkinController.getInstance().playerTextures .get(uuid);
+		Map<Type, ResourceLocation> playerTextures = ObfuscationHelper.getValue(NetworkPlayerInfo.class, npi, Map.class);
 		playerTextures.clear();
 		for (MinecraftProfileTexture.Type epst : map.keySet()) {
 			ResourceLocation loc = ClientProxy.createPlayerSkin(map.get(epst));
-			if (loc == null) {
-				continue;
-			}
-			LogWriter.debug("Set skin type: " + epst + " = \"" + loc + "\"");
+            LogWriter.debug("Set skin type: " + epst + " = \"" + loc + "\"");
 			switch (epst) {
-			case CAPE:
-				playerTextures.put(Type.CAPE, loc);
-				break;
-			case ELYTRA:
-				playerTextures.put(Type.ELYTRA, loc);
-				break;
-			default: {
-				playerTextures.put(Type.SKIN, loc);
-				TextureManager re = Minecraft.getMinecraft().renderEngine;
-				ResourceLocation locDynamic = new ResourceLocation("minecraft",
-						"dynamic/skin_" + pData.playerNames.get(uuid));
-				ResourceLocation locSkins = new ResourceLocation("minecraft", "skins/" + pData.playerNames.get(uuid));
-				ITextureObject texture = re.getTexture(loc);
-				Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper
-						.getValue(TextureManager.class, re, Map.class);
-				mapTextureObjects.put(locDynamic, texture);
-				mapTextureObjects.put(locSkins, texture);
-				ObfuscationHelper.setValue(TextureManager.class, re, mapTextureObjects, Map.class);
-				break;
-			}
+				case CAPE:
+					playerTextures.put(Type.CAPE, loc);
+					break;
+				case ELYTRA:
+					playerTextures.put(Type.ELYTRA, loc);
+					break;
+				default: {
+					playerTextures.put(Type.SKIN, loc);
+					TextureManager re = Minecraft.getMinecraft().renderEngine;
+					ResourceLocation locDynamic = new ResourceLocation("minecraft",
+							"dynamic/skin_" + pData.playerNames.get(uuid));
+					ResourceLocation locSkins = new ResourceLocation("minecraft", "skins/" + pData.playerNames.get(uuid));
+					ITextureObject texture = re.getTexture(loc);
+					Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper.getValue(TextureManager.class, re, Map.class);
+					mapTextureObjects.put(locDynamic, texture);
+					mapTextureObjects.put(locSkins, texture);
+					ObfuscationHelper.setValue(TextureManager.class, re, mapTextureObjects, Map.class);
+					break;
+				}
 			}
 		}
 		if (!playerTextures.containsKey(Type.SKIN)) {
@@ -798,25 +767,22 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	public static void sendSkin(UUID uuid) {
-		NetworkPlayerInfo npi = Minecraft.getMinecraft().getConnection().getPlayerInfo(uuid);
-		if (npi == null) {
-			return;
-		}
-		NBTTagCompound nbtPlayer = new NBTTagCompound();
+		NetworkPlayerInfo npi = Objects.requireNonNull(Minecraft.getMinecraft().getConnection()).getPlayerInfo(uuid);
+        NBTTagCompound nbtPlayer = new NBTTagCompound();
 		nbtPlayer.setUniqueId("UUID", uuid);
 		NBTTagList listTxrs = new NBTTagList();
 		for (Type t : Type.values()) {
 			ResourceLocation loc;
 			switch (t) {
-			case CAPE:
-				loc = npi.getLocationCape();
-				break;
-			case ELYTRA:
-				loc = npi.getLocationElytra();
-				break;
-			default:
-				loc = npi.getLocationSkin();
-				break; // SKIN
+				case CAPE:
+					loc = npi.getLocationCape();
+					break;
+				case ELYTRA:
+					loc = npi.getLocationElytra();
+					break;
+				default:
+					loc = npi.getLocationSkin();
+					break; // SKIN
 			}
 			if (loc == null) {
 				continue;
@@ -830,12 +796,11 @@ public class ClientProxy extends CommonProxy {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.PlayerSkinSet, nbtPlayer);
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public void checkBlockFiles(ICustomElement customblock) {
 		super.checkBlockFiles(customblock);
 		String name = customblock.getCustomName();
-		String fileName = ((Block) customblock).getRegistryName().getResourcePath();
+		String fileName = Objects.requireNonNull(((Block) customblock).getRegistryName()).getResourcePath();
 		String n = name.equals("blockexample") ? "Example Custom Block"
 				: name.equals("liquidexample") ? "Example Custom Fluid"
 				: name.equals("stairsexample") ? "Example Custom Stairs"
@@ -852,7 +817,7 @@ public class ClientProxy extends CommonProxy {
 		this.setLocalization("tile." + fileName + ".name", n);
 		if (customblock instanceof CustomChest) {
 			boolean type = ((CustomChest) customblock).isChest;
-			n = name.toLowerCase().indexOf("example") != -1 ? "example" : name;
+			n = name.toLowerCase().contains("example") ? "example" : name;
 			if (!n.isEmpty()) {
 				n = ("" + n.charAt(0)).toUpperCase() + n.substring(1);
 			}
@@ -871,384 +836,300 @@ public class ClientProxy extends CommonProxy {
 		File texturesDir = new File(CustomNpcs.Dir,
 				"assets/" + CustomNpcs.MODID + "/textures/" + (customblock instanceof CustomLiquid ? "fluids"
 						: customblock instanceof CustomBlockPortal ? "environment" : "blocks"));
-		if (!texturesDir.exists()) {
-			texturesDir.mkdirs();
+		if (!texturesDir.exists() && !texturesDir.mkdirs()) {
+			return;
 		}
 		File texture = new File(texturesDir, name.toLowerCase() + ".png");
-		IResource baseTexrure;
+		IResource baseTexture;
 		if (!texture.exists()) {
 			boolean has = false;
 			try {
 				if (customblock instanceof CustomBlock && ((CustomBlock) customblock).hasProperty()) {
 					if (((CustomBlock) customblock).BO != null) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-								new ResourceLocation("minecraft", "textures/blocks/glazed_terracotta_light_blue.png"));
-						if (baseTexrure != null) {
-							texture = new File(texturesDir, name.toLowerCase() + "_true.png");
-							if (!texture.exists()) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.25f, 0, 0, 0, 255), "png",
-										texture);
-								has = true;
-							}
-							texture = new File(texturesDir, name.toLowerCase() + "_false.png");
-							if (!texture.exists()) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.75f, 0, 0, 0, 255), "png",
-										texture);
-								has = true;
-							}
+						baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/glazed_terracotta_light_blue.png"));
+						texture = new File(texturesDir, name.toLowerCase() + "_true.png");
+						if (!texture.exists()) {
+							ImageIO.write(this.getBufferImageOffset(baseTexture, -1, 0.25f, 0, 0, 0, 255), "png", texture);
+							has = true;
+						}
+						texture = new File(texturesDir, name.toLowerCase() + "_false.png");
+						if (!texture.exists()) {
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.75f, 0, 0, 0, 255), "png",
+									texture);
+							has = true;
 						}
 					} else if (((CustomBlock) customblock).INT != null) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-								new ResourceLocation("minecraft", "textures/blocks/glazed_terracotta_light_blue.png"));
-						if (baseTexrure != null) {
-							NBTTagCompound data = ((CustomBlock) customblock).nbtData.getCompoundTag("Property");
-							for (int i = data.getInteger("Min"); i <= data.getInteger("Max"); i++) {
-								texture = new File(texturesDir, name.toLowerCase() + "_" + i + ".png");
-								if (!texture.exists()) {
-									ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.15f + (float) i / 100.0f,
-											0, 0, 0, 255), "png", texture);
-									has = true;
-								}
+						baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/glazed_terracotta_light_blue.png"));
+						NBTTagCompound data = ((CustomBlock) customblock).nbtData.getCompoundTag("Property");
+						for (int i = data.getInteger("Min"); i <= data.getInteger("Max"); i++) {
+							texture = new File(texturesDir, name.toLowerCase() + "_" + i + ".png");
+							if (!texture.exists()) {
+								ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.15f + (float) i / 100.0f,
+										0, 0, 0, 255), "png", texture);
+								has = true;
 							}
 						}
 					} else if (((CustomBlock) customblock).FACING != null) {
 						texture = new File(texturesDir, name.toLowerCase() + "_bottom.png");
 						if (!texture.exists()) {
-							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-									new ResourceLocation("minecraft", "textures/blocks/brewing_stand_base.png"));
-							if (baseTexrure != null) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png",
-										texture);
-							}
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/brewing_stand_base.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 20, 40, 255), "png", texture);
 						}
 						texture = new File(texturesDir, name.toLowerCase() + "_top.png");
 						if (!texture.exists()) {
-							baseTexrure = Minecraft.getMinecraft().getResourceManager()
-									.getResource(new ResourceLocation("minecraft", "textures/blocks/endframe_top.png"));
-							if (baseTexrure != null) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png",
-										texture);
-							}
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/endframe_top.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 20, 40, 255), "png", texture);
 						}
 						texture = new File(texturesDir, name.toLowerCase() + "_front.png");
 						if (!texture.exists()) {
-							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-									new ResourceLocation("minecraft", "textures/blocks/furnace_front_off.png"));
-							if (baseTexrure != null) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png",
-										texture);
-							}
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/furnace_front_off.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 20, 40, 255), "png", texture);
 						}
 						texture = new File(texturesDir, name.toLowerCase() + "_right.png");
 						if (!texture.exists()) {
-							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-									new ResourceLocation("minecraft", "textures/blocks/dispenser_front_vertical.png"));
-							if (baseTexrure != null) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png",
-										texture);
-							}
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/dispenser_front_vertical.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 20, 40, 255), "png", texture);
 						}
 						texture = new File(texturesDir, name.toLowerCase() + "_back.png");
 						if (!texture.exists()) {
-							baseTexrure = Minecraft.getMinecraft().getResourceManager()
-									.getResource(new ResourceLocation("minecraft", "textures/blocks/piston_side.png"));
-							if (baseTexrure != null) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png",
-										texture);
-							}
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/piston_side.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 20, 40, 255), "png", texture);
 						}
 						texture = new File(texturesDir, name.toLowerCase() + "_left.png");
 						if (!texture.exists()) {
-							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-									new ResourceLocation("minecraft", "textures/blocks/comparator_off.png"));
-							if (baseTexrure != null) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png",
-										texture);
-							}
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/comparator_off.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 20, 40, 255), "png", texture);
 						}
 						has = true;
 					}
 				} else if (customblock instanceof CustomLiquid) {
 					texture = new File(texturesDir, fileName.toLowerCase() + "_still.png.mcmeta");
 					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-								new ResourceLocation("minecraft", "textures/blocks/water_still.png.mcmeta"));
-						if (baseTexrure != null) {
-							Files.copy(baseTexrure.getInputStream(), texture.toPath());
-						}
+						baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_still.png.mcmeta"));
+						Files.copy(baseTexture.getInputStream(), texture.toPath());
 					}
 					texture = new File(texturesDir, fileName.toLowerCase() + "_flow.png");
 					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/blocks/water_flow.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 128), "png",
-									texture);
-							has = true;
-						}
+						baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_flow.png"));
+						ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 0, 0, 128), "png", texture);
+						has = true;
 					}
 					texture = new File(texturesDir, fileName.toLowerCase() + "_overlay.png");
 					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/blocks/water_overlay.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 128), "png",
-									texture);
-							has = true;
-						}
+						baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_overlay.png"));
+						ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 0, 0, 128), "png", texture);
+						has = true;
 					}
 					texture = new File(texturesDir, fileName.toLowerCase() + "_still.png");
 					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/blocks/water_still.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 128), "png",
-									texture);
-							has = true;
-						}
+						baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_still.png"));
+						ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 0, 0, 128), "png", texture);
+						has = true;
 					}
 					texture = new File(texturesDir, fileName.toLowerCase() + "_flow.png.mcmeta");
 					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-								new ResourceLocation("minecraft", "textures/blocks/water_flow.png.mcmeta"));
-						if (baseTexrure != null) {
-							Files.copy(baseTexrure.getInputStream(), texture.toPath());
-						}
+						baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_flow.png.mcmeta"));
+						Files.copy(baseTexture.getInputStream(), texture.toPath());
 					}
 					if (has) {
 						LogWriter.debug("Create Default Texture for \"" + name + "\" fluid");
 					}
 					return;
-				} else if (customblock instanceof CustomBlockSlab) {
-					texture = new File(texturesDir, fileName.toLowerCase() + "_top.png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_top.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 50, 80, 0, 255), "png",
-									texture);
+				} else {
+					File texture1 = new File(texturesDir, fileName.toLowerCase() + "_top.png");
+					File texture2 = new File(texturesDir, fileName.toLowerCase() + "_bottom.png");
+					File texture3 = new File(texturesDir, fileName.toLowerCase() + "_side.png");
+					if (customblock instanceof CustomBlockSlab) {
+						if (!texture1.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_top.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 50, 80, 0, 255), "png", texture1);
 							has = true;
 						}
-					}
-					texture = new File(texturesDir, fileName.toLowerCase() + "_bottom.png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_top.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 50, 80, 0, 255), "png",
-									texture);
+						if (!texture2.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_top.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 50, 80, 0, 255), "png", texture2);
 							has = true;
 						}
-					}
-					texture = new File(texturesDir, fileName.toLowerCase() + "_side.png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_side.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 50, 80, 0, 255), "png",
-									texture);
+						if (!texture3.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_side.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 50, 80, 0, 255), "png", texture3);
 							has = true;
 						}
-					}
-					if (has) {
-						LogWriter.debug("Create Default Texture for \"" + name + "\" block slab");
-					}
-					return;
-				} else if (customblock instanceof CustomBlockStairs) {
-					texture = new File(texturesDir, fileName.toLowerCase() + "_top.png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/blocks/structure_block.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 255), "png",
-									texture);
+						if (has) {
+							LogWriter.debug("Create Default Texture for \"" + name + "\" block slab");
+						}
+						return;
+					} else if (customblock instanceof CustomBlockStairs) {
+						texture = texture1;
+						if (!texture.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/structure_block.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 0, 0, 255), "png", texture);
 							has = true;
 						}
-					}
-					texture = new File(texturesDir, fileName.toLowerCase() + "_bottom.png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-								new ResourceLocation("minecraft", "textures/blocks/structure_block_save.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 255), "png",
-									texture);
+						texture = texture2;
+						if (!texture.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/structure_block_save.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 0, 0, 255), "png", texture);
 							has = true;
 						}
-					}
-					texture = new File(texturesDir, fileName.toLowerCase() + "_side.png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-								new ResourceLocation("minecraft", "textures/blocks/structure_block_data.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 255), "png",
-									texture);
+						texture = texture3;
+						if (!texture.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/structure_block_data.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.5f, 0, 0, 0, 255), "png", texture);
 							has = true;
 						}
-					}
-					if (has) {
-						LogWriter.debug("Create Default Texture for \"" + name + "\" block stairs");
-					}
-					return;
-				} else if (customblock instanceof CustomBlockPortal) {
-					texture = new File(texturesDir, fileName.toLowerCase() + "_portal.png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/entity/end_portal.png"));
-						if (baseTexrure != null) {
-							Files.copy(baseTexrure.getInputStream(), texture.toPath());
+						if (has) {
+							LogWriter.debug("Create Default Texture for \"" + name + "\" block stairs");
+						}
+						return;
+					} else if (customblock instanceof CustomBlockPortal) {
+						texture = new File(texturesDir, fileName.toLowerCase() + "_portal.png");
+						if (!texture.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/entity/end_portal.png"));
+							Files.copy(baseTexture.getInputStream(), texture.toPath());
 							has = true;
 						}
-					}
-					texture = new File(texturesDir, fileName.toLowerCase() + "_sky.png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/environment/end_sky.png"));
-						if (baseTexrure != null) {
-							Files.copy(baseTexrure.getInputStream(), texture.toPath());
+						texture = new File(texturesDir, fileName.toLowerCase() + "_sky.png");
+						if (!texture.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/environment/end_sky.png"));
+							Files.copy(baseTexture.getInputStream(), texture.toPath());
 							has = true;
 						}
-					}
-					if (has) {
-						LogWriter.debug("Create Default Texture for \"" + name + "\" block portal");
-					}
-					return;
-				} else if (customblock instanceof CustomDoor) {
-					texture = new File(texturesDir, fileName.toLowerCase() + "_lower.png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/blocks/door_wood_lower.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.15f, 0, 10, 0, 255), "png",
-									texture);
+						if (has) {
+							LogWriter.debug("Create Default Texture for \"" + name + "\" block portal");
+						}
+						return;
+					} else if (customblock instanceof CustomDoor) {
+						texture = new File(texturesDir, fileName.toLowerCase() + "_lower.png");
+						if (!texture.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/door_wood_lower.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.15f, 0, 10, 0, 255), "png", texture);
 							has = true;
 						}
-					}
-					texture = new File(texturesDir, fileName.toLowerCase() + "_upper.png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/blocks/door_wood_upper.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.15f, 0, 10, 0, 255), "png",
-									texture);
+						texture = new File(texturesDir, fileName.toLowerCase() + "_upper.png");
+						if (!texture.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/door_wood_upper.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.15f, 0, 10, 0, 255), "png", texture);
 							has = true;
 						}
-					}
-					File texturesItemDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/textures/items");
-					if (!texturesItemDir.exists()) {
-						texturesItemDir.mkdirs();
-					}
-					texture = new File(texturesItemDir, fileName.toLowerCase() + ".png");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft", "textures/items/door_wood.png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.15f, 0, 10, 0, 255), "png",
-									texture);
+						File texturesItemDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/textures/items");
+						if (!texturesItemDir.exists() && !texturesItemDir.mkdirs()) {
+							return;
+						}
+						texture = new File(texturesItemDir, fileName.toLowerCase() + ".png");
+						if (!texture.exists()) {
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/items/door_wood.png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.15f, 0, 10, 0, 255), "png", texture);
 							has = true;
 							LogWriter.debug("Create Default Texture for \"" + name + "\" item door");
 						}
-					}
-					if (has) {
-						LogWriter.debug("Create Default Texture for \"" + name + "\" block door");
-					}
-					return;
-				} else if (customblock instanceof CustomChest) {
-					boolean type = ((CustomChest) customblock).isChest;
-					if (!type) { // container
-						texture = new File(texturesDir, "custom_" + name.toLowerCase() + "_side.png");
-						if (!texture.exists()) {
-							baseTexrure = Minecraft.getMinecraft().getResourceManager()
-									.getResource(new ResourceLocation("minecraft", "textures/blocks/log_oak.png"));
-							if (baseTexrure != null) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.35f, 0, 0, 15, 255), "png",
-										texture);
+						if (has) {
+							LogWriter.debug("Create Default Texture for \"" + name + "\" block door");
+						}
+						return;
+					} else if (customblock instanceof CustomChest) {
+						boolean type = ((CustomChest) customblock).isChest;
+						if (!type) { // container
+							texture = new File(texturesDir, "custom_" + name.toLowerCase() + "_side.png");
+							if (!texture.exists()) {
+								baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/log_oak.png"));
+								ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.35f, 0, 0, 15, 255), "png", texture);
+								has = true;
+							}
+							texture = new File(texturesDir, "custom_" + name.toLowerCase() + "_top.png");
+							if (!texture.exists()) {
+								baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/piston_top_normal.png"));
+								ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.35f, 0, 0, 15, 255), "png", texture);
+								has = true;
+							}
+						} else { // chest
+							texturesDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/textures/entity/chest");
+							if (!texturesDir.exists() && !texturesDir.mkdirs()) {
+								return;
+							}
+							texture = new File(texturesDir, "custom_" + name.toLowerCase() + ".png");
+							if (!texture.exists()) {
+								baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/entity/chest/normal.png"));
+								ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.35f, 25, 0, 0, 255), "png", texture);
 								has = true;
 							}
 						}
-						texture = new File(texturesDir, "custom_" + name.toLowerCase() + "_top.png");
-						if (!texture.exists()) {
-							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-									new ResourceLocation("minecraft", "textures/blocks/piston_top_normal.png"));
-							if (baseTexrure != null) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.35f, 0, 0, 15, 255), "png",
-										texture);
-								has = true;
-							}
+						if (has) {
+							LogWriter.debug("Create Default Texture for \"" + name + "\" block " + (type ? "chest" : "container"));
 						}
-					} else { // chest
-						texturesDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/textures/entity/chest");
-						if (!texturesDir.exists()) {
-							texturesDir.mkdirs();
-						}
-						texture = new File(texturesDir, "custom_" + name.toLowerCase() + ".png");
-						if (!texture.exists()) {
-							baseTexrure = Minecraft.getMinecraft().getResourceManager()
-									.getResource(new ResourceLocation("minecraft", "textures/entity/chest/normal.png"));
-							if (baseTexrure != null) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.35f, 25, 0, 0, 255), "png",
-										texture);
-								has = true;
-							}
-						}
+						return;
 					}
-					if (has) {
-						LogWriter.debug(
-								"Create Default Texture for \"" + name + "\" block " + (type ? "chest" : "container"));
-					}
-					return;
 				}
 				if (!has) {
-					baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(
-							new ResourceLocation("minecraft", "textures/blocks/glazed_terracotta_light_blue.png"));
-					if (baseTexrure != null) {
-						ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.65f, 0, 25, 0, 255), "png", texture);
-						has = true;
-					}
+					baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/glazed_terracotta_light_blue.png"));
+					ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.65f, 0, 25, 0, 255), "png", texture);
+					has = true;
 				}
-			} catch (IOException e) {
 			}
+			catch (IOException e) { LogWriter.error("Error:", e); }
 			if (!has) {
 				try {
 					BufferedImage bufferedImage = new BufferedImage(16, 16, 6);
 					ImageIO.write(bufferedImage, "png", texture);
 					LogWriter.debug("Create Default Empty Texture for \"" + name + "\" block");
-				} catch (IOException e) {
 				}
+				catch (IOException e) { LogWriter.error("Error:", e); }
 			} else {
 				LogWriter.debug("Create Default Texture for \"" + name + "\" block");
 			}
 		}
 	}
 
-	@SuppressWarnings("resource")
 	public void checkItemFiles(ICustomElement customitem) {
 		super.checkItemFiles(customitem);
 		String name = customitem.getCustomName().toLowerCase();
-		String fileName = ((Item) customitem).getRegistryName().getResourcePath();
+		String fileName = Objects.requireNonNull(((Item) customitem).getRegistryName()).getResourcePath();
 		NBTTagCompound nbtData = customitem.getCustomNbt().getMCNBT();
 
 		String n = name;
-		if (name.equals("itemexample")) { n = "Example simple Custom Item"; }
-		else if (name.equals("weaponexample")) { n = "Example Custom Weapon"; }
-		else if (name.equals("toolexample")) { n = "Example Custom Tool"; }
-		else if (name.equals("axeexample")) { n = "Example Custom Axe"; }
-		else if (name.equals("armorexample")) {
-			String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
-			n = "Example Custom Armor " + ("" + slot.charAt(0)).toUpperCase() + slot.toLowerCase().substring(1);
+		switch (name) {
+			case "itemexample":
+				n = "Example simple Custom Item";
+				break;
+			case "weaponexample":
+				n = "Example Custom Weapon";
+				break;
+			case "toolexample":
+				n = "Example Custom Tool";
+				break;
+			case "axeexample":
+				n = "Example Custom Axe";
+				break;
+			case "armorexample": {
+				String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
+				n = "Example Custom Armor " + ("" + slot.charAt(0)).toUpperCase() + slot.toLowerCase().substring(1);
+				break;
+			}
+			case "armorobjexample": {
+				String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
+				n = "Example Custom 3D Armor " + ("" + slot.charAt(0)).toUpperCase() + slot.toLowerCase().substring(1);
+				break;
+			}
+			case "shieldexample":
+				n = "Example Custom Shield";
+				break;
+			case "bowexample":
+				n = "Example Custom Bow";
+				break;
+			case "foodexample":
+				n = "Example Custom Food";
+				break;
+			case "fishingrodexample":
+				n = "Example Custom Fishing Rod";
+				break;
 		}
-		else if (name.equals("armorobjexample")) {
-			String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
-			n = "Example Custom 3D Armor " + ("" + slot.charAt(0)).toUpperCase() + slot.toLowerCase().substring(1);
-		}
-		else if (name.equals("shieldexample")) { n = "Example Custom Shield"; }
-		else if (name.equals("bowexample")) { n = "Example Custom Bow"; }
-		else if (name.equals("foodexample")) { n = "Example Custom Food"; }
-		else if (name.equals("fishingrodexample")) { n = "Example Custom Fishing Rod"; }
 		while (n.indexOf('_') != -1) { n = n.replace('_', ' '); }
 		this.setLocalization("item." + fileName + ".name", n);
-		String textureName = "" + name;
+		String textureName = name;
 		File itemModelsDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/models/item");
-		if (!itemModelsDir.exists()) { itemModelsDir.mkdirs(); }
+		if (!itemModelsDir.exists() && !itemModelsDir.mkdirs()) {
+			return;
+		}
 		File itemModel = new File(itemModelsDir, fileName.toLowerCase() + ".json");
 		String texturePath = CustomNpcs.MODID + "/textures/items";
 		if (itemModel.exists()) {
@@ -1256,18 +1137,17 @@ public class ClientProxy extends CommonProxy {
 				BufferedReader reader = Files.newBufferedReader(itemModel.toPath());
 				String line;
 				while ((line = reader.readLine()) != null) {
-					if (line.indexOf("layer0") == -1) {
+					if (!line.contains("layer0")) {
 						continue;
 					}
-					String tempLine = ""
-							+ line.substring(line.indexOf('"', line.indexOf(':')) + 1, +line.lastIndexOf('"'));
+					String tempLine = line.substring(line.indexOf('"', line.indexOf(':')) + 1, +line.lastIndexOf('"'));
 					if (tempLine.indexOf(':') != -1) {
 						if (tempLine.indexOf('/') != -1) {
 							textureName = tempLine.substring(tempLine.lastIndexOf('/') + 1);
 							texturePath = CustomNpcs.MODID + "/textures/"
 									+ tempLine.substring(tempLine.indexOf(':') + 1, tempLine.lastIndexOf('/'));
 						} else {
-							texturePath = "" + CustomNpcs.MODID + "/textures/";
+							texturePath = CustomNpcs.MODID + "/textures/";
 							textureName = tempLine.substring(tempLine.indexOf(':') + 1);
 						}
 					} else {
@@ -1277,20 +1157,19 @@ public class ClientProxy extends CommonProxy {
 					break;
 				}
 				reader.close();
-			} catch (IOException e) {
-			}
+			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
 		File texturesDir = new File(CustomNpcs.Dir, "assets/" + texturePath);
-		if (!texturesDir.exists()) {
-			texturesDir.mkdirs();
+		if (!texturesDir.exists() && !texturesDir.mkdirs()) {
+			return;
 		}
 		File texture = null;
 		String parentName = null;
-		IResource baseTexrure;
+		IResource baseTexture;
 		if (customitem instanceof CustomArmor) {
 			File armorDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/textures/models/armor");
-			if (!armorDir.exists()) {
-				armorDir.mkdirs();
+			if (!armorDir.exists() && !armorDir.mkdirs()) {
+				return;
 			}
 			// Models
 			boolean[] has = new boolean[] { false, false };
@@ -1299,32 +1178,26 @@ public class ClientProxy extends CommonProxy {
 					texture = new File(armorDir, name + ".png");
 					if (texture.exists()) { return; }
 					InputStream inputStream = AdditionalMethods.instance.getModInputStream("armorobjexample.png");
+					BufferedImage bufferedImage;
 					if (inputStream != null) {
-						BufferedImage bufferedImage = ImageIO.read(inputStream);
-						ImageIO.write(bufferedImage, "png", texture);
+						bufferedImage = ImageIO.read(inputStream);
 					} else {
-						BufferedImage bufferedImage = new BufferedImage(64, 64, 6);
-						ImageIO.write(bufferedImage, "png", texture);
+						bufferedImage = new BufferedImage(64, 64, 6);
 					}
+					ImageIO.write(bufferedImage, "png", texture);
 					LogWriter.debug("Create Default Armor Model Texture for \"" + name + "\" item");
 				}
-				catch (IOException e) { }
+				catch (IOException e) { LogWriter.error("Error:", e); }
 				return;
 			} else {
 				for (int i = 1; i <= 2; i++) {
 					texture = new File(armorDir, name + "_layer_" + i + ".png");
 					if (!texture.exists()) {
 						try {
-							baseTexrure = Minecraft.getMinecraft().getResourceManager()
-									.getResource(new ResourceLocation("minecraft",
-											"textures/models/armor/iron_layer_" + i + ".png"));
-							if (baseTexrure != null) {
-								ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 0, 40, 40, 255), "png",
-										texture);
-								has[i - 1] = true;
-							}
-						} catch (IOException e) {
-						}
+							baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/models/armor/iron_layer_" + i + ".png"));
+							ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.0f, 0, 40, 40, 255), "png", texture);
+							has[i - 1] = true;
+						} catch (IOException e) { LogWriter.error("Error:", e); }
 					} else {
 						continue;
 					}
@@ -1335,8 +1208,7 @@ public class ClientProxy extends CommonProxy {
 						BufferedImage bufferedImage = new BufferedImage(64, 32, 6);
 						ImageIO.write(bufferedImage, "png", texture);
 						has[i - 1] = true;
-					} catch (IOException e) {
-					}
+					} catch (IOException e) { LogWriter.error("Error:", e); }
 				}
 			}
 			if (has[0] || has[1]) {
@@ -1359,20 +1231,18 @@ public class ClientProxy extends CommonProxy {
 			}
 		} else if (name.equals("axeexample")) {
 			texture = new File(texturesDir, name + ".png");
-			if (texture != null && !texture.exists()) {
+			if (!texture.exists()) {
 				try {
-					baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/gold_block.png"));
-					if (baseTexrure != null) {
-						ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 0, 0, 0, 255), "png", texture);
-						LogWriter.debug("Create Default Texture for \"" + name + "\" item");
-						return;
-					}
-				} catch (IOException e) { }
+					baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/gold_block.png"));
+					ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.0f, 0, 0, 0, 255), "png", texture);
+					LogWriter.debug("Create Default Texture for \"" + name + "\" item");
+					return;
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 				try {
 					BufferedImage bufferedImage = new BufferedImage(16, 16, 6);
 					ImageIO.write(bufferedImage, "png", texture);
 					LogWriter.debug("Create Default Empty Texture for \"" + name + "\" item");
-				} catch (IOException e) { }
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 			return;
 		} else if (customitem instanceof CustomBow) {
@@ -1382,16 +1252,10 @@ public class ClientProxy extends CommonProxy {
 						textureName.replace("_standby", "") + (i == 0 ? "_standby" : "_pulling_" + (i - 1)) + ".png");
 				if (!texture.exists()) {
 					try {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager()
-								.getResource(new ResourceLocation("minecraft",
-										"textures/items/bow" + (i == 0 ? "_standby" : "_pulling_" + (i - 1)) + ".png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 0, 0, 40, 255), "png",
-									texture);
-							has[i] = true;
-						}
-					} catch (IOException e) {
-					}
+						baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/items/bow" + (i == 0 ? "_standby" : "_pulling_" + (i - 1)) + ".png"));
+						ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.0f, 0, 0, 40, 255), "png", texture);
+						has[i] = true;
+					} catch (IOException e) { LogWriter.error("Error:", e); }
 				} else {
 					continue;
 				}
@@ -1402,8 +1266,7 @@ public class ClientProxy extends CommonProxy {
 					BufferedImage bufferedImage = new BufferedImage(16, 16, 6);
 					ImageIO.write(bufferedImage, "png", texture);
 					has[i] = true;
-				} catch (IOException e) {
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 			if (has[0] || has[1] || has[2] || has[3]) {
 				LogWriter.debug("Create Default Bow Texture for \"" + name + "\" item");
@@ -1416,15 +1279,10 @@ public class ClientProxy extends CommonProxy {
 				texture = new File(texturesDir, n + (i == 0 ? "_uncast" : "_cast") + ".png");
 				if (!texture.exists()) {
 					try {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation(
-								"minecraft", "textures/items/fishing_rod" + (i == 0 ? "_uncast" : "_cast") + ".png"));
-						if (baseTexrure != null) {
-							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 0, 40, 0, 255), "png",
-									texture);
-							has[i] = true;
-						}
-					} catch (IOException e) {
-					}
+						baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/items/fishing_rod" + (i == 0 ? "_uncast" : "_cast") + ".png"));
+						ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.0f, 0, 40, 0, 255), "png", texture);
+						has[i] = true;
+					} catch (IOException e) { LogWriter.error("Error:", e); }
 				} else {
 					continue;
 				}
@@ -1435,8 +1293,7 @@ public class ClientProxy extends CommonProxy {
 					BufferedImage bufferedImage = new BufferedImage(16, 16, 6);
 					ImageIO.write(bufferedImage, "png", texture);
 					has[i] = true;
-				} catch (IOException e) {
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 			if (has[0] || has[1]) {
 				LogWriter.debug("Create Default Fishing Rod Texture for \"" + name + "\" item");
@@ -1445,7 +1302,7 @@ public class ClientProxy extends CommonProxy {
 		}
 
 		// Simple
-		if (parentName == null || texture == null) {
+		if (parentName == null) {
 			texture = new File(texturesDir, textureName + ".png");
 			if (customitem instanceof CustomWeapon) {
 				parentName = "iron_sword";
@@ -1460,23 +1317,18 @@ public class ClientProxy extends CommonProxy {
 			}
 		}
 
-		if (texture != null && !texture.exists() && parentName != null) {
+		if (!texture.exists()) {
 			try {
-				baseTexrure = Minecraft.getMinecraft().getResourceManager()
-						.getResource(new ResourceLocation("minecraft", "textures/items/" + parentName + ".png"));
-				if (baseTexrure != null) {
-					ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 40, 0, 40, 255), "png", texture);
-					LogWriter.debug("Create Default Texture for \"" + name + "\" item");
-					return;
-				}
-			} catch (IOException e) {
-			}
+				baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/items/" + parentName + ".png"));
+				ImageIO.write(this.getBufferImageOffset(baseTexture, 0, 0.0f, 40, 0, 40, 255), "png", texture);
+				LogWriter.debug("Create Default Texture for \"" + name + "\" item");
+				return;
+			} catch (IOException e) { LogWriter.error("Error:", e); }
 			try {
 				BufferedImage bufferedImage = new BufferedImage(16, 16, 6);
 				ImageIO.write(bufferedImage, "png", texture);
 				LogWriter.debug("Create Default Empty Texture for \"" + name + "\" item");
-			} catch (IOException e) {
-			}
+			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
 	}
 
@@ -1498,8 +1350,8 @@ public class ClientProxy extends CommonProxy {
 		INbt nbt = customparticle.getCustomNbt();
 		if (nbt.getMCNBT().hasKey("OBJModel", 8)) {
 			File modelDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/models/particle");
-			if (!modelDir.exists()) {
-				modelDir.mkdirs();
+			if (!modelDir.exists() && !modelDir.mkdirs()) {
+				return;
 			}
 			name = nbt.getString("OBJModel");
 			File modelFile = new File(modelDir, name + ".obj");
@@ -1565,62 +1417,55 @@ public class ClientProxy extends CommonProxy {
 						+ "f 31/43/12 1/1/12 4/4/12 32/44/12" + ent + "f 32/44/2 4/4/2 6/6/2 33/45/2" + ent
 						+ "f 33/45/11 6/6/11 8/8/11 34/46/11" + ent + "f 34/47/14 8/9/14 10/12/14 35/48/14" + ent
 						+ "f 35/48/5 10/12/5 12/14/5 36/49/5" + ent + "f 36/49/13 12/14/13 1/1/13 31/43/13";
-				if (this.saveFile(modelFile, fileData)) {
+				if (saveFile(modelFile, fileData)) {
 					LogWriter.debug("Create Default OBJ Model for \"" + name + ".obj\" particle");
 				}
 			}
 			File mtlFile = new File(modelDir, name + ".mtl");
 			if (!mtlFile.exists()) {
 				String fileData = "newmtl material" + ent + "Kd 1.000000 1.000000 1.000000" + ent + "d 1.000000";
-				if (this.saveFile(mtlFile, fileData)) {
+				if (saveFile(mtlFile, fileData)) {
 					LogWriter.debug("Create Default OBJ Material Library for \"" + name + ".mtl\" particle");
 				}
 			}
 		} else {
 			String textureName = nbt.getString("Texture");
 			File texturesDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/textures/particle");
-			if (!texturesDir.exists()) {
-				texturesDir.mkdirs();
+			if (!texturesDir.exists() && !texturesDir.mkdirs()) {
+				return;
 			}
 			File texture = new File(texturesDir, textureName + ".png");
-			if (texture != null && !texture.exists()) {
+			if (!texture.exists()) {
 				boolean has = false;
 				try {
-					IResource baseTexrure = Minecraft.getMinecraft().getResourceManager()
-							.getResource(new ResourceLocation("minecraft", "textures/particle/particles.png"));
-					if (baseTexrure != null) {
-						try {
-							BufferedImage particlesImage = new BufferedImage(128, 128, 6);
-							BufferedImage bufferedImage = ImageIO.read(baseTexrure.getInputStream());
-							for (int u = 0; u < 128; u++) {
-								for (int v = 0; v < 128; v++) {
-									Color c = new Color(bufferedImage.getRGB(u, v));
-									if (c.getRGB() != -16777216) {
-										float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
-										hsb[0] += 0.25f;
-										if (hsb[0] > 1.0f) {
-											hsb[0] -= 1.0f;
-										}
-										c = Color.getHSBColor(hsb[0] - (hsb[0] > 1.0f ? 1.0f : 0.0f), hsb[1], hsb[2]);
-										c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 171);
-										particlesImage.setRGB(u, v, c.getRGB());
-									}
+					IResource baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/particle/particles.png"));
+
+					BufferedImage particlesImage = new BufferedImage(128, 128, 6);
+					BufferedImage bufferedImage = ImageIO.read(baseTexture.getInputStream());
+					for (int u = 0; u < 128; u++) {
+						for (int v = 0; v < 128; v++) {
+							Color c = new Color(bufferedImage.getRGB(u, v));
+							if (c.getRGB() != -16777216) {
+								float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+								hsb[0] += 0.25f;
+								if (hsb[0] > 1.0f) {
+									hsb[0] -= 1.0f;
 								}
+								c = Color.getHSBColor(hsb[0] - (hsb[0] > 1.0f ? 1.0f : 0.0f), hsb[1], hsb[2]);
+								c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 171);
+								particlesImage.setRGB(u, v, c.getRGB());
 							}
-							ImageIO.write(particlesImage, "png", texture);
-							has = true;
-						} catch (IOException e) {
 						}
 					}
-				} catch (IOException e) {
-				}
+					ImageIO.write(particlesImage, "png", texture);
+					has = true;
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 				if (!has) {
 					try {
 						BufferedImage bufferedImage = new BufferedImage(128, 128, 6);
 						ImageIO.write(bufferedImage, "png", texture);
 						has = true;
-					} catch (IOException e) {
-					}
+					} catch (Exception e) { LogWriter.error("Error:", e); }
 				}
 				if (has) {
 					LogWriter.debug("Create Default Texture for \"" + name + "\" particle");
@@ -1651,50 +1496,42 @@ public class ClientProxy extends CommonProxy {
 
 		String textureName = name.toLowerCase();
 		File texturesDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/textures/potions");
-		if (!texturesDir.exists()) {
-			texturesDir.mkdirs();
+		if (!texturesDir.exists() && !texturesDir.mkdirs()) {
+			return;
 		}
 		File texture = new File(texturesDir, textureName + ".png");
-		if (texture != null && !texture.exists()) {
+		if (!texture.exists()) {
 			boolean has = false;
 			try {
-				IResource baseTexrure = Minecraft.getMinecraft().getResourceManager()
-						.getResource(new ResourceLocation("minecraft", "textures/gui/container/inventory.png"));
-				if (baseTexrure != null) {
-					try {
-						BufferedImage potionImage = new BufferedImage(18, 18, 6);
-						BufferedImage bufferedImage = ImageIO.read(baseTexrure.getInputStream());
-						for (int u = 0; u < 18; u++) {
-							for (int v = 0; v < 18; v++) {
-								Color c = new Color(bufferedImage.getRGB(u + 36, v + 235));
-								if (c.getRGB() != -16777216) {
-									float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
-									hsb[0] += 0.25f;
-									if (hsb[0] > 1.0f) {
-										hsb[0] -= 1.0f;
-									}
-									c = Color.getHSBColor(hsb[0] - (hsb[0] > 1.0f ? 1.0f : 0.0f), hsb[1], hsb[2]);
-									c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 128);
-									potionImage.setRGB(u, v, c.getRGB());
-								}
+				IResource baseTexture = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/gui/container/inventory.png"));
+
+				BufferedImage potionImage = new BufferedImage(18, 18, 6);
+				BufferedImage bufferedImage = ImageIO.read(baseTexture.getInputStream());
+				for (int u = 0; u < 18; u++) {
+					for (int v = 0; v < 18; v++) {
+						Color c = new Color(bufferedImage.getRGB(u + 36, v + 235));
+						if (c.getRGB() != -16777216) {
+							float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+							hsb[0] += 0.25f;
+							if (hsb[0] > 1.0f) {
+								hsb[0] -= 1.0f;
 							}
+							c = Color.getHSBColor(hsb[0] - (hsb[0] > 1.0f ? 1.0f : 0.0f), hsb[1], hsb[2]);
+							c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 128);
+							potionImage.setRGB(u, v, c.getRGB());
 						}
-						ImageIO.write(potionImage, "png", texture);
-						LogWriter.debug("Create Default Texture for \"" + name + "\" potion");
-						has = true;
-					} catch (IOException e) {
-						e.printStackTrace();
 					}
 				}
-			} catch (IOException e) {
-			}
+				ImageIO.write(potionImage, "png", texture);
+				LogWriter.debug("Create Default Texture for \"" + name + "\" potion");
+				has = true;
+			} catch (IOException e) { LogWriter.error("Error:", e); }
 			if (!has) {
 				try {
 					BufferedImage bufferedImage = new BufferedImage(18, 18, 6);
 					ImageIO.write(bufferedImage, "png", texture);
 					LogWriter.debug("Create Default Texture for \"" + name + "\" potion");
-				} catch (IOException e) {
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 		}
 	}
@@ -1709,14 +1546,14 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void clearKeys() {
-		List<KeyBinding> list = Lists.<KeyBinding>newArrayList();
+		List<KeyBinding> list = Lists.newArrayList();
 		for (KeyBinding kb : Minecraft.getMinecraft().gameSettings.keyBindings) {
 			if (ClientProxy.keyBindingMap.containsValue(kb)) {
 				continue;
 			}
 			list.add(kb);
 		}
-		Minecraft.getMinecraft().gameSettings.keyBindings = list.toArray(new KeyBinding[list.size()]);
+		Minecraft.getMinecraft().gameSettings.keyBindings = list.toArray(new KeyBinding[0]);
 		ClientProxy.keyBindingMap.clear();
 	}
 
@@ -1736,8 +1573,7 @@ public class ClientProxy extends CommonProxy {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(json));
 				writer.write("{\n\n}");
 				writer.close();
-			} catch (IOException ex) {
-			}
+			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
 		check = new File(file, "textures");
 		if (!check.exists()) {
@@ -1750,7 +1586,7 @@ public class ClientProxy extends CommonProxy {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.GetTileData, tile.writeToNBT(new NBTTagCompound()));
 	}
 
-	private RenderedImage getBufferImageOffset(IResource baseTexrure, int type, float offset, int addRed, int addGreen, int addBlue, int alpha) {
+	private RenderedImage getBufferImageOffset(IResource baseTexture, int type, float offset, int addRed, int addGreen, int addBlue, int alpha) {
 		BufferedImage bufferedImage = new BufferedImage(16, 16, 6);
 		if (type < 0) {
 			type = 0;
@@ -1758,7 +1594,7 @@ public class ClientProxy extends CommonProxy {
 			type = 2;
 		}
 		try {
-			bufferedImage = ImageIO.read(baseTexrure.getInputStream());
+			bufferedImage = ImageIO.read(baseTexture.getInputStream());
 			for (int u = 0; u < bufferedImage.getWidth(); u++) {
 				for (int v = 0; v < bufferedImage.getHeight(); v++) {
 					Color c = new Color(bufferedImage.getRGB(u, v));
@@ -1773,8 +1609,7 @@ public class ClientProxy extends CommonProxy {
 					bufferedImage.setRGB(u, v, c.getRGB());
 				}
 			}
-		} catch (IOException e) {
-		}
+		} catch (IOException e) { LogWriter.error("Error:", e); }
 		return bufferedImage;
 	}
 
@@ -1821,10 +1656,8 @@ public class ClientProxy extends CommonProxy {
 			}
 			case QuestTypeItem: { // New
 				Quest quest = NoppesUtilServer.getEditingQuest(getPlayer());
-				if (quest != null && quest.questInterface.tasks[x].getEnumType() == EnumQuestTask.ITEM
-						|| quest.questInterface.tasks[x].getEnumType() == EnumQuestTask.CRAFT) {
-					return new GuiNpcQuestTypeItem(npc, (ContainerNpcQuestTypeItem) container,
-							quest.questInterface.tasks[x]);
+				if (quest != null && quest.questInterface.tasks[x].getEnumType() == EnumQuestTask.ITEM || Objects.requireNonNull(quest).questInterface.tasks[x].getEnumType() == EnumQuestTask.CRAFT) {
+					return new GuiNpcQuestTypeItem(npc, (ContainerNpcQuestTypeItem) container, quest.questInterface.tasks[x]);
 				}
 				return null;
 			}
@@ -1902,7 +1735,7 @@ public class ClientProxy extends CommonProxy {
 				return new GuiScriptBlock(x, y, z);
 			}
 			case ScriptItem: {
-				return new GuiScriptItem(getPlayer());
+				return new GuiScriptItem();
 			}
 			case ScriptDoor: {
 				return new GuiScriptDoor(x, y, z);
@@ -1988,22 +1821,14 @@ public class ClientProxy extends CommonProxy {
 			case BoundarySetting: {
 				return new GuiBoundarySetting(x, y);
 			}
-			case BuilderSetting: {
+			case BuilderSetting:
+            case ReplaceSetting:
+            case PlacerSetting:
+            case SaverSetting:
+            case RemoverSetting: {
 				return new GuiBuilderSetting((ContainerBuilderSettings) container);
 			}
-			case ReplaceSetting: {
-				return new GuiBuilderSetting((ContainerBuilderSettings) container);
-			}
-			case PlacerSetting: {
-				return new GuiBuilderSetting((ContainerBuilderSettings) container);
-			}
-			case SaverSetting: {
-				return new GuiBuilderSetting((ContainerBuilderSettings) container);
-			}
-			case RemoverSetting: {
-				return new GuiBuilderSetting((ContainerBuilderSettings) container);
-			}
-			case DimentionSetting: {
+            case DimensionSetting: {
 				return new GuiCreateDimension(x);
 			}
 			default: {
@@ -2019,20 +1844,16 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public PlayerData getPlayerData(EntityPlayer player) {
-		if (ClientProxy.playerData.player != player) {
-			ClientProxy.playerData.player = player;
+		if (ClientProxy.playerData.getPlayer() != player) {
+			ClientProxy.playerData.setPlayer(player);
 		}
 		return ClientProxy.playerData;
 	}
 
 	@Override
-	public boolean hasClient() {
-		return true;
-	}
-
-	@Override
 	public boolean isLoadTexture(ResourceLocation resource) {
-		return Minecraft.getMinecraft().getTextureManager().getTexture(resource) != null;
+		Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper.getValue(TextureManager.class, Minecraft.getMinecraft().getTextureManager(), Map.class);
+		return mapTextureObjects.containsKey(resource);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -2050,26 +1871,26 @@ public class ClientProxy extends CommonProxy {
 		}
 		// registerEntityRenderingHandler(Class<T> entityClass, IRenderFactory<? super T> renderFactory)
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcPony.class, (Render) new RenderNPCPony());
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcCrystal.class, new RenderNpcCrystal(new ModelNpcCrystal(0.5f)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcDragon.class, new RenderNpcDragon(new ModelNpcDragon(0.0f), 0.5f));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcCrystal.class, new RenderNpcCrystal(new ModelNpcCrystal()));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcDragon.class, new RenderNpcDragon(new ModelNpcDragon(), 0.5f));
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcSlime.class, new RenderNpcSlime(new ModelNpcSlime(16), new ModelNpcSlime(0), 0.25f));
 		RenderingRegistry.registerEntityRenderingHandler(EntityProjectile.class, new RenderProjectile());
-		
+
 		// Human Models
 		RenderingRegistry.registerEntityRenderingHandler(EntityNPCGolem.class, new RenderNPCInterface(new ModelNPCGolem(0.0f), 0.0f));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcClassicPlayer.class, new RenderCustomNpc(new ModelClassicPlayer(0.0f)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNPC64x32.class, new RenderCustomNpc(new ModelBipedAlt(0.0f, false)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityCustomNpc.class, new RenderCustomNpc(new ModelNpcAlt(0.0f, false)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcAlex.class, new RenderCustomNpc(new ModelNpcAlt(0.0f, true)));
-		
-		mc.getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187, new Item[] { CustomRegisters.mount, CustomRegisters.cloner, CustomRegisters.moving, CustomRegisters.scripter, CustomRegisters.wand, CustomRegisters.teleporter });
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcClassicPlayer.class, new RenderCustomNpc(new ModelNpcAlt(0.0f, false, true)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNPC64x32.class, new RenderCustomNpc(new ModelBipedAlt(0.0f, false, false, false)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityCustomNpc.class, new RenderCustomNpc(new ModelNpcAlt(0.0f, false, false)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcAlex.class, new RenderCustomNpc(new ModelNpcAlt(0.0f, true, false)));
+
+		mc.getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187, CustomRegisters.mount, CustomRegisters.cloner, CustomRegisters.moving, CustomRegisters.scripter, CustomRegisters.wand, CustomRegisters.teleporter);
 		mc.getItemColors().registerItemColorHandler((stack, tintIndex) -> {
-			IItemStack item = NpcAPI.Instance().getIItemStack(stack);
+			IItemStack item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
 			if (stack.getItem() == CustomRegisters.scripted_item) {
 				return ((IItemScripted) item).getColor();
 			}
 			return -1;
-		}, new Item[] { CustomRegisters.scripted_item });
+		}, CustomRegisters.scripted_item);
 		ClientProxy.checkLocalization();
 		new GuiTextureSelection(null, "", "png", 0);
 
@@ -2079,14 +1900,10 @@ public class ClientProxy extends CommonProxy {
 			if (map.containsKey(id)) {
 				continue;
 			}
-			map.put(id, new IParticleFactory() {
-				public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn,
-						double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... parametrs) {
-					CustomParticleSettings ps = CustomRegisters.customparticles.get(particleID);
-					return new CustomParticle(ps == null ? new NBTTagCompound() : ps.nbtData, mc.getTextureManager(),
-							worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, parametrs);
-				}
-			});
+			map.put(id, (particleID, worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, parameters) -> {
+                CustomParticleSettings ps = CustomRegisters.customparticles.get(particleID);
+                return new CustomParticle(ps == null ? new NBTTagCompound() : ps.nbtData, worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
+            });
 		}
 	}
 
@@ -2098,7 +1915,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void openGui(EntityNPCInterface npc, EnumGuiType gui, int x, int y, int z) {
 		Minecraft minecraft = Minecraft.getMinecraft();
-		Container container = this.getContainer(gui, (EntityPlayer) minecraft.player, x, y, z, npc);
+		Container container = this.getContainer(gui, minecraft.player, x, y, z, npc);
 		GuiScreen guiscreen = this.getGui(npc, gui, container, x, y, z);
 		if (guiscreen != null) {
 			minecraft.displayGuiScreen(guiscreen);
@@ -2111,10 +1928,8 @@ public class ClientProxy extends CommonProxy {
 		if (!player.world.isRemote || !(guiscreen instanceof GuiScreen)) {
 			return;
 		}
-		if (guiscreen != null) {
-			minecraft.displayGuiScreen((GuiScreen) guiscreen);
-		}
-	}
+        minecraft.displayGuiScreen((GuiScreen) guiscreen);
+    }
 
 	@Override
 	public void openGui(int i, int j, int k, EnumGuiType gui, EntityPlayer player) {
@@ -2137,32 +1952,38 @@ public class ClientProxy extends CommonProxy {
 		ObfuscationHelper.setValue(TileEntityItemStackRenderer.class, TileEntityItemStackRenderer.instance, new TileEntityCustomBanner(), TileEntityBanner.class);
 		// Shield Model Replace
 		Item shield = Item.REGISTRY.getObject(new ResourceLocation("shield"));
-		if (shield instanceof ItemShield) { ((ItemShield) shield).setTileEntityItemStackRenderer(new TileEntityItemStackCustomRenderer()); }
+		if (shield instanceof ItemShield) { shield.setTileEntityItemStackRenderer(new TileEntityItemStackCustomRenderer()); }
 		// OBJ ItemStack Model Replace
 		Minecraft mc = Minecraft.getMinecraft();
 		RenderItem ri = mc.getRenderItem();
-        ItemModelMesherForge immf = (ItemModelMesherForge) ri.getItemModelMesher();
+		ItemModelMesherForge immf = (ItemModelMesherForge) ri.getItemModelMesher();
 		Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models = ObfuscationHelper.getValue(ItemModelMesherForge.class, immf, 1);
-		for (IRegistryDelegate<Item> key : models.keySet()) {
-			if (!(key.get() instanceof CustomArmor) || ((CustomArmor) key.get()).objModel == null) { continue; }
-			IBakedModel ibm = ModelBuffer.getIBakedModel((CustomArmor) key.get());
-			if (ibm == null) { continue; }
-			models.get(key).put(0, ibm);
+		if (models != null) {
+			for (IRegistryDelegate<Item> key : models.keySet()) {
+				if (!(key.get() instanceof CustomArmor) || ((CustomArmor) key.get()).objModel == null) {
+					continue;
+				}
+				IBakedModel ibm = ModelBuffer.getIBakedModel((CustomArmor) key.get());
+				if (ibm == null) {
+					continue;
+				}
+				models.get(key).put(0, ibm);
+			}
 		}
-		ClientProxy.mcWraper = new WrapperMinecraft(mc);
+		ClientProxy.mcWrapper = new WrapperMinecraft(mc);
 	}
 
 	@Override
 	public void preload() {
 		ClientProxy.Font = new FontContainer(CustomNpcs.FontType, CustomNpcs.FontSize);
 		this.createFolders();
-		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener((IResourceManagerReloadListener) new CustomNpcResourceListener());
+		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(new CustomNpcResourceListener());
 		CustomNpcs.Channel.register(new PacketHandlerClient());
 		CustomNpcs.ChannelPlayer.register(new PacketHandlerPlayer());
 		new MusicController();
 		MinecraftForge.EVENT_BUS.register(new ClientTickHandler());
 		MinecraftForge.EVENT_BUS.register(new ClientGuiEventHandler());
-		
+
 		if (CustomNpcs.SceneButtonsEnabled) {
 			ClientProxy.Scene1 = new KeyBinding("key.scene.s.e.0", 79, "key.categories.gameplay");
 			ClientProxy.Scene2 = new KeyBinding("key.scene.s.e.1", 80, "key.categories.gameplay");
@@ -2211,25 +2032,16 @@ public class ClientProxy extends CommonProxy {
 		}
 	}
 
-	private boolean saveFile(File file, String text) {
+	public static boolean saveFile(File file, String text) {
 		if (file == null || text == null || text.isEmpty()) {
 			return false;
 		}
-		OutputStreamWriter writer = null;
-		try {
-			writer = new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8"));
-			writer.write(text);
-		} catch (IOException e) {
-			LogWriter.debug("Error Save Default Item File \"" + file + "\"");
-			return false;
-		} finally {
-			try {
-				if (writer != null) {
-					writer.close();
-				}
-			} catch (IOException e) {
-			}
-		}
+        try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8)) {
+            writer.write(text);
+        } catch (IOException e) {
+            LogWriter.debug("Error Save Default Item File \"" + file + "\"");
+            return false;
+        }
 		return true;
 	}
 
@@ -2247,22 +2059,20 @@ public class ClientProxy extends CommonProxy {
 				break;
 			}
 			File lang = new File(langDir, (i == 0 ? "en_us" : currentLanguage) + ".lang");
-			Map<String, String> jsonMap = Maps.<String, String>newTreeMap();
+			Map<String, String> jsonMap = Maps.newTreeMap();
 			jsonMap.put(key, name);
 			char chr = Character.toChars(0x000A)[0];
 			writer = null;
 			if (!lang.exists()) {
 				try {
 					writer = Files.newBufferedWriter(lang.toPath());
-				} catch (IOException e) {
-					writer = null;
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			} else {
 				try {
 					BufferedReader reader = Files.newBufferedReader(lang.toPath());
 					String line;
 					while ((line = reader.readLine()) != null) {
-						if (line.indexOf("=") == -1) {
+						if (!line.contains("=")) {
 							continue;
 						}
 						String[] vk = line.split("=");
@@ -2273,25 +2083,24 @@ public class ClientProxy extends CommonProxy {
 					}
 					reader.close();
 					writer = Files.newBufferedWriter(lang.toPath());
-				} catch (IOException e) {
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 			if (writer != null && !jsonMap.isEmpty()) {
 				try {
-					String jsonStr = "", str = "";
-					for (String k : jsonMap.keySet()) {
-						String pre = k.indexOf(".") != -1 ? k.substring(0, k.indexOf(".")) : k;
+					StringBuilder jsonStr = new StringBuilder();
+                    String str = "";
+                    for (String k : jsonMap.keySet()) {
+						String pre = k.contains(".") ? k.substring(0, k.indexOf(".")) : k;
 						if (!str.isEmpty() && !str.equals(pre)) {
-							jsonStr += "" + chr;
+							jsonStr.append(chr);
 						}
 						str = pre;
-						jsonStr += k + "=" + jsonMap.get(k) + chr;
+						jsonStr.append(k).append("=").append(jsonMap.get(k)).append(chr);
 					}
-					writer.write(jsonStr);
+					writer.write(jsonStr.toString());
 					writer.close();
 					write = true;
-				} catch (IOException e) {
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 		}
 		if (write) {
@@ -2319,23 +2128,22 @@ public class ClientProxy extends CommonProxy {
 						rand.nextDouble() * player.height - height - 0.25, (rand.nextDouble() - 0.5) * player.width,
 						(rand.nextDouble() - 0.5) * 2.0, -rand.nextDouble(), (rand.nextDouble() - 0.5) * 2.0,
 						particles);
-				minecraft.effectRenderer.addEffect((Particle) fx);
+				minecraft.effectRenderer.addEffect(fx);
 			}
 		}
 	}
 
 	@Override
-	public void spawnParticle(EnumParticleTypes particle, double x, double y, double z, double motionX, double motionY,
-			double motionZ, float scale) {
-		Minecraft mc = Minecraft.getMinecraft();
-		double xx = mc.getRenderViewEntity().posX - x;
-		double yy = mc.getRenderViewEntity().posY - y;
-		double zz = mc.getRenderViewEntity().posZ - z;
+	public void spawnParticle(EnumParticleTypes particle, double x, double y, double z, double motionX, double motionY, double motionZ, float scale) {
+		Entity entity = Minecraft.getMinecraft().getRenderViewEntity();
+		if (entity == null) { return; }
+		double xx = entity.posX - x;
+		double yy = entity.posY - y;
+		double zz = entity.posZ - z;
 		if (xx * xx + yy * yy + zz * zz > 256.0) {
 			return;
 		}
-		Particle fx = mc.effectRenderer.spawnEffectParticle(particle.getParticleID(), x, y, z, motionX, motionY,
-				motionZ, new int[0]);
+		Particle fx = Minecraft.getMinecraft().effectRenderer.spawnEffectParticle(particle.getParticleID(), x, y, z, motionX, motionY, motionZ);
 		if (fx == null) {
 			return;
 		}
@@ -2356,30 +2164,30 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void updateKeys() {
-		List<KeyBinding> list = Lists.<KeyBinding>newArrayList();
+		List<KeyBinding> list = Lists.newArrayList();
 		for (KeyBinding kb : Minecraft.getMinecraft().gameSettings.keyBindings) {
 			if (ClientProxy.keyBindingMap.containsValue(kb)) {
 				continue;
 			}
 			list.add(kb);
 		}
-		Map<Integer, KeyBinding> keysMap = Maps.<Integer, KeyBinding>newHashMap();
+		Map<Integer, KeyBinding> keysMap = Maps.newHashMap();
 		for (IKeySetting ks : KeyController.getInstance().getKeySettings()) {
 			KeyBinding kb;
 			KeyModifier modifer;
 			switch (ks.getModiferType()) {
-			case 1:
-				modifer = KeyModifier.SHIFT;
-				break;
-			case 2:
-				modifer = KeyModifier.CONTROL;
-				break;
-			case 3:
-				modifer = KeyModifier.ALT;
-				break;
-			default:
-				modifer = KeyModifier.NONE;
-				break;
+				case 1:
+					modifer = KeyModifier.SHIFT;
+					break;
+				case 2:
+					modifer = KeyModifier.CONTROL;
+					break;
+				case 3:
+					modifer = KeyModifier.ALT;
+					break;
+				default:
+					modifer = KeyModifier.NONE;
+					break;
 			}
 			if (ClientProxy.keyBindingMap.containsKey(ks.getId())) {
 				kb = ClientProxy.keyBindingMap.get(ks.getId());
@@ -2395,7 +2203,7 @@ public class ClientProxy extends CommonProxy {
 		}
 		ClientProxy.keyBindingMap.clear();
 		ClientProxy.keyBindingMap.putAll(keysMap);
-		Minecraft.getMinecraft().gameSettings.keyBindings = list.toArray(new KeyBinding[list.size()]);
+		Minecraft.getMinecraft().gameSettings.keyBindings = list.toArray(new KeyBinding[0]);
 	}
 
 	@Override
@@ -2408,18 +2216,16 @@ public class ClientProxy extends CommonProxy {
 			return;
 		}
 		RecipeBook book = ((EntityPlayerSP) player).getRecipeBook();
-		if (book == null) {
-			return;
-		}
-		BitSet recipes = ObfuscationHelper.getValue(RecipeBook.class, book, 0);
+        BitSet recipes = ObfuscationHelper.getValue(RecipeBook.class, book, 0);
 		BitSet newRecipes = ObfuscationHelper.getValue(RecipeBook.class, book, 1);
-		List<Integer> delIDs = Lists.<Integer>newArrayList();
-		for (int id = recipes.nextSetBit(0); id >= 0; id = recipes.nextSetBit(id + 1)) {
+		if (recipes == null || newRecipes == null) { return; }
+		List<Integer> delIDs = Lists.newArrayList();
+        for (int id = recipes.nextSetBit(0); id >= 0; id = recipes.nextSetBit(id + 1)) {
 			if (CraftingManager.REGISTRY.getObjectById(id) == null) {
 				delIDs.add(id);
 			}
 		}
-		if (delIDs.size() > 0) {
+		if (!delIDs.isEmpty()) {
 			for (int id : delIDs) {
 				recipes.clear(id);
 			}
@@ -2430,7 +2236,7 @@ public class ClientProxy extends CommonProxy {
 				delIDs.add(id);
 			}
 		}
-		if (delIDs.size() > 0) {
+		if (!delIDs.isEmpty()) {
 			for (int id : delIDs) {
 				newRecipes.clear(id);
 			}
@@ -2442,39 +2248,29 @@ public class ClientProxy extends CommonProxy {
 
 	/**
 	 * RecipeBookClient
-	 * 
-	 * @param recipe
-	 * @param needSend
-	 * @param delete
+	 * @param recipe - INpcRecipe
+	 * @param needSend - to server
+	 * @param delete - recipe
 	 */
 	public void updateRecipes(INpcRecipe recipe, boolean needSend, boolean delete, String debug) {
 		super.updateRecipes(recipe, false, delete, "ClientProxy.updateRecipes()");
-		/** Create Base Data Global */
+		// Create Base Data Global
 		if (!RecipeBookClient.RECIPES_BY_TAB.containsKey(CustomRegisters.tab)) {
 			RecipeList recipelist = new RecipeList();
 			RecipeBookClient.ALL_RECIPES.add(recipelist);
-			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CustomRegisters.tab, (p_194085_0_) -> {
-				return new ArrayList<RecipeList>();
-			})).add(recipelist);
-			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (p_194083_0_) -> {
-				return new ArrayList<RecipeList>();
-			})).add(recipelist);
+			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CustomRegisters.tab, (p_194085_0_) -> new ArrayList<>())).add(recipelist);
+			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (p_194083_0_) -> new ArrayList<>())).add(recipelist);
 		}
-		/** Create Base Data Mod */
+		// Create Base Data Mod
 		if (!ClientProxy.MOD_RECIPES_BY_TAB.containsKey(CustomRegisters.tab)) {
 			RecipeList recipelist = new RecipeList();
-			(ClientProxy.MOD_RECIPES_BY_TAB.computeIfAbsent(CustomRegisters.tab, (p_194085_0_) -> {
-				return new ArrayList<RecipeList>();
-			})).add(recipelist);
-			(ClientProxy.MOD_RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (p_194083_0_) -> {
-				return new ArrayList<RecipeList>();
-			})).add(recipelist);
+			(ClientProxy.MOD_RECIPES_BY_TAB.computeIfAbsent(CustomRegisters.tab, (p_194085_0_) -> new ArrayList<>())).add(recipelist);
+			(ClientProxy.MOD_RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (p_194083_0_) -> new ArrayList<>())).add(recipelist);
 		}
 
-		/** Update Recipe */
+		// Update Recipe
 		if (recipe != null) {
-			List<RecipeList> lists = recipe.isGlobal() ? RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab)
-					: ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab);
+			List<RecipeList> lists = recipe.isGlobal() ? RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab) : ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab);
 			for (RecipeList list : lists) {
 				for (IRecipe rec : list.getRecipes()) {
 					if (rec instanceof INpcRecipe && ((INpcRecipe) rec).equal(recipe)) {
@@ -2489,14 +2285,14 @@ public class ClientProxy extends CommonProxy {
 			}
 		}
 
-		/** Update All Recipes */
+		// Update All Recipes
 		// Delete Old
 		for (int i = 0; i < 2; i++) { // Lists
-			List<RecipeList> delList = Lists.<RecipeList>newArrayList();
+			List<RecipeList> delList = Lists.newArrayList();
 			List<RecipeList> lists = (i == 0 ? RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab)
 					: ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab));
 			for (RecipeList list : lists) { // Recipes
-				List<IRecipe> del = Lists.<IRecipe>newArrayList();
+				List<IRecipe> del = Lists.newArrayList();
 				for (IRecipe rec : list.getRecipes()) {
 					if (!(rec instanceof INpcRecipe)) {
 						continue;
@@ -2506,16 +2302,16 @@ public class ClientProxy extends CommonProxy {
 						del.add(rec);
 					}
 				}
-				if (del.size() > 0) {
+				if (!del.isEmpty()) {
 					for (IRecipe rec : del) {
 						list.getRecipes().remove(rec);
 					}
 				}
-				if (list.getRecipes().size() == 0) {
+				if (list.getRecipes().isEmpty()) {
 					delList.add(list);
 				}
 			}
-			if (delList.size() > 0) {
+			if (!delList.isEmpty()) {
 				for (RecipeList list : delList) {
 					if (i == 0) {
 						RecipeBookClient.ALL_RECIPES.remove(list);
@@ -2529,11 +2325,11 @@ public class ClientProxy extends CommonProxy {
 			}
 		}
 		if (recipe != null) {
-			this.updateRecipeBook((EntityPlayerSP) this.getPlayer());
+			this.updateRecipeBook(this.getPlayer());
 			return;
 		}
 
-		/** Adds */
+		// Adds
 		for (int i = 0; i < 2; i++) {
 			Map<String, List<INpcRecipe>> map = (i == 0 ? RecipeController.getInstance().globalList
 					: RecipeController.getInstance().modList);
@@ -2541,11 +2337,11 @@ public class ClientProxy extends CommonProxy {
 				RecipeList parent = null;
 				for (RecipeList list : (i == 0 ? RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab)
 						: ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab))) {
-					if (list != null && list.getRecipes().size() == 0) {
+					if (list != null && list.getRecipes().isEmpty()) {
 						parent = list;
 						break;
 					}
-					if (list.getRecipes().get(0) instanceof INpcRecipe
+					if (list != null && list.getRecipes().get(0) instanceof INpcRecipe
 							&& ((INpcRecipe) list.getRecipes().get(0)).getNpcGroup().equals(group)) {
 						parent = list;
 						break;
@@ -2587,7 +2383,7 @@ public class ClientProxy extends CommonProxy {
 				}
 			}
 		}
-		this.updateRecipeBook((EntityPlayerSP) this.getPlayer());
+		this.updateRecipeBook(this.getPlayer());
 	}
 
 }

@@ -3,11 +3,12 @@ package noppes.npcs.containers;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.blocks.tiles.CustomTileEntityChest;
+
+import javax.annotation.Nonnull;
 
 public class ContainerChestCustom extends Container {
 
@@ -65,24 +66,20 @@ public class ContainerChestCustom extends Container {
 	}
 
 	@Override
-	public boolean canInteractWith(EntityPlayer playerIn) {
+	public boolean canInteractWith(@Nonnull EntityPlayer playerIn) {
 		return true;
-	}
-
-	public IInventory getLowerChestInventory() {
-		return this.trueChest;
 	}
 
 	public BlockPos getPos() {
 		return this.pos;
 	}
 
-	public void onContainerClosed(EntityPlayer playerIn) {
+	public void onContainerClosed(@Nonnull EntityPlayer playerIn) {
 		super.onContainerClosed(playerIn);
 		this.trueChest.closeInventory(playerIn);
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer playerIn, int index) {
 		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = this.inventorySlots.get(index);
 		if (slot != null && slot.getHasStack()) {

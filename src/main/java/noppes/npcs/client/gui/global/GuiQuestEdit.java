@@ -9,13 +9,12 @@ import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
@@ -68,7 +67,7 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 		this.setBackground("menubg.png");
 		this.xSize = 386;
 		this.ySize = 226;
-		NoppesUtilServer.setEditingQuest((EntityPlayer) this.player, quest);
+		NoppesUtilServer.setEditingQuest(this.player, quest);
 		this.closeOnEsc = true;
 	}
 
@@ -76,12 +75,10 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 3: { // end text
-			// this.questlogTA = false; Change
 			this.setSubGui(new SubGuiNpcTextArea(0, this.quest.completeText));
 			break;
 		}
 		case 4: { // log text
-			// this.questlogTA = true; Change
 			this.setSubGui(new SubGuiNpcTextArea(1, this.quest.logText));
 			break;
 		}
@@ -215,9 +212,9 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 					}
 					i++;
 				}
-				SubGuiEditText sgui = new SubGuiEditText(1, texts);
-				sgui.setHoverTexts(new String[] { "quest.hover.forget.dialogues", "quest.hover.forget.quests" });
-				this.setSubGui(sgui);
+				SubGuiEditText subgui = new SubGuiEditText(1, texts);
+				subgui.setHoverTexts(new String[] { "quest.hover.forget.dialogues", "quest.hover.forget.quests" });
+				this.setSubGui(subgui);
 			}
 			break;
 		}
@@ -226,10 +223,10 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 			break;
 		}
 		case 24: { // reset ID
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("message.change.id", "" + this.quest.id).getFormattedText(),
 					new TextComponentTranslation("message.change").getFormattedText(), 0);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 66: { // exit
@@ -243,9 +240,9 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 	public void confirmClicked(boolean result, int id) {
 		if (this.parent instanceof GuiNPCInterface2) {
 			((GuiNPCInterface) this.parent).setSubGui(this);
-			NoppesUtil.openGUI((EntityPlayer) this.player, this.parent);
+			NoppesUtil.openGUI(this.player, this.parent);
 		} else {
-			NoppesUtil.openGUI((EntityPlayer) this.player, this);
+			NoppesUtil.openGUI(this.player, this);
 		}
 		if (!result) {
 			return;
@@ -386,7 +383,7 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 				!this.task.isEmpty() && pos > -1 && pos < this.tasksData.size() - 1));
 		this.addButton(new GuiNpcButton(18, this.guiLeft + 172, this.guiTop + 192, 51, 20,
 				new String[] { "attribute.slot.0", "quest.task.step.1", "quest.task.step.2" }, this.quest.step));
-		this.getButton(18).setEnabled(this.tasksData.size() > 0);
+		this.getButton(18).setEnabled(!this.tasksData.isEmpty());
 		// task settings
 		this.addButton(new GuiNpcButton(19, this.guiLeft + 225, this.guiTop + 192, 50, 20, "gui.add",
 				this.tasksData.size() < 9));
@@ -524,21 +521,20 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 			SubGuiNpcCommand sub = (SubGuiNpcCommand) subgui;
 			this.quest.command = sub.command;
 		} else if (subgui instanceof SubGuiEditText && ((SubGuiEditText) subgui).text.length == 2) {
-			while (((SubGuiEditText) subgui).text[0].indexOf(" ") != -1) {
+			while (((SubGuiEditText) subgui).text[0].contains(" ")) {
 				((SubGuiEditText) subgui).text[0] = ((SubGuiEditText) subgui).text[0].replace(" ", "");
 			}
-			while (((SubGuiEditText) subgui).text[1].indexOf(" ") != -1) {
+			while (((SubGuiEditText) subgui).text[1].contains(" ")) {
 				((SubGuiEditText) subgui).text[1] = ((SubGuiEditText) subgui).text[1].replace(" ", "");
 			}
-			List<Integer> vdt = new ArrayList<Integer>();
+			List<Integer> vdt = new ArrayList<>();
 			for (String td : ((SubGuiEditText) subgui).text[0].split(",")) {
 				try {
 					int id = Integer.parseInt(td);
 					if (!vdt.contains(id)) {
 						vdt.add(id);
 					}
-				} catch (NumberFormatException ex) {
-				}
+				} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 			}
 			Collections.sort(vdt);
 			this.quest.forgetDialogues = new int[vdt.size()];
@@ -548,15 +544,14 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 				i++;
 			}
 
-			List<Integer> vqt = new ArrayList<Integer>();
+			List<Integer> vqt = new ArrayList<>();
 			for (String tq : ((SubGuiEditText) subgui).text[1].split(",")) {
 				try {
 					int id = Integer.parseInt(tq);
 					if (!vqt.contains(id)) {
 						vqt.add(id);
 					}
-				} catch (NumberFormatException ex) {
-				}
+				} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 			}
 			Collections.sort(vqt);
 			this.quest.forgetQuests = new int[vqt.size()];

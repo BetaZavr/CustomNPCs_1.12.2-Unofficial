@@ -2,10 +2,10 @@ package noppes.npcs.items;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -20,28 +20,26 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
+import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.util.IPermission;
 
-public class ItemNpcCloner extends Item implements IPermission {
+public class ItemNpcCloner extends Item implements IPermission, INPCToolItem {
 
 	public ItemNpcCloner() {
 		this.setRegistryName(CustomNpcs.MODID, "npcmobcloner");
 		this.setUnlocalizedName("npcmobcloner");
 		this.setFull3D();
 		this.maxStackSize = 1;
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list == null) {
-			return;
-		}
+	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<String> list, @Nonnull ITooltipFlag flagIn) {
 		list.add(new TextComponentTranslation("info.item.cloner").getFormattedText());
 		NBTTagCompound nbt = stack.getTagCompound();
 		if (nbt == null || !nbt.hasKey("Settings", 10)) {
@@ -56,7 +54,7 @@ public class ItemNpcCloner extends Item implements IPermission {
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public boolean hasEffect(ItemStack stack) {
+	public boolean hasEffect(@Nonnull ItemStack stack) {
 		NBTTagCompound nbt = stack.getTagCompound();
 		return super.hasEffect(stack) || (nbt != null && nbt.hasKey("Settings", 10)
 				&& !nbt.getCompoundTag("Settings").getString("Name").isEmpty());
@@ -68,27 +66,24 @@ public class ItemNpcCloner extends Item implements IPermission {
 				|| e == EnumPacketServer.CloneSave || e == EnumPacketServer.GetClone || e == EnumPacketServer.Gui;
 	}
 
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side,
-			float hitX, float hitY, float hitZ) {
+	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (world.isRemote) {
 			PlayerData data = CustomNpcs.proxy.getPlayerData(player);
 			boolean summon = false;
 			ItemStack stackCloner = player.getHeldItemMainhand();
-			if (stackCloner != null && stackCloner.getItem() instanceof ItemNpcCloner && data != null
-					&& data.hud.hasOrKeysPressed(42, 54)) {
+			if (stackCloner.getItem() instanceof ItemNpcCloner && data != null && data.hud.hasOrKeysPressed(42, 54)) {
 				NBTTagCompound nbt = stackCloner.getTagCompound();
 				if (nbt != null && nbt.hasKey("Settings", 10)) {
 					NBTTagCompound nbtData = nbt.getCompoundTag("Settings");
 					if (nbtData.getBoolean("isServerClone")) {
 						Client.sendData(EnumPacketServer.SpawnMob, true, pos.getX(), pos.getY(), pos.getZ(),
 								nbtData.getString("Name"), nbtData.getInteger("Tab"));
-						summon = true;
-					} else {
+                    } else {
 						Client.sendData(EnumPacketServer.SpawnMob, false, pos.getX(), pos.getY(), pos.getZ(),
 								nbtData.getCompoundTag("EntityNBT"));
-						summon = true;
-					}
-				}
+                    }
+                    summon = true;
+                }
 			}
 			if (!summon) {
 				Client.sendData(EnumPacketServer.Gui, EnumGuiType.MobSpawner, pos.getX(), pos.getY(), pos.getZ());

@@ -4,32 +4,22 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class HealerSettings {
 
-	public boolean onHimself, possibleOnMobs, isMassive;
-	public int id, range, speed, time, amplifier;
-	public byte type;
-
-	public HealerSettings() {
-		this.id = 1;
-		this.range = 8;
-		this.amplifier = 0;
-		this.type = (byte) 2; // 0-friendly, 1-unfriendly, 2-all
-		this.speed = 10;
-		this.time = 100;
-		this.onHimself = false;
-		this.possibleOnMobs = true;
-		this.isMassive = true;
-	}
+	public boolean onHimself = false;
+	public boolean possibleOnMobs = true;
+	public boolean isMassive = true;
+	public int id;
+	public int range;
+	public int speed;
+	public int time = 100;
+	public int amplifier;
+	public byte type; // 0-friendly, 1-unfriendly, 2-all
 
 	public HealerSettings(int id, int range, int speed, int amplifier, byte type) {
 		this.id = id;
 		this.range = range;
-		this.amplifier = 0;
 		this.type = type;
 		this.speed = speed;
-		this.time = 100;
-		this.onHimself = false;
-		this.possibleOnMobs = true;
-		this.isMassive = true;
+		this.amplifier = amplifier;
 	}
 
 	public HealerSettings(NBTTagCompound nbtSet) {

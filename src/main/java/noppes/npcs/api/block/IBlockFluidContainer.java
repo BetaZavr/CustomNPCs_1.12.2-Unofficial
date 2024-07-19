@@ -8,8 +8,8 @@ public interface IBlockFluidContainer extends IBlock {
 
 	float getFluidValue();
 
-	float getFuildDensity();
+	float getFluidDensity();
 
-	float getFuildTemperature();
+	float getFluidTemperature();
 
 }

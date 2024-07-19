@@ -3,18 +3,12 @@ package noppes.npcs;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -62,7 +56,7 @@ public class Server {
 	private static List<EnumPacketClient> list;
 
 	static {
-		Server.list = new ArrayList<EnumPacketClient>();
+		Server.list = new ArrayList<>();
 		Server.list.add(EnumPacketClient.EYE_BLINK);
 		Server.list.add(EnumPacketClient.UPDATE_NPC);
 		Server.list.add(EnumPacketClient.SET_TILE_DATA);
@@ -180,6 +174,7 @@ public class Server {
 							writeString(buffer, s);
 						}
 					} catch (Exception e) {
+						LogWriter.error("Error write string:", e);
 					}
 					try {
 						@SuppressWarnings("unchecked")
@@ -192,6 +187,7 @@ public class Server {
 						}
 						writeIntArray(buffer, a);
 					} catch (Exception e) {
+						LogWriter.error("Error write int array:", e);
 					}
 				} else if (ob instanceof UUID) {
 					writeString(buffer, ob.toString());
@@ -216,7 +212,8 @@ public class Server {
 				} else if (ob instanceof FMLMessage.EntitySpawnMessage) {
 					EntitySpawnMessageHelper.toBytes((FMLMessage.EntitySpawnMessage) ob, buffer);
 				} else if (ob instanceof Integer[] || ob instanceof int[]) {
-					writeIntArray(buffer, (int[]) ob);
+                    assert ob instanceof int[];
+                    writeIntArray(buffer, (int[]) ob);
 				} else if (ob instanceof WorldInfo) {
 					writeWorldInfo(buffer, (WorldInfo) ob);
 				}
@@ -243,61 +240,51 @@ public class Server {
 		for (int i = 0; i < size; i++) {
 			Object key;
 			switch (buffer.readByte()) {
-			case 0:
-				key = buffer.readByte();
-				break;
-			case 1:
-				key = buffer.readByte();
-				break;
-			case 2:
-				key = buffer.readShort();
-				break;
-			case 3:
-				key = buffer.readInt();
-				break;
-			case 4:
-				key = buffer.readLong();
-				break;
-			case 5:
-				key = buffer.readFloat();
-				break;
-			case 6:
-				key = buffer.readDouble();
-				break;
-			case 8:
-				key = readString(buffer);
-				break;
-			default:
-				key = readString(buffer);
+				case 0:
+                case 1:
+						key = buffer.readByte();
+					break;
+					case 2:
+					key = buffer.readShort();
+					break;
+				case 3:
+					key = buffer.readInt();
+					break;
+				case 4:
+					key = buffer.readLong();
+					break;
+				case 5:
+					key = buffer.readFloat();
+					break;
+				case 6:
+					key = buffer.readDouble();
+					break;
+                default:
+					key = readString(buffer);
 			}
 			Object value;
 			switch (buffer.readByte()) {
-			case 0:
-				value = buffer.readByte();
-				break;
-			case 1:
-				value = buffer.readByte();
-				break;
-			case 2:
-				value = buffer.readShort();
-				break;
-			case 3:
-				value = buffer.readInt();
-				break;
-			case 4:
-				value = buffer.readLong();
-				break;
-			case 5:
-				value = buffer.readFloat();
-				break;
-			case 6:
-				value = buffer.readDouble();
-				break;
-			case 8:
-				value = readString(buffer);
-				break;
-			default:
-				value = readString(buffer);
+				case 0:
+                case 1:
+                    value = buffer.readByte();
+					break;
+                case 2:
+					value = buffer.readShort();
+					break;
+				case 3:
+					value = buffer.readInt();
+					break;
+				case 4:
+					value = buffer.readLong();
+					break;
+				case 5:
+					value = buffer.readFloat();
+					break;
+				case 6:
+					value = buffer.readDouble();
+					break;
+                default:
+					value = readString(buffer);
 			}
 			map.put(key, value);
 		}
@@ -307,13 +294,10 @@ public class Server {
 	public static NBTTagCompound readNBT(ByteBuf buffer) throws IOException {
 		byte[] bytes = new byte[buffer.readInt()];
 		buffer.readBytes(bytes);
-		DataInputStream datainputstream = new DataInputStream(
-				new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes))));
-		try {
-			return CompressedStreamTools.read((DataInput) datainputstream, NBTSizeTracker.INFINITE);
-		} finally {
-			datainputstream.close();
-		}
+        try (DataInputStream datainputstream = new DataInputStream(
+                new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes))))) {
+            return CompressedStreamTools.read(datainputstream, NBTSizeTracker.INFINITE);
+        }
 	}
 
 	private static PathPoint readPathPoint(NBTTagCompound nbt) {
@@ -352,15 +336,14 @@ public class Server {
 		try {
 			byte[] bytes = new byte[buffer.readInt()];
 			buffer.readBytes(bytes);
-			String str = new String(bytes, Charset.forName("UTF-8"));
-			return str;
+			return new String(bytes, StandardCharsets.UTF_8);
 		} catch (IndexOutOfBoundsException ex) {
 			return null;
 		}
 	}
 
 	public static UUID readUUID(ByteBuf buffer) {
-		return UUID.fromString(readString(buffer));
+		return UUID.fromString(Objects.requireNonNull(readString(buffer)));
 	}
 
 	public static CustomWorldInfo readWorldInfo(ByteBuf buffer) {
@@ -368,23 +351,21 @@ public class Server {
 	}
 
 	public static void sendAssociatedData(Entity entity, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = (List<EntityPlayerMP>) entity.world.getEntitiesWithinAABB(EntityPlayerMP.class,
-				entity.getEntityBoundingBox().grow(160.0, 160.0, 160.0));
+		List<EntityPlayerMP> list = entity.world.getEntitiesWithinAABB(EntityPlayerMP.class, entity.getEntityBoundingBox().grow(160.0, 160.0, 160.0));
 		if (list.isEmpty()) {
 			return;
 		}
 		CustomNPCsScheduler.runTack(() -> {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
-				if (!(!fillBuffer(buffer, type, obs))) {
+				if (fillBuffer(buffer, type, obs)) {
 					if (!Server.list.contains(type)) {
 						LogWriter.debug("SendAssociatedData: " + type);
 					}
-					Iterator<EntityPlayerMP> iterator = list.iterator();
-					while (iterator.hasNext()) {
-						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
-								iterator.next());
-					}
+                    for (EntityPlayerMP entityPlayerMP : list) {
+                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
+                                entityPlayerMP);
+                    }
 				}
 			} catch (IOException e) {
 				LogWriter.error(type + " Errored", e);
@@ -401,7 +382,7 @@ public class Server {
 	public static boolean sendDataChecked(EntityPlayerMP player, EnumPacketClient type, Object... obs) {
 		PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 		try {
-			if (!fillBuffer((ByteBuf) buffer, type, obs)) {
+			if (!fillBuffer(buffer, type, obs)) {
 				return false;
 			}
 			if (!Server.list.contains(type)) {
@@ -418,7 +399,7 @@ public class Server {
 		CustomNPCsScheduler.runTack(() -> {
 			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 			try {
-				if (fillBuffer((ByteBuf) buffer, type, obs)) {
+				if (fillBuffer(buffer, type, obs)) {
 					if (!Server.list.contains(type)) {
 						LogWriter.debug("SendData: " + type);
 					}
@@ -433,7 +414,7 @@ public class Server {
 	}
 
 	public static void sendRangedData(Entity entity, int range, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = (List<EntityPlayerMP>) entity.world.getEntitiesWithinAABB(EntityPlayerMP.class,
+		List<EntityPlayerMP> list = entity.world.getEntitiesWithinAABB(EntityPlayerMP.class,
 				entity.getEntityBoundingBox().grow(range, range, range));
 		if (list.isEmpty()) {
 			return;
@@ -441,15 +422,14 @@ public class Server {
 		CustomNPCsScheduler.runTack(() -> {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
-				if (!(!fillBuffer(buffer, type, obs))) {
+				if (fillBuffer(buffer, type, obs)) {
 					if (!Server.list.contains(type)) {
 						LogWriter.debug("SendRangedData: " + type);
 					}
-					Iterator<EntityPlayerMP> iterator = list.iterator();
-					while (iterator.hasNext()) {
-						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
-								iterator.next());
-					}
+                    for (EntityPlayerMP entityPlayerMP : list) {
+                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
+                                entityPlayerMP);
+                    }
 				}
 			} catch (IOException e) {
 				LogWriter.error(type + " Errored", e);
@@ -460,7 +440,7 @@ public class Server {
 	}
 
 	public static void sendRangedData(World world, BlockPos pos, int range, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = (List<EntityPlayerMP>) world.getEntitiesWithinAABB(EntityPlayerMP.class,
+		List<EntityPlayerMP> list = world.getEntitiesWithinAABB(EntityPlayerMP.class,
 				new AxisAlignedBB(pos).grow(range, range, range));
 		if (list.isEmpty()) {
 			return;
@@ -468,15 +448,14 @@ public class Server {
 		CustomNPCsScheduler.runTack(() -> {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
-				if (!(!fillBuffer(buffer, type, obs))) {
+				if (fillBuffer(buffer, type, obs)) {
 					if (!Server.list.contains(type)) {
 						LogWriter.debug("SendRangedData: " + type);
 					}
-					Iterator<EntityPlayerMP> iterator = list.iterator();
-					while (iterator.hasNext()) {
-						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
-								iterator.next());
-					}
+                    for (EntityPlayerMP entityPlayerMP : list) {
+                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
+                                entityPlayerMP);
+                    }
 				}
 			} catch (IOException e) {
 				LogWriter.error(type + " Errored", e);
@@ -490,19 +469,18 @@ public class Server {
 		if (server == null) {
 			return;
 		}
-		List<EntityPlayerMP> list = new ArrayList<EntityPlayerMP>(server.getPlayerList().getPlayers());
+		List<EntityPlayerMP> list = new ArrayList<>(server.getPlayerList().getPlayers());
 		CustomNPCsScheduler.runTack(() -> {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
-				if (!(!fillBuffer(buffer, type, obs))) {
+				if (fillBuffer(buffer, type, obs)) {
 					if (!Server.list.contains(type)) {
 						LogWriter.debug("SendToAll: " + type);
 					}
-					Iterator<EntityPlayerMP> iterator = list.iterator();
-					while (iterator.hasNext()) {
-						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
-								iterator.next());
-					}
+                    for (EntityPlayerMP entityPlayerMP : list) {
+                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
+                                entityPlayerMP);
+                    }
 				}
 			} catch (IOException e) {
 				LogWriter.error(type + " Errored", e);
@@ -521,12 +499,9 @@ public class Server {
 
 	public static void writeNBT(ByteBuf buffer, NBTTagCompound compound) throws IOException {
 		ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-		DataOutputStream dataoutputstream = new DataOutputStream(new GZIPOutputStream(bytearrayoutputstream));
-		try {
-			CompressedStreamTools.write(compound, (DataOutput) dataoutputstream);
-		} finally {
-			dataoutputstream.close();
-		}
+        try (DataOutputStream dataoutputstream = new DataOutputStream(new GZIPOutputStream(bytearrayoutputstream))) {
+            CompressedStreamTools.write(compound, dataoutputstream);
+        }
 		byte[] bytes = bytearrayoutputstream.toByteArray();
 		buffer.writeInt(bytes.length);
 		buffer.writeBytes(bytes);
@@ -553,19 +528,22 @@ public class Server {
 		PathPoint[] closedSet = ObfuscationHelper.getValue(Path.class, path, 2);
 
 		NBTTagList ps = new NBTTagList();
-		for (PathPoint p : points) {
+        assert points != null;
+        for (PathPoint p : points) {
 			ps.appendTag(Server.writePathPoint(p));
 		}
 		nbt.setTag("ps", ps);
 
 		NBTTagList op = new NBTTagList();
-		for (PathPoint p : openSet) {
+        assert openSet != null;
+        for (PathPoint p : openSet) {
 			op.appendTag(Server.writePathPoint(p));
 		}
 		nbt.setTag("op", op);
 
 		NBTTagList cp = new NBTTagList();
-		for (PathPoint p : closedSet) {
+        assert closedSet != null;
+        for (PathPoint p : closedSet) {
 			cp.appendTag(Server.writePathPoint(p));
 		}
 		nbt.setTag("cp", cp);
@@ -575,7 +553,7 @@ public class Server {
 	}
 
 	public static void writeString(ByteBuf buffer, String s) {
-		byte[] bytes = s.getBytes(Charset.forName("UTF-8"));
+		byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
 		buffer.writeInt(bytes.length);
 		buffer.writeBytes(bytes);
 	}

@@ -23,9 +23,9 @@ public interface IAnimation {
 
 	boolean hasFrame(int frame);
 
-	boolean removeFrame(IAnimationFrame frameId);
+	void removeFrame(IAnimationFrame frameId);
 
-	boolean removeFrame(int frameId);
+	void removeFrame(int frameId);
 
 	void setName(String name);
 
@@ -34,5 +34,13 @@ public interface IAnimation {
 	void setRepeatLast(int frames);
 
 	void startToNpc(ICustomNpc<?> npc);
+
+	float getChance();
+
+	void setChance(float chance);
+
+	int getDamageHitboxType();
+
+	void setDamageHitboxType(int type);
 
 }

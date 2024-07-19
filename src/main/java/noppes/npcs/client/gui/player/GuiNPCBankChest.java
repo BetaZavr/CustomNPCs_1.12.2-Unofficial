@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.player;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.lwjgl.input.Mouse;
@@ -36,26 +37,25 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCBankChest extends GuiContainerNPCInterface {
 
-	private static final ResourceLocation backTexture = new ResourceLocation(CustomNpcs.MODID,
-			"textures/gui/smallbg.png");
-	private static final ResourceLocation tabsTexture = new ResourceLocation(
-			"textures/gui/container/creative_inventory/tabs.png");
-	private static final ResourceLocation rowTexture = new ResourceLocation(
-			"textures/gui/container/creative_inventory/tab_items.png");
+	private static final ResourceLocation backTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
+	private static final ResourceLocation tabsTexture = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
+	private static final ResourceLocation rowTexture = new ResourceLocation("textures/gui/container/creative_inventory/tab_items.png");
 	public ContainerNPCBank cont;
 
 	public int row;
-	private int maxRows, yPos, step, ceilPos;
-	private boolean isMany, hoverScroll;
+	private final int maxRows;
+    private int yPos;
+	private int ceilPos;
+    private final int step;
+	private final boolean isMany;
+    private boolean hoverScroll;
 
-	private float currentScroll;
-	private boolean isScrolling, update, isWait;
+    private boolean isScrolling, update, isWait;
 	private ItemStack stack;
 
 	public GuiNPCBankChest(EntityNPCInterface npc, ContainerNPCBank container) {
 		super(npc, container);
-		this.cont = container;
-		this.mc = Minecraft.getMinecraft();
+        this.mc = Minecraft.getMinecraft();
 		this.cont = container;
 		this.isMany = container.items.getSizeInventory() > 45;
 		this.allowUserInput = false;
@@ -198,7 +198,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		for (int s = 0; s < this.cont.inventorySlots.size(); s++) {
 			Slot slot = this.cont.getSlot(s);
-			if (slot != null && slot.xPos > 0 && slot.yPos > 0) {
+			if (slot.xPos > 0 && slot.yPos > 0) {
 				this.drawTexturedModalRect(u + 8 + slot.xPos - 1, v + slot.yPos - 1, 0, 0, 18, 18);
 			}
 		}
@@ -244,8 +244,8 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 			GlStateManager.pushMatrix();
 			GlStateManager.color(2.0F, 2.0F, 2.0F, 1.0F);
 			this.mc.renderEngine.bindTexture(tabsTexture);
-			this.currentScroll = (float) this.row / (float) this.maxRows;
-			int h = (int) (this.currentScroll * 73.0f);
+            float currentScroll = (float) this.row / (float) this.maxRows;
+			int h = (int) (currentScroll * 73.0f);
 			int u = (this.width - this.xSize) / 2 + 177;
 			int v = (this.height - this.ySize) / 2 + 18 + h;
 			this.hoverScroll = mouseX >= u && mouseX <= u + 12 && mouseY >= v && mouseY <= v + 15;
@@ -275,20 +275,18 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
 			if (this.isMouseHover(mouseX, mouseY, u + slot.xPos + 54, v + slot.yPos - 22, 18, 18)) {
-				List<String> list = new ArrayList<String>();
+				List<String> list = new ArrayList<>();
 				CeilSettings cs = this.cont.bank.ceilSettings.get(this.cont.ceil);
 				String t = new TextComponentTranslation("bank." + (this.update ? "upg" : "tab") + ".cost.info",
 						"" + cs.startCeils, "" + cs.maxCeils).getFormattedText();
-				if (t.indexOf("<br>") == -1) {
+				if (!t.contains("<br>")) {
 					list.add(t);
 				} else {
-					for (String str : t.split("<br>")) {
-						list.add(str);
-					}
+                    Collections.addAll(list, t.split("<br>"));
 				}
 				list.addAll(this.stack.getTooltip(this.mc.player,
 						this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
-				this.hoverText = list.toArray(new String[list.size()]);
+				this.hoverText = list.toArray(new String[0]);
 			}
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
@@ -311,10 +309,8 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 						"" + this.cont.bank.ceilSettings.get(this.cont.ceil).maxCeils);
 				if (this.cont.dataCeil < 0) {
 					it.appendSibling(new TextComponentTranslation("bank.hover.update.not.0"));
-				} else if (!this.update && this.cont.dataCeil >= 0
-						&& this.cont.dataCeil < this.cont.bank.ceilSettings.size()) {
-					it.appendSibling(
-							new TextComponentTranslation("bank.hover.update.not.1", "" + (this.cont.dataCeil + 1)));
+				} else if (!this.update && this.cont.dataCeil < this.cont.bank.ceilSettings.size()) {
+					it.appendSibling(new TextComponentTranslation("bank.hover.update.not.1", "" + (this.cont.dataCeil + 1)));
 				}
 				this.setHoverText(it.getFormattedText());
 			} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
@@ -370,8 +366,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 		this.resetSlots();
 		this.stack = ItemStack.EMPTY;
 		CeilSettings cs = this.cont.bank.ceilSettings.get(this.cont.ceil);
-		boolean isOwnwer = !this.cont.bank.isPublic || this.player.capabilities.isCreativeMode
-				|| this.player.getName().equals(this.cont.bank.owner);
+		boolean isOwner = !this.cont.bank.isPublic || this.player.capabilities.isCreativeMode || this.player.getName().equals(this.cont.bank.owner);
 		this.update = this.cont.items.getSizeInventory() > 0;
 		if (this.cont.items.getSizeInventory() == 0 && !cs.openStack.isEmpty()) {
 			this.stack = cs.openStack;
@@ -388,7 +383,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 			int y = this.stack.isEmpty() ? this.guiTop + 36 : v + slot.yPos - 23;
 			GuiNpcButton button = new GuiNpcButton(0, x, y, 60, 18, this.update ? "bank.upgrade" : "bank.unlock");
 			button.enabled = this.player.capabilities.isCreativeMode
-					? (this.update ? this.cont.items.getSizeInventory() < cs.maxCeils : true)
+					? (!this.update || this.cont.items.getSizeInventory() < cs.maxCeils)
 					: this.cont.dataCeil == this.cont.bank.ceilSettings.size();
 			this.addButton(button);
 			if (this.player.capabilities.isCreativeMode) {
@@ -400,9 +395,8 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 				button = new GuiNpcButton(12, x, y += this.stack.isEmpty() ? 44 : 22, 60, 18, "bank.regrade");
 				button.enabled = this.cont.items.getSizeInventory() > 0;
 				this.addButton(button);
-				button = new GuiNpcButton(13, x, y += 22, 60, 18, "quest.reset");
-				button.enabled = this.cont.items.getSizeInventory() > 0
-						&& (!this.cont.items.isEmpty() || this.cont.items.getSizeInventory() != cs.startCeils);
+				button = new GuiNpcButton(13, x, y + 22, 60, 18, "quest.reset");
+				button.enabled = this.cont.items.getSizeInventory() > 0 && (!this.cont.items.isEmpty() || this.cont.items.getSizeInventory() != cs.startCeils);
 				this.addButton(button);
 
 			}
@@ -441,12 +435,12 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 			if (!this.cont.bank.owner.isEmpty() || this.player.capabilities.isCreativeMode) {
 				this.addButton(new GuiNpcButton(9, (this.isMany ? 12 : -4) + (this.width + this.xSize) / 2,
 						this.guiTop - 8, 20, 20, 20, 146, new ResourceLocation("textures/gui/widgets.png")));
-				this.getButton(9).visible = isOwnwer;
+				this.getButton(9).visible = isOwner;
 			}
 		}
 		this.addButton(new GuiNpcButton(10, u + slot.xPos + (this.isMany ? 166 : 159), v + slot.yPos - 24, 20, 20, 20,
 				66, new ResourceLocation(CustomNpcs.MODID, "textures/gui/menusidebutton.png")));
-		this.getButton(10).visible = isOwnwer;
+		this.getButton(10).visible = isOwner;
 		if (this.row > this.maxRows) {
 			this.row = this.maxRows;
 		}
@@ -472,7 +466,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 			int u = 173 + (this.width - this.xSize) / 2;
 			int v = 18 + (this.height - this.ySize) / 2;
 			if (mouseX >= u && mouseX <= u + 11 && mouseY >= v && mouseY <= v + 88) {
-				int h = mouseY - v, r = -1;
+				int h = mouseY - v, r;
 				if (h <= 7) {
 					r = 0;
 				} else if (h >= 81) {
@@ -480,7 +474,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 				} else {
 					r = (int) ((double) this.maxRows * (double) h / 88.0d);
 				}
-				int old = 0 + this.row;
+				int old = this.row;
 				if (r < 0) {
 					r = 0;
 				}
@@ -509,7 +503,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 		if (!this.isMany) {
 			return;
 		}
-		int old = 0 + this.row;
+		int old = this.row;
 		if (bo) {
 			this.row++;
 		} else {
@@ -537,10 +531,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 		}
 		for (int s = 0; s < t; s++) {
 			Slot slot = this.cont.getSlot(s);
-			if (slot == null) {
-				continue;
-			}
-			if (s < m || s >= n) {
+            if (s < m || s >= n) {
 				slot.xPos = -5000;
 				slot.yPos = -5000;
 				continue;

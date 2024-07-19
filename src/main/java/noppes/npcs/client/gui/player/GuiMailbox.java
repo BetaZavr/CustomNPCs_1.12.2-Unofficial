@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui.player;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -9,11 +8,9 @@ import java.util.Random;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -45,7 +42,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 			"textures/gui/mail/box_door.png");
 	private static final ResourceLocation mList = new ResourceLocation(CustomNpcs.MODID,
 			"textures/gui/mail/box_list.png");
-	private Map<String, PlayerMail> scrollData;
+	private final Map<String, PlayerMail> scrollData;
 	private GuiCustomScroll scroll;
 	private PlayerMail selected;
 
@@ -57,10 +54,10 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 	public GuiMailbox() {
 		this.xSize = 192;
 		this.ySize = 236;
-		this.scrollData = Maps.<String, PlayerMail>newHashMap();
+		this.scrollData = Maps.newHashMap();
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.MailGet);
 
-		ClientTickHandler.cheakMails = true;
+		ClientTickHandler.checkMails = true;
 		// Animations
 		tick = 30;
 		mtick = 30;
@@ -76,7 +73,6 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 			if (this.selected == null) {
 				return;
 			}
-			GuiMailmanWrite.parent = this;
 			GuiMailmanWrite.mail = this.selected;
 			step = 4;
 			tick = 15;
@@ -95,29 +91,29 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 			if (this.selected == null) {
 				return;
 			}
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.scroll.getSelected(),
+			GuiYesNo guiyesno = new GuiYesNo(this, this.scroll.getSelected(),
 					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 3: {
 			if (ClientProxy.playerData.mailData.playermail.isEmpty()) {
 				return;
 			}
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("mailbox.name").getFormattedText() + ":",
 					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 4: {
 			if (ClientProxy.playerData.mailData.playermail.isEmpty()) {
 				return;
 			}
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("mailbox.name").getFormattedText() + ":",
 					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 			break;
 		}
 		case 5: {
@@ -131,7 +127,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 	}
 
 	public void confirmClicked(boolean flag, int id) {
-		NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		NoppesUtil.openGUI(this.player, this);
 		if (!flag) {
 			return;
 		}
@@ -151,7 +147,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				0.9f + 0.2f * this.rnd.nextFloat());
 	}
 
-	private void drawMailBox(float u, float v, int mouseX, int mouseY, float partialTicks) {
+	private void drawMailBox(float u, float v) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(u, v, 0.0f);
 		this.mc.renderEngine.bindTexture(mBox);
@@ -245,7 +241,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
 							0.75f + 0.25f * this.rnd.nextFloat());
 				}
-				this.drawMailBox(this.guiLeft, this.guiTop + (1.0f - cos) * 236.0f, mouseX, mouseY, partialTicks);
+				this.drawMailBox(this.guiLeft, this.guiTop + (1.0f - cos) * 236.0f);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop + (1.0f - cos) * 236.0f, 2.0f);
 				this.mc.renderEngine.bindTexture(mDoor);
@@ -263,7 +259,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				break;
 			}
 			case 1: { // opening the door
-				this.drawMailBox(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+				this.drawMailBox(this.guiLeft, this.guiTop);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft - (cos * 193.0f), this.guiTop, 2.0f);
 				this.mc.renderEngine.bindTexture(mDoor);
@@ -278,7 +274,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				break;
 			}
 			case 2: { // turning the door
-				this.drawMailBox(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+				this.drawMailBox(this.guiLeft, this.guiTop);
 				float s = 1.0f - cos;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft - 7.0f - (186.0f) * s, this.guiTop, 2.0f);
@@ -297,7 +293,6 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				GlStateManager.popMatrix();
 				if (tick == 0) {
 					step = 3;
-					tick = 0;
 					mtick = 0;
 					GlStateManager.disableBlend();
 				}
@@ -309,7 +304,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 							CustomNpcs.MODID + ":mail.close.door", (float) this.player.posX, (float) this.player.posY,
 							(float) this.player.posZ, 1.0f, 0.75f + 0.25f * this.rnd.nextFloat());
 				}
-				this.drawMailBox(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+				this.drawMailBox(this.guiLeft, this.guiTop);
 				float s = cos;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft - 7.0f - (186.0f) * s, this.guiTop, 2.0f);
@@ -335,7 +330,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				break;
 			}
 			case 5: { // close the door
-				this.drawMailBox(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+				this.drawMailBox(this.guiLeft, this.guiTop);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft - ((1.0f - cos) * 193.0f), this.guiTop, 2.0f);
 				this.mc.renderEngine.bindTexture(mDoor);
@@ -353,7 +348,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				break;
 			}
 			case 6: { // box hidden
-				this.drawMailBox(this.guiLeft, this.guiTop + cos * 236.0f, mouseX, mouseY, partialTicks);
+				this.drawMailBox(this.guiLeft, this.guiTop + cos * 236.0f);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop + cos * 236.0f, 2.0f);
 				this.mc.renderEngine.bindTexture(mDoor);
@@ -371,7 +366,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 							PlayerMail mail = ClientProxy.playerData.mailData.get(this.selected);
 							if (mail != null) {
 								mail.beenRead = true;
-								ClientTickHandler.cheakMails = true;
+								ClientTickHandler.checkMails = true;
 							}
 							NoppesUtilPlayer.sendData(EnumPlayerPacket.MailRead, this.selected.timeWhenReceived,
 									this.selected.sender);
@@ -391,14 +386,14 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 			}
 			tick--;
 		} else {
-			this.drawMailBox(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+			this.drawMailBox(this.guiLeft, this.guiTop);
 		}
 		GlStateManager.popMatrix();
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (step != 3 || this.hasSubGui() || !CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		List<String> hover = Lists.<String>newArrayList();
+		List<String> hover = Lists.newArrayList();
 		if (this.scroll != null && this.scroll.hover > -1) {
 			PlayerMail mail = this.scrollData.get(this.scroll.getList().get(this.scroll.hover));
 			hover.add(((char) 167) + "7" + new TextComponentTranslation("mailbox.sender").getFormattedText()
@@ -407,10 +402,8 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 			if (CustomNpcs.MailTimeWhenLettersWillBeDeleted > 0) {
 				long timeToRemove = CustomNpcs.MailTimeWhenLettersWillBeDeleted * 86400000L - timeWhenReceived;
 				if (timeToRemove < 0L) {
-					timeToRemove = 0L;
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.MailDelete, mail.timeWhenReceived, mail.sender);
-					mail = null;
-					return;
+                    NoppesUtilPlayer.sendData(EnumPlayerPacket.MailDelete, mail.timeWhenReceived, mail.sender);
+                    return;
 				}
 				hover.add(((char) 167) + "7"
 						+ new TextComponentTranslation("mailbox.when.removed",
@@ -427,7 +420,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 			}
 		}
 		if (!hover.isEmpty()) {
-			this.hoverText = hover.toArray(new String[hover.size()]);
+			this.hoverText = hover.toArray(new String[0]);
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("mailbox.hover.read").getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
@@ -450,7 +443,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 	@Override
 	public void initGui() {
 		super.initGui();
-		ClientTickHandler.cheakMails = true;
+		ClientTickHandler.checkMails = true;
 		if (this.scroll == null) {
 			(this.scroll = new GuiCustomScroll(this, 0)).setSize(165, 154);
 		}
@@ -458,8 +451,8 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 		this.scroll.guiTop = this.guiTop + 45;
 		String select = this.scroll.getSelected();
 		this.scrollData.clear();
-		List<PlayerMail> listR = Lists.<PlayerMail>newArrayList();
-		List<PlayerMail> listN = Lists.<PlayerMail>newArrayList();
+		List<PlayerMail> listR = Lists.newArrayList();
+		List<PlayerMail> listN = Lists.newArrayList();
 		long time = System.currentTimeMillis();
 		for (PlayerMail mail : ClientProxy.playerData.mailData.playermail) {
 			if (time - mail.timeWhenReceived < mail.timeWillCome) {
@@ -471,16 +464,16 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				listN.add(mail);
 			}
 		}
-		Collections.sort(listR, (o1, o2) -> {
-			if (o1.timeWhenReceived == o2.timeWhenReceived) {
-				return 0;
-			} else {
-				return (o1.timeWhenReceived > o2.timeWhenReceived) ? -1 : 1;
-			}
-		});
-		List<String> list = Lists.<String>newArrayList();
-		List<Integer> colors = Lists.<Integer>newArrayList();
-		List<ResourceData> prefixs = Lists.<ResourceData>newArrayList();
+		listR.sort((o1, o2) -> {
+            if (o1.timeWhenReceived == o2.timeWhenReceived) {
+                return 0;
+            } else {
+                return (o1.timeWhenReceived > o2.timeWhenReceived) ? -1 : 1;
+            }
+        });
+		List<String> list = Lists.newArrayList();
+		List<Integer> colors = Lists.newArrayList();
+		List<ResourceData> prefixs = Lists.newArrayList();
 		int i = 1;
 		for (PlayerMail mail : listN) {
 			String key = ((char) 167) + "8" + i + ": " + ((char) 167) + "r\""

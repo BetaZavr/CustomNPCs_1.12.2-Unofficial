@@ -1,5 +1,6 @@
 package noppes.npcs.controllers.data;
 
+import java.util.Collections;
 import java.util.UUID;
 
 import net.minecraft.item.ItemStack;
@@ -41,8 +42,7 @@ public class TransportLocation implements ITransportLocation {
 		tl.npc = this.npc;
 		tl.money = this.money;
 		tl.pos = this.pos;
-		tl.npc = this.npc;
-		for (int i = 0; i < this.inventory.items.size(); i++) {
+        for (int i = 0; i < this.inventory.items.size(); i++) {
 			tl.inventory.items.set(i, this.inventory.items.get(i).copy());
 		}
 		tl.category = this.category;
@@ -115,20 +115,13 @@ public class TransportLocation implements ITransportLocation {
 				this.inventory.items.remove(this.inventory.items.size() - 1);
 			}
 		} else {
-			for (int i = 0; i < this.inventory.items.size(); i++) {
-				this.inventory.items.set(i, ItemStack.EMPTY);
-			}
+            Collections.fill(this.inventory.items, ItemStack.EMPTY);
 		}
 	}
 
 	@Override
-	public void setPos(int dimentionID, int x, int y, int z) {
-		/*
-		 * if (!DimensionHandler.getInstance().getMapDimensionsIDs().containsValue(
-		 * dimentionID)) { throw new CustomNPCsException("Unknown dimention ID: " +
-		 * dimentionID); }
-		 */
-		this.dimension = dimentionID;
+	public void setPos(int dimensionID, int x, int y, int z) {
+		this.dimension = dimensionID;
 		this.pos = new BlockPos(x, y, z);
 	}
 

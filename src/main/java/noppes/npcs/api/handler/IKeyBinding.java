@@ -10,6 +10,6 @@ public interface IKeyBinding {
 
 	IKeySetting[] getKeySettings();
 
-	boolean removeKeySetting(int id);
+	void removeKeySetting(int id);
 
 }

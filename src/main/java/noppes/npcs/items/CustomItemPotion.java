@@ -12,6 +12,8 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.potions.PotionData;
 import noppes.npcs.util.AdditionalMethods;
 
+import javax.annotation.Nonnull;
+
 public class CustomItemPotion extends ItemPotion {
 
 	public CustomItemPotion() {
@@ -20,7 +22,7 @@ public class CustomItemPotion extends ItemPotion {
 		this.setUnlocalizedName("potion");
 	}
 
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (this.getCreativeTab() == null) {
 			return;
 		}
@@ -48,8 +50,7 @@ public class CustomItemPotion extends ItemPotion {
 					stack.setCount(count);
 				}
 				items.add(stack);
-				continue;
-			} else if (tab == CreativeTabs.SEARCH
+            } else if (tab == CreativeTabs.SEARCH
 					|| (tab == this.getCreativeTab() && !CustomRegisters.custompotiontypes.containsKey(potiontype))) {
 				items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
 			}

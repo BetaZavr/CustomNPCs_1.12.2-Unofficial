@@ -1,12 +1,10 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
@@ -17,33 +15,31 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.IEmotion;
 import noppes.npcs.api.handler.IAnimationHandler;
-import noppes.npcs.client.Client;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.util.AdditionalMethods;
 
 public class AnimationController implements IAnimationHandler {
 
 	private static AnimationController instance;
-	public static int version = 0;
-	public final TreeMap<Integer, AnimationConfig> animations = Maps.<Integer, AnimationConfig>newTreeMap();
-	public final TreeMap<Integer, EmotionConfig> emotions = Maps.<Integer, EmotionConfig>newTreeMap();
+	public final TreeMap<Integer, AnimationConfig> animations = Maps.newTreeMap();
+	public final TreeMap<Integer, EmotionConfig> emotions = Maps.newTreeMap();
 	private String filePath;
-	
+
 	public static AnimationController getInstance() {
 		if (newInstance()) {
 			AnimationController.instance = new AnimationController();
 		}
 		return AnimationController.instance;
 	}
-	
+
 	private static boolean newInstance() {
 		if (AnimationController.instance == null) {
 			return true;
@@ -109,14 +105,14 @@ public class AnimationController implements IAnimationHandler {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public IAnimation[] getAnimations() {
-		return animations.values().toArray(new IAnimation[animations.size()]);
+		return animations.values().toArray(new IAnimation[0]);
 	}
 
 	public List<AnimationConfig> getAnimations(List<Integer> ids) {
-		List<AnimationConfig> list = Lists.<AnimationConfig>newArrayList();
+		List<AnimationConfig> list = Lists.newArrayList();
 		if (ids == null || ids.isEmpty()) { return list; }
 		for (AnimationConfig ac : this.animations.values()) {
 			for (int id : ids) {
@@ -129,28 +125,6 @@ public class AnimationController implements IAnimationHandler {
 		return list;
 	}
 
-	public NBTTagCompound getNBT() {
-		NBTTagCompound compound = new NBTTagCompound();
-		
-		NBTTagList listA = new NBTTagList();
-		for (int id : this.animations.keySet()) {
-			NBTTagCompound nbtAnimation = this.animations.get(id).writeToNBT(new NBTTagCompound());
-			nbtAnimation.setInteger("ID", id);
-			listA.appendTag(nbtAnimation);
-		}
-		compound.setTag("Animations", listA);
-		
-		NBTTagList listE = new NBTTagList();
-		for (int id : this.emotions.keySet()) {
-			NBTTagCompound nbtEmotion = this.emotions.get(id).writeToNBT(new NBTTagCompound());
-			nbtEmotion.setInteger("ID", id);
-			listE.appendTag(nbtEmotion);
-		}
-		compound.setTag("Emotions", listE);
-
-		return compound;
-	}
-
 	public int getUnusedEmtnId() {
 		int id = 0;
 		for (int i : this.emotions.keySet()) {
@@ -161,7 +135,7 @@ public class AnimationController implements IAnimationHandler {
 		}
 		return id;
 	}
-	
+
 	public int getUnusedAnimId() {
 		int id = 0;
 		for (int i : this.animations.keySet()) {
@@ -172,31 +146,31 @@ public class AnimationController implements IAnimationHandler {
 		}
 		return id;
 	}
-	
+
 	public IAnimation loadAnimation(NBTTagCompound nbtAnimation) {
 		if (nbtAnimation == null || !nbtAnimation.hasKey("ID", 3) || nbtAnimation.getInteger("ID") < 0) {
 			return null;
 		}
 		if (this.animations.containsKey(nbtAnimation.getInteger("ID"))) {
-			this.animations.get(nbtAnimation.getInteger("ID")).readFromNBT(nbtAnimation);
+			this.animations.get(nbtAnimation.getInteger("ID")).load(nbtAnimation);
 			return this.animations.get(nbtAnimation.getInteger("ID"));
 		}
 		AnimationConfig ac = new AnimationConfig();
-		ac.readFromNBT(nbtAnimation);
-		this.animations.put(nbtAnimation.getInteger("ID"), ac);
+		ac.load(nbtAnimation);
+		this.animations.put(ac.id, ac);
 		return this.animations.get(nbtAnimation.getInteger("ID"));
 	}
-	
+
 	public IEmotion loadEmotion(NBTTagCompound nbtEmotion) {
 		if (nbtEmotion == null || !nbtEmotion.hasKey("ID", 3) || nbtEmotion.getInteger("ID") < 0) {
 			return null;
 		}
 		if (this.emotions.containsKey(nbtEmotion.getInteger("ID"))) {
-			this.emotions.get(nbtEmotion.getInteger("ID")).readFromNBT(nbtEmotion);
+			this.emotions.get(nbtEmotion.getInteger("ID")).read(nbtEmotion);
 			return this.emotions.get(nbtEmotion.getInteger("ID"));
 		}
 		EmotionConfig ec = new EmotionConfig();
-		ec.readFromNBT(nbtEmotion);
+		ec.read(nbtEmotion);
 		this.emotions.put(nbtEmotion.getInteger("ID"), ec);
 		return this.emotions.get(nbtEmotion.getInteger("ID"));
 	}
@@ -210,53 +184,123 @@ public class AnimationController implements IAnimationHandler {
 			CustomNpcs.debugData.startDebug("Common", null, "loadAnimations");
 		}
 		this.filePath = saveDir.getName();
-		try {
-			File file = new File(saveDir, "animations.dat");
-			if (file.exists()) {
-				this.loadAnimations(file);
-			} else {
-				this.loadDefaultAnimations(-1);
-			}
-		} catch (Exception e) {
-			this.loadDefaultAnimations(-1);
+		File oldFile = new File(saveDir, "animations.dat");
+		if (oldFile.exists()) {
+			try { this.loadOldAnimations(CompressedStreamTools.readCompressed(Files.newInputStream(oldFile.toPath()))); } catch (Exception e) { LogWriter.error("Error:", e); }
+			AdditionalMethods.removeFile(oldFile);
 		}
-		if (this.animations.size() == 0) {
-			this.loadDefaultAnimations(-1);
+
+		File animDir = new File(saveDir, "animations");
+		if (animDir.exists()) {
+			try { this.loadAnimations(animDir); } catch (Exception e) { LogWriter.error("Error:", e); }
+		} else {
+			animDir.mkdirs();
 		}
+
+		File emtnDir = new File(saveDir, "emotions");
+		if (emtnDir.exists()) {
+			try { this.loadEmotions(emtnDir); } catch (Exception e) { LogWriter.error("Error:", e); }
+		} else { emtnDir.mkdirs(); }
+		this.loadDefaultAnimations();
 		CustomNpcs.debugData.endDebug("Common", null, "loadAnimations");
 	}
 
-	private void loadAnimations(File file) throws IOException {
-		this.loadAnimations(CompressedStreamTools.readCompressed(new FileInputStream(file)));
-	}
-
-	public void loadAnimations(NBTTagCompound compound) throws IOException {
+	private void loadOldAnimations(NBTTagCompound compound) {
 		this.animations.clear();
 		NBTTagList listA = compound.getTagList("Animations", 10);
 		if (compound.hasKey("Animations", 9)) { listA = compound.getTagList("Animations", 10); }
 		else if (compound.hasKey("Data", 9)) { listA = compound.getTagList("Data", 10); }
-		if (listA != null) {
-			for (int i = 0; i < listA.tagCount(); ++i) {
-				this.loadAnimation(listA.getCompoundTagAt(i));
-			}
-		}
+        for (int i = 0; i < listA.tagCount(); ++i) {
+            AnimationConfig anim = (AnimationConfig) this.loadAnimation(listA.getCompoundTagAt(i));
+            anim.immutable = true;
+            anim.isEdit = (byte) 0;
+        }
+        this.emotions.clear();
 		NBTTagList listE = compound.getTagList("Emotions", 10);
-		if (listE != null) {
-			for (int i = 0; i < listE.tagCount(); ++i) {
-				this.loadEmotion(listE.getCompoundTagAt(i));
-			}
+        for (int i = 0; i < listE.tagCount(); ++i) {
+            EmotionConfig emtn = (EmotionConfig) this.loadEmotion(listE.getCompoundTagAt(i));
+            emtn.immutable = true;
+        }
+    }
+
+	private void loadAnimations(File file) {
+		this.animations.clear();
+		for (File f : Objects.requireNonNull(file.listFiles())) {
+			try {
+				NBTTagCompound nbt = CompressedStreamTools.readCompressed(Files.newInputStream(f.toPath()));
+				int id = -1;
+				try { id = Integer.parseInt(f.getName().toLowerCase().replace(".dat", "")); } catch (Exception e) { LogWriter.error("Error:", e); }
+				if (id != -1 && this.animations.containsKey(id)) { nbt.setInteger("ID", this.getUnusedAnimId()); }
+				else { nbt.setInteger("ID", id); }
+				this.loadAnimation(nbt);
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 	}
 
-	private void loadDefaultAnimations(int version) {
-		if (version == AnimationController.version) {
-			return;
-		}
-		InputStream inputStream = AdditionalMethods.instance.getModInputStream("default_animations.dat");
-		if (inputStream != null) {
+	private void loadEmotions(File file) {
+		this.emotions.clear();
+		for (File f : Objects.requireNonNull(file.listFiles())) {
 			try {
-				this.loadAnimations(CompressedStreamTools.readCompressed(inputStream));
-			} catch (Exception e) {
+				try {
+					NBTTagCompound nbt = CompressedStreamTools.readCompressed(Files.newInputStream(f.toPath()));
+					int id = -1;
+					try { id = Integer.parseInt(f.getName().toLowerCase().replace(".dat", "")); } catch (Exception e) { LogWriter.error("Error:", e); }
+					if (id != -1 && this.animations.containsKey(id)) { nbt.setInteger("ID", this.getUnusedAnimId()); }
+					else { nbt.setInteger("ID", id); }
+					this.loadEmotion(nbt);
+				} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error("Error:", e); }
+		}
+	}
+
+	private void loadDefaultAnimations() {
+		InputStream inputStream = AdditionalMethods.instance.getModInputStream("default_animations.dat");
+		System.out.println("CNPCs: "+inputStream);
+		if (inputStream == null) { return; }
+		NBTTagCompound compound = new NBTTagCompound();
+		try { compound = CompressedStreamTools.readCompressed(inputStream); } catch (Exception e) { LogWriter.error("Error:", e); }
+		NBTTagList listA = compound.getTagList("Animations", 10);
+		if (listA.tagCount() != 0) {
+			for (int i = 0; i < listA.tagCount(); ++i) {
+				NBTTagCompound nbt = listA.getCompoundTagAt(i);
+				int id = nbt.getInteger("ID");
+				if (this.animations.containsKey(id)) {
+					if (!this.animations.get(id).immutable || !this.animations.get(id).name.equals(nbt.getString("Name"))) {
+						boolean found = false;
+						for (AnimationConfig anim : this.animations.values()) {
+							if (anim.name.equals(nbt.getString("Name"))) {
+								id = anim.id;
+								found = true;
+								break;
+							}
+						}
+						if (!found) { id = this.getUnusedAnimId(); }
+						nbt.setInteger("ID", id);
+					}
+				}
+				this.loadAnimation(nbt);
+			}
+		}
+		NBTTagList listE = compound.getTagList("Emotions", 10);
+		if (listE.tagCount() != 0) {
+			for (int i = 0; i < listE.tagCount(); ++i) {
+				NBTTagCompound nbt = listE.getCompoundTagAt(i);
+				int id = nbt.getInteger("ID");
+				if (this.emotions.containsKey(id)) {
+					if (!this.emotions.get(id).immutable || !this.emotions.get(id).name.equals(nbt.getString("Name"))) {
+						boolean found = false;
+						for (EmotionConfig emtn : this.emotions.values()) {
+							if (emtn.name.equals(nbt.getString("Name"))) {
+								id = emtn.id;
+								found = true;
+								break;
+							}
+						}
+						if (!found) { id = this.getUnusedEmtnId(); }
+						nbt.setInteger("ID", id);
+					}
+				}
+				this.loadEmotion(nbt);
 			}
 		}
 	}
@@ -306,11 +350,23 @@ public class AnimationController implements IAnimationHandler {
 	}
 
 	public void save() {
-		try {
-			CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "animations.dat")));
-		} catch (Exception e) {
-			e.printStackTrace();
+		File saveDir = CustomNpcs.Dir;
+		if (saveDir == null) {
+			return;
 		}
+		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.startDebug("Common", null, "saveAnimations"); }
+		File animDir = new File(saveDir, "animations");
+		if (!animDir.exists()) { animDir.mkdirs(); }
+		for (int id : this.animations.keySet()) {
+			try { CompressedStreamTools.writeCompressed(this.animations.get(id).save(), Files.newOutputStream(new File(animDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error("Error:", e); }
+		}
+		File emtnDir = new File(saveDir, "emotions");
+		if (!emtnDir.exists()) { emtnDir.mkdirs(); }
+		for (int id : this.emotions.keySet()) {
+			try { CompressedStreamTools.writeCompressed(this.emotions.get(id).save(), Files.newOutputStream(new File(emtnDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error("Error:", e); }
+		}
+
+		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.endDebug("Common", null, "saveAnimations"); }
 	}
 
 	public void sendTo(EntityPlayerMP player) {
@@ -319,27 +375,16 @@ public class AnimationController implements IAnimationHandler {
 		}
 		Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, new NBTTagCompound());
 		for (AnimationConfig ac : this.animations.values()) {
-			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, ac.writeToNBT(new NBTTagCompound()));
+			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, ac.save());
 		}
 		Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.EmotionData, new NBTTagCompound());
 		for (EmotionConfig ec : this.emotions.values()) {
-			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.EmotionData, ec.writeToNBT(new NBTTagCompound()));
+			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.EmotionData, ec.save());
 		}
 	}
 
-	public void sendToServer() {
-		NBTTagCompound nbt = new NBTTagCompound();
-		Client.sendData(EnumPacketServer.AnimationChange, nbt);
-		List<AnimationConfig> listA = Lists.newArrayList(animations.values());
-		for (AnimationConfig ac : listA) {
-			Client.sendData(EnumPacketServer.AnimationChange, ac.writeToNBT(new NBTTagCompound()));
-		}
-		nbt.setBoolean("save", true);
-		Client.sendData(EnumPacketServer.AnimationChange, nbt);
-	}
-	
 	public IEmotion[] getEmotions() {
-		return this.emotions.values().toArray(new IEmotion[this.emotions.size()]);
+		return this.emotions.values().toArray(new IEmotion[0]);
 	}
 
 }

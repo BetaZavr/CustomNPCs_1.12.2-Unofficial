@@ -2,10 +2,10 @@ package noppes.npcs.items;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -24,28 +24,26 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.IPermission;
 
-public class ItemNpcMovingPath extends Item implements IPermission {
+public class ItemNpcMovingPath extends Item implements IPermission, INPCToolItem {
 
 	public ItemNpcMovingPath() {
 		this.setRegistryName(CustomNpcs.MODID, "npcmovingpath");
 		this.setUnlocalizedName("npcmovingpath");
 		this.setFull3D();
 		this.maxStackSize = 1;
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list == null) {
-			return;
-		}
-		list.add(new TextComponentTranslation("info.item.moving.path").getFormattedText());
+	public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<String> list, @Nonnull ITooltipFlag flagIn) {
+        list.add(new TextComponentTranslation("info.item.moving.path").getFormattedText());
 		for (int i = 0; i < 3; i++) {
 			if (i == 1 || i == 2) {
 				list.add(new TextComponentTranslation("info.item.moving.path." + i,
@@ -56,13 +54,13 @@ public class ItemNpcMovingPath extends Item implements IPermission {
 		}
 	}
 
-	/** Registred in EntityNPCInterface.processInteract() */
+	/** Registered in EntityNPCInterface.processInteract() */
 	private EntityNPCInterface getNpc(ItemStack item, World world) {
 		if (world.isRemote || item.getTagCompound() == null) {
 			return null;
 		}
 		Entity entity = world.getEntityByID(item.getTagCompound().getInteger("NPCID"));
-		if (entity == null || !(entity instanceof EntityNPCInterface)) {
+		if (!(entity instanceof EntityNPCInterface)) {
 			return null;
 		}
 		return (EntityNPCInterface) entity;
@@ -72,10 +70,10 @@ public class ItemNpcMovingPath extends Item implements IPermission {
 		return e == EnumPacketServer.MovingPathGet || e == EnumPacketServer.MovingPathSave;
 	}
 
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+	public @Nonnull ActionResult<ItemStack> onItemRightClick(@Nonnull World world, @Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
 		ItemStack stack;
 		if (hand == EnumHand.OFF_HAND) {
-			return new ActionResult<ItemStack>(EnumActionResult.PASS, player.getHeldItem(EnumHand.OFF_HAND));
+			return new ActionResult<>(EnumActionResult.PASS, player.getHeldItem(EnumHand.OFF_HAND));
 		}
 		stack = player.getHeldItem(hand);
 		if (!world.isRemote) {
@@ -84,14 +82,13 @@ public class ItemNpcMovingPath extends Item implements IPermission {
 				if (npc != null && (player.isSneaking() || npc.ais.getMovingType() == 2)) {
 					NoppesUtilServer.sendOpenGui(player, EnumGuiType.MovingPath, npc);
 				}
-				return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+				return new ActionResult<>(EnumActionResult.SUCCESS, stack);
 			}
 		}
-		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+		return new ActionResult<>(EnumActionResult.PASS, stack);
 	}
 
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos bpos, EnumHand hand, EnumFacing side,
-			float hitX, float hitY, float hitZ) {
+	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos bpos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (!world.isRemote && hand == EnumHand.MAIN_HAND) {
 			if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER)) {
 				ItemStack stack = player.getHeldItem(hand);
@@ -106,8 +103,7 @@ public class ItemNpcMovingPath extends Item implements IPermission {
 				int z = bpos.getZ();
 				if (npc.ais.getMovingType() != 2) {
 					npc.setHomePosAndDistance(new BlockPos(x, y, z), (int) npc.getMaximumHomeDistance());
-					player.sendMessage(new TextComponentTranslation("message.pather.home", "" + ((char) 167) + "6" + x,
-							"" + ((char) 167) + "6" + y, "" + ((char) 167) + "6" + z, npc.getName()));
+					player.sendMessage(new TextComponentTranslation("message.pather.home", ((char) 167) + "6" + x, ((char) 167) + "6" + y, ((char) 167) + "6" + z, npc.getName()));
 				} else {
 					boolean added = true;
 					if (!list.isEmpty()) {
@@ -120,12 +116,9 @@ public class ItemNpcMovingPath extends Item implements IPermission {
 						double d4 = y - pos[1];
 						double d5 = z - pos[2];
 						double distance = MathHelper.sqrt(d3 * d3 + d4 * d4 + d5 * d5);
-						player.sendMessage(
-								new TextComponentTranslation("message.pather.add", "" + ((char) 167) + "6" + x,
-										"" + ((char) 167) + "6" + y, "" + ((char) 167) + "6" + z, npc.getName()));
+						player.sendMessage(new TextComponentTranslation("message.pather.add", ((char) 167) + "6" + x, ((char) 167) + "6" + y, ((char) 167) + "6" + z, npc.getName()));
 						if (distance > CustomNpcs.NpcNavRange) {
-							player.sendMessage(new TextComponentTranslation("message.pather.warn.add",
-									"" + ((char) 167) + "6" + CustomNpcs.NpcNavRange));
+							player.sendMessage(new TextComponentTranslation("message.pather.warn.add", ((char) 167) + "6" + CustomNpcs.NpcNavRange));
 						}
 					}
 				}

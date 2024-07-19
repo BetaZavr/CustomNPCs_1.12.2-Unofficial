@@ -17,13 +17,12 @@ public class DataTimers implements ITimers {
 
 	class Timer {
 		public int id;
-		private boolean repeat;
+		private final boolean repeat;
 		private int ticks;
-		private int timerTicks;
+		private final int timerTicks;
 
 		public Timer(int id, int ticks, boolean repeat) {
-			this.ticks = 0;
-			this.id = id;
+            this.id = id;
 			this.repeat = repeat;
 			this.timerTicks = ticks;
 			this.ticks = ticks;
@@ -49,18 +48,18 @@ public class DataTimers implements ITimers {
 		}
 	}
 
-	private Object parent;
+	private final Object parent;
 
 	private Map<Integer, Timer> timers;
 
 	public DataTimers(Object parent) {
-		this.timers = new HashMap<Integer, Timer>();
+		this.timers = new HashMap<>();
 		this.parent = parent;
 	}
 
 	@Override
 	public void clear() {
-		this.timers = new HashMap<Integer, Timer>();
+		this.timers = new HashMap<>();
 	}
 
 	@Override
@@ -74,7 +73,7 @@ public class DataTimers implements ITimers {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		Map<Integer, Timer> timers = new HashMap<Integer, Timer>();
+		Map<Integer, Timer> timers = new HashMap<>();
 		NBTTagList list = compound.getTagList("NpcsTimers", 10);
 		for (int i = 0; i < list.tagCount(); ++i) {
 			NBTTagCompound c = list.getCompoundTagAt(i);
@@ -89,7 +88,7 @@ public class DataTimers implements ITimers {
 	public void reset(int id) {
 		Timer timer = this.timers.get(id);
 		if (timer == null) {
-			throw new CustomNPCsException("There is no timer with id: " + id, new Object[0]);
+			throw new CustomNPCsException("There is no timer with id: " + id);
 		}
 		timer.ticks = 0;
 	}
@@ -97,7 +96,7 @@ public class DataTimers implements ITimers {
 	@Override
 	public void start(int id, int ticks, boolean repeat) {
 		if (this.timers.containsKey(id)) {
-			throw new CustomNPCsException("There is already a timer with id: " + id, new Object[0]);
+			throw new CustomNPCsException("There is already a timer with id: " + id);
 		}
 		this.timers.put(id, new Timer(id, ticks, repeat));
 	}
@@ -108,7 +107,7 @@ public class DataTimers implements ITimers {
 	}
 
 	public void update() {
-		for (Timer timer : new ArrayList<Timer>(this.timers.values())) {
+		for (Timer timer : new ArrayList<>(this.timers.values())) {
 			timer.update();
 		}
 	}

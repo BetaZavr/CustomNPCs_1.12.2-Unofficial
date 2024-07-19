@@ -1,6 +1,5 @@
 package noppes.npcs.entity;
 
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -31,7 +30,7 @@ public class EntityNpcPony extends EntityNPCInterface {
 			EntityCustomNpc npc = new EntityCustomNpc(this.world);
 			npc.readFromNBT(compound);
 			ModelData data = npc.modelData;
-			data.setEntityClass((Class<? extends EntityLivingBase>) EntityNpcPony.class);
+			data.setEntityClass(EntityNpcPony.class);
 			this.world.spawnEntity(npc);
 		}
 		super.onUpdate();

@@ -13,8 +13,8 @@ extends SubGuiInterface {
 	public boolean cancelled;
 	public int[] numbersOnly; // min, max, def
 	public String lable;
-	public String[] hovers = new String[1];
-	public String[] text = new String[1];
+	public String[] hovers;
+	public String[] text;
 
 	public SubGuiEditText(int id, String text) {
 		this(new String[] { text });
@@ -30,8 +30,8 @@ extends SubGuiInterface {
 		this.numbersOnly = null;
 		this.lable = null;
 		this.cancelled = true;
-		this.text = new String[texts.length > 5 ? 5 : texts.length];
-		this.hovers = new String[texts.length > 5 ? 5 : texts.length];
+		this.text = new String[Math.min(texts.length, 5)];
+		this.hovers = new String[Math.min(texts.length, 5)];
 		for (int i = 0; i < texts.length && i < 5; i++) {
 			this.text[i] = AdditionalMethods.instance.deleteColor(texts[i]);
 			this.hovers[i] = "";
@@ -56,7 +56,7 @@ extends SubGuiInterface {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		for (int i = 0; i < this.hovers.length && i < hovers.length; i++) {
+		for (int i = 0; i < this.hovers.length; i++) {
 			if (this.hovers[i] == null || this.hovers[i].isEmpty() || this.getTextField(i) == null) {
 				continue;
 			}
@@ -100,11 +100,7 @@ extends SubGuiInterface {
 		}
 	}
 
-	@Override
-	public void save() {
-	}
-
-	public void setHoverTexts(String[] hovers) {
+    public void setHoverTexts(String[] hovers) {
 		for (int i = 0; i < this.hovers.length && i < hovers.length; i++) {
 			this.hovers[i] = hovers[i];
 		}

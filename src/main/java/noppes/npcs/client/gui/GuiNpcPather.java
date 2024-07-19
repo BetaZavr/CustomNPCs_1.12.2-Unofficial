@@ -70,18 +70,14 @@ public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
 				return;
 			}
 			list.remove(this.scroll.selected);
-			int selected = this.scroll.selected - 1;
-			if (selected == -1 && list.isEmpty()) {
-				selected = 0;
-			}
-			this.scroll.selected = selected;
+            this.scroll.selected = this.scroll.selected - 1;
 			this.path = list;
 			this.initGui();
 		}
 		this.npc.ais.setMovingPath(this.path);
 	}
 
-	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
+	protected void drawGuiContainerBackgroundLayer(float ignoredF, int ignoredI, int ignoredJ) {
 	}
 
 	@Override
@@ -95,23 +91,23 @@ public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
 			Vec3d vec3d2 = this.player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 6.0d, vec3d2.y * 6.0d, vec3d2.z * 6.0d);
 			RayTraceResult result = this.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, true);
-			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.getBlockPos() != null) {
-				int x = result.getBlockPos().getX();
-				int y = result.getBlockPos().getY();
-				int z = result.getBlockPos().getZ();
-				int i = 0;
-				for (int[] arr : this.path) {
-					if (arr[0] == x && y == arr[1] && z == arr[2]) {
-						sel = i;
-						break;
-					}
-					i++;
-				}
-			}
+			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK) {
+                int x = result.getBlockPos().getX();
+                int y = result.getBlockPos().getY();
+                int z = result.getBlockPos().getZ();
+                int i = 0;
+                for (int[] arr : this.path) {
+                    if (arr[0] == x && y == arr[1] && z == arr[2]) {
+                        sel = i;
+                        break;
+                    }
+                    i++;
+                }
+            }
 		}
 		super.initGui();
 		(this.scroll = new GuiCustomScroll(this, 0)).setSize(160, 164);
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (int[] arr : this.path) {
 			list.add("x:" + arr[0] + " y:" + arr[1] + " z:" + arr[2]);
 		}
@@ -127,7 +123,7 @@ public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
 
 	@Override
 	public void initPacket() {
-		Client.sendData(EnumPacketServer.MovingPathGet, new Object[0]);
+		Client.sendData(EnumPacketServer.MovingPathGet);
 	}
 
 	@Override

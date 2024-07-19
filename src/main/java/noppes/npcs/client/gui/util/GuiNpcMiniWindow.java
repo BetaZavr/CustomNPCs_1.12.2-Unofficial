@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.util;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -10,18 +11,18 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.animation.SubGuiEditAnimation;
+import noppes.npcs.util.ObfuscationHelper;
 
-public class GuiNpcMiniWindow
-extends GuiNPCInterface
-implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollListener, IKeyListener {
+public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollListener, IKeyListener {
 
-	private IEditNPC parent;
+	private final IEditNPC parent;
 	private IComponentGui point;
 	public int id, mousePressX, mousePressY;
 	private int colorLine = 0x6C00FF;
 	public boolean hovered = false, isMoving = false, visible = true;
-	public String title = "";
-	
+	public String title;
+	public Object[] objs = null;
+
 	public GuiNpcMiniWindow(IEditNPC parent, int id, int x, int y, int width, int height, String title) {
 		this.parent = parent;
 		this.id = id;
@@ -31,11 +32,12 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 		this.ySize = height + 12;
 		this.title = new TextComponentTranslation(title).getFormattedText();
 		this.setBackground("bgfilled.png");
+		this.buttonList.clear();
 	}
 
 	@Override
 	public void save() { }
-	
+
 	public void buttonEvent(GuiNpcButton button) {
 		if (!this.hovered) { return; }
 		if (button.id == 2500) {
@@ -99,13 +101,12 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 			for (GuiNpcTextField t : textfields.values()) {
 				if (t.isMouseOver()) {
 					this.parent.setMiniHoverText(id, t);
-					foundHover = true;
-					break;
+                    break;
 				}
 			}
 		}
 	}
-	
+
 	public void postDrawBackground() {
 		GuiNpcMiniWindow.drawTopRect(guiLeft + 3, guiTop + 3, guiLeft + xSize - 3, guiTop + 11, this.zLevel, this.colorLine + 0xF0000000, this.colorLine + 0x40000000);
 		this.drawString(this.fontRenderer, this.title, guiLeft + 4, guiTop + 3, CustomNpcs.MainColor.getRGB());
@@ -121,6 +122,18 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 	}
 
 	public void keyTyped(char c, int i) {
+		if (i == 15 && GuiNpcTextField.isActive() && this.textfields.containsValue(GuiNpcTextField.activeTextfield)) { // Tab
+			int id = GuiNpcTextField.activeTextfield.getId() + 1;
+			if (id > (this.getTextField(9) != null ? 9 : 7)) { id = 5; }
+			GuiNpcTextField textField = this.getTextField(id);
+			if (textField != null) {
+				GuiNpcTextField.activeTextfield.unFocused();
+				textField.setFocused(true);
+				ObfuscationHelper.setValue(GuiTextField.class, textField, 0, 14);
+				ObfuscationHelper.setValue(GuiTextField.class, textField, textField.getText().length(), 15);
+				GuiNpcTextField.activeTextfield = textField;
+			}
+		}
 		super.keyTyped(c, i);
 	}
 
@@ -190,7 +203,7 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 			this.parent.unFocused(textField);
 		}
 	}
-	
+
 	public static void drawTopRect(int left, int top, int right, int bottom, float zLevel, int startColor, int endColor) {
 		float f = (float)(startColor >> 24 & 255) / 255.0F;
 		float f1 = (float)(startColor >> 16 & 255) / 255.0F;
@@ -208,12 +221,12 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-		
-		bufferbuilder.pos((double)left, (double)top, (double)zLevel).color(f1, f2, f3, f).endVertex();
-		bufferbuilder.pos((double)left, (double)bottom, (double)zLevel).color(f1, f2, f3, f).endVertex();
-		bufferbuilder.pos((double)right, (double)bottom, (double)zLevel).color(f5, f6, f7, f4).endVertex();
-		bufferbuilder.pos((double)right, (double)top, (double)zLevel).color(f5, f6, f7, f4).endVertex();
-		
+
+		bufferbuilder.pos(left, top, zLevel).color(f1, f2, f3, f).endVertex();
+		bufferbuilder.pos(left, bottom, zLevel).color(f1, f2, f3, f).endVertex();
+		bufferbuilder.pos(right, bottom, zLevel).color(f5, f6, f7, f4).endVertex();
+		bufferbuilder.pos(right, top, zLevel).color(f5, f6, f7, f4).endVertex();
+
 		tessellator.draw();
 		GlStateManager.shadeModel(7424);
 		GlStateManager.disableBlend();
@@ -229,17 +242,23 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 	public int[] getCenter() {
 		return new int[] { this.guiLeft + this.width / 2, this.guiTop + this.height / 2};
 	}
-	
+
 	public void setColorLine(int color) {
 		int red = color >> 16 & 255;
 		int green = color >> 8 & 255;
 		int blue = color & 255;
 		this.colorLine = (red << 16) + (green << 8) + blue;
 	}
-	
+
 	public int getColorLine() { return this.colorLine; }
-	
+
 	public void resetButtons() {
+		for (GuiButton b : this.buttonList) {
+			if (b.id == 2500) {
+				this.buttonList.remove(b);
+				break;
+			}
+		}
 		GuiNpcButton exit = new GuiNpcButton(2500, guiLeft + xSize - 12, guiTop + 3, 8, 8, "X");
 		exit.texture = SubGuiEditAnimation.btns;
 		exit.hasDefBack = false;
@@ -250,5 +269,5 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 		exit.textColor = 0xFF404040;
 		this.addButton(exit);
 	}
-	
+
 }

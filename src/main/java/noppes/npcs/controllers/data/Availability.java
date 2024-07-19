@@ -1,10 +1,6 @@
 package noppes.npcs.controllers.data;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 
@@ -38,7 +34,7 @@ import noppes.npcs.util.ValueUtil;
 
 public class Availability implements ICompatibilty, IAvailability {
 
-	public static HashSet<String> scores = new HashSet<String>();
+	public static HashSet<String> scores = new HashSet<>();
 	public int[] daytime;
 	public final Map<Integer, EnumAvailabilityDialog> dialogues; // ID, Availability
 	public final Map<Integer, AvailabilityFactionData> factions; // ID, [Stance, Availability]
@@ -60,12 +56,12 @@ public class Availability implements ICompatibilty, IAvailability {
 		this.minPlayerLevel = 0;
 		this.health = 100;
 		this.healthType = 0;
-		this.dialogues = new HashMap<Integer, EnumAvailabilityDialog>();
-		this.quests = new HashMap<Integer, EnumAvailabilityQuest>();
-		this.factions = new HashMap<Integer, AvailabilityFactionData>();
-		this.scoreboards = new HashMap<String, AvailabilityScoreboardData>();
-		this.playerNames = new HashMap<String, EnumAvailabilityPlayerName>();
-		this.storeddata = Lists.<AvailabilityStoredData>newArrayList();
+		this.dialogues = new HashMap<>();
+		this.quests = new HashMap<>();
+		this.factions = new HashMap<>();
+		this.scoreboards = new HashMap<>();
+		this.playerNames = new HashMap<>();
+		this.storeddata = Lists.newArrayList();
 	}
 
 	private boolean checkHasOptions() {
@@ -167,7 +163,7 @@ public class Availability implements ICompatibilty, IAvailability {
 
 	@Override
 	public String[] getPlayerNames() {
-		return this.playerNames.keySet().toArray(new String[this.playerNames.size()]);
+		return this.playerNames.keySet().toArray(new String[0]);
 	}
 
 	@Override
@@ -249,7 +245,7 @@ public class Availability implements ICompatibilty, IAvailability {
 			ScoreObjective so = board.getObjective(objective);
 			if (so != null) {
 				Set<ScoreObjective> addedObjectives = ObfuscationHelper.getValue(ServerScoreboard.class, board, 1);
-				if (!addedObjectives.contains(so)) {
+                if (addedObjectives != null && !addedObjectives.contains(so)) {
 					board.addObjective(so);
 				}
 			}
@@ -297,8 +293,7 @@ public class Availability implements ICompatibilty, IAvailability {
 				hasOnly = true;
 				if (player.getName().equals(name)) {
 					hasOnly = false;
-					returnName = false;
-					exit = true;
+                    exit = true;
 				}
 				break;
 			}
@@ -314,11 +309,11 @@ public class Availability implements ICompatibilty, IAvailability {
 				break;
 			}
 		}
-		if (returnName || (!returnName && hasOnly)) {
+		if (returnName || hasOnly) {
 			return false;
 		}
 		if (!this.storeddata.isEmpty()) {
-			IData dataP = NpcAPI.Instance().getIEntity(player).getStoreddata();
+			IData dataP = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player).getStoreddata();
 			for (AvailabilityStoredData sd : this.storeddata) {
 				EnumAvailabilityStoredData type = sd.type;
 				Object value = dataP.get(sd.key);
@@ -336,8 +331,7 @@ public class Availability implements ICompatibilty, IAvailability {
 					catch (Exception e) { return false; }
 				}
 				if (!isNumber) {
-					if (type == EnumAvailabilityStoredData.EQUAL && !sd.value.equals(value.toString())) { return false; }
-					if ((dataP.has(sd.key) && type == EnumAvailabilityStoredData.EXCEPT) || (!dataP.has(sd.key) && type == EnumAvailabilityStoredData.ONLY)) { return false; }
+                    if ((dataP.has(sd.key) && type == EnumAvailabilityStoredData.EXCEPT) || (!dataP.has(sd.key) && type == EnumAvailabilityStoredData.ONLY)) { return false; }
 				}
 			}
 		}
@@ -629,9 +623,7 @@ public class Availability implements ICompatibilty, IAvailability {
 
 	@Override
 	public void removeScoreboard(String objective) {
-		if (this.scoreboards.containsKey(objective)) {
-			this.scoreboards.remove(objective);
-		}
+        this.scoreboards.remove(objective);
 		for (String obj : this.scoreboards.keySet()) {
 			if (obj.equals(objective)) {
 				this.scoreboards.remove(obj);

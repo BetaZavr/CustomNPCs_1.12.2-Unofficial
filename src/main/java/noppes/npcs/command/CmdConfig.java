@@ -13,38 +13,39 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.ChunkController;
 
+import javax.annotation.Nonnull;
+
 public class CmdConfig extends CommandNoppesBase {
 	@SubCommand(desc = "Set how many active chunkloaders you can have", usage = "<number>")
 	public void chunkloaders(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length == 0) {
-			this.sendMessage(sender, "ChunkLoaders: " + ChunkController.instance.size() + "/" + CustomNpcs.ChuckLoaders,
-					new Object[0]);
+			this.sendMessage(sender, "ChunkLoaders: " + ChunkController.instance.size() + "/" + CustomNpcs.ChuckLoaders);
 		} else {
 			try {
 				CustomNpcs.ChuckLoaders = Integer.parseInt(args[0]);
 			} catch (NumberFormatException ex) {
-				throw new CommandException("Didnt get a number", new Object[0]);
+				throw new CommandException("Didn't get a number");
 			}
 			CustomNpcs.Config.resetConfig();
 			int size = ChunkController.instance.size();
 			if (size > CustomNpcs.ChuckLoaders) {
 				ChunkController.instance.unload(size - CustomNpcs.ChuckLoaders);
-				this.sendMessage(sender, size - CustomNpcs.ChuckLoaders + " chunksloaders unloaded", new Object[0]);
+				this.sendMessage(sender, size - CustomNpcs.ChuckLoaders + " chunksloaders unloaded");
 			}
-			this.sendMessage(sender, "ChunkLoaders: " + ChunkController.instance.size() + "/" + CustomNpcs.ChuckLoaders,
-					new Object[0]);
+			this.sendMessage(sender, "ChunkLoaders: " + ChunkController.instance.size() + "/" + CustomNpcs.ChuckLoaders);
 		}
 	}
 
 	@SubCommand(desc = "Add debug info to log", usage = "<true/false>")
 	public void debug(MinecraftServer server, ICommandSender sender, String[] args) {
 		CustomNpcs.VerboseDebug = Boolean.parseBoolean(args[0]);
-		this.sendMessage(sender, "Verbose debug is now " + CustomNpcs.VerboseDebug, new Object[0]);
+		this.sendMessage(sender, "Verbose debug is now " + CustomNpcs.VerboseDebug);
 	}
 
 	@SubCommand(desc = "Get/Set font", usage = "[type] [size]", permission = 2)
@@ -57,23 +58,22 @@ public class CmdConfig extends CommandNoppesBase {
 			try {
 				size = Integer.parseInt(args[args.length - 1]);
 				args = Arrays.copyOfRange(args, 0, args.length - 1);
-			} catch (Exception ex) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		String font = "";
-		for (int i = 0; i < args.length; ++i) {
-			font = font + " " + args[i];
-		}
-		Server.sendData((EntityPlayerMP) sender, EnumPacketClient.CONFIG_FONT, 0, font.trim(), size);
+		StringBuilder font = new StringBuilder();
+        for (String arg : args) {
+            font.append(" ").append(arg);
+        }
+		Server.sendData((EntityPlayerMP) sender, EnumPacketClient.CONFIG_FONT, 0, font.toString().trim(), size);
 	}
 
 	@SubCommand(desc = "Freezes/Unfreezes npcs", usage = "[true/false]")
 	public void freezenpcs(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length == 0) {
-			this.sendMessage(sender, "Frozen NPCs: " + CustomNpcs.FreezeNPCs, new Object[0]);
+			this.sendMessage(sender, "Frozen NPCs: " + CustomNpcs.FreezeNPCs);
 		} else {
 			CustomNpcs.FreezeNPCs = Boolean.parseBoolean(args[0]);
-			this.sendMessage(sender, "FrozenNPCs is now " + CustomNpcs.FreezeNPCs, new Object[0]);
+			this.sendMessage(sender, "FrozenNPCs is now " + CustomNpcs.FreezeNPCs);
 		}
 	}
 
@@ -82,6 +82,7 @@ public class CmdConfig extends CommandNoppesBase {
 		return "Some config things you can set";
 	}
 
+	@Nonnull
 	public String getName() {
 		return "config";
 	}
@@ -89,7 +90,7 @@ public class CmdConfig extends CommandNoppesBase {
 	@SubCommand(desc = "Disable/Enable the ice melting", usage = "[true/false]")
 	public void icemelts(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length == 0) {
-			this.sendMessage(sender, "IceMelts: " + CustomNpcs.IceMeltsEnabled, new Object[0]);
+			this.sendMessage(sender, "IceMelts: " + CustomNpcs.IceMeltsEnabled);
 		} else {
 			CustomNpcs.IceMeltsEnabled = Boolean.parseBoolean(args[0]);
 			CustomNpcs.Config.resetConfig();
@@ -100,14 +101,14 @@ public class CmdConfig extends CommandNoppesBase {
 					block.setTickRandomly(CustomNpcs.IceMeltsEnabled);
 				}
 			}
-			this.sendMessage(sender, "IceMelts is now " + CustomNpcs.IceMeltsEnabled, new Object[0]);
+			this.sendMessage(sender, "IceMelts is now " + CustomNpcs.IceMeltsEnabled);
 		}
 	}
 
 	@SubCommand(desc = "Disable/Enable the natural leaves decay", usage = "[true/false]")
 	public void leavesdecay(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length == 0) {
-			this.sendMessage(sender, "LeavesDecay: " + CustomNpcs.LeavesDecayEnabled, new Object[0]);
+			this.sendMessage(sender, "LeavesDecay: " + CustomNpcs.LeavesDecayEnabled);
 		} else {
 			CustomNpcs.LeavesDecayEnabled = Boolean.parseBoolean(args[0]);
 			CustomNpcs.Config.resetConfig();
@@ -118,25 +119,25 @@ public class CmdConfig extends CommandNoppesBase {
 					block.setTickRandomly(CustomNpcs.LeavesDecayEnabled);
 				}
 			}
-			this.sendMessage(sender, "LeavesDecay is now " + CustomNpcs.LeavesDecayEnabled, new Object[0]);
+			this.sendMessage(sender, "LeavesDecay is now " + CustomNpcs.LeavesDecayEnabled);
 		}
 	}
 
 	@SubCommand(desc = "Enables/Disables scripting", usage = "[true/false]")
 	public void scripting(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length == 0) {
-			this.sendMessage(sender, "Scripting: " + CustomNpcs.EnableScripting, new Object[0]);
+			this.sendMessage(sender, "Scripting: " + CustomNpcs.EnableScripting);
 		} else {
 			CustomNpcs.EnableScripting = Boolean.parseBoolean(args[0]);
 			CustomNpcs.Config.resetConfig();
-			this.sendMessage(sender, "Scripting is now " + CustomNpcs.EnableScripting, new Object[0]);
+			this.sendMessage(sender, "Scripting is now " + CustomNpcs.EnableScripting);
 		}
 	}
 
 	@SubCommand(desc = "Disable/Enable the vines growing", usage = "[true/false]")
 	public void vinegrowth(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length == 0) {
-			this.sendMessage(sender, "VineGrowth: " + CustomNpcs.VineGrowthEnabled, new Object[0]);
+			this.sendMessage(sender, "VineGrowth: " + CustomNpcs.VineGrowthEnabled);
 		} else {
 			CustomNpcs.VineGrowthEnabled = Boolean.parseBoolean(args[0]);
 			CustomNpcs.Config.resetConfig();
@@ -147,7 +148,7 @@ public class CmdConfig extends CommandNoppesBase {
 					block.setTickRandomly(CustomNpcs.VineGrowthEnabled);
 				}
 			}
-			this.sendMessage(sender, "VineGrowth is now " + CustomNpcs.VineGrowthEnabled, new Object[0]);
+			this.sendMessage(sender, "VineGrowth is now " + CustomNpcs.VineGrowthEnabled);
 		}
 	}
 }

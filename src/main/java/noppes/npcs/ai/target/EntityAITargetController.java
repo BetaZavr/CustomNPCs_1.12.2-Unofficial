@@ -16,19 +16,18 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAITargetController extends EntityAIBase {
 
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 	private int delay;
 	protected EntityLivingBase target;
 	public final Map<EntityLivingBase, Double> map;
 
 	public EntityAITargetController(EntityNPCInterface npc) {
 		this.npc = npc;
-		this.map = Maps.<EntityLivingBase, Double>newHashMap();
+		this.map = Maps.newHashMap();
 	}
 
 	public void addDamageFromEntity(EntityLivingBase attackingEntity, double damage) {
-		if (attackingEntity == null || (attackingEntity instanceof EntityPlayer
-				&& ((EntityPlayer) attackingEntity).capabilities.disableDamage)) {
+		if (attackingEntity == null || (attackingEntity instanceof EntityPlayer && ((EntityPlayer) attackingEntity).capabilities.disableDamage)) {
 			return;
 		}
 		if (damage <= 0.25d) {
@@ -50,11 +49,7 @@ public class EntityAITargetController extends EntityAIBase {
 		this.map.put(attackingEntity, this.map.get(attackingEntity) + damage);
 	}
 
-	@Override
-	public void resetTask() {
-	}
-
-	@Override
+    @Override
 	public boolean shouldExecute() {
 		if (this.map.isEmpty()) {
 			this.target = null;
@@ -69,8 +64,8 @@ public class EntityAITargetController extends EntityAIBase {
 	@Override
 	public void startExecuting() {
 		this.target = null;
-		Map<EntityLivingBase, Double> tempMap = Maps.<EntityLivingBase, Double>newHashMap();
-		List<EntityLivingBase> del = Lists.<EntityLivingBase>newArrayList();
+		Map<EntityLivingBase, Double> tempMap = Maps.newHashMap();
+		List<EntityLivingBase> del = Lists.newArrayList();
 		double minDist = Double.MAX_VALUE, maxDist = Double.MIN_VALUE;
 		// collect possible options
 		for (EntityLivingBase entity : this.map.keySet()) {

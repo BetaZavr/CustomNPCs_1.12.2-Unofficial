@@ -3,7 +3,6 @@ package noppes.npcs.items;
 import java.util.List;
 
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -26,17 +25,19 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleFollower;
 
+import javax.annotation.Nonnull;
+
 public class ItemSoulstoneEmpty extends Item {
 
 	public ItemSoulstoneEmpty() {
 		this.setRegistryName(CustomNpcs.MODID, "npcsoulstoneempty");
 		this.setUnlocalizedName("npcsoulstoneempty");
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 		this.setMaxStackSize(64);
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, World world, List<String> list, ITooltipFlag flag) {
+	public void addInformation(@Nonnull ItemStack stack, World world, @Nonnull List<String> list, @Nonnull ITooltipFlag flag) {
 		list.add(new TextComponentTranslation("info.item.soulstone.0").getFormattedText());
 	}
 

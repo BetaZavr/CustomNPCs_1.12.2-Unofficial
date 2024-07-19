@@ -51,7 +51,7 @@ public class QuestEvent extends CustomNPCsEvent {
 			this.factionOptions = ((Quest) quest).factionOptions.copy();
 			this.mail = ((Quest) quest).mail.copy();
 			this.nextQuestId = ((Quest) quest).nextQuestid;
-			this.command = "" + ((Quest) quest).command;
+			this.command = ((Quest) quest).command;
 		}
 	}
 

@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.util;
 
+import noppes.npcs.LogWriter;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
@@ -10,6 +11,8 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.util.ValueUtil;
+
+import javax.annotation.Nonnull;
 
 public class GuiNpcSlider
 extends GuiButton
@@ -39,8 +42,7 @@ implements IComponentGui {
 
 	public GuiNpcSlider(GuiScreen parent, int id, int xPos, int yPos, String displayString, float sliderValue) {
 		super(id, xPos, yPos, 150, 20, NoppesStringUtils.translate(displayString));
-		this.sliderValue = 1.0f;
-		this.id = id;
+        this.id = id;
 		this.sliderValue = sliderValue;
 		if (parent instanceof ISliderListener) {
 			this.listener = (ISliderListener) parent;
@@ -48,7 +50,7 @@ implements IComponentGui {
 		this.visible = true;
 	}
 
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.visible) {
 			return;
 		}
@@ -105,7 +107,7 @@ implements IComponentGui {
 		return 0;
 	}
 
-	public void mouseDragged(Minecraft mc, int mouseX, int mouseY) {
+	public void mouseDragged(@Nonnull Minecraft mc, int mouseX, int mouseY) {
 		if (!this.visible) {
 			return;
 		}
@@ -148,7 +150,7 @@ implements IComponentGui {
 		GlStateManager.popMatrix();
 	}
 
-	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+	public boolean mousePressed(@Nonnull Minecraft mc, int mouseX, int mouseY) {
 		if (this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
 				&& mouseY < this.y + this.height) {
 			this.sliderValue = ValueUtil.correctFloat((mouseX - (this.x + 4)) / (float) (this.width - 8), 0.0f, 1.0f);
@@ -171,8 +173,7 @@ implements IComponentGui {
 		try {
 			float f = Math.round(Float.parseFloat(str) * 10.0d) / 10.0f;
 			str = String.valueOf(f).replace(".", ",");
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e);}
 		this.displayString = NoppesStringUtils.translate(str);
 	}
 

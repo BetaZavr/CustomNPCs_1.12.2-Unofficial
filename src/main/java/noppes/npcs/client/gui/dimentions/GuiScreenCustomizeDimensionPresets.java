@@ -21,6 +21,8 @@ import net.minecraft.world.gen.ChunkGeneratorSettings;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+
 @SideOnly(Side.CLIENT)
 public class GuiScreenCustomizeDimensionPresets extends GuiScreen {
 
@@ -54,20 +56,15 @@ public class GuiScreenCustomizeDimensionPresets extends GuiScreen {
 
 		protected void drawSlot(int entryID, int insideLeft, int yPos, int insideSlotHeight, int mouseXIn, int mouseYIn,
 				float partialTicks) {
-			GuiScreenCustomizeDimensionPresets.Info guiscreencustomizepresets$info = (GuiScreenCustomizeDimensionPresets.Info) GuiScreenCustomizeDimensionPresets.field_175310_f
-					.get(entryID);
+			GuiScreenCustomizeDimensionPresets.Info guiscreencustomizepresets$info = GuiScreenCustomizeDimensionPresets.field_175310_f.get(entryID);
 			this.func_178051_a(insideLeft, yPos, guiscreencustomizepresets$info.field_178953_b);
-			GuiScreenCustomizeDimensionPresets.this.fontRenderer.drawString(
-					guiscreencustomizepresets$info.field_178955_a, insideLeft + 32 + 10, yPos + 14, 16777215);
+			GuiScreenCustomizeDimensionPresets.this.fontRenderer.drawString(guiscreencustomizepresets$info.field_178955_a, insideLeft + 32 + 10, yPos + 14, 16777215);
 		}
 
 		protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY) {
 			this.field_178053_u = slotIndex;
 			GuiScreenCustomizeDimensionPresets.this.func_175304_a();
-			GuiScreenCustomizeDimensionPresets.this.field_175317_i.setText(
-					((GuiScreenCustomizeDimensionPresets.Info) GuiScreenCustomizeDimensionPresets.field_175310_f
-							.get(GuiScreenCustomizeDimensionPresets.this.field_175311_g.field_178053_u)).field_178954_c
-									.toString());
+			GuiScreenCustomizeDimensionPresets.this.field_175317_i.setText(GuiScreenCustomizeDimensionPresets.field_175310_f.get(GuiScreenCustomizeDimensionPresets.this.field_175311_g.field_178053_u).field_178954_c.toString());
 		}
 
 		private void func_178051_a(int p_178051_1_, int p_178051_2_, ResourceLocation p_178051_3_) {
@@ -83,10 +80,10 @@ public class GuiScreenCustomizeDimensionPresets extends GuiScreen {
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder vertexbuffer = tessellator.getBuffer();
 			vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-			vertexbuffer.pos((double) (i + 0), (double) (p_178051_2_ + 32), 0.0D).tex(0.0D, 1.0D).endVertex();
-			vertexbuffer.pos((double) (i + 32), (double) (p_178051_2_ + 32), 0.0D).tex(1.0D, 1.0D).endVertex();
-			vertexbuffer.pos((double) (i + 32), (double) (p_178051_2_ + 0), 0.0D).tex(1.0D, 0.0D).endVertex();
-			vertexbuffer.pos((double) (i + 0), (double) (p_178051_2_ + 0), 0.0D).tex(0.0D, 0.0D).endVertex();
+			vertexbuffer.pos(i, p_178051_2_ + 32, 0.0D).tex(0.0D, 1.0D).endVertex();
+			vertexbuffer.pos(i + 32, p_178051_2_ + 32, 0.0D).tex(1.0D, 1.0D).endVertex();
+			vertexbuffer.pos(i + 32, p_178051_2_, 0.0D).tex(1.0D, 0.0D).endVertex();
+			vertexbuffer.pos(i, p_178051_2_, 0.0D).tex(0.0D, 0.0D).endVertex();
 			tessellator.draw();
 		}
 
@@ -99,55 +96,34 @@ public class GuiScreenCustomizeDimensionPresets extends GuiScreen {
 		}
 
 	}
-	private static final List<GuiScreenCustomizeDimensionPresets.Info> field_175310_f = Lists.<GuiScreenCustomizeDimensionPresets.Info>newArrayList();
+	private static final List<GuiScreenCustomizeDimensionPresets.Info> field_175310_f = Lists.newArrayList();
 	static {
-		ChunkGeneratorSettings.Factory ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory(
-				"{ \"coordinateScale\":684.412, \"heightScale\":684.412, \"upperLimitScale\":512.0, \"lowerLimitScale\":512.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":5000.0, \"mainNoiseScaleY\":1000.0, \"mainNoiseScaleZ\":5000.0, \"baseSize\":8.5, \"stretchY\":8.0, \"biomeDepthWeight\":2.0, \"biomeDepthOffset\":0.5, \"biomeScaleWeight\":2.0, \"biomeScaleOffset\":0.375, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":255 }");
+		ChunkGeneratorSettings.Factory ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory("{ \"coordinateScale\":684.412, \"heightScale\":684.412, \"upperLimitScale\":512.0, \"lowerLimitScale\":512.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":5000.0, \"mainNoiseScaleY\":1000.0, \"mainNoiseScaleZ\":5000.0, \"baseSize\":8.5, \"stretchY\":8.0, \"biomeDepthWeight\":2.0, \"biomeDepthOffset\":0.5, \"biomeScaleWeight\":2.0, \"biomeScaleOffset\":0.375, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":255 }");
 		ResourceLocation resourcelocation = new ResourceLocation("textures/gui/presets/water.png");
-		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(
-				new TextComponentTranslation("createWorld.customize.custom.preset.waterWorld").getFormattedText(),
-				resourcelocation, ChunkGeneratorSettings$factory));
-		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory(
-				"{\"coordinateScale\":3000.0, \"heightScale\":6000.0, \"upperLimitScale\":250.0, \"lowerLimitScale\":512.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":80.0, \"mainNoiseScaleY\":160.0, \"mainNoiseScaleZ\":80.0, \"baseSize\":8.5, \"stretchY\":10.0, \"biomeDepthWeight\":1.0, \"biomeDepthOffset\":0.0, \"biomeScaleWeight\":1.0, \"biomeScaleOffset\":0.0, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":63 }");
+		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(new TextComponentTranslation("createWorld.customize.custom.preset.waterWorld").getFormattedText(), resourcelocation, ChunkGeneratorSettings$factory));
+		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory("{\"coordinateScale\":3000.0, \"heightScale\":6000.0, \"upperLimitScale\":250.0, \"lowerLimitScale\":512.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":80.0, \"mainNoiseScaleY\":160.0, \"mainNoiseScaleZ\":80.0, \"baseSize\":8.5, \"stretchY\":10.0, \"biomeDepthWeight\":1.0, \"biomeDepthOffset\":0.0, \"biomeScaleWeight\":1.0, \"biomeScaleOffset\":0.0, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":63 }");
 		resourcelocation = new ResourceLocation("textures/gui/presets/isles.png");
-		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(
-				new TextComponentTranslation("createWorld.customize.custom.preset.isleLand").getFormattedText(),
-				resourcelocation, ChunkGeneratorSettings$factory));
-		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory(
-				"{\"coordinateScale\":684.412, \"heightScale\":684.412, \"upperLimitScale\":512.0, \"lowerLimitScale\":512.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":5000.0, \"mainNoiseScaleY\":1000.0, \"mainNoiseScaleZ\":5000.0, \"baseSize\":8.5, \"stretchY\":5.0, \"biomeDepthWeight\":2.0, \"biomeDepthOffset\":1.0, \"biomeScaleWeight\":4.0, \"biomeScaleOffset\":1.0, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":63 }");
+		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(new TextComponentTranslation("createWorld.customize.custom.preset.isleLand").getFormattedText(), resourcelocation, ChunkGeneratorSettings$factory));
+		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory("{\"coordinateScale\":684.412, \"heightScale\":684.412, \"upperLimitScale\":512.0, \"lowerLimitScale\":512.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":5000.0, \"mainNoiseScaleY\":1000.0, \"mainNoiseScaleZ\":5000.0, \"baseSize\":8.5, \"stretchY\":5.0, \"biomeDepthWeight\":2.0, \"biomeDepthOffset\":1.0, \"biomeScaleWeight\":4.0, \"biomeScaleOffset\":1.0, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":63 }");
 		resourcelocation = new ResourceLocation("textures/gui/presets/delight.png");
-		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(
-				new TextComponentTranslation("createWorld.customize.custom.preset.caveDelight").getFormattedText(),
-				resourcelocation, ChunkGeneratorSettings$factory));
-		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory(
-				"{\"coordinateScale\":738.41864, \"heightScale\":157.69133, \"upperLimitScale\":801.4267, \"lowerLimitScale\":1254.1643, \"depthNoiseScaleX\":374.93652, \"depthNoiseScaleZ\":288.65228, \"depthNoiseScaleExponent\":1.2092624, \"mainNoiseScaleX\":1355.9908, \"mainNoiseScaleY\":745.5343, \"mainNoiseScaleZ\":1183.464, \"baseSize\":1.8758626, \"stretchY\":1.7137525, \"biomeDepthWeight\":1.7553768, \"biomeDepthOffset\":3.4701107, \"biomeScaleWeight\":1.0, \"biomeScaleOffset\":2.535211, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":63 }");
+		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(new TextComponentTranslation("createWorld.customize.custom.preset.caveDelight").getFormattedText(), resourcelocation, ChunkGeneratorSettings$factory));
+		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory("{\"coordinateScale\":738.41864, \"heightScale\":157.69133, \"upperLimitScale\":801.4267, \"lowerLimitScale\":1254.1643, \"depthNoiseScaleX\":374.93652, \"depthNoiseScaleZ\":288.65228, \"depthNoiseScaleExponent\":1.2092624, \"mainNoiseScaleX\":1355.9908, \"mainNoiseScaleY\":745.5343, \"mainNoiseScaleZ\":1183.464, \"baseSize\":1.8758626, \"stretchY\":1.7137525, \"biomeDepthWeight\":1.7553768, \"biomeDepthOffset\":3.4701107, \"biomeScaleWeight\":1.0, \"biomeScaleOffset\":2.535211, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":63 }");
 		resourcelocation = new ResourceLocation("textures/gui/presets/madness.png");
-		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(
-				new TextComponentTranslation("createWorld.customize.custom.preset.mountains").getFormattedText(),
-				resourcelocation, ChunkGeneratorSettings$factory));
-		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory(
-				"{\"coordinateScale\":684.412, \"heightScale\":684.412, \"upperLimitScale\":512.0, \"lowerLimitScale\":512.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":1000.0, \"mainNoiseScaleY\":3000.0, \"mainNoiseScaleZ\":1000.0, \"baseSize\":8.5, \"stretchY\":10.0, \"biomeDepthWeight\":1.0, \"biomeDepthOffset\":0.0, \"biomeScaleWeight\":1.0, \"biomeScaleOffset\":0.0, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":20 }");
+		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(new TextComponentTranslation("createWorld.customize.custom.preset.mountains").getFormattedText(), resourcelocation, ChunkGeneratorSettings$factory));
+		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory("{\"coordinateScale\":684.412, \"heightScale\":684.412, \"upperLimitScale\":512.0, \"lowerLimitScale\":512.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":1000.0, \"mainNoiseScaleY\":3000.0, \"mainNoiseScaleZ\":1000.0, \"baseSize\":8.5, \"stretchY\":10.0, \"biomeDepthWeight\":1.0, \"biomeDepthOffset\":0.0, \"biomeScaleWeight\":1.0, \"biomeScaleOffset\":0.0, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":20 }");
 		resourcelocation = new ResourceLocation("textures/gui/presets/drought.png");
-		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(
-				new TextComponentTranslation("createWorld.customize.custom.preset.drought").getFormattedText(),
-				resourcelocation, ChunkGeneratorSettings$factory));
-		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory(
-				"{\"coordinateScale\":684.412, \"heightScale\":684.412, \"upperLimitScale\":2.0, \"lowerLimitScale\":64.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":80.0, \"mainNoiseScaleY\":160.0, \"mainNoiseScaleZ\":80.0, \"baseSize\":8.5, \"stretchY\":12.0, \"biomeDepthWeight\":1.0, \"biomeDepthOffset\":0.0, \"biomeScaleWeight\":1.0, \"biomeScaleOffset\":0.0, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":6 }");
+		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(new TextComponentTranslation("createWorld.customize.custom.preset.drought").getFormattedText(), resourcelocation, ChunkGeneratorSettings$factory));
+		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory("{\"coordinateScale\":684.412, \"heightScale\":684.412, \"upperLimitScale\":2.0, \"lowerLimitScale\":64.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":80.0, \"mainNoiseScaleY\":160.0, \"mainNoiseScaleZ\":80.0, \"baseSize\":8.5, \"stretchY\":12.0, \"biomeDepthWeight\":1.0, \"biomeDepthOffset\":0.0, \"biomeScaleWeight\":1.0, \"biomeScaleOffset\":0.0, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":false, \"seaLevel\":6 }");
 		resourcelocation = new ResourceLocation("textures/gui/presets/chaos.png");
-		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(
-				new TextComponentTranslation("createWorld.customize.custom.preset.caveChaos").getFormattedText(),
-				resourcelocation, ChunkGeneratorSettings$factory));
-		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory(
-				"{\"coordinateScale\":684.412, \"heightScale\":684.412, \"upperLimitScale\":512.0, \"lowerLimitScale\":512.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":80.0, \"mainNoiseScaleY\":160.0, \"mainNoiseScaleZ\":80.0, \"baseSize\":8.5, \"stretchY\":12.0, \"biomeDepthWeight\":1.0, \"biomeDepthOffset\":0.0, \"biomeScaleWeight\":1.0, \"biomeScaleOffset\":0.0, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":true, \"seaLevel\":40 }");
+		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(new TextComponentTranslation("createWorld.customize.custom.preset.caveChaos").getFormattedText(), resourcelocation, ChunkGeneratorSettings$factory));
+		ChunkGeneratorSettings$factory = ChunkGeneratorSettings.Factory.jsonToFactory("{\"coordinateScale\":684.412, \"heightScale\":684.412, \"upperLimitScale\":512.0, \"lowerLimitScale\":512.0, \"depthNoiseScaleX\":200.0, \"depthNoiseScaleZ\":200.0, \"depthNoiseScaleExponent\":0.5, \"mainNoiseScaleX\":80.0, \"mainNoiseScaleY\":160.0, \"mainNoiseScaleZ\":80.0, \"baseSize\":8.5, \"stretchY\":12.0, \"biomeDepthWeight\":1.0, \"biomeDepthOffset\":0.0, \"biomeScaleWeight\":1.0, \"biomeScaleOffset\":0.0, \"useCaves\":true, \"useDungeons\":true, \"dungeonChance\":8, \"useStrongholds\":true, \"useVillages\":true, \"useMineShafts\":true, \"useTemples\":true, \"useRavines\":true, \"useWaterLakes\":true, \"waterLakeChance\":4, \"useLavaLakes\":true, \"lavaLakeChance\":80, \"useLavaOceans\":true, \"seaLevel\":40 }");
 		resourcelocation = new ResourceLocation("textures/gui/presets/luck.png");
-		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(
-				new TextComponentTranslation("createWorld.customize.custom.preset.goodLuck").getFormattedText(),
-				resourcelocation, ChunkGeneratorSettings$factory));
+		field_175310_f.add(new GuiScreenCustomizeDimensionPresets.Info(new TextComponentTranslation("createWorld.customize.custom.preset.goodLuck").getFormattedText(), resourcelocation, ChunkGeneratorSettings$factory));
 	}
 	private GuiScreenCustomizeDimensionPresets.ListPreset field_175311_g;
 	private GuiButton field_175316_h;
 	private GuiTextField field_175317_i;
-	private GuiCustomizeDimension customizeDimensionGui;
+	private final GuiCustomizeDimension customizeDimensionGui;
 
 	protected String field_175315_a = "Customize World Presets";
 
@@ -159,7 +135,7 @@ public class GuiScreenCustomizeDimensionPresets extends GuiScreen {
 		this.customizeDimensionGui = customizeDimensionGui;
 	}
 
-	protected void actionPerformed(GuiButton button) throws IOException {
+	protected void actionPerformed(@Nonnull GuiButton button) throws IOException {
 		switch (button.id) {
 		case 0:
 			this.customizeDimensionGui.func_175324_a(this.field_175317_i.getText());

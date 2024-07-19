@@ -10,15 +10,14 @@ import java.util.Vector;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiDataSend;
@@ -52,8 +51,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class GuiNpcManagePlayerData extends GuiNPCInterface2
 		implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback, IGuiData, ITextfieldListener {
 
-	public HashMap<String, Integer> data;
-	public HashMap<String, String> scrollData;
+	public HashMap<String, Integer> data = new HashMap<>();
+	public HashMap<String, String> scrollData = new HashMap<>();
 	private boolean isOnline;
 	private GuiCustomScroll scroll;
 	public String search, selected, selectedPlayer;
@@ -65,8 +64,6 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 		this.isOnline = false;
 		this.selectedPlayer = null;
 		this.selected = null;
-		this.data = new HashMap<String, Integer>();
-		this.scrollData = new HashMap<String, String>();
 		this.selection = EnumPlayerData.Players;
 		this.search = "";
 		this.gameData = null;
@@ -103,10 +100,10 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 		}
 		if (id == 0) { // del
 			if (this.selection == EnumPlayerData.Players || !this.scroll.hasSelected()) {
-				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+				GuiYesNo guiyesno = new GuiYesNo(this,
 						new TextComponentTranslation("global.playerdata").getFormattedText() + ": " + title,
 						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-				this.displayGuiScreen((GuiScreen) guiyesno);
+				this.displayGuiScreen(guiyesno);
 			} else {
 				Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 1,
 						this.data.get(this.scrollData.get(this.scroll.getSelected())));
@@ -130,19 +127,19 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			this.selected = null;
 			this.getTextField(0).setText("");
 		} else if (id == 7) {
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("gui.wipe").getFormattedText() + "?",
 					new TextComponentTranslation("data.hover.wipe").getFormattedText().replace("<br>",
 							"" + ((char) 10)),
 					7);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 		} else if (id == 12) {
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("gui.cleaning").getFormattedText() + "?",
 					new TextComponentTranslation("data.hover.cleaning").getFormattedText().replace("<br>",
 							"" + ((char) 10)),
 					12);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 		} else if (id == 8) { // Add
 			SubGuiEditText subgui = new SubGuiEditText(0, "");
 			subgui.lable = "gui.add";
@@ -216,20 +213,20 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			}
 			this.setSubGui(subgui);
 		} else if (id == 10) { // del all
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
+			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("global.playerdata").getFormattedText() + ": " + title,
 					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+			this.displayGuiScreen(guiyesno);
 		} else if (id == 11) { // edit
 			this.editData();
 		}
 	}
 
 	public void confirmClicked(boolean result, int id) {
-		String sel = "" + this.selected;
-		String player = "" + this.selectedPlayer;
+		String sel = this.selected;
+		String player = this.selectedPlayer;
 		EnumPlayerData epd = this.selection;
-		NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		NoppesUtil.openGUI(this.player, this);
 		this.selected = sel;
 		this.selectedPlayer = player;
 		this.selection = epd;
@@ -315,62 +312,60 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			return;
 		}
 		switch (this.selection) {
-		case Bank: {
-			Client.sendData(EnumPacketServer.BankShow, this.selection, this.selectedPlayer,
-					this.data.get(this.scrollData.get(this.scroll.getSelected())));
-			break;
-		}
-		case Factions: {
-			int factionId = this.data.get(this.scrollData.get(this.scroll.getSelected()));
-			SubGuiEditText subgui = new SubGuiEditText(1, "");
-			Faction f = FactionController.instance.factions.get(factionId);
-			String v = this.scroll.hoversTexts[this.scroll.selected][0];
-			int value = -1;
-			try {
-				value = Integer.parseInt(v.substring(v.indexOf(((char) 167) + "3") + 2));
-			} catch (Exception e) {
-			}
-			if (f != null) {
-				subgui.numbersOnly = new int[] { 0, f.friendlyPoints * 2, value };
-			} else {
-				subgui.numbersOnly = new int[] { 0, Integer.MAX_VALUE, value };
-			}
-			subgui.text[0] = "" + value;
-			subgui.lable = "gui.set.new.value";
-			this.setSubGui(subgui);
-			break;
-		}
-		case Game: {
-			if (this.gameData == null || !this.data.containsKey(this.scroll.getSelected())) {
-				return;
-			}
-			SubGuiEditText subgui = new SubGuiEditText(2, "");
-			subgui.initGui();
-			subgui.getTextField(0).setNumbersOnly();
-			int m = 3, s = 0, id = this.data.get(this.scroll.getSelected());
-			MarcetController mData = MarcetController.getInstance();
-			for (int i = 0; i < this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10).tagCount(); i++) {
-				NBTTagCompound nbt = this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10)
-						.getCompoundTagAt(i);
-				if (id != nbt.getInteger("MarketID")) {
-					continue;
-				}
-				s = nbt.getInteger("Slot");
-				Marcet marcet = (Marcet) mData.getMarcet(id);
-				if (marcet == null) {
-					break;
-				}
-				m = marcet.markup.size() - 1;
+			case Bank: {
+				Client.sendData(EnumPacketServer.BankShow, this.selection, this.selectedPlayer,
+						this.data.get(this.scrollData.get(this.scroll.getSelected())));
 				break;
 			}
-			subgui.text[0] = "" + s;
-			subgui.getTextField(0).setMinMaxDefault(0, m, s);
-			subgui.lable = "gui.set.new.value";
-			this.setSubGui(subgui);
-		}
-		default: {
-			return;
-		}
+			case Factions: {
+				int factionId = this.data.get(this.scrollData.get(this.scroll.getSelected()));
+				SubGuiEditText subgui = new SubGuiEditText(1, "");
+				Faction f = FactionController.instance.factions.get(factionId);
+				String v = this.scroll.hoversTexts[this.scroll.selected][0];
+				int value = -1;
+				try {
+					value = Integer.parseInt(v.substring(v.indexOf(((char) 167) + "3") + 2));
+				} catch (Exception e) { LogWriter.error("Error:", e); }
+				if (f != null) {
+					subgui.numbersOnly = new int[] { 0, f.friendlyPoints * 2, value };
+				} else {
+					subgui.numbersOnly = new int[] { 0, Integer.MAX_VALUE, value };
+				}
+				subgui.text[0] = "" + value;
+				subgui.lable = "gui.set.new.value";
+				this.setSubGui(subgui);
+				break;
+			}
+			case Game: {
+				if (this.gameData == null || !this.data.containsKey(this.scroll.getSelected())) {
+					return;
+				}
+				SubGuiEditText subgui = new SubGuiEditText(2, "");
+				subgui.initGui();
+				subgui.getTextField(0).setNumbersOnly();
+				int m = 3, s = 0, id = this.data.get(this.scroll.getSelected());
+				MarcetController mData = MarcetController.getInstance();
+				for (int i = 0; i < this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10).tagCount(); i++) {
+					NBTTagCompound nbt = this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10)
+							.getCompoundTagAt(i);
+					if (id != nbt.getInteger("MarketID")) {
+						continue;
+					}
+					s = nbt.getInteger("Slot");
+					Marcet marcet = (Marcet) mData.getMarcet(id);
+					if (marcet == null) {
+						break;
+					}
+					m = marcet.markup.size() - 1;
+					break;
+				}
+				subgui.text[0] = "" + s;
+				subgui.getTextField(0).setMinMaxDefault(0, m, s);
+				subgui.lable = "gui.set.new.value";
+				this.setSubGui(subgui);
+			}
+			default: {
+			}
 		}
 	}
 
@@ -415,50 +410,40 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 		}
 
 		switch (this.selection) {
-		case Quest: {
-			this.getButton(8).setEnabled(canEdit && hasPlayer);
-			this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
-			this.getButton(11).setEnabled(false);
-			break;
-		}
-		case Dialog: {
-			this.getButton(8).setEnabled(canEdit && hasPlayer);
-			this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
-			this.getButton(11).setEnabled(false);
-			break;
-		}
-		case Transport: {
-			this.getButton(8).setEnabled(canEdit && hasPlayer);
-			this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
-			this.getButton(11).setEnabled(false);
-			break;
-		}
-		case Bank: {
-			this.getButton(8)
-					.setEnabled(canEdit && hasPlayer && this.data.size() < BankController.getInstance().banks.size());
-			this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
-			this.getButton(11).setEnabled(canEdit && hasPlayer && this.scroll != null && this.scroll.hasSelected());
-			break;
-		}
-		case Factions: {
-			this.getButton(8)
-					.setEnabled(canEdit && hasPlayer && this.data.size() < FactionController.instance.factions.size());
-			this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
-			this.getButton(11).setEnabled(canEdit && hasPlayer && this.scroll != null && this.scroll.hasSelected());
-			break;
-		}
-		case Game: {
-			this.getButton(0).setEnabled(canEdit && hasPlayer && this.scroll.hasSelected());
-			this.getButton(8).setVisible(false);
-			this.getButton(10).setEnabled(canEdit && hasPlayer && this.gameData != null);
-			this.getButton(11).setEnabled(canEdit && hasPlayer && this.scroll.hasSelected());
-			break;
-		}
-		default: {
-			this.getButton(8).setVisible(false);
-			this.getButton(10).setVisible(false);
-			this.getButton(11).setVisible(false);
-		}
+			case Quest:
+				case Dialog:
+				case Transport: {
+				this.getButton(8).setEnabled(canEdit && hasPlayer);
+				this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
+				this.getButton(11).setEnabled(false);
+				break;
+			}
+				case Bank: {
+				this.getButton(8)
+						.setEnabled(canEdit && hasPlayer && this.data.size() < BankController.getInstance().banks.size());
+				this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
+				this.getButton(11).setEnabled(canEdit && hasPlayer && this.scroll != null && this.scroll.hasSelected());
+				break;
+			}
+			case Factions: {
+				this.getButton(8)
+						.setEnabled(canEdit && hasPlayer && this.data.size() < FactionController.instance.factions.size());
+				this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
+				this.getButton(11).setEnabled(canEdit && hasPlayer && this.scroll != null && this.scroll.hasSelected());
+				break;
+			}
+			case Game: {
+				this.getButton(0).setEnabled(canEdit && hasPlayer && this.scroll.hasSelected());
+				this.getButton(8).setVisible(false);
+				this.getButton(10).setEnabled(canEdit && hasPlayer && this.gameData != null);
+				this.getButton(11).setEnabled(canEdit && hasPlayer && this.scroll.hasSelected());
+				break;
+			}
+			default: {
+				this.getButton(8).setVisible(false);
+				this.getButton(10).setVisible(false);
+				this.getButton(11).setVisible(false);
+			}
 		}
 		if (!hasPlayer) {
 			this.getLabel(0).setLabel(new TextComponentTranslation("data.all.players").getFormattedText() + " ("
@@ -493,7 +478,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 		this.addButton(new GuiNpcButton(6, x, (y += 22), w, 20, "menu.factions"));
 		this.addButton(new GuiNpcButton(9, x, (y += 22), w, 20, "gui.game"));
 		this.addButton(new GuiNpcButton(7, x, (y += 22), w, 20, "gui.wipe"));
-		this.addButton(new GuiNpcButton(12, x, (y += 22), w, 20, "gui.cleaning"));
+		this.addButton(new GuiNpcButton(12, x, y + 22, w, 20, "gui.cleaning"));
 		y = this.guiTop + 170;
 		this.addLabel(new GuiNpcLabel(1, "gui.found", this.guiLeft + 10, y + 5));
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 66, y, 240, 20, this.search));
@@ -502,7 +487,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 		this.addButton(new GuiNpcButton(8, x, (y += 22), w, 20, "gui.add"));
 		this.addButton(new GuiNpcButton(0, (x += w + 3), y, w, 20, "gui.remove"));
 		this.addButton(new GuiNpcButton(10, (x += w + 3), y, w, 20, "gui.remove.all"));
-		this.addButton(new GuiNpcButton(11, (x += w + 3), y, w, 20, "selectServer.edit"));
+		this.addButton(new GuiNpcButton(11, x + w + 3, y, w, 20, "selectServer.edit"));
 		this.initButtons();
 		if (this.selection == EnumPlayerData.Game) {
 			y = this.guiTop + 18;
@@ -512,7 +497,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			this.getTextField(1).setNumbersOnly();
 			this.getTextField(1).setMinMaxDefault(0, Long.MAX_VALUE, this.gameData.getLong("Money"));
 			this.addLabel(new GuiNpcLabel(3, new TextComponentTranslation("global.market").getFormattedText() + ":",
-					this.guiLeft + 10, (y += 25)));
+					this.guiLeft + 10, y + 25));
 		}
 	}
 
@@ -531,7 +516,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			return;
 		}
 		this.search = this.getTextField(0).getText().toLowerCase();
-		this.setCurentList();
+		this.setCurrentList();
 	}
 
 	@Override
@@ -569,20 +554,20 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 		this.editData();
 	}
 
-	private void setCurentList() {
+	private void setCurrentList() {
 		if (this.scroll == null) {
 			return;
 		}
-		List<String> list = Lists.<String>newArrayList();
-		List<String> hovers = Lists.<String>newArrayList();
-		List<String> suffixs = Lists.<String>newArrayList();
-		List<Integer> colors = Lists.<Integer>newArrayList();
+		List<String> list = Lists.newArrayList();
+		List<String> hovers = Lists.newArrayList();
+		List<String> suffixs = Lists.newArrayList();
+		List<Integer> colors = Lists.newArrayList();
 		if (this.selection == EnumPlayerData.Wipe) {
 			this.selection = EnumPlayerData.Players;
 		}
 		switch (this.selection) {
 		case Players: {
-			List<String> listOn = Lists.<String>newArrayList(), listOff = Lists.<String>newArrayList();
+			List<String> listOn = Lists.newArrayList(), listOff = Lists.newArrayList();
 			for (String name : this.data.keySet()) {
 				if (this.search.isEmpty() || name.toLowerCase().contains(this.search)) {
 					if (this.data.get(name) == 1) {
@@ -595,9 +580,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			Collections.sort(listOn);
 			Collections.sort(listOff);
 			list = listOn;
-			for (String n : listOff) {
-				list.add(n);
-			}
+            list.addAll(listOff);
 			for (String name : list) {
 				suffixs.add(new TextComponentTranslation(this.data.get(name) == 0 ? "gui.offline" : "gui.online")
 						.getFormattedText());
@@ -605,8 +588,8 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			break;
 		}
 		case Quest: {
-			Map<String, Map<Integer, String>> mapA = Maps.<String, Map<Integer, String>>newTreeMap();
-			Map<String, Map<Integer, String>> mapF = Maps.<String, Map<Integer, String>>newTreeMap();
+			Map<String, Map<Integer, String>> mapA = Maps.newTreeMap();
+			Map<String, Map<Integer, String>> mapF = Maps.newTreeMap();
 			for (String str : this.data.keySet()) {
 				String cat = str.substring(0, str.indexOf(": "));
 				String name = str.substring(str.indexOf(": ") + 2);
@@ -619,7 +602,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 					map = mapF;
 				}
 				if (!map.containsKey(cat)) {
-					map.put(cat, Maps.<Integer, String>newTreeMap());
+					map.put(cat, Maps.newTreeMap());
 				}
 				map.get(cat).put(this.data.get(str), name);
 			}
@@ -658,10 +641,9 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			break;
 		}
 		case Dialog: {
-			Map<Integer, String> map = Maps.<Integer, String>newTreeMap();
+			Map<Integer, String> map = Maps.newTreeMap();
 			for (String str : this.data.keySet()) {
-				map.put(this.data.get(str), ((char) 167) + "7ID:" + this.data.get(str) + " "
-						+ str.replace(": ", ": " + ((char) 167) + "r"));
+				map.put(this.data.get(str), ((char) 167) + "7ID:" + this.data.get(str) + " " + str.replace(": ", ": " + ((char) 167) + "r"));
 			}
 			for (int id : map.keySet()) {
 				list.add(map.get(id));
@@ -675,7 +657,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			break;
 		}
 		case Transport: {
-			Map<Integer, String> map = Maps.<Integer, String>newTreeMap();
+			Map<Integer, String> map = Maps.newTreeMap();
 			for (String str : this.data.keySet()) {
 				map.put(this.data.get(str), ((char) 167) + "7" + str.replace(": ", ": " + ((char) 167) + "r"));
 			}
@@ -718,8 +700,8 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			break;
 		}
 		case Factions: {
-			Map<String, String> mapH = Maps.<String, String>newHashMap();
-			Map<String, Integer> mapC = Maps.<String, Integer>newHashMap();
+			Map<String, String> mapH = Maps.newHashMap();
+			Map<String, Integer> mapC = Maps.newHashMap();
 			this.scrollData.clear();
 			for (String str : this.data.keySet()) {
 				if (this.search.isEmpty() || str.toLowerCase().contains(this.search)) {
@@ -730,8 +712,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 					int value = -1;
 					try {
 						value = Integer.parseInt(l[1]);
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.error("Error:", e); }
 					this.scrollData.put(key, str);
 
 					int color = 0xFFFFFF;
@@ -796,7 +777,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 		}
 		this.data.clear();
 		this.data.putAll(data);
-		this.setCurentList();
+		this.setCurrentList();
 		if (this.selection == EnumPlayerData.Players && this.selectedPlayer != null) {
 			this.scroll.setSelected(this.selectedPlayer);
 			this.selected = this.selectedPlayer;
@@ -817,12 +798,12 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			return;
 		}
 		this.gameData = compound;
-		Map<Integer, Integer> map = Maps.<Integer, Integer>newTreeMap();
+		Map<Integer, Integer> map = Maps.newTreeMap();
 		for (int i = 0; i < compound.getCompoundTag("GameData").getTagList("MarketData", 10).tagCount(); i++) {
 			NBTTagCompound nbt = compound.getCompoundTag("GameData").getTagList("MarketData", 10).getCompoundTagAt(i);
 			map.put(nbt.getInteger("MarketID"), nbt.getInteger("Slot"));
 		}
-		List<String> list = Lists.<String>newArrayList();
+		List<String> list = Lists.newArrayList();
 		MarcetController mData = MarcetController.getInstance();
 		this.scroll.hoversTexts = new String[map.size()][];
 		this.data.clear();
@@ -855,20 +836,15 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText) {
-			if (((SubGuiEditText) subgui).id == 0) { // add
+			if (subgui.id == 0) { // add
 				try {
-					Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 0,
-							Integer.parseInt(((SubGuiEditText) subgui).text[0]));
-				} catch (Exception e) {
-				}
-			} else if (((SubGuiEditText) subgui).id == 1) { // set
+					Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 0, Integer.parseInt(((SubGuiEditText) subgui).text[0]));
+				} catch (Exception e) { LogWriter.error("Error:", e); }
+			} else if (subgui.id == 1) { // set
 				try {
-					Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 2,
-							this.data.get(this.scrollData.get(this.scroll.getSelected())),
-							Integer.parseInt(((SubGuiEditText) subgui).text[0]));
-				} catch (Exception e) {
-				}
-			} else if (((SubGuiEditText) subgui).id == 2) { // change market slot
+					Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 2, this.data.get(this.scrollData.get(this.scroll.getSelected())), Integer.parseInt(((SubGuiEditText) subgui).text[0]));
+				} catch (Exception e) { LogWriter.error("Error:", e); }
+			} else if (subgui.id == 2) { // change market slot
 				if (this.gameData == null || !this.data.containsKey(this.scroll.getSelected())) {
 					return;
 				}
@@ -880,7 +856,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 					if (id != nbt.getInteger("MarketID")) {
 						continue;
 					}
-					nbt.setInteger("Slot", ((SubGuiEditText) subgui).getTextField(0).getInteger());
+					nbt.setInteger("Slot", subgui.getTextField(0).getInteger());
 					break;
 				}
 				this.setGuiData(this.gameData);
@@ -888,14 +864,14 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			return;
 		}
 		if (subgui instanceof SubGuiDataSend) {
-			Client.sendData(EnumPacketServer.PlayerData—leaning, ((SubGuiDataSend) subgui).time);
+			Client.sendData(EnumPacketServer.PlayerDataCleaning, ((SubGuiDataSend) subgui).time);
 		}
 	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
 		if (this.subgui != null && this.subgui instanceof SubGuiDataSend) {
-			((SubGuiDataSend) this.subgui).unFocused(textField);
+			this.subgui.unFocused(textField);
 			return;
 		}
 		if (textField.getId() != 1 || this.gameData == null || !textField.isLong()) {

@@ -12,7 +12,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 
 public class GuiScriptDoor extends GuiScriptInterface implements ISubGuiListener {
 
-	private TileScriptedDoor script;
+	private final TileScriptedDoor script;
 
 	public GuiScriptDoor(int x, int y, int z) {
 		TileScriptedDoor tileScriptedDoor = (TileScriptedDoor) this.player.world.getTileEntity(new BlockPos(x, y, z));
@@ -25,8 +25,7 @@ public class GuiScriptDoor extends GuiScriptInterface implements ISubGuiListener
 	public void save() {
 		super.save();
 		BlockPos pos = this.script.getPos();
-		Client.sendData(EnumPacketServer.ScriptDoorDataSave, pos.getX(), pos.getY(), pos.getZ(),
-				this.script.getNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.ScriptDoorDataSave, pos.getX(), pos.getY(), pos.getZ(), this.script.getNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -46,12 +45,11 @@ public class GuiScriptDoor extends GuiScriptInterface implements ISubGuiListener
 			data.setInteger("z", pos.getZ());
 			nbt.setTag("data", data);
 			this.script.getNBT(nbt);
-			String p = new String(this.path);
-			while (p.indexOf("\\") != -1) {
+			String p = this.path;
+			while (p.contains("\\")) {
 				p = p.replace("\\", "/");
 			}
-			nbt.setString("Name",
-					((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
+			nbt.setString("Name", subgui.getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", p + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", this.activeTab - 1);
 			nbt.setByte("Type", (byte) 0);

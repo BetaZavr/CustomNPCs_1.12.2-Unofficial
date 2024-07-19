@@ -17,25 +17,25 @@ import noppes.npcs.client.gui.util.ISliderListener;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 
+import javax.annotation.Nonnull;
+
 public class GuiCreationScale extends GuiCreationScreenInterface implements ISliderListener, ICustomScrollListener {
 
 	private static EnumParts selected = EnumParts.HEAD;
-	private List<EnumParts> data;
+	private final List<EnumParts> data = new ArrayList<>();
 	private GuiCustomScroll scroll;
 
 	public GuiCreationScale(EntityNPCInterface npc) {
 		super(npc);
-		this.data = new ArrayList<EnumParts>();
 		this.active = 3;
 		this.xOffset = 140;
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
+	protected void actionPerformed(@Nonnull GuiButton guibutton) {
 		super.actionPerformed(guibutton);
 		if (guibutton.id == 13) {
-			boolean bo = ((GuiNpcButton) guibutton).getValue() == 0;
-			this.playerdata.getPartConfig(GuiCreationScale.selected).notShared = bo;
+            this.playerdata.getPartConfig(GuiCreationScale.selected).notShared = ((GuiNpcButton) guibutton).getValue() == 0;
 			this.initGui();
 		}
 	}
@@ -87,9 +87,8 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 		if (this.scroll == null) {
 			this.scroll = new GuiCustomScroll(this, 0);
 		}
-		List<String> list = new ArrayList<String>();
-		EnumParts[] parts = { EnumParts.HEAD, EnumParts.BODY, EnumParts.ARM_LEFT, EnumParts.ARM_RIGHT,
-				EnumParts.LEG_LEFT, EnumParts.LEG_RIGHT };
+		List<String> list = new ArrayList<>();
+		EnumParts[] parts = { EnumParts.HEAD, EnumParts.BODY, EnumParts.ARM_LEFT, EnumParts.ARM_RIGHT, EnumParts.LEG_LEFT, EnumParts.LEG_RIGHT };
 		this.data.clear();
 		for (EnumParts part : parts) {
 			Label_0210: {
@@ -150,7 +149,7 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 			if (slider.id == 12) {
 				config.scale[2] = slider.sliderValue + 0.5f;
 			}
-			this.updateTransate();
+			this.updateTranslate();
 		}
 	}
 
@@ -166,7 +165,7 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
 	}
 
-	private void updateTransate() {
+	private void updateTranslate() {
 		for (EnumParts part : EnumParts.values()) {
 			ModelPartConfig config = this.playerdata.getPartConfig(part);
 			if (config != null) {

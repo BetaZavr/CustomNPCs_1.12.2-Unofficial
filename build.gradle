@@ -1,81 +1,126 @@
 buildscript {
     repositories {
-        jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
+        maven { url = 'https://maven.minecraftforge.net/' }
+        mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
-//Отредактируйте только под этой строкой, приведенный выше код добавляет и разрешает настройку Forge.
+        
+apply plugin: 'net.minecraftforge.gradle'
 
+// Редактировать только ниже этой строки, приведенный выше код добавляет и позволяет настроить Forge.
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 
-version = "17Feb23-Snapshot"
+// 1-Jan;	2-Feb;	3-Mar;
+// 4-Apr;	5-May;	6-Jun;
+// 7-Jul;	8-Aug;	9-Sep;
+// 10-Oct;	11-Nov;	12-Dec;
+version = "12Jul24-Snapshot_debug"
 group = "noppes.npcs" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "CustomNPCs_1.12.2-Unofficial"
 
-sourceCompatibility = targetCompatibility = '1.8' // Это нужно здесь, чтобы задача eclipse сгенерировалась правильно.
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
-}
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 minecraft {
-    version = "1.12.2-14.23.5.2768"
-    runDir = "run"
-    // сопоставления можно изменить в любое время, и они должны быть в следующем формате.
-    // snapshot_YYYYMMDD   snapshot строятся каждую ночь.
-    // stable_#            stables строятся на усмотрение команды MCP.
-    // Используйте сопоставления не по умолчанию на свой страх и риск. они не всегда могут работать.
-    // просто повторно запустите задачу установки после изменения сопоставлений, чтобы обновить рабочее пространство.
-    mappings = "snapshot_20171003"
-    // makeObfSourceJar = false // jar с именами Srg создается по умолчанию. раскомментируйте это, чтобы отключить.
+    // mappings (сопоставления) могут быть изменены в любое время и должны быть в следующем формате.
+    // snapshot_YYYYMMDD   Снимки создаются каждую ночь.
+    // stable_#            stable (стабильно) строятся по усмотрению команды MCP.
+    // Используйте сопоставления не по умолчанию на свой страх и риск. они могут не всегда работать.
+	// Просто перезапустите задачу настройки после изменения сопоставлений, чтобы обновить рабочую область.
+    //mappings channel: 'snapshot', version: '20171003-1.12'
+    mappings channel: 'snapshot', version: '20171003-1.12'
+    // makeObfSourceJar = false // по умолчанию создается jar-файл с именем Srg. раскомментируйте это, чтобы отключить.
+    
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    // Конфигурации запуска по умолчанию.
+	// Их можно изменить, удалить или продублировать по мере необходимости.
+    runs {
+        client {
+            workingDirectory project.file('run')
+            // Рекомендуемые данные журналирования для среды разработки пользователей
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Рекомендуемый уровень ведения журнала для консоли
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+
+            // Рекомендуемые данные журналирования для среды разработки пользователей
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Рекомендуемый уровень ведения журнала для консоли
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
 }
 
 dependencies {
-	// compile fileTree(dir: 'jars', include: ['*.jar'])
-    // вы можете поместить jars, от которых вы зависите, в ./libs
-    // или вы можете определить их так ..
-    //compile "some.group:artifact:version:classifier"
-    //compile "some.group:artifact:version"
-      
-    // реальные примеры
-    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // добавляет buildcraft в среду разработки
-    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // добавляет ejml в среду разработки
+    // Укажите версию Minecraft, которую следует использовать.
+	// Если это какая-либо группа, отличная от «net.minecraft», предполагается, что она будет использоваться.
+	// что dep является зависимостью «патча» ForgeGradle. И его патчи будут применены.
+	// Артефакт user_dev имеет специальное имя, и к нему будут применены все виды преобразований.
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
 
-    // «предоставленная» конфигурация предназначена для необязательных зависимостей, которые существуют во время компиляции, но могут отсутствовать во время выполнения.
-    //provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    // Вы можете поместить jar-файлы, от которых зависите, в ./libs или определить их следующим образом.
+    // compile "some.group:artifact:version:classifier"
+    // compile "some.group:artifact:version"
 
-    // конфигурации deobf:  'deobfCompile' и 'deobfProvided' такие же, как и при обычной компиляции, и предоставляются,
-    // за исключением того, что эти зависимости переназначаются на ваши текущие сопоставления MCP
-    //deobfCompile 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-    //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    // Реальные примеры
+    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
 
-    // для получения дополнительной информации...
+    // provided (предоставления) конфигурация предназначена для необязательных зависимостей, которые существуют во время компиляции, но могут отсутствовать во время выполнения.
+    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // Эти зависимости переназначаются на ваши текущие сопоставления MCP.
+    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // Для получения дополнительной информации...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
 }
 
-processResources {
-    // это обеспечит повторное выполнение этой задачи при изменении версий.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-    // замените материал в mcmod.info, больше ничего
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        // заменить версию и mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-    // скопируйте все остальное, кроме mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
-
+// Пример того, как получить свойства в манифесте для чтения во время выполнения.
 jar {
-  manifest {
-	  attributes 'FMLAT': 'cnpcs_at.cfg'
-  }
+    manifest {
+        attributes([
+            "Specification-Title": "examplemod",
+            "Specification-Vendor": "examplemodsareus",
+            "Specification-Version": "1", // We are version 1 of ourselves
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${version}",
+            "Implementation-Vendor" :"examplemodsareus",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
 }
 
+// Пример конфигурации, позволяющей публиковать с помощью задачи maven-publish
+// Это предпочтительный метод повторной обфускации вашего jar-файла
+jar.finalizedBy('reobfJar')
+
+// Однако, если вы используете многопроектную сборку, для разработки требуются файлы jar без обфускации, поэтому вы можете отложить обфускацию до публикации, выполнив
+//publish.dependsOn('reobfJar')
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
+
+sourceSets {
+	main {
+		output.resourcesDir = output.classesDir
+	}
+}

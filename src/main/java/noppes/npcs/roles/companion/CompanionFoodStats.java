@@ -10,6 +10,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class CompanionFoodStats {
+
 	private float foodExhaustionLevel;
 	private int foodLevel;
 	private float foodSaturationLevel;
@@ -39,10 +40,6 @@ public class CompanionFoodStats {
 	@SideOnly(Side.CLIENT)
 	public int getPrevFoodLevel() {
 		return this.prevFoodLevel;
-	}
-
-	public float getSaturationLevel() {
-		return this.foodSaturationLevel;
 	}
 
 	public boolean needFood() {

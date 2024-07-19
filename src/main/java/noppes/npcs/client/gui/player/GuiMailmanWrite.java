@@ -17,7 +17,6 @@ import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -53,18 +52,14 @@ import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.util.AdditionalMethods;
 
 @SideOnly(Side.CLIENT)
-public class GuiMailmanWrite extends GuiContainerNPCInterface
-		implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYesNoCallback {
+public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYesNoCallback {
 
 	public static final ResourceLocation icons = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/icons.png");
-	private static final ResourceLocation mEnvelope = new ResourceLocation(CustomNpcs.MODID,
-			"textures/gui/mail/envelope.png");
+	private static final ResourceLocation mEnvelope = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/envelope.png");
 	private static final ResourceLocation mList = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/list.png");
-	private static final ResourceLocation mTable = new ResourceLocation(CustomNpcs.MODID,
-			"textures/gui/mail/table.png");
-	private static final ResourceLocation mSbox = new ResourceLocation(CustomNpcs.MODID,
-			"textures/gui/mail/send_box.png");
-	private static ResourceLocation widgets = new ResourceLocation("textures/gui/widgets.png");
+	private static final ResourceLocation mTable = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/table.png");
+	private static final ResourceLocation mSbox = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/send_box.png");
+	private static final ResourceLocation widgets = new ResourceLocation("textures/gui/widgets.png");
 
 	public static PlayerMail mail = new PlayerMail();
 	public static GuiScreen parent;
@@ -73,10 +68,13 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 	private NBTTagList bookPages;
 	private GuiNpcLabel error;
 
-	private boolean canEdit, canSend, hasStacks, hasSend;
+	private final boolean canEdit;
+    private final boolean canSend;
+    private boolean hasStacks;
+    private boolean hasSend;
 	private int bookTotalPages, currPage, updateCount, type;
 	private long totalCost;
-	private Map<Integer, Long> cost;
+	private final Map<Integer, Long> cost = Maps.newTreeMap();
 	private String username;
 
 	// Animations
@@ -93,7 +91,6 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 		this.title = "";
 		this.canEdit = canEdit;
 		this.canSend = canSend;
-		this.cost = Maps.<Integer, Long>newTreeMap();
 		this.type = 0;
 		this.errTick = 0;
 		if (GuiMailmanWrite.mail.message.hasKey("pages")) {
@@ -113,7 +110,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 		this.ySize = 248;
 		this.drawDefaultBackground = false;
 		this.closeOnEsc = true;
-		ClientTickHandler.cheakMails = true;
+		ClientTickHandler.checkMails = true;
 		this.tick = 30;
 		this.mtick = 30;
 		this.step = 0;
@@ -187,8 +184,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 			break;
 		}
 		case 4: { // delete
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "",
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+			GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
 			this.displayGuiScreen(guiyesno);
 			break;
 		}
@@ -214,7 +210,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 	@Override
 	public void close() {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CloseGui);
-		ClientTickHandler.cheakMails = true;
+		ClientTickHandler.checkMails = true;
 		this.mc.displayGuiScreen(GuiMailmanWrite.parent);
 		if (GuiMailmanWrite.parent != null) {
 			GuiMailmanWrite.parent.initGui();
@@ -224,18 +220,17 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 	}
 
 	public void confirmClicked(boolean flag, int id) {
-		NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		NoppesUtil.openGUI(this.player, this);
 		if (!flag) {
 			return;
 		}
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.MailDelete, GuiMailmanWrite.mail.timeWhenReceived,
-				GuiMailmanWrite.mail.sender);
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.MailDelete, GuiMailmanWrite.mail.timeWhenReceived, GuiMailmanWrite.mail.sender);
 		ClientProxy.playerData.mailData.playermail.remove(GuiMailmanWrite.mail);
 		aType = 2;
 		this.animClose();
 	}
 
-	private void drawPlace(float u, float v, int mouseX, int mouseY, float partialTicks) {
+	private void drawPlace(float u, float v, int mouseX, int mouseY) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(u, v, 0.0f);
 		this.mc.renderEngine.bindTexture(mTable);
@@ -254,7 +249,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 			this.mc.renderEngine.bindTexture(mList);
 			this.drawTexturedModalRect(0, 0, 0, 0, 164, 134);
 			GlStateManager.popMatrix();
-			// hundle
+			// handle
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 0.0f);
 			this.mc.renderEngine.bindTexture(mTable);
@@ -280,10 +275,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 			GlStateManager.popMatrix();
 			for (int slotId = 0; slotId < this.inventorySlots.inventorySlots.size(); slotId++) {
 				Slot slot = this.inventorySlots.getSlot(slotId);
-				if (slot == null) {
-					continue;
-				}
-				if (slotId < 4) {
+                if (slotId < 4) {
 					boolean show = !this.canEdit && !this.canSend ? mail.ransom <= 0 && slot.getHasStack()
 							: this.canEdit;
 					if (show && slot.xPos == 250000) {
@@ -513,36 +505,36 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				totalText = this.bookPages.getStringTagAt(this.currPage);
 			}
 			if (this.canEdit) {
-				if (this.mc.fontRenderer.getWordWrappedHeight(totalText + "" + TextFormatting.BLACK + "_", 152) > 108) {
+				if (this.mc.fontRenderer.getWordWrappedHeight(totalText + TextFormatting.BLACK + "_", 152) > 108) {
 					if (this.updateCount / 6 % 2 == 0) {
-						drawEnd = "" + TextFormatting.BLACK + "_";
+						drawEnd = TextFormatting.BLACK + "_";
 					} else {
-						drawEnd = "" + TextFormatting.GRAY + "_";
+						drawEnd = TextFormatting.GRAY + "_";
 					}
 				} else if (this.mc.fontRenderer.getBidiFlag()) {
 					totalText += "_";
 				} else if (this.updateCount / 6 % 2 == 0) {
-					totalText = totalText + "" + TextFormatting.BLACK + "_";
+					totalText = totalText + TextFormatting.BLACK + "_";
 				} else {
-					totalText = totalText + "" + TextFormatting.GRAY + "_";
+					totalText = totalText + TextFormatting.GRAY + "_";
 				}
 			} else if (mail.ransom > 0) {
-				String newText = "";
+				StringBuilder newText = new StringBuilder();
 				char g = ((char) 167);
 				boolean rnd = false;
 				for (int i = 0; i < totalText.length(); i++) {
 					char c = totalText.charAt(i);
 					if (this.mc.fontRenderer.getWordWrappedHeight(newText + "" + c, 152) > 9) {
-						newText += g + "k";
+						newText.append(g).append("k");
 						rnd = true;
 					}
 					if (!rnd || c == ((char) 10) || c == ' ') {
-						newText += c;
+						newText.append(c);
 					} else {
-						newText += ' ';
+						newText.append(' ');
 					}
 				}
-				totalText = newText;
+				totalText = newText.toString();
 			}
 			int ls = this.mc.fontRenderer.getStringWidth(s);
 			this.mc.fontRenderer.drawString(s, this.guiLeft + 163 - ls, this.guiTop + 18, 0);
@@ -556,7 +548,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				if (this.isMouseHover(mouseX, mouseY, this.guiLeft + 11, this.guiTop + 36, 152, 108)) {
 					List<String> list = Lists
 							.newArrayList(new TextComponentTranslation("mailbox.hover.ransom.sell").getFormattedText());
-					this.hoverText = list.toArray(new String[list.size()]);
+					this.hoverText = list.toArray(new String[0]);
 					this.getLabel(7).backColor = 0x80FF0000;
 					this.getLabel(8).backColor = 0x80FF0000;
 					this.getButton(6).layerColor = 0xFFF00000;
@@ -565,10 +557,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 			// add slots
 			for (int slotId = 0; slotId < 4; slotId++) {
 				Slot slot = this.inventorySlots.getSlot(slotId);
-				if (slot == null) {
-					continue;
-				}
-				boolean show = !this.canEdit && !this.canSend ? slot.getHasStack() : slot.xPos != 250000;
+                boolean show = !this.canEdit && !this.canSend ? slot.getHasStack() : slot.xPos != 250000;
 				if (show) {
 					int px = this.guiLeft + 193 + 23 * (slotId % 2);
 					int py = this.guiTop + 183 + 23 * (slotId / 2);
@@ -594,7 +583,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 							list.addAll(slot.getStack().getTooltip(this.mc.player,
 									this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED
 											: TooltipFlags.NORMAL));
-							this.hoverText = list.toArray(new String[list.size()]);
+							this.hoverText = list.toArray(new String[0]);
 							this.getLabel(7).backColor = 0x80FF0000;
 							this.getLabel(8).backColor = 0x80FF0000;
 							this.getButton(6).layerColor = 0xFFF00000;
@@ -610,7 +599,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 		} else {
 			for (int slotId = 0; slotId < this.inventorySlots.inventorySlots.size(); slotId++) {
 				Slot slot = this.inventorySlots.getSlot(slotId);
-				if (slot == null || slot.xPos == 250000) {
+				if (slot.xPos == 250000) {
 					continue;
 				}
 				slot.xPos = 250000;
@@ -682,7 +671,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 		hasStacks = false;
 		for (int i = 0; i < 4; i++) {
 			Slot slot = this.inventorySlots.getSlot(i);
-			if (slot == null || slot.getStack() == null || slot.getStack().isEmpty()) {
+			if (slot.getStack().isEmpty()) {
 				continue;
 			}
 			c += (int) ((float) CustomNpcs.MailCostSendingLetter[2] * (float) slot.getStack().getCount()
@@ -749,7 +738,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 			case 0: { // open
 				float u = this.guiLeft + (1.0f - cos) * 174.0f;
 				float v = this.guiTop + (1.0f - cos) * 248.0f;
-				this.drawPlace(u, v, mouseX, mouseY, partialTicks);
+				this.drawPlace(u, v, mouseX, mouseY);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u, v, 2.0f);
 				this.mc.renderEngine.bindTexture(mEnvelope);
@@ -769,7 +758,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				break;
 			}
 			case 1: { // box and envelope_0 offset
-				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop + cos * 150.0f, 2.0f);
 				this.mc.renderEngine.bindTexture(mEnvelope);
@@ -792,7 +781,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				break;
 			}
 			case 2: { // box added slots and show list
-				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY);
 				// envelope_0
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 5, this.guiTop + 190.0f, 2.0f);
@@ -810,7 +799,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				this.mc.renderEngine.bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, h);
 				GlStateManager.popMatrix();
-				// hundle
+				// handle
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 2.0f);
 				this.mc.renderEngine.bindTexture(mTable);
@@ -838,7 +827,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				break;
 			}
 			case 3: { // envelope_1 offset
-				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY);
 				// envelope_1
 				float u = this.guiLeft + cos * 142.0f;
 				float v = this.guiTop + 150.0f - cos * 160.0f;
@@ -853,7 +842,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				this.mc.renderEngine.bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
-				// hundle
+				// handle
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 2.0f);
 				this.mc.renderEngine.bindTexture(mTable);
@@ -878,7 +867,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				break;
 			}
 			case 4: { // slots
-				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY);
 				// envelope
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 142.0f, this.guiTop - 10.0f, 2.0f);
@@ -891,7 +880,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				this.mc.renderEngine.bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
-				// hundle
+				// handle
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 2.0f);
 				this.mc.renderEngine.bindTexture(mTable);
@@ -961,14 +950,13 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				}
 				if (tick == 0) {
 					step = 5;
-					tick = 0;
-					mtick = 0;
+                    mtick = 0;
 					GlStateManager.disableBlend();
 				}
 				break;
 			}
 			case 6: { // simple close/back
-				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY);
 				if (tick == 0) {
 					step = 7;
 					tick = 36;
@@ -994,7 +982,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				this.mc.renderEngine.bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
-				// hundle
+				// handle
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 2.0f);
 				this.mc.renderEngine.bindTexture(mTable);
@@ -1056,7 +1044,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				this.mc.renderEngine.bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
-				// hundle
+				// handle
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 2.0f);
 				this.mc.renderEngine.bindTexture(mTable);
@@ -1108,8 +1096,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				GlStateManager.popMatrix();
 				if (tick == 0) {
 					step = 0;
-					tick = 0;
-					mtick = 0;
+                    mtick = 0;
 					this.close();
 				}
 				break;
@@ -1222,8 +1209,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				}
 				if (tick == 0) {
 					step = 0;
-					tick = 0;
-					mtick = 0;
+                    mtick = 0;
 					this.close();
 				}
 				break;
@@ -1335,8 +1321,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				GlStateManager.popMatrix();
 				if (tick == 0) {
 					step = 0;
-					tick = 0;
-					mtick = 0;
+                    mtick = 0;
 					this.close();
 				}
 				break;
@@ -1344,7 +1329,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 			}
 			tick--;
 		} else {
-			this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY, partialTicks);
+			this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY);
 		}
 		GlStateManager.popMatrix();
 		if (step != 5) {
@@ -1366,7 +1351,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 			GlStateManager.popMatrix();
 
 			GlStateManager.pushMatrix();
-			this.mc.fontRenderer.drawString(text, x + 15, y + 8 / 2, 0x404040, false);
+			this.mc.fontRenderer.drawString(text, x + 15, y + 8.0f / 2.0f, 0x404040, false);
 			GlStateManager.popMatrix();
 		}
 		if (this.hasSubGui() || !CustomNpcs.ShowDescriptions) {
@@ -1378,10 +1363,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 			} // done
 			else {
 				if (this.type == 0) {
-					ITextComponent mes = new TextComponentTranslation("mailbox.hover.send.0",
-							AdditionalMethods.ticksToElapsedTime(CustomNpcs.MailTimeWhenLettersWillBeReceived[1] * 20,
-									false, true, true),
-							"" + this.totalCost, CustomNpcs.displayCurrencies);
+					ITextComponent mes = new TextComponentTranslation("mailbox.hover.send.0", AdditionalMethods.ticksToElapsedTime(CustomNpcs.MailTimeWhenLettersWillBeReceived[1] * 20L, false, true, true), "" + this.totalCost, CustomNpcs.displayCurrencies);
 					for (int i : this.cost.keySet()) {
 						if (this.cost.get(i) > 0L) {
 							String p0 = "" + this.cost.get(i);
@@ -1610,34 +1592,29 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 		if (step != 5 || GuiNpcTextField.isActive()) {
 			return;
 		}
-		switch (c) {
-		case '\u0016': {
-			this.addString(GuiScreen.getClipboardString());
-		}
-		default: {
-			switch (i) {
-			case 14: { // back
-				String s = this.getText();
-				if (s.length() > 0) {
-					this.setText(s.substring(0, s.length() - 1));
-				}
-				return;
-			}
-			case 28: // enter
-			case 156: {
-				this.addString("\n");
-				return;
-			}
-			default: {
-				if (ChatAllowedCharacters.isAllowedCharacter(c)) {
-					this.addString(Character.toString(c));
-				}
-				return;
-			}
-			}
-		}
-		}
-	}
+        if (c == '\u0016') {
+            this.addString(GuiScreen.getClipboardString());
+        }
+        switch (i) {
+            case 14: { // back
+                String s = this.getText();
+                if (!s.isEmpty()) {
+                    this.setText(s.substring(0, s.length() - 1));
+                }
+                return;
+            }
+            case 28: // enter
+            case 156: {
+                this.addString("\n");
+                return;
+            }
+            default: {
+                if (ChatAllowedCharacters.isAllowedCharacter(c)) {
+                    this.addString(Character.toString(c));
+                }
+            }
+        }
+    }
 
 	public void onGuiClosed() {
 		Keyboard.enableRepeatEvents(false);
@@ -1650,7 +1627,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 	@Override
 	public void setClose(int i, NBTTagCompound data) {
 		this.player.sendMessage(
-				new TextComponentTranslation("mailbox.succes", new Object[] { data.getString("username") }));
+				new TextComponentTranslation("mailbox.success", data.getString("username")));
 		aType = 1;
 		this.animClose();
 	}

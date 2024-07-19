@@ -9,6 +9,8 @@ import noppes.npcs.api.IContainer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 
+import java.util.Objects;
+
 public class ContainerWrapper implements IContainer {
 
 	private Container container;
@@ -65,12 +67,12 @@ public class ContainerWrapper implements IContainer {
 	@Override
 	public IItemStack getSlot(int slot) {
 		if (slot < 0 || slot >= this.getSize()) {
-			throw new CustomNPCsException("Slot is out of range " + slot, new Object[0]);
+			throw new CustomNPCsException("Slot is out of range " + slot);
 		}
 		if (this.inventory != null) {
-			return NpcAPI.Instance().getIItemStack(this.inventory.getStackInSlot(slot));
+			return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.inventory.getStackInSlot(slot));
 		}
-		return NpcAPI.Instance().getIItemStack(this.container.getSlot(slot).getStack());
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.container.getSlot(slot).getStack());
 	}
 
 	@Override
@@ -81,7 +83,7 @@ public class ContainerWrapper implements IContainer {
 	@Override
 	public void setSlot(int slot, IItemStack item) {
 		if (slot < 0 || slot >= this.getSize()) {
-			throw new CustomNPCsException("Slot is out of range " + slot, new Object[0]);
+			throw new CustomNPCsException("Slot is out of range " + slot);
 		}
 		ItemStack itemstack = (item == null) ? ItemStack.EMPTY : item.getMCItemStack();
 		if (this.inventory != null) {

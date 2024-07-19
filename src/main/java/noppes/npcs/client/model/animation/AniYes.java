@@ -6,8 +6,8 @@ import net.minecraft.entity.Entity;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class AniYes {
-	public static void setRotationAngles(float par1, float par2, float par3, float par4, float par5, float par6,
-			Entity entity, ModelBiped model) {
+
+	public static void setRotationAngles(float ignoredLimbSwing, float ignoredLimbSwingAmount, float ignoredAgeInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScale, Entity entity, ModelBiped model) {
 		float ticks = (entity.ticksExisted - ((EntityNPCInterface) entity).animationStart) / 8.0f;
 		float ticks2 = (entity.ticksExisted + 1 - ((EntityNPCInterface) entity).animationStart) / 8.0f;
 		ticks += (ticks2 - ticks) * Minecraft.getMinecraft().getRenderPartialTicks();

@@ -6,7 +6,6 @@ import java.util.List;
 import com.google.common.base.Predicate;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.util.math.BlockPos;
@@ -19,7 +18,8 @@ import noppes.npcs.controllers.data.Line;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIWander extends EntityAIBase {
-	private EntityNPCInterface entity;
+
+	private final EntityNPCInterface entity;
 	private EntityNPCInterface nearbyNPC;
 	public Predicate<? super Entity> selector;
 	private double x;
@@ -33,7 +33,7 @@ public class EntityAIWander extends EntityAIBase {
 	}
 
 	private EntityNPCInterface getNearbyNPC() {
-		List<Entity> list = this.entity.world.getEntitiesInAABBexcluding((Entity) this.entity,
+		List<Entity> list = this.entity.world.getEntitiesInAABBexcluding(this.entity,
 				this.entity.getEntityBoundingBox().grow(this.entity.ais.walkingRange,
 						(this.entity.ais.walkingRange > 7) ? 7.0 : this.entity.ais.walkingRange,
 						this.entity.ais.walkingRange),
@@ -54,27 +54,25 @@ public class EntityAIWander extends EntityAIBase {
 
 	private Vec3d getVec() {
 		if (this.entity.ais.walkingRange <= 0) {
-			return RandomPositionGenerator.findRandomTarget((EntityCreature) this.entity, CustomNpcs.NpcNavRange, 7);
+			return RandomPositionGenerator.findRandomTarget(this.entity, CustomNpcs.NpcNavRange, 7);
 		}
-		BlockPos start = new BlockPos(this.entity.getStartXPos(), this.entity.getStartYPos(),
-				this.entity.getStartZPos());
+		BlockPos start = new BlockPos(this.entity.getStartXPos(), this.entity.getStartYPos(), this.entity.getStartZPos());
 		int distance = (int) MathHelper.sqrt(this.entity.getDistanceSq(start));
 		int range = this.entity.ais.walkingRange - distance;
 		if (range > CustomNpcs.NpcNavRange) {
 			range = CustomNpcs.NpcNavRange;
 		}
 		if (range < 3) {
-			range = this.entity.ais.walkingRange;
-			if (range > CustomNpcs.NpcNavRange) {
-				range = CustomNpcs.NpcNavRange;
+			if (distance >  this.entity.ais.walkingRange) {
+				distance =  this.entity.ais.walkingRange;
 			}
-			Vec3d pos2 = new Vec3d((this.entity.posX + start.getX()) / 2.0, (this.entity.posY + start.getY()) / 2.0,
-					(this.entity.posZ + start.getZ()) / 2.0);
-			return RandomPositionGenerator.findRandomTargetBlockTowards((EntityCreature) this.entity, distance / 2,
-					(distance / 2 > 7) ? 7 : (distance / 2), pos2);
+			if (distance > CustomNpcs.NpcNavRange) {
+				distance = CustomNpcs.NpcNavRange;
+			}
+			Vec3d pos2 = new Vec3d((this.entity.posX + start.getX()) / 2.0, (this.entity.posY + start.getY()) / 2.0, (this.entity.posZ + start.getZ()) / 2.0);
+			return RandomPositionGenerator.findRandomTargetBlockTowards(this.entity, distance / 2, Math.min(distance / 2, 7), pos2);
 		}
-		return RandomPositionGenerator.findRandomTarget((EntityCreature) this.entity, range / 2,
-				(range / 2 > 7) ? 7 : (range / 2));
+		return RandomPositionGenerator.findRandomTarget(this.entity, range / 2, Math.min(range / 2, 7));
 	}
 
 	public void resetTask() {

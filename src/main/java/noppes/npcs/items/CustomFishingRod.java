@@ -12,9 +12,12 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.AdditionalMethods;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class CustomFishingRod extends ItemFishingRod implements ICustomElement {
 
-	protected NBTTagCompound nbtData = new NBTTagCompound();
+	protected NBTTagCompound nbtData;
 	protected int enchantability = 1;
 	protected ItemStack repairItemStack = ItemStack.EMPTY;
 
@@ -35,7 +38,7 @@ public class CustomFishingRod extends ItemFishingRod implements ICustomElement {
 			this.enchantability = nbtItem.getInteger("Enchantability");
 		}
 
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
+		this.setCreativeTab(CustomRegisters.tabItems);
 	}
 
 	@Override
@@ -45,15 +48,15 @@ public class CustomFishingRod extends ItemFishingRod implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+	public boolean getIsRepairable(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
 		if (this.repairItemStack.isEmpty()) {
 			return super.getIsRepairable(toRepair, repair);
 		}
 		ItemStack mat = this.repairItemStack;
-		if (!mat.isEmpty() && net.minecraftforge.oredict.OreDictionary.itemMatches(mat, repair, false)) {
+		if (net.minecraftforge.oredict.OreDictionary.itemMatches(mat, repair, false)) {
 			return true;
 		}
 		return super.getIsRepairable(toRepair, repair);
@@ -63,7 +66,7 @@ public class CustomFishingRod extends ItemFishingRod implements ICustomElement {
 		return this.enchantability;
 	}
 
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
@@ -72,7 +75,7 @@ public class CustomFishingRod extends ItemFishingRod implements ICustomElement {
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return (int) this.nbtData.getByte("ItemType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return this.nbtData.getByte("ItemType"); }
 		return 8;
 	}
 

@@ -17,6 +17,8 @@ import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.MarcetController;
 
+import java.util.Objects;
+
 public class Deal implements IDeal {
 
 	public Availability availability = new Availability();
@@ -74,7 +76,7 @@ public class Deal implements IDeal {
 
 	@Override
 	public IContainer getCurrency() {
-		return NpcAPI.Instance().getIContainer(this.inventoryCurrency);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIContainer(this.inventoryCurrency);
 	}
 
 	@Override
@@ -129,7 +131,7 @@ public class Deal implements IDeal {
 
 	@Override
 	public IItemStack getProduct() {
-		return NpcAPI.Instance().getIItemStack(this.inventoryProduct.getStackInSlot(0));
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.inventoryProduct.getStackInSlot(0));
 	}
 
 	public String getSettingName() {
@@ -147,12 +149,9 @@ public class Deal implements IDeal {
 	}
 
 	public boolean isValid() {
-		if (this.inventoryProduct.getStackInSlot(0) == null || this.inventoryProduct.getStackInSlot(0).isEmpty()
-				|| (this.money <= 0 && this.inventoryCurrency.isEmpty())) {
-			return false;
-		}
-		return true;
-	}
+        this.inventoryProduct.getStackInSlot(0);
+        return !this.inventoryProduct.getStackInSlot(0).isEmpty() && (this.money > 0 || !this.inventoryCurrency.isEmpty());
+    }
 
 	public void readDataNBT(NBTTagCompound compound) {
 		this.readFromNBT(compound);

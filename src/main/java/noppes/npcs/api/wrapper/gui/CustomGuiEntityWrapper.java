@@ -12,9 +12,9 @@ extends CustomGuiComponentWrapper
 implements IGuiEntity {
 
 	public NBTTagCompound entityNbt = null;
-	IEntity<?> entity = null;
+	IEntity<?> entity;
 
-	float scale = 1.0f;
+	float scale;
 	boolean hasBorder = false, showArmor = true;
 	/**
 	 * 0 - nope

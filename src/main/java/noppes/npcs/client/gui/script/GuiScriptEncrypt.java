@@ -20,10 +20,10 @@ public class GuiScriptEncrypt extends SubGuiInterface {
 		this.setBackground("smallbg.png");
 		this.closeOnEsc = true;
 		this.onlyTab = true;
-		while (path.indexOf("\\") != -1) {
+		while (path.contains("\\")) {
 			path = path.replace("\\", "/");
 		}
-		if (path.indexOf("./") != -1) {
+		if (path.contains("./")) {
 			path = path.substring(path.indexOf("./"));
 		}
 		this.path = path + "/";
@@ -65,7 +65,7 @@ public class GuiScriptEncrypt extends SubGuiInterface {
 			return;
 		}
 		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
-			String path = this.path + this.getTextField(0).getText() + "" + ext;
+			String path = this.path + this.getTextField(0).getText() + ext;
 			this.setHoverText(new TextComponentTranslation("encrypt.hover.path", path).getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("encrypt.hover.type." + this.onlyTab).getFormattedText());
@@ -92,10 +92,6 @@ public class GuiScriptEncrypt extends SubGuiInterface {
 		this.addButton(checkBox);
 		this.addButton(new GuiNpcButton(66, x, y += 20, 82, 20, "gui.back"));
 		this.addButton(new GuiNpcButton(1, x + 84, y, 82, 20, "gui.encrypt"));
-	}
-
-	@Override
-	public void save() {
 	}
 
 }

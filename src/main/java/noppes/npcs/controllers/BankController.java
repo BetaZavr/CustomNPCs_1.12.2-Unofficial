@@ -1,11 +1,10 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Objects;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -13,6 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.controllers.data.Bank;
@@ -47,7 +47,7 @@ public class BankController {
 	public BankController() {
 		this.filePath = "";
 		BankController.instance = this;
-		this.banks = new HashMap<Integer, Bank>();
+		this.banks = new HashMap<>();
 		this.loadBanks();
 		if (this.banks.isEmpty()) {
 			Bank bank = new Bank();
@@ -78,10 +78,8 @@ public class BankController {
 			File fileBank = new File(banksDir, bank.id + ".dat");
 			BankData bd = new BankData(bank, "");
 			try {
-				bd.readNBT(CompressedStreamTools.readCompressed(new FileInputStream(fileBank)));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+				bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
+			} catch (IOException e) { LogWriter.error("Error:", e); }
 			boolean isChange = false;
 			for (int c : bd.ceils.keySet()) {
 				if (!bank.ceilSettings.containsKey(c)) {
@@ -100,18 +98,17 @@ public class BankController {
 			}
 			if (isChange) {
 				try {
-					CompressedStreamTools.writeCompressed(bd.getNBT(), new FileOutputStream(fileBank));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+					CompressedStreamTools.writeCompressed(bd.getNBT(), Files.newOutputStream(fileBank.toPath()));
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		} else {
 			File datasDir = CustomNpcs.getWorldSaveDirectory("playerdata");
-			for (File playerDir : datasDir.listFiles()) {
+            if (datasDir == null) { return; }
+            for (File playerDir : Objects.requireNonNull(datasDir.listFiles())) {
 				if (!playerDir.isDirectory()) {
 					continue;
 				}
-				for (File banksDir : playerDir.listFiles()) {
+				for (File banksDir : Objects.requireNonNull(playerDir.listFiles())) {
 					if (!banksDir.isDirectory() || !banksDir.getName().equals("banks")) {
 						continue;
 					}
@@ -119,10 +116,8 @@ public class BankController {
 					if (fileBank.exists()) {
 						BankData bd = new BankData(bank, "");
 						try {
-							bd.readNBT(CompressedStreamTools.readCompressed(new FileInputStream(fileBank)));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+							bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
+						} catch (IOException e) { LogWriter.error("Error:", e); }
 						boolean isChange = false;
 						for (int c : bd.ceils.keySet()) {
 							if (!bank.ceilSettings.containsKey(c)) {
@@ -143,10 +138,8 @@ public class BankController {
 						}
 						if (isChange) {
 							try {
-								CompressedStreamTools.writeCompressed(bd.getNBT(), new FileOutputStream(fileBank));
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
+								CompressedStreamTools.writeCompressed(bd.getNBT(), Files.newOutputStream(fileBank.toPath()));
+							} catch (Exception e) { LogWriter.error("Error:", e); }
 						}
 					}
 				}
@@ -179,9 +172,8 @@ public class BankController {
 	}
 
 	public int getUnusedId() {
-		int id;
-		for (id = 0; this.banks.containsKey(id); ++id) {
-		}
+		int id = 0;
+		while (this.banks.containsKey(id)) { id++; }
 		return id;
 	}
 
@@ -205,8 +197,7 @@ public class BankController {
 				if (file2.exists()) {
 					this.loadBanks(file2);
 				}
-			} catch (Exception ex) {
-			}
+			} catch (Exception ex) { LogWriter.error("Error:", ex); }
 		}
 		if (CustomNpcs.VerboseDebug) {
 			CustomNpcs.debugData.endDebug("Common", null, "loadBanks");
@@ -214,21 +205,19 @@ public class BankController {
 	}
 
 	private void loadBanks(File file) throws IOException {
-		this.loadBanks(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+		this.loadBanks(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath())));
 	}
 
-	public void loadBanks(NBTTagCompound nbttagcompound1) throws IOException {
-		HashMap<Integer, Bank> banks = new HashMap<Integer, Bank>();
-		NBTTagList list = nbttagcompound1.getTagList("Data", 10);
-		if (list != null) {
-			for (int i = 0; i < list.tagCount(); ++i) {
-				NBTTagCompound nbtBank = list.getCompoundTagAt(i);
-				Bank bank = new Bank();
-				bank.readFromNBT(nbtBank);
-				banks.put(bank.id, bank);
-			}
-		}
-		this.banks = banks;
+	public void loadBanks(NBTTagCompound compound) {
+		HashMap<Integer, Bank> banks = new HashMap<>();
+		NBTTagList list = compound.getTagList("Data", 10);
+        for (int i = 0; i < list.tagCount(); ++i) {
+            NBTTagCompound nbtBank = list.getCompoundTagAt(i);
+            Bank bank = new Bank();
+            bank.readFromNBT(nbtBank);
+            banks.put(bank.id, bank);
+        }
+        this.banks = banks;
 	}
 
 	public void removeBank(int bankId) {
@@ -256,11 +245,12 @@ public class BankController {
 				}
 			} else {
 				File datasDir = CustomNpcs.getWorldSaveDirectory("playerdata");
-				for (File playerDir : datasDir.listFiles()) {
+				if (datasDir == null) { return; }
+                for (File playerDir : Objects.requireNonNull(datasDir.listFiles())) {
 					if (!playerDir.isDirectory()) {
 						continue;
 					}
-					for (File banksDir : playerDir.listFiles()) {
+					for (File banksDir : Objects.requireNonNull(playerDir.listFiles())) {
 						if (!banksDir.isDirectory() || !banksDir.getName().equals("banks")) {
 							continue;
 						}
@@ -290,7 +280,7 @@ public class BankController {
 			File file = new File(saveDir, "bank.dat_new");
 			File file2 = new File(saveDir, "bank.dat_old");
 			File file3 = new File(saveDir, "bank.dat");
-			CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(file));
+			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(file.toPath()));
 			if (file2.exists()) {
 				file2.delete();
 			}
@@ -302,9 +292,7 @@ public class BankController {
 			if (file.exists()) {
 				file.delete();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void update() { // every 5 min --> ServerTickHandler.onServerTick()

@@ -7,10 +7,6 @@ import nikedemos.markovnames.MarkovDictionary;
 public class MarkovWelsh extends MarkovGenerator {
 	public MarkovDictionary markov2;
 
-	public MarkovWelsh() {
-		this(3, new Random());
-	}
-
 	public MarkovWelsh(int seqlen) {
 		this(seqlen, new Random());
 	}

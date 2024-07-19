@@ -8,22 +8,24 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.entity.EntityNpcDragon;
 
-public class ModelNpcDragon extends ModelBase {
-	private ModelRenderer body;
-	private float field_40317_s;
-	private ModelRenderer frontFoot;
-	private ModelRenderer frontLeg;
-	private ModelRenderer frontLegTip;
-	private ModelRenderer head;
-	private ModelRenderer jaw;
-	private ModelRenderer neck;
-	private ModelRenderer rearFoot;
-	private ModelRenderer rearLeg;
-	private ModelRenderer rearLegTip;
-	private ModelRenderer wing;
-	private ModelRenderer wingTip;
+import javax.annotation.Nonnull;
 
-	public ModelNpcDragon(float scale) {
+public class ModelNpcDragon extends ModelBase {
+	private final ModelRenderer body;
+	private float field_40317_s;
+	private final ModelRenderer frontFoot;
+	private final ModelRenderer frontLeg;
+	private final ModelRenderer frontLegTip;
+	private final ModelRenderer head;
+	private final ModelRenderer jaw;
+	private final ModelRenderer neck;
+	private final ModelRenderer rearFoot;
+	private final ModelRenderer rearLeg;
+	private final ModelRenderer rearLegTip;
+	private final ModelRenderer wing;
+	private final ModelRenderer wingTip;
+
+	public ModelNpcDragon() {
 		this.textureWidth = 256;
 		this.textureHeight = 256;
 		this.setTextureOffset("body.body", 0, 0);
@@ -45,7 +47,7 @@ public class ModelNpcDragon extends ModelBase {
 		this.setTextureOffset("head.scale", 0, 0);
 		this.setTextureOffset("neck.scale", 48, 0);
 		this.setTextureOffset("head.nostril", 112, 0);
-		(this.head = new ModelRenderer((ModelBase) this, "head")).addBox("upperlip", -6.0f, -1.0f, -24.0f, 12, 5, 16);
+		(this.head = new ModelRenderer(this, "head")).addBox("upperlip", -6.0f, -1.0f, -24.0f, 12, 5, 16);
 		this.head.addBox("upperhead", -8.0f, -8.0f, -10.0f, 16, 16, 16);
 		this.head.mirror = true;
 		this.head.addBox("scale", -5.0f, -12.0f, -4.0f, 2, 4, 6);
@@ -53,37 +55,37 @@ public class ModelNpcDragon extends ModelBase {
 		this.head.mirror = false;
 		this.head.addBox("scale", 3.0f, -12.0f, -4.0f, 2, 4, 6);
 		this.head.addBox("nostril", 3.0f, -3.0f, -22.0f, 2, 2, 4);
-		(this.jaw = new ModelRenderer((ModelBase) this, "jaw")).setRotationPoint(0.0f, 4.0f, -8.0f);
+		(this.jaw = new ModelRenderer(this, "jaw")).setRotationPoint(0.0f, 4.0f, -8.0f);
 		this.jaw.addBox("jaw", -6.0f, 0.0f, -16.0f, 12, 4, 16);
 		this.head.addChild(this.jaw);
-		(this.neck = new ModelRenderer((ModelBase) this, "neck")).addBox("box", -5.0f, -5.0f, -5.0f, 10, 10, 10);
+		(this.neck = new ModelRenderer(this, "neck")).addBox("box", -5.0f, -5.0f, -5.0f, 10, 10, 10);
 		this.neck.addBox("scale", -1.0f, -9.0f, -3.0f, 2, 4, 6);
-		(this.body = new ModelRenderer((ModelBase) this, "body")).setRotationPoint(0.0f, 4.0f, 8.0f);
+		(this.body = new ModelRenderer(this, "body")).setRotationPoint(0.0f, 4.0f, 8.0f);
 		this.body.addBox("body", -12.0f, 0.0f, -16.0f, 24, 24, 64);
 		this.body.addBox("scale", -1.0f, -6.0f, -10.0f, 2, 6, 12);
 		this.body.addBox("scale", -1.0f, -6.0f, 10.0f, 2, 6, 12);
 		this.body.addBox("scale", -1.0f, -6.0f, 30.0f, 2, 6, 12);
-		(this.wing = new ModelRenderer((ModelBase) this, "wing")).setRotationPoint(-12.0f, 5.0f, 2.0f);
+		(this.wing = new ModelRenderer(this, "wing")).setRotationPoint(-12.0f, 5.0f, 2.0f);
 		this.wing.addBox("bone", -56.0f, -4.0f, -4.0f, 56, 8, 8);
 		this.wing.addBox("skin", -56.0f, 0.0f, 2.0f, 56, 0, 56);
-		(this.wingTip = new ModelRenderer((ModelBase) this, "wingtip")).setRotationPoint(-56.0f, 0.0f, 0.0f);
+		(this.wingTip = new ModelRenderer(this, "wingtip")).setRotationPoint(-56.0f, 0.0f, 0.0f);
 		this.wingTip.addBox("bone", -56.0f, -2.0f, -2.0f, 56, 4, 4);
 		this.wingTip.addBox("skin", -56.0f, 0.0f, 2.0f, 56, 0, 56);
 		this.wing.addChild(this.wingTip);
-		(this.frontLeg = new ModelRenderer((ModelBase) this, "frontleg")).setRotationPoint(-12.0f, 20.0f, 2.0f);
+		(this.frontLeg = new ModelRenderer(this, "frontleg")).setRotationPoint(-12.0f, 20.0f, 2.0f);
 		this.frontLeg.addBox("main", -4.0f, -4.0f, -4.0f, 8, 24, 8);
-		(this.frontLegTip = new ModelRenderer((ModelBase) this, "frontlegtip")).setRotationPoint(0.0f, 20.0f, -1.0f);
+		(this.frontLegTip = new ModelRenderer(this, "frontlegtip")).setRotationPoint(0.0f, 20.0f, -1.0f);
 		this.frontLegTip.addBox("main", -3.0f, -1.0f, -3.0f, 6, 24, 6);
 		this.frontLeg.addChild(this.frontLegTip);
-		(this.frontFoot = new ModelRenderer((ModelBase) this, "frontfoot")).setRotationPoint(0.0f, 23.0f, 0.0f);
+		(this.frontFoot = new ModelRenderer(this, "frontfoot")).setRotationPoint(0.0f, 23.0f, 0.0f);
 		this.frontFoot.addBox("main", -4.0f, 0.0f, -12.0f, 8, 4, 16);
 		this.frontLegTip.addChild(this.frontFoot);
-		(this.rearLeg = new ModelRenderer((ModelBase) this, "rearleg")).setRotationPoint(-16.0f, 16.0f, 42.0f);
+		(this.rearLeg = new ModelRenderer(this, "rearleg")).setRotationPoint(-16.0f, 16.0f, 42.0f);
 		this.rearLeg.addBox("main", -8.0f, -4.0f, -8.0f, 16, 32, 16);
-		(this.rearLegTip = new ModelRenderer((ModelBase) this, "rearlegtip")).setRotationPoint(0.0f, 32.0f, -4.0f);
+		(this.rearLegTip = new ModelRenderer(this, "rearlegtip")).setRotationPoint(0.0f, 32.0f, -4.0f);
 		this.rearLegTip.addBox("main", -6.0f, -2.0f, 0.0f, 12, 32, 12);
 		this.rearLeg.addChild(this.rearLegTip);
-		(this.rearFoot = new ModelRenderer((ModelBase) this, "rearfoot")).setRotationPoint(0.0f, 31.0f, 4.0f);
+		(this.rearFoot = new ModelRenderer(this, "rearfoot")).setRotationPoint(0.0f, 31.0f, 4.0f);
 		this.rearFoot.addBox("main", -9.0f, 0.0f, -20.0f, 18, 6, 24);
 		this.rearLegTip.addChild(this.rearFoot);
 	}
@@ -98,7 +100,7 @@ public class ModelNpcDragon extends ModelBase {
 		return (float) d;
 	}
 
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+	public void render(@Nonnull Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
 		EntityNpcDragon entitydragon = (EntityNpcDragon) entity;
 		GlStateManager.pushMatrix();
 		float f6 = entitydragon.field_40173_aw
@@ -108,16 +110,15 @@ public class ModelNpcDragon extends ModelBase {
 		f7 = (f7 * f7 * 1.0f + f7 * 2.0f) * 0.05f;
 		GlStateManager.translate(0.0f, f7 - 2.0f, -3.0f);
 		GlStateManager.rotate(f7 * 2.0f, 1.0f, 0.0f, 0.0f);
-		float f8 = -30.0f;
-		float f9 = 22.0f;
+		float f8;
+		float f9;
 		float f10 = 0.0f;
 		float f11 = 1.5f;
 		double[] ad = entitydragon.func_40160_a(6, this.field_40317_s);
 		float f12 = this.func_40307_a(entitydragon.func_40160_a(5, this.field_40317_s)[0]
 				- entitydragon.func_40160_a(10, this.field_40317_s)[0]);
 		float f13 = this.func_40307_a(entitydragon.func_40160_a(5, this.field_40317_s)[0] + f12 / 2.0f);
-		f8 += 2.0f;
-		float f14 = 0.0f;
+        float f14;
 		float f15 = f6 * 3.141593f * 2.0f;
 		f8 = 20.0f;
 		f9 = -12.0f;
@@ -130,17 +131,17 @@ public class ModelNpcDragon extends ModelBase {
 			this.neck.rotationPointY = f8;
 			this.neck.rotationPointZ = f9;
 			this.neck.rotationPointX = f10;
-			f8 += (Math.sin(this.neck.rotateAngleX) * 10.0);
-			f9 -= (Math.cos(this.neck.rotateAngleY) * Math.cos(this.neck.rotateAngleX) * 10.0);
-			f10 -= (Math.sin(this.neck.rotateAngleY) * Math.cos(this.neck.rotateAngleX) * 10.0);
+			f8 += (float) (Math.sin(this.neck.rotateAngleX) * 10.0);
+			f9 -= (float) (Math.cos(this.neck.rotateAngleY) * Math.cos(this.neck.rotateAngleX) * 10.0);
+			f10 -= (float) (Math.sin(this.neck.rotateAngleY) * Math.cos(this.neck.rotateAngleX) * 10.0);
 			this.neck.render(f5);
 		}
 		this.head.rotationPointY = f8;
 		this.head.rotationPointZ = f9;
 		this.head.rotationPointX = f10;
 		double[] ad3 = entitydragon.func_40160_a(0, this.field_40317_s);
-		this.head.rotateAngleY = this.func_40307_a(ad3[0] - ad[0]) * 3.1415927f / 180.0f * 1.0f;
-		this.head.rotateAngleZ = -this.func_40307_a(ad3[0] - f13) * 3.1415927f / 180.0f * 1.0f;
+		this.head.rotateAngleY = this.func_40307_a(ad3[0] - ad[0]) * 3.1415927f / 180.0f;
+		this.head.rotateAngleZ = -this.func_40307_a(ad3[0] - f13) * 3.1415927f / 180.0f;
 		this.head.render(f5);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 1.0f, 0.0f);
@@ -214,22 +215,22 @@ public class ModelNpcDragon extends ModelBase {
 		ad = entitydragon.func_40160_a(11, this.field_40317_s);
 		for (int k = 0; k < 12; ++k) {
 			double[] ad4 = entitydragon.func_40160_a(12 + k, this.field_40317_s);
-			f14 += (Math.sin(k * 0.45f + f15) * 0.05000000074505806);
+			f14 += (float) (Math.sin(k * 0.45f + f15) * 0.05000000074505806);
 			this.neck.rotateAngleY = (this.func_40307_a(ad4[0] - ad[0]) * f11 + 180.0f) * 3.1415927f / 180.0f;
 			this.neck.rotateAngleX = (float) (f14 + (ad4[1] - ad[1]) * 3.1415927f / 180.0f * f11 * 5.0f);
 			this.neck.rotateAngleZ = this.func_40307_a(ad4[0] - f13) * 3.1415927f / 180.0f * f11;
 			this.neck.rotationPointY = f8;
 			this.neck.rotationPointZ = f9;
 			this.neck.rotationPointX = f10;
-			f8 += (Math.sin(this.neck.rotateAngleX) * 10.0);
-			f9 -= (Math.cos(this.neck.rotateAngleY) * Math.cos(this.neck.rotateAngleX) * 10.0);
-			f10 -= (Math.sin(this.neck.rotateAngleY) * Math.cos(this.neck.rotateAngleX) * 10.0);
+			f8 += (float) (Math.sin(this.neck.rotateAngleX) * 10.0);
+			f9 -= (float) (Math.cos(this.neck.rotateAngleY) * Math.cos(this.neck.rotateAngleX) * 10.0);
+			f10 -= (float) (Math.sin(this.neck.rotateAngleY) * Math.cos(this.neck.rotateAngleX) * 10.0);
 			this.neck.render(f5);
 		}
 		GlStateManager.popMatrix();
 	}
 
-	public void setLivingAnimations(EntityLivingBase entityliving, float f, float f1, float f2) {
+	public void setLivingAnimations(@Nonnull EntityLivingBase entityliving, float f, float f1, float f2) {
 		this.field_40317_s = f2;
 	}
 }

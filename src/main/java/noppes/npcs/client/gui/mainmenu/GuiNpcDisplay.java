@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.mainmenu;
 
 import java.util.Arrays;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -26,7 +25,7 @@ import noppes.npcs.entity.data.DataDisplay;
 
 public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListener, IGuiData {
 
-	private DataDisplay display;
+	private final DataDisplay display;
 	private boolean enableInvisibleNpcs;
 
 	public GuiNpcDisplay(EntityNPCInterface npc) {
@@ -43,7 +42,7 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 				break;
 			}
 			case 1: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiCreationParts(this.npc));
+				NoppesUtil.openGUI(this.player, new GuiCreationParts(this.npc));
 				break;
 			}
 			case 2: {
@@ -178,77 +177,62 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 		super.initGui();
 		int y = this.guiTop + 4;
 		this.addLabel(new GuiNpcLabel(0, "gui.name", this.guiLeft + 5, y + 5));
-		this.addTextField(
-				new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 50, y, 206, 20, this.display.getName()));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 253 + 52, y, 110, 20,
-				new String[] { "display.show", "display.hide", "display.showAttacking" }, this.display.getShowName()));
-		this.addButton(new GuiNpcButton(14, this.guiLeft + 259, y, 20, 20, Character.toString('\u21bb')));
-		this.addButton(new GuiNpcButton(15, this.guiLeft + 259 + 22, y, 20, 20, Character.toString('\u22ee')));
+		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 50, y, 206, 20, this.display.getName()));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 253 + 52, y, 110, 20, new String[] { "display.show", "display.hide", "display.showAttacking" }, this.display.getShowName()));
+		this.addButton(new GuiNpcButton(14, this.guiLeft + 259, y, 20, 20, Character.toString((char) 8635)));
+		this.addButton(new GuiNpcButton(15, this.guiLeft + 259 + 22, y, 20, 20, Character.toString((char) 8942)));
 		y += 23;
 		this.addLabel(new GuiNpcLabel(1, "gui.title", this.guiLeft + 5, y + 5));
-		this.addTextField(new GuiNpcTextField(11, this, this.fontRenderer, this.guiLeft + 50, y, 186, 20,
-				this.display.getTitle()));
+		this.addTextField(new GuiNpcTextField(11, this, this.fontRenderer, this.guiLeft + 50, y, 186, 20, this.display.getTitle()));
 		y += 23;
 		this.addLabel(new GuiNpcLabel(2, "display.model", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 50, y, 110, 20, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(3, "display.size", this.guiLeft + 175, y + 5));
-		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 203, y, 40, 20,
-				this.display.getSize() + ""));
+		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 203, y, 40, 20, this.display.getSize() + ""));
 		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMinMaxDefault(1, 30, 5);
 		this.addLabel(new GuiNpcLabel(4, "(1-30)", this.guiLeft + 246, y + 5));
 		y += 23;
 		this.addLabel(new GuiNpcLabel(5, "display.texture", this.guiLeft + 5, y + 5));
-		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 80, y, 200, 20,
-				(this.display.skinType == 0) ? this.display.getSkinTexture() : this.display.getSkinUrl()));
+		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 80, y, 200, 20, (this.display.skinType == 0) ? this.display.getSkinTexture() : this.display.getSkinUrl()));
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 325, y, 38, 20, "mco.template.button.select"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 283, y, 40, 20,
-				new String[] { "display.texture", "display.player", "display.url" }, this.display.skinType));
+		this.addButton(new GuiNpcButton(2, this.guiLeft + 283, y, 40, 20, new String[] { "display.texture", "display.player", "display.url" }, this.display.skinType));
 		this.getButton(3).setEnabled(this.display.skinType == 0);
 		if (this.display.skinType == 1 && !this.display.getSkinPlayer().isEmpty()) {
 			this.getTextField(3).setText(this.display.getSkinPlayer());
 		}
 		y += 23;
 		this.addLabel(new GuiNpcLabel(6, "display.cape", this.guiLeft + 5, y + 5));
-		this.addTextField(new GuiNpcTextField(8, this, this.fontRenderer, this.guiLeft + 80, y, 200, 20,
-				this.display.getCapeTexture()));
+		this.addTextField(new GuiNpcTextField(8, this, this.fontRenderer, this.guiLeft + 80, y, 200, 20, this.display.getCapeTexture()));
 		this.addButton(new GuiNpcButton(8, this.guiLeft + 283, y, 80, 20, "display.selectTexture"));
 		y += 23;
 		this.addLabel(new GuiNpcLabel(7, "display.overlay", this.guiLeft + 5, y + 5));
-		this.addTextField(new GuiNpcTextField(9, this, this.fontRenderer, this.guiLeft + 80, y, 200, 20,
-				this.display.getOverlayTexture()));
+		this.addTextField(new GuiNpcTextField(9, this, this.fontRenderer, this.guiLeft + 80, y, 200, 20, this.display.getOverlayTexture()));
 		this.addButton(new GuiNpcButton(9, this.guiLeft + 283, y, 80, 20, "display.selectTexture"));
 		y += 23;
 		this.addLabel(new GuiNpcLabel(8, "display.livingAnimation", this.guiLeft + 5, y + 5));
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 120, y, 50, 20, new String[] { "gui.yes", "gui.no" },
-				(this.display.getHasLivingAnimation() ? 0 : 1)));
+		this.addButton(new GuiNpcButton(5, this.guiLeft + 120, y, 50, 20, new String[] { "gui.yes", "gui.no" }, (this.display.getHasLivingAnimation() ? 0 : 1)));
 		this.addLabel(new GuiNpcLabel(9, "display.tint", this.guiLeft + 180, y + 5));
-		String color;
-		for (color = Integer.toHexString(this.display.getTint()); color.length() < 6; color = "0" + color) {
-		}
-		this.addTextField(new GuiNpcTextField(6, this, this.guiLeft + 220, y, 60, 20, color));
+		StringBuilder color = new StringBuilder(Integer.toHexString(this.display.getTint()));
+		while (color.length() < 6) { color.insert(0, "0"); }
+		this.addTextField(new GuiNpcTextField(6, this, this.guiLeft + 220, y, 60, 20, color.toString()));
 		this.getTextField(6).setTextColor(this.display.getTint());
 
 		this.addLabel(new GuiNpcLabel(10, "display.shadow", this.guiLeft + 285, y + 5));
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 325, y, 50, 20,
-				new String[] { "0%%", "50%%", "100%%", "150%%" }, this.display.getShadowType()));
+		this.addButton(new GuiNpcButton(4, this.guiLeft + 325, y, 50, 20, new String[] { "0%%", "50%%", "100%%", "150%%" }, this.display.getShadowType()));
 
 		y += 23;
 		this.addLabel(new GuiNpcLabel(11, "display.visible", this.guiLeft + 5, y + 5));
-		this.addButton(new GuiNpcButton(7, this.guiLeft + 40, y, 50, 20,
-				new String[] { "gui.yes", "gui.no", "gui.partly" }, this.display.getVisible()));
+		this.addButton(new GuiNpcButton(7, this.guiLeft + 40, y, 50, 20, new String[] { "gui.yes", "gui.no", "gui.partly" }, this.display.getVisible()));
 		this.addButton(new GuiNpcButton(16, this.guiLeft + 92, y, 78, 20, "availability.available"));
 		this.getButton(16).enabled = (this.enableInvisibleNpcs && this.display.getVisible() == 1); // Changed
 		this.addLabel(new GuiNpcLabel(12, "display.interactable", this.guiLeft + 180, y + 5));
 		this.addButton(new GuiNpcButtonYesNo(13, this.guiLeft + 280, y, this.display.getHasHitbox()));
 		y += 23;
 		this.addLabel(new GuiNpcLabel(13, "display.bossbar", this.guiLeft + 5, y + 5));
-		this.addButton(new GuiNpcButton(10, this.guiLeft + 60, y, 110, 20,
-				new String[] { "display.hide", "display.show", "display.showAttacking" }, this.display.getBossbar()));
+		this.addButton(new GuiNpcButton(10, this.guiLeft + 60, y, 110, 20, new String[] { "display.hide", "display.show", "display.showAttacking" }, this.display.getBossbar()));
 		this.addLabel(new GuiNpcLabel(14, "gui.color", this.guiLeft + 180, y + 5));
-		this.addButton(new GuiNpcButton(12, this.guiLeft + 220, y, 110, 20, this.display.getBossColor(),
-				new String[] { "color.pink", "color.blue", "color.red", "color.green", "color.yellow", "color.purple",
-						"color.white" }));
+		this.addButton(new GuiNpcButton(12, this.guiLeft + 220, y, 110, 20, this.display.getBossColor(), "color.pink", "color.blue", "color.red", "color.green", "color.yellow", "color.purple", "color.white"));
 	}
 
 	@Override
@@ -287,7 +271,7 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 				this.display.setSkinTexture(textfield.getText());
 			}
 		} else if (textfield.getId() == 6) {
-			int color = 0;
+			int color;
 			try {
 				color = Integer.parseInt(textfield.getText(), 16);
 			} catch (NumberFormatException e) {

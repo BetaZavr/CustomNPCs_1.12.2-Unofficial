@@ -15,7 +15,6 @@ import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
@@ -24,22 +23,24 @@ import noppes.npcs.client.model.part.ModelEyeData;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 
+import javax.annotation.Nonnull;
+
 public class GuiCreationParts
 extends GuiCreationScreenInterface
 implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 
 	class GuiPart implements ISubGuiListener {
-		
+
 		protected boolean canBeDeleted;
 		protected ModelPartData data;
 		protected boolean hasPlayerOption;
 		protected boolean noPlayerTypes;
 		EnumParts part;
-		public int paterns;
+		public int patterns;
 		protected String[] types;
 
 		public GuiPart(EnumParts part) {
-			this.paterns = 0;
+			this.patterns = 0;
 			this.types = new String[] { "gui.none" };
 			this.hasPlayerOption = true;
 			this.noPlayerTypes = false;
@@ -107,17 +108,16 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 			this.types = types;
 			return this;
 		}
-		
+
 		@Override
 		public void subGuiClosed(SubGuiInterface subgui) { }
-		
+
 	}
 
 	class GuiPartBeard extends GuiPart {
 		public GuiPartBeard() {
 			super(EnumParts.BEARD);
-			this.types = new String[] { "gui.none", "1", "2", "3", "4" };
-			this.noPlayerTypes();
+			this.noPlayerTypes().types = new String[] { "gui.none", "1", "2", "3", "4" };
 		}
 	}
 
@@ -141,7 +141,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 
 	class GuiPartEyes extends GuiPart {
 		
-		private ModelEyeData eyes;
+		private final ModelEyeData eyes;
 
 		public GuiPartEyes() {
 			super(EnumParts.EYES);
@@ -354,8 +354,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 	class GuiPartHair extends GuiPart {
 		public GuiPartHair() {
 			super(EnumParts.HAIR);
-			this.types = new String[] { "gui.none", "1", "2", "3", "4" };
-			this.noPlayerTypes();
+			this.noPlayerTypes().types = new String[] { "gui.none", "1", "2", "3", "4" };
 		}
 	}
 
@@ -410,11 +409,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 
 		@Override
 		public int initGui() {
-			int y = super.initGui();
-			if (this.data == null) {
-				return y;
-			}
-			return y;
+            return super.initGui();
 		}
 	}
 
@@ -456,25 +451,14 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 		}
 
 		@Override
-		protected void actionPerformed(GuiButton btn) {
-			if (btn.id == 34) {
-			}
-			super.actionPerformed(btn);
-		}
-
-		@Override
 		public int initGui() {
-			int y = super.initGui();
-			if (this.data == null) {
-				return y;
-			}
-			return y;
+			return super.initGui();
 		}
 	}
 
 	private static int selected = 0;
 
-	private GuiPart[] parts;
+	private final GuiPart[] parts;
 
 	private GuiCustomScroll scroll;
 
@@ -500,7 +484,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton btn) {
+	protected void actionPerformed(@Nonnull GuiButton btn) {
 		super.actionPerformed(btn);
 		if (this.getPart() != null) {
 			this.getPart().actionPerformed(btn);
@@ -598,7 +582,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 			return;
 		}
 		if (this.scroll == null) {
-			List<String> list = new ArrayList<String>();
+			List<String> list = new ArrayList<>();
 			for (GuiPart part : this.parts) {
 				list.add(new TextComponentTranslation("part." + part.part.name).getFormattedText());
 			}
@@ -624,12 +608,6 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-	}
-
-	@Override
-	public void unFocused(GuiNpcTextField textfield) {
-		if (textfield.getId() == 23) {
-		}
 	}
 	
 	@Override

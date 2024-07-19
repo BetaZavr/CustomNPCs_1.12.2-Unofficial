@@ -6,7 +6,8 @@ import net.minecraft.entity.Entity;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class NPCInteractSelector implements Predicate<Entity> {
-	private EntityNPCInterface npc;
+
+	private final EntityNPCInterface npc;
 
 	public NPCInteractSelector(EntityNPCInterface npc) {
 		this.npc = npc;

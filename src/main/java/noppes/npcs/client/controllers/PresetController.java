@@ -1,9 +1,7 @@
 package noppes.npcs.client.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
 
 import net.minecraft.nbt.CompressedStreamTools;
@@ -12,21 +10,24 @@ import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.LogWriter;
 
 public class PresetController {
+
 	public static PresetController instance;
-	private File dir;
+	private final File dir;
 	public HashMap<String, Preset> presets;
 
 	public PresetController(File dir) {
-		this.presets = new HashMap<String, Preset>();
+		this.presets = new HashMap<>();
 		PresetController.instance = this;
 		this.dir = dir;
 		this.load();
 	}
 
 	public void addPreset(Preset preset) {
-		while (this.presets.containsKey(preset.name.toLowerCase())) {
-			preset.name += "_";
+		StringBuilder name = new StringBuilder(preset.name);
+		while (this.presets.containsKey(name.toString().toLowerCase())) {
+			name.append("_");
 		}
+		preset.name = name.toString();
 		this.presets.put(preset.name.toLowerCase(), preset);
 		this.save();
 	}
@@ -40,7 +41,7 @@ public class PresetController {
 
 	public void load() {
 		NBTTagCompound compound = this.loadPreset();
-		HashMap<String, Preset> presets = new HashMap<String, Preset>();
+		HashMap<String, Preset> presets = new HashMap<>();
 		if (compound != null) {
 			NBTTagList list = compound.getTagList("Presets", 10);
 			for (int i = 0; i < list.tagCount(); ++i) {
@@ -61,7 +62,7 @@ public class PresetController {
 			if (!file.exists()) {
 				return null;
 			}
-			return CompressedStreamTools.readCompressed(new FileInputStream(file));
+			return CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
 		} catch (Exception e) {
 			LogWriter.except(e);
 			try {
@@ -69,7 +70,7 @@ public class PresetController {
 				if (!file.exists()) {
 					return null;
 				}
-				return CompressedStreamTools.readCompressed(new FileInputStream(file));
+				return CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
 			} catch (Exception err) {
 				LogWriter.except(err);
 				return null;
@@ -101,7 +102,7 @@ public class PresetController {
 			File file = new File(this.dir, filename + "_new");
 			File file2 = new File(this.dir, filename + "_old");
 			File file3 = new File(this.dir, filename);
-			CompressedStreamTools.writeCompressed(compound, (OutputStream) new FileOutputStream(file));
+			CompressedStreamTools.writeCompressed(compound, Files.newOutputStream(file.toPath()));
 			if (file2.exists()) {
 				file2.delete();
 			}

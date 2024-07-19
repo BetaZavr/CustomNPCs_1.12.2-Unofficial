@@ -13,7 +13,7 @@ import noppes.npcs.controllers.DialogController;
 
 public class DialogOption implements IDialogOption {
 
-	public class OptionDialogID {
+	public static class OptionDialogID {
 
 		public int dialogId;
 		public Availability availability;
@@ -21,11 +21,6 @@ public class DialogOption implements IDialogOption {
 		public OptionDialogID(int id) {
 			this.dialogId = id;
 			this.availability = new Availability();
-		}
-
-		public OptionDialogID(int id, Availability availability) {
-			this.dialogId = id;
-			this.availability = availability;
 		}
 
 		public OptionDialogID(NBTTagCompound compound) {
@@ -60,13 +55,12 @@ public class DialogOption implements IDialogOption {
 		this.command = "";
 		this.slot = -1;
 		this.iconId = 0;
-		this.dialogs = Lists.<OptionDialogID>newArrayList();
+		this.dialogs = Lists.newArrayList();
 	}
 
-	public OptionDialogID addDialog(int dialogId) {
+	public void addDialog(int dialogId) {
 		OptionDialogID od = new OptionDialogID(dialogId);
 		this.dialogs.add(od);
-		return od;
 	}
 
 	public DialogOption copy() {
@@ -77,11 +71,11 @@ public class DialogOption implements IDialogOption {
 	}
 
 	public void downPos(int dialogId) {
-		List<OptionDialogID> newDialogs = Lists.<OptionDialogID>newArrayList();
+		List<OptionDialogID> newDialogs = Lists.newArrayList();
 		boolean added = false;
 		OptionDialogID found = null;
 		for (OptionDialogID od : this.dialogs) {
-			if (od.dialogId == dialogId && found == null && !added) {
+			if (od.dialogId == dialogId && found == null) {
 				found = od;
 				continue;
 			}
@@ -133,11 +127,8 @@ public class DialogOption implements IDialogOption {
 	}
 
 	public boolean hasDialogs() {
-		if (this.dialogs.isEmpty() || this.optionType != OptionType.DIALOG_OPTION) {
-			return false;
-		}
-		return true;
-	}
+        return !this.dialogs.isEmpty() && this.optionType == OptionType.DIALOG_OPTION;
+    }
 
 	public boolean isAvailable(EntityPlayer player) {
 		if (this.optionType == OptionType.DISABLED) {
@@ -173,7 +164,7 @@ public class DialogOption implements IDialogOption {
 	}
 
 	public void replaceDialogIDs(int oldId, int newId) {
-		List<OptionDialogID> newDialogs = Lists.<OptionDialogID>newArrayList();
+		List<OptionDialogID> newDialogs = Lists.newArrayList();
 		boolean added = false;
 		for (OptionDialogID od : this.dialogs) {
 			if (od.dialogId == oldId) {
@@ -189,7 +180,7 @@ public class DialogOption implements IDialogOption {
 	}
 
 	public void upPos(int dialogId) {
-		List<OptionDialogID> newDialogs = Lists.<OptionDialogID>newArrayList();
+		List<OptionDialogID> newDialogs = Lists.newArrayList();
 		boolean added = false;
 		OptionDialogID old = null;
 		for (OptionDialogID od : this.dialogs) {

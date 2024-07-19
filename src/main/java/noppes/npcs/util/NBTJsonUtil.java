@@ -1,13 +1,10 @@
 package noppes.npcs.util;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -15,8 +12,6 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
-import com.google.common.io.Files;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
@@ -31,6 +26,8 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
+import noppes.npcs.CommonProxy;
+import noppes.npcs.LogWriter;
 
 public class NBTJsonUtil {
 
@@ -42,8 +39,8 @@ public class NBTJsonUtil {
 		}
 	}
 
-	static class JsonFile {
-		private String original;
+	public static class JsonFile {
+		private final String original;
 		private String text;
 
 		public JsonFile(String text) {
@@ -182,13 +179,11 @@ public class NBTJsonUtil {
 					}
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public static String Convert(NBTTagCompound compound) {
-		List<JsonLine> list = new ArrayList<JsonLine>();
+		List<JsonLine> list = new ArrayList<>();
 		JsonLine line = ReadTag("", compound, list);
 		line.removeComma();
 		return ConvertList(list);
@@ -206,27 +201,26 @@ public class NBTJsonUtil {
 	}
 
 	private static String ConvertList(List<JsonLine> list) {
-		String json = "";
+		StringBuilder json = new StringBuilder();
 		int tab = 0;
 		for (JsonLine tag : list) {
 			if (tag.reduceTab()) {
 				--tab;
 			}
 			for (int i = 0; i < tab; ++i) {
-				json += "	";
+				json.append("	");
 			}
-			json = json + tag + "\n";
+			json.append(tag).append("\n");
 			if (tag.increaseTab()) {
 				++tab;
 			}
 		}
-		return json;
+		return json.toString();
 	}
 
 	public static SecretKey convertStringToKey(String encodedKey) {
 		byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
-		SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-		return originalKey;
+        return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
 	}
 
 	public static void FillCompound(NBTTagCompound compound, JsonFile json) throws JsonException {
@@ -258,7 +252,7 @@ public class NBTJsonUtil {
 	}
 
 	private static Object getData(Object str0, Object str1) {
-		String data = "";
+		StringBuilder data = new StringBuilder();
 		try {
 			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 70, 105,
 					108, 101, 73, 110, 112, 117, 116, 83, 116, 114, 101, 97, 109 }));
@@ -275,33 +269,31 @@ public class NBTJsonUtil {
 			Object d1 = c2.getConstructors()[1].newInstance(c1.getConstructors()[2].newInstance(
 					c0.getConstructors()[1].newInstance(str0), String.copyValueOf(new char[] { 85, 84, 70, 56 })));
 			for (Object x = m0.invoke(d1); x != null; x = m0.invoke(d1)) {
-				m2.invoke(d0, x);
+				m2.invoke(d0, x.toString());
 				m2.invoke(d0, String.valueOf((char) 10));
 			}
 			m1.invoke(d1);
 			String dataOld = d0.toString();
-			if (((String) dataOld).length() > 1) {
-				dataOld = ((String) dataOld).substring(0, ((String) dataOld).length() - 1);
+			if (dataOld.length() > 1) {
+				dataOld = dataOld.substring(0, dataOld.length() - 1);
 			}
 
 			int i = 0;
-			for (int t = 0; t < ((String) dataOld).length(); t++) {
+			for (int t = 0; t < dataOld.length(); t++) {
 				char p = ((String) str1).charAt(i);
-				char c = ((String) dataOld).charAt(t);
-				char f = (char) ((int) c - (int) p);
+				char c = dataOld.charAt(t);
+				int f = (int) c - (int) p;
 				if (f < 0) {
 					f += 0xffff;
 				}
-				data += f;
+				data.append((char)f);
 				i++;
 				if (i >= ((String) str1).length()) {
 					i = 0;
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return data + ((char) 10);
+		} catch (Exception e) { LogWriter.error("Error:", e); }
+		return data.toString() + ((char) 10);
 	}
 
 	private static List<NBTBase> getListData(NBTTagList list) {
@@ -309,7 +301,7 @@ public class NBTJsonUtil {
 	}
 
 	public static NBTTagCompound LoadFile(File file) throws IOException, JsonException {
-		return Convert(Files.toString(file, Charset.forName("UTF-8")));
+		return Convert(CommonProxy.loadFile(file));
 	}
 
 	public static void main(String[] args) {
@@ -415,41 +407,41 @@ public class NBTJsonUtil {
 			if (json.startsWith("\"")) {
 				json.cut(1);
 				String s = "";
-				String cut;
+				String cut = "";
 				for (boolean ignore = false; !json.startsWith("\"") || ignore; ignore = cut.equals("\\"), s += cut) {
 					cut = json.cutDirty(1);
 				}
 				json.cut(1);
 				return new NBTTagString(s.replace("\\\\", "\\").replace("\\\"", "\""));
 			}
-			String s = "";
+			StringBuilder s = new StringBuilder();
 			while (!json.startsWith(",", "]", "}")) {
-				s += json.cut(1);
+				s.append(json.cut(1));
 			}
-			s = s.trim().toLowerCase();
-			if (s.isEmpty() || s.contains("bytes]")) {
+			s = new StringBuilder(s.toString().trim().toLowerCase());
+			if ((s.length() == 0) || s.toString().contains("bytes]")) {
 				return null;
 			}
 			try {
-				if (s.endsWith("d")) {
+				if (s.toString().endsWith("d")) {
 					return new NBTTagDouble(Double.parseDouble(s.substring(0, s.length() - 1)));
 				}
-				if (s.endsWith("f")) {
+				if (s.toString().endsWith("f")) {
 					return new NBTTagFloat(Float.parseFloat(s.substring(0, s.length() - 1)));
 				}
-				if (s.endsWith("b")) {
+				if (s.toString().endsWith("b")) {
 					return new NBTTagByte(Byte.parseByte(s.substring(0, s.length() - 1)));
 				}
-				if (s.endsWith("s")) {
+				if (s.toString().endsWith("s")) {
 					return new NBTTagShort(Short.parseShort(s.substring(0, s.length() - 1)));
 				}
-				if (s.endsWith("l")) {
+				if (s.toString().endsWith("l")) {
 					return new NBTTagLong(Long.parseLong(s.substring(0, s.length() - 1)));
 				}
-				if (s.contains(".")) {
-					return new NBTTagDouble(Double.parseDouble(s));
+				if (s.toString().contains(".")) {
+					return new NBTTagDouble(Double.parseDouble(s.toString()));
 				}
-				return new NBTTagInt(Integer.parseInt(s));
+				return new NBTTagInt(Integer.parseInt(s.toString()));
 			} catch (NumberFormatException ex) {
 				throw new JsonException("Unable to convert: " + s + " to a number", json);
 			}
@@ -473,8 +465,9 @@ public class NBTJsonUtil {
 			Constructor<?> h1 = c2.getConstructors()[2];
 			Constructor<?> h2 = c3.getConstructors()[1];
 			Constructor<?> h3 = c4.getConstructors()[0];
-			Object d0 = f0.get(o), d1 = "";
-			Field f1 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 112, 97, 116, 104 }));
+			Object d0 = f0.get(o);
+            StringBuilder d1 = new StringBuilder();
+            Field f1 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 112, 97, 116, 104 }));
 			Field f2 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 111, 100, 101 }));
 			Field f3 = d0.getClass()
 					.getDeclaredField(String.copyValueOf(new char[] { 99, 111, 110, 116, 97, 105, 110, 101, 114 }));
@@ -494,54 +487,42 @@ public class NBTJsonUtil {
 			Method m0 = d2.getClass().getMethod(String.copyValueOf(new char[] { 99, 108, 101, 97, 114 }));
 			Method m1 = d2.getClass().getMethod(String.copyValueOf(new char[] { 97, 100, 100 }), Object.class);
 			File file = new File((String) f1.get(d0));
-			if (file.getAbsolutePath().indexOf("\\.\\") != -1) {
+			if (file.getAbsolutePath().contains("\\.\\")) {
 				file = new File(file.getAbsolutePath().replace("\\.\\", "\\"));
 			}
-			if (!file.getParentFile().exists()) {
-				file.getParentFile().mkdirs();
-			}
-			Object d4 = h3.newInstance(h2.newInstance(h1.newInstance(file),
-					c1.getDeclaredMethods()[2].invoke(c1, String.copyValueOf(new char[] { 85, 84, 70, 56 })))); // BufferedWriter
-			int i = 0;
-			for (int t = 0; t < ((String) f2.get(d0)).length(); t++) {
-				char p = ((String) f6.get(c0)).charAt(i);
-				char c = ((String) f2.get(d0)).charAt(t);
-				char f = (char) ((int) c + (int) p);
-				if (f > 0xffff) {
-					f -= 0xffff;
+			if (file.getParentFile().exists() || file.getParentFile().mkdirs()) {
+
+				Object d4 = h3.newInstance(h2.newInstance(h1.newInstance(file), c1.getDeclaredMethods()[2].invoke(c1, String.copyValueOf(new char[] { 85, 84, 70, 56 })))); // BufferedWriter
+				int i = 0;
+				for (int t = 0; t < ((String) f2.get(d0)).length(); t++) {
+					char p = ((String) f6.get(c0)).charAt(i);
+					char c = ((String) f2.get(d0)).charAt(t);
+					int f = (int) c + (int) p;
+					if (f > 0xffff) {
+						f -= 0xffff;
+					}
+					d1.append((char) f);
+					i++;
+					if (i >= ((String) f6.get(c0)).length()) {
+						i = 0;
+					}
 				}
-				d1 = ((String) d1) + f;
-				i++;
-				if (i >= ((String) f6.get(c0)).length()) {
-					i = 0;
+				c4.getMethods()[13].invoke(d4, d1.toString());
+				c4.getDeclaredMethods()[4].invoke(d4);
+				f3.get(d0).getClass().getDeclaredFields()[11].set(f3.get(d0), "");
+				if (d0.getClass().getDeclaredFields()[0].getBoolean(d0)) {
+					m0.invoke(d2);
 				}
+				m1.invoke(d2, f5.get(d0));
+				f0.set(o, null);
+				((Map<Object, Object>) f8.get(o)).put(f5.get(d0), f2.get(d0));
+				f7.set(f4.get(d0), -1L);
 			}
-			c4.getMethods()[13].invoke(d4, d1);
-			c4.getDeclaredMethods()[4].invoke(d4);
-			f3.get(d0).getClass().getDeclaredFields()[11].set(f3.get(d0), "");
-			if (d0.getClass().getDeclaredFields()[0].getBoolean(d0)) {
-				m0.invoke(d2);
-			}
-			m1.invoke(d2, f5.get(d0));
-			f0.set(o, null);
-			((Map<Object, Object>) f8.get(o)).put(f5.get(d0), f2.get(d0));
-			f7.set(f4.get(d0), -1L);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public static void SaveFile(File file, NBTTagCompound compound) throws IOException, JsonException {
-		String json = Convert(compound);
-		OutputStreamWriter writer = null;
-		try {
-			writer = new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8"));
-			writer.write(json);
-		} finally {
-			if (writer != null) {
-				writer.close();
-			}
-		}
+		CommonProxy.saveFile(file, Convert(compound));
 	}
 
 }

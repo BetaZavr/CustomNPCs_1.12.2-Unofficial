@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -13,17 +12,17 @@ import noppes.npcs.util.NaturalOrderComparator;
 public class GuiNPCStringSlot extends GuiSlot {
 
 	private List<String> list;
-	private boolean multiSelect;
-	private GuiNPCInterface parent;
+	private final boolean multiSelect;
+	private final GuiNPCInterface parent;
 	public String selected;
 	public HashSet<String> selectedList;
 	public int size;
 
 	public GuiNPCStringSlot(Collection<String> list, GuiNPCInterface parent, boolean multiSelect, int size) {
 		super(Minecraft.getMinecraft(), parent.width, parent.height, 32, parent.height - 64, size);
-		this.selectedList = new HashSet<String>();
+		this.selectedList = new HashSet<>();
 		this.parent = parent;
-		Collections.sort(this.list = new ArrayList<String>(list), new NaturalOrderComparator());
+		(this.list = new ArrayList<>(list)).sort(new NaturalOrderComparator());
 		this.multiSelect = multiSelect;
 		this.size = size;
 	}
@@ -70,7 +69,7 @@ public class GuiNPCStringSlot extends GuiSlot {
 	}
 
 	public void setList(List<String> list) {
-		Collections.sort(list, new NaturalOrderComparator());
+		list.sort(new NaturalOrderComparator());
 		this.list = list;
 		this.selected = "";
 	}

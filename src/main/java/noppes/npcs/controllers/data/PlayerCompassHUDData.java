@@ -29,29 +29,8 @@ public class PlayerCompassHUDData implements ICompassData {
 		this.range = 5;
 		this.type = 0;
 		this.show = false;
-		this.screenPos[0] = 0.15d;
-		this.screenPos[1] = 0.765d;
-		this.scale = 1.0f;
-		this.rot = 0.0f;
-		this.incline = 0.0f;
 		this.showQuestName = true;
 		this.showTaskProgress = true;
-	}
-
-	public PlayerCompassHUDData(int type, String name, String title, BlockPos pos, int dimensionId, int range) {
-		this();
-		if (name != null) {
-			this.name = name;
-		}
-		if (title != null) {
-			this.title = title;
-		}
-		if (pos != null) {
-			this.pos = pos;
-		}
-		this.setDimensionID(dimensionId);
-		this.setRange(range);
-		this.setType(type);
 	}
 
 	@Override
@@ -123,7 +102,7 @@ public class PlayerCompassHUDData implements ICompassData {
 		this.title = nbtCompass.getString("Title");
 		this.npc = nbtCompass.getString("NPCName");
 		int[] p = nbtCompass.getIntArray("BlockPos");
-		if (p != null && p.length >= 3) {
+		if (p.length >= 3) {
 			this.pos = new BlockPos(p[0], p[1], p[2]);
 		}
 		this.setDimensionID(nbtCompass.getInteger("DimensionID"));

@@ -36,7 +36,7 @@ public enum PotionEffectType {
 		}
 	}
 
-	int type = -1;
+	final int type;
 
 	PotionEffectType(int t) {
 		this.type = t;

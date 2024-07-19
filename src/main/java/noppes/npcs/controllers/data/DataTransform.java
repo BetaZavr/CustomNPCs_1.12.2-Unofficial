@@ -22,7 +22,7 @@ public class DataTransform {
 	public NBTTagCompound inv;
 	public boolean isActive;
 	public NBTTagCompound job;
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 	public NBTTagCompound role;
 	public NBTTagCompound stats;
 
@@ -71,11 +71,11 @@ public class DataTransform {
 		if (this.hasJob) {
 			compoundJob = this.job;
 		}
-		Set<String> names = (Set<String>) compoundRole.getKeySet();
+		Set<String> names = compoundRole.getKeySet();
 		for (String name : names) {
 			compoundAdv.setTag(name, compoundRole.getTag(name));
 		}
-		names = (Set<String>) compoundJob.getKeySet();
+		names = compoundJob.getKeySet();
 		for (String name : names) {
 			compoundAdv.setTag(name, compoundJob.getTag(name));
 		}

@@ -4,11 +4,10 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIDoorInteract;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
-import net.minecraft.world.IBlockAccess;
 
 public class EntityAIBustDoor extends EntityAIDoorInteract {
+
 	private int breakingTime;
 	private int previousBreakProgress;
 
@@ -24,12 +23,12 @@ public class EntityAIBustDoor extends EntityAIDoorInteract {
 
 	public boolean shouldContinueExecuting() {
 		double var1 = this.entity.getDistanceSq(this.doorPosition);
-		return this.breakingTime <= 240 && !BlockDoor.isOpen((IBlockAccess) this.entity.world, this.doorPosition)
+		return this.breakingTime <= 240 && !BlockDoor.isOpen(this.entity.world, this.doorPosition)
 				&& var1 < 4.0;
 	}
 
 	public boolean shouldExecute() {
-		return super.shouldExecute() && !BlockDoor.isOpen((IBlockAccess) this.entity.world, this.doorPosition);
+		return super.shouldExecute() && !BlockDoor.isOpen(this.entity.world, this.doorPosition);
 	}
 
 	public void startExecuting() {
@@ -40,7 +39,7 @@ public class EntityAIBustDoor extends EntityAIDoorInteract {
 	public void updateTask() {
 		super.updateTask();
 		if (this.entity.getRNG().nextInt(20) == 0) {
-			this.entity.world.playEvent((EntityPlayer) null, 1010, this.doorPosition, 0);
+			this.entity.world.playEvent(null, 1010, this.doorPosition, 0);
 			this.entity.swingArm(EnumHand.MAIN_HAND);
 		}
 		++this.breakingTime;
@@ -51,8 +50,8 @@ public class EntityAIBustDoor extends EntityAIDoorInteract {
 		}
 		if (this.breakingTime == 240) {
 			this.entity.world.setBlockToAir(this.doorPosition);
-			this.entity.world.playEvent((EntityPlayer) null, 1012, this.doorPosition, 0);
-			this.entity.world.playEvent((EntityPlayer) null, 2001, this.doorPosition,
+			this.entity.world.playEvent(null, 1012, this.doorPosition, 0);
+			this.entity.world.playEvent(null, 2001, this.doorPosition,
 					Block.getIdFromBlock(this.doorBlock));
 		}
 	}

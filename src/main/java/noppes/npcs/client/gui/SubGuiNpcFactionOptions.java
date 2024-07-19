@@ -24,15 +24,13 @@ import noppes.npcs.controllers.data.FactionOption;
 import noppes.npcs.controllers.data.FactionOptions;
 import noppes.npcs.util.AdditionalMethods;
 
-public class SubGuiNpcFactionOptions extends SubGuiInterface
-		implements IScrollData, ICustomScrollListener, ITextfieldListener {
+public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollData, ICustomScrollListener, ITextfieldListener {
 
-	private Map<String, Integer> data;
-	private FactionOptions options;
+	private final Map<String, Integer> data = new HashMap<>();
+	private final FactionOptions options;
 	private GuiCustomScroll scroll;
 
 	public SubGuiNpcFactionOptions(FactionOptions options) {
-		this.data = new HashMap<String, Integer>();
 		this.options = options;
 		this.setBackground("menubg.png");
 		this.xSize = 256;
@@ -74,7 +72,7 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface
 			}
 		}
 		if (fo != null) {
-			fo.cheak();
+			fo.check();
 		}
 		this.setData(null, (HashMap<String, Integer>) this.data);
 	}
@@ -116,7 +114,7 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface
 
 	@Override
 	public void initPacket() {
-		Client.sendData(EnumPacketServer.FactionsGet, new Object[0]);
+		Client.sendData(EnumPacketServer.FactionsGet);
 	}
 
 	@Override
@@ -130,17 +128,18 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
+		this.data.clear();
 		String name = AdditionalMethods.instance.deleteColor(this.scroll.getSelected());
-		if (name != null && name.indexOf("ID:") >= 0 && name.indexOf(" - ") >= name.indexOf("ID:")) {
+		if (name != null && name.contains("ID:") && name.indexOf(" - ") >= name.indexOf("ID:")) {
 			name = name.substring(name.indexOf(" - ") + 3);
 		}
-		List<String> newList = Lists.<String>newArrayList();
-		Map<String, String> hoverMap = Maps.<String, String>newHashMap();
-		Map<String, Integer> newData = Maps.<String, Integer>newHashMap();
+		List<String> newList = Lists.newArrayList();
+		Map<String, String> hoverMap = Maps.newHashMap();
+		Map<String, Integer> newData = Maps.newHashMap();
 		for (String key : data.keySet()) {
 			int id = data.get(key);
 			String newName = AdditionalMethods.instance.deleteColor(key);
-			if (newName.indexOf("ID:" + id + " - ") >= 0) {
+			if (newName.contains("ID:" + id + " - ")) {
 				newName = newName.substring(newName.indexOf(" - ") + 3);
 			}
 			String str = ((char) 167) + "7ID:" + id + " - " + newName;
@@ -157,7 +156,7 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface
 			}
 		}
 		Collections.sort(newList);
-		this.data = newData;
+		this.data.putAll(newData);
 		this.scroll.setListNotSorted(newList);
 		this.scroll.hoversTexts = new String[hoverMap.size()][];
 		int i = 0;
@@ -178,7 +177,7 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
-		this.change(this.getButton(1) == null ? false : this.getButton(1).getValue() == 1, textField.getInteger());
+		this.change(this.getButton(1) != null && this.getButton(1).getValue() == 1, textField.getInteger());
 	}
 
 }

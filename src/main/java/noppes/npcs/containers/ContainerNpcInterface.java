@@ -7,6 +7,8 @@ import noppes.npcs.api.IContainer;
 import noppes.npcs.api.wrapper.ContainerCustomChestWrapper;
 import noppes.npcs.api.wrapper.ContainerWrapper;
 
+import javax.annotation.Nonnull;
+
 public class ContainerNpcInterface extends Container {
 
 	public static IContainer getOrCreateIContainer(ContainerNpcInterface container) {
@@ -20,8 +22,8 @@ public class ContainerNpcInterface extends Container {
 	}
 
 	public EntityPlayer player;
-	private int posX;
-	private int posZ;
+	private final int posX;
+	private final int posZ;
 
 	public IContainer scriptContainer;
 
@@ -33,9 +35,8 @@ public class ContainerNpcInterface extends Container {
 		player.motionZ = 0.0;
 	}
 
-	public boolean canInteractWith(EntityPlayer player) {
-		return !player.isDead && this.posX == MathHelper.floor(player.posX)
-				&& this.posZ == MathHelper.floor(player.posZ);
+	public boolean canInteractWith(@Nonnull EntityPlayer player) {
+		return !player.isDead && this.posX == MathHelper.floor(player.posX) && this.posZ == MathHelper.floor(player.posZ);
 	}
 
 }

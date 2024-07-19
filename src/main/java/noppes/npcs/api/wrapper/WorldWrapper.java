@@ -1,10 +1,6 @@
 package noppes.npcs.api.wrapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 
@@ -28,13 +24,13 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IDimension;
@@ -59,21 +55,21 @@ import noppes.npcs.util.ObfuscationHelper;
 
 public class WorldWrapper implements IWorld {
 
-	public static Map<String, Object> tempData = new HashMap<String, Object>();
+	public static Map<String, Object> tempData = new HashMap<>();
 
 	@Deprecated
 	public static WorldWrapper createNew(World world) {
 		return new WorldWrapper(world);
 	}
 	public IDimension dimension;
-	private IData storeddata;
-	private IData tempdata;
+	private final IData storeddata;
+	private final IData tempdata;
 
 	public World world;
 
 	private WorldWrapper(World world) {
 		this.tempdata = new TempData();
-		this.storeddata = new StoredData(this);
+		this.storeddata = new StoredData();
 		this.world = world;
 		this.dimension = new DimensionWrapper(world.provider.getDimension(), world.provider.getDimensionType());
 	}
@@ -97,36 +93,36 @@ public class WorldWrapper implements IWorld {
 		ResourceLocation resource = new ResourceLocation(id);
 		Entity entity = EntityList.createEntityByIDFromName(resource, this.world);
 		if (entity == null) {
-			throw new CustomNPCsException("Failed to create an entity from given id: " + id, new Object[0]);
+			throw new CustomNPCsException("Failed to create an entity from given id: " + id);
 		}
-		return NpcAPI.Instance().getIEntity(entity);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
 	}
 
 	@Override
 	public IEntity<?> createEntityFromNBT(INbt nbt) {
 		Entity entity = EntityList.createEntityFromNBT(nbt.getMCNBT(), this.world);
 		if (entity == null) {
-			throw new CustomNPCsException("Failed to create an entity from given NBT", new Object[0]);
+			throw new CustomNPCsException("Failed to create an entity from given NBT");
 		}
-		return NpcAPI.Instance().getIEntity(entity);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
 	}
 
 	@Override
 	public IItemStack createItem(String name, int damage, int size) {
-		Item item = (Item) Item.REGISTRY.getObject(new ResourceLocation(name));
+		Item item = Item.REGISTRY.getObject(new ResourceLocation(name));
 		if (item == null) {
-			throw new CustomNPCsException("Unknown item id: " + name, new Object[0]);
+			throw new CustomNPCsException("Unknown item id: " + name);
 		}
-		return NpcAPI.Instance().getIItemStack(new ItemStack(item, size, damage));
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(item, size, damage));
 	}
 
 	@Override
 	public IItemStack createItemFromNbt(INbt nbt) {
 		ItemStack item = new ItemStack(nbt.getMCNBT());
 		if (item.isEmpty()) {
-			throw new CustomNPCsException("Failed to create an item from given NBT", new Object[0]);
+			throw new CustomNPCsException("Failed to create an item from given NBT");
 		}
-		return NpcAPI.Instance().getIItemStack(item);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(item);
 	}
 
 	@Override
@@ -144,19 +140,19 @@ public class WorldWrapper implements IWorld {
 	public IEntity<?>[] getAllEntities(int type) {
 		@SuppressWarnings("unchecked")
 		List<Entity> entities = this.world.getEntities(this.getClassForType(type), EntitySelectors.NOT_SPECTATING);
-		List<IEntity<?>> list = new ArrayList<IEntity<?>>();
+		List<IEntity<?>> list = new ArrayList<>();
 		for (Entity living : entities) {
-			list.add(NpcAPI.Instance().getIEntity(living));
+			list.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(living));
 		}
-		return list.toArray(new IEntity[list.size()]);
+		return list.toArray(new IEntity[0]);
 	}
 
 	@Override
 	public IPlayer<?>[] getAllPlayers() {
-		List<EntityPlayerMP> list = (List<EntityPlayerMP>) this.world.getMinecraftServer().getPlayerList().getPlayers();
+		List<EntityPlayerMP> list = Objects.requireNonNull(this.world.getMinecraftServer()).getPlayerList().getPlayers();
 		IPlayer<?>[] arr = new IPlayer[list.size()];
 		for (int i = 0; i < list.size(); ++i) {
-			arr[i] = (IPlayer<?>) NpcAPI.Instance().getIEntity(list.get(i));
+			arr[i] = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(list.get(i));
 		}
 		return arr;
 	}
@@ -169,7 +165,7 @@ public class WorldWrapper implements IWorld {
 	@Override
 	@Deprecated
 	public IBlock getBlock(int x, int y, int z) {
-		return NpcAPI.Instance().getIBlock(this.world, new BlockPos(x, y, z));
+		return Objects.requireNonNull(NpcAPI.Instance()).getIBlock(this.world, new BlockPos(x, y, z));
 	}
 
 	@Override
@@ -177,7 +173,7 @@ public class WorldWrapper implements IWorld {
 		if (pos == null) {
 			return null;
 		}
-		return NpcAPI.Instance().getIBlock(this.world, pos.getMCBlockPos());
+		return Objects.requireNonNull(NpcAPI.Instance()).getIBlock(this.world, pos.getMCBlockPos());
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -212,7 +208,7 @@ public class WorldWrapper implements IWorld {
 	@Override
 	@Deprecated
 	public IEntity<?> getClone(int tab, String name) {
-		return NpcAPI.Instance().getClones().get(tab, name, this);
+		return Objects.requireNonNull(NpcAPI.Instance()).getClones().get(tab, name, this);
 	}
 
 	@Override
@@ -230,19 +226,16 @@ public class WorldWrapper implements IWorld {
 		double distance = range * range * range;
 		Entity entity = null;
 		for (Entity e : entities) {
-			double r = pos.getMCBlockPos().distanceSq((Vec3i) e.getPosition());
-			if (entity == null) {
-				distance = r;
-				entity = e;
-			} else {
-				if (r >= distance) {
-					continue;
-				}
-				distance = r;
-				entity = e;
-			}
-		}
-		return NpcAPI.Instance().getIEntity(entity);
+			double r = pos.getMCBlockPos().distanceSq(e.getPosition());
+            if (entity != null) {
+                if (r >= distance) {
+                    continue;
+                }
+            }
+            distance = r;
+            entity = e;
+        }
+		return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
 	}
 
 	@Override
@@ -255,8 +248,7 @@ public class WorldWrapper implements IWorld {
 		UUID id = null;
 		try {
 			id = UUID.fromString(uuid);
-		} catch (Exception e2) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		if (id == null) {
 			throw new CustomNPCsException("Given uuid was invalid " + uuid);
 		}
@@ -269,10 +261,12 @@ public class WorldWrapper implements IWorld {
 		}
 		if (e == null) {
 			List<Entity> unloadedEntityList = ObfuscationHelper.getValue(World.class, this.world, 4);
-			for (Entity entity : unloadedEntityList) {
-				if (entity.getUniqueID().equals(id)) {
-					e = entity;
-					break;
+            if (unloadedEntityList != null) {
+				for (Entity entity : unloadedEntityList) {
+					if (entity.getUniqueID().equals(id)) {
+						e = entity;
+						break;
+					}
 				}
 			}
 		}
@@ -282,20 +276,20 @@ public class WorldWrapper implements IWorld {
 		if (e == null) {
 			return null;
 		}
-		return NpcAPI.Instance().getIEntity(e);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e);
 	}
 
 	@Override
 	public IEntity<?>[] getEntitys(int type) {
-		List<IEntity<?>> list = Lists.<IEntity<?>>newArrayList();
+		List<IEntity<?>> list = Lists.newArrayList();
 		for (Entity living : this.world.loadedEntityList) {
-			IEntity<?> ie = NpcAPI.Instance().getIEntity(living);
+			IEntity<?> ie = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(living);
 			if (ie.getType() != type) {
 				continue;
 			}
-			list.add(NpcAPI.Instance().getIEntity(living));
+			list.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(living));
 		}
-		return list.toArray(new IEntity[list.size()]);
+		return list.toArray(new IEntity[0]);
 	}
 
 	@Override
@@ -330,11 +324,11 @@ public class WorldWrapper implements IWorld {
 				range, range);
 		@SuppressWarnings("unchecked")
 		List<Entity> entities = this.world.getEntitiesWithinAABB(this.getClassForType(type), bb);
-		List<IEntity<?>> list = new ArrayList<IEntity<?>>();
+		List<IEntity<?>> list = new ArrayList<>();
 		for (Entity living : entities) {
-			list.add(NpcAPI.Instance().getIEntity(living));
+			list.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(living));
 		}
-		return list.toArray(new IEntity[list.size()]);
+		return list.toArray(new IEntity[0]);
 	}
 
 	@Override
@@ -343,7 +337,7 @@ public class WorldWrapper implements IWorld {
 		if (player == null) {
 			return null;
 		}
-		return (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
+		return (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 	}
 
 	@Override
@@ -365,7 +359,7 @@ public class WorldWrapper implements IWorld {
 		if (pos == null) {
 			pos = this.world.getSpawnPoint();
 		}
-		return NpcAPI.Instance().getIBlock(this.world, pos);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIBlock(this.world, pos);
 	}
 
 	@Override
@@ -386,13 +380,6 @@ public class WorldWrapper implements IWorld {
 	@Override
 	public long getTotalTime() {
 		return this.world.getTotalWorldTime();
-	}
-
-	public boolean isChunkLoaded(int x, int z) {
-		if (this.world instanceof WorldServer) {
-			return ((WorldServer) this.world).getChunkProvider().chunkExists(x >> 4, z >> 4);
-		}
-		return this.world.getChunkProvider().getLoadedChunk(x >> 4, z >> 4) != null;
 	}
 
 	@Override
@@ -427,7 +414,7 @@ public class WorldWrapper implements IWorld {
 	public void setBlock(int x, int y, int z, String name, int meta) {
 		Block block = Block.getBlockFromName(name);
 		if (block == null) {
-			throw new CustomNPCsException("There is no such block: %s", new Object[0]);
+			throw new CustomNPCsException("There is no such block: %s");
 		}
 		this.world.setBlockState(new BlockPos(x, y, z), block.getStateFromMeta(meta));
 	}
@@ -437,7 +424,7 @@ public class WorldWrapper implements IWorld {
 	public void setBlock(IPos pos, String name, int meta) {
 		Block block = Block.getBlockFromName(name);
 		if (block == null) {
-			throw new CustomNPCsException("There is no such block: %s", new Object[0]);
+			throw new CustomNPCsException("There is no such block: %s");
 		}
 		this.world.setBlockState(new BlockPos(pos.getX(), pos.getY(), pos.getZ()), block.getStateFromMeta(meta));
 	}
@@ -460,7 +447,7 @@ public class WorldWrapper implements IWorld {
 	@Override
 	@Deprecated
 	public IEntity<?> spawnClone(double x, double y, double z, int tab, String name) {
-		return NpcAPI.Instance().getClones().spawn(x, y, z, tab, name, this);
+		return Objects.requireNonNull(NpcAPI.Instance()).getClones().spawn(x, y, z, tab, name, this);
 	}
 
 	@Override
@@ -491,7 +478,7 @@ public class WorldWrapper implements IWorld {
 		}
 		if (particleType != null) {
 			if (this.world instanceof WorldServer) {
-				((WorldServer) this.world).spawnParticle(particleType, x, y, z, count, dx, dy, dz, speed, new int[0]);
+				((WorldServer) this.world).spawnParticle(particleType, x, y, z, count, dx, dy, dz, speed);
 			} else {
 				this.world.spawnParticle(particleType, false, x, y, z, dx * speed, dy * speed, dz * speed, count);
 			}

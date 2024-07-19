@@ -9,19 +9,16 @@ public class PlayerDialogData {
 	public HashSet<Integer> dialogsRead;
 
 	public PlayerDialogData() {
-		this.dialogsRead = new HashSet<Integer>();
+		this.dialogsRead = new HashSet<>();
 	}
 
 	public void loadNBTData(NBTTagCompound compound) {
-		HashSet<Integer> dialogsRead = new HashSet<Integer>();
+		HashSet<Integer> dialogsRead = new HashSet<>();
 		if (compound == null) {
 			return;
 		}
 		NBTTagList list = compound.getTagList("DialogData", 10);
-		if (list == null) {
-			return;
-		}
-		for (int i = 0; i < list.tagCount(); ++i) {
+        for (int i = 0; i < list.tagCount(); ++i) {
 			NBTTagCompound nbttagcompound = list.getCompoundTagAt(i);
 			dialogsRead.add(nbttagcompound.getInteger("Dialog"));
 		}

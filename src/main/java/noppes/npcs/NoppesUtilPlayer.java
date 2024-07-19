@@ -1,27 +1,20 @@
 package noppes.npcs;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.google.common.collect.Maps;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
@@ -30,7 +23,6 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.api.event.QuestEvent.QuestTurnedInEvent;
 import noppes.npcs.api.event.RoleEvent;
-import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
@@ -56,9 +48,9 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class NoppesUtilPlayer {
 
-	private static Map<Object, Long> delaySendMap = new HashMap<Object, Long>();
+	private static final Map<Object, Long> delaySendMap = new HashMap<>();
 
-	public static void bankClearCeil(EntityPlayerMP player, EntityNPCInterface npc) {
+    public static void bankClearCeil(EntityPlayerMP player, EntityNPCInterface npc) {
 		if (!player.capabilities.isCreativeMode || !(player.openContainer instanceof ContainerNPCBank)) {
 			return;
 		}
@@ -100,8 +92,7 @@ public class NoppesUtilPlayer {
 			NoppesUtilPlayer.bankLock(player, npc);
 			return;
 		}
-		NpcMiscInventory inv = bd.ceils.get(ceilId);
-		bd.ceils.put(ceilId, new NpcMiscInventory(inv.getSizeInventory() - 1).fill(inv));
+        bd.ceils.computeIfPresent(ceilId, (k, inv) -> new NpcMiscInventory(inv.getSizeInventory() - 1).fill(inv));
 		bd.save();
 		NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
 	}
@@ -149,8 +140,7 @@ public class NoppesUtilPlayer {
 		}
 		if (player.capabilities.isCreativeMode
 				|| AdditionalMethods.removeItem(player, bd.bank.ceilSettings.get(ceilId).upgradeStack, false, false)) {
-			NpcMiscInventory inv = bd.ceils.get(ceilId);
-			bd.ceils.put(ceilId, new NpcMiscInventory(inv.getSizeInventory() + 1).fill(inv));
+            bd.ceils.computeIfPresent(ceilId, (k, inv) -> new NpcMiscInventory(inv.getSizeInventory() + 1).fill(inv));
 			bd.save();
 			RoleEvent.BankUpgradedEvent event = new RoleEvent.BankUpgradedEvent(player, npc.wrappedNPC, ceilId);
 			EventHooks.onNPCRole(npc, event);
@@ -200,7 +190,6 @@ public class NoppesUtilPlayer {
 		return size >= item.getCount();
 	}
 
-	// New
 	public static boolean compareItems(EntityPlayer player, ItemStack item, boolean ignoreDamage, boolean ignoreNBT,
 			int amount) {
 		int size = 0;
@@ -222,65 +211,22 @@ public class NoppesUtilPlayer {
 		}
 		OreDictionary.itemMatches(item, item2, false); // meta
 		int[] ids = OreDictionary.getOreIDs(item);
-		if (ids.length > 0) {
-			for (int id : ids) {
-				boolean match1 = false;
-				boolean match2 = false;
-				for (ItemStack is : OreDictionary.getOres(OreDictionary.getOreName(id))) {
-					if (compareItemDetails(item, is, ignoreDamage, ignoreNBT)) {
-						match1 = true;
-					}
-					if (compareItemDetails(item2, is, ignoreDamage, ignoreNBT)) {
-						match2 = true;
-					}
-				}
-				if (match1 && match2) {
-					return true;
-				}
-			}
-		}
-		return compareItemDetails(item, item2, ignoreDamage, ignoreNBT);
-	}
-
-	public static void consumeItem(EntityPlayer player, ItemStack item, boolean ignoreDamage, boolean ignoreNBT) {
-		if (NoppesUtilServer.IsItemStackNull(item)) {
-			return;
-		}
-		int size = item.getCount();
-		for (int i = 0; i < player.inventory.getSizeInventory(); ++i) {
-			ItemStack is = player.inventory.getStackInSlot(i);
-			if (!NoppesUtilServer.IsItemStackNull(is)) {
-				if (compareItems(item, is, ignoreDamage, ignoreNBT)) {
-					if (size < is.getCount()) {
-						is.splitStack(size);
-						break;
-					}
-					size -= is.getCount();
-					player.inventory.setInventorySlotContents(i, ItemStack.EMPTY);
-				}
-			}
-		}
-	}
-
-	public static List<ItemStack> countStacks(IInventory inv, boolean ignoreDamage, boolean ignoreNBT) {
-		List<ItemStack> list = new ArrayList<ItemStack>();
-		for (int i = 0; i < inv.getSizeInventory(); ++i) {
-			ItemStack item = inv.getStackInSlot(i);
-			if (!NoppesUtilServer.IsItemStackNull(item)) {
-				boolean found = false;
-				for (ItemStack is : list) {
-					if (compareItems(item, is, ignoreDamage, ignoreNBT)) {
-						is.setCount(is.getCount() + item.getCount());
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					list.add(item.copy());
-				}
-			}
-		}
-		return list;
+        for (int id : ids) {
+            boolean match1 = false;
+            boolean match2 = false;
+            for (ItemStack is : OreDictionary.getOres(OreDictionary.getOreName(id))) {
+                if (compareItemDetails(item, is, ignoreDamage, ignoreNBT)) {
+                    match1 = true;
+                }
+                if (compareItemDetails(item2, is, ignoreDamage, ignoreNBT)) {
+                    match2 = true;
+                }
+            }
+            if (match1 && match2) {
+                return true;
+            }
+        }
+        return compareItemDetails(item, item2, ignoreDamage, ignoreNBT);
 	}
 
 	public static void dialogSelected(int diaId, int optionId, EntityPlayerMP player, EntityNPCInterface npc) {
@@ -301,7 +247,7 @@ public class NoppesUtilPlayer {
 		if (dialog == null) {
 			return;
 		}
-		if (!dialog.hasDialogs(player) && !dialog.hasOtherOptions()) {
+		if (!dialog.hasDialogs(player) && dialog.notHasOtherOptions()) {
 			closeDialog(player, npc, true);
 			return;
 		}
@@ -338,7 +284,7 @@ public class NoppesUtilPlayer {
 			return;
 		}
 		Container con = player.openContainer;
-		if (con == null || !(con instanceof ContainerNPCFollowerHire)) {
+		if (!(con instanceof ContainerNPCFollowerHire)) {
 			return;
 		}
 		RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
@@ -362,7 +308,7 @@ public class NoppesUtilPlayer {
 				return;
 			}
 			if (!player.capabilities.isCreativeMode) {
-				Map<ItemStack, Integer> map = Maps.<ItemStack, Integer>newHashMap();
+				Map<ItemStack, Integer> map = Maps.newHashMap();
 				map.put(currency, currency.getCount());
 				if (!AdditionalMethods.canRemoveItems(role.rentalItems.items, map, false, false)) {
 					return;
@@ -390,7 +336,7 @@ public class NoppesUtilPlayer {
 			return;
 		}
 		Container con = player.openContainer;
-		if (con == null || !(con instanceof ContainerNPCFollowerHire)) {
+		if (!(con instanceof ContainerNPCFollowerHire)) {
 			return;
 		}
 		RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
@@ -398,7 +344,7 @@ public class NoppesUtilPlayer {
 	}
 
 	public static void openBankGui(BankData bd, EntityPlayerMP player, EntityNPCInterface npc, int ceilId) {
-		bd.openBankGui(player, npc, bd.bank.id, ceilId);
+		bd.openBankGui(player, npc, ceilId);
 		if (CustomNpcs.Server != null) {
 			if (bd.bank.isPublic) {
 				for (EntityPlayerMP pl : CustomNpcs.Server.getPlayerList().getPlayers()) {
@@ -410,23 +356,21 @@ public class NoppesUtilPlayer {
 							player.sendMessage(new TextComponentTranslation("message.bank.changed"));
 							continue;
 						}
-						bd.openBankGui(pl, npc, bd.bank.id, ceilId);
+						bd.openBankGui(pl, npc, ceilId);
 					}
 				}
 			} else if (!player.getUniqueID().equals(bd.getUUID())) {
 				EntityPlayerMP pl = CustomNpcs.Server.getPlayerList().getPlayerByUUID(bd.getUUID());
-				if (pl != null && !pl.equals(player) && pl.openContainer instanceof ContainerNPCBank
-						&& ((ContainerNPCBank) pl.openContainer).bank.id == bd.bank.id
-						&& ((ContainerNPCBank) pl.openContainer).ceil == ceilId) {
-					bd.openBankGui(pl, npc, bd.bank.id, ceilId);
+				if (!pl.equals(player) && pl.openContainer instanceof ContainerNPCBank && ((ContainerNPCBank) pl.openContainer).bank.id == bd.bank.id && ((ContainerNPCBank) pl.openContainer).ceil == ceilId) {
+					bd.openBankGui(pl, npc, ceilId);
 				}
 			}
 		}
 	}
 
 	/*
-	 * Вначале на клиент кидается пакет с текстом при завершении, потом с клиента
-	 * приходит ответ, что всё норм и вызывается этот метод:
+	 * At the beginning, a package with text is thrown at the client upon completion, then from the client
+	 * the answer comes that everything is normal and this method is called:
 	 */
 	public static void questCompletion(EntityPlayerMP player, int questId) {
 		NoppesUtilPlayer.questCompletion(player, questId, ItemStack.EMPTY);
@@ -443,13 +387,13 @@ public class NoppesUtilPlayer {
 		if (!quest.questInterface.isCompleted(player) && !activeData.isCompleted) {
 			return;
 		}
-		QuestTurnedInEvent event = new QuestTurnedInEvent(data.scriptData.getPlayer(), (IQuest) quest);
+		QuestTurnedInEvent event = new QuestTurnedInEvent(data.scriptData.getPlayer(), quest);
 		event.expReward = quest.rewardExp;
 		event.moneyReward = quest.rewardMoney;
-		List<IItemStack> rewardList = new ArrayList<IItemStack>();
+		List<IItemStack> rewardList = new ArrayList<>();
 		for (ItemStack item : quest.rewardItems.items) {
 			if (item != null && !item.isEmpty()) {
-				rewardList.add(NpcAPI.Instance().getIItemStack(item));
+				rewardList.add(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(item));
 			}
 		}
 		if (!rewardList.isEmpty()) {
@@ -462,7 +406,7 @@ public class NoppesUtilPlayer {
 				if (stack == null) {
 					stack = ItemStack.EMPTY;
 				}
-				event.itemRewards = new IItemStack[] { NpcAPI.Instance().getIItemStack(stack) };
+				event.itemRewards = new IItemStack[] { Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack) };
 				break;
 			}
 			default: { // ALL
@@ -478,8 +422,8 @@ public class NoppesUtilPlayer {
 		event.factionOptions = quest.factionOptions;
 		EventHooks.onQuestTurnedIn(data.scriptData, event);
 
-		quest.questInterface.handleComplete(player); // отнять предметы по задачам квеста
-		// выдать награды:
+		quest.questInterface.handleComplete(player); // take away items according to the tasks of the quest
+		// Give out rewards:
 		if (event.expReward > 0) {
 			NoppesUtilServer.playSound(player, SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.1f,
 					0.5f * ((player.world.rand.nextFloat() - player.world.rand.nextFloat()) * 0.7f + 1.8f));
@@ -495,45 +439,62 @@ public class NoppesUtilPlayer {
 		}
 
 		if (!event.command.isEmpty()) {
-			FakePlayer cplayer = EntityNPCInterface.CommandPlayer;
-			cplayer.setWorld(player.world);
-			cplayer.setPosition(player.posX, player.posY, player.posZ);
-			NoppesUtilServer.runCommand(cplayer, "QuestCompletion", event.command, player);
+			FakePlayer com_player = EntityNPCInterface.CommandPlayer;
+			com_player.setWorld(player.world);
+			com_player.setPosition(player.posX, player.posY, player.posZ);
+			NoppesUtilServer.runCommand(com_player, "QuestCompletion", event.command, player);
 		}
 
-		if (event.itemRewards.length > 0) {
-			for (IItemStack stackRew : event.itemRewards) {
-				NoppesUtilServer.GivePlayerItem(player, player, stackRew.getMCItemStack());
-			}
-		}
-		PlayerQuestController.setQuestFinished(quest, player);
+        for (IItemStack stackRew : event.itemRewards) {
+            NoppesUtilServer.GivePlayerItem(player, player, stackRew.getMCItemStack());
+        }
+        PlayerQuestController.setQuestFinished(quest, player);
 		Quest nextQuest = (QuestController.instance == null) ? null
 				: QuestController.instance.quests.get(event.nextQuestId);
 		if (nextQuest != null) {
 			PlayerQuestController.addActiveQuest(nextQuest, player, false);
 		}
-		Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE, "quest.finished", quest.getTitle(), 2);
-		Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT, "quest.finished", ": ", quest.getTitle());
+		Server.sendData(player, EnumPacketClient.MESSAGE, "quest.finished", quest.getTitle(), 2);
+		Server.sendData(player, EnumPacketClient.CHAT, "quest.finished", ": ", quest.getTitle());
 	}
 
 	public static void sendData(EnumPlayerPacket enu, Object... obs) {
 		PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 		try {
-			if (!Server.fillBuffer((ByteBuf) buffer, enu, obs)) {
+			if (!Server.fillBuffer(buffer, enu, obs)) {
 				return;
 			}
 			CustomNpcs.ChannelPlayer.sendToServer(new FMLProxyPacket(buffer, "CustomNPCsPlayer"));
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogWriter.error("Error:", e);
 		}
 	}
 
-	public static void sendDataCheakDelay(EnumPlayerPacket enu, Object key, long time, Object... obs) {
+	public static void teleportPlayer(EntityPlayerMP player, double x, double y, double z, int dimension, float yaw,
+			float pitch) {
+		if (player.dimension != dimension) {
+			MinecraftServer server = player.getServer();
+            assert server != null;
+            WorldServer wor = server.getWorld(dimension);
+            net.minecraftforge.common.ForgeHooks.onTravelToDimension(player, dimension);
+			player.setLocationAndAngles(x, y, z, yaw, pitch);
+			server.getPlayerList().transferPlayerToDimension(player, dimension, new CustomTeleporter(wor));
+			player.connection.setPlayerLocation(x, y, z, yaw, pitch);
+			if (!wor.playerEntities.contains(player)) {
+				wor.spawnEntity(player);
+			}
+		} else {
+			player.connection.setPlayerLocation(x, y, z, yaw, pitch);
+		}
+		player.world.updateEntityWithOptionalForce(player, false);
+	}
+
+	public static void sendDataCheckDelay(EnumPlayerPacket enu, Object key, long time, Object... obs) {
 		if (NoppesUtilPlayer.delaySendMap.containsKey(key)
 				&& NoppesUtilPlayer.delaySendMap.get(key) > System.currentTimeMillis()) {
 			return;
 		}
-		List<Object> del = new ArrayList<Object>();
+		List<Object> del = new ArrayList<>();
 		for (Object k : NoppesUtilPlayer.delaySendMap.keySet()) {
 			if (NoppesUtilPlayer.delaySendMap.get(k) <= System.currentTimeMillis()) {
 				del.add(k);
@@ -544,28 +505,6 @@ public class NoppesUtilPlayer {
 		}
 		NoppesUtilPlayer.delaySendMap.put(key, time + System.currentTimeMillis());
 		NoppesUtilPlayer.sendData(enu, obs);
-	}
-
-	public static void teleportPlayer(EntityPlayerMP player, double x, double y, double z, int dimension, float yaw,
-			float pitch) {
-		if (player.dimension != dimension) {
-			MinecraftServer server = player.getServer();
-			WorldServer wor = server.getWorld(dimension);
-			if (wor == null) {
-				player.sendMessage(new TextComponentString("Broken transporter. Dimenion does not exist"));
-				return;
-			}
-			net.minecraftforge.common.ForgeHooks.onTravelToDimension(player, dimension);
-			player.setLocationAndAngles(x, y, z, yaw, pitch);
-			server.getPlayerList().transferPlayerToDimension(player, dimension, (Teleporter) new CustomTeleporter(wor));
-			player.connection.setPlayerLocation(x, y, z, yaw, pitch);
-			if (!wor.playerEntities.contains(player)) {
-				wor.spawnEntity(player);
-			}
-		} else {
-			player.connection.setPlayerLocation(x, y, z, yaw, pitch);
-		}
-		player.world.updateEntityWithOptionalForce(player, false);
 	}
 
 }

@@ -24,7 +24,7 @@ public interface IOverlayHUD {
 
 	void clear();
 
-	ICompassData getCompasData();
+	ICompassData getCompassData();
 
 	ICustomGuiComponent getComponent(int orientationType, int componentID);
 

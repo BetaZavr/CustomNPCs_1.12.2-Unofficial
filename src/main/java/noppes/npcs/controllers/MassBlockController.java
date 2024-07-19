@@ -36,7 +36,7 @@ public class MassBlockController {
 		World world = imb.getNpc().world;
 		BlockPos pos = imb.getNpc().getPosition();
 		int range = imb.getRange();
-		List<BlockData> list = new ArrayList<BlockData>();
+		List<BlockData> list = new ArrayList<>();
 		for (int x = -range; x < range; ++x) {
 			for (int z = -range; z < range; ++z) {
 				if (world.isBlockLoaded(new BlockPos(x + pos.getX(), 64, z + pos.getZ()))) {
@@ -54,6 +54,6 @@ public class MassBlockController {
 
 	public MassBlockController() {
 		MassBlockController.Instance = this;
-		MassBlockController.Instance.queue = new LinkedList<IMassBlock>();
+		MassBlockController.Instance.queue = new LinkedList<>();
 	}
 }

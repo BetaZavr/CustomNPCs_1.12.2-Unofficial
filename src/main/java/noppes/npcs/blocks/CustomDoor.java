@@ -1,5 +1,6 @@
 package noppes.npcs.blocks;
 
+import java.util.Objects;
 import java.util.Random;
 
 import net.minecraft.block.BlockDoor;
@@ -32,9 +33,11 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.items.ItemNpcBlock;
 import noppes.npcs.util.AdditionalMethods;
 
+import javax.annotation.Nonnull;
+
 public class CustomDoor extends BlockDoor implements ITileEntityProvider, ICustomElement {
 
-	public NBTTagCompound nbtData = new NBTTagCompound();
+	public NBTTagCompound nbtData;
 	private EnumBlockRenderType renderType = EnumBlockRenderType.MODEL;
 
 	public CustomDoor(Material material, NBTTagCompound nbtBlock) {
@@ -64,23 +67,23 @@ public class CustomDoor extends BlockDoor implements ITileEntityProvider, ICusto
 		this.setCreativeTab(CustomRegisters.tabBlocks);
 	}
 
-	public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
+	public void breakBlock(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
 		super.breakBlock(worldIn, pos, state);
 		worldIn.removeTileEntity(pos);
 	}
 
-	public TileEntity createNewTileEntity(World worldIn, int meta) {
+	public TileEntity createNewTileEntity(@Nonnull World worldIn, int meta) {
 		return null;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public BlockRenderLayer getBlockLayer() {
+	public @Nonnull BlockRenderLayer getBlockLayer() {
 		String name = "";
 		if (this.nbtData != null && this.nbtData.hasKey("BlockLayer", 8)) {
 			name = this.nbtData.getString("BlockLayer");
 		}
-		while (name.indexOf(" ") != -1) {
+		while (name.contains(" ")) {
 			name = name.replace(" ", "_");
 		}
 		switch (name.toLowerCase()) {
@@ -102,13 +105,13 @@ public class CustomDoor extends BlockDoor implements ITileEntityProvider, ICusto
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+	public @Nonnull ItemStack getItem(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
 		Item item = new ItemNpcBlock(this);
 		for (Item it : Item.REGISTRY) {
-			if (!it.getRegistryName().getResourceDomain().equals(CustomNpcs.MODID)) {
+			if (!Objects.requireNonNull(it.getRegistryName()).getResourceDomain().equals(CustomNpcs.MODID)) {
 				continue;
 			}
 			if (it.getRegistryName().equals(this.getRegistryName())) {
@@ -116,13 +119,13 @@ public class CustomDoor extends BlockDoor implements ITileEntityProvider, ICusto
 				break;
 			}
 		}
-		return item == null ? null : new ItemStack(item, 1, 0);
+		return new ItemStack(item, 1, 0);
 	}
 
-	public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+	public @Nonnull Item getItemDropped(@Nonnull IBlockState state, @Nonnull Random rand, int fortune) {
 		Item item = new ItemNpcBlock(this);
 		for (Item it : Item.REGISTRY) {
-			if (!it.getRegistryName().getResourceDomain().equals(CustomNpcs.MODID)) {
+			if (!Objects.requireNonNull(it.getRegistryName()).getResourceDomain().equals(CustomNpcs.MODID)) {
 				continue;
 			}
 			if (it.getRegistryName().equals(this.getRegistryName())) {
@@ -130,16 +133,16 @@ public class CustomDoor extends BlockDoor implements ITileEntityProvider, ICusto
 				break;
 			}
 		}
-		return item == null || state.getValue(HALF) == BlockDoor.EnumDoorHalf.UPPER ? Items.AIR : item;
+		return state.getValue(HALF) == EnumDoorHalf.UPPER ? Items.AIR : item;
 	}
 
 	@Override
-	public EnumBlockRenderType getRenderType(IBlockState state) {
+	public @Nonnull EnumBlockRenderType getRenderType(@Nonnull IBlockState state) {
 		return this.renderType;
 	}
 
 	@Override
-	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubBlocks(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabBlocks && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
 				&& !this.nbtData.getBoolean("ShowInCreative")) {
@@ -149,29 +152,26 @@ public class CustomDoor extends BlockDoor implements ITileEntityProvider, ICusto
 		if (tab == CustomRegisters.tabBlocks) { AdditionalMethods.instance.sort(items); }
 	}
 
-	public boolean hasTileEntity(IBlockState state) {
+	public boolean hasTileEntity(@Nonnull IBlockState state) {
 		return true;
 	}
 
 	@Override
-	public boolean isFullCube(IBlockState state) {
-		return this.nbtData == null || !this.nbtData.hasKey("IsFullCube") ? false
-				: this.nbtData.getBoolean("IsFullCube");
+	public boolean isFullCube(@Nonnull IBlockState state) {
+		return this.nbtData != null && this.nbtData.hasKey("IsFullCube") && this.nbtData.getBoolean("IsFullCube");
 	}
 
 	@Override
-	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) {
+	public boolean isLadder(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull EntityLivingBase entity) {
 		return this.nbtData.getBoolean("IsLadder");
 	}
 
 	@Override
-	public boolean isOpaqueCube(IBlockState state) {
-		return this.nbtData == null || !this.nbtData.hasKey("IsOpaqueCube") ? false
-				: this.nbtData.getBoolean("IsOpaqueCube");
+	public boolean isOpaqueCube(@Nonnull IBlockState state) {
+		return this.nbtData != null && this.nbtData.hasKey("IsOpaqueCube") && this.nbtData.getBoolean("IsOpaqueCube");
 	}
 
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
-			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
 		if (this.nbtData != null && this.nbtData.hasKey("InteractOpen") && !this.nbtData.getBoolean("InteractOpen")) {
 			return false;
 		}
@@ -183,16 +183,14 @@ public class CustomDoor extends BlockDoor implements ITileEntityProvider, ICusto
 		state = iblockstate.cycleProperty(OPEN);
 		worldIn.setBlockState(blockpos, state, 10);
 		worldIn.markBlockRangeForRenderUpdate(blockpos, pos);
-		worldIn.playEvent(playerIn,
-				((Boolean) state.getValue(OPEN)).booleanValue() ? (this.blockMaterial == Material.IRON ? 1005 : 1006)
-						: (this.blockMaterial == Material.IRON ? 1011 : 1012),
+		worldIn.playEvent(playerIn, state.getValue(OPEN) ? (this.blockMaterial == Material.IRON ? 1005 : 1006) : (this.blockMaterial == Material.IRON ? 1011 : 1012),
 				pos, 0);
 		return true;
 	}
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return this.nbtData.getByte("BlockType"); }
 		return 6;
 	}
 

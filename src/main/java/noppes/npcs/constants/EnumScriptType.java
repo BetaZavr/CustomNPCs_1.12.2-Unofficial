@@ -12,7 +12,8 @@ public enum EnumScriptType
 	TICK("tick", new int[] { 0, 1, 2, 3, 6 }), 
 	INTERACT("interact", new int[] { 0, 1, 2, 3 }), 
 	DIALOG("dialog", new int[] { 0, 1 }), 
-	DAMAGED("damaged", new int[] { 0, 1, 2, 3 }), 
+	DAMAGED("damaged", new int[] { 0, 1, 2, 3 }),
+	NEED_BLOCK_DAMAGED("needBlockDamage", new int[] { 1 }),
 	DIED("died", new int[] { 0, 1, 2, 3 }), 
 	ATTACK_MELEE("meleeAttack", new int[] { 1 }), 
 	TARGET("target", new int[] { 1 }), 
@@ -42,7 +43,7 @@ public enum EnumScriptType
 	DIALOG_CLOSE("dialogClose", new int[] { 0, 1 }), 
 	SPAWN("spawn", new int[] { 3 }), 
 	TOSSED("tossed", new int[] { 3 }), 
-	PICKEDUP("pickedUp", new int[] { 3 }), 
+	PICKEDUP("pickedUp", new int[] { 3 }),
 	PICKUP("pickUp", new int[] { 0 }), 
 	ATTACK("attack", new int[] { 0, 3 }), 
 	PROJECTILE_TICK("projectileTick", new int[] { 6 }), 
@@ -51,7 +52,7 @@ public enum EnumScriptType
 	LEVEL_UP("levelUp", new int[] { 0 }), 
 	QUEST_START("questStart", new int[] { 0 }), 
 	QUEST_COMPLETED("questCompleted", new int[] { 0 }), 
-	QUEST_TURNIN("questTurnIn", new int[] { 0 }), 
+	QUEST_TURNING("questTurnIn", new int[] { 0 }),
 	KEY_UP("keyPressed", new int[] { 0 }), 
 	KEY_GUI_UP("keyGUIPressed", new int[] { 0 }), 
 	CUSTOM_CHEST_CLOSED("customChestClosed", new int[] { 0 }), 
@@ -71,13 +72,13 @@ public enum EnumScriptType
 	POTION_IS_READY("isReady", new int[] { 5 }), 
 	POTION_PERFORM("performEffect", new int[] { 5 }), 
 	POTION_AFFECT("affectEntity", new int[] { 5 }), 
-	PLASED("plased", new int[] { 0 }), 
+	PLEASED("plased", new int[] { 0 }),
 	POTION_END("endEffect", new int[] { 5 }), 
 	SCRIPT_TRIGGER("trigger", new int[] { 0, 1, 2, 3, 4, 5, 6 }), 
 	SOUND_PLAY("soundPlayed", new int[] { 0 }), 
 	SOUND_STOP("soundStoped", new int[] { 0 }), 	
-	PACKEGE_RECEIVED("packageReceived", new int[] { 4 }), 	
-	PACKEGE_FROM("packageFrom", new int[] { 0, 4 }),
+	PACKAGE_RECEIVED("packageReceived", new int[] { 4 }),
+	PACKAGE_FROM("packageFrom", new int[] { 0, 4 }),
 	CUSTOM_TELEPORT("customTeleport", new int[] { 0, 1 }),
 	KEY_ACTIVE("keyActive", new int[] { 0 }),
 	STOP_ANIMATION("stopAnimation", new int[] { 1 }),
@@ -86,22 +87,15 @@ public enum EnumScriptType
 	QUEST_LOG_BUTTON("questButton", new int[] { 0 }),
 	IN_GAME("inGame", new int[] { 0 });
 	
-	public String function;
-	public List<Integer> hundelerTypes;
-	
-	private EnumScriptType(String function, int[] types) {
+	public final String function;
+	public final List<Integer> hundelerTypes;
+
+	EnumScriptType(String function, int[] types) {
 		this.function = function;
-		this.hundelerTypes = Lists.<Integer>newArrayList();
+		this.hundelerTypes = Lists.newArrayList();
 		for (int type : types) { this.hundelerTypes.add(type); }
 	}
-	
-	public boolean isFor(int type) {
-		for (int t : hundelerTypes) {
-			if (type == t) { return true; }
-		}
-		return false;
-	}
-	
+
 	/** IDs:
 	 * 0 - players;
 	 * 1 - NPCs;
@@ -113,10 +107,10 @@ public enum EnumScriptType
 	 * 7 - world / mods;
 	 */
 	public static List<EnumScriptType> getAllFunctions(int type) {
-		Map<String, EnumScriptType> map = Maps.<String, EnumScriptType>newTreeMap();
+		Map<String, EnumScriptType> map = Maps.newTreeMap();
 		for (EnumScriptType est : EnumScriptType.values()) {
 			if (est.hundelerTypes.contains(type)) { map.put(est.function, est); }
 		}
-		return Lists.<EnumScriptType>newArrayList(map.values());
+		return Lists.newArrayList(map.values());
 	}
 }

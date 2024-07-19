@@ -37,7 +37,7 @@ public class RayTraceResults {
 		}
 		List<IBlock> newBlocks = Lists.newArrayList(this.blocks);
 		newBlocks.add(BlockWrapper.createNew(world, pos, state));
-		this.blocks = newBlocks.toArray(new IBlock[newBlocks.size()]);
+		this.blocks = newBlocks.toArray(new IBlock[0]);
 	}
 
 }

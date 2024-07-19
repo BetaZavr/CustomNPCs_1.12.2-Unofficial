@@ -38,16 +38,16 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 
 	public boolean isMoved = false;
 	private byte[] showElementTypes;
-	private double[] windowSize = new double[] { 0, 0 };
-	public List<Integer> keyPress = Lists.<Integer>newArrayList();
-	public List<Integer> mousePress = Lists.<Integer>newArrayList();
+	private final double[] windowSize = new double[] { 0, 0 };
+	public List<Integer> keyPress = Lists.newArrayList();
+	public List<Integer> mousePress = Lists.newArrayList();
 	private int offsetType = 0;
 	public int questID = 0;
 
-	Map<Integer, List<ICustomGuiComponent>> components = Maps.<Integer, List<ICustomGuiComponent>>newTreeMap();
-	private Map<Integer, List<IItemSlot>> slots = Maps.<Integer, List<IItemSlot>>newTreeMap();
-	private TreeMap<Integer, TreeMap<Integer, IGuiComponent>> guiComponents = Maps.<Integer, TreeMap<Integer, IGuiComponent>>newTreeMap();
-	private TreeMap<Integer, TreeMap<Integer, IItemSlot>> guiSlots = Maps.<Integer, TreeMap<Integer, IItemSlot>>newTreeMap();
+	Map<Integer, List<ICustomGuiComponent>> components = Maps.newTreeMap();
+	private final Map<Integer, List<IItemSlot>> slots = Maps.newTreeMap();
+	private final TreeMap<Integer, TreeMap<Integer, IGuiComponent>> guiComponents = Maps.newTreeMap();
+	private final TreeMap<Integer, TreeMap<Integer, IItemSlot>> guiSlots = Maps.newTreeMap();
 
 	private boolean update = false;
 	private EntityPlayerMP player = null;
@@ -70,7 +70,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 	public IItemSlot addItemSlot(int orientationType, int x, int y, IItemStack stack) {
 		CustomGuiItemSlotWrapper slot = new CustomGuiItemSlotWrapper(x, y, stack);
 		if (!this.slots.containsKey(orientationType)) {
-			this.slots.put(orientationType, Lists.<IItemSlot>newArrayList());
+			this.slots.put(orientationType, Lists.newArrayList());
 		}
 		this.slots.get(orientationType).add(slot);
 		return slot;
@@ -94,7 +94,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		}
 		CustomGuiLabelWrapper lable = new CustomGuiLabelWrapper(id, label, x, y, width, height);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.<ICustomGuiComponent>newArrayList());
+			this.components.put(orientationType, Lists.newArrayList());
 		}
 		this.components.get(orientationType).add(lable);
 		return lable;
@@ -119,7 +119,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		}
 		CustomGuiLabelWrapper lable = new CustomGuiLabelWrapper(id, label, x, y, width, height, color);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.<ICustomGuiComponent>newArrayList());
+			this.components.put(orientationType, Lists.newArrayList());
 		}
 		this.components.get(orientationType).add(lable);
 		return lable;
@@ -144,7 +144,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		}
 		CustomGuiTexturedRectWrapper txtr = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.<ICustomGuiComponent>newArrayList());
+			this.components.put(orientationType, Lists.newArrayList());
 		}
 		this.components.get(orientationType).add(txtr);
 		return txtr;
@@ -171,7 +171,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		CustomGuiTexturedRectWrapper txtr = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height, textureX,
 				textureY);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.<ICustomGuiComponent>newArrayList());
+			this.components.put(orientationType, Lists.newArrayList());
 		}
 		this.components.get(orientationType).add(txtr);
 		return txtr;
@@ -196,7 +196,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		}
 		CustomGuiTimerWrapper timer = new CustomGuiTimerWrapper(id, start, end, x, y, width, height);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.<ICustomGuiComponent>newArrayList());
+			this.components.put(orientationType, Lists.newArrayList());
 		}
 		this.components.get(orientationType).add(timer);
 		return timer;
@@ -222,7 +222,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		}
 		CustomGuiTimerWrapper timer = new CustomGuiTimerWrapper(id, start, end, x, y, width, height, color);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.<ICustomGuiComponent>newArrayList());
+			this.components.put(orientationType, Lists.newArrayList());
 		}
 		this.components.get(orientationType).add(timer);
 		return timer;
@@ -242,7 +242,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 	}
 
 	@Override
-	public ICompassData getCompasData() {
+	public ICompassData getCompassData() {
 		return this.compassData;
 	}
 
@@ -261,32 +261,28 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 
 	@Override
 	public ICustomGuiComponent[] getComponents() {
-		List<ICustomGuiComponent> list = Lists.<ICustomGuiComponent>newArrayList();
+		List<ICustomGuiComponent> list = Lists.newArrayList();
 		for (int type : this.components.keySet()) {
-			for (ICustomGuiComponent component : this.components.get(type)) {
-				list.add(component);
-			}
+            list.addAll(this.components.get(type));
 		}
-		return list.toArray(new ICustomGuiComponent[list.size()]);
+		return list.toArray(new ICustomGuiComponent[0]);
 	}
 
 	@Override
 	public ICustomGuiComponent[] getComponents(int orientationType) {
-		List<ICustomGuiComponent> list = Lists.<ICustomGuiComponent>newArrayList();
+		List<ICustomGuiComponent> list = Lists.newArrayList();
 		if (!this.components.containsKey(orientationType)) {
 			return new ICustomGuiComponent[0];
 		}
-		for (ICustomGuiComponent component : this.components.get(orientationType)) {
-			list.add(component);
-		}
-		return list.toArray(new ICustomGuiComponent[list.size()]);
+        list.addAll(this.components.get(orientationType));
+		return list.toArray(new ICustomGuiComponent[0]);
 	}
 
 	public TreeMap<Integer, TreeMap<Integer, IGuiComponent>> getGuiComponents() {
 		if (this.guiComponents.size() != this.components.size()) {
 			for (int type : this.components.keySet()) {
 				if (!this.guiComponents.containsKey(type)) {
-					this.guiComponents.put(type, Maps.<Integer, IGuiComponent>newTreeMap());
+					this.guiComponents.put(type, Maps.newTreeMap());
 				}
 				for (ICustomGuiComponent component : this.components.get(type)) {
 					if (component instanceof CustomGuiLabelWrapper) {
@@ -295,7 +291,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 					} else if (component instanceof CustomGuiTexturedRectWrapper) {
 						CustomGuiTexturedRect rect = CustomGuiTexturedRect
 								.fromComponent((CustomGuiTexturedRectWrapper) component);
-						rect.id += -200;
+						rect.id -= 200;
 						this.guiComponents.get(type).put(rect.getId(), rect);
 					} else if (component instanceof CustomGuiTimerWrapper) {
 						CustomGuiTimer time = CustomGuiTimer.fromComponent((CustomGuiTimerWrapper) component);
@@ -326,7 +322,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 
 	public TreeMap<Integer, TreeMap<Integer, IItemSlot>> getGuiSlots() {
 		if (this.guiSlots.size() != this.slots.size()) {
-			Map<Integer, Integer> ids = Maps.<Integer, Integer>newTreeMap();
+			Map<Integer, Integer> ids = Maps.newTreeMap();
 			for (int type : this.components.keySet()) {
 				if (!ids.containsKey(type)) {
 					ids.put(type, 0);
@@ -339,7 +335,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 			}
 			for (int type : this.slots.keySet()) {
 				if (!this.guiSlots.containsKey(type)) {
-					this.guiSlots.put(type, Maps.<Integer, IItemSlot>newTreeMap());
+					this.guiSlots.put(type, Maps.newTreeMap());
 				}
 				int id = ids.containsKey(type) ? ids.get(type) + 1 : 1;
 				for (IItemSlot slot : this.slots.get(type)) {
@@ -417,25 +413,21 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 
 	@Override
 	public IItemSlot[] getSlots() {
-		List<IItemSlot> list = Lists.<IItemSlot>newArrayList();
+		List<IItemSlot> list = Lists.newArrayList();
 		for (int type : this.slots.keySet()) {
-			for (IItemSlot slot : this.slots.get(type)) {
-				list.add(slot);
-			}
+            list.addAll(this.slots.get(type));
 		}
-		return list.toArray(new IItemSlot[list.size()]);
+		return list.toArray(new IItemSlot[0]);
 	}
 
 	@Override
 	public IItemSlot[] getSlots(int orientationType) {
-		List<IItemSlot> list = Lists.<IItemSlot>newArrayList();
+		List<IItemSlot> list = Lists.newArrayList();
 		if (!this.slots.containsKey(orientationType)) {
 			return new IItemSlot[0];
 		}
-		for (IItemSlot slot : this.slots.get(orientationType)) {
-			list.add(slot);
-		}
-		return list.toArray(new IItemSlot[list.size()]);
+        list.addAll(this.slots.get(orientationType));
+		return list.toArray(new IItemSlot[0]);
 	}
 
 	public double[] getWindowSize() {
@@ -448,7 +440,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 				return true;
 			}
 		}
-		return this.mousePress.contains((Integer) key);
+		return this.mousePress.contains(key);
 	}
 
 	public boolean hasOrKeysPressed(int... keys) {
@@ -504,11 +496,11 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 			this.guiComponents.clear();
 		} else {
 			for (int i = 0; i < list.tagCount(); i++) {
-				List<Integer> ids = Lists.<Integer>newArrayList();
+				List<Integer> ids = Lists.newArrayList();
 				NBTTagCompound compNbt = list.getCompoundTagAt(i);
 				int type = compNbt.getByte("OrientationType");
 				if (!this.components.containsKey(type)) {
-					this.components.put(type, Lists.<ICustomGuiComponent>newArrayList());
+					this.components.put(type, Lists.newArrayList());
 				}
 				NBTTagList compList = compNbt.getTagList("components", 10);
 				for (int j = 0; j < compList.tagCount(); j++) {
@@ -536,9 +528,9 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 								.add(CustomGuiComponentWrapper.createFromNBT(compList.getCompoundTagAt(j)));
 					}
 				}
-				List<ICustomGuiComponent> del = Lists.<ICustomGuiComponent>newArrayList();
+				List<ICustomGuiComponent> del = Lists.newArrayList();
 				for (ICustomGuiComponent c : this.components.get(type)) {
-					if (!ids.contains((Integer) c.getId())) {
+					if (!ids.contains(c.getId())) {
 						del.add(c);
 					}
 				}
@@ -554,11 +546,11 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 			this.guiSlots.clear();
 		} else {
 			for (int i = 0; i < list.tagCount(); i++) {
-				List<Integer> ids = Lists.<Integer>newArrayList();
+				List<Integer> ids = Lists.newArrayList();
 				NBTTagCompound compNbt = list.getCompoundTagAt(i);
 				int type = compNbt.getByte("OrientationType");
 				if (!this.slots.containsKey(type)) {
-					this.slots.put(type, Lists.<IItemSlot>newArrayList());
+					this.slots.put(type, Lists.newArrayList());
 				}
 				NBTTagList compList = compNbt.getTagList("components", 10);
 				for (int j = 0; j < compList.tagCount(); j++) {
@@ -581,13 +573,13 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 								.createFromNBT(compList.getCompoundTagAt(j)));
 					}
 				}
-				List<ICustomGuiComponent> del = Lists.<ICustomGuiComponent>newArrayList();
-				for (ICustomGuiComponent c : this.slots.get(type)) {
-					if (!ids.contains((Integer) c.getId())) {
+				List<IItemSlot> del = Lists.newArrayList();
+				for (IItemSlot c : this.slots.get(type)) {
+					if (!ids.contains(c.getId())) {
 						del.add(c);
 					}
 				}
-				for (ICustomGuiComponent c : del) {
+				for (IItemSlot c : del) {
 					this.slots.get(type).remove(c);
 				}
 			}
@@ -753,20 +745,18 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 	@Override
 	public void update() {
 		if (this.player != null) {
-			Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.UPDATE_HUD,
+			Server.sendData(this.player, EnumPacketClient.UPDATE_HUD,
 					this.saveNBTData(new NBTTagCompound()));
 			this.update = false;
 		} else {
-			CustomNPCsScheduler.runTack(() -> {
-				this.update = true;
-			}, 500);
+			CustomNPCsScheduler.runTack(() -> this.update = true , 500);
 		}
 	}
 
 	public void updateHud(EntityPlayerMP player) {
 		this.player = player;
 		if (this.update) {
-			Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.UPDATE_HUD,
+			Server.sendData(this.player, EnumPacketClient.UPDATE_HUD,
 					this.saveNBTData(new NBTTagCompound()));
 			this.update = false;
 		}

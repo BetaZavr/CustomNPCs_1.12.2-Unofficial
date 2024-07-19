@@ -1,15 +1,16 @@
 package noppes.npcs.entity.data;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
+import noppes.npcs.LogWriter;
 import org.apache.commons.codec.binary.Base64;
 
 import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.properties.Property;
@@ -19,7 +20,6 @@ import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTUtil;
@@ -35,7 +35,6 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.INPCDisplay;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumParts;
-import noppes.npcs.controllers.VisibilityController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -47,14 +46,14 @@ public class DataDisplay implements INPCDisplay {
 	public GameProfile playerProfile;
 	public byte skinType = (byte) 0;
 
-	private Availability availability = new Availability();
+	private final Availability availability = new Availability();
 	private BossInfo.Color bossColor = BossInfo.Color.PINK;
 	private boolean disableLivingAnimation = false;
 	private boolean noHitbox = false;
 	private boolean isNormalModel = false;
 	private byte showBossBar = 0;
 	private int markovGender = 0;
-	private int markovGeneratorId = 8;
+	private int markovGeneratorId;
 	private int modelSize = 5;
 	private int showName = 0;
 	private int skinColor = 0xFFFFFF;
@@ -65,7 +64,6 @@ public class DataDisplay implements INPCDisplay {
 	private String glowTexture = "";
 	private String name;
 	private String texture = CustomNpcs.MODID + ":textures/entity/humanmale/steve.png";
-	public Object renderModel;
 	public float shadowSize = 1.0f;
 
 	public DataDisplay(EntityNPCInterface npc) {
@@ -127,9 +125,9 @@ public class DataDisplay implements INPCDisplay {
 		}
 		String name = modeldata.entityClass.getCanonicalName();
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-			Class<? extends Entity> c = (Class<? extends Entity>) ent.getEntityClass();
+			Class<? extends Entity> c = ent.getEntityClass();
 			if (c.getCanonicalName().equals(name) && EntityLivingBase.class.isAssignableFrom(c)) {
-				return ent.getRegistryName().toString();
+				return Objects.requireNonNull(ent.getRegistryName()).toString();
 			}
 		}
 		return null;
@@ -156,7 +154,7 @@ public class DataDisplay implements INPCDisplay {
 			model = modeldata.getPartConfig(EnumParts.LEG_RIGHT);
 		}
 		if (model == null) {
-			throw new CustomNPCsException("Unknown part: " + part, new Object[0]);
+			throw new CustomNPCsException("Unknown part: " + part);
 		}
 		return new float[] { model.scale[0], model.scale[1], model.scale[2] };
 	}
@@ -235,14 +233,14 @@ public class DataDisplay implements INPCDisplay {
 
 	public boolean isVisibleTo(EntityPlayerMP player) {
 		if (this.visible == 1) {
-			return !this.availability.isAvailable((EntityPlayer) player);
+			return !this.availability.isAvailable(player);
 		}
 		return true;
 	}
 
 	@Override
 	public boolean isVisibleTo(IPlayer<?> player) {
-		return this.isVisibleTo(player);
+		return this.npc.isInvisibleToPlayer(player.getMCEntity());
 	}
 
 	public void loadProfile() {
@@ -276,19 +274,19 @@ public class DataDisplay implements INPCDisplay {
 		this.playerProfile = null;
 		if (!this.url.isEmpty() && !this.url.startsWith("http")) {
 			try {
-				final String json = new String(Base64.decodeBase64(this.url), Charset.forName("UTF-8"));
+				final String json = new String(Base64.decodeBase64(this.url), StandardCharsets.UTF_8);
 				Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
 				MinecraftTexturesPayload mtp = gson.fromJson(json, MinecraftTexturesPayload.class);
 				MinecraftProfileTexture mpt = mtp.getTextures().get(MinecraftProfileTexture.Type.SKIN);
 				if (!mpt.getUrl().isEmpty()) { this.url = mpt.getUrl(); }
 			}
-			catch (final JsonParseException e) { }
+			catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		if (this.skinType == 1) {
 			if (displayNbt.hasKey("SkinUsername", 10)) {
 				this.playerProfile = NBTUtil.readGameProfileFromNBT(displayNbt.getCompoundTag("SkinUsername"));
 			} else if (displayNbt.hasKey("SkinUsername", 8) && !StringUtils.isNullOrEmpty(displayNbt.getString("SkinUsername"))) {
-				this.playerProfile = new GameProfile((UUID) null, displayNbt.getString("SkinUsername"));
+				this.playerProfile = new GameProfile(null, displayNbt.getString("SkinUsername"));
 			}
 			this.loadProfile();
 		}
@@ -317,8 +315,7 @@ public class DataDisplay implements INPCDisplay {
 		} else {
 			this.shadowSize = 1.0f;
 		}
-
-		VisibilityController.trackNpc(this.npc);
+		CustomNpcs.visibilityController.trackNpc(this.npc);
 	}
 
 	@Override
@@ -334,7 +331,7 @@ public class DataDisplay implements INPCDisplay {
 	@Override
 	public void setBossColor(int color) {
 		if (color < 0 || color >= BossInfo.Color.values().length) {
-			throw new CustomNPCsException("Invalid Boss Color: " + color, new Object[0]);
+			throw new CustomNPCsException("Invalid Boss Color: " + color);
 		}
 		this.bossColor = BossInfo.Color.values()[color];
 		this.npc.bossInfo.setColor(this.bossColor);
@@ -399,17 +396,16 @@ public class DataDisplay implements INPCDisplay {
 				return;
 			}
 			modeldata.entityClass = null;
-			this.npc.updateClient = true;
-		} else {
+        } else {
 			ResourceLocation resource = new ResourceLocation(id);
 			Entity entity = EntityList.createEntityByIDFromName(resource, this.npc.world);
 			if (entity == null) {
-				throw new CustomNPCsException("Failed to create an entity from given id: " + id, new Object[0]);
+				throw new CustomNPCsException("Failed to create an entity from given id: " + id);
 			}
 			modeldata.setEntityName(entity.getClass().getCanonicalName());
-			this.npc.updateClient = true;
-		}
-	}
+        }
+        this.npc.updateClient = true;
+    }
 
 	@Override
 	public void setModelScale(int part, float x, float y, float z) {
@@ -432,7 +428,7 @@ public class DataDisplay implements INPCDisplay {
 			model = modeldata.getPartConfig(EnumParts.LEG_RIGHT);
 		}
 		if (model == null) {
-			throw new CustomNPCsException("Unknown part: " + part, new Object[0]);
+			throw new CustomNPCsException("Unknown part: " + part);
 		}
 		model.setScale(x, y, z);
 		this.npc.updateClient = true;
@@ -503,7 +499,7 @@ public class DataDisplay implements INPCDisplay {
 			this.playerProfile = null;
 			this.skinType = 0;
 		} else {
-			this.playerProfile = new GameProfile((UUID) null, name);
+			this.playerProfile = new GameProfile(null, name);
 			this.skinType = 1;
 		}
 		this.npc.updateClient = true;

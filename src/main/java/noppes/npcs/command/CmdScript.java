@@ -2,6 +2,7 @@ package noppes.npcs.command;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.google.common.collect.Lists;
 
@@ -12,10 +13,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
@@ -26,23 +27,25 @@ import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.dimensions.DimensionHandler;
 
+import javax.annotation.Nonnull;
+
 public class CmdScript extends CommandNoppesBase {
 
 	@SubCommand(desc = "List of available Forge event names")
-	public Boolean forgelist(MinecraftServer server, ICommandSender sender, String[] args) {
-		String list = "";
+	public Boolean forgelist(ICommandSender sender) {
+		StringBuilder list = new StringBuilder();
 		List<String> g = Lists.newArrayList(CustomNpcs.forgeEventNames.values());
 		Collections.sort(g);
 		for (String name : g) {
-			if (!list.isEmpty()) {
-				list += ", ";
+			if (list.length() > 0) {
+				list.append(", ");
 			} else {
-				list += ((char) 167) + "6Forge event names:\n" + ((char) 167) + "r";
+				list.append(((char) 167) + "6Forge event names:\n" + ((char) 167) + "r");
 			}
-			list += name;
+			list.append(name);
 		}
-		list += ";\n" + ((char) 167) + "6Total Size: " + ((char) 167) + "e" + CustomNpcs.forgeEventNames.size();
-		sender.sendMessage(new TextComponentString(list));
+		list.append(";\n" + ((char) 167) + "6Total Size: " + ((char) 167) + "e").append(CustomNpcs.forgeEventNames.size());
+		sender.sendMessage(new TextComponentString(list.toString()));
 		return true;
 	}
 
@@ -51,6 +54,7 @@ public class CmdScript extends CommandNoppesBase {
 		return "Commands for scripts";
 	}
 
+	@Nonnull
 	public String getName() {
 		return "script";
 	}
@@ -103,26 +107,26 @@ public class CmdScript extends CommandNoppesBase {
 
 	@SubCommand(desc = "Runs scriptCommand in the players scripts", usage = "[args]")
 	public Boolean run(MinecraftServer server, ICommandSender sender, String[] args) {
-		IWorld world = NpcAPI.Instance().getIWorld((WorldServer) sender.getEntityWorld());
+		IWorld world = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(sender.getEntityWorld());
 		BlockPos bpos = sender.getPosition();
-		IPos pos = NpcAPI.Instance().getIPos(bpos.getX(), bpos.getY(), bpos.getZ());
+		IPos pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(bpos.getX(), bpos.getY(), bpos.getZ());
 		WorldEvent.ScriptCommandEvent event = new WorldEvent.ScriptCommandEvent(world, pos, args);
 		EventHooks.onWorldScriptEvent(event);
 		return true;
 	}
 
-	@SubCommand(desc = "Attempts to execute on the specified object", usage = "<dimentionID> <x> <y> <z> <entity> <trigerID> [Strings]")
+	@SubCommand(desc = "Attempts to execute on the specified object", usage = "<dimensionID> <x> <y> <z> <entity> <triggerID> [Strings]")
 	public Boolean trigger(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		IWorld world = null;
+		IWorld world;
 		IPos pos = null;
 		IEntity<?> entity = null;
-		int id = 0;
+		int id;
 		try {
 			int dimID = Integer.parseInt(args[0]);
 			if (!DimensionManager.isDimensionRegistered(dimID) || DimensionHandler.getInstance().isDelete(dimID)) {
 				throw new CommandException("DimensionID: " + dimID + " - not found");
 			}
-			world = NpcAPI.Instance().getIWorld(dimID);
+			world = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(dimID);
 		} catch (NumberFormatException ex) {
 			throw new CommandException("DimensionID must be an integer");
 		}
@@ -130,9 +134,8 @@ public class CmdScript extends CommandNoppesBase {
 			double dx = parseCoordinate(sender.getPosition().getX(), args[1], true).getResult();
 			double dy = parseCoordinate(sender.getPosition().getY(), args[2], 0, 255, false).getResult();
 			double dz = parseCoordinate(sender.getPosition().getZ(), args[3], true).getResult();
-			pos = NpcAPI.Instance().getIPos(dx, dy, dz);
-		} catch (NumberFormatException ex) {
-		}
+			pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(dx, dy, dz);
+		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		IEntity<?>[] entitys = world.getNearbyEntities(pos, 2, 0);
 		for (IEntity<?> e : entitys) {
 			if (args[4].equalsIgnoreCase("player") && e.getType() == 1 || e.getName().equalsIgnoreCase(args[4])) {
@@ -143,14 +146,13 @@ public class CmdScript extends CommandNoppesBase {
 		try {
 			id = Integer.parseInt(args[5]);
 		} catch (NumberFormatException ex) {
-			throw new CommandException("TrigerID must be an integer");
+			throw new CommandException("TriggerID must be an integer");
 		}
 		Object[] arguments = new String[args.length - 6];
-		for (int i = 0; i < args.length - 6; i++) {
-			arguments[i] = args[6 + i];
-		}
+        System.arraycopy(args, 6, arguments, 0, args.length - 6);
 		if (entity == null) {
-			TileEntity tile = world.getMCWorld().getTileEntity(pos.getMCBlockPos());
+            assert pos != null;
+            TileEntity tile = world.getMCWorld().getTileEntity(pos.getMCBlockPos());
 			if (tile instanceof TileScripted) {
 				EventHooks.onScriptTriggerEvent((TileScripted) tile, id, world, pos, null, arguments);
 				return true;

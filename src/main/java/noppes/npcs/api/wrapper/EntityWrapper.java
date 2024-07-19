@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import net.minecraft.block.material.Material;
@@ -44,15 +45,15 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 	public static IEntity[] findEntityOnPath(Entity entity, double distance, Vec3d vec3d, Vec3d vec3d1) {
 		List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity,
 				entity.getEntityBoundingBox().grow(distance));
-		List<IEntity> result = new ArrayList<IEntity>();
+		List<IEntity> result = new ArrayList<>();
 		for (Entity entity1 : list) {
 			if (entity1.canBeCollidedWith() && entity1 != entity) {
 				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
-				RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
-				if (raytraceresult1 == null) {
+				RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d1);
+				if (raytraceresult == null) {
 					continue;
 				}
-				result.add(NpcAPI.Instance().getIEntity(entity1));
+				result.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity1));
 			}
 		}
 		result.sort((o1, o2) -> {
@@ -64,7 +65,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 				return (d1 > d2) ? 1 : -1;
 			}
 		});
-		return result.toArray(new IEntity[result.size()]);
+		return result.toArray(new IEntity[0]);
 	}
 	protected T entity;
 	protected IData storeddata;
@@ -78,7 +79,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 		this.tempdata = new TempData();
 		this.storeddata = new StoredData(this);
 		if (entity.world instanceof WorldServer) {
-			this.worldWrapper = NpcAPI.Instance().getIWorld((WorldServer) entity.world);
+			this.worldWrapper = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(entity.world);
 		} else if (entity.world != null) {
 			WorldWrapper w = WrapperNpcAPI.worldCache.get(entity.world.provider.getDimension());
 			if (w != null) {
@@ -144,7 +145,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	@Override
 	public IEntityItem dropItem(IItemStack item) {
-		return (IEntityItem) NpcAPI.Instance().getIEntity(this.entity.entityDropItem(item.getMCItemStack(), 0.0f));
+		return (IEntityItem) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity.entityDropItem(item.getMCItemStack(), 0.0f));
 	}
 
 	@Override
@@ -166,10 +167,10 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	@Override
 	public IEntity[] getAllRiders() {
-		List<Entity> list = new ArrayList<Entity>(this.entity.getRecursivePassengers());
+		List<Entity> list = new ArrayList<>(this.entity.getRecursivePassengers());
 		IEntity[] riders = new IEntity[list.size()];
 		for (int i = 0; i < list.size(); ++i) {
-			riders[i] = NpcAPI.Instance().getIEntity(list.get(i));
+			riders[i] = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(list.get(i));
 		}
 		return riders;
 	}
@@ -209,7 +210,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 		if (resourcelocation != null) {
 			compound.setString("id", resourcelocation.toString());
 		}
-		return NpcAPI.Instance().getINbt(compound);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound);
 	}
 
 	@Override
@@ -244,7 +245,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	@Override
 	public IEntity getMount() {
-		return NpcAPI.Instance().getIEntity(this.entity.getRidingEntity());
+		return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity.getRidingEntity());
 	}
 
 	@Override
@@ -254,7 +255,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	@Override
 	public INbt getNbt() {
-		return NpcAPI.Instance().getINbt(this.entity.getEntityData());
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.entity.getEntityData());
 	}
 
 	@Override
@@ -269,10 +270,10 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	@Override
 	public IEntity[] getRiders() {
-		List<Entity> list = (List<Entity>) this.entity.getPassengers();
+		List<Entity> list = this.entity.getPassengers();
 		IEntity[] riders = new IEntity[list.size()];
 		for (int i = 0; i < list.size(); ++i) {
-			riders[i] = NpcAPI.Instance().getIEntity(list.get(i));
+			riders[i] = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(list.get(i));
 		}
 		return riders;
 	}
@@ -289,7 +290,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	@Override
 	public String[] getTags() {
-		return this.entity.getTags().toArray(new String[this.entity.getTags().size()]);
+		return this.entity.getTags().toArray(new String[0]);
 	}
 
 	@Override
@@ -320,7 +321,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 	@Override
 	public IWorld getWorld() {
 		if (this.entity.world != this.worldWrapper.getMCWorld() && this.entity.world instanceof WorldServer) {
-			this.worldWrapper = NpcAPI.Instance().getIWorld((WorldServer) this.entity.world);
+			this.worldWrapper = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(this.entity.world);
 		}
 		return this.worldWrapper;
 	}
@@ -420,7 +421,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 		if (result == null) {
 			return null;
 		}
-		return new RayTraceWrapper(NpcAPI.Instance().getIBlock(this.entity.world, result.getBlockPos()),
+		return new RayTraceWrapper(Objects.requireNonNull(NpcAPI.Instance()).getIBlock(this.entity.world, result.getBlockPos()),
 				result.sideHit.getIndex());
 	}
 
@@ -506,8 +507,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 	@Override
 	public void setPosition(double x, double y, double z) {
 		if (this.entity instanceof EntityPlayerMP) {
-			((EntityPlayerMP) this.entity).setPositionAndRotation(x, y, z, this.entity.rotationYaw,
-					this.entity.rotationPitch);
+			this.entity.setPositionAndRotation(x, y, z, this.entity.rotationYaw, this.entity.rotationPitch);
 		} else {
 			this.entity.setPosition(x, y, z);
 		}
@@ -547,28 +547,24 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 					break;
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 		if (el != null) {
 			LogWriter.debug("Error summoning: " + this.entity.getName());
-			throw new CustomNPCsException("Entity is already spawned", new Object[0]);
+			throw new CustomNPCsException("Entity is already spawned");
 		}
 		this.entity.isDead = false;
 		LogWriter.debug("Try summoning 1: " + this.entity.getName());
 		try {
 			boolean bo = this.worldWrapper.getMCWorld().spawnEntity(this.entity);
 			LogWriter.debug("Is summoning: " + bo + "; World: " + this.entity.world.getClass().getSimpleName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	@Override
 	public void storeAsClone(int tab, String name) {
 		NBTTagCompound compound = new NBTTagCompound();
 		if (!this.entity.writeToNBTAtomically(compound)) {
-			throw new CustomNPCsException("Cannot store dead entities", new Object[0]);
+			throw new CustomNPCsException("Cannot store dead entities");
 		}
 		ServerCloneController.Instance.addClone(compound, name, tab);
 	}

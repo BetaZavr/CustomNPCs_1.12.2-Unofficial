@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.util.ValueUtil;
 
@@ -40,11 +41,11 @@ public class AddedPartConfig extends PartConfig {
 			this.obj = new ResourceLocation(compound.getString("LOBJLocationocation"));
 		}
 		for (int i = 0; i < 3; i++) {
-			try { this.pos[i] = ValueUtil.correctFloat(compound.getTagList("BasePosition", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { }
-			try { this.rot[i] = ValueUtil.correctFloat(compound.getTagList("BaseRotation", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { }
+			try { this.pos[i] = ValueUtil.correctFloat(compound.getTagList("BasePosition", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { this.rot[i] = ValueUtil.correctFloat(compound.getTagList("BaseRotation", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		for (int i = 0; i < 5; i++) {
-			try { this.size[i] = ValueUtil.correctFloat(compound.getTagList("BaseSize", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { }
+			try { this.size[i] = ValueUtil.correctFloat(compound.getTagList("BaseSize", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 	}
 

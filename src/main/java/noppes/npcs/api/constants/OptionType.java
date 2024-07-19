@@ -13,7 +13,7 @@ public enum OptionType {
 		return DISABLED;
 	}
 
-	int type = -1;
+	final int type;
 
 	OptionType(int t) {
 		this.type = t;

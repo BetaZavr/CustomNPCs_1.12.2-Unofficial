@@ -20,14 +20,14 @@ import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.containers.ContainerCarpentryBench;
 
+import javax.annotation.Nonnull;
+
 // Changed
 public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IRecipeShownListener {
 
-	private static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES = new ResourceLocation(CustomNpcs.MODID,
-			"textures/gui/carpentry.png");
-	private ResourceLocation buttonTexture = new ResourceLocation("minecraft",
-			"textures/gui/container/crafting_table.png");
-	private ContainerCarpentryBench container;
+	private static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES = new ResourceLocation(CustomNpcs.MODID, "textures/gui/carpentry.png");
+	private final ResourceLocation buttonTexture = new ResourceLocation("minecraft", "textures/gui/container/crafting_table.png");
+	private final ContainerCarpentryBench container;
 	private final GuiNpcRecipeBook recipeBookGui;
 	private GuiNpcButton recipeButton;
 	private boolean widthTooNarrow;
@@ -38,7 +38,6 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 		this.allowUserInput = false;
 		this.closeOnEsc = true;
 		this.ySize = 180;
-		// New
 		this.recipeBookGui = new GuiNpcRecipeBook(false);
 		this.recipeBookGui.getRecipeTabs().clear();
 		this.recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CreativeTabs.SEARCH, false));
@@ -103,13 +102,14 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 		this.recipeBookGui.renderTooltip(this.guiLeft, this.guiTop, mouseX, mouseY);
 	}
 
+	@Nonnull
 	@Override
 	public GuiRecipeBook func_194310_f() {
 		return this.recipeBookGui;
 	}
 
 	@Override
-	protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type) {
+	protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
 		super.handleMouseClick(slotIn, slotId, mouseButton, type);
 		this.recipeBookGui.slotClicked(slotIn);
 	}

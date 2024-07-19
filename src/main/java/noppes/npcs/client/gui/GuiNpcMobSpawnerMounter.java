@@ -12,9 +12,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.controllers.ClientCloneController;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -31,9 +31,9 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
 	private static int showingClones = 0;
 	private int activeTab;
 	private List<String> list;
-	private int posX;
-	private int posY;
-	private int posZ;
+	private final int posX;
+	private final int posY;
+	private final int posZ;
 	private GuiCustomScroll scroll;
 
 	public GuiNpcMobSpawnerMounter(int i, int j, int k) {
@@ -60,7 +60,7 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
 			}
 		}
 		if (button.id == 2) {
-			Client.sendData(EnumPacketServer.PlayerRider, new Object[0]);
+			Client.sendData(EnumPacketServer.PlayerRider);
 			this.close();
 		}
 		if (button.id == 3) {
@@ -100,9 +100,9 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
 
 	private List<String> getSearchList() {
 		if (GuiNpcMobSpawnerMounter.search.isEmpty()) {
-			return new ArrayList<String>(this.list);
+			return new ArrayList<>(this.list);
 		}
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (String name : this.list) {
 			if (name.toLowerCase().contains(GuiNpcMobSpawnerMounter.search)) {
 				list.add(name);
@@ -163,9 +163,8 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
 
 	protected NBTTagList newDoubleNBTList(double... par1ArrayOfDouble) {
 		NBTTagList nbttaglist = new NBTTagList();
-		double[] adouble = par1ArrayOfDouble;
-		for (int i = par1ArrayOfDouble.length, j = 0; j < i; ++j) {
-			double d1 = adouble[j];
+        for (int i = par1ArrayOfDouble.length, j = 0; j < i; ++j) {
+			double d1 = par1ArrayOfDouble[j];
 			nbttaglist.appendTag(new NBTTagDouble(d1));
 		}
 		return nbttaglist;
@@ -178,7 +177,7 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		NBTTagList nbtlist = compound.getTagList("List", 8);
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (int i = 0; i < nbtlist.tagCount(); ++i) {
 			list.add(nbtlist.getStringTagAt(i));
 		}
@@ -196,20 +195,16 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
 	}
 
 	private void showEntities() {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-			Class<? extends Entity> c = (Class<? extends Entity>) ent.getEntityClass();
+			Class<? extends Entity> c = ent.getEntityClass();
 			String name = ent.getName();
 			try {
-				if (!EntityLiving.class.isAssignableFrom(c) || c.getConstructor(World.class) == null
-						|| Modifier.isAbstract(c.getModifiers())) {
+				if (!EntityLiving.class.isAssignableFrom(c) || Modifier.isAbstract(c.getModifiers())) {
 					continue;
 				}
-				list.add(name.toString());
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException ex) {
-			}
+				list.add(name);
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		this.list = list;
 		this.scroll.setList(this.getSearchList());

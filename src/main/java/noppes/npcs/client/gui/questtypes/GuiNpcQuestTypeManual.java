@@ -31,11 +31,13 @@ import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
 
+import javax.annotation.Nonnull;
+
 public class GuiNpcQuestTypeManual extends SubGuiInterface implements ITextfieldListener {
 
 	public GuiScreen parent;
-	private QuestObjective task;
-	private Map<Integer, Integer> dataDimIDs = Maps.<Integer, Integer>newHashMap();
+	private final QuestObjective task;
+	private final Map<Integer, Integer> dataDimIDs = Maps.newHashMap();
 
 	public GuiNpcQuestTypeManual(EntityNPCInterface npc, QuestObjective task, GuiScreen parent) {
 		this.npc = npc;
@@ -49,7 +51,7 @@ public class GuiNpcQuestTypeManual extends SubGuiInterface implements ITextfield
 	}
 
 	@Override
-	public void actionPerformed(GuiButton guibutton) {
+	public void actionPerformed(@Nonnull GuiButton guibutton) {
 		super.actionPerformed(guibutton);
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (guibutton.id) {
@@ -78,8 +80,7 @@ public class GuiNpcQuestTypeManual extends SubGuiInterface implements ITextfield
 			if (this.task == null) {
 				return;
 			}
-			Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.task.dimensionID, this.task.pos.getX(),
-					this.task.pos.getY(), this.task.pos.getZ() });
+			Client.sendData(EnumPacketServer.TeleportTo, this.task.dimensionID, this.task.pos.getX(), this.task.pos.getY(), this.task.pos.getZ());
 			break;
 		}
 		case 66: {
@@ -196,7 +197,7 @@ public class GuiNpcQuestTypeManual extends SubGuiInterface implements ITextfield
 			i++;
 		}
 		this.addButton(new GuiButtonBiDirectional(4, x + 8, y - 1, 60, 16, dimIDs, p));
-		this.addLabel(new GuiNpcLabel(lId++, "N:", x + 71, y + 2));
+		this.addLabel(new GuiNpcLabel(lId, "N:", x + 71, y + 2));
 		this.addTextField(new GuiNpcTextField(15, this, this.fontRenderer, x + 79, y, 126, 14, this.task.entityName));
 
 		this.addButton(new GuiNpcButton(10, x + 146, y += 19, 60, 20, "gui.set"));
@@ -228,8 +229,8 @@ public class GuiNpcQuestTypeManual extends SubGuiInterface implements ITextfield
 			NoppesUtilServer.getEditingQuest(this.player).questInterface.removeTask(this.task);
 		} else {
 			if (((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui instanceof GuiQuestEdit) {
-				((GuiQuestEdit) ((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui).subgui = null;
-				((GuiQuestEdit) ((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui).initGui();
+				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.subgui = null;
+				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.initGui();
 			}
 		}
 	}

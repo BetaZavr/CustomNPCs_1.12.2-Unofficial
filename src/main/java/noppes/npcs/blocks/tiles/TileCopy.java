@@ -6,6 +6,8 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 
+import javax.annotation.Nonnull;
+
 public class TileCopy extends TileEntity {
 	public short height;
 	public short length;
@@ -19,15 +21,15 @@ public class TileCopy extends TileEntity {
 		this.name = "";
 	}
 
-	public AxisAlignedBB getRenderBoundingBox() {
-		return new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), (this.pos.getX() + this.width + 1),
-				(this.pos.getY() + this.height + 1), (this.pos.getZ() + this.length + 1));
+	public @Nonnull AxisAlignedBB getRenderBoundingBox() {
+		return new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), (this.pos.getX() + this.width + 1), (this.pos.getY() + this.height + 1), (this.pos.getZ() + this.length + 1));
 	}
 
 	public SPacketUpdateTileEntity getUpdatePacket() {
 		return new SPacketUpdateTileEntity(this.pos, 0, this.getUpdateTag());
 	}
 
+	@Nonnull
 	public NBTTagCompound getUpdateTag() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("x", this.pos.getX());
@@ -39,17 +41,17 @@ public class TileCopy extends TileEntity {
 		return compound;
 	}
 
-	public void handleUpdateTag(NBTTagCompound compound) {
+	public void handleUpdateTag(@Nonnull NBTTagCompound compound) {
 		this.length = compound.getShort("Length");
 		this.width = compound.getShort("Width");
 		this.height = compound.getShort("Height");
 	}
 
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+	public void onDataPacket(@Nonnull NetworkManager net, @Nonnull SPacketUpdateTileEntity pkt) {
 		this.handleUpdateTag(pkt.getNbtCompound());
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		this.length = compound.getShort("Length");
 		this.width = compound.getShort("Width");
@@ -57,7 +59,7 @@ public class TileCopy extends TileEntity {
 		this.name = compound.getString("Name");
 	}
 
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		compound.setShort("Length", this.length);
 		compound.setShort("Width", this.width);
 		compound.setShort("Height", this.height);

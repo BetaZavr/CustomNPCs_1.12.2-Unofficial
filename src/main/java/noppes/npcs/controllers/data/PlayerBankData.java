@@ -1,9 +1,8 @@
 package noppes.npcs.controllers.data;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -11,6 +10,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.containers.ContainerNPCBank;
@@ -40,18 +40,18 @@ public class PlayerBankData {
 		if (!file.exists()) { // create new
 			try {
 				file.createNewFile();
-				CompressedStreamTools.writeCompressed(this.lastBank.getNBT(), new FileOutputStream(file));
+				CompressedStreamTools.writeCompressed(this.lastBank.getNBT(), Files.newOutputStream(file.toPath()));
 			} catch (Exception e) {
-				e.printStackTrace();
+				LogWriter.error("Error:", e);
 				this.lastBank = null;
 				return null;
 			}
 		}
 		// load
 		try {
-			this.lastBank.setNBT(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+			this.lastBank.setNBT(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath())));
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogWriter.error("Error:", e);
 			this.lastBank = null;
 			return null;
 		}
@@ -67,10 +67,7 @@ public class PlayerBankData {
 		if (compound.hasKey("BankData", 9)) {
 			File dir = CustomNpcs.getWorldSaveDirectory("playerdata/" + this.uuid + "/banks");
 			NBTTagList list = compound.getTagList("BankData", 10);
-			if (list == null) {
-				return;
-			}
-			for (int bankPos = 0; bankPos < list.tagCount(); bankPos++) {
+            for (int bankPos = 0; bankPos < list.tagCount(); bankPos++) {
 				NBTTagCompound nbt = list.getCompoundTagAt(bankPos);
 				Bank bank = BankController.getInstance().getBank(nbt.getInteger("DataBankId"));
 				if (bank == null) {
@@ -94,15 +91,11 @@ public class PlayerBankData {
 				if (!file.exists()) {
 					try {
 						file.createNewFile();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					} catch (IOException e) { LogWriter.error("Error:", e); }
 				}
 				try {
-					CompressedStreamTools.writeCompressed(bd.getNBT(), new FileOutputStream(file));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+					CompressedStreamTools.writeCompressed(bd.getNBT(), Files.newOutputStream(file.toPath()));
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 
 		}
@@ -128,8 +121,7 @@ public class PlayerBankData {
 		}
 		if (player.openContainer instanceof ContainerNPCBank) {
 			this.delay = 200;
-			return;
-		}
+        }
 	}
 
 }

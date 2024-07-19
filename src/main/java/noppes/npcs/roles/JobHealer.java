@@ -16,6 +16,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobHealer;
@@ -25,14 +26,14 @@ import noppes.npcs.util.ValueUtil;
 
 public class JobHealer extends JobInterface implements IJobHealer {
 
-	private Map<Integer, List<EntityLivingBase>> affected;
-	private Random rnd;
+	private final Map<Integer, List<EntityLivingBase>> affected;
+	private final Random rnd;
 	public Map<Integer, HealerSettings> effects; // [ID, settings]
 
 	public JobHealer(EntityNPCInterface npc) {
 		super(npc);
-		this.effects = Maps.<Integer, HealerSettings>newHashMap();
-		this.affected = Maps.<Integer, List<EntityLivingBase>>newHashMap();
+		this.effects = Maps.newHashMap();
+		this.affected = Maps.newHashMap();
 		this.type = JobType.HEALER;
 		this.rnd = new Random();
 	}
@@ -76,8 +77,7 @@ public class JobHealer extends JobInterface implements IJobHealer {
 				EntityLivingBase entity = null;
 				try {
 					entity = this.affected.get(id).get(this.rnd.nextInt(this.affected.get(id).size()));
-				} catch (Exception e) {
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 				if (entity != null) {
 					boolean isEnemy = this.isEnemy(entity);
 					boolean canAdd = true;

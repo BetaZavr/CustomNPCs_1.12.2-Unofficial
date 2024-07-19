@@ -5,9 +5,6 @@ import java.util.Random;
 import nikedemos.markovnames.MarkovDictionary;
 
 public class MarkovAztec extends MarkovGenerator {
-	public MarkovAztec() {
-		this(3, new Random());
-	}
 
 	public MarkovAztec(int seqlen) {
 		this(seqlen, new Random());

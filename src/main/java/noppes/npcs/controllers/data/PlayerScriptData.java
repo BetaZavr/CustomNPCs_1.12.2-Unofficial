@@ -1,9 +1,6 @@
 package noppes.npcs.controllers.data;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import com.google.common.base.MoreObjects;
 
@@ -23,11 +20,11 @@ import noppes.npcs.util.AdditionalMethods;
 public class PlayerScriptData
 extends BaseScriptData {
 
-	private static Map<Long, String> console = new TreeMap<Long, String>();
-	private static List<Integer> errored = new ArrayList<Integer>();
+	private static Map<Long, String> console = new TreeMap<>();
+	private static List<Integer> errored = new ArrayList<>();
 	
 	private long lastPlayerUpdate = 0L;
-	private EntityPlayer player;
+	private final EntityPlayer player;
 	private IPlayer<?> playerAPI;
 
 	public PlayerScriptData(EntityPlayer player) {
@@ -37,9 +34,9 @@ extends BaseScriptData {
 
 	@Override
 	public void clear() {
-		PlayerScriptData.console = new TreeMap<Long, String>();
-		PlayerScriptData.errored = new ArrayList<Integer>();
-		this.scripts = new ArrayList<ScriptContainer>();
+		PlayerScriptData.console = new TreeMap<>();
+		PlayerScriptData.errored = new ArrayList<>();
+		this.scripts = new ArrayList<>();
 	}
 
 	@Override
@@ -54,7 +51,7 @@ extends BaseScriptData {
 
 	public IPlayer<?> getPlayer() {
 		if (this.playerAPI == null) {
-			this.playerAPI = (IPlayer<?>) NpcAPI.Instance().getIEntity(this.player);
+			this.playerAPI = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player);
 		}
 		return this.playerAPI;
 	}

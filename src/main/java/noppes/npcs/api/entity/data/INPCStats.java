@@ -64,4 +64,7 @@ public interface INPCStats {
 
 	void setRespawnType(int type);
 
+    float getChanceBlockDamage();
+
+	void setChanceBlockDamage(float chance);
 }

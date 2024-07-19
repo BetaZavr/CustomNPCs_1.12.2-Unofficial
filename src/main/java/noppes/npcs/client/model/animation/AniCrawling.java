@@ -7,7 +7,7 @@ import noppes.npcs.client.model.ModelRendererAlt;
 
 public class AniCrawling {
 
-	public static void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entity, ModelBiped model) {
+	public static void setRotationAngles(float limbSwing, float limbSwingAmount, float ignoredAgeInTicks, float netHeadYaw, float ignoredHeadPitch, float ignoredScale, Entity ignoredEntity, ModelBiped model) {
 		model.bipedHead.rotateAngleZ = netHeadYaw / -57.295776f;
 		if (model.bipedHead.rotateAngleZ < -0.707106f) {
 			model.bipedHead.rotateAngleZ = -0.707106f;
@@ -15,7 +15,7 @@ public class AniCrawling {
 			model.bipedHead.rotateAngleZ = 0.707106f;
 		}
 		model.bipedHead.rotateAngleY = 0.0f;
-		model.bipedHead.rotateAngleX = -0.95993114f - (0.4f * (float) Math.abs(model.bipedHead.rotateAngleZ / 0.707106f));
+		model.bipedHead.rotateAngleX = -0.95993114f - (0.4f * Math.abs(model.bipedHead.rotateAngleZ / 0.707106f));
 		model.bipedHeadwear.rotateAngleX = model.bipedHead.rotateAngleX;
 		model.bipedHeadwear.rotateAngleY = model.bipedHead.rotateAngleY;
 		model.bipedHeadwear.rotateAngleZ = model.bipedHead.rotateAngleZ;

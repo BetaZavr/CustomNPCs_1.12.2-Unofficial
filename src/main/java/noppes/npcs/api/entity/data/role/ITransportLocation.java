@@ -16,7 +16,7 @@ public interface ITransportLocation {
 
 	int getZ();
 
-	void setPos(int dimentionID, int x, int y, int z);
+	void setPos(int dimensionID, int x, int y, int z);
 
 	void setType(int type);
 

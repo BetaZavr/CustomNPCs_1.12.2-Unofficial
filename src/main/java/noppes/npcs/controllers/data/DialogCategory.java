@@ -18,7 +18,7 @@ public class DialogCategory implements IDialogCategory {
 	public DialogCategory() {
 		this.id = -1;
 		this.title = "";
-		this.dialogs = Maps.<Integer, Dialog>newTreeMap();
+		this.dialogs = Maps.newTreeMap();
 	}
 
 	public DialogCategory copy() {
@@ -34,7 +34,7 @@ public class DialogCategory implements IDialogCategory {
 
 	@Override
 	public IDialog[] dialogs() {
-		return this.dialogs.values().toArray(new IDialog[this.dialogs.size()]);
+		return this.dialogs.values().toArray(new IDialog[0]);
 	}
 
 	@Override
@@ -46,16 +46,14 @@ public class DialogCategory implements IDialogCategory {
 		this.id = compound.getInteger("Slot");
 		this.title = compound.getString("Title");
 		NBTTagList dialogsList = compound.getTagList("Dialogs", 10);
-		if (dialogsList != null) {
-			for (int ii = 0; ii < dialogsList.tagCount(); ++ii) {
-				Dialog dialog = new Dialog(this);
-				NBTTagCompound comp = dialogsList.getCompoundTagAt(ii);
-				dialog.readNBT(comp);
-				dialog.id = comp.getInteger("DialogId");
-				this.dialogs.put(dialog.id, dialog);
-			}
-		}
-	}
+        for (int ii = 0; ii < dialogsList.tagCount(); ++ii) {
+            Dialog dialog = new Dialog(this);
+            NBTTagCompound comp = dialogsList.getCompoundTagAt(ii);
+            dialog.readNBT(comp);
+            dialog.id = comp.getInteger("DialogId");
+            this.dialogs.put(dialog.id, dialog);
+        }
+    }
 
 	public NBTTagCompound writeNBT(NBTTagCompound compound) {
 		compound.setInteger("Slot", this.id);

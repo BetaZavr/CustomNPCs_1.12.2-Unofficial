@@ -8,7 +8,6 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.constants.EnumGuiType;
@@ -19,21 +18,16 @@ import noppes.npcs.roles.RoleBank;
 
 public class GuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, ICustomScrollListener {
 
-	private HashMap<String, Integer> data;
-	private RoleBank role;
+	private final HashMap<String, Integer> data = new HashMap<>();
+	private final RoleBank role;
 	private GuiCustomScroll scroll;
 
 	public GuiNpcBankSetup(EntityNPCInterface npc) {
 		super(npc);
-		this.data = new HashMap<String, Integer>();
 		this.role = (RoleBank) npc.advanced.roleInterface;
 	}
 
-	@Override
-	public void buttonEvent(GuiNpcButton button) {
-	}
-
-	@Override
+    @Override
 	public void initGui() {
 		super.initGui();
 		if (this.scroll == null) {
@@ -47,7 +41,7 @@ public class GuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, IC
 
 	@Override
 	public void initPacket() {
-		Client.sendData(EnumPacketServer.BanksGet, new Object[0]);
+		Client.sendData(EnumPacketServer.BanksGet);
 	}
 
 	@Override

@@ -12,7 +12,8 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.DataAI;
 
 public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldListener {
-	private DataAI ai;
+
+	private final DataAI ai;
 
 	public SubGuiNpcMovement(DataAI ai) {
 		this.ai = ai;
@@ -33,10 +34,10 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 					DataAI ai = this.ai;
 					DataAI ai2 = this.ai;
 					DataAI ai3 = this.ai;
-					float bodyOffsetX = 5.0f;
-					ai3.bodyOffsetZ = bodyOffsetX;
-					ai2.bodyOffsetY = bodyOffsetX;
-					ai.bodyOffsetX = bodyOffsetX;
+					float f = 5.0f;
+					ai3.bodyOffsetZ = f;
+					ai2.bodyOffsetY = f;
+					ai.bodyOffsetX = f;
 				}
 				this.initGui();
 				break;

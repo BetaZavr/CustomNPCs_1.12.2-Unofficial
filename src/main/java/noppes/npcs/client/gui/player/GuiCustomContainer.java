@@ -21,23 +21,24 @@ import noppes.npcs.containers.ContainerChestCustom;
 
 public class GuiCustomContainer extends GuiContainer {
 
-	private static final ResourceLocation backTexture = new ResourceLocation(CustomNpcs.MODID,
-			"textures/gui/smallbg.png");
-	private static final ResourceLocation tabsTexture = new ResourceLocation(
-			"textures/gui/container/creative_inventory/tabs.png");
-	private static final ResourceLocation rowTexture = new ResourceLocation(
-			"textures/gui/container/creative_inventory/tab_items.png");
+	private static final ResourceLocation backTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
+	private static final ResourceLocation tabsTexture = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
+	private static final ResourceLocation rowTexture = new ResourceLocation("textures/gui/container/creative_inventory/tab_items.png");
 	private static final ResourceLocation lockTexture = new ResourceLocation("textures/gui/widgets.png");
-	private ContainerChestCustom inventorySlots;
+	private final ContainerChestCustom inventorySlots;
 
+	private final int guiColor;
+    private final int maxRows;
+    private final int step;
 	public int dWheel;
-	private int guiColor, row, maxRows, yPos, step;
-	private int[] guiColorArr;
-	private boolean isMany, hoverScroll;
-	private String lock;
+	private int row;
+	private int yPos;
+	private final int[] guiColorArr;
+	private final boolean isMany;
+    private boolean hoverScroll;
+	private final String lock;
 
-	private float currentScroll;
-	private boolean isScrolling;
+    private boolean isScrolling;
 
 	public GuiCustomContainer(ContainerChestCustom container) {
 		super(container);
@@ -104,7 +105,7 @@ public class GuiCustomContainer extends GuiContainer {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		for (int s = 0; s < this.inventorySlots.inventorySlots.size(); s++) {
 			Slot slot = this.inventorySlots.getSlot(s);
-			if (slot != null && slot.xPos > 0 && slot.yPos > 0) {
+			if (slot.xPos > 0 && slot.yPos > 0) {
 				this.drawTexturedModalRect(u + slot.xPos - 1, v + slot.yPos - 1, 0, 0, 18, 18);
 			}
 		}
@@ -155,8 +156,8 @@ public class GuiCustomContainer extends GuiContainer {
 			int u = (this.width - this.xSize) / 2;
 			int v = (this.height - this.ySize) / 2;
 			this.mc.renderEngine.bindTexture(tabsTexture);
-			this.currentScroll = (float) this.row / (float) this.maxRows;
-			int h = (int) (this.currentScroll * 73.0f);
+            float currentScroll = (float) this.row / (float) this.maxRows;
+			int h = (int) (currentScroll * 73.0f);
 			u += 173;
 			v += 18 + h;
 			this.hoverScroll = mouseX >= u && mouseX <= u + 12 && mouseY >= v && mouseY <= v + 15;
@@ -173,7 +174,7 @@ public class GuiCustomContainer extends GuiContainer {
 			int u = (this.width - this.xSize) / 2 + 164 + (this.isMany ? 16 : 0);
 			int v = (this.height - this.ySize) / 2 - 8;
 			if (mouseX >= u && mouseX <= u + 20 && mouseY >= v && mouseY <= v + 20) {
-				List<String> textLines = Lists.<String>newArrayList();
+				List<String> textLines = Lists.newArrayList();
 				textLines.add(new TextComponentTranslation("companion.owner").getFormattedText() + ":");
 				textLines.add(this.lock.length() < 1000 ? this.lock : this.lock.substring(0, 1000) + "...");
 				this.drawHoveringText(textLines, mouseX, mouseY);
@@ -222,7 +223,7 @@ public class GuiCustomContainer extends GuiContainer {
 			int u = 173 + (this.width - this.xSize) / 2;
 			int v = 18 + (this.height - this.ySize) / 2;
 			if (mouseX >= u && mouseX <= u + 11 && mouseY >= v && mouseY <= v + 88) {
-				int h = mouseY - v, r = -1;
+				int h = mouseY - v, r;
 				if (h <= 7) {
 					r = 0;
 				} else if (h >= 81) {
@@ -230,7 +231,7 @@ public class GuiCustomContainer extends GuiContainer {
 				} else {
 					r = (int) ((double) this.maxRows * (double) h / 88.0d);
 				}
-				int old = 0 + this.row;
+				int old = this.row;
 				if (r < 0) {
 					r = 0;
 				}
@@ -259,7 +260,7 @@ public class GuiCustomContainer extends GuiContainer {
 		if (!this.isMany) {
 			return;
 		}
-		int old = 0 + this.row;
+		int old = this.row;
 		if (bo) {
 			this.row++;
 		} else {
@@ -287,10 +288,7 @@ public class GuiCustomContainer extends GuiContainer {
 		}
 		for (int s = 0; s < t; s++) {
 			Slot slot = this.inventorySlots.getSlot(s);
-			if (slot == null) {
-				continue;
-			}
-			if (s < m || s >= n) {
+            if (s < m || s >= n) {
 				slot.xPos = -5000;
 				slot.yPos = -5000;
 				continue;

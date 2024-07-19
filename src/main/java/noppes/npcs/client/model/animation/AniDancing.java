@@ -6,8 +6,7 @@ import net.minecraft.entity.Entity;
 import noppes.npcs.client.model.ModelRendererAlt;
 
 public class AniDancing {
-	public static void setRotationAngles(float par1, float par2, float par3, float par4, float par5, float par6,
-			Entity entity, ModelBiped model) {
+	public static void setRotationAngles(float ignoredLimbSwing, float ignoredLimbSwingAmount, float ignoredAgeInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScale, Entity entity, ModelBiped model) {
 		float dancing = entity.ticksExisted / 4.0f;
 		float dancing2 = (entity.ticksExisted + 1) / 4.0f;
 		dancing += (dancing2 - dancing) * Minecraft.getMinecraft().getRenderPartialTicks();

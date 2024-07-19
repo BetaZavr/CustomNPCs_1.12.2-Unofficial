@@ -5,11 +5,6 @@ import java.util.Random;
 import nikedemos.markovnames.MarkovDictionary;
 
 public class MarkovSaami extends MarkovGenerator {
-	public MarkovDictionary markov2;
-
-	public MarkovSaami() {
-		this(3, new Random());
-	}
 
 	public MarkovSaami(int seqlen) {
 		this(seqlen, new Random());

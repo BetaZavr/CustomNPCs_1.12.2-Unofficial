@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -50,8 +51,8 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 		IAttribute attr = null;
 		if (attribute.getMCAttribute() instanceof IAttribute) {
 			attr = (IAttribute) attribute.getMCAttribute();
-		} else if (attribute.getMCBaseAttribute() instanceof IAttribute) {
-			attr = (IAttribute) attribute.getMCBaseAttribute();
+		} else if (attribute.getMCBaseAttribute() != null) {
+			attr = attribute.getMCBaseAttribute();
 		}
 		if (attr == null) {
 			return null;
@@ -119,24 +120,26 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 	@Override
 	public IItemStack getArmor(int slot) {
 		if (slot < 0 || slot > 3) {
-			throw new CustomNPCsException("Wrong slot id:" + slot, new Object[0]);
+			throw new CustomNPCsException("Wrong slot id:" + slot);
 		}
-		return NpcAPI.Instance().getIItemStack(this.entity.getItemStackFromSlot(this.getSlot(slot)));
+		EntityEquipmentSlot s = this.getSlot(slot);
+		if (s == null) { return ItemStackWrapper.AIR;}
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.entity.getItemStackFromSlot(s));
 	}
 
 	private int getArmSwingAnimationEnd() {
 		if (this.entity.isPotionActive(MobEffects.HASTE)) {
-			return 6 - (1 + this.entity.getActivePotionEffect(MobEffects.HASTE).getAmplifier());
+			return 6 - (1 + Objects.requireNonNull(this.entity.getActivePotionEffect(MobEffects.HASTE)).getAmplifier());
 		} else {
 			return this.entity.isPotionActive(MobEffects.MINING_FATIGUE)
-					? 6 + (1 + this.entity.getActivePotionEffect(MobEffects.MINING_FATIGUE).getAmplifier()) * 2
+					? 6 + (1 + Objects.requireNonNull(this.entity.getActivePotionEffect(MobEffects.MINING_FATIGUE)).getAmplifier()) * 2
 					: 6;
 		}
 	}
 
 	@Override
 	public IEntityLivingBase getAttackTarget() {
-		return (IEntityLivingBase) NpcAPI.Instance().getIEntity(this.entity.getRevengeTarget());
+		return (IEntityLivingBase) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity.getRevengeTarget());
 	}
 
 	@Override
@@ -148,28 +151,30 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 	public INpcAttribute getIAttribute(String attributeName) {
 		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
 				this.entity.getAttributeMap(), 1);
-		return NpcAPI.Instance().getIAttribute(attributesByName.get(attributeName));
+        if (attributesByName == null) { return null; }
+        return Objects.requireNonNull(NpcAPI.Instance()).getIAttribute(attributesByName.get(attributeName));
 	}
 
 	@Override
 	public String[] getIAttributeNames() {
 		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
 				this.entity.getAttributeMap(), 1);
-		return attributesByName.keySet().toArray(new String[attributesByName.size()]);
+		if (attributesByName == null) { return new String[0]; }
+        return attributesByName.keySet().toArray(new String[0]);
 	}
 
 	@Override
 	public INpcAttribute[] getIAttributes() {
-		List<INpcAttribute> list = Lists.<INpcAttribute>newArrayList();
+		List<INpcAttribute> list = Lists.newArrayList();
 		for (IAttributeInstance attr : this.entity.getAttributeMap().getAllAttributes()) {
-			list.add(NpcAPI.Instance().getIAttribute(attr));
+			list.add(Objects.requireNonNull(NpcAPI.Instance()).getIAttribute(attr));
 		}
-		return list.toArray(new INpcAttribute[list.size()]);
+		return list.toArray(new INpcAttribute[0]);
 	}
 
 	@Override
 	public IEntityLivingBase getLastAttacked() {
-		return (IEntityLivingBase) NpcAPI.Instance().getIEntity(this.entity.getLastAttackedEntity());
+		return (IEntityLivingBase) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity.getLastAttackedEntity());
 	}
 
 	@Override
@@ -179,13 +184,13 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 
 	@Override
 	public IItemStack getMainhandItem() {
-		return NpcAPI.Instance().getIItemStack(this.entity.getHeldItemMainhand());
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.entity.getHeldItemMainhand());
 	}
 
 	@Override
 	public IMark[] getMarks() {
 		MarkData data = MarkData.get(this.entity);
-		return data.marks.toArray(new IMark[data.marks.size()]);
+		return data.marks.toArray(new IMark[0]);
 	}
 
 	@Override
@@ -210,12 +215,12 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 
 	@Override
 	public IItemStack getOffhandItem() {
-		return NpcAPI.Instance().getIItemStack(this.entity.getHeldItemOffhand());
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.entity.getHeldItemOffhand());
 	}
 
 	@Override
 	public int getPotionEffect(int effect) {
-		PotionEffect pf = this.entity.getActivePotionEffect(Potion.getPotionById(effect));
+		PotionEffect pf = this.entity.getActivePotionEffect(Objects.requireNonNull(Potion.getPotionById(effect)));
 		if (pf == null) {
 			return -1;
 		}
@@ -257,6 +262,7 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 	public boolean hasAttribute(String attributeName) {
 		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
 				this.entity.getAttributeMap(), 1);
+		if (attributesByName == null) { return false; }
 		return attributesByName.containsKey(attributeName);
 	}
 
@@ -276,12 +282,10 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 		if (attribute == null || !attribute.isCustom() || !this.hasAttribute(attribute)) {
 			return false;
 		}
-		Map<IAttribute, IAttributeInstance> attributes = ObfuscationHelper.getValue(AbstractAttributeMap.class,
-				this.entity.getAttributeMap(), 0);
-		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
-				this.entity.getAttributeMap(), 1);
-		Multimap<IAttribute, IAttribute> descendantsByParent = ObfuscationHelper.getValue(AbstractAttributeMap.class,
-				this.entity.getAttributeMap(), 2);
+		Map<IAttribute, IAttributeInstance> attributes = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 0);
+		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 1);
+		Multimap<IAttribute, IAttribute> descendantsByParent = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 2);
+		if (attributes == null || descendantsByParent == null || attributesByName == null) { return false; }
 		IAttribute key = null;
 		String name = null;
 		IAttribute parent = null;
@@ -302,7 +306,7 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 		}
 		attributes.remove(key);
 		attributesByName.remove(name);
-		if (parent != null && key != null) {
+		if (parent != null) {
 			descendantsByParent.remove(parent, key);
 		}
 		return true;
@@ -316,16 +320,17 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 	@Override
 	public void removeMark(IMark mark) {
 		MarkData data = MarkData.get(this.entity);
-		data.marks.remove(mark);
+		data.marks.remove((MarkData.Mark) mark);
 		data.syncClients();
 	}
 
 	@Override
 	public void setArmor(int slot, IItemStack item) {
 		if (slot < 0 || slot > 3) {
-			throw new CustomNPCsException("Wrong slot id:" + slot, new Object[0]);
+			throw new CustomNPCsException("Wrong slot id:" + slot);
 		}
-		this.entity.setItemStackToSlot(this.getSlot(slot), (item == null) ? ItemStack.EMPTY : item.getMCItemStack());
+		EntityEquipmentSlot s = this.getSlot(slot);
+		if (s != null) { this.entity.setItemStackToSlot(s, (item == null) ? ItemStack.EMPTY : item.getMCItemStack()); }
 	}
 
 	@Override
@@ -399,7 +404,7 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 				for (EntityPlayerMP entityplayermp : entitytrackerentry.trackingPlayers) {
 					entityplayermp.connection.sendPacket(pack);
 				}
-				if (!entitytrackerentry.trackingPlayers.contains(this.entity)) {
+				if (this.entity instanceof EntityPlayerMP && !entitytrackerentry.trackingPlayers.contains((EntityPlayerMP) this.entity)) {
 					((EntityPlayerMP) this.entity).connection.sendPacket(pack);
 				}
 			}

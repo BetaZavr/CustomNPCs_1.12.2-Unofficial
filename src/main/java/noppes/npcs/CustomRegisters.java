@@ -3,11 +3,8 @@ package noppes.npcs;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.Lists;
@@ -21,7 +18,6 @@ import net.minecraft.block.BlockDoor;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMap;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.entity.Entity;
@@ -179,6 +175,8 @@ import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.NBTJsonUtil.JsonException;
 import noppes.npcs.util.ObfuscationHelper;
 
+import javax.annotation.Nonnull;
+
 @GameRegistry.ObjectHolder("customnpcs")
 public class CustomRegisters {
 
@@ -240,12 +238,11 @@ public class CustomRegisters {
 	public static CreativeTabNpcs tab = new CreativeTabNpcs("cnpcs");
 	public static CreativeTabNpcs tabBlocks = new CreativeTabNpcs("blocks");
 	public static CreativeTabNpcs tabItems = new CreativeTabNpcs("items");
-	public static Map<Block, Item> customblocks = Maps.<Block, Item>newHashMap();
-	public static List<Item> customitems = Lists.<Item>newArrayList();
-	public static List<Potion> custompotions = Lists.<Potion>newArrayList();
-	public static Map<PotionType, PotionData> custompotiontypes = Maps.<PotionType, PotionData>newHashMap();
-	public static Map<Integer, CustomParticleSettings> customparticles = Maps
-			.<Integer, CustomParticleSettings>newTreeMap();
+	public static Map<Block, Item> customblocks = Maps.newHashMap();
+	public static List<Item> customitems = Lists.newArrayList();
+	public static List<Potion> custompotions = Lists.newArrayList();
+	public static Map<PotionType, PotionData> custompotiontypes = Maps.newHashMap();
+	public static Map<Integer, CustomParticleSettings> customparticles = Maps.newTreeMap();
 	private static int newEntityStartId = 0;
 
 	/*
@@ -292,19 +289,19 @@ public class CustomRegisters {
 		exampleFacingBlock.setBoolean("CreateAllFiles", true);
 		listBlocks.appendTag(exampleFacingBlock);
 
-		NBTTagCompound exampleLliquid = new NBTTagCompound();
-		exampleLliquid.setString("RegistryName", "liquidexample");
-		exampleLliquid.setByte("BlockType", (byte) 1);
-		exampleLliquid.setFloat("Resistance", 2.0f);
-		exampleLliquid.setInteger("Density", 1100);
-		exampleLliquid.setBoolean("IsGaseous", false);
-		exampleLliquid.setInteger("Luminosity", 5);
-		exampleLliquid.setInteger("Viscosity", 900);
-		exampleLliquid.setInteger("Temperature", 300);
-		exampleLliquid.setInteger("Color", 0xFFFFFFFF);
-		exampleLliquid.setBoolean("CreateAllFiles", true);
-		exampleLliquid.setString("Material", "WATER");
-		listBlocks.appendTag(exampleLliquid);
+		NBTTagCompound examplelLiquid = new NBTTagCompound();
+		examplelLiquid.setString("RegistryName", "liquidexample");
+		examplelLiquid.setByte("BlockType", (byte) 1);
+		examplelLiquid.setFloat("Resistance", 2.0f);
+		examplelLiquid.setInteger("Density", 1100);
+		examplelLiquid.setBoolean("IsGaseous", false);
+		examplelLiquid.setInteger("Luminosity", 5);
+		examplelLiquid.setInteger("Viscosity", 900);
+		examplelLiquid.setInteger("Temperature", 300);
+		examplelLiquid.setInteger("Color", 0xFFFFFFFF);
+		examplelLiquid.setBoolean("CreateAllFiles", true);
+		examplelLiquid.setString("Material", "WATER");
+		listBlocks.appendTag(examplelLiquid);
 
 		NBTTagCompound exampleChest = new NBTTagCompound();
 		exampleChest.setString("RegistryName", "chestexample");
@@ -362,8 +359,8 @@ public class CustomRegisters {
 		nbtRender.setString("SpawnParticle", "CRIT");
 		nbtRender.setFloat("Transparency", 0.5f);
 		examplePortal.setTag("RenderData", nbtRender);
-		examplePortal.setInteger("DimentionID", 100);
-		examplePortal.setInteger("HomeDimentionID", 0);
+		examplePortal.setInteger("DimensionID", 100);
+		examplePortal.setInteger("HomeDimensionID", 0);
 		examplePortal.setBoolean("CreateAllFiles", true);
 		listBlocks.appendTag(examplePortal);
 
@@ -422,8 +419,8 @@ public class CustomRegisters {
 		exampleTool.setInteger("HarvestLevel", 2);
 		exampleTool.setInteger("Enchantability", 25);
 		NBTTagList collectionBlocks = new NBTTagList();
-		collectionBlocks.appendTag(new NBTTagString(Blocks.STONE.getRegistryName().toString()));
-		collectionBlocks.appendTag(new NBTTagString(Blocks.OBSIDIAN.getRegistryName().toString()));
+		collectionBlocks.appendTag(new NBTTagString(Objects.requireNonNull(Blocks.STONE.getRegistryName()).toString()));
+		collectionBlocks.appendTag(new NBTTagString(Objects.requireNonNull(Blocks.OBSIDIAN.getRegistryName()).toString()));
 		exampleTool.setTag("CollectionBlocks", collectionBlocks);
 		exampleTool.setBoolean("CreateAllFiles", true);
 		listItems.appendTag(exampleTool);
@@ -955,7 +952,7 @@ public class CustomRegisters {
 		potionModifier.setDouble("AttributeDefValue", 5.0d);
 		potionModifier.setDouble("AttributeMinValue", -50.0d);
 		potionModifier.setDouble("AttributeMaxValue", 50.0d);
-		potionModifier.setDouble("Ammount", 2.0d);
+		potionModifier.setDouble("Amount", 2.0d);
 		potionModifier.setInteger("Operation", 2);
 		potionModifiers.appendTag(potionModifier);
 		examplePotion.setTag("Modifiers", potionModifiers);
@@ -1037,32 +1034,27 @@ public class CustomRegisters {
 				NBTTagCompound nbt = CustomRegisters.getExampleBlocks();
 				for (int i = 0; i < nbt.getTagList("Blocks", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
-					if (name.equals("liquidexample") && !hEL) {
+					if (name.equals("liquidexample")) {
 						nbtBlocks.getTagList("Blocks", 10).appendTag(nbt.getTagList("Blocks", 10).getCompoundTagAt(i));
 					}
 				}
 			}
 			try {
 				NBTJsonUtil.SaveFile(blocksFile, nbtBlocks);
-			} catch (IOException | JsonException e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		List<String> names = Lists.<String>newArrayList();
 		for (int i = 0; i < nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
 			NBTTagCompound nbtBlock = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i);
 			Fluid fluid = null;
-			switch (nbtBlock.getByte("BlockType")) {
-			case (byte) 1: // Liquid
-				fluid = new CustomFluid(nbtBlock);
-				break;
-			default: // Simple
-				fluid = null;
-			}
+            // Simple
+            if (nbtBlock.getByte("BlockType") == (byte) 1) { // Liquid
+                fluid = new CustomFluid(nbtBlock);
+            }
 			if (fluid == null) {
 				continue;
 			}
-			if (names.contains(fluid.getName()) || FluidRegistry.isFluidRegistered(fluid.getName())) {
-				LogWriter.error("Attempt to load a registred fluid \"" + fluid.getName() + "\"");
+			if (FluidRegistry.isFluidRegistered(fluid.getName())) {
+				LogWriter.error("Attempt to load a registered fluid \"" + fluid.getName() + "\"");
 				continue;
 			}
 			FluidRegistry.registerFluid(fluid);
@@ -1115,8 +1107,7 @@ public class CustomRegisters {
 			}
 			try {
 				NBTJsonUtil.SaveFile(prtcsFile, nbtParticles);
-			} catch (IOException | JsonException e) {
-			}
+			} catch (IOException | JsonException e) { LogWriter.error("Error:", e); }
 		}
 		// delete this bug
 		if (resave) {
@@ -1141,15 +1132,10 @@ public class CustomRegisters {
 				id = ept.getParticleID() + 1;
 			}
 		}
-
 		Class<?>[] additionalTypes = { String.class, int.class, boolean.class, int.class }; // particleName, particleID,
-																							// shouldIgnoreRange,
-																							// argumentCount
-
 		// create new
-		List<String> names = Lists.<String>newArrayList();
-		Map<Integer, EnumParticleTypes> particles = Maps.<Integer, EnumParticleTypes>newHashMap();
-		Map<String, EnumParticleTypes> by_name = Maps.<String, EnumParticleTypes>newHashMap();
+		Map<Integer, EnumParticleTypes> particles = Maps.newHashMap();
+		Map<String, EnumParticleTypes> by_name = Maps.newHashMap();
 		try {
 			Class<?> cl = Class.forName("net.minecraft.util.EnumParticleTypes");
 			for (Field f : cl.getDeclaredFields()) {
@@ -1169,11 +1155,10 @@ public class CustomRegisters {
 						}
 						break;
 					}
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			LogWriter.error("Error:", e);
 		}
 
 		for (int i = 0; i < nbtParticles.getTagList("Particles", 10).tagCount(); i++) {
@@ -1182,33 +1167,31 @@ public class CustomRegisters {
 				LogWriter.error("Attempt to load particle pos: " + i + " - failed");
 				continue;
 			}
-			CustomParticleSettings prtc = new CustomParticleSettings(nbtParticle, id);
-			if (names.contains(prtc.enumName) || EnumParticleTypes.getParticleNames().contains(prtc.enumName)) {
-				LogWriter.error("Attempt to load a registred particle \"" + prtc.name + "\"");
+			CustomParticleSettings particleSettings = new CustomParticleSettings(nbtParticle, id);
+			if (EnumParticleTypes.getParticleNames().contains(particleSettings.enumName)) {
+				LogWriter.error("Attempt to load a registered particle \"" + particleSettings.name + "\"");
 				continue;
 			}
 			id++;
-			EnumHelper.addEnum(EnumParticleTypes.class, prtc.enumName, additionalTypes,
-					new Object[] { prtc.name, prtc.id, prtc.shouldIgnoreRange, prtc.argumentCount });
+			EnumHelper.addEnum(EnumParticleTypes.class, particleSettings.enumName, additionalTypes, particleSettings.name, particleSettings.id, particleSettings.shouldIgnoreRange, particleSettings.argumentCount);
 
-			EnumParticleTypes enumparticletypes = EnumParticleTypes.valueOf(prtc.enumName);
-			int idT = Integer.valueOf(enumparticletypes.getParticleID());
+			EnumParticleTypes enumparticletypes = EnumParticleTypes.valueOf(particleSettings.enumName);
+			int idT = enumparticletypes.getParticleID();
 
 			particles.put(idT, enumparticletypes);
-			by_name.put(prtc.name, enumparticletypes);
-			CustomRegisters.customparticles.put(prtc.id, prtc);
+			by_name.put(particleSettings.name, enumparticletypes);
+			CustomRegisters.customparticles.put(particleSettings.id, particleSettings);
 			if (nbtParticle.getBoolean("CreateAllFiles")) {
-				CustomNpcs.proxy.checkParticleFiles((ICustomElement) prtc);
+				CustomNpcs.proxy.checkParticleFiles(particleSettings);
 				nbtParticle.setBoolean("CreateAllFiles", false);
 				resave = true;
 			}
-			LogWriter.info("Load Custom Particle \"" + prtc.name + "\"");
+			LogWriter.info("Load Custom Particle \"" + particleSettings.name + "\"");
 		}
 		if (resave) {
 			try {
 				NBTJsonUtil.SaveFile(prtcsFile, nbtParticles);
-			} catch (IOException | JsonException e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 	}
 
@@ -1241,8 +1224,8 @@ public class CustomRegisters {
 				this.registerNpc(EntityNPC64x32.class, "CustomNpc64x32"),
 				this.registerNpc(EntityNpcAlex.class, "CustomNpcAlex"),
 				this.registerNpc(EntityNpcClassicPlayer.class, "CustomNpcClassic"),
-				this.registerNewentity("CustomNpcChairMount", 64, 10, false).entity(EntityChairMount.class).build(),
-				this.registerNewentity("CustomNpcProjectile", 64, 3, true).entity(EntityProjectile.class).build() };
+				this.registerNewentity("CustomNpcChairMount", 10, false).entity(EntityChairMount.class).build(),
+				this.registerNewentity("CustomNpcProjectile", 3, true).entity(EntityProjectile.class).build() };
 		event.getRegistry().registerAll(entries);
 	}
 
@@ -1261,7 +1244,8 @@ public class CustomRegisters {
 		GameRegistry.registerTileEntity(CustomTileEntityChest.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
 
 		RegistryNamespaced<ResourceLocation, Class<? extends TileEntity>> REGISTRY = ObfuscationHelper.getValue(TileEntity.class, 1);
-		REGISTRY.putObject(new ResourceLocation("minecraft", "banner"), TileEntityCustomBanner.class);
+        assert REGISTRY != null;
+        REGISTRY.putObject(new ResourceLocation("minecraft", "banner"), TileEntityCustomBanner.class);
 
 		CustomRegisters.redstoneBlock = new BlockNpcRedstone();
 		CustomRegisters.mailbox = new BlockMailbox();
@@ -1273,8 +1257,8 @@ public class CustomRegisters {
 		CustomRegisters.copy = new BlockCopy();
 		CustomRegisters.carpentyBench = new BlockCarpentryBench();
 
-		List<Block> blocks = Lists.<Block>newArrayList();
-		List<String> names = Lists.<String>newArrayList();
+		List<Block> blocks = Lists.newArrayList();
+		List<String> names = Lists.newArrayList();
 		blocks.add(CustomRegisters.redstoneBlock);
 		blocks.add(CustomRegisters.carpentyBench);
 		blocks.add(CustomRegisters.mailbox);
@@ -1286,10 +1270,10 @@ public class CustomRegisters {
 		blocks.add(CustomRegisters.copy);
 
 		for (Block bl : blocks) {
-			names.add(bl.getRegistryName().toString());
+			names.add(Objects.requireNonNull(bl.getRegistryName()).toString());
 		}
 
-		/** Custom Blocks */
+		// Custom Blocks
 		File blocksFile = new File(CustomNpcs.Dir, "custom_blocks.js");
 		NBTTagCompound nbtBlocks = new NBTTagCompound();
 		try {
@@ -1368,8 +1352,9 @@ public class CustomRegisters {
 			if (!resave && nbtBlock.hasKey("CreateAllFiles") && nbtBlock.getBoolean("CreateAllFiles")) {
 				resave = true;
 			}
-			Block block = null, addblock = null;
-			switch (nbtBlock.getByte("BlockType")) {
+			Block block = null;
+            CustomBlockSlabDouble addblock = null;
+            switch (nbtBlock.getByte("BlockType")) {
 			case (byte) 1: // Liquid
 				Fluid fluid = FluidRegistry.getFluid("custom_fluid_" + nbtBlock.getString("RegistryName"));
 				if (fluid != null) {
@@ -1384,8 +1369,8 @@ public class CustomRegisters {
 				break;
 			case (byte) 4: // Slab
 				addblock = new CustomBlockSlabDouble(nbtBlock);
-				block = new CustomBlockSlabSingle(nbtBlock, (CustomBlockSlabDouble) addblock);
-				((CustomBlockSlabDouble) addblock).setSingle((CustomBlockSlabSingle) block);
+				block = new CustomBlockSlabSingle(nbtBlock, addblock);
+				addblock.setSingle((CustomBlockSlabSingle) block);
 				break;
 			case (byte) 5: // Portal
 				block = new CustomBlockPortal(CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
@@ -1399,9 +1384,9 @@ public class CustomRegisters {
 			if (block == null) {
 				continue;
 			}
-			if (names.contains(block.getRegistryName().toString())
+			if (names.contains(Objects.requireNonNull(block.getRegistryName()).toString())
 					|| Block.getBlockFromName(block.getRegistryName().toString()) != null) {
-				LogWriter.error("Attempt to load a registred block \"" + block.getRegistryName() + "\"");
+				LogWriter.error("Attempt to load a registered block \"" + block.getRegistryName() + "\"");
 				continue;
 			}
 			if (nbtBlock.hasKey("CreateAllFiles") && nbtBlock.getBoolean("CreateAllFiles")) {
@@ -1416,13 +1401,13 @@ public class CustomRegisters {
 			CustomRegisters.customblocks.put(block, new ItemNpcBlock(block));
 			names.add(block.getRegistryName().toString());
 			if (addblock != null) {
-				if (names.contains(addblock.getRegistryName().toString())
+				if (names.contains(Objects.requireNonNull(addblock.getRegistryName()).toString())
 						|| Block.getBlockFromName(addblock.getRegistryName().toString()) != null) {
-					LogWriter.error("Attempt to load a registred block \"" + addblock.getRegistryName() + "\"");
+					LogWriter.error("Attempt to load a registered block \"" + addblock.getRegistryName() + "\"");
 					continue;
 				}
 				if (nbtBlock.hasKey("CreateAllFiles") && nbtBlock.getBoolean("CreateAllFiles")) {
-					CustomNpcs.proxy.checkBlockFiles((ICustomElement) addblock);
+					CustomNpcs.proxy.checkBlockFiles(addblock);
 					nbtBlock.setBoolean("CreateAllFiles", false);
 				}
 				LogWriter.info("Load Custom Block \"" + addblock.getRegistryName() + "\"");
@@ -1434,10 +1419,9 @@ public class CustomRegisters {
 		if (resave) {
 			try {
 				NBTJsonUtil.SaveFile(blocksFile, nbtBlocks);
-			} catch (IOException | JsonException e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		event.getRegistry().registerAll(blocks.toArray(new Block[blocks.size()]));
+		event.getRegistry().registerAll(blocks.toArray(new Block[0]));
 
 		BiMap<Integer, Block> ids = ObfuscationHelper.getValue(ForgeRegistry.class,
 				(ForgeRegistry<Block>) event.getRegistry(), 2);
@@ -1450,14 +1434,15 @@ public class CustomRegisters {
 				continue;
 			}
 			BlockCustomBanner newBlock;
-			if (key.toString().toLowerCase().indexOf("standing_banner") != -1) {
+			if (key.toString().toLowerCase().contains("standing_banner")) {
 				newBlock = new BlockCustomBanner.BlockBannerStanding((BlockBanner) parent);
 				ObfuscationHelper.setValue(Blocks.class, newBlock, 193); // Blocks.STANDING_BANNER
 			} else {
 				newBlock = new BlockCustomBanner.BlockBannerHanging((BlockBanner) parent);
 				ObfuscationHelper.setValue(Blocks.class, newBlock, 194); // Blocks.WALL_BANNER
 			}
-			if (ids.containsValue(parent)) {
+            assert ids != null;
+            if (ids.containsValue(parent)) {
 				for (Integer k : ids.keySet()) {
 					if (ids.get(k).equals(parent)) {
 						ids.put(k, newBlock);
@@ -1465,7 +1450,8 @@ public class CustomRegisters {
 					}
 				}
 			}
-			if (namesB.containsValue(parent)) {
+            assert namesB != null;
+            if (namesB.containsValue(parent)) {
 				for (ResourceLocation k : namesB.keySet()) {
 					if (k.equals(key)) {
 						namesB.put(k, newBlock);
@@ -1497,8 +1483,8 @@ public class CustomRegisters {
 		CustomRegisters.npcreplacer = new ItemReplacer();
 		CustomRegisters.npcsaver = new ItemSaver();
 
-		List<Item> items = Lists.<Item>newArrayList();
-		List<String> names = Lists.<String>newArrayList();
+		List<Item> items = Lists.newArrayList();
+		List<String> names = Lists.newArrayList();
 		items.add(CustomRegisters.wand);
 		items.add(CustomRegisters.cloner);
 		items.add(CustomRegisters.scripter);
@@ -1525,15 +1511,15 @@ public class CustomRegisters {
 		items.add(new ItemNpcBlock(CustomRegisters.builder));
 		items.add(new ItemNpcBlock(CustomRegisters.copy));
 
-		Item iscr = new ItemNpcBlock(CustomRegisters.scripted);
-		items.add(iscr);
+		Item tabItem = new ItemNpcBlock(CustomRegisters.scripted);
+		items.add(tabItem);
 
 		for (Item it : items) {
-			names.add(it.getRegistryName().toString());
+			names.add(Objects.requireNonNull(it.getRegistryName()).toString());
 		}
 
-		/** Blocks */
-		CustomRegisters.tabBlocks.item = iscr;
+		// Blocks
+		CustomRegisters.tabBlocks.item = tabItem;
 		CustomRegisters.tabItems.item = CustomRegisters.scripted_item;
 		for (Block block : CustomRegisters.customblocks.keySet()) {
 			Item item = CustomRegisters.customblocks.get(block);
@@ -1541,20 +1527,19 @@ public class CustomRegisters {
 				continue;
 			}
 			items.add(item);
-			if (item.getRegistryName().getResourcePath().equals("custom_blockexample")
-					|| CustomRegisters.tabBlocks.item == iscr) {
+			if (Objects.requireNonNull(item.getRegistryName()).getResourcePath().equals("custom_blockexample")  || CustomRegisters.tabBlocks.item == tabItem) {
 				CustomRegisters.tabBlocks.item = item;
 			}
 		}
 
-		/** Fluids */
+		// Fluids
 		for (Item it : event.getRegistry()) {
 			if (it instanceof UniversalBucket) {
-				it.setCreativeTab((CreativeTabs) CustomRegisters.tabBlocks);
+				it.setCreativeTab(CustomRegisters.tabBlocks);
 			}
 		}
 
-		/**
+		/*
 		 * Replace all ItemPotions Due to the fact that the registration of potions
 		 * occurs later than the registration of items, potion items are substituted.
 		 * They already check the distribution of across creative tabs.
@@ -1582,10 +1567,9 @@ public class CustomRegisters {
 					ObfuscationHelper.setStaticValue(f, ta);
 				}
 			}
-		} catch (SecurityException e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 
-		/** Custom Items */
+		// Custom Items
 		File itemsFile = new File(CustomNpcs.Dir, "custom_items.js");
 		NBTTagCompound nbtItems = new NBTTagCompound();
 		try {
@@ -1597,34 +1581,45 @@ public class CustomRegisters {
 		}
 
 		boolean hEI = false, hEW = false, hEA = false, hEO = false, hES = false, hEB = false, hET = false, hEX = false, hEF = false, hFR = false;
-		boolean resave = false;
+		boolean resave;
 		if (nbtItems.hasKey("Items", 9)) {
 			for (int i = 0; i < nbtItems.getTagList("Items", 10).tagCount(); i++) {
 				String name = nbtItems.getTagList("Items", 10).getCompoundTagAt(i).getString("RegistryName");
-				if (name.equals("itemexample")) {
-					hEI = true;
-				} else if (name.equals("weaponexample")) {
-					hEW = true;
-				} else if (name.equals("armorexample")) {
-					hEA = true;
-				} else if (name.equals("armorobjexample")) {
-					hEO = true;
-				} else if (name.equals("shieldexample")) {
-					hES = true;
-				} else if (name.equals("bowexample")) {
-					hEB = true;
-				} else if (name.equals("toolexample")) {
-					hET = true;
-				} else if (name.equals("axeexample")) {
-					hEX = true;
-				} else if (name.equals("foodexample")) {
-					hEF = true;
-				} else if (name.equals("fishingrodexample")) {
-					hFR = true;
-				}
+                switch (name) {
+                    case "itemexample":
+                        hEI = true;
+                        break;
+                    case "weaponexample":
+                        hEW = true;
+                        break;
+                    case "armorexample":
+                        hEA = true;
+                        break;
+                    case "armorobjexample":
+                        hEO = true;
+                        break;
+                    case "shieldexample":
+                        hES = true;
+                        break;
+                    case "bowexample":
+                        hEB = true;
+                        break;
+                    case "toolexample":
+                        hET = true;
+                        break;
+                    case "axeexample":
+                        hEX = true;
+                        break;
+                    case "foodexample":
+                        hEF = true;
+                        break;
+                    case "fishingrodexample":
+                        hFR = true;
+                        break;
+                }
 			}
 		}
-		resave = !hEB || !hEW || !hEA || !hEO || !hES || !hEB || !hEF || !hFR || !hEX;
+		resave = !hEI || !hEW || !hEA || !hEO || !hES || !hEB || !hEF || !hFR || !hEX;
 		if (!itemsFile.exists() || !nbtItems.hasKey("Items", 9) || resave) {
 			if (!nbtItems.hasKey("Items", 9)) { nbtItems.setTag("Items", new NBTTagList()); }
 			if (resave) {
@@ -1658,7 +1653,7 @@ public class CustomRegisters {
 						nbtItem);
 				break;
 			case (byte) 2: // Tool
-				Set<Block> effectiveBlocks = Sets.<Block>newHashSet();
+				Set<Block> effectiveBlocks = Sets.newHashSet();
 				if (nbtItem.hasKey("CollectionBlocks", 9)) {
 					for (int j = 0; j < nbtItem.getTagList("CollectionBlocks", 8).tagCount(); j++) {
 						Block block = Block
@@ -1687,8 +1682,8 @@ public class CustomRegisters {
 						damReAmt = nbtItem.getIntArray("DamageReduceAmount")[a];
 					}
 					float tough = 0.0f;
-					if (nbtItem.getTagList("Toughness", 5) != null
-							&& a < nbtItem.getTagList("Toughness", 5).tagCount()) {
+                    nbtItem.getTagList("Toughness", 5);
+                    if (a < nbtItem.getTagList("Toughness", 5).tagCount()) {
 						tough = nbtItem.getTagList("Toughness", 5).getFloatAt(a);
 					}
 					if (nbtItem.hasKey("RenderIndex", 3)) {
@@ -1732,13 +1727,12 @@ public class CustomRegisters {
 		if (resave) {
 			try {
 				NBTJsonUtil.SaveFile(itemsFile, nbtItems);
-			} catch (IOException | JsonException e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		event.getRegistry().registerAll(items.toArray(new Item[items.size()]));
+		event.getRegistry().registerAll(items.toArray(new Item[0]));
 		CustomRegisters.tab.item = CustomRegisters.wand;
 		BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.putObject(soulstoneFull, new BehaviorDefaultDispenseItem() {
-			public ItemStack dispenseStack(IBlockSource source, ItemStack item) {
+			public @Nonnull ItemStack dispenseStack(@Nonnull IBlockSource source, @Nonnull ItemStack item) {
 				EnumFacing enumfacing = source.getBlockState().getValue(BlockDispenser.FACING);
 				double x = source.getX() + enumfacing.getFrontOffsetX();
 				double z = source.getZ() + enumfacing.getFrontOffsetZ();
@@ -1764,27 +1758,27 @@ public class CustomRegisters {
 		ModelLoader.setCustomStateMapper(CustomRegisters.carpentyBench,
 				new StateMap.Builder().ignore(new IProperty[] { BlockCarpentryBench.ROTATION }).build());
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.redstoneBlock), 0,
-				new ModelResourceLocation(CustomRegisters.redstoneBlock.getRegistryName(), "inventory"));
+				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.redstoneBlock.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 0,
-				new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
+				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.mailbox.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 1,
 				new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 2,
 				new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.waypoint), 0,
-				new ModelResourceLocation(CustomRegisters.waypoint.getRegistryName(), "inventory"));
+				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.waypoint.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.border), 0,
-				new ModelResourceLocation(CustomRegisters.border.getRegistryName(), "inventory"));
+				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.border.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.scripted), 0,
-				new ModelResourceLocation(CustomRegisters.scripted.getRegistryName(), "inventory"));
+				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.scripted.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.scriptedDoor), 0,
-				new ModelResourceLocation(CustomRegisters.scriptedDoor.getRegistryName(), "inventory"));
+				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.scriptedDoor.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.builder), 0,
-				new ModelResourceLocation(CustomRegisters.builder.getRegistryName(), "inventory"));
+				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.builder.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.copy), 0,
-				new ModelResourceLocation(CustomRegisters.copy.getRegistryName(), "inventory"));
+				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.copy.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0,
-				new ModelResourceLocation(CustomRegisters.carpentyBench.getRegistryName(), "inventory"));
+				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.carpentyBench.getRegistryName()), "inventory"));
 
 		for (Block block : CustomRegisters.customblocks.keySet()) {
 			if (block instanceof CustomBlockPortal) {
@@ -1795,7 +1789,7 @@ public class CustomRegisters {
 						new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build());
 			}
 			ModelLoader.setCustomModelResourceLocation(CustomRegisters.customblocks.get(block), 0,
-					new ModelResourceLocation(block.getRegistryName(), "inventory"));
+					new ModelResourceLocation(Objects.requireNonNull(block.getRegistryName()), "inventory"));
 		}
 		// Items
 		ModelLoader.setCustomModelResourceLocation(CustomRegisters.wand, 0,
@@ -1836,44 +1830,40 @@ public class CustomRegisters {
 		
 		for (Item item : CustomRegisters.customitems) {
 			ModelLoader.setCustomModelResourceLocation(item, 0,
-					new ModelResourceLocation(item.getRegistryName(), "inventory"));
+					new ModelResourceLocation(Objects.requireNonNull(item.getRegistryName()), "inventory"));
 		}
 
 		// Render Tiles
-		ClientRegistry.bindTileEntitySpecialRenderer(TileBlockAnvil.class,
-				new BlockCarpentryBenchRenderer<TileBlockAnvil>());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox.class, new BlockMailboxRenderer<TileMailbox>(0));
-		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox2.class, new BlockMailboxRenderer<TileMailbox2>(1));
-		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox3.class, new BlockMailboxRenderer<TileMailbox3>(2));
-		ClientRegistry.bindTileEntitySpecialRenderer(TileScripted.class, new BlockScriptedRenderer<TileScripted>());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileDoor.class, new BlockDoorRenderer<TileDoor>());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileCopy.class, new BlockCopyRenderer<TileCopy>());
-		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class,
-				new BlockPortalRenderer<CustomTileEntityPortal>());
-		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class,
-				new BlockChestRenderer<CustomTileEntityChest>());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileBlockAnvil.class, new BlockCarpentryBenchRenderer<>());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox.class, new BlockMailboxRenderer<>(0));
+		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox2.class, new BlockMailboxRenderer<>(1));
+		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox3.class, new BlockMailboxRenderer<>(2));
+		ClientRegistry.bindTileEntitySpecialRenderer(TileScripted.class, new BlockScriptedRenderer<>());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileDoor.class, new BlockDoorRenderer<>());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileCopy.class, new BlockCopyRenderer<>());
+		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class, new BlockPortalRenderer<>());
+		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class, new BlockChestRenderer<>());
 
 		// OLD JSON Models
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0,
-				TileBlockAnvil.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0, TileBlockAnvil.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 0, TileMailbox.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 1, TileMailbox2.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 2, TileMailbox3.class);
 	}
 
-	private <E extends Entity> EntityEntryBuilder<E> registerNewentity(String name, int range, int update, boolean velocity) {
+	private <E extends Entity> EntityEntryBuilder<E> registerNewentity(String name, int update, boolean velocity) {
 		EntityEntryBuilder<E> builder = EntityEntryBuilder.create();
 		ResourceLocation registryName = new ResourceLocation(CustomNpcs.MODID, name);
-		return builder.id(registryName, CustomRegisters.newEntityStartId++).name(name).tracker(range, update, velocity);
+		return builder.id(registryName, CustomRegisters.newEntityStartId++).name(name).tracker(64, update, velocity);
 	}
 
 	private EntityEntry registerNpc(Class<? extends Entity> cl, String name) {
-		return this.registerNewentity(name, 64, 3, true).entity(cl).build();
+		return this.registerNewentity(name, 3, true).entity(cl).build();
 	}
 
 	@SubscribeEvent
 	public void registerPotion(RegistryEvent.Register<Potion> event) {
-		/** Custom Items */
+		// Custom Items
 		File itemsFile = new File(CustomNpcs.Dir, "custom_items.js");
 		NBTTagCompound nbtItems = new NBTTagCompound();
 		try {
@@ -1907,8 +1897,7 @@ public class CustomRegisters {
 				}
 				try {
 					NBTJsonUtil.SaveFile(itemsFile, nbtItems);
-				} catch (IOException | JsonException e) {
-				}
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		}
 		boolean resave = false;
@@ -1921,8 +1910,8 @@ public class CustomRegisters {
 			}
 			String name = "custom_potion_" + nbtPotion.getString("RegistryName").toLowerCase();
 			Potion potion = new CustomPotion(nbtPotion);
-			if (Potion.getPotionFromResourceLocation(potion.getRegistryName().toString()) != null) {
-				LogWriter.error("Attempt to load a registred potion \"" + potion.getRegistryName() + "\"");
+			if (Potion.getPotionFromResourceLocation(Objects.requireNonNull(potion.getRegistryName()).toString()) != null) {
+				LogWriter.error("Attempt to load a registered potion \"" + potion.getRegistryName() + "\"");
 				continue;
 			}
 			if (nbtPotion.hasKey("CreateAllFiles") && nbtPotion.getBoolean("CreateAllFiles")) {
@@ -1938,12 +1927,11 @@ public class CustomRegisters {
 							nbtModifier.getDouble("AttributeDefValue"), nbtModifier.getDouble("AttributeMinValue"),
 							nbtModifier.getDouble("AttributeMaxValue"));
 					String uuid = nbtModifier.getString("UUID");
-					if (uuid == null || uuid.isEmpty()) {
+					if (uuid.isEmpty()) {
 						uuid = UUID.randomUUID().toString();
 						nbtModifier.setString("UUID", uuid);
 					}
-					potion.registerPotionAttributeModifier(attribute, uuid, nbtModifier.getDouble("Ammount"),
-							nbtModifier.getInteger("Operation"));
+					potion.registerPotionAttributeModifier(attribute, uuid, nbtModifier.getDouble("Amount"), nbtModifier.getInteger("Operation"));
 				}
 			}
 			CustomRegisters.custompotions.add(potion);
@@ -1962,29 +1950,28 @@ public class CustomRegisters {
 		if (resave) {
 			try {
 				NBTJsonUtil.SaveFile(itemsFile, nbtItems);
-			} catch (IOException | JsonException e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		if (CustomRegisters.custompotions.size() == 0) {
+		if (CustomRegisters.custompotions.isEmpty()) {
 			return;
 		}
 		event.getRegistry()
-				.registerAll(CustomRegisters.custompotions.toArray(new Potion[CustomRegisters.custompotions.size()]));
+				.registerAll(CustomRegisters.custompotions.toArray(new Potion[0]));
 	}
 
 	@SubscribeEvent
 	public void registerPotionTypes(RegistryEvent.Register<PotionType> event) {
-		if (CustomRegisters.custompotiontypes.size() == 0) {
+		if (CustomRegisters.custompotiontypes.isEmpty()) {
 			return;
 		}
 		event.getRegistry().registerAll(CustomRegisters.custompotiontypes.keySet()
-				.toArray(new PotionType[CustomRegisters.custompotiontypes.size()]));
+				.toArray(new PotionType[0]));
 	}
 
 	private void registryItem(Item item, List<String> names, List<Item> items, NBTTagCompound nbtItem) {
-		if (names.contains(item.getRegistryName().toString())
+		if (names.contains(Objects.requireNonNull(item.getRegistryName()).toString())
 				|| Item.getByNameOrId(item.getRegistryName().toString()) != null) {
-			LogWriter.error("Attempt to load a registred item \"" + item.getRegistryName() + "\"");
+			LogWriter.error("Attempt to load a registered item \"" + item.getRegistryName() + "\"");
 		}
 		if (nbtItem.hasKey("CreateAllFiles") && nbtItem.getBoolean("CreateAllFiles")) {
 			CustomNpcs.proxy.checkItemFiles((ICustomElement) item);
@@ -2016,8 +2003,7 @@ public class CustomRegisters {
 				}
 				f0.set(c0, null);
 			}
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 }

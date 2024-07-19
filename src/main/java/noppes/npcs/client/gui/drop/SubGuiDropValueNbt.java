@@ -1,10 +1,7 @@
 package noppes.npcs.client.gui.drop;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -20,8 +17,8 @@ import noppes.npcs.entity.data.DropNbtSet;
 public class SubGuiDropValueNbt extends SubGuiInterface implements ITextfieldListener, ITextChangeListener {
 
 	public DropNbtSet tag;
-	private String[] tagIds;
-	private String[] tagListIds;
+	private final String[] tagIds;
+	private final String[] tagListIds;
 	private GuiTextArea textarea;
 
 	public SubGuiDropValueNbt(DropNbtSet tg) {
@@ -50,13 +47,13 @@ public class SubGuiDropValueNbt extends SubGuiInterface implements ITextfieldLis
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 90) { // type
-			this.tag.setType(Integer.valueOf(button.getVariants()[button.getValue()].replace("tag.type.", "")));
+			this.tag.setType(Integer.parseInt(button.getVariants()[button.getValue()].replace("tag.type.", "")));
 			this.initGui();
 		} else if (button.id == 91) { // done
 			this.close();
 		}
 		if (button.id == 92) { // list type
-			this.tag.setTypeList(Integer.valueOf(button.getVariants()[button.getValue()].replace("tag.type.", "")));
+			this.tag.setTypeList(Integer.parseInt(button.getVariants()[button.getValue()].replace("tag.type.", "")));
 			this.initGui();
 		}
 	}
@@ -65,20 +62,19 @@ public class SubGuiDropValueNbt extends SubGuiInterface implements ITextfieldLis
 		if (this.getTextField(93) == null || this.textarea == null) {
 			return false;
 		}
-		if (this.getTextField(93).getText().length() == 0 || this.textarea.getText().length() == 0) {
+		if (this.getTextField(93).getText().isEmpty() || this.textarea.getText().isEmpty()) {
 			return false;
 		}
 		String vs = this.textarea.getText();
-		if (vs.indexOf("|") != -1) {
-			String[] vss = vs.split("|");
-			for (String str : vss) {
-				String ch = this.tag.cheakValue(str, this.tag.getType());
+		if (vs.contains("|")) {
+			for (String str : vs.split("|")) {
+				String ch = this.tag.checkValue(str, this.tag.getType());
 				if (ch == null) {
 					return false;
 				}
 			}
 		} else {
-			String ch = this.tag.cheakValue(vs, this.tag.getType());
+			String ch = this.tag.checkValue(vs, this.tag.getType());
 			if (ch != null) {
 				return true;
 			}
@@ -98,31 +94,29 @@ public class SubGuiDropValueNbt extends SubGuiInterface implements ITextfieldLis
 		String r = ((char) 167) + "c";
 		String gr = ((char) 167) + "7";
 		String name = this.tag.getPath();
-		if (name.indexOf(".") != -1) {
-			List<String> nal = new ArrayList<String>();
-			while (name.indexOf(".") != -1) {
-				nal.add(name.substring(0, name.indexOf(".")));
+		if (name.contains(".")) {
+			while (name.contains(".")) {
 				name = name.substring(name.indexOf(".") + 1);
 			}
 		}
 		name = ((char) 167) + "2" + name;
 		if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 7, 159, 10)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.tag.name", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.tag.name").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 20, 159, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.tag.path", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.tag.path").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 55, 159, 61)) {
 			if (t == 7 || t == 11) {
-				this.setHoverText(new TextComponentTranslation("drop.hover.tag.value.array", new Object[] { name })
+				this.setHoverText(new TextComponentTranslation("drop.hover.tag.value.array", name)
 						.getFormattedText());
 			} else if (t == 9) {
-				this.setHoverText(new TextComponentTranslation("drop.hover.tag.value.list", new Object[] { name })
+				this.setHoverText(new TextComponentTranslation("drop.hover.tag.value.list", name)
 						.getFormattedText());
 			} else {
-				this.setHoverText(new TextComponentTranslation("drop.hover.tag.value.normal", new Object[] { name })
+				this.setHoverText(new TextComponentTranslation("drop.hover.tag.value.normal", name)
 						.getFormattedText());
 			}
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 122, 46, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.tag.chance", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.tag.chance").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 89, this.guiTop + 122, 76, 16)) {
 			String v = gn + "true" + gr + ", " + gn + "false";
 			if (t == 1) {
@@ -134,35 +128,35 @@ public class SubGuiDropValueNbt extends SubGuiInterface implements ITextfieldLis
 			} else if (t == 4) {
 				v = gn + "-9 223 372 036 854 775 808" + gr + "<->" + r + "9 223 372 036 854 775 807";
 			} else if (t == 5) {
-				v = new TextComponentTranslation("type.double", new Object[] { "77" }).getFormattedText();
+				v = new TextComponentTranslation("type.double", "77").getFormattedText();
 			} else if (t == 6) {
-				v = new TextComponentTranslation("type.double", new Object[] { "308" }).getFormattedText();
+				v = new TextComponentTranslation("type.double", "308").getFormattedText();
 			} else if (t == 7) {
 				v = "array [v0, v1, ... vn] v_ = " + gn + "-128" + gr + "<->" + r + "127";
 			} else if (t == 8) {
-				v = new TextComponentTranslation("type.string", new Object[] { "308" }).getFormattedText();
+				v = new TextComponentTranslation("type.string", "308").getFormattedText();
 			} else if (t == 9) {
-				v = new TextComponentTranslation("type.list", new Object[0]).getFormattedText();
+				v = new TextComponentTranslation("type.list").getFormattedText();
 			} else if (t == 11) {
 				v = "array [v0, v1, ... vn] v_ = " + gn + "-2 147 483 648" + gr + "<->" + r + "2 147 483 647";
 			}
 			this.setHoverText(
-					new TextComponentTranslation("drop.hover.tag.type", new Object[] { name, v }).getFormattedText());
+					new TextComponentTranslation("drop.hover.tag.type", name, v).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 89, this.guiTop + 144, 76, 16)) {
 			String v = gn + "-2 147 483 648" + gr + "<->" + r + "2 147 483 647";
 			if (tl == 5) {
-				v = new TextComponentTranslation("type.double", new Object[] { "77" }).getFormattedText();
+				v = new TextComponentTranslation("type.double", "77").getFormattedText();
 			} else if (tl == 6) {
-				v = new TextComponentTranslation("type.double", new Object[] { "308" }).getFormattedText();
+				v = new TextComponentTranslation("type.double", "308").getFormattedText();
 			} else if (tl == 8) {
-				v = new TextComponentTranslation("type.string", new Object[] { "308" }).getFormattedText();
+				v = new TextComponentTranslation("type.string", "308").getFormattedText();
 			} else if (tl == 11) {
 				v = "array [v0, v1, ... vn] v_ = " + gn + "-2 147 483 648" + gr + "<->" + r + "2 147 483 647";
 			}
-			this.setHoverText(new TextComponentTranslation("drop.hover.tag.listtype", new Object[] { name, v })
+			this.setHoverText(new TextComponentTranslation("drop.hover.tag.listtype", name, v)
 					.getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 144, 76, 16)) {
-			this.setHoverText(new TextComponentTranslation("hover.back", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
 		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
@@ -178,43 +172,34 @@ public class SubGuiDropValueNbt extends SubGuiInterface implements ITextfieldLis
 		int t = this.tag.getType();
 		// name / type / path
 		String name = this.tag.getPath();
-		if (name.indexOf(".") != -1) {
-			List<String> nal = new ArrayList<String>();
-			while (name.indexOf(".") != -1) {
-				nal.add(name.substring(0, name.indexOf(".")));
+		if (name.contains(".")) {
+			while (name.contains(".")) {
 				name = name.substring(name.indexOf(".") + 1);
 			}
 		}
-		String type = new TextComponentTranslation("tag.type." + t, new Object[0]).getFormattedText();
-		this.addLabel(new GuiNpcLabel(anyIDs++,
-				new TextComponentTranslation("drop.tag.type", new Object[] { name, type }).getFormattedText(),
-				this.guiLeft + 4, this.guiTop + 5));
-		GuiNpcTextField path = new GuiNpcTextField(93, (GuiScreen) this, this.guiLeft + 4, this.guiTop + 18, 163, 20,
-				this.tag.getPath());
+		String type = new TextComponentTranslation("tag.type." + t).getFormattedText();
+		this.addLabel(new GuiNpcLabel(anyIDs++, new TextComponentTranslation("drop.tag.type", name, type).getFormattedText(), this.guiLeft + 4, this.guiTop + 5));
+		GuiNpcTextField path = new GuiNpcTextField(93, this, this.guiLeft + 4, this.guiTop + 18, 163, 20, this.tag.getPath());
 		this.addTextField(path);
 		// value
 		this.addLabel(new GuiNpcLabel(anyIDs++, "type.value", this.guiLeft + 4, this.guiTop + 40));
 		String[] textArr = this.tag.getValues();
-		String text = "";
+		StringBuilder text = new StringBuilder();
 		if (textArr.length > 0) {
-			text = textArr[0];
+			text = new StringBuilder(textArr[0]);
 		}
 		if (textArr.length > 1) {
 			for (int i = 1; i < textArr.length; i++) {
-				text += "|" + textArr[i];
+				text.append("|").append(textArr[i]);
 			}
 		}
-		/*
-		 * GuiNpcTextField value = new GuiNpcTextField(94, (GuiScreen)this, this.guiLeft
-		 * + 4, this.guiTop + 53, 163, 65, text); this.addTextField(value);
-		 */
-		(this.textarea = new GuiTextArea(94, this, this.guiLeft + 4, this.guiTop + 53, 163, 65, text))
+		(this.textarea = new GuiTextArea(94, this.guiLeft + 4, this.guiTop + 53, 163, 65, text.toString()))
 				.setListener(this);
 		this.textarea.active = true;
 		this.add(this.textarea);
 		// chance
-		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.chance", this.guiLeft + 56, this.guiTop + 125));
-		GuiNpcTextField chanceE = new GuiNpcTextField(95, (GuiScreen) this, this.guiLeft + 4, this.guiTop + 120, 50, 20,
+		this.addLabel(new GuiNpcLabel(anyIDs, "drop.chance", this.guiLeft + 56, this.guiTop + 125));
+		GuiNpcTextField chanceE = new GuiNpcTextField(95, this, this.guiLeft + 4, this.guiTop + 120, 50, 20,
 				String.valueOf(this.tag.getChance()));
 		chanceE.setDoubleNumbersOnly().setMinMaxDoubleDefault(0.0001d, 100.0d, this.tag.getChance());
 		this.addTextField(chanceE);

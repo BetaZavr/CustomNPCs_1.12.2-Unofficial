@@ -12,11 +12,11 @@ public class ModelNagaLegs extends ModelRenderer {
 	public boolean isRiding;
 	public boolean isSleeping;
 	public boolean isSneaking;
-	private ModelRenderer nagaPart1;
-	private ModelRenderer nagaPart2;
-	private ModelRenderer nagaPart3;
-	private ModelRenderer nagaPart4;
-	private ModelRenderer nagaPart5;
+	private final ModelRenderer nagaPart1;
+	private final ModelRenderer nagaPart2;
+	private final ModelRenderer nagaPart3;
+	private final ModelRenderer nagaPart4;
+	private final ModelRenderer nagaPart5;
 
 	public ModelNagaLegs(ModelBase base) {
 		super(base);
@@ -39,46 +39,46 @@ public class ModelNagaLegs extends ModelRenderer {
 		ModelPlaneRenderer plane = new ModelPlaneRenderer(base, 4, 24);
 		plane.addBackPlane(0.0f, -2.0f, 0.0f, 4, 4);
 		plane.setRotationPoint(-4.0f, 0.0f, 0.0f);
-		this.nagaPart3.addChild((ModelRenderer) plane);
+		this.nagaPart3.addChild(plane);
 		plane = new ModelPlaneRenderer(base, 4, 24);
 		plane.mirror = true;
 		plane.addBackPlane(0.0f, -2.0f, 0.0f, 4, 4);
-		this.nagaPart3.addChild((ModelRenderer) plane);
+		this.nagaPart3.addChild(plane);
 		plane = new ModelPlaneRenderer(base, 8, 24);
 		plane.addBackPlane(0.0f, -2.0f, 6.0f, 4, 4);
 		plane.setRotationPoint(-4.0f, 0.0f, 0.0f);
-		this.nagaPart3.addChild((ModelRenderer) plane);
+		this.nagaPart3.addChild(plane);
 		plane = new ModelPlaneRenderer(base, 8, 24);
 		plane.mirror = true;
 		plane.addBackPlane(0.0f, -2.0f, 6.0f, 4, 4);
-		this.nagaPart3.addChild((ModelRenderer) plane);
+		this.nagaPart3.addChild(plane);
 		plane = new ModelPlaneRenderer(base, 4, 26);
 		plane.addTopPlane(0.0f, -2.0f, -6.0f, 4, 6);
 		plane.setRotationPoint(-4.0f, 0.0f, 0.0f);
 		plane.rotateAngleX = 3.1415927f;
-		this.nagaPart3.addChild((ModelRenderer) plane);
+		this.nagaPart3.addChild(plane);
 		plane = new ModelPlaneRenderer(base, 4, 26);
 		plane.mirror = true;
 		plane.addTopPlane(0.0f, -2.0f, -6.0f, 4, 6);
 		plane.rotateAngleX = 3.1415927f;
-		this.nagaPart3.addChild((ModelRenderer) plane);
+		this.nagaPart3.addChild(plane);
 		plane = new ModelPlaneRenderer(base, 8, 26);
 		plane.addTopPlane(0.0f, -2.0f, 0.0f, 4, 6);
 		plane.setRotationPoint(-4.0f, 0.0f, 0.0f);
-		this.nagaPart3.addChild((ModelRenderer) plane);
+		this.nagaPart3.addChild(plane);
 		plane = new ModelPlaneRenderer(base, 8, 26);
 		plane.mirror = true;
 		plane.addTopPlane(0.0f, -2.0f, 0.0f, 4, 6);
-		this.nagaPart3.addChild((ModelRenderer) plane);
+		this.nagaPart3.addChild(plane);
 		plane = new ModelPlaneRenderer(base, 0, 26);
 		plane.rotateAngleX = 1.5707964f;
 		plane.addSidePlane(0.0f, 0.0f, -2.0f, 6, 4);
 		plane.setRotationPoint(-4.0f, 0.0f, 0.0f);
-		this.nagaPart3.addChild((ModelRenderer) plane);
+		this.nagaPart3.addChild(plane);
 		plane = new ModelPlaneRenderer(base, 0, 26);
 		plane.rotateAngleX = 1.5707964f;
 		plane.addSidePlane(4.0f, 0.0f, -2.0f, 6, 4);
-		this.nagaPart3.addChild((ModelRenderer) plane);
+		this.nagaPart3.addChild(plane);
 		this.nagaPart4 = new ModelRenderer(base, 0, 0);
 		this.nagaPart4.childModels = this.nagaPart3.childModels;
 		this.nagaPart5 = new ModelRenderer(base, 0, 0);
@@ -115,7 +115,8 @@ public class ModelNagaLegs extends ModelRenderer {
 		}
 		GlStateManager.pushMatrix();
 		GlStateManager.scale(0.74f, 0.7f, 0.85f);
-		GlStateManager.translate(this.nagaPart3.rotateAngleY, 0.66f, 0.06f);
+		float tr = this.nagaPart3.rotateAngleY;
+		GlStateManager.translate(tr, 0.66f, 0.06f);
 		this.nagaPart4.render(par7);
 		GlStateManager.popMatrix();
 		GlStateManager.pushMatrix();
@@ -124,8 +125,7 @@ public class ModelNagaLegs extends ModelRenderer {
 		GlStateManager.popMatrix();
 	}
 
-	public void setRotationAngles(float par1, float par2, float par3, float par4, float par5, float par6,
-			Entity entity) {
+	public void setRotationAngles(float par1, float par2, float ignoredPar3, float ignoredPar4, float ignoredPar5, float ignoredPar6, Entity ignoredEntity) {
 		this.nagaPart1.rotateAngleY = MathHelper.cos(par1 * 0.6662f) * 0.26f * par2;
 		this.nagaPart2.rotateAngleY = MathHelper.cos(par1 * 0.6662f) * 0.5f * par2;
 		this.nagaPart3.rotateAngleY = MathHelper.cos(par1 * 0.6662f) * 0.26f * par2;
@@ -156,56 +156,34 @@ public class ModelNagaLegs extends ModelRenderer {
 			this.nagaPart5.rotationPointZ = 2.9f;
 		}
 		if (this.isRiding) {
-			ModelRenderer nagaPart6 = this.nagaPart1;
-			--nagaPart6.rotationPointY;
+			--this.nagaPart1.rotationPointY;
 			this.nagaPart1.rotateAngleX = -0.19634955f;
 			this.nagaPart1.rotationPointZ = -1.0f;
-			ModelRenderer nagaPart7 = this.nagaPart2;
-			nagaPart7.rotationPointY -= 4.0f;
+			this.nagaPart2.rotationPointY -= 4.0f;
 			this.nagaPart2.rotationPointZ = -1.0f;
-			ModelRenderer nagaPart8 = this.nagaPart3;
-			nagaPart8.rotationPointY -= 9.0f;
-			ModelRenderer nagaPart9 = this.nagaPart3;
-			--nagaPart9.rotationPointZ;
-			ModelRenderer nagaPart10 = this.nagaPart4;
-			nagaPart10.rotationPointY -= 13.0f;
-			ModelRenderer nagaPart11 = this.nagaPart4;
-			--nagaPart11.rotationPointZ;
-			ModelRenderer nagaPart12 = this.nagaPart5;
-			nagaPart12.rotationPointY -= 9.0f;
-			ModelRenderer nagaPart13 = this.nagaPart5;
-			--nagaPart13.rotationPointZ;
+			this.nagaPart3.rotationPointY -= 9.0f;
+			--this.nagaPart3.rotationPointZ;
+			this.nagaPart4.rotationPointY -= 13.0f;
+			--this.nagaPart4.rotationPointZ;
+			this.nagaPart5.rotationPointY -= 9.0f;
+			--this.nagaPart5.rotationPointZ;
 			if (this.isSneaking) {
-				ModelRenderer nagaPart14 = this.nagaPart1;
-				nagaPart14.rotationPointZ += 5.0f;
-				ModelRenderer nagaPart15 = this.nagaPart3;
-				nagaPart15.rotationPointZ += 5.0f;
-				ModelRenderer nagaPart16 = this.nagaPart4;
-				nagaPart16.rotationPointZ += 5.0f;
-				ModelRenderer nagaPart17 = this.nagaPart5;
-				nagaPart17.rotationPointZ += 4.0f;
-				ModelRenderer nagaPart18 = this.nagaPart1;
-				--nagaPart18.rotationPointY;
-				ModelRenderer nagaPart19 = this.nagaPart2;
-				--nagaPart19.rotationPointY;
-				ModelRenderer nagaPart20 = this.nagaPart3;
-				--nagaPart20.rotationPointY;
-				ModelRenderer nagaPart21 = this.nagaPart4;
-				--nagaPart21.rotationPointY;
-				ModelRenderer nagaPart22 = this.nagaPart5;
-				--nagaPart22.rotationPointY;
+				this.nagaPart1.rotationPointZ += 5.0f;
+				this.nagaPart3.rotationPointZ += 5.0f;
+				this.nagaPart4.rotationPointZ += 5.0f;
+				this.nagaPart5.rotationPointZ += 4.0f;
+				--this.nagaPart1.rotationPointY;
+				--this.nagaPart2.rotationPointY;
+				--this.nagaPart3.rotationPointY;
+				--this.nagaPart4.rotationPointY;
+				--this.nagaPart5.rotationPointY;
 			}
 		} else if (this.isSneaking) {
-			ModelRenderer nagaPart23 = this.nagaPart1;
-			--nagaPart23.rotationPointY;
-			ModelRenderer nagaPart24 = this.nagaPart2;
-			--nagaPart24.rotationPointY;
-			ModelRenderer nagaPart25 = this.nagaPart3;
-			--nagaPart25.rotationPointY;
-			ModelRenderer nagaPart26 = this.nagaPart4;
-			--nagaPart26.rotationPointY;
-			ModelRenderer nagaPart27 = this.nagaPart5;
-			--nagaPart27.rotationPointY;
+			--this.nagaPart1.rotationPointY;
+			--this.nagaPart2.rotationPointY;
+			--this.nagaPart3.rotationPointY;
+			--this.nagaPart4.rotationPointY;
+			--this.nagaPart5.rotationPointY;
 			this.nagaPart1.rotationPointZ = 5.0f;
 			this.nagaPart2.rotationPointZ = 3.0f;
 		}

@@ -31,7 +31,7 @@ import noppes.npcs.util.AdditionalMethods;
 public class QuestInterface {
 
 	private int id = 0;
-	public NpcMiscInventory items = new NpcMiscInventory(1);
+	public NpcMiscInventory items;
 	public QuestObjective[] tasks;
 
 	public QuestInterface() {
@@ -44,9 +44,7 @@ public class QuestInterface {
 			return null;
 		}
 		QuestObjective[] ts = new QuestObjective[this.tasks.length + 1];
-		for (int i = 0; i < this.tasks.length; i++) {
-			ts[i] = this.tasks[i];
-		}
+        System.arraycopy(this.tasks, 0, ts, 0, this.tasks.length);
 		ts[this.tasks.length] = new QuestObjective(this.id, type);
 		this.tasks = ts;
 		fix();
@@ -75,8 +73,8 @@ public class QuestInterface {
 	}
 
 	public void fix() {
-		List<QuestObjective> tsl = new ArrayList<QuestObjective>();
-		Map<Integer, ItemStack> stacks = Maps.<Integer, ItemStack>newTreeMap();
+		List<QuestObjective> tsl = new ArrayList<>();
+		Map<Integer, ItemStack> stacks = Maps.newTreeMap();
 		for (int i = 0; i < this.tasks.length; i++) {
 			if (this.tasks[i] == null) {
 				continue;
@@ -125,12 +123,12 @@ public class QuestInterface {
 	}
 
 	public Map<String, QuestObjective> getKeys() {
-		Map<String, QuestObjective> keys = new HashMap<String, QuestObjective>();
+		Map<String, QuestObjective> keys = new HashMap<>();
 		String chr = "" + ((char) 167);
 		for (int i = 0; i < this.tasks.length; i++) {
 			QuestObjective to = this.tasks[i];
 			String key = (i + 1) + "-";
-			String name = "";
+			String name;
 			switch (to.getEnumType()) {
 			case DIALOG: {
 				name = new TextComponentTranslation("quest.has.false").getFormattedText();
@@ -146,7 +144,7 @@ public class QuestInterface {
 				break;
 			}
 			case KILL: {
-				name = new TextComponentTranslation("entity." + to.getTargetName() + ".name", new Object[0])
+				name = new TextComponentTranslation("entity." + to.getTargetName() + ".name")
 						.getFormattedText();
 				if (to.getTargetName().isEmpty()) {
 					name = new TextComponentTranslation("quest.has.false").getFormattedText();
@@ -158,7 +156,7 @@ public class QuestInterface {
 				break;
 			}
 			case AREAKILL: {
-				name = new TextComponentTranslation("entity." + to.getTargetName() + ".name", new Object[0])
+				name = new TextComponentTranslation("entity." + to.getTargetName() + ".name")
 						.getFormattedText();
 				if (to.getTargetName().isEmpty()) {
 					name = new TextComponentTranslation("quest.has.false").getFormattedText();
@@ -226,36 +224,6 @@ public class QuestInterface {
 		return -1;
 	}
 
-	public Map<ItemStack, Integer> getProgressSet(EntityPlayer player) {
-		HashMap<ItemStack, Integer> map = new HashMap<ItemStack, Integer>();
-		List<QuestObjective> mapTO = new ArrayList<QuestObjective>();
-		for (QuestObjective to : this.tasks) {
-			if (to.getEnumType() != EnumQuestTask.ITEM || to.getEnumType() != EnumQuestTask.CRAFT) {
-				continue;
-			}
-			if (NoppesUtilServer.IsItemStackNull(to.getItemStack())) {
-				continue;
-			}
-			mapTO.add(to);
-		}
-		for (int i = 0; i < player.inventory.getSizeInventory(); ++i) {
-			ItemStack item = player.inventory.getStackInSlot(i);
-			if (!NoppesUtilServer.IsItemStackNull(item)) {
-				for (QuestObjective to : mapTO) {
-					if (NoppesUtilPlayer.compareItems(to.getItemStack(), item, to.isIgnoreDamage(),
-							to.isItemIgnoreNBT())) {
-						int count = 0;
-						if (map.containsKey(to.getItemStack())) {
-							count = map.get(to.getItemStack());
-						}
-						map.put(to.getItemStack(), count + item.getCount());
-					}
-				}
-			}
-		}
-		return map;
-	}
-
 	public void handleComplete(EntityPlayer player) {
 		boolean bo = false;
 		for (QuestObjective to : this.tasks) {
@@ -306,7 +274,7 @@ public class QuestInterface {
 			}
 			case KILL: {
 				HashMap<String, Integer> killed = to.getKilled(data);
-				if (killed.size() == 0) {
+				if (killed.isEmpty()) {
 					complete = false;
 				}
 				for (String entity : killed.keySet()) {
@@ -319,11 +287,9 @@ public class QuestInterface {
 				}
 				break;
 			}
-			case AREAKILL: {
+			case AREAKILL:
+                case MANUAL: {
 				HashMap<String, Integer> killed = to.getKilled(data);
-				if (killed.size() == 0) {
-					complete = false;
-				}
 				for (String entity : killed.keySet()) {
 					if (entity.equalsIgnoreCase(to.getTargetName())) {
 						if (killed.get(entity) < to.getMaxProgress()) {
@@ -334,26 +300,8 @@ public class QuestInterface {
 				}
 				break;
 			}
-			case MANUAL: {
-				HashMap<String, Integer> manual = to.getKilled(data);
-				if (manual.size() == 0) {
-					complete = false;
-				}
-				for (String entity : manual.keySet()) {
-					if (entity.equalsIgnoreCase(to.getTargetName())) {
-						if (manual.get(entity) < to.getMaxProgress()) {
-							complete = false;
-						}
-						break;
-					}
-				}
-				break;
-			}
-			case CRAFT: {
+                case CRAFT: {
 				HashMap<ItemStack, Integer> crafted = to.getCrafted(data);
-				if (crafted.size() == 0) {
-					complete = false;
-				}
 				for (ItemStack item : crafted.keySet()) {
 					if (NoppesUtilPlayer.compareItems(to.getItemStack(), item, to.isIgnoreDamage(),
 							to.isItemIgnoreNBT())) {
@@ -370,7 +318,7 @@ public class QuestInterface {
 						to.isItemIgnoreNBT(), to.getMaxProgress());
 			}
 			}
-			if (data != null && data.quest != null) {
+			if (data.quest != null) {
 				if (!complete && data.quest.step != 2) {
 					return false;
 				}
@@ -385,7 +333,7 @@ public class QuestInterface {
 	public void readEntityFromNBT(NBTTagCompound compound, int id) {
 		this.id = id;
 		if (!compound.hasKey("Tasks", 9)) { // Old versions
-			List<QuestObjective> oldTasks = new ArrayList<QuestObjective>();
+			List<QuestObjective> oldTasks = new ArrayList<>();
 			if (compound.getInteger("Type") == 0) { // Item
 				this.items = new NpcMiscInventory(
 						compound.getCompoundTag("Items").getTagList("NpcMiscInv", 10).tagCount());
@@ -407,8 +355,8 @@ public class QuestInterface {
 					oldTasks.add(to);
 				}
 			} else if (compound.getInteger("Type") == 2 || compound.getInteger("Type") == 4) { // Kill or Area Kill
-				TreeMap<String, Integer> targets = new TreeMap<String, Integer>(
-						NBTTags.getStringIntegerMap(compound.getTagList("QuestDialogs", 10)));
+				TreeMap<String, Integer> targets = new TreeMap<>(
+                        NBTTags.getStringIntegerMap(compound.getTagList("QuestDialogs", 10)));
 				for (String name : targets.keySet()) {
 					QuestObjective to = new QuestObjective(this.id,
 							EnumQuestTask.values()[compound.getInteger("Type")]);
@@ -434,8 +382,8 @@ public class QuestInterface {
 				}
 
 			} else { // Manual
-				TreeMap<String, Integer> manuals = new TreeMap<String, Integer>(
-						NBTTags.getStringIntegerMap(compound.getTagList("QuestManual", 10)));
+				TreeMap<String, Integer> manuals = new TreeMap<>(
+                        NBTTags.getStringIntegerMap(compound.getTagList("QuestManual", 10)));
 				for (String name : manuals.keySet()) {
 					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.MANUAL);
 					to.setTargetName(name);
@@ -443,10 +391,10 @@ public class QuestInterface {
 					oldTasks.add(to);
 				}
 			}
-			this.tasks = oldTasks.toArray(new QuestObjective[oldTasks.size() > 9 ? 9 : oldTasks.size()]);
+			this.tasks = oldTasks.toArray(new QuestObjective[Math.min(oldTasks.size(), 9)]);
 		} else { // New
 			this.tasks = new QuestObjective[compound.getTagList("Tasks", 10).tagCount()];
-			Map<Integer, ItemStack> stacks = Maps.<Integer, ItemStack>newTreeMap();
+			Map<Integer, ItemStack> stacks = Maps.newTreeMap();
 			for (int i = 0; i < compound.getTagList("Tasks", 10).tagCount(); i++) {
 				QuestObjective to = new QuestObjective(this.id, EnumQuestTask.ITEM);
 				to.load(compound.getTagList("Tasks", 10).getCompoundTagAt(i));
@@ -550,9 +498,9 @@ public class QuestInterface {
 	public void writeEntityToNBT(NBTTagCompound compound) {
 		fix();
 		NBTTagList list = new NBTTagList();
-		for (int i = 0; i < this.tasks.length; i++) {
-			list.appendTag(this.tasks[i].getNBT());
-		}
+        for (QuestObjective task : this.tasks) {
+            list.appendTag(task.getNBT());
+        }
 		compound.setTag("Tasks", list);
 	}
 

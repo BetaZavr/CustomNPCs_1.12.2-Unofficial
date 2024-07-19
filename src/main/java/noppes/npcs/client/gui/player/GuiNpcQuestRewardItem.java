@@ -16,11 +16,13 @@ import noppes.npcs.containers.ContainerNpcQuestRewardItem;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Quest;
 
+import javax.annotation.Nonnull;
+
 public class GuiNpcQuestRewardItem extends GuiContainerNPCInterface {
 
-	private ResourceLocation resource = this.getResource("extrasmallbg.png");
-	private ResourceLocation slots = this.getResource("baseinventory.png");
-	private Quest quest;
+	private final ResourceLocation resource = this.getResource("extrasmallbg.png");
+	private final ResourceLocation slots = this.getResource("baseinventory.png");
+	private final Quest quest;
 	private ItemStack reward = ItemStack.EMPTY;
 
 	public GuiNpcQuestRewardItem(ContainerNpcQuestRewardItem container, int questId) {
@@ -56,11 +58,8 @@ public class GuiNpcQuestRewardItem extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type) {
-		if (slotIn == null) {
-			return;
-		}
-		this.reward = slotIn.getStack();
+	protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
+        this.reward = slotIn.getStack();
 		this.close();
 	}
 
@@ -68,10 +67,8 @@ public class GuiNpcQuestRewardItem extends GuiContainerNPCInterface {
 	public void initGui() {
 		super.initGui();
 		String text = new TextComponentTranslation("quest.choose.reward").getFormattedText();
-		this.addLabel(new GuiNpcLabel(0, text,
-				this.guiLeft + (this.xSize - this.mc.fontRenderer.getStringWidth(text)) / 2, this.guiTop + 4));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + (this.xSize - 110) / 2, this.guiTop + this.ySize - 26, 110,
-				20, "quest.no.thanks"));
+		this.addLabel(new GuiNpcLabel(0, text, this.guiLeft + (this.xSize - this.mc.fontRenderer.getStringWidth(text)) / 2, this.guiTop + 4));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + (this.xSize - 110) / 2, this.guiTop + this.ySize - 26, 110, 20, "quest.no.thanks"));
 	}
 
 	@Override

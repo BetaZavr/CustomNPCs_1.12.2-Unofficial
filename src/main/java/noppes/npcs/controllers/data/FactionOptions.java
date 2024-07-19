@@ -15,12 +15,11 @@ public class FactionOptions {
 	public List<FactionOption> fps;
 
 	public FactionOptions() {
-		this.fps = Lists.<FactionOption>newArrayList();
+		this.fps = Lists.newArrayList();
 	}
 
 	public void addPoints(EntityPlayer player) {
-		boolean change = false;
-		PlayerData playerdata = PlayerData.get(player);
+        PlayerData playerdata = PlayerData.get(player);
 		PlayerFactionData data = playerdata.factionData;
 		for (FactionOption fo : this.fps) {
 			if (fo.factionId < 0 || fo.factionPoints == 0) {
@@ -30,18 +29,11 @@ public class FactionOptions {
 			boolean take = fo.decreaseFactionPoints;
 			if (value < 0) {
 				value *= -1;
-				if (take) {
-					take = false;
-				} else {
-					take = true;
-				}
+                take = !take;
 			}
 			this.addPoints(player, data, fo.factionId, take, value);
 		}
-		if (change) {
-			playerdata.save(true);
-		}
-	}
+    }
 
 	private void addPoints(EntityPlayer player, PlayerFactionData data, int factionId, boolean decrease, int points) {
 		Faction faction = FactionController.instance.getFaction(factionId);
@@ -50,7 +42,7 @@ public class FactionOptions {
 		}
 		if (!faction.hideFaction) {
 			String message = decrease ? "faction.decreasepoints" : "faction.increasepoints";
-			player.sendMessage(new TextComponentTranslation(message, new Object[] { faction.name, points }));
+			player.sendMessage(new TextComponentTranslation(message, faction.name, points));
 		}
 		data.increasePoints(player, factionId, decrease ? (-points) : points);
 	}
@@ -89,7 +81,7 @@ public class FactionOptions {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		this.fps = Lists.<FactionOption>newArrayList();
+		this.fps = Lists.newArrayList();
 		if (!compound.hasKey("FactionOptions", 9)) { // OLD
 			if (compound.getInteger("OptionFactions1") > 0) {
 				this.fps.add(new FactionOption(compound.getInteger("OptionFactions1"),

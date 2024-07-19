@@ -24,8 +24,8 @@ public class EntityAIAnimation extends EntityAIBase {
 		return 0;
 	}
 
-	public static boolean isWalkingAnimation(int animation) {
-		return getWalkingAnimationGuiIndex(animation) != 0;
+	public static boolean notWalkingAnimation(int animation) {
+		return getWalkingAnimationGuiIndex(animation) == 0;
 	}
 
 	private boolean hasPath;
@@ -33,7 +33,7 @@ public class EntityAIAnimation extends EntityAIBase {
 	private boolean isAttacking;
 	private boolean isDead;
 
-	private EntityNPCInterface npc;
+	private final EntityNPCInterface npc;
 
 	public int temp;
 
@@ -51,10 +51,7 @@ public class EntityAIAnimation extends EntityAIBase {
 				|| this.hasPath;
 	}
 
-	public void resetTask() {
-	}
-
-	private void setAnimation(int animation) {
+    private void setAnimation(int animation) {
 		this.npc.setCurrentAnimation(animation);
 		this.npc.updateHitbox();
 		this.npc.setPosition(this.npc.posX, this.npc.posY, this.npc.posZ);
@@ -77,7 +74,7 @@ public class EntityAIAnimation extends EntityAIBase {
 			}
 			this.temp = 0;
 		}
-		if (this.hasNavigation() && !isWalkingAnimation(this.npc.currentAnimation)) {
+		if (this.hasNavigation() && notWalkingAnimation(this.npc.currentAnimation)) {
 			return this.npc.currentAnimation != 0;
 		}
 		return this.npc.currentAnimation != this.npc.ais.animationType;
@@ -91,7 +88,7 @@ public class EntityAIAnimation extends EntityAIBase {
 		int type = this.npc.ais.animationType;
 		if (this.isDead) {
 			type = 2;
-		} else if (!isWalkingAnimation(this.npc.ais.animationType) && this.hasNavigation()) {
+		} else if (notWalkingAnimation(this.npc.ais.animationType) && this.hasNavigation()) {
 			type = 0;
 		} else if (this.temp != 0) {
 			if (this.hasNavigation()) {

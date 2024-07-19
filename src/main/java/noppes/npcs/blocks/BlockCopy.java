@@ -3,7 +3,6 @@ package noppes.npcs.blocks;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -19,17 +18,19 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
+import javax.annotation.Nonnull;
+
 public class BlockCopy extends BlockInterface implements IPermission {
 	public BlockCopy() {
 		super(Material.ROCK);
 		this.setName("npccopyblock");
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 		this.setSoundType(SoundType.STONE);
 	}
 
-	public TileEntity createNewTileEntity(World var1, int var2) {
+	public TileEntity createNewTileEntity(@Nonnull World var1, int var2) {
 		return new TileCopy();
 	}
 
@@ -40,28 +41,26 @@ public class BlockCopy extends BlockInterface implements IPermission {
 				|| e == EnumPacketServer.SaveTileEntity;
 	}
 
-	public boolean isFullCube(IBlockState state) {
+	public boolean isFullCube(@Nonnull IBlockState state) {
 		return false;
 	}
 
-	public boolean isOpaqueCube(IBlockState state) {
+	public boolean isOpaqueCube(@Nonnull IBlockState state) {
 		return false;
 	}
 
-	public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer player,
-			EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(@Nonnull World par1World, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (par1World.isRemote) {
 			return true;
 		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem != null && currentItem.getItem() == CustomRegisters.wand) {
+		if (currentItem.getItem() == CustomRegisters.wand) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.CopyBlock, null, pos.getX(), pos.getY(), pos.getZ());
 		}
 		return true;
 	}
 
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity,
-			ItemStack stack) {
+	public void onBlockPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityLivingBase entity, @Nonnull ItemStack stack) {
 		if (entity instanceof EntityPlayer && !world.isRemote) {
 			NoppesUtilServer.sendOpenGui((EntityPlayer) entity, EnumGuiType.CopyBlock, null, pos.getX(), pos.getY(),
 					pos.getZ());

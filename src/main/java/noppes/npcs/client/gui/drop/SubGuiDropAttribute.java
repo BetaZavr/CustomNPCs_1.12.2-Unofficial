@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.drop;
 
 import java.util.Arrays;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -39,11 +38,8 @@ public class SubGuiDropAttribute extends SubGuiInterface implements ITextfieldLi
 		if (this.getTextField(72) == null) {
 			return false;
 		}
-		if (this.getTextField(72).getText().length() == 0) {
-			return false;
-		}
-		return true;
-	}
+        return !this.getTextField(72).getText().isEmpty();
+    }
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
@@ -51,25 +47,20 @@ public class SubGuiDropAttribute extends SubGuiInterface implements ITextfieldLi
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		String tied = new TextComponentTranslation("drop.tied.random", new Object[0]).getFormattedText();
+		String tied = new TextComponentTranslation("drop.tied.random").getFormattedText();
 		if (this.attribute.parent.tiedToLevel) {
-			tied = new TextComponentTranslation("drop.tied.level", new Object[0]).getFormattedText();
+			tied = new TextComponentTranslation("drop.tied.level").getFormattedText();
 		}
 		if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 7, 159, 24)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.name", new Object[] {
-					new TextComponentTranslation("attribute.name." + this.attribute.getAttribute(), new Object[0])
-							.getFormattedText() }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.name", new TextComponentTranslation("attribute.name." + this.attribute.getAttribute()).getFormattedText()).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 29, 46, 24)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.values", new Object[] { tied })
-					.getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.values", tied).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 59, 76, 16)) {
-			this.setHoverText(
-					new TextComponentTranslation("drop.hover.attribute.slot", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.slot").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 81, 46, 16)) {
-			this.setHoverText(
-					new TextComponentTranslation("drop.hover.attribute.chance", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.chance").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 144, 76, 16)) {
-			this.setHoverText(new TextComponentTranslation("hover.back", new Object[0]).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
 		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
@@ -82,17 +73,17 @@ public class SubGuiDropAttribute extends SubGuiInterface implements ITextfieldLi
 		super.initGui();
 		int anyIDs = 80;
 		// name
-		GuiNpcTextField nameAttr = new GuiNpcTextField(72, (GuiScreen) this, this.guiLeft + 4, this.guiTop + 5, 163, 20,
+		GuiNpcTextField nameAttr = new GuiNpcTextField(72, this, this.guiLeft + 4, this.guiTop + 5, 163, 20,
 				this.attribute.getAttribute());
 		this.addTextField(nameAttr);
 		// values
 		this.values = new double[] { this.attribute.getMinValue(), this.attribute.getMaxValue() };
 		this.addLabel(new GuiNpcLabel(anyIDs++, "type.value", this.guiLeft + 56, this.guiTop + 36));
-		GuiNpcTextField valueMin = new GuiNpcTextField(73, (GuiScreen) this, this.guiLeft + 4, this.guiTop + 27, 50, 14,
+		GuiNpcTextField valueMin = new GuiNpcTextField(73, this, this.guiLeft + 4, this.guiTop + 27, 50, 14,
 				"" + this.values[0]);
 		valueMin.setDoubleNumbersOnly().setMinMaxDoubleDefault(-4096.0d, 4096.0d, this.attribute.getMinValue());
 		this.addTextField(valueMin);
-		GuiNpcTextField valueMax = new GuiNpcTextField(74, (GuiScreen) this, this.guiLeft + 4, this.guiTop + 41, 50, 14,
+		GuiNpcTextField valueMax = new GuiNpcTextField(74, this, this.guiLeft + 4, this.guiTop + 41, 50, 14,
 				"" + this.values[1]);
 		valueMax.setDoubleNumbersOnly().setMinMaxDoubleDefault(-4096.0d, 4096.0d, this.attribute.getMaxValue());
 		this.addTextField(valueMax);
@@ -104,8 +95,8 @@ public class SubGuiDropAttribute extends SubGuiInterface implements ITextfieldLi
 		this.addButton(
 				new GuiNpcButton(70, this.guiLeft + 4, this.guiTop + 57, 87, 20, slots, this.attribute.slot + 1));
 		// chance
-		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.chance", this.guiLeft + 56, this.guiTop + 84));
-		GuiNpcTextField chanceE = new GuiNpcTextField(75, (GuiScreen) this, this.guiLeft + 4, this.guiTop + 79, 50, 20,
+		this.addLabel(new GuiNpcLabel(anyIDs, "drop.chance", this.guiLeft + 56, this.guiTop + 84));
+		GuiNpcTextField chanceE = new GuiNpcTextField(75, this, this.guiLeft + 4, this.guiTop + 79, 50, 20,
 				String.valueOf(this.attribute.getChance()));
 		chanceE.setDoubleNumbersOnly().setMinMaxDoubleDefault(0.0001d, 100.0d, this.attribute.getChance());
 		this.addTextField(chanceE);

@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.mainmenu;
 
 import java.util.Arrays;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -45,7 +44,7 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 			break;
 		}
 		case 13: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcManagePlayerData(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNpcManagePlayerData(this.npc));
 			break;
 		}
 		case 14: { // Changed
@@ -55,7 +54,7 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 			break;
 		}
 		case 15: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcNaturalSpawns(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNpcNaturalSpawns(this.npc));
 			break;
 		}
 		case 16: {
@@ -127,12 +126,12 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 		this.addButton(new GuiNpcButton(13, r0, (y += 22), 110, 20, "global.playerdata"));
 		this.addButton(new GuiNpcButton(14, r0, (y += 22), 110, 20, "global.recipes"));
 		this.addButton(new GuiNpcButton(15, r0, (y += 22), 110, 20, "global.naturalspawn"));
-		this.addButton(new GuiNpcButton(16, r0, (y += 22), 110, 20, "global.linked"));
+		this.addButton(new GuiNpcButton(16, r0, y + 22, 110, 20, "global.linked"));
 		y = this.guiTop + 10;
 		this.addButton(new GuiNpcButton(17, r1, y, 110, 20, "global.market"));
 		this.addButton(new GuiNpcButton(18, r1, (y += 22), 110, 20, "global.auctions"));
 		this.getButton(18).enabled = false;
-		this.addButton(new GuiNpcButton(19, r1, (y += 22), 110, 20, "global.mail"));
+		this.addButton(new GuiNpcButton(19, r1, y + 22, 110, 20, "global.mail"));
 	}
 
 	@Override

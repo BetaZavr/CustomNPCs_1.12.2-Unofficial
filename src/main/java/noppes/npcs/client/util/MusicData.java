@@ -1,6 +1,7 @@
 package noppes.npcs.client.util;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import javax.sound.sampled.AudioFormat;
 
@@ -32,21 +33,22 @@ public class MusicData {
 		SoundSystem sndSystem = ObfuscationHelper.getValue(SoundManager.class, manager, SoundSystem.class);
 		Library soundLibrary = ObfuscationHelper.getValue(SoundSystem.class, sndSystem, 4);
 		HashMap<String, Source> sourceMap = ObfuscationHelper.getValue(Library.class, soundLibrary, 3);
-		this.source = sourceMap.get(id);
-		if (s != null) {
-			this.name = s.getSoundLocation().toString();
-			if (s.getSound() != null) {
+		if (sourceMap != null) {
+			this.source = sourceMap.get(id);
+			if (s != null) {
+				this.name = s.getSoundLocation().toString();
+				s.getSound();
 				this.resource = this.sound.getSound().getSoundLocation().toString();
 			}
-		}
-		this.millitotal = 0.0f;
-		if (this.source != null && this.source.soundBuffer != null) {
-			SoundBuffer buffer = this.source.soundBuffer;
-			AudioFormat format = buffer.audioFormat;
-			float frames = (float) buffer.audioData.length / (float) format.getFrameSize();
-			this.millitotal = 1000.0f * frames / (float) format.getFrameRate();
-			if (this.name.indexOf("minecraft") == 0) {
-				this.millitotal *= 300.0f;
+			this.millitotal = 0.0f;
+			if (this.source != null && this.source.soundBuffer != null) {
+				SoundBuffer buffer = this.source.soundBuffer;
+				AudioFormat format = buffer.audioFormat;
+				float frames = (float) buffer.audioData.length / (float) format.getFrameSize();
+				this.millitotal = 1000.0f * frames / format.getFrameRate();
+				if (this.name.indexOf("minecraft") == 0) {
+					this.millitotal *= 300.0f;
+				}
 			}
 		}
 	}
@@ -70,14 +72,14 @@ public class MusicData {
 				SoundBuffer buffer = this.source.soundBuffer;
 				AudioFormat format = buffer.audioFormat;
 				float frames = (float) buffer.audioData.length / (float) format.getFrameSize();
-				this.millitotal = 1000.0f * frames / (float) format.getFrameRate();
+				this.millitotal = 1000.0f * frames / format.getFrameRate();
 				if (this.name.indexOf("minecraft") == 0) {
 					this.millitotal *= 300.0f;
 				}
 			}
 		}
-		return new SoundTickEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(player), this.name, this.resource,
-				NpcAPI.Instance().getIPos(pos[0], pos[1], pos[2]), volume, pitch, milliseconds, this.millitotal);
+		return new SoundTickEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), this.name, this.resource,
+				Objects.requireNonNull(NpcAPI.Instance()).getIPos(pos[0], pos[1], pos[2]), volume, pitch, milliseconds, this.millitotal);
 	}
 
 }

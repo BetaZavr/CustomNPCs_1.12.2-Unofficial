@@ -6,6 +6,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.entity.EntityNPCInterface;
 
+import javax.annotation.Nonnull;
+
 public class ModelPonyArmor extends ModelBase {
 	public boolean aimedBow;
 	public ModelRenderer Body;
@@ -22,8 +24,7 @@ public class ModelPonyArmor extends ModelBase {
 	public ModelRenderer LeftArm2;
 	public ModelRenderer LeftLeg;
 	public ModelRenderer LeftLeg2;
-	private boolean rainboom;
-	public ModelRenderer rightarm;
+    public ModelRenderer rightarm;
 	public ModelRenderer rightarm2;
 	public ModelRenderer RightLeg;
 	public ModelRenderer RightLeg2;
@@ -38,50 +39,47 @@ public class ModelPonyArmor extends ModelBase {
 		this.init(f, 0.0f);
 	}
 
-	public void init(float strech, float f) {
+	public void init(float scale, float f) {
 		float f2 = 0.0f;
 		float f3 = 0.0f;
 		float f4 = 0.0f;
-		(this.head = new ModelRenderer((ModelBase) this, 0, 0)).addBox(-4.0f, -4.0f, -6.0f, 8, 8, 8, strech);
+		(this.head = new ModelRenderer(this, 0, 0)).addBox(-4.0f, -4.0f, -6.0f, 8, 8, 8, scale);
 		this.head.setRotationPoint(f2, f3, f4);
 		float f5 = 0.0f;
 		float f6 = 0.0f;
 		float f7 = 0.0f;
-		(this.Body = new ModelRenderer((ModelBase) this, 16, 16)).addBox(-4.0f, 4.0f, -2.0f, 8, 8, 4, strech);
+		(this.Body = new ModelRenderer(this, 16, 16)).addBox(-4.0f, 4.0f, -2.0f, 8, 8, 4, scale);
 		this.Body.setRotationPoint(f5, f6 + f, f7);
-		(this.BodyBack = new ModelRenderer((ModelBase) this, 0, 0)).addBox(-4.0f, 4.0f, 6.0f, 8, 8, 8, strech);
+		(this.BodyBack = new ModelRenderer(this, 0, 0)).addBox(-4.0f, 4.0f, 6.0f, 8, 8, 8, scale);
 		this.BodyBack.setRotationPoint(f5, f6 + f, f7);
-		(this.rightarm = new ModelRenderer((ModelBase) this, 0, 16)).addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, strech);
+		(this.rightarm = new ModelRenderer(this, 0, 16)).addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, scale);
 		this.rightarm.setRotationPoint(-3.0f, 8.0f + f, 0.0f);
-		this.LeftArm = new ModelRenderer((ModelBase) this, 0, 16);
+		this.LeftArm = new ModelRenderer(this, 0, 16);
 		this.LeftArm.mirror = true;
-		this.LeftArm.addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, strech);
+		this.LeftArm.addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, scale);
 		this.LeftArm.setRotationPoint(3.0f, 8.0f + f, 0.0f);
-		(this.RightLeg = new ModelRenderer((ModelBase) this, 0, 16)).addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, strech);
+		(this.RightLeg = new ModelRenderer(this, 0, 16)).addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, scale);
 		this.RightLeg.setRotationPoint(-3.0f, 0.0f + f, 0.0f);
-		this.LeftLeg = new ModelRenderer((ModelBase) this, 0, 16);
+		this.LeftLeg = new ModelRenderer(this, 0, 16);
 		this.LeftLeg.mirror = true;
-		this.LeftLeg.addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, strech);
+		this.LeftLeg.addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, scale);
 		this.LeftLeg.setRotationPoint(3.0f, 0.0f + f, 0.0f);
-		(this.rightarm2 = new ModelRenderer((ModelBase) this, 0, 16)).addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4,
-				strech * 0.5f);
+		(this.rightarm2 = new ModelRenderer(this, 0, 16)).addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, scale * 0.5f);
 		this.rightarm2.setRotationPoint(-3.0f, 8.0f + f, 0.0f);
-		this.LeftArm2 = new ModelRenderer((ModelBase) this, 0, 16);
+		this.LeftArm2 = new ModelRenderer(this, 0, 16);
 		this.LeftArm2.mirror = true;
-		this.LeftArm2.addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, strech * 0.5f);
+		this.LeftArm2.addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, scale * 0.5f);
 		this.LeftArm2.setRotationPoint(3.0f, 8.0f + f, 0.0f);
-		(this.RightLeg2 = new ModelRenderer((ModelBase) this, 0, 16)).addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4,
-				strech * 0.5f);
+		(this.RightLeg2 = new ModelRenderer(this, 0, 16)).addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, scale * 0.5f);
 		this.RightLeg2.setRotationPoint(-3.0f, 0.0f + f, 0.0f);
-		this.LeftLeg2 = new ModelRenderer((ModelBase) this, 0, 16);
+		this.LeftLeg2 = new ModelRenderer(this, 0, 16);
 		this.LeftLeg2.mirror = true;
-		this.LeftLeg2.addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, strech * 0.5f);
+		this.LeftLeg2.addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, scale * 0.5f);
 		this.LeftLeg2.setRotationPoint(3.0f, 0.0f + f, 0.0f);
 	}
 
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
-		float scale = f5;
-		this.setRotationAngles(f, f1, f2, f3, f4, f5, entity);
+	public void render(@Nonnull Entity entity, float f, float f1, float f2, float f3, float f4, float scale) {
+		this.setRotationAngles(f, f1, f2, f3, f4, scale, entity);
 		this.head.render(scale);
 		this.Body.render(scale);
 		this.BodyBack.render(scale);
@@ -95,7 +93,7 @@ public class ModelPonyArmor extends ModelBase {
 		this.RightLeg2.render(scale);
 	}
 
-	public void setRotationAngles(float f, float f1, float f2, float f3, float f4, float f5, Entity entity) {
+	public void setRotationAngles(float f, float f1, float f2, float f3, float f4, float f5, @Nonnull Entity entity) {
 		EntityNPCInterface npc = (EntityNPCInterface) entity;
 		if (!this.isRiding) {
 			this.isRiding = (npc.currentAnimation == 1);
@@ -103,7 +101,7 @@ public class ModelPonyArmor extends ModelBase {
 		if (this.isSneak && (npc.currentAnimation == 7 || npc.currentAnimation == 2)) {
 			this.isSneak = false;
 		}
-		this.rainboom = false;
+        boolean rainboom = false;
 		float f6;
 		float f7;
 		if (this.isSleeping) {
@@ -134,13 +132,12 @@ public class ModelPonyArmor extends ModelBase {
 			this.LeftLeg2.rotateAngleY = 0.0f;
 		} else {
 			if (f1 < 0.9999f) {
-				this.rainboom = false;
-				f8 = MathHelper.sin(0.0f - f1 * 0.5f);
+                f8 = MathHelper.sin(0.0f - f1 * 0.5f);
 				f9 = MathHelper.sin(0.0f - f1 * 0.5f);
 				f10 = MathHelper.sin(f1 * 0.5f);
 				f11 = MathHelper.sin(f1 * 0.5f);
 			} else {
-				this.rainboom = true;
+				rainboom = true;
 				f8 = 4.712f;
 				f9 = 4.712f;
 				f10 = 1.571f;
@@ -173,7 +170,7 @@ public class ModelPonyArmor extends ModelBase {
 		this.LeftLeg2.rotateAngleX = f11;
 		this.rightarm2.rotateAngleZ = 0.0f;
 		this.LeftArm2.rotateAngleZ = 0.0f;
-		if (this.heldItemRight != 0 && !this.rainboom && !this.isUnicorn) {
+		if (this.heldItemRight != 0 && !rainboom && !this.isUnicorn) {
 			this.rightarm.rotateAngleX = this.rightarm.rotateAngleX * 0.5f - 0.3141593f;
 			this.rightarm2.rotateAngleX = this.rightarm2.rotateAngleX * 0.5f - 0.3141593f;
 		}
@@ -192,7 +189,7 @@ public class ModelPonyArmor extends ModelBase {
 		if (this.isSleeping) {
 			f15 = 2.6f;
 		}
-		if (this.rainboom) {
+		if (rainboom) {
 			this.rightarm.rotationPointZ = f13 + 2.0f;
 			this.rightarm2.rotationPointZ = f13 + 2.0f;
 			this.LeftArm.rotationPointZ = 0.0f - f13 + 2.0f;
@@ -211,33 +208,16 @@ public class ModelPonyArmor extends ModelBase {
 		this.RightLeg2.rotationPointX = 0.0f - f14 - 1.0f + f15;
 		this.LeftLeg.rotationPointX = f14 + 1.0f - f15;
 		this.LeftLeg2.rotationPointX = f14 + 1.0f - f15;
-		ModelRenderer rightarm = this.rightarm;
-		rightarm.rotateAngleY += this.Body.rotateAngleY;
-		ModelRenderer rightarm2 = this.rightarm2;
-		rightarm2.rotateAngleY += this.Body.rotateAngleY;
-		ModelRenderer leftArm = this.LeftArm;
-		leftArm.rotateAngleY += this.Body.rotateAngleY;
-		ModelRenderer leftArm2 = this.LeftArm2;
-		leftArm2.rotateAngleY += this.Body.rotateAngleY;
-		ModelRenderer leftArm3 = this.LeftArm;
-		leftArm3.rotateAngleX += this.Body.rotateAngleY;
-		ModelRenderer leftArm4 = this.LeftArm2;
-		leftArm4.rotateAngleX += this.Body.rotateAngleY;
+        this.rightarm.rotateAngleY += this.Body.rotateAngleY;
+        this.rightarm2.rotateAngleY += this.Body.rotateAngleY;
+        this.LeftArm.rotateAngleY += this.Body.rotateAngleY;
+        this.LeftArm2.rotateAngleY += this.Body.rotateAngleY;
+        this.LeftArm.rotateAngleX += this.Body.rotateAngleX;
+        this.LeftArm2.rotateAngleX += this.Body.rotateAngleX;
 		this.rightarm.rotationPointY = 8.0f;
 		this.LeftArm.rotationPointY = 8.0f;
-		this.RightLeg.rotationPointY = 4.0f;
-		this.LeftLeg.rotationPointY = 4.0f;
 		this.rightarm2.rotationPointY = 8.0f;
 		this.LeftArm2.rotationPointY = 8.0f;
-		this.RightLeg2.rotationPointY = 4.0f;
-		this.LeftLeg2.rotationPointY = 4.0f;
-		if (f5 > -9990.0f && !this.isUnicorn) {
-			float f16 = f5;
-			f16 = 1.0f - f5;
-			f16 *= f16 * f16;
-			f16 = 1.0f - f16;
-			MathHelper.sin(f16 * 3.141593f);
-		}
 		if (this.isSneak && !this.isFlying) {
 			float f19 = 0.4f;
 			float f20 = 7.0f;
@@ -248,26 +228,18 @@ public class ModelPonyArmor extends ModelBase {
 			this.BodyBack.rotateAngleX = f19;
 			this.BodyBack.rotationPointY = f20;
 			this.BodyBack.rotationPointZ = f21;
-			ModelRenderer rightLeg = this.RightLeg;
-			rightLeg.rotateAngleX -= 0.0f;
-			ModelRenderer leftLeg = this.LeftLeg;
-			leftLeg.rotateAngleX -= 0.0f;
-			ModelRenderer rightarm3 = this.rightarm;
-			rightarm3.rotateAngleX -= 0.4f;
-			ModelRenderer leftArm5 = this.LeftArm;
-			leftArm5.rotateAngleX -= 0.4f;
+			this.RightLeg.rotateAngleX -= 0.0f;
+			this.LeftLeg.rotateAngleX -= 0.0f;
+			this.rightarm.rotateAngleX -= 0.4f;
+			this.LeftArm.rotateAngleX -= 0.4f;
 			this.RightLeg.rotationPointZ = 10.0f;
 			this.LeftLeg.rotationPointZ = 10.0f;
 			this.RightLeg.rotationPointY = 7.0f;
 			this.LeftLeg.rotationPointY = 7.0f;
-			ModelRenderer rightLeg2 = this.RightLeg2;
-			rightLeg2.rotateAngleX -= 0.0f;
-			ModelRenderer leftLeg2 = this.LeftLeg2;
-			leftLeg2.rotateAngleX -= 0.0f;
-			ModelRenderer rightarm4 = this.rightarm2;
-			rightarm4.rotateAngleX -= 0.4f;
-			ModelRenderer leftArm6 = this.LeftArm2;
-			leftArm6.rotateAngleX -= 0.4f;
+			this.RightLeg2.rotateAngleX -= 0.0f;
+			this.LeftLeg2.rotateAngleX -= 0.0f;
+			this.rightarm2.rotateAngleX -= 0.4f;
+			this.LeftArm2.rotateAngleX -= 0.4f;
 			this.RightLeg2.rotationPointZ = 10.0f;
 			this.LeftLeg2.rotationPointZ = 10.0f;
 			this.RightLeg2.rotationPointY = 7.0f;
@@ -305,12 +277,8 @@ public class ModelPonyArmor extends ModelBase {
 			this.LeftLeg2.rotationPointZ = 10.0f;
 			this.RightLeg2.rotationPointY = 8.0f;
 			this.LeftLeg2.rotationPointY = 8.0f;
-			MathHelper.cos(f2 * 0.09f);
-			MathHelper.sin(f2 * 0.067f);
-			float f30 = 0.0f;
-			float f31 = 0.0f;
-			this.head.rotationPointY = f30;
-			this.head.rotationPointZ = f31;
+			this.head.rotationPointY = 0.0f;
+			this.head.rotationPointZ = 0.0f;
 		}
 		if (this.isSleeping) {
 			this.rightarm.rotationPointZ += 6.0f;
@@ -331,27 +299,17 @@ public class ModelPonyArmor extends ModelBase {
 			this.LeftLeg2.rotationPointY += 2.0f;
 		}
 		if (this.aimedBow && !this.isUnicorn) {
-			float f32 = 0.0f;
-			float f33 = 0.0f;
 			this.rightarm.rotateAngleZ = 0.0f;
-			this.rightarm.rotateAngleY = -(0.1f - f32 * 0.6f) + this.head.rotateAngleY;
+			this.rightarm.rotateAngleY = -(0.1f) + this.head.rotateAngleY;
 			this.rightarm.rotateAngleX = 4.712f + this.head.rotateAngleX;
-			ModelRenderer rightarm5 = this.rightarm;
-			rightarm5.rotateAngleX -= f32 * 1.2f - f33 * 0.4f;
-			float f34 = f2;
-			ModelRenderer rightarm6 = this.rightarm;
-			rightarm6.rotateAngleZ += MathHelper.cos(f34 * 0.09f) * 0.05f + 0.05f;
-			ModelRenderer rightarm7 = this.rightarm;
-			rightarm7.rotateAngleX += MathHelper.sin(f34 * 0.067f) * 0.05f;
+			this.rightarm.rotateAngleZ += MathHelper.cos(f2 * 0.09f) * 0.05f + 0.05f;
+			this.rightarm.rotateAngleX += MathHelper.sin(f2 * 0.067f) * 0.05f;
 			this.rightarm2.rotateAngleZ = 0.0f;
-			this.rightarm2.rotateAngleY = -(0.1f - f32 * 0.6f) + this.head.rotateAngleY;
+			this.rightarm2.rotateAngleY = -(0.1f - f2 * 0.6f) + this.head.rotateAngleY;
 			this.rightarm2.rotateAngleX = 4.712f + this.head.rotateAngleX;
-			ModelRenderer rightarm8 = this.rightarm2;
-			rightarm8.rotateAngleX -= f32 * 1.2f - f33 * 0.4f;
-			ModelRenderer rightarm9 = this.rightarm2;
-			rightarm9.rotateAngleZ += MathHelper.cos(f34 * 0.09f) * 0.05f + 0.05f;
-			ModelRenderer rightarm10 = this.rightarm2;
-			rightarm10.rotateAngleX += MathHelper.sin(f34 * 0.067f) * 0.05f;
+			this.rightarm2.rotateAngleX -= f2 * 1.2f - f2 * 0.4f;
+			this.rightarm2.rotateAngleZ += MathHelper.cos(f2 * 0.09f) * 0.05f + 0.05f;
+			this.rightarm2.rotateAngleX += MathHelper.sin(f2 * 0.067f) * 0.05f;
 			++this.rightarm.rotationPointZ;
 			++this.rightarm2.rotationPointZ;
 		}

@@ -10,6 +10,7 @@ import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.constants.EnumParts;
 
 public class LayerNpcCloak<T extends EntityLivingBase> extends LayerInterface<T> {
+
 	public LayerNpcCloak(RenderLiving<?> render) {
 		super(render);
 	}

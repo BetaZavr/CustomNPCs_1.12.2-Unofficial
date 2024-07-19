@@ -1,28 +1,17 @@
 package noppes.npcs.client;
 
 import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 
 import com.google.common.base.Charsets;
 import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import com.google.gson.Gson;
 
 import io.netty.buffer.ByteBuf;
@@ -31,7 +20,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.recipebook.IRecipeShownListener;
 import net.minecraft.client.gui.toasts.GuiToast;
-import net.minecraft.client.gui.toasts.IToast;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -56,15 +44,7 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.common.network.internal.EntitySpawnMessageHelper;
-import noppes.npcs.CustomNpcs;
-import noppes.npcs.EventHooks;
-import noppes.npcs.LogWriter;
-import noppes.npcs.NBTTags;
-import noppes.npcs.NoppesStringUtils;
-import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.PacketHandlerServer;
-import noppes.npcs.Server;
-import noppes.npcs.ServerEventsHandler;
+import noppes.npcs.*;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.handler.data.IQuest;
@@ -81,7 +61,6 @@ import noppes.npcs.client.gui.player.GuiMailbox;
 import noppes.npcs.client.gui.player.GuiMailmanWrite;
 import noppes.npcs.client.gui.player.GuiNPCTrader;
 import noppes.npcs.client.gui.player.GuiQuestCompletion;
-import noppes.npcs.client.gui.script.GuiScriptInterface;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.IEditNPC;
@@ -99,15 +78,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumRewardType;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerNPCBank;
-import noppes.npcs.controllers.BorderController;
-import noppes.npcs.controllers.DialogController;
-import noppes.npcs.controllers.DropController;
-import noppes.npcs.controllers.MarcetController;
-import noppes.npcs.controllers.PlayerSkinController;
-import noppes.npcs.controllers.QuestController;
-import noppes.npcs.controllers.SchematicController;
-import noppes.npcs.controllers.ScriptController;
-import noppes.npcs.controllers.SyncController;
+import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.controllers.data.Marcet;
@@ -120,7 +91,6 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
@@ -133,7 +103,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 	private static List<EnumPacketClient> list;
 
 	static {
-		PacketHandlerClient.list = new ArrayList<EnumPacketClient>();
+		PacketHandlerClient.list = new ArrayList<>();
 		PacketHandlerClient.list.add(EnumPacketClient.EYE_BLINK);
 		PacketHandlerClient.list.add(EnumPacketClient.NPC_VISUAL_DATA);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC);
@@ -168,7 +138,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PlayerData data = PlayerData.get(mc.player);
 		if (type == EnumPacketClient.CHATBUBBLE) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
-			if (entity == null || !(entity instanceof EntityNPCInterface || entity instanceof EntityPlayer)) {
+			if (!(entity instanceof EntityNPCInterface || entity instanceof EntityPlayer)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -195,31 +165,31 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			ClientEventHandler.chatMessages.get(pl).addMessage(Server.readString(buffer), pl);
 		} else if (type == EnumPacketClient.CHAT) {
-			String message = "";
+			StringBuilder message = new StringBuilder();
 			String str;
 			while ((str = Server.readString(buffer)) != null && !str.isEmpty()) {
-				message += new TextComponentTranslation(str).getFormattedText();
+				message.append(new TextComponentTranslation(str).getFormattedText());
 			}
-			player.sendMessage(new TextComponentTranslation(message, new Object[0]));
+			player.sendMessage(new TextComponentTranslation(message.toString()));
 		} else if (type == EnumPacketClient.EYE_BLINK) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
-			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			ModelData model = ((EntityCustomNpc) entity).modelData;
 			model.eyes.blinkStart = System.currentTimeMillis();
 		} else if (type == EnumPacketClient.MESSAGE) {
-			TextComponentTranslation title = new TextComponentTranslation(Server.readString(buffer), new Object[0]);
-			TextComponentTranslation message = new TextComponentTranslation(Server.readString(buffer), new Object[0]);
+			TextComponentTranslation title = new TextComponentTranslation(Objects.requireNonNull(Server.readString(buffer)));
+			TextComponentTranslation message = new TextComponentTranslation(Objects.requireNonNull(Server.readString(buffer)));
 			int btype = buffer.readInt() % 3;
-			mc.getToastGui().add((IToast) new GuiAchievement(title, message, btype));
+			mc.getToastGui().add(new GuiAchievement(title, message, btype));
 		} else if (type == EnumPacketClient.UPDATE_ITEM) {
 			int id = buffer.readInt();
 			NBTTagCompound compound = Server.readNBT(buffer);
 			ItemStack stack = player.inventory.getStackInSlot(id);
 			if (!stack.isEmpty()) {
-				((ItemStackWrapper) NpcAPI.Instance().getIItemStack(stack)).setMCNbt(compound);
+				((ItemStackWrapper) Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack)).setMCNbt(compound);
 			}
 		} else if (type == EnumPacketClient.VISIBLE_FALSE) {
 			WorldClient w = (WorldClient) player.world;
@@ -227,7 +197,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			int id = buffer.readInt();
 			List<EntityNPCInterface> npcInterfaces = w.getEntities(EntityNPCInterface.class,
 					entity -> entity.getUniqueID().equals(uuid));
-			if (npcInterfaces.size() == 0) {
+			if (npcInterfaces.isEmpty()) {
 				npcInterfaces = w.getEntities(EntityNPCInterface.class, entity -> entity.getEntityId() == id);
 			}
 			for (EntityNPCInterface npc : npcInterfaces) {
@@ -237,7 +207,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				w.removeEntity(npc);
 			}
 			if (!ClientProxy.notVisibleNPC.containsKey(player.world.provider.getDimension())) {
-				ClientProxy.notVisibleNPC.put(player.world.provider.getDimension(), Lists.<UUID>newArrayList());
+				ClientProxy.notVisibleNPC.put(player.world.provider.getDimension(), Lists.newArrayList());
 			}
 			ClientProxy.notVisibleNPC.get(player.world.provider.getDimension()).add(uuid);
 		} else if (type == EnumPacketClient.VISIBLE_TRUE) {
@@ -246,14 +216,14 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			int id = buffer.readInt();
 			List<EntityNPCInterface> npcInterfaces = w.getEntities(EntityNPCInterface.class,
 					entity -> entity.getUniqueID().equals(uuid));
-			if (npcInterfaces.size() == 0) {
+			if (npcInterfaces.isEmpty()) {
 				npcInterfaces = w.getEntities(EntityNPCInterface.class, entity -> entity.getEntityId() == id);
 			}
-			if (npcInterfaces.size() == 0) {
+			if (npcInterfaces.isEmpty()) {
 				LogWriter.debug("Tries to visible summon an entity into the client world.");
 				EntitySpawnMessageHelper.spawn(buffer);
 			}
-			if (npcInterfaces.size() != 0) {
+			if (!npcInterfaces.isEmpty()) {
 				for (EntityNPCInterface npc : npcInterfaces) {
 					if (npc == null) {
 						LogWriter.debug("Tries to visible summon an NPC into the client world.");
@@ -262,7 +232,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				}
 			}
 			if (!ClientProxy.notVisibleNPC.containsKey(player.world.provider.getDimension())) {
-				ClientProxy.notVisibleNPC.put(player.world.provider.getDimension(), Lists.<UUID>newArrayList());
+				ClientProxy.notVisibleNPC.put(player.world.provider.getDimension(), Lists.newArrayList());
 			}
 			for (UUID uID : ClientProxy.notVisibleNPC.get(player.world.provider.getDimension())) {
 				if (uuid.equals(uID)) {
@@ -278,11 +248,11 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			SyncController.add(synctype, compound, type == EnumPacketClient.SYNC_END, player);
 			if (synctype == EnumSync.QuestCategoriesData) { // Quest
 				if (mc.currentScreen instanceof GuiNPCManageQuest) {
-					((GuiNPCManageQuest) mc.currentScreen).initGui();
+					mc.currentScreen.initGui();
 				}
 			} else if (synctype == EnumSync.DialogCategoriesData) { // Dialogs
 				if (mc.currentScreen instanceof GuiNPCManageDialogs) {
-					((GuiNPCManageDialogs) mc.currentScreen).initGui();
+					mc.currentScreen.initGui();
 				}
 			} else if (synctype == EnumSync.PlayerData) {
 				data.setNBT(compound);
@@ -300,7 +270,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			if (synctype == EnumSync.MailData) {
 				GuiScreen screen = mc.currentScreen;
 				if (screen instanceof GuiMailbox) {
-					((GuiMailbox) screen).initGui();
+					screen.initGui();
 				} else if (screen instanceof GuiMailmanWrite) {
 					if (GuiMailmanWrite.mail != null) {
 						PlayerMail mail = data.mailData.get(GuiMailmanWrite.mail);
@@ -314,22 +284,22 @@ public class PacketHandlerClient extends PacketHandlerServer {
 							GuiMailmanWrite.mail = mail;
 						}
 					}
-					((GuiMailmanWrite) screen).initGui();
+					screen.initGui();
 				}
 			}
 		} else if (type == EnumPacketClient.CHEST_NAME) {
 			GuiScreen screen = mc.currentScreen;
 			if (screen instanceof GuiCustomChest) {
-				((GuiCustomChest) screen).title = new TextComponentTranslation(Server.readString(buffer))
+				((GuiCustomChest) screen).title = new TextComponentTranslation(Objects.requireNonNull(Server.readString(buffer)))
 						.getFormattedText();
 			}
 		} else if (type == EnumPacketClient.SYNC_REMOVE) {
 			EnumSync synctype = EnumSync.values()[buffer.readInt()];
 			LogWriter.debug("Remove data type: " + synctype);
-			SyncController.remove(synctype, buffer.readInt(), player, buffer);
+			SyncController.remove(synctype, buffer.readInt(), buffer);
 		} else if (type == EnumPacketClient.MARK_DATA) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
-			if (entity == null || !(entity instanceof EntityLivingBase)) {
+			if (!(entity instanceof EntityLivingBase)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -338,7 +308,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			MarkRenderer.needReload = true;
 		} else if (type == EnumPacketClient.DIALOG) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
-			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -363,7 +333,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 		} else if (type == EnumPacketClient.EDIT_NPC) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
-			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+			if (!(entity instanceof EntityNPCInterface)) {
 				NoppesUtil.setLastNpc(null);
 			} else {
 				NoppesUtil.setLastNpc((EntityNPCInterface) entity);
@@ -390,7 +360,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.UPDATE_NPC) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
-			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -402,7 +372,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.ROLE) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
-			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -416,7 +386,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			NoppesUtil.spawnParticle(buffer);
 		} else if (type == EnumPacketClient.DELETE_ENTITY) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
-			if (entity == null || !(entity instanceof EntityLivingBase)) {
+			if (!(entity instanceof EntityLivingBase)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -434,7 +404,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.SCROLL_SELECTED) {
 			GuiScreen gui = mc.currentScreen;
 			String selected = Server.readString(buffer);
-			if (selected.equals("Unfreeze Npcs") || selected.equals("Freeze Npcs")) {
+            assert selected != null;
+            if (selected.equals("Unfreeze Npcs") || selected.equals("Freeze Npcs")) {
 				if (CustomNpcs.Server != null && CustomNpcs.Server.isDedicatedServer()) {
 					CustomNpcs.FreezeNPCs = selected.equals("Freeze Npcs");
 				}
@@ -442,7 +413,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					gui.initGui();
 				}
 			}
-			if (gui == null || !(gui instanceof IScrollData)) {
+			if (!(gui instanceof IScrollData)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -474,7 +445,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			gui.initGui();
 		} else if (type == EnumPacketClient.GUI_ERROR) {
 			GuiScreen gui = mc.currentScreen;
-			if (gui == null || !(gui instanceof IGuiError)) {
+			if (!(gui instanceof IGuiError)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -495,7 +466,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					return;
 				}
 			}
-			mc.displayGuiScreen((GuiScreen) null);
+			mc.displayGuiScreen(null);
 			mc.setIngameFocus();
 		} else if (type == EnumPacketClient.VILLAGER_LIST) {
 			MerchantRecipeList merchantrecipelist = MerchantRecipeList.readFromBuf(new PacketBuffer(buffer));
@@ -506,7 +477,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				String font = Server.readString(buffer);
 				int size = buffer.readInt();
 				Runnable run = () -> {
-					if (!font.isEmpty()) {
+                    assert font != null;
+                    if (!font.isEmpty()) {
 						CustomNpcs.FontType = font;
 						CustomNpcs.FontSize = size;
 						ClientProxy.Font.clear();
@@ -514,16 +486,13 @@ public class PacketHandlerClient extends PacketHandlerServer {
 						CustomNpcs.Config.resetConfig();
 						player.sendMessage(new TextComponentTranslation("Font set to %s", ClientProxy.Font.getName()));
 					} else {
-						player.sendMessage(
-								new TextComponentTranslation("Current font is %s", ClientProxy.Font.getName()));
+						player.sendMessage(new TextComponentTranslation("Current font is %s", ClientProxy.Font.getName()));
 					}
 					CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
-					return;
 				};
 				mc.addScheduledTask(run);
 			}
 		}
-		// New
 		else if (type == EnumPacketClient.MESSAGE_DATA) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			TextComponentTranslation title = new TextComponentTranslation(compound.getString("Title"));
@@ -544,7 +513,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				} else {
 					message = new TextComponentTranslation(compound.getString("TargetName"));
 				}
-				if (pr[0] >= pr[1]) { // is complite
+				if (pr[0] >= pr[1]) { // is complete
 					message.appendSibling(new TextComponentString(" -"));
 					message.appendSibling(
 							new TextComponentTranslation("quest.task." + compound.getString("Type") + ".0"));
@@ -554,7 +523,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			Object[] visible = ObfuscationHelper.getValue(GuiToast.class, mc.getToastGui(), 1);
 			boolean found = false;
-			for (Object obj : visible) {
+            assert visible != null;
+            for (Object obj : visible) {
 				if (obj == null) {
 					continue;
 				}
@@ -583,7 +553,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.NPC_VISUAL_DATA) {
 			int entityID = buffer.readInt();
 			Entity entity = player.world.getEntityByID(entityID);
-			if (entity != null && entity instanceof EntityNPCInterface) {
+			if (entity instanceof EntityNPCInterface) {
 				NBTTagCompound compound = Server.readNBT(buffer);
 				EntityNPCInterface npcData = (EntityNPCInterface) entity;
 				npcData.stats.setLevel(compound.getInteger("NPCLevel"));
@@ -603,7 +573,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				return;
 			}
 			IRecipe recipe = CraftingManager.REGISTRY.getObjectById(buffer.readInt());
-			((IRecipeShownListener) gui).func_194310_f().setupGhostRecipe(recipe, container.inventorySlots);
+            assert recipe != null;
+            ((IRecipeShownListener) gui).func_194310_f().setupGhostRecipe(recipe, container.inventorySlots);
 		} else if (type == EnumPacketClient.MARCET_CLOSE) {
 			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (m != null) {
@@ -654,17 +625,13 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			} else if (gui instanceof GuiNPCManageMarcets) {
 				((GuiNPCManageMarcets) gui).setGuiData(new NBTTagCompound());
 			}
-		} else if (type == EnumPacketClient.SCRIPT_DATA) {
-			GuiScreen gui = mc.currentScreen;
-			if (gui instanceof GuiScriptInterface) {
-				// ((GuiScriptInterface) gui).setData(Server.readNBT(buffer));
-			}
 		} else if (type == EnumPacketClient.DETECT_HELD_ITEM) {
 			try {
 				player.inventory.setInventorySlotContents(buffer.readInt(), new ItemStack(Server.readNBT(buffer)));
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			} catch (Exception e) {
+				LogWriter.error("Error:", e);
 			}
 			ItemStack held = new ItemStack(Server.readNBT(buffer));
 			player.inventory.setItemStack(held);
@@ -677,7 +644,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			} else if (id == -2) {
 				GuiScreen gui = mc.currentScreen;
 				if (gui instanceof GuiNPCInterface) {
-					((GuiNPCInterface) gui).initGui();
+					gui.initGui();
 				}
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
@@ -698,15 +665,15 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			int x = ClientEventHandler.schemaPos.getX();
 			int y = ClientEventHandler.schemaPos.getY();
 			int z = ClientEventHandler.schemaPos.getZ();
-			Client.sendData(EnumPacketServer.SchematicsBuild, x, y, z, ClientEventHandler.rotaion, ClientEventHandler.schema.getNBT());
+			Client.sendData(EnumPacketServer.SchematicsBuild, x, y, z, ClientEventHandler.rotation, ClientEventHandler.schema.getNBT());
 		} else if (type == EnumPacketClient.UPDATE_HUD) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			data.hud.loadNBTData(compound);
-		} else if (type == EnumPacketClient.DIMENSIOS_IDS) {
+		} else if (type == EnumPacketClient.DIMENSION_IDS) {
 			ClientHandler.getInstance().sync(Server.readIntArray(buffer));
 		} else if (type == EnumPacketClient.DROP_GROUP_DATA) {
 			NBTTagCompound nbtTemplate = Server.readNBT(buffer);
-			if (nbtTemplate.getKeySet().size() == 0) {
+			if (nbtTemplate.getKeySet().isEmpty()) {
 				DropController.getInstance().templates.clear();
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
@@ -732,8 +699,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
-			DataAnimation anim = ((EntityNPCInterface) entity).animation;
-			switch (t) {
+            switch (t) {
 				case 0: {
 					((EntityNPCInterface) entity).animation.load(compound);
 					break; // reload
@@ -742,32 +708,14 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					((EntityNPCInterface) entity).animation.stopAnimation();
 					break; // stopAnimation
 				}
-				case 2: { // start
-					int animationType = -1, variant = -1;
-					if (compound.hasKey("Vars", 11)) {
-						int[] vars = compound.getIntArray("Vars");
-						if (vars.length >= 1) {
-							animationType = vars[0];
-						}
-						if (vars.length >= 2) {
-							variant = vars[1];
-						}
-					}
-					if (animationType < 0 || animationType >= AnimationKind.values().length) {
-						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
-						return;
-					}
-					anim.startAnimation(animationType, variant);
-					break;
-				}
 				case 3: { // startAnimationFromSaved
 					if (!compound.hasKey("CustomAnim", 10)) {
 						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 						return;
 					}
 					AnimationConfig ac = new AnimationConfig();
-					ac.readFromNBT(compound.getCompoundTag("CustomAnim"));
-					((EntityNPCInterface) entity).animation.startAnimation(ac);
+					ac.load(compound.getCompoundTag("CustomAnim"));
+					((EntityNPCInterface) entity).animation.setAnimation(ac, ac.type);
 					break;
 				}
 				case 4: { // mod Animation
@@ -778,11 +726,19 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					((EntityNPCInterface) entity).animation.load(compound);
 					break;
 				}
+				case 6: { // start Animation From Saved ID
+					if (compound.hasKey("animID", 3) && compound.hasKey("typeID", 3)) {
+						AnimationConfig ac = AnimationController.getInstance().animations.get(compound.getInteger("animID"));
+						AnimationKind at = AnimationKind.get(compound.getInteger("typeID"));
+						if (ac != null) {((EntityNPCInterface) entity).animation.setAnimation(ac, at); }
+					}
+					break;
+				}
 			}
 		} else if (type == EnumPacketClient.UPDATE_NPC_NAVIGATION) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
-			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -798,7 +754,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.UPDATE_NPC_AI_TARGET) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
-			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -811,7 +767,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.UPDATE_NPC_TARGET) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
-			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -892,7 +848,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			ClientGuiEventHandler.crashes.isActive = false;
 		} else if (type == EnumPacketClient.SHOW_BANK_PLAYER) {
 			ContainerNPCBank.editPlayerBankData = Server.readString(buffer);
-			if (ContainerNPCBank.editPlayerBankData.isEmpty()) {
+            assert ContainerNPCBank.editPlayerBankData != null;
+            if (ContainerNPCBank.editPlayerBankData.isEmpty()) {
 				ContainerNPCBank.editPlayerBankData = null;
 			}
 		} else if (type == EnumPacketClient.BANK_CEIL_OPEN) {
@@ -915,7 +872,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			ClientProxy.sendSkin(player.getUniqueID());
 		} else if (type == EnumPacketClient.MINIMAP_DATA) {
 			PlayerMiniMapData mm = data.minimap;
-			String modName = new String(mm.modName);
+			String modName = mm.modName;
 			mm.loadNBTData(Server.readNBT(buffer));
 			int isChanged = 0;
 			if (modName.endsWith("journeymap")) {
@@ -974,13 +931,14 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					Cache<String, Object> cache = (Cache<String, Object>) cacheField.get(waypointStore);
 					Map<String, Object> map = cache.asMap();
 					for (String name : map.keySet()) {
-						remove.invoke(waypointStore, map.get(name));
+                        assert remove != null;
+                        remove.invoke(waypointStore, map.get(name));
 					}
 					cache.invalidateAll();
 
 					// Create and Add new
 					isChanged = 1;
-					List<Object> waypoints = Lists.<Object>newArrayList();
+					List<Object> waypoints = Lists.newArrayList();
 					for (MiniMapData mmd : mm.points) {
 						int dimID = mmd.dimIDs[0];
 						Object t = null;
@@ -1004,13 +962,13 @@ public class PacketHandlerClient extends PacketHandlerServer {
 						for (int dId : mmd.dimIDs) {
 							dim.add(dId);
 						}
-						Object waypoint = wc.newInstance(mmd.name, x, y, z, mmd.isEnable, color.getRed(),
-								color.getGreen(), color.getBlue(), t, "journeymap", dimID,
-								(Collection<Integer>) dim);
+                        assert wc != null;
+                        Object waypoint = wc.newInstance(mmd.name, x, y, z, mmd.isEnable, color.getRed(), color.getGreen(), color.getBlue(), t, "journeymap", dimID, dim);
 						wp.getDeclaredMethod("setIcon", String.class).invoke(waypoint, mmd.icon);
 						waypoints.add(waypoint);
 					}
-					load.invoke(waypointStore, waypoints, true);
+                    assert load != null;
+                    load.invoke(waypointStore, waypoints, true);
 				} catch (Exception e) {
 					isChanged = 2;
 				}
@@ -1060,80 +1018,50 @@ public class PacketHandlerClient extends PacketHandlerServer {
 									.invoke(dimMap.get(k));
 						}
 					}
-					File worldDir = new File(parentFile, world_name);
+                    assert world_name != null;
+                    File worldDir = new File(parentFile, world_name);
 					Gson gson = new Gson();
-					
-					int i = 0;
-					Map<File, TempWaypointText> map = Maps.<File, TempWaypointText>newHashMap();
+
+					Map<File, TempWaypointText> map = Maps.newHashMap();
 					for (MiniMapData mmd : mm.points) {
 						if (mmd.gsonData.containsKey("temporary") && gson.fromJson(mmd.gsonData.get("temporary"), boolean.class)) { continue; }
-						
 						int dimID = mmd.dimIDs[0];
 						File dimDir = new File(worldDir, "dim%" + dimID);
-						if (!dimDir.exists()) { dimDir.mkdirs(); }
-						File dimFile = new File(dimDir, "/waypoints.txt");
-						String text = "", endText = "";
-						if (map.containsKey(dimFile)) { text = map.get(dimFile).text; }
-						else {
-							if (!dimFile.exists()) {
-								text += "#" + ((char) 10);
-								text += "#waypoint:name:initials:x:y:z:color:disabled:type:set:rotate_on_tp:tp_yaw:visibility_type:destination"
-										+ ((char) 10);
-								text += "#" + ((char) 10);
-							} else {
-								BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(dimFile), Charsets.UTF_8));
-								try {
-									boolean end = false;
-									for (String line = br.readLine(); line != null; line = br.readLine()) {
-										if (!end && line.indexOf("#") != 0) {
-											end = true;
-											continue;
-										}
-										if (line.indexOf("waypoint:") == 0) {
-											continue;
-										}
-										if (end) {
-											endText += line + ((char) 10);
-										} else {
-											text += line + ((char) 10);
-										}
-									}
-								} finally {
-									br.close();
+						if (dimDir.exists() || dimDir.mkdirs()) {
+							File dimFile = new File(dimDir, "/waypoints.txt");
+							StringBuilder text = new StringBuilder();
+                            StringBuilder endText = new StringBuilder();
+                            if (!map.containsKey(dimFile)) {
+								if (!dimFile.exists()) {
+									text.append("#" + ((char) 10));
+									text.append("#waypoint:name:initials:x:y:z:color:disabled:type:set:rotate_on_tp:tp_yaw:visibility_type:destination" + ((char) 10));
+									text.append("#" + ((char) 10));
+								} else {
+									FileInputStream inputStream = new FileInputStream(dimFile);
+                                    try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, Charsets.UTF_8))) {
+                                        boolean end = false;
+                                        for (String line = br.readLine(); line != null; line = br.readLine()) {
+                                            if (!end && line.indexOf("#") != 0) {
+                                                end = true;
+                                                continue;
+                                            }
+                                            if (line.indexOf("waypoint:") == 0) {
+                                                continue;
+                                            }
+                                            if (end) {
+                                                endText.append(line).append((char) 10);
+                                            } else {
+                                                text.append(line).append((char) 10);
+                                            }
+                                        }
+                                    }
 								}
+								map.put(dimFile, new TempWaypointText(text.toString(), endText.toString()));
 							}
-							map.put(dimFile, new TempWaypointText(text, endText));
 						}
-						
-						int color = mmd.color % 16;
-						if (color < 0) {
-							color *= -1;
-						}
-						int t = 0;
-						try {
-							t = Integer.parseInt(mmd.type);
-						} catch (Exception e) {
-						}
-						int x = mmd.pos.getX();
-						int y = mmd.pos.getY();
-						int z = mmd.pos.getZ();
-						String icon = new String(mmd.icon).toUpperCase();
-						if (icon.length() == 0) {
-							icon = new String(mmd.name).toUpperCase();
-						}
-						if (icon.length() == 0) {
-							icon = "" + ((char) (65 + (i / 10) % 25)) + (i % 10);
-						}
-						if (icon.length() >= 2) {
-							icon = icon.substring(0, 2);
-						}
-						text += "waypoint:" + mmd.name + ":" + icon + ":" + x + ":" + y + ":" + z + ":" + color
-								+ ":" + !mmd.isEnable() + ":" + t + ":gui.xaero_default:false:0:0:false"
-								+ ((char) 10);
-						i++;
 					}
 					for (File dimFile : map.keySet()) {
-						Files.write(map.get(dimFile).getBytes(), dimFile);
+						CommonProxy.saveFile(dimFile, map.get(dimFile).getString());
 					}
 					
 					Object settings = xm.getDeclaredMethod("getSettings").invoke(instance); // ModSettings
@@ -1144,9 +1072,10 @@ public class PacketHandlerClient extends PacketHandlerServer {
 							break;
 						}
 					}
-					loadWaypointsFromAllSources.invoke(settings, waypointsManager);
+                    assert loadWaypointsFromAllSources != null;
+                    loadWaypointsFromAllSources.invoke(settings, waypointsManager);
 				} catch (Exception e) {
-					e.printStackTrace();
+					LogWriter.error("Error:", e);
 					isChanged = 2;
 				}
 			} else if (modName.endsWith("voxelmap")) {
@@ -1154,8 +1083,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					Class<?> vm = Class.forName("com.mamiyaotaru.voxelmap.VoxelMap");
 					Object instance = vm.getMethod("getInstance").invoke(vm);
 					Object waypointManager = vm.getMethod("getWaypointManager").invoke(instance);
-					List<Object> waypoints = (List<Object>) waypointManager.getClass().getMethod("getWaypoints")
-							.invoke(waypointManager);
+					List<Object> waypoints = (List<Object>) waypointManager.getClass().getMethod("getWaypoints").invoke(waypointManager);
 					// Clear OLD
 					waypoints.clear();
 
@@ -1170,13 +1098,11 @@ public class PacketHandlerClient extends PacketHandlerServer {
 						int y = mmd.pos.getY();
 						int z = mmd.pos.getZ();
 						Color color = new Color(mmd.color);
-						TreeSet<Integer> dim = new TreeSet<Integer>();
+						TreeSet<Integer> dim = new TreeSet<>();
 						for (int dId : mmd.dimIDs) {
 							dim.add(dId);
 						}
-						String worldName = mmd.gsonData.containsKey("voxel_world_name")
-								? mmd.gsonData.get("voxel_world_name")
-								: "";
+						String worldName = mmd.gsonData.getOrDefault("voxel_world_name", "");
 						if (worldName.isEmpty()) {
 							World ret = DimensionManager.getWorld(dimID, true);
 							if (ret == null) {
@@ -1198,13 +1124,13 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					med.setAccessible(true);
 					med.invoke(waypointManager, player.world.provider.getDimension());
 				} catch (Exception e) {
-					e.printStackTrace();
+					LogWriter.error("Error:", e);
 					isChanged = 2;
 				}
 			}
 			if (isChanged != 0) {
 				player.sendMessage(new TextComponentTranslation("minimap.set.points." + isChanged,
-						"" + ((char) 167) + "7" + modName));
+						((char) 167) + "7" + modName));
 			}
 		} else if (type == EnumPacketClient.NPC_LOOK_POS) {
 			if (player.world.provider.getDimension() == buffer.readInt()) {
@@ -1221,7 +1147,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 
 	@SubscribeEvent
 	public void onPacketData(FMLNetworkEvent.ClientCustomPacketEvent event) {
-		EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().player;
+		EntityPlayer player = Minecraft.getMinecraft().player;
 		if (player == null) {
 			return;
 		}
@@ -1242,17 +1168,17 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		});
 	}
 	
-	public class TempWaypointText{
+	public static class TempWaypointText{
 		
-		public String text = "";
-		String endText = "";
+		public String text;
+		String endText;
 
 		public TempWaypointText(String t, String e) {
 			text = t;
 			endText = e;
 		}
 
-		public byte[] getBytes() { return (text + endText).getBytes(); }
+		public String getString() { return text + endText; }
 		
 	}
 	

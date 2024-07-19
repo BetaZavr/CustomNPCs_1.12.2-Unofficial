@@ -1,5 +1,6 @@
 package noppes.npcs.items;
 
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.Multimap;
@@ -28,10 +29,12 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 
+import javax.annotation.Nonnull;
+
 public class CustomWeapon extends ItemSword implements ICustomElement {
 
-	protected NBTTagCompound nbtData = new NBTTagCompound();
-	protected Set<Block> effectiveBlocks = Sets.<Block>newHashSet();
+	protected NBTTagCompound nbtData;
+	protected Set<Block> effectiveBlocks = Sets.newHashSet();
 	protected float efficiency = 1.0f;
 	protected Material collectionMaterial = null;
 	protected float speedCollectionMaterial = 1.0f;
@@ -83,16 +86,16 @@ public class CustomWeapon extends ItemSword implements ICustomElement {
 			this.setFull3D();
 		}
 
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
+		this.setCreativeTab(CustomRegisters.tabItems);
 	}
 
-	public boolean canHarvestBlock(IBlockState blockIn) {
+	public boolean canHarvestBlock(@Nonnull IBlockState blockIn) {
 		return blockIn.getBlock() == Blocks.WEB
 				|| (this.collectionMaterial != null && blockIn.getMaterial() == this.collectionMaterial);
 	}
 
 	public float getAttackDamage() {
-		return (float) ObfuscationHelper.getValue(ItemSword.class, this, float.class);
+		return ObfuscationHelper.getValue(ItemSword.class, this, float.class);
 	}
 
 	@Override
@@ -102,10 +105,10 @@ public class CustomWeapon extends ItemSword implements ICustomElement {
 
 	@Override
 	public INbt getCustomNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
+		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
 	}
 
-	public float getDestroySpeed(ItemStack stack, IBlockState state) {
+	public float getDestroySpeed(@Nonnull ItemStack stack, @Nonnull IBlockState state) {
 		if (state.getMaterial() == this.collectionMaterial) {
 			return this.speedCollectionMaterial;
 		} else if (this.effectiveBlocks.contains(state.getBlock())) {
@@ -121,7 +124,7 @@ public class CustomWeapon extends ItemSword implements ICustomElement {
 		return 1.0f;
 	}
 
-	public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+	public boolean getIsRepairable(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
 		ItemStack mat = this.repairItemStack;
 		if (this.repairItemStack.isEmpty()) {
 			mat = ObfuscationHelper.getValue(ItemSword.class, this, Item.ToolMaterial.class).getRepairItemStack();
@@ -133,7 +136,7 @@ public class CustomWeapon extends ItemSword implements ICustomElement {
 	}
 
 	@Override
-	public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot) {
+	public @Nonnull Multimap<String, AttributeModifier> getItemAttributeModifiers(@Nonnull EntityEquipmentSlot equipmentSlot) {
 		Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
 		if (equipmentSlot == EntityEquipmentSlot.MAINHAND) {
 			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER,
@@ -151,7 +154,7 @@ public class CustomWeapon extends ItemSword implements ICustomElement {
 		return super.getItemEnchantability();
 	}
 
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
@@ -165,7 +168,7 @@ public class CustomWeapon extends ItemSword implements ICustomElement {
 
 	@Override
 	public int getType() {
-		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return this.nbtData.getByte("BlockType"); }
 		return 1;
 	}
 

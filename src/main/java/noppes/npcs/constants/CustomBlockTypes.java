@@ -1,12 +1,13 @@
 package noppes.npcs.constants;
 
 import net.minecraft.block.material.MapColor;
-import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.util.IStringSerializable;
+
+import javax.annotation.Nonnull;
 
 public class CustomBlockTypes {
 
-	public static enum TreeType implements IStringSerializable {
+	public enum TreeType implements IStringSerializable {
 
 		NORMAL(MapColor.STONE);
 
@@ -21,7 +22,7 @@ public class CustomBlockTypes {
 		}
 
 		@Override
-		public String getName() {
+		public @Nonnull String getName() {
 			return name().toLowerCase();
 		}
 
@@ -30,7 +31,5 @@ public class CustomBlockTypes {
 			return name().toLowerCase();
 		}
 	}
-
-	public static final PropertyEnum<TreeType> TREE_TYPE = PropertyEnum.create("type", TreeType.class);
 
 }

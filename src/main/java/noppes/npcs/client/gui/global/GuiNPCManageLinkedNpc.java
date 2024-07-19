@@ -27,9 +27,9 @@ public class GuiNPCManageLinkedNpc extends GuiNPCInterface2 implements IScrollDa
 
 	public GuiNPCManageLinkedNpc(EntityNPCInterface npc) {
 		super(npc);
-		this.data = new ArrayList<String>();
+		this.data = new ArrayList<>();
 		GuiNPCManageLinkedNpc.Instance = this;
-		Client.sendData(EnumPacketServer.LinkedGetAll, new Object[0]);
+		Client.sendData(EnumPacketServer.LinkedGetAll);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class GuiNPCManageLinkedNpc extends GuiNPCInterface2 implements IScrollDa
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		this.data = new ArrayList<String>(list);
+		this.data = new ArrayList<>(list);
 		this.initGui();
 	}
 

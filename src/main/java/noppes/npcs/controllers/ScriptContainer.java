@@ -2,7 +2,6 @@ package noppes.npcs.controllers;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -64,7 +63,7 @@ import noppes.npcs.util.ObfuscationHelper;
 
 public class ScriptContainer {
 
-	public class Dump implements Function<Object, IDataObject> {
+	public static class Dump implements Function<Object, IDataObject> {
 
 		@Override
 		public IDataObject apply(Object o) {
@@ -76,14 +75,14 @@ public class ScriptContainer {
 	public class Log implements Function<Object, Void> {
 		@Override
 		public Void apply(Object o) {
-			ScriptContainer.this.appandConsole(o + "");
+			ScriptContainer.this.appendConsole(o + "");
 			LogWriter.info(o + "");
 			return null;
 		}
 	}
 	
 	public static ScriptContainer Current;
-	public static HashMap<String, Object> Data = Maps.<String, Object>newHashMap();
+	public static HashMap<String, Object> Data = Maps.newHashMap();
 	private static Method luaCall;
 	private static Method luaCoerce;
 	
@@ -114,14 +113,11 @@ public class ScriptContainer {
 		for (Object e : c.getEnumConstants()) {
 			try {
 				Method m = e.getClass().getMethod("get");
-				if (m == null || m.getReturnType() != int.class) {
+				if (m.getReturnType() != int.class) {
 					continue;
 				}
-				ScriptContainer.Data.put(c.getSimpleName() + "_" + ((Enum<?>) e).name(), (int) m.invoke(e));
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-					| NoSuchMethodException | SecurityException error) {
-				error.printStackTrace();
-			}
+				ScriptContainer.Data.put(c.getSimpleName() + "_" + ((Enum<?>) e).name(), m.invoke(e));
+			} catch (Exception error) { LogWriter.error("Error:", error); }
 		}
 	}
 	
@@ -166,17 +162,17 @@ public class ScriptContainer {
 			value = ((NBTTagString) tag).getString();
 			break;
 		case 9: // NBTTagList
-			List<Object> list = Lists.<Object>newArrayList();
+			List<Object> list = Lists.newArrayList();
 			for (NBTBase obj : (NBTTagList) tag) {
 				Object v = getNBTValue(obj);
 				if (v != null) {
 					list.add(v);
 				}
 			}
-			value = list.toArray(new Object[list.size()]);
+			value = list.toArray(new Object[0]);
 			break;
 		case 10: // NBTTagCompound
-			Map<String, Object> comp = Maps.<String, Object>newTreeMap();
+			Map<String, Object> comp = Maps.newTreeMap();
 			for (String key : ((NBTTagCompound) tag).getKeySet()) {
 				Object v = getNBTValue(((NBTTagCompound) tag).getTag(key));
 				if (v != null) {
@@ -204,7 +200,7 @@ public class ScriptContainer {
 	public boolean errored;
 	public String fullscript;
 
-	private IScriptHandler handler;
+	private final IScriptHandler handler;
 
 	private boolean init;
 
@@ -221,10 +217,10 @@ public class ScriptContainer {
 	public ScriptContainer(IScriptHandler handler, boolean isClient) {
 		this.fullscript = "";
 		this.script = "";
-		this.console = new TreeMap<Long, String>();
+		this.console = new TreeMap<>();
 		this.errored = false;
-		this.scripts = new ArrayList<String>();
-		this.unknownFunctions = new HashSet<String>();
+		this.scripts = new ArrayList<>();
+		this.unknownFunctions = new HashSet<>();
 		this.lastCreated = 0L;
 		this.engine = null;
 		this.init = false;
@@ -232,7 +228,7 @@ public class ScriptContainer {
 		this.isClient = isClient;
 	}
 
-	public void appandConsole(String message) {
+	public void appendConsole(String message) {
 		if (message == null || message.isEmpty()) {
 			return;
 		}
@@ -258,18 +254,21 @@ public class ScriptContainer {
 			if (!this.fullscript.isEmpty()) {
 				this.fullscript += "\n";
 			}
-			Map<String, String> map = this.isClient ? ScriptController.Instance.clients
-					: ScriptController.Instance.scripts;
+			Map<String, String> map = this.isClient ? ScriptController.Instance.clients : ScriptController.Instance.scripts;
+
+			StringBuilder sbCode = new StringBuilder();
 			for (String loc : this.scripts) {
 				String code = map.get(loc);
 				if (code != null && !code.isEmpty()) {
-					this.fullscript = this.fullscript + code + "\n";
+					sbCode.append(code).append("\n");
 				}
 			}
+			this.fullscript += sbCode.toString();
 			if (map.containsKey("all.js")) {
 				this.fullscript = map.get("all.js") + "\n" + this.fullscript;
 			}
-			this.unknownFunctions = new HashSet<String>();
+
+			this.unknownFunctions = new HashSet<>();
 		}
 		return this.fullscript;
 	}
@@ -289,10 +288,11 @@ public class ScriptContainer {
 	public void readFromNBT(NBTTagCompound compound, boolean isClient) {
 		if (compound.hasKey("Script", 9)) {
 			NBTTagList list = compound.getTagList("Script", 8);
-			this.script = "";
+			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < list.tagCount(); i++) {
-				this.script += list.getStringTagAt(i);
+				sb.append(list.getStringTagAt(i));
 			}
+			this.script = sb.toString();
 		} else {
 			this.script = compound.getString("Script");
 		}
@@ -368,7 +368,7 @@ public class ScriptContainer {
 				if (!this.isClient) { NoppesUtilServer.NotifyOPs(this.handler.noticeString() + " script errored"); }
 				LogWriter.error(this.handler.noticeString() + " script errored: " + e);
 			} finally {
-				this.appandConsole(sw.getBuffer().toString().trim());
+				this.appendConsole(sw.getBuffer().toString().trim());
 				pw.close();
 				ScriptContainer.Current = null;
 			}
@@ -407,7 +407,7 @@ public class ScriptContainer {
 				try {
 					ScriptContainer.Data.put(key, this.engine.eval(((NBTTagString) tag).getString()));
 				}
-				catch (Exception e) {}
+				catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		}
 		// Base Functions
@@ -418,11 +418,11 @@ public class ScriptContainer {
 			ScriptContainer.Data.put("date", this.engine.eval("Java.type('" + Date.class.getName() + "')"));
 			ScriptContainer.Data.put("calendar", this.engine.eval("Java.type('" + Calendar.class.getName() + "')"));
 		}
-		catch (Exception e) { }
-		// Try put all
+		catch (Exception e) { LogWriter.error("Error:", e); }
+		// Try to put all
 		for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
 			try { this.engine.put(entry.getKey(), entry.getValue()); }
-			catch (Exception e) { e.printStackTrace(); }
+			catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		if (this.isClient) { this.fillEngineClient(); }
 		this.engine.put("currentThread", Thread.currentThread().getName());
@@ -430,15 +430,11 @@ public class ScriptContainer {
 
 	private void fillEngineClient() {
 		if (!this.isClient) { return; }
-		// Try put MC
-		try { this.engine.put("mc", ClientProxy.mcWraper); }
-		catch (Exception er) { er.printStackTrace(); }
+		// Try to put MC
+		try { this.engine.put("mc", ClientProxy.mcWrapper); }
+		catch (Exception e) { LogWriter.error("Error:", e); }
 		try { this.engine.put("storedData", ScriptController.Instance.clientScripts.storedData); }
-		catch (Exception er) { er.printStackTrace(); }
-	}
-
-	public boolean varIsConstant(String name) {
-		return ScriptContainer.Data.containsKey(name);
+		catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {

@@ -13,7 +13,7 @@ import noppes.npcs.roles.JobFarmer;
 
 public class GuiJobFarmer extends GuiNPCInterface2 {
 
-	private JobFarmer job;
+	private final JobFarmer job;
 
 	public GuiJobFarmer(EntityNPCInterface npc) {
 		super(npc);

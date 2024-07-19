@@ -17,6 +17,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+
 @SideOnly(Side.CLIENT)
 public class GuiNPCButtonRecipe extends GuiButton {
 	private static final ResourceLocation RECIPE_BOOK = new ResourceLocation("textures/gui/recipe_book.png");
@@ -30,7 +32,7 @@ public class GuiNPCButtonRecipe extends GuiButton {
 		super(0, 0, 0, 25, 25, "");
 	}
 
-	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.visible) {
 			return;
 		}
@@ -52,7 +54,7 @@ public class GuiNPCButtonRecipe extends GuiButton {
 		}
 		boolean flag = this.animationTime > 0.0F;
 		if (flag) {
-			float f = 1.0F + 0.1F * (float) Math.sin((double) (this.animationTime / 15.0F * (float) Math.PI));
+			float f = 1.0F + 0.1F * (float) Math.sin(this.animationTime / 15.0F * (float) Math.PI);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate((float) (this.x + 8), (float) (this.y + 12), 0.0F);
 			GlStateManager.scale(f, f, 1.0F);
@@ -101,7 +103,7 @@ public class GuiNPCButtonRecipe extends GuiButton {
 	}
 
 	public List<String> getToolTipText(GuiScreen guiScreen) {
-		ItemStack itemstack = ((IRecipe) this.getOrderedRecipes().get(this.currentIndex)).getRecipeOutput();
+		ItemStack itemstack = this.getOrderedRecipes().get(this.currentIndex).getRecipeOutput();
 		List<String> list = guiScreen.getItemToolTip(itemstack);
 		if (this.list.getRecipes(this.book.isFilteringCraftable()).size() > 1) {
 			list.add(I18n.format("gui.recipebook.moreRecipes"));

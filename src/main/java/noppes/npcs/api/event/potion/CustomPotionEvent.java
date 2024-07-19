@@ -5,7 +5,7 @@ import noppes.npcs.api.event.CustomNPCsEvent;
 
 public class CustomPotionEvent extends CustomNPCsEvent {
 
-	public ICustomElement potion = null;
+	public ICustomElement potion;
 
 	public CustomPotionEvent(ICustomElement potion) {
 		super();

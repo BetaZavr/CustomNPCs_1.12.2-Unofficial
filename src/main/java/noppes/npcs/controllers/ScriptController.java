@@ -2,16 +2,16 @@ package noppes.npcs.controllers;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -56,17 +56,16 @@ public class ScriptController {
 	public static ScriptController Instance;
 
 	public static boolean hasGraalLib() {
+		Class<?> graal = null;
 		try {
-			Class<?> graal = Class.forName("com.oracle.truffle.js.scriptengine.GraalJSScriptEngine");
-			return graal != null;
-		} catch (Exception e) {
+			graal = Class.forName("com.oracle.truffle.js.scriptengine.GraalJSScriptEngine");
+			return true;
 		}
+		catch (Exception e) { LogWriter.info("GraalJS is missing: "+graal); }
 		return false;
 	}
-	
-	private ScriptEngineManager manager = new ScriptEngineManager();
 
-	public boolean isLoad = false;
+    public boolean isLoad = false;
 	public boolean shouldSave = false;
 	public long lastLoaded = 0L;
 	public long lastPlayerUpdate = 0L;
@@ -74,12 +73,12 @@ public class ScriptController {
 	public NBTTagCompound constants = new NBTTagCompound();
 	public File dir, clientDir;
 	
-	public final Map<String, ScriptEngineFactory> factories = Maps.<String, ScriptEngineFactory>newTreeMap();
-	public final Map<String, String> languages = Maps.<String, String>newTreeMap();
-	public final Map<String, Long> sizes = Maps.<String, Long>newTreeMap();
-	public final Map<String, Long> clientSizes = Maps.<String, Long>newTreeMap();
-	public final Map<String, String> scripts = Maps.<String, String>newTreeMap();
-	public final Map<String, String> clients = Maps.<String, String>newTreeMap();
+	public final Map<String, ScriptEngineFactory> factories = Maps.newTreeMap();
+	public final Map<String, String> languages = Maps.newTreeMap();
+	public final Map<String, Long> sizes = Maps.newTreeMap();
+	public final Map<String, Long> clientSizes = Maps.newTreeMap();
+	public final Map<String, String> scripts = Maps.newTreeMap();
+	public final Map<String, String> clients = Maps.newTreeMap();
 
 	public EncryptData encryptData;
 	
@@ -94,8 +93,9 @@ public class ScriptController {
 		if (!CustomNpcs.NashorArguments.isEmpty()) {
 			System.setProperty("nashorn.args", CustomNpcs.NashorArguments);
 		}
-		try {
-			if (this.manager.getEngineByName("ecmascript") == null) {
+        ScriptEngineManager manager = new ScriptEngineManager();
+        try {
+			if (manager.getEngineByName("ecmascript") == null) {
 				LogWriter.debug("Try create Nashorn Script Engine");
 				Launch.classLoader.addClassLoaderExclusion("jdk.nashorn.");
 				Launch.classLoader.addClassLoaderExclusion("jdk.internal.dynalink");
@@ -104,47 +104,42 @@ public class ScriptController {
 				factory.getScriptEngine();
 				try {
 					Class<?> require = Class.forName("com.coveo.nashorn_modules.Require");
-					Method metodEnable = require.getMethod("enable");
-					metodEnable.invoke(factory, CustomNpcs.getWorldSaveDirectory("scripts/common_js"));
-				} catch (Exception e) {
+					Method methodEnable = require.getMethod("enable");
+					methodEnable.invoke(factory, CustomNpcs.getWorldSaveDirectory("scripts/common_js"));
 				}
-				this.manager.registerEngineName("ecmascript", factory);
-				this.manager.registerEngineExtension("js", factory);
-				this.manager.registerEngineMimeType("application/ecmascript", factory);
+				catch (Exception e) { LogWriter.info("Kotlin Require is missed:"); }
+				manager.registerEngineName("ecmascript", factory);
+				manager.registerEngineExtension("js", factory);
+				manager.registerEngineMimeType("application/ecmascript", factory);
 				this.languages.put(AdditionalMethods.instance.deleteColor(factory.getLanguageName()), ".js");
 				this.factories.put(factory.getLanguageName().toLowerCase(), factory);
 			}
-		} catch (Throwable t) {
-		}
+		} catch (Exception t) { LogWriter.info("Kotlin JS is missed:"); }
 		try {
 			Class<?> c = Class.forName("org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmLocalScriptEngineFactory");
 			ScriptEngineFactory factory = (ScriptEngineFactory) c.newInstance();
 			factory.getScriptEngine();
-			this.manager.registerEngineName("kotlin", factory);
-			this.manager.registerEngineExtension("ktl", factory);
-			this.manager.registerEngineMimeType("application/kotlin", factory);
+			manager.registerEngineName("kotlin", factory);
+			manager.registerEngineExtension("ktl", factory);
+			manager.registerEngineMimeType("application/kotlin", factory);
 			this.languages.put(AdditionalMethods.instance.deleteColor(factory.getLanguageName()), ".ktl");
 			this.factories.put(factory.getLanguageName().toLowerCase(), factory);
-		} catch (Throwable t2) {
 		}
+		catch (Exception e) { LogWriter.info("Kotlin JS is missed:"); }
 		LogWriter.info("Script Engines Available:");
-		for (ScriptEngineFactory fac : this.manager.getEngineFactories()) {
+		for (ScriptEngineFactory fac : manager.getEngineFactories()) {
 			try {
-				LogWriter.debug("Found script Library: \"" + fac.getLanguageName() + "\"; type: \""
-						+ fac.getClass().getSimpleName() + "\"");
+				LogWriter.debug("Found script Library: \"" + fac.getLanguageName() + "\"; type: \"" + fac.getClass().getSimpleName() + "\"");
 				if (fac.getExtensions().isEmpty()) {
-					LogWriter.debug("Library: \"" + fac.getLanguageName() + "\"; type: \""
-							+ fac.getClass().getSimpleName() + "\" Extensions isEmpty ");
+					LogWriter.debug("Library: \"" + fac.getLanguageName() + "\"; type: \"" + fac.getClass().getSimpleName() + "\" Extensions isEmpty ");
 					continue;
 				}
 				if (!(fac.getScriptEngine() instanceof Invocable) && !fac.getLanguageName().equals("lua")) {
-					LogWriter.debug("Library: \"" + fac.getLanguageName() + "\"; type: \""
-							+ fac.getClass().getSimpleName() + "\" Engine is not Invocable or not Lua");
+					LogWriter.debug("Library: \"" + fac.getLanguageName() + "\"; type: \"" + fac.getClass().getSimpleName() + "\" Engine is not Invocable or not Lua");
 					continue;
 				}
 				String ext = "." + fac.getExtensions().get(0).toLowerCase();
-				LogWriter.info("Added script Library: \"" + fac.getLanguageName() + "\"; type: \""
-						+ fac.getClass().getSimpleName() + "\"; files index: \"" + ext + "\"");
+				LogWriter.info("Added script Library: \"" + fac.getLanguageName() + "\"; type: \"" + fac.getClass().getSimpleName() + "\"; files index: \"" + ext + "\"");
 				this.languages.put(AdditionalMethods.instance.deleteColor(fac.getLanguageName()), ext);
 				this.factories.put(fac.getLanguageName().toLowerCase(), fac);
 			} catch (Throwable t3) {
@@ -154,9 +149,7 @@ public class ScriptController {
 	}
 
 	public synchronized void encrypt() {
-		if (this.isLoad) {
-			/* the code is hidden because it uses a CustomNpcs.ScriptPassword */
-		}
+		/* the code is hidden because it uses a CustomNpcs.ScriptPassword */
 	}
 	
 	private File clientScriptsFile() {
@@ -210,22 +203,23 @@ public class ScriptController {
 			}
 			Class<?> cnt = Class.forName("org.graalvm.polyglot.Context");
 			Class<?> hostA = Class.forName("org.graalvm.polyglot.HostAccess");
-			Object contextBuilder = null; // org.graalvm.polyglot.Context.Builder
+			Object contextBuilder; // org.graalvm.polyglot.Context.Builder
 			contextBuilder = cnt.getDeclaredMethod("newBuilder", String[].class).invoke(cnt,
 					(Object) new String[] { "js" });
 			if (contextBuilder != null) {
 				for (Method m : contextBuilder.getClass().getDeclaredMethods()) {
 					switch (m.getName()) {
 					case "allowExperimentalOptions":
-						contextBuilder = m.invoke(contextBuilder, true);
+                        case "allowHostClassLoading":
+                        case "allowNativeAccess":
+                        case "allowIO":
+                        case "allowCreateProcess":
+                            contextBuilder = m.invoke(contextBuilder, true);
 						break;
 					case "allowHostClassLookup":
 						contextBuilder = m.invoke(contextBuilder, (Predicate<String>) (s -> true));
 						break;
-					case "allowCreateProcess":
-						contextBuilder = m.invoke(contextBuilder, true);
-						break;
-					case "allowHostAccess": {
+                        case "allowHostAccess": {
 						if (m.getParameters()[0].getType() == Boolean.class
 								|| m.getParameters()[0].getType() == boolean.class) {
 							continue;
@@ -243,96 +237,62 @@ public class ScriptController {
 							}
 						}
 						// Double to
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Byte.class, null,
-								(Function<Double, Byte>) (n -> n.byteValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Float.class, null,
-								(Function<Double, Float>) (n -> n.floatValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Integer.class, null,
-								(Function<Double, Integer>) (n -> n.intValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Long.class, null,
-								(Function<Double, Long>) (n -> n.longValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, String.class, null,
-								(Function<Double, String>) (n -> n.toString()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Boolean.class, null,
-								(Function<Double, Boolean>) (n -> n != 0.0d));
-						// Float to
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Byte.class, null,
-								(Function<Float, Byte>) (n -> n.byteValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Double.class, null,
-								(Function<Float, Double>) (n -> n.doubleValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Integer.class, null,
-								(Function<Float, Integer>) (n -> n.intValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Long.class, null,
-								(Function<Float, Long>) (n -> n.longValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, String.class, null,
-								(Function<Float, String>) (n -> n.toString()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Boolean.class, null,
-								(Function<Float, Boolean>) (n -> n != 0.0f));
-						// Integer to
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Byte.class, null,
-								(Function<Integer, Byte>) (n -> n.byteValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Double.class, null,
-								(Function<Integer, Double>) (n -> n.doubleValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Float.class, null,
-								(Function<Integer, Float>) (n -> n.floatValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Long.class, null,
-								(Function<Integer, Long>) (n -> n.longValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, String.class, null,
-								(Function<Integer, String>) (n -> n.toString()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Boolean.class, null,
-								(Function<Integer, Boolean>) (n -> n != 0));
-						// Long to
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Byte.class, null,
-								(Function<Long, Byte>) (n -> n.byteValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Double.class, null,
-								(Function<Long, Double>) (n -> n.doubleValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Float.class, null,
-								(Function<Long, Float>) (n -> n.floatValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Integer.class, null,
-								(Function<Long, Integer>) (n -> n.intValue()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, String.class, null,
-								(Function<Long, String>) (n -> n.toString()));
-						hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Boolean.class, null,
-								(Function<Long, Boolean>) (n -> n != 0l));
-						hostAccessBuilder = b.invoke(hostAccessBuilder);
-						// invoke to main
-						contextBuilder = m.invoke(contextBuilder, hostAccessBuilder);
+                        if (ttm != null) {
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Byte.class, null, (Function<Double, Byte>) (Double::byteValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Float.class, null, (Function<Double, Float>) (Double::floatValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Integer.class, null, (Function<Double, Integer>) (Double::intValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Long.class, null, (Function<Double, Long>) (Double::longValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, String.class, null, (Function<Double, String>) (Object::toString));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Boolean.class, null, (Function<Double, Boolean>) (n -> n != 0.0d));
+							// Float to
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Byte.class, null, (Function<Float, Byte>) (Float::byteValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Double.class, null, (Function<Float, Double>) (Float::doubleValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Integer.class, null, (Function<Float, Integer>) (Float::intValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Long.class, null, (Function<Float, Long>) (Float::longValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, String.class, null, (Function<Float, String>) (Object::toString));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Boolean.class, null, (Function<Float, Boolean>) (n -> n != 0.0f));
+							// Integer to
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Byte.class, null, (Function<Integer, Byte>) (Integer::byteValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Double.class, null, (Function<Integer, Double>) (Integer::doubleValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Float.class, null, (Function<Integer, Float>) (Integer::floatValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Long.class, null, (Function<Integer, Long>) (Integer::longValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, String.class, null, (Function<Integer, String>) (Object::toString));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Boolean.class, null, (Function<Integer, Boolean>) (n -> n != 0));
+							// Long to
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Byte.class, null, (Function<Long, Byte>) (Long::byteValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Double.class, null, (Function<Long, Double>) (Long::doubleValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Float.class, null, (Function<Long, Float>) (Long::floatValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Integer.class, null, (Function<Long, Integer>) (Long::intValue));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, String.class, null, (Function<Long, String>) (Object::toString));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Boolean.class, null, (Function<Long, Boolean>) (n -> n != 0L));
+							if (b != null) { hostAccessBuilder = b.invoke(hostAccessBuilder); }
+							// invoke to main
+							contextBuilder = m.invoke(contextBuilder, hostAccessBuilder);
+						}
 						break;
 					}
-					case "allowHostClassLoading":
-						contextBuilder = m.invoke(contextBuilder, true);
-						break;
-					case "allowNativeAccess":
-						contextBuilder = m.invoke(contextBuilder, true);
-						break;
-					case "allowAllAccess": {
+                        case "allowAllAccess": {
 						contextBuilder = m.invoke(contextBuilder, true);
 						break;
 					}
-					case "allowIO":
-						contextBuilder = m.invoke(contextBuilder, true);
-						break;
-					case "option": {
+                        case "option": {
 						contextBuilder = m.invoke(contextBuilder, "js.ecmascript-version", "2022");
 						contextBuilder = m.invoke(contextBuilder, "js.nashorn-compat", "true");
 						break;
 					}
 					default:
-						continue;
-					}
+                    }
 				}
-				ScriptEngine engine = (ScriptEngine) create.invoke(graal, null, contextBuilder);
-				return engine;
+                if (create == null) { return null; }
+                return (ScriptEngine) create.invoke(graal, null, contextBuilder);
 			}
-		} catch (ClassNotFoundException | NoSuchMethodException | IllegalArgumentException | SecurityException
-				| IllegalAccessException | InvocationTargetException | NoSuchFieldException e) {
-			e.printStackTrace();
 		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
 		return null;
 	}
 
 	private List<String> getScripts(String language, boolean isClient) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		String ext = this.languages.get(AdditionalMethods.instance.deleteColor(language));
 		if (ext == null) { return list; }
 		for (String script : (isClient ? this.clients : this.scripts).keySet()) {
@@ -476,7 +436,7 @@ public class ScriptController {
 				list.appendTag(new NBTTagString("function getField(key,object) { try { var f = dump(object).getField(key); if (f) { return f.getValue(); } } catch (error) { log('Error: \"'+key+'\" is not a Field or not found in \"'+object.getClass().getName()+'\"');} return null; }"));
 				list.appendTag(new NBTTagString("function setField(value,object,key) { try { var f = dump(object).getField(key); if (f) { return f.setValue(value); } } catch (error) { log('Error: \"'+key+'\" is not a Field or not found, or not type mismatch in \"'+object.getClass().getName()+'\". Error: ' + error); } return false; }"));
 				list.appendTag(new NBTTagString("function invoke(value,object,key) { try { var m = dump(object).getMethod(key); if (m) { var jo = Java.type('java.lang.Object[]'); if (value!=jo) { try { if (value.length>=0) { var v = new jo(value.length); for (var i=0; i<value.length; i++) { v[i] = value[i]; } return m.invoke(v); } } catch (err) { } var v = new jo(1); v[0] = value; return m.invoke(v); } else { return m.invoke(value); } } } catch (error) { log('Error: \"'+key+'\" is not a Method or not found, or not type mismatch in \"'+object.getClass().getName()+'\"'); } return null; }"));
-				list.appendTag(new NBTTagString("function getCustomFunction(name, ev) {var fhm;try {var actor=\"Any\";if (ev) {if (ev.player) { actor = \"Player\"; }else if (ev.npc) { actor = \"NPC\"; }else if (ev.block) { actor = \"Block\"; }};fhm = api.getIWorld(0).getTempdata().get(\"functions\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)};if (name!=\"loadFile\") {var dir = existsDir(api.getWorldDir().toPath().resolve(\"data\").resolve(\"functions\"));gFunc(\"loadFile\",ev)(dir.resolve(name+\".json\"), \"fhm\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)}}} catch (error) {if (fhm && fhm instanceof JHMap) {gFunc(\"errorMes\",ev)(actor, error, \"Name: \u00A7f\"+name, ev);}};return eval(\"function fnull(a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,r,s,t,q,v) {return;}\");}"));
+				list.appendTag(new NBTTagString("function getCustomFunction(name, ev) {var fhm;try {var actor=\"Any\";if (ev) {if (ev.player) { actor = \"Player\"; }else if (ev.npc) { actor = \"NPC\"; }else if (ev.block) { actor = \"Block\"; }};fhm = api.getIWorld(0).getTempdata().get(\"functions\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)};if (name!=\"loadFile\") {var dir = existsDir(api.getWorldDir().toPath().resolve(\"data\").resolve(\"functions\"));gFunc(\"loadFile\",ev)(dir.resolve(name+\".json\"), \"fhm\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)}}} catch (error) {if (fhm && fhm instanceof JHMap) {gFunc(\"errorMes\",ev)(actor, error, \"Name: §f\"+name, ev);}};return eval(\"function fnull(a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,r,s,t,q,v) {return;}\");}"));
 				this.constants.setTag("Constants", nbtC);
 				this.constants.setTag("Functions", list);
 				try {
@@ -529,14 +489,13 @@ public class ScriptController {
 			return;
 		}
 		try {
-			NBTTagCompound compound = CompressedStreamTools.readCompressed(new FileInputStream(file));
+			NBTTagCompound compound = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
 			for (NBTBase nbt : compound.getTagList("Models", 10)) {
 				ItemScripted.Resources.put(((NBTTagCompound) nbt).getInteger("meta"),
 						((NBTTagCompound) nbt).getString("model"));
 			}
 			CustomNpcs.proxy.reloadItemTextures();
-		} catch (Exception e) {
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public boolean loadPlayerScripts() {
@@ -588,7 +547,7 @@ public class ScriptController {
 	}
 
 	public void loadDir(File dir, String name, String ext, boolean isClient) {
-		for (File file : dir.listFiles()) {
+		for (File file : Objects.requireNonNull(dir.listFiles())) {
 			String filename = name + file.getName().toLowerCase();
 			if (file.isDirectory()) {
 				this.loadDir(file, filename + "/", ext, isClient);
@@ -602,9 +561,7 @@ public class ScriptController {
 						this.scripts.put(filename, code);
 						this.sizes.put(filename, file.length());
 					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 		}
 	}
@@ -637,17 +594,14 @@ public class ScriptController {
 	}
 
 	private String readFile(File file) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
-		try {
-			StringBuilder sb = new StringBuilder();
-			for (String line = br.readLine(); line != null; line = br.readLine()) {
-				sb.append(line);
-				sb.append("\n");
-			}
-			return sb.toString();
-		} finally {
-			br.close();
-		}
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8))) {
+            StringBuilder sb = new StringBuilder();
+            for (String line = br.readLine(); line != null; line = br.readLine()) {
+                sb.append(line);
+                sb.append("\n");
+            }
+            return sb.toString();
+        }
 	}
 
 	public void saveItemTextures() {
@@ -655,8 +609,7 @@ public class ScriptController {
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
-			} catch (Exception e) {
-			}
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		if (!file.exists()) {
 			return;
@@ -671,14 +624,13 @@ public class ScriptController {
 		}
 		compound.setTag("Models", list);
 		try {
-			CompressedStreamTools.writeCompressed(compound, new FileOutputStream(file));
-		} catch (Exception e) {
-		}
+			CompressedStreamTools.writeCompressed(compound, Files.newOutputStream(file.toPath()));
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	@SubscribeEvent
 	public void saveWorld(WorldEvent.Save event) {
-		if (!this.shouldSave || event.getWorld().isRemote || event.getWorld() != event.getWorld().getMinecraftServer().worlds[0]) {
+		if (!this.shouldSave || event.getWorld().isRemote || event.getWorld() != Objects.requireNonNull(event.getWorld().getMinecraftServer()).worlds[0]) {
 			return;
 		}
 		try {
@@ -722,11 +674,7 @@ public class ScriptController {
 		try {
 			NBTJsonUtil.SaveFile(file, compound);
 			this.clientScripts.lastInited = -1L;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NBTJsonUtil.JsonException e2) {
-			e2.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void setNPCsScripts(NBTTagCompound compound) {
@@ -735,11 +683,7 @@ public class ScriptController {
 		try {
 			NBTJsonUtil.SaveFile(file, compound);
 			this.npcsScripts.lastInited = -1L;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NBTJsonUtil.JsonException e2) {
-			e2.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 	
 	public void setForgeScripts(NBTTagCompound compound) {
@@ -748,11 +692,7 @@ public class ScriptController {
 		try {
 			NBTJsonUtil.SaveFile(file, compound);
 			this.forgeScripts.lastInited = -1L;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NBTJsonUtil.JsonException e2) {
-			e2.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void setPlayerScripts(NBTTagCompound compound) {
@@ -769,11 +709,7 @@ public class ScriptController {
 		try {
 			NBTJsonUtil.SaveFile(file, compound);
 			this.lastPlayerUpdate = System.currentTimeMillis();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NBTJsonUtil.JsonException e2) {
-			e2.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void setPotionScripts(NBTTagCompound compound) {
@@ -782,11 +718,7 @@ public class ScriptController {
 		try {
 			NBTJsonUtil.SaveFile(file, compound);
 			this.potionScripts.lastInited = -1L;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NBTJsonUtil.JsonException e2) {
-			e2.printStackTrace();
-		}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 }

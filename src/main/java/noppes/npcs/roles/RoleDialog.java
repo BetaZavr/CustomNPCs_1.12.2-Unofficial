@@ -29,8 +29,8 @@ public class RoleDialog extends RoleInterface implements IRoleDialog {
 		super(npc);
 		this.dialog = "";
 		this.questId = -1;
-		this.options = new HashMap<Integer, String>();
-		this.optionsTexts = new HashMap<Integer, String>();
+		this.options = new HashMap<>();
+		this.optionsTexts = new HashMap<>();
 		this.type = RoleType.DIALOG;
 	}
 
@@ -95,7 +95,7 @@ public class RoleDialog extends RoleInterface implements IRoleDialog {
 	@Override
 	public void setOption(int option, String text) {
 		if (option < 1 || option > 6) {
-			throw new CustomNPCsException("Wrong dialog option slot given: " + option, new Object[0]);
+			throw new CustomNPCsException("Wrong dialog option slot given: " + option);
 		}
 		this.options.put(option, text);
 	}
@@ -103,7 +103,7 @@ public class RoleDialog extends RoleInterface implements IRoleDialog {
 	@Override
 	public void setOptionDialog(int option, String text) {
 		if (option < 1 || option > 6) {
-			throw new CustomNPCsException("Wrong dialog option slot given: " + option, new Object[0]);
+			throw new CustomNPCsException("Wrong dialog option slot given: " + option);
 		}
 		this.optionsTexts.put(option, text);
 	}

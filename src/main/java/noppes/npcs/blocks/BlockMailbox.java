@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -27,6 +26,8 @@ import noppes.npcs.blocks.tiles.TileMailbox;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 
+import javax.annotation.Nonnull;
+
 public class BlockMailbox extends BlockInterface {
 
 	public static PropertyInteger ROTATION = PropertyInteger.create("rotation", 0, 3);
@@ -38,65 +39,61 @@ public class BlockMailbox extends BlockInterface {
 		this.setSoundType(SoundType.METAL);
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+		this.setCreativeTab(CustomRegisters.tab);
 	}
 
-	protected BlockStateContainer createBlockState() {
-		return new BlockStateContainer(this, new IProperty[] { BlockMailbox.TYPE, BlockMailbox.ROTATION });
+	protected @Nonnull BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, BlockMailbox.TYPE, BlockMailbox.ROTATION);
 	}
 
-	public TileEntity createNewTileEntity(World var1, int var2) {
+	public TileEntity createNewTileEntity(@Nonnull World var1, int var2) {
 		return new TileMailbox();
 	}
 
-	public int damageDropped(IBlockState state) {
+	public int damageDropped(@Nonnull IBlockState state) {
 		return state.getValue(BlockMailbox.TYPE);
 	}
 
-	public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
-		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+	public @Nonnull ArrayList<ItemStack> getDrops(@Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull IBlockState state, int fortune) {
+		ArrayList<ItemStack> ret = new ArrayList<>();
 		int damage = state.getValue(BlockMailbox.TYPE);
 		ret.add(new ItemStack(this, 1, damage));
 		return ret;
 	}
 
-	public int getMetaFromState(IBlockState state) {
+	public int getMetaFromState(@Nonnull IBlockState state) {
 		return state.getValue(BlockMailbox.ROTATION) | state.getValue(BlockMailbox.TYPE) << 2;
 	}
 
-	public IBlockState getStateFromMeta(int meta) {
+	public @Nonnull IBlockState getStateFromMeta(int meta) {
 		return this.getDefaultState().withProperty(BlockMailbox.TYPE, ((meta >> 2) % 3))
 				.withProperty(BlockMailbox.ROTATION, ((meta | 0x4) % 4));
 	}
 
-	public void getSubBlocks(CreativeTabs par2CreativeTabs, NonNullList<ItemStack> par3List) {
+	public void getSubBlocks(@Nonnull CreativeTabs par2CreativeTabs, @Nonnull NonNullList<ItemStack> par3List) {
 		par3List.add(new ItemStack(this, 1, 0));
 		par3List.add(new ItemStack(this, 1, 1));
 		par3List.add(new ItemStack(this, 1, 2));
 	}
 
-	public boolean isFullCube(IBlockState state) {
+	public boolean isFullCube(@Nonnull IBlockState state) {
 		return false;
 	}
 
-	public boolean isOpaqueCube(IBlockState state) {
+	public boolean isOpaqueCube(@Nonnull IBlockState state) {
 		return false;
 	}
 
-	public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer player,
-			EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(@Nonnull World par1World, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (!par1World.isRemote) {
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI, EnumGuiType.PlayerMailbox, pos.getX(),
-					pos.getY(), pos.getZ());
+			Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI, EnumGuiType.PlayerMailbox, pos.getX(), pos.getY(), pos.getZ());
 		}
 		return true;
 	}
 
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase entity,
-			ItemStack stack) {
+	public void onBlockPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityLivingBase entity, @Nonnull ItemStack stack) {
 		int l = MathHelper.floor(entity.rotationYaw * 4.0f / 360.0f + 0.5) & 0x3;
-		world.setBlockState(pos, state.withProperty(BlockMailbox.TYPE, stack.getItemDamage())
-				.withProperty(BlockMailbox.ROTATION, (l % 4)), 2);
+		world.setBlockState(pos, state.withProperty(BlockMailbox.TYPE, stack.getItemDamage()).withProperty(BlockMailbox.ROTATION, (l % 4)), 2);
 	}
 
 }
