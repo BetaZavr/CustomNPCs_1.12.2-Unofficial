@@ -71,12 +71,7 @@ import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.client.renderer.MarkRenderer;
-import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.constants.EnumPlayerPacket;
-import noppes.npcs.constants.EnumRewardType;
-import noppes.npcs.constants.EnumSync;
+import noppes.npcs.constants.*;
 import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.Dialog;
@@ -1141,6 +1136,40 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					else { ((EntityNPCInterface) npc).lookat = player.world.getEntityByID(lookId); }
 				}
 			}
+		} else if (type == EnumPacketClient.EVENT_NAMES) {
+			String names = Server.readString(buffer);
+			if (names == null) { return; }
+			byte t = names.indexOf(((char) 167) + "6Client") == 0 ? (byte) 0 : names.indexOf(((char) 167) + "6Server") == 0 ? (byte)1 : (byte)2;
+			List<String> list;
+			if (t == 2) {
+				list = Lists.newArrayList();
+				for (EnumScriptType est : EnumScriptType.values()) {
+					list.add(est.function);
+				}
+			} else {
+				list = Lists.newArrayList(t == 0 ? CustomNpcs.forgeClientEventNames.values() : CustomNpcs.forgeEventNames.values());
+			}
+			names = names.substring(names.indexOf("" + ((char) 10)) + 2);
+			names = names.substring(0, names.indexOf(";"));
+			for (String key : names.split(", ")) {
+				if (list.contains(key)) { continue; }
+				list.add(key);
+			}
+			Collections.sort(list);
+			String pre = "";
+			StringBuilder text = new StringBuilder();
+			for (String name : list) {
+				if (pre.isEmpty()) { pre = "" + name.charAt(0); }
+				else if (!pre.equals("" + name.charAt(0))) {
+					text.append(System.lineSeparator());
+					pre = "" + name.charAt(0);
+				}
+				text.append(name);
+				text.append(System.lineSeparator());
+			}
+			File file = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile(), "all "+(t ==0 ? "client" : t ==1 ? "forge" : "api" )+ " event names.txt");
+			CommonProxy.saveFile(file, text.toString());
+			player.sendMessage(new TextComponentString(((char) 167) + "e[" + ((char) 167) + "2CustomNpcs" + ((char) 167) + "e]" + ((char) 167) + "r: " + ((char) 167) + "7Save event names to file: " + ((char) 167) + "r" + file));
 		}
 		CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 	}

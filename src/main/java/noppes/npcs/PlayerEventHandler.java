@@ -1268,6 +1268,7 @@ public class PlayerEventHandler {
 			isClientEvents.add(TickEvent.ClientTickEvent.class);
 			isClientEvents.add(FMLNetworkEvent.ClientCustomPacketEvent.class);
 			// Set the main method of the mod for each event
+			boolean threadIsClient = Thread.currentThread().getName().toLowerCase().contains("client");
 			for (Class<?> infoClass : listClasses) {
 				boolean isClient = false;
 				Class<?> debugClass = null;
@@ -1309,9 +1310,16 @@ public class PlayerEventHandler {
 						i = eventName.lastIndexOf(".");
 						eventName = pfx + StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
 						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
-						register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
-						if (!isClient) { CustomNpcs.forgeEventNames.put(c, eventName); }
-						else { CustomNpcs.forgeClientEventNames.put(c, eventName); }
+						if (!isClient) {
+							System.out.println("CNPCs: "+eventName);
+							CustomNpcs.forgeEventNames.put(c, eventName);
+							CustomNpcs.forgeClientEventNames.put(c, eventName);
+							register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
+						}
+						else {
+							CustomNpcs.forgeClientEventNames.put(c, eventName);
+							if (threadIsClient) { register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer()); }
+						}
 						LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event " +c.getName());
 					}
 				} catch (Exception t) {

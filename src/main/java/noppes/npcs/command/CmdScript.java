@@ -1,5 +1,6 @@
 package noppes.npcs.command;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -17,6 +18,7 @@ import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
+import noppes.npcs.Server;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
@@ -24,6 +26,10 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.blocks.tiles.TileScripted;
+import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumScriptType;
+import noppes.npcs.controllers.MarcetController;
+import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.dimensions.DimensionHandler;
 
@@ -31,8 +37,47 @@ import javax.annotation.Nonnull;
 
 public class CmdScript extends CommandNoppesBase {
 
+	@SubCommand(desc = "List of available event names from all APIs in mod")
+	public Boolean apilist(MinecraftServer server, ICommandSender sender, String[] args) {
+		StringBuilder list = new StringBuilder();
+		List<String> g = Lists.newArrayList();
+		for (EnumScriptType est : EnumScriptType.values()) { g.add(est.function); }
+		Collections.sort(g);
+		for (String name : g) {
+			if (list.length() > 0) {
+				list.append(", ");
+			} else {
+				list.append(((char) 167) + "6Mod APIs event names:\n" + ((char) 167) + "r");
+			}
+			list.append(name);
+		}
+		list.append(";\n" + ((char) 167) + "6Total Size: " + ((char) 167) + "e").append(g.size());
+		sender.sendMessage(new TextComponentString(list.toString()));
+		if (sender instanceof EntityPlayerMP) { Server.sendData((EntityPlayerMP) sender, EnumPacketClient.EVENT_NAMES, list.toString()); }
+		return true;
+	}
+
 	@SubCommand(desc = "List of available Forge event names")
-	public Boolean forgelist(ICommandSender sender) {
+	public Boolean clientlist(MinecraftServer server, ICommandSender sender, String[] args) {
+		StringBuilder list = new StringBuilder();
+		List<String> g = Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
+		Collections.sort(g);
+		for (String name : g) {
+			if (list.length() > 0) {
+				list.append(", ");
+			} else {
+				list.append(((char) 167) + "6Client forge event names:\n" + ((char) 167) + "r");
+			}
+			list.append(name);
+		}
+		list.append(";\n" + ((char) 167) + "6Total Size: " + ((char) 167) + "e").append(g.size());
+		sender.sendMessage(new TextComponentString(list.toString()));
+		if (sender instanceof EntityPlayerMP) { Server.sendData((EntityPlayerMP) sender, EnumPacketClient.EVENT_NAMES, list.toString()); }
+		return true;
+	}
+
+	@SubCommand(desc = "List of available Forge event names")
+	public Boolean forgelist(MinecraftServer server, ICommandSender sender, String[] args) {
 		StringBuilder list = new StringBuilder();
 		List<String> g = Lists.newArrayList(CustomNpcs.forgeEventNames.values());
 		Collections.sort(g);
@@ -40,12 +85,13 @@ public class CmdScript extends CommandNoppesBase {
 			if (list.length() > 0) {
 				list.append(", ");
 			} else {
-				list.append(((char) 167) + "6Forge event names:\n" + ((char) 167) + "r");
+				list.append(((char) 167) + "6Server Forge event names:\n" + ((char) 167) + "r");
 			}
 			list.append(name);
 		}
-		list.append(";\n" + ((char) 167) + "6Total Size: " + ((char) 167) + "e").append(CustomNpcs.forgeEventNames.size());
+		list.append(";\n" + ((char) 167) + "6Total Size: " + ((char) 167) + "e").append(g.size());
 		sender.sendMessage(new TextComponentString(list.toString()));
+		if (sender instanceof EntityPlayerMP) { Server.sendData((EntityPlayerMP) sender, EnumPacketClient.EVENT_NAMES, list.toString()); }
 		return true;
 	}
 
@@ -160,6 +206,23 @@ public class CmdScript extends CommandNoppesBase {
 		}
 		EventHooks.onScriptTriggerEvent(id, world, pos, entity, arguments);
 		return true;
+	}
+
+	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
+		List<String> list = Lists.newArrayList();
+		if (args.length == 2) {
+			if (args[0].equals("clientlist")) {
+				return Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
+			} else if (args[0].equals("forgelist")) {
+				return Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
+			} else if (args[0].equals("apilist")) {
+				for (EnumScriptType est : EnumScriptType.values()) {
+					list.add(est.function);
+				}
+				return list;
+			}
+		}
+		return list;
 	}
 
 }

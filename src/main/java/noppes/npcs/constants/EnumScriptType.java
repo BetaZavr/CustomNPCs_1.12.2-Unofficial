@@ -109,7 +109,7 @@ public enum EnumScriptType
 	public static List<EnumScriptType> getAllFunctions(int type) {
 		Map<String, EnumScriptType> map = Maps.newTreeMap();
 		for (EnumScriptType est : EnumScriptType.values()) {
-			if (est.hundelerTypes.contains(type)) { map.put(est.function, est); }
+			if (type < 0 || est.hundelerTypes.contains(type)) { map.put(est.function, est); }
 		}
 		return Lists.newArrayList(map.values());
 	}

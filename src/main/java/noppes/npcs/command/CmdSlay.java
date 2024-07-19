@@ -32,6 +32,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import javax.annotation.Nonnull;
 
 public class CmdSlay extends CommandNoppesBase {
+
 	public Map<String, Class<?>> slayMap = Maps.newHashMap();
 
 	public CmdSlay() {

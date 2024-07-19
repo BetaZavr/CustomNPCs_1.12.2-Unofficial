@@ -255,7 +255,6 @@ public class AnimationController implements IAnimationHandler {
 
 	private void loadDefaultAnimations() {
 		InputStream inputStream = AdditionalMethods.instance.getModInputStream("default_animations.dat");
-		System.out.println("CNPCs: "+inputStream);
 		if (inputStream == null) { return; }
 		NBTTagCompound compound = new NBTTagCompound();
 		try { compound = CompressedStreamTools.readCompressed(inputStream); } catch (Exception e) { LogWriter.error("Error:", e); }

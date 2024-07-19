@@ -118,6 +118,7 @@ public class PacketHandlerPlayer {
 		});
 	}
 
+	@SuppressWarnings("unchecked")
 	private void player(ByteBuf buffer, EntityPlayerMP player, EnumPlayerPacket type) throws Exception {
 		CustomNpcs.debugData.startDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 		PlayerData data = PlayerData.get(player);

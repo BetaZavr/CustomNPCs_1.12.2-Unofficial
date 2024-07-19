@@ -1,5 +1,6 @@
 package noppes.npcs.ai.attack;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -7,6 +8,7 @@ import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
@@ -49,10 +51,6 @@ public class EntityAICustom extends EntityAIBase {
 		this.setMutexBits(nav ? AiMutex.PATHING : (AiMutex.LOOK + AiMutex.PASSIVE));
 	}
 
-	/*
-	 * reset every time (2 ticks out of 3) EntityAITasks.onUpdateTasks()
-	 * EntityAITasks.java:91
-	 */
 	@Override
 	public void resetTask() {
 		this.canSeeToAttack = false;
@@ -60,7 +58,7 @@ public class EntityAICustom extends EntityAIBase {
 
 	@Override
 	public boolean shouldContinueExecuting() {
-		return this.npc != null && !this.npc.isEntityAlive();
+		return this.npc != null && this.npc.isEntityAlive();
 	}
 
 	@Override
@@ -77,7 +75,7 @@ public class EntityAICustom extends EntityAIBase {
 				if (this.target != null) {
 					this.npc.setAttackTarget(null);
 				}
-				this.npc.getLookHelper().setLookPositionWithEntity(this.npc.aiOwnerNPC, 30.0f, 30.0f);
+				this.setLookPositionWithEntity(this.npc.aiOwnerNPC);
 			}
 			CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_shouldExecute");
 			this.startRangedAttack = false;
@@ -86,7 +84,7 @@ public class EntityAICustom extends EntityAIBase {
 		if (this.target == null || !this.target.isEntityAlive()) {
 			if (this.delay > 0) {
 				this.delay--;
-				if (this.delay == 0 && this.npc.ais.returnToStart) {
+				if (this.delay == 0 && this.npc.ais.returnToStart && (!CustomNpcs.ShowCustomAnimation || !this.npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES))) {
 					npc.getNavigator().tryMoveToXYZ(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos(), 1.3d);
 				}
 			}
@@ -100,8 +98,16 @@ public class EntityAICustom extends EntityAIBase {
 		return true;
 	}
 
+	private void setLookPositionWithEntity(Entity target) {
+		if (!CustomNpcs.ShowCustomAnimation || !this.npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES)) {
+			this.npc.getLookHelper().setLookPositionWithEntity(target, 30.0f, 15.0f);
+		}
+	}
+
 	protected void tryMoveToTarget() {
-		this.npc.getNavigator().tryMoveToEntityLiving(this.target, 1.3d);
+		if (!CustomNpcs.ShowCustomAnimation || !this.npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES)) {
+			this.npc.getNavigator().tryMoveToEntityLiving(this.target, 1.3d);
+		}
 	}
 
 	protected void tryToCauseDamage() {
@@ -133,9 +139,7 @@ public class EntityAICustom extends EntityAIBase {
 		if (!this.startRangedAttack || this.target == null || !this.target.isEntityAlive()
 				|| !this.npc.isEntityAlive()) {
 			this.startRangedAttack = false;
-			/*
-			 * this.step = 0; this.burstCount = 0;
-			 */
+			//this.step = 0; this.burstCount = 0;
 			return;
 		}
 		this.step++;
@@ -156,14 +160,14 @@ public class EntityAICustom extends EntityAIBase {
 		if (this.burstCount > 1) {
 			boolean indirect = false;
 			switch (this.npc.stats.ranged.getFireType()) {
-			case 1: {
-				indirect = (this.distance > this.range / 2.0);
-				break;
-			}
-			case 2: {
-				indirect = !this.npc.getEntitySenses().canSee(this.target);
-				break;
-			}
+				case 1: {
+					indirect = (this.distance > this.range / 2.0);
+					break;
+				}
+				case 2: {
+					indirect = !this.npc.getEntitySenses().canSee(this.target);
+					break;
+				}
 			}
 			this.npc.attackEntityWithRangedAttack(this.target, indirect ? 1.0f : 0.0f);
 			if (this.npc.currentAnimation != 6) {
@@ -176,20 +180,18 @@ public class EntityAICustom extends EntityAIBase {
 	@Override
 	public void updateTask() {
 		CustomNpcs.debugData.startDebug("Server", this.npc, "EntityAICustom_updateTask");
-		this.npc.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
+		this.setLookPositionWithEntity(this.target);
 		this.inMove = !this.npc.getNavigator().noPath();
 		this.tacticalRange = this.npc.ais.getTacticalRange();
-		this.distance = this.npc.getDistance(this.target.posX, this.target.getEntityBoundingBox().minY,
-				this.target.posZ);
-		this.isRanged = this.npc.inventory.getProjectile() != null && (this.npc.stats.ranged.getMeleeRange() <= 0
-				|| this.distance > this.npc.stats.ranged.getMeleeRange());
+		this.distance = this.npc.getDistance(this.target.posX, this.target.getEntityBoundingBox().minY, this.target.posZ);
+		this.isRanged = this.npc.inventory.getProjectile() != null && (this.npc.stats.ranged.getMeleeRange() <= 0 || this.distance > this.npc.stats.ranged.getMeleeRange());
 		if (this.isRanged) {
 			this.rangedTick = Math.max(this.rangedTick - this.tickRate, 0);
 			this.range = this.npc.stats.ranged.getRange();
 		} else {
 			this.meleeTick = Math.max(this.meleeTick - this.tickRate, 0);
 			this.range = this.npc.stats.melee.getRange();
-			double minRange = this.npc.width * 2.0f + this.target.width;
+			double minRange = (this.npc.width + this.target.width) / 2.0d;
 			if (minRange > this.range) {
 				this.range = minRange;
 			}

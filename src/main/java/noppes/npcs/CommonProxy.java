@@ -85,7 +85,7 @@ import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
 
-public abstract class CommonProxy implements IGuiHandler {
+public class CommonProxy implements IGuiHandler {
 
 	public static Map<String, TempFile> loadFiles = Maps.newHashMap();
 	public boolean newVersionAvailable;
