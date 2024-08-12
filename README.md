@@ -21,7 +21,7 @@ Official **[website](https://www.kodevelopment.nl/minecraft/customnpcs)**.
 * mod configuration is now configurable in-game;
 * most of the mod's GUI has a description for each element. The description appears when you hover the mouse cursor over the GUI element;
 * new mod commands (see Tab);
-* **Factions* log * and **Quests** changed;
+* **Factions** and **Quests** log changed;
 * added Quest Compass;
 * added virtual currency;
 * more accurate mod and player data;
@@ -29,7 +29,8 @@ Official **[website](https://www.kodevelopment.nl/minecraft/customnpcs)**.
 ### Quests
 
 * quest type is no longer determined by quest tasks;
-* number of quest tasks increased from 3 to 9; * quest tasks can be completed one by one or at least one;
+* number of quest tasks increased from 3 to 9;
+* quest tasks can be completed one by one or at least one;
 * the player can cancel the quest;
 * you can select an NPC to hand in a quest when completing it;
 * added advanced settings (for example, an icon);
@@ -37,7 +38,7 @@ Official **[website](https://www.kodevelopment.nl/minecraft/customnpcs)**.
 * added virtual currency to rewards, and also fixed the operation of the type of receiving a reward;
 * reset ID for PRO;
 
-## # Dialogues
+### Dialogues
 
 * the GUI for the player's dialogue with the NPC has been redesigned;
 * letter-by-letter text display is available;
@@ -57,7 +58,8 @@ Official **[website](https://www.kodevelopment.nl/minecraft/customnpcs)**.
 * **Mail**: the ability to auto-delete letters over time, paid sending letters, etc.;
 * **Bard**: expanded settings and corrected mechanics;
 * **Guardian**: slightly improved AI;
-* **Spawner**: completed, also added new settings for various situations; * **Chunk Loader**: loads 3x3 chunks around itself (2x2 in the main mod);
+* **Spawner**: completed, also added new settings for various situations;
+* **Chunk Loader**: loads 3x3 chunks around itself (2x2 in the main mod);
 * **Puppet**: animating your NPC in various situations is no longer a job and is not limited to two frames and three situations. Added a mini animation editor with a huge set of tools;
 * **Factions**: flag available (can be installed on a shield or as a block), friendly factions added for protection;
 * some mechanics marked **WIP** have been improved (for example Natural spawns);
