@@ -1,6 +1,5 @@
 package noppes.npcs.client.renderer;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,7 +20,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomRegisters;
-import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.layer.LayerArms;
@@ -47,7 +45,6 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 	public ModelBiped npcmodel;
 	private float partialTicks;
 	private RenderLivingBase<EntityLivingBase> renderEntity;
-	private Method applyRotations;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public RenderCustomNpc(ModelBiped model) {
@@ -64,24 +61,12 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 		boolean smallArmsIn = model instanceof ModelNpcAlt && ((ModelNpcAlt) model).smallArmsIn;
 		boolean isClassicPlayer = model instanceof ModelNpcAlt && ((ModelNpcAlt) model).isClassicPlayer;
 		this.addLayer(new LayerCustomArmor(this, false, smallArmsIn, isClassicPlayer));
-		for (Method m : RenderLivingBase.class.getDeclaredMethods()) {
-			if (m.getName().equals("applyRotations")) {
-				try {
-					this.applyRotations = m;
-					this.applyRotations.setAccessible(true);
-				} catch (Exception e) { LogWriter.error("Error:", e); }
-				break;
-			}
-		}
 	}
 
 	@Override
 	protected void applyRotations(@Nonnull T npc, float handleRotation, float rotationYaw, float partialTicks) {
 		if (this.renderEntity != null) {
-			if (this.applyRotations != null) {
-				try { this.applyRotations.invoke(this.renderEntity, npc, handleRotation, rotationYaw, partialTicks); }
-				catch (Exception e) { LogWriter.error("Error:", e); }
-			}
+			NPCRendererHelper.applyRotations(this.renderEntity, npc, handleRotation, rotationYaw, partialTicks);
 			return;
 		}
 		if (npc.isEntityAlive()) {
@@ -228,7 +213,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			model.setLivingAnimations(this.entity, limbSwing, limbSwingAmount, this.partialTicks);
 			model.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.entity);
 			model.isChild = this.entity.isChild();
-			NPCRendererHelper.renderModel(this.entity, npc, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.renderEntity, model, Objects.requireNonNull(this.getEntityTexture(npc)));
+			NPCRendererHelper.renderModel(this.entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.renderEntity, model, Objects.requireNonNull(this.getEntityTexture(npc)));
 			if (!npc.display.getOverlayTexture().isEmpty()) {
 				GlStateManager.depthFunc(515);
 				if (npc.textureGlowLocation == null) {
@@ -242,7 +227,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(1.001f, 1.001f, 1.001f);
-				NPCRendererHelper.renderModel(this.entity, npc, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.renderEntity, model, npc.textureGlowLocation);
+				NPCRendererHelper.renderModel(this.entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.renderEntity, model, npc.textureGlowLocation);
 				GlStateManager.popMatrix();
 				GlStateManager.enableLighting();
 				GlStateManager.color(1.0f, 1.0f, 1.0f, f1);

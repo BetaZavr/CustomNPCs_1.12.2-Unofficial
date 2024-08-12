@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-
 import net.minecraftforge.fml.common.FMLLog;
 
 public class ObfuscationHelper {
@@ -17,7 +16,7 @@ public class ObfuscationHelper {
 		if (args.length == method.getParameters().length) {
 			Parameter[] ps = method.getParameters();
 			for (int i = 0; i < ps.length; i++) {
-				if (args[i] == null) {
+				if (args[i] == null || args[i] == Object.class) {
 					continue;
 				}
 				Class<?> clazz;
@@ -26,48 +25,46 @@ public class ObfuscationHelper {
 				} else {
 					clazz = args[i].getClass();
 				}
-
 				if (ps[i].getType() != clazz) {
 					switch (ps[i].getType().toString().toLowerCase()) {
-					case "boolean":
-						if (clazz != Boolean.class) {
+						case "boolean":
+							if (clazz != Boolean.class) {
+								return false;
+							}
+							break;
+						case "byte":
+							if (clazz != Byte.class) {
+								return false;
+							}
+							break;
+						case "short":
+							if (clazz != Short.class) {
+								return false;
+							}
+							break;
+						case "int":
+							if (clazz != Integer.class) {
+								return false;
+							}
+							break;
+						case "float":
+							if (clazz != Float.class) {
+								return false;
+							}
+							break;
+						case "double":
+							if (clazz != Double.class) {
+								return false;
+							}
+							break;
+						case "long":
+							if (clazz != Long.class) {
+								return false;
+							}
+							break;
+						default:
 							return false;
-						}
-						break;
-					case "byte":
-						if (clazz != Byte.class) {
-							return false;
-						}
-						break;
-					case "short":
-						if (clazz != Short.class) {
-							return false;
-						}
-						break;
-					case "int":
-						if (clazz != Integer.class) {
-							return false;
-						}
-						break;
-					case "float":
-						if (clazz != Float.class) {
-							return false;
-						}
-						break;
-					case "double":
-						if (clazz != Double.class) {
-							return false;
-						}
-						break;
-					case "long":
-						if (clazz != Long.class) {
-							return false;
-						}
-						break;
-					default:
-						return false;
 					}
-
 				}
 			}
 			return true;
@@ -113,38 +110,29 @@ public class ObfuscationHelper {
 	}
 
 	public static Method getMethod(Class<?> clazz, Object type, Object... args) {
-		if (type instanceof Class) {
-			Class<?> sc;
-			Class<?> cl = (Class<?>) type;
-			for (Method m : clazz.getDeclaredMethods()) {
-				if (m.getReturnType() == cl && ObfuscationHelper.checkMethod(m, args)) {
-					return m;
-				}
-				sc = m.getReturnType().getSuperclass();
-				if (sc != null && sc != m.getReturnType() && ObfuscationHelper.checkMethod(m, args)) {
-					while (sc != null) {
-						if (sc == cl) {
-							return m;
-						}
-						sc = sc.getSuperclass();
-					}
-				}
-			}
-		} else if (type instanceof Integer) {
+		if (type instanceof Integer) {
 			int pos = (int) type;
-			if (pos >= 0 && pos < clazz.getDeclaredMethods().length
-					&& ObfuscationHelper.checkMethod(clazz.getDeclaredMethods()[pos], args)) {
+			if (pos >= 0 && pos < clazz.getDeclaredMethods().length && ObfuscationHelper.checkMethod(clazz.getDeclaredMethods()[pos], args)) {
 				return clazz.getDeclaredMethods()[pos];
 			}
 		} else if (type instanceof String) {
+			Class<?> sClass = clazz;
 			String name = (String) type;
-			if (name.isEmpty()) {
-				return null;
-			}
-			for (Method m : clazz.getDeclaredMethods()) {
-				if (m.getName().equals(name) && ObfuscationHelper.checkMethod(m, args)) {
-					return m;
+			while (sClass != null) {
+				for (Method m : sClass.getDeclaredMethods()) {
+					if (m.getName().equals(name) && ObfuscationHelper.checkMethod(m, args)) { return m; }
 				}
+				sClass = sClass.getSuperclass();
+			}
+		} else if (type != null) {
+			Class<?> sClass = clazz;
+			Class<?> cl;
+			if (type instanceof Class) { cl = (Class<?>) type; } else { cl = type.getClass(); }
+			while (sClass != null) {
+				for (Method m : sClass.getDeclaredMethods()) {
+					if (m.getReturnType() == cl && ObfuscationHelper.checkMethod(m, args)) { return m; }
+				}
+				sClass = sClass.getSuperclass();
 			}
 		}
 		return null;

@@ -473,21 +473,21 @@ public class ClientEventHandler {
 			try {
 				jm = Class.forName("journeymap.client.model.Waypoint");
 				hasJourneyMap = true;
-			} catch (Exception e) { LogWriter.debug("JourneyMap is missing: "+jm); }
+			} catch (Exception e) { /*LogWriter.debug("JourneyMap is missing: "+jm);*/ }
 		}
 		if (!hasXaeroMap) {
 			Class<?> xm = null;
 			try {
 				xm = Class.forName("xaero.common.minimap.waypoints.Waypoint");
 				hasXaeroMap = true;
-			} catch (Exception e) { LogWriter.debug("XaeroMap is missing: "+xm);}
+			} catch (Exception e) { /*LogWriter.debug("XaeroMap is missing: "+xm);*/ }
 		}
 		if (!hasVoxelMap) {
 			Class<?> vm = null;
 			try {
 				vm = Class.forName("com.mamiyaotaru.voxelmap.VoxelMap");
 				hasVoxelMap = true;
-			} catch (Exception e) { LogWriter.debug("VoxelMap is missing: "+vm); }
+			} catch (Exception e) { /*LogWriter.debug("VoxelMap is missing: "+vm);*/ }
 		}
 		// Check save client Points:
 		List<MiniMapData> points = Lists.newArrayList();

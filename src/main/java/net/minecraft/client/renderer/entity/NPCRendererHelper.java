@@ -1,19 +1,23 @@
 package net.minecraft.client.renderer.entity;
 
+import com.google.common.collect.Maps;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.pathfinding.Path;
-import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.model.ModelWrapper;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.util.ObfuscationHelper;
+
+import javax.annotation.Nullable;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 public class NPCRendererHelper {
 
 	private static final ModelWrapper wrapper = new ModelWrapper();
+	private static final Map<Class<?>, Method> mapApplyRotations = Maps.newHashMap();
 
 	public static void drawLayers(EntityLivingBase entity, float p_177093_2_, float p_177093_3_, float p_177093_4_,
 			float p_177093_5_, float p_177093_6_, float p_177093_7_, float p_177093_8_,
@@ -38,31 +42,45 @@ public class NPCRendererHelper {
 		render.preRenderCallback(entity, f);
 	}
 
-	public static void renderModel(EntityLivingBase entity, EntityLivingBase parent, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, RenderLivingBase<EntityLivingBase> render, ModelBase main, ResourceLocation resource) {
+	public static void renderModel(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, RenderLivingBase<EntityLivingBase> render, ModelBase main, ResourceLocation resource) {
 		NPCRendererHelper.wrapper.mainModelOld = render.getMainModel();
 		if (!(main instanceof ModelWrapper)) {
 			NPCRendererHelper.wrapper.wrapped = main;
 			NPCRendererHelper.wrapper.texture = resource;
 			render.mainModel = NPCRendererHelper.wrapper;
 		}
-		try {
-			if (entity instanceof EntityLiving && parent instanceof EntityLiving) {
-				try {
-					Path path = ((EntityLiving) parent).getNavigator().getPath();
-					((EntityLiving) entity).getNavigator().setPath(path, ObfuscationHelper.getValue(PathNavigate.class, ((EntityLiving) parent).getNavigator(), double.class));
-					if (path != null && (netHeadYaw < -2.0f || netHeadYaw > 2.0f)) {
-						entity.turn(netHeadYaw / 3.0f, headPitch / 3.0f);
-						ObfuscationHelper.setValue(EntityLivingBase.class, entity, entity.rotationYaw, 58);
-						ObfuscationHelper.setValue(EntityLivingBase.class, entity, entity.rotationPitch, 59);
-					}
-				}
-				catch (Exception e) { LogWriter.error("Error:", e); }
-			}
-			render.renderModel(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
-		} catch (Exception e) {
-			LogWriter.except(e);
-		}
+		try { render.renderModel(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor); }
+		catch (Exception e) { LogWriter.except(e); }
 		render.mainModel = NPCRendererHelper.wrapper.mainModelOld;
+	}
+
+	public static <T extends EntityCustomNpc> void applyRotations(RenderLivingBase<EntityLivingBase> renderEntity, T entity, float handleRotation, float rotationYaw, float partialTicks) {
+		Method renderApplyRotations = getApplyRotations(renderEntity);
+		if (renderApplyRotations != null) {
+			try { renderApplyRotations.invoke(renderEntity, entity, handleRotation, rotationYaw, partialTicks); }
+			catch (Exception e) { LogWriter.error("Error render applyRotations :", e); }
+		}
+	}
+
+	private static @Nullable Method getApplyRotations(@Nullable RenderLivingBase<EntityLivingBase> renderEntity) {
+		Method renderApplyRotations = null;
+		if (renderEntity != null) {
+			if (!mapApplyRotations.containsKey(renderEntity.getClass())) {
+				renderApplyRotations = ObfuscationHelper.getMethod(renderEntity.getClass(), "applyRotations", Object.class, float.class, float.class, float.class);
+				if (renderApplyRotations == null) { renderApplyRotations = ObfuscationHelper.getMethod(renderEntity.getClass(), "func_77043_a", Object.class, float.class, float.class, float.class); }
+				mapApplyRotations.put(renderEntity.getClass(), renderApplyRotations);
+			}
+			renderApplyRotations = mapApplyRotations.get(renderEntity.getClass());
+		}
+		if (renderApplyRotations == null) { // base class
+			if (!mapApplyRotations.containsKey(RenderLivingBase.class)) {
+				renderApplyRotations = ObfuscationHelper.getMethod(RenderLivingBase.class, "applyRotations", Object.class, float.class, float.class, float.class);
+				if (renderApplyRotations == null) { renderApplyRotations = ObfuscationHelper.getMethod(RenderLivingBase.class, "func_77043_a", Object.class, float.class, float.class, float.class); }
+				mapApplyRotations.put(RenderLivingBase.class, renderApplyRotations);
+			}
+			renderApplyRotations = mapApplyRotations.get(RenderLivingBase.class);
+		}
+		return renderApplyRotations;
 	}
 
 }

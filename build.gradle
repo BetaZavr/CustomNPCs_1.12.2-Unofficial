@@ -18,7 +18,7 @@ apply plugin: 'maven-publish'
 // 4-Apr;	5-May;	6-Jun;
 // 7-Jul;	8-Aug;	9-Sep;
 // 10-Oct;	11-Nov;	12-Dec;
-version = "12Jul24-Snapshot_debug"
+version = "12Aug24-Snapshot"
 group = "noppes.npcs" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "CustomNPCs_1.12.2-Unofficial"
 
