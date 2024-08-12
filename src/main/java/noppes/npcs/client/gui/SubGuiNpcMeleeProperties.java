@@ -72,7 +72,7 @@ public class SubGuiNpcMeleeProperties extends SubGuiInterface implements ITextfi
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(1, "stats.melee strength", this.guiLeft + 5, this.guiTop + 15));
+		this.addLabel(new GuiNpcLabel(1, "stats.meleestrength", this.guiLeft + 5, this.guiTop + 15));
 		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 85, this.guiTop + 10, 50, 18, this.stats.getStrength() + ""));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(0, Integer.MAX_VALUE, 5);
@@ -80,7 +80,7 @@ public class SubGuiNpcMeleeProperties extends SubGuiInterface implements ITextfi
 		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 85, this.guiTop + 40, 50, 18, (Math.round(this.stats.getRange() * 10.0f) / 10.0f) + ""));
 		this.getTextField(2).setDoubleNumbersOnly();
 		this.getTextField(2).setMinMaxDoubleDefault(0.2d, 30.0d, 2.0d);
-		this.addLabel(new GuiNpcLabel(3, "stats.melees peed", this.guiLeft + 5, this.guiTop + 75));
+		this.addLabel(new GuiNpcLabel(3, "stats.meleespeed", this.guiLeft + 5, this.guiTop + 75));
 		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 85, this.guiTop + 70, 50, 18, this.stats.getDelay() + ""));
 		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(1, 1000, 20);
