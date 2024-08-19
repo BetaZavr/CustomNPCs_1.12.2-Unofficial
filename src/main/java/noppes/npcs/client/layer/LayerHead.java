@@ -107,9 +107,7 @@ public class LayerHead<T extends EntityLivingBase> extends LayerInterface<T> {
 
 	private void renderBeard(float par7) {
 		ModelPartData data = this.playerdata.getPartData(EnumParts.BEARD);
-		if (data == null) {
-			return;
-		}
+		if (data == null) { return; }
 		this.preRender(data);
 		this.beard.render(par7);
 	}

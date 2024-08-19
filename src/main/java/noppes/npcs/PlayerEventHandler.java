@@ -3,7 +3,14 @@ package noppes.npcs;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,7 +32,6 @@ import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
@@ -77,7 +83,7 @@ import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.blocks.BlockCustomBanner;
 import noppes.npcs.blocks.tiles.TileEntityCustomBanner;
-import noppes.npcs.client.AnalyticsTracking;
+import noppes.npcs.client.ClientEventHandler;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumQuestTask;
@@ -98,9 +104,8 @@ import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.quests.QuestObjective;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
-
-import javax.annotation.Nonnull;
 
 public class PlayerEventHandler {
 
@@ -421,16 +426,22 @@ public class PlayerEventHandler {
 		EventHooks.onPlayerContainerOpen(handler, event.getContainer());
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerContainerOpenEvent");
 	}
-
+	
 	@SubscribeEvent
 	public void npcPlayerEntityInteractEvent(PlayerInteractEvent.EntityInteract event) {
-		if (event.getEntityPlayer().world.isRemote || event.getHand() != EnumHand.MAIN_HAND
-				|| event.getWorld().isRemote) {
+		if (event.getEntityPlayer().world.isRemote || event.getHand() != EnumHand.MAIN_HAND || event.getWorld().isRemote) {
+			if (event.getHand() == EnumHand.MAIN_HAND &&
+					event.getItemStack().getItem() == CustomRegisters.nbt_book &&
+					event.getTarget() != null &&
+                    !event.getTarget().getClass().getName().contains("minecraft") &&
+                    !event.getTarget().getClass().getName().contains("noppes")) {
+				ClientEventHandler.entityClientEvent(event);
+			}
 			return;
 		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerEntityInteractEvent");
 		if (event.getItemStack().getItem() == CustomRegisters.nbt_book) {
-			((ItemNbtBook) event.getItemStack().getItem()).entityEvent(event);
+			((ItemNbtBook) event.getItemStack().getItem()).entityEvent((EntityPlayerMP) event.getEntityPlayer(), event.getTarget());
 			event.setCanceled(true);
 			return;
 		}
@@ -526,15 +537,6 @@ public class PlayerEventHandler {
 			public void sendWindowProperty(@Nonnull Container containerIn, int varToUpdate, int newValue) {
 			}
 		});
-		if (server.isSnooperEnabled()) {
-			String serverName;
-			if (server.isDedicatedServer()) {
-				serverName = "server";
-			} else {
-				serverName = (((IntegratedServer) server).getPublic() ? "lan" : "local");
-			}
-			AnalyticsTracking.sendData(event.player, "join", serverName);
-		}
 		Object array = DimensionHandler.getInstance().getAllIDs();
 		Server.sendData(player, EnumPacketClient.DIMENSION_IDS, array);
 		SyncController.syncPlayer((EntityPlayerMP) event.player);
@@ -600,7 +602,9 @@ public class PlayerEventHandler {
 		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
 		if (event.getItemStack().getItem() == CustomRegisters.nbt_book) {
-			((ItemNbtBook) event.getItemStack().getItem()).blockEvent(event);
+			Entity target = AdditionalMethods.getLookEntity(event.getEntityPlayer(), PlayerData.get(event.getEntityPlayer()).game.renderDistance);
+			if (target != null) { ((ItemNbtBook) event.getItemStack().getItem()).entityEvent((EntityPlayerMP) event.getEntityPlayer(), target); }
+			else { ((ItemNbtBook) event.getItemStack().getItem()).blockEvent((EntityPlayerMP) event.getEntityPlayer(), event.getPos()); }
 			event.setCanceled(true);
 			CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
 			return;
@@ -632,13 +636,11 @@ public class PlayerEventHandler {
 
 	@SubscribeEvent
 	public void npcPlayerRightClickItemEvent(PlayerInteractEvent.RightClickItem event) {
-		if (event.getHand() != EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote
-				|| event.getWorld().isRemote) {
+		if (event.getHand() != EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || event.getWorld().isRemote) {
 			return;
 		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
-		if (event.getEntityPlayer().isCreative() && event.getEntityPlayer().isSneaking()
-				&& event.getItemStack().getItem() == CustomRegisters.scripted_item) {
+		if (event.getEntityPlayer().isCreative() && event.getEntityPlayer().isSneaking() && event.getItemStack().getItem() == CustomRegisters.scripted_item) {
 			NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.ScriptItem, null);
 			CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
 			return;
@@ -647,21 +649,31 @@ public class PlayerEventHandler {
 		if (event.getItemStack().getItem() == CustomRegisters.nbt_book
 				|| event.getItemStack().getItem() == CustomRegisters.npcboundary
 				|| event.getItemStack().getItem() == CustomRegisters.npcbuilder) {
-			EntityPlayer player = event.getEntityPlayer();
+            EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
 			Vec3d vec3d = player.getPositionEyes(1.0f);
 			Vec3d vec3d2 = player.getLook(1.0f);
-			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 6.0d, vec3d2.y * 6.0d, vec3d2.z * 6.0d);
+			PlayerData data = PlayerData.get(player);
+			double d0 = data.game.renderDistance;
+			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * d0, vec3d2.y * d0, vec3d2.z * d0);
 			RayTraceResult result = player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
-			if (result != null) {
-				return;
-			}
-			if (!event.getEntityPlayer().world.isRemote && event.getItemStack().getItem() == CustomRegisters.nbt_book) {
-				if (!player.getHeldItemOffhand().isEmpty()) {
-					((ItemNbtBook) event.getItemStack().getItem()).itemEvent(event);
-					CustomNpcs.debugData.endDebug("Server", "Players",
-							"PlayerEventHandler_npcPlayerRightClickItemEvent");
+			if (event.getItemStack().getItem() == CustomRegisters.nbt_book) {
+				Entity target = AdditionalMethods.getLookEntity(player, d0);
+				if (target != null) {
+					((ItemNbtBook) event.getItemStack().getItem()).entityEvent(player, target);
+					CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
 					return;
 				}
+				else if (!player.getHeldItemOffhand().isEmpty()) {
+					((ItemNbtBook) event.getItemStack().getItem()).itemEvent(player);
+					CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
+					return;
+				}
+			}
+			if (result != null) {
+				if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
+					((ItemNbtBook) event.getItemStack().getItem()).blockEvent(player, result.getBlockPos());
+				}
+				return;
 			}
 			if (event.getItemStack().getItem() == CustomRegisters.npcboundary) {
 				((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(),
@@ -1382,15 +1394,11 @@ public class PlayerEventHandler {
 				//dir = new File(dir.getParentFile(), "1.16.5/CustomNpcs Un/src"); // CustomNpcs 1.16.5
 				//dir = new File(dir.getParentFile(), "net"); // Minecraft 1.12.2
 				//dir = new File(dir.getParentFile(), "nit"); // Minecraft 1.16.5
-				//dir = new File(dir.getParentFile(), "goblinbob");
-				//dir = new File(dir.getParentFile(), "goblinbob"); // Mo'Bends
-				Map<String, Map<String, List<Integer>>> found = Maps.<String, Map<String, List<Integer>>>newTreeMap();
 				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
-				//for (Method m : AdditionalMethods.class.getDeclaredMethods()) {
-				//found.put(m.getName(), null); }
-				
+
+				Map<String, Map<String, List<Integer>>> found = Maps.<String, Map<String, List<Integer>>>newTreeMap();
 				found.put("System.out.println", null);
-				//found.put("SPacketParticles", null);
+				//found.put("setEntityBoundingBox", null);
 				
 				for (File file : AdditionalMethods.getFiles(dir, "java")) {
 					try {

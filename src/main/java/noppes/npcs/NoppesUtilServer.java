@@ -483,7 +483,7 @@ public class NoppesUtilServer {
 		Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI_ERROR, i, new NBTTagCompound());
 	}
 
-	public static void sendNearbyEntitys(EntityPlayerMP player, boolean all) {
+	public static void sendNearbyEntitys(EntityPlayerMP player, boolean all) { // to gui show
 		HashMap<Float, NBTTagCompound> map = new HashMap<>();
 		List<Float> alist = Lists.newArrayList();
 		List<Float> nlist = Lists.newArrayList();
@@ -505,7 +505,6 @@ public class NoppesUtilServer {
 				alist.add(distance);
 			}
 			map.put(distance, nbt);
-
 		}
 		Collections.sort(alist);
 		Collections.sort(nlist);

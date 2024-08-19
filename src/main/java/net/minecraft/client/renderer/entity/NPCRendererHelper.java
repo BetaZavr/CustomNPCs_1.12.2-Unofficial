@@ -1,18 +1,19 @@
 package net.minecraft.client.renderer.entity;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Maps;
+
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.model.ModelWrapper;
-import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.util.ObfuscationHelper;
-
-import javax.annotation.Nullable;
-import java.lang.reflect.Method;
-import java.util.Map;
 
 public class NPCRendererHelper {
 
@@ -54,11 +55,13 @@ public class NPCRendererHelper {
 		render.mainModel = NPCRendererHelper.wrapper.mainModelOld;
 	}
 
-	public static <T extends EntityCustomNpc> void applyRotations(RenderLivingBase<EntityLivingBase> renderEntity, T entity, float handleRotation, float rotationYaw, float partialTicks) {
+	public static void applyRotations(RenderLivingBase<EntityLivingBase> renderEntity, EntityLivingBase entity, float handleRotation, float rotationYaw, float partialTicks) {
 		Method renderApplyRotations = getApplyRotations(renderEntity);
 		if (renderApplyRotations != null) {
 			try { renderApplyRotations.invoke(renderEntity, entity, handleRotation, rotationYaw, partialTicks); }
-			catch (Exception e) { LogWriter.error("Error render applyRotations :", e); }
+			catch (Exception e) {
+				LogWriter.error("Error render applyRotations [Method: " + renderApplyRotations + "; renderEntity: " + renderEntity + "; entity: " + entity + "]", e);
+			}
 		}
 	}
 
@@ -79,6 +82,9 @@ public class NPCRendererHelper {
 				mapApplyRotations.put(RenderLivingBase.class, renderApplyRotations);
 			}
 			renderApplyRotations = mapApplyRotations.get(RenderLivingBase.class);
+		}
+		if (renderApplyRotations != null && !renderApplyRotations.isAccessible()) {
+			renderApplyRotations.setAccessible(true);
 		}
 		return renderApplyRotations;
 	}

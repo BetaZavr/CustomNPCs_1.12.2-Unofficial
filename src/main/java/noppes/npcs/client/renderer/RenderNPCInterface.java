@@ -133,7 +133,8 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 				}
 			}
 		}
-		if (npc.textureLocation == null || npc.textureLocation.getResourcePath().isEmpty()) {
+		isEmpty = npc.textureLocation == null || npc.textureLocation.getResourcePath().isEmpty();
+		if (isEmpty) {
 			npc.textureLocation = DefaultPlayerSkin.getDefaultSkinLegacy();
 			npc.display.setSkinTexture(npc.textureLocation.toString());
 		}
@@ -149,7 +150,16 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 		return npc.textureLocation;
 	}
-
+	
+	protected boolean bindEntityTexture(T entity) {
+        ResourceLocation resourcelocation = this.getEntityTexture(entity);
+        if (resourcelocation == null) { return false; }
+        else {
+            this.bindTexture(resourcelocation);
+            return true;
+        }
+    }
+	
 	protected float handleRotationFloat(@Nonnull T npc, float par2) {
 		if (npc.isKilled() || !npc.display.getHasLivingAnimation()) { return 0.0f; }
 		return super.handleRotationFloat(npc, par2);
@@ -315,10 +325,8 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 		if (npc.messages != null) {
 			float height = npc.baseHeight / 5.0f * npc.display.getSize();
-			float offset = npc.height
-					* (1.2f + (npc.display.showName() ? (npc.display.getTitle().isEmpty() ? 0.15f : 0.25f) : 0.0f));
-			npc.messages.renderMessages(d, d1 + offset, d2, 0.666667f * height,
-					npc.isInRange(this.renderManager.renderViewEntity, 4.0));
+			float offset = npc.height * (1.2f + (npc.display.showName() ? (npc.display.getTitle().isEmpty() ? 0.15f : 0.25f) : 0.0f));
+			npc.messages.renderMessages(d, d1 + offset, d2, 0.666667f * height, npc.isInRange(this.renderManager.renderViewEntity, 4.0));
 		}
 		float scale = npc.baseHeight / 5.0f * npc.display.getSize();
 		if (npc.display.showName()) {

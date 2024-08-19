@@ -147,7 +147,7 @@ public class LayerCustomArmor<T extends ModelBase> extends LayerArmorBase<ModelB
 		t.setModelAttributes(this.renderer.getMainModel());
 		t.setLivingAnimations(entityLivingBaseIn, limbSwing, limbSwingAmount, partialTicks);
 		this.setModelSlotVisible((ModelBiped) t, slotIn);
-		this.renderer.bindTexture(this.getArmorResource(entityLivingBaseIn, itemstack, slotIn, ""));
+		this.renderer.bindTexture(this.getArmorResource(entityLivingBaseIn, itemstack, slotIn, null));
 		if (isAW) {
 			t = (T) this.getModelFromSlot(slotIn);
 			t.setModelAttributes(this.renderer.getMainModel());
@@ -171,6 +171,7 @@ public class LayerCustomArmor<T extends ModelBase> extends LayerArmorBase<ModelB
 		}
 		// Non-colored
 		GlStateManager.color(colorR, colorG, colorB, alpha);
+		if (t instanceof ModelBipedAlt) { ((ModelBipedAlt) t).setSlot(slotIn); }
 		t.render(entityLivingBaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 		// Default
 		if (!this.skipRenderGlint && itemstack.hasEffect()) {

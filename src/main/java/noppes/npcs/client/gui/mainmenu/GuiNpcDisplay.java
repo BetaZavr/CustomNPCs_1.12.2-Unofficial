@@ -5,6 +5,7 @@ import java.util.Arrays;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.ModelPartConfig;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
@@ -13,13 +14,15 @@ import noppes.npcs.client.gui.model.GuiCreationParts;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumPacketServer;
+import noppes.npcs.constants.EnumParts;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataDisplay;
 
@@ -27,11 +30,21 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 
 	private final DataDisplay display;
 	private boolean enableInvisibleNpcs;
-
+	private float baseHitBoxWidth, baseHitBoxHeight;
+	
 	public GuiNpcDisplay(EntityNPCInterface npc) {
 		super(npc, 1);
 		this.display = npc.display;
 		Client.sendData(EnumPacketServer.MainmenuDisplayGet);
+		
+		this.baseHitBoxWidth = 0.8f;
+		this.baseHitBoxHeight = npc.baseHeight;
+
+		if (npc instanceof EntityCustomNpc && this.display.getModel() != null) {
+			ModelData modeldata = ((EntityCustomNpc) npc).modelData;
+			this.baseHitBoxWidth = modeldata.entity.width;
+			this.baseHitBoxHeight = modeldata.entity.height;
+		}
 	}
 
 	@Override
@@ -86,7 +99,11 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 				break;
 			}
 			case 13: {
-				this.display.setHasHitbox(((GuiNpcButtonYesNo) button).getBoolean());
+				this.display.setHasHitbox(button.getValue() != 1);
+				this.getLabel(20).enabled = button.getValue() == 2;
+				this.getLabel(21).enabled = button.getValue() == 2;
+				this.getTextField(12).setVisible(button.getValue() == 2);
+				this.getTextField(13).setVisible(button.getValue() == 2);
 				break;
 			}
 			case 14: {
@@ -133,6 +150,29 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 			this.setHoverText(new TextComponentTranslation("display.hover.eyes").getFormattedText());
 		} else if (this.getTextField(11) != null && this.getTextField(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.subname").getFormattedText());
+		} else if (this.getTextField(12) != null && this.getTextField(12).isMouseOver()) {
+			float w = this.npc.width;
+			if (this.npc instanceof EntityCustomNpc) {
+				float scaleHead = 1.0f, scaleBody = 1.0f;
+				if (this.display.getModel() != null) {
+					ModelData modeldata = ((EntityCustomNpc) npc).modelData;
+					ModelPartConfig model = modeldata.getPartConfig(EnumParts.HEAD);
+					scaleHead = Math.max(model.scale[0], model.scale[2]);
+					model = modeldata.getPartConfig(EnumParts.BODY);
+					scaleBody = Math.max(model.scale[0], model.scale[2]);
+					w = modeldata.entity.width;
+				}
+				w *= Math.max(scaleHead, scaleBody);
+				w = w / 5.0f * this.display.getSize();
+			}
+			this.setHoverText(new TextComponentTranslation("display.hover.hitbox.width", ("" + Math.round(this.baseHitBoxWidth * 1000.0) / 1000.0).replace(".", ","), ("" + Math.round(w * 1000.0) / 1000.0).replace(".", ",")).getFormattedText());
+		} else if (this.getTextField(13) != null && this.getTextField(13).isMouseOver()) {
+			float h = this.npc.height;
+			if (this.npc instanceof EntityCustomNpc) {
+				if (this.display.getModel() != null) { h = ((EntityCustomNpc) npc).modelData.entity.height; }
+				h = h / 5.0f * this.display.getSize();
+			}
+			this.setHoverText(new TextComponentTranslation("display.hover.hitbox.height", ("" + Math.round(this.baseHitBoxHeight * 1000.0) / 1000.0).replace(".", ","), ("" + Math.round(h * 1000.0) / 1000.0).replace(".", ",")).getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.show.name").getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
@@ -176,24 +216,25 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 	public void initGui() {
 		super.initGui();
 		int y = this.guiTop + 4;
-		this.addLabel(new GuiNpcLabel(0, "gui.name", this.guiLeft + 5, y + 5));
+		int lID = 0;
+		this.addLabel(new GuiNpcLabel(lID++, "gui.name", this.guiLeft + 5, y + 5));
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 50, y, 206, 20, this.display.getName()));
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 253 + 52, y, 110, 20, new String[] { "display.show", "display.hide", "display.showAttacking" }, this.display.getShowName()));
 		this.addButton(new GuiNpcButton(14, this.guiLeft + 259, y, 20, 20, Character.toString((char) 8635)));
 		this.addButton(new GuiNpcButton(15, this.guiLeft + 259 + 22, y, 20, 20, Character.toString((char) 8942)));
 		y += 23;
-		this.addLabel(new GuiNpcLabel(1, "gui.title", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "gui.title", this.guiLeft + 5, y + 5));
 		this.addTextField(new GuiNpcTextField(11, this, this.fontRenderer, this.guiLeft + 50, y, 186, 20, this.display.getTitle()));
 		y += 23;
-		this.addLabel(new GuiNpcLabel(2, "display.model", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "display.model", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 50, y, 110, 20, "selectServer.edit"));
-		this.addLabel(new GuiNpcLabel(3, "display.size", this.guiLeft + 175, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "display.size", this.guiLeft + 175, y + 5));
 		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 203, y, 40, 20, this.display.getSize() + ""));
 		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMinMaxDefault(1, 30, 5);
-		this.addLabel(new GuiNpcLabel(4, "(1-30)", this.guiLeft + 246, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "(1-30)", this.guiLeft + 246, y + 5));
 		y += 23;
-		this.addLabel(new GuiNpcLabel(5, "display.texture", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "display.texture", this.guiLeft + 5, y + 5));
 		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 80, y, 200, 20, (this.display.skinType == 0) ? this.display.getSkinTexture() : this.display.getSkinUrl()));
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 325, y, 38, 20, "mco.template.button.select"));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 283, y, 40, 20, new String[] { "display.texture", "display.player", "display.url" }, this.display.skinType));
@@ -202,36 +243,54 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 			this.getTextField(3).setText(this.display.getSkinPlayer());
 		}
 		y += 23;
-		this.addLabel(new GuiNpcLabel(6, "display.cape", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "display.cape", this.guiLeft + 5, y + 5));
 		this.addTextField(new GuiNpcTextField(8, this, this.fontRenderer, this.guiLeft + 80, y, 200, 20, this.display.getCapeTexture()));
 		this.addButton(new GuiNpcButton(8, this.guiLeft + 283, y, 80, 20, "display.selectTexture"));
 		y += 23;
-		this.addLabel(new GuiNpcLabel(7, "display.overlay", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "display.overlay", this.guiLeft + 5, y + 5));
 		this.addTextField(new GuiNpcTextField(9, this, this.fontRenderer, this.guiLeft + 80, y, 200, 20, this.display.getOverlayTexture()));
 		this.addButton(new GuiNpcButton(9, this.guiLeft + 283, y, 80, 20, "display.selectTexture"));
 		y += 23;
-		this.addLabel(new GuiNpcLabel(8, "display.livingAnimation", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "display.livingAnimation", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(5, this.guiLeft + 120, y, 50, 20, new String[] { "gui.yes", "gui.no" }, (this.display.getHasLivingAnimation() ? 0 : 1)));
-		this.addLabel(new GuiNpcLabel(9, "display.tint", this.guiLeft + 180, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "display.tint", this.guiLeft + 180, y + 5));
 		StringBuilder color = new StringBuilder(Integer.toHexString(this.display.getTint()));
 		while (color.length() < 6) { color.insert(0, "0"); }
 		this.addTextField(new GuiNpcTextField(6, this, this.guiLeft + 220, y, 60, 20, color.toString()));
 		this.getTextField(6).setTextColor(this.display.getTint());
 
-		this.addLabel(new GuiNpcLabel(10, "display.shadow", this.guiLeft + 285, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "display.shadow", this.guiLeft + 285, y + 5));
 		this.addButton(new GuiNpcButton(4, this.guiLeft + 325, y, 50, 20, new String[] { "0%%", "50%%", "100%%", "150%%" }, this.display.getShadowType()));
 
 		y += 23;
-		this.addLabel(new GuiNpcLabel(11, "display.visible", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "display.visible", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(7, this.guiLeft + 40, y, 50, 20, new String[] { "gui.yes", "gui.no", "gui.partly" }, this.display.getVisible()));
 		this.addButton(new GuiNpcButton(16, this.guiLeft + 92, y, 78, 20, "availability.available"));
 		this.getButton(16).enabled = (this.enableInvisibleNpcs && this.display.getVisible() == 1); // Changed
-		this.addLabel(new GuiNpcLabel(12, "display.interactable", this.guiLeft + 180, y + 5));
-		this.addButton(new GuiNpcButtonYesNo(13, this.guiLeft + 280, y, this.display.getHasHitbox()));
+		this.addLabel(new GuiNpcLabel(lID++, "display.interactable", this.guiLeft + 180, y + 5));
+		
+		int hb = this.display.getHasHitbox() ? 0 : 1;
+		if (this.display.getHasHitbox() && this.display.width != 0.0f && this.display.height != 0.0f) { hb = 2; }
+		int x = this.guiLeft + 240;
+		this.addButton(new GuiNpcButton(13, x, y, 50, 20, new String[] { "gui.yes", "gui.no", "gui.set"}, hb));
+
+		this.addLabel(new GuiNpcLabel(20, "W:", x += 54, y + 5));
+		this.addTextField(new GuiNpcTextField(12, this, this.fontRenderer, x += 8, y + 1, 50, 18, "" + this.display.width));
+		this.addLabel(new GuiNpcLabel(21, "H:", x += 54, y + 5));
+		this.addTextField(new GuiNpcTextField(13, this, this.fontRenderer, x += 8, y + 1, 50, 18, "" + this.display.height));
+		this.getLabel(20).enabled = hb == 2;
+		this.getLabel(21).enabled = hb == 2;
+		this.getTextField(12).setVisible(hb == 2);
+		this.getTextField(12).setDoubleNumbersOnly();
+		this.getTextField(12).setMinMaxDoubleDefault(0.0, 7.5, this.display.width);
+		this.getTextField(13).setVisible(hb == 2);
+		this.getTextField(13).setDoubleNumbersOnly();
+		this.getTextField(13).setMinMaxDoubleDefault(0.0, 15.0, this.display.height);
+				
 		y += 23;
-		this.addLabel(new GuiNpcLabel(13, "display.bossbar", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "display.bossbar", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(10, this.guiLeft + 60, y, 110, 20, new String[] { "display.hide", "display.show", "display.showAttacking" }, this.display.getBossbar()));
-		this.addLabel(new GuiNpcLabel(14, "gui.color", this.guiLeft + 180, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, "gui.color", this.guiLeft + 180, y + 5));
 		this.addButton(new GuiNpcButton(12, this.guiLeft + 220, y, 110, 20, this.display.getBossColor(), "color.pink", "color.blue", "color.red", "color.green", "color.yellow", "color.purple", "color.white"));
 	}
 
@@ -285,6 +344,10 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 			this.display.setOverlayTexture(textfield.getText());
 		} else if (textfield.getId() == 11) {
 			this.display.setTitle(textfield.getText());
+		} else if (textfield.getId() == 12) {
+			this.display.width = (float) textfield.getDouble();
+		} else if (textfield.getId() == 13) {
+			this.display.height = (float) textfield.getDouble();
 		}
 	}
 

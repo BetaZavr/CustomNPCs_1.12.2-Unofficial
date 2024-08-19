@@ -18,7 +18,9 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.inventory.ContainerPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -49,6 +51,7 @@ import noppes.npcs.client.util.MusicData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumScriptType;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerMail;
@@ -205,8 +208,31 @@ public class ClientTickHandler {
 		}
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
-			MusicController.Instance.checkBards(mc.player);
 			ClientTickHandler.loadFiles();
+			if (mc.playerController != null) {
+				double d0 = (double) mc.playerController.getBlockReachDistance();
+				if (mc.playerController.extendedReach()) { d0 = 6.0; }
+				if (ClientProxy.playerData.game.blockReachDistance != d0) {
+					ClientProxy.playerData.game.blockReachDistance = d0;
+					ClientProxy.playerData.game.updateClient = true;
+				}
+				double d1 = mc.gameSettings.getOptionFloatValue(GameSettings.Options.RENDER_DISTANCE) * 16.0;
+				if (ClientProxy.playerData.game.renderDistance != d1) {
+					ClientProxy.playerData.game.renderDistance = d1;
+					ClientProxy.playerData.game.updateClient = true;
+				}
+			} else {
+				ClientProxy.playerData.game.blockReachDistance = 0.0d;
+				ClientProxy.playerData.game.renderDistance = 0.0d;
+				ClientProxy.playerData.game.updateClient = true;
+			}
+			if (mc.player != null) {
+				MusicController.Instance.checkBards(mc.player);
+				if (ClientProxy.playerData.game.updateClient) {
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.SendSyncData, EnumSync.GameData, ClientProxy.playerData.game.saveNBTData(new NBTTagCompound()));
+					ClientProxy.playerData.game.updateClient = false;
+				}
+			}
 		}
 		if (ScriptController.Instance.clientScripts.isEnabled()) {
 			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new PlayerEvent.UpdateEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player)));

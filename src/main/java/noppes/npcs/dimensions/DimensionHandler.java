@@ -45,14 +45,16 @@ import javax.annotation.Nonnull;
 
 public class DimensionHandler extends WorldSavedData implements IDimensionHandler {
 	static String NAME = "CustomNpcsHandler";
-
+	
+	public DimensionHandler(String mapName) {
+		super(mapName);
+	}
+	
 	public static DimensionHandler getInstance() {
-		DimensionHandler INSTANCE = (DimensionHandler) Objects.requireNonNull(FMLCommonHandler.instance().getMinecraftServerInstance()
-                .getEntityWorld().getMapStorage()).getOrLoadData(DimensionHandler.class, DimensionHandler.NAME);
+		DimensionHandler INSTANCE = (DimensionHandler) Objects.requireNonNull(FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld().getMapStorage()).getOrLoadData(DimensionHandler.class, DimensionHandler.NAME);
 		if (INSTANCE == null) {
 			INSTANCE = new DimensionHandler();
-			FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld().getMapStorage()
-					.setData(DimensionHandler.NAME, INSTANCE);
+			FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld().getMapStorage().setData(DimensionHandler.NAME, INSTANCE);
 		}
 		return INSTANCE;
 	}

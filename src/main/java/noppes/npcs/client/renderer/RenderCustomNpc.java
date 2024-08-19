@@ -65,8 +65,8 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 
 	@Override
 	protected void applyRotations(@Nonnull T npc, float handleRotation, float rotationYaw, float partialTicks) {
-		if (this.renderEntity != null) {
-			NPCRendererHelper.applyRotations(this.renderEntity, npc, handleRotation, rotationYaw, partialTicks);
+		if (this.renderEntity != null && !(this.renderEntity instanceof RenderCustomNpc)) {
+			NPCRendererHelper.applyRotations(this.renderEntity, this.entity, handleRotation, rotationYaw, partialTicks);
 			return;
 		}
 		if (npc.isEntityAlive()) {
@@ -176,10 +176,8 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 				if (layerrenderer.getClass().getSimpleName().equals("SkinLayerRendererCustomNPC")) {
 					continue;
 				}
-				boolean flag = this.setBrightness(entitylivingbaseIn, partialTicks,
-						layerrenderer.shouldCombineTextures());
-				layerrenderer.doRenderLayer(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks,
-						netHeadYaw, headPitch, scaleIn);
+				boolean flag = this.setBrightness(entitylivingbaseIn, partialTicks, layerrenderer.shouldCombineTextures());
+				layerrenderer.doRenderLayer(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
 				if (flag) {
 					this.unsetBrightness();
 				}

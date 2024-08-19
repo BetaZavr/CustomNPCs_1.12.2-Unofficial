@@ -116,9 +116,7 @@ public class Model2DRenderer extends ModelRenderer {
 	
 	@Override
 	public void render(float scale) {
-		if (!this.showModel || this.isHidden) {
-			return;
-		}
+		if (!this.showModel || this.isHidden) { return; }
 		if (!this.isCompiled) { this.compile(scale); }
 		GlStateManager.pushMatrix();
 		this.postRender(scale);

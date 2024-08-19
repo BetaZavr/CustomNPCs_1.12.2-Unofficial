@@ -176,5 +176,11 @@ public interface IPlayer<T extends EntityPlayer> extends IEntityLivingBase<T> {
 	void updatePlayerInventory();
 
 	IEntity<?> getRidingEntity();
-
+	
+	IEntity<?> getLookingEntity();
+	
+	IBlock getLookingBlock();
+	
+	double getBlockReachDistance();
+	
 }

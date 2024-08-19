@@ -3,7 +3,12 @@ package noppes.npcs.client;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeSet;
 
 import org.lwjgl.opengl.GL11;
 
@@ -52,10 +57,13 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomPacketHandler;
 import noppes.npcs.EventHooks;
@@ -66,11 +74,13 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.item.ISpecBuilder;
 import noppes.npcs.blocks.tiles.TileBuilder;
+import noppes.npcs.client.gui.GuiNbtBook;
 import noppes.npcs.client.gui.GuiNpcPather;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.renderer.MarkRenderer;
+import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumScriptType;
@@ -685,4 +695,23 @@ public class ClientEventHandler {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MiniMapData, mm.saveNBTData(new NBTTagCompound()));
 		}
 	}
+
+
+	@SideOnly(Side.CLIENT)
+	public static void entityClientEvent(EntityInteract event) {
+		CustomNpcs.proxy.openGui(0, 0, 0, EnumGuiType.NbtBook, event.getEntityPlayer());
+		CustomNPCsScheduler.runTack(() -> {
+			Minecraft mc = Minecraft.getMinecraft();
+			if (mc.currentScreen instanceof GuiNbtBook) {
+				((GuiNbtBook) mc.currentScreen).entityId = event.getTarget().getEntityId();
+				((GuiNbtBook) mc.currentScreen).entity = event.getTarget();
+				NBTTagCompound compound = new NBTTagCompound();
+				((GuiNbtBook) mc.currentScreen).originalCompound = event.getTarget().writeToNBT(compound);
+				((GuiNbtBook) mc.currentScreen).compound = ((GuiNbtBook) mc.currentScreen).originalCompound;
+				mc.currentScreen.initGui();
+			}
+		}, 250);
+		
+	}
+	
 }

@@ -55,79 +55,78 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 0: {
-			if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
-				return;
-			}
-			Entity entity = this.mc.world.getEntityByID(this.dataIDs.get(scroll.getSelected()));
-			if (entity instanceof EntityNPCInterface) {
-				Client.sendData(EnumPacketServer.RemoteMainMenu, this.dataIDs.get(this.scroll.getSelected()));
-				return;
-			} else {
-				if (entity == null) {
+			case 0: {
+				if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
 					return;
 				}
-				GuiNbtBook gui = new GuiNbtBook(0, 0, 0);
-				NBTTagCompound data = new NBTTagCompound();
-				entity.writeToNBTAtomically(data);
-				NBTTagCompound compound = new NBTTagCompound();
-				compound.setInteger("EntityId", entity.getEntityId());
-				compound.setTag("Data", data);
-				gui.setGuiData(compound);
-				this.mc.displayGuiScreen(gui);
-			}
-			break;
-		}
-		case 1: { // remove entity
-			if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
-				return;
-			}
-			GuiYesNo guiyesno = new GuiYesNo(this, this.scroll.getSelected(),
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			this.displayGuiScreen(guiyesno);
-			break;
-		}
-		case 2: {
-			if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
-				return;
-			}
-			Client.sendData(EnumPacketServer.RemoteReset, this.dataIDs.get(this.scroll.getSelected()));
-			Entity entity2 = this.player.world.getEntityByID(this.dataIDs.get(this.scroll.getSelected()));
-			if (entity2 instanceof EntityNPCInterface) {
-				((EntityNPCInterface) entity2).reset();
-			}
-			break;
-		}
-		case 3: {
-			Client.sendData(EnumPacketServer.RemoteFreeze);
-			break;
-		}
-		case 4: { // tp
-			if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
-				return;
-			}
-			Client.sendData(EnumPacketServer.RemoteTpToNpc, this.dataIDs.get(this.scroll.getSelected()));
-			CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all), 250);
-			break;
-		}
-		case 5: {
-			for (int ids : this.dataIDs.values()) {
-				Client.sendData(EnumPacketServer.RemoteReset, ids);
-				Entity entity = this.player.world.getEntityByID(ids);
+				Entity entity = this.mc.world.getEntityByID(this.dataIDs.get(scroll.getSelected()));
 				if (entity instanceof EntityNPCInterface) {
-					((EntityNPCInterface) entity).reset();
+					Client.sendData(EnumPacketServer.RemoteMainMenu, this.dataIDs.get(this.scroll.getSelected()));
+					return;
+				} else {
+					if (entity == null) {
+						return;
+					}
+					GuiNbtBook gui = new GuiNbtBook(0, 0, 0);
+					NBTTagCompound data = new NBTTagCompound();
+					entity.writeToNBTAtomically(data);
+					NBTTagCompound compound = new NBTTagCompound();
+					compound.setInteger("EntityId", entity.getEntityId());
+					compound.setTag("Data", data);
+					gui.setGuiData(compound);
+					this.mc.displayGuiScreen(gui);
 				}
+				break;
 			}
-			break;
-		}
-		case 6: {
-			GuiNpcRemoteEditor.all = ((GuiNpcCheckBox) button).isSelected();
-			Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
-			break;
-		}
-		default: {
-
-		}
+			case 1: { // remove entity
+				if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
+					return;
+				}
+				GuiYesNo guiyesno = new GuiYesNo(this, this.scroll.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+				this.displayGuiScreen(guiyesno);
+				break;
+			}
+			case 2: {
+				if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
+					return;
+				}
+				Client.sendData(EnumPacketServer.RemoteReset, this.dataIDs.get(this.scroll.getSelected()));
+				Entity entity2 = this.player.world.getEntityByID(this.dataIDs.get(this.scroll.getSelected()));
+				if (entity2 instanceof EntityNPCInterface) {
+					((EntityNPCInterface) entity2).reset();
+				}
+				break;
+			}
+			case 3: {
+				Client.sendData(EnumPacketServer.RemoteFreeze);
+				break;
+			}
+			case 4: { // tp
+				if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
+					return;
+				}
+				Client.sendData(EnumPacketServer.RemoteTpToNpc, this.dataIDs.get(this.scroll.getSelected()));
+				CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all), 250);
+				break;
+			}
+			case 5: {
+				for (int ids : this.dataIDs.values()) {
+					Client.sendData(EnumPacketServer.RemoteReset, ids);
+					Entity entity = this.player.world.getEntityByID(ids);
+					if (entity instanceof EntityNPCInterface) {
+						((EntityNPCInterface) entity).reset();
+					}
+				}
+				break;
+			}
+			case 6: {
+				GuiNpcRemoteEditor.all = ((GuiNpcCheckBox) button).isSelected();
+				Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
+				break;
+			}
+			default: {
+	
+			}
 		}
 	}
 

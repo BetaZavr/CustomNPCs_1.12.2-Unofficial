@@ -60,8 +60,27 @@ import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.SyncController;
-import noppes.npcs.controllers.data.*;
+import noppes.npcs.controllers.data.BankData;
+import noppes.npcs.controllers.data.ClientScriptData;
+import noppes.npcs.controllers.data.Deal;
+import noppes.npcs.controllers.data.DealMarkup;
+import noppes.npcs.controllers.data.EncryptData;
+import noppes.npcs.controllers.data.ForgeScriptData;
+import noppes.npcs.controllers.data.Marcet;
+import noppes.npcs.controllers.data.MarkData;
+import noppes.npcs.controllers.data.NpcScriptData;
+import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.controllers.data.PlayerFactionData;
+import noppes.npcs.controllers.data.PlayerGameData;
 import noppes.npcs.controllers.data.PlayerGameData.FollowerSet;
+import noppes.npcs.controllers.data.PlayerMail;
+import noppes.npcs.controllers.data.PlayerMailData;
+import noppes.npcs.controllers.data.PlayerOverlayHUD;
+import noppes.npcs.controllers.data.PlayerQuestData;
+import noppes.npcs.controllers.data.PlayerScriptData;
+import noppes.npcs.controllers.data.PotionScriptData;
+import noppes.npcs.controllers.data.Quest;
+import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemBuilder;
@@ -1037,6 +1056,9 @@ public class PacketHandlerPlayer {
 			data.minimap.loadNBTData(Server.readNBT(buffer));
 		} else if (type == EnumPlayerPacket.InGame) {
 			EventHooks.onEvent(data.scriptData, EnumScriptType.IN_GAME, new PlayerEvent.LoginEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player)));
+		} else if (type == EnumPlayerPacket.SendSyncData) {
+			EnumSync synctype = EnumSync.values()[buffer.readInt()];
+			SyncController.update(synctype, Server.readNBT(buffer), buffer, player);
 		}
 		CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 	}

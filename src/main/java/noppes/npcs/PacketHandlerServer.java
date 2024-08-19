@@ -472,8 +472,7 @@ public class PacketHandlerServer {
 
             QuestController.instance.saveQuest(category, quest);
             Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-            Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData,
-                    category.writeNBT(new NBTTagCompound()));
+            Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData, category.writeNBT(new NBTTagCompound()));
         } else if (type == EnumPacketServer.QuestReset) {
             Quest quest = new Quest(null);
             quest.readNBT(Server.readNBT(buffer));

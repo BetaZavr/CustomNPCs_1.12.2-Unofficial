@@ -351,168 +351,168 @@ public class SyncController {
 	// SYNC_UPDATE
 	public static void update(EnumSync synctype, NBTTagCompound compound, ByteBuf buffer, EntityPlayer player) {
 		switch (synctype) {
-		case FactionsData: {
-			Faction faction = new Faction();
-			faction.readNBT(compound);
-			FactionController.instance.factions.put(faction.id, faction);
-			break;
-		}
-		case QuestData: {
-			int id = compound.getInteger("Id");
-			if (QuestController.instance.quests.containsKey(id)) {
-				Quest quest = QuestController.instance.quests.get(id);
-				quest.readNBT(compound);
-			} else {
-				QuestCategory category = QuestController.instance.categories.get(buffer.readInt());
-				Quest quest = new Quest(category);
-				quest.readNBT(compound);
-				QuestController.instance.quests.put(quest.id, quest);
-				category.quests.put(quest.id, quest);
+			case FactionsData: {
+				Faction faction = new Faction();
+				faction.readNBT(compound);
+				FactionController.instance.factions.put(faction.id, faction);
+				break;
 			}
-			for (Quest q : PlayerQuestController.getActiveQuests(player)) {
-				if (q.id != id) {
-					continue;
+			case QuestData: {
+				int id = compound.getInteger("Id");
+				if (QuestController.instance.quests.containsKey(id)) {
+					Quest quest = QuestController.instance.quests.get(id);
+					quest.readNBT(compound);
+				} else {
+					QuestCategory category = QuestController.instance.categories.get(buffer.readInt());
+					Quest quest = new Quest(category);
+					quest.readNBT(compound);
+					QuestController.instance.quests.put(quest.id, quest);
+					category.quests.put(quest.id, quest);
 				}
-				q.readNBT(compound);
-			}
-			break;
-		}
-		case QuestCategoriesData: {
-			QuestCategory category = new QuestCategory();
-			category.readNBT(compound);
-			QuestController.instance.categories.put(category.id, category);
-			break;
-		}
-		case DialogData: {
-			if (DialogController.instance.dialogs.containsKey(compound.getInteger("DialogId"))) {
-				Dialog dialog = DialogController.instance.dialogs.get(compound.getInteger("DialogId"));
-				dialog.readNBT(compound);
-			} else {
-				DialogCategory category = DialogController.instance.categories.get(buffer.readInt());
-				Dialog dialog = new Dialog(category);
-				dialog.readNBT(compound);
-				DialogController.instance.dialogs.put(dialog.id, dialog);
-				category.dialogs.put(dialog.id, dialog);
-			}
-			break;
-		}
-		case DialogCategoriesData: {
-			DialogCategory category = new DialogCategory();
-			category.readNBT(compound);
-			DialogController.instance.categories.put(category.id, category);
-			break;
-		}
-		case RecipesData: {
-			if (compound.getKeySet().isEmpty()) {
-				if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
-					return;
+				for (Quest q : PlayerQuestController.getActiveQuests(player)) {
+					if (q.id != id) {
+						continue;
+					}
+					q.readNBT(compound);
 				}
-				RecipeController.getInstance().globalList.clear();
-				RecipeController.getInstance().modList.clear();
-			} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
-				RecipeController.getInstance().delete(compound.getString("Name"), compound.getString("Group"));
-			} else {
-				RecipeController.getInstance().loadNBTRecipe(compound);
+				break;
 			}
-			break;
-		}
-		case AnimationData: {
-			if (compound.getKeySet().isEmpty()) {
-				if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
-					return;
+			case QuestCategoriesData: {
+				QuestCategory category = new QuestCategory();
+				category.readNBT(compound);
+				QuestController.instance.categories.put(category.id, category);
+				break;
+			}
+			case DialogData: {
+				if (DialogController.instance.dialogs.containsKey(compound.getInteger("DialogId"))) {
+					Dialog dialog = DialogController.instance.dialogs.get(compound.getInteger("DialogId"));
+					dialog.readNBT(compound);
+				} else {
+					DialogCategory category = DialogController.instance.categories.get(buffer.readInt());
+					Dialog dialog = new Dialog(category);
+					dialog.readNBT(compound);
+					DialogController.instance.dialogs.put(dialog.id, dialog);
+					category.dialogs.put(dialog.id, dialog);
 				}
-				AnimationController.getInstance().animations.clear();
-				AnimationController.getInstance().emotions.clear();
-			} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
-				AnimationController.getInstance().removeAnimation(compound.getInteger("ID"));
-			} else {
-				AnimationController.getInstance().loadAnimation(compound);
+				break;
 			}
-			break;
-		}
-		case EmotionData: {
-			if (compound.getKeySet().isEmpty()) {
-				if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
-					return;
+			case DialogCategoriesData: {
+				DialogCategory category = new DialogCategory();
+				category.readNBT(compound);
+				DialogController.instance.categories.put(category.id, category);
+				break;
+			}
+			case RecipesData: {
+				if (compound.getKeySet().isEmpty()) {
+					if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
+						return;
+					}
+					RecipeController.getInstance().globalList.clear();
+					RecipeController.getInstance().modList.clear();
+				} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
+					RecipeController.getInstance().delete(compound.getString("Name"), compound.getString("Group"));
+				} else {
+					RecipeController.getInstance().loadNBTRecipe(compound);
 				}
-				AnimationController.getInstance().emotions.clear();
-			} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
-				AnimationController.getInstance().removeEmotion(compound.getInteger("ID"));
-			} else {
-				AnimationController.getInstance().loadEmotion(compound);
+				break;
 			}
-			break;
-		}
-		case PlayerGameData: {
-			ClientProxy.playerData.game.readFromNBT(compound);
-			CustomNpcs.proxy.updateGUI();
-			break;
-		}
-		case PlayerQuestData: {
-			ClientProxy.playerData.questData.loadNBTData(compound);
-			CustomNpcs.proxy.updateGUI();
-			break;
-		}
-		case KeysData: {
-			KeyController.getInstance().loadKey(compound);
-			CustomNpcs.proxy.updateKeys();
-			break;
-		}
-		case BankData: {
-			Bank bank = BankController.getInstance().getBank(compound.getInteger("BankID"));
-			if (bank != null) {
-				bank.readFromNBT(compound);
-			} else {
-				bank = new Bank();
-				bank.readFromNBT(compound);
-				BankController.getInstance().banks.put(bank.id, bank);
+			case AnimationData: {
+				if (compound.getKeySet().isEmpty()) {
+					if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
+						return;
+					}
+					AnimationController.getInstance().animations.clear();
+					AnimationController.getInstance().emotions.clear();
+				} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
+					AnimationController.getInstance().removeAnimation(compound.getInteger("ID"));
+				} else {
+					AnimationController.getInstance().loadAnimation(compound);
+				}
+				break;
 			}
-			break;
-		}
-		case GameData: {
-			PlayerData data = CustomNpcs.proxy.getPlayerData(player);
-			if (data != null) {
-				data.game.readFromNBT(compound);
+			case EmotionData: {
+				if (compound.getKeySet().isEmpty()) {
+					if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
+						return;
+					}
+					AnimationController.getInstance().emotions.clear();
+				} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
+					AnimationController.getInstance().removeEmotion(compound.getInteger("ID"));
+				} else {
+					AnimationController.getInstance().loadEmotion(compound);
+				}
+				break;
 			}
-			break;
-		}
-		case MailData: {
-			if (compound.hasKey("MailData", 9)) {
+			case PlayerGameData: {
+				ClientProxy.playerData.game.readFromNBT(compound);
+				CustomNpcs.proxy.updateGUI();
+				break;
+			}
+			case PlayerQuestData: {
+				ClientProxy.playerData.questData.loadNBTData(compound);
+				CustomNpcs.proxy.updateGUI();
+				break;
+			}
+			case KeysData: {
+				KeyController.getInstance().loadKey(compound);
+				CustomNpcs.proxy.updateKeys();
+				break;
+			}
+			case BankData: {
+				Bank bank = BankController.getInstance().getBank(compound.getInteger("BankID"));
+				if (bank != null) {
+					bank.readFromNBT(compound);
+				} else {
+					bank = new Bank();
+					bank.readFromNBT(compound);
+					BankController.getInstance().banks.put(bank.id, bank);
+				}
+				break;
+			}
+			case GameData: {
 				PlayerData data = CustomNpcs.proxy.getPlayerData(player);
 				if (data != null) {
-					data.mailData.loadNBTData(compound);
+					data.game.readFromNBT(compound);
 				}
+				break;
 			}
-			if (compound.hasKey("LettersBeDeleted", 3)) {
-				CustomNpcs.MailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
+			case MailData: {
+				if (compound.hasKey("MailData", 9)) {
+					PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+					if (data != null) {
+						data.mailData.loadNBTData(compound);
+					}
+				}
+				if (compound.hasKey("LettersBeDeleted", 3)) {
+					CustomNpcs.MailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
+				}
+				if (compound.hasKey("LettersBeReceived", 11)) {
+					int[] vs = compound.getIntArray("LettersBeReceived");
+	                System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
+				}
+				if (compound.hasKey("CostSendingLetter", 11)) {
+					int[] vs = compound.getIntArray("CostSendingLetter");
+	                System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
+				}
+				if (compound.hasKey("SendToYourself", 1)) {
+					CustomNpcs.MailSendToYourself = compound.getBoolean("SendToYourself");
+				}
+				break;
 			}
-			if (compound.hasKey("LettersBeReceived", 11)) {
-				int[] vs = compound.getIntArray("LettersBeReceived");
-                System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
+			case BuilderData: {
+				BuilderData builder;
+				if (SyncController.dataBuilder.containsKey(compound.getInteger("ID"))) { builder = SyncController.dataBuilder.get(compound.getInteger("ID")); }
+				else { builder = new BuilderData(compound.getInteger("ID"), compound.getInteger("BuilderType")); }
+				builder.read(compound);
+				break;
 			}
-			if (compound.hasKey("CostSendingLetter", 11)) {
-				int[] vs = compound.getIntArray("CostSendingLetter");
-                System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
+			case Debug: {
+				CustomNpcs.VerboseDebug = compound.getBoolean("debug");
+				break;
 			}
-			if (compound.hasKey("SendToYourself", 1)) {
-				CustomNpcs.MailSendToYourself = compound.getBoolean("SendToYourself");
+			default: {
+				break;
 			}
-			break;
-		}
-		case BuilderData: {
-			BuilderData builder;
-			if (SyncController.dataBuilder.containsKey(compound.getInteger("ID"))) { builder = SyncController.dataBuilder.get(compound.getInteger("ID")); }
-			else { builder = new BuilderData(compound.getInteger("ID"), compound.getInteger("BuilderType")); }
-			builder.read(compound);
-			break;
-		}
-		case Debug: {
-			CustomNpcs.VerboseDebug = compound.getBoolean("debug");
-			break;
-		}
-		default: {
-			break;
-		}
 		}
 	}
 

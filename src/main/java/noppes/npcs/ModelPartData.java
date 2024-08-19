@@ -63,7 +63,7 @@ public class ModelPartData {
 
 	@Override
 	public String toString() {
-		return "Color: " + this.color + " Type: " + this.type;
+		return "ModelPartData: {Color: " + this.color + "; Type: " + this.type + "; Location: " + location + "}";
 	}
 
 	public NBTTagCompound writeToNBT() {

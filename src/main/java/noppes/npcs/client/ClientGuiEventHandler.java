@@ -1,10 +1,13 @@
 package noppes.npcs.client;
 
 import java.awt.Point;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
+import java.util.UUID;
 
-import noppes.npcs.LogWriter;
-import noppes.npcs.containers.ContainerCustomGui;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -29,7 +32,6 @@ import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -59,10 +61,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.handler.data.IQuestObjective;
+import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.client.gui.player.GuiLog;
@@ -74,6 +78,7 @@ import noppes.npcs.client.util.CrashesData;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumQuestTask;
+import noppes.npcs.containers.ContainerCustomGui;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
@@ -1129,7 +1134,6 @@ public class ClientGuiEventHandler extends Gui {
 	}
 
 	/** HUD Bar Interface */
-	@SuppressWarnings("unused")
 	@SubscribeEvent
 	public void npcRenderOverlay(RenderGameOverlayEvent.Text event) {
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
@@ -1569,40 +1573,15 @@ public class ClientGuiEventHandler extends Gui {
 		}
 		// Information from the NBT Book
 		String rayName, rayTitle = "";
-		if (this.mc.player != null && (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNbtBook
-				|| this.mc.player.getHeldItemOffhand().getItem() instanceof ItemNbtBook)) {
-			double distance = this.mc.gameSettings.getOptionFloatValue(GameSettings.Options.RENDER_DISTANCE) * 16.0d;
+		if (this.mc.player != null && (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNbtBook || this.mc.player.getHeldItemOffhand().getItem() instanceof ItemNbtBook)) {
+			double distance = ClientProxy.playerData.game.renderDistance;
 			Vec3d vec3d = this.mc.player.getPositionEyes(1.0f);
 			Vec3d vec3d2 = this.mc.player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * distance, vec3d2.y * distance, vec3d2.z * distance);
 			RayTraceResult result = this.mc.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, true);
 			if (result != null) {
 				BlockPos blockPos = result.getBlockPos();
-				Entity entity = null;
-				vec3d3 = new Vec3d(result.hitVec.x, result.hitVec.y, result.hitVec.z);
-				List<Entity> list = this.mc.player.world.getEntitiesWithinAABBExcludingEntity(this.mc.player,
-						this.mc.player.getEntityBoundingBox().grow(distance));
-				List<Entity> rs = new ArrayList<>();
-				for (Entity entity1 : list) {
-					if (entity1.canBeCollidedWith() && entity1 != this.mc.player) {
-						AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
-						RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d3);
-						if (raytraceresult == null) { continue; }
-						rs.add(entity1);
-					}
-				}
-				if (!rs.isEmpty()) {
-					rs.sort((o1, o2) -> {
-						double d1 = this.mc.player.getDistance(o1);
-						double d2 = this.mc.player.getDistance(o2);
-						if (d1 == d2) {
-							return 0;
-						} else {
-							return (d1 > d2) ? 1 : -1;
-						}
-					});
-					entity = rs.get(0);
-				}
+				Entity entity = AdditionalMethods.getLookEntity(this.mc.player, distance);
 				ItemStack st = null;
 				IBlockState state = null;
 				double dist;
@@ -1696,14 +1675,10 @@ public class ClientGuiEventHandler extends Gui {
 				continue;
 			}
 			double r = v.distanceSq(el.getPosition());
-if (et != null) {
-if (r >= d) {
-continue;
-}
-}
-d = r;
-et = el;
-}
+			if (et != null && r >= d) { continue; }
+			d = r;
+			et = el;
+		}
 		return et;
 	}
 
@@ -1724,12 +1699,9 @@ et = el;
 		}
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
 		// position
-		this.dx = this.mc.player.lastTickPosX
-				+ (this.mc.player.posX - this.mc.player.lastTickPosX) * (double) event.getPartialTicks();
-		this.dy = this.mc.player.lastTickPosY
-				+ (this.mc.player.posY - this.mc.player.lastTickPosY) * (double) event.getPartialTicks();
-		this.dz = this.mc.player.lastTickPosZ
-				+ (this.mc.player.posZ - this.mc.player.lastTickPosZ) * (double) event.getPartialTicks();
+		this.dx = this.mc.player.lastTickPosX + (this.mc.player.posX - this.mc.player.lastTickPosX) * (double) event.getPartialTicks();
+		this.dy = this.mc.player.lastTickPosY + (this.mc.player.posY - this.mc.player.lastTickPosY) * (double) event.getPartialTicks();
+		this.dz = this.mc.player.lastTickPosZ + (this.mc.player.posZ - this.mc.player.lastTickPosZ) * (double) event.getPartialTicks();
 
 		if (!ClientGuiEventHandler.customParticle.isEmpty()) {
 			List<CustomParticle> del = Lists.newArrayList();
@@ -1790,11 +1762,48 @@ et = el;
             }
 		}
 		NBTTagCompound nbtMP = null;
-		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNpcMovingPath) {
-			nbtMP = this.mc.player.getHeldItemMainhand().getTagCompound();
-		} else if (this.mc.player.getHeldItemOffhand().getItem() instanceof ItemNpcMovingPath) {
-			nbtMP = this.mc.player.getHeldItemOffhand().getTagCompound();
+		ItemStack mainStack = this.mc.player.getHeldItemMainhand();
+		ItemStack offStack = this.mc.player.getHeldItemOffhand();
+		if (mainStack.getItem() instanceof INPCToolItem || offStack.getItem() instanceof INPCToolItem) {
+			AxisAlignedBB aabb = new AxisAlignedBB(-5.0, -5.0, -5.0, 5.0, 5.0, 5.0).offset(this.mc.player.getPosition());
+			List<Entity> list = this.mc.player.world.getEntitiesWithinAABB(Entity.class, aabb);
+			list.remove(this.mc.player);
+			Entity rayTrE = this.mc.objectMouseOver.entityHit;
+			if (rayTrE == null) {
+				rayTrE = AdditionalMethods.getLookEntity(this.mc.player, (mainStack.getItem() instanceof ItemNbtBook ? ClientProxy.playerData.game.renderDistance : null));
+			}
+			if (rayTrE != null && !list.contains(rayTrE)) { list.add(rayTrE); }
+			if (!list.isEmpty()) {
+				GlStateManager.pushMatrix();
+	            GlStateManager.enableBlend();
+	            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+	            GlStateManager.glLineWidth(2.0F);
+	            GlStateManager.disableTexture2D();
+	            GlStateManager.depthMask(false);
+	            GlStateManager.translate(-this.dx, -this.dy, -this.dz);
+				for (Entity e : list) {
+                	float w = e.width / 2;
+                	if (!e.equals(rayTrE) && e.getDistance(this.mc.player) - w > 4.0) { continue; }
+	                AxisAlignedBB col= e.getCollisionBoundingBox();
+	                if (col == null) { col = new AxisAlignedBB(-w, 0.0, -w, w, e.height, w); }
+					GlStateManager.pushMatrix();
+	                GlStateManager.translate(e.posX, e.posY,  e.posZ);
+					RenderGlobal.drawSelectionBoundingBox(col,  0.8f, 0.8f, 0.8f, 0.8f);
+					if (e.equals(rayTrE)) { // hover entity
+						GlStateManager.glLineWidth(3.0F);
+						RenderGlobal.drawSelectionBoundingBox(col.grow(e.width / 20.0),  0.8f, 0.3f, 0.6f, 1.0f);
+					}
+		            GlStateManager.popMatrix();
+				}
+	            GlStateManager.depthMask(true);
+	            GlStateManager.enableTexture2D();
+	            GlStateManager.disableBlend();
+	            GlStateManager.popMatrix();
+			}
 		}
+		
+		if (mainStack.getItem() instanceof ItemNpcMovingPath) { nbtMP = mainStack.getTagCompound(); }
+		else if (offStack.getItem() instanceof ItemNpcMovingPath) { nbtMP = offStack.getTagCompound(); }
 		if (nbtMP != null && nbtMP.hasKey("NPCID", 3)) {
 			Entity entity = this.mc.player.world.getEntityByID(nbtMP.getInteger("NPCID"));
 			if (entity instanceof EntityCustomNpc) {
@@ -1805,10 +1814,9 @@ et = el;
 		}
 		int id = -1;
 		// Show rayTrace point
-		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
-			if (this.mc.player.getHeldItemMainhand().hasTagCompound()
-					&& Objects.requireNonNull(this.mc.player.getHeldItemMainhand().getTagCompound()).hasKey("RegionID", 3)) {
-				id = this.mc.player.getHeldItemMainhand().getTagCompound().getInteger("RegionID");
+		if (mainStack.getItem() instanceof ItemBoundary) {
+			if (mainStack.hasTagCompound() && Objects.requireNonNull(mainStack.getTagCompound()).hasKey("RegionID", 3)) {
+				id = mainStack.getTagCompound().getInteger("RegionID");
 			}
 			Vec3d vec3d = this.mc.player.getPositionEyes(1.0f);
 			Vec3d vec3d2 = this.mc.player.getLook(1.0f);
@@ -1825,11 +1833,9 @@ et = el;
                 GlStateManager.glLineWidth(3.0F);
                 GlStateManager.disableTexture2D();
                 GlStateManager.depthMask(false);
-                GlStateManager.translate(pos.getX() - this.dx + 0.5d, pos.getY() - this.dy,
-                        pos.getZ() - this.dz + 0.5d);
+                GlStateManager.translate(pos.getX() - this.dx + 0.5d, pos.getY() - this.dy,  pos.getZ() - this.dz + 0.5d);
                 GlStateManager.rotate(((float) System.currentTimeMillis() / 7) % 360, 0.0f, 1.0f, 0.0f);
-                RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.35d, 0.15d, -0.35d, 0.35d, 0.85d, 0.35d)),
-                        1.0f, 0.50f, 1.0f, 1.0f);
+                RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.35d, 0.15d, -0.35d, 0.35d, 0.85d, 0.35d)),  1.0f, 0.50f, 1.0f, 1.0f);
                 GlStateManager.depthMask(true);
                 GlStateManager.enableTexture2D();
                 GlStateManager.disableBlend();

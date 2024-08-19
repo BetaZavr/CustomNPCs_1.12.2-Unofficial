@@ -65,6 +65,8 @@ public class DataDisplay implements INPCDisplay {
 	private String name;
 	private String texture = CustomNpcs.MODID + ":textures/entity/humanmale/steve.png";
 	public float shadowSize = 1.0f;
+	public float width = 0.0f;
+	public float height = 0.0f;
 
 	public DataDisplay(EntityNPCInterface npc) {
 		this.npc = npc;
@@ -314,6 +316,13 @@ public class DataDisplay implements INPCDisplay {
 			this.shadowSize = ValueUtil.correctFloat(displayNbt.getFloat("ShadowSize"), 0, 1.5f);
 		} else {
 			this.shadowSize = 1.0f;
+		}
+		if (displayNbt.hasKey("HitBoxWidth", 5)) { this.width = ValueUtil.correctFloat(displayNbt.getFloat("HitBoxWidth"), 0.0f, 5.0f); }
+		if (displayNbt.hasKey("HitBoxHeight", 5)) { this.height = ValueUtil.correctFloat(displayNbt.getFloat("HitBoxHeight"), 0.0f, 10.0f); }
+        if (this.getHasHitbox() && this.width != 0.0f && this.height != 0.0f) {
+        	this.npc.width = this.width;
+        	this.npc.height = this.height;
+        	this.npc.setPosition(this.npc.posX, this.npc.posY, this.npc.posZ);
 		}
 		CustomNpcs.visibilityController.trackNpc(this.npc);
 	}
@@ -588,6 +597,10 @@ public class DataDisplay implements INPCDisplay {
 		displayNbt.setInteger("BossColor", this.bossColor.ordinal());
 		displayNbt.setBoolean("EnableInvisibleNpcs", CustomNpcs.EnableInvisibleNpcs);
 		displayNbt.setFloat("ShadowSize", this.shadowSize);
+		displayNbt.setFloat("HitBoxWidth", this.width);
+		displayNbt.setFloat("HitBoxHeight", this.height);
+		
+		
 		return displayNbt;
 	}
 

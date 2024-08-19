@@ -41,6 +41,7 @@ public class PlayerGameData {
 	public double[] logPos;
 	private final List<FollowerSet> followers = Lists.newArrayList();
 
+	public double blockReachDistance = 5.0, renderDistance = 128.0;
 	public int dimID = 0;
 
 	public FollowerSet addFollower(EntityNPCInterface npc) {
@@ -123,6 +124,9 @@ public class PlayerGameData {
 	public NBTTagCompound getNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setLong("Money", this.money);
+		compound.setDouble("BlockReachDistance", blockReachDistance);
+		compound.setDouble("RenderDistance", renderDistance);
+		
 		compound.setBoolean("IsOP", this.op);
 		NBTTagList markup = new NBTTagList();
 		for (MarkupData data : this.marketData) {
@@ -157,6 +161,8 @@ public class PlayerGameData {
 		if (compound != null && compound.hasKey("GameData", 10)) {
 			NBTTagCompound gameNBT = compound.getCompoundTag("GameData");
 			this.money = gameNBT.getLong("Money");
+			if (compound.hasKey("BlockReachDistance", 6)) { this.blockReachDistance = compound.getDouble("BlockReachDistance"); }
+			if (compound.hasKey("RenderDistance", 6)) { this.renderDistance = compound.getDouble("RenderDistance"); }
 			this.op = gameNBT.getBoolean("IsOP");
 			if (gameNBT.hasKey("MarketData", 9)) {
 				this.marketData.clear();

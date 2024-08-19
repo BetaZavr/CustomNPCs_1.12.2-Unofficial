@@ -13,7 +13,14 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.TreeMap;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
@@ -336,16 +343,20 @@ public class ClientProxy extends CommonProxy {
 	public static final Map<CreativeTabs, List<RecipeList>> MOD_RECIPES_BY_TAB = Maps.newHashMap();
 	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.newHashMap();
 	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.newHashMap();
+	private final static List<ResourceLocation> notLoadTextures = Lists.newArrayList();
 	public static IMinecraft mcWrapper = null;
 
 	public static void bindTexture(ResourceLocation location) {
 		try {
-			if (location == null) {
-				return;
-			}
+			if (location == null) { return; }
 			TextureManager manager = Minecraft.getMinecraft().getTextureManager();
 			ITextureObject ob = manager.getTexture(location);
-            GlStateManager.bindTexture(ob.getGlTextureId());
+			if (ob == null && !notLoadTextures.contains(location)) {
+				ob = new SimpleTexture(location);
+				manager.loadTexture(location, ob);
+				notLoadTextures.add(location);
+			}
+			if (ob != null) { GlStateManager.bindTexture(ob.getGlTextureId()); }
 		}
 		catch (Exception e) { LogWriter.error("Error:", e); }
 	}

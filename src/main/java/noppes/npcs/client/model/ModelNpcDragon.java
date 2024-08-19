@@ -103,8 +103,7 @@ public class ModelNpcDragon extends ModelBase {
 	public void render(@Nonnull Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
 		EntityNpcDragon entitydragon = (EntityNpcDragon) entity;
 		GlStateManager.pushMatrix();
-		float f6 = entitydragon.field_40173_aw
-				+ (entitydragon.field_40172_ax - entitydragon.field_40173_aw) * this.field_40317_s;
+		float f6 = entitydragon.field_40173_aw + (entitydragon.field_40172_ax - entitydragon.field_40173_aw) * this.field_40317_s;
 		this.jaw.rotateAngleX = (float) ((Math.sin(f6 * 3.1415927f * 2.0f) + 1.0) * 0.2f);
 		float f7 = (float) (Math.sin(f6 * 3.1415927f * 2.0f - 1.0f) + 1.0);
 		f7 = (f7 * f7 * 1.0f + f7 * 2.0f) * 0.05f;

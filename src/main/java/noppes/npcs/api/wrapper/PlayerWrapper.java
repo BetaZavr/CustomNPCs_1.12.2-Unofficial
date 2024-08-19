@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
@@ -34,6 +35,7 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
+import noppes.npcs.api.IRayTrace;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
@@ -831,4 +833,20 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		}
 	}
 
+	@Override
+	public IEntity getLookingEntity() {
+		Entity target = AdditionalMethods.getLookEntity(this.entity, null);
+		return target == null ? null : NpcAPI.Instance().getIEntity(target);
+	}
+
+	@Override
+	public IBlock getLookingBlock() {
+		IRayTrace rt = this.rayTraceBlock(this.data.game.blockReachDistance, false, false);
+		if (rt.getBlock() == null) { return null; }
+		return rt.getBlock();
+	}
+
+	@Override
+	public double getBlockReachDistance() { return this.data.game.blockReachDistance; }
+	
 }

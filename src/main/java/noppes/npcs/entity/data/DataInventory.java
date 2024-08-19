@@ -107,7 +107,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		double ch = 1.0d;
 		if (attacking != null) {
 			IAttributeInstance l = attacking.getEntityAttribute(SharedMonsterAttributes.LUCK);
-			if (l.getAttributeValue() != 0) {
+			if (l != null && l.getAttributeValue() != 0) {
 				double v = l.getAttributeValue();
 				if (v < 0) {
 					v *= -1;

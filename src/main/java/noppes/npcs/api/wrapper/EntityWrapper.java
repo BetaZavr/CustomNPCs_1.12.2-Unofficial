@@ -43,8 +43,7 @@ import noppes.npcs.controllers.ServerCloneController;
 public class EntityWrapper<T extends Entity> implements IEntity {
 
 	public static IEntity[] findEntityOnPath(Entity entity, double distance, Vec3d vec3d, Vec3d vec3d1) {
-		List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity,
-				entity.getEntityBoundingBox().grow(distance));
+		List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, entity.getEntityBoundingBox().grow(distance));
 		List<IEntity> result = new ArrayList<>();
 		for (Entity entity1 : list) {
 			if (entity1.canBeCollidedWith() && entity1 != entity) {
@@ -67,6 +66,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 		});
 		return result.toArray(new IEntity[0]);
 	}
+	
 	protected T entity;
 	protected IData storeddata;
 	protected IData tempdata;
@@ -416,13 +416,11 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 		Vec3d vec3d = this.entity.getPositionEyes(1.0f);
 		Vec3d vec3d2 = this.entity.getLook(1.0f);
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * distance, vec3d2.y * distance, vec3d2.z * distance);
-		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid,
-				ignoreBlockWithoutBoundingBox, true);
+		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, true);
 		if (result == null) {
 			return null;
 		}
-		return new RayTraceWrapper(Objects.requireNonNull(NpcAPI.Instance()).getIBlock(this.entity.world, result.getBlockPos()),
-				result.sideHit.getIndex());
+		return new RayTraceWrapper(Objects.requireNonNull(NpcAPI.Instance()).getIBlock(this.entity.world, result.getBlockPos()), result.sideHit.getIndex());
 	}
 
 	@Override
@@ -430,11 +428,8 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 		Vec3d vec3d = this.entity.getPositionEyes(1.0f);
 		Vec3d vec3d2 = this.entity.getLook(1.0f);
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * distance, vec3d2.y * distance, vec3d2.z * distance);
-		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid,
-				ignoreBlockWithoutBoundingBox, false);
-		if (result != null) {
-			vec3d3 = new Vec3d(result.hitVec.x, result.hitVec.y, result.hitVec.z);
-		}
+		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, false);
+		if (result != null) { vec3d3 = new Vec3d(result.hitVec.x, result.hitVec.y, result.hitVec.z); }
 		return EntityWrapper.findEntityOnPath(this.entity, distance, vec3d, vec3d3);
 	}
 

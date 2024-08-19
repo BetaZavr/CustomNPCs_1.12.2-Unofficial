@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -20,7 +22,14 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureAttribute;
+import net.minecraft.entity.IRangedAttackMob;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAIOpenDoor;
@@ -77,7 +86,18 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import noppes.npcs.*;
+import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
+import noppes.npcs.EventHooks;
+import noppes.npcs.IChatMessages;
+import noppes.npcs.LogWriter;
+import noppes.npcs.ModelPartConfig;
+import noppes.npcs.NBTTags;
+import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.NpcDamageSource;
+import noppes.npcs.Server;
+import noppes.npcs.VersionCompatibility;
 import noppes.npcs.ai.CombatHandler;
 import noppes.npcs.ai.EntityAIAnimation;
 import noppes.npcs.ai.EntityAIBustDoor;
@@ -159,11 +179,9 @@ import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.GameProfileAlt;
 import noppes.npcs.util.ObfuscationHelper;
 
-import javax.annotation.Nonnull;
-
 public abstract class EntityNPCInterface
-		extends EntityCreature
-		implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimals {
+extends EntityCreature
+implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimals {
 
 	public static FakePlayer ChatEventPlayer;
 	public static FakePlayer CommandPlayer;
@@ -657,8 +675,7 @@ public abstract class EntityNPCInterface
 		while (pos.getY() > 0) {
 			IBlockState state = this.world.getBlockState(pos);
 			AxisAlignedBB bb = state.getBoundingBox(this.world, pos).offset(pos);
-            if (this.ais.movementType != 2 || startPos.getY() > pos.getY()
-                    || state.getMaterial() != Material.WATER) {
+            if (this.ais.movementType != 2 || startPos.getY() > pos.getY() || state.getMaterial() != Material.WATER) {
                 return bb.maxY;
             }
             pos = pos.down();
@@ -674,7 +691,7 @@ public abstract class EntityNPCInterface
 		return pos;
 	}
 
-	public boolean canAttackClass(@Nonnull Class clazz) {
+	public boolean canAttackClass(@Nonnull Class<? extends EntityLivingBase> clazz) {
 		return !this.ais.aiDisabled && EntityBat.class != clazz;
 	}
 
@@ -1345,8 +1362,7 @@ public abstract class EntityNPCInterface
 						}
 					}
 					if (this.faction.getsAttacked && !this.isAttacking()) {
-						List<EntityMob> list = this.world.getEntitiesWithinAABB(EntityMob.class,
-								this.getEntityBoundingBox().grow(16.0, 16.0, 16.0));
+						List<EntityMob> list = this.world.getEntitiesWithinAABB(EntityMob.class, this.getEntityBoundingBox().grow(16.0, 16.0, 16.0));
 						for (EntityMob mob : list) {
 							if (mob.getAttackTarget() == null && this.canSee(mob)) {
 								mob.setAttackTarget(this);
@@ -2132,6 +2148,12 @@ public abstract class EntityNPCInterface
 	}
 
 	public void updateHitbox() {
+		
+		// collide in
+		// EntityRenderer.getMouseOver(0.0f);
+		// AABB = this.getEntityBoundingBox == (this.boundingBox);
+		// set in setPosition();
+		
 		if (this.currentAnimation == 2 || this.currentAnimation == 7 || this.deathTime > 0) {
 			this.width = 0.8f;
 			this.height = 0.4f;
@@ -2145,6 +2167,14 @@ public abstract class EntityNPCInterface
 			this.width = 0.6f;
 			this.height = this.baseHeight;
 		}
+		if (!this.display.getHasHitbox() || (this.isKilled() && this.stats.hideKilledBody)) {
+			this.width = 1.0E-5f;
+			this.height = 0.25f;
+		}
+		else if (this.display.getHasHitbox() && this.display.width != 0.0f && this.display.height != 0.0f) {
+			this.width = this.display.width;
+			this.height = this.display.height;
+		}
 		if (this.display.getModel() == null && this instanceof EntityCustomNpc) {
 			ModelData modeldata = ((EntityCustomNpc) this).modelData;
 			ModelPartConfig model = modeldata.getPartConfig(EnumParts.HEAD);
@@ -2155,19 +2185,12 @@ public abstract class EntityNPCInterface
 			this.width = this.width / 5.0f * this.display.getSize();
 			this.height = this.height / 5.0f * this.display.getSize();
 		}
-		if (!this.display.getHasHitbox() || (this.isKilled() && this.stats.hideKilledBody)) {
-			this.width = 1.0E-5f;
-			this.height = 0.25f;
-		}
 		double n = this.width / 2.0f;
 		if (n > World.MAX_ENTITY_RADIUS) {
 			World.MAX_ENTITY_RADIUS = n;
 		}
-		if (this.getHealth() == 0) {
-			return;
-		}
-		this.setPosition(this.posX, this.posY, this.posZ);
-		// collide in AABB `this.boundingBox`
+		if (this.getHealth() == 0) { return; }
+		this.setPosition(this.posX, this.posY, this.posZ); // set BoundingBox
 	}
 
 	public void updateNavClient() {

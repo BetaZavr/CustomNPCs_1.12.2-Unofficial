@@ -75,9 +75,7 @@ implements LayerRenderer<T> {
 	}
 
 	public void preRender(ModelPartData data) {
-		if (data == null) {
-			return;
-		}
+		if (data == null) { return; }
 		if (data.playerTexture) {
 			ClientProxy.bindTexture(this.npc.textureLocation);
 		} else {

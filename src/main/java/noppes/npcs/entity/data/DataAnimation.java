@@ -202,7 +202,10 @@ public class DataAnimation implements INPCAnimation {
 			else { this.nextFrame = AnimationFrameConfig.EMPTY_PART.copy(); } // finishing
 			speed = this.nextFrame.speed / (this.fastReturn ? 3 : 1);
 		} else {
-			if (this.activeAnimation.id == -1) {
+			if (this.activeAnimation == null) {
+				this.nextFrame = AnimationFrameConfig.EMPTY_PART;
+			}
+			else if (this.activeAnimation.id == -1) {
 				this.nextFrame = this.activeAnimation.frames.get(0);
 			}
 			else if (this.activeAnimation.type == AnimationKind.JUMP && !this.isJump && this.completeAnimation) {
@@ -810,9 +813,10 @@ public class DataAnimation implements INPCAnimation {
 	}
 
 	public boolean isAnimated() {
+		if (this.activeAnimation == null) { return false; }
 		if (this.activeAnimation.isEdit != (byte) 0) { this.completeAnimation = false; }
 		if (this.completeAnimation) {
-			if (this.entity.isServerWorld() && this.activeAnimation.type.isMoving()) { return true; }
+			if (this.entity.isServerWorld() && this.activeAnimation != null && this.activeAnimation.type.isMoving()) { return true; }
 			else if (this.startAnimationTime == 0 || this.animationFrame == -2) { return false; }
 		}
 		return !this.entity.isServerWorld() || (this.entity.world.getTotalWorldTime() - this.startAnimationTime) <= this.activeAnimation.totalTicks;
@@ -872,7 +876,7 @@ public class DataAnimation implements INPCAnimation {
 				this.entity.motionY = 0.0d;
 				this.entity.motionZ = 0.0d;
 			}
-			if (this.activeAnimation.isEdit == (byte) 1) {
+			if (this.activeAnimation != null && this.activeAnimation.isEdit == (byte) 1) {
 				this.activeAnimation.frames.put(this.activeAnimation.frames.size(), AnimationFrameConfig.EMPTY_PART.copy());
 			}
 		}
@@ -942,7 +946,7 @@ public class DataAnimation implements INPCAnimation {
 			anim = isMoving ? this.animData.get(AnimationKind.WALKING) : this.animData.get(AnimationKind.STANDING);
 		}
 		if (anim == null || anim.id == -1) { anim = this.animData.get(AnimationKind.BASE); }
-		if (anim != null && this.activeAnimation.id != anim.id) {
+		if (anim != null && this.activeAnimation != null && this.activeAnimation.id != anim.id) {
 			this.startEvent(new AnimationEvent.StopEvent(this.entity, this.activeAnimation));
 			this.activeAnimation = anim;
 			this.startAnimationTime = this.entity.world.getTotalWorldTime();

@@ -63,6 +63,7 @@ public enum EnumPlayerPacket
 	OpenGui,
 	GetFilePart,
 	GetSyncData,
+	SendSyncData,
 	TransportCategoriesGet,
 	CustomGuiKeyPressed,
 	MarketTime,
