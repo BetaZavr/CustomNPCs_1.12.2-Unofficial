@@ -1,6 +1,6 @@
 # CustomNPCs 1.12.2 Unofficial
 
-[![Curseforge](http://cf.way2muchnoise.eu/full_1086839_downloads.svg)](https://legacy.curseforge.com/minecraft/mc-mods/customnpcs-unofficial-from-betazavr)  [![Curseforge](http://cf.way2muchnoise.eu/versions/For%20MC_1086839_all.svg)](https://www.curseforge.com/minecraft/mc-mods/customnpcs-unofficial)  <a title="Join us on Discord!" href="https://discord.gg/RGb4JqE6Qz"><img src="https://img.shields.io/discord/558230575278981120?label=CNPCs Un%20Discord&amp;logo=Discord&amp;style=?flat" alt="Discord"/></a>
+[![Curseforge](http://cf.way2muchnoise.eu/full_1086839_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/customnpcs-unofficial-from-betazavr/files/all?page=1&pageSize=20)  [![Curseforge](http://cf.way2muchnoise.eu/versions/For%20MC_1086839_all.svg)](https://www.curseforge.com/minecraft/mc-mods/customnpcs-unofficial-from-betazavr)  <a title="Join us on Discord!" href="https://discord.gg/RGb4JqE6Qz"><img src="https://img.shields.io/discord/558230575278981120?label=CNPCs Un%20Discord&amp;logo=Discord&amp;style=?flat" alt="Discord"/></a>
 
 ## Welcome to CustomNPCs: Unofficial
 

@@ -60,7 +60,7 @@ public interface IBlockScripted extends IBlock {
 
 	void setIsLadder(boolean enabled);
 
-	void setIsPassable(boolean passable);
+	void setIsPassible(boolean passable);
 
 	void setLight(int value);
 
