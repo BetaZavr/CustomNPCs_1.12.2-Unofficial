@@ -1,6 +1,6 @@
 # CustomNPCs 1.12.2 Unofficial
 
-[![Curseforge](http://cf.way2muchnoise.eu/full_1052708_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/customnpcs-unofficial)  [![Curseforge](http://cf.way2muchnoise.eu/versions/For%20MC_1052708_all.svg)](https://www.curseforge.com/minecraft/mc-mods/customnpcs-unofficial)  <a title="Join us on Discord!" href="https://discord.gg/RGb4JqE6Qz"><img src="https://img.shields.io/discord/558230575278981120?label=CNPCs Un%20Discord&amp;logo=Discord&amp;style=?flat" alt="Discord"/></a>
+[![Curseforge](http://cf.way2muchnoise.eu/full_1086839_downloads.svg)](https://legacy.curseforge.com/minecraft/mc-mods/customnpcs-unofficial-from-betazavr)  [![Curseforge](http://cf.way2muchnoise.eu/versions/For%20MC_1086839_all.svg)](https://www.curseforge.com/minecraft/mc-mods/customnpcs-unofficial)  <a title="Join us on Discord!" href="https://discord.gg/RGb4JqE6Qz"><img src="https://img.shields.io/discord/558230575278981120?label=CNPCs Un%20Discord&amp;logo=Discord&amp;style=?flat" alt="Discord"/></a>
 
 ## Welcome to CustomNPCs: Unofficial
 
@@ -8,7 +8,7 @@ CustomNPCs is a modification for the game Minecraft aimed at creating your own m
 
 This is an unofficial code repository for the Custom NPCs mod
 
-This code is posted without permission, but under the terms of the Creative Commons Attribution-Non Commercial 3.0 Unported license for CustomNPCs.
+This code is posted with permission from the author under the terms of the Creative Commons Attribution-Non Commercial 3.0 Unported license for CustomNPC.
 
 http://creativecommons.org/licenses/by-nc/3.0/
 
@@ -25,6 +25,7 @@ Official **[website](https://www.kodevelopment.nl/minecraft/customnpcs)**.
 * added Quest Compass;
 * added virtual currency;
 * more accurate mod and player data;
+* added tools for fast construction of structures compatible with **[Schematics](https://www.curseforge.com/minecraft/mc-mods/schematics)** modification;
 
 ### Quests
 
