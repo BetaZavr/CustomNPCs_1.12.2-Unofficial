@@ -396,7 +396,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 animation.resetAnimValues(partialTicks);
 
                 if (entityIn.equals(ModelNpcAlt.editAnimDataSelect.displayNpc)) { this.bipedHead.rotateAngleY = 0.0f; }
-                AnimationFrameConfig.EMPTY_PART.setRotationAngles(this);
+                AnimationFrameConfig.STANDARD.setRotationAngles(this);
                 if (animation.showParts.get(EnumParts.HEAD)) { ((ModelRendererAlt) this.bipedHead).setAnimation(animation); }
                 if (animation.showParts.get(EnumParts.BODY)) { ((ModelRendererAlt) this.bipedBody).setAnimation(animation); }
                 if (animation.showParts.get(EnumParts.ARM_RIGHT)) {
