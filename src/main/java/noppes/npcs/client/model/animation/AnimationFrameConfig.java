@@ -20,10 +20,10 @@ import noppes.npcs.constants.EnumParts;
 
 public class AnimationFrameConfig implements IAnimationFrame {
 
-	public static final AnimationFrameConfig EMPTY_PART;
+	public static final AnimationFrameConfig STANDARD;
 	static {
-		EMPTY_PART = new AnimationFrameConfig();
-		for (PartConfig p : EMPTY_PART.parts.values()) { p.disable = true; }
+		STANDARD = new AnimationFrameConfig();
+		for (PartConfig p : STANDARD.parts.values()) { p.disable = true; }
 	}
 
 	public boolean smooth, isNowDamage, showMainHand = true, showOffHand = true, showHelmet = true, showBody = true, showLegs = true, showFeets = true;

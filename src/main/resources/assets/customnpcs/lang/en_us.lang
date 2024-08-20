@@ -337,6 +337,7 @@ availability.hover.sdtype.1=The player's persistent data must be missing a key<b
 availability.hover.sdtype.2=The player's persistent data must contain a numeric value less than or equal to the specified<br>§7Even values stored as a String are counted<br>§7If the content of the data is not a number, then the condition is not met
 availability.hover.sdtype.3=The player's permanent data must contain a value equal to the specified<br>§7Check is performed as a number or as a string
 availability.hover.sdtype.4=The player's persistent data must contain a numeric value greater than or equal to the specified<br>§7Even values stored as a String are counted<br>§7If the content of the data is not a number, then the condition is not met
+
 bank.hover.add=Create a new bank
 bank.hover.ceil=Bank cell number to be edited<br>§7Total: §6%s
 bank.hover.ceil.add=Add a new bank cell

@@ -2,25 +2,25 @@ package noppes.npcs.api.constants;
 
 public enum AnimationKind {
 
-	ATTACKING(0, false, false, true, false),
-	DIES(1, false, true, false, false),
-	FLY_STAND(2, true, false, false, false),
-	FLY_WALK(3, true, false, false, false),
-	INIT(4, false, false, false, true),
-	JUMP(5, false, true, true, true),
-	STANDING(6, true, false, false, false),
-	WALKING(7, true, false, false, false),
-	WATER_STAND(8, true, false, false, false),
-	WATER_WALK(9, true, false, false, false),
-	REVENGE_STAND(10, true, false, false, false),
-	REVENGE_WALK(11, true, false, false, false),
-	HIT(12, false, false, true, true),
-	BASE(13, true, false, false, false),
-	SHOOT(14, false, false, true, true),
-	AIM(15, true, true, true, false),
-	SWING(16, false, false, true, true),
-	INTERACT(17, false, false, false, true),
-	BLOCKED(18, false, false, true, true),
+	ATTACKING(0, false, true, false),
+	DIES(1, true, true, false),
+	FLY_STAND(2, true, false, false),
+	FLY_WALK(3, true, false, false),
+	INIT(4, false, false, false),
+	JUMP(5, false, true, false),
+	STANDING(6, true, false, false),
+	WALKING(7, true, false, false),
+	WATER_STAND(8, true, false, false),
+	WATER_WALK(9, true, false, false),
+	REVENGE_STAND(10, true, false, false),
+	REVENGE_WALK(11, true, false, false),
+	HIT(12, false, true, false),
+	BASE(13, true, false, false),
+	SHOOT(14, false, true, true),
+	AIM(15, true, false, false),
+	SWING(16, false, true, true),
+	INTERACT(17, false, false, false),
+	BLOCKED(18, false, true, true),
 	; // -> GuiNpcAnimation
 
 	public static AnimationKind get(int type) {
@@ -40,28 +40,24 @@ public enum AnimationKind {
 		return list;
 	}
 
-	final boolean isMoving;
-	final boolean isRepeat;
-	final boolean isFastReturn;
-	final boolean itStartsOver;
+	final boolean isCyclical;
+	final boolean isQuickStart;
+	final boolean isQuickEnd;
 	final int type;
 
-	AnimationKind(int i, boolean moving, boolean repeat, boolean fastReturn, boolean startsOver) {
+	AnimationKind(int i, boolean cyclical, boolean quickStart, boolean quickEnd) {
 		this.type = i;
-		this.isMoving = moving;
-		this.isRepeat = repeat;
-		this.isFastReturn = fastReturn;
-		this.itStartsOver = startsOver;
+		this.isCyclical = cyclical;
+		this.isQuickStart = quickStart;
+		this.isQuickEnd = quickEnd;
 	}
 
 	public int get() { return this.type; }
 
-	public boolean isMoving() { return this.isMoving; }
+	public boolean isCyclical() { return this.isCyclical; }
 
-	public boolean isRepeat() { return this.isRepeat; }
+	public boolean isQuickStart() { return this.isQuickStart; }
 
-	public boolean isFastReturn() { return this.isFastReturn; }
-
-	public boolean itStartsOver() { return this.itStartsOver; }
+	public boolean isQuickEnd() { return this.isQuickEnd; }
 
 }

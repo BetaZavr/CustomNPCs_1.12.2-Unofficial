@@ -220,7 +220,7 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 	}
 
 	@Override
-	public void setIsPassable(boolean passable) {
+	public void setIsPassible(boolean passable) {
 		this.tile.isPassable = passable;
 		this.tile.needsClientUpdate = true;
 	}

@@ -9,7 +9,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class EmotionFrame
 implements IEmotionPart {
 
-	public static final EmotionFrame EMPTY_PART = new EmotionFrame(0);
+	public static final EmotionFrame STANDARD = new EmotionFrame(0);
 	public int id;
 	public int speed = 20;
 	public int delay = 0;

@@ -34,8 +34,9 @@ public class AnimationEvent extends CustomNPCsEvent {
 
 	public EntityLivingBase entity;
 	public AnimationConfig animation;
-	public int frameId;
-	public long ticks;
+	public int frameId = -1;
+	public long totalTicks = -1;
+	public long animationTicks = -1;
 	public String nameEvent;
 
 	public AnimationEvent(EntityLivingBase entity, AnimationConfig anim, String name) {
@@ -43,33 +44,18 @@ public class AnimationEvent extends CustomNPCsEvent {
 		this.entity = entity;
 		nameEvent = name;
 		animation = anim;
-		if (entity instanceof EntityNPCInterface) {
-			if (((EntityNPCInterface) entity).animation == null) {
-				frameId = -1;
-				ticks = -1;
-			} else {
-				frameId = ((EntityNPCInterface) entity).animation.animationFrame;
-				int startFrameTick = -1;
-				if (anim != null) {
-					if (!anim.ticks.containsKey(this.frameId)) { startFrameTick = anim.ticks.get(0); }
-					else { startFrameTick = anim.ticks.get(this.frameId); }
+		if (anim != null) {
+			if (entity instanceof EntityPlayer) {
+				PlayerData data = PlayerData.get((EntityPlayer) entity);
+				if (data != null && data.animation != null) {
+					totalTicks = (int) (this.entity.world.getTotalWorldTime() - data.animation.startAnimationTime) % anim.totalTicks;
 				}
-				ticks = (int) (this.entity.world.getTotalWorldTime() - ((EntityNPCInterface) entity).animation.startAnimationTime)- startFrameTick;
+			} else if (entity instanceof EntityNPCInterface && ((EntityNPCInterface) entity).animation != null) {
+				totalTicks = (int) (this.entity.world.getTotalWorldTime() - ((EntityNPCInterface) entity).animation.startAnimationTime) % anim.totalTicks;
 			}
-		}
-		if (entity instanceof EntityPlayer) {
-			PlayerData data = PlayerData.get((EntityPlayer) entity);
-			if (data != null) {
-				if (data.animation == null) {
-					frameId = -1;
-					ticks = -1;
-				} else {
-					frameId = data.animation.animationFrame;
-					int startFrameTick;
-					if (!anim.ticks.containsKey(this.frameId)) { startFrameTick = anim.ticks.get(0); }
-					else { startFrameTick = anim.ticks.get(this.frameId); }
-					ticks = (int) (this.entity.world.getTotalWorldTime() - data.animation.startAnimationTime) - startFrameTick;
-				}
+			if (totalTicks >= 0) {
+				frameId = anim.getAnimationFrameByTime(totalTicks);
+				animationTicks = totalTicks - anim.ticks.get(frameId);
 			}
 		}
 	}

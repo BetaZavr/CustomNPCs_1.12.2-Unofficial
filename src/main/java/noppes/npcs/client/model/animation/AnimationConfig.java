@@ -34,12 +34,12 @@ public class AnimationConfig implements IAnimation {
 	public static final AnimationConfig EMPTY;
 	static {
 		EMPTY = new AnimationConfig();
-		EMPTY.frames.put(0, AnimationFrameConfig.EMPTY_PART);
+		EMPTY.frames.put(0, AnimationFrameConfig.STANDARD);
 	}
 
 	public String name = "Default Animation";
 	public int repeatLast = 0;
-	public byte isEdit = (byte) 0;
+	public byte isEdit = (byte) 0; // 0: normal; 1:edit; 2: edit one frame
 	public final Map<Integer, AnimationFrameConfig> frames = Maps.newTreeMap(); // {Frame, setting Frame]}\
 	// Info
 	public final Map<Integer, Integer> ticks = Maps.newTreeMap();
@@ -49,6 +49,7 @@ public class AnimationConfig implements IAnimation {
 	public AnimationKind type = AnimationKind.STANDING;
 	public float chance = 1.0f;
 	public boolean immutable;
+	public boolean isSimple; // one frame
 	private int damageHitboxType = 0;
 	private AxisAlignedBB damageHitbox = new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d); // new AxisAlignedBB(BlockPos.ORIGIN)
 	public float[] offsetHitbox = new float[] { 0.0f, 0.0f, 0.0f }; // [dist, height, horizontal]
@@ -56,14 +57,12 @@ public class AnimationConfig implements IAnimation {
 
 	public AnimationConfig() {
 		this.frames.put(0, new AnimationFrameConfig(0));
-		this.resetTicks();
 	}
 
 	@Override
 	public IAnimationFrame addFrame() {
 		int f = this.frames.size();
 		this.frames.put(f, new AnimationFrameConfig(f));
-		this.resetTicks();
 		if (f == 0) { this.frames.get(f).isNowDamage = true; }
 		return this.frames.get(f);
 	}
@@ -92,13 +91,42 @@ public class AnimationConfig implements IAnimation {
 			this.frames.putAll(newFrames);
         }
         this.frames.get(frameId).isNowDamage = this.frames.size() == 1;
-        this.resetTicks();
 		return this.frames.get(frameId);
 	}
 
 	public AnimationConfig copy() {
 		AnimationConfig ac = new AnimationConfig();
 		ac.load(this.save());
+		return ac;
+	}
+
+	/** creates animation of the specified type
+	   standard frames are taken into account */
+	public AnimationConfig create(AnimationKind type, AnimationFrameConfig currentAnimationFrame) {
+		AnimationConfig ac = this.copy();
+		ac.type = type;
+		ac.isSimple = ac.frames.size() == 1 || ac.isEdit == (byte) 2;
+
+		// add standard frame to beginning
+		if (!type.isQuickStart() || ac.isSimple || ac.isEdit == (byte) 1) {
+			Map<Integer, AnimationFrameConfig> newFrames = Maps.newTreeMap();
+			int i = 0;
+			if (ac.isEdit == (byte) 1) { newFrames.put(i++, AnimationFrameConfig.STANDARD); }
+			newFrames.put(i++, currentAnimationFrame);
+			for (AnimationFrameConfig frame : ac.frames.values()) {
+				frame.id = i;
+				newFrames.put(i, frame);
+				i++;
+			}
+			ac.frames.clear();
+			ac.frames.putAll(newFrames);
+		}
+
+		// add standard frame to end
+		if (!type.isQuickEnd()) { ac.frames.put(ac.frames.size(), AnimationFrameConfig.STANDARD); }
+		if (ac.isEdit == (byte) 1) { ac.frames.put(ac.frames.size(), AnimationFrameConfig.STANDARD); }
+
+		ac.resetTicks();
 		return ac;
 	}
 
@@ -128,7 +156,6 @@ public class AnimationConfig implements IAnimation {
 	public float getChance() {
 		return this.chance;
 	}
-
 
 	@Override
 	public String getName() {
@@ -187,7 +214,6 @@ public class AnimationConfig implements IAnimation {
 			this.damageHitbox = new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d);
 			this.damageHitboxType = 0;
 		}
-		this.resetTicks();
 	}
 
 	@Override
@@ -224,7 +250,6 @@ public class AnimationConfig implements IAnimation {
 			this.frames.clear();
 			if (newData.isEmpty()) { newData.put(0, new AnimationFrameConfig(0)); }
 			this.frames.putAll(newData);
-			this.resetTicks();
 		}
 	}
 
@@ -247,7 +272,6 @@ public class AnimationConfig implements IAnimation {
 		if (frames > this.frames.size()) { frames = this.frames.size(); }
 		this.repeatLast = frames;
 	}
-
 
 	@Override
 	public int getDamageHitboxType() { return this.damageHitboxType; }
@@ -330,12 +354,12 @@ public class AnimationConfig implements IAnimation {
 		return compound;
 	}
 
-	public void resetTicks() {
+	private void resetTicks() {
 		this.totalTicks = 0;
 		this.damageTicks = 0;
 		this.ticks.clear();
 		if (this == EMPTY) {
-			this.ticks.put(0, AnimationFrameConfig.EMPTY_PART.speed + AnimationFrameConfig.EMPTY_PART.delay);
+			this.ticks.put(0, AnimationFrameConfig.STANDARD.speed + AnimationFrameConfig.STANDARD.delay);
 			return;
 		}
 		boolean isNowDamage = false;
@@ -376,4 +400,16 @@ public class AnimationConfig implements IAnimation {
 		return aabb;
 	}
 
+	public int getAnimationFrameByTime(long totalTicks) {
+		int animationFrame = 0;
+		if (totalTicks > 0) {
+			for (int id : this.ticks.keySet()) {
+				animationFrame = id;
+				if (totalTicks >= this.ticks.get(id)) {
+					break;
+				}
+			}
+		}
+		return animationFrame;
+	}
 }
