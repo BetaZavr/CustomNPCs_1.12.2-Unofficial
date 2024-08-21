@@ -55,7 +55,7 @@ extends BaseScriptData {
 
 	@Override
 	public boolean isEnabled() {
-		return this.enabled && this.script != null;
+		return this.enabled && ScriptController.HasStart && this.script != null;
 	}
 
 	@Override

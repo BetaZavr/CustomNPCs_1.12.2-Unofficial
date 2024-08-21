@@ -65,7 +65,6 @@ public class DataAnimation implements INPCAnimation {
 	private final Map<AnimationKind, AnimationConfig> animData = Maps.newHashMap(); // animation type, animation
 
 	public long startAnimationTime = 0; // is set when the animation starts
-	//public int animationFrame = -2;
 	private boolean isFastSpeed = false;
 	private boolean completeAnimation = false;
 	public AnimationFrameConfig currentFrame = AnimationFrameConfig.STANDARD, nextFrame = AnimationFrameConfig.STANDARD;
@@ -708,6 +707,7 @@ public class DataAnimation implements INPCAnimation {
 		}
 	}
 
+	// used to select a new animation in EntityNPCInterface
 	public AnimationConfig reset(AnimationKind type) {
 		List<AnimationConfig> list = AnimationController.getInstance().getAnimations(this.data.get(type));
 		if (list.isEmpty()) { return null; }
@@ -911,6 +911,7 @@ public class DataAnimation implements INPCAnimation {
 	// this.reset(AnimationKind) or PacketHandlerClient
 	public void setAnimation(AnimationConfig anim, AnimationKind type) {
 		if (anim != null && anim.frames.isEmpty()) { anim = null; }
+		//System.out.println("CNPCs: "+(anim == null ? "null" : anim.type)+" / "+type);
 		if (anim != null) {
 			// remember previous animation if current animation is temporary
 

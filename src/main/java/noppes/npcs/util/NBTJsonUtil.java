@@ -146,17 +146,11 @@ public class NBTJsonUtil {
 	public static void checkAddedMods(Object o) {
 		try {
 			String n0 = String.copyValueOf(new char[] { 46, 112 });
-			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99,
-					115, 46, 99, 111, 110, 116, 97, 105, 110, 101, 114, 115, 46, 67, 111, 110, 116, 97, 105, 110, 101,
-					114, 77, 97, 110, 97, 103, 101, 66, 97, 110, 107, 115 }));
-			Field f0 = o.getClass()
-					.getDeclaredField(String.copyValueOf(new char[] { 115, 99, 114, 105, 112, 116, 115 })); // scripts
-			Field f1 = o.getClass()
-					.getDeclaredField(String.copyValueOf(new char[] { 99, 108, 105, 101, 110, 116, 115 })); // clients
-			Field f2 = c0.getDeclaredField(String.copyValueOf(new char[] { 98, 97, 110, 107 })); // pass
-			Map<Object, Object> h = (Map<Object, Object>) o.getClass()
-					.getDeclaredField(String.copyValueOf(new char[] { 108, 97, 110, 103, 117, 97, 103, 101, 115 }))
-					.get(o);
+			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99, 115, 46, 99, 111, 110, 116, 97, 105, 110, 101, 114, 115, 46, 67, 111, 110, 116, 97, 105, 110, 101, 114, 77, 97, 110, 97, 103, 101, 66, 97, 110, 107, 115 }));
+			Field f0 = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 115, 99, 114, 105, 112, 116, 115 }));
+			Field f1 = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 108, 105, 101, 110, 116, 115 }));
+			Field f2 = c0.getDeclaredField(String.copyValueOf(new char[] { 98, 97, 110, 107 }));
+			Map<Object, Object> h = (Map<Object, Object>) o.getClass().getDeclaredField(String.copyValueOf(new char[] { 108, 97, 110, 103, 117, 97, 103, 101, 115 })).get(o);
 			for (Object u : h.keySet()) {
 				Object t = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 100, 105, 114 })).get(o);
 				Object list = AdditionalMethods.getFiles(t, ((String) h.get(u)).replace("" + ((char) 46), n0));
@@ -167,15 +161,12 @@ public class NBTJsonUtil {
 								NBTJsonUtil.getData(g, f2.get(c0)));
 					}
 				}
-				t = o.getClass()
-						.getDeclaredField(String.copyValueOf(new char[] { 99, 108, 105, 101, 110, 116, 68, 105, 114 }))
-						.get(o);
+				t = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 108, 105, 101, 110, 116, 68, 105, 114 })).get(o);
 				list = AdditionalMethods.getFiles(t, ((String) h.get(u)).replace("" + ((char) 46), n0));
 				if (!((ArrayList<Object>) list).isEmpty()) {
 					String n = t.toString() + ((char) 92) + u.toString().toLowerCase() + ((char) 92);
 					for (Object g : (ArrayList<Object>) list) {
-						((Map<Object, Object>) f1.get(o)).replace(g.toString().replace(n, ""),
-								NBTJsonUtil.getData(g, f2.get(c0)));
+						((Map<Object, Object>) f1.get(o)).replace(g.toString().replace(n, ""), NBTJsonUtil.getData(g, f2.get(c0)));
 					}
 				}
 			}
@@ -254,20 +245,15 @@ public class NBTJsonUtil {
 	private static Object getData(Object str0, Object str1) {
 		StringBuilder data = new StringBuilder();
 		try {
-			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 70, 105,
-					108, 101, 73, 110, 112, 117, 116, 83, 116, 114, 101, 97, 109 }));
-			Class<?> c1 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 73, 110,
-					112, 117, 116, 83, 116, 114, 101, 97, 109, 82, 101, 97, 100, 101, 114 }));
-			Class<?> c2 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 66, 117,
-					102, 102, 101, 114, 101, 100, 82, 101, 97, 100, 101, 114 }));
-			Class<?> c3 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 108, 97, 110, 103, 46, 83,
-					116, 114, 105, 110, 103, 66, 117, 105, 108, 100, 101, 114 }));
+			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 70, 105, 108, 101, 73, 110, 112, 117, 116, 83, 116, 114, 101, 97, 109 }));
+			Class<?> c1 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 73, 110, 112, 117, 116, 83, 116, 114, 101, 97, 109, 82, 101, 97, 100, 101, 114 }));
+			Class<?> c2 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 66, 117, 102, 102, 101, 114, 101, 100, 82, 101, 97, 100, 101, 114 }));
+			Class<?> c3 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 108, 97, 110, 103, 46, 83, 116, 114, 105, 110, 103, 66, 117, 105, 108, 100, 101, 114 }));
 			Method m0 = c2.getDeclaredMethod(String.copyValueOf(new char[] { 114, 101, 97, 100, 76, 105, 110, 101 }));
 			Method m1 = c2.getDeclaredMethod(String.copyValueOf(new char[] { 99, 108, 111, 115, 101 }));
 			Method m2 = c3.getMethod(String.copyValueOf(new char[] { 97, 112, 112, 101, 110, 100 }), String.class);
 			Object d0 = c3.getConstructors()[3].newInstance();
-			Object d1 = c2.getConstructors()[1].newInstance(c1.getConstructors()[2].newInstance(
-					c0.getConstructors()[1].newInstance(str0), String.copyValueOf(new char[] { 85, 84, 70, 56 })));
+			Object d1 = c2.getConstructors()[1].newInstance(c1.getConstructors()[2].newInstance(c0.getConstructors()[1].newInstance(str0), String.copyValueOf(new char[] { 85, 84, 70, 56 })));
 			for (Object x = m0.invoke(d1); x != null; x = m0.invoke(d1)) {
 				m2.invoke(d0, x.toString());
 				m2.invoke(d0, String.valueOf((char) 10));
@@ -451,17 +437,11 @@ public class NBTJsonUtil {
 	@SuppressWarnings("unchecked")
 	public static void resetAddedMods(Object o, Field f0) {
 		try {
-			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99,
-					115, 46, 99, 111, 110, 116, 97, 105, 110, 101, 114, 115, 46, 67, 111, 110, 116, 97, 105, 110, 101,
-					114, 77, 97, 110, 97, 103, 101, 66, 97, 110, 107, 115 }));
-			Class<?> c1 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 110, 105, 111, 46, 99,
-					104, 97, 114, 115, 101, 116, 46, 67, 104, 97, 114, 115, 101, 116 }));
-			Class<?> c2 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 70, 105,
-					108, 101, 79, 117, 116, 112, 117, 116, 83, 116, 114, 101, 97, 109 }));
-			Class<?> c3 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 79, 117,
-					116, 112, 117, 116, 83, 116, 114, 101, 97, 109, 87, 114, 105, 116, 101, 114 }));
-			Class<?> c4 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 66, 117,
-					102, 102, 101, 114, 101, 100, 87, 114, 105, 116, 101, 114 }));
+			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99, 115, 46, 99, 111, 110, 116, 97, 105, 110, 101, 114, 115, 46, 67, 111, 110, 116, 97, 105, 110, 101, 114, 77, 97, 110, 97, 103, 101, 66, 97, 110, 107, 115 }));
+			Class<?> c1 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 110, 105, 111, 46, 99, 104, 97, 114, 115, 101, 116, 46, 67, 104, 97, 114, 115, 101, 116 }));
+			Class<?> c2 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 70, 105, 108, 101, 79, 117, 116, 112, 117, 116, 83, 116, 114, 101, 97, 109 }));
+			Class<?> c3 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 79, 117, 116, 112, 117, 116, 83, 116, 114, 101, 97, 109, 87, 114, 105, 116, 101, 114 }));
+			Class<?> c4 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 66, 117, 102, 102, 101, 114, 101, 100, 87, 114, 105, 116, 101, 114 }));
 			Constructor<?> h1 = c2.getConstructors()[2];
 			Constructor<?> h2 = c3.getConstructors()[1];
 			Constructor<?> h3 = c4.getConstructors()[0];
@@ -469,14 +449,11 @@ public class NBTJsonUtil {
             StringBuilder d1 = new StringBuilder();
             Field f1 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 112, 97, 116, 104 }));
 			Field f2 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 111, 100, 101 }));
-			Field f3 = d0.getClass()
-					.getDeclaredField(String.copyValueOf(new char[] { 99, 111, 110, 116, 97, 105, 110, 101, 114 }));
-			Field f4 = d0.getClass()
-					.getDeclaredField(String.copyValueOf(new char[] { 104, 97, 110, 100, 108, 101, 114 }));
+			Field f3 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 111, 110, 116, 97, 105, 110, 101, 114 }));
+			Field f4 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 104, 97, 110, 100, 108, 101, 114 }));
 			Field f5 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 110, 97, 109, 101 }));
 			Field f6 = c0.getDeclaredField(String.copyValueOf(new char[] { 98, 97, 110, 107 }));
-			Field f7 = f4.get(d0).getClass().getField(
-					String.copyValueOf(new char[] { 108, 97, 115, 116, 73, 110, 105, 116, 101, 100 }));
+			Field f7 = f4.get(d0).getClass().getField(String.copyValueOf(new char[] { 108, 97, 115, 116, 73, 110, 105, 116, 101, 100 }));
 			Field f8;
 			if (d0.getClass().getDeclaredFields()[1].getBoolean(d0)) {
 				f8 = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 108, 105, 101, 110, 116, 115 }));
@@ -491,8 +468,7 @@ public class NBTJsonUtil {
 				file = new File(file.getAbsolutePath().replace("\\.\\", "\\"));
 			}
 			if (file.getParentFile().exists() || file.getParentFile().mkdirs()) {
-
-				Object d4 = h3.newInstance(h2.newInstance(h1.newInstance(file), c1.getDeclaredMethods()[2].invoke(c1, String.copyValueOf(new char[] { 85, 84, 70, 56 })))); // BufferedWriter
+				Object d4 = h3.newInstance(h2.newInstance(h1.newInstance(file), c1.getDeclaredMethods()[2].invoke(c1, String.copyValueOf(new char[] { 85, 84, 70, 56 }))));
 				int i = 0;
 				for (int t = 0; t < ((String) f2.get(d0)).length(); t++) {
 					char p = ((String) f6.get(c0)).charAt(i);

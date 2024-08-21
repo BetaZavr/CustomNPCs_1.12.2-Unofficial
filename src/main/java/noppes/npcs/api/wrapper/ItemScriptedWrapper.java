@@ -54,6 +54,9 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 	}
 
 	@Override
+	public boolean getEnabled() { return this.enabled; }
+
+	@Override
 	public int getColor() {
 		return this.itemColor;
 	}
@@ -84,11 +87,6 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 	@Override
 	public double getDurabilityValue() {
 		return this.durabilityValue;
-	}
-
-	@Override
-	public boolean getEnabled() {
-		return this.enabled;
 	}
 
 	@Override
@@ -145,8 +143,8 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 		return false;
 	}
 
-	private boolean isEnabled() {
-		return this.enabled && ScriptController.HasStart;
+	public boolean isEnabled() {
+		return this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();
 	}
 
 	public void loadScriptData() {

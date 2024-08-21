@@ -49,11 +49,6 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public boolean getEnabled() {
-		return this.enabled;
-	}
-
-	@Override
 	public String getLanguage() {
 		return this.scriptLanguage;
 	}
@@ -67,6 +62,9 @@ implements IScriptHandler {
 	public boolean isClient() {
 		return Thread.currentThread().getName().toLowerCase().contains("client");
 	}
+
+	@Override
+	public boolean getEnabled() { return this.enabled; }
 
 	public boolean isEnabled() {
 		return this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();

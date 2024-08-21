@@ -45,13 +45,19 @@ public class AnimationEvent extends CustomNPCsEvent {
 		nameEvent = name;
 		animation = anim;
 		if (anim != null) {
+			int tt = anim.totalTicks;
+			if (anim.totalTicks == 0) {
+				anim.resetTicks();
+				tt = anim.totalTicks;
+			}
+			if (tt <= 0) { tt = 1; }
 			if (entity instanceof EntityPlayer) {
 				PlayerData data = PlayerData.get((EntityPlayer) entity);
 				if (data != null && data.animation != null) {
-					totalTicks = (int) (this.entity.world.getTotalWorldTime() - data.animation.startAnimationTime) % anim.totalTicks;
+					totalTicks = (int) (this.entity.world.getTotalWorldTime() - data.animation.startAnimationTime) % tt;
 				}
 			} else if (entity instanceof EntityNPCInterface && ((EntityNPCInterface) entity).animation != null) {
-				totalTicks = (int) (this.entity.world.getTotalWorldTime() - ((EntityNPCInterface) entity).animation.startAnimationTime) % anim.totalTicks;
+				totalTicks = (int) (this.entity.world.getTotalWorldTime() - ((EntityNPCInterface) entity).animation.startAnimationTime) % tt;
 			}
 			if (totalTicks >= 0) {
 				frameId = anim.getAnimationFrameByTime(totalTicks);

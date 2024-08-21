@@ -1011,6 +1011,7 @@ public class PacketHandlerPlayer {
 				case 2: { // Players
 					handler = ScriptController.Instance.playerScripts;
 					((PlayerScriptData) handler).readFromNBT(compound);
+					ScriptController.Instance.playerScripts.readFromNBT(compound);
 					((PlayerScriptData) handler).lastInited = -1L;
 					break;
 				}

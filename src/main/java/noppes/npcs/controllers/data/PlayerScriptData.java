@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.google.common.base.MoreObjects;
 
+import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -30,6 +31,16 @@ extends BaseScriptData {
 	public PlayerScriptData(EntityPlayer player) {
 		super();
 		this.player = player;
+		if (player != null) {
+			this.enabled = ScriptController.Instance.playerScripts.enabled;
+			this.hadInteract = ScriptController.Instance.playerScripts.hadInteract;
+			this.lastInited = ScriptController.Instance.playerScripts.lastInited;
+			this.scriptLanguage = ScriptController.Instance.playerScripts.scriptLanguage;
+			this.scripts.clear();
+			for (ScriptContainer sCon : ScriptController.Instance.playerScripts.scripts) {
+				this.scripts.add(sCon.copyTo(this));
+			}
+		}
 	}
 
 	@Override
@@ -55,6 +66,7 @@ extends BaseScriptData {
 		}
 		return this.playerAPI;
 	}
+
 	@Override
 	public String noticeString() {
 		if (this.player == null) {

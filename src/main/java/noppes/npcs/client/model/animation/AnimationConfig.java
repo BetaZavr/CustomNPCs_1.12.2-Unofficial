@@ -35,6 +35,7 @@ public class AnimationConfig implements IAnimation {
 	static {
 		EMPTY = new AnimationConfig();
 		EMPTY.frames.put(0, AnimationFrameConfig.STANDARD);
+		EMPTY.resetTicks();
 	}
 
 	public String name = "Default Animation";
@@ -354,7 +355,7 @@ public class AnimationConfig implements IAnimation {
 		return compound;
 	}
 
-	private void resetTicks() {
+	public void resetTicks() {
 		this.totalTicks = 0;
 		this.damageTicks = 0;
 		this.ticks.clear();

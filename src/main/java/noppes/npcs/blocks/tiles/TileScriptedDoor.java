@@ -114,7 +114,7 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		return this.getWorld().isRemote;
 	}
 
-	private boolean isEnabled() {
+	public boolean isEnabled() {
 		return this.enabled && ScriptController.HasStart && !this.world.isRemote;
 	}
 

@@ -1466,9 +1466,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				}
 				if ((nowBlock && nextBlock) || (!nowBlock && nextBlock)) {
 					this.animation.isJump = true;
-					if (this.isServerWorld()) {
-						this.animation.reset(AnimationKind.JUMP);
-					}
+					if (this.isServerWorld()) { this.animation.reset(AnimationKind.JUMP); }
 				}
 			}
 			else if (this.animation.isJump && this.onGround) {

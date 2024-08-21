@@ -313,7 +313,7 @@ public class ScriptController {
 		sData.loadClientScripts();
 		sData.loadPotionScripts();
 		sData.loadConstantData();
-		ScriptController.HasStart = false;
+		ScriptController.HasStart = true;
 	}
 
 	public void loadCategories() {
@@ -705,9 +705,8 @@ public class ScriptController {
 				}
 			}
 		}
-		File file = this.playerScriptsFile();
 		try {
-			NBTJsonUtil.SaveFile(file, compound);
+			NBTJsonUtil.SaveFile(this.playerScriptsFile(), compound);
 			this.lastPlayerUpdate = System.currentTimeMillis();
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}

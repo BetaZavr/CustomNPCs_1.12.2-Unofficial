@@ -63,6 +63,12 @@ import noppes.npcs.util.ObfuscationHelper;
 
 public class ScriptContainer {
 
+	public ScriptContainer copyTo(IScriptHandler scriptHandler) {
+		ScriptContainer scriptContainer = new ScriptContainer(scriptHandler, isClient);
+		scriptContainer.readFromNBT(this.writeToNBT(new NBTTagCompound()), isClient);
+		return scriptContainer;
+	}
+
 	public static class Dump implements Function<Object, IDataObject> {
 
 		@Override

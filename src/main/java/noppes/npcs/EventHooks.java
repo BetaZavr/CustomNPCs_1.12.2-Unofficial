@@ -302,8 +302,7 @@ public class EventHooks {
 		EventHooks.onEvent(PlayerData.get(player).scriptData, EnumScriptType.DIALOG_CLOSE, event);
 	}
 
-	public static boolean onNPCDialogOption(EntityNPCInterface npc, EntityPlayerMP player, Dialog dialog,
-			DialogOption option) {
+	public static boolean onNPCDialogOption(EntityNPCInterface npc, EntityPlayerMP player, Dialog dialog, DialogOption option) {
 		if (npc.script.isClient()) {
 			return false;
 		}
@@ -384,8 +383,8 @@ public class EventHooks {
 
 	public static CustomNpcTeleport onNpcTeleport(EntityNPCInterface npc, BlockPos to, BlockPos portal, int dimId) {
 		NpcAPI api = NpcAPI.Instance();
-        assert api != null;
-        CustomNpcTeleport event = new NpcEvent.CustomNpcTeleport((ICustomNpc<?>) api.getIEntity(npc),
+		assert api != null;
+		CustomNpcTeleport event = new NpcEvent.CustomNpcTeleport((ICustomNpc<?>) api.getIEntity(npc),
 				api.getIPos(portal.getX(), portal.getY(), portal.getZ()), api.getIPos(to.getX(), to.getY(), to.getZ()),
 				dimId);
 		if (npc == null) {
@@ -498,7 +497,7 @@ public class EventHooks {
 	}
 
 	public static void onPlayerKeyPressed(EntityPlayerMP player, int button, boolean isDown, boolean isCtrlPressed,
-			boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed) {
+										  boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed) {
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
 		Event event = new PlayerEvent.KeyPressedEvent(handler.getPlayer(), button, isCtrlPressed, isAltPressed,
 				isShiftPressed, isMetaPressed);
@@ -523,7 +522,7 @@ public class EventHooks {
 	}
 
 	public static void onPlayerMousePressed(EntityPlayerMP player, int button, boolean isDown, boolean isCtrlPressed,
-			boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed) {
+											boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed) {
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
 		Event event = new PlayerEvent.KeyPressedEvent(handler.getPlayer(), button, isCtrlPressed, isAltPressed,
 				isShiftPressed, isMetaPressed);
@@ -570,8 +569,8 @@ public class EventHooks {
 
 	public static CustomTeleport onPlayerTeleport(EntityPlayerMP player, BlockPos to, BlockPos portal, int dimId) {
 		NpcAPI api = NpcAPI.Instance();
-        assert api != null;
-        CustomTeleport event = new PlayerEvent.CustomTeleport((IPlayer<?>) api.getIEntity(player),
+		assert api != null;
+		CustomTeleport event = new PlayerEvent.CustomTeleport((IPlayer<?>) api.getIEntity(player),
 				api.getIPos(portal.getX(), portal.getY(), portal.getZ()), api.getIPos(to.getX(), to.getY(), to.getZ()),
 				dimId);
 		if (player == null) {
@@ -612,7 +611,7 @@ public class EventHooks {
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
 				script.run(EnumScriptType.PROJECTILE_IMPACT.function, event,
-                        !projectile.world.isRemote);
+						!projectile.world.isRemote);
 			}
 		}
 		WrapperNpcAPI.EVENT_BUS.post(event);
@@ -624,7 +623,7 @@ public class EventHooks {
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
 				script.run(EnumScriptType.PROJECTILE_TICK.function, event,
-                        !projectile.world.isRemote);
+						!projectile.world.isRemote);
 			}
 		}
 		WrapperNpcAPI.EVENT_BUS.post(event);
@@ -730,7 +729,7 @@ public class EventHooks {
 	}
 
 	public static boolean onScriptBlockInteract(IScriptBlockHandler handler, EntityPlayer player, int side, float hitX,
-			float hitY, float hitZ) {
+												float hitY, float hitZ) {
 		if (handler.isClient()) {
 			return false;
 		}
@@ -869,7 +868,7 @@ public class EventHooks {
 	}
 
 	public static void onScriptTriggerEvent(IScriptHandler handler, int id, IWorld world, IPos pos, IEntity<?> entity,
-			Object... arguments) {
+											Object... arguments) {
 		ScriptTriggerEvent event = new ScriptTriggerEvent(id, world, pos, entity, arguments);
 		EventHooks.onEvent(handler, EnumScriptType.SCRIPT_TRIGGER, event);
 	}

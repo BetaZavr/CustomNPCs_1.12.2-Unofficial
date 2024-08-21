@@ -1493,7 +1493,7 @@ public class CommonProxy implements IGuiHandler {
 		String line;
 		StringBuilder text = new StringBuilder();
 		while ((line = reader.readLine()) != null) {
-			text.append(line);
+			text.append(line).append((char) 10);
 		}
 		reader.close();
 		return text.toString();

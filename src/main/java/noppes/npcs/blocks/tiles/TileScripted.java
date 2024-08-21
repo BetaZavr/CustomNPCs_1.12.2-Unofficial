@@ -345,6 +345,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		compound.setTag("Layers", l);
 	}
 
+	@Override
 	public boolean getEnabled() {
 		return this.enabled;
 	}
@@ -428,8 +429,8 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		return this.getWorld().isRemote;
 	}
 
-	private boolean isEnabled() {
-		return this.enabled && ScriptController.HasStart && !this.world.isRemote;
+	public boolean isEnabled() {
+		return this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();
 	}
 
 	public String noticeString() {

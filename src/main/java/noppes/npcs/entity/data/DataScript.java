@@ -71,7 +71,7 @@ public class DataScript implements IScriptHandler {
 	}
 
 	public boolean isEnabled() {
-		return this.enabled && ScriptController.HasStart && !this.npc.world.isRemote;
+		return this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();
 	}
 
 	@Override

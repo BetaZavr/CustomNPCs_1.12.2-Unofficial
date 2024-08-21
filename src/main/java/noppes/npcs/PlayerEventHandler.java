@@ -3,12 +3,7 @@ package noppes.npcs;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 
@@ -1323,7 +1318,6 @@ public class PlayerEventHandler {
 						eventName = pfx + StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
 						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
 						if (!isClient) {
-							System.out.println("CNPCs: "+eventName);
 							CustomNpcs.forgeEventNames.put(c, eventName);
 							CustomNpcs.forgeClientEventNames.put(c, eventName);
 							register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
@@ -1396,62 +1390,54 @@ public class PlayerEventHandler {
 				//dir = new File(dir.getParentFile(), "nit"); // Minecraft 1.16.5
 				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
 
-				Map<String, Map<String, List<Integer>>> found = Maps.<String, Map<String, List<Integer>>>newTreeMap();
-				found.put("System.out.println", null);
-				//found.put("setEntityBoundingBox", null);
+				Map<String, Map<String, List<Integer>>> found = Maps.newTreeMap();
+				//found.put("System.out.println", null);
+				found.put("ModelPlayerAlt", null);
 				
 				for (File file : AdditionalMethods.getFiles(dir, "java")) {
 					try {
-						BufferedReader reader = Files.newReader(file, Charset.forName("UTF-8"));
+						BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8);
 						String line;
 						int l = 1;
 						while ((line = reader.readLine()) != null) {
 							for (String key : found.keySet()) {
-								if (key.indexOf("&&") != -1) {
+								if (key.contains("&&")) {
 									String k = key.substring(0, key.indexOf("&&"));
 									String s = key.substring(key.indexOf("&&") + 2);
-									if (line.indexOf(k) != -1 && line.toLowerCase().indexOf(s.toLowerCase()) != -1) {
-										if (found.get(key) == null) {
-											found.put(key, Maps.<String, List<Integer>>newTreeMap());
-										}
+									if (line.contains(k) && line.toLowerCase().contains(s.toLowerCase())) {
+                                        found.computeIfAbsent(key, k1 -> Maps.newTreeMap());
 										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
 										if (!found.get(key).containsKey(fPath)) {
-											found.get(key).put(fPath, Lists.<Integer>newArrayList());
+											found.get(key).put(fPath, Lists.newArrayList());
 										}
 										found.get(key).get(fPath).add(l);
 									}
 								} else if (key.indexOf("&") == 0) {
 									String k = key.replace("&", "");
-									if (line.indexOf(k) != -1) {
+									if (line.contains(k)) {
 										int s = line.indexOf(k) - 1;
 										int e = line.indexOf(k) + k.length();
-										if (br.indexOf("" + line.charAt(s)) != -1
-												&& br.indexOf("" + line.charAt(e)) != -1) {
-											if (found.get(key) == null) {
-												found.put(key, Maps.<String, List<Integer>>newTreeMap());
-											}
+										if (br.contains("" + line.charAt(s)) && br.contains("" + line.charAt(e))) {
+                                            found.computeIfAbsent(key, k1 -> Maps.newTreeMap());
 											String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
 											if (!found.get(key).containsKey(fPath)) {
-												found.get(key).put(fPath, Lists.<Integer>newArrayList());
+												found.get(key).put(fPath, Lists.newArrayList());
 											}
 											found.get(key).get(fPath).add(l);
 										}
 									}
-								} else if (line.indexOf(key) != -1) {
-									if (found.get(key) == null) {
-										found.put(key, Maps.<String, List<Integer>>newTreeMap());
-									}
+								} else if (line.contains(key)) {
+                                    found.computeIfAbsent(key, k -> Maps.newTreeMap());
 									String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
 									if (!found.get(key).containsKey(fPath)) {
-										found.get(key).put(fPath, Lists.<Integer>newArrayList());
+										found.get(key).put(fPath, Lists.newArrayList());
 									}
 									found.get(key).get(fPath).add(l);
 								}
 							}
 							l++;
 						}
-					} catch (Exception e) {
-					}
+					} catch (Exception e) { LogWriter.error(e); }
 				}
 				System.out.println("Directory: " + dir);
 				for (String key : found.keySet()) {
