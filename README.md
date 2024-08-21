@@ -8,9 +8,7 @@ CustomNPCs is a modification for the game Minecraft aimed at creating your own m
 
 This is an unofficial code repository for the Custom NPCs mod
 
-This code is posted with permission from the author under the terms of the Creative Commons Attribution-Non Commercial 3.0 Unported license for CustomNPC.
-
-http://creativecommons.org/licenses/by-nc/3.0/
+This code is posted with permission from the author under the terms of the **[Creative Commons Attribution-Non Commercial 3.0 Unported license](http://creativecommons.org/licenses/by-nc/3.0/)** for CustomNPC.
 
 Official **[website](https://www.kodevelopment.nl/minecraft/customnpcs)**.
 
@@ -25,7 +23,7 @@ Official **[website](https://www.kodevelopment.nl/minecraft/customnpcs)**.
 * added Quest Compass;
 * added virtual currency;
 * more accurate mod and player data;
-* added tools for fast construction of structures compatible with **[Schematics](https://www.curseforge.com/minecraft/mc-mods/schematics)** modification;
+* added tools for fast construction of structures compatible with **[Schematica](https://www.curseforge.com/minecraft/mc-mods/schematica)** modification;
 
 ### Quests
 
