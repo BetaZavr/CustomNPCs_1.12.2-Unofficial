@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 public class ContainerManageBanks extends Container {
 
-	public static Object bank = null;
+	public static String bank = null;
 
     public ContainerManageBanks(EntityPlayer player) {
         IInventory inv = new NpcMiscInventory(2);

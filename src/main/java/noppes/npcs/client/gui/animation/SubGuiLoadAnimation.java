@@ -178,11 +178,9 @@ public class SubGuiLoadAnimation extends SubGuiInterface implements ICustomScrol
 		}
 		if (this.npcAnim != null) {
 			AnimationConfig ac = this.animation.copy();
-			ac.isEdit = (byte) 1;
-			ac.type = AnimationKind.STANDING;
 
 			this.npcAnim.display.setName("0_" + this.npc.getName());
-			this.npcAnim.animation.setAnimation(ac, ac.type);
+			this.npcAnim.animation.setAnimation(ac, AnimationKind.EDITING);
 			this.npcAnim.setHealth(this.npcAnim.getMaxHealth());
 			this.npcAnim.deathTime = 0;
 		}

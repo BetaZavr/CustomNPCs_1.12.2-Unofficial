@@ -34,23 +34,22 @@ public class AnimationConfig implements IAnimation {
 	public static final AnimationConfig EMPTY;
 	static {
 		EMPTY = new AnimationConfig();
-		EMPTY.frames.put(0, AnimationFrameConfig.STANDARD);
+		EMPTY.frames.put(0, AnimationFrameConfig.EMPTY);
 		EMPTY.resetTicks();
 	}
 
 	public String name = "Default Animation";
 	public int repeatLast = 0;
-	public byte isEdit = (byte) 0; // 0: normal; 1:edit; 2: edit one frame
 	public final Map<Integer, AnimationFrameConfig> frames = Maps.newTreeMap(); // {Frame, setting Frame]}\
 	// Info
-	public final Map<Integer, Integer> ticks = Maps.newTreeMap();
-	public int totalTicks = 0, damageTicks;
+	public final Map<Integer, Integer> endingFrameTicks = Maps.newTreeMap();
+	public int totalTicks = 0;
+	public int damageTicks;
 
 	public int id = -1;
 	public AnimationKind type = AnimationKind.STANDING;
 	public float chance = 1.0f;
 	public boolean immutable;
-	public boolean isSimple; // one frame
 	private int damageHitboxType = 0;
 	private AxisAlignedBB damageHitbox = new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d); // new AxisAlignedBB(BlockPos.ORIGIN)
 	public float[] offsetHitbox = new float[] { 0.0f, 0.0f, 0.0f }; // [dist, height, horizontal]
@@ -103,30 +102,28 @@ public class AnimationConfig implements IAnimation {
 
 	/** creates animation of the specified type
 	   standard frames are taken into account */
-	public AnimationConfig create(AnimationKind type, AnimationFrameConfig currentAnimationFrame) {
+	public AnimationConfig create(AnimationKind type, AnimationFrameConfig preFrame) {
 		AnimationConfig ac = this.copy();
 		ac.type = type;
-		ac.isSimple = ac.frames.size() == 1 || ac.isEdit == (byte) 2;
-
-		// add standard frame to beginning
-		if (!type.isQuickStart() || ac.isSimple || ac.isEdit == (byte) 1) {
-			Map<Integer, AnimationFrameConfig> newFrames = Maps.newTreeMap();
-			int i = 0;
-			if (ac.isEdit == (byte) 1) { newFrames.put(i++, AnimationFrameConfig.STANDARD); }
-			newFrames.put(i++, currentAnimationFrame);
-			for (AnimationFrameConfig frame : ac.frames.values()) {
-				frame.id = i;
-				newFrames.put(i, frame);
-				i++;
+		if (type != AnimationKind.EDITING) {
+			// add standard frame to beginning
+			if (!type.isQuickStart()) {
+				Map<Integer, AnimationFrameConfig> newFrames = Maps.newTreeMap();
+				int i = 0;
+				newFrames.put(i++, preFrame);
+				for (AnimationFrameConfig frame : ac.frames.values()) {
+					frame.id = i;
+					newFrames.put(i, frame);
+					i++;
+				}
+				ac.frames.clear();
+				ac.frames.putAll(newFrames);
 			}
-			ac.frames.clear();
-			ac.frames.putAll(newFrames);
+			// add standard frame to end
+			if (ac.repeatLast == 0 && type != AnimationKind.DIES && type != AnimationKind.JUMP && type != AnimationKind.AIM) {
+				ac.frames.put(ac.frames.size(), preFrame);
+			}
 		}
-
-		// add standard frame to end
-		if (!type.isQuickEnd()) { ac.frames.put(ac.frames.size(), AnimationFrameConfig.STANDARD); }
-		if (ac.isEdit == (byte) 1) { ac.frames.put(ac.frames.size(), AnimationFrameConfig.STANDARD); }
-
 		ac.resetTicks();
 		return ac;
 	}
@@ -198,7 +195,6 @@ public class AnimationConfig implements IAnimation {
 
 		this.id = compound.getInteger("ID");
 		this.name = compound.getString("Name");
-		this.isEdit = compound.getByte("IsEdit");
 		if (compound.hasKey("Chance", 5)) { this.setChance(compound.getFloat("Chance")); }
 		if (compound.hasKey("Immutable", 1)) { this.immutable = compound.getBoolean("Immutable"); }
 		if (compound.hasKey("Type", 3)) { this.type = AnimationKind.get(compound.getInteger("Type")); }
@@ -327,7 +323,6 @@ public class AnimationConfig implements IAnimation {
 			}
 		}
 		compound.setTag("FrameConfigs", list);
-		compound.setByte("IsEdit", this.isEdit);
 		compound.setInteger("ID", this.id);
 		compound.setInteger("Type", this.type.get());
 		compound.setInteger("RepeatLast", this.repeatLast);
@@ -358,23 +353,26 @@ public class AnimationConfig implements IAnimation {
 	public void resetTicks() {
 		this.totalTicks = 0;
 		this.damageTicks = 0;
-		this.ticks.clear();
+		this.endingFrameTicks.clear();
 		if (this == EMPTY) {
-			this.ticks.put(0, AnimationFrameConfig.STANDARD.speed + AnimationFrameConfig.STANDARD.delay);
+			this.totalTicks = AnimationFrameConfig.EMPTY.speed + AnimationFrameConfig.EMPTY.delay + 1;
+			this.endingFrameTicks.put(0, this.totalTicks);
 			return;
 		}
 		boolean isNowDamage = false;
 		for (Integer id : this.frames.keySet()) {
 			AnimationFrameConfig frame = this.frames.get(id);
+			if (frame.speed < 1) { frame.speed = 1; }
 			if (!isNowDamage && frame.isNowDamage()) {
 				this.damageTicks += frame.speed;
 				isNowDamage = true;
 			} else {
 				this.damageTicks += frame.speed + frame.delay;
 			}
-			this.ticks.put(id, this.totalTicks);
 			this.totalTicks += frame.speed + frame.delay;
+			this.endingFrameTicks.put(id, this.totalTicks);
 		}
+		this.totalTicks += 1;
 	}
 
 	public boolean hasEmotion() {
@@ -402,15 +400,11 @@ public class AnimationConfig implements IAnimation {
 	}
 
 	public int getAnimationFrameByTime(long totalTicks) {
-		int animationFrame = 0;
 		if (totalTicks > 0) {
-			for (int id : this.ticks.keySet()) {
-				animationFrame = id;
-				if (totalTicks >= this.ticks.get(id)) {
-					break;
-				}
+			for (int id : this.endingFrameTicks.keySet()) {
+				if (totalTicks <= this.endingFrameTicks.get(id)) { return id; }
 			}
 		}
-		return animationFrame;
+		return 0;
 	}
 }

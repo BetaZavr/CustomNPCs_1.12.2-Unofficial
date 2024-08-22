@@ -121,9 +121,7 @@ implements IComponentGui {
 			}
 		} else {
 			String str = labels.toString();
-			try {
-				str = new TextComponentTranslation(labels.toString()).getFormattedText();
-			} catch (Exception e) { LogWriter.error("Error:", e);}
+			try { str = new TextComponentTranslation(labels.toString()).getFormattedText(); } catch (Exception e) { }
 			this.label = Lists.newArrayList(str);
 			this.height = 10;
 			this.width = Minecraft.getMinecraft().fontRenderer

@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -83,6 +84,7 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.roles.RoleCompanion;
@@ -911,6 +913,12 @@ public class PacketHandlerPlayer {
 			if (entity instanceof EntityNPCInterface) {
 				((EntityNPCInterface) entity).animation.stopAnimation();
 				EventHooks.onNPCStopAnimation((EntityNPCInterface) entity, buffer.readInt(), buffer.readInt());
+			} else if (entity instanceof EntityPlayer) {
+				DataAnimation animation = PlayerData.get((EntityPlayer) entity).animation;
+				if (animation != null) {
+					animation.stopAnimation();
+					//EventHooks.onPlayerStopAnimation((EntityPlayer) entity, buffer.readInt(), buffer.readInt());
+				}
 			}
 		} else if (type == EnumPlayerPacket.OpenGui) {
 			EventHooks.onPlayerOpenGui(player, Server.readString(buffer), Server.readString(buffer));

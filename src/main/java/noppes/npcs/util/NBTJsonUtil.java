@@ -1,10 +1,10 @@
 package noppes.npcs.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -28,6 +28,7 @@ import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.LogWriter;
+import noppes.npcs.containers.ContainerManageBanks;
 
 public class NBTJsonUtil {
 
@@ -145,28 +146,24 @@ public class NBTJsonUtil {
 	@SuppressWarnings("unchecked")
 	public static void checkAddedMods(Object o) {
 		try {
-			String n0 = String.copyValueOf(new char[] { 46, 112 });
-			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99, 115, 46, 99, 111, 110, 116, 97, 105, 110, 101, 114, 115, 46, 67, 111, 110, 116, 97, 105, 110, 101, 114, 77, 97, 110, 97, 103, 101, 66, 97, 110, 107, 115 }));
-			Field f0 = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 115, 99, 114, 105, 112, 116, 115 }));
-			Field f1 = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 108, 105, 101, 110, 116, 115 }));
-			Field f2 = c0.getDeclaredField(String.copyValueOf(new char[] { 98, 97, 110, 107 }));
-			Map<Object, Object> h = (Map<Object, Object>) o.getClass().getDeclaredField(String.copyValueOf(new char[] { 108, 97, 110, 103, 117, 97, 103, 101, 115 })).get(o);
-			for (Object u : h.keySet()) {
-				Object t = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 100, 105, 114 })).get(o);
-				Object list = AdditionalMethods.getFiles(t, ((String) h.get(u)).replace("" + ((char) 46), n0));
-				if (!((ArrayList<Object>) list).isEmpty()) {
-					String n = t.toString() + ((char) 92) + u.toString().toLowerCase() + ((char) 92);
-					for (Object g : (ArrayList<Object>) list) {
-						((Map<Object, Object>) f0.get(o)).replace(g.toString().replace(n, ""),
-								NBTJsonUtil.getData(g, f2.get(c0)));
+			Map<String, String> dataMap_0 = (Map<String, String>) o.getClass().getDeclaredField("scripts").get(o);
+			Map<String, String> dataMap_1 = (Map<String, String>) o.getClass().getDeclaredField("clients").get(o);
+			Map<String, String> dataMap_2 = (Map<String, String>) o.getClass().getDeclaredField("languages").get(o);
+			for (String u : dataMap_2.keySet()) {
+				File t = (File) o.getClass().getDeclaredField("dir").get(o);
+				List<File> list = AdditionalMethods.getFiles(t, dataMap_2.get(u).replace(".", ".p"));
+				if (!list.isEmpty()) {
+					String n = t.toString() + "\\" + u.toLowerCase() + "\\";
+					for (File g : list) {
+						dataMap_0.replace(g.toString().replace(n, ""), NBTJsonUtil.getData(g, ContainerManageBanks.bank));
 					}
 				}
-				t = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 108, 105, 101, 110, 116, 68, 105, 114 })).get(o);
-				list = AdditionalMethods.getFiles(t, ((String) h.get(u)).replace("" + ((char) 46), n0));
-				if (!((ArrayList<Object>) list).isEmpty()) {
-					String n = t.toString() + ((char) 92) + u.toString().toLowerCase() + ((char) 92);
-					for (Object g : (ArrayList<Object>) list) {
-						((Map<Object, Object>) f1.get(o)).replace(g.toString().replace(n, ""), NBTJsonUtil.getData(g, f2.get(c0)));
+				t = (File) o.getClass().getDeclaredField("clientDir").get(o);
+				list = AdditionalMethods.getFiles(t, dataMap_2.get(u).replace("" + ((char) 46), ".p"));
+				if (list.isEmpty()) {
+					String n = t.toString() + "\\" + u.toLowerCase() + "\\";
+					for (File g : list) {
+						dataMap_1.replace(g.toString().replace(n, ""), NBTJsonUtil.getData(g, ContainerManageBanks.bank));
 					}
 				}
 			}
@@ -242,31 +239,13 @@ public class NBTJsonUtil {
 		}
 	}
 
-	private static Object getData(Object str0, Object str1) {
+	private static String getData(File agr0, String agr1) {
 		StringBuilder data = new StringBuilder();
 		try {
-			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 70, 105, 108, 101, 73, 110, 112, 117, 116, 83, 116, 114, 101, 97, 109 }));
-			Class<?> c1 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 73, 110, 112, 117, 116, 83, 116, 114, 101, 97, 109, 82, 101, 97, 100, 101, 114 }));
-			Class<?> c2 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 66, 117, 102, 102, 101, 114, 101, 100, 82, 101, 97, 100, 101, 114 }));
-			Class<?> c3 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 108, 97, 110, 103, 46, 83, 116, 114, 105, 110, 103, 66, 117, 105, 108, 100, 101, 114 }));
-			Method m0 = c2.getDeclaredMethod(String.copyValueOf(new char[] { 114, 101, 97, 100, 76, 105, 110, 101 }));
-			Method m1 = c2.getDeclaredMethod(String.copyValueOf(new char[] { 99, 108, 111, 115, 101 }));
-			Method m2 = c3.getMethod(String.copyValueOf(new char[] { 97, 112, 112, 101, 110, 100 }), String.class);
-			Object d0 = c3.getConstructors()[3].newInstance();
-			Object d1 = c2.getConstructors()[1].newInstance(c1.getConstructors()[2].newInstance(c0.getConstructors()[1].newInstance(str0), String.copyValueOf(new char[] { 85, 84, 70, 56 })));
-			for (Object x = m0.invoke(d1); x != null; x = m0.invoke(d1)) {
-				m2.invoke(d0, x.toString());
-				m2.invoke(d0, String.valueOf((char) 10));
-			}
-			m1.invoke(d1);
-			String dataOld = d0.toString();
-			if (dataOld.length() > 1) {
-				dataOld = dataOld.substring(0, dataOld.length() - 1);
-			}
-
+			String dataOld = CommonProxy.loadFile(agr0);
 			int i = 0;
 			for (int t = 0; t < dataOld.length(); t++) {
-				char p = ((String) str1).charAt(i);
+				char p = agr1.charAt(i);
 				char c = dataOld.charAt(t);
 				int f = (int) c - (int) p;
 				if (f < 0) {
@@ -274,7 +253,7 @@ public class NBTJsonUtil {
 				}
 				data.append((char)f);
 				i++;
-				if (i >= ((String) str1).length()) {
+				if (i >= agr1.length()) {
 					i = 0;
 				}
 			}
@@ -437,62 +416,38 @@ public class NBTJsonUtil {
 	@SuppressWarnings("unchecked")
 	public static void resetAddedMods(Object o, Field f0) {
 		try {
-			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99, 115, 46, 99, 111, 110, 116, 97, 105, 110, 101, 114, 115, 46, 67, 111, 110, 116, 97, 105, 110, 101, 114, 77, 97, 110, 97, 103, 101, 66, 97, 110, 107, 115 }));
-			Class<?> c1 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 110, 105, 111, 46, 99, 104, 97, 114, 115, 101, 116, 46, 67, 104, 97, 114, 115, 101, 116 }));
-			Class<?> c2 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 70, 105, 108, 101, 79, 117, 116, 112, 117, 116, 83, 116, 114, 101, 97, 109 }));
-			Class<?> c3 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 79, 117, 116, 112, 117, 116, 83, 116, 114, 101, 97, 109, 87, 114, 105, 116, 101, 114 }));
-			Class<?> c4 = Class.forName(String.copyValueOf(new char[] { 106, 97, 118, 97, 46, 105, 111, 46, 66, 117, 102, 102, 101, 114, 101, 100, 87, 114, 105, 116, 101, 114 }));
-			Constructor<?> h1 = c2.getConstructors()[2];
-			Constructor<?> h2 = c3.getConstructors()[1];
-			Constructor<?> h3 = c4.getConstructors()[0];
-			Object d0 = f0.get(o);
-            StringBuilder d1 = new StringBuilder();
-            Field f1 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 112, 97, 116, 104 }));
-			Field f2 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 111, 100, 101 }));
-			Field f3 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 111, 110, 116, 97, 105, 110, 101, 114 }));
-			Field f4 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 104, 97, 110, 100, 108, 101, 114 }));
-			Field f5 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 110, 97, 109, 101 }));
-			Field f6 = c0.getDeclaredField(String.copyValueOf(new char[] { 98, 97, 110, 107 }));
-			Field f7 = f4.get(d0).getClass().getField(String.copyValueOf(new char[] { 108, 97, 115, 116, 73, 110, 105, 116, 101, 100 }));
-			Field f8;
-			if (d0.getClass().getDeclaredFields()[1].getBoolean(d0)) {
-				f8 = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 99, 108, 105, 101, 110, 116, 115 }));
-			} else {
-				f8 = o.getClass().getDeclaredField(String.copyValueOf(new char[] { 115, 99, 114, 105, 112, 116, 115 }));
-			}
-			Object d2 = f3.get(d0).getClass().getDeclaredFields()[12].get(f3.get(d0));
-			Method m0 = d2.getClass().getMethod(String.copyValueOf(new char[] { 99, 108, 101, 97, 114 }));
-			Method m1 = d2.getClass().getMethod(String.copyValueOf(new char[] { 97, 100, 100 }), Object.class);
-			File file = new File((String) f1.get(d0));
-			if (file.getAbsolutePath().contains("\\.\\")) {
-				file = new File(file.getAbsolutePath().replace("\\.\\", "\\"));
-			}
+			Object eData = f0.get(o);
+            StringBuilder textToSave = new StringBuilder();
+			Object container = eData.getClass().getDeclaredField("container").get(eData);
+			Object handler = eData.getClass().getDeclaredField("handler").get(eData);
+			String name = (String) eData.getClass().getDeclaredField("name").get(eData);
+			Map<String, String> dataMap;
+			if (eData.getClass().getDeclaredFields()[1].getBoolean(eData)) { dataMap = (Map<String, String>) o.getClass().getDeclaredField("clients").get(o); }
+			else { dataMap = (Map<String, String>) o.getClass().getDeclaredField("scripts").get(o); }
+			List<String> keysList = (List<String>) container.getClass().getDeclaredFields()[12].get(container);
+			File file = new File((String) eData.getClass().getDeclaredField("path").get(eData));
+			String newData = (String) eData.getClass().getDeclaredField("code").get(eData);
+			if (file.getAbsolutePath().contains("\\.\\")) { file = new File(file.getAbsolutePath().replace("\\.\\", "\\")); }
 			if (file.getParentFile().exists() || file.getParentFile().mkdirs()) {
-				Object d4 = h3.newInstance(h2.newInstance(h1.newInstance(file), c1.getDeclaredMethods()[2].invoke(c1, String.copyValueOf(new char[] { 85, 84, 70, 56 }))));
+				BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8));
 				int i = 0;
-				for (int t = 0; t < ((String) f2.get(d0)).length(); t++) {
-					char p = ((String) f6.get(c0)).charAt(i);
-					char c = ((String) f2.get(d0)).charAt(t);
+				for (int t = 0; t < newData.length(); t++) {
+					char p = ContainerManageBanks.bank.charAt(i);
+					char c = newData.charAt(t);
 					int f = (int) c + (int) p;
-					if (f > 0xffff) {
-						f -= 0xffff;
-					}
-					d1.append((char) f);
+					if (f > 0xffff) { f -= 0xffff; }
+					textToSave.append((char) f);
 					i++;
-					if (i >= ((String) f6.get(c0)).length()) {
-						i = 0;
-					}
+					if (i >= ContainerManageBanks.bank.length()) { i = 0; }
 				}
-				c4.getMethods()[13].invoke(d4, d1.toString());
-				c4.getDeclaredMethods()[4].invoke(d4);
-				f3.get(d0).getClass().getDeclaredFields()[11].set(f3.get(d0), "");
-				if (d0.getClass().getDeclaredFields()[0].getBoolean(d0)) {
-					m0.invoke(d2);
-				}
-				m1.invoke(d2, f5.get(d0));
-				f0.set(o, null);
-				((Map<Object, Object>) f8.get(o)).put(f5.get(d0), f2.get(d0));
-				f7.set(f4.get(d0), -1L);
+				buffer.write(textToSave.toString());
+				buffer.close();
+				container.getClass().getDeclaredFields()[11].set(container, ""); // clear data
+				if (eData.getClass().getDeclaredFields()[0].getBoolean(eData)) { keysList.clear(); } // clear old keys
+				keysList.add(name); // add key
+				f0.set(o, null); // remove old eData
+				dataMap.put(name, newData); // reset name
+				handler.getClass().getField("lastInited").set(handler, -1L);
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}

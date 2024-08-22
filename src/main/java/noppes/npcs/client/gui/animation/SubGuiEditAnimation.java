@@ -2216,22 +2216,18 @@ public class SubGuiEditAnimation
 			return;
 		}
 		AnimationConfig ac = this.anim.copy();
-		ac.isEdit = (byte) 1;
-		ac.type = AnimationKind.STANDING;
 
 		this.npcAnim.animation.clear();
-		this.npcAnim.animation.setAnimation(ac, ac.type);
+		this.npcAnim.animation.setAnimation(ac, AnimationKind.EDITING);
 		this.npcAnim.setHealth(this.npcAnim.getMaxHealth());
 		this.npcAnim.deathTime = 0;
 
 		ac = this.anim.copy();
 		ac.frames.clear();
 		ac.frames.put(0, frame);
-		ac.isEdit = (byte) 2;
-		ac.type = AnimationKind.STANDING;
 
 		this.npcPart.animation.clear();
-		this.npcAnim.animation.setAnimation(ac, ac.type);
+		this.npcAnim.animation.setAnimation(ac, AnimationKind.EDITING);
 		this.npcPart.setHealth(this.npcPart.getMaxHealth());
 		this.npcPart.deathTime = 0;
 	}

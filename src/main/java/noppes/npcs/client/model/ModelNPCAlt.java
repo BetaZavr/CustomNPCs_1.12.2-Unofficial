@@ -393,10 +393,9 @@ public class ModelNpcAlt extends ModelPlayer {
                 float partialTicks = 0.0f;
                 Minecraft mc = Minecraft.getMinecraft();
                 if (mc.currentScreen == null || mc.currentScreen.isFocused()) { partialTicks = mc.getRenderPartialTicks(); }
-                animation.resetAnimValues(partialTicks);
-
+                animation.calculationAnimationBeforeRendering(partialTicks);
                 if (entityIn.equals(ModelNpcAlt.editAnimDataSelect.displayNpc)) { this.bipedHead.rotateAngleY = 0.0f; }
-                AnimationFrameConfig.STANDARD.setRotationAngles(this);
+
                 if (animation.showParts.get(EnumParts.HEAD)) { ((ModelRendererAlt) this.bipedHead).setAnimation(animation); }
                 if (animation.showParts.get(EnumParts.BODY)) { ((ModelRendererAlt) this.bipedBody).setAnimation(animation); }
                 if (animation.showParts.get(EnumParts.ARM_RIGHT)) {
@@ -410,6 +409,8 @@ public class ModelNpcAlt extends ModelPlayer {
                 if (animation.showParts.get(EnumParts.LEG_RIGHT)) { ((ModelRendererAlt) this.bipedRightLeg).setAnimation(animation); }
                 if (animation.showParts.get(EnumParts.LEG_LEFT)) { ((ModelRendererAlt) this.bipedLeftLeg).setAnimation(animation); }
             }
+            // remember current state to smoothly start another animation
+            if (animation.hasAnimations(-1)) {  animation.preFrame.setRotationAngles(this); }
         }
         if (CustomNpcs.HeadWearType != 2) {
             copyModelAngles((ModelRendererAlt) this.bipedHead, (ModelRendererAlt) this.bipedHeadwear);

@@ -1397,46 +1397,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.dataManager.set(EntityNPCInterface.Interacting, this.isInteracting());
 			this.combatHandler.update();
 			this.onCollide();
-
-			// Custom Animation
-			if (CustomNpcs.ShowCustomAnimation) {
-//if (this.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES) && !this.getNavigator().noPath()) { }
-				if (!this.animation.isAnimated()) {
-					if (this.isAttacking() && (this.currentAnimation == 6 || (this.inventory.getProjectile() != null && this.stats.ranged.getHasAimAnimation())) && !this.animation.isAnimated(AnimationKind.AIM, AnimationKind.SHOOT)) {
-						this.animation.reset(AnimationKind.AIM);
-					}
-				} else if (!this.isAttacking() && this.animation.isAnimated(AnimationKind.AIM)) {
-					this.animation.updateClient(1, this.animation.activeAnimation.type.get(), this.animation.activeAnimation.id);
-					this.animation.stopAnimation();
-				}
-				if (!this.animation.isAnimated()) {
-					if (this.isAttacking() && !this.animation.isAnimated(AnimationKind.AIM)) {
-						this.animation.reset(AnimationKind.REVENGE_STAND);
-						this.animation.reset(AnimationKind.REVENGE_WALK);
-					}
-				} else if (!this.isAttacking() && this.animation.isAnimated(AnimationKind.REVENGE_STAND, AnimationKind.REVENGE_WALK)) {
-					this.animation.updateClient(1, this.animation.activeAnimation.type.get(), this.animation.activeAnimation.id);
-					this.animation.stopAnimation();
-				}
-				if (!this.animation.isAnimated()) {
-					if (this.isInWater() || this.isInLava()) {
-						this.animation.reset(AnimationKind.WATER_STAND);
-						this.animation.reset(AnimationKind.WATER_WALK);
-					} else if (!this.onGround && this.ais.getNavigationType() == 1) {
-						this.animation.reset(AnimationKind.FLY_STAND);
-						this.animation.reset(AnimationKind.FLY_WALK);
-					} else {
-						this.animation.reset(AnimationKind.STANDING);
-						this.animation.reset(AnimationKind.WALKING);
-						this.animation.reset(AnimationKind.BASE);
-					}
-				}
-			}
 		} else {
 			isAirBorne = this.canFly() && world.getBlockState(this.getPosition().down()).getMaterial() == Material.AIR;
 		}
 		if (CustomNpcs.ShowCustomAnimation) {
-			if (!this.isServerWorld()) { this.animation.resetWalkOrStand(); }
+			this.animation.resetWalkOrStand();
 			// Jump
 			if (!this.animation.isJump && !this.isKilled() && this.getHealth() > 0.0f && this.world != null && !(this.isInWater() || this.isInLava()) && this.ais.getNavigationType() == 0 && !this.onGround && this.motionY > 0.0d) {
 				// checking the movement of steps
@@ -1579,7 +1544,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (this.currentAnimation == 14) {
 			this.deathTime = 19;
 		}
-		if (CustomNpcs.ShowCustomAnimation && this.isServerWorld()) { this.animation.updateAnimation(); }
 		CustomNpcs.debugData.endDebug(this.isServerWorld() ? "Server" : "Client", this, "NPCUpdate");
 	}
 

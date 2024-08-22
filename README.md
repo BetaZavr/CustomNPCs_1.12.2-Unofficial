@@ -24,6 +24,7 @@ Official **[website](https://www.kodevelopment.nl/minecraft/customnpcs)**.
 * added virtual currency;
 * more accurate mod and player data;
 * added tools for fast construction of structures compatible with **[Schematica](https://www.curseforge.com/minecraft/mc-mods/schematica)** modification;
+* you can add custom: blocks, items, potions, armors (including 3D OBJ), dimensions, particles, recipes ...;
 
 ### Quests
 

@@ -273,11 +273,9 @@ public class GuiNpcAnimation
 			return;
 		}
 		AnimationConfig ac = anim.copy();
-		ac.isEdit = (byte) 1;
-		ac.type = AnimationKind.STANDING;
 
 		this.npcAnim.animation.clear();
-		this.npcAnim.animation.setAnimation(ac, ac.type);
+		this.npcAnim.animation.setAnimation(ac, AnimationKind.EDITING);
 		this.npcAnim.setHealth(this.npcAnim.getMaxHealth());
 		this.npcAnim.deathTime = 0;
 	}

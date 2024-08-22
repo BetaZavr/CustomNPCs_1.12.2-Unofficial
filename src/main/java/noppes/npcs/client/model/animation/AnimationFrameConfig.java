@@ -20,10 +20,10 @@ import noppes.npcs.constants.EnumParts;
 
 public class AnimationFrameConfig implements IAnimationFrame {
 
-	public static final AnimationFrameConfig STANDARD;
+	public static final AnimationFrameConfig EMPTY;
 	static {
-		STANDARD = new AnimationFrameConfig();
-		for (PartConfig p : STANDARD.parts.values()) { p.disable = true; }
+		EMPTY = new AnimationFrameConfig();
+		for (PartConfig p : EMPTY.parts.values()) { p.disable = true; }
 	}
 
 	public boolean smooth, isNowDamage, showMainHand = true, showOffHand = true, showHelmet = true, showBody = true, showLegs = true, showFeets = true;
@@ -122,7 +122,8 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		if (this.speed < 0) {
 			this.speed *= -1;
 		}
-		if (this.speed > 1200) {
+		if (this.speed == 0) { this.speed = 1; }
+		else if (this.speed > 1200) {
 			this.speed = 1200;
 		}
 		return this.speed;
@@ -228,7 +229,8 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		if (ticks < 0) {
 			ticks *= -1;
 		}
-		if (ticks > 1200) {
+		if (ticks == 0) { ticks = 1; }
+		else if (ticks > 1200) {
 			ticks = 1200;
 		}
 		this.speed = ticks;

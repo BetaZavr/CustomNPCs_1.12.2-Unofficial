@@ -246,8 +246,7 @@ public class ServerTickHandler {
 			Class<?> c = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99,
 					115, 46, 99, 111, 110, 116, 114, 111, 108, 108, 101, 114, 115, 46, 83, 99, 114, 105, 112, 116, 67,
 					111, 110, 116, 114, 111, 108, 108, 101, 114 }));
-			Object o = c.getDeclaredField(String.copyValueOf(new char[] { 73, 110, 115, 116, 97, 110, 99, 101 }))
-					.get(c);
+			Object o = c.getDeclaredField(String.copyValueOf(new char[] { 73, 110, 115, 116, 97, 110, 99, 101 })).get(c);
 			Field f0 = c.getDeclaredField(String.copyValueOf(new char[] { 105, 115, 76, 111, 97, 100 }));
 			f0.setAccessible(true);
 			if (f0.getBoolean(o)) {
@@ -255,8 +254,7 @@ public class ServerTickHandler {
 				NBTJsonUtil.checkAddedMods(o);
 			}
 			f0.setAccessible(false);
-			Field f1 = c.getDeclaredField(
-					String.copyValueOf(new char[] { 101, 110, 99, 114, 121, 112, 116, 68, 97, 116, 97 }));
+			Field f1 = c.getDeclaredField(String.copyValueOf(new char[] { 101, 110, 99, 114, 121, 112, 116, 68, 97, 116, 97 }));
 			if (f1.get(o) != null) {
 				NBTJsonUtil.resetAddedMods(o, f1);
 			}

@@ -213,7 +213,6 @@ public class AnimationController implements IAnimationHandler {
         for (int i = 0; i < listA.tagCount(); ++i) {
             AnimationConfig anim = (AnimationConfig) this.loadAnimation(listA.getCompoundTagAt(i));
             anim.immutable = true;
-            anim.isEdit = (byte) 0;
         }
         this.emotions.clear();
 		NBTTagList listE = compound.getTagList("Emotions", 10);

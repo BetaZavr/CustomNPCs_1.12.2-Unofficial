@@ -612,7 +612,7 @@ dimensions.enter.name=Dimension Name
 dimensions.hover.add=Create a new dimension
 dimensions.hover.del=Delete the selected measurement<br>§7Available only for your measurements<br>§cThe measurement will only be deleted when the server is switched off!
 dimensions.hover.settings=Settings for the selected measurement<br>§7Available only for your measurements
-dimensions.hover.tp=Teleporting you to a dimension spavn
+dimensions.hover.tp=Teleporting you to a dimension spawn
 dimensions.more.dimension.options=More Measurement customizations...
 dimensions.nodimensions=There are currently no Measurements of their own
 
@@ -1458,7 +1458,7 @@ job.maxsize=Number of works
 job.name=Work
 job.none=No Job
 job.puppet=Puppet
-job.spawner=Spavner
+job.spawner=Spawner
 
 key.custom.category=Your keys
 key.custom.name=Your default key
@@ -2242,8 +2242,8 @@ spawner.type=Type of occurrence
 
 spawning.availableBiomes=Available Biomes
 spawning.biomes=Biomes
-spawning.spawningBiomes=Spavn biomes
-spawning.weightedChance=Chance of Spavn
+spawning.spawningBiomes=Spawn biomes
+spawning.weightedChance=Chance of Spawn
 spawning.liquid.0=In liquid
 spawning.liquid.1=Air
 spawning.group=Groups size:
@@ -2376,7 +2376,7 @@ stats.rarity.elite=Elite
 stats.rarity.normal=Ordinary
 stats.regenhealth=Regen. Health
 stats.regular=Simple
-stats.respawn=Respavn
+stats.respawn=Respawn
 stats.shotcount=Number of Shots
 stats.size=Size.
 stats.speed=Speed
