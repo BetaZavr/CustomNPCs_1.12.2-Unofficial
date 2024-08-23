@@ -12,6 +12,9 @@ This code is posted with permission from the author under the terms of the **[Cr
 
 Official **[website](https://www.kodevelopment.nl/minecraft/customnpcs)**.
 
+<span style="color: #ff0000;">**Attention - this is important!**</span>
+The modification provides great opportunities for writing scripts not only for the server part, but also for the client. The coder is also given the opportunity to process packets, reflection, work with files, etc. Therefore, pay close attention to who you give the right to develop scripts on your projects! (Only OPs can work with NPCs and develop scripts)
+
 ## Differences from the main CustomNPCs mod:
 
 ### Game
