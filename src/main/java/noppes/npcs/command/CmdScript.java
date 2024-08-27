@@ -1,6 +1,5 @@
 package noppes.npcs.command;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -28,8 +27,6 @@ import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.MarcetController;
-import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.dimensions.DimensionHandler;
 
@@ -48,25 +45,6 @@ public class CmdScript extends CommandNoppesBase {
 				list.append(", ");
 			} else {
 				list.append(((char) 167) + "6Mod APIs event names:\n" + ((char) 167) + "r");
-			}
-			list.append(name);
-		}
-		list.append(";\n" + ((char) 167) + "6Total Size: " + ((char) 167) + "e").append(g.size());
-		sender.sendMessage(new TextComponentString(list.toString()));
-		if (sender instanceof EntityPlayerMP) { Server.sendData((EntityPlayerMP) sender, EnumPacketClient.EVENT_NAMES, list.toString()); }
-		return true;
-	}
-
-	@SubCommand(desc = "List of available Forge event names")
-	public Boolean clientlist(MinecraftServer server, ICommandSender sender, String[] args) {
-		StringBuilder list = new StringBuilder();
-		List<String> g = Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
-		Collections.sort(g);
-		for (String name : g) {
-			if (list.length() > 0) {
-				list.append(", ");
-			} else {
-				list.append(((char) 167) + "6Client forge event names:\n" + ((char) 167) + "r");
 			}
 			list.append(name);
 		}
@@ -123,11 +101,6 @@ public class CmdScript extends CommandNoppesBase {
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading forge scripts"));
 		}
-		if (ScriptController.Instance.loadClientScripts()) {
-			sender.sendMessage(new TextComponentString("Reload client scripts succesfully"));
-		} else {
-			sender.sendMessage(new TextComponentString("Failed reloading client scripts"));
-		}
 		if (ScriptController.Instance.loadPotionScripts()) {
 			sender.sendMessage(new TextComponentString("Reload potion scripts succesfully"));
 		} else {
@@ -142,11 +115,6 @@ public class CmdScript extends CommandNoppesBase {
 			sender.sendMessage(new TextComponentString("Reload stored data succesfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading stored data"));
-		}
-		if (server != null) {
-			for (EntityPlayerMP player : server.getPlayerList().getPlayers()) {
-				ScriptController.Instance.sendClientTo(player);
-			}
 		}
 		return true;
 	}
@@ -211,10 +179,8 @@ public class CmdScript extends CommandNoppesBase {
 	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
 		List<String> list = Lists.newArrayList();
 		if (args.length == 2) {
-			if (args[0].equals("clientlist")) {
-				return Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
-			} else if (args[0].equals("forgelist")) {
-				return Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
+			if (args[0].equals("forgelist")) {
+				return Lists.newArrayList(CustomNpcs.forgeEventNames.values());
 			} else if (args[0].equals("apilist")) {
 				for (EnumScriptType est : EnumScriptType.values()) {
 					list.add(est.function);

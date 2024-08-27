@@ -46,8 +46,7 @@ public class ItemNpcScripter extends Item implements IPermission, INPCToolItem {
 				|| e == EnumPacketServer.ScriptPlayerGet || e == EnumPacketServer.ScriptPlayerSave
 				|| e == EnumPacketServer.ScriptForgeGet || e == EnumPacketServer.ScriptForgeSave
 				|| e == EnumPacketServer.ScriptNpcsGet || e == EnumPacketServer.ScriptNpcsSave
-				|| e == EnumPacketServer.ScriptPotionGet || e == EnumPacketServer.ScriptPotionSave
-				|| e == EnumPacketServer.ScriptClientGet || e == EnumPacketServer.ScriptClientSave;
+				|| e == EnumPacketServer.ScriptPotionGet || e == EnumPacketServer.ScriptPotionSave;
 	}
 
 	public @Nonnull ActionResult<ItemStack> onItemRightClick(@Nonnull World world, @Nonnull EntityPlayer player, @Nonnull EnumHand hand) {

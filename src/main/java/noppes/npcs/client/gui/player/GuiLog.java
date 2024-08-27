@@ -35,12 +35,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.IPos;
-import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.entity.IPlayer;
-import noppes.npcs.api.event.QuestEvent.QuestExtraButtonEvent;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.ClientGuiEventHandler;
 import noppes.npcs.client.ClientProxy;
@@ -59,9 +55,6 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.constants.EnumRewardType;
-import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.QuestController;
-import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.PlayerCompassHUDData;
 import noppes.npcs.controllers.data.PlayerData;
@@ -631,7 +624,6 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				return;
 			}
 			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.QUEST_LOG_BUTTON, new QuestExtraButtonEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), QuestController.instance.get(hoverQuestId)));
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestExtraButton, hoverQuestId);
 			break;
 		}

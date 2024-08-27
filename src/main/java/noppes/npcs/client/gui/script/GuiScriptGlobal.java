@@ -62,10 +62,6 @@ public class GuiScriptGlobal extends GuiNPCInterface {
 				this.displayGuiScreen(new GuiScriptPotion());
 				break;
 			}
-			case 4: {
-				this.displayGuiScreen(new GuiScriptClient());
-				break;
-			}
 			default: {
 				this.displayGuiScreen(new GuiScriptPlayers());
 			}
@@ -88,15 +84,13 @@ public class GuiScriptGlobal extends GuiNPCInterface {
 			this.setHoverText(new TextComponentTranslation("script.hover.forge").getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("script.hover.potion", this.potionEventsList).getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("script.hover.client").getFormattedText());
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 4; i++) {
 			String name;
 			switch (i) {
 				case 1:
@@ -107,9 +101,6 @@ public class GuiScriptGlobal extends GuiNPCInterface {
 					break;
 				case 3:
 					name = "gui.help.potions";
-					break;
-				case 4:
-					name = "gui.client";
 					break;
 				default:
 					name = "playerdata.players";

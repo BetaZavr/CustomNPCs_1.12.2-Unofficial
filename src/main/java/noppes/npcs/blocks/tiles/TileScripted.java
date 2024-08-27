@@ -550,7 +550,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 	}
 
 	public void setNBT(NBTTagCompound compound) {
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 		int pw = compound.getInteger("BlockPowering");

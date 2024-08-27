@@ -2,7 +2,6 @@ package noppes.npcs.api.entity;
 
 import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.api.IContainer;
-import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.block.IBlock;
@@ -138,8 +137,6 @@ public interface IPlayer<T extends EntityPlayer> extends IEntityLivingBase<T> {
 	void sendMail(IPlayerMail mail);
 
 	void sendNotification(String title, String message, int type);
-
-	void sendTo(INbt nbt);
 
 	void setExpLevel(int level);
 

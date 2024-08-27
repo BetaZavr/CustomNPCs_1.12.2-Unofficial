@@ -38,7 +38,6 @@ import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerConnectionFromClientEvent;
 import net.minecraftforge.registries.ForgeRegistry;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
@@ -179,12 +178,6 @@ public class ServerEventsHandler {
 				playerdata.updateClient = true;
 			}
 		}
-	}
-
-	@SubscribeEvent
-	public void joinServer(ServerConnectionFromClientEvent event) {
-		event.getManager().channel().pipeline().addBefore("fml:packet_handler",
-				CustomNpcs.MODID + ":custom_packet_handler_server", new CustomPacketHandler());
 	}
 
 	@SubscribeEvent

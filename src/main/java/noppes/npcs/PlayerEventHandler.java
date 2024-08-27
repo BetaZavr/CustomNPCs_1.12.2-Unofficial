@@ -1319,12 +1319,7 @@ public class PlayerEventHandler {
 						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
 						if (!isClient) {
 							CustomNpcs.forgeEventNames.put(c, eventName);
-							CustomNpcs.forgeClientEventNames.put(c, eventName);
 							register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
-						}
-						else {
-							CustomNpcs.forgeClientEventNames.put(c, eventName);
-							if (threadIsClient) { register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer()); }
 						}
 						LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event " +c.getName());
 					}
@@ -1360,7 +1355,7 @@ public class PlayerEventHandler {
 				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size() + "; Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
+		LogWriter.info("CustomNpcs: Registered [Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
 		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		return this;
 	}

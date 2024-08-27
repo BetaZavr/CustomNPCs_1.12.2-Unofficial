@@ -106,14 +106,12 @@ import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.PacketHandlerPlayer;
 import noppes.npcs.api.ICustomElement;
-import noppes.npcs.api.IMinecraft;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.WrapperMinecraft;
 import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab;
@@ -257,7 +255,6 @@ import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
-import noppes.npcs.util.TempFile;
 
 @SuppressWarnings("deprecation")
 public class ClientProxy extends CommonProxy {
@@ -338,13 +335,11 @@ public class ClientProxy extends CommonProxy {
 	public static PlayerData playerData = new PlayerData();
 
 	public static String recipeGroup, recipeName;
-	public static final Map<String, TempFile> loadFiles = Maps.newTreeMap();
 	public static Map<Integer, List<UUID>> notVisibleNPC = Maps.newHashMap();
 	public static final Map<CreativeTabs, List<RecipeList>> MOD_RECIPES_BY_TAB = Maps.newHashMap();
 	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.newHashMap();
 	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.newHashMap();
 	private final static List<ResourceLocation> notLoadTextures = Lists.newArrayList();
-	public static IMinecraft mcWrapper = null;
 
 	public static void bindTexture(ResourceLocation location) {
 		try {
@@ -1981,7 +1976,6 @@ public class ClientProxy extends CommonProxy {
 				models.get(key).put(0, ibm);
 			}
 		}
-		ClientProxy.mcWrapper = new WrapperMinecraft(mc);
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.google.common.base.MoreObjects;
 
-import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -79,7 +78,7 @@ extends BaseScriptData {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
 		this.scriptLanguage = AdditionalMethods.instance.deleteColor(compound.getString("ScriptLanguage"));
 		this.enabled = compound.getBoolean("ScriptEnabled");
 		PlayerScriptData.console = NBTTags.GetLongStringMap(compound.getTagList("ScriptConsole", 10));
@@ -97,8 +96,8 @@ extends BaseScriptData {
 			if (this.player != null) {
 				this.scripts.clear();
 				for (ScriptContainer script : ScriptController.Instance.playerScripts.scripts) {
-					ScriptContainer s = new ScriptContainer(this, isClient());
-					s.readFromNBT(script.writeToNBT(new NBTTagCompound()), this.isClient());
+					ScriptContainer s = new ScriptContainer(this);
+					s.readFromNBT(script.writeToNBT(new NBTTagCompound()));
 					this.scripts.add(s);
 				}
 			}

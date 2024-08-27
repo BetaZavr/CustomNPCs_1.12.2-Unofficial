@@ -62,7 +62,6 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.BankData;
-import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.DealMarkup;
 import noppes.npcs.controllers.data.EncryptData;
@@ -94,7 +93,6 @@ import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ServerNpcRecipeBookHelper;
-import noppes.npcs.util.TempFile;
 
 public class PacketHandlerPlayer {
 
@@ -109,7 +107,6 @@ public class PacketHandlerPlayer {
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MousesPressed);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.StopNPCAnimation);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetTileData);
-		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetFilePart);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MovingPathGet);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MarketTime);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.NpcData);
@@ -733,7 +730,7 @@ public class PacketHandlerPlayer {
 				if (deal.getMaxCount() != 0) {
 					deal.setAmount(deal.getAmount() - dm.count);
 				}
-				if (CustomNpcs.sendMarcetInfo) { player.sendMessage(new TextComponentTranslation("mes.market.buy", dm.main.getDisplayName() + " x" + dm.count)); }
+				if (CustomNpcs.SendMarcetInfo) { player.sendMessage(new TextComponentTranslation("mes.market.buy", dm.main.getDisplayName() + " x" + dm.count)); }
 				NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f,
 						((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
 				AdditionalMethods.updatePlayerInventory(player);
@@ -817,7 +814,7 @@ public class PacketHandlerPlayer {
 				if (deal.getMaxCount() != 0) {
 					deal.setAmount(deal.getAmount() + dm.count);
 				}
-				if (CustomNpcs.sendMarcetInfo) { player.sendMessage(new TextComponentTranslation("mes.market.sell", dm.main.getDisplayName() + " x" + dm.count)); }
+				if (CustomNpcs.SendMarcetInfo) { player.sendMessage(new TextComponentTranslation("mes.market.sell", dm.main.getDisplayName() + " x" + dm.count)); }
 				data.game.addMarkupXP(marcet.getId(), 1);
                 assert npc != null;
                 EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TraderEvent(player, npc, dm.main, dm.sellItems));
@@ -897,8 +894,6 @@ public class PacketHandlerPlayer {
 				tile.writeToNBT(compound);
 				Server.sendData(player, EnumPacketClient.SET_TILE_DATA, compound);
 			}
-		} else if (type == EnumPlayerPacket.ScriptPackage) {
-			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
 		} else if (type == EnumPlayerPacket.MovingPathGet) {
 			int id = buffer.readInt();
 			Entity entity = player.world.getEntityByID(id);
@@ -922,17 +917,6 @@ public class PacketHandlerPlayer {
 			}
 		} else if (type == EnumPlayerPacket.OpenGui) {
 			EventHooks.onPlayerOpenGui(player, Server.readString(buffer), Server.readString(buffer));
-		} else if (type == EnumPlayerPacket.GetFilePart) {
-			int part = buffer.readInt();
-			String name = Server.readString(buffer);
-			if (!CommonProxy.loadFiles.containsKey(name)) {
-				Server.sendData(player, EnumPacketClient.SEND_FILE_PART, true, name);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
-				return;
-			}
-			TempFile file = CommonProxy.loadFiles.get(name);
-			Server.sendData(player, EnumPacketClient.SEND_FILE_PART, false, part, name,
-					String.valueOf(file.data.get(part)));
 		} else if (type == EnumPlayerPacket.GetSyncData) {
 			SyncController.syncPlayer(player);
 		} else if (type == EnumPlayerPacket.TransportCategoriesGet) {
@@ -1033,12 +1017,6 @@ public class PacketHandlerPlayer {
 					handler = ScriptController.Instance.potionScripts;
 					((PotionScriptData) handler).readFromNBT(compound);
 					((PotionScriptData) handler).lastInited = -1L;
-					break;
-				}
-				case 5: { // Client
-					handler = ScriptController.Instance.clientScripts;
-					((ClientScriptData) handler).readFromNBT(compound);
-					((ClientScriptData) handler).lastInited = -1L;
 					break;
 				}
 				case 6: { // NPCs

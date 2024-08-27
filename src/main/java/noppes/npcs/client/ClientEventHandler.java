@@ -61,17 +61,12 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.CustomPacketHandler;
-import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.entity.IPlayer;
-import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.item.ISpecBuilder;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.client.gui.GuiNbtBook;
@@ -83,9 +78,7 @@ import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
-import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.SchematicController;
-import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.MiniMapData;
 import noppes.npcs.controllers.data.PlayerData;
@@ -111,12 +104,6 @@ public class ClientEventHandler {
 	public static int rotation;
 	public static long secs;
 	private boolean miniMapLoaded;
-
-	@SubscribeEvent
-	public void cnpcJoinServer(ClientConnectedToServerEvent event) {
-		event.getManager().channel().pipeline().addBefore("fml:packet_handler",
-				CustomNpcs.MODID + ":custom_packet_handler_client", new CustomPacketHandler());
-	}
 
 	@SubscribeEvent
 	public void cnpcOpenGUIEvent(GuiOpenEvent event) {
@@ -210,7 +197,6 @@ public class ClientEventHandler {
 			this.miniMapLoaded = false;
 			this.updateMiniMaps(true);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.InGame);
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGIN, new PlayerEvent.LoginEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player)));
 			LogWriter.debug("Client Player: Start game");
 		}
 		BuilderData bd = ItemBuilder.getBuilder(player.getHeldItemMainhand(), player);

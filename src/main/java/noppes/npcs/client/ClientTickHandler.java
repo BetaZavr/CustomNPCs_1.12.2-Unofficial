@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.lwjgl.input.Keyboard;
 
@@ -35,12 +34,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.entity.IPlayer;
-import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
@@ -50,49 +45,19 @@ import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
-import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.MarcetController;
-import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
-import noppes.npcs.util.TempFile;
 
 public class ClientTickHandler {
 
 	public static boolean checkMails = false;
 	public static boolean inGame = false;
 	public static Map<ISound, MusicData> musics = Maps.newHashMap();
-	
-	public static void loadFiles() {
-		if (ClientProxy.loadFiles.isEmpty()) {
-			return;
-		}
-		String isDel = "";
-		for (String key : ClientProxy.loadFiles.keySet()) {
-			TempFile file = ClientProxy.loadFiles.get(key);
-			if (file.lastLoad == 0) {
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPart(), key);
-				file.lastLoad = System.currentTimeMillis();
-			} else if (file.lastLoad + 12000L < System.currentTimeMillis()) {
-				file.tryLoads++;
-				if (file.tryLoads > 9) {
-					LogWriter.error("Failed to load file after 10 attempts: \"" + key + "\"");
-					isDel = key;
-				} else {
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPart(), key);
-					file.lastLoad = System.currentTimeMillis();
-				}
-			}
-			break;
-		}
-		if (!isDel.isEmpty()) {
-			ClientProxy.loadFiles.remove(isDel);
-			ClientTickHandler.loadFiles();
-		}
-	}
+
 	private boolean otherContainer;
 	private World prevWorld;
 	private final Map<String, ISound> nowPlayingSounds;
@@ -122,11 +87,7 @@ public class ClientTickHandler {
 			if (ClientTickHandler.inGame) {
 				LogWriter.debug("Client Player: Exit game");
 				ClientTickHandler.inGame = false;
-				ScriptController.Instance.clientScripts.saveDefaultScripts();
-				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGOUT, new PlayerEvent.LogoutEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player)));
 				if (CustomNpcs.VerboseDebug) { CustomNpcs.showDebugs(); }
-			} else if (!ScriptController.Instance.clientScripts.loadDefault) {
-				ScriptController.Instance.clientScripts.loadDefaultScripts();
 			}
 		}
 		
@@ -165,11 +126,6 @@ public class ClientTickHandler {
 						NoppesUtilPlayer.sendData(EnumPlayerPacket.PlaySound, sound.getSound().getSoundLocation(),
 								sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(),
 								sound.getZPosF(), sound.getVolume(), sound.getPitch());
-						EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_PLAY,
-								new PlayerEvent.PlayerSound((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player),
-										sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(),
-										sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(),
-										sound.getVolume(), sound.getPitch()));
 					}
 				} catch (Exception e) {
 					LogWriter.error("Error set played sound: " + e);
@@ -184,11 +140,6 @@ public class ClientTickHandler {
 						NoppesUtilPlayer.sendData(EnumPlayerPacket.StopSound, sound.getSound().getSoundLocation(),
 								sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(),
 								sound.getZPosF(), sound.getVolume(), sound.getPitch());
-						EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_STOP,
-								new PlayerEvent.PlayerSound((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player),
-										sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(),
-										sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(),
-										sound.getVolume(), sound.getPitch()));
 						del.add(uuid);
 					}
 				} catch (Exception e) {
@@ -200,17 +151,10 @@ public class ClientTickHandler {
 		for (String uuid : del) {
 			this.nowPlayingSounds.remove(uuid);
 		}
-		for (MusicData md : ClientTickHandler.musics.values()) {
-			if (md.sound != null && md.source != null && !md.source.paused()) {
-				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_TICK_EVENT,
-						md.createEvent(CustomNpcs.proxy.getPlayer()));
-			}
-		}
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
-			ClientTickHandler.loadFiles();
 			if (mc.playerController != null) {
-				double d0 = (double) mc.playerController.getBlockReachDistance();
+				double d0 = mc.playerController.getBlockReachDistance();
 				if (mc.playerController.extendedReach()) { d0 = 6.0; }
 				if (ClientProxy.playerData.game.blockReachDistance != d0) {
 					ClientProxy.playerData.game.blockReachDistance = d0;
@@ -233,9 +177,6 @@ public class ClientTickHandler {
 					ClientProxy.playerData.game.updateClient = false;
 				}
 			}
-		}
-		if (ScriptController.Instance.clientScripts.isEnabled()) {
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new PlayerEvent.UpdateEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player)));
 		}
 		if (ClientTickHandler.checkMails || CustomNpcs.MailWindow != -1 && CustomNpcs.ticks % 100 == 0) {
 			boolean hasNewMail = false;

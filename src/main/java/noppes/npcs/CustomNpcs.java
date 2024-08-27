@@ -61,10 +61,6 @@ import nikedemos.markovnames.generators.MarkovSlavic;
 import nikedemos.markovnames.generators.MarkovSpanish;
 import nikedemos.markovnames.generators.MarkovWelsh;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.event.potion.AffectEntity;
-import noppes.npcs.api.event.potion.EndEffect;
-import noppes.npcs.api.event.potion.IsReadyEvent;
-import noppes.npcs.api.event.potion.PerformEffect;
 import noppes.npcs.api.handler.capability.IItemStackWrapperHandler;
 import noppes.npcs.api.handler.capability.IMarkDataHandler;
 import noppes.npcs.api.handler.capability.IPlayerDataHandler;
@@ -246,7 +242,7 @@ public class CustomNpcs {
 	@ConfigProp(info = "Display custom NPC animations. Disable it if you have a weak computer", def = "true", type = Configuration.CATEGORY_CLIENT)
 	public static boolean ShowCustomAnimation = true;
 	@ConfigProp(info = "Send a message to the player's chat about a completed transaction", def = "false", type = Configuration.CATEGORY_CLIENT)
-	public static boolean sendMarcetInfo = false;
+	public static boolean SendMarcetInfo = false;
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;
@@ -261,8 +257,8 @@ public class CustomNpcs {
 	public static MinecraftServer Server;
 	public static DataDebug debugData = new DataDebug();
 	public static final Map<Class<?>, String> forgeEventNames = new HashMap<>();
-	public static final Map<Class<?>, String> forgeClientEventNames = new HashMap<>();
-	public static boolean FreezeNPCs = false, showServerQuestCompass = true;
+	public static boolean FreezeNPCs = false;
+	public static boolean showServerQuestCompass = true;
 	public static File Dir;
 	public static ConfigLoader Config;
 	public static ITextComponent prefix = new TextComponentString(((char) 167) + "e[" + ((char) 167) + "2CustomNpcs" + ((char) 167) + "e]" + ((char) 167) + "r: ");
@@ -310,11 +306,6 @@ public class CustomNpcs {
 				CustomNpcs.mod = mod;
 			}
 		}
-
-		forgeClientEventNames.put(IsReadyEvent.class, "customPotionIsReady");
-		forgeClientEventNames.put(PerformEffect.class, "customPotionPerformEffect");
-		forgeClientEventNames.put(AffectEntity.class, "customPotionAffectEntity");
-		forgeClientEventNames.put(EndEffect.class, "customPotionEndEffect");
 
 		CustomNpcs.proxy.postload();
 		LogWriter.info("Mod loaded ^_^ Have a good game!");

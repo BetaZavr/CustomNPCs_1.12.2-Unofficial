@@ -5,11 +5,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
@@ -83,11 +81,9 @@ import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
-import noppes.npcs.util.TempFile;
 
 public class CommonProxy implements IGuiHandler {
 
-	public static Map<String, TempFile> loadFiles = Maps.newHashMap();
 	public boolean newVersionAvailable;
 	public int revision;
 

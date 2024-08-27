@@ -22,11 +22,11 @@ extends BaseScriptData {
 	
 	public void readFromNBT(NBTTagCompound compound) {
 		this.scripts.clear();
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
 		this.scriptLanguage = AdditionalMethods.instance.deleteColor(compound.getString("ScriptLanguage"));
 		this.enabled = compound.getBoolean("ScriptEnabled");
 		if (this.scripts.isEmpty() || this.scripts.get(0).script.isEmpty()) {
-			ScriptContainer script = new ScriptContainer(this, false);
+			ScriptContainer script = new ScriptContainer(this);
 			char chr = Character.toChars(0x000A)[0];
 			script.script = "// IPotion.getCustomName() - String (custom potion name)" + chr
 					+ "// IPotion.getNbt() - INbt (nbt data)" + chr + "function isReady(event) {" + chr

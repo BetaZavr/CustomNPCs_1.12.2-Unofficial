@@ -32,13 +32,9 @@ import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
-import noppes.npcs.Server;
 import noppes.npcs.api.wrapper.WorldWrapper;
-import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.EncryptData;
 import noppes.npcs.controllers.data.ForgeScriptData;
 import noppes.npcs.controllers.data.NpcScriptData;
@@ -48,7 +44,6 @@ import noppes.npcs.controllers.data.PotionScriptData;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.NBTJsonUtil;
-import noppes.npcs.util.TempFile;
 
 public class ScriptController {
 
@@ -71,19 +66,16 @@ public class ScriptController {
 	public long lastPlayerUpdate = 0L;
 	public NBTTagCompound compound = new NBTTagCompound();
 	public NBTTagCompound constants = new NBTTagCompound();
-	public File dir, clientDir;
+	public File dir;
 	
 	public final Map<String, ScriptEngineFactory> factories = Maps.newTreeMap();
 	public final Map<String, String> languages = Maps.newTreeMap();
 	public final Map<String, Long> sizes = Maps.newTreeMap();
-	public final Map<String, Long> clientSizes = Maps.newTreeMap();
 	public final Map<String, String> scripts = Maps.newTreeMap();
-	public final Map<String, String> clients = Maps.newTreeMap();
 
 	public EncryptData encryptData;
 	
 	public ForgeScriptData forgeScripts = new ForgeScriptData();
-	public ClientScriptData clientScripts = new ClientScriptData();
 	public PlayerScriptData playerScripts = new PlayerScriptData(null);
 	public PotionScriptData potionScripts = new PotionScriptData();
 	public NpcScriptData npcsScripts = new NpcScriptData();
@@ -150,10 +142,6 @@ public class ScriptController {
 
 	public synchronized void encrypt() {
 		/* the code is hidden because it uses a CustomNpcs.ScriptPassword */
-	}
-	
-	private File clientScriptsFile() {
-		return new File(this.dir, "client_scripts.json");
 	}
 
 	private File constantScriptsFile() {
@@ -291,11 +279,11 @@ public class ScriptController {
 		return null;
 	}
 
-	private List<String> getScripts(String language, boolean isClient) {
+	private List<String> getScripts(String language) {
 		List<String> list = new ArrayList<>();
 		String ext = this.languages.get(AdditionalMethods.instance.deleteColor(language));
 		if (ext == null) { return list; }
-		for (String script : (isClient ? this.clients : this.scripts).keySet()) {
+		for (String script : this.scripts.keySet()) {
 			if (script.endsWith(ext) || script.endsWith(ext.replace(".", ".p"))) {
 				list.add(script);
 			}
@@ -310,7 +298,6 @@ public class ScriptController {
 		sData.loadPlayerScripts();
 		sData.loadForgeScripts();
 		sData.loadNPCsScripts();
-		sData.loadClientScripts();
 		sData.loadPotionScripts();
 		sData.loadConstantData();
 		ScriptController.HasStart = true;
@@ -321,10 +308,6 @@ public class ScriptController {
 		if (!this.dir.exists()) {
 			this.dir.mkdirs();
 		}
-		this.clientDir = new File(this.dir, "client");
-		if (!this.clientDir.exists()) {
-			this.clientDir.mkdirs();
-		}
 
 		if (!this.worldDataFile().exists()) {
 			this.shouldSave = true;
@@ -332,44 +315,18 @@ public class ScriptController {
 		WorldWrapper.tempData.clear();
 		this.scripts.clear();
 		this.sizes.clear();
-		for (String key : this.clients.keySet()) {
-			CommonProxy.loadFiles.remove(key);
-		}
-		this.clients.clear();
-		this.clientSizes.clear();
 		for (String language : this.languages.keySet()) {
 			String ext = this.languages.get(AdditionalMethods.instance.deleteColor(language));
 			File scriptDir = new File(this.dir, language.toLowerCase());
 			if (!scriptDir.exists()) {
 				scriptDir.mkdir();
 			} else {
-				this.loadDir(scriptDir, "", ext, false);
-				this.loadDir(scriptDir, "", ext.replace(".", ".p"), false);
-			}
-
-			scriptDir = new File(this.clientDir, language.toLowerCase());
-			if (!scriptDir.exists()) {
-				scriptDir.mkdir();
-			} else {
-				this.loadDir(scriptDir, "", ext, true);
-				this.loadDir(scriptDir, "", ext.replace(".", ".p"), true);
+				this.loadDir(scriptDir, "", ext);
+				this.loadDir(scriptDir, "", ext.replace(".", ".p"));
 			}
 		}
 		this.lastLoaded = System.currentTimeMillis();
 		this.isLoad = true;
-	}
-
-	public boolean loadClientScripts() {
-		this.clientScripts.clear();
-		File file = this.clientScriptsFile();
-		try {
-			if (!file.exists()) { return false; }
-			this.clientScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
-		} catch (Exception e) {
-			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
-			return false;
-		}
-		return true;
 	}
 
 	public boolean loadConstantData() {
@@ -546,33 +503,28 @@ public class ScriptController {
 		return isLoad;
 	}
 
-	public void loadDir(File dir, String name, String ext, boolean isClient) {
+	public void loadDir(File dir, String name, String ext) {
 		for (File file : Objects.requireNonNull(dir.listFiles())) {
 			String filename = name + file.getName().toLowerCase();
 			if (file.isDirectory()) {
-				this.loadDir(file, filename + "/", ext, isClient);
+				this.loadDir(file, filename + "/", ext);
 			} else if (filename.endsWith(ext)) {
 				try {
 					String code = this.readFile(file);
-					if (isClient) {
-						this.clients.put(filename, code);
-						this.clientSizes.put(filename, file.length());
-					} else {
-						this.scripts.put(filename, code);
-						this.sizes.put(filename, file.length());
-					}
+					this.scripts.put(filename, code);
+					this.sizes.put(filename, file.length());
 				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 		}
 	}
 	
-	public NBTTagList nbtLanguages(boolean isClient) {
+	public NBTTagList nbtLanguages() {
 		NBTTagList list = new NBTTagList();
 		for (String language : this.languages.keySet()) {
 			String ext = this.languages.get(AdditionalMethods.instance.deleteColor(language));
 			NBTTagCompound compound = new NBTTagCompound();
 			NBTTagList scripts = new NBTTagList();
-			for (String script : this.getScripts(language, isClient)) {
+			for (String script : this.getScripts(language)) {
 				scripts.appendTag(new NBTTagString(script));
 			}
 			compound.setTag("Scripts", scripts);
@@ -580,7 +532,7 @@ public class ScriptController {
 			compound.setString("FileSfx", ext);
 			long[] sizes = new long[scripts.tagCount()];
 			int i = 0;
-			for (Long l : (isClient ? this.clientSizes : this.sizes).values()) {
+			for (Long l : this.sizes.values()) {
 				sizes[i] = l;
 				if (!scripts.getStringTagAt(i).endsWith(ext)) {
 					sizes[i] *= -1;
@@ -645,38 +597,6 @@ public class ScriptController {
 		}
 		this.shouldSave = false;
 	}
-
-	public void sendClientTo(EntityPlayerMP player) {
-		NBTTagCompound compound = new NBTTagCompound();
-		this.clientScripts.writeToNBT(compound);
-		Server.sendData(player, EnumPacketClient.SCRIPT_CLIENT, compound);
-		NBTTagList list = new NBTTagList();
-		for (String key : this.clients.keySet()) {
-			if (!CommonProxy.loadFiles.containsKey(key)) {
-				CommonProxy.loadFiles.put(key, new TempFile(key, 0, 1, this.clientSizes.get(key)));
-			}
-			TempFile file = CommonProxy.loadFiles.get(key);
-			if (!file.isLoad()) {
-				file.size = -1;
-				file.saveType = 1;
-				file.reset(this.clients.get(key));
-			}
-			list.appendTag(file.getTitle());
-		}
-		compound = new NBTTagCompound();
-		compound.setTag("FileList", list);
-		Server.sendData(player, EnumPacketClient.SEND_FILE_LIST, compound);
-	}
-
-	public void setClientScripts(NBTTagCompound compound) {
-		this.clientScripts.readFromNBT(compound);
-		File file = this.clientScriptsFile();
-		try {
-			NBTJsonUtil.SaveFile(file, compound);
-			this.clientScripts.lastInited = -1L;
-		} catch (Exception e) { LogWriter.error("Error:", e); }
-	}
-
 	public void setNPCsScripts(NBTTagCompound compound) {
 		this.npcsScripts.readFromNBT(compound);
 		File file = this.npcsScriptsFile();

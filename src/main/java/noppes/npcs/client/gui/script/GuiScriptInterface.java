@@ -71,7 +71,7 @@ implements IGuiData, ITextChangeListener {
 				this.initGui();
 				return;
 			}
-			this.handler.getScripts().add(new ScriptContainer(this.handler, true));
+			this.handler.getScripts().add(new ScriptContainer(this.handler));
 			this.activeTab = this.handler.getScripts().size();
 			this.initGui();
 		}
@@ -107,7 +107,7 @@ implements IGuiData, ITextChangeListener {
 		if (guibutton.id == 107) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 			if (container == null) {
-				this.handler.getScripts().add(container = new ScriptContainer(this.handler, true));
+				this.handler.getScripts().add(container = new ScriptContainer(this.handler));
 			}
 			this.setSubGui(new GuiScriptList(this.languages.get(AdditionalMethods.instance.deleteColor(this.handler.getLanguage())), container));
 		}
@@ -354,7 +354,7 @@ implements IGuiData, ITextChangeListener {
 		if (this.activeTab > 0) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 			if (container == null) {
-				this.handler.getScripts().add(container = new ScriptContainer(this.handler, true));
+				this.handler.getScripts().add(container = new ScriptContainer(this.handler));
 			}
 			String text = ((GuiTextArea) this.get(2)).getText();
 			text = text.replace("\r\n", "\n");

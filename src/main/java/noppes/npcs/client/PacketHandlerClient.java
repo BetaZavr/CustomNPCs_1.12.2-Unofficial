@@ -35,7 +35,6 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.village.MerchantRecipeList;
@@ -91,7 +90,6 @@ import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
-import noppes.npcs.util.TempFile;
 
 public class PacketHandlerClient extends PacketHandlerServer {
 
@@ -103,8 +101,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.NPC_VISUAL_DATA);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC);
 		PacketHandlerClient.list.add(EnumPacketClient.SET_TILE_DATA);
-		PacketHandlerClient.list.add(EnumPacketClient.SEND_FILE_LIST);
-		PacketHandlerClient.list.add(EnumPacketClient.SEND_FILE_PART);
 		PacketHandlerClient.list.add(EnumPacketClient.PLAY_SOUND);
 		PacketHandlerClient.list.add(EnumPacketClient.NPC_MOVINGPATH);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_ANIMATION);
@@ -777,65 +773,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			} else {
 				((EntityLiving) npc).setAttackTarget(null);
 			}
-		} else if (type == EnumPacketClient.SCRIPT_PACKAGE) {
-			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
-		} else if (type == EnumPacketClient.SCRIPT_CLIENT) {
-			ScriptController.HasStart = true;
-			ScriptController.Instance.setClientScripts(Server.readNBT(buffer));
-		} else if (type == EnumPacketClient.SEND_FILE_LIST) {
-			NBTTagCompound compound = Server.readNBT(buffer);
-			for (int i = 0; i < compound.getTagList("FileList", 10).tagCount(); i++) {
-				NBTTagCompound tempFile = compound.getTagList("FileList", 10).getCompoundTagAt(i);
-				String name = tempFile.getString("name");
-				if (!ClientProxy.loadFiles.containsKey(name)) {
-					ClientProxy.loadFiles.put(name, new TempFile());
-				}
-				TempFile file = ClientProxy.loadFiles.get(name);
-				file.setTitle(tempFile);
-			}
-			ClientTickHandler.loadFiles();
-		} else if (type == EnumPacketClient.NPC_MOVINGPATH) {
-			Entity entity = player.world.getEntityByID(buffer.readInt());
-			if (entity instanceof EntityCustomNpc) {
-				((EntityCustomNpc) entity).ais.readToNBT(Server.readNBT(buffer));
-			}
-		} else if (type == EnumPacketClient.SEND_FILE_PART) {
-			if (buffer.readBoolean()) {
-				ClientProxy.loadFiles.remove(Server.readString(buffer));
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
-				return;
-			}
-			int part = buffer.readInt();
-			String name = Server.readString(buffer);
-			if (!ClientProxy.loadFiles.containsKey(name)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
-				return;
-			}
-			TempFile file = ClientProxy.loadFiles.get(name);
-			file.data.put(part, Server.readString(buffer));
-			file.lastLoad = System.currentTimeMillis() - 15000L;
-			file.tryLoads = 0;
-			if (file.isLoad()) {
-				if (file.saveType == 1) {
-					LogWriter.debug("Script Client file was received from the Server: \"" + name + "\"");
-					if (player.capabilities.isCreativeMode || data.game.op) {
-						char c = ((char) 167);
-						String s = "" + file.size;
-						if (file.size > 999) {
-							s = AdditionalMethods.getTextReducedNumber(file.size, false, false, false);
-						}
-						ITextComponent message = new TextComponentString(c + "7[" + c + "2CustomNpcs" + c
-								+ "7]: Received client script: \"" + c + "f" + name + c + "7\" (" + s + c + "7b)");
-						player.sendMessage(message);
-					}
-					ScriptController.Instance.clients.put(name, file.getDataText());
-					ScriptController.Instance.clientSizes.put(name, file.size);
-				} else {
-					file.save();
-				}
-				ClientProxy.loadFiles.remove(name);
-			}
-			ClientTickHandler.loadFiles();
 		} else if (type == EnumPacketClient.PLAY_CAMERA_SHAKING) {
 			ClientGuiEventHandler.crashes.set(buffer.readInt(), buffer.readInt(), buffer.readInt(),
 					buffer.readBoolean());
@@ -1139,7 +1076,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.EVENT_NAMES) {
 			String names = Server.readString(buffer);
 			if (names == null) { return; }
-			byte t = names.indexOf(((char) 167) + "6Client") == 0 ? (byte) 0 : names.indexOf(((char) 167) + "6Server") == 0 ? (byte)1 : (byte)2;
+			byte t = names.indexOf(((char) 167) + "6Server") == 0 ? (byte)1 : (byte)2;
 			List<String> list;
 			if (t == 2) {
 				list = Lists.newArrayList();
@@ -1147,7 +1084,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					list.add(est.function);
 				}
 			} else {
-				list = Lists.newArrayList(t == 0 ? CustomNpcs.forgeClientEventNames.values() : CustomNpcs.forgeEventNames.values());
+				list = Lists.newArrayList(CustomNpcs.forgeEventNames.values());
 			}
 			names = names.substring(names.indexOf("" + ((char) 10)) + 2);
 			names = names.substring(0, names.indexOf(";"));

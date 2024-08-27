@@ -60,7 +60,6 @@ public class Server {
 		Server.list.add(EnumPacketClient.EYE_BLINK);
 		Server.list.add(EnumPacketClient.UPDATE_NPC);
 		Server.list.add(EnumPacketClient.SET_TILE_DATA);
-		Server.list.add(EnumPacketClient.SEND_FILE_PART);
 		Server.list.add(EnumPacketClient.PLAY_SOUND);
 		Server.list.add(EnumPacketClient.UPDATE_NPC_ANIMATION);
 		Server.list.add(EnumPacketClient.UPDATE_NPC_NAVIGATION);

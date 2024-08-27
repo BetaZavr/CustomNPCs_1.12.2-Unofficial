@@ -114,6 +114,9 @@ public class GuiNpcAnimation
 				break;
 			}
 			case 2: { // edit
+				if (anim == null) {
+					return;
+				}
 				this.setSubGui(new SubGuiEditAnimation(this.npc, anim, 4, this));
 				break;
 			}
@@ -262,7 +265,7 @@ public class GuiNpcAnimation
 		this.addButton(new GuiNpcButton(1, x, y += 22, 60, 20, "gui.remove"));
 		this.getButton(1).enabled = !selAnim.isEmpty();
 		this.addButton(new GuiNpcButton(2, x, y + 22, 60, 20, "gui.edit"));
-		this.getButton(2).enabled = anim != null && (!anim.immutable || this.player.getName().equals("BetaZavr"));
+		//this.getButton(2).enabled = anim != null && (!anim.immutable || this.player.getName().equals("BetaZavr"));
 
 		this.resetAnimation();
 	}
