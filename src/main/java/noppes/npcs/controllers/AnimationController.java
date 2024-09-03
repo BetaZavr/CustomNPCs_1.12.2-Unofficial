@@ -24,33 +24,22 @@ import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class AnimationController implements IAnimationHandler {
 
 	private static AnimationController instance;
 	public final TreeMap<Integer, AnimationConfig> animations = Maps.newTreeMap();
 	public final TreeMap<Integer, EmotionConfig> emotions = Maps.newTreeMap();
-	private String filePath;
 
 	public static AnimationController getInstance() {
-		if (newInstance()) {
+		if (AnimationController.instance == null) {
 			AnimationController.instance = new AnimationController();
 		}
 		return AnimationController.instance;
 	}
 
-	private static boolean newInstance() {
-		if (AnimationController.instance == null) {
-			return true;
-		}
-		File file = CustomNpcs.getWorldSaveDirectory();
-		return file != null && !AnimationController.instance.filePath.equals(file.getName());
-	}
-
-	public AnimationController() {
-		AnimationController.instance = this;
-		this.filePath = CustomNpcs.getWorldSaveDirectory().getAbsolutePath();
+	private AnimationController() {
 		this.loadAnimations();
 	}
 
@@ -176,6 +165,7 @@ public class AnimationController implements IAnimationHandler {
 	}
 
 	private void loadAnimations() {
+		LogWriter.info("Start load animations");
 		File saveDir = CustomNpcs.Dir;
 		if (saveDir == null) {
 			return;
@@ -183,11 +173,10 @@ public class AnimationController implements IAnimationHandler {
 		if (CustomNpcs.VerboseDebug) {
 			CustomNpcs.debugData.startDebug("Common", null, "loadAnimations");
 		}
-		this.filePath = saveDir.getName();
 		File oldFile = new File(saveDir, "animations.dat");
 		if (oldFile.exists()) {
 			try { this.loadOldAnimations(CompressedStreamTools.readCompressed(Files.newInputStream(oldFile.toPath()))); } catch (Exception e) { LogWriter.error("Error:", e); }
-			AdditionalMethods.removeFile(oldFile);
+			Util.instance.removeFile(oldFile);
 		}
 
 		File animDir = new File(saveDir, "animations");
@@ -202,6 +191,7 @@ public class AnimationController implements IAnimationHandler {
 			try { this.loadEmotions(emtnDir); } catch (Exception e) { LogWriter.error("Error:", e); }
 		} else { emtnDir.mkdirs(); }
 		this.loadDefaultAnimations();
+		LogWriter.info("End load animations");
 		CustomNpcs.debugData.endDebug("Common", null, "loadAnimations");
 	}
 
@@ -253,7 +243,7 @@ public class AnimationController implements IAnimationHandler {
 	}
 
 	private void loadDefaultAnimations() {
-		InputStream inputStream = AdditionalMethods.instance.getModInputStream("default_animations.dat");
+		InputStream inputStream = Util.instance.getModInputStream("default_animations.dat");
 		if (inputStream == null) { return; }
 		NBTTagCompound compound = new NBTTagCompound();
 		try { compound = CompressedStreamTools.readCompressed(inputStream); } catch (Exception e) { LogWriter.error("Error:", e); }

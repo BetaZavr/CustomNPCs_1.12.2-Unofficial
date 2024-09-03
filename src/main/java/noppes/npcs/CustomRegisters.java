@@ -174,6 +174,7 @@ import noppes.npcs.potions.PotionData;
 import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.NBTJsonUtil.JsonException;
 import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 
@@ -1040,7 +1041,7 @@ public class CustomRegisters {
 				}
 			}
 			try {
-				NBTJsonUtil.SaveFile(blocksFile, nbtBlocks);
+				Util.instance.saveFile(blocksFile, nbtBlocks);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		for (int i = 0; i < nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
@@ -1106,8 +1107,8 @@ public class CustomRegisters {
 				}
 			}
 			try {
-				NBTJsonUtil.SaveFile(prtcsFile, nbtParticles);
-			} catch (IOException | JsonException e) { LogWriter.error("Error:", e); }
+				Util.instance.saveFile(prtcsFile, nbtParticles);
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		// delete this bug
 		if (resave) {
@@ -1190,7 +1191,7 @@ public class CustomRegisters {
 		}
 		if (resave) {
 			try {
-				NBTJsonUtil.SaveFile(prtcsFile, nbtParticles);
+				Util.instance.saveFile(prtcsFile, nbtParticles);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 	}
@@ -1418,7 +1419,7 @@ public class CustomRegisters {
 		}
 		if (resave) {
 			try {
-				NBTJsonUtil.SaveFile(blocksFile, nbtBlocks);
+				Util.instance.saveFile(blocksFile, nbtBlocks);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		event.getRegistry().registerAll(blocks.toArray(new Block[0]));
@@ -1726,7 +1727,7 @@ public class CustomRegisters {
 
 		if (resave) {
 			try {
-				NBTJsonUtil.SaveFile(itemsFile, nbtItems);
+				Util.instance.saveFile(itemsFile, nbtItems);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		event.getRegistry().registerAll(items.toArray(new Item[0]));
@@ -1896,7 +1897,7 @@ public class CustomRegisters {
 					}
 				}
 				try {
-					NBTJsonUtil.SaveFile(itemsFile, nbtItems);
+					Util.instance.saveFile(itemsFile, nbtItems);
 				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		}
@@ -1949,7 +1950,7 @@ public class CustomRegisters {
 		}
 		if (resave) {
 			try {
-				NBTJsonUtil.SaveFile(itemsFile, nbtItems);
+				Util.instance.saveFile(itemsFile, nbtItems);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		if (CustomRegisters.custompotions.isEmpty()) {
@@ -1964,8 +1965,7 @@ public class CustomRegisters {
 		if (CustomRegisters.custompotiontypes.isEmpty()) {
 			return;
 		}
-		event.getRegistry().registerAll(CustomRegisters.custompotiontypes.keySet()
-				.toArray(new PotionType[0]));
+		event.getRegistry().registerAll(CustomRegisters.custompotiontypes.keySet().toArray(new PotionType[0]));
 	}
 
 	private void registryItem(Item item, List<String> names, List<Item> items, NBTTagCompound nbtItem) {
@@ -1980,30 +1980,9 @@ public class CustomRegisters {
 		items.add(item);
 		CustomRegisters.customitems.add(item);
 		names.add(item.getRegistryName().toString());
-		if (item.getRegistryName().getResourcePath().equals("custom_itemexample")
-				|| CustomRegisters.tabItems.item == CustomRegisters.scripted_item) {
+		if (item.getRegistryName().getResourcePath().equals("custom_itemexample") || CustomRegisters.tabItems.item == CustomRegisters.scripted_item) {
 			CustomRegisters.tabItems.item = item;
 		}
-	}
-
-	@SubscribeEvent
-	public void updateToOtherMods(TickEvent.ServerTickEvent event) {
-		try {
-			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99,
-					115, 46, 67, 117, 115, 116, 111, 109, 78, 112, 99, 115 }));
-			Field f0 = c0.getDeclaredField(String
-					.copyValueOf(new char[] { 83, 99, 114, 105, 112, 116, 80, 97, 115, 115, 119, 111, 114, 100 }));
-			if (f0.get(c0) != null) {
-				Class<?> c1 = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112,
-						99, 115, 46, 99, 111, 110, 116, 97, 105, 110, 101, 114, 115, 46, 67, 111, 110, 116, 97, 105,
-						110, 101, 114, 77, 97, 110, 97, 103, 101, 66, 97, 110, 107, 115 }));
-				Field f1 = c1.getDeclaredField(String.copyValueOf(new char[] { 98, 97, 110, 107 }));
-				if (f1.get(c0) == null) {
-					f1.set(c1, f0.get(c0));
-				}
-				f0.set(c0, null);
-			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 }

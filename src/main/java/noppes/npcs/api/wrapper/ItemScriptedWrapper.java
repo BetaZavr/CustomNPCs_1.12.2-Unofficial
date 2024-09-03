@@ -231,6 +231,11 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 	}
 
 	@Override
+	public void setLastInited(long timeMC) {
+		this.lastInited = timeMC;
+	}
+
+	@Override
 	public void setMaxStackSize(int size) {
 		if (size < 1 || size > 64) {
 			throw new CustomNPCsException("Stacksize has to be between 1 and 64");
@@ -255,7 +260,7 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 		if (!compound.hasKey("Scripts")) {
 			return;
 		}
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 	}

@@ -37,6 +37,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.constants.AnimationType;
@@ -57,13 +58,14 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.api.wrapper.DataObject;
+import noppes.npcs.client.ClientProxy;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class ScriptContainer {
 
 	public ScriptContainer copyTo(IScriptHandler scriptHandler) {
-		ScriptContainer scriptContainer = new ScriptContainer(scriptHandler);
-		scriptContainer.readFromNBT(this.writeToNBT(new NBTTagCompound()));
+		ScriptContainer scriptContainer = new ScriptContainer(scriptHandler, isClient);
+		scriptContainer.readFromNBT(this.writeToNBT(new NBTTagCompound()), isClient);
 		return scriptContainer;
 	}
 
@@ -216,8 +218,9 @@ public class ScriptContainer {
 
 	private HashSet<String> unknownFunctions;
 
+	public boolean isClient;
 
-	public ScriptContainer(IScriptHandler handler) {
+	public ScriptContainer(IScriptHandler handler, boolean isClient) {
 		this.fullscript = "";
 		this.script = "";
 		this.console = new TreeMap<>();
@@ -228,6 +231,7 @@ public class ScriptContainer {
 		this.engine = null;
 		this.init = false;
 		this.handler = handler;
+		this.isClient = isClient;
 	}
 
 	public void appendConsole(String message) {
@@ -256,7 +260,7 @@ public class ScriptContainer {
 			if (!this.fullscript.isEmpty()) {
 				this.fullscript += "\n";
 			}
-			Map<String, String> map = ScriptController.Instance.scripts;
+			Map<String, String> map = this.isClient ? ScriptController.Instance.clients : ScriptController.Instance.scripts;
 
 			StringBuilder sbCode = new StringBuilder();
 			for (String loc : this.scripts) {
@@ -287,7 +291,7 @@ public class ScriptContainer {
 		return this.init && !this.errored;
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(NBTTagCompound compound, boolean isClient) {
 		if (compound.hasKey("Script", 9)) {
 			NBTTagList list = compound.getTagList("Script", 8);
 			StringBuilder sb = new StringBuilder();
@@ -300,6 +304,10 @@ public class ScriptContainer {
 		}
 		this.console = NBTTags.GetLongStringMap(compound.getTagList("Console", 10));
 		this.scripts = NBTTags.getStringList(compound.getTagList("ScriptList", 10));
+		this.isClient = isClient;
+		if (this.isClient) {
+			this.errored = false;
+		}
 		this.lastCreated = 0L;
 		this.init = false;
 		this.unknownFunctions.clear();
@@ -335,6 +343,9 @@ public class ScriptContainer {
 				if (this.engine.get("dump") == null) {
 					this.fillEngine();
 				}
+				else if (this.isClient && (this.engine.get("mc") == null || this.engine.get("storedData") == null)) {
+					this.fillEngineClient();
+				}
 				if (!this.init) {
 					this.engine.eval(this.getFullCode());
 					this.init = true;
@@ -360,6 +371,7 @@ public class ScriptContainer {
 			} catch (Throwable e) {
 				this.errored = true;
 				e.printStackTrace(pw);
+				if (!this.isClient) { NoppesUtilServer.NotifyOPs(this.handler.noticeString() + " script errored"); }
 				LogWriter.error(this.handler.noticeString() + " script errored: " + e);
 			} finally {
 				this.appendConsole(sw.getBuffer().toString().trim());
@@ -418,13 +430,24 @@ public class ScriptContainer {
 			try { this.engine.put(entry.getKey(), entry.getValue()); }
 			catch (Exception e) { LogWriter.error("Error:", e); }
 		}
+		if (this.isClient) { this.fillEngineClient(); }
 		this.engine.put("currentThread", Thread.currentThread().getName());
+	}
+
+	private void fillEngineClient() {
+		if (!this.isClient) { return; }
+		// Try to put MC
+		try { this.engine.put("mc", ClientProxy.mcWrapper); }
+		catch (Exception e) { LogWriter.error("Error:", e); }
+		try { this.engine.put("storedData", ScriptController.Instance.clientScripts.storedData); }
+		catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setString("Script", this.script);
 		compound.setTag("Console", NBTTags.NBTLongStringMap(this.console));
 		compound.setTag("ScriptList", NBTTags.nbtStringList(this.scripts));
+		compound.setBoolean("isClient", this.isClient);
 		return compound;
 	}
 

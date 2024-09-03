@@ -6,7 +6,7 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class EntityAIWatchClosest extends EntityAIBase {
 
@@ -57,7 +57,7 @@ public class EntityAIWatchClosest extends EntityAIBase {
 		}
 		if (this.closestEntity != null) {
 			if (this.closestEntity instanceof EntityLivingBase) {
-				return AdditionalMethods.npcCanSeeTarget(this.npc, (EntityLivingBase) this.closestEntity, false, false);
+				return Util.instance.npcCanSeeTarget(this.npc, (EntityLivingBase) this.closestEntity, false, false);
 			}
 			return this.npc.canSee(this.closestEntity);
 		}

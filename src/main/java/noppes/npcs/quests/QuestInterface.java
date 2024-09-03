@@ -25,7 +25,7 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.QuestData;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 // Global Changed
 public class QuestInterface {
@@ -135,7 +135,7 @@ public class QuestInterface {
 				Dialog d = DialogController.instance.dialogs.get(to.getTargetID());
 				if (d != null) {
 					name = chr + "8"
-							+ AdditionalMethods.instance
+							+ Util.instance
 									.deleteColor(new TextComponentTranslation(d.category.getName()).getFormattedText())
 							+ "/" + chr + "r" + new TextComponentTranslation(d.getName()).getFormattedText();
 				}

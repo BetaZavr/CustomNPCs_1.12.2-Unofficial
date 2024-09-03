@@ -158,8 +158,13 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		this.scriptLanguage = lang;
 	}
 
+	@Override
+	public void setLastInited(long timeMC) {
+		this.lastInited = timeMC;
+	}
+
 	public void setNBT(NBTTagCompound compound) {
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.closeSound = compound.getString("CloseSound");
 		this.openSound = compound.getString("OpenSound");

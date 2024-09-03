@@ -11,7 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.IMiniMapData;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class MiniMapData implements IMiniMapData {
 
@@ -122,7 +122,7 @@ public class MiniMapData implements IMiniMapData {
 		color = compound.getInteger("Color");
 		id = compound.getInteger("ID");
 		type = compound.getString("Type");
-		name = AdditionalMethods.instance.deleteColor(compound.getString("Name"));
+		name = Util.instance.deleteColor(compound.getString("Name"));
 		icon = compound.getString("Icon");
 		pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(BlockPos.fromLong(compound.getLong("Pos")));
 
@@ -144,7 +144,7 @@ public class MiniMapData implements IMiniMapData {
 		compound.setInteger("Color", color);
 		compound.setInteger("ID", id);
 		compound.setString("Type", type);
-		compound.setString("Name", AdditionalMethods.instance.deleteColor(name));
+		compound.setString("Name", Util.instance.deleteColor(name));
 		compound.setString("Icon", icon);
 		compound.setLong("Pos", pos.getMCBlockPos().toLong());
 
@@ -189,7 +189,7 @@ public class MiniMapData implements IMiniMapData {
 
 	@Override
 	public void setName(String newName) {
-		newName = AdditionalMethods.instance.deleteColor(newName);
+		newName = Util.instance.deleteColor(newName);
 		if (newName == null) {
 			newName = "";
 		}

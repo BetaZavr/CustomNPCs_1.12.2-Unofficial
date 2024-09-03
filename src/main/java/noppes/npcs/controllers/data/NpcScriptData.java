@@ -18,6 +18,7 @@ extends BaseScriptData {
 	
 	@Override
 	public void runScript(String type, Event event) {
+		super.runScript(type, event);
 		if (!this.isEnabled()) {
 			return;
 		}

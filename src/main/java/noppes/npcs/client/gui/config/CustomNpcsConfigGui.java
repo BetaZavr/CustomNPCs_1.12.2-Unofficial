@@ -28,7 +28,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.SubGuiColorSelector;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class CustomNpcsConfigGui extends GuiConfig implements ISubGuiListener {
 
@@ -308,7 +308,7 @@ public class CustomNpcsConfigGui extends GuiConfig implements ISubGuiListener {
 				} else {
 					newToolTip.add(((char) 167) + "e"
 							+ new TextComponentTranslation(
-									"property." + AdditionalMethods.instance.deleteColor(name) + ".hover")
+									"property." + Util.instance.deleteColor(name) + ".hover")
 											.getFormattedText());
 					name = null;
 					continue;

@@ -22,6 +22,10 @@ public class CmdFaction extends CommandNoppesBase {
 	public List<PlayerData> data;
 	public Faction selectedFaction;
 
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
+
 	@SubCommand(desc = "Add points", usage = "<points>")
 	public void add(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		int points;

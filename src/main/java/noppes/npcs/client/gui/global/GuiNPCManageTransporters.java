@@ -34,7 +34,7 @@ import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.TransportCategory;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 		implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener {
@@ -73,7 +73,7 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 		}
 		switch (button.id) {
 		case 0: { // add cat
-			this.setSubGui(new SubGuiEditText(0, AdditionalMethods.instance
+			this.setSubGui(new SubGuiEditText(0, Util.instance
 					.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 			break;
 		}

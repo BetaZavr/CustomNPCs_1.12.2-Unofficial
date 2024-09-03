@@ -9,7 +9,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class EntityAIReturn extends EntityAIBase {
 
@@ -80,7 +80,7 @@ public class EntityAIReturn extends EntityAIBase {
 		this.npc.getNavigator().clearPath();
 		if (this.npc.homeDimensionId != this.npc.world.provider.getDimension()) {
 			try {
-				AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
+				Util.instance.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 						this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
 			} catch (CommandException e) {
 				LogWriter.error("Error:", e);
@@ -182,7 +182,7 @@ public class EntityAIReturn extends EntityAIBase {
 			this.npc.getNavigator().clearPath();
 			if (this.npc.homeDimensionId != this.npc.world.provider.getDimension()) {
 				try {
-					AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
+					Util.instance.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 							this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
 				} catch (CommandException e) {
 					LogWriter.error("Error:", e);
@@ -202,7 +202,7 @@ public class EntityAIReturn extends EntityAIBase {
 				this.npc.getNavigator().clearPath();
 				if (this.npc.homeDimensionId != this.npc.world.provider.getDimension()) {
 					try {
-						AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
+						Util.instance.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 								this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
 					} catch (CommandException e) {
 						LogWriter.error("Error:", e);

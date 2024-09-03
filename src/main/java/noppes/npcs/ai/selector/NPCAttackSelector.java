@@ -10,7 +10,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobGuard;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.companion.CompanionGuard;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 
@@ -29,7 +29,7 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 				|| entity.getHealth() < 1.0f) {
 			return false;
 		}
-		if (!AdditionalMethods.npcCanSeeTarget(this.npc, entity, false, true)) {
+		if (!Util.instance.npcCanSeeTarget(this.npc, entity, false, true)) {
 			return false;
 		}
 		if (!this.npc.isFollower() && this.npc.ais.shouldReturnHome()) {

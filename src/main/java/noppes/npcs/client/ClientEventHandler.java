@@ -3,13 +3,14 @@ package noppes.npcs.client;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeSet;
+import java.util.*;
 
+import net.minecraft.client.AnvilConverterException;
+import net.minecraft.client.gui.*;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.world.storage.ISaveFormat;
+import net.minecraft.world.storage.WorldInfo;
+import net.minecraft.world.storage.WorldSummary;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -18,10 +19,6 @@ import com.google.gson.Gson;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiLanguage;
-import net.minecraft.client.gui.GuiOptions;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiCrafting;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -61,12 +58,17 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomPacketHandler;
+import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.item.ISpecBuilder;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.client.gui.GuiNbtBook;
@@ -78,7 +80,9 @@ import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.SchematicController;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.MiniMapData;
 import noppes.npcs.controllers.data.PlayerData;
@@ -87,7 +91,7 @@ import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.schematics.ISchematic;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ObfuscationHelper;
@@ -104,6 +108,12 @@ public class ClientEventHandler {
 	public static int rotation;
 	public static long secs;
 	private boolean miniMapLoaded;
+
+	@SubscribeEvent
+	public void cnpcJoinServer(ClientConnectedToServerEvent event) {
+		event.getManager().channel().pipeline().addBefore("fml:packet_handler",
+				CustomNpcs.MODID + ":custom_packet_handler_client", new CustomPacketHandler());
+	}
 
 	@SubscribeEvent
 	public void cnpcOpenGUIEvent(GuiOpenEvent event) {
@@ -126,8 +136,20 @@ public class ClientEventHandler {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.OpenGui, newGUI, mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName());
 		if (mc.currentScreen instanceof GuiNpcPather) {
 			ClientGuiEventHandler.movingPath.clear();
+		} else if (event.getGui() instanceof GuiWorldSelection) {
+			try {
+				ISaveFormat anvilSaveConverter = mc.getSaveLoader();
+				List<WorldSummary> list = anvilSaveConverter.getSaveList(); // AnvilSaveConverter.ISaveFormat
+				Collections.sort(list);
+				for (WorldSummary worldsummary : list) {
+					WorldInfo worldinfo = anvilSaveConverter.getWorldInfo(worldsummary.getFileName());
+					if (worldinfo == null) { continue; }
+					ScriptController.Instance.checkAgreement(worldinfo.getWorldName() + "/" + worldinfo.areCommandsAllowed() + "/" + worldinfo.getSeed());
+				}
+			}
+			catch (Exception e) { }
 		} else if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
-			AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
+			Util.instance.resetRecipes(mc.player, (GuiContainer) event.getGui());
 			event.getGui().mc = mc;
 		} else if (event.getGui() instanceof GuiInventory) {
 			if (mc.player.getHeldItemMainhand().getItem() instanceof ISpecBuilder) {
@@ -143,7 +165,7 @@ public class ClientEventHandler {
                 }
                 return;
 			} else if (!mc.player.capabilities.isCreativeMode) {
-				AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
+				Util.instance.resetRecipes(mc.player, (GuiContainer) event.getGui());
 				event.getGui().mc = mc;
 			}
 		}
@@ -197,6 +219,7 @@ public class ClientEventHandler {
 			this.miniMapLoaded = false;
 			this.updateMiniMaps(true);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.InGame);
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGIN, new PlayerEvent.LoginEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player)));
 			LogWriter.debug("Client Player: Start game");
 		}
 		BuilderData bd = ItemBuilder.getBuilder(player.getHeldItemMainhand(), player);

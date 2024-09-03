@@ -20,6 +20,10 @@ import javax.annotation.Nonnull;
 
 public class CmdSchematics extends CommandNoppesBase {
 
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
+
 	@SubCommand(desc = "Build the schematic", usage = "<name> [rotation] [[world:]x,y,z]]")
 	public void build(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String name = args[0];

@@ -31,7 +31,7 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.items.ItemNpcBlock;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 
@@ -149,7 +149,7 @@ public class CustomDoor extends BlockDoor implements ITileEntityProvider, ICusto
 			return;
 		}
 		items.add(new ItemStack(this));
-		if (tab == CustomRegisters.tabBlocks) { AdditionalMethods.instance.sort(items); }
+		if (tab == CustomRegisters.tabBlocks) { Util.instance.sort(items); }
 	}
 
 	public boolean hasTileEntity(@Nonnull IBlockState state) {

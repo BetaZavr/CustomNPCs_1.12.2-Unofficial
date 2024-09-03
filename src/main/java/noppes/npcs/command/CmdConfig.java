@@ -22,6 +22,11 @@ import noppes.npcs.controllers.ChunkController;
 import javax.annotation.Nonnull;
 
 public class CmdConfig extends CommandNoppesBase {
+
+	public int getRequiredPermissionLevel() {
+		return 4;
+	}
+
 	@SubCommand(desc = "Set how many active chunkloaders you can have", usage = "<number>")
 	public void chunkloaders(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length == 0) {

@@ -83,14 +83,10 @@ public class DropController {
 	}
 
 	public void load() {
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadDrops");
-		}
+		CustomNpcs.debugData.startDebug("Common", null, "loadDrops");
 		LogWriter.info("Loading Drops");
 		this.loadFile();
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.endDebug("Common", null, "loadDrops");
-		}
+		CustomNpcs.debugData.endDebug("Common", null, "loadDrops");
 	}
 
 	private void loadDefaultDrops() {

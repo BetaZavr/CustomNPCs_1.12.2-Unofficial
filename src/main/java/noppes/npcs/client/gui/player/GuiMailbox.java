@@ -31,7 +31,7 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.util.ResourceData;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.PlayerMail;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 
@@ -407,7 +407,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				}
 				hover.add(((char) 167) + "7"
 						+ new TextComponentTranslation("mailbox.when.removed",
-								AdditionalMethods.ticksToElapsedTime(timeToRemove / 50, false, true, false))
+						Util.instance.ticksToElapsedTime(timeToRemove / 50, false, true, false))
 										.getFormattedText());
 			}
 			if (mail.beenRead) {
@@ -415,7 +415,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 			} else {
 				hover.add(((char) 167) + "7"
 						+ new TextComponentTranslation("mailbox.when.received",
-								AdditionalMethods.ticksToElapsedTime(timeWhenReceived / 50, false, true, false))
+						Util.instance.ticksToElapsedTime(timeWhenReceived / 50, false, true, false))
 										.getFormattedText());
 			}
 		}

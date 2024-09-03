@@ -14,7 +14,7 @@ import com.google.common.collect.Maps;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.handler.data.IDataElement;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class DataObject implements IDataObject {
 
@@ -23,7 +23,7 @@ public class DataObject implements IDataObject {
 
 	public DataObject(Object obj) {
 		this.object = obj;
-		this.data = AdditionalMethods.getClassData(obj, false, true);
+		this.data = Util.instance.getClassData(obj, false, true);
 	}
 
 	@Override

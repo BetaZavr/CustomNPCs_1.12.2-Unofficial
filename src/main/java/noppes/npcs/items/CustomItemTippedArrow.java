@@ -10,7 +10,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.potions.PotionData;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 
@@ -43,7 +43,7 @@ public class CustomItemTippedArrow extends ItemTippedArrow {
 				items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
 			}
 		}
-		if (tab == CustomRegisters.tabItems) { AdditionalMethods.instance.sort(items); }
+		if (tab == CustomRegisters.tabItems) { Util.instance.sort(items); }
 	}
 
 }

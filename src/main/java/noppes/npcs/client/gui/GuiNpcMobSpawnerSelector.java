@@ -36,7 +36,7 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.data.SpawnNPCData;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiNpcMobSpawnerSelector extends SubGuiInterface implements IGuiData, ICustomScrollListener, ITextfieldListener {
 
@@ -279,7 +279,7 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface implements IGuiDat
 		this.list = list;
 		this.scroll.setList(this.getSearchList());
 		if (this.spawnData != null) {
-			this.scroll.setSelected(AdditionalMethods.instance.deleteColor(this.spawnData.getTitle()));
+			this.scroll.setSelected(Util.instance.deleteColor(this.spawnData.getTitle()));
 			if (this.selectNpc == null) {
 				String name = new TextComponentTranslation("type.empty").getFormattedText();
 				if (this.spawnData.compound != null) {

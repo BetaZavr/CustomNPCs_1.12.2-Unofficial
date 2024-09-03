@@ -22,7 +22,7 @@ import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.quests.QuestObjective;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class PlayerQuestController {
@@ -66,7 +66,7 @@ public class PlayerQuestController {
 					if (mmd == null) {
 						mmd = (MiniMapData) playerdata.minimap.addPoint(obj.getCompassDimension());
 					}
-					mmd.setName(AdditionalMethods.instance.deleteColor(name));
+					mmd.setName(Util.instance.deleteColor(name));
 					mmd.setPos(obj.getCompassPos());
 					ObfuscationHelper.setValue(MiniMapData.class, mmd, quest.id, 0); // questId
 					ObfuscationHelper.setValue(MiniMapData.class, mmd, taskId, 1); // taskId

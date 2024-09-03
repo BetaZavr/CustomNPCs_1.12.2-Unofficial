@@ -13,6 +13,7 @@ import noppes.npcs.NBTTags;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.NBTJsonUtil;
+import noppes.npcs.util.Util;
 
 public class LinkedNpcController {
 	public static class LinkedData {
@@ -172,12 +173,12 @@ public class LinkedNpcController {
 		File file = new File(this.getDir(), npc.name + ".json_new");
 		File file2 = new File(this.getDir(), npc.name + ".json");
 		try {
-			NBTJsonUtil.SaveFile(file, npc.getNBT());
+			Util.instance.saveFile(file, npc.getNBT());
 			if (file2.exists()) {
 				file2.delete();
 			}
 			file.renameTo(file2);
-		} catch (NBTJsonUtil.JsonException e) {
+		} catch (Exception e) {
 			LogWriter.except(e);
 		}
 	}

@@ -95,7 +95,7 @@ public class VersionCompatibility {
 		if (npc.npcVersion == 15) {
 			NBTTagList list = compound.getTagList("ScriptsContainers", 10);
 			if (list.tagCount() > 0) {
-				ScriptContainer script = new ScriptContainer(npc.script);
+				ScriptContainer script = new ScriptContainer(npc.script, false);
 				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < list.tagCount(); ++i) {
 					NBTTagCompound scriptOld = list.getCompoundTagAt(i);

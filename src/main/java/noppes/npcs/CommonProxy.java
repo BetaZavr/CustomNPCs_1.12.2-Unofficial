@@ -1,13 +1,10 @@
 package noppes.npcs;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
@@ -26,6 +23,8 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.handler.data.INpcRecipe;
@@ -79,13 +78,16 @@ import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.util.TempFile;
 
 public class CommonProxy implements IGuiHandler {
 
+	public static Map<String, TempFile> downloadableFiles = Maps.newHashMap();
 	public boolean newVersionAvailable;
 	public int revision;
+	public static String agreementKey = null;
 
 	public CommonProxy() {
 		this.newVersionAvailable = false;
@@ -117,7 +119,7 @@ public class CommonProxy implements IGuiHandler {
 					+ crTab + "\"up\": \"#top\"," + crEnt + crTab + crTab + "\"north\": \"#front\"," + crEnt + crTab
 					+ crTab + "\"east\": \"#left\"," + crEnt + crTab + crTab + "\"south\": \"#back\"," + crEnt + crTab
 					+ crTab + "\"west\": \"#right\"" + crEnt + crTab + "}" + crEnt + "}";
-			if (saveFile(orientable, jsonOrientable)) {
+			if (Util.instance.saveFile(orientable, jsonOrientable)) {
 				LogWriter.debug("Create Orientable Block Model for \"orientable\" block");
 			}
 		}
@@ -180,7 +182,7 @@ public class CommonProxy implements IGuiHandler {
 					+ crEnt + crTab + crTab + "}," + crEnt + crTab + crTab + "\"fixed\": {" + crEnt + crTab + crTab
 					+ crTab + "\"scale\": [0.55, 0.55, 0.55]" + crEnt + crTab + crTab + "}" + crEnt + crTab + "}"
 					+ crEnt + "}";
-			if (saveFile(chest, jsonChest)) {
+			if (Util.instance.saveFile(chest, jsonChest)) {
 				LogWriter.debug("Create Chest Block Model for \"custom chest\" block");
 			}
 		}
@@ -478,7 +480,7 @@ public class CommonProxy implements IGuiHandler {
 						+ crEnt + crTab + "}" + crEnt + "}");
 
 			}
-			if (saveFile(blockstate, jsonState.toString())) {
+			if (Util.instance.saveFile(blockstate, jsonState.toString())) {
 				LogWriter.debug("Create Default Blockstate for \"" + fileName.toLowerCase() + "\" block");
 			}
 		}
@@ -497,16 +499,16 @@ public class CommonProxy implements IGuiHandler {
 						+ fileName.toLowerCase() + "_bottom\"," + crEnt + crTab + crTab + "\"side\": \""
 						+ CustomNpcs.MODID + ":blocks/" + fileName.toLowerCase() + "_side\"" + crEnt + crTab + "}"
 						+ crEnt + "}";
-				if (saveFile(blockModel, jsonModel)) {
+				if (Util.instance.saveFile(blockModel, jsonModel)) {
 					LogWriter.debug("Create Default Stairs Block Model for \"" + fileName.toLowerCase() + "\" block");
 				}
 				jsonModel = jsonModel.replace("block/stairs", "block/inner_stairs");
-				if (saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_inner.json"), jsonModel)) {
+				if (Util.instance.saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_inner.json"), jsonModel)) {
 					LogWriter.debug(
 							"Create Default Inner Stairs Block Model for \"" + fileName.toLowerCase() + "\" block");
 				}
 				jsonModel = jsonModel.replace("block/inner_stairs", "block/outer_stairs");
-				if (saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_outer.json"), jsonModel)) {
+				if (Util.instance.saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_outer.json"), jsonModel)) {
 					LogWriter.debug(
 							"Create Default Outer Stairs Block Model for \"" + fileName.toLowerCase() + "\" block");
 				}
@@ -519,9 +521,9 @@ public class CommonProxy implements IGuiHandler {
 							+ CustomNpcs.MODID + ":blocks/" + fileName.toLowerCase() + "_bottom\"," + crEnt + crTab
 							+ crTab + "\"side\": \"" + CustomNpcs.MODID + ":blocks/" + fileName.toLowerCase()
 							+ "_side\"" + crEnt + crTab + "}" + crEnt + "}";
-					saveFile(blockModel, jsonModel);
+					Util.instance.saveFile(blockModel, jsonModel);
 					jsonModel = jsonModel.replace("block/half_slab", "block/upper_slab");
-					if (saveFile(new File(blockModelsDir, "upper_" + fileName.toLowerCase() + ".json"),
+					if (Util.instance.saveFile(new File(blockModelsDir, "upper_" + fileName.toLowerCase() + ".json"),
 							jsonModel)) {
 						LogWriter.debug(
 								"Create Default Slab Simple Block Model for \"" + fileName.toLowerCase() + "\" block");
@@ -535,14 +537,14 @@ public class CommonProxy implements IGuiHandler {
 							+ "\"side\": \"" + CustomNpcs.MODID + ":blocks/"
 							+ fileName.toLowerCase().replace("double_", "") + "_side\"" + crEnt + crTab + "}" + crEnt
 							+ "}";
-					saveFile(blockModel, jsonModel);
+					Util.instance.saveFile(blockModel, jsonModel);
 
 					jsonModel = "{" + crEnt + crTab + "\"_comment\": \"Custom Slab Double Block created by default\","
 							+ crEnt + crTab + "\"parent\": \"block/cube_all\"," + crEnt + crTab + "\"textures\": {"
 							+ crEnt + crTab + crTab + "\"all\": \"" + CustomNpcs.MODID + ":blocks/"
 							+ fileName.toLowerCase().replace("double_", "") + "_top\"" + crEnt + crTab + "}" + crEnt
 							+ "}";
-					if (saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_top.json"), jsonModel)) {
+					if (Util.instance.saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_top.json"), jsonModel)) {
 						LogWriter.debug("Create Default Slab Blocks Model for \"" + fileName.toLowerCase() + "\" block");
 					}
 				}
@@ -552,13 +554,13 @@ public class CommonProxy implements IGuiHandler {
 						+ crTab + crTab + "\"bottom\": \"" + CustomNpcs.MODID + ":blocks/" + fileName.toLowerCase()
 						+ "_lower\"," + crEnt + crTab + crTab + "\"top\": \"" + CustomNpcs.MODID + ":blocks/"
 						+ fileName.toLowerCase() + "_upper\"" + crEnt + crTab + "}" + crEnt + "}";
-				if (saveFile(blockModel, jsonModel)) {
+				if (Util.instance.saveFile(blockModel, jsonModel)) {
 					LogWriter.debug("Create Default Door Blocks Model for \"" + fileName.toLowerCase() + "\" block");
 				}
-				saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_bottom.json"), jsonModel);
-				saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_bottom_rh.json"), jsonModel.replace("block/door_bottom", "block/door_bottom_rh"));
-				saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_top.json"), jsonModel.replace("block/door_bottom", "block/door_top"));
-				saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_top_rh.json"), jsonModel.replace("block/door_bottom", "block/door_top_rh"));
+				Util.instance.saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_bottom.json"), jsonModel);
+				Util.instance.saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_bottom_rh.json"), jsonModel.replace("block/door_bottom", "block/door_bottom_rh"));
+				Util.instance.saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_top.json"), jsonModel.replace("block/door_bottom", "block/door_top"));
+				Util.instance.saveFile(new File(blockModelsDir, fileName.toLowerCase() + "_top_rh.json"), jsonModel.replace("block/door_bottom", "block/door_top_rh"));
 			} else if (customblock instanceof CustomChest) {
 				boolean type = ((CustomChest) customblock).isChest;
 				if (type) {
@@ -568,7 +570,7 @@ public class CommonProxy implements IGuiHandler {
 							+ ":entity/chest/" + fileName.toLowerCase() + "\"," + crEnt + crTab + crTab
 							+ "\"particle\": \"" + CustomNpcs.MODID + ":entity/chest/" + fileName.toLowerCase() + "\""
 							+ crEnt + crTab + "}" + crEnt + "}";
-					if (saveFile(blockModel, jsonModel)) {
+					if (Util.instance.saveFile(blockModel, jsonModel)) {
 						LogWriter.debug(
 								"Create Default Chest Blocks Model for \"" + fileName.toLowerCase() + "\" block");
 					}
@@ -579,7 +581,7 @@ public class CommonProxy implements IGuiHandler {
 							+ crEnt + crEnt + "newmtl top" + crEnt + "Kd 1.000000 1.000000 1.000000" + crEnt
 							+ "d 1.000000" + crEnt + "map_Kd " + CustomNpcs.MODID + ":blocks/" + fileName.toLowerCase()
 							+ "_top";
-					saveFile(blockModel, jsonModel);
+					Util.instance.saveFile(blockModel, jsonModel);
 					blockModel = new File(blockModelsDir, "obj/" + fileName.toLowerCase() + ".obj");
 					jsonModel = "mtllib " + fileName.toLowerCase() + ".mtl" + crEnt + "o body" + crEnt
 							+ "v 0.062500 0.000000 0.645833" + crEnt + "v 0.062500 1.000000 0.645833" + crEnt
@@ -646,7 +648,7 @@ public class CommonProxy implements IGuiHandler {
 							+ "f 45/44/10 46/43/10 38/49/10 28/50/10" + crEnt + "f 42/45/10 45/44/10 34/51/10 26/52/10"
 							+ crEnt + "f 44/40/9 43/33/9 29/53/9 39/54/9" + crEnt + "f 48/34/9 43/33/9 44/40/9 47/37/9"
 							+ crEnt + "f 41/46/10 42/45/10 40/55/10 30/56/10";
-					if (saveFile(blockModel, jsonModel)) {
+					if (Util.instance.saveFile(blockModel, jsonModel)) {
 						LogWriter.debug(
 								"Create Default Container Blocks Model for \"" + fileName.toLowerCase() + "\" block");
 					}
@@ -667,7 +669,7 @@ public class CommonProxy implements IGuiHandler {
 								+ name.toLowerCase() + "_back\"," + crEnt + crTab + crTab + "\"left\": \""
 								+ CustomNpcs.MODID + ":blocks/" + name.toLowerCase() + "_left\"" + crEnt + crTab + "}"
 								+ crEnt + "}";
-						if (saveFile(blockModel, jsonModel)) {
+						if (Util.instance.saveFile(blockModel, jsonModel)) {
 							LogWriter.debug(
 									"Create Default Facing Block Model for \"" + fileName.toLowerCase() + "\" block");
 						}
@@ -682,7 +684,7 @@ public class CommonProxy implements IGuiHandler {
 				jsonModel = "{" + crEnt + crTab + "\"_comment\": \"Custom Block Model created by default\"," + crEnt
 						+ crTab + "\"parent\": \"block/cube_all\"," + crEnt + crTab + "\"textures\": {" + crEnt + crTab
 						+ crTab + "\"all\": \"" + texture + "\"" + crEnt + crTab + "}" + crEnt + "}";
-				if (saveFile(blockModel, jsonModel)) {
+				if (Util.instance.saveFile(blockModel, jsonModel)) {
 					LogWriter.debug("Create Default Block Model for \"" + fileName.toLowerCase() + "\" block");
 				}
 			}
@@ -705,7 +707,7 @@ public class CommonProxy implements IGuiHandler {
 						+ "\"scale\": [ 0.375, 0.375, 0.375 ]" + crEnt + crTab + crTab + "}" + crEnt + crTab + "}"
 						+ crEnt + "}";
 			}
-			if (saveFile(itemModel, jsonStr)) {
+			if (Util.instance.saveFile(itemModel, jsonStr)) {
 				LogWriter.debug("Create Default Block Item Model for \"" + name + "\" block");
 			}
 		}
@@ -729,23 +731,23 @@ public class CommonProxy implements IGuiHandler {
 
 			File objModel = new File(armorModelsDir, name.toLowerCase() + ".obj");
 			if (!objModel.exists()) {
-				InputStream inputStreamOBJ = AdditionalMethods.instance.getModInputStream("armorobjexample.obj");
+				InputStream inputStreamOBJ = Util.instance.getModInputStream("armorobjexample.obj");
 				if (inputStreamOBJ != null) {
 					try {
 						ByteArrayOutputStream result = new ByteArrayOutputStream();
 						byte[] buffer = new byte[1024];
 						for (int length; (length = inputStreamOBJ.read(buffer)) != -1; ) { result.write(buffer, 0, length); }
-						saveFile(objModel, result.toString("UTF-8").replace("mtllib armorobjexample.mtl", "mtllib " + name.toLowerCase() + ".mtl"));
+						Util.instance.saveFile(objModel, result.toString("UTF-8").replace("mtllib armorobjexample.mtl", "mtllib " + name.toLowerCase() + ".mtl"));
 					}
 					catch (IOException e) { LogWriter.error("Error:", e); }
 				}
-				InputStream inputStreamMTL = AdditionalMethods.instance.getModInputStream("armorobjexample.mtl");
+				InputStream inputStreamMTL = Util.instance.getModInputStream("armorobjexample.mtl");
 				if (inputStreamMTL != null) {
 					try {
 						ByteArrayOutputStream result = new ByteArrayOutputStream();
 						byte[] buffer = new byte[1024];
 						for (int length; (length = inputStreamMTL.read(buffer)) != -1; ) { result.write(buffer, 0, length); }
-						saveFile(new File(armorModelsDir, name.toLowerCase() + ".mtl"), result.toString("UTF-8"));
+						Util.instance.saveFile(new File(armorModelsDir, name.toLowerCase() + ".mtl"), result.toString("UTF-8"));
 					}
 					catch (IOException e) { LogWriter.error("Error:", e); }
 				}
@@ -754,6 +756,8 @@ public class CommonProxy implements IGuiHandler {
 		if (!itemModel.exists()) {
 			if (customitem instanceof CustomShield || customitem instanceof CustomBow) {
 				boolean isBow = (customitem instanceof CustomBow);
+				InputStream inputStreamJM = Util.instance.getModInputStream((isBow ? "item_bow" : "item_shield") + ".dat");
+
 				jsonModel = "{" + crEnt + crTab + "\"_comment\": \"Custom " + (isBow ? "Bow" : "Shield")
 						+ " Item Model created by default\"," + crEnt + crTab + "\"parent\": \"item/generated\","
 						+ crEnt + crTab + "\"textures\": {" + crEnt + crTab + crTab + "\"layer0\": \""
@@ -807,9 +811,8 @@ public class CommonProxy implements IGuiHandler {
 						+ crEnt
 						: crEnt)
 						+ crTab + "]" + crEnt + "}";
-				if (saveFile(itemModel, jsonModel)) {
-					LogWriter.debug(
-							"Create Default " + (isBow ? "Bow" : "Shield") + " Item Model for \"" + name + "\" item");
+				if (Util.instance.saveFile(itemModel, jsonModel)) {
+					LogWriter.debug("Create Default " + (isBow ? "Bow" : "Shield") + " Item Model for \"" + name + "\" item");
 				}
 				if (customitem instanceof CustomShield) {
 					File blockingModel = new File(itemModelsDir, fileName.toLowerCase() + "_blocking.json");
@@ -837,7 +840,7 @@ public class CommonProxy implements IGuiHandler {
 								+ crTab + crTab + crTab + "\"translation\": [ 0, -1, 0 ]," + crEnt + crTab + crTab
 								+ crTab + "\"scale\": [ 0.95, 0.95, 0.95 ]" + crEnt + crTab + crTab + "}" + crEnt
 								+ crTab + "}" + crEnt + "}";
-						if (saveFile(blockingModel, jsonModel)) {
+						if (Util.instance.saveFile(blockingModel, jsonModel)) {
 							LogWriter.debug("Create Default Shield Blocking Item Model for \"" + name + "\" item");
 						}
 					}
@@ -850,9 +853,8 @@ public class CommonProxy implements IGuiHandler {
 									+ CustomNpcs.MODID + ":item/" + fileName + "\"," + crEnt + crTab + "\"textures\": {"
 									+ crEnt + crTab + crTab + "\"layer0\": \"" + CustomNpcs.MODID + ":items/weapons/"
 									+ name.toLowerCase() + "_pulling_" + i + "\"" + crEnt + crTab + "}" + crEnt + "}";
-							if (saveFile(pulling, jsonModel)) {
-								LogWriter.debug(
-										"Create Default Bow Pulling " + i + " Item Model for \"" + name + "\" item");
+							if (Util.instance.saveFile(pulling, jsonModel)) {
+								LogWriter.debug("Create Default Bow Pulling " + i + " Item Model for \"" + name + "\" item");
 							}
 						}
 					}
@@ -868,7 +870,7 @@ public class CommonProxy implements IGuiHandler {
 							+ "\"cast\": 1" + crEnt + crTab + crTab + crTab + "}," + crEnt + crTab + crTab + crTab
 							+ "\"model\": \"" + CustomNpcs.MODID + ":item/" + fileName + "_cast\"" + crEnt + crTab
 							+ crTab + "}" + crEnt + crTab + "]" + crEnt + "}";
-					if (saveFile(itemModel, jsonModel)) {
+					if (Util.instance.saveFile(itemModel, jsonModel)) {
 						LogWriter.debug("Create Default Fishing Rod Uncast Item Model for \"" + name + "\" item");
 					}
 				}
@@ -879,7 +881,7 @@ public class CommonProxy implements IGuiHandler {
 							+ "\"parent\": \"item/fishing_rod\"," + crEnt + crTab + "\"textures\": {" + crEnt + crTab
 							+ crTab + "\"layer0\": \"" + CustomNpcs.MODID + ":items/" + name + "_cast\"" + crEnt + crTab
 							+ "}" + crEnt + "}";
-					if (saveFile(cast, jsonModel)) {
+					if (Util.instance.saveFile(cast, jsonModel)) {
 						LogWriter.debug("Create Default Fishing Rod Cast Item Model for \"" + name + "\" item");
 					}
 				}
@@ -1215,7 +1217,7 @@ public class CommonProxy implements IGuiHandler {
 							"f 39/55/57 70/101/57 71/102/57 57/96/57" + crEnt +
 							"f 66/105/58 69/104/58 62/98/58" + crEnt +
 							"f 65/108/59 72/107/59 64/106/59";
-					saveFile(objModel, model);
+					Util.instance.saveFile(objModel, model);
 
 					String mat_lib = "newmtl top" + crEnt +
 							"Kd 1.000000 1.000000 1.000000" + crEnt +
@@ -1224,7 +1226,7 @@ public class CommonProxy implements IGuiHandler {
 							"newmtl wood" + crEnt +
 							"Kd 0.200000 0.050000 0.010000" + crEnt +
 							"d 1.000000";
-					saveFile(new File(blockModelsDir, name.toLowerCase() + ".mtl"), mat_lib);
+					Util.instance.saveFile(new File(blockModelsDir, name.toLowerCase() + ".mtl"), mat_lib);
 				}
 				File blockStatesDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/blockstates");
 				if (!blockStatesDir.exists() && !blockStatesDir.mkdirs()) { return; }
@@ -1269,12 +1271,12 @@ public class CommonProxy implements IGuiHandler {
 							"}" + crEnt + crTab + crTab + crTab +
 							"}" + crEnt + crTab + crTab +  "}]," + crEnt + crTab + crTab +
 							"\"normal\": [{}]" + crEnt + crTab + "}" + crEnt + "}";
-					saveFile(itemState, state);
+					Util.instance.saveFile(itemState, state);
 				}
 				jsonModel = "{" + crEnt + crTab + "\"_comment\": \"Custom Item Axe Model created by default\"," + crEnt + crTab +
 						"\"parent\": \"customnpcs:block/" + name.toLowerCase() + "\"" + crEnt + "}";
 
-				if (saveFile(itemModel, jsonModel)) { LogWriter.debug("Create Default Item Axe Model for \"" + name + "\" item"); }
+				if (Util.instance.saveFile(itemModel, jsonModel)) { LogWriter.debug("Create Default Item Axe Model for \"" + name + "\" item"); }
 				else { LogWriter.debug("Error Create Default Item Axe Model for \"" + name + "\" item"); }
 			}
 			if (jsonModel.isEmpty()) {
@@ -1301,7 +1303,7 @@ public class CommonProxy implements IGuiHandler {
 							+ "\"" + crEnt;
 				}
 				jsonModel += crTab + "}" + crEnt + "}";
-				if (saveFile(itemModel, jsonModel)) {
+				if (Util.instance.saveFile(itemModel, jsonModel)) {
 					LogWriter.debug("Create Default Item Model for \"" + name + "\" item");
 				} else {
 					LogWriter.debug("Error Create Default Item Model for \"" + name + "\" item");
@@ -1484,34 +1486,6 @@ public class CommonProxy implements IGuiHandler {
 	public void reloadItemTextures() {
 	}
 
-	public static String loadFile(File file) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8));
-		String line;
-		StringBuilder text = new StringBuilder();
-		while ((line = reader.readLine()) != null) {
-			text.append(line).append((char) 10);
-		}
-		reader.close();
-		return text.toString();
-	}
-
-	public static boolean saveFile(File file, String text) {
-		if (file == null || text == null || text.isEmpty()) {
-			return false;
-		}
-		if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
-			LogWriter.debug("Error create path File \"" + file + "\"");
-			return false;
-		}
-        try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8)) {
-            writer.write(text);
-        } catch (IOException e) {
-            LogWriter.debug("Error Save Default Item File \"" + file + "\"");
-            return false;
-        }
-		return true;
-	}
-
 	public void spawnParticle(EntityLivingBase player, String string, Object... ob) {
 	}
 
@@ -1678,5 +1652,16 @@ public class CommonProxy implements IGuiHandler {
 	public void clearKeys() { }
 
 	public boolean isLoadTexture(ResourceLocation resource) { return false; }
+
+	public String getAgreementKey() {
+		if (CommonProxy.agreementKey == null && CustomNpcs.Server != null) {
+			for (WorldServer world : CustomNpcs.Server.worlds) {
+				if (world.provider.getDimension() != 0) { continue; }
+				WorldInfo info = world.getWorldInfo();
+				CommonProxy.agreementKey = info.getWorldName() + "/" + info.areCommandsAllowed() + "/" + info.getSeed();
+			}
+		}
+		return CommonProxy.agreementKey;
+	 }
 
 }

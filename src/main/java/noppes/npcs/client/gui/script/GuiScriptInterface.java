@@ -32,7 +32,7 @@ import noppes.npcs.client.gui.util.ITextChangeListener;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.ObfuscationHelper;
 
 import javax.annotation.Nonnull;
@@ -71,7 +71,7 @@ implements IGuiData, ITextChangeListener {
 				this.initGui();
 				return;
 			}
-			this.handler.getScripts().add(new ScriptContainer(this.handler));
+			this.handler.getScripts().add(new ScriptContainer(this.handler, true));
 			this.activeTab = this.handler.getScripts().size();
 			this.initGui();
 		}
@@ -107,9 +107,9 @@ implements IGuiData, ITextChangeListener {
 		if (guibutton.id == 107) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 			if (container == null) {
-				this.handler.getScripts().add(container = new ScriptContainer(this.handler));
+				this.handler.getScripts().add(container = new ScriptContainer(this.handler, true));
 			}
-			this.setSubGui(new GuiScriptList(this.languages.get(AdditionalMethods.instance.deleteColor(this.handler.getLanguage())), container));
+			this.setSubGui(new GuiScriptList(this.languages.get(Util.instance.instance.deleteColor(this.handler.getLanguage())), container));
 		}
 		if (guibutton.id == 108) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
@@ -184,7 +184,7 @@ implements IGuiData, ITextChangeListener {
 				}
 				
 				if (this.getButton(107) != null) { // files
-					Map<String, Long> map = this.languages.get(AdditionalMethods.instance.deleteColor(this.handler.getLanguage()));
+					Map<String, Long> map = this.languages.get(Util.instance.deleteColor(this.handler.getLanguage()));
 					e = map != null && !map.isEmpty();
 					if (this.getButton(107).enabled && !e) { this.getButton(107).setEnabled(false); }
 					else if (!this.getButton(107).enabled && e) { this.getButton(107).setEnabled(true); }
@@ -288,8 +288,9 @@ implements IGuiData, ITextChangeListener {
 				scroll.setList(container.scripts);
 			}
 			this.addScroll(scroll);
-			this.addButton(
-					new GuiNpcButton(118, left, this.guiTop + 90 + yoffset + scroll.height, 80, 20, "gui.encrypt"));
+			if (!(this instanceof GuiScriptClient)) {
+				this.addButton(new GuiNpcButton(118, left, this.guiTop + 90 + yoffset + scroll.height, 80, 20, "gui.encrypt"));
+			}
 		} else {
 			GuiTextArea ta2 = new GuiTextArea(2, this.guiLeft + 4 + yoffset, this.guiTop + 6 + yoffset,
 					this.xSize - 160 - yoffset, (int) ((this.ySize * 0.92f) - yoffset * 2), this.getConsoleText());
@@ -341,7 +342,7 @@ implements IGuiData, ITextChangeListener {
 				}
 			}
 			languages.put(comp.getString("Language"), scripts);
-			if (AdditionalMethods.equalsDeleteColor(comp.getString("Language"), this.handler.getLanguage(), false)) {
+			if (Util.instance.equalsDeleteColor(comp.getString("Language"), this.handler.getLanguage(), false)) {
 				this.ext = comp.getString("FileSfx");
 			}
 		}
@@ -354,7 +355,7 @@ implements IGuiData, ITextChangeListener {
 		if (this.activeTab > 0) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 			if (container == null) {
-				this.handler.getScripts().add(container = new ScriptContainer(this.handler));
+				this.handler.getScripts().add(container = new ScriptContainer(this.handler, true));
 			}
 			String text = ((GuiTextArea) this.get(2)).getText();
 			text = text.replace("\r\n", "\n");

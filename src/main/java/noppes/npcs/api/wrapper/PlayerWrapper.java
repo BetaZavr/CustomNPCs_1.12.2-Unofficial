@@ -33,6 +33,7 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IContainer;
+import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IRayTrace;
 import noppes.npcs.api.ITimers;
@@ -54,6 +55,7 @@ import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomGui;
 import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.DialogController;
@@ -73,7 +75,8 @@ import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityDialogNpc;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
+import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ValueUtil;
 
@@ -494,7 +497,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public int inventoryItemCount(IItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
-		return AdditionalMethods.inventoryItemCount(this.entity, stack.getMCItemStack(), null, ignoreDamage, ignoreNBT);
+		return Util.instance.inventoryItemCount(this.entity, stack.getMCItemStack(), null, ignoreDamage, ignoreNBT);
 	}
 
 	@Deprecated
@@ -656,6 +659,17 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 			throw new CustomNPCsException("Wrong type value given " + type);
 		}
 		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.MESSAGE, title, msg, type);
+	}
+
+	@Override
+	public void sendTo(INbt nbt) {
+		CustomNPCsScheduler.runTack(() -> {
+			if (this.entity instanceof EntityPlayerMP) {
+				Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.SCRIPT_PACKAGE, nbt.getMCNBT());
+			} else {
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.ScriptPackage, nbt.getMCNBT());
+			}
+		}, 10);
 	}
 
 	@Override
@@ -821,7 +835,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public IEntity getLookingEntity() {
-		Entity target = AdditionalMethods.getLookEntity(this.entity, null);
+		Entity target = Util.instance.getLookEntity(this.entity, null);
 		return target == null ? null : NpcAPI.Instance().getIEntity(target);
 	}
 

@@ -20,6 +20,10 @@ import javax.annotation.Nonnull;
 
 public class CmdDebug extends CommandNoppesBase {
 
+	public int getRequiredPermissionLevel() {
+		return 4;
+	}
+
 	@SubCommand(desc = "Enable or disable debugging")
 	public void activate(MinecraftServer server, ICommandSender sender, String[] args) {
 		CustomNpcs.VerboseDebug = !CustomNpcs.VerboseDebug;

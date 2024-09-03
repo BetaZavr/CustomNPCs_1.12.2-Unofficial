@@ -27,7 +27,7 @@ import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldListener, ISubGuiListener {
 
@@ -45,7 +45,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 		this.ySize = 217;
 		this.closeOnEsc = true;
 
-		showNpc = AdditionalMethods.copyToGUI(quest.completer, mc.world, false);
+		showNpc = Util.instance.copyToGUI(quest.completer, mc.world, false);
 	}
 
 	@Override
@@ -388,8 +388,8 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			if (!(entity instanceof EntityNPCInterface)) {
 				return;
 			}
-			quest.completer = AdditionalMethods.copyToGUI((EntityNPCInterface) entity, mc.world, false);
-			showNpc = AdditionalMethods.copyToGUI((EntityNPCInterface) entity, mc.world, false);
+			quest.completer = Util.instance.copyToGUI((EntityNPCInterface) entity, mc.world, false);
+			showNpc = Util.instance.copyToGUI((EntityNPCInterface) entity, mc.world, false);
 			this.initGui();
 		}
 	}

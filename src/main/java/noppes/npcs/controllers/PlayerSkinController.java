@@ -18,7 +18,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class PlayerSkinController {
 
@@ -137,7 +137,7 @@ public class PlayerSkinController {
 				type = Type.SKIN;
 				break;
 			}
-			skins.put(type, new ResourceLocation(AdditionalMethods.instance.deleteColor(nbt.getString("Location"))));
+			skins.put(type, new ResourceLocation(Util.instance.deleteColor(nbt.getString("Location"))));
 		}
 		playerTextures.put(uuid, skins);
 		return uuid;
@@ -224,7 +224,7 @@ public class PlayerSkinController {
 			path.append("_").append(id);
 		}
 		path.append(".png");
-		data.put(Type.SKIN, new ResourceLocation(CustomNpcs.MODID, AdditionalMethods.instance.deleteColor(path.toString())));
+		data.put(Type.SKIN, new ResourceLocation(CustomNpcs.MODID, Util.instance.deleteColor(path.toString())));
 		playerTextures.put(uuid, data);
 		sendToAll(player);
 	}
@@ -244,7 +244,7 @@ public class PlayerSkinController {
 		if (location == null || location.isEmpty()) {
 			data.remove(t);
 		} else {
-			data.put(t, new ResourceLocation(AdditionalMethods.instance.deleteColor(location)));
+			data.put(t, new ResourceLocation(Util.instance.deleteColor(location)));
 		}
 		playerTextures.put(uuid, data);
 		sendToAll(player);

@@ -12,8 +12,6 @@ import javax.annotation.Nonnull;
 
 public class ContainerManageBanks extends Container {
 
-	public static String bank = null;
-
     public ContainerManageBanks(EntityPlayer player) {
         IInventory inv = new NpcMiscInventory(2);
 		this.addSlotToContainer(new Slot(inv, 0, -5000, -5000));

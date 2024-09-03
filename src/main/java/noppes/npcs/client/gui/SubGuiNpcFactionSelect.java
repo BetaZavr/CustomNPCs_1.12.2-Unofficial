@@ -21,7 +21,7 @@ import noppes.npcs.client.gui.util.GuiNpcCheckBox;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomScrollListener {
 
@@ -92,7 +92,7 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 		this.data.clear();
 		for (Entry<String, Integer> entry : newList) {
 			int id = entry.getValue();
-			String name = AdditionalMethods.instance.deleteColor(entry.getKey());
+			String name = Util.instance.deleteColor(entry.getKey());
 			if (name.contains("ID:" + id + " ")) {
 				name = name.substring(name.indexOf(" ") + 3);
 			}
@@ -115,7 +115,7 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 		this.scrollHostileFactions.setSelectedList(set);
 
 		this.addScroll(this.scrollHostileFactions);
-		this.addLabel(new GuiNpcLabel(0, AdditionalMethods.instance.deleteColor(this.name), this.guiLeft + 4, this.guiTop + 4));
+		this.addLabel(new GuiNpcLabel(0, Util.instance.deleteColor(this.name), this.guiLeft + 4, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(1, "faction.select", this.guiLeft + 4, this.guiTop + 16));
 
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 123, this.guiTop + 6, 45, 20, "gui.done"));

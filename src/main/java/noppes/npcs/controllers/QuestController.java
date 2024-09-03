@@ -23,7 +23,7 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class QuestController implements IQuestHandler {
@@ -174,7 +174,7 @@ public class QuestController implements IQuestHandler {
 		File dir = new File(this.getDir(), cat.title);
 		// if (!dir.delete()) { return; } Changed
 		// New
-		if (!AdditionalMethods.removeFile(dir)) {
+		if (!Util.instance.removeFile(dir)) {
 			LogWriter.error("Error delete " + dir + "; no access or file not uploaded!");
 			return;
 		}
@@ -266,7 +266,7 @@ public class QuestController implements IQuestHandler {
 		File file = new File(dir, quest.id + ".json_new");
 		File file2 = new File(dir, quest.id + ".json");
 		try {
-			NBTJsonUtil.SaveFile(file, quest.writeToNBTPartial(new NBTTagCompound()));
+			Util.instance.saveFile(file, quest.writeToNBTPartial(new NBTTagCompound()));
 			if (file2.exists()) {
 				file2.delete();
 			}

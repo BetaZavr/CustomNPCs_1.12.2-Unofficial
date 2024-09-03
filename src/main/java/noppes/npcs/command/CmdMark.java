@@ -15,6 +15,10 @@ import javax.annotation.Nonnull;
 
 public class CmdMark extends CommandNoppesBase {
 
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
+
 	@SubCommand(desc = "Clear mark", usage = "<@e>")
 	public void clear(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		List<Entity> list = getEntityList(server, sender, args[0]);

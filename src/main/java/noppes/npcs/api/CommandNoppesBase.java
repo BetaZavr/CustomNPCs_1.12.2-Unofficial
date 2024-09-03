@@ -10,7 +10,9 @@ import java.util.*;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.UserListOpsEntry;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.LogWriter;
 
@@ -26,7 +28,7 @@ public abstract class CommandNoppesBase extends CommandBase {
 
 		String name() default "";
 
-		int permission() default 4;
+		int permission() default 0;
 
 		String usage() default "";
 	}
@@ -39,16 +41,13 @@ public abstract class CommandNoppesBase extends CommandBase {
 			SubCommand sc = m.getAnnotation(SubCommand.class);
 			if (sc != null) {
 				String name = sc.name();
-				if (name.isEmpty()) {
-					name = m.getName();
-				}
+				if (name.isEmpty()) { name = m.getName(); }
 				this.subcommands.put(name.toLowerCase(), m);
 			}
 		}
 	}
 
-	public void canRun(MinecraftServer server, ICommandSender sender, String usage, String[] args)
-			throws CommandException {
+	public void canRun(MinecraftServer server, ICommandSender sender, String usage, String[] args) throws CommandException {
 		String[] np = usage.split(" ");
 		List<String> required = new ArrayList<>();
 		for (int i = 0; i < np.length; ++i) {
@@ -68,16 +67,14 @@ public abstract class CommandNoppesBase extends CommandBase {
 	public void execute(@Nullable MinecraftServer server, @Nullable ICommandSender sender, @Nullable String[] args) throws CommandException {
 	}
 
-	public void executeSub(MinecraftServer server, ICommandSender sender, String command, String[] args)
-			throws CommandException {
+	public void executeSub(MinecraftServer server, ICommandSender sender, String command, String[] args) throws CommandException {
 		Method m = this.subcommands.get(command.toLowerCase());
 		if (m == null) {
 			throw new CommandException("Unknown subcommand " + command);
 		}
 		SubCommand sc = m.getAnnotation(SubCommand.class);
-		if (!sender.canUseCommand(sc.permission(),
-				"commands.noppes." + Objects.requireNonNull(this.getName()).toLowerCase() + "." + command.toLowerCase())) {
-			throw new CommandException("You are not allowed to use this command");
+		if (sc.permission() > this.getPermissionLevel(server, sender)) {
+			throw new CommandException("You are not allowed to use \""+Objects.requireNonNull(this.getName()).toLowerCase() + "." + command.toLowerCase()+"\" command");
 		}
 		this.canRun(server, sender, sc.usage(), args);
 		try {
@@ -95,7 +92,7 @@ public abstract class CommandNoppesBase extends CommandBase {
 	public abstract @Nonnull String getName();
 
 	public int getRequiredPermissionLevel() {
-		return 2;
+		return 0;
 	}
 
 	public String getUsage() {
@@ -113,4 +110,28 @@ public abstract class CommandNoppesBase extends CommandBase {
 	protected void sendMessage(ICommandSender sender, String message, Object... obs) {
 		sender.sendMessage(new TextComponentTranslation(message, obs));
 	}
+
+	@Override
+	public boolean checkPermission(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender) {
+		int thisPer = this.getRequiredPermissionLevel();
+		if (sender instanceof EntityPlayerMP) {
+			return thisPer <= this.getPermissionLevel(server, sender);
+		}
+		return sender.canUseCommand(thisPer, this.getName());
+	}
+
+	protected int getPermissionLevel(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender) {
+		int per = 4;
+		if (sender instanceof EntityPlayerMP) {
+			per = 0;
+			if (((EntityPlayerMP) sender).isCreative()) { per = server.isSinglePlayer() ? 4 : 2; }
+			else {
+				UserListOpsEntry util = server.getPlayerList().getOppedPlayers().getEntry(((EntityPlayerMP) sender).getGameProfile());
+				if (util != null) { per = util.getPermissionLevel(); }
+			}
+		}
+		return per;
+	}
+
+
 }

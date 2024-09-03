@@ -13,6 +13,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.management.UserListOps;
+import net.minecraft.server.management.UserListOpsEntry;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -22,12 +24,7 @@ import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerNPCBank;
-import noppes.npcs.controllers.BankController;
-import noppes.npcs.controllers.BorderController;
-import noppes.npcs.controllers.MarcetController;
-import noppes.npcs.controllers.MassBlockController;
-import noppes.npcs.controllers.SchematicController;
-import noppes.npcs.controllers.SyncController;
+import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerGameData.FollowerSet;
@@ -37,7 +34,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.roles.RoleFollower;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.NBTJsonUtil;
 
@@ -74,12 +71,17 @@ public class ServerTickHandler {
 		if (player.world.getTotalWorldTime() % 20L == resTime % 20L) {
 			data.hud.updateHud(player);
 			data.minimap.update(player);
+			boolean isOP = false;
 			if (player.getServer() != null) {
-				boolean opn = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
-				if (data.game.op != opn) {
-					data.game.op = opn;
-					data.game.updateClient = true;
+				if (player.getServer().isSinglePlayer()) { isOP = true; }
+				else {
+					UserListOpsEntry util = player.getServer().getPlayerList().getOppedPlayers().getEntry(player.getGameProfile());
+					if (util != null) { isOP = util.getPermissionLevel() >= 4;}
 				}
+			}
+			if (data.game.op != isOP) {
+				data.game.op = isOP;
+				data.game.updateClient = true;
 			}
 			if (player.openContainer instanceof ContainerNPCBank) {
 				ContainerNPCBank c = (ContainerNPCBank) player.openContainer;
@@ -103,7 +105,7 @@ public class ServerTickHandler {
 					if (work) {
 						cs = c.bank.ceilSettings.get(c.ceil);
 						if (!cs.openStack.isEmpty()) {
-							int count = AdditionalMethods.inventoryItemCount(player, cs.openStack,
+							int count = Util.instance.inventoryItemCount(player, cs.openStack,
                                     null, false, false);
 							if (count < cs.openStack.getCount()) {
 								ceil = -1;
@@ -117,7 +119,7 @@ public class ServerTickHandler {
 					work = c.items.getSizeInventory() > 0 && c.items.getSizeInventory() < cs.maxCeils;
 					if (work) {
 						if (!cs.upgradeStack.isEmpty()) {
-							int count = AdditionalMethods.inventoryItemCount(player, cs.upgradeStack,
+							int count = Util.instance.inventoryItemCount(player, cs.upgradeStack,
                                     null, false, false);
 							if (count < cs.upgradeStack.getCount()) {
 								ceil = -1;
@@ -137,7 +139,7 @@ public class ServerTickHandler {
 					npc = fs.npc;
 				}
 				if (npc == null) {
-					Entity e = AdditionalMethods.getEntityByUUID(fs.id, player.world);
+					Entity e = Util.instance.getEntityByUUID(fs.id, player.world);
 					if (e instanceof EntityNPCInterface) {
 						npc = (EntityNPCInterface) e;
 					}
@@ -155,7 +157,7 @@ public class ServerTickHandler {
 				if (npc != null && npc.advanced.roleInterface instanceof RoleFollower) {
 					if (player.world.provider.getDimension() != npc.world.provider.getDimension()) {
 						try {
-							Entity entity = AdditionalMethods.teleportEntity(player.world.getMinecraftServer(), npc, player.world.provider.getDimension(), player.posX, player.posY, player.posZ);
+							Entity entity = Util.instance.teleportEntity(player.world.getMinecraftServer(), npc, player.world.provider.getDimension(), player.posX, player.posY, player.posZ);
 							if (entity instanceof EntityNPCInterface) {
 								fs.dimId = entity.world.provider.getDimension();
 								fs.id = entity.getUniqueID();
@@ -242,25 +244,6 @@ public class ServerTickHandler {
 		}
 		CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 		BorderController.getInstance().update();
-		try {
-			Class<?> c = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99,
-					115, 46, 99, 111, 110, 116, 114, 111, 108, 108, 101, 114, 115, 46, 83, 99, 114, 105, 112, 116, 67,
-					111, 110, 116, 114, 111, 108, 108, 101, 114 }));
-			Object o = c.getDeclaredField(String.copyValueOf(new char[] { 73, 110, 115, 116, 97, 110, 99, 101 })).get(c);
-			Field f0 = c.getDeclaredField(String.copyValueOf(new char[] { 105, 115, 76, 111, 97, 100 }));
-			f0.setAccessible(true);
-			if (f0.getBoolean(o)) {
-				f0.setBoolean(o, false);
-				NBTJsonUtil.checkAddedMods(o);
-			}
-			f0.setAccessible(false);
-			Field f1 = c.getDeclaredField(String.copyValueOf(new char[] { 101, 110, 99, 114, 121, 112, 116, 68, 97, 116, 97 }));
-			if (f1.get(o) != null) {
-				NBTJsonUtil.resetAddedMods(o, f1);
-			}
-		} catch (Exception e) {
-			LogWriter.error("Error NBTreset :", e);
-		}
 		if (event.phase == TickEvent.Phase.END) {
 			CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			return;

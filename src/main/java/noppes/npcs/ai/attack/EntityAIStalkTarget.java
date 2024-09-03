@@ -3,7 +3,7 @@ package noppes.npcs.ai.attack;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class EntityAIStalkTarget extends EntityAICustom {
 
@@ -42,7 +42,7 @@ public class EntityAIStalkTarget extends EntityAICustom {
 			return;
 		}
 		if (this.isRanged) {
-			this.canSeeToAttack = AdditionalMethods.npcCanSeeTarget(this.npc, this.target, true, true);
+			this.canSeeToAttack = Util.instance.npcCanSeeTarget(this.npc, this.target, true, true);
 		} else {
 			this.canSeeToAttack = this.npc.canSee(this.target);
 		}
@@ -59,7 +59,7 @@ public class EntityAIStalkTarget extends EntityAICustom {
 		}
 		this.tryToCauseDamage();
 		if (!this.discovered && this.hasAttack
-				|| AdditionalMethods.npcCanSeeTarget(this.target, this.npc, true, true)) {
+				|| Util.instance.npcCanSeeTarget(this.target, this.npc, true, true)) {
 			this.setDiscovered(true);
 		}
 		if (!this.target.equals(this.oldTarget)) {

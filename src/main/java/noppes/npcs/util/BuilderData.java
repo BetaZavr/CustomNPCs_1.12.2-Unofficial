@@ -930,7 +930,7 @@ public class BuilderData {
 		}
 		size = (int) (0.875d * (double) size + 250.0d);
 		if (this.lastWork + size > System.currentTimeMillis()) {
-			this.sendMessage("builder.wait", AdditionalMethods.ticksToElapsedTime(this.lastWork + size - System.currentTimeMillis(), true, true, false));
+			this.sendMessage("builder.wait", Util.instance.ticksToElapsedTime(this.lastWork + size - System.currentTimeMillis(), true, true, false));
 			return;
 		}
 		this.lastWork = System.currentTimeMillis();

@@ -10,9 +10,8 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.LogWriter;
 import noppes.npcs.client.CustomNpcResourceListener;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiNpcLabel
 implements IComponentGui {
@@ -47,8 +46,7 @@ implements IComponentGui {
 
 	public void drawLabel(GuiScreen gui, FontRenderer fontRenderer, int mouseX, int mouseY) {
 		if (this.enabled && this.label != null && !this.label.isEmpty()) {
-			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-					&& mouseY < this.y + this.height;
+			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			if (this.hovered && this.hoverText != null) {
 				GlStateManager.color(0.5f, 0.5f, 0.5f, 0.5f);
@@ -103,8 +101,7 @@ implements IComponentGui {
 						: new TextComponentTranslation(labels.toString()).getFormattedText();
 				this.label = Lists.newArrayList(str);
 				this.height = 10;
-				this.width = Minecraft.getMinecraft().fontRenderer
-						.getStringWidth(AdditionalMethods.instance.deleteColor(str));
+				this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
 				return;
 			}
 			this.label = Lists.newArrayList();
@@ -114,7 +111,7 @@ implements IComponentGui {
 				String str = new TextComponentTranslation(obj.toString()).getFormattedText();
 				this.label.add(str);
 				int w = Minecraft.getMinecraft().fontRenderer
-						.getStringWidth(AdditionalMethods.instance.deleteColor(str));
+						.getStringWidth(Util.instance.deleteColor(str));
 				if (this.width < w) {
 					this.width = w;
 				}
@@ -124,8 +121,7 @@ implements IComponentGui {
 			try { str = new TextComponentTranslation(labels.toString()).getFormattedText(); } catch (Exception e) { }
 			this.label = Lists.newArrayList(str);
 			this.height = 10;
-			this.width = Minecraft.getMinecraft().fontRenderer
-					.getStringWidth(AdditionalMethods.instance.deleteColor(str));
+			this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
 		}
 	}
 

@@ -41,7 +41,7 @@ import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.entity.data.DropSet;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiNPCInv
 extends GuiContainerNPCInterface2
@@ -91,7 +91,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 				break;
 			}
 			case 4: { // new template
-				this.setSubGui(new SubGuiEditText(1, AdditionalMethods.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				this.setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
 			}
 			case 5: { // copy template

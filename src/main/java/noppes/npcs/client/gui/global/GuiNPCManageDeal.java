@@ -19,7 +19,7 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCTraderSetup;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements ITextfieldListener {
 
@@ -139,7 +139,7 @@ public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements IText
 	public void initGui() {
 		super.initGui();
 
-		String text = AdditionalMethods.instance
+		String text = Util.instance
 				.deleteColor(new TextComponentTranslation("market.product").getFormattedText());
 		int x = this.guiLeft + this.inventorySlots.getSlot(0).xPos + (18 - this.fontRenderer.getStringWidth(text)) / 2;
 		int y = this.guiTop + this.inventorySlots.getSlot(0).yPos - 10;

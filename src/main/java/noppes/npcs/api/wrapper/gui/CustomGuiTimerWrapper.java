@@ -4,7 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.IGuiTimer;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class CustomGuiTimerWrapper extends CustomGuiComponentWrapper implements IGuiTimer {
 
@@ -68,7 +68,7 @@ public class CustomGuiTimerWrapper extends CustomGuiComponentWrapper implements 
 	public String getText() {
 		long time = this.reverse ? this.now - System.currentTimeMillis() : (System.currentTimeMillis() - this.now);
 		time /= 50L;
-		return AdditionalMethods.ticksToElapsedTime(time, false, false, false);
+		return Util.instance.ticksToElapsedTime(time, false, false, false);
 	}
 
 	@Override

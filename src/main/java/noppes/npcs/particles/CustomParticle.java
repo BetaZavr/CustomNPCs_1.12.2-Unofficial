@@ -11,6 +11,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
@@ -19,6 +20,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.event.CustomParticleEvent;
 import noppes.npcs.api.handler.data.ICustomParticle;
 import noppes.npcs.client.ClientGuiEventHandler;
+import noppes.npcs.controllers.ScriptController;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -89,7 +91,9 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 				this.motionZ = list.getDoubleAt(2);
 			}
 		}
-		CustomParticleEvent.CreateEvent event = new CustomParticleEvent.CreateEvent(this, Minecraft.getMinecraft().player);
+		CustomParticleEvent.CreateEvent event = new CustomParticleEvent.CreateEvent(this,
+				Minecraft.getMinecraft().player);
+		EventHooks.onEvent(ScriptController.Instance.clientScripts, "customParticleCreateEvent", event);
 	}
 
 	@Override
@@ -188,8 +192,10 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 		if (this.particleAge++ >= this.particleMaxAge) {
 			this.setExpired();
 		}
-		CustomParticleEvent.UpdateEvent event = new CustomParticleEvent.UpdateEvent(this, Minecraft.getMinecraft().player);
+		CustomParticleEvent.UpdateEvent event = new CustomParticleEvent.UpdateEvent(this,
+				Minecraft.getMinecraft().player);
 		event.setCanceled(true);
+		EventHooks.onEvent(ScriptController.Instance.clientScripts, "customParticleUpdateEvent", event);
 
 		this.prevPosX = this.posX;
 		this.prevPosY = this.posY;
@@ -234,7 +240,9 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 	}
 
 	public void renderParticle(@Nonnull BufferBuilder buffer, @Nonnull Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
-		CustomParticleEvent.RenderEvent event = new CustomParticleEvent.RenderEvent(this, Minecraft.getMinecraft().player);
+		CustomParticleEvent.RenderEvent event = new CustomParticleEvent.RenderEvent(this,
+				Minecraft.getMinecraft().player);
+		EventHooks.onEvent(ScriptController.Instance.clientScripts, "customParticleRenderEvent", event);
 		if (event.isCanceled()) {
 			return;
 		}

@@ -34,7 +34,7 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.IPermission;
 import noppes.npcs.util.ObfuscationHelper;
 
@@ -290,7 +290,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 			return;
 		}
 		items.add(new ItemStack(this));
-		if (tab == CustomRegisters.tabBlocks) { AdditionalMethods.instance.sort(items); }
+		if (tab == CustomRegisters.tabBlocks) { Util.instance.sort(items); }
 	}
 
 	public boolean hasProperty() {

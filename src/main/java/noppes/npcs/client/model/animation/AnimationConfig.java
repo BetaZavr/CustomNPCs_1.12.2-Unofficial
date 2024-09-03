@@ -24,7 +24,7 @@ import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.IAnimationFrame;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.entity.EntityCustomNpc;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.RayTraceRotate;
 import noppes.npcs.util.RayTraceVec;
 import noppes.npcs.util.ValueUtil;
@@ -390,11 +390,11 @@ public class AnimationConfig implements IAnimation {
 				this.damageHitbox.maxX * this.scaleHitbox[0], this.damageHitbox.maxY * this.scaleHitbox[1], this.damageHitbox.maxZ * this.scaleHitbox[2]);
 		double yaw = 0.0d, pitch = 0.0d;
 		if (this.offsetHitbox[0] != 0.0f || this.offsetHitbox[1] != 0.0f || this.offsetHitbox[2] != 0.0f) {
-			RayTraceRotate base = AdditionalMethods.instance.getAngles3D(0.0d, 0.0d, 0.0d, this.offsetHitbox[2], this.offsetHitbox[1], this.offsetHitbox[0]);
+			RayTraceRotate base = Util.instance.getAngles3D(0.0d, 0.0d, 0.0d, this.offsetHitbox[2], this.offsetHitbox[1], this.offsetHitbox[0]);
 			yaw = base.yaw;
 			pitch = base.pitch;
 		}
-		RayTraceVec data = AdditionalMethods.instance.getPosition(0.0d, 0.0d, 0.0d, npc.rotationYaw + yaw, pitch, Math.abs(Math.sqrt(Math.pow(this.offsetHitbox[0], 2.0d) + Math.pow(this.offsetHitbox[2], 2.0d))));
+		RayTraceVec data = Util.instance.getPosition(0.0d, 0.0d, 0.0d, npc.rotationYaw + yaw, pitch, Math.abs(Math.sqrt(Math.pow(this.offsetHitbox[0], 2.0d) + Math.pow(this.offsetHitbox[2], 2.0d))));
 		aabb = aabb.offset((float) data.x, (float) data.y + this.offsetHitbox[1], (float) data.z);
 		return aabb;
 	}

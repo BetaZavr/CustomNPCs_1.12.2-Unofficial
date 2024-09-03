@@ -23,6 +23,11 @@ import noppes.npcs.entity.EntityNPCInterface;
 import javax.annotation.Nonnull;
 
 public class CmdClone extends CommandNoppesBase {
+
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
+
 	@SubCommand(desc = "Add NPC(s) to clone storage", usage = "<npc> <tab> [clonedname]")
 	public void add(MinecraftServer server, ICommandSender sender, String[] args) {
 		int tab = 0;

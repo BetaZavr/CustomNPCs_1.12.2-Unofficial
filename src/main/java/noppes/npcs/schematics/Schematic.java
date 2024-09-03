@@ -35,6 +35,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.util.NBTJsonUtil;
+import noppes.npcs.util.Util;
 
 public class Schematic implements ISchematic {
 
@@ -461,7 +462,7 @@ public class Schematic implements ISchematic {
 
 			if (CustomNpcs.VerboseDebug) {
 				file = new File(SchematicController.getDir(), this.name.replace(".schematic", "") + ".json");
-				NBTJsonUtil.SaveFile(file, this.getNBT());
+				Util.instance.saveFile(file, this.getNBT());
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}

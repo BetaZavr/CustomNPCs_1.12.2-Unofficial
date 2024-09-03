@@ -44,7 +44,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleDialog;
 import noppes.npcs.roles.RoleFollower;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class NoppesUtilPlayer {
 
@@ -120,7 +120,7 @@ public class NoppesUtilPlayer {
 		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
 		BankData bd = ((ContainerNPCBank) player.openContainer).data;
 		if (player.capabilities.isCreativeMode
-				|| AdditionalMethods.removeItem(player, bd.bank.ceilSettings.get(ceilId).openStack, false, false)) {
+				|| Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).openStack, false, false)) {
 			bd.ceils.put(ceilId, new NpcMiscInventory(bd.bank.ceilSettings.get(ceilId).startCeils));
 			bd.save();
 			RoleEvent.BankUnlockedEvent event = new RoleEvent.BankUnlockedEvent(player, npc.wrappedNPC, ceilId);
@@ -139,7 +139,7 @@ public class NoppesUtilPlayer {
 			return;
 		}
 		if (player.capabilities.isCreativeMode
-				|| AdditionalMethods.removeItem(player, bd.bank.ceilSettings.get(ceilId).upgradeStack, false, false)) {
+				|| Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).upgradeStack, false, false)) {
             bd.ceils.computeIfPresent(ceilId, (k, inv) -> new NpcMiscInventory(inv.getSizeInventory() + 1).fill(inv));
 			bd.save();
 			RoleEvent.BankUpgradedEvent event = new RoleEvent.BankUpgradedEvent(player, npc.wrappedNPC, ceilId);
@@ -310,10 +310,10 @@ public class NoppesUtilPlayer {
 			if (!player.capabilities.isCreativeMode) {
 				Map<ItemStack, Integer> map = Maps.newHashMap();
 				map.put(currency, currency.getCount());
-				if (!AdditionalMethods.canRemoveItems(role.rentalItems.items, map, false, false)) {
+				if (!Util.instance.canRemoveItems(role.rentalItems.items, map, false, false)) {
 					return;
 				}
-				AdditionalMethods.removeItem(player, currency, false, false);
+				Util.instance.removeItem(player, currency, false, false);
 			}
 		}
 

@@ -26,7 +26,7 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.controllers.BorderController;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.RayTraceRotate;
 import noppes.npcs.util.RayTraceVec;
 
@@ -285,7 +285,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	@Override
 	public double distanceTo(double x, double z) {
 		IPos pos = this.getCenter();
-		return AdditionalMethods.instance.distanceTo(pos.getX() + 0.5d, 0.0d, pos.getZ() + 0.5d, x, 0.0d, z);
+		return Util.instance.distanceTo(pos.getX() + 0.5d, 0.0d, pos.getZ() + 0.5d, x, 0.0d, z);
 	}
 
 	public double distanceTo(Entity entity) {
@@ -293,7 +293,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			return -1;
 		}
 		IPos c = this.getCenter();
-		return AdditionalMethods.instance.distanceTo(entity.posX, entity.posY, entity.posZ, c.getX() + 0.5d,
+		return Util.instance.distanceTo(entity.posX, entity.posY, entity.posZ, c.getX() + 0.5d,
 				c.getY() + 0.5d, c.getZ() + 0.5d);
 	}
 
@@ -484,7 +484,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		double min = Double.MAX_VALUE;
 		int id = -1;
 		for (int i : this.points.keySet()) {
-			double dist = AdditionalMethods.instance.distanceTo(this.points.get(i).x, 0, this.points.get(i).y,
+			double dist = Util.instance.distanceTo(this.points.get(i).x, 0, this.points.get(i).y,
 					pos.getX(), 0, pos.getZ());
 			if (dist <= min) {
 				min = dist;
@@ -589,7 +589,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		double y = ((double) this.y[1] - (double) this.y[0]) / 2.0d;
 
-		RayTraceRotate d = AdditionalMethods.instance.getAngles3D(entity.posX, entity.posY, entity.posZ, x, y, z);
+		RayTraceRotate d = Util.instance.getAngles3D(entity.posX, entity.posY, entity.posZ, x, y, z);
 		double[] p = new double[] { (x - entity.posX), (y - entity.posY), (z - entity.posZ) };
 		for (int i = 0; i < 4; i++) {
 			double radiusXZ = d.radiusXZ + ((double) (i + 1) * (this.keepOut ? 0.5d : -0.5d));
@@ -867,8 +867,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		for (int key : this.points.keySet()) {
 			Point v = this.points.get(key);
-			RayTraceRotate d = AdditionalMethods.instance.getAngles3D(pos.getX(), 0, pos.getZ(), v.x, 0, v.y);
-			RayTraceVec p = AdditionalMethods.instance.getPosition(pos.getX(), 0, pos.getZ(), d.yaw, d.pitch,
+			RayTraceRotate d = Util.instance.getAngles3D(pos.getX(), 0, pos.getZ(), v.x, 0, v.y);
+			RayTraceVec p = Util.instance.getPosition(pos.getX(), 0, pos.getZ(), d.yaw, d.pitch,
 					radius + d.radiusXZ);
 			this.points.put(key, new Point((int) p.x, (int) p.z));
 		}
@@ -894,9 +894,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		for (int key : this.points.keySet()) {
 			Point v = this.points.get(key);
-			RayTraceRotate d = AdditionalMethods.instance.getAngles3D(pos.getX(), pos.getY(), pos.getZ(), v.x,
+			RayTraceRotate d = Util.instance.getAngles3D(pos.getX(), pos.getY(), pos.getZ(), v.x,
 					pos.getY(), v.y);
-			RayTraceVec p = AdditionalMethods.instance.getPosition(pos.getX(), pos.getY(), pos.getZ(), d.yaw, d.pitch,
+			RayTraceVec p = Util.instance.getPosition(pos.getX(), pos.getY(), pos.getZ(), d.yaw, d.pitch,
 					(double) scale * d.radiusXZ);
 			this.points.put(key, new Point((int) p.x, (int) p.z));
 			if (this.y[0] > (int) p.y) {

@@ -22,7 +22,7 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.FactionOption;
 import noppes.npcs.controllers.data.FactionOptions;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollData, ICustomScrollListener, ITextfieldListener {
 
@@ -129,7 +129,7 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
 		this.data.clear();
-		String name = AdditionalMethods.instance.deleteColor(this.scroll.getSelected());
+		String name = Util.instance.deleteColor(this.scroll.getSelected());
 		if (name != null && name.contains("ID:") && name.indexOf(" - ") >= name.indexOf("ID:")) {
 			name = name.substring(name.indexOf(" - ") + 3);
 		}
@@ -138,7 +138,7 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 		Map<String, Integer> newData = Maps.newHashMap();
 		for (String key : data.keySet()) {
 			int id = data.get(key);
-			String newName = AdditionalMethods.instance.deleteColor(key);
+			String newName = Util.instance.deleteColor(key);
 			if (newName.contains("ID:" + id + " - ")) {
 				newName = newName.substring(newName.indexOf(" - ") + 3);
 			}

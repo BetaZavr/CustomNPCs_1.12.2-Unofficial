@@ -49,7 +49,7 @@ import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.controllers.data.PlayerMail;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 @SideOnly(Side.CLIENT)
 public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYesNoCallback {
@@ -698,7 +698,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 			this.getLabel(5)
 					.setLabel(new TextComponentTranslation("mailbox.cost.send",
 							"" + (this.totalCost == 0L ? 0
-									: AdditionalMethods.getTextReducedNumber(this.totalCost, true, false, false)),
+									: Util.instance.getTextReducedNumber(this.totalCost, true, false, false)),
 							CustomNpcs.displayCurrencies).getFormattedText());
 		}
 		if (this.canEdit && this.canSend && this.getButton(0) != null) {
@@ -1338,7 +1338,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		// Player Money
 		if (this.mc != null && this.canSend) {
-			String text = AdditionalMethods.getTextReducedNumber(ClientProxy.playerData.game.getMoney(), true, true,
+			String text = Util.instance.getTextReducedNumber(ClientProxy.playerData.game.getMoney(), true, true,
 					false) + CustomNpcs.displayCurrencies;
 			int x = this.guiLeft + 166, y = this.guiTop + 150;
 			GlStateManager.pushMatrix();
@@ -1363,7 +1363,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 			} // done
 			else {
 				if (this.type == 0) {
-					ITextComponent mes = new TextComponentTranslation("mailbox.hover.send.0", AdditionalMethods.ticksToElapsedTime(CustomNpcs.MailTimeWhenLettersWillBeReceived[1] * 20L, false, true, true), "" + this.totalCost, CustomNpcs.displayCurrencies);
+					ITextComponent mes = new TextComponentTranslation("mailbox.hover.send.0", Util.instance.ticksToElapsedTime(CustomNpcs.MailTimeWhenLettersWillBeReceived[1] * 20L, false, true, true), "" + this.totalCost, CustomNpcs.displayCurrencies);
 					for (int i : this.cost.keySet()) {
 						if (this.cost.get(i) > 0L) {
 							String p0 = "" + this.cost.get(i);
@@ -1493,7 +1493,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 						x, y + 18, CustomNpcs.LableColor.getRGB()));
 				this.addLabel(
 						new GuiNpcLabel(8,
-								AdditionalMethods.getTextReducedNumber(GuiMailmanWrite.mail.ransom, true, false, false)
+								Util.instance.getTextReducedNumber(GuiMailmanWrite.mail.ransom, true, false, false)
 										+ " " + CustomNpcs.displayCurrencies,
 								x + 2, y + 28, CustomNpcs.LableColor.getRGB()));
 			}
@@ -1501,7 +1501,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				this.addLabel(new GuiNpcLabel(7, "market.currency", x, y + 18, CustomNpcs.LableColor.getRGB()));
 				this.addLabel(
 						new GuiNpcLabel(8,
-								AdditionalMethods.getTextReducedNumber(GuiMailmanWrite.mail.money, true, false, false)
+								Util.instance.getTextReducedNumber(GuiMailmanWrite.mail.money, true, false, false)
 										+ " " + CustomNpcs.displayCurrencies,
 								x + 2, y + 28, CustomNpcs.LableColor.getRGB()));
 			}

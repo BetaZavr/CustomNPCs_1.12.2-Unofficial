@@ -27,7 +27,7 @@ import noppes.npcs.schematics.BlueprintUtil;
 import noppes.npcs.schematics.ISchematic;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class SchematicController {
 
@@ -40,7 +40,7 @@ public class SchematicController {
 			return;
 		}
 		long ticks = 3000L + schema.blockIdsArray.length * SchematicController.time + (long) Math.floor((double) schema.blockIdsArray.length / CustomNpcs.MaxBuilderBlocks) * 1000L;
-		player.sendMessage(new TextComponentTranslation("schematic.info.started", schema.name, "" + pos.getX(), "" + pos.getY(), "" + pos.getZ(), AdditionalMethods.ticksToElapsedTime(ticks, true, true, false)));
+		player.sendMessage(new TextComponentTranslation("schematic.info.started", schema.name, "" + pos.getX(), "" + pos.getY(), "" + pos.getZ(), Util.instance.ticksToElapsedTime(ticks, true, true, false)));
 		SchematicWrapper sw = new SchematicWrapper(schema);
 		sw.init(pos.east().south(), player.world, rotation * 90);
 		SchematicController.Instance.build(sw, player);

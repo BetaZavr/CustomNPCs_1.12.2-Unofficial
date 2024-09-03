@@ -30,7 +30,7 @@ import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAnimation;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class GuiNpcAnimation
@@ -82,7 +82,7 @@ public class GuiNpcAnimation
 		}
 		selType = "";
 		selAnim = "";
-		npcAnim = AdditionalMethods.copyToGUI(npc, mc.world, false);
+		npcAnim = Util.instance.copyToGUI(npc, mc.world, false);
 		npcAnim.display.setName(this.npc.getName()+"_animation");
 
 		Client.sendData(EnumPacketServer.AnimationGet);
@@ -97,7 +97,7 @@ public class GuiNpcAnimation
 					return;
 				}
 				this.setSubGui(new SubGuiEditText(1,
-						AdditionalMethods.instance
+						Util.instance
 								.deleteColor(new TextComponentTranslation(this.scrollType.getSelected()).getFormattedText()
 										+ "_" + aData.getUnusedAnimId())));
 				break;
@@ -114,9 +114,6 @@ public class GuiNpcAnimation
 				break;
 			}
 			case 2: { // edit
-				if (anim == null) {
-					return;
-				}
 				this.setSubGui(new SubGuiEditAnimation(this.npc, anim, 4, this));
 				break;
 			}

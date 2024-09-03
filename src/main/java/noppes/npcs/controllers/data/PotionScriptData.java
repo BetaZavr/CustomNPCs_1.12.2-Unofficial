@@ -10,7 +10,7 @@ import noppes.npcs.NBTTags;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class PotionScriptData
 extends BaseScriptData {
@@ -22,11 +22,11 @@ extends BaseScriptData {
 	
 	public void readFromNBT(NBTTagCompound compound) {
 		this.scripts.clear();
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
-		this.scriptLanguage = AdditionalMethods.instance.deleteColor(compound.getString("ScriptLanguage"));
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
+		this.scriptLanguage = Util.instance.deleteColor(compound.getString("ScriptLanguage"));
 		this.enabled = compound.getBoolean("ScriptEnabled");
 		if (this.scripts.isEmpty() || this.scripts.get(0).script.isEmpty()) {
-			ScriptContainer script = new ScriptContainer(this);
+			ScriptContainer script = new ScriptContainer(this, false);
 			char chr = Character.toChars(0x000A)[0];
 			script.script = "// IPotion.getCustomName() - String (custom potion name)" + chr
 					+ "// IPotion.getNbt() - INbt (nbt data)" + chr + "function isReady(event) {" + chr
@@ -51,6 +51,7 @@ extends BaseScriptData {
 
 	@Override
 	public void runScript(String type, Event event) {
+		super.runScript(type, event);
 		if (!this.isEnabled()) {
 			return;
 		}

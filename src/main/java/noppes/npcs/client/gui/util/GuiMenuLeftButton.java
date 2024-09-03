@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nonnull;
 
@@ -17,8 +18,8 @@ public class GuiMenuLeftButton extends GuiNpcButton {
 	public IButtonListener listener;
 	public boolean rotated;
 
-	public GuiMenuLeftButton(int i, int j, int k, String s) {
-		super(i, j, k, new TextComponentTranslation(s).getFormattedText());
+	public GuiMenuLeftButton(int id, int x, int y, String lable) {
+		super(id, x, y, lable);
 		this.rotated = false;
 		this.active = false;
 		this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(this.displayString) + 12;
@@ -37,8 +38,7 @@ public class GuiMenuLeftButton extends GuiNpcButton {
 		this.hovered = (i >= this.x && j >= this.y && i < this.x + this.width && j < this.y + this.height);
 		int k = this.getHoverState(this.hovered);
 		if (this.height == 20) {
-			this.drawTexturedModalRect(this.x, this.y, 0, k * 20, this.width,
-					20 + (!this.active && this.hovered ? 1 : 0));
+			this.drawTexturedModalRect(this.x, this.y, 0, k * 20, this.width, 20 + (!this.active && this.hovered ? 1 : 0));
 			if (this.active) {
 				this.drawTexturedModalRect(this.x + this.getWidth(), this.y + 1, 197, 1 + k * 20, 2, 18);
 				this.drawTexturedModalRect(this.x + this.getWidth() + 2, this.y + 1, 199, 1 + k * 20, 1, 17);
@@ -66,14 +66,14 @@ public class GuiMenuLeftButton extends GuiNpcButton {
 		GlStateManager.popMatrix();
 	}
 
-	public int getHoverState(boolean flag) {
-		byte byte0 = 1;
-		if (this.active) {
-			byte0 = 0;
-		} else if (flag) {
-			byte0 = 2;
+	@Override
+	protected int getHoverState(boolean hovered) {
+		if (!this.enabled) { return 1; }
+		if (this.active) { return 0; }
+		if (this.hovered) {
+			return Mouse.isButtonDown(0) ? 3 : 2;
 		}
-		return byte0;
+		return 0;
 	}
 
 	protected void mouseDragged(@Nonnull Minecraft minecraft, int i, int j) {

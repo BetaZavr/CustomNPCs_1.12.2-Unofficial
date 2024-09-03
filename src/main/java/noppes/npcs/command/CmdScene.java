@@ -10,6 +10,11 @@ import noppes.npcs.entity.data.DataScenes;
 import javax.annotation.Nonnull;
 
 public class CmdScene extends CommandNoppesBase {
+
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
+
 	@Override
 	public String getDescription() {
 		return "Scene operations";

@@ -25,7 +25,7 @@ import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerGameData.FollowerSet;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class RoleFollower extends RoleInterface implements IRoleFollower {
 
@@ -77,7 +77,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 		if ((this.ownerUUID == null || this.ownerUUID.isEmpty())
 				&& this.npc.world.provider.getDimension() != this.npc.homeDimensionId) {
 			try {
-				AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
+				Util.instance.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 						this.npc.homeDimensionId, this.npc.getStartXPos(), this.npc.getStartYPos(),
 						this.npc.getStartZPos());
 			} catch (CommandException e) { LogWriter.error("Error:", e); }
@@ -126,7 +126,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 		double dist = this.npc.getDistance(this.owner);
 		if (this.owner.world.provider.getDimension() != this.npc.world.provider.getDimension()) {
 			try {
-				Entity entity = AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
+				Entity entity = Util.instance.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 						this.owner.world.provider.getDimension(), this.owner.posX, this.owner.posY, this.owner.posZ);
 				if (entity instanceof EntityNPCInterface) {
 					fs.dimId = entity.world.provider.getDimension();

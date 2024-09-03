@@ -13,7 +13,7 @@ import noppes.npcs.Server;
 import noppes.npcs.api.entity.data.IMiniMapData;
 import noppes.npcs.api.entity.data.IPlayerMiniMap;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class PlayerMiniMapData
 implements IPlayerMiniMap {
@@ -86,7 +86,7 @@ implements IPlayerMiniMap {
 	}
 
 	public MiniMapData getQuestTask(int questId, int taskId, String questName, int dimID) {
-		questName = AdditionalMethods.instance.deleteColor(questName);
+		questName = Util.instance.deleteColor(questName);
 		for (MiniMapData mmd : points) {
 			if (mmd.isQuestTask(questId, taskId)) { return mmd; }
 			if (mmd.name.equals(questName)) {
@@ -162,7 +162,7 @@ implements IPlayerMiniMap {
 
 	@Override
 	public boolean removePoint(String name) {
-		name = AdditionalMethods.instance.deleteColor(name);
+		name = Util.instance.deleteColor(name);
 		for (MiniMapData mmd : points) {
 			if (mmd.name.equals(name) && points.remove(mmd)) {
 				update = true;

@@ -12,7 +12,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.entity.data.TextBlock;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class TextBlockClient extends TextBlock {
 
@@ -70,7 +70,7 @@ public class TextBlockClient extends TextBlock {
 				char c = word.charAt(0);
 				if (c == '\r' || c == '\n') {
 					this.addLine(color + line);
-					color = AdditionalMethods.getLastColor(color, line);
+					color = Util.instance.getLastColor(color, line);
 					line = "";
 					continue;
 				}
@@ -79,7 +79,7 @@ public class TextBlockClient extends TextBlock {
 			int widthLine = (mcFont ? font.getStringWidth(newLine) : ClientProxy.Font.width(newLine));
 			if (widthLine > lineWidth && !line.isEmpty()) {
 				this.addLine(color + line);
-				color = AdditionalMethods.getLastColor(color, line);
+				color = Util.instance.getLastColor(color, line);
 				line = word;
 			}
 			else { line = newLine; }

@@ -5,7 +5,7 @@ import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.math.Vec3d;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 import java.util.Objects;
 
@@ -24,7 +24,7 @@ public class EntityAIDodge extends EntityAICustom {
 			return;
 		}
 		if (this.isRanged) {
-			this.canSeeToAttack = AdditionalMethods.npcCanSeeTarget(this.npc, this.target, true, true);
+			this.canSeeToAttack = Util.instance.npcCanSeeTarget(this.npc, this.target, true, true);
 		} else {
 			this.canSeeToAttack = this.npc.canSee(this.target);
 		}

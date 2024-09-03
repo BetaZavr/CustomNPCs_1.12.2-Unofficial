@@ -5,7 +5,7 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.SubGuiInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class SubGuiEditText
 extends SubGuiInterface {
@@ -33,7 +33,7 @@ extends SubGuiInterface {
 		this.text = new String[Math.min(texts.length, 5)];
 		this.hovers = new String[Math.min(texts.length, 5)];
 		for (int i = 0; i < texts.length && i < 5; i++) {
-			this.text[i] = AdditionalMethods.instance.deleteColor(texts[i]);
+			this.text[i] = Util.instance.deleteColor(texts[i]);
 			this.hovers[i] = "";
 		}
 		this.setBackground("smallbg.png");

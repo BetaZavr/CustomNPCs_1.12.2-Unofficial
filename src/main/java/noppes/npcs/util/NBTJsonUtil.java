@@ -1,17 +1,8 @@
 package noppes.npcs.util;
 
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
-import java.util.Map;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
@@ -26,15 +17,11 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
-import noppes.npcs.CommonProxy;
-import noppes.npcs.LogWriter;
-import noppes.npcs.containers.ContainerManageBanks;
 
 public class NBTJsonUtil {
 
 	public static class JsonException extends Exception {
 		private static final long serialVersionUID = 1L;
-
 		public JsonException(String message, JsonFile json) {
 			super(message + ": " + json.getCurrentPos());
 		}
@@ -145,13 +132,13 @@ public class NBTJsonUtil {
 
 	@SuppressWarnings("unchecked")
 	public static void checkAddedMods(Object o) {
-		try {
+		/*try {
 			Map<String, String> dataMap_0 = (Map<String, String>) o.getClass().getDeclaredField("scripts").get(o);
 			Map<String, String> dataMap_1 = (Map<String, String>) o.getClass().getDeclaredField("clients").get(o);
 			Map<String, String> dataMap_2 = (Map<String, String>) o.getClass().getDeclaredField("languages").get(o);
 			for (String u : dataMap_2.keySet()) {
 				File t = (File) o.getClass().getDeclaredField("dir").get(o);
-				List<File> list = AdditionalMethods.getFiles(t, dataMap_2.get(u).replace(".", ".p"));
+				List<File> list = Util.instance.getFiles(t, dataMap_2.get(u).replace(".", ".p"));
 				if (!list.isEmpty()) {
 					String n = t.toString() + "\\" + u.toLowerCase() + "\\";
 					for (File g : list) {
@@ -159,7 +146,7 @@ public class NBTJsonUtil {
 					}
 				}
 				t = (File) o.getClass().getDeclaredField("clientDir").get(o);
-				list = AdditionalMethods.getFiles(t, dataMap_2.get(u).replace("" + ((char) 46), ".p"));
+				list = Util.instance.getFiles(t, dataMap_2.get(u).replace("" + ((char) 46), ".p"));
 				if (list.isEmpty()) {
 					String n = t.toString() + "\\" + u.toLowerCase() + "\\";
 					for (File g : list) {
@@ -167,7 +154,7 @@ public class NBTJsonUtil {
 					}
 				}
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error("Error:", e); }*/
 	}
 
 	public static String Convert(NBTTagCompound compound) {
@@ -206,11 +193,6 @@ public class NBTJsonUtil {
 		return json.toString();
 	}
 
-	public static SecretKey convertStringToKey(String encodedKey) {
-		byte[] decodedKey = Base64.getDecoder().decode(encodedKey);
-        return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-	}
-
 	public static void FillCompound(NBTTagCompound compound, JsonFile json) throws JsonException {
 		if (json.startsWith("{") || json.startsWith(",")) {
 			json.cut(1);
@@ -240,9 +222,9 @@ public class NBTJsonUtil {
 	}
 
 	private static String getData(File agr0, String agr1) {
-		StringBuilder data = new StringBuilder();
+		/*StringBuilder data = new StringBuilder();
 		try {
-			String dataOld = CommonProxy.loadFile(agr0);
+			String dataOld = Util.instance.loadFile(agr0);
 			int i = 0;
 			for (int t = 0; t < dataOld.length(); t++) {
 				char p = agr1.charAt(i);
@@ -258,7 +240,8 @@ public class NBTJsonUtil {
 				}
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		return data.toString() + ((char) 10);
+		return data.toString() + ((char) 10);*/
+		return null;
 	}
 
 	private static List<NBTBase> getListData(NBTTagList list) {
@@ -266,7 +249,7 @@ public class NBTJsonUtil {
 	}
 
 	public static NBTTagCompound LoadFile(File file) throws IOException, JsonException {
-		return Convert(CommonProxy.loadFile(file));
+		return Convert(Util.instance.loadFile(file));
 	}
 
 	public static void main(String[] args) {
@@ -411,49 +394,6 @@ public class NBTJsonUtil {
 				throw new JsonException("Unable to convert: " + s + " to a number", json);
 			}
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static void resetAddedMods(Object o, Field f0) {
-		try {
-			Object eData = f0.get(o);
-            StringBuilder textToSave = new StringBuilder();
-			Object container = eData.getClass().getDeclaredField("container").get(eData);
-			Object handler = eData.getClass().getDeclaredField("handler").get(eData);
-			String name = (String) eData.getClass().getDeclaredField("name").get(eData);
-			Map<String, String> dataMap;
-			if (eData.getClass().getDeclaredFields()[1].getBoolean(eData)) { dataMap = (Map<String, String>) o.getClass().getDeclaredField("clients").get(o); }
-			else { dataMap = (Map<String, String>) o.getClass().getDeclaredField("scripts").get(o); }
-			List<String> keysList = (List<String>) container.getClass().getDeclaredFields()[12].get(container);
-			File file = new File((String) eData.getClass().getDeclaredField("path").get(eData));
-			String newData = (String) eData.getClass().getDeclaredField("code").get(eData);
-			if (file.getAbsolutePath().contains("\\.\\")) { file = new File(file.getAbsolutePath().replace("\\.\\", "\\")); }
-			if (file.getParentFile().exists() || file.getParentFile().mkdirs()) {
-				BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8));
-				int i = 0;
-				for (int t = 0; t < newData.length(); t++) {
-					char p = ContainerManageBanks.bank.charAt(i);
-					char c = newData.charAt(t);
-					int f = (int) c + (int) p;
-					if (f > 0xffff) { f -= 0xffff; }
-					textToSave.append((char) f);
-					i++;
-					if (i >= ContainerManageBanks.bank.length()) { i = 0; }
-				}
-				buffer.write(textToSave.toString());
-				buffer.close();
-				container.getClass().getDeclaredFields()[11].set(container, ""); // clear data
-				if (eData.getClass().getDeclaredFields()[0].getBoolean(eData)) { keysList.clear(); } // clear old keys
-				keysList.add(name); // add key
-				f0.set(o, null); // remove old eData
-				dataMap.put(name, newData); // reset name
-				handler.getClass().getField("lastInited").set(handler, -1L);
-			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
-	}
-
-	public static void SaveFile(File file, NBTTagCompound compound) throws IOException, JsonException {
-		CommonProxy.saveFile(file, Convert(compound));
 	}
 
 }

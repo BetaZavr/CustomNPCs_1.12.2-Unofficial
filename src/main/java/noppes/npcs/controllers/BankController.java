@@ -19,7 +19,7 @@ import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.controllers.data.BankData;
 import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class BankController {
 
@@ -241,7 +241,7 @@ public class BankController {
 				File banksDir = CustomNpcs.getWorldSaveDirectory("banks");
 				File fileBank = new File(banksDir, bankId + ".dat");
 				if (fileBank.exists()) {
-					AdditionalMethods.removeFile(fileBank);
+					Util.instance.removeFile(fileBank);
 				}
 			} else {
 				File datasDir = CustomNpcs.getWorldSaveDirectory("playerdata");
@@ -256,7 +256,7 @@ public class BankController {
 						}
 						File fileBank = new File(banksDir, bankId + ".dat");
 						if (fileBank.exists()) {
-							AdditionalMethods.removeFile(fileBank);
+							Util.instance.removeFile(fileBank);
 						}
 					}
 				}

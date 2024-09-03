@@ -24,14 +24,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.CustomNPCsScheduler;
@@ -223,8 +216,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 		this.scroll.guiTop = this.guiTop + 21;
 		this.addScroll(this.scroll);
 
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 4, 165, 15,
-				this.search));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 4, 165, 15, this.search));
 
 		String title = new TextComponentTranslation("remote.title").getFormattedText();
 		int x = (this.xSize - this.fontRenderer.getStringWidth(title)) / 2;
@@ -238,8 +230,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 		button = new GuiNpcButton(2, this.guiLeft + 170, this.guiTop + 44, 82, 20, "remote.reset");
 		button.enabled = this.selectEntity instanceof EntityNPCInterface;
 		this.addButton(button);
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 170, this.guiTop + 192, 82, 20,
-				CustomNpcs.FreezeNPCs ? "remote.unfreeze" : "remote.freeze"));
+		this.addButton(new GuiNpcButton(3, this.guiLeft + 170, this.guiTop + 192, 82, 20,  CustomNpcs.FreezeNPCs ? "remote.unfreeze" : "remote.freeze"));
 		button = new GuiNpcButton(4, this.guiLeft + 170, this.guiTop + 64, 82, 20, "remote.tp");
 		button.enabled = this.selectEntity != null;
 		this.addButton(button);
@@ -248,6 +239,9 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(6, this.guiLeft + 174, this.guiTop + 86, 20, 20, "");
 		checkBox.setSelected(GuiNpcRemoteEditor.all);
 		this.addButton(checkBox);
+
+		//button = new GuiMenuRightButton(7, this.guiLeft + this.xSize - 4, this.guiTop + 8, "global");
+		//this.addButton(button);
 	}
 
 	@Override

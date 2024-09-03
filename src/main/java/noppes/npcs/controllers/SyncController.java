@@ -327,6 +327,7 @@ public class SyncController {
 
 		BorderController.getInstance().sendTo(player);
 		MarcetController.getInstance().sendTo(player, -1);
+		ScriptController.Instance.sendClientTo(player);
 	}
 
 	public static void syncScriptItems(EntityPlayerMP player) {

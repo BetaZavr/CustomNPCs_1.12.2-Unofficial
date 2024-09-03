@@ -77,7 +77,7 @@ import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobSpawner;
 import noppes.npcs.roles.RoleTransporter;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 import javax.annotation.Nonnull;
@@ -353,7 +353,7 @@ public class NoppesUtilServer {
 		if (type == EnumPlayerData.Players) { // Wipe
 			File playerDir = new File(CustomNpcs.getWorldSaveDirectory("playerdata"), playerdata.uuid);
 			if (playerDir.exists()) {
-				AdditionalMethods.removeFile(playerDir);
+				Util.instance.removeFile(playerDir);
 			}
 			if (pl != null) {
 				playerdata.setNBT(new NBTTagCompound());

@@ -14,7 +14,7 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -90,7 +90,7 @@ public class CustomShield extends ItemShield implements ICustomElement {
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
-		if (tab == CustomRegisters.tabItems) { AdditionalMethods.instance.sort(items); }
+		if (tab == CustomRegisters.tabItems) { Util.instance.sort(items); }
 	}
 
 	@SideOnly(Side.CLIENT)

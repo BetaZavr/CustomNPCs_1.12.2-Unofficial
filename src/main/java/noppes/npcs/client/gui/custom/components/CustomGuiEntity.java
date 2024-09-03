@@ -30,7 +30,7 @@ import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class CustomGuiEntity extends Gui implements IGuiComponent {
@@ -132,7 +132,7 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 						}
 					}
 				}
-				entity = AdditionalMethods.copyToGUI(npc, mc.world, false);
+				entity = Util.instance.copyToGUI(npc, mc.world, false);
 			}
 		} else {
 			entity = EntityList.createEntityFromNBT(entityNbt, mc.world);
@@ -150,7 +150,7 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 			}
 		}
 		if (entity instanceof EntityNPCInterface) {
-			entity = AdditionalMethods.copyToGUI((EntityNPCInterface) entity, mc.world, false);
+			entity = Util.instance.copyToGUI((EntityNPCInterface) entity, mc.world, false);
 			String skin = ((EntityNPCInterface) entity).display.getSkinTexture();
 			if (skin.equals("minecraft:textures/entity/alex.png") || skin.toLowerCase().contains("alex") || skin.toLowerCase().contains("/female")) {
 				((EntityNPCInterface) entity).display.setModel("customnpcs:customnpcalex");

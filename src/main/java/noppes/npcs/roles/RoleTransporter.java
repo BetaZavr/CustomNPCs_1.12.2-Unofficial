@@ -25,7 +25,7 @@ import noppes.npcs.controllers.data.PlayerTransportData;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 
@@ -132,7 +132,7 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 				playerdata.game.addMoney(-1L * locEvent.money);
 			}
 			if (!locEvent.inventory.isEmpty()) {
-				Map<ItemStack, Boolean> barterItems = AdditionalMethods.getInventoryItemCount(player,
+				Map<ItemStack, Boolean> barterItems = Util.instance.getInventoryItemCount(player,
 						locEvent.inventory);
 				for (ItemStack stack : barterItems.keySet()) {
 					if (!barterItems.get(stack)) {

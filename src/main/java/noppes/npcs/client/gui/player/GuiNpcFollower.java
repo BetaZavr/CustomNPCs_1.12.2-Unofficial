@@ -23,7 +23,7 @@ import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData {
 
@@ -131,7 +131,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 			int days = this.role.rates.get(3);
 			String daysS = days + " " + ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText()
 					: new TextComponentTranslation("follower.days").getFormattedText());
-			String money = AdditionalMethods.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " "
+			String money = Util.instance.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " "
 					+ CustomNpcs.displayCurrencies;
 			this.fontRenderer.drawString(money + " = " + daysS, this.guiLeft + 80, this.guiTop + 56,
 					CustomNpcResourceListener.DefaultTextColor);
@@ -151,13 +151,13 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 				CustomNpcResourceListener.DefaultTextColor);
 		if (!this.role.infiniteDays) {
 			this.fontRenderer.drawString(
-					new TextComponentTranslation("follower.daysleft").getFormattedText() + " " + AdditionalMethods
+					new TextComponentTranslation("follower.daysleft").getFormattedText() + " " + Util.instance
 							.ticksToElapsedTime((this.role.getDays() * 28800L) - time, false, true, false),
 					62, 82, CustomNpcResourceListener.DefaultTextColor);
 		}
 		this.fontRenderer.drawString(
 				new TextComponentTranslation("follower.lastday").getFormattedText() + ": "
-						+ AdditionalMethods.ticksToElapsedTime(time, false, true, false),
+						+ Util.instance.ticksToElapsedTime(time, false, true, false),
 				62, 94, CustomNpcResourceListener.DefaultTextColor);
 	}
 
@@ -167,7 +167,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 			if (this.getButton(i) == null) {
 				continue;
 			}
-			this.getButton(i).setEnabled(this.mc.player.capabilities.isCreativeMode || AdditionalMethods.canRemoveItems(
+			this.getButton(i).setEnabled(this.mc.player.capabilities.isCreativeMode || Util.instance.canRemoveItems(
 					this.mc.player.inventory.mainInventory, this.role.rentalItems.getStackInSlot(i), false, false));
 		}
 		if (this.getButton(3) != null) {

@@ -5,16 +5,17 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
+import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nonnull;
 
 public class GuiMenuSideButton extends GuiNpcButton {
 
-	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menusidebutton.png");
 	public boolean active;
+	public boolean isLeft = true;
 
-	public GuiMenuSideButton(int i, int j, int k, int l, int i1, String s) {
-		super(i, j, k, l, i1, s);
+	public GuiMenuSideButton(int id, int x, int y, int width, int height, String lable) {
+		super(id, x, y, width, height, lable);
 		this.active = false;
 	}
 
@@ -23,7 +24,7 @@ public class GuiMenuSideButton extends GuiNpcButton {
 			return;
 		}
 		FontRenderer fontrenderer = minecraft.fontRenderer;
-		minecraft.renderEngine.bindTexture(GuiMenuSideButton.resource);
+		minecraft.renderEngine.bindTexture(GuiNPCInterface.MENU_SIDE_BUTTON);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		int width = this.width + (this.active ? 2 : 0);
 		this.hovered = (i >= this.x && j >= this.y && i < this.x + width && j < this.y + this.height);
@@ -56,10 +57,18 @@ public class GuiMenuSideButton extends GuiNpcButton {
 	}
 
 	public int getHoverState(boolean flag) {
-		if (this.active) {
-			return 0;
+		int i = 1;
+		if (this.enabled) {
+
+		} else {
+
 		}
-		return 1;
+		if (this.active) { return 0; }
+		if (this.hovered) {
+			return Mouse.isButtonDown(0) ? 3 : 2;
+		}
+		if (isLeft) { i += 4; }
+		return i;
 	}
 
 	protected void mouseDragged(@Nonnull Minecraft minecraft, int i, int j) {

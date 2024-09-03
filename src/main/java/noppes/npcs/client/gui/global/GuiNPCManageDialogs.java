@@ -37,7 +37,7 @@ import noppes.npcs.controllers.data.DialogCategory;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.DialogOption.OptionDialogID;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 // Changed
 public class GuiNPCManageDialogs extends GuiNPCInterface2 implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
@@ -63,7 +63,7 @@ public class GuiNPCManageDialogs extends GuiNPCInterface2 implements ISubGuiList
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 1: { // new cat
-			this.setSubGui(new SubGuiEditText(1, AdditionalMethods.instance
+			this.setSubGui(new SubGuiEditText(1, Util.instance
 					.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 			break;
 		}
@@ -121,7 +121,7 @@ public class GuiNPCManageDialogs extends GuiNPCInterface2 implements ISubGuiList
 			break;
 		}
 		case 11: {
-			this.setSubGui(new SubGuiEditText(11, AdditionalMethods.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+			this.setSubGui(new SubGuiEditText(11, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 			break;
 		}
 		case 12: { // del dialog
@@ -239,11 +239,11 @@ public class GuiNPCManageDialogs extends GuiNPCInterface2 implements ISubGuiList
 				List<Entry<String, Dialog>> list = Lists.newArrayList(map.entrySet());
 				list.sort((d_0, d_1) -> {
                     if (GuiNPCManageDialogs.isName) {
-                        String n_0 = AdditionalMethods.instance
+                        String n_0 = Util.instance
                                 .deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText()
                                         + "_" + d_0.getValue().id)
                                 .toLowerCase();
-                        String n_1 = AdditionalMethods.instance
+                        String n_1 = Util.instance
                                 .deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText()
                                         + "_" + d_1.getValue().id)
                                 .toLowerCase();

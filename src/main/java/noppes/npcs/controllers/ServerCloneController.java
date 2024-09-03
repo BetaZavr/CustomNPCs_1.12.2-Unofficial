@@ -20,6 +20,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.handler.ICloneHandler;
 import noppes.npcs.util.NBTJsonUtil;
+import noppes.npcs.util.Util;
 
 public class ServerCloneController implements ICloneHandler {
 
@@ -202,7 +203,7 @@ public class ServerCloneController implements ICloneHandler {
 			String filename = name + ".json";
 			File file = new File(dir, filename + "_new");
 			File file2 = new File(dir, filename);
-			NBTJsonUtil.SaveFile(file, compound);
+			Util.instance.saveFile(file, compound);
 			if (file2.exists()) {
 				file2.delete();
 			}

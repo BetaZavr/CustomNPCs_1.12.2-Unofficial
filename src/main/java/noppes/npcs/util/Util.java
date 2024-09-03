@@ -1,10 +1,10 @@
 package noppes.npcs.util;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -103,12 +103,11 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
 
-public class AdditionalMethods implements IMethods {
+public class Util implements IMethods {
 
-	public final static AdditionalMethods instance = new AdditionalMethods();
+	public final static Util instance = new Util();
 	
-	public static boolean canAddItemAfterRemoveItems(NonNullList<ItemStack> inventory, ItemStack addStack,
-			Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
+	public boolean canAddItemAfterRemoveItems(NonNullList<ItemStack> inventory, ItemStack addStack, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
 		if (inventory == null || addStack.isEmpty()) {
 			return false;
 		}
@@ -154,8 +153,7 @@ public class AdditionalMethods implements IMethods {
 		return false;
 	}
 
-	public static boolean canRemoveItems(Map<ItemStack, Integer> inventory, Map<ItemStack, Integer> items,
-			boolean ignoreDamage, boolean ignoreNBT) {
+	public boolean canRemoveItems(Map<ItemStack, Integer> inventory, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
 		if (inventory == null || items == null || items.isEmpty()) {
 			return false;
 		}
@@ -179,18 +177,16 @@ public class AdditionalMethods implements IMethods {
 		return true;
 	}
 
-	public static boolean canRemoveItems(NonNullList<ItemStack> inventory, ItemStack stack, boolean ignoreDamage,
-			boolean ignoreNBT) {
+	public boolean canRemoveItems(NonNullList<ItemStack> inventory, ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
 		if (stack == null || stack.isEmpty()) {
 			return false;
 		}
 		Map<ItemStack, Integer> items = Maps.newHashMap();
 		items.put(stack, stack.getCount());
-		return AdditionalMethods.canRemoveItems(inventory, items, ignoreDamage, ignoreNBT);
+		return this.canRemoveItems(inventory, items, ignoreDamage, ignoreNBT);
 	}
 
-	public static boolean canRemoveItems(NonNullList<ItemStack> inventory, Map<ItemStack, Integer> items,
-			boolean ignoreDamage, boolean ignoreNBT) {
+	public boolean canRemoveItems(NonNullList<ItemStack> inventory, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
 		if (inventory == null) {
 			return false;
 		}
@@ -217,22 +213,22 @@ public class AdditionalMethods implements IMethods {
                 inv.put(stack, stack.getCount());
             }
         }
-		return AdditionalMethods.canRemoveItems(inv, items, ignoreDamage, ignoreNBT);
+		return this.canRemoveItems(inv, items, ignoreDamage, ignoreNBT);
 	}
 
-	public static boolean containsDeleteColor(Set<String> set, String text, boolean ignoreCase) {
+	public boolean containsDeleteColor(Set<String> set, String text, boolean ignoreCase) {
 		if (set == null || text == null) {
 			return false;
 		}
 		for (String str : set) {
-			if (AdditionalMethods.equalsDeleteColor(str, text, ignoreCase)) {
+			if (this.equalsDeleteColor(str, text, ignoreCase)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public static EntityNPCInterface copyToGUI(EntityNPCInterface npcParent, World world, boolean copyRotation) {
+	public EntityNPCInterface copyToGUI(EntityNPCInterface npcParent, World world, boolean copyRotation) {
 		NBTTagCompound npcNbt = new NBTTagCompound();
 		if (npcParent == null) {
 			npcParent = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), world);
@@ -277,18 +273,20 @@ public class AdditionalMethods implements IMethods {
 		return npc;
 	}
 
-	public static boolean equalsDeleteColor(String str0, String str1, boolean ignoreCase) {
-		str0 = AdditionalMethods.instance.deleteColor(str0);
-		str1 = AdditionalMethods.instance.deleteColor(str1);
+	public boolean equalsDeleteColor(String str0, String str1, boolean ignoreCase) {
+		str0 = Util.instance.deleteColor(str0);
+		str1 = Util.instance.deleteColor(str1);
 		return ignoreCase ? str0.equalsIgnoreCase(str1) : str0.equals(str1);
 	}
 
-	public static RayTraceRotate getAngles3D(Entity entity, Entity target) {
-		return AdditionalMethods.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ,
+	public RayTraceRotate getAngles3D(Entity entity, Entity target) {
+		return Util.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ,
 				target.posX, target.posY + target.getEyeHeight(), target.posZ);
 	}
 
-	public static List<IDataElement> getClassData(Object obj, boolean onlyPublic, boolean addConstructor) {
+	public List<IDataElement> getClassData(Object obj, boolean onlyPublic, boolean addConstructor) {
+		if (obj == null) { return Lists.newArrayList(); }
+		LogWriter.info("Trying to get all fields, methods and classes from object \"" + obj + "\"");
 		List<IDataElement> list = Lists.newArrayList();
 		Class<?> cz = (obj instanceof Class) ? (Class<?>) obj : obj.getClass();
 		// Constructors
@@ -385,11 +383,12 @@ public class AdditionalMethods implements IMethods {
 		return list;
 	}
 
-	public static Entity getEntityByUUID(UUID uuid, World startWorld) {
-		Entity e = AdditionalMethods.getEntityInWorld(uuid, startWorld);
+	public Entity getEntityByUUID(UUID uuid, World startWorld) {
+		if (startWorld == null) { return null; }
+		Entity e = this.getEntityInWorld(uuid, startWorld);
 		if (e == null) {
 			MinecraftServer server = CustomNpcs.Server != null ? CustomNpcs.Server
-					: startWorld != null && startWorld.getMinecraftServer() != null ? startWorld.getMinecraftServer()
+					: startWorld.getMinecraftServer() != null ? startWorld.getMinecraftServer()
 							: CustomNpcs.proxy.getPlayer() != null && CustomNpcs.proxy.getPlayer().world != null
 									&& CustomNpcs.proxy.getPlayer().world.getMinecraftServer() != null
 											? CustomNpcs.proxy.getPlayer().world.getMinecraftServer()
@@ -399,7 +398,7 @@ public class AdditionalMethods implements IMethods {
 					if (world.equals(startWorld)) {
 						continue;
 					}
-					e = AdditionalMethods.getEntityInWorld(uuid, world);
+					e = this.getEntityInWorld(uuid, world);
 					if (e != null) {
 						return e;
 					}
@@ -409,7 +408,7 @@ public class AdditionalMethods implements IMethods {
 		return e;
 	}
 
-	public static Entity getEntityInWorld(UUID uuid, World world) {
+	public Entity getEntityInWorld(UUID uuid, World world) {
 		for (Entity entity : world.loadedEntityList) {
 			if (entity.getUniqueID().equals(uuid)) {
 				return entity;
@@ -426,14 +425,15 @@ public class AdditionalMethods implements IMethods {
 		return null;
 	}
 
-	public static List<File> getFiles(File dir, String index) {
+	@Override
+	public List<File> getFiles(File dir, String index) {
 		List<File> list = Lists.newArrayList();
 		if (dir == null || !dir.exists() || !dir.isDirectory()) {
 			return list;
 		}
 		for (File f : Objects.requireNonNull(dir.listFiles())) {
 			if (f.isDirectory()) {
-				list.addAll(AdditionalMethods.getFiles(f, index));
+				list.addAll(this.getFiles(f, index));
 				continue;
 			}
 			if (!f.isFile() || !f.getName().toLowerCase().endsWith(index.toLowerCase())) {
@@ -444,15 +444,7 @@ public class AdditionalMethods implements IMethods {
 		return list;
 	}
 
-	public static List<File> getFiles(Object dir, String index) {
-		List<File> list = Lists.newArrayList();
-		if (!(dir instanceof File)) {
-			return list;
-		}
-		return AdditionalMethods.getFiles((File) dir, index);
-	}
-
-	public static Map<ItemStack, Boolean> getInventoryItemCount(EntityPlayer player, IInventory inventory) {
+	public Map<ItemStack, Boolean> getInventoryItemCount(EntityPlayer player, IInventory inventory) {
 		Map<ItemStack, Integer> counts = Maps.newHashMap();
 		Map<ItemStack, ItemStack> base = Maps.newHashMap();
 		List<ItemStack> list = Lists.newArrayList();
@@ -525,7 +517,7 @@ public class AdditionalMethods implements IMethods {
 		return total;
 	}
 
-	public static String getLastColor(String color, String str) {
+	public String getLastColor(String color, String str) {
 		char c = (char) 167;
 		if (str.lastIndexOf(c) != -1) {
 			if (str.lastIndexOf(c) + 1 < str.length()) {
@@ -536,15 +528,14 @@ public class AdditionalMethods implements IMethods {
 				}
 				color = str.substring(start, end);
 			} else {
-				color = AdditionalMethods.getLastColor(color, str.substring(0, str.length() - 1));
+				color = this.getLastColor(color, str.substring(0, str.length() - 1));
 			}
 		}
 		return color;
 	}
 
-	public static RayTraceVec getPosition(BlockPos pos, double yaw, double pitch, double radius) {
-		return AdditionalMethods.instance.getPosition(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, yaw,
-				pitch, radius);
+	public RayTraceVec getPosition(BlockPos pos, double yaw, double pitch, double radius) {
+		return Util.instance.getPosition(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, yaw, pitch, radius);
 	}
 
 	/**
@@ -556,7 +547,7 @@ public class AdditionalMethods implements IMethods {
 	 *            - need set color
 	 * @return string
 	 */
-	public static String getTextReducedNumber(double value, boolean isInteger, boolean color, boolean notPfx) {
+	public String getTextReducedNumber(double value, boolean isInteger, boolean color, boolean notPfx) {
 		if (value == 0.0d) {
 			return String.valueOf(value).replace(".", ",");
 		}
@@ -682,8 +673,7 @@ public class AdditionalMethods implements IMethods {
 		return sufc + num + type + end;
 	}
 
-	public static int inventoryItemCount(EntityPlayer player, ItemStack stack, Availability availability,
-			boolean ignoreDamage, boolean ignoreNBT) {
+	public int inventoryItemCount(EntityPlayer player, ItemStack stack, Availability availability, boolean ignoreDamage, boolean ignoreNBT) {
 		if (player == null || (availability != null && !availability.isAvailable(player)) || stack.isEmpty()) {
 			return 0;
 		}
@@ -701,8 +691,7 @@ public class AdditionalMethods implements IMethods {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static boolean npcCanSeeTarget(EntityLivingBase entity, EntityLivingBase target, boolean toShoot,
-			boolean directLOS) {
+	public boolean npcCanSeeTarget(EntityLivingBase entity, EntityLivingBase target, boolean toShoot, boolean directLOS) {
 		if (entity == null || target == null) {
 			return false;
 		}
@@ -714,7 +703,7 @@ public class AdditionalMethods implements IMethods {
 		if (aggroRange < 1.0d) {
 			aggroRange = 1.0d;
 		}
-		RayTraceRotate rtr = AdditionalMethods.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(),
+		RayTraceRotate rtr = Util.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(),
 				entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
 		List<Entity> seenEntities = null, unseenEntities = null;
 		if (entity instanceof EntityLiving) {
@@ -731,13 +720,13 @@ public class AdditionalMethods implements IMethods {
 			}
 			return false;
 		}
-		RayTraceResults rtrs = AdditionalMethods.instance.rayTraceBlocksAndEntitys(entity, rtr.yaw, rtr.pitch,
+		RayTraceResults rtrs = Util.instance.rayTraceBlocksAndEntitys(entity, rtr.yaw, rtr.pitch,
 				rtr.distance);
 		if (rtrs != null) {
 			if (toShoot && rtrs.entitys.length > 0) {
-				double d = AdditionalMethods.instance.distanceTo(entity, target);
+				double d = Util.instance.distanceTo(entity, target);
 				for (IEntity<?> ei : rtrs.entitys) {
-					if (d > AdditionalMethods.instance.distanceTo(entity, ei.getMCEntity())) {
+					if (d > Util.instance.distanceTo(entity, ei.getMCEntity())) {
 						if (seenEntities != null) {
 							seenEntities.remove(target);
 						}
@@ -809,7 +798,7 @@ public class AdditionalMethods implements IMethods {
 		return canSee;
 	}
 
-	private static double getChance(int invisible, RayTraceRotate rtr, double aggroRange) {
+	private double getChance(int invisible, RayTraceRotate rtr, double aggroRange) {
 		double chance = invisible == 0 ? 1.0d : -0.00026d * Math.pow(invisible, 3.0d) + 0.00489d * Math.pow(invisible, 2.0d) - 0.03166 * (double) invisible + 0.08d;
 		if (chance > 1.0d) {
 			chance = 1.0d;
@@ -834,28 +823,30 @@ public class AdditionalMethods implements IMethods {
 	}
 
 	/** Correct deletion of folders */
-	public static boolean removeFile(File directory) {
+	@Override
+	public boolean removeFile(File directory) {
+		if (directory == null) { return false; }
+		LogWriter.info("Trying remove file \"" + directory + "\"");
 		if (!directory.isDirectory()) {
 			return directory.delete();
 		}
 		File[] list = directory.listFiles();
 		if (list != null) {
 			for (File tempFile : list) {
-				AdditionalMethods.removeFile(tempFile);
+				this.removeFile(tempFile);
 			}
 		}
 		return directory.delete();
 	}
 
-	public static boolean removeItem(EntityPlayerMP player, ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
+	public boolean removeItem(EntityPlayerMP player, ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
 		if (player == null || stack == null || stack.isEmpty()) {
 			return false;
 		}
-		return AdditionalMethods.removeItem(player, stack, stack.getCount(), ignoreDamage, ignoreNBT);
+		return this.removeItem(player, stack, stack.getCount(), ignoreDamage, ignoreNBT);
 	}
 
-	public static boolean removeItem(EntityPlayerMP player, ItemStack stack, int count, boolean ignoreDamage,
-			boolean ignoreNBT) {
+	public boolean removeItem(EntityPlayerMP player, ItemStack stack, int count, boolean ignoreDamage, boolean ignoreNBT) {
 		if (player == null || stack == null || stack.isEmpty()) {
 			return false;
 		}
@@ -867,7 +858,7 @@ public class AdditionalMethods implements IMethods {
 			if (NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) {
 				if (count < is.getCount()) {
 					is.splitStack(count);
-					AdditionalMethods.updatePlayerInventory(player);
+					this.updatePlayerInventory(player);
 					return true;
 				}
 				count -= is.getCount();
@@ -878,7 +869,7 @@ public class AdditionalMethods implements IMethods {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public static void resetRecipes(EntityPlayer player, GuiContainer gui) {
+	public void resetRecipes(EntityPlayer player, GuiContainer gui) {
 		CustomNpcs.proxy.updateRecipes(null, false, false, "this.resetRecipes()");
 
 		Container container = null;
@@ -924,7 +915,7 @@ public class AdditionalMethods implements IMethods {
 	}
 
 	/* Vanilla Teleport in world */
-	public static void teleportEntity(Entity entityIn, CoordinateArg argX, CoordinateArg argY, CoordinateArg argZ, CoordinateArg argYaw, CoordinateArg argPitch) {
+	public void teleportEntity(Entity entityIn, CoordinateArg argX, CoordinateArg argY, CoordinateArg argZ, CoordinateArg argYaw, CoordinateArg argPitch) {
 		if (entityIn instanceof EntityPlayerMP) {
 			Set<SPacketPlayerPosLook.EnumFlags> set = EnumSet.noneOf(SPacketPlayerPosLook.EnumFlags.class);
 			if (argX.isRelative()) {
@@ -967,13 +958,11 @@ public class AdditionalMethods implements IMethods {
 		}
 	}
 
-	public static Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, BlockPos pos)
-			throws CommandException {
-		return AdditionalMethods.teleportEntity(server, entity, dimension, pos.getX() + 0.5d, pos.getY(), pos.getZ() + 0.5d);
+	public Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, BlockPos pos) throws CommandException {
+		return this.teleportEntity(server, entity, dimension, pos.getX() + 0.5d, pos.getY(), pos.getZ() + 0.5d);
 	}
 
-	public static Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, double x, double y,
-			double z) throws CommandException {
+	public Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, double x, double y, double z) throws CommandException {
 		if (entity == null) {
 			return null;
 		}
@@ -1011,7 +1000,7 @@ public class AdditionalMethods implements IMethods {
 	 *            - only the maximum period (years or months or days, etc.)
 	 * @return String
 	 */
-	public static String ticksToElapsedTime(long ticks, boolean isMilliSeconds, boolean colored, boolean upped) {
+	public String ticksToElapsedTime(long ticks, boolean isMilliSeconds, boolean colored, boolean upped) {
 		String time = isMilliSeconds ? "0.000" : "--/--";
 		String chr = "" + ((char) 167);
 		if (ticks < 0) {
@@ -1081,10 +1070,9 @@ public class AdditionalMethods implements IMethods {
 		return time;
 	}
 
-	public static Entity travelAndCopyEntity(MinecraftServer server, Entity entity, int dimension)
-			throws CommandException {
+	public Entity travelAndCopyEntity(MinecraftServer server, Entity entity, int dimension) throws CommandException {
 		if (server == null) {
-			throw new CommandException("Server cannot have value Null");
+			throw new CommandException("Server cannot " + "have value Null");
 		}
         if (entity instanceof EntityPlayerMP) {
 			server.getPlayerList().transferPlayerToDimension((EntityPlayerMP) entity, dimension, new CustomNpcsTeleporter((WorldServer) server.getEntityWorld()));
@@ -1095,7 +1083,7 @@ public class AdditionalMethods implements IMethods {
 	}
 
 	/* [Teleport] Copy and Place Entity to Spawn next Dimensions */
-	public static Entity travelEntity(MinecraftServer server, Entity entity, int dimensionId) {
+	public Entity travelEntity(MinecraftServer server, Entity entity, int dimensionId) {
 		if (entity.world.isRemote || entity.isDead) {
 			return null;
 		}
@@ -1108,7 +1096,7 @@ public class AdditionalMethods implements IMethods {
 		Entity newEntity = EntityList.createEntityByIDFromName(Objects.requireNonNull(EntityList.getKey(entity.getClass())), worldserverEnd);
 		if (newEntity != null) {
 			try {
-				AdditionalMethods.instance.copyDataFromOld.invoke(newEntity, entity);
+				Util.instance.copyDataFromOld.invoke(newEntity, entity);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 			entity.world.removeEntity(entity);
 			newEntity.forceSpawn = true;
@@ -1126,7 +1114,7 @@ public class AdditionalMethods implements IMethods {
 		return newEntity;
 	}
 
-	public static void updatePlayerInventory(EntityPlayerMP player) {
+	public void updatePlayerInventory(EntityPlayerMP player) {
 		PlayerQuestData playerdata = PlayerData.get(player).questData;
 		for (QuestData data : playerdata.activeQuests.values()) {
 			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
@@ -1140,7 +1128,7 @@ public class AdditionalMethods implements IMethods {
 
 	private Method copyDataFromOld;
 
-	public AdditionalMethods() {
+	public Util() {
 		try {
 			this.copyDataFromOld = Entity.class.getDeclaredMethod(
 					(Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment") ? "copyDataFromOld"
@@ -1203,11 +1191,13 @@ public class AdditionalMethods implements IMethods {
 
 	@Override
 	public RayTraceRotate getAngles3D(IEntity<?> entity, IEntity<?> target) {
-		return AdditionalMethods.getAngles3D(entity.getMCEntity(), target.getMCEntity());
+		return this.getAngles3D(entity.getMCEntity(), target.getMCEntity());
 	}
 
 	@Override
 	public String getJSONStringFromObject(Object obj) {
+		if (obj == null) { return ""; }
+		LogWriter.info("Trying to write object \"" + obj.getClass().getName() + "\" to JSON string");
 		StringBuilder str = new StringBuilder();
 		if (obj.getClass().isArray()) {
 			str = new StringBuilder("[");
@@ -1229,7 +1219,8 @@ public class AdditionalMethods implements IMethods {
 				engine.put("temp", obj);
 				try {
 					str = new StringBuilder((String) engine.eval("JSON.stringify(temp)"));
-				} catch (ScriptException e) { LogWriter.error("Error:", e); }
+				}
+				catch (ScriptException e) { LogWriter.error("Error:", e); }
 			}
 		}
 		return str.toString();
@@ -1239,6 +1230,7 @@ public class AdditionalMethods implements IMethods {
 		if (fileName == null || fileName.isEmpty() || fileName.lastIndexOf(".") == -1) {
 			return null;
 		}
+		LogWriter.info("Getting a list of mod files by key \"" + fileName + "\"");
 		InputStream inputStream = null;
 		for (ModContainer mod : Loader.instance().getModList()) {
 			if (mod.getSource().exists() && mod.getSource().getName().equals(CustomNpcs.MODID) || mod.getSource().getName().endsWith("bin") || mod.getSource().getName().endsWith("main")) {
@@ -1257,7 +1249,7 @@ public class AdditionalMethods implements IMethods {
 						zip.close();
 					} catch (Exception e) { LogWriter.error("Error:", e); }
 				} else {
-					List<File> list = AdditionalMethods.getFiles(mod.getSource(), fileName.substring(fileName.lastIndexOf(".")));
+					List<File> list = this.getFiles(mod.getSource(), fileName.substring(fileName.lastIndexOf(".")));
 					for (File file : list) {
 						if (!file.isFile() || !file.getName().equals(fileName)) { continue; }
 						try {
@@ -1269,6 +1261,47 @@ public class AdditionalMethods implements IMethods {
 			}
 		}
 		return inputStream;
+	}
+
+	@Override
+	public String loadFile(File file) {
+		LogWriter.info("Trying to load file \"" + file.getAbsolutePath() + "\"");
+		StringBuilder text = new StringBuilder();
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				text.append(line).append((char) 10);
+			}
+			reader.close();
+		}
+		catch (Exception e) { LogWriter.info("Error load file \"" + file.getAbsolutePath() + "\""); }
+		return text.toString();
+	}
+
+	@Override
+	public boolean saveFile(File file, String text) {
+		if (file == null || text == null) {
+			return false;
+		}
+		LogWriter.info("Trying save text to file \"" + file.getAbsolutePath() + "\"");
+		if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+			LogWriter.debug("Error create path File \"" + file.getAbsolutePath() + "\"");
+			return false;
+		}
+		try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8)) {
+			writer.write(text);
+		} catch (IOException e) {
+			LogWriter.debug("Error Save Default Item File \"" + file.getAbsolutePath() + "\"");
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean saveFile(File file, NBTTagCompound compound) {
+		if (compound == null) { return false; }
+		return this.saveFile(file, NBTJsonUtil.Convert(compound));
 	}
 
 	@Override
@@ -1426,6 +1459,7 @@ public class AdditionalMethods implements IMethods {
 
 	@Override
 	public Object readObjectFromNbt(NBTBase tag) {
+		LogWriter.info("Attempt to read object from tag type:  " + tag.getId());
 		if (tag instanceof NBTTagByte) {
 			return ((NBTTagByte) tag).getByte();
 		} else if (tag instanceof NBTTagShort) {
@@ -1496,10 +1530,10 @@ public class AdditionalMethods implements IMethods {
 		Entity e = null;
 		try {
 			if (pos != null) {
-				e = AdditionalMethods.teleportEntity(CustomNpcs.Server, entity.getMCEntity(), dimension,
+				e = this.teleportEntity(CustomNpcs.Server, entity.getMCEntity(), dimension,
 						pos.getMCBlockPos());
 			} else {
-				e = AdditionalMethods.travelAndCopyEntity(CustomNpcs.Server, entity.getMCEntity(), dimension);
+				e = this.travelAndCopyEntity(CustomNpcs.Server, entity.getMCEntity(), dimension);
 			}
 		} catch (Exception ee) { LogWriter.error("Error:", ee); }
 		if (e != null) {
@@ -1510,6 +1544,7 @@ public class AdditionalMethods implements IMethods {
 
 	@Override
 	public NBTBase writeObjectToNbt(Object value) {
+		LogWriter.info("Trying to write object \"" + value.toString() + "\" to NBT");
 		if (value.getClass().isArray()) {
 			Object[] vs = (Object[]) value;
 			if (vs.length == 0) {
@@ -1741,7 +1776,7 @@ public class AdditionalMethods implements IMethods {
 		}
 	}
 
-	public static Entity getLookEntity(Entity entity, Double d0) {
+	public Entity getLookEntity(Entity entity, Double d0) {
 		Entity target = null;
 		if (d0 == null) {
 			d0 = 32.0;
@@ -1754,43 +1789,65 @@ public class AdditionalMethods implements IMethods {
         list.remove(entity);
         double d2 = d0;
         Vec3d vec3d3 = null;
-        for (int j = 0; j < list.size(); ++j) {
-            Entity entity1 = list.get(j);
-            AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow((double)entity1.getCollisionBorderSize());
+        for (Entity entity1 : list) {
+            AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
             RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
             if (axisalignedbb.contains(vec3d)) {
                 if (d2 >= 0.0D) {
-                	target = entity1;
+                    target = entity1;
                     vec3d3 = raytraceresult == null ? vec3d : raytraceresult.hitVec;
                     d2 = 0.0D;
                 }
-            }
-            else if (raytraceresult != null) {
+            } else if (raytraceresult != null) {
                 double d3 = vec3d.distanceTo(raytraceresult.hitVec);
                 if (d3 < d2 || d2 == 0.0D) {
                     if (entity1.getLowestRidingEntity() == entity.getLowestRidingEntity() && !entity1.canRiderInteract()) {
                         if (d2 == 0.0D) {
-                        	target = entity1;
+                            target = entity1;
                             vec3d3 = raytraceresult.hitVec;
                         }
                     } else {
-                    	target = entity1;
+                        target = entity1;
                         vec3d3 = raytraceresult.hitVec;
                         d2 = d3;
                     }
                 }
             }
-            if (target != null) { break; }
+            if (target != null) {
+                break;
+            }
         }
         if (target != null) {
         	RayTraceResult er = new RayTraceResult(target, vec3d3);
         	RayTraceResult eb = entity.world.rayTraceBlocks(vec3d, vec3d2, false, false, false);
-        	if (er != null && eb != null) {
+        	if (eb != null) {
         		Vec3d pp = new Vec3d(entity.posX, entity.posY, entity.posZ);
         		if (er.hitVec.distanceTo(pp) >= eb.hitVec.distanceTo(pp)) { target = null; }
         	}
         }
 		return target;
 	}
-	
+
+    public String[] getAgreementKeyHover(String worldName) {
+		if (worldName == null) { return null; }
+		List<String> list = Lists.newArrayList();
+		int i = 0;
+		for (String str : worldName.split("/")) {
+			switch (i) {
+				case 0: list.add(((char) 167) + "7World Name: \"" + ((char) 167) + "r" + str + ((char) 167) + "7\";"); break;
+				case 1: list.add(((char) 167) + "7Commands Allowed: " + ((char) 167) + "6" + str + ((char) 167) + "7;"); break;
+				case 2: list.add(((char) 167) + "7Seed: " + ((char) 167) + "a" + str + ((char) 167) + "7;"); break;
+				case 3: list.add(((char) 167) + "7Connection Name: \"" + ((char) 167) + "r" + str + ((char) 167) + "7\";"); break;
+				case 4: {
+					String[] ipP = str.split(":");
+					list.add(((char) 167) + "7IP and port: " + ((char) 167) + "e" + ipP[0] + ((char) 167) + "r:" + ((char) 167) + "9" + ipP[1] + ((char) 167) + "7;");
+					break;
+				}
+			}
+			i++;
+		}
+		if (i == 3) { list.add(((char) 167) + "7Is single or local player"); }
+		return list.toArray(new String[0]);
+	}
+
 }

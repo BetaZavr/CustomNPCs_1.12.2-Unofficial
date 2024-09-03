@@ -31,7 +31,7 @@ import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleTransporter;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiTransportSelection extends GuiNPCInterface
 		implements ITopButtonListener, IScrollData, ICustomScrollListener {
@@ -94,7 +94,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 				y += 32;
 				this.fontRenderer
 						.drawString(
-								AdditionalMethods.getTextReducedNumber(this.locSel.money, true, true, false) + " "
+								Util.instance.getTextReducedNumber(this.locSel.money, true, true, false) + " "
 										+ CustomNpcs.displayCurrencies,
 								x, y, CustomNpcs.LableColor.getRGB(), false);
 			}
@@ -105,7 +105,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 		if (!this.locSel.inventory.isEmpty()) {
 			GlStateManager.pushMatrix();
 			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
-			this.barterItems = AdditionalMethods.getInventoryItemCount(this.player, this.locSel.inventory);
+			this.barterItems = Util.instance.getInventoryItemCount(this.player, this.locSel.inventory);
 			int slot = 0;
 			this.canTransport = true;
 			for (ItemStack stack : this.barterItems.keySet()) {
@@ -216,7 +216,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 				if (loc != null) {
 					if (loc.money > 0 || !loc.inventory.isEmpty()) {
 						if (loc.money > 0) {
-							sfx = AdditionalMethods.getTextReducedNumber(loc.money, true, true, false) + " "
+							sfx = Util.instance.getTextReducedNumber(loc.money, true, true, false) + " "
 									+ CustomNpcs.displayCurrencies;
 							if (loc.money > 0 && loc.money > ClientProxy.playerData.game.getMoney()) {
 								color = 0xFFFF0000;
@@ -225,7 +225,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 					}
 					if (!loc.inventory.isEmpty() && color != 0xFFFF0000) {
 						sfx += ((char) 167) + "7 [" + ((char) 167) + "6I" + ((char) 167) + "7]";
-						Map<ItemStack, Boolean> items = AdditionalMethods.getInventoryItemCount(this.player,
+						Map<ItemStack, Boolean> items = Util.instance.getInventoryItemCount(this.player,
 								loc.inventory);
 						for (ItemStack s : items.keySet()) {
 							if (!items.get(s)) {

@@ -39,7 +39,7 @@ import noppes.npcs.controllers.QuestController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestInterface;
 import noppes.npcs.quests.QuestObjective;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 
@@ -202,7 +202,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 		}
 		if (this.rewardMoney > 0) {
 			allTextLogs.append(ent).append(new TextComponentTranslation("questlog.rewardmoney",
-                    AdditionalMethods.getTextReducedNumber(this.rewardMoney, true, true, false),
+					Util.instance.getTextReducedNumber(this.rewardMoney, true, true, false),
                     CustomNpcs.displayCurrencies).getFormattedText());
 		}
 		if (this.rewardExp > 0) {

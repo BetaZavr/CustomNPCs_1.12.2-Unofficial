@@ -42,7 +42,7 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.blocks.tiles.CustomTileEntityChest;
 import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -153,7 +153,7 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 			return;
 		}
 		items.add(new ItemStack(this));
-		if (tab == CustomRegisters.tabBlocks) { AdditionalMethods.instance.sort(items); }
+		if (tab == CustomRegisters.tabBlocks) { Util.instance.sort(items); }
 	}
 
 	@SideOnly(Side.CLIENT)

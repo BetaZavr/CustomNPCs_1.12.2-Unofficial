@@ -9,6 +9,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
@@ -38,6 +39,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.IScriptHandler;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -843,9 +845,10 @@ public class DataAnimation implements INPCAnimation {
 	}
 
 	private void startEvent(AnimationEvent event) {
-		if (event == null || !this.entity.isServerWorld() || (event.animation != null && event.animation.type == AnimationKind.EDITING)) { return; }
+		if (event == null || (event.animation != null && event.animation.type == AnimationKind.EDITING)) { return; }
 		IScriptHandler handler = null;
-		if (this.entity instanceof EntityNPCInterface) { handler = ((EntityNPCInterface) this.entity).script; }
+		if (!this.entity.isServerWorld()) { handler = ScriptController.Instance.clientScripts; }
+		else if (this.entity instanceof EntityNPCInterface) { handler = ((EntityNPCInterface) this.entity).script; }
 		else if (this.entity instanceof EntityPlayer) {
 			PlayerData data = PlayerData.get((EntityPlayer) entity);
 			if (data != null) { handler = data.scriptData; }

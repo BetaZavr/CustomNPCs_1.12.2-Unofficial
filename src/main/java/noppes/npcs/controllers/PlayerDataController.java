@@ -23,7 +23,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class PlayerDataController {
@@ -116,10 +116,10 @@ public class PlayerDataController {
 					}
 					try {
 						nbt.removeTag("BankData");
-						NBTJsonUtil.SaveFile(tempFile, nbt);
+						Util.instance.saveFile(tempFile, nbt);
 					} catch (Exception e) { LogWriter.error("Error:", e); }
 
-					AdditionalMethods.removeFile(playerDir);
+					Util.instance.removeFile(playerDir);
 				} catch (Exception e) {
 					LogWriter.error("Error loading Old file: " + playerDir.getAbsolutePath(), e);
 				}

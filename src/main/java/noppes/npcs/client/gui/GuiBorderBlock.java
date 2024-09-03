@@ -17,7 +17,7 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiBorderBlock extends GuiNPCInterface implements IGuiData {
 
@@ -58,8 +58,8 @@ public class GuiBorderBlock extends GuiNPCInterface implements IGuiData {
 		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
 			ITextComponent hover = new TextComponentTranslation("border.hover.message");
 			ITextComponent mes = new TextComponentTranslation(this.tile.message);
-			if (!AdditionalMethods.instance.deleteColor(this.tile.message)
-					.equals(AdditionalMethods.instance.deleteColor(mes.getFormattedText()))) {
+			if (!Util.instance.deleteColor(this.tile.message)
+					.equals(Util.instance.deleteColor(mes.getFormattedText()))) {
 				hover.appendSibling(new TextComponentString("<br>"));
 				hover.appendSibling(new TextComponentTranslation("gui.translation", mes.getFormattedText()));
 			}

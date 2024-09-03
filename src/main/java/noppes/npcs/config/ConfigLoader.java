@@ -23,6 +23,7 @@ import net.minecraftforge.fml.client.config.IConfigElement;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
+import noppes.npcs.util.Util;
 
 public class ConfigLoader {
 
@@ -35,26 +36,15 @@ public class ConfigLoader {
 		boolean isOldVersion = false;
 		boolean needSave = !file.exists();
 		if (!needSave) {
-			try {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8));
-				boolean start = true;
-				String line;
-				while ((line = reader.readLine()) != null) {
-					if (start && !line.equals("# Configuration file")) {
-						isOldVersion = true;
-						start = false;
-					} else {
-						break;
-					}
-					if (!line.contains("=") || line.indexOf("#") == 0) {
-						continue;
-					}
+			String text = Util.instance.loadFile(file);
+			isOldVersion = text.indexOf("# Configuration file") != 0;
+			if (isOldVersion) {
+				for (String line : text.split("" + ((char) 10))) {
+					if (!line.contains("=") || line.indexOf("#") == 0) { continue; }
 					lines.add(line);
 				}
-				if (isOldVersion) {
-					CommonProxy.saveFile(file, "");
-				}
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+				Util.instance.saveFile(file, "");
+			}
 		}
 		config = new Configuration(file);
 		for (Field field : CustomNpcs.class.getDeclaredFields()) {

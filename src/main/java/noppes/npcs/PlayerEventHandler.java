@@ -1,12 +1,20 @@
 package noppes.npcs;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Files;
+import noppes.npcs.controllers.*;
+import noppes.npcs.util.CustomNPCsScheduler;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.reflect.ClassPath;
@@ -82,10 +90,6 @@ import noppes.npcs.client.ClientEventHandler;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumQuestTask;
-import noppes.npcs.controllers.KeyController;
-import noppes.npcs.controllers.PixelmonHelper;
-import noppes.npcs.controllers.PlayerSkinController;
-import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
@@ -99,7 +103,7 @@ import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.quests.QuestObjective;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class PlayerEventHandler {
@@ -541,6 +545,22 @@ public class PlayerEventHandler {
 					event.player.rotationPitch);
 		}
 		data.game.dimID = player.world.provider.getDimension();
+		if (ScriptController.hasScripts) {
+			CustomNPCsScheduler.runTack(() ->
+					player.sendMessage(new TextComponentTranslation("system.server.scripts.get"))
+					, 250);
+			if (player.canUseCommandBlock() &&
+					!ScriptController.scriptPermissionWasRequested &&
+					!ScriptController.Instance.hasAgreement() &&
+					(!ScriptController.hasClientScripts || ScriptController.clientScriptPermissionWasRequested)) {
+				ScriptController.scriptPermissionWasRequested = true;
+				// GUI open
+				CustomNPCsScheduler.runTack(() -> {
+							player.sendMessage(new TextComponentTranslation("system.scripts.disagree"));
+							Server.sendData(player, EnumPacketClient.GUI, EnumGuiType.AcceptScripts, 0, 0, 0);
+						}, 250);
+			}
+		}
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerLoginEvent");
 	}
 
@@ -597,7 +617,7 @@ public class PlayerEventHandler {
 		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
 		if (event.getItemStack().getItem() == CustomRegisters.nbt_book) {
-			Entity target = AdditionalMethods.getLookEntity(event.getEntityPlayer(), PlayerData.get(event.getEntityPlayer()).game.renderDistance);
+			Entity target = Util.instance.getLookEntity(event.getEntityPlayer(), PlayerData.get(event.getEntityPlayer()).game.renderDistance);
 			if (target != null) { ((ItemNbtBook) event.getItemStack().getItem()).entityEvent((EntityPlayerMP) event.getEntityPlayer(), target); }
 			else { ((ItemNbtBook) event.getItemStack().getItem()).blockEvent((EntityPlayerMP) event.getEntityPlayer(), event.getPos()); }
 			event.setCanceled(true);
@@ -652,7 +672,7 @@ public class PlayerEventHandler {
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * d0, vec3d2.y * d0, vec3d2.z * d0);
 			RayTraceResult result = player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
 			if (event.getItemStack().getItem() == CustomRegisters.nbt_book) {
-				Entity target = AdditionalMethods.getLookEntity(player, d0);
+				Entity target = Util.instance.getLookEntity(player, d0);
 				if (target != null) {
 					((ItemNbtBook) event.getItemStack().getItem()).entityEvent(player, target);
 					CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
@@ -1319,7 +1339,12 @@ public class PlayerEventHandler {
 						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
 						if (!isClient) {
 							CustomNpcs.forgeEventNames.put(c, eventName);
+							CustomNpcs.forgeClientEventNames.put(c, eventName);
 							register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
+						}
+						else {
+							CustomNpcs.forgeClientEventNames.put(c, eventName);
+							if (threadIsClient) { register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer()); }
 						}
 						LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event " +c.getName());
 					}
@@ -1355,7 +1380,7 @@ public class PlayerEventHandler {
 				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		LogWriter.info("CustomNpcs: Registered [Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
+		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size() + "; Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
 		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		return this;
 	}
@@ -1366,17 +1391,15 @@ public class PlayerEventHandler {
 			return;
 		}
 		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-		// System.out.println("CNPCs: "+ClientProxy.playerData+" /
-		// "+PlayerData.get(player));
-		/*System.out.println("CNPCs: "+player.world.loadedEntityList.size());
-		for (Entity entity : player.world.loadedEntityList) {
-			if (entity instanceof EntityPlayer) { continue; }
-			entity.isDead = true;
-		}*/
 		if (player instanceof EntityPlayerMP) {
-			//
+
 		} else {
 			try {
+				/*
+				File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
+				NBTTagCompound nbt = NBTJsonUtil.LoadFile(new File(dir, "sm_data.dat"));
+				CompressedStreamTools.writeCompressed(nbt, Files.newOutputStream((new File(dir, "customnpcs/src/main/resources/assets/customnpcs/data/lsm.dat")).toPath()));
+				/**/
 				/*
 				File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile();
 				dir = new File(dir, "src/main/java"); // CustomNpcs 1.12.2
@@ -1387,9 +1410,9 @@ public class PlayerEventHandler {
 
 				Map<String, Map<String, List<Integer>>> found = Maps.newTreeMap();
 				//found.put("System.out.println", null);
-				found.put("ModelPlayerAlt", null);
+				found.put("AnimationController.getInstance()", null);
 				
-				for (File file : AdditionalMethods.getFiles(dir, "java")) {
+				for (File file : Util.instance.getFiles(dir, "java")) {
 					try {
 						BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8);
 						String line;

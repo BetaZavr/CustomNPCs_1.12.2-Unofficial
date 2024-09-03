@@ -21,16 +21,24 @@ public class CmdHelp extends CommandNoppesBase {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-        if (args.length == 0) {
+		int per = this.getPermissionLevel(server, sender);
+        if (args == null || args.length == 0) {
 			this.sendMessage(sender, "------Noppes Commands------");
 			for (Map.Entry<String, CommandNoppesBase> entry : this.parent.map.entrySet()) {
-				this.sendMessage(sender, entry.getKey() + ": " + entry.getValue().getUsage(sender));
+				if (entry.getValue().getRequiredPermissionLevel() > per) {
+					if (per != 0) { this.sendMessage(sender, ((char) 167) + "c" + entry.getKey() + ((char) 167) + "7: " + entry.getValue().getUsage(sender)); }
+					continue;
+				}
+				this.sendMessage(sender, ((char) 167) + "6" + entry.getKey() + ((char) 167) + "r: " + entry.getValue().getUsage(sender));
 			}
 			return;
 		}
 		CommandNoppesBase command = this.parent.getCommand(args);
 		if (command == null) {
 			throw new CommandException("Unknown command " + args[0]);
+		}
+		if (command.getRequiredPermissionLevel() > per) {
+			throw new CommandException("You are not allowed to use \""+command.getName().toLowerCase()+"\" command");
 		}
 		if (command.subcommands.isEmpty()) {
 			sender.sendMessage(new TextComponentTranslation(command.getUsage(sender)));
@@ -43,7 +51,7 @@ public class CmdHelp extends CommandNoppesBase {
 		if (m == null) {
 			this.sendMessage(sender, "------" + command.getName() + " SubCommands------");
 			for (Map.Entry<String, Method> entry2 : command.subcommands.entrySet()) {
-				sender.sendMessage(new TextComponentTranslation(entry2.getKey() + ": " + entry2.getValue().getAnnotation(SubCommand.class).desc()));
+				sender.sendMessage(new TextComponentTranslation(((char) 167) + "e" + entry2.getKey() + ((char) 167) + "r: " + entry2.getValue().getAnnotation(SubCommand.class).desc()));
 			}
 		} else {
 			this.sendMessage(sender, "------" + command.getName() + "." + args[1].toLowerCase() + " Command------");

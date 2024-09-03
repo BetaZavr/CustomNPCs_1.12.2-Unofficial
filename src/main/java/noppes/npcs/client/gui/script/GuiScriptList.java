@@ -16,7 +16,7 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.controllers.ScriptContainer;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiScriptList extends SubGuiInterface implements ICustomScrollListener {
 
@@ -196,7 +196,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 			}
 			String size = "" + l;
 			if (l > 999) {
-				size = AdditionalMethods.getTextReducedNumber(l, false, false, true);
+				size = Util.instance.getTextReducedNumber(l, false, false, true);
 			}
 			suffixsBase.add(size + "b");
 			listBase.add(key);
@@ -221,7 +221,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 			String size = "" + l;
 			
 			if (l > 999) {
-				size = AdditionalMethods.getTextReducedNumber(l, false, false, true);
+				size = Util.instance.getTextReducedNumber(l, false, false, true);
 			}
 			suffixs.add(size + "b");
 			list.add(key);

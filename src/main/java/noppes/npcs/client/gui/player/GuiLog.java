@@ -35,8 +35,12 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.IPos;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.QuestEvent.QuestExtraButtonEvent;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.ClientGuiEventHandler;
 import noppes.npcs.client.ClientProxy;
@@ -55,6 +59,9 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.constants.EnumRewardType;
+import noppes.npcs.constants.EnumScriptType;
+import noppes.npcs.controllers.QuestController;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.PlayerCompassHUDData;
 import noppes.npcs.controllers.data.PlayerData;
@@ -64,7 +71,7 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiLog
 extends GuiNPCInterface
@@ -106,7 +113,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					qd.quest.completerPos[3] = npc.world.provider.getDimension();
 				}
 			}
-			npc = AdditionalMethods.copyToGUI(npc, world, false);
+			npc = Util.instance.copyToGUI(npc, world, false);
 		}
 
 		public Map<Integer, List<String>> getText(int first, EntityPlayer player, FontRenderer fontRenderer) { // [listID/2,
@@ -159,7 +166,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 											} else {
 												e = enti;
 												if (e instanceof EntityNPCInterface) {
-													e = AdditionalMethods.copyToGUI((EntityNPCInterface) e, world,
+													e = Util.instance.copyToGUI((EntityNPCInterface) e, world,
 															false);
 												}
 											}
@@ -191,7 +198,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 							char c = word.charAt(0);
 							if (c == '\r' || c == '\n') {
 								lines.add(color + line);
-								color = AdditionalMethods.getLastColor(color, line);
+								color = Util.instance.getLastColor(color, line);
 								line = "";
 								break Label_0236;
 							}
@@ -204,7 +211,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						}
 						if (fontRenderer.getStringWidth(newLine) > width) {
 							lines.add(color + line);
-							color = AdditionalMethods.getLastColor(color, line);
+							color = Util.instance.getLastColor(color, line);
 							line = word.trim();
 						} else {
 							line = newLine;
@@ -624,6 +631,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				return;
 			}
 			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.QUEST_LOG_BUTTON, new QuestExtraButtonEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), QuestController.instance.get(hoverQuestId)));
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestExtraButton, hoverQuestId);
 			break;
 		}

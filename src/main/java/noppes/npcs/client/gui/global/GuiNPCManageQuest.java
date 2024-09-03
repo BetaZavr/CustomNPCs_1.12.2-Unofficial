@@ -35,7 +35,7 @@ import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
@@ -62,7 +62,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 1: {
-			this.setSubGui(new SubGuiEditText(1, AdditionalMethods.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+			this.setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 			break;
 		}
 		case 2: {
@@ -117,7 +117,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 			break;
 		}
 		case 11: {
-			this.setSubGui(new SubGuiEditText(11, AdditionalMethods.instance
+			this.setSubGui(new SubGuiEditText(11, Util.instance
 					.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 			break;
 		}
@@ -234,8 +234,8 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 				List<Entry<String, Quest>> list = Lists.newArrayList(map.entrySet());
 				list.sort((d_0, d_1) -> {
                     if (GuiNPCManageQuest.isName) {
-                        String n_0 = AdditionalMethods.instance.deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText() + "_" + d_0.getValue().id).toLowerCase();
-                        String n_1 = AdditionalMethods.instance.deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText() + "_" + d_1.getValue().id).toLowerCase();
+                        String n_0 = Util.instance.deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText() + "_" + d_0.getValue().id).toLowerCase();
+                        String n_1 = Util.instance.deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText() + "_" + d_1.getValue().id).toLowerCase();
                         return n_0.compareTo(n_1);
                     } else {
                         return Integer.compare(d_0.getValue().id, d_1.getValue().id);

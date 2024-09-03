@@ -42,7 +42,7 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiNPCManageFactions extends GuiNPCInterface2
 		implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISubGuiListener, GuiYesNoCallback {
@@ -278,7 +278,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 			return;
 		}
 
-		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 16, AdditionalMethods.instance.deleteColor(this.faction.name)));
+		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 16, Util.instance.deleteColor(this.faction.name)));
 		this.getTextField(0).setMaxStringLength(50);
 
 		this.addLabel(new GuiNpcLabel(0, "gui.name", this.guiLeft + 8, this.guiTop + 9));
@@ -367,7 +367,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
         });
 		for (Entry<String, Integer> entry : newList) {
 			int id = entry.getValue();
-			String name = AdditionalMethods.instance.deleteColor(entry.getKey());
+			String name = Util.instance.deleteColor(entry.getKey());
 			if (name.contains("ID:" + id + " ")) {
 				name = name.substring(name.indexOf(" ") + 3);
 			}
@@ -408,7 +408,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 	@Override
 	public void setSelected(String selected) {
 		for (String key : this.scrollFactions.getList()) {
-			if (AdditionalMethods.instance.deleteColor(key).equals(selected) && this.data.containsKey(key)) {
+			if (Util.instance.deleteColor(key).equals(selected) && this.data.containsKey(key)) {
 				this.scrollFactions.setSelected(key);
 				return;
 			}

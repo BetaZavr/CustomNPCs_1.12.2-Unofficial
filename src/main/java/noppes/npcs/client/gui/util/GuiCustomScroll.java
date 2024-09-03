@@ -21,7 +21,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.util.ResourceData;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.NaturalOrderComparator;
 
 public class GuiCustomScroll
@@ -147,7 +147,7 @@ implements IComponentGui {
 			if (this.colors != null && i < this.colors.size()) {
 				c = this.colors.get(i);
 			}
-			if ((this.multipleSelection && AdditionalMethods.containsDeleteColor(this.selectedList, text, false))
+			if ((this.multipleSelection && Util.instance.containsDeleteColor(this.selectedList, text, false))
 					|| (!this.multipleSelection && this.selected == i)) {
 				this.drawVerticalLine(j - 2, k - 4, k + 10, -1);
 				this.drawVerticalLine(j + width - 17 + xOffset + xo, k - 4, k + 10, -1);
@@ -553,9 +553,9 @@ implements IComponentGui {
 		}
 		this.selected = this.list.indexOf(name);
 		if (this.selected == -1) {
-			name = AdditionalMethods.instance.deleteColor(name);
+			name = Util.instance.deleteColor(name);
 			for (int i = 0; i < this.list.size(); i++) {
-				if (AdditionalMethods.instance.deleteColor(this.list.get(i)).equalsIgnoreCase(name)) {
+				if (Util.instance.deleteColor(this.list.get(i)).equalsIgnoreCase(name)) {
 					this.selected = i;
 					break;
 				}

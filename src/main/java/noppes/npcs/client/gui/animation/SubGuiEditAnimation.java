@@ -76,7 +76,7 @@ import noppes.npcs.client.model.animation.PartConfig;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.RayTraceVec;
 
 public class SubGuiEditAnimation
@@ -142,11 +142,11 @@ public class SubGuiEditAnimation
 		onlyCurrentPart = false;
 		hitBoxPartName = new TextComponentTranslation("animation.hitbox.part.name").getFormattedText();
 
-		npcAnim = AdditionalMethods.copyToGUI(npc, mc.world, true);
+		npcAnim = Util.instance.copyToGUI(npc, mc.world, true);
 		npcAnim.display.setName(npc.getName()+"_animation");
 		baseRotation = npcAnim.rotationYaw;
 
-		npcPart = AdditionalMethods.copyToGUI(npc, mc.world, true);
+		npcPart = Util.instance.copyToGUI(npc, mc.world, true);
 		npcAnim.display.setName(npc.getName()+"_anim_part");
 
 		blockNames = new String[6];
@@ -1418,7 +1418,7 @@ public class SubGuiEditAnimation
 			AxisAlignedBB aabb;
 			if (anim.getDamageHitboxType() == 1) {
 				aabb = new AxisAlignedBB(-showNPC.width, 0.0d, -showNPC.width, showNPC.width, showNPC.height, showNPC.width);
-				RayTraceVec data = AdditionalMethods.instance.getPosition(showNPC.posX, showNPC.posY, showNPC.posZ, showNPC.rotationYaw, 0.0d, 1.0d);
+				RayTraceVec data = Util.instance.getPosition(showNPC.posX, showNPC.posY, showNPC.posZ, showNPC.rotationYaw, 0.0d, 1.0d);
 				aabb = aabb.offset((float) (data.x - showNPC.posX), (float) (data.y - showNPC.posY), (float) (data.z - showNPC.posZ));
 			}
 			else { aabb = this.anim.getDamageHitbox(showNPC); }
@@ -2280,7 +2280,7 @@ public class SubGuiEditAnimation
 			NBTTagCompound nbt = new NBTTagCompound();
 			Entity le;
 			if (e instanceof EntityNPCInterface) {
-				le = AdditionalMethods.copyToGUI((EntityNPCInterface) e, mc.world, true);
+				le = Util.instance.copyToGUI((EntityNPCInterface) e, mc.world, true);
 			} else {
 				e.writeToNBTAtomically(nbt);
 				le = EntityList.createEntityFromNBT(nbt, this.npc.world);

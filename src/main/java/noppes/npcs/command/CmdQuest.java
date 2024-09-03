@@ -27,6 +27,10 @@ import javax.annotation.Nonnull;
 
 public class CmdQuest extends CommandNoppesBase {
 
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
+
 	@SubCommand(desc = "Finish a quest", usage = "<player> <quest>")
 	public void finish(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String playername = args[0];

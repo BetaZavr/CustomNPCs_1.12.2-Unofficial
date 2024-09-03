@@ -47,7 +47,7 @@ import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.dimensions.CustomWorldInfo;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ObfuscationHelper;
 
@@ -60,6 +60,7 @@ public class Server {
 		Server.list.add(EnumPacketClient.EYE_BLINK);
 		Server.list.add(EnumPacketClient.UPDATE_NPC);
 		Server.list.add(EnumPacketClient.SET_TILE_DATA);
+		Server.list.add(EnumPacketClient.SEND_FILE_PART);
 		Server.list.add(EnumPacketClient.PLAY_SOUND);
 		Server.list.add(EnumPacketClient.UPDATE_NPC_ANIMATION);
 		Server.list.add(EnumPacketClient.UPDATE_NPC_NAVIGATION);
@@ -90,8 +91,8 @@ public class Server {
 					buffer.writeInt(map.size());
 					int i = 0;
 					for (Entry<Object, Object> entry : map.entrySet()) {
-						NBTBase key = AdditionalMethods.instance.writeObjectToNbt(entry.getKey());
-						NBTBase value = AdditionalMethods.instance.writeObjectToNbt(entry.getValue());
+						NBTBase key = Util.instance.writeObjectToNbt(entry.getKey());
+						NBTBase value = Util.instance.writeObjectToNbt(entry.getValue());
 						if (key != null && key.getId() < (byte) 9 && key.getId() != (byte) 7) {
 							buffer.writeByte(key.getId());
 							switch (key.getId()) {

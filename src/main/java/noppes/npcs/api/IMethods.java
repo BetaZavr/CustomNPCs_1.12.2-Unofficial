@@ -1,10 +1,14 @@
 package noppes.npcs.api;
 
 import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.util.RayTraceResults;
 import noppes.npcs.util.RayTraceRotate;
 import noppes.npcs.util.RayTraceVec;
+
+import java.io.File;
+import java.util.List;
 
 public interface IMethods {
 
@@ -37,5 +41,15 @@ public interface IMethods {
 	IEntity<?> transferEntity(IEntity<?> entity, int dimension, IPos pos);
 
 	NBTBase writeObjectToNbt(Object value);
+
+	List<File> getFiles(File dir, String index);
+
+	boolean removeFile(File directory);
+
+	String loadFile(File file);
+
+	boolean saveFile(File file, String text);
+
+	boolean saveFile(File file, NBTTagCompound compound);
 
 }

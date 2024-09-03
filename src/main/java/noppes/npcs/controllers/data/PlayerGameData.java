@@ -11,7 +11,7 @@ import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class PlayerGameData {
 
@@ -154,7 +154,7 @@ public class PlayerGameData {
 	}
 
 	public String getTextMoney() {
-		return AdditionalMethods.getTextReducedNumber(this.money, true, true, false);
+		return Util.instance.getTextReducedNumber(this.money, true, true, false);
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {

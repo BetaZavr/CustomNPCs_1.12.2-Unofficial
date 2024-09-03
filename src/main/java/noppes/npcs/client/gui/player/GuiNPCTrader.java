@@ -41,7 +41,7 @@ import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarcetSection;
 import noppes.npcs.controllers.data.MarkupData;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScrollListener, IGuiData {
 
@@ -144,11 +144,11 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				if (this.money != ClientProxy.playerData.game.getMoney()) {
 					this.money = ClientProxy.playerData.game.getMoney();
 					if (this.selectDealData.buyMoney > 0) {
-						String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true,
+						String text = Util.instance.getTextReducedNumber(this.selectDealData.buyMoney, true, true,
 								false) + CustomNpcs.displayCurrencies + " / "
 								+ ClientProxy.playerData.game.getTextMoney() + CustomNpcs.displayCurrencies;
 						if (this.marcet.isLimited) {
-							text += " / " + AdditionalMethods.getTextReducedNumber(this.marcet.money, true, true, false)
+							text += " / " + Util.instance.getTextReducedNumber(this.marcet.money, true, true, false)
 									+ CustomNpcs.displayCurrencies;
 						}
 						this.getLabel(4).setLabel(text);
@@ -212,7 +212,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			}
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.disableBlend();
-			String lv = AdditionalMethods.instance
+			String lv = Util.instance
 					.deleteColor(new TextComponentTranslation("enchantment.level." + md.level).getFormattedText());
 			if (lv.equals("enchantment.level." + md.level)) {
 				lv = "" + md.level;
@@ -302,7 +302,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		}
 		if (this.getLabel(6) != null && this.getLabel(6).enabled) {
 			this.getLabel(6)
-					.setLabel(new TextComponentTranslation("market.uptime", AdditionalMethods.ticksToElapsedTime(this.marcet.nextTime / 50, false, false, false))
+					.setLabel(new TextComponentTranslation("market.uptime", Util.instance.ticksToElapsedTime(this.marcet.nextTime / 50, false, false, false))
 									.getFormattedText());
 			if (this.marcet.nextTime <= 0) {
 				NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.MarketTime, this, 2500, this.marcet.getId());
@@ -332,7 +332,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			this.setHoverText(text.getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).visible && this.getButton(1).isMouseOver()) {
 			this.colorP = 0x8000FF00;
-			if (AdditionalMethods.inventoryItemCount(this.player, stack, this.selectDealData.deal.availability,
+			if (Util.instance.inventoryItemCount(this.player, stack, this.selectDealData.deal.availability,
 					this.selectDealData.deal.getIgnoreDamage(), this.selectDealData.deal.getIgnoreNBT()) < ct) {
 				this.colorP = 0x80FF0000;
 			}
@@ -459,7 +459,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				suffixs.add(((char) 167)
 						+ (deal.getAmount() == 0 ? "4"
 								: deal.getAmount() < deal.getProduct().getMaxStackSize() ? "b" : "a")
-						+ AdditionalMethods.getTextReducedNumber(deal.getAmount(), true, true, false));
+						+ Util.instance.getTextReducedNumber(deal.getAmount(), true, true, false));
 			} else {
 				suffixs.add(((char) 167) + "a" + new String(Character.toChars(0x221E)));
 			}
@@ -505,11 +505,11 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		if (this.selectDealData.buyMoney > 0) {
 			this.getLabel(3).enabled = true;
 			this.getLabel(4).enabled = true;
-			String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true, false)
+			String text = Util.instance.getTextReducedNumber(this.selectDealData.buyMoney, true, true, false)
 					+ CustomNpcs.displayCurrencies + " / " + ClientProxy.playerData.game.getTextMoney()
 					+ CustomNpcs.displayCurrencies;
 			if (this.marcet.isLimited) {
-				text += " / " + AdditionalMethods.getTextReducedNumber(this.marcet.money, true, true, false)
+				text += " / " + Util.instance.getTextReducedNumber(this.marcet.money, true, true, false)
 						+ CustomNpcs.displayCurrencies;
 			}
 			this.getLabel(4).setLabel(text);
@@ -526,7 +526,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 							: this.selectDealData.deal.getAmount() < this.selectDealData.deal.getProduct()
 									.getMaxStackSize() ? "1" : "2")
 					+ "x"
-					+ AdditionalMethods.getTextReducedNumber(this.selectDealData.deal.getAmount(), true, true, false));
+					+ Util.instance.getTextReducedNumber(this.selectDealData.deal.getAmount(), true, true, false));
 		} else {
 			this.getLabel(5).setLabel(new String(Character.toChars(0x221E)));
 		}
@@ -553,13 +553,13 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				if (this.canBuy == 0 && this.selectDealData.buyMoney > 0 && this.money < this.selectDealData.buyMoney) {
 					this.canBuy = 3;
 				}
-				if (this.canBuy == 0 && !AdditionalMethods.canRemoveItems(this.player.inventory.mainInventory,
+				if (this.canBuy == 0 && !Util.instance.canRemoveItems(this.player.inventory.mainInventory,
 						this.selectDealData.buyItems, this.selectDealData.ignoreDamage,
 						this.selectDealData.ignoreNBT)) {
 					this.canBuy = 4;
 				}
 				if (this.canBuy == 0
-						&& !AdditionalMethods.canAddItemAfterRemoveItems(this.player.inventory.mainInventory,
+						&& !Util.instance.canAddItemAfterRemoveItems(this.player.inventory.mainInventory,
 								this.selectDealData.main, this.selectDealData.buyItems,
 								this.selectDealData.ignoreDamage, this.selectDealData.ignoreNBT)) {
 					this.canBuy = 5;
@@ -581,7 +581,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 					Map<ItemStack, Integer> map = Maps.newHashMap();
 					map.put(this.selectDealData.main, this.selectDealData.count);
 					if (this.canSell == 0 && !this.selectDealData.main.isEmpty()
-							&& !AdditionalMethods.canRemoveItems(this.player.inventory.mainInventory, map,
+							&& !Util.instance.canRemoveItems(this.player.inventory.mainInventory, map,
 									this.selectDealData.ignoreDamage, this.selectDealData.ignoreNBT)) {
 						this.canSell = 3;
 					}
@@ -590,7 +590,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 							this.canSell = 4;
 						}
 						if (this.canSell == 0 && !this.selectDealData.sellItems.isEmpty()
-								&& !AdditionalMethods.canRemoveItems(this.marcet.inventory,
+								&& !Util.instance.canRemoveItems(this.marcet.inventory,
 										this.selectDealData.sellItems, this.selectDealData.ignoreDamage,
 										this.selectDealData.ignoreNBT)) {
 							this.canSell = 5;

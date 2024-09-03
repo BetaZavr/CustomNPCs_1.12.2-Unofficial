@@ -42,7 +42,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ObfuscationHelper;
 
@@ -111,7 +111,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
-		dialogNpc = AdditionalMethods.copyToGUI(npc, mc.world, false);
+		dialogNpc = Util.instance.copyToGUI(npc, mc.world, false);
 		selected = 0;
 		selectedStart = 0;
 		selectedX = 0;
@@ -410,7 +410,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 				int offset = this.dialogHeight;
 				this.drawString(this.fontRenderer,
 						((char) 167) + "e" + new TextComponentTranslation("gui.wait",
-								((char) 167) + "e: " + ((char) 167) + "f" + AdditionalMethods.ticksToElapsedTime(
+								((char) 167) + "e: " + ((char) 167) + "f" + Util.instance.ticksToElapsedTime(
 										(this.waitToAnswer - System.currentTimeMillis()) / 50L, false, false, false))
 												.getFormattedText(),
 						this.guiLeft + 25, this.dialogHeight, 0xFFFFFF);

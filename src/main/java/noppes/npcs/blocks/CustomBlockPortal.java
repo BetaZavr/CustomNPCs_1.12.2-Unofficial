@@ -41,7 +41,7 @@ import noppes.npcs.api.event.NpcEvent.CustomNpcTeleport;
 import noppes.npcs.api.event.PlayerEvent.CustomTeleport;
 import noppes.npcs.blocks.tiles.CustomTileEntityPortal;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 import javax.annotation.Nonnull;
@@ -136,7 +136,7 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 			return;
 		}
 		items.add(new ItemStack(this));
-		if (tab == CustomRegisters.tabBlocks) { AdditionalMethods.instance.sort(items); }
+		if (tab == CustomRegisters.tabBlocks) { Util.instance.sort(items); }
 	}
 
 	private CustomTileEntityPortal getTile(World world, BlockPos pos) {
@@ -304,7 +304,7 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 						return;
 					}
 				}
-				entityIn = AdditionalMethods.travelEntity(CustomNpcs.Server, entityIn, isHome ? homeId : id);
+				entityIn = Util.instance.travelEntity(CustomNpcs.Server, entityIn, isHome ? homeId : id);
                 if (entityIn != null) {
 					entityIn.setPosition(p.getX() + 0.5d, p.getY(), p.getZ() + 0.5d);
 				}

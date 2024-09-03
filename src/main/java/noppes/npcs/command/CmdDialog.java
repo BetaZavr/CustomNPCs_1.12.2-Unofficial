@@ -22,6 +22,10 @@ import javax.annotation.Nonnull;
 
 public class CmdDialog extends CommandNoppesBase {
 
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
+
 	@Override
 	public String getDescription() {
 		return "Dialog operations";

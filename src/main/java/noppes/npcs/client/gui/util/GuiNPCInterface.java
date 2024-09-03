@@ -40,6 +40,11 @@ implements IEditNPC {
 
 	public static final ResourceLocation RESOURCE_SLOT = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 
+	public static final ResourceLocation MENU_BUTTON = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubutton.png");
+	public static final ResourceLocation MENU_SIDE_BUTTON = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menusidebutton.png");
+	public static final ResourceLocation MENU_TOP_BUTTON = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menutopbutton.png");
+
+
 	public boolean closeOnEsc = false;
 	public boolean hoverMiniWin = false;
 	public boolean drawDefaultBackground = false;
@@ -269,7 +274,7 @@ implements IEditNPC {
 			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
 			GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
 			this.mc.renderEngine.bindTexture(this.background);
-			if (this.xSize > 252) {
+			if (this.xSize > 252 && this.ySize <= 256) {
 				this.drawTexturedModalRect(0, 0, 0, 0, 252, this.ySize);
 				int w = this.xSize - 252;
 				this.drawTexturedModalRect(252, 0, 256 - w, 0, w, this.ySize);

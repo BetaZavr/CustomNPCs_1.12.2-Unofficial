@@ -27,4 +27,6 @@ public interface IScriptHandler {
 
 	void setLanguage(String language);
 
+	void setLastInited(long timeMC);
+
 }

@@ -18,7 +18,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 
@@ -79,7 +79,7 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 			int days = this.role.rates.get(3);
 			String daysS = days + " " + ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText()
 					: new TextComponentTranslation("follower.days").getFormattedText());
-			String money = AdditionalMethods.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " "
+			String money = Util.instance.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " "
 					+ CustomNpcs.displayCurrencies;
 			this.fontRenderer.drawString(money + " = " + daysS, this.guiLeft + 90, this.guiTop + 68,
 					CustomNpcResourceListener.DefaultTextColor);
@@ -92,7 +92,7 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 			if (this.getButton(i) == null) {
 				continue;
 			}
-			this.getButton(i).setEnabled(this.mc.player.capabilities.isCreativeMode || AdditionalMethods.canRemoveItems(
+			this.getButton(i).setEnabled(this.mc.player.capabilities.isCreativeMode || Util.instance.canRemoveItems(
 					this.mc.player.inventory.mainInventory, this.role.rentalItems.getStackInSlot(i), false, false));
 		}
 		if (this.getButton(3) != null) {

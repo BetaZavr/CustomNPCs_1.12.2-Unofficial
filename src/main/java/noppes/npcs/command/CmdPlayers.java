@@ -27,6 +27,10 @@ import javax.annotation.Nonnull;
 
 public class CmdPlayers extends CommandNoppesBase {
 
+	public int getRequiredPermissionLevel() {
+		return 2;
+	}
+
 	@SubCommand(desc = "Change the player's virtual currency balance", usage = "<playername> <value>")
 	public void addmoney(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		Object[] objs = this.getPlayerData(server, sender, args[0]);

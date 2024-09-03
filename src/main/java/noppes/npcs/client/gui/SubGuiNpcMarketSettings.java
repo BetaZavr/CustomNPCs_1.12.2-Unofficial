@@ -24,7 +24,7 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarcetSection;
 import noppes.npcs.controllers.data.MarkupData;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoCallback {
 
@@ -77,7 +77,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 			break;
 		}
 		case 5: { // add section
-			this.setSubGui(new SubGuiEditText(1, AdditionalMethods.instance
+			this.setSubGui(new SubGuiEditText(1, Util.instance
 					.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 			break;
 		}
@@ -128,7 +128,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 			this.setHoverText(new TextComponentTranslation("market.hover.set.name",
 					new TextComponentTranslation(this.marcet.name).getFormattedText()).getFormattedText());
 		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.set.update", AdditionalMethods.ticksToElapsedTime(this.marcet.updateTime * 1200L, false, false, false)).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("market.hover.set.update", Util.instance.ticksToElapsedTime(this.marcet.updateTime * 1200L, false, false, false)).getFormattedText());
 		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.extra.buy").getFormattedText());
 		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {

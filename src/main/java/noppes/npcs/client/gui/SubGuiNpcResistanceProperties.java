@@ -25,7 +25,7 @@ import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.data.Resistances;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class SubGuiNpcResistanceProperties
 extends SubGuiInterface
@@ -58,7 +58,7 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 		if (!CustomNpcs.ShowDescriptions || this.scroll == null) { return; }
 		if ((this.getSlider(0) != null && this.getSlider(0).isMouseOver()) ||
 				(this.getTextField(0) != null && this.getTextField(0).isMouseOver())) {
-			ITextComponent mes = new TextComponentTranslation("stats.hover.resist", AdditionalMethods.instance.deleteColor(this.select));
+			ITextComponent mes = new TextComponentTranslation("stats.hover.resist", Util.instance.deleteColor(this.select));
 			String damageType = this.data.get(this.select);
 			float v = Math.round(this.resistances.get(damageType) * 120.0f - 140.0f);
 			if (v == 0.0f) { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.0")); }
@@ -96,7 +96,7 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 		Collections.sort(names);
 		Collections.sort(notList);
 		names.addAll(notList);
-		if (this.select.isEmpty() && !names.isEmpty()) { this.select = AdditionalMethods.instance.deleteColor(names.get(0)); }
+		if (this.select.isEmpty() && !names.isEmpty()) { this.select = Util.instance.deleteColor(names.get(0)); }
 		
 		List<String> suffixs = Lists.newArrayList();
 		for (String key : names) { suffixs.add(mapSfx.get(key)); }
@@ -149,7 +149,7 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
 		this.data.clear();
 		for (String name : list) {
-			String trName = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("resistance." + name.toLowerCase()).getFormattedText());
+			String trName = Util.instance.deleteColor(new TextComponentTranslation("resistance." + name.toLowerCase()).getFormattedText());
 			if (trName.equals("resistance." + name.toLowerCase())) { trName = name; }
 			this.data.put(trName, name);
 		}
@@ -161,8 +161,8 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
-		if (!scroll.hasSelected() || !this.data.containsKey(AdditionalMethods.instance.deleteColor(scroll.getSelected()))) { return; }
-		this.select = AdditionalMethods.instance.deleteColor(scroll.getSelected());
+		if (!scroll.hasSelected() || !this.data.containsKey(Util.instance.deleteColor(scroll.getSelected()))) { return; }
+		this.select = Util.instance.deleteColor(scroll.getSelected());
 		this.initGui();
 	}
 

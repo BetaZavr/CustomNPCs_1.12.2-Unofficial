@@ -62,6 +62,7 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.BankData;
+import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.DealMarkup;
 import noppes.npcs.controllers.data.EncryptData;
@@ -89,10 +90,11 @@ import noppes.npcs.items.ItemScripted;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.roles.RoleTransporter;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ServerNpcRecipeBookHelper;
+import noppes.npcs.util.TempFile;
 
 public class PacketHandlerPlayer {
 
@@ -107,6 +109,7 @@ public class PacketHandlerPlayer {
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MousesPressed);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.StopNPCAnimation);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetTileData);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetFilePart);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MovingPathGet);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MarketTime);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.NpcData);
@@ -676,7 +679,7 @@ public class PacketHandlerPlayer {
 				}
 				// Has Items
 				if (canGiveItem) {
-					canGiveItem = AdditionalMethods.canRemoveItems(player.inventory.mainInventory, dm.buyItems,
+					canGiveItem = Util.instance.canRemoveItems(player.inventory.mainInventory, dm.buyItems,
 							dm.ignoreDamage, dm.ignoreNBT);
 				}
 			}
@@ -698,7 +701,7 @@ public class PacketHandlerPlayer {
                 data.game.addMoney(-1 * dm.buyMoney);
                 // Del Items
 				for (ItemStack st : dm.buyItems.keySet()) {
-					AdditionalMethods.removeItem(player, st, dm.buyItems.get(st), dm.ignoreDamage, dm.ignoreNBT);
+					Util.instance.removeItem(player, st, dm.buyItems.get(st), dm.ignoreDamage, dm.ignoreNBT);
 				}
 			}
 			// Give
@@ -733,7 +736,7 @@ public class PacketHandlerPlayer {
 				if (CustomNpcs.SendMarcetInfo) { player.sendMessage(new TextComponentTranslation("mes.market.buy", dm.main.getDisplayName() + " x" + dm.count)); }
 				NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f,
 						((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
-				AdditionalMethods.updatePlayerInventory(player);
+				Util.instance.updatePlayerInventory(player);
 				data.game.addMarkupXP(marcet.getId(), 5);
                 EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(),
 						new RoleEvent.TraderEvent(player, npc, dm.main, dm.buyItems));
@@ -770,7 +773,7 @@ public class PacketHandlerPlayer {
 				} else {
 					marcet.money -= dm.sellMoney;
 				}
-				if (!notSell && !dm.sellItems.isEmpty() && !AdditionalMethods.canRemoveItems(marcet.inventory,
+				if (!notSell && !dm.sellItems.isEmpty() && !Util.instance.canRemoveItems(marcet.inventory,
 						dm.sellItems, dm.ignoreDamage, dm.ignoreNBT)) {
 					notSell = true;
 				} else {
@@ -784,7 +787,7 @@ public class PacketHandlerPlayer {
 				}
 			}
 			if (player.capabilities.isCreativeMode
-					|| AdditionalMethods.removeItem(player, dm.main, dm.ignoreDamage, dm.ignoreNBT)) {
+					|| Util.instance.removeItem(player, dm.main, dm.ignoreDamage, dm.ignoreNBT)) {
 				// Add Items
 				if (!dm.sellItems.isEmpty()) {
 					boolean change = false;
@@ -802,7 +805,7 @@ public class PacketHandlerPlayer {
 					if (change) {
 						NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f,
 								((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
-						AdditionalMethods.updatePlayerInventory(player);
+						Util.instance.updatePlayerInventory(player);
 					}
 					marcet.addInventoryItems(dm.sellItems);
 				}
@@ -894,6 +897,8 @@ public class PacketHandlerPlayer {
 				tile.writeToNBT(compound);
 				Server.sendData(player, EnumPacketClient.SET_TILE_DATA, compound);
 			}
+		} else if (type == EnumPlayerPacket.ScriptPackage) {
+			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
 		} else if (type == EnumPlayerPacket.MovingPathGet) {
 			int id = buffer.readInt();
 			Entity entity = player.world.getEntityByID(id);
@@ -917,6 +922,17 @@ public class PacketHandlerPlayer {
 			}
 		} else if (type == EnumPlayerPacket.OpenGui) {
 			EventHooks.onPlayerOpenGui(player, Server.readString(buffer), Server.readString(buffer));
+		} else if (type == EnumPlayerPacket.GetFilePart) {
+			int part = buffer.readInt();
+			String name = Server.readString(buffer);
+			if (!CommonProxy.downloadableFiles.containsKey(name)) {
+				Server.sendData(player, EnumPacketClient.SEND_FILE_PART, true, name);
+				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
+				return;
+			}
+			TempFile file = CommonProxy.downloadableFiles.get(name);
+			Server.sendData(player, EnumPacketClient.SEND_FILE_PART, false, part, name,
+					String.valueOf(file.data.get(part)));
 		} else if (type == EnumPlayerPacket.GetSyncData) {
 			SyncController.syncPlayer(player);
 		} else if (type == EnumPlayerPacket.TransportCategoriesGet) {
@@ -1019,6 +1035,12 @@ public class PacketHandlerPlayer {
 					((PotionScriptData) handler).lastInited = -1L;
 					break;
 				}
+				case 5: { // Client
+					handler = ScriptController.Instance.clientScripts;
+					((ClientScriptData) handler).readFromNBT(compound);
+					((ClientScriptData) handler).lastInited = -1L;
+					break;
+				}
 				case 6: { // NPCs
 					handler = ScriptController.Instance.npcsScripts;
 					((NpcScriptData) handler).readFromNBT(compound);
@@ -1035,10 +1057,9 @@ public class PacketHandlerPlayer {
 			} else {
 				code = container.getFullCode();
 			}
-			ScriptController.Instance.encryptData = new EncryptData(compound.getString("Path"), compound.getString("Name"), code, compound.getBoolean("OnlyTab"), container, handler);
-			ScriptController.Instance.encrypt();
-			File file = new File(ScriptController.Instance.encryptData.path);
-			player.sendMessage(new TextComponentString(((char) 167) + "2CustomNPCs" + ((char) 167) + "7: Save to .../" + file.getParentFile().getParentFile().getName() + "/" + file.getParentFile().getName() + "/" + file.getName()));
+			EncryptData eData = new EncryptData(compound.getString("Path"), compound.getString("Name"), code, compound.getBoolean("OnlyTab"), container, handler);
+			ScriptController.Instance.encrypt(eData);
+			player.sendMessage(new TextComponentString(((char) 167) + "2CustomNPCs" + ((char) 167) + "7: Save to .../" + eData.path.getParentFile().getParentFile().getName() + "/" + eData.path.getParentFile().getName() + "/" + eData.path.getName()));
 		} else if (type == EnumPlayerPacket.MiniMapData) {
 			data.minimap.loadNBTData(Server.readNBT(buffer));
 		} else if (type == EnumPlayerPacket.InGame) {
@@ -1046,6 +1067,8 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.SendSyncData) {
 			EnumSync synctype = EnumSync.values()[buffer.readInt()];
 			SyncController.update(synctype, Server.readNBT(buffer), buffer, player);
+		} else if (type == EnumPlayerPacket.AcceptScripts) {
+			ScriptController.Instance.setAgreement(Server.readString(buffer), buffer.readBoolean());
 		}
 		CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 	}

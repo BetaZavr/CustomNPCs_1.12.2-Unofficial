@@ -1,7 +1,7 @@
 package noppes.npcs.ai.attack;
 
 import net.minecraft.entity.IRangedAttackMob;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class EntityAINoTactic extends EntityAICustom {
 
@@ -16,7 +16,7 @@ public class EntityAINoTactic extends EntityAICustom {
 			return;
 		}
 		if (this.isRanged) {
-			this.canSeeToAttack = AdditionalMethods.npcCanSeeTarget(this.npc, this.target, true, true);
+			this.canSeeToAttack = Util.instance.npcCanSeeTarget(this.npc, this.target, true, true);
 			if (this.canSeeToAttack && this.distance <= this.range) {
 				if (this.inMove) {
 					this.npc.getNavigator().clearPath();

@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -9,6 +10,7 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
@@ -70,7 +72,7 @@ import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.LRUHashMap;
 import noppes.npcs.util.NBTJsonUtil;
 
@@ -79,6 +81,7 @@ public class WrapperNpcAPI extends NpcAPI {
 	public static EventBus EVENT_BUS = new EventBus();
 	private static NpcAPI instance = null;
 	static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<>(10);
+	private List<World> worlds = Lists.newArrayList();
 
 	public static void clearCache() {
 		WrapperNpcAPI.worldCache.clear();
@@ -288,7 +291,14 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	@Override
 	public IWorld getIWorld(int dimensionId) {
-		for (WorldServer world : CustomNpcs.Server.worlds) {
+		if (CustomNpcs.Server == null) {
+			EntityPlayer player = CustomNpcs.proxy.getPlayer();
+			if (!this.worlds.contains(player.world)) { this.worlds.add(player.world); }
+		} else {
+			this.worlds.clear();
+            this.worlds.addAll(Arrays.asList(CustomNpcs.Server.worlds));
+		}
+		for (World world : this.worlds) {
 			if (world.provider.getDimension() == dimensionId) {
 				return this.getIWorld(world);
 			}
@@ -327,7 +337,7 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	@Override
 	public IMethods getMethods() {
-		return AdditionalMethods.instance;
+		return Util.instance;
 	}
 
 	@Override

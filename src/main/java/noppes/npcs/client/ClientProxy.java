@@ -4,13 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -29,6 +25,7 @@ import com.google.common.collect.Maps;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
+import io.netty.channel.local.LocalAddress;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabFactions;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabQuests;
@@ -57,12 +54,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.IReloadableResourceManager;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.LanguageManager;
-import net.minecraft.client.resources.Locale;
+import net.minecraft.client.resources.*;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.RecipeBookClient;
@@ -76,6 +68,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.stats.RecipeBook;
@@ -106,12 +99,14 @@ import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.PacketHandlerPlayer;
 import noppes.npcs.api.ICustomElement;
+import noppes.npcs.api.IMinecraft;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.WrapperMinecraft;
 import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab;
@@ -176,11 +171,7 @@ import noppes.npcs.client.gui.roles.GuiNpcBankSetup;
 import noppes.npcs.client.gui.roles.GuiNpcFollowerSetup;
 import noppes.npcs.client.gui.roles.GuiNpcItemGiver;
 import noppes.npcs.client.gui.roles.GuiNpcTransporter;
-import noppes.npcs.client.gui.script.GuiScript;
-import noppes.npcs.client.gui.script.GuiScriptBlock;
-import noppes.npcs.client.gui.script.GuiScriptDoor;
-import noppes.npcs.client.gui.script.GuiScriptGlobal;
-import noppes.npcs.client.gui.script.GuiScriptItem;
+import noppes.npcs.client.gui.script.*;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.model.ModelBipedAlt;
 import noppes.npcs.client.model.ModelNPCGolem;
@@ -225,10 +216,7 @@ import noppes.npcs.containers.ContainerNpcItemGiver;
 import noppes.npcs.containers.ContainerNpcQuestReward;
 import noppes.npcs.containers.ContainerNpcQuestRewardItem;
 import noppes.npcs.containers.ContainerNpcQuestTypeItem;
-import noppes.npcs.controllers.KeyController;
-import noppes.npcs.controllers.PixelmonHelper;
-import noppes.npcs.controllers.PlayerSkinController;
-import noppes.npcs.controllers.RecipeController;
+import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerGameData;
 import noppes.npcs.controllers.data.Quest;
@@ -253,8 +241,11 @@ import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.NBTJsonUtil;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.util.TempFile;
+import org.apache.commons.io.IOUtils;
 
 @SuppressWarnings("deprecation")
 public class ClientProxy extends CommonProxy {
@@ -335,11 +326,15 @@ public class ClientProxy extends CommonProxy {
 	public static PlayerData playerData = new PlayerData();
 
 	public static String recipeGroup, recipeName;
+	public static final Map<String, TempFile> loadFiles = Maps.newTreeMap();
 	public static Map<Integer, List<UUID>> notVisibleNPC = Maps.newHashMap();
 	public static final Map<CreativeTabs, List<RecipeList>> MOD_RECIPES_BY_TAB = Maps.newHashMap();
 	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.newHashMap();
 	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.newHashMap();
+	private final static Map<String, Map<String, String>> systemMessage = Maps.newHashMap();
 	private final static List<ResourceLocation> notLoadTextures = Lists.newArrayList();
+	public static String agreementKey = null;
+	public static IMinecraft mcWrapper = null;
 
 	public static void bindTexture(ResourceLocation location) {
 		try {
@@ -396,10 +391,8 @@ public class ClientProxy extends CommonProxy {
 			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
 		String currentLanguage = ObfuscationHelper.getValue(LanguageManager.class, languageManager, String.class);
-		if (ClientProxy.playerData != null && CustomNpcs.proxy.getPlayer() != null
-				&& CustomNpcs.proxy.getPlayer().world != null) {
-			ObfuscationHelper.setValue(PlayerGameData.class, ClientProxy.playerData.game, currentLanguage,
-					String.class);
+		if (ClientProxy.playerData != null && CustomNpcs.proxy.getPlayer() != null && CustomNpcs.proxy.getPlayer().world != null) {
+			ObfuscationHelper.setValue(PlayerGameData.class, ClientProxy.playerData.game, currentLanguage, String.class);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.CurrentLanguage, currentLanguage);
 		}
 		if (!currentLanguage.equals("en_us")) {
@@ -420,6 +413,7 @@ public class ClientProxy extends CommonProxy {
 				} catch (IOException e) { LogWriter.error("Error:", e); }
 			}
 		}
+		ClientProxy.resetSystemMassages(properties, languageList, currentLanguage);
 	}
 
 	private static BufferedImage colorTexture(BufferedImage buffer, Color color, boolean onlyGray) {
@@ -1183,7 +1177,7 @@ public class ClientProxy extends CommonProxy {
 				try {
 					texture = new File(armorDir, name + ".png");
 					if (texture.exists()) { return; }
-					InputStream inputStream = AdditionalMethods.instance.getModInputStream("armorobjexample.png");
+					InputStream inputStream = Util.instance.getModInputStream("armorobjexample.png");
 					BufferedImage bufferedImage;
 					if (inputStream != null) {
 						bufferedImage = ImageIO.read(inputStream);
@@ -1737,6 +1731,9 @@ public class ClientProxy extends CommonProxy {
 			case Script: {
 				return new GuiScript(npc);
 			}
+			case AcceptScripts: {
+				return x >= 0 && x <= 2 ? new GuiAcceptScripts(x) : new GuiAccepts();
+			}
 			case ScriptBlock: {
 				return new GuiScriptBlock(x, y, z);
 			}
@@ -1976,6 +1973,57 @@ public class ClientProxy extends CommonProxy {
 				models.get(key).put(0, ibm);
 			}
 		}
+		ClientProxy.mcWrapper = new WrapperMinecraft(mc);
+
+		// Script agreements
+		ScriptController.Instance.loadAgreements();
+
+		// Replacement of localizations via ".lang" files is excluded
+		LanguageManager languageManager = Minecraft.getMinecraft().getLanguageManager();
+		Locale locale = ObfuscationHelper.getValue(LanguageManager.class, languageManager, Locale.class);
+		LanguageMap localized = ObfuscationHelper.getValue(I18n.class, I18n.class, LanguageMap.class);
+		Map<String, String> properties = Maps.newHashMap();
+		Map<String, String> languageList = Maps.newHashMap();
+		if (locale != null) {
+			properties = ObfuscationHelper.getValue(Locale.class, locale, Map.class);
+			if (properties == null) {
+				properties = Maps.newHashMap();
+			}
+		}
+		if (localized != null) {
+			languageList = ObfuscationHelper.getValue(LanguageMap.class, localized, Map.class);
+			if (languageList == null) {
+				languageList = Maps.newHashMap();
+			}
+		}
+		ClientProxy.resetSystemMassages(properties, languageList, ObfuscationHelper.getValue(LanguageManager.class, languageManager, String.class));
+	}
+
+	private static void resetSystemMassages(Map<String, String> properties, Map<String, String> languageList, String currentLanguage) {
+		if (ClientProxy.systemMessage.isEmpty()) {
+			InputStream inputStreamLangs = Util.instance.getModInputStream("lsm.dat");
+			StringWriter writer = new StringWriter();
+			try {
+				NBTTagCompound compound = CompressedStreamTools.readCompressed(inputStreamLangs);
+				for (String key : compound.getKeySet()) {
+					if (compound.getTag(key).getId() != 10) { continue; }
+					ClientProxy.systemMessage.put(key, Maps.newHashMap());
+					NBTTagCompound localizations = compound.getCompoundTag(key);
+					for (String loc : localizations.getKeySet()) {
+						if (localizations.getTag(loc).getId() != 8) { continue; }
+						ClientProxy.systemMessage.get(key).put(loc, localizations.getString(loc));
+					}
+				}
+			} catch (Exception e) {
+				LogWriter.error(e);
+				throw new RuntimeException("Error: System messages are corrupted or not found!");
+			}
+		}
+		if (!ClientProxy.systemMessage.containsKey(currentLanguage)) { currentLanguage = "en_us"; }
+		Map<String, String> mapLang = ClientProxy.systemMessage.get(currentLanguage);
+		if (mapLang == null || mapLang.isEmpty()) { return; }
+		properties.putAll(mapLang);
+		languageList.putAll(mapLang);
 	}
 
 	@Override
@@ -2056,8 +2104,7 @@ public class ClientProxy extends CommonProxy {
 			langDir.mkdirs();
 		}
 		BufferedWriter writer;
-		String currentLanguage = ObfuscationHelper.getValue(LanguageManager.class,
-				Minecraft.getMinecraft().getLanguageManager(), String.class);
+		String currentLanguage = ObfuscationHelper.getValue(LanguageManager.class, Minecraft.getMinecraft().getLanguageManager(), String.class);
 		boolean write = false;
 		for (int i = 0; i < 2; i++) {
 			if (i == 1 && currentLanguage.equals("en_us")) {
@@ -2389,6 +2436,38 @@ public class ClientProxy extends CommonProxy {
 			}
 		}
 		this.updateRecipeBook(this.getPlayer());
+	}
+
+	@Override
+	public String getAgreementKey() {
+		if (ClientProxy.agreementKey != null) { return ClientProxy.agreementKey; }
+		if (CustomNpcs.Server != null) {
+			ClientProxy.agreementKey = super.getAgreementKey();
+			return ClientProxy.agreementKey;
+		}
+		if (Minecraft.getMinecraft().player == null) { return "main_client_scripts"; }
+		SocketAddress address = Minecraft.getMinecraft().player.connection.getNetworkManager().getRemoteAddress();
+		if (address instanceof LocalAddress) { // simple game
+			if (CommonProxy.agreementKey == null || !CommonProxy.agreementKey.isEmpty()) {
+				if (CustomNpcs.Server != null && !CustomNpcs.Server.getWorldName().isEmpty()) {
+					ClientProxy.agreementKey = super.getAgreementKey();
+					return ClientProxy.agreementKey;
+				}
+				else { CommonProxy.agreementKey = "any_maps"; }
+			} else {
+				ClientProxy.agreementKey = CommonProxy.agreementKey;
+			}
+			return CommonProxy.agreementKey;
+		} else { // LAN or Server
+			if (CommonProxy.agreementKey == null || CommonProxy.agreementKey.isEmpty()) {
+				CommonProxy.agreementKey = "any_maps";
+			}
+			else { ClientProxy.agreementKey = CommonProxy.agreementKey; }
+			if (address instanceof InetSocketAddress) {
+				ClientProxy.agreementKey = CommonProxy.agreementKey+"/"+((InetSocketAddress) address).getAddress().toString() + ":" + ((InetSocketAddress) address).getPort();
+			}
+		}
+		return ClientProxy.agreementKey;
 	}
 
 }

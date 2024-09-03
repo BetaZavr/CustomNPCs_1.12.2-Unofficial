@@ -83,7 +83,7 @@ public class DataScript implements IScriptHandler {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 	}
@@ -115,6 +115,11 @@ public class DataScript implements IScriptHandler {
 	@Override
 	public void setLanguage(String lang) {
 		this.scriptLanguage = lang;
+	}
+
+	@Override
+	public void setLastInited(long timeMC) {
+		this.lastInited = timeMC;
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {

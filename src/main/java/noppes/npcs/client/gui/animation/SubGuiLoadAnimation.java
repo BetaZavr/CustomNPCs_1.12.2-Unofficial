@@ -20,7 +20,7 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class SubGuiLoadAnimation extends SubGuiInterface implements ICustomScrollListener {
 
@@ -44,14 +44,14 @@ public class SubGuiLoadAnimation extends SubGuiInterface implements ICustomScrol
 
 		this.blackList = Lists.newArrayList();
 		for (String key : blackList) {
-			this.blackList.add(AdditionalMethods.instance.deleteColor(key));
+			this.blackList.add(Util.instance.deleteColor(key));
 		}
 		this.parentType = parentType;
 		this.data = Maps.newTreeMap();
 		this.animation = null;
 		this.selected = "";
 
-		this.npcAnim = AdditionalMethods.copyToGUI(npc, mc.world, false);
+		this.npcAnim = Util.instance.copyToGUI(npc, mc.world, false);
 	}
 
 	@Override
@@ -143,7 +143,7 @@ public class SubGuiLoadAnimation extends SubGuiInterface implements ICustomScrol
 				animation = ac;
 				selected = key;
 			}
-			if (this.blackList.contains(AdditionalMethods.instance.deleteColor(key))) { continue; }
+			if (this.blackList.contains(Util.instance.deleteColor(key))) { continue; }
 			this.data.put(key, id);
 			list.add(key);
 			hts[i] = new String[] { new TextComponentTranslation(ac.name).getFormattedText(), ((char) 167) + "7" + new TextComponentTranslation("gui.type").getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "r" + ac.type.name() };

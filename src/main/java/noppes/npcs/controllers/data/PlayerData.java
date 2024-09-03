@@ -26,6 +26,7 @@ import noppes.npcs.entity.data.DataTimers;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.NBTJsonUtil;
+import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 
@@ -68,7 +69,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 					if (!file.exists()) {
 						try {
 							file.createNewFile();
-							NBTJsonUtil.SaveFile(file, nbt);
+							Util.instance.saveFile(file, nbt);
 						} catch (Exception e) {
 							LogWriter.error("Error create player data: " + file.getAbsolutePath(), e);
 						}
@@ -261,7 +262,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 				File file = new File(saveDir, filename + "_new");
 				File file1 = new File(saveDir, filename);
 				NBTTagCompound nbt = this.getNBT();
-				NBTJsonUtil.SaveFile(file, nbt);
+				Util.instance.saveFile(file, nbt);
 				if (file1.exists()) {
 					file1.delete();
 				}

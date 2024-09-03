@@ -26,7 +26,7 @@ import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
 import noppes.npcs.controllers.data.DialogOption;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class DialogController implements IDialogHandler {
@@ -197,12 +197,12 @@ public class DialogController implements IDialogHandler {
 		Dialog dia2 = new Dialog(cat);
 		dia2.id = 2;
 		dia2.title = "Ask about village";
-		dia2.text = AdditionalMethods.instance
+		dia2.text = Util.instance
 				.deleteColor(new TextComponentTranslation("dialog.base.2.text").getFormattedText());
 		Dialog dia3 = new Dialog(cat);
 		dia3.id = 3;
 		dia3.title = "Who are you";
-		dia3.text = AdditionalMethods.instance
+		dia3.text = Util.instance
 				.deleteColor(new TextComponentTranslation("dialog.base.3.text").getFormattedText());
 		cat.dialogs.put(dia1.id, dia1);
 		cat.dialogs.put(dia2.id, dia2);
@@ -212,19 +212,19 @@ public class DialogController implements IDialogHandler {
 		option.addDialog(2);
 		option.optionType = OptionType.DIALOG_OPTION;
 		DialogOption option2 = new DialogOption();
-		option2.title = AdditionalMethods.instance
+		option2.title = Util.instance
 				.deleteColor(new TextComponentTranslation("dialog.base.1.option.0").getFormattedText());
 		option2.addDialog(3);
 		option2.optionType = OptionType.DIALOG_OPTION;
 		DialogOption option3 = new DialogOption();
-		option3.title = AdditionalMethods.instance
+		option3.title = Util.instance
 				.deleteColor(new TextComponentTranslation("dialog.base.1.option.2").getFormattedText());
 		option3.optionType = OptionType.QUIT_OPTION;
 		dia1.options.put(0, option2);
 		dia1.options.put(1, option);
 		dia1.options.put(2, option3);
 		DialogOption option4 = new DialogOption();
-		option4.title = AdditionalMethods.instance
+		option4.title = Util.instance
 				.deleteColor(new TextComponentTranslation("dialog.base.2.option.0").getFormattedText());
 		option4.addDialog(1);
 		dia2.options.put(1, option4);
@@ -245,7 +245,7 @@ public class DialogController implements IDialogHandler {
 		File dir = new File(this.getDir(), cat.title);
 		// if (!dir.delete()) { return; } Changed
 		// New
-		if (!AdditionalMethods.removeFile(dir)) {
+		if (!Util.instance.removeFile(dir)) {
 			LogWriter.error("Error delete " + dir + "; no access or file not uploaded!");
 		}
 		for (int dia : cat.dialogs.keySet()) {
@@ -339,7 +339,7 @@ public class DialogController implements IDialogHandler {
 		File file2 = new File(dir, dialog.id + ".json");
 		try {
 			NBTTagCompound compound = dialog.writeToNBT(new NBTTagCompound());
-			NBTJsonUtil.SaveFile(file, compound);
+			Util.instance.saveFile(file, compound);
 			if (file2.exists()) {
 				file2.delete();
 			}

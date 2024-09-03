@@ -61,6 +61,10 @@ import nikedemos.markovnames.generators.MarkovSlavic;
 import nikedemos.markovnames.generators.MarkovSpanish;
 import nikedemos.markovnames.generators.MarkovWelsh;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.event.potion.AffectEntity;
+import noppes.npcs.api.event.potion.EndEffect;
+import noppes.npcs.api.event.potion.IsReadyEvent;
+import noppes.npcs.api.event.potion.PerformEffect;
 import noppes.npcs.api.handler.capability.IItemStackWrapperHandler;
 import noppes.npcs.api.handler.capability.IMarkDataHandler;
 import noppes.npcs.api.handler.capability.IPlayerDataHandler;
@@ -104,7 +108,7 @@ import noppes.npcs.dimensions.CustomWorldProvider;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.DataDebug;
 import noppes.npcs.util.DataDebug.Debug;
 import noppes.npcs.util.ObfuscationHelper;
@@ -257,6 +261,7 @@ public class CustomNpcs {
 	public static MinecraftServer Server;
 	public static DataDebug debugData = new DataDebug();
 	public static final Map<Class<?>, String> forgeEventNames = new HashMap<>();
+	public static final Map<Class<?>, String> forgeClientEventNames = new HashMap<>();
 	public static boolean FreezeNPCs = false;
 	public static boolean showServerQuestCompass = true;
 	public static File Dir;
@@ -300,12 +305,17 @@ public class CustomNpcs {
 	public static void postload(FMLPostInitializationEvent ev) { // New
 		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_postload");
 
-		new AdditionalMethods();
+		new Util();
 		for (ModContainer mod : Loader.instance().getModList()) {
 			if (mod.getModId().equals(CustomNpcs.MODID)) {
 				CustomNpcs.mod = mod;
 			}
 		}
+
+		forgeClientEventNames.put(IsReadyEvent.class, "customPotionIsReady");
+		forgeClientEventNames.put(PerformEffect.class, "customPotionPerformEffect");
+		forgeClientEventNames.put(AffectEntity.class, "customPotionAffectEntity");
+		forgeClientEventNames.put(EndEffect.class, "customPotionEndEffect");
 
 		CustomNpcs.proxy.postload();
 		LogWriter.info("Mod loaded ^_^ Have a good game!");
@@ -347,10 +357,10 @@ public class CustomNpcs {
 					if (time[0] <= 0) {
 						time[0] = 1L;
 					}
-					log.append("[").append(target).append(", ").append(time[0]).append(", ").append(AdditionalMethods.ticksToElapsedTime(time[1], true, false, false)).append("]");
+					log.append("[").append(target).append(", ").append(time[0]).append(", ").append(Util.instance.ticksToElapsedTime(time[1], true, false, false)).append("]");
 					if (time[1] == dd.max) {
 						maxName[0] = "\"" + eventName + "|" + target + "\": "
-								+ AdditionalMethods.ticksToElapsedTime(dd.max, true, false, false);
+								+ Util.instance.ticksToElapsedTime(dd.max, true, false, false);
 					}
 					if (max < time[0]) {
 						max = time[0];
@@ -487,7 +497,7 @@ public class CustomNpcs {
 		ScriptController.Instance.load();
 		new DropController();
 		new RecipeController();
-		new AnimationController();
+		AnimationController.getInstance();
 		new KeyController();
 		new TransportController();
 		new PlayerDataController();

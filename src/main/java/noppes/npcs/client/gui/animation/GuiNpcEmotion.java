@@ -45,7 +45,7 @@ import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAnimation;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class GuiNpcEmotion
@@ -76,7 +76,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		this.setBackground("bgfilled.png");
 
 		selEmtn = "";
-		npcEmtn = AdditionalMethods.copyToGUI(npc, mc.world, false);
+		npcEmtn = Util.instance.copyToGUI(npc, mc.world, false);
 		Client.sendData(EnumPacketServer.AnimationGet);
 	}
 
@@ -85,7 +85,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		EmotionConfig emtn = this.getEmtn();
 		switch (button.id) {
 			case 0: { // create new
-				this.setSubGui(new SubGuiEditText(1, AdditionalMethods.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				this.setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
 			}
 			case 1: { // del

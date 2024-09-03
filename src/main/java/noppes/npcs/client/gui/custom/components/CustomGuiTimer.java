@@ -10,7 +10,7 @@ import noppes.npcs.api.wrapper.gui.CustomGuiTimerWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.constants.EnumPlayerPacket;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class CustomGuiTimer extends GuiLabel implements IGuiComponent {
 
@@ -75,7 +75,7 @@ public class CustomGuiTimer extends GuiLabel implements IGuiComponent {
 		if (this.reverse) {
 			time += 20;
 		}
-		return AdditionalMethods.ticksToElapsedTime(time, false, false, false);
+		return Util.instance.ticksToElapsedTime(time, false, false, false);
 	}
 
 	@Override

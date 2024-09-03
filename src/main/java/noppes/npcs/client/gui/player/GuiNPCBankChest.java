@@ -434,12 +434,11 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 		if (this.cont.bank.isPublic) {
 			if (!this.cont.bank.owner.isEmpty() || this.player.capabilities.isCreativeMode) {
 				this.addButton(new GuiNpcButton(9, (this.isMany ? 12 : -4) + (this.width + this.xSize) / 2,
-						this.guiTop - 8, 20, 20, 20, 146, new ResourceLocation("textures/gui/widgets.png")));
+						this.guiTop - 8, 20, 20, 20, 146, GuiNPCInterface.MENU_SIDE_BUTTON));
 				this.getButton(9).visible = isOwner;
 			}
 		}
-		this.addButton(new GuiNpcButton(10, u + slot.xPos + (this.isMany ? 166 : 159), v + slot.yPos - 24, 20, 20, 20,
-				66, new ResourceLocation(CustomNpcs.MODID, "textures/gui/menusidebutton.png")));
+		this.addButton(new GuiNpcButton(10, u + slot.xPos + (this.isMany ? 166 : 159), v + slot.yPos - 24, 20, 20, 20, 66, new ResourceLocation(CustomNpcs.MODID, "textures/gui/menusidebutton.png")));
 		this.getButton(10).visible = isOwner;
 		if (this.row > this.maxRows) {
 			this.row = this.maxRows;

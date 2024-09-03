@@ -541,6 +541,11 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		this.scriptLanguage = lang;
 	}
 
+	@Override
+	public void setLastInited(long timeMC) {
+		this.lastInited = timeMC;
+	}
+
 	public void setLightValue(int value) {
 		if (value == this.lightValue) {
 			return;
@@ -550,7 +555,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 	}
 
 	public void setNBT(NBTTagCompound compound) {
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 		int pw = compound.getInteger("BlockPowering");

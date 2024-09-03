@@ -15,7 +15,7 @@ import noppes.npcs.api.wrapper.EntityWrapper;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class StoredData implements IData {
 
@@ -64,7 +64,7 @@ public class StoredData implements IData {
 		if (!this.data.hasKey(key)) {
 			return null;
 		}
-		return AdditionalMethods.instance.readObjectFromNbt(this.data.getTag(key));
+		return Util.instance.readObjectFromNbt(this.data.getTag(key));
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class StoredData implements IData {
 	@Override
 	public void put(String key, Object value) throws CommandException {
 		this.resetData();
-		NBTBase nbt = AdditionalMethods.instance.writeObjectToNbt(value);
+		NBTBase nbt = Util.instance.writeObjectToNbt(value);
 		if (nbt != null) {
 			this.data.setTag(key, nbt);
 			if (this.controller != null) {

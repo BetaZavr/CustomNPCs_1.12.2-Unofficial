@@ -4,7 +4,6 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
-import noppes.npcs.api.event.ForgeEvent.RunNameEvent;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -19,6 +18,7 @@ extends BaseScriptData {
 	
 	@Override
 	public void runScript(String type, Event event) {
+		super.runScript(type, event);
 		if (!this.isEnabled()) { return; }
 		try {
 			CustomNpcs.Server.addScheduledTask(() -> {
@@ -29,7 +29,6 @@ extends BaseScriptData {
 					}
 				}
                 for (ScriptContainer script : this.scripts) {
-                    script.run(type, new RunNameEvent(type), !this.isClient());
                     script.run(type, event, !this.isClient());
                 }
 			});

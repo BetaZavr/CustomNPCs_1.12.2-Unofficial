@@ -8,7 +8,7 @@ import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.math.AxisAlignedBB;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class EntityAICommanderTarget extends EntityAICustom {
 
@@ -75,7 +75,7 @@ public class EntityAICommanderTarget extends EntityAICustom {
 			return;
 		}
 		if (this.isRanged) {
-			this.canSeeToAttack = AdditionalMethods.npcCanSeeTarget(this.npc, this.target, true, true);
+			this.canSeeToAttack = Util.instance.npcCanSeeTarget(this.npc, this.target, true, true);
 		} else {
 			this.canSeeToAttack = this.npc.canSee(this.target);
 		}

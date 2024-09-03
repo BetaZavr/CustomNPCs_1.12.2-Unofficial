@@ -177,7 +177,7 @@ public class MarcetController implements IMarcetHandler {
 
 	private void load() {
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
-		if (saveDir == null || !saveDir.getAbsolutePath().contains(CustomNpcs.MODID)) {
+		if (saveDir == null || saveDir.toString().equals(".")) {
 			return;
 		}
 		if (CustomNpcs.VerboseDebug) {
@@ -413,7 +413,7 @@ public class MarcetController implements IMarcetHandler {
 		try {
 			// Save
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
-			if (saveDir == null || !saveDir.getAbsolutePath().contains(CustomNpcs.MODID)) {
+			if (saveDir == null || saveDir.toString().equals(".")) {
 				return;
 			}
 			File file = new File(saveDir, "marcet.dat_new");

@@ -135,12 +135,12 @@ public class NBTTags {
 		return list;
 	}
 
-	public static List<ScriptContainer> GetScript(NBTTagList list, IScriptHandler handler) {
+	public static List<ScriptContainer> GetScript(NBTTagList list, IScriptHandler handler, boolean isClient) {
 		List<ScriptContainer> scripts = new ArrayList<>();
 		for (int i = 0; i < list.tagCount(); ++i) {
 			NBTTagCompound compound = list.getCompoundTagAt(i);
-			ScriptContainer script = new ScriptContainer(handler);
-			script.readFromNBT(compound);
+			ScriptContainer script = new ScriptContainer(handler, isClient);
+			script.readFromNBT(compound, isClient);
 			scripts.add(script);
 		}
 		return scripts;

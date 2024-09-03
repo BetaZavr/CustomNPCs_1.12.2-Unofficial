@@ -6,7 +6,7 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.math.Vec3d;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.RayTraceVec;
 
 import java.util.Objects;
@@ -26,7 +26,7 @@ public class EntityAIHitAndRun extends EntityAICustom {
 			return;
 		}
 		if (this.isRanged) {
-			this.canSeeToAttack = AdditionalMethods.npcCanSeeTarget(this.npc, this.target, true, true);
+			this.canSeeToAttack = Util.instance.npcCanSeeTarget(this.npc, this.target, true, true);
 		} else {
 			this.canSeeToAttack = this.npc.canSee(this.target);
 		}
@@ -57,7 +57,7 @@ public class EntityAIHitAndRun extends EntityAICustom {
 			RayTraceVec pos;
 			this.runPos = null;
 			if (!this.isRanged || this.distance < this.tacticalRange) {
-				pos = AdditionalMethods.instance.getPosition(this.target.posX, this.target.posY, this.target.posZ, this.target.rotationYaw + 180.0f, this.target.rotationPitch, this.tacticalRange);
+				pos = Util.instance.getPosition(this.target.posX, this.target.posY, this.target.posZ, this.target.rotationYaw + 180.0f, this.target.rotationPitch, this.tacticalRange);
 				path = this.npc.getNavigator().getPathToXYZ(pos.x, pos.y, pos.z);
 				if (path == null) {
 					Vec3d vec = RandomPositionGenerator.findRandomTarget(this.npc, this.tacticalRange, 2);
@@ -79,7 +79,7 @@ public class EntityAIHitAndRun extends EntityAICustom {
 					error = 0;
 					dist = this.npc.getDistance(vec.x, vec.y, vec.z);
 					if (this.npc.stats.calmdown) {
-						double homeDist = AdditionalMethods.instance.distanceTo(npc.getStartXPos(), npc.getStartYPos(),
+						double homeDist = Util.instance.distanceTo(npc.getStartXPos(), npc.getStartYPos(),
 								npc.getStartZPos(), vec.x, vec.y, vec.z);
 						if (homeDist > CustomNpcs.NpcNavRange) {
 							continue;

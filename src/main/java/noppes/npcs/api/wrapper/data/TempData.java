@@ -14,7 +14,7 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.wrapper.BlockWrapper;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class TempData implements IData {
 
@@ -54,7 +54,7 @@ public class TempData implements IData {
 		this.resetData();
 		NBTTagCompound compound = new NBTTagCompound();
 		for (String key : this.map.keySet()) {
-			NBTBase nbt = AdditionalMethods.instance.writeObjectToNbt(this.map.get(key));
+			NBTBase nbt = Util.instance.writeObjectToNbt(this.map.get(key));
 			if (nbt != null) {
 				compound.setTag(key, nbt);
 			}
@@ -116,7 +116,7 @@ public class TempData implements IData {
 			this.map.remove(key);
 		}
 		for (String key : nbt.getMCNBT().getKeySet()) {
-			Object value = AdditionalMethods.instance.readObjectFromNbt(nbt.getMCNBT().getTag(key));
+			Object value = Util.instance.readObjectFromNbt(nbt.getMCNBT().getTag(key));
 			if (value == null) {
 				continue;
 			}

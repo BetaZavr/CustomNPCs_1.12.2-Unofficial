@@ -93,7 +93,7 @@ import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemNpcMovingPath;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.quests.QuestObjective;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.RayTraceRotate;
@@ -405,8 +405,8 @@ public class ClientGuiEventHandler extends Gui {
 		GlStateManager.disableTexture2D();
 		GlStateManager.depthMask(false);
 		GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-		RayTraceVec pHh = AdditionalMethods.instance.getPosition(npc.posX, npc.posY + npc.getEyeHeight(), npc.posZ, npc.rotationYawHead, 0.0d, npc.width / 2.0d);
-		RayTraceVec pEr = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead, npc.rotationPitch * -1.0d, 0.7d / 5.0d * npc.display.getSize());
+		RayTraceVec pHh = Util.instance.getPosition(npc.posX, npc.posY + npc.getEyeHeight(), npc.posZ, npc.rotationYawHead, 0.0d, npc.width / 2.0d);
+		RayTraceVec pEr = Util.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead, npc.rotationPitch * -1.0d, 0.7d / 5.0d * npc.display.getSize());
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
@@ -415,14 +415,14 @@ public class ClientGuiEventHandler extends Gui {
         buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
 		buffer.pos(pEr.x, pEr.y, pEr.z).color(r, g, b, 1.0f).endVertex();
 		if (npc.ais.directLOS) {
-			RayTraceVec mr = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead + 60.0d,
+			RayTraceVec mr = Util.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead + 60.0d,
 					0.0d, 0.7d / 5.0d * npc.display.getSize());
-			RayTraceVec nr = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead - 60.0d,
+			RayTraceVec nr = Util.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead - 60.0d,
 					0.0d, 0.7d / 5.0d * npc.display.getSize());
-			RayTraceVec mp = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYaw,
+			RayTraceVec mp = Util.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYaw,
 					ValueUtil.correctDouble(npc.rotationPitch * -1.0d + 60.0d, -90.0d, 90.0d),
 					1.4d / 5.0d * npc.display.getSize());
-			RayTraceVec np = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYaw,
+			RayTraceVec np = Util.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYaw,
 					ValueUtil.correctDouble(npc.rotationPitch * -1.0d - 60.0d, -90.0d, 90.0d),
 					1.4d / 5.0d * npc.display.getSize());
 			r = 0.525f;
@@ -593,20 +593,20 @@ public class ClientGuiEventHandler extends Gui {
 			if (pre != null) {
 				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
 				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-                RayTraceRotate d = AdditionalMethods.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0],
+                RayTraceRotate d = Util.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0],
                         newPre[1], newPre[2]);
                 for (int h = 0; h < 4; h++) {
-                    RayTraceVec p = AdditionalMethods.instance.getPosition(newPre[0], newPre[1], newPre[2],
+                    RayTraceVec p = Util.instance.getPosition(newPre[0], newPre[1], newPre[2],
                             360.0d - d.yaw + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d),
                             0.0 - d.pitch + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
                     buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
                     buffer.pos(p.x, p.y, p.z).color(r, g, b, 1.0f).endVertex();
                 }
                 if (!type) {
-                    d = AdditionalMethods.instance.getAngles3D(newPre[0], newPre[1], newPre[2], pre[0], pre[1],
+                    d = Util.instance.getAngles3D(newPre[0], newPre[1], newPre[2], pre[0], pre[1],
                             pre[2]);
                     for (int h = 0; h < 4; h++) {
-                        RayTraceVec p = AdditionalMethods.instance.getPosition(pre[0], pre[1], pre[2],
+                        RayTraceVec p = Util.instance.getPosition(pre[0], pre[1], pre[2],
                                 360.0d - d.yaw + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d),
                                 0.0 - d.pitch + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
                         buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
@@ -620,10 +620,10 @@ public class ClientGuiEventHandler extends Gui {
 				newPre = new double[] { pos[0] + 0.5d, pos[1] + 0.5d + yo, pos[2] + 0.5d };
 				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
 				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-				RayTraceRotate d = AdditionalMethods.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1],
+				RayTraceRotate d = Util.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1],
 						newPre[2]);
 				for (int h = 0; h < 4; h++) {
-					RayTraceVec p = AdditionalMethods.instance.getPosition(newPre[0], newPre[1], newPre[2],
+					RayTraceVec p = Util.instance.getPosition(newPre[0], newPre[1], newPre[2],
 							360.0d - d.yaw + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d),
 							0.0 - d.pitch + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
 					buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
@@ -1303,7 +1303,7 @@ public class ClientGuiEventHandler extends Gui {
 							if (o.rangeCompass == 0 && select == null) {
 								select = o;
 							} else if (o.rangeCompass != 0) {
-								double d = AdditionalMethods.instance.distanceTo(o.pos.getX() + 0.5d, o.pos.getY(),
+								double d = Util.instance.distanceTo(o.pos.getX() + 0.5d, o.pos.getY(),
 										o.pos.getZ() + 0.5d, this.mc.player.posX,
 										this.mc.player.posY + this.mc.player.eyeHeight, this.mc.player.posZ);
 								if (d <= minD) {
@@ -1452,7 +1452,7 @@ public class ClientGuiEventHandler extends Gui {
 			}
 
 			if (p != null) {
-				RayTraceRotate angles = AdditionalMethods.instance.getAngles3D(this.mc.player.posX,
+				RayTraceRotate angles = Util.instance.getAngles3D(this.mc.player.posX,
 						this.mc.player.posY + this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
 				float scale = -30.0f * hud.compassData.scale;
 				float incline = -45.0f + hud.compassData.incline;
@@ -1581,7 +1581,7 @@ public class ClientGuiEventHandler extends Gui {
 			RayTraceResult result = this.mc.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, true);
 			if (result != null) {
 				BlockPos blockPos = result.getBlockPos();
-				Entity entity = AdditionalMethods.getLookEntity(this.mc.player, distance);
+				Entity entity = Util.instance.getLookEntity(this.mc.player, distance);
 				ItemStack st = null;
 				IBlockState state = null;
 				double dist;
@@ -1770,7 +1770,7 @@ public class ClientGuiEventHandler extends Gui {
 			list.remove(this.mc.player);
 			Entity rayTrE = this.mc.objectMouseOver.entityHit;
 			if (rayTrE == null) {
-				rayTrE = AdditionalMethods.getLookEntity(this.mc.player, (mainStack.getItem() instanceof ItemNbtBook ? ClientProxy.playerData.game.renderDistance : null));
+				rayTrE = Util.instance.getLookEntity(this.mc.player, (mainStack.getItem() instanceof ItemNbtBook ? ClientProxy.playerData.game.renderDistance : null));
 			}
 			if (rayTrE != null && !list.contains(rayTrE)) { list.add(rayTrE); }
 			if (!list.isEmpty()) {
@@ -1926,7 +1926,7 @@ public class ClientGuiEventHandler extends Gui {
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onDrawScreenEvent");
 		Minecraft mc = event.getGui().mc;
 		if (event.getGui() instanceof GuiInventory && CustomNpcs.ShowMoney) {
-			String text = AdditionalMethods
+			String text = Util.instance
 					.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney(), true, true, false)
 					+ CustomNpcs.displayCurrencies;
 			GlStateManager.pushMatrix();

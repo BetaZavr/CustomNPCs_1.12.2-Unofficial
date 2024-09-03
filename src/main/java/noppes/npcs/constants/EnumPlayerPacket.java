@@ -56,10 +56,12 @@ public enum EnumPlayerPacket
 	TrackQuest,
 	SaveCompassData,
 	GetTileData,
+	ScriptPackage,
 	MovingPathGet,
 	KeyActive,
 	StopNPCAnimation,
 	OpenGui,
+	GetFilePart,
 	GetSyncData,
 	SendSyncData,
 	TransportCategoriesGet,
@@ -72,5 +74,6 @@ public enum EnumPlayerPacket
 	PlayerSkinSet,
 	ScriptEncrypt,
 	MiniMapData,
-	InGame
+	InGame,
+	AcceptScripts
 }

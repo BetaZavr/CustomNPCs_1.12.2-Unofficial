@@ -13,7 +13,7 @@ import noppes.npcs.NBTTags;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 
 public class BaseScriptData
 implements IScriptHandler {
@@ -67,7 +67,7 @@ implements IScriptHandler {
 	public boolean getEnabled() { return this.enabled; }
 
 	public boolean isEnabled() {
-		return this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();
+		return ScriptController.Instance.hasAgreement() && this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();
 	}
 
 	@Override
@@ -75,13 +75,15 @@ implements IScriptHandler {
 
 	public void readFromNBT(NBTTagCompound compound) {
 		this.scripts.clear();
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
-		this.scriptLanguage = AdditionalMethods.instance.deleteColor(compound.getString("ScriptLanguage"));
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
+		this.scriptLanguage = Util.instance.deleteColor(compound.getString("ScriptLanguage"));
 		this.enabled = compound.getBoolean("ScriptEnabled");
 	}
 
 	@Override
-	public void runScript(String type, Event event) { }
+	public void runScript(String type, Event event) {
+		ScriptController.hasScripts = true;
+	}
 
 	@Override
 	public void setEnabled(boolean bo) {
@@ -90,7 +92,12 @@ implements IScriptHandler {
 
 	@Override
 	public void setLanguage(String lang) {
-		this.scriptLanguage = AdditionalMethods.instance.deleteColor(lang);
+		this.scriptLanguage = Util.instance.deleteColor(lang);
+	}
+
+	@Override
+	public void setLastInited(long timeMC) {
+		this.lastInited = timeMC;
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
@@ -99,5 +106,12 @@ implements IScriptHandler {
 		compound.setBoolean("ScriptEnabled", this.enabled);
 		return compound;
 	}
-	
+
+	public boolean isEmpty() {
+		for (ScriptContainer cont : this.scripts) {
+			if (cont.getFullCode().isEmpty()) { return true; }
+		}
+		return false;
+	}
+
 }

@@ -38,7 +38,7 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.ObfuscationHelper;
 
 import javax.annotation.Nonnull;
@@ -336,7 +336,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 				i++;
 			}
 			for (String key : fs.keySet()) {
-				suffixs.add(AdditionalMethods.getTextReducedNumber(fs.get(key), false, false, true) + "b");
+				suffixs.add(Util.instance.getTextReducedNumber(fs.get(key), false, false, true) + "b");
 				list.add(key);
 				colors.add(0xCAEAEA);
 				if (txrName.equals(key)) {
