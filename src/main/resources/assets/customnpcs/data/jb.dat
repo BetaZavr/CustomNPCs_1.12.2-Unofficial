@@ -1,0 +1,1 @@
+{	"_comment": "Custom Block created by default",	"variants": {		"normal": { "model": "{mod_id}:{file_name}" },		"inventory": { "model": "{mod_id}:{file_name}" }	}}

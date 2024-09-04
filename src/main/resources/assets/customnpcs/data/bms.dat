@@ -1,0 +1,1 @@
+{	"_comment": "Custom Stairs Block created by default",	"parent": "block/{type}stairs",	"textures": {		"top": "{mod_id}:blocks/{file_name}_top",		"bottom": "{mod_id}:blocks/{file_name}_bottom",		"side": "{mod_id}:blocks/{file_name}_side"	}}

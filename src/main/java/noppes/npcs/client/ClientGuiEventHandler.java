@@ -1944,6 +1944,8 @@ public class ClientGuiEventHandler extends Gui {
 			mc.renderEngine.bindTexture(ClientGuiEventHandler.COIN_NPC);
 			float s = 16.0f / 250.f;
 			GlStateManager.scale(s, s, s);
+			GlStateManager.enableBlend();
+			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.popMatrix();
 

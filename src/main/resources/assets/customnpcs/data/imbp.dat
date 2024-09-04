@@ -1,0 +1,1 @@
+{	"_comment": "Custom Bow Pulling {num} Item Model created by default",	"parent": "{mod_id}:item/{file_name}",	"textures": {		"layer0": "{mod_id}:items/weapons/{name}_pulling_{num}"	}}

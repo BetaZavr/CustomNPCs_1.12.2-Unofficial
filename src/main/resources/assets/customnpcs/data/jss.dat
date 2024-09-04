@@ -1,0 +1,1 @@
+{	"_comment": "Custom Block Slab created by default",	"variants": {		"half=bottom,type=normal": { "model": "{mod_id}:bottom_{file_name}" },		"half=top,type=normal": { "model": "{mod_id}:upper_{file_name}" },		"inventory": { "model": "{mod_id}:bottom_{file_name}" }	}}

@@ -116,8 +116,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 		this.stackedContents.clear();
 		this.mc.player.inventory.fillStackedContents(this.stackedContents, false);
 		inv.fillStackedContents(this.stackedContents);
-		this.searchBar = new GuiTextField(0, this.mc.fontRenderer, i + 25, j + 14, 80,
-				this.mc.fontRenderer.FONT_HEIGHT + 5);
+		this.searchBar = new GuiTextField(0, this.mc.fontRenderer, i + 25, j + 14, 80, this.mc.fontRenderer.FONT_HEIGHT + 5);
 		this.searchBar.setMaxStringLength(50);
 		this.searchBar.setEnableBackgroundDrawing(false);
 		this.searchBar.setVisible(true);
@@ -166,8 +165,7 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 		if (!this.isVisible() || this.mc.player.isSpectator()) {
 			return false;
 		}
-		if (this.recipeBookPage.mouseClicked(mouseX, mouseY, mouseButton, (this.width - 147) / 2 - this.xOffset,
-				(this.height - 166) / 2, 147, 166)) {
+		if (this.recipeBookPage.mouseClicked(mouseX, mouseY, mouseButton, (this.width - 147) / 2 - this.xOffset, (this.height - 166) / 2, 147, 166)) {
 			IRecipe irecipe = this.recipeBookPage.getLastClickedRecipe();
 			RecipeList recipelist = this.recipeBookPage.getLastClickedRecipeList();
 			if (irecipe != null && recipelist != null) {
@@ -176,13 +174,11 @@ public class GuiNpcRecipeBook extends GuiRecipeBook {
 				}
 				this.ghostRecipe.clear();
 				if (this.isGlobal) {
-					this.mc.playerController.func_194338_a(this.mc.player.openContainer.windowId, irecipe,
-							GuiScreen.isShiftKeyDown(), this.mc.player);
+					this.mc.playerController.func_194338_a(this.mc.player.openContainer.windowId, irecipe, GuiScreen.isShiftKeyDown(), this.mc.player);
 				} else {
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.GetGhostRecipe, this.mc.player.openContainer.windowId,
-							((INpcRecipe) irecipe).getId(), GuiScreen.isShiftKeyDown());
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.GetGhostRecipe, this.mc.player.openContainer.windowId, ((INpcRecipe) irecipe).getId(), GuiScreen.isShiftKeyDown());
 				}
-				if (this.notOffsetNextToMainGUI() && mouseButton == 0) {
+				if (!this.notOffsetNextToMainGUI() && mouseButton == 0) {
 					this.setVisible(false);
 				}
 			}

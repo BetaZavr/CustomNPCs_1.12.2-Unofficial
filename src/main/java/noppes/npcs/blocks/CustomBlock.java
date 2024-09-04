@@ -90,9 +90,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 	public AxisAlignedBB WEST_BLOCK_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
 	private EnumBlockRenderType renderType = EnumBlockRenderType.MODEL;
 	public PropertyDirection FACING;
-
 	public PropertyInteger INT;
-
 	public PropertyBool BO;
 
 	public CustomBlock(Material material, NBTTagCompound nbtBlock) {
@@ -129,18 +127,18 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 			ObfuscationHelper.setValue(Block.class, this, this.createBlockState(), BlockStateContainer.class);
 			NBTTagCompound nbtProperty = nbtBlock.getCompoundTag("Property");
 			switch (nbtProperty.getByte("Type")) {
-			case (byte) 1: {
-				this.setDefaultState(this.blockState.getBaseState().withProperty(this.BO, false));
-				break;
-			}
-			case (byte) 3: {
-				this.setDefaultState(this.blockState.getBaseState().withProperty(this.INT, 0));
-				break;
-			}
-			case (byte) 4: {
-				this.setDefaultState(this.blockState.getBaseState().withProperty(this.FACING, EnumFacing.NORTH));
-				break;
-			}
+				case (byte) 1: {
+					this.setDefaultState(this.blockState.getBaseState().withProperty(this.BO, false));
+					break;
+				}
+				case (byte) 3: {
+					this.setDefaultState(this.blockState.getBaseState().withProperty(this.INT, 0));
+					break;
+				}
+				case (byte) 4: {
+					this.setDefaultState(this.blockState.getBaseState().withProperty(this.FACING, EnumFacing.NORTH));
+					break;
+				}
 			}
 		}
 

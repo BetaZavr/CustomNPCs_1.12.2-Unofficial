@@ -22,7 +22,7 @@ import java.util.List;
 
 public class GuiAcceptScripts extends GuiNPCInterface implements GuiYesNoCallback {
 
-    private int type; // 0: server scripts; 1: local scripts; 2: client scripts
+    private final int type; // 0: server scripts; 1: local scripts; 2: client scripts
     GuiCustomScroll scroll;
 
     public GuiAcceptScripts(int t) {

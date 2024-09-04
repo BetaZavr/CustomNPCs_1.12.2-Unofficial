@@ -1,0 +1,1 @@
+{	"_comment": "Custom {type}Property Block Model created by default",	"variants": {		"normal": { "model": "{mod_id}:{file_name}" },		"inventory": { "model": "{mod_id}:{file_name}" },{variants}	}}

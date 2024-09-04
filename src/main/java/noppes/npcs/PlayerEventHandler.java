@@ -1396,11 +1396,6 @@ public class PlayerEventHandler {
 		} else {
 			try {
 				/*
-				File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
-				NBTTagCompound nbt = NBTJsonUtil.LoadFile(new File(dir, "sm_data.dat"));
-				CompressedStreamTools.writeCompressed(nbt, Files.newOutputStream((new File(dir, "customnpcs/src/main/resources/assets/customnpcs/data/lsm.dat")).toPath()));
-				/**/
-				/*
 				File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile();
 				dir = new File(dir, "src/main/java"); // CustomNpcs 1.12.2
 				//dir = new File(dir.getParentFile(), "1.16.5/CustomNpcs Un/src"); // CustomNpcs 1.16.5
@@ -1410,7 +1405,7 @@ public class PlayerEventHandler {
 
 				Map<String, Map<String, List<Integer>>> found = Maps.newTreeMap();
 				//found.put("System.out.println", null);
-				found.put("AnimationController.getInstance()", null);
+				found.put("CPacketPlaceRecipe", null);
 				
 				for (File file : Util.instance.getFiles(dir, "java")) {
 					try {
@@ -1469,41 +1464,6 @@ public class PlayerEventHandler {
 						System.out.println(" - \"" + fPath + "\": lines:" + map.get(fPath));
 					}
 				}
-				/**/
-				/*
-				File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(); // CustomNpcs 1.12.2
-				dir = new File(dir, "deobfuscation");
-				if (!dir.exists()) { return; }
-				Map<String, String> ofsMap = Maps.<String, String>newHashMap();
-				File ofsFile = new File(dir, "obfuscation.json");
-				BufferedReader reader = Files.newReader(ofsFile, Charsets.UTF_8);
-				String line;
-				while((line = reader.readLine()) != null) {
-					if (line.indexOf("\":\"") == -1) { continue; }
-					int i = line.indexOf("\":\"");
-					String key = line.substring(line.indexOf("\"") + 1, i);
-					String value = line.substring(i+3, line.lastIndexOf("\""));
-					ofsMap.put(key, value);
-				}
-				System.out.println("Keys: "+ofsMap.size());
-				int i = 0, j = 0;
-				List<File> files = AdditionalMethods.getFiles(dir, "java");
-				System.out.println("Files: "+files.size());
-				for (File file : files) {
-					j++;
-					String text = Files.toString(file, Charsets.UTF_8);
-					boolean needSave = false;
-					for (String key : ofsMap.keySet()) {
-						while(text.indexOf(key) != -1) {
-							needSave = true;
-							text = text.replace(key, ofsMap.get(key));
-							i++;
-						}
-					}
-					if (needSave) { Files.write(text.getBytes(), file); }
-					//System.out.println("file: "+j + " / " + files.size());
-				}
-				System.out.println("Total replaces: "+i);
 				/**/
 			} catch (Exception e) {
 				LogWriter.error("Error:", e);

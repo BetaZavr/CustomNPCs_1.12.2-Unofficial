@@ -24,6 +24,8 @@ public interface IMethods {
 
 	String getJSONStringFromObject(Object obj);
 
+	String getDataFile(String fileName);
+
 	RayTraceVec getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius);
 
 	RayTraceVec getPosition(IEntity<?> entity, double yaw, double pitch, double radius);

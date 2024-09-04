@@ -24,7 +24,7 @@ import java.util.Map;
 public class GuiAccepts extends GuiNPCInterface implements GuiYesNoCallback {
     
     GuiCustomScroll scroll;
-    private Map<String, String> data = Maps.newHashMap();
+    private final Map<String, String> data = Maps.newHashMap();
 
     public GuiAccepts() {
         this.setBackground("largebg.png");
@@ -37,16 +37,7 @@ public class GuiAccepts extends GuiNPCInterface implements GuiYesNoCallback {
             case 0: {
                 if (!this.scroll.hasSelected() || !this.data.containsKey(this.scroll.getSelected())) { return; }
                 String[] keyWorld = this.data.get(this.scroll.getSelected()).split("/");
-                String key = keyWorld[0];
-                if (keyWorld[0].equals("main_client_scripts")) {
-                    key = "In main menu";
-                }
-                else if (keyWorld.length > 3) {
-                    key += " [" + ((char) 167) + "6" + keyWorld[keyWorld.length - 1] + ((char) 167) + "r]";
-                }
-                GuiYesNo guiyesno = new GuiYesNo(this,
-                        new TextComponentTranslation("system.scripts.accept.0").getFormattedText() + ": \"" + key + ((char) 167) + "r\"",
-                        new TextComponentTranslation("system.scripts.accept.1").getFormattedText(), 0);
+                final GuiYesNo guiyesno = getGuiYesNo(keyWorld);
                 this.displayGuiScreen(guiyesno);
                 break;
             }
@@ -64,6 +55,19 @@ public class GuiAccepts extends GuiNPCInterface implements GuiYesNoCallback {
             }
             case 2: this.close(); break;
         }
+    }
+
+    private GuiYesNo getGuiYesNo(String[] keyWorld) {
+        String key = keyWorld[0];
+        if (keyWorld[0].equals("main_client_scripts")) {
+            key = "In main menu";
+        }
+        else if (keyWorld.length > 3) {
+            key += " [" + ((char) 167) + "6" + keyWorld[keyWorld.length - 1] + ((char) 167) + "r]";
+        }
+        return new GuiYesNo(this,
+                new TextComponentTranslation("system.scripts.accept.0").getFormattedText() + ": \"" + key + ((char) 167) + "r\"",
+                new TextComponentTranslation("system.scripts.accept.1").getFormattedText(), 0);
     }
 
     @Override

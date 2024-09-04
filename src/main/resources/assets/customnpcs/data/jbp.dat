@@ -1,0 +1,1 @@
+{	"_comment": "Custom Block Portal created by default",	"variants": {		"type=0": { "model": "{mod_id}:{file_name}" },		"type=1": { "model": "{mod_id}:{file_name}" },		"type=2": { "model": "{mod_id}:{file_name}" },		"normal": { "model": "{mod_id}:{file_name}" },		"inventory": { "model": "{mod_id}:{file_name}" }	}}

@@ -24,11 +24,16 @@ implements IComponentGui {
 	protected String[] display;
 	private int displayValue;
 	public int id;
-	public int layerColor, txrX = 0, txrY = 0, txrW = 0, txrH = 0;
+	public int layerColor;
+	public int txrX = 0;
+	public int txrY = 0;
+	public int txrW = 0;
+	public int txrH = 0;
 	public ResourceLocation texture = null;
 	public String lable = "";
 	public boolean dropShadow, hasDefBack, hasSound, isPressed;
 	public int textColor = CustomNpcs.MainColor.getRGB();
+	public boolean isSimple = false;
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
@@ -81,6 +86,11 @@ implements IComponentGui {
 		this.displayValue = val;
 	}
 
+	public GuiNpcButton simple(boolean bo) {
+		this.isSimple = bo;
+		return this;
+	}
+
 	@Override
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.visible) {
@@ -127,49 +137,62 @@ implements IComponentGui {
 				this.drawGradientRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xFF202020, 0xFF202020);
 				this.drawGradientRect(this.x, this.y, this.x + this.width, this.y + this.height, 0xFFA0A0A0, 0xFFA0A0A0);
 			}
-			int i = !this.enabled ? 1 : this.hovered ? 2 : 0;
-			this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-					&& mouseY < this.y + this.height);
-			if (this.isPressed) {
-				this.isPressed = Mouse.isButtonDown(0) && this.enabled && this.hovered;
-			} else if (Mouse.getEventButtonState() && Mouse.isButtonDown(0) && this.enabled && this.hovered) {
-				this.isPressed = true;
-			}
-			if (this.isPressed) {
-				i = 3;
-			}
-			boolean isPrefabricated = txrW == 0;
-			int tw = isPrefabricated ? 200 : txrW;
-			int th = txrH == 0 ? 20 : txrH;
-			float scaleH = this.height / (float) th;
-			float scaleW = isPrefabricated ? scaleH : this.width / (float) tw;
-			GlStateManager.pushMatrix();
-			GlStateManager.scale(scaleW, scaleH, 1.0f);
-			GlStateManager.translate(this.x / scaleW, this.y / scaleH, 0.0f);
-			mc.renderEngine.bindTexture(this.texture);
-			if (this.layerColor != 0) {
-				GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f,
-						(float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f,
-						(float) (this.layerColor >> 24 & 255) / 255.0f);
-			} else {
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			}
-			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-					GlStateManager.DestFactor.ZERO);
-			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
-					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			if (isPrefabricated) {
-				tw = (int) (((float) this.width / 2.0f) / scaleH);
-				this.drawTexturedModalRect(0, 0, txrX, txrY + i * th, tw, th);
-				this.drawTexturedModalRect(tw, 0, txrX + 200 - tw, txrY + i * th, tw, th);
-			} else {
-				this.drawTexturedModalRect(0, 0, txrX, txrY + i * th, tw, th);
-			}
+			if (isSimple) {
+				this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height);
+				int i = this.hovered ? 1 : 0;
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
+				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
-			GlStateManager.popMatrix();
+				GlStateManager.translate(this.x, this.y, 0.0f);
+				mc.renderEngine.bindTexture(this.texture);
 
+				this.drawTexturedModalRect(0, 0, txrX, txrY + i * this.height, this.width, this.height);
+				GlStateManager.popMatrix();
+
+			} else {
+				int i = !this.enabled ? 1 : this.hovered ? 2 : 0;
+				this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height);
+				if (this.isPressed) {
+					this.isPressed = Mouse.isButtonDown(0) && this.enabled && this.hovered;
+				} else if (Mouse.getEventButtonState() && Mouse.isButtonDown(0) && this.enabled && this.hovered) {
+					this.isPressed = true;
+				}
+				if (this.isPressed) {
+					i = 3;
+				}
+				boolean isPrefabricated = txrW == 0;
+				int tw = isPrefabricated ? 200 : txrW;
+				int th = txrH == 0 ? 20 : txrH;
+				float scaleH = this.height / (float) th;
+				float scaleW = isPrefabricated ? scaleH : this.width / (float) tw;
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(scaleW, scaleH, 1.0f);
+				GlStateManager.translate(this.x / scaleW, this.y / scaleH, 0.0f);
+				mc.renderEngine.bindTexture(this.texture);
+				if (this.layerColor != 0) {
+					GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f,
+							(float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f,
+							(float) (this.layerColor >> 24 & 255) / 255.0f);
+				} else {
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				}
+				GlStateManager.enableBlend();
+				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+
+				if (isPrefabricated) {
+					tw = (int) (((float) this.width / 2.0f) / scaleH);
+					this.drawTexturedModalRect(0, 0, txrX, txrY + i * th, tw, th);
+					this.drawTexturedModalRect(tw, 0, txrX + 200 - tw, txrY + i * th, tw, th);
+				} else {
+					this.drawTexturedModalRect(0, 0, txrX, txrY + i * th, tw, th);
+				}
+
+				GlStateManager.popMatrix();
+			}
 		}
 		int l = textColor;
 		if (this.packedFGColour != 0) {
@@ -243,6 +266,7 @@ implements IComponentGui {
 
 	@Override
 	protected int getHoverState(boolean hovered) {
+		if (!this.isSimple) { return super.getHoverState(hovered); }
 		if (hovered) {
 			if (Mouse.isButtonDown(0)) { return this.enabled ? 2 : 5; }
 			return this.enabled ? 1 : 4;

@@ -1,0 +1,1 @@
+{	"_comment": "Custom Tool Item Model created by default",	"parent": "minecraft:item/handheld",	"textures": {		"layer0": "{mod_id}:items/{name}"	}}

@@ -1,0 +1,1 @@
+{	"_comment": "Custom Block Double Slab created by default",	"variants": {		"type=normal":  { "model": "{mod_id}:{file_name}" },		"type=all":  { "model": "{mod_id}:{file_name}_top" },		"inventory":  { "model": "{mod_id}:{file_name}" }	}}

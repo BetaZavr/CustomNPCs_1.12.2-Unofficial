@@ -171,9 +171,9 @@ implements IComponentGui {
 
 	public void setString(String str) {
 		try {
-			float f = Math.round(Float.parseFloat(str) * 10.0d) / 10.0f;
+			float f = Math.round(Double.parseDouble(str.replace(",", ".")) * 10.0d) / 10.0f;
 			str = String.valueOf(f).replace(".", ",");
-		} catch (Exception e) { LogWriter.error("Error:", e);}
+		} catch (Exception e) { LogWriter.error("Error: \"" + str + "\"", e);}
 		this.displayString = NoppesStringUtils.translate(str);
 	}
 

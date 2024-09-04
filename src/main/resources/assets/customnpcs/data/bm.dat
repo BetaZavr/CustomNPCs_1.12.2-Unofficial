@@ -1,0 +1,1 @@
+{	"_comment": "Custom Block Model created by default",	"parent": "block/cube_all",	"textures": {		"all": "{mod_id}:{name}"	}}

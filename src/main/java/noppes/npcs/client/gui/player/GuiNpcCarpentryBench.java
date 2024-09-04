@@ -124,13 +124,10 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 	@Override
 	public void initGui() {
 		super.initGui();
-		// New
 		this.widthTooNarrow = this.width < 379;
-		this.recipeBookGui.func_194303_a(this.width, this.height, this.mc, this.widthTooNarrow,
-				((ContainerCarpentryBench) this.inventorySlots).craftMatrix);
+		this.recipeBookGui.func_194303_a(this.width, this.height, this.mc, this.widthTooNarrow, ((ContainerCarpentryBench) this.inventorySlots).craftMatrix);
 		this.guiLeft = this.recipeBookGui.updateScreenPosition(this.widthTooNarrow, this.width, this.xSize);
-		this.addButton(this.recipeButton = new GuiNpcButton(10, this.guiLeft + 5, this.height / 2 - 49, 20, 19, 0, 168,
-				this.buttonTexture));
+		this.addButton(this.recipeButton = new GuiNpcButton(10, this.guiLeft + 5, this.height / 2 - 49, 20, 19, 0, 168, this.buttonTexture).simple(true));
 	}
 
 	@Override

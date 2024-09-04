@@ -1,0 +1,1 @@
+{	"_comment": "Custom Chest Block created by default",	"parent": "{mod_id}:block/chest",	"textures": {		"chest": "{mod_id}:entity/chest/{file_name}",		"particle": "{mod_id}:entity/chest/{file_name}"	}}

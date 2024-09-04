@@ -1,0 +1,1 @@
+{	"_comment": "Custom Fishing Rod Uncast Item Model created by default",	"parent": "item/handheld_rod",	"textures": {		"layer0": "{mod_id}:items/{name}_uncast"	},	"overrides": [		{			"predicate": {				"cast": 1			},			"model": "{mod_id}:item/{file_name}_cast"		}	]}

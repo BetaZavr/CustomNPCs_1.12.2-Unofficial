@@ -243,7 +243,7 @@ public class AnimationController implements IAnimationHandler {
 	}
 
 	private void loadDefaultAnimations() {
-		InputStream inputStream = Util.instance.getModInputStream("default_animations.dat");
+		InputStream inputStream = Util.instance.getModInputStream("a_def.dat");
 		if (inputStream == null) { return; }
 		NBTTagCompound compound = new NBTTagCompound();
 		try { compound = CompressedStreamTools.readCompressed(inputStream); } catch (Exception e) { LogWriter.error("Error:", e); }

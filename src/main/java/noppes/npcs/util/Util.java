@@ -871,7 +871,7 @@ public class Util implements IMethods {
 	@SideOnly(Side.CLIENT)
 	public void resetRecipes(EntityPlayer player, GuiContainer gui) {
 		CustomNpcs.proxy.updateRecipes(null, false, false, "this.resetRecipes()");
-
+		LogWriter.debug("Trying reset recipes book");
 		Container container = null;
 		SlotCrafting slotIn = null;
 		List<RecipeList> lists = null;
@@ -882,8 +882,7 @@ public class Util implements IMethods {
 			ObfuscationHelper.setValue(GuiCrafting.class, (GuiCrafting) gui, recipeBookGui, GuiRecipeBook.class);
 
 			container = gui.inventorySlots;
-			slotIn = new SlotNpcCrafting(player, ((ContainerWorkbench) container).craftMatrix,
-					((ContainerWorkbench) container).craftResult, 0, 124, 35);
+			slotIn = new SlotNpcCrafting(player, ((ContainerWorkbench) container).craftMatrix, ((ContainerWorkbench) container).craftResult, 0, 124, 35);
 			slotIn.slotNumber = 0;
 			lists = RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab);
 		} else if (gui instanceof GuiInventory) {
@@ -892,8 +891,7 @@ public class Util implements IMethods {
 			ObfuscationHelper.setValue(GuiInventory.class, (GuiInventory) gui, recipeBookGui, 3);
 
 			container = gui.inventorySlots;
-			slotIn = new SlotNpcCrafting(player, ((ContainerPlayer) container).craftMatrix,
-					((ContainerPlayer) container).craftResult, 0, 154, 28);
+			slotIn = new SlotNpcCrafting(player, ((ContainerPlayer) container).craftMatrix, ((ContainerPlayer) container).craftResult, 0, 154, 28);
 			slotIn.slotNumber = 0;
 			lists = RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab);
 		}
@@ -1285,8 +1283,8 @@ public class Util implements IMethods {
 			return false;
 		}
 		LogWriter.info("Trying save text to file \"" + file.getAbsolutePath() + "\"");
-		if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
-			LogWriter.debug("Error create path File \"" + file.getAbsolutePath() + "\"");
+		if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) { // create directories
+			LogWriter.debug("Error creating directories from file path \"" + file.getAbsolutePath() + "\"");
 			return false;
 		}
 		try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8)) {
@@ -1302,6 +1300,22 @@ public class Util implements IMethods {
 	public boolean saveFile(File file, NBTTagCompound compound) {
 		if (compound == null) { return false; }
 		return this.saveFile(file, NBTJsonUtil.Convert(compound));
+	}
+
+	@Override
+	public String getDataFile(String fileName) {
+		if (fileName == null) { return ""; }
+		LogWriter.info("Trying to get text from mod data file \"" + fileName + "\"");
+		InputStream inputStream = this.getModInputStream(fileName);
+		String text = "";
+		try {
+			ByteArrayOutputStream result = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			for (int length; (length = inputStream.read(buffer)) != -1; ) { result.write(buffer, 0, length); }
+			text = result.toString("UTF-8");
+		}
+		catch (IOException e) { LogWriter.error("Error get text from mod data file: \"" + fileName + "\"; InputStream: " + inputStream, e); }
+		return text;
 	}
 
 	@Override

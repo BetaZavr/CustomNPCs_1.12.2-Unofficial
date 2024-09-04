@@ -1,0 +1,1 @@
+{	"_comment": "Custom Door Block created by default",	"parent": "block/{type}",	"textures": {		"bottom": "{mod_id}:blocks/{file_name}_lower",		"top": "{mod_id}:blocks/{file_name}_upper"	}}
