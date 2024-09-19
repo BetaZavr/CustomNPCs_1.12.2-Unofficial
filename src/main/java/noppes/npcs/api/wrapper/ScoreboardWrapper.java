@@ -20,7 +20,7 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IScoreboard;
 import noppes.npcs.api.IScoreboardObjective;
 import noppes.npcs.api.IScoreboardTeam;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.scoreboard.ScoreboardAPIMixin;
 
 public class ScoreboardWrapper implements IScoreboard {
 
@@ -144,7 +144,7 @@ public class ScoreboardWrapper implements IScoreboard {
 
 	@Override
 	public boolean hasTeam(String name) {
-		Map<String, ScorePlayerTeam> teams = ObfuscationHelper.getValue(Scoreboard.class, this.board, 4);
+		Map<String, ScorePlayerTeam> teams = ((ScoreboardAPIMixin) this.board).npcs$getTeams();
 		return teams == null || teams.containsKey(name);
 	}
 
@@ -163,7 +163,7 @@ public class ScoreboardWrapper implements IScoreboard {
 
 	@Override
 	public void removeTeam(String name) {
-		Map<String, ScorePlayerTeam> teams = ObfuscationHelper.getValue(Scoreboard.class, this.board, 4);
+		Map<String, ScorePlayerTeam> teams = ((ScoreboardAPIMixin) this.board).npcs$getTeams();
 		if (teams != null && teams.containsKey(name)) {
 			this.board.removeTeam(teams.get(name));
 		}

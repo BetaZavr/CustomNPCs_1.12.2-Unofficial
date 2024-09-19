@@ -30,6 +30,7 @@ import noppes.npcs.api.ILayerModel;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.block.ITextPlane;
 import noppes.npcs.api.wrapper.BlockScriptedWrapper;
+import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.IScriptBlockHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -458,10 +459,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		}
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (!type.equalsIgnoreCase("init")) {
-				for (ScriptContainer tab : this.scripts) {
-					tab.getFullCode();
-				}
+			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
 				EventHooks.onScriptBlockInit(this);
 			}
 		}

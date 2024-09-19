@@ -49,7 +49,6 @@ public enum EnumPlayerPacket
 	TraderMarketSell,
 	TraderMarketReset,
 	TraderMarketRemove,
-	CurrentLanguage,
 	GetBuildData,
 	KeyPressed,
 	HudTimerEnd,

@@ -75,9 +75,9 @@ import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityDialogNpc;
+import noppes.npcs.mixin.api.entity.player.EntityPlayerMPAPIMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
-import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ValueUtil;
 
 @SuppressWarnings("rawtypes")
@@ -317,10 +317,8 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public String getLanguage() {
-		if (!(this.entity instanceof EntityPlayerMP)) {
-			return "en_en";
-		}
-		return ObfuscationHelper.getValue(EntityPlayerMP.class, (EntityPlayerMP) this.entity, String.class);
+		if (!(this.entity instanceof EntityPlayerMP)) { return "en_en"; }
+		return ((EntityPlayerMPAPIMixin) this.entity).npcs$getLanguage();
 	}
 
 	@Override
@@ -776,13 +774,6 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		PlayerQuestController.addActiveQuest(quest, entity, true);
 	}
 
-	public void startRiding(IEntity<?> e) {
-		if (e == null) {
-			return;
-		}
-		this.entity.startRiding(e.getMCEntity(), true);
-	}
-
 	@Override
 	public void stopQuest(int id) {
 		Quest quest = QuestController.instance.quests.get(id);
@@ -836,7 +827,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	@Override
 	public IEntity getLookingEntity() {
 		Entity target = Util.instance.getLookEntity(this.entity, null);
-		return target == null ? null : NpcAPI.Instance().getIEntity(target);
+		return target == null ? null : Objects.requireNonNull(NpcAPI.Instance()).getIEntity(target);
 	}
 
 	@Override

@@ -18,7 +18,7 @@ import noppes.npcs.client.model.part.ModelOBJPart;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.items.CustomArmor;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.client.renderer.entity.RenderPlayerAPIMixin;
 
 import javax.annotation.Nonnull;
 
@@ -120,7 +120,7 @@ public class ModelOBJPlayerArmor extends ModelBiped {
 			Minecraft mc = Minecraft.getMinecraft();
 			Render<?> rp = mc.getRenderManager().getEntityRenderObject(entity);
 			if (rp instanceof RenderPlayer) {
-				smallArms = ObfuscationHelper.getValue(RenderPlayer.class, (RenderPlayer) rp, boolean.class);
+				smallArms = ((RenderPlayerAPIMixin) rp).npcs$getSmallArms();
 			}
 		}
 

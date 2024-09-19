@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import noppes.npcs.mixin.api.pathfinding.PathAPIMixin;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -95,7 +96,6 @@ import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
-import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.RayTraceRotate;
 import noppes.npcs.util.RayTraceVec;
 import noppes.npcs.util.ValueUtil;
@@ -483,13 +483,11 @@ public class ClientGuiEventHandler extends Gui {
 		// Now way
 		Path path = npc.getNavigator().getPath();
 		if (path != null) {
-			PathPoint[] points = ObfuscationHelper.getValue(Path.class, path, 0);
+			PathPoint[] points = ((PathAPIMixin) path).npcs$getPoints();
 			if (points != null) {
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
-				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-						GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-						GlStateManager.DestFactor.ZERO);
+				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 				GlStateManager.glLineWidth(3.0f);
 				GlStateManager.disableTexture2D();
 				GlStateManager.depthMask(false);
@@ -1379,10 +1377,8 @@ public class ClientGuiEventHandler extends Gui {
 						if (this.mc.world.provider.getDimension() != qData.quest.completerPos[3]) {
 							type = 7;
 						} else {
-							AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2])
-									.grow(64.0d, 128.0d, 64.0d);
-							List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
-									bb);
+							AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(64.0d, 128.0d, 64.0d);
+							List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityNPCInterface.class, bb);
 							final EntityLivingBase et = getEntityLivingBase(p, ents, qData);
 							if (et != null) {
 								p[0] = et.posX;

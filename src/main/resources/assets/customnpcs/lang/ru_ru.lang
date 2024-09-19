@@ -1159,6 +1159,7 @@ gui.darkness=Ночью
 gui.day=День
 gui.decrease=Уменьшить
 gui.deleteMessage=Вы точно хотите удалить это?
+gui.replaceMessage=Вы точно хотите заменить это?
 gui.description=Описание:
 gui.detailed=Подробно
 gui.dimensions=Доступные измерения:

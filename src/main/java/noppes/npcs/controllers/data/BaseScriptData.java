@@ -109,9 +109,9 @@ implements IScriptHandler {
 
 	public boolean isEmpty() {
 		for (ScriptContainer cont : this.scripts) {
-			if (cont.getFullCode().isEmpty()) { return true; }
+			if (cont.hasScriptCode()) { return false; }
 		}
-		return false;
+		return true;
 	}
 
 }

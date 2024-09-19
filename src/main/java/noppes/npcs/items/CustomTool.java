@@ -24,8 +24,8 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.mixin.api.item.ItemToolAPIMixin;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ObfuscationHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -77,7 +77,7 @@ implements ICustomElement {
 			this.harvestLevel = nbtItem.getInteger("HarvestLevel");
 		}
 		if (nbtItem.hasKey("ToolClass", 8)) {
-			ObfuscationHelper.setValue(ItemTool.class, this, nbtItem.getString("ToolClass"), String.class);
+			((ItemToolAPIMixin) this).npcs$setToolClass(nbtItem.getString("ToolClass"));
 		}
 		this.setCreativeTab(CustomRegisters.tabItems);
 	}

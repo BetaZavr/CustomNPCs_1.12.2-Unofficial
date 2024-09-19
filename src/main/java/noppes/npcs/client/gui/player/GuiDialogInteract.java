@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
 import noppes.npcs.LogWriter;
+import noppes.npcs.mixin.api.client.resources.LanguageManagerAPIMixin;
 import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Lists;
@@ -20,7 +21,6 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -44,7 +44,6 @@ import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 
@@ -787,9 +786,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		this.h = (int) Math.ceil(sw.getScaledHeight_double());
         int optionHeight = this.dialog.showWheel ? 60 : (int) (Math.ceil(sw.getScaledHeight_double()) / 3.0d);
 		this.dialogHeight = this.h - optionHeight;
-		this.corr = ObfuscationHelper
-				.getValue(LanguageManager.class, Minecraft.getMinecraft().getLanguageManager(), String.class)
-				.equals("ru_ru") ? 1.14583f : 1.0f;
+		this.corr = ((LanguageManagerAPIMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage().equals("ru_ru") ? 1.14583f : 1.0f;
 		this.dialogWidth = (int) ((float) (this.w - this.guiLeft - 43) / this.corr);
 		if (!this.lines.isEmpty()) {
 			int max = this.dialogWidth - (int) (13.0f / this.corr);

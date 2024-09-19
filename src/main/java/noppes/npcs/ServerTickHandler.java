@@ -1,6 +1,5 @@
 package noppes.npcs;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +12,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.management.UserListOps;
 import net.minecraft.server.management.UserListOpsEntry;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldServer;
@@ -36,7 +34,6 @@ import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
-import noppes.npcs.util.NBTJsonUtil;
 
 public class ServerTickHandler {
 

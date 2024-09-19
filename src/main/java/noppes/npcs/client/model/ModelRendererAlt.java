@@ -1,10 +1,9 @@
 package noppes.npcs.client.model;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import noppes.npcs.LogWriter;
+import noppes.npcs.mixin.api.client.model.ModelRendererAPIMixin;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -32,24 +31,8 @@ import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.items.CustomArmor;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class ModelRendererAlt extends ModelRenderer {
-
-    public static Field a;
-	public static Field colorState;
-
-	static {
-		try {
-			ModelRendererAlt.colorState = ObfuscationHelper.getField(GlStateManager.class, 21);
-            if (ModelRendererAlt.colorState != null) {
-				ModelRendererAlt.colorState.setAccessible(true);
-				Object colorState = ModelRendererAlt.colorState.get(null);
-				ModelRendererAlt.a = colorState.getClass().getDeclaredFields()[3];
-				ModelRendererAlt.a.setAccessible(true);
-			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
-	}
 
 	// Data
 	public EnumParts part;
@@ -159,13 +142,8 @@ public class ModelRendererAlt extends ModelRenderer {
 		// Tint
 		if (this.al != 0.0f) {
 			GlStateManager.color(this.r, this.g, this.b, this.al);
-		} else if (ModelRendererAlt.a != null) {
-			try {
-				GlStateManager.color(this.r, this.g, this.b, ModelRendererAlt.a.getFloat(ModelRendererAlt.colorState.get(null)));
-			}
-			catch (Exception e) { LogWriter.error("Error:", e); }
 		} else {
-			GlStateManager.color(this.r, this.g, this.b);
+			GlStateManager.color(this.r, this.g, this.b, 1.0f);
 		}
 		// render
 		if (this.displayOBJListUp > 0 || this.displayOBJListDown > 0) { this.objDraw(); }
@@ -862,7 +840,7 @@ public class ModelRendererAlt extends ModelRenderer {
 			this.isAnimPart = partSets[0] != 0.0f || partSets[1] != 0.0f || partSets[2] != 0.0f || partSets[3] != 0.0f || partSets[4] != 0.0f || partSets[5] != 0.0f || partSets[6] != 1.0f || partSets[7] != 1.0f || partSets[8] != 1.0f || partSets[9] != 0.0f || partSets[10] != 0.0f;
 		}
 		if (animation.addParts.containsKey(this.idPart)) {
-			ModelBase baseModel = ObfuscationHelper.getValue(ModelRenderer.class, this, ModelBase.class);
+			ModelBase baseModel = ((ModelRendererAPIMixin) this).npcs$getBaseModel();
 			if (baseModel != null) {
 				for (AddedPartConfig part : animation.addParts.get(this.idPart)) {
 					ModelRendererAlt child = new ModelRendererAlt(baseModel, part, animation);

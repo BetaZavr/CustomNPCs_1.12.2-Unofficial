@@ -2,6 +2,8 @@ package noppes.npcs.client.model;
 
 import java.util.Map;
 
+import noppes.npcs.mixin.api.client.model.ModelPlayerAPIMixin;
+import noppes.npcs.mixin.api.entity.EntityLivingBaseAPIMixin;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Maps;
@@ -27,7 +29,6 @@ import noppes.npcs.client.model.animation.AniNo;
 import noppes.npcs.client.model.animation.AniPoint;
 import noppes.npcs.client.model.animation.AniWaving;
 import noppes.npcs.client.model.animation.AniYes;
-import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.animation.AnimationStack;
 import noppes.npcs.client.model.part.AnimData;
 import noppes.npcs.client.model.part.head.ModelHeadwear;
@@ -39,7 +40,6 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityNpcAlex;
 import noppes.npcs.entity.EntityNpcClassicPlayer;
 import noppes.npcs.entity.data.DataAnimation;
-import noppes.npcs.util.ObfuscationHelper;
 
 import javax.annotation.Nonnull;
 
@@ -99,7 +99,7 @@ public class ModelNpcAlt extends ModelPlayer {
         this.bipedCape.setTextureSize(64, 32);
         this.bipedCape.setBox(-5.0F, 0.0F, -1.0F, 10, 9, 5, 2, 1, modelSize);
         this.bipedCape.setRotationPoint(0.0F, 0.0F, 0.0F);
-        ObfuscationHelper.setValue(ModelPlayer.class, this, this.bipedCape, 5);
+        ((ModelPlayerAPIMixin) this).npcs$setBipedCape(this.bipedCape);
 
         this.bipedRightArm = new ModelRendererAlt(this, EnumParts.ARM_RIGHT, 40, 16, false);
         ((ModelRendererAlt) this.bipedRightArm).setBox(this.smallArmsIn ? -2.0F : -3.0F, -2.0F, -2.0F, handWidth, 5.5f, 3.5f, 3.0f, 4, modelSize);
@@ -274,8 +274,9 @@ public class ModelNpcAlt extends ModelPlayer {
             animation = ((EntityNPCInterface) entityIn).animation;
             if (((EntityCustomNpc) entityIn).navigating != null && (netHeadYaw < -2.0f || netHeadYaw > 2.0f)) {
                 entityIn.turn(netHeadYaw / 3.0f, headPitch / 3.0f);
-                ObfuscationHelper.setValue(EntityLivingBase.class, (EntityLivingBase) entityIn, entityIn.rotationYaw, 58);
-                ObfuscationHelper.setValue(EntityLivingBase.class, (EntityLivingBase) entityIn, entityIn.rotationPitch, 59);
+                ((ModelPlayerAPIMixin) this).npcs$setBipedCape(this.bipedCape);
+                ((EntityLivingBaseAPIMixin) entityIn).npcs$setInterpTargetYaw(entityIn.rotationYaw);
+                ((EntityLivingBaseAPIMixin) entityIn).npcs$setInterpTargetPitch(entityIn.rotationPitch);
             }
             if (!this.isRiding) { this.isRiding = ((EntityCustomNpc) entityIn).currentAnimation == 1; }
             if (((EntityCustomNpc) entityIn).currentAnimation == 6 || (((EntityCustomNpc) entityIn).inventory.getProjectile() != null && ((EntityCustomNpc) entityIn).isAttacking() && ((EntityCustomNpc) entityIn).stats.ranged.getHasAimAnimation())) {

@@ -1,19 +1,15 @@
 package noppes.npcs;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import noppes.npcs.controllers.*;
+import noppes.npcs.mixin.api.entity.player.EntityPlayerAPIMixin;
+import noppes.npcs.mixin.api.event.entity.living.LivingAttackEventAPImixin;
 import noppes.npcs.util.CustomNPCsScheduler;
 import org.apache.commons.lang3.StringUtils;
 
@@ -50,7 +46,6 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -104,7 +99,6 @@ import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class PlayerEventHandler {
 
@@ -329,7 +323,7 @@ public class PlayerEventHandler {
 			PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 1, target);
 			event.setCanceled(EventHooks.onPlayerAttack(handler, ev));
 			if (event.isCanceled() || ev.isCanceled()) {
-				ObfuscationHelper.setValue(LivingAttackEvent.class, event, 0.0f, float.class);
+				((LivingAttackEventAPImixin) event).npcs$setAmount(0.0f);
 			}
 			if (item.getItem() == CustomRegisters.scripted_item && !event.isCanceled()) {
 				ItemScriptedWrapper isw = ItemScripted.GetWrapper(item);
@@ -383,8 +377,7 @@ public class PlayerEventHandler {
 		Entity source = NoppesUtilServer.GetDamageSourcee(event.getSource());
 		if (event.getEntityLiving() instanceof EntityPlayer) {
 			PlayerScriptData handler = PlayerData.get((EntityPlayer) event.getEntityLiving()).scriptData;
-			PlayerEvent.DamagedEvent pevent = new PlayerEvent.DamagedEvent(handler.getPlayer(), source,
-					event.getAmount(), event.getSource());
+			PlayerEvent.DamagedEvent pevent = new PlayerEvent.DamagedEvent(handler.getPlayer(), source, event.getAmount(), event.getSource());
 			boolean cancel = EventHooks.onPlayerDamaged(handler, pevent);
 			event.setCanceled(cancel);
 			if (pevent.clearTarget) {
@@ -773,8 +766,8 @@ public class PlayerEventHandler {
 				player.setSpawnDimension(dimId);
 				player.setSpawnPoint(player.getPosition(), true);
 				player.setSpawnChunk(player.getPosition(), true, dimId);
-				try { ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 27); } catch (Exception e) { LogWriter.error("Error player set bed location:", e); } // bedLocation
-				try { ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 32); } catch (Exception e) { LogWriter.error("Error player set spawn pos:", e); } // spawnPos
+				player.bedLocation = player.getPosition();
+				((EntityPlayerAPIMixin) player).npcs$setSpawnPos(player.getPosition());
 			}
 			data.game.dimID = event.player.world.provider.getDimension();
 		}
@@ -802,6 +795,7 @@ public class PlayerEventHandler {
 
 			int i = 0;
 			boolean notBreak = true;
+			// I have no desire to import client events into a common class and check for events when the Forge version changes:
 			while (notBreak) {
 				Class<?> c = null;
 				i++;
@@ -1383,92 +1377,6 @@ public class PlayerEventHandler {
 		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size() + "; Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
 		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		return this;
-	}
-
-	@SubscribeEvent
-	public void npcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
-		if (!(event.getEntityLiving() instanceof EntityPlayer)) {
-			return;
-		}
-		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-		if (player instanceof EntityPlayerMP) {
-
-		} else {
-			try {
-				/*
-				File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile();
-				dir = new File(dir, "src/main/java"); // CustomNpcs 1.12.2
-				//dir = new File(dir.getParentFile(), "1.16.5/CustomNpcs Un/src"); // CustomNpcs 1.16.5
-				//dir = new File(dir.getParentFile(), "net"); // Minecraft 1.12.2
-				//dir = new File(dir.getParentFile(), "nit"); // Minecraft 1.16.5
-				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
-
-				Map<String, Map<String, List<Integer>>> found = Maps.newTreeMap();
-				//found.put("System.out.println", null);
-				found.put("CPacketPlaceRecipe", null);
-				
-				for (File file : Util.instance.getFiles(dir, "java")) {
-					try {
-						BufferedReader reader = Files.newReader(file, StandardCharsets.UTF_8);
-						String line;
-						int l = 1;
-						while ((line = reader.readLine()) != null) {
-							for (String key : found.keySet()) {
-								if (key.contains("&&")) {
-									String k = key.substring(0, key.indexOf("&&"));
-									String s = key.substring(key.indexOf("&&") + 2);
-									if (line.contains(k) && line.toLowerCase().contains(s.toLowerCase())) {
-                                        found.computeIfAbsent(key, k1 -> Maps.newTreeMap());
-										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
-										if (!found.get(key).containsKey(fPath)) {
-											found.get(key).put(fPath, Lists.newArrayList());
-										}
-										found.get(key).get(fPath).add(l);
-									}
-								} else if (key.indexOf("&") == 0) {
-									String k = key.replace("&", "");
-									if (line.contains(k)) {
-										int s = line.indexOf(k) - 1;
-										int e = line.indexOf(k) + k.length();
-										if (br.contains("" + line.charAt(s)) && br.contains("" + line.charAt(e))) {
-                                            found.computeIfAbsent(key, k1 -> Maps.newTreeMap());
-											String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
-											if (!found.get(key).containsKey(fPath)) {
-												found.get(key).put(fPath, Lists.newArrayList());
-											}
-											found.get(key).get(fPath).add(l);
-										}
-									}
-								} else if (line.contains(key)) {
-                                    found.computeIfAbsent(key, k -> Maps.newTreeMap());
-									String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
-									if (!found.get(key).containsKey(fPath)) {
-										found.get(key).put(fPath, Lists.newArrayList());
-									}
-									found.get(key).get(fPath).add(l);
-								}
-							}
-							l++;
-						}
-					} catch (Exception e) { LogWriter.error(e); }
-				}
-				System.out.println("Directory: " + dir);
-				for (String key : found.keySet()) {
-					if (found.get(key) == null || found.get(key).isEmpty()) {
-						System.out.println("\"" + key + "\" not found;");
-						continue;
-					}
-					System.out.println("\"" + key + "\" found in:");
-					Map<String, List<Integer>> map = found.get(key);
-					for (String fPath : map.keySet()) {
-						System.out.println(" - \"" + fPath + "\": lines:" + map.get(fPath));
-					}
-				}
-				/**/
-			} catch (Exception e) {
-				LogWriter.error("Error:", e);
-			}
-		}
 	}
 
 }

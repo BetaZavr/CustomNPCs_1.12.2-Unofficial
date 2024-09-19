@@ -11,7 +11,7 @@ import net.minecraft.util.DamageSource;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.ability.AbstractAbility;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.entity.EntityLivingBaseAPIMixin;
 
 public class CombatHandler {
 
@@ -110,8 +110,7 @@ public class CombatHandler {
 		Entity entity = NoppesUtilServer.GetDamageSourcee(damagesource);
 		if (!(entity instanceof EntityLivingBase)) {
 			if (this.npc.ais.getMaxHurtResistantTime() != 0 && this.npc.hurtResistantTime > this.npc.ais.getMaxHurtResistantTime() / 2.0F) {
-				Object baseAmount = ObfuscationHelper.getValue(EntityLivingBase.class, this.npc, 48);
-                return !(amount <= (baseAmount != null ? (float) baseAmount : 0.0f));
+                return amount > ((EntityLivingBaseAPIMixin) this.npc).npcs$getLastDamage();
 			}
 			return true;
 		}

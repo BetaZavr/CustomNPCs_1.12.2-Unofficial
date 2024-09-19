@@ -1,5 +1,6 @@
 package noppes.npcs.client.util;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -8,10 +9,12 @@ import javax.sound.sampled.AudioFormat;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundManager;
 import net.minecraft.entity.player.EntityPlayer;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.ForgeEvent.SoundTickEvent;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.client.audio.LibraryAPIMixin;
+import noppes.npcs.mixin.api.client.audio.SoundSystemAPIMixin;
 import paulscode.sound.Library;
 import paulscode.sound.SoundBuffer;
 import paulscode.sound.SoundSystem;
@@ -30,9 +33,20 @@ public class MusicData {
 		this.uuid = id;
 		this.name = "";
 		this.resource = "";
-		SoundSystem sndSystem = ObfuscationHelper.getValue(SoundManager.class, manager, SoundSystem.class);
-		Library soundLibrary = ObfuscationHelper.getValue(SoundSystem.class, sndSystem, 4);
-		HashMap<String, Source> sourceMap = ObfuscationHelper.getValue(Library.class, soundLibrary, 3);
+		SoundSystem sndSystem = null;
+		for (Field f : manager.getClass().getDeclaredFields()) {
+			if (f.getType().getName().contains("SoundSystem")) {
+				try {
+					f.setAccessible(true);
+					sndSystem = (SoundSystem) f.get(manager);
+				}
+				catch (IllegalAccessException e) { LogWriter.debug(e.toString()); }
+				break;
+			}
+		}
+		if (sndSystem == null) { return; }
+		Library soundLibrary = ((SoundSystemAPIMixin) sndSystem).npcs$getSoundLibrary();
+		HashMap<String, Source> sourceMap = ((LibraryAPIMixin) soundLibrary).npcs$getSourceMap() ;
 		if (sourceMap != null) {
 			this.source = sourceMap.get(id);
 			if (s != null) {

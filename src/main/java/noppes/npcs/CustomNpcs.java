@@ -13,7 +13,6 @@ import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockVine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -108,12 +107,12 @@ import noppes.npcs.dimensions.CustomWorldProvider;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
+import noppes.npcs.mixin.api.entity.ai.attributes.RangedAttributeAPIMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.DataDebug;
 import noppes.npcs.util.DataDebug.Debug;
-import noppes.npcs.util.ObfuscationHelper;
 
-@Mod(modid = "customnpcs", name = "CustomNpcs", version = "1.12", acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2", guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
+@Mod(modid = "customnpcs", name = "CustomNpcs", version = "0.2.259", acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2", guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
 public class CustomNpcs {
 
 	@ConfigProp(info = "Currency symbol displayed in stores (unicode)", def = "20AC")
@@ -444,8 +443,7 @@ public class CustomNpcs {
 				"CustomDimensions".hashCode(), CustomWorldProvider.class, false);
 
 		CustomNpcs.proxy.preload();
-		ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) SharedMonsterAttributes.MAX_HEALTH,
-				Double.MAX_VALUE, 1);
+		((RangedAttributeAPIMixin) SharedMonsterAttributes.MAX_HEALTH).npcs$setMaxValue(Double.MAX_VALUE);
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_preload");
 	}
 

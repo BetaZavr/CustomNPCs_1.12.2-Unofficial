@@ -167,6 +167,8 @@ import noppes.npcs.entity.data.DataScript;
 import noppes.npcs.entity.data.DataStats;
 import noppes.npcs.entity.data.DataTimers;
 import noppes.npcs.items.ItemSoulstoneFilled;
+import noppes.npcs.mixin.api.entity.EntityLivingBaseAPIMixin;
+import noppes.npcs.mixin.api.world.WorldAPIMixin;
 import noppes.npcs.roles.JobBard;
 import noppes.npcs.roles.JobFollower;
 import noppes.npcs.roles.RoleCompanion;
@@ -174,7 +176,6 @@ import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.GameProfileAlt;
-import noppes.npcs.util.ObfuscationHelper;
 
 public abstract class EntityNPCInterface
 extends EntityCreature
@@ -613,8 +614,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		else if (damageCanBeDone) { this.playHurtSound(source, isBlockedDamage); }
 		boolean isDamaged = !isBlockedDamage;
 		if (isDamaged) {
-			ObfuscationHelper.setValue(EntityLivingBase.class, this, source, DamageSource.class); // 72 - lastDamageSource
-			ObfuscationHelper.setValue(EntityLivingBase.class, this, this.world.getTotalWorldTime(), long.class); // 73 - lastDamageStamp
+			((EntityLivingBaseAPIMixin) this).npcs$setLastDamageSource(source);
+			((EntityLivingBaseAPIMixin) this).npcs$setLastDamageStamp(this.world.getTotalWorldTime());
 		}
 		if (entity1 instanceof EntityPlayerMP) {
 			CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((EntityPlayerMP) entity1, this, source, f, amount, isBlockedDamage);
@@ -2189,7 +2190,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.targetTasks.addTask(2, new EntityAIClosestTarget(this, EntityLivingBase.class, 4, this.ais.directLOS, false, attackEntitySelector));
 		this.targetTasks.addTask(3, new EntityAIOwnerHurtByTarget(this));
 		this.targetTasks.addTask(4, new EntityAIOwnerHurtTarget(this));
-		PathWorldListener pwl = ObfuscationHelper.getValue(World.class, this.world, 23);
+
+		PathWorldListener pwl = ((WorldAPIMixin) this.world).npcs$getPathListener();
 		if (pwl != null) { pwl.onEntityRemoved(this); }
 		if (this.ais.movementType == 1) {
 			this.moveHelper = new FlyingMoveHelper(this);

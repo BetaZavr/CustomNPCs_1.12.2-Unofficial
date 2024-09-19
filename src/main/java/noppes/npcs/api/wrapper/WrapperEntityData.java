@@ -1,5 +1,6 @@
 package noppes.npcs.api.wrapper;
 
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.handler.capability.IWrapperEntityDataHandler;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityProjectile;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.entity.EntityAPIMixin;
 
 import javax.annotation.Nonnull;
 
@@ -61,20 +62,33 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 		if (data == null) {
 			LogWriter.warn("Unable to get EntityData for " + entity);
 			WrapperEntityData ret = WrapperEntityData.getData(entity);
-			CapabilityDispatcher capabilities = ObfuscationHelper.getValue(Entity.class, entity,
-					CapabilityDispatcher.class);
+			CapabilityDispatcher capabilities = ((EntityAPIMixin) entity).npcs$getCapabilities();
 			if (capabilities != null) {
-				ICapabilityProvider[] caps = ObfuscationHelper.getValue(CapabilityDispatcher.class, capabilities, 0);
-				if (caps != null) {
-					List<ICapabilityProvider> list = Lists.newArrayList();
-                    Collections.addAll(list, caps);
-					list.add(ret);
-					ObfuscationHelper.setValue(CapabilityDispatcher.class, capabilities, list.toArray(new ICapabilityProvider[0]), 0);
+				// "capabilities" does not want to be converted to the created mixin interface under any circumstances
+				Field fieldCaps = null;
+				for (Field f : capabilities.getClass().getDeclaredFields()) {
+					if (f.getName().equals("caps")) {
+						fieldCaps = f;
+						break;
+					}
+				}
+				if (fieldCaps != null) {
+					try {
+						fieldCaps.setAccessible(true);
+						ICapabilityProvider[] caps = (ICapabilityProvider[]) fieldCaps.get(capabilities);
+						if (caps != null) {
+							List<ICapabilityProvider> list = Lists.newArrayList();
+							Collections.addAll(list, caps);
+							list.add(ret);
+							fieldCaps.set(capabilities, list.toArray(new ICapabilityProvider[0]));
+						}
+					}
+					catch (Exception e) { LogWriter.error(e); }
 				}
 			} else {
 				Map<ResourceLocation, ICapabilityProvider> m = Maps.newHashMap();
 				m.put(WrapperEntityData.key, ret);
-				ObfuscationHelper.setValue(Entity.class, entity, new CapabilityDispatcher(m, null), CapabilityDispatcher.class);
+				((EntityAPIMixin) entity).npcs$setCapabilities(new CapabilityDispatcher(m, null));
 			}
 			return ret.base;
 		}

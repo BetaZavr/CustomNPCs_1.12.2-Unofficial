@@ -1,6 +1,5 @@
 package noppes.npcs.command;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -28,8 +27,6 @@ import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.MarcetController;
-import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.dimensions.DimensionHandler;
 
@@ -113,37 +110,37 @@ public class CmdScript extends CommandNoppesBase {
 	public Boolean reload(MinecraftServer server, ICommandSender sender, String[] args) {
 		ScriptController.Instance.loadCategories();
 		if (ScriptController.Instance.loadPlayerScripts()) {
-			sender.sendMessage(new TextComponentString("Reload player scripts succesfully"));
+			sender.sendMessage(new TextComponentString("Reload player scripts successfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading player scripts"));
 		}
 		if (ScriptController.Instance.loadNPCsScripts()) {
-			sender.sendMessage(new TextComponentString("Reload NPCs scripts succesfully"));
+			sender.sendMessage(new TextComponentString("Reload NPCs scripts successfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading NPCs scripts"));
 		}
 		if (ScriptController.Instance.loadForgeScripts()) {
-			sender.sendMessage(new TextComponentString("Reload forge scripts succesfully"));
+			sender.sendMessage(new TextComponentString("Reload forge scripts successfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading forge scripts"));
 		}
 		if (ScriptController.Instance.loadClientScripts()) {
-			sender.sendMessage(new TextComponentString("Reload client scripts succesfully"));
+			sender.sendMessage(new TextComponentString("Reload client scripts successfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading client scripts"));
 		}
 		if (ScriptController.Instance.loadPotionScripts()) {
-			sender.sendMessage(new TextComponentString("Reload potion scripts succesfully"));
+			sender.sendMessage(new TextComponentString("Reload potion scripts successfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading potion scripts"));
 		}
 		if (ScriptController.Instance.loadConstantData()) {
-			sender.sendMessage(new TextComponentString("Reload constant data succesfully"));
+			sender.sendMessage(new TextComponentString("Reload constant data successfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading constant data"));
 		}
 		if (ScriptController.Instance.loadStoredData()) {
-			sender.sendMessage(new TextComponentString("Reload stored data succesfully"));
+			sender.sendMessage(new TextComponentString("Reload stored data successfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading stored data"));
 		}
@@ -178,7 +175,7 @@ public class CmdScript extends CommandNoppesBase {
 			}
 			world = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(dimID);
 		} catch (NumberFormatException ex) {
-			throw new CommandException("DimensionID must be an integer");
+			throw new CommandException("DimensionID \"" + args[0] + "\" - must be an integer ");
 		}
 		try {
 			double dx = parseCoordinate(sender.getPosition().getX(), args[1], true).getResult();
@@ -196,7 +193,7 @@ public class CmdScript extends CommandNoppesBase {
 		try {
 			id = Integer.parseInt(args[5]);
 		} catch (NumberFormatException ex) {
-			throw new CommandException("TriggerID must be an integer");
+			throw new CommandException("TriggerID \"" + args[0] + "\" must be an integer");
 		}
 		Object[] arguments = new String[args.length - 6];
         System.arraycopy(args, 6, arguments, 0, args.length - 6);
@@ -215,16 +212,17 @@ public class CmdScript extends CommandNoppesBase {
 	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
 		List<String> list = Lists.newArrayList();
 		if (args.length == 2) {
-			if (args[0].equals("clientlist")) {
-				return Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
-			} else if (args[0].equals("forgelist")) {
-				return Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
-			} else if (args[0].equals("apilist")) {
-				for (EnumScriptType est : EnumScriptType.values()) {
-					list.add(est.function);
-				}
-				return list;
-			}
+            switch (args[0]) {
+                case "clientlist":
+                    return Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
+                case "forgelist":
+                    return Lists.newArrayList(CustomNpcs.forgeEventNames.values());
+                case "apilist":
+                    for (EnumScriptType est : EnumScriptType.values()) {
+                        list.add(est.function);
+                    }
+                    return list;
+            }
 		}
 		return list;
 	}

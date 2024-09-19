@@ -4,14 +4,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.entity.ai.EntityAITasksAPIMixin;
 
 public class EntityAICustom extends EntityAIBase {
 
@@ -26,8 +25,7 @@ public class EntityAICustom extends EntityAIBase {
 	public EntityAICustom(EntityNPCInterface npc) {
 		this.npc = npc;
 		this.navOverride(true);
-		Object rate = ObfuscationHelper.getValue(EntityAITasks.class, this.npc.tasks, 5);
-		this.tickRate = rate != null ? (int) rate : 3 ;
+		this.tickRate = ((EntityAITasksAPIMixin) this.npc.tasks).npcs$getTickRate();
 		this.step = 0;
 		this.distance = -1.0d;
 	}
@@ -38,8 +36,7 @@ public class EntityAICustom extends EntityAIBase {
 		}
 		this.npc = (EntityNPCInterface) npc;
 		this.navOverride(true);
-		Object rate = ObfuscationHelper.getValue(EntityAITasks.class, this.npc.tasks, 5);
-		this.tickRate = rate != null ? (int) rate : 3 ;
+		this.tickRate = ((EntityAITasksAPIMixin) this.npc.tasks).npcs$getTickRate();
 		this.distance = -1.0d;
 	}
 

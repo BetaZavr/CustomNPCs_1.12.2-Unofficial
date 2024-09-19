@@ -47,9 +47,9 @@ import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.dimensions.CustomWorldInfo;
+import noppes.npcs.mixin.api.pathfinding.PathAPIMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class Server {
 
@@ -325,10 +325,9 @@ public class Server {
 			closedSet[i] = Server.readPathPoint(nbt.getTagList("cp", 10).getCompoundTagAt(i));
 		}
 		Path navigating = new Path(points);
-		ObfuscationHelper.setValue(Path.class, navigating, openSet, 1);
-		ObfuscationHelper.setValue(Path.class, navigating, closedSet, 2);
-		ObfuscationHelper.setValue(Path.class, navigating, closedSet, 2);
-		ObfuscationHelper.setValue(Path.class, navigating, nbt.getInteger("ci"), 4); // currentPathIndex
+		((PathAPIMixin) navigating).npcs$setOpenSet(openSet);
+		((PathAPIMixin) navigating).npcs$setClosedSet(closedSet);
+		((PathAPIMixin) navigating).npcs$setCurrentPathIndex(nbt.getInteger("ci"));
 		return navigating;
 	}
 
@@ -523,9 +522,10 @@ public class Server {
 
 	public static NBTTagCompound writePathToNBT(Path path) {
 		NBTTagCompound nbt = new NBTTagCompound();
-		PathPoint[] points = ObfuscationHelper.getValue(Path.class, path, 0);
-		PathPoint[] openSet = ObfuscationHelper.getValue(Path.class, path, 1);
-		PathPoint[] closedSet = ObfuscationHelper.getValue(Path.class, path, 2);
+
+		PathPoint[] points = ((PathAPIMixin) path).npcs$getPoints();
+		PathPoint[] openSet = ((PathAPIMixin) path).npcs$getOpenSet();
+		PathPoint[] closedSet = ((PathAPIMixin) path).npcs$getClosedSet();
 
 		NBTTagList ps = new NBTTagList();
         assert points != null;
@@ -548,7 +548,7 @@ public class Server {
 		}
 		nbt.setTag("cp", cp);
 
-		nbt.setInteger("ci", ObfuscationHelper.getValue(Path.class, path, int.class));
+		nbt.setInteger("ci", ((PathAPIMixin) path).npcs$getCurrentPathIndex());
 		return nbt;
 	}
 

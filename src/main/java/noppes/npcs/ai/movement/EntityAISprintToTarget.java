@@ -1,6 +1,5 @@
 package noppes.npcs.ai.movement;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.network.datasync.DataParameter;
@@ -8,7 +7,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import noppes.npcs.ai.attack.EntityAIHitAndRun;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.entity.EntityAPIMixin;
 
 import java.util.Objects;
 
@@ -31,14 +30,11 @@ public class EntityAISprintToTarget extends EntityAIBase {
 
 	public boolean shouldExecute() {
         EntityLivingBase target = this.npc.getAttackTarget();
-		if (target != null && target.isEntityAlive() && this.npc.hurtTime <= 0
-				&& !this.npc.getNavigator().noPath()) {
+		if (target != null && target.isEntityAlive() && this.npc.hurtTime <= 0 && !this.npc.getNavigator().noPath()) {
 			this.startExecuting();
 		} else {
-			EntityDataManager dataManager = ObfuscationHelper.getValue(Entity.class, (Entity) this.npc,
-					EntityDataManager.class);
-			DataParameter<Byte> FLAGS = ObfuscationHelper.getValue(Entity.class, (Entity) this.npc,
-					DataParameter.class);
+			EntityDataManager dataManager = ((EntityAPIMixin) this.npc).npcs$getDataManager();
+			DataParameter<Byte> FLAGS = ((EntityAPIMixin) this.npc).npcs$getFLAGS();
 			if (dataManager != null && FLAGS != null && (dataManager.get(FLAGS) & 1 << 3) != 0) {
 				this.npc.setSprinting(false);
 			}

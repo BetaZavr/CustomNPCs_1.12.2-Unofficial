@@ -2,25 +2,22 @@ package micdoodle8.mods.galacticraft.api.client.tabs;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.NoppesStringUtils;
-import noppes.npcs.util.ObfuscationHelper;
 
 import javax.annotation.Nonnull;
 
 public class InventoryTabVanilla extends AbstractTab {
 	public InventoryTabVanilla() {
 		super(0, 0, 0, new ItemStack(Blocks.CRAFTING_TABLE));
-		this.displayString = NoppesStringUtils.translate("stats.rarity.normal") + " (" + GameSettings.getKeyDisplayString(((KeyBinding) Objects.requireNonNull(ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 62))).getKeyCode()) + ")";
+		this.displayString = NoppesStringUtils.translate("stats.rarity.normal") + " (" + GameSettings.getKeyDisplayString(Minecraft.getMinecraft().gameSettings.keyBindInventory.getKeyCode()) + ")";
 	}
 
 	@Override

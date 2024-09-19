@@ -15,7 +15,6 @@ import net.minecraft.client.gui.GuiConfirmOpenLink;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
@@ -32,8 +31,8 @@ import noppes.npcs.client.gui.util.ITextChangeListener;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.mixin.api.nbt.NBTTagLongArrayAPIMixin;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ObfuscationHelper;
 
 import javax.annotation.Nonnull;
 
@@ -80,6 +79,19 @@ implements IGuiData, ITextChangeListener {
 			NoppesStringUtils.setClipboardContents(((GuiTextArea) this.get(2)).getText());
 		}
 		if (guibutton.id == 101) {
+			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
+			if (container != null) {
+				boolean sr = !(container.script == null || container.script.isEmpty());
+				if (sr) {
+					String tempScript = container.script.replace(" ", "").replace("" + ((char) 9), "").replace("" + ((char) 10), "");
+					sr = !tempScript.isEmpty();
+				}
+				if (sr) {
+					GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("gui.replaceMessage").getFormattedText(), 6);
+					this.displayGuiScreen(guiyesno);
+					return;
+				}
+			}
 			((GuiTextArea) this.get(2)).setText(NoppesStringUtils.getClipboardContents());
 		}
 		if (guibutton.id == 102) { // clear text
@@ -109,7 +121,7 @@ implements IGuiData, ITextChangeListener {
 			if (container == null) {
 				this.handler.getScripts().add(container = new ScriptContainer(this.handler, true));
 			}
-			this.setSubGui(new GuiScriptList(this.languages.get(Util.instance.instance.deleteColor(this.handler.getLanguage())), container));
+			this.setSubGui(new GuiScriptList(this.languages.get(Util.instance.deleteColor(this.handler.getLanguage())), container));
 		}
 		if (guibutton.id == 108) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
@@ -146,18 +158,21 @@ implements IGuiData, ITextChangeListener {
 	public void confirmClicked(boolean flag, int i) {
 		if (flag) {
 			if (i == 0) { this.openLink(web_site); }
-			if (i == 1) { this.openLink(api_doc_site); }
-			if (i == 2) { this.openLink(api_site); }
-			if (i == 3) { this.openLink(dis_site); }
-			if (i == 4) {
+			else if (i == 1) { this.openLink(api_doc_site); }
+			else if (i == 2) { this.openLink(api_site); }
+			else if (i == 3) { this.openLink(dis_site); }
+			else if (i == 4) {
 				this.handler.getScripts().clear();
 				this.activeTab = 0;
 			}
-			if (i == 5) {
+			else if (i == 5) {
 				ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 				container.script = "";
 			}
-			if (i == 10) {
+			else if (i == 6) {
+				((GuiTextArea) this.get(2)).setText(NoppesStringUtils.getClipboardContents());
+			}
+			else if (i == 10) {
 				this.handler.getScripts().remove(this.activeTab - 1);
 				this.activeTab = 0;
 			}
@@ -180,7 +195,7 @@ implements IGuiData, ITextChangeListener {
 					else if (!this.getButton(102).enabled && !e) { this.getButton(102).setEnabled(true); }
 				}
 				if (this.getButton(118) != null) { // encode
-					this.getButton(118).setEnabled(container != null && !container.getFullCode().isEmpty());
+					this.getButton(118).setEnabled(container != null && container.hasNoEncryptScriptCode());
 				}
 				
 				if (this.getButton(107) != null) { // files
@@ -334,7 +349,7 @@ implements IGuiData, ITextChangeListener {
 			NBTTagList list = comp.getTagList("Scripts", 8);
 			long[] ld = new long[list.tagCount()];
 			if (comp.hasKey("sizes", 12)) {
-				ld = ObfuscationHelper.getValue(NBTTagLongArray.class, (NBTTagLongArray) comp.getTag("sizes"), 0);
+				ld = ((NBTTagLongArrayAPIMixin) comp.getTag("sizes")).npcs$getData();
 			}
 			if (ld != null) {
 				for (int j = 0; j < list.tagCount(); ++j) {

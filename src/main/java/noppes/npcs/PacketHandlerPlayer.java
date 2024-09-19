@@ -1,6 +1,7 @@
 package noppes.npcs;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -62,17 +63,14 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.BankData;
-import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.DealMarkup;
-import noppes.npcs.controllers.data.EncryptData;
 import noppes.npcs.controllers.data.ForgeScriptData;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.NpcScriptData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerFactionData;
-import noppes.npcs.controllers.data.PlayerGameData;
 import noppes.npcs.controllers.data.PlayerGameData.FollowerSet;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.controllers.data.PlayerMailData;
@@ -92,7 +90,7 @@ import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.util.ScriptEncryption;
 import noppes.npcs.util.ServerNpcRecipeBookHelper;
 import noppes.npcs.util.TempFile;
 
@@ -865,10 +863,7 @@ public class PacketHandlerPlayer {
             assert mail != null;
             data.game.addMoney(mail.ransom * -1L);
 			mail.ransom = 0;
-			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData,
-					data.mailData.saveNBTData(new NBTTagCompound()));
-		} else if (type == EnumPlayerPacket.CurrentLanguage) {
-			ObfuscationHelper.setValue(PlayerGameData.class, data.game, Server.readString(buffer), String.class);
+			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData, data.mailData.saveNBTData(new NBTTagCompound()));
 		} else if (type == EnumPlayerPacket.GetBuildData) {
 			ItemStack stack = player.getHeldItemMainhand();
 			BuilderData builder = null;
@@ -1035,12 +1030,6 @@ public class PacketHandlerPlayer {
 					((PotionScriptData) handler).lastInited = -1L;
 					break;
 				}
-				case 5: { // Client
-					handler = ScriptController.Instance.clientScripts;
-					((ClientScriptData) handler).readFromNBT(compound);
-					((ClientScriptData) handler).lastInited = -1L;
-					break;
-				}
 				case 6: { // NPCs
 					handler = ScriptController.Instance.npcsScripts;
 					((NpcScriptData) handler).readFromNBT(compound);
@@ -1048,18 +1037,41 @@ public class PacketHandlerPlayer {
 					break;
 				}
 			}
-			String code;
-            assert handler != null;
-            container = handler.getScripts().get(tab);
-			assert container != null;
-			if (compound.getBoolean("OnlyTab")) {
-                code = container.script;
-			} else {
-				code = container.getFullCode();
+			boolean error = false;
+			File file = new File(compound.getString("Path"));
+			String filePath = file.getAbsolutePath();
+			if (filePath.contains(".\\")) {
+				filePath = filePath.substring(filePath.indexOf(".\\"));
 			}
-			EncryptData eData = new EncryptData(compound.getString("Path"), compound.getString("Name"), code, compound.getBoolean("OnlyTab"), container, handler);
-			ScriptController.Instance.encrypt(eData);
-			player.sendMessage(new TextComponentString(((char) 167) + "2CustomNPCs" + ((char) 167) + "7: Save to .../" + eData.path.getParentFile().getParentFile().getName() + "/" + eData.path.getParentFile().getName() + "/" + eData.path.getName()));
+			else {
+				File tempFile = new File(compound.getString("Path"));
+				while (tempFile.getParentFile() != null) {
+					tempFile = tempFile.getParentFile();
+					if ((new File(tempFile, "config")).exists()) { break; }
+				}
+				filePath = filePath.replace(tempFile.getParentFile() + "\\", "");
+			}
+			String handlerType = "";
+			if (handler != null) {
+				handlerType = " for " + handler.getClass().getSimpleName();
+				container = handler.getScripts().get(tab);
+				error = container == null;
+				if (!error) {
+					boolean onlyTab = compound.getBoolean("OnlyTab");
+					String code = "";
+					if (onlyTab) { code = container.script; } else {
+						try {
+							Method getTotalCode = container.getClass().getDeclaredMethod("getTotalCode");
+							getTotalCode.setAccessible(true);
+							code = (String) getTotalCode.invoke(container);
+							getTotalCode.setAccessible(false);
+						}
+						catch (Exception e) { error = true; }
+					}
+					if (!error) { error = !ScriptEncryption.encryptScript(file, compound.getString("Name"), code, onlyTab, container, handler); }
+				}
+			}
+			player.sendMessage(new TextComponentString(((char) 167) + "2CustomNPCs" + ((char) 167) + (error ? "c: Error encrypt" : "7: Encrypt") + " script to file \"" + filePath + "\"" + handlerType));
 		} else if (type == EnumPlayerPacket.MiniMapData) {
 			data.minimap.loadNBTData(Server.readNBT(buffer));
 		} else if (type == EnumPlayerPacket.InGame) {

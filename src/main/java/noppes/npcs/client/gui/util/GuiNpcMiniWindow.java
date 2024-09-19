@@ -1,9 +1,9 @@
 package noppes.npcs.client.gui.util;
 
+import noppes.npcs.mixin.api.client.gui.GuiTextFieldAPIMixin;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.animation.SubGuiEditAnimation;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollListener, IKeyListener {
 
@@ -129,8 +128,8 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 			if (textField != null) {
 				GuiNpcTextField.activeTextfield.unFocused();
 				textField.setFocused(true);
-				ObfuscationHelper.setValue(GuiTextField.class, textField, 0, 14);
-				ObfuscationHelper.setValue(GuiTextField.class, textField, textField.getText().length(), 15);
+				((GuiTextFieldAPIMixin) textField).npcs$setCursorPosition(0);
+				((GuiTextFieldAPIMixin) textField).npcs$setSelectionEnd(textField.getText().length());
 				GuiNpcTextField.activeTextfield = textField;
 			}
 		}

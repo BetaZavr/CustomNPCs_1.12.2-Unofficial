@@ -3,16 +3,15 @@ package noppes.npcs;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.Map.Entry;
 
-import com.google.common.collect.BiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockBanner;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.properties.IProperty;
@@ -23,7 +22,6 @@ import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
@@ -33,20 +31,14 @@ import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemSplashPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTippedArrow;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagFloat;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionType;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.RegistryNamespaced;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -58,19 +50,16 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.registries.ForgeRegistry;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.blocks.BlockBorder;
 import noppes.npcs.blocks.BlockBuilder;
 import noppes.npcs.blocks.BlockCarpentryBench;
 import noppes.npcs.blocks.BlockCopy;
-import noppes.npcs.blocks.BlockCustomBanner;
 import noppes.npcs.blocks.BlockMailbox;
 import noppes.npcs.blocks.BlockNpcRedstone;
 import noppes.npcs.blocks.BlockScripted;
@@ -91,7 +80,6 @@ import noppes.npcs.blocks.tiles.TileBorder;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.blocks.tiles.TileCopy;
 import noppes.npcs.blocks.tiles.TileDoor;
-import noppes.npcs.blocks.tiles.TileEntityCustomBanner;
 import noppes.npcs.blocks.tiles.TileMailbox;
 import noppes.npcs.blocks.tiles.TileMailbox2;
 import noppes.npcs.blocks.tiles.TileMailbox3;
@@ -106,7 +94,6 @@ import noppes.npcs.client.renderer.blocks.BlockDoorRenderer;
 import noppes.npcs.client.renderer.blocks.BlockMailboxRenderer;
 import noppes.npcs.client.renderer.blocks.BlockPortalRenderer;
 import noppes.npcs.client.renderer.blocks.BlockScriptedRenderer;
-import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityChairMount;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPC64x32;
@@ -171,9 +158,9 @@ import noppes.npcs.items.ItemTeleporter;
 import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.potions.CustomPotion;
 import noppes.npcs.potions.PotionData;
+import noppes.npcs.util.ModData;
 import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.NBTJsonUtil.JsonException;
-import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
@@ -246,761 +233,6 @@ public class CustomRegisters {
 	public static Map<Integer, CustomParticleSettings> customparticles = Maps.newTreeMap();
 	private static int newEntityStartId = 0;
 
-	/*
-	 * 0 - Block 1 - Item 2 - DataSerializerEntry 3 - Enchantment 4 - EntityEntry 5
-	 * - Potion 6 - PotionType 7 - SoundEvent 8 - VillagerRegistry 9 - IRecipe
-	 */
-
-	private static NBTTagCompound getExampleBlocks() {
-		NBTTagCompound nbtBlocks = new NBTTagCompound();
-		NBTTagList listBlocks = new NBTTagList();
-
-		NBTTagCompound exampleBlock = new NBTTagCompound();
-		exampleBlock.setString("RegistryName", "blockexample");
-		exampleBlock.setByte("BlockType", (byte) 0);
-		exampleBlock.setFloat("Hardness", 5.0f);
-		exampleBlock.setFloat("Resistance", 10.0f);
-		exampleBlock.setFloat("LightLevel", 0.0f);
-		exampleBlock.setString("SoundType", "GROUND");
-		exampleBlock.setString("Material", "STONE");
-		NBTTagList aabb = new NBTTagList();
-		aabb.appendTag(new NBTTagDouble(0.0625d));
-		aabb.appendTag(new NBTTagDouble(0.0625d));
-		aabb.appendTag(new NBTTagDouble(0.0625d));
-		aabb.appendTag(new NBTTagDouble(0.9375d));
-		aabb.appendTag(new NBTTagDouble(0.9375d));
-		aabb.appendTag(new NBTTagDouble(0.9375d));
-		exampleBlock.setTag("AABB", aabb);
-		exampleBlock.setString("BlockRenderType", "MODEL");
-		exampleBlock.setBoolean("IsLadder", false);
-		exampleBlock.setBoolean("IsPassable", false);
-		exampleBlock.setBoolean("IsOpaqueCube", false);
-		exampleBlock.setBoolean("IsFullCube", false);
-		exampleBlock.setBoolean("CreateAllFiles", true);
-		listBlocks.appendTag(exampleBlock);
-
-		NBTTagCompound exampleFacingBlock = new NBTTagCompound();
-		exampleFacingBlock.setString("RegistryName", "facingblockexample");
-		exampleFacingBlock.setByte("BlockType", (byte) 0);
-		exampleFacingBlock.setString("BlockRenderType", "MODEL");
-		NBTTagCompound nbtProperty = new NBTTagCompound();
-		nbtProperty.setByte("Type", (byte) 4);
-		nbtProperty.setString("Name", "facing");
-		exampleFacingBlock.setTag("Property", nbtProperty);
-		exampleFacingBlock.setBoolean("CreateAllFiles", true);
-		listBlocks.appendTag(exampleFacingBlock);
-
-		NBTTagCompound examplelLiquid = new NBTTagCompound();
-		examplelLiquid.setString("RegistryName", "liquidexample");
-		examplelLiquid.setByte("BlockType", (byte) 1);
-		examplelLiquid.setFloat("Resistance", 2.0f);
-		examplelLiquid.setInteger("Density", 1100);
-		examplelLiquid.setBoolean("IsGaseous", false);
-		examplelLiquid.setInteger("Luminosity", 5);
-		examplelLiquid.setInteger("Viscosity", 900);
-		examplelLiquid.setInteger("Temperature", 300);
-		examplelLiquid.setInteger("Color", 0xFFFFFFFF);
-		examplelLiquid.setBoolean("CreateAllFiles", true);
-		examplelLiquid.setString("Material", "WATER");
-		listBlocks.appendTag(examplelLiquid);
-
-		NBTTagCompound exampleChest = new NBTTagCompound();
-		exampleChest.setString("RegistryName", "chestexample");
-		exampleChest.setByte("BlockType", (byte) 2);
-		exampleBlock.setString("Material", "WOOD");
-		exampleChest.setBoolean("CreateAllFiles", true);
-		exampleChest.setBoolean("IsChest", true);
-		exampleChest.setInteger("Size", 14);
-		exampleChest.setInteger("GUIColor", 0x46AB86);
-		exampleChest.setString("Name", "Custom Chest");
-		listBlocks.appendTag(exampleChest);
-
-		NBTTagCompound exampleContainer = new NBTTagCompound();
-		exampleContainer.setString("RegistryName", "containerexample");
-		exampleContainer.setByte("BlockType", (byte) 2);
-		exampleContainer.setString("Material", "STONE");
-		exampleContainer.setBoolean("CreateAllFiles", true);
-		exampleContainer.setInteger("Size", 96);
-		exampleContainer.setIntArray("GUIColor", new int[] { 0x00DC8C, 0xDC8000 });
-		exampleContainer.setString("Name", "Custom Container");
-		aabb = new NBTTagList();
-		aabb.appendTag(new NBTTagDouble(0.0625d));
-		aabb.appendTag(new NBTTagDouble(0.0d));
-		aabb.appendTag(new NBTTagDouble(0.0625d));
-		aabb.appendTag(new NBTTagDouble(0.9375d));
-		aabb.appendTag(new NBTTagDouble(1.0d));
-		aabb.appendTag(new NBTTagDouble(0.9375d));
-		exampleContainer.setTag("AABB", aabb);
-		listBlocks.appendTag(exampleContainer);
-
-		NBTTagCompound exampleStairs = new NBTTagCompound();
-		exampleStairs.setString("RegistryName", "stairsexample");
-		exampleStairs.setByte("BlockType", (byte) 3);
-		exampleStairs.setString("Material", "STONE");
-		exampleStairs.setBoolean("CreateAllFiles", true);
-		exampleStairs.setBoolean("IsFullCube", false);
-		exampleStairs.setBoolean("IsOpaqueCube", false);
-		listBlocks.appendTag(exampleStairs);
-
-		NBTTagCompound exampleSlab = new NBTTagCompound();
-		exampleSlab.setString("RegistryName", "slabexample");
-		exampleSlab.setByte("BlockType", (byte) 4);
-		exampleSlab.setString("Material", "STONE");
-		exampleSlab.setBoolean("CreateAllFiles", true);
-		exampleSlab.setBoolean("IsFullCube", false);
-		exampleSlab.setBoolean("IsOpaqueCube", false);
-		listBlocks.appendTag(exampleSlab);
-
-		NBTTagCompound examplePortal = new NBTTagCompound();
-		examplePortal.setString("RegistryName", "portalexample");
-		examplePortal.setByte("BlockType", (byte) 5);
-		examplePortal.setString("Material", "PORTAL");
-		NBTTagCompound nbtRender = new NBTTagCompound();
-		nbtRender.setFloat("SecondSpeed", 800.0f);
-		nbtRender.setString("SpawnParticle", "CRIT");
-		nbtRender.setFloat("Transparency", 0.5f);
-		examplePortal.setTag("RenderData", nbtRender);
-		examplePortal.setInteger("DimensionID", 100);
-		examplePortal.setInteger("HomeDimensionID", 0);
-		examplePortal.setBoolean("CreateAllFiles", true);
-		listBlocks.appendTag(examplePortal);
-
-		NBTTagCompound exampleDoor = new NBTTagCompound();
-		exampleDoor.setString("RegistryName", "doorexample");
-		exampleDoor.setByte("BlockType", (byte) 6);
-		exampleDoor.setString("Material", "IRON");
-		exampleDoor.setFloat("Hardness", 1.0f);
-		exampleDoor.setFloat("Resistance", 25.0f);
-		exampleDoor.setBoolean("CreateAllFiles", true);
-		exampleDoor.setBoolean("InteractOpen", true);
-		exampleDoor.setFloat("LightLevel", 2.0f);
-		listBlocks.appendTag(exampleDoor);
-
-		nbtBlocks.setTag("Blocks", listBlocks);
-		return nbtBlocks;
-	}
-
-	private static NBTTagCompound getExampleItems() {
-		NBTTagCompound nbtItems = new NBTTagCompound();
-		NBTTagList listItems = new NBTTagList();
-
-		NBTTagCompound exampleItem = new NBTTagCompound();
-		exampleItem.setString("RegistryName", "itemexample");
-		exampleItem.setByte("ItemType", (byte) 0);
-		exampleItem.setInteger("MaxStackSize", 64);
-		exampleItem.setBoolean("CreateAllFiles", true);
-		listItems.appendTag(exampleItem);
-
-		NBTTagCompound exampleWeapon = new NBTTagCompound();
-		exampleWeapon.setString("RegistryName", "weaponexample");
-		exampleWeapon.setByte("ItemType", (byte) 1);
-		exampleWeapon.setInteger("MaxStackDamage", 2500);
-		exampleWeapon.setDouble("EntityDamage", 2.5d);
-		exampleWeapon.setDouble("SpeedAttack", -2.4d);
-		exampleWeapon.setBoolean("IsFull3D", true);
-		exampleWeapon.setString("Material", "GOLD");
-		exampleWeapon.setTag("RepairItem", (new ItemStack(Items.GOLD_NUGGET)).writeToNBT(new NBTTagCompound()));
-		NBTTagCompound collectionMaterial = new NBTTagCompound();
-		collectionMaterial.setString("Material", "WEB");
-		collectionMaterial.setFloat("Speed", 15.0f);
-		exampleWeapon.setTag("CollectionMaterial", collectionMaterial);
-		exampleWeapon.setBoolean("CreateAllFiles", true);
-		listItems.appendTag(exampleWeapon);
-
-		NBTTagCompound exampleTool = new NBTTagCompound();
-		exampleTool.setString("RegistryName", "toolexample");
-		exampleTool.setByte("ItemType", (byte) 2);
-		exampleTool.setInteger("MaxStackDamage", 2000);
-		exampleTool.setBoolean("IsFull3D", true);
-		exampleTool.setFloat("Efficiency", 4.0f);
-		exampleTool.setDouble("EntityDamage", 0.0d);
-		exampleTool.setString("ToolClass", "pickaxe");
-		exampleTool.setString("Material", "GOLD");
-		exampleTool.setTag("RepairItem", (new ItemStack(Items.GOLD_NUGGET)).writeToNBT(new NBTTagCompound()));
-		exampleTool.setInteger("HarvestLevel", 2);
-		exampleTool.setInteger("Enchantability", 25);
-		NBTTagList collectionBlocks = new NBTTagList();
-		collectionBlocks.appendTag(new NBTTagString(Objects.requireNonNull(Blocks.STONE.getRegistryName()).toString()));
-		collectionBlocks.appendTag(new NBTTagString(Objects.requireNonNull(Blocks.OBSIDIAN.getRegistryName()).toString()));
-		exampleTool.setTag("CollectionBlocks", collectionBlocks);
-		exampleTool.setBoolean("CreateAllFiles", true);
-		listItems.appendTag(exampleTool);
-		
-		NBTTagCompound exampleAxe = new NBTTagCompound();
-		exampleAxe.setString("RegistryName", "axeexample");
-		exampleAxe.setByte("ItemType", (byte) 2);
-		exampleAxe.setInteger("MaxStackDamage", 2200);
-		exampleAxe.setBoolean("IsFull3D", true);
-		exampleAxe.setFloat("Efficiency", 4.25f);
-		exampleAxe.setDouble("EntityDamage", 5.0d);
-		exampleAxe.setString("ToolClass", "axe");
-		exampleAxe.setString("Material", "GOLD");
-		exampleAxe.setTag("RepairItem", (new ItemStack(Items.GOLD_INGOT)).writeToNBT(new NBTTagCompound()));
-		exampleAxe.setInteger("HarvestLevel", 2);
-		exampleAxe.setInteger("Enchantability", 28);
-		exampleAxe.setBoolean("CreateAllFiles", true);
-		listItems.appendTag(exampleAxe);
-
-		NBTTagCompound exampleArmor = new NBTTagCompound();
-		exampleArmor.setString("RegistryName", "armorexample");
-		exampleArmor.setByte("ItemType", (byte) 3);
-		exampleArmor.setDouble("EntityDamage", 0.0d);
-		exampleArmor.setInteger("RenderIndex", 4);
-		exampleArmor.setString("Material", "GOLD");
-		exampleArmor.setTag("RepairItem", (new ItemStack(Items.GOLD_NUGGET)).writeToNBT(new NBTTagCompound()));
-		exampleArmor.setBoolean("CreateAllFiles", true);
-		exampleArmor.setIntArray("MaxStackDamage", new int[] { 2250, 3100, 1800 });
-		NBTTagList slots = new NBTTagList();
-		slots.appendTag(new NBTTagString("HEAD"));
-		slots.appendTag(new NBTTagString("Chest"));
-		slots.appendTag(new NBTTagString("feet"));
-		exampleArmor.setTag("EquipmentSlots", slots);
-		exampleArmor.setIntArray("DamageReduceAmount", new int[] { 5, 7, 4 });
-		NBTTagList toughness = new NBTTagList();
-		toughness.appendTag(new NBTTagFloat(2.2f));
-		toughness.appendTag(new NBTTagFloat(3.5f));
-		toughness.appendTag(new NBTTagFloat(1.8f));
-		exampleArmor.setTag("Toughness", toughness);
-		listItems.appendTag(exampleArmor);
-		
-		NBTTagCompound exampleOBJArmor = new NBTTagCompound();
-		exampleOBJArmor.setString("RegistryName", "armorobjexample");
-		exampleOBJArmor.setByte("ItemType", (byte) 3);
-		toughness = new NBTTagList();
-		toughness.appendTag(new NBTTagFloat(2.2f));
-		toughness.appendTag(new NBTTagFloat(3.5f));
-		toughness.appendTag(new NBTTagFloat(2.6f));
-		toughness.appendTag(new NBTTagFloat(1.8f));
-		exampleOBJArmor.setTag("Toughness", toughness);
-		exampleOBJArmor.setIntArray("DamageReduceAmount", new int[] { 5, 7, 6, 4 });
-		exampleOBJArmor.setString("Material", "IRON");
-		exampleOBJArmor.setTag("RepairItem", (new ItemStack(Items.IRON_INGOT)).writeToNBT(new NBTTagCompound()));
-		exampleOBJArmor.setIntArray("MaxStackDamage", new int[] { 2250, 3100, 2700, 1800 });
-		slots = new NBTTagList();
-		slots.appendTag(new NBTTagString("HEAD"));
-		slots.appendTag(new NBTTagString("Chest"));
-		slots.appendTag(new NBTTagString("LeGs"));
-		slots.appendTag(new NBTTagString("feet"));
-		exampleOBJArmor.setTag("EquipmentSlots", slots);
-		exampleOBJArmor.setDouble("EntityDamage", 0.0d);
-		NBTTagCompound objData = new NBTTagCompound();
-			NBTTagList meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.HEAD.name));
-			objData.setTag("Head Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.BODY.name));
-			objData.setTag("Body Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.ARM_RIGHT.name));
-			objData.setTag("Arm Right Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.WRIST_RIGHT.name));
-			objData.setTag("Wrist Right Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.ARM_LEFT.name));
-			objData.setTag("Arm Left Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.WRIST_LEFT.name));
-			objData.setTag("Wrist Left Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.BELT.name));
-			objData.setTag("Belt Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.LEG_RIGHT.name));
-			objData.setTag("Leg Right Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.FOOT_RIGHT.name));
-			objData.setTag("Foot Right Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.LEG_LEFT.name));
-			objData.setTag("Leg Left Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.FOOT_LEFT.name));
-			objData.setTag("Foot Left Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.FEET_LEFT.name));
-			objData.setTag("Boot Left Mesh Names", meshes);
-			meshes = new NBTTagList();
-			meshes.appendTag(new NBTTagString(EnumParts.FEET_RIGHT.name));
-			objData.setTag("Boot Right Mesh Names", meshes);
-		exampleOBJArmor.setTag("OBJData", objData);
-		
-		NBTTagCompound display = new NBTTagCompound();
-		for (int s = 0; s < 4; s++) {
-			String slot = s == 0 ? "CHEST" : s == 1 ? "LEGS" : s == 2 ? "FEET" : "HEAD";
-			NBTTagCompound cameraData = new NBTTagCompound();
-			for (int i = 0; i < 8; i++) {
-				String part;
-				NBTTagList rotation = new NBTTagList();
-				NBTTagList translation = new NBTTagList();
-				NBTTagList scale = new NBTTagList();
-				switch(i) {
-					case 0: { // THIRD_PERSON_LEFT_HAND
-						part = "thirdperson_lefthand";
-						switch(slot) {
-							case "CHEST": {
-								translation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
-								break;
-							}
-							case "LEGS": {
-								translation.appendTag(new NBTTagFloat(-0.15f));
-								translation.appendTag(new NBTTagFloat(0.35f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.65f)); }
-								break;
-							}
-							case "FEET": {
-								rotation.appendTag(new NBTTagFloat(90.0f));
-								rotation.appendTag(new NBTTagFloat(180.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(1.15f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.65f)); }
-								break;
-							}
-							default: {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(180.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(1.0f));
-								translation.appendTag(new NBTTagFloat(-0.375f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
-								break;
-							}
-						}
-						break;
-					}
-					case 1: { // THIRD_PERSON_RIGHT_HAND
-						part = "thirdperson_righthand";
-						switch(slot) {
-							case "CHEST": {
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
-								break;
-							}
-							case "LEGS": {
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.35f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.65f)); }
-								break;
-							}
-							case "FEET": {
-								rotation.appendTag(new NBTTagFloat(90.0f));
-								rotation.appendTag(new NBTTagFloat(180.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.65f)); }
-								break;
-							}
-							default: {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(180.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(-0.375f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
-								break;
-							}
-						}
-						break;
-					}
-					case 2: { // FIRST_PERSON_LEFT_HAND
-						part = "firstperson_lefthand";
-						switch(slot) {
-							case "CHEST": {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(280.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.57f));
-								translation.appendTag(new NBTTagFloat(0.1f));
-								translation.appendTag(new NBTTagFloat(-0.085f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
-								break;
-							}
-							case "LEGS": {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(280.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.65f));
-								translation.appendTag(new NBTTagFloat(0.4f));
-								translation.appendTag(new NBTTagFloat(-0.085f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
-								break;
-							}
-							case "FEET": {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(280.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.72f));
-								translation.appendTag(new NBTTagFloat(0.435f));
-								translation.appendTag(new NBTTagFloat(-0.585f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.85f)); }
-								break;
-							}
-							default: {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(280.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.57f));
-								translation.appendTag(new NBTTagFloat(-0.225f));
-								translation.appendTag(new NBTTagFloat(-0.085f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
-								break;
-							}
-						}
-						break;
-					}
-					case 3: { // FIRST_PERSON_RIGHT_HAND
-						part = "firstperson_righthand";
-						switch(slot) {
-							case "CHEST": {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(280.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.85f));
-								translation.appendTag(new NBTTagFloat(-0.1f));
-								translation.appendTag(new NBTTagFloat(0.2f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.6f)); }
-								break;
-							}
-							case "LEGS": {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(280.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.95f));
-								translation.appendTag(new NBTTagFloat(0.25f));
-								translation.appendTag(new NBTTagFloat(0.2f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.6f)); }
-								break;
-							}
-							case "FEET": {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(280.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.95f));
-								translation.appendTag(new NBTTagFloat(0.4f));
-								translation.appendTag(new NBTTagFloat(0.2f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.85f)); }
-								break;
-							}
-							default: {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(280.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.85f));
-								translation.appendTag(new NBTTagFloat(-0.5f));
-								translation.appendTag(new NBTTagFloat(0.2f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.6f)); }
-								break;
-							}
-						}
-						break;
-					}
-					case 4: { // HEAD
-						part = "head";
-						switch(slot) {
-							case "CHEST": {
-								rotation.appendTag(new NBTTagFloat(270.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(1.0f));
-								translation.appendTag(new NBTTagFloat(1.65f));
-								break;
-							}
-							case "LEGS": {
-								rotation.appendTag(new NBTTagFloat(270.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(1.0f));
-								translation.appendTag(new NBTTagFloat(1.0f));
-								break;
-							}
-							case "FEET": {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(180.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.925f));
-								translation.appendTag(new NBTTagFloat(0.4f));
-								break;
-							}
-							default: { break; }
-						}
-						break;
-					}
-					case 5: { // GUI
-						part = "gui";
-						switch(slot) {
-							case "CHEST": {
-								rotation.appendTag(new NBTTagFloat(30.0f));
-								rotation.appendTag(new NBTTagFloat(45.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.49f));
-								translation.appendTag(new NBTTagFloat(-0.41f));
-								translation.appendTag(new NBTTagFloat(0.0f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.9f)); }
-								break;
-							}
-							case "LEGS": {
-								rotation.appendTag(new NBTTagFloat(30.0f));
-								rotation.appendTag(new NBTTagFloat(45.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.05f));
-								translation.appendTag(new NBTTagFloat(0.0f));
-								break;
-							}
-							case "FEET": {
-								rotation.appendTag(new NBTTagFloat(30.0f));
-								rotation.appendTag(new NBTTagFloat(45.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.3f));
-								translation.appendTag(new NBTTagFloat(0.0f));
-								break;
-							}
-							default: {
-								rotation.appendTag(new NBTTagFloat(30.0f));
-								rotation.appendTag(new NBTTagFloat(45.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(-1.0f));
-								translation.appendTag(new NBTTagFloat(0.0f));
-								break;
-							}
-						}
-						break;
-					}
-					case 6: { // GROUND
-						part = "ground";
-						switch(slot) {
-							case "CHEST": {
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
-								break;
-							}
-							case "LEGS": {
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.25f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.6f)); }
-								break;
-							}
-							case "FEET": {
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.35f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.65f)); }
-								break;
-							}
-							default: {
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(-0.375f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
-								break;
-							}
-						}
-						break;
-					}
-					default: { // FIXED
-						part = "fixed";
-						switch(slot) {
-							case "CHEST": {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(180.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(-0.65f));
-								translation.appendTag(new NBTTagFloat(0.45f));
-								break;
-							}
-							case "LEGS": {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(180.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.05f));
-								translation.appendTag(new NBTTagFloat(0.475f));
-								break;
-							}
-							case "FEET": {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(180.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(0.2f));
-								translation.appendTag(new NBTTagFloat(0.475f));
-								break;
-							}
-							default: {
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								rotation.appendTag(new NBTTagFloat(180.0f));
-								rotation.appendTag(new NBTTagFloat(0.0f));
-								translation.appendTag(new NBTTagFloat(0.5f));
-								translation.appendTag(new NBTTagFloat(-0.85f));
-								translation.appendTag(new NBTTagFloat(0.4f));
-								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.75f)); }
-								break;
-							}
-						}
-						break;
-					}
-				}
-				NBTTagCompound transform = new NBTTagCompound();
-				if (rotation.tagCount() > 0) { transform.setTag("rotation", rotation); }
-				if (translation.tagCount() > 0) { transform.setTag("translation", translation); }
-				if (scale.tagCount() > 0) { transform.setTag("scale", scale); }
-				cameraData.setTag(part, transform);
-			}
-			display.setTag(slot, cameraData);
-		}
-		exampleOBJArmor.setTag("Display", display);
-		
-		exampleOBJArmor.setBoolean("CreateAllFiles", true);
-		listItems.appendTag(exampleOBJArmor);
-		
-		
-
-		NBTTagCompound exampleShield = new NBTTagCompound();
-		exampleShield.setString("RegistryName", "shieldexample");
-		exampleShield.setByte("ItemType", (byte) 4);
-		exampleShield.setInteger("MaxStackDamage", 6500);
-		exampleShield.setDouble("EntityDamage", 0.0d);
-		exampleShield.setString("Material", "IRON");
-		exampleShield.setTag("RepairItem", (new ItemStack(Items.IRON_NUGGET)).writeToNBT(new NBTTagCompound()));
-		exampleShield.setBoolean("CreateAllFiles", true);
-		listItems.appendTag(exampleShield);
-
-		NBTTagCompound exampleBow = new NBTTagCompound();
-		exampleBow.setString("RegistryName", "bowexample");
-		exampleBow.setByte("ItemType", (byte) 5);
-		exampleBow.setInteger("MaxStackDamage", 1250);
-		exampleBow.setDouble("EntityDamage", 2.0d);
-		exampleBow.setString("Material", "WOOD");
-		exampleBow.setTag("RepairItem", (new ItemStack(Blocks.PLANKS)).writeToNBT(new NBTTagCompound()));
-		exampleBow.setBoolean("SetFlame", false);
-		exampleBow.setFloat("CritChance", 0.25f);
-		exampleBow.setFloat("DrawstringSpeed", 20.0f);
-		exampleBow.setBoolean("CreateAllFiles", true);
-		listItems.appendTag(exampleBow);
-
-		NBTTagCompound exampleFood = new NBTTagCompound();
-		exampleFood.setString("RegistryName", "foodexample");
-		exampleFood.setByte("ItemType", (byte) 6);
-		exampleFood.setInteger("MaxStackSize", 32);
-		exampleFood.setInteger("UseDuration", 32);
-		exampleFood.setInteger("HealAmount", 1);
-		exampleFood.setFloat("SaturationModifier", 0.1f);
-		exampleFood.setBoolean("IsWolfFood", false);
-		exampleFood.setBoolean("AlwaysEdible", true);
-		NBTTagCompound potionEffect = new NBTTagCompound();
-		potionEffect.setString("Potion", "minecraft:fire_resistance");
-		potionEffect.setInteger("DurationTicks", 45);
-		potionEffect.setInteger("Amplifier", 0);
-		potionEffect.setBoolean("Ambient", true);
-		potionEffect.setBoolean("ShowParticles", false);
-		potionEffect.setFloat("Probability", 0.95f);
-		exampleFood.setTag("PotionEffect", potionEffect);
-		exampleFood.setBoolean("CreateAllFiles", true);
-		listItems.appendTag(exampleFood);
-
-		NBTTagCompound exampleFishingRod = new NBTTagCompound();
-		exampleFishingRod.setString("RegistryName", "fishingrodexample");
-		exampleFishingRod.setByte("ItemType", (byte) 8);
-		exampleFishingRod.setInteger("MaxStackSize", 1);
-		exampleWeapon.setTag("RepairItem", (new ItemStack(Items.STICK)).writeToNBT(new NBTTagCompound()));
-		exampleFishingRod.setInteger("MaxStackDamage", 150);
-		exampleFishingRod.setInteger("Enchantability", 5);
-		exampleFishingRod.setBoolean("CreateAllFiles", true);
-		listItems.appendTag(exampleFishingRod);
-
-		nbtItems.setTag("Items", listItems);
-
-		NBTTagList listPotion = new NBTTagList();
-
-		NBTTagCompound examplePotion = new NBTTagCompound();
-		examplePotion.setString("RegistryName", "potionexample");
-		examplePotion.setByte("ItemType", (byte) 7);
-		examplePotion.setBoolean("CreateAllFiles", true);
-		examplePotion.setBoolean("IsBadEffect", false);
-		examplePotion.setBoolean("IsInstant", false);
-		examplePotion.setBoolean("IsBeneficial", true);
-		examplePotion.setInteger("LiquidColor", 0xFFFFFF);
-		examplePotion.setInteger("MaxStackSize", 16);
-		examplePotion.setInteger("BaseDelay", 200);
-		examplePotion.setInteger("Duration", 20);
-		examplePotion.setTag("CureItem", (new ItemStack(Items.CARROT)).writeToNBT(new NBTTagCompound()));
-		NBTTagList potionModifiers = new NBTTagList();
-		NBTTagCompound potionModifier = new NBTTagCompound();
-		potionModifier.setString("AttributeName", "generic.maxHealth");
-		potionModifier.setString("UUID", UUID.randomUUID().toString());
-		potionModifier.setDouble("AttributeDefValue", 5.0d);
-		potionModifier.setDouble("AttributeMinValue", -50.0d);
-		potionModifier.setDouble("AttributeMaxValue", 50.0d);
-		potionModifier.setDouble("Amount", 2.0d);
-		potionModifier.setInteger("Operation", 2);
-		potionModifiers.appendTag(potionModifier);
-		examplePotion.setTag("Modifiers", potionModifiers);
-		listPotion.appendTag(examplePotion);
-		nbtItems.setTag("Potions", listPotion);
-		return nbtItems;
-	}
-
-	private static NBTTagCompound getExampleParticles() {
-		NBTTagCompound nbtParticles = new NBTTagCompound();
-		NBTTagList listParticles = new NBTTagList();
-
-		NBTTagCompound exampleParticle = new NBTTagCompound();
-		exampleParticle.setString("RegistryName", "PARTICLE_EXAMPLE");
-		exampleParticle.setBoolean("ShouldIgnoreRange", false);
-		exampleParticle.setInteger("ArgumentCount", 0);
-
-		exampleParticle.setInteger("MaxAge", 60);
-		exampleParticle.setIntArray("UVpos", new int[] { 1, 5 });
-		exampleParticle.setFloat("Gravity", 0.25f);
-		exampleParticle.setFloat("Scale", 1.5f);
-		exampleParticle.setString("Texture", "particles");
-		exampleParticle.setBoolean("IsFullTexture", false);
-		exampleParticle.setBoolean("CreateAllFiles", true);
-		NBTTagList motion = new NBTTagList();
-		motion.appendTag(new NBTTagDouble(0.2d));
-		motion.appendTag(new NBTTagDouble(0.1d));
-		motion.appendTag(new NBTTagDouble(0.2d));
-		exampleParticle.setTag("StartMotion", motion);
-		exampleParticle.setBoolean("IsRandomMotion", true);
-		exampleParticle.setBoolean("NotMotionY", true);
-		listParticles.appendTag(exampleParticle);
-
-		NBTTagCompound objParticle = new NBTTagCompound();
-		objParticle.setString("RegistryName", "PARTICLE_OBJ_EXAMPLE");
-		objParticle.setBoolean("ShouldIgnoreRange", false);
-		objParticle.setInteger("MaxAge", 60);
-		objParticle.setFloat("Gravity", 1.0f / 3.0f);
-		objParticle.setFloat("Scale", 1.0f);
-		objParticle.setString("OBJModel", "ring");
-		objParticle.setBoolean("CreateAllFiles", true);
-		listParticles.appendTag(objParticle);
-
-		nbtParticles.setTag("Particles", listParticles);
-		return nbtParticles;
-	}
-
 	public static void load() {
 		MinecraftForge.EVENT_BUS.register(new CustomRegisters());
 		CustomRegisters.registerFluid();
@@ -1032,7 +264,7 @@ public class CustomRegisters {
 				nbtBlocks.setTag("Blocks", new NBTTagList());
 			}
 			if (!hEL) {
-				NBTTagCompound nbt = CustomRegisters.getExampleBlocks();
+				NBTTagCompound nbt = ModData.getExampleBlocks();
 				for (int i = 0; i < nbt.getTagList("Blocks", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
 					if (name.equals("liquidexample")) {
@@ -1094,7 +326,7 @@ public class CustomRegisters {
 				nbtParticles.setTag("Particles", new NBTTagList());
 			}
 			if (!hPE || !hPOE) {
-				NBTTagCompound nbt = CustomRegisters.getExampleParticles();
+				NBTTagCompound nbt = ModData.getExampleParticles();
 				for (int i = 0; i < nbt.getTagList("Particles", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Particles", 10).getCompoundTagAt(i).getString("RegistryName");
 					if (name.equalsIgnoreCase("PARTICLE_EXAMPLE") && !hPE) {
@@ -1225,8 +457,8 @@ public class CustomRegisters {
 				this.registerNpc(EntityNPC64x32.class, "CustomNpc64x32"),
 				this.registerNpc(EntityNpcAlex.class, "CustomNpcAlex"),
 				this.registerNpc(EntityNpcClassicPlayer.class, "CustomNpcClassic"),
-				this.registerNewentity("CustomNpcChairMount", 10, false).entity(EntityChairMount.class).build(),
-				this.registerNewentity("CustomNpcProjectile", 3, true).entity(EntityProjectile.class).build() };
+				this.registerNewEntity("CustomNpcChairMount", 10, false).entity(EntityChairMount.class).build(),
+				this.registerNewEntity("CustomNpcProjectile", 3, true).entity(EntityProjectile.class).build() };
 		event.getRegistry().registerAll(entries);
 	}
 
@@ -1243,10 +475,6 @@ public class CustomRegisters {
 		GameRegistry.registerTileEntity(TileBorder.class, new ResourceLocation("minecraft", "TileNPCBorder"));
 		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
 		GameRegistry.registerTileEntity(CustomTileEntityChest.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
-
-		RegistryNamespaced<ResourceLocation, Class<? extends TileEntity>> REGISTRY = ObfuscationHelper.getValue(TileEntity.class, 1);
-        assert REGISTRY != null;
-        REGISTRY.putObject(new ResourceLocation("minecraft", "banner"), TileEntityCustomBanner.class);
 
 		CustomRegisters.redstoneBlock = new BlockNpcRedstone();
 		CustomRegisters.mailbox = new BlockMailbox();
@@ -1326,7 +554,7 @@ public class CustomRegisters {
 				nbtBlocks.setTag("Blocks", new NBTTagList());
 			}
 			if (hE) {
-				NBTTagCompound nbt = CustomRegisters.getExampleBlocks();
+				NBTTagCompound nbt = ModData.getExampleBlocks();
 				for (int i = 0; i < nbt.getTagList("Blocks", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
 					if ((name.equals("blockexample") && !hEB) || (name.equals("liquidexample") && !hEL)
@@ -1423,44 +651,6 @@ public class CustomRegisters {
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		event.getRegistry().registerAll(blocks.toArray(new Block[0]));
-
-		BiMap<Integer, Block> ids = ObfuscationHelper.getValue(ForgeRegistry.class,
-				(ForgeRegistry<Block>) event.getRegistry(), 2);
-		BiMap<ResourceLocation, Block> namesB = ObfuscationHelper.getValue(ForgeRegistry.class,
-				(ForgeRegistry<Block>) event.getRegistry(), 3);
-		for (int i = 0; i < 2; i++) {
-			ResourceLocation key = new ResourceLocation(i == 0 ? "standing_banner" : "wall_banner");
-			Block parent = event.getRegistry().getValue(key);
-			if (parent == null) {
-				continue;
-			}
-			BlockCustomBanner newBlock;
-			if (key.toString().toLowerCase().contains("standing_banner")) {
-				newBlock = new BlockCustomBanner.BlockBannerStanding((BlockBanner) parent);
-				ObfuscationHelper.setValue(Blocks.class, newBlock, 193); // Blocks.STANDING_BANNER
-			} else {
-				newBlock = new BlockCustomBanner.BlockBannerHanging((BlockBanner) parent);
-				ObfuscationHelper.setValue(Blocks.class, newBlock, 194); // Blocks.WALL_BANNER
-			}
-            assert ids != null;
-            if (ids.containsValue(parent)) {
-				for (Integer k : ids.keySet()) {
-					if (ids.get(k).equals(parent)) {
-						ids.put(k, newBlock);
-						break;
-					}
-				}
-			}
-            assert namesB != null;
-            if (namesB.containsValue(parent)) {
-				for (ResourceLocation k : namesB.keySet()) {
-					if (k.equals(key)) {
-						namesB.put(k, newBlock);
-						break;
-					}
-				}
-			}
-		}
 	}
 
 	@SubscribeEvent
@@ -1555,17 +745,32 @@ public class CustomRegisters {
 		event.getRegistry().register(ta);
 		try {
 			for (Field f : Items.class.getFields()) {
-				if (f.getName().equals("POTIONITEM") || f.getName().equals("field_151068_bn")) {
-					ObfuscationHelper.setStaticValue(f, ip);
-				}
-				if (f.getName().equals("LINGERING_POTION") || f.getName().equals("field_185156_bI")) {
-					ObfuscationHelper.setStaticValue(f, sip);
-				}
-				if (f.getName().equals("SPLASH_POTION") || f.getName().equals("field_185155_bH")) {
-					ObfuscationHelper.setStaticValue(f, lip);
-				}
-				if (f.getName().equals("TIPPED_ARROW") || f.getName().equals("field_185167_i")) {
-					ObfuscationHelper.setStaticValue(f, ta);
+				try {
+					if (Modifier.isFinal(f.getModifiers())) {
+						Field modifiersField = Field.class.getDeclaredField("modifiers");
+						modifiersField.setAccessible(true);
+						modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+					}
+                    switch (f.getName()) {
+                        case "POTIONITEM":
+                        case "field_151068_bn":
+                            f.set(null, ip);
+                            break;
+                        case "LINGERING_POTION":
+                        case "field_185156_bI":
+                            f.set(null, sip);
+                            break;
+                        case "SPLASH_POTION":
+                        case "field_185155_bH":
+                            f.set(null, lip);
+                            break;
+                        case "TIPPED_ARROW":
+                        case "field_185167_i":
+                            f.set(null, ta);
+                            break;
+                    }
+				} catch (Exception e) {
+					LogWriter.error(e);
 				}
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
@@ -1624,7 +829,7 @@ public class CustomRegisters {
 		if (!itemsFile.exists() || !nbtItems.hasKey("Items", 9) || resave) {
 			if (!nbtItems.hasKey("Items", 9)) { nbtItems.setTag("Items", new NBTTagList()); }
 			if (resave) {
-				NBTTagCompound nbt = CustomRegisters.getExampleItems();
+				NBTTagCompound nbt = ModData.getExampleItems();
 				for (int i = 0; i < nbt.getTagList("Items", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Items", 10).getCompoundTagAt(i).getString("RegistryName");
 					if ((name.equals("itemexample") && !hEI) || (name.equals("weaponexample") && !hEW)
@@ -1745,95 +950,54 @@ public class CustomRegisters {
 
 	}
 
-	@SuppressWarnings({ "deprecation" })
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void registerModels(ModelRegistryEvent event) { // Changed
+	public void registerModels(ModelRegistryEvent event) {
 		// Blocks
-		ModelLoader.setCustomStateMapper(CustomRegisters.mailbox,
-				new StateMap.Builder().ignore(new IProperty[] { BlockMailbox.ROTATION, BlockMailbox.TYPE }).build());
-		ModelLoader.setCustomStateMapper(CustomRegisters.scriptedDoor,
-				new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build());
-		ModelLoader.setCustomStateMapper(CustomRegisters.builder,
-				new StateMap.Builder().ignore(new IProperty[] { BlockBuilder.ROTATION }).build());
-		ModelLoader.setCustomStateMapper(CustomRegisters.carpentyBench,
-				new StateMap.Builder().ignore(new IProperty[] { BlockCarpentryBench.ROTATION }).build());
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.redstoneBlock), 0,
-				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.redstoneBlock.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 0,
-				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.mailbox.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 1,
-				new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 2,
-				new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.waypoint), 0,
-				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.waypoint.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.border), 0,
-				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.border.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.scripted), 0,
-				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.scripted.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.scriptedDoor), 0,
-				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.scriptedDoor.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.builder), 0,
-				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.builder.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.copy), 0,
-				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.copy.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0,
-				new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.carpentyBench.getRegistryName()), "inventory"));
-
+		ModelLoader.setCustomStateMapper(CustomRegisters.mailbox, new StateMap.Builder().ignore(new IProperty[] { BlockMailbox.ROTATION, BlockMailbox.TYPE }).build());
+		ModelLoader.setCustomStateMapper(CustomRegisters.scriptedDoor, new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build());
+		ModelLoader.setCustomStateMapper(CustomRegisters.builder, new StateMap.Builder().ignore(new IProperty[] { BlockBuilder.ROTATION }).build());
+		ModelLoader.setCustomStateMapper(CustomRegisters.carpentyBench, new StateMap.Builder().ignore(new IProperty[] { BlockCarpentryBench.ROTATION }).build());
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.redstoneBlock), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.redstoneBlock.getRegistryName()), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.mailbox.getRegistryName()), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 1, new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 2, new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.waypoint), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.waypoint.getRegistryName()), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.border), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.border.getRegistryName()), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.scripted), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.scripted.getRegistryName()), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.scriptedDoor), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.scriptedDoor.getRegistryName()), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.builder), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.builder.getRegistryName()), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.copy), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.copy.getRegistryName()), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.carpentyBench.getRegistryName()), "inventory"));
 		for (Block block : CustomRegisters.customblocks.keySet()) {
 			if (block instanceof CustomBlockPortal) {
-				ModelLoader.setCustomStateMapper(block,
-						new StateMap.Builder().ignore(new IProperty[] { CustomBlockPortal.TYPE }).build());
+				ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { CustomBlockPortal.TYPE }).build());
 			} else if (block instanceof CustomDoor) {
-				ModelLoader.setCustomStateMapper(block,
-						new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build());
+				ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build());
 			}
-			ModelLoader.setCustomModelResourceLocation(CustomRegisters.customblocks.get(block), 0,
-					new ModelResourceLocation(Objects.requireNonNull(block.getRegistryName()), "inventory"));
+			ModelLoader.setCustomModelResourceLocation(CustomRegisters.customblocks.get(block), 0, new ModelResourceLocation(Objects.requireNonNull(block.getRegistryName()), "inventory"));
 		}
 		// Items
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.wand, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcwand", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.cloner, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcmobcloner", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.scripter, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcscripter", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.moving, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcmovingpath", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.mount, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcmounter", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.teleporter, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcteleporter", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.scriptedDoorTool, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcscripteddoortool", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.soulstoneEmpty, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcsoulstoneempty", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.soulstoneFull, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcsoulstonefilled", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.scripted_item, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":scripted_item", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.nbt_book, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":nbt_book", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcboundary, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcboundary", "inventory"));
-
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcbuilder, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcbuilder", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcremover, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcremover", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcplacer, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcplacer", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcreplacer, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcreplacer", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcsaver, 0,
-				new ModelResourceLocation(CustomNpcs.MODID + ":npcsaver", "inventory"));
-		
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.wand, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcwand", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.cloner, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcmobcloner", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.scripter, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcscripter", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.moving, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcmovingpath", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.mount, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcmounter", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.teleporter, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcteleporter", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.scriptedDoorTool, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcscripteddoortool", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.soulstoneEmpty, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcsoulstoneempty", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.soulstoneFull, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcsoulstonefilled", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.scripted_item, 0, new ModelResourceLocation(CustomNpcs.MODID + ":scripted_item", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.nbt_book, 0, new ModelResourceLocation(CustomNpcs.MODID + ":nbt_book", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcboundary, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcboundary", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcbuilder, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcbuilder", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcremover, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcremover", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcplacer, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcplacer", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcreplacer, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcreplacer", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcsaver, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcsaver", "inventory"));
 		for (Item item : CustomRegisters.customitems) {
-			ModelLoader.setCustomModelResourceLocation(item, 0,
-					new ModelResourceLocation(Objects.requireNonNull(item.getRegistryName()), "inventory"));
+			ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(Objects.requireNonNull(item.getRegistryName()), "inventory"));
 		}
-
 		// Render Tiles
 		ClientRegistry.bindTileEntitySpecialRenderer(TileBlockAnvil.class, new BlockCarpentryBenchRenderer<>());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox.class, new BlockMailboxRenderer<>(0));
@@ -1844,7 +1008,6 @@ public class CustomRegisters {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileCopy.class, new BlockCopyRenderer<>());
 		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class, new BlockPortalRenderer<>());
 		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class, new BlockChestRenderer<>());
-
 		// OLD JSON Models
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0, TileBlockAnvil.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 0, TileMailbox.class);
@@ -1852,14 +1015,14 @@ public class CustomRegisters {
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 2, TileMailbox3.class);
 	}
 
-	private <E extends Entity> EntityEntryBuilder<E> registerNewentity(String name, int update, boolean velocity) {
+	private <E extends Entity> EntityEntryBuilder<E> registerNewEntity(String name, int update, boolean velocity) {
 		EntityEntryBuilder<E> builder = EntityEntryBuilder.create();
 		ResourceLocation registryName = new ResourceLocation(CustomNpcs.MODID, name);
 		return builder.id(registryName, CustomRegisters.newEntityStartId++).name(name).tracker(64, update, velocity);
 	}
 
 	private EntityEntry registerNpc(Class<? extends Entity> cl, String name) {
-		return this.registerNewentity(name, 3, true).entity(cl).build();
+		return this.registerNewEntity(name, 3, true).entity(cl).build();
 	}
 
 	@SubscribeEvent
@@ -1889,7 +1052,7 @@ public class CustomRegisters {
 				nbtItems.setTag("Potions", new NBTTagList());
 			}
 			if (!hasEP) {
-				NBTTagCompound nbt = CustomRegisters.getExampleItems();
+				NBTTagCompound nbt = ModData.getExampleItems();
 				for (int i = 0; i < nbt.getTagList("Potions", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Potions", 10).getCompoundTagAt(i).getString("RegistryName");
 					if (name.equals("potionexample")) {

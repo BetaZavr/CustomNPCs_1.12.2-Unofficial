@@ -29,7 +29,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.controllers.SpawnController;
 import noppes.npcs.controllers.data.SpawnData;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.world.biome.BiomeAPIMixin;
 
 public class NPCSpawning {
 
@@ -38,7 +38,7 @@ public class NPCSpawning {
 	// World generation in progress
 	public static void performWorldGenSpawning(World world, int x, int z, Random rand) {
 		Biome biome = world.getBiomeForCoordsBody(new BlockPos(x + 8, 0, z + 8));
-		SpawnData data = SpawnController.instance.getRandomSpawnData(ObfuscationHelper.getValue(Biome.class, biome, 17));
+		SpawnData data = SpawnController.instance.getRandomSpawnData(((BiomeAPIMixin) biome).npcs$getBiomeName());
 		if (data == null) { return; }
 		int size = 16;
 		int posX = x + rand.nextInt(size);
@@ -98,7 +98,7 @@ public class NPCSpawning {
 				posX += world.rand.nextInt(range) - world.rand.nextInt(range);
 				posZ += world.rand.nextInt(range) - world.rand.nextInt(range);
 				BlockPos pos = new BlockPos(posX, basePosY, posZ);
-                String name = ObfuscationHelper.getValue(Biome.class, world.getBiomeForCoordsBody(pos), 17);
+                String name = ((BiomeAPIMixin) world.getBiomeForCoordsBody(pos)).npcs$getBiomeName();
 				SpawnData data = SpawnController.instance.getRandomSpawnData(name);
 				if (data == null || world.rand.nextFloat() > data.itemWeight / 100.0f) { continue; }
 				Entity entity = null;

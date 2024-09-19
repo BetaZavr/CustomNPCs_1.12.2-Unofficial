@@ -32,11 +32,7 @@ extends BaseScriptData {
 	public final StoredData storedData = new StoredData();
 
 	public void clear() {
-		for (ScriptContainer scr : this.getScripts()) {
-			scr.fullscript = "";
-			scr.script = "";
-			scr.scripts.clear();
-		}
+		this.script.clear();
 	}
 	
 	private void createScript() {
@@ -127,7 +123,7 @@ extends BaseScriptData {
 		if (!saveDir.exists()) { saveDir.mkdirs(); }
 		ScriptController.Instance.clients.clear();
 		ScriptController.Instance.clientSizes.clear();
-		ScriptController.Instance.loadDir(saveDir, "", ScriptController.Instance.languages.get(Util.instance.deleteColor(this.getLanguage())), true);
+		ScriptController.Instance.loadDir(saveDir, "", ScriptController.Instance.languages.get(Util.instance.deleteColor(this.getLanguage())), false, true);
 		LogWriter.debug("Load default client modules - "+ScriptController.Instance.clients.size());
 		// Main tab
 		saveDir = new File(CustomNpcs.Dir, "client_default");
@@ -214,7 +210,7 @@ extends BaseScriptData {
 	}
 
 	public boolean isEmpty() {
-		return this.script == null || this.script.getFullCode().isEmpty();
+		return this.script == null || !this.script.hasScriptCode();
 	}
 
 	public String getWorldName() { return this.serverWorldName; }

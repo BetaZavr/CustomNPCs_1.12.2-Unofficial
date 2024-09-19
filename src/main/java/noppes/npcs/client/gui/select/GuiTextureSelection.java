@@ -38,8 +38,8 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.mixin.api.client.resources.*;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ObfuscationHelper;
 
 import javax.annotation.Nonnull;
 
@@ -173,22 +173,22 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
             path = path.substring(0, path.length() - 1);
 		}
 		path = path.substring(path.lastIndexOf("assets") + 7);
-		String domian = path.substring(0, path.indexOf("/"));
-		if (domian.isEmpty()) {
+		String domain = path.substring(0, path.indexOf("/"));
+		if (domain.isEmpty()) {
 			return;
 		}
 		path = path.substring(path.indexOf("/") + 1);
-		ResourceLocation res = new ResourceLocation(domian, path);
-		if (!this.data.containsKey(domian)) {
-			this.data.put(domian, Maps.newTreeMap());
+		ResourceLocation res = new ResourceLocation(domain, path);
+		if (!this.data.containsKey(domain)) {
+			this.data.put(domain, Maps.newTreeMap());
 		} else {
-			for (ResourceLocation r : this.data.get(domian).keySet()) {
+			for (ResourceLocation r : this.data.get(domain).keySet()) {
 				if (r.getResourcePath().equals(path)) {
 					return;
 				}
 			}
 		}
-		this.data.get(domian).put(res, size);
+		this.data.get(domain).put(res, size);
 	}
 
 	private void checkFolder(File file) {
@@ -300,7 +300,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 		}
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 14;
-		String domian = "All Data in Game/";
+		String domain = "All Data in Game/";
 		if (this.selectDir == null) {
 			this.scroll.setList(Lists.newArrayList(this.data.keySet()));
 		} else {
@@ -325,18 +325,18 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 				txrName = txrName.substring(txrName.lastIndexOf("/") + 1);
 			}
 			List<Integer> colors = Lists.newArrayList();
-			List<String> suffixs = Lists.newArrayList();
+			List<String> suffixes = Lists.newArrayList();
 			int i = 1, pos = -1;
-			suffixs.add("");
+			suffixes.add("");
 			colors.add(0xF3BE1E);
 			for (String key : ds.keySet()) {
-				suffixs.add("");
+				suffixes.add("");
 				list.add(key);
 				colors.add(0xF3BE1E);
 				i++;
 			}
 			for (String key : fs.keySet()) {
-				suffixs.add(Util.instance.getTextReducedNumber(fs.get(key), false, false, true) + "b");
+				suffixes.add(Util.instance.getTextReducedNumber(fs.get(key), false, false, true) + "b");
 				list.add(key);
 				colors.add(0xCAEAEA);
 				if (txrName.equals(key)) {
@@ -346,21 +346,21 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 			}
 			list.add(0, this.back);
 			this.scroll.setColors(colors);
-			this.scroll.setSuffixs(suffixs);
+			this.scroll.setSuffixs(suffixes);
 			this.scroll.setListNotSorted(list);
 			if (this.scroll.selected != pos) {
 				this.scroll.selected = pos;
 			}
 			this.scroll.resetRoll();
 			char chr = ((char) 167);
-			domian = chr + "l" + this.selectDir.getResourceDomain() + "/" + path;
-			while (this.mc.fontRenderer.getStringWidth(domian) > 250 && path.contains("/")) {
+			domain = chr + "l" + this.selectDir.getResourceDomain() + "/" + path;
+			while (this.mc.fontRenderer.getStringWidth(domain) > 250 && path.contains("/")) {
 				path = path.substring(path.indexOf("/") + 1);
-				domian = chr + "l" + this.selectDir.getResourceDomain() + "/.../" + path;
+				domain = chr + "l" + this.selectDir.getResourceDomain() + "/.../" + path;
 			}
 		}
 		this.addScroll(this.scroll);
-		this.addLabel(new GuiNpcLabel(0, domian, this.guiLeft + 4, this.guiTop + 4));
+		this.addLabel(new GuiNpcLabel(0, domain, this.guiLeft + 4, this.guiTop + 4));
 		this.getLabel(0).color = 0xFF000000;
 	}
 
@@ -388,17 +388,16 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 	private void resetFiles() {
 		/* Manager Data */
 		SimpleReloadableResourceManager simplemanager = (SimpleReloadableResourceManager) Minecraft.getMinecraft() .getResourceManager();
-		Map<String, FallbackResourceManager> map = ObfuscationHelper.getValue(SimpleReloadableResourceManager.class, simplemanager, 2);
+		Map<String, FallbackResourceManager> map = ((SimpleReloadableResourceManagerAPIMixin) simplemanager).npcs$getDomainResourceManagers();
 		if (map == null) { return; }
 		for (String name : map.keySet()) {
 			FallbackResourceManager manager = map.get(name);
-			List<IResourcePack> list = ObfuscationHelper.getValue(FallbackResourceManager.class, manager, 1);
+			List<IResourcePack> list = ((FallbackResourceManagerAPIMixin) manager).npcs$getResourcePacks();
 			if (list == null) { return; }
 			for (IResourcePack pack : list) {
 				if (pack instanceof DefaultResourcePack) {
-					ResourceIndex resourceIndex = ObfuscationHelper.getValue(DefaultResourcePack.class,
-							(DefaultResourcePack) pack, ResourceIndex.class);
-					Map<String, File> resourceMap = ObfuscationHelper.getValue(ResourceIndex.class, resourceIndex, Map.class);
+					ResourceIndex resourceIndex = ((DefaultResourcePackAPIMixin) pack).npcs$getResourceIndex();
+					Map<String, File> resourceMap = ((ResourceIndexAPIMixin) resourceIndex).npcs$getResourceMap();
 					if (resourceMap != null) {
 						for (File f : resourceMap.values()) {
 							this.addFile(f.getAbsolutePath(), f.length());
@@ -408,7 +407,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 				}
 				if (pack instanceof AbstractResourcePack) {
 					AbstractResourcePack p = (AbstractResourcePack) pack;
-					File directory = ObfuscationHelper.getValue(AbstractResourcePack.class, p, 1);
+					File directory = ((AbstractResourcePackAPIMixin) p).npcs$getResourcePackFile();
 					if (directory == null || !directory.isDirectory()) {
 						continue;
 					}

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import noppes.npcs.mixin.api.item.ItemArmorAPIMixin;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.google.common.collect.Lists;
@@ -34,7 +35,6 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ObfuscationHelper;
 
 import javax.annotation.Nonnull;
 
@@ -72,7 +72,7 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 	}
 	
 	protected NBTTagCompound nbtData;
-	protected ItemStack repairItemStack = ItemStack.EMPTY;
+	protected ItemStack repairItemStack;
 	protected int enchantability = 0;
 
 	public ResourceLocation objModel = null;
@@ -95,10 +95,10 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 			this.setMaxDamage(maxStackDamage);
 		}
 		if (damageReduceAmount > 0) {
-			ObfuscationHelper.setValue(ItemArmor.class, this, damageReduceAmount, 5);
+			((ItemArmorAPIMixin) this).npcs$setDamageReduceAmount(damageReduceAmount);
 		}
 		if (toughness > 0.0f) {
-			ObfuscationHelper.setValue(ItemArmor.class, this, toughness, 6);
+			((ItemArmorAPIMixin) this).npcs$setToughness(toughness);
 		}
 		if (nbtItem.hasKey("RepairItem", 10)) {
 			this.repairItemStack = new ItemStack(nbtItem.getCompoundTag("RepairItem"));

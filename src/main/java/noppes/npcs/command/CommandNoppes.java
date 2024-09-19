@@ -9,7 +9,6 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.CommandHelp;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -19,7 +18,6 @@ import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.api.CustomNPCsException;
 
 import javax.annotation.Nonnull;
-import javax.swing.text.html.parser.Entity;
 
 public class CommandNoppes extends CommandBase {
 
@@ -28,7 +26,6 @@ public class CommandNoppes extends CommandBase {
 
 	public CommandNoppes() {
 		this.map = new HashMap<>();
-		CommandHelp d;
 		this.help = new CmdHelp(this);
 		this.registerCommand(this.help);
 		this.registerCommand(new CmdScript());

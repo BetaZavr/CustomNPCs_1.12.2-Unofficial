@@ -33,6 +33,10 @@ public class MiniMapData implements IMiniMapData {
 		this.color = (int) ((double) 0xFF000000 + Math.random() * (double) 0xFFFFFF);
 	}
 
+	public void setQuestId(int id) { questId = id; }
+
+	public void setTaskId(int id) { taskId = id; }
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof MiniMapData)) { return false; }

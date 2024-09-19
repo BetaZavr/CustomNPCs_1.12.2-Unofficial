@@ -15,6 +15,7 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.wrapper.BlockScriptedDoorWrapper;
+import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.IScriptBlockHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -138,10 +139,7 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		}
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (!type.equalsIgnoreCase("init")) {
-				for (ScriptContainer tab : this.scripts) {
-					tab.getFullCode();
-				}
+			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
 				EventHooks.onScriptBlockInit(this);
 			}
 		}

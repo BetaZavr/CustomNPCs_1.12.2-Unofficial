@@ -8,10 +8,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EntityTracker;
 import net.minecraft.entity.EntityTrackerEntry;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -34,7 +32,8 @@ import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.data.AttributeWrapper;
 import noppes.npcs.controllers.data.MarkData;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.entity.EntityTrackerAPIMixin;
+import noppes.npcs.mixin.api.entity.ai.attributes.AbstractAttributeMapAPIMixin;
 
 @SuppressWarnings("rawtypes")
 public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityWrapper<T> implements IEntityLivingBase {
@@ -60,7 +59,7 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 		this.entity.getAttributeMap().registerAttribute(attr);
 		INpcAttribute npcAttr = this.getIAttribute(attribute.getName());
 		if (npcAttr != null) {
-			ObfuscationHelper.setValue(AttributeWrapper.class, (AttributeWrapper) npcAttr, true, boolean.class);
+			((AttributeWrapper) npcAttr).setCustom(true);
 		}
 		return npcAttr;
 	}
@@ -149,16 +148,14 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 
 	@Override
 	public INpcAttribute getIAttribute(String attributeName) {
-		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
-				this.entity.getAttributeMap(), 1);
+		Map<String, IAttributeInstance> attributesByName = ((AbstractAttributeMapAPIMixin) this.entity.getAttributeMap()).npcs$getAttributesByName();
         if (attributesByName == null) { return null; }
         return Objects.requireNonNull(NpcAPI.Instance()).getIAttribute(attributesByName.get(attributeName));
 	}
 
 	@Override
 	public String[] getIAttributeNames() {
-		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
-				this.entity.getAttributeMap(), 1);
+		Map<String, IAttributeInstance> attributesByName = ((AbstractAttributeMapAPIMixin) this.entity.getAttributeMap()).npcs$getAttributesByName();
 		if (attributesByName == null) { return new String[0]; }
         return attributesByName.keySet().toArray(new String[0]);
 	}
@@ -260,8 +257,7 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 
 	@Override
 	public boolean hasAttribute(String attributeName) {
-		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
-				this.entity.getAttributeMap(), 1);
+		Map<String, IAttributeInstance> attributesByName = ((AbstractAttributeMapAPIMixin) this.entity.getAttributeMap()).npcs$getAttributesByName();
 		if (attributesByName == null) { return false; }
 		return attributesByName.containsKey(attributeName);
 	}
@@ -282,9 +278,9 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 		if (attribute == null || !attribute.isCustom() || !this.hasAttribute(attribute)) {
 			return false;
 		}
-		Map<IAttribute, IAttributeInstance> attributes = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 0);
-		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 1);
-		Multimap<IAttribute, IAttribute> descendantsByParent = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 2);
+		Map<IAttribute, IAttributeInstance> attributes = ((AbstractAttributeMapAPIMixin) this.entity.getAttributeMap()).npcs$getAttributes();
+		Map<String, IAttributeInstance> attributesByName = ((AbstractAttributeMapAPIMixin) this.entity.getAttributeMap()).npcs$getAttributesByName();
+		Multimap<IAttribute, IAttribute> descendantsByParent = ((AbstractAttributeMapAPIMixin) this.entity.getAttributeMap()).npcs$getDescendantsByParent();
 		if (attributes == null || descendantsByParent == null || attributesByName == null) { return false; }
 		IAttribute key = null;
 		String name = null;
@@ -397,8 +393,7 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 			this.entity.isSwingInProgress = true;
 			this.entity.swingingHand = hand;
 			SPacketAnimation pack = new SPacketAnimation(this.entity, hand == EnumHand.MAIN_HAND ? 0 : 3);
-			IntHashMap<EntityTrackerEntry> trackedEntityHashTable = ObfuscationHelper.getValue(EntityTracker.class,
-					((WorldServer) this.entity.world).getEntityTracker(), IntHashMap.class);
+			IntHashMap<EntityTrackerEntry> trackedEntityHashTable = ((EntityTrackerAPIMixin) ((WorldServer) this.entity.world).getEntityTracker()).npcs$getTrackedEntityHashTable();
 			EntityTrackerEntry entitytrackerentry = trackedEntityHashTable.lookup(this.entity.getEntityId());
 			if (entitytrackerentry != null) {
 				for (EntityPlayerMP entityplayermp : entitytrackerentry.trackingPlayers) {

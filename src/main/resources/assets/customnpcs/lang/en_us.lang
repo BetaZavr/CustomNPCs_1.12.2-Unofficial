@@ -1155,6 +1155,7 @@ gui.darkness=At night.
 gui.day=Day
 gui.decrease=Reduce
 gui.deleteMessage=Are you sure you want to delete this?
+gui.replaceMessage=Are you sure you want to replace this?
 gui.description=Description:
 gui.detailed=In detail
 gui.dimensions=Available measurements:

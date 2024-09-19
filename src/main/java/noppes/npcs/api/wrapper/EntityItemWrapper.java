@@ -6,7 +6,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.entity.item.EntityItemAPIMixin;
 
 import java.util.Objects;
 
@@ -19,8 +19,7 @@ public class EntityItemWrapper<T extends EntityItem> extends EntityWrapper<T> im
 
 	@Override
 	public long getAge() {
-		Object l = ObfuscationHelper.getValue(EntityItem.class, this.entity, 2);
-		return l != null ? (long) l : 0L;
+		return ((EntityItemAPIMixin) this.entity).npcs$getAge(); // parent getAge() is only Client
 	}
 
 	@Override
@@ -40,8 +39,7 @@ public class EntityItemWrapper<T extends EntityItem> extends EntityWrapper<T> im
 
 	@Override
 	public int getPickupDelay() {
-		Object pd = ObfuscationHelper.getValue(EntityItem.class, this.entity, 3);
-		return pd != null ? (int) pd : 10;
+		return this.entity.pickupDelay;
 	}
 
 	@Override
@@ -51,8 +49,7 @@ public class EntityItemWrapper<T extends EntityItem> extends EntityWrapper<T> im
 
 	@Override
 	public void setAge(long age) {
-		age = Math.max(Math.min(age, 2147483647L), -2147483648L);
-		ObfuscationHelper.setValue(EntityItem.class, this.entity, age, 2);
+		((EntityItemAPIMixin) this.entity).npcs$setAge((int) Math.max(Math.min(age, 2147483647L), 0));
 	}
 
 	@Override

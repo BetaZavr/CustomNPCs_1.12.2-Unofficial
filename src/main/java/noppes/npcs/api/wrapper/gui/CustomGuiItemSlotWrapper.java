@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -94,5 +95,12 @@ public class CustomGuiItemSlotWrapper extends CustomGuiComponentWrapper implemen
 		nbt.setTag("Stack", this.stack.getMCItemStack().serializeNBT());
 		nbt.setBoolean("ShowBack", this.showBack);
 		return nbt;
+	}
+
+	public void setPlayer(EntityPlayerMP player) { this.player = player; }
+
+	public void setIndex(int index) {
+		if (index < 0) { index *= -1; }
+		this.slotIndex = index;
 	}
 }

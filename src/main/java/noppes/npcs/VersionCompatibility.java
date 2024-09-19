@@ -16,12 +16,12 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class VersionCompatibility {
 	public static int ModRev = 18;
 
-	public static void CheckAvailabilityCompatibility(ICompatibilty compatibilty, NBTTagCompound compound) {
-		if (compatibilty.getVersion() == VersionCompatibility.ModRev) {
+	public static void CheckAvailabilityCompatibility(ICompatibilty compatibility, NBTTagCompound compound) {
+		if (compatibility.getVersion() == VersionCompatibility.ModRev) {
 			return;
 		}
-		CompatabilityFix(compound, compatibilty.writeToNBT(new NBTTagCompound()));
-		compatibilty.setVersion(VersionCompatibility.ModRev);
+		CompatabilityFix(compound, compatibility.writeToNBT(new NBTTagCompound()));
+		compatibility.setVersion(VersionCompatibility.ModRev);
 	}
 
 	public static void CheckNpcCompatibility(EntityNPCInterface npc, NBTTagCompound compound) {

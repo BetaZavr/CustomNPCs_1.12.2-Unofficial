@@ -1,26 +1,17 @@
 package net.minecraft.client.renderer.entity;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Maps;
-
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.model.ModelWrapper;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class NPCRendererHelper {
 
 	private static final ModelWrapper wrapper = new ModelWrapper();
-	private static final Map<Class<?>, Method> mapApplyRotations = Maps.newHashMap();
 
-	public static void drawLayers(EntityLivingBase entity, float p_177093_2_, float p_177093_3_, float p_177093_4_,
+    public static void drawLayers(EntityLivingBase entity, float p_177093_2_, float p_177093_3_, float p_177093_4_,
 			float p_177093_5_, float p_177093_6_, float p_177093_7_, float p_177093_8_,
 			RenderLivingBase<EntityLivingBase> renderEntity) {
 		renderEntity.renderLayers(entity, p_177093_2_, p_177093_3_, p_177093_4_, p_177093_5_, p_177093_6_, p_177093_7_,
@@ -56,37 +47,7 @@ public class NPCRendererHelper {
 	}
 
 	public static void applyRotations(RenderLivingBase<EntityLivingBase> renderEntity, EntityLivingBase entity, float handleRotation, float rotationYaw, float partialTicks) {
-		Method renderApplyRotations = getApplyRotations(renderEntity);
-		if (renderApplyRotations != null) {
-			try { renderApplyRotations.invoke(renderEntity, entity, handleRotation, rotationYaw, partialTicks); }
-			catch (Exception e) {
-				LogWriter.error("Error render applyRotations [Method: " + renderApplyRotations + "; renderEntity: " + renderEntity + "; entity: " + entity + "]", e);
-			}
-		}
-	}
-
-	private static @Nullable Method getApplyRotations(@Nullable RenderLivingBase<EntityLivingBase> renderEntity) {
-		Method renderApplyRotations = null;
-		if (renderEntity != null) {
-			if (!mapApplyRotations.containsKey(renderEntity.getClass())) {
-				renderApplyRotations = ObfuscationHelper.getMethod(renderEntity.getClass(), "applyRotations", Object.class, float.class, float.class, float.class);
-				if (renderApplyRotations == null) { renderApplyRotations = ObfuscationHelper.getMethod(renderEntity.getClass(), "func_77043_a", Object.class, float.class, float.class, float.class); }
-				mapApplyRotations.put(renderEntity.getClass(), renderApplyRotations);
-			}
-			renderApplyRotations = mapApplyRotations.get(renderEntity.getClass());
-		}
-		if (renderApplyRotations == null) { // base class
-			if (!mapApplyRotations.containsKey(RenderLivingBase.class)) {
-				renderApplyRotations = ObfuscationHelper.getMethod(RenderLivingBase.class, "applyRotations", Object.class, float.class, float.class, float.class);
-				if (renderApplyRotations == null) { renderApplyRotations = ObfuscationHelper.getMethod(RenderLivingBase.class, "func_77043_a", Object.class, float.class, float.class, float.class); }
-				mapApplyRotations.put(RenderLivingBase.class, renderApplyRotations);
-			}
-			renderApplyRotations = mapApplyRotations.get(RenderLivingBase.class);
-		}
-		if (renderApplyRotations != null && !renderApplyRotations.isAccessible()) {
-			renderApplyRotations.setAccessible(true);
-		}
-		return renderApplyRotations;
+		renderEntity.applyRotations(entity, handleRotation, rotationYaw, partialTicks);
 	}
 
 }

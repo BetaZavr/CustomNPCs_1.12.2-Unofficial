@@ -96,9 +96,6 @@ public class DataScript implements IScriptHandler {
 		if (ScriptController.Instance.lastLoaded > lastInited) {
 			lastInited = ScriptController.Instance.lastLoaded;
 			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
-				for (ScriptContainer tab : this.scripts) {
-					tab.getFullCode();
-				}
 				EventHooks.onNPCInit(this.npc);
 			}
 		}

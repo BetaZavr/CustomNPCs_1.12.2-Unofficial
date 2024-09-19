@@ -5,12 +5,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import net.minecraft.client.AnvilConverterException;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.world.storage.ISaveFormat;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraft.world.storage.WorldSummary;
+import noppes.npcs.mixin.api.client.renderer.BlockModelRendererAPIMixin;
+import noppes.npcs.mixin.api.client.renderer.BlockRendererDispatcherAPIMixin;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -94,7 +94,6 @@ import noppes.npcs.schematics.SchematicWrapper;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.CustomNPCsScheduler;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class ClientEventHandler {
 
@@ -147,7 +146,7 @@ public class ClientEventHandler {
 					ScriptController.Instance.checkAgreement(worldinfo.getWorldName() + "/" + worldinfo.areCommandsAllowed() + "/" + worldinfo.getSeed());
 				}
 			}
-			catch (Exception e) { }
+			catch (Exception e) { LogWriter.debug(e.toString()); }
 		} else if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
 			Util.instance.resetRecipes(mc.player, (GuiContainer) event.getGui());
 			event.getGui().mc = mc;
@@ -168,9 +167,6 @@ public class ClientEventHandler {
 				Util.instance.resetRecipes(mc.player, (GuiContainer) event.getGui());
 				event.getGui().mc = mc;
 			}
-		}
-		if (event.getGui() instanceof GuiOptions && mc.currentScreen instanceof GuiLanguage) {
-			ClientProxy.checkLocalization();
 		}
 		ScaledResolution scaleW = new ScaledResolution(mc);
 		double[] d = ClientProxy.playerData.hud.getWindowSize();
@@ -425,9 +421,8 @@ public class ClientEventHandler {
 		case MODEL:
 			IBakedModel ibakedmodel = dispatcher.getModelForState(state);
 			GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
-			BlockModelRenderer bmr = ObfuscationHelper.getValue(BlockRendererDispatcher.class, dispatcher,
-					BlockModelRenderer.class);
-			BlockColors bc = ObfuscationHelper.getValue(BlockModelRenderer.class, bmr, BlockColors.class);
+			BlockModelRenderer bmr = ((BlockRendererDispatcherAPIMixin) dispatcher).npcs$getBlockModelRenderer();
+			BlockColors bc = ((BlockModelRendererAPIMixin) bmr).npcs$getBlockColors();
 			int color = bc.colorMultiplier(state, null, null, 0);
 			if (EntityRenderer.anaglyphEnable) {
 				color = TextureUtil.anaglyphColor(color);
@@ -441,8 +436,7 @@ public class ClientEventHandler {
 			this.renderModelBlockQuads(ibakedmodel.getQuads(state, null, 0L), r, g, b);
 			break;
 		case ENTITYBLOCK_ANIMATED:
-			ChestRenderer chestRenderer = ObfuscationHelper.getValue(BlockRendererDispatcher.class, dispatcher,
-					ChestRenderer.class);
+			ChestRenderer chestRenderer = ((BlockRendererDispatcherAPIMixin) dispatcher).npcs$getChestRenderer();
 			chestRenderer.renderChestBrightness(state.getBlock(), 1.0f);
             default:
 			break;
@@ -704,7 +698,6 @@ public class ClientEventHandler {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MiniMapData, mm.saveNBTData(new NBTTagCompound()));
 		}
 	}
-
 
 	@SideOnly(Side.CLIENT)
 	public static void entityClientEvent(EntityInteract event) {

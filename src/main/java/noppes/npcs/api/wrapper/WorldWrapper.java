@@ -27,7 +27,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.biome.Biome;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
@@ -51,7 +50,8 @@ import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityProjectile;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.world.WorldAPIMixin;
+import noppes.npcs.mixin.api.world.biome.BiomeAPIMixin;
 
 public class WorldWrapper implements IWorld {
 
@@ -159,7 +159,7 @@ public class WorldWrapper implements IWorld {
 
 	@Override
 	public String getBiomeName(int x, int z) {
-		return ObfuscationHelper.getValue(Biome.class, this.world.getBiomeForCoordsBody(new BlockPos(x, 0, z)), 17);
+		return ((BiomeAPIMixin) this.world.getBiomeForCoordsBody(new BlockPos(x, 0, z))).npcs$getBiomeName();
 	}
 
 	@Override
@@ -260,7 +260,7 @@ public class WorldWrapper implements IWorld {
 			}
 		}
 		if (e == null) {
-			List<Entity> unloadedEntityList = ObfuscationHelper.getValue(World.class, this.world, 4);
+			List<Entity> unloadedEntityList = ((WorldAPIMixin) this.world).npcs$getUnloadedEntityList();
             if (unloadedEntityList != null) {
 				for (Entity entity : unloadedEntityList) {
 					if (entity.getUniqueID().equals(id)) {
@@ -347,7 +347,7 @@ public class WorldWrapper implements IWorld {
 
 	@Override
 	public IScoreboard getScoreboard() {
-		return new ScoreboardWrapper(this.world.getMinecraftServer());
+		return this.world.getMinecraftServer() == null ? null : new ScoreboardWrapper(this.world.getMinecraftServer());
 	}
 
 	@Override

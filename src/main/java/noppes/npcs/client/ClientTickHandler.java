@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import noppes.npcs.*;
+import noppes.npcs.mixin.api.client.audio.SoundHandlerAPIMixin;
+import noppes.npcs.mixin.api.client.audio.SoundManagerAPIMixin;
+import noppes.npcs.mixin.api.client.gui.GuiYesNoAPIMixin;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.Lists;
@@ -15,7 +18,6 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -54,7 +56,6 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
 
 public class ClientTickHandler {
@@ -92,7 +93,7 @@ public class ClientTickHandler {
 	}
 	private boolean otherContainer;
 	private World prevWorld;
-	private final Map<String, ISound> nowPlayingSounds;
+	public final Map<String, ISound> nowPlayingSounds;
 
 	public ClientTickHandler() {
 		this.otherContainer = false;
@@ -138,12 +139,12 @@ public class ClientTickHandler {
         if (Keyboard.getEventKey() == 0 && c0 >= ' ' || Keyboard.getEventKeyState()) {
         	if (mc.currentScreen instanceof GuiYesNo) {
         		if (Keyboard.getEventKey() == 1) { // ESC
-        			GuiYesNoCallback parentScreen = ObfuscationHelper.getValue(GuiYesNo.class, (GuiYesNo) mc.currentScreen, GuiYesNoCallback.class);
-        			parentScreen.confirmClicked(false, ObfuscationHelper.getValue(GuiYesNo.class, (GuiYesNo) mc.currentScreen, int.class));
+					GuiYesNoCallback parentScreen = ((GuiYesNoAPIMixin) mc.currentScreen).npcs$getParentScreen();
+        			parentScreen.confirmClicked(false, ((GuiYesNoAPIMixin) mc.currentScreen).npcs$getParentButtonClickedId());
         		}
         		if (Keyboard.getEventKey() == 28) { // Enter
-        			GuiYesNoCallback parentScreen = ObfuscationHelper.getValue(GuiYesNo.class, (GuiYesNo) mc.currentScreen, GuiYesNoCallback.class);
-        			parentScreen.confirmClicked(true, ObfuscationHelper.getValue(GuiYesNo.class, (GuiYesNo) mc.currentScreen, int.class));
+					GuiYesNoCallback parentScreen = ((GuiYesNoAPIMixin) mc.currentScreen).npcs$getParentScreen();
+					parentScreen.confirmClicked(true, ((GuiYesNoAPIMixin) mc.currentScreen).npcs$getParentButtonClickedId());
         		}
         	}
         }
@@ -153,8 +154,8 @@ public class ClientTickHandler {
 			this.prevWorld = mc.world;
 			MusicController.Instance.stopSounds();
 		}
-		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, mc.getSoundHandler(), SoundManager.class);
-		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
+		SoundManager sm = ((SoundHandlerAPIMixin) mc.getSoundHandler()).npcs$getSndManager();
+		Map<String, ISound> playingSounds = ((SoundManagerAPIMixin) sm).npcs$getPlayingSounds();
 		List<String> del = Lists.newArrayList();
         if (playingSounds != null) {
 			for (String uuid : playingSounds.keySet()) { // is played
@@ -180,7 +181,7 @@ public class ClientTickHandler {
 					del.add(uuid);
 				}
 			}
-			for (String uuid : this.nowPlayingSounds.keySet()) { // is stoped
+			for (String uuid : this.nowPlayingSounds.keySet()) { // is stopped
 				try {
 					if (!playingSounds.containsKey(uuid) || !playingSounds.containsValue(this.nowPlayingSounds.get(uuid))) {
 						ISound sound = this.nowPlayingSounds.get(uuid);
@@ -214,7 +215,7 @@ public class ClientTickHandler {
 			MarcetController.getInstance().updateTime();
 			ClientTickHandler.loadFiles();
 			if (mc.playerController != null) {
-				double d0 = (double) mc.playerController.getBlockReachDistance();
+				double d0 = mc.playerController.getBlockReachDistance();
 				if (mc.playerController.extendedReach()) { d0 = 6.0; }
 				if (ClientProxy.playerData.game.blockReachDistance != d0) {
 					ClientProxy.playerData.game.blockReachDistance = d0;

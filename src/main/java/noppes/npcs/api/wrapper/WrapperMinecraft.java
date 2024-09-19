@@ -2,7 +2,6 @@ package noppes.npcs.api.wrapper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.MusicTicker;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.GuiScreen;
@@ -15,7 +14,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import noppes.npcs.api.IGlStateManager;
 import noppes.npcs.api.IMinecraft;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.client.audio.MusicTickerAPIMixin;
 
 public class WrapperMinecraft
 implements IMinecraft {
@@ -80,7 +79,7 @@ implements IMinecraft {
 			x = this.minecraft.player != null ? (float) this.minecraft.player.posX : 0.0f;
 			y = this.minecraft.player != null ? (float) this.minecraft.player.posY + 0.5f : 0.0f;
 			z = this.minecraft.player != null ? (float) this.minecraft.player.posZ : 0.0f;
-			ObfuscationHelper.setValue(MusicTicker.class, this.minecraft.getMusicTicker(), 3600, int.class); // timeUntilNextMusic
+			((MusicTickerAPIMixin) this.minecraft.getMusicTicker()).npcs$setTimeUntilNextMusic(3600);
 		}
 		this.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation(sound), cat, volume, pitch, false, 0, aType, x, y, z));
 	}

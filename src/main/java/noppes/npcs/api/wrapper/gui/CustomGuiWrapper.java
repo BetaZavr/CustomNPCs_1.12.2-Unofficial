@@ -27,7 +27,6 @@ import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.ScriptContainer;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class CustomGuiWrapper implements ICustomGui {
 
@@ -313,8 +312,8 @@ public class CustomGuiWrapper implements ICustomGui {
 		}
 		for (int i = 0; i < this.slots.size(); i++) {
 			CustomGuiItemSlotWrapper slot = (CustomGuiItemSlotWrapper) this.slots.get(i);
-			ObfuscationHelper.setValue(CustomGuiItemSlotWrapper.class, slot, player, EntityPlayer.class);
-			ObfuscationHelper.setValue(CustomGuiItemSlotWrapper.class, slot, i, int.class);
+			slot.setPlayer(player);
+			slot.setIndex(i);
 		}
 	}
 

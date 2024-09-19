@@ -78,8 +78,8 @@ import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
+import noppes.npcs.mixin.api.stats.RecipeBookAPIMixin;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
 
 public class CommonProxy implements IGuiHandler {
@@ -251,10 +251,8 @@ public class CommonProxy implements IGuiHandler {
 		File itemModelsDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/models/item");
 		if (!itemModelsDir.exists() && !itemModelsDir.mkdirs()) { return; }
 		File itemModel = new File(itemModelsDir, fileName + ".json");
-		String crEnt = "" + ((char) 10);
-		String crTab = "" + ((char) 9);
 
-		// OBJ Armor model
+        // OBJ Armor model
 		if (customitem instanceof CustomArmor && (nbtData.hasKey("OBJData", 9) || nbtData.hasKey("OBJData", 10))) {
 			File armorModelsDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/models/armor");
 			if (!armorModelsDir.exists() && !armorModelsDir.mkdirs()) { return; }
@@ -549,8 +547,8 @@ public class CommonProxy implements IGuiHandler {
 		}
 		RecipeBook book = ((EntityPlayerMP) player).getRecipeBook();
         RecipeController rData = RecipeController.getInstance();
-		BitSet recipes = ObfuscationHelper.getValue(RecipeBook.class, book, 0);
-		BitSet newRecipes = ObfuscationHelper.getValue(RecipeBook.class, book, 1);
+		BitSet recipes = ((RecipeBookAPIMixin) book).npcs$getRecipes();
+		BitSet newRecipes = ((RecipeBookAPIMixin) book).npcs$getNewRecipes();
 		List<Integer> delIDs = Lists.newArrayList();
         assert recipes != null;
         for (int id = recipes.nextSetBit(0); id >= 0; id = recipes.nextSetBit(id + 1)) {
@@ -583,8 +581,8 @@ public class CommonProxy implements IGuiHandler {
 				newRecipes.clear(id);
 			}
 		}
-		ObfuscationHelper.setValue(RecipeBook.class, book, recipes, 0);
-		ObfuscationHelper.setValue(RecipeBook.class, book, newRecipes, 1);
+		((RecipeBookAPIMixin) book).npcs$setRecipes(recipes);
+		((RecipeBookAPIMixin) book).npcs$setNewRecipes(newRecipes);
 		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
 	}
 

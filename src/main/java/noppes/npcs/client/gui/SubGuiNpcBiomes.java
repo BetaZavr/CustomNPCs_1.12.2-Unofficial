@@ -9,7 +9,7 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.controllers.data.SpawnData;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.world.biome.BiomeAPIMixin;
 
 public class SubGuiNpcBiomes extends SubGuiInterface {
 
@@ -41,7 +41,7 @@ public class SubGuiNpcBiomes extends SubGuiInterface {
 			this.data.biomes.clear();
 			for (Biome base : Biome.REGISTRY) {
 				if (base != null) {
-					this.data.biomes.add(ObfuscationHelper.getValue(Biome.class, base, 17));
+					this.data.biomes.add(((BiomeAPIMixin) base).npcs$getBiomeName());
 				}
 			}
 			this.scroll1.selected = -1;
@@ -76,8 +76,8 @@ public class SubGuiNpcBiomes extends SubGuiInterface {
 		this.addLabel(new GuiNpcLabel(2, "spawning.spawningBiomes", this.guiLeft + 200, this.guiTop + 4));
 		List<String> biomes = new ArrayList<>();
 		for (Biome base : Biome.REGISTRY) {
-			String name = ObfuscationHelper.getValue(Biome.class, base, 17);
-			if (base != null && name != null && !this.data.biomes.contains(name)) {
+			String name = ((BiomeAPIMixin) base).npcs$getBiomeName();
+			if (name != null && !this.data.biomes.contains(name)) {
 				biomes.add(name);
 			}
 		}

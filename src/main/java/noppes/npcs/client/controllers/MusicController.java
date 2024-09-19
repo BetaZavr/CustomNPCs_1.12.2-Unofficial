@@ -1,23 +1,23 @@
 package noppes.npcs.client.controllers;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.MusicTicker;
 import net.minecraft.client.audio.PositionedSound;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.ClientTickHandler;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.mixin.api.client.audio.*;
 import noppes.npcs.roles.JobBard;
-import noppes.npcs.util.ObfuscationHelper;
 import paulscode.sound.Library;
 import paulscode.sound.SoundSystem;
 import paulscode.sound.Source;
@@ -131,7 +131,7 @@ public class MusicController {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (cat == SoundCategory.MUSIC) {
 			Minecraft.getMinecraft().getSoundHandler().stop("", SoundCategory.MUSIC);
-			ObfuscationHelper.setValue(MusicTicker.class, Minecraft.getMinecraft().getMusicTicker(), null, ISound.class);
+			((MusicTickerAPIMixin) Minecraft.getMinecraft().getMusicTicker()).npcs$setCurrentMusic(null);
 			aType = ISound.AttenuationType.NONE;
 			x = mc.player != null ? (float) mc.player.posX : 0.0f;
 			y = mc.player != null ? (float) mc.player.posY + 0.5f : 0.0f;
@@ -151,9 +151,8 @@ public class MusicController {
 			return false;
 		}
 		ResourceLocation resource = new ResourceLocation(music);
-		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, Minecraft.getMinecraft().getSoundHandler(),
-				SoundManager.class);
-		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
+		SoundManager sm = ((SoundHandlerAPIMixin) Minecraft.getMinecraft().getSoundHandler()).npcs$getSndManager();
+		Map<String, ISound> playingSounds = ((SoundManagerAPIMixin) sm).npcs$getPlayingSounds();
 		if (playingSounds == null) { return false; }
 		for (ISound sound : playingSounds.values()) {
 			if (sound.getSound().getSoundLocation().equals(resource) || sound.getSoundLocation().equals(resource)) {
@@ -183,18 +182,17 @@ public class MusicController {
 			return;
 		}
 		ResourceLocation resource = new ResourceLocation(song);
-		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, Minecraft.getMinecraft().getSoundHandler(),
-				SoundManager.class);
-		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
+		SoundManager sm = ((SoundHandlerAPIMixin) Minecraft.getMinecraft().getSoundHandler()).npcs$getSndManager();
+		Map<String, ISound> playingSounds = ((SoundManagerAPIMixin) sm).npcs$getPlayingSounds();
 		if (playingSounds == null) { return; }
 		String uuid = null;
 		for (String id : playingSounds.keySet()) {
 			ISound sound = playingSounds.get(id);
 			if (sound.getSound().getSoundLocation().equals(resource)
 					|| sound.getSoundLocation().equals(resource) && sound instanceof PositionedSound) {
-				ObfuscationHelper.setValue(PositionedSound.class, (PositionedSound) sound, x, 6);
-				ObfuscationHelper.setValue(PositionedSound.class, (PositionedSound) sound, y, 7);
-				ObfuscationHelper.setValue(PositionedSound.class, (PositionedSound) sound, z, 8);
+				((PositionedSoundAPIMixin) sound).npcs$setXPosF(x);
+				((PositionedSoundAPIMixin) sound).npcs$setYPosF(y);
+				((PositionedSoundAPIMixin) sound).npcs$setZPosF(z);
 				uuid = id;
 				break;
 			}
@@ -202,8 +200,19 @@ public class MusicController {
 		System.out
 				.println("New pos song uuid: \"" + uuid + "\" to [" + (int) x + ", " + (int) y + ", " + (int) z + "]");
 		if (uuid != null) {
-			SoundSystem sndSystem = ObfuscationHelper.getValue(SoundManager.class, sm, SoundSystem.class);
-			Library soundLibrary = ObfuscationHelper.getValue(SoundSystem.class, sndSystem, 4);
+			SoundSystem sndSystem = null;
+			for (Field f : sm.getClass().getDeclaredFields()) {
+				if (f.getType().getName().contains("SoundSystem")) {
+					try {
+						f.setAccessible(true);
+						sndSystem = (SoundSystem) f.get(sm);
+					}
+					catch (IllegalAccessException e) { LogWriter.debug(e.toString()); }
+					break;
+				}
+			}
+			if (sndSystem == null) { return; }
+			Library soundLibrary = ((SoundSystemAPIMixin) sndSystem).npcs$getSoundLibrary();
 			if (soundLibrary == null) { return; }
 			Source source = soundLibrary.getSources().get(uuid);
 			if (source != null && source.position != null) {

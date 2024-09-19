@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import noppes.npcs.mixin.api.client.config.GuiEditArrayAPIMixin;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -25,7 +26,6 @@ import net.minecraftforge.fml.client.config.IConfigElement;
 import net.minecraftforge.fml.common.FMLLog;
 import noppes.npcs.client.gui.SubGuiColorSelector;
 import noppes.npcs.client.gui.config.CustomNpcsConfigGui.CustomGuiEditArray;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 
@@ -105,7 +105,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 			super(owningScreen, owningEntryList, configElement);
 			this.value = value;
 			this.btnValue = new GuiButtonExt(0, 0, 0, owningEntryList.controlWidth, 18, I18n.format(String.valueOf(value)));
-            this.btnValue.enabled = ObfuscationHelper.getValue(GuiEditArray.class, owningScreen, boolean.class);
+            this.btnValue.enabled = ((GuiEditArrayAPIMixin) owningScreen).npcs$getEnabled();
 			this.isValidated = false;
 		}
 
@@ -162,7 +162,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 			super(owningScreen, owningEntryList, configElement);
 			value = string;
 			btnValue = new GuiButtonExt(0, 0, 0, owningEntryList.controlWidth, 18, I18n.format(String.valueOf(value)));
-            btnValue.enabled = ObfuscationHelper.getValue(GuiEditArray.class, owningScreen, boolean.class);
+            btnValue.enabled = ((GuiEditArrayAPIMixin) owningScreen).npcs$getEnabled();
 			isValidated = false;
 		}
 
@@ -239,7 +239,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 
 		@Override
 		public void keyTyped(char eventChar, int eventKey) {
-			boolean enabled = ObfuscationHelper.getValue(GuiEditArray.class, owningScreen, boolean.class);
+			boolean enabled = ((GuiEditArrayAPIMixin) owningScreen).npcs$getEnabled();
 			if (enabled || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT
 					|| eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END) {
 				String validChars = "0123456789";
@@ -286,7 +286,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 
 		@Override
 		public void keyTyped(char eventChar, int eventKey) {
-			boolean enabled = ObfuscationHelper.getValue(GuiEditArray.class, owningScreen, boolean.class);
+			boolean enabled = ((GuiEditArrayAPIMixin) owningScreen).npcs$getEnabled();
 			if (enabled || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT
 					|| eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END) {
 				String validChars = "0123456789";
@@ -348,7 +348,7 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 
 		@Override
 		public void keyTyped(char eventChar, int eventKey) {
-			boolean enabled = ObfuscationHelper.getValue(GuiEditArray.class, owningScreen, boolean.class);
+			boolean enabled = ((GuiEditArrayAPIMixin) owningScreen).npcs$getEnabled();
 			if (enabled || eventKey == Keyboard.KEY_LEFT || eventKey == Keyboard.KEY_RIGHT
 					|| eventKey == Keyboard.KEY_HOME || eventKey == Keyboard.KEY_END) {
 				this.textFieldValue.textboxKeyTyped((enabled ? eventChar : Keyboard.CHAR_NONE), eventKey);
@@ -519,10 +519,9 @@ public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
 
 	protected void saveListChanges() {
 		int listLength = configElement.isListLengthFixed() ? listEntries.size() : listEntries.size() - 1;
-		int slotIndex = ObfuscationHelper.getValue(GuiEditArray.class, owningGui, int.class);
-		GuiScreen parentScreen = ObfuscationHelper.getValue(GuiEditArray.class, owningGui, GuiScreen.class);
-		if (slotIndex != -1 && parentScreen instanceof GuiConfig
-                && ((GuiConfig) parentScreen).entryList.getListEntry(slotIndex) instanceof ArrayEntry) {
+		int slotIndex = ((GuiEditArrayAPIMixin) owningGui).npcs$getSlotIndex();
+		GuiScreen parentScreen = ((GuiEditArrayAPIMixin) owningGui).npcs$getParentScreen();
+		if (slotIndex != -1 && parentScreen instanceof GuiConfig && ((GuiConfig) parentScreen).entryList.getListEntry(slotIndex) instanceof ArrayEntry) {
 			ArrayEntry entry = (ArrayEntry) ((GuiConfig) parentScreen).entryList.getListEntry(slotIndex);
 			Object[] ao = new Object[listLength];
 			for (int i = 0; i < listLength; i++) {

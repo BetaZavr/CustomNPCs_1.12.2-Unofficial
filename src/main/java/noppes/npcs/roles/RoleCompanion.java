@@ -1,5 +1,6 @@
 package noppes.npcs.roles;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -39,7 +40,6 @@ import noppes.npcs.roles.companion.CompanionFoodStats;
 import noppes.npcs.roles.companion.CompanionGuard;
 import noppes.npcs.roles.companion.CompanionJobInterface;
 import noppes.npcs.roles.companion.CompanionTrader;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 
@@ -204,9 +204,18 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 			return true;
 		}
 		ItemArmor armor = (ItemArmor) item.getItem();
-		Object r = ObfuscationHelper.getValue(ItemArmor.ArmorMaterial.class, armor.getArmorMaterial(), 6);
-		if (r == null) { return false; }
-		int reduction = (int) r;
+		int reduction = 0;
+		for (Field f : ItemArmor.ArmorMaterial.class.getDeclaredFields()) {
+			if (f.getType() == int.class) {
+				try {
+					f.setAccessible(true);
+					reduction = (int) f.get(armor.getArmorMaterial());
+				} catch (Exception e) {
+					LogWriter.debug(e.toString());
+				}
+				break;
+			}
+		}
 		return reduction <= 5 || reduction <= 7 && level >= 2 || reduction <= 15 && level >= 3 || reduction <= 33 && level == 4;
 	}
 

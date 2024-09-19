@@ -10,7 +10,7 @@ import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.wrapper.gui.CustomGuiLabelWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.client.gui.GuiLabelAPIMixin;
 
 public class CustomGuiLabel extends GuiLabel implements IGuiComponent {
 
@@ -95,10 +95,9 @@ public class CustomGuiLabel extends GuiLabel implements IGuiComponent {
 					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
 					GlStateManager.DestFactor.ZERO);
 			this.drawLabelBackground(mc, mouseX, mouseY);
-			Object b = ObfuscationHelper.getValue(GuiLabel.class, this, 14);
-			int border = b != null ? (int) b : 0;
-			boolean centered = Boolean.TRUE.equals(ObfuscationHelper.getValue(GuiLabel.class, this, 6));
-			List<String> labels = ObfuscationHelper.getValue(GuiLabel.class, this, List.class);
+			int border = ((GuiLabelAPIMixin) this).npcs$getBorder();
+			boolean centered = ((GuiLabelAPIMixin) this).npcs$getCentered();
+			List<String> labels = ((GuiLabelAPIMixin) this).npcs$getLabels();
 			int i = this.y + this.height / 2 + border / 2;
 			int j = i - labels.size() * 10 / 2;
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);

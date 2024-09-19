@@ -3,7 +3,6 @@ package noppes.npcs.blocks;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -34,9 +33,9 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumPacketServer;
+import noppes.npcs.mixin.api.block.BlockAPIMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.IPermission;
-import noppes.npcs.util.ObfuscationHelper;
 
 import java.util.Objects;
 
@@ -124,7 +123,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 		this.INT = null;
 		this.FACING = null;
 		if (nbtBlock.hasKey("Property", 10)) {
-			ObfuscationHelper.setValue(Block.class, this, this.createBlockState(), BlockStateContainer.class);
+			((BlockAPIMixin) this).npcs$setBlockState(this.createBlockState());
 			NBTTagCompound nbtProperty = nbtBlock.getCompoundTag("Property");
 			switch (nbtProperty.getByte("Type")) {
 				case (byte) 1: {

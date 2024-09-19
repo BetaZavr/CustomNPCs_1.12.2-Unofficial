@@ -12,8 +12,8 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.mixin.api.item.ItemFoodAPIMixin;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ObfuscationHelper;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -29,7 +29,7 @@ public class CustomFood extends ItemFood implements ICustomElement {
 		this.setUnlocalizedName("custom_" + nbtItem.getString("RegistryName"));
 
 		if (nbtItem.hasKey("UseDuration", 3)) {
-			ObfuscationHelper.setValue(ItemFood.class, this, nbtItem.getInteger("UseDuration"), 0);
+			((ItemFoodAPIMixin) this).npcs$setItemUseDuration(nbtItem.getInteger("UseDuration"));
 		}
 		if (nbtItem.hasKey("PotionEffect", 10)) {
 			NBTTagCompound potionEffect = nbtItem.getCompoundTag("PotionEffect");
@@ -61,8 +61,7 @@ public class CustomFood extends ItemFood implements ICustomElement {
 	}
 
 	public int getMaxItemUseDuration(@Nonnull ItemStack stack) {
-		Object used = ObfuscationHelper.getValue(ItemFood.class, this, 0);
-		return used instanceof Integer ? (int) used : 32;
+		return this.itemUseDuration;
 	}
 
 	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {

@@ -32,7 +32,6 @@ import noppes.npcs.Server;
 import noppes.npcs.api.wrapper.WorldWrapper;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.ClientScriptData;
-import noppes.npcs.controllers.data.EncryptData;
 import noppes.npcs.controllers.data.ForgeScriptData;
 import noppes.npcs.controllers.data.NpcScriptData;
 import noppes.npcs.controllers.data.PlayerData;
@@ -78,6 +77,7 @@ public class ScriptController {
 	public final Map<String, Long> clientSizes = Maps.newTreeMap();
 	public final Map<String, String> scripts = Maps.newTreeMap();
 	public final Map<String, String> clients = Maps.newTreeMap();
+	public final Map<String, File> encrypts = Maps.newTreeMap();
 
 	// key create in CommonProxy.getAgreementKey() and in ClientEventHandler.cnpcOpenGUIEvent()
 	private final Map<String, Boolean> agreementMap = Maps.newTreeMap();
@@ -146,37 +146,6 @@ public class ScriptController {
 				LogWriter.error("Error Added Script Library: \"" + fac.getLanguageName() + "\": " + t3);
 			}
 		}
-	}
-
-	public synchronized void encrypt(EncryptData eData) {
-		System.out.println("CNPCs: " + CustomNpcs.ScriptPassword);
-		/*if (eData.path.getParentFile().exists() || eData.path.getParentFile().mkdirs()) {
-			try {
-				Map<String, String> dataMap = eData.isClient ? this.scripts : this.clients;
-				BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(eData.path.toPath()), StandardCharsets.UTF_8));
-				int i = 0;
-				StringBuilder textToSave = new StringBuilder();
-				for (int t = 0; t < eData.code.length(); t++) {
-					char p = CustomNpcs.ScriptPassword.charAt(i);
-					char c = eData.code.charAt(t);
-					int f = (int) c + (int) p;
-					if (f > 0xffff) { f -= 0xffff; }
-					textToSave.append((char) f);
-					i++;
-					if (i >= CustomNpcs.ScriptPassword.length()) { i = 0; }
-				}
-				buffer.write(textToSave.toString());
-				buffer.close();
-
-				eData.container.script = ""; // clear data
-				if (!eData.tab) {
-					eData.container.scripts.clear(); // clear old modules keys
-				}
-				eData.container.scripts.add(eData.name); // add module
-				dataMap.put(eData.name, eData.code); // reset modules
-				eData.handler.setLastInited(-1L); // reset init
-			} catch (Exception e) { LogWriter.error("Error encrypt script:", e); }
-		}*/
 	}
 	
 	public File clientScriptsFile() {
@@ -327,8 +296,12 @@ public class ScriptController {
 		String ext = this.languages.get(Util.instance.deleteColor(language));
 		if (ext == null) { return list; }
 		for (String script : (isClient ? this.clients : this.scripts).keySet()) {
-			if (script.endsWith(ext) || script.endsWith(ext.replace(".", ".p"))) {
-				list.add(script);
+			if (script.endsWith(ext)) { list.add(script); }
+		}
+		if (!isClient) {
+			ext = ext.replace(".", ".p");
+			for (String script : this.encrypts.keySet()) {
+				if (script.endsWith(ext)) { list.add(script); }
 			}
 		}
 		return list;
@@ -362,6 +335,7 @@ public class ScriptController {
 		}
 		WorldWrapper.tempData.clear();
 		this.scripts.clear();
+		this.encrypts.clear();
 		this.sizes.clear();
 		for (String key : this.clients.keySet()) { CommonProxy.downloadableFiles.remove(key); }
 		this.clients.clear();
@@ -372,16 +346,15 @@ public class ScriptController {
 			if (!scriptDir.exists()) {
 				scriptDir.mkdir();
 			} else {
-				this.loadDir(scriptDir, "", ext, false);
-				this.loadDir(scriptDir, "", ext.replace(".", ".p"), false);
+				this.loadDir(scriptDir, "", ext, false, false);
+				this.loadDir(scriptDir, "", ext.replace(".", ".p"), true, false);
 			}
 
 			scriptDir = new File(this.clientDir, language.toLowerCase());
 			if (!scriptDir.exists()) {
 				scriptDir.mkdir();
 			} else {
-				this.loadDir(scriptDir, "", ext, true);
-				this.loadDir(scriptDir, "", ext.replace(".", ".p"), true);
+				this.loadDir(scriptDir, "", ext, false, true);
 			}
 		}
 		this.lastLoaded = System.currentTimeMillis();
@@ -574,20 +547,20 @@ public class ScriptController {
 		return isLoad;
 	}
 
-	public void loadDir(File dir, String name, String ext, boolean isClient) {
+	public void loadDir(File dir, String name, String ext, boolean encrypt, boolean isClient) {
 		for (File file : Objects.requireNonNull(dir.listFiles())) {
 			String filename = name + file.getName().toLowerCase();
 			if (file.isDirectory()) {
-				this.loadDir(file, filename + "/", ext, isClient);
+				this.loadDir(file, filename + "/", ext, encrypt, isClient);
 			} else if (filename.endsWith(ext)) {
-				String code = Util.instance.loadFile(file);
-				if (isClient) {
-					this.clients.put(filename, code);
-					this.clientSizes.put(filename, file.length());
-				} else {
-					this.scripts.put(filename, code);
-					this.sizes.put(filename, file.length());
+				if (encrypt) {
+					if (!isClient) { this.encrypts.put(filename, file); }
 				}
+				else {
+					String code = Util.instance.loadFile(file);
+					if (isClient) { this.clients.put(filename, code); } else { this.scripts.put(filename, code); }
+				}
+				if (isClient) { this.clientSizes.put(filename, file.length()); } else { this.sizes.put(filename, file.length()); }
 			}
 		}
 	}

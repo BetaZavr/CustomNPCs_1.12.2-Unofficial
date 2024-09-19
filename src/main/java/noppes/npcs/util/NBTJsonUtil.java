@@ -17,6 +17,7 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
+import noppes.npcs.mixin.api.nbt.NBTTagListAPIMixin;
 
 public class NBTJsonUtil {
 
@@ -130,7 +131,6 @@ public class NBTJsonUtil {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public static void checkAddedMods(Object o) {
 		/*try {
 			Map<String, String> dataMap_0 = (Map<String, String>) o.getClass().getDeclaredField("scripts").get(o);
@@ -245,7 +245,7 @@ public class NBTJsonUtil {
 	}
 
 	private static List<NBTBase> getListData(NBTTagList list) {
-		return ObfuscationHelper.getValue(NBTTagList.class, list, 1);
+		return ((NBTTagListAPIMixin) list).npcs$getTagList();
 	}
 
 	public static NBTTagCompound LoadFile(File file) throws IOException, JsonException {

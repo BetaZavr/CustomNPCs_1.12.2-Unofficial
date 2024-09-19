@@ -22,6 +22,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -49,12 +50,8 @@ public class CmdSlay extends CommandNoppesBase {
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			String name = ent.getName();
 			Class<? extends Entity> cls = ent.getEntityClass();
-			if (EntityNPCInterface.class.isAssignableFrom(cls)) {
-				continue;
-			}
-			if (!EntityLivingBase.class.isAssignableFrom(cls)) {
-				continue;
-			}
+			if (EntityNPCInterface.class.isAssignableFrom(cls)) { continue; }
+			if (!EntityLivingBase.class.isAssignableFrom(cls)) { continue; }
 			this.slayMap.put(name.toLowerCase(), cls);
 		}
 		this.slayMap.remove("monster");
@@ -75,6 +72,10 @@ public class CmdSlay extends CommandNoppesBase {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		if (args == null) {
+			sender.sendMessage(new TextComponentString("/noppes slay " + getUsage()));
+			return;
+		}
 		ArrayList<Class<?>> toDelete = new ArrayList<>();
 		boolean deleteNPCs = false;
 		for (String delete : args) {
@@ -93,9 +94,9 @@ public class CmdSlay extends CommandNoppesBase {
 		}
 		int count = 0;
 		int range = 120;
-		try {
-			range = Integer.parseInt(args[args.length - 1]);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		try { range = Integer.parseInt(args[args.length - 1]); }
+		catch (Exception e) { LogWriter.error("Error:", e); }
+
 		AxisAlignedBB box = new AxisAlignedBB(sender.getPosition(), sender.getPosition().add(1, 1, 1)).grow(range, range, range);
 		List<? extends Entity> list = sender.getEntityWorld().getEntitiesWithinAABB(EntityLivingBase.class, box);
 		for (Entity entity : list) {

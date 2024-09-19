@@ -5,7 +5,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import noppes.npcs.LogWriter;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.client.gui.GuiTextFieldAPIMixin;
 
 public class GuiNpcTextField
 		extends GuiTextField
@@ -159,25 +159,19 @@ public class GuiNpcTextField
 			return false;
 		}
 		boolean isFocused = this.isFocused();
-		boolean clicked;
-		boolean bo = Boolean.TRUE.equals(ObfuscationHelper.getValue(GuiTextField.class, this, 10));
-		if (bo) {
+		if (((GuiTextFieldAPIMixin) this).npcs$getCanLoseFocus()) {
 			this.setFocused(hovered);
-		} // canLoseFocus
+		}
 		if (isFocused && hovered && mouseButton == 0) {
 			int i = mouseX - this.x;
-			boolean bi = Boolean.TRUE.equals(ObfuscationHelper.getValue(GuiTextField.class, this, 9));
-			if (bi) {
+			if (((GuiTextFieldAPIMixin) this).npcs$getEnableBackgroundDrawing()) {
 				i -= 4;
-			} // enableBackgroundDrawing
-			FontRenderer fontRenderer = ObfuscationHelper.getValue(GuiTextField.class, this, FontRenderer.class);
-			Object ii = ObfuscationHelper.getValue(GuiTextField.class, this, 13);
-			int lineScrollOffset = ii != null ? (int) ii : 0;
+			}
+			FontRenderer fontRenderer = ((GuiTextFieldAPIMixin) this).npcs$getFontRenderer();
+			int lineScrollOffset = ((GuiTextFieldAPIMixin) this).npcs$getLineScrollOffset();
 			String s = fontRenderer.trimStringToWidth(this.getText().substring(lineScrollOffset), this.getWidth());
 			this.setCursorPosition(fontRenderer.trimStringToWidth(s, i).length() + lineScrollOffset);
 			return true;
-		} else {
-			clicked = false;
 		}
 		if (isFocused != this.isFocused() && isFocused) {
 			this.unFocused();
@@ -185,7 +179,7 @@ public class GuiNpcTextField
 		if (this.isFocused()) {
 			GuiNpcTextField.activeTextfield = this;
 		}
-		return clicked;
+		return false;
 	}
 
 	public GuiNpcTextField setDoubleNumbersOnly() {

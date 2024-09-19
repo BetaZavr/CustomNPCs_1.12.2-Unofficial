@@ -15,7 +15,8 @@ import net.minecraft.entity.ai.attributes.RangedAttribute;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.entity.data.IAttributeModifier;
 import noppes.npcs.api.entity.data.INpcAttribute;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.entity.ai.attributes.ModifiableAttributeInstanceAPIMixin;
+import noppes.npcs.mixin.api.entity.ai.attributes.RangedAttributeAPIMixin;
 import noppes.npcs.util.ValueUtil;
 
 public class AttributeWrapper implements INpcAttribute {
@@ -36,8 +37,8 @@ public class AttributeWrapper implements INpcAttribute {
 		this.custom = true;
 	}
 
-	public AttributeWrapper(IAttributeInstance mcattribute) {
-		this.attribute = mcattribute;
+	public AttributeWrapper(IAttributeInstance mcAttribute) {
+		this.attribute = mcAttribute;
 		this.custom = false;
 		String name = this.getName();
 		if (!name.equals("generic.maxHealth") && !name.equals("generic.knockbackResistance")
@@ -77,8 +78,7 @@ public class AttributeWrapper implements INpcAttribute {
 	public String getDisplayName() {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
-					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
 			return ((RangedAttribute) attribute).getDescription();
@@ -90,12 +90,10 @@ public class AttributeWrapper implements INpcAttribute {
 	public double getMaxValue() {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
-					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
-			Object maxV = ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 1);
-			return maxV != null ? (double) maxV : 0.0d;
+			return ((RangedAttributeAPIMixin) attribute).npcs$getMaxValue();
 		}
 		return 0.0d;
 	}
@@ -108,8 +106,7 @@ public class AttributeWrapper implements INpcAttribute {
 	@Override
 	public IAttribute getMCBaseAttribute() {
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			return ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
-					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+			return ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		return null;
 	}
@@ -118,12 +115,10 @@ public class AttributeWrapper implements INpcAttribute {
 	public double getMinValue() {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
-					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
-			Object minV = ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 0);
-			return minV != null ? (double) minV : 0.0d;
+			return ((RangedAttributeAPIMixin) attribute).npcs$getMinValue();
 		}
 		return 0.0d;
 	}
@@ -279,8 +274,7 @@ public class AttributeWrapper implements INpcAttribute {
 	public void setDisplayName(String displayName) {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
-					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
 			((RangedAttribute) attribute).setDescription(displayName);
@@ -291,16 +285,14 @@ public class AttributeWrapper implements INpcAttribute {
 	public void setMaxValue(double maxValue) {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
-					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
-			Object minV = ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 0);
-			double minValue = minV != null ? (double) minV : 0.0d;
+			double minValue = ((RangedAttributeAPIMixin) attribute).npcs$getMinValue();
 			minValue = ValueUtil.min(minValue, maxValue);
 			maxValue = ValueUtil.max(minValue, maxValue);
-			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, minValue, 0);
-			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, maxValue, 1);
+			((RangedAttributeAPIMixin) attribute).npcs$setMinValue(minValue);
+			((RangedAttributeAPIMixin) attribute).npcs$setMaxValue(maxValue);
 		}
 	}
 
@@ -308,17 +300,17 @@ public class AttributeWrapper implements INpcAttribute {
 	public void setMinValue(double minValue) {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
-					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
-			Object maxV = ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 1);
-			double maxValue = maxV != null ? (double) maxV : 0.0d;
+			double maxValue = ((RangedAttributeAPIMixin) attribute).npcs$getMaxValue();
 			minValue = ValueUtil.min(minValue, maxValue);
 			maxValue = ValueUtil.max(minValue, maxValue);
-			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, minValue, 0);
-			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, maxValue, 1);
+			((RangedAttributeAPIMixin) attribute).npcs$setMinValue(minValue);
+			((RangedAttributeAPIMixin) attribute).npcs$setMaxValue(maxValue);
 		}
 	}
+
+	public void setCustom(boolean bo) { this.custom = bo; }
 
 }

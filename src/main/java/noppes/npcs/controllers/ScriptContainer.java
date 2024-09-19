@@ -29,7 +29,6 @@ import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
-import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.math.BlockPos;
@@ -59,7 +58,8 @@ import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.api.wrapper.DataObject;
 import noppes.npcs.client.ClientProxy;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.nbt.NBTTagLongArrayAPIMixin;
+import noppes.npcs.util.ScriptEncryption;
 
 public class ScriptContainer {
 
@@ -191,7 +191,7 @@ public class ScriptContainer {
 			value = ((NBTTagIntArray) tag).getIntArray();
 			break;
 		case 12:
-			value = ObfuscationHelper.getValue(NBTTagLongArray.class, (NBTTagLongArray) tag, long[].class);
+			value = ((NBTTagLongArrayAPIMixin) tag).npcs$getData();
 			break;
 		}
 		return value;
@@ -204,11 +204,11 @@ public class ScriptContainer {
 	public TreeMap<Long, String> console;
 	public ScriptEngine engine;
 	public boolean errored;
-	public String fullscript;
+	private String fullscript;
+
+	private boolean hasNoEncryptScriptCode = false;
 
 	private final IScriptHandler handler;
-
-	private boolean init;
 
 	public long lastCreated;
 
@@ -221,7 +221,7 @@ public class ScriptContainer {
 	public boolean isClient;
 
 	public ScriptContainer(IScriptHandler handler, boolean isClient) {
-		this.fullscript = "";
+		this.fullscript = null;
 		this.script = "";
 		this.console = new TreeMap<>();
 		this.errored = false;
@@ -229,7 +229,6 @@ public class ScriptContainer {
 		this.unknownFunctions = new HashSet<>();
 		this.lastCreated = 0L;
 		this.engine = null;
-		this.init = false;
 		this.handler = handler;
 		this.isClient = isClient;
 	}
@@ -250,21 +249,30 @@ public class ScriptContainer {
 
 	public void clear() {
 		this.script = "";
-		this.fullscript = "";
+		this.fullscript = null;
 		this.scripts.clear();
 	}
 
-	public String getFullCode() {
-		if (!this.init) {
+	private String getTotalCode() {
+		if (this.fullscript == null) {
+			this.hasNoEncryptScriptCode = this.script != null && !this.script.isEmpty();
 			this.fullscript = this.script;
 			if (!this.fullscript.isEmpty()) {
 				this.fullscript += "\n";
 			}
-			Map<String, String> map = this.isClient ? ScriptController.Instance.clients : ScriptController.Instance.scripts;
+			ScriptController sData = ScriptController.Instance;
+			Map<String, String> map = this.isClient ? sData.clients : sData.scripts;
 
 			StringBuilder sbCode = new StringBuilder();
 			for (String loc : this.scripts) {
-				String code = map.get(loc);
+				String code;
+				if (!this.isClient && sData.encrypts.containsKey(loc)) {
+					code = ScriptEncryption.decryptScriptFromFile(sData.encrypts.get(loc));
+				}
+				else {
+					code =  map.get(loc);
+					if (code != null) { this.hasNoEncryptScriptCode = true; }
+				}
 				if (code != null && !code.isEmpty()) {
 					sbCode.append(code).append("\n");
 				}
@@ -273,22 +281,30 @@ public class ScriptContainer {
 			if (map.containsKey("all.js")) {
 				this.fullscript = map.get("all.js") + "\n" + this.fullscript;
 			}
-
 			this.unknownFunctions = new HashSet<>();
 		}
 		return this.fullscript;
 	}
 
-	public boolean hasCode() {
-		return !this.getFullCode().isEmpty();
+	public boolean hasNoEncryptScriptCode() {
+		boolean sr = !(this.script == null || this.script.isEmpty());
+		if (sr) {
+			String tempScript = this.script.replace(" ", "").replace("" + ((char) 9), "").replace("" + ((char) 10), "");
+			sr = !tempScript.isEmpty();
+		}
+		return sr || this.hasNoEncryptScriptCode;
+	}
+
+	public boolean hasScriptCode() {
+		return !this.getTotalCode().isEmpty();
 	}
 
 	public boolean isInit() {
-		return this.init;
+		return this.fullscript != null;
 	}
 
 	public boolean isValid() {
-		return this.init && !this.errored;
+		return this.isInit() && !this.errored;
 	}
 
 	public void readFromNBT(NBTTagCompound compound, boolean isClient) {
@@ -304,12 +320,13 @@ public class ScriptContainer {
 		}
 		this.console = NBTTags.GetLongStringMap(compound.getTagList("Console", 10));
 		this.scripts = NBTTags.getStringList(compound.getTagList("ScriptList", 10));
+		this.hasNoEncryptScriptCode = compound.getBoolean("HasNoEncryptScriptCode");
 		this.isClient = isClient;
 		if (this.isClient) {
 			this.errored = false;
 		}
 		this.lastCreated = 0L;
-		this.init = false;
+		this.fullscript = null;
 		this.unknownFunctions.clear();
 	}
 
@@ -326,12 +343,13 @@ public class ScriptContainer {
 		if (this.engine == null) {
 			this.setEngine(this.handler.getLanguage());
 		}
-		if (this.errored || !this.hasCode() || this.unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || this.engine == null) {
+		if (this.errored || !this.hasScriptCode() || this.unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || this.engine == null) {
 			return;
 		}
 		if (ScriptController.Instance.lastLoaded > this.lastCreated) {
 			this.lastCreated = ScriptController.Instance.lastLoaded;
-			this.init = false;
+			this.fullscript = null;
+			this.hasNoEncryptScriptCode = false;
 		}
 		synchronized ("lock") {
 			ScriptContainer.Current = this;
@@ -346,9 +364,8 @@ public class ScriptContainer {
 				else if (this.isClient && (this.engine.get("mc") == null || this.engine.get("storedData") == null)) {
 					this.fillEngineClient();
 				}
-				if (!this.init) {
-					this.engine.eval(this.getFullCode());
-					this.init = true;
+				if (this.fullscript == null) {
+					this.engine.eval(this.getTotalCode());
 				}
 				if (this.engine.getFactory().getLanguageName().equals("lua")) {
 					Object ob = this.engine.get(type);
@@ -388,7 +405,8 @@ public class ScriptContainer {
 			return;
 		}
 		if (this.engine.get("dump") == null) { this.fillEngine(); }
-		this.init = false;
+		this.fullscript = null;
+		this.hasNoEncryptScriptCode = false;
 	}
 
 	private void fillEngine() {
@@ -400,8 +418,10 @@ public class ScriptContainer {
 			}
 			try {
 				String key = body.substring(body.indexOf(" ") + 1, body.indexOf("("));
-				ScriptContainer.Data.put(key, this.engine.eval(body));
-				ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i).removeTag("EvalIsError");
+				if (!this.isClient || (!key.equals("getField") && !key.equals("setField") && !key.equals("invoke"))) {
+					ScriptContainer.Data.put(key, this.engine.eval(body));
+					ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i).removeTag("EvalIsError");
+				}
 			} catch (Exception e) {
 				ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i).setBoolean("EvalIsError", true);
 			}
@@ -412,6 +432,9 @@ public class ScriptContainer {
 			if (tag.getId() == 8) {
 				try {
 					ScriptContainer.Data.put(key, this.engine.eval(((NBTTagString) tag).getString()));
+					if (this.isClient) {
+						System.out.println("CNPCs: " + ScriptContainer.Data.get(key));
+					}
 				}
 				catch (Exception e) { LogWriter.error("Error:", e); }
 			}
@@ -448,6 +471,7 @@ public class ScriptContainer {
 		compound.setTag("Console", NBTTags.NBTLongStringMap(this.console));
 		compound.setTag("ScriptList", NBTTags.nbtStringList(this.scripts));
 		compound.setBoolean("isClient", this.isClient);
+		compound.setBoolean("HasNoEncryptScriptCode", this.hasNoEncryptScriptCode);
 		return compound;
 	}
 

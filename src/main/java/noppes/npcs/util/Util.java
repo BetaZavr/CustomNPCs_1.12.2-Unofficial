@@ -20,13 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiCrafting;
-import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.client.gui.recipebook.GuiRecipeBook;
-import net.minecraft.client.gui.recipebook.RecipeList;
-import net.minecraft.client.util.RecipeBookClient;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandBase.CoordinateArg;
 import net.minecraft.command.CommandException;
@@ -40,11 +34,7 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
@@ -63,7 +53,6 @@ import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -88,11 +77,6 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IDataElement;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.wrapper.data.DataElement;
-import noppes.npcs.client.ClientProxy;
-import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
-import noppes.npcs.client.gui.recipebook.GuiNpcButtonRecipeTab;
-import noppes.npcs.client.gui.recipebook.GuiNpcRecipeBook;
-import noppes.npcs.containers.SlotNpcCrafting;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.MarkData;
@@ -102,6 +86,9 @@ import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
+import noppes.npcs.mixin.api.entity.ai.EntitySensesAPIMixin;
+import noppes.npcs.mixin.api.nbt.NBTTagLongArrayAPIMixin;
+import noppes.npcs.mixin.api.world.WorldAPIMixin;
 
 public class Util implements IMethods {
 
@@ -414,7 +401,7 @@ public class Util implements IMethods {
 				return entity;
 			}
 		}
-		List<Entity> unloadedEntityList = ObfuscationHelper.getValue(World.class, world, 4);
+		List<Entity> unloadedEntityList = ((WorldAPIMixin) world).npcs$getUnloadedEntityList();
 		if (unloadedEntityList != null) {
 			for (Entity entity : unloadedEntityList) {
 				if (entity.getUniqueID().equals(uuid)) {
@@ -708,8 +695,8 @@ public class Util implements IMethods {
 		List<Entity> seenEntities = null, unseenEntities = null;
 		if (entity instanceof EntityLiving) {
 			EntitySenses senses = ((EntityLiving) entity).getEntitySenses();
-			seenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 1);
-			unseenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 2);
+			seenEntities = ((EntitySensesAPIMixin) senses).npcs$getSeenEntities();
+			unseenEntities = ((EntitySensesAPIMixin) senses).npcs$getUnseenEntities();
 		}
 		if (rtr.distance > aggroRange) {
 			if (seenEntities != null) {
@@ -872,7 +859,7 @@ public class Util implements IMethods {
 	public void resetRecipes(EntityPlayer player, GuiContainer gui) {
 		CustomNpcs.proxy.updateRecipes(null, false, false, "this.resetRecipes()");
 		LogWriter.debug("Trying reset recipes book");
-		Container container = null;
+		/* Container container = null;
 		SlotCrafting slotIn = null;
 		List<RecipeList> lists = null;
 
@@ -909,7 +896,7 @@ public class Util implements IMethods {
 			for (RecipeList list : lists) {
 				list.updateKnownRecipes(book);
 			}
-		}
+		}*/
 	}
 
 	/* Vanilla Teleport in world */
@@ -1493,7 +1480,7 @@ public class Util implements IMethods {
 		} else if (tag instanceof NBTTagIntArray) {
 			return ((NBTTagIntArray) tag).getIntArray();
 		} else if (tag instanceof NBTTagLongArray) {
-			return ObfuscationHelper.getValue(NBTTagLongArray.class, (NBTTagLongArray) tag, 0);
+			return ((NBTTagLongArrayAPIMixin) tag).npcs$getData();
 		} else if (tag instanceof NBTTagCompound && ((NBTTagCompound) tag).hasKey("IsArray", 1)) {
 			boolean isArray = ((NBTTagCompound) tag).getBoolean("IsArray");
 			ScriptEngine engine = ScriptController.Instance.getEngineByName("ECMAScript");

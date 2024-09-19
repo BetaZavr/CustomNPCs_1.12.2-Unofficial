@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBanner;
 import net.minecraft.block.BlockHorizontal;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockFaceShape;
@@ -20,10 +21,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityBanner;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.Rotation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -40,8 +38,8 @@ public class BlockCustomBanner extends BlockBanner {
 		protected static final AxisAlignedBB WEST_AABB = new AxisAlignedBB(0.875D, 0.0D, 0.0D, 1.0D, 0.78125D, 1.0D);
 		protected static final AxisAlignedBB EAST_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.125D, 0.78125D, 1.0D);
 
-		public BlockBannerHanging(BlockBanner parent) {
-			super(parent);
+		public BlockBannerHanging() {
+			super("wall_banner");
 			this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
 		}
 
@@ -97,8 +95,12 @@ public class BlockCustomBanner extends BlockBanner {
 
 	public static class BlockBannerStanding extends BlockCustomBanner {
 
-		public BlockBannerStanding(BlockBanner parent) {
-			super(parent);
+		public BlockBannerStanding() {
+			super("standing_banner");
+			this.setHardness(1.0F);
+			this.setSoundType(SoundType.WOOD);
+			this.setUnlocalizedName("banner");
+			this.disableStats();
 			this.setDefaultState(this.blockState.getBaseState().withProperty(ROTATION, 0));
 		}
 
@@ -141,13 +143,13 @@ public class BlockCustomBanner extends BlockBanner {
 
 	protected static final AxisAlignedBB STANDING_AABB = new AxisAlignedBB(0.25D, 0.0D, 0.25D, 0.75D, 1.0D, 0.75D);
 
-	protected BlockBanner parent;
-
-	protected BlockCustomBanner(BlockBanner parent) {
+	protected BlockCustomBanner(String name) {
 		super();
-		this.parent = parent;
-		this.setRegistryName(Objects.requireNonNull(parent.getRegistryName()));
-		this.setUnlocalizedName(parent.getUnlocalizedName());
+		this.setHardness(1.0F);
+		this.setSoundType(SoundType.WOOD);
+		this.disableStats();
+		this.setRegistryName(new ResourceLocation(name));
+		this.setUnlocalizedName("banner");
 	}
 
 	public boolean canPlaceBlockAt(@Nonnull World worldIn, @Nonnull BlockPos pos) {

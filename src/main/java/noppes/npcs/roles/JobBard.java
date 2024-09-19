@@ -3,7 +3,6 @@ package noppes.npcs.roles;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.MusicTicker;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
@@ -13,7 +12,7 @@ import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobBard;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.client.audio.MusicTickerAPIMixin;
 
 public class JobBard extends JobInterface implements IJobBard {
 
@@ -152,7 +151,7 @@ public class JobBard extends JobInterface implements IJobBard {
 			}
 		}
 		if (!this.isStreamer && mData.isPlaying(this.song)) {
-			ObfuscationHelper.setValue(MusicTicker.class, Minecraft.getMinecraft().getMusicTicker(), 12000, 3);
+			((MusicTickerAPIMixin) Minecraft.getMinecraft().getMusicTicker()).npcs$setTimeUntilNextMusic(12000);
 		}
 	}
 

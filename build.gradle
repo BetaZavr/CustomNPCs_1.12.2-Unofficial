@@ -1,111 +1,140 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url "https://repo.spongepowered.org/repository/maven-public/" }
         mavenCentral()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"
     }
 }
-        
-apply plugin: 'net.minecraftforge.gradle'
 
-// Редактировать только ниже этой строки, приведенный выше код добавляет и позволяет настроить Forge.
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply plugin: "org.spongepowered.mixin"
 
-// 1-Jan;	2-Feb;	3-Mar;
-// 4-Apr;	5-May;	6-Jun;
-// 7-Jul;	8-Aug;	9-Sep;
-// 10-Oct;	11-Nov;	12-Dec;
-version = "19Aug24-Snapshot"
-group = "noppes.npcs" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "CustomNPCs_1.12.2-Unofficial"
+version = getVersion()
+group = 'ego.betazavr.nirn'
+archivesBaseName = "Nirn-${mc_version}-Unofficial"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+static def getVersion() {
+	Date date = new Date()
+	String month
+	switch(date.getMonth()) {
+		case 1: month = "Feb"; break
+		case 2: month = "Mar"; break
+		case 3: month = "Apr"; break
+		case 4: month = "May"; break
+		case 5: month = "Jun"; break
+		case 6: month = "Jul"; break
+		case 7: month = "Aug"; break
+		case 8: month = "Sep"; break
+		case 9: month = "Oct"; break
+		case 10: month = "Nov"; break
+		case 11: month = "Dec"; break
+		default: month = "Jan"; break
+	}
+    return "_v.3.001_" + date.format("dd") + month + date.format("yyyy") + '-Snapshot'
+}
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    // mappings (сопоставления) могут быть изменены в любое время и должны быть в следующем формате.
-    // snapshot_YYYYMMDD   Снимки создаются каждую ночь.
-    // stable_#            stable (стабильно) строятся по усмотрению команды MCP.
-    // Используйте сопоставления не по умолчанию на свой страх и риск. они могут не всегда работать.
-	// Просто перезапустите задачу настройки после изменения сопоставлений, чтобы обновить рабочую область.
-    //mappings channel: 'snapshot', version: '20171003-1.12'
     mappings channel: 'snapshot', version: '20171003-1.12'
-    // makeObfSourceJar = false // по умолчанию создается jar-файл с именем Srg. раскомментируйте это, чтобы отключить.
-    
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
-    // Конфигурации запуска по умолчанию.
-	// Их можно изменить, удалить или продублировать по мере необходимости.
+    accessTransformer = file('src/main/resources/META-INF/deobfuscation.cfg')
+
     runs {
         client {
-            workingDirectory project.file('run')
-            // Рекомендуемые данные журналирования для среды разработки пользователей
+            workingDirectory project.file('run/client')
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            // Рекомендуемый уровень ведения журнала для консоли
             property 'forge.logging.console.level', 'debug'
+            property 'fml.coreMods.load', 'noppes.npcs.mixin.NpcsLaunchPlugin,zone.rong.mixinbooter.MixinBooterPlugin'
+            properties 'mixin.env.remapRefMap': 'true'
+            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
+            property "mixin.debug", 'true'
+            arg "-mixin.config=mixins.npcs.json"
+            arg '--username=BetaZavr'
         }
 
         server {
-
-            // Рекомендуемые данные журналирования для среды разработки пользователей
+            workingDirectory project.file('run/server')
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Рекомендуемый уровень ведения журнала для консоли
             property 'forge.logging.console.level', 'debug'
+            property 'fml.coreMods.load', 'noppes.npcs.mixin.NpcsLaunchPlugin,zone.rong.mixinbooter.MixinBooterPlugin'
+            properties 'mixin.env.remapRefMap': 'true'
+            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
+            property "mixin.debug", 'true'
+            arg "-mixin.config=mixins.npcs.json"
+            arg 'nogui'
         }
     }
 }
 
-dependencies {
-    // Укажите версию Minecraft, которую следует использовать.
-	// Если это какая-либо группа, отличная от «net.minecraft», предполагается, что она будет использоваться.
-	// что dep является зависимостью «патча» ForgeGradle. И его патчи будут применены.
-	// Артефакт user_dev имеет специальное имя, и к нему будут применены все виды преобразований.
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
-
-    // Вы можете поместить jar-файлы, от которых зависите, в ./libs или определить их следующим образом.
-    // compile "some.group:artifact:version:classifier"
-    // compile "some.group:artifact:version"
-
-    // Реальные примеры
-    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
-
-    // provided (предоставления) конфигурация предназначена для необязательных зависимостей, которые существуют во время компиляции, но могут отсутствовать во время выполнения.
-    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // Эти зависимости переназначаются на ваши текущие сопоставления MCP.
-    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // Для получения дополнительной информации...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
+repositories {
+    // maven { url "https://www.cursemaven.com" }
+    maven { url 'https://maven.cleanroommc.com' }
+    flatDir { dirs 'lib' }
 }
 
-// Пример того, как получить свойства в манифесте для чтения во время выполнения.
+dependencies {
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+
+    // Configuration lib
+    // compile "curse.maven:configuration-1086839:${configuration_version}"
+
+    // Mixins
+    compile fg.deobf('zone.rong:mixinbooter:9.3')
+    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
+	
+	compile name: 'geckolib-forge-1.12.2-3.0.31-deobf'
+}
+
+sourceSets {
+    main {
+        ext.refMap = "mixins.npcs.refmap.json"
+    }
+}
+
 jar {
     manifest {
         attributes([
-            "Specification-Title": "examplemod",
-            "Specification-Vendor": "examplemodsareus",
-            "Specification-Version": "1", // We are version 1 of ourselves
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"examplemodsareus",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                "Specification-Title"        : "CustomNPCs",
+                "Specification-Vendor"       : "BetaZavr",
+                "Specification-Version"      : "1",
+                "Implementation-Title"       : project.name,
+                "Implementation-Version"     : "${version}",
+                "Implementation-Vendor"      : "BetaZavr",
+                "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "FMLCorePlugin"              : "noppes.npcs.mixin.NpcsLaunchPlugin",
+                "FMLCorePluginContainsFMLMod": "true",
+                "FMLAT"                      : "deobfuscation.cfg",
+                "TweakClass"                 : "org.spongepowered.asm.launch.MixinTweaker",
+                "MixinConfigs"               : "mixins.npcs.json",
+                "ForceLoadAsMod"             : "true"
         ])
     }
 }
 
-// Пример конфигурации, позволяющей публиковать с помощью задачи maven-publish
-// Это предпочтительный метод повторной обфускации вашего jar-файла
 jar.finalizedBy('reobfJar')
 
-// Однако, если вы используете многопроектную сборку, для разработки требуются файлы jar без обфускации, поэтому вы можете отложить обфускацию до публикации, выполнив
-//publish.dependsOn('reobfJar')
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    inputs.property "version", project.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -119,8 +148,21 @@ publishing {
     }
 }
 
-sourceSets {
-	main {
-		output.resourcesDir = output.classesDir
-	}
+idea {
+    module {
+        inheritOutputDirs = true
+        downloadJavadoc = true
+        downloadSources = true
+    }
 }
+subprojects {
+    apply plugin: 'idea'
+}
+
+task prepareAssets(type: Copy) {
+    group = 'build'
+    from project.file('src/main/resources')
+    into project.file('build/classes/java/main')
+}
+
+classes.dependsOn(prepareAssets)

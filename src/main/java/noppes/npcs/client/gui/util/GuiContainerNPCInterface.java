@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import noppes.npcs.LogWriter;
+import noppes.npcs.mixin.api.client.gui.GuiScreenAPIMixin;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -32,7 +33,6 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.GuiBoundarySetting;
 import noppes.npcs.containers.ContainerEmpty;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.ObfuscationHelper;
 
 import javax.annotation.Nonnull;
 
@@ -357,8 +357,7 @@ implements IEditNPC {
 
 	@Override
 	public int getEventButton() {
-		Object button = ObfuscationHelper.getValue(GuiScreen.class, this, 12);
-		return button != null ? (int) button : -1;
+		return ((GuiScreenAPIMixin) this).npcs$getEventButton();
 	}
 
 	public FontRenderer getFontRenderer() {

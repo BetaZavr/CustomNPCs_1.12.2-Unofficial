@@ -28,7 +28,7 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.data.Availability;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.item.crafting.IngredientAPIMixin;
 
 public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe, IRecipe // Changed
 {
@@ -145,8 +145,8 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	}
 
 	public boolean apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack) {
-        if (stack != null) {
-            ItemStack[] stacks = ObfuscationHelper.getValue(Ingredient.class, ingredient, 2);
+		if (stack != null && ingredient != null) {
+			ItemStack[] stacks = ((IngredientAPIMixin) ingredient).npcs$getMatchingStacks();
             if ((stacks == null || stacks.length == 0) && stack.isEmpty()) {
                 return true;
             }
@@ -288,7 +288,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	public IItemStack[][] getRecipe() {
 		IItemStack[][] allStacks = new IItemStack[this.recipeItems.size()][];
 		for (int i = 0; i < this.recipeItems.size(); i++) {
-			ItemStack[] arr = ObfuscationHelper.getValue(Ingredient.class, this.recipeItems.get(i), 2); // matchingStacks
+			ItemStack[] arr = ((IngredientAPIMixin) this.recipeItems.get(i)).npcs$getMatchingStacks();
             if (arr != null) {
 				allStacks[i] = new IItemStack[arr.length];
 				for (int j = 0; j < arr.length; j++) {

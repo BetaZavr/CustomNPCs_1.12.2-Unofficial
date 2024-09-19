@@ -7,23 +7,16 @@ import java.awt.image.RenderedImage;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
 import io.netty.channel.local.LocalAddress;
@@ -41,9 +34,6 @@ import net.minecraft.client.gui.recipebook.RecipeList;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleFlame;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.particle.ParticleSmokeNormal;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -56,7 +46,7 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.resources.*;
-import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.resources.Locale;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.RecipeBookClient;
 import net.minecraft.creativetab.CreativeTabs;
@@ -82,7 +72,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.util.text.translation.LanguageMap;
 import net.minecraft.world.World;
-import net.minecraftforge.client.ItemModelMesherForge;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -219,7 +208,6 @@ import noppes.npcs.containers.ContainerNpcQuestRewardItem;
 import noppes.npcs.containers.ContainerNpcQuestTypeItem;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerGameData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPC64x32;
@@ -240,11 +228,25 @@ import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.ItemScripted;
+import noppes.npcs.mixin.api.client.ItemModelMesherForgeAPIMixin;
+import noppes.npcs.mixin.api.client.network.NetworkPlayerInfoAPIMixin;
+import noppes.npcs.mixin.api.client.particle.ParticleFlameAPIMixin;
+import noppes.npcs.mixin.api.client.particle.ParticleManagerAPIMixin;
+import noppes.npcs.mixin.api.client.particle.ParticleSmokeNormalAPIMixin;
+import noppes.npcs.mixin.api.client.renderer.texture.TextureManagerAPIMixin;
+import noppes.npcs.mixin.api.client.renderer.tileentity.TileEntityItemStackRendererAPIMixin;
+import noppes.npcs.mixin.api.client.resources.LanguageManagerAPIMixin;
+import noppes.npcs.mixin.api.client.resources.LocaleAPIMixin;
+import noppes.npcs.mixin.api.client.settings.KeyBindingAPIMixin;
+import noppes.npcs.mixin.api.client.settings.KeyBindingForgeAPIMixin;
+import noppes.npcs.mixin.api.stats.RecipeBookAPIMixin;
+import noppes.npcs.mixin.api.util.text.translation.I18nAPIMixin;
+import noppes.npcs.mixin.api.util.text.translation.LanguageMapAPIMixin;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
+import org.apache.commons.io.IOUtils;
 
 @SuppressWarnings("deprecation")
 public class ClientProxy extends CommonProxy {
@@ -315,10 +317,10 @@ public class ClientProxy extends CommonProxy {
 			return Minecraft.getMinecraft().fontRenderer.getStringWidth(text);
 		}
 	}
-	public static KeyBinding frontButton = ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 55); // w
-	public static KeyBinding leftButton = ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 56); // a
-	public static KeyBinding backButton = ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 57); // s
-	public static KeyBinding rightButton = ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 58); // d
+	public static KeyBinding frontButton = Minecraft.getMinecraft().gameSettings.keyBindForward; // w
+	public static KeyBinding leftButton = Minecraft.getMinecraft().gameSettings.keyBindLeft; // a
+	public static KeyBinding backButton = Minecraft.getMinecraft().gameSettings.keyBindBack; // s
+	public static KeyBinding rightButton = Minecraft.getMinecraft().gameSettings.keyBindRight; // d
 
 	public static KeyBinding QuestLog = new KeyBinding("key.quest.log", 38, "key.categories.gameplay"), Scene1, Scene2, Scene3, SceneReset;
 	public static FontContainer Font;
@@ -350,73 +352,47 @@ public class ClientProxy extends CommonProxy {
 		catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
+	// Apply changes to your localizations without disabling processes
 	public static void checkLocalization() {
 		// directory custom langs:
 		File langDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/lang");
 		if (!langDir.exists() || !langDir.isDirectory()) { return; }
-		// game data
-		LanguageManager languageManager = Minecraft.getMinecraft().getLanguageManager();
-		Locale locale = ObfuscationHelper.getValue(LanguageManager.class, languageManager, Locale.class);
-		LanguageMap localized = ObfuscationHelper.getValue(I18n.class, I18n.class, LanguageMap.class);
-		Map<String, String> properties = Maps.newHashMap();
-		Map<String, String> languageList = Maps.newHashMap();
-		if (locale != null) {
-			properties = ObfuscationHelper.getValue(Locale.class, locale, Map.class);
-			if (properties == null) {
-				properties = Maps.newHashMap();
-			}
-		}
+		LogWriter.info("Check Mod Localization");
+
+		// localization in game data
+		LanguageMap localized = ((I18nAPIMixin) new I18n()).npcs$getLocalizedName();
+		final Map<String, String> languageList;
 		if (localized != null) {
-			languageList = ObfuscationHelper.getValue(LanguageMap.class, localized, Map.class);
-			if (languageList == null) {
-				languageList = Maps.newHashMap();
-			}
-		}
-		// custom default lang file:
-		File lang = new File(langDir, "en_us.lang");
-		if (lang.exists() && lang.isFile()) {
-			try {
-				BufferedReader reader = Files.newBufferedReader(lang.toPath());
-				String line;
-				while ((line = reader.readLine()) != null) {
-					if (line.indexOf("=") <= 0) {
-						continue;
-					}
-					String[] loc = line.split("=");
-					properties.put(loc[0], loc[1]);
-					languageList.put(loc[0], loc[1]);
-				}
-				reader.close();
-			} catch (IOException e) { LogWriter.error("Error:", e); }
-		}
-		// custom current lang file:
-		String currentLanguage = ObfuscationHelper.getValue(LanguageManager.class, languageManager, String.class);
-		if (ClientProxy.playerData != null && CustomNpcs.proxy.getPlayer() != null && CustomNpcs.proxy.getPlayer().world != null) {
-			ObfuscationHelper.setValue(PlayerGameData.class, ClientProxy.playerData.game, currentLanguage, String.class);
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.CurrentLanguage, currentLanguage);
-		}
-		if (!currentLanguage.equals("en_us")) {
-			lang = new File(langDir, currentLanguage + ".lang");
-			if (lang.exists() && lang.isFile()) {
+			languageList = ((LanguageMapAPIMixin) localized).npcs$getLanguageList();
+		} else { languageList = Maps.newHashMap(); }
+
+		// custom lang files:
+		String currentLanguage = ((LanguageManagerAPIMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
+		for (int i = 0; i < (currentLanguage.equals("en_us") ? 1 : 2) ; i++) {
+			File lang = new File(langDir, (i == 0 ? "en_us" : currentLanguage) + ".lang");
+			if (lang.exists() && lang.isFile()) { // loading localizations from mod file
+				Stream<String> lines = Stream.empty();
 				try {
-					BufferedReader reader = Files.newBufferedReader(lang.toPath());
-					String line;
-					while ((line = reader.readLine()) != null) {
-						if (line.indexOf("=") <= 0) {
-							continue;
-						}
-						String[] loc = line.split("=");
-						properties.put(loc[0], loc[1]);
-						languageList.put(loc[0], loc[1]);
-					}
-					reader.close();
-				} catch (IOException e) { LogWriter.error("Error:", e); }
+					lines = Files.lines(lang.toPath());
+					Map<String, String> map = lines
+							.map(line -> {
+								if (line.startsWith("#")) { return null; }
+								String[] parts = line.split("=");
+								if (parts.length != 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) { return null; }
+								return new AbstractMap.SimpleEntry<>(parts[0].trim(), parts[1].trim());
+							})
+							.filter(Objects::nonNull)
+							.peek(entry -> languageList.putIfAbsent(entry.getKey(), entry.getValue()))
+							.collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+				}
+				catch (Exception e) { LogWriter.error("Error load custom localization", e); }
+				finally { IOUtils.closeQuietly((Reader) lines); }
 			}
 		}
-		// reset
-		ClientProxy.resetSystemMassages(properties, languageList, currentLanguage);
+		ClientProxy.resetSystemMassages(languageList, currentLanguage);
 	}
 
+	// Blending texture colors with a mask
 	private static BufferedImage colorTexture(BufferedImage buffer, Color color, boolean onlyGray) {
 		if (buffer == null || color == null) {
 			return buffer;
@@ -525,15 +501,13 @@ public class ClientProxy extends CommonProxy {
 		}
 		TextureManager re = Minecraft.getMinecraft().renderEngine;
 		if (file.exists() && file.isFile()) {
-			Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper.getValue(TextureManager.class,
-					re, Map.class);
+			Map<ResourceLocation, ITextureObject> mapTextureObjects = ((TextureManagerAPIMixin) re).npcs$getMapTextureObjects();
 			if (!mapTextureObjects.containsKey(skin)) {
 				try {
 					BufferedImage skinImage = ImageIO.read(file);
 					SimpleTexture texture = new SimpleTexture(skin);
 					TextureUtil.uploadTextureImageAllocate(texture.getGlTextureId(), skinImage, false, false);
 					mapTextureObjects.put(skin, texture);
-					ObfuscationHelper.setValue(TextureManager.class, re, mapTextureObjects, Map.class);
 				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			return skin;
@@ -544,7 +518,7 @@ public class ClientProxy extends CommonProxy {
 		String gender = "male";
 		BufferedImage bodyImage = null, hairImage = null, faseImage = null, legsImage = null, jacketsImage = null,  shoesImage = null;
 		List<BufferedImage> listBuffers = Lists.newArrayList();
-		Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper.getValue(TextureManager.class, re, Map.class);
+		Map<ResourceLocation, ITextureObject> mapTextureObjects = ((TextureManagerAPIMixin) re).npcs$getMapTextureObjects();
 		for (int i = 0; i < path.length; i++) {
 			int id = -1;
 			try {
@@ -714,7 +688,6 @@ public class ClientProxy extends CommonProxy {
 			TextureUtil.uploadTextureImageAllocate(texture.getGlTextureId(), skinImage, false, false);
 		}
 		mapTextureObjects.put(skin, texture);
-		ObfuscationHelper.setValue(TextureManager.class, re, mapTextureObjects, Map.class);
 		return skin;
 	}
 
@@ -733,10 +706,10 @@ public class ClientProxy extends CommonProxy {
 			return;
 		}
 		NetworkPlayerInfo npi = Objects.requireNonNull(Minecraft.getMinecraft().getConnection()).getPlayerInfo(uuid);
-        Map<MinecraftProfileTexture.Type, ResourceLocation> map = PlayerSkinController.getInstance().playerTextures .get(uuid);
-		Map<Type, ResourceLocation> playerTextures = ObfuscationHelper.getValue(NetworkPlayerInfo.class, npi, Map.class);
+        Map<Type, ResourceLocation> map = PlayerSkinController.getInstance().playerTextures .get(uuid);
+		Map<Type, ResourceLocation> playerTextures = ((NetworkPlayerInfoAPIMixin) npi).npcs$getPlayerTextures();
 		playerTextures.clear();
-		for (MinecraftProfileTexture.Type epst : map.keySet()) {
+		for (Type epst : map.keySet()) {
 			ResourceLocation loc = ClientProxy.createPlayerSkin(map.get(epst));
             LogWriter.debug("Set skin type: " + epst + " = \"" + loc + "\"");
 			switch (epst) {
@@ -753,10 +726,9 @@ public class ClientProxy extends CommonProxy {
 							"dynamic/skin_" + pData.playerNames.get(uuid));
 					ResourceLocation locSkins = new ResourceLocation("minecraft", "skins/" + pData.playerNames.get(uuid));
 					ITextureObject texture = re.getTexture(loc);
-					Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper.getValue(TextureManager.class, re, Map.class);
+					Map<ResourceLocation, ITextureObject> mapTextureObjects = ((TextureManagerAPIMixin) re).npcs$getMapTextureObjects();
 					mapTextureObjects.put(locDynamic, texture);
 					mapTextureObjects.put(locSkins, texture);
-					ObfuscationHelper.setValue(TextureManager.class, re, mapTextureObjects, Map.class);
 					break;
 				}
 			}
@@ -1240,74 +1212,13 @@ public class ClientProxy extends CommonProxy {
 			File modelFile = new File(modelDir, name + ".obj");
 			String ent = "" + ((char) 10);
 			if (!modelFile.exists()) {
-				String fileData = "mtllib " + name + ".mtl" + ent + "o body" + ent + "v 0.000000 -0.312500 0.000000"
-						+ ent + "v 0.000000 -0.156250 -0.270633" + ent + "v 0.054127 -0.140625 -0.243570" + ent
-						+ "v 0.054127 -0.281250 0.000000" + ent + "v 0.054127 -0.109375 -0.189443" + ent
-						+ "v 0.054127 -0.218750 0.000000" + ent + "v 0.000000 -0.093750 -0.162380" + ent
-						+ "v 0.000000 -0.187500 0.000000" + ent + "v -0.054127 -0.109375 -0.189443" + ent
-						+ "v -0.054127 -0.218750 0.000000" + ent + "v -0.054127 -0.140625 -0.243570" + ent
-						+ "v -0.054127 -0.281250 0.000000" + ent + "v 0.000000 0.156250 -0.270633" + ent
-						+ "v 0.054127 0.140625 -0.243570" + ent + "v 0.054127 0.109375 -0.189443" + ent
-						+ "v 0.000000 0.093750 -0.162380" + ent + "v -0.054127 0.109375 -0.189443" + ent
-						+ "v -0.054127 0.140625 -0.243570" + ent + "v 0.000000 0.312500 -0.000000" + ent
-						+ "v 0.054127 0.281250 -0.000000" + ent + "v 0.054127 0.218750 -0.000000" + ent
-						+ "v 0.000000 0.187500 -0.000000" + ent + "v -0.054127 0.218750 -0.000000" + ent
-						+ "v -0.054127 0.281250 -0.000000" + ent + "v 0.000000 0.156250 0.270633" + ent
-						+ "v 0.054127 0.140625 0.243570" + ent + "v 0.054127 0.109375 0.189443" + ent
-						+ "v 0.000000 0.093750 0.162380" + ent + "v -0.054127 0.109375 0.189443" + ent
-						+ "v -0.054127 0.140625 0.243570" + ent + "v 0.000000 -0.156250 0.270633" + ent
-						+ "v 0.054127 -0.140625 0.243570" + ent + "v 0.054127 -0.109375 0.189443" + ent
-						+ "v 0.000000 -0.093750 0.162380" + ent + "v -0.054127 -0.109375 0.189443" + ent
-						+ "v -0.054127 -0.140625 0.243570" + ent + "vt 0.500000 0.500000" + ent + "vt 0.666667 0.500000"
-						+ ent + "vt 0.666667 0.666667" + ent + "vt 0.500000 0.666667" + ent + "vt 0.666667 0.833333"
-						+ ent + "vt 0.500000 0.833333" + ent + "vt 0.666667 1.000000" + ent + "vt 0.500000 1.000000"
-						+ ent + "vt 0.500000 -0.000000" + ent + "vt 0.666667 -0.000000" + ent + "vt 0.666667 0.166667"
-						+ ent + "vt 0.500000 0.166667" + ent + "vt 0.666667 0.333333" + ent + "vt 0.500000 0.333333"
-						+ ent + "vt 0.833333 0.500000" + ent + "vt 0.833333 0.666667" + ent + "vt 0.833333 0.833333"
-						+ ent + "vt 0.833333 1.000000" + ent + "vt 0.833333 -0.000000" + ent + "vt 0.833333 0.166667"
-						+ ent + "vt 0.833333 0.333333" + ent + "vt 1.000000 0.500000" + ent + "vt 1.000000 0.666667"
-						+ ent + "vt 1.000000 0.833333" + ent + "vt 1.000000 1.000000" + ent + "vt 1.000000 -0.000000"
-						+ ent + "vt 1.000000 0.166667" + ent + "vt 1.000000 0.333333" + ent + "vt -0.000000 0.500000"
-						+ ent + "vt 0.166667 0.500000" + ent + "vt 0.166667 0.666667" + ent + "vt -0.000000 0.666667"
-						+ ent + "vt 0.166667 0.833333" + ent + "vt -0.000000 0.833333" + ent + "vt 0.166667 1.000000"
-						+ ent + "vt -0.000000 1.000000" + ent + "vt -0.000000 -0.000000" + ent + "vt 0.166667 -0.000000"
-						+ ent + "vt 0.166667 0.166667" + ent + "vt -0.000000 0.166667" + ent + "vt 0.166667 0.333333"
-						+ ent + "vt -0.000000 0.333333" + ent + "vt 0.333333 0.500000" + ent + "vt 0.333333 0.666667"
-						+ ent + "vt 0.333333 0.833333" + ent + "vt 0.333333 1.000000" + ent + "vt 0.333333 -0.000000"
-						+ ent + "vt 0.333333 0.166667" + ent + "vt 0.333333 0.333333" + ent
-						+ "vn 0.4472 -0.7746 -0.4472" + ent + "vn 1.0000 0.0000 0.0000" + ent
-						+ "vn 0.4472 0.7746 0.4472" + ent + "vn -0.4472 0.7746 0.4472" + ent
-						+ "vn -1.0000 0.0000 0.0000" + ent + "vn -0.4472 -0.7746 -0.4472" + ent
-						+ "vn 0.4472 -0.0000 -0.8944" + ent + "vn 0.4472 0.0000 0.8944" + ent
-						+ "vn -0.4472 0.0000 0.8944" + ent + "vn -0.4472 -0.0000 -0.8944" + ent
-						+ "vn 0.4472 0.7746 -0.4472" + ent + "vn 0.4472 -0.7746 0.4472" + ent
-						+ "vn -0.4472 -0.7746 0.4472" + ent + "vn -0.4472 0.7746 -0.4472" + ent + "usemtl material"
-						+ ent + "f 1/1/1 2/2/1 3/3/1 4/4/1" + ent + "f 4/4/2 3/3/2 5/5/2 6/6/2" + ent
-						+ "f 6/6/3 5/5/3 7/7/3 8/8/3" + ent + "f 8/9/4 7/10/4 9/11/4 10/12/4" + ent
-						+ "f 10/12/5 9/11/5 11/13/5 12/14/5" + ent + "f 12/14/6 11/13/6 2/2/6 1/1/6" + ent
-						+ "f 2/2/7 13/15/7 14/16/7 3/3/7" + ent + "f 3/3/2 14/16/2 15/17/2 5/5/2" + ent
-						+ "f 5/5/8 15/17/8 16/18/8 7/7/8" + ent + "f 7/10/9 16/19/9 17/20/9 9/11/9" + ent
-						+ "f 9/11/5 17/20/5 18/21/5 11/13/5" + ent + "f 11/13/10 18/21/10 13/15/10 2/2/10" + ent
-						+ "f 13/15/11 19/22/11 20/23/11 14/16/11" + ent + "f 14/16/2 20/23/2 21/24/2 15/17/2" + ent
-						+ "f 15/17/12 21/24/12 22/25/12 16/18/12" + ent + "f 16/19/13 22/26/13 23/27/13 17/20/13" + ent
-						+ "f 17/20/5 23/27/5 24/28/5 18/21/5" + ent + "f 18/21/14 24/28/14 19/22/14 13/15/14" + ent
-						+ "f 19/29/3 25/30/3 26/31/3 20/32/3" + ent + "f 20/32/2 26/31/2 27/33/2 21/34/2" + ent
-						+ "f 21/34/1 27/33/1 28/35/1 22/36/1" + ent + "f 22/37/6 28/38/6 29/39/6 23/40/6" + ent
-						+ "f 23/40/5 29/39/5 30/41/5 24/42/5" + ent + "f 24/42/4 30/41/4 25/30/4 19/29/4" + ent
-						+ "f 25/30/8 31/43/8 32/44/8 26/31/8" + ent + "f 26/31/2 32/44/2 33/45/2 27/33/2" + ent
-						+ "f 27/33/7 33/45/7 34/46/7 28/35/7" + ent + "f 28/38/10 34/47/10 35/48/10 29/39/10" + ent
-						+ "f 29/39/5 35/48/5 36/49/5 30/41/5" + ent + "f 30/41/9 36/49/9 31/43/9 25/30/9" + ent
-						+ "f 31/43/12 1/1/12 4/4/12 32/44/12" + ent + "f 32/44/2 4/4/2 6/6/2 33/45/2" + ent
-						+ "f 33/45/11 6/6/11 8/8/11 34/46/11" + ent + "f 34/47/14 8/9/14 10/12/14 35/48/14" + ent
-						+ "f 35/48/5 10/12/5 12/14/5 36/49/5" + ent + "f 36/49/13 12/14/13 1/1/13 31/43/13";
-				if (saveFile(modelFile, fileData)) {
+				if (Util.instance.saveFile(modelFile, Util.instance.getDataFile("pe_o.dat").replace("{mod_id}", CustomNpcs.MODID).replace("{name}", name))) {
 					LogWriter.debug("Create Default OBJ Model for \"" + name + ".obj\" particle");
 				}
 			}
 			File mtlFile = new File(modelDir, name + ".mtl");
 			if (!mtlFile.exists()) {
-				String fileData = "newmtl material" + ent + "Kd 1.000000 1.000000 1.000000" + ent + "d 1.000000";
-				if (saveFile(mtlFile, fileData)) {
+				if (Util.instance.saveFile(mtlFile, Util.instance.getDataFile("pe_m.dat").replace("{mod_id}", CustomNpcs.MODID).replace("{name}", name))) {
 					LogWriter.debug("Create Default OBJ Material Library for \"" + name + ".mtl\" particle");
 				}
 			}
@@ -1377,12 +1288,11 @@ public class ClientProxy extends CommonProxy {
 		this.setLocalization("tipped_arrow.effect." + name,
 				name.equals("potionexample") ? "Example Custom Arrow Potion" : n + " Arrow");
 
-		String textureName = name;
-		File texturesDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/textures/potions");
+        File texturesDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/textures/potions");
 		if (!texturesDir.exists() && !texturesDir.mkdirs()) {
 			return;
 		}
-		File texture = new File(texturesDir, textureName + ".png");
+		File texture = new File(texturesDir, name + ".png");
 		if (!texture.exists()) {
 			boolean has = false;
 			try {
@@ -1736,7 +1646,7 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public boolean isLoadTexture(ResourceLocation resource) {
-		Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper.getValue(TextureManager.class, Minecraft.getMinecraft().getTextureManager(), Map.class);
+		Map<ResourceLocation, ITextureObject> mapTextureObjects = ((TextureManagerAPIMixin) Minecraft.getMinecraft().getTextureManager()).npcs$getMapTextureObjects();
 		return mapTextureObjects.containsKey(resource);
 	}
 
@@ -1777,9 +1687,7 @@ public class ClientProxy extends CommonProxy {
 		}, CustomRegisters.scripted_item);
 		ClientProxy.checkLocalization();
 		new GuiTextureSelection(null, "", "png", 0);
-
-		Map<Integer, IParticleFactory> map = ObfuscationHelper.getValue(ParticleManager.class, mc.effectRenderer,
-				Map.class);
+		Map<Integer, IParticleFactory> map = ((ParticleManagerAPIMixin) mc.effectRenderer).npcs$getParticleTypes();
 		for (int id : CustomRegisters.customparticles.keySet()) {
 			if (map.containsKey(id)) {
 				continue;
@@ -1833,15 +1741,15 @@ public class ClientProxy extends CommonProxy {
 		ArmourersWorkshopUtil.getInstance();
 		// Banner Model Replace
 		TileEntityRendererDispatcher.instance.renderers.put(TileEntityBanner.class, new TileEntityCustomBannerRenderer());
-		ObfuscationHelper.setValue(TileEntityItemStackRenderer.class, TileEntityItemStackRenderer.instance, new TileEntityCustomBanner(), TileEntityBanner.class);
+		((TileEntityItemStackRendererAPIMixin) TileEntityItemStackRenderer.instance).npcs$setBanner(new TileEntityCustomBanner());
+
 		// Shield Model Replace
 		Item shield = Item.REGISTRY.getObject(new ResourceLocation("shield"));
 		if (shield instanceof ItemShield) { shield.setTileEntityItemStackRenderer(new TileEntityItemStackCustomRenderer()); }
 		// OBJ ItemStack Model Replace
 		Minecraft mc = Minecraft.getMinecraft();
 		RenderItem ri = mc.getRenderItem();
-		ItemModelMesherForge immf = (ItemModelMesherForge) ri.getItemModelMesher();
-		Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models = ObfuscationHelper.getValue(ItemModelMesherForge.class, immf, 1);
+		Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models = ((ItemModelMesherForgeAPIMixin) ri.getItemModelMesher()).npcs$getModels();
 		if (models != null) {
 			for (IRegistryDelegate<Item> key : models.keySet()) {
 				if (!(key.get() instanceof CustomArmor) || ((CustomArmor) key.get()).objModel == null) {
@@ -1861,26 +1769,27 @@ public class ClientProxy extends CommonProxy {
 
 		// Replacement of localizations via ".lang" files is excluded
 		LanguageManager languageManager = Minecraft.getMinecraft().getLanguageManager();
-		Locale locale = ObfuscationHelper.getValue(LanguageManager.class, languageManager, Locale.class);
-		LanguageMap localized = ObfuscationHelper.getValue(I18n.class, I18n.class, LanguageMap.class);
+		Locale locale = ((LanguageManagerAPIMixin) languageManager).npcs$getCurrentLocate();
+		LanguageMap localized = ((I18nAPIMixin) new I18n()).npcs$getLocalizedName();
 		Map<String, String> properties = Maps.newHashMap();
 		Map<String, String> languageList = Maps.newHashMap();
 		if (locale != null) {
-			properties = ObfuscationHelper.getValue(Locale.class, locale, Map.class);
+			properties = ((LocaleAPIMixin) locale).npcs$getProperties();
 			if (properties == null) {
 				properties = Maps.newHashMap();
 			}
 		}
 		if (localized != null) {
-			languageList = ObfuscationHelper.getValue(LanguageMap.class, localized, Map.class);
+			languageList = ((LanguageMapAPIMixin) localized).npcs$getLanguageList();
 			if (languageList == null) {
 				languageList = Maps.newHashMap();
 			}
 		}
-		ClientProxy.resetSystemMassages(properties, languageList, ObfuscationHelper.getValue(LanguageManager.class, languageManager, String.class));
+		ClientProxy.resetSystemMassages(languageList, ((LanguageManagerAPIMixin) languageManager).npcs$getCurrentLanguage());
 	}
 
-	private static void resetSystemMassages(Map<String, String> properties, Map<String, String> languageList, String currentLanguage) {
+	// System messages cannot be changed. Update them from the mod structure
+	private static void resetSystemMassages(Map<String, String> languageList, String currentLanguage) {
 		if (ClientProxy.systemMessage.isEmpty()) {
 			InputStream inputStreamLangs = Util.instance.getModInputStream("lsm.dat");
 			StringWriter writer = new StringWriter();
@@ -1903,7 +1812,6 @@ public class ClientProxy extends CommonProxy {
 		if (!ClientProxy.systemMessage.containsKey(currentLanguage)) { currentLanguage = "en_us"; }
 		Map<String, String> mapLang = ClientProxy.systemMessage.get(currentLanguage);
 		if (mapLang == null || mapLang.isEmpty()) { return; }
-		properties.putAll(mapLang);
 		languageList.putAll(mapLang);
 	}
 
@@ -1966,26 +1874,13 @@ public class ClientProxy extends CommonProxy {
 		}
 	}
 
-	public static boolean saveFile(File file, String text) {
-		if (file == null || text == null || text.isEmpty()) {
-			return false;
-		}
-        try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8)) {
-            writer.write(text);
-        } catch (IOException e) {
-            LogWriter.debug("Error Save Default Item File \"" + file + "\"");
-            return false;
-        }
-		return true;
-	}
-
 	private void setLocalization(String key, String name) {
 		File langDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/lang");
 		if (!langDir.exists()) {
 			langDir.mkdirs();
 		}
 		BufferedWriter writer;
-		String currentLanguage = ObfuscationHelper.getValue(LanguageManager.class, Minecraft.getMinecraft().getLanguageManager(), String.class);
+		String currentLanguage = ((LanguageManagerAPIMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
 		boolean write = false;
 		for (int i = 0; i < 2; i++) {
 			if (i == 1 && currentLanguage.equals("en_us")) {
@@ -2081,9 +1976,9 @@ public class ClientProxy extends CommonProxy {
 			return;
 		}
 		if (particle == EnumParticleTypes.FLAME) {
-			ObfuscationHelper.setValue(ParticleFlame.class, (ParticleFlame) fx, scale, 0);
+			((ParticleFlameAPIMixin) fx).npcs$setFlameScale(scale);
 		} else if (particle == EnumParticleTypes.SMOKE_NORMAL) {
-			ObfuscationHelper.setValue(ParticleSmokeNormal.class, (ParticleSmokeNormal) fx, scale, 0);
+			((ParticleSmokeNormalAPIMixin) fx).npcs$setSmokeParticleScale(scale);
 		}
 	}
 
@@ -2124,10 +2019,10 @@ public class ClientProxy extends CommonProxy {
 			}
 			if (ClientProxy.keyBindingMap.containsKey(ks.getId())) {
 				kb = ClientProxy.keyBindingMap.get(ks.getId());
-				ObfuscationHelper.setValue(KeyBinding.class, kb, modifer, KeyModifier.class);
-				ObfuscationHelper.setValue(KeyBinding.class, kb, ks.getName(), 4);
-				ObfuscationHelper.setValue(KeyBinding.class, kb, ks.getKeyId(), 5);
-				ObfuscationHelper.setValue(KeyBinding.class, kb, ks.getCategory(), 6);
+				((KeyBindingForgeAPIMixin) kb).npcs$setModifier(modifer);
+				((KeyBindingAPIMixin) kb).npcs$setKeyDescription(ks.getName());
+				((KeyBindingAPIMixin) kb).npcs$setKeyCodeDefault(ks.getKeyId());
+				((KeyBindingAPIMixin) kb).npcs$setKeyCategory(ks.getCategory());
 			} else {
 				kb = new KeyBinding(ks.getName(), KeyConflictContext.IN_GAME, modifer, ks.getKeyId(), ks.getCategory());
 			}
@@ -2149,8 +2044,8 @@ public class ClientProxy extends CommonProxy {
 			return;
 		}
 		RecipeBook book = ((EntityPlayerSP) player).getRecipeBook();
-        BitSet recipes = ObfuscationHelper.getValue(RecipeBook.class, book, 0);
-		BitSet newRecipes = ObfuscationHelper.getValue(RecipeBook.class, book, 1);
+        BitSet recipes = ((RecipeBookAPIMixin) book).npcs$getRecipes();
+		BitSet newRecipes = ((RecipeBookAPIMixin) book).npcs$getNewRecipes();
 		if (recipes == null || newRecipes == null) { return; }
 		List<Integer> delIDs = Lists.newArrayList();
         for (int id = recipes.nextSetBit(0); id >= 0; id = recipes.nextSetBit(id + 1)) {
@@ -2174,8 +2069,8 @@ public class ClientProxy extends CommonProxy {
 				newRecipes.clear(id);
 			}
 		}
-		ObfuscationHelper.setValue(RecipeBook.class, book, recipes, 0);
-		ObfuscationHelper.setValue(RecipeBook.class, book, newRecipes, 1);
+		((RecipeBookAPIMixin) book).npcs$setRecipes(recipes);
+		((RecipeBookAPIMixin) book).npcs$setNewRecipes(newRecipes);
 		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
 	}
 

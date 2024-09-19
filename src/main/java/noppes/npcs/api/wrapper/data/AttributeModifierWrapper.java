@@ -3,7 +3,7 @@ package noppes.npcs.api.wrapper.data;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import noppes.npcs.api.entity.data.IAttributeModifier;
 import noppes.npcs.api.entity.data.INpcAttribute;
-import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.mixin.api.entity.ai.attributes.AttributeModifierAPIMixin;
 import noppes.npcs.util.ValueUtil;
 
 public class AttributeModifierWrapper implements IAttributeModifier {
@@ -44,33 +44,30 @@ public class AttributeModifierWrapper implements IAttributeModifier {
 	@Override
 	public IAttributeModifier setAmount(double amount) {
 		if (this.parent == null) {
-			ObfuscationHelper.setValue(AttributeModifier.class, this.modifer, amount, double.class);
+			((AttributeModifierAPIMixin) this.modifer).npcs$setAmount(amount);
 			return this;
 		}
-		AttributeModifier newModifer = new AttributeModifier(this.modifer.getID(), this.modifer.getName(), amount,
-				this.modifer.getOperation());
+		AttributeModifier newModifier = new AttributeModifier(this.modifer.getID(), this.modifer.getName(), amount, this.modifer.getOperation());
 		this.parent.getMCAttribute().removeModifier(this.modifer);
-		this.parent.getMCAttribute().applyModifier(newModifer);
-		return this.parent.getModifier(newModifer.getName());
+		this.parent.getMCAttribute().applyModifier(newModifier);
+		return this.parent.getModifier(newModifier.getName());
 	}
 
 	@Override
 	public IAttributeModifier setName(String name) {
 		if (this.parent == null) {
-			ObfuscationHelper.setValue(AttributeModifier.class, this.modifer, name, String.class);
+			((AttributeModifierAPIMixin) this.modifer).npcs$setName(name);
 			return this;
 		}
-		AttributeModifier newModifer = new AttributeModifier(this.modifer.getID(), name, this.modifer.getAmount(),
-				this.modifer.getOperation());
+		AttributeModifier newModifier = new AttributeModifier(this.modifer.getID(), name, this.modifer.getAmount(), this.modifer.getOperation());
 		this.parent.getMCAttribute().removeModifier(this.modifer);
-		this.parent.getMCAttribute().applyModifier(newModifer);
-		return this.parent.getModifier(newModifer.getName());
+		this.parent.getMCAttribute().applyModifier(newModifier);
+		return this.parent.getModifier(newModifier.getName());
 	}
 
 	@Override
 	public void setOperation(int operation) {
-		ObfuscationHelper.setValue(AttributeModifier.class, this.modifer, ValueUtil.correctInt(operation, 0, 2),
-				int.class);
+		((AttributeModifierAPIMixin) this.modifer).npcs$setOperation(ValueUtil.correctInt(operation, 0, 2));
 	}
 
 	public String toString() {

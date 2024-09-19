@@ -17,7 +17,6 @@ import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.recipebook.IRecipeShownListener;
 import net.minecraft.client.gui.toasts.GuiToast;
@@ -91,7 +90,6 @@ import noppes.npcs.items.ItemScripted;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
 
 public class PacketHandlerClient extends PacketHandlerServer {
@@ -178,8 +176,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.MESSAGE) {
 			TextComponentTranslation title = new TextComponentTranslation(Objects.requireNonNull(Server.readString(buffer)));
 			TextComponentTranslation message = new TextComponentTranslation(Objects.requireNonNull(Server.readString(buffer)));
-			int btype = buffer.readInt() % 3;
-			mc.getToastGui().add(new GuiAchievement(title, message, btype));
+			mc.getToastGui().add(new GuiAchievement(title, message, buffer.readInt() % 3));
 		} else if (type == EnumPacketClient.UPDATE_ITEM) {
 			int id = buffer.readInt();
 			NBTTagCompound compound = Server.readNBT(buffer);
@@ -517,23 +514,36 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					message.appendSibling(new TextComponentString(" = " + pr[0] + "/" + pr[1]));
 				}
 			}
-			Object[] visible = ObfuscationHelper.getValue(GuiToast.class, mc.getToastGui(), 1);
+			Object[] visible = null; // GuiToast.ToastInstance<?>[]
+			for (Field f : GuiToast.class.getDeclaredFields()) {
+				if (f.getType().getName().contains("ToastInstance")) {
+					try {
+						f.setAccessible(true);
+						visible = (Object[]) f.get(mc.getToastGui());
+					} catch (Exception e) {
+						LogWriter.debug(e.toString());
+					}
+				}
+			}
+			if (visible == null) {
+				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
+				return;
+			}
 			boolean found = false;
-            assert visible != null;
             for (Object obj : visible) {
 				if (obj == null) {
 					continue;
 				}
 				Field toast = obj.getClass().getDeclaredFields()[0];
 				toast.setAccessible(true);
-				if (!(toast.get(obj) instanceof GuiAchievement)) {
-					continue;
-				}
+				if (!(toast.get(obj) instanceof GuiAchievement)) { continue; }
+
 				GuiAchievement achn = (GuiAchievement) toast.get(obj);
 				Field titleF = GuiAchievement.class.getDeclaredFields()[3];
 				Field typeF = GuiAchievement.class.getDeclaredFields()[4];
 				titleF.setAccessible(true);
 				typeF.setAccessible(true);
+
 				String titleD = Util.instance.deleteColor((String) titleF.get(achn));
 				int typeD = (int) typeF.get(achn);
 				if (!titleD.equals(Util.instance.deleteColor(title.getFormattedText()))
@@ -846,13 +856,14 @@ public class PacketHandlerClient extends PacketHandlerServer {
 						ITextComponent message = new TextComponentString(c + "7[" + c + "2CustomNpcs" + c + "7]: Received client script: \"" + c + "f" + name + c + "7\" (" + s + c + "7b)");
 						player.sendMessage(message);
 					}
+					// Put to session
 					ScriptController.Instance.clients.put(name, file.getDataText());
 					ScriptController.Instance.clientSizes.put(name, file.size);
+					// save on client
 					File cdf = ScriptController.Instance.clientScriptsFile();
-					System.out.println("CNPCs: "+file.name);
-					/*if (cdf.exists()) {
+					if (cdf.exists()) {
 						File dir = new File(cdf.getParentFile(), ScriptController.Instance.clientScripts.getLanguage().toLowerCase());
-					}*/
+					}
 				} else {
 					file.save();
 				}
