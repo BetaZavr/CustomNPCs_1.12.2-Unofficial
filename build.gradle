@@ -17,10 +17,10 @@ apply plugin: 'maven-publish'
 apply plugin: "org.spongepowered.mixin"
 
 version = getVersion()
-group = 'ego.betazavr.nirn'
-archivesBaseName = "Nirn-${mc_version}-Unofficial"
+group = 'noppes.npcs'
+archivesBaseName = "CustomNPCs-${mc_version}-Unofficial"
 
-static def getVersion() {
+def getVersion() {
 	Date date = new Date()
 	String month
 	switch(date.getMonth()) {
@@ -37,7 +37,7 @@ static def getVersion() {
 		case 11: month = "Dec"; break
 		default: month = "Jan"; break
 	}
-    return "_v.3.001_" + date.format("dd") + month + date.format("yyyy") + '-Snapshot'
+    return "_v.${mod_version}_" + date.format("dd") + month + date.format("yyyy") + '-Snapshot'
 }
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
@@ -77,7 +77,6 @@ minecraft {
 repositories {
     // maven { url "https://www.cursemaven.com" }
     maven { url 'https://maven.cleanroommc.com' }
-    flatDir { dirs 'lib' }
 }
 
 dependencies {
@@ -89,8 +88,6 @@ dependencies {
     // Mixins
     compile fg.deobf('zone.rong:mixinbooter:9.3')
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
-	
-	compile name: 'geckolib-forge-1.12.2-3.0.31-deobf'
 }
 
 sourceSets {
