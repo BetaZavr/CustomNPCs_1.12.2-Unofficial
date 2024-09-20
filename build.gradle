@@ -1,11 +1,12 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
-        maven { url "https://repo.spongepowered.org/repository/maven-public/" }
         mavenCentral()
+        maven { url = "https://plugins.gradle.org/m2" }
+        maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
+        maven { url = "https://maven.minecraftforge.net/" }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
         classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"
     }
 }
@@ -88,6 +89,10 @@ dependencies {
     // Mixins
     compile fg.deobf('zone.rong:mixinbooter:9.3')
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
+
+    // Encrypt
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.67'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.15'
 }
 
 sourceSets {
@@ -156,7 +161,7 @@ subprojects {
     apply plugin: 'idea'
 }
 
-task prepareAssets(type: Copy) {
+tasks.register('prepareAssets', Copy) {
     group = 'build'
     from project.file('src/main/resources')
     into project.file('build/classes/java/main')
