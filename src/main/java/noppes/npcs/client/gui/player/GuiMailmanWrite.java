@@ -152,8 +152,8 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 			if (this.canSend) {
 				if (!this.hasSend) {
 					this.hasSend = true;
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.MailSend, this.username, this.totalCost,
-							GuiMailmanWrite.mail.writeNBT());
+					((ContainerMail) this.inventorySlots).sendMail = true;
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.MailSend, this.username, this.totalCost, GuiMailmanWrite.mail.writeNBT());
 				}
 			} else {
 				aType = 0;

@@ -15,8 +15,8 @@ import net.minecraft.entity.ai.attributes.RangedAttribute;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.entity.data.IAttributeModifier;
 import noppes.npcs.api.entity.data.INpcAttribute;
-import noppes.npcs.mixin.api.entity.ai.attributes.ModifiableAttributeInstanceAPIMixin;
-import noppes.npcs.mixin.api.entity.ai.attributes.RangedAttributeAPIMixin;
+import noppes.npcs.mixin.entity.ai.attributes.IModifiableAttributeInstanceMixin;
+import noppes.npcs.mixin.entity.ai.attributes.IRangedAttributeMixin;
 import noppes.npcs.util.ValueUtil;
 
 public class AttributeWrapper implements INpcAttribute {
@@ -78,7 +78,7 @@ public class AttributeWrapper implements INpcAttribute {
 	public String getDisplayName() {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
+			attribute = ((IModifiableAttributeInstanceMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
 			return ((RangedAttribute) attribute).getDescription();
@@ -90,10 +90,10 @@ public class AttributeWrapper implements INpcAttribute {
 	public double getMaxValue() {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
+			attribute = ((IModifiableAttributeInstanceMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
-			return ((RangedAttributeAPIMixin) attribute).npcs$getMaxValue();
+			return ((IRangedAttributeMixin) attribute).npcs$getMaxValue();
 		}
 		return 0.0d;
 	}
@@ -106,7 +106,7 @@ public class AttributeWrapper implements INpcAttribute {
 	@Override
 	public IAttribute getMCBaseAttribute() {
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			return ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
+			return ((IModifiableAttributeInstanceMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		return null;
 	}
@@ -115,10 +115,10 @@ public class AttributeWrapper implements INpcAttribute {
 	public double getMinValue() {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
+			attribute = ((IModifiableAttributeInstanceMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
-			return ((RangedAttributeAPIMixin) attribute).npcs$getMinValue();
+			return ((IRangedAttributeMixin) attribute).npcs$getMinValue();
 		}
 		return 0.0d;
 	}
@@ -274,7 +274,7 @@ public class AttributeWrapper implements INpcAttribute {
 	public void setDisplayName(String displayName) {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
+			attribute = ((IModifiableAttributeInstanceMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
 			((RangedAttribute) attribute).setDescription(displayName);
@@ -285,14 +285,14 @@ public class AttributeWrapper implements INpcAttribute {
 	public void setMaxValue(double maxValue) {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
+			attribute = ((IModifiableAttributeInstanceMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
-			double minValue = ((RangedAttributeAPIMixin) attribute).npcs$getMinValue();
+			double minValue = ((IRangedAttributeMixin) attribute).npcs$getMinValue();
 			minValue = ValueUtil.min(minValue, maxValue);
 			maxValue = ValueUtil.max(minValue, maxValue);
-			((RangedAttributeAPIMixin) attribute).npcs$setMinValue(minValue);
-			((RangedAttributeAPIMixin) attribute).npcs$setMaxValue(maxValue);
+			((IRangedAttributeMixin) attribute).npcs$setMinValue(minValue);
+			((IRangedAttributeMixin) attribute).npcs$setMaxValue(maxValue);
 		}
 	}
 
@@ -300,14 +300,14 @@ public class AttributeWrapper implements INpcAttribute {
 	public void setMinValue(double minValue) {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ((ModifiableAttributeInstanceAPIMixin) this.attribute).npcs$getGenericAttribute();
+			attribute = ((IModifiableAttributeInstanceMixin) this.attribute).npcs$getGenericAttribute();
 		}
 		if (attribute instanceof RangedAttribute) {
-			double maxValue = ((RangedAttributeAPIMixin) attribute).npcs$getMaxValue();
+			double maxValue = ((IRangedAttributeMixin) attribute).npcs$getMaxValue();
 			minValue = ValueUtil.min(minValue, maxValue);
 			maxValue = ValueUtil.max(minValue, maxValue);
-			((RangedAttributeAPIMixin) attribute).npcs$setMinValue(minValue);
-			((RangedAttributeAPIMixin) attribute).npcs$setMaxValue(maxValue);
+			((IRangedAttributeMixin) attribute).npcs$setMinValue(minValue);
+			((IRangedAttributeMixin) attribute).npcs$setMaxValue(maxValue);
 		}
 	}
 

@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandBase.CoordinateArg;
 import net.minecraft.command.CommandException;
@@ -65,8 +64,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.IMethods;
 import noppes.npcs.api.IPos;
@@ -86,14 +83,15 @@ import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
-import noppes.npcs.mixin.api.entity.ai.EntitySensesAPIMixin;
-import noppes.npcs.mixin.api.nbt.NBTTagLongArrayAPIMixin;
-import noppes.npcs.mixin.api.world.WorldAPIMixin;
+import noppes.npcs.mixin.entity.ai.IEntitySensesMixin;
+import noppes.npcs.mixin.nbt.INBTTagLongArrayMixin;
+import noppes.npcs.mixin.world.IWorldMixin;
 
 public class Util implements IMethods {
 
 	public final static Util instance = new Util();
-	
+	public static final ResourceLocation RECIPE_BOOK = new ResourceLocation("textures/gui/recipe_book.png");
+
 	public boolean canAddItemAfterRemoveItems(NonNullList<ItemStack> inventory, ItemStack addStack, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
 		if (inventory == null || addStack.isEmpty()) {
 			return false;
@@ -401,7 +399,7 @@ public class Util implements IMethods {
 				return entity;
 			}
 		}
-		List<Entity> unloadedEntityList = ((WorldAPIMixin) world).npcs$getUnloadedEntityList();
+		List<Entity> unloadedEntityList = ((IWorldMixin) world).npcs$getUnloadedEntityList();
 		if (unloadedEntityList != null) {
 			for (Entity entity : unloadedEntityList) {
 				if (entity.getUniqueID().equals(uuid)) {
@@ -695,8 +693,8 @@ public class Util implements IMethods {
 		List<Entity> seenEntities = null, unseenEntities = null;
 		if (entity instanceof EntityLiving) {
 			EntitySenses senses = ((EntityLiving) entity).getEntitySenses();
-			seenEntities = ((EntitySensesAPIMixin) senses).npcs$getSeenEntities();
-			unseenEntities = ((EntitySensesAPIMixin) senses).npcs$getUnseenEntities();
+			seenEntities = ((IEntitySensesMixin) senses).npcs$getSeenEntities();
+			unseenEntities = ((IEntitySensesMixin) senses).npcs$getUnseenEntities();
 		}
 		if (rtr.distance > aggroRange) {
 			if (seenEntities != null) {
@@ -853,50 +851,6 @@ public class Util implements IMethods {
 			}
 		}
 		return count <= 0;
-	}
-
-	@SideOnly(Side.CLIENT)
-	public void resetRecipes(EntityPlayer player, GuiContainer gui) {
-		CustomNpcs.proxy.updateRecipes(null, false, false, "this.resetRecipes()");
-		LogWriter.debug("Trying reset recipes book");
-		/* Container container = null;
-		SlotCrafting slotIn = null;
-		List<RecipeList> lists = null;
-
-		if (gui instanceof GuiCrafting) {
-			GuiNpcRecipeBook recipeBookGui = new GuiNpcRecipeBook(true);
-			recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomRegisters.tab, true));
-			ObfuscationHelper.setValue(GuiCrafting.class, (GuiCrafting) gui, recipeBookGui, GuiRecipeBook.class);
-
-			container = gui.inventorySlots;
-			slotIn = new SlotNpcCrafting(player, ((ContainerWorkbench) container).craftMatrix, ((ContainerWorkbench) container).craftResult, 0, 124, 35);
-			slotIn.slotNumber = 0;
-			lists = RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab);
-		} else if (gui instanceof GuiInventory) {
-			GuiNpcRecipeBook recipeBookGui = new GuiNpcRecipeBook(true);
-			recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomRegisters.tab, true));
-			ObfuscationHelper.setValue(GuiInventory.class, (GuiInventory) gui, recipeBookGui, 3);
-
-			container = gui.inventorySlots;
-			slotIn = new SlotNpcCrafting(player, ((ContainerPlayer) container).craftMatrix, ((ContainerPlayer) container).craftResult, 0, 154, 28);
-			slotIn.slotNumber = 0;
-			lists = RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab);
-		}
-		if (gui instanceof GuiNpcCarpentryBench) {
-			lists = ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab);
-		}
-		if (slotIn != null) {
-			container.inventorySlots.remove(slotIn.slotNumber);
-			container.inventoryItemStacks.remove(slotIn.slotNumber);
-			container.inventorySlots.add(slotIn.slotNumber, slotIn);
-			container.inventoryItemStacks.add(slotIn.slotNumber, ItemStack.EMPTY);
-		}
-		RecipeBook book = ((EntityPlayerSP) player).getRecipeBook();
-		if (lists != null) {
-			for (RecipeList list : lists) {
-				list.updateKnownRecipes(book);
-			}
-		}*/
 	}
 
 	/* Vanilla Teleport in world */
@@ -1480,7 +1434,7 @@ public class Util implements IMethods {
 		} else if (tag instanceof NBTTagIntArray) {
 			return ((NBTTagIntArray) tag).getIntArray();
 		} else if (tag instanceof NBTTagLongArray) {
-			return ((NBTTagLongArrayAPIMixin) tag).npcs$getData();
+			return ((INBTTagLongArrayMixin) tag).npcs$getData();
 		} else if (tag instanceof NBTTagCompound && ((NBTTagCompound) tag).hasKey("IsArray", 1)) {
 			boolean isArray = ((NBTTagCompound) tag).getBoolean("IsArray");
 			ScriptEngine engine = ScriptController.Instance.getEngineByName("ECMAScript");

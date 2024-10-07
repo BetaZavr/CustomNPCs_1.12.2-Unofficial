@@ -17,7 +17,6 @@ import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.math.MathHelper;
@@ -27,7 +26,6 @@ import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.CommandEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -38,8 +36,6 @@ import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerConnectionFromClientEvent;
-import net.minecraftforge.registries.ForgeRegistry;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IQuestObjective;
@@ -48,7 +44,6 @@ import noppes.npcs.api.wrapper.WrapperEntityData;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumQuestTask;
-import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.controllers.data.Line;
 import noppes.npcs.controllers.data.MarkData;
@@ -182,12 +177,6 @@ public class ServerEventsHandler {
 	}
 
 	@SubscribeEvent
-	public void joinServer(ServerConnectionFromClientEvent event) {
-		event.getManager().channel().pipeline().addBefore("fml:packet_handler",
-				CustomNpcs.MODID + ":custom_packet_handler_server", new CustomPacketHandler());
-	}
-
-	@SubscribeEvent
 	public void npcCommands(CommandEvent event) {
 		CustomNpcs.debugData.startDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client",
 				event.getSender(), "ServerEventsHandler_npcCommands");
@@ -235,7 +224,7 @@ public class ServerEventsHandler {
 			return;
 		}
 		CustomNpcs.debugData.startDebug("Server", event.getEntityLiving(), "ServerEventsHandler_npcDeath");
-		Entity source = NoppesUtilServer.GetDamageSourcee(event.getSource());
+		Entity source = NoppesUtilServer.GetDamageSource(event.getSource());
 		if (source != null) {
 			if (source instanceof EntityNPCInterface && event.getEntityLiving() != null) {
 				EntityNPCInterface npc = (EntityNPCInterface) source;
@@ -456,11 +445,6 @@ public class ServerEventsHandler {
 		PlayerData.get(event.getEntityPlayer()).save(false);
 		CustomNpcs.debugData.endDebug(!event.getEntityPlayer().world.isRemote ? "Server" : "Client",
 				event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
-	}
-
-	@SubscribeEvent
-	public void registryRecipes(RegistryEvent.Register<IRecipe> event) {
-		RecipeController.Registry = (ForgeRegistry<IRecipe>) event.getRegistry();
 	}
 
 	@SubscribeEvent

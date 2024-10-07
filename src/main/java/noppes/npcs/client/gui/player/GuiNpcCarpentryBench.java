@@ -6,29 +6,25 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.recipebook.GuiRecipeBook;
 import net.minecraft.client.gui.recipebook.IRecipeShownListener;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.client.CustomNpcResourceListener;
-import noppes.npcs.client.gui.recipebook.GuiNpcButtonRecipeTab;
-import noppes.npcs.client.gui.recipebook.GuiNpcRecipeBook;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.containers.ContainerCarpentryBench;
 
 import javax.annotation.Nonnull;
 
-// Changed
 public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IRecipeShownListener {
 
 	private static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES = new ResourceLocation(CustomNpcs.MODID, "textures/gui/carpentry.png");
 	private final ResourceLocation buttonTexture = new ResourceLocation("minecraft", "textures/gui/container/crafting_table.png");
 	private final ContainerCarpentryBench container;
-	private final GuiNpcRecipeBook recipeBookGui;
+	// from GuiCrafting
+	private final GuiRecipeBook recipeBookGui = new GuiRecipeBook();
 	private GuiNpcButton recipeButton;
 	private boolean widthTooNarrow;
 
@@ -38,10 +34,6 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 		this.allowUserInput = false;
 		this.closeOnEsc = true;
 		this.ySize = 180;
-		this.recipeBookGui = new GuiNpcRecipeBook(false);
-		this.recipeBookGui.getRecipeTabs().clear();
-		this.recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CreativeTabs.SEARCH, false));
-		this.recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomRegisters.tab, false));
 		this.container = container;
 		ScaledResolution scaleW = new ScaledResolution(this.mc);
 		this.guiLeft = (scaleW.getScaledWidth() - this.xSize) / 2;
@@ -53,8 +45,7 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 10) {
-			this.recipeBookGui.initVisuals(this.widthTooNarrow,
-					((ContainerCarpentryBench) this.inventorySlots).craftMatrix);
+			this.recipeBookGui.initVisuals(this.widthTooNarrow, ((ContainerCarpentryBench) this.inventorySlots).craftMatrix);
 			this.recipeBookGui.toggleVisibility();
 			this.guiLeft = this.recipeBookGui.updateScreenPosition(this.widthTooNarrow, this.width, this.xSize);
 			this.recipeButton.x = this.guiLeft + 5;
@@ -69,27 +60,14 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 		this.container.setPos(this.guiLeft, this.guiTop);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
-		this.fontRenderer.drawString(new TextComponentTranslation("tile.npccarpentybench.name").getFormattedText(),
-				this.guiLeft + 4, this.guiTop + 4, CustomNpcResourceListener.DefaultTextColor);
-		this.fontRenderer.drawString(new TextComponentTranslation("container.inventory").getFormattedText(),
-				this.guiLeft + 4, this.guiTop + 87, CustomNpcResourceListener.DefaultTextColor);
+		this.fontRenderer.drawString(new TextComponentTranslation("tile.npccarpentybench.name").getFormattedText(), this.guiLeft + 4, this.guiTop + 4, CustomNpcResourceListener.DefaultTextColor);
+		this.fontRenderer.drawString(new TextComponentTranslation("container.inventory").getFormattedText(), this.guiLeft + 4, this.guiTop + 87, CustomNpcResourceListener.DefaultTextColor);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	@Override
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		/*
-		 * this.fontRenderer.drawString(I18n.format("container.crafting"), 28, 6,
-		 * 4210752); this.fontRenderer.drawString(I18n.format("container.inventory"), 8,
-		 * this.ySize - 96 + 2, 4210752);
-		 */
-	}
-
-	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-
 		this.drawDefaultBackground();
-
 		if (this.recipeBookGui.isVisible() && this.widthTooNarrow) {
 			this.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 			this.recipeBookGui.render(mouseX, mouseY, partialTicks);
@@ -115,10 +93,8 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 	}
 
 	protected boolean hasClickedOutside(int p_193983_1_, int p_193983_2_, int p_193983_3_, int p_193983_4_) {
-		boolean flag = p_193983_1_ < p_193983_3_ || p_193983_2_ < p_193983_4_ || p_193983_1_ >= p_193983_3_ + this.xSize
-				|| p_193983_2_ >= p_193983_4_ + this.ySize;
-		return this.recipeBookGui.hasClickedOutside(p_193983_1_, p_193983_2_, this.guiLeft, this.guiTop, this.xSize,
-				this.ySize) && flag;
+		boolean flag = p_193983_1_ < p_193983_3_ || p_193983_2_ < p_193983_4_ || p_193983_1_ >= p_193983_3_ + this.xSize || p_193983_2_ >= p_193983_4_ + this.ySize;
+		return this.recipeBookGui.hasClickedOutside(p_193983_1_, p_193983_2_, this.guiLeft, this.guiTop, this.xSize, this.ySize) && flag;
 	}
 
 	@Override
@@ -132,8 +108,7 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 
 	@Override
 	protected boolean isPointInRegion(int rectX, int rectY, int rectWidth, int rectHeight, int pointX, int pointY) {
-		return (!this.widthTooNarrow || !this.recipeBookGui.isVisible())
-				&& super.isPointInRegion(rectX, rectY, rectWidth, rectHeight, pointX, pointY);
+		return (!this.widthTooNarrow || !this.recipeBookGui.isVisible()) && super.isPointInRegion(rectX, rectY, rectWidth, rectHeight, pointX, pointY);
 	}
 
 	@Override

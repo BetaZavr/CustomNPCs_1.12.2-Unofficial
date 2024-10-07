@@ -116,7 +116,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 			break;
 		}
 		case 11: { // lock
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.Banklock, this.npc.getEntityId());
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.BankLock, this.npc.getEntityId());
 			this.isWait = true;
 			break;
 		}

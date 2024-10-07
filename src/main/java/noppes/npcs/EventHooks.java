@@ -410,13 +410,10 @@ public class EventHooks {
 		EventHooks.onEvent(npc.script, EnumScriptType.TIMER, new NpcEvent.TimerEvent(npc.wrappedNPC, id));
 	}
 
-	public static void onPackageReceived(PackageReceived event) {
+	public static void onPackageReceived(PackageReceived event, boolean isServerSide) {
 		IScriptHandler handler;
-		if (event.side) {
-			handler = ScriptController.Instance.forgeScripts;
-		} else {
-			handler = ScriptController.Instance.clientScripts;
-		}
+		if (isServerSide) { handler = ScriptController.Instance.forgeScripts; }
+		else { handler = ScriptController.Instance.clientScripts; }
 		EventHooks.onEvent(handler, EnumScriptType.PACKAGE_RECEIVED, event);
 	}
 

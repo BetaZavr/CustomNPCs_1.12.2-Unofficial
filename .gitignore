@@ -19,12 +19,7 @@ build
 
 # other
 eclipse
-server
-client
 run
-
-# git
-.git
 
 # Files from Forge MDK
 forge*changelog.txt

@@ -58,7 +58,7 @@ import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.api.wrapper.DataObject;
 import noppes.npcs.client.ClientProxy;
-import noppes.npcs.mixin.api.nbt.NBTTagLongArrayAPIMixin;
+import noppes.npcs.mixin.nbt.INBTTagLongArrayMixin;
 import noppes.npcs.util.ScriptEncryption;
 
 public class ScriptContainer {
@@ -191,7 +191,7 @@ public class ScriptContainer {
 			value = ((NBTTagIntArray) tag).getIntArray();
 			break;
 		case 12:
-			value = ((NBTTagLongArrayAPIMixin) tag).npcs$getData();
+			value = ((INBTTagLongArrayMixin) tag).npcs$getData();
 			break;
 		}
 		return value;

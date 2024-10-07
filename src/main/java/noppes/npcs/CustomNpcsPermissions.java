@@ -40,15 +40,14 @@ public class CustomNpcsPermissions {
 	public static Permission GLOBAL_DIALOG = new Permission(CustomNpcs.MODID + ".global.dialog");
 	public static Permission GLOBAL_FACTION = new Permission(CustomNpcs.MODID + ".global.faction");
 	public static Permission GLOBAL_LINKED = new Permission(CustomNpcs.MODID + ".global.linked");
-	public static Permission GLOBAL_MARCET = new Permission(CustomNpcs.MODID + ".global.marcet");
-	public static Permission GLOBAL_NATURALSPAWN = new Permission(CustomNpcs.MODID + ".global.naturalspawn");
+	public static Permission GLOBAL_MARKET = new Permission(CustomNpcs.MODID + ".global.marcet");
+	public static Permission GLOBAL_NATURAL_SPAWN = new Permission(CustomNpcs.MODID + ".global.naturalspawn");
 	public static Permission GLOBAL_PLAYERDATA = new Permission(CustomNpcs.MODID + ".global.playerdata");
 	public static Permission GLOBAL_QUEST = new Permission(CustomNpcs.MODID + ".global.quest");
 	public static Permission GLOBAL_RECIPE = new Permission(CustomNpcs.MODID + ".global.recipe");
 	public static Permission GLOBAL_TRANSPORT = new Permission(CustomNpcs.MODID + ".global.transport");
 	public static CustomNpcsPermissions Instance;
 	public static Permission NPC_ADVANCED = new Permission(CustomNpcs.MODID + ".npc.advanced");
-	public static Permission NPC_AI = new Permission(CustomNpcs.MODID + ".npc.ai");
 	public static Permission NPC_CLONE = new Permission(CustomNpcs.MODID + ".npc.clone");
 	public static Permission NPC_CREATE = new Permission(CustomNpcs.MODID + ".npc.create");
 	public static Permission NPC_DELETE = new Permission(CustomNpcs.MODID + ".npc.delete");
@@ -63,7 +62,7 @@ public class CustomNpcsPermissions {
 	public static Permission SPAWNER_CREATE = new Permission(CustomNpcs.MODID + ".spawner.create");
 	public static Permission SPAWNER_MOB = new Permission(CustomNpcs.MODID + ".spawner.mob");
 	public static Permission TOOL_MOUNTER = new Permission(CustomNpcs.MODID + ".tool.mounter");
-	public static Permission TOOL_NBTBOOK = new Permission(CustomNpcs.MODID + ".tool.nbtbook");
+	public static Permission TOOL_NBT_BOOK = new Permission(CustomNpcs.MODID + ".tool.nbtbook");
 	public static Permission TOOL_PATHER = new Permission(CustomNpcs.MODID + ".tool.pather");
 	public static Permission TOOL_SCRIPTER = new Permission(CustomNpcs.MODID + ".tool.scripter");
 	public static Permission TOOL_TELEPORTER = new Permission(CustomNpcs.MODID + ".tool.teleporter");
@@ -82,11 +81,11 @@ public class CustomNpcsPermissions {
 	public CustomNpcsPermissions() {
 		CustomNpcsPermissions.Instance = this;
 		if (!CustomNpcs.DisablePermissions) {
-			LogManager.getLogger(CustomNpcs.class).info("CustomNPC Permissions available:");
+			LogManager.getLogger(CustomNpcsPermissions.class).info("CustomNPC Permissions available:");
 			Permission.permissions.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
 			for (Permission p : Permission.permissions) {
 				PermissionAPI.registerNode(p.name, p.defaultValue ? DefaultPermissionLevel.ALL : DefaultPermissionLevel.OP, p.name);
-				LogManager.getLogger(CustomNpcs.class).info(p.name);
+				LogManager.getLogger(CustomNpcsPermissions.class).info(p.name);
 			}
 		}
 	}

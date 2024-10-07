@@ -11,7 +11,7 @@ import net.minecraft.util.DamageSource;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.ability.AbstractAbility;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.api.entity.EntityLivingBaseAPIMixin;
+import noppes.npcs.mixin.entity.IEntityLivingBaseMixin;
 
 public class CombatHandler {
 
@@ -52,7 +52,7 @@ public class CombatHandler {
 
 	public void damage(DamageSource source, float damageAmount) {
 		this.combatResetTimer = 0;
-		Entity e = NoppesUtilServer.GetDamageSourcee(source);
+		Entity e = NoppesUtilServer.GetDamageSource(source);
 		if (e instanceof EntityLivingBase) {
 			EntityLivingBase el = (EntityLivingBase) e;
 			Float f = this.aggressors.get(el);
@@ -107,10 +107,10 @@ public class CombatHandler {
 	}
 
 	public boolean canDamage(DamageSource damagesource, float amount) {
-		Entity entity = NoppesUtilServer.GetDamageSourcee(damagesource);
+		Entity entity = NoppesUtilServer.GetDamageSource(damagesource);
 		if (!(entity instanceof EntityLivingBase)) {
 			if (this.npc.ais.getMaxHurtResistantTime() != 0 && this.npc.hurtResistantTime > this.npc.ais.getMaxHurtResistantTime() / 2.0F) {
-                return amount > ((EntityLivingBaseAPIMixin) this.npc).npcs$getLastDamage();
+                return amount > ((IEntityLivingBaseMixin) this.npc).npcs$getLastDamage();
 			}
 			return true;
 		}

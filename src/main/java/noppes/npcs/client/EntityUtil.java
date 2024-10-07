@@ -7,7 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.api.entity.EntityLivingBaseAPIMixin;
+import noppes.npcs.mixin.entity.IEntityLivingBaseMixin;
 
 public class EntityUtil {
 	public static void Copy(EntityLivingBase copied, EntityLivingBase entity) {
@@ -92,6 +92,6 @@ public class EntityUtil {
 	}
 
 	public static void setRecentlyHit(EntityLivingBase entity) {
-		((EntityLivingBaseAPIMixin) entity).npcs$setRecentlyHit(100);
+		((IEntityLivingBaseMixin) entity).npcs$setRecentlyHit(100);
 	}
 }

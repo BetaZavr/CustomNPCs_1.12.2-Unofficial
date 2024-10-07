@@ -17,7 +17,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -51,23 +50,7 @@ import noppes.npcs.constants.EnumPlayerData;
 import noppes.npcs.constants.EnumQuestRepeat;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerMail;
-import noppes.npcs.controllers.AnimationController;
-import noppes.npcs.controllers.BankController;
-import noppes.npcs.controllers.BorderController;
-import noppes.npcs.controllers.DialogController;
-import noppes.npcs.controllers.DropController;
-import noppes.npcs.controllers.FactionController;
-import noppes.npcs.controllers.LinkedNpcController;
-import noppes.npcs.controllers.MarcetController;
-import noppes.npcs.controllers.PlayerDataController;
-import noppes.npcs.controllers.QuestController;
-import noppes.npcs.controllers.RecipeController;
-import noppes.npcs.controllers.SchematicController;
-import noppes.npcs.controllers.ScriptController;
-import noppes.npcs.controllers.ServerCloneController;
-import noppes.npcs.controllers.SpawnController;
-import noppes.npcs.controllers.SyncController;
-import noppes.npcs.controllers.TransportController;
+import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.controllers.data.BankData;
@@ -340,7 +323,7 @@ public class PacketHandlerServer {
             } else {
                 recipe = NpcShapelessRecipes.read(compound);
             }
-            INpcRecipe r = RecipeController.getInstance().putRecipe(recipe);
+            INpcRecipe r = RecipeController.getInstance().register(recipe);
             NoppesUtilServer.sendRecipeData(player, r.isGlobal() ? 3 : 4, r.getNpcGroup(), r.getName());
             NoppesUtilServer.setRecipeGui(player, r);
         } else if (type == EnumPacketServer.NaturalSpawnGetAll) {
@@ -1221,104 +1204,20 @@ public class PacketHandlerServer {
         } else if (type == EnumPacketServer.RecipesAddGroup) {
             int size = buffer.readInt();
             String group = Server.readString(buffer);
-            if (size == 3) {
-                RecipeController.getInstance().globalList.put(group, Lists.newArrayList());
-            } else {
-                RecipeController.getInstance().modList.put(group, Lists.newArrayList());
-            }
-            NpcShapedRecipes recipe = new NpcShapedRecipes(group, "default", size, size, NonNullList.create(),
-                    ItemStack.EMPTY);
+            NpcShapedRecipes recipe = new NpcShapedRecipes(group, "default", size, size, NonNullList.create(), ItemStack.EMPTY);
             recipe.global = (size == 3);
-            RecipeController.getInstance().putRecipe(recipe);
+            RecipeController.getInstance().register(recipe);
             NoppesUtilServer.sendRecipeData(player, size, group, "default");
             NoppesUtilServer.setRecipeGui(player, new NpcShapedRecipes());
             Server.sendData(player, EnumPacketClient.GUI_UPDATE);
         } else if (type == EnumPacketServer.RecipesRenameGroup) {
-            int size = buffer.readInt();
-            String old = Server.readString(buffer);
-            RecipeController rData = RecipeController.getInstance();
-            String group = Server.readString(buffer);
-            String recipe = Server.readString(buffer);
-            Map<String, List<INpcRecipe>> map = size == 3 ? rData.globalList : rData.modList;
-            if (map.containsKey(old)) {
-                RecipeController.Registry.unfreeze();
-                map.put(group, map.get(old));
-                map.remove(old);
-                for (INpcRecipe rec : map.get(group)) {
-                    if (rec.getClass() == NpcShapedRecipes.class) {
-                        ((NpcShapedRecipes) rec).group = group;
-                    } else {
-                        ((NpcShapelessRecipes) rec).group = group;
-                    }
-                    IRecipe r = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
-                    if (r instanceof INpcRecipe) {
-                        if (r.getClass() == NpcShapedRecipes.class) {
-                            ((NpcShapedRecipes) r).group = group;
-                        } else {
-                            ((NpcShapelessRecipes) r).group = group;
-                        }
-                    }
-                }
-                RecipeController.Registry.freeze();
-                CustomNpcs.proxy.updateRecipes(null, true, false, "PacketHandlerServer.RecipesRenameGroup");
-                NoppesUtilServer.sendRecipeData(player, size, group, recipe);
-                NoppesUtilServer.setRecipeGui(player, rData.getRecipe(group, recipe));
-            }
+            RecipeController.getInstance().renameGroup(player, buffer.readInt(), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer));
             Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-
         } else if (type == EnumPacketServer.RecipeRemoveGroup) {
-            int size = buffer.readInt();
-            String group = Server.readString(buffer);
-            RecipeController rData = RecipeController.getInstance();
-            Map<String, List<INpcRecipe>> map = size == 3 ? rData.globalList : rData.modList;
-            if (map.containsKey(group)) {
-                RecipeController.Registry.unfreeze();
-                for (INpcRecipe rec : map.get(group)) {
-                    IRecipe r = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
-                    if (r instanceof INpcRecipe) {
-                        RecipeController.Registry.remove(r.getRegistryName());
-                    }
-                }
-                map.remove(group);
-                RecipeController.Registry.freeze();
-                CustomNpcs.proxy.updateRecipes(null, true, false, "PacketHandlerServer.RecipeRemoveGroup");
-                NoppesUtilServer.sendRecipeData(player, size, "", "");
-                NoppesUtilServer.setRecipeGui(player, new NpcShapedRecipes());
-            }
+            RecipeController.getInstance().deleteGroup(player, buffer.readInt(), Server.readString(buffer));
             Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-
         } else if (type == EnumPacketServer.RecipesRename) {
-            int size = buffer.readInt();
-            String old = Server.readString(buffer);
-            String group = Server.readString(buffer);
-            RecipeController rData = RecipeController.getInstance();
-            String name = Server.readString(buffer);
-            Map<String, List<INpcRecipe>> map = size == 3 ? rData.globalList : rData.modList;
-            if (map.containsKey(group)) {
-                for (INpcRecipe rec : map.get(group)) {
-                    if (!rec.getName().equals(old)) {
-                        continue;
-                    }
-                    if (rec.getClass() == NpcShapedRecipes.class) {
-                        ((NpcShapedRecipes) rec).name = name;
-                    } else {
-                        ((NpcShapelessRecipes) rec).name = name;
-                    }
-                    IRecipe r = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
-                    if (r instanceof INpcRecipe) {
-                        if (r.getClass() == NpcShapedRecipes.class) {
-                            ((NpcShapedRecipes) r).name = name;
-                        } else {
-                            ((NpcShapelessRecipes) r).name = name;
-                        }
-                    }
-                    RecipeController.Registry.freeze();
-                    CustomNpcs.proxy.updateRecipes(rec, true, false, "PacketHandlerServer.RecipesRename");
-                    NoppesUtilServer.sendRecipeData(player, size, group, name);
-                    NoppesUtilServer.setRecipeGui(player, rec);
-                    break;
-                }
-            }
+            RecipeController.getInstance().renameRecipe(player, buffer.readInt(), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer));
             Server.sendData(player, EnumPacketClient.GUI_UPDATE);
         } else if (type == EnumPacketServer.TraderMarketSave) {
             MarcetController mData = MarcetController.getInstance();
@@ -1335,17 +1234,17 @@ public class PacketHandlerServer {
             MarcetController.getInstance().sendTo(player, id);
         } else if (type == EnumPacketServer.TraderMarketDel) {
             MarcetController mData = MarcetController.getInstance();
-            int marcetID = buffer.readInt();
+            int marketID = buffer.readInt();
             int dealID = buffer.readInt();
-            if (marcetID >= 0 && dealID < 0) {
-                Server.sendData(player, EnumPacketClient.SYNC_REMOVE, EnumSync.MarcetData, marcetID);
-                mData.removeMarcet(marcetID);
+            if (marketID >= 0 && dealID < 0) {
+                Server.sendData(player, EnumPacketClient.SYNC_REMOVE, EnumSync.MarcetData, marketID);
+                mData.removeMarcet(marketID);
             }
-            if (marcetID < 0 && dealID >= 0) {
+            if (marketID < 0 && dealID >= 0) {
                 Server.sendData(player, EnumPacketClient.SYNC_REMOVE, EnumSync.MarcetDeal, dealID);
                 mData.removeDeal(dealID);
             }
-            MarcetController.getInstance().sendTo(player, marcetID);
+            MarcetController.getInstance().sendTo(player, marketID);
         } else if (type == EnumPacketServer.GetClone) {
             NBTTagCompound npcNbt = null;
             if (buffer.readBoolean()) {
@@ -1673,20 +1572,7 @@ public class PacketHandlerServer {
                     }
                 }
                 if (needDelete) {
-                    boolean bo = dir.delete(); // delete mod data
-                    File advancements = new File(dirGame, "advancements/" + uuid);
-                    if (advancements.exists()) {
-                        bo = advancements.delete();
-                    }
-                    File stats = new File(dirGame, "stats/" + uuid);
-                    if (stats.exists()) {
-                        bo = stats.delete();
-                    }
-                    File playerdata = new File(dirGame, "playerdata/" + uuid + ".dat");
-                    if (playerdata.exists()) {
-                        bo = playerdata.delete();
-                    }
-                    if (bo) { i++; }
+                    if (isDelete(dir, dirGame, uuid)) { i++; }
                 }
             }
             if (i > 0) {
@@ -1741,6 +1627,23 @@ public class PacketHandlerServer {
             }
         }
         CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
+    }
+
+    private static boolean isDelete(File dir, File dirGame, String uuid) {
+        boolean bo = dir.delete(); // delete mod data
+        File advancements = new File(dirGame, "advancements/" + uuid);
+        if (advancements.exists()) {
+            bo = advancements.delete();
+        }
+        File stats = new File(dirGame, "stats/" + uuid);
+        if (stats.exists()) {
+            bo = stats.delete();
+        }
+        File playerdata = new File(dirGame, "playerdata/" + uuid + ".dat");
+        if (playerdata.exists()) {
+            bo = playerdata.delete();
+        }
+        return bo;
     }
 
     @SubscribeEvent

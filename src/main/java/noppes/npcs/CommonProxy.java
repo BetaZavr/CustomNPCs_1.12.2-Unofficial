@@ -7,24 +7,21 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.util.RecipeBookClient;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.handler.data.INpcRecipe;
@@ -38,7 +35,6 @@ import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.blocks.tiles.CustomTileEntityChest;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerBuilderSettings;
 import noppes.npcs.containers.ContainerCarpentryBench;
 import noppes.npcs.containers.ContainerCustomChest;
@@ -62,7 +58,6 @@ import noppes.npcs.containers.ContainerNpcQuestRewardItem;
 import noppes.npcs.containers.ContainerNpcQuestTypeItem;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.MarcetController;
-import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.Deal;
@@ -76,9 +71,6 @@ import noppes.npcs.items.CustomFishingRod;
 import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
-import noppes.npcs.items.crafting.NpcShapedRecipes;
-import noppes.npcs.items.crafting.NpcShapelessRecipes;
-import noppes.npcs.mixin.api.stats.RecipeBookAPIMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.TempFile;
 
@@ -87,7 +79,6 @@ public class CommonProxy implements IGuiHandler {
 	public static Map<String, TempFile> downloadableFiles = Maps.newHashMap();
 	public boolean newVersionAvailable;
 	public int revision;
-	public static String agreementKey = null;
 
 	public CommonProxy() {
 		this.newVersionAvailable = false;
@@ -541,169 +532,16 @@ public class CommonProxy implements IGuiHandler {
 	public void updateKeys() {
 	}
 
-	public void updateRecipeBook(EntityPlayer player) {
-		if (!(player instanceof EntityPlayerMP)) {
-			return;
-		}
-		RecipeBook book = ((EntityPlayerMP) player).getRecipeBook();
-        RecipeController rData = RecipeController.getInstance();
-		BitSet recipes = ((RecipeBookAPIMixin) book).npcs$getRecipes();
-		BitSet newRecipes = ((RecipeBookAPIMixin) book).npcs$getNewRecipes();
-		List<Integer> delIDs = Lists.newArrayList();
-        assert recipes != null;
-        for (int id = recipes.nextSetBit(0); id >= 0; id = recipes.nextSetBit(id + 1)) {
-			INpcRecipe recipe = rData.getRecipe(id);
-			if (recipe == null) {
-				delIDs.add(id);
-			} else if (!CraftingManager.REGISTRY.containsKey(Objects.requireNonNull(((IRecipe) recipe).getRegistryName()))
-					|| CraftingManager.REGISTRY.getObjectById(id) == null) {
-				delIDs.add(id);
-			}
-		}
-		if (!delIDs.isEmpty()) {
-			for (int id : delIDs) {
-				recipes.clear(id);
-			}
-		}
-		delIDs.clear();
-        assert newRecipes != null;
-        for (int id = newRecipes.nextSetBit(0); id >= 0; id = newRecipes.nextSetBit(id + 1)) {
-			INpcRecipe recipe = rData.getRecipe(id);
-			if (recipe == null) {
-				delIDs.add(id);
-			} else if (!CraftingManager.REGISTRY.containsKey(Objects.requireNonNull(((IRecipe) recipe).getRegistryName()))
-					|| CraftingManager.REGISTRY.getObjectById(id) == null) {
-				delIDs.add(id);
-			}
-		}
-		if (!delIDs.isEmpty()) {
-			for (int id : delIDs) {
-				newRecipes.clear(id);
-			}
-		}
-		((RecipeBookAPIMixin) book).npcs$setRecipes(recipes);
-		((RecipeBookAPIMixin) book).npcs$setNewRecipes(newRecipes);
-		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
-	}
-
-	public void updateRecipes(INpcRecipe recipe, boolean needSend, boolean delete, String debug) {
-		List<EntityPlayerMP> players = CustomNpcs.Server != null
-				? CustomNpcs.Server.getPlayerList().getPlayers()
-				: Lists.newArrayList();
-		// Update Recipe
-		if (recipe != null) {
-			IRecipe r = RecipeController.Registry.getValue(((IRecipe) recipe).getRegistryName());
-			RecipeController.Registry.unfreeze();
-			if (delete) {
-				if (r != null) {
-					RecipeController.Registry.remove(r.getRegistryName());
-				}
-			} else {
-				if (recipe.isValid()) {
-					if (r == null) {
-						RecipeController.Registry.register((IRecipe) recipe);
-						r = RecipeController.Registry.getValue(((IRecipe) recipe).getRegistryName());
-					}
-					if (!(r instanceof INpcRecipe) || r.getClass() != recipe.getClass()) {
-                        assert r != null;
-                        RecipeController.Registry.remove(r.getRegistryName());
-						RecipeController.Registry.register((IRecipe) recipe);
-						r = RecipeController.Registry.getValue(((IRecipe) recipe).getRegistryName());
-					}
-				} else {
-					r = null;
-				}
-				if (r != null) {
-					((INpcRecipe) r).copy(recipe);
-				}
-			}
-			RecipeController.Registry.freeze();
-			if (needSend) {
-				NBTTagCompound nbt = recipe.getNbt().getMCNBT();
-				if (delete) {
-					nbt.setBoolean("delete", true);
-				}
-				for (EntityPlayerMP player : players) {
-					this.updateRecipeBook(player);
-					Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.RecipesData, nbt);
-				}
-			}
-		}
-
-		// Update All Recipes
-		if (RecipeController.Registry == null) { return; }
-		// Delete Old
-		List<ResourceLocation> del = Lists.newArrayList();
-		RecipeController.Registry.unfreeze();
-		for (IRecipe rec : RecipeController.Registry) {
-			if (!(rec instanceof INpcRecipe)) {
-				continue;
-			}
-			INpcRecipe r = RecipeController.getInstance().getRecipe(rec.getRegistryName());
-			if (r == null || !r.isValid()) {
-				del.add(rec.getRegistryName());
-			}
-		}
-		if (!del.isEmpty()) {
-			for (ResourceLocation rl : del) {
-				RecipeController.Registry.remove(rl);
-			}
-		}
-		if (recipe != null) {
-			return;
-		}
-
-		// Added New or Reload
-		for (int i = 0; i < 2; i++) {
-			for (List<INpcRecipe> list : (i == 0 ? RecipeController.getInstance().globalList.values()
-					: RecipeController.getInstance().modList.values())) {
-				for (INpcRecipe rec : list) {
-					if (!rec.isValid()) {
-						continue;
-					}
-					IRecipe r = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
-					if (r == null) {
-						RecipeController.Registry.register((IRecipe) rec);
-						r = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
-					} else if (r.getClass() != rec.getClass()) {
-						RecipeController.Registry.remove(r.getRegistryName());
-						RecipeController.Registry.register((IRecipe) rec);
-						r = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
-					}
-					if (r == null) {
-						continue;
-					}
-					((INpcRecipe) r).copy(rec);
-					int nowID = RecipeController.Registry.getID(r);
-					if (rec.getClass() == NpcShapedRecipes.class) {
-						((NpcShapedRecipes) rec).id = nowID;
-					} else {
-						((NpcShapelessRecipes) rec).id = nowID;
-					}
-				}
-			}
-		}
-		RecipeController.Registry.freeze();
+    public void applyRecipe(INpcRecipe recipe, boolean added) {
+		if (recipe == null) { return; }
 		// Changed in Players
-		for (EntityPlayerMP player : players) {
-			this.updateRecipeBook(player);
-			RecipeController.getInstance().sendTo(player);
-		}
-	}
-
-	public void clearKeys() { }
-
-	public boolean isLoadTexture(ResourceLocation resource) { return false; }
-
-	public String getAgreementKey() {
-		if (CommonProxy.agreementKey == null && CustomNpcs.Server != null) {
-			for (WorldServer world : CustomNpcs.Server.worlds) {
-				if (world.provider.getDimension() != 0) { continue; }
-				WorldInfo info = world.getWorldInfo();
-				CommonProxy.agreementKey = info.getWorldName() + "/" + info.areCommandsAllowed() + "/" + info.getSeed();
+		if (!added || recipe.isKnown()) {
+			List<EntityPlayerMP> players = CustomNpcs.Server != null ? CustomNpcs.Server.getPlayerList().getPlayers() : Lists.newArrayList();
+			for (EntityPlayerMP player : players) {
+				RecipeBook book = player.getRecipeBook();
+				if (!added) { book.lock((IRecipe) recipe); } else { book.unlock((IRecipe) recipe); }
 			}
 		}
-		return CommonProxy.agreementKey;
-	 }
+    }
 
 }

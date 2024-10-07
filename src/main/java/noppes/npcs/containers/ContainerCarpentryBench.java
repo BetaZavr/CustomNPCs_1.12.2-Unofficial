@@ -75,6 +75,7 @@ public class ContainerCarpentryBench extends Container {
 
 	public void onCraftMatrixChanged(@Nonnull IInventory inventoryIn) {
 		if (!this.world.isRemote) {
+			/*
 			INpcRecipe recipe = RecipeController.getInstance().findMatchingRecipe(this.craftMatrix);
 			ItemStack item = ItemStack.EMPTY;
 			if (recipe != null
@@ -87,6 +88,8 @@ public class ContainerCarpentryBench extends Container {
 			}
 			this.craftResult.setInventorySlotContents(0, item);
 			((EntityPlayerMP) this.player).connection.sendPacket(new SPacketSetSlot(this.windowId, 0, item));
+
+			 */
 		}
 	}
 

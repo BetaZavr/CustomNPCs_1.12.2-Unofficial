@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import noppes.npcs.*;
-import noppes.npcs.mixin.api.client.audio.SoundHandlerAPIMixin;
-import noppes.npcs.mixin.api.client.audio.SoundManagerAPIMixin;
-import noppes.npcs.mixin.api.client.gui.GuiYesNoAPIMixin;
+import noppes.npcs.mixin.client.audio.ISoundHandlerMixin;
+import noppes.npcs.mixin.client.audio.ISoundManagerMixin;
+import noppes.npcs.mixin.client.gui.IGuiYesNoMixin;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.Lists;
@@ -117,13 +117,6 @@ public class ClientTickHandler {
 			this.otherContainer = true;
 		}
 		if (mc.player == null) {
-			if (CustomNpcs.Server == null) {
-				ClientProxy.agreementKey = null;
-				CommonProxy.agreementKey = null;
-			}
-			ScriptController.hasScripts = false;
-			ScriptController.scriptPermissionWasRequested = false;
-			ScriptController.clientScriptPermissionWasRequested = false;
 			if (ClientTickHandler.inGame) {
 				LogWriter.debug("Client Player: Exit game");
 				ClientTickHandler.inGame = false;
@@ -139,12 +132,12 @@ public class ClientTickHandler {
         if (Keyboard.getEventKey() == 0 && c0 >= ' ' || Keyboard.getEventKeyState()) {
         	if (mc.currentScreen instanceof GuiYesNo) {
         		if (Keyboard.getEventKey() == 1) { // ESC
-					GuiYesNoCallback parentScreen = ((GuiYesNoAPIMixin) mc.currentScreen).npcs$getParentScreen();
-        			parentScreen.confirmClicked(false, ((GuiYesNoAPIMixin) mc.currentScreen).npcs$getParentButtonClickedId());
+					GuiYesNoCallback parentScreen = ((IGuiYesNoMixin) mc.currentScreen).npcs$getParentScreen();
+        			parentScreen.confirmClicked(false, ((IGuiYesNoMixin) mc.currentScreen).npcs$getParentButtonClickedId());
         		}
         		if (Keyboard.getEventKey() == 28) { // Enter
-					GuiYesNoCallback parentScreen = ((GuiYesNoAPIMixin) mc.currentScreen).npcs$getParentScreen();
-					parentScreen.confirmClicked(true, ((GuiYesNoAPIMixin) mc.currentScreen).npcs$getParentButtonClickedId());
+					GuiYesNoCallback parentScreen = ((IGuiYesNoMixin) mc.currentScreen).npcs$getParentScreen();
+					parentScreen.confirmClicked(true, ((IGuiYesNoMixin) mc.currentScreen).npcs$getParentButtonClickedId());
         		}
         	}
         }
@@ -154,8 +147,8 @@ public class ClientTickHandler {
 			this.prevWorld = mc.world;
 			MusicController.Instance.stopSounds();
 		}
-		SoundManager sm = ((SoundHandlerAPIMixin) mc.getSoundHandler()).npcs$getSndManager();
-		Map<String, ISound> playingSounds = ((SoundManagerAPIMixin) sm).npcs$getPlayingSounds();
+		SoundManager sm = ((ISoundHandlerMixin) mc.getSoundHandler()).npcs$getSndManager();
+		Map<String, ISound> playingSounds = ((ISoundManagerMixin) sm).npcs$getPlayingSounds();
 		List<String> del = Lists.newArrayList();
         if (playingSounds != null) {
 			for (String uuid : playingSounds.keySet()) { // is played

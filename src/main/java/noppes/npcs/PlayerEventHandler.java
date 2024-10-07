@@ -7,10 +7,13 @@ import java.util.*;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.block.BlockBanner;
+import net.minecraft.tileentity.TileEntityBanner;
 import noppes.npcs.controllers.*;
-import noppes.npcs.mixin.api.entity.player.EntityPlayerAPIMixin;
-import noppes.npcs.mixin.api.event.entity.living.LivingAttackEventAPImixin;
-import noppes.npcs.util.CustomNPCsScheduler;
+import noppes.npcs.controllers.data.*;
+import noppes.npcs.mixin.entity.player.IEntityPlayerMixin;
+import noppes.npcs.mixin.event.entity.living.ILivingAttackEventMixin;
+import noppes.npcs.mixin.tileentity.ITileEntityBanner;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.reflect.ClassPath;
@@ -79,17 +82,10 @@ import noppes.npcs.api.handler.data.IWorldInfo;
 import noppes.npcs.api.item.ISpecBuilder;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
-import noppes.npcs.blocks.BlockCustomBanner;
-import noppes.npcs.blocks.tiles.TileEntityCustomBanner;
 import noppes.npcs.client.ClientEventHandler;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumQuestTask;
-import noppes.npcs.controllers.data.Availability;
-import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerQuestData;
-import noppes.npcs.controllers.data.PlayerScriptData;
-import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -226,15 +222,13 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcBlockPlaceEvent");
 		EntityPlayer player = (EntityPlayer) event.getEntity();
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
-		if (event.getPlacedBlock().getBlock() instanceof BlockCustomBanner
-				&& player.getHeldItemMainhand().getItem() instanceof ItemBanner) {
+		if (event.getPlacedBlock().getBlock() instanceof BlockBanner && player.getHeldItemMainhand().getItem() instanceof ItemBanner) {
 			NBTTagCompound nbt = player.getHeldItemMainhand().getTagCompound();
 			if (nbt != null && nbt.hasKey("BlockEntityTag", 10)
 					&& nbt.getCompoundTag("BlockEntityTag").hasKey("FactionID", 3)) {
 				TileEntity tile = event.getWorld().getTileEntity(event.getPos());
-				if (tile instanceof TileEntityCustomBanner) {
-					((TileEntityCustomBanner) tile).factionId = nbt.getCompoundTag("BlockEntityTag")
-							.getInteger("FactionID");
+				if (tile instanceof TileEntityBanner) {
+					((ITileEntityBanner) tile).npcs$setFactionId(nbt.getCompoundTag("BlockEntityTag").getInteger("FactionID"));
 				}
 			}
 		}
@@ -312,7 +306,7 @@ public class PlayerEventHandler {
 			return;
 		}
 		CustomNpcs.debugData.startDebug("Server", event.getEntityLiving(), "PlayerEventHandler_npcLivingAttackEvent");
-		Entity source = NoppesUtilServer.GetDamageSourcee(event.getSource());
+		Entity source = NoppesUtilServer.GetDamageSource(event.getSource());
 		String damageType = event.getSource() != null ? event.getSource().damageType : "null";
 		Resistances.addDamageName(damageType);
 		if (source instanceof EntityPlayer) {
@@ -323,7 +317,7 @@ public class PlayerEventHandler {
 			PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 1, target);
 			event.setCanceled(EventHooks.onPlayerAttack(handler, ev));
 			if (event.isCanceled() || ev.isCanceled()) {
-				((LivingAttackEventAPImixin) event).npcs$setAmount(0.0f);
+				((ILivingAttackEventMixin) event).npcs$setAmount(0.0f);
 			}
 			if (item.getItem() == CustomRegisters.scripted_item && !event.isCanceled()) {
 				ItemScriptedWrapper isw = ItemScripted.GetWrapper(item);
@@ -356,7 +350,7 @@ public class PlayerEventHandler {
 			return;
 		}
 		CustomNpcs.debugData.startDebug("Server", event.getEntityLiving(), "PlayerEventHandler_npcLivingDeathEvent");
-		Entity source = NoppesUtilServer.GetDamageSourcee(event.getSource());
+		Entity source = NoppesUtilServer.GetDamageSource(event.getSource());
 		if (event.getEntityLiving() instanceof EntityPlayer) {
 			PlayerScriptData handler = PlayerData.get((EntityPlayer) event.getEntityLiving()).scriptData;
 			EventHooks.onPlayerDeath(handler, event.getSource(), source);
@@ -374,7 +368,7 @@ public class PlayerEventHandler {
 			return;
 		}
 		CustomNpcs.debugData.startDebug("Server", event.getEntityLiving(), "PlayerEventHandler_npcLivingHurtEvent");
-		Entity source = NoppesUtilServer.GetDamageSourcee(event.getSource());
+		Entity source = NoppesUtilServer.GetDamageSource(event.getSource());
 		if (event.getEntityLiving() instanceof EntityPlayer) {
 			PlayerScriptData handler = PlayerData.get((EntityPlayer) event.getEntityLiving()).scriptData;
 			PlayerEvent.DamagedEvent pevent = new PlayerEvent.DamagedEvent(handler.getPlayer(), source, event.getAmount(), event.getSource());
@@ -481,7 +475,6 @@ public class PlayerEventHandler {
 
 	@SubscribeEvent
 	public void npcPlayerLoginEvent(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
-		CustomNpcs.proxy.updateRecipeBook(event.player);
 		if (event.player.world.isRemote) {
 			return;
 		}
@@ -506,16 +499,10 @@ public class PlayerEventHandler {
 			}
 		}
 		event.player.inventoryContainer.addListener(new IContainerListener() {
-			public void sendAllContents(@Nonnull Container containerToSend, @Nonnull NonNullList<ItemStack> itemsList) {
-			}
-
-			public void sendAllWindowProperties(@Nonnull Container containerIn, @Nonnull IInventory inventory) {
-			}
-
+			public void sendAllContents(@Nonnull Container containerToSend, @Nonnull NonNullList<ItemStack> itemsList) {}
+			public void sendAllWindowProperties(@Nonnull Container containerIn, @Nonnull IInventory inventory) {}
 			public void sendSlotContents(@Nonnull Container containerToSend, int slotInd, @Nonnull ItemStack stack) {
-				if (player.world.isRemote) {
-					return;
-				}
+				if (player.world.isRemote) { return; }
 				for (QuestData qd : data.questData.activeQuests.values()) { // Changed
 					for (IQuestObjective obj : qd.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 						if (obj.getType() != 0) {
@@ -525,9 +512,7 @@ public class PlayerEventHandler {
 					}
 				}
 			}
-
-			public void sendWindowProperty(@Nonnull Container containerIn, int varToUpdate, int newValue) {
-			}
+			public void sendWindowProperty(@Nonnull Container containerIn, int varToUpdate, int newValue) {}
 		});
 		Object array = DimensionHandler.getInstance().getAllIDs();
 		Server.sendData(player, EnumPacketClient.DIMENSION_IDS, array);
@@ -538,22 +523,6 @@ public class PlayerEventHandler {
 					event.player.rotationPitch);
 		}
 		data.game.dimID = player.world.provider.getDimension();
-		if (ScriptController.hasScripts) {
-			CustomNPCsScheduler.runTack(() ->
-					player.sendMessage(new TextComponentTranslation("system.server.scripts.get"))
-					, 250);
-			if (player.canUseCommandBlock() &&
-					!ScriptController.scriptPermissionWasRequested &&
-					!ScriptController.Instance.hasAgreement() &&
-					(!ScriptController.hasClientScripts || ScriptController.clientScriptPermissionWasRequested)) {
-				ScriptController.scriptPermissionWasRequested = true;
-				// GUI open
-				CustomNPCsScheduler.runTack(() -> {
-							player.sendMessage(new TextComponentTranslation("system.scripts.disagree"));
-							Server.sendData(player, EnumPacketClient.GUI, EnumGuiType.AcceptScripts, 0, 0, 0);
-						}, 250);
-			}
-		}
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerLoginEvent");
 	}
 
@@ -767,7 +736,7 @@ public class PlayerEventHandler {
 				player.setSpawnPoint(player.getPosition(), true);
 				player.setSpawnChunk(player.getPosition(), true, dimId);
 				player.bedLocation = player.getPosition();
-				((EntityPlayerAPIMixin) player).npcs$setSpawnPos(player.getPosition());
+				((IEntityPlayerMixin) player).npcs$setSpawnPos(player.getPosition());
 			}
 			data.game.dimID = event.player.world.provider.getDimension();
 		}
@@ -788,7 +757,6 @@ public class PlayerEventHandler {
 			register.setAccessible(true);
 
 			ClassPath loader = ClassPath.from(this.getClass().getClassLoader());
-
 			// Get all loaded Forge event classes
 			List<ClassPath.ClassInfo> list = new ArrayList<>(loader.getTopLevelClassesRecursive("net.minecraftforge.event"));
 			list.addAll(loader.getTopLevelClassesRecursive("net.minecraftforge.fml.common"));

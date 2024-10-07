@@ -3,7 +3,7 @@ package noppes.npcs.client.model;
 import java.util.List;
 import java.util.Map;
 
-import noppes.npcs.mixin.api.client.model.ModelRendererAPIMixin;
+import noppes.npcs.mixin.client.model.IModelRendererMixin;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -840,7 +840,7 @@ public class ModelRendererAlt extends ModelRenderer {
 			this.isAnimPart = partSets[0] != 0.0f || partSets[1] != 0.0f || partSets[2] != 0.0f || partSets[3] != 0.0f || partSets[4] != 0.0f || partSets[5] != 0.0f || partSets[6] != 1.0f || partSets[7] != 1.0f || partSets[8] != 1.0f || partSets[9] != 0.0f || partSets[10] != 0.0f;
 		}
 		if (animation.addParts.containsKey(this.idPart)) {
-			ModelBase baseModel = ((ModelRendererAPIMixin) this).npcs$getBaseModel();
+			ModelBase baseModel = ((IModelRendererMixin) this).npcs$getBaseModel();
 			if (baseModel != null) {
 				for (AddedPartConfig part : animation.addParts.get(this.idPart)) {
 					ModelRendererAlt child = new ModelRendererAlt(baseModel, part, animation);

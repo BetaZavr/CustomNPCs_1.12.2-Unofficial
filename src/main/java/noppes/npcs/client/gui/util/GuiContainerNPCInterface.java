@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import noppes.npcs.LogWriter;
-import noppes.npcs.mixin.api.client.gui.GuiScreenAPIMixin;
+import noppes.npcs.mixin.client.gui.IGuiScreenMixin;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -357,7 +357,7 @@ implements IEditNPC {
 
 	@Override
 	public int getEventButton() {
-		return ((GuiScreenAPIMixin) this).npcs$getEventButton();
+		return ((IGuiScreenMixin) this).npcs$getEventButton();
 	}
 
 	public FontRenderer getFontRenderer() {

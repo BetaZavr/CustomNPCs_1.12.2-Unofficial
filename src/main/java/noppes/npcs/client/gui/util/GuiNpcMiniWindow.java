@@ -1,6 +1,6 @@
 package noppes.npcs.client.gui.util;
 
-import noppes.npcs.mixin.api.client.gui.GuiTextFieldAPIMixin;
+import noppes.npcs.mixin.client.gui.IGuiTextFieldMixin;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.gui.GuiButton;
@@ -128,8 +128,8 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 			if (textField != null) {
 				GuiNpcTextField.activeTextfield.unFocused();
 				textField.setFocused(true);
-				((GuiTextFieldAPIMixin) textField).npcs$setCursorPosition(0);
-				((GuiTextFieldAPIMixin) textField).npcs$setSelectionEnd(textField.getText().length());
+				((IGuiTextFieldMixin) textField).npcs$setCursorPosition(0);
+				((IGuiTextFieldMixin) textField).npcs$setSelectionEnd(textField.getText().length());
 				GuiNpcTextField.activeTextfield = textField;
 			}
 		}

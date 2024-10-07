@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.UUID;
 
-import noppes.npcs.mixin.api.pathfinding.PathAPIMixin;
+import noppes.npcs.mixin.pathfinding.IPathMixin;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -483,7 +483,7 @@ public class ClientGuiEventHandler extends Gui {
 		// Now way
 		Path path = npc.getNavigator().getPath();
 		if (path != null) {
-			PathPoint[] points = ((PathAPIMixin) path).npcs$getPoints();
+			PathPoint[] points = ((IPathMixin) path).npcs$getPoints();
 			if (points != null) {
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();

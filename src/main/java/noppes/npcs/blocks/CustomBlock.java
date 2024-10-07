@@ -33,7 +33,7 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.mixin.api.block.BlockAPIMixin;
+import noppes.npcs.mixin.block.IBlockMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.IPermission;
 
@@ -123,7 +123,7 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 		this.INT = null;
 		this.FACING = null;
 		if (nbtBlock.hasKey("Property", 10)) {
-			((BlockAPIMixin) this).npcs$setBlockState(this.createBlockState());
+			((IBlockMixin) this).npcs$setBlockState(this.createBlockState());
 			NBTTagCompound nbtProperty = nbtBlock.getCompoundTag("Property");
 			switch (nbtProperty.getByte("Type")) {
 				case (byte) 1: {

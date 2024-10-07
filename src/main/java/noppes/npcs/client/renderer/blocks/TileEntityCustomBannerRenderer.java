@@ -16,8 +16,10 @@ import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import noppes.npcs.blocks.tiles.TileEntityCustomBanner;
-import noppes.npcs.mixin.api.client.model.ModelBoxAPIMixin;
+import noppes.npcs.controllers.FactionController;
+import noppes.npcs.controllers.data.Faction;
+import noppes.npcs.mixin.client.model.IModelBoxMixin;
+import noppes.npcs.mixin.tileentity.ITileEntityBanner;
 
 public class TileEntityCustomBannerRenderer extends TileEntityBannerRenderer {
 
@@ -30,7 +32,7 @@ public class TileEntityCustomBannerRenderer extends TileEntityBannerRenderer {
 		customBannerSlate.addBox(-10.0F, -32.0F, -2.0F, 20, 40, 1, 0.0F);
 		ModelBox list = customBannerSlate.cubeList.get(0);
 
-		PositionTextureVertex[] vp = ((ModelBoxAPIMixin) list).npcs$getVertexPositions();
+		PositionTextureVertex[] vp = ((IModelBoxMixin) list).npcs$getVertexPositions();
 		if (vp == null) { return; }
 		TexturedQuad[] quadList = new TexturedQuad[6];
 		quadList[0] = new TexturedQuad(new PositionTextureVertex[] { vp[5], vp[1], vp[2], vp[6] }, 11, 1, 12, 17, 64, 32); // right
@@ -39,7 +41,7 @@ public class TileEntityCustomBannerRenderer extends TileEntityBannerRenderer {
 		quadList[3] = new TexturedQuad(new PositionTextureVertex[] { vp[2], vp[3], vp[7], vp[6] }, 11, 0, 21, 1, 64, 32); // bottom
 		quadList[4] = new TexturedQuad(new PositionTextureVertex[] { vp[1], vp[0], vp[3], vp[2] }, 1, 1, 11, 17, 64, 32); // front
 		quadList[5] = new TexturedQuad(new PositionTextureVertex[] { vp[4], vp[5], vp[6], vp[7] }, 12, 1, 22, 17, 64, 32); // back
-		((ModelBoxAPIMixin) list).npcs$setQuadList(quadList);
+		((IModelBoxMixin) list).npcs$setQuadList(quadList);
 	}
 
 	@Nullable
@@ -79,23 +81,18 @@ public class TileEntityCustomBannerRenderer extends TileEntityBannerRenderer {
 
 		BlockPos blockpos = te.getPos();
 		float angle = (float) (blockpos.getX() * 7 + blockpos.getY() * 9 + blockpos.getZ() * 13) + ticks + partialTicks;
-		bannerModel.bannerSlate.rotateAngleX = (-0.0125F + 0.01F * MathHelper.cos(angle * (float) Math.PI * 0.02F))
-				* (float) Math.PI;
+		bannerModel.bannerSlate.rotateAngleX = (-0.0125F + 0.01F * MathHelper.cos(angle * (float) Math.PI * 0.02F)) * (float) Math.PI;
 		GlStateManager.enableRescaleNormal();
 		ResourceLocation resourcelocation = getBannerResourceLocation(te);
 		if (resourcelocation != null) {
-
 			GlStateManager.pushMatrix();
-
-			ResourceLocation loc = null;
-			if (te instanceof TileEntityCustomBanner) {
-				TileEntityCustomBanner banner = (TileEntityCustomBanner) te;
-				loc = banner.getFactionFlag();
-			}
 			float scale = 0.66666667F;
 			GlStateManager.scale(scale, -scale, -scale);
 			bindTexture(resourcelocation);
 			bannerModel.bannerSlate.rotationPointY = -32.0F;
+			int factionId = ((ITileEntityBanner) te).npcs$getFactionId();
+			Faction f = FactionController.instance.factions.get(factionId);
+			ResourceLocation loc = f == null ? null : f.flag;
 			if (loc != null) {
 				bindTexture(loc);
 				customBannerSlate.render(0.0625F);

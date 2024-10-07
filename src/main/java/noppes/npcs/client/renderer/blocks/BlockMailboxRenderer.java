@@ -13,16 +13,14 @@ import javax.annotation.Nullable;
 
 public class BlockMailboxRenderer<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
 
-	private static final ResourceLocation text1 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox1.png");
-	private static final ResourceLocation text2 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox2.png");
-	private static final ResourceLocation text3 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox3.png");
-	private final ModelMailboxUS model;
-	private final ModelMailboxWow model2;
+	public static final ResourceLocation text1 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox1.png");
+	public static final ResourceLocation text2 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox2.png");
+	public static final ResourceLocation text3 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox3.png");
+	public static final ModelMailboxUS model = new ModelMailboxUS();
+	public static final ModelMailboxWow model2 = new ModelMailboxWow();
 	private final int type;
 
 	public BlockMailboxRenderer(int i) {
-		this.model = new ModelMailboxUS();
-		this.model2 = new ModelMailboxWow();
 		this.type = i;
 	}
 

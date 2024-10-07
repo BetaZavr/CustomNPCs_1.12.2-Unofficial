@@ -16,6 +16,7 @@ public class ContainerMail extends ContainerNpcInterface {
 	public static PlayerMail staticmail = new PlayerMail();
 	private final boolean canEdit;
     private final boolean canSend;
+	public boolean sendMail = false;
 	public PlayerMail mail;
 
 	public ContainerMail(EntityPlayer player, boolean canEdit, boolean canSend) {
@@ -40,9 +41,7 @@ public class ContainerMail extends ContainerNpcInterface {
 
 	public void onContainerClosed(@Nonnull EntityPlayer player) {
 		super.onContainerClosed(player);
-		if (player.world.isRemote) {
-			return;
-		}
+		if (player.world.isRemote) { return; }
 		if (!this.canEdit) {
 			PlayerMailData data = PlayerData.get(player).mailData;
 			for (PlayerMail mail : data.playermail) {
@@ -51,14 +50,12 @@ public class ContainerMail extends ContainerNpcInterface {
 					break;
 				}
 			}
-		} else {
+		}
+		else if (!this.sendMail) {
 			for (int i = 0; i < 4; i++) {
 				Slot slot = this.getSlot(i);
-				if (!slot.getHasStack()) {
-					continue;
-				}
-				EntityItem entityitem = new EntityItem(player.world, player.posX, player.posY + 0.16f, player.posZ,
-						slot.getStack());
+				if (!slot.getHasStack()) { continue;}
+				EntityItem entityitem = new EntityItem(player.world, player.posX, player.posY + 0.16f, player.posZ, slot.getStack());
 				entityitem.setPickupDelay(1);
 				entityitem.setOwner(player.getName());
 				player.world.spawnEntity(entityitem);

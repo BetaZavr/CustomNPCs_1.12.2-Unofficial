@@ -26,9 +26,9 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.data.Availability;
-import noppes.npcs.mixin.api.item.crafting.IngredientAPIMixin;
+import noppes.npcs.mixin.item.crafting.IIngredientMixin;
+import noppes.npcs.mixin.item.crafting.IShapelessRecipesMixin;
 
 public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe, IRecipe // Changed
 {
@@ -72,9 +72,9 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 				}
 			}
 		}
-		NpcShapelessRecipes newrecipe = new NpcShapelessRecipes(group, name, ingredients, stack);
-		newrecipe.global = global;
-		return newrecipe;
+		NpcShapelessRecipes newRecipe = new NpcShapelessRecipes(group, name, ingredients, stack);
+		newRecipe.global = global;
+		return newRecipe;
 	}
 	public static NpcShapelessRecipes read(NBTTagCompound compound) {
 		NpcShapelessRecipes recipe = new NpcShapelessRecipes(compound.getString("Group"), compound.getString("Name"),
@@ -87,7 +87,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		recipe.global = compound.getBoolean("Global");
 		recipe.known = compound.getBoolean("IsKnown");
 		if (recipe.getRegistryName() == null) {
-			String key = recipe.group.toLowerCase() + "_" + recipe.name.toLowerCase();
+			String key = recipe.getNpcGroup().toLowerCase() + "_" + recipe.name.toLowerCase();
 			while (key.contains(" ")) {
 				key = key.replace(" ", "_");
 			}
@@ -102,7 +102,6 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	public boolean isSimple;
 	public Availability availability;
 	public boolean global;
-	public String group;
 	public int id;
 	public boolean ignoreDamage;
 	public boolean ignoreNBT;
@@ -117,7 +116,6 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	public NpcShapelessRecipes(String group, String name, NonNullList<Ingredient> ingredients, ItemStack result) {
 		super(group, result, ingredients);
-		this.group = group;
 		this.recipeOutput = result;
 		this.recipeItems = ingredients;
 		boolean simple = true;
@@ -136,7 +134,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		this.recipeWidth = s;
 		this.recipeHeight = s;
 		if (this.getRegistryName() == null) {
-			String key = this.group.toLowerCase() + "_" + this.name.toLowerCase();
+			String key = this.getGroup().toLowerCase() + "_" + this.name.toLowerCase();
 			while (key.contains(" ")) {
 				key = key.replace(" ", "_");
 			}
@@ -146,7 +144,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	public boolean apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack) {
 		if (stack != null && ingredient != null) {
-			ItemStack[] stacks = ((IngredientAPIMixin) ingredient).npcs$getMatchingStacks();
+			ItemStack[] stacks = ((IIngredientMixin) ingredient).npcs$getMatchingStacks();
             if ((stacks == null || stacks.length == 0) && stack.isEmpty()) {
                 return true;
             }
@@ -164,6 +162,14 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
         return false;
     }
 
+	@Override
+	public boolean canFit(int width, int height) {
+		if (global) {
+			return width * height >= this.recipeItems.size();
+		}
+		return width == this.recipeWidth && height == this.recipeHeight;
+	}
+
 	public void copy(INpcRecipe recipe) {
 		if (recipe == null || this == recipe) {
 			return;
@@ -174,11 +180,8 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		this.global = recipe.isGlobal();
 		this.ignoreDamage = recipe.getIgnoreDamage();
 		this.ignoreNBT = recipe.getIgnoreNBT();
-		this.recipeOutput = recipe instanceof NpcShapelessRecipes ? ((NpcShapelessRecipes) recipe).recipeOutput
-				: ((NpcShapedRecipes) recipe).recipeOutput;
-		NonNullList<Ingredient> ingredients = recipe instanceof NpcShapelessRecipes
-				? ((NpcShapelessRecipes) recipe).recipeItems
-				: ((NpcShapedRecipes) recipe).recipeItems;
+		this.recipeOutput = recipe instanceof NpcShapelessRecipes ? ((NpcShapelessRecipes) recipe).recipeOutput : ((NpcShapedRecipes) recipe).recipeOutput;
+		NonNullList<Ingredient> ingredients = recipe instanceof NpcShapelessRecipes ? ((NpcShapelessRecipes) recipe).recipeItems : ((NpcShapedRecipes) recipe).recipeItems;
 		if (this.recipeItems != ingredients) {
 			this.recipeItems.clear();
 			for (Ingredient ing : ingredients) {
@@ -189,7 +192,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 				}
 			}
 		}
-		this.group = recipe.getNpcGroup();
+		((IShapelessRecipesMixin) this).npcs$setGroup(recipe.getNpcGroup());
 		this.known = recipe.isKnown();
 		this.recipeWidth = recipe.getWidth();
 		this.recipeHeight = recipe.getHeight();
@@ -199,7 +202,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 			this.recipeHeight = w;
 		}
 		if (this.getRegistryName() == null) {
-			String key = this.group.toLowerCase() + "_" + this.name.toLowerCase();
+			String key = this.getGroup().toLowerCase() + "_" + this.name.toLowerCase();
 			while (key.contains(" ")) {
 				key = key.replace(" ", "_");
 			}
@@ -209,18 +212,16 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	@Override
 	public void delete() {
-		RecipeController.getInstance().delete(this.id);
+		//RecipeController.getInstance().delete(this.id);
 	}
 
 	@Override
 	public boolean equal(INpcRecipe recipe) {
-		return recipe.getClass() == NpcShapelessRecipes.class && recipe.getNpcGroup().equals(this.group)
-				&& recipe.getName().equals(this.name) && ItemStack
-						.areItemStacksEqualUsingNBTShareTag(recipe.getProduct().getMCItemStack(), this.recipeOutput);
+		return recipe.getClass() == NpcShapelessRecipes.class && recipe.getNpcGroup().equals(this.getGroup()) && recipe.getName().equals(this.name) && ItemStack.areItemStacksEqualUsingNBTShareTag(recipe.getProduct().getMCItemStack(), this.recipeOutput);
 	}
 
 	public boolean equals(INpcRecipe recipe) {
-		return !recipe.isShaped() && this.id == recipe.getId() && recipe.isGlobal() != this.global && recipe.getName().equals(this.name) && recipe.getNpcGroup().equals(this.group);
+		return !recipe.isShaped() && this.id == recipe.getId() && recipe.isGlobal() != this.global && recipe.getName().equals(this.name) && recipe.getNpcGroup().equals(this.getGroup());
 	}
 
 	@Override
@@ -268,7 +269,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		compound.setBoolean("Global", this.global);
 		compound.setBoolean("IgnoreDamage", this.ignoreDamage);
 		compound.setBoolean("IgnoreNBT", this.ignoreNBT);
-		compound.setString("Group", this.group);
+		compound.setString("Group", this.getGroup());
 		compound.setBoolean("IsKnown", this.known);
 		compound.setBoolean("IsShaped", false);
 		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound);
@@ -276,7 +277,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	@Override
 	public String getNpcGroup() {
-		return this.group;
+		return this.getGroup();
 	}
 
 	@Override
@@ -288,7 +289,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	public IItemStack[][] getRecipe() {
 		IItemStack[][] allStacks = new IItemStack[this.recipeItems.size()][];
 		for (int i = 0; i < this.recipeItems.size(); i++) {
-			ItemStack[] arr = ((IngredientAPIMixin) this.recipeItems.get(i)).npcs$getMatchingStacks();
+			ItemStack[] arr = ((IIngredientMixin) this.recipeItems.get(i)).npcs$getMatchingStacks();
             if (arr != null) {
 				allStacks[i] = new IItemStack[arr.length];
 				for (int j = 0; j < arr.length; j++) {
@@ -321,13 +322,13 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	public boolean isValid() {
 		if (this.getRegistryName() == null) {
-			String key = this.group.toLowerCase() + "_" + this.name.toLowerCase();
+			String key = this.getGroup().toLowerCase() + "_" + this.name.toLowerCase();
 			while (key.contains(" ")) {
 				key = key.replace(" ", "_");
 			}
 			this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, key));
 		}
-		if (this.group == null || this.group.isEmpty()) {
+        if (this.getGroup().isEmpty()) {
 			return false;
 		}
 		if (this.name == null || this.name.isEmpty()) {

@@ -7,7 +7,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import noppes.npcs.ai.attack.EntityAIHitAndRun;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.api.entity.EntityAPIMixin;
+import noppes.npcs.mixin.entity.IEntityMixin;
 
 import java.util.Objects;
 
@@ -33,8 +33,8 @@ public class EntityAISprintToTarget extends EntityAIBase {
 		if (target != null && target.isEntityAlive() && this.npc.hurtTime <= 0 && !this.npc.getNavigator().noPath()) {
 			this.startExecuting();
 		} else {
-			EntityDataManager dataManager = ((EntityAPIMixin) this.npc).npcs$getDataManager();
-			DataParameter<Byte> FLAGS = ((EntityAPIMixin) this.npc).npcs$getFLAGS();
+			EntityDataManager dataManager = ((IEntityMixin) this.npc).npcs$getDataManager();
+			DataParameter<Byte> FLAGS = ((IEntityMixin) this.npc).npcs$getFLAGS();
 			if (dataManager != null && FLAGS != null && (dataManager.get(FLAGS) & 1 << 3) != 0) {
 				this.npc.setSprinting(false);
 			}

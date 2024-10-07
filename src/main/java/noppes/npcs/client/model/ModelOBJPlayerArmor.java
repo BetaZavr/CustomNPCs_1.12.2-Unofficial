@@ -18,7 +18,7 @@ import noppes.npcs.client.model.part.ModelOBJPart;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.items.CustomArmor;
-import noppes.npcs.mixin.api.client.renderer.entity.RenderPlayerAPIMixin;
+import noppes.npcs.mixin.client.renderer.entity.IRenderPlayerMixin;
 
 import javax.annotation.Nonnull;
 
@@ -79,9 +79,6 @@ public class ModelOBJPlayerArmor extends ModelBiped {
 	}
 
 	public void render(@Nonnull Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-		if (!(entityIn instanceof EntityPlayerSP)) {
-			return;
-		}
 		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 		GlStateManager.pushMatrix();
 		if (this.isChild) {
@@ -120,7 +117,7 @@ public class ModelOBJPlayerArmor extends ModelBiped {
 			Minecraft mc = Minecraft.getMinecraft();
 			Render<?> rp = mc.getRenderManager().getEntityRenderObject(entity);
 			if (rp instanceof RenderPlayer) {
-				smallArms = ((RenderPlayerAPIMixin) rp).npcs$getSmallArms();
+				smallArms = ((IRenderPlayerMixin) rp).npcs$getSmallArms();
 			}
 		}
 

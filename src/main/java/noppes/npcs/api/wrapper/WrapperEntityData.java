@@ -33,7 +33,7 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.handler.capability.IWrapperEntityDataHandler;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityProjectile;
-import noppes.npcs.mixin.api.entity.EntityAPIMixin;
+import noppes.npcs.mixin.entity.IEntityMixin;
 
 import javax.annotation.Nonnull;
 
@@ -62,7 +62,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 		if (data == null) {
 			LogWriter.warn("Unable to get EntityData for " + entity);
 			WrapperEntityData ret = WrapperEntityData.getData(entity);
-			CapabilityDispatcher capabilities = ((EntityAPIMixin) entity).npcs$getCapabilities();
+			CapabilityDispatcher capabilities = ((IEntityMixin) entity).npcs$getCapabilities();
 			if (capabilities != null) {
 				// "capabilities" does not want to be converted to the created mixin interface under any circumstances
 				Field fieldCaps = null;
@@ -88,7 +88,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 			} else {
 				Map<ResourceLocation, ICapabilityProvider> m = Maps.newHashMap();
 				m.put(WrapperEntityData.key, ret);
-				((EntityAPIMixin) entity).npcs$setCapabilities(new CapabilityDispatcher(m, null));
+				((IEntityMixin) entity).npcs$setCapabilities(new CapabilityDispatcher(m, null));
 			}
 			return ret.base;
 		}

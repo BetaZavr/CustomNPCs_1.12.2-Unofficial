@@ -364,7 +364,7 @@ public class PacketHandlerPlayer {
 				return;
 			}
 			NoppesUtilPlayer.bankUnlock(player, npc);
-		} else if (type == EnumPlayerPacket.Banklock) {
+		} else if (type == EnumPlayerPacket.BankLock) {
 			if (!(player.openContainer instanceof ContainerNPCBank)) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
@@ -561,12 +561,12 @@ public class PacketHandlerPlayer {
 			}
 			mail.sender = s;
 			mail.items = ((ContainerMail) player.openContainer).mail.items;
+			((ContainerMail) player.openContainer).sendMail = true;
 			NBTTagCompound comp = new NBTTagCompound();
 			comp.setString("username", username);
 			NoppesUtilServer.sendGuiClose(player, 1, comp);
 			EntityNPCInterface npc2 = NoppesUtilServer.getEditingNpc(player);
-			if (npc2 != null && EventHooks.onNPCRole(npc2,
-					new RoleEvent.MailmanEvent(player, npc2.wrappedNPC, mail))) {
+			if (npc2 != null && EventHooks.onNPCRole(npc2, new RoleEvent.MailmanEvent(player, npc2.wrappedNPC, mail))) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
@@ -638,22 +638,6 @@ public class PacketHandlerPlayer {
 			PlayerOverlayHUD hud = data.hud;
 			NBTTagCompound compound = Server.readNBT(buffer);
 			hud.setWindowSize(compound.getTagList("WindowSize", 6));
-		} else if (type == EnumPlayerPacket.GetGhostRecipe) {
-			player.markPlayerActive();
-			if (player.isSpectator() || player.openContainer.windowId != buffer.readInt()
-					|| !player.openContainer.getCanCraft(player)) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
-				return;
-			}
-			int recipeId = buffer.readInt();
-			boolean isShiftPress = buffer.readBoolean();
-			IRecipe recipe = CraftingManager.REGISTRY.getObjectById(recipeId);
-			if (recipe == null || !player.getRecipeBook().isUnlocked(recipe)) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
-				return;
-			}
-			ServerNpcRecipeBookHelper serverRecipeBookHelper = new ServerNpcRecipeBookHelper();
-			serverRecipeBookHelper.getGhostRecipe(player, recipe, isShiftPress);
 		} else if (type == EnumPlayerPacket.TraderMarketBuy) {
 			Marcet marcet = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (marcet == null || marcet.notHasListener(player)) {

@@ -66,6 +66,5 @@ public enum EnumGuiType
 	SaverSetting,
 	RemoverSetting,
 	DimensionSetting,
-	CustomContainer,
-	AcceptScripts
+	CustomContainer
 }

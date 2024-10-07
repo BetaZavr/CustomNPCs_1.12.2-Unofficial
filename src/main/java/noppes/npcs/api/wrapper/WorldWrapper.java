@@ -50,8 +50,8 @@ import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityProjectile;
-import noppes.npcs.mixin.api.world.WorldAPIMixin;
-import noppes.npcs.mixin.api.world.biome.BiomeAPIMixin;
+import noppes.npcs.mixin.world.IWorldMixin;
+import noppes.npcs.mixin.world.biome.IBiomeMixin;
 
 public class WorldWrapper implements IWorld {
 
@@ -159,7 +159,7 @@ public class WorldWrapper implements IWorld {
 
 	@Override
 	public String getBiomeName(int x, int z) {
-		return ((BiomeAPIMixin) this.world.getBiomeForCoordsBody(new BlockPos(x, 0, z))).npcs$getBiomeName();
+		return ((IBiomeMixin) this.world.getBiomeForCoordsBody(new BlockPos(x, 0, z))).npcs$getBiomeName();
 	}
 
 	@Override
@@ -260,7 +260,7 @@ public class WorldWrapper implements IWorld {
 			}
 		}
 		if (e == null) {
-			List<Entity> unloadedEntityList = ((WorldAPIMixin) this.world).npcs$getUnloadedEntityList();
+			List<Entity> unloadedEntityList = ((IWorldMixin) this.world).npcs$getUnloadedEntityList();
             if (unloadedEntityList != null) {
 				for (Entity entity : unloadedEntityList) {
 					if (entity.getUniqueID().equals(id)) {

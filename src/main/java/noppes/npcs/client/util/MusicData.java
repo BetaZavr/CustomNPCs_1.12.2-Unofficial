@@ -13,8 +13,8 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.ForgeEvent.SoundTickEvent;
-import noppes.npcs.mixin.api.client.audio.LibraryAPIMixin;
-import noppes.npcs.mixin.api.client.audio.SoundSystemAPIMixin;
+import noppes.npcs.mixin.api.client.audio.ILibraryMixin;
+import noppes.npcs.mixin.client.audio.ISoundSystemMixin;
 import paulscode.sound.Library;
 import paulscode.sound.SoundBuffer;
 import paulscode.sound.SoundSystem;
@@ -45,8 +45,8 @@ public class MusicData {
 			}
 		}
 		if (sndSystem == null) { return; }
-		Library soundLibrary = ((SoundSystemAPIMixin) sndSystem).npcs$getSoundLibrary();
-		HashMap<String, Source> sourceMap = ((LibraryAPIMixin) soundLibrary).npcs$getSourceMap() ;
+		Library soundLibrary = ((ISoundSystemMixin) sndSystem).npcs$getSoundLibrary();
+		HashMap<String, Source> sourceMap = ((ILibraryMixin) soundLibrary).npcs$getSourceMap() ;
 		if (sourceMap != null) {
 			this.source = sourceMap.get(id);
 			if (s != null) {

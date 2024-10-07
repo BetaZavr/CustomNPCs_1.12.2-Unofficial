@@ -42,7 +42,6 @@ public class CommandNoppes extends CommandBase {
 		this.registerCommand(new CmdDimensions());
 		this.registerCommand(new CmdPlayers());
 		this.registerCommand(new CmdDebug());
-		this.registerCommand(new CmdAccepts());
 	}
 
 	@Override

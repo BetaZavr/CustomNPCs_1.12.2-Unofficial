@@ -38,7 +38,7 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.api.client.resources.*;
+import noppes.npcs.mixin.client.resources.*;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
@@ -388,16 +388,16 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 	private void resetFiles() {
 		/* Manager Data */
 		SimpleReloadableResourceManager simplemanager = (SimpleReloadableResourceManager) Minecraft.getMinecraft() .getResourceManager();
-		Map<String, FallbackResourceManager> map = ((SimpleReloadableResourceManagerAPIMixin) simplemanager).npcs$getDomainResourceManagers();
+		Map<String, FallbackResourceManager> map = ((ISimpleReloadableResourceManagerMixin) simplemanager).npcs$getDomainResourceManagers();
 		if (map == null) { return; }
 		for (String name : map.keySet()) {
 			FallbackResourceManager manager = map.get(name);
-			List<IResourcePack> list = ((FallbackResourceManagerAPIMixin) manager).npcs$getResourcePacks();
+			List<IResourcePack> list = ((IFallbackResourceManagerMixin) manager).npcs$getResourcePacks();
 			if (list == null) { return; }
 			for (IResourcePack pack : list) {
 				if (pack instanceof DefaultResourcePack) {
-					ResourceIndex resourceIndex = ((DefaultResourcePackAPIMixin) pack).npcs$getResourceIndex();
-					Map<String, File> resourceMap = ((ResourceIndexAPIMixin) resourceIndex).npcs$getResourceMap();
+					ResourceIndex resourceIndex = ((IDefaultResourcePackMixin) pack).npcs$getResourceIndex();
+					Map<String, File> resourceMap = ((IResourceIndexMixin) resourceIndex).npcs$getResourceMap();
 					if (resourceMap != null) {
 						for (File f : resourceMap.values()) {
 							this.addFile(f.getAbsolutePath(), f.length());
@@ -407,7 +407,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 				}
 				if (pack instanceof AbstractResourcePack) {
 					AbstractResourcePack p = (AbstractResourcePack) pack;
-					File directory = ((AbstractResourcePackAPIMixin) p).npcs$getResourcePackFile();
+					File directory = ((IAbstractResourcePackMixin) p).npcs$getResourcePackFile();
 					if (directory == null || !directory.isDirectory()) {
 						continue;
 					}

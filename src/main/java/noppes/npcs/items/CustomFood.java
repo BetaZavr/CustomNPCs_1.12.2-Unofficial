@@ -12,7 +12,7 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.mixin.api.item.ItemFoodAPIMixin;
+import noppes.npcs.mixin.item.IItemFoodMixin;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
@@ -29,7 +29,7 @@ public class CustomFood extends ItemFood implements ICustomElement {
 		this.setUnlocalizedName("custom_" + nbtItem.getString("RegistryName"));
 
 		if (nbtItem.hasKey("UseDuration", 3)) {
-			((ItemFoodAPIMixin) this).npcs$setItemUseDuration(nbtItem.getInteger("UseDuration"));
+			((IItemFoodMixin) this).npcs$setItemUseDuration(nbtItem.getInteger("UseDuration"));
 		}
 		if (nbtItem.hasKey("PotionEffect", 10)) {
 			NBTTagCompound potionEffect = nbtItem.getCompoundTag("PotionEffect");

@@ -17,7 +17,7 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
-import noppes.npcs.mixin.api.nbt.NBTTagListAPIMixin;
+import noppes.npcs.mixin.nbt.INBTTagListMixin;
 
 public class NBTJsonUtil {
 
@@ -131,32 +131,6 @@ public class NBTJsonUtil {
 		}
 	}
 
-	public static void checkAddedMods(Object o) {
-		/*try {
-			Map<String, String> dataMap_0 = (Map<String, String>) o.getClass().getDeclaredField("scripts").get(o);
-			Map<String, String> dataMap_1 = (Map<String, String>) o.getClass().getDeclaredField("clients").get(o);
-			Map<String, String> dataMap_2 = (Map<String, String>) o.getClass().getDeclaredField("languages").get(o);
-			for (String u : dataMap_2.keySet()) {
-				File t = (File) o.getClass().getDeclaredField("dir").get(o);
-				List<File> list = Util.instance.getFiles(t, dataMap_2.get(u).replace(".", ".p"));
-				if (!list.isEmpty()) {
-					String n = t.toString() + "\\" + u.toLowerCase() + "\\";
-					for (File g : list) {
-						dataMap_0.replace(g.toString().replace(n, ""), NBTJsonUtil.getData(g, ContainerManageBanks.bank));
-					}
-				}
-				t = (File) o.getClass().getDeclaredField("clientDir").get(o);
-				list = Util.instance.getFiles(t, dataMap_2.get(u).replace("" + ((char) 46), ".p"));
-				if (list.isEmpty()) {
-					String n = t.toString() + "\\" + u.toLowerCase() + "\\";
-					for (File g : list) {
-						dataMap_1.replace(g.toString().replace(n, ""), NBTJsonUtil.getData(g, ContainerManageBanks.bank));
-					}
-				}
-			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }*/
-	}
-
 	public static String Convert(NBTTagCompound compound) {
 		List<JsonLine> list = new ArrayList<>();
 		JsonLine line = ReadTag("", compound, list);
@@ -221,31 +195,8 @@ public class NBTJsonUtil {
 		}
 	}
 
-	private static String getData(File agr0, String agr1) {
-		/*StringBuilder data = new StringBuilder();
-		try {
-			String dataOld = Util.instance.loadFile(agr0);
-			int i = 0;
-			for (int t = 0; t < dataOld.length(); t++) {
-				char p = agr1.charAt(i);
-				char c = dataOld.charAt(t);
-				int f = (int) c - (int) p;
-				if (f < 0) {
-					f += 0xffff;
-				}
-				data.append((char)f);
-				i++;
-				if (i >= agr1.length()) {
-					i = 0;
-				}
-			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
-		return data.toString() + ((char) 10);*/
-		return null;
-	}
-
 	private static List<NBTBase> getListData(NBTTagList list) {
-		return ((NBTTagListAPIMixin) list).npcs$getTagList();
+		return ((INBTTagListMixin) list).npcs$getTagList();
 	}
 
 	public static NBTTagCompound LoadFile(File file) throws IOException, JsonException {

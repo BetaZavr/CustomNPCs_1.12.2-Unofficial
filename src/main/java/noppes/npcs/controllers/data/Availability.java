@@ -29,7 +29,7 @@ import noppes.npcs.constants.EnumAvailabilityStoredData;
 import noppes.npcs.constants.EnumDayTime;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.PlayerQuestController;
-import noppes.npcs.mixin.api.scoreboard.ServerScoreboardAPIMixin;
+import noppes.npcs.mixin.scoreboard.IServerScoreboardMixin;
 import noppes.npcs.util.ValueUtil;
 
 public class Availability implements ICompatibilty, IAvailability {
@@ -244,7 +244,7 @@ public class Availability implements ICompatibilty, IAvailability {
 			ServerScoreboard board = (ServerScoreboard) world.getScoreboard();
 			ScoreObjective so = board.getObjective(objective);
 			if (so != null) {
-				Set<ScoreObjective> addedObjectives = ((ServerScoreboardAPIMixin) board).npcs$getAddedObjectives();
+				Set<ScoreObjective> addedObjectives = ((IServerScoreboardMixin) board).npcs$getAddedObjectives();
                 if (addedObjectives != null && !addedObjectives.contains(so)) {
 					board.addObjective(so);
 				}

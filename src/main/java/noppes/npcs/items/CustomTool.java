@@ -24,7 +24,7 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.mixin.api.item.ItemToolAPIMixin;
+import noppes.npcs.mixin.item.IItemToolMixin;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
@@ -77,7 +77,7 @@ implements ICustomElement {
 			this.harvestLevel = nbtItem.getInteger("HarvestLevel");
 		}
 		if (nbtItem.hasKey("ToolClass", 8)) {
-			((ItemToolAPIMixin) this).npcs$setToolClass(nbtItem.getString("ToolClass"));
+			((IItemToolMixin) this).npcs$setToolClass(nbtItem.getString("ToolClass"));
 		}
 		this.setCreativeTab(CustomRegisters.tabItems);
 	}

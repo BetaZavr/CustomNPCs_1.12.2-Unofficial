@@ -14,6 +14,7 @@ import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import javax.annotation.Nonnull;
 
 public class ContainerManageRecipes extends Container {
+
 	public InventoryBasic craftingMatrix;
 	public INpcRecipe recipe;
 	public int size;

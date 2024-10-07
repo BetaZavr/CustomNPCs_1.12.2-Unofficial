@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import noppes.npcs.mixin.api.item.ItemArmorAPIMixin;
+import noppes.npcs.mixin.item.IItemArmorAPIMixin;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.google.common.collect.Lists;
@@ -95,10 +95,10 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 			this.setMaxDamage(maxStackDamage);
 		}
 		if (damageReduceAmount > 0) {
-			((ItemArmorAPIMixin) this).npcs$setDamageReduceAmount(damageReduceAmount);
+			((IItemArmorAPIMixin) this).npcs$setDamageReduceAmount(damageReduceAmount);
 		}
 		if (toughness > 0.0f) {
-			((ItemArmorAPIMixin) this).npcs$setToughness(toughness);
+			((IItemArmorAPIMixin) this).npcs$setToughness(toughness);
 		}
 		if (nbtItem.hasKey("RepairItem", 10)) {
 			this.repairItemStack = new ItemStack(nbtItem.getCompoundTag("RepairItem"));

@@ -36,12 +36,9 @@ import noppes.npcs.util.Util;
 public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 
 	public static final ResourceLocation icons = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/icons.png");
-	private static final ResourceLocation mBox = new ResourceLocation(CustomNpcs.MODID,
-			"textures/gui/mail/box_empty.png");
-	private static final ResourceLocation mDoor = new ResourceLocation(CustomNpcs.MODID,
-			"textures/gui/mail/box_door.png");
-	private static final ResourceLocation mList = new ResourceLocation(CustomNpcs.MODID,
-			"textures/gui/mail/box_list.png");
+	private static final ResourceLocation mBox = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/box_empty.png");
+	private static final ResourceLocation mDoor = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/box_door.png");
+	private static final ResourceLocation mList = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/box_list.png");
 	private final Map<String, PlayerMail> scrollData;
 	private GuiCustomScroll scroll;
 	private PlayerMail selected;
@@ -69,60 +66,55 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 	public void buttonEvent(GuiNpcButton button) {
 		GuiMailmanWrite.parent = this;
 		switch (button.id) {
-		case 0: {
-			if (this.selected == null) {
-				return;
+			case 0: {
+				if (this.selected == null) {
+					return;
+				}
+				GuiMailmanWrite.mail = this.selected;
+				step = 4;
+				tick = 15;
+				mtick = 15;
+				this.closeType = 2;
+				break;
 			}
-			GuiMailmanWrite.mail = this.selected;
-			step = 4;
-			tick = 15;
-			mtick = 15;
-			this.closeType = 2;
-			break;
-		}
-		case 1: {
-			step = 4;
-			tick = 15;
-			mtick = 15;
-			this.closeType = 1;
-			break;
-		}
-		case 2: {
-			if (this.selected == null) {
-				return;
+			case 1: {
+				step = 4;
+				tick = 15;
+				mtick = 15;
+				this.closeType = 1;
+				break;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this, this.scroll.getSelected(),
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			this.displayGuiScreen(guiyesno);
-			break;
-		}
-		case 3: {
-			if (ClientProxy.playerData.mailData.playermail.isEmpty()) {
-				return;
+			case 2: {
+				if (this.selected == null) {
+					return;
+				}
+				GuiYesNo guiyesno = new GuiYesNo(this, this.scroll.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+				this.displayGuiScreen(guiyesno);
+				break;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this,
-					new TextComponentTranslation("mailbox.name").getFormattedText() + ":",
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
-			this.displayGuiScreen(guiyesno);
-			break;
-		}
-		case 4: {
-			if (ClientProxy.playerData.mailData.playermail.isEmpty()) {
-				return;
+			case 3: {
+				if (ClientProxy.playerData.mailData.playermail.isEmpty()) {
+					return;
+				}
+				GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("mailbox.name").getFormattedText() + ":", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
+				this.displayGuiScreen(guiyesno);
+				break;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this,
-					new TextComponentTranslation("mailbox.name").getFormattedText() + ":",
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
-			this.displayGuiScreen(guiyesno);
-			break;
-		}
-		case 5: {
-			step = 4;
-			tick = 15;
-			mtick = 15;
-			this.closeType = 0;
-			break;
-		}
+			case 4: {
+				if (ClientProxy.playerData.mailData.playermail.isEmpty()) {
+					return;
+				}
+				GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("mailbox.name").getFormattedText() + ":", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
+				this.displayGuiScreen(guiyesno);
+				break;
+			}
+			case 5: {
+				step = 4;
+				tick = 15;
+				mtick = 15;
+				this.closeType = 0;
+				break;
+			}
 		}
 	}
 
@@ -151,14 +143,14 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(u, v, 0.0f);
 		this.mc.renderEngine.bindTexture(mBox);
-		this.drawTexturedModalRect(0, 0, 0, 0, 192, 236);
+		this.drawTexturedModalRect(0, 0, 0, 0, 192, 236); // Box
 		if (!this.scrollData.isEmpty()) {
 			this.mc.renderEngine.bindTexture(mList);
-			this.drawTexturedModalRect(8, 45, 0, 0, 176, 156);
+			this.drawTexturedModalRect(8, 45, 0, 0, 176, 156); // list
 		}
 		if (step == 3) {
 			this.mc.renderEngine.bindTexture(mDoor);
-			this.drawTexturedModalRect(-7, 44, 181, 0, 7, 158);
+			this.drawTexturedModalRect(-5, 44, 181, 0, 7, 158); // door
 		}
 		GlStateManager.popMatrix();
 

@@ -1,6 +1,8 @@
 package noppes.npcs.controllers;
 
 import java.io.File;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -14,6 +16,7 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
@@ -44,25 +47,21 @@ import noppes.npcs.util.TempFile;
 
 public class ScriptController {
 
+	private static final boolean isClient = Thread.currentThread().getName().toLowerCase().contains("client");
 	public static boolean HasStart = false;
 	public static ScriptController Instance;
 
 	public static boolean hasGraalLib() {
-		Class<?> graal = null;
 		try {
-			graal = Class.forName("com.oracle.truffle.js.scriptengine.GraalJSScriptEngine");
+			Class.forName("com.oracle.truffle.js.scriptengine.GraalJSScriptEngine");
 			return true;
 		}
-		catch (Exception e) { LogWriter.debug("GraalJS is missing: "+graal); }
+		catch (Exception ignored) {  }
 		return false;
 	}
 
     public boolean isLoad = false;
 	public boolean shouldSave = false;
-	public static boolean hasScripts = false;
-	public static boolean hasClientScripts = false;
-	public static boolean scriptPermissionWasRequested = false;
-	public static boolean clientScriptPermissionWasRequested = false;
 
 	public long lastLoaded = 0L;
 	public long lastPlayerUpdate = 0L;
@@ -80,7 +79,7 @@ public class ScriptController {
 	public final Map<String, File> encrypts = Maps.newTreeMap();
 
 	// key create in CommonProxy.getAgreementKey() and in ClientEventHandler.cnpcOpenGUIEvent()
-	private final Map<String, Boolean> agreementMap = Maps.newTreeMap();
+	private final List<String> agreements = Lists.newArrayList();
 
 	public ForgeScriptData forgeScripts = new ForgeScriptData();
 	public ClientScriptData clientScripts = new ClientScriptData();
@@ -105,9 +104,10 @@ public class ScriptController {
 				try {
 					Class<?> require = Class.forName("com.coveo.nashorn_modules.Require");
 					Method methodEnable = require.getMethod("enable");
-					methodEnable.invoke(factory, CustomNpcs.getWorldSaveDirectory("scripts/common_js"));
+					MethodHandle handle = MethodHandles.lookup().unreflect(methodEnable);
+					handle.invoke(factory, CustomNpcs.getWorldSaveDirectory("scripts/common_js"));
 				}
-				catch (Exception e) { LogWriter.info("Kotlin Require is missed:"); }
+				catch (Throwable t) { LogWriter.info("Kotlin Require is missed:"); }
 				manager.registerEngineName("ecmascript", factory);
 				manager.registerEngineExtension("js", factory);
 				manager.registerEngineMimeType("application/ecmascript", factory);
@@ -146,6 +146,7 @@ public class ScriptController {
 				LogWriter.error("Error Added Script Library: \"" + fac.getLanguageName() + "\": " + t3);
 			}
 		}
+		if (isClient) { this.loadAgreements(); }
 	}
 	
 	public File clientScriptsFile() {
@@ -314,20 +315,20 @@ public class ScriptController {
 		sData.loadPlayerScripts();
 		sData.loadForgeScripts();
 		sData.loadNPCsScripts();
-		sData.loadClientScripts();
 		sData.loadPotionScripts();
 		sData.loadConstantData();
+		if (isClient) { sData.loadClientScripts(); }
 		ScriptController.HasStart = true;
 	}
 
 	public void loadCategories() {
 		this.dir = new File(CustomNpcs.getWorldSaveDirectory(), "scripts");
-		if (!this.dir.exists()) {
-			this.dir.mkdirs();
+		if (!this.dir.exists() && !this.dir.mkdirs()) {
+			return;
 		}
 		this.clientDir = new File(this.dir, "client");
-		if (!this.clientDir.exists()) {
-			this.clientDir.mkdirs();
+		if (!this.clientDir.exists() && !this.clientDir.mkdirs()) {
+			return;
 		}
 
 		if (!this.worldDataFile().exists()) {
@@ -343,19 +344,13 @@ public class ScriptController {
 		for (String language : this.languages.keySet()) {
 			String ext = this.languages.get(Util.instance.deleteColor(language));
 			File scriptDir = new File(this.dir, language.toLowerCase());
-			if (!scriptDir.exists()) {
-				scriptDir.mkdir();
-			} else {
+			if (!scriptDir.exists() && !scriptDir.mkdir()) { continue; }
+			else {
 				this.loadDir(scriptDir, "", ext, false, false);
 				this.loadDir(scriptDir, "", ext.replace(".", ".p"), true, false);
 			}
-
 			scriptDir = new File(this.clientDir, language.toLowerCase());
-			if (!scriptDir.exists()) {
-				scriptDir.mkdir();
-			} else {
-				this.loadDir(scriptDir, "", ext, false, true);
-			}
+			if (scriptDir.exists() || scriptDir.mkdir()) { this.loadDir(scriptDir, "", ext, false, true); }
 		}
 		this.lastLoaded = System.currentTimeMillis();
 		this.isLoad = true;
@@ -596,8 +591,9 @@ public class ScriptController {
 		File file = new File(this.dir, "item_models.dat");
 		if (!file.exists()) {
 			try {
-				file.createNewFile();
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+				if (!file.createNewFile()) { return; }
+			}
+			catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		if (!file.exists()) {
 			return;
@@ -635,7 +631,6 @@ public class ScriptController {
 	public void sendClientTo(EntityPlayerMP player) {
 		NBTTagCompound compound = new NBTTagCompound();
 		this.clientScripts.writeToNBT(compound);
-		compound.setString("WorldName", CustomNpcs.proxy.getAgreementKey());
 		Server.sendData(player, EnumPacketClient.SCRIPT_CLIENT, compound);
 		NBTTagList list = new NBTTagList();
 		for (String key : this.clients.keySet()) {
@@ -663,7 +658,6 @@ public class ScriptController {
 			Util.instance.saveFile(file, compound);
 			this.clientScripts.lastInited = -1L;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		this.saveAgreements();
 	}
 
 	public void setNPCsScripts(NBTTagCompound compound) {
@@ -673,7 +667,6 @@ public class ScriptController {
 			Util.instance.saveFile(file, compound);
 			this.npcsScripts.lastInited = -1L;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		this.saveAgreements();
 	}
 	
 	public void setForgeScripts(NBTTagCompound compound) {
@@ -683,7 +676,6 @@ public class ScriptController {
 			Util.instance.saveFile(file, compound);
 			this.forgeScripts.lastInited = -1L;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		this.saveAgreements();
 	}
 
 	public void setPlayerScripts(NBTTagCompound compound) {
@@ -700,7 +692,6 @@ public class ScriptController {
 			Util.instance.saveFile(this.playerScriptsFile(), compound);
 			this.lastPlayerUpdate = System.currentTimeMillis();
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		this.saveAgreements();
 	}
 
 	public void setPotionScripts(NBTTagCompound compound) {
@@ -710,27 +701,18 @@ public class ScriptController {
 			Util.instance.saveFile(file, compound);
 			this.potionScripts.lastInited = -1L;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		this.saveAgreements();
 	}
 
-	public boolean hasAgreement() {
-		String key = CustomNpcs.proxy.getAgreementKey();
-		if (key == null) { return false; }
-		if (!this.agreementMap.containsKey(key)) { this.agreementMap.put(key, false); }
-		return this.agreementMap.get(key);
-	}
-
-	public void loadAgreements() {
-		this.agreementMap.clear();
+	private void loadAgreements() {
+		this.agreements.clear();
 		LogWriter.error("Load player script agreements");
 		File file = new File(CustomNpcs.Dir, "agreements.dat");
 		boolean err = false;
 		if (file.exists()) {
 			try {
 				NBTTagCompound compound = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
-				for (String key : compound.getKeySet()) {
-					if (compound.getTag(key).getId() != 1) { continue; }
-					this.agreementMap.put(key, compound.getBoolean(key));
+				for (int i = 0; i < compound.getTagList("Agreements", 8).tagCount(); i++) {
+					this.agreements.add(compound.getTagList("Agreements", 8).getStringTagAt(i));
 				}
 			}
 			catch (Exception e) {
@@ -742,38 +724,45 @@ public class ScriptController {
 			try { CompressedStreamTools.writeCompressed(new NBTTagCompound(), Files.newOutputStream(file.toPath())); }
 			catch (Exception e) { LogWriter.error("Error default save agreements:", e); }
 		}
-		LogWriter.debug("Found "+this.agreementMap.size()+" agreements");
+		LogWriter.debug("Found "+this.agreements.size()+" agreements");
 	}
 
-	public void saveAgreements() {
+	private void saveAgreements() {
 		LogWriter.error("Save player script agreements");
 		File file = new File(CustomNpcs.Dir, "agreements.dat");
 		try {
 			NBTTagCompound compound = new NBTTagCompound();
-			for (String key : this.agreementMap.keySet()) {
-				compound.setBoolean(key, this.agreementMap.get(key));
+			NBTTagList list = new NBTTagList();
+			for (String agreement : this.agreements) {
+				list.appendTag(new NBTTagString(agreement));
 			}
+			compound.setTag("Agreements", list);
 			CompressedStreamTools.writeCompressed(compound, Files.newOutputStream(file.toPath()));
 		}
 		catch (Exception e) { LogWriter.error("Error save agreements:", e); }
-		LogWriter.debug("Save "+this.agreementMap.size()+" agreements");
+		LogWriter.debug("Save "+this.agreements.size()+" agreements");
 	}
 
-	public void setAgreement(String keyWorld, boolean bo) {
-		if (!CustomNpcs.EnableScripting) { bo = false; }
-		this.agreementMap.put(keyWorld, bo);
-		this.saveAgreements();
+	public void setAgreement(String agreementName, boolean isAgree) {
+		boolean bo;
+		if (isAgree) { bo = this.agreements.add(agreementName); }
+		else { bo = this.agreements.remove(agreementName); }
+		if (bo) { this.saveAgreements(); }
 	}
 
-	public void checkAgreement(String keyWorld) {
-		if (this.agreementMap.containsKey(keyWorld)) { return; }
-		this.agreementMap.put(keyWorld, false);
-		this.saveAgreements();
-	}
+	public boolean notAgreement(String agreementName) { return !this.agreements.contains(agreementName); }
 
-	public Map<String, Boolean> getAgreements() {
-		Map<String, Boolean> map = Maps.newTreeMap();
-		map.putAll(this.agreementMap);
-		return map;
+	public void checkAgreements(List<String> checkList) {
+		if (checkList == null) { return; }
+		boolean bo = false;
+		List<String> worldAgreements = Lists.newArrayList(this.agreements);
+		for (String key : worldAgreements) {
+			if (key.split(";").length>2) { continue; }
+			if (!checkList.contains(key)) {
+				if (this.agreements.remove(key)) { bo = true; }
+				checkList.remove(key);
+			}
+		}
+		if (bo) { this.saveAgreements(); }
 	}
 }

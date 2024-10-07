@@ -18,6 +18,7 @@ import noppes.npcs.util.Util;
 public class BaseScriptData
 implements IScriptHandler {
 
+	private final boolean isClient = Thread.currentThread().getName().toLowerCase().contains("client");
 	protected boolean enabled = false;
 	public boolean hadInteract = true;
 	public long lastInited = -1L;
@@ -59,30 +60,26 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public boolean isClient() {
-		return Thread.currentThread().getName().toLowerCase().contains("client");
-	}
+	public boolean isClient() { return this.isClient; }
 
 	@Override
 	public boolean getEnabled() { return this.enabled; }
 
 	public boolean isEnabled() {
-		return ScriptController.Instance.hasAgreement() && this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();
+		return this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();
 	}
 
 	@Override
 	public String noticeString() { return ""; }
+
+	@Override
+	public void runScript(String type, Event event) { }
 
 	public void readFromNBT(NBTTagCompound compound) {
 		this.scripts.clear();
 		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = Util.instance.deleteColor(compound.getString("ScriptLanguage"));
 		this.enabled = compound.getBoolean("ScriptEnabled");
-	}
-
-	@Override
-	public void runScript(String type, Event event) {
-		ScriptController.hasScripts = true;
 	}
 
 	@Override

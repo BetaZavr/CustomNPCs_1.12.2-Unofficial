@@ -31,6 +31,7 @@ import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemSplashPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTippedArrow;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -39,7 +40,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
@@ -55,6 +55,7 @@ import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.ForgeRegistry;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.blocks.BlockBorder;
 import noppes.npcs.blocks.BlockBuilder;
@@ -73,20 +74,7 @@ import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomChest;
 import noppes.npcs.blocks.CustomDoor;
 import noppes.npcs.blocks.CustomLiquid;
-import noppes.npcs.blocks.tiles.CustomTileEntityChest;
-import noppes.npcs.blocks.tiles.CustomTileEntityPortal;
-import noppes.npcs.blocks.tiles.TileBlockAnvil;
-import noppes.npcs.blocks.tiles.TileBorder;
-import noppes.npcs.blocks.tiles.TileBuilder;
-import noppes.npcs.blocks.tiles.TileCopy;
-import noppes.npcs.blocks.tiles.TileDoor;
-import noppes.npcs.blocks.tiles.TileMailbox;
-import noppes.npcs.blocks.tiles.TileMailbox2;
-import noppes.npcs.blocks.tiles.TileMailbox3;
-import noppes.npcs.blocks.tiles.TileRedstoneBlock;
-import noppes.npcs.blocks.tiles.TileScripted;
-import noppes.npcs.blocks.tiles.TileScriptedDoor;
-import noppes.npcs.blocks.tiles.TileWaypoint;
+import noppes.npcs.blocks.tiles.*;
 import noppes.npcs.client.renderer.blocks.BlockCarpentryBenchRenderer;
 import noppes.npcs.client.renderer.blocks.BlockChestRenderer;
 import noppes.npcs.client.renderer.blocks.BlockCopyRenderer;
@@ -94,6 +82,9 @@ import noppes.npcs.client.renderer.blocks.BlockDoorRenderer;
 import noppes.npcs.client.renderer.blocks.BlockMailboxRenderer;
 import noppes.npcs.client.renderer.blocks.BlockPortalRenderer;
 import noppes.npcs.client.renderer.blocks.BlockScriptedRenderer;
+import noppes.npcs.client.renderer.item.ItemCarpentryBenchRenderer;
+import noppes.npcs.client.renderer.item.ItemMailboxRenderer;
+import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.entity.EntityChairMount;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPC64x32;
@@ -187,6 +178,12 @@ public class CustomRegisters {
 	@GameRegistry.ObjectHolder("npcwaypoint")
 	public static Block waypoint = null;
 
+
+	@GameRegistry.ObjectHolder("itemCarpentyBench")
+	private static Item itemCarpentyBench = null;
+	@GameRegistry.ObjectHolder("itemMailbox")
+	private static Item itemMailbox = null;
+
 	@GameRegistry.ObjectHolder("npcmobcloner")
 	public static Item cloner = null;
 	@GameRegistry.ObjectHolder("npcmounter")
@@ -226,6 +223,7 @@ public class CustomRegisters {
 	public static CreativeTabNpcs tab = new CreativeTabNpcs("cnpcs");
 	public static CreativeTabNpcs tabBlocks = new CreativeTabNpcs("blocks");
 	public static CreativeTabNpcs tabItems = new CreativeTabNpcs("items");
+
 	public static Map<Block, Item> customblocks = Maps.newHashMap();
 	public static List<Item> customitems = Lists.newArrayList();
 	public static List<Potion> custompotions = Lists.newArrayList();
@@ -429,7 +427,7 @@ public class CustomRegisters {
 	}
 
 	@SubscribeEvent
-	public void register(RegistryEvent.Register<EntityEntry> event) {
+	public void registerEntities(RegistryEvent.Register<EntityEntry> event) {
 		EntityEntry[] entries = { this.registerNpc(EntityNPCHumanMale.class, "npchumanmale"),
 				this.registerNpc(EntityNPCVillager.class, "npcvillager"),
 				this.registerNpc(EntityNpcPony.class, "npcpony"),
@@ -485,6 +483,9 @@ public class CustomRegisters {
 		CustomRegisters.builder = new BlockBuilder();
 		CustomRegisters.copy = new BlockCopy();
 		CustomRegisters.carpentyBench = new BlockCarpentryBench();
+
+		CustomRegisters.itemCarpentyBench = new ItemNpcBlock(CustomRegisters.carpentyBench);
+		CustomRegisters.itemMailbox = new ItemNpcBlock(CustomRegisters.mailbox).setHasSubtypes(true);
 
 		List<Block> blocks = Lists.newArrayList();
 		List<String> names = Lists.newArrayList();
@@ -654,7 +655,7 @@ public class CustomRegisters {
 	}
 
 	@SubscribeEvent
-	public void registerItems(RegistryEvent.Register<Item> event) { // Changed
+	public void registerItems(RegistryEvent.Register<Item> event) {
 		CustomRegisters.wand = new ItemNpcWand();
 		CustomRegisters.cloner = new ItemNpcCloner();
 		CustomRegisters.scripter = new ItemNpcScripter();
@@ -666,13 +667,13 @@ public class CustomRegisters {
 		CustomRegisters.soulstoneFull = new ItemSoulstoneFilled();
 		CustomRegisters.scripted_item = new ItemScripted();
 		CustomRegisters.nbt_book = new ItemNbtBook();
-		// New
 		CustomRegisters.npcboundary = new ItemBoundary();
 		CustomRegisters.npcbuilder = new ItemBuilder();
 		CustomRegisters.npcremover = new ItemRemover();
 		CustomRegisters.npcplacer = new ItemPlacer();
 		CustomRegisters.npcreplacer = new ItemReplacer();
 		CustomRegisters.npcsaver = new ItemSaver();
+		Item tabItem = new ItemNpcBlock(CustomRegisters.scripted);
 
 		List<Item> items = Lists.newArrayList();
 		List<String> names = Lists.newArrayList();
@@ -694,15 +695,13 @@ public class CustomRegisters {
 		items.add(CustomRegisters.npcreplacer);
 		items.add(CustomRegisters.npcsaver);
 		items.add(new ItemNpcBlock(CustomRegisters.redstoneBlock));
-		items.add(new ItemNpcBlock(CustomRegisters.carpentyBench));
-		items.add(new ItemNpcBlock(CustomRegisters.mailbox).setHasSubtypes(true));
 		items.add(new ItemNpcBlock(CustomRegisters.waypoint));
 		items.add(new ItemNpcBlock(CustomRegisters.border));
 		items.add(new ItemNpcBlockDoor(CustomRegisters.scriptedDoor));
 		items.add(new ItemNpcBlock(CustomRegisters.builder));
 		items.add(new ItemNpcBlock(CustomRegisters.copy));
-
-		Item tabItem = new ItemNpcBlock(CustomRegisters.scripted);
+		items.add(CustomRegisters.itemCarpentyBench);
+		items.add(CustomRegisters.itemMailbox);
 		items.add(tabItem);
 
 		for (Item it : items) {
@@ -712,6 +711,7 @@ public class CustomRegisters {
 		// Blocks
 		CustomRegisters.tabBlocks.item = tabItem;
 		CustomRegisters.tabItems.item = CustomRegisters.scripted_item;
+
 		for (Block block : CustomRegisters.customblocks.keySet()) {
 			Item item = CustomRegisters.customblocks.get(block);
 			if (item == null) {
@@ -959,16 +959,16 @@ public class CustomRegisters {
 		ModelLoader.setCustomStateMapper(CustomRegisters.builder, new StateMap.Builder().ignore(new IProperty[] { BlockBuilder.ROTATION }).build());
 		ModelLoader.setCustomStateMapper(CustomRegisters.carpentyBench, new StateMap.Builder().ignore(new IProperty[] { BlockCarpentryBench.ROTATION }).build());
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.redstoneBlock), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.redstoneBlock.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.mailbox.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 1, new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 2, new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.itemMailbox, 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.mailbox.getRegistryName()), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.itemMailbox, 1, new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.itemMailbox, 2, new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.waypoint), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.waypoint.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.border), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.border.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.scripted), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.scripted.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.scriptedDoor), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.scriptedDoor.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.builder), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.builder.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.copy), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.copy.getRegistryName()), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.carpentyBench.getRegistryName()), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.itemCarpentyBench, 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.carpentyBench.getRegistryName()), "inventory"));
 		for (Block block : CustomRegisters.customblocks.keySet()) {
 			if (block instanceof CustomBlockPortal) {
 				ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { CustomBlockPortal.TYPE }).build());
@@ -1008,11 +1008,9 @@ public class CustomRegisters {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileCopy.class, new BlockCopyRenderer<>());
 		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class, new BlockPortalRenderer<>());
 		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class, new BlockChestRenderer<>());
-		// OLD JSON Models
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0, TileBlockAnvil.class);
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 0, TileMailbox.class);
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 1, TileMailbox2.class);
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 2, TileMailbox3.class);
+		// Item Block model renders
+		CustomRegisters.itemCarpentyBench.setTileEntityItemStackRenderer(new ItemCarpentryBenchRenderer());
+		CustomRegisters.itemMailbox.setTileEntityItemStackRenderer(new ItemMailboxRenderer());
 	}
 
 	private <E extends Entity> EntityEntryBuilder<E> registerNewEntity(String name, int update, boolean velocity) {
@@ -1146,6 +1144,11 @@ public class CustomRegisters {
 		if (item.getRegistryName().getResourcePath().equals("custom_itemexample") || CustomRegisters.tabItems.item == CustomRegisters.scripted_item) {
 			CustomRegisters.tabItems.item = item;
 		}
+	}
+
+	@SubscribeEvent
+	public void registryRecipes(RegistryEvent.Register<IRecipe> event) {
+		RecipeController.Registry = (ForgeRegistry<IRecipe>) event.getRegistry();
 	}
 
 }

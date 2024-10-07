@@ -5,10 +5,9 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 
 public interface IRecipeHandler {
 
-	INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, int width,
-			int height, ItemStack[] stacks);
+	INpcRecipe addRecipe(String group, String name, boolean isGlobal, boolean isShaped, boolean isKnown, ItemStack result, int width, int height, ItemStack[] stacks);
 
-	INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, Object[] objects);
+	INpcRecipe addRecipe(String group, String name, boolean isGlobal, boolean isShaped, boolean isKnown, ItemStack result, Object[] objects);
 
 	boolean delete(int id);
 

@@ -10,7 +10,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.api.entity.ai.EntityAITasksAPIMixin;
+import noppes.npcs.mixin.entity.ai.IEntityAITasksMixin;
 
 public class EntityAICustom extends EntityAIBase {
 
@@ -25,7 +25,7 @@ public class EntityAICustom extends EntityAIBase {
 	public EntityAICustom(EntityNPCInterface npc) {
 		this.npc = npc;
 		this.navOverride(true);
-		this.tickRate = ((EntityAITasksAPIMixin) this.npc.tasks).npcs$getTickRate();
+		this.tickRate = ((IEntityAITasksMixin) this.npc.tasks).npcs$getTickRate();
 		this.step = 0;
 		this.distance = -1.0d;
 	}
@@ -36,7 +36,7 @@ public class EntityAICustom extends EntityAIBase {
 		}
 		this.npc = (EntityNPCInterface) npc;
 		this.navOverride(true);
-		this.tickRate = ((EntityAITasksAPIMixin) this.npc.tasks).npcs$getTickRate();
+		this.tickRate = ((IEntityAITasksMixin) this.npc.tasks).npcs$getTickRate();
 		this.distance = -1.0d;
 	}
 

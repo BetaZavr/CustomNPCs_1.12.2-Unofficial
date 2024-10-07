@@ -162,8 +162,8 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				if (entityIn.isSneaking()) {
 					boolean chest = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() instanceof ItemArmor;
 					boolean legs = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.LEGS).getItem() instanceof ItemArmor;
-					boolean feets = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() instanceof ItemArmor;
-					GlStateManager.translate(0.0F, -0.2F - (legs ? 0.2F : 0.0F) - (feets ? 0.2F : 0.0F) - (chest ? 0.2F : 0.0F), 0.0F);
+					boolean feet = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() instanceof ItemArmor;
+					GlStateManager.translate(0.0F, -0.2F - (legs ? 0.2F : 0.0F) - (feet ? 0.2F : 0.0F) - (chest ? 0.2F : 0.0F), 0.0F);
 				}
 				boolean showArmorHead = this.renderHead((EntityLivingBase) entityIn, scale, baArmor);
 				if (showArmorHead && ((ModelRendererAlt) this.bipedHead).notOBJModel()) {

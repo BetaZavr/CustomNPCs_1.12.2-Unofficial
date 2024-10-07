@@ -123,7 +123,7 @@ public class NoppesUtilServer {
 		return world.getTopSolidOrLiquidBlock(origin);
 	}
 
-	public static Entity GetDamageSourcee(DamageSource damagesource) {
+	public static Entity GetDamageSource(DamageSource damagesource) {
 		Entity entity = damagesource.getTrueSource();
 		if (entity == null) {
 			entity = damagesource.getImmediateSource();
@@ -268,16 +268,16 @@ public class NoppesUtilServer {
 	}
 
 	public static void NotifyOPs(String message, Object... obs) {
-		TextComponentTranslation chatcomponenttranslation = new TextComponentTranslation(message, obs);
-		chatcomponenttranslation.getStyle().setColor(TextFormatting.GRAY);
-		chatcomponenttranslation.getStyle().setItalic(Boolean.TRUE);
+		TextComponentTranslation chat_component_translation = new TextComponentTranslation(message, obs);
+		chat_component_translation.getStyle().setColor(TextFormatting.GRAY);
+		chat_component_translation.getStyle().setItalic(Boolean.TRUE);
 		for (EntityPlayer entityplayer : CustomNpcs.Server.getPlayerList().getPlayers()) {
 			if (entityplayer.sendCommandFeedback() && isOp(entityplayer)) {
-				entityplayer.sendMessage(chatcomponenttranslation);
+				entityplayer.sendMessage(chat_component_translation);
 			}
 		}
 		if (CustomNpcs.Server.worlds[0].getGameRules().getBoolean("logAdminCommands")) {
-			LogWriter.info(chatcomponenttranslation.getUnformattedText());
+			LogWriter.info(chat_component_translation.getUnformattedText());
 		}
 	}
 
@@ -368,12 +368,11 @@ public class NoppesUtilServer {
 		sendPlayerData(type, player, name);
 	}
 
-	public static String runCommand(ICommandSender executer, String name, String command, EntityPlayer player) {
-		return runCommand(executer.getEntityWorld(), executer.getPosition(), name, command, player, executer);
+	public static String runCommand(ICommandSender sender, String name, String command, EntityPlayer player) {
+		return runCommand(sender.getEntityWorld(), sender.getPosition(), name, command, player, sender);
 	}
 
-	public static String runCommand(World world, BlockPos pos, String name, String command, EntityPlayer player,
-			ICommandSender executer) {
+	public static String runCommand(World world, BlockPos pos, String name, String command, EntityPlayer player, ICommandSender sender) {
 		if (!Objects.requireNonNull(world.getMinecraftServer()).isCommandBlockEnabled()) {
 			LogWriter.warn("Cant run commands if CommandBlocks are disabled");
 			return "Cant run commands if CommandBlocks are disabled";
@@ -389,10 +388,10 @@ public class NoppesUtilServer {
 			}
 
 			public Entity getCommandSenderEntity() {
-				if (executer == null) {
+				if (sender == null) {
 					return null;
 				}
-				return executer.getCommandSenderEntity();
+				return sender.getCommandSenderEntity();
 			}
 
 			public @Nonnull ITextComponent getDisplayName() {
@@ -630,29 +629,6 @@ public class NoppesUtilServer {
 		sendScrollData(player, map);
 	}
 
-	public static void sendRecipeData(EntityPlayerMP player, int size, String group, String recipe) {
-		RecipeController rData = RecipeController.getInstance();
-		NBTTagCompound compound = new NBTTagCompound();
-		NBTTagList groups = new NBTTagList();
-		NBTTagList recipes = new NBTTagList();
-
-		Map<String, List<INpcRecipe>> map = (size == 3) ? rData.globalList : rData.modList;
-		for (String name : map.keySet()) {
-			groups.appendTag(new NBTTagString(name));
-		}
-		if (map.containsKey(group)) {
-			for (INpcRecipe rec : map.get(group)) {
-				recipes.appendTag(new NBTTagString(rec.getName()));
-				if (recipe.equalsIgnoreCase(rec.getName())) {
-					compound.setTag("SelectRecipe", rec.getNbt().getMCNBT());
-				}
-			}
-		}
-		compound.setTag("Groups", groups);
-		compound.setTag("Recipes", recipes);
-		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-	}
-
 	public static void sendRoleData(EntityPlayer player, EntityNPCInterface npc) {
 		if (npc == null) {
 			return;
@@ -780,5 +756,28 @@ public class NoppesUtilServer {
 	public static void spawnParticle(Entity entity, String particle) {
 		Server.sendAssociatedData(entity, EnumPacketClient.PARTICLE, entity.posX, entity.posY, entity.posZ, entity.height, entity.width, particle);
 	}
+
+    public static void sendRecipeData(EntityPlayerMP player, int size, String group, String recipe) {
+		RecipeController rData = RecipeController.getInstance();
+		NBTTagCompound compound = new NBTTagCompound();
+		NBTTagList groups = new NBTTagList();
+		NBTTagList recipes = new NBTTagList();
+
+		Map<String, List<INpcRecipe>> map = rData.getRecipes(size == 3);
+		for (String name : map.keySet()) {
+			groups.appendTag(new NBTTagString(name));
+		}
+		if (map.containsKey(group)) {
+			for (INpcRecipe rec : map.get(group)) {
+				recipes.appendTag(new NBTTagString(rec.getName()));
+				if (recipe.equalsIgnoreCase(rec.getName())) {
+					compound.setTag("SelectRecipe", rec.getNbt().getMCNBT());
+				}
+			}
+		}
+		compound.setTag("Groups", groups);
+		compound.setTag("Recipes", recipes);
+		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
+    }
 
 }

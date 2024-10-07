@@ -6,8 +6,8 @@ buildscript {
         maven { url = "https://maven.minecraftforge.net/" }
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
-        classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7.38', changing: true
     }
 }
 
@@ -15,7 +15,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-apply plugin: "org.spongepowered.mixin"
+apply plugin: 'org.spongepowered.mixin'
 
 version = getVersion()
 group = 'noppes.npcs'
@@ -45,9 +45,7 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 
 minecraft {
     mappings channel: 'snapshot', version: '20171003-1.12'
-
     accessTransformer = file('src/main/resources/META-INF/deobfuscation.cfg')
-
     runs {
         client {
             workingDirectory project.file('run/client')
@@ -60,7 +58,6 @@ minecraft {
             arg "-mixin.config=mixins.npcs.json"
             arg '--username=BetaZavr'
         }
-
         server {
             workingDirectory project.file('run/server')
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
@@ -76,6 +73,7 @@ minecraft {
 }
 
 repositories {
+    mavenCentral()
     // maven { url "https://www.cursemaven.com" }
     maven { url 'https://maven.cleanroommc.com' }
 }

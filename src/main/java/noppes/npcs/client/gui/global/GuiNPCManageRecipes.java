@@ -124,7 +124,7 @@ public class GuiNPCManageRecipes extends GuiContainerNPCInterface2
 				INpcRecipe rec;
 				if (this.container.recipe.isShaped()) {
 					NpcShapedRecipes recipe = (NpcShapedRecipes) this.container.recipe;
-					rec = new NpcShapelessRecipes(recipe.group, recipe.name, recipe.recipeItems, recipe.getRecipeOutput());
+					rec = new NpcShapelessRecipes(recipe.getNpcGroup(), recipe.name, recipe.recipeItems, recipe.getRecipeOutput());
 					((NpcShapelessRecipes) rec).known = recipe.known;
 					((NpcShapelessRecipes) rec).availability = recipe.availability;
 					((NpcShapelessRecipes) rec).global = recipe.global;
@@ -133,8 +133,7 @@ public class GuiNPCManageRecipes extends GuiContainerNPCInterface2
 					((NpcShapelessRecipes) rec).savesRecipe = recipe.savesRecipe;
 				} else {
 					NpcShapelessRecipes recipe = (NpcShapelessRecipes) this.container.recipe;
-					rec = new NpcShapedRecipes(recipe.group, recipe.name, recipe.global ? 3 : 4, recipe.global ? 3 : 4,
-							recipe.recipeItems, recipe.getRecipeOutput());
+					rec = new NpcShapedRecipes(recipe.getNpcGroup(), recipe.name, recipe.global ? 3 : 4, recipe.global ? 3 : 4, recipe.recipeItems, recipe.getRecipeOutput());
 					((NpcShapedRecipes) rec).known = recipe.known;
 					((NpcShapedRecipes) rec).availability = recipe.availability;
 					((NpcShapedRecipes) rec).global = recipe.global;

@@ -107,7 +107,7 @@ import noppes.npcs.dimensions.CustomWorldProvider;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
-import noppes.npcs.mixin.api.entity.ai.attributes.RangedAttributeAPIMixin;
+import noppes.npcs.mixin.entity.ai.attributes.IRangedAttributeMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.DataDebug;
 import noppes.npcs.util.DataDebug.Debug;
@@ -144,7 +144,7 @@ public class CustomNpcs {
 	public static boolean EnableUpdateChecker = true;
 	@ConfigProp(info = "Maximum and minimum amount of experience dropped from the NPC for the minimum and maximum level (Elite x1.75; Boss x4.75)", def = "2,3,100,115", min = "0,0,0,0")
 	public static int[] Experience = new int[] { 2, 3, 100, 115 };
-	@ConfigProp(info = "Font size for custom fonts (doesn't work with minecrafts font)", def = "18", min = "6", max = "36")
+	@ConfigProp(info = "Font size for custom fonts (doesn't work with minecraft fonts)", def = "18", min = "6", max = "36")
 	public static int FontSize = 18;
 	@ConfigProp(info = "Main text color of elements in GUI modification", def = "FFFFFF", type = Configuration.CATEGORY_CLIENT)
 	public static Color MainColor = new Color(0xFFFFFF);
@@ -160,7 +160,7 @@ public class CustomNpcs {
 	public static Color[] ChatNpcColors = new Color[] { new Color(0x000000), new Color(0x000000), new Color(0xFFFFFF) };
 	@ConfigProp(info = "Color of message bubbles above Player head [text, frame, base]", def = "000000,2C4C00,E0FFB0", type = Configuration.CATEGORY_CLIENT)
 	public static Color[] ChatPlayerColors = new Color[] { new Color(0x000000), new Color(0x2C4C00), new Color(0xE0FFB0) };
-	@ConfigProp(info = "When set to Minecraft it will use minecrafts font, when Default it will use OpenSans. Can only use fonts installed on your PC", def = "Default")
+	@ConfigProp(info = "When set to Minecraft it will use minecraft fonts, when Default it will use OpenSans. Can only use fonts installed on your PC", def = "Default")
 	public static String FontType = "Default";
 	@ConfigProp(info = "Type 0=Normal; 1=Solid; 2=Not show", def = "1", min = "0", max = "1")
 	public static int HeadWearType = 1;
@@ -251,7 +251,7 @@ public class CustomNpcs {
 	public static CommonProxy proxy;
 	public static long ticks;
 	public static String MODID = "customnpcs";
-	public static String MODNAME = "CustomNpcs";
+	public static String MODNAME = "CustomNpcs Unofficial";
 	public static FMLEventChannel Channel;
 	public static FMLEventChannel ChannelPlayer;
 	public static CustomNpcs instance;
@@ -417,7 +417,10 @@ public class CustomNpcs {
 		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_preload");
 		CustomNpcs.Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCs");
 		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCsPlayer");
-		(CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), "customnpcs")).mkdir();
+		CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), "customnpcs");
+		if (!CustomNpcs.Dir.exists() && !CustomNpcs.Dir.mkdir()) {
+			throw new RuntimeException("Impossible error: Failed to create sections important for the " + MODNAME + " mod!");
+		}
 		CustomNpcs.Config = new ConfigLoader(ev.getModConfigurationDirectory());
 		if (CustomNpcs.NpcNavRange < 16) {
 			CustomNpcs.NpcNavRange = 16;
@@ -443,7 +446,7 @@ public class CustomNpcs {
 				"CustomDimensions".hashCode(), CustomWorldProvider.class, false);
 
 		CustomNpcs.proxy.preload();
-		((RangedAttributeAPIMixin) SharedMonsterAttributes.MAX_HEALTH).npcs$setMaxValue(Double.MAX_VALUE);
+		((IRangedAttributeMixin) SharedMonsterAttributes.MAX_HEALTH).npcs$setMaxValue(Double.MAX_VALUE);
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_preload");
 	}
 
@@ -565,7 +568,6 @@ public class CustomNpcs {
 		ServerCloneController.Instance = null;
 		PlayerSkinController.getInstance().save();
 		MarcetController.getInstance().saveMarcets();
-		RecipeController.getInstance().save();
 		AnimationController.getInstance().save();
 		KeyController.getInstance().save();
 		DropController.getInstance().save();

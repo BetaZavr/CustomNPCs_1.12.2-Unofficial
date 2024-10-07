@@ -47,7 +47,7 @@ import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.dimensions.CustomWorldInfo;
-import noppes.npcs.mixin.api.pathfinding.PathAPIMixin;
+import noppes.npcs.mixin.pathfinding.IPathMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
@@ -325,9 +325,9 @@ public class Server {
 			closedSet[i] = Server.readPathPoint(nbt.getTagList("cp", 10).getCompoundTagAt(i));
 		}
 		Path navigating = new Path(points);
-		((PathAPIMixin) navigating).npcs$setOpenSet(openSet);
-		((PathAPIMixin) navigating).npcs$setClosedSet(closedSet);
-		((PathAPIMixin) navigating).npcs$setCurrentPathIndex(nbt.getInteger("ci"));
+		((IPathMixin) navigating).npcs$setOpenSet(openSet);
+		((IPathMixin) navigating).npcs$setClosedSet(closedSet);
+		((IPathMixin) navigating).npcs$setCurrentPathIndex(nbt.getInteger("ci"));
 		return navigating;
 	}
 
@@ -523,9 +523,9 @@ public class Server {
 	public static NBTTagCompound writePathToNBT(Path path) {
 		NBTTagCompound nbt = new NBTTagCompound();
 
-		PathPoint[] points = ((PathAPIMixin) path).npcs$getPoints();
-		PathPoint[] openSet = ((PathAPIMixin) path).npcs$getOpenSet();
-		PathPoint[] closedSet = ((PathAPIMixin) path).npcs$getClosedSet();
+		PathPoint[] points = ((IPathMixin) path).npcs$getPoints();
+		PathPoint[] openSet = ((IPathMixin) path).npcs$getOpenSet();
+		PathPoint[] closedSet = ((IPathMixin) path).npcs$getClosedSet();
 
 		NBTTagList ps = new NBTTagList();
         assert points != null;
@@ -548,7 +548,7 @@ public class Server {
 		}
 		nbt.setTag("cp", cp);
 
-		nbt.setInteger("ci", ((PathAPIMixin) path).npcs$getCurrentPathIndex());
+		nbt.setInteger("ci", ((IPathMixin) path).npcs$getCurrentPathIndex());
 		return nbt;
 	}
 

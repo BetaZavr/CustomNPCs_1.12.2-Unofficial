@@ -31,7 +31,7 @@ import noppes.npcs.client.gui.util.ITextChangeListener;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
-import noppes.npcs.mixin.api.nbt.NBTTagLongArrayAPIMixin;
+import noppes.npcs.mixin.nbt.INBTTagLongArrayMixin;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
@@ -349,7 +349,7 @@ implements IGuiData, ITextChangeListener {
 			NBTTagList list = comp.getTagList("Scripts", 8);
 			long[] ld = new long[list.tagCount()];
 			if (comp.hasKey("sizes", 12)) {
-				ld = ((NBTTagLongArrayAPIMixin) comp.getTag("sizes")).npcs$getData();
+				ld = ((INBTTagLongArrayMixin) comp.getTag("sizes")).npcs$getData();
 			}
 			if (ld != null) {
 				for (int j = 0; j < list.tagCount(); ++j) {

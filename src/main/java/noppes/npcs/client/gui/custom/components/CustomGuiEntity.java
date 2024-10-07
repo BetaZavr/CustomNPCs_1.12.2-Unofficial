@@ -30,7 +30,7 @@ import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.api.client.network.NetHandlerPlayClientAPIMixin;
+import noppes.npcs.mixin.client.network.INetHandlerPlayClientMixin;
 import noppes.npcs.util.Util;
 
 public class CustomGuiEntity extends Gui implements IGuiComponent {
@@ -96,7 +96,7 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 				} else {
 					NetHandlerPlayClient netHandler = Minecraft.getMinecraft().getConnection();
 					if (netHandler != null) {
-						Map<UUID, NetworkPlayerInfo> playerInfoMap = ((NetHandlerPlayClientAPIMixin) netHandler).npcs$getplayerInfoMap();
+						Map<UUID, NetworkPlayerInfo> playerInfoMap = ((INetHandlerPlayClientMixin) netHandler).npcs$getplayerInfoMap();
 						if (playerInfoMap.containsKey(uuid)) {
 							NetworkPlayerInfo npi = playerInfoMap.get(uuid);
                             npi.getLocationSkin();

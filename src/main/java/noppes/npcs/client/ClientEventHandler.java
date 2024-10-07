@@ -6,11 +6,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import net.minecraft.client.gui.*;
-import net.minecraft.world.storage.ISaveFormat;
-import net.minecraft.world.storage.WorldInfo;
-import net.minecraft.world.storage.WorldSummary;
-import noppes.npcs.mixin.api.client.renderer.BlockModelRendererAPIMixin;
-import noppes.npcs.mixin.api.client.renderer.BlockRendererDispatcherAPIMixin;
+import noppes.npcs.mixin.client.renderer.IBlockModelRendererMixin;
+import noppes.npcs.mixin.client.renderer.IBlockRendererDispatcherMixin;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -19,8 +16,6 @@ import com.google.gson.Gson;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiCrafting;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
@@ -58,11 +53,9 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.CustomPacketHandler;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
@@ -74,7 +67,6 @@ import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.client.gui.GuiNbtBook;
 import noppes.npcs.client.gui.GuiNpcPather;
 import noppes.npcs.client.gui.player.GuiLog;
-import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.constants.EnumGuiType;
@@ -91,7 +83,6 @@ import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.schematics.ISchematic;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
-import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.CustomNPCsScheduler;
 
@@ -107,12 +98,6 @@ public class ClientEventHandler {
 	public static int rotation;
 	public static long secs;
 	private boolean miniMapLoaded;
-
-	@SubscribeEvent
-	public void cnpcJoinServer(ClientConnectedToServerEvent event) {
-		event.getManager().channel().pipeline().addBefore("fml:packet_handler",
-				CustomNpcs.MODID + ":custom_packet_handler_client", new CustomPacketHandler());
-	}
 
 	@SubscribeEvent
 	public void cnpcOpenGUIEvent(GuiOpenEvent event) {
@@ -135,22 +120,8 @@ public class ClientEventHandler {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.OpenGui, newGUI, mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName());
 		if (mc.currentScreen instanceof GuiNpcPather) {
 			ClientGuiEventHandler.movingPath.clear();
-		} else if (event.getGui() instanceof GuiWorldSelection) {
-			try {
-				ISaveFormat anvilSaveConverter = mc.getSaveLoader();
-				List<WorldSummary> list = anvilSaveConverter.getSaveList(); // AnvilSaveConverter.ISaveFormat
-				Collections.sort(list);
-				for (WorldSummary worldsummary : list) {
-					WorldInfo worldinfo = anvilSaveConverter.getWorldInfo(worldsummary.getFileName());
-					if (worldinfo == null) { continue; }
-					ScriptController.Instance.checkAgreement(worldinfo.getWorldName() + "/" + worldinfo.areCommandsAllowed() + "/" + worldinfo.getSeed());
-				}
-			}
-			catch (Exception e) { LogWriter.debug(e.toString()); }
-		} else if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
-			Util.instance.resetRecipes(mc.player, (GuiContainer) event.getGui());
-			event.getGui().mc = mc;
-		} else if (event.getGui() instanceof GuiInventory) {
+		}
+		else if (event.getGui() instanceof GuiInventory) {
 			if (mc.player.getHeldItemMainhand().getItem() instanceof ISpecBuilder) {
 				event.setCanceled(true);
 				ISpecBuilder item = (ISpecBuilder) mc.player.getHeldItemMainhand().getItem();
@@ -163,9 +134,6 @@ public class ClientEventHandler {
                     CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.Gui, item.getGUIType(), id, type, 0), 100);
                 }
                 return;
-			} else if (!mc.player.capabilities.isCreativeMode) {
-				Util.instance.resetRecipes(mc.player, (GuiContainer) event.getGui());
-				event.getGui().mc = mc;
 			}
 		}
 		ScaledResolution scaleW = new ScaledResolution(mc);
@@ -421,8 +389,8 @@ public class ClientEventHandler {
 		case MODEL:
 			IBakedModel ibakedmodel = dispatcher.getModelForState(state);
 			GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
-			BlockModelRenderer bmr = ((BlockRendererDispatcherAPIMixin) dispatcher).npcs$getBlockModelRenderer();
-			BlockColors bc = ((BlockModelRendererAPIMixin) bmr).npcs$getBlockColors();
+			BlockModelRenderer bmr = ((IBlockRendererDispatcherMixin) dispatcher).npcs$getBlockModelRenderer();
+			BlockColors bc = ((IBlockModelRendererMixin) bmr).npcs$getBlockColors();
 			int color = bc.colorMultiplier(state, null, null, 0);
 			if (EntityRenderer.anaglyphEnable) {
 				color = TextureUtil.anaglyphColor(color);
@@ -436,7 +404,7 @@ public class ClientEventHandler {
 			this.renderModelBlockQuads(ibakedmodel.getQuads(state, null, 0L), r, g, b);
 			break;
 		case ENTITYBLOCK_ANIMATED:
-			ChestRenderer chestRenderer = ((BlockRendererDispatcherAPIMixin) dispatcher).npcs$getChestRenderer();
+			ChestRenderer chestRenderer = ((IBlockRendererDispatcherMixin) dispatcher).npcs$getChestRenderer();
 			chestRenderer.renderChestBrightness(state.getBlock(), 1.0f);
             default:
 			break;

@@ -30,7 +30,7 @@ implements IComponentGui {
 	public int txrW = 0;
 	public int txrH = 0;
 	public ResourceLocation texture = null;
-	public String lable = "";
+	public String label = "";
 	public boolean dropShadow, hasDefBack, hasSound, isPressed;
 	public int textColor = CustomNpcs.MainColor.getRGB();
 	public boolean isSimple = false;
@@ -50,8 +50,8 @@ implements IComponentGui {
 		this.displayValue = ((display.length == 0) ? 0 : (val % display.length));
 	}
 
-	public GuiNpcButton(int id, int x, int y, int width, int height, String lable) {
-		super(id, x, y, width, height, new TextComponentTranslation(lable).getFormattedText());
+	public GuiNpcButton(int id, int x, int y, int width, int height, String label) {
+		super(id, x, y, width, height, new TextComponentTranslation(label).getFormattedText());
 		this.displayValue = 0;
 		this.id = id;
 		this.layerColor = 0;
@@ -59,8 +59,8 @@ implements IComponentGui {
 		this.hasSound = true;
 	}
 
-	public GuiNpcButton(int id, int x, int y, int width, int height, String lable, boolean enabled) {
-		this(id, x, y, width, height, lable);
+	public GuiNpcButton(int id, int x, int y, int width, int height, String label, boolean enabled) {
+		this(id, x, y, width, height, label);
 		this.enabled = enabled;
 	}
 
@@ -70,9 +70,9 @@ implements IComponentGui {
 		this.displayValue = ((display.length == 0) ? 0 : (val % display.length));
 	}
 
-	public GuiNpcButton(int id, int x, int y, String lable) {
-		super(id, x, y, new TextComponentTranslation(lable).getFormattedText());
-		this.lable = lable;
+	public GuiNpcButton(int id, int x, int y, String label) {
+		super(id, x, y, new TextComponentTranslation(label).getFormattedText());
+		this.label = label;
 		this.displayValue = 0;
 		this.layerColor = 0;
 		this.id = id;
@@ -105,7 +105,7 @@ implements IComponentGui {
 			}
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			int i = this.getHoverState(this.hovered);
-
+//if (this.id == 0) { System.out.println("CNPCs: "+i+", "+this.isSimple); }
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -266,7 +266,13 @@ implements IComponentGui {
 
 	@Override
 	protected int getHoverState(boolean hovered) {
-		if (!this.isSimple) { return super.getHoverState(hovered); }
+		if (this.isSimple) {
+			int i = 0;
+			if (!this.enabled) { i = 3; }
+			else if (hovered) { i = 1; }
+
+			return i;
+		}
 		if (hovered) {
 			if (Mouse.isButtonDown(0)) { return this.enabled ? 2 : 5; }
 			return this.enabled ? 1 : 4;

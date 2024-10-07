@@ -26,7 +26,6 @@ public class ClientScriptData
 extends BaseScriptData {
 
 	public boolean loadDefault = false;
-	private String serverWorldName = "any_maps";
 
 	public ScriptContainer script = null;
 	public final StoredData storedData = new StoredData();
@@ -51,7 +50,7 @@ extends BaseScriptData {
 
 	@Override
 	public boolean isEnabled() {
-		return ScriptController.Instance.hasAgreement() && this.enabled && ScriptController.HasStart && this.script != null;
+		return this.enabled && ScriptController.HasStart && this.script != null;
 	}
 
 	@Override
@@ -65,17 +64,10 @@ extends BaseScriptData {
 		this.script.readFromNBT(compound.getCompoundTag("Scripts"), true);
 		this.scriptLanguage = Util.instance.deleteColor(compound.getString("ScriptLanguage"));
 		this.enabled = compound.getBoolean("ScriptEnabled");
-
-		this.serverWorldName = compound.getString("WorldName");
-		if (this.serverWorldName.split("/").length < 3) { return; }
-		CommonProxy.agreementKey = this.serverWorldName;
-		ClientProxy.agreementKey = null;
-		this.serverWorldName = CustomNpcs.proxy.getAgreementKey();
 	}
 
 	@Override
 	public void runScript(String type, Event event) {
-		ScriptController.hasClientScripts = true;
 		if (!this.isEnabled()) { return; }
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
@@ -212,7 +204,5 @@ extends BaseScriptData {
 	public boolean isEmpty() {
 		return this.script == null || !this.script.hasScriptCode();
 	}
-
-	public String getWorldName() { return this.serverWorldName; }
 
 }

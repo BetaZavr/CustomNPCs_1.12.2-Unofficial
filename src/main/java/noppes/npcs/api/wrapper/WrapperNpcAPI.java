@@ -359,7 +359,7 @@ public class WrapperNpcAPI extends NpcAPI {
 	@Override
 	public IRecipeHandler getRecipes() {
 		this.checkWorld();
-		return RecipeController.getInstance();
+		return null;
 	}
 
 	@Override

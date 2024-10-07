@@ -70,9 +70,9 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 			char chr = ((char) 167);
 			for (GuiMenuTopButton tab : this.menu.getTopButtons()) {
 				if (tab.isMouseOver()) {
-					String text = new TextComponentTranslation("display.hover." + tab.lable).getFormattedText();
+					String text = new TextComponentTranslation("display.hover." + tab.label).getFormattedText();
 					String str;
-					switch (tab.lable) {
+					switch (tab.label) {
 					case "menu.display": {
 						text += "<br>" + chr + "7" + new TextComponentTranslation("gui.name").getFormattedText() + chr
 								+ "7: " + chr + "r" + this.npc.display.getName() + chr + "7;";

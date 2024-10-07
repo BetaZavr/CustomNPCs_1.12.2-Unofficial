@@ -167,8 +167,8 @@ import noppes.npcs.entity.data.DataScript;
 import noppes.npcs.entity.data.DataStats;
 import noppes.npcs.entity.data.DataTimers;
 import noppes.npcs.items.ItemSoulstoneFilled;
-import noppes.npcs.mixin.api.entity.EntityLivingBaseAPIMixin;
-import noppes.npcs.mixin.api.world.WorldAPIMixin;
+import noppes.npcs.mixin.entity.IEntityLivingBaseMixin;
+import noppes.npcs.mixin.world.IWorldMixin;
 import noppes.npcs.roles.JobBard;
 import noppes.npcs.roles.JobFollower;
 import noppes.npcs.roles.RoleCompanion;
@@ -477,7 +477,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (damagesource.damageType.equals("outOfWorld") && this.isKilled()) { this.reset(); }
 		damage = this.stats.resistances.applyResistance(damagesource, damage);
 		if (!this.combatHandler.canDamage(damagesource, damage)) { return false; }
-		Entity entity = NoppesUtilServer.GetDamageSourcee(damagesource);
+		Entity entity = NoppesUtilServer.GetDamageSource(damagesource);
 		EntityLivingBase attackingEntity = null;
 		if (entity instanceof EntityLivingBase) { attackingEntity = (EntityLivingBase) entity; }
 		if (attackingEntity != null && attackingEntity == this.getOwner()) { return false; }
@@ -614,8 +614,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		else if (damageCanBeDone) { this.playHurtSound(source, isBlockedDamage); }
 		boolean isDamaged = !isBlockedDamage;
 		if (isDamaged) {
-			((EntityLivingBaseAPIMixin) this).npcs$setLastDamageSource(source);
-			((EntityLivingBaseAPIMixin) this).npcs$setLastDamageStamp(this.world.getTotalWorldTime());
+			((IEntityLivingBaseMixin) this).npcs$setLastDamageSource(source);
+			((IEntityLivingBaseMixin) this).npcs$setLastDamageStamp(this.world.getTotalWorldTime());
 		}
 		if (entity1 instanceof EntityPlayerMP) {
 			CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((EntityPlayerMP) entity1, this, source, f, amount, isBlockedDamage);
@@ -1266,7 +1266,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.getNavigator().clearPath();
 		this.extinguish();
 		this.clearActivePotions();
-		Entity attackingEntity = NoppesUtilServer.GetDamageSourcee(damagesource);
+		Entity attackingEntity = NoppesUtilServer.GetDamageSource(damagesource);
 		if (this.advanced.roleInterface != null) {
 			this.advanced.roleInterface.aiDeathExecute(attackingEntity);
 		}
@@ -2191,7 +2191,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.targetTasks.addTask(3, new EntityAIOwnerHurtByTarget(this));
 		this.targetTasks.addTask(4, new EntityAIOwnerHurtTarget(this));
 
-		PathWorldListener pwl = ((WorldAPIMixin) this.world).npcs$getPathListener();
+		PathWorldListener pwl = ((IWorldMixin) this.world).npcs$getPathListener();
 		if (pwl != null) { pwl.onEntityRemoved(this); }
 		if (this.ais.movementType == 1) {
 			this.moveHelper = new FlyingMoveHelper(this);

@@ -98,10 +98,6 @@ public class SyncController {
 			}
 			break;
 		}
-		case RecipesData: {
-			CustomNpcs.proxy.updateRecipes(null, false, false, "SyncController.clientSync()");
-			break;
-		}
 		case ModData: {
 			if (!syncEnd) {
 				return;
@@ -281,16 +277,11 @@ public class SyncController {
 		}
 		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.DialogCategoriesData, new NBTTagCompound());
 
-		RecipeController.getInstance().sendTo(player);
 		AnimationController.getInstance().sendTo(player);
 
 		compound = new NBTTagCompound();
-		if (!CustomNpcs.ShowLR) {
-			compound.setBoolean("ShowLR", CustomNpcs.ShowLR);
-		}
-		if (!CustomNpcs.ShowMoney) {
-			compound.setBoolean("ShowMoney", CustomNpcs.ShowMoney);
-		}
+		if (!CustomNpcs.ShowLR) { compound.setBoolean("ShowLR", false); }
+		if (!CustomNpcs.ShowMoney) { compound.setBoolean("ShowMoney", false); }
 		compound.setBoolean("RecalculateLR", CustomNpcs.RecalculateLR);
 		compound.setBoolean("ShowQuestCompass", CustomNpcs.ShowQuestCompass);
 		compound.setString("CharCurrencies", CustomNpcs.CharCurrencies);
@@ -330,6 +321,11 @@ public class SyncController {
 		ScriptController.Instance.sendClientTo(player);
 	}
 
+	private static void syncScriptRecipes(EntityPlayerMP player) {
+		RecipeController.getInstance().sendTo(player);
+		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
+	}
+
 	public static void syncScriptItems(EntityPlayerMP player) {
 		NBTTagCompound comp = new NBTTagCompound();
 		comp.setTag("List", NBTTags.nbtIntegerStringMap(ItemScripted.Resources));
@@ -342,10 +338,6 @@ public class SyncController {
 		for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
 			Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.ItemScriptedModels, comp);
 		}
-	}
-
-	public static void syncScriptRecipes(EntityPlayerMP player) {
-		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
 	}
 
 	// SYNC_UPDATE
@@ -404,11 +396,8 @@ public class SyncController {
 			}
 			case RecipesData: {
 				if (compound.getKeySet().isEmpty()) {
-					if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
-						return;
-					}
-					RecipeController.getInstance().globalList.clear();
-					RecipeController.getInstance().modList.clear();
+					if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) { return; }
+					RecipeController.getInstance().clear();
 				} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
 					RecipeController.getInstance().delete(compound.getString("Name"), compound.getString("Group"));
 				} else {

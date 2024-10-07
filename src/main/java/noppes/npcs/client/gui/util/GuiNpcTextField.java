@@ -5,7 +5,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import noppes.npcs.LogWriter;
-import noppes.npcs.mixin.api.client.gui.GuiTextFieldAPIMixin;
+import noppes.npcs.mixin.client.gui.IGuiTextFieldMixin;
 
 public class GuiNpcTextField
 		extends GuiTextField
@@ -159,16 +159,16 @@ public class GuiNpcTextField
 			return false;
 		}
 		boolean isFocused = this.isFocused();
-		if (((GuiTextFieldAPIMixin) this).npcs$getCanLoseFocus()) {
+		if (((IGuiTextFieldMixin) this).npcs$getCanLoseFocus()) {
 			this.setFocused(hovered);
 		}
 		if (isFocused && hovered && mouseButton == 0) {
 			int i = mouseX - this.x;
-			if (((GuiTextFieldAPIMixin) this).npcs$getEnableBackgroundDrawing()) {
+			if (((IGuiTextFieldMixin) this).npcs$getEnableBackgroundDrawing()) {
 				i -= 4;
 			}
-			FontRenderer fontRenderer = ((GuiTextFieldAPIMixin) this).npcs$getFontRenderer();
-			int lineScrollOffset = ((GuiTextFieldAPIMixin) this).npcs$getLineScrollOffset();
+			FontRenderer fontRenderer = ((IGuiTextFieldMixin) this).npcs$getFontRenderer();
+			int lineScrollOffset = ((IGuiTextFieldMixin) this).npcs$getLineScrollOffset();
 			String s = fontRenderer.trimStringToWidth(this.getText().substring(lineScrollOffset), this.getWidth());
 			this.setCursorPosition(fontRenderer.trimStringToWidth(s, i).length() + lineScrollOffset);
 			return true;

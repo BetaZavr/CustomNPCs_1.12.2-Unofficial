@@ -795,22 +795,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			ScriptController.HasStart = true;
 			NBTTagCompound compound = Server.readNBT(buffer);
 			ScriptController.Instance.setClientScripts(compound);
-
-			// protecting the player from malicious scripts
-			if (!ScriptController.hasClientScripts) {
-				ScriptController.hasClientScripts = !ScriptController.Instance.clientScripts.isEmpty();
-			}
-			if (ScriptController.hasClientScripts && !ScriptController.clientScriptPermissionWasRequested) {
-				ScriptController.clientScriptPermissionWasRequested = true;
-				if (CustomNpcs.Server == null) { player.sendMessage(new TextComponentTranslation("system.client.scripts.get")); }
-				if (!ScriptController.Instance.hasAgreement()) {
-					player.sendMessage(new TextComponentTranslation("system.scripts.disagree"));
-					CustomNpcs.proxy.openGui(null, EnumGuiType.AcceptScripts, 2, 0, 0);
-				}
-			} else if (ScriptController.Instance.clientScripts.isEmpty()) {
-				ScriptController.hasClientScripts = false;
-			}
-
 		} else if (type == EnumPacketClient.SEND_FILE_LIST) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			for (int i = 0; i < compound.getTagList("FileList", 10).tagCount(); i++) {
@@ -863,6 +847,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					File cdf = ScriptController.Instance.clientScriptsFile();
 					if (cdf.exists()) {
 						File dir = new File(cdf.getParentFile(), ScriptController.Instance.clientScripts.getLanguage().toLowerCase());
+
 					}
 				} else {
 					file.save();

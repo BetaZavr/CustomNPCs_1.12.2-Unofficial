@@ -12,7 +12,7 @@ import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobBard;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.api.client.audio.MusicTickerAPIMixin;
+import noppes.npcs.mixin.client.audio.IMusicTickerMixin;
 
 public class JobBard extends JobInterface implements IJobBard {
 
@@ -151,7 +151,7 @@ public class JobBard extends JobInterface implements IJobBard {
 			}
 		}
 		if (!this.isStreamer && mData.isPlaying(this.song)) {
-			((MusicTickerAPIMixin) Minecraft.getMinecraft().getMusicTicker()).npcs$setTimeUntilNextMusic(12000);
+			((IMusicTickerMixin) Minecraft.getMinecraft().getMusicTicker()).npcs$setTimeUntilNextMusic(12000);
 		}
 	}
 

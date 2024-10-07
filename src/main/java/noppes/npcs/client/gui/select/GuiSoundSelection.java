@@ -19,7 +19,7 @@ import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
-import noppes.npcs.mixin.api.client.audio.SoundHandlerAPIMixin;
+import noppes.npcs.mixin.client.audio.ISoundHandlerMixin;
 
 import javax.annotation.Nonnull;
 
@@ -40,7 +40,7 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 		this.xSize = 366;
 		this.ySize = 226;
 		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
-		SoundRegistry registry = ((SoundHandlerAPIMixin) handler).npcs$getSoundRegistry();
+		SoundRegistry registry = ((ISoundHandlerMixin) handler).npcs$getSoundRegistry();
 		if (registry != null) {
 			Set<ResourceLocation> set = registry.getKeys();
 			for (ResourceLocation location : set) {

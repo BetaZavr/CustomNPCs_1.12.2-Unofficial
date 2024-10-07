@@ -19,7 +19,7 @@ import noppes.npcs.api.ILayerModel;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.TextBlockClient;
 import noppes.npcs.client.renderer.ModelBuffer;
-import noppes.npcs.mixin.api.tileentity.TileEntityAPIMixin;
+import noppes.npcs.mixin.tileentity.ITileEntityMixin;
 import noppes.npcs.util.LayerModel;
 
 import javax.annotation.Nullable;
@@ -102,8 +102,8 @@ public class BlockScriptedRenderer<T extends TileEntity> extends TileEntitySpeci
 							if (entity != null) {
 								entity.setPos(tile.getPos());
 								entity.setWorld(this.getWorld());
-								((TileEntityAPIMixin) entity).npcs$setBlockMetadata(tile.metaModel);
-								((TileEntityAPIMixin) entity).npcs$setBlockType(b);
+								((ITileEntityMixin) entity).npcs$setBlockMetadata(tile.metaModel);
+								((ITileEntityMixin) entity).npcs$setBlockType(b);
 								tile.renderTile = entity;
 								if (entity instanceof ITickable) {
 									tile.renderTileUpdate = (ITickable) entity;

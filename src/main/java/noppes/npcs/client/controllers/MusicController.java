@@ -16,7 +16,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.client.ClientTickHandler;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.api.client.audio.*;
+import noppes.npcs.mixin.client.audio.*;
 import noppes.npcs.roles.JobBard;
 import paulscode.sound.Library;
 import paulscode.sound.SoundSystem;
@@ -131,7 +131,7 @@ public class MusicController {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (cat == SoundCategory.MUSIC) {
 			Minecraft.getMinecraft().getSoundHandler().stop("", SoundCategory.MUSIC);
-			((MusicTickerAPIMixin) Minecraft.getMinecraft().getMusicTicker()).npcs$setCurrentMusic(null);
+			((IMusicTickerMixin) Minecraft.getMinecraft().getMusicTicker()).npcs$setCurrentMusic(null);
 			aType = ISound.AttenuationType.NONE;
 			x = mc.player != null ? (float) mc.player.posX : 0.0f;
 			y = mc.player != null ? (float) mc.player.posY + 0.5f : 0.0f;
@@ -151,8 +151,8 @@ public class MusicController {
 			return false;
 		}
 		ResourceLocation resource = new ResourceLocation(music);
-		SoundManager sm = ((SoundHandlerAPIMixin) Minecraft.getMinecraft().getSoundHandler()).npcs$getSndManager();
-		Map<String, ISound> playingSounds = ((SoundManagerAPIMixin) sm).npcs$getPlayingSounds();
+		SoundManager sm = ((ISoundHandlerMixin) Minecraft.getMinecraft().getSoundHandler()).npcs$getSndManager();
+		Map<String, ISound> playingSounds = ((ISoundManagerMixin) sm).npcs$getPlayingSounds();
 		if (playingSounds == null) { return false; }
 		for (ISound sound : playingSounds.values()) {
 			if (sound.getSound().getSoundLocation().equals(resource) || sound.getSoundLocation().equals(resource)) {
@@ -182,17 +182,17 @@ public class MusicController {
 			return;
 		}
 		ResourceLocation resource = new ResourceLocation(song);
-		SoundManager sm = ((SoundHandlerAPIMixin) Minecraft.getMinecraft().getSoundHandler()).npcs$getSndManager();
-		Map<String, ISound> playingSounds = ((SoundManagerAPIMixin) sm).npcs$getPlayingSounds();
+		SoundManager sm = ((ISoundHandlerMixin) Minecraft.getMinecraft().getSoundHandler()).npcs$getSndManager();
+		Map<String, ISound> playingSounds = ((ISoundManagerMixin) sm).npcs$getPlayingSounds();
 		if (playingSounds == null) { return; }
 		String uuid = null;
 		for (String id : playingSounds.keySet()) {
 			ISound sound = playingSounds.get(id);
 			if (sound.getSound().getSoundLocation().equals(resource)
 					|| sound.getSoundLocation().equals(resource) && sound instanceof PositionedSound) {
-				((PositionedSoundAPIMixin) sound).npcs$setXPosF(x);
-				((PositionedSoundAPIMixin) sound).npcs$setYPosF(y);
-				((PositionedSoundAPIMixin) sound).npcs$setZPosF(z);
+				((IPositionedSoundMixin) sound).npcs$setXPosF(x);
+				((IPositionedSoundMixin) sound).npcs$setYPosF(y);
+				((IPositionedSoundMixin) sound).npcs$setZPosF(z);
 				uuid = id;
 				break;
 			}
@@ -212,7 +212,7 @@ public class MusicController {
 				}
 			}
 			if (sndSystem == null) { return; }
-			Library soundLibrary = ((SoundSystemAPIMixin) sndSystem).npcs$getSoundLibrary();
+			Library soundLibrary = ((ISoundSystemMixin) sndSystem).npcs$getSoundLibrary();
 			if (soundLibrary == null) { return; }
 			Source source = soundLibrary.getSources().get(uuid);
 			if (source != null && source.position != null) {

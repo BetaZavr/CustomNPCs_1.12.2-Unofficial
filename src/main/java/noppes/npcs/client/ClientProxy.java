@@ -5,11 +5,8 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.*;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -19,7 +16,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
-import io.netty.channel.local.LocalAddress;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabFactions;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabQuests;
@@ -27,7 +23,6 @@ import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.recipebook.RecipeList;
@@ -46,20 +41,16 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.resources.*;
-import net.minecraft.client.resources.Locale;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.RecipeBookClient;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemShield;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.stats.RecipeBook;
@@ -80,14 +71,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.registries.IRegistryDelegate;
-import noppes.npcs.CommonProxy;
-import noppes.npcs.CustomNpcs;
-import noppes.npcs.CustomRegisters;
-import noppes.npcs.LogWriter;
-import noppes.npcs.ModelPartData;
-import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.NoppesUtilServer;
-import noppes.npcs.PacketHandlerPlayer;
+import noppes.npcs.*;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.IMinecraft;
 import noppes.npcs.api.INbt;
@@ -104,7 +88,6 @@ import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomChest;
 import noppes.npcs.blocks.CustomDoor;
 import noppes.npcs.blocks.CustomLiquid;
-import noppes.npcs.blocks.tiles.TileEntityCustomBanner;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.controllers.PresetController;
 import noppes.npcs.client.fx.EntityEnderFX;
@@ -228,25 +211,23 @@ import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.ItemScripted;
-import noppes.npcs.mixin.api.client.ItemModelMesherForgeAPIMixin;
-import noppes.npcs.mixin.api.client.network.NetworkPlayerInfoAPIMixin;
-import noppes.npcs.mixin.api.client.particle.ParticleFlameAPIMixin;
-import noppes.npcs.mixin.api.client.particle.ParticleManagerAPIMixin;
-import noppes.npcs.mixin.api.client.particle.ParticleSmokeNormalAPIMixin;
-import noppes.npcs.mixin.api.client.renderer.texture.TextureManagerAPIMixin;
-import noppes.npcs.mixin.api.client.renderer.tileentity.TileEntityItemStackRendererAPIMixin;
-import noppes.npcs.mixin.api.client.resources.LanguageManagerAPIMixin;
-import noppes.npcs.mixin.api.client.resources.LocaleAPIMixin;
-import noppes.npcs.mixin.api.client.settings.KeyBindingAPIMixin;
-import noppes.npcs.mixin.api.client.settings.KeyBindingForgeAPIMixin;
-import noppes.npcs.mixin.api.stats.RecipeBookAPIMixin;
-import noppes.npcs.mixin.api.util.text.translation.I18nAPIMixin;
-import noppes.npcs.mixin.api.util.text.translation.LanguageMapAPIMixin;
+import noppes.npcs.mixin.client.IItemModelMesherForgeMixin;
+import noppes.npcs.mixin.client.gui.recipebook.IRecipeListMixin;
+import noppes.npcs.mixin.client.network.INetworkPlayerInfoMixin;
+import noppes.npcs.mixin.client.particle.IParticleFlameMixin;
+import noppes.npcs.mixin.client.particle.IParticleManagerMixin;
+import noppes.npcs.mixin.client.particle.IParticleSmokeNormalMixin;
+import noppes.npcs.mixin.client.renderer.texture.ITextureManagerMixin;
+import noppes.npcs.mixin.client.renderer.tileentity.ITileEntityItemStackRendererMixin;
+import noppes.npcs.mixin.client.resources.ILanguageManagerMixin;
+import noppes.npcs.mixin.client.settings.IKeyBindingMixin;
+import noppes.npcs.mixin.client.settings.IKeyBindingForgeMixin;
+import noppes.npcs.mixin.util.text.translation.II18nMixin;
+import noppes.npcs.mixin.util.text.translation.ILanguageMapMixin;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.TempFile;
-import org.apache.commons.io.IOUtils;
 
 @SuppressWarnings("deprecation")
 public class ClientProxy extends CommonProxy {
@@ -329,12 +310,9 @@ public class ClientProxy extends CommonProxy {
 	public static String recipeGroup, recipeName;
 	public static final Map<String, TempFile> loadFiles = Maps.newTreeMap();
 	public static Map<Integer, List<UUID>> notVisibleNPC = Maps.newHashMap();
-	public static final Map<CreativeTabs, List<RecipeList>> MOD_RECIPES_BY_TAB = Maps.newHashMap();
 	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.newHashMap();
 	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.newHashMap();
-	private final static Map<String, Map<String, String>> systemMessage = Maps.newHashMap();
-	private final static List<ResourceLocation> notLoadTextures = Lists.newArrayList();
-	public static String agreementKey = null;
+    private final static List<ResourceLocation> notLoadTextures = Lists.newArrayList();
 	public static IMinecraft mcWrapper = null;
 
 	public static void bindTexture(ResourceLocation location) {
@@ -360,36 +338,34 @@ public class ClientProxy extends CommonProxy {
 		LogWriter.info("Check Mod Localization");
 
 		// localization in game data
-		LanguageMap localized = ((I18nAPIMixin) new I18n()).npcs$getLocalizedName();
+		LanguageMap localized = ((II18nMixin) new I18n()).npcs$getLocalizedName();
 		final Map<String, String> languageList;
 		if (localized != null) {
-			languageList = ((LanguageMapAPIMixin) localized).npcs$getLanguageList();
+			languageList = ((ILanguageMapMixin) localized).npcs$getLanguageList();
 		} else { languageList = Maps.newHashMap(); }
 
 		// custom lang files:
-		String currentLanguage = ((LanguageManagerAPIMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
+		String currentLanguage = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
 		for (int i = 0; i < (currentLanguage.equals("en_us") ? 1 : 2) ; i++) {
 			File lang = new File(langDir, (i == 0 ? "en_us" : currentLanguage) + ".lang");
 			if (lang.exists() && lang.isFile()) { // loading localizations from mod file
-				Stream<String> lines = Stream.empty();
-				try {
-					lines = Files.lines(lang.toPath());
-					Map<String, String> map = lines
+				try (Stream<String> lines = Files.lines(lang.toPath())) {
+					lines.filter(line -> !line.startsWith("#") && !line.trim().isEmpty())
 							.map(line -> {
-								if (line.startsWith("#")) { return null; }
 								String[] parts = line.split("=");
-								if (parts.length != 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) { return null; }
-								return new AbstractMap.SimpleEntry<>(parts[0].trim(), parts[1].trim());
+								if (parts.length != 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
+									return null;
+								} else {
+									languageList.putIfAbsent(parts[0].trim(), parts[1].trim());
+									return new AbstractMap.SimpleEntry<>(parts[0].trim(), parts[1].trim());
+								}
 							})
-							.filter(Objects::nonNull)
-							.peek(entry -> languageList.putIfAbsent(entry.getKey(), entry.getValue()))
-							.collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+							.forEach(entry -> { /* Ничего не делаем */ });
+				} catch (Exception e) {
+					LogWriter.error("Error load custom localization", e);
 				}
-				catch (Exception e) { LogWriter.error("Error load custom localization", e); }
-				finally { IOUtils.closeQuietly((Reader) lines); }
 			}
 		}
-		ClientProxy.resetSystemMassages(languageList, currentLanguage);
 	}
 
 	// Blending texture colors with a mask
@@ -496,12 +472,10 @@ public class ClientProxy extends CommonProxy {
 		}
 		String locSkin = String.format("%s/%s/%s", "assets", skin.getResourceDomain(), skin.getResourcePath());
 		File file = new File(CustomNpcs.Dir, locSkin);
-		if (!file.getParentFile().exists()) {
-			file.getParentFile().mkdirs();
-		}
+		if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) { return skin; }
 		TextureManager re = Minecraft.getMinecraft().renderEngine;
 		if (file.exists() && file.isFile()) {
-			Map<ResourceLocation, ITextureObject> mapTextureObjects = ((TextureManagerAPIMixin) re).npcs$getMapTextureObjects();
+			Map<ResourceLocation, ITextureObject> mapTextureObjects = ((ITextureManagerMixin) re).npcs$getMapTextureObjects();
 			if (!mapTextureObjects.containsKey(skin)) {
 				try {
 					BufferedImage skinImage = ImageIO.read(file);
@@ -518,7 +492,7 @@ public class ClientProxy extends CommonProxy {
 		String gender = "male";
 		BufferedImage bodyImage = null, hairImage = null, faseImage = null, legsImage = null, jacketsImage = null,  shoesImage = null;
 		List<BufferedImage> listBuffers = Lists.newArrayList();
-		Map<ResourceLocation, ITextureObject> mapTextureObjects = ((TextureManagerAPIMixin) re).npcs$getMapTextureObjects();
+		Map<ResourceLocation, ITextureObject> mapTextureObjects = ((ITextureManagerMixin) re).npcs$getMapTextureObjects();
 		for (int i = 0; i < path.length; i++) {
 			int id = -1;
 			try {
@@ -707,7 +681,7 @@ public class ClientProxy extends CommonProxy {
 		}
 		NetworkPlayerInfo npi = Objects.requireNonNull(Minecraft.getMinecraft().getConnection()).getPlayerInfo(uuid);
         Map<Type, ResourceLocation> map = PlayerSkinController.getInstance().playerTextures .get(uuid);
-		Map<Type, ResourceLocation> playerTextures = ((NetworkPlayerInfoAPIMixin) npi).npcs$getPlayerTextures();
+		Map<Type, ResourceLocation> playerTextures = ((INetworkPlayerInfoMixin) npi).npcs$getPlayerTextures();
 		playerTextures.clear();
 		for (Type epst : map.keySet()) {
 			ResourceLocation loc = ClientProxy.createPlayerSkin(map.get(epst));
@@ -726,7 +700,7 @@ public class ClientProxy extends CommonProxy {
 							"dynamic/skin_" + pData.playerNames.get(uuid));
 					ResourceLocation locSkins = new ResourceLocation("minecraft", "skins/" + pData.playerNames.get(uuid));
 					ITextureObject texture = re.getTexture(loc);
-					Map<ResourceLocation, ITextureObject> mapTextureObjects = ((TextureManagerAPIMixin) re).npcs$getMapTextureObjects();
+					Map<ResourceLocation, ITextureObject> mapTextureObjects = ((ITextureManagerMixin) re).npcs$getMapTextureObjects();
 					mapTextureObjects.put(locDynamic, texture);
 					mapTextureObjects.put(locSkins, texture);
 					break;
@@ -1210,8 +1184,7 @@ public class ClientProxy extends CommonProxy {
 			}
 			name = nbt.getString("OBJModel");
 			File modelFile = new File(modelDir, name + ".obj");
-			String ent = "" + ((char) 10);
-			if (!modelFile.exists()) {
+            if (!modelFile.exists()) {
 				if (Util.instance.saveFile(modelFile, Util.instance.getDataFile("pe_o.dat").replace("{mod_id}", CustomNpcs.MODID).replace("{name}", name))) {
 					LogWriter.debug("Create Default OBJ Model for \"" + name + ".obj\" particle");
 				}
@@ -1281,12 +1254,9 @@ public class ClientProxy extends CommonProxy {
 		}
 		this.setLocalization("effect." + name, n);
 		this.setLocalization("potion.effect." + name, n);
-		this.setLocalization("splash_potion.effect." + name,
-				name.equals("potionexample") ? "Example Custom Splash Potion" : n + " Splash");
-		this.setLocalization("lingering_potion.effect." + name,
-				name.equals("potionexample") ? "Example Custom Lingering Potion" : n + " Lingering");
-		this.setLocalization("tipped_arrow.effect." + name,
-				name.equals("potionexample") ? "Example Custom Arrow Potion" : n + " Arrow");
+		this.setLocalization("splash_potion.effect." + name, name.equals("potionexample") ? "Example Custom Splash Potion" : n + " Splash");
+		this.setLocalization("lingering_potion.effect." + name, name.equals("potionexample") ? "Example Custom Lingering Potion" : n + " Lingering");
+		this.setLocalization("tipped_arrow.effect." + name, name.equals("potionexample") ? "Example Custom Arrow Potion" : n + " Arrow");
 
         File texturesDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/textures/potions");
 		if (!texturesDir.exists() && !texturesDir.mkdirs()) {
@@ -1337,40 +1307,30 @@ public class ClientProxy extends CommonProxy {
 		ClientProxy.createPlayerSkin(new ResourceLocation(npc.display.getSkinTexture()));
 	}
 
-	@Override
-	public void clearKeys() {
-		List<KeyBinding> list = Lists.newArrayList();
-		for (KeyBinding kb : Minecraft.getMinecraft().gameSettings.keyBindings) {
-			if (ClientProxy.keyBindingMap.containsValue(kb)) {
-				continue;
-			}
-			list.add(kb);
-		}
-		Minecraft.getMinecraft().gameSettings.keyBindings = list.toArray(new KeyBinding[0]);
-		ClientProxy.keyBindingMap.clear();
-	}
-
 	private void createFolders() {
-		File file = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID);
-		if (!file.exists()) {
-			file.mkdirs();
+		File dir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID);
+		if (!dir.exists() && !dir.mkdirs()) {
+			LogWriter.error("Failed to create directory " + dir.getAbsolutePath());
+			return;
 		}
-		File check = new File(file, "sounds");
-		if (!check.exists()) {
-			check.mkdir();
+		File sounds = new File(dir, "sounds");
+		if (!sounds.exists() && !sounds.mkdirs()) {
+			LogWriter.error("Failed to create directory " + sounds.getAbsolutePath());
 		}
-		File json = new File(file, "sounds.json");
+		File json = new File(dir, "sounds.json");
 		if (!json.exists()) {
 			try {
-				json.createNewFile();
+				if (!json.createNewFile()) {
+					LogWriter.error("Failed to create file " + json.getAbsolutePath());
+				}
 				BufferedWriter writer = new BufferedWriter(new FileWriter(json));
 				writer.write("{\n\n}");
 				writer.close();
 			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
-		check = new File(file, "textures");
-		if (!check.exists()) {
-			check.mkdir();
+		File textures = new File(dir, "textures");
+		if (!textures.exists()) {
+			LogWriter.error("Failed to create directory " + textures.getAbsolutePath());
 		}
 	}
 
@@ -1522,9 +1482,6 @@ public class ClientProxy extends CommonProxy {
 			case Script: {
 				return new GuiScript(npc);
 			}
-			case AcceptScripts: {
-				return x >= 0 && x <= 2 ? new GuiAcceptScripts(x) : new GuiAccepts();
-			}
 			case ScriptBlock: {
 				return new GuiScriptBlock(x, y, z);
 			}
@@ -1644,12 +1601,6 @@ public class ClientProxy extends CommonProxy {
 		return ClientProxy.playerData;
 	}
 
-	@Override
-	public boolean isLoadTexture(ResourceLocation resource) {
-		Map<ResourceLocation, ITextureObject> mapTextureObjects = ((TextureManagerAPIMixin) Minecraft.getMinecraft().getTextureManager()).npcs$getMapTextureObjects();
-		return mapTextureObjects.containsKey(resource);
-	}
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void load() {
@@ -1687,7 +1638,7 @@ public class ClientProxy extends CommonProxy {
 		}, CustomRegisters.scripted_item);
 		ClientProxy.checkLocalization();
 		new GuiTextureSelection(null, "", "png", 0);
-		Map<Integer, IParticleFactory> map = ((ParticleManagerAPIMixin) mc.effectRenderer).npcs$getParticleTypes();
+		Map<Integer, IParticleFactory> map = ((IParticleManagerMixin) mc.effectRenderer).npcs$getParticleTypes();
 		for (int id : CustomRegisters.customparticles.keySet()) {
 			if (map.containsKey(id)) {
 				continue;
@@ -1741,7 +1692,7 @@ public class ClientProxy extends CommonProxy {
 		ArmourersWorkshopUtil.getInstance();
 		// Banner Model Replace
 		TileEntityRendererDispatcher.instance.renderers.put(TileEntityBanner.class, new TileEntityCustomBannerRenderer());
-		((TileEntityItemStackRendererAPIMixin) TileEntityItemStackRenderer.instance).npcs$setBanner(new TileEntityCustomBanner());
+		((ITileEntityItemStackRendererMixin) TileEntityItemStackRenderer.instance).npcs$setBanner(new TileEntityBanner());
 
 		// Shield Model Replace
 		Item shield = Item.REGISTRY.getObject(new ResourceLocation("shield"));
@@ -1749,7 +1700,7 @@ public class ClientProxy extends CommonProxy {
 		// OBJ ItemStack Model Replace
 		Minecraft mc = Minecraft.getMinecraft();
 		RenderItem ri = mc.getRenderItem();
-		Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models = ((ItemModelMesherForgeAPIMixin) ri.getItemModelMesher()).npcs$getModels();
+		Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models = ((IItemModelMesherForgeMixin) ri.getItemModelMesher()).npcs$getModels();
 		if (models != null) {
 			for (IRegistryDelegate<Item> key : models.keySet()) {
 				if (!(key.get() instanceof CustomArmor) || ((CustomArmor) key.get()).objModel == null) {
@@ -1763,56 +1714,7 @@ public class ClientProxy extends CommonProxy {
 			}
 		}
 		ClientProxy.mcWrapper = new WrapperMinecraft(mc);
-
-		// Script agreements
-		ScriptController.Instance.loadAgreements();
-
-		// Replacement of localizations via ".lang" files is excluded
-		LanguageManager languageManager = Minecraft.getMinecraft().getLanguageManager();
-		Locale locale = ((LanguageManagerAPIMixin) languageManager).npcs$getCurrentLocate();
-		LanguageMap localized = ((I18nAPIMixin) new I18n()).npcs$getLocalizedName();
-		Map<String, String> properties = Maps.newHashMap();
-		Map<String, String> languageList = Maps.newHashMap();
-		if (locale != null) {
-			properties = ((LocaleAPIMixin) locale).npcs$getProperties();
-			if (properties == null) {
-				properties = Maps.newHashMap();
-			}
-		}
-		if (localized != null) {
-			languageList = ((LanguageMapAPIMixin) localized).npcs$getLanguageList();
-			if (languageList == null) {
-				languageList = Maps.newHashMap();
-			}
-		}
-		ClientProxy.resetSystemMassages(languageList, ((LanguageManagerAPIMixin) languageManager).npcs$getCurrentLanguage());
-	}
-
-	// System messages cannot be changed. Update them from the mod structure
-	private static void resetSystemMassages(Map<String, String> languageList, String currentLanguage) {
-		if (ClientProxy.systemMessage.isEmpty()) {
-			InputStream inputStreamLangs = Util.instance.getModInputStream("lsm.dat");
-			StringWriter writer = new StringWriter();
-			try {
-				NBTTagCompound compound = CompressedStreamTools.readCompressed(inputStreamLangs);
-				for (String key : compound.getKeySet()) {
-					if (compound.getTag(key).getId() != 10) { continue; }
-					ClientProxy.systemMessage.put(key, Maps.newHashMap());
-					NBTTagCompound localizations = compound.getCompoundTag(key);
-					for (String loc : localizations.getKeySet()) {
-						if (localizations.getTag(loc).getId() != 8) { continue; }
-						ClientProxy.systemMessage.get(key).put(loc, localizations.getString(loc));
-					}
-				}
-			} catch (Exception e) {
-				LogWriter.error(e);
-				throw new RuntimeException("Error: System messages are corrupted or not found!");
-			}
-		}
-		if (!ClientProxy.systemMessage.containsKey(currentLanguage)) { currentLanguage = "en_us"; }
-		Map<String, String> mapLang = ClientProxy.systemMessage.get(currentLanguage);
-		if (mapLang == null || mapLang.isEmpty()) { return; }
-		languageList.putAll(mapLang);
+		checkLocalization();
 	}
 
 	@Override
@@ -1876,11 +1778,9 @@ public class ClientProxy extends CommonProxy {
 
 	private void setLocalization(String key, String name) {
 		File langDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/lang");
-		if (!langDir.exists()) {
-			langDir.mkdirs();
-		}
+		if (!langDir.exists() && !langDir.mkdirs()) { return; }
 		BufferedWriter writer;
-		String currentLanguage = ((LanguageManagerAPIMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
+		String currentLanguage = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
 		boolean write = false;
 		for (int i = 0; i < 2; i++) {
 			if (i == 1 && currentLanguage.equals("en_us")) {
@@ -1976,9 +1876,9 @@ public class ClientProxy extends CommonProxy {
 			return;
 		}
 		if (particle == EnumParticleTypes.FLAME) {
-			((ParticleFlameAPIMixin) fx).npcs$setFlameScale(scale);
+			((IParticleFlameMixin) fx).npcs$setFlameScale(scale);
 		} else if (particle == EnumParticleTypes.SMOKE_NORMAL) {
-			((ParticleSmokeNormalAPIMixin) fx).npcs$setSmokeParticleScale(scale);
+			((IParticleSmokeNormalMixin) fx).npcs$setSmokeParticleScale(scale);
 		}
 	}
 
@@ -2019,10 +1919,10 @@ public class ClientProxy extends CommonProxy {
 			}
 			if (ClientProxy.keyBindingMap.containsKey(ks.getId())) {
 				kb = ClientProxy.keyBindingMap.get(ks.getId());
-				((KeyBindingForgeAPIMixin) kb).npcs$setModifier(modifer);
-				((KeyBindingAPIMixin) kb).npcs$setKeyDescription(ks.getName());
-				((KeyBindingAPIMixin) kb).npcs$setKeyCodeDefault(ks.getKeyId());
-				((KeyBindingAPIMixin) kb).npcs$setKeyCategory(ks.getCategory());
+				((IKeyBindingForgeMixin) kb).npcs$setModifier(modifer);
+				((IKeyBindingMixin) kb).npcs$setKeyDescription(ks.getName());
+				((IKeyBindingMixin) kb).npcs$setKeyCodeDefault(ks.getKeyId());
+				((IKeyBindingMixin) kb).npcs$setKeyCategory(ks.getCategory());
 			} else {
 				kb = new KeyBinding(ks.getName(), KeyConflictContext.IN_GAME, modifer, ks.getKeyId(), ks.getCategory());
 			}
@@ -2035,215 +1935,54 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void updateRecipeBook(EntityPlayer player) {
-		if (player instanceof EntityPlayerMP) {
-			super.updateRecipeBook(player);
-			return;
-		}
-		if (!(player instanceof EntityPlayerSP)) {
-			return;
-		}
-		RecipeBook book = ((EntityPlayerSP) player).getRecipeBook();
-        BitSet recipes = ((RecipeBookAPIMixin) book).npcs$getRecipes();
-		BitSet newRecipes = ((RecipeBookAPIMixin) book).npcs$getNewRecipes();
-		if (recipes == null || newRecipes == null) { return; }
-		List<Integer> delIDs = Lists.newArrayList();
-        for (int id = recipes.nextSetBit(0); id >= 0; id = recipes.nextSetBit(id + 1)) {
-			if (CraftingManager.REGISTRY.getObjectById(id) == null) {
-				delIDs.add(id);
-			}
-		}
-		if (!delIDs.isEmpty()) {
-			for (int id : delIDs) {
-				recipes.clear(id);
-			}
-		}
-		delIDs.clear();
-		for (int id = newRecipes.nextSetBit(0); id >= 0; id = newRecipes.nextSetBit(id + 1)) {
-			if (CraftingManager.REGISTRY.getObjectById(id) == null) {
-				delIDs.add(id);
-			}
-		}
-		if (!delIDs.isEmpty()) {
-			for (int id : delIDs) {
-				newRecipes.clear(id);
-			}
-		}
-		((RecipeBookAPIMixin) book).npcs$setRecipes(recipes);
-		((RecipeBookAPIMixin) book).npcs$setNewRecipes(newRecipes);
-		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
-	}
-
-	/**
-	 * RecipeBookClient
-	 * @param recipe - INpcRecipe
-	 * @param needSend - to server
-	 * @param delete - recipe
-	 */
-	public void updateRecipes(INpcRecipe recipe, boolean needSend, boolean delete, String debug) {
-		super.updateRecipes(recipe, false, delete, "ClientProxy.updateRecipes()");
-		// Create Base Data Global
-		if (!RecipeBookClient.RECIPES_BY_TAB.containsKey(CustomRegisters.tab)) {
+	public void applyRecipe(INpcRecipe recipe, boolean added) {
+		if (recipe == null) { return; }
+		final RecipeBook book;
+		if (Minecraft.getMinecraft().player != null) { book = Minecraft.getMinecraft().player.getRecipeBook(); }
+		else { book = null; }
+        /*
+		 * Since recipes can be created and deleted during the game,
+		 * the "newRecipeList(CreativeTabs)" method can be ignored.
+		 * Check and create recipe lists for such cases:
+		 */
+		CreativeTabNpcs tab = recipe.isGlobal() ? CustomRegisters.tab : CustomRegisters.tabItems;
+		if (!RecipeBookClient.RECIPES_BY_TAB.containsKey(tab)) {
 			RecipeList recipelist = new RecipeList();
 			RecipeBookClient.ALL_RECIPES.add(recipelist);
-			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CustomRegisters.tab, (p_194085_0_) -> new ArrayList<>())).add(recipelist);
-			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (p_194083_0_) -> new ArrayList<>())).add(recipelist);
+			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(tab, (hasRecipeList) -> org.spongepowered.include.com.google.common.collect.Lists.newArrayList())).add(recipelist);
+			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (hasRecipeList) -> org.spongepowered.include.com.google.common.collect.Lists.newArrayList())).add(recipelist);
 		}
-		// Create Base Data Mod
-		if (!ClientProxy.MOD_RECIPES_BY_TAB.containsKey(CustomRegisters.tab)) {
-			RecipeList recipelist = new RecipeList();
-			(ClientProxy.MOD_RECIPES_BY_TAB.computeIfAbsent(CustomRegisters.tab, (p_194085_0_) -> new ArrayList<>())).add(recipelist);
-			(ClientProxy.MOD_RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (p_194083_0_) -> new ArrayList<>())).add(recipelist);
+		RecipeList recipeList = null;
+		boolean isWork = false; // add or copy or remove
+		for (RecipeList rl : RecipeBookClient.RECIPES_BY_TAB.get(tab)) {
+			if (((IRecipeListMixin) rl).npcs$getGroup().equals(recipe.getNpcGroup())) {
+				isWork = ((IRecipeListMixin) rl).npcs$applyRecipe(recipe, added);
+				recipeList = rl;
+				break;
+			}
+		}
+		if (!isWork) {
+			if (added) {
+				// Create a new recipe list
+				RecipeList newRecipeList = new RecipeList();
+				newRecipeList.add((IRecipe) recipe);
+				RecipeBookClient.RECIPES_BY_TAB.get(tab).add(newRecipeList);
+				RecipeBookClient.ALL_RECIPES.add(newRecipeList);
+				if (book != null) { newRecipeList.updateKnownRecipes(book); }
+			}
+		}
+		else if (!added && recipeList.getRecipes().isEmpty()) {
+			// Removing empty recipe lists
+			RecipeBookClient.RECIPES_BY_TAB.get(tab).remove(recipeList);
+			RecipeBookClient.ALL_RECIPES.remove(recipeList);
 		}
 
-		// Update Recipe
-		if (recipe != null) {
-			List<RecipeList> lists = recipe.isGlobal() ? RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab) : ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab);
-			for (RecipeList list : lists) {
-				for (IRecipe rec : list.getRecipes()) {
-					if (rec instanceof INpcRecipe && ((INpcRecipe) rec).equal(recipe)) {
-						if (delete) {
-							list.getRecipes().remove(rec);
-						} else {
-							((INpcRecipe) rec).copy(recipe);
-						}
-						break;
-					}
-				}
-			}
+		// Changed in Players
+		if (book != null && (!added || recipe.isKnown())) {
+			// recipe lock / unlock
+			if (!added) { book.lock((IRecipe) recipe); } else { book.unlock((IRecipe) recipe); }
+			RecipeBookClient.ALL_RECIPES.forEach((recipes) -> recipes.updateKnownRecipes(book));
 		}
-
-		// Update All Recipes
-		// Delete Old
-		for (int i = 0; i < 2; i++) { // Lists
-			List<RecipeList> delList = Lists.newArrayList();
-			List<RecipeList> lists = (i == 0 ? RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab)
-					: ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab));
-			for (RecipeList list : lists) { // Recipes
-				List<IRecipe> del = Lists.newArrayList();
-				for (IRecipe rec : list.getRecipes()) {
-					if (!(rec instanceof INpcRecipe)) {
-						continue;
-					}
-					INpcRecipe r = RecipeController.getInstance().getRecipe(rec.getRegistryName());
-					if (r == null || !r.isValid() || (r.isGlobal() && i == 1) || (!r.isGlobal() && i == 0)) {
-						del.add(rec);
-					}
-				}
-				if (!del.isEmpty()) {
-					for (IRecipe rec : del) {
-						list.getRecipes().remove(rec);
-					}
-				}
-				if (list.getRecipes().isEmpty()) {
-					delList.add(list);
-				}
-			}
-			if (!delList.isEmpty()) {
-				for (RecipeList list : delList) {
-					if (i == 0) {
-						RecipeBookClient.ALL_RECIPES.remove(list);
-						RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab).remove(list);
-						RecipeBookClient.RECIPES_BY_TAB.get(CreativeTabs.SEARCH).remove(list);
-					} else {
-						ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab).remove(list);
-						ClientProxy.MOD_RECIPES_BY_TAB.get(CreativeTabs.SEARCH).remove(list);
-					}
-				}
-			}
-		}
-		if (recipe != null) {
-			this.updateRecipeBook(this.getPlayer());
-			return;
-		}
-
-		// Adds
-		for (int i = 0; i < 2; i++) {
-			Map<String, List<INpcRecipe>> map = (i == 0 ? RecipeController.getInstance().globalList
-					: RecipeController.getInstance().modList);
-			for (String group : map.keySet()) {
-				RecipeList parent = null;
-				for (RecipeList list : (i == 0 ? RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab)
-						: ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab))) {
-					if (list != null && list.getRecipes().isEmpty()) {
-						parent = list;
-						break;
-					}
-					if (list != null && list.getRecipes().get(0) instanceof INpcRecipe
-							&& ((INpcRecipe) list.getRecipes().get(0)).getNpcGroup().equals(group)) {
-						parent = list;
-						break;
-					}
-				}
-				if (parent == null) {
-					RecipeList newList = new RecipeList();
-					for (INpcRecipe rec : map.get(group)) {
-						if (!rec.isValid()) {
-							continue;
-						}
-						newList.add((IRecipe) rec);
-					}
-					if (i == 0) {
-						RecipeBookClient.ALL_RECIPES.add(newList);
-						RecipeBookClient.RECIPES_BY_TAB.get(CreativeTabs.SEARCH).add(newList);
-						RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab).add(newList);
-					} else {
-						ClientProxy.MOD_RECIPES_BY_TAB.get(CreativeTabs.SEARCH).add(newList);
-						ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab).add(newList);
-					}
-				} else {
-					for (INpcRecipe rec : map.get(group)) {
-						if (!rec.isValid()) {
-							continue;
-						}
-						boolean added = true;
-						for (IRecipe r : parent.getRecipes()) {
-							if (r instanceof INpcRecipe && ((INpcRecipe) r).equal(rec)) {
-								added = false;
-								((INpcRecipe) r).copy(rec);
-								break;
-							}
-						}
-						if (added) {
-							parent.add((IRecipe) rec);
-						}
-					}
-				}
-			}
-		}
-		this.updateRecipeBook(this.getPlayer());
-	}
-
-	@Override
-	public String getAgreementKey() {
-		if (ClientProxy.agreementKey != null) { return ClientProxy.agreementKey; }
-		if (CustomNpcs.Server != null) {
-			ClientProxy.agreementKey = super.getAgreementKey();
-			return ClientProxy.agreementKey;
-		}
-		if (Minecraft.getMinecraft().player == null) { return "main_client_scripts"; }
-		SocketAddress address = Minecraft.getMinecraft().player.connection.getNetworkManager().getRemoteAddress();
-		if (address instanceof LocalAddress) { // simple game
-			if (CommonProxy.agreementKey == null || !CommonProxy.agreementKey.isEmpty()) {
-				if (CustomNpcs.Server != null && !CustomNpcs.Server.getWorldName().isEmpty()) {
-					ClientProxy.agreementKey = super.getAgreementKey();
-					return ClientProxy.agreementKey;
-				}
-				else { CommonProxy.agreementKey = "any_maps"; }
-			} else {
-				ClientProxy.agreementKey = CommonProxy.agreementKey;
-			}
-			return CommonProxy.agreementKey;
-		} else { // LAN or Server
-			if (CommonProxy.agreementKey == null || CommonProxy.agreementKey.isEmpty()) {
-				CommonProxy.agreementKey = "any_maps";
-			}
-			else { ClientProxy.agreementKey = CommonProxy.agreementKey; }
-			if (address instanceof InetSocketAddress) {
-				ClientProxy.agreementKey = CommonProxy.agreementKey+"/"+((InetSocketAddress) address).getAddress().toString() + ":" + ((InetSocketAddress) address).getPort();
-			}
-		}
-		return ClientProxy.agreementKey;
 	}
 
 }
