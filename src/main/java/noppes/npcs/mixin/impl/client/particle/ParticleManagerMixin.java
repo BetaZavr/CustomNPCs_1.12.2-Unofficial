@@ -13,7 +13,7 @@ import java.util.Map;
 public class ParticleManagerMixin implements IParticleManagerMixin {
 
     @Final
-    @Shadow(aliases = "particleTypes")
+    @Shadow
     private Map<Integer, IParticleFactory> particleTypes;
 
     @Override

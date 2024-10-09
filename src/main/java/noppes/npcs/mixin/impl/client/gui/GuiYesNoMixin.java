@@ -10,10 +10,10 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = GuiYesNo.class)
 public class GuiYesNoMixin implements IGuiYesNoMixin {
 
-    @Shadow(aliases = "parentScreen")
+    @Shadow
     protected GuiYesNoCallback parentScreen;
 
-    @Shadow(aliases = "parentScreen")
+    @Shadow
     protected int parentButtonClickedId;
 
     @Override

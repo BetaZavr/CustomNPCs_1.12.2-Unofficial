@@ -11,10 +11,10 @@ import org.spongepowered.asm.mixin.Shadow;
 public class LanguageManagerMixin implements ILanguageManagerMixin {
 
     @Final
-    @Shadow(aliases = "CURRENT_LOCALE")
+    @Shadow
     protected static Locale CURRENT_LOCALE;
 
-    @Shadow(aliases = "currentLanguage")
+    @Shadow
     private String currentLanguage;
 
     @Override

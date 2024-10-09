@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.client.gui.animation.SubGuiEditAnimation;
 
 public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollListener, IKeyListener {
 
@@ -259,7 +258,7 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 			}
 		}
 		GuiNpcButton exit = new GuiNpcButton(2500, guiLeft + xSize - 12, guiTop + 3, 8, 8, "X");
-		exit.texture = SubGuiEditAnimation.btns;
+		exit.texture = ANIMATION_BUTTONS;
 		exit.hasDefBack = false;
 		exit.txrX = 232;
 		exit.txrW = 24;

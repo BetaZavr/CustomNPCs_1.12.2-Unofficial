@@ -12,17 +12,17 @@ public class KeyBindingMixin implements IKeyBindingMixin {
 
     @Mutable
     @Final
-    @Shadow(aliases = "keyDescription")
+    @Shadow
     private String keyDescription;
 
     @Mutable
     @Final
-    @Shadow(aliases = "keyCodeDefault")
+    @Shadow
     private int keyCodeDefault;
 
     @Mutable
     @Final
-    @Shadow(aliases = "keyCategory")
+    @Shadow
     private String keyCategory;
 
     @Override

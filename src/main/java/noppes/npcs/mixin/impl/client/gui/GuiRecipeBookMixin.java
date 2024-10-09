@@ -1,25 +1,15 @@
 package noppes.npcs.mixin.impl.client.gui;
 
-import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButtonToggle;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.recipebook.*;
-import net.minecraft.client.util.RecipeBookClient;
-import net.minecraft.client.util.RecipeItemHelper;
-import net.minecraft.client.util.SearchTreeManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.stats.RecipeBook;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.client.gui.recipebook.NpcGhostRecipe;
 import noppes.npcs.client.gui.recipebook.NpcGuiButtonRecipeTab;
 import noppes.npcs.client.gui.recipebook.NpcRecipeBookPage;
-import noppes.npcs.mixin.client.gui.recipebook.IRecipeListMixin;
 import noppes.npcs.mixin.client.stats.IRecipeBookMixin;
 import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.*;
@@ -29,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Locale;
 
 @Mixin(value = GuiRecipeBook.class)
 public class GuiRecipeBookMixin {

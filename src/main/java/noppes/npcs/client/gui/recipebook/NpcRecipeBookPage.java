@@ -23,6 +23,7 @@ import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.mixin.client.stats.IRecipeBookMixin;
 import noppes.npcs.util.Util;
 
+// Displaying a recipe page in the GUI recipe window
 @SideOnly(Side.CLIENT)
 public class NpcRecipeBookPage extends RecipeBookPage {
 
@@ -79,41 +80,41 @@ public class NpcRecipeBookPage extends RecipeBookPage {
 
     @Override
     public boolean mouseClicked(int mouseX, int mouseY, int mouseButton, int x, int y, int width, int height) {
-        this.lastClickedRecipe = null;
-        this.lastClickedRecipeList = null;
-        if (this.overlay.isVisible()) {
-            if (this.overlay.buttonClicked(mouseX, mouseY, mouseButton)) {
-                this.lastClickedRecipe = this.overlay.getLastRecipeClicked();
-                this.lastClickedRecipeList = this.overlay.getRecipeList();
+        lastClickedRecipe = null;
+        lastClickedRecipeList = null;
+        if (overlay.isVisible()) {
+            if (overlay.buttonClicked(mouseX, mouseY, mouseButton)) {
+                lastClickedRecipe = overlay.getLastRecipeClicked();
+                lastClickedRecipeList = overlay.getRecipeList();
             } else {
-                this.overlay.setVisible(false);
+                overlay.setVisible(false);
             }
             return true;
         }
-        else if (this.forwardButton.mousePressed(this.minecraft, mouseX, mouseY) && mouseButton == 0) {
-            this.forwardButton.playPressSound(this.minecraft.getSoundHandler());
-            ++this.currentPage;
-            this.updateButtonsForPage();
+        else if (forwardButton.mousePressed(minecraft, mouseX, mouseY) && mouseButton == 0) {
+            forwardButton.playPressSound(minecraft.getSoundHandler());
+            ++currentPage;
+            updateButtonsForPage();
             return true;
         }
-        else if (this.backButton.mousePressed(this.minecraft, mouseX, mouseY) && mouseButton == 0) {
-            this.backButton.playPressSound(this.minecraft.getSoundHandler());
-            --this.currentPage;
-            this.updateButtonsForPage();
+        else if (backButton.mousePressed(minecraft, mouseX, mouseY) && mouseButton == 0) {
+            backButton.playPressSound(minecraft.getSoundHandler());
+            --currentPage;
+            updateButtonsForPage();
             return true;
         }
         else {
-            for (NpcGuiButtonRecipe button : this.buttons) {
-                if (button.mousePressed(this.minecraft, mouseX, mouseY)) {
-                    button.playPressSound(this.minecraft.getSoundHandler());
+            for (NpcGuiButtonRecipe button : buttons) {
+                if (button.mousePressed(minecraft, mouseX, mouseY)) {
+                    button.playPressSound(minecraft.getSoundHandler());
                     if (mouseButton == 0) {
-                        this.lastClickedRecipe = button.getRecipe();
-                        this.lastClickedRecipeList = button.getList();
+                        lastClickedRecipe = button.getRecipe();
+                        lastClickedRecipeList = button.getList();
                     }
-                    else if (!this.overlay.isVisible() && !button.isOnlyOption()) {
-                        this.overlay.init(this.minecraft, button.getList(), button.x,
+                    else if (!overlay.isVisible() && !button.isOnlyOption()) {
+                        overlay.init(minecraft, button.getList(), button.x,
                                 button.y, x + width / 2, y + 13 + height / 2,
-                                (float) button.getButtonWidth(), this.recipeBook);
+                                (float) button.getButtonWidth(), recipeBook);
                     }
                     return true;
                 }

@@ -12,7 +12,7 @@ import java.util.Map;
 public class LanguageMapMixin implements ILanguageMapMixin {
 
     @Final
-    @Shadow(aliases = "languageList")
+    @Shadow
     private Map<String, String> languageList;
 
     @Override

@@ -13,7 +13,7 @@ public class ModelPlayerMixin implements IModelPlayerMixin {
 
     @Mutable
     @Final
-    @Shadow(aliases = "bipedCape")
+    @Shadow
     private ModelRenderer bipedCape;
 
     @Override

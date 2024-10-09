@@ -1,4 +1,4 @@
-package noppes.npcs.mixin.api.client.audio;
+package noppes.npcs.mixin.client.audio;
 
 import paulscode.sound.Source;
 

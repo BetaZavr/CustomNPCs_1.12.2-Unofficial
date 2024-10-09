@@ -13,24 +13,24 @@ import org.spongepowered.asm.mixin.Shadow;
 public class GuiTextFieldMixin implements IGuiTextFieldMixin {
 
     @Final
-    @Shadow(aliases = "fontRenderer")
+    @Shadow
     private FontRenderer fontRenderer;
 
-    @Shadow(aliases = "enableBackgroundDrawing")
+    @Shadow
     private boolean enableBackgroundDrawing = true;
 
-    @Shadow(aliases = "canLoseFocus")
+    @Shadow
     private boolean canLoseFocus = true;
 
-    @Shadow(aliases = "lineScrollOffset")
+    @Shadow
     private int lineScrollOffset;
 
     @Mutable
-    @Shadow(aliases = "cursorPosition")
+    @Shadow
     private int cursorPosition;
 
     @Mutable
-    @Shadow(aliases = "selectionEnd")
+    @Shadow
     private int selectionEnd;
 
     @Override

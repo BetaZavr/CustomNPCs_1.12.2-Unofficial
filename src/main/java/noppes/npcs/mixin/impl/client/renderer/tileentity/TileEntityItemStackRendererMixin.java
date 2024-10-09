@@ -13,7 +13,7 @@ public class TileEntityItemStackRendererMixin implements ITileEntityItemStackRen
 
     @Mutable
     @Final
-    @Shadow(aliases = "banner")
+    @Shadow
     private TileEntityBanner banner;
 
     @Override

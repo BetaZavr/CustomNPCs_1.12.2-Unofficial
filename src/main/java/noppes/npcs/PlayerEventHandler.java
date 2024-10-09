@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockBanner;
 import net.minecraft.tileentity.TileEntityBanner;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.mixin.entity.player.IEntityPlayerMixin;
@@ -1242,7 +1243,7 @@ public class PlayerEventHandler {
 			for (ClassPath.ClassInfo info : list) {
 				String name = info.getName();
 				if (name.startsWith("net.minecraftforge.event.terraingen")) { continue; }
-				try { listClasses.add(info.load()); } catch (Exception e) { LogWriter.error("Error:", e); }
+				try { listClasses.add(info.load()); } catch (Exception e) { LogWriter.debug("Error: " + e); }
 			}
 			// Not Assing List
 			List<Class<?>> notAssingException = new ArrayList<>();
@@ -1345,6 +1346,24 @@ public class PlayerEventHandler {
 		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size() + "; Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
 		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		return this;
+	}
+
+
+	@SubscribeEvent
+	public void npcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
+		if (!(event.getEntityLiving() instanceof EntityPlayer)) {
+			return;
+		}
+		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+		if (player instanceof EntityPlayerMP) {
+
+		} else {
+			try {
+
+			} catch (Exception e) {
+				LogWriter.error("Error:", e);
+			}
+		}
 	}
 
 }

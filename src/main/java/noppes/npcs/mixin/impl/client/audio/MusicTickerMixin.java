@@ -11,11 +11,11 @@ import org.spongepowered.asm.mixin.Shadow;
 public class MusicTickerMixin implements IMusicTickerMixin {
 
     @Mutable
-    @Shadow(aliases = "timeUntilNextMusic")
+    @Shadow
     private int timeUntilNextMusic;
 
     @Mutable
-    @Shadow(aliases = "currentMusic")
+    @Shadow
     private ISound currentMusic;
 
     @Override

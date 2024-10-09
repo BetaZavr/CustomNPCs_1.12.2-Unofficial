@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class EntityItemMixin implements IEntityItemMixin {
 
     @Mutable
-    @Shadow(aliases = "age")
+    @Shadow
     private int age;
 
     @Override

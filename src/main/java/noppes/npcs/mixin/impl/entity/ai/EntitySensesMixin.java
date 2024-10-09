@@ -11,10 +11,10 @@ import java.util.List;
 @Mixin(value = EntitySenses.class)
 public class EntitySensesMixin implements IEntitySensesMixin {
 
-    @Shadow(aliases = "seenEntities")
+    @Shadow
     List<Entity> seenEntities;
 
-    @Shadow(aliases = "unseenEntities")
+    @Shadow
     List<Entity> unseenEntities;
 
     @Override

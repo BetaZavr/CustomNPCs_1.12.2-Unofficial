@@ -3,7 +3,6 @@ package noppes.npcs;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -22,15 +21,11 @@ import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
-import net.minecraft.item.ItemLingeringPotion;
 import net.minecraft.item.ItemPotion;
-import net.minecraft.item.ItemSplashPotion;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemTippedArrow;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.*;
 import net.minecraft.potion.Potion;
@@ -219,6 +214,15 @@ public class CustomRegisters {
 	public static ItemNbtBook nbt_book = null;
 	@GameRegistry.ObjectHolder("scripted_item")
 	public static ItemScripted scripted_item = null;
+
+	@GameRegistry.ObjectHolder("itemPotion")
+	public static ItemPotion itemPotion = null;
+	@GameRegistry.ObjectHolder("itemSplashPotion")
+	public static ItemPotion itemSplashPotion = null;
+	@GameRegistry.ObjectHolder("itemLingeringPotion")
+	public static ItemPotion itemLingeringPotion = null;
+	@GameRegistry.ObjectHolder("itemTippedArrow")
+	public static Item itemTippedArrow = null;
 
 	public static CreativeTabNpcs tab = new CreativeTabNpcs("cnpcs");
 	public static CreativeTabNpcs tabBlocks = new CreativeTabNpcs("blocks");
@@ -412,7 +416,10 @@ public class CustomRegisters {
 			particles.put(idT, enumparticletypes);
 			by_name.put(particleSettings.name, enumparticletypes);
 			CustomRegisters.customparticles.put(particleSettings.id, particleSettings);
-			if (nbtParticle.getBoolean("CreateAllFiles")) {
+
+			String name = nbtParticle.getString("RegistryName");
+			boolean isExampleItem = name.equals("PARTICLE_EXAMPLE") || name.equals("PARTICLE_OBJ_EXAMPLE");
+			if (isExampleItem || nbtParticle.getBoolean("CreateAllFiles")) {
 				CustomNpcs.proxy.checkParticleFiles(particleSettings);
 				nbtParticle.setBoolean("CreateAllFiles", false);
 				resave = true;
@@ -579,7 +586,7 @@ public class CustomRegisters {
 						+ "\" - failed");
 				continue;
 			}
-			if (!resave && nbtBlock.hasKey("CreateAllFiles") && nbtBlock.getBoolean("CreateAllFiles")) {
+			if (!resave && nbtBlock.getBoolean("CreateAllFiles")) {
 				resave = true;
 			}
 			Block block = null;
@@ -619,7 +626,11 @@ public class CustomRegisters {
 				LogWriter.error("Attempt to load a registered block \"" + block.getRegistryName() + "\"");
 				continue;
 			}
-			if (nbtBlock.hasKey("CreateAllFiles") && nbtBlock.getBoolean("CreateAllFiles")) {
+			String name = nbtBlock.getString("RegistryName");
+			boolean isExampleItem = name.equals("blockexample") || name.equals("liquidexample") || name.equals("facingblockexample") ||
+					name.equals("stairsexample") || name.equals("slabexample") || name.equals("portalexample") || name.equals("chestexample") ||
+					name.equals("containerexample") || name.equals("doorexample");
+			if (isExampleItem || nbtBlock.getBoolean("CreateAllFiles")) {
 				CustomNpcs.proxy.checkBlockFiles((ICustomElement) block);
 				if (addblock == null) {
 					nbtBlock.setBoolean("CreateAllFiles", false);
@@ -636,7 +647,7 @@ public class CustomRegisters {
 					LogWriter.error("Attempt to load a registered block \"" + addblock.getRegistryName() + "\"");
 					continue;
 				}
-				if (nbtBlock.hasKey("CreateAllFiles") && nbtBlock.getBoolean("CreateAllFiles")) {
+				if (isExampleItem || nbtBlock.getBoolean("CreateAllFiles")) {
 					CustomNpcs.proxy.checkBlockFiles(addblock);
 					nbtBlock.setBoolean("CreateAllFiles", false);
 				}
@@ -735,45 +746,15 @@ public class CustomRegisters {
 		 * occurs later than the registration of items, potion items are substituted.
 		 * They already check the distribution of across creative tabs.
 		 */
-		ItemPotion ip = new CustomItemPotion();
-		ItemSplashPotion sip = new CustomItemSplashPotion();
-		ItemLingeringPotion lip = new CustomItemLingeringPotion();
-		ItemTippedArrow ta = new CustomItemTippedArrow();
-		event.getRegistry().register(ip);
-		event.getRegistry().register(sip);
-		event.getRegistry().register(lip);
-		event.getRegistry().register(ta);
-		try {
-			for (Field f : Items.class.getFields()) {
-				try {
-					if (Modifier.isFinal(f.getModifiers())) {
-						Field modifiersField = Field.class.getDeclaredField("modifiers");
-						modifiersField.setAccessible(true);
-						modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-					}
-                    switch (f.getName()) {
-                        case "POTIONITEM":
-                        case "field_151068_bn":
-                            f.set(null, ip);
-                            break;
-                        case "LINGERING_POTION":
-                        case "field_185156_bI":
-                            f.set(null, sip);
-                            break;
-                        case "SPLASH_POTION":
-                        case "field_185155_bH":
-                            f.set(null, lip);
-                            break;
-                        case "TIPPED_ARROW":
-                        case "field_185167_i":
-                            f.set(null, ta);
-                            break;
-                    }
-				} catch (Exception e) {
-					LogWriter.error(e);
-				}
-			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		if (itemPotion == null) { itemPotion = new CustomItemPotion(); }
+		if (itemSplashPotion == null) { itemSplashPotion = new CustomItemSplashPotion(); }
+		if (itemLingeringPotion == null) { itemLingeringPotion = new CustomItemLingeringPotion(); }
+		if (itemTippedArrow == null) { itemTippedArrow = new CustomItemTippedArrow(); }
+		// This is to replace the default items in Item.REGISTRY
+		event.getRegistry().register(itemPotion);
+		event.getRegistry().register(itemSplashPotion);
+		event.getRegistry().register(itemLingeringPotion);
+		event.getRegistry().register(itemTippedArrow);
 
 		// Custom Items
 		File itemsFile = new File(CustomNpcs.Dir, "custom_items.js");
@@ -854,77 +835,81 @@ public class CustomRegisters {
 				continue;
 			}
 			switch (nbtItem.getByte("ItemType")) {
-			case (byte) 1: // Weapon
-				this.registryItem(new CustomWeapon(CustomItem.getMaterialTool(nbtItem), nbtItem), names, items,
-						nbtItem);
-				break;
-			case (byte) 2: // Tool
-				Set<Block> effectiveBlocks = Sets.newHashSet();
-				if (nbtItem.hasKey("CollectionBlocks", 9)) {
-					for (int j = 0; j < nbtItem.getTagList("CollectionBlocks", 8).tagCount(); j++) {
-						Block block = Block
-								.getBlockFromName(nbtItem.getTagList("CollectionBlocks", 8).getStringTagAt(j));
-						if (block != null) {
-							effectiveBlocks.add(block);
+				case (byte) 1: // Weapon
+					this.registryItem(new CustomWeapon(CustomItem.getMaterialTool(nbtItem), nbtItem), names, items,
+							nbtItem);
+					break;
+				case (byte) 2: // Tool
+					Set<Block> effectiveBlocks = Sets.newHashSet();
+					if (nbtItem.hasKey("CollectionBlocks", 9)) {
+						for (int j = 0; j < nbtItem.getTagList("CollectionBlocks", 8).tagCount(); j++) {
+							Block block = Block
+									.getBlockFromName(nbtItem.getTagList("CollectionBlocks", 8).getStringTagAt(j));
+							if (block != null) {
+								effectiveBlocks.add(block);
+							}
 						}
 					}
-				}
-				this.registryItem(new CustomTool((float) nbtItem.getDouble("EntityDamage"),
-						(float) nbtItem.getDouble("SpeedAttack"), CustomItem.getMaterialTool(nbtItem), effectiveBlocks,
-						nbtItem), names, items, nbtItem);
-				break;
-			case (byte) 3: // Armor
-				ArmorMaterial mat = CustomArmor.getMaterialArmor(nbtItem);
-				for (int a = 0; a < nbtItem.getTagList("EquipmentSlots", 8).tagCount(); a++) {
-					EntityEquipmentSlot slot = CustomArmor
-							.getSlotEquipment(nbtItem.getTagList("EquipmentSlots", 8).getStringTagAt(a));
-					int maxStDam = 0, rx = 2;
-					if (nbtItem.hasKey("MaxStackDamage", 11) && a < nbtItem.getIntArray("MaxStackDamage").length) {
-						maxStDam = nbtItem.getIntArray("MaxStackDamage")[a];
+					this.registryItem(new CustomTool((float) nbtItem.getDouble("EntityDamage"),
+							(float) nbtItem.getDouble("SpeedAttack"), CustomItem.getMaterialTool(nbtItem), effectiveBlocks,
+							nbtItem), names, items, nbtItem);
+					break;
+				case (byte) 3: // Armor
+					ArmorMaterial mat = CustomArmor.getMaterialArmor(nbtItem);
+					for (int a = 0; a < nbtItem.getTagList("EquipmentSlots", 8).tagCount(); a++) {
+						EntityEquipmentSlot slot = CustomArmor
+								.getSlotEquipment(nbtItem.getTagList("EquipmentSlots", 8).getStringTagAt(a));
+						int maxStDam = 0, rx = 2;
+						if (nbtItem.hasKey("MaxStackDamage", 11) && a < nbtItem.getIntArray("MaxStackDamage").length) {
+							maxStDam = nbtItem.getIntArray("MaxStackDamage")[a];
+						}
+						int damReAmt = 0;
+						if (nbtItem.hasKey("DamageReduceAmount", 11)
+								&& a < nbtItem.getIntArray("DamageReduceAmount").length) {
+							damReAmt = nbtItem.getIntArray("DamageReduceAmount")[a];
+						}
+						float tough = 0.0f;
+						nbtItem.getTagList("Toughness", 5);
+						if (a < nbtItem.getTagList("Toughness", 5).tagCount()) {
+							tough = nbtItem.getTagList("Toughness", 5).getFloatAt(a);
+						}
+						if (nbtItem.hasKey("RenderIndex", 3)) {
+							rx = nbtItem.getInteger("RenderIndex");
+						}
+						if (rx < 0) {
+							rx *= -1;
+						}
+						if (rx > 4) {
+							rx %= 5;
+						}
+						this.registryItem(new CustomArmor(mat, rx, slot, maxStDam, damReAmt, tough, nbtItem), names, items,
+								nbtItem);
 					}
-					int damReAmt = 0;
-					if (nbtItem.hasKey("DamageReduceAmount", 11)
-							&& a < nbtItem.getIntArray("DamageReduceAmount").length) {
-						damReAmt = nbtItem.getIntArray("DamageReduceAmount")[a];
-					}
-					float tough = 0.0f;
-                    nbtItem.getTagList("Toughness", 5);
-                    if (a < nbtItem.getTagList("Toughness", 5).tagCount()) {
-						tough = nbtItem.getTagList("Toughness", 5).getFloatAt(a);
-					}
-					if (nbtItem.hasKey("RenderIndex", 3)) {
-						rx = nbtItem.getInteger("RenderIndex");
-					}
-					if (rx < 0) {
-						rx *= -1;
-					}
-					if (rx > 4) {
-						rx %= 5;
-					}
-					this.registryItem(new CustomArmor(mat, rx, slot, maxStDam, damReAmt, tough, nbtItem), names, items,
-							nbtItem);
-				}
-				break;
-			case (byte) 4: // Shield
-				this.registryItem(new CustomShield(nbtItem), names, items, nbtItem);
-				break;
-			case (byte) 5: // Bow
-				this.registryItem(new CustomBow(nbtItem), names, items, nbtItem);
-				break;
-			case (byte) 6: // Food
-				this.registryItem(new CustomFood(nbtItem.getInteger("HealAmount"),
-						nbtItem.getFloat("SaturationModifier"), nbtItem.getBoolean("IsWolfFood"), nbtItem), names,
-						items, nbtItem);
-				break;
-			case (byte) 7: // Potion
-				continue;
-			case (byte) 8: // Fishing Rod
-				this.registryItem(new CustomFishingRod(nbtItem), names, items, nbtItem);
-				break;
-			default: // Simple
-				this.registryItem(new CustomItem(nbtItem), names, items, nbtItem);
+					break;
+				case (byte) 4: // Shield
+					this.registryItem(new CustomShield(nbtItem), names, items, nbtItem);
+					break;
+				case (byte) 5: // Bow
+					this.registryItem(new CustomBow(nbtItem), names, items, nbtItem);
+					break;
+				case (byte) 6: // Food
+					this.registryItem(new CustomFood(nbtItem.getInteger("HealAmount"),
+							nbtItem.getFloat("SaturationModifier"), nbtItem.getBoolean("IsWolfFood"), nbtItem), names,
+							items, nbtItem);
+					break;
+				case (byte) 7: // Potion
+					continue;
+				case (byte) 8: // Fishing Rod
+					this.registryItem(new CustomFishingRod(nbtItem), names, items, nbtItem);
+					break;
+				default: // Simple
+					this.registryItem(new CustomItem(nbtItem), names, items, nbtItem);
 			}
-			if (nbtItem.hasKey("CreateAllFiles") && nbtItem.getBoolean("CreateAllFiles")) {
+			String name = nbtItem.getString("RegistryName");
+			boolean isExampleItem = name.equals("itemexample") || name.equals("weaponexample") || name.equals("armorexample") ||
+					name.equals("armorobjexample") || name.equals("shieldexample") || name.equals("bowexample") || name.equals("toolexample") ||
+					name.equals("axeexample") || name.equals("foodexample") || name.equals("fishingrodexample");
+			if (isExampleItem || nbtItem.getBoolean("CreateAllFiles")) {
 				nbtItem.setBoolean("CreateAllFiles", false);
 				resave = true;
 			}
@@ -1070,13 +1055,15 @@ public class CustomRegisters {
 						+ "\" - failed");
 				continue;
 			}
-			String name = "custom_potion_" + nbtPotion.getString("RegistryName").toLowerCase();
+			String nameP = nbtPotion.getString("RegistryName");
+			String name = "custom_potion_" + nameP.toLowerCase();
 			Potion potion = new CustomPotion(nbtPotion);
 			if (Potion.getPotionFromResourceLocation(Objects.requireNonNull(potion.getRegistryName()).toString()) != null) {
 				LogWriter.error("Attempt to load a registered potion \"" + potion.getRegistryName() + "\"");
 				continue;
 			}
-			if (nbtPotion.hasKey("CreateAllFiles") && nbtPotion.getBoolean("CreateAllFiles")) {
+			boolean isExampleItem = nameP.equals("potionexample");
+			if (isExampleItem || nbtPotion.getBoolean("CreateAllFiles")) {
 				CustomNpcs.proxy.checkPotionFiles((ICustomElement) potion);
 				nbtPotion.setBoolean("CreateAllFiles", false);
 				resave = true;
@@ -1134,7 +1121,7 @@ public class CustomRegisters {
 				|| Item.getByNameOrId(item.getRegistryName().toString()) != null) {
 			LogWriter.error("Attempt to load a registered item \"" + item.getRegistryName() + "\"");
 		}
-		if (nbtItem.hasKey("CreateAllFiles") && nbtItem.getBoolean("CreateAllFiles")) {
+		if (nbtItem.getBoolean("CreateAllFiles")) {
 			CustomNpcs.proxy.checkItemFiles((ICustomElement) item);
 		}
 		LogWriter.info("Load Custom Item \"" + item.getRegistryName() + "\"");

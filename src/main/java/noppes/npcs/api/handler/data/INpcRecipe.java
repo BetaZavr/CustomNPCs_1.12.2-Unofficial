@@ -49,4 +49,6 @@ public interface INpcRecipe {
 
 	void setNbt(INbt nbt);
 
+	boolean isRecipeItemsEmpty();
+
 }

@@ -29,6 +29,7 @@ public class RecipeBookMixin implements IRecipeBookMixin {
             if (recipes.get(id)) {
                 IRecipe irecipe = CraftingManager.REGISTRY.getObjectById(id);
                 if (irecipe != null) {
+                    if (irecipe instanceof INpcRecipe && !((INpcRecipe) irecipe).isValid()) { continue; }
                     if (isGlobal) {
                         if (!(irecipe instanceof INpcRecipe) || ((INpcRecipe) irecipe).isGlobal()) { newBook.unlock(irecipe); }
                     } else {
@@ -49,7 +50,6 @@ public class RecipeBookMixin implements IRecipeBookMixin {
                 }
             }
         }
-        System.out.println("CNPCs: newBook " + isGlobal + " - " +  newBook);
         return newBook;
     }
 

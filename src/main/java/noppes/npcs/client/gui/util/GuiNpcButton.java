@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.util;
 
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
@@ -11,6 +13,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class GuiNpcButton
 extends GuiButton
@@ -31,9 +34,14 @@ implements IComponentGui {
 	public int txrH = 0;
 	public ResourceLocation texture = null;
 	public String label = "";
-	public boolean dropShadow, hasDefBack, hasSound, isPressed;
+	public boolean dropShadow;
+	public boolean hasDefBack;
+	public boolean hasSound;
+	public boolean isPressed;
 	public int textColor = CustomNpcs.MainColor.getRGB();
 	public boolean isSimple = false;
+	private List<ItemStack> itemStacks = null;
+	private int ticks = 0;
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
@@ -105,7 +113,6 @@ implements IComponentGui {
 			}
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			int i = this.getHoverState(this.hovered);
-//if (this.id == 0) { System.out.println("CNPCs: "+i+", "+this.isSimple); }
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -206,6 +213,20 @@ implements IComponentGui {
 				this.x + (float) (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2,
 				this.y + (float) (this.height - 8) / 2, l, this.dropShadow);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		if (itemStacks != null && !itemStacks.isEmpty()) {
+			ItemStack stack = itemStacks.get((ticks % (40 * itemStacks.size())) / 40);
+//System.out.println("CNPCs: "+id+" - "+stack);
+			if (stack != null && !stack.isEmpty()) {
+				GlStateManager.pushMatrix();
+				RenderHelper.enableStandardItemLighting();
+				GlStateManager.translate((float) x + (float) width / 2.0f - 9.0f, (float) y + (float) height / 2.0f - 9.0f, 0.0f);
+				mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 0, 0);
+				this.drawString(mc.fontRenderer, "" + stack.getCount(), 16 - mc.fontRenderer.getStringWidth("" + stack.getCount()), 9, 0xFFFFFFFF);
+				RenderHelper.disableStandardItemLighting();
+				GlStateManager.popMatrix();
+			}
+			ticks++;
+		}
 	}
 
 	public int getHeight() {
@@ -279,5 +300,13 @@ implements IComponentGui {
 		}
 		return this.enabled ? 0 : 3;
 	}
+
+	public void setStacks(List<ItemStack> itemStacks) {
+		this.itemStacks = itemStacks;
+		ticks = 0;
+		System.out.println("CNPCs: "+id+" - "+this.itemStacks);
+	}
+
+	public List<ItemStack> getStacks() { return itemStacks; }
 
 }

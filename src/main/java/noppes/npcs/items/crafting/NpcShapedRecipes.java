@@ -28,11 +28,11 @@ import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.data.Availability;
-import noppes.npcs.mixin.item.crafting.IIngredientMixin;
 import noppes.npcs.mixin.item.crafting.IShapedRecipesMixin;
 
-public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IRecipe // Changed
+public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IRecipe
 {
+
 	public static INpcRecipe createRecipe(String group, String name, boolean global, ItemStack stack, Object... map) {
 		StringBuilder allRows = new StringBuilder();
 		int objPos = 0;
@@ -78,21 +78,18 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 				ingredients.add(slot, Ingredient.EMPTY);
 			}
 		}
-		NpcShapedRecipes newRecipe = new NpcShapedRecipes(group, name, width, height, ingredients, stack);
-		newRecipe.global = global;
-		return newRecipe;
+        return new NpcShapedRecipes(group, name, global, ingredients, stack);
 	}
 	public static NpcShapedRecipes read(NBTTagCompound compound) {
-		NpcShapedRecipes recipe = new NpcShapedRecipes(compound.getString("Group"), compound.getString("Name"),
-				compound.getInteger("Width"), compound.getInteger("Height"),
+		NpcShapedRecipes recipe = new NpcShapedRecipes(compound.getString("Group"), compound.getString("Name"), compound.getBoolean("Global"),
 				NBTTags.getIngredientList(compound.getTagList("Materials", 10)),
 				new ItemStack(compound.getCompoundTag("Item")));
+		recipe.recipeWidth = compound.getInteger("Width");
+		recipe.recipeHeight = compound.getInteger("Height");
 		recipe.id = compound.getInteger("ID");
 		recipe.availability.readFromNBT(compound.getCompoundTag("Availability"));
 		recipe.ignoreDamage = compound.getBoolean("IgnoreDamage");
 		recipe.ignoreNBT = compound.getBoolean("IgnoreNBT");
-		recipe.global = compound.getBoolean("Global");
-		// New
 		recipe.known = compound.getBoolean("IsKnown");
 		return recipe;
 	}
@@ -105,7 +102,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 	/** Is the ItemStack that you get when craft the recipe. */
 	public ItemStack recipeOutput;
 	public Availability availability;
-	public boolean global;
+	private boolean global;
 	// New
 	public int id;
 	public boolean ignoreDamage;
@@ -116,33 +113,16 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 
 	public boolean savesRecipe;
 
-	public NpcShapedRecipes() {
-		super(CustomNpcs.MODID, 3, 3, NonNullList.create(), ItemStack.EMPTY);
-		this.recipeWidth = 3;
-		this.recipeHeight = 3;
-		this.recipeItems = NonNullList.create();
-		this.recipeOutput = ItemStack.EMPTY;
-		this.id = -1;
-		this.availability = new Availability();
-		this.global = false;
-		this.ignoreDamage = false;
-		this.ignoreNBT = false;
-		this.savesRecipe = true;
-		this.name = "";
-		// New
-		this.known = true;
-	}
-
-	public NpcShapedRecipes(String group, String name, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result) {
-		super(group, width, height, ingredients, result);
-		this.recipeWidth = width;
-		this.recipeHeight = height;
+	public NpcShapedRecipes(String group, String name, boolean isGlobal, NonNullList<Ingredient> ingredients, ItemStack result) {
+		super(group, isGlobal ? 3 : 4, isGlobal ? 3 : 4, ingredients, result);
+		this.recipeWidth = isGlobal ? 3 : 4;
+		this.recipeHeight = isGlobal ? 3 : 4;
 		this.recipeItems = ingredients;
 		this.recipeOutput = result;
 		this.id = -1;
 		this.name = name;
 		this.availability = new Availability();
-		this.global = false;
+		this.global = isGlobal;
 		this.ignoreDamage = false;
 		this.ignoreNBT = false;
 		this.savesRecipe = true;
@@ -159,17 +139,15 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 
 	public boolean apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack) { // New
         if (stack != null && ingredient != null) {
-            ItemStack[] stacks = ((IIngredientMixin) ingredient).npcs$getMatchingStacks();
-            if ((stacks == null || stacks.length == 0) && stack.isEmpty()) {
+            ItemStack[] stacks = ingredient.getMatchingStacks();
+            if (stacks.length == 0 && stack.isEmpty()) {
                 return true;
             }
-            if (stacks != null) {
-                for (ItemStack ingStack : stacks) {
-                    if (ingStack.getItem() == stack.getItem()) {
-                        if (!ingStack.isEmpty() && !stack.isEmpty()
-                                && NoppesUtilPlayer.compareItems(stack, ingStack, this.ignoreDamage, this.ignoreNBT)) {
-                            return true;
-                        }
+            for (ItemStack ingStack : stacks) {
+                if (ingStack.getItem() == stack.getItem()) {
+                    if (!ingStack.isEmpty() && !stack.isEmpty()
+                            && NoppesUtilPlayer.compareItems(stack, ingStack, this.ignoreDamage, this.ignoreNBT)) {
+                        return true;
                     }
                 }
             }
@@ -348,14 +326,12 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 	public IItemStack[][] getRecipe() {
 		IItemStack[][] allStacks = new IItemStack[this.recipeItems.size()][];
 		for (int i = 0; i < this.recipeItems.size(); i++) {
-			ItemStack[] arr = ((IIngredientMixin) this.recipeItems.get(i)).npcs$getMatchingStacks();
-            if (arr != null) {
-				allStacks[i] = new IItemStack[arr.length];
-				for (int j = 0; j < arr.length; j++) {
-					allStacks[i][j] = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(arr[j]);
-				}
-			}
-		}
+			ItemStack[] arr = recipeItems.get(i).getMatchingStacks();
+            allStacks[i] = new IItemStack[arr.length];
+            for (int j = 0; j < arr.length; j++) {
+                allStacks[i][j] = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(arr[j]);
+            }
+        }
 		return allStacks;
 	}
 
@@ -410,6 +386,16 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public boolean isRecipeItemsEmpty() {
+		for (Ingredient ingredient : recipeItems) {
+			for (ItemStack stack : ingredient.getMatchingStacks()) {
+				if (stack != null && !stack.isEmpty()) { return false; }
+			}
+		}
+		return true;
 	}
 
 	@Override

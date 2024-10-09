@@ -1,14 +1,13 @@
 package noppes.npcs.client.gui.recipebook;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.recipebook.GuiRecipeOverlay;
 import net.minecraft.client.gui.recipebook.RecipeList;
@@ -17,13 +16,17 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 
+// Displaying variations of one recipe in the GUI recipe window
 @SideOnly(Side.CLIENT)
 public class NpcGuiRecipeOverlay extends GuiRecipeOverlay {
 
@@ -46,8 +49,7 @@ public class NpcGuiRecipeOverlay extends GuiRecipeOverlay {
             RenderHelper.enableGUIStandardItemLighting();
             GlStateManager.enableAlpha();
             mc.renderEngine.bindTexture(NpcGuiRecipeOverlay.RECIPE_BOOK_TEXTURE);
-            this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-                    && mouseY < this.y + this.height;
+            this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
             int i = 152;
             if (!this.isCraftable) {
                 i += 26;
@@ -58,12 +60,13 @@ public class NpcGuiRecipeOverlay extends GuiRecipeOverlay {
             }
             GlStateManager.color(2.0F, 2.0F, 2.0F, 1.0F);
             if (this.isGlobal) {
-                this.drawTexturedModalRect(this.x, this.y, i, j, this.width, this.height);
-            } else {
-                this.drawTexturedModalRect(this.x, this.y, i, j, 16, 16);
-                this.drawTexturedModalRect(this.x + 16, this.y, i + 9, j, 15, 16);
-                this.drawTexturedModalRect(this.x, this.y + 16, i, j + 9, 16, 16);
-                this.drawTexturedModalRect(this.x + 16, this.y + 16, i + 9, j + 9, 15, 15);
+                drawTexturedModalRect(x, y, i, j, this.width, this.height);
+            }
+            else {
+                drawTexturedModalRect(x, y, i, j, 16, 16);
+                drawTexturedModalRect(x + 16, y, i + 9, j, 15, 16);
+                drawTexturedModalRect(x, y + 16, i, j + 9, 16, 16);
+                drawTexturedModalRect(x + 16, y + 16, i + 9, j + 9, 15, 15);
             }
             int k = 3;
             int l = 3;
@@ -85,10 +88,7 @@ public class NpcGuiRecipeOverlay extends GuiRecipeOverlay {
                             int j2 = (int) ((float) (this.y + j1) / 0.42F - 3.0F);
                             GlStateManager.scale(0.42F, 0.42F, 1.0F);
                             GlStateManager.enableLighting();
-                            mc.getRenderItem().renderItemAndEffectIntoGUI(
-                                    aitemstack[MathHelper.floor(NpcGuiRecipeOverlay.this.time / 30.0F)
-                                            % aitemstack.length],
-                                    i2, j2);
+                            mc.getRenderItem().renderItemAndEffectIntoGUI(aitemstack[MathHelper.floor(NpcGuiRecipeOverlay.this.time / 30.0F) % aitemstack.length], i2, j2);
                             GlStateManager.disableLighting();
                             GlStateManager.popMatrix();
                         }
@@ -97,8 +97,19 @@ public class NpcGuiRecipeOverlay extends GuiRecipeOverlay {
             }
             GlStateManager.disableAlpha();
             RenderHelper.disableStandardItemLighting();
+            if (this.hovered) {
+                drawCenteredString(mc.fontRenderer, new TextComponentTranslation("item.craft.type."+(recipe instanceof ShapedRecipes)).getFormattedText(), x + width / 2, y - 12, 0xFFFFFFFF);
+            }
         }
 
+        protected void drawHoveringText(List<String> textLines, int mouseX, int mouseY, FontRenderer font) {
+            if (textLines == null || textLines.isEmpty()) { return; }
+            GlStateManager.pushMatrix();
+            GlStateManager.enableLighting();
+            GuiUtils.drawHoveringText(textLines, mouseX, mouseY, width, height, -1, font);
+            GlStateManager.disableLighting();
+            GlStateManager.popMatrix();
+        }
     }
 
     private static final ResourceLocation RECIPE_BOOK_TEXTURE = new ResourceLocation("textures/gui/recipe_book.png");
@@ -172,15 +183,19 @@ public class NpcGuiRecipeOverlay extends GuiRecipeOverlay {
         this.buttonList.clear();
         for (int j1 = 0; j1 < j; ++j1) {
             boolean flag1 = j1 < i;
-            this.buttonList.add(new NpcGuiRecipeOverlay.Button(this.x + 4 + offset * (j1 % k), this.y + 5 + offset * (j1 / k), flag1 ? list.get(j1) : list1.get(j1 - i), flag1, this.isGlobal));
+            this.buttonList.add(new NpcGuiRecipeOverlay.Button(this.x + 4 + offset * (j1 % k), this.y + 5 + offset * (j1 / k), flag1 ? list.get(j1) : list1.get(j1 - i), flag1, isGlobal));
         }
         this.lastRecipeClicked = null;
     }
 
-    public boolean isVisible() {
-        return this.visible;
-    }
 
+    @Override
+    public void setVisible(boolean isVisible) { this.visible = isVisible; }
+
+    @Override
+    public boolean isVisible() { return this.visible; }
+
+    @Override
     public void render(int mouseX, int mouseY, float partialTicks) {
         if (!this.visible || mc == null) { return; }
         time += partialTicks;

@@ -20,6 +20,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.util.Util;
 
+// Displaying a tab button on the left edge of the GUI recipes window
 @SideOnly(Side.CLIENT)
 public class NpcGuiButtonRecipeTab extends GuiButtonRecipeTab {
 

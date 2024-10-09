@@ -6,12 +6,13 @@ import io.netty.buffer.ByteBuf;
 import noppes.npcs.LogWriter;
 
 public class EntitySpawnMessageHelper {
+
 	static EntitySpawnHandler handler = new EntitySpawnHandler();
 	static Method spawn;
 
 	static {
 		for (Method m : EntitySpawnMessageHelper.handler.getClass().getDeclaredMethods()) {
-			if (m.getParameterCount() == 1 && m.getParameterTypes()[0] == FMLMessage.EntitySpawnMessage.class) {
+			if (m.getParameterCount() == 1 && m.getParameterTypes()[0] == FMLMessage.EntitySpawnMessage.class) { // spawnEntity
 				(EntitySpawnMessageHelper.spawn = m).setAccessible(true);
 				break;
 			}
@@ -21,13 +22,12 @@ public class EntitySpawnMessageHelper {
 	public static void spawn(ByteBuf buffer) {
 		FMLMessage.EntitySpawnMessage msg = new FMLMessage.EntitySpawnMessage();
 		msg.fromBytes(buffer);
-		try {
-			EntitySpawnMessageHelper.spawn.invoke(EntitySpawnMessageHelper.handler, msg);
-		}
+		try { EntitySpawnMessageHelper.spawn.invoke(EntitySpawnMessageHelper.handler, msg); }
 		catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public static void toBytes(FMLMessage.EntitySpawnMessage m, ByteBuf buf) {
 		m.toBytes(buf);
 	}
+
 }

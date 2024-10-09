@@ -399,7 +399,7 @@ public class SyncController {
 					if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) { return; }
 					RecipeController.getInstance().clear();
 				} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
-					RecipeController.getInstance().delete(compound.getString("Name"), compound.getString("Group"));
+					RecipeController.getInstance().delete(compound.getBoolean("IsGlobal"), compound.getString("Name"), compound.getString("Group"));
 				} else {
 					RecipeController.getInstance().loadNBTRecipe(compound);
 				}

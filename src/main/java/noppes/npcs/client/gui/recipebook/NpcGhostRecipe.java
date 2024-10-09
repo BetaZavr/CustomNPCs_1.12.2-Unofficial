@@ -19,6 +19,7 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+// Display recipe as translucent items in crafting grid
 @SideOnly(Side.CLIENT)
 public class NpcGhostRecipe extends GhostRecipe {
 
@@ -47,7 +48,6 @@ public class NpcGhostRecipe extends GhostRecipe {
     public void render(@Nonnull Minecraft mc, int guiLeft, int guiTop, boolean select, float partialTicks) {
         RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.disableLighting();
-        if (true) { return; }
         for (int i = 0; i < this.ingredients.size(); ++i) {
             GhostRecipe.GhostIngredient ghostrecipe$ghostingredient = this.ingredients.get(i);
             int j = ghostrecipe$ghostingredient.getX() + guiLeft;

@@ -11,11 +11,11 @@ import org.spongepowered.asm.mixin.Shadow;
 public class TileEntityMixin implements ITileEntityMixin {
 
     @Mutable
-    @Shadow(aliases = "blockMetadata")
+    @Shadow
     private int blockMetadata;
 
     @Mutable
-    @Shadow(aliases = "blockType")
+    @Shadow
     protected Block blockType;
 
     @Override

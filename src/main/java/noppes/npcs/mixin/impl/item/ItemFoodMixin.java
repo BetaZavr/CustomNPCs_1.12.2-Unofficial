@@ -12,7 +12,7 @@ public class ItemFoodMixin implements IItemFoodMixin {
 
     @Mutable
     @Final
-    @Shadow(aliases = "itemUseDuration")
+    @Shadow
     public int itemUseDuration;
 
     @Override

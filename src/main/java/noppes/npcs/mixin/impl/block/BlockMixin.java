@@ -15,11 +15,11 @@ public abstract class BlockMixin implements IBlockMixin {
 
     @Mutable
     @Final
-    @Shadow(aliases = "blockState")
+    @Shadow
     protected BlockStateContainer blockState;
 
     @Final
-    @Shadow(aliases = "REGISTRY")
+    @Shadow
     public static RegistryNamespacedDefaultedByKey<ResourceLocation, Block> REGISTRY;
 
     @Override

@@ -9,7 +9,7 @@ import paulscode.sound.SoundSystem;
 @Mixin(value = SoundSystem.class, remap = false)
 public class SoundSystemMixin implements ISoundSystemMixin {
 
-    @Shadow(aliases = "soundLibrary")
+    @Shadow
     protected Library soundLibrary;
 
     @Override

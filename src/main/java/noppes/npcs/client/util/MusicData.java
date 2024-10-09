@@ -13,7 +13,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.ForgeEvent.SoundTickEvent;
-import noppes.npcs.mixin.api.client.audio.ILibraryMixin;
+import noppes.npcs.mixin.client.audio.ILibraryMixin;
 import noppes.npcs.mixin.client.audio.ISoundSystemMixin;
 import paulscode.sound.Library;
 import paulscode.sound.SoundBuffer;

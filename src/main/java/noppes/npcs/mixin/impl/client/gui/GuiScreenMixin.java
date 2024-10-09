@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = GuiScreen.class)
 public class GuiScreenMixin implements IGuiScreenMixin {
 
-    @Shadow(aliases = "eventButton")
+    @Shadow
     private int eventButton;
 
     @Override

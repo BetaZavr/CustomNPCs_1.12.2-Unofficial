@@ -11,7 +11,7 @@ import java.util.List;
 @Mixin(value = NBTTagList.class)
 public class NBTTagListMixin implements INBTTagListMixin {
 
-    @Shadow(aliases = "tagList")
+    @Shadow
     private List<NBTBase> tagList;
 
     @Override

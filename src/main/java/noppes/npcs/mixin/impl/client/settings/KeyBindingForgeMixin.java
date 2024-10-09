@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = KeyBinding.class, remap = false)
 public class KeyBindingForgeMixin implements IKeyBindingForgeMixin {
 
-    @Shadow(aliases = "keyModifier")
+    @Shadow
     private KeyModifier keyModifier;
 
     @Override

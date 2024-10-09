@@ -12,12 +12,12 @@ public class ItemArmorMixin implements IItemArmorAPIMixin {
 
     @Mutable
     @Final
-    @Shadow(aliases = "damageReduceAmount")
+    @Shadow
     public int damageReduceAmount;
 
     @Mutable
     @Final
-    @Shadow(aliases = "toughness")
+    @Shadow
     public float toughness;
 
     @Override

@@ -39,7 +39,6 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -82,9 +81,6 @@ import noppes.npcs.util.RayTraceVec;
 public class SubGuiEditAnimation
 		extends SubGuiInterface
 		implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldListener, GuiYesNoCallback {
-
-	public static final ResourceLocation btns = new ResourceLocation(CustomNpcs.MODID, "textures/gui/animation/buttons.png");
-	public static final ResourceLocation btn_s = new ResourceLocation(CustomNpcs.MODID, "textures/gui/animation/button_slots.png");
 
 	// data
 	public static int meshType = 1;
@@ -1512,50 +1508,50 @@ public class SubGuiEditAnimation
 		this.addLabel(new GuiNpcLabel(lId++, "animation.place", x, y - 10));
 		this.addButton(new GuiButtonBiDirectional(0, x, y, 105, 10, blockNames, blockType));
 		button = new GuiNpcButton(1, x + 107, y, 17, 10, blockSizes, blockSize);
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(2, workU + 2, workV + 23, 8, 8, "");
 		button.layerColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(26, workU + 2, workV + 31, 8, 8, "");
 		button.layerColor = (ModelNpcAlt.editAnimDataSelect.showArmor ? 0xFFFF7200 : 0xFF6F3200);
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(46, workU + 2, workV + 39, 8, 8, "");
 		button.layerColor = (ModelNpcAlt.editAnimDataSelect.alpha >= 1.0f ? 0xFFFFFEBF : 0xFF787758);
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(47, workU + 2, workV + 47, 8, 8, "");
 		button.layerColor = (this.baseRotation == 0.0f || this.baseRotation == this.npcAnim.rotationYaw ? 0xFF96FFC0 : 0xFF426C53);
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 
 		// Frame
-		GuiNpcLabel lable = new GuiNpcLabel(lId++, "animation.frames", x, (y += 24) - 10);
-		this.addLabel(lable);
+		GuiNpcLabel label = new GuiNpcLabel(lId++, "animation.frames", x, (y += 24) - 10);
+		this.addLabel(label);
 		List<String> lFrames = Lists.newArrayList();
 		for (int i = 0; i < anim.frames.size(); i++) { lFrames.add((i + 1) + "/" + anim.frames.size()); }
 		this.addButton(new GuiButtonBiDirectional(3, x, y, 60, 10, lFrames.toArray(new String[0]), frame.id));
-		button = new GuiNpcButton(4, x + lable.width + 2, y - 10, 10, 10, ""); // add frame
-		button.texture = btns;
+		button = new GuiNpcButton(4, x + label.width + 2, y - 10, 10, 10, ""); // add frame
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = 96;
 		button.txrW = 24;
 		button.txrH = 24;
 		this.addButton(button);
-		button = new GuiNpcButton(5, x + lable.width + 12, y - 10, 10, 10, ""); // del frame
-		button.texture = btns;
+		button = new GuiNpcButton(5, x + label.width + 12, y - 10, 10, 10, ""); // del frame
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = 72;
 		button.txrW = 24;
@@ -1566,7 +1562,7 @@ public class SubGuiEditAnimation
 		((GuiNpcCheckBox) button).setSelected(frame.isSmooth());
 		this.addButton(button);
 		button = new GuiNpcButton(6, x + 126, y - 10, 10, 10, ""); // clear frame
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = 120;
 		button.txrW = 24;
@@ -1600,22 +1596,22 @@ public class SubGuiEditAnimation
 		}
 		this.addLabel(new GuiNpcLabel(lId++, "animation.hold.right", x + 20, y += 13));
 		button = new GuiNpcButton(37, x + 20, y += 9, 116, 10, new String[] { "animation.stack.type.0", "animation.stack.type.1", "animation.stack.type.3", "animation.stack.type.4", "animation.stack.type.5", "animation.stack.type.6", "animation.stack.type.7", "animation.stack.type.8" }, frame.getHoldRightStackType());
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		this.addLabel(new GuiNpcLabel(lId++, "animation.hold.left", x + 20, y += 10));
 		button = new GuiNpcButton(38, x + 20, y += 9, 116, 10, new String[] { "animation.stack.type.0", "animation.stack.type.1", "animation.stack.type.2", "animation.stack.type.4", "animation.stack.type.5", "animation.stack.type.6", "animation.stack.type.7", "animation.stack.type.8" }, frame.getHoldLeftStackType());
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 
 		// Part
-		lable = new GuiNpcLabel(lId++, "animation.parts", x, y += 13);
-		this.addLabel(lable);
+		label = new GuiNpcLabel(lId++, "animation.parts", x, y += 13);
+		this.addLabel(label);
 		button = new GuiNpcButton(29, workU + 2, y, 8, 8, ""); // show part names
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = 232;
 		button.txrW = 24;
@@ -1638,16 +1634,16 @@ public class SubGuiEditAnimation
 		this.scrollParts.setListNotSorted(lParts);
 		this.isHitPox = this.scrollParts.hasSelected() && this.scrollParts.getSelected().equals(this.hitBoxPartName);
 		if (this.isHitPox && this.toolType == 0) { this.toolType = 1; }
-		button = new GuiNpcButton(7, x + lable.width + 2, y, 10, 10, ""); // add part
-		button.texture = btns;
+		button = new GuiNpcButton(7, x + label.width + 2, y, 10, 10, ""); // add part
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = 96;
 		button.txrW = 24;
 		button.txrH = 24;
 		button.enabled = this.part != null;
 		this.addButton(button);
-		button = new GuiNpcButton(8, x + lable.width + 12, y, 10, 10, ""); // del part
-		button.texture = btns;
+		button = new GuiNpcButton(8, x + label.width + 12, y, 10, 10, ""); // del part
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = 72;
 		button.txrW = 24;
@@ -1655,7 +1651,7 @@ public class SubGuiEditAnimation
 		button.enabled = this.part != null && this.part.id > 11;
 		this.addButton(button);
 		button = new GuiNpcButton(9, x + 126, y, 10, 10, ""); // clear part
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = 120;
 		button.txrW = 24;
@@ -1670,7 +1666,7 @@ public class SubGuiEditAnimation
 		StringBuilder color = new StringBuilder(Integer.toHexString(CustomNpcs.colorAnimHoverPart));
 		while (color.length() < 6) { color.insert(0, "0"); }
 		button = new GuiNpcButton(12, x, y += 15, 67, 10, color.toString()); // color hover
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		button.setTextColor(CustomNpcs.colorAnimHoverPart);
@@ -1691,14 +1687,14 @@ public class SubGuiEditAnimation
 		textField = new GuiNpcTextField(3, this, x, y + 10, 135, 12, frame.getStartSound());
 		this.addTextField(textField);
 		button = new GuiNpcButton(27, x + textField.width - 17, y, 8, 8, "S");
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		button.dropShadow = false;
 		button.setTextColor(0xFFDC0000);
 		this.addButton(button);
 		button = new GuiNpcButton(28, x + textField.width - 8, y, 8, 8, "X");
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		button.dropShadow = false;
@@ -1715,14 +1711,14 @@ public class SubGuiEditAnimation
 		// Equipment
 		this.addLabel(new GuiNpcLabel(lId++, "animation.show.stacks", x, y += 26));
 		button = new GuiNpcButton(39, x + 2, y += 10, 12, 12, ""); // main hand
-		button.texture = btn_s;
+		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrY = frame.showMainHand ? 0 : 96;
 		button.txrW = 24;
 		button.txrH = 24;
 		this.addButton(button);
 		button = new GuiNpcButton(40, x + 16, y, 12, 12, ""); // offhand
-		button.texture = btn_s;
+		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrX = 24;
 		button.txrY = frame.showOffHand ? 0 : 96;
@@ -1730,7 +1726,7 @@ public class SubGuiEditAnimation
 		button.txrH = 24;
 		this.addButton(button);
 		button = new GuiNpcButton(41, x + 30, y, 12, 12, ""); // helmet
-		button.texture = btn_s;
+		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrX = 48;
 		button.txrY = frame.showHelmet ? 0 : 96;
@@ -1738,7 +1734,7 @@ public class SubGuiEditAnimation
 		button.txrH = 24;
 		this.addButton(button);
 		button = new GuiNpcButton(42, x + 44, y, 12, 12, ""); // body
-		button.texture = btn_s;
+		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrX = 72;
 		button.txrY = frame.showBody ? 0 : 96;
@@ -1746,7 +1742,7 @@ public class SubGuiEditAnimation
 		button.txrH = 24;
 		this.addButton(button);
 		button = new GuiNpcButton(43, x + 58, y, 12, 12, ""); // legs
-		button.texture = btn_s;
+		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrX = 96;
 		button.txrY = frame.showLegs ? 0 : 96;
@@ -1754,7 +1750,7 @@ public class SubGuiEditAnimation
 		button.txrH = 24;
 		this.addButton(button);
 		button = new GuiNpcButton(44, x + 72, y, 12, 12, ""); // feet's
-		button.texture = btn_s;
+		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrX = 120;
 		button.txrY = frame.showFeets ? 0 : 96;
@@ -1765,7 +1761,7 @@ public class SubGuiEditAnimation
 		if (anim.type == AnimationKind.ATTACKING) {
 			this.addLabel(new GuiNpcLabel(lId, "animation.hitbox.type", x, y += 15));
 			button = new GuiNpcButton(45, x, y + 9, 136, 10, new String[] { "animation.hitbox.0", "animation.hitbox.1", "animation.hitbox.2" }, anim.getDamageHitboxType());
-			button.texture = btns;
+			button.texture = ANIMATION_BUTTONS;
 			button.hasDefBack = false;
 			button.txrY = 96;
 			this.addButton(button);
@@ -1773,7 +1769,7 @@ public class SubGuiEditAnimation
 
 		// Exit
 		button = new GuiNpcButton(66, x, winV + winH - 12, 50, 10, "gui.back"); // back
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
@@ -1781,52 +1777,52 @@ public class SubGuiEditAnimation
 		// work
 		button = new GuiNpcButton(13, workU + 25, workV + 2, 8, 8, ""); // simple mesh
 		button.layerColor = meshType == 0 ? 0xFFD93070 : 0xFF360C1C;
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(14, workU + 34, workV + 2, 8, 8, ""); // xz mesh
 		button.layerColor = meshType == 1 ? 0xFF6830D9 : 0xFF1A0C36;
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(15, workU + 43, workV + 2, 8, 8, ""); // xY mesh
 		button.layerColor = meshType == 2 ? 0xFF30D980 : 0xFF0C3620;
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(16, workU + 52, workV + 2, 8, 8, ""); // zy mesh
 		button.layerColor = meshType == 3 ? 0xFFD7D930 : 0xFF35360C;
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(17, workU + 61, workV + 2, 8, 8, ""); // show hit box
 		button.layerColor = showHitBox ? 0 : 0xFF808080;
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 
 		button = new GuiNpcButton(18, workU + workS - 10, workV + 2, 8, 8, ""); // reset scale
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(19, workU + 2, workV + workS - 10, 8, 8, ""); // reset pos
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(20, workU + workS - 10, workV + workS - 10, 8, 8, ""); // reset rot
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrY = 96;
 		this.addButton(button);
 		button = new GuiNpcButton(21, workU + workS / 2 - 11, workV + workS - 12, 18, 10, ""); // part or anim
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = onlyCurrentPart ? 144 : 188;
 		button.txrW = 44;
@@ -1836,7 +1832,7 @@ public class SubGuiEditAnimation
 		y = workV + workS - 74;
 
 		button = new GuiNpcButton(35, workU + 5, y, 8, 8, ""); // show tools
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = 232;
 		button.txrW = 24;
@@ -1844,7 +1840,7 @@ public class SubGuiEditAnimation
 		button.enabled = this.tools == null || !this.tools.visible;
 		this.addButton(button);
 		button = new GuiNpcButton(23, workU + 2, y += 10, 14, 14, ""); // tool pos
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrW = 24;
 		button.txrH = 24;
@@ -1852,7 +1848,7 @@ public class SubGuiEditAnimation
 		button.enabled = !this.isHitPox || anim.getDamageHitboxType() == 2;
 		this.addButton(button);
 		button = new GuiNpcButton(24, workU + 2, y += 16, 14, 14, ""); // tool rot
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = 24;
 		button.txrW = 24;
@@ -1861,7 +1857,7 @@ public class SubGuiEditAnimation
 		button.enabled = !this.isHitPox;
 		this.addButton(button);
 		button = new GuiNpcButton(25, workU + 2, y + 16, 14, 14, ""); // tool scale
-		button.texture = btns;
+		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.txrX = 48;
 		button.txrW = 24;
@@ -1961,7 +1957,7 @@ public class SubGuiEditAnimation
             textField.setMinMaxDoubleDefault(m, n, datas[i]);
             this.tools.addTextField(textField);
 			button = new GuiNpcButton(30 + i, x + 130, y + i * f, 8, 8, "X");
-			button.texture = btns;
+			button.texture = ANIMATION_BUTTONS;
 			button.hasDefBack = false;
 			button.txrY = 96;
 			button.dropShadow = false;
@@ -1978,7 +1974,7 @@ public class SubGuiEditAnimation
 			textField.setMinMaxDoubleDefault(0.0d, 360.0d, value);
 			this.tools.addTextField(textField);
 			button = new GuiNpcButton(33, x + 130, y, 8, 8, "X");
-			button.texture = btns;
+			button.texture = ANIMATION_BUTTONS;
 			button.hasDefBack = false;
 			button.txrY = 96;
 			button.dropShadow = false;
@@ -1994,7 +1990,7 @@ public class SubGuiEditAnimation
 			textField.setMinMaxDoubleDefault(90.0d, 270.0d, value);
 			this.tools.addTextField(textField);
 			button = new GuiNpcButton(34, x + 130, y, 8, 8, "X");
-			button.texture = btns;
+			button.texture = ANIMATION_BUTTONS;
 			button.hasDefBack = false;
 			button.txrY = 96;
 			button.dropShadow = false;

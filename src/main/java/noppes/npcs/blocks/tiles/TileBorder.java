@@ -34,7 +34,7 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 		this.rotation = 0;
 		this.height = 10;
 		this.creative = false;
-		this.message = "availability.areaNotAvailble";
+		this.message = "availability.areaNotAvailable";
 	}
 
 	public boolean apply(Object ob) {

@@ -12,7 +12,7 @@ import java.io.File;
 public class AbstractResourcePackMixin implements IAbstractResourcePackMixin {
 
     @Final
-    @Shadow(aliases = "resourcePackFile")
+    @Shadow
     protected File resourcePackFile;
 
     @Override

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class DefaultResourcePackMixin implements IDefaultResourcePackMixin {
 
     @Final
-    @Shadow(aliases = "resourceIndex")
+    @Shadow
     private ResourceIndex resourceIndex;
 
     @Override

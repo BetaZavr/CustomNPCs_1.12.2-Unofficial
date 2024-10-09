@@ -13,12 +13,12 @@ import org.spongepowered.asm.mixin.Shadow;
 public class ModelBoxMixin implements IModelBoxMixin {
 
     @Final
-    @Shadow(aliases = "vertexPositions")
+    @Shadow
     private PositionTextureVertex[] vertexPositions;
 
     @Mutable
     @Final
-    @Shadow(aliases = "quadList")
+    @Shadow
     protected TexturedQuad[] quadList;
 
 

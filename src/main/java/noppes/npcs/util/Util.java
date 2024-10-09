@@ -86,6 +86,7 @@ import noppes.npcs.items.CustomArmor;
 import noppes.npcs.mixin.entity.ai.IEntitySensesMixin;
 import noppes.npcs.mixin.nbt.INBTTagLongArrayMixin;
 import noppes.npcs.mixin.world.IWorldMixin;
+import org.apache.commons.io.IOUtils;
 
 public class Util implements IMethods {
 
@@ -705,8 +706,7 @@ public class Util implements IMethods {
 			}
 			return false;
 		}
-		RayTraceResults rtrs = Util.instance.rayTraceBlocksAndEntitys(entity, rtr.yaw, rtr.pitch,
-				rtr.distance);
+		RayTraceResults rtrs = Util.instance.rayTraceBlocksAndEntitys(entity, rtr.yaw, rtr.pitch, rtr.distance);
 		if (rtrs != null) {
 			if (toShoot && rtrs.entitys.length > 0) {
 				double d = Util.instance.distanceTo(entity, target);
@@ -1172,7 +1172,7 @@ public class Util implements IMethods {
 		LogWriter.info("Getting a list of mod files by key \"" + fileName + "\"");
 		InputStream inputStream = null;
 		for (ModContainer mod : Loader.instance().getModList()) {
-			if (mod.getSource().exists() && mod.getSource().getName().equals(CustomNpcs.MODID) || mod.getSource().getName().endsWith("bin") || mod.getSource().getName().endsWith("main")) {
+			if (mod.getSource().exists() && (mod.getModId().equals(CustomNpcs.MODID) || mod.getSource().getName().endsWith("bin") || mod.getSource().getName().endsWith("main"))) {
 				if (!mod.getSource().isDirectory() && (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
 					try {
 						ZipFile zip = new ZipFile(mod.getSource());
@@ -1185,6 +1185,12 @@ public class Util implements IMethods {
 							inputStream = zip.getInputStream(zipentry);
 							break;
 						}
+						// java.util.zip.ZipFile.ZipFileInflaterInputStream -> java.io.ByteArrayInputStream
+						if (inputStream != null) {
+							InputStream copyStream = new ByteArrayInputStream(IOUtils.toByteArray(inputStream));
+							IOUtils.closeQuietly(inputStream);
+							inputStream = copyStream;
+						}
 						zip.close();
 					} catch (Exception e) { LogWriter.error("Error:", e); }
 				} else {
@@ -1193,11 +1199,13 @@ public class Util implements IMethods {
 						if (!file.isFile() || !file.getName().equals(fileName)) { continue; }
 						try {
 							inputStream = Files.newInputStream(file.toPath());
-						} catch (Exception e) { LogWriter.error("Error:", e); }
+						}
+						catch (Exception e) { LogWriter.error("Error:", e); }
 						break;
 					}
 				}
 			}
+			if (inputStream != null) { break; }
 		}
 		return inputStream;
 	}
@@ -1247,15 +1255,17 @@ public class Util implements IMethods {
 	public String getDataFile(String fileName) {
 		if (fileName == null) { return ""; }
 		LogWriter.info("Trying to get text from mod data file \"" + fileName + "\"");
-		InputStream inputStream = this.getModInputStream(fileName);
+		InputStream inputStream = getModInputStream(fileName);
 		String text = "";
 		try {
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
 			byte[] buffer = new byte[1024];
-			for (int length; (length = inputStream.read(buffer)) != -1; ) { result.write(buffer, 0, length); }
+			for (int length; (length = inputStream.read(buffer)) != -1; ) {
+				result.write(buffer, 0, length);
+			}
 			text = result.toString("UTF-8");
 		}
-		catch (IOException e) { LogWriter.error("Error get text from mod data file: \"" + fileName + "\"; InputStream: " + inputStream, e); }
+		catch (Exception e) { LogWriter.error("Error get text from mod data file: \"" + fileName + "\"; InputStream: " + inputStream, e); }
 		return text;
 	}
 
@@ -1781,28 +1791,6 @@ public class Util implements IMethods {
         	}
         }
 		return target;
-	}
-
-    public String[] getAgreementKeyHover(String worldName) {
-		if (worldName == null) { return null; }
-		List<String> list = Lists.newArrayList();
-		int i = 0;
-		for (String str : worldName.split("/")) {
-			switch (i) {
-				case 0: list.add(((char) 167) + "7World Name: \"" + ((char) 167) + "r" + str + ((char) 167) + "7\";"); break;
-				case 1: list.add(((char) 167) + "7Commands Allowed: " + ((char) 167) + "6" + str + ((char) 167) + "7;"); break;
-				case 2: list.add(((char) 167) + "7Seed: " + ((char) 167) + "a" + str + ((char) 167) + "7;"); break;
-				case 3: list.add(((char) 167) + "7Connection Name: \"" + ((char) 167) + "r" + str + ((char) 167) + "7\";"); break;
-				case 4: {
-					String[] ipP = str.split(":");
-					list.add(((char) 167) + "7IP and port: " + ((char) 167) + "e" + ipP[0] + ((char) 167) + "r:" + ((char) 167) + "9" + ipP[1] + ((char) 167) + "7;");
-					break;
-				}
-			}
-			i++;
-		}
-		if (i == 3) { list.add(((char) 167) + "7Is single or local player"); }
-		return list.toArray(new String[0]);
 	}
 
 }

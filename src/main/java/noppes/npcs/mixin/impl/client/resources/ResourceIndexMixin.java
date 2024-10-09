@@ -13,7 +13,7 @@ import java.util.Map;
 public class ResourceIndexMixin implements IResourceIndexMixin {
 
     @Final
-    @Shadow(aliases = "resourceMap")
+    @Shadow
     private Map<String, File> resourceMap;
 
     @Override

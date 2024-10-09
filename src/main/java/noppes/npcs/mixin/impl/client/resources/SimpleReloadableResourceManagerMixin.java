@@ -13,7 +13,7 @@ import java.util.Map;
 public class SimpleReloadableResourceManagerMixin implements ISimpleReloadableResourceManagerMixin  {
 
     @Final
-    @Shadow(aliases = "domainResourceManagers")
+    @Shadow
     private Map<String, FallbackResourceManager> domainResourceManagers;
 
     @Override

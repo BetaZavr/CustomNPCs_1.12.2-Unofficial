@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class EntityTrackerMixin implements IEntityTrackerMixin {
 
     @Final
-    @Shadow(aliases = "trackedEntityHashTable")
+    @Shadow
     private IntHashMap<EntityTrackerEntry> trackedEntityHashTable;
 
     @Override

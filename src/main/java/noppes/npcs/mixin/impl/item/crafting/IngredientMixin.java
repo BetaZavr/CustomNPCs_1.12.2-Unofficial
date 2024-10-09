@@ -10,11 +10,15 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = Ingredient.class)
 public class IngredientMixin implements IIngredientMixin {
 
+    /*
+     * matchingStacks - source items for customizing ingredients
+     * matchingStacksExploded - ingredient items used in crafting
+     */
     @Final
-    @Shadow(aliases = "matchingStacks")
+    @Shadow
     private ItemStack[] matchingStacks;
 
     @Override
-    public ItemStack[] npcs$getMatchingStacks() { return matchingStacks; }
+    public ItemStack[] npcs$getRawMatchingStacks() { return matchingStacks; }
 
 }

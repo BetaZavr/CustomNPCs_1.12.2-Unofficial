@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class ItemToolMixin implements IItemToolMixin {
 
     @Mutable
-    @Shadow(aliases = "toolClass")
+    @Shadow
     private String toolClass;
 
     @Override

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class ModelRendererMixin implements IModelRendererMixin {
 
     @Final
-    @Shadow(aliases = "baseModel")
+    @Shadow
     private ModelBase baseModel;
 
     @Override

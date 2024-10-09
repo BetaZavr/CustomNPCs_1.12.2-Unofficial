@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class SoundEventMixin implements ISoundEventMixin {
 
     @Final
-    @Shadow(aliases = "soundName")
+    @Shadow
     private ResourceLocation soundName;
 
     @Override

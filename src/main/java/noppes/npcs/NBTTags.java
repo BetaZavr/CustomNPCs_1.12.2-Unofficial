@@ -13,6 +13,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.mixin.item.crafting.IIngredientMixin;
 
 public class NBTTags {
 
@@ -44,9 +45,16 @@ public class NBTTags {
 	public static NonNullList<Ingredient> getIngredientList(NBTTagList tagList) {
 		NonNullList<Ingredient> list = NonNullList.create();
 		for (int i = 0; i < tagList.tagCount(); ++i) {
-			NBTTagCompound nbtStack = tagList.getCompoundTagAt(i);
-			list.add(nbtStack.getByte("Slot") & 0xFF,
-					Ingredient.fromStacks(new ItemStack(nbtStack)));
+			NBTTagCompound nbttagcompound = tagList.getCompoundTagAt(i);
+			// new
+			if (nbttagcompound.hasKey("Ingredients", 9) && ((NBTTagList) nbttagcompound.getTag("Ingredients")).getTagType() == 10) {
+				NBTTagList ingredients = nbttagcompound.getTagList("Ingredients", 10);
+				List<ItemStack> ings = new ArrayList<>();
+				for (int j = 0; j < ingredients.tagCount(); j++) { ings.add(new ItemStack(ingredients.getCompoundTagAt(j))); }
+				list.add(nbttagcompound.getByte("Slot") & 0xFF, Ingredient.fromStacks(ings.toArray(new ItemStack[0])));
+			}
+			// old
+			else { list.add(nbttagcompound.getByte("Slot") & 0xFF, Ingredient.fromStacks(new ItemStack(nbttagcompound))); }
 		}
 		return list;
 	}
@@ -200,9 +208,12 @@ public class NBTTags {
 			Ingredient ingredient = inventory.get(slot);
 			NBTTagCompound nbttagcompound = new NBTTagCompound();
 			nbttagcompound.setByte("Slot", (byte) slot);
-			if (ingredient.getMatchingStacks().length > 0) {
-				ingredient.getMatchingStacks()[0].writeToNBT(nbttagcompound);
-			}
+				NBTTagList ingredients = new NBTTagList();
+				ItemStack[] ings = ((IIngredientMixin) ingredient).npcs$getRawMatchingStacks();
+				for (ItemStack ing : ings) {
+					ingredients.appendTag(ing.writeToNBT(new NBTTagCompound()));
+				}
+			nbttagcompound.setTag("Ingredients", ingredients);
 			nbttaglist.appendTag(nbttagcompound);
 		}
 		return nbttaglist;

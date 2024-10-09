@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = EntityVillager.class)
 public class EntityVillagerMixin implements IEntityVillagerMixin {
 
-    @Shadow(aliases = "careerId")
+    @Shadow
     private int careerId;
 
     @Override

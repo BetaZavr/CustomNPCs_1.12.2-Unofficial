@@ -12,11 +12,11 @@ import org.spongepowered.asm.mixin.Shadow;
 public class BlockRendererDispatcherMixin implements IBlockRendererDispatcherMixin {
 
     @Final
-    @Shadow(aliases = "blockModelRenderer")
+    @Shadow
     private BlockModelRenderer blockModelRenderer;
 
     @Final
-    @Shadow(aliases = "chestRenderer")
+    @Shadow
     private ChestRenderer chestRenderer;
 
     @Override

@@ -13,7 +13,7 @@ import java.util.Set;
 public class ServerScoreboardMixin implements IServerScoreboardMixin {
 
     @Final
-    @Shadow(aliases = "addedObjectives")
+    @Shadow
     private Set<ScoreObjective> addedObjectives;
 
     @Override

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class I18nMixin implements II18nMixin {
 
     @Final
-    @Shadow(aliases = "localizedName")
+    @Shadow
     private static LanguageMap localizedName;
 
     @Override

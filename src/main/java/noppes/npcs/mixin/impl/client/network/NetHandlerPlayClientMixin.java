@@ -14,7 +14,7 @@ import java.util.UUID;
 public class NetHandlerPlayClientMixin implements INetHandlerPlayClientMixin {
 
     @Final
-    @Shadow(aliases = "playerInfoMap")
+    @Shadow
     private Map<UUID, NetworkPlayerInfo> playerInfoMap;
 
     @Override

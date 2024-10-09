@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = EntityPlayerMP.class)
 public class EntityPlayerMPMixin implements IEntityPlayerMPMixin {
 
-    @Shadow(aliases = "language")
+    @Shadow
     private String language;
 
     @Override

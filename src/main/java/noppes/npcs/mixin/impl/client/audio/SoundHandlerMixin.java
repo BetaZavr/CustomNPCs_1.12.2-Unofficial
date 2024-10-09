@@ -12,11 +12,11 @@ import org.spongepowered.asm.mixin.Shadow;
 public class SoundHandlerMixin implements ISoundHandlerMixin {
 
     @Final
-    @Shadow(aliases = "models")
+    @Shadow
     private SoundManager sndManager;
 
     @Final
-    @Shadow(aliases = "soundRegistry")
+    @Shadow
     private SoundRegistry soundRegistry;
 
     @Override

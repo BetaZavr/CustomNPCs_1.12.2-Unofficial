@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class ParticleSmokeNormalMixin implements IParticleSmokeNormalMixin {
 
     @Mutable
-    @Shadow(aliases = "smokeParticleScale")
+    @Shadow
     float smokeParticleScale;
 
     @Override

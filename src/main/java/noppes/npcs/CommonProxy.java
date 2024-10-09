@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.util.RecipeBookClient;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -442,7 +441,7 @@ public class CommonProxy implements IGuiHandler {
 				return new ContainerNpcQuestRewardItem(x);
 			} // New
 			case ManageRecipes: {
-				return new ContainerManageRecipes(player, x);
+				return new ContainerManageRecipes(player);
 			} // Change
 			case ManageBanks: {
 				return new ContainerManageBanks(player);

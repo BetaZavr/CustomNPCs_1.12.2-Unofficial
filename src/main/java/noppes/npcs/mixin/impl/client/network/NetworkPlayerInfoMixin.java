@@ -12,7 +12,7 @@ import java.util.Map;
 @Mixin(value = NetworkPlayerInfo.class)
 public class NetworkPlayerInfoMixin implements INetworkPlayerInfoMixin {
 
-    @Shadow(aliases = "playerTextures")
+    @Shadow
     Map<MinecraftProfileTexture.Type, ResourceLocation> playerTextures;
 
     @Override

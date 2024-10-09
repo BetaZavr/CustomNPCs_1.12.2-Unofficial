@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = EntityAITasks.class)
 public class EntityAITasksMixin implements IEntityAITasksMixin {
 
-    @Shadow(aliases = "tickRate")
+    @Shadow
     private int tickRate;
 
     @Override

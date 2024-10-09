@@ -14,7 +14,7 @@ import java.util.Map;
 public class TextureManagerMixin implements ITextureManagerMixin {
 
     @Final
-    @Shadow(aliases = "mapTextureObjects")
+    @Shadow
     private Map<ResourceLocation, ITextureObject> mapTextureObjects;
 
     @Override

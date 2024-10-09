@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = NBTTagLongArray.class)
 public class NBTTagLongArrayMixin implements INBTTagLongArrayMixin {
 
-    @Shadow(aliases = "data")
+    @Shadow
     private long[] data;
 
     @Override

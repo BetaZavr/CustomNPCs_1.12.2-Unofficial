@@ -17,7 +17,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.NoppesUtilServer;
 
+// Displaying a crafting item from a recipe in the GUI Recipes window
 @SideOnly(Side.CLIENT)
 public class NpcGuiButtonRecipe extends GuiButtonRecipe {
 
@@ -65,10 +68,20 @@ public class NpcGuiButtonRecipe extends GuiButtonRecipe {
         this.currentIndex = MathHelper.floor(this.time / 30.0F) % list.size();
         ItemStack itemstack = (list.get(this.currentIndex)).getRecipeOutput();
         int k = 4;
-        if (this.list.hasSingleResultItem() && this.getOrderedRecipes().size() > 1) {
-            mc.getRenderItem().renderItemAndEffectIntoGUI(itemstack, this.x + k + 1, this.y + k + 1);
-            GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-            --k;
+        if (list.size() > 1) {
+            ItemStack itemstack1 = list.get(0).getRecipeOutput();
+            for (IRecipe rec : list) {
+                ItemStack stack = rec.getRecipeOutput();
+                if (!NoppesUtilServer.IsItemStackNull(stack) && !NoppesUtilPlayer.compareItems(itemstack, stack, false, false)) {
+                    itemstack1 = stack;
+                    break;
+                }
+            }
+            if (!NoppesUtilServer.IsItemStackNull(itemstack1) && !NoppesUtilPlayer.compareItems(itemstack, itemstack1, false, false)) {
+                mc.getRenderItem().renderItemAndEffectIntoGUI(itemstack1, this.x + k + 1, this.y + k + 1);
+                GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+                --k;
+            }
         }
         mc.getRenderItem().renderItemAndEffectIntoGUI(itemstack, this.x + k, this.y + k);
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -119,7 +132,7 @@ public class NpcGuiButtonRecipe extends GuiButtonRecipe {
     }
 
     public boolean isOnlyOption() {
-        return this.getOrderedRecipes().size() == 1;
+        return false; //this.getOrderedRecipes().size() == 1;
     }
 
 }

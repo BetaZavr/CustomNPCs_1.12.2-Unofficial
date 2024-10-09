@@ -1,22 +1,14 @@
 package noppes.npcs.client.gui.global;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-import com.google.common.collect.Lists;
-
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Slot;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.handler.data.INpcRecipe;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.ClientProxy;
-import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -26,123 +18,117 @@ import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerManageRecipes;
+import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
-import noppes.npcs.util.CustomNPCsScheduler;
 
-import javax.annotation.Nonnull;
+public class GuiNPCManageRecipes
+extends GuiContainerNPCInterface2
+implements ICustomScrollListener, ISubGuiListener {
 
-public class GuiNPCManageRecipes extends GuiContainerNPCInterface2
-		implements IGuiData, ICustomScrollListener, ISubGuiListener {
-
-	private final ContainerManageRecipes container;
-	private List<String> dataGroup;
-	private List<String> dataRecipe;
+    private final List<String> dataGroup = new ArrayList<>();
+	private final List<String> dataRecipe = new ArrayList<>();
 	private GuiCustomScroll groups;
 	private GuiCustomScroll recipes;
-	private boolean wait;
+	private INpcRecipe recipe = null;
+	private String selGroup = "default_group";
+	private String selName = "default_name";
+	private boolean isGlobal = true;
+	private boolean wait = false;
 
 	public GuiNPCManageRecipes(EntityNPCInterface npc, ContainerManageRecipes container) {
 		super(npc, container);
-		this.dataGroup = new ArrayList<>();
-		this.dataRecipe = new ArrayList<>();
-		if (ClientProxy.recipeGroup == null) {
-			ClientProxy.recipeGroup = "";
-		}
-		if (ClientProxy.recipeName == null) {
-			ClientProxy.recipeName = "";
-		}
-		this.container = container;
-		this.drawDefaultBackground = false;
-		this.setBackground("inventorymenu.png");
-		this.ySize = 200;
-		this.wait = true;
-		Client.sendData(EnumPacketServer.RecipesGet, container.width, ClientProxy.recipeGroup, ClientProxy.recipeName);
+        drawDefaultBackground = false;
+		setBackground("inventorymenu.png");
+		ySize = 200;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
+		if (button.id >= 10) {
+			ItemStack holdStack = player.inventory.getCurrentItem();
+			List<ItemStack> list = button.getStacks();
+			System.out.println("CNPCs: "+holdStack);
+			System.out.println("CNPCs: "+list);
+			return;
+		}
 		switch (button.id) {
-			case 0: {
+			case 0: { // global type
 				this.save();
-				ClientProxy.recipeGroup = "";
-				ClientProxy.recipeName = "";
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, this.container.width == 3 ? 4 : 3, 0, 0);
+				isGlobal = button.getValue() == 0;
+				selGroup = "default_group";
+				selName = "default_name";
+				initGui();
 				break;
 			}
 			case 1: { // Add Group
-				this.setSubGui(new SubGuiEditText(0, new String[] { ClientProxy.recipeGroup }));
+				this.setSubGui(new SubGuiEditText(0, new String[] { selGroup }));
 				break;
 			}
 			case 2: { // Del Group
-				Client.sendData(EnumPacketServer.RecipeRemoveGroup, this.container.width, ClientProxy.recipeGroup);
-				ClientProxy.recipeGroup = "";
-				ClientProxy.recipeName = "";
-				this.wait = true;
+				Client.sendData(EnumPacketServer.RecipeRemoveGroup, isGlobal, selGroup);
+				selGroup = "default_group";
+				selName = "default_name";
+				wait = true;
 				break;
 			}
 			case 3: { // Add Recipe
-				this.setSubGui(new SubGuiEditText(1, new String[] { ClientProxy.recipeName }));
+				this.setSubGui(new SubGuiEditText(1, new String[] { selName }));
 				break;
 			}
 			case 4: { // Del Recipe
-				Client.sendData(EnumPacketServer.RecipeRemove, this.container.width, ClientProxy.recipeGroup,
-						ClientProxy.recipeName);
-				ClientProxy.recipeName = "";
-				this.wait = true;
+				Client.sendData(EnumPacketServer.RecipeRemove, isGlobal, selGroup, selName);
+				selName = "default_name";
+				wait = true;
 				break;
 			}
 			case 5: { // ignore Meta
-				this.container.recipe.setIgnoreDamage(button.getValue() == 1);
-				this.initGui();
+				recipe.setIgnoreDamage(button.getValue() == 1);
+				initGui();
 				break;
 			}
 			case 6: { // ignore NBT
-				this.container.recipe.setIgnoreNBT(button.getValue() == 1);
-				this.initGui();
+				recipe.setIgnoreNBT(button.getValue() == 1);
+				initGui();
 				break;
 			}
 			case 7: { // know
-				this.container.recipe.setKnown(button.getValue() == 1);
-				this.initGui();
+				recipe.setKnown(button.getValue() == 1);
+				initGui();
 				break;
 			}
 			case 8: { // availability
-				this.setSubGui(new SubGuiNpcAvailability((Availability) this.container.recipe.getAvailability()));
-				this.initGui();
+				setSubGui(new SubGuiNpcAvailability((Availability) recipe.getAvailability()));
 				break;
 			}
-			case 9: { // shaped
+			case 9: { // replace shaped <-> shapeless
 				INpcRecipe rec;
-				if (this.container.recipe.isShaped()) {
-					NpcShapedRecipes recipe = (NpcShapedRecipes) this.container.recipe;
-					rec = new NpcShapelessRecipes(recipe.getNpcGroup(), recipe.name, recipe.recipeItems, recipe.getRecipeOutput());
+				if (recipe.isShaped()) {
+					NpcShapedRecipes recipe = (NpcShapedRecipes) this.recipe;
+					rec = new NpcShapelessRecipes(recipe.getNpcGroup(), recipe.name, recipe.isGlobal(), recipe.recipeItems, recipe.getRecipeOutput());
 					((NpcShapelessRecipes) rec).known = recipe.known;
 					((NpcShapelessRecipes) rec).availability = recipe.availability;
-					((NpcShapelessRecipes) rec).global = recipe.global;
 					((NpcShapelessRecipes) rec).ignoreDamage = recipe.ignoreDamage;
 					((NpcShapelessRecipes) rec).ignoreNBT = recipe.ignoreNBT;
 					((NpcShapelessRecipes) rec).savesRecipe = recipe.savesRecipe;
 				} else {
-					NpcShapelessRecipes recipe = (NpcShapelessRecipes) this.container.recipe;
-					rec = new NpcShapedRecipes(recipe.getNpcGroup(), recipe.name, recipe.global ? 3 : 4, recipe.global ? 3 : 4, recipe.recipeItems, recipe.getRecipeOutput());
+					NpcShapelessRecipes recipe = (NpcShapelessRecipes) this.recipe;
+					rec = new NpcShapedRecipes(recipe.getNpcGroup(), recipe.name, recipe.isGlobal(), recipe.recipeItems, recipe.getRecipeOutput());
 					((NpcShapedRecipes) rec).known = recipe.known;
 					((NpcShapedRecipes) rec).availability = recipe.availability;
-					((NpcShapedRecipes) rec).global = recipe.global;
 					((NpcShapedRecipes) rec).ignoreDamage = recipe.ignoreDamage;
 					((NpcShapedRecipes) rec).ignoreNBT = recipe.ignoreNBT;
 					((NpcShapedRecipes) rec).savesRecipe = recipe.savesRecipe;
 				}
-				this.container.recipe = rec;
-				this.initGui();
+				this.recipe = rec;
+				initGui();
 				break;
 			}
 			default: {
@@ -153,27 +139,12 @@ public class GuiNPCManageRecipes extends GuiContainerNPCInterface2
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int x, int y) {
 		super.drawGuiContainerBackgroundLayer(f, x, y);
-
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
-		for (int i = 0; i < this.container.width; ++i) {
-			for (int j = 0; j < this.container.width; ++j) {
-				this.drawTexturedModalRect(this.guiLeft + i * 18 + 7, this.guiTop + j * 18 + 34, 0, 0, 18, 18);
-			}
-		}
-		this.drawTexturedModalRect(this.guiLeft + 86, this.guiTop + 60, 0, 0, 18, 18);
-		if (ClientProxy.recipeName.isEmpty()) {
-			GlStateManager.color(0.75f, 0.0f, 0.75f, 0.5f);
-			Gui.drawRect(this.guiLeft + 8, this.guiTop + 35, this.guiLeft + this.container.width * 18 + 6,
-					this.guiTop + this.container.width * 18 + 33, 0x30C000C0);
-			Gui.drawRect(this.guiLeft + 87, this.guiTop + 61, this.guiLeft + 103, this.guiTop + 77, 0x30C000C0);
-		}
 	}
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
-		if (this.wait) {
-			this.drawWait();
+		if (wait) {
+			drawWait();
 			return;
 		}
 		super.drawScreen(i, j, f);
@@ -213,108 +184,162 @@ public class GuiNPCManageRecipes extends GuiContainerNPCInterface2
 	}
 
 	@Override
-	protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
-		super.handleMouseClick(slotIn, slotId, mouseButton, type);
-		CustomNPCsScheduler.runTack(() -> {
-			if (slotId >= 0) {
-				this.initGui();
-			}
-		}, 200);
-	}
-
-	@Override
 	public void initGui() {
 		super.initGui();
-		this.wait = false;
-		this.addLabel(new GuiNpcLabel(0, "gui.recipe.groups", this.guiLeft + 172, this.guiTop + 8));
-		this.addLabel(new GuiNpcLabel(1, "gui.recipe.crafts", this.guiLeft + 294, this.guiTop + 8));
-		if (ClientProxy.recipeGroup == null) {
-			ClientProxy.recipeGroup = "";
+		wait = false;
+		if (recipe != null && recipe.isGlobal() != isGlobal) { recipe = null; }
+
+		RecipeController rData = RecipeController.getInstance();
+		dataGroup.clear();
+		dataRecipe.clear();
+
+		Map<String, List<INpcRecipe>> data = rData.getRecipes(isGlobal);
+        dataGroup.addAll(data.keySet());
+		if (selGroup.isEmpty() || !data.containsKey(selGroup)) {
+			for (String group : data.keySet()) {
+				selGroup = group;
+				selName = "default_name";
+				break;
+			}
 		}
-		if (ClientProxy.recipeName == null) {
-			ClientProxy.recipeName = "";
+		if (!data.containsKey(selGroup)) { selName = "default_name"; }
+		else {
+			for (INpcRecipe rec : data.get(selGroup)) {
+				if (rec == null) { continue; }
+				dataRecipe.add(rec.getName());
+				break;
+			}
+			if (!selName.isEmpty()) {
+				boolean found = false;
+				for (INpcRecipe rec : data.get(selGroup)) {
+					if (rec == null || !rec.getName().equals(selName)) { continue; }
+					found = true;
+					break;
+				}
+				if (!found) { selName = "default_name"; }
+			}
 		}
-		// New
-		if (this.groups == null) {
-			this.groups = new GuiCustomScroll(this, 0);
+		if (data.containsKey(selGroup) && selName.isEmpty()) {
+			for (INpcRecipe rec : data.get(selGroup)) {
+				if (rec == null) { continue; }
+				selName = rec.getName();
+				break;
+			}
 		}
-		if (this.recipes == null) {
-			this.recipes = new GuiCustomScroll(this, 1);
+		recipe = null;
+		if (dataGroup.contains(selGroup) && dataRecipe.contains(selName)) {
+			for (INpcRecipe rec : data.get(selGroup)) {
+				if (rec == null || !rec.getName().equals(selName)) { continue; }
+				recipe = rec;
+				break;
+			}
 		}
 
-		this.groups.setSize(120, 168);
-		this.groups.guiLeft = this.guiLeft + 172;
-		this.groups.guiTop = this.guiTop + 20;
-		this.addScroll(this.groups);
+		this.addLabel(new GuiNpcLabel(0, "gui.recipe.groups", guiLeft + 172, guiTop + 8));
+		this.addLabel(new GuiNpcLabel(1, "gui.recipe.crafts", guiLeft + 294, guiTop + 8));
+		if (groups == null) { groups = new GuiCustomScroll(this, 0); }
+		if (recipes == null) { recipes = new GuiCustomScroll(this, 1); }
+		groups.setListNotSorted(dataGroup);
+		groups.setSize(120, 168);
+		groups.guiLeft = guiLeft + 172;
+		groups.guiTop = guiTop + 20;
+		addScroll(groups);
+		if (!selGroup.isEmpty()) { groups.setSelected(selGroup); }
 
-		this.recipes.setSize(120, 168);
-		this.recipes.guiLeft = this.guiLeft + 294;
-		this.recipes.guiTop = this.guiTop + 20;
-		this.addScroll(this.recipes);
+		recipes.setListNotSorted(dataRecipe);
+		recipes.setSize(120, 168);
+		recipes.guiLeft = guiLeft + 294;
+		recipes.guiTop = guiTop + 20;
+		addScroll(recipes);
+		if (!selName.isEmpty()) { recipes.setSelected(selName); }
 
-		int y = this.guiTop + 191;
-		GuiButtonBiDirectional type = new GuiButtonBiDirectional(0, this.guiLeft + 6, y, 120, 20,
-				new String[] { "menu.global", "tile.npccarpentybench.name" }, this.container.width == 3 ? 0 : 1);
-		type.layerColor = this.container.width == 3 ? 0x4000FF00 : 0x400000FF;
+		int y = guiTop + 191;
+		GuiButtonBiDirectional type = new GuiButtonBiDirectional(0, this.guiLeft + 6, y, 163, 20, new String[] { "menu.global", "tile.npccarpentybench.name" }, isGlobal ? 0 : 1);
+		type.layerColor = isGlobal ? 0x4000FF00 : 0x400000FF;
 		this.addButton(type);
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 172, y, 59, 20, "gui.add"));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 234, y, 59, 20, "gui.remove"));
-		this.getButton(2).setEnabled(!ClientProxy.recipeGroup.isEmpty());
+		this.getButton(2).setEnabled(groups.hasSelected());
+
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 294, y, 59, 20, "gui.add"));
 		this.addButton(new GuiNpcButton(4, this.guiLeft + 356, y, 59, 20, "gui.remove"));
-		this.getButton(4).setEnabled(!ClientProxy.recipeName.isEmpty());
+		this.getButton(4).setEnabled(recipes.hasSelected());
 
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 114, this.guiTop + 68, 50, 20,
-				new String[] { "gui.ignoreDamage.0", "gui.ignoreDamage.1" },
-				this.container.recipe.getIgnoreDamage() ? 1 : 0)); // Changed
-		this.addButton(new GuiNpcButton(6, this.guiLeft + 114, this.guiTop + 90, 50, 20,
-				new String[] { "gui.ignoreNBT.0", "gui.ignoreNBT.1" }, this.container.recipe.getIgnoreNBT() ? 1 : 0)); // Changed
-		this.addButton(new GuiNpcButton(7, this.guiLeft + 114, this.guiTop + 46, 50, 20,
-				new String[] { "gui.known.0", "gui.known.1" }, this.container.recipe.isKnown() ? 1 : 0)); // New
-		this.addLabel(new GuiNpcLabel(2, "availability.options", this.guiLeft + 6, this.guiTop + 9)); // New
-		this.addButton(new GuiNpcButton(8, this.guiLeft + 114, this.guiTop + 4, 50, 20, "selectServer.edit")); // New
-		this.addButton(new GuiNpcButton(9, this.guiLeft + 114, this.guiTop + 25, 50, 20,
-				new String[] { "gui.shaped.0", "gui.shaped.1" }, this.container.recipe.isShaped() ? 1 : 0)); // New
-		this.getButton(5).setVisible(!ClientProxy.recipeGroup.isEmpty());
-		this.getButton(6).setVisible(!ClientProxy.recipeGroup.isEmpty());
-		this.getButton(7).setVisible(!ClientProxy.recipeGroup.isEmpty());
-		this.getLabel(2).enabled = !ClientProxy.recipeGroup.isEmpty();
-		this.getButton(8).setVisible(!ClientProxy.recipeGroup.isEmpty());
-		this.getButton(9).setVisible(!ClientProxy.recipeGroup.isEmpty());
-		boolean hasItem = !ClientProxy.recipeGroup.isEmpty();
-		if (hasItem && this.container.width > 0 && this.container.getSlot(0).getHasStack()) {
-			hasItem = false;
-			for (int i = 1; i <= this.container.width * this.container.width; i++) {
-				if (this.container.getSlot(i).getHasStack()) {
-					hasItem = true;
-					break;
-				}
-			}
-		} else {
-			hasItem = false;
-		}
+		this.addButton(new GuiNpcButton(5, this.guiLeft + 114, this.guiTop + 68, 50, 20, new String[] { "gui.ignoreDamage.0", "gui.ignoreDamage.1" }, recipe != null && recipe.getIgnoreDamage() ? 1 : 0));
+		this.addButton(new GuiNpcButton(6, this.guiLeft + 114, this.guiTop + 90, 50, 20, new String[] { "gui.ignoreNBT.0", "gui.ignoreNBT.1" }, recipe != null && recipe.getIgnoreNBT() ? 1 : 0));
+		this.addButton(new GuiNpcButton(7, this.guiLeft + 114, this.guiTop + 46, 50, 20, new String[] { "gui.known.0", "gui.known.1" }, recipe != null && recipe.isKnown() ? 1 : 0));
+		this.addLabel(new GuiNpcLabel(2, "availability.options", this.guiLeft + 6, this.guiTop + 9));
+		this.addButton(new GuiNpcButton(8, this.guiLeft + 114, this.guiTop + 4, 50, 20, "selectServer.edit"));
+		this.addButton(new GuiNpcButton(9, this.guiLeft + 114, this.guiTop + 25, 50, 20, new String[] { "gui.shaped.0", "gui.shaped.1" }, recipe != null && recipe.isShaped() ? 1 : 0));
+		this.getButton(5).setVisible(recipe != null);
+		this.getButton(6).setVisible(recipe != null);
+		this.getButton(7).setVisible(recipe != null);
+		this.getLabel(2).enabled = recipe != null;
+		this.getButton(8).setVisible(recipe != null);
+		this.getButton(9).setVisible(recipe != null);
+		boolean hasItem = recipe != null;
+		int green = 0xFF70F070;
+		int red = 0xFFF07070;
+
 		this.getButton(3).setEnabled(hasItem);
-		this.getButton(3).layerColor = hasItem ? 0xFF70F070 : 0;
+		this.getButton(3).layerColor = hasItem ? green : 0;
 		this.getButton(5).setEnabled(hasItem);
-		this.getButton(5).layerColor = hasItem ? this.container.recipe.getIgnoreDamage() ? 0xFF70F070 : 0xFFF07070 : 0;
+		this.getButton(5).layerColor = hasItem ? recipe != null && recipe.getIgnoreDamage() ? green : red : 0;
 		this.getButton(6).setEnabled(hasItem);
-		this.getButton(6).layerColor = hasItem ? this.container.recipe.getIgnoreNBT() ? 0xFF70F070 : 0xFFF07070 : 0;
+		this.getButton(6).layerColor = hasItem ? recipe != null && recipe.getIgnoreNBT() ? green : red : 0;
 		this.getButton(7).setEnabled(hasItem);
-		this.getButton(7).layerColor = hasItem ? this.container.recipe.isKnown() ? 0xFF70F070 : 0xFFF07070 : 0;
+		this.getButton(7).layerColor = hasItem ? recipe != null && recipe.isKnown() ? green : red : 0;
 		this.getButton(8).setEnabled(hasItem);
 		this.getButton(9).setEnabled(hasItem);
-		this.getButton(9).layerColor = hasItem ? this.container.recipe.isShaped() ? 0xFF70F070 : 0xFF7070FF : 0;
+		this.getButton(9).layerColor = hasItem ? recipe != null && recipe.isShaped() ? green : 0xFF7070FF : 0;
 
-		if (this.container.width == 3) { // New
-			GuiNpcLabel label = new GuiNpcLabel(3,
-					new TextComponentTranslation("gui.recipe.hover.cursor.name").getFormattedText(), this.guiLeft + 9,
-					this.guiTop + 94);
+
+		if (isGlobal) {
+			GuiNpcLabel label = new GuiNpcLabel(3, new TextComponentTranslation("gui.recipe.hover.cursor.name").getFormattedText(), this.guiLeft + 9, this.guiTop + 94);
 			label.backColor = 0x40FF0000;
 			label.borderColor = 0x80808080;
 			label.color = 0xFF000000;
-			label.hoverText = new String[] {
-					new TextComponentTranslation("gui.recipe.hover.cursor.info").getFormattedText() };
+			label.hoverText = new String[] { new TextComponentTranslation("gui.recipe.hover.cursor.info").getFormattedText() };
 			this.addLabel(label);
+		}
+
+		int size = (isGlobal ? 3 : 4);
+		Map<Integer, List<ItemStack>> map = new TreeMap<>();
+		if (recipe != null) {
+			IItemStack[][] stacks = recipe.getRecipe();
+			for (int id = 0; id < stacks.length; ++id) {
+				if (!map.containsKey(id)) { map.put(id, new ArrayList<>()); }
+				for (IItemStack iStack : stacks[id]) { map.get(id).add(iStack.getMCItemStack()); }
+			}
+		}
+
+		GuiNpcButton button = new GuiNpcButton(10, guiLeft + 7 + (int) ((isGlobal ? 3.35 : 4.35) * 19.0), guiTop + 26, 18, 18, "");
+		button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
+		button.hasDefBack = false;
+		button.txrX = 220;
+		button.txrY = 96;
+		button.txrW = 36;
+		button.txrH = 36;
+		if (recipe == null || recipe.getProduct().isEmpty()) { button.layerColor = red; }
+		addButton(button);
+
+		for (int i = 0; i < size; ++i) {
+			for (int j = 0; j < size; ++j) {
+				int id = 11 + j + i * size;
+				button = new GuiNpcButton(id, guiLeft + i * 19 + 7, guiTop + j * 19 + 26, 18, 18, "");
+				button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
+				button.hasDefBack = false;
+				button.txrX = 220;
+				button.txrY = 96;
+				button.txrW = 36;
+				button.txrH = 36;
+				if (recipe == null || !map.containsKey(id)) { button.layerColor = red; }
+				if (map.containsKey(id)) {
+					if (map.get(id).isEmpty()) { button.layerColor = green; }
+					button.setStacks(map.get(id));
+				}
+				addButton(button);
+			}
 		}
 	}
 
@@ -330,110 +355,39 @@ public class GuiNPCManageRecipes extends GuiContainerNPCInterface2
 
 	@Override
 	public void save() {
-		if (ClientProxy.recipeGroup != null && !ClientProxy.recipeGroup.isEmpty() && ClientProxy.recipeName != null
-				&& !ClientProxy.recipeName.isEmpty()) {
-			this.container.saveRecipe(ClientProxy.recipeGroup, ClientProxy.recipeName,
-                    this.getButton(9) == null || this.getButton(9).getValue() == 1);
-			Client.sendData(EnumPacketServer.RecipeSave, this.container.recipe.getNbt().getMCNBT());
+		if (recipe != null) {
+			Client.sendData(EnumPacketServer.RecipeSave, recipe.getNbt().getMCNBT());
 		}
 	}
 
 	@Override
 	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
-		switch (scroll.id) {
-		case 0: { // Group
-			if (ClientProxy.recipeGroup.equals(this.groups.getSelected())) {
-				return;
-			}
+		if (scroll.id == 0) { // Group
+			if (selGroup.equals(groups.getSelected())) { return; }
 			this.save();
-			ClientProxy.recipeGroup = this.groups.getSelected();
-			ClientProxy.recipeName = "";
-			this.container.craftingMatrix.clear();
-			this.recipes.setSelected(null);
-			Client.sendData(EnumPacketServer.RecipesGet, this.container.width, ClientProxy.recipeGroup,
-					ClientProxy.recipeName);
-			this.wait = true;
-			break;
-		}
-		case 1: { // Recipe
-			if (ClientProxy.recipeName.equals(this.recipes.getSelected())) {
-				return;
-			}
+			selGroup = groups.getSelected();
+			selName = "default_name";
+        } else { // Recipe
+			if (selName.equals(groups.getSelected())) { return; }
 			this.save();
-			ClientProxy.recipeName = this.recipes.getSelected();
-			Client.sendData(EnumPacketServer.RecipeGet, this.container.width, ClientProxy.recipeGroup,
-					ClientProxy.recipeName);
-			this.wait = true;
-			break;
-		}
-		}
-	}
+			selName = groups.getSelected();
+        }
+		recipe = null;
+        initGui();
+    }
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
 		switch (scroll.id) {
-		case 0: { // rename Group
-			this.setSubGui(new SubGuiEditText(2, new String[] { selection }));
-			break;
-		}
-		case 1: { // rename Recipe
-			this.setSubGui(new SubGuiEditText(3, new String[] { selection }));
-			break;
-		}
-		}
-	}
-
-	@Override
-	public void setGuiData(NBTTagCompound compound) {
-		if (compound.hasKey("Groups", 9) && compound.hasKey("Recipes", 9)) {
-			List<String> gs = Lists.newArrayList();
-			for (int i = 0; i < compound.getTagList("Groups", 8).tagCount(); i++) {
-				gs.add(compound.getTagList("Groups", 8).getStringTagAt(i));
+			case 0: { // rename Group
+				this.setSubGui(new SubGuiEditText(2, new String[] { selection }));
+				break;
 			}
-			this.dataGroup = gs;
-			this.groups.setList(this.dataGroup);
-
-			List<String> rs = Lists.newArrayList();
-			for (int i = 0; i < compound.getTagList("Recipes", 8).tagCount(); i++) {
-				rs.add(compound.getTagList("Recipes", 8).getStringTagAt(i));
-			}
-			this.dataRecipe = rs;
-			this.recipes.setList(this.dataRecipe);
-
-			boolean newGui = false;
-			if (ClientProxy.recipeGroup != null && !ClientProxy.recipeGroup.isEmpty()) {
-				if (!this.dataGroup.contains(ClientProxy.recipeGroup)) {
-					ClientProxy.recipeGroup = "";
-					newGui = true;
-				} else {
-					this.groups.setSelected(ClientProxy.recipeGroup);
-				}
-			}
-			if (ClientProxy.recipeName != null && !ClientProxy.recipeName.isEmpty()) {
-				if (!this.dataRecipe.contains(ClientProxy.recipeName)) {
-					ClientProxy.recipeName = "";
-					newGui = true;
-				} else {
-					this.recipes.setSelected(ClientProxy.recipeName);
-				}
-			}
-			if (newGui) {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, this.container.size, 0, 0);
-			} else {
-				this.initGui();
+			case 1: { // rename Recipe
+				this.setSubGui(new SubGuiEditText(3, new String[] { selection }));
+				break;
 			}
 		}
-		if (compound.hasKey("SelectRecipe", 9)) {
-			NBTTagCompound nbtRecipe = compound.getCompoundTag("SelectRecipe");
-			INpcRecipe recipe;
-			if (nbtRecipe.getBoolean("IsShaped")) {
-				recipe = NpcShapedRecipes.read(nbtRecipe);
-			} else {
-				recipe = NpcShapelessRecipes.read(nbtRecipe);
-			}
-			this.container.setRecipe(recipe);
-		}
-		this.initGui();
 	}
 
 	@Override
@@ -445,25 +399,26 @@ public class GuiNPCManageRecipes extends GuiContainerNPCInterface2
 				return;
 			}
 			if (subgui.id == 0) { // Add new Group
-				ClientProxy.recipeGroup = ((SubGuiEditText) subgui).text[0];
-				Client.sendData(EnumPacketServer.RecipesAddGroup, this.container.width, ClientProxy.recipeGroup);
-				this.wait = true;
-			} else if (subgui.id == 1) { // Add new Recipe
-				ClientProxy.recipeName = ((SubGuiEditText) subgui).text[0];
 				this.save();
-				Client.sendData(EnumPacketServer.RecipeGet, this.container.width, ClientProxy.recipeGroup, ClientProxy.recipeName);
-				this.wait = true;
+				selGroup = ((SubGuiEditText) subgui).text[0];
+				recipe = new NpcShapedRecipes(selGroup, "default", isGlobal, NonNullList.create(), ItemStack.EMPTY);
+				RecipeController.getInstance().register(recipe);
+				Client.sendData(EnumPacketServer.RecipesAddGroup, isGlobal, selGroup);
+			} else if (subgui.id == 1) { // Add new Recipe
+				this.save();
+				selName = ((SubGuiEditText) subgui).text[0];
+				recipe = new NpcShapedRecipes(selGroup, selName, isGlobal, NonNullList.create(), ItemStack.EMPTY);
+				Client.sendData(EnumPacketServer.RecipeAdd, isGlobal, selGroup, selName);
 			} else if (subgui.id == 2) { // Rename Group
-				String old = ClientProxy.recipeGroup;
-				ClientProxy.recipeGroup = ((SubGuiEditText) subgui).text[0];
-				Client.sendData(EnumPacketServer.RecipesRenameGroup, this.container.width, old, ClientProxy.recipeGroup, ClientProxy.recipeName);
-				this.wait = true;
+				String old = selGroup;
+				selGroup = ((SubGuiEditText) subgui).text[0];
+				Client.sendData(EnumPacketServer.RecipesRenameGroup, isGlobal, old, selGroup);
 			} else if (subgui.id == 3) { // Rename Recipe
-				String old = ClientProxy.recipeName;
-				ClientProxy.recipeName = ((SubGuiEditText) subgui).text[0];
-				Client.sendData(EnumPacketServer.RecipesRename, this.container.width, old, ClientProxy.recipeGroup, ClientProxy.recipeName);
-				this.wait = true;
+				String old = selName;
+				selName = ((SubGuiEditText) subgui).text[0];
+				Client.sendData(EnumPacketServer.RecipesRename, isGlobal, old, selName, selName);
 			}
+			wait = true;
 		}
 	}
 

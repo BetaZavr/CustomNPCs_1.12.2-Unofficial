@@ -13,7 +13,7 @@ import java.util.Map;
 public class ScoreboardMixin implements IScoreboardMixin {
 
     @Final
-    @Shadow(aliases = "teams")
+    @Shadow
     private Map<String, ScorePlayerTeam> teams;
 
     @Override

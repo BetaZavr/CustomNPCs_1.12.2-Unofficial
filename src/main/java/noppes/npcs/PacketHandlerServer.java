@@ -276,56 +276,19 @@ public class PacketHandlerServer {
             int y = buffer.readInt();
             int z = buffer.readInt();
             NoppesUtilServer.sendOpenGui(player, gui, npc, x, y, z);
-        } else if (type == EnumPacketServer.RecipesGet) {
-            int size = buffer.readInt();
-            String group = Server.readString(buffer);
-            String name = Server.readString(buffer);
-            NoppesUtilServer.sendRecipeData(player, size, group, name);
-            assert name != null;
-            if (!name.isEmpty()) {
-                RecipeController rData = RecipeController.getInstance();
-                INpcRecipe recipe = rData.getRecipe(group, name);
-                if (recipe != null && (size == 3 && !recipe.isGlobal() || size == 4 && recipe.isGlobal())) {
-                    recipe = null;
-                }
-                if (recipe != null) {
-                    NoppesUtilServer.setRecipeGui(player, recipe);
-                }
-                Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-            }
-        } else if (type == EnumPacketServer.RecipeGet) {
-            int size = buffer.readInt();
-            String group = Server.readString(buffer);
-            String name = Server.readString(buffer);
-            INpcRecipe recipe = RecipeController.getInstance().getRecipe(group, name);
-            if (recipe != null && (size == 3 && !recipe.isGlobal() || size == 4 && recipe.isGlobal())) {
-                recipe = null;
-            }
-            if (recipe == null) {
-                recipe = new NpcShapedRecipes();
-            }
-            NoppesUtilServer.setRecipeGui(player, recipe);
-            Server.sendData(player, EnumPacketClient.GUI_UPDATE);
         } else if (type == EnumPacketServer.RecipeRemove) {
             int size = buffer.readInt();
             String group = Server.readString(buffer);
             String name = Server.readString(buffer);
-            if (RecipeController.getInstance().delete(group, name)) {
-                NoppesUtilServer.sendRecipeData(player, size, group, name);
-                NoppesUtilServer.setRecipeGui(player, new NpcShapedRecipes());
+            if (RecipeController.getInstance().delete(size == 3, group, name)) {
+                Server.sendData(player, EnumPacketClient.GUI_UPDATE);
             }
-            Server.sendData(player, EnumPacketClient.GUI_UPDATE);
         } else if (type == EnumPacketServer.RecipeSave) {
             NBTTagCompound compound = Server.readNBT(buffer);
             INpcRecipe recipe;
-            if (compound.getBoolean("IsShaped")) {
-                recipe = NpcShapedRecipes.read(compound);
-            } else {
-                recipe = NpcShapelessRecipes.read(compound);
-            }
-            INpcRecipe r = RecipeController.getInstance().register(recipe);
-            NoppesUtilServer.sendRecipeData(player, r.isGlobal() ? 3 : 4, r.getNpcGroup(), r.getName());
-            NoppesUtilServer.setRecipeGui(player, r);
+            if (compound.getBoolean("IsShaped")) {recipe = NpcShapedRecipes.read(compound); }
+            else { recipe = NpcShapelessRecipes.read(compound); }
+            RecipeController.getInstance().sendToAll(RecipeController.getInstance().register(recipe));
         } else if (type == EnumPacketServer.NaturalSpawnGetAll) {
             NoppesUtilServer.sendScrollData(player, SpawnController.instance.getScroll());
         } else if (type == EnumPacketServer.NaturalSpawnGet) {
@@ -1202,22 +1165,26 @@ public class PacketHandlerServer {
             entity.setPickupDelay(5);
             player.world.spawnEntity(entity);
         } else if (type == EnumPacketServer.RecipesAddGroup) {
-            int size = buffer.readInt();
+            boolean isGlobal = buffer.readBoolean();
             String group = Server.readString(buffer);
-            NpcShapedRecipes recipe = new NpcShapedRecipes(group, "default", size, size, NonNullList.create(), ItemStack.EMPTY);
-            recipe.global = (size == 3);
+            NpcShapedRecipes recipe = new NpcShapedRecipes(group, "default", isGlobal, NonNullList.create(), ItemStack.EMPTY);
             RecipeController.getInstance().register(recipe);
-            NoppesUtilServer.sendRecipeData(player, size, group, "default");
-            NoppesUtilServer.setRecipeGui(player, new NpcShapedRecipes());
+            Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+        } else if (type == EnumPacketServer.RecipeAdd) {
+            boolean isGlobal = buffer.readBoolean();
+            String group = Server.readString(buffer);
+            String name = Server.readString(buffer);
+            NpcShapedRecipes recipe = new NpcShapedRecipes(group, name, isGlobal, NonNullList.create(), ItemStack.EMPTY);
+            RecipeController.getInstance().register(recipe);
             Server.sendData(player, EnumPacketClient.GUI_UPDATE);
         } else if (type == EnumPacketServer.RecipesRenameGroup) {
-            RecipeController.getInstance().renameGroup(player, buffer.readInt(), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer));
+            RecipeController.getInstance().renameGroup(buffer.readBoolean(), Server.readString(buffer), Server.readString(buffer));
             Server.sendData(player, EnumPacketClient.GUI_UPDATE);
         } else if (type == EnumPacketServer.RecipeRemoveGroup) {
-            RecipeController.getInstance().deleteGroup(player, buffer.readInt(), Server.readString(buffer));
+            RecipeController.getInstance().deleteGroup(buffer.readBoolean(), Server.readString(buffer));
             Server.sendData(player, EnumPacketClient.GUI_UPDATE);
         } else if (type == EnumPacketServer.RecipesRename) {
-            RecipeController.getInstance().renameRecipe(player, buffer.readInt(), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer));
+            RecipeController.getInstance().renameRecipe(buffer.readInt(), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer));
             Server.sendData(player, EnumPacketClient.GUI_UPDATE);
         } else if (type == EnumPacketServer.TraderMarketSave) {
             MarcetController mData = MarcetController.getInstance();

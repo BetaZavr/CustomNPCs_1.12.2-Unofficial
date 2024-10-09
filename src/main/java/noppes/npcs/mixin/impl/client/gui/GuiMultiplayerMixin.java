@@ -40,8 +40,6 @@ public class GuiMultiplayerMixin {
                     I18n.format("gui.cancel"),
                     1));
         }
-
-
     }
 
 }

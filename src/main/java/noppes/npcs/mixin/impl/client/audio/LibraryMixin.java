@@ -1,6 +1,6 @@
-package noppes.npcs.mixin.client.audio;
+package noppes.npcs.mixin.impl.client.audio;
 
-import noppes.npcs.mixin.api.client.audio.ILibraryMixin;
+import noppes.npcs.mixin.client.audio.ILibraryMixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import paulscode.sound.Library;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 @Mixin(value = Library.class, remap = false)
 public class LibraryMixin implements ILibraryMixin {
 
-    @Shadow(aliases = "sourceMap")
+    @Shadow
     protected HashMap<String, Source> sourceMap;
 
     @Override

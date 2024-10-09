@@ -10,15 +10,15 @@ import org.spongepowered.asm.mixin.Shadow;
 public class PositionedSoundMixin implements IPositionedSoundMixin {
 
     @Mutable
-    @Shadow(aliases = "xPosF")
+    @Shadow
     protected float xPosF;
 
     @Mutable
-    @Shadow(aliases = "yPosF")
+    @Shadow
     protected float yPosF;
 
     @Mutable
-    @Shadow(aliases = "zPosF")
+    @Shadow
     protected float zPosF;
 
     @Override

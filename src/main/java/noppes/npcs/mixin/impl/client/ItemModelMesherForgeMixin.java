@@ -16,7 +16,7 @@ import java.util.Map;
 public class ItemModelMesherForgeMixin implements IItemModelMesherForgeMixin {
 
     @Final
-    @Shadow(aliases = "models")
+    @Shadow
     Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models;
 
     @Override

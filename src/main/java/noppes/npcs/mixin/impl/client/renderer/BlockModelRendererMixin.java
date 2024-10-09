@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class BlockModelRendererMixin implements IBlockModelRendererMixin {
 
     @Final
-    @Shadow(aliases = "blockColors")
+    @Shadow
     private BlockColors blockColors;
 
     @Override

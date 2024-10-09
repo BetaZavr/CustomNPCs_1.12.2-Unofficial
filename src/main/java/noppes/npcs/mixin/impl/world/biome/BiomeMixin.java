@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class BiomeMixin implements IBiomeMixin {
 
     @Final
-    @Shadow(aliases = "biomeName")
+    @Shadow
     private String biomeName;
 
     @Override

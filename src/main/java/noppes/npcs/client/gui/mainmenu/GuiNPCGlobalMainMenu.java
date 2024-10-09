@@ -5,7 +5,6 @@ import java.util.Arrays;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.global.GuiNpcManagePlayerData;
 import noppes.npcs.client.gui.global.GuiNpcNaturalSpawns;
@@ -47,10 +46,8 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 			NoppesUtil.openGUI(this.player, new GuiNpcManagePlayerData(this.npc));
 			break;
 		}
-		case 14: { // Changed
-			ClientProxy.recipeGroup = "";
-			ClientProxy.recipeName = "";
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, 4, 0, 0);
+		case 14: {
+			NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, 0, 0, 0);
 			break;
 		}
 		case 15: {

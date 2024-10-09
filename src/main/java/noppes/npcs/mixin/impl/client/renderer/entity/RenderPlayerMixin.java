@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class RenderPlayerMixin implements IRenderPlayerMixin {
 
     @Final
-    @Shadow(aliases = "smallArms")
+    @Shadow
     private boolean smallArms;
 
     @Override

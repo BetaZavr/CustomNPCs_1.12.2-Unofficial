@@ -9,13 +9,13 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = GuiEditArray.class, remap = false)
 public class GuiEditArrayMixin implements IGuiEditArrayMixin {
 
-    @Shadow(aliases = "parentScreen")
+    @Shadow
     protected GuiScreen parentScreen;
 
-    @Shadow(aliases = "slotIndex")
+    @Shadow
     protected int slotIndex;
 
-    @Shadow(aliases = "enabled")
+    @Shadow
     protected boolean enabled;
 
     @Override

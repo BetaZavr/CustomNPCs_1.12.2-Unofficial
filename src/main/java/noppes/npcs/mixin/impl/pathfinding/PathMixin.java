@@ -11,16 +11,16 @@ import org.spongepowered.asm.mixin.Shadow;
 public class PathMixin implements IPathMixin {
 
     @Final
-    @Shadow(aliases = "points")
+    @Shadow
     private PathPoint[] points;
 
-    @Shadow(aliases = "openSet")
+    @Shadow
     private PathPoint[] openSet;
 
-    @Shadow(aliases = "closedSet")
+    @Shadow
     private PathPoint[] closedSet;
 
-    @Shadow(aliases = "currentPathIndex")
+    @Shadow
     private int currentPathIndex;
 
     @Override

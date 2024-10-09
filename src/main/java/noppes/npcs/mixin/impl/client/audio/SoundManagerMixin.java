@@ -13,7 +13,7 @@ import java.util.Map;
 public class SoundManagerMixin implements ISoundManagerMixin {
 
     @Final
-    @Shadow(aliases = "playingSounds")
+    @Shadow
     private Map<String, ISound> playingSounds;
 
     @Override

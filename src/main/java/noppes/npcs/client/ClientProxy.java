@@ -307,7 +307,6 @@ public class ClientProxy extends CommonProxy {
 	public static FontContainer Font;
 	public static PlayerData playerData = new PlayerData();
 
-	public static String recipeGroup, recipeName;
 	public static final Map<String, TempFile> loadFiles = Maps.newTreeMap();
 	public static Map<Integer, List<UUID>> notVisibleNPC = Maps.newHashMap();
 	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.newHashMap();
@@ -858,7 +857,7 @@ public class ClientProxy extends CommonProxy {
 					texture = new File(texturesDir, fileName.toLowerCase() + "_flow.png");
 					if (!texture.exists()) {
 						try { bi = ImageIO.read(Util.instance.getModInputStream("wf.png")); } catch (Exception e) { bi = new BufferedImage(32, 1024, 6); }
-						bo = ImageIO.write(this.getBufferImageOffset(bi, 0, 0.5f, 0, 0, 0, 128), "png", texture) && bo;
+						bo = ImageIO.write(getBufferImageOffset(bi, 0, 0.5f, 0, 0, 0, 128), "png", texture) && bo;
 					}
 					texture = new File(texturesDir, fileName.toLowerCase() + "_overlay.png");
 					if (!texture.exists()) {
@@ -1339,7 +1338,7 @@ public class ClientProxy extends CommonProxy {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.GetTileData, tile.writeToNBT(new NBTTagCompound()));
 	}
 
-	private RenderedImage getBufferImageOffset(@Nonnull  BufferedImage bufferedImage, int type, float offset, int addRed, int addGreen, int addBlue, int alpha) {
+	private RenderedImage getBufferImageOffset(@Nonnull BufferedImage bufferedImage, int type, float offset, int addRed, int addGreen, int addBlue, int alpha) {
 		if (type < 0) {
 			type = 0;
 		} else if (type > 2) {
@@ -1937,6 +1936,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void applyRecipe(INpcRecipe recipe, boolean added) {
 		if (recipe == null) { return; }
+		super.applyRecipe(recipe, added);
 		final RecipeBook book;
 		if (Minecraft.getMinecraft().player != null) { book = Minecraft.getMinecraft().player.getRecipeBook(); }
 		else { book = null; }

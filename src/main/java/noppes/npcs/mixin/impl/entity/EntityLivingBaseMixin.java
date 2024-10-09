@@ -6,43 +6,42 @@ import noppes.npcs.mixin.entity.IEntityLivingBaseMixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(value = EntityLivingBase.class)
 public class EntityLivingBaseMixin implements IEntityLivingBaseMixin {
 
     @Mutable
-    @Shadow(aliases = "lastDamageSource")
+    @Shadow
     private DamageSource lastDamageSource;
 
     @Mutable
-    @Shadow(aliases = "lastDamageStamp")
-    protected long lastDamageStamp;
+    @Shadow
+    private long lastDamageStamp;
 
-    @Shadow(aliases = "lastDamage")
+    @Shadow
     protected float lastDamage;
 
     @Mutable
-    @Shadow(aliases = "recentlyHit")
+    @Shadow
     protected int recentlyHit;
 
     @Mutable
-    @Shadow(aliases = "interpTargetYaw")
+    @Shadow
     protected double interpTargetYaw;
 
     @Mutable
-    @Shadow(aliases = "recentlyHit")
+    @Shadow
     protected double interpTargetPitch;
 
-    @Accessor(value = "lastDamageSource")
+    @Override
     public void npcs$setLastDamageSource(DamageSource newDamageSource) {
         lastDamageSource = newDamageSource;
     }
 
-    @Accessor(value = "lastDamageStamp")
+    @Override
     public void npcs$setLastDamageStamp(long newLastDamageStamp) { lastDamageStamp = newLastDamageStamp; }
 
-    @Accessor(value = "lastDamage")
+    @Override
     public float npcs$getLastDamage() {
         return lastDamage;
     }

@@ -13,13 +13,13 @@ import java.util.List;
 public class GuiLabelMixin implements IGuiLabelMixin {
 
     @Final
-    @Shadow(aliases = "labels")
+    @Shadow
     private List<String> labels;
 
-    @Shadow(aliases = "centered")
+    @Shadow
     private boolean centered;
 
-    @Shadow(aliases = "border")
+    @Shadow
     private int border;
 
     @Override

@@ -12,7 +12,7 @@ public class ParticleFlameMixin implements IParticleFlameMixin {
 
     @Mutable
     @Final
-    @Shadow(aliases = "flameScale")
+    @Shadow
     private float flameScale;
 
     @Override

@@ -13,11 +13,11 @@ public class ItemSwordMixin implements IItemSwordMixin {
 
     @Mutable
     @Final
-    @Shadow(aliases = "attackDamage")
+    @Shadow
     private float attackDamage;
 
     @Final
-    @Shadow(aliases = "material")
+    @Shadow
     private Item.ToolMaterial material;
 
     @Override

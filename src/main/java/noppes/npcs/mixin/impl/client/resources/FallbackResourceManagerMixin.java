@@ -13,7 +13,7 @@ import java.util.List;
 public class FallbackResourceManagerMixin implements IFallbackResourceManagerMixin {
 
     @Final
-    @Shadow(aliases = "resourcePacks")
+    @Shadow
     protected List<IResourcePack> resourcePacks;
 
     @Override

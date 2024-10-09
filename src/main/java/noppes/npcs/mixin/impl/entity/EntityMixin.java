@@ -13,15 +13,15 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = Entity.class)
 public class EntityMixin implements IEntityMixin {
 
-    @Shadow(aliases = "dataManager")
+    @Shadow
     protected EntityDataManager dataManager;
 
     @Final
-    @Shadow(aliases = "FLAGS")
-    protected DataParameter<Byte> FLAGS;
+    @Shadow
+    protected static DataParameter<Byte> FLAGS;
 
-    @Shadow(aliases = "capabilities", remap = false)
     @Mutable
+    @Shadow(remap = false)
     private CapabilityDispatcher capabilities;
 
     @Override

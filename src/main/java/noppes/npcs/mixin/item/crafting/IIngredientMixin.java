@@ -4,6 +4,6 @@ import net.minecraft.item.ItemStack;
 
 public interface IIngredientMixin {
 
-    ItemStack[] npcs$getMatchingStacks();
+    ItemStack[] npcs$getRawMatchingStacks();
 
 }

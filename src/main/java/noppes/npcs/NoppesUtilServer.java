@@ -22,7 +22,6 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.rcon.RConConsoleSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.MobSpawnerBaseLogic;
@@ -42,7 +41,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
-import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
@@ -50,14 +48,12 @@ import noppes.npcs.constants.EnumPlayerData;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerManageBanks;
-import noppes.npcs.containers.ContainerManageRecipes;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
-import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.TransportController;
@@ -712,20 +708,6 @@ public class NoppesUtilServer {
 		return compound;
 	}
 
-	public static void setRecipeGui(EntityPlayerMP player, INpcRecipe recipe) {
-		if (recipe == null) {
-			return;
-		}
-		if (!(player.openContainer instanceof ContainerManageRecipes)) {
-			return;
-		}
-		ContainerManageRecipes container = (ContainerManageRecipes) player.openContainer;
-		container.setRecipe(recipe);
-		NBTTagCompound compound = new NBTTagCompound();
-        compound.setTag("SelectRecipe", recipe.getNbt().getMCNBT());
-        Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-	}
-
 	public static Entity spawnClone(NBTTagCompound compound, double x, double y, double z, World world) {
 		if (world == null || world.isRemote) {
 			LogWriter.error("Clone summoning Error: World is Client: " + (world == null ? "null" : "true") + " - " + world);
@@ -756,28 +738,5 @@ public class NoppesUtilServer {
 	public static void spawnParticle(Entity entity, String particle) {
 		Server.sendAssociatedData(entity, EnumPacketClient.PARTICLE, entity.posX, entity.posY, entity.posZ, entity.height, entity.width, particle);
 	}
-
-    public static void sendRecipeData(EntityPlayerMP player, int size, String group, String recipe) {
-		RecipeController rData = RecipeController.getInstance();
-		NBTTagCompound compound = new NBTTagCompound();
-		NBTTagList groups = new NBTTagList();
-		NBTTagList recipes = new NBTTagList();
-
-		Map<String, List<INpcRecipe>> map = rData.getRecipes(size == 3);
-		for (String name : map.keySet()) {
-			groups.appendTag(new NBTTagString(name));
-		}
-		if (map.containsKey(group)) {
-			for (INpcRecipe rec : map.get(group)) {
-				recipes.appendTag(new NBTTagString(rec.getName()));
-				if (recipe.equalsIgnoreCase(rec.getName())) {
-					compound.setTag("SelectRecipe", rec.getNbt().getMCNBT());
-				}
-			}
-		}
-		compound.setTag("Groups", groups);
-		compound.setTag("Recipes", recipes);
-		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-    }
 
 }
