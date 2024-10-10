@@ -18,17 +18,13 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.recipebook.IRecipeShownListener;
 import net.minecraft.client.gui.toasts.GuiToast;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.pathfinding.Path;
@@ -110,7 +106,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_NAVIGATION);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_AI_TARGET);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_TARGET);
-		PacketHandlerClient.list.add(EnumPacketClient.CHATBUBBLE);
+		PacketHandlerClient.list.add(EnumPacketClient.CHAT_BUBBLE);
 		PacketHandlerClient.list.add(EnumPacketClient.SYNC_ADD);
 		PacketHandlerClient.list.add(EnumPacketClient.SYNC_END);
 		PacketHandlerClient.list.add(EnumPacketClient.SYNC_UPDATE);
@@ -130,7 +126,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		CustomNpcs.debugData.startDebug("Client", type.toString(), "PacketHandlerClient_Received");
 		Minecraft mc = Minecraft.getMinecraft();
 		PlayerData data = PlayerData.get(mc.player);
-		if (type == EnumPacketClient.CHATBUBBLE) {
+		if (type == EnumPacketClient.CHAT_BUBBLE) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityNPCInterface || entity instanceof EntityPlayer)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
@@ -566,21 +562,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				npcData.stats.setRarity(compound.getInteger("NPCRarity"));
 				npcData.stats.setRarityTitle(compound.getString("RarityTitle"));
 			}
-		} else if (type == EnumPacketClient.SET_GHOST_RECIPE) {
-			Container container = player.openContainer;
-			int id = buffer.readInt();
-			if (container.windowId != id || !container.getCanCraft(player)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
-				return;
-			}
-			GuiScreen gui = mc.currentScreen;
-			if (!(gui instanceof IRecipeShownListener)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
-				return;
-			}
-			IRecipe recipe = CraftingManager.REGISTRY.getObjectById(buffer.readInt());
-            assert recipe != null;
-            ((IRecipeShownListener) gui).func_194310_f().setupGhostRecipe(recipe, container.inventorySlots);
 		} else if (type == EnumPacketClient.MARCET_CLOSE) {
 			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (m != null) {

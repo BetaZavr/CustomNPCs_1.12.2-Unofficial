@@ -170,12 +170,10 @@ public class NoppesUtilPlayer {
 		data.dialogId = -1;
 	}
 
-	private static boolean compareItemDetails(ItemStack item, ItemStack item2, boolean ignoreDamage,
-			boolean ignoreNBT) {
+	private static boolean compareItemDetails(ItemStack item, ItemStack item2, boolean ignoreDamage, boolean ignoreNBT) {
 		return item.getItem() == item2.getItem()
 				&& (ignoreDamage || item.getItemDamage() == -1 || item.getItemDamage() == item2.getItemDamage())
-				&& (ignoreNBT || item.getTagCompound() == null
-						|| (item2.getTagCompound() != null && item.getTagCompound().equals(item2.getTagCompound())))
+				&& (ignoreNBT || item.getTagCompound() == null || (item2.getTagCompound() != null && item.getTagCompound().equals(item2.getTagCompound())))
 				&& (ignoreNBT || item2.getTagCompound() == null || item.getTagCompound() != null);
 	}
 

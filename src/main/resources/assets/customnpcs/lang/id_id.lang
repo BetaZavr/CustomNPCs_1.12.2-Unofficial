@@ -1136,7 +1136,6 @@ gui.read=Membaca
 gui.recipe.crafts=Kerajinan [?]
 gui.recipe.groups=Grup [?]
 gui.recipe.hover.cursor.info=§c Dalam resep global Anda hanya dapat mengatur§f satu§c bagian dari setiap bahan!
-gui.recipe.hover.cursor.name=Gerakkan kursor Anda!
 gui.region=Wilayah
 gui.regions=Wilayah dunia:
 gui.remove=Menghapus

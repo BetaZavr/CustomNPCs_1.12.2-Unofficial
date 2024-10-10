@@ -61,8 +61,8 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float f) {
-		super.drawScreen(mouseX, mouseY, f);
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}

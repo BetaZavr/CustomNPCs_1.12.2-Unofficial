@@ -1136,7 +1136,6 @@ gui.read=Leer
 gui.recipe.crafts=Manualidades [?]
 gui.recipe.groups=Grupos [?]
 gui.recipe.hover.cursor.info=§c ¡ En recetas globales solo puedes configurar§f una§c pieza de cada ingrediente!
-gui.recipe.hover.cursor.name=¡Mueve el cursor!
 gui.region=Región
 gui.regions=Regiones del mundo:
 gui.remove=Borrar

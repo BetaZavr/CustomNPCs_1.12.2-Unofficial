@@ -8,6 +8,7 @@ import java.util.*;
 import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockBanner;
+import net.minecraft.stats.RecipeBookServer;
 import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import noppes.npcs.controllers.*;
@@ -698,7 +699,7 @@ public class PlayerEventHandler {
 			chat.appendSibling(ForgeHooks.newChatWithLinks(ev.message));
 			event.setComponent(chat);
 		}
-		Server.sendRangedData(event.getPlayer().world, event.getPlayer().getPosition(), 32, EnumPacketClient.CHATBUBBLE,
+		Server.sendRangedData(event.getPlayer().world, event.getPlayer().getPosition(), 32, EnumPacketClient.CHAT_BUBBLE,
 				event.getPlayer().getEntityId(), event.getMessage(), true);
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcServerChatEvent");
 	}

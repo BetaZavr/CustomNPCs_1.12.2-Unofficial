@@ -23,6 +23,7 @@ import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.recipebook.RecipeList;
@@ -47,6 +48,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemShield;
@@ -1983,6 +1985,12 @@ public class ClientProxy extends CommonProxy {
 			if (!added) { book.lock((IRecipe) recipe); } else { book.unlock((IRecipe) recipe); }
 			RecipeBookClient.ALL_RECIPES.forEach((recipes) -> recipes.updateKnownRecipes(book));
 		}
+	}
+
+	@Override
+	public RecipeBook getRecipeBook(EntityPlayer player) {
+		if (player instanceof EntityPlayerSP) { return ((EntityPlayerSP) player).getRecipeBook(); }
+		return null;
 	}
 
 }

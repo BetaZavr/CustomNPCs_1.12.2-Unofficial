@@ -18,8 +18,10 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import noppes.npcs.api.handler.data.INpcRecipe;
 
 // Display recipe as translucent items in crafting grid
+// SPacketPlaceGhostRecipe <--> CPacketPlaceRecipe
 @SideOnly(Side.CLIENT)
 public class NpcGhostRecipe extends GhostRecipe {
 
@@ -46,6 +48,9 @@ public class NpcGhostRecipe extends GhostRecipe {
     }
 
     public void render(@Nonnull Minecraft mc, int guiLeft, int guiTop, boolean select, float partialTicks) {
+        if (recipe != null && recipe instanceof INpcRecipe && !((INpcRecipe) recipe).isGlobal()) {
+            guiLeft -= 77;
+        }
         RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.disableLighting();
         for (int i = 0; i < this.ingredients.size(); ++i) {
@@ -68,6 +73,7 @@ public class NpcGhostRecipe extends GhostRecipe {
 
         RenderHelper.disableStandardItemLighting();
     }
+
 
     public void setRecipe(@Nonnull IRecipe newRecipe) {
         this.recipe = newRecipe;

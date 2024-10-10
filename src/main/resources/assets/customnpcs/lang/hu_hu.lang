@@ -1136,7 +1136,6 @@ gui.read=Olvas
 gui.recipe.crafts=Kézműves [?]
 gui.recipe.groups=Csoportok [?]
 gui.recipe.hover.cursor.info=§c Globális receptekben minden összetevőből csak§f egy§c darabot állíthat be !
-gui.recipe.hover.cursor.name=Mozgassa a kurzort!
 gui.region=Vidék
 gui.regions=A világ régiói:
 gui.remove=Töröl

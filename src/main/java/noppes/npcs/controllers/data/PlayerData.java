@@ -18,7 +18,6 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.capability.IPlayerDataHandler;
-import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAnimation;
@@ -37,7 +36,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 
 	private static final ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "playerdata");
 
-	public static PlayerData get(EntityPlayer player) {
+    public static PlayerData get(EntityPlayer player) {
 		if (player == null || player.world.isRemote) {
 			return CustomNpcs.proxy.getPlayerData(player);
 		}
@@ -161,7 +160,8 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 
 	public boolean updateClient; // send to -> ServerTickHandler.onPlayerTick() 112
 
-	public String uuid, playername;
+	public String uuid;
+	public String playername;
 
 	public PlayerData() {
 		this.dialogData = new PlayerDialogData();

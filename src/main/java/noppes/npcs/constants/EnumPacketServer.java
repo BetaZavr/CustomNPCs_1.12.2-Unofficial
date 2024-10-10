@@ -95,6 +95,7 @@ public enum EnumPacketServer
 	RecipesAddGroup(CustomNpcsPermissions.GLOBAL_RECIPE),
 	RecipesRenameGroup(CustomNpcsPermissions.GLOBAL_RECIPE),
 	RecipesRename(CustomNpcsPermissions.GLOBAL_RECIPE),
+	SetItem(CustomNpcsPermissions.GLOBAL_RECIPE),
 	NaturalSpawnSave(CustomNpcsPermissions.GLOBAL_NATURAL_SPAWN),
 	NaturalSpawnGet, 
 	NaturalSpawnRemove(CustomNpcsPermissions.GLOBAL_NATURAL_SPAWN),

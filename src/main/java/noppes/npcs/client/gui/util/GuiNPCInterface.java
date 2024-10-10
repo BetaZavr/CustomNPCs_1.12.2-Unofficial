@@ -88,6 +88,10 @@ implements IEditNPC {
 		this.fontRenderer = this.mc.fontRenderer;
 	}
 
+	protected void buttonEvent(@Nonnull GuiNpcButton guibutton, int mouseButton) {
+
+	}
+
 	@Override
 	protected void actionPerformed(@Nonnull GuiButton guibutton) {
 		if (!(guibutton instanceof GuiNpcButton)) {
@@ -539,6 +543,12 @@ implements IEditNPC {
 		}
 		this.mouseEvent(mouseX, mouseY, mouseButton);
 		if (mouseButton != 0) {
+			for (GuiButton guibutton : this.buttonList) {
+				if (guibutton.isMouseOver() && guibutton instanceof GuiNpcButton) {
+					this.buttonEvent((GuiNpcButton) guibutton, mouseButton);
+					break;
+				}
+			}
 			return;
 		}
 		for (GuiCustomScroll scroll : new ArrayList<>(this.scrolls.values())) {

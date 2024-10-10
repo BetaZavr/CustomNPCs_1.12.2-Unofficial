@@ -16,8 +16,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.tileentity.TileEntity;
@@ -91,7 +89,6 @@ import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.ScriptEncryption;
-import noppes.npcs.util.ServerNpcRecipeBookHelper;
 import noppes.npcs.util.TempFile;
 
 public class PacketHandlerPlayer {

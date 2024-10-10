@@ -26,7 +26,9 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.WrapperRecipe;
 import noppes.npcs.controllers.data.Availability;
+import noppes.npcs.mixin.item.crafting.IIngredientMixin;
 import noppes.npcs.mixin.item.crafting.IShapelessRecipesMixin;
 
 public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe, IRecipe // Changed
@@ -110,6 +112,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	private int recipeWidth;
 
 	public boolean savesRecipe;
+	private final WrapperRecipe wrapper = new WrapperRecipe();
 
 	public NpcShapelessRecipes(String group, String name, boolean isGlobal, NonNullList<Ingredient> ingredients, ItemStack result) {
 		super(group, result, ingredients);
@@ -127,9 +130,8 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		this.ignoreNBT = false;
 		this.savesRecipe = true;
 		this.known = true;
-		int s = ingredients.isEmpty() || ingredients.size() == 1 ? 1 : ingredients.size() <= 4 ? 4 : ingredients.size() <= 9 ? 9 : 16;
-		this.recipeWidth = s;
-		this.recipeHeight = s;
+		this.recipeWidth = isGlobal ? 3 : 4;
+		this.recipeHeight = isGlobal ? 3 : 4;
 		if (this.getRegistryName() == null) {
 			String key = this.getGroup().toLowerCase() + "_" + this.name.toLowerCase();
 			while (key.contains(" ")) {
@@ -139,19 +141,16 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		}
 	}
 
+	// checks item in crafting slot against ingredient item variants
 	public boolean apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack) {
 		if (stack != null && ingredient != null) {
 			ItemStack[] stacks = ingredient.getMatchingStacks();
-            if (stacks.length == 0 && stack.isEmpty()) {
-                return true;
-            }
+            if (stacks.length == 0 && stack.isEmpty()) { return true; } // is Air
             for (ItemStack ingStack : stacks) {
-                if (ingStack.getItem() == stack.getItem()) {
-                    if (!ingStack.isEmpty() && !stack.isEmpty()
-                            && NoppesUtilPlayer.compareItems(stack, ingStack, this.ignoreDamage, this.ignoreNBT)) {
-                        return true;
-                    }
-                }
+				if (ingStack.getItem() != stack.getItem() || ingStack.isEmpty() || stack.isEmpty()) { continue; }
+				if (NoppesUtilPlayer.compareItems(stack, ingStack, this.ignoreDamage, this.ignoreNBT) && ingStack.getCount() <= stack.getCount()) {
+					return true;
+				}
             }
         }
         return false;
@@ -192,9 +191,9 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		this.recipeWidth = recipe.getWidth();
 		this.recipeHeight = recipe.getHeight();
 		int w = this.global ? 3 : 4;
-		if (this.recipeWidth != w) {
-			this.recipeWidth = w;
-			this.recipeHeight = w;
+		if (recipeWidth != w || recipeHeight != w) {
+			recipeWidth = w;
+			recipeHeight = w;
 		}
 		if (this.getRegistryName() == null) {
 			String key = this.getGroup().toLowerCase() + "_" + this.name.toLowerCase();
@@ -346,6 +345,37 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public WrapperRecipe getWrapperRecipe() {
+		wrapper.parent = this;
+		wrapper.isShaped = false;
+		wrapper.global = global;
+		wrapper.known = known;
+		wrapper.ignoreDamage = ignoreDamage;
+		wrapper.ignoreNBT = ignoreNBT;
+		wrapper.id = id;
+		wrapper.width = recipeWidth;
+		wrapper.height = recipeHeight;
+		wrapper.group = getGroup();
+		wrapper.domen = CustomNpcs.MODID;
+		wrapper.name = name;
+		wrapper.product = recipeOutput.copy();
+		wrapper.availability.readFromNBT(availability.writeToNBT(new NBTTagCompound()));
+
+		wrapper.recipeItems.clear();
+		int pos = 0;
+		for (Ingredient ingr : recipeItems) {
+			ItemStack[] rawMatchingStacks = ((IIngredientMixin) ingr).npcs$getRawMatchingStacks();
+			ItemStack[] array = new ItemStack[rawMatchingStacks.length];
+			for (int j = 0; j < rawMatchingStacks.length; j++) {
+				array[j] = rawMatchingStacks[j].copy();
+			}
+			wrapper.recipeItems.put(pos, array);
+			pos ++;
+		}
+		return wrapper;
 	}
 
 	public boolean matches(@Nonnull InventoryCrafting inv, @Nullable World worldIn) {

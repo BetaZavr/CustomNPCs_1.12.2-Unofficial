@@ -1136,7 +1136,6 @@ gui.read=읽다
 gui.recipe.crafts=공예 [?]
 gui.recipe.groups=그룹 [?]
 gui.recipe.hover.cursor.info=§c 글로벌 레시피에서는 각 재료를§f 1§c 조각 만 설정할 수 있습니다 !
-gui.recipe.hover.cursor.name=커서를 움직여보세요!
 gui.region=지역
 gui.regions=세계 지역:
 gui.remove=삭제

@@ -2,6 +2,7 @@ package noppes.npcs.api.handler.data;
 
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.WrapperRecipe;
 
 public interface INpcRecipe {
 
@@ -50,5 +51,7 @@ public interface INpcRecipe {
 	void setNbt(INbt nbt);
 
 	boolean isRecipeItemsEmpty();
+
+	WrapperRecipe getWrapperRecipe();
 
 }

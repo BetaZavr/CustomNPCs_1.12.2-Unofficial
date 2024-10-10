@@ -20,7 +20,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 
-// Displaying a crafting item from a recipe in the GUI Recipes window
+/*
+ * Displaying a crafting item from a recipe in the GUI Recipes window
+ * 1: A packet of [GuiRecipeBook.mouseClicked() -> minecraft.playerController.func_194338_a()] is sent from the client
+ * 2: package accepted at (NetHandlerPlayServer)INetHandlerPlayServer.func_194308_a() -> (ServerRecipeBookHelper)field_194309_H.func_194327_a()
+ * 3: already being processed in ServerRecipeBookHelper
+ */
 @SideOnly(Side.CLIENT)
 public class NpcGuiButtonRecipe extends GuiButtonRecipe {
 
@@ -68,7 +73,7 @@ public class NpcGuiButtonRecipe extends GuiButtonRecipe {
         this.currentIndex = MathHelper.floor(this.time / 30.0F) % list.size();
         ItemStack itemstack = (list.get(this.currentIndex)).getRecipeOutput();
         int k = 4;
-        if (list.size() > 1) {
+        if (this.list.hasSingleResultItem() && list.size() > 1) {
             ItemStack itemstack1 = list.get(0).getRecipeOutput();
             for (IRecipe rec : list) {
                 ItemStack stack = rec.getRecipeOutput();

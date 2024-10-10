@@ -1136,7 +1136,6 @@ gui.read=Lezen
 gui.recipe.crafts=Ambachten [?]
 gui.recipe.groups=Groepen [?]
 gui.recipe.hover.cursor.info=§c In globale recepten kunt u slechts§f één§c stuk van elk ingrediënt instellen!
-gui.recipe.hover.cursor.name=Verplaats uw cursor!
 gui.region=Regio
 gui.regions=Wereldregio's:
 gui.remove=Verwijderen

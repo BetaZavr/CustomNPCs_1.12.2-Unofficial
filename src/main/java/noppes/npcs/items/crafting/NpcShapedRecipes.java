@@ -27,7 +27,9 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.WrapperRecipe;
 import noppes.npcs.controllers.data.Availability;
+import noppes.npcs.mixin.item.crafting.IIngredientMixin;
 import noppes.npcs.mixin.item.crafting.IShapedRecipesMixin;
 
 public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IRecipe
@@ -112,6 +114,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 	public String name;
 
 	public boolean savesRecipe;
+	private final WrapperRecipe wrapper = new WrapperRecipe();
 
 	public NpcShapedRecipes(String group, String name, boolean isGlobal, NonNullList<Ingredient> ingredients, ItemStack result) {
 		super(group, isGlobal ? 3 : 4, isGlobal ? 3 : 4, ingredients, result);
@@ -137,19 +140,16 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		}
 	}
 
+	// checks item in crafting slot against ingredient item variants
 	public boolean apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack) { // New
         if (stack != null && ingredient != null) {
             ItemStack[] stacks = ingredient.getMatchingStacks();
-            if (stacks.length == 0 && stack.isEmpty()) {
-                return true;
-            }
+            if (stacks.length == 0 && stack.isEmpty()) { return true; }
             for (ItemStack ingStack : stacks) {
-                if (ingStack.getItem() == stack.getItem()) {
-                    if (!ingStack.isEmpty() && !stack.isEmpty()
-                            && NoppesUtilPlayer.compareItems(stack, ingStack, this.ignoreDamage, this.ignoreNBT)) {
-                        return true;
-                    }
-                }
+				if (ingStack.getItem() != stack.getItem() || ingStack.isEmpty() || stack.isEmpty()) { continue; }
+				if (NoppesUtilPlayer.compareItems(stack, ingStack, this.ignoreDamage, this.ignoreNBT) && ingStack.getCount() <= stack.getCount()) {
+					return true;
+				}
             }
         }
         return false;
@@ -163,7 +163,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		return width == this.recipeWidth && height == this.recipeHeight;
 	}
 
-	private boolean checkMatch(InventoryCrafting inv, int width, int height, boolean bo) {
+	private boolean checkMatch(InventoryCrafting inv, int width, int height, boolean isExactMatch) {
 		int ingSize = 0;
 		for (Ingredient ingredient : this.recipeItems) {
 			boolean has = false;
@@ -183,13 +183,14 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 				int l = j - height;
 				Ingredient ingredient = Ingredient.EMPTY;
 				if (k >= 0 && l >= 0 && k < this.recipeWidth && l < this.recipeHeight) {
-					if (bo) {
+					if (isExactMatch) {
 						ingredient = this.recipeItems.get(this.recipeWidth - k - 1 + l * this.recipeWidth);
 					} else {
 						ingredient = this.recipeItems.get(k + l * this.recipeWidth);
 					}
 				}
 				if (!this.apply(ingredient, inv.getStackInRowAndColumn(i, j))) {
+//if (getGroup().equals("Npc MailBox Blue")) { System.out.println("CNPCs: false"); }
 					return false;
 				} // Changed
 				if (ingredient.getMatchingStacks().length > 0) {
@@ -396,6 +397,37 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public WrapperRecipe getWrapperRecipe() {
+		wrapper.parent = this;
+		wrapper.isShaped = true;
+		wrapper.global = global;
+		wrapper.known = known;
+		wrapper.ignoreDamage = ignoreDamage;
+		wrapper.ignoreNBT = ignoreNBT;
+		wrapper.id = id;
+		wrapper.width = recipeWidth;
+		wrapper.height = recipeHeight;
+		wrapper.group = getGroup();
+		wrapper.domen = CustomNpcs.MODID;
+		wrapper.name = name;
+		wrapper.product = recipeOutput.copy();
+		wrapper.availability.readFromNBT(availability.writeToNBT(new NBTTagCompound()));
+
+		wrapper.recipeItems.clear();
+		int pos = 0;
+		for (Ingredient ingr : recipeItems) {
+			ItemStack[] rawMatchingStacks = ((IIngredientMixin) ingr).npcs$getRawMatchingStacks();
+			ItemStack[] array = new ItemStack[rawMatchingStacks.length];
+			for (int j = 0; j < rawMatchingStacks.length; j++) {
+				array[j] = rawMatchingStacks[j].copy();
+			}
+			wrapper.recipeItems.put(pos, array);
+			pos ++;
+		}
+		return wrapper;
 	}
 
 	@Override

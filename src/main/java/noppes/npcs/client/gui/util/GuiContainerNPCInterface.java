@@ -77,6 +77,11 @@ implements IEditNPC {
 				new Poses(this, 4), new Poses(this, 5), new Poses(this, 6), new Poses(this, 7) };
 	}
 
+	protected void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+
+	}
+
+	@Override
 	protected void actionPerformed(@Nonnull GuiButton guibutton) {
 		if (!(guibutton instanceof GuiNpcButton)) {
 			return;
@@ -351,8 +356,8 @@ implements IEditNPC {
 		return null;
 	}
 
-	public GuiNpcButton getButton(int i) {
-		return this.buttons.get(i);
+	public GuiNpcButton getButton(int id) {
+		return this.buttons.get(id);
 	}
 
 	@Override
@@ -364,9 +369,7 @@ implements IEditNPC {
 		return this.fontRenderer;
 	}
 
-	public GuiNpcLabel getLabel(int i) {
-		return this.labels.get(i);
-	}
+	public GuiNpcLabel getLabel(int id) { return this.labels.get(id); }
 
 	@Override
 	public EntityNPCInterface getNPC() {
@@ -381,8 +384,8 @@ implements IEditNPC {
 		return this.scrolls.get(id);
 	}
 
-	public GuiNpcSlider getSlider(int i) {
-		return this.sliders.get(i);
+	public GuiNpcSlider getSlider(int id) {
+		return this.sliders.get(id);
 	}
 
 	public SubGuiInterface getSubGui() {
@@ -392,16 +395,16 @@ implements IEditNPC {
 		return this.subgui;
 	}
 
-	public GuiNpcTextField getTextField(int i) {
-		return this.textfields.get(i);
+	public GuiNpcTextField getTextField(int id) {
+		return this.textfields.get(id);
 	}
 
-	public GuiMenuTopButton getTopButton(int i) {
-		return this.topbuttons.get(i);
+	public GuiMenuTopButton getTopButton(int id) {
+		return this.topbuttons.get(id);
 	}
 	
-	public GuiNpcMiniWindow getMiniWindow(int i) {
-		return this.mwindows.get(i);
+	public GuiNpcMiniWindow getMiniWindow(int id) {
+		return this.mwindows.get(id);
 	}
 
 	@Override
@@ -490,6 +493,13 @@ implements IEditNPC {
 		if (mouseButton == 0) {
 			for (GuiCustomScroll scroll : new ArrayList<>(this.scrolls.values())) {
 				scroll.mouseClicked(mouseX, mouseY, mouseButton);
+			}
+		} else {
+			for (GuiButton guibutton : this.buttonList) {
+				if (guibutton.isMouseOver() && guibutton instanceof GuiNpcButton) {
+					this.buttonEvent((GuiNpcButton) guibutton, mouseButton);
+					break;
+				}
 			}
 		}
 		this.mouseEvent(mouseX, mouseY, mouseButton);

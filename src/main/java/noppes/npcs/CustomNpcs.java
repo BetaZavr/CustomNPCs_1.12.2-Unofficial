@@ -398,6 +398,7 @@ public class CustomNpcs {
 		}
 		ForgeModContainer.fullBoundingBoxLadders = true;
 		new CustomNpcsPermissions();
+		new RecipeController();
 		CustomNpcs.MARKOV_GENERATOR[0] = new MarkovRoman(3);
 		CustomNpcs.MARKOV_GENERATOR[1] = new MarkovJapanese(4);
 		CustomNpcs.MARKOV_GENERATOR[2] = new MarkovSlavic(3);
@@ -497,7 +498,6 @@ public class CustomNpcs {
 		FactionController.instance.load();
 		ScriptController.Instance.load();
 		new DropController();
-		new RecipeController();
 		AnimationController.getInstance();
 		new KeyController();
 		new TransportController();

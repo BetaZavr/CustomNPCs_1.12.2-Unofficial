@@ -13,7 +13,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public class GuiNpcButton
 extends GuiButton
@@ -23,7 +22,8 @@ implements IComponentGui {
 	public int[] getCenter() {
 		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
 	}
-	
+	private static final double step = 60;
+
 	protected String[] display;
 	private int displayValue;
 	public int id;
@@ -40,8 +40,10 @@ implements IComponentGui {
 	public boolean isPressed;
 	public int textColor = CustomNpcs.MainColor.getRGB();
 	public boolean isSimple = false;
-	private List<ItemStack> itemStacks = null;
+	private ItemStack[] itemStacks = null;
+	public ItemStack currentStack = ItemStack.EMPTY;
 	private int ticks = 0;
+	private int wait = 0;
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
@@ -213,19 +215,25 @@ implements IComponentGui {
 				this.x + (float) (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2,
 				this.y + (float) (this.height - 8) / 2, l, this.dropShadow);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		if (itemStacks != null && !itemStacks.isEmpty()) {
-			ItemStack stack = itemStacks.get((ticks % (40 * itemStacks.size())) / 40);
-//System.out.println("CNPCs: "+id+" - "+stack);
-			if (stack != null && !stack.isEmpty()) {
+		if (itemStacks != null && itemStacks.length != 0) {
+			currentStack = itemStacks[0];;
+			if (itemStacks.length > 1) {
+				if (wait > 0) { wait --; }
+				else { currentStack = itemStacks[(int) Math.floor(((double) ticks % (step * (double) itemStacks.length - 1.0d)) / step)]; }
+			}
+			if (currentStack != null && !currentStack.isEmpty()) {
 				GlStateManager.pushMatrix();
-				RenderHelper.enableStandardItemLighting();
-				GlStateManager.translate((float) x + (float) width / 2.0f - 9.0f, (float) y + (float) height / 2.0f - 9.0f, 0.0f);
-				mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 0, 0);
-				this.drawString(mc.fontRenderer, "" + stack.getCount(), 16 - mc.fontRenderer.getStringWidth("" + stack.getCount()), 9, 0xFFFFFFFF);
+				RenderHelper.enableGUIStandardItemLighting();
+				GlStateManager.translate((float) x + (float) width / 2.0f - 8.0f, (float) y + (float) height / 2.0f - 8.0f, 0.0f);
+				mc.getRenderItem().renderItemAndEffectIntoGUI(currentStack, 0, 0);
+				this.drawString(mc.fontRenderer, "" + currentStack.getCount(), 16 - mc.fontRenderer.getStringWidth("" + currentStack.getCount()), 9, 0xFFFFFFFF);
 				RenderHelper.disableStandardItemLighting();
 				GlStateManager.popMatrix();
 			}
-			ticks++;
+			if (wait == 0) {
+				ticks++;
+				if (ticks > step * itemStacks.length) { ticks = 0; }
+			}
 		}
 	}
 
@@ -301,12 +309,12 @@ implements IComponentGui {
 		return this.enabled ? 0 : 3;
 	}
 
-	public void setStacks(List<ItemStack> itemStacks) {
-		this.itemStacks = itemStacks;
+	public void setStacks(ItemStack ... stacks) {
+		if (itemStacks != null && stacks != null) { wait = 100; }
+		itemStacks = stacks;
 		ticks = 0;
-		System.out.println("CNPCs: "+id+" - "+this.itemStacks);
 	}
 
-	public List<ItemStack> getStacks() { return itemStacks; }
+	public ItemStack[] getStacks() { return itemStacks; }
 
 }

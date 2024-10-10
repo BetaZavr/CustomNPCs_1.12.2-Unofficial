@@ -18,7 +18,9 @@ import noppes.npcs.containers.ContainerCarpentryBench;
 
 import javax.annotation.Nonnull;
 
-public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IRecipeShownListener {
+public class GuiNpcCarpentryBench
+		extends GuiContainerNPCInterface
+		implements IRecipeShownListener {
 
 	private static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES = new ResourceLocation(CustomNpcs.MODID, "textures/gui/carpentry.png");
 	private final ResourceLocation buttonTexture = new ResourceLocation("minecraft", "textures/gui/container/crafting_table.png");
@@ -38,8 +40,6 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 		ScaledResolution scaleW = new ScaledResolution(this.mc);
 		this.guiLeft = (scaleW.getScaledWidth() - this.xSize) / 2;
 		this.guiTop = (scaleW.getScaledHeight() - this.ySize) / 2;
-		this.container.x = this.guiLeft;
-		this.container.y = this.guiTop;
 	}
 
 	@Override
@@ -56,12 +56,12 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(GuiNpcCarpentryBench.CRAFTING_TABLE_GUI_TEXTURES);
-		this.container.setPos(this.guiLeft, this.guiTop);
-		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
+		mc.renderEngine.bindTexture(GuiNpcCarpentryBench.CRAFTING_TABLE_GUI_TEXTURES);
+		container.checkPos(recipeBookGui.isVisible());
+		drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
-		this.fontRenderer.drawString(new TextComponentTranslation("tile.npccarpentybench.name").getFormattedText(), this.guiLeft + 4, this.guiTop + 4, CustomNpcResourceListener.DefaultTextColor);
-		this.fontRenderer.drawString(new TextComponentTranslation("container.inventory").getFormattedText(), this.guiLeft + 4, this.guiTop + 87, CustomNpcResourceListener.DefaultTextColor);
+		fontRenderer.drawString(new TextComponentTranslation("tile.npccarpentybench.name").getFormattedText(), this.guiLeft + 4, this.guiTop + 4, CustomNpcResourceListener.DefaultTextColor);
+		fontRenderer.drawString(new TextComponentTranslation("container.inventory").getFormattedText(), this.guiLeft + 4, this.guiTop + 87, CustomNpcResourceListener.DefaultTextColor);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 

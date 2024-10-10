@@ -65,7 +65,7 @@ public class Server {
 		Server.list.add(EnumPacketClient.UPDATE_NPC_ANIMATION);
 		Server.list.add(EnumPacketClient.UPDATE_NPC_NAVIGATION);
 		Server.list.add(EnumPacketClient.UPDATE_NPC_TARGET);
-		Server.list.add(EnumPacketClient.CHATBUBBLE);
+		Server.list.add(EnumPacketClient.CHAT_BUBBLE);
 		Server.list.add(EnumPacketClient.SYNC_ADD);
 		Server.list.add(EnumPacketClient.BORDER_DATA);
 		Server.list.add(EnumPacketClient.MARCET_DATA);

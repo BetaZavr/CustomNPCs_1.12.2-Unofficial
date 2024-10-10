@@ -1137,7 +1137,6 @@ gui.read=Czytać
 gui.recipe.crafts=Rzemiosło [?]
 gui.recipe.groups=Grupy [?]
 gui.recipe.hover.cursor.info=§c W przepisach globalnych można ustawić tylko§f jedną§c sztukę każdego składnika!
-gui.recipe.hover.cursor.name=Przesuń kursor!
 gui.region=Region
 gui.regions=Regiony świata:
 gui.remove=Usuwać

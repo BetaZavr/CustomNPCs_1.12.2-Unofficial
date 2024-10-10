@@ -543,4 +543,9 @@ public class CommonProxy implements IGuiHandler {
 		}
     }
 
+    public RecipeBook getRecipeBook(EntityPlayer player) {
+		if (player instanceof EntityPlayerMP) { return ((EntityPlayerMP) player).getRecipeBook(); }
+		return null;
+    }
+
 }

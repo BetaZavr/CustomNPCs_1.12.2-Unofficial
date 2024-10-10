@@ -285,10 +285,16 @@ public class PacketHandlerServer {
             }
         } else if (type == EnumPacketServer.RecipeSave) {
             NBTTagCompound compound = Server.readNBT(buffer);
-            INpcRecipe recipe;
-            if (compound.getBoolean("IsShaped")) {recipe = NpcShapedRecipes.read(compound); }
-            else { recipe = NpcShapelessRecipes.read(compound); }
-            RecipeController.getInstance().sendToAll(RecipeController.getInstance().register(recipe));
+            if (compound.getString("Domen").equals(CustomNpcs.MODID)) {
+                INpcRecipe recipe;
+                if (compound.getBoolean("IsShaped")) {
+                    recipe = NpcShapedRecipes.read(compound);
+                } else {
+                    recipe = NpcShapelessRecipes.read(compound);
+                }
+                recipe = RecipeController.getInstance().register(recipe);
+                RecipeController.getInstance().sendToAll(recipe);
+            }
         } else if (type == EnumPacketServer.NaturalSpawnGetAll) {
             NoppesUtilServer.sendScrollData(player, SpawnController.instance.getScroll());
         } else if (type == EnumPacketServer.NaturalSpawnGet) {
@@ -1592,7 +1598,12 @@ public class PacketHandlerServer {
                 if (name.isEmpty() || !dData.templates.containsKey(name)) { return; }
                 dData.templates.remove(name);
             }
+        } else if (type == EnumPacketServer.SetItem) {
+            ItemStack stack = new ItemStack(Server.readNBT(buffer));
+            player.inventory.setItemStack(stack);
+            player.openContainer.detectAndSendChanges();
         }
+
         CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
     }
 

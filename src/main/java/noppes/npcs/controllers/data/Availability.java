@@ -668,20 +668,20 @@ public class Availability implements ICompatibilty, IAvailability {
 	@Override
 	public void setDaytime(int type) {
 		switch (EnumDayTime.values()[MathHelper.clamp(type, 0, 2)]) {
-		case Night: {
-			this.daytime[0] = 18;
-			this.daytime[1] = 6;
-			break;
-		}
-		case Day: {
-			this.daytime[0] = 6;
-			this.daytime[1] = 18;
-			break;
-		}
-		default: {
-			this.daytime[0] = 0;
-			this.daytime[1] = 0;
-		}
+			case Night: {
+				this.daytime[0] = 18;
+				this.daytime[1] = 6;
+				break;
+			}
+			case Day: {
+				this.daytime[0] = 6;
+				this.daytime[1] = 18;
+				break;
+			}
+			default: {
+				this.daytime[0] = 0;
+				this.daytime[1] = 0;
+			}
 		}
 		this.hasOptions = this.checkHasOptions();
 	}

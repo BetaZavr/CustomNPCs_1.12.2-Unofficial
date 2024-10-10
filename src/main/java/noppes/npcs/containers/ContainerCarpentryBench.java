@@ -1,42 +1,33 @@
 package noppes.npcs.containers;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCraftResult;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.crafting.IRecipeContainer;
 import noppes.npcs.CustomRegisters;
-import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.entity.IPlayer;
-import noppes.npcs.api.handler.data.INpcRecipe;
-import noppes.npcs.controllers.RecipeController;
-import noppes.npcs.items.crafting.NpcShapedRecipes;
-import noppes.npcs.items.crafting.NpcShapelessRecipes;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
-public class ContainerCarpentryBench extends Container {
+// ContainerWorkbench
+public class ContainerCarpentryBench
+		extends Container
+		implements IRecipeContainer {
 
 	public InventoryCrafting craftMatrix = new InventoryCrafting(this, 4, 4);
 	public InventoryCraftResult craftResult = new InventoryCraftResult();
 	private final EntityPlayer player;
-	private final BlockPos pos;
+    private final BlockPos pos;
 	private final World world;
-	public int x = 125, y = 30;
+	public boolean isShowBook = false;
 
 	public ContainerCarpentryBench(InventoryPlayer playerInventory, World worldIn, BlockPos posIn) {
 		this.world = worldIn;
 		this.pos = posIn;
 		this.player = playerInventory.player;
-		this.addSlotToContainer(new SlotNpcCrafting(playerInventory.player, this.craftMatrix, this.craftResult, 0, 140, 41));
+		this.addSlotToContainer(new SlotCrafting(playerInventory.player, this.craftMatrix, this.craftResult, 0, 140, 41));
 		for (int var6 = 0; var6 < 4; ++var6) {
 			for (int var7 = 0; var7 < 4; ++var7) {
 				this.addSlotToContainer(new Slot(this.craftMatrix, var7 + var6 * 4, 30 + var7 * 18, 14 + var6 * 18));
@@ -53,59 +44,41 @@ public class ContainerCarpentryBench extends Container {
 		this.onCraftMatrixChanged(this.craftMatrix);
 	}
 
+	@Override
 	public boolean canInteractWith(@Nonnull EntityPlayer playerIn) {
-		if (this.world.getBlockState(this.pos).getBlock() != CustomRegisters.carpentyBench) {
-			return false;
-		} else {
-			return playerIn.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D,
-					(double) this.pos.getZ() + 0.5D) <= 64.0D;
-		}
+		if (this.world.getBlockState(this.pos).getBlock() != CustomRegisters.carpentyBench) { return false; }
+		else { return playerIn.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D; }
 	}
 
+	@Override
 	public boolean canMergeSlot(@Nonnull ItemStack stack, @Nonnull Slot slotIn) {
 		return slotIn.inventory != this.craftResult && super.canMergeSlot(stack, slotIn);
 	}
 
+	@Override
 	public void onContainerClosed(@Nonnull EntityPlayer playerIn) {
 		super.onContainerClosed(playerIn);
 		if (!this.world.isRemote) {
-			this.clearContainer(playerIn, this.world, this.craftMatrix);
+			clearContainer(playerIn, this.world, this.craftMatrix);
 		}
 	}
 
+	@Override
 	public void onCraftMatrixChanged(@Nonnull IInventory inventoryIn) {
-		if (!this.world.isRemote) {
-			/*
-			INpcRecipe recipe = RecipeController.getInstance().findMatchingRecipe(this.craftMatrix);
-			ItemStack item = ItemStack.EMPTY;
-			if (recipe != null
-					&& recipe.getAvailability().isAvailable((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player))) {
-				if (recipe instanceof NpcShapedRecipes) {
-					item = ((NpcShapedRecipes) recipe).getCraftingResult(this.craftMatrix);
-				} else {
-					item = ((NpcShapelessRecipes) recipe).getCraftingResult(this.craftMatrix);
-				}
-			}
-			this.craftResult.setInventorySlotContents(0, item);
-			((EntityPlayerMP) this.player).connection.sendPacket(new SPacketSetSlot(this.windowId, 0, item));
-
-			 */
-		}
+		this.slotChangedCraftingGrid(this.world, this.player, this.craftMatrix, this.craftResult);
 	}
 
-	public void setPos(int u, int v) {
-		if (this.x != u || this.y != v) {
-			int offsetX = u - this.x;
-			int offsetY = v - this.y;
-			for (Slot slot : this.inventorySlots) {
+	public void checkPos(boolean showBook) {
+		if (isShowBook != showBook) {
+			int offsetX = (showBook ? 1 : -1 ) * 77;
+			for (Slot slot : inventorySlots) {
 				slot.xPos += offsetX;
-				slot.yPos += offsetY;
 			}
-			this.x = u;
-			this.y = v;
+			isShowBook = showBook;
 		}
 	}
 
+	@Override
 	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer playerIn, int index) {
 		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = this.inventorySlots.get(index);
@@ -147,5 +120,11 @@ public class ContainerCarpentryBench extends Container {
 		}
 		return itemstack;
 	}
+
+	@Override
+	public InventoryCraftResult getCraftResult() { return craftResult; }
+
+	@Override
+	public InventoryCrafting getCraftMatrix() { return craftMatrix;	}
 
 }

@@ -1788,7 +1788,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 		}
 		if (!isEmpty) {
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHATBUBBLE, this.getEntityId(), line.getText(),
+			Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT_BUBBLE, this.getEntityId(), line.getText(),
 					line.getShowText());
 		}
 	}
