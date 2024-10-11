@@ -106,7 +106,7 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 		this.scroll.guiTop = this.guiTop + 4;
 		this.scroll.setSelected(this.npc.linkedName);
 		this.scroll.setListNotSorted(names);
-		this.scroll.setSuffixs(suffixs);
+		this.scroll.setSuffixes(suffixs);
 		this.scroll.setSelected(this.select);
 		
 		this.addScroll(this.scroll);

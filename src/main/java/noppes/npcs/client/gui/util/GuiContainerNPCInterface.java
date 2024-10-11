@@ -77,6 +77,12 @@ implements IEditNPC {
 				new Poses(this, 4), new Poses(this, 5), new Poses(this, 6), new Poses(this, 7) };
 	}
 
+	/**
+	 * 0: LMB - used in "buttonEvent(GuiNpcButton button)"
+	 * 1: RMB
+	 * 2: CMB
+	 * next - extra buttons
+	 */
 	protected void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
 
 	}
@@ -164,12 +170,12 @@ implements IEditNPC {
 
 	public void drawDefaultBackground() {
 		if (this.drawDefaultBackground && this.subgui == null) {
-			if (this.background != null && this.mc.renderEngine != null) {
+			if (this.background != null) {
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
 				GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
-				this.mc.renderEngine.bindTexture(this.background);
+				this.mc.getTextureManager().bindTexture(this.background);
 				if (this.xSize > 252) {
 					this.drawTexturedModalRect(0, 0, 0, 0, 252, this.ySize);
 					int w = this.xSize - 252;
@@ -332,7 +338,7 @@ implements IEditNPC {
 		int pos_0 = (int) Math.floor((double) (this.player.world.getTotalWorldTime() % 16) / 2.0d);
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(GuiContainerNPCInterface.ball);
+		this.mc.getTextureManager().bindTexture(GuiContainerNPCInterface.ball);
 		this.drawTexturedModalRect(this.ps[pos_0].x - 1, this.ps[pos_0].y - 1, 0, 12, 6, 6);
 		int pos_1 = pos_0 - 1;
 		if (pos_1 < 0) {

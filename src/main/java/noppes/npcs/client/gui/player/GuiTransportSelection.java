@@ -69,7 +69,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 	public void drawDefaultBackground() {
 		super.drawDefaultBackground();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.resource);
+		this.mc.getTextureManager().bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, 176, 222);
 		this.barterItems = null;
 		if (this.locSel == null) {
@@ -81,7 +81,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 			int h = this.bySize + 18;
 			int x = this.guiLeft + 176;
 			int y = this.guiTop + 14;
-			this.mc.renderEngine.bindTexture(this.resource);
+			this.mc.getTextureManager().bindTexture(this.resource);
 			this.drawTexturedModalRect(x, y, 176 - w, 0, w, h);
 			this.drawTexturedModalRect(x, y + h, 176 - w, 218, w, 4);
 			x += 5;
@@ -104,7 +104,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 		this.bySize = 0;
 		if (!this.locSel.inventory.isEmpty()) {
 			GlStateManager.pushMatrix();
-			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			this.barterItems = Util.instance.getInventoryItemCount(this.player, this.locSel.inventory);
 			int slot = 0;
 			this.canTransport = true;
@@ -239,7 +239,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 				colors.add(color);
 			}
 			this.scroll.setColors(colors);
-			this.scroll.setSuffixs(suffixs);
+			this.scroll.setSuffixes(suffixs);
 		}
 	}
 

@@ -71,7 +71,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.resource);
+		this.mc.getTextureManager().bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		int index = 0;
 		if (!this.role.infiniteDays) {
@@ -108,7 +108,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 		if (size >= 0) {
 			int s = (size == 2 || size == 4) ? 2 : 3;
 			GlStateManager.pushMatrix();
-			this.mc.renderEngine.bindTexture(this.resource);
+			this.mc.getTextureManager().bindTexture(this.resource);
 			GlStateManager.translate(this.guiLeft + 172, this.guiTop + 135, 0.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.drawTexturedModalRect(3, 0, 118, 0, 58, 1);
@@ -120,7 +120,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft + 173, this.guiTop + 141, 0.0f);
-			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			for (int slotId = 0; slotId < size; slotId++) {
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect((slotId % s) * 18, (slotId / s) * 18, 0, 0, 18, 18);

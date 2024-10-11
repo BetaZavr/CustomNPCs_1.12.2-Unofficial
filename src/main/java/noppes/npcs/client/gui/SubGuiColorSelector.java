@@ -49,7 +49,7 @@ public class SubGuiColorSelector extends SubGuiInterface implements ITextfieldLi
 	@Override
 	public void drawScreen(int par1, int par2, float par3) {
 		super.drawScreen(par1, par2, par3);
-		mc.renderEngine.bindTexture(SubGuiColorSelector.resource);
+		mc.getTextureManager().bindTexture(SubGuiColorSelector.resource);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		drawTexturedModalRect(colorX, colorY, 0, 0, 120, 120);
 		if (textfield == null) {

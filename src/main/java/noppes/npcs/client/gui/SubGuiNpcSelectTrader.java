@@ -48,12 +48,12 @@ public class SubGuiNpcSelectTrader extends SubGuiInterface implements IGuiData, 
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
-		if (this.background != null && this.mc.renderEngine != null) {
+		if (this.background != null) {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
 			GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
-			this.mc.renderEngine.bindTexture(this.background);
+			this.mc.getTextureManager().bindTexture(this.background);
 			this.drawTexturedModalRect(this.xSize, 0, 252, 0, 4, this.ySize);
 			GlStateManager.popMatrix();
 		}

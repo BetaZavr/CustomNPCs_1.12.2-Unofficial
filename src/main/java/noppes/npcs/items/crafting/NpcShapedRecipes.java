@@ -432,8 +432,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 
 	@Override
 	public boolean matches(@Nonnull InventoryCrafting inv, @Nullable World world) {
-		if (this.recipeItems.isEmpty() || (inv.getWidth() == 3 && !this.global)
-				|| (inv.getWidth() == 4 && this.global)) {
+		if (this.recipeItems.isEmpty() || (inv.getWidth() == 3 && !this.global) || (inv.getWidth() == 4 && this.global)) {
 			return false;
 		}
 		for (int width = 0; width <= 4 - this.recipeWidth; ++width) {

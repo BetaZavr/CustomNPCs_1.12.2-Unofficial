@@ -56,7 +56,7 @@ public class GuiNpcCarpentryBench
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-		mc.renderEngine.bindTexture(GuiNpcCarpentryBench.CRAFTING_TABLE_GUI_TEXTURES);
+		mc.getTextureManager().bindTexture(GuiNpcCarpentryBench.CRAFTING_TABLE_GUI_TEXTURES);
 		container.checkPos(recipeBookGui.isVisible());
 		drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);

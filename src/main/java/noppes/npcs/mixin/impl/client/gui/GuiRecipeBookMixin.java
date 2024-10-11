@@ -65,6 +65,14 @@ public class GuiRecipeBookMixin {
         recipeBookPage = new NpcRecipeBookPage();
     }
 
+    @Inject(method = "recipesUpdated", at = @At("HEAD"))
+    public void NPCS$recipesUpdated(CallbackInfo ci) {
+        boolean isGlobal = !(mc.currentScreen instanceof GuiNpcCarpentryBench);
+        if (!isGlobal) {
+            recipeBook = ((IRecipeBookMixin) mc.player.getRecipeBook()).npcs$copyToNew(false, mc.player);
+        }
+    }
+
     // The "func_194303_a" method is essentially the same as "initGui"
     @Inject(method = "func_194303_a", at = @At("HEAD"), cancellable = true)
     public void npcs$func_194303_a(int w, int h, @Nonnull Minecraft minecraft, boolean widthTooNarrow, @Nonnull InventoryCrafting inv, CallbackInfo ci) {
@@ -91,7 +99,7 @@ public class GuiRecipeBookMixin {
         width = w;
         height = h;
         craftingSlots = inv;
-        recipeBook = ((IRecipeBookMixin) minecraft.player.getRecipeBook()).npcs$copyToNew(isGlobal);
+        recipeBook = ((IRecipeBookMixin) mc.player.getRecipeBook()).npcs$copyToNew(isGlobal, mc.player);
         timesInventoryChanged = minecraft.player.inventory.getTimesChanged();
         currentTab = recipeTabs.get(0);
         currentTab.setStateTriggered(true);

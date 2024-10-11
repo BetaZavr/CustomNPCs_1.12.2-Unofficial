@@ -42,6 +42,7 @@ implements IComponentGui {
 	public boolean isSimple = false;
 	private ItemStack[] itemStacks = null;
 	public ItemStack currentStack = ItemStack.EMPTY;
+	public int currentStackID = -1;
 	private int ticks = 0;
 	private int wait = 0;
 
@@ -107,7 +108,7 @@ implements IComponentGui {
 			return;
 		}
 		if (this.texture == null) {
-			mc.renderEngine.bindTexture(GuiNPCInterface.MENU_BUTTON);
+			mc.getTextureManager().bindTexture(GuiNPCInterface.MENU_BUTTON);
 			if (this.layerColor != 0) {
 				GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f, (float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f, (float) (this.layerColor >> 24 & 255) / 255.0f);
 			} else {
@@ -156,7 +157,7 @@ implements IComponentGui {
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
 				GlStateManager.translate(this.x, this.y, 0.0f);
-				mc.renderEngine.bindTexture(this.texture);
+				mc.getTextureManager().bindTexture(this.texture);
 
 				this.drawTexturedModalRect(0, 0, txrX, txrY + i * this.height, this.width, this.height);
 				GlStateManager.popMatrix();
@@ -180,7 +181,7 @@ implements IComponentGui {
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				GlStateManager.translate(this.x / scaleW, this.y / scaleH, 0.0f);
-				mc.renderEngine.bindTexture(this.texture);
+				mc.getTextureManager().bindTexture(this.texture);
 				if (this.layerColor != 0) {
 					GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f,
 							(float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f,
@@ -216,10 +217,14 @@ implements IComponentGui {
 				this.y + (float) (this.height - 8) / 2, l, this.dropShadow);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		if (itemStacks != null && itemStacks.length != 0) {
-			currentStack = itemStacks[0];;
+			currentStack = itemStacks[0];
+			currentStackID = 0;
 			if (itemStacks.length > 1) {
 				if (wait > 0) { wait --; }
-				else { currentStack = itemStacks[(int) Math.floor(((double) ticks % (step * (double) itemStacks.length - 1.0d)) / step)]; }
+				else {
+					currentStackID = (int) Math.floor(((double) ticks % (step * (double) itemStacks.length - 1.0d)) / step);
+					currentStack = itemStacks[currentStackID];
+				}
 			}
 			if (currentStack != null && !currentStack.isEmpty()) {
 				GlStateManager.pushMatrix();
@@ -310,11 +315,19 @@ implements IComponentGui {
 	}
 
 	public void setStacks(ItemStack ... stacks) {
-		if (itemStacks != null && stacks != null) { wait = 100; }
+		if (itemStacks != null && stacks != null) { wait = 160; }
 		itemStacks = stacks;
+		currentStackID = itemStacks != null ? 0 : -1;
 		ticks = 0;
 	}
 
 	public ItemStack[] getStacks() { return itemStacks; }
+
+	public void setCurrentStackPos(int pos) {
+		if (itemStacks == null || pos < 0 || pos >= itemStacks.length) { return; }
+		currentStackID = pos;
+		wait = 160;
+		ticks = 0;
+	}
 
 }

@@ -42,7 +42,7 @@ public class GuiNpcQuestRewardItem extends GuiContainerNPCInterface {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.resource);
+		this.mc.getTextureManager().bindTexture(this.resource);
 		int u = (this.width - this.xSize) / 2;
 		int v = (this.height - this.ySize) / 2;
 		this.drawTexturedModalRect(u, v, 0, 0, this.xSize, this.ySize);
@@ -53,7 +53,7 @@ public class GuiNpcQuestRewardItem extends GuiContainerNPCInterface {
 		int size = this.inventorySlots.inventoryItemStacks.size();
 		u += 7 + (9 * 9) - size * 9;
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.slots);
+		this.mc.getTextureManager().bindTexture(this.slots);
 		this.drawTexturedModalRect(u, v, 0, 0, size * 18, 18);
 	}
 

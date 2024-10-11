@@ -25,7 +25,7 @@ public class GuiHoverText extends GuiScreen {
 
 	public void drawScreen(int par1, int par2, float par3) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(GuiHoverText.buttonTextures);
+		this.mc.getTextureManager().bindTexture(GuiHoverText.buttonTextures);
 		this.drawTexturedModalRect(this.x, this.y, 0, 0, 12, 12);
 		if (this.inArea(this.x, this.y, 12, 12, par1, par2)) {
 			List<String> lines = new ArrayList<>();

@@ -105,7 +105,7 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		float b = (float) (this.color & 255) / 255.0f;
 		GlStateManager.color(r, g, b, a);
 		GlStateManager.enableBlend();
-		mc.renderEngine.bindTexture(this.texture);
+		mc.getTextureManager().bindTexture(this.texture);
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);

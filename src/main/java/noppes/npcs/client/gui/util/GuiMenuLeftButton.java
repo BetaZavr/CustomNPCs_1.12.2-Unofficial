@@ -33,7 +33,7 @@ public class GuiMenuLeftButton extends GuiNpcButton {
 			return;
 		}
 		GlStateManager.pushMatrix();
-		minecraft.renderEngine.bindTexture(GuiMenuLeftButton.resource);
+		minecraft.getTextureManager().bindTexture(GuiMenuLeftButton.resource);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.hovered = (i >= this.x && j >= this.y && i < this.x + this.width && j < this.y + this.height);
 		int k = this.getHoverState(this.hovered);

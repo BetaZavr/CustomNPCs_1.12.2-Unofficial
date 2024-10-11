@@ -155,7 +155,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 	void drawBackgroundTexture() {
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.background);
+		this.mc.getTextureManager().bindTexture(this.background);
 		GlStateManager.translate((float) GuiCustom.guiLeft, (float) GuiCustom.guiTop, 0.0f);
 		if (this.bgW > 0 && this.bgH > 0) {
 			if (this.stretched == 0) {
@@ -230,7 +230,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 		}
 		GlStateManager.popMatrix();
 		if (this.gui.getShowPlayerSlots() && this.inventorySlots != null) {
-			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			for (int slotId = this.inventorySlots.inventorySlots.size() - 1, i = 0; i < 36; slotId--, i++) {
 				Slot slot = this.inventorySlots.getSlot(slotId);
 				this.drawTexturedModalRect(this.getGuiLeft() + slot.xPos - 1, this.getGuiTop() + slot.yPos - 1, 0, 0,
@@ -256,7 +256,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 			int cy = -46 + (256 - this.gui.getHeight()) / 2;
 			GlStateManager.pushMatrix();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			for (IItemSlot slot : this.gui.getSlots()) {
 				if (!slot.isShowBack()) {
 					continue;

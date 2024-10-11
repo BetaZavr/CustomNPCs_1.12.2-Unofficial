@@ -40,7 +40,7 @@ public class SubGuiSelectItemStack
         this.hoverPos = -2;
 
         GlStateManager.pushMatrix();
-        this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+        this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         this.drawTexturedModalRect(x, y, 0, 0, 18, 18);
         if (this.isMouseHover(mouseX, mouseY, x, y, 16, 16)) {

@@ -237,11 +237,11 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		}
 
 		this.base.setColors(colorsBase);
-		this.base.setSuffixs(suffixsBase);
+		this.base.setSuffixes(suffixsBase);
 		this.base.setListNotSorted(listBase);
 
 		this.selected.setColors(colors);
-		this.selected.setSuffixs(suffixs);
+		this.selected.setSuffixes(suffixs);
 		this.selected.setListNotSorted(list);
 		int x = this.guiLeft + 145, y = this.guiTop + 40;
 		this.addButton(new GuiNpcButton(1, x, y, 55, 20, ">", this.base.hasSelected()));

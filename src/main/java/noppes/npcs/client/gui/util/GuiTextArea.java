@@ -232,7 +232,7 @@ public class GuiTextArea extends Gui implements IGui, IKeyListener, IMouseListen
 			}
 		}
 		if (this.hasVerticalScrollbar()) {
-			Minecraft.getMinecraft().renderEngine.bindTexture(GuiCustomScroll.resource);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomScroll.resource);
 			int sbSize = (int) Math.max((1.0f * this.container.visibleLines / this.container.linesCount * this.height),
 					2);
 			int posX2 = this.x + this.width - 6;

@@ -47,7 +47,7 @@ public class GuiNpcCompanionTalents extends GuiNPCInterface {
 
 		public void drawScreen(int i, int j, float f) {
 			Minecraft mc = Minecraft.getMinecraft();
-			mc.renderEngine.bindTexture(GuiTalent.resource);
+			mc.getTextureManager().bindTexture(GuiTalent.resource);
 			ItemStack item = this.talent.item;
             item.getItem();
             GlStateManager.pushMatrix();
@@ -165,7 +165,7 @@ public class GuiNpcCompanionTalents extends GuiNPCInterface {
 				this.selected = null;
 			}
 		}
-		this.mc.renderEngine.bindTexture(Gui.ICONS);
+		this.mc.getTextureManager().bindTexture(Gui.ICONS);
 		this.drawTexturedModalRect(this.guiLeft + 4, this.guiTop + 20, 10, 64, 162, 5);
 		if (this.role.currentExp > 0) {
 			float v = 1.0f * this.role.currentExp / this.role.getMaxExp();

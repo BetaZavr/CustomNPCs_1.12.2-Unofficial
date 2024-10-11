@@ -170,7 +170,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		this.mc.renderEngine.bindTexture(backTexture);
+		this.mc.getTextureManager().bindTexture(backTexture);
 		int u = (this.width - this.xSize) / 2 - 8;
 		int v = (this.height - this.ySize) / 2;
 		int h = this.cont.height + 107;
@@ -194,7 +194,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 		this.drawVerticalLine(u + 15, v + 14, v + 1 + (i + 1) * 18, CustomNpcs.LableColor.getRGB());
 		this.drawVerticalLine(u + 176, v + 14, v + 1 + (i + 1) * 18, CustomNpcs.LableColor.getRGB());
 		// Slots
-		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+		this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		for (int s = 0; s < this.cont.inventorySlots.size(); s++) {
 			Slot slot = this.cont.getSlot(s);
@@ -219,7 +219,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 					CustomNpcs.LableColor.getRGB());
 		}
 		if (this.isMany) {
-			this.mc.renderEngine.bindTexture(rowTexture);
+			this.mc.getTextureManager().bindTexture(rowTexture);
 			this.drawTexturedModalRect(u + 184, v + 17, 174, 17, 14, 86);
 			this.drawTexturedModalRect(u + 184, v + 103, 174, 125, 14, 4);
 		}
@@ -243,7 +243,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 		if (this.isMany && this.subgui == null) {
 			GlStateManager.pushMatrix();
 			GlStateManager.color(2.0F, 2.0F, 2.0F, 1.0F);
-			this.mc.renderEngine.bindTexture(tabsTexture);
+			this.mc.getTextureManager().bindTexture(tabsTexture);
             float currentScroll = (float) this.row / (float) this.maxRows;
 			int h = (int) (currentScroll * 73.0f);
 			int u = (this.width - this.xSize) / 2 + 177;

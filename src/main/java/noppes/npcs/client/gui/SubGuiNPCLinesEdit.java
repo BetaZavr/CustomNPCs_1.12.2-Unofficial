@@ -157,7 +157,7 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 			}
 		}
 		this.scroll.hoversTexts = ht;
-		this.scroll.setSuffixs(suffixs);
+		this.scroll.setSuffixes(suffixs);
 		this.addScroll(this.scroll);
 		this.addLabel(new GuiNpcLabel(1, this.title.isEmpty() ? "" : this.title, this.guiLeft, this.guiTop + 4));
 		this.getLabel(1).center(this.xSize);

@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.ICompatibilty;
@@ -19,6 +20,9 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.handler.data.IAvailability;
+import noppes.npcs.api.handler.data.IDialog;
+import noppes.npcs.api.handler.data.IFaction;
+import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.constants.EnumAvailabilityDialog;
 import noppes.npcs.constants.EnumAvailabilityFaction;
 import noppes.npcs.constants.EnumAvailabilityFactionType;
@@ -27,8 +31,10 @@ import noppes.npcs.constants.EnumAvailabilityQuest;
 import noppes.npcs.constants.EnumAvailabilityScoreboard;
 import noppes.npcs.constants.EnumAvailabilityStoredData;
 import noppes.npcs.constants.EnumDayTime;
+import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.PlayerQuestController;
+import noppes.npcs.controllers.QuestController;
 import noppes.npcs.mixin.scoreboard.IServerScoreboardMixin;
 import noppes.npcs.util.ValueUtil;
 
@@ -46,6 +52,8 @@ public class Availability implements ICompatibilty, IAvailability {
 	public final Map<String, AvailabilityScoreboardData> scoreboards; // Objective, [Value, Availability]
 	public final Map<String, EnumAvailabilityPlayerName> playerNames;
 	public final List<AvailabilityStoredData> storeddata;
+	public boolean onlyGM = false;
+
 	public int version;
 
 	public Availability() {
@@ -94,7 +102,7 @@ public class Availability implements ICompatibilty, IAvailability {
 		if (this.healthType != 0) {
 			return true;
 		}
-		return this.daytime[0] != -1 || this.daytime[1] != -1 || this.minPlayerLevel > 0;
+		return this.daytime[0] != -1 || this.daytime[1] != -1 || this.minPlayerLevel > 0 || onlyGM;
 	}
 
 	public void clear() {
@@ -340,6 +348,9 @@ public class Availability implements ICompatibilty, IAvailability {
 			if ((this.healthType == 1 && h < this.health) || (this.healthType == 2 && h > this.health)) {
 				return false;
 			}
+		}
+		if (onlyGM && !player.capabilities.isCreativeMode) {
+			return false;
 		}
 		return player.experienceLevel >= this.minPlayerLevel;
 	}
@@ -593,6 +604,7 @@ public class Availability implements ICompatibilty, IAvailability {
 				this.healthType = this.healthType % 3;
 			}
 		}
+		onlyGM = compound.getBoolean("OnlyGM");
 
 		this.hasOptions = this.checkHasOptions();
 	}
@@ -788,6 +800,14 @@ public class Availability implements ICompatibilty, IAvailability {
 	}
 
 	@Override
+	public boolean getGMOnly() {
+		return onlyGM;
+	}
+
+	@Override
+	public void setGMOnly(boolean gmOnly) { onlyGM = gmOnly; }
+
+	@Override
 	public void setVersion(int version) {
 		this.version = version;
 	}
@@ -861,7 +881,186 @@ public class Availability implements ICompatibilty, IAvailability {
 
 		compound.setInteger("AvailabilityHealth", this.health);
 		compound.setInteger("AvailabilityHealthType", this.healthType);
+
+		compound.setBoolean("OnlyGM", onlyGM);
+
 		return compound;
+	}
+
+	public List<String> getAvailability(EntityPlayer player) {
+		List<String> list = new ArrayList<>();
+		if (!this.hasOptions) { return list; }
+		list.add(new TextComponentTranslation("availability.options").getFormattedText()+":");
+        StringBuilder data;
+        boolean gm = player.capabilities.isCreativeMode;
+		// daytime
+		if (this.daytime[0] != 0 && this.daytime[1] != 0 && this.daytime[0] != this.daytime[1]) {
+			int time = (int) ((player.world.getWorldTime() + 30000L) % 24000L) / 1000;
+			list.add(new TextComponentTranslation("availability.type.daytime",
+					((char) 167) + "2" + daytime[0]+":00", ((char) 167) + "2" + daytime[1]+":00", ((char) 167) + "6" + time+":00",
+					new TextComponentTranslation("quest.task.manual."+((time < this.daytime[0] || time > this.daytime[1]) ? "1" : "0")).getFormattedText()
+			).getFormattedText());
+		}
+		// dialogue
+		if (!this.dialogues.isEmpty()) {
+			DialogController dData = DialogController.instance;
+			data = new StringBuilder();
+			for (int id : this.dialogues.keySet()) {
+				if (this.dialogues.get(id) != EnumAvailabilityDialog.Always) { continue; }
+				if (data.toString().isEmpty()) { data.append("; "); }
+				IDialog d = dData.get(id);
+				data.append(new TextComponentTranslation("availability." + this.dialogues.get(id).name().toLowerCase()).getFormattedText()).append(" ");
+				if (d == null || gm) {
+					data.append((char) 167).append("7ID: ").append(((char) 167)).append("6").append(id).append((char) 167).append("r").append(gm ? " - " : "");
+				}
+				if (d != null) {
+					data.append(new TextComponentTranslation(d.getName()).getFormattedText());
+				}
+				data.append(new TextComponentTranslation("quest.task.manual."+(this.dialogAvailable(id, this.dialogues.get(id), player) ? "0" : "1")).getFormattedText());
+			}
+			if (!data.toString().isEmpty()) { list.add(new TextComponentTranslation("availability.type.dialogues", data.toString()).getFormattedText()); }
+		}
+		// quests
+		if (!this.quests.isEmpty()) {
+			QuestController qData = QuestController.instance;
+			data = new StringBuilder();
+			for (int id : this.quests.keySet()) {
+				if (this.quests.get(id) != EnumAvailabilityQuest.Always) { continue; }
+				if (data.toString().isEmpty()) { data.append("; "); }
+				IQuest q = qData.get(id);
+				if (q == null || gm) {
+					data.append((char) 167).append("7ID: ").append(((char) 167)).append("6").append(id).append((char) 167).append("r").append(gm ? " - " : "");
+				}
+				data.append(new TextComponentTranslation("availability." + this.quests.get(id).name().toLowerCase()).getFormattedText()).append(" ");
+				if (q != null) {
+					data.append(q.getTitle());
+				}
+				data.append(new TextComponentTranslation("quest.task.manual."+(this.questAvailable(id, this.quests.get(id), player) ? "0" : "1")).getFormattedText());
+			}
+			if (!data.toString().isEmpty()) { list.add(new TextComponentTranslation("availability.type.quests", data.toString()).getFormattedText()); }
+		}
+		// factions
+		if (!this.factions.isEmpty()) {
+			FactionController fData = FactionController.instance;
+			data = new StringBuilder();
+			for (int id : this.factions.keySet()) {
+				if (this.factions.get(id).factionAvailable == EnumAvailabilityFactionType.Always) { continue; }
+				if (data.toString().isEmpty()) { data.append("; "); }
+				IFaction f = fData.get(id);
+				if (f == null || gm) {
+					data.append((char) 167).append("7ID: ").append(((char) 167)).append("6").append(id).append((char) 167).append("r").append(gm ? " - " : "");
+				}
+				data.append(new TextComponentTranslation("availability." + this.factions.get(id).factionAvailable.name().toLowerCase()).getFormattedText()).append(" ");
+				String attitude = this.factions.get(id).factionStance == EnumAvailabilityFaction.Hostile ? "aggressive": this.factions.get(id).factionAvailable.name().toLowerCase();
+				data.append(new TextComponentTranslation("faction.name." + attitude).getFormattedText()).append(" ");
+				if (f != null) {
+					data.append(f.getName());
+				}
+				data.append(new TextComponentTranslation("quest.task.manual."+(this.factionAvailable(id, this.factions.get(id).factionStance, this.factions.get(id).factionAvailable, player) ? "0" : "1")).getFormattedText());
+			}
+			if (!data.toString().isEmpty()) { list.add(new TextComponentTranslation("availability.type.factions", data.toString()).getFormattedText()); }
+		}
+		// scoreboards
+		if (!this.scoreboards.isEmpty()) {
+			data = new StringBuilder();
+			for (String obj : this.scoreboards.keySet()) {
+				if (data.toString().isEmpty()) { data.append("; "); }
+				data.append(new TextComponentTranslation("gui.name").getFormattedText()).append(": ").append(obj);
+				data.append(new TextComponentTranslation("availability." + this.scoreboards.get(obj).scoreboardType.name().toLowerCase()).getFormattedText()).append(" ").append(this.scoreboards.get(obj).scoreboardValue);
+				data.append(new TextComponentTranslation("quest.task.manual."+(this.scoreboardAvailable(player, obj, this.scoreboards.get(obj).scoreboardType, this.scoreboards.get(obj).scoreboardValue) ? "0" : "1")).getFormattedText());
+			}
+			if (!data.toString().isEmpty()) { list.add(new TextComponentTranslation("availability.type.scoreboards", data.toString()).getFormattedText()); }
+		}
+		// player names
+		if (!this.playerNames.isEmpty()) {
+			data = new StringBuilder();
+			List<String> listOnly = new ArrayList<>();
+			List<String> listExcept = new ArrayList<>();
+			for (String name : this.playerNames.keySet()) {
+				switch (this.playerNames.get(name)) {
+					case Only: {
+						listOnly.add(name);
+						break;
+					}
+					case Except: {
+						listExcept.add(name);
+						break;
+					}
+				}
+			}
+			if (!listOnly.isEmpty()) {
+				data.append(new TextComponentTranslation("availability.only").getFormattedText()).append("[");
+				boolean st = true;
+				for (String name : listOnly) {
+					if (!st) { data.append("; "); } else { st = false; }
+					data.append(name);
+				}
+				data.append("]").append(new TextComponentTranslation("quest.task.manual."+(listOnly.contains(player.getName()) ? "0" : "1")).getFormattedText());
+			}
+			if (!listExcept.isEmpty()) {
+				data.append(new TextComponentTranslation("availability.except").getFormattedText()).append("[");
+				boolean st = true;
+				for (String name : listExcept) {
+					if (!st) { data.append("; "); } else { st = false; }
+					data.append(name);
+				}
+				data.append("]").append(new TextComponentTranslation("quest.task.manual."+(listExcept.contains(player.getName()) ? "0" : "1")).getFormattedText());
+			}
+			if (!data.toString().isEmpty()) { list.add(new TextComponentTranslation("availability.type.player.names", data.toString()).getFormattedText()); }
+		}
+		// storeddata
+		if (!this.storeddata.isEmpty()) {
+			data = new StringBuilder();
+			IData dataP = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player).getStoreddata();
+			for (AvailabilityStoredData sd : this.storeddata) {
+				EnumAvailabilityStoredData type = sd.type;
+				Object value = dataP.get(sd.key);
+				boolean isNumber = false;
+				boolean bo = true;
+				if (type != EnumAvailabilityStoredData.ONLY && type != EnumAvailabilityStoredData.EXCEPT) {
+					if (!(value instanceof Number || value instanceof String)) { bo = false; }
+					try {
+						double aV = Double.parseDouble(sd.value);
+						double dsV = value instanceof Number ? (double) value : Double.parseDouble((String) value);
+						if (type == EnumAvailabilityStoredData.EQUAL && dsV != aV) { bo = false; }
+						if (type == EnumAvailabilityStoredData.BIGGER && dsV < aV) { bo = false; }
+						if (type == EnumAvailabilityStoredData.SMALLER && dsV > aV) { bo = false; }
+						isNumber = true;
+					}
+					catch (Exception e) { bo = false; }
+				}
+				if (!isNumber) {
+					if ((dataP.has(sd.key) && type == EnumAvailabilityStoredData.EXCEPT) || (!dataP.has(sd.key) && type == EnumAvailabilityStoredData.ONLY)) { bo = false; }
+				}
+				if (data.toString().isEmpty()) { data.append("; "); }
+				data.append(new TextComponentTranslation("gui.name").getFormattedText()).append(": ").append(sd.key);
+				data.append(new TextComponentTranslation("quest.task.item."+(bo ? "0" : "1")).getFormattedText());
+			}
+			if (!data.toString().isEmpty()) { list.add(new TextComponentTranslation("availability.type.storeddata", data.toString()).getFormattedText()); }
+		}
+		// health
+		if (this.healthType != 0) {
+			data = new StringBuilder();
+			int h = (int) (player.getHealth() / player.getMaxHealth() * 100);
+			data.append(new TextComponentTranslation("availability." + (this.healthType == 1 ? "smaller" : "bigger"))).append(" ").append(h).append("%");
+			data.append(new TextComponentTranslation("quest.task.item."+((this.healthType == 1 && h < this.health) || (this.healthType == 2 && h > this.health) ? "1" : "0")).getFormattedText());
+			list.add(new TextComponentTranslation("availability.type.health", data.toString()).getFormattedText());
+		}
+		// in creative mode
+		if (onlyGM) {
+			data = new StringBuilder();
+			data.append(new TextComponentTranslation("gui.enabled").getFormattedText());
+			data.append(new TextComponentTranslation("quest.task.manual."+(gm ? "0" : "1")).getFormattedText());
+			list.add(new TextComponentTranslation("availability.type.only.gm", data.toString()).getFormattedText());
+		}
+		// xp level
+		if (this.minPlayerLevel > 0) {
+			data = new StringBuilder();
+			data.append(new TextComponentTranslation("availability.bigger").getFormattedText()).append(" ").append(this.minPlayerLevel);
+			data.append(new TextComponentTranslation("quest.task.manual."+(player.experienceLevel >= this.minPlayerLevel ? "0" : "1")).getFormattedText());
+			list.add(new TextComponentTranslation("availability.type.level", data.toString()).getFormattedText());
+		}
+		return list;
 	}
 
 }

@@ -106,12 +106,12 @@ public class GuiNpcQuestTypeDialog extends SubGuiInterface
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		if (this.subgui == null && this.mc.renderEngine != null) {
+		if (this.subgui == null) {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft, this.guiTop + this.ySize - 1, 0.0f);
 			GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.mc.renderEngine.bindTexture(this.background);
+			this.mc.getTextureManager().bindTexture(this.background);
 			if (this.xSize > 256) {
 				this.drawTexturedModalRect(0, 0, 0, 214, 250, 4);
 				this.drawTexturedModalRect(250, 0, 256 - (this.xSize - 250), 214, this.xSize - 250, 4);

@@ -731,7 +731,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			if (hover) {
 				hoverButton = i;
 			}
-			this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+			this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 			this.drawTexturedModalRect(0, 0, 0, hover || offset ? 30 : 60, 28, 30);
 
 			GlStateManager.pushMatrix();
@@ -773,9 +773,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
 		GlStateManager.scale(scaleW, scaleH, 1.0f);
-		this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
+		this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
 		this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
-		this.mc.renderEngine.bindTexture(GuiLog.ql.get(1));
+		this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
 		this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
 		GlStateManager.popMatrix();
 
@@ -854,7 +854,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		float scale = -30.0f * this.compassData.scale;
 		float incline = -45.0f + this.compassData.incline;
 
-		this.mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		GlStateManager.translate(0.0f, (-32.85714f * this.compassData.scale + 32.42857f) * scaleH, 0.0f);
 		GlStateManager.scale(scale * scaleW, scale * scaleH, scale);
 		GlStateManager.rotate(incline, 1.0f, 0.0f, 0.0f);
@@ -894,7 +894,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						18, 10)) {
 					hoverButton = 5;
 				} // pre cat list;
-				this.mc.renderEngine.bindTexture(GuiLog.bookGuiTextures);
+				this.mc.getTextureManager().bindTexture(GuiLog.bookGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
 				GlStateManager.popMatrix();
@@ -905,7 +905,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						18, 10)) {
 					hoverButton = 4;
 				} // next cat list;
-				this.mc.renderEngine.bindTexture(GuiLog.bookGuiTextures);
+				this.mc.getTextureManager().bindTexture(GuiLog.bookGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
 				GlStateManager.popMatrix();
@@ -933,7 +933,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				this.drawGradientRect(1, 1, 90, 12, 0x20FF0000, 0x80FF0000);
 				GlStateManager.popMatrix();
 			}
-			this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+			this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 			Color c = new Color(f.color);
 			GlStateManager.color(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f, 1.0f);
 
@@ -1029,8 +1029,8 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 				this.hoverText = hover.toArray(new String[0]);
 			}
-			this.mc.renderEngine.bindTexture(f.flag);
-            mc.renderEngine.getTexture(f.flag);
+			this.mc.getTextureManager().bindTexture(f.flag);
+            mc.getTextureManager().getTexture(f.flag);
             GlStateManager.pushMatrix();
             GlStateManager.translate(90.0f * scaleW, scaleH, 0.0f);
             GlStateManager.scale(0.175f, 0.11f, 1.0f);
@@ -1084,7 +1084,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		List<String> hover = Lists.newArrayList();
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
-		this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+		this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 		if (catRow > 0) { // pre Cats
 			if (isMouseHover(mouseX, mouseY, guiLeft - (int) (17.0f * scaleW), (int) (guiTopLog + 7.5f * scaleH),
 					(int) (18.0f * scaleW), (int) (16.0f * scaleH))) {
@@ -1130,7 +1130,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				continue;
 			}
 			int catW = this.fontRenderer.getStringWidth(catName) + 10 + i;
-			this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+			this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 			if (isMouseHover(mouseX, mouseY, guiLeft + (int) ((5 - catW) * scaleW), (int) (guiTopLog + (23.5f + i * 16.0f) * scaleH), (int) (catW * scaleH), (int) (16.0f * scaleH))) {
 				hoverButton = 7 + i;
 			} // 7/15-tab categories;
@@ -1190,7 +1190,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					GlStateManager.enableBlend();
 					GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 					this.drawTexturedModalRect(0, 0, 193, 0, 63, 52);
 					GlStateManager.popMatrix();
 				}
@@ -1258,7 +1258,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 							GlStateManager.translate(x + 0.5f, y, 0.0f);
 							GlStateManager.scale(0.3f, 0.15f, 1.0f);
 							GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
-							this.mc.renderEngine.bindTexture(killIcon);
+							this.mc.getTextureManager().bindTexture(killIcon);
 							this.drawTexturedModalRect(0, 0, 32, 64, 32, 64);
 							GlStateManager.popMatrix();
 						}
@@ -1279,7 +1279,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						18, 10)) {
 					hoverButton = 5;
 				} // pre cat list;
-				this.mc.renderEngine.bindTexture(GuiLog.bookGuiTextures);
+				this.mc.getTextureManager().bindTexture(GuiLog.bookGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
 				GlStateManager.popMatrix();
@@ -1290,7 +1290,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						18, 10)) {
 					hoverButton = 4;
 				} // next cat list;
-				this.mc.renderEngine.bindTexture(GuiLog.bookGuiTextures);
+				this.mc.getTextureManager().bindTexture(GuiLog.bookGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
 				GlStateManager.popMatrix();
@@ -1313,7 +1313,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 				GlStateManager.color(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f,
 						1.0f);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				this.drawTexturedModalRect(0, 0, 0, 0, 98, 30);
@@ -1323,7 +1323,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(3.0f * scaleW, 3.0f * scaleH, 0.0f);
-				this.mc.renderEngine.bindTexture(quest.icon);
+				this.mc.getTextureManager().bindTexture(quest.icon);
 				GlStateManager.scale(0.09375f, 0.09375f, 1.0f);
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1344,7 +1344,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 						xo = (int) ((System.currentTimeMillis() % 5000) / 1000) * 9 + 9;
 					}
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 					if (isMouseHover(mouseX, mouseY, qxPos + (int) (87.0f * scaleW), qyPos + (int) (19.0f * scaleH),
 							(int) (9.0f * scaleW), (int) (9.0f * scaleH))) {
 						hoverButton = 30;
@@ -1365,7 +1365,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						this.drawGradientRect(1, 1, 8, 8, 0x20FF0000, 0x80FF0000);
 						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 					}
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 					if (isMouseHover(mouseX, mouseY, qxPos + (int) ((87.0f - (hasExtraButton ? 9.0f : 0.0f)) * scaleW),
 							qyPos + (int) (19.0f * scaleH), (int) (9.0f * scaleW), (int) (9.0f * scaleH))) {
 						hoverButton = 31;
@@ -1389,7 +1389,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						this.drawGradientRect(1, 1, 8, 8, 0x20FF0000, 0x80FF0000);
 						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 					}
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 					if (isMouseHover(mouseX, mouseY,
 							qxPos + (int) (v
 									* scaleW),
@@ -1502,7 +1502,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			}
 			switch (step) {
 			case 0: { // start open
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(2));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(2));
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiCenter + (1.0f - cos) * (guiCenter + 50.0f),
 						guiTopLog + (1.0f - cos) * 250.0f, 0.0f);
@@ -1525,7 +1525,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
 				this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 				GlStateManager.popMatrix();
 				// left
@@ -1542,7 +1542,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
 					GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(2));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(2));
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 				} else {
 					part = (float) tick + partialTicks;
@@ -1555,7 +1555,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
 					GlStateManager.scale(cos, 1.0f, 1.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 				}
 				GlStateManager.popMatrix();
@@ -1572,10 +1572,10 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
 				this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
 				if (temp > 0) {
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(1));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
 					this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
 				}
 				GlStateManager.popMatrix();
@@ -1594,7 +1594,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
 					GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
 					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 				} else {
 					part = (float) tick + partialTicks;
@@ -1607,7 +1607,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
 					GlStateManager.scale(cos, 1.0f, 1.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 				}
 				GlStateManager.popMatrix();
@@ -1637,7 +1637,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				// Tabs
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiLeft + 10, guiTop + (1.0f - cos) * 28.0f, 0.0f);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 				this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
 				GlStateManager.translate(33.0f, 0.0f, 0.0f);
 				this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
@@ -1652,9 +1652,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
 				this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(1));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
 				this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
 				GlStateManager.popMatrix();
 
@@ -1671,11 +1671,11 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (!categories.isEmpty()) {
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 					int i = 0, p = 0;
 					for (String catName : categories.keySet()) {
 						int catW = (int) ((this.fontRenderer.getStringWidth(catName) + 10 + i) * cos);
-						this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 						if (isMouseHover(mouseX, mouseY, guiLeft + (int) ((5 - catW) * scaleW),
 								(int) (guiTopLog + (23.5f + i * 16.0f) * scaleH), (int) (catW * scaleH),
 								(int) (16.0f * scaleH))) {
@@ -1750,7 +1750,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 							continue;
 						}
 						int catW = (int) ((this.fontRenderer.getStringWidth(catName) + 10) * (1.0f - cos));
-						this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 						this.drawTexturedModalRect(5 - catW, i * 16, 0, 90 + (catSelect == p ? 0 : 16), catW, 16);
 						StringBuilder name = new StringBuilder();
 						for (int j = 0; j < catName.length(); j++) {
@@ -1831,7 +1831,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
 					GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
 					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 				} else {
 					part = (float) tick + partialTicks;
@@ -1844,7 +1844,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
 					GlStateManager.scale(cos, 1.0f, 1.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 				}
 				GlStateManager.popMatrix();
@@ -1878,7 +1878,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.translate(guiCenter - (1.0f - cos) * width / 2.0f, guiTopLog, 0.0f);
 					GlStateManager.scale((1.0f - cos), 1.0f, 1.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 				} else {
 					part = (float) tick + partialTicks;
@@ -1891,7 +1891,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
 					GlStateManager.scale(cos, 1.0f, 1.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
 					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 				}
 				GlStateManager.popMatrix();
@@ -1913,7 +1913,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				// Tabs
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiLeft + 10, guiTop + cos * 28.0f, 0.0f);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 				this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
 				GlStateManager.translate(33.0f, 0.0f, 0.0f);
 				this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
@@ -1929,9 +1929,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
 				this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(1));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
 				this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -1946,7 +1946,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				// left
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiCenter - 64.0f * cos, guiTopLog, 0.0f);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 				GlStateManager.popMatrix();
@@ -1966,10 +1966,10 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.translate(-128.0f * (1.0d - cos), 0.0f, 0.0f);
 					GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					if (temp > 0) {
-						this.mc.renderEngine.bindTexture(GuiLog.ql.get(1));
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
 						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					}
 				} else {
@@ -1982,7 +1982,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					}
 					GlStateManager.scale(cos, 1.0f, 1.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.renderEngine.bindTexture(GuiLog.ql.get(2));
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(2));
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 				}
 				GlStateManager.popMatrix();
@@ -2002,7 +2002,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiCenter - 64.0f + cos * (guiCenter + 50.0f), guiTopLog + cos * 250.0f, 0.0f);
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.mc.renderEngine.bindTexture(GuiLog.ql.get(2));
+				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(2));
 				this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 				GlStateManager.popMatrix();
 				if (tick == 0) {

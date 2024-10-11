@@ -45,9 +45,9 @@ public class GuiNpcCompanionInv extends GuiContainerNPCInterface {
 	protected void drawGuiContainerBackgroundLayer(float f, int xMouse, int yMouse) {
 		this.drawWorldBackground(0);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.resource);
+		this.mc.getTextureManager().bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
-		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+		this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		if (this.role.getTalentLevel(EnumCompanionTalent.ARMOR) > 0) {
 			for (int i = 0; i < 4; ++i) {
 				this.drawTexturedModalRect(this.guiLeft + 5, this.guiTop + 7 + i * 18, 0, 0, 18, 18);

@@ -54,7 +54,7 @@ public class GuiCreateFlatDimension extends GuiScreen {
 
 		private void drawItemBackground(int x, int y) {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			this.mc.renderEngine.bindTexture(Gui.STAT_ICONS);
+			this.mc.getTextureManager().bindTexture(Gui.STAT_ICONS);
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder vertexbuffer = tessellator.getBuffer();
 			vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);

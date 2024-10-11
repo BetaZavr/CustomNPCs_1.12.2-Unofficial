@@ -149,7 +149,7 @@ public class ModelRendererAlt extends ModelRenderer {
 		if (this.displayOBJListUp > 0 || this.displayOBJListDown > 0) { this.objDraw(); }
 		else {
 			this.clearData();
-			if (this.location != null) { Minecraft.getMinecraft().renderEngine.bindTexture(this.location); }
+			if (this.location != null) { Minecraft.getMinecraft().getTextureManager().bindTexture(this.location); }
 			if (this.isNormal || !CustomNpcs.ShowJoints || (this.rotateAngleX1 == 0.0f && this.rotateAngleY1 == 0.0f)) {
 				this.simpleDraw(scale);
 			} else {
@@ -244,7 +244,7 @@ public class ModelRendererAlt extends ModelRenderer {
 		GlStateManager.enableBlend();
 		GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
 		if (this.displayOBJListUp > 0) {
-			Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 			GlStateManager.callList(this.displayOBJListUp);
 		}
 		if (this.displayOBJListDown > 0) {
@@ -269,7 +269,7 @@ public class ModelRendererAlt extends ModelRenderer {
 				GlStateManager.rotate(this.rotateAngleY1 * 180.0f / (float) Math.PI, 0.0f, 1.0f, 0.0f);
 				GlStateManager.translate(-ofs, 0.0f, 0.0f);
 			}
-			Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 			GlStateManager.callList(this.displayOBJListDown);
 		}
 		GlStateManager.disableBlend();

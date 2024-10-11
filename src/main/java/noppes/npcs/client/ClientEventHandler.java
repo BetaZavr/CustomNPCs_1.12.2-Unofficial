@@ -302,7 +302,7 @@ public class ClientEventHandler {
 						GlStateManager.pushAttrib();
 						GlStateManager.enableRescaleNormal();
 						GlStateManager.translate(p.getX(), p.getY(), p.getZ());
-						Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+						Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 						GlStateManager.rotate(-90.0f, 0.0f, 1.0f, 0.0f);
 						state = SchematicWrapper.rotationState(state, 0);
 						try {

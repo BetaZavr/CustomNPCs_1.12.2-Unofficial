@@ -142,14 +142,14 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 	private void drawMailBox(float u, float v) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(u, v, 0.0f);
-		this.mc.renderEngine.bindTexture(mBox);
+		this.mc.getTextureManager().bindTexture(mBox);
 		this.drawTexturedModalRect(0, 0, 0, 0, 192, 236); // Box
 		if (!this.scrollData.isEmpty()) {
-			this.mc.renderEngine.bindTexture(mList);
+			this.mc.getTextureManager().bindTexture(mList);
 			this.drawTexturedModalRect(8, 45, 0, 0, 176, 156); // list
 		}
 		if (step == 3) {
-			this.mc.renderEngine.bindTexture(mDoor);
+			this.mc.getTextureManager().bindTexture(mDoor);
 			this.drawTexturedModalRect(-5, 44, 181, 0, 7, 158); // door
 		}
 		GlStateManager.popMatrix();
@@ -236,7 +236,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				this.drawMailBox(this.guiLeft, this.guiTop + (1.0f - cos) * 236.0f);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop + (1.0f - cos) * 236.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mDoor);
+				this.mc.getTextureManager().bindTexture(mDoor);
 				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -254,7 +254,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				this.drawMailBox(this.guiLeft, this.guiTop);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft - (cos * 193.0f), this.guiTop, 2.0f);
-				this.mc.renderEngine.bindTexture(mDoor);
+				this.mc.getTextureManager().bindTexture(mDoor);
 				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -270,7 +270,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				float s = 1.0f - cos;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft - 7.0f - (186.0f) * s, this.guiTop, 2.0f);
-				this.mc.renderEngine.bindTexture(mDoor);
+				this.mc.getTextureManager().bindTexture(mDoor);
 				GlStateManager.scale(s, 1.0f, 1.0f);
 				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
 				this.drawTexturedModalRect(183, 44, 178, 0, 3, 158);
@@ -279,7 +279,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				s = cos;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft - 7.0f, this.guiTop, 2.0f);
-				this.mc.renderEngine.bindTexture(mDoor);
+				this.mc.getTextureManager().bindTexture(mDoor);
 				GlStateManager.scale(s, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 44, 181, 0, 7, 158);
 				GlStateManager.popMatrix();
@@ -300,7 +300,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				float s = cos;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft - 7.0f - (186.0f) * s, this.guiTop, 2.0f);
-				this.mc.renderEngine.bindTexture(mDoor);
+				this.mc.getTextureManager().bindTexture(mDoor);
 				GlStateManager.scale(s, 1.0f, 1.0f);
 				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
 				this.drawTexturedModalRect(183, 44, 178, 0, 3, 158);
@@ -309,7 +309,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				s = 1.0f - cos;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft - 7.0f, this.guiTop, 2.0f);
-				this.mc.renderEngine.bindTexture(mDoor);
+				this.mc.getTextureManager().bindTexture(mDoor);
 				GlStateManager.scale(s, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 44, 181, 0, 7, 158);
 				GlStateManager.popMatrix();
@@ -325,7 +325,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				this.drawMailBox(this.guiLeft, this.guiTop);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft - ((1.0f - cos) * 193.0f), this.guiTop, 2.0f);
-				this.mc.renderEngine.bindTexture(mDoor);
+				this.mc.getTextureManager().bindTexture(mDoor);
 				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -343,7 +343,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 				this.drawMailBox(this.guiLeft, this.guiTop + cos * 236.0f);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop + cos * 236.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mDoor);
+				this.mc.getTextureManager().bindTexture(mDoor);
 				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -498,7 +498,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 		}
 		this.scroll.clear();
 		this.scroll.setListNotSorted(list);
-		this.scroll.setPrefixs(prefixs);
+		this.scroll.setPrefixes(prefixs);
 		this.scroll.setColors(colors);
 		this.scroll.colorBack = 0x00000000;
 		if (select != null && !select.isEmpty()) {

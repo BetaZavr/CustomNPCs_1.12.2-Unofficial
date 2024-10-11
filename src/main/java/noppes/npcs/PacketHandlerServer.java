@@ -287,11 +287,8 @@ public class PacketHandlerServer {
             NBTTagCompound compound = Server.readNBT(buffer);
             if (compound.getString("Domen").equals(CustomNpcs.MODID)) {
                 INpcRecipe recipe;
-                if (compound.getBoolean("IsShaped")) {
-                    recipe = NpcShapedRecipes.read(compound);
-                } else {
-                    recipe = NpcShapelessRecipes.read(compound);
-                }
+                if (compound.getBoolean("IsShaped")) { recipe = NpcShapedRecipes.read(compound); }
+                else { recipe = NpcShapelessRecipes.read(compound); }
                 recipe = RecipeController.getInstance().register(recipe);
                 RecipeController.getInstance().sendToAll(recipe);
             }

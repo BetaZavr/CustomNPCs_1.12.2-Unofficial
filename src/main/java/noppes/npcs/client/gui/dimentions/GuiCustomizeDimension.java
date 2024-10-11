@@ -153,7 +153,7 @@ public class GuiCustomizeDimension extends GuiScreen implements GuiSlider.Format
 			GlStateManager.disableFog();
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder vertexBuffer = tessellator.getBuffer();
-			this.mc.renderEngine.bindTexture(OPTIONS_BACKGROUND);
+			this.mc.getTextureManager().bindTexture(OPTIONS_BACKGROUND);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			vertexBuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
 			vertexBuffer.pos(this.width / 2.0D - 90.0D, 185.0D, 0.0D).tex(0.0D, 2.65625D).color(64, 64, 64, 64).endVertex();

@@ -44,7 +44,7 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.resource);
+		this.mc.getTextureManager().bindTexture(this.resource);
 		int l = (this.width - this.xSize) / 2;
 		int i2 = (this.height - this.ySize) / 2;
 		this.drawTexturedModalRect(l, i2, 0, 0, this.xSize, this.ySize);

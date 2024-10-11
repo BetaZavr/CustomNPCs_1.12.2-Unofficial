@@ -189,12 +189,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		for (int id = 4; id <= 8; ++id) {
 			Slot slot = this.container.getSlot(id);
-			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			if (id > 6 && ArmourersWorkshopClientApi.getSkinRenderHandler() != null) {
 				this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 0, 0, 18, 18);
 				if (!slot.getHasStack()) {
-					this.mc.renderEngine.bindTexture(id == 7 ? ArmourersWorkshopUtil.getInstance().slotOutfit
-							: ArmourersWorkshopUtil.getInstance().slotWings);
+					this.mc.getTextureManager().bindTexture(id == 7 ? ArmourersWorkshopUtil.getInstance().slotOutfit : ArmourersWorkshopUtil.getInstance().slotWings);
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(this.guiLeft + slot.xPos, this.guiTop + slot.yPos, 0.0f);
 					GlStateManager.scale(0.0625f, 0.0625f, 0.0625f);

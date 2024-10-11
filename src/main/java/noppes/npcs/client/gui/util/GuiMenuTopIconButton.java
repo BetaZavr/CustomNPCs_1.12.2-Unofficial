@@ -48,7 +48,7 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
 			this.drawHoveringText(Collections.singletonList(this.displayString), 0, 0, mc.fontRenderer);
 			GlStateManager.translate((-x), (-(this.y + 2)), 0.0f);
 		}
-		mc.renderEngine.bindTexture(GuiMenuTopIconButton.resource);
+		mc.getTextureManager().bindTexture(GuiMenuTopIconButton.resource);
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableBlend();

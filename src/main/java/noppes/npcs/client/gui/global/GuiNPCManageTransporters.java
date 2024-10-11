@@ -107,7 +107,7 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 			for (int slotId = 0; slotId < 10; ++slotId) {
 				int x = this.guiLeft + this.container.getSlot(slotId).xPos;
 				int y = this.guiTop + this.container.getSlot(slotId).yPos;
-				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+				this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
 			}

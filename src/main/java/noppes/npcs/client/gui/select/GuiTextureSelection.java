@@ -237,7 +237,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 			GlStateManager.scale(scale, scale, 1.0f);
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			try {
-				this.mc.renderEngine.bindTexture(this.resource);
+				this.mc.getTextureManager().bindTexture(this.resource);
 				if (this.type == 4) { // faction flag
 					GlStateManager.translate(62.0f, 0.0f, 0.0f);
 					GlStateManager.scale(3.3f, 2.0f, 1.0f);
@@ -346,7 +346,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 			}
 			list.add(0, this.back);
 			this.scroll.setColors(colors);
-			this.scroll.setSuffixs(suffixes);
+			this.scroll.setSuffixes(suffixes);
 			this.scroll.setListNotSorted(list);
 			if (this.scroll.selected != pos) {
 				this.scroll.selected = pos;

@@ -77,7 +77,7 @@ public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements IText
             this.inventorySlots.getSlot(slotId);
             int x = this.guiLeft + this.inventorySlots.getSlot(slotId).xPos;
 			int y = this.guiTop + this.inventorySlots.getSlot(slotId).yPos;
-			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
 		}

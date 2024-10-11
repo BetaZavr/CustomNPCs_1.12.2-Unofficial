@@ -170,7 +170,7 @@ public class BlockScriptedRenderer<T extends TileEntity> extends TileEntitySpeci
             } else if (l.objModel != null) {
                 int displayList = ModelBuffer.getDisplayList(l.objModel, null, null);
                 if (displayList >= 0) {
-                    Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+                    Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
                     GlStateManager.callList(displayList);
                 }
             }

@@ -113,7 +113,7 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 
 		FontRenderer fontRenderer = mc.fontRenderer;
 		if (this.texture == null) {
-			mc.renderEngine.bindTexture(CustomGuiButton.BUTTON_TEXTURES);
+			mc.getTextureManager().bindTexture(CustomGuiButton.BUTTON_TEXTURES);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			int i = this.getHoverState(this.hovered);
 			GlStateManager.enableBlend();
@@ -138,7 +138,7 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 			this.drawCenteredString(fontRenderer, this.displayString, this.x + this.width / 2,
 					this.y + (this.height - 8) / 2, j);
         } else {
-			mc.renderEngine.bindTexture(this.texture);
+			mc.getTextureManager().bindTexture(this.texture);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			int i = this.hoverState(this.hovered);
 			GlStateManager.enableBlend();

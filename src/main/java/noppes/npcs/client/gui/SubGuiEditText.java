@@ -66,21 +66,19 @@ extends SubGuiInterface {
 			}
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.mc.renderEngine != null) {
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
-			GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
-			this.mc.renderEngine.bindTexture(this.background);
-			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-			if (this.xSize > 256) {
-				this.drawTexturedModalRect(0, this.ySize - 1, 0, 218, 250, this.ySize);
-				this.drawTexturedModalRect(250, this.ySize - 1, 256 - (this.xSize - 250), 218, this.xSize - 250,
-						this.ySize);
-			} else {
-				this.drawTexturedModalRect(0, this.ySize - 1, 0, 218, this.xSize, 4);
-			}
-			GlStateManager.popMatrix();
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
+		GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
+		this.mc.getTextureManager().bindTexture(this.background);
+		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
+		if (this.xSize > 256) {
+			this.drawTexturedModalRect(0, this.ySize - 1, 0, 218, 250, this.ySize);
+			this.drawTexturedModalRect(250, this.ySize - 1, 256 - (this.xSize - 250), 218, this.xSize - 250,
+					this.ySize);
+		} else {
+			this.drawTexturedModalRect(0, this.ySize - 1, 0, 218, this.xSize, 4);
 		}
+		GlStateManager.popMatrix();
 	}
 
 	@Override

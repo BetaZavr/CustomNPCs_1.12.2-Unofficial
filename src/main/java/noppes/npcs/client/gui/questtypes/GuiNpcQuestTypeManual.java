@@ -98,7 +98,7 @@ public class GuiNpcQuestTypeManual extends SubGuiInterface implements ITextfield
 			int u = this.guiLeft + this.xSize - 1;
 			int v = this.guiTop;
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.mc.renderEngine.bindTexture(this.background);
+			this.mc.getTextureManager().bindTexture(this.background);
 			this.drawTexturedModalRect(u, v, 252, 0, 4, this.ySize);
 		}
 		super.drawScreen(i, j, f);

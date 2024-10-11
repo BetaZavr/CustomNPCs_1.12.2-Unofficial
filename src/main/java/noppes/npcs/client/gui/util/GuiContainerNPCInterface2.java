@@ -51,10 +51,10 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		this.drawDefaultBackground();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.background);
+		this.mc.getTextureManager().bindTexture(this.background);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, 256, 256);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.defaultBackground);
+		this.mc.getTextureManager().bindTexture(this.defaultBackground);
 		this.drawTexturedModalRect(this.guiLeft + this.xSize - 200, this.guiTop, 26, 0, 200, 220);
 		this.menu.drawElements(i, j, this.mc, f);
 		super.drawGuiContainerBackgroundLayer(f, i, j);

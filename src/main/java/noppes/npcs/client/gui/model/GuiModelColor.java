@@ -65,7 +65,7 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		
 		if (this.npcSkin != null) {
 			// back
-			this.mc.renderEngine.bindTexture(GuiModelColor.colorgui);
+			this.mc.getTextureManager().bindTexture(GuiModelColor.colorgui);
 			int xs = this.colorX + 128;
 			int ys = this.colorY;
 			this.drawTexturedModalRect(xs + 3, ys - 5, 11, 0, 134, 1);
@@ -76,7 +76,7 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(xs + 4, ys, 0.0f);
 			GlStateManager.scale(0.46f, 0.46f, 0.46f);
-			this.mc.renderEngine.bindTexture(this.npcSkin);
+			this.mc.getTextureManager().bindTexture(this.npcSkin);
 			
 			Gui.drawRect(-1, -1, 258, 258, GuiTextureSelection.dark ? 0xFFE0E0E0 : 0xFF202020);
 			Gui.drawRect(0, 0, 256, 256, GuiTextureSelection.dark ? 0xFF000000 : 0xFFFFFFFF);
@@ -127,7 +127,7 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		int x = this.colorX + 4, y = this.colorY;
 		this.drawGradientRect(x - 2, y - 2, x + 120, y + 119, 0xFFF0F0F0, 0xFF202020);
 		this.drawGradientRect(x - 1, y - 1, x + 119, y + 118, 0xFF202020, 0xFFF0F0F0);
-		this.mc.renderEngine.bindTexture(GuiModelColor.colorPicker);
+		this.mc.getTextureManager().bindTexture(GuiModelColor.colorPicker);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.drawTexturedModalRect(x, y, 0, 1, 120, 120);
 		

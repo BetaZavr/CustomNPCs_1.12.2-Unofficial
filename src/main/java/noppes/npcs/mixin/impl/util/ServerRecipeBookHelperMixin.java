@@ -2,13 +2,12 @@ package noppes.npcs.mixin.impl.util;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.inventory.*;
+import net.minecraft.network.play.server.SPacketPlaceGhostRecipe;
 import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.InventoryCraftResult;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ServerRecipeBookHelper;
@@ -23,8 +22,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -55,12 +54,54 @@ public class ServerRecipeBookHelperMixin {
 
     /*
      * NetHandlerPlayServer.func_194308_a(CPacketPlaceRecipe cPacket) {} -> here:
-     * (processCraftRecipe) func_194327_a(EntityPlayerMP playerMP, IRecipe checkRecipe, boolean shiftPressed) {}
+     * func_194327_a(EntityPlayerMP playerMP, IRecipe checkRecipe, boolean shiftPressed) {}
      *
      * checks if the player open container has a crafting grid;
      * if the player has items for crafting, then places them; -> func_194329_b()
      * if there are not enough items, then sends back a ghost recipe; -> player.connection.sendPacket(new SPacketPlaceGhostRecipe())
      */
+    @Inject(method = "func_194327_a", at = @At("HEAD"), cancellable = true)
+    public void npcs$processCraftRecipe(EntityPlayerMP playerMP, @Nullable IRecipe iRecipe, boolean shiftPressed, CallbackInfo ci) {
+        ci.cancel();
+        if (iRecipe == null || !playerMP.getRecipeBook().isUnlocked(iRecipe)) { return; }
+        this.player = playerMP;
+        this.recipe = iRecipe;
+        this.isShiftPressed = shiftPressed;
+        this.slots = playerMP.openContainer.inventorySlots;
+        Container container = playerMP.openContainer;
+        this.invCraftResult = null;
+        this.invCrafting = null;
+        if (container instanceof ContainerWorkbench) {
+            this.invCraftResult = ((ContainerWorkbench)container).craftResult;
+            this.invCrafting = ((ContainerWorkbench)container).craftMatrix;
+        }
+        else if (container instanceof ContainerPlayer) {
+            this.invCraftResult = ((ContainerPlayer)container).craftResult;
+            this.invCrafting = ((ContainerPlayer)container).craftMatrix;
+        }
+        else if (container instanceof net.minecraftforge.common.crafting.IRecipeContainer) {
+            this.invCraftResult = ((net.minecraftforge.common.crafting.IRecipeContainer)container).getCraftResult();
+            this.invCrafting = ((net.minecraftforge.common.crafting.IRecipeContainer)container).getCraftMatrix();
+        }
+        boolean isAvailability = true;
+        if (recipe instanceof INpcRecipe) {
+            npcs$ignoreDamage = ((INpcRecipe) recipe).getIgnoreDamage();
+            npcs$ignoreNBT = ((INpcRecipe) recipe).getIgnoreNBT();
+            Availability availability = (Availability) ((INpcRecipe) recipe).getAvailability();
+            isAvailability = availability.isAvailable(player);
+        }
+        if (this.invCraftResult == null && this.invCrafting == null || !(npcs$canPlaceStacks() || playerMP.isCreative())) { return; }
+        this.recipeItemHelper.clear();
+        playerMP.inventory.fillStackedContents(this.recipeItemHelper, false);
+        this.invCrafting.fillStackedContents(this.recipeItemHelper);
+
+        if (isAvailability && this.recipeItemHelper.canCraft(iRecipe, null)) { this.npcs$placeRecipeInCraftingGrid(); }
+        else {
+            this.npcs$clearInventoryCrafting();
+            playerMP.connection.sendPacket(new SPacketPlaceGhostRecipe(playerMP.openContainer.windowId, iRecipe));
+        }
+        playerMP.inventory.markDirty();
+    }
 
     // parent: func_194326_a()
     @Unique
@@ -83,9 +124,9 @@ public class ServerRecipeBookHelperMixin {
         this.invCraftResult.clear();
     }
 
-    @Inject(method = "func_194329_b", at = @At("HEAD"), cancellable = true)
-    public void npcs$placeRecipeInCraftingGrid(CallbackInfo ci) {
-        ci.cancel();
+    // parent: func_194326_a()
+    @Unique
+    public void npcs$placeRecipeInCraftingGrid() {
         boolean isMatches = recipe.matches(invCrafting, player.world);
         /*
          * int craftableStacks = this.recipeItemHelper.getBiggestCraftableStack(this.recipe, null); // -> RecipePicker(recipe).tryPickAll()
@@ -206,19 +247,11 @@ public class ServerRecipeBookHelperMixin {
         }
     }
 
-    // (canCraft) func_194328_c()
-    @Inject(method = "func_194328_c", at = @At("HEAD"), cancellable = true)
-    public void npcs$canCraft(CallbackInfoReturnable<Boolean> cir) {
-        cir.cancel();
+    // parent: func_194328_c()
+    @Unique
+    private boolean npcs$canPlaceStacks() {
         InventoryPlayer inventoryplayer = this.player.inventory;
         if (recipe instanceof INpcRecipe) {
-            npcs$ignoreDamage = ((INpcRecipe) recipe).getIgnoreDamage();
-            npcs$ignoreNBT = ((INpcRecipe) recipe).getIgnoreNBT();
-            Availability npcs$availability = (Availability) ((INpcRecipe) recipe).getAvailability();
-            if (!npcs$availability.isAvailable(player)) {
-                cir.setReturnValue(false);
-                return;
-            }
             int stackLimit = inventoryplayer.getInventoryStackLimit();
             for (int i = 0; i < this.invCrafting.getSizeInventory(); ++i) {
                 ItemStack craftStack = this.invCrafting.getStackInSlot(i);
@@ -239,13 +272,8 @@ public class ServerRecipeBookHelperMixin {
                         }
                     }
                 }
-                if (slotID == -1) {
-                    slotID = inventoryplayer.getFirstEmptyStack();
-                }
-                if (slotID == -1) {
-                    cir.setReturnValue(false);
-                    return;
-                }
+                if (slotID == -1) { slotID = inventoryplayer.getFirstEmptyStack(); }
+                if (slotID == -1) { return false; }
             }
         }
         else {
@@ -254,13 +282,10 @@ public class ServerRecipeBookHelperMixin {
                 if (craftStack.isEmpty()) { continue; }
                 int slotID = inventoryplayer.storeItemStack(craftStack);
                 if (slotID == -1) { slotID = inventoryplayer.getFirstEmptyStack(); }
-                if (slotID == -1) {
-                    cir.setReturnValue(false);
-                    return;
-                }
+                if (slotID == -1) { return false; }
             }
         }
-        cir.setReturnValue(true);
+        return true;
     }
 
     @Unique

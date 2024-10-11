@@ -1,4 +1,4 @@
-package noppes.npcs.mixin.impl.inventory;
+package noppes.npcs.mixin.impl.inv;
 
 import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,9 +13,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.ForgeHooks;
 import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.INpcRecipe;
+import noppes.npcs.controllers.data.Availability;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,8 +22,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.Objects;
 
 // methods are mixed, as there are now recipes with more than 1 count ingredient
 @Mixin(value = SlotCrafting.class)
@@ -50,8 +47,10 @@ public class SlotCraftingMixin {
         boolean ignoreNBT = false;
         // Availability
         if (recipe instanceof INpcRecipe) {
-            if (!((INpcRecipe) recipe).getAvailability().isAvailable((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
-                if (player.world.isRemote) { player.sendMessage(new TextComponentTranslation("item.craft.not.availability")); }
+            if (!((Availability) ((INpcRecipe) recipe).getAvailability()).isAvailable(player)) {
+                if (!player.world.isRemote) {
+                    player.sendMessage(new TextComponentTranslation("item.craft.not.availability"));
+                }
                 cir.setReturnValue(ItemStack.EMPTY);
                 return;
             }

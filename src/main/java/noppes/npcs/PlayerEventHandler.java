@@ -8,7 +8,6 @@ import java.util.*;
 import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockBanner;
-import net.minecraft.stats.RecipeBookServer;
 import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import noppes.npcs.controllers.*;
@@ -518,6 +517,7 @@ public class PlayerEventHandler {
 		});
 		Object array = DimensionHandler.getInstance().getAllIDs();
 		Server.sendData(player, EnumPacketClient.DIMENSION_IDS, array);
+		RecipeController.getInstance().checkRecipeBook((EntityPlayerMP) event.player);
 		SyncController.syncPlayer((EntityPlayerMP) event.player);
 		if (data.game.logPos != null) { // protection against remote measurements
 			NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) event.player, data.game.logPos[0], data.game.logPos[1],
@@ -1357,7 +1357,6 @@ public class PlayerEventHandler {
 		}
 		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
 		if (player instanceof EntityPlayerMP) {
-
 		} else {
 			try {
 

@@ -233,40 +233,40 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 	private void drawPlace(float u, float v, int mouseX, int mouseY) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(u, v, 0.0f);
-		this.mc.renderEngine.bindTexture(mTable);
+		this.mc.getTextureManager().bindTexture(mTable);
 		this.drawTexturedModalRect(0, -5, 0, 0, 174, 248);
 		GlStateManager.popMatrix();
 		if (step == 5) {
 			// envelope
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft + 142.0f, this.guiTop - 10.0f, 0.0f);
-			this.mc.renderEngine.bindTexture(mEnvelope);
+			this.mc.getTextureManager().bindTexture(mEnvelope);
 			this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
 			GlStateManager.popMatrix();
 			// list
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft + 9.0f, this.guiTop + 12.0f, 0.0f);
-			this.mc.renderEngine.bindTexture(mList);
+			this.mc.getTextureManager().bindTexture(mList);
 			this.drawTexturedModalRect(0, 0, 0, 0, 164, 134);
 			GlStateManager.popMatrix();
 			// handle
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 0.0f);
-			this.mc.renderEngine.bindTexture(mTable);
+			this.mc.getTextureManager().bindTexture(mTable);
 			this.drawTexturedModalRect(0, 0, 174, 0, 74, 17);
 			GlStateManager.popMatrix();
 			// box
 			if (hasStacks || this.canEdit) {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 180.0f, this.guiTop + 179.0f, 0.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 0, 0, 0, 74, 54);
 				GlStateManager.popMatrix();
 			}
 			// slots
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft + 6.0f, this.guiTop + 167.0f, 0.0f);
-			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			for (int j = 0; j < 9; j++) {
 				for (int k = 0; k < 4; k++) {
 					this.drawTexturedModalRect(18 * j, k * 18 + (k == 3 ? 2 : 0), 0, 0, 18, 18);
@@ -588,7 +588,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 							this.getLabel(8).backColor = 0x80FF0000;
 							this.getButton(6).layerColor = 0xFFF00000;
 						}
-						this.mc.renderEngine.bindTexture(icons);
+						this.mc.getTextureManager().bindTexture(icons);
 						this.drawTexturedModalRect(-2, -2, 0, 32, 20, 20);
 						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 						GlStateManager.popMatrix();
@@ -644,7 +644,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 		}
 		// Info
 		if (!this.canEdit && GuiMailmanWrite.mail.ransom > 0) {
-			this.mc.renderEngine.bindTexture(icons);
+			this.mc.getTextureManager().bindTexture(icons);
 			this.drawTexturedModalRect(this.guiLeft + 33, this.guiTop + 43, 0, 126, 120, 130);
 			this.mc.fontRenderer.drawString(
 					new TextComponentTranslation("mailbox.hover.ransom.sell").getFormattedText(), this.guiLeft + 36,
@@ -741,9 +741,9 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				this.drawPlace(u, v, mouseX, mouseY);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u, v, 2.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(53, 168, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -761,12 +761,12 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				this.drawPlace(this.guiLeft, this.guiTop, mouseX, mouseY);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop + cos * 150.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + cos * 183.0f, this.guiTop + cos * 169.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -785,7 +785,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// envelope_0
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 5, this.guiTop + 190.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(0, 0, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				// list
@@ -796,23 +796,23 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				}
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 9, v, 2.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, h);
 				GlStateManager.popMatrix();
 				// handle
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, 0, 174, 0, 74, 17);
 				GlStateManager.popMatrix();
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
-				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+				this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				this.drawTexturedModalRect(25, 27, 0, 0, 18, 18);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 41, 0, 95, 68, 33);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -833,29 +833,29 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				float v = this.guiTop + 150.0f - cos * 160.0f;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u, v, 2.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				// list
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 9.0f, this.guiTop + 12.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
 				// handle
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, 0, 174, 0, 74, 17);
 				GlStateManager.popMatrix();
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
-				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+				this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				this.drawTexturedModalRect(25, 27, 0, 0, 18, 18);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 41, 0, 95, 68, 33);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -871,31 +871,31 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// envelope
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 142.0f, this.guiTop - 10.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				// list
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 9.0f, this.guiTop + 12.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
 				// handle
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, 0, 174, 0, 74, 17);
 				GlStateManager.popMatrix();
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				// slots
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 208.0f, this.guiTop + 196.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+				this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				this.drawTexturedModalRect(0, 0, 0, 0, 18, 18);
 				double h = 36.0d;
 				int x0 = 0, y0 = 0;
@@ -940,7 +940,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				GlStateManager.popMatrix();
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 41, 0, 95, 68, 33);
 				GlStateManager.popMatrix();
 				if (tick % 4 == 0) {
@@ -967,37 +967,37 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// table
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, -5, 0, 0, 174, 248);
 				GlStateManager.popMatrix();
 				// envelope
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 142.0f, this.guiTop - 10.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				// list
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 9.0f, this.guiTop + 12.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
 				// handle
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, 0, 174, 0, 74, 17);
 				GlStateManager.popMatrix();
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				// slots
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 208.0f, this.guiTop + 196.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+				this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				this.drawTexturedModalRect(0, 0, 0, 0, 18, 18);
 				int x0 = 0, y0 = 0;
 				for (int s = 0; s < 36; s++) {
@@ -1011,7 +1011,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				GlStateManager.popMatrix();
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 41, 0, 95, 68, 33);
 				GlStateManager.popMatrix();
 				if (tick % 6 == 0) {
@@ -1033,7 +1033,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// table
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, -5, 0, 0, 174, 248);
 				GlStateManager.popMatrix();
 				float u = this.guiLeft + 9.0f;
@@ -1041,13 +1041,13 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// list
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u, v, 2.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
 				// handle
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 50.0f, this.guiTop + 8.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, 0, 174, 0, 74, 17);
 				GlStateManager.popMatrix();
 				u = this.guiLeft + 142.0f - cos * 142.0f;
@@ -1055,7 +1055,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// envelope
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u, v, 2.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				// box
@@ -1063,7 +1063,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				v = this.guiTop + 169.0f - cos * 75.0f;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u, v, 2.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -1079,19 +1079,19 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				float v = this.guiTop + cos * 248.0f;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u, v, 2.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, -5, 0, 0, 174, 248);
 				GlStateManager.popMatrix();
 				// envelope
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u, v + 24.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u + 53.0f, v + 94.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -1106,33 +1106,33 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				if (hasStacks) {
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 0.0f);
-					this.mc.renderEngine.bindTexture(mSbox);
+					this.mc.getTextureManager().bindTexture(mSbox);
 					this.drawTexturedModalRect(0, 0, 74, 0, 74, 54);
 					GlStateManager.popMatrix();
 				} else {
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 0.0f);
-					this.mc.renderEngine.bindTexture(mSbox);
+					this.mc.getTextureManager().bindTexture(mSbox);
 					this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 					GlStateManager.popMatrix();
 				}
 				// table
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, -5, 0, 0, 174, 248);
 				GlStateManager.popMatrix();
 				// list
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 9.0f, this.guiTop + 12.0f, 0.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
 				// envelope
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 142.0f - cos * 142.0f, this.guiTop - 10.0f + cos * 160.0f,
 						1.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -1149,13 +1149,13 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// table
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, -5, 0, 0, 174, 248);
 				GlStateManager.popMatrix();
 				// envelope
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft, this.guiTop + 150.0f, 0.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				// list
@@ -1166,13 +1166,13 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				}
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 9, v, 2.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, h);
 				GlStateManager.popMatrix();
 				if (hasStacks) {
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 0.0f);
-					this.mc.renderEngine.bindTexture(mSbox);
+					this.mc.getTextureManager().bindTexture(mSbox);
 					this.drawTexturedModalRect(0, 0, 74, 0, 74, 54);
 					GlStateManager.popMatrix();
 				}
@@ -1190,20 +1190,20 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// table
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + cos * 174.0f, this.guiTop + cos * 248.0f, 0.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, -5, 0, 0, 174, 248);
 				GlStateManager.popMatrix();
 				// envelope
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + cos * 300.0f, this.guiTop + 150.0f - cos * 248.0f, 1.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				if (hasStacks) {
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(this.guiLeft + 183.0f + cos * 300.0f, this.guiTop + 169.0f - cos * 248.0f,
 							0.0f);
-					this.mc.renderEngine.bindTexture(mSbox);
+					this.mc.getTextureManager().bindTexture(mSbox);
 					this.drawTexturedModalRect(0, 0, 74, 0, 74, 54);
 					GlStateManager.popMatrix();
 				}
@@ -1218,25 +1218,25 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// table
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + cos * 174.0f, this.guiTop + cos * 248.0f, 0.0f);
-				this.mc.renderEngine.bindTexture(mTable);
+				this.mc.getTextureManager().bindTexture(mTable);
 				this.drawTexturedModalRect(0, -5, 0, 0, 174, 248);
 				GlStateManager.popMatrix();
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f - cos * 41.0f, this.guiTop + 169.0f - cos * 74.0f, 1.0f);
-				this.mc.renderEngine.bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSbox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				// envelope
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 147.0f - cos * 54.0f, this.guiTop + 30.0f + cos * 33.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(0, 0, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				// list
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 9.0f + cos * 88.0f, this.guiTop + 12.0f + cos * 52.0f, 2.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -1255,14 +1255,14 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// envelope
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 93.0f, this.guiTop + 63.0f, 1.0f);
-				this.mc.renderEngine.bindTexture(mEnvelope);
+				this.mc.getTextureManager().bindTexture(mEnvelope);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f - cos);
 				this.drawTexturedModalRect(0, 0, 0, 0, 164, 137);
 				GlStateManager.popMatrix();
 				// list
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 97.0f, this.guiTop + 64.0f, 1.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f - cos);
 				this.drawTexturedModalRect(0, 0, 0, 0, 156, 134);
 				GlStateManager.popMatrix();
@@ -1270,7 +1270,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 97.0f + cos * 28.0f, this.guiTop + 64.0f + cos * 19.5f, 2.0f);
 				GlStateManager.scale(1.31092f - 0.47059f * cos, 1.09836f - 0.31967 * cos, 1.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, cos);
 				this.drawTexturedModalRect(0, 0, 0, 134, 119, 122);
 				GlStateManager.popMatrix();
@@ -1290,7 +1290,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 97.0f + 28.0f, this.guiTop + 64.0f + 19.5f, 1.0f);
 				GlStateManager.scale(1.31092f - 0.47059f, 1.09836f - 0.31967, 1.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f - cos);
 				this.drawTexturedModalRect(0, 0, 0, 134, 119, 122);
 				GlStateManager.popMatrix();
@@ -1298,7 +1298,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 130.0f + cos * 7.5f, this.guiTop + 88.0f + cos * 7.125f, 2.0f);
 				GlStateManager.scale(0.85f - 0.15f * cos, 0.85f - 0.15f * cos, 1.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, cos);
 				this.drawTexturedModalRect(0, 0, 156, 0, 100, 95);
 				GlStateManager.popMatrix();
@@ -1316,7 +1316,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				GlStateManager.translate(this.guiLeft + 137.5f - cos * 300.0f, this.guiTop + 95.125f - cos * 150.0f,
 						2.0f);
 				GlStateManager.scale(0.6f, 0.6f, 1.0f);
-				this.mc.renderEngine.bindTexture(mList);
+				this.mc.getTextureManager().bindTexture(mList);
 				this.drawTexturedModalRect(0, 0, 156, 0, 100, 95);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -1344,7 +1344,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 			GlStateManager.pushMatrix();
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			GlStateManager.translate(x, y, 0.0f);
-			this.mc.renderEngine.bindTexture(ClientGuiEventHandler.COIN_NPC);
+			this.mc.getTextureManager().bindTexture(ClientGuiEventHandler.COIN_NPC);
 			float sc = 16.0f / 250.f;
 			GlStateManager.scale(sc, sc, sc);
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);

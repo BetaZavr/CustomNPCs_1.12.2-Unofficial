@@ -210,7 +210,7 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 
 			int x = this.guiLeft + this.inventorySlots.getSlot(slotId).xPos;
 			int y = this.guiTop + this.inventorySlots.getSlot(slotId).yPos;
-			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
 		}
@@ -478,7 +478,7 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 			}
 			break;
 		}
-		case 1: { // startCeils
+		case 1: { // startCells
 			if (!textField.isInteger()) {
 				textField.setText("" + textField.def);
 				return;
@@ -486,7 +486,7 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 			this.bank.ceilSettings.get(this.ceil).startCeils = textField.getInteger();
 			break;
 		}
-		case 2: { // maxCeils
+		case 2: { // maxCells
 			if (!textField.isInteger()) {
 				textField.setText("" + textField.def);
 				return;

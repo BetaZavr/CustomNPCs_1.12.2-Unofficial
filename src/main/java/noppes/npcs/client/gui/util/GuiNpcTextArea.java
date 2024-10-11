@@ -172,7 +172,7 @@ public class GuiNpcTextArea extends GuiNpcTextField {
 		if (this.listHeight <= this.height - 4) {
 			return;
 		}
-		Minecraft.getMinecraft().renderEngine.bindTexture(GuiCustomScroll.resource);
+		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomScroll.resource);
 		int x = this.posX + this.width - 6;
 		int y = (int) ((this.posY + this.scrolledY * this.height) + 2);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);

@@ -76,7 +76,7 @@ public class GuiScriptGlobal extends GuiNPCInterface {
 	public void drawScreen(int i, int j, float f) {
 		this.drawDefaultBackground();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.resource);
+		this.mc.getTextureManager().bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		super.drawScreen(i, j, f);
 		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }

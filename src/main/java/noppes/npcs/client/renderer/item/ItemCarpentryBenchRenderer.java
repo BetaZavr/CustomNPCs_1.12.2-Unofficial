@@ -18,7 +18,7 @@ public class ItemCarpentryBenchRenderer extends TileEntityItemStackRenderer {
         GlStateManager.translate(0.5f, 1.4f, 0.5f);
         GlStateManager.scale(0.95f, 0.95f, 0.95f);
         GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
-        Minecraft.getMinecraft().renderEngine.bindTexture(BlockCarpentryBenchRenderer.TEXTURE);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(BlockCarpentryBenchRenderer.TEXTURE);
         BlockCarpentryBenchRenderer.model.render(0.0625f);
         GlStateManager.popMatrix();
     }

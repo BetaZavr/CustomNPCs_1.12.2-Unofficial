@@ -194,7 +194,7 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 			this.data.put(str, id);
 		}
 		this.scroll.setListNotSorted(l);
-		this.scroll.setSuffixs(s);
+		this.scroll.setSuffixes(s);
 		this.initGui();
 	}
 

@@ -154,7 +154,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 		GlStateManager.translate(u + 5.0f, v + 3.0f, 0.0f);
 		GlStateManager.enableBlend();
 		GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(SubGuiNpcQuestExtra.sheet);
+		this.mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
 		this.drawTexturedModalRect(-5, -5, 34, 54, 65, 65);
 		GlStateManager.popMatrix();
 		if (showNpc != null) {
@@ -173,7 +173,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			GlStateManager.translate(u + 1.0f, v + 1.0f, 100.0f);
 			GlStateManager.enableBlend();
 			GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
-			this.mc.renderEngine.bindTexture(SubGuiNpcQuestExtra.tabs);
+			this.mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.tabs);
 			this.drawTexturedModalRect(0, 0, 193, 0, 63, 52);
 			String name = ((char) 167) + "l" + this.quest.completer.getName();
 			this.mc.fontRenderer.drawString(name, 32 - (float) this.mc.fontRenderer.getStringWidth(name) / 2, 50, CustomNpcs.QuestLogColor.getRGB(), false);
@@ -191,9 +191,9 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			GlStateManager.translate(u, v, 100.0f);
 			GlStateManager.enableBlend();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			mc.renderEngine.bindTexture(SubGuiNpcQuestExtra.sheet);
+			mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
 			drawTexturedModalRect(-1, -1, 34, 20, 11, 11);
-			mc.renderEngine.bindTexture(SubGuiNpcQuestExtra.tabs);
+			mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.tabs);
 			drawTexturedModalRect(0, 0, 116 + quest.extraButton * 9, 0, 9, 9);
 			GlStateManager.popMatrix();
 		}
@@ -209,7 +209,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
 		GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
-		this.mc.renderEngine.bindTexture(SubGuiNpcQuestExtra.sheet);
+		this.mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
 		this.drawTexturedModalRect(0, 0, 34, 54, 32, 32);
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
@@ -218,7 +218,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			GlStateManager.enableBlend();
 			GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
 			GlStateManager.scale(0.125f, 0.125f, 1.0f);
-			this.mc.renderEngine.bindTexture(this.quest.icon);
+			this.mc.getTextureManager().bindTexture(this.quest.icon);
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
@@ -236,7 +236,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
 		GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
-		this.mc.renderEngine.bindTexture(SubGuiNpcQuestExtra.sheet);
+		this.mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
 		this.drawTexturedModalRect(0, 0, 34, 54, 32, 32);
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
@@ -247,7 +247,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
 			GlStateManager.scale(0.125f, 0.125f, 1.0f);
 			try {
-				this.mc.renderEngine.bindTexture(this.quest.texture);
+				this.mc.getTextureManager().bindTexture(this.quest.texture);
 				this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			}
 			catch (Exception e) { LogWriter.error("Error:", e); }

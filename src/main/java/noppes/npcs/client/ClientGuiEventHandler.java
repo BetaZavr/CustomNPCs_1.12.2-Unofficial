@@ -703,7 +703,7 @@ public class ClientGuiEventHandler extends Gui {
 
 			// textured
 			GlStateManager.color(red, green, blue, 1.0f);
-			this.mc.renderEngine.bindTexture(BORDER[(int) (this.mc.world.getTotalWorldTime() % 16L)]);
+			this.mc.getTextureManager().bindTexture(BORDER[(int) (this.mc.world.getTotalWorldTime() % 16L)]);
 			buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX); // textured
 			for (int pos : reg.points.keySet()) {
 				Point p0 = reg.points.get(pos);
@@ -826,7 +826,7 @@ public class ClientGuiEventHandler extends Gui {
 
 				// textured
 				GlStateManager.color(red, green, blue, 1.0f);
-				this.mc.renderEngine.bindTexture(BORDER[(int) (this.mc.world.getTotalWorldTime() % 16L)]);
+				this.mc.getTextureManager().bindTexture(BORDER[(int) (this.mc.world.getTotalWorldTime() % 16L)]);
 				buffer.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
 
 				for (Point p : reg.points.values()) {
@@ -1207,7 +1207,7 @@ public class ClientGuiEventHandler extends Gui {
 			}
 			GlStateManager.scale(0.5f, 0.5f, 0.5f);
 			GlStateManager.enableBlend();
-			this.mc.renderEngine.bindTexture(GuiMailmanWrite.icons);
+			this.mc.getTextureManager().bindTexture(GuiMailmanWrite.icons);
 			this.drawTexturedModalRect(-16, -16, 0, 0, 32, 32);
 			GlStateManager.popMatrix();
 		}
@@ -1240,7 +1240,7 @@ public class ClientGuiEventHandler extends Gui {
 				int x = os[0] == 0 ? slot.getPosX() : os[0] - slot.getPosX() - 18;
 				int y = os[1] == 0 ? slot.getPosY() : os[1] - slot.getPosY() - 18;
 				GlStateManager.translate(x, y, id);
-				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+				this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				this.drawTexturedModalRect(0, 0, 0, 0, 18, 18);
 				if (!slot.getStack().isEmpty()) {
 					ItemStack stack = slot.getStack().getMCItemStack();
@@ -1477,7 +1477,7 @@ public class ClientGuiEventHandler extends Gui {
 				}
 				GlStateManager.popMatrix();
 
-				this.mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+				this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 				GlStateManager.translate(0.0f, -31.42857f * hud.compassData.scale + 30.71429f, 0.0f);
 				GlStateManager.scale(scale, scale, scale);
 				GlStateManager.rotate(incline, 1.0f, 0.0f, 0.0f);
@@ -1708,7 +1708,7 @@ public class ClientGuiEventHandler extends Gui {
 				}
 				GlStateManager.pushMatrix();
 				if (cp.objList != -1) {
-					Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+					Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 					GlStateManager.translate(cp.posX() - this.dx, cp.posY() - this.dy, cp.posZ() - this.dz);
 					if (cp.getScale() != 0.0f) {
 						GlStateManager.scale(cp.getScale(), cp.getScale(), cp.getScale());
@@ -1937,7 +1937,7 @@ public class ClientGuiEventHandler extends Gui {
 				return;
 			}
 			GlStateManager.translate(x, y, 0.0f);
-			mc.renderEngine.bindTexture(ClientGuiEventHandler.COIN_NPC);
+			mc.getTextureManager().bindTexture(ClientGuiEventHandler.COIN_NPC);
 			float s = 16.0f / 250.f;
 			GlStateManager.scale(s, s, s);
 			GlStateManager.enableBlend();
@@ -1967,7 +1967,7 @@ public class ClientGuiEventHandler extends Gui {
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 
 			GlStateManager.pushMatrix();
-			this.mc.renderEngine.bindTexture(CREATIVE_TABS);
+			this.mc.getTextureManager().bindTexture(CREATIVE_TABS);
 			GlStateManager.translate(x, y + 28, 0.0f);
 			GlStateManager.rotate(-90.0f, 0.0f, 0.0f, 1.0f);
 			int mx = event.getMouseX() - x;
@@ -1992,13 +1992,13 @@ public class ClientGuiEventHandler extends Gui {
 			if (i.length() < 2) {
 				i = "0" + i;
 			}
-			this.mc.renderEngine.bindTexture(new ResourceLocation("textures/items/compass_" + i + ".png"));
+			this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/items/compass_" + i + ".png"));
 			GlStateManager.translate(x + 10, y + 6, 0.0f);
 			float s = 16.0f / 256.0f;
 			GlStateManager.scale(s, s, s);
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.translate(0.0f, 28.0f / s, 0.0f);
-			this.mc.renderEngine.bindTexture(new ResourceLocation("textures/items/book_normal.png"));
+			this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/items/book_normal.png"));
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.popMatrix();
 		}

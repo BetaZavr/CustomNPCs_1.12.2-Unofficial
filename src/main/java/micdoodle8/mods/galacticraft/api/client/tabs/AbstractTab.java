@@ -43,7 +43,7 @@ public abstract class AbstractTab extends GuiButton {
 			int ySize = this.enabled ? 25 : 32;
 			int xOffset = ((this.id != 2) ? 1 : 0) * 28;
 			int yPos = this.y + (this.enabled ? 3 : 0);
-			mc.renderEngine.bindTexture(this.texture);
+			mc.getTextureManager().bindTexture(this.texture);
 			this.drawTexturedModalRect(this.x, yPos, xOffset, yTexPos, 28, ySize);
 
 			RenderHelper.enableGUIStandardItemLighting();

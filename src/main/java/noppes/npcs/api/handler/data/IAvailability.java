@@ -62,4 +62,8 @@ public interface IAvailability {
 
 	void setStoredData(String key, String value, int type);
 
+	boolean getGMOnly();
+
+	void setGMOnly(boolean gmOnly);
+
 }

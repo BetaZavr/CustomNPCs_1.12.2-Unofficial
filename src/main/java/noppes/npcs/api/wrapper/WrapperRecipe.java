@@ -27,6 +27,7 @@ public class WrapperRecipe {
     public String group = "";
     public String name = "";
     public String domen = "minecraft";
+    // recipeItems -> ItemStack[].length == 0 ... 16 max (not null)
     public final Map<Integer, ItemStack[]> recipeItems = new TreeMap<>();
     public ItemStack product = new ItemStack(Blocks.COBBLESTONE);
     public final Availability availability = new Availability();
@@ -34,7 +35,7 @@ public class WrapperRecipe {
 
     public WrapperRecipe() {
         recipeItems.clear();
-        recipeItems.put(0, new ItemStack[]{ new ItemStack(Blocks.COBBLESTONE) });
+        recipeItems.put(0, new ItemStack[] { new ItemStack(Blocks.COBBLESTONE) });
     }
 
     public void clear() {

@@ -22,7 +22,7 @@ public class GuiCustomChest extends GuiContainer {
 
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(GuiCustomChest.CHEST_GUI_TEXTURE);
+		this.mc.getTextureManager().bindTexture(GuiCustomChest.CHEST_GUI_TEXTURE);
 		int i = (this.width - this.xSize) / 2;
 		int j = (this.height - this.ySize) / 2;
 		this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.inventoryRows * 18 + 17);

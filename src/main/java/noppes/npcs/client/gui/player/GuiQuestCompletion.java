@@ -53,7 +53,7 @@ implements ITopButtonListener {
 	public void drawScreen(int i, int j, float f) {
 		this.drawDefaultBackground();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.resource);
+		this.mc.getTextureManager().bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		this.drawHorizontalLine(this.guiLeft + 4, this.guiLeft + 170, this.guiTop + 13, -16777216 + CustomNpcResourceListener.DefaultTextColor);
 		this.drawQuestText();
@@ -65,7 +65,7 @@ implements ITopButtonListener {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 6, this.guiTop + this.ySize - 20, 0.0f);
 				if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + this.ySize - 20, 18, 10)) { hover = 0; }
-				this.mc.renderEngine.bindTexture(GuiQuestCompletion.bookGuiTextures);
+				this.mc.getTextureManager().bindTexture(GuiQuestCompletion.bookGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, hover == 0 ? 26 : 3, 207, 18, 10);
 				GlStateManager.popMatrix();
@@ -74,7 +74,7 @@ implements ITopButtonListener {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + this.xSize - 24, this.guiTop + this.ySize - 20, 0.0f);
 				if (isMouseHover(mouseX, mouseY, this.guiLeft + this.xSize - 24, this.guiTop + this.ySize - 20, 18, 10)) { hover = 1; }
-				this.mc.renderEngine.bindTexture(GuiQuestCompletion.bookGuiTextures);
+				this.mc.getTextureManager().bindTexture(GuiQuestCompletion.bookGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, hover == 1 ? 26 : 3, 194, 18, 10);
 				GlStateManager.popMatrix();

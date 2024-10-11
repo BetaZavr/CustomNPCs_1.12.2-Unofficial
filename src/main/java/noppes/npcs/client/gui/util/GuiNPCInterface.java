@@ -88,6 +88,12 @@ implements IEditNPC {
 		this.fontRenderer = this.mc.fontRenderer;
 	}
 
+	/**
+	 * 0: LMB - used in "buttonEvent(GuiNpcButton button)"
+	 * 1: RMB
+	 * 2: CMB
+	 * next - extra buttons
+	 */
 	protected void buttonEvent(@Nonnull GuiNpcButton guibutton, int mouseButton) {
 
 	}
@@ -274,12 +280,12 @@ implements IEditNPC {
 		if (this.drawDefaultBackground && this.subgui == null) {
 			this.drawDefaultBackground();
 		}
-		if (this.background != null && this.mc.renderEngine != null) {
+		if (this.background != null) {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
 			GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
-			this.mc.renderEngine.bindTexture(this.background);
+			this.mc.getTextureManager().bindTexture(this.background);
 			if (this.xSize > 252 && this.ySize <= 256) {
 				this.drawTexturedModalRect(0, 0, 0, 0, 252, this.ySize);
 				int w = this.xSize - 252;

@@ -54,7 +54,7 @@ implements IComponentGui {
 		if (!this.visible) {
 			return;
 		}
-		mc.renderEngine.bindTexture(BUTTON_TEXTURES);
+		mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
@@ -111,7 +111,7 @@ implements IComponentGui {
 		if (!this.visible) {
 			return;
 		}
-		mc.renderEngine.bindTexture(GuiNpcSlider.BUTTON_TEXTURES);
+		mc.getTextureManager().bindTexture(GuiNpcSlider.BUTTON_TEXTURES);
 		int w = this.width, h = this.height;
 		if (this.isVertical) {
 			w = this.height;

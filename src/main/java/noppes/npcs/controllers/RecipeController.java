@@ -25,8 +25,10 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
+import noppes.npcs.mixin.client.stats.IRecipeBookMixin;
 import noppes.npcs.mixin.item.crafting.IShapedRecipesMixin;
 import noppes.npcs.mixin.item.crafting.IShapelessRecipesMixin;
+import noppes.npcs.util.Util;
 
 public class RecipeController implements IRecipeHandler {
 
@@ -42,9 +44,9 @@ public class RecipeController implements IRecipeHandler {
 
 	public static ForgeRegistry<IRecipe> Registry;
 	private static RecipeController instance;
+	private static int minID = 0;
 
 	public static int version = 3;
-	private static int minID = 0;
 	public static RecipeController getInstance() {
 		if (RecipeController.instance == null) { RecipeController.instance = new RecipeController(); }
 		return RecipeController.instance;
@@ -83,31 +85,25 @@ public class RecipeController implements IRecipeHandler {
         return register(recipe);
 	}
 
-	public void addRecipe(String group, String name, Object ob, boolean global, boolean isKnown, boolean isShaped, Object... objects) {
+	public INpcRecipe addRecipe(String group, String name, Object ob, boolean global, boolean isKnown, boolean isShaped, Object... objects) {
 		ItemStack item;
 		if (ob instanceof Item) { item = new ItemStack((Item) ob); }
 		else if (ob instanceof Block) { item = new ItemStack((Block) ob); }
 		else if (ob instanceof ItemStack) { item = (ItemStack) ob; }
-		else { return; }
+		else { return null; }
 		INpcRecipe recipe;
 		if (isShaped) { recipe = NpcShapedRecipes.createRecipe(group, name, global, item, objects); }
 		else { recipe = NpcShapelessRecipes.createRecipe(group, name, global, item, objects); }
 		recipe.setKnown(isKnown);
-		register(recipe);
+		return register(recipe);
 	}
 
 	public boolean delete(INpcRecipe recipe) {
 		if (recipe == null) { return false; }
-		int id = recipe.getId();
 		// Forge registers:
 		boolean isDel = false;
-		if (RecipeController.Registry.getValue(id) == null) {
-			boolean isLocked = RecipeController.Registry.isLocked();
-			if (isLocked) { RecipeController.Registry.unfreeze(); }
-			RecipeController.Registry.remove(((IRecipe) recipe).getRegistryName());
-			isDel = true;
-			if (isLocked) { RecipeController.Registry.freeze(); }
-		}
+		IRecipe mcRecipe = RecipeController.Registry.getValue(((IRecipe) recipe).getRegistryName());
+		if (mcRecipe != null) { unregisterMCRecipe(mcRecipe); }
 		// Mod registers:
 		List<INpcRecipe> parent = (recipe.isGlobal() ? this.globalList : this.modList).get(recipe.getNpcGroup());
 		if (parent != null) {
@@ -245,16 +241,20 @@ public class RecipeController implements IRecipeHandler {
 
 		ItemStack[] ingI = { new ItemStack(Items.BREAD), new ItemStack(Items.POTATO), new ItemStack(Items.CARROT) };
 		// Npc Wand Recipe via Ingredient Variants (known, is shaped)
-		addRecipe("Npc Wand Edit", "Npc Wand", true, true, true, new ItemStack(CustomRegisters.wand), new ItemStack[][] { ingI, ingI, {}, {}, ingS, {}, {}, ingS, {} });
+		INpcRecipe recipe = addRecipe("Npc Wand Edit", "Npc Wand", true, true, true, new ItemStack(CustomRegisters.wand), new ItemStack[][] { ingI, ingI, {}, {}, ingS, {}, {}, ingS, {} });
+		recipe.getAvailability().setGMOnly(true);
 
 		// Mob Cloner Recipe via Recipe variants (known, is shaped)
-		addRecipe("Mob Cloner Edit", "Normal", CustomRegisters.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.BREAD, 'Y', Items.STICK);
-		addRecipe("Mob Cloner Edit", "Potato", CustomRegisters.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.POTATO, 'Y', Items.STICK);
-		addRecipe("Mob Cloner Edit", "Carrot", CustomRegisters.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.CARROT, 'Y', Items.STICK);
+		recipe = addRecipe("Mob Cloner Edit", "Normal", CustomRegisters.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.BREAD, 'Y', Items.STICK);
+		recipe.getAvailability().setGMOnly(true);
+		recipe = addRecipe("Mob Cloner Edit", "Potato", CustomRegisters.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.POTATO, 'Y', Items.STICK);
+		recipe.getAvailability().setGMOnly(true);
+		recipe = addRecipe("Mob Cloner Edit", "Carrot", CustomRegisters.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.CARROT, 'Y', Items.STICK);
+		recipe.getAvailability().setGMOnly(true);
 
 		ItemStack[] ingK = {new ItemStack(Items.DYE, 1, 15)};
 		// Soul Stone (known, shapeless, only night)
-		INpcRecipe recipe = addRecipe("Soul Stone Empty", "Empty", true, false, true, new ItemStack(CustomRegisters.soulstoneEmpty), new ItemStack[][]{{new ItemStack(Items.DIAMOND)}, {new ItemStack(Items.GLOWSTONE_DUST)}, {new ItemStack(Items.REDSTONE)}, ingK});
+		recipe = addRecipe("Soul Stone Empty", "Empty", true, false, true, new ItemStack(CustomRegisters.soulstoneEmpty), new ItemStack[][]{{new ItemStack(Items.DIAMOND)}, {new ItemStack(Items.GLOWSTONE_DUST)}, {new ItemStack(Items.REDSTONE)}, ingK});
 		recipe.getAvailability().setDaytime(1);
 
 		// Mod
@@ -357,9 +357,7 @@ public class RecipeController implements IRecipeHandler {
 		if (nbtFile.hasKey("Data", 9) && RecipeController.version == nbtFile.getInteger("Version")) {
 			for (int i = 0; i < nbtFile.getTagList("Data", 10).tagCount(); i++) {
 				NBTTagCompound nbtG = nbtFile.getTagList("Data", 10).getCompoundTagAt(i);
-				if (!nbtG.hasKey("GroupName", 8)) {
-					continue;
-				}
+				if (!nbtG.hasKey("GroupName", 8)) { continue; }
 				Map<String, List<INpcRecipe>> map = nbtG.getBoolean("isGlobal") ? this.globalList : this.modList;
 				if (!map.containsKey(nbtG.getString("GroupName"))) {
 					map.put(nbtG.getString("GroupName"), new ArrayList<>());
@@ -379,68 +377,80 @@ public class RecipeController implements IRecipeHandler {
 
 	public INpcRecipe register(INpcRecipe recipe) {
 		if (recipe == null) { return null; }
-		INpcRecipe parent = getRecipe(recipe.isGlobal(), recipe.getNpcGroup(), recipe.getName());
-		boolean isNew = parent == null || parent.getId() == recipe.getId();
-		if (!isNew) { // reset
-			parent.copy(recipe);
-			recipe = parent;
-		}
-		else if (parent != null) { // remove mismatched type
-			this.delete(parent);
-		}
-		// register new
-		if (isNew) {
-			// Exclude variants with the same name
-			while (getRecipe(recipe.isGlobal(), recipe.getNpcGroup(), recipe.getName()) != null) {
-				if (recipe.isShaped()) { ((NpcShapedRecipes) recipe).name += "_"; }
-				else { ((NpcShapelessRecipes) recipe).name += "_"; }
+		// Minecraft data:
+		IRecipe mcRecipe = RecipeController.Registry.getValue(((IRecipe) recipe).getRegistryName());
+		if (!(mcRecipe instanceof INpcRecipe) || ((INpcRecipe) mcRecipe).isGlobal() != recipe.isGlobal() || !((INpcRecipe) mcRecipe).getNpcGroup().equals(recipe.getNpcGroup()) || !((INpcRecipe) mcRecipe).getName().equals(recipe.getName())) {
+			boolean isReset = false;
+			if (mcRecipe != null) {
+				if (mcRecipe instanceof INpcRecipe && ((INpcRecipe) mcRecipe).isGlobal() == recipe.isGlobal()) {
+					isReset = true;
+					((INpcRecipe) mcRecipe).setNbt(recipe.getNbt());
+					recipe = (INpcRecipe) mcRecipe;
+				}
+				if (!isReset) { unregisterMCRecipe(mcRecipe); }
 			}
-			// Mod registers:
-			Map<String, List<INpcRecipe>> map = recipe.isGlobal() ? globalList : modList;
-			if (!map.containsKey(recipe.getNpcGroup())) { map.put(recipe.getNpcGroup(), new ArrayList<>()); }
-			map.get(recipe.getNpcGroup()).add(recipe);
-			LogWriter.debug("Registry NPC recipe: "+(recipe.isGlobal() ? "is Global" : "is Mod")+"; group: \""+recipe.getNpcGroup()+"\"; name: \""+recipe.getName()+"\"");
+			if (!isReset) { recipe = registryMCRecipe((IRecipe) recipe); }
+			else {
+				LogWriter.debug("Reset NPC recipe: \""+((IRecipe) recipe).getRegistryName()+"\"; "+(recipe.isGlobal() ? "is Global" : "is Mod")+"; group: \""+recipe.getNpcGroup()+"\"; name: \""+recipe.getName()+"\"");
+			}
+		} else {
+			((INpcRecipe) mcRecipe).setNbt(recipe.getNbt());
+			recipe = (INpcRecipe) mcRecipe;
+			LogWriter.debug("Reset NPC recipe: \""+((IRecipe) recipe).getRegistryName()+"\"; "+(recipe.isGlobal() ? "is Global" : "is Mod")+"; group: \""+recipe.getNpcGroup()+"\"; name: \""+recipe.getName()+"\"");
 		}
-		return checkGameRegistry(recipe);
-	}
 
-	private INpcRecipe checkGameRegistry(INpcRecipe recipe) {
-		// Forge registers:
-		if (RecipeController.Registry.getValue(recipe.getId()) == null || RecipeController.Registry.getValue(((IRecipe) recipe).getRegistryName()) == null) {
-			boolean isLocked = RecipeController.Registry.isLocked();
-			if (isLocked) { RecipeController.Registry.unfreeze(); }
-			RecipeController.Registry.register((IRecipe) recipe);
-			// Reset id
-			int id = RecipeController.Registry.getID((IRecipe) recipe);
-			if (recipe instanceof NpcShapedRecipes) { ((NpcShapedRecipes) recipe).id = id; }
-			else { ((NpcShapelessRecipes) recipe).id = id; }
-			if (isLocked) { RecipeController.Registry.freeze(); }
-		}
-		// check replace:
-		IRecipe gameRecipe = RecipeController.Registry.getValue(((IRecipe) recipe).getRegistryName());
-		if (!recipe.equals(gameRecipe)) {
-			Map<String, List<INpcRecipe>> map = recipe.isGlobal() ? this.globalList : this.modList;
-			if (!map.containsKey(recipe.getNpcGroup())) { map.put(recipe.getNpcGroup(), new ArrayList<>()); }
-			recipe = (INpcRecipe) gameRecipe;
+		// Mod data
+		Map<String, List<INpcRecipe>> map = recipe.isGlobal() ? this.globalList : this.modList;
+		// create group
+		if (!map.containsKey(recipe.getNpcGroup())) { map.put(recipe.getNpcGroup(), new ArrayList<>()); }
+		// remove old
+		if (!map.get(recipe.getNpcGroup()).remove(recipe)) {
 			for (INpcRecipe npcRec : map.get(recipe.getNpcGroup())) {
 				if (npcRec.getName().equals(recipe.getName()) && !npcRec.equal(recipe)) {
 					map.get(recipe.getNpcGroup()).remove(npcRec);
-					map.get(recipe.getNpcGroup()).add(recipe);
 					break;
 				}
 			}
 		}
+		// add new
+		map.get(recipe.getNpcGroup()).add(recipe);
 		CustomNpcs.proxy.applyRecipe(recipe, true);
-		if (minID == 0) { minID = RecipeController.Registry.getID((IRecipe) recipe); }
-		System.out.println("CNPCs: "+minID+"; "+recipe.getNpcGroup());
 		return recipe;
+	}
+
+	private void unregisterMCRecipe(IRecipe recipe) {
+		if (!(recipe instanceof INpcRecipe) || recipe.getRegistryName() == null) { return; }
+		boolean isLocked = RecipeController.Registry.isLocked();
+		if (isLocked) { RecipeController.Registry.unfreeze(); }
+		RecipeController.Registry.remove(recipe.getRegistryName());
+		if (isLocked) { RecipeController.Registry.freeze(); }
+		LogWriter.debug("Unregister NPC recipe: \""+recipe.getRegistryName()+"\"; "+(((INpcRecipe) recipe).isGlobal() ? "is Global" : "is Mod")+"; group: \""+((INpcRecipe) recipe).getNpcGroup()+"\"; name: \""+((INpcRecipe) recipe).getName()+"\"");
+	}
+
+	private INpcRecipe registryMCRecipe(IRecipe recipe) {
+		boolean isLocked = RecipeController.Registry.isLocked();
+		if (isLocked) { RecipeController.Registry.unfreeze(); }
+		RecipeController.Registry.register(recipe);
+		// Reset id
+		int id = RecipeController.Registry.getID(recipe.getRegistryName());
+		if (recipe instanceof NpcShapedRecipes) { ((NpcShapedRecipes) recipe).id = id; }
+		else { ((NpcShapelessRecipes) recipe).id = id; }
+		if (isLocked) { RecipeController.Registry.freeze(); }
+		INpcRecipe recipeMod = (INpcRecipe) RecipeController.Registry.getValue(recipe.getRegistryName());
+		if (recipeMod == null) {
+			LogWriter.debug("Error Registry NPC recipe: \""+recipe.getRegistryName()+"\"; "+(((INpcRecipe) recipe).isGlobal() ? "is Global" : "is Mod")+"; group: \""+((INpcRecipe) recipe).getNpcGroup()+"\"; name: \""+((INpcRecipe) recipe).getName()+"\"");
+		} else {
+			LogWriter.debug("Registry NPC recipe: \""+recipe.getRegistryName()+"\"; "+(recipeMod.isGlobal() ? "is Global" : "is Mod")+"; group: \""+recipeMod.getNpcGroup()+"\"; name: \""+recipeMod.getName()+"\"");
+		}
+		if (minID == 0) { minID = id; }
+		return recipeMod;
 	}
 
 	public void save() {
 		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.startDebug("Common", null, "saveRecipes"); }
 		try {
 			CompressedStreamTools.writeCompressed(getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "recipes.dat").toPath()));
-			//Util.instance.saveFile(new File(CustomNpcs.Dir, "recipes.json"), getNBT());
+			Util.instance.saveFile(new File(CustomNpcs.Dir, "recipes.json"), getNBT());
 		}
 		catch (Exception e) { LogWriter.error("Error:", e); }
 		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.endDebug("Common", null, "saveRecipes"); }
@@ -450,10 +460,6 @@ public class RecipeController implements IRecipeHandler {
 		RecipeController.getInstance().globalList.clear();
 		RecipeController.getInstance().modList.clear();
 	}
-
-    public Map<String, List<INpcRecipe>> getRecipes(boolean isGlobal) {
-		return new HashMap<>(isGlobal ? this.globalList : this.modList);
-    }
 
 	public void renameGroup(boolean isGlobal, String oldGroupName, String newGroupName) {
 		if (CustomNpcs.Server == null) { return; }
@@ -487,15 +493,11 @@ public class RecipeController implements IRecipeHandler {
 		if (CustomNpcs.Server == null) { return; }
 		Map<String, List<INpcRecipe>> map = isGlobal ? globalList : modList;
 		if (map.containsKey(groupName)) {
-			RecipeController.Registry.unfreeze();
 			for (INpcRecipe rec : map.get(groupName)) {
-				IRecipe r = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
-				if (r instanceof INpcRecipe) {
-					RecipeController.Registry.remove(r.getRegistryName());
-				}
+				IRecipe mcRecipe = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
+				if (mcRecipe != null) { unregisterMCRecipe(mcRecipe); }
 			}
 			map.remove(groupName);
-			RecipeController.Registry.freeze();
 			sendToAll(null);
 		}
 	}
@@ -519,7 +521,6 @@ public class RecipeController implements IRecipeHandler {
 						((NpcShapelessRecipes) r).name = newRecipeName;
 					}
 				}
-				RecipeController.Registry.freeze();
 				sendToAll(rec);
 				break;
 			}
@@ -529,6 +530,7 @@ public class RecipeController implements IRecipeHandler {
 	public void sendToAll(INpcRecipe recipe) {
 		if (CustomNpcs.Server == null) { return; }
 		for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
+			this.checkRecipeBook(player);
 			if (recipe == null) {
 				sendTo(player);
 				continue;
@@ -538,21 +540,21 @@ public class RecipeController implements IRecipeHandler {
 	}
 
 	public void sendTo(EntityPlayerMP player) {
+		this.checkRecipeBook(player);
 		Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.RecipesData, new NBTTagCompound());
-		List<INpcRecipe> list = new ArrayList<>();
 		for (int i = 0; i < 2; i++) {
-			for (List<INpcRecipe> rs : (i == 0 ? this.globalList.values() : this.modList.values())) {
-				for (INpcRecipe recipe : rs) {
-					if (RecipeController.Registry.getValue(((IRecipe) recipe).getRegistryName()) == null) {
-						list.add(this.checkGameRegistry(recipe));
-						continue;
-					}
-					list.add(recipe);
+			for (List<INpcRecipe> list : (i == 0 ? this.globalList.values() : this.modList.values())) {
+				for (INpcRecipe recipe : list) {
+					Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.RecipesData, recipe.getNbt().getMCNBT());
 				}
 			}
 		}
-		for (INpcRecipe recipe : list) {
-			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.RecipesData, recipe.getNbt().getMCNBT());
+	}
+
+	public void checkRecipeBook(EntityPlayerMP player) {
+		if (player == null) { return; }
+		if (((IRecipeBookMixin) player.getRecipeBook()).npcs$checkRecipes()) {
+			player.getRecipeBook().init(player); // send SPacketRecipeBook
 		}
 	}
 

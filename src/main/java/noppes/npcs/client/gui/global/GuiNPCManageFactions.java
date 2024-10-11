@@ -194,8 +194,8 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		this.drawGradientRect(-1, -1, 21, 40, 0xFF404040, 0xFF404040);
 		this.drawGradientRect(0, 0, 20, 39, 0xFFA0A0A0, 0xFFA0A0A0);
 		if (faction != null && faction.id > -1) {
-			this.mc.renderEngine.bindTexture(faction.flag);
-            mc.renderEngine.getTexture(faction.flag);
+			mc.getTextureManager().bindTexture(faction.flag);
+            mc.getTextureManager().getTexture(faction.flag);
             GlStateManager.scale(0.5f, 0.305f, 1.0f);
             this.drawTexturedModalRect(0, 0, 4, 4, 40, 128);
         }

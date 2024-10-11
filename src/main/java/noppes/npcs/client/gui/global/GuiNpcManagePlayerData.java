@@ -752,7 +752,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 		}
 		this.scroll.setListNotSorted(list);
 		this.scroll.hoversTexts = null;
-		this.scroll.setSuffixs(null);
+		this.scroll.setSuffixes(null);
 		if (!hovers.isEmpty()) {
 			this.scroll.hoversTexts = new String[hovers.size()][];
 			int i = 0;
@@ -762,7 +762,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			}
 		}
 		if (!suffixs.isEmpty()) {
-			this.scroll.setSuffixs(suffixs);
+			this.scroll.setSuffixes(suffixs);
 		}
 		this.scroll.setColors(null);
 		if (!colors.isEmpty()) {

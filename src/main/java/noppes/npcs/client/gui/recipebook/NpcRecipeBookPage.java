@@ -67,7 +67,7 @@ public class NpcRecipeBookPage extends RecipeBookPage {
         boolean isGlobal = !(mc.currentScreen instanceof GuiNpcCarpentryBench);
         overlay.setGlobal(isGlobal);
         minecraft = mc;
-        recipeBook = ((IRecipeBookMixin) mc.player.getRecipeBook()).npcs$copyToNew(isGlobal);
+        recipeBook = ((IRecipeBookMixin) mc.player.getRecipeBook()).npcs$copyToNew(isGlobal, mc.player);
         for (int i = 0; i < buttons.size(); ++i) {
             buttons.get(i).setPosition(u + 11 + 25 * (i % 5), v + 31 + 25 * (i / 5));
         }

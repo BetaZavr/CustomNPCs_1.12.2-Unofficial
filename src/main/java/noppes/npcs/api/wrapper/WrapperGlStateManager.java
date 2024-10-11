@@ -92,8 +92,8 @@ implements IGlStateManager {
 	public void drawTexture(String resourceLocation, double x, double y, double z, double u, double v, double width, double height, boolean revers) {
 		if (resourceLocation == null || resourceLocation.isEmpty()) { return; }
 		ResourceLocation loc = new ResourceLocation(resourceLocation);
-		this.minecraft.renderEngine.bindTexture(loc);
-        this.minecraft.renderEngine.getTexture(loc);
+		minecraft.getTextureManager().bindTexture(loc);
+        minecraft.getTextureManager().getTexture(loc);
         float w = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
 		float h = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
 		if (w > 256.0f) {
@@ -122,10 +122,10 @@ implements IGlStateManager {
 	@Override
 	public void renderEntity(Object entity, double x, double y, double z, float yaw, float partialTicks, boolean disableDebugBoundingBox) {
 		if (entity instanceof Entity) {
-			this.minecraft.getRenderManager().renderEntity((Entity) entity, x, y, z, yaw, partialTicks, disableDebugBoundingBox);
+			minecraft.getRenderManager().renderEntity((Entity) entity, x, y, z, yaw, partialTicks, disableDebugBoundingBox);
 		}
 		else if (entity instanceof IEntity<?>) {
-			this.minecraft.getRenderManager().renderEntity(((IEntity<?>) entity).getMCEntity(), x, y, z, yaw, partialTicks, disableDebugBoundingBox);
+			minecraft.getRenderManager().renderEntity(((IEntity<?>) entity).getMCEntity(), x, y, z, yaw, partialTicks, disableDebugBoundingBox);
 		}
 	}
 	
@@ -134,7 +134,7 @@ implements IGlStateManager {
 		if (resourseLocation == null || !resourseLocation.isEmpty()) { return; }
 		int displayList = ModelBuffer.getDisplayList(new ResourceLocation(resourseLocation), null, null);
 		if (displayList > 0) {
-			this.minecraft.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+			minecraft.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 	        GlStateManager.callList(displayList);
 		}

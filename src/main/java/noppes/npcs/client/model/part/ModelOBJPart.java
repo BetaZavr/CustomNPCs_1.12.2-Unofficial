@@ -22,10 +22,10 @@ public class ModelOBJPart
 	public EnumParts part;
 	public boolean smallArms;
 
-	public ModelOBJPart(ModelOBJPlayerArmor modelBase, EnumParts part, List<String> meshs, float x, float y, float z) {
+	public ModelOBJPart(ModelOBJPlayerArmor modelBase, EnumParts part, List<String> meshes, float x, float y, float z) {
 		super(modelBase);
 		this.modelBase = modelBase;
-		this.meshes = meshs;
+		this.meshes = meshes;
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -55,7 +55,7 @@ public class ModelOBJPart
 				GlStateManager.translate(this.x + addX, this.y, this.z);
 			} // offset relative to model
 			GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
-			Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE); // setting a regular
+			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE); // setting a regular
 																									// texture
 			GlStateManager.callList(displayList); // display in game
 			GlStateManager.popMatrix();

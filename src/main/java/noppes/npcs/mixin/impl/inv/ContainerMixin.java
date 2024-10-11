@@ -1,4 +1,4 @@
-package noppes.npcs.mixin.impl.inventory;
+package noppes.npcs.mixin.impl.inv;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.*;

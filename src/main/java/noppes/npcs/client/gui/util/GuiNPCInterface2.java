@@ -46,7 +46,7 @@ public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 			this.drawDefaultBackground();
 		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.background);
+		this.mc.getTextureManager().bindTexture(this.background);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, 200, 220);
 		this.drawTexturedModalRect(this.guiLeft + this.xSize - 230, this.guiTop, 26, 0, 230, 220);
 		int x = mouseX;

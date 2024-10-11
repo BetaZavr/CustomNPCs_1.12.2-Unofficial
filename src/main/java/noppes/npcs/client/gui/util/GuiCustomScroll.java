@@ -34,60 +34,40 @@ implements IComponentGui {
 	private ICustomScrollListener listener;
 
 	public boolean hovered;
-	public boolean isScrolling;
-	public boolean selectable;
-	public boolean visible;
-	private boolean isSorted;
-	private boolean multipleSelection;
+	public boolean isScrolling = false;
+	public boolean selectable = true;
+	public boolean visible = true;
+	private boolean isSorted = true;
+	private boolean multipleSelection = false;
 
 	public int colorBack = 0xC0101010, border = 0xFF000000;
-	public int guiLeft;
-	public int guiTop;
-	public int hover;
+	public int guiLeft = 0;
+	public int guiTop = 0;
+	public int hover = -1;
 	public int id;
 	private int lastClickedItem;
-	private int listHeight;
+	private int listHeight = 0;
 	public int maxScrollY;
-	private int scrollHeight;
-	public int scrollY;
-	public int selected;
+	private int scrollHeight = 0;
+	public int scrollY = 0;
+	public int selected = -1;
 
-	private long lastClickedTime;
+	private long lastClickedTime = 0L;
 
-	private HashSet<String> selectedList;
-	private final List<String> list;
-	private List<Integer> colors;
-	private List<String> suffixs;
-	private List<ItemStack> stacks;
-	private List<ResourceData> prefixs;
+	private HashSet<String> selectedList = new HashSet<>();
+	private final List<String> list = new ArrayList<>();
+	private List<Integer> colors = null;
+	private List<String> suffixes;
+	private List<ItemStack> stacks = null;
+	private List<ResourceData> prefixes;
 
-	public String[][] hoversTexts;
+	public String[][] hoversTexts = null;
 	public String[] hoverText;
 
 	public GuiCustomScroll(GuiScreen parent, int id) {
-		this.guiLeft = 0;
-		this.guiTop = 0;
-		this.multipleSelection = false;
-		this.isSorted = true;
-		this.visible = true;
-		this.selectable = true;
-		this.lastClickedTime = 0L;
-		this.width = 176;
-		this.height = 159;
-		this.selected = -1;
-		this.hover = -1;
-		this.selectedList = new HashSet<>();
-		this.listHeight = 0;
-		this.scrollY = 0;
-		this.scrollHeight = 0;
-		this.isScrolling = false;
-		this.setParent(parent);
-		this.list = new ArrayList<>();
 		this.id = id;
-		this.hoversTexts = null;
-		this.colors = null;
-		this.stacks = null;
-		this.setSize(this.width, this.height);
+		this.setParent(parent);
+		this.setSize(176, 159);
 	}
 
 	public void setParent(GuiScreen parent) {
@@ -139,7 +119,7 @@ implements IComponentGui {
 				text = displayString;
 			}
 			int xo = 0;
-			if ((this.stacks != null && i < this.stacks.size()) || (this.prefixs != null && i < this.prefixs.size())) {
+			if ((this.stacks != null && i < this.stacks.size()) || (this.prefixes != null && i < this.prefixes.size())) {
 				j = 14;
 				xo = -14;
 			}
@@ -162,23 +142,23 @@ implements IComponentGui {
 				this.fontRenderer.drawString(text, j, k, c);
 				c = CustomNpcs.MainColor.getRGB();
 			}
-			if (this.suffixs != null && i < this.suffixs.size() && this.suffixs.get(i) != null && !this.suffixs.get(i).isEmpty()
-					&& this.fontRenderer.getStringWidth(text + this.suffixs.get(i)) < this.width - 20) {
-				this.fontRenderer.drawString(this.suffixs.get(i),
+			if (this.suffixes != null && i < this.suffixes.size() && this.suffixes.get(i) != null && !this.suffixes.get(i).isEmpty()
+					&& this.fontRenderer.getStringWidth(text + this.suffixes.get(i)) < this.width - 20) {
+				this.fontRenderer.drawString(this.suffixes.get(i),
 						this.width - 9 + (this.listHeight > this.height ? -11 : 0)
-								- this.fontRenderer.getStringWidth(this.suffixs.get(i)),
+								- this.fontRenderer.getStringWidth(this.suffixes.get(i)),
 						k, c);
 			}
 		}
 	}
 
 	private void drawPrefixs() {
-		if (this.prefixs == null) {
+		if (this.prefixes == null) {
 			return;
 		}
-		for (int i = 0; i < this.list.size() && i < this.prefixs.size(); ++i) {
+		for (int i = 0; i < this.list.size() && i < this.prefixes.size(); ++i) {
 			int k = 14 * i + 4 - this.scrollY;
-			ResourceData rd = this.prefixs.get(i);
+			ResourceData rd = this.prefixes.get(i);
 			if (k < 4 || k + 12 >= this.height || rd == null || rd.resource == null || rd.width <= 0
 					|| rd.height <= 0) {
 				continue;
@@ -189,7 +169,7 @@ implements IComponentGui {
 			GlStateManager.translate(0.5f, k - 1.5f + rd.tH, 0.0f); // position X, Y, Z
 			float scale = 12.0f / (float) (Math.max(rd.width, rd.height));
 			GlStateManager.scale(scale, scale, scale);
-			Minecraft.getMinecraft().renderEngine.bindTexture(rd.resource);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(rd.resource);
 			this.drawTexturedModalRect(0, 0, rd.u, rd.v, rd.width, rd.height);
 			GlStateManager.popMatrix();
 		}
@@ -207,7 +187,7 @@ implements IComponentGui {
 		this.drawGradientRect(this.guiLeft, this.guiTop, this.width + this.guiLeft, this.height + this.guiTop,
 				this.colorBack, this.colorBack);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(GuiCustomScroll.resource);
+		this.mc.getTextureManager().bindTexture(GuiCustomScroll.resource);
 		GlStateManager.pushMatrix();
 		GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
 		GlStateManager.popMatrix();
@@ -225,7 +205,7 @@ implements IComponentGui {
 						|| (this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) {
 			this.drawStacks();
 		}
-		if (this.prefixs != null && this.parent != null
+		if (this.prefixes != null && this.parent != null
 				&& ((this.parent instanceof GuiContainerNPCInterface
 						&& !((GuiContainerNPCInterface) this.parent).hasSubGui())
 						|| (this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) {
@@ -341,7 +321,7 @@ implements IComponentGui {
 	}
 
 	public int getPos(String select) {
-		if (select == null || select.isEmpty() || this.list == null || this.list.isEmpty()) {
+		if (select == null || select.isEmpty() || this.list.isEmpty()) {
 			return -1;
 		}
 		for (int i = 0; i < this.list.size(); i++) {
@@ -543,8 +523,8 @@ implements IComponentGui {
 		this.isSorted = false;
 	}
 
-	public void setPrefixs(List<ResourceData> prefixs) {
-		this.prefixs = prefixs;
+	public void setPrefixes(List<ResourceData> prefixes) {
+		this.prefixes = prefixes;
 	}
 
 	public void setSelected(String name) {
@@ -587,8 +567,8 @@ implements IComponentGui {
 		this.stacks = stacks;
 	}
 
-	public void setSuffixs(List<String> suffixs) {
-		this.suffixs = suffixs;
+	public void setSuffixes(List<String> suffixes) {
+		this.suffixes = suffixes;
 	}
 
 	public GuiCustomScroll setUnselectable() {

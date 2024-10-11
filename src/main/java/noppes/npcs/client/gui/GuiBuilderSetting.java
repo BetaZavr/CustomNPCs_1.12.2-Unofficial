@@ -200,99 +200,98 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		if (this.mc.renderEngine != null) {
-			GlStateManager.pushMatrix();
+
+		GlStateManager.pushMatrix();
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
+		// Back
+		this.mc.getTextureManager().bindTexture(this.background);
+		this.drawTexturedModalRect(0, 0, 0, 0, this.xSize - 4, this.ySize - 4);
+		this.drawTexturedModalRect(this.xSize - 4, 0, 252, 0, 4, this.ySize - 4);
+		this.drawTexturedModalRect(0, this.ySize - 4, 0, 252, this.xSize - 4, 4);
+		this.drawTexturedModalRect(this.xSize - 4, this.ySize - 4, 252, 252, 4, 4);
+		if (this.builder == null) {
+			GlStateManager.popMatrix();
+			return;
+		}
+		// Slots
+		if (this.builder.getType() < 3) {
+			// Region
+			Gui.drawRect(140, 92, 200, 130, 0xFF404040);
+			Gui.drawRect(141, 93, 199, 129, 0xFF606060);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
-			// Back
-			this.mc.renderEngine.bindTexture(this.background);
-			this.drawTexturedModalRect(0, 0, 0, 0, this.xSize - 4, this.ySize - 4);
-			this.drawTexturedModalRect(this.xSize - 4, 0, 252, 0, 4, this.ySize - 4);
-			this.drawTexturedModalRect(0, this.ySize - 4, 0, 252, this.xSize - 4, 4);
-			this.drawTexturedModalRect(this.xSize - 4, this.ySize - 4, 252, 252, 4, 4);
-			if (this.builder == null) {
-				GlStateManager.popMatrix();
-				return;
+			this.mc.getTextureManager().bindTexture(this.invRes);
+			this.drawTexturedModalRect(140, 120, 73, 220, 16, 10);
+			// Borders
+			this.drawHorizontalLine(4, 170, 132, 0xFF808080);
+			this.drawVerticalLine(170, 131, 212, 0xFF808080);
+			if (this.builder.getType() == 2) {
+				this.drawHorizontalLine(58, 112, 108, 0xFF808080);
+				this.drawVerticalLine(58, 108, 132, 0xFF808080);
 			}
+
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			GlStateManager.translate(7.0f, 135.0f, 0.0f);
+			this.mc.getTextureManager().bindTexture(inventory);
+			this.drawTexturedModalRect(0, 0, 0, 0, 162, 76); // player inventory
+			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			GlStateManager.translate(0.0f, -119.0f, 0.0f);
 			// Slots
-			if (this.builder.getType() < 3) {
-				// Region
-				Gui.drawRect(140, 92, 200, 130, 0xFF404040);
-				Gui.drawRect(141, 93, 199, 129, 0xFF606060);
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-				this.mc.renderEngine.bindTexture(this.invRes);
-				this.drawTexturedModalRect(140, 120, 73, 220, 16, 10);
-				// Borders
-				this.drawHorizontalLine(4, 170, 132, 0xFF808080);
-				this.drawVerticalLine(170, 131, 212, 0xFF808080);
-				if (this.builder.getType() == 2) {
-					this.drawHorizontalLine(58, 112, 108, 0xFF808080);
-					this.drawVerticalLine(58, 108, 132, 0xFF808080);
-				}
-
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-				GlStateManager.translate(7.0f, 135.0f, 0.0f);
-				this.mc.renderEngine.bindTexture(this.inventory);
-				this.drawTexturedModalRect(0, 0, 0, 0, 162, 76); // player inventory
-				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
-				GlStateManager.translate(0.0f, -119.0f, 0.0f);
-				// Slots
-				for (int i = 1; i < 10; i++) {
-					this.drawTexturedModalRect((i / 6) * 54, ((i < 6 ? 0 : -5) + i - 1) * 24, 0, 0, 18, 18); // main
-				}
-				if (this.builder.getType() == 2) {
-					this.drawTexturedModalRect(54, 96, 0, 0, 18, 18);
-				}
-				this.drawHorizontalLine(-3, 106, -2, 0xFF808080);
-				this.drawVerticalLine(106, -13, 117, 0xFF808080);
-				GlStateManager.popMatrix();
-
-				// Show Region
-				float r = 1.0f, g = 0.0f, b = 0.0f;
-				if (this.builder.getType() == 1) {
-					r = 0.0f;
-					g = 1.0f;
-					b = 1.0f;
-				} else if (this.builder.getType() == 2) {
-                    g = 0.0f;
-					b = 1.0f;
-				}
-				float size = (float) this.builder.region[2] + (float) (this.builder.region[0] + this.builder.region[1]) / 2.0f;
-				float scale = size <= 0.0f ? 7.0f : 36.0f / size;
-				GlStateManager.pushMatrix();
-				GlStateManager.enableBlend();
-				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-						GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-						GlStateManager.DestFactor.ZERO);
-				GlStateManager.glLineWidth(1.0F);
-				GlStateManager.disableTexture2D();
-				GlStateManager.depthMask(false);
-				GlStateManager.translate(this.guiLeft + 170, this.guiTop + 111, 100.0f);
-				GlStateManager.scale(scale, scale, scale);
-				GlStateManager.rotate(45.0f, 0.0f, 1.0f, 0.0f);
-				GlStateManager.rotate(30.0f, 1.0f, 0.0f, 1.0f);
-				RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d)), 1.0f,
-						1.0f, 1.0f, 1.0f);
-				if (this.builder.facing == 0) {
-					GlStateManager.translate(0.0f, 0.0f, 1.01f);
-				} else if (this.builder.facing == 2) {
-					GlStateManager.translate(0.0f, 0.0f, -1.1f);
-				}
-				RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d * (double) this.builder.region[0],
-						-0.5d * (double) this.builder.region[1], -0.5d * (double) this.builder.region[2],
-						0.5d * (double) this.builder.region[0], 0.5d * (double) this.builder.region[1],
-						0.5d * (double) this.builder.region[2])), r, g, b, 1.0f);
-				GlStateManager.depthMask(true);
-				GlStateManager.enableTexture2D();
-				GlStateManager.disableBlend();
-				GlStateManager.popMatrix();
-			} else {
-				// Borders
-				this.drawHorizontalLine(118, 223, 36, 0xFF808080);
-				this.drawVerticalLine(117, 3, 212, 0xFF808080);
-				GlStateManager.popMatrix();
-
+			for (int i = 1; i < 10; i++) {
+				this.drawTexturedModalRect((i / 6) * 54, ((i < 6 ? 0 : -5) + i - 1) * 24, 0, 0, 18, 18); // main
 			}
+			if (this.builder.getType() == 2) {
+				this.drawTexturedModalRect(54, 96, 0, 0, 18, 18);
+			}
+			this.drawHorizontalLine(-3, 106, -2, 0xFF808080);
+			this.drawVerticalLine(106, -13, 117, 0xFF808080);
+			GlStateManager.popMatrix();
+
+			// Show Region
+			float r = 1.0f, g = 0.0f, b = 0.0f;
+			if (this.builder.getType() == 1) {
+				r = 0.0f;
+				g = 1.0f;
+				b = 1.0f;
+			} else if (this.builder.getType() == 2) {
+				g = 0.0f;
+				b = 1.0f;
+			}
+			float size = (float) this.builder.region[2] + (float) (this.builder.region[0] + this.builder.region[1]) / 2.0f;
+			float scale = size <= 0.0f ? 7.0f : 36.0f / size;
+			GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+					GlStateManager.DestFactor.ZERO);
+			GlStateManager.glLineWidth(1.0F);
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask(false);
+			GlStateManager.translate(this.guiLeft + 170, this.guiTop + 111, 100.0f);
+			GlStateManager.scale(scale, scale, scale);
+			GlStateManager.rotate(45.0f, 0.0f, 1.0f, 0.0f);
+			GlStateManager.rotate(30.0f, 1.0f, 0.0f, 1.0f);
+			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d)), 1.0f,
+					1.0f, 1.0f, 1.0f);
+			if (this.builder.facing == 0) {
+				GlStateManager.translate(0.0f, 0.0f, 1.01f);
+			} else if (this.builder.facing == 2) {
+				GlStateManager.translate(0.0f, 0.0f, -1.1f);
+			}
+			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d * (double) this.builder.region[0],
+					-0.5d * (double) this.builder.region[1], -0.5d * (double) this.builder.region[2],
+					0.5d * (double) this.builder.region[0], 0.5d * (double) this.builder.region[1],
+					0.5d * (double) this.builder.region[2])), r, g, b, 1.0f);
+			GlStateManager.depthMask(true);
+			GlStateManager.enableTexture2D();
+			GlStateManager.disableBlend();
+			GlStateManager.popMatrix();
+		} else {
+			// Borders
+			this.drawHorizontalLine(118, 223, 36, 0xFF808080);
+			this.drawVerticalLine(117, 3, 212, 0xFF808080);
+			GlStateManager.popMatrix();
+
 		}
 		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 	}

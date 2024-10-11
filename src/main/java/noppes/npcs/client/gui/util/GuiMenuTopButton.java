@@ -39,7 +39,7 @@ public class GuiMenuTopButton extends GuiNpcButton {
 		}
 		this.hovered = i >= this.x && j >= this.y && i < this.x + this.width && j < this.y + this.height;
 		GlStateManager.pushMatrix();
-		minecraft.renderEngine.bindTexture(GuiNPCInterface.MENU_TOP_BUTTON);
+		minecraft.getTextureManager().bindTexture(GuiNPCInterface.MENU_TOP_BUTTON);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		int height = this.height - (this.active ? 0 : 2);
 		this.hover = (i >= this.x && j >= this.y && i < this.x + this.getWidth() && j < this.y + height);

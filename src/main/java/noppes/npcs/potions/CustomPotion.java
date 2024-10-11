@@ -175,20 +175,18 @@ public class CustomPotion extends Potion implements ICustomElement {
 		EventHooks.onEvent(ScriptController.Instance.potionScripts, "customPotionEndEffect", event);
 	}
 
-	@SideOnly(Side.CLIENT)
 	@Override
-	public void renderHUDEffect(int x, int y, @Nonnull PotionEffect effect, @Nonnull Minecraft mc, float alpha) {
-		mc.renderEngine.bindTexture(this.resource);
+	@SideOnly(Side.CLIENT)
+	public void renderHUDEffect(@Nonnull PotionEffect effect, @Nonnull Gui gui, int x, int y, float z, float alpha) {
+		Minecraft.getMinecraft().getTextureManager().bindTexture(this.resource);
 		Gui.drawModalRectWithCustomSizedTexture(x + 3, y + 3, 0, 0, 18, 18, 18, 18);
 	}
 
-	@SideOnly(Side.CLIENT)
 	@Override
-	public void renderInventoryEffect(int x, int y, @Nonnull PotionEffect effect, @Nonnull Minecraft mc) {
-		if (mc.currentScreen != null) {
-			mc.renderEngine.bindTexture(this.resource);
-			Gui.drawModalRectWithCustomSizedTexture(x + 6, y + 7, 0, 0, 18, 18, 18, 18);
-		}
+	@SideOnly(Side.CLIENT)
+	public void renderInventoryEffect(@Nonnull PotionEffect effect, @Nonnull Gui gui, int x, int y, float z) {
+		Minecraft.getMinecraft().getTextureManager().bindTexture(this.resource);
+		Gui.drawModalRectWithCustomSizedTexture(x + 6, y + 7, 0, 0, 18, 18, 18, 18);
 	}
 
 	@Override

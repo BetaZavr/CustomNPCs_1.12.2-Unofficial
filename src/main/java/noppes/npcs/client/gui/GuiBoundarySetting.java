@@ -297,12 +297,12 @@ public class GuiBoundarySetting extends GuiNPCInterface
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		if (this.background != null && this.mc.renderEngine != null) {
+		if (this.background != null) {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft, this.guiTop, 1.0f);
 			GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
-			this.mc.renderEngine.bindTexture(this.background);
+			this.mc.getTextureManager().bindTexture(this.background);
 			if (this.xSize > 256) {
 				this.drawTexturedModalRect(0, this.ySize - 1, 0, 252, 250, 4);
 				this.drawTexturedModalRect(250, this.ySize - 1, 256 - (this.xSize - 250), 252, this.xSize - 250, 4);

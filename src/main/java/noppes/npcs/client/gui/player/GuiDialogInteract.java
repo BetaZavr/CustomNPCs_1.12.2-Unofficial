@@ -168,7 +168,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		int[] txtrSize = null;
 		if (!d.texture.isEmpty()) {
 			txtr = new ResourceLocation(d.texture);
-			this.mc.renderEngine.bindTexture(txtr);
+			this.mc.getTextureManager().bindTexture(txtr);
 			try {
 				IResource res = this.mc.getResourceManager().getResource(new ResourceLocation(d.texture));
 				BufferedImage buffer = ImageIO.read(res.getInputStream());
@@ -277,7 +277,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 								0xFF80F080);
 					}
 					if (icons.containsKey(option.iconId)) {
-						this.mc.renderEngine.bindTexture(icons.get(option.iconId));
+						this.mc.getTextureManager().bindTexture(icons.get(option.iconId));
 						GlStateManager.pushMatrix();
 						GlStateManager.translate(this.guiLeft + 11.5f, this.dialogHeight + i * this.tf + 1.0f, 0.0f);
 						GlStateManager.color((float) (option.optionColor >> 16 & 255) / 255.0F,
@@ -391,7 +391,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 					GlStateManager.pushMatrix();
 					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 					GlStateManager.enableBlend();
-					this.mc.renderEngine.bindTexture(dt.res);
+					this.mc.getTextureManager().bindTexture(dt.res);
 					GlStateManager.translate(dt.left, pH, 0.0f);
 					float sc = (Math.max(dt.uS, dt.vS)) / 256.0f;
 					GlStateManager.scale(sc / 2.0f, sc / 2.0f, 1.0f);
@@ -539,7 +539,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// background
-		this.mc.renderEngine.bindTexture(this.wheel);
+		this.mc.getTextureManager().bindTexture(this.wheel);
 		this.drawTexturedModalRect(0, 0, 0, 0, 63, 40);
 
 		// select pos

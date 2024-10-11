@@ -52,7 +52,7 @@ public class GuiButtonBiDirectional extends GuiNpcButton {
 		this.drawHorizontalLine(11, (int) ((float) this.width / s - 11.0f), (int) (((float) this.height - 0.5f) / s),
 				0xFF000000);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		mc.renderEngine.bindTexture(GuiButtonBiDirectional.resource);
+		mc.getTextureManager().bindTexture(GuiButtonBiDirectional.resource);
 		this.drawTexturedModalRect(0, 0, 0, hoverL ? 40 : 20, 11, 20);
 		this.drawTexturedModalRect((int) ((float) this.width / s - 11.0f), 0, 11, hoverR ? 40 : 20, 11, 20);
 		GlStateManager.popMatrix();

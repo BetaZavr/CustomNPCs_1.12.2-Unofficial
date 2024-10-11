@@ -85,7 +85,7 @@ public class GuiNpcCompanionStats extends GuiNPCInterface implements IGuiData {
 	}
 
 	public void drawHealth(int y) {
-		this.mc.renderEngine.bindTexture(GuiNpcCompanionStats.ICONS);
+		this.mc.getTextureManager().bindTexture(GuiNpcCompanionStats.ICONS);
 		int max = this.role.getTotalArmorValue();
 		if (this.role.talents.containsKey(EnumCompanionTalent.ARMOR) || max > 0) {
 			for (int i = 0; i < 10; ++i) {

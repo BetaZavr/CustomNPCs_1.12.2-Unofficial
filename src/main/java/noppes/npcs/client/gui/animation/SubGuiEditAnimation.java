@@ -924,7 +924,7 @@ public class SubGuiEditAnimation
 		// Slots
 		int y = 61 + (hasExtend ? 14 : 0);
 		GlStateManager.pushMatrix();
-		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+		this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		GlStateManager.translate(winU + 2, winV + y, 0.0f);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.drawTexturedModalRect(0, 0, 0, 0, 18, 18); // right
@@ -952,7 +952,7 @@ public class SubGuiEditAnimation
 			GlStateManager.popMatrix();
 		}
 		y += 20;
-		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+		this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		GlStateManager.translate(0.0f, 20.0f, 0.0f);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.drawTexturedModalRect(0, 0, 0, 0, 18, 18); // left
@@ -1296,7 +1296,7 @@ public class SubGuiEditAnimation
 				state = Blocks.STONE.getDefaultState();
 				break;
 		}
-		this.mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.enableAlpha();

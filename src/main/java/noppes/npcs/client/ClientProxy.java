@@ -48,7 +48,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemShield;
@@ -474,7 +473,7 @@ public class ClientProxy extends CommonProxy {
 		String locSkin = String.format("%s/%s/%s", "assets", skin.getResourceDomain(), skin.getResourcePath());
 		File file = new File(CustomNpcs.Dir, locSkin);
 		if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) { return skin; }
-		TextureManager re = Minecraft.getMinecraft().renderEngine;
+		TextureManager re = Minecraft.getMinecraft().getTextureManager();
 		if (file.exists() && file.isFile()) {
 			Map<ResourceLocation, ITextureObject> mapTextureObjects = ((ITextureManagerMixin) re).npcs$getMapTextureObjects();
 			if (!mapTextureObjects.containsKey(skin)) {
@@ -696,7 +695,7 @@ public class ClientProxy extends CommonProxy {
 					break;
 				default: {
 					playerTextures.put(Type.SKIN, loc);
-					TextureManager re = Minecraft.getMinecraft().renderEngine;
+					TextureManager re = Minecraft.getMinecraft().getTextureManager();
 					ResourceLocation locDynamic = new ResourceLocation("minecraft",
 							"dynamic/skin_" + pData.playerNames.get(uuid));
 					ResourceLocation locSkins = new ResourceLocation("minecraft", "skins/" + pData.playerNames.get(uuid));

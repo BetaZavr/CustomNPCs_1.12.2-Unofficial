@@ -115,7 +115,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		this.drawWorldBackground(0);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.resource);
+		this.mc.getTextureManager().bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 
 		super.drawGuiContainerBackgroundLayer(f, i, j);
@@ -124,7 +124,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			this.px = this.guiLeft + 150;
 			this.py = this.guiTop + 17;
 			GlStateManager.enableRescaleNormal();
-			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			this.drawTexturedModalRect(this.px, this.py, 0, 0, 17, 17);
 			this.drawTexturedModalRect(this.px + 17, this.py, 10, 0, 8, 17);
 			this.drawTexturedModalRect(this.px, this.py + 17, 0, 10, 17, 8);
@@ -165,7 +165,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			// Items
 			if (!this.selectDealData.buyHasPlayerItems.isEmpty()) {
 				GlStateManager.pushMatrix();
-				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+				this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				int slot = 0;
 				for (ItemStack curr : this.selectDealData.buyHasPlayerItems.keySet()) {
 					int u = this.px - 10 + (slot % 3) * 18;
@@ -184,7 +184,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			}
 		}
 		if (this.marcet.showXP) {
-			this.mc.renderEngine.bindTexture(this.resource);
+			this.mc.getTextureManager().bindTexture(this.resource);
 			GlStateManager.enableBlend();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.drawTexturedModalRect(this.guiLeft + 6, this.guiTop + 139, 234, 0, 22, 76);
@@ -485,7 +485,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		this.scroll.setListNotSorted(sel);
 		this.scroll.setStacks(stacks);
 		this.scroll.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
-		this.scroll.setSuffixs(suffixs);
+		this.scroll.setSuffixes(suffixs);
 
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 14;

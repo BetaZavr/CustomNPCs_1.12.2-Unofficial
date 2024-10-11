@@ -132,7 +132,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 		this.drawWorldBackground(0);
 		// Back
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(GuiNpcQuestTypeItem.back);
+		this.mc.getTextureManager().bindTexture(GuiNpcQuestTypeItem.back);
 		int u = (this.width - this.xSize) / 2;
 		int v = (this.height - this.ySize) / 2;
 		this.drawTexturedModalRect(u, v, 0, 0, this.xSize, this.ySize);
@@ -140,7 +140,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 		this.drawTexturedModalRect(u, v, 0, 196, this.xSize, 26);
 		// New
 		// Slot
-		this.mc.renderEngine.bindTexture(GuiNpcQuestTypeItem.inv);
+		this.mc.getTextureManager().bindTexture(GuiNpcQuestTypeItem.inv);
 		u = 7 + (this.width - this.xSize) / 2;
 		v = 91 + (this.height - this.ySize) / 2;
 		this.drawTexturedModalRect(u, v, 0, 0, 18, 18);

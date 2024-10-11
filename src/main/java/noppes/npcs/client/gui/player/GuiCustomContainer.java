@@ -65,7 +65,7 @@ public class GuiCustomContainer extends GuiContainer {
 			GlStateManager.color((float) (this.guiColor >> 16 & 255) / 255.0F,
 					(float) (this.guiColor >> 8 & 255) / 255.0F, (float) (this.guiColor & 255) / 255.0F, 1.0F);
 		}
-		this.mc.renderEngine.bindTexture(backTexture);
+		this.mc.getTextureManager().bindTexture(backTexture);
 		int u = (this.width - this.xSize) / 2;
 		int v = (this.height - this.ySize) / 2;
 		int h = this.inventorySlots.height + 107;
@@ -101,7 +101,7 @@ public class GuiCustomContainer extends GuiContainer {
 			this.drawTexturedModalRect(u, v, 0, 0, 176, h - 4);
 			this.drawTexturedModalRect(u, v + h - 4, 0, 218, 176, 4);
 		}
-		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+		this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		for (int s = 0; s < this.inventorySlots.inventorySlots.size(); s++) {
 			Slot slot = this.inventorySlots.getSlot(s);
@@ -110,12 +110,12 @@ public class GuiCustomContainer extends GuiContainer {
 			}
 		}
 		if (this.isMany) {
-			this.mc.renderEngine.bindTexture(rowTexture);
+			this.mc.getTextureManager().bindTexture(rowTexture);
 			this.drawTexturedModalRect(u + 172, v + 17, 174, 17, 14, 86);
 			this.drawTexturedModalRect(u + 172, v + 103, 174, 125, 14, 4);
 		}
 		if (!this.lock.isEmpty()) {
-			this.mc.renderEngine.bindTexture(lockTexture);
+			this.mc.getTextureManager().bindTexture(lockTexture);
 			this.drawTexturedModalRect(u + 164 + (this.isMany ? 16 : 0), v - 8, 0, 146, 20, 20);
 		}
 	}
@@ -155,7 +155,7 @@ public class GuiCustomContainer extends GuiContainer {
 			GlStateManager.color(2.0F, 2.0F, 2.0F, 1.0F);
 			int u = (this.width - this.xSize) / 2;
 			int v = (this.height - this.ySize) / 2;
-			this.mc.renderEngine.bindTexture(tabsTexture);
+			this.mc.getTextureManager().bindTexture(tabsTexture);
             float currentScroll = (float) this.row / (float) this.maxRows;
 			int h = (int) (currentScroll * 73.0f);
 			u += 173;

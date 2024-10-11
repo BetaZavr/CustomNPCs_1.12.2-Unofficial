@@ -41,7 +41,7 @@ public class GuiMerchantAdd extends GuiContainer {
 
 		public void drawButton(@Nonnull Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
 			if (this.visible) {
-				minecraft.renderEngine.bindTexture(GuiMerchantAdd.merchantGuiTextures);
+				minecraft.getTextureManager().bindTexture(GuiMerchantAdd.merchantGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
 						&& mouseY < this.y + this.height;
@@ -120,7 +120,7 @@ public class GuiMerchantAdd extends GuiContainer {
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3) {
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		mc.renderEngine.bindTexture(GuiMerchantAdd.merchantGuiTextures);
+		mc.getTextureManager().bindTexture(GuiMerchantAdd.merchantGuiTextures);
 		int k = (this.width - this.xSize) / 2;
 		int l = (this.height - this.ySize) / 2;
 		this.drawTexturedModalRect(k, l, 0, 0, this.xSize, this.ySize);
@@ -129,7 +129,7 @@ public class GuiMerchantAdd extends GuiContainer {
 			int i1 = this.currentRecipeIndex;
 			MerchantRecipe merchantrecipe = merchantrecipelist.get(i1);
 			if (merchantrecipe.isRecipeDisabled()) {
-				mc.renderEngine.bindTexture(GuiMerchantAdd.merchantGuiTextures);
+				mc.getTextureManager().bindTexture(GuiMerchantAdd.merchantGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				GlStateManager.disableLighting();
 				this.drawTexturedModalRect(this.guiLeft + 83, this.guiTop + 21, 212, 0, 28, 21);
