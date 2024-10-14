@@ -12,9 +12,11 @@ extends SubGuiInterface {
 
 	public boolean cancelled;
 	public int[] numbersOnly; // min, max, def
-	public String lable;
+	public String label;
 	public String[] hovers;
 	public String[] text;
+	public boolean latinAlphabetOnly = false;
+	public boolean allowUppercase = true;
 
 	public SubGuiEditText(int id, String text) {
 		this(new String[] { text });
@@ -28,7 +30,7 @@ extends SubGuiInterface {
 
 	public SubGuiEditText(String[] texts) {
 		this.numbersOnly = null;
-		this.lable = null;
+		this.label = null;
 		this.cancelled = true;
 		this.text = new String[Math.min(texts.length, 5)];
 		this.hovers = new String[Math.min(texts.length, 5)];
@@ -85,16 +87,18 @@ extends SubGuiInterface {
 	public void initGui() {
 		super.initGui();
 		for (int i = 0; i < this.text.length && i < 5; i++) { // Changed
-			this.addTextField(new GuiNpcTextField(i, this.parent, this.guiLeft + 4, this.guiTop + 16 + i * 22 + (this.lable != null ? 2 : 0), 168, 20, this.text[i]));
+			this.addTextField(new GuiNpcTextField(i, this.parent, this.guiLeft + 4, this.guiTop + 16 + i * 22 + (this.label != null ? 2 : 0), 168, 20, this.text[i]));
 			if (this.numbersOnly != null) {
 				this.getTextField(i).setNumbersOnly();
 				this.getTextField(i).setMinMaxDefault(this.numbersOnly[0], this.numbersOnly[1], this.numbersOnly[2]);
 			}
+			this.getTextField(i).setLatinAlphabetOnly(latinAlphabetOnly);
+			this.getTextField(i).setAllowUppercase(allowUppercase);
 		}
 		this.addButton( new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 22 + this.text.length * 22, 80, 20, "gui.done"));
 		this.addButton( new GuiNpcButton(1, this.guiLeft + 90, this.guiTop + 22 + this.text.length * 22, 80, 20, "gui.cancel"));
-		if (this.lable != null) {
-			this.addLabel(new GuiNpcLabel(0, this.lable, this.guiLeft + 7, this.guiTop + 4));
+		if (this.label != null) {
+			this.addLabel(new GuiNpcLabel(0, this.label, this.guiLeft + 7, this.guiTop + 5));
 		}
 	}
 

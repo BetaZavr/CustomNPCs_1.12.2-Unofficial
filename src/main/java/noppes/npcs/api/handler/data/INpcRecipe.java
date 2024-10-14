@@ -54,4 +54,6 @@ public interface INpcRecipe {
 
 	WrapperRecipe getWrapperRecipe();
 
+    boolean isMain();
+
 }

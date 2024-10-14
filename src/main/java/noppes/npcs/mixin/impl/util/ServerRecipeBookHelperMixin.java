@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.inventory.*;
 import net.minecraft.network.play.server.SPacketPlaceGhostRecipe;
+import net.minecraftforge.common.crafting.IRecipeContainer;
 import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -79,9 +80,9 @@ public class ServerRecipeBookHelperMixin {
             this.invCraftResult = ((ContainerPlayer)container).craftResult;
             this.invCrafting = ((ContainerPlayer)container).craftMatrix;
         }
-        else if (container instanceof net.minecraftforge.common.crafting.IRecipeContainer) {
-            this.invCraftResult = ((net.minecraftforge.common.crafting.IRecipeContainer)container).getCraftResult();
-            this.invCrafting = ((net.minecraftforge.common.crafting.IRecipeContainer)container).getCraftMatrix();
+        else if (container instanceof IRecipeContainer) {
+            this.invCraftResult = ((IRecipeContainer)container).getCraftResult();
+            this.invCrafting = ((IRecipeContainer)container).getCraftMatrix();
         }
         boolean isAvailability = true;
         if (recipe instanceof INpcRecipe) {
@@ -201,12 +202,16 @@ public class ServerRecipeBookHelperMixin {
                 ItemStack itemstack = RecipeItemHelper.unpack(iterator.next());
                 if (!itemstack.isEmpty()) {
                     int count = 1;
-                    ItemStack[] ingStacks = recipe.getIngredients().get(l + k * this.invCrafting.getWidth()).getMatchingStacks();
-                    for (ItemStack st : ingStacks) { // for variants
-                        if (st.isEmpty()) { continue; }
-                        if (NoppesUtilPlayer.compareItems(st, itemstack, npcs$ignoreDamage, npcs$ignoreNBT)) {
-                            count = st.getCount();
-                            break;
+                    if (recipe instanceof INpcRecipe) {
+                        ItemStack[] ingStacks = recipe.getIngredients().get(slotID).getMatchingStacks();
+                        for (ItemStack st : ingStacks) { // for variants
+                            if (st.isEmpty()) {
+                                continue;
+                            }
+                            if (NoppesUtilPlayer.compareItems(st, itemstack, npcs$ignoreDamage, npcs$ignoreNBT)) {
+                                count = st.getCount();
+                                break;
+                            }
                         }
                     }
                     for (int i = 0; i < craftableCount; ++i) {

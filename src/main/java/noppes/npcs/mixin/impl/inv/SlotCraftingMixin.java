@@ -50,6 +50,8 @@ public class SlotCraftingMixin {
             if (!((Availability) ((INpcRecipe) recipe).getAvailability()).isAvailable(player)) {
                 if (!player.world.isRemote) {
                     player.sendMessage(new TextComponentTranslation("item.craft.not.availability"));
+                    player.inventory.setItemStack(ItemStack.EMPTY);
+                    player.openContainer.detectAndSendChanges();
                 }
                 cir.setReturnValue(ItemStack.EMPTY);
                 return;

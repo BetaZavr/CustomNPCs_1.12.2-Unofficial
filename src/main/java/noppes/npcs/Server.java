@@ -173,21 +173,18 @@ public class Server {
 						for (String s : list) {
 							writeString(buffer, s);
 						}
-					} catch (Exception e) {
-						LogWriter.error("Error write string:", e);
-					}
-					try {
-						@SuppressWarnings("unchecked")
-						List<Integer> list = (List<Integer>) ob;
-						int[] a = new int[list.size()];
-						int j = 0;
-						for (int i : list) {
-							a[j] = i;
-							j++;
-						}
-						writeIntArray(buffer, a);
-					} catch (Exception e) {
-						LogWriter.error("Error write int array:", e);
+					} catch (Exception ignore) {
+						try {
+							@SuppressWarnings("unchecked")
+							List<Integer> list = (List<Integer>) ob;
+							int[] a = new int[list.size()];
+							int j = 0;
+							for (int i : list) {
+								a[j] = i;
+								j++;
+							}
+							writeIntArray(buffer, a);
+						} catch (Exception ignored) { }
 					}
 				} else if (ob instanceof UUID) {
 					writeString(buffer, ob.toString());

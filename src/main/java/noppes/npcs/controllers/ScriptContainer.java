@@ -432,9 +432,6 @@ public class ScriptContainer {
 			if (tag.getId() == 8) {
 				try {
 					ScriptContainer.Data.put(key, this.engine.eval(((NBTTagString) tag).getString()));
-					if (this.isClient) {
-						System.out.println("CNPCs: " + ScriptContainer.Data.get(key));
-					}
 				}
 				catch (Exception e) { LogWriter.error("Error:", e); }
 			}

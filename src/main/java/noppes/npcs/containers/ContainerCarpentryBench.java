@@ -27,12 +27,14 @@ public class ContainerCarpentryBench
 		this.world = worldIn;
 		this.pos = posIn;
 		this.player = playerInventory.player;
+		// craftResult slot ID any = 0? next slots in craftMatrix:
 		this.addSlotToContainer(new SlotCrafting(playerInventory.player, this.craftMatrix, this.craftResult, 0, 140, 41));
 		for (int var6 = 0; var6 < 4; ++var6) {
 			for (int var7 = 0; var7 < 4; ++var7) {
 				this.addSlotToContainer(new Slot(this.craftMatrix, var7 + var6 * 4, 30 + var7 * 18, 14 + var6 * 18));
 			}
 		}
+		// next slots in playerInventory:
 		for (int var6 = 0; var6 < 3; ++var6) {
 			for (int var7 = 0; var7 < 9; ++var7) {
 				this.addSlotToContainer(new Slot(playerInventory, var7 + var6 * 9 + 9, 8 + var7 * 18, 98 + var6 * 18));

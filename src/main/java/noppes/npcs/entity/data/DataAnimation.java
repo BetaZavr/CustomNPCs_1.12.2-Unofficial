@@ -225,12 +225,10 @@ public class DataAnimation implements INPCAnimation {
 				(this.activeAnimation.type == AnimationKind.JUMP && this.isJump);
 		boolean forcedlyCyclical = true;
 		boolean canNext = this.activeAnimation.frames.containsKey(animationFrame + 1);
-//System.out.println("CNPCs: totalTicks: "+totalTicks+"/"+(this.activeAnimation.totalTicks - 1)+"; animationFrame: "+animationFrame+"/"+(this.activeAnimation.frames.size()-1)+"; ticks: "+ticks+"; isEditing: "+(this.activeAnimation.type == AnimationKind.EDITING)+"; start: "+this.startAnimationTime);
 		if (canNext) {
 			// can go to the next frame
 			this.nextFrame = this.activeAnimation.frames.get(animationFrame + 1);
 			forcedlyCyclical = isCyclical && animationFrame == this.activeAnimation.frames.size() - 2;
-//System.out.println("CNPCs: forcedlyCyclical: "+forcedlyCyclical+"; "+animationFrame+"/"+(this.activeAnimation.frames.size() - 1));
 		}
 		if (isCyclical && forcedlyCyclical) {
 			// animation is finished but need to repeat the last frames until it turns off
@@ -242,13 +240,11 @@ public class DataAnimation implements INPCAnimation {
 					if (!this.activeAnimation.type.isQuickStart()) { f0--; }
 				}
 			}
-//System.out.println("CNPCs: f0: "+f0+"/"+(this.activeAnimation.frames.size()-1));
 			animationFrame = this.activeAnimation.frames.size() - f0 - 1;
 			if (animationFrame < 0) { animationFrame = 0; }
 			this.nextFrame = this.activeAnimation.frames.containsKey(animationFrame) ? this.activeAnimation.frames.get(animationFrame) : this.currentFrame;
 			if (f0 == 0) { pt = 0.0f; }
 			this.completeAnimation = (totalTicks == this.activeAnimation.totalTicks - 1);
-//System.out.println("CNPCs: f0: "+f0+"/"+(this.activeAnimation.frames.size()-1)+"; complete: "+this.completeAnimation);
 			if (this.completeAnimation) {
 				startTick = 0;
 				if (animationFrame > 0 && this.activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) { startTick = this.activeAnimation.endingFrameTicks.get(animationFrame - 1) + 1; }
@@ -800,7 +796,6 @@ public class DataAnimation implements INPCAnimation {
 	}
 
 	public boolean isAnimated() {
-		//System.out.println("CNPCs: "+this.activeAnimation);
 		// no animation
 		if (this.activeAnimation == null) { return false; }
 
@@ -913,14 +908,12 @@ public class DataAnimation implements INPCAnimation {
 				this.stopAnimation();
 			}
 		}
-//System.out.println("CNPCs: "+this.movementAnimation);
 		AnimationKind type;
 		if (this.movementAnimation == null && isAttacking) {
 			// attempt to animate attack
 			type = isMoving ? AnimationKind.REVENGE_WALK : AnimationKind.REVENGE_STAND;
 			this.movementAnimation = this.reset(type);
 		}
-//System.out.println("CNPCs: "+this.movementAnimation);
 		if (this.movementAnimation == null) {
 			if (this.entity.isInWater() || this.entity.isInLava()) {
 				// trying to select animations when npc is in water
@@ -932,22 +925,18 @@ public class DataAnimation implements INPCAnimation {
 				this.movementAnimation = this.reset(type);
 			}
 		}
-//System.out.println("CNPCs: "+this.movementAnimation);
 		if (this.movementAnimation == null) {
 			// trying to select animation standard animation
 			type = isMoving ? AnimationKind.WALKING : AnimationKind.STANDING;
 			this.movementAnimation = this.reset(type);
 		}
-//System.out.println("CNPCs: "+this.movementAnimations);
 		if (this.movementAnimation == null) {
 			// trying to select base animation
 			this.movementAnimation = this.reset(AnimationKind.BASE);
 		}
-//System.out.println("CNPCs: "+(this.movementAnimation != null ? this.movementAnimation.type : "null"));
 		if (this.movementAnimation != null && this.movementAnimation.id != -1 &&
 				(this.activeAnimation == null || this.activeAnimation.id != this.movementAnimation.id || this.activeAnimation.type.isMovement())) {
 			this.runAnimation(this.movementAnimation, this.movementAnimation.type);
-//System.out.println("CNPCs: "+this.movementAnimation.name);
 		}
 	}
 
@@ -966,7 +955,6 @@ public class DataAnimation implements INPCAnimation {
 			}
 			this.startEvent(new AnimationEvent.StopEvent(this.entity, this.activeAnimation, animationFrame, totalTicks, ticks));
 		}
-//System.out.println("CNPCs: "+(this.activeAnimation != null)+" // "+this.preFrame);
 		this.activeAnimation = anim.create(type, this.preFrame);
 		this.startAnimationTime = this.entity.world.getTotalWorldTime();
 		this.completeAnimation = false;
@@ -986,7 +974,6 @@ public class DataAnimation implements INPCAnimation {
 		if (anim != null && anim.frames.isEmpty()) { anim = null; }
 
 		if (anim != null) {
-//System.out.println("CNPCs: "+anim.name);
 			this.runAnimation(anim, type);
 			// remember option
 			this.isJump = type == AnimationKind.JUMP;

@@ -26,10 +26,12 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperRecipe;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.mixin.item.crafting.IIngredientMixin;
 import noppes.npcs.mixin.item.crafting.IShapelessRecipesMixin;
+import noppes.npcs.util.Util;
 
 public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe, IRecipe // Changed
 {
@@ -77,7 +79,9 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	}
 
 	public static NpcShapelessRecipes read(NBTTagCompound compound) {
-		NpcShapelessRecipes recipe = new NpcShapelessRecipes(compound.getString("Group"), compound.getString("Name"), compound.getBoolean("Global"),
+		NpcShapelessRecipes recipe = new NpcShapelessRecipes(Util.instance.getResourceName(compound.getString("Group")),
+				Util.instance.getResourceName(compound.getString("Name")),
+				compound.getBoolean("Global"),
 				NBTTags.getIngredientList(compound.getTagList("Materials", 10)),
 				new ItemStack(compound.getCompoundTag("Item")));
 		recipe.id = compound.getInteger("ID");
@@ -85,6 +89,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		recipe.ignoreDamage = compound.getBoolean("IgnoreDamage");
 		recipe.ignoreNBT = compound.getBoolean("IgnoreNBT");
 		recipe.known = compound.getBoolean("IsKnown");
+		recipe.main = compound.getBoolean("IsMain");
 		if (recipe.getRegistryName() == null) {
 			String key = recipe.getNpcGroup().toLowerCase() + "_" + recipe.name.toLowerCase();
 			while (key.contains(" ")) {
@@ -105,6 +110,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	public boolean ignoreDamage;
 	public boolean ignoreNBT;
 	public boolean known;
+	public boolean main = false;
 
 	public String name;
 
@@ -115,7 +121,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	private final WrapperRecipe wrapper = new WrapperRecipe();
 
 	public NpcShapelessRecipes(String group, String name, boolean isGlobal, NonNullList<Ingredient> ingredients, ItemStack result) {
-		super(group, result, ingredients);
+		super(Util.instance.getResourceName(group), result, ingredients);
 		this.recipeOutput = result;
 		this.recipeItems = ingredients;
 		boolean simple = true;
@@ -123,7 +129,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 			simple &= i.isSimple();
 		this.isSimple = simple;
 		this.id = -1;
-		this.name = name;
+		this.name = Util.instance.getResourceName(name);
 		this.availability = new Availability();
 		this.global = isGlobal;
 		this.ignoreDamage = false;
@@ -133,11 +139,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		this.recipeWidth = isGlobal ? 3 : 4;
 		this.recipeHeight = isGlobal ? 3 : 4;
 		if (this.getRegistryName() == null) {
-			String key = this.getGroup().toLowerCase() + "_" + this.name.toLowerCase();
-			while (key.contains(" ")) {
-				key = key.replace(" ", "_");
-			}
-			this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, key));
+			this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, this.getGroup() + "_" + this.name));
 		}
 	}
 
@@ -196,11 +198,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 			recipeHeight = w;
 		}
 		if (this.getRegistryName() == null) {
-			String key = this.getGroup().toLowerCase() + "_" + this.name.toLowerCase();
-			while (key.contains(" ")) {
-				key = key.replace(" ", "_");
-			}
-			this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, key));
+			this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, this.getGroup() + "_" + this.name));
 		}
 	}
 
@@ -266,6 +264,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		compound.setString("Group", this.getGroup());
 		compound.setBoolean("IsKnown", this.known);
 		compound.setBoolean("IsShaped", false);
+		compound.setBoolean("IsMain", this.main);
 		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound);
 	}
 
@@ -275,8 +274,11 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	}
 
 	@Override
+	public @Nonnull ItemStack getRecipeOutput() { return recipeOutput; }
+
+	@Override
 	public IItemStack getProduct() {
-		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.recipeOutput);
+		return (IItemStack) getRecipeOutput().getCapability(ItemStackWrapper.ITEM_SCRIPTED_DATA_CAPABILITY, null);
 	}
 
 	@Override
@@ -314,11 +316,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	public boolean isValid() {
 		if (this.getRegistryName() == null) {
-			String key = this.getGroup().toLowerCase() + "_" + this.name.toLowerCase();
-			while (key.contains(" ")) {
-				key = key.replace(" ", "_");
-			}
-			this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, key));
+			this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, this.getGroup() + "_" + this.name));
 		}
         if (this.getGroup().isEmpty()) {
 			return false;
@@ -360,9 +358,10 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		wrapper.height = recipeHeight;
 		wrapper.group = getGroup();
 		wrapper.domen = CustomNpcs.MODID;
-		wrapper.name = name;
+		wrapper.name = (main ? ((char)167) + "b" : "") + name;
 		wrapper.product = recipeOutput.copy();
 		wrapper.availability.readFromNBT(availability.writeToNBT(new NBTTagCompound()));
+		wrapper.main = main;
 
 		wrapper.recipeItems.clear();
 		int pos = 0;
@@ -377,6 +376,9 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		}
 		return wrapper;
 	}
+
+	@Override
+	public boolean isMain() { return main; }
 
 	public boolean matches(@Nonnull InventoryCrafting inv, @Nullable World worldIn) {
 		if (this.recipeItems.isEmpty() || (inv.getWidth() == 3 && !this.global) || (inv.getWidth() == 4 && this.global)) {

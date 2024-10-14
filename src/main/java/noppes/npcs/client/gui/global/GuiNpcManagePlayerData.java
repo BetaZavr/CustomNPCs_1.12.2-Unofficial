@@ -142,7 +142,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			this.displayGuiScreen(guiyesno);
 		} else if (id == 8) { // Add
 			SubGuiEditText subgui = new SubGuiEditText(0, "");
-			subgui.lable = "gui.add";
+			subgui.label = "gui.add";
 			switch (this.selection) {
 			case Quest: {
 				subgui.hovers[0] = "";
@@ -332,7 +332,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 					subgui.numbersOnly = new int[] { 0, Integer.MAX_VALUE, value };
 				}
 				subgui.text[0] = "" + value;
-				subgui.lable = "gui.set.new.value";
+				subgui.label = "gui.set.new.value";
 				this.setSubGui(subgui);
 				break;
 			}
@@ -361,7 +361,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 				}
 				subgui.text[0] = "" + s;
 				subgui.getTextField(0).setMinMaxDefault(0, m, s);
-				subgui.lable = "gui.set.new.value";
+				subgui.label = "gui.set.new.value";
 				this.setSubGui(subgui);
 			}
 			default: {

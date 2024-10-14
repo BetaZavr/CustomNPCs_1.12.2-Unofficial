@@ -5,6 +5,8 @@ import java.util.*;
 import com.google.common.collect.Lists;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemClock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.scoreboard.ScoreObjective;
@@ -14,6 +16,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.ICompatibilty;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.VersionCompatibility;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
@@ -102,7 +105,10 @@ public class Availability implements ICompatibilty, IAvailability {
 		if (this.healthType != 0) {
 			return true;
 		}
-		return this.daytime[0] != -1 || this.daytime[1] != -1 || this.minPlayerLevel > 0 || onlyGM;
+		if (daytime[0] >= 0 && daytime[0] <= 23 && daytime[1] >= 0 && daytime[1] <= 23 && daytime[0] != daytime[1]) {
+			return true;
+		}
+		return this.minPlayerLevel > 0 || onlyGM;
 	}
 
 	public void clear() {
@@ -264,10 +270,12 @@ public class Availability implements ICompatibilty, IAvailability {
 		if (!this.hasOptions) {
 			return true;
 		}
-		if (this.daytime[0] != 0 && this.daytime[1] != 0 && this.daytime[0] != this.daytime[1]) {
+		if (daytime[0] >= 0 && daytime[0] <= 23 && daytime[1] >= 0 && daytime[1] <= 23 && daytime[0] != daytime[1]) {
 			int time = (int) ((player.world.getWorldTime() + 30000L) % 24000L) / 1000;
-			if (time < this.daytime[0] || time > this.daytime[1]) {
-				return false;
+			if (daytime[0] < daytime[1]) {
+				return time > daytime[0] && time < daytime[1];
+			} else {
+				return time > daytime[0] || time < daytime[1];
 			}
 		}
 		for (int id : this.dialogues.keySet()) {
@@ -894,12 +902,30 @@ public class Availability implements ICompatibilty, IAvailability {
         StringBuilder data;
         boolean gm = player.capabilities.isCreativeMode;
 		// daytime
-		if (this.daytime[0] != 0 && this.daytime[1] != 0 && this.daytime[0] != this.daytime[1]) {
+		if (daytime[0] >= 0 && daytime[0] <= 23 && daytime[1] >= 0 && daytime[1] <= 23 && daytime[0] != daytime[1]) {
 			int time = (int) ((player.world.getWorldTime() + 30000L) % 24000L) / 1000;
-			list.add(new TextComponentTranslation("availability.type.daytime",
-					((char) 167) + "2" + daytime[0]+":00", ((char) 167) + "2" + daytime[1]+":00", ((char) 167) + "6" + time+":00",
-					new TextComponentTranslation("quest.task.manual."+((time < this.daytime[0] || time > this.daytime[1]) ? "1" : "0")).getFormattedText()
-			).getFormattedText());
+			boolean bo;
+			if (daytime[0] < daytime[1]) { bo = time > daytime[0] && time < daytime[1]; }
+			else { bo = time > daytime[0] || time < daytime[1]; }
+			boolean hasClock = false;
+			if (player.capabilities.isCreativeMode) { hasClock = true; }
+			else {
+				for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+					ItemStack stack = player.inventory.getStackInSlot(i);
+					if (!NoppesUtilServer.IsItemStackNull(stack) && stack.getItem() instanceof ItemClock) {
+						hasClock = true;
+						break;
+					}
+				}
+			}
+			if (hasClock) {
+				list.add(new TextComponentTranslation("availability.type.daytime.1",
+						((char) 167) + "2" + daytime[0]+":00", ((char) 167) + "2" + daytime[1]+":00", ((char) 167) + "6" + time+":00",
+						new TextComponentTranslation("quest.task.manual."+(bo ? "0" : "1")).getFormattedText()).getFormattedText());
+			} else {
+				list.add(new TextComponentTranslation("availability.type.daytime.0",
+						new TextComponentTranslation("quest.task.manual."+(bo ? "0" : "1")).getFormattedText()).getFormattedText());
+			}
 		}
 		// dialogue
 		if (!this.dialogues.isEmpty()) {

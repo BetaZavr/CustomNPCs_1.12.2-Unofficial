@@ -179,8 +179,7 @@ public class GuiBlockBuilder extends GuiNPCInterface implements IGuiData, ICusto
 		if (this.getTextField(9) != null) {
 			this.tile.yOffset = this.getTextField(9).getInteger();
 		}
-		Client.sendData(EnumPacketServer.SchematicsTileSave, this.x, this.y, this.z,
-				this.tile.writePartNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.SchematicsTileSave, this.x, this.y, this.z, this.tile.writePartNBT(new NBTTagCompound()));
 	}
 
 	@Override

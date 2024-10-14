@@ -445,14 +445,6 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 	}
 
 	@Override
-	public void readFromNBT(@Nonnull NBTTagCompound compound) {
-		super.readFromNBT(compound);
-		this.setNBT(compound);
-		this.setDisplayNBT(compound);
-		this.timers.readFromNBT(compound);
-	}
-
-	@Override
 	public void runScript(String type, Event event) {
 		if (!this.isEnabled()) {
 			return;
@@ -552,20 +544,6 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		this.needsClientUpdate = true;
 	}
 
-	public void setNBT(NBTTagCompound compound) {
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
-		this.scriptLanguage = compound.getString("ScriptLanguage");
-		this.enabled = compound.getBoolean("ScriptEnabled");
-		int pw = compound.getInteger("BlockPowering");
-		this.powering = pw;
-		this.activePowering = pw;
-		this.prevPower = compound.getInteger("BlockPrevPower");
-		if (compound.hasKey("BlockHardness")) {
-			this.blockHardness = compound.getFloat("BlockHardness");
-			this.blockResistance = compound.getFloat("BlockResistance");
-		}
-	}
-
 	public void setRedstonePower(int strength) {
 		if (this.powering == strength) {
 			return;
@@ -623,13 +601,36 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		}
 	}
 
+	public void setNBT(NBTTagCompound compound) {
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
+		this.scriptLanguage = compound.getString("ScriptLanguage");
+		this.enabled = compound.getBoolean("ScriptEnabled");
+		int pw = compound.getInteger("BlockPowering");
+		this.powering = pw;
+		this.activePowering = pw;
+		this.prevPower = compound.getInteger("BlockPrevPower");
+		if (compound.hasKey("BlockHardness")) {
+			this.blockHardness = compound.getFloat("BlockHardness");
+			this.blockResistance = compound.getFloat("BlockResistance");
+		}
+	}
+
+	@Override
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.setNBT(compound);
+		this.setDisplayNBT(compound);
+		this.timers.readFromNBT(compound);
+	}
+
 	@Nonnull
 	@Override
 	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		this.getNBT(compound);
 		this.writeDisplayNBT(compound);
 		this.timers.writeToNBT(compound);
-		return super.writeToNBT(compound);
+		super.writeToNBT(compound);
+		return compound;
 	}
 
 }

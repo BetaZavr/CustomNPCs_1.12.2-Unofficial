@@ -715,7 +715,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				}
 				case 6: { // start Animation From Saved ID
 					if (compound.hasKey("animID", 3) && compound.hasKey("typeID", 3)) {
-						System.out.println("CNPCs: ");
 						AnimationConfig ac = AnimationController.getInstance().animations.get(compound.getInteger("animID"));
 						AnimationKind at = AnimationKind.get(compound.getInteger("typeID"));
 						if (ac != null) {((EntityNPCInterface) entity).animation.setAnimation(ac, at); }

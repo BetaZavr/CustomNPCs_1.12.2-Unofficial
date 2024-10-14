@@ -87,6 +87,7 @@ import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.roles.data.SpawnNPCData;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
+import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.IPermission;
@@ -277,21 +278,18 @@ public class PacketHandlerServer {
             int z = buffer.readInt();
             NoppesUtilServer.sendOpenGui(player, gui, npc, x, y, z);
         } else if (type == EnumPacketServer.RecipeRemove) {
-            int size = buffer.readInt();
-            String group = Server.readString(buffer);
-            String name = Server.readString(buffer);
-            if (RecipeController.getInstance().delete(size == 3, group, name)) {
-                Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-            }
+            RecipeController.getInstance().delete(buffer.readBoolean(), Server.readString(buffer), Server.readString(buffer));
+            CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.RecipeSave) {
             NBTTagCompound compound = Server.readNBT(buffer);
             if (compound.getString("Domen").equals(CustomNpcs.MODID)) {
                 INpcRecipe recipe;
                 if (compound.getBoolean("IsShaped")) { recipe = NpcShapedRecipes.read(compound); }
                 else { recipe = NpcShapelessRecipes.read(compound); }
-                recipe = RecipeController.getInstance().register(recipe);
-                RecipeController.getInstance().sendToAll(recipe);
+                RecipeController.getInstance().register(recipe);
+                RecipeController.getInstance().updateGroupToAll(recipe.isGlobal(), recipe.getNpcGroup());
             }
+            CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.NaturalSpawnGetAll) {
             NoppesUtilServer.sendScrollData(player, SpawnController.instance.getScroll());
         } else if (type == EnumPacketServer.NaturalSpawnGet) {
@@ -1050,8 +1048,7 @@ public class PacketHandlerServer {
             tile.writeToNBT(compound);
             Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
         } else if (type == EnumPacketServer.ScriptBlockDataSave) {
-            TileEntity tile = player.world
-                    .getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
+            TileEntity tile = player.world.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
             if (!(tile instanceof TileScripted)) {
                 CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
                 return;
@@ -1095,8 +1092,8 @@ public class PacketHandlerServer {
         } else if (type == EnumPacketServer.SchematicsSet) {
             BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
             TileBuilder tile = (TileBuilder) player.world.getTileEntity(pos);
+            if (tile == null) { return; }
             String name = Server.readString(buffer);
-            assert tile != null;
             tile.setSchematic(SchematicController.Instance.load(name));
             if (tile.hasSchematic()) {
                 Server.sendData(player, EnumPacketClient.GUI_DATA, tile.getSchematic().getNBTSmall());
@@ -1119,9 +1116,9 @@ public class PacketHandlerServer {
             }
         } else if (type == EnumPacketServer.SchematicsTileSave) {
             BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
-            TileBuilder tile = (TileBuilder) player.world.getTileEntity(pos);
-            if (tile != null) {
-                tile.readPartNBT(Server.readNBT(buffer));
+            TileEntity tile = player.world.getTileEntity(pos);
+            if (tile instanceof TileBuilder) {
+                ((TileBuilder) tile).readPartNBT(Server.readNBT(buffer));
             }
         } else if (type == EnumPacketServer.SchematicStore) {
             String name = Server.readString(buffer);
@@ -1172,23 +1169,24 @@ public class PacketHandlerServer {
             String group = Server.readString(buffer);
             NpcShapedRecipes recipe = new NpcShapedRecipes(group, "default", isGlobal, NonNullList.create(), ItemStack.EMPTY);
             RecipeController.getInstance().register(recipe);
-            Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+            CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.RecipeAdd) {
-            boolean isGlobal = buffer.readBoolean();
-            String group = Server.readString(buffer);
-            String name = Server.readString(buffer);
-            NpcShapedRecipes recipe = new NpcShapedRecipes(group, name, isGlobal, NonNullList.create(), ItemStack.EMPTY);
-            RecipeController.getInstance().register(recipe);
-            Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+            NBTTagCompound compound = Server.readNBT(buffer);
+            INpcRecipe recipe;
+            if (compound.getBoolean("IsShaped")) { recipe = NpcShapedRecipes.read(compound); }
+            else { recipe = NpcShapelessRecipes.read(compound); }
+            recipe = RecipeController.getInstance().register(recipe);
+            RecipeController.getInstance().sendToAll(recipe);
+            CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.RecipesRenameGroup) {
             RecipeController.getInstance().renameGroup(buffer.readBoolean(), Server.readString(buffer), Server.readString(buffer));
-            Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+            CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.RecipeRemoveGroup) {
             RecipeController.getInstance().deleteGroup(buffer.readBoolean(), Server.readString(buffer));
-            Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+            CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.RecipesRename) {
-            RecipeController.getInstance().renameRecipe(buffer.readInt(), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer));
-            Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+            RecipeController.getInstance().renameRecipe(buffer.readBoolean(), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer));
+            CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.TraderMarketSave) {
             MarcetController mData = MarcetController.getInstance();
             NBTTagCompound compound = Server.readNBT(buffer);

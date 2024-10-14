@@ -40,35 +40,37 @@ public class NpcGuiButtonRecipe extends GuiButtonRecipe {
     private RecipeList list;
     private float time;
 
-    private Minecraft mc;
     private int availabilityType = 0; // 0: normal; 1-not; 2-combo
-    private Availability availability = null;
+    private List<String> availabilityList = null;
 
     public NpcGuiButtonRecipe() {
         super();
     }
 
     public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-        this.mc = mc;
         if (!this.visible) { return; }
         if (!GuiScreen.isCtrlKeyDown()) { this.time += partialTicks; }
         this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 
         List<IRecipe> list = this.getOrderedRecipes();
-        availabilityType = 0;
-        availability = null;
+        availabilityType = -1;
+        availabilityList = null;
         for (IRecipe r : list) {
             if (r instanceof INpcRecipe) {
+                if (!((Availability) ((INpcRecipe) r).getAvailability()).hasOptions()) { continue; }
+                if (availabilityList == null) {
+                    availabilityList = ((Availability) ((INpcRecipe) r).getAvailability()).getAvailability(mc.player);
+                }
                 if (((Availability) ((INpcRecipe) r).getAvailability()).isAvailable(mc.player)) {
-                    if (availabilityType == 1) { availabilityType = 2; }
+                    if (availabilityType == -1) { availabilityType = 0; }
+                    else if (availabilityType == 1) { availabilityType = 2; }
                 } else {
-                    if (availabilityType != 2) {
-                        availabilityType = 1;
-                        availability = (Availability) ((INpcRecipe) r).getAvailability();
-                    }
+                    if (availabilityType == 0) { availabilityType = 2; }
+                    else if (availabilityType != 2) { availabilityType = 1; }
                 }
             }
         }
+        if (availabilityType == -1) { availabilityType = 0; }
         RenderHelper.enableGUIStandardItemLighting();
         mc.getTextureManager().bindTexture(RECIPE_BOOK);
         GlStateManager.disableLighting();
@@ -143,16 +145,28 @@ public class NpcGuiButtonRecipe extends GuiButtonRecipe {
         IRecipe recipe = this.getOrderedRecipes().get(this.currentIndex);
         ItemStack itemstack = recipe.getRecipeOutput();
         List<String> list = guiScreen.getItemToolTip(itemstack);
-        if (availability != null && mc != null && GuiScreen.isShiftKeyDown()) {
-            return availability.getAvailability(mc.player);
+        if (availabilityList != null && GuiScreen.isShiftKeyDown()) {
+            return availabilityList;
         }
         list.add("");
         list.add(new TextComponentTranslation("gui.type").getFormattedText() + ": " + new TextComponentTranslation("item.craft.type."+(recipe instanceof IShapedRecipe)).getFormattedText());
         if (availabilityType != 0) {
             list.add(I18n.format("gui.recipebook.availability."+availabilityType));
         }
+        if (availabilityList != null) {
+            list.add(I18n.format("gui.recipebook.availability.3"));
+        }
         if (this.list.getRecipes(this.book.isFilteringCraftable()).size() > 1) {
             list.add(I18n.format("gui.recipebook.moreRecipes"));
+        }
+        if (recipe.getRegistryName() != null && guiScreen.mc.player.capabilities.isCreativeMode) {
+            list.add(((char) 167) + "7Displayed only for " + ((char) 167) + "1G" + ((char) 167) + "6M" + ((char) 167) + "7:");
+            ResourceLocation loc = recipe.getRegistryName();
+            list.add(((char) 167) + "7Mod: " + ((char) 167) + "r" + loc.getResourceDomain());
+            String name = loc.getResourcePath();
+            if (recipe instanceof INpcRecipe) { name = ((INpcRecipe) recipe).getName(); }
+            list.add(((char) 167) + "7" + I18n.format("gui.group") + ": " + ((char) 167) + "r" + recipe.getGroup());
+            list.add(((char) 167) + "7" + I18n.format("gui.name") + ": " + ((char) 167) + "r" + name);
         }
         return list;
     }

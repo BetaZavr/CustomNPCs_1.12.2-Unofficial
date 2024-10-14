@@ -8,6 +8,7 @@ import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.crafting.IShapedRecipe;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.controllers.data.Availability;
 
@@ -21,6 +22,7 @@ public class WrapperRecipe {
     public boolean ignoreDamage = false;
     public boolean ignoreNBT = false;
     public boolean isShaped = true;
+    public boolean main = false;
     public int id = -1;
     public int width = 3;
     public int height = 3;
@@ -39,7 +41,6 @@ public class WrapperRecipe {
     }
 
     public void clear() {
-        global = true;
         known = false;
         ignoreDamage = false;
         ignoreNBT = false;
@@ -53,6 +54,7 @@ public class WrapperRecipe {
         recipeItems.put(0, new ItemStack[]{ new ItemStack(Blocks.COBBLESTONE) });
         product = new ItemStack(Blocks.COBBLESTONE);
         availability.clear();
+        main = false;
     }
 
     public NBTTagCompound getNbt() {
@@ -63,15 +65,19 @@ public class WrapperRecipe {
         if (product != null) { compound.setTag("Item", product.writeToNBT(new NBTTagCompound())); }
         // NBTTags.nbtIngredientList(recipeItems)
         NBTTagList nbttaglist = new NBTTagList();
-        for (int slot : recipeItems.keySet()) {
+        for (int slot = 0; slot < (global ? 9 : 16); slot++) {
             NBTTagCompound nbttagcompound = new NBTTagCompound();
             nbttagcompound.setByte("Slot", (byte) slot);
             NBTTagList ingredients = new NBTTagList();
-            ItemStack[] ings = recipeItems.get(slot);
-            for (ItemStack ing : ings) { ingredients.appendTag(ing.writeToNBT(new NBTTagCompound())); }
+            if (recipeItems.get(slot) != null) {
+                for (ItemStack ing : recipeItems.get(slot)) {
+                    ingredients.appendTag(ing.writeToNBT(new NBTTagCompound()));
+                }
+            }
             nbttagcompound.setTag("Ingredients", ingredients);
             nbttaglist.appendTag(nbttagcompound);
         }
+
         compound.setTag("Materials", nbttaglist);
         compound.setTag("Availability", availability.writeToNBT(new NBTTagCompound()));
         compound.setString("Name", name);
@@ -106,6 +112,7 @@ public class WrapperRecipe {
         ignoreDamage = wrapper.ignoreDamage;
         ignoreNBT = wrapper.ignoreNBT;
         isShaped = wrapper.isShaped;
+        main = wrapper.main;
         id = wrapper.id;
         width = wrapper.width;
         height = wrapper.height;
@@ -134,9 +141,15 @@ public class WrapperRecipe {
         ignoreDamage = false;
         ignoreNBT = false;
         isShaped = recipe instanceof ShapedRecipes;
+        main = true;
         id = recipeId;
-        width = 3;
-        height = 3;
+        if (recipe instanceof IShapedRecipe) {
+            width = ((IShapedRecipe) recipe).getRecipeWidth();
+            height = ((IShapedRecipe) recipe).getRecipeHeight();
+        } else {
+            width = 3;
+            height = 3;
+        }
         group = ((char) 167) + "7" + recipe.getGroup();
         name = ((char) 167) + "7" + location.getResourcePath();
 
@@ -154,5 +167,7 @@ public class WrapperRecipe {
         product = recipe.getRecipeOutput();
         availability.clear();
     }
+
+    public String getName() { return name; }
 
 }

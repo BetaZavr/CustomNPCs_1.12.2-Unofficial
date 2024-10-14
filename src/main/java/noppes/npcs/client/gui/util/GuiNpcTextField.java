@@ -25,39 +25,32 @@ public class GuiNpcTextField
 			prev.unFocused();
 		}
 	}
-	private final int[] allowedSpecialKeys;
-	public char[] prohibitedSpecialChars;
-	public boolean enabled, inMenu, hovered;
-	protected boolean canEdit;
-	private boolean numbersOnly;
-	private boolean doubleNumbersOnly;
+	private final int[] allowedSpecialKeyIDs = new int[] { 14, 211, 203, 205 };
+	public char[] prohibitedSpecialChars = new char[] {};
+	public boolean enabled = true;
+	public boolean hovered;
+	protected boolean canEdit = true;
+	private boolean latinAlphabetOnly = false;
+	private boolean allowUppercase = true;
+	private boolean numbersOnly = false;
+	private boolean doubleNumbersOnly = false;
 	private ITextfieldListener listener;
 
-	public long min, max, def;
+	public long min = Integer.MIN_VALUE;
+	public long max = Integer.MAX_VALUE;
+	public long def = 0;
 
-	public double minD, maxD, defD;
+	public double minD = Double.MIN_VALUE;
+	public double maxD = Double.MAX_VALUE;
+	public double defD = 0.0d;
 
 	public GuiNpcTextField(int id, GuiScreen parent, FontRenderer fontRenderer, int x, int y, int width, int height, String text) {
 		super(id, fontRenderer, x, y, width, height);
-		this.enabled = true;
-		this.inMenu = true;
-		this.numbersOnly = false;
-		this.min = Integer.MIN_VALUE;
-		this.max = Integer.MAX_VALUE;
-		this.def = 0;
-		this.canEdit = true;
-		this.allowedSpecialKeys = new int[] { 14, 211, 203, 205 };
-		this.prohibitedSpecialChars = new char[] {};
 		this.setMaxStringLength(500);
 		this.setText((text == null) ? "" : text);
 		if (parent instanceof ITextfieldListener) {
 			this.listener = (ITextfieldListener) parent;
 		}
-		// New
-		this.doubleNumbersOnly = false;
-		this.minD = Double.MIN_VALUE;
-		this.maxD = Double.MAX_VALUE;
-		this.defD = 0;
 	}
 
 	public GuiNpcTextField(int id, GuiScreen parent, int x, int y, int width, int height, String text) {
@@ -70,21 +63,23 @@ public class GuiNpcTextField
 				return false;
 			}
 		}
-		if (!this.numbersOnly || Character.isDigit(c) || (c == '-' && this.getText().isEmpty())) {
-			return true;
-		}
-		// New
-		if (!this.doubleNumbersOnly || Character.isDigit(c) || (c == '-' && this.getText().isEmpty())
-				|| (c == '.' && this.getText().contains("."))) {
-			return true;
-		}
-		for (int j : this.allowedSpecialKeys) {
+		for (int j : this.allowedSpecialKeyIDs) {
 			if (j == i) {
 				return true;
 			}
 		}
-		return false;
-	}
+		if (!latinAlphabetOnly || Character.isLetterOrDigit(c) || c == '_') {
+			return true;
+		}
+		if (allowUppercase || Character.isLowerCase(c)) {
+			return true;
+		}
+		if (!this.numbersOnly || Character.isDigit(c) || (c == '-' && this.getText().isEmpty())) {
+			return true;
+		}
+        return !this.doubleNumbersOnly || Character.isDigit(c) || (c == '-' && this.getText().isEmpty())
+                || (c == '.' && this.getText().contains("."));
+    }
 
 	public void drawTextBox() {
 		if (this.enabled) {
@@ -206,7 +201,16 @@ public class GuiNpcTextField
 		return this;
 	}
 
+	public boolean isAllowUppercase() { return allowUppercase; }
+
+	public void setAllowUppercase(boolean isAllowUppercase) { allowUppercase = isAllowUppercase; }
+
+	public boolean isLatinAlphabetOnly() { return latinAlphabetOnly; }
+
+	public void setLatinAlphabetOnly(boolean isLatinAlphabetOnly) { latinAlphabetOnly = isLatinAlphabetOnly; }
+
 	public boolean textboxKeyTyped(char c, int i) {
+		if (latinAlphabetOnly && c == ' ') { c = '_'; }
 		return this.charAllowed(c, i) && this.canEdit && super.textboxKeyTyped(c, i);
 	}
 

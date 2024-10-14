@@ -34,7 +34,6 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.controllers.SchematicController;
-import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.Util;
 
 public class Schematic implements ISchematic {
@@ -443,7 +442,9 @@ public class Schematic implements ISchematic {
 		} else {
 			this.offset = BlockPos.ORIGIN;
 		}
-		this.name = compound.getString("Name");
+		if (!compound.getString("Name").isEmpty()) {
+			this.name = compound.getString("Name");
+		}
 	}
 
 	public void save(EntityPlayer player) {

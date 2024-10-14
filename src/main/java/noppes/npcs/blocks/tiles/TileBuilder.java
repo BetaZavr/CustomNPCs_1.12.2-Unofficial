@@ -31,6 +31,7 @@ import javax.annotation.Nonnull;
 public class TileBuilder extends TileEntity implements ITickable {
 
 	public static List<BlockPos> DrawPoses = Lists.newArrayList();
+
 	public static boolean has(BlockPos pos) {
 		if (pos == null) {
 			return false;
@@ -126,20 +127,6 @@ public class TileBuilder extends TileEntity implements ITickable {
 		return this.schematic != null;
 	}
 
-	public void readFromNBT(@Nonnull NBTTagCompound compound) {
-		super.readFromNBT(compound);
-		if (compound.hasKey("SchematicName")) {
-			this.schematic = SchematicController.Instance.load(compound.getString("SchematicName"));
-		}
-		Stack<Integer> positions = new Stack<>();
-		positions.addAll(NBTTags.getIntegerList(compound.getTagList("Positions", 10)));
-		this.positions = positions;
-		positions = new Stack<>();
-		positions.addAll(NBTTags.getIntegerList(compound.getTagList("PositionsSecond", 10)));
-		this.positionsSecond = positions;
-		this.readPartNBT(compound);
-	}
-
 	public void readPartNBT(NBTTagCompound compound) {
 		this.rotation = compound.getInteger("Rotation");
 		this.yOffset = compound.getInteger("YOffset");
@@ -233,6 +220,20 @@ public class TileBuilder extends TileEntity implements ITickable {
 		compound.setBoolean("Finished", this.finished);
 		compound.setTag("Availability", this.availability.writeToNBT(new NBTTagCompound()));
 		return compound;
+	}
+
+	public void readFromNBT(@Nonnull NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		if (compound.hasKey("SchematicName")) {
+			this.schematic = SchematicController.Instance.load(compound.getString("SchematicName"));
+		}
+		Stack<Integer> positions = new Stack<>();
+		positions.addAll(NBTTags.getIntegerList(compound.getTagList("Positions", 10)));
+		this.positions = positions;
+		positions = new Stack<>();
+		positions.addAll(NBTTags.getIntegerList(compound.getTagList("PositionsSecond", 10)));
+		this.positionsSecond = positions;
+		this.readPartNBT(compound);
 	}
 
 	public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {

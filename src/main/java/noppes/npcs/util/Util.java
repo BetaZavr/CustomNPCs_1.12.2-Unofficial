@@ -1793,4 +1793,19 @@ public class Util implements IMethods {
 		return target;
 	}
 
+    public String getResourceName(String name) {
+		if (name == null) { return null; }
+		String preName = this.deleteColor(name);
+		StringBuilder newName = new StringBuilder();
+		for (int i = 0; i < preName.length(); i++) {
+			char c = preName.charAt(i);
+			if (c == '.' || c == ' ' || c == 9 || c == 10) { c = '_'; }
+			if (Character.isDigit(c) && i == 0) { newName.append('_').append(c); }
+			else if (Character.isLetterOrDigit(c) || c == '_') {
+				newName.append(c);
+			}
+		}
+		return newName.toString().toLowerCase();
+    }
+
 }

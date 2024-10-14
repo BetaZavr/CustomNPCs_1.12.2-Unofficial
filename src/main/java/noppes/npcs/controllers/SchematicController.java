@@ -156,14 +156,16 @@ public class SchematicController {
 			stream.close();
 			if (name.toLowerCase().endsWith(".blueprint")) {
 				Blueprint bp = BlueprintUtil.readBlueprintFromNBT(compound);
-				if (bp != null){
+				if (bp != null) {
 					bp.setName(name);
 					schemaWr = new SchematicWrapper(bp);
 				}
 			}
-			Schematic schema = new Schematic(name);
-			schema.load(compound);
-			schemaWr = new SchematicWrapper(schema);
+			if (schemaWr == null) {
+				Schematic schema = new Schematic(name);
+				schema.load(compound);
+				schemaWr = new SchematicWrapper(schema);
+			}
 		} catch (IOException e) {
 			LogWriter.except(e);
 		}
@@ -173,8 +175,7 @@ public class SchematicController {
 		return schemaWr;
 	}
 
-	public void save(ICommandSender sender, String name, int type, BlockPos pos, short height, short width,
-			short length) {
+	public void save(ICommandSender sender, String name, int type, BlockPos pos, short height, short width, short length) {
 		name = name.replace(" ", "_");
 		if (this.included.contains(name)) {
 			return;
