@@ -4,9 +4,9 @@ import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.math.Vec3d;
+import noppes.npcs.api.util.IRayTraceRotate;
+import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.RayTraceRotate;
-import noppes.npcs.util.RayTraceVec;
 
 public class EntityAISurround extends EntityAICustom {
 
@@ -32,15 +32,13 @@ public class EntityAISurround extends EntityAICustom {
 		if (!this.canSeeToAttack || this.distance > this.range) {
 			this.tryMoveToTarget();
 		} else if (this.distance <= tr * 0.9d || this.distance >= tr * 1.1d) {
-			RayTraceRotate angles = Util.instance.getAngles3D(this.target.posX, this.target.posY,
-					this.target.posZ, this.npc.posX, this.npc.posY, this.npc.posZ);
-			RayTraceVec pos = Util.instance.getPosition(this.target.posX, this.target.posY,
-					this.target.posZ, angles.yaw, angles.pitch, tr);
-			Path path = this.npc.getNavigator().getPathToXYZ(pos.x, pos.y, pos.z);
+			IRayTraceRotate angles = Util.instance.getAngles3D(this.target.posX, this.target.posY, this.target.posZ, this.npc.posX, this.npc.posY, this.npc.posZ);
+			IRayTraceVec pos = Util.instance.getPosition(this.target.posX, this.target.posY, this.target.posZ, angles.getYaw(), angles.getPitch(), tr);
+			Path path = this.npc.getNavigator().getPathToXYZ(pos.getX(), pos.getY(), pos.getZ());
 			if (path != null) {
 				this.npc.getNavigator().setPath(path, 1.3d);
 			} else {
-				Vec3d targetVec3 = new Vec3d(this.npc.posX - pos.x, this.npc.posY - pos.y, this.npc.posZ - pos.z);
+				Vec3d targetVec3 = new Vec3d(this.npc.posX - pos.getX(), this.npc.posY - pos.getY(), this.npc.posZ - pos.getZ());
 				Vec3d vec = RandomPositionGenerator.findRandomTargetBlockAwayFrom(this.npc, 2, 2, targetVec3);
 				if (vec != null) {
 					this.npc.getNavigator().tryMoveToXYZ(vec.x, vec.y, vec.z, 1.3d);

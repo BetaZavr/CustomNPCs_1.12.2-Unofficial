@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.util;
 
-import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -15,55 +14,51 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nonnull;
 
 public class GuiMenuTopIconButton extends GuiMenuTopButton {
+
 	protected static RenderItem itemRender;
 	private static final ResourceLocation resource = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
 	private final ItemStack item;
 
 	public GuiMenuTopIconButton(int i, GuiButton parent, String s, ItemStack item) {
 		super(i, parent, s);
-		this.width = 28;
-		this.height = 28;
+		width = 28;
+		height = 28;
 		this.item = item;
+		offsetW = 12;
 	}
 
 	public GuiMenuTopIconButton(int i, int x, int y, String s, ItemStack item) {
 		super(i, x, y, s);
-		this.width = 28;
-		this.height = 28;
+		width = 28;
+		height = 28;
 		this.item = item;
-		GuiMenuTopIconButton.itemRender = Minecraft.getMinecraft().getRenderItem();
+		offsetW = 12;
 	}
 
 	@Override
-	public void drawButton(@Nonnull Minecraft minecraft, int i, int j, float partialTicks) {
+	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.getVisible()) {
 			return;
 		}
+		super.drawButton(mc, mouseX, mouseY, partialTicks);
         this.item.getItem();
-        this.hover = (i >= this.x && j >= this.y && i < this.x + this.getWidth() && j < this.y + this.height);
-		Minecraft mc = Minecraft.getMinecraft();
-		if (this.hover && !this.active) {
-			int x = i + mc.fontRenderer.getStringWidth(this.displayString);
-			GlStateManager.translate(x, (this.y + 2), 0.0f);
-			this.drawHoveringText(Collections.singletonList(this.displayString), 0, 0, mc.fontRenderer);
-			GlStateManager.translate((-x), (-(this.y + 2)), 0.0f);
-		}
 		mc.getTextureManager().bindTexture(GuiMenuTopIconButton.resource);
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableBlend();
 		GlStateManager.disableLighting();
-		this.drawTexturedModalRect(this.x, this.y + (this.active ? 2 : 0), 0, this.active ? 32 : 0, 28, 28);
+		this.drawTexturedModalRect(x, y + (active ? 2 : 0), 0, active ? 32 : 0, 28, 28);
 		this.zLevel = 100.0f;
-		GuiMenuTopIconButton.itemRender.zLevel = 100.0f;
+		itemRender = mc.getRenderItem();
+		itemRender.zLevel = 100.0f;
 		GlStateManager.enableLighting();
 		GlStateManager.enableRescaleNormal();
 		RenderHelper.enableGUIStandardItemLighting();
-		GuiMenuTopIconButton.itemRender.renderItemAndEffectIntoGUI(this.item, this.x + 6, this.y + 10);
-		GuiMenuTopIconButton.itemRender.renderItemOverlays(mc.fontRenderer, this.item, this.x + 6, this.y + 10);
+		itemRender.renderItemAndEffectIntoGUI(item, x + 6, y + 10);
+		itemRender.renderItemOverlays(mc.fontRenderer, item, x + 6, y + 10);
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();
-		GuiMenuTopIconButton.itemRender.zLevel = 0.0f;
+		itemRender.zLevel = 0.0f;
 		this.zLevel = 0.0f;
 		GlStateManager.popMatrix();
 	}
@@ -94,7 +89,7 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
 				k2 = this.height - i1 - 6;
 			}
 			this.zLevel = 300.0f;
-			GuiMenuTopIconButton.itemRender.zLevel = 300.0f;
+			itemRender.zLevel = 300.0f;
 			int j3 = -267386864;
 			this.drawGradientRect(j2 - 3, k2 - 4, j2 + k + 3, k2 - 3, j3, j3);
 			this.drawGradientRect(j2 - 3, k2 + i1 + 3, j2 + k + 3, k2 + i1 + 4, j3, j3);
@@ -116,7 +111,7 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
 				k2 += 10;
 			}
 			this.zLevel = 0.0f;
-			GuiMenuTopIconButton.itemRender.zLevel = 0.0f;
+			itemRender.zLevel = 0.0f;
 			GlStateManager.enableLighting();
 			GlStateManager.enableDepth();
 			RenderHelper.enableStandardItemLighting();

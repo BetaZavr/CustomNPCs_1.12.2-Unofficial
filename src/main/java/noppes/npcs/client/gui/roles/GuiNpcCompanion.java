@@ -129,8 +129,8 @@ public class GuiNpcCompanion extends GuiNPCInterface2 implements ITextfieldListe
 			slider.setString("gui.disabled");
 			this.role.talents.remove(EnumCompanionTalent.values()[slider.id - 10]);
 		} else {
-			slider.displayString = (slider.sliderValue * 50.0f) * 100 + " exp";
-			this.role.setExp(EnumCompanionTalent.values()[slider.id - 10], (int) ((slider.sliderValue * 50.0f) * 100));
+			slider.displayString = (int) Math.floor(slider.sliderValue * 5000.0f) + "/5000 exp";
+			this.role.setExp(EnumCompanionTalent.values()[slider.id - 10], (int) (slider.sliderValue * 5000.0f));
 		}
 	}
 

@@ -11,13 +11,14 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.api.util.IRayTraceResults;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.EntityWrapper;
 
-public class RayTraceResults {
+public class RayTraceResults implements IRayTraceResults {
 
-	public IBlock[] blocks;
-	public IEntity<?>[] entitys;
+	private IBlock[] blocks;
+	private IEntity<?>[] entitys;
 
 	public RayTraceResults() {
 		this.blocks = new IBlock[0];
@@ -40,4 +41,9 @@ public class RayTraceResults {
 		this.blocks = newBlocks.toArray(new IBlock[0]);
 	}
 
+	@Override
+	public IBlock[] getBlocks() { return blocks; }
+
+	@Override
+	public IEntity<?>[] getEntitys() { return entitys; }
 }

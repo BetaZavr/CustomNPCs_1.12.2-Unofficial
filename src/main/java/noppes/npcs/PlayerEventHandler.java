@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockBanner;
 import net.minecraft.tileentity.TileEntityBanner;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.mixin.entity.player.IEntityPlayerMixin;
@@ -1346,6 +1347,90 @@ public class PlayerEventHandler {
 		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size() + "; Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
 		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		return this;
+	}
+
+
+	@SubscribeEvent
+	public void npcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
+		if (!(event.getEntityLiving() instanceof EntityPlayer)) {
+			return;
+		}
+		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+		if (player instanceof EntityPlayerMP) {
+
+		} else {
+			try {
+				/*
+				File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
+				dir = new File(dir, "src/main/java"); // CustomNpcs 1.12.2
+
+				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
+				Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
+				//found.put("System.out.println", null);
+				found.put("http ", null);
+
+				for (File file : Util.instance.getFiles(dir, "java")) {
+					try {
+						BufferedReader reader = com.google.common.io.Files.newReader(file, StandardCharsets.UTF_8);
+						String line;
+						int l = 1;
+						while ((line = reader.readLine()) != null) {
+							for (String key : found.keySet()) {
+								if (key.contains("&&")) {
+									String k = key.substring(0, key.indexOf("&&"));
+									String s = key.substring(key.indexOf("&&") + 2);
+									if (line.contains(k) && line.toLowerCase().contains(s.toLowerCase())) {
+										found.computeIfAbsent(key, k1 -> new TreeMap<>());
+										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
+										if (!found.get(key).containsKey(fPath)) {
+											found.get(key).put(fPath, new ArrayList<>());
+										}
+										found.get(key).get(fPath).add(l);
+									}
+								} else if (key.indexOf("&") == 0) {
+									String k = key.replace("&", "");
+									if (line.contains(k)) {
+										int s = line.indexOf(k) - 1;
+										int e = line.indexOf(k) + k.length();
+										if (br.contains("" + line.charAt(s)) && br.contains("" + line.charAt(e))) {
+											found.computeIfAbsent(key, k1 -> new TreeMap<>());
+											String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
+											if (!found.get(key).containsKey(fPath)) {
+												found.get(key).put(fPath, new ArrayList<>());
+											}
+											found.get(key).get(fPath).add(l);
+										}
+									}
+								} else if (line.contains(key)) {
+									found.computeIfAbsent(key, k -> new TreeMap<>());
+									String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
+									if (!found.get(key).containsKey(fPath)) {
+										found.get(key).put(fPath, new ArrayList<>());
+									}
+									found.get(key).get(fPath).add(l);
+								}
+							}
+							l++;
+						}
+					} catch (Exception e) { LogWriter.error(e); }
+				}
+				System.out.println("Directory: " + dir);
+				for (String key : found.keySet()) {
+					if (found.get(key) == null || found.get(key).isEmpty()) {
+						System.out.println("\"" + key + "\" not found;");
+						continue;
+					}
+					System.out.println("\"" + key + "\" found in:");
+					Map<String, List<Integer>> map = found.get(key);
+					for (String fPath : map.keySet()) {
+						System.out.println(" - " + fPath + ": lines:" + map.get(fPath));
+					}
+				}
+				/**/
+			} catch (Exception e) {
+				LogWriter.error("Error:", e);
+			}
+		}
 	}
 
 }

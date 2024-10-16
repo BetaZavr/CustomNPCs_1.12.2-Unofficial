@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import noppes.npcs.api.util.IRayTraceRotate;
+import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.mixin.pathfinding.IPathMixin;
 import org.lwjgl.opengl.GL11;
 
@@ -96,8 +98,6 @@ import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.BuilderData;
-import noppes.npcs.util.RayTraceRotate;
-import noppes.npcs.util.RayTraceVec;
 import noppes.npcs.util.ValueUtil;
 
 @SideOnly(Side.CLIENT)
@@ -405,45 +405,39 @@ public class ClientGuiEventHandler extends Gui {
 		GlStateManager.disableTexture2D();
 		GlStateManager.depthMask(false);
 		GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-		RayTraceVec pHh = Util.instance.getPosition(npc.posX, npc.posY + npc.getEyeHeight(), npc.posZ, npc.rotationYawHead, 0.0d, npc.width / 2.0d);
-		RayTraceVec pEr = Util.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead, npc.rotationPitch * -1.0d, 0.7d / 5.0d * npc.display.getSize());
+		IRayTraceVec pHh = Util.instance.getPosition(npc.posX, npc.posY + npc.getEyeHeight(), npc.posZ, npc.rotationYawHead, 0.0d, npc.width / 2.0d);
+		IRayTraceVec pEr = Util.instance.getPosition(pHh.getX(), pHh.getY(), pHh.getZ(), npc.rotationYawHead, npc.rotationPitch * -1.0d, 0.7d / 5.0d * npc.display.getSize());
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 		r = 0.25f;
 		g = 0.5f;
-        buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
-		buffer.pos(pEr.x, pEr.y, pEr.z).color(r, g, b, 1.0f).endVertex();
+        buffer.pos(pHh.getX(), pHh.getY(), pHh.getZ()).color(r, g, b, 1.0f).endVertex();
+		buffer.pos(pEr.getX(), pEr.getY(), pEr.getZ()).color(r, g, b, 1.0f).endVertex();
 		if (npc.ais.directLOS) {
-			RayTraceVec mr = Util.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead + 60.0d,
-					0.0d, 0.7d / 5.0d * npc.display.getSize());
-			RayTraceVec nr = Util.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead - 60.0d,
-					0.0d, 0.7d / 5.0d * npc.display.getSize());
-			RayTraceVec mp = Util.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYaw,
-					ValueUtil.correctDouble(npc.rotationPitch * -1.0d + 60.0d, -90.0d, 90.0d),
-					1.4d / 5.0d * npc.display.getSize());
-			RayTraceVec np = Util.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYaw,
-					ValueUtil.correctDouble(npc.rotationPitch * -1.0d - 60.0d, -90.0d, 90.0d),
-					1.4d / 5.0d * npc.display.getSize());
+			IRayTraceVec mr = Util.instance.getPosition(pHh.getX(), pHh.getY(), pHh.getZ(), npc.rotationYawHead + 60.0d, 0.0d, 0.7d / 5.0d * npc.display.getSize());
+			IRayTraceVec nr = Util.instance.getPosition(pHh.getX(), pHh.getY(), pHh.getZ(), npc.rotationYawHead - 60.0d, 0.0d, 0.7d / 5.0d * npc.display.getSize());
+			IRayTraceVec mp = Util.instance.getPosition(pHh.getX(), pHh.getY(), pHh.getZ(), npc.rotationYaw, ValueUtil.correctDouble(npc.rotationPitch * -1.0d + 60.0d, -90.0d, 90.0d), 1.4d / 5.0d * npc.display.getSize());
+			IRayTraceVec np = Util.instance.getPosition(pHh.getX(), pHh.getY(), pHh.getZ(), npc.rotationYaw, ValueUtil.correctDouble(npc.rotationPitch * -1.0d - 60.0d, -90.0d, 90.0d), 1.4d / 5.0d * npc.display.getSize());
 			r = 0.525f;
 			g = 0.725f;
 			b = 0.125f;
-			buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(mr.x, mp.y, mr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(mr.x, np.y, mr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(mr.x, mp.y, mr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(mr.x, np.y, mr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(nr.x, mp.y, nr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(nr.x, np.y, nr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(nr.x, mp.y, nr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(nr.x, np.y, nr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(mr.x, mp.y, mr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(nr.x, mp.y, nr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(mr.x, np.y, mr.z).color(r, g, b, 1.0f).endVertex();
-			buffer.pos(nr.x, np.y, nr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(pHh.getX(), pHh.getY(), pHh.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.getX(), mp.getY(), mr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(pHh.getX(), pHh.getY(), pHh.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.getX(), np.getY(), mr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.getX(), mp.getY(), mr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.getX(), np.getY(), mr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(pHh.getX(), pHh.getY(), pHh.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.getX(), mp.getY(), nr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(pHh.getX(), pHh.getY(), pHh.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.getX(), np.getY(), nr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.getX(), mp.getY(), nr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.getX(), np.getY(), nr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.getX(), mp.getY(), mr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.getX(), mp.getY(), nr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.getX(), np.getY(), mr.getZ()).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.getX(), np.getY(), nr.getZ()).color(r, g, b, 1.0f).endVertex();
 		}
 		tessellator.draw();
 		GlStateManager.depthMask(true);
@@ -591,24 +585,18 @@ public class ClientGuiEventHandler extends Gui {
 			if (pre != null) {
 				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
 				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-                RayTraceRotate d = Util.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0],
-                        newPre[1], newPre[2]);
+                IRayTraceRotate d = Util.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1], newPre[2]);
                 for (int h = 0; h < 4; h++) {
-                    RayTraceVec p = Util.instance.getPosition(newPre[0], newPre[1], newPre[2],
-                            360.0d - d.yaw + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d),
-                            0.0 - d.pitch + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
+                    IRayTraceVec p = Util.instance.getPosition(newPre[0], newPre[1], newPre[2], 360.0d - d.getYaw() + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d), 0.0 - d.getPitch() + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
                     buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-                    buffer.pos(p.x, p.y, p.z).color(r, g, b, 1.0f).endVertex();
+                    buffer.pos(p.getX(), p.getY(), p.getZ()).color(r, g, b, 1.0f).endVertex();
                 }
                 if (!type) {
-                    d = Util.instance.getAngles3D(newPre[0], newPre[1], newPre[2], pre[0], pre[1],
-                            pre[2]);
+                    d = Util.instance.getAngles3D(newPre[0], newPre[1], newPre[2], pre[0], pre[1], pre[2]);
                     for (int h = 0; h < 4; h++) {
-                        RayTraceVec p = Util.instance.getPosition(pre[0], pre[1], pre[2],
-                                360.0d - d.yaw + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d),
-                                0.0 - d.pitch + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
+						IRayTraceVec p = Util.instance.getPosition(pre[0], pre[1], pre[2], 360.0d - d.getYaw() + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d), 0.0 - d.getPitch() + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
                         buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
-                        buffer.pos(p.x, p.y, p.z).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex();
+                        buffer.pos(p.getX(), p.getY(), p.getZ()).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex();
                     }
                 }
             }
@@ -618,14 +606,11 @@ public class ClientGuiEventHandler extends Gui {
 				newPre = new double[] { pos[0] + 0.5d, pos[1] + 0.5d + yo, pos[2] + 0.5d };
 				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
 				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-				RayTraceRotate d = Util.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1],
-						newPre[2]);
+				IRayTraceRotate d = Util.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1], newPre[2]);
 				for (int h = 0; h < 4; h++) {
-					RayTraceVec p = Util.instance.getPosition(newPre[0], newPre[1], newPre[2],
-							360.0d - d.yaw + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d),
-							0.0 - d.pitch + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
+					IRayTraceVec p = Util.instance.getPosition(newPre[0], newPre[1], newPre[2], 360.0d - d.getYaw() + (h == 0 ? ag : h == 1 ? -1.0d * ag : 0.0d), 0.0 - d.getPitch() + (h == 2 ? ag : h == 3 ? -1.0d * ag : 0.0d), 0.5d);
 					buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-					buffer.pos(p.x, p.y, p.z).color(r, g, b, 1.0f).endVertex();
+					buffer.pos(p.getX(), p.getY(), p.getZ()).color(r, g, b, 1.0f).endVertex();
 				}
 			}
 		}
@@ -1448,8 +1433,7 @@ public class ClientGuiEventHandler extends Gui {
 			}
 
 			if (p != null) {
-				RayTraceRotate angles = Util.instance.getAngles3D(this.mc.player.posX,
-						this.mc.player.posY + this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
+				IRayTraceRotate angles = Util.instance.getAngles3D(this.mc.player.posX, this.mc.player.posY + this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
 				float scale = -30.0f * hud.compassData.scale;
 				float incline = -45.0f + hud.compassData.incline;
 				double[] uvPos = new double[] { this.sw.getScaledWidth_double() * hud.compassData.screenPos[0],
@@ -1504,12 +1488,12 @@ public class ClientGuiEventHandler extends Gui {
 
 				// Arrow_0
 				GlStateManager.pushMatrix();
-				if (angles != null && (range == 1 || angles.distance > range)) {
+				if (angles != null && (range == 1 || angles.getDistance() > range)) {
 					float yaw = this.mc.player.rotationYaw % 360.0f;
 					if (yaw < 0) {
 						yaw += 360.0f;
 					}
-					GlStateManager.rotate(180.0f + yaw - (float) angles.yaw, 0.0f, 1.0f, 0.0f);
+					GlStateManager.rotate(180.0f + yaw - (float) angles.getYaw(), 0.0f, 1.0f, 0.0f);
 					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_0"), null));
 				} else {
 					double t = System.currentTimeMillis() % 4000.0d;

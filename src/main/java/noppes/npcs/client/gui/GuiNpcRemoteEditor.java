@@ -25,6 +25,7 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.*;
+import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.CustomNPCsScheduler;
@@ -43,6 +44,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 	public GuiNpcRemoteEditor() {
 		this.xSize = 256;
 		this.setBackground("menubg.png");
+		Client.sendData(EnumPacketServer.RemoveNpcEdit);
 	}
 
 	@Override
@@ -117,6 +119,10 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 				Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
 				break;
 			}
+			case 7: {
+				CustomNpcs.proxy.openGui(null, EnumGuiType.MainMenuGlobal, 0, 0, 0);
+				break;
+			}
 			default: {
 	
 			}
@@ -141,7 +147,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (this.subgui == null) {
 			GlStateManager.pushMatrix();
 			if (this.selectEntity != null) {
@@ -166,7 +172,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 			Gui.drawRect(this.guiLeft + 192, this.guiTop + 86, this.guiLeft + 251, this.guiTop + 170, 0xFF000000);
 			GlStateManager.popMatrix();
 		}
-		super.drawScreen(i, j, f);
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
@@ -184,7 +190,9 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 			this.setHoverText(new TextComponentTranslation("wand.hover.resetall").getFormattedText());
 		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.showall").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 191, this.guiTop + 85, 61, 86)) {
+		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.menu.global").getFormattedText());
+		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 191, this.guiTop + 85, 61, 86)) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.entity").getFormattedText());
 		}
 		if (this.hoverText != null) {
@@ -240,8 +248,9 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 		checkBox.setSelected(GuiNpcRemoteEditor.all);
 		this.addButton(checkBox);
 
-		//button = new GuiMenuRightButton(7, this.guiLeft + this.xSize - 4, this.guiTop + 8, "global");
-		//this.addButton(button);
+		button = new GuiMenuSideButton(7, guiLeft + xSize, guiTop + 8, "menu.global");
+		((GuiMenuSideButton) button).setIsLeft(false);
+		this.addButton(button);
 	}
 
 	@Override

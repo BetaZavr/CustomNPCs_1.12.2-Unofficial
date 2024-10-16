@@ -320,8 +320,7 @@ public class PacketHandlerPlayer {
 					NoppesUtilServer.setEditingNpc(player, npc);
 				}
 			}
-			if (!player.capabilities.isCreativeMode || npc == null
-					|| npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
+			if (!player.capabilities.isCreativeMode || npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}

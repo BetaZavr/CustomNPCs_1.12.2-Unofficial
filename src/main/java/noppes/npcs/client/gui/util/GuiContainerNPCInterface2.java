@@ -15,7 +15,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 
 	protected ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
 	protected ResourceLocation defaultBackground = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
-	private final GuiNpcMenu menu;
+	private GuiNpcMenu menu;
 	public int menuYOffset;
 
 	public GuiContainerNPCInterface2(EntityNPCInterface npc, Container cont) {
@@ -24,16 +24,16 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 
 	public GuiContainerNPCInterface2(EntityNPCInterface npc, Container cont, int activeMenu) {
 		super(npc, cont);
-		this.menuYOffset = 0;
-		this.xSize = 420;
-		this.menu = new GuiNpcMenu(this, activeMenu, npc);
-		this.title = "";
-		this.closeOnEsc = true;
+		menuYOffset = 0;
+		xSize = 420;
+		if (npc != null) { menu = new GuiNpcMenu(this, activeMenu, npc); }
+		title = "";
+		closeOnEsc = true;
 	}
 
 	@Override
 	public void close() {
-		if (menu.activeMenu != 1 && ClientProxy.playerData.editingNpc != null) {
+		if (menu != null && menu.activeMenu != 1 && ClientProxy.playerData.editingNpc != null) {
 			menu.save();
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuDisplay);
 			return;
@@ -56,7 +56,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.getTextureManager().bindTexture(this.defaultBackground);
 		this.drawTexturedModalRect(this.guiLeft + this.xSize - 200, this.guiTop, 26, 0, 200, 220);
-		this.menu.drawElements(i, j, this.mc, f);
+		if (menu != null) { menu.drawElements(i, j, this.mc, f); }
 		super.drawGuiContainerBackgroundLayer(f, i, j);
 	}
 
@@ -66,7 +66,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		if (this.menu != null && this.menu.getTopButtons().length > 0) {
+		if (menu != null && menu.getTopButtons().length > 0) {
 			char chr = ((char) 167);
 			for (GuiMenuTopButton tab : this.menu.getTopButtons()) {
 				if (tab.isMouseOver()) {
@@ -191,13 +191,13 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
     @Override
 	public void initGui() {
 		super.initGui();
-		this.menu.initGui(this.guiLeft, this.guiTop + this.menuYOffset, this.xSize);
+		if (menu != null) { menu.initGui(this.guiLeft, this.guiTop + this.menuYOffset, this.xSize); }
 	}
 
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseBottom) throws IOException {
-		if (!this.hasSubGui()) {
-			this.menu.mouseClicked(mouseX, mouseY, mouseBottom);
+		if (!hasSubGui() && menu != null) {
+			menu.mouseClicked(mouseX, mouseY, mouseBottom);
 		}
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
 	}

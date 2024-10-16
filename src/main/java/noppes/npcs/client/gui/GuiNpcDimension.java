@@ -189,7 +189,7 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 					+ new TextComponentTranslation(t[1]).getFormattedText() + c + r + "\""
 					+ (t.length >= 3 && !t[2].isEmpty() ? " [" + t[2] + "]" : "");
 			l.add(str);
-			String p = c + "bM" + c + r + ".";
+			String p = c + (id > 99 ? "6NPC" : "bMC") + c + r + ".";
 			s.add(p + (t[0].equals("delete") ? c + "7delete" : t[0].equals("true") ? c + "aloaded" : c + "cunloaded"));
 			this.data.put(str, id);
 		}

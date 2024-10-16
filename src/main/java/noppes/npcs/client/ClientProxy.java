@@ -7,7 +7,6 @@ import java.awt.image.RenderedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
@@ -49,6 +48,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemShield;
 import net.minecraft.item.crafting.IRecipe;
@@ -61,8 +61,6 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.translation.I18n;
-import net.minecraft.util.text.translation.LanguageMap;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
@@ -220,11 +218,11 @@ import noppes.npcs.mixin.client.particle.IParticleManagerMixin;
 import noppes.npcs.mixin.client.particle.IParticleSmokeNormalMixin;
 import noppes.npcs.mixin.client.renderer.texture.ITextureManagerMixin;
 import noppes.npcs.mixin.client.renderer.tileentity.ITileEntityItemStackRendererMixin;
+import noppes.npcs.mixin.client.resources.II18nMixin;
 import noppes.npcs.mixin.client.resources.ILanguageManagerMixin;
 import noppes.npcs.mixin.client.settings.IKeyBindingMixin;
 import noppes.npcs.mixin.client.settings.IKeyBindingForgeMixin;
-import noppes.npcs.mixin.util.text.translation.II18nMixin;
-import noppes.npcs.mixin.util.text.translation.ILanguageMapMixin;
+import noppes.npcs.mixin.util.text.translation.IOldI18nMixin;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.util.Util;
@@ -338,32 +336,26 @@ public class ClientProxy extends CommonProxy {
 		LogWriter.info("Check Mod Localization");
 
 		// localization in game data
-		LanguageMap localized = ((II18nMixin) new I18n()).npcs$getLocalizedName();
-		final Map<String, String> languageList;
-		if (localized != null) {
-			languageList = ((ILanguageMapMixin) localized).npcs$getLanguageList();
-		} else { languageList = Maps.newHashMap(); }
+		//net.minecraft.client.resources.I18n
+		Map<String, String> properties = ((II18nMixin) new net.minecraft.client.resources.I18n()).npcs$getProperties();
+		Map<String, String> oldLanguageList = ((IOldI18nMixin) new net.minecraft.util.text.translation.I18n()).npcs$getLocalizedName();
 
 		// custom lang files:
 		String currentLanguage = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
 		for (int i = 0; i < (currentLanguage.equals("en_us") ? 1 : 2) ; i++) {
 			File lang = new File(langDir, (i == 0 ? "en_us" : currentLanguage) + ".lang");
 			if (lang.exists() && lang.isFile()) { // loading localizations from mod file
-				try (Stream<String> lines = Files.lines(lang.toPath())) {
-					lines.filter(line -> !line.startsWith("#") && !line.trim().isEmpty())
-							.map(line -> {
-								String[] parts = line.split("=");
-								if (parts.length != 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
-									return null;
-								} else {
-									languageList.putIfAbsent(parts[0].trim(), parts[1].trim());
-									return new AbstractMap.SimpleEntry<>(parts[0].trim(), parts[1].trim());
-								}
-							})
-							.forEach(entry -> { /* Ничего не делаем */ });
-				} catch (Exception e) {
-					LogWriter.error("Error load custom localization", e);
-				}
+				try {
+					BufferedReader reader = Files.newBufferedReader(lang.toPath());
+					String line;
+					while ((line = reader.readLine()) != null) {
+						if (line.startsWith("#") || !line.contains("=")) { continue; }
+						String[] vk = line.split("=");
+						properties.put(vk[0], vk[1]);
+						oldLanguageList.put(vk[0], vk[1]);
+					}
+					reader.close();
+				} catch (IOException e) { LogWriter.error("Error load custom localization", e); }
 			}
 		}
 	}
@@ -992,12 +984,16 @@ public class ClientProxy extends CommonProxy {
 				break;
 			case "armorexample": {
 				String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
-				n = "Example Custom Armor " + ("" + slot.charAt(0)).toUpperCase() + slot.toLowerCase().substring(1);
+				n = "Example Custom Armor (" + ("" + slot.charAt(0)).toUpperCase() + slot.toLowerCase().substring(1) + ")";
 				break;
 			}
 			case "armorobjexample": {
-				String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
-				n = "Example Custom 3D Armor " + ("" + slot.charAt(0)).toUpperCase() + slot.toLowerCase().substring(1);
+				if (((CustomArmor) customitem).getEquipmentSlot() == EntityEquipmentSlot.FEET) {
+					n = "Example Custom 3D Armor (Boots)";
+				} else {
+					String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
+					n = "Example Custom 3D Armor (" + ("" + slot.charAt(0)).toUpperCase() + slot.toLowerCase().substring(1) + ")";
+				}
 				break;
 			}
 			case "shieldexample":
@@ -1776,11 +1772,27 @@ public class ClientProxy extends CommonProxy {
 		}
 	}
 
-	private void setLocalization(String key, String name) {
+	private void setLocalization(String key, String value) {
 		File langDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/lang");
 		if (!langDir.exists() && !langDir.mkdirs()) { return; }
 		BufferedWriter writer;
+		boolean isExample = key.contains("example") && value.contains("Example");
+		boolean isTranslite = false;
 		String currentLanguage = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
+		String transliteValue = value;
+		if (!currentLanguage.equals("en_us")) {
+			String parentLanguage = "auto";
+			String language = currentLanguage;
+			if (language.contains("_")) { language = language.substring(0, language.indexOf("_")); }
+			if (isExample) {
+				transliteValue = Util.instance.translateGoogle("en", language, value);
+				if (transliteValue.equals(value)) { return; }
+				isTranslite = true;
+			} else {
+				value = Util.instance.translateGoogle(language, "en", transliteValue);
+			}
+		}
+
 		boolean write = false;
 		for (int i = 0; i < 2; i++) {
 			if (i == 1 && currentLanguage.equals("en_us")) {
@@ -1788,7 +1800,7 @@ public class ClientProxy extends CommonProxy {
 			}
 			File lang = new File(langDir, (i == 0 ? "en_us" : currentLanguage) + ".lang");
 			Map<String, String> jsonMap = Maps.newTreeMap();
-			jsonMap.put(key, name);
+			jsonMap.put(key, (i == 0 ? value : transliteValue));
 			char chr = Character.toChars(0x000A)[0];
 			writer = null;
 			if (!lang.exists()) {
@@ -1805,6 +1817,9 @@ public class ClientProxy extends CommonProxy {
 						}
 						String[] vk = line.split("=");
 						if (vk[0].equals(key)) {
+							if (isExample && !isTranslite) {
+								jsonMap.put(vk[0], vk[1]);
+							}
 							continue;
 						}
 						jsonMap.put(vk[0], vk[1]);

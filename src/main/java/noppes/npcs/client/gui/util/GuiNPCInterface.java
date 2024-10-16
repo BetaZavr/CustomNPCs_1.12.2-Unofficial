@@ -50,7 +50,15 @@ implements IEditNPC {
 	public boolean closeOnEsc = false;
 	public boolean hoverMiniWin = false;
 	public boolean drawDefaultBackground = false;
-	public int guiLeft, guiTop, mouseX, mouseY, xSize, ySize, widthTexture, heightTexture;
+	public int guiLeft;
+	public int guiTop;
+	public int mouseX;
+	public int mouseY;
+	public int xSize;
+	public int ySize;
+	public int widthTexture;
+	public int heightTexture;
+	public int mouseWheel;
 	public float bgScale = 1.0f;
 	public String title = "";
 	public String[] hoverText;
@@ -71,7 +79,6 @@ implements IEditNPC {
 	public final Map<Integer, GuiNpcSlider> sliders = new ConcurrentHashMap<>();
 	public final Map<Integer, GuiNpcTextField> textfields = new ConcurrentHashMap<>();
 	public final Map<Integer, GuiMenuTopButton> topbuttons = new ConcurrentHashMap<>();
-	public final Map<Integer, GuiMenuLeftButton> leftbuttons = new ConcurrentHashMap<>();
 	public final Map<Integer, GuiNpcMiniWindow> mwindows = new ConcurrentHashMap<>();
 
 	public GuiNPCInterface() {
@@ -94,7 +101,7 @@ implements IEditNPC {
 	 * 2: CMB
 	 * next - extra buttons
 	 */
-	protected void buttonEvent(@Nonnull GuiNpcButton guibutton, int mouseButton) {
+	protected void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
 
 	}
 
@@ -130,11 +137,6 @@ implements IEditNPC {
 
 	public void addLabel(GuiNpcLabel label) {
 		this.labels.put(label.id, label);
-	}
-
-	public void addLeftButton(GuiMenuLeftButton button) {
-		this.leftbuttons.put(button.id, button);
-		this.buttonList.add(button);
 	}
 
 	public void addScroll(GuiCustomScroll scroll) {
@@ -270,6 +272,7 @@ implements IEditNPC {
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		mouseWheel = Mouse.getDWheel();
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		int x = mouseX;
@@ -322,7 +325,7 @@ implements IEditNPC {
 			label.drawLabel(this, this.fontRenderer, mouseX, mouseY);
 		}
 		for (GuiNpcTextField tf : new ArrayList<>(this.textfields.values())) {
-			tf.drawTextBox(x, y);
+			tf.drawTextBox(x, y, mouseWheel);
 			if (tf instanceof GuiNpcTextArea) {
 				hasArea = true;
 			}
@@ -334,10 +337,7 @@ implements IEditNPC {
 			}
 		}
 		for (GuiCustomScroll scroll : new ArrayList<>(this.scrolls.values())) {
-			scroll.drawScreen(x, y,
-					(!this.hasSubGui() && (scroll.hovered || (this.scrolls.isEmpty() && !hasArea)))
-							? Mouse.getDWheel()
-							: 0);
+			scroll.drawScreen(x, y, (!this.hasSubGui() && (scroll.hovered || (this.scrolls.isEmpty() && !hasArea))) ? mouseWheel : 0);
 		}
 		for (GuiScreen gui : new ArrayList<>(this.extra.values())) {
 			gui.drawScreen(x, y, partialTicks);
@@ -392,10 +392,6 @@ implements IEditNPC {
 
 	public GuiNpcLabel getLabel(int i) {
 		return this.labels.get(i);
-	}
-
-	public GuiMenuLeftButton getLeftButton(int i) {
-		return this.leftbuttons.get(i);
 	}
 
 	@Override
@@ -456,7 +452,6 @@ implements IEditNPC {
 		this.buttonList.clear();
 		this.buttons.clear();
 		this.topbuttons.clear();
-		this.leftbuttons.clear();
 		this.sidebuttons.clear();
 		this.textfields.clear();
 		this.labels.clear();
@@ -653,7 +648,7 @@ implements IEditNPC {
 				}
 			}
 			for (IGui comp : new ArrayList<>(this.components)) {
-				comp.updateScreen();
+				comp.updateScreen(mouseWheel);
 			}
 			super.updateScreen();
 		}

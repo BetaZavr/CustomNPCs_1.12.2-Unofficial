@@ -42,9 +42,9 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 		}
 	}
 
-	public void drawElements(int i, int j, Minecraft mc, float f) {
+	public void drawElements(int mouseX, int mouseY, Minecraft mc, float partialTicks) {
 		for (GuiMenuTopButton button : this.getTopButtons()) {
-			button.drawButton(mc, i, j, f);
+			button.drawButton(mc, mouseX, mouseY, partialTicks);
 		}
 	}
 
@@ -61,8 +61,7 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 		GuiMenuTopButton advanced = new GuiMenuTopButton(4, inv.x + inv.getWidth(), guiTop - 17, "menu.advanced");
 		GuiMenuTopButton global = new GuiMenuTopButton(5, advanced.x + advanced.getWidth(), guiTop - 17, "menu.global");
 		GuiMenuTopButton close = new GuiMenuTopButton(0, guiLeft + width - 22, guiTop - 17, "X");
-		GuiMenuTopButton delete = new GuiMenuTopButton(66, guiLeft + width - 72, guiTop - 17,
-				"selectWorld.deleteButton");
+		GuiMenuTopButton delete = new GuiMenuTopButton(66, guiLeft + width - 72, guiTop - 17, "selectWorld.deleteButton");
 		delete.x = close.x - delete.getWidth();
 		this.topButtons = new GuiMenuTopButton[] { display, stats, ai, inv, advanced, global, close, delete };
 		for (GuiMenuTopButton button : this.getTopButtons()) {
@@ -74,7 +73,7 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 		if (k == 0) {
 			Minecraft mc = Minecraft.getMinecraft();
 			for (GuiMenuTopButton button : this.getTopButtons()) {
-				boolean bo = button.getVisible() && button.hover;
+				boolean bo = button.getVisible() && button.isMouseOver();
 				if (button.mousePressed(mc, i, j) || (bo && button.id == 4 && (mc.currentScreen instanceof GuiNpcEmotion || mc.currentScreen instanceof GuiNpcAnimation))) {
 					this.topButtonPressed(button);
 				}

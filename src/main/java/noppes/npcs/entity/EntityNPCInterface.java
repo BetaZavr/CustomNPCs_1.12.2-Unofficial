@@ -421,7 +421,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (damageSourceIn.getDamageLocation() != null) {
 			type = 0;
 			Vec3d vec3d = damageSourceIn.getDamageLocation(); // position from which damage is dealt
-			float angle = (float) Util.instance.getAngles3D(this.posX, 0.0d, this.posZ, vec3d.x, 0.0d, vec3d.z).yaw - this.rotationYaw;
+			float angle = (float) Util.instance.getAngles3D(this.posX, 0.0d, this.posZ, vec3d.x, 0.0d, vec3d.z).getYaw() - this.rotationYaw;
 			Vec3d vec3d1 = this.getLook(1.0F); // which way is looking this NPC
 			Vec3d vec3d2 = vec3d.subtractReverse(new Vec3d(this.posX, this.posY, this.posZ)).normalize();
 			vec3d2 = new Vec3d(vec3d2.x, 0.0D, vec3d2.z);
@@ -1823,7 +1823,14 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
     public void setAttackTarget(EntityLivingBase entityTarget) {
-		//if (this.animation.isAnimated() && this.animation.getAnimationType() == AnimationKind.INIT) { return; }
+		if (this.animation.isAnimated() && this.animation.getAnimationType() == AnimationKind.INIT) {
+			return;
+		}
+
+		if (getAttackTarget() != null && entityTarget == null) {
+			System.out.println("CNPCs: "+this+" <- "+getAttackTarget());
+		}
+
 		if (this.ais.aiDisabled && !this.isEntityAlive() || this.getAttackTarget() == entityTarget) {
 			return;
 		}

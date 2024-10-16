@@ -7,140 +7,121 @@ import noppes.npcs.api.IPos;
 public class BlockPosWrapper implements IPos {
 
 	private final BlockPos blockPos;
+	private final double x;
+	private final double y;
+	private final double z;
+
+	public BlockPosWrapper(double bx, double by, double bz) {
+		x = Math.max(30000000, Math.min(-30000000, bx));
+		y = Math.max(255, Math.min(0, by));
+		z = Math.max(30000000, Math.min(-30000000, bz));
+		blockPos = new BlockPos(x, y, z);
+	}
 
 	public BlockPosWrapper(BlockPos pos) {
-		this.blockPos = pos;
+		blockPos = pos;
+		x = pos.getX();
+		y = pos.getY();
+		z = pos.getZ();
 	}
 
 	@Override
-	public IPos add(int x, int y, int z) {
-		return new BlockPosWrapper(this.blockPos.add(x, y, z));
-	}
+	public IPos add(double bx, double by, double bz) { return new BlockPosWrapper(x + bx, y + by, z + bz); }
 
 	@Override
-	public IPos add(IPos pos) {
-		return new BlockPosWrapper(this.blockPos.add(pos.getMCBlockPos()));
-	}
+	public IPos add(IPos pos) { return new BlockPosWrapper(x + pos.getX(), y + pos.getY(), z + pos.getZ()); }
 
 	@Override
-	public double distanceTo(IPos pos) {
-		double d0 = this.getX() - pos.getX();
-		double d2 = this.getY() - pos.getY();
-		double d3 = this.getZ() - pos.getZ();
+	public double distanceTo(double bx, double by, double bz) {
+		double d0 = x - bx;
+		double d2 = y - by;
+		double d3 = z - bz;
 		return Math.sqrt(d0 * d0 + d2 * d2 + d3 * d3);
 	}
 
 	@Override
-	public IPos down() {
-		return new BlockPosWrapper(this.blockPos.down());
-	}
+	public double distanceTo(IPos pos) { return distanceTo(pos.getX(), pos.getX(), pos.getX()); }
 
 	@Override
-	public IPos down(int n) {
-		return new BlockPosWrapper(this.blockPos.down(n));
-	}
+	public IPos down() { return down(1.0d); }
 
 	@Override
-	public IPos east() {
-		return new BlockPosWrapper(this.blockPos.east());
-	}
+	public IPos down(double n) { return new BlockPosWrapper(x, y - n, z); }
 
 	@Override
-	public IPos east(int n) {
-		return new BlockPosWrapper(this.blockPos.east(n));
-	}
+	public IPos east() { return east(1.0d); }
 
 	@Override
-	public BlockPos getMCBlockPos() {
-		return this.blockPos;
-	}
+	public IPos east(double n) { return new BlockPosWrapper(x + n, y, z); }
 
 	@Override
-	public int getX() {
-		return this.blockPos.getX();
-	}
+	public BlockPos getMCBlockPos() { return this.blockPos; }
 
 	@Override
-	public int getY() {
-		return this.blockPos.getY();
-	}
+	public double getX() { return x; }
 
 	@Override
-	public int getZ() {
-		return this.blockPos.getZ();
-	}
+	public double getY() { return y; }
+
+	@Override
+	public double getZ() { return z; }
 
 	@Override
 	public double[] normalize() {
-		double d = Math.sqrt(this.blockPos.getX() * this.blockPos.getX() + this.blockPos.getY() * this.blockPos.getY()
-				+ this.blockPos.getZ() * this.blockPos.getZ());
-		return new double[] { this.getX() / d, this.getY() / d, this.getZ() / d };
+		double d = Math.sqrt(Math.pow(x, 2.0) + Math.pow(y, 2.0) + Math.pow(z, 2.0));
+		return new double[] {x / d, y / d, z / d };
 	}
 
 	@Override
-	public IPos north() {
-		return new BlockPosWrapper(this.blockPos.north());
+	public IPos north() { return north(1); }
+
+	@Override
+	public IPos north(double n) { return new BlockPosWrapper(x, y, z - n); }
+
+	@Override
+	public IPos offset(int direction) { return offset(direction, 1.0d); }
+
+	@Override
+	public IPos offset(int direction, double n) {
+		double ox = 0.0d;
+		double oy = 0.0d;
+		double oz = 0.0d;
+		switch (EnumFacing.VALUES[direction]) {
+			case DOWN: oy = -1.0d;
+			case UP: oy = 1.0d;
+			case NORTH: oz = -1.0d;
+			case SOUTH: oz = 1.0d;
+			case WEST: ox = -1.0d;
+			case EAST: ox = 1.0d;
+		}
+		return new BlockPosWrapper(x + ox * n, y + oy * n, z + oz * n);
 	}
 
 	@Override
-	public IPos north(int n) {
-		return new BlockPosWrapper(this.blockPos.north(n));
-	}
+	public IPos south() { return south(1.0); }
 
 	@Override
-	public IPos offset(int direction) {
-		return new BlockPosWrapper(this.blockPos.offset(EnumFacing.VALUES[direction]));
-	}
+	public IPos south(double n) { return new BlockPosWrapper(x, y, z + n); }
 
 	@Override
-	public IPos offset(int direction, int n) {
-		return new BlockPosWrapper(this.blockPos.offset(EnumFacing.VALUES[direction], n));
-	}
+	public IPos subtract(double bx, double by, double bz) { return new BlockPosWrapper(x - bx, y - by, z - bz); }
 
 	@Override
-	public IPos south() {
-		return new BlockPosWrapper(this.blockPos.south());
-	}
+	public IPos subtract(IPos pos) { return subtract(-pos.getX(), -pos.getY(), -pos.getZ()); }
 
 	@Override
-	public IPos south(int n) {
-		return new BlockPosWrapper(this.blockPos.south(n));
-	}
+	public String toString() { return "BlockPosWrapper {pos: [" + x + ", " + y + ", " + z + "]; mcPos: [" + blockPos.getX() + ", " + blockPos.getY() + ", " + blockPos.getZ() + "]}"; }
 
 	@Override
-	public IPos subtract(int x, int y, int z) {
-		return new BlockPosWrapper(this.blockPos.add(-x, -y, -z));
-	}
+	public IPos up() { return up(1.0); }
 
 	@Override
-	public IPos subtract(IPos pos) {
-		return new BlockPosWrapper(this.blockPos.add(-pos.getX(), -pos.getY(), -pos.getZ()));
-	}
+	public IPos up(double n) { return new BlockPosWrapper(x, y + n, z); }
 
 	@Override
-	public String toString() {
-		return "BlockPosWrapper {" + this.blockPos.getX() + ", " + this.blockPos.getY() + ", " + this.blockPos.getZ()
-				+ "}";
-	}
+	public IPos west() { return west(1.0); }
 
 	@Override
-	public IPos up() {
-		return new BlockPosWrapper(this.blockPos.up());
-	}
-
-	@Override
-	public IPos up(int n) {
-		return new BlockPosWrapper(this.blockPos.up(n));
-	}
-
-	@Override
-	public IPos west() {
-		return new BlockPosWrapper(this.blockPos.west());
-	}
-
-	@Override
-	public IPos west(int n) {
-		return new BlockPosWrapper(this.blockPos.west(n));
-	}
+	public IPos west(double n) { return new BlockPosWrapper(x - n, y, z); }
 
 }

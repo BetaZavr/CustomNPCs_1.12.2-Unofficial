@@ -1597,6 +1597,8 @@ public class PacketHandlerServer {
             ItemStack stack = new ItemStack(Server.readNBT(buffer));
             player.inventory.setItemStack(stack);
             player.openContainer.detectAndSendChanges();
+        } else if (type == EnumPacketServer.RemoveNpcEdit) {
+            NoppesUtilServer.setEditingNpc(player, null);
         }
 
         CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");

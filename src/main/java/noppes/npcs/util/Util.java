@@ -4,6 +4,9 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
@@ -14,6 +17,9 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import noppes.npcs.*;
 
 import com.google.common.collect.Lists;
@@ -73,6 +79,9 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IDataElement;
 import noppes.npcs.api.handler.data.IQuestObjective;
+import noppes.npcs.api.util.IRayTraceResults;
+import noppes.npcs.api.util.IRayTraceRotate;
+import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.api.wrapper.data.DataElement;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Availability;
@@ -265,9 +274,8 @@ public class Util implements IMethods {
 		return ignoreCase ? str0.equalsIgnoreCase(str1) : str0.equals(str1);
 	}
 
-	public RayTraceRotate getAngles3D(Entity entity, Entity target) {
-		return Util.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ,
-				target.posX, target.posY + target.getEyeHeight(), target.posZ);
+	public IRayTraceRotate getAngles3D(Entity entity, Entity target) {
+		return Util.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
 	}
 
 	public List<IDataElement> getClassData(Object obj, boolean onlyPublic, boolean addConstructor) {
@@ -520,7 +528,7 @@ public class Util implements IMethods {
 		return color;
 	}
 
-	public RayTraceVec getPosition(BlockPos pos, double yaw, double pitch, double radius) {
+	public IRayTraceVec getPosition(BlockPos pos, double yaw, double pitch, double radius) {
 		return Util.instance.getPosition(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, yaw, pitch, radius);
 	}
 
@@ -689,15 +697,14 @@ public class Util implements IMethods {
 		if (aggroRange < 1.0d) {
 			aggroRange = 1.0d;
 		}
-		RayTraceRotate rtr = Util.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(),
-				entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
+		IRayTraceRotate rtr = Util.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
 		List<Entity> seenEntities = null, unseenEntities = null;
 		if (entity instanceof EntityLiving) {
 			EntitySenses senses = ((EntityLiving) entity).getEntitySenses();
 			seenEntities = ((IEntitySensesMixin) senses).npcs$getSeenEntities();
 			unseenEntities = ((IEntitySensesMixin) senses).npcs$getUnseenEntities();
 		}
-		if (rtr.distance > aggroRange) {
+		if (rtr.getDistance() > aggroRange) {
 			if (seenEntities != null) {
 				seenEntities.remove(target);
 			}
@@ -706,11 +713,11 @@ public class Util implements IMethods {
 			}
 			return false;
 		}
-		RayTraceResults rtrs = Util.instance.rayTraceBlocksAndEntitys(entity, rtr.yaw, rtr.pitch, rtr.distance);
+		IRayTraceResults rtrs = Util.instance.rayTraceBlocksAndEntitys(entity, rtr.getYaw(), rtr.getPitch(), rtr.getDistance());
 		if (rtrs != null) {
-			if (toShoot && rtrs.entitys.length > 0) {
+			if (toShoot && rtrs.getEntitys().length > 0) {
 				double d = Util.instance.distanceTo(entity, target);
-				for (IEntity<?> ei : rtrs.entitys) {
+				for (IEntity<?> ei : rtrs.getEntitys()) {
 					if (d > Util.instance.distanceTo(entity, ei.getMCEntity())) {
 						if (seenEntities != null) {
 							seenEntities.remove(target);
@@ -722,9 +729,8 @@ public class Util implements IMethods {
 					}
 				}
 			}
-			boolean shoot = toShoot && (!(entity instanceof EntityNPCInterface)
-					|| ((EntityNPCInterface) entity).stats.ranged.getFireType() != 2);
-			for (IBlock bi : rtrs.blocks) {
+			boolean shoot = toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).stats.ranged.getFireType() != 2);
+			for (IBlock bi : rtrs.getBlocks()) {
 				if (shoot && !bi.getMCBlock().isPassable(entity.world, bi.getPos().getMCBlockPos())) {
 					if (seenEntities != null) {
 						seenEntities.remove(target);
@@ -746,8 +752,8 @@ public class Util implements IMethods {
 		}
 		if (directLOS && !toShoot
 				&& (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS)) {
-			double yaw = (entity.rotationYawHead - rtr.yaw) % 360.0d;
-			double pitch = (entity.rotationPitch - rtr.pitch) % 360.0d;
+			double yaw = (entity.rotationYawHead - rtr.getYaw()) % 360.0d;
+			double pitch = (entity.rotationPitch - rtr.getPitch()) % 360.0d;
 			if (yaw < 0.0d) {
 				yaw += 360.0d;
 			}
@@ -761,8 +767,7 @@ public class Util implements IMethods {
 				return false;
 			}
 		}
-		int invisible = 1 + (!target.isPotionActive(MobEffects.INVISIBILITY) ? -1
-				: Objects.requireNonNull(target.getActivePotionEffect(MobEffects.INVISIBILITY)).getAmplifier());
+		int invisible = 1 + (!target.isPotionActive(MobEffects.INVISIBILITY) ? -1 : Objects.requireNonNull(target.getActivePotionEffect(MobEffects.INVISIBILITY)).getAmplifier());
 		final double chance = getChance(invisible, rtr, aggroRange);
 		boolean canSee = chance > Math.random();
 		if (canSee) {
@@ -783,7 +788,7 @@ public class Util implements IMethods {
 		return canSee;
 	}
 
-	private double getChance(int invisible, RayTraceRotate rtr, double aggroRange) {
+	private double getChance(int invisible, IRayTraceRotate rtr, double aggroRange) {
 		double chance = invisible == 0 ? 1.0d : -0.00026d * Math.pow(invisible, 3.0d) + 0.00489d * Math.pow(invisible, 2.0d) - 0.03166 * (double) invisible + 0.08d;
 		if (chance > 1.0d) {
 			chance = 1.0d;
@@ -792,7 +797,7 @@ public class Util implements IMethods {
 			chance = 0.002d;
 		}
 		if (chance != 1.0d) {
-			chance *= -1.0d * (rtr.distance / aggroRange) + 1.0d;
+			chance *= -1.0d * (rtr.getDistance() / aggroRange) + 1.0d;
 		} // distance
 		if (chance != 1.0d) {
 			chance *= 0.3d;
@@ -1122,14 +1127,14 @@ public class Util implements IMethods {
 	}
 
 	@Override
-	public RayTraceRotate getAngles3D(double dx, double dy, double dz, double mx, double my, double mz) {
+	public IRayTraceRotate getAngles3D(double dx, double dy, double dz, double mx, double my, double mz) {
 		RayTraceRotate rtr = new RayTraceRotate();
 		rtr.calculate(dx, dy, dz, mx, my, mz);
 		return rtr;
 	}
 
 	@Override
-	public RayTraceRotate getAngles3D(IEntity<?> entity, IEntity<?> target) {
+	public IRayTraceRotate getAngles3D(IEntity<?> entity, IEntity<?> target) {
 		return this.getAngles3D(entity.getMCEntity(), target.getMCEntity());
 	}
 
@@ -1270,14 +1275,14 @@ public class Util implements IMethods {
 	}
 
 	@Override
-	public RayTraceVec getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius) {
+	public IRayTraceVec getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius) {
 		RayTraceVec rtv = new RayTraceVec();
 		rtv.calculatePos(cx, cy, cz, yaw, pitch, radius);
 		return rtv;
 	}
 
 	@Override
-	public RayTraceVec getPosition(IEntity<?> entity, double yaw, double pitch, double radius) {
+	public IRayTraceVec getPosition(IEntity<?> entity, double yaw, double pitch, double radius) {
 		return this.getPosition(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, yaw,
 				pitch, radius);
 	}
@@ -1301,7 +1306,7 @@ public class Util implements IMethods {
 				pos.getX() + 0.5d, pos.getY(), pos.getZ() + 0.5d);
 	}
 
-	public RayTraceResults rayTraceBlocksAndEntitys(Entity entity, double yaw, double pitch, double distance) {
+	public IRayTraceResults rayTraceBlocksAndEntitys(Entity entity, double yaw, double pitch, double distance) {
 		if (entity == null || entity.world == null || distance <= 0.0d) {
 			return null;
 		}
@@ -1415,7 +1420,7 @@ public class Util implements IMethods {
 	}
 
 	@Override
-	public RayTraceResults rayTraceBlocksAndEntitys(IEntity<?> entity, double yaw, double pitch, double distance) {
+	public IRayTraceResults rayTraceBlocksAndEntitys(IEntity<?> entity, double yaw, double pitch, double distance) {
 		if (entity == null) {
 			return null;
 		}
@@ -1807,5 +1812,68 @@ public class Util implements IMethods {
 		}
 		return newName.toString().toLowerCase();
     }
+
+	@Override
+	public String translateGoogle(String textLanguageKey, String translationLanguageKey, String originalText) {
+		if (translationLanguageKey == null || translationLanguageKey.isEmpty() || originalText == null || originalText.isEmpty()) { return originalText; }
+		if (textLanguageKey == null || textLanguageKey.isEmpty()) { textLanguageKey = "auto"; }
+		if (originalText.length() <= 5000) {
+			return translate(textLanguageKey, translationLanguageKey, originalText);
+		}
+		String type = " "; // simple words
+		if (originalText.contains("\n")) { type = "\n"; } // some code
+		else if (originalText.contains(". ")) { type = ". "; } // suggestions
+		List<String> translatedParts = new ArrayList<>();
+		for (String part : originalText.split(type)) {
+			if (part.length() <= 5000) {
+				translatedParts.add(translate(textLanguageKey, translationLanguageKey, part));
+			}
+			else if (!type.equals(" ")) {
+				List<String> translatedSubParts = new ArrayList<>();
+				for (String subPart : part.split(" ")) {
+					if (subPart.length() <= 5000) { translatedSubParts.add(translate(textLanguageKey, translationLanguageKey, subPart)); }
+					else { translatedSubParts.add(subPart) ; }
+				}
+				StringBuilder subText = new StringBuilder();
+				for (String subTranslatedPart : translatedSubParts) {
+					subText.append(subTranslatedPart).append(" ");
+				}
+				translatedParts.add(subText.toString());
+			} else {
+				translatedParts.add(part);
+			}
+		}
+		StringBuilder text = new StringBuilder();
+		for (String translatedPart : translatedParts) {
+			text.append(translatedPart).append(type);
+		}
+		return text.toString();
+     }
+
+	private String translate(String textLanguageKey, String translationLanguageKey, String originalText) {
+		try {
+			URLConnection connection = new URL("https://translate.google.com/translate_a/single?client=gtx&sl=" + textLanguageKey + "&tl=" + translationLanguageKey + "&dt=t&q=" + URLEncoder.encode(originalText, "UTF-8")).openConnection();
+			// Sending a GET request instead of POST
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			connection.setRequestProperty("User-Agent", "Chrome/99.0.4844.51");
+			connection.setConnectTimeout(10000);
+			// Read returned
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			StringBuilder text = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) { text.append(line).append("\n"); }
+			reader.close();
+			// Remove all empty values from JSON string
+			String json = text.toString().replaceAll("\\s*,\\s*null,\\s*", ",").replaceAll(",null", "").replaceAll("null", "");
+			// Convert a JSON string to an array of objects
+			JsonParser parser = new JsonParser();
+			JsonElement jsonElement = parser.parse(json);
+			JsonArray array = jsonElement.getAsJsonArray();
+			// Extract translation
+			return array.get(0).getAsJsonArray().get(0).getAsJsonArray().get(0).getAsString();
+		}
+		catch (Exception e) { LogWriter.error("Error trying to translate via Google", e); }
+		return originalText;
+	}
 
 }

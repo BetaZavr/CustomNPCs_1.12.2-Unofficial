@@ -109,6 +109,8 @@ public abstract class NpcAPI {
 
 	public abstract IPos getIPos(double x, double y, double z);
 
+	public abstract IWorld getIWorld(String dimension);
+
 	public abstract IWorld getIWorld(int dimensionId);
 
 	public abstract IWorld getIWorld(World world);

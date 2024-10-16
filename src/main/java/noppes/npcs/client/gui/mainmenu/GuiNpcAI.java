@@ -168,7 +168,7 @@ public class GuiNpcAI extends GuiNPCInterface2 implements ITextfieldListener, IG
 		this.addLabel(new GuiNpcLabel(lId++, "ai.cansprint", x, (y += 25) + 7));
 		this.addButton(new GuiNpcButton(16, x + 111, y, 60, 20, new String[] { "gui.no", "gui.yes" }, (this.ai.canSprint ? 1 : 0)));
 
-		this.addLabel(new GuiNpcLabel(lId++, "ai.hurtresistanttime", x, (y += 25) + 7));
+		this.addLabel(new GuiNpcLabel(lId++, "ai.hurt.resistant.time", x, (y += 25) + 7));
 		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, x + 112, y + 1, 58, 18, (this.ai.getMaxHurtResistantTime() / 2) + ""));
 		this.getTextField(4).setNumbersOnly();
 		this.getTextField(4).setMinMaxDefault(0, 100, this.ai.getMaxHurtResistantTime() / 2);

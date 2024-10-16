@@ -22,57 +22,56 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 2: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks);
-			break;
-		}
-		case 3: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageFactions);
-			break;
-		}
-		case 4: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageDialogs);
-			break;
-		}
-		case 11: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageQuests);
-			break;
-		}
-		case 12: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, -1, 0, 0);
-			break;
-		}
-		case 13: {
-			NoppesUtil.openGUI(this.player, new GuiNpcManagePlayerData(this.npc));
-			break;
-		}
-		case 14: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, 0, 0, 0);
-			break;
-		}
-		case 15: {
-			NoppesUtil.openGUI(this.player, new GuiNpcNaturalSpawns(this.npc));
-			break;
-		}
-		case 16: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageLinked);
-			break;
-		}
-		case 17: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, -1, -1, 0);
-			break;
-		}
-		case 19: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageMail, 0, 0, 0);
-			break;
-		}
+			case 2: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks);
+				break;
+			}
+			case 3: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageFactions);
+				break;
+			}
+			case 4: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageDialogs);
+				break;
+			}
+			case 11: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageQuests);
+				break;
+			}
+			case 12: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, -1, 0, 0);
+				break;
+			}
+			case 13: {
+				NoppesUtil.openGUI(this.player, new GuiNpcManagePlayerData(this.npc));
+				break;
+			}
+			case 14: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, 0, 0, 0);
+				break;
+			}
+			case 15: {
+				NoppesUtil.openGUI(this.player, new GuiNpcNaturalSpawns(this.npc));
+				break;
+			}
+			case 16: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageLinked);
+				break;
+			}
+			case 17: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, -1, -1, 0);
+				break;
+			}
+			case 19: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageMail, 0, 0, 0);
+				break;
+			}
 		}
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
-		super.drawScreen(i, j, f);
-		// New
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
@@ -97,9 +96,7 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 		} else if (this.getButton(17) != null && this.getButton(17).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("global.hover.markets").getFormattedText());
 		} else if (this.getButton(18) != null && this.getButton(18).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("global.hover.auctions").appendSibling(new TextComponentString("<br>"))
-							.appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("global.hover.auctions").appendSibling(new TextComponentString("<br>")).appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
 		} else if (this.getButton(19) != null && this.getButton(19).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("global.hover.mail").getFormattedText());
 		}
@@ -112,9 +109,9 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 	@Override
 	public void initGui() {
 		super.initGui();
-		int r0 = this.guiLeft + 75;
-		int r1 = this.guiLeft + 240;
-		int y = this.guiTop + 10;
+		int r0 = guiLeft + 75;
+		int r1 = guiLeft + 240;
+		int y = guiTop + 10;
 		this.addButton(new GuiNpcButton(2, r0, y, 110, 20, "global.banks"));
 		this.addButton(new GuiNpcButton(3, r0, (y += 22), 110, 20, "menu.factions"));
 		this.addButton(new GuiNpcButton(4, r0, (y += 22), 110, 20, "dialog.dialogs"));
@@ -124,7 +121,7 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 		this.addButton(new GuiNpcButton(14, r0, (y += 22), 110, 20, "global.recipes"));
 		this.addButton(new GuiNpcButton(15, r0, (y += 22), 110, 20, "global.naturalspawn"));
 		this.addButton(new GuiNpcButton(16, r0, y + 22, 110, 20, "global.linked"));
-		y = this.guiTop + 10;
+		y = guiTop + 10;
 		this.addButton(new GuiNpcButton(17, r1, y, 110, 20, "global.market"));
 		this.addButton(new GuiNpcButton(18, r1, (y += 22), 110, 20, "global.auctions"));
 		this.getButton(18).enabled = false;

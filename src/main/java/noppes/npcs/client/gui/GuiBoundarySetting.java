@@ -881,7 +881,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 				return;
 			}
 			IPos pos = this.region.homePos;
-			this.region.setHomePos(textField.getInteger(), pos.getY(), pos.getZ());
+			this.region.setHomePos(textField.getInteger(), (int) pos.getY(), (int) pos.getZ());
 			break;
 		}
 		case 26: { // Home Y
@@ -889,7 +889,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 				return;
 			}
 			IPos pos = this.region.homePos;
-			this.region.setHomePos(pos.getX(), textField.getInteger(), pos.getZ());
+			this.region.setHomePos((int) pos.getX(), textField.getInteger(), (int) pos.getZ());
 			break;
 		}
 		case 27: { // Home Z
@@ -897,7 +897,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 				return;
 			}
 			IPos pos = this.region.homePos;
-			this.region.setHomePos(pos.getX(), pos.getY(), textField.getInteger());
+			this.region.setHomePos((int) pos.getX(), (int) pos.getY(), textField.getInteger());
 			break;
 		}
 		}

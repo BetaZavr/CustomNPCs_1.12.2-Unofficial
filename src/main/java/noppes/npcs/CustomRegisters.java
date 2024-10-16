@@ -418,8 +418,8 @@ public class CustomRegisters {
 			CustomRegisters.customparticles.put(particleSettings.id, particleSettings);
 
 			String name = nbtParticle.getString("RegistryName");
-			boolean isExampleItem = name.equals("PARTICLE_EXAMPLE") || name.equals("PARTICLE_OBJ_EXAMPLE");
-			if (isExampleItem || nbtParticle.getBoolean("CreateAllFiles")) {
+			boolean isExample = name.contains("PARTICLE_EXAMPLE") || name.contains("PARTICLE_OBJ_EXAMPLE");
+			if (isExample || nbtParticle.getBoolean("CreateAllFiles")) {
 				CustomNpcs.proxy.checkParticleFiles(particleSettings);
 				nbtParticle.setBoolean("CreateAllFiles", false);
 				resave = true;
@@ -624,10 +624,10 @@ public class CustomRegisters {
 				continue;
 			}
 			String name = nbtBlock.getString("RegistryName");
-			boolean isExampleItem = name.equals("blockexample") || name.equals("liquidexample") || name.equals("facingblockexample") ||
-					name.equals("stairsexample") || name.equals("slabexample") || name.equals("portalexample") || name.equals("chestexample") ||
-					name.equals("containerexample") || name.equals("doorexample");
-			if (isExampleItem || nbtBlock.getBoolean("CreateAllFiles")) {
+			boolean isExample = name.contains("blockexample") || name.contains("liquidexample") || name.contains("facingblockexample") ||
+					name.contains("stairsexample") || name.contains("slabexample") || name.contains("portalexample") || name.contains("chestexample") ||
+					name.contains("containerexample") || name.contains("doorexample");
+			if (isExample || nbtBlock.getBoolean("CreateAllFiles")) {
 				CustomNpcs.proxy.checkBlockFiles((ICustomElement) block);
 				if (addblock == null) {
 					nbtBlock.setBoolean("CreateAllFiles", false);
@@ -644,7 +644,7 @@ public class CustomRegisters {
 					LogWriter.error("Attempt to load a registered block \"" + addblock.getRegistryName() + "\"");
 					continue;
 				}
-				if (isExampleItem || nbtBlock.getBoolean("CreateAllFiles")) {
+				if (isExample || nbtBlock.getBoolean("CreateAllFiles")) {
 					CustomNpcs.proxy.checkBlockFiles(addblock);
 					nbtBlock.setBoolean("CreateAllFiles", false);
 				}
@@ -902,20 +902,15 @@ public class CustomRegisters {
 				default: // Simple
 					this.registryItem(new CustomItem(nbtItem), names, items, nbtItem);
 			}
-			String name = nbtItem.getString("RegistryName");
-			boolean isExampleItem = name.equals("itemexample") || name.equals("weaponexample") || name.equals("armorexample") ||
-					name.equals("armorobjexample") || name.equals("shieldexample") || name.equals("bowexample") || name.equals("toolexample") ||
-					name.equals("axeexample") || name.equals("foodexample") || name.equals("fishingrodexample");
-			if (isExampleItem || nbtItem.getBoolean("CreateAllFiles")) {
+			if (nbtItem.getBoolean("CreateAllFiles")) {
 				nbtItem.setBoolean("CreateAllFiles", false);
 				resave = true;
 			}
 		}
 
 		if (resave) {
-			try {
-				Util.instance.saveFile(itemsFile, nbtItems);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			try { Util.instance.saveFile(itemsFile, nbtItems); }
+			catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		event.getRegistry().registerAll(items.toArray(new Item[0]));
 		CustomRegisters.tab.item = CustomRegisters.wand;
@@ -1059,8 +1054,8 @@ public class CustomRegisters {
 				LogWriter.error("Attempt to load a registered potion \"" + potion.getRegistryName() + "\"");
 				continue;
 			}
-			boolean isExampleItem = nameP.equals("potionexample");
-			if (isExampleItem || nbtPotion.getBoolean("CreateAllFiles")) {
+			boolean isExample = nameP.equals("potionexample");
+			if (isExample || nbtPotion.getBoolean("CreateAllFiles")) {
 				CustomNpcs.proxy.checkPotionFiles((ICustomElement) potion);
 				nbtPotion.setBoolean("CreateAllFiles", false);
 				resave = true;
@@ -1083,10 +1078,8 @@ public class CustomRegisters {
 			CustomRegisters.custompotions.add(potion);
 			int delay = nbtPotion.hasKey("BaseDelay", 3) ? nbtPotion.getInteger("BaseDelay") : 200;
 			PotionEffect potionEffect = new PotionEffect(potion, nbtPotion.getBoolean("IsInstant") ? 0 : delay);
-			ResourceLocation potionTypeName = new ResourceLocation(CustomNpcs.MODID,
-					nbtPotion.getString("RegistryName").toLowerCase());
-			PotionType potionType = new PotionType(nbtPotion.getString("RegistryName").toLowerCase(), potionEffect)
-					.setRegistryName(potionTypeName);
+			ResourceLocation potionTypeName = new ResourceLocation(CustomNpcs.MODID, nbtPotion.getString("RegistryName").toLowerCase());
+			PotionType potionType = new PotionType(nbtPotion.getString("RegistryName").toLowerCase(), potionEffect).setRegistryName(potionTypeName);
 			CustomRegisters.custompotiontypes.put(potionType, new PotionData(potion, potionType, nbtPotion));
 
 			if (nbtPotion.getBoolean("IsInstant")) {
@@ -1118,7 +1111,11 @@ public class CustomRegisters {
 				|| Item.getByNameOrId(item.getRegistryName().toString()) != null) {
 			LogWriter.error("Attempt to load a registered item \"" + item.getRegistryName() + "\"");
 		}
-		if (nbtItem.getBoolean("CreateAllFiles")) {
+		String name = nbtItem.getString("RegistryName");
+		boolean isExample = name.contains("itemexample") || name.contains("weaponexample") || name.contains("armorexample") ||
+				name.contains("armorobjexample") || name.contains("shieldexample") || name.contains("bowexample") || name.contains("toolexample") ||
+				name.contains("axeexample") || name.contains("foodexample") || name.contains("fishingrodexample");
+		if (isExample || nbtItem.getBoolean("CreateAllFiles")) {
 			CustomNpcs.proxy.checkItemFiles((ICustomElement) item);
 		}
 		LogWriter.info("Load Custom Item \"" + item.getRegistryName() + "\"");

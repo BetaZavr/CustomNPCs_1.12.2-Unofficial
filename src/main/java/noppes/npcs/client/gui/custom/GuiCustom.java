@@ -51,7 +51,9 @@ import javax.annotation.Nonnull;
 
 public class GuiCustom extends GuiContainer implements ICustomScrollListener, IGuiData {
 
-	public static int guiLeft, guiTop;
+	public static int guiLeft;
+	public static int guiTop;
+	public int mouseWheel;
 	ResourceLocation background;
 	Map<Integer, IGuiComponent> components;
 
@@ -156,7 +158,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.getTextureManager().bindTexture(this.background);
-		GlStateManager.translate((float) GuiCustom.guiLeft, (float) GuiCustom.guiTop, 0.0f);
+		GlStateManager.translate((float) guiLeft, (float) guiTop, 0.0f);
 		if (this.bgW > 0 && this.bgH > 0) {
 			if (this.stretched == 0) {
 				float scaleU = (float) this.xSize / (float) this.bgW;
@@ -243,13 +245,14 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		mouseWheel = Mouse.getDWheel();
 		this.hoverText = null;
 		this.drawDefaultBackground();
 		if (this.background != null) {
 			this.drawBackgroundTexture();
 		}
 		for (IGuiComponent component : this.components.values()) {
-			component.onRender(this.mc, mouseX, mouseY, Mouse.getDWheel(), partialTicks);
+			component.onRender(this.mc, mouseX, mouseY, mouseWheel, partialTicks);
 		}
 		if (this.gui != null && this.gui.getSlots().length > 0) { // New
 			int cx = -41 + (256 - this.gui.getWidth()) / 2;
@@ -290,8 +293,8 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 	public void initGui() {
 		super.initGui();
 		if (this.gui != null) {
-			GuiCustom.guiLeft = (this.width - this.xSize) / 2;
-			GuiCustom.guiTop = (this.height - this.ySize) / 2;
+			guiLeft = (this.width - this.xSize) / 2;
+			guiTop = (this.height - this.ySize) / 2;
 			this.components.clear();
 			this.clickListeners.clear();
 			this.keyListeners.clear();

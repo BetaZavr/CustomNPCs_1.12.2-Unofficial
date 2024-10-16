@@ -39,8 +39,9 @@ import noppes.npcs.controllers.data.DialogOption.OptionDialogID;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
-// Changed
-public class GuiNPCManageDialogs extends GuiNPCInterface2 implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
+public class GuiNPCManageDialogs
+extends GuiNPCInterface2
+implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
 	public static GuiScreen Instance;
 	private static boolean isName = true;

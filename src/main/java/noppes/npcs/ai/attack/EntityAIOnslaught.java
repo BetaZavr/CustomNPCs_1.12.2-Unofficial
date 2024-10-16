@@ -12,7 +12,7 @@ public class EntityAIOnslaught extends EntityAICustom {
 	@Override
 	public void updateTask() {
 		super.updateTask();
-		if (this.isFrend || this.npc.ticksExisted % (this.tickRate * 2) > 3) {
+		if (this.isFrend || this.npc.ticksExisted % (this.tickRate * 2) != 0) {
 			return;
 		}
 		if (this.isRanged) {
@@ -20,7 +20,6 @@ public class EntityAIOnslaught extends EntityAICustom {
 		} else {
 			this.canSeeToAttack = this.npc.canSee(this.target);
 		}
-
 		if (this.canSeeToAttack && this.distance <= this.range) {
 			if (this.inMove) {
 				this.npc.getNavigator().clearPath();
@@ -28,7 +27,6 @@ public class EntityAIOnslaught extends EntityAICustom {
 		} else {
 			this.tryMoveToTarget();
 		}
-
 		this.tryToCauseDamage();
 	}
 

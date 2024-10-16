@@ -97,6 +97,8 @@ ai.hover.walking.stop=Stops for a while when it comes to a new position.
 ai.hover.walking.type=NPC movement type
 ai.hover.water=NPCs will float on the surface when hit by water
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
+ai.hover.hurt.resistant.time=Time in ticks, immortality after taking damage<br>§7Applies to everyone who deals damage individually!
+ai.hurt.resistant.time=Immortality delay
 ai.leapattarget=Target jump
 ai.looping=In circles.
 ai.movement=Movement
@@ -390,7 +392,7 @@ bank.slots.info=Empty seats: %s / %s
 bank.tab.cost=Buying
 bank.tab.cost.info=Item needed to open this bank box<br>§7Number of slots: §6%s<br>§7Maximum number of slots: §6%s
 bank.unlock=Open
-bank.upg.cost=Enhancement
+bank.upg.cost=Upgrade
 bank.upg.cost.info=Item needed to improve this cell bank<br>§6+1§7 item slot
 bank.upgrade=Improve
 

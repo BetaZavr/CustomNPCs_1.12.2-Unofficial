@@ -30,7 +30,7 @@ public class GuiCustomContainer extends GuiContainer {
 	private final int guiColor;
     private final int maxRows;
     private final int step;
-	public int dWheel;
+	public int mouseWheel;
 	private int row;
 	private int yPos;
 	private final int[] guiColorArr;
@@ -146,7 +146,7 @@ public class GuiCustomContainer extends GuiContainer {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		dWheel = Mouse.getDWheel();
+		mouseWheel = Mouse.getDWheel();
 		this.drawDefaultBackground();
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		this.hoverScroll = false;
@@ -163,9 +163,9 @@ public class GuiCustomContainer extends GuiContainer {
 			this.hoverScroll = mouseX >= u && mouseX <= u + 12 && mouseY >= v && mouseY <= v + 15;
 			this.drawTexturedModalRect(u, v, (this.hoverScroll ? 244 : 232), 0, 12, 15);
 			GlStateManager.popMatrix();
-			if (dWheel > 0) {
+			if (mouseWheel > 0) {
 				this.resetRow(false);
-			} else if (dWheel < 0) {
+			} else if (mouseWheel < 0) {
 				this.resetRow(true);
 			}
 		}

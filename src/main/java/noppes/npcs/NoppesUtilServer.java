@@ -671,9 +671,7 @@ public class NoppesUtilServer {
 	public static void setEditingNpc(EntityPlayer player, EntityNPCInterface npc) {
 		PlayerData data = PlayerData.get(player);
 		data.editingNpc = npc;
-		if (npc != null) {
-			Server.sendDataChecked((EntityPlayerMP) player, EnumPacketClient.EDIT_NPC, npc.getEntityId());
-		}
+		Server.sendDataChecked((EntityPlayerMP) player, EnumPacketClient.EDIT_NPC, npc != null ? npc.getEntityId() : -1);
 	}
 
 	public static void setEditingQuest(EntityPlayer player, Quest quest) {

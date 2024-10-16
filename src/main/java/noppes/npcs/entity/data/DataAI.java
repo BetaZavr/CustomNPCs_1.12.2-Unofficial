@@ -55,7 +55,6 @@ public class DataAI
 	public int walkingRange = 10;
 	public float stepheight = 0.6f;
 	public boolean aiDisabled = false;
-
 	private int maxHurtResistantTime = 20;
 
 	public DataAI(EntityNPCInterface npc) {
@@ -494,6 +493,7 @@ public class DataAI
 	@Override
 	public void setMaxHurtResistantTime(int ticks) {
 		if (ticks < 0) { ticks *= -1; }
+		if (ticks > 1200) { ticks = 1200; }
 		this.maxHurtResistantTime = ticks;
 	}
 
@@ -543,7 +543,6 @@ public class DataAI
 		compound.setInteger("MovingPatern", this.movingPattern);
 		compound.setIntArray("StartPosNew", this.getStartArray());
 		compound.setBoolean("AttackInvisible", this.attackInvisible);
-
 		compound.setInteger("MaxHurtResistantTime", this.maxHurtResistantTime);
 		return compound;
 	}

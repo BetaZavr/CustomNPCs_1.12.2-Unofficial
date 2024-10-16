@@ -107,6 +107,7 @@ implements IComponentGui {
 		if (!this.visible) {
 			return;
 		}
+		hovered = (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height);
 		if (this.texture == null) {
 			mc.getTextureManager().bindTexture(GuiNPCInterface.MENU_BUTTON);
 			if (this.layerColor != 0) {
@@ -114,7 +115,6 @@ implements IComponentGui {
 			} else {
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			}
-			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			int i = this.getHoverState(this.hovered);
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -147,9 +147,9 @@ implements IComponentGui {
 				this.drawGradientRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xFF202020, 0xFF202020);
 				this.drawGradientRect(this.x, this.y, this.x + this.width, this.y + this.height, 0xFFA0A0A0, 0xFFA0A0A0);
 			}
+			int state;
 			if (isSimple) {
-				this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height);
-				int i = this.hovered ? 1 : 0;
+				state = !enabled ? 1 : hovered ? 2 : 0;
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -159,20 +159,11 @@ implements IComponentGui {
 				GlStateManager.translate(this.x, this.y, 0.0f);
 				mc.getTextureManager().bindTexture(this.texture);
 
-				this.drawTexturedModalRect(0, 0, txrX, txrY + i * this.height, this.width, this.height);
+				this.drawTexturedModalRect(0, 0, txrX, txrY + state * this.height, this.width, this.height);
 				GlStateManager.popMatrix();
 
 			} else {
-				int i = !this.enabled ? 1 : this.hovered ? 2 : 0;
-				this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height);
-				if (this.isPressed) {
-					this.isPressed = Mouse.isButtonDown(0) && this.enabled && this.hovered;
-				} else if (Mouse.getEventButtonState() && Mouse.isButtonDown(0) && this.enabled && this.hovered) {
-					this.isPressed = true;
-				}
-				if (this.isPressed) {
-					i = 3;
-				}
+				state = getHoverState(hovered);
 				boolean isPrefabricated = txrW == 0;
 				int tw = isPrefabricated ? 200 : txrW;
 				int th = txrH == 0 ? 20 : txrH;
@@ -195,26 +186,23 @@ implements IComponentGui {
 
 				if (isPrefabricated) {
 					tw = (int) (((float) this.width / 2.0f) / scaleH);
-					this.drawTexturedModalRect(0, 0, txrX, txrY + i * th, tw, th);
-					this.drawTexturedModalRect(tw, 0, txrX + 200 - tw, txrY + i * th, tw, th);
+					this.drawTexturedModalRect(0, 0, txrX, txrY + state * th, tw, th);
+					this.drawTexturedModalRect(tw, 0, txrX + 200 - tw, txrY + state * th, tw, th);
 				} else {
-					this.drawTexturedModalRect(0, 0, txrX, txrY + i * th, tw, th);
+					this.drawTexturedModalRect(0, 0, txrX, txrY + state * th, tw, th);
 				}
-
 				GlStateManager.popMatrix();
 			}
 		}
-		int l = textColor;
-		if (this.packedFGColour != 0) {
-			l = this.packedFGColour;
-		} else if (!this.enabled) {
-			l = CustomNpcs.NotEnableColor.getRGB();
-		} else if (this.hovered) {
-			l = CustomNpcs.HoverColor.getRGB();
+		int color = CustomNpcs.MainColor.getRGB();
+		if (packedFGColour != 0) {
+			color = packedFGColour;
+		} else if (!enabled) {
+			color = CustomNpcs.NotEnableColor.getRGB();
+		} else if (hovered) {
+			color = CustomNpcs.HoverColor.getRGB();
 		}
-		mc.fontRenderer.drawString(this.displayString,
-				this.x + (float) (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2,
-				this.y + (float) (this.height - 8) / 2, l, this.dropShadow);
+		mc.fontRenderer.drawString(displayString, x + (float) (width - mc.fontRenderer.getStringWidth(displayString)) / 2, y + (float) (height - 8) / 2, color, dropShadow);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		if (itemStacks != null && itemStacks.length != 0) {
 			currentStack = itemStacks[0];
@@ -304,14 +292,13 @@ implements IComponentGui {
 			int i = 0;
 			if (!this.enabled) { i = 3; }
 			else if (hovered) { i = 1; }
-
 			return i;
 		}
 		if (hovered) {
-			if (Mouse.isButtonDown(0)) { return this.enabled ? 2 : 5; }
-			return this.enabled ? 1 : 4;
+			if (Mouse.isButtonDown(0)) { return enabled ? 2 : 5; }
+			return enabled ? 1 : 4;
 		}
-		return this.enabled ? 0 : 3;
+		return enabled ? 0 : 3;
 	}
 
 	public void setStacks(ItemStack ... stacks) {

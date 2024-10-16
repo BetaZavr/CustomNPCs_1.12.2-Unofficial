@@ -89,7 +89,7 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
     // Encrypt
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.67'
+    implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.67'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.15'
 }
 

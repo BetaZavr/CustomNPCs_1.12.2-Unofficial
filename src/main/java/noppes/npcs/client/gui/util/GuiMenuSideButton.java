@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import noppes.npcs.CustomNpcs;
 import org.lwjgl.input.Mouse;
@@ -10,67 +9,87 @@ import javax.annotation.Nonnull;
 
 public class GuiMenuSideButton extends GuiNpcButton {
 
-	public boolean active;
-	public boolean isLeft = true;
+	private boolean left = false;
+	public boolean active = false;
+	public int data;
+	public int offsetText = 0;
 
-	public GuiMenuSideButton(int id, int x, int y, int width, int height, String label) {
-		super(id, x, y, width, height, label);
-		this.active = false;
+	/**
+	 * @param id button
+	 * @param x - if left, then right position of the button. And if right, then left position of the button
+	 * @param y - top pos
+	 * @param label - title (button name)
+	 */
+	public GuiMenuSideButton(int id, int x, int y, String label) {
+		super(id, x, y, label);
+		width = Minecraft.getMinecraft().fontRenderer.getStringWidth(displayString) + 10;
+		height = 20;
+		setIsLeft(true);
 	}
 
-	public void drawButton(@Nonnull Minecraft minecraft, int i, int j, float partialTicks) {
-		if (!this.visible) {
-			return;
+	public void setIsLeft(boolean isLeft) {
+		if (left != isLeft) {
+			if (isLeft) { x -= width; } else { x += width; }
 		}
-		FontRenderer fontrenderer = minecraft.fontRenderer;
-		minecraft.getTextureManager().bindTexture(GuiNPCInterface.MENU_SIDE_BUTTON);
+		left = isLeft;
+	}
+
+	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+		if (!visible) { return; }
+		GlStateManager.pushMatrix();
+		mc.getTextureManager().bindTexture(GuiNPCInterface.MENU_SIDE_BUTTON);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		int width = this.width + (this.active ? 2 : 0);
-		this.hovered = (i >= this.x && j >= this.y && i < this.x + width && j < this.y + this.height);
-		int k = this.getHoverState(this.hovered);
-		this.drawTexturedModalRect(this.x, this.y, 0, k * 22, width, this.height);
-		this.mouseDragged(minecraft, i, j);
-		StringBuilder text = new StringBuilder();
-		float maxWidth = width * 0.75f;
-		if (fontrenderer.getStringWidth(this.displayString) > maxWidth) {
-			for (int h = 0; h < this.displayString.length(); ++h) {
-				char c = this.displayString.charAt(h);
-				if (fontrenderer.getStringWidth(text.toString() + c) > maxWidth) {
-					break;
-				}
-				text.append(c);
+		hovered = (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height);
+		int state = getHoverState(hovered);
+		int h0 = height / 2, h1 = height - h0;
+		// background
+		if (left) {
+			drawTexturedModalRect(x, y, 0, state * 21, width, h0);
+			drawTexturedModalRect(x, y + h0, 0, (21 - h1) + state * 21, width, h1);
+			if (active || hovered) {
+				drawTexturedModalRect(x + width, y, 197, state * 21, 3, h0);
+				drawTexturedModalRect(x + width, y + h1, 197, (21 - h1) + state * 21, 3, h1);
 			}
-			text.append("...");
 		} else {
-			text = new StringBuilder(this.displayString);
+			for (int i = 0, j = width; i < width & j >= 0; i++, j--) {
+				drawTexturedModalRect(x + j - 1, y, i, state * 21, 1, h0);
+				drawTexturedModalRect(x + j - 1, y + h0, i, (21 - h1) + state * 21, 1, h1);
+			}
+			if (active || hovered) {
+				drawTexturedModalRect(x - 3, y, 200, state * 21, 3, h0);
+				drawTexturedModalRect(x - 3, y + h0, 200, (21 - h1) + state * 21, 3, h1);
+			}
 		}
-		int l = CustomNpcs.MainColor.getRGB();
-		if (this.packedFGColour != 0) {
-			l = this.packedFGColour;
-		} else if (!this.active) {
-			l = CustomNpcs.NotEnableColor.getRGB();
-		} else if (this.hovered) {
-			l = CustomNpcs.HoverColor.getRGB();
+		// mouse
+		mouseDragged(mc, mouseX, mouseY);
+		// label
+		int color = CustomNpcs.MainColor.getRGB();
+		if (packedFGColour != 0) {
+			color = packedFGColour;
+		} else if (!enabled) {
+			color = CustomNpcs.NotEnableColor.getRGB();
+		} else if (hovered) {
+			color = CustomNpcs.HoverColor.getRGB();
 		}
-		this.drawCenteredString(fontrenderer, text.toString(), this.x + width / 2, this.y + (this.height - 8) / 2, l);
+		mc.fontRenderer.drawString(displayString, x + 5.0f, y + offsetText + ((float) height - 8.0f) / 2.0f, color, dropShadow);
+		GlStateManager.popMatrix();
 	}
 
-	public int getHoverState(boolean flag) {
-		int i = 1;
-		if (this.active) { return 0; }
-		if (this.hovered) {
-			return Mouse.isButtonDown(0) ? 3 : 2;
+	public int getHoverState(boolean hovered) {
+		if (isSimple) { return super.getHoverState(hovered); }
+		if (!enabled) {
+			return Mouse.isButtonDown(0) ? 6 : 7;
 		}
-		if (isLeft) { i += 4; }
-		return i;
-	}
-
-	protected void mouseDragged(@Nonnull Minecraft minecraft, int i, int j) {
+		if (hovered) {
+			if (Mouse.isButtonDown(0)) { return active ? 2 : 5; }
+			return active ? 1 : 4;
+		}
+		return active ? 0 : 3;
 	}
 
 	@Override
-	public boolean mousePressed(@Nonnull Minecraft minecraft, int i, int j) {
-		return !this.active && this.visible && this.hovered;
+	public boolean mousePressed(@Nonnull Minecraft minecraft, int mouseX, int mouseY) {
+		return !active && visible && hovered;
 	}
 
 }

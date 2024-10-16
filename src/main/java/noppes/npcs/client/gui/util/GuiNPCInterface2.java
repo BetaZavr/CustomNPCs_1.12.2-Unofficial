@@ -5,13 +5,14 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientProxy;
+import noppes.npcs.client.gui.mainmenu.GuiNPCGlobalMainMenu;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 
 	private final ResourceLocation background;
-	private final GuiNpcMenu menu;
+	private GuiNpcMenu menu;
 
 	public GuiNPCInterface2(EntityNPCInterface npc) {
 		this(npc, -1);
@@ -19,16 +20,18 @@ public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 
 	public GuiNPCInterface2(EntityNPCInterface npc, int activeMenu) {
 		super(npc);
-		this.background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
-		this.xSize = 420;
-		this.ySize = 200;
-		this.menu = new GuiNpcMenu(this, activeMenu, npc);
-		this.closeOnEsc = true;
+		background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
+		xSize = 420;
+		ySize = 200;
+		if (npc != null) {
+			menu = new GuiNpcMenu(this, activeMenu, npc);
+		}
+		closeOnEsc = true;
 	}
 
 	@Override
 	public void close() {
-		if (menu.activeMenu != 1 && ClientProxy.playerData.editingNpc != null) {
+		if (menu != null && menu.activeMenu != 1 && ClientProxy.playerData.editingNpc != null) {
 			menu.save();
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuDisplay);
 			return;
@@ -38,23 +41,24 @@ public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		if (this.npc == null) {
-			this.close();
-			return;
-		}
 		if (this.drawDefaultBackground) {
 			this.drawDefaultBackground();
 		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.getTextureManager().bindTexture(this.background);
-		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, 200, 220);
-		this.drawTexturedModalRect(this.guiLeft + this.xSize - 230, this.guiTop, 26, 0, 230, 220);
+		if (menu == null && this instanceof GuiNPCGlobalMainMenu) {
+			drawTexturedModalRect(guiLeft + 70, guiTop, 0, 0, 142, 220);
+			drawTexturedModalRect(guiLeft + xSize - 208, guiTop, 113, 0, 143, 220);
+		} else {
+			drawTexturedModalRect(guiLeft, guiTop, 0, 0, 200, 220);
+			drawTexturedModalRect(guiLeft + xSize - 230, guiTop, 26, 0, 230, 220);
+		}
 		int x = mouseX;
 		int y = mouseY;
 		if (this.hasSubGui()) {
 			y = (x = 0);
 		}
-		this.menu.drawElements(x, y, this.mc, partialTicks);
+		if (menu != null) { menu.drawElements(x, y, this.mc, partialTicks); }
 		boolean bo = this.drawDefaultBackground;
 		this.drawDefaultBackground = false;
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -62,7 +66,7 @@ public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		if (this.menu.getTopButtons().length > 0) {
+		if (menu != null  && menu.getTopButtons().length > 0) {
 			char chr = ((char) 167);
 			for (GuiMenuTopButton tab : this.menu.getTopButtons()) {
 				if (tab.isMouseOver()) {
@@ -185,13 +189,15 @@ public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.menu.initGui(this.guiLeft, this.guiTop, this.xSize);
+		if (!this.hasSubGui() && menu != null) {
+			menu.initGui(this.guiLeft, this.guiTop, this.xSize);
+		}
 	}
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
-		if (!this.hasSubGui()) {
-			this.menu.mouseClicked(mouseX, mouseY, mouseBottom);
+		if (!this.hasSubGui() && menu != null) {
+			menu.mouseClicked(mouseX, mouseY, mouseBottom);
 		}
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
 	}

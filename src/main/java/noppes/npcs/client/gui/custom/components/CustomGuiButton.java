@@ -39,8 +39,7 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 	public int textureY;
 	private final int[] offsets;
 
-	public CustomGuiButton(int buttonId, String buttonText, int x, int y, int width, int height,
-			CustomGuiButtonWrapper component) {
+	public CustomGuiButton(int buttonId, String buttonText, int x, int y, int width, int height, CustomGuiButtonWrapper component) {
 		super(buttonId, GuiCustom.guiLeft + x, GuiCustom.guiTop + y, width, height, buttonText);
 		this.colour = 16777215;
 		if (component.hasTexture()) {

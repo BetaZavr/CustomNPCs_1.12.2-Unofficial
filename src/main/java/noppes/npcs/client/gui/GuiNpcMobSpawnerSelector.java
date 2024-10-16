@@ -169,15 +169,13 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface implements IGuiDat
 		this.addTopButton(button = new GuiMenuTopButton(5, button, "gui.server"));
 		button.active = this.showingClones == 2;
 		if (this.showingClones == 0 || this.showingClones == 2) {
-			this.addSideButton(new GuiMenuSideButton(21, this.guiLeft - 69, this.guiTop + 2, 70, 22, "Tab 1"));
-			this.addSideButton(new GuiMenuSideButton(22, this.guiLeft - 69, this.guiTop + 23, 70, 22, "Tab 2"));
-			this.addSideButton(new GuiMenuSideButton(23, this.guiLeft - 69, this.guiTop + 44, 70, 22, "Tab 3"));
-			this.addSideButton(new GuiMenuSideButton(24, this.guiLeft - 69, this.guiTop + 65, 70, 22, "Tab 4"));
-			this.addSideButton(new GuiMenuSideButton(25, this.guiLeft - 69, this.guiTop + 86, 70, 22, "Tab 5"));
-			this.addSideButton(new GuiMenuSideButton(26, this.guiLeft - 69, this.guiTop + 107, 70, 22, "Tab 6"));
-			this.addSideButton(new GuiMenuSideButton(27, this.guiLeft - 69, this.guiTop + 128, 70, 22, "Tab 7"));
-			this.addSideButton(new GuiMenuSideButton(28, this.guiLeft - 69, this.guiTop + 149, 70, 22, "Tab 8"));
-			this.addSideButton(new GuiMenuSideButton(29, this.guiLeft - 69, this.guiTop + 170, 70, 22, "Tab 9"));
+			int x = guiLeft;
+			int y = guiTop + 4;
+			GuiMenuSideButton sideButton;
+			for (int id = 1; id < 10; id++) {
+				sideButton = new GuiMenuSideButton(20 + id, x, y + (id - 1) * 21, "Tab " + id);
+				this.addSideButton(sideButton);
+			}
 			this.getSideButton(20 + this.activeTab).active = true;
 			this.showClones();
 		} else {

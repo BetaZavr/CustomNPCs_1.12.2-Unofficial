@@ -52,11 +52,7 @@ import noppes.npcs.client.gui.GuiNpcRemoteEditor;
 import noppes.npcs.client.gui.global.GuiNPCManageDialogs;
 import noppes.npcs.client.gui.global.GuiNPCManageMarcets;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
-import noppes.npcs.client.gui.player.GuiCustomChest;
-import noppes.npcs.client.gui.player.GuiMailbox;
-import noppes.npcs.client.gui.player.GuiMailmanWrite;
-import noppes.npcs.client.gui.player.GuiNPCTrader;
-import noppes.npcs.client.gui.player.GuiQuestCompletion;
+import noppes.npcs.client.gui.player.*;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.IEditNPC;
@@ -321,8 +317,9 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestCompletion, id);
 			}
 		} else if (type == EnumPacketClient.EDIT_NPC) {
-			Entity entity = mc.world.getEntityByID(buffer.readInt());
-			if (!(entity instanceof EntityNPCInterface)) {
+			int entityID = buffer.readInt();
+			Entity entity = mc.world.getEntityByID(entityID);
+			if (entityID == -1 || !(entity instanceof EntityNPCInterface)) {
 				NoppesUtil.setLastNpc(null);
 			} else {
 				NoppesUtil.setLastNpc((EntityNPCInterface) entity);
@@ -827,7 +824,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					File cdf = ScriptController.Instance.clientScriptsFile();
 					if (cdf.exists()) {
 						File dir = new File(cdf.getParentFile(), ScriptController.Instance.clientScripts.getLanguage().toLowerCase());
-
+						System.out.println("CNPCs: "+dir);
+						System.out.println("CNPCs: "+name);
 					}
 				} else {
 					file.save();
@@ -842,8 +840,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			ClientGuiEventHandler.crashes.isActive = false;
 		} else if (type == EnumPacketClient.SHOW_BANK_PLAYER) {
 			ContainerNPCBank.editPlayerBankData = Server.readString(buffer);
-            assert ContainerNPCBank.editPlayerBankData != null;
-            if (ContainerNPCBank.editPlayerBankData.isEmpty()) {
+            if (ContainerNPCBank.editPlayerBankData != null && ContainerNPCBank.editPlayerBankData.isEmpty()) {
 				ContainerNPCBank.editPlayerBankData = null;
 			}
 		} else if (type == EnumPacketClient.BANK_CEIL_OPEN) {
@@ -948,9 +945,9 @@ public class PacketHandlerClient extends PacketHandlerServer {
 						if (t == null) {
 							continue;
 						}
-						int x = mmd.pos.getX();
-						int y = mmd.pos.getY();
-						int z = mmd.pos.getZ();
+						int x = (int) mmd.pos.getX();
+						int y = (int) mmd.pos.getY();
+						int z = (int) mmd.pos.getZ();
 						Color color = new Color(mmd.color);
 						List<Integer> dim = Lists.newArrayList();
 						for (int dId : mmd.dimIDs) {
@@ -1088,9 +1085,9 @@ public class PacketHandlerClient extends PacketHandlerServer {
 							float.class, float.class, float.class, String.class, String.class, TreeSet.class);
 					for (MiniMapData mmd : mm.points) {
 						int dimID = mmd.dimIDs[0];
-						int x = mmd.pos.getX();
-						int y = mmd.pos.getY();
-						int z = mmd.pos.getZ();
+						int x = (int) mmd.pos.getX();
+						int y = (int) mmd.pos.getY();
+						int z = (int) mmd.pos.getZ();
 						Color color = new Color(mmd.color);
 						TreeSet<Integer> dim = new TreeSet<>();
 						for (int dId : mmd.dimIDs) {

@@ -45,7 +45,11 @@ implements IEditNPC {
 	public boolean closeOnEsc = false;
 	public boolean hoverMiniWin = false;
 	public boolean drawDefaultBackground = false;
-	public int guiLeft, guiTop, mouseX, mouseY;
+	public int guiLeft;
+	public int guiTop;
+	public int mouseX;
+	public int mouseY;
+	public int mouseWheel;
 	public float bgScale = 1.0f;
 	public String title = "Npc Mainmenu";
 	public String[] hoverText;
@@ -73,8 +77,7 @@ implements IEditNPC {
 		this.player = this.mc.player;
 		this.itemRender = this.mc.getRenderItem();
 		this.fontRenderer = this.mc.fontRenderer;
-		this.ps = new Poses[] { new Poses(this, 0), new Poses(this, 1), new Poses(this, 2), new Poses(this, 3),
-				new Poses(this, 4), new Poses(this, 5), new Poses(this, 6), new Poses(this, 7) };
+		this.ps = new Poses[] { new Poses(this, 0), new Poses(this, 1), new Poses(this, 2), new Poses(this, 3), new Poses(this, 4), new Poses(this, 5), new Poses(this, 6), new Poses(this, 7) };
 	}
 
 	/**
@@ -212,16 +215,13 @@ implements IEditNPC {
 			}
 		}
 		for (GuiNpcTextField tf : new ArrayList<>(this.textfields.values())) {
-			tf.drawTextBox(mouseX, mouseY);
+			tf.drawTextBox(mouseX, mouseY, mouseWheel);
 			if (tf instanceof GuiNpcTextArea) {
 				hasArea = true;
 			}
 		}
 		for (GuiCustomScroll scroll : new ArrayList<>(this.scrolls.values())) {
-			scroll.drawScreen(mouseX, mouseY,
-					(!this.hasSubGui() && (scroll.hovered || (this.scrolls.isEmpty() && !hasArea)))
-							? Mouse.getDWheel()
-							: 0);
+			scroll.drawScreen(mouseX, mouseY, (!this.hasSubGui() && (scroll.hovered || (this.scrolls.isEmpty() && !hasArea))) ? mouseWheel : 0);
 		}
 		this.hoverMiniWin = false;
 		for (GuiNpcMiniWindow mwin : this.mwindows.values()) {
@@ -311,6 +311,7 @@ implements IEditNPC {
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		mouseWheel = Mouse.getDWheel();
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		Container container = this.inventorySlots;

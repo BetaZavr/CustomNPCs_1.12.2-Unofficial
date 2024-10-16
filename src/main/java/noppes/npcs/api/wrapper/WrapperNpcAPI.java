@@ -17,9 +17,9 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
@@ -65,7 +65,6 @@ import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.KeyController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.QuestController;
-import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
@@ -81,7 +80,7 @@ public class WrapperNpcAPI extends NpcAPI {
 	public static EventBus EVENT_BUS = new EventBus();
 	private static NpcAPI instance = null;
 	static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<>(10);
-	private List<World> worlds = Lists.newArrayList();
+	private final List<World> worlds = Lists.newArrayList();
 
 	public static void clearCache() {
 		WrapperNpcAPI.worldCache.clear();
@@ -187,8 +186,8 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public INpcAttribute getIAttribute(IAttributeInstance mcattribute) {
-		return new AttributeWrapper(mcattribute);
+	public INpcAttribute getIAttribute(IAttributeInstance mcAttribute) {
+		return new AttributeWrapper(mcAttribute);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -286,7 +285,25 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	@Override
 	public IPos getIPos(double x, double y, double z) {
-		return new BlockPosWrapper(new BlockPos(x, y, z));
+		return new BlockPosWrapper(x, y, z);
+	}
+
+	@Override
+	public IWorld getIWorld(String dimension) {
+		if (CustomNpcs.Server == null) {
+			EntityPlayer player = CustomNpcs.proxy.getPlayer();
+			if (!this.worlds.contains(player.world)) { this.worlds.add(player.world); }
+		} else {
+			this.worlds.clear();
+			this.worlds.addAll(Arrays.asList(CustomNpcs.Server.worlds));
+		}
+		ResourceLocation loc = new ResourceLocation(dimension);
+		for (World world : this.worlds) {
+			if (world.provider.getDimensionType().getName().equals(loc.getResourcePath())) {
+				return this.getIWorld(world);
+			}
+		}
+		throw new CustomNPCsException("Unknown dimension: \"" + dimension + "\"");
 	}
 
 	@Override
@@ -353,7 +370,19 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	@Override
 	public INbt getRawPlayerData(String uuid, String name) {
-		return this.getINbt(PlayerData.loadPlayerData(uuid, name));
+		if  (CustomNpcs.Server != null) {
+			UUID uuidMC;
+			try { uuidMC = UUID.fromString(uuid); }
+			catch (Exception e) { throw new CustomNPCsException("Invalid UUID string: \"" + uuid + "\""); }
+            EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayerByUUID(uuidMC);
+            if (player != null && player.getName().equals(name)) {
+                PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+                if (data != null) {
+                    return getINbt(data.getNBT());
+                }
+            }
+        }
+		return getINbt(PlayerData.loadPlayerData(uuid, name));
 	}
 
 	@Override

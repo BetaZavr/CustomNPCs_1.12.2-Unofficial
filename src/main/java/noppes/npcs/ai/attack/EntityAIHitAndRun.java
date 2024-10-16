@@ -6,8 +6,8 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.math.Vec3d;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.RayTraceVec;
 
 import java.util.Objects;
 
@@ -54,11 +54,11 @@ public class EntityAIHitAndRun extends EntityAICustom {
 
 		if (this.hasAttack) {
 			Path path = null;
-			RayTraceVec pos;
+			IRayTraceVec pos;
 			this.runPos = null;
 			if (!this.isRanged || this.distance < this.tacticalRange) {
 				pos = Util.instance.getPosition(this.target.posX, this.target.posY, this.target.posZ, this.target.rotationYaw + 180.0f, this.target.rotationPitch, this.tacticalRange);
-				path = this.npc.getNavigator().getPathToXYZ(pos.x, pos.y, pos.z);
+				path = this.npc.getNavigator().getPathToXYZ(pos.getX(), pos.getY(), pos.getZ());
 				if (path == null) {
 					Vec3d vec = RandomPositionGenerator.findRandomTarget(this.npc, this.tacticalRange, 2);
 					if (vec != null) {

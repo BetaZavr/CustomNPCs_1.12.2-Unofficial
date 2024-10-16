@@ -88,8 +88,7 @@ public class BankData {
 		NBTTagCompound nbtBank = new NBTTagCompound();
 		this.bank.writeToNBT(nbtBank);
 		Server.sendData((EntityPlayerMP) player, EnumPacketClient.SYNC_UPDATE, EnumSync.BankData, nbtBank);
-		NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerBank, npc, this.bank.id, ceil,
-				this.ceils.get(ceil).getSizeInventory());
+		NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerBank, npc, this.bank.id, ceil, this.ceils.get(ceil).getSizeInventory());
 	}
 
 	public void readNBT(NBTTagCompound nbtBD) {

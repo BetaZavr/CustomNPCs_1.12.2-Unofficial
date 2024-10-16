@@ -24,14 +24,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.client.ClientProxy;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiMenuLeftButton;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNPCTrader;
 import noppes.npcs.controllers.MarcetController;
@@ -388,7 +381,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		super.initGui();
 		this.data.clear();
 
-		GuiMenuLeftButton tab;
+		GuiMenuSideButton tab;
 		if (this.ceilPos < 0) {
 			this.ceilPos = 0;
 			this.section = 0;
@@ -396,20 +389,20 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		if (this.marcet.sections.size() > 1) {
 			if (this.marcet.sections.size() > 5) {
 				if (this.ceilPos > 0) {
-					tab = new GuiMenuLeftButton(3, this.guiLeft + 1, this.guiTop + 4, "" + ((char) 708));
+					tab = new GuiMenuSideButton(3, this.guiLeft + 1, this.guiTop + 4, "" + ((char) 708));
 					tab.height = 16;
-					tab.offsetYtext = 1;
+					tab.offsetText = 1;
 					this.addButton(tab);
 				}
 				if (this.ceilPos < Math.floor((double) this.marcet.sections.size() / 5.0d)) {
-					tab = new GuiMenuLeftButton(4, this.guiLeft + 1, this.guiTop + 100, "" + ((char) 709));
+					tab = new GuiMenuSideButton(4, this.guiLeft + 1, this.guiTop + 100, "" + ((char) 709));
 					tab.height = 16;
-					tab.offsetYtext = 2;
+					tab.offsetText = 2;
 					this.addButton(tab);
 				}
 			}
 			for (int i = 0; i < 5 && (i + this.ceilPos * 5) < this.marcet.sections.size(); i++) {
-				tab = new GuiMenuLeftButton(5 + i, this.guiLeft + 1, this.guiTop + 20 + i * 16,
+				tab = new GuiMenuSideButton(5 + i, this.guiLeft + 1, this.guiTop + 20 + i * 16,
 						this.marcet.sections.get(i + this.ceilPos * 5).getName());
 				tab.data = i + this.ceilPos * 5;
 				tab.height = 16;

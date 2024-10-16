@@ -3,9 +3,9 @@ package noppes.npcs.api;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.entity.IEntity;
-import noppes.npcs.util.RayTraceResults;
-import noppes.npcs.util.RayTraceRotate;
-import noppes.npcs.util.RayTraceVec;
+import noppes.npcs.api.util.IRayTraceResults;
+import noppes.npcs.api.util.IRayTraceRotate;
+import noppes.npcs.api.util.IRayTraceVec;
 
 import java.io.File;
 import java.util.List;
@@ -18,25 +18,25 @@ public interface IMethods {
 
 	double distanceTo(IEntity<?> entity, IEntity<?> target);
 
-	RayTraceRotate getAngles3D(double dx, double dy, double dz, double mx, double my, double mz);
+	IRayTraceRotate getAngles3D(double dx, double dy, double dz, double mx, double my, double mz);
 
-	RayTraceRotate getAngles3D(IEntity<?> entity, IEntity<?> target);
+	IRayTraceRotate getAngles3D(IEntity<?> entity, IEntity<?> target);
 
 	String getJSONStringFromObject(Object obj);
 
 	String getDataFile(String fileName);
 
-	RayTraceVec getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius);
+	IRayTraceVec getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius);
 
-	RayTraceVec getPosition(IEntity<?> entity, double yaw, double pitch, double radius);
+	IRayTraceVec getPosition(IEntity<?> entity, double yaw, double pitch, double radius);
 
-	RayTraceVec getVector3D(double dx, double dy, double dz, double mx, double my, double mz);
+	IRayTraceVec getVector3D(double dx, double dy, double dz, double mx, double my, double mz);
 
-	RayTraceVec getVector3D(IEntity<?> entity, IEntity<?> target);
+	IRayTraceVec getVector3D(IEntity<?> entity, IEntity<?> target);
 
-	RayTraceVec getVector3D(IEntity<?> entity, IPos pos);
+	IRayTraceVec getVector3D(IEntity<?> entity, IPos pos);
 
-	RayTraceResults rayTraceBlocksAndEntitys(IEntity<?> entity, double yaw, double pitch, double distance);
+	IRayTraceResults rayTraceBlocksAndEntitys(IEntity<?> entity, double yaw, double pitch, double distance);
 
 	Object readObjectFromNbt(NBTBase tag);
 
@@ -53,5 +53,7 @@ public interface IMethods {
 	boolean saveFile(File file, String text);
 
 	boolean saveFile(File file, NBTTagCompound compound);
+
+    String translateGoogle(String textLanguageKey, String translationLanguageKey, String originalText);
 
 }

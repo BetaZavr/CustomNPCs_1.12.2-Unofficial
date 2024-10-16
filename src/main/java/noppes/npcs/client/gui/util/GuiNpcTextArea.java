@@ -100,7 +100,7 @@ public class GuiNpcTextArea extends GuiNpcTextField {
 	}
 
 	@Override
-	public void drawTextBox(int mouseX, int mouseY) {
+	public void drawTextBox(int mouseX, int mouseY, int mouseWheel) {
 		drawRect(this.posX - 1, this.posY - 1, this.posX + this.width + 1, this.posY + this.height + 1, -6250336);
 		drawRect(this.posX, this.posY, this.posX + this.width, this.posY + this.height, -16777216);
 		int color = 0xE0E0E0;
@@ -150,9 +150,8 @@ public class GuiNpcTextArea extends GuiNpcTextField {
             ++lineCount;
             ++charCount;
         }
-		int k2 = Mouse.getDWheel();
-		if (k2 != 0 && this.isFocused()) {
-			this.addScrollY((k2 < 0) ? -10 : 10);
+		if (mouseWheel != 0 && this.isFocused()) {
+			this.addScrollY((mouseWheel < 0) ? -10 : 10);
 		}
 		if (Mouse.isButtonDown(0)) {
 			if (this.clickVerticalBar) {

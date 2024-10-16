@@ -37,8 +37,9 @@ import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCManageBanks extends GuiContainerNPCInterface2
-		implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
+public class GuiNPCManageBanks
+extends GuiContainerNPCInterface2
+implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 
 	private Bank bank = new Bank();
 	private final ContainerManageBanks container;
@@ -174,26 +175,26 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 			return;
 		}
 		switch (id) { // remove bank
-		case 0: {
-			if (!this.data.containsKey(this.selected)) {
-				return;
+			case 0: {
+				if (!this.data.containsKey(this.selected)) {
+					return;
+				}
+				Client.sendData(EnumPacketServer.BankRemove, this.data.get(this.selected), -1);
+				this.isWait = true;
+				this.waitTime = 30;
+				this.initGui();
+				break;
 			}
-			Client.sendData(EnumPacketServer.BankRemove, this.data.get(this.selected), -1);
-			this.isWait = true;
-			this.waitTime = 30;
-			this.initGui();
-			break;
-		}
-		case 1: { // remove ceil
-			if (!this.data.containsKey(this.selected) || !this.bank.ceilSettings.containsKey(this.ceil)) {
-				return;
+			case 1: { // remove ceil
+				if (!this.data.containsKey(this.selected) || !this.bank.ceilSettings.containsKey(this.ceil)) {
+					return;
+				}
+				Client.sendData(EnumPacketServer.BankRemove, this.data.get(this.selected), this.ceil);
+				this.isWait = true;
+				this.waitTime = 30;
+				this.initGui();
+				break;
 			}
-			Client.sendData(EnumPacketServer.BankRemove, this.data.get(this.selected), this.ceil);
-			this.isWait = true;
-			this.waitTime = 30;
-			this.initGui();
-			break;
-		}
 		}
 	}
 
@@ -401,8 +402,7 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 
 	@Override
 	public void save() {
-		if (this.selected != null && this.data.containsKey(this.selected) && this.bank != null
-				&& this.bank.ceilSettings.containsKey(this.ceil)) {
+		if (this.selected != null && this.data.containsKey(this.selected) && this.bank != null && this.bank.ceilSettings.containsKey(this.ceil)) {
 			this.bank.ceilSettings.get(this.ceil).openStack = this.container.getSlot(0).getStack();
 			this.bank.ceilSettings.get(this.ceil).upgradeStack = this.container.getSlot(1).getStack();
 			NBTTagCompound compound = new NBTTagCompound();
@@ -466,34 +466,34 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 			return;
 		}
 		switch (textField.getId()) {
-		case 0: { // name
-			String name = textField.getText();
-			if (!name.isEmpty() && !this.data.containsKey(name)) {
-				String old = this.bank.name;
-				this.data.remove(this.bank.name);
-				this.bank.name = name;
-				this.data.put(this.bank.name, this.bank.id);
-				this.selected = name;
-				this.scroll.replace(old, this.bank.name);
+			case 0: { // name
+				String name = textField.getText();
+				if (!name.isEmpty() && !this.data.containsKey(name)) {
+					String old = this.bank.name;
+					this.data.remove(this.bank.name);
+					this.bank.name = name;
+					this.data.put(this.bank.name, this.bank.id);
+					this.selected = name;
+					this.scroll.replace(old, this.bank.name);
+				}
+				break;
 			}
-			break;
-		}
-		case 1: { // startCells
-			if (!textField.isInteger()) {
-				textField.setText("" + textField.def);
-				return;
+			case 1: { // startCells
+				if (!textField.isInteger()) {
+					textField.setText("" + textField.def);
+					return;
+				}
+				this.bank.ceilSettings.get(this.ceil).startCeils = textField.getInteger();
+				break;
 			}
-			this.bank.ceilSettings.get(this.ceil).startCeils = textField.getInteger();
-			break;
-		}
-		case 2: { // maxCells
-			if (!textField.isInteger()) {
-				textField.setText("" + textField.def);
-				return;
+			case 2: { // maxCells
+				if (!textField.isInteger()) {
+					textField.setText("" + textField.def);
+					return;
+				}
+				this.bank.ceilSettings.get(this.ceil).maxCeils = textField.getInteger();
+				break;
 			}
-			this.bank.ceilSettings.get(this.ceil).maxCeils = textField.getInteger();
-			break;
-		}
 		}
 	}
 

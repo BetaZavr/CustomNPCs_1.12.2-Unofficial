@@ -87,9 +87,8 @@ public class GuiNpcTextField
 		}
 	}
 
-	public void drawTextBox(int mouseX, int mouseY) {
-		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-				&& mouseY < this.y + this.height;
+	public void drawTextBox(int mouseX, int mouseY, int mouseWheel) {
+		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 		this.drawTextBox();
 	}
 

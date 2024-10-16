@@ -22,11 +22,11 @@ import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.IAnimationFrame;
+import noppes.npcs.api.util.IRayTraceRotate;
+import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.RayTraceRotate;
-import noppes.npcs.util.RayTraceVec;
 import noppes.npcs.util.ValueUtil;
 
 public class AnimationConfig implements IAnimation {
@@ -311,10 +311,10 @@ public class AnimationConfig implements IAnimation {
 	public NBTTagCompound save() {
 		NBTTagCompound compound = new NBTTagCompound();
 		NBTTagList list = new NBTTagList();
-		Iterator<AnimationFrameConfig> setss = this.frames.values().iterator();
-		while(setss.hasNext()) {
+		Iterator<AnimationFrameConfig> setts = this.frames.values().iterator();
+		while(setts.hasNext()) {
 			try {
-				AnimationFrameConfig afc = setss.next();
+				AnimationFrameConfig afc = setts.next();
 				list.appendTag(afc.writeNBT());
 			}
 			catch (Exception e) {
@@ -390,12 +390,12 @@ public class AnimationConfig implements IAnimation {
 				this.damageHitbox.maxX * this.scaleHitbox[0], this.damageHitbox.maxY * this.scaleHitbox[1], this.damageHitbox.maxZ * this.scaleHitbox[2]);
 		double yaw = 0.0d, pitch = 0.0d;
 		if (this.offsetHitbox[0] != 0.0f || this.offsetHitbox[1] != 0.0f || this.offsetHitbox[2] != 0.0f) {
-			RayTraceRotate base = Util.instance.getAngles3D(0.0d, 0.0d, 0.0d, this.offsetHitbox[2], this.offsetHitbox[1], this.offsetHitbox[0]);
-			yaw = base.yaw;
-			pitch = base.pitch;
+			IRayTraceRotate base = Util.instance.getAngles3D(0.0d, 0.0d, 0.0d, this.offsetHitbox[2], this.offsetHitbox[1], this.offsetHitbox[0]);
+			yaw = base.getYaw();
+			pitch = base.getPitch();
 		}
-		RayTraceVec data = Util.instance.getPosition(0.0d, 0.0d, 0.0d, npc.rotationYaw + yaw, pitch, Math.abs(Math.sqrt(Math.pow(this.offsetHitbox[0], 2.0d) + Math.pow(this.offsetHitbox[2], 2.0d))));
-		aabb = aabb.offset((float) data.x, (float) data.y + this.offsetHitbox[1], (float) data.z);
+		IRayTraceVec data = Util.instance.getPosition(0.0d, 0.0d, 0.0d, npc.rotationYaw + yaw, pitch, Math.abs(Math.sqrt(Math.pow(this.offsetHitbox[0], 2.0d) + Math.pow(this.offsetHitbox[2], 2.0d))));
+		aabb = aabb.offset((float) data.getX(), (float) data.getY() + this.offsetHitbox[1], (float) data.getZ());
 		return aabb;
 	}
 

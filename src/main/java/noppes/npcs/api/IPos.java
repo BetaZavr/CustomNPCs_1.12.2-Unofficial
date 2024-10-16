@@ -4,51 +4,54 @@ import net.minecraft.util.math.BlockPos;
 
 public interface IPos {
 
-	IPos add(int x, int y, int z);
+	IPos add(double x, double y, double z);
 
 	IPos add(IPos pos);
+
+	double distanceTo(double x, double y, double z);
 
 	double distanceTo(IPos pos);
 
 	IPos down();
 
-	IPos down(int n);
+	IPos down(double n);
 
 	IPos east();
 
-	IPos east(int n);
+	IPos east(double n);
 
 	BlockPos getMCBlockPos();
 
-	int getX();
+	double getX();
 
-	int getY();
+	double getY();
 
-	int getZ();
+	double getZ();
 
 	double[] normalize();
 
 	IPos north();
 
-	IPos north(int n);
+	IPos north(double n);
 
 	IPos offset(int direction);
 
-	IPos offset(int direction, int n);
+	IPos offset(int direction, double n);
 
 	IPos south();
 
-	IPos south(int n);
+	IPos south(double n);
 
-	IPos subtract(int x, int y, int z);
+	IPos subtract(double x, double y, double z);
 
 	IPos subtract(IPos pos);
 
 	IPos up();
 
-	IPos up(int n);
+	IPos up(double n);
 
 	IPos west();
 
-	IPos west(int n);
+	IPos west(double n);
+
 }

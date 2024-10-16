@@ -138,13 +138,16 @@ public class NoppesUtilPlayer {
 		if (!bd.ceils.containsKey(ceilId)) {
 			return;
 		}
-		if (player.capabilities.isCreativeMode
-				|| Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).upgradeStack, false, false)) {
+		if (player.capabilities.isCreativeMode || Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).upgradeStack, false, false)) {
             bd.ceils.computeIfPresent(ceilId, (k, inv) -> new NpcMiscInventory(inv.getSizeInventory() + 1).fill(inv));
 			bd.save();
 			RoleEvent.BankUpgradedEvent event = new RoleEvent.BankUpgradedEvent(player, npc.wrappedNPC, ceilId);
 			EventHooks.onNPCRole(npc, event);
-			NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
+			if (((ContainerNPCBank) player.openContainer).items.getSizeInventory() == 45) {
+				bd.openBankGui(player, npc, ceilId);
+			} else {
+				NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
+			}
 		}
 	}
 

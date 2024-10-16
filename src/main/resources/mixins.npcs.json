@@ -43,7 +43,7 @@
     "tileentity.TileEntityMixin",
     "util.ServerRecipeBookHelperMixin",
     "util.SoundEventMixin",
-    "util.text.translation.I18nMixin",
+    "util.text.translation.IOld18nMixin",
     "util.text.translation.LanguageMapMixin",
     "world.WorldMixin",
     "world.biome.BiomeMixin"
@@ -79,7 +79,9 @@
     "client.resources.AbstractResourcePackMixin",
     "client.resources.DefaultResourcePackMixin",
     "client.resources.FallbackResourceManagerMixin",
+    "client.resources.I18nMixin",
     "client.resources.LanguageManagerMixin",
+    "client.resources.LocaleMixin",
     "client.resources.ResourceIndexMixin",
     "client.resources.SimpleReloadableResourceManagerMixin",
     "client.settings.KeyBindingForgeMixin",

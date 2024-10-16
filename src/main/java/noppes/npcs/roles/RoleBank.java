@@ -30,7 +30,7 @@ public class RoleBank extends RoleInterface implements IRoleBank {
 
 	@Override
 	public void interact(EntityPlayer player) {
-		BankData data = PlayerData.get(player).bankData.get(this.bankId);
+		BankData data = PlayerData.get(player).bankData.get(bankId);
 		if (data == null) {
 			return;
 		}

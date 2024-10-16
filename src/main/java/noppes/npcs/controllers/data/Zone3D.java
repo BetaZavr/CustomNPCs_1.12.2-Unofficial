@@ -25,10 +25,10 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.IBorder;
+import noppes.npcs.api.util.IRayTraceRotate;
+import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.RayTraceRotate;
-import noppes.npcs.util.RayTraceVec;
 
 public class Zone3D implements IBorder, Predicate<Entity> {
 
@@ -77,7 +77,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	public Zone3D() {
 		this.color = (new Random()).nextInt(0xFFFFFF);
 		this.availability = new Availability();
-		this.message = "availability.areaNotAvailble";
+		this.message = "availability.areaNotAvailable";
 		this.playerAntiLag = Maps.newHashMap();
 		this.entitiesWithinRegion = Lists.newArrayList();
 		this.keepOut = false;
@@ -212,7 +212,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		for (int key : this.points.keySet()) {
 			Point p = this.points.get(key);
-			this.points.get(key).move(x + p.x - ctr.getX(), z + p.y - ctr.getZ());
+			this.points.get(key).move(x + p.x - (int) ctr.getX(), z + p.y - (int) ctr.getZ());
 		}
 		this.update = true;
 	}
@@ -241,7 +241,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		this.entitiesWithinRegion.clear();
 		this.y[0] = 255;
 		this.y[1] = 0;
-		this.message = "availability.areaNotAvailble";
+		this.message = "availability.areaNotAvailable";
 		this.keepOut = false;
 		this.showInClient = false;
 		this.update = true;
@@ -379,7 +379,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			return 0;
 		}
 		int n = 0;
-		Point entPoint = new Point(pos.getX(), pos.getZ());
+		Point entPoint = new Point((int) pos.getX(), (int) pos.getZ());
 		double dm0 = this.points.get(0).distance(point);
 		double dm1 = this.points.get(1).distance(point);
 		double dm2 = this.points.get(0).distance(entPoint);
@@ -589,12 +589,12 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		double y = ((double) this.y[1] - (double) this.y[0]) / 2.0d;
 
-		RayTraceRotate d = Util.instance.getAngles3D(entity.posX, entity.posY, entity.posZ, x, y, z);
+		IRayTraceRotate d = Util.instance.getAngles3D(entity.posX, entity.posY, entity.posZ, x, y, z);
 		double[] p = new double[] { (x - entity.posX), (y - entity.posY), (z - entity.posZ) };
 		for (int i = 0; i < 4; i++) {
-			double radiusXZ = d.radiusXZ + ((double) (i + 1) * (this.keepOut ? 0.5d : -0.5d));
-			p[0] = Math.sin(d.yaw * Math.PI / 180.0d) * radiusXZ * -1.0d;
-			p[2] = Math.cos(d.yaw * Math.PI / 180.0d) * radiusXZ;
+			double radiusXZ = d.getRadiusXZ() + ((double) (i + 1) * (this.keepOut ? 0.5d : -0.5d));
+			p[0] = Math.sin(d.getYaw() * Math.PI / 180.0d) * radiusXZ * -1.0d;
+			p[2] = Math.cos(d.getYaw() * Math.PI / 180.0d) * radiusXZ;
 			if (this.keepOut == this.contains(entity.posX, this.y[0], entity.posZ, 0.0d)) {
 				break;
 			}
@@ -671,7 +671,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	@Override
 	public boolean insertPoint(IPos pos0, IPos pos1) {
-		return this.insertPoint(pos0.getX(), pos0.getY(), pos0.getZ(), pos1);
+		return this.insertPoint((int) pos0.getX(), (int) pos0.getY(), (int) pos0.getZ(), pos1);
 	}
 
 	@Override
@@ -803,8 +803,14 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		this.availability.readFromNBT(nbtRegion.getCompoundTag("Availability"));
 		this.message = nbtRegion.getString("Message");
-		int[] pos = nbtRegion.getIntArray("HomePos");
-		this.setHomePos(pos[0], pos[1], pos[2]);
+
+		if (nbtRegion.hasKey("HomePos", 4)) {
+			BlockPos pos = BlockPos.fromLong(nbtRegion.getLong("HomePos"));
+			this.setHomePos(pos.getX(), pos.getY(), pos.getZ());
+		} else if (nbtRegion.hasKey("HomePos", 11)) { // old
+			int[] pos = nbtRegion.getIntArray("HomePos");
+			this.setHomePos(pos[0], pos[1], pos[2]);
+		}
 		this.keepOut = nbtRegion.getBoolean("IsKeepOut");
 		this.showInClient = nbtRegion.getBoolean("ShowInClient");
 		this.fix();
@@ -867,10 +873,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		for (int key : this.points.keySet()) {
 			Point v = this.points.get(key);
-			RayTraceRotate d = Util.instance.getAngles3D(pos.getX(), 0, pos.getZ(), v.x, 0, v.y);
-			RayTraceVec p = Util.instance.getPosition(pos.getX(), 0, pos.getZ(), d.yaw, d.pitch,
-					radius + d.radiusXZ);
-			this.points.put(key, new Point((int) p.x, (int) p.z));
+			IRayTraceRotate d = Util.instance.getAngles3D(pos.getX(), 0, pos.getZ(), v.x, 0, v.y);
+			IRayTraceVec p = Util.instance.getPosition(pos.getX(), 0, pos.getZ(), d.getYaw(), d.getPitch(), radius + d.getRadiusXZ());
+			this.points.put(key, new Point((int) p.getX(), (int) p.getZ()));
 		}
 		this.update = true;
 	}
@@ -894,16 +899,14 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		for (int key : this.points.keySet()) {
 			Point v = this.points.get(key);
-			RayTraceRotate d = Util.instance.getAngles3D(pos.getX(), pos.getY(), pos.getZ(), v.x,
-					pos.getY(), v.y);
-			RayTraceVec p = Util.instance.getPosition(pos.getX(), pos.getY(), pos.getZ(), d.yaw, d.pitch,
-					(double) scale * d.radiusXZ);
-			this.points.put(key, new Point((int) p.x, (int) p.z));
-			if (this.y[0] > (int) p.y) {
-				this.y[0] = (int) p.y;
+			IRayTraceRotate d = Util.instance.getAngles3D(pos.getX(), pos.getY(), pos.getZ(), v.x, pos.getY(), v.y);
+			IRayTraceVec p = Util.instance.getPosition(pos.getX(), pos.getY(), pos.getZ(), d.getYaw(), d.getPitch(), (double) scale * d.getRadiusXZ());
+			this.points.put(key, new Point((int) p.getX(), (int) p.getZ()));
+			if (this.y[0] > (int) p.getY()) {
+				this.y[0] = (int) p.getY();
 			}
-			if (this.y[1] < (int) p.y) {
-				this.y[1] = (int) p.y;
+			if (this.y[1] < (int) p.getY()) {
+				this.y[1] = (int) p.getY();
 			}
 		}
 		this.update = true;
@@ -1112,8 +1115,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		nbtRegion.setTag("Availability", this.availability.writeToNBT(new NBTTagCompound()));
 		nbtRegion.setString("Message", this.message);
 
-		int[] pos = new int[] { this.homePos.getX(), this.homePos.getY(), this.homePos.getZ() };
-		nbtRegion.setIntArray("HomePos", pos);
+		nbtRegion.setLong("HomePos", homePos.getMCBlockPos().toLong());
 		nbtRegion.setBoolean("IsKeepOut", this.keepOut);
 		nbtRegion.setBoolean("ShowInClient", this.showInClient);
 	}

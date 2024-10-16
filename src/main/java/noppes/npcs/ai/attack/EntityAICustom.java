@@ -176,6 +176,7 @@ public class EntityAICustom extends EntityAIBase {
 
 	@Override
 	public void updateTask() {
+		if (npc.ticksExisted % tickRate != 0) { return; }
 		CustomNpcs.debugData.startDebug("Server", this.npc, "EntityAICustom_updateTask");
 		this.setLookPositionWithEntity(this.target);
 		this.inMove = !this.npc.getNavigator().noPath();
@@ -186,6 +187,7 @@ public class EntityAICustom extends EntityAIBase {
 			this.rangedTick = Math.max(this.rangedTick - this.tickRate, 0);
 			this.range = this.npc.stats.ranged.getRange();
 		} else {
+			//System.out.println("CNPCs: "+npc.ticksExisted+"; "+tickRate+" = "+meleeTick);
 			this.meleeTick = Math.max(this.meleeTick - this.tickRate, 0);
 			this.range = this.npc.stats.melee.getRange();
 			double minRange = (this.npc.width + this.target.width) / 2.0d;

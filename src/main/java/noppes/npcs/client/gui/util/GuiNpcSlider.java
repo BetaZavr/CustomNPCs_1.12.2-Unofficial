@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.util;
 
-import noppes.npcs.LogWriter;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
@@ -173,7 +172,8 @@ implements IComponentGui {
 		try {
 			float f = Math.round(Double.parseDouble(str.replace(",", ".")) * 10.0d) / 10.0f;
 			str = String.valueOf(f).replace(".", ",");
-		} catch (Exception e) { LogWriter.error("Error: \"" + str + "\"", e);}
+		}
+		catch (Exception ignored) { }
 		this.displayString = NoppesStringUtils.translate(str);
 	}
 

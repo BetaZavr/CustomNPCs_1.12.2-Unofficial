@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import noppes.npcs.LogWriter;
+import noppes.npcs.api.util.IRayTraceVec;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -76,7 +77,6 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.RayTraceVec;
 
 public class SubGuiEditAnimation
 		extends SubGuiInterface
@@ -895,19 +895,16 @@ public class SubGuiEditAnimation
 			mousePressId = -1;
 		}
 		this.hovered = this.isMouseHover(mouseX, mouseY, workU + 1, workV + 1, workS - 2, workS - 2);
-		if (hovered) {
-			int dWheel = Mouse.getDWheel();
-			if (hovered && dWheel != 0) {
-				this.dispScale += this.dispScale * (dWheel < 0 ? 0.1f : -0.1f);
-				if (this.dispScale < 0.5f) {
-					this.dispScale = 0.5f;
-				} else if (this.dispScale > 5.0f) {
-					this.dispScale = 5.0f;
-				}
-				this.dispScale = (float) (Math.round(this.dispScale * 20.0d) / 20.0d);
-				if (this.dispScale == 0.95f || this.dispScale == 1.05f) {
-					this.dispScale = 1.0f;
-				}
+		if (hovered && mouseWheel != 0) {
+			this.dispScale += this.dispScale * (mouseWheel < 0 ? 0.1f : -0.1f);
+			if (this.dispScale < 0.5f) {
+				this.dispScale = 0.5f;
+			} else if (this.dispScale > 5.0f) {
+				this.dispScale = 5.0f;
+			}
+			this.dispScale = (float) (Math.round(this.dispScale * 20.0d) / 20.0d);
+			if (this.dispScale == 0.95f || this.dispScale == 1.05f) {
+				this.dispScale = 1.0f;
 			}
 		}
 		// back place
@@ -1414,8 +1411,8 @@ public class SubGuiEditAnimation
 			AxisAlignedBB aabb;
 			if (anim.getDamageHitboxType() == 1) {
 				aabb = new AxisAlignedBB(-showNPC.width, 0.0d, -showNPC.width, showNPC.width, showNPC.height, showNPC.width);
-				RayTraceVec data = Util.instance.getPosition(showNPC.posX, showNPC.posY, showNPC.posZ, showNPC.rotationYaw, 0.0d, 1.0d);
-				aabb = aabb.offset((float) (data.x - showNPC.posX), (float) (data.y - showNPC.posY), (float) (data.z - showNPC.posZ));
+				IRayTraceVec data = Util.instance.getPosition(showNPC.posX, showNPC.posY, showNPC.posZ, showNPC.rotationYaw, 0.0d, 1.0d);
+				aabb = aabb.offset((float) (data.getX() - showNPC.posX), (float) (data.getY() - showNPC.posY), (float) (data.getZ() - showNPC.posZ));
 			}
 			else { aabb = this.anim.getDamageHitbox(showNPC); }
 			GlStateManager.glLineWidth(2.0F);
