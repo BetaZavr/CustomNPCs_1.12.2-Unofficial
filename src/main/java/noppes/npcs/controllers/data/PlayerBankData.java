@@ -19,7 +19,7 @@ import noppes.npcs.controllers.BankController;
 public class PlayerBankData {
 
 	public BankData lastBank;
-	private String uuid;
+	private String uuid; // playerUUID
 	private int delay;
 
 	public BankData get(int bankId) {
@@ -55,7 +55,7 @@ public class PlayerBankData {
 			this.lastBank = null;
 			return null;
 		}
-		if (this.lastBank.ceils.isEmpty()) {
+		if (this.lastBank.cells.isEmpty()) {
 			this.lastBank.clear();
 		}
 		return this.lastBank;
@@ -84,7 +84,7 @@ public class PlayerBankData {
 					}
 					NpcMiscInventory inv = new NpcMiscInventory(upgradedSlots.get(c) ? 54 : 27);
 					inv.setFromNBT(nbtCeils.getCompoundTag("BankItems"));
-					bd.ceils.put(c, inv);
+					bd.cells.put(c, inv);
 				}
 				// save has new data
 				File file = new File(dir, bank.id + ".dat");

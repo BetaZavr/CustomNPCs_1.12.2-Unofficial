@@ -24,6 +24,7 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
@@ -869,7 +870,13 @@ public class PacketHandlerServer {
                     nbt.removeTag("Settings");
                     player.openContainer.detectAndSendChanges();
                 }
-                player.sendMessage(new TextComponentString("Failed to create an entity out of your clone"));
+                player.sendMessage(new TextComponentString("Failed to create an entity out of your clone. Entity not registered."));
+                if (CustomNpcs.VerboseDebug && player.capabilities.isCreativeMode) {
+                    player.sendMessage(new TextComponentString("Entity ID: \""+compound.getString("id")+"\""));
+                    ResourceLocation locN = new ResourceLocation(CustomNpcs.MODID, "CustomNpc");
+                    ResourceLocation locS = new ResourceLocation(CustomNpcs.MODID, "customnpc");
+                    player.sendMessage(new TextComponentString("NPC is registered: (normal) "+(EntityList.getClass(locN) != null)+"; (simple) "+(EntityList.getClass(locS) != null)));
+                }
             } else {
                 if (nbt != null) {
                     if (!nbtData.hasKey("Name", 8) || nbtData.getString("Name").isEmpty()) {

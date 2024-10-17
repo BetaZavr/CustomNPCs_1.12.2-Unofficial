@@ -3,22 +3,19 @@ package noppes.npcs.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
+import java.util.TreeMap;
 
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
-import noppes.npcs.util.NBTJsonUtil.JsonException;
 
 public class TempFile {
 
 	private static final int maxPart = 30000;
 
 	public String name;
-	public final Map<Integer, String> data = Maps.newTreeMap();
+	public final Map<Integer, String> data = new TreeMap<>();
 	public int fileType; // 0 - simple text, 1 - nbt json, 2 - compressed nbt
 	public int saveType; // 0 - temp file, 1 - client script, 2 - normal save
 	public int tryLoads;

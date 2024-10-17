@@ -1,8 +1,7 @@
 package noppes.npcs.util;
 
+import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.CustomNpcs;
@@ -14,8 +13,8 @@ public class DataDebug {
 	public static class Debug {
 
 		public long max = 0L;
-		Map<String, Long> starters = Maps.newHashMap(); // temp time [Name, start time]
-		public Map<String, Map<String, Long[]>> times = Maps.newHashMap(); // Name, [count, all time in work]
+		Map<String, Long> starters = new HashMap<>(); // temp time [Name, start time]
+		public Map<String, Map<String, Long[]>> times = new HashMap<>(); // Name, [count, all time in work]
 
 		public void end(String eventName, String eventTarget) {
 			if (eventName == null || eventTarget == null) {
@@ -26,7 +25,7 @@ public class DataDebug {
 				return;
 			}
 			if (!this.times.containsKey(eventName)) {
-				this.times.put(eventName, Maps.newHashMap());
+				this.times.put(eventName, new HashMap<>());
 			}
 			if (!this.times.get(eventName).containsKey(eventTarget)) {
 				this.times.get(eventName).put(eventTarget, new Long[] { 0L, 0L });
@@ -57,7 +56,7 @@ public class DataDebug {
 		}
 	}
 
-	public Map<String, Debug> data = Maps.newHashMap();
+	public Map<String, Debug> data = new HashMap<>();
 
 	public void clear() {
 		this.data.clear();

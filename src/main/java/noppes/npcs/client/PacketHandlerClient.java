@@ -821,12 +821,10 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					ScriptController.Instance.clients.put(name, file.getDataText());
 					ScriptController.Instance.clientSizes.put(name, file.size);
 					// save on client
-					File cdf = ScriptController.Instance.clientScriptsFile();
-					if (cdf.exists()) {
-						File dir = new File(cdf.getParentFile(), ScriptController.Instance.clientScripts.getLanguage().toLowerCase());
-						System.out.println("CNPCs: "+dir);
-						System.out.println("CNPCs: "+name);
-					}
+					//File cdf = ScriptController.Instance.clientScriptsFile();
+					//if (cdf.exists()) {
+					//	File dir = new File(cdf.getParentFile(), ScriptController.Instance.clientScripts.getLanguage().toLowerCase());
+					//}
 				} else {
 					file.save();
 				}

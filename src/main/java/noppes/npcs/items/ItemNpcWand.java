@@ -67,9 +67,7 @@ public class ItemNpcWand extends Item implements IPermission, INPCToolItem {
 	}
 
 	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (world.isRemote) {
-			return EnumActionResult.SUCCESS;
-		}
+		if (world.isRemote) { return EnumActionResult.SUCCESS; }
 		if (CustomNpcs.OpsOnly && !Objects.requireNonNull(player.getServer()).getPlayerList().canSendCommands(player.getGameProfile())) {
 			player.sendMessage(new TextComponentTranslation("availability.permission"));
 		} else if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_CREATE)) {

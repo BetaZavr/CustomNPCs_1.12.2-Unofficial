@@ -88,11 +88,11 @@ public class ServerTickHandler {
 				// open
 				if (c.items.getSizeInventory() == 0) {
 					if (c.ceil > 0) {
-						for (int i = c.ceil - 1; i >= 0 && c.data.ceils.containsKey(i); i--) {
-							NpcMiscInventory inv = c.data.ceils.get(i);
+						for (int i = c.ceil - 1; i >= 0 && c.data.cells.containsKey(i); i--) {
+							NpcMiscInventory inv = c.data.cells.get(i);
 							cs = c.bank.ceilSettings.get(i);
 							work = inv.getSizeInventory() > 0 && cs.upgradeStack.isEmpty()
-									|| cs.maxCeils == inv.getSizeInventory();
+									|| cs.maxCells == inv.getSizeInventory();
 							if (!work) {
 								ceil = i;
 								break;
@@ -113,7 +113,7 @@ public class ServerTickHandler {
 				// update
 				else {
 					cs = c.bank.ceilSettings.get(c.ceil);
-					work = c.items.getSizeInventory() > 0 && c.items.getSizeInventory() < cs.maxCeils;
+					work = c.items.getSizeInventory() > 0 && c.items.getSizeInventory() < cs.maxCells;
 					if (work) {
 						if (!cs.upgradeStack.isEmpty()) {
 							int count = Util.instance.inventoryItemCount(player, cs.upgradeStack,

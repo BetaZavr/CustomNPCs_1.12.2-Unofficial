@@ -1,6 +1,5 @@
 package noppes.npcs;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.google.common.collect.Maps;
@@ -56,7 +55,7 @@ public class NoppesUtilPlayer {
 		}
 		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
 		BankData bd = ((ContainerNPCBank) player.openContainer).data;
-		if (!bd.ceils.containsKey(ceilId)) {
+		if (!bd.cells.containsKey(ceilId)) {
 			return;
 		}
 		((ContainerNPCBank) player.openContainer).items.clear();
@@ -74,7 +73,7 @@ public class NoppesUtilPlayer {
 		if (!bd.bank.ceilSettings.containsKey(ceilId) || bd.bank.ceilSettings.get(ceilId).openStack.isEmpty()) {
 			return;
 		}
-		bd.ceils.put(ceilId, new NpcMiscInventory(0));
+		bd.cells.put(ceilId, new NpcMiscInventory(0));
 		bd.save();
 		NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
 	}
@@ -85,14 +84,14 @@ public class NoppesUtilPlayer {
 		}
 		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
 		BankData bd = ((ContainerNPCBank) player.openContainer).data;
-		if (!bd.ceils.containsKey(ceilId) || bd.ceils.get(ceilId).getSizeInventory() < 0) {
+		if (!bd.cells.containsKey(ceilId) || bd.cells.get(ceilId).getSizeInventory() < 0) {
 			return;
 		}
-		if (bd.ceils.get(ceilId).getSizeInventory() == 1) {
+		if (bd.cells.get(ceilId).getSizeInventory() == 1) {
 			NoppesUtilPlayer.bankLock(player, npc);
 			return;
 		}
-        bd.ceils.computeIfPresent(ceilId, (k, inv) -> new NpcMiscInventory(inv.getSizeInventory() - 1).fill(inv));
+        bd.cells.computeIfPresent(ceilId, (k, inv) -> new NpcMiscInventory(inv.getSizeInventory() - 1).fill(inv));
 		bd.save();
 		NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
 	}
@@ -103,43 +102,66 @@ public class NoppesUtilPlayer {
 		}
 		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
 		BankData bd = ((ContainerNPCBank) player.openContainer).data;
-		if (!bd.ceils.containsKey(ceilId) || !bd.bank.ceilSettings.containsKey(ceilId)) {
+		if (!bd.cells.containsKey(ceilId) || !bd.bank.ceilSettings.containsKey(ceilId)) {
 			return;
 		}
 		((ContainerNPCBank) player.openContainer).items.clear();
 		player.openContainer.detectAndSendChanges();
-		bd.ceils.put(ceilId, new NpcMiscInventory(bd.bank.ceilSettings.get(ceilId).startCeils));
+		bd.cells.put(ceilId, new NpcMiscInventory(bd.bank.ceilSettings.get(ceilId).startCells));
 		bd.save();
 		NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
 	}
 
-	public static void bankUnlock(EntityPlayerMP player, EntityNPCInterface npc) {
+	public static void bankUnlock(EntityPlayerMP player, EntityNPCInterface npc, boolean isStack) {
 		if (!(player.openContainer instanceof ContainerNPCBank) || npc == null) {
 			return;
 		}
 		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
 		BankData bd = ((ContainerNPCBank) player.openContainer).data;
-		if (player.capabilities.isCreativeMode
-				|| Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).openStack, false, false)) {
-			bd.ceils.put(ceilId, new NpcMiscInventory(bd.bank.ceilSettings.get(ceilId).startCeils));
+
+		boolean canOpen = player.capabilities.isCreativeMode || bd.bank.isPublic || player.getUniqueID().equals(bd.getUUID()) || bd.bank.owner.equals(player.getName());
+		if (!canOpen) {
+			if (isStack) {
+				canOpen = Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).openStack, false, false);
+			}
+			else {
+				PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+				canOpen = bd.bank.ceilSettings.get(ceilId).openMoney <= data.game.getMoney();
+				if (canOpen) { data.game.addMoney(-bd.bank.ceilSettings.get(ceilId).openMoney); }
+			}
+		}
+		if (canOpen) {
+			bd.cells.put(ceilId, new NpcMiscInventory(bd.bank.ceilSettings.get(ceilId).startCells));
 			bd.save();
 			RoleEvent.BankUnlockedEvent event = new RoleEvent.BankUnlockedEvent(player, npc.wrappedNPC, ceilId);
 			EventHooks.onNPCRole(npc, event);
-			NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
 		}
+		NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
 	}
 
-	public static void bankUpgrade(EntityPlayerMP player, EntityNPCInterface npc) {
+	public static void bankUpgrade(EntityPlayerMP player, EntityNPCInterface npc, boolean isStack, int count) {
 		if (!(player.openContainer instanceof ContainerNPCBank) || npc == null) {
 			return;
 		}
 		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
 		BankData bd = ((ContainerNPCBank) player.openContainer).data;
-		if (!bd.ceils.containsKey(ceilId)) {
+		if (!bd.cells.containsKey(ceilId)) {
 			return;
 		}
-		if (player.capabilities.isCreativeMode || Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).upgradeStack, false, false)) {
-            bd.ceils.computeIfPresent(ceilId, (k, inv) -> new NpcMiscInventory(inv.getSizeInventory() + 1).fill(inv));
+		boolean canUpgrade = player.capabilities.isCreativeMode || bd.bank.isPublic || player.getUniqueID().equals(bd.getUUID()) || bd.bank.owner.equals(player.getName());
+		if (!canUpgrade) {
+			if (isStack) {
+				canUpgrade = Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).upgradeStack, count, false, false);
+			}
+			else {
+				PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+				int need = bd.bank.ceilSettings.get(ceilId).upgradeMoney * count;
+				canUpgrade = need <= data.game.getMoney();
+				if (canUpgrade) { data.game.addMoney(-1 * need); }
+			}
+		}
+		if (canUpgrade) {
+			bd.cells.computeIfPresent(ceilId, (k, inv) -> new NpcMiscInventory(inv.getSizeInventory() + count).fill(inv));
 			bd.save();
 			RoleEvent.BankUpgradedEvent event = new RoleEvent.BankUpgradedEvent(player, npc.wrappedNPC, ceilId);
 			EventHooks.onNPCRole(npc, event);
@@ -148,6 +170,8 @@ public class NoppesUtilPlayer {
 			} else {
 				NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
 			}
+		} else {
+			NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
 		}
 	}
 
@@ -466,8 +490,8 @@ public class NoppesUtilPlayer {
 				return;
 			}
 			CustomNpcs.ChannelPlayer.sendToServer(new FMLProxyPacket(buffer, "CustomNPCsPlayer"));
-		} catch (IOException e) {
-			LogWriter.error("Error:", e);
+		} catch (Exception e) {
+			LogWriter.error("Error send data:", e);
 		}
 	}
 

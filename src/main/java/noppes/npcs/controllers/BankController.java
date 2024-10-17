@@ -81,18 +81,18 @@ public class BankController {
 				bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
 			} catch (IOException e) { LogWriter.error("Error:", e); }
 			boolean isChange = false;
-			for (int c : bd.ceils.keySet()) {
+			for (int c : bd.cells.keySet()) {
 				if (!bank.ceilSettings.containsKey(c)) {
 					isChange = true;
 					break;
 				}
-				NpcMiscInventory inv = bd.ceils.get(c);
+				NpcMiscInventory inv = bd.cells.get(c);
 				CeilSettings cs = bank.ceilSettings.get(c);
-				if (inv.getSizeInventory() < cs.startCeils) {
-					bd.ceils.put(c, new NpcMiscInventory(cs.openStack.isEmpty() ? cs.startCeils : 0).fill(inv));
+				if (inv.getSizeInventory() < cs.startCells) {
+					bd.cells.put(c, new NpcMiscInventory(cs.openStack.isEmpty() ? cs.startCells : 0).fill(inv));
 					isChange = true;
-				} else if (inv.getSizeInventory() > cs.maxCeils) {
-					bd.ceils.put(c, new NpcMiscInventory(cs.maxCeils).fill(inv));
+				} else if (inv.getSizeInventory() > cs.maxCells) {
+					bd.cells.put(c, new NpcMiscInventory(cs.maxCells).fill(inv));
 					isChange = true;
 				}
 			}
@@ -119,20 +119,20 @@ public class BankController {
 							bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
 						} catch (IOException e) { LogWriter.error("Error:", e); }
 						boolean isChange = false;
-						for (int c : bd.ceils.keySet()) {
+						for (int c : bd.cells.keySet()) {
 							if (!bank.ceilSettings.containsKey(c)) {
 								isChange = true;
-								bd.ceils.remove(c);
+								bd.cells.remove(c);
 								continue;
 							}
-							NpcMiscInventory inv = bd.ceils.get(c);
+							NpcMiscInventory inv = bd.cells.get(c);
 							CeilSettings cs = bank.ceilSettings.get(c);
-							if (inv.getSizeInventory() < cs.startCeils) {
-								bd.ceils.put(c,
-										new NpcMiscInventory(cs.openStack.isEmpty() ? cs.startCeils : 0).fill(inv));
+							if (inv.getSizeInventory() < cs.startCells) {
+								bd.cells.put(c,
+										new NpcMiscInventory(cs.openStack.isEmpty() ? cs.startCells : 0).fill(inv));
 								isChange = true;
-							} else if (inv.getSizeInventory() > cs.maxCeils) {
-								bd.ceils.put(c, new NpcMiscInventory(cs.maxCeils).fill(inv));
+							} else if (inv.getSizeInventory() > cs.maxCells) {
+								bd.cells.put(c, new NpcMiscInventory(cs.maxCells).fill(inv));
 								isChange = true;
 							}
 						}

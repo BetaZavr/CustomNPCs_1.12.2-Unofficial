@@ -1,8 +1,6 @@
 package noppes.npcs.util;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
+import java.util.Arrays;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -32,13 +30,12 @@ public class RayTraceResults implements IRayTraceResults {
 	@SuppressWarnings("deprecation")
 	public void add(World world, BlockPos pos, IBlockState state) {
 		for (IBlock bi : this.blocks) {
-			if (bi.getPos().getMCBlockPos().equals(pos)) {
-				return;
-			}
+			if (bi.getPos().getMCBlockPos().equals(pos)) { return; }
 		}
-		List<IBlock> newBlocks = Lists.newArrayList(this.blocks);
-		newBlocks.add(BlockWrapper.createNew(world, pos, state));
-		this.blocks = newBlocks.toArray(new IBlock[0]);
+		int currentSize = blocks.length;
+		IBlock[] newArray = Arrays.copyOf(blocks, currentSize + 1);
+		newArray[currentSize] = BlockWrapper.createNew(world, pos, state);
+		blocks = newArray;
 	}
 
 	@Override

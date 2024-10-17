@@ -312,19 +312,18 @@ public class PacketHandlerPlayer {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
-			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
-			if (npc == null) {
-				Entity e = player.world.getEntityByID(buffer.readInt());
-				if (e instanceof EntityNPCInterface) {
-					npc = (EntityNPCInterface) e;
-					NoppesUtilServer.setEditingNpc(player, npc);
-				}
+			EntityNPCInterface npc;
+			Entity e = player.world.getEntityByID(buffer.readInt());
+			if (e instanceof EntityNPCInterface) {
+				npc = (EntityNPCInterface) e;
+				NoppesUtilServer.setEditingNpc(player, npc);
 			}
-			if (!player.capabilities.isCreativeMode || npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
+			else { npc = NoppesUtilServer.getEditingNpc(player); }
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
-			NoppesUtilPlayer.bankUpgrade(player, npc);
+			NoppesUtilPlayer.bankUpgrade(player, npc, buffer.readBoolean(), buffer.readInt());
 		} else if (type == EnumPlayerPacket.BankRegrade) {
 			if (!(player.openContainer instanceof ContainerNPCBank)) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
@@ -353,13 +352,12 @@ public class PacketHandlerPlayer {
 					NoppesUtilServer.setEditingNpc(player, npc);
 				}
 			}
-			if (!(player.openContainer instanceof ContainerNPCBank) || npc == null
-					|| npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
+			if (!(player.openContainer instanceof ContainerNPCBank) || npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
-			NoppesUtilPlayer.bankUnlock(player, npc);
+			NoppesUtilPlayer.bankUnlock(player, npc, buffer.readBoolean());
 		} else if (type == EnumPlayerPacket.BankLock) {
 			if (!(player.openContainer instanceof ContainerNPCBank)) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");

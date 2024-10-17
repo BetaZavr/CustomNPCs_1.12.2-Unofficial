@@ -11,7 +11,6 @@ import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -88,11 +87,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			while (msg.contains("<br>")) {
 				msg = msg.replace("<br>", "" + ((char) 10));
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this,
-					new TextComponentTranslation("gui.bank", ": ID:" + this.bank.id + " \"" + this.bank.name + "\"; "
-							+ new TextComponentTranslation("gui.ceil", ": ID:" + (this.ceil + 1)).getFormattedText())
-									.getFormattedText(),
-					msg, 1);
+			GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.bank", ": ID:" + this.bank.id + " \"" + this.bank.name + "\"; " + new TextComponentTranslation("gui.ceil", ": ID:" + (this.ceil + 1)).getFormattedText()).getFormattedText(), msg, 1);
 			this.displayGuiScreen(guiyesno);
 			break;
 		}
@@ -127,10 +122,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			while (msg.contains("<br>")) {
 				msg = msg.replace("<br>", "" + ((char) 10));
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this,
-					new TextComponentTranslation("gui.bank", ": ID:" + this.bank.id + " \"" + this.bank.name + "\"")
-							.getFormattedText(),
-					msg, 0);
+			GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.bank", ": ID:" + this.bank.id + " \"" + this.bank.name + "\"").getFormattedText(), msg, 0);
 			this.displayGuiScreen(guiyesno);
 			break;
 		}
@@ -149,8 +141,11 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		super.closeSubGui(gui);
 		if (gui instanceof SubGuiEditBankAccess) {
 			SubGuiEditBankAccess subGui = (SubGuiEditBankAccess) gui;
-			if (!this.bank.owner.equals(subGui.owner)) {
-				this.bank.owner = subGui.owner;
+			if (bank.isChanging != subGui.isChanging) {
+				bank.isChanging = subGui.isChanging;
+			}
+			if (!bank.owner.equals(subGui.owner)) {
+				bank.owner = subGui.owner;
 			}
 			if (subGui.names.size() != this.bank.access.size()) {
 				this.bank.access.clear();
@@ -218,21 +213,14 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		if (!this.selected.isEmpty()) {
 			int x = this.guiLeft + 5;
 			int y = this.guiTop + 12;
-			this.fontRenderer.drawString(new TextComponentTranslation("gui.name").getFormattedText() + ":", x, y,
-					CustomNpcResourceListener.DefaultTextColor);
-			this.fontRenderer.drawString(new TextComponentTranslation("gui.ceil").getFormattedText() + ":", x,
-					(y += 22), CustomNpcResourceListener.DefaultTextColor);
-			this.fontRenderer.drawString(new TextComponentTranslation("gui.start").getFormattedText() + ":", x,
-					(y += 22), CustomNpcResourceListener.DefaultTextColor);
-			this.fontRenderer.drawString(new TextComponentTranslation("gui.max").getFormattedText() + ":", x + 126, y,
-					CustomNpcResourceListener.DefaultTextColor);
-
+			this.fontRenderer.drawString(new TextComponentTranslation("gui.name").getFormattedText() + ":", x, y, CustomNpcResourceListener.DefaultTextColor);
+			this.fontRenderer.drawString(new TextComponentTranslation("gui.ceil").getFormattedText() + ":", x, (y += 22), CustomNpcResourceListener.DefaultTextColor);
+			this.fontRenderer.drawString(new TextComponentTranslation("gui.start").getFormattedText() + ":", x, (y += 22), CustomNpcResourceListener.DefaultTextColor);
+			this.fontRenderer.drawString(new TextComponentTranslation("gui.max").getFormattedText() + ":", x + 126, y, CustomNpcResourceListener.DefaultTextColor);
 			x = this.guiLeft + 179;
 			y = this.guiTop + 112;
-			this.fontRenderer.drawString(new TextComponentTranslation("bank.tab.cost").getFormattedText() + ":", x, y,
-					CustomNpcResourceListener.DefaultTextColor);
-			this.fontRenderer.drawString(new TextComponentTranslation("bank.upg.cost").getFormattedText() + ":", x,
-					y + 36, CustomNpcResourceListener.DefaultTextColor);
+			this.fontRenderer.drawString(new TextComponentTranslation("bank.tab.cost").getFormattedText() + ":", x, y, CustomNpcResourceListener.DefaultTextColor);
+			this.fontRenderer.drawString(new TextComponentTranslation("bank.upg.cost").getFormattedText() + ":", x, y + 36, CustomNpcResourceListener.DefaultTextColor);
 		}
 	}
 
@@ -246,10 +234,8 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 					this.initGui();
 				}
 			}
-			String text = new TextComponentTranslation("gui.wait",
-					": " + new TextComponentTranslation("gui.wait.data").getFormattedText()).getFormattedText();
-			this.fontRenderer.drawString(text, this.guiLeft + (this.width - this.fontRenderer.getStringWidth(text)) / 2,
-					this.guiTop + 60, CustomNpcs.LableColor.getRGB());
+			String text = new TextComponentTranslation("gui.wait", ": " + new TextComponentTranslation("gui.wait.data").getFormattedText()).getFormattedText();
+			this.fontRenderer.drawString(text, this.guiLeft + (this.width - this.fontRenderer.getStringWidth(text)) / 2, this.guiTop + 60, CustomNpcs.LableColor.getRGB());
 			return;
 		}
 		if (this.subgui != null || !CustomNpcs.ShowDescriptions) {
@@ -258,30 +244,25 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("bank.hover.name").getFormattedText());
 		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("bank.hover.slots.min")
-					.appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("bank.hover.slots.min").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
 		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("bank.hover.slots.max")
-					.appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
-		} else if (this.getTextField(3) != null && this.getTextField(3).getVisible()
-				&& this.getTextField(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("bank.hover.owner").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("bank.hover.slots.max").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
+		} else if (this.getTextField(3) != null && this.getTextField(3).getVisible() && this.getTextField(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("bank.hover.open.money").getFormattedText());
+		} else if (this.getTextField(4) != null && this.getTextField(4).getVisible() && this.getTextField(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("bank.hover.upgrade.money").getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("bank.hover.ceil", "" + this.bank.ceilSettings.size())
-					.getFormattedText());
+			this.setHoverText(new TextComponentTranslation("bank.hover.ceil", "" + this.bank.ceilSettings.size()).getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("bank.hover.ceil.add")
-					.appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("bank.hover.ceil.add").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("bank.hover.ceil.del")
-					.appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("bank.hover.ceil.del").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("bank.hover.public").getFormattedText());
 		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("bank.hover.add").getFormattedText());
 		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("bank.hover.del")
-					.appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("bank.hover.del").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
 		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("bank.hover.settings").getFormattedText());
 		} else if (!this.selected.isEmpty()) {
@@ -289,12 +270,12 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			int y = this.guiTop + 112;
 			if (this.isMouseHover(mouseX, mouseY, x, y, 60, 12)) {
 				this.setHoverText(new TextComponentTranslation("bank.tab.cost.info",
-						"" + this.bank.ceilSettings.get(this.ceil).startCeils,
-						"" + this.bank.ceilSettings.get(this.ceil).maxCeils).getFormattedText());
+						"" + this.bank.ceilSettings.get(this.ceil).startCells,
+						"" + this.bank.ceilSettings.get(this.ceil).maxCells).getFormattedText());
 			} else if (this.isMouseHover(mouseX, mouseY, x, y + 36, 60, 12)) {
 				this.setHoverText(new TextComponentTranslation("bank.upg.cost.info",
-						"" + this.bank.ceilSettings.get(this.ceil).startCeils,
-						"" + this.bank.ceilSettings.get(this.ceil).maxCeils).getFormattedText());
+						"" + this.bank.ceilSettings.get(this.ceil).startCells,
+						"" + this.bank.ceilSettings.get(this.ceil).maxCells).getFormattedText());
 			}
 		}
 		if (this.hoverText != null) {
@@ -361,8 +342,8 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 
 		y += 22;
 		CeilSettings cs = this.bank.ceilSettings.get(this.ceil);
-		int sc = cs.startCeils;
-		int mc = cs.maxCeils;
+		int sc = cs.startCells;
+		int mc = cs.maxCells;
 		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, x, y, 50, 18, "" + sc));
 		this.getTextField(1).setVisible(!this.selected.isEmpty());
 		this.getTextField(1).setNumbersOnly();
@@ -378,9 +359,19 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		checkBox.setSelected(this.bank.isPublic);
 		this.addButton(checkBox);
 
-		this.addButton(
-				new GuiNpcButton(8, x, y + 20, 20, 20, 20, 146, new ResourceLocation("textures/gui/widgets.png")));
+		this.addButton(new GuiNpcButton(8, x, y + 20, 20, 20, 20, 146, GuiNPCInterface.WIDGETS));
+
 		this.getButton(8).setVisible(!this.selected.isEmpty() && this.bank.isPublic);
+
+		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, x += 126, y += 52, 50, 18, "" + cs.openMoney));
+		this.getTextField(3).setVisible(!this.selected.isEmpty());
+		this.getTextField(3).setNumbersOnly();
+		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, cs.openMoney);
+
+		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, x, y += 36, 50, 18, "" + cs.upgradeMoney));
+		this.getTextField(4).setVisible(!this.selected.isEmpty());
+		this.getTextField(4).setNumbersOnly();
+		this.getTextField(4).setMinMaxDefault(0, Integer.MAX_VALUE, cs.upgradeMoney);
 	}
 
 	@Override
@@ -483,7 +474,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 					textField.setText("" + textField.def);
 					return;
 				}
-				this.bank.ceilSettings.get(this.ceil).startCeils = textField.getInteger();
+				this.bank.ceilSettings.get(this.ceil).startCells = textField.getInteger();
 				break;
 			}
 			case 2: { // maxCells
@@ -491,7 +482,23 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 					textField.setText("" + textField.def);
 					return;
 				}
-				this.bank.ceilSettings.get(this.ceil).maxCeils = textField.getInteger();
+				this.bank.ceilSettings.get(this.ceil).maxCells = textField.getInteger();
+				break;
+			}
+			case 3: { // open money
+				if (!textField.isInteger()) {
+					textField.setText("" + textField.def);
+					return;
+				}
+				this.bank.ceilSettings.get(this.ceil).openMoney = textField.getInteger();
+				break;
+			}
+			case 4: { // upgrade money
+				if (!textField.isInteger()) {
+					textField.setText("" + textField.def);
+					return;
+				}
+				this.bank.ceilSettings.get(this.ceil).upgradeMoney = textField.getInteger();
 				break;
 			}
 		}

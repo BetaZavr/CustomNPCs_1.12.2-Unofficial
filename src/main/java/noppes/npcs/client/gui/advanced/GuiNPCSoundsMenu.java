@@ -50,21 +50,21 @@ public class GuiNPCSoundsMenu extends GuiNPCInterface2 implements ITextfieldList
 		for (int i = 0; i < 5; i++) {
 			String name;
 			switch (i) {
-			case 1:
-				name = "advanced.angersound";
-				break;
-			case 2:
-				name = "advanced.hurtsound";
-				break;
-			case 3:
-				name = "advanced.deathsound";
-				break;
-			case 4:
-				name = "advanced.stepsound";
-				break;
-			default:
-				name = "advanced.idlesound";
-				break;
+				case 1:
+					name = "advanced.angersound";
+					break;
+				case 2:
+					name = "advanced.hurtsound";
+					break;
+				case 3:
+					name = "advanced.deathsound";
+					break;
+				case 4:
+					name = "advanced.stepsound";
+					break;
+				default:
+					name = "advanced.idlesound";
+					break;
 			}
 			this.addLabel(new GuiNpcLabel(i, name, this.guiLeft + 5, this.guiTop + 20 + i * 25));
 			this.addTextField(new GuiNpcTextField(i, this, this.fontRenderer, this.guiLeft + 80,

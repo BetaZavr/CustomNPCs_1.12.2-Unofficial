@@ -56,7 +56,7 @@ public class ContainerNPCBank extends ContainerNpcInterface {
 				this.data = pd.bankData.get(bank.id);
 			}
 			if (this.data != null) {
-				this.items = this.data.ceils.get(ceil);
+				this.items = this.data.cells.get(ceil);
 			}
 		}
 		int h = ((int) Math.ceil((double) this.items.getSizeInventory() / 9.0d) - 4) * 18;

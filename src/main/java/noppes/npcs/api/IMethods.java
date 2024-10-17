@@ -12,6 +12,8 @@ import java.util.List;
 
 public interface IMethods {
 
+	String ticksToElapsedTime(long ticks, boolean isMilliSeconds, boolean colored, boolean upped);
+
 	String deleteColor(String str);
 
 	double distanceTo(double x0, double y0, double z0, double x1, double y1, double z1);
@@ -46,7 +48,11 @@ public interface IMethods {
 
 	List<File> getFiles(File dir, String index);
 
-	boolean removeFile(File directory);
+    String getTextNumberToRoman(int value);
+
+    String getTextReducedNumber(double value, boolean isInteger, boolean color, boolean notPfx);
+
+    boolean removeFile(File directory);
 
 	String loadFile(File file);
 

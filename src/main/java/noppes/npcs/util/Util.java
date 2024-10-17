@@ -4,6 +4,7 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -22,9 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import noppes.npcs.*;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandBase.CoordinateArg;
@@ -42,7 +40,6 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagByteArray;
@@ -92,6 +89,7 @@ import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
+import noppes.npcs.mixin.entity.IEntityMixin;
 import noppes.npcs.mixin.entity.ai.IEntitySensesMixin;
 import noppes.npcs.mixin.nbt.INBTTagLongArrayMixin;
 import noppes.npcs.mixin.world.IWorldMixin;
@@ -99,7 +97,18 @@ import org.apache.commons.io.IOUtils;
 
 public class Util implements IMethods {
 
+	private static final Map<Integer, String> ROMAN_DIGITS = new HashMap<Integer, String>() {{
+		put(1, "I");
+		put(5, "V");
+		put(10, "X");
+		put(50, "L");
+		put(100, "C");
+		put(500, "D");
+		put(1000, "M");
+	}};
+
 	public final static Util instance = new Util();
+	public static boolean hasInternet = true;
 	public static final ResourceLocation RECIPE_BOOK = new ResourceLocation("textures/gui/recipe_book.png");
 
 	public boolean canAddItemAfterRemoveItems(NonNullList<ItemStack> inventory, ItemStack addStack, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
@@ -176,7 +185,7 @@ public class Util implements IMethods {
 		if (stack == null || stack.isEmpty()) {
 			return false;
 		}
-		Map<ItemStack, Integer> items = Maps.newHashMap();
+		Map<ItemStack, Integer> items = new HashMap<>();
 		items.put(stack, stack.getCount());
 		return this.canRemoveItems(inventory, items, ignoreDamage, ignoreNBT);
 	}
@@ -188,7 +197,7 @@ public class Util implements IMethods {
 		if (items == null || items.isEmpty()) {
 			return true;
 		}
-		Map<ItemStack, Integer> inv = Maps.newHashMap();
+		Map<ItemStack, Integer> inv = new HashMap<>();
         for (ItemStack stack : inventory) {
             if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) {
                 continue;
@@ -279,9 +288,9 @@ public class Util implements IMethods {
 	}
 
 	public List<IDataElement> getClassData(Object obj, boolean onlyPublic, boolean addConstructor) {
-		if (obj == null) { return Lists.newArrayList(); }
+		if (obj == null) { return new ArrayList<>(); }
 		LogWriter.info("Trying to get all fields, methods and classes from object \"" + obj + "\"");
-		List<IDataElement> list = Lists.newArrayList();
+		List<IDataElement> list = new ArrayList<>();
 		Class<?> cz = (obj instanceof Class) ? (Class<?>) obj : obj.getClass();
 		// Constructors
 		if (addConstructor) {
@@ -290,9 +299,9 @@ public class Util implements IMethods {
 				list.add(new DataElement(c, obj));
 			}
 		}
-		Map<String, Class<?>> classes = Maps.newHashMap();
-		Map<String, Field> fields = Maps.newHashMap();
-		Map<String, Method> methods = Maps.newHashMap();
+		Map<String, Class<?>> classes = new HashMap<>();
+		Map<String, Field> fields = new HashMap<>();
+		Map<String, Method> methods = new HashMap<>();
 
 		for (Class<?> cl : onlyPublic ? cz.getClasses() : cz.getDeclaredClasses()) {
 			if (!classes.containsKey(cl.getSimpleName())) {
@@ -300,7 +309,7 @@ public class Util implements IMethods {
 			}
 		}
 		// Data
-		List<Class<?>> czs = Lists.newArrayList();
+		List<Class<?>> czs = new ArrayList<>();
 		czs.add(cz);
 		while (cz.getSuperclass() != Object.class && !czs.contains(cz.getSuperclass())) {
 			czs.add(cz.getSuperclass());
@@ -320,9 +329,9 @@ public class Util implements IMethods {
 		}
 		// Fields
 		if (!fields.isEmpty()) {
-			List<String> sortNames = Lists.newArrayList(fields.keySet());
+			List<String> sortNames = new ArrayList<>(fields.keySet());
 			Collections.sort(sortNames);
-			List<String> names = Lists.newArrayList();
+			List<String> names = new ArrayList<>();
 			for (String name : sortNames) {
 				boolean next = false;
 				if (names.contains(name)) {
@@ -344,9 +353,9 @@ public class Util implements IMethods {
 		}
 		// Methods
 		if (!methods.isEmpty()) {
-			List<String> sortNames = Lists.newArrayList(methods.keySet());
+			List<String> sortNames = new ArrayList<>(methods.keySet());
 			Collections.sort(sortNames);
-			List<String> names = Lists.newArrayList();
+			List<String> names = new ArrayList<>();
 			for (String name : sortNames) {
 				boolean next = false;
 				if (names.contains(name)) {
@@ -368,7 +377,7 @@ public class Util implements IMethods {
 		}
 		// Classes
 		if (!classes.isEmpty()) {
-			List<String> sortNames = Lists.newArrayList(classes.keySet());
+			List<String> sortNames = new ArrayList<>(classes.keySet());
 			Collections.sort(sortNames);
 			for (String name : sortNames) {
 				list.add(new DataElement(classes.get(name), obj));
@@ -421,7 +430,7 @@ public class Util implements IMethods {
 
 	@Override
 	public List<File> getFiles(File dir, String index) {
-		List<File> list = Lists.newArrayList();
+		List<File> list = new ArrayList<>();
 		if (dir == null || !dir.exists() || !dir.isDirectory()) {
 			return list;
 		}
@@ -439,9 +448,9 @@ public class Util implements IMethods {
 	}
 
 	public Map<ItemStack, Boolean> getInventoryItemCount(EntityPlayer player, IInventory inventory) {
-		Map<ItemStack, Integer> counts = Maps.newHashMap();
-		Map<ItemStack, ItemStack> base = Maps.newHashMap();
-		List<ItemStack> list = Lists.newArrayList();
+		Map<ItemStack, Integer> counts = new HashMap<>();
+		Map<ItemStack, ItemStack> base = new HashMap<>();
+		List<ItemStack> list = new ArrayList<>();
 		for (int i = 0; i < inventory.getSizeInventory(); i++) {
 			ItemStack stack = inventory.getStackInSlot(i);
 			if (NoppesUtilServer.IsItemStackNull(stack)) {
@@ -485,7 +494,7 @@ public class Util implements IMethods {
 				base.put(stack, stack);
 			}
 		}
-		Map<ItemStack, Boolean> map = Maps.newHashMap();
+		Map<ItemStack, Boolean> map = new HashMap<>();
 		for (ItemStack stack : counts.keySet()) {
 			int count = 0;
 			for (int i = 0; i < player.inventory.mainInventory.size(); ++i) {
@@ -504,7 +513,7 @@ public class Util implements IMethods {
 				}
 			}
 		}
-		Map<ItemStack, Boolean> total = Maps.newLinkedHashMap();
+		Map<ItemStack, Boolean> total = new LinkedHashMap<>();
 		for (ItemStack stack : list) {
 			total.put(stack, map.get(stack));
 		}
@@ -532,21 +541,26 @@ public class Util implements IMethods {
 		return Util.instance.getPosition(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, yaw, pitch, radius);
 	}
 
-	/**
-	 * 1234567890.9 to 1,2G
-	 * 
-	 * @param value
-	 *            - any number
-	 * @param color
-	 *            - need set color
-	 * @return string
-	 */
+	@Override
+	public String getTextNumberToRoman(int value) {
+		if (value > 3999) { return "" + value; }
+		StringBuilder sb = new StringBuilder();
+		for (int key : ROMAN_DIGITS.keySet()) {
+			while (value >= key) {
+				sb.append(ROMAN_DIGITS.get(key));
+				value -= key;
+			}
+		}
+		return sb.reverse().toString();
+	}
+
+	@Override
 	public String getTextReducedNumber(double value, boolean isInteger, boolean color, boolean notPfx) {
 		if (value == 0.0d) {
 			return String.valueOf(value).replace(".", ",");
 		}
 		String chr = "" + ((char) 167);
-		String chrPR= ""; // (char) 8776
+		String chrPR= "" + ((char) 8776);
 		String type = "";
 		String sufc = "";
 		double corr = value;
@@ -932,18 +946,7 @@ public class Util implements IMethods {
 		return entity;
 	}
 
-	/**
-	 * @param ticks
-	 *            - time
-	 * @param isMilliSeconds
-	 *            = true - milliseconds (1 sec = 1000 ms)
-	 *            = false - minecraft time (1 sec = 20 tick)
-	 * @param colored
-	 *            - added color
-	 * @param upped
-	 *            - only the maximum period (years or months or days, etc.)
-	 * @return String
-	 */
+	@Override
 	public String ticksToElapsedTime(long ticks, boolean isMilliSeconds, boolean colored, boolean upped) {
 		String time = isMilliSeconds ? "0.000" : "--/--";
 		String chr = "" + ((char) 167);
@@ -1039,9 +1042,7 @@ public class Util implements IMethods {
 		entity.dimension = dimensionId;
 		Entity newEntity = EntityList.createEntityByIDFromName(Objects.requireNonNull(EntityList.getKey(entity.getClass())), worldserverEnd);
 		if (newEntity != null) {
-			try {
-				Util.instance.copyDataFromOld.invoke(newEntity, entity);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			((IEntityMixin) newEntity).npcs$copyDataFromOld(entity);
 			entity.world.removeEntity(entity);
 			newEntity.forceSpawn = true;
 			worldserverEnd.spawnEntity(newEntity);
@@ -1068,18 +1069,6 @@ public class Util implements IMethods {
 				playerdata.checkQuestCompletion(player, data);
 			}
 		}
-	}
-
-	private Method copyDataFromOld;
-
-	public Util() {
-		try {
-			this.copyDataFromOld = Entity.class.getDeclaredMethod(
-					(Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment") ? "copyDataFromOld"
-							: "func_180432_n",
-					Entity.class);
-			this.copyDataFromOld.setAccessible(true);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	// Stripping a string of color
@@ -1421,9 +1410,7 @@ public class Util implements IMethods {
 
 	@Override
 	public IRayTraceResults rayTraceBlocksAndEntitys(IEntity<?> entity, double yaw, double pitch, double distance) {
-		if (entity == null) {
-			return null;
-		}
+		if (entity == null) { return null; }
 		return rayTraceBlocksAndEntitys(entity.getMCEntity(), yaw, pitch, distance);
 	}
 
@@ -1459,7 +1446,7 @@ public class Util implements IMethods {
 			try {
 				StringBuilder str = new StringBuilder("JSON.parse('" + (isArray ? "[" : "{"));
 				Set<String> sets = ((NBTTagCompound) tag).getKeySet();
-				Map<String, Object> map = Maps.newTreeMap();
+				Map<String, Object> map = new TreeMap<>();
 				for (String k : sets) {
 					if (k.equals("IsArray")) {
 						continue;
@@ -1500,8 +1487,7 @@ public class Util implements IMethods {
 		Entity e = null;
 		try {
 			if (pos != null) {
-				e = this.teleportEntity(CustomNpcs.Server, entity.getMCEntity(), dimension,
-						pos.getMCBlockPos());
+				e = this.teleportEntity(CustomNpcs.Server, entity.getMCEntity(), dimension, pos.getMCBlockPos());
 			} else {
 				e = this.travelAndCopyEntity(CustomNpcs.Server, entity.getMCEntity(), dimension);
 			}
@@ -1521,7 +1507,7 @@ public class Util implements IMethods {
 				return new NBTTagList();
 			}
 			if (vs[0] instanceof Byte) {
-				List<Byte> l = Lists.newArrayList();
+				List<Byte> l = new ArrayList<>();
 				for (Object v : vs) {
 					if (v instanceof Byte) {
 						l.add((Byte) v);
@@ -1535,7 +1521,7 @@ public class Util implements IMethods {
 				}
 				return new NBTTagByteArray(arr);
 			} else if (vs[0] instanceof Integer) {
-				List<Integer> l = Lists.newArrayList();
+				List<Integer> l = new ArrayList<>();
 				for (Object v : vs) {
 					if (v instanceof Integer) {
 						l.add((Integer) v);
@@ -1549,7 +1535,7 @@ public class Util implements IMethods {
 				}
 				return new NBTTagIntArray(arr);
 			} else if (vs[0] instanceof Long) {
-				List<Long> l = Lists.newArrayList();
+				List<Long> l = new ArrayList<>();
 				for (Object v : vs) {
 					if (v instanceof Long) {
 						l.add((Long) v);
@@ -1610,7 +1596,7 @@ public class Util implements IMethods {
 						continue;
 					}
 					if (vs[0] instanceof Byte) {
-						List<Byte> l = Lists.newArrayList();
+						List<Byte> l = new ArrayList<>();
 						for (Object va : vs) {
 							if (va instanceof Byte) {
 								l.add((Byte) va);
@@ -1624,7 +1610,7 @@ public class Util implements IMethods {
 						}
 						nbt.setByteArray(scopeEntry.getKey(), arr);
 					} else if (vs[0] instanceof Integer) {
-						List<Integer> l = Lists.newArrayList();
+						List<Integer> l = new ArrayList<>();
 						for (Object va : vs) {
 							if (va instanceof Integer) {
 								l.add((Integer) va);
@@ -1638,7 +1624,7 @@ public class Util implements IMethods {
 						}
 						nbt.setIntArray(scopeEntry.getKey(), arr);
 					} else if (vs[0] instanceof Long) {
-						List<Long> l = Lists.newArrayList();
+						List<Long> l = new ArrayList<>();
 						for (Object va : vs) {
 							if (va instanceof Long) {
 								l.add((Long) va);
@@ -1695,30 +1681,30 @@ public class Util implements IMethods {
 	}
 
 	public void sort(NonNullList<ItemStack> items) {
-		Map<String, List<ItemStack>> mapArmor = Maps.newTreeMap();
-		Map<String, List<ItemStack>> mapPotion = Maps.newTreeMap();
-		Map<Integer, List<ItemStack>> mapSimple = Maps.newTreeMap();
-		Map<String, List<ItemStack>> mapAny = Maps.newTreeMap();
+		Map<String, List<ItemStack>> mapArmor = new TreeMap<>();
+		Map<String, List<ItemStack>> mapPotion = new TreeMap<>();
+		Map<Integer, List<ItemStack>> mapSimple = new TreeMap<>();
+		Map<String, List<ItemStack>> mapAny = new TreeMap<>();
 		// Collect
 		for (ItemStack stack : items) {
 			if (stack.getItem() instanceof CustomArmor) {
 				String key = ((CustomArmor) stack.getItem()).getCustomName();
-				if (!mapArmor.containsKey(key)) { mapArmor.put(key, Lists.newArrayList()); }
+				if (!mapArmor.containsKey(key)) { mapArmor.put(key, new ArrayList<>()); }
 				mapArmor.get(key).add(stack);
 			}
 			else if (stack.getItem() instanceof ItemPotion) {
 				String key = stack.getItem().getClass().getSimpleName();
-				if (!mapPotion.containsKey(key)) { mapPotion.put(key, Lists.newArrayList()); }
+				if (!mapPotion.containsKey(key)) { mapPotion.put(key, new ArrayList<>()); }
 				mapPotion.get(key).add(stack);
 			}
 			else if (stack.getItem() instanceof ICustomElement) {
 				int key = ((ICustomElement) stack.getItem()).getType();
-				if (!mapSimple.containsKey(key)) { mapSimple.put(key, Lists.newArrayList()); }
+				if (!mapSimple.containsKey(key)) { mapSimple.put(key, new ArrayList<>()); }
 				mapSimple.get(key).add(stack);
 			}
 			else {
 				String key = stack.getItem().getClass().getSimpleName();
-				if (!mapAny.containsKey(key)) { mapAny.put(key, Lists.newArrayList()); }
+				if (!mapAny.containsKey(key)) { mapAny.put(key, new ArrayList<>()); }
 				mapAny.get(key).add(stack);
 			}
 		}
@@ -1817,6 +1803,10 @@ public class Util implements IMethods {
 	public String translateGoogle(String textLanguageKey, String translationLanguageKey, String originalText) {
 		if (translationLanguageKey == null || translationLanguageKey.isEmpty() || originalText == null || originalText.isEmpty()) { return originalText; }
 		if (textLanguageKey == null || textLanguageKey.isEmpty()) { textLanguageKey = "auto"; }
+
+		if (!hasInternet) {
+			return originalText;
+		}
 		if (originalText.length() <= 5000) {
 			return translate(textLanguageKey, translationLanguageKey, originalText);
 		}
@@ -1869,10 +1859,17 @@ public class Util implements IMethods {
 			JsonParser parser = new JsonParser();
 			JsonElement jsonElement = parser.parse(json);
 			JsonArray array = jsonElement.getAsJsonArray();
+			hasInternet = true;
 			// Extract translation
 			return array.get(0).getAsJsonArray().get(0).getAsJsonArray().get(0).getAsString();
 		}
-		catch (Exception e) { LogWriter.error("Error trying to translate via Google", e); }
+		catch (SocketTimeoutException se) {
+			hasInternet = false;
+			LogWriter.error("Error: No internet connection", se);
+		}
+		catch (Exception e) {
+			LogWriter.error("Error trying to translate via Google", e);
+		}
 		return originalText;
 	}
 

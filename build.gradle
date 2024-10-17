@@ -38,7 +38,7 @@ def getVersion() {
 		case 11: month = "Dec"; break
 		default: month = "Jan"; break
 	}
-    return "_v.${mod_version}_" + date.format("dd") + month + date.format("yyyy") + '-Snapshot'
+    return "v.${mod_version}-" + date.format("dd") + month + date.format("yyyy") + '-Snapshot'
 }
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'

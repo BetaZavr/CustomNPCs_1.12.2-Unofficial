@@ -48,11 +48,12 @@ implements IComponentGui {
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
-		this.display = new String[] { "" };
-		this.displayValue = 0;
+		display = new String[] { "" };
+		displayValue = 0;
 		this.texture = texture;
-		this.txrX = textureX;
-		this.txrY = textureY;
+		txrX = textureX;
+		txrY = textureY;
+		isSimple = true;
 	}
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int val, String... display) {
@@ -108,6 +109,7 @@ implements IComponentGui {
 			return;
 		}
 		hovered = (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height);
+		int state = this.getHoverState(this.hovered);
 		if (this.texture == null) {
 			mc.getTextureManager().bindTexture(GuiNPCInterface.MENU_BUTTON);
 			if (this.layerColor != 0) {
@@ -115,29 +117,28 @@ implements IComponentGui {
 			} else {
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			}
-			int i = this.getHoverState(this.hovered);
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-			this.drawTexturedModalRect(this.x, this.y, 0, i * 20, this.width / 2, Math.min(this.height, 20));
-			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, i * 20, this.width / 2, Math.min(this.height, 20));
+			this.drawTexturedModalRect(this.x, this.y, 0, state * 20, this.width / 2, Math.min(this.height, 20));
+			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, state * 20, this.width / 2, Math.min(this.height, 20));
 
 			if (this.height < 20 && this.height >= 6) {
-				this.drawTexturedModalRect(this.x, this.y + this.height - 3, 0, 17 + i * 20, this.width / 2, 3);
-				this.drawTexturedModalRect(this.x + this.width / 2, this.y + this.height - 3, 200 - this.width / 2, 17 + i * 20, this.width / 2, 3);
+				this.drawTexturedModalRect(this.x, this.y + this.height - 3, 0, 17 + state * 20, this.width / 2, 3);
+				this.drawTexturedModalRect(this.x + this.width / 2, this.y + this.height - 3, 200 - this.width / 2, 17 + state * 20, this.width / 2, 3);
 			}
 			if (this.height > 20) {
 				int h = this.height - 20;
 				int j = 0;
 				while (h > 0) {
-					this.drawTexturedModalRect(this.x, this.y + 17 + j * 15, 0, i * 20 + 2, this.width / 2, Math.min(h, 15));
-					this.drawTexturedModalRect(this.x + this.width / 2, this.y + 17 + j * 15, 200 - this.width / 2, i * 20 + 2, this.width / 2, Math.min(h, 15));
+					this.drawTexturedModalRect(this.x, this.y + 17 + j * 15, 0, state * 20 + 2, this.width / 2, Math.min(h, 15));
+					this.drawTexturedModalRect(this.x + this.width / 2, this.y + 17 + j * 15, 200 - this.width / 2, state * 20 + 2, this.width / 2, Math.min(h, 15));
 					h -= 15;
 					j++;
 				}
-				this.drawTexturedModalRect(this.x, this.y + this.height - 3, 0, i * 20 + 17, this.width / 2, 3);
-				this.drawTexturedModalRect(this.x + this.width / 2, this.y + this.height - 3, 200 - this.width / 2, i * 20 + 17, this.width / 2, 3);
+				this.drawTexturedModalRect(this.x, this.y + this.height - 3, 0, state * 20 + 17, this.width / 2, 3);
+				this.drawTexturedModalRect(this.x + this.width / 2, this.y + this.height - 3, 200 - this.width / 2, state * 20 + 17, this.width / 2, 3);
 			}
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			this.mouseDragged(mc, mouseX, mouseY);
@@ -147,9 +148,7 @@ implements IComponentGui {
 				this.drawGradientRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xFF202020, 0xFF202020);
 				this.drawGradientRect(this.x, this.y, this.x + this.width, this.y + this.height, 0xFFA0A0A0, 0xFFA0A0A0);
 			}
-			int state;
 			if (isSimple) {
-				state = !enabled ? 1 : hovered ? 2 : 0;
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -163,7 +162,6 @@ implements IComponentGui {
 				GlStateManager.popMatrix();
 
 			} else {
-				state = getHoverState(hovered);
 				boolean isPrefabricated = txrW == 0;
 				int tw = isPrefabricated ? 200 : txrW;
 				int th = txrH == 0 ? 20 : txrH;
@@ -290,8 +288,8 @@ implements IComponentGui {
 	protected int getHoverState(boolean hovered) {
 		if (this.isSimple) {
 			int i = 0;
-			if (!this.enabled) { i = 3; }
-			else if (hovered) { i = 1; }
+			if (!this.enabled) { i = 2; }
+			else if (hovered) { i = Mouse.isButtonDown(0) ? 2 : 1; }
 			return i;
 		}
 		if (hovered) {

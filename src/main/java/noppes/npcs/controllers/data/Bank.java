@@ -3,10 +3,7 @@ package noppes.npcs.controllers.data;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -30,89 +27,89 @@ public class Bank {
 
 	public static class CeilSettings {
 
-		public ItemStack openStack;
-		public ItemStack upgradeStack;
-		public int ceil, startCeils, maxCeils;
+		public ItemStack openStack = ItemStack.EMPTY;
+		public ItemStack upgradeStack = ItemStack.EMPTY;
+		public int openMoney = 0;
+		public int upgradeMoney = 0;
+		public int ceil = 0;
+		public int startCells = 1;
+		public int maxCells = 27;
 
-		public CeilSettings() {
-			this.ceil = 0;
-			this.openStack = ItemStack.EMPTY;
-			this.upgradeStack = ItemStack.EMPTY;
-			this.startCeils = 1;
-			this.maxCeils = 27;
-		}
+		public CeilSettings() {}
 
 		public CeilSettings(NBTTagCompound nbtCeil) {
-			this();
 			this.read(nbtCeil);
 		}
 
 		public void read(NBTTagCompound nbtCeil) {
 			if (nbtCeil.hasKey("CeilCurrency", 10)) {
-				this.openStack = new ItemStack(nbtCeil.getCompoundTag("CeilCurrency"));
+				openStack = new ItemStack(nbtCeil.getCompoundTag("CeilCurrency"));
 			} else {
-				this.openStack = ItemStack.EMPTY;
+				openStack = ItemStack.EMPTY;
 			}
 			if (nbtCeil.hasKey("CeilUpgrade", 10)) {
-				this.upgradeStack = new ItemStack(nbtCeil.getCompoundTag("CeilUpgrade"));
+				upgradeStack = new ItemStack(nbtCeil.getCompoundTag("CeilUpgrade"));
 			} else {
-				this.upgradeStack = ItemStack.EMPTY;
+				upgradeStack = ItemStack.EMPTY;
 			}
-			this.startCeils = nbtCeil.getInteger("StartCeil");
-			this.maxCeils = nbtCeil.getInteger("MaxCeil");
-			this.ceil = nbtCeil.getInteger("CeilId");
+			startCells = nbtCeil.getInteger("StartCeil");
+			maxCells = nbtCeil.getInteger("MaxCeil");
+			ceil = nbtCeil.getInteger("CeilId");
+			upgradeMoney = nbtCeil.getInteger("CeilUpgradeMoney");
+			openMoney = nbtCeil.getInteger("CeilCurrencyMoney");
 		}
 
 		public void set(CeilSettings settings) {
-			this.openStack = settings.openStack;
-			this.upgradeStack = settings.upgradeStack;
-			this.startCeils = settings.startCeils;
-			this.maxCeils = settings.maxCeils;
+			openStack = settings.openStack;
+			upgradeStack = settings.upgradeStack;
+			openMoney = settings.openMoney;
+			upgradeMoney = settings.upgradeMoney;
+			startCells = settings.startCells;
+			maxCells = settings.maxCells;
 		}
 
 		public void writeTo(NBTTagCompound nbtCeil) {
-			if (this.openStack != null && !this.openStack.isEmpty()) {
-				nbtCeil.setTag("CeilCurrency", this.openStack.writeToNBT(new NBTTagCompound()));
+			if (openStack != null && !openStack.isEmpty()) {
+				nbtCeil.setTag("CeilCurrency", openStack.writeToNBT(new NBTTagCompound()));
 			}
-			if (this.upgradeStack != null && !this.upgradeStack.isEmpty()) {
-				nbtCeil.setTag("CeilUpgrade", this.upgradeStack.writeToNBT(new NBTTagCompound()));
+			if (upgradeStack != null && !upgradeStack.isEmpty()) {
+				nbtCeil.setTag("CeilUpgrade", upgradeStack.writeToNBT(new NBTTagCompound()));
 			}
-			nbtCeil.setInteger("StartCeil", this.startCeils);
-			nbtCeil.setInteger("MaxCeil", this.maxCeils);
-			nbtCeil.setInteger("CeilId", this.ceil);
+			nbtCeil.setInteger("StartCeil", startCells);
+			nbtCeil.setInteger("MaxCeil", maxCells);
+			nbtCeil.setInteger("CeilId", ceil);
+			nbtCeil.setInteger("CeilUpgradeMoney", upgradeMoney);
+			nbtCeil.setInteger("CeilCurrencyMoney", openMoney);
 		}
 	}
-	public final Map<Integer, CeilSettings> ceilSettings;
-	public final List<String> access;
-	public boolean isPublic, isWhiteList;
-	public int id;
 
-	public String name, owner;
+	public final Map<Integer, CeilSettings> ceilSettings = new TreeMap<>();
+	public final List<String> access = new ArrayList<>();
+	public boolean isPublic = false;
+	public boolean isWhiteList = false;
+	public boolean isChanging = true;
+	public int id = -1;
+
+	public String name = "Default Bank";
+	public String owner = "";
 
 	private BankData lastBank;
 
 	public Bank() {
-		this.id = -1;
-		this.name = "Default Bank";
-		this.owner = "";
-		this.ceilSettings = Maps.newTreeMap();
-		this.isPublic = false;
-		this.isWhiteList = false;
-		this.access = Lists.newArrayList();
 		for (int ceil = 0; ceil < 2; ceil++) {
 			CeilSettings cs = new CeilSettings();
 			cs.ceil = ceil;
 			if (ceil == 1) {
-				cs.startCeils = 9;
-				cs.maxCeils = 27;
+				cs.startCells = 9;
+				cs.maxCells = 27;
 				cs.openStack = new ItemStack(Items.DIAMOND, 1, 0);
 				cs.upgradeStack = new ItemStack(Items.GOLD_INGOT, 2, 0);
 			} else {
-				cs.startCeils = 27;
-				cs.maxCeils = 54;
+				cs.startCells = 27;
+				cs.maxCells = 54;
 				cs.upgradeStack = new ItemStack(Items.GOLD_INGOT, 1, 0);
 			}
-			this.ceilSettings.put(ceil, cs);
+			ceilSettings.put(ceil, cs);
 		}
 	}
 
@@ -148,8 +145,8 @@ public class Bank {
 				try {
 					bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
 				} catch (IOException e) { LogWriter.error("Error:", e); }
-				if (!bd.ceils.containsKey(cs.ceil)) {
-					bd.ceils.put(cs.ceil, new NpcMiscInventory(0));
+				if (!bd.cells.containsKey(cs.ceil)) {
+					bd.cells.put(cs.ceil, new NpcMiscInventory(0));
 					bd.save();
 				}
 			} else {
@@ -168,8 +165,8 @@ public class Bank {
 						try {
 							bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
 						} catch (IOException e) { LogWriter.error("Error:", e); }
-						if (!bd.ceils.containsKey(cs.ceil)) {
-							bd.ceils.put(cs.ceil, new NpcMiscInventory(0));
+						if (!bd.cells.containsKey(cs.ceil)) {
+							bd.cells.put(cs.ceil, new NpcMiscInventory(0));
 							bd.save();
 						}
 					}
@@ -208,7 +205,7 @@ public class Bank {
 			this.lastBank = null;
 			return null;
 		}
-		if (this.lastBank.ceils.isEmpty()) {
+		if (this.lastBank.cells.isEmpty()) {
 			this.lastBank.clear();
 		}
 		return this.lastBank;
@@ -226,11 +223,12 @@ public class Bank {
 
 		String pldOwner = this.owner;
 		if (nbtBank.hasKey("StartSlots", 3)) {
-			this.isPublic = false;
-			this.isWhiteList = false;
-			int maxCeils = nbtBank.getInteger("MaxSlots");
-			NpcMiscInventory oldCInv = new NpcMiscInventory(maxCeils);
-			NpcMiscInventory oldUInv = new NpcMiscInventory(maxCeils);
+			isPublic = false;
+			isWhiteList = false;
+			isChanging = true;
+			int maxCells = nbtBank.getInteger("MaxSlots");
+			NpcMiscInventory oldCInv = new NpcMiscInventory(maxCells);
+			NpcMiscInventory oldUInv = new NpcMiscInventory(maxCells);
 			oldCInv.setFromNBT(nbtBank.getCompoundTag("BankCurrency"));
 			oldUInv.setFromNBT(nbtBank.getCompoundTag("BankUpgrade"));
 			for (int ceil = 0; ceil < oldCInv.getSizeInventory(); ceil++) {
@@ -239,17 +237,21 @@ public class Bank {
 				cs.openStack = oldCInv.getStackInSlot(ceil);
 				cs.upgradeStack = oldUInv.getStackInSlot(ceil);
 				cs.upgradeStack.setCount(1);
-				cs.startCeils = 27;
-				cs.maxCeils = cs.upgradeStack.isEmpty() ? 27 : 54;
+				cs.startCells = 27;
+				cs.maxCells = cs.upgradeStack.isEmpty() ? 27 : 54;
 				this.ceilSettings.put(ceil, cs);
 			}
 		} else {
-			NBTTagList list = nbtBank.getTagList("BankCeils", 10);
+			NBTTagList list = nbtBank.getTagList("BankCells", 10);
+			if (list.tagCount() ==0 && nbtBank.hasKey("BankCeils", 9)) { // old typo
+				list = nbtBank.getTagList("BankCeils", 10);
+			}
 			for (int ceil = 0; ceil < list.tagCount(); ceil++) {
 				this.ceilSettings.put(ceil, new CeilSettings(list.getCompoundTagAt(ceil)));
 			}
 			this.isPublic = nbtBank.getBoolean("IsPublic");
 			this.isWhiteList = nbtBank.getBoolean("IsWhiteList");
+			if (nbtBank.hasKey("IsChanging", 1)) { isChanging = nbtBank.getBoolean("IsChanging"); }
 			this.owner = nbtBank.getString("Owner");
 			list = nbtBank.getTagList("BankNamesPlayersAccess", 8);
 			for (int i = 0; i < list.tagCount(); i++) {
@@ -277,10 +279,10 @@ public class Bank {
 			if (!this.access.isEmpty()) {
 				List<String> newAccess = Lists.newArrayList();
 				boolean isChanged = false;
-				for (String acces : this.access) {
-					if (!names.contains(acces)) {
+				for (String ac : this.access) {
+					if (!names.contains(ac)) {
 						for (String name : names) {
-							if (name.equalsIgnoreCase(acces)) {
+							if (name.equalsIgnoreCase(ac)) {
 								newAccess.add(name);
 								isChanged = true;
 								break;
@@ -288,7 +290,7 @@ public class Bank {
 						}
 						continue;
 					}
-					newAccess.add(acces);
+					newAccess.add(ac);
 				}
 				if (this.access.size() != newAccess.size() || isChanged) {
 					this.access.clear();
@@ -333,17 +335,17 @@ public class Bank {
 				try {
 					bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
 				} catch (IOException e) { LogWriter.error("Error:", e); }
-				Map<Integer, NpcMiscInventory> newCeils = Maps.newTreeMap();
+				Map<Integer, NpcMiscInventory> newCells = Maps.newTreeMap();
 				int i = 0;
-				for (NpcMiscInventory inv : bd.ceils.values()) {
+				for (NpcMiscInventory inv : bd.cells.values()) {
 					if (i == ceilId) {
 						continue;
 					}
-					newCeils.put(i, inv);
+					newCells.put(i, inv);
 					i++;
 				}
-				bd.ceils.clear();
-				bd.ceils.putAll(newCeils);
+				bd.cells.clear();
+				bd.cells.putAll(newCells);
 				bd.save();
 			} else {
 				File datasDir = CustomNpcs.getWorldSaveDirectory("playerdata");
@@ -361,17 +363,17 @@ public class Bank {
 						try {
 							bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
 						} catch (IOException e) { LogWriter.error("Error:", e); }
-						Map<Integer, NpcMiscInventory> newCeils = Maps.newTreeMap();
+						Map<Integer, NpcMiscInventory> newCells = Maps.newTreeMap();
 						int i = 0;
-						for (int c : bd.ceils.keySet()) {
+						for (int c : bd.cells.keySet()) {
 							if (c == ceilId) {
 								continue;
 							}
-							newCeils.put(i, bd.ceils.get(c));
+							newCells.put(i, bd.cells.get(c));
 							i++;
 						}
-						bd.ceils.clear();
-						bd.ceils.putAll(newCeils);
+						bd.cells.clear();
+						bd.cells.putAll(newCells);
 						bd.save();
 					}
 				}
@@ -397,6 +399,7 @@ public class Bank {
 		nbtBank.setString("Username", this.name);
 		nbtBank.setBoolean("IsPublic", this.isPublic);
 		nbtBank.setBoolean("IsWhiteList", this.isWhiteList);
+		nbtBank.setBoolean("IsChanging", this.isChanging);
 		nbtBank.setString("Owner", this.owner);
 		if (this.name.isEmpty()) {
 			this.name = "Default Bank";
@@ -409,7 +412,7 @@ public class Bank {
 			this.ceilSettings.get(ceil).writeTo(nbtCeil);
 			listCS.appendTag(nbtCeil);
 		}
-		nbtBank.setTag("BankCeils", listCS);
+		nbtBank.setTag("BankCells", listCS);
 
 		NBTTagList listNPA = new NBTTagList();
 		for (String n : this.access) {

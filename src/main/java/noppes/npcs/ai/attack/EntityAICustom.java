@@ -187,7 +187,6 @@ public class EntityAICustom extends EntityAIBase {
 			this.rangedTick = Math.max(this.rangedTick - this.tickRate, 0);
 			this.range = this.npc.stats.ranged.getRange();
 		} else {
-			//System.out.println("CNPCs: "+npc.ticksExisted+"; "+tickRate+" = "+meleeTick);
 			this.meleeTick = Math.max(this.meleeTick - this.tickRate, 0);
 			this.range = this.npc.stats.melee.getRange();
 			double minRange = (this.npc.width + this.target.width) / 2.0d;

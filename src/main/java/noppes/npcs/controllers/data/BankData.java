@@ -28,7 +28,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class BankData {
 
 	public Bank bank;
-	public final Map<Integer, NpcMiscInventory> ceils;
+	public final Map<Integer, NpcMiscInventory> cells;
 	private final String uuid;
 
 	public BankData(Bank bank, String uuid) {
@@ -37,19 +37,19 @@ public class BankData {
 		if (this.bank == null) {
 			this.bank = new Bank();
 		}
-		this.ceils = Maps.newTreeMap();
+		this.cells = Maps.newTreeMap();
 		this.clear();
 	}
 
 	public void clear() {
-		this.ceils.clear();
+		this.cells.clear();
 		boolean isStart = true;
 		for (int ceil : this.bank.ceilSettings.keySet()) {
 			CeilSettings cs = this.bank.ceilSettings.get(ceil);
 			if (isStart) {
 				isStart = cs.openStack.isEmpty();
 			}
-			this.ceils.put(ceil, new NpcMiscInventory(isStart ? cs.startCeils : 0));
+			this.cells.put(ceil, new NpcMiscInventory(isStart ? cs.startCells : 0));
 		}
 	}
 
@@ -57,15 +57,15 @@ public class BankData {
 		NBTTagCompound nbtBD = new NBTTagCompound();
 		nbtBD.setInteger("id", this.bank.id);
 		NBTTagList list = new NBTTagList();
-		for (int ceil : this.ceils.keySet()) {
+		for (int ceil : this.cells.keySet()) {
 			NBTTagCompound nbtCeil = new NBTTagCompound();
 			nbtCeil.setInteger("ceil", ceil);
-			nbtCeil.setInteger("slots", this.ceils.get(ceil).getSizeInventory());
-			NBTTagCompound invNbt = this.ceils.get(ceil).getToNBT();
+			nbtCeil.setInteger("slots", this.cells.get(ceil).getSizeInventory());
+			NBTTagCompound invNbt = this.cells.get(ceil).getToNBT();
 			nbtCeil.setTag("NpcMiscInv", invNbt.getTag("NpcMiscInv"));
 			list.appendTag(nbtCeil);
 		}
-		nbtBD.setTag("ceils", list);
+		nbtBD.setTag("cells", list);
 		return nbtBD;
 	}
 
@@ -74,32 +74,34 @@ public class BankData {
 	}
 
 	public void openBankGui(EntityPlayer player, EntityNPCInterface npc, int ceil) {
-		if (!this.ceils.containsKey(ceil) || !(player instanceof EntityPlayerMP)) {
+		if (!this.cells.containsKey(ceil) || !(player instanceof EntityPlayerMP)) {
 			return;
 		}
-		if (this.bank.isPublic && !player.capabilities.isCreativeMode && !this.bank.access.isEmpty()
-				&& !this.bank.owner.equals(player.getName())) {
+		if (this.bank.isPublic && !player.capabilities.isCreativeMode && !this.bank.access.isEmpty() && !this.bank.owner.equals(player.getName())) {
 			if ((this.bank.isWhiteList && !this.bank.access.contains(player.getName()))
 					|| (!this.bank.isWhiteList && this.bank.access.contains(player.getName()))) {
-				player.sendMessage(new TextComponentTranslation("message.bank.not.accsess"));
+				player.sendMessage(new TextComponentTranslation("message.bank.not.access"));
 				return;
 			}
 		}
 		NBTTagCompound nbtBank = new NBTTagCompound();
 		this.bank.writeToNBT(nbtBank);
 		Server.sendData((EntityPlayerMP) player, EnumPacketClient.SYNC_UPDATE, EnumSync.BankData, nbtBank);
-		NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerBank, npc, this.bank.id, ceil, this.ceils.get(ceil).getSizeInventory());
+		NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerBank, npc, this.bank.id, ceil, this.cells.get(ceil).getSizeInventory());
 	}
 
 	public void readNBT(NBTTagCompound nbtBD) {
 		this.bank = BankController.getInstance().banks.get(nbtBD.getInteger("id"));
-		NBTTagList list = nbtBD.getTagList("ceils", 10);
-		this.ceils.clear();
+		NBTTagList list = nbtBD.getTagList("cells", 10);
+		if (list.tagCount() == 0 && nbtBD.hasKey("ceils", 9)) { // old typo
+			list = nbtBD.getTagList("ceils", 10);
+		}
+		this.cells.clear();
 		for (int ceil = 0; ceil < list.tagCount(); ceil++) {
 			NBTTagCompound nbtCeil = list.getCompoundTagAt(ceil);
 			NpcMiscInventory inv = new NpcMiscInventory(nbtCeil.getInteger("slots"));
 			inv.setFromNBT(nbtCeil);
-			this.ceils.put(nbtCeil.getInteger("ceil"), inv);
+			this.cells.put(nbtCeil.getInteger("ceil"), inv);
 		}
 	}
 
@@ -125,12 +127,12 @@ public class BankData {
 
 	public void setNBT(NBTTagCompound nbtBD) {
 		this.bank = BankController.getInstance().banks.get(nbtBD.getInteger("id"));
-		NBTTagList list = nbtBD.getTagList("ceils", 10);
+		NBTTagList list = nbtBD.getTagList("cells", 10);
 		for (int ceil = 0; ceil < list.tagCount(); ceil++) {
 			NBTTagCompound nbtCeil = list.getCompoundTagAt(ceil);
 			NpcMiscInventory inv = new NpcMiscInventory(nbtCeil.getInteger("slots"));
 			inv.setFromNBT(nbtCeil);
-			this.ceils.put(nbtCeil.getInteger("ceil"), inv);
+			this.cells.put(nbtCeil.getInteger("ceil"), inv);
 		}
 	}
 

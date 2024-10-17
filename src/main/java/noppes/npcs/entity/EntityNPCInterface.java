@@ -1826,11 +1826,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (this.animation.isAnimated() && this.animation.getAnimationType() == AnimationKind.INIT) {
 			return;
 		}
-
-		if (getAttackTarget() != null && entityTarget == null) {
-			System.out.println("CNPCs: "+this+" <- "+getAttackTarget());
-		}
-
 		if (this.ais.aiDisabled && !this.isEntityAlive() || this.getAttackTarget() == entityTarget) {
 			return;
 		}
