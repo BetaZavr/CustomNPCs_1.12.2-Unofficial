@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -126,7 +127,9 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		super(Util.instance.getResourceName(group), isGlobal ? 3 : 4, isGlobal ? 3 : 4, ingredients, result);
 		this.recipeWidth = isGlobal ? 3 : 4;
 		this.recipeHeight = isGlobal ? 3 : 4;
+		if (ingredients.isEmpty()) { ingredients.add(Ingredient.fromStacks(new ItemStack(Blocks.COBBLESTONE))); }
 		this.recipeItems = ingredients;
+		if (result.isEmpty()) { result = new ItemStack(Blocks.COBBLESTONE); }
 		this.recipeOutput = result;
 		this.id = -1;
 		this.name = Util.instance.getResourceName(name);

@@ -99,8 +99,8 @@ implements IComponentGui {
 			}
 			String displayString = this.list.get(i) == null ? "null" : this.list.get(i);
 			try {
-				displayString = new TextComponentTranslation(this.list.get(i)).getFormattedText();
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+				displayString = new TextComponentTranslation(displayString).getFormattedText();
+			} catch (Exception ignored) { }
 
 			String text = "";
 			float maxWidth = (this.width + xOffset - 8) * 0.8f;

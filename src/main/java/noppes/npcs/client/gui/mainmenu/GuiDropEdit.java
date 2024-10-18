@@ -65,19 +65,20 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 
 	public GuiDropEdit(EntityNPCInterface npc, ContainerNPCDropSetup cont, GuiContainer gui, int dropType, int groupId, int pos) {
 		super(npc, cont);
-		this.parent = gui;
+		ySize = 200;
+		closeOnEsc = true;
+		setBackground("npcdrop.png");
+
+		parent = gui;
 		this.dropType = dropType;
 		this.groupId = groupId;
-		this.slot = pos;
-		this.drop = cont.inventoryDS;
-		this.setBackground("npcdrop.png");
-		this.ySize = 200;
-		this.closeOnEsc = true;
-		this.scrollEnchants = null;
-		this.scrollAttributes = null;
-		this.scrollTags = null;
-		this.reset = 0;
-		this.amount = new int[] { this.drop.getMinAmount(), this.drop.getMaxAmount() };
+		slot = pos;
+		drop = cont.inventoryDS;
+		scrollEnchants = null;
+		scrollAttributes = null;
+		scrollTags = null;
+		reset = 0;
+		amount = new int[] { drop.getMinAmount(), drop.getMaxAmount() };
 	}
 
 	@Override
@@ -149,8 +150,8 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	public void close() {
 		GuiNpcTextField.unfocus();
 		if (this.parent != null) {
-			this.save();
-			this.displayGuiScreen(this.parent);
+			save();
+			displayGuiScreen(parent);
 		} else {
 			super.close();
 		}
@@ -162,7 +163,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		if (this.reset > 0) {
 			this.reset--;
 			if (this.reset == 0) {
-				this.initGui();
+				initGui();
 			}
 		}
 		if (this.subgui != null) {
@@ -266,9 +267,9 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.slot", this.guiLeft + 171, this.guiTop + 139));
 		// chance
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.chance", this.guiLeft + 229, this.guiTop + 145));
-		GuiNpcTextField chance = new GuiNpcTextField(0, this, this.guiLeft + 268, this.guiTop + 140, 50, 20, String.valueOf(this.drop.getChance()));
-		chance.setDoubleNumbersOnly().setMinMaxDoubleDefault(0.0001d, 100.0d, this.drop.getChance());
-		chance.setEnabled(!this.drop.item.isEmpty());
+		GuiNpcTextField chance = new GuiNpcTextField(0, this, this.guiLeft + 268, this.guiTop + 140, 50, 20, String.valueOf(drop.getChance()));
+		chance.setDoubleNumbersOnly().setMinMaxDoubleDefault(0.0001d, 100.0d, drop.getChance());
+		chance.setEnabled(!drop.item.isEmpty());
 		this.addTextField(chance);
 		// amount
 		boolean needReAmount = false;
@@ -409,16 +410,16 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	@Override
 	public void save() {
 		GuiNpcTextField.unfocus();
-		if (this.slot == -1) {
-			if (this.drop.item.isEmpty()) {
+		if (slot == -1) {
+			if (drop.item.isEmpty()) {
 				return;
 			}
-			if (this.drop.getMinAmount() == 1 && this.drop.getMinAmount() == 1) {
-				this.drop.setAmount(this.drop.item.getStackSize(), this.drop.item.getStackSize());
+			if (drop.getMinAmount() == 1 && drop.getMinAmount() == 1) {
+				drop.setAmount(drop.item.getStackSize(), drop.item.getStackSize());
 			}
 		}
-		this.drop.item.setStackSize(1);
-		Client.sendData(EnumPacketServer.MainmenuInvDropSave, this.dropType, this.groupId, this.slot, this.drop.getNBT());
+		drop.item.setStackSize(1);
+		Client.sendData(EnumPacketServer.MainmenuInvDropSave, dropType, groupId, slot, drop.getNBT());
 	}
 
 	@Override
@@ -489,28 +490,28 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
 		switch (textField.getId()) {
-		case 0: { // common chance
-			this.drop.setChance(textField.getDouble());
-			break;
-		}
-		case 1: { // amount min
-			this.amount[0] = textField.getInteger();
-			this.drop.setAmount(this.amount[0], this.amount[1]);
-			break;
-		}
-		case 2: { // amount max
-			this.amount[1] = textField.getInteger();
-			this.drop.setAmount(this.amount[0], this.amount[1]);
-			break;
-		}
-		case 3: { // break item
-			this.drop.setDamage((float) textField.getDouble());
-			break;
-		}
-		case 4: { // quest set
-            this.drop.questId = textField.getInteger();
-			break;
-		}
+			case 0: { // common chance
+				this.drop.setChance(textField.getDouble());
+				break;
+			}
+			case 1: { // amount min
+				this.amount[0] = textField.getInteger();
+				this.drop.setAmount(this.amount[0], this.amount[1]);
+				break;
+			}
+			case 2: { // amount max
+				this.amount[1] = textField.getInteger();
+				this.drop.setAmount(this.amount[0], this.amount[1]);
+				break;
+			}
+			case 3: { // break item
+				this.drop.setDamage((float) textField.getDouble());
+				break;
+			}
+			case 4: { // quest set
+				this.drop.questId = textField.getInteger();
+				break;
+			}
 		}
 	}
 

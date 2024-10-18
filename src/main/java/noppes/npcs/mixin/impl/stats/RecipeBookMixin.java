@@ -7,14 +7,13 @@ import net.minecraft.stats.RecipeBook;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.mixin.client.stats.IRecipeBookMixin;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import javax.annotation.Nullable;
 import java.util.BitSet;
 
 @Mixin(value = RecipeBook.class)
@@ -30,19 +29,32 @@ public class RecipeBookMixin implements IRecipeBookMixin {
     @Shadow
     protected BitSet newRecipes;
 
+    @Inject(method = "unlock", at = @At("HEAD"), cancellable = true)
+    public void npcs$unlock(IRecipe recipe, CallbackInfo ci) {
+        ci.cancel();
+        int recipeID = npcs$getRecipeId(recipe);
+        if (!recipe.isDynamic() && recipeID != -1) {
+            recipes.set(recipeID);
+        }
+    }
+
+    @Inject(method = "lock", at = @At("HEAD"), cancellable = true)
+    public void npcs$lock(IRecipe recipe, CallbackInfo ci) {
+        ci.cancel();
+        int recipeID = npcs$getRecipeId(recipe);
+        if (recipeID != -1) {
+            recipes.clear(recipeID);
+            newRecipes.clear(recipeID);
+        }
+    }
+
     @Deprecated //DO NOT USE
     @Inject(method = "isUnlocked", at = @At("HEAD"), cancellable = true)
     public void npcs$isUnlocked(IRecipe recipe, CallbackInfoReturnable<Boolean> cir) {
-        cir.cancel();
-        int recipeID = CraftingManager.REGISTRY.getIDForObject(recipe);
-        if (recipeID == -1) {
-            recipeID = ((net.minecraftforge.registries.ForgeRegistry<IRecipe>) net.minecraftforge.fml.common.registry.ForgeRegistries.RECIPES).getID(recipe.getRegistryName());
-        }
-        if (recipeID == -1) {
+        if (npcs$getRecipeId(recipe) == -1) {
+            cir.cancel();
             cir.setReturnValue(false);
             LogWriter.error(String.format("Attempted to get the ID for a unknown recipe: %s Name: %s", recipe, recipe.getRegistryName()));
-        } else {
-            cir.setReturnValue(this.recipes.get(recipeID));
         }
     }
 
@@ -100,6 +112,15 @@ public class RecipeBookMixin implements IRecipeBookMixin {
             newRecipes = newRecipesN;
         }
         return bo;
+    }
+
+    @Unique
+    private int npcs$getRecipeId(IRecipe recipe) {
+        int recipeID = CraftingManager.REGISTRY.getIDForObject(recipe);
+        if (recipeID == -1) {
+            recipeID = ((net.minecraftforge.registries.ForgeRegistry<IRecipe>) net.minecraftforge.fml.common.registry.ForgeRegistries.RECIPES).getID(recipe.getRegistryName());
+        }
+        return recipeID;
     }
 
 }

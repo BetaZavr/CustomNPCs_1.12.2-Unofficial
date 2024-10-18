@@ -3,8 +3,10 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -49,7 +51,7 @@ public class DropController {
 
 	private String filePath;
 
-	public final Map<String, DropsTemplate> templates = Maps.newTreeMap();
+	public final Map<String, DropsTemplate> templates = new TreeMap<>();
 
 	public DropController() {
 		this.filePath = CustomNpcs.Dir.getAbsolutePath();
@@ -198,18 +200,20 @@ public class DropController {
 	}
 
 	public void sendTo(EntityPlayerMP player) {
+		if (templates.isEmpty()) { loadDefaultDrops(); }
+		Map<String, DropsTemplate> tempMap = new TreeMap<>(templates);
 		Server.sendData(player, EnumPacketClient.DROP_GROUP_DATA, new NBTTagCompound());
-		for (String template : this.templates.keySet()) {
+		for (String template : tempMap.keySet()) {
 			NBTTagCompound nbtTemplate = new NBTTagCompound();
 			nbtTemplate.setString("Name", template);
-			nbtTemplate.setTag("Groups", this.templates.get(template).getNBT());
+			nbtTemplate.setTag("Groups", tempMap.get(template).getNBT());
 			Server.sendData(player, EnumPacketClient.DROP_GROUP_DATA, nbtTemplate);
 		}
 		Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 	}
 	
 	public void sendToServer(String dropTemplate) {
-		if (this.templates.containsKey(dropTemplate)) {
+		if (templates.containsKey(dropTemplate)) {
 			NBTTagCompound nbtTemplate = new NBTTagCompound();
 			nbtTemplate.setString("Name", dropTemplate);
 			nbtTemplate.setTag("Groups", this.templates.get(dropTemplate).getNBT());

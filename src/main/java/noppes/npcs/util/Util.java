@@ -106,6 +106,7 @@ public class Util implements IMethods {
 		put(500, "D");
 		put(1000, "M");
 	}};
+	private static final Map<String, Map<String, String>> translateDate = new HashMap<>();
 
 	public final static Util instance = new Util();
 	public static boolean hasInternet = true;
@@ -1803,12 +1804,16 @@ public class Util implements IMethods {
 	public String translateGoogle(String textLanguageKey, String translationLanguageKey, String originalText) {
 		if (translationLanguageKey == null || translationLanguageKey.isEmpty() || originalText == null || originalText.isEmpty()) { return originalText; }
 		if (textLanguageKey == null || textLanguageKey.isEmpty()) { textLanguageKey = "auto"; }
-
+		if (translateDate.containsKey(translationLanguageKey) && translateDate.get(translationLanguageKey).containsKey(originalText)) {
+			return translateDate.get(translationLanguageKey).get(originalText);
+		}
 		if (!hasInternet) {
 			return originalText;
 		}
 		if (originalText.length() <= 5000) {
-			return translate(textLanguageKey, translationLanguageKey, originalText);
+			if (!translateDate.containsKey(translationLanguageKey)) { translateDate.put(translationLanguageKey, new HashMap<>()); }
+			translateDate.get(translationLanguageKey).put(originalText, translate(textLanguageKey, translationLanguageKey, originalText));
+			return translateDate.get(translationLanguageKey).get(originalText);
 		}
 		String type = " "; // simple words
 		if (originalText.contains("\n")) { type = "\n"; } // some code
@@ -1837,8 +1842,14 @@ public class Util implements IMethods {
 		for (String translatedPart : translatedParts) {
 			text.append(translatedPart).append(type);
 		}
-		return text.toString();
-     }
+		if (!translateDate.containsKey(translationLanguageKey)) { translateDate.put(translationLanguageKey, new HashMap<>()); }
+		translateDate.get(translationLanguageKey).put(originalText, translate(textLanguageKey, translationLanguageKey, text.toString()));
+		return translateDate.get(translationLanguageKey).get(originalText);
+	}
+
+	public String translateGoogle(EntityPlayer player, String originalText) {
+		return translateGoogle("en", CustomNpcs.proxy.getTranslateLanguage(player), originalText);
+	}
 
 	private String translate(String textLanguageKey, String translationLanguageKey, String originalText) {
 		try {

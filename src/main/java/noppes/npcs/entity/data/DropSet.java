@@ -25,6 +25,9 @@ import noppes.npcs.api.handler.data.IQuestCategory;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NBTWrapper;
+import noppes.npcs.controllers.QuestController;
+import noppes.npcs.controllers.data.Quest;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 
 import javax.annotation.Nonnull;
@@ -140,11 +143,10 @@ public class DropSet implements IInventory, ICustomDrop {
 		}
 		dItem.setCount(a);
 		// Damage
-		if (dItem.getMaxDamage() > 0 && (this.damage < 1.0f)) {
+		if (dItem.getMaxDamage() > 0 && (damage < 1.0f)) {
 			int d, max = dItem.getMaxDamage();
 			if (this.tiedToLevel) {
-				d = Math
-						.round((1.0f - this.damage) * (float) max * (float) this.npcLevel / (float) CustomNpcs.MaxLv);
+				d = Math.round((1.0f - this.damage) * (float) max * (float) this.npcLevel / (float) CustomNpcs.MaxLv);
 			} else {
 				d = (int) Math.round((1.0f - this.damage) * (float) max * Math.random());
 			}
@@ -206,6 +208,11 @@ public class DropSet implements IInventory, ICustomDrop {
 				if (dns.values.length > 0 && (dns.chance >= 1.0d || dns.chance * addChance / 100.0d < Math.random())) {
 					tag = dns.getConstructoredTag(new NBTWrapper(tag)).getMCNBT();
 				}
+			}
+		}
+		if (dItem.hasTagCompound()) {
+			if (dItem.getTagCompound() != null && dItem.getTagCompound().getKeySet().isEmpty()) {
+				dItem.setTagCompound(null);
 			}
 		}
 		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(dItem);
@@ -296,51 +303,6 @@ public class DropSet implements IInventory, ICustomDrop {
 	@Override
 	public IItemStack getItem() {
 		return this.item;
-	}
-
-	public String getKey() {
-		String keyName;
-		char c = ((char) 167);
-		if (this.item == null) {
-			return "null";
-		}
-		if (this.item.isEmpty()) {
-			return "type.empty";
-		}
-		keyName = c + "7" + this.pos + ":";
-		double ch = Math.round(this.chance * 10.0d) / 10.d;
-		String chance = String.valueOf(ch).replace(".", ",");
-		if (ch == (int) ch) {
-			chance = String.valueOf((int) ch);
-		}
-		chance += "%";
-		keyName += c + "e" + chance;
-		if (this.amount[0] == this.amount[1]) {
-			keyName += c + "7[" + c + "6" + this.amount[0] + c + "7]";
-		} else {
-			keyName += c + "7[" + c + "6" + this.amount[0] + c + "7-" + c + "6" + this.amount[1] + c + "7]";
-		}
-		String effs = "";
-		if (!this.enchants.isEmpty()) {
-			effs = c + "7 |" + c + "bE" + c + "7|";
-		}
-		if (!this.attributes.isEmpty()) {
-			if (effs.isEmpty()) {
-				effs += c + "7 |";
-			}
-			effs += c + "aA" + c + "7|";
-		}
-		if (!this.tags.isEmpty()) {
-			if (effs.isEmpty()) {
-				effs += c + "7 |";
-			}
-			effs += c + "cT" + c + "7|";
-		}
-		keyName += effs + " " + c + "r" + this.item.getDisplayName();
-		if (pos < 0) {
-			keyName += ((char) 167) + "8 ID:" + this.toString().substring(this.toString().indexOf("@") + 1);
-		}
-		return keyName;
 	}
 
 	@Override
@@ -544,8 +506,7 @@ public class DropSet implements IInventory, ICustomDrop {
 			if (item.getItemDamage() == item.getMaxItemDamage()) {
 				this.damage = 1.0f;
 			} else {
-				this.damage = (float) Math
-						.round((double) item.getItemDamage() / (double) item.getMaxItemDamage() * 100.0d) / 100.0f;
+				this.damage = (float) Math.round((double) item.getItemDamage() / (double) item.getMaxItemDamage() * 100.0d) / 100.0f;
 			}
 		}
 		this.amount = new int[] { 1, 1 };
@@ -638,7 +599,7 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public void setDamage(float dam) {
-		this.damage = ValueUtil.correctFloat(dam, 0, 1);
+		this.damage = ValueUtil.correctFloat(dam, 0.0f, 1.0f);
 	}
 
 	@Override
@@ -678,6 +639,118 @@ public class DropSet implements IInventory, ICustomDrop {
 	@Override
 	public void setTiedToLevel(boolean tied) {
 		this.tiedToLevel = tied;
+	}
+
+
+	public String getKey() {
+		String keyName;
+		char c = ((char) 167);
+		if (item == null) {
+			return "null";
+		}
+		if (item.isEmpty()) {
+			return "type.empty";
+		}
+		keyName = c + "7" + (pos + 1) + ": ";
+
+		double ch = Math.round(chance * 10.0d) / 10.d;
+		String chance = String.valueOf(ch).replace(".", ",");
+		if (ch == (int) ch) { chance = String.valueOf((int) ch); }
+		chance += "%";
+		keyName += c + "e" + chance;
+
+		if (amount[0] == amount[1]) {
+			keyName += c + "7[" + c + "6" + amount[0] + c + "7]";
+		} else {
+			keyName += c + "7[" + c + "6" + amount[0] + c + "7-" + c + "6" + amount[1] + c + "7]";
+		}
+		String effs = "";
+		if (!enchants.isEmpty()) {
+			effs = c + "7 |" + c + "bE" + c + "7|";
+		}
+		if (!attributes.isEmpty()) {
+			if (effs.isEmpty()) {
+				effs += c + "7 |";
+			}
+			effs += c + "aA" + c + "7|";
+		}
+		if (!tags.isEmpty()) {
+			if (effs.isEmpty()) {
+				effs += c + "7 |";
+			}
+			effs += c + "cT" + c + "7|";
+		}
+		keyName += effs + " " + c + "r" + item.getDisplayName();
+		if (pos < 0) {
+			keyName += c + "8 ID:" + toString().substring(toString().indexOf("@") + 1);
+		}
+		return keyName;
+	}
+
+	public String[] getHover(EntityPlayer player) {
+		List<String> list = new ArrayList<>();
+		char c = ((char) 167);
+		// pos
+		if (pos < 0) { list.add(c + "7-" + c + "8 ID:" + toString().substring(toString().indexOf("@") + 1)); }
+		else { list.add(c + "7- ID: " + c + "r" + pos); }
+		// stack
+		if (item == null) { list.add(c + "7- Item: " + c + "4null"); }
+		else if (item.isEmpty()) { list.add(c + "7- Item: " + c + "cEmpty"); }
+		else { list.add(c + "7- Item: " + c + "r" + item.getMCItemStack().getItem().getRegistryName()); }
+		// amount
+		if (amount[0] == amount[1]) { list.add(c + "7- Amount: " + c + "6" + amount[0]); }
+		else { list.add(c + "7- Amount: " + c + "7[min:" + c + "6" + amount[0] + c + "7; max:" + c + "6" + amount[1] + c + "7]"); }
+		// chance
+		if (chance == (int) chance) { list.add(c + "7- Chance: " + c + "e" + ((int) chance) + c + "7%"); }
+		else { list.add(c + "7- Chance: " + c + "e" + ("" + chance).replace(".", ",") + c + "7%"); }
+		// loot mode
+		if (lootMode) { list.add(c + "7- Loot: " + c + "r" + Util.instance.translateGoogle(player, "Will fall to the ground")); }
+		else { list.add(c + "7- Loot: " + c + "r" + Util.instance.translateGoogle(player, "Awarded to the player who killed this NPC")); }
+   		// damage
+		if (damage == 1.0f) { list.add(c + "7- Max. breakdown (meta): " + c + "r" + Util.instance.translateGoogle(player, "Doesn't change")); }
+		else { list.add(c + "7- Max. breakdown (meta): " + c + "6" + ("" + Math.round(damage * 10000.0f) / 100.0f).replace(".", ",") + c + "7% from " + c + "6" + (item == null ? "0" : item.getMaxItemDamage())); }
+		// tiedToLevel
+		if (tiedToLevel) { list.add(c + "7- " + Util.instance.translateGoogle(player, "NPC level is taken into account. Average: ") + c + "6" + npcLevel); }
+		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "NPC level does not affect parameters")); }
+		// quest
+		if (questId > 0) {
+			String quest = c + "7- Quest ID: " + c + "2" + questId;
+			Quest q = QuestController.instance.quests.get(questId);
+			if (q != null) { quest += c + "7; Name: " + c + "r" + q.getTitle(); }
+			list.add(quest);
+		}
+		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "Quest ID not specified")); }
+		// enchants
+		if (!enchants.isEmpty()) {
+			StringBuilder ench = new StringBuilder();
+			for (EnchantSet es : enchants) {
+				if (ench.length() > 0) { ench.append(c).append("7, "); }
+				ench.append(es.ench == null ? "null" : c + "7id: " + c + "b" + Enchantment.getEnchantmentID(es.ench));
+			}
+			list.add(c + "7- Enchants: [" + ench + c + "7]");
+		}
+		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "Enchants not specified")); }
+		// enchants
+		if (!attributes.isEmpty()) {
+			StringBuilder attr = new StringBuilder();
+			for (AttributeSet as : attributes) {
+				if (attr.length() > 0) { attr.append(c).append("7, "); }
+				attr.append(as.attr == null ? "null" : c + "9" + as.attr.getName());
+			}
+			list.add(c + "7- Attributes: [" + attr + c + "7]");
+		}
+		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "Attributes not specified")); }
+		// tags
+		if (!tags.isEmpty()) {
+			StringBuilder nbt = new StringBuilder();
+			for (DropNbtSet ns : tags) {
+				if (nbt.length() > 0) { nbt.append(c).append("7, "); }
+				nbt.append(ns.path == null ? "null" : c + "a" + ns.path);
+			}
+			list.add(c + "7- Tags: [" + nbt + c + "7]");
+		}
+		else { list.add(c + "7- NBT " + Util.instance.translateGoogle(player, "tags not specified")); }
+		return list.toArray(new String[0]);
 	}
 
 }

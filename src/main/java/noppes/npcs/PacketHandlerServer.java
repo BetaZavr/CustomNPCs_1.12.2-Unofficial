@@ -88,10 +88,7 @@ import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.roles.data.SpawnNPCData;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
-import noppes.npcs.util.CustomNPCsScheduler;
-import noppes.npcs.util.Util;
-import noppes.npcs.util.BuilderData;
-import noppes.npcs.util.IPermission;
+import noppes.npcs.util.*;
 
 public class PacketHandlerServer {
 
@@ -632,11 +629,12 @@ public class PacketHandlerServer {
                 } else {
                     npc.inventory.removeDrop(slot);
                 }
-            } else if (slot == -1) {
+            } else if (slot == -1) { // new
                 DropSet drop = null;
                 if (dropType == 1) {
                     if (template != null) {
-                        template.addDropItem(groupId, stack, 1.0d);
+                        template.addDropItem(groupId, stack, 85.0d);
+                        drop = template.groups.get(groupId).get(template.groups.get(groupId).size() - 1);
                     }
                 } else {
                     drop = (DropSet) npc.inventory.addDropItem(stack, 1.0d);
@@ -656,6 +654,8 @@ public class PacketHandlerServer {
             }
             npc.updateAI = true;
             npc.updateClient = true;
+            DropController.getInstance().sendTo(player);
+            DropController.getInstance().save();
             Server.sendData(player, EnumPacketClient.GUI_DATA, npc.inventory.writeEntityToNBT(new NBTTagCompound()));
         } else if (type == EnumPacketServer.MainmenuAIGet) {
             Server.sendData(player, EnumPacketClient.GUI_DATA, npc.ais.writeToNBT(new NBTTagCompound()));
@@ -1167,14 +1167,13 @@ public class PacketHandlerServer {
             compound.setTag("Data", stackNBT);
             Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
         } else if (type == EnumPacketServer.NbtBookCopyStack) {
-            EntityItem entity = new EntityItem(player.world, player.posX, player.posY, player.posZ,
-                    new ItemStack(Server.readNBT(buffer)));
+            EntityItem entity = new EntityItem(player.world, player.posX, player.posY, player.posZ, new ItemStack(Server.readNBT(buffer)));
             entity.setPickupDelay(5);
             player.world.spawnEntity(entity);
         } else if (type == EnumPacketServer.RecipesAddGroup) {
             boolean isGlobal = buffer.readBoolean();
             String group = Server.readString(buffer);
-            NpcShapedRecipes recipe = new NpcShapedRecipes(group, "default", isGlobal, NonNullList.create(), ItemStack.EMPTY);
+            INpcRecipe recipe = new NpcShapedRecipes(group, "default", isGlobal, NonNullList.create(), ItemStack.EMPTY);
             RecipeController.getInstance().register(recipe);
             CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.RecipeAdd) {
@@ -1182,17 +1181,19 @@ public class PacketHandlerServer {
             INpcRecipe recipe;
             if (compound.getBoolean("IsShaped")) { recipe = NpcShapedRecipes.read(compound); }
             else { recipe = NpcShapelessRecipes.read(compound); }
-            recipe = RecipeController.getInstance().register(recipe);
-            RecipeController.getInstance().sendToAll(recipe);
+            RecipeController.getInstance().register(recipe);
             CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.RecipesRenameGroup) {
             RecipeController.getInstance().renameGroup(buffer.readBoolean(), Server.readString(buffer), Server.readString(buffer));
+            // -> updateGroupToAll()
             CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.RecipeRemoveGroup) {
             RecipeController.getInstance().deleteGroup(buffer.readBoolean(), Server.readString(buffer));
+            // -> sendToAll(null)
             CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.RecipesRename) {
             RecipeController.getInstance().renameRecipe(buffer.readBoolean(), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer));
+            // -> sendToAll(recipe)
             CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 100);
         } else if (type == EnumPacketServer.TraderMarketSave) {
             MarcetController mData = MarcetController.getInstance();
@@ -1591,7 +1592,7 @@ public class PacketHandlerServer {
             if (t == 0) { dData.templates.clear(); }
             else if (t == 1) {
                 NBTTagCompound nbtTemplate = Server.readNBT(buffer);
-                if (!nbtTemplate.hasKey("Name", 8) || nbtTemplate.hasKey("Groups", 10)) { return; }
+                if (!nbtTemplate.hasKey("Name", 8) || !nbtTemplate.hasKey("Groups", 10)) { return; }
                 dData.templates.put(nbtTemplate.getString("Name"), new DropsTemplate(nbtTemplate.getCompoundTag("Groups")));
             }
             else if (t == 2) {
@@ -1600,6 +1601,7 @@ public class PacketHandlerServer {
                 if (name.isEmpty() || !dData.templates.containsKey(name)) { return; }
                 dData.templates.remove(name);
             }
+            dData.save();
         } else if (type == EnumPacketServer.SetItem) {
             ItemStack stack = new ItemStack(Server.readNBT(buffer));
             player.inventory.setItemStack(stack);

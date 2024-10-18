@@ -67,7 +67,7 @@ minecraft {
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
             arg "-mixin.config=mixins.npcs.json"
-            arg 'nogui'
+            //arg 'nogui'
         }
     }
 }

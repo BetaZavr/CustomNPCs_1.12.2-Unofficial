@@ -2002,9 +2002,10 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public RecipeBook getRecipeBook(EntityPlayer player) {
-		if (player instanceof EntityPlayerSP) { return ((EntityPlayerSP) player).getRecipeBook(); }
-		return null;
+	public String getTranslateLanguage(EntityPlayer player) {
+		String lang = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
+		if (lang.contains("_")) { lang = lang.substring(0, lang.indexOf("_")); }
+		return lang;
 	}
 
 }

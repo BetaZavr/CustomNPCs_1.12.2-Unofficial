@@ -48,32 +48,20 @@ import javax.annotation.Nonnull;
 
 public class DataInventory implements IInventory, INPCInventory {
 
-	public Map<Integer, IItemStack> armor;
-	public final Map<Integer, DropSet> drops;
+	public Map<Integer, IItemStack> armor = new TreeMap<>();
+	public final Map<Integer, DropSet> drops = new TreeMap<>();
 	// New
-	public boolean lootMode;
-	private int maxExp;
-	private int minExp;
-	public int dropType; // 0-npc drops, 1-template drops, 2-both
+	public boolean lootMode = true;
+	private int maxExp = 0;
+	private int minExp = 0;
+	public int dropType = 0; // 0-npc drops, 1-template drops, 2-both
 	EntityNPCInterface npc;
-	public Map<Integer, IItemStack> weapons;
-	public Map<Integer, IItemStack> awItems;
-	public String saveDropsName;
-	public int limitation;
+	public Map<Integer, IItemStack> weapons = new TreeMap<>();
+	public Map<Integer, IItemStack> awItems = new TreeMap<>();
+	public String saveDropsName = "";
+	public int limitation = 0;
 
-	public DataInventory(EntityNPCInterface npc) {
-		this.awItems = Maps.newHashMap();
-		this.weapons = Maps.newHashMap();
-		this.armor = Maps.newHashMap();
-		this.drops = Maps.newTreeMap();
-		this.minExp = 0;
-		this.maxExp = 0;
-		this.npc = npc;
-		this.lootMode = true;
-		this.saveDropsName = "";
-		this.dropType = 0;
-		this.limitation = 0;
-	}
+	public DataInventory(EntityNPCInterface npc) { this.npc = npc; }
 
 	@Override
 	public ICustomDrop addDropItem(IItemStack item, double chance) {

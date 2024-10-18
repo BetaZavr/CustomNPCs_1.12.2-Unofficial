@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Lists;
 
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -122,7 +123,9 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	public NpcShapelessRecipes(String group, String name, boolean isGlobal, NonNullList<Ingredient> ingredients, ItemStack result) {
 		super(Util.instance.getResourceName(group), result, ingredients);
+		if (result.isEmpty()) { result = new ItemStack(Blocks.COBBLESTONE); }
 		this.recipeOutput = result;
+		if (ingredients.isEmpty()) { ingredients.add(Ingredient.fromStacks(new ItemStack(Blocks.COBBLESTONE))); }
 		this.recipeItems = ingredients;
 		boolean simple = true;
 		for (Ingredient i : ingredients)

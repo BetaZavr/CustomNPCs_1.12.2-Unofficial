@@ -70,6 +70,7 @@ import noppes.npcs.items.CustomFishingRod;
 import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
+import noppes.npcs.mixin.entity.player.IEntityPlayerMPMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.TempFile;
 
@@ -543,9 +544,11 @@ public class CommonProxy implements IGuiHandler {
 		}
     }
 
-    public RecipeBook getRecipeBook(EntityPlayer player) {
-		if (player instanceof EntityPlayerMP) { return ((EntityPlayerMP) player).getRecipeBook(); }
-		return null;
-    }
+	public String getTranslateLanguage(EntityPlayer player) {
+		if (!(player instanceof EntityPlayerMP)) { return "en"; }
+		String lang = ((IEntityPlayerMPMixin) player).npcs$getLanguage();
+		if (lang.contains("_")) { lang = lang.substring(0, lang.indexOf("_")); }
+		return lang;
+	}
 
 }

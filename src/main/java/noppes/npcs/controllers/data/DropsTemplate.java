@@ -9,6 +9,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
@@ -34,16 +35,15 @@ public class DropsTemplate {
 	}
 
 	public void addDropItem(int id, IItemStack item, double chance) {
-		if (!this.groups.containsKey(id)) {
-			id = this.groups.size();
-			this.groups.put(id, Maps.newTreeMap());
+		if (!groups.containsKey(id)) {
+			id = groups.size();
+			groups.put(id, Maps.newTreeMap());
 		}
-		chance = ValueUtil.correctDouble(chance, 0.0001d, 100.0d);
 		DropSet ds = new DropSet(null);
 		ds.item = item;
-		ds.chance = chance;
-		ds.pos = this.groups.get(id).size();
-		this.groups.get(id).put(ds.pos, ds);
+		ds.setChance(chance);
+		ds.pos = groups.get(id).size();
+		groups.get(id).put(ds.pos, ds);
 	}
 
 	public List<IItemStack> createDrops(double ch, boolean isLooted, EntityLivingBase attacking) {
@@ -52,33 +52,32 @@ public class DropsTemplate {
 		for (int groupId : this.groups.keySet()) {
 			float r = this.rnd.nextFloat();
 			Map<IItemStack, Double> preMap = Maps.newHashMap();
+			HashMap<Integer, QuestData> activeQuests = null;
+			if (attacking instanceof EntityPlayer) {
+				activeQuests = CustomNpcs.proxy.getPlayerData((EntityPlayer) attacking).questData.activeQuests;
+			}
 			for (DropSet ds : this.groups.get(groupId).values()) {
 				double c = ds.chance * ch / 100.0d;
 				if (this.dropType == 3) {
 					r = this.rnd.nextFloat();
 				}
-				if (ds.item == null || ds.item.isEmpty() || isLooted == ds.lootMode || (c < 1.0d && c > r)) {
+				if (ds.item == null || ds.item.isEmpty() || isLooted == ds.lootMode || (c < 1.0d && c < r)) {
 					continue;
 				}
 				boolean needAdd = true;
 				if (ds.getQuestID() > 0) {
-					if (attacking instanceof EntityPlayer) {
-						IPlayer<?> player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(attacking);
-						if (player.getActiveQuests().length > 0) {
-							for (IQuest q : player.getActiveQuests()) {
-								if (q.getId() == ds.getQuestID()) {
-									needAdd = false;
-									for (IQuestObjective objQ : q.getObjectives(player)) {
-										if (!objQ.isCompleted()) {
-											needAdd = true;
-											break;
-										}
-									}
-									break;
-								}
-							}
-						} else { needAdd = false; }
-					} else { needAdd = false; }
+                    needAdd = false;
+                    if (activeQuests != null) {
+                        QuestData qData = activeQuests.get(ds.getQuestID());
+                        if (qData != null) {
+                            for (IQuestObjective objQ : qData.quest.getObjectives((EntityPlayer) attacking)) {
+                                if (!objQ.isCompleted()) {
+                                    needAdd = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
 				}
 				if (needAdd && !(ds.amount[0] == 0 && ds.amount[1] == 0)) {
 					preMap.put(ds.createLoot(ch), ds.chance);
@@ -170,14 +169,11 @@ public class DropsTemplate {
 		if (!this.groups.containsKey(groupId) || !this.groups.get(groupId).containsKey(slot)) {
 			return;
 		}
-		this.groups.get(groupId).remove(groupId);
 		Map<Integer, DropSet> newDrop = Maps.newTreeMap();
 		int j = 0;
-		for (int s : this.groups.keySet()) {
-			if (s == slot) {
-				continue;
-			}
-			newDrop.put(j, this.groups.get(groupId).get(s));
+		for (int s : groups.keySet()) {
+			if (s == slot) { continue; }
+			newDrop.put(j, groups.get(groupId).get(s));
 			newDrop.get(j).pos = j;
 			j++;
 		}
