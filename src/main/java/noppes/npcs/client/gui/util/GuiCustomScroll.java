@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import noppes.npcs.LogWriter;
 import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Lists;
@@ -152,7 +151,7 @@ implements IComponentGui {
 		}
 	}
 
-	private void drawPrefixs() {
+	private void drawPrefixes() {
 		if (this.prefixes == null) {
 			return;
 		}
@@ -175,70 +174,52 @@ implements IComponentGui {
 		}
 	}
 
-	public void drawScreen(int mouseX, int mouseY, int mouseScrolled) {
-		if (!this.visible) {
-			return;
-		}
+	public void drawScreen(int mouseX, int mouseY, boolean canScrolled) {
+		if (!visible) { return; }
+		// background
 		if (this.border != 0xFF000000) {
-			this.drawGradientRect(this.guiLeft - 1, this.guiTop - 1, this.width + this.guiLeft + 1,
-					this.height + this.guiTop + 1, this.border, this.border);
+			this.drawGradientRect(this.guiLeft - 1, this.guiTop - 1, this.width + this.guiLeft + 1, this.height + this.guiTop + 1, this.border, this.border);
 		}
 		this.hovered = this.isMouseOver(mouseX, mouseY);
-		this.drawGradientRect(this.guiLeft, this.guiTop, this.width + this.guiLeft, this.height + this.guiTop,
-				this.colorBack, this.colorBack);
+		this.drawGradientRect(this.guiLeft, this.guiTop, this.width + this.guiLeft, this.height + this.guiTop, this.colorBack, this.colorBack);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(GuiCustomScroll.resource);
-		GlStateManager.pushMatrix();
-		GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
-		GlStateManager.popMatrix();
+
+		// positions:
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		if (this.selectable) {
-			this.hover = this.getMouseOver(mouseX, mouseY);
-		}
+		if (selectable) { hover = getMouseOver(mouseX, mouseY); }
 		this.drawItems();
 		GlStateManager.popMatrix();
-		if (this.stacks != null && this.parent != null
-				&& ((this.parent instanceof GuiContainerNPCInterface
-						&& !((GuiContainerNPCInterface) this.parent).hasSubGui())
-						|| (this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) {
+
+		if (this.stacks != null && this.parent != null && ((this.parent instanceof GuiContainerNPCInterface && !((GuiContainerNPCInterface) this.parent).hasSubGui()) || (this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) {
 			this.drawStacks();
 		}
-		if (this.prefixes != null && this.parent != null
-				&& ((this.parent instanceof GuiContainerNPCInterface
-						&& !((GuiContainerNPCInterface) this.parent).hasSubGui())
-						|| (this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) {
-			this.drawPrefixs();
+		if (this.prefixes != null && this.parent != null && ((this.parent instanceof GuiContainerNPCInterface && !((GuiContainerNPCInterface) this.parent).hasSubGui()) || (this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) {
+			this.drawPrefixes();
 		}
+
+		// scrolling
 		if (this.scrollHeight <= this.height - 6) {
-			this.drawScrollBar(); // Changed
-			mouseX -= this.guiLeft;
-			mouseY -= this.guiTop;
-			if (Mouse.isButtonDown(0)) {
-				if (mouseX >= this.width - 9 && mouseX < this.width - 1 && mouseY >= 1 && mouseY < this.height - 1) {
-					this.isScrolling = true;
-				}
-			} else {
-				this.isScrolling = false;
+			// Bar
+			drawScrollBar();
+			// pos
+			mouseX -= guiLeft;
+			mouseY -= guiTop;
+			isScrolling = Mouse.isButtonDown(0) && mouseX >= width - 9 && mouseX < width - 1 && mouseY >= 1 && mouseY < height - 1;
+
+			if (isScrolling) {
+				scrollY = (int) ((float) mouseY / ((float) height - 2.0f) * ((float) listHeight - (float) scrollHeight)); // Changed
+				if (scrollY < 0) { scrollY = 0; }
+				if (scrollY > maxScrollY) { scrollY = maxScrollY; }
 			}
-			if (this.isScrolling) {
-				this.scrollY = (int) ((float) mouseY / ((float) this.height - 2.0f)
-						* ((float) this.listHeight - (float) this.scrollHeight)); // Changed
-				if (this.scrollY < 0) {
-					this.scrollY = 0;
-				}
-				if (this.scrollY > this.maxScrollY) {
-					this.scrollY = this.maxScrollY;
-				}
-			}
-			if (mouseScrolled != 0) {
-				this.scrollY += ((mouseScrolled > 0) ? -14 : 14);
-				if (this.scrollY > this.maxScrollY) {
-					this.scrollY = this.maxScrollY;
-				}
-				if (this.scrollY < 0) {
-					this.scrollY = 0;
+
+			if (canScrolled) {
+				int dWheel = Mouse.getDWheel();
+				if (dWheel != 0) {
+					scrollY += (dWheel > 0 ? -14 : 14);
+					if (scrollY > maxScrollY) { scrollY = maxScrollY; }
+					if (scrollY < 0) { scrollY = 0; }
 				}
 			}
 		}
@@ -265,10 +246,9 @@ implements IComponentGui {
 	}
 
 	private void drawScrollBar() {
-		int posX = this.guiLeft + this.width - 9;
-		int posY = this.guiTop + (int) ((float) this.scrollY / (float) this.listHeight * ((float) this.height - 18.0f))
-				+ 1;
-		Gui.drawRect(posX, posY, posX + 8, posY + this.scrollHeight + 1, 0xA0FFF0F0);
+		int posX = guiLeft + width - 9;
+		int posY = guiTop + (int) ((float) scrollY / (float) listHeight * ((float) height - 2.0f)) + 1;
+		Gui.drawRect(posX, posY, posX + 8, posY + scrollHeight + 1, 0xA0FFF0F0);
 	}
 
 	private void drawStacks() {
@@ -549,18 +529,13 @@ implements IComponentGui {
 	}
 
 	public void setSize(int x, int y) {
-		this.height = y;
-		this.width = x;
-		this.listHeight = 14 * this.list.size();
-		if (this.listHeight > 0) {
-			this.scrollHeight = (int) ((float) this.height * ((float) this.height - 2.0f) / (float) this.listHeight);
-		} else {
-			this.scrollHeight = Integer.MAX_VALUE;
-		}
-		this.maxScrollY = this.listHeight - this.height;
-		if (this.maxScrollY < 0) {
-			this.maxScrollY = 0;
-		}
+		height = y;
+		width = x;
+		listHeight = 14 * list.size();
+		if (listHeight > 0) {scrollHeight = (int) Math.floor((float) height * ((float) height - 2.0f) / (float) listHeight); }
+		else { scrollHeight = Integer.MAX_VALUE; }
+		maxScrollY = listHeight - height;
+		if (maxScrollY < 0) { maxScrollY = 0; }
 	}
 
 	public void setStacks(List<ItemStack> stacks) {
@@ -571,7 +546,7 @@ implements IComponentGui {
 		this.suffixes = suffixes;
 	}
 
-	public GuiCustomScroll setUnselectable() {
+	public GuiCustomScroll setUnSelectable() {
 		this.selectable = false;
 		return this;
 	}

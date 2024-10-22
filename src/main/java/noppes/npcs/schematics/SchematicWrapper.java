@@ -107,12 +107,10 @@ public class SchematicWrapper {
 		entity.posY = y + pos.getY();
 		entity.posZ = z + pos.getZ() + 0.5d;
 		if (entity instanceof EntityCreature) {
-			((EntityCreature) entity).setHomePosAndDistance(entity.getPosition(),
-					(int) ((EntityCreature) entity).getMaximumHomeDistance());
+			((EntityCreature) entity).setHomePosAndDistance(entity.getPosition(), (int) ((EntityCreature) entity).getMaximumHomeDistance());
 		}
 		if (entity instanceof EntityNPCInterface) {
-			((EntityNPCInterface) entity).ais.orientation = (((EntityNPCInterface) entity).ais.orientation
-					+ rotation * 90) % 360;
+			((EntityNPCInterface) entity).ais.orientation = (((EntityNPCInterface) entity).ais.orientation + rotation * 90) % 360;
 		}
 		return entity;
 	}

@@ -532,7 +532,7 @@ public class EventHooks {
 		}
 		if (newGUI.equals("GuiNPCBankChest") && oldGUI.equals("GuiIngame")) {
 			ContainerNPCBank.editPlayerBankData = null;
-			Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, new NBTTagCompound());
+			Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, "");
 		}
 		PlayerData data = PlayerData.get(player);
 		data.hud.currentGUI = newGUI;
@@ -837,8 +837,7 @@ public class EventHooks {
 		if (player == null) {
 			player = CustomNpcs.proxy.getPlayer();
 		}
-		EventHooks.onEvent(handler, EnumScriptType.PACKAGE_FROM,
-				new PlayerPackage((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbt)));
+		EventHooks.onEvent(handler, EnumScriptType.PACKAGE_FROM, new PlayerPackage((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbt)));
 	}
 
 	public static void onScriptTriggerEvent(int id, IWorld level, IPos pos, IEntity<?> entity, Object[] arguments) {

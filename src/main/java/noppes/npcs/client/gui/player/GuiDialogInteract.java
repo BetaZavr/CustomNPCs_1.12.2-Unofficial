@@ -469,9 +469,8 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			} else {
 				scrollO = null;
 			}
-			int drag = mouseWheel / 120;
-			if (lineTotal > lineVisibleSize && drag != 0
-					&& this.isMouseHover(mouseX, mouseY, this.guiLeft, 0, this.w - this.guiLeft, this.dialogHeight)) { // Dialog
+			int drag = Mouse.getDWheel() / 120;
+			if (lineTotal > lineVisibleSize && drag != 0 && this.isMouseHover(mouseX, mouseY, this.guiLeft, 0, this.w - this.guiLeft, this.dialogHeight)) { // Dialog
 																														// text
 				lineStart -= drag;
 				if (lineStart < 0) {

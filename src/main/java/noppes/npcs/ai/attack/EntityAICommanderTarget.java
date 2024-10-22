@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.math.AxisAlignedBB;
+import noppes.npcs.LogWriter;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
@@ -29,19 +30,19 @@ public class EntityAICommanderTarget extends EntityAICustom {
 	}
 
 	private void attack() {
-		this.done = true;
-		this.time = 0;
-		if (this.npc.currentAnimation != this.baseAnimation) {
-			this.npc.setCurrentAnimation(this.baseAnimation);
+		done = true;
+		time = 0;
+		if (npc.currentAnimation != baseAnimation) {
+			npc.setCurrentAnimation(baseAnimation);
 		}
 		for (EntityNPCInterface n : this.npcs) {
 			n.aiOwnerNPC = null;
-			n.setAttackTarget(this.target);
+			n.setAttackTarget(target);
 			if (n.aiAttackTarget instanceof EntityAICommanderTarget) {
 				((EntityAICommanderTarget) n.aiAttackTarget).done = true;
 			}
 		}
-		this.npcs.clear();
+		npcs.clear();
 	}
 
 	private void reset() {
@@ -71,7 +72,7 @@ public class EntityAICommanderTarget extends EntityAICustom {
 	@Override
 	public void updateTask() {
 		super.updateTask();
-		if (this.isFrend || this.npc.ticksExisted % (this.tickRate * 2) > 3) {
+		if (this.isFriend || this.npc.ticksExisted % (this.tickRate * 2) > 3) {
 			return;
 		}
 		if (this.isRanged) {

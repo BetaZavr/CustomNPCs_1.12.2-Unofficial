@@ -131,6 +131,12 @@ public class NoppesUtilPlayer {
 			}
 		}
 		if (canOpen) {
+			System.out.println("CNPCs: "+bd);
+			System.out.println("CNPCs: "+bd.cells);
+			System.out.println("CNPCs: "+bd.bank);
+			System.out.println("CNPCs: "+bd.bank.ceilSettings);
+			System.out.println("CNPCs: "+bd.bank.ceilSettings.get(ceilId));
+			System.out.println("CNPCs: "+bd.bank.ceilSettings.get(ceilId).startCells);
 			bd.cells.put(ceilId, new NpcMiscInventory(bd.bank.ceilSettings.get(ceilId).startCells));
 			bd.save();
 			RoleEvent.BankUnlockedEvent event = new RoleEvent.BankUnlockedEvent(player, npc.wrappedNPC, ceilId);

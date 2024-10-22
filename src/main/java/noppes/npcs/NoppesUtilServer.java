@@ -721,7 +721,7 @@ public class NoppesUtilServer {
 		compound.setTag("Pos", NBTTags.nbtDoubleList(x, y, z));
 		Entity entity = EntityList.createEntityFromNBT(compound, world);
 		if (entity == null) {
-			LogWriter.debug("Clone summoning error: Failed to create an entity based on the passed NBT tags");
+			LogWriter.error("Clone summoning error: Failed to create an entity based on the passed NBT tags: " + compound);
 			return null;
 		}
 		if (entity instanceof EntityNPCInterface) {

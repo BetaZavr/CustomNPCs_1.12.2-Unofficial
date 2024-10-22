@@ -1058,18 +1058,18 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public float getStartXPos() {
-		return this.ais.startPos().getX() + this.ais.bodyOffsetX / 10.0f;
+		return ais.startPos().getX() + ais.bodyOffsetX / 10.0f;
 	}
 
 	public double getStartYPos() {
-		if (this.startYPos < 0.0) {
-			return this.calculateStartYPos(this.ais.startPos());
+		if (startYPos < 0.0) {
+			return calculateStartYPos(ais.startPos());
 		}
-		return this.startYPos;
+		return startYPos;
 	}
 
 	public float getStartZPos() {
-		return this.ais.startPos().getZ() + this.ais.bodyOffsetZ / 10.0f;
+		return ais.startPos().getZ() + ais.bodyOffsetZ / 10.0f;
 	}
 
 	public int getTalkInterval() {
@@ -1110,11 +1110,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isAttacking() {
-		return this.dataManager.get(EntityNPCInterface.Attacking);
+		return dataManager.get(EntityNPCInterface.Attacking);
 	}
 
 	public boolean isEntityAlive() {
-		if (this.ais.aiDisabled) { return false; }
+		if (ais != null && ais.aiDisabled) { return false; }
 		return super.isEntityAlive() && !this.isKilled();
 	}
 
@@ -1124,7 +1124,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				|| this.advanced.jobInterface.isFollowing();
 	}
 
-	public boolean isFrend(Entity entityTarget) {
+	public boolean isFriend(Entity entityTarget) {
 		if (!(entityTarget instanceof EntityNPCInterface)) {
 			return false;
 		}
@@ -1166,7 +1166,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isKilled() {
-		return this.isDead || this.dataManager.get(EntityNPCInterface.IsDead);
+		return this.isDead || (dataManager != null && dataManager.get(EntityNPCInterface.IsDead));
 	}
 
 	public boolean isMoving() {
@@ -1400,6 +1400,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		} else {
 			isAirBorne = this.canFly() && world.getBlockState(this.getPosition().down()).getMaterial() == Material.AIR;
 		}
+		if (CustomNpcs.ShowCustomAnimation) {
+
+		}
 		/*if (CustomNpcs.ShowCustomAnimation) {
 			this.animation.resetWalkOrStand();
 			// Jump
@@ -1531,8 +1534,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.updateHitbox();
 			this.isOldSneaking = this.isSneaking();
 		}
-		if (this.deathTime > 0 || (this.getAttackTarget() instanceof EntityPlayer
-				&& ((EntityPlayer) this.getAttackTarget()).capabilities.disableDamage)) {
+		if (this.deathTime > 0 || (this.getAttackTarget() instanceof EntityPlayer && ((EntityPlayer) this.getAttackTarget()).capabilities.disableDamage)) {
 			super.setAttackTarget(null);
 		}
 		if (!this.ais.aiDisabled) {  this.timers.update(); }
@@ -1823,38 +1825,38 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
     public void setAttackTarget(EntityLivingBase entityTarget) {
-		if (this.animation.isAnimated() && this.animation.getAnimationType() == AnimationKind.INIT) {
+		if (!isEntityAlive() ||
+				getAttackTarget() == entityTarget ||
+				(entityTarget instanceof EntityPlayer && ((EntityPlayer) entityTarget).capabilities.disableDamage) ||
+				(entityTarget != null && entityTarget == getOwner()) ||
+				(entityTarget instanceof EntityNPCInterface && isFriend(entityTarget))
+		) {
+			dataManager.set(EntityNPCInterface.Attacking, getAttackTarget() != null);
 			return;
 		}
-		if (this.ais.aiDisabled && !this.isEntityAlive() || this.getAttackTarget() == entityTarget) {
-			return;
-		}
-		// Next sets
-		if (entityTarget instanceof EntityPlayer && ((EntityPlayer) entityTarget).capabilities.disableDamage) {
-			return;
-		}
-		if (entityTarget != null && entityTarget == this.getOwner()) {
-			return;
-		}
-		if (entityTarget instanceof EntityNPCInterface && this.isFrend(entityTarget)) {
-			return;
-		}
+		LogWriter.debug("Set Attack: "+entityTarget+" // "+getAttackTarget());
+
 		if (entityTarget != null) {
 			NpcEvent.TargetEvent event = new NpcEvent.TargetEvent(this.wrappedNPC, entityTarget);
 			if (EventHooks.onNPCTarget(this, event)) { return; }
-			if (event.entity == null) {
-				entityTarget = null;
-			} else {
-				entityTarget = event.entity.getMCEntity();
+			if (event.entity == null) { entityTarget = null; }
+			else { entityTarget = event.entity.getMCEntity(); }
+			if (getAttackTarget() == entityTarget ||
+					(entityTarget instanceof EntityPlayer && ((EntityPlayer) entityTarget).capabilities.disableDamage) ||
+					(entityTarget != null && entityTarget == getOwner()) ||
+					(entityTarget instanceof EntityNPCInterface && this.isFriend(entityTarget))
+			) {
+				return;
 			}
-		} else {
-			for (EntityAITasks.EntityAITaskEntry en : this.targetTasks.taskEntries) {
+		}
+		else {
+			for (EntityAITasks.EntityAITaskEntry en : targetTasks.taskEntries) {
 				if (en.using) {
 					en.using = false;
 					en.action.resetTask();
 				}
 			}
-			if (EventHooks.onNPCTargetLost(this, this.getAttackTarget())) {
+			if (EventHooks.onNPCTargetLost(this, getAttackTarget())) {
 				return;
 			}
 		}
@@ -1865,12 +1867,13 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 		}
 		super.setAttackTarget(entityTarget);
-		this.updateTargetClient();
+		dataManager.set(EntityNPCInterface.Attacking, getAttackTarget() != null);
+		updateTargetClient();
 	}
 
 	public void setCurrentAnimation(int animation) {
-		this.currentAnimation = animation;
-		this.dataManager.set(EntityNPCInterface.Animation, animation);
+		currentAnimation = animation;
+		dataManager.set(EntityNPCInterface.Animation, animation);
 		if (animation != 4 && this.aiAttackTarget instanceof EntityAICommanderTarget) {
 			((EntityAICommanderTarget) this.aiAttackTarget).baseAnimation = animation;
 		}
@@ -1912,8 +1915,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public void setHomePosAndDistance(@Nonnull BlockPos pos, int range) {
 		super.setHomePosAndDistance(pos, range);
-		this.ais.setStartPos(pos);
-		this.updateClient = true;
+		ais.setStartPos(pos);
+		updateClient = true;
 	}
 
 	public void setImmuneToFire(boolean immuneToFire) {
@@ -2087,7 +2090,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("EntityId", this.getEntityId());
-		this.aiAttackTarget.writeToClientNBT(compound);
+		aiAttackTarget.writeToClientNBT(compound);
 		if (compound.getKeySet().size() > 1) {
 			Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_AI_TARGET, compound);
 		}
@@ -2168,13 +2171,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void updateTargetClient() {
-		if (!this.isServerWorld()) { return; }
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("EntityId", this.getEntityId());
-		if (this.getAttackTarget() != null) {
-			compound.setInteger("target", this.getAttackTarget().getEntityId());
-		}
-		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_TARGET, compound);
+		if (!isServerWorld()) { return; }
+		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_TARGET, getEntityId(), getAttackTarget() != null ? getAttackTarget().getEntityId() : -1);
 	}
 
 	private void updateTasks() {

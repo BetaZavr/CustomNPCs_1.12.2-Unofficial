@@ -19,9 +19,12 @@ import javax.annotation.Nonnull;
 
 public class CustomTileEntityPortal extends TileEntityEndPortal {
 
-	public int dimensionId = 100, homeDimensionId = 0;
-	public float speed = 800.0f, alpha = 0.5f;
-	public final int[] posTp, posHomeTp;
+	public int dimensionId = 100;
+	public int homeDimensionId = 0;
+	public float speed = 800.0f;
+	public float alpha = 0.5f;
+	public final int[] posTp;
+	public final int[] posHomeTp;
 	private ResourceLocation SKY_TEXTURE, PORTAL_TEXTURE;
 	private int type = 3;
 
@@ -166,11 +169,11 @@ public class CustomTileEntityPortal extends TileEntityEndPortal {
 	@Override
 	public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		super.writeToNBT(compound);
-		compound.setInteger("DimensionID", this.dimensionId);
-		compound.setInteger("HomeDimensionID", this.homeDimensionId);
-		compound.setFloat("SecondSpeed", this.speed);
-		compound.setIntArray("HomePosition", this.posHomeTp);
-		compound.setIntArray("TpPosition", this.posTp);
+		compound.setInteger("DimensionID", dimensionId);
+		compound.setInteger("HomeDimensionID", homeDimensionId);
+		compound.setFloat("SecondSpeed", speed);
+		compound.setIntArray("HomePosition", posHomeTp);
+		compound.setIntArray("TpPosition", posTp);
 		return compound;
 	}
 }

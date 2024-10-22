@@ -17,7 +17,7 @@ public class EntityAISurround extends EntityAICustom {
 	@Override
 	public void updateTask() {
 		super.updateTask();
-		if (this.isFrend || this.npc.ticksExisted % (this.tickRate * 2) > 3) {
+		if (this.isFriend || this.npc.ticksExisted % (this.tickRate * 2) > 3) {
 			return;
 		}
 		if (this.isRanged) {

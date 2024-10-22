@@ -117,7 +117,7 @@ public class CustomNpcs {
 
 	@ConfigProp(info = "Currency symbol displayed in stores (unicode)", def = "20AC")
 	public static String CharCurrencies = "20AC";
-	public static String displayCurrencies = null;
+	public static String displayCurrencies = "" + ((char) 8364); // 20AC
 	@ConfigProp(info = "Number of chunk loading npcs that can be active at the same time", def = "20")
 	public static int ChuckLoaders = 20;
 	@ConfigProp(info = "Minimum and maximum melle and range Damage of NPCs for 1 and Maximum level, respectively (rarity Boss)", def = "8,52,6,26", min = "0,0,0,0")
@@ -200,6 +200,8 @@ public class CustomNpcs {
 	public static boolean ShowMoney = true;
 	@ConfigProp(info = "Display player Quest Compass", def = "true")
 	public static boolean ShowQuestCompass = true;
+	@ConfigProp(info = "Display hitbox of nearby NPCs when holding mod tools", def = "true")
+	public static boolean ShowHitboxWhenHoldTools = true;
 	@ConfigProp(info = "Normal players can use soulstone on animals", def = "true")
 	public static boolean SoulStoneAnimals = true;
 	@ConfigProp(info = "Normal players can use soulstone on all npcs", def = "false")

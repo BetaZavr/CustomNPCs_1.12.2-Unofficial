@@ -295,7 +295,7 @@ implements IGuiData, ITextChangeListener {
 			this.addButton(new GuiNpcButton(105, left + 61, this.guiTop + 21 + yoffset, 60, 20, "gui.remove"));
 			this.addButton(new GuiNpcButton(107, left, this.guiTop + 66 + yoffset, 80, 20, "script.loadscript"));
 			this.addButton(new GuiNpcButton(115, left + 30, this.guiTop + 43 + yoffset, 60, 20, "gui.remove.all"));
-			GuiCustomScroll scroll = new GuiCustomScroll(this, 0).setUnselectable();
+			GuiCustomScroll scroll = new GuiCustomScroll(this, 0).setUnSelectable();
 			scroll.setSize(100, (int) ((this.ySize * 0.54) - yoffset * 2) - 22);
 			scroll.guiLeft = left;
 			scroll.guiTop = this.guiTop + 88 + yoffset;

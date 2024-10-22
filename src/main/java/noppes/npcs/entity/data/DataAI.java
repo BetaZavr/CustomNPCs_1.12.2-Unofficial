@@ -157,18 +157,18 @@ public class DataAI
 	}
 
 	public List<int[]> getMovingPath() {
-		if (this.startPos != null) {
-			if (this.movingPath.isEmpty()) {
-				this.movingPath.add(this.getStartArray());
+		if (startPos != null) {
+			if (movingPath.isEmpty()) {
+				movingPath.add(getStartArray());
 			} else {
-				int[] arr = this.movingPath.get(0);
-				if (arr[0] != this.startPos.getX() || arr[1] != this.startPos.getY() || arr[2] != this.startPos.getZ()) {
-					this.movingPath.remove(0);
-					this.movingPath.add(0, this.getStartArray());
+				int[] arr = movingPath.get(0);
+				if (arr[0] != startPos.getX() || arr[1] != startPos.getY() || arr[2] != startPos.getZ()) {
+					movingPath.remove(0);
+					movingPath.add(0, getStartArray());
 				}
 			}
 		}
-		return this.movingPath;
+		return movingPath;
 	}
 
 	@Override
@@ -193,6 +193,12 @@ public class DataAI
 		return this.movingPos;
 	}
 
+	/**
+	 * @return
+	 * 		0: Standing
+	 * 		1: Wandering
+	 * 		2: MovingPath -> EntityAIMovingPath
+	 */
 	@Override
 	public int getMovingType() {
 		return this.movingType;
@@ -227,12 +233,12 @@ public class DataAI
 	}
 
 	public int[] getStartArray() {
-		BlockPos pos = this.startPos();
+		BlockPos pos = startPos();
 		return new int[] { pos.getX(), pos.getY(), pos.getZ() };
 	}
 
 	public IPos getStartPos() {
-		return new BlockPosWrapper(this.startPos());
+		return new BlockPosWrapper(startPos());
 	}
 
 	@Override
@@ -315,16 +321,16 @@ public class DataAI
 		this.movingPattern = compound.getInteger("MovingPatern");
 		this.attackInvisible = compound.getBoolean("AttackInvisible");
 		if (compound.hasKey("StartPosNew")) {
-			int[] startPos = compound.getIntArray("StartPosNew");
-			this.startPos = new BlockPos(startPos[0], startPos[1], startPos[2]);
+			int[] pos = compound.getIntArray("StartPosNew");
+			startPos = new BlockPos(pos[0], pos[1], pos[2]);
 		}
-		this.npc.stepHeight = this.stepheight;
+		npc.stepHeight = stepheight;
 		if (standingType != 0 && standingType != 2) {
-			this.npc.setRotationYawHead(this.orientation);
+			npc.setRotationYawHead(orientation);
 		}
 
-		if (compound.hasKey("MaxHurtResistantTime", 3)) { this.maxHurtResistantTime = compound.getInteger("MaxHurtResistantTime"); }
-		this.npc.maxHurtResistantTime = this.maxHurtResistantTime;
+		if (compound.hasKey("MaxHurtResistantTime", 3)) { maxHurtResistantTime = compound.getInteger("MaxHurtResistantTime"); }
+		npc.maxHurtResistantTime = this.maxHurtResistantTime;
 	}
 
 	@Override
@@ -374,10 +380,10 @@ public class DataAI
 	}
 
 	public void setMovingPath(List<int[]> list) {
-		this.movingPath = list;
-		if (!this.movingPath.isEmpty()) {
-			int[] startPos = this.movingPath.get(0);
-			this.startPos = new BlockPos(startPos[0], startPos[1], startPos[2]);
+		movingPath = list;
+		if (!movingPath.isEmpty()) {
+			int[] pos = movingPath.get(0);
+			startPos = new BlockPos(pos[0], pos[1], pos[2]);
 		}
 	}
 
@@ -385,7 +391,7 @@ public class DataAI
 		if (m_pos < 0) {
 			m_pos = 0;
 		}
-		this.movingPath.set(m_pos, pos);
+		movingPath.set(m_pos, pos);
 	}
 
 	@Override
@@ -445,25 +451,25 @@ public class DataAI
 	}
 
 	public void setStartPos(BlockPos pos) {
-		this.startPos = pos;
+		startPos = pos;
 	}
 
 	public void setStartPos(double x, double y, double z) {
-		this.startPos = new BlockPos(x, y, z);
+		startPos = new BlockPos(x, y, z);
 	}
 
 	public void setStartPos(IPos pos) {
-		this.startPos = pos.getMCBlockPos();
+		startPos = pos.getMCBlockPos();
 	}
 
 	@Override
 	public void setStopOnInteract(boolean stopOnInteract) {
-		this.stopAndInteract = stopOnInteract;
+		stopAndInteract = stopOnInteract;
 	}
 
 	@Override
 	public void setTacticalRange(int range) {
-		this.tacticalRadius = range;
+		tacticalRadius = range;
 	}
 
 	@Override
@@ -502,10 +508,8 @@ public class DataAI
 	}
 
 	public BlockPos startPos() {
-		if (this.startPos == null) {
-			this.startPos = new BlockPos(this.npc);
-		}
-		return this.startPos;
+		if (startPos == null) { startPos = new BlockPos(npc); }
+		return startPos;
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {

@@ -583,16 +583,15 @@ public class GuiTextArea extends Gui implements IGui, IKeyListener, IMouseListen
 		}
 	}
 
-	public void updateScreen(int mouseWheel) {
+	public void updateScreen() {
 		++this.cursorCounter;
 		if (this.freeze) {
 			return;
 		}
-		if (mouseWheel != 0) {
-			this.scrolledLine += ((mouseWheel > 0) ? -1 : 1);
-			this.scrolledLine = Math.max(
-					Math.min(this.scrolledLine, this.container.linesCount - this.height / this.container.lineHeight),
-					0);
+		int dWheel = Mouse.getDWheel();
+		if (dWheel != 0) {
+			this.scrolledLine += (dWheel > 0 ? -1 : 1);
+			this.scrolledLine = Math.max(Math.min(this.scrolledLine, this.container.linesCount - this.height / this.container.lineHeight), 0);
 		}
 	}
 

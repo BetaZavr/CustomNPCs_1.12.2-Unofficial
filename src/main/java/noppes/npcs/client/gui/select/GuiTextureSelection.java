@@ -206,8 +206,8 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
-		super.drawScreen(i, j, f);
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		GlStateManager.pushMatrix();
 		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 		int x = this.guiLeft + 271, y = this.guiTop + 6;

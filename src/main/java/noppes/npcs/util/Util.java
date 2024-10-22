@@ -106,7 +106,7 @@ public class Util implements IMethods {
 		put(500, "D");
 		put(1000, "M");
 	}};
-	private static final Map<String, Map<String, String>> translateDate = new HashMap<>();
+	private static final Map<String, String> translateDate = new HashMap<>();
 
 	public final static Util instance = new Util();
 	public static boolean hasInternet = true;
@@ -922,9 +922,7 @@ public class Util implements IMethods {
 	}
 
 	public Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, double x, double y, double z) throws CommandException {
-		if (entity == null) {
-			return null;
-		}
+		if (entity == null) { return null; }
 		int homeDim = entity.world.provider.getDimension();
 		if (entity instanceof EntityNPCInterface) {
 			homeDim = ((EntityNPCInterface) entity).homeDimensionId;
@@ -935,9 +933,7 @@ public class Util implements IMethods {
 				((EntityNPCInterface) entity).homeDimensionId = homeDim;
 			}
 		}
-		if (entity == null) {
-			return null;
-		}
+		if (entity == null) { return null; }
 		CoordinateArg xn = CommandBase.parseCoordinate(entity.posX, "" + x, true);
 		CoordinateArg yn = CommandBase.parseCoordinate(entity.posY, "" + y, -4096, 4096, false);
 		CoordinateArg zn = CommandBase.parseCoordinate(entity.posZ, "" + z, true);
@@ -1804,16 +1800,16 @@ public class Util implements IMethods {
 	public String translateGoogle(String textLanguageKey, String translationLanguageKey, String originalText) {
 		if (translationLanguageKey == null || translationLanguageKey.isEmpty() || originalText == null || originalText.isEmpty()) { return originalText; }
 		if (textLanguageKey == null || textLanguageKey.isEmpty()) { textLanguageKey = "auto"; }
-		if (translateDate.containsKey(translationLanguageKey) && translateDate.get(translationLanguageKey).containsKey(originalText)) {
-			return translateDate.get(translationLanguageKey).get(originalText);
+		String key = textLanguageKey+"_"+translationLanguageKey+"_"+originalText;
+		if (translateDate.containsKey(key)) {
+			return translateDate.get(key);
 		}
 		if (!hasInternet) {
 			return originalText;
 		}
 		if (originalText.length() <= 5000) {
-			if (!translateDate.containsKey(translationLanguageKey)) { translateDate.put(translationLanguageKey, new HashMap<>()); }
-			translateDate.get(translationLanguageKey).put(originalText, translate(textLanguageKey, translationLanguageKey, originalText));
-			return translateDate.get(translationLanguageKey).get(originalText);
+			translateDate.put(key, translate(textLanguageKey, translationLanguageKey, originalText));
+			return translateDate.get(key);
 		}
 		String type = " "; // simple words
 		if (originalText.contains("\n")) { type = "\n"; } // some code
@@ -1842,9 +1838,8 @@ public class Util implements IMethods {
 		for (String translatedPart : translatedParts) {
 			text.append(translatedPart).append(type);
 		}
-		if (!translateDate.containsKey(translationLanguageKey)) { translateDate.put(translationLanguageKey, new HashMap<>()); }
-		translateDate.get(translationLanguageKey).put(originalText, translate(textLanguageKey, translationLanguageKey, text.toString()));
-		return translateDate.get(translationLanguageKey).get(originalText);
+		translateDate.put(key, translate(textLanguageKey, translationLanguageKey, text.toString()));
+		return translateDate.get(key);
 	}
 
 	public String translateGoogle(EntityPlayer player, String originalText) {

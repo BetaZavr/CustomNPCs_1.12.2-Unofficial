@@ -153,22 +153,22 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
-		if (this.subgui == null) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		if (subgui == null && player != null) {
 			GlStateManager.pushMatrix();
-			if (this.selectNpc != null) {
-				this.drawNpc(this.selectNpc, 210, 130, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0,
-						0);
+			if (selectNpc != null) {
+				drawNpc(selectNpc, 210, 130, 1.0f, (int) (3 * player.world.getTotalWorldTime() % 360), 0, 0);
 			}
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
-			Gui.drawRect(this.guiLeft + 179, this.guiTop + 54, this.guiLeft + 242, this.guiTop + 142, 0xFF808080);
-			Gui.drawRect(this.guiLeft + 180, this.guiTop + 55, this.guiLeft + 241, this.guiTop + 141, 0xFF000000);
+			Gui.drawRect(guiLeft + 179, guiTop + 54, guiLeft + 242, guiTop + 142, 0xFF808080);
+			Gui.drawRect(guiLeft + 180, guiTop + 55, guiLeft + 241, guiTop + 141, 0xFF000000);
 			GlStateManager.popMatrix();
 		}
-		super.drawScreen(i, j, f);
+		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
-	private NBTTagCompound getCompound() { // Client Clones or Vanilla Mobs
+	// Client Clones or Vanilla Mobs
+	private NBTTagCompound getCompound() {
 		String sel = this.scroll.getSelected();
 		if (sel == null) {
 			return null;
@@ -207,79 +207,79 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.guiTop += 10;
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(165, 188);
-		} else {
-			this.scroll.clear();
+		guiTop += 10;
+		if (scroll == null) {
+			(scroll = new GuiCustomScroll(this, 0)).setSize(165, 188);
 		}
-		this.scroll.guiLeft = this.guiLeft + 4;
-		this.scroll.guiTop = this.guiTop + 26;
-		this.addScroll(this.scroll);
-		this.scroll.selected = this.sel;
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 4, 165, 20, GuiNpcMobSpawner.search));
+		else { scroll.clear(); }
+		scroll.guiLeft = guiLeft + 4;
+		scroll.guiTop = guiTop + 26;
+		scroll.selected = sel;
+		addScroll(scroll);
+
+		addTextField(new GuiNpcTextField(1, this, fontRenderer, guiLeft + 4, guiTop + 4, 165, 20, GuiNpcMobSpawner.search));
+
 		GuiMenuTopButton button;
-		this.addTopButton(button = new GuiMenuTopButton(3, this.guiLeft + 4, this.guiTop - 17, "spawner.clones"));
+		addTopButton(button = new GuiMenuTopButton(3, this.guiLeft + 4, this.guiTop - 17, "spawner.clones"));
 		button.active = (GuiNpcMobSpawner.showingClones == 0);
-		this.addTopButton(button = new GuiMenuTopButton(4, button, "spawner.entities"));
+		addTopButton(button = new GuiMenuTopButton(4, button, "spawner.entities"));
 		button.active = (GuiNpcMobSpawner.showingClones == 1);
-		this.addTopButton(button = new GuiMenuTopButton(5, button, "gui.server"));
+		addTopButton(button = new GuiMenuTopButton(5, button, "gui.server"));
 		button.active = (GuiNpcMobSpawner.showingClones == 2);
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 170, this.guiTop + 6, 82, 20, "spawner.spawn"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 170, this.guiTop + 146, 82, 20, "spawner.mobspawner"));
+
+		addButton(new GuiNpcButton(1, this.guiLeft + 170, this.guiTop + 6, 82, 20, "spawner.spawn"));
+		addButton(new GuiNpcButton(2, this.guiLeft + 170, this.guiTop + 146, 82, 20, "spawner.mobspawner"));
 		if (GuiNpcMobSpawner.showingClones == 0 || GuiNpcMobSpawner.showingClones == 2) {
 			int x = guiLeft;
 			int y = guiTop + 4;
 			GuiMenuSideButton sideButton;
 			for (int id = 1; id < 10; id++) {
-				sideButton = new GuiMenuSideButton(20 + id, x, y + (id - 1) * 21, "Tab " + id);
-				this.addSideButton(sideButton);
+				sideButton = new GuiMenuSideButton(20 + id, x, y + (id - 1) * 19, "Tab " + id);
+				addSideButton(sideButton);
 			}
-			this.addButton(new GuiNpcButton(6, this.guiLeft + 170, this.guiTop + 30, 82, 20, "gui.remove"));
-			this.getSideButton(20 + this.activeTab).active = true;
-			this.showClones();
+			addButton(new GuiNpcButton(6, guiLeft + 170, guiTop + 30, 82, 20, "gui.remove"));
+			getSideButton(20 + activeTab).active = true;
+			showClones();
 		} else {
-			this.showEntities();
+			showEntities();
 		}
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
-		if (!GuiNpcMobSpawner.search.equals(this.getTextField(1).getText())) {
-			GuiNpcMobSpawner.search = this.getTextField(1).getText().toLowerCase();
-			this.scroll.setList(this.getSearchList());
-			this.scroll.selected = this.sel;
+		if (!GuiNpcMobSpawner.search.equals(getTextField(1).getText())) {
+			GuiNpcMobSpawner.search = getTextField(1).getText().toLowerCase();
+			scroll.setList(getSearchList());
+			scroll.selected = sel;
 		}
-		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode()
-				|| i == ClientProxy.backButton.getKeyCode()) {
-			this.resetEntity();
+		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode() || i == ClientProxy.backButton.getKeyCode()) {
+			resetEntity();
 		}
 	}
 
 	private void resetEntity() {
 		if (GuiNpcMobSpawner.showingClones == 0) { // client
-			NBTTagCompound npcNbt = ClientCloneController.Instance.getCloneData(this.player, this.scroll.getSelected(),
-					this.activeTab);
+			NBTTagCompound npcNbt = ClientCloneController.Instance.getCloneData(player, scroll.getSelected(), activeTab);
 			if (npcNbt == null) {
 				return;
 			}
 			Entity entity = EntityList.createEntityFromNBT(npcNbt, Minecraft.getMinecraft().world);
 			if (entity instanceof EntityLivingBase) {
-				this.selectNpc = (EntityLivingBase) entity;
+				selectNpc = (EntityLivingBase) entity;
 			}
 		} else if (GuiNpcMobSpawner.showingClones == 1) { // mob
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				if (ent.getName().equals(this.scroll.getSelected())) {
+				if (ent.getName().equals(scroll.getSelected())) {
 					Entity entity = EntityList.createEntityByIDFromName(Objects.requireNonNull(ent.getRegistryName()), Minecraft.getMinecraft().world);
 					if (entity instanceof EntityLivingBase) {
-						this.selectNpc = (EntityLivingBase) entity;
+						selectNpc = (EntityLivingBase) entity;
 					}
 					return;
 				}
 			}
 		} else { // server
-			Client.sendData(EnumPacketServer.GetClone, false, this.scroll.getSelected(), this.activeTab);
+			Client.sendData(EnumPacketServer.GetClone, false, scroll.getSelected(), activeTab);
 		}
 	}
 
@@ -289,7 +289,7 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
-		this.resetEntity();
+		resetEntity();
 	}
 
 	@Override
@@ -299,33 +299,31 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		if (compound.hasKey("NPCData", 10)) {
-			this.selectNpc = (EntityNPCInterface) EntityList.createEntityFromNBT(compound.getCompoundTag("NPCData"),
-					this.player.world);
+			selectNpc = (EntityNPCInterface) EntityList.createEntityFromNBT(compound.getCompoundTag("NPCData"), player.world);
 			return;
 		}
-		NBTTagList nbtlist = compound.getTagList("List", 8);
-		List<String> list = new ArrayList<>();
-		for (int i = 0; i < nbtlist.tagCount(); ++i) {
-			list.add(nbtlist.getStringTagAt(i));
+		NBTTagList nbtList = compound.getTagList("List", 8);
+		list.clear();
+		for (int i = 0; i < nbtList.tagCount(); ++i) {
+			list.add(nbtList.getStringTagAt(i));
 		}
-		this.list = list;
-		this.scroll.setList(this.getSearchList());
-		this.scroll.selected = this.sel;
+		scroll.setList(getSearchList());
+		scroll.selected = sel;
 	}
 
 	private void showClones() {
 		if (GuiNpcMobSpawner.showingClones == 2) {
-			Client.sendData(EnumPacketServer.CloneList, this.activeTab);
+			Client.sendData(EnumPacketServer.CloneList, activeTab);
 			return;
 		}
-		this.list = ClientCloneController.Instance.getClones(this.activeTab);
-		this.scroll.setList(this.getSearchList());
-		this.scroll.selected = this.sel;
-		this.resetEntity();
+		list = ClientCloneController.Instance.getClones(activeTab);
+		scroll.setList(getSearchList());
+		scroll.selected = sel;
+		resetEntity();
 	}
 
 	private void showEntities() {
-		ArrayList<String> list = new ArrayList<>();
+		list.clear();
 		List<Class<? extends Entity>> classes = new ArrayList<>();
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			if (Objects.requireNonNull(ent.getRegistryName()).getResourceDomain().equals(CustomNpcs.MODID)) {
@@ -341,9 +339,8 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 				classes.add(c);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		this.list = list;
-		this.scroll.setList(this.getSearchList());
-		this.scroll.selected = this.sel;
+		scroll.setList(getSearchList());
+		scroll.selected = sel;
 	}
 
 }

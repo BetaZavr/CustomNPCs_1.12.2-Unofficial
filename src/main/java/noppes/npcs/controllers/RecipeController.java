@@ -436,6 +436,8 @@ public class RecipeController implements IRecipeHandler {
 		// add new
 		map.get(recipe.getNpcGroup()).add(recipe);
 		sendToAll(recipe);
+		// Registry in players
+		CustomNpcs.proxy.applyRecipe(recipe, true);
 		save();
 		return recipe;
 	}
@@ -458,8 +460,6 @@ public class RecipeController implements IRecipeHandler {
 		if (isLocked) { RecipeController.Registry.unfreeze(); }
 		// Registry in game
 		RecipeController.Registry.register(recipe);
-		// Registry in players
-		CustomNpcs.proxy.applyRecipe((INpcRecipe) recipe, true);
 		// Reset id
 		int id = RecipeController.Registry.getID(recipe.getRegistryName());
 		if (recipe instanceof NpcShapedRecipes) { ((NpcShapedRecipes) recipe).id = id; }
@@ -543,7 +543,7 @@ public class RecipeController implements IRecipeHandler {
 				}
 				if (recipe.isShaped()) { recipe = NpcShapedRecipes.read(compound); }
 				else { recipe = NpcShapelessRecipes.read(compound); }
-				recipe = register(recipe);
+				register(recipe);
 			}
 		}
 	}
@@ -551,7 +551,7 @@ public class RecipeController implements IRecipeHandler {
 	public void updateGroupToAll(boolean isGlobal, String group) {
 		if (group == null) { return; }
 		group = Util.instance.getResourceName(group);
-		if (CustomNpcs.Server == null || !(isGlobal ? globalList : modList).containsKey(group) || (isGlobal ? globalList : modList).get(group).isEmpty()) { return; }
+		if (CustomNpcs.Server == null || !CustomNpcs.Server.isDedicatedServer() || !(isGlobal ? globalList : modList).containsKey(group) || (isGlobal ? globalList : modList).get(group).isEmpty()) { return; }
 		for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
 			for (INpcRecipe recipe : (isGlobal ? globalList : modList).get(group)) {
 				if (recipe == null) { continue; }
@@ -565,14 +565,14 @@ public class RecipeController implements IRecipeHandler {
 	}
 
 	public void sendToAllRemove(int id) {
-		if (CustomNpcs.Server == null || getRecipe(id) == null) { return; }
+		if (CustomNpcs.Server == null || !CustomNpcs.Server.isDedicatedServer() || getRecipe(id) == null) { return; }
 		for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
 			Server.sendData(player, EnumPacketClient.SYNC_REMOVE, EnumSync.RecipesData, id);
 		}
 	}
 
 	public void sendToAll(INpcRecipe recipe) {
-		if (CustomNpcs.Server == null) { return; }
+		if (CustomNpcs.Server == null || !CustomNpcs.Server.isDedicatedServer()) { return; }
 		for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
 			this.checkRecipeBook(player);
 			if (recipe == null) {

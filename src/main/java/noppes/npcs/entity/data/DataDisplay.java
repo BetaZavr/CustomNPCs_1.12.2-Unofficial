@@ -527,9 +527,7 @@ public class DataDisplay implements INPCDisplay {
 
 	@Override
 	public void setSkinUrl(String url) {
-		if (this.url.equals(url)) {
-			return;
-		}
+		if (this.url.equals(url)) { return; }
 		this.url = url;
 		if (url.isEmpty()) {
 			this.skinType = 0;

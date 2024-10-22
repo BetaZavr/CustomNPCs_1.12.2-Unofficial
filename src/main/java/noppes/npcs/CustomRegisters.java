@@ -472,12 +472,18 @@ public class CustomRegisters {
 		GameRegistry.registerTileEntity(TileRedstoneBlock.class, new ResourceLocation(CustomNpcs.MODID, "TileRedstoneBlock"));
 		GameRegistry.registerTileEntity(TileBlockAnvil.class, new ResourceLocation(CustomNpcs.MODID, "TileBlockAnvil"));
 		GameRegistry.registerTileEntity(TileMailbox.class, new ResourceLocation(CustomNpcs.MODID, "TileMailbox"));
+		GameRegistry.registerTileEntity(TileMailbox2.class, new ResourceLocation(CustomNpcs.MODID, "TileMailbox2"));
+		GameRegistry.registerTileEntity(TileMailbox3.class, new ResourceLocation(CustomNpcs.MODID, "TileMailbox3"));
 		GameRegistry.registerTileEntity(TileWaypoint.class, new ResourceLocation(CustomNpcs.MODID, "TileWaypoint"));
 		GameRegistry.registerTileEntity(TileScripted.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCScripted"));
 		GameRegistry.registerTileEntity(TileScriptedDoor.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCScriptedDoor"));
 		GameRegistry.registerTileEntity(TileBuilder.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCBuilder"));
 		GameRegistry.registerTileEntity(TileCopy.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCCopy"));
 		GameRegistry.registerTileEntity(TileBorder.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCBorder"));
+		//GameRegistry.registerTileEntity(TileDoor.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCDoor")); // Only Render
+		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
+		GameRegistry.registerTileEntity(CustomTileEntityChest.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
+
 		CustomRegisters.redstoneBlock = new BlockNpcRedstone();
 		CustomRegisters.mailbox = new BlockMailbox();
 		CustomRegisters.waypoint = new BlockWaypoint();

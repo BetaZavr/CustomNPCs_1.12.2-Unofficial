@@ -20,7 +20,7 @@ public class EntityAIDodge extends EntityAICustom {
 	@Override
 	public void updateTask() {
 		super.updateTask();
-		if (this.isFrend || this.npc.ticksExisted % (this.tickRate * 2) > 3) {
+		if (this.isFriend || this.npc.ticksExisted % (this.tickRate * 2) > 3) {
 			return;
 		}
 		if (this.isRanged) {
@@ -50,7 +50,7 @@ public class EntityAIDodge extends EntityAICustom {
 			}
 		}
 		this.tryToCauseDamage();
-		if (this.hasAttack) {
+		if (hasAttack) {
 			double dist = 0.0d;
 			int error = 0, attempts = 0;
 			this.dodgePos = null;

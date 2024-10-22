@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import noppes.npcs.LogWriter;
 import noppes.npcs.mixin.client.gui.IGuiScreenMixin;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Lists;
 
@@ -49,7 +48,6 @@ implements IEditNPC {
 	public int guiTop;
 	public int mouseX;
 	public int mouseY;
-	public int mouseWheel;
 	public float bgScale = 1.0f;
 	public String title = "Npc Mainmenu";
 	public String[] hoverText;
@@ -215,13 +213,13 @@ implements IEditNPC {
 			}
 		}
 		for (GuiNpcTextField tf : new ArrayList<>(this.textfields.values())) {
-			tf.drawTextBox(mouseX, mouseY, mouseWheel);
+			tf.drawTextBox(mouseX, mouseY);
 			if (tf instanceof GuiNpcTextArea) {
 				hasArea = true;
 			}
 		}
 		for (GuiCustomScroll scroll : new ArrayList<>(this.scrolls.values())) {
-			scroll.drawScreen(mouseX, mouseY, (!this.hasSubGui() && (scroll.hovered || (this.scrolls.isEmpty() && !hasArea))) ? mouseWheel : 0);
+			scroll.drawScreen(mouseX, mouseY, !hasSubGui() && (scroll.hovered || (scrolls.isEmpty() && !hasArea)));
 		}
 		this.hoverMiniWin = false;
 		for (GuiNpcMiniWindow mwin : this.mwindows.values()) {
@@ -311,7 +309,6 @@ implements IEditNPC {
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		mouseWheel = Mouse.getDWheel();
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		Container container = this.inventorySlots;

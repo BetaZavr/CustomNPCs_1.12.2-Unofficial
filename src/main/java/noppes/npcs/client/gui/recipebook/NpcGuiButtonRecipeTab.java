@@ -17,6 +17,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.stats.RecipeBook;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.util.Util;
 
@@ -108,7 +109,13 @@ public class NpcGuiButtonRecipeTab extends GuiButtonRecipeTab {
 
     public void startAnimation(Minecraft mc) {
         RecipeBook recipebook = mc.player.getRecipeBook();
-        label21: for (RecipeList recipelist : RecipeBookClient.RECIPES_BY_TAB.get(this.category)) {
+        if (!RecipeBookClient.RECIPES_BY_TAB.containsKey(category)) {
+            RecipeList recipelist = new RecipeList();
+            RecipeBookClient.ALL_RECIPES.add(recipelist);
+            (RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(category, (hasRecipeList) -> org.spongepowered.include.com.google.common.collect.Lists.newArrayList())).add(recipelist);
+            (RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (hasRecipeList) -> org.spongepowered.include.com.google.common.collect.Lists.newArrayList())).add(recipelist);
+        }
+        label21: for (RecipeList recipelist : RecipeBookClient.RECIPES_BY_TAB.get(category)) {
             Iterator<IRecipe> iterator = recipelist.getRecipes(recipebook.isFilteringCraftable()).iterator();
             while (true) {
                 if (!iterator.hasNext()) {

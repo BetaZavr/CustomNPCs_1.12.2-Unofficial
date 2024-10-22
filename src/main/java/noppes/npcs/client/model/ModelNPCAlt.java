@@ -2,6 +2,8 @@ package noppes.npcs.client.model;
 
 import java.util.Map;
 
+import net.minecraft.client.model.ModelRenderer;
+import noppes.npcs.client.model.animation.*;
 import noppes.npcs.mixin.client.model.IModelPlayerMixin;
 import noppes.npcs.mixin.entity.IEntityLivingBaseMixin;
 import org.lwjgl.opengl.GL11;
@@ -11,7 +13,6 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
-import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -21,15 +22,6 @@ import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;
-import noppes.npcs.client.model.animation.AniBow;
-import noppes.npcs.client.model.animation.AniCrawling;
-import noppes.npcs.client.model.animation.AniDancing;
-import noppes.npcs.client.model.animation.AniHug;
-import noppes.npcs.client.model.animation.AniNo;
-import noppes.npcs.client.model.animation.AniPoint;
-import noppes.npcs.client.model.animation.AniWaving;
-import noppes.npcs.client.model.animation.AniYes;
-import noppes.npcs.client.model.animation.AnimationStack;
 import noppes.npcs.client.model.part.AnimData;
 import noppes.npcs.client.model.part.head.ModelHeadwear;
 import noppes.npcs.constants.EnumParts;
@@ -59,34 +51,52 @@ public class ModelNpcAlt extends ModelPlayer {
     protected ModelHeadwear bipedHeadwear_1024;
     protected ModelHeadwear bipedHeadwear_2048;
     protected ModelHeadwear bipedHeadwear_4096;
+
+    protected ModelHeadwear bipedHeadwear_64_old;
+    protected ModelHeadwear bipedHeadwear_128_old;
+    protected ModelHeadwear bipedHeadwear_256_old;
+    protected ModelHeadwear bipedHeadwear_512_old;
+    protected ModelHeadwear bipedHeadwear_1024_old;
+    protected ModelHeadwear bipedHeadwear_2048_old;
+    protected ModelHeadwear bipedHeadwear_4096_old;
     protected ModelRendererAlt bipedCape;
     public AnimationStack rightStackData = new AnimationStack();
     public AnimationStack leftStackData = new AnimationStack();
-    public boolean smallArmsIn, isClassicPlayer;
+    public boolean smallArmsIn;
+    public boolean isClassicPlayer;
 
     public ModelNpcAlt(float modelSize, boolean smallArmsIn, boolean isClassicPlayer) {
         super(modelSize, smallArmsIn);
         this.smallArmsIn = smallArmsIn;
         this.isClassicPlayer = isClassicPlayer;
-        this.init(modelSize);
+        init(modelSize);
     }
 
     protected void init(float modelSize) {
         float wear = 0.25f;
-        float handWidth = this.smallArmsIn ? 3.0f : 4.0f;
         this.bipedHead = new ModelRendererAlt(this, EnumParts.HEAD, 0, 0, true);
         ((ModelRendererAlt) this.bipedHead).setBox(-4.0F, -8.0F, -4.0F, 8, 3 , 3, 2, 8, modelSize);
         this.bipedHead.setRotationPoint(0.0F, 0.0F, 0.0F);
+
         this.bipedHeadwear = new ModelRendererAlt(this, EnumParts.HEAD, 32, 0, true);
         ((ModelRendererAlt) this.bipedHeadwear).setBox(-4.0F, -8.0F, -4.0F, 8, 3 , 3, 2, 8, modelSize + 2.0f * wear);
         this.bipedHeadwear.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.bipedHeadwear_64 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 64);
-        this.bipedHeadwear_128 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 128);
-        this.bipedHeadwear_256 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 256);
-        this.bipedHeadwear_512 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 512);
-        this.bipedHeadwear_1024 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 1024);
-        this.bipedHeadwear_2048 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 2048);
-        this.bipedHeadwear_4096 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 4096);
+
+        bipedHeadwear_64 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 64, false);
+        bipedHeadwear_128 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 128, false);
+        bipedHeadwear_256 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 256, false);
+        bipedHeadwear_512 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 512, false);
+        bipedHeadwear_1024 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 1024, false);
+        bipedHeadwear_2048 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 2048, false);
+        bipedHeadwear_4096 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 4096, false);
+
+        bipedHeadwear_64_old = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 64, true);
+        bipedHeadwear_128_old = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 128, true);
+        bipedHeadwear_256_old = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 256, true);
+        bipedHeadwear_512_old = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 512, true);
+        bipedHeadwear_1024_old = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 1024, true);
+        bipedHeadwear_2048_old = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 2048, true);
+        bipedHeadwear_4096_old = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 4096, true);
 
         this.bipedBody = new ModelRendererAlt(this, EnumParts.BODY, 16, 16, false);
         ((ModelRendererAlt) this.bipedBody).setBox(-4.0F, 0.0F, -2.0F, 8, 5.5f, 4.0f, 2.5f, 4, modelSize);
@@ -101,6 +111,7 @@ public class ModelNpcAlt extends ModelPlayer {
         this.bipedCape.setRotationPoint(0.0F, 0.0F, 0.0F);
         ((IModelPlayerMixin) this).npcs$setBipedCape(this.bipedCape);
 
+        float handWidth = this.smallArmsIn ? 3.0f : 4.0f;
         this.bipedRightArm = new ModelRendererAlt(this, EnumParts.ARM_RIGHT, 40, 16, false);
         ((ModelRendererAlt) this.bipedRightArm).setBox(this.smallArmsIn ? -2.0F : -3.0F, -2.0F, -2.0F, handWidth, 5.5f, 3.5f, 3.0f, 4, modelSize);
         this.bipedRightArm.setRotationPoint(-5.0F, 2.0F, 0.0F);
@@ -233,19 +244,69 @@ public class ModelNpcAlt extends ModelPlayer {
     }
 
     protected void renderHeadWear(float scale) {
-        if (CustomNpcs.HeadWearType == 0) {
-            this.bipedHeadwear.render(scale);
-        } else if (CustomNpcs.HeadWearType == 1) {
+        if (CustomNpcs.HeadWearType == 2) { return; }
+        ModelRenderer bipedHead = bipedHeadwear;
+        if (CustomNpcs.HeadWearType == 1) {
             int w = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
-            if (this.bipedHeadwear_4096 != null && w >= 4096) { this.bipedHeadwear_4096.render(scale); }
-            else if (this.bipedHeadwear_2048 != null && w >= 2048) { this.bipedHeadwear_2048.render(scale); }
-            else if (this.bipedHeadwear_1024 != null && w >= 1024) { this.bipedHeadwear_1024.render(scale); }
-            else if (this.bipedHeadwear_512 != null && w >= 512) { this.bipedHeadwear_512.render(scale); }
-            else if (this.bipedHeadwear_256 != null && w >= 256) { this.bipedHeadwear_256.render(scale); }
-            else if (this.bipedHeadwear_128 != null && w >= 128) { this.bipedHeadwear_128.render(scale); }
-            else if (this.bipedHeadwear_64 != null) { this.bipedHeadwear_64.render(scale); }
-            else { this.bipedHeadwear.render(scale); }
+            int h = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
+            boolean isOld = w > h;
+            if (w >= 4096) {
+                if (isOld && bipedHeadwear_4096_old != null) {
+                    bipedHead = bipedHeadwear_4096_old;
+                }
+                else if (!isOld && bipedHeadwear_4096 != null) {
+                    bipedHead = bipedHeadwear_4096;
+                }
+            }
+            else if (w >= 2048) {
+                if (isOld && bipedHeadwear_2048_old != null) {
+                    bipedHead = bipedHeadwear_2048_old;
+                }
+                else if (!isOld && bipedHeadwear_2048 != null) {
+                    bipedHead = bipedHeadwear_2048;
+                }
+            }
+            else if (w >= 1024) {
+                if (isOld && bipedHeadwear_1024_old != null) {
+                    bipedHead = bipedHeadwear_1024_old;
+                }
+                else if (!isOld && bipedHeadwear_1024 != null) {
+                    bipedHead = bipedHeadwear_1024;
+                }
+            }
+            else if (w >= 512) {
+                if (isOld && bipedHeadwear_512_old != null) {
+                    bipedHead = bipedHeadwear_512_old;
+                }
+                else if (!isOld && bipedHeadwear_512 != null) {
+                    bipedHead = bipedHeadwear_512;
+                }
+            }
+            else if (w >= 256) {
+                if (isOld && bipedHeadwear_256_old != null) {
+                    bipedHead = bipedHeadwear_256_old;
+                }
+                else if (!isOld && bipedHeadwear_256 != null) {
+                    bipedHead = bipedHeadwear_256;
+                }
+            }
+            else if (w >= 128) {
+                if (isOld && bipedHeadwear_128_old != null) {
+                    bipedHead = bipedHeadwear_128_old;
+                }
+                else if (!isOld && bipedHeadwear_128 != null) {
+                    bipedHead = bipedHeadwear_128;
+                }
+            }
+            else {
+                if (isOld && bipedHeadwear_64_old != null) {
+                    bipedHead = bipedHeadwear_64_old;
+                } else if (!isOld && bipedHeadwear_64 != null) {
+                    bipedHead = bipedHeadwear_64;
+                }
+            }
         }
+        bipedHead.render(scale);
     }
 
     @Override
@@ -299,39 +360,24 @@ public class ModelNpcAlt extends ModelPlayer {
         }
         this.clearAllRotations();
         super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);
-        if (this.isClassicPlayer) {
-            float j = 2.0f;
-            if (entityIn.isSprinting()) { j = 1.0f; }
-            ModelRenderer bipedRightArm = this.bipedRightArm;
-            bipedRightArm.rotateAngleX += MathHelper.cos(limbSwing * 0.6662f + 3.1415927f) * j * limbSwingAmount;
-            ModelRenderer bipedLeftArm = this.bipedLeftArm;
-            bipedLeftArm.rotateAngleX += MathHelper.cos(limbSwing * 0.6662f) * j * limbSwingAmount;
-            ModelRenderer bipedLeftArm2 = this.bipedLeftArm;
-            bipedLeftArm2.rotateAngleZ += (MathHelper.cos(limbSwing * 0.2812f) - 1.0f) * limbSwingAmount;
-            ModelRenderer bipedRightArm2 = this.bipedRightArm;
-            bipedRightArm2.rotateAngleZ += (MathHelper.cos(limbSwing * 0.2312f) + 1.0f) * limbSwingAmount;
-            this.bipedLeftArmwear.rotateAngleX = this.bipedLeftArm.rotateAngleX;
-            this.bipedLeftArmwear.rotateAngleY = this.bipedLeftArm.rotateAngleY;
-            this.bipedLeftArmwear.rotateAngleZ = this.bipedLeftArm.rotateAngleZ;
-            this.bipedRightArmwear.rotateAngleX = this.bipedRightArm.rotateAngleX;
-            this.bipedRightArmwear.rotateAngleY = this.bipedRightArm.rotateAngleY;
-            this.bipedRightArmwear.rotateAngleZ = this.bipedRightArm.rotateAngleZ;
+        if (isClassicPlayer) {
+            AniClassicPlayer.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, this);
         }
         // Parts scales
         if (entityIn instanceof EntityCustomNpc) {
             animation.resetShowParts();
-            this.bipedHead.showModel = true;
-            this.bipedBody.showModel = true;
-            this.bipedLeftArm.showModel = true;
-            this.bipedRightArm.showModel = true;
-            this.bipedLeftLeg.showModel = true;
-            this.bipedRightLeg.showModel = true;
-            ((ModelRendererAlt) this.bipedHead).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.HEAD));
-            ((ModelRendererAlt) this.bipedBody).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.BODY));
-            ((ModelRendererAlt) this.bipedLeftArm).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.ARM_LEFT));
-            ((ModelRendererAlt) this.bipedRightArm).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.ARM_RIGHT));
-            ((ModelRendererAlt) this.bipedLeftLeg).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.LEG_LEFT));
-            ((ModelRendererAlt) this.bipedRightLeg).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.LEG_RIGHT));
+            bipedHead.showModel = true;
+            bipedBody.showModel = true;
+            bipedLeftArm.showModel = true;
+            bipedRightArm.showModel = true;
+            bipedLeftLeg.showModel = true;
+            bipedRightLeg.showModel = true;
+            ((ModelRendererAlt) bipedHead).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.HEAD));
+            ((ModelRendererAlt) bipedBody).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.BODY));
+            ((ModelRendererAlt) bipedLeftArm).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.ARM_LEFT));
+            ((ModelRendererAlt) bipedRightArm).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.ARM_RIGHT));
+            ((ModelRendererAlt) bipedLeftLeg).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.LEG_LEFT));
+            ((ModelRendererAlt) bipedRightLeg).setBaseData(((EntityCustomNpc) entityIn).modelData.getPartConfig(EnumParts.LEG_RIGHT));
             // Mod Animation
             if (((EntityNPCInterface) entityIn).getAttackTarget() == null) {
                 if (((EntityNPCInterface) entityIn).isPlayerSleeping()) {
@@ -414,14 +460,21 @@ public class ModelNpcAlt extends ModelPlayer {
             if (animation.hasAnimations(-1)) {  animation.preFrame.setRotationAngles(this); }
         }
         if (CustomNpcs.HeadWearType != 2) {
-            copyModelAngles((ModelRendererAlt) this.bipedHead, (ModelRendererAlt) this.bipedHeadwear);
-            if (this.bipedHeadwear_64 != null) { copyModelAngles((ModelRendererAlt) this.bipedHead, this.bipedHeadwear_64); }
-            if (this.bipedHeadwear_128 != null) { copyModelAngles((ModelRendererAlt) this.bipedHead, this.bipedHeadwear_128); }
-            if (this.bipedHeadwear_256 != null) { copyModelAngles((ModelRendererAlt) this.bipedHead, this.bipedHeadwear_256); }
-            if (this.bipedHeadwear_512 != null) { copyModelAngles((ModelRendererAlt) this.bipedHead, this.bipedHeadwear_512); }
-            if (this.bipedHeadwear_1024 != null) { copyModelAngles((ModelRendererAlt) this.bipedHead, this.bipedHeadwear_1024); }
-            if (this.bipedHeadwear_2048 != null) { copyModelAngles((ModelRendererAlt) this.bipedHead, this.bipedHeadwear_2048); }
-            if (this.bipedHeadwear_4096 != null) { copyModelAngles((ModelRendererAlt) this.bipedHead, this.bipedHeadwear_4096); }
+            copyModelAngles((ModelRendererAlt) bipedHead, (ModelRendererAlt) bipedHeadwear);
+            if (bipedHeadwear_64 != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_64); }
+            if (bipedHeadwear_128 != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_128); }
+            if (bipedHeadwear_256 != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_256); }
+            if (bipedHeadwear_512 != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_512); }
+            if (bipedHeadwear_1024 != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_1024); }
+            if (bipedHeadwear_2048 != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_2048); }
+            if (bipedHeadwear_4096 != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_4096); }
+            if (bipedHeadwear_64_old != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_64_old); }
+            if (bipedHeadwear_128_old != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_128_old); }
+            if (bipedHeadwear_256_old != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_256_old); }
+            if (bipedHeadwear_512_old != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_512_old); }
+            if (bipedHeadwear_1024_old != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_1024_old); }
+            if (bipedHeadwear_2048_old != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_2048_old); }
+            if (bipedHeadwear_4096_old != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_4096_old); }
         }
         if (this.bipedBody != null && this.bipedBodyWear != null)  {
             if (this.bipedBody instanceof ModelRendererAlt && this.bipedBodyWear instanceof ModelRendererAlt) { copyModelAngles((ModelRendererAlt) this.bipedBody, (ModelRendererAlt) this.bipedBodyWear); }

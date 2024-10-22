@@ -195,7 +195,6 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 				isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand;
 			}
 			if (isInvisible) {
-				GlStateManager.pushMatrix();
 				GlStateManager.enableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL);
 			}
 			ModelBase model = this.renderEntity.getMainModel();

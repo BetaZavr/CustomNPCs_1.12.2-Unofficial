@@ -1386,7 +1386,7 @@ public class ClientProxy extends CommonProxy {
 				this.getPlayer().sendMessage(new TextComponentString("Unable to find npc"));
 			}
 			case MainMenuStats: {
-				return new GuiNpcStats(npc);
+				return npc == null ? null : new GuiNpcStats(npc);
 			}
 			case MainMenuInv: {
 				return new GuiNPCInv(npc, (ContainerNPCInv) container);

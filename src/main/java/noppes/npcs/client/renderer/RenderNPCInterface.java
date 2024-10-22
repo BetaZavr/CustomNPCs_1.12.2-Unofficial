@@ -1,11 +1,19 @@
 package noppes.npcs.client.renderer;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Map;
 
+import net.minecraft.client.renderer.texture.ITextureObject;
 import noppes.npcs.LogWriter;
+import noppes.npcs.mixin.client.renderer.texture.ITextureManagerMixin;
+import org.apache.commons.io.IOUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
@@ -34,6 +42,7 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
 import javax.annotation.Nonnull;
+import javax.imageio.ImageIO;
 
 public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLiving<T> {
 
@@ -127,7 +136,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 						byte[] hash = digest.digest(npc.display.getSkinUrl().getBytes(StandardCharsets.UTF_8));
 						StringBuilder sb = new StringBuilder(2 * hash.length);
 						for (byte b : hash) { sb.append(String.format("%02x", b & 0xFF)); }
-						RenderNPCInterface.loadSkin(npc.textureLocation = new ResourceLocation("skins/" + sb));
+						RenderNPCInterface.loadSkin(npc.textureLocation = new ResourceLocation("skins/" + sb), npc.display.getSkinUrl());
 					}
 					catch (Exception e) { LogWriter.error("Error:", e); }
 				}
@@ -165,9 +174,17 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		return super.handleRotationFloat(npc, par2);
 	}
 
-	private static void loadSkin(ResourceLocation resource) {
-		TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
-        texturemanager.getTexture(resource);
+	private static void loadSkin(ResourceLocation resource, String url) {
+		ITextureObject iTexture = Minecraft.getMinecraft().getTextureManager().getTexture(resource);
+		if (iTexture == null) {
+			try {
+				byte[] imageBytes = IOUtils.toByteArray(new URL(url).openStream());
+				ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
+				iTexture = new DynamicTexture(ImageIO.read(inputStream));
+				((ITextureManagerMixin) Minecraft.getMinecraft().getTextureManager()).npcs$getMapTextureObjects().put(resource, iTexture);
+			}
+			catch (Exception ignored) { }
+        }
     }
 
 	protected void preRenderCallback(@Nonnull T npc, float f) {

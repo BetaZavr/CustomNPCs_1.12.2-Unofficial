@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import noppes.npcs.LogWriter;
 import noppes.npcs.mixin.client.gui.IGuiScreenMixin;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Lists;
 
@@ -60,7 +59,6 @@ implements IEditNPC {
 	public int ySize;
 	public int widthTexture;
 	public int heightTexture;
-	public int mouseWheel;
 	public float bgScale = 1.0f;
 	public String title = "";
 	public String[] hoverText;
@@ -274,7 +272,6 @@ implements IEditNPC {
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		mouseWheel = Mouse.getDWheel();
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		int x = mouseX;
@@ -327,7 +324,7 @@ implements IEditNPC {
 			label.drawLabel(this, this.fontRenderer, mouseX, mouseY);
 		}
 		for (GuiNpcTextField tf : new ArrayList<>(this.textfields.values())) {
-			tf.drawTextBox(x, y, mouseWheel);
+			tf.drawTextBox(x, y);
 			if (tf instanceof GuiNpcTextArea) {
 				hasArea = true;
 			}
@@ -338,10 +335,10 @@ implements IEditNPC {
 				hasArea = true;
 			}
 		}
-		for (GuiCustomScroll scroll : new ArrayList<>(this.scrolls.values())) {
-			scroll.drawScreen(x, y, (!this.hasSubGui() && (scroll.hovered || (this.scrolls.isEmpty() && !hasArea))) ? mouseWheel : 0);
+		for (GuiCustomScroll scroll : scrolls.values()) {
+			scroll.drawScreen(x, y, !hasSubGui() && (scroll.hovered || (scrolls.isEmpty() && !hasArea)));
 		}
-		for (GuiScreen gui : new ArrayList<>(this.extra.values())) {
+		for (GuiScreen gui : extra.values()) {
 			gui.drawScreen(x, y, partialTicks);
 		}
 		super.drawScreen(x, y, partialTicks);
@@ -650,7 +647,7 @@ implements IEditNPC {
 				}
 			}
 			for (IGui comp : new ArrayList<>(this.components)) {
-				comp.updateScreen(mouseWheel);
+				comp.updateScreen();
 			}
 			super.updateScreen();
 		}

@@ -20,7 +20,7 @@ public class AWSlotOutfit extends Slot {
 	}
 
 	public boolean isItemValid(@Nonnull ItemStack itemstack) {
-		if (ArmourersWorkshopClientApi.getSkinRenderHandler() == null) {
+		if (!ArmourersWorkshopApi.isAvailable()) {
 			return false;
 		}
 		ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(itemstack);

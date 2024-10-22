@@ -143,7 +143,7 @@ public class PlayerDataController {
 		if (player == null) {
 			try {
 				player = server.getPlayerList().getPlayerByUUID(UUID.fromString(user_name_or_uuid));
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception ignored) { }
 		}
 		PlayerData data = null;
 		if (player == null) {
@@ -208,10 +208,11 @@ public class PlayerDataController {
 
 	public List<PlayerData> getPlayersData(ICommandSender sender, String username) throws CommandException {
 		ArrayList<PlayerData> list = new ArrayList<>();
-		List<EntityPlayerMP> players = EntitySelector.matchEntities(sender, username,
-				EntityPlayerMP.class);
+		List<EntityPlayerMP> players = EntitySelector.matchEntities(sender, username, EntityPlayerMP.class);
 		if (players.isEmpty()) {
-			PlayerData data = this.getDataFromUsername(Objects.requireNonNull(sender.getServer()), username);
+			MinecraftServer server = CustomNpcs.Server;
+			if (server == null) { server = sender.getServer(); }
+			PlayerData data = this.getDataFromUsername(Objects.requireNonNull(server), username);
 			if (data != null) {
 				list.add(data);
 			}

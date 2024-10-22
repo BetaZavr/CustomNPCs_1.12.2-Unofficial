@@ -8,6 +8,6 @@ public interface IGui {
 
 	boolean isActive();
 
-	void updateScreen(int mouseWheel);
+	void updateScreen();
 
 }

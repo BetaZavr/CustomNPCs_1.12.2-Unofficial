@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import noppes.npcs.CustomNpcs;
@@ -17,17 +18,29 @@ public class EntityAICustom extends EntityAIBase {
 	protected final EntityNPCInterface npc;
 	protected final int tickRate;
 	protected EntityLivingBase target;
-	protected int burstCount, tacticalRange;
-	protected int rangedTick, meleeTick, delay, step;
-	public boolean hasAttack, startRangedAttack, isRanged, canSeeToAttack, inMove, isFrend;
-	public double distance, range;
+
+	public boolean hasAttack;
+	public boolean startRangedAttack;
+	public boolean isRanged;
+	public boolean canSeeToAttack;
+	public boolean inMove;
+	public boolean isFriend;
+
+	protected int burstCount;
+	protected int tacticalRange;
+	protected int rangedTick;
+	protected int meleeTick;
+	protected int step;
+
+	public double distance;
+	public double range;
 
 	public EntityAICustom(EntityNPCInterface npc) {
 		this.npc = npc;
-		this.navOverride(true);
-		this.tickRate = ((IEntityAITasksMixin) this.npc.tasks).npcs$getTickRate();
-		this.step = 0;
-		this.distance = -1.0d;
+		navOverride(true);
+		tickRate = ((IEntityAITasksMixin) this.npc.tasks).npcs$getTickRate();
+		step = 0;
+		distance = -1.0d;
 	}
 
 	public EntityAICustom(IRangedAttackMob npc) {
@@ -35,163 +48,157 @@ public class EntityAICustom extends EntityAIBase {
 			throw new IllegalArgumentException("ArrowAttackGoal requires Mob implements RangedAttackMob");
 		}
 		this.npc = (EntityNPCInterface) npc;
-		this.navOverride(true);
-		this.tickRate = ((IEntityAITasksMixin) this.npc.tasks).npcs$getTickRate();
-		this.distance = -1.0d;
+		navOverride(true);
+		tickRate = ((IEntityAITasksMixin) this.npc.tasks).npcs$getTickRate();
+		distance = -1.0d;
 	}
 
-	public EntityLivingBase getTarget() {
-		return this.target;
-	}
+	public EntityLivingBase getTarget() { return target; }
 
-	public void navOverride(boolean nav) {
-		this.setMutexBits(nav ? AiMutex.PATHING : (AiMutex.LOOK + AiMutex.PASSIVE));
-	}
+	public void navOverride(boolean nav) { setMutexBits(nav ? AiMutex.PATHING : (AiMutex.LOOK + AiMutex.PASSIVE)); }
 
+	/**
+	 * resets this AI's work when "shouldContinueExecuting" returns "false"
+	 */
 	@Override
 	public void resetTask() {
-		this.canSeeToAttack = false;
+		canSeeToAttack = false;
 	}
 
+	/**
+	 * checks whether this AI can continue to execute -> updateTask
+	 */
 	@Override
 	public boolean shouldContinueExecuting() {
-		return this.npc != null && this.npc.isEntityAlive();
+		return npc != null && npc.isEntityAlive() && setTarget();
 	}
 
+	private boolean setTarget() {
+		target = npc.getAttackTarget();
+		if (npc.aiOwnerNPC != null && npc.aiOwnerNPC.isEntityAlive()) {
+			EntityLivingBase ownerTarget = npc.aiOwnerNPC.getAttackTarget();
+			if (ownerTarget != null && ownerTarget.equals(target)) {
+				npc.setAttackTarget(ownerTarget);
+			}
+			target = npc.getAttackTarget();
+		}
+		if (target == null || !target.isEntityAlive()) {
+			CustomNpcs.debugData.endDebug("Server", npc, "EntityAICustom_shouldExecute");
+			startRangedAttack = false;
+			return false;
+		}
+		// target is GM Player reset in EntityNPCInterface.onUpdate()
+		isFriend = npc.isFriend(target);
+		return target != null;
+	}
+
+	/**
+	 * checks the possibility of running this AI
+	 */
 	@Override
 	public boolean shouldExecute() {
 		CustomNpcs.debugData.startDebug("Server", this.npc, "EntityAICustom_shouldExecute");
-		this.distance = -1.0d;
-		this.canSeeToAttack = false;
-		this.hasAttack = false;
-		this.target = this.npc.getAttackTarget();
-		if (this.npc.aiOwnerNPC != null) {
-			if (!this.npc.aiOwnerNPC.isEntityAlive() || this.npc.aiOwnerNPC.getAttackTarget() == null) {
-				this.npc.aiOwnerNPC = null;
-			} else {
-				if (this.target != null) {
-					this.npc.setAttackTarget(null);
-				}
-				this.setLookPositionWithEntity(this.npc.aiOwnerNPC);
-			}
-			CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_shouldExecute");
-			this.startRangedAttack = false;
-			return false;
-		}
-		if (this.target == null || !this.target.isEntityAlive()) {
-			if (this.delay > 0) {
-				this.delay--;
-				if (this.delay == 0 && this.npc.ais.returnToStart && (!CustomNpcs.ShowCustomAnimation || !this.npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES))) {
-					npc.getNavigator().tryMoveToXYZ(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos(), 1.3d);
-				}
-			}
-			CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_shouldExecute");
-			this.startRangedAttack = false;
-			return false;
-		}
-		this.delay = 20;
-		this.isFrend = this.npc.isFrend(this.target);
-		CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_shouldExecute");
-		return true;
+		distance = -1.0d;
+		canSeeToAttack = false;
+		hasAttack = false;
+		setTarget();
+		CustomNpcs.debugData.endDebug("Server", npc, "EntityAICustom_shouldExecute");
+		return setTarget();
 	}
 
 	private void setLookPositionWithEntity(Entity target) {
-		if (!CustomNpcs.ShowCustomAnimation || !this.npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES)) {
-			this.npc.getLookHelper().setLookPositionWithEntity(target, 30.0f, 15.0f);
+		if (!CustomNpcs.ShowCustomAnimation || !npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES)) {
+			npc.getLookHelper().setLookPositionWithEntity(target, 7.5f, 3.75f);
 		}
 	}
 
 	protected void tryMoveToTarget() {
-		if (!CustomNpcs.ShowCustomAnimation || !this.npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES)) {
-			this.npc.getNavigator().tryMoveToEntityLiving(this.target, 1.3d);
+		if (!CustomNpcs.ShowCustomAnimation || !npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES)) {
+			npc.getNavigator().tryMoveToEntityLiving(target, 1.3d);
 		}
 	}
 
 	protected void tryToCauseDamage() {
-		if (this.isRanged) {
-			if (this.rangedTick > 0 || this.distance > this.range || !this.canSeeToAttack
-					|| this.npc.stats.ranged.getFireType() == 2) {
-				if (this.rangedTick == 0 && !this.canSeeToAttack) {
-					this.rangedTick = 5;
-				}
-				this.startRangedAttack = false;
+		if (isRanged) {
+			if (rangedTick > 0 || distance > range || !canSeeToAttack || npc.stats.ranged.getFireType() == 2) {
+				if (rangedTick == 0 && !canSeeToAttack) { rangedTick = 5; }
+				startRangedAttack = false;
 				return;
 			}
-			this.startRangedAttack = true;
+			startRangedAttack = true;
 			return;
 		}
-		if (this.meleeTick > 0 || this.distance > this.range || !this.canSeeToAttack) {
-			if (this.meleeTick == 0 && !this.canSeeToAttack) {
-				this.meleeTick = 5;
-			}
+		if (meleeTick > 0 || distance > range || !canSeeToAttack) {
+			if (meleeTick == 0 && !canSeeToAttack) { meleeTick = 5; }
 			return;
 		}
-		this.meleeTick = this.npc.stats.melee.getDelayRNG();
-		this.npc.swingArm(EnumHand.MAIN_HAND);
-		this.npc.attackEntityAsMob(this.target);
-		this.hasAttack = true;
+		meleeTick = npc.stats.melee.getDelayRNG();
+		npc.swingArm(EnumHand.MAIN_HAND);
+		npc.attackEntityAsMob(target);
+		hasAttack = true;
 	}
 
 	public void update() {
-		if (!this.startRangedAttack || this.target == null || !this.target.isEntityAlive()
-				|| !this.npc.isEntityAlive()) {
-			this.startRangedAttack = false;
+		if (!startRangedAttack || target == null || !target.isEntityAlive() || !npc.isEntityAlive()) {
+			startRangedAttack = false;
 			//this.step = 0; this.burstCount = 0;
 			return;
 		}
-		this.step++;
-		if (this.step >= this.tickRate) {
-			this.step = 0;
+		step++;
+		if (step >= tickRate) {
+			step = 0;
 		}
-		if (this.rangedTick > this.step) {
+		if (rangedTick > step) {
 			return;
 		}
 
-		if (this.burstCount++ <= this.npc.stats.ranged.getBurst()) {
-			this.rangedTick = this.npc.stats.ranged.getBurstDelay();
+		if (burstCount++ <= npc.stats.ranged.getBurst()) {
+			rangedTick = npc.stats.ranged.getBurstDelay();
 		} else {
-			this.burstCount = 0;
-			this.hasAttack = true;
-			this.rangedTick = this.npc.stats.ranged.getDelayRNG();
+			burstCount = 0;
+			hasAttack = true;
+			rangedTick = npc.stats.ranged.getDelayRNG();
 		}
-		if (this.burstCount > 1) {
+		if (burstCount > 1) {
 			boolean indirect = false;
-			switch (this.npc.stats.ranged.getFireType()) {
+			switch (npc.stats.ranged.getFireType()) {
 				case 1: {
-					indirect = (this.distance > this.range / 2.0);
+					indirect = (distance > range / 2.0);
 					break;
 				}
 				case 2: {
-					indirect = !this.npc.getEntitySenses().canSee(this.target);
+					indirect = !npc.getEntitySenses().canSee(target);
 					break;
 				}
 			}
-			this.npc.attackEntityWithRangedAttack(this.target, indirect ? 1.0f : 0.0f);
-			if (this.npc.currentAnimation != 6) {
-				this.npc.swingArm(EnumHand.MAIN_HAND);
+			npc.attackEntityWithRangedAttack(target, indirect ? 1.0f : 0.0f);
+			if (npc.currentAnimation != 6) {
+				npc.swingArm(EnumHand.MAIN_HAND);
 			}
-			this.step = 0;
+			step = 0;
 		}
 	}
 
+	/**
+	 * will run every tick until "shouldContinueExecuting" returns "true"
+	 */
 	@Override
 	public void updateTask() {
-		if (npc.ticksExisted % tickRate != 0) { return; }
-		CustomNpcs.debugData.startDebug("Server", this.npc, "EntityAICustom_updateTask");
-		this.setLookPositionWithEntity(this.target);
-		this.inMove = !this.npc.getNavigator().noPath();
-		this.tacticalRange = this.npc.ais.getTacticalRange();
-		this.distance = this.npc.getDistance(this.target.posX, this.target.getEntityBoundingBox().minY, this.target.posZ);
-		this.isRanged = this.npc.inventory.getProjectile() != null && (this.npc.stats.ranged.getMeleeRange() <= 0 || this.distance > this.npc.stats.ranged.getMeleeRange());
-		if (this.isRanged) {
-			this.rangedTick = Math.max(this.rangedTick - this.tickRate, 0);
-			this.range = this.npc.stats.ranged.getRange();
+		CustomNpcs.debugData.startDebug("Server", npc, "EntityAICustom_updateTask");
+		setLookPositionWithEntity(target);
+		inMove = !npc.getNavigator().noPath();
+		tacticalRange = npc.ais.getTacticalRange();
+		distance = npc.getDistance(this.target.posX, this.target.getEntityBoundingBox().minY, this.target.posZ);
+		isRanged = npc.inventory.getProjectile() != null && (this.npc.stats.ranged.getMeleeRange() <= 0 || this.distance > this.npc.stats.ranged.getMeleeRange());
+		if (isRanged) {
+			rangedTick--;
+			range = npc.stats.ranged.getRange();
 		} else {
-			this.meleeTick = Math.max(this.meleeTick - this.tickRate, 0);
-			this.range = this.npc.stats.melee.getRange();
-			double minRange = (this.npc.width + this.target.width) / 2.0d;
-			if (minRange > this.range) {
-				this.range = minRange;
+			meleeTick--;
+			range = npc.stats.melee.getRange();
+			double minRange = (npc.width + target.width) / 2.0d;
+			if (minRange > range) {
+				range = minRange;
 			}
 		}
 		CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_updateTask");

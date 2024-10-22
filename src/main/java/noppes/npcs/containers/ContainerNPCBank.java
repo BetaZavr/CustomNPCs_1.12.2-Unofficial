@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.controllers.PlayerDataController;
@@ -35,28 +36,27 @@ public class ContainerNPCBank extends ContainerNpcInterface {
 
 		this.bank = bank;
 		this.ceil = ceil;
-		this.dataCeil = -2;
-		this.items = new NpcMiscInventory(slots);
+		dataCeil = -2;
+		items = new NpcMiscInventory(slots);
+		data = null;
 		// Server
 		if (!player.world.isRemote) {
-			this.data = null;
 			PlayerData pd = null;
 			if (ContainerNPCBank.editPlayerBankData != null) {
 				try {
-					List<PlayerData> list = PlayerDataController.instance.getPlayersData(player,
-							ContainerNPCBank.editPlayerBankData);
+					List<PlayerData> list = PlayerDataController.instance.getPlayersData(player, ContainerNPCBank.editPlayerBankData);
 					if (!list.isEmpty()) {
 						pd = list.get(0);
 					}
 				} catch (CommandException e) { LogWriter.error("Error:", e); }
-			} else {
-				pd = PlayerData.get(player);
+			}
+			if (pd == null) {
+				ContainerNPCBank.editPlayerBankData = null;
+				pd = CustomNpcs.proxy.getPlayerData(player);
 			}
 			if (pd != null) {
-				this.data = pd.bankData.get(bank.id);
-			}
-			if (this.data != null) {
-				this.items = this.data.cells.get(ceil);
+				data = pd.bankData.get(bank.id);
+				items = data.cells.get(ceil);
 			}
 		}
 		int h = ((int) Math.ceil((double) this.items.getSizeInventory() / 9.0d) - 4) * 18;

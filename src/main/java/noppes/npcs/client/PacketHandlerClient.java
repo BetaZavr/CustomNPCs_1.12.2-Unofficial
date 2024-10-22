@@ -749,23 +749,20 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 
 		} else if (type == EnumPacketClient.UPDATE_NPC_TARGET) {
-			NBTTagCompound compound = Server.readNBT(buffer);
-			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
+			int entityId = buffer.readInt();
+			Entity entity = mc.world.getEntityByID(entityId);
 			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
-			if (compound.hasKey("target", 3)) {
-				Entity target = npc.world.getEntityByID(compound.getInteger("target"));
-				if (target instanceof EntityLivingBase) {
-					((EntityLiving) npc).setAttackTarget((EntityLivingBase) target);
-				} else {
-					((EntityLiving) npc).setAttackTarget(null);
-				}
-			} else {
-				((EntityLiving) npc).setAttackTarget(null);
+			int targetId = buffer.readInt();
+			if (targetId > -1) {
+				Entity target = npc.world.getEntityByID(targetId);
+				if (target instanceof EntityLivingBase) { ((EntityLiving) npc).setAttackTarget((EntityLivingBase) target); }
+				else { ((EntityLiving) npc).setAttackTarget(null); }
 			}
+			else { ((EntityLiving) npc).setAttackTarget(null); }
 		} else if (type == EnumPacketClient.SCRIPT_PACKAGE) {
 			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
 		} else if (type == EnumPacketClient.SCRIPT_CLIENT) {

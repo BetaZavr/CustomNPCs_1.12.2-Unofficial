@@ -895,8 +895,9 @@ public class SubGuiEditAnimation
 			mousePressId = -1;
 		}
 		this.hovered = this.isMouseHover(mouseX, mouseY, workU + 1, workV + 1, workS - 2, workS - 2);
-		if (hovered && mouseWheel != 0) {
-			this.dispScale += this.dispScale * (mouseWheel < 0 ? 0.1f : -0.1f);
+		int dWheel = Mouse.getDWheel();
+		if (hovered && dWheel != 0) {
+			this.dispScale += this.dispScale * (dWheel < 0 ? 0.1f : -0.1f);
 			if (this.dispScale < 0.5f) {
 				this.dispScale = 0.5f;
 			} else if (this.dispScale > 5.0f) {

@@ -279,10 +279,9 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 			hoverScroll = mouseX >= u && mouseX <= u + 12 && mouseY >= v && mouseY <= v + 15;
 			drawTexturedModalRect(u, v, (hoverScroll ? 244 : 232), 0, 12, 15);
 			GlStateManager.popMatrix();
-			if (mouseWheel > 0) {
-				resetRow(false);
-			} else if (mouseWheel < 0) {
-				resetRow(true);
+			int dWheel = Mouse.getDWheel();
+			if (dWheel != 0) {
+				resetRow(dWheel < 0);
 			}
 		}
 		PlayerData data = CustomNpcs.proxy.getPlayerData(player);
