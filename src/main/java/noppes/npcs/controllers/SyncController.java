@@ -205,7 +205,7 @@ public class SyncController {
 				break;
 			}
 			case MarcetData: {
-				MarcetController.getInstance().marcets.remove(id);
+				MarcetController.getInstance().markets.remove(id);
 				break;
 			}
 			case MarcetDeal: {
@@ -457,7 +457,7 @@ public class SyncController {
 				break;
 			}
 			case GameData: {
-				PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+				PlayerData data = PlayerData.get(player);
 				if (data != null) {
 					data.game.readFromNBT(compound);
 				}
@@ -465,7 +465,7 @@ public class SyncController {
 			}
 			case MailData: {
 				if (compound.hasKey("MailData", 9)) {
-					PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+					PlayerData data = PlayerData.get(player);
 					if (data != null) {
 						data.mailData.loadNBTData(compound);
 					}

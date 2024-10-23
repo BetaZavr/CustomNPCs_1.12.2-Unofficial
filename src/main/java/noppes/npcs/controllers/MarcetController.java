@@ -47,14 +47,14 @@ public class MarcetController implements IMarcetHandler {
 	}
 	private String filePath;
 
-    public final Map<Integer, Marcet> marcets;
+    public final Map<Integer, Marcet> markets;
 
 	public final Map<Integer, Deal> deals;
 
 	public MarcetController() {
 		MarcetController.instance = this;
 		this.filePath = CustomNpcs.getWorldSaveDirectory().getAbsolutePath();
-		this.marcets = Maps.newTreeMap();
+		this.markets = Maps.newTreeMap();
 		this.deals = Maps.newTreeMap();
 		this.load();
 	}
@@ -69,8 +69,8 @@ public class MarcetController implements IMarcetHandler {
 	@Override
 	public IMarcet addMarcet() {
 		Marcet marcet = new Marcet(this.getUnusedMarketId());
-		this.marcets.put(marcet.getId(), marcet);
-		return this.marcets.get(marcet.getId());
+		this.markets.put(marcet.getId(), marcet);
+		return this.markets.get(marcet.getId());
 	}
 
 	public DealMarkup getBuyData(Marcet marcet, Deal deal, int marcetLevel) {
@@ -104,15 +104,15 @@ public class MarcetController implements IMarcetHandler {
 
 	@Override
 	public IMarcet getMarcet(int marcetId) {
-		if (marcetId < 0 || !this.marcets.containsKey(marcetId)) {
+		if (marcetId < 0 || !this.markets.containsKey(marcetId)) {
 			return null;
 		}
-		return this.marcets.get(marcetId);
+		return this.markets.get(marcetId);
 	}
 
 	@Override
 	public IMarcet getMarcet(String name) {
-		for (Marcet m : this.marcets.values()) {
+		for (Marcet m : this.markets.values()) {
 			if (m.name.equals(name)) {
 				return m;
 			}
@@ -122,9 +122,9 @@ public class MarcetController implements IMarcetHandler {
 
 	@Override
 	public int[] getMarketIDs() {
-		int[] arr = new int[this.marcets.size()];
+		int[] arr = new int[this.markets.size()];
 		int i = 0;
-		for (Marcet m : this.marcets.values()) {
+		for (Marcet m : this.markets.values()) {
 			arr[i] = m.getId();
 			i++;
 		}
@@ -135,7 +135,7 @@ public class MarcetController implements IMarcetHandler {
 		NBTTagCompound compound = new NBTTagCompound();
 
 		NBTTagList mList = new NBTTagList();
-		for (Marcet marcet : this.marcets.values()) {
+		for (Marcet marcet : this.markets.values()) {
 			if (marcet == null) {
 				continue;
 			}
@@ -169,7 +169,7 @@ public class MarcetController implements IMarcetHandler {
 
 	public int getUnusedMarketId() {
 		int id = 0;
-		while (this.marcets.containsKey(id)) {
+		while (this.markets.containsKey(id)) {
 			id++;
 		}
 		return id;
@@ -198,7 +198,7 @@ public class MarcetController implements IMarcetHandler {
 			} catch (Exception er) { LogWriter.error("Error:", er); }
 		}
 
-		if (this.marcets.isEmpty() || !this.marcets.containsKey(0)) {
+		if (this.markets.isEmpty() || !this.markets.containsKey(0)) {
 			this.loadDefaultMarcets();
 		}
 		if (CustomNpcs.VerboseDebug) {
@@ -211,7 +211,7 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	public void load(NBTTagCompound nbtFile) throws IOException {
-		this.marcets.clear();
+		this.markets.clear();
 		this.deals.clear();
 		int v = nbtFile.getInteger("Version");
 		if (v == 0) {
@@ -236,7 +236,7 @@ public class MarcetController implements IMarcetHandler {
 				for (int i = 0; i < nbtFile.getTagList("Marcets", 10).tagCount(); ++i) {
 					Marcet marcet = this.loadMarcet(nbtFile.getTagList("Marcets", 10).getCompoundTagAt(i));
 					if (marcet != null) {
-						this.marcets.put(marcet.getId(), marcet);
+						this.markets.put(marcet.getId(), marcet);
 						Map<Integer, List<Deal>> sections = marketDeals.get(marcet.getId());
 						if (!sections.isEmpty()) {
 							for (int tab : sections.keySet()) {
@@ -264,7 +264,7 @@ public class MarcetController implements IMarcetHandler {
 				for (int i = 0; i < nbtFile.getTagList("Marcets", 10).tagCount(); ++i) {
 					Marcet marcet = this.loadMarcet(nbtFile.getTagList("Marcets", 10).getCompoundTagAt(i));
 					if (marcet != null) {
-						this.marcets.put(marcet.getId(), marcet);
+						this.markets.put(marcet.getId(), marcet);
 					}
 				}
 			}
@@ -277,7 +277,13 @@ public class MarcetController implements IMarcetHandler {
 		}
 		int id = nbtDeal.getInteger("DealID");
 		if (this.deals.containsKey(id)) {
-			this.deals.get(id).readFromNBT(nbtDeal);
+			deals.get(id).readFromNBT(nbtDeal);
+			for (Marcet market : markets.values()) {
+				if (market.getDeal(id) != null) {
+					market.getDeal(id).readFromNBT(nbtDeal);
+					market.updateNew();
+				}
+			}
 			return this.deals.get(id);
 		}
 		Deal deal = new Deal(id);
@@ -287,13 +293,13 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	public void loadDefaultMarcets() {
-		Marcet marcet = marcets.containsKey(0) ? marcets.get(0) : new Marcet(0);
+		Marcet marcet = markets.containsKey(0) ? markets.get(0) : new Marcet(0);
 		marcet.name = "Default Marcet";
 		marcet.updateTime = 5;
 		marcet.lastTime = System.currentTimeMillis();
 		MarcetSection s0 = new MarcetSection(0);
 		marcet.sections.clear();
-		this.marcets.put(marcet.getId(), marcet);
+		this.markets.put(marcet.getId(), marcet);
 
 		Deal d0 = deals.containsKey(0) ? deals.get(0) : (Deal) addDeal();
 		d0.set(new ItemStack(Items.DIAMOND),
@@ -326,17 +332,17 @@ public class MarcetController implements IMarcetHandler {
 		if (nbtMarcet == null || !nbtMarcet.hasKey("MarcetID", 3) || nbtMarcet.getInteger("MarcetID") < 0) { return null; }
 		int id = nbtMarcet.getInteger("MarcetID");
 		Marcet marcet;
-		if (marcets.containsKey(id)) { marcet = marcets.get(id); }
+		if (markets.containsKey(id)) { marcet = markets.get(id); }
 		else { marcet = new Marcet(id); }
 		marcet.readFromNBT(nbtMarcet);
-		marcets.put(marcet.getId(), marcet);
-		return marcets.get(marcet.getId());
+		markets.put(marcet.getId(), marcet);
+		return markets.get(marcet.getId());
 	}
 
 	public int loadOld(NBTTagCompound nbttagcompound) {
 		String marketName = nbttagcompound.getString("TraderMarket");
 		if (!marketName.isEmpty()) {
-			for (Marcet m : this.marcets.values()) {
+			for (Marcet m : this.markets.values()) {
 				if (m.name.equalsIgnoreCase(marketName)) {
 					return m.getId();
 				}
@@ -375,7 +381,7 @@ public class MarcetController implements IMarcetHandler {
 	public void removeDeal(int dealID) {
         if (this.deals.containsKey(dealID)) {
 			this.deals.remove(dealID);
-            for (Marcet m : marcets.values()) {
+            for (Marcet m : markets.values()) {
 				for (MarcetSection ms : m.sections.values()) {
 					for (Deal deal : ms.deals) {
 						if (deal.getId() == dealID) {
@@ -391,18 +397,18 @@ public class MarcetController implements IMarcetHandler {
 
 	@Override
 	public void removeMarcet(int marcetID) {
-		if (marcetID < 0 || (marcetID != 0 && this.marcets.size() <= 1)) {
+		if (marcetID < 0 || (marcetID != 0 && this.markets.size() <= 1)) {
 			return;
 		}
-		if (!this.marcets.containsKey(marcetID)) {
+		if (!this.markets.containsKey(marcetID)) {
 			if (marcetID == 0) {
 				this.loadDefaultMarcets();
 			}
 			return;
 		}
-		Marcet marcet = this.marcets.get(marcetID);
+		Marcet marcet = this.markets.get(marcetID);
 		marcet.closeForAllPlayers();
-		this.marcets.remove(marcetID);
+		this.markets.remove(marcetID);
 		if (marcetID == 0) {
 			this.loadDefaultMarcets();
 		}
@@ -437,14 +443,14 @@ public class MarcetController implements IMarcetHandler {
 
 	public void sendTo(EntityPlayerMP player, int marcetID) {
 		LogWriter.debug("CustomNpcs: Send marked data to \"" + player.getName() + "\"; marcetID: " + marcetID);
-		if (this.marcets.containsKey(marcetID)) { // market
-			this.marcets.get(marcetID).sendTo(player);
+		if (this.markets.containsKey(marcetID)) { // market
+			this.markets.get(marcetID).sendTo(player);
 			Server.sendDataDelayed(player, EnumPacketClient.MARCET_DATA, 250, 2);
 		} else if (marcetID < 0) { // all
-			if (this.marcets.isEmpty() || !this.marcets.containsKey(0)) {
+			if (this.markets.isEmpty() || !this.markets.containsKey(0)) {
 				this.loadDefaultMarcets();
 			}
-			Map<Integer, Marcet> mapM = Maps.newHashMap(this.marcets);
+			Map<Integer, Marcet> mapM = Maps.newHashMap(this.markets);
 			Map<Integer, Deal> mapD = Maps.newHashMap(this.deals);
 			Server.sendData(player, EnumPacketClient.MARCET_DATA, 0);
 			for (int id : mapD.keySet()) {
@@ -460,7 +466,7 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	public void update() {
-		for (Marcet m : this.marcets.values()) {
+		for (Marcet m : this.markets.values()) {
 			m.update();
 		}
 		for (Deal d : this.deals.values()) {
@@ -469,7 +475,7 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	public void updateTime() {
-		for (Marcet m : this.marcets.values()) {
+		for (Marcet m : this.markets.values()) {
 			m.updateTime();
 		}
 	}

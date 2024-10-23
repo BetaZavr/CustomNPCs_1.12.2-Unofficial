@@ -265,7 +265,7 @@ implements IComponentGui {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.translate(0, k - 2.5f, 300.0f);
 			GlStateManager.scale(0.75f, 0.75f, 0.75f);
-			RenderHelper.enableStandardItemLighting();
+			RenderHelper.enableGUIStandardItemLighting();
 			this.mc.getRenderItem().renderItemAndEffectIntoGUI(this.stacks.get(i), 0, 0);
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();

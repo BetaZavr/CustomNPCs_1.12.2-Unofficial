@@ -84,29 +84,47 @@ public class DataAnimation implements INPCAnimation {
 	// Tools
 	private final EntityLivingBase entity;
 	private final Random rnd = new Random();
-	public final Map<EnumParts, Boolean> showParts, showArmorParts;
+	public final Map<EnumParts, Boolean> showParts = new HashMap<>();
+	public final Map<EnumParts, Boolean> showArmorParts = new HashMap<>();
+	public final Map<EnumParts, Boolean> showAWParts = new HashMap<>();
 	private float val, valNext;
 
 	public DataAnimation(EntityLivingBase entity) {
 		this.entity = entity;
-		this.showParts = Maps.newHashMap();
-		this.showArmorParts = Maps.newHashMap();
-		this.showParts.put(EnumParts.HEAD, true);
-		this.showParts.put(EnumParts.BODY, true);
-		this.showParts.put(EnumParts.ARM_RIGHT, true);
-		this.showParts.put(EnumParts.ARM_LEFT, true);
-		this.showParts.put(EnumParts.LEG_RIGHT, true);
-		this.showParts.put(EnumParts.LEG_LEFT, true);
-		this.showArmorParts.put(EnumParts.HEAD, true);
-		this.showArmorParts.put(EnumParts.BODY, true);
-		this.showArmorParts.put(EnumParts.ARM_RIGHT, true);
-		this.showArmorParts.put(EnumParts.ARM_LEFT, true);
-		this.showArmorParts.put(EnumParts.LEG_RIGHT, true);
-		this.showArmorParts.put(EnumParts.LEG_LEFT, true);
-		this.showArmorParts.put(EnumParts.FEET_RIGHT, true);
-		this.showArmorParts.put(EnumParts.FEET_LEFT, true);
+		showParts.put(EnumParts.HEAD, true);
+		showParts.put(EnumParts.BODY, true);
+		showParts.put(EnumParts.ARM_RIGHT, true);
+		showParts.put(EnumParts.ARM_LEFT, true);
+		showParts.put(EnumParts.LEG_RIGHT, true);
+		showParts.put(EnumParts.LEG_LEFT, true);
+
+		showAWParts.put(EnumParts.HEAD, true);
+		showAWParts.put(EnumParts.BODY, true);
+		showAWParts.put(EnumParts.ARM_RIGHT, true);
+		showAWParts.put(EnumParts.ARM_LEFT, true);
+		showAWParts.put(EnumParts.LEG_RIGHT, true);
+		showAWParts.put(EnumParts.LEG_LEFT, true);
+
+		showArmorParts.put(EnumParts.HEAD, true);
+		showArmorParts.put(EnumParts.BODY, true);
+		showArmorParts.put(EnumParts.ARM_RIGHT, true);
+		showArmorParts.put(EnumParts.ARM_LEFT, true);
+		showArmorParts.put(EnumParts.LEG_RIGHT, true);
+		showArmorParts.put(EnumParts.LEG_LEFT, true);
+		showArmorParts.put(EnumParts.FEET_RIGHT, true);
+		showArmorParts.put(EnumParts.FEET_LEFT, true);
+
 		this.checkData();
 		this.clear();
+	}
+
+	public void resetShowParts() {
+		showParts.replaceAll((k, v) -> true);
+		showArmorParts.replaceAll((k, v) -> true);
+	}
+
+	public void resetShowAWParts() {
+		showAWParts.replaceAll((k, v) -> true);
 	}
 
 	private void checkData() {
@@ -853,11 +871,6 @@ public class DataAnimation implements INPCAnimation {
 
 	public AnimationKind getAnimationType() {
 		return this.activeAnimation == null ? null : this.activeAnimation.type;
-	}
-
-	public void resetShowParts() {
-        showParts.replaceAll((k, v) -> true);
-        showArmorParts.replaceAll((k, v) -> true);
 	}
 
 	public int getHitboxDamageType() {

@@ -67,9 +67,7 @@ public class ItemBoundary extends Item implements IPermission {
 
 	public void leftClick(ItemStack stack, EntityPlayerMP player) {
 		PlayerData data = PlayerData.get(player);
-		if (data == null) {
-			return;
-		}
+		if (data == null) { return; }
 		int id = -1;
 		Vec3d vec3d = player.getPositionEyes(1.0f);
 		Vec3d vec3d2 = player.getLook(1.0f);

@@ -77,7 +77,6 @@ import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.MiniMapData;
-import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMiniMapData;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.schematics.ISchematic;
@@ -432,7 +431,7 @@ public class ClientEventHandler {
 
 	@SuppressWarnings("unchecked")
 	private void updateMiniMaps(boolean update) {
-		PlayerMiniMapData mm = PlayerData.get(Minecraft.getMinecraft().player).minimap;
+		PlayerMiniMapData mm = CustomNpcs.proxy.getPlayerData(Minecraft.getMinecraft().player).minimap;
 		// Found Mods:
 		boolean hasJourneyMap = false;
 		boolean hasXaeroMap = false;

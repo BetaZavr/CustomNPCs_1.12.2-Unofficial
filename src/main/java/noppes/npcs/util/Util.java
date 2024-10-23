@@ -97,7 +97,7 @@ import org.apache.commons.io.IOUtils;
 
 public class Util implements IMethods {
 
-	private static final Map<Integer, String> ROMAN_DIGITS = new HashMap<Integer, String>() {{
+	private static final TreeMap<Integer, String> ROMAN_DIGITS = new TreeMap<Integer, String>() {{
 		put(1, "I");
 		put(5, "V");
 		put(10, "X");
@@ -546,13 +546,18 @@ public class Util implements IMethods {
 	public String getTextNumberToRoman(int value) {
 		if (value > 3999) { return "" + value; }
 		StringBuilder sb = new StringBuilder();
-		for (int key : ROMAN_DIGITS.keySet()) {
+		for (int key : ROMAN_DIGITS.descendingKeySet()) {
 			while (value >= key) {
 				sb.append(ROMAN_DIGITS.get(key));
 				value -= key;
 			}
 		}
-		return sb.reverse().toString();
+		String total = sb.toString();
+		if (total.contains("IIII")) {
+			if (total.contains("VIIII")) { total = total.replace("VIIII", "IX"); }
+			else { total = total.replace("IIII", "IV"); }
+		}
+		return total;
 	}
 
 	@Override

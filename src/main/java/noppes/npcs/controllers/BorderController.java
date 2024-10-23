@@ -3,11 +3,9 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -41,23 +39,19 @@ public class BorderController implements IBorderHandler {
 		return file != null && !BorderController.instance.filePath.equals(file.getAbsolutePath());
 	}
 
-	public HashMap<Integer, Zone3D> regions;
+	public final HashMap<Integer, Zone3D> regions = new HashMap<>();
 
 	private String filePath;
 
 	public BorderController() {
 		BorderController.instance = this;
 		this.filePath = CustomNpcs.getWorldSaveDirectory().getAbsolutePath();
-		this.regions = Maps.newHashMap();
 		this.loadRegions();
 	}
 
 	public Zone3D createNew(int dimensionID, BlockPos pos) {
-		if (this.regions == null) {
-			this.regions = Maps.newHashMap();
-		}
 		Zone3D reg = new Zone3D(this.getUnusedId(), dimensionID, pos.getX(), pos.getY(), pos.getZ());
-		this.regions.put(reg.getId(), reg);
+		regions.put(reg.getId(), reg);
 		return reg;
 	}
 
@@ -90,7 +84,7 @@ public class BorderController implements IBorderHandler {
 
 	@Override
 	public IBorder[] getRegions(int dimensionID) {
-		List<IBorder> regs = Lists.newArrayList();
+		List<IBorder> regs = new ArrayList<>();
 		for (Zone3D reg : this.regions.values()) {
 			if (reg.dimensionID == dimensionID) {
 				regs.add(reg);
@@ -100,7 +94,7 @@ public class BorderController implements IBorderHandler {
 	}
 
 	public List<Zone3D> getRegionsInWorld(int dimensionID) {
-		List<Zone3D> regs = Lists.newArrayList();
+		List<Zone3D> regs = new ArrayList<>();
 		for (Zone3D reg : this.regions.values()) {
 			if (reg.dimensionID == dimensionID) {
 				regs.add(reg);
@@ -160,11 +154,7 @@ public class BorderController implements IBorderHandler {
 	}
 
 	public void loadRegions(NBTTagCompound compound) {
-		if (this.regions != null) {
-			this.regions.clear();
-		} else {
-			this.regions = Maps.newHashMap();
-		}
+		regions.clear();
 		if (compound.hasKey("Data", 9)) {
 			for (int i = 0; i < compound.getTagList("Data", 10).tagCount(); ++i) {
 				this.loadRegion(compound.getTagList("Data", 10).getCompoundTagAt(i));

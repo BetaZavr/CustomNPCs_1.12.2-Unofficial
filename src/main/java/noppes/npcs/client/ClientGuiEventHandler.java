@@ -379,21 +379,19 @@ public class ClientGuiEventHandler extends Gui {
 		float r = 0.75f, g = 0.75f, b = 0.75f, ag = 15.0f;
 
 		// HitBox
-		if (CustomNpcs.ShowHitboxWhenHoldTools) {
-			GlStateManager.pushMatrix();
-			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-			GlStateManager.glLineWidth(1);
-			GlStateManager.disableTexture2D();
-			GlStateManager.depthMask(false);
-			GlStateManager.translate(npc.posX - this.dx, npc.posY - this.dy, npc.posZ - this.dz);
-			double w = npc.width / 2;
-			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(w * -1.0d, 0.0d, w * -1.0d, w, npc.height, w)), r, g, b, 1.0f);
-			GlStateManager.depthMask(true);
-			GlStateManager.enableTexture2D();
-			GlStateManager.disableBlend();
-			GlStateManager.popMatrix();
-		}
+		GlStateManager.pushMatrix();
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		GlStateManager.glLineWidth(1);
+		GlStateManager.disableTexture2D();
+		GlStateManager.depthMask(false);
+		GlStateManager.translate(npc.posX - this.dx, npc.posY - this.dy, npc.posZ - this.dz);
+		double w = npc.width / 2;
+		RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(w * -1.0d, 0.0d, w * -1.0d, w, npc.height, w)), r, g, b, 1.0f);
+		GlStateManager.depthMask(true);
+		GlStateManager.enableTexture2D();
+		GlStateManager.disableBlend();
+		GlStateManager.popMatrix();
 
 		// Eyes + Head rotation
 		GlStateManager.pushMatrix();
@@ -1744,7 +1742,7 @@ public class ClientGuiEventHandler extends Gui {
 		NBTTagCompound nbtMP = null;
 		ItemStack mainStack = this.mc.player.getHeldItemMainhand();
 		ItemStack offStack = this.mc.player.getHeldItemOffhand();
-		if (mainStack.getItem() instanceof INPCToolItem || offStack.getItem() instanceof INPCToolItem) {
+		if (CustomNpcs.ShowHitboxWhenHoldTools && mainStack.getItem() instanceof INPCToolItem || offStack.getItem() instanceof INPCToolItem) {
 			AxisAlignedBB aabb = new AxisAlignedBB(-5.0, -5.0, -5.0, 5.0, 5.0, 5.0).offset(this.mc.player.getPosition());
 			List<Entity> list = this.mc.player.world.getEntitiesWithinAABB(Entity.class, aabb);
 			list.remove(this.mc.player);
@@ -1807,14 +1805,12 @@ public class ClientGuiEventHandler extends Gui {
 				final BlockPos pos = getPos();
 				GlStateManager.pushMatrix();
                 GlStateManager.enableBlend();
-                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-                        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-                        GlStateManager.DestFactor.ZERO);
+                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
                 GlStateManager.glLineWidth(3.0F);
                 GlStateManager.disableTexture2D();
                 GlStateManager.depthMask(false);
                 GlStateManager.translate(pos.getX() - this.dx + 0.5d, pos.getY() - this.dy,  pos.getZ() - this.dz + 0.5d);
-                GlStateManager.rotate(((float) System.currentTimeMillis() / 7) % 360, 0.0f, 1.0f, 0.0f);
+                GlStateManager.rotate((float) ((System.currentTimeMillis() / 7) % 360), 0.0f, 1.0f, 0.0f);
                 RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.35d, 0.15d, -0.35d, 0.35d, 0.85d, 0.35d)),  1.0f, 0.50f, 1.0f, 1.0f);
                 GlStateManager.depthMask(true);
                 GlStateManager.enableTexture2D();

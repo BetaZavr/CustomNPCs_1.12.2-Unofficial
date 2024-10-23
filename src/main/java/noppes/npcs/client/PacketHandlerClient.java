@@ -121,7 +121,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 	private void client(ByteBuf buffer, EntityPlayer player, EnumPacketClient type) throws Exception {
 		CustomNpcs.debugData.startDebug("Client", type.toString(), "PacketHandlerClient_Received");
 		Minecraft mc = Minecraft.getMinecraft();
-		PlayerData data = PlayerData.get(mc.player);
+		PlayerData data = CustomNpcs.proxy.getPlayerData(mc.player);
 		if (type == EnumPacketClient.CHAT_BUBBLE) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityNPCInterface || entity instanceof EntityPlayer)) {
@@ -573,7 +573,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			int t = buffer.readInt();
 			switch (t) {
 			case 0: {
-				MarcetController.getInstance().marcets.clear();
+				MarcetController.getInstance().markets.clear();
 				MarcetController.getInstance().deals.clear();
 				break;
 			}

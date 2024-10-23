@@ -121,12 +121,16 @@ public class Deal implements IDeal {
 
 	@Override
 	public String getName() {
-		String name = " - Empty";
+		StringBuilder name = new StringBuilder();
 		ItemStack stack = this.inventoryProduct.getStackInSlot(0);
 		if (!stack.isEmpty()) {
-			name = (this.amount == 0 ? ((char) 167) + "c" : "") + "x" + stack.getCount() + " " + stack.getDisplayName();
+			name.append(amount == 0 ? ((char) 167) + "c" : "")
+					.append("x").append(stack.getCount())
+					.append(" ").append(stack.getDisplayName());
+		} else {
+			name.append(" - Empty");
 		}
-		return name;
+		return name.toString();
 	}
 
 	@Override
@@ -306,7 +310,7 @@ public class Deal implements IDeal {
 			this.update = false;
 			MarcetController mData = MarcetController.getInstance();
 			NBTTagCompound nbt = writeDataToNBT();
-			for (Marcet marcet : mData.marcets.values()) {
+			for (Marcet marcet : mData.markets.values()) {
 				if (marcet.getSection(id) == -1) {
 					continue;
 				}

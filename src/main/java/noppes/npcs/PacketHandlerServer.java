@@ -188,7 +188,7 @@ public class PacketHandlerServer {
 			 EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(playerName);
 			 if (pl == null) {
 				 playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName);
-			 } else { playerdata = PlayerData.get(pl); } if (playerdata==null
+			 } else { playerdata = CustomNpcs.proxy.getPlayerData(pl); } if (playerdata==null
 			 || !playerdata.bankData.banks.containsKey(bankId)) { return; } NBTTagCompound
 			 compound = new NBTTagCompound(); playerdata.bankData.saveNBTData(compound);
 			 compound.setString("PlayerName", playerName); Server.sendData(player,
@@ -576,7 +576,7 @@ public class PacketHandlerServer {
                     if (pl == null) {
                         playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), name);
                     } else {
-                        playerdata = PlayerData.get(pl);
+                        playerdata = CustomNpcs.proxy.getPlayerData(pl);
                     }
                     playerdata.setNBT(new NBTTagCompound());
                     playerdata.save(true);
@@ -906,7 +906,7 @@ public class PacketHandlerServer {
             compound.setBoolean("NameExists", bo);
             Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
         } else if (type == EnumPacketServer.CloneSave) {
-            PlayerData data = PlayerData.get(player);
+            PlayerData data = CustomNpcs.proxy.getPlayerData(player);
             if (data.cloned == null) {
                 CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
                 return;
@@ -1206,7 +1206,7 @@ public class PacketHandlerServer {
             MarcetController.getInstance().saveMarcets();
         } else if (type == EnumPacketServer.TraderMarketGet) {
             int id = -1;
-            try { id = buffer.readInt(); } catch (Exception e) { LogWriter.error("Error:", e); }
+            try { id = buffer.readInt(); } catch (Exception ignored) { }
             MarcetController.getInstance().sendTo(player, id);
         } else if (type == EnumPacketServer.TraderMarketDel) {
             MarcetController mData = MarcetController.getInstance();
@@ -1405,7 +1405,7 @@ public class PacketHandlerServer {
             if (pl == null) {
                 playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName);
             } else {
-                playerdata = PlayerData.get(pl);
+                playerdata = CustomNpcs.proxy.getPlayerData(pl);
             }
             if (playerdata == null) {
                 CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");

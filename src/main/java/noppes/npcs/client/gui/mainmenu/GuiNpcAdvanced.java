@@ -74,9 +74,11 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 			break;
 		}
 		case 5: {
-			this.hasChanges = true;
-			this.npc.advanced.setJob(button.getValue());
-			this.getButton(4).setEnabled(this.npc.advanced.jobInterface.getEnumType().hasSettings);
+			hasChanges = true;
+			int id = button.getValue();
+			if (id > 8) { id++; }
+			npc.advanced.setJob(id);
+			getButton(4).setEnabled(npc.advanced.jobInterface.getEnumType().hasSettings);
 			break;
 		}
 		case 7: {
@@ -191,7 +193,9 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 		this.addLabel(new GuiNpcLabel(1, "job.name", x, (y += 22) + 5));
 		this.addButton(new GuiNpcButton(4, x + 230, y, 52, 20, "selectServer.edit"));
 		this.getButton(4).setEnabled(!this.ais.aiDisabled && this.npc.advanced.jobInterface.getEnumType().hasSettings);
-		this.addButton(new GuiButtonBiDirectional(5, x + 70, y, 155, 20, JobType.getNames(), this.npc.advanced.jobInterface.getType()));
+		int id = npc.advanced.jobInterface.getType();
+		if (id > 9) { id--; }
+		this.addButton(new GuiButtonBiDirectional(5, x + 70, y, 155, 20, JobType.getNames(), id));
 		this.getButton(5).setEnabled(!this.ais.aiDisabled);
 		
 		x1 += 126;

@@ -1,10 +1,6 @@
 package noppes.npcs.client.gui.player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -38,6 +34,16 @@ import noppes.npcs.util.Util;
 
 public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScrollListener, IGuiData {
 
+	private static boolean isIdSort = true;
+	private static final Comparator<TempDeal> comparator = (t1, t2) -> {
+        if (isIdSort) {
+            return Integer.compare(t1.id, t2.id);
+        } else {
+            return t1.stackName.compareToIgnoreCase(t2.stackName);
+        }
+    };
+
+
 	private final Map<String, Deal> data = Maps.newTreeMap();
 	int px, py, colorP = 0x01000000;
 	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trader.png");
@@ -68,37 +74,42 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			return;
 		}
 		switch (button.id) {
-		case 0: { // buy
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, this.marcet.getId(),
-					this.selectDealData.deal.getId(), this.npc.getEntityId());
-			break;
-		}
-		case 1: { // Sell
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketSell, this.marcet.getId(),
-					this.selectDealData.deal.getId(), this.npc.getEntityId());
-			break;
-		}
-		case 2: { // Reset
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketReset, this.marcet.getId(),
-					this.selectDealData.deal.getId(), this.npc.getEntityId());
-			break;
-		}
-		case 3: { // up
-			if (this.ceilPos <= 0) {
+			case 0: { // buy
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, this.marcet.getId(),
+						this.selectDealData.deal.getId(), this.npc.getEntityId());
+				break;
+			}
+			case 1: { // Sell
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketSell, this.marcet.getId(),
+						this.selectDealData.deal.getId(), this.npc.getEntityId());
+				break;
+			}
+			case 2: { // Reset
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketReset, this.marcet.getId(),
+						this.selectDealData.deal.getId(), this.npc.getEntityId());
+				break;
+			}
+			case 3: { // up
+				if (this.ceilPos <= 0) {
+					return;
+				}
+				this.ceilPos--;
+				this.initGui();
 				return;
 			}
-			this.ceilPos--;
-			this.initGui();
-			return;
-		}
-		case 4: { // down
-			if (this.ceilPos >= Math.floor((double) this.marcet.sections.size() / 5.0d)) {
+			case 4: { // down
+				if (this.ceilPos >= Math.floor((double) this.marcet.sections.size() / 5.0d)) {
+					return;
+				}
+				this.ceilPos++;
+				this.initGui();
 				return;
 			}
-			this.ceilPos++;
-			this.initGui();
-			return;
-		}
+			case 11: {
+				isIdSort = !isIdSort;
+				this.initGui();
+				return;
+			}
 		}
 		this.wait = true;
 		this.initGui();
@@ -248,7 +259,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			GlStateManager.translate(this.guiLeft, this.guiTop, 50.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.translate(this.px - this.guiLeft, this.py - this.guiTop, 0.0f);
-			RenderHelper.enableStandardItemLighting();
+			RenderHelper.enableGUIStandardItemLighting();
 			float s = 1.5f;
 			GlStateManager.scale(s, s, s);
 			this.mc.getRenderItem().renderItemAndEffectIntoGUI(this.selectDealData.main, 0, 0);
@@ -412,18 +423,19 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				this.addButton(tab);
 			}
 		}
-		List<String> sel = new ArrayList<>();
-		List<String> selNot = new ArrayList<>();
+		List<TempDeal> selT = new ArrayList<>();
+		List<TempDeal> selNotT = new ArrayList<>();
 		int level = ClientProxy.playerData.game.getMarcetLevel(this.marcet.getId());
 		MarcetController mData = MarcetController.getInstance();
 		MarcetSection ms = marcet.sections.get(section);
 		if (ms != null && !ms.deals.isEmpty()) {
 			for (Deal deal : ms.deals) {
 				String key = deal.getName();
+				while (data.containsKey(key)) { key = ((char)167) + "r" + key; }
 				if (deal.getAmount() == 0) {
-					selNot.add(key);
+					selNotT.add(new TempDeal(deal.getId(), deal.getProduct().getDisplayName(), key));
 				} else {
-					sel.add(key);
+					selT.add(new TempDeal(deal.getId(), deal.getProduct().getDisplayName(), key));
 				}
 				data.put(key, deal);
 				if (selectDealData != null && selectDealData.deal != null
@@ -432,14 +444,16 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				}
 			}
 		}
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 6)).setSize(130, 100);
+		if (scroll == null) {
+			(scroll = new GuiCustomScroll(this, 6)).setSize(130, 100);
 		}
-		Collections.sort(sel);
-		Collections.sort(selNot);
-		sel.addAll(selNot);
+		selT.sort(comparator);
+		selNotT.sort(comparator);
+		List<String> sel = new ArrayList<>();
+		for (TempDeal td : selT) { sel.add(td.key); }
+		for (TempDeal td : selNotT) { sel.add(td.key); }
 		List<ItemStack> stacks = Lists.newArrayList();
-		List<String> suffixs = Lists.newArrayList();
+		List<String> suffixes = Lists.newArrayList();
 		List<String[]> infoList = Lists.newArrayList();
 		for (String key : sel) {
 			Deal deal = this.data.get(key);
@@ -449,12 +463,12 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			info.add(new TextComponentTranslation("market.hover.product").getFormattedText());
 
 			if (deal.getMaxCount() > 0) {
-				suffixs.add(((char) 167)
+				suffixes.add(((char) 167)
 						+ (deal.getAmount() == 0 ? "4"
 								: deal.getAmount() < deal.getProduct().getMaxStackSize() ? "b" : "a")
 						+ Util.instance.getTextReducedNumber(deal.getAmount(), true, true, false));
 			} else {
-				suffixs.add(((char) 167) + "a" + new String(Character.toChars(0x221E)));
+				suffixes.add(((char) 167) + "a" + new String(Character.toChars(0x221E)));
 			}
 			info.add(dm.main.getDisplayName() + " x" + dm.count + " "
 					+ (new TextComponentTranslation("market.hover.item."
@@ -478,11 +492,11 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		this.scroll.setListNotSorted(sel);
 		this.scroll.setStacks(stacks);
 		this.scroll.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
-		this.scroll.setSuffixes(suffixs);
+		this.scroll.setSuffixes(suffixes);
 
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 14;
-		this.scroll.setSelected(this.selectDealData.deal.getName());
+		if (!scroll.hasSelected()) { scroll.setSelected(selectDealData.deal.getName()); }
 		this.title = this.marcet.getShowName();
 		this.addScroll(this.scroll);
 
@@ -603,6 +617,8 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 
 		this.px = this.guiLeft + 150;
 		this.py = this.guiTop + 17;
+
+		this.addButton(new GuiNpcCheckBox(11, guiLeft + xSize - 38, guiTop + 2, 35, 10, isIdSort ? "type.id" : "gui.name", isIdSort));
 	}
 
 	@Override
@@ -648,6 +664,20 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		this.marcet = (Marcet) market;
 		((ContainerNPCTrader) this.inventorySlots).marcet = (Marcet) market;
 		this.initGui();
+	}
+
+	public static class TempDeal {
+
+		public final int id;
+		public final String stackName;
+		public final String key;
+
+		public TempDeal(int id, String stackName, String key) {
+			this.id = id;
+			this.stackName = stackName;
+			this.key = key;
+		}
+
 	}
 
 }

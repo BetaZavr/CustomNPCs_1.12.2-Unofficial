@@ -79,7 +79,7 @@ public class SubGuiNpcSelectTrader extends SubGuiInterface implements IGuiData, 
 		super.initGui();
 		List<String> list = new ArrayList<>();
 		this.data.clear();
-		for (Marcet m : MarcetController.getInstance().marcets.values()) {
+		for (Marcet m : MarcetController.getInstance().markets.values()) {
 			if (!m.isValid()) {
 				continue;
 			}

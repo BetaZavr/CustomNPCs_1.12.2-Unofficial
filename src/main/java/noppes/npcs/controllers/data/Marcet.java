@@ -347,8 +347,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 		if (this.updateTime < 5L) {
 			return;
 		}
-		if (this.lastTime <= System.currentTimeMillis() - 7200000L
-				|| this.lastTime + this.updateTime * 60000L < System.currentTimeMillis()) {
+		if (this.lastTime <= System.currentTimeMillis() - 7200000L || this.lastTime + this.updateTime * 60000L < System.currentTimeMillis()) {
 			this.updateNew();
 		}
 	}
@@ -370,8 +369,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 		for (MarcetSection ms : sections.values()) {
 			for (Deal deal : ms.deals) {
 				deal.updateNew();
-				this.money += (long) ((double) (deal.getMoney())
-						* (this.coefficient + Math.random() * this.coefficient));
+				this.money += (long) ((double) (deal.getMoney()) * (this.coefficient + Math.random() * this.coefficient));
 				for (IItemStack istack : deal.getCurrency().getItems()) {
 					ItemStack stack = istack.getMCItemStack();
 					if (NoppesUtilServer.IsItemStackNull(stack)) {

@@ -59,7 +59,7 @@ public class JobInterface implements INPCJob {
 
 	@Override
 	public int getType() {
-		return this.type.get();
+		return type.get();
 	}
 
 	public boolean isFollowing() {

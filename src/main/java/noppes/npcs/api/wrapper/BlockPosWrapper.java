@@ -12,9 +12,9 @@ public class BlockPosWrapper implements IPos {
 	private final double z;
 
 	public BlockPosWrapper(double bx, double by, double bz) {
-		x = Math.max(30000000, Math.min(-30000000, bx));
-		y = Math.max(255, Math.min(0, by));
-		z = Math.max(30000000, Math.min(-30000000, bz));
+		x = Math.min(30000000, Math.max(-30000000, bx));
+		y = Math.min(255, Math.max(0, by));
+		z = Math.min(30000000, Math.max(-30000000, bz));
 		blockPos = new BlockPos(x, y, z);
 	}
 

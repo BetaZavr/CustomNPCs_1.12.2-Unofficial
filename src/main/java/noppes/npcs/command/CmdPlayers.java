@@ -91,7 +91,7 @@ public class CmdPlayers extends CommandNoppesBase {
 		}
 		if (args.length == 3) {
 			if (args[0].equalsIgnoreCase("openmarcet")) {
-				for (int id : MarcetController.getInstance().marcets.keySet()) {
+				for (int id : MarcetController.getInstance().markets.keySet()) {
 					list.add("" + id);
 				}
 			}

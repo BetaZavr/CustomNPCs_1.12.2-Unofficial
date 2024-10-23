@@ -1601,7 +1601,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		PlayerData pd = PlayerData.get(player);
 		if (!this.faction.getIsHidden() && !pd.factionData.factionData.containsKey(this.faction.id)) {
 			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent((PlayerWrapper<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), this.faction, this.faction.defaultPoints, true);
-			EventHooks.onPlayerFactionChange(PlayerData.get(player).scriptData, event);
+			EventHooks.onPlayerFactionChange(pd.scriptData, event);
 			pd.factionData.factionData.put(this.faction.id, event.points);
 		}
 		QuestData data = pd.questData.getQuestCompletion(player, this);

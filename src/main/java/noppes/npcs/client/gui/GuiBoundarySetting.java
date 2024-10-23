@@ -310,9 +310,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 			GlStateManager.popMatrix();
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui != null) {
-			return;
-		}
+		if (this.subgui != null) { return; }
 
 		int side = 160;
 		int work = side - 12;
@@ -381,10 +379,12 @@ public class GuiBoundarySetting extends GuiNPCInterface
 			}
 			Gui.drawRect(hx - 1, hz - 1, hx, hz, 0xFFFF0000);
 		}
+
 		// Center
-		IPos c = this.region.getCenter();
+		IPos c = region.getCenter();
 		hx = (int) ((c.getX() - mu) * su);
 		hz = (int) ((c.getZ() - mv) * sv);
+
 		Gui.drawRect(hx - 1, hz - 1, hx + 1, hz + 1, 0xFF0000FF);
 
 		// Player Position

@@ -125,18 +125,12 @@ public class NoppesUtilPlayer {
 				canOpen = Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).openStack, false, false);
 			}
 			else {
-				PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+				PlayerData data = PlayerData.get(player);
 				canOpen = bd.bank.ceilSettings.get(ceilId).openMoney <= data.game.getMoney();
 				if (canOpen) { data.game.addMoney(-bd.bank.ceilSettings.get(ceilId).openMoney); }
 			}
 		}
 		if (canOpen) {
-			System.out.println("CNPCs: "+bd);
-			System.out.println("CNPCs: "+bd.cells);
-			System.out.println("CNPCs: "+bd.bank);
-			System.out.println("CNPCs: "+bd.bank.ceilSettings);
-			System.out.println("CNPCs: "+bd.bank.ceilSettings.get(ceilId));
-			System.out.println("CNPCs: "+bd.bank.ceilSettings.get(ceilId).startCells);
 			bd.cells.put(ceilId, new NpcMiscInventory(bd.bank.ceilSettings.get(ceilId).startCells));
 			bd.save();
 			RoleEvent.BankUnlockedEvent event = new RoleEvent.BankUnlockedEvent(player, npc.wrappedNPC, ceilId);
@@ -160,7 +154,7 @@ public class NoppesUtilPlayer {
 				canUpgrade = Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).upgradeStack, count, false, false);
 			}
 			else {
-				PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+				PlayerData data = PlayerData.get(player);
 				int need = bd.bank.ceilSettings.get(ceilId).upgradeMoney * count;
 				canUpgrade = need <= data.game.getMoney();
 				if (canUpgrade) { data.game.addMoney(-1 * need); }

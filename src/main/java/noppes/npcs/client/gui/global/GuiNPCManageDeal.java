@@ -203,7 +203,7 @@ public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements IText
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.TraderMarketSave, this.deal.writeToNBT());
+		Client.sendData(EnumPacketServer.TraderMarketSave, deal.writeToNBT());
 	}
 
 	@Override

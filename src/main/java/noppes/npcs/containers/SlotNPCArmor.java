@@ -1,11 +1,11 @@
 package noppes.npcs.containers;
 
+import moe.plushie.armourers_workshop.api.ArmourersWorkshopApi;
+import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDescriptor;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -31,8 +31,15 @@ class SlotNPCArmor extends Slot {
 
 	public boolean isItemValid(@Nonnull ItemStack itemstack) {
 		if (itemstack.getItem() instanceof ItemArmor) {
-			return ((ItemArmor) itemstack.getItem()).armorType == this.armorType;
+			return ((ItemArmor) itemstack.getItem()).armorType == armorType;
 		}
-		return itemstack.getItem() instanceof ItemBlock && this.armorType == EntityEquipmentSlot.HEAD;
+		if (itemstack.getItem() instanceof ItemBlock || itemstack.getItem() instanceof ItemSword || itemstack.getItem() instanceof ItemBow) {
+			return armorType == EntityEquipmentSlot.HEAD;
+		}
+		if (ArmourersWorkshopApi.isAvailable() && ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(itemstack)) {
+			ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(itemstack);
+			return skinDescriptor.getIdentifier().getSkinType().getName().equalsIgnoreCase(armorType.getName());
+		}
+		return false;
 	}
 }

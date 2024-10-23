@@ -16,4 +16,5 @@ public class ArmourersWorkshopClientApi {
 	private ArmourersWorkshopClientApi() {
 		throw new IllegalAccessError();
 	}
+
 }

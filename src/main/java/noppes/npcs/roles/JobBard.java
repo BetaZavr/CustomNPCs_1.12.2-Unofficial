@@ -16,19 +16,16 @@ import noppes.npcs.mixin.client.audio.IMusicTickerMixin;
 
 public class JobBard extends JobInterface implements IJobBard {
 
-	public boolean hasOffRange, isStreamer, isRange;
-	public int[] range, minPos, maxPos;
-	public String song;
+	public boolean hasOffRange = true;
+	public boolean isStreamer = true;
+	public boolean isRange = true;
+	public int[] range = new int[] { 2, 64 }; // min, max
+	public int[] minPos = new int[] { 2, 2, 2 }; // x, y, z
+	public int[] maxPos = new int[] { 64, 64, 64 }; // x, y, z
+	public String song = "";
 
 	public JobBard(EntityNPCInterface npc) {
 		super(npc);
-		this.isRange = true;
-		this.isStreamer = true;
-		this.hasOffRange = true;
-		this.range = new int[] { 2, 64 }; // min, max
-		this.minPos = new int[] { 2, 2, 2 }; // x, y, z
-		this.maxPos = new int[] { 64, 64, 64 }; // x, y, z
-		this.song = "";
 		this.type = JobType.BARD;
 	}
 

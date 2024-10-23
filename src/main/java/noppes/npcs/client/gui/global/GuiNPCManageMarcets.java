@@ -393,7 +393,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 		int bw = (w - 2) / 3;
 		addButton(new GuiNpcButton(0, x0, y, bw, 20, "gui.add"));
 		addButton(new GuiNpcButton(1, x0 + 2 + bw, y, bw, 20, "gui.remove"));
-		getButton(1).setEnabled(marcetId > 0 && selectedMarcet != null && mData.marcets.size() > 1);
+		getButton(1).setEnabled(marcetId > 0 && selectedMarcet != null && mData.markets.size() > 1);
 		addButton(new GuiNpcButton(2, x0 + (2 + bw) * 2, y, bw, 20, "selectServer.edit"));
 		getButton(2).setEnabled(selectedMarcet != null);
 
@@ -495,7 +495,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 	public void setGuiData(NBTTagCompound compound) {
 		mData = MarcetController.getInstance();
 		dataMarcets.clear();
-		for (Marcet m : mData.marcets.values()) {
+		for (Marcet m : mData.markets.values()) {
 			dataMarcets.put(m.getSettingName(), m.getId());
 			if (marcetId < 0 || marcetId == m.getId() || selectedMarcet == null) {
 				selectedMarcet = m;

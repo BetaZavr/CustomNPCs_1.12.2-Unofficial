@@ -24,11 +24,14 @@ public class I18nMixin implements II18nMixin {
         if (translateKey.startsWith("enchantment.level.")) {
             try {
                 int level = Integer.parseInt(translateKey.replace("enchantment.level.", ""));
-                if (level > 4 && level < 100) {
+                if (level < 100) {
                     cir.cancel();
-                    cir.setReturnValue(Util.instance.getTextNumberToRoman(level));
+                    cir.setReturnValue(Util.instance.getTextNumberToRoman(level + 1));
                 }
-                if (level > 100) { cir.setReturnValue("" + level); }
+                if (level > 100) {
+                    cir.cancel();
+                    cir.setReturnValue("" + level);
+                }
             }
             catch (Exception ignored) { }
         }

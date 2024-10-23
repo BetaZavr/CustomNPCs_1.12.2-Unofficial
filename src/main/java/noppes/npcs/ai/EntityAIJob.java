@@ -25,13 +25,14 @@ public class EntityAIJob extends EntityAIBase {
 	}
 
 	public boolean shouldContinueExecuting() {
-		return !this.npc.isKilled() && this.npc.advanced.jobInterface != null
-				&& this.npc.advanced.jobInterface.aiContinueExecute();
+		return !npc.isKilled() && npc.advanced.jobInterface != null && npc.advanced.jobInterface.aiContinueExecute();
 	}
 
 	public boolean shouldExecute() {
-		return !this.npc.isKilled() && this.npc.advanced.jobInterface != null
-				&& this.npc.advanced.jobInterface.aiShouldExecute();
+if (!npc.advanced.jobInterface.getClass().getSimpleName().equals("JobInterface")) {
+
+}
+		return !npc.isKilled() && npc.advanced.jobInterface != null && npc.advanced.jobInterface.aiShouldExecute();
 	}
 
 	public void startExecuting() {

@@ -5,13 +5,18 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import moe.plushie.armourers_workshop.api.common.IExtraColours;
+import moe.plushie.armourers_workshop.api.common.ISkinInventoryContainer;
+import moe.plushie.armourers_workshop.api.common.skin.data.ISkin;
 import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDescriptor;
 import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDye;
 import moe.plushie.armourers_workshop.api.common.skin.type.ISkinType;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.Entity;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.LogWriter;
+import noppes.npcs.constants.EnumParts;
+import noppes.npcs.entity.EntityNPCInterface;
 
 public class ArmourersWorkshopUtil {
 
@@ -91,6 +96,10 @@ public class ArmourersWorkshopUtil {
 	public Class<?> advancedPartRenderer; // AdvancedPartRenderer.INSTANCE
 
 	public Method renderAdvancedSkin; // AdvancedPartRenderer.renderAdvancedSkin
+
+	public Method getSkinTypeInv; // SkinInventoryContainer.getSkinTypeInv
+
+	public Method getPropertyBoolean; // SkinProperties.getPropertyBoolean
 
 	public ArmourersWorkshopUtil() {
 		ArmourersWorkshopUtil.INSTANCE = this;
@@ -259,8 +268,59 @@ public class ArmourersWorkshopUtil {
 			getChildren = ap.getDeclaredMethod("getChildren");
 			posAP = ap.getDeclaredField("pos");
 			rotationAngle = ap.getDeclaredField("rotationAngle");
+
+			Class<?> sic = Class.forName("moe.plushie.armourers_workshop.common.inventory.SkinInventoryContainer");
+			getSkinTypeInv = sic.getDeclaredMethod("getSkinTypeInv", ISkinType.class);
+
+			Class<?> sp = Class.forName("moe.plushie.armourers_workshop.common.skin.data.SkinProperties");
+			getPropertyBoolean = sp.getMethod("getPropertyBoolean", String.class, Boolean.class);
 		}
 		catch (Exception e) { LogWriter.debug("Armourers Workshop Util created: " + e); }
+	}
+
+	public IInventory getSkinTypeInv(ISkinInventoryContainer skinInventoryContainer, ISkinType skinType) { // WardrobeInventory
+		try {
+			return (IInventory) getSkinTypeInv.invoke(skinInventoryContainer, skinType);
+		} catch (Exception ignored) { }
+		return null;
+	}
+
+	public void setShowPartFromArmor(EnumParts slot, ISkin skin, EntityNPCInterface npc) {
+		if (!npc.animation.showAWParts.get(slot)) { return; }
+		String keyHide;
+		String keyOver;
+		if (slot == EnumParts.HEAD) {
+			keyHide = "hideOverlayHead";
+			keyOver = "overrideModelHead";
+		}
+		else if (slot == EnumParts.BODY) {
+			keyHide = "hideOverlayChest";
+			keyOver = "overrideModelChest";
+		}
+		else if (slot == EnumParts.ARM_LEFT) {
+			keyHide = "hideOverlayArmLeft";
+			keyOver = "overrideModelArmLeft";
+		}
+		else if (slot == EnumParts.ARM_RIGHT) {
+			keyHide = "hideOverlayArmRight";
+			keyOver = "overrideModelArmRight";
+		}
+		else if (slot == EnumParts.LEG_LEFT) {
+			keyHide = "hideOverlayLegLeft";
+			keyOver = "overrideModelLegLeft";
+		}
+		else if (slot == EnumParts.LEG_RIGHT) {
+			keyHide = "hideOverlayLegRight";
+			keyOver = "overrideModelLegRight";
+		}
+		else { return; }
+		try {
+			boolean isHide = (boolean) getPropertyBoolean.invoke(getProperties.invoke(skin), keyHide, false);
+			boolean isOver = (boolean) getPropertyBoolean.invoke(getProperties.invoke(skin), keyOver, false);
+			if (isHide || isOver) { // isHide
+				npc.animation.showAWParts.put(slot, false);
+			}
+		} catch (Exception ignored) { }
 	}
 
 }

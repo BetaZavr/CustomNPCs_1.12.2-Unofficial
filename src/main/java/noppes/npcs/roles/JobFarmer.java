@@ -33,29 +33,21 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobFarmer extends JobInterface implements MassBlockController.IMassBlock, IJobFarmer {
 
-	private int blockTicks;
-	private BlockPos chest;
-	public int chestMode;
-	private ItemStack holding;
-	private BlockPos ripe;
-	private int ticks, walkTicks, range;
-	private List<BlockPos> trackedBlocks;
-	private boolean waitingForBlocks;
+	private int blockTicks = 800;
+	private BlockPos chest = null;
+	public int chestMode = 1;
+	private ItemStack holding = ItemStack.EMPTY;
+	private BlockPos ripe = null;
+	private int ticks = 0;
+	private int walkTicks = 0;
+	private int range = 16;
+	private List<BlockPos> trackedBlocks = new ArrayList<>();
+	private boolean waitingForBlocks = false;
 
 	public JobFarmer(EntityNPCInterface npc) {
 		super(npc);
-		this.range = 16;
-		this.chestMode = 1;
-		this.trackedBlocks = new ArrayList<>();
-		this.ticks = 0;
-		this.walkTicks = 0;
-		this.blockTicks = 800;
-		this.waitingForBlocks = false;
-		this.ripe = null;
-		this.chest = null;
-		this.holding = ItemStack.EMPTY;
-		this.overrideMainHand = true;
-		this.type = JobType.FARMER;
+		overrideMainHand = true;
+		type = JobType.FARMER;
 	}
 
 	@Override

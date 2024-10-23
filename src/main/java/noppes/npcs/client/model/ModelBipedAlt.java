@@ -2,19 +2,12 @@ package noppes.npcs.client.model;
 
 import java.util.Map;
 
-import noppes.npcs.LogWriter;
+import noppes.npcs.CustomNpcs;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Maps;
 
-import moe.plushie.armourers_workshop.api.ArmourersWorkshopApi;
-import moe.plushie.armourers_workshop.api.common.capability.IWardrobeCap;
-import moe.plushie.armourers_workshop.api.common.skin.data.ISkin;
-import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDescriptor;
-import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDye;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,8 +16,6 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.client.model.animation.AnimationStack;
 import noppes.npcs.client.model.part.head.ModelHeadwear;
-import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
-import noppes.npcs.client.util.aw.CustomSkinModelRenderHelper;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -42,7 +33,7 @@ public class ModelBipedAlt extends ModelNpcAlt {
 	private final boolean isArmorModel;
 	public final AnimationStack rightStackData = new AnimationStack();
 	public final AnimationStack leftStackData = new AnimationStack();
-	private EntityEquipmentSlot slot;
+	protected EntityEquipmentSlot slot;
 
 	public ModelBipedAlt(float modelSize, boolean isArmorModel, boolean smallArmsIn, boolean isClassicPlayer) {
 		super(modelSize, smallArmsIn, isClassicPlayer);
@@ -133,33 +124,16 @@ public class ModelBipedAlt extends ModelNpcAlt {
 		}
 
 		ItemStack stack;
-		ArmourersWorkshopUtil awu = null;
-		IWardrobeCap wardrobe = null;
-		CustomSkinModelRenderHelper modelRenderer = null;
-		boolean isDistance = false;
-		double distance = 0.0d;
-		if (ArmourersWorkshopApi.isAvailable()) {
-			awu = ArmourersWorkshopUtil.getInstance();
-			wardrobe = ArmourersWorkshopApi.getEntityWardrobeCapability(entityIn);
-			modelRenderer = CustomSkinModelRenderHelper.getInstance();
-			double d = 0.0d;
-			distance = Minecraft.getMinecraft().player.getDistance(entityIn.posX, entityIn.posY, entityIn.posZ);
-			try { d = (int) awu.renderDistanceSkin.get(awu.configHandlerClient); }
-			catch (Exception e) { LogWriter.error("Error:", e); }
-			isDistance = distance <= d;
-		}
-
 		int entitySkinTextureID = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
-		this.bipedHead.showModel = ba.get(EnumParts.HEAD) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.HEAD);
+		bipedHead.showModel = ba.get(EnumParts.HEAD) || (isArmorModel && baArmor.get(EnumParts.HEAD) && slot == EntityEquipmentSlot.HEAD);
 		if (this.bipedHead.showModel && entityIn instanceof EntityLivingBase) {
 			((ModelRendererAlt) this.bipedHead).checkBacklightColor(r, g, b);
 			if (this.isChild) {
 				GlStateManager.scale(0.75F, 0.75F, 0.75F);
 				GlStateManager.translate(0.0F, 16.0F * scale, 0.0F);
-				boolean showArmorHead = this.renderHead((EntityLivingBase) entityIn, scale, baArmor);
-				if (showArmorHead && ((ModelRendererAlt) this.bipedHead).notOBJModel()) {
+				if (renderHead((EntityLivingBase) entityIn, scale)) {
 					GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
 					this.renderHeadWear(scale);
 				}
@@ -174,15 +148,13 @@ public class ModelBipedAlt extends ModelNpcAlt {
 					boolean feet = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() instanceof ItemArmor;
 					GlStateManager.translate(0.0F, -0.2F - (legs ? 0.2F : 0.0F) - (feet ? 0.2F : 0.0F) - (chest ? 0.2F : 0.0F), 0.0F);
 				}
-				boolean showArmorHead = this.renderHead((EntityLivingBase) entityIn, scale, baArmor);
-				if (showArmorHead && ((ModelRendererAlt) this.bipedHead).notOBJModel()) {
+				if (renderHead((EntityLivingBase) entityIn, scale)) {
 					GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
 					this.renderHeadWear(scale);
 				}
 			}
 		}
 
-		boolean bodyArmorRendered = false;
 		this.bipedRightArm.showModel = ba.get(EnumParts.ARM_RIGHT) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.CHEST);
 		this.bipedLeftArm.showModel = ba.get(EnumParts.ARM_LEFT) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.CHEST);
 		if (this.bipedRightArm.showModel || this.bipedLeftArm.showModel) {
@@ -190,54 +162,34 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.CHEST);
 				this.bipedRightArm.showModel = stack.getItem() instanceof ItemArmor && baArmor.get(EnumParts.ARM_RIGHT);
 				this.bipedLeftArm.showModel = stack.getItem() instanceof ItemArmor && baArmor.get(EnumParts.ARM_LEFT);
-				if (ArmourersWorkshopApi.isAvailable() && entityIn instanceof EntityNPCInterface) {
-					ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(stack);
-					if (skinDescriptor != null && awu != null && isDistance) {
-						try {
-							ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
-							if (skin != null) {
-								ISkinDye dye = (ISkinDye) awu.skinDyeConstructor.newInstance(wardrobe.getDye());
-								Object renderData = awu.skinRenderDataConstructor.newInstance(scale, dye, awu.extraColours, distance, true, true, false, DefaultPlayerSkin.getDefaultSkinLegacy());
-								bodyArmorRendered = modelRenderer.renderEquipmentPart(skin, renderData, (EntityNPCInterface) entityIn, this, scale, baArmor);
-								this.bipedRightArm.showModel = !bodyArmorRendered;
-								this.bipedLeftArm.showModel = !bodyArmorRendered;
-							}
-						}
-						catch (Exception e) { LogWriter.error("Error:", e); }
-					}
-				}
-				if (!bodyArmorRendered) {
-					((ModelRendererAlt) this.bipedRightArm).clearOBJ();
-					((ModelRendererAlt) this.bipedLeftArm).clearOBJ();
-					if (entityIn instanceof EntityCustomNpc) {
-						String m = ((EntityCustomNpc) entityIn).display.getModel();
-						boolean smallArms = m != null && m.contains("customnpcalex");
-						((ModelRendererAlt) this.bipedLeftArm).smallArms = smallArms;
-						((ModelRendererAlt) this.bipedRightArm).smallArms = smallArms;
-					}
-					if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
-						((ModelRendererAlt) this.bipedRightArm).setOBJModel(stack, null);
-						((ModelRendererAlt) this.bipedLeftArm).setOBJModel(stack, null);
-					}
-				}
-			}
-			if (!bodyArmorRendered) {
-				GlStateManager.pushMatrix();
-				if (entityIn.isSneaking()) { GlStateManager.translate(0.0F, -0.2F, 0.0F); }
-				if (this.bipedRightArm.showModel) {
+                ((ModelRendererAlt) this.bipedRightArm).clearOBJ();
+                ((ModelRendererAlt) this.bipedLeftArm).clearOBJ();
+                if (entityIn instanceof EntityCustomNpc) {
+                    String m = ((EntityCustomNpc) entityIn).display.getModel();
+                    boolean smallArms = m != null && m.contains("customnpcalex");
+                    ((ModelRendererAlt) this.bipedLeftArm).smallArms = smallArms;
+                    ((ModelRendererAlt) this.bipedRightArm).smallArms = smallArms;
+                }
+                if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
+                    ((ModelRendererAlt) this.bipedRightArm).setOBJModel(stack, null);
+                    ((ModelRendererAlt) this.bipedLeftArm).setOBJModel(stack, null);
+                }
+            }
+            GlStateManager.pushMatrix();
+            if (entityIn.isSneaking()) { GlStateManager.translate(0.0F, -0.2F, 0.0F); }
+            if (this.bipedRightArm.showModel) {
 
-					((ModelRendererAlt) this.bipedRightArm).checkBacklightColor(r, g, b);
-					if (((ModelRendererAlt) this.bipedRightArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-					this.bipedRightArm.render(scale);
-				}
-				if (this.bipedLeftArm.showModel) {
-					((ModelRendererAlt) this.bipedLeftArm).checkBacklightColor(r, g, b);
-					if (((ModelRendererAlt) this.bipedLeftArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-					this.bipedLeftArm.render(scale);
-				}
-				GlStateManager.popMatrix();
-			}
-		}
+                ((ModelRendererAlt) this.bipedRightArm).checkBacklightColor(r, g, b);
+                if (((ModelRendererAlt) this.bipedRightArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+                this.bipedRightArm.render(scale);
+            }
+            if (this.bipedLeftArm.showModel) {
+                ((ModelRendererAlt) this.bipedLeftArm).checkBacklightColor(r, g, b);
+                if (((ModelRendererAlt) this.bipedLeftArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+                this.bipedLeftArm.render(scale);
+            }
+            GlStateManager.popMatrix();
+        }
 
 		this.bipedRightLeg.showModel = ba.get(EnumParts.LEG_RIGHT) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.LEGS || this.slot == EntityEquipmentSlot.FEET);
 		this.bipedLeftLeg.showModel = ba.get(EnumParts.LEG_LEFT) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.LEGS || this.slot == EntityEquipmentSlot.FEET);
@@ -254,24 +206,6 @@ public class ModelBipedAlt extends ModelNpcAlt {
 					baArmor.put(EnumParts.LEG_LEFT, this.bipedLeftLeg.showModel);
 				}
 				legsRender = ((EntityLivingBase) entityIn).getItemStackFromSlot(this.slot).getItem() instanceof ItemArmor;
-				if (legsRender && ArmourersWorkshopApi.isAvailable() && entityIn instanceof EntityNPCInterface) {
-					stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(this.slot);
-					ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(stack);
-					if (skinDescriptor != null && awu != null && isDistance) {
-						try {
-							ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
-							if (skin != null) {
-								ISkinDye dye = (ISkinDye) awu.skinDyeConstructor.newInstance(wardrobe.getDye());
-								Object renderData = awu.skinRenderDataConstructor.newInstance(scale, dye, awu.extraColours, distance, true, true, false, DefaultPlayerSkin.getDefaultSkinLegacy());
-								modelRenderer.renderEquipmentPart(skin, renderData, (EntityNPCInterface) entityIn, this, scale, baArmor);
-								this.bipedRightLeg.showModel = false;
-								this.bipedLeftLeg.showModel = false;
-							}
-						}
-						catch (Exception e) { LogWriter.error("Error:", e); }
-						legsRender = false;
-					}
-				}
 				((ModelRendererAlt) this.bipedBody).clearOBJ();
 				((ModelRendererAlt) this.bipedRightLeg).clearOBJ();
 				((ModelRendererAlt) this.bipedLeftLeg).clearOBJ();
@@ -322,9 +256,7 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				GlStateManager.popMatrix();
 			}
 		}
-		if (!bodyArmorRendered) { bodyArmorRendered = !baArmor.get(EnumParts.BODY); }
-
-		this.bipedBody.showModel = !bodyArmorRendered && ba.get(EnumParts.BODY) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.CHEST);
+        this.bipedBody.showModel = baArmor.get(EnumParts.BODY) && ba.get(EnumParts.BODY) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.CHEST);
 		if (this.bipedBody.showModel) {
 			if (this.isArmorModel) {
 				((ModelRendererAlt) this.bipedBody).clearOBJ();
@@ -343,47 +275,14 @@ public class ModelBipedAlt extends ModelNpcAlt {
 		GlStateManager.popMatrix();
 	}
 
-	private boolean renderHead(EntityLivingBase living, float scale, Map<EnumParts, Boolean> baArmor) {
-		boolean showArmorHead = true;
+	private boolean renderHead(EntityLivingBase living, float scale) {
 		ItemStack stack = living.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
-		if (this.isArmorModel) {
-			showArmorHead = baArmor.get(EnumParts.HEAD);
-			if (showArmorHead && ArmourersWorkshopApi.isAvailable() && living instanceof EntityNPCInterface) {
-				ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(stack);
-				if (skinDescriptor != null) {
-					ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
-					double distance = Minecraft.getMinecraft().player.getDistance(living.posX, living.posY, living.posZ);
-					int d;
-					try { d = (int) awu.renderDistanceSkin.get(awu.configHandlerClient); }
-					catch (Exception e) { d = (int) (distance + 1); }
-					if (distance <= d) {
-						CustomSkinModelRenderHelper modelRenderer = CustomSkinModelRenderHelper.getInstance();
-						IWardrobeCap wardrobe = ArmourersWorkshopApi.getEntityWardrobeCapability(living);
-						try {
-							ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
-							if (skin != null) {
-								ISkinDye dye = (ISkinDye) awu.skinDyeConstructor.newInstance(wardrobe.getDye());
-								Object renderData = awu.skinRenderDataConstructor.newInstance(scale, dye, awu.extraColours, distance, true, true, false, DefaultPlayerSkin.getDefaultSkinLegacy());
-								modelRenderer.renderEquipmentPart(skin, renderData, (EntityNPCInterface) living, this, scale, baArmor);
-								return false;
-							}
-						}
-						catch (Exception e) { LogWriter.error("Error:", e); }
-					}
-				}
-			}
-			if (!(stack.getItem() instanceof ItemArmor)) {
-				this.bipedHead.showModel = false;
-			}
+		((ModelRendererAlt) bipedHead).clearOBJ();
+		if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
+			((ModelRendererAlt) bipedHead).setOBJModel(stack, null);
 		}
-		if (showArmorHead) {
-			((ModelRendererAlt) this.bipedHead).clearOBJ();
-			if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
-				((ModelRendererAlt) this.bipedHead).setOBJModel(stack, null);
-			}
-			this.bipedHead.render(scale);
-		}
-		return showArmorHead;
+		bipedHead.render(scale);
+		return ((ModelRendererAlt) this.bipedHead).notOBJModel();
 	}
 
 	public void setSlot(EntityEquipmentSlot slotIn) { this.slot = slotIn; }

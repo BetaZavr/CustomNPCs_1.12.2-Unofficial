@@ -119,7 +119,7 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 			mc.displayGuiScreen(guiyesno);
 			return;
 		}
-		PlayerData.get(mc.player).editingNpc = npc;
+		CustomNpcs.proxy.getPlayerData(mc.player).editingNpc = npc;
 		if (id == 1) {
 			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuDisplay);
 		} else if (id == 2) {

@@ -478,10 +478,8 @@ public class CustomNpcs {
                 }
             });
 			board.addDirtyRunnable(() -> {
-                for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance()
-                        .getPlayerList().getPlayers()) {
-                    PlayerData data = PlayerData.get(player);
-                    if (data != null) {
+                for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+                    if (PlayerData.get(player) != null) {
 						visibilityController.onUpdate(player);
                     }
                 }

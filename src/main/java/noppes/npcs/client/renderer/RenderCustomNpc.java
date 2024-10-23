@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import moe.plushie.armourers_workshop.api.ArmourersWorkshopApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -168,6 +170,9 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			for (LayerRenderer<T> layerrenderer : this.layerRenderers) {
 				if ((layerrenderer instanceof LayerEyes || layerrenderer instanceof LayerHead
 						|| layerrenderer.getClass().getSimpleName().equals("LayerCustomHead")) && !sp.get(EnumParts.HEAD)) {
+					continue;
+				}
+				if (ArmourersWorkshopApi.isAvailable() && layerrenderer.getClass().getSimpleName().equals("LayerCustomHead") && ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(entitylivingbaseIn.getItemStackFromSlot(EntityEquipmentSlot.HEAD))) {
 					continue;
 				}
 				if ((layerrenderer instanceof LayerBody || layerrenderer instanceof LayerNpcCloak) && !sp.get(EnumParts.BODY)) {

@@ -5,8 +5,6 @@ import java.awt.Polygon;
 import java.util.*;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -27,6 +25,7 @@ import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
+import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.util.Util;
 
@@ -60,15 +59,15 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 	private int id = -1;
 	public String name = "Default Region";
-	public TreeMap<Integer, Point> points = Maps.newTreeMap();
+	public TreeMap<Integer, Point> points = new TreeMap<>();
 	public int[] y = new int[] { 0, 255 };
 	public int dimensionID = 0;
 
 	public int color;
 	public Availability availability;
 	public String message;
-	private final List<Entity> entitiesWithinRegion;
-	private final Map<Entity, AntiLagTime> playerAntiLag;
+	private final List<Entity> entitiesWithinRegion = new ArrayList<>();
+	private final Map<Entity, AntiLagTime> playerAntiLag = new HashMap<>();
 	public IPos homePos;
 	public boolean keepOut, showInClient;
 
@@ -78,8 +77,6 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		this.color = (new Random()).nextInt(0xFFFFFF);
 		this.availability = new Availability();
 		this.message = "availability.areaNotAvailable";
-		this.playerAntiLag = Maps.newHashMap();
-		this.entitiesWithinRegion = Lists.newArrayList();
 		this.keepOut = false;
 		this.showInClient = false;
 		this.update = true;
@@ -89,15 +86,18 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		this();
 		this.id = id;
 		this.dimensionID = dimensionID;
-		this.y[0] = y - 2;
-		this.y[1] = y + 2;
+		this.y[0] = y - 1;
+		this.y[1] = y + 4;
 		if (this.y[0] < 0) {
 			this.y[0] = 0;
 		}
 		if (this.y[1] > 255) {
 			this.y[1] = 255;
 		}
-		this.addPoint(x, y, z);
+		points.put(0, new Point(x, z - 4));
+		points.put(1, new Point(x + 4, z + 2));
+		points.put(2, new Point(x - 4, z + 2));
+		update = true;
 	}
 
 	/**
@@ -330,9 +330,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	public void fix() {
 		if (this.points == null) {
-			this.points = Maps.newTreeMap();
+			this.points = new TreeMap<>();
 		}
-		TreeMap<Integer, Point> newList = Maps.newTreeMap();
+		TreeMap<Integer, Point> newList = new TreeMap<>();
 		int i = 0;
 		boolean needChange = false;
 		for (int pos : this.points.keySet()) {
@@ -359,15 +359,15 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	@Override
 	public IPos getCenter() {
 		double x = 0.0d, z = 0.0d;
-		for (Point v : this.points.values()) {
+		for (Point v : points.values()) {
 			x += v.x;
 			z += v.y;
 		}
-		if (!this.points.isEmpty()) {
-			x /= this.points.size();
-			z /= this.points.size();
+		if (!points.isEmpty()) {
+			x /= points.size();
+			z /= points.size();
 		}
-		return Objects.requireNonNull(NpcAPI.Instance()).getIPos(x, (double) this.y[0] + ((double) this.y[1] - (double) this.y[0]) / 2.0d, z);
+		return new BlockPosWrapper(x, (double) y[0] + ((double) y[1] - (double) y[0]) / 2.0d, z);
 	}
 
 	@Override
@@ -692,7 +692,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			return this.addPoint(point, y) != null;
 		}
 		int n = this.getClosestPoint(point, pos);
-		TreeMap<Integer, Point> temp = Maps.newTreeMap();
+		TreeMap<Integer, Point> temp = new TreeMap<>();
 		for (int i = 0, j = 0; i < this.points.size(); i++) {
 			temp.put(i + j, this.points.get(i));
 			if (i == n) {
@@ -796,7 +796,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		if (this.y[1] > 255) {
 			this.y[1] = 255;
 		}
-		this.points = Maps.newTreeMap();
+		this.points = new TreeMap<>();
 		for (int i = 0; i < nbtRegion.getTagList("Points", 11).tagCount(); i++) {
 			int[] p = nbtRegion.getTagList("Points", 11).getIntArrayAt(i);
 			this.points.put(i, new Point(p[0], p[1]));
@@ -1072,7 +1072,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 				this.entitiesWithinRegion.add(entity);
 			}
 		}
-		List<Entity> del = Lists.newArrayList();
+		List<Entity> del = new ArrayList<>();
 		for (Entity entity : this.entitiesWithinRegion) {
 			if (entity.isDead || (!this.keepOut && listEntitiesInside.contains(entity))) {
 				if (entity.isDead) {

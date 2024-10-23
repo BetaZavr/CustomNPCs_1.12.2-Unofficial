@@ -1,14 +1,23 @@
 package noppes.npcs.client.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import moe.plushie.armourers_workshop.api.ArmourersWorkshopApi;
+import moe.plushie.armourers_workshop.api.common.capability.IEntitySkinCapability;
+import moe.plushie.armourers_workshop.api.common.skin.data.ISkin;
+import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDescriptor;
+import moe.plushie.armourers_workshop.api.common.skin.type.ISkinType;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 import noppes.npcs.client.model.animation.*;
+import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
 import noppes.npcs.mixin.client.model.IModelPlayerMixin;
 import noppes.npcs.mixin.entity.IEntityLivingBaseMixin;
 import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
@@ -156,7 +165,8 @@ public class ModelNpcAlt extends ModelPlayer {
     public void render(@Nonnull Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
         if (ModelNpcAlt.editAnimDataSelect.part != null && Minecraft.getMinecraft().currentScreen == null) { ModelNpcAlt.editAnimDataSelect.part = null; }
         this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
-        Map<EnumParts, Boolean> ba = Maps.newHashMap();
+        Map<EnumParts, Boolean> ba = new HashMap<>();
+        Map<EnumParts, Boolean> bAW = new HashMap<>();
 
         ModelNpcAlt.editAnimDataSelect.isNPC = entityIn.equals(ModelNpcAlt.editAnimDataSelect.displayNpc);
         float r = 1.0f, g = 1.0f, b = 1.0f;
@@ -165,7 +175,97 @@ public class ModelNpcAlt extends ModelPlayer {
             if (data != null) { ba.putAll(data.animation.showParts); }
         }
         else if (entityIn instanceof EntityCustomNpc) {
-            ba.putAll(((EntityCustomNpc) entityIn).animation.showParts);
+            EntityCustomNpc npc = (EntityCustomNpc) entityIn;
+            ba.putAll(npc.animation.showParts);
+            // possible disabling of body parts rendering from the AW mod:
+            if (ArmourersWorkshopApi.isAvailable()) {
+                npc.animation.resetShowAWParts();
+                Map<EnumParts, List<ISkinDescriptor>> map = new HashMap<>();
+                map.put(EnumParts.HEAD, new ArrayList<>());
+                map.put(EnumParts.BODY, new ArrayList<>());
+                map.put(EnumParts.ARM_LEFT, new ArrayList<>());
+                map.put(EnumParts.ARM_RIGHT, new ArrayList<>());
+                map.put(EnumParts.LEG_LEFT, new ArrayList<>());
+                map.put(EnumParts.LEG_RIGHT, new ArrayList<>());
+                for (int i = 0; i < 4; i++) {
+                    if (npc.inventory.getArmor(i) == null) { continue; }
+                    ItemStack stack = npc.inventory.getArmor(i).getMCItemStack();
+                    if (stack != null && ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(stack)) {
+                        ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(stack);
+                        if (i == 0) {
+                            map.get(EnumParts.HEAD).add(skinDescriptor);
+                        } else if (i == 1) {
+                            map.get(EnumParts.BODY).add(skinDescriptor);
+                            map.get(EnumParts.ARM_RIGHT).add(skinDescriptor);
+                            map.get(EnumParts.ARM_LEFT).add(skinDescriptor);
+                        } else {
+                            map.get(EnumParts.LEG_RIGHT).add(skinDescriptor);
+                            map.get(EnumParts.LEG_LEFT).add(skinDescriptor);
+                        }
+                    }
+                }
+                if (npc.inventory.awItems.get(0) != null && ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(npc.inventory.awItems.get(0).getMCItemStack())) {
+                    ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(npc.inventory.awItems.get(0).getMCItemStack());
+                    map.get(EnumParts.HEAD).add(skinDescriptor);
+                    map.get(EnumParts.BODY).add(skinDescriptor);
+                    map.get(EnumParts.ARM_RIGHT).add(skinDescriptor);
+                    map.get(EnumParts.ARM_LEFT).add(skinDescriptor);
+                    map.get(EnumParts.LEG_RIGHT).add(skinDescriptor);
+                    map.get(EnumParts.LEG_LEFT).add(skinDescriptor);
+                }
+                IEntitySkinCapability skinCapability = ArmourersWorkshopApi.getEntitySkinCapability(entityIn);
+                ISkinType[] skinTypes = skinCapability.getValidSkinTypes();
+                for (ISkinType skinType : skinTypes) {
+                    if (skinType.getName().equals("Outfit") ||
+                            skinType.getName().equals("Head") ||
+                            skinType.getName().equals("Chest") ||
+                            skinType.getName().equals("Legs") ||
+                            skinType.getName().equals("Feet")) {
+                        IInventory inv = ArmourersWorkshopUtil.getInstance().getSkinTypeInv(skinCapability.getSkinInventoryContainer(), skinType);
+                        for (int j = 0; j < inv.getSizeInventory(); j++) {
+                            if (ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(inv.getStackInSlot(j))) {
+                                ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(inv.getStackInSlot(j));
+                                switch (skinType.getName()) {
+                                    case "Head": {
+                                        map.get(EnumParts.HEAD).add(skinDescriptor);
+                                        break;
+                                    }
+                                    case "Chest": {
+                                        map.get(EnumParts.BODY).add(skinDescriptor);
+                                        map.get(EnumParts.ARM_RIGHT).add(skinDescriptor);
+                                        map.get(EnumParts.ARM_LEFT).add(skinDescriptor);
+                                        break;
+                                    }
+                                    case "Outfit": {
+                                        map.get(EnumParts.HEAD).add(skinDescriptor);
+                                        map.get(EnumParts.BODY).add(skinDescriptor);
+                                        map.get(EnumParts.ARM_RIGHT).add(skinDescriptor);
+                                        map.get(EnumParts.ARM_LEFT).add(skinDescriptor);
+                                        map.get(EnumParts.LEG_RIGHT).add(skinDescriptor);
+                                        map.get(EnumParts.LEG_LEFT).add(skinDescriptor);
+                                        break;
+                                    }
+                                    default: {
+                                        map.get(EnumParts.LEG_RIGHT).add(skinDescriptor);
+                                        map.get(EnumParts.LEG_LEFT).add(skinDescriptor);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
+                for (EnumParts slot : map.keySet()) {
+                    for (ISkinDescriptor skinDescriptor : map.get(slot)) {
+                        try {
+                            ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
+                            if (skin != null) { awu.setShowPartFromArmor(slot, skin, npc); }
+                        }
+                        catch (Exception ignore) { }
+                    }
+                }
+            }
+            bAW.putAll(npc.animation.showAWParts);
             if (((EntityCustomNpc) entityIn).display.getTint() != 0xFFFFFF) {
                 r = (float)(((EntityCustomNpc) entityIn).display.getTint() >> 16 & 255) / 255.0F;
                 g = (float)(((EntityCustomNpc) entityIn).display.getTint() >> 8 & 255) / 255.0F;
@@ -173,7 +273,7 @@ public class ModelNpcAlt extends ModelPlayer {
             }
         }
         int entitySkinTextureID = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
-        this.bipedHead.showModel = ba.get(EnumParts.HEAD);
+        this.bipedHead.showModel = ba.get(EnumParts.HEAD) && bAW.get(EnumParts.HEAD);
         if (this.bipedHead.showModel) {
             ((ModelRendererAlt) this.bipedHead).checkBacklightColor(r, g, b);
             if (this.isChild) {
@@ -196,7 +296,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 }
             }
         }
-        if (ba.get(EnumParts.BODY) && this.bipedBody.showModel) {
+        if (ba.get(EnumParts.BODY) && bAW.get(EnumParts.BODY) && this.bipedBody.showModel) {
             ((ModelRendererAlt) this.bipedBody).checkBacklightColor(r, g, b);
             if (((ModelRendererAlt) this.bipedBody).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
             this.bipedBody.render(scale);
@@ -205,7 +305,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 this.bipedBodyWear.render(scale);
             }
         }
-        if (ba.get(EnumParts.ARM_RIGHT) && this.bipedRightArm.showModel) {
+        if (ba.get(EnumParts.ARM_RIGHT) && bAW.get(EnumParts.ARM_RIGHT) && this.bipedRightArm.showModel) {
             ((ModelRendererAlt) this.bipedRightArm).checkBacklightColor(r, g, b);
             if (((ModelRendererAlt) this.bipedRightArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
             this.bipedRightArm.render(scale);
@@ -214,7 +314,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 this.bipedRightArmwear.render(scale);
             }
         }
-        if (ba.get(EnumParts.ARM_LEFT) && this.bipedLeftArm.showModel) {
+        if (ba.get(EnumParts.ARM_LEFT) && bAW.get(EnumParts.ARM_LEFT) && this.bipedLeftArm.showModel) {
             ((ModelRendererAlt) this.bipedLeftArm).checkBacklightColor(r, g, b);
             if (((ModelRendererAlt) this.bipedLeftArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
             this.bipedLeftArm.render(scale);
@@ -223,7 +323,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 this.bipedLeftArmwear.render(scale);
             }
         }
-        if (ba.get(EnumParts.LEG_RIGHT) && this.bipedRightLeg.showModel) {
+        if (ba.get(EnumParts.LEG_RIGHT) && bAW.get(EnumParts.LEG_RIGHT) && this.bipedRightLeg.showModel) {
             ((ModelRendererAlt) this.bipedRightLeg).checkBacklightColor(r, g, b);
             if (((ModelRendererAlt) this.bipedRightLeg).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
             this.bipedRightLeg.render(scale);
@@ -232,7 +332,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 this.bipedRightLegwear.render(scale);
             }
         }
-        if (ba.get(EnumParts.LEG_LEFT) && this.bipedLeftLeg.showModel) {
+        if (ba.get(EnumParts.LEG_LEFT) && bAW.get(EnumParts.LEG_LEFT) && this.bipedLeftLeg.showModel) {
             ((ModelRendererAlt) this.bipedLeftLeg).checkBacklightColor(r, g, b);
             if (((ModelRendererAlt) this.bipedLeftLeg).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
             this.bipedLeftLeg.render(scale);

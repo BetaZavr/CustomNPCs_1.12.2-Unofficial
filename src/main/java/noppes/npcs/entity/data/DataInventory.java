@@ -48,6 +48,12 @@ import javax.annotation.Nonnull;
 
 public class DataInventory implements IInventory, INPCInventory {
 
+	/**
+	 * 0: head
+	 * 1: chest
+	 * 2: legs
+	 * 3: feet
+	 */
 	public Map<Integer, IItemStack> armor = new TreeMap<>();
 	public final Map<Integer, DropSet> drops = new TreeMap<>();
 	// New

@@ -444,7 +444,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		page = 0;
 		sw = new ScaledResolution(this.mc);
 		compassData = new PlayerCompassHUDData();
-		compassData.load(PlayerData.get(player).hud.compassData.getNbt());
+		compassData.load(CustomNpcs.proxy.getPlayerData(player).hud.compassData.getNbt());
 		activeQuest = null;
 		if (t == 1) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.FactionsGet);
@@ -666,7 +666,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	}
 
 	public void close() {
-		PlayerCompassHUDData compassD = PlayerData.get(player).hud.compassData;
+		PlayerCompassHUDData compassD = CustomNpcs.proxy.getPlayerData(player).hud.compassData;
 		NBTTagCompound compound = compassData.getNbt();
 		compassD.load(compound);
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.SaveCompassData, compound);
@@ -679,7 +679,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			return;
 		}
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestRemoveActive, id);
-		PlayerQuestData data = PlayerData.get(player).questData;
+		PlayerQuestData data = CustomNpcs.proxy.getPlayerData(player).questData;
 		if (data != null) {
 			data.activeQuests.remove(id);
 			initGui();
@@ -1478,7 +1478,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		playerData = PlayerData.get(player);
+		playerData = CustomNpcs.proxy.getPlayerData(player);
 		// Back
 		GlStateManager.pushMatrix();
 		drawGradientRect(0, 0, mc.displayWidth, mc.displayHeight, 0xAA000000, 0xAA000000);
@@ -2122,7 +2122,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		if (type == 0) {
 			quests.clear();
 			categories.clear();
-			Collection<QuestData> list = PlayerData.get(player).questData.activeQuests.values();
+			Collection<QuestData> list = CustomNpcs.proxy.getPlayerData(player).questData.activeQuests.values();
 			// Quest List
 			if (!list.isEmpty()) {
 				for (QuestData qd : list) {

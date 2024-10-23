@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
@@ -113,7 +114,7 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 
 	public void transport(EntityPlayerMP player, int id) {
 		TransportLocation loc = TransportController.getInstance().getTransport(id);
-		PlayerData playerdata = PlayerData.get(player);
+		PlayerData playerdata = CustomNpcs.proxy.getPlayerData(player);
 		if (loc == null || (!loc.isDefault() && !playerdata.transportData.transports.contains(loc.id))) {
 			return;
 		}
@@ -171,7 +172,7 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 	}
 
 	private void unlock(EntityPlayer player, TransportLocation loc) {
-		PlayerTransportData data = PlayerData.get(player).transportData;
+		PlayerTransportData data = CustomNpcs.proxy.getPlayerData(player).transportData;
 		if (data.transports.contains(this.transportId)) {
 			return;
 		}
