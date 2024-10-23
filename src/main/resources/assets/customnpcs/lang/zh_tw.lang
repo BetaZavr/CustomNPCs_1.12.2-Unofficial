@@ -1,4 +1,4 @@
-# 對應版本：[CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot]及更高版本；
+# 對應版本：[CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot]及更高版本；
 # 由 BetaZavr 排序、檢查和添加
 # 用谷歌翻譯翻譯
 
@@ -412,6 +412,7 @@ bard.hover.max=取消聲音時NPC到玩家的最大距離<br>§7§62§7 至 §62
 bard.hover.min=NPC到玩家的最小距離<br>§7如果玩家在距NPC指定範圍內並且聲音結束，聲音將重新開始<br>§7從 §62§7 到 §664
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§c注意！ §7 - 由於音響系統對聲道數量有限制，如果附近有很多其他聲音來源，聲音可能會中斷。例如：暴徒步驟
 bard.hover.select=從遊戲註冊的聲音中選擇一個聲音
 bard.hover.song=遊戲聲音名稱
 bard.hover.type.false=NPC的距離，沿著塊軸的精確值

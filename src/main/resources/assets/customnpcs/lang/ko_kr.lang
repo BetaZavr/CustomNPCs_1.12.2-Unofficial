@@ -1,4 +1,4 @@
-# 해당 버전: [CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot] 이상;
+# 해당 버전: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] 이상;
 # BetaZavr 에 의해 정렬, 확인 및 추가됨
 # Google 번역으로 번역
 
@@ -412,6 +412,7 @@ bard.hover.max=NPC 에서 플레이어까지 의 최대 거리 <br>§7§62§7~§
 bard.hover.min=NPC 에서 플레이어까지 의 최소 거리 <br>§7플레이어가 NPC 로부터 지정된 범위 내에 있고 사운드가 끝나면 사운드가 다시 시작됩니다.<br>§7§62§7부터 §664까지
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§c주의!§7 - 사운드 시스템은 채널 수에 제한이 있으므로 근처에 다른 사운드 소스가 많으면 사운드가 중단될 수 있습니다. 예: 몹 단계
 bard.hover.select=게임에 등록된 사운드 중에서 선택하세요.
 bard.hover.song=게임 사운드 이름
 bard.hover.type.false=NPC 까지의 거리, 블록 단위의 축을 따른 정확한 값

@@ -1,5 +1,5 @@
 # Переклад від Cutiegin
-# Відповідна версія: [CustomNPCs_Unofficial_19Aug24_Snapshot] та вище;
+# Відповідна версія: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] та вище;
 # Відсортовано, перевірено та додано BetaZavr
 # Перекладено за допомогою Google Перекладача
 
@@ -413,6 +413,7 @@ bard.hover.max=Максимальна відстань від NPC до грав�
 bard.hover.min=Мінімальна відстань від NPC до гравця, щоб відтворити звук§7 Якщо гравець знаходиться в заданому діапазоні від NPC і звук закінчиться, то звук запуститься по-новому від §62§7 до §664
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§cУвага!§7 - так як звукова система має обмеження на кількість каналів, звук може перериватися, якщо поруч багато джерел інших звуків. Наприклад: кроки мобів
 bard.hover.select=Вибрати звук із зареєстрованих грою
 bard.hover.song=Ігрова назва звуку
 bard.hover.type.false=дистанція до NPC, точні значення по осях у блоках

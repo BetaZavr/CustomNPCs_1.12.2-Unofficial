@@ -2,7 +2,6 @@ package noppes.npcs.roles;
 
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
@@ -12,7 +11,6 @@ import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobBard;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.client.audio.IMusicTickerMixin;
 
 public class JobBard extends JobInterface implements IJobBard {
 
@@ -45,52 +43,45 @@ public class JobBard extends JobInterface implements IJobBard {
 
 	@Override
 	public void killed() {
-		if (this.npc.world.isRemote && this.isStreamer && this.hasOffRange
-				&& MusicController.Instance.isPlaying(this.song)) {
-			MusicController.Instance.stopSound(this.song,
-					this.isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
+		if (npc.world.isRemote && this.isStreamer && this.hasOffRange && MusicController.Instance.isPlaying(this.song)) {
+			MusicController.Instance.stopSound(this.song, isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
 		}
 	}
 
 	public void onLivingUpdate() {
-		if (this.npc.isServerWorld() || this.song.isEmpty()) {
-			return;
-		}
+		if (npc.isServerWorld() || song.isEmpty()) { return; }
 		MusicController mData = MusicController.Instance;
-		if (this.isStreamer ? mData.unloadSongBard : mData.unloadMusicBard) {
-			EntityNPCInterface oldNPC = this.isStreamer ? mData.songBard : mData.musicBard;
+		if (isStreamer ? mData.unloadSongBard : mData.unloadMusicBard) {
+			EntityNPCInterface oldNPC = isStreamer ? mData.songBard : mData.musicBard;
 			if (oldNPC == null) {
-				if (this.isStreamer) {
+				if (isStreamer) {
 					mData.unloadSongBard = false;
 				} else {
 					mData.unloadMusicBard = false;
 				}
-			} else if (oldNPC.getUniqueID().equals(this.npc.getUniqueID())) {
-				if (this.isStreamer) {
+			} else if (oldNPC.getUniqueID().equals(npc.getUniqueID())) {
+				if (isStreamer) {
 					mData.unloadSongBard = false;
-					mData.songBard = this.npc;
+					mData.songBard = npc;
 				} else {
-					mData.musicBard = this.npc;
+					mData.musicBard = npc;
 					mData.unloadMusicBard = false;
 				}
 			}
 		}
-		if (!mData.isBardPlaying(this.song, this.isStreamer)) { // not bard play song
-			AxisAlignedBB aabb = this.npc.getEntityBoundingBox();
+		if (!mData.isBardPlaying(song, isStreamer)) { // not bard play song
+			AxisAlignedBB aabb = npc.getEntityBoundingBox();
 			if (this.isRange) {
 				aabb = aabb.grow(this.range[0], this.range[0], this.range[0]);
 			} else {
-				aabb = new AxisAlignedBB(aabb.minX - this.minPos[0], aabb.minY - this.minPos[1],
-						aabb.minZ - this.minPos[2], aabb.maxX + this.minPos[0], aabb.maxY + this.minPos[1],
-						aabb.maxZ + this.minPos[2]);
+				aabb = new AxisAlignedBB(aabb.minX - this.minPos[0], aabb.minY - this.minPos[1], aabb.minZ - this.minPos[2], aabb.maxX + this.minPos[0], aabb.maxY + this.minPos[1], aabb.maxZ + this.minPos[2]);
 			}
 			List<EntityPlayer> list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
 			if (!list.contains(CustomNpcs.proxy.getPlayer())) {
 				return;
 			}
 			mData.bardPlaySound(this.song, this.isStreamer, this.npc);
-		} else if (this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard)
-				&& !this.song.equals(this.isStreamer ? mData.song : mData.music)) {
+		} else if (this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard) && !this.song.equals(this.isStreamer ? mData.song : mData.music)) {
 			if (!mData.song.isEmpty() && this.npc.equals(mData.songBard)) {
 				mData.stopSound(mData.song, SoundCategory.AMBIENT);
 			}
@@ -146,9 +137,6 @@ public class JobBard extends JobInterface implements IJobBard {
 			if (!list.contains(CustomNpcs.proxy.getPlayer())) {
 				mData.stopSound(this.song, this.isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
 			}
-		}
-		if (!this.isStreamer && mData.isPlaying(this.song)) {
-			((IMusicTickerMixin) Minecraft.getMinecraft().getMusicTicker()).npcs$setTimeUntilNextMusic(12000);
 		}
 	}
 

@@ -162,7 +162,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 			GuiNPCManageFactions.isName = ((GuiNpcCheckBox) button).isSelected();
 			((GuiNpcCheckBox) button).setText(GuiNPCManageFactions.isName ? "gui.name" : "ID");
 			if (!this.base.isEmpty()) {
-				this.setData(new Vector<>(this.base.keySet()), this.base);
+				this.setData(new Vector<>(base.keySet()), new HashMap<>(base));
 			}
 			break;
 		}

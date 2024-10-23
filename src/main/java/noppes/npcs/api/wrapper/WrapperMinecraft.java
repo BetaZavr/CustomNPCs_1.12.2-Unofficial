@@ -14,7 +14,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import noppes.npcs.api.IGlStateManager;
 import noppes.npcs.api.IMinecraft;
-import noppes.npcs.mixin.client.audio.IMusicTickerMixin;
 
 public class WrapperMinecraft
 implements IMinecraft {
@@ -79,7 +78,6 @@ implements IMinecraft {
 			x = this.minecraft.player != null ? (float) this.minecraft.player.posX : 0.0f;
 			y = this.minecraft.player != null ? (float) this.minecraft.player.posY + 0.5f : 0.0f;
 			z = this.minecraft.player != null ? (float) this.minecraft.player.posZ : 0.0f;
-			((IMusicTickerMixin) this.minecraft.getMusicTicker()).npcs$setTimeUntilNextMusic(3600);
 		}
 		this.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation(sound), cat, volume, pitch, false, 0, aType, x, y, z));
 	}

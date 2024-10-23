@@ -37,6 +37,8 @@ public class GuiMenuSideButton extends GuiNpcButton {
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!visible) { return; }
 		GlStateManager.pushMatrix();
+		GlStateManager.enableBlend();
+		GlStateManager.enableAlpha();
 		mc.getTextureManager().bindTexture(GuiNPCInterface.MENU_SIDE_BUTTON);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		hovered = (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height);

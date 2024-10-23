@@ -1,4 +1,4 @@
-# Overeenkomstige versie: [CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot] en hoger;
+# Overeenkomstige versie: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] en hoger;
 # Gesorteerd, gecontroleerd en toegevoegd door BetaZavr
 # Vertaald met Google Translate
 
@@ -412,6 +412,7 @@ bard.hover.max=Maximale afstand van NPC tot speler om geluid te annuleren<br>§7
 bard.hover.min=Minimale afstand van de NPC tot de speler om het geluid af te spelen<br>§7Als de speler zich binnen het opgegeven bereik van de NPC bevindt en het geluid eindigt, begint het geluid opnieuw<br>§7van §62§7 tot §664
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§cLet op! §7 - aangezien het geluidssysteem een ​​limiet heeft op het aantal kanalen, kan het geluid worden onderbroken als er veel bronnen van andere geluiden in de buurt zijn. Bijvoorbeeld: mob-steps
 bard.hover.select=Selecteer een geluid uit de geluiden die door het spel zijn geregistreerd
 bard.hover.song=Naam van het spelgeluid
 bard.hover.type.false=afstand tot NPC, exacte waarden langs de assen in blokken

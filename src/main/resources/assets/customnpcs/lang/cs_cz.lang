@@ -1,4 +1,4 @@
-# Odpovídající verze: [CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot] a novější;
+# Odpovídající verze: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] a novější;
 # Seřazeno, zkontrolováno a přidáno pomocí BetaZavr
 
 advanced.angersound=Zvuk agrese
@@ -411,6 +411,7 @@ bard.hover.max=Maximální vzdálenost od NPC k hráči pro zrušení zvuku<br>�
 bard.hover.min=Minimální vzdálenost od NPC k hráči pro přehrání zvuku<br>§7Pokud je hráč v určeném rozsahu NPC a zvuk skončí, zvuk začne znovu<br>§7od §62§7 do §664
 bard.hover.range.0=Zvuk hraje blízko NPC<br>§7Hlasitost závisí na vzdálenosti k NPC<br>§7Pokud je v blízkosti několik bardů, hráč uslyší zvuk z nejbližšího barda NPC<br>§7Typ §aKruh
 bard.hover.range.1=Zvuk se přehrává kdekoli<br>§7Hlasitost se nemění a také přepíše standardní hudbu<br>§7Pokud je v blízkosti několik bardů, přehrávač uslyší zvuk z nejbližšího barda NPC<br>§7Typ § 
+bard.hover.range.2=<br>§cPozor!§7 - protože zvukový systém má omezený počet kanálů, může být zvuk přerušován, pokud je v blízkosti mnoho zdrojů jiných zvuků. Například: mob kroky
 bard.hover.select=Vyberte zvuk z těch, které hra registruje
 bard.hover.song=Hravý název zvuku
 bard.hover.type.false=vzdálenost k NPC, přesné hodnoty os v blocích

@@ -10,6 +10,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -724,9 +725,8 @@ public class NoppesUtilServer {
 			LogWriter.error("Clone summoning error: Failed to create an entity based on the passed NBT tags: " + compound);
 			return null;
 		}
-		if (entity instanceof EntityNPCInterface) {
-			EntityNPCInterface npc = (EntityNPCInterface) entity;
-			npc.ais.setStartPos(new BlockPos(npc));
+		if (entity instanceof EntityCreature) {
+			((EntityCreature) entity).setHomePosAndDistance(new BlockPos(x, y, z), (int) ((EntityCreature) entity).getMaximumHomeDistance());
 		}
 		world.spawnEntity(entity);
 		LogWriter.debug("Summon Clone: Successful \"" + entity.getName() + "\"; " + entity.world.isRemote);

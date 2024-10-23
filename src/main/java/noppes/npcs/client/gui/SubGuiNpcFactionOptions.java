@@ -49,18 +49,19 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 	}
 
 	private void change(boolean isTake, int value) {
+		if (!scroll.hasSelected() || !data.containsKey(this.scroll.getSelected())) { return; }
 		FactionOption fo = null;
 		int id = -1;
 		if (this.scroll.getSelected() != null && this.data.containsKey(this.scroll.getSelected())) {
-			id = this.data.get(this.scroll.getSelected());
-			fo = this.options.get(id);
+			id = data.get(this.scroll.getSelected());
+			fo = options.get(id);
 		}
 		if (fo == null) {
 			if (value == 0) {
 				return;
 			}
-			fo = new FactionOption(this.data.get(this.scroll.getSelected()), value, isTake);
-			this.options.fps.add(fo);
+			fo = new FactionOption(id, value, isTake);
+			options.fps.add(fo);
 		} else {
 			if (value == 0) {
 				if (this.options.remove(id)) {
@@ -71,10 +72,8 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 				fo.decreaseFactionPoints = isTake;
 			}
 		}
-		if (fo != null) {
-			fo.check();
-		}
-		this.setData(null, (HashMap<String, Integer>) this.data);
+		if (fo != null) { fo.check(); }
+		setData(null, new HashMap<>(data));
 	}
 
 	@Override
@@ -142,18 +141,16 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 			if (newName.contains("ID:" + id + " - ")) {
 				newName = newName.substring(newName.indexOf(" - ") + 3);
 			}
+			newName = new TextComponentTranslation(newName).getFormattedText();
 			String str = ((char) 167) + "7ID:" + id + " - " + newName;
-			if (this.options.hasFaction(id)) {
-				FactionOption fo = this.options.get(id);
-				str = ((char) 167) + "7ID:" + id + " - " + ((char) 167) + (fo.decreaseFactionPoints ? "c" : "2")
-						+ newName;
+			if (options.hasFaction(id)) {
+				FactionOption fo = options.get(id);
+				str = ((char) 167) + "7ID:" + id + " - " + ((char) 167) + (fo.decreaseFactionPoints ? "c" : "2") + newName;
 			}
 			newList.add(str);
 			hoverMap.put(str, newName);
 			newData.put(str, id);
-			if (name != null && name.equals(newName)) {
-				name = str;
-			}
+			if (name != null && name.equals(Util.instance.deleteColor(newName))) { name = str; }
 		}
 		Collections.sort(newList);
 		this.data.putAll(newData);
@@ -164,11 +161,8 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 			this.scroll.hoversTexts[i] = new String[] { hoverMap.get(key) };
 			i++;
 		}
-
-		if (name != null) {
-			this.scroll.setSelected(name);
-		}
-		this.initGui();
+		if (name != null) { scroll.setSelected(name); }
+		initGui();
 	}
 
 	@Override

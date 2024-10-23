@@ -1,4 +1,4 @@
-# Corresponding Version: [CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot] and later;
+# Corresponding Version: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] and later;
 # Sorted, Checked and Added by BetaZavr
 # Translated with Google Translate
 
@@ -412,6 +412,7 @@ bard.hover.max=Maximum distance from NPC to player to cancel sound<br>§7from §
 bard.hover.min=Minimum distance from NPC to player to play the sound<br>§7If the player is within the specified range of the NPC and the sound ends, the sound will start again<br>§7from §62§7 to §664
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§cAttention!§7 - since the sound system has a limitation on the number of channels, the sound may be interrupted if there are many other sound sources nearby. For example: mob steps
 bard.hover.select=Select a sound from those registered by the game
 bard.hover.song=The playful name of the sound
 bard.hover.type.false=distance to NPC, exact axis values in blocks

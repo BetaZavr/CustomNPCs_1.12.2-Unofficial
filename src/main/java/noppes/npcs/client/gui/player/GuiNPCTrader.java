@@ -75,8 +75,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		}
 		switch (button.id) {
 			case 0: { // buy
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, this.marcet.getId(),
-						this.selectDealData.deal.getId(), this.npc.getEntityId());
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, this.marcet.getId(), this.selectDealData.deal.getId(), this.npc.getEntityId());
 				break;
 			}
 			case 1: { // Sell
@@ -560,9 +559,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				if (this.canBuy == 0 && this.selectDealData.buyMoney > 0 && this.money < this.selectDealData.buyMoney) {
 					this.canBuy = 3;
 				}
-				if (this.canBuy == 0 && !Util.instance.canRemoveItems(this.player.inventory.mainInventory,
-						this.selectDealData.buyItems, this.selectDealData.ignoreDamage,
-						this.selectDealData.ignoreNBT)) {
+				if (this.canBuy == 0 && !Util.instance.canRemoveItems(player.inventory.mainInventory, selectDealData.buyItems, selectDealData.ignoreDamage, selectDealData.ignoreNBT)) {
 					this.canBuy = 4;
 				}
 				if (this.canBuy == 0

@@ -853,9 +853,7 @@ public class PacketHandlerServer {
                 CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
                 return;
             }
-            if (!server) {
-                nbtData.setTag("EntityNBT", compound);
-            }
+            if (!server) { nbtData.setTag("EntityNBT", compound); }
             Entity entity = NoppesUtilServer.spawnClone(compound, x + 0.5, y + 1, z + 0.5, player.world);
             ItemStack stack = player.getHeldItemMainhand();
             NBTTagCompound nbt = null;

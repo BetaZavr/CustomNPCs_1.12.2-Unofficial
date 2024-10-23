@@ -34,6 +34,7 @@ import net.minecraft.potion.PotionType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -1136,6 +1137,11 @@ public class CustomRegisters {
 	@SubscribeEvent
 	public void registryRecipes(RegistryEvent.Register<IRecipe> event) {
 		RecipeController.Registry = (ForgeRegistry<IRecipe>) event.getRegistry();
+	}
+
+	@SubscribeEvent
+	public void registrySoundEvent(RegistryEvent.Register<SoundEvent> event) {
+
 	}
 
 }

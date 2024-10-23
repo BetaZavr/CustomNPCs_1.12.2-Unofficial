@@ -1,4 +1,4 @@
-# Versi yang Sesuai: [CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot] dan yang lebih baru;
+# Versi yang Sesuai: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] dan yang lebih baru;
 # Diurutkan, Diperiksa, dan Ditambahkan oleh BetaZavr
 # Diterjemahkan dengan Google Terjemahan
 
@@ -412,6 +412,7 @@ bard.hover.max=Jarak maksimum dari NPC ke pemain untuk membatalkan suara<br>§7�
 bard.hover.min=Jarak minimum dari NPC ke pemain untuk memutar suara<br>§7Jika pemain berada dalam jangkauan yang ditentukan dari NPC dan suara berakhir, suara akan mulai lagi<br>§7dari §62§7 hingga §664
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§cPerhatian!§7 - karena sistem suara memiliki batasan jumlah saluran, suara mungkin terganggu jika ada banyak sumber suara lain di dekatnya. Misalnya: langkah massa
 bard.hover.select=Pilih suara dari yang didaftarkan oleh game
 bard.hover.song=Nama suara permainan
 bard.hover.type.false=jarak ke NPC, nilai pasti sepanjang sumbu dalam blok

@@ -1,4 +1,4 @@
-# Entsprechende Version: [CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot] und höher;
+# Entsprechende Version: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] und höher;
 # Sortiert, geprüft und hinzugefügt von BetaZavr
 
 advanced.angersound=Der Klang der Aggression
@@ -122,7 +122,7 @@ aitactics.stagger=Stagger
 aitactics.stalk=schleiche dich an
 aitactics.surround=Umgeben
 
-animation.clear.frame=Rahmeneinstellungs- ID :%s 
+animation.clear.frame=Rahmeneinstellungs- ID :%s
 animation.clear.part=Körperteil-Einstellungen- ID: %s – „%s “
 animation.frame=Frame%s
 animation.frames=Rahmeneinstellungen:
@@ -294,7 +294,7 @@ availability.hover.faction=Select a Faction from the customized ones
 availability.hover.health=Player Health Percentage to check Availability
 availability.hover.health.type=Type of player health check
 availability.hover.level=Minimum player level from which it is available
-availability.hover.more=Save the current one and start a new one 
+availability.hover.more=Save the current one and start a new one
 availability.hover.name.0=Available only for this player, as well as players with the same setting<br>§7These are usually exceptional players: "§6Clan Leader§7", "§aFirst on the server ...§7", "§sAdmins Friend§7", etc.
 availability.hover.name.1=Available to all but the specified player<br>§7These are usually delinquent players: "§sWas banned§7", "§sMain Pest§7", "§sAdmin doesn't like§7", etc.
 availability.hover.player.name=Player's name<br>§7The name must be exactly the same as the player's name (case letters and numbers)
@@ -411,6 +411,7 @@ bard.hover.max=Maximaler Abstand vom NPC zum Spieler, um den Ton zu unterdrücke
 bard.hover.min=Mindestabstand vom NPC zum Spieler, um den Sound abzuspielen<br>§7Wenn sich der Spieler innerhalb der angegebenen Entfernung vom NPC befindet und der Sound endet, beginnt der Sound erneut<br>§7von §62§7 bis §664
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§cAchtung!§7 – Da die Anzahl der Kanäle des Soundsystems begrenzt ist, kann der Ton unterbrochen werden, wenn sich viele andere Tonquellen in der Nähe befinden. Zum Beispiel: Mob-Schritte
 bard.hover.select=Wählen Sie einen der vom Spiel registrierten Sounds aus
 bard.hover.song=Name des Spielsounds
 bard.hover.type.false=Abstand zum NPC, genaue Werte entlang der Achsen in Blöcken

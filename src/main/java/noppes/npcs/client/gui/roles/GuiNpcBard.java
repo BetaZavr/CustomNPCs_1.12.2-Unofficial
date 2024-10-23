@@ -77,6 +77,7 @@ public class GuiNpcBard extends GuiNPCInterface2 implements ISubGuiListener, ITe
 			this.setHoverText(new TextComponentTranslation("bard.hover.del").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("bard.hover.range." + this.getButton(2).getValue())
+					.appendSibling(new TextComponentTranslation("bard.hover.range.2"))
 					.getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(

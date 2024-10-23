@@ -25,7 +25,8 @@ public class MusicData {
 	public ISound sound;
 	public String uuid;
 	public Source source;
-	public String name, resource;
+	public String name;
+	public String resource;
 	public float millitotal;
 
 	public MusicData(ISound s, String id, SoundManager manager) {

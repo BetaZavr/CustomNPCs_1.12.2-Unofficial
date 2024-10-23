@@ -82,7 +82,7 @@ implements ICustomScrollListener, ISubGuiListener {
 				else {
 					int pos = button.id - 11;
 					ItemStack[] array = recipe.recipeItems.get(pos);
-					if (heldStack.isEmpty()) {
+					if (heldStack.isEmpty() && array.length > 0) {
 						int p = button.currentStackID;
 						int count = Math.max(0, array[p].getCount() - 1);
 						if (count > 0) { array[p].setCount(count); }
@@ -309,17 +309,20 @@ implements ICustomScrollListener, ISubGuiListener {
 				break;
 			}
 			case 5: { // ignore Meta
-				recipe.ignoreDamage = button.getValue() == 1;
+				recipe.ignoreDamage = !recipe.ignoreDamage;
+				save();
 				initGui();
 				break;
 			}
 			case 6: { // ignore NBT
-				recipe.ignoreNBT = button.getValue() == 1;
+				recipe.ignoreNBT = !recipe.ignoreNBT;
+				save();
 				initGui();
 				break;
 			}
 			case 7: { // know
-				recipe.known = button.getValue() == 1;
+				recipe.known = !recipe.known;
+				save();
 				initGui();
 				break;
 			}
@@ -329,6 +332,7 @@ implements ICustomScrollListener, ISubGuiListener {
 			}
 			case 9: { // replace shaped <-> shapeless
 				recipe.isShaped = !recipe.isShaped;
+				save();
 				initGui();
 				break;
 			}
@@ -604,11 +608,11 @@ implements ICustomScrollListener, ISubGuiListener {
 			button.layerColor = hasItem ? recipe.known ? green : red : 0;
 			this.addButton(button);
 
-			button = new GuiNpcButton(5, x, y += 21, 50, 20, new String[] { "gui.ignoreDamage.0", "gui.ignoreDamage.1" }, recipe.ignoreDamage ? 1 : 0);
+			button = new GuiNpcButton(5, x, y += 21, 50, 20, new String[] { "gui.ignoreDamage.0", "gui.ignoreDamage.1" }, recipe.ignoreDamage ? 0 : 1);
 			button.layerColor = hasItem ? recipe.ignoreDamage ? green : red : 0;
 			this.addButton(button);
 
-			button =new GuiNpcButton(6, x, y + 21, 50, 20, new String[] { "gui.ignoreNBT.0", "gui.ignoreNBT.1" }, recipe.ignoreNBT ? 1 : 0);
+			button =new GuiNpcButton(6, x, y + 21, 50, 20, new String[] { "gui.ignoreNBT.0", "gui.ignoreNBT.1" }, recipe.ignoreNBT ? 0 : 1);
 			button.layerColor = hasItem ? recipe.ignoreNBT ? green : red : 0;
 			this.addButton(button);
 		}

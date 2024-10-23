@@ -120,7 +120,7 @@ public class NoppesUtilPlayer {
 		BankData bd = ((ContainerNPCBank) player.openContainer).data;
 
 		boolean canOpen = player.capabilities.isCreativeMode || bd.bank.isPublic || player.getUniqueID().equals(bd.getUUID()) || bd.bank.owner.equals(player.getName());
-		if (!canOpen) {
+		if (canOpen) {
 			if (isStack) {
 				canOpen = Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).openStack, false, false);
 			}
@@ -149,7 +149,7 @@ public class NoppesUtilPlayer {
 			return;
 		}
 		boolean canUpgrade = player.capabilities.isCreativeMode || bd.bank.isPublic || player.getUniqueID().equals(bd.getUUID()) || bd.bank.owner.equals(player.getName());
-		if (!canUpgrade) {
+		if (canUpgrade) {
 			if (isStack) {
 				canUpgrade = Util.instance.removeItem(player, bd.bank.ceilSettings.get(ceilId).upgradeStack, count, false, false);
 			}

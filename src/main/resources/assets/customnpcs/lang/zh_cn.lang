@@ -1,5 +1,5 @@
 # Lime, Miguo 的中文翻译
-# 对应版本：[CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot]及更高版本；
+# 对应版本：[CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot]及更高版本；
 # 由 BetaZavr 排序、检查和添加
 # 用谷歌翻译翻译
 
@@ -413,6 +413,7 @@ bard.hover.max=取消声音时NPC到玩家的最大距离<br>§7§62§7 至 §62
 bard.hover.min=NPC到玩家的最小距离<br>§7如果玩家在距NPC指定范围内并且声音结束，声音将重新开始<br>§7从 §62§7 到 §664
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§c注意！§7 - 由于音响系统对声道数量有限制，如果附近有很多其他声音源，声音可能会中断。例如：暴徒步骤
 bard.hover.select=从游戏注册的声音中选择一个声音
 bard.hover.song=游戏声音名称
 bard.hover.type.false=NPC的距离，沿块轴的精确值

@@ -1,4 +1,4 @@
-# Versión correspondiente: [CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot] y posteriores;
+# Versión correspondiente: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] y posteriores;
 # Ordenado, Comprobado y Agregado por BetaZavr
 # Traducido con el Traductor de Google
 
@@ -412,6 +412,7 @@ bard.hover.max=Distancia máxima del NPC al jugador para cancelar el sonido<br>�
 bard.hover.min=Distancia mínima del NPC al jugador para reproducir el sonido<br>§7Si el jugador está dentro del rango especificado del NPC y el sonido termina, el sonido comenzará de nuevo<br>§7de §62§7 a §664
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§c¡Atención!§7 - dado que el sistema de sonido tiene un límite en el número de canales, el sonido puede interrumpirse si hay muchas fuentes de otros sonidos cerca. Por ejemplo: pasos de la mafia
 bard.hover.select=Selecciona un sonido de los registrados por el juego.
 bard.hover.song=Nombre del sonido del juego
 bard.hover.type.false=distancia al NPC, valores exactos a lo largo de los ejes en bloques

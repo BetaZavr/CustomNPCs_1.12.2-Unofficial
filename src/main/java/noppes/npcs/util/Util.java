@@ -164,16 +164,12 @@ public class Util implements IMethods {
 		}
 		for (ItemStack stack : items.keySet()) {
 			int count = items.get(stack);
-			if (NoppesUtilServer.IsItemStackNull(stack)) {
-				continue;
-			}
+			if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
 			for (ItemStack is : inventory.keySet()) {
-				if (NoppesUtilServer.IsItemStackNull(is)) {
-					continue;
+				if (!NoppesUtilServer.IsItemStackNull(is) && NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) {
+					count -= inventory.get(is);
 				}
-				if (NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) {
-					count -= is.getCount();
-				}
+				if (count <= 0) { break; }
 			}
 			if (count > 0) {
 				return false;

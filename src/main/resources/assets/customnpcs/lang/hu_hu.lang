@@ -1,4 +1,4 @@
-# Megfelelő verzió: [CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot] és újabb;
+# Megfelelő verzió: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] és újabb;
 # A BetaZavr rendezte , ellenőrizte és hozzáadta
 # Google Fordítóval lefordítva
 
@@ -412,6 +412,7 @@ bard.hover.max=Maximális távolság az NPC és a lejátszó között a hang kik
 bard.hover.min=Minimális távolság az NPC és a lejátszó között a hang lejátszásához<br>§7Ha a lejátszó a megadott tartományon belül van az NPC- től, és a hang véget ér, a hang újrakezdődik<br>§7§62§7 és §664 között
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§cFigyelem!§7 - mivel a hangrendszer korlátozza a csatornák számát, a hang megszakadhat, ha sok más hangforrás van a közelben. Például: maffialépések
 bard.hover.select=Válasszon ki egy hangot a játék által regisztráltak közül
 bard.hover.song=A játék hangjának neve
 bard.hover.type.false=távolság az NPC- től, pontos értékek a tengelyek mentén blokkban

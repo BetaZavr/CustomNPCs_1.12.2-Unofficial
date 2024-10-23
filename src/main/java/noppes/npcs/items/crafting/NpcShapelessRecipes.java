@@ -153,7 +153,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
             if (stacks.length == 0 && stack.isEmpty()) { return true; } // is Air
             for (ItemStack ingStack : stacks) {
 				if (ingStack.getItem() != stack.getItem() || ingStack.isEmpty() || stack.isEmpty()) { continue; }
-				if (NoppesUtilPlayer.compareItems(stack, ingStack, this.ignoreDamage, this.ignoreNBT) && ingStack.getCount() <= stack.getCount()) {
+				if (NoppesUtilPlayer.compareItems(stack, ingStack, ignoreDamage, ignoreNBT) && ingStack.getCount() <= stack.getCount()) {
 					return true;
 				}
             }
@@ -164,9 +164,22 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	@Override
 	public boolean canFit(int width, int height) {
 		if (global) {
-			return width * height >= this.recipeItems.size();
+			int size = 0;
+			for (Ingredient ingredient : recipeItems) {
+				if (ingredient.getMatchingStacks().length == 0) { continue; }
+				boolean isEmpty = true;
+				for (ItemStack stack : ingredient.getMatchingStacks()) {
+					if (!stack.isEmpty()) {
+						isEmpty = false;
+						break;
+					}
+				}
+				if (isEmpty) { continue; }
+				size++;
+			}
+			return width * height >= size;
 		}
-		return width == this.recipeWidth && height == this.recipeHeight;
+		return width == recipeWidth && height == recipeHeight;
 	}
 
 	public void copy(INpcRecipe recipe) {
@@ -387,6 +400,20 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		if (this.recipeItems.isEmpty() || (inv.getWidth() == 3 && !this.global) || (inv.getWidth() == 4 && this.global)) {
 			return false;
 		}
+		List<Ingredient> ings = new ArrayList<>();
+		for (Ingredient ingredient : recipeItems) {
+			if (ingredient.getMatchingStacks().length == 0) { continue; }
+			boolean isEmpty = true;
+			for (ItemStack stack : ingredient.getMatchingStacks()) {
+				if (!stack.isEmpty()) {
+					isEmpty = false;
+					break;
+				}
+			}
+			if (isEmpty) { continue; }
+			ings.add(ingredient);
+		}
+
 		List<ItemStack> inputs = Lists.newArrayList();
 		for (int i = 0; i < inv.getHeight(); ++i) {
 			for (int j = 0; j < inv.getWidth(); ++j) {
@@ -396,21 +423,20 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 				}
 			}
 		}
-		if (inputs.size() != this.recipeItems.size()) {
+		if (inputs.size() < ings.size()) {
 			return false;
 		}
-        List<Ingredient> ings = new ArrayList<>(this.recipeItems);
 		for (int i = 0; i < ings.size(); i++) {
 			for (int j = 0; j < inputs.size(); j++) {
-				if (this.apply(ings.get(i), inputs.get(j))) {
+				if (apply(ings.get(i), inputs.get(j))) {
 					ings.remove(ings.get(i));
 					inputs.remove(inputs.get(j));
 					i = -1;
 					break;
 				}
 			}
+			if (ings.isEmpty() || inputs.isEmpty()) { break; }
 		}
-
 		return ings.isEmpty() && inputs.isEmpty();
 	}
 

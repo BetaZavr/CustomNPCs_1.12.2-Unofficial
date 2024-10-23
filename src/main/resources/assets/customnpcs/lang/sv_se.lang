@@ -1,4 +1,4 @@
-# Motsvarande version: [CustomNPCs_1.12.2_01Nov22_BetaZavr_Snapshot] och senare;
+# Motsvarande version: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] och senare;
 # Sorterat, kontrollerat och lagt till av BetaZavr
 # Översatt med Google Translate
 
@@ -412,6 +412,7 @@ bard.hover.max=Maximalt avstånd från NPC till spelare för att avbryta ljud<br
 bard.hover.min=Minsta avstånd från NPC:n till spelaren för att spela upp ljudet<br>§7Om spelaren är inom det angivna intervallet från NPC:n och ljudet slutar, kommer ljudet att börja igen<br>§7från §62§7 till §664
 bard.hover.range.0=Sound plays near NPCs<br>§7Volume depends on the distance to the NPC<br>§7If there are several bards nearby, the player will hear the sound from the closest Bard NPC<br>§7Type §aCircle
 bard.hover.range.1=The sound plays anywhere<br>§7The volume does not change, and it also overrides the standard music<br>§7If there are several bards nearby, the player will hear the sound from the nearest Bard NPC<br>§7Type of §bMusic
+bard.hover.range.2=<br>§cOBS!§7 - eftersom ljudsystemet har en begränsning på antalet kanaler kan ljudet avbrytas om det finns många källor till andra ljud i närheten. Till exempel: mobbsteg
 bard.hover.select=Välj ett ljud bland de som är registrerade av spelet
 bard.hover.song=Spelets ljudnamn
 bard.hover.type.false=avstånd till NPC, exakta värden längs axlarna i block

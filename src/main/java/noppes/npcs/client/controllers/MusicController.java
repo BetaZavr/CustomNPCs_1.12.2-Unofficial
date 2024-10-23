@@ -1,6 +1,8 @@
 package noppes.npcs.client.controllers;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
@@ -35,7 +37,7 @@ public class MusicController {
 	}
 
 	public void bardPlaySound(String song, boolean isStreamer, EntityNPCInterface npc) {
-		this.stopSound(song, isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
+		stopSound(song, isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
 		ISound.AttenuationType aType = ISound.AttenuationType.LINEAR;
 		ResourceLocation res = new ResourceLocation(song);
 		float x = (float) npc.posX;
@@ -57,8 +59,7 @@ public class MusicController {
 				}
 			}
 		}
-		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(res,
-				isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC, 1.0f, 1.0f, false, 0, aType, x, y, z));
+		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(res, isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC, 1.0f, 1.0f, false, 0, aType, x, y, z));
 	}
 
 	public void checkBards(EntityPlayer player) {
@@ -131,7 +132,6 @@ public class MusicController {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (cat == SoundCategory.MUSIC) {
 			Minecraft.getMinecraft().getSoundHandler().stop("", SoundCategory.MUSIC);
-			((IMusicTickerMixin) Minecraft.getMinecraft().getMusicTicker()).npcs$setCurrentMusic(null);
 			aType = ISound.AttenuationType.NONE;
 			x = mc.player != null ? (float) mc.player.posX : 0.0f;
 			y = mc.player != null ? (float) mc.player.posY + 0.5f : 0.0f;
@@ -142,8 +142,7 @@ public class MusicController {
 	}
 
 	public boolean isBardPlaying(String song, boolean isStreamer) { // check Any Bards
-		return this.isPlaying(song) || (isStreamer ? !this.song.isEmpty() && this.isPlaying(this.song)
-				: !this.music.isEmpty() && this.isPlaying(this.music));
+		return isPlaying(song) || (isStreamer ? !song.isEmpty() && isPlaying(this.song) : !music.isEmpty() && isPlaying(this.music));
 	}
 
 	public boolean isPlaying(String music) {
@@ -153,7 +152,9 @@ public class MusicController {
 		ResourceLocation resource = new ResourceLocation(music);
 		SoundManager sm = ((ISoundHandlerMixin) Minecraft.getMinecraft().getSoundHandler()).npcs$getSndManager();
 		Map<String, ISound> playingSounds = ((ISoundManagerMixin) sm).npcs$getPlayingSounds();
-		if (playingSounds == null) { return false; }
+		if (playingSounds == null) {
+			return false;
+		}
 		for (ISound sound : playingSounds.values()) {
 			if (sound.getSound().getSoundLocation().equals(resource) || sound.getSoundLocation().equals(resource)) {
 				return true;

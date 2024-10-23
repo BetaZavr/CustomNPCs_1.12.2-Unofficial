@@ -153,8 +153,7 @@ public class ClientTickHandler {
         if (playingSounds != null) {
 			for (String uuid : playingSounds.keySet()) { // is played
 				try {
-					if (!this.nowPlayingSounds.containsKey(uuid)
-							|| !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
+					if (!this.nowPlayingSounds.containsKey(uuid) || !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
 						ISound sound = playingSounds.get(uuid);
 						if (sound.getCategory() == SoundCategory.MUSIC && !ClientTickHandler.musics.containsKey(sound)) {
 							ClientTickHandler.musics.put(sound, new MusicData(sound, uuid, sm));
