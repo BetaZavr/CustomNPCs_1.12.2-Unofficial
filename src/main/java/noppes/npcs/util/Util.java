@@ -21,6 +21,8 @@ import javax.script.ScriptException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import net.minecraft.pathfinding.Path;
+import net.minecraft.pathfinding.PathPoint;
 import noppes.npcs.*;
 
 import net.minecraft.block.state.IBlockState;
@@ -107,6 +109,7 @@ public class Util implements IMethods {
 		put(1000, "M");
 	}};
 	private static final Map<String, String> translateDate = new HashMap<>();
+	public static final double GRAVITY = 0.08d;
 
 	public final static Util instance = new Util();
 	public static boolean hasInternet = true;
@@ -1878,6 +1881,19 @@ public class Util implements IMethods {
 			LogWriter.error("Error trying to translate via Google", e);
 		}
 		return originalText;
+	}
+
+	public boolean canMoveEntityToEntity(EntityNPCInterface entity, EntityLivingBase entityTo) {
+		if (entity == null || entityTo == null) { return false; }
+		Path path = entity.getNavigator().getPathToEntityLiving(entityTo);
+		if (path == null) { return false; }
+		PathPoint pos = path.getFinalPathPoint();
+		if (pos == null) { return false; }
+		return Math.abs(entityTo.posX - (double) pos.x) <= 1.0 && Math.abs(entityTo.posY - (double) pos.y) < 2.0d && Math.abs(entityTo.posZ - (double) pos.z) <= 1.0d;
+	}
+
+	public void setParabolicJumpToPos(EntityLivingBase entity, BlockPos targetBlockPos) {
+		
 	}
 
 }

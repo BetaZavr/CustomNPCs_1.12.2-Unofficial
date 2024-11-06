@@ -97,7 +97,7 @@ public class EntityAIReturn extends EntityAIBase {
 
 	@Override
 	public boolean shouldContinueExecuting() {
-		return this.npc.getHealth() > 0 && !npc.isFollower() && !npc.isKilled() && !npc.isAttacking()
+		return npc.getHealth() > 0 && !npc.isFollower() && !npc.isKilled() && !npc.isAttacking() && !npc.advanced.jobInterface.isWorking()
 				&& !npc.isVeryNearAssignedPlace() && !npc.isInteracting() && !npc.isRiding()
 				&& (!npc.getNavigator().noPath() || !wasAttacked || isTooFar())
 				&& totalTicks <= EntityAIReturn.MaxTotalTicks;

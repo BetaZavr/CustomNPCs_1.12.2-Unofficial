@@ -16,6 +16,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -65,97 +66,56 @@ public class EntityProjectile extends EntityThrowable {
 	private static final DataParameter<Integer> Size = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.VARINT);
 	private static final DataParameter<Boolean> Sticks = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.BOOLEAN);
 	private static final DataParameter<Integer> Velocity = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.VARINT);
-	public boolean accelerate;
+
+	protected boolean inGround = false;
+	public boolean accelerate = false;
+	public boolean canBePickedUp = false;
+	public boolean destroyedOnEntityHit = true;
+	public boolean explosiveDamage = true;
+	private int inData = 0;
+	private int ticksInGround;
+	public int accuracy = 60;
+	public int amplify = 0;
+	public int arrowShake = 0;
+	public int duration = 5;
+	public int effect = 0;
+	public int explosiveRadius = 0;
+	public int punch = 0; // knockback
+	public int throwableShake = 0;
+	public int ticksInAir = 0;
+	public float damage = 5.0f;
 	private double accelerationX;
 	private double accelerationY;
 	private double accelerationZ;
-	public int accuracy;
-	public int amplify;
-	public int arrowShake;
-	public IProjectileCallback callback;
-	public boolean canBePickedUp;
-	public float damage;
-	public boolean destroyedOnEntityHit;
-	public int duration;
-	public int effect;
-	public boolean explosiveDamage;
-	public int explosiveRadius;
-	private int inData;
-	protected boolean inGround;
 	private Block inTile;
 	private EntityNPCInterface npc;
-	public int punch;
-	public List<ScriptContainer> scripts;
-	public int throwableShake;
-	private EntityLivingBase thrower;
-	private String throwerName;
-	public int ticksInAir;
-	private int ticksInGround;
+	public List<ScriptContainer> scripts = new ArrayList<>();
+	public IProjectileCallback callback;
+	private EntityLivingBase thrower = null;
+	private String throwerName = null;
 
-	private BlockPos tilePos;
+	private BlockPos tilePos = BlockPos.ORIGIN;
 
 	public EntityProjectile(World world) {
 		super(world);
-		this.tilePos = BlockPos.ORIGIN;
-		this.inGround = false;
-		this.inData = 0;
-		this.throwableShake = 0;
-		this.arrowShake = 0;
-		this.canBePickedUp = false;
-		this.destroyedOnEntityHit = true;
-		this.throwerName = null;
-		this.ticksInAir = 0;
-		this.damage = 5.0f;
-		this.punch = 0;
-		this.accelerate = false;
-		this.explosiveDamage = true;
-		this.explosiveRadius = 0;
-		this.effect = 0;
-		this.duration = 5;
-		this.amplify = 0;
-		this.accuracy = 60;
-		this.scripts = new ArrayList<>();
 		this.setSize(0.25f, 0.25f);
 	}
 
 	public EntityProjectile(World world, EntityLivingBase thrower, ItemStack item, boolean isNPC) {
 		super(world);
-		this.tilePos = BlockPos.ORIGIN;
-		this.inGround = false;
-		this.inData = 0;
-		this.throwableShake = 0;
-		this.arrowShake = 0;
-		this.canBePickedUp = false;
-		this.destroyedOnEntityHit = true;
-		this.throwerName = null;
-		this.ticksInAir = 0;
-		this.damage = 5.0f;
-		this.punch = 0;
-		this.accelerate = false;
-		this.explosiveDamage = true;
-		this.explosiveRadius = 0;
-		this.effect = 0;
-		this.duration = 5;
-		this.amplify = 0;
-		this.accuracy = 60;
-		this.scripts = new ArrayList<>();
 		this.thrower = thrower;
-		if (this.thrower != null) {
-			this.throwerName = this.thrower.getUniqueID().toString();
-		}
-		this.setThrownItem(item);
-		this.dataManager.set(EntityProjectile.Arrow, (this.getItem() == Items.ARROW));
-		this.setSize(this.getSize() / 10.0f, this.getSize() / 10.0f);
-		if (thrower != null) {
-			this.setLocationAndAngles(thrower.posX, thrower.posY + thrower.getEyeHeight(),  thrower.posZ, thrower.rotationYaw, thrower.rotationPitch);
-		}
-		this.posX -= MathHelper.cos(this.rotationYaw / 180.0f * 3.1415927f) * 0.1f;
-		this.posY -= 0.10000000149011612;
-		this.posZ -= MathHelper.sin(this.rotationYaw / 180.0f * 3.1415927f) * 0.1f;
-		this.setPosition(this.posX, this.posY, this.posZ);
-		if (isNPC) {
-			this.npc = (EntityNPCInterface) this.thrower;
-			this.getStatProperties(this.npc.stats.ranged);
+		if (thrower != null) { throwerName = thrower.getUniqueID().toString(); }
+		setThrownItem(item);
+		dataManager.set(EntityProjectile.Arrow, getItem() instanceof ItemArrow);
+		setSize(getSize() / 10.0f, getSize() / 10.0f);
+		if (thrower != null) { setLocationAndAngles(thrower.posX, thrower.posY + thrower.getEyeHeight(),  thrower.posZ, thrower.rotationYaw, thrower.rotationPitch); }
+		posX -= MathHelper.cos(this.rotationYaw / 180.0f * 3.1415927f) * 0.1f;
+		posY -= 0.10000000149011612;
+		posZ -= MathHelper.sin(this.rotationYaw / 180.0f * 3.1415927f) * 0.1f;
+		setPosition(this.posX, this.posY, this.posZ);
+		if (isNPC && thrower != null) {
+			npc = (EntityNPCInterface) thrower;
+			getStatProperties(npc.stats.ranged);
 		}
 	}
 
@@ -259,21 +219,21 @@ public class EntityProjectile extends EntityThrowable {
 	}
 
 	public void getStatProperties(DataRanged stats) {
-		this.damage = stats.getStrength();
-		this.punch = stats.getKnockback();
-		this.accelerate = stats.getAccelerate();
-		this.explosiveRadius = stats.getExplodeSize();
-		this.effect = stats.getEffectType();
-		this.duration = stats.getEffectTime();
-		this.amplify = stats.getEffectStrength();
-		this.setParticleEffect(stats.getParticle());
-		this.dataManager.set(EntityProjectile.Size, stats.getSize());
-		this.dataManager.set(EntityProjectile.Glows, stats.getGlows());
-		this.setSpeed(stats.getSpeed());
-		this.setHasGravity(stats.getHasGravity());
-		this.setIs3D(stats.getRender3D());
-		this.setRotating(stats.getSpins());
-		this.setStickInWall(stats.getSticks());
+		damage = stats.getStrength();
+		punch = stats.getKnockback();
+		accelerate = stats.getAccelerate();
+		explosiveRadius = stats.getExplodeSize();
+		effect = stats.getEffectType();
+		duration = stats.getEffectTime();
+		amplify = stats.getEffectStrength();
+		setParticleEffect(stats.getParticle());
+		dataManager.set(EntityProjectile.Size, stats.getSize());
+		dataManager.set(EntityProjectile.Glows, stats.getGlows());
+		setSpeed(stats.getSpeed());
+		setHasGravity(stats.getHasGravity());
+		setIs3D(stats.getRender3D());
+		setRotating(stats.getSpins());
+		setStickInWall(stats.getSticks());
 	}
 
 	public EntityLivingBase getThrower() {
@@ -355,13 +315,9 @@ public class EntityProjectile extends EntityThrowable {
 		}
 		if (movingobjectposition.entityHit != null) {
 			float damage = this.damage;
-			if (damage == 0.0f) {
-				damage = 0.001f;
-			}
-			if (movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, this.getThrower()),
-					damage)) {
-				if (movingobjectposition.entityHit instanceof EntityLivingBase
-						&& (this.isArrow() || this.sticksToWalls())) {
+			if (damage == 0.0f) { damage = 0.001f; }
+			if (movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), damage)) {
+				if (movingobjectposition.entityHit instanceof EntityLivingBase && (this.isArrow() || this.sticksToWalls())) {
 					EntityLivingBase entityliving = (EntityLivingBase) movingobjectposition.entityHit;
 					if (!this.world.isRemote) {
 						entityliving.setArrowCountInEntity(entityliving.getArrowCountInEntity() + 1);
@@ -379,16 +335,9 @@ public class EntityProjectile extends EntityThrowable {
 						intArr = new int[] { Item.getIdFromItem(this.getItem()), this.getItemDisplay().getMetadata() };
 					}
 					for (int i = 0; i < 8; ++i) {
-						this.world.spawnParticle(EnumParticleTypes.ITEM_CRACK, this.posX, this.posY, this.posZ,
-								this.rand.nextGaussian() * 0.15, this.rand.nextGaussian() * 0.2,
-								this.rand.nextGaussian() * 0.15, intArr);
-					}
-				}
-				if (this.punch > 0) {
-					float f3 = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
-					if (f3 > 0.0f) {
-						movingobjectposition.entityHit.addVelocity(this.motionX * this.punch * 0.6000000238418579 / f3,
-								0.1, this.motionZ * this.punch * 0.6000000238418579 / f3);
+						world.spawnParticle(EnumParticleTypes.ITEM_CRACK, posX, posY, posZ,
+								rand.nextGaussian() * 0.15, rand.nextGaussian() * 0.2,
+								rand.nextGaussian() * 0.15, intArr);
 					}
 				}
 				if (this.effect != 0 && movingobjectposition.entityHit instanceof EntityLivingBase) {

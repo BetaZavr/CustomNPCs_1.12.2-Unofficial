@@ -4,7 +4,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import noppes.npcs.CustomNpcs;
@@ -114,7 +113,13 @@ public class EntityAICustom extends EntityAIBase {
 
 	protected void tryMoveToTarget() {
 		if (!CustomNpcs.ShowCustomAnimation || !npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES)) {
-			npc.getNavigator().tryMoveToEntityLiving(target, 1.3d);
+			double baseSpeed = npc.ais.canSprint ? 2.0d : 1.3d;
+			if (target.equals(npc.combatHandler.priorityTarget)) { baseSpeed = npc.ais.canSprint ? 2.3d : 1.7d; }
+			double dist = npc.getDistance(target.posX, target.posY, target.posZ);
+			double speed = (0.75d / (double) npc.stats.aggroRange * dist + 0.5d) * baseSpeed;
+			if (speed < 1.3d) { speed = 1.3d; }
+			else if (speed > baseSpeed) { speed = baseSpeed; }
+			npc.getNavigator().tryMoveToEntityLiving(target, speed);
 		}
 	}
 

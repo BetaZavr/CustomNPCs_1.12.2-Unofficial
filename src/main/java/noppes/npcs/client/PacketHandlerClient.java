@@ -1123,8 +1123,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				Entity npc = player.world.getEntityByID(buffer.readInt());
 				if (npc instanceof EntityNPCInterface) {
 					int lookId = buffer.readInt();
-					if (lookId < 0) { ((EntityNPCInterface) npc).lookat = null; }
-					else { ((EntityNPCInterface) npc).lookat = player.world.getEntityByID(lookId); }
+					if (lookId < 0) { ((EntityNPCInterface) npc).lookAt = null; }
+					else { ((EntityNPCInterface) npc).lookAt = player.world.getEntityByID(lookId); }
 				}
 			}
 		} else if (type == EnumPacketClient.EVENT_NAMES) {

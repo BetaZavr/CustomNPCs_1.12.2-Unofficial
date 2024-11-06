@@ -1792,6 +1792,7 @@ property.healthnormal.hover=Minimum and maximum NPC health for level 1 and maxim
 property.hovercolor.hover=The color of the text of elements in the mod's GUI when the mouse cursor is on the element
 property.icemeltsenabled.hover=Enables ice melting
 property.inventoryguienabled.hover=Show faction, quest and compass tabs in player inventory
+property.knockbackbasepower.hover=Percentage of knockback power of all entities in the game when dealing damage or blocking
 property.lablecolor.hover=Text color in the mod GUI
 property.leavesdecayenabled.hover=Enables leaf rot
 property.mailcostsendingletter.hover=The cost of sending a letter in game currency. [basic submission, one page, one stack of items, currency percentage, redemption percentage]

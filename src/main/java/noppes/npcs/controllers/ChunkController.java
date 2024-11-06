@@ -15,27 +15,26 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class ChunkController implements ForgeChunkManager.LoadingCallback {
 	public static ChunkController instance;
-	private HashMap<Entity, ForgeChunkManager.Ticket> tickets;
+	private final HashMap<Entity, ForgeChunkManager.Ticket> tickets = new HashMap<>();
 
 	public ChunkController() {
-		this.tickets = new HashMap<>();
 		ChunkController.instance = this;
 	}
 
 	public void clear() {
-		this.tickets = new HashMap<>();
+		tickets.clear();
 	}
 
 	public void deleteNPC(EntityNPCInterface npc) {
-		ForgeChunkManager.Ticket ticket = this.tickets.get(npc);
+		ForgeChunkManager.Ticket ticket = tickets.get(npc);
 		if (ticket != null) {
-			this.tickets.remove(npc);
+			tickets.remove(npc);
 			ForgeChunkManager.releaseTicket(ticket);
 		}
 	}
 
 	public ForgeChunkManager.Ticket getTicket(EntityNPCInterface npc) {
-		ForgeChunkManager.Ticket ticket = this.tickets.get(npc);
+		ForgeChunkManager.Ticket ticket = tickets.get(npc);
 		if (ticket != null) {
 			return ticket;
 		}
@@ -48,12 +47,16 @@ public class ChunkController implements ForgeChunkManager.LoadingCallback {
 		}
 		ticket.bindEntity(npc);
 		ticket.setChunkListDepth(6);
-		this.tickets.put(npc, ticket);
+		tickets.put(npc, ticket);
 		return null;
 	}
 
 	public int size() {
-		return this.tickets.size();
+		return tickets.size();
+	}
+
+	public boolean hasToNpc(EntityNPCInterface npc) {
+		return tickets.containsKey(npc);
 	}
 
 	@SuppressWarnings("unlikely-arg-type")
@@ -80,14 +83,14 @@ public class ChunkController implements ForgeChunkManager.LoadingCallback {
 	}
 
 	public void unload(int toRemove) {
-		Iterator<Entity> ite = this.tickets.keySet().iterator();
+		Iterator<Entity> ite = tickets.keySet().iterator();
 		int i = 0;
 		while (ite.hasNext()) {
 			if (i >= toRemove) {
 				return;
 			}
 			Entity entity = ite.next();
-			ForgeChunkManager.releaseTicket(this.tickets.get(entity));
+			ForgeChunkManager.releaseTicket(tickets.get(entity));
 			ite.remove();
 			++i;
 		}

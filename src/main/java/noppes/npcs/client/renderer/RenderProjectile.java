@@ -10,7 +10,11 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumBlockRenderType;
@@ -57,72 +61,85 @@ public class RenderProjectile<T extends Entity> extends Render<T> {
 		ItemStack item = projectile.getItemDisplay();
 		GlStateManager.scale(scale, scale, scale);
 		if (projectile.isArrow()) {
-			this.bindEntityTexture((T) projectile);
-			GlStateManager.rotate(projectile.prevRotationYaw + (projectile.rotationYaw - projectile.prevRotationYaw) * partialTicks - 90.0f, 0.0f, 1.0f, 0.0f);
-			GlStateManager.rotate(
-					projectile.prevRotationPitch + (projectile.rotationPitch - projectile.prevRotationPitch) * partialTicks, 0.0f, 0.0f, 1.0f);
-			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder BufferBuilder = tessellator.getBuffer();
-			float f = 0.0f;
-			float f2 = 0.5f;
-			float f3 = 0.0f;
-			float f4 = 5.0f / 32.0f;
-			float f5 = 0.0f;
-			float f6 = 0.15625f;
-			float f7 = 5.0f / 32.0f;
-			float f8 = 10.0f / 32.0f;
-			float f9 = 0.05625f;
+			EntityArrow arrow = null;
+			Render<Entity> render = null;
+			if (item.getItem() instanceof ItemArrow) {
+				arrow = ((ItemArrow) item.getItem()).createArrow(mc.world, item, mc.player);
+				render = mc.getRenderManager().getEntityClassRenderObject(arrow.getClass());
+			}
+			if (arrow == null) {
+				this.bindEntityTexture((T) projectile);
+				GlStateManager.rotate(projectile.prevRotationYaw + (projectile.rotationYaw - projectile.prevRotationYaw) * partialTicks - 90.0f, 0.0f, 1.0f, 0.0f);
+				GlStateManager.rotate(projectile.prevRotationPitch + (projectile.rotationPitch - projectile.prevRotationPitch) * partialTicks, 0.0f, 0.0f, 1.0f);
+			}
 			GlStateManager.enableRescaleNormal();
 			float f10 = projectile.arrowShake - partialTicks;
 			if (f10 > 0.0f) {
 				float f11 = -MathHelper.sin(f10 * 3.0f) * f10;
 				GlStateManager.rotate(f11, 0.0f, 0.0f, 1.0f);
 			}
-			GlStateManager.rotate(45.0f, 1.0f, 0.0f, 0.0f);
-			GlStateManager.scale(f9, f9, f9);
-			GlStateManager.translate(-4.0f, 0.0f, 0.0f);
 			if (this.renderOutlines) {
 				GlStateManager.enableColorMaterial();
 				GlStateManager.enableOutlineMode(this.getTeamColor((T) projectile));
 			}
-			GlStateManager.glNormal3f(f9, 0.0f, 0.0f);
-			BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-			BufferBuilder.pos(-7.0, -2.0, -2.0).tex(f5, f7).endVertex();
-			BufferBuilder.pos(-7.0, -2.0, 2.0).tex(f6, f7).endVertex();
-			BufferBuilder.pos(-7.0, 2.0, 2.0).tex(f6, f8).endVertex();
-			BufferBuilder.pos(-7.0, 2.0, -2.0).tex(f5, f8).endVertex();
-			tessellator.draw();
-			GlStateManager.glNormal3f(-f9, 0.0f, 0.0f);
-			BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-			BufferBuilder.pos(-7.0, 2.0, -2.0).tex(f5, f7).endVertex();
-			BufferBuilder.pos(-7.0, 2.0, 2.0).tex(f6, f7).endVertex();
-			BufferBuilder.pos(-7.0, -2.0, 2.0).tex(f6, f8).endVertex();
-			BufferBuilder.pos(-7.0, -2.0, -2.0).tex(f5, f8).endVertex();
-			tessellator.draw();
-			for (int j = 0; j < 4; ++j) {
-				GlStateManager.rotate(90.0f, 1.0f, 0.0f, 0.0f);
-				GlStateManager.glNormal3f(0.0f, 0.0f, f9);
+			if (arrow != null) {
+				arrow.rotationYaw = projectile.rotationYaw;
+				arrow.prevRotationYaw = projectile.prevRotationYaw;
+				arrow.rotationPitch = projectile.rotationPitch;
+				arrow.prevRotationPitch = projectile.prevRotationPitch;
+				GlStateManager.scale(2.0f, 2.0f, 2.0f);
+				render.doRender(arrow, 0.0d, 0.0d, 0.0d, 0.0f, 0.0f);
+			} else {
+				float f = 0.0f;
+				float f2 = 0.5f;
+				float f3 = 0.0f;
+				float f4 = 5.0f / 32.0f;
+				float f5 = 0.0f;
+				float f6 = 0.15625f;
+				float f7 = 5.0f / 32.0f;
+				float f8 = 10.0f / 32.0f;
+				float f9 = 0.05625f;
+				GlStateManager.rotate(45.0f, 1.0f, 0.0f, 0.0f);
+				GlStateManager.scale(f9, f9, f9);
+				GlStateManager.translate(-4.0f, 0.0f, 0.0f);
+
+				GlStateManager.glNormal3f(f9, 0.0f, 0.0f);
+				Tessellator tessellator = Tessellator.getInstance();
+				BufferBuilder BufferBuilder = tessellator.getBuffer();
 				BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-				BufferBuilder.pos(-8.0, -2.0, 0.0).tex(f, f3).endVertex();
-				BufferBuilder.pos(8.0, -2.0, 0.0).tex(f2, f3).endVertex();
-				BufferBuilder.pos(8.0, 2.0, 0.0).tex(f2, f4).endVertex();
-				BufferBuilder.pos(-8.0, 2.0, 0.0).tex(f, f4).endVertex();
+				BufferBuilder.pos(-7.0, -2.0, -2.0).tex(f5, f7).endVertex();
+				BufferBuilder.pos(-7.0, -2.0, 2.0).tex(f6, f7).endVertex();
+				BufferBuilder.pos(-7.0, 2.0, 2.0).tex(f6, f8).endVertex();
+				BufferBuilder.pos(-7.0, 2.0, -2.0).tex(f5, f8).endVertex();
 				tessellator.draw();
+				GlStateManager.glNormal3f(-f9, 0.0f, 0.0f);
+				BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+				BufferBuilder.pos(-7.0, 2.0, -2.0).tex(f5, f7).endVertex();
+				BufferBuilder.pos(-7.0, 2.0, 2.0).tex(f6, f7).endVertex();
+				BufferBuilder.pos(-7.0, -2.0, 2.0).tex(f6, f8).endVertex();
+				BufferBuilder.pos(-7.0, -2.0, -2.0).tex(f5, f8).endVertex();
+				tessellator.draw();
+				for (int j = 0; j < 4; ++j) {
+					GlStateManager.rotate(90.0f, 1.0f, 0.0f, 0.0f);
+					GlStateManager.glNormal3f(0.0f, 0.0f, f9);
+					BufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+					BufferBuilder.pos(-8.0, -2.0, 0.0).tex(f, f3).endVertex();
+					BufferBuilder.pos(8.0, -2.0, 0.0).tex(f2, f3).endVertex();
+					BufferBuilder.pos(8.0, 2.0, 0.0).tex(f2, f4).endVertex();
+					BufferBuilder.pos(-8.0, 2.0, 0.0).tex(f, f4).endVertex();
+					tessellator.draw();
+				}
 			}
 			if (this.renderOutlines) {
 				GlStateManager.disableOutlineMode();
 				GlStateManager.disableColorMaterial();
 			}
-		} else if (projectile.is3D()) {
-			GlStateManager.rotate(projectile.prevRotationYaw
-					+ (projectile.rotationYaw - projectile.prevRotationYaw) * partialTicks - 180.0f, 0.0f, 1.0f, 0.0f);
-			GlStateManager.rotate(
-					projectile.prevRotationPitch
-							+ (projectile.rotationPitch - projectile.prevRotationPitch) * partialTicks,
-					1.0f, 0.0f, 0.0f);
+		}
+		else if (projectile.is3D()) {
+			GlStateManager.rotate(projectile.prevRotationYaw + (projectile.rotationYaw - projectile.prevRotationYaw) * partialTicks - 180.0f, 0.0f, 1.0f, 0.0f);
+			GlStateManager.rotate(projectile.prevRotationPitch + (projectile.rotationPitch - projectile.prevRotationPitch) * partialTicks, 1.0f, 0.0f, 0.0f);
 			GlStateManager.translate(0.0, -0.125, 0.25);
-			if (item.getItem() instanceof ItemBlock && Block.getBlockFromItem(item.getItem()).getDefaultState()
-					.getRenderType() == EnumBlockRenderType.ENTITYBLOCK_ANIMATED) {
+			if (item.getItem() instanceof ItemBlock && Block.getBlockFromItem(item.getItem()).getDefaultState().getRenderType() == EnumBlockRenderType.ENTITYBLOCK_ANIMATED) {
 				GlStateManager.translate(0.0f, 0.1875f, -0.3125f);
 				GlStateManager.rotate(20.0f, 1.0f, 0.0f, 0.0f);
 				GlStateManager.rotate(45.0f, 0.0f, 1.0f, 0.0f);
@@ -144,7 +161,8 @@ public class RenderProjectile<T extends Entity> extends Render<T> {
 			} else {
 				mc.getRenderItem().renderItem(new ItemStack(Blocks.DIRT), ItemCameraTransforms.TransformType.GROUND);
 			}
-		} else {
+		}
+		else {
 			GlStateManager.enableRescaleNormal();
 			GlStateManager.scale(0.5f, 0.5f, 0.5f);
 			GlStateManager.rotate(-this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);

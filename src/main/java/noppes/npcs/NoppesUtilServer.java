@@ -122,14 +122,14 @@ public class NoppesUtilServer {
 
 	public static Entity GetDamageSource(DamageSource damagesource) {
 		Entity entity = damagesource.getTrueSource();
-		if (entity == null) {
-			entity = damagesource.getImmediateSource();
-		}
+		if (entity == null) { entity = damagesource.getImmediateSource(); }
 		if (entity instanceof EntityArrow && ((EntityArrow) entity).shootingEntity instanceof EntityLivingBase) {
 			entity = ((EntityArrow) entity).shootingEntity;
-		} else if (entity instanceof EntityThrowable) {
+		}
+		else if (entity instanceof EntityThrowable) {
 			entity = ((EntityThrowable) entity).getThrower();
 		}
+		if (entity == null && damagesource.getTrueSource() != null) { entity = damagesource.getTrueSource(); }
 		return entity;
 	}
 

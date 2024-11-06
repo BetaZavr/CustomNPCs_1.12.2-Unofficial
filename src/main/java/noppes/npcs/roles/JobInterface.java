@@ -62,6 +62,11 @@ public class JobInterface implements INPCJob {
 		return type.get();
 	}
 
+	@Override
+	public boolean isWorking() {
+		return false;
+	}
+
 	public boolean isFollowing() {
 		return false;
 	}

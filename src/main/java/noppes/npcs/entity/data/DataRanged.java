@@ -9,42 +9,39 @@ import noppes.npcs.util.ValueUtil;
 
 public class DataRanged implements INPCRanged {
 
-	private boolean aimWhileShooting, pGlows, pPhysics, pRender3D, pSpin, pStick, pXlr8;
-	private int accuracy, burstCount, canFireIndirect, fireRate, maxDelay, meleeDistance, minDelay, pImpact, pArea,
-			pDamage, pDur, pEffAmp, pEffect, pSize, pSpeed, pTrail, shotCount;
-	private double rangedRange;
-	private String fireSound, groundSound, hitSound;
+	private static final int version = 1;
+
+	private boolean aimWhileShooting = false;
+	private boolean pGlows = false;
+	private boolean pPhysics = true;
+	private boolean pRender3D = true;
+	private boolean pSpin = false;
+	private boolean pStick = false;
+	private boolean pXlr8 = false;
+	private int accuracy = 60;
+	private int burstCount = 1;
+	private int canFireIndirect = 0;
+	private int fireRate = 5;
+	private int maxDelay = 40;
+	private int meleeDistance = 0;
+	private int minDelay = 20;
+	private int pImpact = 0; // knockback
+	private int pArea = 0;
+	private int pDamage = 4;
+	private int pDur = 5;
+	private int pEffAmp = 0;
+	private int pEffect = 0;
+	private int pSize = 5;
+	private int pSpeed = 10;
+	private int pTrail = 0;
+	private int shotCount = 1;
+	private double rangedRange = 15.0d;
+	private String fireSound = "minecraft:entity.arrow.shoot";
+	private String groundSound = "minecraft:block.stone.break";
+	private String hitSound = "minecraft:entity.arrow.hit";
 	private final EntityNPCInterface npc;
 
 	public DataRanged(EntityNPCInterface npc) {
-		this.burstCount = 1;
-		this.pDamage = 4;
-		this.pSpeed = 10;
-		this.pImpact = 0;
-		this.pSize = 5;
-		this.pArea = 0;
-		this.pTrail = 0;
-		this.minDelay = 20;
-		this.maxDelay = 40;
-		this.rangedRange = 15.0d;
-		this.fireRate = 5;
-		this.shotCount = 1;
-		this.accuracy = 60;
-		this.meleeDistance = 0;
-		this.canFireIndirect = 0;
-		this.pRender3D = true;
-		this.pSpin = false;
-		this.pStick = false;
-		this.pPhysics = true;
-		this.pXlr8 = false;
-		this.pGlows = false;
-		this.aimWhileShooting = false;
-		this.pEffect = 0;
-		this.pDur = 5;
-		this.pEffAmp = 0;
-		this.fireSound = "minecraft:entity.arrow.shoot";
-		this.hitSound = "minecraft:entity.arrow.hit";
-		this.groundSound = "minecraft:block.stone.break";
 		this.npc = npc;
 	}
 
@@ -208,6 +205,10 @@ public class DataRanged implements INPCRanged {
 		this.pSpeed = compound.getInteger("pSpeed");
 		this.burstCount = compound.getInteger("BurstCount");
 		this.pImpact = compound.getInteger("pImpact");
+		if (version != compound.getInteger("version")) {
+			int v = compound.getInteger("version");
+			if (v < 1) { pImpact++; }
+		}
 		this.pSize = compound.getInteger("pSize");
 		this.pArea = compound.getInteger("pArea");
 		this.pTrail = compound.getInteger("pTrail");
@@ -399,6 +400,7 @@ public class DataRanged implements INPCRanged {
 		compound.setString("GroundSound", this.groundSound);
 		compound.setInteger("FireIndirect", this.canFireIndirect);
 		compound.setInteger("DistanceToMelee", this.meleeDistance);
+		compound.setInteger("version", version);
 		return compound;
 	}
 }

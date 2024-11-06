@@ -46,35 +46,28 @@ public class JobConversation extends JobInterface implements IJobConversation {
 		}
 	}
 
-	public Availability availability;
-	public int generalDelay;
-	private boolean hasStarted;
-	public HashMap<Integer, ConversationLine> lines;
-	public int mode;
-	private final ArrayList<String> names;
+	public Availability availability = new Availability();
+	public int generalDelay = 400;
+	private boolean hasStarted = false;
+	public HashMap<Integer, ConversationLine> lines = new HashMap<>();
+	public int mode = 0;
+	private final ArrayList<String> names = new ArrayList<>();
 	private ConversationLine nextLine;
-	private final HashMap<String, EntityNPCInterface> npcs;
-	public int quest;
-	public String questTitle;
-	public int range;
-	private int startedTicks;
-	public int ticks;
+	private final HashMap<String, EntityNPCInterface> npcs = new HashMap<>();
+	public int quest = -1;
+	public String questTitle = "";
+	public int range = 20;
+	private int startedTicks = 20;
+	public int ticks = 100;
 
 	public JobConversation(EntityNPCInterface npc) {
 		super(npc);
-		this.availability = new Availability();
-		this.names = new ArrayList<>();
-		this.npcs = new HashMap<>();
-		this.lines = new HashMap<>();
-		this.quest = -1;
-		this.questTitle = "";
-		this.generalDelay = 400;
-		this.ticks = 100;
-		this.range = 20;
-		this.hasStarted = false;
-		this.startedTicks = 20;
-		this.mode = 0;
 		this.type = JobType.CONVERSATION;
+	}
+
+	@Override
+	public boolean isWorking() {
+		return hasStarted;
 	}
 
 	@Override
@@ -92,13 +85,12 @@ public class JobConversation extends JobInterface implements IJobConversation {
 		if (this.lines.isEmpty() || this.npc.isKilled() || this.npc.isAttacking() || !this.shouldRun()) {
 			return false;
 		}
-		if (!this.hasStarted && this.mode == 1) {
-			if (this.startedTicks-- > 0) {
+		if (!hasStarted && mode == 1) {
+			if (startedTicks-- > 0) {
 				return false;
 			}
-			this.startedTicks = 10;
-			if (this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
-					this.npc.getEntityBoundingBox().grow(this.range, this.range, this.range)).isEmpty()) {
+			startedTicks = 10;
+			if (npc.world.getEntitiesWithinAABB(EntityPlayer.class, npc.getEntityBoundingBox().grow(range, range, range)).isEmpty()) {
 				return false;
 			}
 		}

@@ -22,7 +22,6 @@ import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.recipebook.RecipeList;
@@ -222,7 +221,6 @@ import noppes.npcs.mixin.client.resources.II18nMixin;
 import noppes.npcs.mixin.client.resources.ILanguageManagerMixin;
 import noppes.npcs.mixin.client.settings.IKeyBindingMixin;
 import noppes.npcs.mixin.client.settings.IKeyBindingForgeMixin;
-import noppes.npcs.mixin.util.text.translation.IOldI18nMixin;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.util.Util;
@@ -338,7 +336,6 @@ public class ClientProxy extends CommonProxy {
 		// localization in game data
 		//net.minecraft.client.resources.I18n
 		Map<String, String> properties = ((II18nMixin) new net.minecraft.client.resources.I18n()).npcs$getProperties();
-		Map<String, String> oldLanguageList = ((IOldI18nMixin) new net.minecraft.util.text.translation.I18n()).npcs$getLocalizedName();
 
 		// custom lang files:
 		String currentLanguage = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
@@ -352,7 +349,6 @@ public class ClientProxy extends CommonProxy {
 						if (line.startsWith("#") || !line.contains("=")) { continue; }
 						String[] vk = line.split("=");
 						properties.put(vk[0], vk[1]);
-						oldLanguageList.put(vk[0], vk[1]);
 					}
 					reader.close();
 				} catch (IOException e) { LogWriter.error("Error load custom localization", e); }
@@ -1383,7 +1379,7 @@ public class ClientProxy extends CommonProxy {
 				if (npc != null) {
 					return new GuiNpcDisplay(npc);
 				}
-				this.getPlayer().sendMessage(new TextComponentString("Unable to find npc"));
+				getPlayer().sendMessage(new TextComponentString(Util.instance.translateGoogle(getPlayer(), "Unable to find npc")));
 			}
 			case MainMenuStats: {
 				return npc == null ? null : new GuiNpcStats(npc);
@@ -1965,8 +1961,8 @@ public class ClientProxy extends CommonProxy {
 		if (!RecipeBookClient.RECIPES_BY_TAB.containsKey(tab)) {
 			RecipeList recipelist = new RecipeList();
 			RecipeBookClient.ALL_RECIPES.add(recipelist);
-			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(tab, (hasRecipeList) -> org.spongepowered.include.com.google.common.collect.Lists.newArrayList())).add(recipelist);
-			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (hasRecipeList) -> org.spongepowered.include.com.google.common.collect.Lists.newArrayList())).add(recipelist);
+			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(tab, (hasRecipeList) -> new ArrayList<>())).add(recipelist);
+			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (hasRecipeList) -> new ArrayList<>())).add(recipelist);
 		}
 		RecipeList recipeList = null;
 		boolean isWork = false; // add or copy or remove

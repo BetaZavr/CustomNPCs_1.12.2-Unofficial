@@ -58,11 +58,15 @@ public class JobBuilder extends JobInterface implements IJobBuilder {
 	}
 
 	@Override
+	public boolean isWorking() {
+		return build == null || (build.finished && placingList == null) || !build.enabled || build.isInvalid();
+	}
+
+	@Override
 	public void aiUpdateTask() {
-		if ((this.build.finished && this.placingList == null) || !this.build.enabled || this.build.isInvalid()) {
-			this.build = null;
-			this.npc.getNavigator().tryMoveToXYZ(this.npc.getStartXPos(), this.npc.getStartYPos(),
-					this.npc.getStartZPos(), 1.0);
+		if ((build.finished && placingList == null) || !build.enabled || build.isInvalid()) {
+			build = null;
+			npc.getNavigator().tryMoveToXYZ(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos(), 1.0);
 			return;
 		}
 		if (this.ticks++ < 10) {
@@ -83,14 +87,13 @@ public class JobBuilder extends JobInterface implements IJobBuilder {
 			this.tryTicks = 0;
 			this.npc.setJobData(this.blockToString(this.placing));
 		}
-		this.npc.getNavigator().tryMoveToXYZ(this.placing.pos.getX(), (this.placing.pos.getY() + 1),
-				this.placing.pos.getZ(), 1.0);
-		if (this.tryTicks++ > 40 || this.npc.nearPosition(this.placing.pos)) {
-			BlockPos blockPos = this.placing.pos;
-			this.placeBlock();
-			if (this.tryTicks > 40) {
+		npc.getNavigator().tryMoveToXYZ(placing.pos.getX(), (placing.pos.getY() + 1), placing.pos.getZ(), 1.0);
+		if (tryTicks++ > 40 || npc.nearPosition(placing.pos)) {
+			BlockPos blockPos = placing.pos;
+			placeBlock();
+			if (tryTicks > 40) {
 				blockPos = NoppesUtilServer.GetClosePos(blockPos, this.npc.world);
-				this.npc.setPositionAndUpdate(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
+				npc.setPositionAndUpdate(blockPos.getX() + 0.5, blockPos.getY(), blockPos.getZ() + 0.5);
 			}
 		}
 	}

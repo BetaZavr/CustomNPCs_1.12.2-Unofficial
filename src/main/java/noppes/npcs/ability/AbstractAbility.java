@@ -6,36 +6,29 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class AbstractAbility implements IAbility {
 
-	private long cooldown;
-	private final int cooldownTime;
-	public float maxHP;
-	public float minHP;
+	private long cooldown = 0L;
+	public float maxHP = 1.0f;
+	public float minHP = 1.0f;
 	protected EntityNPCInterface npc;
-	private final int startCooldownTime;
 
 	public AbstractAbility(EntityNPCInterface npc) {
-		this.cooldown = 0L;
-		this.cooldownTime = 10;
-		this.startCooldownTime = 10;
-		this.maxHP = 1.0f;
-		this.minHP = 0.0f;
 		this.npc = npc;
 	}
 
 	@Override
 	public boolean canRun(EntityLivingBase target) {
-		if (this.onCooldown()) {
+		if (onCooldown()) {
 			return false;
 		}
-		float f = this.npc.getHealth() / this.npc.getMaxHealth();
-		return f >= this.minHP && f <= this.maxHP
-				&& (this.getRNG() <= 1 || this.npc.getRNG().nextInt(this.getRNG()) == 0)
-				&& this.npc.canEntityBeSeen(target);
+		float f = npc.getHealth() / npc.getMaxHealth();
+		return f >= minHP && f <= maxHP
+				&& (getRNG() <= 1 || npc.getRNG().nextInt(getRNG()) == 0)
+				&& npc.canEntityBeSeen(target);
 	}
 
 	@Override
 	public void endAbility() {
-		this.cooldown = System.currentTimeMillis() + this.cooldownTime * 1000L;
+		cooldown = System.currentTimeMillis() + npc.ais.getMaxHurtResistantTime() * 1000L;
 	}
 
 	@Override
@@ -46,11 +39,11 @@ public abstract class AbstractAbility implements IAbility {
 	public abstract boolean isType(EnumAbilityType type);
 
 	private boolean onCooldown() {
-		return System.currentTimeMillis() < this.cooldown;
+		return System.currentTimeMillis() < cooldown;
 	}
 
 	@Override
 	public void startCombat() {
-		this.cooldown = System.currentTimeMillis() + this.startCooldownTime * 1000L;
+		cooldown = System.currentTimeMillis() + npc.ais.getMaxHurtResistantTime() * 1000L;
 	}
 }

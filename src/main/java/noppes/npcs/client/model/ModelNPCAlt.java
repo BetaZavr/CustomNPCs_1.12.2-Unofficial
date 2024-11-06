@@ -512,10 +512,10 @@ public class ModelNpcAlt extends ModelPlayer {
                     }
                 }
             }
-            else if (((EntityNPCInterface) entityIn).ais.getStandingType() == 4 && ((EntityNPCInterface) entityIn).lookat != null) {
-                double d0 = entityIn.posX - ((EntityNPCInterface) entityIn).lookat.posX;
-                double d1 = (entityIn.posY + (double) entityIn.getEyeHeight()) - (((EntityNPCInterface) entityIn).lookat.posY + (double) ((EntityNPCInterface) entityIn).lookat.getEyeHeight());
-                double d2 = entityIn.posZ - ((EntityNPCInterface) entityIn).lookat.posZ;
+            else if (((EntityNPCInterface) entityIn).ais.getStandingType() == 4 && ((EntityNPCInterface) entityIn).lookAt != null) {
+                double d0 = entityIn.posX - ((EntityNPCInterface) entityIn).lookAt.posX;
+                double d1 = (entityIn.posY + (double) entityIn.getEyeHeight()) - (((EntityNPCInterface) entityIn).lookAt.posY + (double) ((EntityNPCInterface) entityIn).lookAt.getEyeHeight());
+                double d2 = entityIn.posZ - ((EntityNPCInterface) entityIn).lookAt.posZ;
                 double d3 = MathHelper.sqrt(d0 * d0 + d2 * d2);
                 float yaw = MathHelper.wrapDegrees(((EntityNPCInterface) entityIn).rotationYawHead - (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F);
                 float pitch = MathHelper.wrapDegrees(entityIn.rotationPitch + (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI))));

@@ -8,23 +8,17 @@ import noppes.npcs.util.ValueUtil;
 
 public class DataMelee implements INPCMelee {
 
-	private double attackRange;
-	private int attackSpeed;
-	private int attackStrength;
-	private int knockback;
+	private static final int version = 1;
+	private double attackRange = 2.0d;
+	private int attackSpeed = 20;
+	private int attackStrength = 5;
+	private int knockback = 0;
 	private final EntityNPCInterface npc;
-	private int potionAmp;
-	private int potionDuration;
-	private int potionType;
+	private int potionAmp = 0;
+	private int potionDuration = 5;
+	private int potionType = 0;
 
 	public DataMelee(EntityNPCInterface npc) {
-		this.attackStrength = 5;
-		this.attackSpeed = 20;
-		this.attackRange = 2.0d;
-		this.knockback = 0;
-		this.potionType = 0;
-		this.potionDuration = 5;
-		this.potionAmp = 0;
 		this.npc = npc;
 	}
 
@@ -80,6 +74,10 @@ public class DataMelee implements INPCMelee {
 			this.attackRange = compound.getDouble("AttackRange");
 		}
 		this.knockback = compound.getInteger("KnockBack");
+		if (version != compound.getInteger("version")) {
+			int v = compound.getInteger("version");
+			if (v < 1) { knockback++; }
+		}
 		this.potionType = compound.getInteger("PotionEffect");
 		this.potionDuration = compound.getInteger("PotionDuration");
 		this.potionAmp = compound.getInteger("PotionAmp");
@@ -121,6 +119,7 @@ public class DataMelee implements INPCMelee {
 		compound.setInteger("PotionEffect", this.potionType);
 		compound.setInteger("PotionDuration", this.potionDuration);
 		compound.setInteger("PotionAmp", this.potionAmp);
+		compound.setInteger("version", version);
 		return compound;
 	}
 

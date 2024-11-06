@@ -4,4 +4,6 @@ public interface INPCJob {
 
 	int getType();
 
+    boolean isWorking();
+
 }

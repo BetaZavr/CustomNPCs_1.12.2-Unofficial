@@ -1,48 +1,47 @@
 package noppes.npcs.ai;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemShield;
 import net.minecraft.util.DamageSource;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.ability.AbstractAbility;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.mixin.entity.IEntityLivingBaseMixin;
+import noppes.npcs.util.RayTraceVec;
+import noppes.npcs.util.Util;
 
 public class CombatHandler {
 
-	public final Map<EntityLivingBase, Long> lastDamages = Maps.newHashMap();
-	public final Map<EntityLivingBase, Float> aggressors = Maps.newHashMap();
-	private int combatResetTimer;
+	public final Map<EntityLivingBase, Long> lastDamages = new HashMap<>();
+	public final Map<EntityLivingBase, Double> aggressors = new HashMap<>();
+	private int combatResetTimer = 0;
+	private int delay = 10;
 	private final EntityNPCInterface npc;
+	public EntityLivingBase priorityTarget = null;
 
 	public CombatHandler(EntityNPCInterface npc) {
-		this.combatResetTimer = 0;
 		this.npc = npc;
 	}
 
 	public boolean checkTarget() {
-		if (this.aggressors.isEmpty() || this.npc.ticksExisted % 10 != 0) {
-			return false;
-		}
-		EntityLivingBase target = this.npc.getAttackTarget();
-		Float current = 0.0f;
-
-		if (this.isValidTarget(target)) {
-			current = this.aggressors.get(target);
-			if (current == null) {
-				current = 0.0f;
-			}
+		if (aggressors.isEmpty() || npc.ticksExisted % 10 != 0) { return false; }
+		EntityLivingBase target = npc.getAttackTarget();
+		Double current = 0.0d;
+		if (isValidTarget(target)) {
+			current = aggressors.get(target);
+			if (current == null) { current = 0.0d; }
 		} else {
 			target = null;
 		}
-
-		for (Map.Entry<EntityLivingBase, Float> entry : this.aggressors.entrySet()) {
-			if (entry.getValue() > current && this.isValidTarget(entry.getKey())) {
+		for (Map.Entry<EntityLivingBase, Double> entry : aggressors.entrySet()) {
+			if (entry.getValue() > current && isValidTarget(entry.getKey())) {
 				current = entry.getValue();
 				target = entry.getKey();
 			}
@@ -50,72 +49,129 @@ public class CombatHandler {
 		return target == null;
 	}
 
-	public void damage(DamageSource source, float damageAmount) {
-		this.combatResetTimer = 0;
+	public void damage(DamageSource source, double damageAmount) {
+		combatResetTimer = 0;
 		Entity e = NoppesUtilServer.GetDamageSource(source);
-		if (e instanceof EntityLivingBase) {
-			EntityLivingBase el = (EntityLivingBase) e;
-			Float f = this.aggressors.get(el);
-			if (f == null) { f = 0.0f; }
-			this.aggressors.put(el, f + damageAmount);
-			this.lastDamages.put(el, this.npc.world.getTotalWorldTime());
+		if (!(e instanceof EntityLivingBase)) { return; }
+		EntityLivingBase attackingEntity = (EntityLivingBase) e;
+		// Minimum
+		if (damageAmount <= 0.25d) { damageAmount = 0.25d; }
+		// Distance
+		double dist = npc.getDistance(attackingEntity.posX, attackingEntity.posY, attackingEntity.posZ);
+		// Value
+		double newValue = damageAmount;
+		// further target, greater anger [5_block +0%; 32_blocks +25%]
+		if (dist > 5 && dist < 32) { newValue *= 0.009259d * dist + 0.953704d; }
+		// is player
+		if (attackingEntity instanceof EntityPlayer) { newValue *= 1.1d; }
+		// target is tank
+		if (attackingEntity.getHeldItemMainhand().getItem() instanceof ItemShield || attackingEntity.getHeldItemOffhand().getItem() instanceof ItemShield) {
+			newValue *= 1.2d;
 		}
+		// or target is a damage dealer
+		else if (source.isProjectile() || source.isMagicDamage()) { newValue *= 1.025d; }
+		// is current target
+		if (npc.getAttackTarget() != null && npc.getAttackTarget().equals(attackingEntity)) { newValue *= 1.05d; }
+		// add
+		Double oldValue = aggressors.get(attackingEntity);
+		if (oldValue == null) { oldValue = 0.0d; }
+		aggressors.put(attackingEntity, oldValue + newValue);
+		lastDamages.put(attackingEntity, npc.world.getTotalWorldTime());
+		if (priorityTarget == null) { priorityTarget = attackingEntity; }
 	}
 
 	public boolean isValidTarget(EntityLivingBase target) {
-		return target != null && target.isEntityAlive()
-				&& (!(target instanceof EntityPlayer) || !((EntityPlayer) target).capabilities.disableDamage)
-				&& this.npc.isInRange(target, this.npc.stats.aggroRange);
+		return target != null && target.isEntityAlive() &&
+				(!(target instanceof EntityPlayer) || !((EntityPlayer) target).capabilities.disableDamage) &&
+				npc.isInRange(target, npc.stats.aggroRange) &&
+				npc.world.provider.getDimension() == target.world.provider.getDimension();
 	}
 
 	public void reset() {
-		this.combatResetTimer = 0;
-		this.aggressors.clear();
-		this.lastDamages.clear();
-		this.npc.getDataManager().set(EntityNPCInterface.Attacking, false);
+		combatResetTimer = 0;
+		delay = 10;
+		aggressors.clear();
+		lastDamages.clear();
+		priorityTarget = null;
+		npc.getDataManager().set(EntityNPCInterface.Attacking, false);
 	}
 
 	private boolean shouldCombatContinue() {
-		return this.npc.getAttackTarget() != null && this.isValidTarget(this.npc.getAttackTarget());
+		return npc.getAttackTarget() != null && isValidTarget(npc.getAttackTarget());
 	}
 
 	public void start() {
-		this.combatResetTimer = 0;
-		this.npc.getDataManager().set(EntityNPCInterface.Attacking, true);
-		for (AbstractAbility ab : this.npc.abilities.abilities) {
+		combatResetTimer = 0;
+		npc.getDataManager().set(EntityNPCInterface.Attacking, true);
+		for (AbstractAbility ab : npc.abilities.abilities) {
 			ab.startCombat();
 		}
 	}
 
 	public void update() {
-		if (this.npc.isKilled()) {
-			if (this.npc.isAttacking()) {
-				this.reset();
+		if (npc.isKilled()) {
+			if (npc.isAttacking()) {
+				reset();
 			}
 			return;
 		}
-		if (this.npc.getAttackTarget() != null && !this.npc.isAttacking()) {
-			this.start();
-		}
-		if (!this.shouldCombatContinue()) {
-			if (this.combatResetTimer++ > 40) {
-				this.reset();
+		if (npc.getAttackTarget() != null && !npc.isAttacking()) { start(); }
+		if (!shouldCombatContinue()) {
+			if (combatResetTimer++ > 40) {
+				reset();
 			}
 			return;
 		}
-		this.combatResetTimer = 0;
+		combatResetTimer = 0;
+		if (aggressors.isEmpty()) {
+			delay = 10;
+			return;
+		}
+		delay--;
+		if (delay > 0) { return; }
+		delay = 10;
+		List<EntityLivingBase> del = new ArrayList<>();
+		double maxValue = Double.MIN_VALUE;
+		priorityTarget = null;
+		double maxDist = npc.stats.aggroRange * 2.0d;
+		double dist = 0.0d;
+		for (EntityLivingBase entity : aggressors.keySet()) {
+			if (!isValidTarget(entity)) {
+				del.add(entity);
+				continue;
+			}
+			if (!Util.instance.canMoveEntityToEntity(npc, entity)) { continue; }
+			double d = npc.getDistance(entity.posX, entity.posY, entity.posZ);
+			if (d > maxDist) { del.add(entity); }
+			if (maxValue == Double.MIN_VALUE || aggressors.get(entity) >= maxValue) {
+				maxValue = aggressors.get(entity);
+				priorityTarget = entity;
+				dist = d;
+			}
+		}
+		for (EntityLivingBase entity : del) { aggressors.remove(entity); }
+		// set priority target
+		if (priorityTarget != null && (npc.getAttackTarget() == null || !npc.getAttackTarget().equals(priorityTarget))) {
+			npc.setPriorityAttackTarget(priorityTarget);
+			npc.getNavigator().tryMoveToEntityLiving(priorityTarget, 1.5);
+			if (npc.ais.canLeap && Math.abs(npc.posY - priorityTarget.posY) < 3 && dist > 3.0d && dist <= (double) npc.stats.aggroRange / 2.0d) {
+				RayTraceVec fg = Util.instance.getVector3D(npc.posX, npc.posY, npc.posZ, priorityTarget.posX, priorityTarget.posY, priorityTarget.posZ);
+				System.out.println("CNPCs: "+fg.getX()+"; "+fg.getY()+"; "+fg.getZ());
+			}
+			delay = 60;
+		}
 	}
 
 	public boolean canDamage(DamageSource damagesource, float amount) {
 		Entity entity = NoppesUtilServer.GetDamageSource(damagesource);
 		if (!(entity instanceof EntityLivingBase)) {
-			if (this.npc.ais.getMaxHurtResistantTime() != 0 && this.npc.hurtResistantTime > this.npc.ais.getMaxHurtResistantTime() / 2.0F) {
-                return amount > ((IEntityLivingBaseMixin) this.npc).npcs$getLastDamage();
+			if (npc.ais.getMaxHurtResistantTime() != 0 && npc.hurtResistantTime > npc.ais.getMaxHurtResistantTime() / 2.0F) {
+                return amount > ((IEntityLivingBaseMixin) npc).npcs$getLastDamage();
 			}
 			return true;
 		}
-		if (!this.lastDamages.containsKey(entity) || this.npc.ais.getMaxHurtResistantTime() == 0 || (this.lastDamages.get(entity) + this.npc.ais.getMaxHurtResistantTime() / 2) < this.npc.world.getTotalWorldTime()) {
-			this.lastDamages.put((EntityLivingBase) entity, this.npc.world.getTotalWorldTime());
+		if (!lastDamages.containsKey(entity) || npc.ais.getMaxHurtResistantTime() == 0 || (lastDamages.get(entity) + npc.ais.getMaxHurtResistantTime() / 2) < npc.world.getTotalWorldTime()) {
+			lastDamages.put((EntityLivingBase) entity, npc.world.getTotalWorldTime());
 			return true;
 		}
 		return false;

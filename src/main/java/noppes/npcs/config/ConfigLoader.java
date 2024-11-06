@@ -119,9 +119,9 @@ public class ConfigLoader {
 					}
 					if (!prop.max().isEmpty()) {
 						if (classType.equals("int")) {
-							property.setMaxValue(Integer.parseInt(prop.min()));
+							property.setMaxValue(Integer.parseInt(prop.max()));
 						} else if (classType.equals("double")) {
-							property.setMaxValue(Double.parseDouble(prop.min()));
+							property.setMaxValue(Double.parseDouble(prop.max()));
 						}
 					}
 				} else {
@@ -247,9 +247,9 @@ public class ConfigLoader {
 					}
 					if (!prop.max().isEmpty()) {
 						if (classType.equals("int")) {
-							property.setMaxValue(Integer.parseInt(prop.min()));
+							property.setMaxValue(Integer.parseInt(prop.max()));
 						} else if (classType.equals("double")) {
-							property.setMaxValue(Double.parseDouble(prop.min()));
+							property.setMaxValue(Double.parseDouble(prop.max()));
 						}
 					}
 				}
@@ -407,9 +407,9 @@ public class ConfigLoader {
 					}
 					if (!prop.max().isEmpty()) {
 						if (classType.equals("int")) {
-							property.setMaxValue(Integer.parseInt(prop.min()));
+							property.setMaxValue(Integer.parseInt(prop.max()));
 						} else if (classType.equals("double")) {
-							property.setMaxValue(Double.parseDouble(prop.min()));
+							property.setMaxValue(Double.parseDouble(prop.max()));
 						}
 					}
 				}
@@ -445,9 +445,9 @@ public class ConfigLoader {
 					}
 					if (!prop.max().isEmpty()) {
 						if (classType.equals("int")) {
-							property.setMaxValue(Integer.parseInt(prop.min()));
+							property.setMaxValue(Integer.parseInt(prop.max()));
 						} else if (classType.equals("double")) {
-							property.setMaxValue(Double.parseDouble(prop.min()));
+							property.setMaxValue(Double.parseDouble(prop.max()));
 						}
 					}
 				}

@@ -1761,7 +1761,7 @@ public class ClientGuiEventHandler extends Gui {
 	            GlStateManager.translate(-this.dx, -this.dy, -this.dz);
 				for (Entity e : list) {
                 	float w = e.width / 2;
-                	if (!e.equals(rayTrE) && e.getDistance(this.mc.player) - w > 4.0) { continue; }
+                	if (e == null || !e.equals(rayTrE) && e.getDistance(this.mc.player) - w > 4.0) { continue; }
 	                AxisAlignedBB col= e.getCollisionBoundingBox();
 	                if (col == null) { col = new AxisAlignedBB(-w, 0.0, -w, w, e.height, w); }
 					GlStateManager.pushMatrix();

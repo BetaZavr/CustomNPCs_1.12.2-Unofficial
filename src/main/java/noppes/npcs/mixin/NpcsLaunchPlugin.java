@@ -1,33 +1,23 @@
 package noppes.npcs.mixin;
 
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import zone.rong.mixinbooter.IEarlyMixinLoader;
+import org.spongepowered.asm.launch.MixinBootstrap;
+import org.spongepowered.asm.mixin.Mixins;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
-@IFMLLoadingPlugin.TransformerExclusions("noppes.npcs.asm")
 @IFMLLoadingPlugin.MCVersion("1.12.2")
-@IFMLLoadingPlugin.SortingIndex(Integer.MAX_VALUE)
-public class NpcsLaunchPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
-
-    private static final String[] CLASS_TRANSFORMERS = new String[0];
-    private static final List<String> MIXIN_CONFIGS = Collections.singletonList("mixins.npcs.json");
+@IFMLLoadingPlugin.Name("customnpcs")
+public class NpcsLaunchPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String[] getASMTransformerClass() {
-        return CLASS_TRANSFORMERS;
+        return new String[0];
     }
 
     @Override
     public String getModContainerClass() {
-        return null;
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
         return null;
     }
 
@@ -39,11 +29,13 @@ public class NpcsLaunchPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     @Override
     public void injectData(Map<String, Object> data) {
+        MixinBootstrap.init();
+        Mixins.addConfiguration("mixins.npcs.json");
     }
 
     @Override
-    public List<String> getMixinConfigs() {
-        return MIXIN_CONFIGS;
+    public String getAccessTransformerClass() {
+        return null;
     }
 
 }

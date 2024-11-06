@@ -16,4 +16,6 @@ public interface IEntityLivingBaseMixin {
 
     void npcs$setInterpTargetPitch(double newInterpTargetPitch);
 
+    void npcs$setCurrentDamageSource(DamageSource source);
+
 }

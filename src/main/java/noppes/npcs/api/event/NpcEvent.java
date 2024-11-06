@@ -100,7 +100,7 @@ public class NpcEvent extends CustomNPCsEvent {
 			this.source = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
 			this.damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
 			for (EntityLivingBase e : combatHandler.aggressors.keySet()) {
-				damageMap.put(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e), Double.valueOf(combatHandler.aggressors.get(e)));
+				damageMap.put(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e), combatHandler.aggressors.get(e));
 			}
 		}
 		

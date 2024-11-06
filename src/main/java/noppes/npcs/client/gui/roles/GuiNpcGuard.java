@@ -90,25 +90,23 @@ public class GuiNpcGuard extends GuiNPCInterface2 {
 			this.initGui();
 		}
 		if (button.id == 13) {
-			this.role.targets.clear();
-			List<String> all = new ArrayList<>();
-			for (EntityEntry ent2 : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl2 = ent2.getEntityClass();
-				String name2 = "entity." + ent2.getName() + ".name";
-				if (EntityLivingBase.class.isAssignableFrom(cl2) && !EntityNPCInterface.class.isAssignableFrom(cl2)) {
-					all.add(name2);
+			role.targets.clear();
+			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
+				Class<? extends Entity> cl = ent.getEntityClass();
+				String name = "entity." + ent.getName() + ".name";
+				if (EntityLivingBase.class.isAssignableFrom(cl) && !EntityNPCInterface.class.isAssignableFrom(cl)) {
+					role.targets.add(name);
 				}
 			}
-			this.role.targets = all;
-			this.scroll1.selected = -1;
-			this.scroll2.selected = -1;
-			this.initGui();
+			scroll1.selected = -1;
+			scroll2.selected = -1;
+			initGui();
 		}
 		if (button.id == 14) {
-			this.role.targets.clear();
-			this.scroll1.selected = -1;
-			this.scroll2.selected = -1;
-			this.initGui();
+			role.targets.clear();
+			scroll1.selected = -1;
+			scroll2.selected = -1;
+			initGui();
 		}
 	}
 

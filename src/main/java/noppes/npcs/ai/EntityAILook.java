@@ -83,8 +83,8 @@ public class EntityAILook
 			lookat = this.npc.world.getClosestPlayerToEntity(this.npc, 16.0);
 		}
 		if (lookat != null) {
-			this.npc.updateLook = this.npc.lookat == null || !this.npc.lookat.equals(lookat);
-			this.npc.lookat = lookat;
+			this.npc.updateLook = this.npc.lookAt == null || !this.npc.lookAt.equals(lookat);
+			this.npc.lookAt = lookat;
 			double posY;
 			if (lookat instanceof EntityLivingBase) { posY = lookat.posY + (double)lookat.getEyeHeight(); }
 			else { posY = (lookat.getEntityBoundingBox().minY + lookat.getEntityBoundingBox().maxY) / 2.0D; }
@@ -93,8 +93,8 @@ public class EntityAILook
 		}
 
 		// any Look
-		this.npc.updateLook = this.npc.lookat != null;
-		this.npc.lookat = null;
+		this.npc.updateLook = this.npc.lookAt != null;
+		this.npc.lookAt = null;
 		if (this.rotatebody) {
 			if (this.idle == 0 && this.npc.getRNG().nextFloat() < 0.004f) {
 				double var1 = 6.283185307179586 * this.npc.getRNG().nextDouble();

@@ -248,6 +248,8 @@ public class CustomNpcs {
 	public static boolean ShowCustomAnimation = true;
 	@ConfigProp(info = "Send a message to the player's chat about a completed transaction", def = "false", type = Configuration.CATEGORY_CLIENT)
 	public static boolean SendMarcetInfo = false;
+	@ConfigProp(info = "Percentage of knockback power of all entities in the game when dealing damage or blocking", def = "100", min = "0", max = "200")
+	public static int KnockBackBasePower = 100;
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;

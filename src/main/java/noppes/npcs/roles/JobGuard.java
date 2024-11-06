@@ -19,28 +19,33 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobGuard extends JobInterface implements IJobGuard {
 
-	public List<String> targets;
+	public final List<String> targets = new ArrayList<>();
 
 	public JobGuard(EntityNPCInterface npc) {
 		super(npc);
-		this.targets = new ArrayList<>();
-		this.type = JobType.GUARD;
+		type = JobType.GUARD;
 	}
 
 	public boolean isEntityApplicable(Entity entity) {
-		return !(entity instanceof EntityPlayer) && !(entity instanceof EntityNPCInterface) && this.targets.contains("entity." + EntityList.getEntityString(entity) + ".name");
+		return !(entity instanceof EntityPlayer) && !(entity instanceof EntityNPCInterface) && targets.contains("entity." + EntityList.getEntityString(entity) + ".name");
+	}
+
+	@Override
+	public boolean isWorking() {
+		return !targets.isEmpty() && npc.isAttacking();
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		this.type = JobType.GUARD;
-		this.targets = NBTTags.getStringList(compound.getTagList("GuardTargets", 10));
+		type = JobType.GUARD;
+		targets.clear();
+		targets.addAll(NBTTags.getStringList(compound.getTagList("GuardTargets", 10)));
 		if (compound.getBoolean("GuardAttackAnimals")) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
-				if (EntityAnimal.class.isAssignableFrom(cl) && !this.targets.contains(name)) {
-					this.targets.add(name);
+				if (EntityAnimal.class.isAssignableFrom(cl) && !targets.contains(name)) {
+					targets.add(name);
 				}
 			}
 		}
@@ -48,9 +53,8 @@ public class JobGuard extends JobInterface implements IJobGuard {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
-				if (EntityMob.class.isAssignableFrom(cl) && !EntityCreeper.class.isAssignableFrom(cl)
-						&& !this.targets.contains(name)) {
-					this.targets.add(name);
+				if (EntityMob.class.isAssignableFrom(cl) && !EntityCreeper.class.isAssignableFrom(cl) && !targets.contains(name)) {
+					targets.add(name);
 				}
 			}
 		}
@@ -58,8 +62,8 @@ public class JobGuard extends JobInterface implements IJobGuard {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
-				if (EntityCreeper.class.isAssignableFrom(cl) && !this.targets.contains(name)) {
-					this.targets.add(name);
+				if (EntityCreeper.class.isAssignableFrom(cl) && !targets.contains(name)) {
+					targets.add(name);
 				}
 			}
 		}
@@ -68,7 +72,7 @@ public class JobGuard extends JobInterface implements IJobGuard {
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Type", JobType.GUARD.get());
-		compound.setTag("GuardTargets", NBTTags.nbtStringList(this.targets));
+		compound.setTag("GuardTargets", NBTTags.nbtStringList(targets));
 		return compound;
 	}
 }

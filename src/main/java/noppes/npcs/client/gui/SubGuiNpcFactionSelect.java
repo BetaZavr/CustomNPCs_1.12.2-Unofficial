@@ -92,7 +92,7 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 		this.data.clear();
 		for (Entry<String, Integer> entry : newList) {
 			int id = entry.getValue();
-			String name = Util.instance.deleteColor(entry.getKey());
+			String name = Util.instance.deleteColor(new TextComponentTranslation(entry.getKey()).getFormattedText());
 			if (name.contains("ID:" + id + " ")) {
 				name = name.substring(name.indexOf(" ") + 3);
 			}

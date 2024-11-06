@@ -141,7 +141,9 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver() && this.ais.aiDisabled) {
 			this.setHoverText(new TextComponentTranslation("hover.ai.disabled").getFormattedText());
 		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			ITextComponent mess = new TextComponentTranslation("advanced.menu.hover.job." + this.npc.advanced.jobInterface.getType());
+			int id = npc.advanced.jobInterface.getType();
+			if (id > 9) { id--; }
+			ITextComponent mess = new TextComponentTranslation("advanced.menu.hover.job." + id);
 			if (this.ais.aiDisabled) { mess.appendSibling(new TextComponentTranslation("hover.ai.disabled")); }
 			this.setHoverText(mess.getFormattedText());
 		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {

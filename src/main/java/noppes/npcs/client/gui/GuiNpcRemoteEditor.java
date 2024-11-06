@@ -44,7 +44,6 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 	public GuiNpcRemoteEditor() {
 		this.xSize = 256;
 		this.setBackground("menubg.png");
-		Client.sendData(EnumPacketServer.RemoveNpcEdit);
 	}
 
 	@Override
@@ -120,6 +119,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 				break;
 			}
 			case 7: {
+				Client.sendData(EnumPacketServer.RemoveNpcEdit);
 				CustomNpcs.proxy.openGui(null, EnumGuiType.MainMenuGlobal, 0, 0, 0);
 				break;
 			}

@@ -48,6 +48,13 @@ public class JobBard extends JobInterface implements IJobBard {
 		}
 	}
 
+	@Override
+	public boolean isWorking() {
+		if (npc.isServerWorld() || song.isEmpty()) { return false; }
+		MusicController mData = MusicController.Instance;
+		return npc.equals(mData.musicBard) || npc.equals(mData.songBard);
+	}
+
 	public void onLivingUpdate() {
 		if (npc.isServerWorld() || song.isEmpty()) { return; }
 		MusicController mData = MusicController.Instance;

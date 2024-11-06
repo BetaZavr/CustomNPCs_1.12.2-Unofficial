@@ -21,41 +21,44 @@ import noppes.npcs.roles.JobFarmer;
 public class DataAI
 		implements INPCAi {
 
-	public int animationType = 0;
 	public boolean attackInvisible = false;
 	public boolean avoidsSun = false;
 	public boolean avoidsWater = false;
-	public float bodyOffsetX = 5.0f;
-	public float bodyOffsetY = 5.0f;
-	public float bodyOffsetZ = 5.0f;
-	public boolean canLeap = false;
+	public boolean canLeap = false; // can jump to target
 	public boolean canSprint = false;
 	public boolean canSwim = true;
 	public boolean directLOS = true;
+	public boolean movingPause = true; // -> EntityAIMovingPath
+	public boolean npcInteracting = true;
+	public boolean reactsToFire = false;
+	public boolean returnToStart = true;
+	public boolean stopAndInteract = true;
+	public boolean aiDisabled = false;
+
+	public int animationType = 0;
 	public int doorInteract = 2;
 	public int findShelter = 2;
 	public int movementType = 0; // 0:Ground, 1:Flying, 2:Swimming
 	private int moveSpeed = 5;
-	private List<int[]> movingPath = Lists.newArrayList();
 	public int movingPattern = 0; // -> EntityAIMovingPath
-	public boolean movingPause = true; // -> EntityAIMovingPath
 	public int movingPos = 0; // -> EntityAIMovingPath
 	private int movingType = 0; // 0:Standing, 1:Wandering, 2:MovingPath -> EntityAIMovingPath
-	private final EntityNPCInterface npc;
-	public boolean npcInteracting = true;
 	public int onAttack = 0; // 0:Normal, 1:Panic, 2:Retreat, 3:Nothing
 	public int orientation = 0;
-	public boolean reactsToFire = false;
-	public boolean returnToStart = true;
 	private int standingType = 0; // 0:NoRotation, 1:RotateBody, 2:Stalking, 3:HeadRotation
-	private BlockPos startPos = null;
-	public boolean stopAndInteract = true;
 	private int tacticalRadius = 8;
 	public int tacticalVariant = 0;
 	public int walkingRange = 10;
-	public float stepheight = 0.6f;
-	public boolean aiDisabled = false;
 	private int maxHurtResistantTime = 20;
+
+	public float bodyOffsetX = 5.0f;
+	public float bodyOffsetY = 5.0f;
+	public float bodyOffsetZ = 5.0f;
+	public float stepheight = 0.6f;
+
+	private BlockPos startPos = null;
+	private List<int[]> movingPath = Lists.newArrayList();
+	private final EntityNPCInterface npc;
 
 	public DataAI(EntityNPCInterface npc) {
 		this.npc = npc;

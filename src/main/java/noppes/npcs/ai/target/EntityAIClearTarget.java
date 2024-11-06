@@ -19,9 +19,9 @@ public class EntityAIClearTarget extends EntityAIBase {
 
 	public boolean shouldExecute() {
 		this.target = this.npc.getAttackTarget();
-		return this.target != null && ((this.npc.getOwner() != null
-				&& !this.npc.isInRange(this.npc.getOwner(), this.npc.stats.aggroRange * 2))
-				|| this.npc.combatHandler.checkTarget());
+		return this.target != null && ((npc.getOwner() != null
+				&& !npc.isInRange(npc.getOwner(), npc.stats.aggroRange * 2))
+				|| npc.combatHandler.checkTarget());
 	}
 
 	public void startExecuting() {

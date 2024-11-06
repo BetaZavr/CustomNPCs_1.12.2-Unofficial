@@ -501,12 +501,12 @@ public class LayerEyes<T extends EntityLivingBase>
 			}
 		}
 		else {
-			if (this.npc.lookat != null || (this.npc.lookPos[0] != -1 && this.npc.lookPos[1] != -1)) {
+			if (this.npc.lookAt != null || (this.npc.lookPos[0] != -1 && this.npc.lookPos[1] != -1)) {
 				float yaw, pitch;
-				if (this.npc.lookat != null) {
-					double d0 = this.npc.posX - this.npc.lookat.posX;
-					double d1 = (this.npc.posY + (double) this.npc.getEyeHeight()) - (this.npc.lookat.posY + (double) this.npc.lookat.getEyeHeight());
-					double d2 = this.npc.posZ - this.npc.lookat.posZ;
+				if (this.npc.lookAt != null) {
+					double d0 = this.npc.posX - this.npc.lookAt.posX;
+					double d1 = (this.npc.posY + (double) this.npc.getEyeHeight()) - (this.npc.lookAt.posY + (double) this.npc.lookAt.getEyeHeight());
+					double d2 = this.npc.posZ - this.npc.lookAt.posZ;
 					double d3 = MathHelper.sqrt(d0 * d0 + d2 * d2);
 					yaw = MathHelper.wrapDegrees(this.npc.rotationYawHead - (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F) / (npc.ais.getStandingType() == 4 ? 2.0f : 1.0f);
 					pitch = MathHelper.wrapDegrees(this.npc.rotationPitch + (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)))) / (npc.ais.getStandingType() == 4 ? 2.0f : 1.0f);

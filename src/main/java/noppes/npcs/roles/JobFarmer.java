@@ -41,7 +41,7 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 	private int ticks = 0;
 	private int walkTicks = 0;
 	private int range = 16;
-	private List<BlockPos> trackedBlocks = new ArrayList<>();
+	private final List<BlockPos> trackedBlocks = new ArrayList<>();
 	private boolean waitingForBlocks = false;
 
 	public JobFarmer(EntityNPCInterface npc) {
@@ -51,146 +51,149 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 	}
 
 	@Override
+	public boolean isWorking() {
+		return !trackedBlocks.isEmpty();
+	}
+
+	@Override
 	public boolean aiContinueExecute() {
 		return false;
 	}
 
 	@Override
 	public boolean aiShouldExecute() {
-		if (!this.holding.isEmpty()) {
-			if (this.chestMode == 0) {
-				this.setHolding(ItemStack.EMPTY);
-			} else if (this.chestMode == 1) {
-				if (this.chest == null) {
-					this.dropItem(this.holding);
-					this.setHolding(ItemStack.EMPTY);
+		if (!holding.isEmpty()) {
+			if (chestMode == 0) {
+				setHolding(ItemStack.EMPTY);
+			} else if (chestMode == 1) {
+				if (chest == null) {
+					dropItem(holding);
+					setHolding(ItemStack.EMPTY);
 				} else {
-					this.chest();
+					chest();
 				}
-			} else if (this.chestMode == 2) {
-				this.dropItem(this.holding);
-				this.setHolding(ItemStack.EMPTY);
+			} else if (chestMode == 2) {
+				dropItem(holding);
+				setHolding(ItemStack.EMPTY);
 			}
 			return false;
 		}
-		if (this.ripe != null) {
-			this.pluck();
+		if (ripe != null) {
+			pluck();
 			return false;
 		}
-		if (!this.waitingForBlocks && this.blockTicks++ > 1200) {
-			this.blockTicks = 0;
-			this.waitingForBlocks = true;
+		if (!waitingForBlocks && blockTicks++ > 1200) {
+			blockTicks = 0;
+			waitingForBlocks = true;
 			MassBlockController.Queue(this);
 		}
-		if (this.ticks++ < 100) {
+		if (ticks++ < 100) {
 			return false;
 		}
-		this.ticks = 0;
+		ticks = 0;
 		return true;
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void aiUpdateTask() {
-		Iterator<BlockPos> ite = this.trackedBlocks.iterator();
-		while (ite.hasNext() && this.ripe == null) {
+		Iterator<BlockPos> ite = trackedBlocks.iterator();
+		while (ite.hasNext() && ripe == null) {
 			BlockPos pos = ite.next();
-			IBlockState state = this.npc.world.getBlockState(pos);
+			IBlockState state = npc.world.getBlockState(pos);
 			Block b = state.getBlock();
 			if (b instanceof BlockCrops) {
 				if (!((BlockCrops) b).isMaxAge(state)) {
 					continue;
 				}
-				this.ripe = pos;
+				ripe = pos;
 			} else if (b instanceof BlockStem) {
-				state = b.getActualState(state, this.npc.world, pos);
+				state = b.getActualState(state, npc.world, pos);
 				EnumFacing facing = state.getValue(BlockStem.FACING);
 				if (facing == EnumFacing.UP) {
 					continue;
 				}
-				this.ripe = pos;
+				ripe = pos;
 			} else {
 				ite.remove();
 			}
 		}
-		this.npc.ais.returnToStart = (this.ripe == null);
-		if (this.ripe != null) {
-			this.npc.getNavigator().clearPath();
-			this.npc.getLookHelper().setLookPosition(this.ripe.getX(), this.ripe.getY(), this.ripe.getZ(), 10.0f,
-					this.npc.getVerticalFaceSpeed());
+		npc.ais.returnToStart = (ripe == null);
+		if (ripe != null) {
+			npc.getNavigator().clearPath();
+			npc.getLookHelper().setLookPosition(ripe.getX(), ripe.getY(), ripe.getZ(), 10.0f, npc.getVerticalFaceSpeed());
 		}
 	}
 
 	private void chest() {
-		BlockPos pos = this.chest;
-		this.npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0);
-		this.npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f,
-				this.npc.getVerticalFaceSpeed());
-		if (this.npc.nearPosition(pos) || this.walkTicks++ > 400) {
-			if (this.walkTicks < 400) {
-				this.npc.swingArm(EnumHand.MAIN_HAND);
+		BlockPos pos = chest;
+		npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0);
+		npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f, npc.getVerticalFaceSpeed());
+		if (npc.nearPosition(pos) || walkTicks++ > 400) {
+			if (walkTicks < 400) {
+				npc.swingArm(EnumHand.MAIN_HAND);
 			}
-			this.npc.getNavigator().clearPath();
-			this.ticks = 100;
-			this.walkTicks = 0;
-			IBlockState state = this.npc.world.getBlockState(pos);
+			npc.getNavigator().clearPath();
+			ticks = 100;
+			walkTicks = 0;
+			IBlockState state = npc.world.getBlockState(pos);
 			if (state.getBlock() instanceof BlockChest) {
-				TileEntityChest tile = (TileEntityChest) this.npc.world.getTileEntity(pos);
-				for (int i = 0; !this.holding.isEmpty() && i < Objects.requireNonNull(tile).getSizeInventory(); ++i) {
-					this.holding = this.mergeStack(tile, i, this.holding);
+				TileEntityChest tile = (TileEntityChest) npc.world.getTileEntity(pos);
+				for (int i = 0; !holding.isEmpty() && i < Objects.requireNonNull(tile).getSizeInventory(); ++i) {
+					holding = mergeStack(tile, i, holding);
 				}
-				for (int i = 0; !this.holding.isEmpty() && i < tile.getSizeInventory(); ++i) {
+				for (int i = 0; !holding.isEmpty() && i < tile.getSizeInventory(); ++i) {
 					ItemStack item = tile.getStackInSlot(i);
 					if (item.isEmpty()) {
-						tile.setInventorySlotContents(i, this.holding);
-						this.holding = ItemStack.EMPTY;
+						tile.setInventorySlotContents(i, holding);
+						holding = ItemStack.EMPTY;
 					}
 				}
-				if (!this.holding.isEmpty()) {
-					this.dropItem(this.holding);
-					this.holding = ItemStack.EMPTY;
+				if (!holding.isEmpty()) {
+					dropItem(holding);
+					holding = ItemStack.EMPTY;
 				}
 			} else {
-				this.chest = null;
+				chest = null;
 			}
-			this.setHolding(this.holding);
+			setHolding(holding);
 		}
 	}
 
 	private void dropItem(ItemStack item) {
-		EntityItem entityitem = new EntityItem(this.npc.world, this.npc.posX, this.npc.posY, this.npc.posZ, item);
+		EntityItem entityitem = new EntityItem(npc.world, npc.posX, npc.posY, npc.posZ, item);
 		entityitem.setDefaultPickupDelay();
-		this.npc.world.spawnEntity(entityitem);
+		npc.world.spawnEntity(entityitem);
 	}
 
 	@Override
 	public IItemStack getMainhand() {
-		String name = this.npc.getJobData();
-		ItemStack item = this.stringToItem(name);
+		String name = npc.getJobData();
+		ItemStack item = stringToItem(name);
 		if (item.isEmpty()) {
-			return this.npc.inventory.weapons.get(0);
+			return npc.inventory.weapons.get(0);
 		}
 		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(item);
 	}
 
 	@Override
 	public int getMutexBits() {
-		return this.npc.getNavigator().noPath() ? 0 : AiMutex.LOOK;
+		return npc.getNavigator().noPath() ? 0 : AiMutex.LOOK;
 	}
 
 	@Override
 	public EntityNPCInterface getNpc() {
-		return this.npc;
+		return npc;
 	}
 
 	@Override
 	public int getRange() {
-		return this.range;
+		return range;
 	}
 
 	@Override
 	public boolean isPlucking() {
-		return this.ripe != null || !this.holding.isEmpty();
+		return ripe != null || !holding.isEmpty();
 	}
 
 	private ItemStack mergeStack(IInventory inventory, int slot, ItemStack item) {
@@ -213,52 +216,51 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 
 	@SuppressWarnings("deprecation")
 	private void pluck() {
-		BlockPos pos = this.ripe;
-		this.npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0);
-		this.npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f,
-				this.npc.getVerticalFaceSpeed());
-		if (this.npc.nearPosition(pos) || this.walkTicks++ > 400) {
-			if (this.walkTicks > 400) {
-				pos = NoppesUtilServer.GetClosePos(pos, this.npc.world);
-				this.npc.setPositionAndUpdate(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+		BlockPos pos = ripe;
+		npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0);
+		npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f, npc.getVerticalFaceSpeed());
+		if (npc.nearPosition(pos) || walkTicks++ > 400) {
+			if (walkTicks > 400) {
+				pos = NoppesUtilServer.GetClosePos(pos, npc.world);
+				npc.setPositionAndUpdate(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
 			}
-			this.ripe = null;
-			this.npc.getNavigator().clearPath();
-			this.ticks = 90;
-			this.walkTicks = 0;
-			this.npc.swingArm(EnumHand.MAIN_HAND);
-			IBlockState state = this.npc.world.getBlockState(pos);
+			ripe = null;
+			npc.getNavigator().clearPath();
+			ticks = 90;
+			walkTicks = 0;
+			npc.swingArm(EnumHand.MAIN_HAND);
+			IBlockState state = npc.world.getBlockState(pos);
 			Block b = state.getBlock();
 			if (b instanceof BlockCrops && ((BlockCrops) b).isMaxAge(state)) {
 				BlockCrops crop = (BlockCrops) b;
-				this.npc.world.setBlockState(pos, crop.withAge(0));
-				this.holding = new ItemStack(NpcBlockHelper.getCrop((BlockCrops) b));
+				npc.world.setBlockState(pos, crop.withAge(0));
+				holding = new ItemStack(NpcBlockHelper.getCrop((BlockCrops) b));
 			}
 			if (b instanceof BlockStem) {
-				state = b.getActualState(state, this.npc.world, pos);
+				state = b.getActualState(state, npc.world, pos);
 				EnumFacing facing = state.getValue(BlockStem.FACING);
 				if (facing == EnumFacing.UP || facing == EnumFacing.DOWN) {
 					return;
 				}
 				pos = pos.add(facing.getDirectionVec());
-				b = this.npc.world.getBlockState(pos).getBlock();
-				this.npc.world.setBlockToAir(pos);
+				b = npc.world.getBlockState(pos).getBlock();
+				npc.world.setBlockToAir(pos);
 				if (b != Blocks.AIR) {
-					this.holding = new ItemStack(b);
+					holding = new ItemStack(b);
 				}
 			}
-			this.setHolding(this.holding);
+			setHolding(holding);
 		}
 	}
 
 	@Override
 	public void processed(List<BlockData> list) {
-		List<BlockPos> trackedBlocks = new ArrayList<>();
-		BlockPos chest = null;
+		trackedBlocks.clear();
+		chest = null;
 		for (BlockData data : list) {
 			Block b = data.state.getBlock();
 			if (b instanceof BlockChest) {
-				if (chest != null && this.npc.getDistanceSq(chest) <= this.npc.getDistanceSq(data.pos)) {
+				if (chest != null && npc.getDistanceSq(chest) <= npc.getDistanceSq(data.pos)) {
 					continue;
 				}
 				chest = data.pos;
@@ -272,42 +274,39 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 				trackedBlocks.add(data.pos);
 			}
 		}
-		this.chest = chest;
-		this.trackedBlocks = trackedBlocks;
-		this.waitingForBlocks = false;
+		waitingForBlocks = false;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		this.type = JobType.FARMER;
-		this.chestMode = compound.getInteger("JobChestMode");
-		this.holding = new ItemStack(compound.getCompoundTag("JobHolding"));
-		this.blockTicks = 1100;
+		type = JobType.FARMER;
+		chestMode = compound.getInteger("JobChestMode");
+		holding = new ItemStack(compound.getCompoundTag("JobHolding"));
+		blockTicks = 1100;
+		if (compound.hasKey("Range", 3)) { setRange(compound.getInteger("Range")); }
 	}
 
 	public void setHolding(ItemStack item) {
-		this.holding = item;
-		this.npc.setJobData(this.itemToString(this.holding));
+		holding = item;
+		npc.setJobData(itemToString(holding));
 	}
 
 	@Override
-	public void setRange(int range) {
-		if (range < 0) {
-			range *= -1;
-		}
-		if (range > 16) {
-			range = 16;
-		}
-		this.range = range;
+	public void setRange(int dist) {
+		if (dist < 2) { dist = 2; }
+		if (dist > 32) { dist = 32; }
+		range = dist;
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Type", JobType.FARMER.get());
-		compound.setInteger("JobChestMode", this.chestMode);
-		if (!this.holding.isEmpty()) {
-			compound.setTag("JobHolding", this.holding.writeToNBT(new NBTTagCompound()));
+		compound.setInteger("JobChestMode", chestMode);
+		if (!holding.isEmpty()) {
+			compound.setTag("JobHolding", holding.writeToNBT(new NBTTagCompound()));
 		}
+		compound.setInteger("Range", range);
 		return compound;
 	}
+
 }

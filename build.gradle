@@ -19,26 +19,28 @@ apply plugin: 'org.spongepowered.mixin'
 
 version = getVersion()
 group = 'noppes.npcs'
-archivesBaseName = "CustomNPCs-${mc_version}-Unofficial"
+archivesBaseName = "CustomNPCs-1.12.2-Unofficial"
 
 def getVersion() {
-	Date date = new Date()
-	String month
-	switch(date.getMonth()) {
-		case 1: month = "Feb"; break
-		case 2: month = "Mar"; break
-		case 3: month = "Apr"; break
-		case 4: month = "May"; break
-		case 5: month = "Jun"; break
-		case 6: month = "Jul"; break
-		case 7: month = "Aug"; break
-		case 8: month = "Sep"; break
-		case 9: month = "Oct"; break
-		case 10: month = "Nov"; break
-		case 11: month = "Dec"; break
-		default: month = "Jan"; break
-	}
-    return "v.${mod_version}-" + date.format("dd") + month + date.format("yyyy") + '-Snapshot'
+    String month
+    switch (Calendar.getInstance().get(Calendar.MONTH)) {
+        case Calendar.FEBRUARY: month = "Feb"; break
+        case Calendar.MARCH: month = "Mar"; break
+        case Calendar.APRIL: month = "Apr"; break
+        case Calendar.MAY: month = "May"; break
+        case Calendar.JUNE: month = "Jun"; break
+        case Calendar.JULY: month = "Jul"; break
+        case Calendar.AUGUST: month = "Aug"; break
+        case Calendar.SEPTEMBER: month = "Sep"; break
+        case Calendar.OCTOBER: month = "Oct"; break
+        case Calendar.NOVEMBER: month = "Nov"; break
+        case Calendar.DECEMBER: month = "Dec"; break
+        default: month = "Jan"
+    }
+    Calendar calendar = Calendar.getInstance()
+    int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+    int year = calendar.get(Calendar.YEAR)
+    return "v.${mod_version}-" + String.format("%02d", dayOfMonth) + month + year + '-Snapshot'
 }
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
@@ -55,7 +57,6 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
-            arg "-mixin.config=mixins.npcs.json"
             arg '--username=BetaZavr'
         }
         server {
@@ -66,23 +67,17 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
-            arg "-mixin.config=mixins.npcs.json"
-            //arg 'nogui'
         }
     }
 }
 
 repositories {
     mavenCentral()
-    // maven { url "https://www.cursemaven.com" }
     maven { url 'https://maven.cleanroommc.com' }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
-
-    // Configuration lib
-    // compile "curse.maven:configuration-1086839:${configuration_version}"
+    minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2860"
 
     // Mixins
     compile fg.deobf('zone.rong:mixinbooter:9.3')

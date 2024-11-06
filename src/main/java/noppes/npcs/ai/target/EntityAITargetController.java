@@ -1,5 +1,6 @@
 package noppes.npcs.ai.target;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,11 +20,10 @@ public class EntityAITargetController extends EntityAIBase {
 	private final EntityNPCInterface npc;
 	private int delay;
 	protected EntityLivingBase target;
-	public final Map<EntityLivingBase, Double> map;
+	public final Map<EntityLivingBase, Double> map = new HashMap<>();
 
 	public EntityAITargetController(EntityNPCInterface npc) {
 		this.npc = npc;
-		this.map = Maps.newHashMap();
 	}
 
 	public void addDamageFromEntity(EntityLivingBase attackingEntity, double damage) {

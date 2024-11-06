@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.recipebook;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
@@ -112,8 +113,8 @@ public class NpcGuiButtonRecipeTab extends GuiButtonRecipeTab {
         if (!RecipeBookClient.RECIPES_BY_TAB.containsKey(category)) {
             RecipeList recipelist = new RecipeList();
             RecipeBookClient.ALL_RECIPES.add(recipelist);
-            (RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(category, (hasRecipeList) -> org.spongepowered.include.com.google.common.collect.Lists.newArrayList())).add(recipelist);
-            (RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (hasRecipeList) -> org.spongepowered.include.com.google.common.collect.Lists.newArrayList())).add(recipelist);
+            (RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(category, (hasRecipeList) -> new ArrayList<>())).add(recipelist);
+            (RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (hasRecipeList) -> new ArrayList<>())).add(recipelist);
         }
         label21: for (RecipeList recipelist : RecipeBookClient.RECIPES_BY_TAB.get(category)) {
             Iterator<IRecipe> iterator = recipelist.getRecipes(recipebook.isFilteringCraftable()).iterator();

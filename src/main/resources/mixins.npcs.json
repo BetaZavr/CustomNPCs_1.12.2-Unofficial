@@ -43,7 +43,6 @@
     "tileentity.TileEntityMixin",
     "util.ServerRecipeBookHelperMixin",
     "util.SoundEventMixin",
-    "util.text.translation.IOld18nMixin",
     "util.text.translation.LanguageMapMixin",
     "world.WorldMixin",
     "world.biome.BiomeMixin"

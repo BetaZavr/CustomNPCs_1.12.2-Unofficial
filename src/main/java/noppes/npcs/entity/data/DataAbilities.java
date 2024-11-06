@@ -10,17 +10,17 @@ import noppes.npcs.constants.EnumAbilityType;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class DataAbilities {
-	public List<AbstractAbility> abilities;
+
+	public List<AbstractAbility> abilities = new ArrayList<>();
 	public EntityNPCInterface npc;
 
 	public DataAbilities(EntityNPCInterface npc) {
-		this.abilities = new ArrayList<>();
 		this.npc = npc;
 	}
 
 	public AbstractAbility getAbility(EnumAbilityType type) {
-		EntityLivingBase target = this.npc.getAttackTarget();
-		for (AbstractAbility ability : this.abilities) {
+		EntityLivingBase target = npc.getAttackTarget();
+		for (AbstractAbility ability : abilities) {
 			if (ability.isType(type) && ability.canRun(target)) {
 				return ability;
 			}
@@ -34,4 +34,5 @@ public class DataAbilities {
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		return compound;
 	}
+
 }

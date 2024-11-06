@@ -23,8 +23,12 @@ public class CustomItemPotion extends ItemPotion {
 	}
 
 	public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> items) {
-		if (this.getCreativeTab() == null) {
+		if (getCreativeTab() == null) {
 			return;
+		}
+		if (tab == CreativeTabs.BREWING) {
+			super.getSubItems(tab, items);
+			Util.instance.sort(items);
 		}
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		for (PotionType potiontype : PotionType.REGISTRY) {
@@ -33,8 +37,7 @@ public class CustomItemPotion extends ItemPotion {
 			}
 			if (tab == CustomRegisters.tabItems && CustomRegisters.custompotiontypes.containsKey(potiontype)) {
 				PotionData data = CustomRegisters.custompotiontypes.get(potiontype);
-				if (data.nbtData != null && data.nbtData.hasKey("ShowInCreative", 1)
-						&& !data.nbtData.getBoolean("ShowInCreative")) {
+				if (data.nbtData != null && data.nbtData.hasKey("ShowInCreative", 1) && !data.nbtData.getBoolean("ShowInCreative")) {
 					continue;
 				}
 				ItemStack stack = PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype);
@@ -50,8 +53,7 @@ public class CustomItemPotion extends ItemPotion {
 					stack.setCount(count);
 				}
 				items.add(stack);
-            } else if (tab == CreativeTabs.SEARCH
-					|| (tab == this.getCreativeTab() && !CustomRegisters.custompotiontypes.containsKey(potiontype))) {
+            } else if (tab == CreativeTabs.SEARCH || (tab == getCreativeTab() && !CustomRegisters.custompotiontypes.containsKey(potiontype))) {
 				items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
 			}
 		}

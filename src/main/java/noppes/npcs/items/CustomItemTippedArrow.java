@@ -26,6 +26,10 @@ public class CustomItemTippedArrow extends ItemTippedArrow {
 		if (this.getCreativeTab() == null) {
 			return;
 		}
+		if (tab == CreativeTabs.BREWING) {
+			super.getSubItems(tab, items);
+			Util.instance.sort(items);
+		}
 		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		for (PotionType potiontype : PotionType.REGISTRY) {
 			if (potiontype == PotionTypes.EMPTY) {
@@ -38,8 +42,8 @@ public class CustomItemTippedArrow extends ItemTippedArrow {
 					continue;
 				}
 				items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
-            } else if (tab == CreativeTabs.SEARCH
-					|| (tab == this.getCreativeTab() && !CustomRegisters.custompotiontypes.containsKey(potiontype))) {
+            }
+			else if (tab == CreativeTabs.SEARCH || (tab == getCreativeTab() && !CustomRegisters.custompotiontypes.containsKey(potiontype))) {
 				items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
 			}
 		}
