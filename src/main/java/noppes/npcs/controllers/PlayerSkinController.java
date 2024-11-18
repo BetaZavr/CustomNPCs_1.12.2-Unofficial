@@ -62,6 +62,8 @@ public class PlayerSkinController {
 	public Map<Type, ResourceLocation> getData(UUID uuid) {
 		if (!playerTextures.containsKey(uuid)) {
 			playerTextures.put(uuid, Maps.newEnumMap(Type.class));
+			System.out.println("CNPCs: "+uuid);
+			System.out.println("CNPCs: "+playerTextures.get(uuid));
 			playerTextures.get(uuid).put(Type.SKIN, new ResourceLocation("minecraft", (uuid.hashCode() & 1) == 1 ? "textures/entity/alex.png" : "textures/entity/steve.png")); // DefaultPlayerSkin
 		}
 		return playerTextures.get(uuid);

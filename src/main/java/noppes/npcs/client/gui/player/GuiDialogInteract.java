@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
 import noppes.npcs.LogWriter;
-import noppes.npcs.mixin.client.resources.ILanguageManagerMixin;
+import noppes.npcs.api.mixin.client.resources.ILanguageManagerMixin;
 import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Lists;

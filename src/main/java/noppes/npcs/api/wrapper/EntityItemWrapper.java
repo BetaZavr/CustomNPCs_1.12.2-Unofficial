@@ -6,7 +6,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.mixin.entity.item.IEntityItemMixin;
+import noppes.npcs.api.mixin.entity.item.IEntityItemMixin;
 
 import java.util.Objects;
 

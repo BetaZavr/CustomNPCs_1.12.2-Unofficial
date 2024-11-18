@@ -19,7 +19,7 @@ import noppes.npcs.api.ILayerModel;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.TextBlockClient;
 import noppes.npcs.client.renderer.ModelBuffer;
-import noppes.npcs.mixin.tileentity.ITileEntityMixin;
+import noppes.npcs.api.mixin.tileentity.ITileEntityMixin;
 import noppes.npcs.util.LayerModel;
 
 import javax.annotation.Nullable;

@@ -13,7 +13,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
-import noppes.npcs.mixin.item.crafting.IIngredientMixin;
+import noppes.npcs.api.mixin.item.crafting.IIngredientMixin;
 
 public class NBTTags {
 

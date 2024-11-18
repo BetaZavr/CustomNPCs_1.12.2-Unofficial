@@ -1,26 +1,29 @@
+// DEV resources path
 buildscript {
     repositories {
+        //mavenLocal() // -> used only for installation mixingradle 0.7-SNAPSHOT
         mavenCentral()
-        maven { url = "https://plugins.gradle.org/m2" }
-        maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
-        maven { url = "https://maven.minecraftforge.net/" }
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://repo.spongepowered.org/maven' }
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7.38', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+'
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7.38'
     }
 }
 
+// Plugins for creating JAR
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'idea'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 
+// JAR naming
 version = getVersion()
-group = 'noppes.npcs'
-archivesBaseName = "CustomNPCs-1.12.2-Unofficial"
+group = mod_group
+archivesBaseName = mod_name
 
+// Snapshot version
 def getVersion() {
     String month
     switch (Calendar.getInstance().get(Calendar.MONTH)) {
@@ -40,109 +43,116 @@ def getVersion() {
     Calendar calendar = Calendar.getInstance()
     int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
     int year = calendar.get(Calendar.YEAR)
-    return "v.${mod_version}-" + String.format("%02d", dayOfMonth) + month + year + '-Snapshot'
+    return "v." + mod_version + "-" + String.format("%02d", dayOfMonth) + month + year + '-Snapshot'
 }
 
+// Set Java compatibility to version
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
+// launch in DEV environment
 minecraft {
     mappings channel: 'snapshot', version: '20171003-1.12'
     accessTransformer = file('src/main/resources/META-INF/deobfuscation.cfg')
     runs {
         client {
             workingDirectory project.file('run/client')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'fml.coreMods.load', 'noppes.npcs.mixin.NpcsLaunchPlugin,zone.rong.mixinbooter.MixinBooterPlugin'
+            property 'fml.coreMods.load', mod_group + '.mixin.NpcMixinCore'
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
-            arg '--username=BetaZavr'
+            args '--username=' + mod_author.replace('[', '').replace(']', ''), '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_mixin_configs
         }
         server {
             workingDirectory project.file('run/server')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'fml.coreMods.load', 'noppes.npcs.mixin.NpcsLaunchPlugin,zone.rong.mixinbooter.MixinBooterPlugin'
+            property 'fml.coreMods.load', mod_group + '.mixin.NpcMixinCore'
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
+            args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_mixin_configs//, 'nogui'
         }
     }
 }
 
+// Add Maven repositories
 repositories {
-    mavenCentral()
-    maven { url 'https://maven.cleanroommc.com' }
+    maven { url = 'https://repo.spongepowered.org/maven' }
 }
 
+// Project dependencies (required libraries)
 dependencies {
+    // Minecraft Forge
     minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2860"
 
-    // Mixins
-    compile fg.deobf('zone.rong:mixinbooter:9.3')
-    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
+    // Mixin Lib
+    implementation('org.spongepowered:mixin:0.8.4') {
+        exclude module: 'guava'
+        exclude module: 'commons-io'
+        exclude module: 'gson'
+    }
 
-    // Encrypt
+    // Encrypt Lib
     implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.67'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.15'
 }
 
-sourceSets {
-    main {
-        ext.refMap = "mixins.npcs.refmap.json"
-    }
-}
-
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"        : "CustomNPCs",
-                "Specification-Vendor"       : "BetaZavr",
-                "Specification-Version"      : "1",
-                "Implementation-Title"       : project.name,
-                "Implementation-Version"     : "${version}",
-                "Implementation-Vendor"      : "BetaZavr",
-                "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "FMLCorePlugin"              : "noppes.npcs.mixin.NpcsLaunchPlugin",
-                "FMLCorePluginContainsFMLMod": "true",
-                "FMLAT"                      : "deobfuscation.cfg",
-                "TweakClass"                 : "org.spongepowered.asm.launch.MixinTweaker",
-                "MixinConfigs"               : "mixins.npcs.json",
-                "ForceLoadAsMod"             : "true"
-        ])
-    }
-}
-
-jar.finalizedBy('reobfJar')
-
+// Resource processing (mcmod.info file)
 processResources {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    inputs.property "version", project.version
-
+    inputs.property 'version', project.version
+    inputs.property 'mcversion', minecraft_version
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-        expand 'version': project.version
+        expand  'modid': mod_id,
+                'name': mod_name,
+                'version': mod_version,
+                'mcversion': minecraft_version,
+                'description': mod_description,
+                'credits': mod_credits,
+                'logoFile' : mod_logoFile,
+                'authorList': mod_author
     }
-
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
-        }
+// sets of project source files
+sourceSets {
+    main {
+        ext.refMap = mod_mixin_refmap
     }
 }
 
+// JAR file manifest settings
+mixin {
+    config mod_mixin_configs
+}
+
+// Creating a JAR file
+jar {
+    // Manifest settings
+    manifest {
+        attributes([
+            "Implementation-Title"       : mod_name,
+            "Implementation-Version"     : mod_version,
+            "Implementation-Vendor"      : mod_author.replace('[', '').replace(']', ''),
+            "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "FMLCorePluginContainsFMLMod": "true",
+            "FMLCorePlugin"              : mod_group + ".mixin.NpcMixinCore",
+            "FMLAT"                      : "deobfuscation.cfg",
+            "TweakClass"                 : "org.spongepowered.asm.launch.MixinTweaker",
+            "MixinConfigs"               : mod_mixin_configs,
+            "ForceLoadAsMod"             : "true"
+        ])
+    }
+    // Reobfuscate field and method names
+    finalizedBy('reobfJar')
+}
+
+// The content below is needed for IntelliJ IDEA to be able to see the mod's resources
 idea {
     module {
         inheritOutputDirs = true
@@ -150,6 +160,7 @@ idea {
         downloadSources = true
     }
 }
+
 subprojects {
     apply plugin: 'idea'
 }

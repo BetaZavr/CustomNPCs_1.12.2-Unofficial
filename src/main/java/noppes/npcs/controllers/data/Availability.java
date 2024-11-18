@@ -2,8 +2,6 @@ package noppes.npcs.controllers.data;
 
 import java.util.*;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemClock;
 import net.minecraft.item.ItemStack;
@@ -14,18 +12,13 @@ import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
-import noppes.npcs.CustomNpcs;
-import noppes.npcs.ICompatibilty;
-import noppes.npcs.NoppesUtilServer;
-import noppes.npcs.VersionCompatibility;
+import noppes.npcs.*;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IData;
-import noppes.npcs.api.handler.data.IAvailability;
-import noppes.npcs.api.handler.data.IDialog;
-import noppes.npcs.api.handler.data.IFaction;
-import noppes.npcs.api.handler.data.IQuest;
+import noppes.npcs.api.handler.data.*;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumAvailabilityDialog;
 import noppes.npcs.constants.EnumAvailabilityFaction;
 import noppes.npcs.constants.EnumAvailabilityFactionType;
@@ -38,42 +31,29 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
-import noppes.npcs.mixin.scoreboard.IServerScoreboardMixin;
+import noppes.npcs.api.mixin.scoreboard.IServerScoreboardMixin;
 import noppes.npcs.util.ValueUtil;
 
 public class Availability implements ICompatibilty, IAvailability {
 
 	public static HashSet<String> scores = new HashSet<>();
-	public int[] daytime;
-	public final Map<Integer, EnumAvailabilityDialog> dialogues; // ID, Availability
-	public final Map<Integer, AvailabilityFactionData> factions; // ID, [Stance, Availability]
-	private boolean hasOptions;
+	public int[] daytime = new int[] { 0, 0 };
+	public final Map<Integer, EnumAvailabilityDialog> dialogues = new TreeMap<>(); // ID, Availability
+	public final Map<Integer, AvailabilityFactionData> factions = new TreeMap<>(); // ID, [Stance, Availability]
+	private boolean hasOptions = false;
 
 	public int max = 10;
-	public int minPlayerLevel, health, healthType;
-	public final Map<Integer, EnumAvailabilityQuest> quests; // ID, Availability
-	public final Map<String, AvailabilityScoreboardData> scoreboards; // Objective, [Value, Availability]
-	public final Map<String, EnumAvailabilityPlayerName> playerNames;
-	public final List<AvailabilityStoredData> storeddata;
+	public int minPlayerLevel = 0;
+	public int health = 100;
+	public int healthType = 0;
+	public final Map<Integer, EnumAvailabilityQuest> quests = new TreeMap<>(); // ID, Availability
+	public final Map<String, AvailabilityScoreboardData> scoreboards = new TreeMap<>(); // Objective, [Value, Availability]
+	public final Map<String, EnumAvailabilityPlayerName> playerNames = new TreeMap<>();
+	public final List<AvailabilityStoredData> storeddata = new ArrayList<>();
+	public final Map<Integer, AvailabilityStack> stacks = new TreeMap<>();
 	public boolean onlyGM = false;
 
-	public int version;
-
-	public Availability() {
-		this.version = VersionCompatibility.ModRev;
-		this.hasOptions = false;
-
-		this.daytime = new int[] { 0, 0 };
-		this.minPlayerLevel = 0;
-		this.health = 100;
-		this.healthType = 0;
-		this.dialogues = new HashMap<>();
-		this.quests = new HashMap<>();
-		this.factions = new HashMap<>();
-		this.scoreboards = new HashMap<>();
-		this.playerNames = new HashMap<>();
-		this.storeddata = Lists.newArrayList();
-	}
+	public int version = VersionCompatibility.ModRev;
 
 	private boolean checkHasOptions() {
 		for (EnumAvailabilityDialog ead : this.dialogues.values()) {
@@ -107,6 +87,11 @@ public class Availability implements ICompatibilty, IAvailability {
 		}
 		if (daytime[0] >= 0 && daytime[0] <= 23 && daytime[1] >= 0 && daytime[1] <= 23 && daytime[0] != daytime[1]) {
 			return true;
+		}
+		for (AvailabilityStack aStack : stacks.values()) {
+			if (!aStack.getStack().isEmpty()) {
+				return true;
+			}
 		}
 		return this.minPlayerLevel > 0 || onlyGM;
 	}
@@ -360,6 +345,21 @@ public class Availability implements ICompatibilty, IAvailability {
 		if (onlyGM && !player.capabilities.isCreativeMode) {
 			return false;
 		}
+		List<Integer> founds = new ArrayList<>();
+		for (AvailabilityStack aStack : stacks.values()) {
+			int found = -1;
+			for (int i = 0; i < player.inventory.mainInventory.size(); i++) {
+				if (founds.contains(i)) { continue; }
+				ItemStack stack = player.inventory.mainInventory.get(i);
+				if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
+				if (NoppesUtilPlayer.compareItems(stack, aStack.getStack(), aStack.getIgnoreDamage(), aStack.getIgnoreNBT())) {
+					found = i;
+					break;
+				}
+			}
+			if (found < 0) { return false; }
+			founds.add(found);
+		}
 		return player.experienceLevel >= this.minPlayerLevel;
 	}
 
@@ -406,7 +406,8 @@ public class Availability implements ICompatibilty, IAvailability {
 
 		if (compound.hasKey("AvailabilityDayTime", 11)) {
 			this.daytime = compound.getIntArray("AvailabilityDayTime");
-		} else { // OLD versions
+		}
+		else { // OLD versions
 			int v = compound.getInteger("AvailabilityDayTime");
 			if (v < 0) {
 				v *= -1;
@@ -614,6 +615,15 @@ public class Availability implements ICompatibilty, IAvailability {
 		}
 		onlyGM = compound.getBoolean("OnlyGM");
 
+		stacks.clear();
+		if (compound.hasKey("AvailabilityStacks", 9)) {
+			NBTTagList list = compound.getTagList("AvailabilityStacks", 10);
+			for (int i = 0; i < list.tagCount(); i++) {
+				stacks.put(i, (new AvailabilityStack(i)).load(list.getCompoundTagAt(i)));
+			}
+		}
+		fixStacks();
+
 		this.hasOptions = this.checkHasOptions();
 	}
 
@@ -815,6 +825,54 @@ public class Availability implements ICompatibilty, IAvailability {
 	@Override
 	public void setGMOnly(boolean gmOnly) { onlyGM = gmOnly; }
 
+
+	@Override
+	public IAvailabilityStack getAvailabilityStack(int id) {
+		if (stacks.containsKey(id)) {
+			return stacks.get(id);
+		}
+		return null;
+	}
+
+	@Override
+	public IAvailabilityStack[] getAvailabilityStacks() {
+		return stacks.values().toArray(new IAvailabilityStack[0]);
+	}
+
+	@Override
+	public IAvailabilityStack addIItemStack(IItemStack item) {
+		if (stacks.size() > 8) { return null; }
+		int id = stacks.size();
+		AvailabilityStack aStack = new AvailabilityStack(id);
+		aStack.setStack(item);
+		stacks.put(id, aStack);
+		fixStacks();
+		return aStack;
+	}
+
+	@Override
+	public void removeIItemStack(int id) {
+		if (!stacks.containsKey(id)) { return; }
+		stacks.remove(id);
+		fixStacks();
+	}
+
+	private void fixStacks() {
+		int i = 0;
+		boolean fix = false;
+		Map<Integer, AvailabilityStack> newStacks = new TreeMap<>();
+		for (int id : stacks.keySet()) {
+			if (i != id) { fix = true;}
+			newStacks.put(i, stacks.get(id).setId(i));
+			i++;
+		}
+		if (fix) {
+			stacks.clear();
+			stacks.putAll(newStacks);
+		}
+	}
+
+
 	@Override
 	public void setVersion(int version) {
 		this.version = version;
@@ -891,6 +949,14 @@ public class Availability implements ICompatibilty, IAvailability {
 		compound.setInteger("AvailabilityHealthType", this.healthType);
 
 		compound.setBoolean("OnlyGM", onlyGM);
+
+		NBTTagList listIS = new NBTTagList();
+		int i = 0;
+		for (AvailabilityStack aStack : stacks.values()) {
+			listIS.appendTag(aStack.getNBT(i));
+			i++;
+		}
+		compound.setTag("AvailabilityStacks", listIS);
 
 		return compound;
 	}
@@ -1063,6 +1129,21 @@ public class Availability implements ICompatibilty, IAvailability {
 				data.append(new TextComponentTranslation("quest.task.item."+(bo ? "0" : "1")).getFormattedText());
 			}
 			if (!data.toString().isEmpty()) { list.add(new TextComponentTranslation("availability.type.storeddata", data.toString()).getFormattedText()); }
+		}
+		// stacks
+		if (!this.stacks.isEmpty()) {
+			data = new StringBuilder();
+			boolean st = true;
+			for (AvailabilityStack as : stacks.values()) {
+				ItemStack stack = as.getStack();
+				if (stack.isEmpty()) { continue; }
+				if (!st) { data.append("; "); } else { st = false; }
+				data.append(stack.getDisplayName());
+				if (stack.getCount() > 0) {
+					data.append(" x").append(stack.getCount());
+				}
+			}
+			if (!data.toString().isEmpty()) { list.add(new TextComponentTranslation("availability.type.stacks", data.toString()).getFormattedText()); }
 		}
 		// health
 		if (this.healthType != 0) {

@@ -348,6 +348,7 @@ availability.type.player.names=По имени игрока: %s
 availability.type.quests=Квесты: %s
 availability.type.scoreboards=Информационная доска: %s
 availability.type.storeddata=Внутреигровые данные: %s
+availability.type.stacks=Наличие предметов: %s
 availability.visible=Видимый
 availability.wholeday=Сутки
 

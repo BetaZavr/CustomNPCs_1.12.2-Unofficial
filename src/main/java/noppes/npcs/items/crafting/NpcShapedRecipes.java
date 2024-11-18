@@ -3,6 +3,7 @@ package noppes.npcs.items.crafting;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,6 +24,7 @@ import net.minecraftforge.common.ForgeHooks;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IAvailability;
@@ -31,8 +33,8 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperRecipe;
 import noppes.npcs.controllers.data.Availability;
-import noppes.npcs.mixin.item.crafting.IIngredientMixin;
-import noppes.npcs.mixin.item.crafting.IShapedRecipesMixin;
+import noppes.npcs.api.mixin.item.crafting.IIngredientMixin;
+import noppes.npcs.api.mixin.item.crafting.IShapedRecipesMixin;
 import noppes.npcs.util.Util;
 
 public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IRecipe
@@ -101,6 +103,51 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		recipe.main = compound.getBoolean("IsMain");
 		return recipe;
 	}
+
+	private Object[] fixGrid() {
+		int startW = -1, startH = -1, maxW = 0, maxH = 0;
+		Map<Integer, Ingredient> map = new TreeMap<>();
+System.out.println("CNPCs: "+recipeItems.size());
+		for (int i = 0; i < recipeItems.size(); i++) {
+			Ingredient ingredient = recipeItems.get(i);
+			if (ingredient.getMatchingStacks().length > 0) {
+				boolean hasStack = false;
+				for (ItemStack stack : ingredient.getMatchingStacks()) {
+					if (!NoppesUtilServer.IsItemStackNull(stack)) {
+						hasStack = true;
+						break;
+					}
+				}
+				if (hasStack) {
+					int iW = i % recipeWidth;
+					int iH = i / recipeHeight;
+					if (startW == -1) {
+						startW = iW;
+						startH = iH;
+					}
+					map.put(i, ingredient);
+					if (maxW < iW - startW + 1) { maxW = iW - startW + 1; }
+					if (maxH < iH - startH + 1) { maxH = iH - startH + 1; }
+				}
+			}
+		}
+		NonNullList<Ingredient> newIngredient = recipeItems;
+		if (startW != -1 && maxW != 0 && maxH != 0 && (recipeWidth != maxW || recipeHeight != maxH)) {
+			newIngredient = NonNullList.create();
+			for (int y = 0; y < maxH; y++) {
+				for (int x = 0; x < maxW; x++) {
+					int slotIndex = (y + startH) * recipeWidth + (x + startW);
+					newIngredient.add(map.getOrDefault(slotIndex, Ingredient.EMPTY));
+				}
+			}
+System.out.println("CNPCs: "+recipeItems.size()+" - "+recipeItems);
+		} else {
+			maxW = recipeWidth;
+			maxH = recipeHeight;
+		}
+		return new Object[] { maxW, maxH, newIngredient };
+	}
+
 	/** How many horizontal slots this recipe is wide. */
 	public int recipeWidth;
 	/** How many vertical slots this recipe uses. */
@@ -162,12 +209,10 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 
 	@Override
 	public boolean canFit(int width, int height) {
-		if (global) {
-			return width >= this.recipeWidth && height >= this.recipeHeight;
-		}
-		return width == this.recipeWidth && height == this.recipeHeight;
+		return width >= this.recipeWidth && height >= this.recipeHeight;
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean checkMatch(InventoryCrafting inv, int width, int height, boolean isReversion) {
 		int ingSize = 0;
 		for (Ingredient ingredient : this.recipeItems) {
@@ -182,20 +227,25 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 				ingSize++;
 			}
 		}
+		Object[] objs = fixGrid();
+		int recipeW = (int) objs[0];
+		int recipeH = (int) objs[1];
+		NonNullList<Ingredient> ingredients = (NonNullList<Ingredient>) objs[2];
+if (ingredients.size() != recipeItems.size()) { System.out.println("CNPCs: "+getRegistryName()+"; "+recipeW+"; "+recipeH); }
 		for (int w = 0; w < inv.getWidth(); ++w) {
 			for (int h = 0; h < inv.getHeight(); ++h) {
 				int k = w - width;
 				int l = h - height;
 				Ingredient ingredient = Ingredient.EMPTY;
-				if (k >= 0 && l >= 0 && k < this.recipeWidth && l < this.recipeHeight) {
+				if (k >= 0 && l >= 0 && k < recipeW && l < recipeH) {
 					int id;
-					if (isReversion) { id = this.recipeWidth - k - 1 + l * this.recipeWidth; }
-					else { id =k + l * this.recipeWidth; }
-					ingredient = this.recipeItems.get(id);
+					if (isReversion) { id = recipeW - k - 1 + l * recipeW; }
+					else { id =k + l * recipeW; }
+					ingredient = ingredients.get(id);
 				}
 				if (!this.apply(ingredient, inv.getStackInRowAndColumn(w, h))) {
 					return false;
-				} // Changed
+				}
 				if (ingredient.getMatchingStacks().length > 0) {
 					ingSize--;
 				}
@@ -228,16 +278,16 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		}
 		((IShapedRecipesMixin) this).npcs$setGroup(recipe.getNpcGroup());
 		this.known = recipe.isKnown();
-		this.recipeWidth = recipe.getWidth();
-		this.recipeHeight = recipe.getHeight();
+		this.recipeWidth = recipe.getWidthRecipe();
+		this.recipeHeight = recipe.getHeightRecipe();
 		int w = this.global ? 3 : 4;
-		if (this.recipeWidth != w) {
-			this.recipeWidth = w;
-			this.recipeHeight = w;
-		}
+		if (recipeWidth > w) { recipeWidth = w; }
+		if (recipeHeight > w) { recipeHeight = w; }
+
 		if (this.getRegistryName() == null) {
 			this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, this.getGroup() + "_" + this.name));
 		}
+		this.savesRecipe = true;
 	}
 
 	public void delete() {
@@ -266,7 +316,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		return this.recipeOutput.copy();
 	}
 
-	public int getHeight() {
+	public int getHeightRecipe() {
 		return this.recipeHeight;
 	}
 
@@ -345,7 +395,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		return list;
 	}
 
-	public int getWidth() {
+	public int getWidthRecipe() {
 		return this.recipeWidth;
 	}
 
@@ -430,6 +480,11 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 	public boolean isMain() { return main; }
 
 	@Override
+	public boolean isChanged() {
+		return savesRecipe;
+	}
+
+	@Override
 	public boolean matches(@Nonnull InventoryCrafting inv, @Nullable World world) {
 		if (recipeItems.isEmpty() || (inv.getWidth() == 3 && !global) || (inv.getWidth() == 4 && global)) {
 			return false;
@@ -448,21 +503,22 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 	}
 
 	public void setIgnoreDamage(boolean bo) {
-		this.ignoreDamage = bo;
+		ignoreDamage = bo;
+		savesRecipe = true;
 	}
 
 	public void setIgnoreNBT(boolean bo) {
-		this.ignoreNBT = bo;
+		ignoreNBT = bo;
+		savesRecipe = true;
 	}
 
 	@Override
-	public void setKnown(boolean known) {
-		this.known = known;
+	public void setKnown(boolean bo) {
+		known = bo;
+		savesRecipe = true;
 	}
 
 	@Override
-	public void setNbt(INbt nbt) {
-		this.copy(NpcShapedRecipes.read(nbt.getMCNBT()));
-	}
+	public void setNbt(INbt nbt) { copy(NpcShapedRecipes.read(nbt.getMCNBT())); }
 
 }

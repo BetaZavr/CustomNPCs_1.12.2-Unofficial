@@ -107,7 +107,7 @@ import noppes.npcs.dimensions.CustomWorldProvider;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
-import noppes.npcs.mixin.entity.ai.attributes.IRangedAttributeMixin;
+import noppes.npcs.api.mixin.entity.ai.attributes.IRangedAttributeMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.DataDebug;
 import noppes.npcs.util.DataDebug.Debug;
@@ -254,8 +254,8 @@ public class CustomNpcs {
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;
 	public static long ticks;
-	public static String MODID = "customnpcs";
-	public static String MODNAME = "CustomNpcs Unofficial";
+	public static final String MODID = "customnpcs";
+	public static final String MODNAME = "CustomNpcs Unofficial";
 	public static FMLEventChannel Channel;
 	public static FMLEventChannel ChannelPlayer;
 	public static CustomNpcs instance;
@@ -576,6 +576,7 @@ public class CustomNpcs {
 		ScriptController.Instance.saveItemTextures();
 		ItemScripted.Resources.clear();
 		BankController.getInstance().update();
+		RecipeController.getInstance().checkSaves();
 		if (CustomNpcs.VerboseDebug) {
 			CustomNpcs.showDebugs();
 		}

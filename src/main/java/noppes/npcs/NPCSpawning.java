@@ -29,7 +29,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.controllers.SpawnController;
 import noppes.npcs.controllers.data.SpawnData;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.world.biome.IBiomeMixin;
+import noppes.npcs.api.mixin.world.biome.IBiomeMixin;
 
 public class NPCSpawning {
 

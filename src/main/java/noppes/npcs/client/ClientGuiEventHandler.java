@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
-import noppes.npcs.mixin.pathfinding.IPathMixin;
+import noppes.npcs.api.mixin.pathfinding.IPathMixin;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
@@ -1751,33 +1751,31 @@ public class ClientGuiEventHandler extends Gui {
 				rayTrE = Util.instance.getLookEntity(this.mc.player, (mainStack.getItem() instanceof ItemNbtBook ? ClientProxy.playerData.game.renderDistance : null));
 			}
 			if (rayTrE != null && !list.contains(rayTrE)) { list.add(rayTrE); }
-			if (!list.isEmpty()) {
+			GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.glLineWidth(2.0F);
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask(false);
+			GlStateManager.translate(-this.dx, -this.dy, -this.dz);
+			for (Entity e : list) {
+				float w = e.width / 2;
+				if (e.getDistance(mc.player) - w > 2.9) { continue; }
+				AxisAlignedBB col= e.getCollisionBoundingBox();
+				if (col == null) { col = new AxisAlignedBB(-w, 0.0, -w, w, e.height, w); }
 				GlStateManager.pushMatrix();
-	            GlStateManager.enableBlend();
-	            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-	            GlStateManager.glLineWidth(2.0F);
-	            GlStateManager.disableTexture2D();
-	            GlStateManager.depthMask(false);
-	            GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-				for (Entity e : list) {
-                	float w = e.width / 2;
-                	if (e == null || !e.equals(rayTrE) && e.getDistance(this.mc.player) - w > 4.0) { continue; }
-	                AxisAlignedBB col= e.getCollisionBoundingBox();
-	                if (col == null) { col = new AxisAlignedBB(-w, 0.0, -w, w, e.height, w); }
-					GlStateManager.pushMatrix();
-	                GlStateManager.translate(e.posX, e.posY,  e.posZ);
-					RenderGlobal.drawSelectionBoundingBox(col,  0.8f, 0.8f, 0.8f, 0.8f);
-					if (e.equals(rayTrE)) { // hover entity
-						GlStateManager.glLineWidth(3.0F);
-						RenderGlobal.drawSelectionBoundingBox(col.grow(e.width / 20.0),  0.8f, 0.3f, 0.6f, 1.0f);
-					}
-		            GlStateManager.popMatrix();
+				GlStateManager.translate(e.posX, e.posY,  e.posZ);
+				RenderGlobal.drawSelectionBoundingBox(col,  0.8f, 0.8f, 0.8f, 0.8f);
+				if (e.equals(rayTrE)) { // hover entity
+					GlStateManager.glLineWidth(3.0F);
+					RenderGlobal.drawSelectionBoundingBox(col.grow(e.width / 20.0),  0.8f, 0.3f, 0.6f, 1.0f);
 				}
-	            GlStateManager.depthMask(true);
-	            GlStateManager.enableTexture2D();
-	            GlStateManager.disableBlend();
-	            GlStateManager.popMatrix();
+				GlStateManager.popMatrix();
 			}
+			GlStateManager.depthMask(true);
+			GlStateManager.enableTexture2D();
+			GlStateManager.disableBlend();
+			GlStateManager.popMatrix();
 		}
 		
 		if (mainStack.getItem() instanceof ItemNpcMovingPath) { nbtMP = mainStack.getTagCompound(); }

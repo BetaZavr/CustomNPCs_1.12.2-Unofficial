@@ -9,7 +9,7 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.controllers.data.SpawnData;
-import noppes.npcs.mixin.world.biome.IBiomeMixin;
+import noppes.npcs.api.mixin.world.biome.IBiomeMixin;
 
 public class SubGuiNpcBiomes extends SubGuiInterface {
 

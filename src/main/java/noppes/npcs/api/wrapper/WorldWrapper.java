@@ -50,8 +50,8 @@ import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityProjectile;
-import noppes.npcs.mixin.world.IWorldMixin;
-import noppes.npcs.mixin.world.biome.IBiomeMixin;
+import noppes.npcs.api.mixin.world.IWorldMixin;
+import noppes.npcs.api.mixin.world.biome.IBiomeMixin;
 
 public class WorldWrapper implements IWorld {
 

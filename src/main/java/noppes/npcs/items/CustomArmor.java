@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import noppes.npcs.mixin.item.IItemArmorAPIMixin;
+import noppes.npcs.api.mixin.item.IItemArmorAPIMixin;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.google.common.collect.Lists;

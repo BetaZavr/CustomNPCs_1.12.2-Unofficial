@@ -1,6 +1,7 @@
 package noppes.npcs.api.handler.data;
 
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.item.IItemStack;
 
 public interface IAvailability {
 
@@ -65,5 +66,13 @@ public interface IAvailability {
 	boolean getGMOnly();
 
 	void setGMOnly(boolean gmOnly);
+
+	IAvailabilityStack getAvailabilityStack(int id);
+
+	IAvailabilityStack[] getAvailabilityStacks();
+
+	IAvailabilityStack addIItemStack(IItemStack item);
+
+	void removeIItemStack(int id);
 
 }

@@ -91,10 +91,10 @@ import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
-import noppes.npcs.mixin.entity.IEntityMixin;
-import noppes.npcs.mixin.entity.ai.IEntitySensesMixin;
-import noppes.npcs.mixin.nbt.INBTTagLongArrayMixin;
-import noppes.npcs.mixin.world.IWorldMixin;
+import noppes.npcs.api.mixin.entity.IEntityMixin;
+import noppes.npcs.api.mixin.entity.ai.IEntitySensesMixin;
+import noppes.npcs.api.mixin.nbt.INBTTagLongArrayMixin;
+import noppes.npcs.api.mixin.world.IWorldMixin;
 import org.apache.commons.io.IOUtils;
 
 public class Util implements IMethods {

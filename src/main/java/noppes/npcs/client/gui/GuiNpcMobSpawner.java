@@ -37,7 +37,7 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 	private static String search = "";
 	private static int showingClones = 0;
 	private int activeTab;
-	private List<String> list;
+	private final List<String> list = new ArrayList<>();
 	private final int posX;
     private final int posY;
     private final int posZ;
@@ -316,7 +316,8 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 			Client.sendData(EnumPacketServer.CloneList, activeTab);
 			return;
 		}
-		list = ClientCloneController.Instance.getClones(activeTab);
+		list.clear();
+		list.addAll(ClientCloneController.Instance.getClones(activeTab));
 		scroll.setList(getSearchList());
 		scroll.selected = sel;
 		resetEntity();

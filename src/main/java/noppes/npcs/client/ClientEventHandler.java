@@ -6,8 +6,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import net.minecraft.client.gui.*;
-import noppes.npcs.mixin.client.renderer.IBlockModelRendererMixin;
-import noppes.npcs.mixin.client.renderer.IBlockRendererDispatcherMixin;
+import noppes.npcs.api.mixin.client.renderer.IBlockModelRendererMixin;
+import noppes.npcs.api.mixin.client.renderer.IBlockRendererDispatcherMixin;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;

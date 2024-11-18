@@ -33,7 +33,7 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.handler.capability.IWrapperEntityDataHandler;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityProjectile;
-import noppes.npcs.mixin.entity.IEntityMixin;
+import noppes.npcs.api.mixin.entity.IEntityMixin;
 
 import javax.annotation.Nonnull;
 

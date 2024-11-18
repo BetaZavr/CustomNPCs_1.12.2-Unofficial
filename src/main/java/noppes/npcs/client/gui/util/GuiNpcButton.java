@@ -40,6 +40,7 @@ implements IComponentGui {
 	public boolean isPressed;
 	public int textColor = CustomNpcs.MainColor.getRGB();
 	public boolean isSimple = false;
+	public boolean isAnim = false;
 	private ItemStack[] itemStacks = null;
 	public ItemStack currentStack = ItemStack.EMPTY;
 	public int currentStackID = -1;
@@ -160,7 +161,6 @@ implements IComponentGui {
 
 				this.drawTexturedModalRect(0, 0, txrX, txrY + state * this.height, this.width, this.height);
 				GlStateManager.popMatrix();
-
 			} else {
 				boolean isPrefabricated = txrW == 0;
 				int tw = isPrefabricated ? 200 : txrW;
@@ -286,6 +286,10 @@ implements IComponentGui {
 
 	@Override
 	protected int getHoverState(boolean hovered) {
+		if (this.isAnim) {
+			if (!this.enabled) { return 1; }
+			return hovered ? Mouse.isButtonDown(0) ? 3 : 2 : 0;
+		}
 		if (this.isSimple) {
 			int i = 0;
 			if (!this.enabled) { i = 2; }
@@ -293,7 +297,6 @@ implements IComponentGui {
 			return i;
 		}
 		if (hovered) {
-			if (Mouse.isButtonDown(0)) { return enabled ? 2 : 5; }
 			return enabled ? 1 : 4;
 		}
 		return enabled ? 0 : 3;

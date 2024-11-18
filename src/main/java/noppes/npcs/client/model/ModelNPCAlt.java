@@ -13,10 +13,10 @@ import moe.plushie.armourers_workshop.api.common.skin.type.ISkinType;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.client.model.animation.*;
 import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
-import noppes.npcs.mixin.client.model.IModelPlayerMixin;
-import noppes.npcs.mixin.entity.IEntityLivingBaseMixin;
+import noppes.npcs.api.mixin.client.model.IModelPlayerMixin;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;

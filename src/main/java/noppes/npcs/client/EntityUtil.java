@@ -5,9 +5,9 @@ import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.entity.IEntityLivingBaseMixin;
 
 public class EntityUtil {
 	public static void Copy(EntityLivingBase copied, EntityLivingBase entity) {

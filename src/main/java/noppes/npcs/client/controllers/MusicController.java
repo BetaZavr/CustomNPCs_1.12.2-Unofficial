@@ -1,8 +1,6 @@
 package noppes.npcs.client.controllers;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
@@ -15,10 +13,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import noppes.npcs.LogWriter;
+import noppes.npcs.api.mixin.client.audio.IPositionedSoundMixin;
+import noppes.npcs.api.mixin.client.audio.ISoundHandlerMixin;
+import noppes.npcs.api.mixin.client.audio.ISoundManagerMixin;
+import noppes.npcs.api.mixin.client.audio.ISoundSystemMixin;
 import noppes.npcs.client.ClientTickHandler;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.client.audio.*;
 import noppes.npcs.roles.JobBard;
 import paulscode.sound.Library;
 import paulscode.sound.SoundSystem;

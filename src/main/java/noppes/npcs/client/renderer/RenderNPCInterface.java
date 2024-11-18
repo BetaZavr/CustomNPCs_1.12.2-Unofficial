@@ -1,10 +1,7 @@
 package noppes.npcs.client.renderer;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -12,7 +9,7 @@ import java.util.Map;
 
 import net.minecraft.client.renderer.texture.ITextureObject;
 import noppes.npcs.LogWriter;
-import noppes.npcs.mixin.client.renderer.texture.ITextureManagerMixin;
+import noppes.npcs.api.mixin.client.renderer.texture.ITextureManagerMixin;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -26,7 +23,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
@@ -160,11 +156,11 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		return npc.textureLocation;
 	}
 	
-	protected boolean bindEntityTexture(T entity) {
-        ResourceLocation resourcelocation = this.getEntityTexture(entity);
+	protected boolean bindEntityTexture(@Nonnull T entity) {
+        ResourceLocation resourcelocation = getEntityTexture(entity);
         if (resourcelocation == null) { return false; }
         else {
-            this.bindTexture(resourcelocation);
+            bindTexture(resourcelocation);
             return true;
         }
     }

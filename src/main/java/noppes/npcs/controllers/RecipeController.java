@@ -25,11 +25,11 @@ import net.minecraftforge.registries.ForgeRegistry;
 import noppes.npcs.*;
 import noppes.npcs.api.handler.IRecipeHandler;
 import noppes.npcs.api.handler.data.INpcRecipe;
+import noppes.npcs.api.mixin.stats.IRecipeBookMixin;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
-import noppes.npcs.mixin.client.stats.IRecipeBookMixin;
 import noppes.npcs.util.Util;
 
 public class RecipeController implements IRecipeHandler {
@@ -59,6 +59,19 @@ public class RecipeController implements IRecipeHandler {
 	public RecipeController() {
 		RecipeController.instance = this;
 		this.load();
+	}
+
+	public void checkSaves() {
+		for (int i = 0; i < 2; i++) {
+			for (List<INpcRecipe> list : (i == 1 ? modList : globalList).values()) {
+				for (INpcRecipe r : list) {
+					if (r.isChanged()) {
+						save();
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	@Override

@@ -31,7 +31,7 @@ import noppes.npcs.client.gui.util.ITextChangeListener;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
-import noppes.npcs.mixin.nbt.INBTTagLongArrayMixin;
+import noppes.npcs.api.mixin.nbt.INBTTagLongArrayMixin;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;

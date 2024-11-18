@@ -32,8 +32,8 @@ import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.data.AttributeWrapper;
 import noppes.npcs.controllers.data.MarkData;
-import noppes.npcs.mixin.entity.IEntityTrackerMixin;
-import noppes.npcs.mixin.entity.ai.attributes.IAbstractAttributeMapMixin;
+import noppes.npcs.api.mixin.entity.IEntityTrackerMixin;
+import noppes.npcs.api.mixin.entity.ai.attributes.IAbstractAttributeMapMixin;
 
 @SuppressWarnings("rawtypes")
 public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityWrapper<T> implements IEntityLivingBase {

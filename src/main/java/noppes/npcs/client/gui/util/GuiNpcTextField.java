@@ -5,7 +5,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import noppes.npcs.LogWriter;
-import noppes.npcs.mixin.client.gui.IGuiTextFieldMixin;
+import noppes.npcs.api.mixin.client.gui.IGuiTextFieldMixin;
 
 public class GuiNpcTextField
 		extends GuiTextField

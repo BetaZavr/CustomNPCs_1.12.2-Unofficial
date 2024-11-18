@@ -7,7 +7,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import noppes.npcs.ai.attack.EntityAIHitAndRun;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.entity.IEntityMixin;
+import noppes.npcs.api.mixin.entity.IEntityMixin;
 
 import java.util.Objects;
 

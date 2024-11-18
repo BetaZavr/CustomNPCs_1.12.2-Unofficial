@@ -48,6 +48,7 @@ import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.entity.data.IPlayerMiniMap;
 import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.gui.IOverlayHUD;
+import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.item.IItemStack;
@@ -57,15 +58,7 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomGui;
-import noppes.npcs.controllers.CustomGuiController;
-import noppes.npcs.controllers.DialogController;
-import noppes.npcs.controllers.FactionController;
-import noppes.npcs.controllers.PixelmonHelper;
-import noppes.npcs.controllers.PlayerDataController;
-import noppes.npcs.controllers.PlayerQuestController;
-import noppes.npcs.controllers.PlayerSkinController;
-import noppes.npcs.controllers.QuestController;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.PlayerData;
@@ -75,7 +68,7 @@ import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityDialogNpc;
-import noppes.npcs.mixin.entity.player.IEntityPlayerMPMixin;
+import noppes.npcs.api.mixin.entity.player.IEntityPlayerMPMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ValueUtil;
@@ -839,5 +832,13 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public double getBlockReachDistance() { return this.data.game.blockReachDistance; }
-	
+
+	@Override
+	public void showMarket(int marcetID) {
+		IMarcet market = MarcetController.getInstance().getMarcet(marcetID);
+		if (market != null) {
+			Server.sendDataChecked((EntityPlayerMP) entity, EnumPacketClient.GUI, EnumGuiType.PlayerTrader.ordinal(), marcetID, 0, 0);
+		}
+	}
+
 }

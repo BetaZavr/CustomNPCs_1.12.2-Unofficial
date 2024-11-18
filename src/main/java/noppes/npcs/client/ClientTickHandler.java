@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import noppes.npcs.*;
-import noppes.npcs.mixin.client.audio.ISoundHandlerMixin;
-import noppes.npcs.mixin.client.audio.ISoundManagerMixin;
-import noppes.npcs.mixin.client.gui.IGuiYesNoMixin;
+import noppes.npcs.api.mixin.client.audio.ISoundHandlerMixin;
+import noppes.npcs.api.mixin.client.audio.ISoundManagerMixin;
+import noppes.npcs.api.mixin.client.gui.IGuiYesNoMixin;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.Lists;

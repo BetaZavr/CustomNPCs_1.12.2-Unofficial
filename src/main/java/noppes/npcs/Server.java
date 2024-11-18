@@ -47,7 +47,7 @@ import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.dimensions.CustomWorldInfo;
-import noppes.npcs.mixin.pathfinding.IPathMixin;
+import noppes.npcs.api.mixin.pathfinding.IPathMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 

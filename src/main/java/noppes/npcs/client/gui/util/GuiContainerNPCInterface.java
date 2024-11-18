@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import noppes.npcs.LogWriter;
-import noppes.npcs.mixin.client.gui.IGuiScreenMixin;
+import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.Lists;

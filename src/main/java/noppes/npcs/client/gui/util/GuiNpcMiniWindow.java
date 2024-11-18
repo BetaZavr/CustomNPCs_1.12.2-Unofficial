@@ -1,6 +1,6 @@
 package noppes.npcs.client.gui.util;
 
-import noppes.npcs.mixin.client.gui.IGuiTextFieldMixin;
+import noppes.npcs.api.mixin.client.gui.IGuiTextFieldMixin;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.gui.GuiButton;
@@ -260,6 +260,7 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 		GuiNpcButton exit = new GuiNpcButton(2500, guiLeft + xSize - 12, guiTop + 3, 8, 8, "X");
 		exit.texture = ANIMATION_BUTTONS;
 		exit.hasDefBack = false;
+		exit.isAnim = true;
 		exit.txrX = 232;
 		exit.txrW = 24;
 		exit.txrH = 24;

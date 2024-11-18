@@ -17,7 +17,7 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
-import noppes.npcs.mixin.nbt.INBTTagListMixin;
+import noppes.npcs.api.mixin.nbt.INBTTagListMixin;
 
 public class NBTJsonUtil {
 

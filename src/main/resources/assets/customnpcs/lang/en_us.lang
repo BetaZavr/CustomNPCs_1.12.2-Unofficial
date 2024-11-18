@@ -347,6 +347,7 @@ availability.type.player.names=By player name: %s
 availability.type.quests=Quests: %s
 availability.type.scoreboards=Scoreboard: %s
 availability.type.storeddata=In-game data: %s
+availability.type.stacks=Availability of items: %s
 availability.visible=Visible
 availability.wholeday=Twenty-four hours
 

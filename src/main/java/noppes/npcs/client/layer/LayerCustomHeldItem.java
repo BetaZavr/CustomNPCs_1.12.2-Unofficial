@@ -53,18 +53,22 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 				GlStateManager.translate(0.0F, 0.75F, 0.0F);
 				GlStateManager.scale(0.5F, 0.5F, 0.5F);
 			}
-			boolean showMain = false, showOff = false;
+			boolean showMain = false, showOff;
 			if (npc.animation.showParts.get(EnumParts.ARM_RIGHT)) {
 				showMain = true;
 				if (model instanceof ModelBipedAlt) { showMain = flag ? ((ModelBipedAlt) this.model).rightStackData.showModel : ((ModelBipedAlt) this.model).leftStackData.showModel; }
 				else if (model instanceof ModelNpcAlt) { showMain = flag ? ((ModelNpcAlt) this.model).rightStackData.showModel : ((ModelNpcAlt) this.model).leftStackData.showModel; }
-				if (showMain) { renderHeldItem(npc, mainhand, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, EnumHandSide.RIGHT, scale, distance, isAWShow); }
+				if (showMain) {
+					renderHeldItem(npc, mainhand, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, EnumHandSide.RIGHT, scale, distance, isAWShow);
+				}
 			}
 			if (npc.animation.showParts.get(EnumParts.ARM_LEFT)) {
 				showOff = true;
 				if (model instanceof ModelBipedAlt) { showOff = flag ? ((ModelBipedAlt) this.model).leftStackData.showModel : ((ModelBipedAlt) this.model).rightStackData.showModel; }
 				else if (model instanceof ModelNpcAlt) { showOff = flag ? ((ModelNpcAlt) this.model).leftStackData.showModel : ((ModelNpcAlt) this.model).rightStackData.showModel; }
-				if (showOff) { renderHeldItem(npc, offhand, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, EnumHandSide.LEFT, scale, distance, isAWShow); }
+				if (showOff) {
+					renderHeldItem(npc, offhand, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, EnumHandSide.LEFT, scale, distance, isAWShow);
+				}
 			}
 			if (ArmourersWorkshopApi.isAvailable() && isAWShow) {
 				IEntitySkinCapability skinCapability = ArmourersWorkshopApi.getEntitySkinCapability(npc);
@@ -100,14 +104,15 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 
 	private void renderHeldItem(EntityLivingBase entity, ItemStack stack, ItemCameraTransforms.TransformType transform, EnumHandSide handSide, float scale, double distance, boolean isAWShow) {
 		if (stack.isEmpty()) { return; }
+		GlStateManager.pushMatrix();
 		if (isAWShow && ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(stack)) {
 			renderHeldAWItem(ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(stack), entity.isSneaking(), handSide, distance, scale);
 			return;
 		}
-		if (entity.isSneaking()) { GlStateManager.translate(0.0F, 0.2F, 0.0F); }
 		model.postRenderArm(scale, handSide);
 		boolean isLeft = handSide == EnumHandSide.LEFT;
-		GlStateManager.pushMatrix();
+
+		if (entity.isSneaking()) { GlStateManager.translate(0.0F, 0.2F, 0.0F); }
 		GlStateManager.rotate(-90.0F, 1.0F, 0.0F, 0.0F);
 		GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
 		GlStateManager.translate((isLeft ? -1.0F : 1.0F) / 16.0F, 0.125f, -0.625f);

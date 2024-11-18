@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import noppes.npcs.mixin.client.config.IGuiEditArrayMixin;
+import noppes.npcs.api.mixin.client.config.IGuiEditArrayMixin;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;

@@ -70,7 +70,7 @@ import noppes.npcs.items.CustomFishingRod;
 import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
-import noppes.npcs.mixin.entity.player.IEntityPlayerMPMixin;
+import noppes.npcs.api.mixin.entity.player.IEntityPlayerMPMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.TempFile;
 

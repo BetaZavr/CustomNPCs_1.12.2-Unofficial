@@ -20,7 +20,7 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IScoreboard;
 import noppes.npcs.api.IScoreboardObjective;
 import noppes.npcs.api.IScoreboardTeam;
-import noppes.npcs.mixin.scoreboard.IScoreboardMixin;
+import noppes.npcs.api.mixin.scoreboard.IScoreboardMixin;
 
 public class ScoreboardWrapper implements IScoreboard {
 

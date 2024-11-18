@@ -3,7 +3,7 @@ package noppes.npcs.client.model;
 import java.util.List;
 import java.util.Map;
 
-import noppes.npcs.mixin.client.model.IModelRendererMixin;
+import noppes.npcs.api.mixin.client.model.IModelRendererMixin;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;

@@ -335,8 +335,7 @@ public class QuestInterface {
 		if (!compound.hasKey("Tasks", 9)) { // Old versions
 			List<QuestObjective> oldTasks = new ArrayList<>();
 			if (compound.getInteger("Type") == 0) { // Item
-				this.items = new NpcMiscInventory(
-						compound.getCompoundTag("Items").getTagList("NpcMiscInv", 10).tagCount());
+				this.items = new NpcMiscInventory(compound.getCompoundTag("Items").getTagList("NpcMiscInv", 10).tagCount());
 				this.items.setFromNBT(compound.getCompoundTag("Items"));
 				for (ItemStack item : this.items.items) {
 					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.ITEM);

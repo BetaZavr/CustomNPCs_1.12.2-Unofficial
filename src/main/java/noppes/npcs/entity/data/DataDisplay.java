@@ -246,7 +246,7 @@ public class DataDisplay implements INPCDisplay {
 	}
 
 	public void loadProfile() {
-		if (this.playerProfile != null && !StringUtils.isNullOrEmpty(this.playerProfile.getName()) && this.npc.getServer() != null && (!this.playerProfile.isComplete() || !this.playerProfile.getProperties().containsKey("textures"))) {
+		if (playerProfile != null && !StringUtils.isNullOrEmpty(this.playerProfile.getName()) && this.npc.getServer() != null && (!this.playerProfile.isComplete() || !this.playerProfile.getProperties().containsKey("textures"))) {
 			GameProfile gameprofile = this.npc.getServer().getPlayerProfileCache().getGameProfileForUsername(this.playerProfile.getName());
 			if (gameprofile != null) {
 				Property property = Iterables.getFirst(gameprofile.getProperties().get("textures"), null);

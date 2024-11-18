@@ -417,6 +417,7 @@ implements ICustomScrollListener, ISubGuiListener {
 		} else {
 			for (int i = 11; i < 27; i++) {
 				if (this.getButton(i) != null && this.getButton(i).visible && this.getButton(i).isMouseOver()) {
+					if (getButton(i).currentStack.isEmpty()) { continue; }
 					ITextComponent hover = new TextComponentTranslation("recipe.hover.ingredients", "" + (i - 11));
 					if (recipe.domen.equals(CustomNpcs.MODID)) {
 						hover.appendSibling(new TextComponentTranslation("recipe.hover.ingredient.0"));
@@ -574,21 +575,23 @@ implements ICustomScrollListener, ISubGuiListener {
 		// Global type
 		GuiNpcButton button = new GuiButtonBiDirectional(0, this.guiLeft + 6, y, 163, 20, new String[] { "menu.global", "tile.npccarpentybench.name" }, recipe.global ? 0 : 1);
 		button.layerColor = recipe.global ? 0x4000FF00 : 0x400000FF;
-		this.addButton(button);
-		// Mod list
-		addButton(new GuiNpcCheckBox(30, guiLeft + 7, guiTop + 97, 95, 12, "gui.recipe.type." + onlyMod, onlyMod));
+		addButton(button);
+		// Only mod list
+		if (recipe.global) {
+			addButton(new GuiNpcCheckBox(30, guiLeft + 7, guiTop + 97, 95, 12, "gui.recipe.type." + onlyMod, onlyMod));
+		}
 		// Groups
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 172, y, 59, 20, "gui.add"));
+		addButton(new GuiNpcButton(1, this.guiLeft + 172, y, 59, 20, "gui.add"));
 		button = new GuiNpcButton(2, this.guiLeft + 234, y, 59, 20, "gui.remove");
 		button.setEnabled(groups.hasSelected() && recipe.domen.equals(CustomNpcs.MODID));
-		this.addButton(button);
+		addButton(button);
 		// Recipes
 		button = new GuiNpcButton(3, this.guiLeft + 294, y, 59, 20, "gui.copy");
 		button.setEnabled(!recipe.domen.equals(CustomNpcs.MODID) || recipes.getList().size() < 16);
-		this.addButton(button);
+		addButton(button);
 		button = new GuiNpcButton(4, this.guiLeft + 356, y, 59, 20, "gui.remove");
 		button.setEnabled(recipes.hasSelected() && recipe.domen.equals(CustomNpcs.MODID));
-		this.addButton(button);
+		addButton(button);
 		// Recipe settings
 		if (recipe.domen.equals(CustomNpcs.MODID)) {
 			y = guiTop + 4;
@@ -621,6 +624,7 @@ implements ICustomScrollListener, ISubGuiListener {
 		button = new GuiNpcButton(10, guiLeft + 7 + craftOffset + (recipe.global ? 61 : 76), guiTop + 14 + craftOffset + (int) ((recipe.global ? 1.0 : 1.5) * 19.0), 30, 30, "");
 		button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
 		button.hasDefBack = false;
+		button.isAnim = true;
 		button.txrX = 220;
 		button.txrY = 96;
 		button.txrW = 36;
@@ -639,6 +643,7 @@ implements ICustomScrollListener, ISubGuiListener {
 				button = new GuiNpcButton(id, guiLeft + craftOffset + w * 19 + 7, guiTop + craftOffset + h * 19 + 20, 18, 18, "");
 				button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
 				button.hasDefBack = false;
+				button.isAnim = true;
 				button.txrX = 220;
 				button.txrY = 96;
 				button.txrW = 36;
@@ -663,14 +668,21 @@ implements ICustomScrollListener, ISubGuiListener {
 				}
 			}
 		}
-
+		// Clear
 		button = new GuiNpcButton(28, guiLeft + 92, guiTop + 77, 18, 18, "");
 		button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
 		button.hasDefBack = false;
+		button.isAnim = true;
 		button.txrX = 120;
 		button.txrW = 24;
 		button.txrH = 24;
 		addButton(button);
+
+		checkRecipe();
+	}
+
+	private void checkRecipe() {
+		System.out.println("CNPCs: "+recipe);
 	}
 
 	@Override

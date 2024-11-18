@@ -12,8 +12,8 @@ import net.minecraft.item.ItemShield;
 import net.minecraft.util.DamageSource;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.ability.AbstractAbility;
+import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.util.RayTraceVec;
 import noppes.npcs.util.Util;
 

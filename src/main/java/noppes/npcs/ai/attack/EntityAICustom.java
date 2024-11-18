@@ -10,7 +10,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.entity.ai.IEntityAITasksMixin;
+import noppes.npcs.api.mixin.entity.ai.IEntityAITasksMixin;
 
 public class EntityAICustom extends EntityAIBase {
 

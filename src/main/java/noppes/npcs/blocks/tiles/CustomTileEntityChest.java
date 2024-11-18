@@ -18,7 +18,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.blocks.CustomChest;
 import noppes.npcs.containers.ContainerChestCustom;
-import noppes.npcs.mixin.util.ISoundEventMixin;
+import noppes.npcs.api.mixin.util.ISoundEventMixin;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;

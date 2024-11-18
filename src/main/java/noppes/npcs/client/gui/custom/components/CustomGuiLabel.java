@@ -10,7 +10,7 @@ import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.wrapper.gui.CustomGuiLabelWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
-import noppes.npcs.mixin.client.gui.IGuiLabelMixin;
+import noppes.npcs.api.mixin.client.gui.IGuiLabelMixin;
 
 public class CustomGuiLabel extends GuiLabel implements IGuiComponent {
 

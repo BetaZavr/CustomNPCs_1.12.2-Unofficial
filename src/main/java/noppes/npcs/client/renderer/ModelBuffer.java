@@ -93,13 +93,13 @@ public class ModelBuffer {
 					model.visibleMeshes = Lists.newArrayList(model.iModel.getMatLib().getGroups().keySet());
 				}
 				@SuppressWarnings("deprecation")
-				OBJBakedModel bakedmodel = (OBJBakedModel) model.iModel.bake(new OBJModel.OBJState(ImmutableList.copyOf(model.visibleMeshes), true), DefaultVertexFormats.ITEM, spriteFunction);
+				IBakedModel bakedModel = model.iModel.bake(new OBJModel.OBJState(ImmutableList.copyOf(model.visibleMeshes), true), DefaultVertexFormats.ITEM, spriteFunction);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
 				Tessellator tessellator = Tessellator.getInstance();
-				BufferBuilder worldrenderer = tessellator.getBuffer();
-				worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
-				for (BakedQuad bakedquad : bakedmodel.getQuads(null, null, 0)) {
-					worldrenderer.addVertexData(bakedquad.getVertexData());
+				BufferBuilder buffer = tessellator.getBuffer();
+				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
+				for (BakedQuad bakedquad : bakedModel.getQuads(null, null, 0)) {
+					buffer.addVertexData(bakedquad.getVertexData());
 				}
 				tessellator.draw();
 				GL11.glEndList();

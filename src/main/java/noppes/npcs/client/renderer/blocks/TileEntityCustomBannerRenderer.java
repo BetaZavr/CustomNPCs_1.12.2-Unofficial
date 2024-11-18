@@ -18,8 +18,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.data.Faction;
-import noppes.npcs.mixin.client.model.IModelBoxMixin;
-import noppes.npcs.mixin.tileentity.ITileEntityBanner;
+import noppes.npcs.api.mixin.client.model.IModelBoxMixin;
+import noppes.npcs.api.mixin.tileentity.ITileEntityBanner;
 
 public class TileEntityCustomBannerRenderer extends TileEntityBannerRenderer {
 

@@ -15,8 +15,8 @@ import net.minecraft.entity.ai.attributes.RangedAttribute;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.entity.data.IAttributeModifier;
 import noppes.npcs.api.entity.data.INpcAttribute;
-import noppes.npcs.mixin.entity.ai.attributes.IModifiableAttributeInstanceMixin;
-import noppes.npcs.mixin.entity.ai.attributes.IRangedAttributeMixin;
+import noppes.npcs.api.mixin.entity.ai.attributes.IModifiableAttributeInstanceMixin;
+import noppes.npcs.api.mixin.entity.ai.attributes.IRangedAttributeMixin;
 import noppes.npcs.util.ValueUtil;
 
 public class AttributeWrapper implements INpcAttribute {

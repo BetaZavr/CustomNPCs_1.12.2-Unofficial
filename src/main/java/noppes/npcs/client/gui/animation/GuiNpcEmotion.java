@@ -372,6 +372,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button.layerColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
+		button.isAnim = true;
 		button.txrY = 96;
 		this.addButton(button);
 
@@ -379,6 +380,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button = new GuiNpcButton(23, wX + 10, wY - 16, 14, 14, ""); // tool pos
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
+		button.isAnim = true;
 		button.txrW = 24;
 		button.txrH = 24;
 		button.layerColor = toolType == 1 ? 0xFFFF8080 : 0xFFFFFFFF;
@@ -386,6 +388,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button = new GuiNpcButton(24, wX + 26, wY - 16, 14, 14, ""); // tool rot
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
+		button.isAnim = true;
 		button.txrX = 24;
 		button.txrW = 24;
 		button.txrH = 24;
@@ -394,6 +397,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button = new GuiNpcButton(25, wX + 42, wY - 16, 14, 14, ""); // tool scale
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
+		button.isAnim = true;
 		button.txrX = 48;
 		button.txrW = 24;
 		button.txrH = 24;
@@ -445,6 +449,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button = new GuiNpcButton(29, wX + 58, wY - 32, 82, 14, new String[] { "gui.right", "gui.left" }, this.isRight ? 0 : 1);
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
+		button.isAnim = true;
 		button.txrY = 96;
 		this.addButton(button);
 
@@ -465,6 +470,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button = new GuiNpcButton(4, x + 62, y + 2, 10, 10, ""); // add frame
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
+		button.isAnim = true;
 		button.txrX = 96;
 		button.txrW = 24;
 		button.txrH = 24;
@@ -472,6 +478,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button = new GuiNpcButton(5, x + 74, y + 2, 10, 10, ""); // del frame
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
+		button.isAnim = true;
 		button.txrX = 72;
 		button.txrW = 24;
 		button.txrH = 24;
@@ -480,6 +487,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button = new GuiNpcButton(6, x + 126, y + 2, 10, 10, ""); // clear frame
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
+		button.isAnim = true;
 		button.txrX = 120;
 		button.txrW = 24;
 		button.txrH = 24;
@@ -629,6 +637,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			button = new GuiNpcButton(30 + i, x + 67, y + 9 + i * f, 8, 8, "X");
 			button.texture = ANIMATION_BUTTONS;
 			button.hasDefBack = false;
+			button.isAnim = true;
 			button.txrY = 96;
 			button.dropShadow = false;
 			button.setTextColor(0xFFDC0000);

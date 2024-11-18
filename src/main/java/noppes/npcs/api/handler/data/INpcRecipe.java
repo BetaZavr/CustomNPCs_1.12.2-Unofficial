@@ -14,7 +14,7 @@ public interface INpcRecipe {
 
 	IAvailability getAvailability();
 
-	int getHeight();
+	int getHeightRecipe();
 
 	int getId();
 
@@ -32,7 +32,7 @@ public interface INpcRecipe {
 
 	IItemStack[][] getRecipe();
 
-	int getWidth();
+	int getWidthRecipe();
 
 	boolean isGlobal();
 
@@ -55,5 +55,7 @@ public interface INpcRecipe {
 	WrapperRecipe getWrapperRecipe();
 
     boolean isMain();
+
+	boolean isChanged();
 
 }

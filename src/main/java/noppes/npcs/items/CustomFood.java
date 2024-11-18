@@ -12,7 +12,7 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.mixin.item.IItemFoodMixin;
+import noppes.npcs.api.mixin.item.IItemFoodMixin;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;

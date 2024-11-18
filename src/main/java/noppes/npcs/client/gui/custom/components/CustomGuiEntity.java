@@ -30,7 +30,7 @@ import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.client.network.INetHandlerPlayClientMixin;
+import noppes.npcs.api.mixin.client.network.INetHandlerPlayClientMixin;
 import noppes.npcs.util.Util;
 
 public class CustomGuiEntity extends Gui implements IGuiComponent {

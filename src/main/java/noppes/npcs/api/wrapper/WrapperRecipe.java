@@ -7,11 +7,13 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IShapedRecipe;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.controllers.data.Availability;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -143,29 +145,48 @@ public class WrapperRecipe {
         isShaped = recipe instanceof ShapedRecipes;
         main = true;
         id = recipeId;
+
+        int pos = 0;
+        NonNullList<Ingredient> ingredients = recipe.getIngredients();
         if (recipe instanceof IShapedRecipe) {
             width = ((IShapedRecipe) recipe).getRecipeWidth();
             height = ((IShapedRecipe) recipe).getRecipeHeight();
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int index = y * width + x;
+                    ItemStack[] rawMatchingStacks = ingredients.get(index).getMatchingStacks();
+                    ItemStack[] array = new ItemStack[rawMatchingStacks.length];
+                    for (int j = 0; j < rawMatchingStacks.length; j++) {
+                        array[j] = rawMatchingStacks[j].copy();
+                    }
+                    int slotIndex = y * 3 + x;
+                    recipeItems.put(slotIndex, array);
+                }
+            }
+            for (int i = 0; i < 9; i++) {
+                if (recipeItems.containsKey(i)) { continue; }
+                recipeItems.put(i, new ItemStack[0]);
+            }
         } else {
-            width = 3;
-            height = 3;
+            for (Ingredient ingr : ingredients) {
+                ItemStack[] rawMatchingStacks = ingr.getMatchingStacks();
+                ItemStack[] array = new ItemStack[rawMatchingStacks.length];
+                for (int j = 0; j < rawMatchingStacks.length; j++) {
+                    array[j] = rawMatchingStacks[j].copy();
+                }
+                recipeItems.put(pos, array);
+                pos ++;
+            }
         }
+        width = 3;
+        height = 3;
         group = ((char) 167) + "7" + recipe.getGroup();
         name = ((char) 167) + "7" + location.getResourcePath();
-
-        recipeItems.clear();
-        int pos = 0;
-        for (Ingredient ingr : recipe.getIngredients()) {
-            ItemStack[] rawMatchingStacks = ingr.getMatchingStacks();
-            ItemStack[] array = new ItemStack[rawMatchingStacks.length];
-            for (int j = 0; j < rawMatchingStacks.length; j++) {
-                array[j] = rawMatchingStacks[j].copy();
-            }
-            recipeItems.put(pos, array);
-            pos ++;
-        }
         product = recipe.getRecipeOutput();
         availability.clear();
+        if (product != null && !product.isEmpty() && product.getItem().getRegistryName() != null) {
+            domen = product.getItem().getRegistryName().getResourceDomain();
+        }
     }
 
     public String getName() { return name; }

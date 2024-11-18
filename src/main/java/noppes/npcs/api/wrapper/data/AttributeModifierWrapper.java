@@ -3,7 +3,7 @@ package noppes.npcs.api.wrapper.data;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import noppes.npcs.api.entity.data.IAttributeModifier;
 import noppes.npcs.api.entity.data.INpcAttribute;
-import noppes.npcs.mixin.entity.ai.attributes.IAttributeModifierMixin;
+import noppes.npcs.api.mixin.entity.ai.attributes.IAttributeModifierMixin;
 import noppes.npcs.util.ValueUtil;
 
 public class AttributeModifierWrapper implements IAttributeModifier {

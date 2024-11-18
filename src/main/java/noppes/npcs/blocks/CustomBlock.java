@@ -33,7 +33,7 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.mixin.block.IBlockMixin;
+import noppes.npcs.api.mixin.block.IBlockMixin;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.IPermission;
 

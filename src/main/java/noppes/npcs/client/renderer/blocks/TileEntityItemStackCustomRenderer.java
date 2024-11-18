@@ -15,7 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.data.Faction;
-import noppes.npcs.mixin.client.model.IModelBoxMixin;
+import noppes.npcs.api.mixin.client.model.IModelBoxMixin;
 
 import javax.annotation.Nullable;
 

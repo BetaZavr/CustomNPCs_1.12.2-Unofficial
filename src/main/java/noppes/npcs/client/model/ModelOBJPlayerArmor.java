@@ -18,7 +18,7 @@ import noppes.npcs.client.model.part.ModelOBJPart;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.items.CustomArmor;
-import noppes.npcs.mixin.client.renderer.entity.IRenderPlayerMixin;
+import noppes.npcs.api.mixin.client.renderer.entity.IRenderPlayerMixin;
 
 import javax.annotation.Nonnull;
 

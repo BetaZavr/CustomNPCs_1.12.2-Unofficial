@@ -19,6 +19,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
@@ -30,8 +31,8 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperRecipe;
 import noppes.npcs.controllers.data.Availability;
-import noppes.npcs.mixin.item.crafting.IIngredientMixin;
-import noppes.npcs.mixin.item.crafting.IShapelessRecipesMixin;
+import noppes.npcs.api.mixin.item.crafting.IIngredientMixin;
+import noppes.npcs.api.mixin.item.crafting.IShapelessRecipesMixin;
 import noppes.npcs.util.Util;
 
 public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe, IRecipe // Changed
@@ -146,6 +147,16 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		}
 	}
 
+	private NonNullList<Ingredient> getGrid() {
+		NonNullList<Ingredient> newIngredient = NonNullList.create();
+		for (int i = 0; i < recipeItems.size(); i++) {
+			Ingredient ingredient = recipeItems.get(i);
+			if (ingredient.getMatchingStacks().length == 0) { continue; }
+			newIngredient.add(ingredient);
+		}
+		return newIngredient;
+	}
+
 	// checks item in crafting slot against ingredient item variants
 	public boolean apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack) {
 		if (stack != null && ingredient != null) {
@@ -163,23 +174,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	@Override
 	public boolean canFit(int width, int height) {
-		if (global) {
-			int size = 0;
-			for (Ingredient ingredient : recipeItems) {
-				if (ingredient.getMatchingStacks().length == 0) { continue; }
-				boolean isEmpty = true;
-				for (ItemStack stack : ingredient.getMatchingStacks()) {
-					if (!stack.isEmpty()) {
-						isEmpty = false;
-						break;
-					}
-				}
-				if (isEmpty) { continue; }
-				size++;
-			}
-			return width * height >= size;
-		}
-		return width == recipeWidth && height == recipeHeight;
+		return width >= this.recipeWidth && height >= this.recipeHeight;
 	}
 
 	public void copy(INpcRecipe recipe) {
@@ -206,8 +201,8 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		}
 		((IShapelessRecipesMixin) this).npcs$setGroup(recipe.getNpcGroup());
 		this.known = recipe.isKnown();
-		this.recipeWidth = recipe.getWidth();
-		this.recipeHeight = recipe.getHeight();
+		this.recipeWidth = recipe.getWidthRecipe();
+		this.recipeHeight = recipe.getHeightRecipe();
 		int w = this.global ? 3 : 4;
 		if (recipeWidth != w || recipeHeight != w) {
 			recipeWidth = w;
@@ -216,6 +211,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		if (this.getRegistryName() == null) {
 			this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, this.getGroup() + "_" + this.name));
 		}
+		savesRecipe = true;
 	}
 
 	@Override
@@ -238,7 +234,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	}
 
 	@Override
-	public int getHeight() {
+	public int getHeightRecipe() {
 		return this.recipeHeight;
 	}
 
@@ -311,7 +307,17 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	}
 
 	@Override
-	public int getWidth() {
+	public @Nonnull NonNullList<ItemStack> getRemainingItems(@Nonnull InventoryCrafting inventoryCrafting) {
+		NonNullList<ItemStack> list = NonNullList.withSize(inventoryCrafting.getSizeInventory(), ItemStack.EMPTY);
+		for (int i = 0; i < list.size(); ++i) {
+			ItemStack itemstack = inventoryCrafting.getStackInSlot(i);
+			list.set(i, ForgeHooks.getContainerItem(itemstack));
+		}
+		return list;
+	}
+
+	@Override
+	public int getWidthRecipe() {
 		return this.recipeWidth;
 	}
 
@@ -396,6 +402,11 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	@Override
 	public boolean isMain() { return main; }
 
+	@Override
+	public boolean isChanged() {
+		return savesRecipe;
+	}
+
 	public boolean matches(@Nonnull InventoryCrafting inv, @Nullable World worldIn) {
 		if (this.recipeItems.isEmpty() || (inv.getWidth() == 3 && !this.global) || (inv.getWidth() == 4 && this.global)) {
 			return false;
@@ -413,7 +424,6 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 			if (isEmpty) { continue; }
 			ings.add(ingredient);
 		}
-
 		List<ItemStack> inputs = Lists.newArrayList();
 		for (int i = 0; i < inv.getHeight(); ++i) {
 			for (int j = 0; j < inv.getWidth(); ++j) {
@@ -442,22 +452,25 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	@Override
 	public void setIgnoreDamage(boolean bo) {
-		this.ignoreDamage = bo;
+		ignoreDamage = bo;
+		savesRecipe = true;
 	}
 
 	@Override
 	public void setIgnoreNBT(boolean bo) {
-		this.ignoreNBT = bo;
+		ignoreNBT = bo;
+		savesRecipe = true;
 	}
 
 	@Override
 	public void setKnown(boolean bo) {
-		this.known = bo;
+		known = bo;
+		savesRecipe = true;
 	}
 
 	@Override
 	public void setNbt(INbt nbt) {
-		this.copy(NpcShapedRecipes.read(nbt.getMCNBT()));
+		copy(NpcShapedRecipes.read(nbt.getMCNBT()));
 	}
 
 }

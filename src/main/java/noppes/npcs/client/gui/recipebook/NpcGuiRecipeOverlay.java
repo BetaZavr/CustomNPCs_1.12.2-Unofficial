@@ -25,6 +25,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.handler.data.INpcRecipe;
 
 // Displaying variations of one recipe in the GUI recipe window
 @SideOnly(Side.CLIENT)
@@ -75,7 +76,7 @@ public class NpcGuiRecipeOverlay extends GuiRecipeOverlay {
                 k = shapedrecipes.getRecipeWidth();
                 l = shapedrecipes.getRecipeHeight();
             }
-            Iterator<Ingredient> iterator = this.recipe.getIngredients().iterator();
+            Iterator<Ingredient> iterator = recipe.getIngredients().iterator();
             for (int i1 = 0; i1 < l; ++i1) {
                 int j1 = 3 + i1 * 7;
                 for (int k1 = 0; k1 < k; ++k1) {
@@ -84,13 +85,21 @@ public class NpcGuiRecipeOverlay extends GuiRecipeOverlay {
                         if (aitemstack.length != 0) {
                             int l1 = 3 + k1 * 7;
                             GlStateManager.pushMatrix();
-                            int i2 = (int) ((float) (this.x + l1) / 0.42F - 3.0F);
-                            int j2 = (int) ((float) (this.y + j1) / 0.42F - 3.0F);
+                            int i2 = (int) ((float) (x + l1) / 0.42F - 3.0F);
+                            int j2 = (int) ((float) (y + j1) / 0.42F - 3.0F);
                             GlStateManager.scale(0.42F, 0.42F, 1.0F);
                             GlStateManager.enableLighting();
-                            mc.getRenderItem().renderItemAndEffectIntoGUI(aitemstack[MathHelper.floor(NpcGuiRecipeOverlay.this.time / 30.0F) % aitemstack.length], i2, j2);
+                            ItemStack stack = aitemstack[MathHelper.floor(NpcGuiRecipeOverlay.this.time / 30.0F) % aitemstack.length];
+                            mc.getRenderItem().renderItemAndEffectIntoGUI(stack, i2, j2);
                             GlStateManager.disableLighting();
                             GlStateManager.popMatrix();
+                            if (recipe instanceof INpcRecipe) {
+                                GlStateManager.pushMatrix();
+                                GlStateManager.scale(0.75f, 0.75f, 1.0F);
+                                GlStateManager.translate((x + l1 + 3 + (stack.getCount() > 9 ? -2 : 0)) / 0.75f, (y + j1) / 0.75f, 200.0f);
+                                mc.fontRenderer.drawString("" + stack.getCount(), 0, 0, 0xFFFFFFFF);
+                                GlStateManager.popMatrix();
+                            }
                         }
                     }
                 }

@@ -87,12 +87,12 @@ public class BlockPosWrapper implements IPos {
 		double oy = 0.0d;
 		double oz = 0.0d;
 		switch (EnumFacing.VALUES[direction]) {
-			case DOWN: oy = -1.0d;
-			case UP: oy = 1.0d;
-			case NORTH: oz = -1.0d;
-			case SOUTH: oz = 1.0d;
-			case WEST: ox = -1.0d;
-			case EAST: ox = 1.0d;
+			case DOWN: oy = -1.0d; break;
+			case UP: oy = 1.0d; break;
+			case NORTH: oz = -1.0d; break;
+			case SOUTH: oz = 1.0d; break;
+			case WEST: ox = -1.0d; break;
+			case EAST: ox = 1.0d; break;
 		}
 		return new BlockPosWrapper(x + ox * n, y + oy * n, z + oz * n);
 	}
@@ -107,7 +107,7 @@ public class BlockPosWrapper implements IPos {
 	public IPos subtract(double bx, double by, double bz) { return new BlockPosWrapper(x - bx, y - by, z - bz); }
 
 	@Override
-	public IPos subtract(IPos pos) { return subtract(-pos.getX(), -pos.getY(), -pos.getZ()); }
+	public IPos subtract(IPos pos) { return subtract(pos.getX(), pos.getY(), pos.getZ()); }
 
 	@Override
 	public String toString() { return "BlockPosWrapper {pos: [" + x + ", " + y + ", " + z + "]; mcPos: [" + blockPos.getX() + ", " + blockPos.getY() + ", " + blockPos.getZ() + "]}"; }

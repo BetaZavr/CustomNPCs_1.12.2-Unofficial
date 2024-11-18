@@ -182,5 +182,7 @@ public interface IPlayer<T extends EntityPlayer> extends IEntityLivingBase<T> {
 	IBlock getLookingBlock();
 	
 	double getBlockReachDistance();
-	
+
+	void showMarket(int marcetID);
+
 }
