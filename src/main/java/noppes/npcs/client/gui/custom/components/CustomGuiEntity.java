@@ -87,11 +87,13 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 
 				} else if (PlayerSkinController.getInstance().playerTextures.containsKey(uuid)) {
 					Map<Type, ResourceLocation> data = PlayerSkinController.getInstance().getData(uuid);
-					if (data.containsKey(Type.SKIN)) {
-						npc.display.setSkinTexture(data.get(Type.SKIN).toString());
-					}
-					if (data.containsKey(Type.CAPE)) {
-						npc.display.setCapeTexture(data.get(Type.CAPE).toString());
+					if (data != null) {
+						if (data.containsKey(Type.SKIN)) {
+							npc.display.setSkinTexture(data.get(Type.SKIN).toString());
+						}
+						if (data.containsKey(Type.CAPE)) {
+							npc.display.setCapeTexture(data.get(Type.CAPE).toString());
+						}
 					}
 				} else {
 					NetHandlerPlayClient netHandler = Minecraft.getMinecraft().getConnection();

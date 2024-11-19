@@ -20,6 +20,8 @@ import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.util.Util;
 
+import javax.annotation.Nullable;
+
 public class PlayerSkinController {
 
 	// NetHandlerPlayClient <- NetHandlerPlayClient <- PlayerList.playerLoggedIn <-
@@ -55,16 +57,14 @@ public class PlayerSkinController {
 			type *= -1;
 		}
 		Map<Type, ResourceLocation> data = getData(player.getUniqueID());
-		ResourceLocation loc = data.get(Type.values()[type % Type.values().length]);
+		ResourceLocation loc = null;
+		if (data != null) { loc = data.get(Type.values()[type % Type.values().length]); }
 		return loc == null ? null : loc.toString();
 	}
 
-	public Map<Type, ResourceLocation> getData(UUID uuid) {
-		if (!playerTextures.containsKey(uuid)) {
-			playerTextures.put(uuid, Maps.newEnumMap(Type.class));
-			System.out.println("CNPCs: "+uuid);
-			System.out.println("CNPCs: "+playerTextures.get(uuid));
-			playerTextures.get(uuid).put(Type.SKIN, new ResourceLocation("minecraft", (uuid.hashCode() & 1) == 1 ? "textures/entity/alex.png" : "textures/entity/steve.png")); // DefaultPlayerSkin
+	public @Nullable Map<Type, ResourceLocation> getData(UUID uuid) {
+		if (uuid == null || !playerTextures.containsKey(uuid)) {
+			return null;
 		}
 		return playerTextures.get(uuid);
 	}
@@ -226,9 +226,11 @@ public class PlayerSkinController {
 			path.append("_").append(id);
 		}
 		path.append(".png");
-		data.put(Type.SKIN, new ResourceLocation(CustomNpcs.MODID, Util.instance.deleteColor(path.toString())));
-		playerTextures.put(uuid, data);
-		sendToAll(player);
+		if (data != null) {
+			data.put(Type.SKIN, new ResourceLocation(CustomNpcs.MODID, Util.instance.deleteColor(path.toString())));
+			playerTextures.put(uuid, data);
+			sendToAll(player);
+		}
 	}
 
 	public void set(EntityPlayerMP player, String location, int type) {
@@ -243,13 +245,19 @@ public class PlayerSkinController {
 					(uuid.hashCode() & 1) == 1 ? "textures/entity/alex.png" : "textures/entity/steve.png")); // DefaultPlayerSkin
 		}
 		Map<Type, ResourceLocation> data = getData(player.getUniqueID());
-		if (location == null || location.isEmpty()) {
-			data.remove(t);
-		} else {
-			data.put(t, new ResourceLocation(Util.instance.deleteColor(location)));
+		if (data != null) {
+			if (location == null || location.isEmpty()) {
+				data.remove(t);
+			} else {
+				data.put(t, new ResourceLocation(Util.instance.deleteColor(location)));
+			}
+			playerTextures.put(uuid, data);
+			sendToAll(player);
 		}
-		playerTextures.put(uuid, data);
-		sendToAll(player);
+	}
+
+	public boolean hasData(UUID uuid) {
+		return playerTextures.containsKey(uuid);
 	}
 
 }
