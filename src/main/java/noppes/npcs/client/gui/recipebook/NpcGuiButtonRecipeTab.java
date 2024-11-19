@@ -52,8 +52,7 @@ public class NpcGuiButtonRecipeTab extends GuiButtonRecipeTab {
             GlStateManager.translate((float) (-(this.x + 8)), (float) (-(this.y + 12)), 0.0F);
         }
 
-        this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-                && mouseY < this.y + this.height;
+        this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
         mc.getTextureManager().bindTexture(this.resourceLocation);
         GlStateManager.disableDepth();
         int k = this.xTexStart;

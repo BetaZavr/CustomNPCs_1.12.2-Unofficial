@@ -7,6 +7,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.NonNullList;
+import noppes.npcs.items.crafting.NpcShapedRecipes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -107,6 +109,7 @@ public class NPCRecipeItemHelper extends RecipeItemHelper {
             }
         }
 
+        @SuppressWarnings("unchecked")
         public boolean tryPick(int maximum, @Nullable IntList listIn) {
             if (maximum <= 0) { return true; }
             int k;
@@ -123,7 +126,11 @@ public class NPCRecipeItemHelper extends RecipeItemHelper {
             if (flag1) { listIn.clear(); }
             this.data.clear(0, this.ingredientCount + this.possessedIngredientStackCount + this.ingredientCount);
             int j1 = 0;
-            List<Ingredient> list = this.recipe.getIngredients();
+            List<Ingredient> list = recipe.getIngredients();
+            if (recipe instanceof NpcShapedRecipes) {
+                Object[] objs = ((NpcShapedRecipes) recipe).getGrid();
+                list = (NonNullList<Ingredient>) objs[2];
+            }
             for (Ingredient ingredient : list) {
                 if (flag1 && ingredient == Ingredient.EMPTY) { listIn.add(0); }
                 else {

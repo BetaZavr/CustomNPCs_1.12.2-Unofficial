@@ -15,6 +15,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = Items.class)
 public class ItemsMixin {
 
+    /**
+     * @author BetaZavr
+     * @reason Substitution for custom potions for scripts
+     */
     @Inject(method = "getRegisteredItem", at = @At("HEAD"), cancellable = true)
     private static void npcs$getRegisteredItem(String name, CallbackInfoReturnable<Item> cir) {
         switch (name) {

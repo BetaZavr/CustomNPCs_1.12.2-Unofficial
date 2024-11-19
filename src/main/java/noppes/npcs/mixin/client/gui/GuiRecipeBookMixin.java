@@ -59,12 +59,20 @@ public class GuiRecipeBookMixin {
     @Shadow
     private int timesInventoryChanged;
 
+    /**
+     * @author BetaZavr
+     * @reason Custom recipes require more information
+     */
     @Inject(method = "<init>", at = @At("TAIL"))
     public void npcs$init(CallbackInfo ci) {
         ghostRecipe = new NpcGhostRecipe();
         recipeBookPage = new NpcRecipeBookPage();
     }
 
+    /**
+     * @author BetaZavr
+     * @reason Custom recipes require more information
+     */
     @Inject(method = "recipesUpdated", at = @At("HEAD"))
     public void NPCS$recipesUpdated(CallbackInfo ci) {
         boolean isGlobal = !(mc.currentScreen instanceof GuiNpcCarpentryBench);
@@ -73,7 +81,12 @@ public class GuiRecipeBookMixin {
         }
     }
 
-    // The "func_194303_a" method is essentially the same as "initGui"
+    /**
+     * The "func_194303_a" method is essentially the same as "initGui"
+     *
+     * @author BetaZavr
+     * @reason Custom recipes require more information
+     */
     @Inject(method = "func_194303_a", at = @At("HEAD"), cancellable = true)
     public void npcs$func_194303_a(int w, int h, @Nonnull Minecraft minecraft, boolean widthTooNarrow, @Nonnull InventoryCrafting inv, CallbackInfo ci) {
         boolean isGlobal = !(minecraft.currentScreen instanceof GuiNpcCarpentryBench);
@@ -101,6 +114,7 @@ public class GuiRecipeBookMixin {
         craftingSlots = inv;
         recipeBook = ((IRecipeBookMixin) mc.player.getRecipeBook()).npcs$copyToNew(isGlobal, mc.player);
         timesInventoryChanged = minecraft.player.inventory.getTimesChanged();
+        for (GuiButtonRecipeTab tab : recipeTabs) { tab.setStateTriggered(false); }
         currentTab = recipeTabs.get(0);
         currentTab.setStateTriggered(true);
 

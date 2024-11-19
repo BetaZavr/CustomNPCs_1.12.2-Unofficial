@@ -53,13 +53,15 @@ public class ServerRecipeBookHelperMixin {
     @Unique
     private boolean npcs$ignoreNBT = false;
 
-    /*
+    /**
      * NetHandlerPlayServer.func_194308_a(CPacketPlaceRecipe cPacket) {} -> here:
      * func_194327_a(EntityPlayerMP playerMP, IRecipe checkRecipe, boolean shiftPressed) {}
-     *
      * checks if the player open container has a crafting grid;
      * if the player has items for crafting, then places them; -> func_194329_b()
      * if there are not enough items, then sends back a ghost recipe; -> player.connection.sendPacket(new SPacketPlaceGhostRecipe())
+     *
+     * @author BetaZavr
+     * @reason Own conditions for custom recipes
      */
     @Inject(method = "func_194327_a", at = @At("HEAD"), cancellable = true)
     public void npcs$processCraftRecipe(EntityPlayerMP playerMP, @Nullable IRecipe iRecipe, boolean shiftPressed, CallbackInfo ci) {
@@ -201,6 +203,7 @@ public class ServerRecipeBookHelperMixin {
                 }
                 Slot slot = this.slots.get(slotID);
                 ItemStack itemstack = NPCRecipeItemHelper.unpack(iterator.next());
+System.out.println("CNPCs: "+slotID+" - "+itemstack);
                 if (!itemstack.isEmpty()) {
                     int count = 1;
                     if (recipe instanceof INpcRecipe) {

@@ -23,6 +23,7 @@ import net.minecraftforge.common.ForgeHooks;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IAvailability;
@@ -152,7 +153,14 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		for (int i = 0; i < recipeItems.size(); i++) {
 			Ingredient ingredient = recipeItems.get(i);
 			if (ingredient.getMatchingStacks().length == 0) { continue; }
-			newIngredient.add(ingredient);
+			boolean added = false;
+			for (ItemStack stack : ingredient.getMatchingStacks()) {
+				if (!NoppesUtilServer.IsItemStackNull(stack)) {
+					added = true;
+					break;
+				}
+			}
+			if (added) { newIngredient.add(ingredient); }
 		}
 		return newIngredient;
 	}
@@ -174,7 +182,8 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	@Override
 	public boolean canFit(int width, int height) {
-		return width >= this.recipeWidth && height >= this.recipeHeight;
+		if (!global && (width != 4 || height != 4)) { return false; }
+		return width * height >= getGrid().size();
 	}
 
 	public void copy(INpcRecipe recipe) {
@@ -408,7 +417,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	}
 
 	public boolean matches(@Nonnull InventoryCrafting inv, @Nullable World worldIn) {
-		if (this.recipeItems.isEmpty() || (inv.getWidth() == 3 && !this.global) || (inv.getWidth() == 4 && this.global)) {
+		if (recipeItems.isEmpty() || (!global && (inv.getWidth() != 4) || (inv.getHeight() != 4))) {
 			return false;
 		}
 		List<Ingredient> ings = new ArrayList<>();

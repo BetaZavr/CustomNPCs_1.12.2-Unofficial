@@ -15,11 +15,6 @@ public abstract class LivingAttackEventMixin implements ILivingAttackEventMixin 
     @Shadow
     private float amount;
 
-    @Inject(method = "getAmount", at = @At("HEAD"), cancellable = true)
-    public void npcs$getAmount(CallbackInfoReturnable<Float> cir) {
-        cir.setReturnValue(amount);
-    }
-
     @Override
     public void npcs$setAmount(float newAmount) {
         amount = newAmount;

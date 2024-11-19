@@ -13,7 +13,6 @@ import net.minecraftforge.common.crafting.IShapedRecipe;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.controllers.data.Availability;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 

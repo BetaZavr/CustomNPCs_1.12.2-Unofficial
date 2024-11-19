@@ -27,6 +27,10 @@ public class TileEntityBannerMixin implements ITileEntityBanner {
         npcs$factionId = newFactionId;
     }
 
+    /**
+     * @author BetaZavr
+     * @reason Added faction ID for flag display
+     */
     @Inject(method = "readFromNBT", at = @At("TAIL"))
     public void npcs$readFromNBT(NBTTagCompound compound, CallbackInfo ci) {
         if (compound.hasKey("FactionID", 3)) {
@@ -34,6 +38,10 @@ public class TileEntityBannerMixin implements ITileEntityBanner {
         }
     }
 
+    /**
+     * @author BetaZavr
+     * @reason Added faction ID for flag display
+     */
     @Inject(method = "setItemValues", at = @At("TAIL"))
     public void npcs$setItemValues(ItemStack stack, boolean p_175112_2_, CallbackInfo ci) {
         npcs$factionId = -1;
@@ -44,6 +52,10 @@ public class TileEntityBannerMixin implements ITileEntityBanner {
         }
     }
 
+    /**
+     * @author BetaZavr
+     * @reason Added faction ID for flag display
+     */
     @Inject(method = "writeToNBT", at = @At("TAIL"))
     public void npcs$writeToNBT(NBTTagCompound compound, CallbackInfoReturnable<NBTTagCompound> cir) {
         compound.setInteger("FactionID", npcs$factionId);

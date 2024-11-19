@@ -23,7 +23,7 @@ public class NetworkManagerMixin {
 
     // Packets not allowed to be processed:
     @Unique
-    private static List<String> npcs$notAllowed = Lists.newArrayList("SPacketTabComplete", "CPacketSpectate", "CPacketKeepAlive");
+    private static final List<String> npcs$notAllowed = Lists.newArrayList("SPacketTabComplete", "CPacketSpectate", "CPacketKeepAlive");
 
     @Final
     @Shadow
@@ -32,6 +32,10 @@ public class NetworkManagerMixin {
     @Shadow
     private Channel channel;
 
+    /**
+     * @author BetaZavr
+     * @reason Processing packets with scripts
+     */
     @Inject(method = "channelRead0*", at = @At("HEAD"), cancellable = true)
     private void npcs$channelRead0(ChannelHandlerContext context, Packet<?> packet, CallbackInfo ci) {
         if (channel.isOpen() && !npcs$notAllowed.contains(packet.getClass().getSimpleName())) {

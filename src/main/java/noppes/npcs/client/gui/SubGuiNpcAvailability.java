@@ -61,6 +61,10 @@ public class SubGuiNpcAvailability extends SubGuiInterface implements ISliderLis
 			this.setSubGui(new SubGuiNpcAvailabilityStoredData(this.availability));
 			break;
 		}
+		case 8: { // ItemStacks
+
+			break;
+		}
 		case 50: {
 			if (button.getValue() == 0) {
 				this.getTextField(52).setText("" + this.availability.daytime[0]);
@@ -124,6 +128,8 @@ public class SubGuiNpcAvailability extends SubGuiInterface implements ISliderLis
 			this.setHoverText(new TextComponentTranslation("availability.hover.selectnames").getFormattedText());
 		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availability.hover.storeddata").getFormattedText());
+		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("availability.hover.stack").getFormattedText());
 		} else if (this.getSlider(5) != null && this.getSlider(5).visible && this.getSlider(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availability.hover.health").getFormattedText());
 		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
@@ -141,45 +147,46 @@ public class SubGuiNpcAvailability extends SubGuiInterface implements ISliderLis
 		this.addLabel(new GuiNpcLabel(1, "availability.available", this.guiLeft, this.guiTop + 4));
 		this.getLabel(1).center(this.xSize);
 
-		int x = this.guiLeft + 6, y = this.guiTop + 14;
-		this.addButton(new GuiNpcButton(0, x, y, 120, 20, "availability.selectdialog"));
-		this.addButton(new GuiNpcButton(1, x, y += 22, 120, 20, "availability.selectquest"));
-		this.addButton(new GuiNpcButton(2, x, y + 22, 120, 20, "availability.selectfaction"));
+		// colloquium 1
+		int x = this.guiLeft + 6;
+		int y = this.guiTop + 14;
+		int h = 18;
+		this.addButton(new GuiNpcButton(0, x, y, 120, h, "availability.selectdialog"));
+		this.addButton(new GuiNpcButton(1, x, y += h + 2, 120, h, "availability.selectquest"));
+		this.addButton(new GuiNpcButton(2, x, y += h + 2, 120, h, "availability.selectfaction"));
+		this.addButton(new GuiNpcButton(8, x, y + h + 2, 120, h, "availability.stack"));
+
+		// colloquium 2
 		x += 124;
 		y = this.guiTop + 14;
-		this.addButton(new GuiNpcButton(3, x, y, 120, 20, "availability.selectscoreboard"));
-		this.addButton(new GuiNpcButton(6, x, y += 22, 120, 20, "availability.selectnames"));
-		this.addButton(new GuiNpcButton(7, x, y + 22, 120, 20, "availability.storeddata"));
+		this.addButton(new GuiNpcButton(3, x, y, 120, h, "availability.selectscoreboard"));
+		this.addButton(new GuiNpcButton(6, x, y += h + 2, 120, h, "availability.selectnames"));
+		this.addButton(new GuiNpcButton(7, x, y + h + 2, 120, h, "availability.storeddata"));
 
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 82, this.guiTop + 192, 98, 20, "gui.done"));
+		// next
+		this.addButton(new GuiNpcButton(66, this.guiLeft + 82, this.guiTop + 192, 98, h, "gui.done"));
 
 		this.addLabel(new GuiNpcLabel(50, "availability.daytime", this.guiLeft + 4, this.guiTop + 131));
-		this.addButton(new GuiNpcButton(50, this.guiLeft + 70, this.guiTop + 126, 70, 20,
+		this.addButton(new GuiNpcButton(50, this.guiLeft + 70, this.guiTop + 126, 70, h,
 				new String[] { "availability.own", "availability.always", "availability.night", "availability.day" },
 				this.availability.daytime[0] == this.availability.daytime[1] ? 1
 						: this.availability.daytime[0] == 18 && this.availability.daytime[1] == 6 ? 2
 								: this.availability.daytime[0] == 6 && this.availability.daytime[1] == 18 ? 3 : 1));
 
 		this.addLabel(new GuiNpcLabel(51, "availability.minlevel", this.guiLeft + 4, this.guiTop + 153));
-		this.addTextField(new GuiNpcTextField(51, this, this.fontRenderer, this.guiLeft + 70, this.guiTop + 148, 70, 20,
-				this.availability.minPlayerLevel + ""));
+		this.addTextField(new GuiNpcTextField(51, this, this.fontRenderer, this.guiLeft + 70, this.guiTop + 149, 70, h - 2, this.availability.minPlayerLevel + ""));
 		this.getTextField(51).setNumbersOnly();
 		this.getTextField(51).setMinMaxDefault(0, Integer.MAX_VALUE, 0);
-		this.addTextField(new GuiNpcTextField(52, this, this.fontRenderer, this.guiLeft + 145, this.guiTop + 126, 40,
-				20, this.availability.daytime[0] + ""));
+		this.addTextField(new GuiNpcTextField(52, this, this.fontRenderer, this.guiLeft + 145, this.guiTop + 127, 40, h - 2, this.availability.daytime[0] + ""));
 		this.getTextField(52).setNumbersOnly();
 		this.getTextField(52).setMinMaxDefault(0, 23, this.availability.daytime[0]);
-		this.addTextField(new GuiNpcTextField(53, this, this.fontRenderer, this.guiLeft + 190, this.guiTop + 126, 40,
-				20, this.availability.daytime[1] + ""));
+		this.addTextField(new GuiNpcTextField(53, this, this.fontRenderer, this.guiLeft + 190, this.guiTop + 127, 40, h - 2, this.availability.daytime[1] + ""));
 		this.getTextField(53).setNumbersOnly();
 		this.getTextField(53).setMinMaxDefault(0, 23, this.availability.daytime[1]);
 
 		this.addLabel(new GuiNpcLabel(52, "availability.health", this.guiLeft + 4, this.guiTop + 175));
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 70, this.guiTop + 170, 70, 20,
-				new String[] { "availability.always", "availability.bigger", "availability.smaller" },
-				this.availability.healthType));
-		GuiNpcSlider slider = new GuiNpcSlider(this, 5, this.guiLeft + 145, this.guiTop + 170,
-				this.availability.health / 100.0f);
+		this.addButton(new GuiNpcButton(4, this.guiLeft + 70, this.guiTop + 170, 70, h, new String[] { "availability.always", "availability.bigger", "availability.smaller" }, this.availability.healthType));
+		GuiNpcSlider slider = new GuiNpcSlider(this, 5, this.guiLeft + 145, this.guiTop + 170, this.availability.health / 100.0f);
 		slider.width = 106;
 		slider.visible = this.availability.healthType != 0;
 		this.addSlider(slider);

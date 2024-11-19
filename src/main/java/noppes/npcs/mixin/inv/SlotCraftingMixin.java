@@ -15,6 +15,7 @@ import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.controllers.data.Availability;
+import noppes.npcs.items.crafting.NpcShapedRecipes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +43,10 @@ public class SlotCraftingMixin {
     @Shadow
     private int amountCrafted;
 
+    /**
+     * @author BetaZavr
+     * @reason Custom recipes contain more than 1 item in the ingredients and special settings
+     */
     @Inject(method = "onTake", at = @At("HEAD"), cancellable = true)
     public void npcs$onTake(EntityPlayer thePlayer, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
         cir.cancel();
@@ -73,8 +79,6 @@ public class SlotCraftingMixin {
         ForgeHooks.setCraftingPlayer(thePlayer);
         NonNullList<ItemStack> nonnulllist = CraftingManager.getRemainingItems(craftMatrix, thePlayer.world);
         ForgeHooks.setCraftingPlayer(null);
-System.out.println("CNPCs: craftMatrix: "+craftMatrix);
-System.out.println("CNPCs: recipe: "+(recipe instanceof ShapedRecipes)+"; "+(recipe instanceof ShapelessRecipes)+"; "+recipe);
 
         Map<Integer, Integer> slotToCount = new HashMap<>();
         if (recipe instanceof ShapedRecipes) {
@@ -82,7 +86,6 @@ System.out.println("CNPCs: recipe: "+(recipe instanceof ShapedRecipes)+"; "+(rec
         } else if (recipe instanceof ShapelessRecipes ) {
             slotToCount = npcs$processShapelessRecipe((ShapelessRecipes) recipe, ignoreDamage, ignoreNBT);
         }
-System.out.println("CNPCs: slotToCount: "+slotToCount);
 
         for (int i = 0; i < nonnulllist.size(); ++i) {
             ItemStack craftStack = this.craftMatrix.getStackInSlot(i);
@@ -123,45 +126,67 @@ System.out.println("CNPCs: slotToCount: "+slotToCount);
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Unique
     public Map<Integer, Integer> npcs$processShapedRecipe(ShapedRecipes recipe, boolean ignoreDamage, boolean ignoreNBT) {
         Map<Integer, Integer> slotToCount = new HashMap<>();
-        int width = recipe.getWidth();
-        int height = recipe.getHeight();
+        int recipeW = recipe.getWidth();
+        int recipeH = recipe.getHeight();
+        NonNullList<Ingredient> ingredients = recipe.getIngredients();
+        if (recipe instanceof NpcShapedRecipes) {
+            Object[] objs = ((NpcShapedRecipes) recipe).getGrid();
+            recipeW = (int) objs[0];
+            recipeH = (int) objs[1];
+            ingredients = (NonNullList<Ingredient>) objs[2];
+        }
         // First non-empty slot in the crafting grid
-        int startX = -1, startY = -1;
+        int startW = -1;
+        int startH = -1;
         for (int i = 0; i < craftMatrix.getSizeInventory(); i++) {
             if (!craftMatrix.getStackInSlot(i).isEmpty()) {
-                startX = i % width;
-                startY = i / height;
+                startW = i % craftMatrix.getWidth();
+                startH = i / craftMatrix.getHeight();
                 break;
             }
         }
-        if (startX >= 0 && startY >= 0) {
-            NonNullList<Ingredient> ingredients = recipe.getIngredients();
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int index = y * width + x;
-                    if (index >= ingredients.size()) {
-                        break;
-                    }
-                    int slotIndex = (y + startY) * width + (x + startX);
-                    ItemStack craftStack = craftMatrix.getStackInSlot(slotIndex);
-                    ItemStack ingStack = null;
-                    for (ItemStack stack : ingredients.get(index).getMatchingStacks()) {
-                        if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
-                        if (NoppesUtilPlayer.compareItems(craftStack, stack, ignoreDamage, ignoreNBT)) {
-                            ingStack = stack;
-                            break;
+        if (startW >= 0 && startH >= 0) {
+            for (int r = 0; r < 2; ++r) { // 0: normal; 1: reverse
+                int ings = recipeW * recipeH;
+                slotToCount.clear();
+                for (int h = 0; h <= craftMatrix.getHeight() - recipeH; ++h) {
+                    for (int w = 0; w <= craftMatrix.getWidth() - recipeW; ++w) {
+                        int index = h * recipeW + (r == 1 ? recipeW - w - 1 : w);
+                        if (index >= ingredients.size()) {
+                            continue;
+                        }
+                        int slotIndex = (h + startH) * craftMatrix.getWidth() + (w + startW);
+                        Ingredient ingredient = ingredients.get(index);
+                        ItemStack ingStack = npcs$apply(ingredient, craftMatrix.getStackInSlot(slotIndex), ignoreDamage, ignoreNBT);
+                        if (ingStack != null) {
+                            ings--;
+                            slotToCount.put(slotIndex, ingStack.getCount());
                         }
                     }
-                    if (ingStack != null) {
-                        slotToCount.put(slotIndex, ingStack.getCount());
-                    }
                 }
+                if (ings == 0) { return slotToCount; }
             }
         }
+        slotToCount.clear();
         return slotToCount;
+    }
+
+    @Unique
+    public ItemStack npcs$apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) { // New
+        if (stack == null || ingredient == null) { return null; }
+        ItemStack[] stacks = ingredient.getMatchingStacks();
+        if (stacks.length == 0 && stack.isEmpty()) { return ItemStack.EMPTY; }
+        for (ItemStack ingStack : stacks) {
+            if (ingStack.getItem() != stack.getItem() || ingStack.isEmpty() || stack.isEmpty()) { continue; }
+            if (NoppesUtilPlayer.compareItems(stack, ingStack, ignoreDamage, ignoreNBT) && ingStack.getCount() <= stack.getCount()) {
+                return ingStack;
+            }
+        }
+        return null;
     }
 
     @Unique

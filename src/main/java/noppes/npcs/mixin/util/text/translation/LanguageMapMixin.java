@@ -22,7 +22,10 @@ public class LanguageMapMixin implements ILanguageMapMixin {
     @Override
     public Map<String, String> npcs$getLanguageList() { return languageList; }
 
-
+    /**
+     * @author BetaZavr
+     * @reason More Roman enchantment levels
+     */
     @Inject(method = "tryTranslateKey", at = @At("HEAD"), cancellable = true)
     private void npcs$tryTranslateKey(String key, CallbackInfoReturnable<String> cir) {
         if (key.startsWith("enchantment.level.")) {

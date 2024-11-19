@@ -25,7 +25,10 @@ public class TileEntityMixin implements ITileEntityMixin {
     @Shadow
     protected Block blockType;
 
-    // Correction of previously incorrectly registered blocks
+    /**
+     * @author BetaZavr
+     * @reason Correction of previously mod incorrectly registered blocks
+     */
     @Inject(method = "create", at = @At("HEAD"))
     private static void npcs$create(World worldIn, NBTTagCompound compound, CallbackInfoReturnable<TileEntity> cir) {
         ResourceLocation rl = new ResourceLocation(compound.getString("id"));

@@ -13,6 +13,7 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.util.CustomNPCsScheduler;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,6 +30,10 @@ public class ContainerMixin {
     @Shadow
     public int windowId;
 
+    /**
+     * @author BetaZavr
+     * @reason Commit change for custom recipes
+     */
     @Inject(method = "slotClick", at = @At("TAIL"))
     public void npcs$slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player, CallbackInfoReturnable<ItemStack> cir) {
         if (slotId < 0) { return; }
@@ -39,9 +44,12 @@ public class ContainerMixin {
         if (craftMatrix != null) { ((Container) (Object) this).onCraftMatrixChanged(craftMatrix); }
     }
 
-    @Inject(method = "slotChangedCraftingGrid", at = @At("HEAD"), cancellable = true)
-    protected void npcs$slotChangedCraftingGrid(World world, EntityPlayer player, InventoryCrafting invCrafting, InventoryCraftResult invCraftResult, CallbackInfo ci) {
-        ci.cancel();
+    /**
+     * @author BetaZavr
+     * @reason Added availability check for custom recipes
+     */
+    @Overwrite
+    protected void slotChangedCraftingGrid(World world, EntityPlayer player, InventoryCrafting invCrafting, InventoryCraftResult invCraftResult) {
         if (world.isRemote) { return; }
         // Changed system of filling the crafting inventory is a little behind (1 tick)
         CustomNPCsScheduler.runTack(() -> {

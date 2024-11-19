@@ -28,6 +28,10 @@ public class RecipeBookMixin implements IRecipeBookMixin {
     @Shadow
     protected BitSet newRecipes;
 
+    /**
+     * @author BetaZavr
+     * @reason Custom recipes can be deleted during gameplay
+     */
     @Inject(method = "unlock", at = @At("HEAD"), cancellable = true)
     public void npcs$unlock(IRecipe recipe, CallbackInfo ci) {
         ci.cancel();
@@ -37,6 +41,10 @@ public class RecipeBookMixin implements IRecipeBookMixin {
         }
     }
 
+    /**
+     * @author BetaZavr
+     * @reason Custom recipes can be deleted during gameplay
+     */
     @Inject(method = "lock", at = @At("HEAD"), cancellable = true)
     public void npcs$lock(IRecipe recipe, CallbackInfo ci) {
         ci.cancel();
@@ -47,7 +55,11 @@ public class RecipeBookMixin implements IRecipeBookMixin {
         }
     }
 
-    @Deprecated //DO NOT USE
+    /**
+     * @author BetaZavr
+     * @reason Custom recipes can be deleted during gameplay
+     */
+    @Deprecated
     @Inject(method = "isUnlocked", at = @At("HEAD"), cancellable = true)
     public void npcs$isUnlocked(IRecipe recipe, CallbackInfoReturnable<Boolean> cir) {
         if (npcs$getRecipeId(recipe) == -1) {

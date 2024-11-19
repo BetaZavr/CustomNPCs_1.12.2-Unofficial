@@ -104,10 +104,12 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		return recipe;
 	}
 
-	private Object[] fixGrid() {
-		int startW = -1, startH = -1, maxW = 0, maxH = 0;
+	public Object[] getGrid() {
+		int startW = -1;
+		int startH = -1;
+		int maxW = 0;
+		int maxH = 0;
 		Map<Integer, Ingredient> map = new TreeMap<>();
-System.out.println("CNPCs: "+recipeItems.size());
 		for (int i = 0; i < recipeItems.size(); i++) {
 			Ingredient ingredient = recipeItems.get(i);
 			if (ingredient.getMatchingStacks().length > 0) {
@@ -137,10 +139,13 @@ System.out.println("CNPCs: "+recipeItems.size());
 			for (int y = 0; y < maxH; y++) {
 				for (int x = 0; x < maxW; x++) {
 					int slotIndex = (y + startH) * recipeWidth + (x + startW);
-					newIngredient.add(map.getOrDefault(slotIndex, Ingredient.EMPTY));
+					if (map.containsKey(slotIndex)) {
+						newIngredient.add(map.get(slotIndex));
+					} else {
+						newIngredient.add(Ingredient.EMPTY);
+					}
 				}
 			}
-System.out.println("CNPCs: "+recipeItems.size()+" - "+recipeItems);
 		} else {
 			maxW = recipeWidth;
 			maxH = recipeHeight;
@@ -194,64 +199,25 @@ System.out.println("CNPCs: "+recipeItems.size()+" - "+recipeItems);
 
 	// checks item in crafting slot against ingredient item variants
 	public boolean apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack) { // New
-        if (stack != null && ingredient != null) {
-            ItemStack[] stacks = ingredient.getMatchingStacks();
-            if (stacks.length == 0 && stack.isEmpty()) { return true; }
-            for (ItemStack ingStack : stacks) {
-				if (ingStack.getItem() != stack.getItem() || ingStack.isEmpty() || stack.isEmpty()) { continue; }
-				if (NoppesUtilPlayer.compareItems(stack, ingStack, this.ignoreDamage, this.ignoreNBT) && ingStack.getCount() <= stack.getCount()) {
-					return true;
-				}
-            }
-        }
+        if (stack == null || ingredient == null) { return false; }
+		ItemStack[] stacks = ingredient.getMatchingStacks();
+		if (stacks.length == 0 && stack.isEmpty()) { return true; }
+		for (ItemStack ingStack : stacks) {
+			if (ingStack.getItem() != stack.getItem() || ingStack.isEmpty() || stack.isEmpty()) { continue; }
+			if (NoppesUtilPlayer.compareItems(stack, ingStack, this.ignoreDamage, this.ignoreNBT) && ingStack.getCount() <= stack.getCount()) {
+				return true;
+			}
+		}
         return false;
     }
 
 	@Override
 	public boolean canFit(int width, int height) {
-		return width >= this.recipeWidth && height >= this.recipeHeight;
-	}
-
-	@SuppressWarnings("unchecked")
-	private boolean checkMatch(InventoryCrafting inv, int width, int height, boolean isReversion) {
-		int ingSize = 0;
-		for (Ingredient ingredient : this.recipeItems) {
-			boolean has = false;
-			for (ItemStack stack : ingredient.getMatchingStacks()) {
-				if (!stack.isEmpty()) {
-					has = true;
-					break;
-				}
-			}
-			if (has) {
-				ingSize++;
-			}
-		}
-		Object[] objs = fixGrid();
+		if (!global && (width != 4 || height != 4)) { return false; }
+		Object[] objs = getGrid();
 		int recipeW = (int) objs[0];
 		int recipeH = (int) objs[1];
-		NonNullList<Ingredient> ingredients = (NonNullList<Ingredient>) objs[2];
-if (ingredients.size() != recipeItems.size()) { System.out.println("CNPCs: "+getRegistryName()+"; "+recipeW+"; "+recipeH); }
-		for (int w = 0; w < inv.getWidth(); ++w) {
-			for (int h = 0; h < inv.getHeight(); ++h) {
-				int k = w - width;
-				int l = h - height;
-				Ingredient ingredient = Ingredient.EMPTY;
-				if (k >= 0 && l >= 0 && k < recipeW && l < recipeH) {
-					int id;
-					if (isReversion) { id = recipeW - k - 1 + l * recipeW; }
-					else { id =k + l * recipeW; }
-					ingredient = ingredients.get(id);
-				}
-				if (!this.apply(ingredient, inv.getStackInRowAndColumn(w, h))) {
-					return false;
-				}
-				if (ingredient.getMatchingStacks().length > 0) {
-					ingSize--;
-				}
-			}
-		}
-		return ingSize == 0;
+		return width >= recipeW && height >= recipeH;
 	}
 
 	public void copy(INpcRecipe recipe) {
@@ -484,20 +450,38 @@ if (ingredients.size() != recipeItems.size()) { System.out.println("CNPCs: "+get
 		return savesRecipe;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean matches(@Nonnull InventoryCrafting inv, @Nullable World world) {
-		if (recipeItems.isEmpty() || (inv.getWidth() == 3 && !global) || (inv.getWidth() == 4 && global)) {
+		if (recipeItems.isEmpty() || (!global && (inv.getWidth() != 4) || (inv.getHeight() != 4))) {
 			return false;
 		}
-		for (int width = 0; width <= inv.getWidth() - this.recipeWidth; ++width) {
-			for (int height = 0; height <= inv.getHeight() - this.recipeHeight; ++height) {
-				if (this.checkMatch(inv, width, height, true)) {
-					return true;
-				}
-				if (this.checkMatch(inv, width, height, false)) {
-					return true;
+		int startW = -1, startH = -1;
+		for (int i = 0; i < inv.getSizeInventory(); i++) {
+			if (!inv.getStackInSlot(i).isEmpty()) {
+				startW = i % inv.getWidth();
+				startH = i / inv.getHeight();
+				break;
+			}
+		}
+		Object[] objs = getGrid();
+		int recipeW = (int) objs[0];
+		int recipeH = (int) objs[1];
+		NonNullList<Ingredient> ingredients = (NonNullList<Ingredient>) objs[2];
+		for (int r = 0; r < 2; ++r) {
+			int ings = recipeW * recipeH;
+			for (int h = 0; h <= inv.getHeight() - recipeH; ++h) {
+				for (int w = 0; w <= inv.getWidth() - recipeW; ++w) {
+					int index = h * recipeW + (r == 1 ? recipeW - w - 1 : w);
+					if (index >= ingredients.size()) {
+						continue;
+					}
+					int slotIndex = (h + startH) * inv.getWidth() + (w + startW);
+					Ingredient ingredient = ingredients.get(index);
+					if (apply(ingredient, inv.getStackInSlot(slotIndex))) { ings--; }
 				}
 			}
+			if (ings == 0) { return true; }
 		}
 		return false;
 	}

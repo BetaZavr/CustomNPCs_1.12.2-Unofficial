@@ -1,10 +1,7 @@
 package noppes.npcs.client.gui.global;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -41,8 +38,8 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 
 	public static GuiScreen Instance;
 	private static boolean isName = true;
-	private final TreeMap<String, QuestCategory> categoryData;
-	private final Map<String, Quest> questData;
+	private final TreeMap<String, QuestCategory> categoryData = new TreeMap<>();
+	private final Map<String, Quest> questData = new LinkedHashMap<>();
 	private GuiCustomScroll scrollCategories;
 	private GuiCustomScroll scrollQuests;
 	private String selectedCategory = "";
@@ -52,8 +49,6 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 
 	public GuiNPCManageQuest(EntityNPCInterface npc) {
 		super(npc);
-		this.categoryData = Maps.newTreeMap();
-		this.questData = Maps.newLinkedHashMap();
 		GuiNPCManageQuest.Instance = this;
 		Client.sendData(EnumPacketServer.QuestCategoryGet);
 	}
@@ -103,7 +98,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 				if (has) { t.append("_"); }
 			}
 			quest.setName(t.toString());
-			this.selectedQuest = quest.getTitle();
+			this.selectedQuest = getKey(quest);
 			Client.sendData(EnumPacketServer.QuestSave, quest.category.id, quest.writeToNBT(new NBTTagCompound()));
 			this.initGui();
 			break;
@@ -125,8 +120,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 			if (!this.questData.containsKey(this.selectedQuest)) {
 				return;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this, this.questData.get(this.selectedQuest).getTitle(),
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
+			GuiYesNo guiyesno = new GuiYesNo(this, this.questData.get(this.selectedQuest).getTitle(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
 			this.displayGuiScreen(guiyesno);
 			break;
 		}
@@ -225,11 +219,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 			if (this.categoryData.containsKey(this.selectedCategory)) {
 				Map<String, Quest> map = Maps.newTreeMap();
 				for (Quest quest : this.categoryData.get(this.selectedCategory).quests.values()) {
-					boolean b = quest.isSetUp();
-					String key = chr + "7ID:" + quest.id + "-\"" + chr + "r" + quest.getTitle() + chr + "7\"" + chr
-							+ (b ? "2 (" : "c (") + (new TextComponentTranslation("quest.has." + b).getFormattedText())
-							+ chr + (b ? "2)" : "c)");
-					map.put(key, quest);
+					map.put(getKey(quest), quest);
 				}
 				List<Entry<String, Quest>> list = Lists.newArrayList(map.entrySet());
 				list.sort((d_0, d_1) -> {
@@ -263,6 +253,12 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 				}
 			}
 		}
+		if (!selectedCategory.isEmpty() && !categoryData.containsKey(selectedCategory)) {
+			selectedCategory = "";
+		}
+		if (!selectedQuest.isEmpty() && !questData.containsKey(selectedQuest)) {
+			selectedQuest = "";
+		}
 		// scroll info
 		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 8, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(1, "quest.quests", this.guiLeft + 180, this.guiTop + 4));
@@ -273,6 +269,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 		this.addButton(new GuiNpcButton(12, x, y += 17, 64, 15, "gui.remove", !this.selectedQuest.isEmpty()));
 		this.addButton(new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !this.selectedCategory.isEmpty()));
+		this.getButton(10).setEnabled(!selectedQuest.isEmpty());
 		this.addButton(new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", this.copyQuest != null));
 		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y + 17, 64, 14, GuiNPCManageQuest.isName ? "gui.name" : "ID");
 		checkBox.setSelected(GuiNPCManageQuest.isName);
@@ -308,6 +305,13 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 			this.scrollQuests.setSelected(this.selectedQuest);
 		}
 		this.addScroll(this.scrollQuests);
+	}
+
+	private String getKey(Quest quest) {
+		boolean b = quest.isSetUp();
+		return chr + "7ID:" + quest.id + "-\"" + chr + "r" + quest.getTitle() + chr + "7\"" + chr
+				+ (b ? "2 (" : "c (") + (new TextComponentTranslation("quest.has." + b).getFormattedText())
+				+ chr + (b ? "2)" : "c)");
 	}
 
 	private List<String> getStrings(Quest quest, QuestController qData, DialogController dData) {
@@ -459,7 +463,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 				}
 				quest.setName(t.toString());
 
-				this.selectedQuest = quest.getTitle();
+				this.selectedQuest = getKey(quest);
 				Client.sendData(EnumPacketServer.QuestSave, this.categoryData.get(this.selectedCategory).id, quest.writeToNBT(new NBTTagCompound()));
 				this.initGui();
 			}

@@ -36,6 +36,8 @@ implements ICustomScrollListener, ISubGuiListener {
 
 	private static boolean onlyMod = true;
 	private static final WrapperRecipe recipe = new WrapperRecipe();
+	private static final int green = 0xFF70F070;
+	private static final int red = 0xFFF07070;
 
     private final Map<Boolean, Map<String, List<WrapperRecipe>>> data = new TreeMap<>(); // <isGlobal, <Group, recipe data>>
 	private GuiCustomScroll groups;
@@ -52,6 +54,7 @@ implements ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	protected void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		System.out.println("CNPCs: "+mouseButton+"; "+button.id);
 		if (mouseButton == 1) {
 			ItemStack heldStack = player.inventory.getItemStack();
 			if (button.id >= 10 && button.id < 27) {
@@ -78,11 +81,12 @@ implements ICustomScrollListener, ISubGuiListener {
 					else if (!recipe.main || NoppesUtilPlayer.compareItems(recipe.product, heldStack, false, false)) { // +N
 						recipe.product.setCount(Math.min(recipe.product.getMaxStackSize(), recipe.product.getCount() + 1));
 					}
+					if (recipe.product.isEmpty()) { button.layerColor = red; }
 				}
 				else {
 					int pos = button.id - 11;
 					ItemStack[] array = recipe.recipeItems.get(pos);
-					if (heldStack.isEmpty() && array.length > 0) {
+					if (heldStack.isEmpty() && array != null && array.length > 0) {
 						int p = button.currentStackID;
 						int count = Math.max(0, array[p].getCount() - 1);
 						if (count > 0) { array[p].setCount(count); }
@@ -98,14 +102,14 @@ implements ICustomScrollListener, ISubGuiListener {
 						button.setCurrentStackPos(p);
 						recipe.recipeItems.put(pos, array);
 					}
-					else if (array == null || array.length == 0) {
+					else if ((array == null || array.length == 0) && !heldStack.isEmpty()) {
 						ItemStack stack = heldStack.copy();
 						stack.setCount(1);
 						array = new ItemStack[] { stack };
 						button.setStacks(array);
 						recipe.recipeItems.put(pos, array);
 					}
-					else {
+					else if (array != null) {
 						for (int i = 0; i < array.length; i++) {
 							if (!array[i].isEmpty() && NoppesUtilPlayer.compareItems(array[i], heldStack, false, false)) {
 								array[i].setCount(Math.min(array[i].getMaxStackSize(), array[i].getCount() + 1));
@@ -115,6 +119,9 @@ implements ICustomScrollListener, ISubGuiListener {
 								break;
 							}
 						}
+					}
+					if (recipe.domen.equals(CustomNpcs.MODID)) {
+						button.layerColor = recipe.isValid() ? array != null && array.length > 0 ? 0 : green : red;
 					}
 				}
 			}
@@ -167,6 +174,7 @@ implements ICustomScrollListener, ISubGuiListener {
 					else if (recipe.main) { recipe.product = heldStack.copy(); } // replace
 					button.setStacks(recipe.product);
 				}
+				if (recipe.product.isEmpty()) { button.layerColor = red; }
 			}
 			// ingredient
 			else {
@@ -249,6 +257,9 @@ implements ICustomScrollListener, ISubGuiListener {
 						}
 					}
 					recipe.recipeItems.put(pos, array);
+				}
+				if (recipe.domen.equals(CustomNpcs.MODID)) {
+					button.layerColor = recipe.isValid() ? array != null && array.length > 0 ? 0 : green : red;
 				}
 			}
 			return;
@@ -570,8 +581,6 @@ implements ICustomScrollListener, ISubGuiListener {
 		int x = guiLeft + 118;
 		int y = guiTop + 191;
 		boolean hasItem = recipe.isValid() && recipe.domen.equals(CustomNpcs.MODID);
-		int green = 0xFF70F070;
-		int red = 0xFFF07070;
 		// Global type
 		GuiNpcButton button = new GuiButtonBiDirectional(0, this.guiLeft + 6, y, 163, 20, new String[] { "menu.global", "tile.npccarpentybench.name" }, recipe.global ? 0 : 1);
 		button.layerColor = recipe.global ? 0x4000FF00 : 0x400000FF;
@@ -629,7 +638,7 @@ implements ICustomScrollListener, ISubGuiListener {
 		button.txrY = 96;
 		button.txrW = 36;
 		button.txrH = 36;
-		if (recipe.isValid() && recipe.product.isEmpty()) { button.layerColor = red; }
+		if (recipe.product.isEmpty()) { button.layerColor = red; }
 		button.setEnabled(recipe.domen.equals(CustomNpcs.MODID) && recipe.isValid());
 		if (!recipe.main) { button.layerColor = 0xFFA0A0A0; }
 		button.setStacks(recipe.product);
@@ -677,12 +686,6 @@ implements ICustomScrollListener, ISubGuiListener {
 		button.txrW = 24;
 		button.txrH = 24;
 		addButton(button);
-
-		checkRecipe();
-	}
-
-	private void checkRecipe() {
-		System.out.println("CNPCs: "+recipe);
 	}
 
 	@Override
