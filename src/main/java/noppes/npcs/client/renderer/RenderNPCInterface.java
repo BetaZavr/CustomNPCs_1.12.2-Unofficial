@@ -3,14 +3,17 @@ package noppes.npcs.client.renderer;
 import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.client.renderer.texture.ITextureObject;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.client.renderer.texture.ITextureManagerMixin;
 import org.apache.commons.io.IOUtils;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
@@ -42,10 +45,11 @@ import javax.imageio.ImageIO;
 
 public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLiving<T> {
 
+	private static final Map<Integer, Integer> transparentIDs = new HashMap<>();
 	private static final DynamicTexture TEXTURE_BRIGHTNESS = new DynamicTexture(16, 16);
 	public static int LastTextureTick; // ++ in ClientTickHandler.npcClientTick()
 
-	public RenderNPCInterface(ModelBase model, float f) {
+    public RenderNPCInterface(ModelBase model, float f) {
 		super(Minecraft.getMinecraft().getRenderManager(), model, f);
 	}
 
@@ -298,12 +302,29 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 		if (this.bindEntityTexture(npc)) {
 			if (isInvisible) {
-				GlStateManager.enableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL);
+				// GlStateManager.Profile.TRANSPARENT_MODEL - turns the model inside out,
+				// GL20 shaders are too much for this. Just made a copy of the texture
+				int textureId = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+				if (!transparentIDs.containsKey(textureId)) {
+					int width = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
+					int height = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
+					ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
+					GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+					GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+					for (int i = 0; i < width * height; ++i) {
+						int offset = i * 4 + 3;
+						buffer.put(offset, (byte)((buffer.get(offset) & 0xFF) / 2));
+					}
+					int newTextureId = GL11.glGenTextures();
+					GL11.glBindTexture(GL11.GL_TEXTURE_2D, newTextureId);
+					GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+					GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+					GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+					transparentIDs.put(textureId, newTextureId);
+				}
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, transparentIDs.get(textureId));
 			}
-			this.mainModel.render(npc, par2, par3, par4, par5, par6, par7);
-			if (isInvisible) {
-				GlStateManager.disableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL);
-			}
+			mainModel.render(npc, par2, par3, par4, par5, par6, par7);
 		}
 		if (!npc.display.getOverlayTexture().isEmpty()) {
 			GlStateManager.depthFunc(515);

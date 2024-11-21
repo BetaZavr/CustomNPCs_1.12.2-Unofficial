@@ -2,6 +2,7 @@ package noppes.npcs.client.layer;
 
 import java.util.Map;
 
+import noppes.npcs.items.ItemNpcWand;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 
@@ -18,7 +19,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.client.gui.animation.GuiNpcEmotion;
 import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.client.model.animation.EmotionConfig;
@@ -455,12 +455,12 @@ public class LayerEyes<T extends EntityLivingBase>
 		boolean isInvisible = false;
         Minecraft mc = Minecraft.getMinecraft();
 		if (this.npc.display.getVisible() == 1) { isInvisible = this.npc.display.getAvailability().isAvailable(mc.player); }
-		else if (this.npc.display.getVisible() == 2) { isInvisible = !(mc.player.getHeldItemMainhand().getItem() instanceof INPCToolItem); }
-		if (isInvisible) { this.alpha = 0.15f; }
+		else if (this.npc.display.getVisible() == 2) { isInvisible = !(mc.player.getHeldItemMainhand().getItem() instanceof ItemNpcWand); }
+		if (isInvisible) { alpha = 0.5f; }
 		else if (this.npc.equals(ModelNpcAlt.editAnimDataSelect.displayNpc) && ModelNpcAlt.editAnimDataSelect.part != EnumParts.HEAD) {
-			if (ModelNpcAlt.editAnimDataSelect.alpha >= 1.0f) { this.alpha = 1.0f; } else { this.alpha = 0.4f; }
+			if (ModelNpcAlt.editAnimDataSelect.alpha >= 1.0f) { alpha = 1.0f; } else { alpha = 0.5f; }
 		}
-		else { this.alpha = 1.0f; }
+		else { alpha = 1.0f; }
 
 		GlStateManager.pushMatrix();
 		this.model.bipedHead.postRender(0.0625f);
