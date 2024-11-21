@@ -215,8 +215,8 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		if (guiCustomScroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		if (scroll.id == 0) {
 			this.save();
 			String selected = this.scroll.getSelected();
 			this.spawn = new SpawnData();

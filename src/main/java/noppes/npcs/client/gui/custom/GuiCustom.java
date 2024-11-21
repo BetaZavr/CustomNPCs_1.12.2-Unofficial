@@ -333,7 +333,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 		super.onGuiClosed();
 	}
 
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiScrollClick, this.updateGui().toNBT(), scroll.id,
 				scroll.selected, this.getScrollSelection((CustomGuiScrollComponent) scroll), false);
 	}

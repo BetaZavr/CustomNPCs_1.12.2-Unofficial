@@ -107,7 +107,7 @@ public class SubGuiNpcSelectTrader extends SubGuiInterface implements IGuiData, 
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.getSelected().equals(this.select) || !this.data.containsKey(scroll.getSelected())) {
 			return;
 		}

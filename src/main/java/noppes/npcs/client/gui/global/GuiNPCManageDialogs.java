@@ -137,7 +137,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			if (!this.dialogData.containsKey(this.selectedDialog)) {
 				return;
 			}
-			this.setSubGui(new GuiDialogEdit(this.dialogData.get(this.selectedDialog)));
+			this.setSubGui(new GuiDialogEdit(dialogData.get(selectedDialog), this));
 			break;
 		}
 		case 14: {
@@ -398,23 +398,23 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		if (guiCustomScroll.getSelected() == null) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		if (scroll.getSelected() == null) {
 			return;
 		}
-		if (guiCustomScroll.id == 0) {
-			if (this.selectedCategory.equals(guiCustomScroll.getSelected())) {
+		if (scroll.id == 0) {
+			if (this.selectedCategory.equals(scroll.getSelected())) {
 				return;
 			}
-			this.selectedCategory = guiCustomScroll.getSelected();
+			this.selectedCategory = scroll.getSelected();
 			this.selectedDialog = "";
-			guiCustomScroll.selected = -1;
+			scroll.selected = -1;
 		}
-		if (guiCustomScroll.id == 1) {
-			if (this.selectedDialog.equals(guiCustomScroll.getSelected())) {
+		if (scroll.id == 1) {
+			if (this.selectedDialog.equals(scroll.getSelected())) {
 				return;
 			}
-			this.selectedDialog = guiCustomScroll.getSelected();
+			this.selectedDialog = scroll.getSelected();
 		}
 		this.initGui();
 	}
@@ -422,7 +422,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
 		if (!this.selectedDialog.isEmpty() && scroll.id == 1) {
-			this.setSubGui(new GuiDialogEdit(this.dialogData.get(this.selectedDialog)));
+			this.setSubGui(new GuiDialogEdit(dialogData.get(selectedDialog), this));
 		}
 	}
 

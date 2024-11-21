@@ -368,23 +368,23 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		if (guiCustomScroll.getSelected() == null) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		if (scroll.getSelected() == null) {
 			return;
 		}
-		if (guiCustomScroll.id == 0) {
-			if (this.selectedCategory.equals(guiCustomScroll.getSelected())) {
+		if (scroll.id == 0) {
+			if (this.selectedCategory.equals(scroll.getSelected())) {
 				return;
 			}
-			this.selectedCategory = guiCustomScroll.getSelected();
+			this.selectedCategory = scroll.getSelected();
 			this.selectedQuest = "";
 			this.scrollQuests.selected = -1;
 		}
-		if (guiCustomScroll.id == 1) {
-			if (this.selectedQuest.equals(guiCustomScroll.getSelected())) {
+		if (scroll.id == 1) {
+			if (this.selectedQuest.equals(scroll.getSelected())) {
 				return;
 			}
-			this.selectedQuest = guiCustomScroll.getSelected();
+			this.selectedQuest = scroll.getSelected();
 		}
 		this.initGui();
 	}

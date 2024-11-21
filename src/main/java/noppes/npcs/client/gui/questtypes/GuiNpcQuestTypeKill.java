@@ -298,8 +298,8 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		this.getTextField(0).setText(guiCustomScroll.getSelected());
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		this.getTextField(0).setText(scroll.getSelected());
 		this.saveTargets();
 	}
 

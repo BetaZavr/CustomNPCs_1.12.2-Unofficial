@@ -126,7 +126,7 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.id == 1) {
 			HashSet<Integer> set = Sets.newHashSet();
 			HashSet<String> list = scroll.getSelectedList();

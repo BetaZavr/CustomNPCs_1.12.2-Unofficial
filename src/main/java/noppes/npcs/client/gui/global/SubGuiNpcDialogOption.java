@@ -1,12 +1,14 @@
 package noppes.npcs.client.gui.global;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -28,24 +30,25 @@ import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.DialogOption.OptionDialogID;
 
-public class SubGuiNpcDialogOption extends SubGuiInterface
-		implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
+public class SubGuiNpcDialogOption extends SubGuiInterface implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	public static int LastColor = 0xE0E0E0;
+	public final GuiScreen parent;
 
-	private final Map<String, OptionDialogID> data; // {scrollTitle, dialogID}
+	private final Map<String, OptionDialogID> data = new HashMap<>(); // {scrollTitle, dialogID}
 	private final DialogOption option;
 	private GuiCustomScroll scroll;
 	private String select;
 
-	public SubGuiNpcDialogOption(DialogOption option) {
+	public SubGuiNpcDialogOption(DialogOption option, GuiScreen parent) {
+		this.parent = parent;
 		this.option = option;
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 216;
-		this.closeOnEsc = true;
-		this.select = "";
-		this.data = Maps.newHashMap();
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 216;
+		closeOnEsc = true;
+
+		select = "";
 	}
 
 	@Override
@@ -106,7 +109,7 @@ public class SubGuiNpcDialogOption extends SubGuiInterface
 			if (this.select.isEmpty() || !this.data.containsKey(this.select)) {
 				return;
 			}
-			this.setSubGui(new SubGuiNpcAvailability(this.data.get(this.select).availability));
+			this.setSubGui(new SubGuiNpcAvailability(data.get(select).availability, parent));
 			break;
 		}
 		case 9: { // icons

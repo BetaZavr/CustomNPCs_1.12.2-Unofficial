@@ -93,13 +93,13 @@ public class GuiQuestSelection extends SubGuiInterface implements ICustomScrollL
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		if (guiCustomScroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		if (scroll.id == 0) {
 			this.selectedCategory = this.categoryData.get(this.scrollCategories.getSelected());
 			this.selectedQuest = null;
 			this.scrollQuests.selected = -1;
 		}
-		if (guiCustomScroll.id == 1) {
+		if (scroll.id == 1) {
 			this.selectedQuest = this.questData.get(this.scrollQuests.getSelected());
 		}
 		this.initGui();

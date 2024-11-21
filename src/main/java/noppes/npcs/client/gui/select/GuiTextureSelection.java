@@ -443,7 +443,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.getSelected().equals(this.back)) {
 			if (this.selectDir == null) {
 				return;

@@ -311,11 +311,11 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.id == 0) {
 			this.initGui();
 		} else if (this.selected != null) {
-			this.selected.scrollClicked(i, j, k, scroll);
+			this.selected.scrollClicked(mouseX, mouseY, mouseButton, scroll);
 		}
 	}
 

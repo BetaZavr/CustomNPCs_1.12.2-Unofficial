@@ -67,8 +67,8 @@ public class GuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, IC
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		if (guiCustomScroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		if (scroll.id == 0) {
 			this.role.bankId = this.data.get(this.scroll.getSelected());
 			this.save();
 		}

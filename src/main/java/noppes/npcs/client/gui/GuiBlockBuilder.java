@@ -68,7 +68,7 @@ public class GuiBlockBuilder extends GuiNPCInterface implements IGuiData, ICusto
 			this.tile.rotation = button.getValue();
 		}
 		if (button.id == 6) {
-			this.setSubGui(new SubGuiNpcAvailability(this.tile.availability));
+			this.setSubGui(new SubGuiNpcAvailability(tile.availability, this));
 		}
 		if (button.id == 7) {
 			this.tile.finished = ((GuiNpcButtonYesNo) button).getBoolean();
@@ -183,7 +183,7 @@ public class GuiBlockBuilder extends GuiNPCInterface implements IGuiData, ICusto
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (!scroll.hasSelected()) {
 			return;
 		}

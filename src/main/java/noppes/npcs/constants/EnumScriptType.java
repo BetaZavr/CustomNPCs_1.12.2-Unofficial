@@ -76,7 +76,7 @@ public enum EnumScriptType
 	POTION_END("endEffect", new int[] { 5 }), 
 	SCRIPT_TRIGGER("trigger", new int[] { 0, 1, 2, 3, 4, 5, 6 }), 
 	SOUND_PLAY("soundPlayed", new int[] { 0 }), 
-	SOUND_STOP("soundStoped", new int[] { 0 }), 	
+	SOUND_STOP("soundStopped", new int[] { 0 }),
 	PACKAGE_RECEIVED("packageReceived", new int[] { 4 }),
 	PACKAGE_FROM("packageFrom", new int[] { 0, 4 }),
 	CUSTOM_TELEPORT("customTeleport", new int[] { 0, 1 }),

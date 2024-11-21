@@ -3,9 +3,7 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -39,7 +37,7 @@ public class BorderController implements IBorderHandler {
 		return file != null && !BorderController.instance.filePath.equals(file.getAbsolutePath());
 	}
 
-	public final HashMap<Integer, Zone3D> regions = new HashMap<>();
+	public final Map<Integer, Zone3D> regions = new TreeMap<>();
 
 	private String filePath;
 

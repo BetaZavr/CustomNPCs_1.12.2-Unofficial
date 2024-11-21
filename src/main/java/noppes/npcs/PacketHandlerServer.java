@@ -50,27 +50,11 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerData;
 import noppes.npcs.constants.EnumQuestRepeat;
 import noppes.npcs.constants.EnumSync;
+import noppes.npcs.containers.ContainerAvailabilityInv;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.controllers.*;
-import noppes.npcs.controllers.data.Bank;
+import noppes.npcs.controllers.data.*;
 import noppes.npcs.controllers.data.Bank.CeilSettings;
-import noppes.npcs.controllers.data.BankData;
-import noppes.npcs.controllers.data.ClientScriptData;
-import noppes.npcs.controllers.data.Dialog;
-import noppes.npcs.controllers.data.DialogCategory;
-import noppes.npcs.controllers.data.DropsTemplate;
-import noppes.npcs.controllers.data.Faction;
-import noppes.npcs.controllers.data.ForgeScriptData;
-import noppes.npcs.controllers.data.MarkData;
-import noppes.npcs.controllers.data.NpcScriptData;
-import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerMail;
-import noppes.npcs.controllers.data.PotionScriptData;
-import noppes.npcs.controllers.data.Quest;
-import noppes.npcs.controllers.data.QuestCategory;
-import noppes.npcs.controllers.data.SpawnData;
-import noppes.npcs.controllers.data.TransportLocation;
-import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -113,8 +97,7 @@ public class PacketHandlerServer {
         return permission != null && permission.isAllowed(type);
     }
 
-    private void handlePacket(EnumPacketServer type, ByteBuf buffer, EntityPlayerMP player, EntityNPCInterface npc)
-            throws Exception {
+    private void handlePacket(EnumPacketServer type, ByteBuf buffer, EntityPlayerMP player, EntityNPCInterface npc) throws Exception {
         CustomNpcs.debugData.startDebug("Server", type.toString(), "PacketHandlerServer_Received");
         if (type == EnumPacketServer.Delete) {
             if (npc.advanced.jobInterface instanceof JobBard) {
@@ -1606,6 +1589,14 @@ public class PacketHandlerServer {
             player.openContainer.detectAndSendChanges();
         } else if (type == EnumPacketServer.RemoveNpcEdit) {
             NoppesUtilServer.setEditingNpc(player, null);
+        } else if (type == EnumPacketServer.AvailabilityStacks) {
+            Availability availability = new Availability();
+            availability.readFromNBT(Server.readNBT(buffer));
+            CommonProxy.availabilityStacks.put(player, availability);
+        } else if (type == EnumPacketServer.AvailabilitySlot) {
+            if (player.openContainer instanceof ContainerAvailabilityInv) {
+                ((ContainerAvailabilityInv) player.openContainer).slot.setSlotIndex(buffer.readInt());
+            }
         }
 
         CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");

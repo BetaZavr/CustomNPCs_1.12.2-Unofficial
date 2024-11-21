@@ -303,7 +303,7 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		switch (scroll.id) {
 		case 0: {
 			if (this.catSel.equals(scroll.getSelected()) || !this.dataCat.containsKey(scroll.getSelected())) {

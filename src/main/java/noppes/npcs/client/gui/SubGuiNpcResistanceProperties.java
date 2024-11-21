@@ -160,7 +160,7 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 	public void setSelected(String select) { }
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (!scroll.hasSelected() || !this.data.containsKey(Util.instance.deleteColor(scroll.getSelected()))) { return; }
 		this.select = Util.instance.deleteColor(scroll.getSelected());
 		this.initGui();

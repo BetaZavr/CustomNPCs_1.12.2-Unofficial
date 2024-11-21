@@ -66,5 +66,6 @@ public enum EnumGuiType
 	SaverSetting,
 	RemoverSetting,
 	DimensionSetting,
+	AvailabilityStack,
 	CustomContainer
 }

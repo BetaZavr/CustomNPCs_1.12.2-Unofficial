@@ -21,6 +21,7 @@
     "init.ItemsMixin",
     "inv.ContainerMixin",
     "inv.SlotCraftingMixin",
+    "inv.SlotMixin",
     "item.ItemArmorMixin",
     "item.ItemFoodMixin",
     "item.ItemSwordMixin",

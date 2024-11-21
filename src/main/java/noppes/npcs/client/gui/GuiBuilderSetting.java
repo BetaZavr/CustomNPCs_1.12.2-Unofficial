@@ -486,7 +486,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		// File List
 		this.builder.schematicName = scroll.getSelected();
 		if (this.builder.schematicName.endsWith(".schematic")) {

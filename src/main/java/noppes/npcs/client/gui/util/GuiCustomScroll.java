@@ -141,12 +141,8 @@ implements IComponentGui {
 				this.fontRenderer.drawString(text, j, k, c);
 				c = CustomNpcs.MainColor.getRGB();
 			}
-			if (this.suffixes != null && i < this.suffixes.size() && this.suffixes.get(i) != null && !this.suffixes.get(i).isEmpty()
-					&& this.fontRenderer.getStringWidth(text + this.suffixes.get(i)) < this.width - 20) {
-				this.fontRenderer.drawString(this.suffixes.get(i),
-						this.width - 9 + (this.listHeight > this.height ? -11 : 0)
-								- this.fontRenderer.getStringWidth(this.suffixes.get(i)),
-						k, c);
+			if (this.suffixes != null && i < this.suffixes.size() && this.suffixes.get(i) != null && !this.suffixes.get(i).isEmpty() && this.fontRenderer.getStringWidth(text + this.suffixes.get(i)) < this.width - 20) {
+				this.fontRenderer.drawString(this.suffixes.get(i), this.width - 6 + (this.listHeight > this.height ? -11 : 0) - this.fontRenderer.getStringWidth(this.suffixes.get(i)), k, c);
 			}
 		}
 	}

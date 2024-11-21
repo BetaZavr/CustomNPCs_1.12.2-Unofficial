@@ -1,10 +1,9 @@
 package noppes.npcs.client.gui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.TreeMap;
 
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -22,9 +21,9 @@ import noppes.npcs.controllers.data.AvailabilityStoredData;
 public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface implements ICustomScrollListener, ITextfieldListener {
 
 	private final Availability availability;
-	private final Map<String, AvailabilityStoredData> data;
+	private final Map<String, AvailabilityStoredData> data = new TreeMap<>();
 	private GuiCustomScroll scroll;
-	private AvailabilityStoredData select;
+	private AvailabilityStoredData select = null;
 	private int keyError;
 
 	public SubGuiNpcAvailabilityStoredData(Availability availability) {
@@ -33,69 +32,66 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface implements 
 		this.xSize = 316;
 		this.ySize = 217;
 		this.closeOnEsc = true;
-
-		this.data = Maps.newTreeMap();
-		this.select = null;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 0: {
-			if (this.select == null) { return; }
-			this.select.type = EnumAvailabilityStoredData.values()[button.getValue()];
-			this.initGui();
-			break;
-		}
-		case 2: { // remove
-			if (this.select == null) {
-				return;
+			case 0: {
+				if (this.select == null) { return; }
+				this.select.type = EnumAvailabilityStoredData.values()[button.getValue()];
+				this.initGui();
+				break;
 			}
-			this.availability.storeddata.remove(this.select);
-			this.select = null;
-			this.initGui();
-			break;
-		}
-		case 3: { // more
-			if (this.getTextField(0) == null || this.getTextField(1) == null || this.getButton(0) == null) {
-				return;
-			}
-            String key = this.getTextField(0).getText();
-            int i = 0;
-            if (this.select != null) {
-                while (i < this.availability.storeddata.size()) {
-                    AvailabilityStoredData asd = this.availability.storeddata.get(i);
-                    i++;
-                    if (asd == this.select) {
-                        continue;
-                    }
-                    if (asd.key.equals(key)) {
-                        key += "_";
-                        i = 0;
-                    }
-                }
-				this.select.key = key;
-				this.select.value = this.getTextField(1).getText();
-				this.select.type = EnumAvailabilityStoredData.values()[this.getButton(0).getValue()];
+			case 2: { // remove
+				if (this.select == null) {
+					return;
+				}
+				this.availability.storeddata.remove(this.select);
 				this.select = null;
-			} else {
-                while (i < this.availability.storeddata.size()) {
-                    AvailabilityStoredData asd = this.availability.storeddata.get(i);
-                    i++;
-                    if (asd.key.equals(key)) {
-                        key += "_";
-                        i = 0;
-                    }
-                }
-				this.availability.storeddata.add(new AvailabilityStoredData(key, this.getTextField(1).getText(), EnumAvailabilityStoredData.values()[this.getButton(0).getValue()]));
+				this.initGui();
+				break;
 			}
-			this.initGui();
-			break;
-		}
-		case 66: {
-			this.close();
-			break;
-		}
+			case 3: { // more
+				if (this.getTextField(0) == null || this.getTextField(1) == null || this.getButton(0) == null) {
+					return;
+				}
+				String key = this.getTextField(0).getText();
+				int i = 0;
+				if (this.select != null) {
+					while (i < this.availability.storeddata.size()) {
+						AvailabilityStoredData asd = this.availability.storeddata.get(i);
+						i++;
+						if (asd == this.select) {
+							continue;
+						}
+						if (asd.key.equals(key)) {
+							key += "_";
+							i = 0;
+						}
+					}
+					this.select.key = key;
+					this.select.value = this.getTextField(1).getText();
+					this.select.type = EnumAvailabilityStoredData.values()[this.getButton(0).getValue()];
+					this.select = null;
+				} else {
+					while (i < this.availability.storeddata.size()) {
+						AvailabilityStoredData asd = this.availability.storeddata.get(i);
+						i++;
+						if (asd.key.equals(key)) {
+							key += "_";
+							i = 0;
+						}
+					}
+					this.availability.storeddata.add(new AvailabilityStoredData(key, this.getTextField(1).getText(), EnumAvailabilityStoredData.values()[this.getButton(0).getValue()]));
+				}
+				this.initGui();
+				break;
+			}
+			case 66: {
+				this.close();
+				break;
+			}
 		}
 	}
 
@@ -172,7 +168,7 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface implements 
 		if (this.scroll == null) {
 			(this.scroll = new GuiCustomScroll(this, 0)).setSize(this.xSize - 12, this.ySize - 64);
 		}
-		this.scroll.setList(Lists.newArrayList(this.data.keySet()));
+		this.scroll.setList(new ArrayList<>(data.keySet()));
 		this.scroll.guiLeft = this.guiLeft + 6;
 		this.scroll.guiTop = this.guiTop + 14;
 		if (!selKey.isEmpty()) {
@@ -246,4 +242,5 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface implements 
 			this.initGui();
 		}
 	}
+
 }

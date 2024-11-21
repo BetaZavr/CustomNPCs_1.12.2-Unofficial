@@ -94,6 +94,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 			}
 			case 3: { // Add deal
 				save();
+				SubGuiNPCManageDeal.parent = this;
 				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, marcetId, mData.getUnusedDealId(), 0);
 				break;
 			}
@@ -106,6 +107,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 				if (scrollAllDeals.selected < 0 || dealId < 0) {
 					return;
 				}
+				SubGuiNPCManageDeal.parent = this;
 				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, marcetId, dealId, 0);
 				close();
 				break;
@@ -485,6 +487,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 				return;
 			}
 			save();
+			SubGuiNPCManageDeal.parent = this;
 			NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, marcetId, dealId, 0);
 			break;
 		}

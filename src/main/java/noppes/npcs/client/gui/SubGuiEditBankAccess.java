@@ -169,7 +169,7 @@ public class SubGuiEditBankAccess
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		sel = scroll.getSelected();
 		if (getButton(1) != null) {
 			getButton(1).enabled = scroll.hasSelected();

@@ -303,7 +303,7 @@ public class GuiNpcHealer extends GuiNPCInterface2
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		this.initGui();
 	}
 

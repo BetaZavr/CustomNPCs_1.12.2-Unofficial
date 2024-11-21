@@ -44,7 +44,7 @@ public class GuiNpcConversation extends GuiNPCInterface2 implements ITextfieldLi
 			this.initGui();
 		}
 		if (button.id == 53) {
-			this.setSubGui(new SubGuiNpcAvailability(this.job.availability));
+			this.setSubGui(new SubGuiNpcAvailability(job.availability, this));
 		}
 		if (button.id == 55) {
 			this.job.mode = button.getValue();

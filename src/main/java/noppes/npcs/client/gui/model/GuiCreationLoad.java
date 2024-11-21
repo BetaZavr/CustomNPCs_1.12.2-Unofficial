@@ -92,7 +92,7 @@ public class GuiCreationLoad extends GuiCreationScreenInterface implements ICust
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		Preset preset = PresetController.instance.getPreset(scroll.getSelected());
 		this.playerdata.readFromNBT(preset.data.writeToNBT());
 		this.initGui();

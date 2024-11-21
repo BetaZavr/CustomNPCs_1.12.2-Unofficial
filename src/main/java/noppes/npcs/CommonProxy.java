@@ -3,9 +3,6 @@ package noppes.npcs;
 import java.io.*;
 import java.util.*;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,35 +31,11 @@ import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.blocks.tiles.CustomTileEntityChest;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.containers.ContainerBuilderSettings;
-import noppes.npcs.containers.ContainerCarpentryBench;
-import noppes.npcs.containers.ContainerCustomChest;
-import noppes.npcs.containers.ContainerCustomGui;
-import noppes.npcs.containers.ContainerMail;
-import noppes.npcs.containers.ContainerManageBanks;
-import noppes.npcs.containers.ContainerManageRecipes;
-import noppes.npcs.containers.ContainerMerchantAdd;
-import noppes.npcs.containers.ContainerNPCBank;
-import noppes.npcs.containers.ContainerNPCCompanion;
-import noppes.npcs.containers.ContainerNPCDropSetup;
-import noppes.npcs.containers.ContainerNPCFollowerHire;
-import noppes.npcs.containers.ContainerNPCFollowerSetup;
-import noppes.npcs.containers.ContainerNPCInv;
-import noppes.npcs.containers.ContainerNPCTrader;
-import noppes.npcs.containers.ContainerNPCTraderSetup;
-import noppes.npcs.containers.ContainerNPCTransportSetup;
-import noppes.npcs.containers.ContainerNpcItemGiver;
-import noppes.npcs.containers.ContainerNpcQuestReward;
-import noppes.npcs.containers.ContainerNpcQuestRewardItem;
-import noppes.npcs.containers.ContainerNpcQuestTypeItem;
+import noppes.npcs.containers.*;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.TransportController;
-import noppes.npcs.controllers.data.Bank;
-import noppes.npcs.controllers.data.Deal;
-import noppes.npcs.controllers.data.Marcet;
-import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.TransportLocation;
+import noppes.npcs.controllers.data.*;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.items.CustomBow;
@@ -76,7 +49,9 @@ import noppes.npcs.util.TempFile;
 
 public class CommonProxy implements IGuiHandler {
 
-	public static Map<String, TempFile> downloadableFiles = Maps.newHashMap();
+	public static final Map<String, TempFile> downloadableFiles = new HashMap<>();
+	public static final Map<EntityPlayer, Availability> availabilityStacks = new HashMap<>();
+
 	public boolean newVersionAvailable;
 	public int revision;
 
@@ -366,6 +341,9 @@ public class CommonProxy implements IGuiHandler {
 
 	public Container getContainer(EnumGuiType gui, EntityPlayer player, int x, int y, int z, EntityNPCInterface npc) {
 		switch (gui) {
+			case AvailabilityStack: {
+				return new ContainerAvailabilityInv(player);
+			}
 			case CustomContainer: {
 				TileEntity tile = player.world.getTileEntity(new BlockPos(x, y, z));
 				if (tile instanceof CustomTileEntityChest) {
@@ -536,7 +514,7 @@ public class CommonProxy implements IGuiHandler {
 		if (recipe == null) { return; }
 		// Changed in Players
 		if (!added || recipe.isKnown()) {
-			List<EntityPlayerMP> players = CustomNpcs.Server != null ? CustomNpcs.Server.getPlayerList().getPlayers() : Lists.newArrayList();
+			List<EntityPlayerMP> players = CustomNpcs.Server != null ? CustomNpcs.Server.getPlayerList().getPlayers() : new ArrayList<>();
 			for (EntityPlayerMP player : players) {
 				RecipeBook book = player.getRecipeBook();
 				if (!added) { book.lock((IRecipe) recipe); } else { book.unlock((IRecipe) recipe); }

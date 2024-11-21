@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.global;
 
 import java.util.Arrays;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -21,11 +22,13 @@ import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
-public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements ITextfieldListener {
+public class SubGuiNPCManageDeal extends GuiContainerNPCInterface2 implements ITextfieldListener {
+
+	public static GuiScreen parent;
 
 	private final Deal deal;
 
-	public GuiNPCManageDeal(EntityNPCInterface npc, ContainerNPCTraderSetup cont) {
+	public SubGuiNPCManageDeal(EntityNPCInterface npc, ContainerNPCTraderSetup cont) {
 		super(npc, cont);
 		this.ySize = 200;
 		this.deal = cont.deal;
@@ -45,7 +48,7 @@ public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements IText
 			break;
 		}
 		case 2: {
-			this.setSubGui(new SubGuiNpcAvailability(this.deal.availability));
+			this.setSubGui(new SubGuiNpcAvailability(deal.availability,  parent));
 			this.initGui();
 			break;
 		}

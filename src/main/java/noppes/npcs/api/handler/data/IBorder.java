@@ -22,6 +22,8 @@ public interface IBorder {
 
 	void clear();
 
+	boolean contains(IEntity<?> entity);
+
 	boolean contains(double x, double y, double z, double height);
 
 	boolean contains(int x, int z);

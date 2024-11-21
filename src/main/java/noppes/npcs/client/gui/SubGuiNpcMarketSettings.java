@@ -253,7 +253,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (this.getButton(6) != null) {
 			this.getButton(6).setEnabled(this.marcet.sections.size() > 1 && this.scroll.selected > 0);
 		}

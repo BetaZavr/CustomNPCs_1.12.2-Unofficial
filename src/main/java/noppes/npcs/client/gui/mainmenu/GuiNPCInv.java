@@ -432,7 +432,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int ticks, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.getSelected() == null) {
 			return;
 		}

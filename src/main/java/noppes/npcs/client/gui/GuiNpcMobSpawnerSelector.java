@@ -251,7 +251,7 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface implements IGuiDat
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		String sel = this.scroll.getSelected();
 		if (sel == null) { return; }
 		this.resetEntity();

@@ -252,7 +252,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	@Override
 	protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
 		super.handleMouseClick(slotIn, slotId, mouseButton, type);
-        this.reset = 5;
+        this.reset = 3;
     }
 
 	@Override
@@ -423,7 +423,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int ticks, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.getSelected() == null) {
 			return;
 		}

@@ -174,8 +174,8 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2 implements IScrollData,
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		if (guiCustomScroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		if (scroll.id == 0) {
 			Client.sendData(EnumPacketServer.FactionSet, this.data.get(this.scrollFactions.getSelected()));
 		}
 	}

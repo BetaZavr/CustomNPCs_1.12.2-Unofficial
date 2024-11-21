@@ -197,7 +197,7 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		this.select = scroll.getSelected();
 		this.initGui();
 	}

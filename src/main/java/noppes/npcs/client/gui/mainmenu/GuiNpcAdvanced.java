@@ -22,16 +22,7 @@ import noppes.npcs.client.gui.advanced.GuiNPCScenes;
 import noppes.npcs.client.gui.advanced.GuiNPCSoundsMenu;
 import noppes.npcs.client.gui.animation.GuiNpcAnimation;
 import noppes.npcs.client.gui.animation.GuiNpcEmotion;
-import noppes.npcs.client.gui.roles.GuiJobFarmer;
-import noppes.npcs.client.gui.roles.GuiNpcBard;
-import noppes.npcs.client.gui.roles.GuiNpcCompanion;
-import noppes.npcs.client.gui.roles.GuiNpcConversation;
-import noppes.npcs.client.gui.roles.GuiNpcFollowerJob;
-import noppes.npcs.client.gui.roles.GuiNpcGuard;
-import noppes.npcs.client.gui.roles.GuiNpcHealer;
-import noppes.npcs.client.gui.roles.GuiNpcSpawner;
-import noppes.npcs.client.gui.roles.GuiNpcTransporter;
-import noppes.npcs.client.gui.roles.GuiRoleDialog;
+import noppes.npcs.client.gui.roles.*;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -116,7 +107,7 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 			break;
 		}
 		case 15: {
-			NoppesUtil.openGUI(this.player, new GuiNPCMarks(this.npc));
+			NoppesUtil.openGUI(this.player, new GuiNPCMarks(this.npc, this));
 			break;
 		}
 		case 16: { // Animation Settings
@@ -290,6 +281,7 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 						break;
 					}
 					case ITEM_GIVER: {
+						GuiNpcItemGiver.parent = this;
 						NoppesUtil.requestOpenGUI(EnumGuiType.SetupItemGiver);
 						break;
 					}

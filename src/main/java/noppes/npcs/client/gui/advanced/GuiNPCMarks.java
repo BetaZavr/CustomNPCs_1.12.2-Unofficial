@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -38,9 +39,11 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, IC
 	private GuiCustomScroll scroll;
 	private MarkData.Mark selectedMark;
 	private String selMark;
+	public final GuiScreen parent;
 
-	public GuiNPCMarks(EntityNPCInterface npc) {
+	public GuiNPCMarks(EntityNPCInterface npc, GuiScreen parent) {
 		super(npc);
+		this.parent = parent;
 		this.marks = new String[] { "gui.none", "mark.question", "mark.exclamation", "mark.pointer", "mark.skull", "mark.cross", "mark.star" };
 		this.data = MarkData.get(npc);
 		this.npcDisplay = new EntityCustomNpc(npc.world);
@@ -68,7 +71,7 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, IC
 			break;
 		}
 		case 2: {
-			this.setSubGui(new SubGuiNpcAvailability(this.selectedMark.availability));
+			this.setSubGui(new SubGuiNpcAvailability(selectedMark.availability, parent));
 			break;
 		}
 		case 3: {

@@ -540,8 +540,8 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		this.selected = guiCustomScroll.getSelected();
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		this.selected = scroll.getSelected();
 		if (this.selection == EnumPlayerData.Players) {
 			this.selectedPlayer = this.selected;
 			this.isOnline = this.data.get(this.selected) == 1;

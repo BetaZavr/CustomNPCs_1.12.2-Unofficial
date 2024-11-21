@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.global;
 
 import java.util.Arrays;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,8 +35,10 @@ import noppes.npcs.controllers.data.PlayerMail;
 public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 
 	private final Dialog dialog;
+	public final GuiScreen parent;
 
-	public GuiDialogEdit(Dialog dialog) {
+	public GuiDialogEdit(Dialog dialog, GuiScreen parent) {
+		this.parent = parent;
 		this.dialog = dialog;
 		this.setBackground("menubg.png");
 		this.xSize = 386;
@@ -51,7 +54,7 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 			break;
 		}
 		case 4: {
-			this.setSubGui(new SubGuiNpcAvailability(this.dialog.availability));
+			this.setSubGui(new SubGuiNpcAvailability(dialog.availability, parent));
 			break;
 		}
 		case 5: {
@@ -59,7 +62,7 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 			break;
 		}
 		case 6: {
-			this.setSubGui(new SubGuiNpcDialogOptions(this.dialog));
+			this.setSubGui(new SubGuiNpcDialogOptions(this.dialog, this));
 			break;
 		}
 		case 7: {
@@ -299,7 +302,7 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 			this.dialog.text = gui.text;
 		}
 		if (subgui instanceof SubGuiNpcDialogOption) {
-			this.setSubGui(new SubGuiNpcDialogOptions(this.dialog));
+			this.setSubGui(new SubGuiNpcDialogOptions(this.dialog, this));
 		}
 		if (subgui instanceof SubGuiNpcCommand) {
 			this.dialog.command = ((SubGuiNpcCommand) subgui).command;

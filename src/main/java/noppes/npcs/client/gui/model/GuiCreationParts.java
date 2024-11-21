@@ -599,7 +599,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.selected >= 0) {
 			GuiCreationParts.selected = scroll.selected;
 			this.initGui();

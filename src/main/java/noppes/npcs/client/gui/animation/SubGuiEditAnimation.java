@@ -2262,7 +2262,7 @@ public class SubGuiEditAnimation
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		this.setPart(dataParts.get(scroll.getSelected()));
 		this.initGui();
 	}

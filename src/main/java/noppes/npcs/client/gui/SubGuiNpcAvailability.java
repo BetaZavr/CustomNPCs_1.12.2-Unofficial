@@ -2,8 +2,13 @@ package noppes.npcs.client.gui;
 
 import java.util.Arrays;
 
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.client.Client;
+import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcSlider;
@@ -12,14 +17,18 @@ import noppes.npcs.client.gui.util.ISliderListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumDayTime;
+import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.Availability;
 
 public class SubGuiNpcAvailability extends SubGuiInterface implements ISliderListener, ITextfieldListener {
 
-	private final Availability availability;
+	public final Availability availability;
+	public final GuiScreen parent;
 
-	public SubGuiNpcAvailability(Availability availability) {
+	public SubGuiNpcAvailability(Availability availability, GuiScreen parent) {
 		super();
+		this.parent = parent;
 		this.availability = availability;
 		this.setBackground("menubg.png");
 		this.xSize = 256;
@@ -62,7 +71,19 @@ public class SubGuiNpcAvailability extends SubGuiInterface implements ISliderLis
 			break;
 		}
 		case 8: { // ItemStacks
+			SubGuiNpcAvailabilityItemStacks.parent = parent;
+			SubGuiNpcAvailabilityItemStacks.setting = this;
+			CommonProxy.availabilityStacks.put(player, availability);
 
+			NBTTagCompound compound= new NBTTagCompound();
+			availability.writeToNBT(compound);
+			Client.sendData(EnumPacketServer.AvailabilityStacks, compound);
+
+			NoppesUtil.requestOpenGUI(EnumGuiType.AvailabilityStack);
+			break;
+		}
+		case 9: { // ItemStacks
+			this.setSubGui(new SubGuiNpcAvailabilityRegions(this.availability));
 			break;
 		}
 		case 50: {
@@ -130,6 +151,8 @@ public class SubGuiNpcAvailability extends SubGuiInterface implements ISliderLis
 			this.setHoverText(new TextComponentTranslation("availability.hover.storeddata").getFormattedText());
 		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availability.hover.stack").getFormattedText());
+		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("availability.hover.region").getFormattedText());
 		} else if (this.getSlider(5) != null && this.getSlider(5).visible && this.getSlider(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availability.hover.health").getFormattedText());
 		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
@@ -161,7 +184,8 @@ public class SubGuiNpcAvailability extends SubGuiInterface implements ISliderLis
 		y = this.guiTop + 14;
 		this.addButton(new GuiNpcButton(3, x, y, 120, h, "availability.selectscoreboard"));
 		this.addButton(new GuiNpcButton(6, x, y += h + 2, 120, h, "availability.selectnames"));
-		this.addButton(new GuiNpcButton(7, x, y + h + 2, 120, h, "availability.storeddata"));
+		this.addButton(new GuiNpcButton(7, x, y += h + 2, 120, h, "availability.storeddata"));
+		this.addButton(new GuiNpcButton(9, x, y + h + 2, 120, h, "availability.region"));
 
 		// next
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 82, this.guiTop + 192, 98, h, "gui.done"));

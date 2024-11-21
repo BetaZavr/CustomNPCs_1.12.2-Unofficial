@@ -139,7 +139,7 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		this.playerdata.setEntityClass(this.data.get(scroll.getSelected()));
 		EntityLivingBase entity = this.playerdata.getEntity(this.npc);
 		if (entity != null) {

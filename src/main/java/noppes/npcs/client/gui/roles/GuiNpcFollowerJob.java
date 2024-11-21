@@ -64,8 +64,8 @@ public class GuiNpcFollowerJob extends GuiNPCInterface2 implements ICustomScroll
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		this.getTextField(1).setText(guiCustomScroll.getSelected());
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		this.getTextField(1).setText(scroll.getSelected());
 	}
 
 	@Override

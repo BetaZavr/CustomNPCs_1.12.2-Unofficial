@@ -117,7 +117,7 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 				break;
 			}
 			case 16: {
-				this.setSubGui(new SubGuiNpcAvailability(this.display.getAvailability()));
+				this.setSubGui(new SubGuiNpcAvailability(display.getAvailability(), this));
 				break;
 			}
 			default: break;

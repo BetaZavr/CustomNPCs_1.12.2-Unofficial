@@ -19,18 +19,8 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.handler.data.*;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.constants.EnumAvailabilityDialog;
-import noppes.npcs.constants.EnumAvailabilityFaction;
-import noppes.npcs.constants.EnumAvailabilityFactionType;
-import noppes.npcs.constants.EnumAvailabilityPlayerName;
-import noppes.npcs.constants.EnumAvailabilityQuest;
-import noppes.npcs.constants.EnumAvailabilityScoreboard;
-import noppes.npcs.constants.EnumAvailabilityStoredData;
-import noppes.npcs.constants.EnumDayTime;
-import noppes.npcs.controllers.DialogController;
-import noppes.npcs.controllers.FactionController;
-import noppes.npcs.controllers.PlayerQuestController;
-import noppes.npcs.controllers.QuestController;
+import noppes.npcs.constants.*;
+import noppes.npcs.controllers.*;
 import noppes.npcs.api.mixin.scoreboard.IServerScoreboardMixin;
 import noppes.npcs.util.ValueUtil;
 
@@ -49,9 +39,17 @@ public class Availability implements ICompatibilty, IAvailability {
 	public final Map<Integer, EnumAvailabilityQuest> quests = new TreeMap<>(); // ID, Availability
 	public final Map<String, AvailabilityScoreboardData> scoreboards = new TreeMap<>(); // Objective, [Value, Availability]
 	public final Map<String, EnumAvailabilityPlayerName> playerNames = new TreeMap<>();
+	public final Map<Integer, EnumAvailabilityRegion> regions = new TreeMap<>(); // [ Region ID, Type ]
+	public final Map<Integer, AvailabilityStackData> stacksData = new TreeMap<>(); // [ Slot ID, Type ]
+	public final NpcMiscInventory stacks = new NpcMiscInventory(9);
 	public final List<AvailabilityStoredData> storeddata = new ArrayList<>();
-	public final Map<Integer, AvailabilityStack> stacks = new TreeMap<>();
 	public boolean onlyGM = false;
+
+	public Availability() {
+		for (int i = 0; i < 9; i++) {
+			stacksData.put(i, new AvailabilityStackData());
+		}
+	}
 
 	public int version = VersionCompatibility.ModRev;
 
@@ -82,15 +80,24 @@ public class Availability implements ICompatibilty, IAvailability {
 		if (!this.storeddata.isEmpty()) {
 			return true;
 		}
-		if (this.healthType != 0) {
+		if (this.hasHealth()) {
 			return true;
 		}
 		if (daytime[0] >= 0 && daytime[0] <= 23 && daytime[1] >= 0 && daytime[1] <= 23 && daytime[0] != daytime[1]) {
 			return true;
 		}
-		for (AvailabilityStack aStack : stacks.values()) {
-			if (!aStack.getStack().isEmpty()) {
+		for (ItemStack stack : stacks.items) {
+			if (!NoppesUtilServer.IsItemStackNull(stack)) {
 				return true;
+			}
+		}
+		if (!regions.isEmpty()) {
+			BorderController bData = BorderController.getInstance();
+			for (int id : regions.keySet()) {
+				if (regions.get(id) == EnumAvailabilityRegion.Always) { continue; }
+				if (bData.regions.containsKey(id)) {
+					return true;
+				}
 			}
 		}
 		return this.minPlayerLevel > 0 || onlyGM;
@@ -345,20 +352,36 @@ public class Availability implements ICompatibilty, IAvailability {
 		if (onlyGM && !player.capabilities.isCreativeMode) {
 			return false;
 		}
-		List<Integer> founds = new ArrayList<>();
-		for (AvailabilityStack aStack : stacks.values()) {
-			int found = -1;
+		for (int pos : stacksData.keySet()) {
+			AvailabilityStackData aData = stacksData.get(pos);
+			if (aData.type == EnumAvailabilityStackData.Always) { continue; }
+			ItemStack aStack = stacks.getStackInSlot(pos);
+			boolean found = false;
 			for (int i = 0; i < player.inventory.mainInventory.size(); i++) {
-				if (founds.contains(i)) { continue; }
 				ItemStack stack = player.inventory.mainInventory.get(i);
 				if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
-				if (NoppesUtilPlayer.compareItems(stack, aStack.getStack(), aStack.getIgnoreDamage(), aStack.getIgnoreNBT())) {
-					found = i;
+				if (NoppesUtilPlayer.compareItems(stack, aStack, aData.ignoreDamage, aData.ignoreNBT)) {
+					found = true;
 					break;
 				}
 			}
-			if (found < 0) { return false; }
-			founds.add(found);
+			if ((found && aData.type == EnumAvailabilityStackData.Except)
+					|| (!found && aData.type == EnumAvailabilityStackData.Contains)) {
+				return false;
+			}
+		}
+		if (!regions.isEmpty()) {
+			BorderController bData = BorderController.getInstance();
+			for (int id : regions.keySet()) {
+				EnumAvailabilityRegion aData = regions.get(id);
+				if (aData == EnumAvailabilityRegion.Always) { continue; }
+				Zone3D region = bData.regions.get(id);
+				boolean inSide = player.world.provider.getDimension() == region.dimensionID && region.contains(player.posX, player.posY, player.posZ, player.height);
+				if ((inSide && aData == EnumAvailabilityRegion.OutSide)
+						|| (!inSide && aData == EnumAvailabilityRegion.InSide)) {
+					return false;
+				}
+			}
 		}
 		return player.experienceLevel >= this.minPlayerLevel;
 	}
@@ -616,13 +639,19 @@ public class Availability implements ICompatibilty, IAvailability {
 		onlyGM = compound.getBoolean("OnlyGM");
 
 		stacks.clear();
-		if (compound.hasKey("AvailabilityStacks", 9)) {
-			NBTTagList list = compound.getTagList("AvailabilityStacks", 10);
-			for (int i = 0; i < list.tagCount(); i++) {
-				stacks.put(i, (new AvailabilityStack(i)).load(list.getCompoundTagAt(i)));
+		if (compound.hasKey("NpcMiscInv", 9)) {
+			stacks.setFromNBT(compound);
+		}
+		stacksData.clear();
+		if (compound.hasKey("AvailabilityMiscInv", 9)) {
+			for (int i = 0; i < compound.getTagList("AvailabilityMiscInv", 10).tagCount() && i < 9; i++) {
+				stacksData.put(i, new AvailabilityStackData(compound.getTagList("AvailabilityMiscInv", 10).getCompoundTagAt(i)));
 			}
 		}
-		fixStacks();
+		for (int i = 0; i < 9; i++) {
+			if (stacksData.containsKey(i)) { continue; }
+			stacksData.put(i, new AvailabilityStackData());
+		}
 
 		this.hasOptions = this.checkHasOptions();
 	}
@@ -827,49 +856,30 @@ public class Availability implements ICompatibilty, IAvailability {
 
 
 	@Override
-	public IAvailabilityStack getAvailabilityStack(int id) {
-		if (stacks.containsKey(id)) {
-			return stacks.get(id);
-		}
-		return null;
+	public IItemStack getIItemStack(int slotID) {
+		if (slotID < 0 || slotID > 9) { return null; }
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stacks.getStackInSlot(slotID));
 	}
 
 	@Override
-	public IAvailabilityStack[] getAvailabilityStacks() {
-		return stacks.values().toArray(new IAvailabilityStack[0]);
+	public IItemStack[] getIItemStacks() {
+		List<IItemStack> list = new ArrayList<>();
+		for (ItemStack stack : stacks.items) {
+			list.add(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack));
+		}
+		return list.toArray(new IItemStack[0]);
 	}
 
 	@Override
-	public IAvailabilityStack addIItemStack(IItemStack item) {
-		if (stacks.size() > 8) { return null; }
-		int id = stacks.size();
-		AvailabilityStack aStack = new AvailabilityStack(id);
-		aStack.setStack(item);
-		stacks.put(id, aStack);
-		fixStacks();
-		return aStack;
+	public void setIItemStack(int slotID, IItemStack item) {
+		if (slotID < 0 || slotID > 9) { return; }
+		stacks.setInventorySlotContents(slotID, item.getMCItemStack());
 	}
 
 	@Override
-	public void removeIItemStack(int id) {
-		if (!stacks.containsKey(id)) { return; }
-		stacks.remove(id);
-		fixStacks();
-	}
-
-	private void fixStacks() {
-		int i = 0;
-		boolean fix = false;
-		Map<Integer, AvailabilityStack> newStacks = new TreeMap<>();
-		for (int id : stacks.keySet()) {
-			if (i != id) { fix = true;}
-			newStacks.put(i, stacks.get(id).setId(i));
-			i++;
-		}
-		if (fix) {
-			stacks.clear();
-			stacks.putAll(newStacks);
-		}
+	public void removeIItemStack(int slotID) {
+		if (slotID < 0 || slotID > 9) { return; }
+		stacks.setInventorySlotContents(slotID, ItemStack.EMPTY);
 	}
 
 
@@ -879,10 +889,15 @@ public class Availability implements ICompatibilty, IAvailability {
 	}
 
 	public String toString() {
+		int st = 0;
+		for (ItemStack stack : stacks.items) {
+			if (!NoppesUtilServer.IsItemStackNull(stack)) { st++;}
+		}
 		return "Availability hasOptions: " + this.hasOptions + ", maxData: " + this.max + ", { scoreboards:"
 				+ this.scoreboards.size() + ", dialogues:" + this.dialogues.size() + ", quests:" + this.quests.size()
 				+ ", factions:" + this.factions.size() + ", time[min:" + this.daytime[0] + ", max:" + this.daytime[0]
 				+ "]" + ", playerNames:" + this.playerNames.size() + ", StoredDatas:" + this.storeddata.size()
+				+ ", ItemStacks:" + st + ", Regions:" + this.regions.size()
 				+ ", playerData[Lv:" + this.minPlayerLevel + ", H:" + this.health + ", HT:" + this.healthType + "] }";
 	}
 
@@ -950,13 +965,13 @@ public class Availability implements ICompatibilty, IAvailability {
 
 		compound.setBoolean("OnlyGM", onlyGM);
 
-		NBTTagList listIS = new NBTTagList();
-		int i = 0;
-		for (AvailabilityStack aStack : stacks.values()) {
-			listIS.appendTag(aStack.getNBT(i));
-			i++;
+		compound.setTag("NpcMiscInv", NBTTags.nbtItemStackList(stacks.items));
+
+		NBTTagList listMI = new NBTTagList();
+		for (AvailabilityStackData mi : stacksData.values()) {
+			listMI.appendTag(mi.writeToNBT());
 		}
-		compound.setTag("AvailabilityStacks", listIS);
+		compound.setTag("AvailabilityMiscInv", listMI);
 
 		return compound;
 	}
@@ -1134,8 +1149,7 @@ public class Availability implements ICompatibilty, IAvailability {
 		if (!this.stacks.isEmpty()) {
 			data = new StringBuilder();
 			boolean st = true;
-			for (AvailabilityStack as : stacks.values()) {
-				ItemStack stack = as.getStack();
+			for (ItemStack stack : stacks.items) {
 				if (stack.isEmpty()) { continue; }
 				if (!st) { data.append("; "); } else { st = false; }
 				data.append(stack.getDisplayName());

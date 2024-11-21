@@ -518,11 +518,9 @@ public class EventHooks {
 		EventHooks.onEvent(handler, EnumScriptType.LOGOUT, new PlayerEvent.LogoutEvent(handler.getPlayer()));
 	}
 
-	public static void onPlayerMousePressed(EntityPlayerMP player, int button, boolean isDown, boolean isCtrlPressed,
-											boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed) {
+	public static void onPlayerMousePressed(EntityPlayerMP player, int button, boolean isDown, boolean isCtrlPressed, boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed) {
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
-		Event event = new PlayerEvent.KeyPressedEvent(handler.getPlayer(), button, isCtrlPressed, isAltPressed,
-				isShiftPressed, isMetaPressed);
+		Event event = new PlayerEvent.KeyPressedEvent(handler.getPlayer(), button, isCtrlPressed, isAltPressed, isShiftPressed, isMetaPressed);
 		EventHooks.onEvent(handler, isDown ? EnumScriptType.MOUSE_DOWN : EnumScriptType.MOUSE_UP, event);
 	}
 

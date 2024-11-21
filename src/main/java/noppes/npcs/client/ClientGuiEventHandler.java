@@ -1799,7 +1799,8 @@ public class ClientGuiEventHandler extends Gui {
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 5.0d, vec3d2.y * 5.0d, vec3d2.z * 5.0d);
 			ClientGuiEventHandler.result = this.mc.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
 			Zone3D reg = (Zone3D) bData.getRegion(id);
-			if (reg == null && ClientGuiEventHandler.result != null) {
+			boolean isShiftPressed = ClientProxy.playerData.hud.hasOrKeysPressed(54, 42);
+			if ((isShiftPressed || reg == null) && ClientGuiEventHandler.result != null) {
 				final BlockPos pos = getPos();
 				GlStateManager.pushMatrix();
                 GlStateManager.enableBlend();

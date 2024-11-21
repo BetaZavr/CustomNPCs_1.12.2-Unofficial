@@ -261,7 +261,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (this.data.containsKey(scroll.getSelected())) {
 			this.locSel = TransportController.getInstance().getTransport(this.data.get(scroll.getSelected()));
 			this.initGui();

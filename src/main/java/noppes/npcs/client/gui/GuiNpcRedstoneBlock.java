@@ -32,7 +32,7 @@ public class GuiNpcRedstoneBlock extends GuiNPCInterface implements IGuiData {
 		}
 		if (button.id == 4) {
 			this.save();
-			this.setSubGui(new SubGuiNpcAvailability(this.tile.availability));
+			this.setSubGui(new SubGuiNpcAvailability(tile.availability, this));
 		}
 	}
 

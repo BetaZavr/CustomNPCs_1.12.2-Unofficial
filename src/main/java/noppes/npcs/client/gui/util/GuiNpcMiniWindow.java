@@ -156,10 +156,10 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (!this.hovered) { return; }
 		if (this.scrolls.containsKey(scroll.id)) {
-			this.parent.scrollClicked(mouseX, mouseY, time, scroll);
+			this.parent.scrollClicked(mouseX, mouseY, mouseButton, scroll);
 		}
 	}
 

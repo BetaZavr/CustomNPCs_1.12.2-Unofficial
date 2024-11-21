@@ -248,6 +248,11 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 
 	@Override
+	public boolean contains(IEntity<?> entity) {
+		return entity.getWorld().getDimension().getId() == dimensionID && contains(entity.getX(), entity.getY(), entity.getZ(), entity.getHeight());
+	}
+
+	@Override
 	public boolean contains(double x, double y, double z, double height) {
 		int dx = (int) (x * 10.0d);
 		int dz = (int) (z * 10.0d);
@@ -256,18 +261,14 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		Polygon poly = new Polygon();
 		boolean isIn = false;
-		for (Point p : this.points.values()) {
+		for (Point p : points.values()) {
 			int px = 5 + (p.x * 10);
 			int py = 5 + (p.y * 10);
 			poly.addPoint(px, py);
 			isIn = (px == dx && py == dz);
-			if (isIn) {
-				break;
-			}
+			if (isIn) { break; }
 		}
-		if (isIn) {
-			return true;
-		}
+		if (isIn) { return true; }
 		isIn = poly.contains(dx, dz);
 		return isIn;
 	}

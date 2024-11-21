@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.roles;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -19,6 +20,7 @@ import noppes.npcs.roles.JobItemGiver;
 
 public class GuiNpcItemGiver extends GuiContainerNPCInterface2 {
 
+	public static GuiScreen parent;
 	private final JobItemGiver role;
 
 	public GuiNpcItemGiver(EntityNPCInterface npc, ContainerNpcItemGiver container) {
@@ -39,7 +41,7 @@ public class GuiNpcItemGiver extends GuiContainerNPCInterface2 {
 			this.getLabel(0).enabled = this.role.isOnTimer();
 		}
 		if (button.id == 4) {
-			this.setSubGui(new SubGuiNpcAvailability(this.role.availability));
+			this.setSubGui(new SubGuiNpcAvailability(role.availability, parent));
 		}
 	}
 

@@ -75,8 +75,8 @@ public class GuiNPCAdvancedLinkedNpc extends GuiNPCInterface2 implements IScroll
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		Client.sendData(EnumPacketServer.LinkedSet, guiCustomScroll.getSelected());
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		Client.sendData(EnumPacketServer.LinkedSet, scroll.getSelected());
 	}
 
 	@Override

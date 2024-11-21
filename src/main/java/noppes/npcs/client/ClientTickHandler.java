@@ -427,8 +427,7 @@ public class ClientTickHandler {
 					ClientProxy.playerData.hud.mousePress.remove((Integer) key);
 				}
 			}
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, key, isDown, isCtrlPressed, isShiftPressed,
-					isAltPressed, isMetaPressed);
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
 		} else if (!ClientProxy.playerData.hud.mousePress.isEmpty()) {
 			ClientProxy.playerData.hud.mousePress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);

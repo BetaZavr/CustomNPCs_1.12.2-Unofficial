@@ -568,8 +568,8 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiScroll) {
-		this.selected = this.scrollData.get(guiScroll.getSelected());
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		this.selected = this.scrollData.get(scroll.getSelected());
 		this.initGui();
 	}
 

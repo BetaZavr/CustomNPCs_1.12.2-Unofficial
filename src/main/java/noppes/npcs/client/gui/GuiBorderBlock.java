@@ -36,7 +36,7 @@ public class GuiBorderBlock extends GuiNPCInterface implements IGuiData {
 		}
 		if (button.id == 4) {
 			this.save();
-			this.setSubGui(new SubGuiNpcAvailability(this.tile.availability));
+			this.setSubGui(new SubGuiNpcAvailability(tile.availability, this));
 		}
 		if (button.id == 5) {
 			this.tile.creative = ((GuiNpcButtonYesNo) button).getBoolean();

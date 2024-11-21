@@ -33,7 +33,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.data.Zone3D;
 
-public class GuiBoundarySetting extends GuiNPCInterface
+public class GuiBoundarySetting
+		extends GuiNPCInterface
 		implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	private final int regID;
@@ -69,7 +70,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 			if (this.region == null) {
 				return;
 			}
-			this.setSubGui(new SubGuiNpcAvailability(this.region.availability));
+			this.setSubGui(new SubGuiNpcAvailability(region.availability, this));
 			return;
 		}
 		case 2: { // del

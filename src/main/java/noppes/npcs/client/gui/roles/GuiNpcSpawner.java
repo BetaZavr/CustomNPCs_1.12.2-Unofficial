@@ -533,7 +533,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		this.slot = scroll.selected;
 		this.isDead = scroll.id == 0;
 		(this.isDead ? this.aliveScroll : this.deadScroll).selected = -1;

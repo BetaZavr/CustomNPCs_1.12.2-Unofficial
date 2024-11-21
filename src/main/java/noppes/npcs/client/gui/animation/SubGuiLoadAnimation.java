@@ -187,7 +187,7 @@ public class SubGuiLoadAnimation extends SubGuiInterface implements ICustomScrol
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (this.selected.equals(scroll.getSelected()) || !this.data.containsKey(scroll.getSelected())) {
 			return;
 		}

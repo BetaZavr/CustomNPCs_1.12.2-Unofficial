@@ -67,12 +67,12 @@ public interface IAvailability {
 
 	void setGMOnly(boolean gmOnly);
 
-	IAvailabilityStack getAvailabilityStack(int id);
+	IItemStack getIItemStack(int slotID);
 
-	IAvailabilityStack[] getAvailabilityStacks();
+	IItemStack[] getIItemStacks();
 
-	IAvailabilityStack addIItemStack(IItemStack item);
+	void setIItemStack(int slotID, IItemStack item);
 
-	void removeIItemStack(int id);
+	void removeIItemStack(int slotID);
 
 }

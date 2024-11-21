@@ -89,33 +89,10 @@ import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.controllers.PresetController;
 import noppes.npcs.client.fx.EntityEnderFX;
-import noppes.npcs.client.gui.GuiBlockBuilder;
-import noppes.npcs.client.gui.GuiBlockCopy;
-import noppes.npcs.client.gui.GuiBorderBlock;
-import noppes.npcs.client.gui.GuiBoundarySetting;
-import noppes.npcs.client.gui.GuiBuilderSetting;
-import noppes.npcs.client.gui.GuiMerchantAdd;
-import noppes.npcs.client.gui.GuiNbtBook;
-import noppes.npcs.client.gui.GuiNpcDimension;
-import noppes.npcs.client.gui.GuiNpcMobSpawner;
-import noppes.npcs.client.gui.GuiNpcMobSpawnerMounter;
-import noppes.npcs.client.gui.GuiNpcPather;
-import noppes.npcs.client.gui.GuiNpcRedstoneBlock;
-import noppes.npcs.client.gui.GuiNpcRemoteEditor;
-import noppes.npcs.client.gui.GuiNpcWaypoint;
+import noppes.npcs.client.gui.*;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.dimentions.GuiCreateDimension;
-import noppes.npcs.client.gui.global.GuiNPCManageBanks;
-import noppes.npcs.client.gui.global.GuiNPCManageDeal;
-import noppes.npcs.client.gui.global.GuiNPCManageDialogs;
-import noppes.npcs.client.gui.global.GuiNPCManageFactions;
-import noppes.npcs.client.gui.global.GuiNPCManageLinkedNpc;
-import noppes.npcs.client.gui.global.GuiNPCManageMail;
-import noppes.npcs.client.gui.global.GuiNPCManageMarcets;
-import noppes.npcs.client.gui.global.GuiNPCManageQuest;
-import noppes.npcs.client.gui.global.GuiNPCManageRecipes;
-import noppes.npcs.client.gui.global.GuiNPCManageTransporters;
-import noppes.npcs.client.gui.global.GuiNpcQuestReward;
+import noppes.npcs.client.gui.global.*;
 import noppes.npcs.client.gui.mainmenu.GuiDropEdit;
 import noppes.npcs.client.gui.mainmenu.GuiNPCGlobalMainMenu;
 import noppes.npcs.client.gui.mainmenu.GuiNPCInv;
@@ -166,27 +143,7 @@ import noppes.npcs.config.TrueTypeFont;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestTask;
-import noppes.npcs.containers.ContainerBuilderSettings;
-import noppes.npcs.containers.ContainerCarpentryBench;
-import noppes.npcs.containers.ContainerChestCustom;
-import noppes.npcs.containers.ContainerCustomChest;
-import noppes.npcs.containers.ContainerCustomGui;
-import noppes.npcs.containers.ContainerMail;
-import noppes.npcs.containers.ContainerManageBanks;
-import noppes.npcs.containers.ContainerManageRecipes;
-import noppes.npcs.containers.ContainerNPCBank;
-import noppes.npcs.containers.ContainerNPCCompanion;
-import noppes.npcs.containers.ContainerNPCDropSetup;
-import noppes.npcs.containers.ContainerNPCFollowerHire;
-import noppes.npcs.containers.ContainerNPCFollowerSetup;
-import noppes.npcs.containers.ContainerNPCInv;
-import noppes.npcs.containers.ContainerNPCTrader;
-import noppes.npcs.containers.ContainerNPCTraderSetup;
-import noppes.npcs.containers.ContainerNPCTransportSetup;
-import noppes.npcs.containers.ContainerNpcItemGiver;
-import noppes.npcs.containers.ContainerNpcQuestReward;
-import noppes.npcs.containers.ContainerNpcQuestRewardItem;
-import noppes.npcs.containers.ContainerNpcQuestTypeItem;
+import noppes.npcs.containers.*;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.Quest;
@@ -1369,6 +1326,9 @@ public class ClientProxy extends CommonProxy {
 
 	private GuiScreen getGui(EntityNPCInterface npc, EnumGuiType gui, Container container, int x, int y, int z) {
 		switch (gui) {
+			case AvailabilityStack: {
+				return new SubGuiNpcAvailabilityItemStacks((ContainerAvailabilityInv) container);
+			}
 			case CustomContainer: {
 				return new GuiCustomContainer((ContainerChestCustom) container);
 			}
@@ -1502,7 +1462,7 @@ public class ClientProxy extends CommonProxy {
 				return new GuiNPCManageMarcets(npc);
 			}
 			case SetupTraderDeal: {
-				return new GuiNPCManageDeal(npc, (ContainerNPCTraderSetup) container);
+				return new SubGuiNPCManageDeal(npc, (ContainerNPCTraderSetup) container);
 			}
 			case SetupTransporter: {
 				return new GuiNpcTransporter(npc);

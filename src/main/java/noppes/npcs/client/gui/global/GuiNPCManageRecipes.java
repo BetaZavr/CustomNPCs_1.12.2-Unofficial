@@ -338,7 +338,7 @@ implements ICustomScrollListener, ISubGuiListener {
 				break;
 			}
 			case 8: { // availability
-				setSubGui(new SubGuiNpcAvailability(recipe.availability));
+				setSubGui(new SubGuiNpcAvailability(recipe.availability, this));
 				break;
 			}
 			case 9: { // replace shaped <-> shapeless

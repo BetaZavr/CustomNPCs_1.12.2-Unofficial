@@ -95,13 +95,13 @@ public class GuiDialogSelection extends SubGuiInterface implements ICustomScroll
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		if (guiCustomScroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		if (scroll.id == 0) {
 			this.selectedCategory = this.categoryData.get(this.scrollCategories.getSelected());
 			this.selectedDialog = null;
 			this.scrollDialogs.selected = -1;
 		}
-		if (guiCustomScroll.id == 1) {
+		if (scroll.id == 1) {
 			this.selectedDialog = this.dialogData.get(this.scrollDialogs.getSelected());
 		}
 		this.initGui();

@@ -252,7 +252,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.id == 0) {
 			if (scroll.getSelected().equals(this.back)) {
 				if (this.path.lastIndexOf("/") == -1) {

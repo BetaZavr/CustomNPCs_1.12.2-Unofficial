@@ -162,7 +162,9 @@ public enum EnumPacketServer
 	RegionData(false),
 	BuilderSetting(false),
 	DimensionDelete(CustomNpcsPermissions.TOOL_TELEPORTER),
-	DimensionSettings(CustomNpcsPermissions.TOOL_TELEPORTER);
+	DimensionSettings(CustomNpcsPermissions.TOOL_TELEPORTER),
+	AvailabilityStacks(false),
+	AvailabilitySlot(false);
 	
 	public CustomNpcsPermissions.Permission permission;
 	public boolean needsNpc;

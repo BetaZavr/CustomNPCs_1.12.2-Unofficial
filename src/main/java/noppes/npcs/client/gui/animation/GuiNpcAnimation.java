@@ -281,7 +281,7 @@ public class GuiNpcAnimation
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.id == 0) {
 			this.selType = scroll.getSelected();
 		} // animation Type

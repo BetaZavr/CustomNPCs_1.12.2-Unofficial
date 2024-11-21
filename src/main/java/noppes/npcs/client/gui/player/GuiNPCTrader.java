@@ -642,7 +642,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (!this.data.containsKey(scroll.getSelected())) {
 			return;
 		}

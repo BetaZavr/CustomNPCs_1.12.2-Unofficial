@@ -171,6 +171,8 @@ implements IEditNPC {
 
 	public void drawDefaultBackground() {
 		if (this.drawDefaultBackground && this.subgui == null) {
+			postDrawBackground();
+			super.drawDefaultBackground();
 			if (this.background != null) {
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				GlStateManager.pushMatrix();
@@ -186,8 +188,6 @@ implements IEditNPC {
 				}
 				GlStateManager.popMatrix();
 			}
-			this.postDrawBackground();
-			super.drawDefaultBackground();
 		}
 	}
 

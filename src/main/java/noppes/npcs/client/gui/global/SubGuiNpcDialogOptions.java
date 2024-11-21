@@ -6,6 +6,7 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -28,12 +29,16 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 	private final Map<String, Integer> data = Maps.newTreeMap(); // {scrollTitle, dialogID}
 	private GuiCustomScroll scroll;
 
-	public SubGuiNpcDialogOptions(Dialog dialog) {
+	public final GuiScreen parent;
+
+	public SubGuiNpcDialogOptions(Dialog dialog, GuiScreen parent) {
 		this.dialog = dialog;
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 216;
-		this.closeOnEsc = true;
+		this.parent = parent;
+
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 216;
+		closeOnEsc = true;
 	}
 
 	@Override
@@ -45,7 +50,7 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 				this.dialog.options.put(option.slot, option);
 				option.optionColor = SubGuiNpcDialogOption.LastColor;
 				this.scroll.selected = option.slot;
-				this.setSubGui(new SubGuiNpcDialogOption(option));
+				this.setSubGui(new SubGuiNpcDialogOption(option, parent));
 				break;
 			}
 			case 1: { // remove
@@ -64,7 +69,7 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 				}
 				DialogOption option = this.dialog.options.get(this.data.get(this.scroll.getSelected()));
 				if (option != null) {
-					this.setSubGui(new SubGuiNpcDialogOption(option));
+					this.setSubGui(new SubGuiNpcDialogOption(option, parent));
 				}
 				break;
 			}
@@ -251,7 +256,7 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 		if (option == null) {
 			return;
 		}
-		this.setSubGui(new SubGuiNpcDialogOption(option));
+		this.setSubGui(new SubGuiNpcDialogOption(option, parent));
 	}
 
 	@Override

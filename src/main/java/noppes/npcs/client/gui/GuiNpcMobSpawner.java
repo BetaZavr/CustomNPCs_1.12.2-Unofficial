@@ -288,7 +288,7 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		resetEntity();
 	}
 
