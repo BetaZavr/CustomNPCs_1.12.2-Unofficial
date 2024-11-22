@@ -12,6 +12,7 @@ import java.util.Map;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.client.renderer.texture.ITextureManagerMixin;
+import noppes.npcs.client.gui.util.GuiNpcUtil;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -164,7 +165,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
         ResourceLocation resourcelocation = getEntityTexture(entity);
         if (resourcelocation == null) { return false; }
         else {
-            bindTexture(resourcelocation);
+			GuiNpcUtil.bindEntityTexture(renderManager.renderEngine, resourcelocation);
             return true;
         }
     }

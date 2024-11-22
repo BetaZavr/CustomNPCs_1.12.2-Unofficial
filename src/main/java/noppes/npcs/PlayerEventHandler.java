@@ -8,9 +8,6 @@ import java.util.*;
 import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockBanner;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.tileentity.TileEntityBanner;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.controllers.*;
@@ -18,7 +15,6 @@ import noppes.npcs.controllers.data.*;
 import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
 import noppes.npcs.api.mixin.event.entity.living.ILivingAttackEventMixin;
 import noppes.npcs.api.mixin.tileentity.ITileEntityBanner;
-import noppes.npcs.items.crafting.NpcShapedRecipes;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.reflect.ClassPath;

@@ -1,43 +1,29 @@
 package noppes.npcs.client.gui.select;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.io.InputStream;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.AbstractResourcePack;
-import net.minecraft.client.resources.DefaultResourcePack;
-import net.minecraft.client.resources.FallbackResourceManager;
-import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.client.resources.ResourceIndex;
-import net.minecraft.client.resources.ResourcePackRepository;
-import net.minecraft.client.resources.SimpleReloadableResourceManager;
+import net.minecraft.client.resources.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
+import noppes.npcs.api.mixin.client.renderer.texture.ITextureManagerMixin;
+import noppes.npcs.api.mixin.client.renderer.texture.ITextureMapMixin;
 import noppes.npcs.api.mixin.client.resources.*;
+import noppes.npcs.api.mixin.client.resources.ILegacyV2AdapterMixin;
 import noppes.npcs.client.ClientProxy;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
@@ -47,7 +33,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 
 	private GuiCustomScroll scroll;
 	public ResourceLocation resource;
-	private final Map<String, TreeMap<ResourceLocation, Long>> data = Maps.newTreeMap(); // (Directory, Files)
+	private final Map<String, TreeMap<ResourceLocation, Long>> data = new TreeMap<>(); // (Directory, Files)
 	private ResourceLocation selectDir;
 	private final String suffix;
 	private final int type;
@@ -62,7 +48,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 	}
 	
 	public GuiTextureSelection(EntityNPCInterface npc, String texture, String suffix, int type) {
-		this.npc = npc;
+		super(npc);
 		if (this.npc != null) {
 			this.showName = this.npc.display.getShowName();
 			this.npc.display.setShowName(2);
@@ -75,31 +61,37 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 		this.type = type;
 		this.selectDir = null;
 		this.suffix = suffix.toLowerCase();
-		if (ClientProxy.texturesData.containsKey(this.suffix)) {
-			this.data.putAll(ClientProxy.texturesData.get(this.suffix));
-		} else {
-			this.resetFiles();
-			ClientProxy.texturesData.put(this.suffix, this.data);
+		if (ClientProxy.texturesData.containsKey(suffix)) {
+			data.putAll(ClientProxy.texturesData.get(suffix));
+		}
+		ResourceLocation loc = new ResourceLocation(texture);
+		if (data.containsKey(loc.getResourceDomain()) && !data.get(loc.getResourceDomain()).containsKey(loc)) {
+			mc.getTextureManager().bindTexture(loc);
+			data.remove(loc.getResourceDomain());
+		}
+		if (!data.containsKey(loc.getResourceDomain())) {
+			resetFiles();
+			ClientProxy.texturesData.put(suffix, data);
 		}
 		this.baseResource = texture;
 		if (texture.isEmpty()) {
 			if (this.selectDir == null) {
 				switch (this.type) {
-				case 1: {
-					this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/cloak");
-					break;
-				}
-				case 2: {
-					this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/overlays");
-					break;
-				}
-				case 3: {
-					this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/gui");
-					break;
-				}
-				default: {
-					this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/entity/humanmale");
-				}
+					case 1: {
+						this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/cloak");
+						break;
+					}
+					case 2: {
+						this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/overlays");
+						break;
+					}
+					case 3: {
+						this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/gui");
+						break;
+					}
+					default: {
+						this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/entity/humanmale");
+					}
 				}
 			}
 			return;
@@ -109,7 +101,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 			texture = texture.substring(0, texture.lastIndexOf("/"));
 		}
 		this.selectDir = new ResourceLocation(texture);
-		if (!this.data.containsKey(this.selectDir.getResourceDomain())) {
+		if (!data.containsKey(selectDir.getResourceDomain())) {
 			this.selectDir = null;
 			return;
 		}
@@ -151,15 +143,47 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 		this.close();
 	}
 
+	private void addFile(ResourceLocation location) {
+		String path = location.getResourcePath();
+		if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix.toLowerCase())) {
+			return;
+		}
+		String domain = location.getResourceDomain();
+		if (!data.containsKey(domain)) {
+			data.put(domain, new TreeMap<>());
+		} else {
+			for (ResourceLocation r : data.get(domain).keySet()) {
+				if (r.getResourcePath().equals(path)) {
+					return;
+				}
+			}
+		}
+		long size = 0L;
+		try {
+			IResource res = Minecraft.getMinecraft().getResourceManager().getResource(location);
+            try (InputStream inputStream = res.getInputStream()) { // Ваш InputStream
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                int readByte;
+                while ((readByte = inputStream.read()) != -1) {
+                    byteArrayOutputStream.write(readByte);
+                }
+                byte[] bytes = byteArrayOutputStream.toByteArray();
+                size = bytes.length;
+            }
+        }
+		catch (Exception ignored) { }
+        data.get(domain).put(location, size);
+	}
+
 	private void addFile(String path, long size) {
+		if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix.toLowerCase())) {
+			return;
+		}
 		if (path == null || !path.contains("assets")) {
 			return;
 		}
-		if (!this.suffix.isEmpty() && !path.toLowerCase().endsWith(this.suffix.toLowerCase())) {
-			return;
-		}
 		if (path.contains("\\")) {
-			List<String> list = Lists.newArrayList();
+			List<String> list = new ArrayList<>();
 			while (path.contains("\\")) {
 				list.add(path.substring(0, path.indexOf("\\")));
 				path = path.substring(path.indexOf("\\") + 1);
@@ -178,17 +202,18 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 			return;
 		}
 		path = path.substring(path.indexOf("/") + 1);
+		if (!path.startsWith("textures")) { return; }
 		ResourceLocation res = new ResourceLocation(domain, path);
-		if (!this.data.containsKey(domain)) {
-			this.data.put(domain, Maps.newTreeMap());
+		if (!data.containsKey(domain)) {
+			data.put(domain, new TreeMap<>());
 		} else {
-			for (ResourceLocation r : this.data.get(domain).keySet()) {
+			for (ResourceLocation r : data.get(domain).keySet()) {
 				if (r.getResourcePath().equals(path)) {
 					return;
 				}
 			}
 		}
-		this.data.get(domain).put(res, size);
+		data.get(domain).put(res, size);
 	}
 
 	private void checkFolder(File file) {
@@ -222,13 +247,12 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 		for (int u = 0; u < w / g; u++) {
 			for (int v = 0; v < 80 / g; v++) {
 				if (u % 2 == (v % 2 == 0 ? 1 : 0)) {
-					Gui.drawRect(x + u * g, y + v * g, x + u * g + g, y + v * g + g,
-							GuiTextureSelection.dark ? 0xFF343434 : 0xFFCCCCCC);
+					Gui.drawRect(x + u * g, y + v * g, x + u * g + g, y + v * g + g, GuiTextureSelection.dark ? 0xFF343434 : 0xFFCCCCCC);
 				}
 			}
 		}
 		GlStateManager.popMatrix();
-		if (this.resource != null) {
+		if (resource != null) {
 			float scale = 80.0f / 256.0f;
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
@@ -237,14 +261,22 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 			GlStateManager.scale(scale, scale, 1.0f);
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			try {
-				this.mc.getTextureManager().bindTexture(this.resource);
+				int tX = 0;
+				int tY = 0;
+				int tW = 256;
+				int tH = 256;
+				int tS = 256;
 				if (this.type == 4) { // faction flag
 					GlStateManager.translate(62.0f, 0.0f, 0.0f);
 					GlStateManager.scale(3.3f, 2.0f, 1.0f);
-					this.drawTexturedModalRect(0, 0, 4, 4, 40, 128);
-				} else {
-					this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+					tX = 4;
+					tY = 4;
+					tW = 40;
+					tH = 128;
 				}
+				GuiNpcUtil.drawTexturedModalRect(resource, tX, tY, tW, tH, tS);
+				//mc.getTextureManager().bindTexture(resource);
+				//drawTexturedModalRect(0, 0, tX, tY, tW, tH);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 			GlStateManager.depthMask(true);
 			GlStateManager.enableTexture2D();
@@ -253,7 +285,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 		}
 		if (this.npc != null && this.type >= 0 && this.type <= 2) {
 			if (this.type == 0) {
-				this.npc.textureLocation = this.resource;
+				this.npc.textureLocation = resource;
 			}
 			int rot;
 			float s = 1.25f;
@@ -295,37 +327,35 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 		GuiNpcCheckBox cBox = new GuiNpcCheckBox(3, this.guiLeft + 256, this.guiTop + 2, 15, 15, "");
 		cBox.setSelected(GuiTextureSelection.dark);
 		this.addButton(cBox);
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(250, 199);
+		if (scroll == null) {
+			(scroll = new GuiCustomScroll(this, 0)).setSize(250, 199);
 		}
-		this.scroll.guiLeft = this.guiLeft + 4;
-		this.scroll.guiTop = this.guiTop + 14;
+		scroll.guiLeft = this.guiLeft + 4;
+		scroll.guiTop = this.guiTop + 14;
 		String domain = "All Data in Game/";
-		if (this.selectDir == null) {
-			this.scroll.setList(Lists.newArrayList(this.data.keySet()));
+		if (selectDir == null) {
+			scroll.setList(new ArrayList<>(data.keySet()));
 		} else {
-			List<String> list = Lists.newArrayList();
-			Map<String, Long> ds = Maps.newTreeMap();
-			Map<String, Long> fs = Maps.newTreeMap();
-			String path = this.selectDir.getResourcePath();
-			for (ResourceLocation res : this.data.get(this.selectDir.getResourceDomain()).keySet()) {
+			List<String> list = new ArrayList<>();
+			Map<String, Long> ds = new TreeMap<>();
+			Map<String, Long> fs = new TreeMap<>();
+			String path = selectDir.getResourcePath();
+			for (ResourceLocation res : data.get(selectDir.getResourceDomain()).keySet()) {
 				if (res.getResourcePath().indexOf(path) == 0) {
 					String key = res.getResourcePath().substring(path.length() + 1);
 					if (key.contains("/")) {
-						ds.put(key.substring(0, key.indexOf("/")),
-								this.data.get(this.selectDir.getResourceDomain()).get(res));
-					} else if ((this.suffix.isEmpty() || res.getResourcePath().toLowerCase().endsWith(this.suffix))) {
-						fs.put(res.getResourcePath().substring(res.getResourcePath().lastIndexOf("/") + 1),
-								this.data.get(this.selectDir.getResourceDomain()).get(res));
+						ds.put(key.substring(0, key.indexOf("/")), data.get(selectDir.getResourceDomain()).get(res));
+					} else if ((suffix.isEmpty() || res.getResourcePath().toLowerCase().endsWith(suffix))) {
+						fs.put(res.getResourcePath().substring(res.getResourcePath().lastIndexOf("/") + 1), data.get(selectDir.getResourceDomain()).get(res));
 					}
 				}
 			}
-			String txrName = this.resource != null ? this.resource.getResourcePath() : "";
+			String txrName = resource != null ? resource.getResourcePath() : "";
 			if (!txrName.isEmpty()) {
 				txrName = txrName.substring(txrName.lastIndexOf("/") + 1);
 			}
-			List<Integer> colors = Lists.newArrayList();
-			List<String> suffixes = Lists.newArrayList();
+			List<Integer> colors = new ArrayList<>();
+			List<String> suffixes = new ArrayList<>();
 			int i = 1, pos = -1;
 			suffixes.add("");
 			colors.add(0xF3BE1E);
@@ -386,52 +416,60 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 	}
 
 	private void resetFiles() {
-		/* Manager Data */
-		SimpleReloadableResourceManager simplemanager = (SimpleReloadableResourceManager) Minecraft.getMinecraft() .getResourceManager();
-		Map<String, FallbackResourceManager> map = ((ISimpleReloadableResourceManagerMixin) simplemanager).npcs$getDomainResourceManagers();
+		data.clear();
+		mc = Minecraft.getMinecraft();
+		/* Texture manager data */
+		for (ResourceLocation key : ((ITextureManagerMixin) mc.getTextureManager()).npcs$getMapTextureObjects().keySet()) {
+			addFile(key);
+		}
+		/* Texture blocks data */
+		for (String key : ((ITextureMapMixin) mc.getTextureMapBlocks()).npcs$getMapRegisteredSprites().keySet()) {
+			addFile(new ResourceLocation(key.substring(0, key.indexOf(":")), "textures/" + key.substring(key.indexOf(":") +1) + ".png"));
+		}
+		/* Resource manager data */
+		Map<String, FallbackResourceManager> map = ((ISimpleReloadableResourceManagerMixin) mc.getResourceManager()).npcs$getDomainResourceManagers();
 		if (map == null) { return; }
 		for (String name : map.keySet()) {
 			FallbackResourceManager manager = map.get(name);
 			List<IResourcePack> list = ((IFallbackResourceManagerMixin) manager).npcs$getResourcePacks();
 			if (list == null) { return; }
 			for (IResourcePack pack : list) {
+				if (pack instanceof LegacyV2Adapter) {
+					pack = ((ILegacyV2AdapterMixin) pack).npcs$getIResourcePack();
+				}
 				if (pack instanceof DefaultResourcePack) {
 					ResourceIndex resourceIndex = ((IDefaultResourcePackMixin) pack).npcs$getResourceIndex();
 					Map<String, File> resourceMap = ((IResourceIndexMixin) resourceIndex).npcs$getResourceMap();
-					if (resourceMap != null) {
-						for (File f : resourceMap.values()) {
-							this.addFile(f.getAbsolutePath(), f.length());
-						}
+					for (String key : resourceMap.keySet()) {
+						File f = resourceMap.get(key);
+						this.addFile(key, f.length());
 					}
-					continue;
 				}
-				if (pack instanceof AbstractResourcePack) {
+				else if (pack instanceof AbstractResourcePack) {
 					AbstractResourcePack p = (AbstractResourcePack) pack;
 					File directory = ((IAbstractResourcePackMixin) p).npcs$getResourcePackFile();
-					if (directory == null || !directory.isDirectory()) {
-						continue;
-					}
+					if (directory == null || !directory.isDirectory()) { continue; }
 					File dir = new File(directory, "assets");
-					if (!dir.exists() || !dir.isDirectory()) {
-						continue;
-					}
+					if (!dir.exists() || !dir.isDirectory()) { continue; }
 					this.checkFolder(dir);
 				}
 			}
 		}
+		/* Mod jars */
 		for (ModContainer mod : Loader.instance().getModList()) {
 			if (mod.getSource().exists()) {
 				this.progressFile(mod.getSource());
 			}
 		}
+		/* Resource packs */
 		ResourcePackRepository repos = Minecraft.getMinecraft().getResourcePackRepository();
-		List<ResourcePackRepository.Entry> list2 = repos.getRepositoryEntries();
-		for (ResourcePackRepository.Entry entry : list2) {
+		for (ResourcePackRepository.Entry entry : repos.getRepositoryEntries()) {
 			File file = new File(repos.getDirResourcepacks(), entry.getResourcePackName());
 			if (file.exists()) {
 				this.progressFile(file);
 			}
 		}
+		/* Custom mod resources */
 		this.checkFolder(new File(CustomNpcs.Dir, "assets"));
 	}
 
@@ -444,49 +482,55 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.getSelected().equals(this.back)) {
-			if (this.selectDir == null) {
-				return;
-			}
-			if (!this.selectDir.getResourcePath().contains("/")) {
-				this.selectDir = null;
+		if (scroll.getSelected().equals(back)) {
+			if (selectDir == null) { return; }
+			if (!selectDir.getResourcePath().contains("/")) {
+				selectDir = null;
 			} else {
-				this.selectDir = new ResourceLocation(this.selectDir.getResourceDomain(), this.selectDir
-						.getResourcePath().substring(0, this.selectDir.getResourcePath().lastIndexOf("/")));
+				selectDir = new ResourceLocation(selectDir.getResourceDomain(), selectDir.getResourcePath().substring(0, selectDir.getResourcePath().lastIndexOf("/")));
 			}
-			this.initGui();
-		} else if (this.selectDir != null) {
+			initGui();
+		}
+		else if (selectDir != null) {
 			if (!scroll.getSelected().endsWith(this.suffix)) {
 				this.selectDir = new ResourceLocation(this.selectDir.getResourceDomain(),
 						this.selectDir.getResourcePath() + "/" + scroll.getSelected());
 				this.initGui();
 			} else {
-				this.resource = new ResourceLocation(this.selectDir.getResourceDomain(),
-						this.selectDir.getResourcePath() + "/" + scroll.getSelected());
-				if (this.npc != null && this.type >= 0 && this.type <= 2) {
-					switch (this.type) {
-					case 1: {
-						this.npc.display.setCapeTexture(this.resource.toString());
-						break;
-					}
-					case 2: {
-						this.npc.display.setOverlayTexture(this.resource.toString());
-						break;
-					}
-					default: {
-						this.npc.display.setSkinTexture(this.resource.toString());
-					}
+				resource = new ResourceLocation(selectDir.getResourceDomain(), selectDir.getResourcePath() + "/" + scroll.getSelected());
+				if (npc != null && type >= 0 && type <= 2) {
+					switch (type) {
+						case 1: {
+							this.npc.display.setCapeTexture(resource.toString());
+							break;
+						}
+						case 2: {
+							this.npc.display.setOverlayTexture(resource.toString());
+							break;
+						}
+						default: {
+							this.npc.display.setSkinTexture(resource.toString());
+						}
 					}
 				}
 			}
-		} else if (this.data.containsKey(scroll.getSelected())) {
-			String res = "textures";
-			for (Entry<ResourceLocation, Long> entry : this.data.get(scroll.getSelected()).entrySet()) {
-				res = entry.getKey().getResourcePath().substring(0, entry.getKey().getResourcePath().indexOf("/"));
-				break;
+		} else if (data.containsKey(scroll.getSelected())) {
+			String res = null, def = null;
+			for (ResourceLocation loc : data.get(scroll.getSelected()).keySet()) {
+				if (def == null) {
+					def = loc.getResourcePath().substring(0, loc.getResourcePath().indexOf("/"));
+				}
+				if (loc.getResourcePath().substring(0, loc.getResourcePath().indexOf("/")).equals("textures")) {
+					res = "textures";
+					break;
+				}
 			}
-			this.selectDir = new ResourceLocation(scroll.getSelected(), res);
-			this.initGui();
+			if (res == null && def != null) {
+				res =  def;
+			}
+			if (res == null) { return; }
+			selectDir = new ResourceLocation(scroll.getSelected(), res);
+			initGui();
 		}
 	}
 
