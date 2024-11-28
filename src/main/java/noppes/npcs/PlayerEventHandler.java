@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockBanner;
 import net.minecraft.tileentity.TileEntityBanner;
+import net.minecraft.util.math.MathHelper;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.*;

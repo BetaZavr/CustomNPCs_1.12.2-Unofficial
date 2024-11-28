@@ -21,7 +21,8 @@ public enum AnimationKind {
 	SWING(16, false, true),
 	INTERACT(17, false, false),
 	BLOCKED(18, false, true),
-	EDITING(18, false, true),
+	EDITING_All(18, false, true),
+	EDITING_PART(18, false, true),
 	; // -> GuiNpcAnimation
 
 	public static AnimationKind get(int type) {

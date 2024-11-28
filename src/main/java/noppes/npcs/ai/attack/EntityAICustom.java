@@ -113,8 +113,8 @@ public class EntityAICustom extends EntityAIBase {
 
 	protected void tryMoveToTarget() {
 		if (!CustomNpcs.ShowCustomAnimation || !npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES)) {
-			double baseSpeed = npc.ais.canSprint ? 2.0d : 1.3d;
-			if (target.equals(npc.combatHandler.priorityTarget)) { baseSpeed = npc.ais.canSprint ? 2.3d : 1.7d; }
+			double baseSpeed = npc.ais.canSprint ? 1.5d : 1.3d;
+			if (target.equals(npc.combatHandler.priorityTarget)) { baseSpeed = npc.ais.canSprint ? 1.6d : 1.4d; }
 			double dist = npc.getDistance(target.posX, target.posY, target.posZ);
 			double speed = (0.75d / (double) npc.stats.aggroRange * dist + 0.5d) * baseSpeed;
 			if (speed < 1.3d) { speed = 1.3d; }

@@ -401,7 +401,6 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 		this.maxRange = ClientProxy.playerData.game.op ? 100 : 10;
 		int type = this.builder.getType();
 		GuiNpcTextField textField;
-		GuiNpcCheckBox checkBox;
 		int y = this.guiTop + 4;
 		if (this.builder.getID() > -1) {
 			this.addLabel(new GuiNpcLabel(1, "ID:" + this.builder.getID(), this.guiLeft + 120, y));
@@ -459,18 +458,12 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 			this.addLabel(new GuiNpcLabel(5, new TextComponentTranslation("gui.file.list").getFormattedText() + " [?]:", this.guiLeft + 4, this.guiTop + 4));
 		}
 		if (type < 4) {
-			checkBox = new GuiNpcCheckBox(5, this.guiLeft + 120, y + 22, 99, 15, "tile.air.name");
-			checkBox.setSelected(this.builder.addAir);
-			this.addButton(checkBox);
+			addButton(new GuiNpcCheckBox(5, this.guiLeft + 120, y + 22, 99, 15, "tile.air.name", null, builder.addAir));
 			if (type == 2 || type == 3) {
-				checkBox = new GuiNpcCheckBox(6, this.guiLeft + 172 + (type == 3 ? -52 : 0), this.guiTop + 145 + (type == 3 ? -60 : 0), 70, 15, "drop.type.all");
-				checkBox.setSelected(this.builder.replaceAir);
-				this.addButton(checkBox);
+				addButton(new GuiNpcCheckBox(6, this.guiLeft + 172 + (type == 3 ? -52 : 0), this.guiTop + 145 + (type == 3 ? -60 : 0), 70, 15, "drop.type.all", null, builder.replaceAir));
 			}
 			if (type == 3) {
-				checkBox = new GuiNpcCheckBox(7, this.guiLeft + 120, this.guiTop + 100, 70, 15, "gui.solid");
-				checkBox.setSelected(this.builder.isSolid);
-				this.addButton(checkBox);
+				addButton(new GuiNpcCheckBox(7, this.guiLeft + 120, this.guiTop + 100, 70, 15, "gui.solid", null, builder.isSolid));
 			}
 		}
 		if (type == 2) {

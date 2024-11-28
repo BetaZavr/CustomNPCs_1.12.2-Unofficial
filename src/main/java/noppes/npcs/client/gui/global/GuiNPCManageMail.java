@@ -120,8 +120,7 @@ public class GuiNPCManageMail extends GuiNPCInterface2 implements IGuiData, ITex
 		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(0, 100, CustomNpcs.MailCostSendingLetter[4]);
 
-		this.addButton(
-				new GuiNpcCheckBox(0, x0, y + 24, 200, 14, "mail.send.yourself", CustomNpcs.MailSendToYourself));
+		addButton(new GuiNpcCheckBox(0, x0, y + 24, 200, 14, "mail.send.yourself", null, CustomNpcs.MailSendToYourself));
 	}
 
 	@Override

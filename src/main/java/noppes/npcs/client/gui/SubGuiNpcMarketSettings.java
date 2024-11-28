@@ -56,13 +56,11 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 			break;
 		}
 		case 2: { // is limited
-			this.marcet.isLimited = ((GuiNpcCheckBox) button).isSelected();
-			((GuiNpcCheckBox) button).setText("market.select.limited." + this.marcet.isLimited);
+			marcet.isLimited = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		case 3: { // show xp
-			this.marcet.showXP = ((GuiNpcCheckBox) button).isSelected();
-			((GuiNpcCheckBox) button).setText("market.select.show.xp." + this.marcet.showXP);
+			marcet.showXP = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		case 4: { // level
@@ -199,16 +197,10 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 		this.addButton(new GuiNpcButton(1, x, y, 170, 20, "lines.title"));
 
 		y += 20;
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(2, x, y, 170, 18, "");
-		checkBox.setSelected(this.marcet.isLimited);
-		checkBox.setText("market.select.limited." + this.marcet.isLimited);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(2, x, y, 170, 18, "market.select.limited.true", "market.select.limited.false", marcet.isLimited));
 
 		y += 20;
-		checkBox = new GuiNpcCheckBox(3, x, y, 170, 18, "");
-		checkBox.setSelected(this.marcet.showXP);
-		checkBox.setText("market.select.show.xp." + this.marcet.showXP);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(3, x, y, 170, 18, "market.select.show.xp.true", "market.select.show.xp.false", marcet.showXP));
 
 		this.addButton(new GuiNpcButton(5, x + 175, y, 37, 20, "type.add"));
 		this.addButton(new GuiNpcButton(6, x + 213, y, 35, 20, "type.del"));

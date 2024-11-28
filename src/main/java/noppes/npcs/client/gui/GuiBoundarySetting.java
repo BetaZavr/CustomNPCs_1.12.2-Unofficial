@@ -672,13 +672,11 @@ public class GuiBoundarySetting
 		button.enabled = this.region != null && this.point != null;
 		this.addButton(button);
 		// ID 25 - Keep Out Type
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(25, this.guiLeft + 5, this.guiTop + side + 9, 110, 12,
-				"region.keepout." + (this.region != null ? this.region.keepOut : "false"));
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(25, this.guiLeft + 5, this.guiTop + side + 9, 110, 12, "region.keepout.false", "region.keepout.true", region != null && region.keepOut);
 		checkBox.setSelected(this.region != null && this.region.keepOut);
 		this.addButton(checkBox);
 		// ID 26 - Keep Out Type
-		checkBox = new GuiNpcCheckBox(26, this.guiLeft + 275, this.guiTop + side + 9, 110, 12,
-				"region.show.in.client." + (this.region != null ? this.region.keepOut : "false"));
+		checkBox = new GuiNpcCheckBox(26, this.guiLeft + 275, this.guiTop + side + 9, 110, 12, "region.show.in.client.true", "region.show.in.client.false", region != null && region.showInClient);
 		checkBox.setSelected(this.region != null && this.region.showInClient);
 		this.addButton(checkBox);
 		// TextFields

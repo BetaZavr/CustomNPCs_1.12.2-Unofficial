@@ -461,7 +461,7 @@ public class Server {
 		});
 	}
 
-	public static void sendToAll(MinecraftServer server, EnumPacketClient type, Object... obs) {
+	public static void sendToAll(MinecraftServer server, EnumPacketClient type, Object ... obs) {
 		if (server == null) {
 			return;
 		}

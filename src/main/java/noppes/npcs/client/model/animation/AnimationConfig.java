@@ -1,18 +1,13 @@
 package noppes.npcs.client.model.animation;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
@@ -25,9 +20,9 @@ import noppes.npcs.api.entity.data.IAnimationFrame;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.util.Util;
-import noppes.npcs.util.ValueUtil;
 
 public class AnimationConfig implements IAnimation {
 
@@ -40,20 +35,15 @@ public class AnimationConfig implements IAnimation {
 
 	public String name = "Default Animation";
 	public int repeatLast = 0;
-	public final Map<Integer, AnimationFrameConfig> frames = Maps.newTreeMap(); // {Frame, setting Frame]}\
-	// Info
-	public final Map<Integer, Integer> endingFrameTicks = Maps.newTreeMap();
+	public final Map<Integer, AnimationFrameConfig> frames = new TreeMap<>(); // [ Frame ID, Frame setting ]
+	public final Map<Integer, List<AddedPartConfig>> addParts = new TreeMap<>(); // [ Parent Frame ID, added Part setting list ]
+	public final Map<Integer, Integer> endingFrameTicks = new TreeMap<>(); // ticks info
 	public int totalTicks = 0;
-	public int damageTicks;
 
 	public int id = -1;
 	public AnimationKind type = AnimationKind.STANDING;
 	public float chance = 1.0f;
 	public boolean immutable;
-	private int damageHitboxType = 0;
-	private AxisAlignedBB damageHitbox = new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d); // new AxisAlignedBB(BlockPos.ORIGIN)
-	public float[] offsetHitbox = new float[] { 0.0f, 0.0f, 0.0f }; // [dist, height, horizontal]
-	public float[] scaleHitbox = new float[] { 1.0f, 1.0f, 1.0f }; // [x, y, z]
 
 	public AnimationConfig() {
 		this.frames.put(0, new AnimationFrameConfig(0));
@@ -75,7 +65,7 @@ public class AnimationConfig implements IAnimation {
 			this.frames.put(frameId, ((AnimationFrameConfig) frame).copy());
 			this.frames.get(frameId).id = frameId;
         } else {
-			Map<Integer, AnimationFrameConfig> newFrames = Maps.newTreeMap();
+			Map<Integer, AnimationFrameConfig> newFrames = new TreeMap<>();
 			int j = 0;
 			for (int i : this.frames.keySet()) {
 				if (i == frameId) {
@@ -97,33 +87,6 @@ public class AnimationConfig implements IAnimation {
 	public AnimationConfig copy() {
 		AnimationConfig ac = new AnimationConfig();
 		ac.load(this.save());
-		return ac;
-	}
-
-	/** creates animation of the specified type
-	   standard frames are taken into account */
-	public AnimationConfig create(AnimationKind type, AnimationFrameConfig preFrame) {
-		AnimationConfig ac = this.copy();
-		ac.type = type;
-		if (type != AnimationKind.EDITING) {
-			// add standard frame to beginning
-			if (!type.isQuickStart()) {
-				Map<Integer, AnimationFrameConfig> newFrames = Maps.newTreeMap();
-				int i = 0;
-				newFrames.put(i++, preFrame);
-				for (AnimationFrameConfig frame : ac.frames.values()) {
-					frame.id = i;
-					newFrames.put(i, frame);
-					i++;
-				}
-				ac.frames.clear();
-				ac.frames.putAll(newFrames);
-			}
-			// add standard frame to end
-			if (ac.repeatLast == 0 && type != AnimationKind.DIES && type != AnimationKind.JUMP && type != AnimationKind.AIM) {
-				ac.frames.put(ac.frames.size(), preFrame);
-			}
-		}
 		ac.resetTicks();
 		return ac;
 	}
@@ -176,11 +139,11 @@ public class AnimationConfig implements IAnimation {
 
 	@Override
 	public boolean hasFrame(int frameId) {
-		return this.frames.containsKey(frameId);
+		return frames.containsKey(frameId);
 	}
 
 	public void load(NBTTagCompound compound) {
-		this.frames.clear();
+		frames.clear();
 		boolean hasDelayAttack = false;
 		for (int i = 0; i < compound.getTagList("FrameConfigs", 10).tagCount(); i++) {
 			AnimationFrameConfig afc = new AnimationFrameConfig();
@@ -188,29 +151,54 @@ public class AnimationConfig implements IAnimation {
 			afc.id = i;
 			if (!hasDelayAttack) { hasDelayAttack = afc.isNowDamage(); }
 			else { afc.isNowDamage = false; }
-			this.frames.put(i, afc);
+			frames.put(i, afc);
 		}
-		if (this.frames.isEmpty()) { this.frames.put(0, new AnimationFrameConfig(0)); }
-		if (!hasDelayAttack) { this.frames.get(0).isNowDamage = true; }
+		if (frames.isEmpty()) { frames.put(0, new AnimationFrameConfig(0)); }
+		if (!hasDelayAttack) { frames.get(0).isNowDamage = true; }
+
+		addParts.clear();
+		for (int i = 0, id = 8; i < compound.getTagList("AddedParts", 10).tagCount(); i++, id++) {
+			AddedPartConfig addPart = new AddedPartConfig();
+			addPart.load(compound.getTagList("AddedParts", 10).getCompoundTagAt(i));
+			addPart.id = id;
+			if (!addParts.containsKey(addPart.parentPart)) { addParts.put(addPart.parentPart, new ArrayList<>()); }
+			addParts.get(addPart.parentPart).add(addPart);
+		}
 
 		this.id = compound.getInteger("ID");
 		this.name = compound.getString("Name");
-		if (compound.hasKey("Chance", 5)) { this.setChance(compound.getFloat("Chance")); }
-		if (compound.hasKey("Immutable", 1)) { this.immutable = compound.getBoolean("Immutable"); }
-		if (compound.hasKey("Type", 3)) { this.type = AnimationKind.get(compound.getInteger("Type")); }
-		if (compound.hasKey("RepeatLast", 3)) { this.setRepeatLast(compound.getInteger("RepeatLast")); }
-		if (compound.hasKey("DamageHitbox", 9) && compound.getTagList("DamageHitbox", 6).tagCount() == 6) {
-			NBTTagList list = compound.getTagList("DamageHitbox", 6);
-			this.damageHitbox = new AxisAlignedBB(list.getDoubleAt(0), list.getDoubleAt(1), list.getDoubleAt(2), list.getDoubleAt(3), list.getDoubleAt(4), list.getDoubleAt(5));
-			for (int i = 0; i < 3; i++) {
-				try { this.offsetHitbox[i] = compound.getTagList("OffsetHitbox", 5).getFloatAt(i); } catch (Exception e) { LogWriter.error("Error:", e); }
-				try { this.scaleHitbox[i] = ValueUtil.correctFloat(compound.getTagList("ScaleHitbox", 5).getFloatAt(i), 0.0f, Float.MAX_VALUE); } catch (Exception e) { LogWriter.error("Error:", e); }
+		if (compound.hasKey("Chance", 5)) { setChance(compound.getFloat("Chance")); }
+		if (compound.hasKey("Immutable", 1)) { immutable = compound.getBoolean("Immutable"); }
+		if (compound.hasKey("Type", 3)) { type = AnimationKind.get(compound.getInteger("Type")); }
+		if (compound.hasKey("RepeatLast", 3)) { setRepeatLast(compound.getInteger("RepeatLast")); }
+
+		if (compound.hasKey("DamageHitbox", 9) && compound.getTagList("DamageHitbox", 6).tagCount() == 6) { // OLD
+			AnimationDamageHitbox aDHB = new AnimationDamageHitbox(0);
+			if (compound.hasKey("OffsetHitbox", 9) && compound.getTagList("OffsetHitbox", 9).getTagType() == 5 && compound.getTagList("OffsetHitbox", 9).tagCount() > 2) {
+				NBTTagList list = compound.getTagList("OffsetHitbox", 5);
+				aDHB.offset[0] = list.getFloatAt(0);
+				aDHB.offset[1] = list.getFloatAt(1);
+				aDHB.offset[2] = list.getFloatAt(2);
 			}
-			this.setDamageHitboxType(compound.getInteger("DamageHitboxType"));
-		} else {
-			this.damageHitbox = new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d);
-			this.damageHitboxType = 0;
+			if (compound.hasKey("ScaleHitbox", 9) && compound.getTagList("ScaleHitbox", 9).getTagType() == 5 && compound.getTagList("ScaleHitbox", 9).tagCount() > 2) {
+				NBTTagList list = compound.getTagList("ScaleHitbox", 5);
+				aDHB.scale[0] = list.getFloatAt(0);
+				aDHB.scale[1] = list.getFloatAt(1);
+				aDHB.scale[2] = list.getFloatAt(2);
+			}
+			int tTicks = 0;
+			for (AnimationFrameConfig aFC : frames.values()) {
+				tTicks += aFC.speed;
+				if (aFC.isNowDamage()) {
+					aFC.damageDelay = tTicks;
+					aFC.damageHitboxes.clear();
+					aFC.damageHitboxes.put(0, aDHB);
+					break;
+				}
+				tTicks += aFC.delay;
+			}
 		}
+		CustomNpcs.proxy.resetAnimationModel(this);
 	}
 
 	@Override
@@ -231,7 +219,7 @@ public class AnimationConfig implements IAnimation {
 		if (!this.frames.containsKey(frameId)) {
 			throw new CustomNPCsException("Unknown frame ID:" + frameId);
 		}
-		Map<Integer, AnimationFrameConfig> newData = Maps.newTreeMap();
+		Map<Integer, AnimationFrameConfig> newData = new TreeMap<>();
 		int i = 0;
 		boolean isDel = false;
 		for (int f : this.frames.keySet()) {
@@ -269,16 +257,6 @@ public class AnimationConfig implements IAnimation {
 		if (frames > this.frames.size()) { frames = this.frames.size(); }
 		this.repeatLast = frames;
 	}
-
-	@Override
-	public int getDamageHitboxType() { return this.damageHitboxType; }
-
-	@Override
-	public void setDamageHitboxType(int type) {
-		if (type < 0) { type *= -1; }
-		this.damageHitboxType = type % 3;
-	}
-
 	@Override
 	public void setChance(float chance) {
 		if (chance < 0.0f) { chance *= -1.0f; }
@@ -294,10 +272,7 @@ public class AnimationConfig implements IAnimation {
 		if (npcEntity.world == null || npcEntity.world.isRemote) {
 			return;
 		}
-		NBTTagCompound compound = this.save();
-		compound.setInteger("EntityId", npcEntity.getEntityId());
-		compound.setTag("CustomAnim", this.save());
-		Server.sendAssociatedData(npcEntity, EnumPacketClient.UPDATE_NPC_ANIMATION, 3, compound);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC_ANIMATION, npcEntity.world.provider.getDimension(), 3, npcEntity.getEntityId(), save());
 	}
 
 	@Override
@@ -310,69 +285,57 @@ public class AnimationConfig implements IAnimation {
 
 	public NBTTagCompound save() {
 		NBTTagCompound compound = new NBTTagCompound();
-		NBTTagList list = new NBTTagList();
-		Iterator<AnimationFrameConfig> setts = this.frames.values().iterator();
+		NBTTagList listFC = new NBTTagList();
+		Iterator<AnimationFrameConfig> setts = frames.values().iterator();
 		while(setts.hasNext()) {
 			try {
 				AnimationFrameConfig afc = setts.next();
-				list.appendTag(afc.writeNBT());
+				listFC.appendTag(afc.writeNBT());
 			}
 			catch (Exception e) {
 				LogWriter.error("Error:", e);
 				break;
 			}
 		}
-		compound.setTag("FrameConfigs", list);
-		compound.setInteger("ID", this.id);
-		compound.setInteger("Type", this.type.get());
-		compound.setInteger("RepeatLast", this.repeatLast);
-		compound.setString("Name", this.name);
-		compound.setFloat("Chance", this.chance);
-		compound.setBoolean("Immutable", this.immutable);
+		compound.setTag("FrameConfigs", listFC);
+		compound.setInteger("ID", id);
+		compound.setInteger("Type", type.get());
+		compound.setInteger("RepeatLast", repeatLast);
+		compound.setString("Name", name);
+		compound.setFloat("Chance", chance);
+		compound.setBoolean("Immutable", immutable);
 
-		NBTTagList aabb = new NBTTagList();
-		aabb.appendTag(new NBTTagDouble(this.damageHitbox.minX));
-		aabb.appendTag(new NBTTagDouble(this.damageHitbox.minY));
-		aabb.appendTag(new NBTTagDouble(this.damageHitbox.minZ));
-		aabb.appendTag(new NBTTagDouble(this.damageHitbox.maxX));
-		aabb.appendTag(new NBTTagDouble(this.damageHitbox.maxY));
-		aabb.appendTag(new NBTTagDouble(this.damageHitbox.maxZ));
-		compound.setTag("DamageHitbox", aabb);
-		compound.setInteger("DamageHitboxType", this.damageHitboxType);
-		NBTTagList listOff = new NBTTagList();
-		NBTTagList listSc = new NBTTagList();
-		for (int i = 0; i < 3; i++) {
-			listOff.appendTag(new NBTTagFloat(this.offsetHitbox[i]));
-			listSc.appendTag(new NBTTagFloat(this.scaleHitbox[i]));
+		NBTTagList listAP = new NBTTagList();
+		for (int partId : addParts.keySet()) {
+			for (AddedPartConfig addedPart : addParts.get(partId)) {
+				listAP.appendTag(addedPart.save());
+			}
 		}
-		compound.setTag("OffsetHitbox", listOff);
-		compound.setTag("ScaleHitbox", listSc);
+		compound.setTag("AddedParts", listAP);
+
 		return compound;
 	}
 
 	public void resetTicks() {
-		this.totalTicks = 0;
-		this.damageTicks = 0;
-		this.endingFrameTicks.clear();
+		totalTicks = 0;
+		endingFrameTicks.clear();
 		if (this == EMPTY) {
-			this.totalTicks = AnimationFrameConfig.EMPTY.speed + AnimationFrameConfig.EMPTY.delay + 1;
-			this.endingFrameTicks.put(0, this.totalTicks);
+			totalTicks = AnimationFrameConfig.EMPTY.speed + AnimationFrameConfig.EMPTY.delay + 1;
+			endingFrameTicks.put(0, totalTicks);
 			return;
 		}
-		boolean isNowDamage = false;
+		int delay = 0;
 		for (Integer id : this.frames.keySet()) {
-			AnimationFrameConfig frame = this.frames.get(id);
+			AnimationFrameConfig frame = frames.get(id);
 			if (frame.speed < 1) { frame.speed = 1; }
-			if (!isNowDamage && frame.isNowDamage()) {
-				this.damageTicks += frame.speed;
-				isNowDamage = true;
-			} else {
-				this.damageTicks += frame.speed + frame.delay;
+			totalTicks += frame.speed;
+			if (frame.isNowDamage()) {
+				frame.damageDelay = totalTicks;
 			}
-			this.totalTicks += frame.speed + frame.delay;
-			this.endingFrameTicks.put(id, this.totalTicks);
+			totalTicks += frame.delay;
+			endingFrameTicks.put(id, totalTicks);
 		}
-		this.totalTicks += 1;
+		if (totalTicks == 0) { totalTicks = 1; }
 	}
 
 	public boolean hasEmotion() {
@@ -382,29 +345,107 @@ public class AnimationConfig implements IAnimation {
 		return false;
 	}
 
-	public AxisAlignedBB getDamageHitbox(EntityLivingBase npc) {
-		if (damageHitboxType == 0) { return null; }
-		if (damageHitboxType == 1) { return new AxisAlignedBB(BlockPos.ORIGIN); }
-		AxisAlignedBB aabb = new AxisAlignedBB(
-				this.damageHitbox.minX * this.scaleHitbox[0], this.damageHitbox.minY * this.scaleHitbox[1], this.damageHitbox.minZ * this.scaleHitbox[2],
-				this.damageHitbox.maxX * this.scaleHitbox[0], this.damageHitbox.maxY * this.scaleHitbox[1], this.damageHitbox.maxZ * this.scaleHitbox[2]);
-		double yaw = 0.0d, pitch = 0.0d;
-		if (this.offsetHitbox[0] != 0.0f || this.offsetHitbox[1] != 0.0f || this.offsetHitbox[2] != 0.0f) {
-			IRayTraceRotate base = Util.instance.getAngles3D(0.0d, 0.0d, 0.0d, this.offsetHitbox[2], this.offsetHitbox[1], this.offsetHitbox[0]);
-			yaw = base.getYaw();
-			pitch = base.getPitch();
-		}
-		IRayTraceVec data = Util.instance.getPosition(0.0d, 0.0d, 0.0d, npc.rotationYaw + yaw, pitch, Math.abs(Math.sqrt(Math.pow(this.offsetHitbox[0], 2.0d) + Math.pow(this.offsetHitbox[2], 2.0d))));
-		aabb = aabb.offset((float) data.getX(), (float) data.getY() + this.offsetHitbox[1], (float) data.getZ());
-		return aabb;
-	}
-
-	public int getAnimationFrameByTime(long totalTicks) {
-		if (totalTicks > 0) {
-			for (int id : this.endingFrameTicks.keySet()) {
-				if (totalTicks <= this.endingFrameTicks.get(id)) { return id; }
+	public AxisAlignedBB[] getDamageHitboxes(EntityLivingBase npc, int delay) {
+		for (AnimationFrameConfig aFC : frames.values()) {
+			if (aFC.isNowDamage() && aFC.damageDelay == delay) {
+				List<AxisAlignedBB> hitboxes = new ArrayList<>();
+				for (AnimationDamageHitbox aDH : aFC.damageHitboxes.values()) {
+					AxisAlignedBB aabb = aDH.getScaledDamageHitbox();
+					double yaw = 0.0d, pitch = 0.0d;
+					double x = aDH.offset[0];
+					double y = aDH.offset[1];
+					double z = aDH.offset[2];
+					if (x != 0.0f || y != 0.0f || z != 0.0f) {
+						IRayTraceRotate base = Util.instance.getAngles3D(0.0d, 0.0d, 0.0d, x, y, z);
+						yaw = base.getYaw();
+						pitch = base.getPitch();
+					}
+					IRayTraceVec data = Util.instance.getPosition(0.0d, 0.0d, 0.0d, npc.rotationYaw + yaw, pitch, Math.abs(Math.sqrt(Math.pow(x, 2.0d) + Math.pow(z, 2.0d))));
+					hitboxes.add(aabb.offset(npc.posX, npc.posY, npc.posZ).offset(data.getX(), data.getY() + y, data.getZ()));
+				}
+				if (hitboxes.isEmpty()) {
+					AxisAlignedBB aabb = new AxisAlignedBB(BlockPos.ORIGIN);
+					hitboxes.add(aabb.offset(npc.posX, npc.posY, npc.posZ));
+				}
+				return hitboxes.toArray(new AxisAlignedBB[0]);
 			}
 		}
-		return 0;
+		return new AxisAlignedBB[0];
 	}
+
+	public int getAnimationFrameByTime(long ticks) {
+		if (type == AnimationKind.EDITING_PART) { return 0; }
+		if (ticks >= 0) {
+			for (int id : endingFrameTicks.keySet()) {
+				if (ticks <= endingFrameTicks.get(id)) { return id; }
+			}
+			return frames.size();
+		}
+		return -1;
+	}
+
+	public AddedPartConfig addAddedPart(int parentPartID) {
+		AddedPartConfig addPart = new AddedPartConfig(parentPartID);
+		if (!addParts.containsKey(parentPartID)) { addParts.put(parentPartID, new ArrayList<>()); }
+		addPart.id = 8;
+		for (AddedPartConfig apc : addParts.get(parentPartID)) {
+			if (apc.id != addPart.id) { break; }
+			addPart.id++;
+		}
+		addParts.get(parentPartID).add(addPart);
+		for (AnimationFrameConfig frame : frames.values()) {
+			frame.parts.put(addPart.id, new PartConfig(addPart.id, EnumParts.CUSTOM));
+		}
+		return addPart;
+	}
+
+	public AddedPartConfig getAddedPart(int id) {
+		for (List<AddedPartConfig> list : addParts.values()) {
+			for (AddedPartConfig addedPart : list) {
+				if (addedPart.id == id) { return addedPart; }
+			}
+		}
+		return null;
+	}
+
+	public void removeAddedPart(AddedPartConfig addedPartConfig) {
+		if (addedPartConfig == null) { return; }
+		int addedPartId = addedPartConfig.id;
+		boolean bo = false;
+		if (addParts.containsKey(addedPartConfig.parentPart)) {
+			bo = addParts.get(addedPartConfig.parentPart).remove(addedPartConfig);
+			if (!bo) {
+				for (AddedPartConfig addedPart : addParts.get(addedPartConfig.parentPart)) {
+					if (addedPart.id == addedPartId) {
+						bo = addParts.get(addedPartConfig.parentPart).remove(addedPart);
+						break;
+					}
+				}
+			}
+		}
+		if (!bo) { removeAddedPart(addedPartId); }
+		if (bo) {
+			for (AnimationFrameConfig frame : frames.values()) {
+				frame.parts.remove(addedPartId);
+			}
+		}
+	}
+
+	public void removeAddedPart(int addedPartId) {
+		boolean bo = false;
+		for (int partId : addParts.keySet()) {
+			for (AddedPartConfig addedPart : addParts.get(partId)) {
+				if (addedPart.id == addedPartId) {
+					bo = addParts.get(partId).remove(addedPart);
+					break;
+				}
+			}
+		}
+		if (bo) {
+			for (AnimationFrameConfig frame : frames.values()) {
+				frame.parts.remove(addedPartId);
+			}
+		}
+	}
+
 }

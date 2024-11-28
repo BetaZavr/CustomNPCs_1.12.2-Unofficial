@@ -136,7 +136,6 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 						f.setSmooth(frame.isSmooth());
 					}
 				}
-				((GuiNpcCheckBox) button).setText(frame.isSmooth() ? "gui.smooth" : "gui.linearly");
 				this.resetEmtns();
 				break;
 			}
@@ -512,22 +511,19 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		textField.setNumbersOnly();
 		textField.setMinMaxDefault(0, emtn.frames.size(), emtn.repeatLast);
 		this.addTextField(textField);
-		button = new GuiNpcCheckBox(11, x + 92, y + 1, 45, 14, frame.isSmooth() ? "gui.smooth" : "gui.linearly", frame.isSmooth());
-		this.addButton(button);
+		addButton(new GuiNpcCheckBox(11, x + 92, y + 1, 45, 14, "gui.smooth", "gui.linearly", frame.isSmooth()));
 
 		y += 16;
-		button = new GuiNpcCheckBox(38, x, y, 140, 14, "emotion.part.disable", frame.isDisabled());
+		addButton(new GuiNpcCheckBox(38, x, y, 140, 14, "emotion.part.disable", null, frame.isDisabled()));
 		this.addButton(button);
 		this.resetEmtns();
 
 		y += 15;
-		button = new GuiNpcCheckBox(35, x, y, 140, 14, frame.isBlink() ? "emotion.blink" : "emotion.no.blink", frame.isBlink());
-		this.addButton(button);
+		addButton(new GuiNpcCheckBox(35, x, y, 140, 14, "emotion.blink", "emotion.no.blink", frame.isBlink()));
 
 		y += 15;
 		if (frame.isBlink()) {
-			button = new GuiNpcCheckBox(36, x, y, 140, 14, "emotion.end.blink", frame.isEndBlink());
-			this.addButton(button);
+			addButton(new GuiNpcCheckBox(36, x, y, 140, 14, "emotion.end.blink", null, frame.isEndBlink()));
 		}
 
 		// Tool sliders
@@ -645,8 +641,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		}
 
 		y += 38;
-		button = new GuiNpcCheckBox(37, x, y, 140, 14, emtn.canBlink() ? "emotion.can.blink" : "emotion.can.no.blink", emtn.canBlink());
-		this.addButton(button);
+		addButton(new GuiNpcCheckBox(37, x, y, 140, 14, "emotion.can.blink", "emotion.can.no.blink", emtn.canBlink()));
 		this.resetEmtns();
 	}
 

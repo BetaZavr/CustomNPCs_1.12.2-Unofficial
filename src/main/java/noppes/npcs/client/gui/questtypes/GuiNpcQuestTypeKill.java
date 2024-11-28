@@ -66,11 +66,11 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
 		case 1: {
-			this.task.setPartName(((GuiNpcCheckBox) guibutton).isSelected());
+			task.setPartName(((GuiNpcCheckBox) guibutton).isSelected());
 			break;
 		}
 		case 2: {
-			this.task.setAndTitle(((GuiNpcCheckBox) guibutton).isSelected());
+			task.setAndTitle(((GuiNpcCheckBox) guibutton).isSelected());
 			break;
 		}
 		case 4: {
@@ -81,7 +81,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 			break;
 		}
 		case 5: {
-			this.task.setPointOnMiniMap(((GuiNpcCheckBox) guibutton).isSelected());
+			task.setPointOnMiniMap(((GuiNpcCheckBox) guibutton).isSelected());
 			break;
 		}
 		case 10: {
@@ -174,11 +174,10 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 
 		int x = this.guiLeft + 6;
 		int y = this.guiTop + 6;
-		this.addButton(new GuiNpcCheckBox(1, x, y, 208, 14, "quest.kill.part.name", this.task.isPartName()));
-		this.addButton(new GuiNpcCheckBox(2, x, y += 16, 208, 14,
+		addButton(new GuiNpcCheckBox(1, x, y, 208, 14, "quest.kill.part.name", null, task.isPartName()));
+		addButton(new GuiNpcCheckBox(2, x, y += 16, 208, 14,
 				new TextComponentTranslation("quest.kill.add.title",
-						new TextComponentTranslation("gui.title").getFormattedText()).getFormattedText(),
-				this.task.isAndTitle()));
+						new TextComponentTranslation("gui.title").getFormattedText()).getFormattedText(), null, task.isAndTitle()));
 
 		this.addLabel(new GuiNpcLabel(lId++, text, x, y += 16));
 
@@ -259,9 +258,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 
 		this.addButton(new GuiNpcButton(10, x + 150, y += 16, 60, 16, "gui.set"));
 		this.addButton(new GuiNpcButton(11, x + 128, y, 20, 16, "TP"));
-		this.addButton(
-				new GuiNpcCheckBox(5, x, y - 2, 123, 16, "quest.set.minimap.point", this.task.isSetPointOnMiniMap()));
-
+		addButton(new GuiNpcCheckBox(5, x, y - 2, 123, 16, "quest.set.minimap.point", null, task.isSetPointOnMiniMap()));
 	}
 
 	@Override

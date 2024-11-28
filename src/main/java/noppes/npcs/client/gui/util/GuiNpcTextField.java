@@ -6,6 +6,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.client.gui.IGuiTextFieldMixin;
+import noppes.npcs.util.ValueUtil;
+import org.lwjgl.input.Mouse;
 
 public class GuiNpcTextField
 		extends GuiTextField
@@ -89,6 +91,31 @@ public class GuiNpcTextField
 
 	public void drawTextBox(int mouseX, int mouseY) {
 		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+		if (hovered && (doubleNumbersOnly || numbersOnly)) {
+			int dWheel = Mouse.getDWheel();
+			if (dWheel != 0) {
+				if (doubleNumbersOnly) {
+					double d = getDouble();
+					double v = maxD - minD;
+					double f = (dWheel < 0 ? -v : v) / (double) width;
+					double t = d + f;
+					if (t < minD) { t = t - minD + maxD; }
+					else if (t > maxD) { t = t - maxD + minD; }
+					setText("" + ValueUtil.correctDouble(Math.round(t * 1000.0d) / 1000.0d, minD, maxD));
+				} else {
+					int i = getInteger();
+					int v = (int) (max - min);
+					int f = (dWheel < 0 ? -v : v) / width;
+					int t = i + f;
+					if (t < min) { t = t - (int) (min + max); }
+					else if (t > max) { t = t - (int) (max + min); }
+					setText("" + ValueUtil.correctInt((int) (Math.round((double) t * 1000.0d) / 1000.0d), (int) min, (int) max));
+				}
+				if (listener != null) {
+					listener.unFocused(this);
+				}
+			}
+		}
 		this.drawTextBox();
 	}
 

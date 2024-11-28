@@ -322,11 +322,9 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 264, this.guiTop + 190, 90, 20, "gui.cancel"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 264, this.guiTop + 170, 90, 20, "gui.done"));
-		GuiNpcCheckBox cBox = new GuiNpcCheckBox(3, this.guiLeft + 256, this.guiTop + 2, 15, 15, "");
-		cBox.setSelected(GuiTextureSelection.dark);
-		this.addButton(cBox);
+		this.addButton(new GuiNpcButton(1, guiLeft + 264, guiTop + 190, 90, 20, "gui.cancel"));
+		this.addButton(new GuiNpcButton(2, guiLeft + 264, guiTop + 170, 90, 20, "gui.done"));
+		addButton(new GuiNpcCheckBox(3, guiLeft + 256, guiTop + 2, 15, 15, null, null, GuiTextureSelection.dark));
 		if (scroll == null) {
 			(scroll = new GuiCustomScroll(this, 0)).setSize(250, 199);
 		}

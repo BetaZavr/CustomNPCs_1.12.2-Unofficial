@@ -1,20 +1,17 @@
 package noppes.npcs.entity;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockStairs;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -146,6 +143,8 @@ import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NPCWrapper;
 import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.client.EntityUtil;
+import noppes.npcs.client.model.animation.AnimationConfig;
+import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumParts;
@@ -212,7 +211,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public Faction faction;
 	public double field_20061_w, field_20062_v, field_20063_u, field_20064_t, field_20065_s, field_20066_r;
 	public boolean hasDied = false;
-	public List<EntityLivingBase> interactingEntities = Lists.newArrayList();
+	public List<EntityLivingBase> interactingEntities = new ArrayList<>();
 	public EntityAICustom aiAttackTarget;
 	public EntityAIAnimation animateAi;
 	public EntityAILook lookAi;
@@ -270,8 +269,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.stepHeight = this.ais.stepheight;
 		// New
 		this.initTime = System.currentTimeMillis();
-		if (!this.isServerWorld()) { CustomNpcs.proxy.checkTexture(this); }
-		//else if (CustomNpcs.ShowCustomAnimation && this.isServerWorld()) { this.animation.reset(AnimationKind.INIT); }
+		if (!isServerWorld()) { CustomNpcs.proxy.checkTexture(this); }
+		animation.reset(AnimationKind.INIT);
 		this.maxHurtResistantTime = this.ais.getMaxHurtResistantTime();
 	}
 
@@ -336,7 +335,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.transform = new DataTransform(this);
 		this.script = new DataScript(this);
 		this.timers = new DataTimers(this);
-		if (this.animation == null) { this.animation = new DataAnimation(this); }
+		if (animation == null) { animation = new DataAnimation(this); }
 		this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
 		this.getAttributeMap().registerAttribute(SharedMonsterAttributes.FLYING_SPEED);
 		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(this.stats.maxHealth);
@@ -347,33 +346,48 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean attackEntityAsMob(@Nonnull Entity entity) { // this NPCs attempt to damage the target <- EntityAICustom
-		/*if (CustomNpcs.ShowCustomAnimation && this.isServerWorld()) {
-			AnimationConfig anim = this.animation.reset(AnimationKind.ATTACKING);
-			if (anim != null) {
-				int msSec = anim.totalTicks;
-				CustomNPCsScheduler.runTack(() -> this.tryAttackEntityAsMob(entity), msSec > 0 ? msSec -1 : msSec);
-				return false;
+		AnimationConfig anim = animation.reset(AnimationKind.ATTACKING);
+		if (anim != null) {
+			boolean found = false;
+			for (AnimationFrameConfig aFC : anim.frames.values()) {
+				if (aFC.isNowDamage() && aFC.damageDelay != 0) {
+					final int time = aFC.damageDelay * 50;
+					CustomNPCsScheduler.runTack(() -> this.tryAttackEntityAsMob(entity, time), time);
+					found = true;
+				}
 			}
-		}*/
-		return this.tryAttackEntityAsMob(entity);
+			if (!found) {
+				final int time = (anim.totalTicks - 1) * 50;
+				CustomNPCsScheduler.runTack(() -> this.tryAttackEntityAsMob(entity, time), time);
+			}
+			return false;
+		}
+		return this.tryAttackEntityAsMob(entity, 0);
 	}
 
-	private boolean tryAttackEntityAsMob(Entity target) {
+	private boolean tryAttackEntityAsMob(Entity target, int delay) {
 		if (this.ais.aiDisabled || target == null || !target.isEntityAlive()) { return false; }
-		List<Entity> entityList = Lists.newArrayList(target);
-		/*if (CustomNpcs.ShowCustomAnimation && this.isServerWorld() && this.animation.isAnimated(AnimationKind.ATTACKING)) {
-			int hdType = this.animation.getHitboxDamageType();
-			if (hdType == 1) { // in front of
-				double range = this.stats.melee.getRange();
-				double minRange = (this.width + target.width) * 0.425d; // (/ 2.0 * 0.85)
-				double yaw = Math.abs(Util.instance.getVector3D(this.posX, this.posY, this.posZ, target.posX, target.posY, target.posZ).yaw);
-				if (this.getDistance(target) - minRange > range || yaw > 60.0d) { return false; }
-			} else if (hdType == 2) {
-				AxisAlignedBB aabb = this.animation.getHitboxDamage();
-				aabb = aabb.offset(this.posX, this.posY, this.posZ);
-				entityList = this.world.getEntitiesWithinAABB(Entity.class, aabb);
+		List<Entity> entityList = new ArrayList<>();
+		entityList.add(target);
+		if (CustomNpcs.ShowCustomAnimation && isServerWorld() && animation.isAnimated(AnimationKind.ATTACKING)) {
+			AxisAlignedBB[] aabbs = animation.getAnimation().getDamageHitboxes(this, delay);
+			if (aabbs.length == 0) { // only target
+				double range = stats.melee.getRange();
+				double minRange = (width + target.width) * 0.425d; // (/ 2.0 * 0.85)
+				double yaw = Math.abs(Util.instance.getVector3D(posX, posY, posZ, target.posX, target.posY, target.posZ).getYaw());
+				if (getDistance(target) - minRange > range || yaw > 60.0d) { return false; }
 			}
-		}*/
+			else { // custom targets
+				for (AxisAlignedBB aabb : aabbs) {
+					List<Entity> tempEntityList = world.getEntitiesWithinAABB(Entity.class, aabb);
+					for (Entity e : tempEntityList) {
+						if (entityList.contains(e)) { continue; }
+						entityList.add(e);
+					}
+				}
+				entityList.remove(this);
+			}
+		}
 		float amount = this.stats.melee.getStrength();
 		DamageSource damageSource = new NpcDamageSource("mob", this);
 		boolean attackEntity = false;
@@ -525,13 +539,13 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				}
 			}
 		}
-		if (this.isServerWorld() && CustomNpcs.ShowCustomAnimation && !this.isKilled()) {
+		if (!isKilled()) {
 			if (isHurt && damage > 0.0f) {
-				//this.animation.reset(AnimationKind.HIT);
+				animation.reset(AnimationKind.HIT);
 			}
 			else  {
-				//AnimationConfig anim = this.animation.reset(AnimationKind.BLOCKED);
-				if (/*anim == null && */!damagesource.isProjectile() && attackingEntity != null) { this.blockUsingShield(attackingEntity); }
+				AnimationConfig anim = animation.reset(AnimationKind.BLOCKED);
+				if (anim == null && !damagesource.isProjectile() && attackingEntity != null) { blockUsingShield(attackingEntity); }
 			}
 		}
 
@@ -898,7 +912,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	private Dialog getDialog(EntityPlayer player) {
-		Set<Integer> newDS = Sets.newHashSet();
+		Set<Integer> newDS = new HashSet<>();
 		Dialog dialog = null;
 		for (int dialogId : this.dialogs) {
 			if (!DialogController.instance.hasDialog(dialogId)) {
@@ -1296,14 +1310,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 						(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null));
 			}
 		}
-		/*if (CustomNpcs.ShowCustomAnimation && this.animation.hasAnim(AnimationKind.DIES) && this.isServerWorld()) {
-			AnimationConfig anim = this.animation.reset(AnimationKind.DIES);
-			if (anim != null) {
-				this.motionX = 0.0d;
-				this.motionY = 0.0d;
-				this.motionZ = 0.0d;
-			}
-		}*/
+		AnimationConfig anim = animation.reset(AnimationKind.DIES);
+		if (anim != null) {
+			motionX = 0.0d;
+			motionY = 0.0d;
+			motionZ = 0.0d;
+		}
 		super.onDeath(damagesource);
 	}
 
@@ -1396,63 +1408,40 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			isAirBorne = this.canFly() && world.getBlockState(this.getPosition().down()).getMaterial() == Material.AIR;
 		}
 		if (CustomNpcs.ShowCustomAnimation) {
-
-		}
-		/*if (CustomNpcs.ShowCustomAnimation) {
-			this.animation.resetWalkOrStand();
 			// Jump
-			if (!this.animation.isJump && !this.isKilled() && this.getHealth() > 0.0f && this.world != null && !(this.isInWater() || this.isInLava()) && this.ais.getNavigationType() == 0 && !this.onGround && this.motionY > 0.0d) {
-				// checking the movement of steps
-				BlockPos posN = this.getPosition().down();
-				int i = 3;
-				while (i > 0 && this.world.getBlockState(posN).getBlock() instanceof BlockAir) {
-					posN = posN.down();
-					i--;
-				}
-				boolean nowBlock = !(this.world.getBlockState(posN).getBlock() instanceof BlockStairs);
-				boolean nextBlock = true;
-				if (motionX != 0.0d || motionZ != 0.0d) {
-					double mx = posX + 0.0d, mz = posZ + 0.0d;
-					BlockPos posS = this.getPosition();
-					while (posS.getX() == posN.getX() && posS.getZ() == posN.getZ()) {
-						mx += motionX;
-						mz += motionZ;
-						posS = new BlockPos(mx, posN.getY(), mz);
-					}
-					posS = posS.up(2);
-					i = 4;
-					while (i > 0 && this.world.getBlockState(posS).getBlock() instanceof BlockAir) {
-						posS = posS.down();
-						i--;
-					}
-					nextBlock = !(this.world.getBlockState(posS).getBlock() instanceof BlockStairs);
-				}
-				if ((nowBlock && nextBlock) || (!nowBlock && nextBlock)) {
-					this.animation.isJump = true;
-					if (this.isServerWorld()) { this.animation.reset(AnimationKind.JUMP); }
+			if (!animation.isJump && !isKilled() && getHealth() > 0.0f && world != null && !(isInWater() || isInLava()) && ais.getNavigationType() == 0 && !onGround && motionY > 0.0d) {
+				BlockPos posUnderfoot = getPosition().down();
+				BlockPos posAhead = getPosition().add(motionX, 0, motionZ).down();
+				boolean canJumpHere = !(world.getBlockState(posUnderfoot).getBlock() instanceof BlockStairs);
+				boolean canLandThere = !(world.getBlockState(posAhead).getBlock() instanceof BlockStairs);
+				if (canJumpHere && canLandThere) {
+					animation.isJump = true;
+					animation.reset(AnimationKind.JUMP);
 				}
 			}
 			else if (this.animation.isJump && this.onGround) {
-				this.animation.isJump = false;
-				if (this.isServerWorld()) { this.animation.stopAnimation(AnimationKind.JUMP); }
+				animation.isJump = false;
+				if (animation.isAnimated(AnimationKind.JUMP)) { animation.stopAnimation(); }
 			}
 			// Swing
-			if (!this.animation.isSwing && this.swingProgress > 0.0f) {
-				this.animation.isSwing = true;
-				if (!this.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.AIM, AnimationKind.SHOOT)) {
+			if (!animation.isSwing && swingProgress > 0.0f) {
+				animation.isSwing = true;
+				if (!animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.AIM, AnimationKind.SHOOT)) {
 					AnimationConfig anim = this.animation.reset(AnimationKind.SWING);
 					if (anim != null) {
-						this.swingProgress = 0.0f;
-						this.swingProgressInt = 0;
-						this.prevSwingProgress = 0.0f;
-						this.isSwingInProgress = false;
+						swingProgress = 0.0f;
+						swingProgressInt = 0;
+						prevSwingProgress = 0.0f;
+						isSwingInProgress = false;
 					}
 				}
 			}
-			else if (this.animation.isSwing && this.swingProgress == 0.0f) {
-				this.animation.isSwing = false;
+			else if (animation.isSwing && swingProgress == 0.0f) {
+				animation.isSwing = false;
 			}
-		}*/
+			// walking or standing
+			animation.resetWalkOrStand();
+		}
 
 		if (this.wasKilled != this.isKilled() && this.wasKilled) {
 			this.reset();
@@ -1485,9 +1474,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		CustomNpcs.debugData.endDebug(this.isServerWorld() ? "Server" : "Client", this, "NPCLivingUpdate");
 	}
 
+	@Override
 	public void onUpdate() {
 		CustomNpcs.debugData.startDebug(this.isServerWorld() ? "Server" : "Client", this, "NPCUpdate");
 		super.onUpdate();
+		if (animation != null) { animation.updateTime(); }
 		if (!this.ais.aiDisabled && this.ticksExisted % 10 == 0) {
 			if (this.initTime != 0L && !this.isServerWorld() && this.initTime < System.currentTimeMillis() - 1000L) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.NpcData, this.getEntityId());
@@ -1585,15 +1576,13 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			return !isAttacking();
 		}
 		this.addInteract(player);
-		/*if (CustomNpcs.ShowCustomAnimation && !this.animation.isAnimated(AnimationKind.INTERACT)) {
-			if (!this.lookAi.fastRotation) {
-				AnimationConfig anim = this.animation.reset(AnimationKind.INTERACT);
-				if (anim != null ) {
-					this.lookAi.fastRotation = true;
-					CustomNPCsScheduler.runTack(() -> this.lookAi.fastRotation = false , 1500);
-				}
+		if (!lookAi.fastRotation) {
+			AnimationConfig anim = animation.reset(AnimationKind.INTERACT);
+			if (anim != null ) {
+				lookAi.fastRotation = true;
+				CustomNPCsScheduler.runTack(() -> lookAi.fastRotation = false , 1500);
 			}
-		}*/
+		}
 		Dialog dialog = this.getDialog(player);
 		PlayerData pd = PlayerData.get(player);
 		if (!this.faction.getIsHidden() && !pd.factionData.factionData.containsKey(this.faction.id)) {
@@ -1754,7 +1743,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		this.bossInfo.setVisible(this.display.getBossbar() == 1);
 		this.advanced.jobInterface.reset();
-		//if (CustomNpcs.ShowCustomAnimation && this.isServerWorld()) { this.animation.reset(AnimationKind.INIT); }
+		animation.reset(AnimationKind.INIT);
 		this.updateClient = true;
 		if (this.ais.returnToStart && this.homeDimensionId != this.world.provider.getDimension() && !(this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing())) {
 			try {
@@ -2036,14 +2025,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		float acc = 20.0f - MathHelper.floor(accuracy / 5.0f);
 		projectile.shoot(varX, varY, varZ, angle, acc);
 		this.world.spawnEntity(projectile);
-		/*if (CustomNpcs.ShowCustomAnimation && this.isServerWorld()) {
-			if (this.animation.hasAnim(AnimationKind.SHOOT)) {
-				this.animation.reset(AnimationKind.SHOOT);
-			}
-			else if (this.animation.isAnimated(AnimationKind.AIM)) {
-				this.animation.stopAnimation();
-			}
-		}*/
+		animation.reset(AnimationKind.SHOOT);
+		if (animation.isAnimated(AnimationKind.AIM)) {
+			animation.stopAnimation();
+		}
 		return projectile;
 	}
 
@@ -2111,10 +2096,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (!this.isServerWorld()) {
 			return;
 		}
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("EntityId", this.getEntityId());
-		compound.setInteger("baseanim", this.currentAnimation);
-		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_ANIMATION, 4, compound);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC_ANIMATION, world.provider.getDimension(), 2, getEntityId(), currentAnimation);
 	}
 
 	public void updateClient() {

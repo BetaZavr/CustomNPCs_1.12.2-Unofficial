@@ -8,11 +8,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.containers.ContainerNpcQuestReward;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -25,81 +21,80 @@ public class GuiNpcQuestReward extends GuiContainerNPCInterface implements IText
 
 	public GuiNpcQuestReward(EntityNPCInterface npc, ContainerNpcQuestReward container) {
 		super(npc, container);
-		this.quest = NoppesUtilServer.getEditingQuest(this.player);
-		this.resource = this.getResource("questreward.png");
-		this.closeOnEsc = true;
+		quest = NoppesUtilServer.getEditingQuest(player);
+		resource = getResource("questreward.png");
+		closeOnEsc = true;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 5) {
-			this.close();
+			close();
 		} else if (button.id == 0) {
-			this.quest.setRewardType(button.getValue());
+			quest.setRewardType(button.getValue());
 		}
 	}
 
 	@Override
 	public void close() {
-		NoppesUtil.openGUI(this.player, GuiNPCManageQuest.Instance);
+		NoppesUtil.openGUI(player, GuiNPCManageQuest.Instance);
 	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(this.resource);
-		int l = (this.width - this.xSize) / 2;
-		int i2 = (this.height - this.ySize) / 2;
-		this.drawTexturedModalRect(l, i2, 0, 0, this.xSize, this.ySize);
+		mc.getTextureManager().bindTexture(resource);
+		int l = (width - xSize) / 2;
+		int i2 = (height - ySize) / 2;
+		drawTexturedModalRect(l, i2, 0, 0, xSize, ySize);
 		super.drawGuiContainerBackgroundLayer(f, i, j);
 	}
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (this.subgui != null) {
+		if (subgui != null) {
 			return;
 		}
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.reward.type").getFormattedText());
-		} else if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("quest.hover.edit.reward.xp", "" + this.maxXp).getFormattedText());
-		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.reward.money", "" + this.maxMoney)
-					.getFormattedText());
+		if (getButton(0) != null && getButton(0).isMouseOver()) {
+			setHoverText(new TextComponentTranslation("quest.hover.edit.reward.type").getFormattedText());
+		} else if (getButton(1) != null && getButton(1).isMouseOver()) {
+			setHoverText(new TextComponentTranslation("quest.hover.edit.reward.show").getFormattedText());
+		} else if (getTextField(0) != null && getTextField(0).isMouseOver()) {
+			setHoverText(new TextComponentTranslation("quest.hover.edit.reward.xp", "" + maxXp).getFormattedText());
+		} else if (getTextField(1) != null && getTextField(1).isMouseOver()) {
+			setHoverText(new TextComponentTranslation("quest.hover.edit.reward.money", "" + maxMoney).getFormattedText());
 		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
+		if (hoverText != null) {
+			drawHoveringText(Arrays.asList(hoverText), mouseX, mouseY, fontRenderer);
+			hoverText = null;
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		int x = this.guiLeft + 4;
-		int y = this.guiTop + 14;
-		this.addLabel(new GuiNpcLabel(0, "quest.reward.get.item", x + 1, y - 10));
-		this.addButton(new GuiNpcButton(0, x + 34, y, 62, 20,
-				new String[] { "drop.type.all", "drop.type.one", "drop.type.random" },
-				this.quest.rewardType.ordinal()));
-		this.addButton(new GuiNpcButton(5, x + this.xSize - 20, y - 10, 12, 12, "X"));
+		int x = guiLeft + 4;
+		int y = guiTop + 14;
 
-		this.addLabel(new GuiNpcLabel(1, "quest.exp", x + 1, (y += 22) + 5));
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, x + 35, y, 60, 18,
-				this.quest.rewardExp + ""));
-		this.getTextField(0).setNumbersOnly();
-		this.getTextField(0).setMinMaxDefault(0, this.maxXp, this.quest.rewardExp);
+		addLabel(new GuiNpcLabel(0, "quest.reward.get.item", x + 1, y - 10));
+		addButton(new GuiNpcButton(0, x + 34, y, 62, 16, new String[] { "drop.type.all", "drop.type.one", "drop.type.random" }, quest.rewardType.ordinal()));
+		addButton(new GuiNpcButton(5, x + xSize - 20, y - 10, 12, 12, "X"));
 
-		this.addLabel(new GuiNpcLabel(2, "gui.money", x + 1, (y += 21) + 5));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, x + 35, y, 60, 18,
-				this.quest.rewardMoney + ""));
-		this.getTextField(1).setNumbersOnly();
-		this.getTextField(1).setMinMaxDefault(0, this.maxMoney, this.quest.rewardMoney);
+		addLabel(new GuiNpcLabel(1, "quest.exp", x + 1, (y += 19) + 3));
+		addTextField(new GuiNpcTextField(0, this, fontRenderer, x + 35, y, 60, 14, quest.rewardExp + ""));
+		getTextField(0).setNumbersOnly();
+		getTextField(0).setMinMaxDefault(0, maxXp, quest.rewardExp);
+
+		addLabel(new GuiNpcLabel(2, "gui.money", x + 1, (y += 18) + 3));
+		addTextField(new GuiNpcTextField(1, this, fontRenderer, x + 35, y, 60, 14, quest.rewardMoney + ""));
+		getTextField(1).setNumbersOnly();
+		getTextField(1).setMinMaxDefault(0, maxMoney, quest.rewardMoney);
+
+		addButton(new GuiNpcCheckBox(1, x, y + 16, 97, 12, "gui.enabled", "gui.disabled", quest.showRewardText));
 	}
 
 	@Override
@@ -109,9 +104,9 @@ public class GuiNpcQuestReward extends GuiContainerNPCInterface implements IText
 	@Override
 	public void unFocused(GuiNpcTextField textfield) {
 		if (textfield.getId() == 0) {
-			this.quest.rewardExp = textfield.getInteger();
+			quest.rewardExp = textfield.getInteger();
 		} else if (textfield.getId() == 1) {
-			this.quest.rewardMoney = textfield.getInteger();
+			quest.rewardMoney = textfield.getInteger();
 		}
 	}
 

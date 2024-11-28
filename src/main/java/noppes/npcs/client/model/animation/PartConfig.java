@@ -10,42 +10,44 @@ import noppes.npcs.util.ValueUtil;
 
 public class PartConfig implements IAnimationPart {
 
-	public float[] rotation = new float[] { 0.5f, 0.5f, 0.5f, 0.5f, 0.5f }; // [x, y, z, x1, y1 ] 0.0 = 0; 1.0 = 360;
-	public float[] offset = new float[] { 0.5f, 0.5f, 0.5f }; // [x, y, z] 0.0 = -5; 1.0 = 5
-	public float[] scale = new float[] { 0.2f, 0.2f, 0.2f }; // [x, y, z] 0.0 = 0; 1.0 = 5
+	// [x, y, z, x1, y1 ] PI <> PI;
+	public final float[] rotation = new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	// [x, y, z] -5 <> 5
+	public final float[] offset = new float[] { 0.0f, 0.0f, 0.0f };
+	// [x, y, z] 0 <> 5
+	public final float[] scale = new float[] { 1.0f, 1.0f, 1.0f };
+
 	public int id = 0;
 	public boolean disable = false;
 	public boolean show = true;
-	public String name;
+	public String name = "";
 	protected EnumParts type = EnumParts.HEAD;
 
 	public PartConfig() {
-		this.name = "part_" + id;
-		this.clear();
+		clear();
 	}
 
 	public PartConfig(int id, EnumParts type) {
 		this();
 		this.id = id;
 		this.type = type;
-		this.setMainName();
+		setMainName();
 	}
 
 	private void setMainName() {
-		if (this.id < 8 && !this.name.startsWith("part_")) { return; }
-		switch (this.id) {
-			case 0: this.name = "model.head"; break;
-			case 1: this.name = "model.larm"; break;
-			case 2: this.name = "model.rarm"; break;
-			case 3: this.name = "model.body"; break;
-			case 4: this.name = "model.lleg"; break;
-			case 5: this.name = "model.rleg"; break;
-			case 6: this.name = "model.lstack"; break;
-			case 7: this.name = "model.rstack"; break;
-			default: {
-				if (this.name == null || this.name.isEmpty()) { this.name = "part_" + id; }
-				break;
-			}
+		if (id > 7) {
+			if (name.isEmpty()) { name = "part_" + type.name().toLowerCase() + "_" + id; }
+			return;
+		}
+		switch (id) {
+			case 0: name = "model.head"; break;
+			case 1: name = "model.larm"; break;
+			case 2: name = "model.rarm"; break;
+			case 3: name = "model.body"; break;
+			case 4: name = "model.lleg"; break;
+			case 5: name = "model.rleg"; break;
+			case 6: name = "model.lstack"; break;
+			case 7: name = "model.rstack"; break;
 		}
 	}
 
@@ -56,13 +58,12 @@ public class PartConfig implements IAnimationPart {
 	
 	@Override
 	public void clear() {
-		for (int i = 0; i < 3; i++) {
-			this.rotation[i] = 0.5f;
-			this.offset[i] = 0.5f;
-			this.scale[i] = 0.2f;
+		for (int i = 0; i < 5; i++) {
+			rotation[i] = 0.0f;
+			if (i > 2) { continue; }
+			offset[i] = 0.0f;
+			scale[i] = 1.0f;
 		}
-		this.rotation[3] = 0.5f;
-		this.rotation[4] = 0.5f;
 	}
 
 	public PartConfig copy() {
@@ -73,23 +74,22 @@ public class PartConfig implements IAnimationPart {
 
 	@Override
 	public float[] getOffset() {
-		return new float[] { 10.0f * this.offset[0] - 5.0f, 10.0f * this.offset[1] - 5.0f,
-				10.0f * this.offset[2] - 5.0f };
+		return new float[] { offset[0], offset[1], offset[2] };
 	}
 
 	@Override
 	public float[] getRotation() {
-		return new float[] { this.rotation[0] * 360.0f, this.rotation[1] * 360.0f, this.rotation[2] * 360.0f };
+		return new float[] { rotation[0], rotation[1], rotation[2] };
 	}
 	
 	@Override
 	public float[] getRotationPart() {
-		return new float[] { this.rotation[3] * 360.0f, this.rotation[4] * 360.0f };
+		return new float[] { rotation[3], rotation[4] };
 	}
 
 	@Override
 	public float[] getScale() {
-		return new float[] { this.scale[0] * 5.0f, this.scale[1] * 5.0f, this.scale[2] * 5.0f };
+		return new float[] { scale[0], scale[1], scale[2] };
 	}
 
 	@Override
@@ -103,26 +103,39 @@ public class PartConfig implements IAnimationPart {
 	}
 
 	public void readNBT(NBTTagCompound compound) {
-		for (int i = 0; i < 3; i++) {
-			try { this.rotation[i] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
-			try { this.offset[i] = ValueUtil.correctFloat(compound.getTagList("Offset", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
-			try { this.scale[i] = ValueUtil.correctFloat(compound.getTagList("Scale", 5).getFloatAt(i), 0.0f, 5.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
+		int v = compound.getInteger("v");
+		float pi = (float) Math.PI;
+		for (int i = 0; i < 5; i++) {
+			float valueR = compound.getTagList("Rotation", 5).getFloatAt(i);
+			float valueO = compound.getTagList("Offset", 5).getFloatAt(i);
+			float valueS = compound.getTagList("Scale", 5).getFloatAt(i);
+			try {
+				float corr = (float) Math.PI / (i == 4 ? 2.0f : 1.0f);
+				if (v == 0) { rotation[i] = ValueUtil.correctFloat((2.0f * pi * valueR - pi) / (i == 4 ? 2.0f : 1.0f), -corr, corr); }
+				else { rotation[i] = ValueUtil.correctFloat(valueR, -corr, corr); }
+			} catch (Exception e) { LogWriter.error("Error:", e); }
+			if (i > 2) {
+				continue; }
+			try {
+				if (v == 0) { offset[i] = ValueUtil.correctFloat(valueO * 10.0f - 5.0f, -5.0f, 5.0f); }
+				else { offset[i] = ValueUtil.correctFloat(valueO, -5.0f, 5.0f); }
+			} catch (Exception e) { LogWriter.error("Error:", e); }
+			try {
+				if (v == 0) { scale[i] = ValueUtil.correctFloat(valueS * 5.0f, 0.0f, 5.0f); }
+				else { scale[i] = ValueUtil.correctFloat(valueS, 0.0f, 5.0f); }
+			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		if (compound.getTagList("Rotation", 5).tagCount() >= 5) {
-			try { this.rotation[3] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(3), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
-			try { this.rotation[4] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(4), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
-		}
-		this.id = compound.getInteger("Part");
-		this.disable = compound.getBoolean("Disabled");
+		id = compound.getInteger("Part");
+		disable = compound.getBoolean("Disabled");
 		if (compound.hasKey("Show", 1)) {
-			this.show = compound.getBoolean("Show");
+			show = compound.getBoolean("Show");
 		}
 		if (compound.hasKey("Name", 8)) {
-			this.name = compound.getString("Name");
+			name = compound.getString("Name");
 		}
-		this.setMainName();
+		setMainName();
 		if (compound.hasKey("Type", 3)) {
-			this.type = EnumParts.values()[compound.getInteger("Type")];
+			type = EnumParts.values()[compound.getInteger("Type")];
 		}
 	}
 
@@ -136,32 +149,29 @@ public class PartConfig implements IAnimationPart {
 		x %= 5.0f;
 		y %= 5.0f;
 		z %= 5.0f;
-		this.offset[0] = ValueUtil.correctFloat(x / 5.0f, 0.0f, 1.0f);
-		this.offset[1] = ValueUtil.correctFloat(y / 5.0f, 0.0f, 1.0f);
-		this.offset[2] = ValueUtil.correctFloat(z / 5.0f, 0.0f, 1.0f);
+		offset[0] = ValueUtil.correctFloat(x / 5.0f, 0.0f, 1.0f);
+		offset[1] = ValueUtil.correctFloat(y / 5.0f, 0.0f, 1.0f);
+		offset[2] = ValueUtil.correctFloat(z / 5.0f, 0.0f, 1.0f);
 	}
 
 	@Override
 	public void setRotation(float x, float y, float z) {
-		x %= 360.0f;
-		y %= 360.0f;
-		z %= 360.0f;
-		if (x < 0.0f) { x += 360.0f; }
-		if (y < 0.0f) { y += 360.0f; }
-		if (z < 0.0f) { z += 360.0f; }
-		this.rotation[0] = ValueUtil.correctFloat(x / 360.0f, 0.0f, 1.0f);
-		this.rotation[1] = ValueUtil.correctFloat(y / 360.0f, 0.0f, 1.0f);
-		this.rotation[2] = ValueUtil.correctFloat(z / 360.0f, 0.0f, 1.0f);
+		x %= 180.0f;
+		y %= 180.0f;
+		z %= 180.0f;
+		float pi = (float) Math.PI;
+		rotation[0] = ValueUtil.correctFloat(x / 180.0f * pi, -pi, pi);
+		rotation[1] = ValueUtil.correctFloat(y / 180.0f * pi, -pi, pi);
+		rotation[2] = ValueUtil.correctFloat(z / 180.0f * pi, -pi, pi);
 	}
 
 	@Override
 	public void setRotation(float x1, float y1) {
-		x1 %= 360.0f;
-		y1 %= 360.0f;
-		if (x1 < 0.0f) { x1 += 360.0f; }
-		if (y1 < 0.0f) { y1 += 360.0f; }
-		this.rotation[3] = ValueUtil.correctFloat(x1 / 360.0f, 0.0f, 1.0f);
-		this.rotation[4] = ValueUtil.correctFloat(y1 / 360.0f, 0.0f, 1.0f);
+		x1 %= 90.0f;
+		y1 %= 90.0f;
+		float pi = (float) Math.PI;
+		rotation[3] = ValueUtil.correctFloat(x1 / 180.0f * pi, -pi, pi);
+		rotation[4] = ValueUtil.correctFloat(y1 / 180.0f * pi, -pi, pi);
 	}
 
 	@Override
@@ -169,9 +179,9 @@ public class PartConfig implements IAnimationPart {
 		x %= 5.0f;
 		y %= 5.0f;
 		z %= 5.0f;
-		this.scale[0] = ValueUtil.correctFloat(x / 5.0f, 0.0f, 1.0f);
-		this.scale[1] = ValueUtil.correctFloat(y / 5.0f, 0.0f, 1.0f);
-		this.scale[2] = ValueUtil.correctFloat(z / 5.0f, 0.0f, 1.0f);
+		scale[0] = ValueUtil.correctFloat(x / 5.0f, 0.0f, 1.0f);
+		scale[1] = ValueUtil.correctFloat(y / 5.0f, 0.0f, 1.0f);
+		scale[2] = ValueUtil.correctFloat(z / 5.0f, 0.0f, 1.0f);
 	}
 
 	@Override
@@ -200,7 +210,9 @@ public class PartConfig implements IAnimationPart {
 		compound.setBoolean("Show", this.show);
 		compound.setString("Name", this.name);
 		compound.setInteger("Type", this.type.ordinal());
-		
+
+		compound.setInteger("v", 1);
+
 		return compound;
 	}
 

@@ -33,15 +33,15 @@ public class GuiNpcFollowerSetup extends GuiContainerNPCInterface2 {
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 7: {
-			this.role.infiniteDays = ((GuiNpcCheckBox) button).isSelected();
+			role.infiniteDays = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		case 8: {
-			this.role.disableGui = ((GuiNpcCheckBox) button).isSelected();
+			role.disableGui = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		case 9: {
-			this.role.refuseSoulStone = ((GuiNpcCheckBox) button).isSelected();
+			role.refuseSoulStone = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		case 10: {
@@ -118,9 +118,9 @@ public class GuiNpcFollowerSetup extends GuiContainerNPCInterface2 {
 		this.addTextField(new GuiNpcTextField(5, this, this.fontRenderer, x, y += 19, 286, 16, this.role.dialogFired));
 
 		x += 73;
-		this.addButton(new GuiNpcCheckBox(7, x, y += 19, 120, 14, "follower.infiniteDays", this.role.infiniteDays));
-		this.addButton(new GuiNpcCheckBox(8, x, y += 16, 120, 14, "follower.guiDisabled", this.role.disableGui));
-		this.addButton(new GuiNpcCheckBox(9, x, y += 16, 120, 14, "follower.allowSoulstone", this.role.refuseSoulStone));
+		addButton(new GuiNpcCheckBox(7, x, y += 19, 120, 14, "follower.infiniteDays", null, role.infiniteDays));
+		addButton(new GuiNpcCheckBox(8, x, y += 16, 120, 14, "follower.guiDisabled", null, role.disableGui));
+		addButton(new GuiNpcCheckBox(9, x, y += 16, 120, 14, "follower.allowSoulstone", null, role.refuseSoulStone));
 
 		tf = new GuiNpcTextField(6, this, this.fontRenderer, x + 45, y += 18, 60, 16, "" + this.role.rentalMoney);
 		this.addLabel(new GuiNpcLabel(lId++, "gui.money", x, y + 4));

@@ -160,9 +160,8 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		}
 		case 14: {
 			GuiNPCManageFactions.isName = ((GuiNpcCheckBox) button).isSelected();
-			((GuiNpcCheckBox) button).setText(GuiNPCManageFactions.isName ? "gui.name" : "ID");
-			if (!this.base.isEmpty()) {
-				this.setData(new Vector<>(base.keySet()), new HashMap<>(base));
+			if (!base.isEmpty()) {
+				setData(new Vector<>(base.keySet()), new HashMap<>(base));
 			}
 			break;
 		}
@@ -270,8 +269,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		this.scrollFactions.guiTop = this.guiTop + 4;
 		this.addScroll(this.scrollFactions);
 
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y + 18, 45, 12,
-				GuiNPCManageFactions.isName ? "gui.name" : "ID");
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y + 18, 45, 12, "gui.name" ,"ID", GuiNPCManageFactions.isName);
 		checkBox.setSelected(GuiNPCManageFactions.isName);
 		this.addButton(checkBox);
 		if (this.faction.id == -1) {

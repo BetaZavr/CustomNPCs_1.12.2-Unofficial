@@ -39,8 +39,4 @@ public interface IAnimation {
 
 	void setChance(float chance);
 
-	int getDamageHitboxType();
-
-	void setDamageHitboxType(int type);
-
 }

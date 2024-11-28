@@ -46,8 +46,8 @@ public class AnimationController implements IAnimationHandler {
 	@Override
 	public IAnimation createNewAnim() {
 		AnimationConfig ac = new AnimationConfig();
-		ac.id = this.getUnusedAnimId();
-		this.animations.put(ac.id, ac);
+		ac.id = getUnusedAnimId();
+		animations.put(ac.id, ac);
 		return ac;
 	}
 
@@ -103,7 +103,7 @@ public class AnimationController implements IAnimationHandler {
 	public List<AnimationConfig> getAnimations(List<Integer> ids) {
 		List<AnimationConfig> list = Lists.newArrayList();
 		if (ids == null || ids.isEmpty()) { return list; }
-		for (AnimationConfig ac : this.animations.values()) {
+		for (AnimationConfig ac : animations.values()) {
 			for (int id : ids) {
 				if (ac.getId() == id) {
 					list.add(ac);
@@ -127,7 +127,7 @@ public class AnimationController implements IAnimationHandler {
 
 	public int getUnusedAnimId() {
 		int id = 0;
-		for (int i : this.animations.keySet()) {
+		for (int i : animations.keySet()) {
 			if (i != id) {
 				break;
 			}

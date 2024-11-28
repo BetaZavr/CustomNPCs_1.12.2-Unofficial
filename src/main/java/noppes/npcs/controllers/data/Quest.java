@@ -46,9 +46,10 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 	public boolean cancelable = false;
 	public boolean showProgressInChat = true;
 	public boolean showProgressInWindow = true;
+	public boolean showRewardText = true;
 	public int id = -1;
 	public int level = 0;
-	public int nextQuestid = -1;
+	public int nextQuest = -1;
 	public int rewardExp = 0;
 	public int rewardMoney = 0;
 	public int step = 0;
@@ -188,32 +189,40 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 				rewardist.put(item, item.getCount());
 			}
 		}
-		if (!rewardist.isEmpty() || this.rewardExp > 0 || this.rewardMoney > 0 || !this.rewardText.isEmpty()) {
-			allTextLogs.append(ent).append(ent).append(new TextComponentTranslation("questlog.reward").getFormattedText());
-		}
-		if (!rewardist.isEmpty()) {
-			allTextLogs.append(ent).append(new TextComponentTranslation("questlog." + (this.rewardType == EnumRewardType.ONE_SELECT ? "one" : this.rewardType == EnumRewardType.RANDOM_ONE ? "rnd" : "all") + ".reward").getFormattedText());
-			int j = 1;
-			for (ItemStack item : rewardist.keySet()) {
-				int c = rewardist.get(item);
-				allTextLogs.append(ent).append(rewardist.size() > 1 ? j + " - " : "").append(" ").append((char) 0xffff).append(" ").append(item.getDisplayName()).append(c > 1 ? " x" + c : "");
-				j++;
+		if (showRewardText) {
+			if (!rewardist.isEmpty() || this.rewardExp > 0 || this.rewardMoney > 0 || !this.rewardText.isEmpty()) {
+				allTextLogs.append(ent).append(ent).append(new TextComponentTranslation("questlog.reward").getFormattedText());
 			}
-		}
-		if (this.rewardMoney > 0) {
-			allTextLogs.append(ent).append(new TextComponentTranslation("questlog.rewardmoney",
-					Util.instance.getTextReducedNumber(this.rewardMoney, true, true, false),
-                    CustomNpcs.displayCurrencies).getFormattedText());
-		}
-		if (this.rewardExp > 0) {
-			allTextLogs.append(ent).append(new TextComponentTranslation("questlog.rewardexp", "" + this.rewardExp).getFormattedText());
-		}
-		if (!this.rewardText.isEmpty()) {
-			allTextLogs.append(ent).append(this.rewardText.contains("%") ? this.rewardText : new TextComponentTranslation(this.rewardText).getFormattedText());
-		}
-		if (!this.logText.isEmpty()) {
-			allTextLogs.append(ent).append(ent).append((char) 167).append("l").append(new TextComponentTranslation("gui.description").getFormattedText()).append(ent).append(this.logText.contains("%") ? this.logText
-                    : new TextComponentTranslation(this.logText).getFormattedText());
+			if (!rewardist.isEmpty()) {
+				allTextLogs.append(ent).append(new TextComponentTranslation("questlog." + (this.rewardType == EnumRewardType.ONE_SELECT ? "one" : this.rewardType == EnumRewardType.RANDOM_ONE ? "rnd" : "all") + ".reward").getFormattedText());
+				int j = 1;
+				for (ItemStack item : rewardist.keySet()) {
+					int c = rewardist.get(item);
+					allTextLogs.append(ent).append(rewardist.size() > 1 ? j + " - " : "").append(" ").append((char) 0xffff).append(" ").append(item.getDisplayName()).append(c > 1 ? " x" + c : "");
+					j++;
+				}
+			}
+			if (this.rewardMoney > 0) {
+				allTextLogs.append(ent).append(new TextComponentTranslation("questlog.rewardmoney",
+						Util.instance.getTextReducedNumber(this.rewardMoney, true, true, false),
+						CustomNpcs.displayCurrencies).getFormattedText());
+			}
+			if (this.rewardExp > 0) {
+				allTextLogs.append(ent).append(new TextComponentTranslation("questlog.rewardexp", "" + this.rewardExp).getFormattedText());
+			}
+			if (!this.rewardText.isEmpty()) {
+				allTextLogs.append(ent).append(this.rewardText.contains("%") ? this.rewardText : new TextComponentTranslation(this.rewardText).getFormattedText());
+			}
+			if (!this.logText.isEmpty()) {
+				allTextLogs.append(ent).append(ent).append((char) 167).append("l").append(new TextComponentTranslation("gui.description").getFormattedText()).append(ent).append(logText.contains("%") ? logText : new TextComponentTranslation(logText).getFormattedText());
+			}
+		} else {
+			if (!rewardText.isEmpty()) {
+				allTextLogs.append(ent).append(rewardText.contains("%") ? rewardText : new TextComponentTranslation(rewardText).getFormattedText());
+			}
+			if (!logText.isEmpty()) {
+				allTextLogs.append(ent).append(ent).append((char) 167).append("l").append(new TextComponentTranslation("gui.description").getFormattedText()).append(ent).append(logText.contains("%") ? logText : new TextComponentTranslation(logText).getFormattedText());
+			}
 		}
 		return allTextLogs.toString();
 	}
@@ -225,7 +234,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 
 	@Override
 	public Quest getNextQuest() {
-		return (QuestController.instance == null) ? null : QuestController.instance.quests.get(this.nextQuestid);
+		return (QuestController.instance == null) ? null : QuestController.instance.quests.get(this.nextQuest);
 	}
 
 	public IQuestObjective[] getObjectives(EntityPlayer player) {
@@ -335,7 +344,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 			this.texture = null;
 		}
 		this.extraButtonText = compound.getString("ExtraButtonText");
-		this.nextQuestid = compound.getInteger("NextQuestId");
+		this.nextQuest = compound.getInteger("NextQuestId");
 		this.nextQuestTitle = compound.getString("NextQuestTitle");
 		if (this.hasNewQuest()) {
 			this.nextQuestTitle = this.getNextQuest().title;
@@ -358,6 +367,9 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 		}
 		if (compound.hasKey("ShowProgressInWindow", 1)) {
 			this.showProgressInWindow = compound.getBoolean("ShowProgressInWindow");
+		}
+		if (compound.hasKey("ShowRewardText", 1)) {
+			this.showRewardText = compound.getBoolean("ShowRewardText");
 		}
 		this.setExtraButton(compound.getInteger("ExtraButton"));
 		this.rewardText = compound.getString("AddRewardText");
@@ -541,13 +553,13 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 	@Override
 	public void setNextQuest(IQuest quest) {
 		if (quest == null) {
-			this.nextQuestid = -1;
+			this.nextQuest = -1;
 			this.nextQuestTitle = "";
 		} else {
 			if (quest.getId() < 0) {
 				throw new CustomNPCsException("Quest id is lower than 0");
 			}
-			this.nextQuestid = quest.getId();
+			this.nextQuest = quest.getId();
 			this.nextQuestTitle = quest.getTitle();
 		}
 	}
@@ -581,7 +593,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 		compound.setString("Title", this.title);
 		compound.setString("Text", this.logText);
 		compound.setString("CompleteText", this.completeText);
-		compound.setInteger("NextQuestId", this.nextQuestid);
+		compound.setInteger("NextQuestId", this.nextQuest);
 		compound.setString("NextQuestTitle", this.nextQuestTitle);
 		compound.setInteger("RewardExp", this.rewardExp);
 		compound.setInteger("RewardMoney", this.rewardMoney);
@@ -601,6 +613,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 		compound.setBoolean("Cancelable", this.cancelable);
 		compound.setBoolean("ShowProgressInChat", this.showProgressInChat);
 		compound.setBoolean("ShowProgressInWindow", this.showProgressInWindow);
+		compound.setBoolean("ShowRewardText", this.showRewardText);
 		compound.setString("ExtraButtonText", this.extraButtonText);
 		compound.setInteger("ExtraButton", this.extraButton);
 		compound.setString("AddRewardText", this.rewardText);

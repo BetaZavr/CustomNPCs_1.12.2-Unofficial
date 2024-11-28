@@ -1,22 +1,25 @@
 package noppes.npcs.client.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import moe.plushie.armourers_workshop.api.ArmourersWorkshopApi;
 import moe.plushie.armourers_workshop.api.common.capability.IEntitySkinCapability;
 import moe.plushie.armourers_workshop.api.common.skin.data.ISkin;
 import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDescriptor;
 import moe.plushie.armourers_workshop.api.common.skin.type.ISkinType;
+import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
+import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
+import noppes.npcs.api.util.IModelRenderer;
 import noppes.npcs.client.model.animation.*;
 import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
 import noppes.npcs.api.mixin.client.model.IModelPlayerMixin;
+import noppes.npcs.constants.EnumAnimationStages;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
@@ -48,6 +51,7 @@ import javax.annotation.Nonnull;
 public class ModelNpcAlt extends ModelPlayer {
 
     public static final AnimData editAnimDataSelect = new AnimData();
+    public static final Map<Integer, Map<Integer, List<ModelRendererAlt>>> animAddedChildren = new HashMap<>(); // { animation ID, [part ID, list<ModelRender>]}
 
     public static void copyModelAngles(ModelRendererAlt source, ModelRendererAlt dest) {
         dest.copyModelAngles(source);
@@ -73,6 +77,49 @@ public class ModelNpcAlt extends ModelPlayer {
     public AnimationStack leftStackData = new AnimationStack();
     public boolean smallArmsIn;
     public boolean isClassicPlayer;
+
+    public static void resetAnimationModel(AnimationConfig animation) {
+        if (animation == null) { return; }
+        if (animation.addParts.isEmpty()) {
+            animAddedChildren.remove(animation.id);
+            return;
+        }
+        // this model
+        Render<Entity> render = Minecraft.getMinecraft().getRenderManager().getEntityClassRenderObject(EntityCustomNpc.class);
+        ModelBase thisModel = null;
+        if (render instanceof RenderLiving) { thisModel = ((RenderLiving<?>) render).getMainModel(); }
+        if (thisModel == null) { return; }
+        // parts
+        if (!animAddedChildren.containsKey(animation.id)) { animAddedChildren.put(animation.id, new TreeMap<>()); }
+        animAddedChildren.get(animation.id).clear();
+        // create all
+        for (int partID : animation.addParts.keySet()) {
+            for (AddedPartConfig addedPartConfig : animation.addParts.get(partID)) {
+                if (!animAddedChildren.get(animation.id).containsKey(addedPartConfig.parentPart)) {
+                    animAddedChildren.get(animation.id).put(addedPartConfig.parentPart, new ArrayList<>());
+                }
+                animAddedChildren.get(animation.id).get(addedPartConfig.parentPart).add(new ModelRendererAlt(thisModel, addedPartConfig));
+            }
+        }
+        // put children
+        Map<Integer, List<ModelRendererAlt>> map = animAddedChildren.get(animation.id);
+        for (List<ModelRendererAlt> list : map.values()) {
+            for (ModelRendererAlt modelRender : list) {
+                addChildren(modelRender, map);
+            }
+        }
+    }
+
+    private static void addChildren(ModelRendererAlt modelRender, Map<Integer, List<ModelRendererAlt>> map) {
+        List<ModelRendererAlt> children = map.get(modelRender.parentPartId);
+        if (children == null || children.isEmpty()) {
+            return;
+        }
+        for (ModelRendererAlt child : children) {
+            modelRender.addChild(child);
+            addChildren(child, map);
+        }
+    }
 
     public ModelNpcAlt(float modelSize, boolean smallArmsIn, boolean isClassicPlayer) {
         super(modelSize, smallArmsIn);
@@ -170,13 +217,21 @@ public class ModelNpcAlt extends ModelPlayer {
 
         ModelNpcAlt.editAnimDataSelect.isNPC = entityIn.equals(ModelNpcAlt.editAnimDataSelect.displayNpc);
         float r = 1.0f, g = 1.0f, b = 1.0f;
+        int animID = -1;
         if (entityIn instanceof EntityPlayer) {
             PlayerData data = PlayerData.get((EntityPlayer) entityIn);
             if (data != null) { ba.putAll(data.animation.showParts); }
+            IEntityPlayerMixin playerMixin = (IEntityPlayerMixin) entityIn;
+            if (playerMixin.npcs$getAnimation().isAnimated()) {
+                animID = playerMixin.npcs$getAnimation().getAnimation().id;
+            }
         }
         else if (entityIn instanceof EntityCustomNpc) {
             EntityCustomNpc npc = (EntityCustomNpc) entityIn;
             ba.putAll(npc.animation.showParts);
+            if (npc.animation.isAnimated()) {
+                animID = npc.animation.getAnimation().id;
+            }
             // possible disabling of body parts rendering from the AW mod:
             if (ArmourersWorkshopApi.isAvailable()) {
                 npc.animation.resetShowAWParts();
@@ -272,6 +327,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 b = (float)(((EntityCustomNpc) entityIn).display.getTint() & 255) / 255.0F;
             }
         }
+        Map<Integer, List<ModelRendererAlt>> animatedMap = animAddedChildren.get(animID);
         int entitySkinTextureID = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
         this.bipedHead.showModel = ba.get(EnumParts.HEAD) && bAW.get(EnumParts.HEAD);
         if (this.bipedHead.showModel) {
@@ -280,8 +336,17 @@ public class ModelNpcAlt extends ModelPlayer {
                 GlStateManager.scale(0.75F, 0.75F, 0.75F);
                 GlStateManager.translate(0.0F, 16.0F * scale, 0.0F);
 
-                this.bipedHead.render(scale);
-                if (((ModelRendererAlt) this.bipedHead).notOBJModel()) {
+                List<ModelRendererAlt> list = null;
+                if (animatedMap != null) { list = animatedMap.get(0); }
+                if (list != null) {
+                    for (ModelRendererAlt child : list) { bipedHead.addChild(child); }
+                }
+                bipedHead.render(scale);
+                if (list != null) {
+                    for (ModelRendererAlt child : list) { bipedHead.childModels.remove(child); }
+                }
+
+                if (((ModelRendererAlt) bipedHead).notOBJModel()) {
                     GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                     this.renderHeadWear(scale);
                 }
@@ -289,7 +354,17 @@ public class ModelNpcAlt extends ModelPlayer {
                 GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
             } else {
                 if (entityIn.isSneaking()) { GlStateManager.translate(0.0F, 0.2F, 0.0F); }
-                this.bipedHead.render(scale);
+
+                List<ModelRendererAlt> list = null;
+                if (animatedMap != null) { list = animatedMap.get(0); }
+                if (list != null) {
+                    for (ModelRendererAlt child : list) { bipedHead.addChild(child); }
+                }
+                bipedHead.render(scale);
+                if (list != null) {
+                    for (ModelRendererAlt child : list) { bipedHead.childModels.remove(child); }
+                }
+
                 if (((ModelRendererAlt) this.bipedHead).notOBJModel()) {
                     GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                     this.renderHeadWear(scale);
@@ -299,7 +374,17 @@ public class ModelNpcAlt extends ModelPlayer {
         if (ba.get(EnumParts.BODY) && bAW.get(EnumParts.BODY) && this.bipedBody.showModel) {
             ((ModelRendererAlt) this.bipedBody).checkBacklightColor(r, g, b);
             if (((ModelRendererAlt) this.bipedBody).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-            this.bipedBody.render(scale);
+
+            List<ModelRendererAlt> list = null;
+            if (animatedMap != null) { list = animatedMap.get(3); }
+            if (list != null) {
+                for (ModelRendererAlt child : list) { bipedBody.addChild(child); }
+            }
+            bipedBody.render(scale);
+            if (list != null) {
+                for (ModelRendererAlt child : list) { bipedBody.childModels.remove(child); }
+            }
+
             if (this.bipedBodyWear != null && ((ModelRendererAlt) this.bipedBody).notOBJModel()) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 this.bipedBodyWear.render(scale);
@@ -308,7 +393,17 @@ public class ModelNpcAlt extends ModelPlayer {
         if (ba.get(EnumParts.ARM_RIGHT) && bAW.get(EnumParts.ARM_RIGHT) && this.bipedRightArm.showModel) {
             ((ModelRendererAlt) this.bipedRightArm).checkBacklightColor(r, g, b);
             if (((ModelRendererAlt) this.bipedRightArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-            this.bipedRightArm.render(scale);
+
+            List<ModelRendererAlt> list = null;
+            if (animatedMap != null) { list = animatedMap.get(2); }
+            if (list != null) {
+                for (ModelRendererAlt child : list) { bipedRightArm.addChild(child); }
+            }
+            bipedRightArm.render(scale);
+            if (list != null) {
+                for (ModelRendererAlt child : list) { bipedRightArm.childModels.remove(child); }
+            }
+
             if (this.bipedRightArmwear != null && ((ModelRendererAlt) this.bipedLeftArm).notOBJModel()) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 this.bipedRightArmwear.render(scale);
@@ -317,7 +412,17 @@ public class ModelNpcAlt extends ModelPlayer {
         if (ba.get(EnumParts.ARM_LEFT) && bAW.get(EnumParts.ARM_LEFT) && this.bipedLeftArm.showModel) {
             ((ModelRendererAlt) this.bipedLeftArm).checkBacklightColor(r, g, b);
             if (((ModelRendererAlt) this.bipedLeftArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-            this.bipedLeftArm.render(scale);
+
+            List<ModelRendererAlt> list = null;
+            if (animatedMap != null) { list = animatedMap.get(2); }
+            if (list != null) {
+                for (ModelRendererAlt child : list) { bipedLeftArm.addChild(child); }
+            }
+            bipedLeftArm.render(scale);
+            if (list != null) {
+                for (ModelRendererAlt child : list) { bipedLeftArm.childModels.remove(child); }
+            }
+
             if (this.bipedLeftArmwear != null && ((ModelRendererAlt) this.bipedLeftArm).notOBJModel()) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 this.bipedLeftArmwear.render(scale);
@@ -326,7 +431,17 @@ public class ModelNpcAlt extends ModelPlayer {
         if (ba.get(EnumParts.LEG_RIGHT) && bAW.get(EnumParts.LEG_RIGHT) && this.bipedRightLeg.showModel) {
             ((ModelRendererAlt) this.bipedRightLeg).checkBacklightColor(r, g, b);
             if (((ModelRendererAlt) this.bipedRightLeg).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-            this.bipedRightLeg.render(scale);
+
+            List<ModelRendererAlt> list = null;
+            if (animatedMap != null) { list = animatedMap.get(5); }
+            if (list != null) {
+                for (ModelRendererAlt child : list) { bipedRightLeg.addChild(child); }
+            }
+            bipedRightLeg.render(scale);
+            if (list != null) {
+                for (ModelRendererAlt child : list) { bipedRightLeg.childModels.remove(child); }
+            }
+
             if (this.bipedRightLegwear != null) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 this.bipedRightLegwear.render(scale);
@@ -335,7 +450,17 @@ public class ModelNpcAlt extends ModelPlayer {
         if (ba.get(EnumParts.LEG_LEFT) && bAW.get(EnumParts.LEG_LEFT) && this.bipedLeftLeg.showModel) {
             ((ModelRendererAlt) this.bipedLeftLeg).checkBacklightColor(r, g, b);
             if (((ModelRendererAlt) this.bipedLeftLeg).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-            this.bipedLeftLeg.render(scale);
+
+            List<ModelRendererAlt> list = null;
+            if (animatedMap != null) { list = animatedMap.get(4); }
+            if (list != null) {
+                for (ModelRendererAlt child : list) { bipedLeftLeg.addChild(child); }
+            }
+            bipedLeftLeg.render(scale);
+            if (list != null) {
+                for (ModelRendererAlt child : list) { bipedLeftLeg.childModels.remove(child); }
+            }
+
             if (this.bipedLeftLegwear != null) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 this.bipedLeftLegwear.render(scale);
@@ -526,7 +651,8 @@ public class ModelNpcAlt extends ModelPlayer {
                 else if (pitch > 45.0f) { pitch = 45.0f; }
                 this.bipedHead.rotateAngleX = (float) ((-pitch * Math.PI) / 180D);
             }
-        } else {
+        }
+        else {
             if (this.isSneak) {
                 this.bipedCape.offsetAnimY = -0.475f;
                 this.bipedCape.offsetAnimZ = -0.235f;
@@ -535,7 +661,10 @@ public class ModelNpcAlt extends ModelPlayer {
             }
         }
         if (CustomNpcs.ShowCustomAnimation && animation != null) {
+            boolean bo = animation.stage != EnumAnimationStages.Run;
+            if (bo) { animation.preFrame.setRotationAngles(this); } // remember the base values
             if (animation.isAnimated()) {
+//if (entityIn.getName().equals("HD")) { System.out.println("CNPCs: "+animation.getAnimation().name); }
                 // Custom Animation
                 float partialTicks = 0.0f;
                 Minecraft mc = Minecraft.getMinecraft();
@@ -555,9 +684,17 @@ public class ModelNpcAlt extends ModelPlayer {
                 }
                 if (animation.showParts.get(EnumParts.LEG_RIGHT)) { ((ModelRendererAlt) this.bipedRightLeg).setAnimation(animation); }
                 if (animation.showParts.get(EnumParts.LEG_LEFT)) { ((ModelRendererAlt) this.bipedLeftLeg).setAnimation(animation); }
+                if (animAddedChildren.containsKey(animation.getAnimation().id)) {
+                    for (int partId : animAddedChildren.get(animation.getAnimation().id).keySet()) {
+                        if (partId < 8) { continue; }
+                        for (ModelRendererAlt renderModel : animAddedChildren.get(animation.getAnimation().id).get(partId)) {
+                            renderModel.clearRotations();
+                            renderModel.setAnimation(animation);
+                        }
+                    }
+                }
             }
-            // remember current state to smoothly start another animation
-            if (animation.hasAnimations(-1)) {  animation.preFrame.setRotationAngles(this); }
+            if (!bo) { animation.preFrame.setRotationAngles(this); } // remember values from animation
         }
         if (CustomNpcs.HeadWearType != 2) {
             copyModelAngles((ModelRendererAlt) bipedHead, (ModelRendererAlt) bipedHeadwear);
@@ -671,6 +808,40 @@ public class ModelNpcAlt extends ModelPlayer {
             this.bipedRightLeg.rotationPointX = -2.0f;
             this.bipedRightLeg.rotationPointZ = 0.0f;
         }
+    }
+
+    public IModelRenderer getPart(int partId) {
+        switch(partId) {
+            case 0: return (IModelRenderer) bipedHead;
+            case 1: return (IModelRenderer) bipedLeftArm;
+            case 2: return (IModelRenderer) bipedRightArm;
+            case 3: return (IModelRenderer) bipedBody;
+            case 4: return (IModelRenderer) bipedLeftLeg;
+            case 5: return (IModelRenderer) bipedRightLeg;
+            case 6: return leftStackData;
+            case 7: return rightStackData;
+        }
+        for (int i = 0; i < 6; i++) {
+            ModelRendererAlt biped = (ModelRendererAlt) getPart(i);
+            if (biped.childModels == null) { continue; }
+            ModelRendererAlt child = getChildPart(biped.childModels, partId);
+            if (child != null) { return child; }
+        }
+        return null;
+    }
+
+    private ModelRendererAlt getChildPart(List<ModelRenderer> childModels, int partId) {
+        for (ModelRenderer mr : childModels) {
+            if (mr instanceof ModelRendererAlt) {
+                if (((ModelRendererAlt) mr).partId == partId) {
+                    return (ModelRendererAlt) mr;
+                }
+                if (mr.childModels == null) { continue; }
+                ModelRendererAlt child = getChildPart(mr.childModels, partId);
+                if (child != null) { return child; }
+            }
+        }
+        return null;
     }
 
 }

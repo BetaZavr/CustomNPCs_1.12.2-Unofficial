@@ -308,14 +308,13 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	@Override
 	public IWorld getIWorld(int dimensionId) {
-		if (CustomNpcs.Server == null) {
-			EntityPlayer player = CustomNpcs.proxy.getPlayer();
-			if (!this.worlds.contains(player.world)) { this.worlds.add(player.world); }
-		} else {
-			this.worlds.clear();
-            this.worlds.addAll(Arrays.asList(CustomNpcs.Server.worlds));
+		if (CustomNpcs.Server != null) {
+			worlds.clear();
+            worlds.addAll(Arrays.asList(CustomNpcs.Server.worlds));
 		}
-		for (World world : this.worlds) {
+		EntityPlayer player = CustomNpcs.proxy.getPlayer();
+		if (player != null && !worlds.contains(player.world)) { worlds.add(player.world); }
+		for (World world : worlds) {
 			if (world.provider.getDimension() == dimensionId) {
 				return this.getIWorld(world);
 			}

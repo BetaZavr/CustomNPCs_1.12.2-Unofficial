@@ -95,7 +95,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 			break;
 		}
 		case 7: { // targetLost alive
-			this.job.setDespawnOnTargetLost(false, ((GuiNpcCheckBox) button).isSelected());
+			job.setDespawnOnTargetLost(false, ((GuiNpcCheckBox) button).isSelected());
 			break;
 		}
 		case 8: { // type alive
@@ -146,19 +146,19 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 			break;
 		}
 		case 15: { // targetLost Dead
-			this.job.setDespawnOnTargetLost(true, ((GuiNpcCheckBox) button).isSelected());
+			job.setDespawnOnTargetLost(true, ((GuiNpcCheckBox) button).isSelected());
 			break;
 		}
 		case 16: { // type Dead
-			this.job.setSpawnType(true, button.getValue());
+			job.setSpawnType(true, button.getValue());
 			break;
 		}
 		case 17: { // exact
-			this.job.exact = ((GuiNpcCheckBox) button).isSelected();
+			job.exact = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		case 18: { // resetUpdate
-			this.job.resetUpdate = ((GuiNpcCheckBox) button).isSelected();
+			job.resetUpdate = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		default: {
@@ -410,10 +410,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 		tf.setMinMaxDefault(0, 5, set[2]);
 		this.addTextField(tf);
 
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(7, this.guiLeft + 5, this.guiTop + 176, 170, 14,
-				"spawner.despawn");
-		checkBox.setSelected(this.job.getDespawnOnTargetLost(false));
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(7, this.guiLeft + 5, this.guiTop + 176, 170, 14, "spawner.despawn", null, job.getDespawnOnTargetLost(false)));
 
 		this.addLabel(new GuiNpcLabel(8, "spawner.type", this.guiLeft + 5, this.guiTop + 195));
 		this.addButton(new GuiNpcButton(8, this.guiLeft + 63, this.guiTop + 190, 55, 20,
@@ -465,21 +462,14 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 		tf.setMinMaxDefault(0, 5, set[2]);
 		this.addTextField(tf);
 
-		checkBox = new GuiNpcCheckBox(15, this.guiLeft + 180, this.guiTop + 176, 170, 14, "spawner.despawn");
-		checkBox.setSelected(this.job.getDespawnOnTargetLost(true));
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(15, this.guiLeft + 180, this.guiTop + 176, 170, 14, "spawner.despawn", null, job.getDespawnOnTargetLost(true)));
 
 		this.addLabel(new GuiNpcLabel(13, "spawner.type", this.guiLeft + 180, this.guiTop + 195));
-		this.addButton(new GuiNpcButton(16, this.guiLeft + 238, this.guiTop + 190, 55, 20,
-				new String[] { "spawner.one", "spawner.all", "spawner.random" }, this.job.getSpawnType(true)));
+		this.addButton(new GuiNpcButton(16, this.guiLeft + 238, this.guiTop + 190, 55, 20, new String[] { "spawner.one", "spawner.all", "spawner.random" }, this.job.getSpawnType(true)));
 
-		checkBox = new GuiNpcCheckBox(17, this.guiLeft + 357, this.guiTop + 161, 98, 14, "type.exact");
-		checkBox.setSelected(this.job.exact);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(17, this.guiLeft + 357, this.guiTop + 161, 98, 14, "type.exact", null, job.exact));
 
-		checkBox = new GuiNpcCheckBox(18, this.guiLeft + 357, this.guiTop + 176, 98, 14, "script.update");
-		checkBox.setSelected(this.job.resetUpdate);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(18, this.guiLeft + 357, this.guiTop + 176, 98, 14, "script.update", null, job.resetUpdate));
 
 		GuiNpcLabel label = new GuiNpcLabel(14, "spawner.cooldown", this.guiLeft + 358, this.guiTop + 132);
 		label.enabled = !this.aliveScroll.getList().isEmpty();

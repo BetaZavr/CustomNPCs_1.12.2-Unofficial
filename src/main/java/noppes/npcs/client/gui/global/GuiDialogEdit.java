@@ -259,11 +259,11 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 		y = this.guiTop + 26;
 		xl = this.guiLeft + 200;
 		x = this.guiLeft + 330;
-		this.addButton(new GuiNpcCheckBox(11, xl, y, 180, 14, "dialog.hideNPC", this.dialog.hideNPC));
-		this.addButton(new GuiNpcCheckBox(12, xl, y += 16, 180, 14, "dialog.showWheel", this.dialog.showWheel));
-		this.addButton(new GuiNpcCheckBox(15, xl, y += 16, 180, 14, "dialog.disableEsc", this.dialog.disableEsc));
-		this.addButton(new GuiNpcCheckBox(17, xl, y += 16, 180, 14, "dialog.sound.stop", this.dialog.stopSound));
-		this.addButton(new GuiNpcCheckBox(18, xl, y + 16, 180, 14, "dialog.showFits", this.dialog.showFits));
+		addButton(new GuiNpcCheckBox(11, xl, y, 180, 14, "dialog.hideNPC", null, dialog.hideNPC));
+		addButton(new GuiNpcCheckBox(12, xl, y += 16, 180, 14, "dialog.showWheel", null, dialog.showWheel));
+		addButton(new GuiNpcCheckBox(15, xl, y += 16, 180, 14, "dialog.disableEsc", null, dialog.disableEsc));
+		addButton(new GuiNpcCheckBox(17, xl, y += 16, 180, 14, "dialog.sound.stop", null, dialog.stopSound));
+		addButton(new GuiNpcCheckBox(18, xl, y + 16, 180, 14, "dialog.showFits", null, dialog.showFits));
 
 		y = this.guiTop + 137;
 		GuiNpcTextField textField = new GuiNpcTextField(3, this, this.fontRenderer, x + 1, y, 48, 18,

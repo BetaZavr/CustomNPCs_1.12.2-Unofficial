@@ -53,19 +53,19 @@ public class CmdClone extends CommandNoppesBase {
 
 	@SubCommand(desc = "Remove NPC from clone storage", usage = "<name> <tab>")
 	public void del(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		String namemodel = args[0];
+		String nameModel = args[0];
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[1]);
 		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		for (String name : ServerCloneController.Instance.getClones(tab)) {
-			if (namemodel.equalsIgnoreCase(name)) {
+			if (nameModel.equalsIgnoreCase(name)) {
 				ServerCloneController.Instance.removeClone(name, tab);
 				break;
 			}
 		}
-		if (!ServerCloneController.Instance.removeClone(namemodel, tab)) {
-			throw new CommandException("Npc '%s' wasn't found", namemodel);
+		if (!ServerCloneController.Instance.removeClone(nameModel, tab)) {
+			throw new CommandException("Npc '%s' wasn't found", nameModel);
 		}
 	}
 
@@ -244,6 +244,8 @@ public class CmdClone extends CommandNoppesBase {
 				}
 			}
 			world.spawnEntity(entity);
+		} else {
+			throw new CommandException("Unknown entity: '%s'", compound.getString("id"));
 		}
 	}
 }

@@ -244,9 +244,7 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 		this.addButton(button);
 		this.addButton(new GuiNpcButton(5, this.guiLeft + 170, this.guiTop + 172, 82, 20, "remote.resetall"));
 
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(6, this.guiLeft + 174, this.guiTop + 86, 20, 20, "");
-		checkBox.setSelected(GuiNpcRemoteEditor.all);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(6, this.guiLeft + 174, this.guiTop + 86, 20, 20, "", null, GuiNpcRemoteEditor.all));
 
 		button = new GuiMenuSideButton(7, guiLeft + xSize, guiTop + 8, "menu.global");
 		((GuiMenuSideButton) button).setIsLeft(false);

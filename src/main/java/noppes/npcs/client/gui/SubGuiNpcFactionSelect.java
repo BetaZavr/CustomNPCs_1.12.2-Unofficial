@@ -47,8 +47,6 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 		switch (button.id) {
 		case 14: {
 			GuiNPCManageFactions.isName = ((GuiNpcCheckBox) button).isSelected();
-			((GuiNpcCheckBox) button).setText(GuiNPCManageFactions.isName ? "gui.name" : "ID");
-			this.initGui();
 			break;
 		}
 		case 66: {
@@ -120,9 +118,7 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 123, this.guiTop + 6, 45, 20, "gui.done"));
 
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, this.guiLeft + 91, this.guiTop + 6, 30, 12, GuiNPCManageFactions.isName ? "gui.name" : "ID");
-		checkBox.setSelected(GuiNPCManageFactions.isName);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(14, this.guiLeft + 91, this.guiTop + 6, 30, 12, "gui.name", "ID", GuiNPCManageFactions.isName));
 	}
 
     @Override

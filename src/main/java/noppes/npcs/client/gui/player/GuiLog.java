@@ -457,20 +457,14 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			return;
 		}
 		switch (button.id) {
-		case 0: {
-			if (!(button instanceof GuiNpcCheckBox)) {
-				return;
+			case 0: {
+				compassData.showQuestName = ((GuiNpcCheckBox) button).isSelected();
+				break;
 			}
-			this.compassData.showQuestName = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 1: {
-			if (!(button instanceof GuiNpcCheckBox)) {
-				return;
+			case 1: {
+				compassData.showTaskProgress = ((GuiNpcCheckBox) button).isSelected();
+				break;
 			}
-			this.compassData.showTaskProgress = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
 		}
 	}
 
@@ -2187,8 +2181,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			this.addSlider(new GuiNpcSlider(this, 1, x0, y += (int) (16.0f * scaleH), (int) (96.0f * scaleW),
 					(int) (12.0f * scaleH), v));
 			this.getSlider(1).setString(("" + (45.0f + this.compassData.incline * -1.0f)).replace(".", ","));
-			this.addButton(new GuiNpcCheckBox(0, x1, y - (int) scaleH, (int) (100.0f * scaleW), (int) (12.0f * scaleH),
-					"quest.screen.show.quest", compassData.showQuestName));
+			addButton(new GuiNpcCheckBox(0, x1, y - (int) scaleH, (int) (100.0f * scaleW), (int) (12.0f * scaleH), "quest.screen.show.quest", null, compassData.showQuestName));
 			this.getButton(0).textColor = CustomNpcs.QuestLogColor.getRGB();
 
 			// Rotation
@@ -2196,8 +2189,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			this.addSlider(new GuiNpcSlider(this, 2, x0, y += (int) (16.0f * scaleH), (int) (96.0f * scaleW),
 					(int) (12.0f * scaleH), v));
 			this.getSlider(2).setString(("" + this.compassData.rot).replace(".", ","));
-			this.addButton(new GuiNpcCheckBox(1, x1, y - (int) scaleH, (int) (100.0f * scaleW), (int) (12.0f * scaleH),
-					"quest.screen.show.task", compassData.showTaskProgress));
+			addButton(new GuiNpcCheckBox(1, x1, y - (int) scaleH, (int) (100.0f * scaleW), (int) (12.0f * scaleH), "quest.screen.show.task", null, compassData.showTaskProgress));
 			this.getButton(1).textColor = CustomNpcs.QuestLogColor.getRGB();
 		}
 	}

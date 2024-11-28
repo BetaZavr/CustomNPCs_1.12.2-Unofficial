@@ -105,8 +105,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				return;
 			}
 			case 11: {
-				isIdSort = !isIdSort;
-				this.initGui();
+				isIdSort = ((GuiNpcCheckBox) button).isSelected();
 				return;
 			}
 		}
@@ -615,7 +614,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		this.px = this.guiLeft + 150;
 		this.py = this.guiTop + 17;
 
-		this.addButton(new GuiNpcCheckBox(11, guiLeft + xSize - 38, guiTop + 2, 35, 10, isIdSort ? "type.id" : "gui.name", isIdSort));
+		addButton(new GuiNpcCheckBox(11, guiLeft + xSize - 38, guiTop + 2, 35, 10, "type.id", "gui.name", isIdSort));
 	}
 
 	@Override

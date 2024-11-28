@@ -73,12 +73,10 @@ public class SubGuiEditBankAccess
 			}
 			case 2: { // add
 				white = ((GuiNpcCheckBox) button).isSelected();
-				initGui();
 				break;
 			}
 			case 3: {
 				isChanging = ((GuiNpcCheckBox) button).isSelected();
-				initGui();
 				break;
 			}
 			case 66: {
@@ -154,13 +152,9 @@ public class SubGuiEditBankAccess
 			}
 		}
 
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(2, x, (y += 1 + scroll.height), 82, 12, "bank." + (white ? "iswhite" : "isblack"));
-		checkBox.setSelected(white);
-		addButton(checkBox);
+		addButton(new GuiNpcCheckBox(2, x, (y += 1 + scroll.height), 82, 12, "bank.iswhite", "bank.isblack", white));
 
-		checkBox = new GuiNpcCheckBox(3, x + 86, y, 82, 12, "bank.changed." + isChanging);
-		checkBox.setSelected(isChanging);
-		addButton(checkBox);
+		addButton(new GuiNpcCheckBox(3, x + 86, y, 82, 12, "bank.changed.true", "bank.changed.false", isChanging));
 
 		addButton(new GuiNpcButton(66, x += 1, (y += 14), 54, 20, "gui.back"));
 		addButton(new GuiNpcButton(0, x += 56, y, 54, 20, "gui.add"));

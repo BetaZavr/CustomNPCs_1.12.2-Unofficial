@@ -328,15 +328,16 @@ public class ServerEventsHandler {
 			event.setCanceled(true);
 			NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.MainMenuDisplay,
 					(EntityNPCInterface) event.getTarget());
-		} else if (item.getItem() == CustomRegisters.cloner && !isClient
-				&& !(event.getTarget() instanceof EntityPlayer)) {
+		} else if (item.getItem() == CustomRegisters.cloner && !isClient && !(event.getTarget() instanceof EntityPlayer)) {
 			NBTTagCompound compound = new NBTTagCompound();
+System.out.println("CNPCs: "+compound);
 			if (!(event.getTarget() instanceof EntityCustomNpc)
 					|| !event.getTarget().writeToNBTAtomically(compound)) {
 				CustomNpcs.debugData.endDebug("Server", event.getEntityPlayer(),
 						"ServerEventsHandler_npcPlayerInteract");
 				return;
 			}
+System.out.println("CNPCs: "+compound);
 			String s = compound.getString("id");
 			if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) {
 				compound.setString("id", CustomNpcs.MODID + ":customnpc");

@@ -51,7 +51,8 @@ public class SubGuiLoadAnimation extends SubGuiInterface implements ICustomScrol
 		this.animation = null;
 		this.selected = "";
 
-		this.npcAnim = Util.instance.copyToGUI(npc, mc.world, false);
+		npcAnim = Util.instance.copyToGUI(npc, mc.world, false);
+		npcAnim.display.setName(npc.getName()+"_animation");
 	}
 
 	@Override
@@ -101,13 +102,14 @@ public class SubGuiLoadAnimation extends SubGuiInterface implements ICustomScrol
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (this.animation != null && this.npcAnim != null) {
-			npcAnim.field_20061_w = this.npc.field_20061_w;
-			npcAnim.field_20062_v = this.npc.field_20062_v;
-			npcAnim.field_20063_u = this.npc.field_20063_u;
-			npcAnim.field_20064_t = this.npc.field_20064_t;
-			npcAnim.field_20065_s = this.npc.field_20065_s;
-			npcAnim.field_20066_r = this.npc.field_20066_r;
-			npcAnim.ticksExisted = this.npc.ticksExisted;
+			npcAnim.animation.updateTime();
+			npcAnim.field_20061_w = npc.field_20061_w;
+			npcAnim.field_20062_v = npc.field_20062_v;
+			npcAnim.field_20063_u = npc.field_20063_u;
+			npcAnim.field_20064_t = npc.field_20064_t;
+			npcAnim.field_20065_s = npc.field_20065_s;
+			npcAnim.field_20066_r = npc.field_20066_r;
+			npcAnim.ticksExisted = npc.ticksExisted;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft + 116.0f, this.guiTop + 5.0f, 1.0f);
 			Gui.drawRect(-1, -1, 56, 91, 0xFFF080F0);
@@ -179,10 +181,9 @@ public class SubGuiLoadAnimation extends SubGuiInterface implements ICustomScrol
 		if (this.npcAnim != null) {
 			AnimationConfig ac = this.animation.copy();
 
-			this.npcAnim.display.setName("0_" + this.npc.getName());
-			this.npcAnim.animation.setAnimation(ac, AnimationKind.EDITING);
-			this.npcAnim.setHealth(this.npcAnim.getMaxHealth());
-			this.npcAnim.deathTime = 0;
+			npcAnim.animation.setAnimation(ac, AnimationKind.EDITING_All);
+			npcAnim.setHealth(this.npcAnim.getMaxHealth());
+			npcAnim.deathTime = 0;
 		}
 	}
 

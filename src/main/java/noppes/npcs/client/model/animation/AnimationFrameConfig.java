@@ -1,12 +1,7 @@
 package noppes.npcs.client.model.animation;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-import com.google.common.collect.Maps;
-
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -15,7 +10,9 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.IAnimationFrame;
 import noppes.npcs.api.entity.data.IAnimationPart;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.util.IModelRenderer;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
+import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.constants.EnumParts;
 
 public class AnimationFrameConfig implements IAnimationFrame {
@@ -26,12 +23,22 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		for (PartConfig p : EMPTY.parts.values()) { p.disable = true; }
 	}
 
-	public boolean smooth, isNowDamage, showMainHand = true, showOffHand = true, showHelmet = true, showBody = true, showLegs = true, showFeets = true;
+	public boolean smooth = false;
+	public boolean isNowDamage = false;
+	public boolean showMainHand = true;
+	public boolean showOffHand = true;
+	public boolean showHelmet = true;
+	public boolean showBody = true;
+	public boolean showLegs = true;
+	public boolean showFeets = true;
 	public int speed = 10;
 	public int delay = 0;
 	public int id = -1;
+	public final double[] motions = new double[] { 0.0d, 0.0d, 0.0d }; // [ powerDirect(motionXZ), powerVertical(motionY), angleHorizontal (+/-180) ]
 	private int holdRightType = 0, holdLeftType = 0;
 	private IItemStack holdRightStack = ItemStackWrapper.AIR, holdLeftStack = ItemStackWrapper.AIR;
+	public int damageDelay = 0;
+	public final Map<Integer, AnimationDamageHitbox> damageHitboxes = new TreeMap<>();
 
 	/* 0:head
 	 * 1:left arm
@@ -42,7 +49,7 @@ public class AnimationFrameConfig implements IAnimationFrame {
 	 * 6:left stack
 	 * 7:right stack
 	 */
-	public final Map<Integer, PartConfig> parts = Maps.newTreeMap();
+	public final Map<Integer, PartConfig> parts = new TreeMap<>();
 	public ResourceLocation sound = null;
 	public int emotionId = -1;
 
@@ -54,15 +61,20 @@ public class AnimationFrameConfig implements IAnimationFrame {
 	public AnimationFrameConfig() {
         for (int i = 0; i < 8; i++) {
 			PartConfig pc = new PartConfig(i, AnimationFrameConfig.getPartType(i));
-			this.parts.put(i, pc);
+			parts.put(i, pc);
 		}
 		this.clear();
 	}
 
 	public void clear() {
-		this.smooth = false;
-		this.speed = 10;
-		this.delay = 0;
+		smooth = false;
+		speed = 10;
+		delay = 0;
+		motions[0] = 0.0d;
+		motions[1] = 0.0d;
+		motions[2] = 0.0d;
+		damageHitboxes.clear();
+		damageHitboxes.put(0, new AnimationDamageHitbox(0));
 	}
 
 	public AnimationFrameConfig copy() {
@@ -73,7 +85,7 @@ public class AnimationFrameConfig implements IAnimationFrame {
 
 	private void fixParts() {
 		int i = 0;
-		Map<Integer, PartConfig> newParts = Maps.newTreeMap();
+		Map<Integer, PartConfig> newParts = new TreeMap<>();
 		boolean change = false;
 		for (Integer id : this.parts.keySet()) {
 			PartConfig ps = this.parts.get(id);
@@ -97,13 +109,13 @@ public class AnimationFrameConfig implements IAnimationFrame {
 
 	@Override
 	public int getEndDelay() {
-		if (this.delay < 0) {
-			this.delay *= -1;
+		if (delay < 0) {
+			delay *= -1;
 		}
-		if (this.delay > 1200) {
-			this.delay = -1200;
+		if (delay > 1200) {
+			delay = -1200;
 		}
-		return this.delay;
+		return delay;
 	}
 
 	@Override
@@ -119,14 +131,14 @@ public class AnimationFrameConfig implements IAnimationFrame {
 
 	@Override
 	public int getSpeed() {
-		if (this.speed < 0) {
-			this.speed *= -1;
+		if (speed < 0) {
+			speed *= -1;
 		}
-		if (this.speed == 0) { this.speed = 1; }
-		else if (this.speed > 1200) {
-			this.speed = 1200;
+		if (speed == 0) { speed = 1; }
+		else if (speed > 1200) {
+			speed = 1200;
 		}
-		return this.speed;
+		return speed;
 	}
 
 	@Override
@@ -135,21 +147,21 @@ public class AnimationFrameConfig implements IAnimationFrame {
 	}
 
 	public void readNBT(NBTTagCompound compound) {
-		this.id = compound.getInteger("ID");
-		this.setSmooth(compound.getBoolean("IsSmooth"));
-		this.setSpeed(compound.getInteger("Speed"));
-		this.setEndDelay(compound.getInteger("EndDelay"));
+		id = compound.getInteger("ID");
+		setSmooth(compound.getBoolean("IsSmooth"));
+		setSpeed(compound.getInteger("Speed"));
+		setEndDelay(compound.getInteger("EndDelay"));
 		if (compound.hasKey("StartSound", 8)) { this.setStartSound(compound.getString("StartSound")); }
 		if (compound.hasKey("EmotionID", 3)) { this.setStartEmotion(compound.getInteger("EmotionID")); }
 		if (compound.hasKey("IsNowDamage", 1)) { this.isNowDamage = compound.getBoolean("IsNowDamage"); }
 		if (compound.hasKey("ShowStacks", 7)) {
 			byte[] array = compound.getByteArray("ShowStacks");
-			this.showMainHand = array.length == 0 || array[0] != (byte) 0;
-			this.showOffHand = array.length < 1 || array[1] != (byte) 0;
-			this.showHelmet = array.length < 2 || array[2] != (byte) 0;
-			this.showBody = array.length < 3 || array[3] != (byte) 0;
-			this.showLegs = array.length < 4 || array[4] != (byte) 0;
-			this.showFeets = array.length < 5 || array[5] != (byte) 0;
+			showMainHand = array.length == 0 || array[0] != (byte) 0;
+			showOffHand = array.length < 1 || array[1] != (byte) 0;
+			showHelmet = array.length < 2 || array[2] != (byte) 0;
+			showBody = array.length < 3 || array[3] != (byte) 0;
+			showLegs = array.length < 4 || array[4] != (byte) 0;
+			showFeets = array.length < 5 || array[5] != (byte) 0;
 		}
 
 		this.setHoldRightStackType(compound.getInteger("HoldRightType"));
@@ -177,6 +189,18 @@ public class AnimationFrameConfig implements IAnimationFrame {
 				this.parts.put(p, new PartConfig(p, AnimationFrameConfig.getPartType(p)));
 			}
 		}
+
+		damageHitboxes.clear();
+		if (compound.hasKey("DamageHitboxes", 9) && compound.getTagList("DamageHitboxes", 6).tagCount() == 10) {
+			NBTTagList list = compound.getTagList("DamageHitboxes", 10);
+			for (int i = 0; i < list.tagCount(); i++) {
+				damageHitboxes.put(i, new AnimationDamageHitbox(list.getCompoundTagAt(i), i));
+			}
+		}
+		if (damageHitboxes.isEmpty()) {
+			damageHitboxes.put(0, new AnimationDamageHitbox(0));
+		}
+
 		fixParts();
 	}
 
@@ -256,6 +280,16 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		compound.setTag("HoldRightStack", this.holdRightStack.getMCItemStack().writeToNBT(new NBTTagCompound()));
 		compound.setTag("HoldLeftStack", this.holdLeftStack.getMCItemStack().writeToNBT(new NBTTagCompound()));
 		compound.setByteArray("ShowStacks", new byte[] { (byte) (showMainHand ? 1 : 0), (byte) (showOffHand ? 1 : 0), (byte) (showHelmet ? 1 : 0), (byte) (showBody ? 1 : 0), (byte) (showLegs ? 1 : 0), (byte) (showFeets ? 1 : 0) });
+
+		NBTTagList listDHB = new NBTTagList();
+		int i = 0;
+		for (AnimationDamageHitbox aDHB : damageHitboxes.values()) {
+			aDHB.id = i;
+			listDHB.appendTag(aDHB.getNBT());
+			i++;
+		}
+		compound.setTag("DamageHitboxes", listDHB);
+
 		return compound;
 	}
 
@@ -281,25 +315,20 @@ public class AnimationFrameConfig implements IAnimationFrame {
 	@Override
 	public void setStartEmotion(int id) { this.emotionId = id; }
 
-	public void setRotationAngles(ModelBiped modelNpcAlt) {
+	public void setRotationAngles(ModelNpcAlt model) {
 		for (int partId : parts.keySet()) {
-			ModelRenderer biped = null;
-			switch(partId) {
-				case 0: biped = modelNpcAlt.bipedHead; break;
-				case 1: biped = modelNpcAlt.bipedLeftArm; break;
-				case 2: biped = modelNpcAlt.bipedRightArm; break;
-				case 3: biped = modelNpcAlt.bipedBody; break;
-				case 4: biped = modelNpcAlt.bipedLeftLeg; break;
-				case 5: biped = modelNpcAlt.bipedRightLeg; break;
-			}
-			if (biped == null || !biped.showModel) { continue; }
+			IModelRenderer biped = model.getPart(partId);
+			if (biped == null) { continue; }
 			PartConfig part = parts.get(partId);
-			part.rotation[0] = 0.025330f * (float) Math.pow(biped.rotateAngleX, 2.0d) + 0.238732f * biped.rotateAngleX + 0.5f;
-			part.rotation[1] = 0.025330f * (float) Math.pow(biped.rotateAngleY, 2.0d) + 0.238732f * biped.rotateAngleY + 0.5f;
-			part.rotation[2] = 0.025330f * (float) Math.pow(biped.rotateAngleZ, 2.0d) + 0.238732f * biped.rotateAngleZ + 0.5f;
-			for (int i = 0; i < 3; i++) {
-				part.scale[i] = 0.2f;
-				part.offset[i] = 0.5f;
+			part.show = biped.isShowModel();
+			float[] rotations = biped.getRotations();
+			float[] offsets = biped.getOffsets();
+			float[] scales = biped.getScales();
+			for (int i = 0; i < 5; i++) {
+				part.rotation[i] = rotations[i];
+				if (i > 2) { continue; }
+				part.offset[i] = offsets[i];
+				part.scale[i] = scales[i];
 			}
 		}
 	}

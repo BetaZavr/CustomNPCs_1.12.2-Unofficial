@@ -112,7 +112,7 @@ import noppes.npcs.util.Util;
 import noppes.npcs.util.DataDebug;
 import noppes.npcs.util.DataDebug.Debug;
 
-@Mod(modid = "customnpcs", name = "CustomNpcs", version = "0.2.259", acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2", guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
+@Mod(modid = CustomNpcs.MODID, name = CustomNpcs.MODNAME, version = "3.422", acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2", guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
 public class CustomNpcs {
 
 	@ConfigProp(info = "Currency symbol displayed in stores (unicode)", def = "20AC")

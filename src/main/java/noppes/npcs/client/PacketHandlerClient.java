@@ -676,46 +676,52 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				tile.readFromNBT(compound);
 			}
 		} else if (type == EnumPacketClient.UPDATE_NPC_ANIMATION) {
+			if (mc.world.provider.getDimension() != buffer.readInt()) {
+				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
+				return;
+			}
 			int t = buffer.readInt();
-			NBTTagCompound compound = Server.readNBT(buffer);
-			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
+			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
             switch (t) {
-				case 0: {
-					((EntityNPCInterface) entity).animation.load(compound);
-					break; // reload
+				case 0: { // reload animation data
+					((EntityNPCInterface) entity).animation.load(Server.readNBT(buffer));
+					break;
 				}
-				case 1: {
+				case 1: { // stop animation
 					((EntityNPCInterface) entity).animation.stopAnimation();
-					break; // stopAnimation
-				}
-				case 3: { // startAnimationFromSaved
-					if (!compound.hasKey("CustomAnim", 10)) {
-						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
-						return;
-					}
-					AnimationConfig ac = new AnimationConfig();
-					ac.load(compound.getCompoundTag("CustomAnim"));
-					((EntityNPCInterface) entity).animation.setAnimation(ac, ac.type);
 					break;
 				}
-				case 4: { // mod Animation
-					((EntityNPCInterface) entity).setCurrentAnimation(compound.getInteger("baseanim"));
+				case 2: { // base mod current animation
+					((EntityNPCInterface) entity).currentAnimation = buffer.readInt();
 					break;
 				}
-				case 5: { // mod Animation
-					((EntityNPCInterface) entity).animation.load(compound);
+				case 3: { // stop Emotion
+					((EntityNPCInterface) entity).animation.stopEmotion();
+					break;
+				}
+				case 4: { // start Emotion
+					((EntityNPCInterface) entity).animation.startEmotion(buffer.readInt());
+					break;
+				}
+				case 5: { // remove Animation
+					((EntityNPCInterface) entity).animation.load(Server.readNBT(buffer));
+					((EntityNPCInterface) entity).animation.stopAnimation();
 					break;
 				}
 				case 6: { // start Animation From Saved ID
-					if (compound.hasKey("animID", 3) && compound.hasKey("typeID", 3)) {
-						AnimationConfig ac = AnimationController.getInstance().animations.get(compound.getInteger("animID"));
-						AnimationKind at = AnimationKind.get(compound.getInteger("typeID"));
-						if (ac != null) {((EntityNPCInterface) entity).animation.setAnimation(ac, at); }
+					int animID = buffer.readInt();
+					int animType = buffer.readInt();
+					AnimationConfig ac = AnimationController.getInstance().animations.get(animID);
+					AnimationKind at = AnimationKind.get(animType);
+					if (ac != null) {
+//System.out.println("CNPCs: "+entity.getName()+"; "+animID+"; "+animType);
+						((EntityNPCInterface) entity).animation.setAnimation(ac, at);
 					}
+					else { ((EntityNPCInterface) entity).animation.stopAnimation(); }
 					break;
 				}
 			}

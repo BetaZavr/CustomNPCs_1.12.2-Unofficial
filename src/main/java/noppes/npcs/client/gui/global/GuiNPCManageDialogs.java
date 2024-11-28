@@ -63,89 +63,87 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 1: { // new cat
-			this.setSubGui(new SubGuiEditText(1, Util.instance
-					.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
-			break;
-		}
-		case 2: { // del cat
-			if (!this.categoryData.containsKey(this.selectedCategory)) {
-				return;
+			case 1: { // new cat
+				this.setSubGui(new SubGuiEditText(1, Util.instance
+						.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				break;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this,
-					this.categoryData.get(this.selectedCategory).title,
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
-			this.displayGuiScreen(guiyesno);
-			break;
-		}
-		case 3: {
-			if (!this.dialogData.containsKey(this.selectedDialog)) {
-				return;
-			}
-			this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
-			break;
-		}
-		case 9: { // paste
-			if (this.copyDialog == null || !this.categoryData.containsKey(this.selectedCategory)) {
-				return;
-			}
-			Dialog dialog = this.copyDialog.copy(null);
-			dialog.id = -1;
-			dialog.category = this.categoryData.get(this.selectedCategory);
-
-			StringBuilder t = new StringBuilder(dialog.title);
-			boolean has = true;
-			while (has) {
-				has = false;
-				for (Dialog dia : dialog.category.dialogs.values()) {
-					if (dia.id != dialog.id && dia.title.equalsIgnoreCase(t.toString())) {
-						has = true;
-						break;
-					}
+			case 2: { // del cat
+				if (!this.categoryData.containsKey(this.selectedCategory)) {
+					return;
 				}
-				if (has) { t.append("_"); }
+				GuiYesNo guiyesno = new GuiYesNo(this,
+						this.categoryData.get(this.selectedCategory).title,
+						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
+				this.displayGuiScreen(guiyesno);
+				break;
 			}
-			dialog.title = t.toString();
+			case 3: {
+				if (!this.dialogData.containsKey(this.selectedDialog)) {
+					return;
+				}
+				this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
+				break;
+			}
+			case 9: { // paste
+				if (this.copyDialog == null || !this.categoryData.containsKey(this.selectedCategory)) {
+					return;
+				}
+				Dialog dialog = this.copyDialog.copy(null);
+				dialog.id = -1;
+				dialog.category = this.categoryData.get(this.selectedCategory);
 
-			this.selectedDialog = dialog.title;
-			Client.sendData(EnumPacketServer.DialogSave, this.categoryData.get(this.selectedCategory).id,
-					dialog.writeToNBT(new NBTTagCompound()));
-			this.initGui();
-			break;
-		}
-		case 10: { // copy
-			if (!this.dialogData.containsKey(this.selectedDialog)) {
-				return;
+				StringBuilder t = new StringBuilder(dialog.title);
+				boolean has = true;
+				while (has) {
+					has = false;
+					for (Dialog dia : dialog.category.dialogs.values()) {
+						if (dia.id != dialog.id && dia.title.equalsIgnoreCase(t.toString())) {
+							has = true;
+							break;
+						}
+					}
+					if (has) { t.append("_"); }
+				}
+				dialog.title = t.toString();
+
+				this.selectedDialog = dialog.title;
+				Client.sendData(EnumPacketServer.DialogSave, this.categoryData.get(this.selectedCategory).id,
+						dialog.writeToNBT(new NBTTagCompound()));
+				this.initGui();
+				break;
 			}
-			this.copyDialog = this.dialogData.get(this.selectedDialog);
-			this.initGui();
-			break;
-		}
-		case 11: {
-			this.setSubGui(new SubGuiEditText(11, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
-			break;
-		}
-		case 12: { // del dialog
-			if (!this.dialogData.containsKey(this.selectedDialog)) {
-				return;
+			case 10: { // copy
+				if (!this.dialogData.containsKey(this.selectedDialog)) {
+					return;
+				}
+				this.copyDialog = this.dialogData.get(this.selectedDialog);
+				this.initGui();
+				break;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this, this.dialogData.get(this.selectedDialog).getKey(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
-			this.displayGuiScreen(guiyesno);
-			break;
-		}
-		case 13: {
-			if (!this.dialogData.containsKey(this.selectedDialog)) {
-				return;
+			case 11: {
+				this.setSubGui(new SubGuiEditText(11, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				break;
 			}
-			this.setSubGui(new GuiDialogEdit(dialogData.get(selectedDialog), this));
-			break;
-		}
-		case 14: {
-			GuiNPCManageDialogs.isName = ((GuiNpcCheckBox) button).isSelected();
-			((GuiNpcCheckBox) button).setText(GuiNPCManageDialogs.isName ? "gui.name" : "ID");
-			this.initGui();
-			break;
-		}
+			case 12: { // del dialog
+				if (!this.dialogData.containsKey(this.selectedDialog)) {
+					return;
+				}
+				GuiYesNo guiyesno = new GuiYesNo(this, this.dialogData.get(this.selectedDialog).getKey(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
+				this.displayGuiScreen(guiyesno);
+				break;
+			}
+			case 13: {
+				if (!this.dialogData.containsKey(this.selectedDialog)) {
+					return;
+				}
+				this.setSubGui(new GuiDialogEdit(dialogData.get(selectedDialog), this));
+				break;
+			}
+			case 14: {
+				GuiNPCManageDialogs.isName = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			}
 		}
 	}
 
@@ -345,10 +343,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		this.addButton(new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", this.copyDialog != null));
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y + 17, 64, 14,
-				GuiNPCManageDialogs.isName ? "gui.name" : "ID");
-		checkBox.setSelected(GuiNPCManageDialogs.isName);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(14, x, y + 17, 64, 14, "gui.name", "ID", GuiNPCManageDialogs.isName));
 		// category buttons
 		y = this.guiTop + 130;
 		this.addLabel(new GuiNpcLabel(2, "gui.categories", x + 2, y));

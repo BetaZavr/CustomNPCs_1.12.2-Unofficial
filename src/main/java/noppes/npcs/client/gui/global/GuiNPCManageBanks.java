@@ -92,10 +92,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			break;
 		}
 		case 3: { // public
-			GuiNpcCheckBox checkBox = (GuiNpcCheckBox) button;
-			this.bank.isPublic = checkBox.isSelected();
-			checkBox.setText("bank.public." + this.bank.isPublic);
-			this.initGui();
+			bank.isPublic = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		case 6: { // add bank
@@ -354,9 +351,8 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMinMaxDefault(1, 198, mc);
 
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(3, x, (y += 18), 160, 16, "bank.public." + this.bank.isPublic);
-		checkBox.setVisible(!this.selected.isEmpty());
-		checkBox.setSelected(this.bank.isPublic);
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(3, x, (y += 18), 160, 16, "bank.public.true", "bank.public.false", bank.isPublic);
+		checkBox.setVisible(!selected.isEmpty());
 		this.addButton(checkBox);
 
 		this.addButton(new GuiNpcButton(8, x, y + 20, 20, 20, 20, 146, GuiNPCInterface.WIDGETS));

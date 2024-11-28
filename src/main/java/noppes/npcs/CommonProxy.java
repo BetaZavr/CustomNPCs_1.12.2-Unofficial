@@ -29,6 +29,7 @@ import noppes.npcs.blocks.CustomChest;
 import noppes.npcs.blocks.CustomDoor;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.blocks.tiles.CustomTileEntityChest;
+import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.containers.*;
@@ -528,5 +529,8 @@ public class CommonProxy implements IGuiHandler {
 		if (lang.contains("_")) { lang = lang.substring(0, lang.indexOf("_")); }
 		return lang;
 	}
+
+    public void resetAnimationModel(AnimationConfig animation) {
+    }
 
 }

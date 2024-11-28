@@ -38,52 +38,52 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2 implements IScrollData,
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 0: {
-			this.npc.advanced.attackOtherFactions = (button.getValue() == 1);
-			break;
-		}
-		case 1: {
-			this.npc.advanced.defendFaction = (button.getValue() == 1);
-			this.initGui();
-			break;
-		}
-		case 2: {
-			HashMap<String, Integer> corData = Maps.newHashMap();
-			for (String name : this.data.keySet()) {
-				int id = this.data.get(name);
-				if (this.npc.faction.id == id || this.npc.faction.attackFactions.contains(id)
-						|| this.npc.faction.frendFactions.contains(id)
-						|| this.npc.advanced.attackFactions.contains(id)) {
-					continue;
-				}
-				corData.put(name, id);
+			case 0: {
+				this.npc.advanced.attackOtherFactions = (button.getValue() == 1);
+				break;
 			}
-			this.setSubGui(new SubGuiNpcFactionSelect(0, "faction.friends", this.npc.advanced.frendFactions, corData));
-			break;
-		}
-		case 3: {
-			HashMap<String, Integer> corData = Maps.newHashMap();
-			for (String name : this.data.keySet()) {
-				int id = this.data.get(name);
-				if (this.npc.faction.id == id || this.npc.faction.attackFactions.contains(id)
-						|| this.npc.faction.frendFactions.contains(id)
-						|| this.npc.advanced.frendFactions.contains(id)) {
-					continue;
-				}
-				corData.put(name, id);
+			case 1: {
+				this.npc.advanced.defendFaction = (button.getValue() == 1);
+				this.initGui();
+				break;
 			}
-			this.setSubGui(
-					new SubGuiNpcFactionSelect(1, "faction.hostiles", this.npc.advanced.attackFactions, corData));
-			break;
-		}
-		case 4: {
-			this.setSubGui(new SubGuiNpcFactionOptions(this.npc.advanced.factions));
-			break;
-		}
-		case 5: {
-			this.npc.advanced.throughWalls = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
+			case 2: {
+				HashMap<String, Integer> corData = Maps.newHashMap();
+				for (String name : this.data.keySet()) {
+					int id = this.data.get(name);
+					if (this.npc.faction.id == id || this.npc.faction.attackFactions.contains(id)
+							|| this.npc.faction.frendFactions.contains(id)
+							|| this.npc.advanced.attackFactions.contains(id)) {
+						continue;
+					}
+					corData.put(name, id);
+				}
+				this.setSubGui(new SubGuiNpcFactionSelect(0, "faction.friends", this.npc.advanced.frendFactions, corData));
+				break;
+			}
+			case 3: {
+				HashMap<String, Integer> corData = Maps.newHashMap();
+				for (String name : this.data.keySet()) {
+					int id = this.data.get(name);
+					if (this.npc.faction.id == id || this.npc.faction.attackFactions.contains(id)
+							|| this.npc.faction.frendFactions.contains(id)
+							|| this.npc.advanced.frendFactions.contains(id)) {
+						continue;
+					}
+					corData.put(name, id);
+				}
+				this.setSubGui(
+						new SubGuiNpcFactionSelect(1, "faction.hostiles", this.npc.advanced.attackFactions, corData));
+				break;
+			}
+			case 4: {
+				this.setSubGui(new SubGuiNpcFactionOptions(this.npc.advanced.factions));
+				break;
+			}
+			case 5: {
+				this.npc.advanced.throughWalls = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			}
 		}
 	}
 
@@ -127,10 +127,7 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2 implements IScrollData,
 				new String[] { "gui.no", "gui.yes" }, (this.npc.advanced.defendFaction ? 1 : 0)));
 		if (this.npc.advanced.defendFaction) {
 			y += 22;
-			GuiNpcCheckBox checkBox = new GuiNpcCheckBox(5, this.guiLeft + 4, this.guiTop + y, 180, 20,
-					"faction.through.walls");
-			checkBox.setSelected(this.npc.advanced.throughWalls);
-			this.addButton(checkBox);
+			addButton(new GuiNpcCheckBox(5, guiLeft + 4, guiTop + y, 180, 20, "faction.through.walls", "", npc.advanced.throughWalls));
         }
         y += 32;
         this.addLabel(new GuiNpcLabel(2, "faction.friends", this.guiLeft + 4, this.guiTop + y + 5));

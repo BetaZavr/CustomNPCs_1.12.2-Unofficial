@@ -127,6 +127,7 @@ import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.client.model.ModelNpcCrystal;
 import noppes.npcs.client.model.ModelNpcDragon;
 import noppes.npcs.client.model.ModelNpcSlime;
+import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.client.renderer.RenderCustomNpc;
@@ -1962,6 +1963,10 @@ public class ClientProxy extends CommonProxy {
 		String lang = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
 		if (lang.contains("_")) { lang = lang.substring(0, lang.indexOf("_")); }
 		return lang;
+	}
+
+	public void resetAnimationModel(AnimationConfig animation) {
+		ModelNpcAlt.resetAnimationModel(animation);
 	}
 
 }

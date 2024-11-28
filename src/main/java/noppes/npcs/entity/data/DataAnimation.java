@@ -2,22 +2,18 @@ package noppes.npcs.entity.data;
 
 import java.util.*;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
@@ -33,48 +29,46 @@ import noppes.npcs.api.entity.data.INPCAnimation;
 import noppes.npcs.api.event.AnimationEvent;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.model.animation.*;
-import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.constants.EnumParts;
-import noppes.npcs.constants.EnumPlayerPacket;
-import noppes.npcs.constants.EnumSync;
+import noppes.npcs.constants.*;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
-
-import javax.annotation.Nonnull;
+import noppes.npcs.util.ValueUtil;
 
 public class DataAnimation implements INPCAnimation {
 
 	// Animation settings
-	public final Map<AnimationKind, List<Integer>> data = Maps.newHashMap();
-	private final Map<Integer, Long> waitData = Maps.newHashMap(); // animation ID, time
+	public final Map<AnimationKind, List<Integer>> data = new HashMap<>();
+	private final Map<Integer, Long> waitData = new HashMap<>(); // animation ID, time
 
 	// Animation run
 	/**
 	 * Integer key = 0:head, 1:left arm, 2:right arm, 3:body, 4:left leg, 5:right leg, 6:left stack, 7:right stack
 	 * Float[] value = [ 0:rotX, 1:rotY, 2:rotZ, 3:ofsX, 4:ofsY, 5:ofsZ, 6:scX, 7:scY, 8:scZ, 9:rotX1, 10:rotY1 ]
 	 */
-	public final Map<Integer, Float[]> rots = Maps.newTreeMap();
-	public final Map<Integer, List<AddedPartConfig>> addParts = Maps.newTreeMap();
+	public final Map<Integer, Float[]> rots = new TreeMap<>();
 	public AnimationConfig activeAnimation = null;
 	public AnimationConfig movementAnimation = null;
-	public long startAnimationTime = 0; // is set when the animation starts
+
+	public long startAnimationTime = 0;
+	public EnumAnimationStages stage = EnumAnimationStages.Waiting;
+
 	private boolean hasAnimations = false;
 	private boolean completeAnimation = false;
 	public boolean isJump = false;
 	public boolean isSwing = false;
 	// current state, used to smoothly start another animation
-	public @Nonnull AnimationFrameConfig preFrame = new AnimationFrameConfig();
+	public AnimationFrameConfig preFrame = new AnimationFrameConfig();
 	// current frame from animation
-	public AnimationFrameConfig currentFrame = new AnimationFrameConfig();
+	public AnimationFrameConfig currentFrame;
 	// next frame from animation
 	public AnimationFrameConfig nextFrame;
 	private ResourceLocation animationSound = null;
 
 	// Emotion run
-	public final Map<Integer, Float[]> emts = Maps.newTreeMap();
+	public final Map<Integer, Float[]> emts = new TreeMap<>();
 	public EmotionConfig activeEmotion = null;
 	public EmotionFrame currentEmotionFrame = null, nextEmotionFrame;
 	public long startEmotionTime = 0;
@@ -82,12 +76,11 @@ public class DataAnimation implements INPCAnimation {
 	public int baseEmotionId = -1;
 
 	// Tools
-	private final EntityLivingBase entity;
+	public final EntityLivingBase entity;
 	private final Random rnd = new Random();
 	public final Map<EnumParts, Boolean> showParts = new HashMap<>();
 	public final Map<EnumParts, Boolean> showArmorParts = new HashMap<>();
 	public final Map<EnumParts, Boolean> showAWParts = new HashMap<>();
-	private float val, valNext;
 
 	public DataAnimation(EntityLivingBase entity) {
 		this.entity = entity;
@@ -129,34 +122,33 @@ public class DataAnimation implements INPCAnimation {
 
 	private void checkData() {
 		for (AnimationKind type : AnimationKind.values()) {
-			if (!data.containsKey(type)) { data.put(type, Lists.newArrayList()); }
+			if (!data.containsKey(type)) { data.put(type, new ArrayList<>()); }
 		}
 		while (data.containsKey(null)) { data.remove(null); }
 	}
 
-	private float calcValue(float value_0, float value_1, int speed, boolean isSmooth, float ticks, float pt) {
-		if (ticks > speed) {
-			ticks = speed;
-			pt = 0.0f;
+	private float calcValue(float value_0, float value_1, float speed, float ticks, boolean isSmooth, float partialTicks) {
+		if (speed <= 0) { return 0.0f; }
+		if (ticks > speed || ticks < 0.0f) {
+			if (ticks > speed) { ticks = speed; } else { ticks = 0.0f; }
+			partialTicks = 0.0f;
 		}
-		float pi = (float) Math.PI;
+		float val = ticks / speed;
+		float valNext = (ticks + 1) / speed;
 		if (isSmooth) {
-			this.val = -0.5f * MathHelper.cos(ticks / (float) speed * pi) + 0.5f;
-			this.valNext = -0.5f * MathHelper.cos((ticks + 1) / (float) speed * pi) + 0.5f;
-		} else {
-			this.val = ticks / (float) speed;
-			this.valNext = (ticks + 1) / (float) speed;
+			val = -0.5f * MathHelper.cos(val * (float) Math.PI) + 0.5f;
+			valNext = -0.5f * MathHelper.cos(valNext * (float) Math.PI) + 0.5f;
 		}
-		float f = this.val + (this.valNext - this.val) * pt;
-        return (value_0 + (value_1 - value_0) * f) * 2.0f * pi;
+		float f = val + (valNext - val) * partialTicks;
+        return value_0 + (value_1 - value_0) * f;
 	}
 
 	@Override
 	public void clear() {
-		this.stopAnimation();
-		this.stopEmotion();
+		stopAnimation();
+		stopEmotion();
 		for (List<Integer> ids : data.values()) { ids.clear(); }
-		this.updateClient(0);
+		updateClient(0);
 	}
 
 	@Override
@@ -174,12 +166,12 @@ public class DataAnimation implements INPCAnimation {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: " + animationType);
 		}
 		AnimationKind type = AnimationKind.get(animationType);
-		if (!data.containsKey(type)) { data.put(type, Lists.newArrayList()); }
+		if (!data.containsKey(type)) { data.put(type, new ArrayList<>()); }
 		for (Integer id : data.get(type)) {
 			if (id == animationId) {
 				if (data.get(type).remove(id)) {
-					if (this.activeAnimation != null && this.activeAnimation.getId() == id) { this.stopAnimation(); }
-					this.updateClient(5);
+					if (this.activeAnimation != null && this.activeAnimation.getId() == id) { stopAnimation(); }
+					updateClient(5);
 					return true;
 				}
 			}
@@ -201,7 +193,7 @@ public class DataAnimation implements INPCAnimation {
 		}
 		AnimationKind type = AnimationKind.get(animationType);
 		if (!data.containsKey(type)) {
-			this.data.put(type, Lists.newArrayList());
+			this.data.put(type, new ArrayList<>());
 		}
 		this.data.get(type).clear();
 		this.hasAnimations = false;
@@ -212,229 +204,173 @@ public class DataAnimation implements INPCAnimation {
 			}
 		}
 		if (this.activeAnimation != null && this.activeAnimation.type.get() == animationType) {
-			this.stopAnimation();
-			this.updateClient(5);
+			stopAnimation();
+			updateClient(5);
 		}
 	}
 
-	public void calculationAnimationBeforeRendering(float pt) {
-		if (this.activeAnimation == null) { return; }
+	public void calculationAnimationBeforeRendering(float partialTicks) {
+		if (stage == EnumAnimationStages.Waiting || activeAnimation == null) { return; }
 
-		// animation data
-		int totalTicks = (int) (this.entity.world.getTotalWorldTime() - this.startAnimationTime) % this.activeAnimation.totalTicks;
-		if (totalTicks < 0) {
-			this.stopAnimation();
-			return;
-		}
-		int animationFrame = this.activeAnimation.getAnimationFrameByTime(totalTicks); // current animation frame ID
-		this.currentFrame = this.activeAnimation.frames.get(animationFrame); // current frame
-		int startTick = 0;
-		if (animationFrame > 0 && this.activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) { startTick = this.activeAnimation.endingFrameTicks.get(animationFrame - 1) + 1; }
-		int ticks = totalTicks - startTick; // running time of the current animation frame
+		updateTime();
+		int ticks = (int) (entity.world.getTotalWorldTime() - startAnimationTime);
+		int speed = activeAnimation.type.isQuickStart() ? 4 : 10;
+		boolean isEdit = activeAnimation.type == AnimationKind.EDITING_All || activeAnimation.type == AnimationKind.EDITING_PART;
+		switch (stage) {
+			case Started: {
+				currentFrame = preFrame;
+				nextFrame = activeAnimation.frames.get(0);
+				break;
+			}
+			case Run: {
+				int animationFrame = activeAnimation.getAnimationFrameByTime(ticks);
+				currentFrame = activeAnimation.frames.get(animationFrame);
+				nextFrame = activeAnimation.frames.get(Math.min(animationFrame + 1, activeAnimation.frames.size() - 1));
+				speed = currentFrame.speed;
 
-
-		// Select next Frame
-		this.nextFrame = null;
-
-		boolean isCyclical = this.activeAnimation.type == AnimationKind.EDITING ||
-				this.activeAnimation.repeatLast > 0 ||
-				(this.activeAnimation.type.isMovement() && this.activeAnimation.chance >= 1.0f) ||
-				(this.activeAnimation.type == AnimationKind.DIES && this.entity.getHealth() <= 0.0f) ||
-				(this.activeAnimation.type == AnimationKind.JUMP && this.isJump);
-		boolean forcedlyCyclical = true;
-		boolean canNext = this.activeAnimation.frames.containsKey(animationFrame + 1);
-		if (canNext) {
-			// can go to the next frame
-			this.nextFrame = this.activeAnimation.frames.get(animationFrame + 1);
-			forcedlyCyclical = isCyclical && animationFrame == this.activeAnimation.frames.size() - 2;
-		}
-		if (isCyclical && forcedlyCyclical) {
-			// animation is finished but need to repeat the last frames until it turns off
-			int f0 = this.activeAnimation.repeatLast;
-			if (f0 <= 0) {
-				f0 = 0;
-				if (this.activeAnimation.type.isMovement() && this.activeAnimation.type != AnimationKind.AIM) {
-					f0 = this.activeAnimation.frames.size() - 1;
-					if (!this.activeAnimation.type.isQuickStart()) { f0--; }
+				if (activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) {
+					ticks -= activeAnimation.endingFrameTicks.get(animationFrame - 1);
 				}
+				break;
 			}
-			animationFrame = this.activeAnimation.frames.size() - f0 - 1;
-			if (animationFrame < 0) { animationFrame = 0; }
-			this.nextFrame = this.activeAnimation.frames.containsKey(animationFrame) ? this.activeAnimation.frames.get(animationFrame) : this.currentFrame;
-			if (f0 == 0) { pt = 0.0f; }
-			this.completeAnimation = (totalTicks == this.activeAnimation.totalTicks - 1);
-			if (this.completeAnimation) {
-				startTick = 0;
-				if (animationFrame > 0 && this.activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) { startTick = this.activeAnimation.endingFrameTicks.get(animationFrame - 1) + 1; }
-				this.startAnimationTime = this.entity.world.getTotalWorldTime() - startTick;
-				this.completeAnimation = false;
+			case Ending: {
+				currentFrame = activeAnimation.frames.get(activeAnimation.frames.size() - 1);
+				nextFrame = preFrame;
+				break;
+			}
+			default: {
+				stopAnimation();
 			}
 		}
-		else if (!canNext) {
-			this.stopAnimation();
-			return;
-		}
-		if (this.activeAnimation == null) { return; }
-
-		// adjust frames
-		if (this.currentFrame.id == -1) { this.currentFrame = this.preFrame; }
-		if (this.nextFrame.id == -1) { this.nextFrame = this.preFrame; }
-
-		// Speed ticks to next frame
-		int speed = this.currentFrame.speed;
 
 		// for start or finish use settings from animation frame
-		if (this.nextFrame.id != -1 && this.currentFrame.id == -1) {
-			for (int id : this.nextFrame.parts.keySet()) {
-				this.currentFrame.parts.get(id).setDisable(this.nextFrame.parts.get(id).isDisable());
-				this.currentFrame.parts.get(id).setShow(this.nextFrame.parts.get(id).isShow());
+		if (nextFrame.id != -1 && currentFrame.id == -1) {
+			for (int id : nextFrame.parts.keySet()) {
+				currentFrame.parts.get(id).setDisable(nextFrame.parts.get(id).isDisable());
+				currentFrame.parts.get(id).setShow(nextFrame.parts.get(id).isShow());
 			}
 		}
-		if (this.nextFrame.id == -1 && this.currentFrame.id != -1) {
-			for (int id : this.nextFrame.parts.keySet()) {
-				this.nextFrame.parts.get(id).setDisable(this.currentFrame.parts.get(id).isDisable());
-				this.nextFrame.parts.get(id).setShow(this.currentFrame.parts.get(id).isShow());
+		if (nextFrame.id == -1 && currentFrame.id != -1) {
+			for (int id : nextFrame.parts.keySet()) {
+				nextFrame.parts.get(id).setDisable(currentFrame.parts.get(id).isDisable());
+				nextFrame.parts.get(id).setShow(currentFrame.parts.get(id).isShow());
 			}
 		}
 
 		// set show parts
-		for (PartConfig part : this.currentFrame.parts.values()) { this.showParts.put(part.getEnumType(), part.isShow()); }
+		for (PartConfig part : currentFrame.parts.values()) { showParts.put(part.getEnumType(), part.isShow()); }
 
 		// movement speed depends on the NPCs movement speed
-		IAttributeInstance attributeMovement = this.entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-		if (attributeMovement != null && attributeMovement.getAttributeValue() != 0.0) {
-			speed = (int) ((double) speed * (this.entity instanceof EntityNPCInterface ? 0.25 : 0.0999999985098839) / attributeMovement.getAttributeValue());
-		}
+		float correctorRotations = !activeAnimation.type.isMovement() ? 1.0f : getCurrentXZSpeed();
 
 		// start sound (ignore unloaded entities in GUI)
-		if (this.animationSound == null &&
-				this.currentFrame.sound != null &&
-				this.activeAnimation.type != AnimationKind.EDITING &&
-				!this.entity.isServerWorld() &&
-				this.entity.world.loadedEntityList.contains(this.entity)) {
-			MusicController.Instance.playSound(SoundCategory.AMBIENT, this.currentFrame.sound.toString(), (float) this.entity.posX, (float) this.entity.posY, (float) this.entity.posZ, 1.0f, 1.0f);
-			this.animationSound = this.currentFrame.sound;
+		if (animationSound == null &&
+				currentFrame.sound != null &&
+				!isEdit &&
+				!entity.isServerWorld() &&
+				entity.world.loadedEntityList.contains(entity)) {
+			MusicController.Instance.playSound(SoundCategory.AMBIENT, currentFrame.sound.toString(), (float) entity.posX, (float) entity.posY, (float) entity.posZ, 1.0f, 1.0f);
+			animationSound = currentFrame.sound;
 		}
 
 		// show armor
-		this.showArmorParts.put(EnumParts.HEAD, this.currentFrame.showHelmet);
-		this.showArmorParts.put(EnumParts.BODY, this.currentFrame.showBody);
-		this.showArmorParts.put(EnumParts.ARM_RIGHT, this.currentFrame.showBody);
-		this.showArmorParts.put(EnumParts.ARM_LEFT, this.currentFrame.showBody);
-		this.showArmorParts.put(EnumParts.LEG_RIGHT, this.currentFrame.showLegs);
-		this.showArmorParts.put(EnumParts.LEG_LEFT, this.currentFrame.showLegs);
-		this.showArmorParts.put(EnumParts.FEET_RIGHT, this.currentFrame.showFeets);
-		this.showArmorParts.put(EnumParts.FEET_LEFT, this.currentFrame.showFeets);
-
+		showArmorParts.put(EnumParts.HEAD, currentFrame.showHelmet);
+		showArmorParts.put(EnumParts.BODY, currentFrame.showBody);
+		showArmorParts.put(EnumParts.ARM_RIGHT, currentFrame.showBody);
+		showArmorParts.put(EnumParts.ARM_LEFT, currentFrame.showBody);
+		showArmorParts.put(EnumParts.LEG_RIGHT, currentFrame.showLegs);
+		showArmorParts.put(EnumParts.LEG_LEFT, currentFrame.showLegs);
+		showArmorParts.put(EnumParts.FEET_RIGHT, currentFrame.showFeets);
+		showArmorParts.put(EnumParts.FEET_LEFT, currentFrame.showFeets);
+if (stage == EnumAnimationStages.Ending) {
+	//System.out.println("CNPCs: " + stage + "; " + speed + "/" + ticks + "; {" + currentFrame.id + " -> " + nextFrame.id + "/" + activeAnimation.frames.size() + "}; " + activeAnimation.endingFrameTicks);
+}
 		// calculation of exact values for a body part
-		boolean isSimple = this.currentFrame.equals(this.nextFrame);
-		for (int partId = 0; partId < this.currentFrame.parts.size(); partId++) {
-			PartConfig part0 = this.currentFrame.parts.get(partId);
-			PartConfig part1 = this.nextFrame.parts.get(partId);
+		rots.clear();
+		if (currentFrame.delay != 0) { ticks -= currentFrame.delay; }
+		for (int partId = 0; partId < currentFrame.parts.size(); partId++) {
+			PartConfig part0 = currentFrame.parts.get(partId);
+			PartConfig part1 = nextFrame.parts.get(partId);
 			if (part0.isDisable() || !part0.isShow() || part1 == null) {
-				this.rots.put(part0.id, null);
+				rots.put(part0.id, null);
 				continue;
 			}
 			Float[] values = new Float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f };
 			for (int t = 0; t < 3; t++) { // 0:rotations, 1:offsets, 2:scales
-				for (int a = 0; a < 3; a++) { // x, y, z
+				for (int a = 0; a < 5; a++) { // x, y, z, x1, y1
 					float value_0;
 					float value_1;
+					if (t != 0 && a > 2) { continue; }
 					switch (t) {
 						case 1: {
-							value_0 = 10.0f * part0.offset[a] - 5.0f;
-							value_1 = isSimple ? value_0 : 10.0f * part1.offset[a] - 5.0f;
+							value_0 = part0.offset[a];
+							value_1 = part1.offset[a];
 							break;
 						}
 						case 2: {
-							value_0 = part0.scale[a] * 5.0f;
-							value_1 = isSimple ? value_0 : part1.scale[a] * 5.0f;
+							value_0 = part0.scale[a];
+							value_1 = part1.scale[a];
 							break;
 						}
 						default: {
 							value_0 = part0.rotation[a];
-							value_1 = isSimple ? value_0 : part1.rotation[a];
-							if (value_0 < 0.5f && Math.abs(value_0 + 1.0f - value_1) < Math.abs(value_0 - value_1)) {
-								value_0 += 1.0f;
-							} else if (value_1 < 0.5f && Math.abs(value_1 + 1.0f - value_0) < Math.abs(value_0 - value_1)) {
-								value_1 += 1.0f;
+							value_1 = part1.rotation[a];
+							// adjusting the nearest number
+							// example: to rotate in a circle
+							float result =  value_0 - value_1;
+							if (Math.abs(result) > Math.PI) {
+								value_1 = result;
 							}
-							value_0 -= 0.5f;
-							value_1 -= 0.5f;
+							value_0 *= correctorRotations;
+							value_1 *= correctorRotations;
 							break;
 						}
 					}
-					values[t * 3 + a] = this.calcValue(value_0, value_1, speed, this.currentFrame.isSmooth(), ticks, pt);
-					if (t != 0) { values[t * 3 + a] /= 2 * (float) Math.PI; } // offsets, scales - correction
-					if (t == 0 && a == 2) {
-						value_0 = part0.rotation[3];
-						value_1 = part1.rotation[3];
-						if (value_0 < 0.5f && Math.abs(value_0 + 1.0f - value_1) < Math.abs(value_0 - value_1)) {
-							value_0 += 1.0f;
-						} else if (value_1 < 0.5f && Math.abs(value_1 + 1.0f - value_0) < Math.abs(value_0 - value_1)) {
-							value_1 += 1.0f;
-						}
-						value_0 -= 0.5f;
-						value_1 -= 0.5f;
-						values[9] = this.calcValue(value_0, value_1, speed, this.currentFrame.isSmooth(), ticks, pt);
-
-						value_0 = part0.rotation[4];
-						value_1 = part1.rotation[4];
-						if (value_0 < 0.5f && Math.abs(value_0 + 1.0f - value_1) < Math.abs(value_0 - value_1)) {
-							value_0 += 1.0f;
-						} else if (value_1 < 0.5f && Math.abs(value_1 + 1.0f - value_0) < Math.abs(value_0 - value_1)) {
-							value_1 += 1.0f;
-						}
-						value_0 -= 0.5f;
-						value_1 -= 0.5f;
-						value_0 *= 0.5f;
-						value_1 *= 0.5f;
-						values[10] = this.calcValue(value_0, value_1, speed, this.currentFrame.isSmooth(), ticks, pt);
-
-					}
+					values[t * 3 + a] = calcValue(value_0, value_1, speed - 1, ticks, currentFrame.isSmooth(), partialTicks);
 				}
 			}
-			this.rots.put(part0.id, values);
-		}
-		if (this.activeAnimation.type != AnimationKind.EDITING) {
-			this.startEvent(new AnimationEvent.UpdateEvent(this.entity, this.activeAnimation, animationFrame, totalTicks, ticks));
+			rots.put(part0.id, values);
 		}
 	}
 
-	public void stopAnimation(AnimationKind type) {
-		if (this.activeAnimation == null || this.activeAnimation.type != type) { return; }
-		if (this.entity.isServerWorld()) { this.activeAnimation = null; }
+	private float getCurrentXZSpeed() {
+		Vec3d currentPosition = new Vec3d(entity.posX, 0.0f, entity.posZ);
+		Vec3d delta = currentPosition.subtract(new Vec3d(entity.prevPosX, 0.0f, entity.prevPosZ));
+		double distanceMoved = delta.lengthSquared();
+
+		IAttributeInstance movementAttribute = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+		float speed = 1.0f;
+		if (movementAttribute != null) {
+			speed = (float) (distanceMoved / movementAttribute.getBaseValue() * 2.1475d);
+		}
+		return ValueUtil.correctFloat(speed, 0.0f, 1.0f);
 	}
 
 	@Override
 	public void stopAnimation() {
-		if (this.activeAnimation != null) {
-			if (this.activeAnimation.hasEmotion()) {
-				this.stopEmotion();
+		if (activeAnimation != null) {
+			if (activeAnimation.hasEmotion()) {
+				stopEmotion();
 			}
-			if (this.activeAnimation.type != AnimationKind.EDITING) {
-				int totalTicks = (int) (this.entity.world.getTotalWorldTime() - this.startAnimationTime) % this.activeAnimation.totalTicks;
-				int animationFrame = -1;
-				int ticks = -1;
-				if (totalTicks >= 0) {
-					animationFrame = this.activeAnimation.getAnimationFrameByTime(totalTicks);
-					int startTick = 0;
-					if (animationFrame > 0 && this.activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) { startTick = this.activeAnimation.endingFrameTicks.get(animationFrame - 1) + 1; }
-					ticks = totalTicks - startTick;
+			if (activeAnimation.type != AnimationKind.EDITING_All && activeAnimation.type != AnimationKind.EDITING_PART) {
+				int ticks = (int) (entity.world.getTotalWorldTime() - startAnimationTime);
+				int animationFrame = activeAnimation.getAnimationFrameByTime(ticks);
+				int startFrameTime = 0;
+				if (activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) {
+					startFrameTime = activeAnimation.endingFrameTicks.get(animationFrame - 1);
 				}
-				this.startEvent(new AnimationEvent.StopEvent(this.entity, this.activeAnimation, animationFrame, totalTicks, ticks));
+				startEvent(new AnimationEvent.StopEvent(entity, activeAnimation, animationFrame, ticks - startFrameTime, stage));
 			} else { return; }
 		}
-		this.isJump = false;
-		this.isSwing = false;
-		this.rots.clear();
-		this.val = 0.0f;
-		this.valNext = 0.0f;
-		if (this.animationSound != null && !this.entity.isServerWorld()) { MusicController.Instance.stopSound(this.animationSound.toString(), SoundCategory.AMBIENT); }
-		this.animationSound = null;
-		this.startAnimationTime = 0;
-		this.completeAnimation = false;
-		this.activeAnimation = null;
+		isJump = false;
+		isSwing = false;
+		rots.clear();
+		if (animationSound != null && !entity.isServerWorld()) { MusicController.Instance.stopSound(animationSound.toString(), SoundCategory.AMBIENT); }
+		animationSound = null;
+		startAnimationTime = 0;
+		completeAnimation = false;
+		activeAnimation = null;
+		stage = EnumAnimationStages.Waiting;
 	}
 
 	public boolean hasAnim(AnimationKind type) {
@@ -603,7 +539,7 @@ public class DataAnimation implements INPCAnimation {
 							break;
 						}
 					}
-					values[t * 2 + a] = this.calcValue(value_0, value_1, speed, this.currentEmotionFrame.isSmooth(), ticks, pt);
+					values[t * 2 + a] = this.calcValue(value_0, value_1, speed - 1, ticks, currentEmotionFrame.isSmooth(), pt);
 					if (t != 0) { values[t * 2 + a] /= 2 * (float) Math.PI; }
 				}
 			}
@@ -626,21 +562,19 @@ public class DataAnimation implements INPCAnimation {
 			this.emotionFrame = 0;
 			this.startEmotionTime = 0;
 		} else {
-			this.updateClient(4, emotion.getId());
+			updateClient(4, emotion.getId());
 		}
 	}
 
 	@Override
 	public void stopEmotion() {
 		if (this.activeEmotion != null) {
-			this.updateClient(3, this.activeEmotion.id);
+			updateClient(3, activeEmotion.id);
 			this.currentEmotionFrame = this.activeEmotion.frames.get(this.emotionFrame);
 			this.activeEmotion = null;
 		}
 		else { this.currentEmotionFrame = EmotionFrame.STANDARD; }
 		this.emts.clear();
-		this.val = 0.0f;
-		this.valNext = 0.0f;
 		this.startEmotionTime = 0;
 		this.emotionFrame = -1;
 		this.currentEmotionFrame = null;
@@ -667,7 +601,7 @@ public class DataAnimation implements INPCAnimation {
 					LogWriter.warn("Try load AnimationKind ID:"+t+". Missed.");
 					continue;
 				}
-				List<Integer> list = Lists.newArrayList();
+				List<Integer> list = new ArrayList<>();
 				int tagType = nbtCategory.getTag("Animations").getId();
 				if (tagType == 11) { // OLD version
 					for (int id : nbtCategory.getIntArray("Animations")) {
@@ -729,9 +663,10 @@ public class DataAnimation implements INPCAnimation {
 
 	// used to select a new animation in EntityNPCInterface
 	public AnimationConfig reset(AnimationKind type) {
-		List<AnimationConfig> list = AnimationController.getInstance().getAnimations(this.data.get(type));
+		if (!CustomNpcs.ShowCustomAnimation || !entity.isServerWorld() || data.get(type).isEmpty()) { return null; }
+		List<AnimationConfig> list = AnimationController.getInstance().getAnimations(data.get(type));
 		if (list.isEmpty()) { return null; }
-		List<AnimationConfig> selectList = Lists.newArrayList();
+		List<AnimationConfig> selectList = new ArrayList<>();
 		for (AnimationConfig ac : list) {
 			if (this.waitData.containsKey(ac.id) && this.waitData.get(ac.id) > System.currentTimeMillis()) {
 				continue;
@@ -746,7 +681,7 @@ public class DataAnimation implements INPCAnimation {
 		AnimationConfig anim = null;
 		if (!selectList.isEmpty()) { anim = selectList.get(this.rnd.nextInt(selectList.size())).copy(); }
 		if (anim == null && type == AnimationKind.ATTACKING && !list.isEmpty()) { anim = list.get(this.rnd.nextInt(list.size())).copy(); }
-		this.setAnimation(anim, type);
+		setAnimation(anim, type);
 		return anim;
 	}
 
@@ -778,21 +713,30 @@ public class DataAnimation implements INPCAnimation {
 
 	@Override
 	public void update() {
-		this.updateClient(0);
+		updateClient(0);
 	}
 
+	/**
+	 * @param type
+	 * 0:resave;
+	 * 1:stop animation;
+	 * 2:base mod current animation;
+	 * 3:stop emotion;
+	 * 4:start emotion;
+	 * 5:remove animation;
+	 * 6:start animation from saved IDs
+	 */
 	public void updateClient(int type, int... var) {
-		if (this.entity == null) { return; }
-		if (!this.entity.isServerWorld()) {
-			if (type == 1) { NoppesUtilPlayer.sendData(EnumPlayerPacket.StopNPCAnimation, this.entity.getEntityId(), var[0], var[1]); }
+		if (entity == null) { return; }
+		if (!entity.isServerWorld()) {
+			if (type == 1) { NoppesUtilPlayer.sendData(EnumPlayerPacket.StopNPCAnimation, entity.getEntityId(), var[0], var[1]); }
 			return;
 		}
-		NBTTagCompound compound = this.save(new NBTTagCompound());
-		compound.setInteger("EntityId", this.entity.getEntityId());
-		if (var != null && var.length > 0) {
-			compound.setIntArray("Vars", var);
+		Object[] objects = new Object[] { entity.world.provider.getDimension(), type, entity.getEntityId(), save(new NBTTagCompound()) };
+		if (type == 4) {
+			objects = new Object[] { entity.world.provider.getDimension(), type, entity.getEntityId(), var[0] };
 		}
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC_ANIMATION, type, compound);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC_ANIMATION, objects);
 	}
 
 	@Override
@@ -809,34 +753,100 @@ public class DataAnimation implements INPCAnimation {
 		list.add(animationID);
 		Collections.sort(list);
 		data.put(AnimationKind.get(animationType), list);
-		this.hasAnimations = true;
-		this.updateClient(5);
+		hasAnimations = true;
+		updateClient(0);
 	}
 
+	/**
+	 * Server used this method how update event
+	 */
 	public boolean isAnimated() {
 		// no animation
-		if (this.activeAnimation == null) { return false; }
+		if (activeAnimation == null || stage == EnumAnimationStages.Waiting) { return false; }
+		if (activeAnimation.type == AnimationKind.DIES && entity.getHealth() <= 0.0f) { return true; }
+		boolean isEdit = activeAnimation.type == AnimationKind.EDITING_All || activeAnimation.type == AnimationKind.EDITING_PART;
+		return !completeAnimation || !entity.isServerWorld() && (isEdit || activeAnimation.type.isMovement());
+	}
 
-		if (this.activeAnimation.type == AnimationKind.DIES && this.entity.getHealth() <= 0.0f) { return true; }
-
-		// animation has completed its duration
-		if (this.completeAnimation) {
-			/* for server, animation has finished its work
-			   for client, the looping animation repeats its work */
-			if (this.entity.isServerWorld()) { return false; }
-			else return this.activeAnimation.type.isMovement() || this.activeAnimation.type == AnimationKind.EDITING;
-        }
-
+	public void updateTime() {
 		// animation running time
-		boolean bo = this.entity.world.getTotalWorldTime() - this.startAnimationTime <= (this.activeAnimation.totalTicks - 1);
-		this.completeAnimation = !bo;
-		return bo;
+		if (activeAnimation == null) {
+			currentFrame = null;
+			nextFrame = null;
+			completeAnimation = false;
+			stage = EnumAnimationStages.Waiting;
+			return;
+		}
+		int ticks = (int) (entity.world.getTotalWorldTime() - startAnimationTime);
+		int speed = activeAnimation.type.isQuickStart() ? 4 : 10;
+
+		if (stage == EnumAnimationStages.Started && ticks >= speed) {
+			ticks -= speed;
+			startAnimationTime += speed;
+			stage = EnumAnimationStages.Run;
+		}
+
+		int endFrameStartTicks = 1;
+		if (activeAnimation.endingFrameTicks.containsKey(activeAnimation.endingFrameTicks.size() - 2)) { endFrameStartTicks = activeAnimation.endingFrameTicks.get(activeAnimation.endingFrameTicks.size() - 2); }
+
+		if (stage == EnumAnimationStages.Run && ticks >= endFrameStartTicks) {
+			if (activeAnimation.type == AnimationKind.EDITING_PART) {
+				ticks = 0;
+				startAnimationTime = entity.world.getTotalWorldTime();
+			} else {
+				ticks -= activeAnimation.totalTicks;
+				startAnimationTime += endFrameStartTicks;
+				stage = EnumAnimationStages.Ending;
+			}
+			completeAnimation = true;
+		}
+
+		if (stage == EnumAnimationStages.Ending && ticks >= speed) {
+			if (activeAnimation.type == AnimationKind.EDITING_All) {
+				ticks = 0;
+				startAnimationTime = entity.world.getTotalWorldTime();
+				stage = EnumAnimationStages.Started;
+			} else {
+				ticks = -1;
+				startAnimationTime = 0;
+				stage = EnumAnimationStages.Waiting;
+			}
+		}
+		if (stage == EnumAnimationStages.Waiting) {
+			stopAnimation();
+			return;
+		}
+
+		// animation events
+		int animationFrame = activeAnimation.getAnimationFrameByTime(ticks);
+		switch (stage) {
+			case Started: {
+				if (ticks == 0) { startEvent(new AnimationEvent.StartEvent(entity, activeAnimation, animationFrame, 0, stage)); }
+				else { startEvent(new AnimationEvent.UpdateEvent(entity, activeAnimation, animationFrame, ticks, stage)); }
+				break;
+			}
+			case Run: {
+				int startFrameTime = 0;
+				if (activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) {
+					startFrameTime = activeAnimation.endingFrameTicks.get(animationFrame - 1);
+				}
+				int frameTime = ticks - startFrameTime;
+				if (frameTime == 0) { startEvent(new AnimationEvent.NextFrameEvent(entity, activeAnimation, animationFrame, 0, stage)); }
+				else { startEvent(new AnimationEvent.UpdateEvent(entity, activeAnimation, animationFrame, frameTime, stage)); }
+				break;
+			}
+			case Ending: {
+				if (ticks == 0) { startEvent(new AnimationEvent.NextFrameEvent(entity, activeAnimation, animationFrame, 0, stage)); }
+				else { startEvent(new AnimationEvent.UpdateEvent(entity, activeAnimation, animationFrame, ticks, stage)); }
+				break;
+			}
+		}
 	}
 
 	public boolean isAnimated(AnimationKind ... types) {
-		if (!this.isAnimated()) { return false; }
+		if (!isAnimated()) { return false; }
 		for (AnimationKind type : types) {
-			if (this.activeAnimation.type == type) { return true; }
+			if (activeAnimation.type == type) { return true; }
 		}
 		return false;
 	}
@@ -858,7 +868,7 @@ public class DataAnimation implements INPCAnimation {
 	}
 
 	private void startEvent(AnimationEvent event) {
-		if (event == null || (event.animation != null && event.animation.type == AnimationKind.EDITING)) { return; }
+		if (event == null || (event.animation != null && (event.animation.type == AnimationKind.EDITING_All || event.animation.type == AnimationKind.EDITING_PART))) { return; }
 		IScriptHandler handler = null;
 		if (!this.entity.isServerWorld()) { handler = ScriptController.Instance.clientScripts; }
 		else if (this.entity instanceof EntityNPCInterface) { handler = ((EntityNPCInterface) this.entity).script; }
@@ -870,22 +880,12 @@ public class DataAnimation implements INPCAnimation {
 	}
 
 	public AnimationKind getAnimationType() {
-		return this.activeAnimation == null ? null : this.activeAnimation.type;
-	}
-
-	public int getHitboxDamageType() {
-		if (this.activeAnimation == null || this.activeAnimation.type != AnimationKind.ATTACKING) { return 0; }
-		return this.activeAnimation.getDamageHitboxType();
-	}
-
-	public AxisAlignedBB getHitboxDamage() {
-		if (this.activeAnimation == null || this.activeAnimation.type != AnimationKind.ATTACKING) { return null; }
-		return this.activeAnimation.getDamageHitbox(this.entity);
+		return activeAnimation == null ? null : activeAnimation.type;
 	}
 
 	// a new motion animation is selected
 	public void resetWalkOrStand() {
-		if (!this.entity.isServerWorld() || (this.activeAnimation != null && !this.completeAnimation)) { return; }
+		if (!entity.isServerWorld() || (activeAnimation != null && !completeAnimation)) { return; }
 		// exit if one-time animation is playing
 		boolean isMoving = this.isMoving();
 		this.movementAnimation = null;
@@ -904,8 +904,8 @@ public class DataAnimation implements INPCAnimation {
 			}
 			else if (this.isAnimated(AnimationKind.AIM)) {
 				// aiming animation is no longer needed
-				if (this.entity.isServerWorld()) { this.updateClient(1, AnimationKind.AIM.get(), this.activeAnimation.id); }
-				this.stopAnimation();
+				if (this.entity.isServerWorld()) { updateClient(1, AnimationKind.AIM.get(), activeAnimation.id); }
+				stopAnimation();
 			}
 		}
 		else if (this.entity instanceof EntityPlayer) {
@@ -917,8 +917,8 @@ public class DataAnimation implements INPCAnimation {
 				this.movementAnimation = this.reset(AnimationKind.AIM);
 			} else if (this.isAnimated(AnimationKind.AIM)) {
 				// aiming animation is no longer needed
-				if (this.entity.isServerWorld()) { this.updateClient(1, AnimationKind.AIM.get(), this.activeAnimation.id); }
-				this.stopAnimation();
+				if (entity.isServerWorld()) { updateClient(1, AnimationKind.AIM.get(), activeAnimation.id); }
+				stopAnimation();
 			}
 		}
 		AnimationKind type;
@@ -955,62 +955,58 @@ public class DataAnimation implements INPCAnimation {
 
 	// run new movement animation
 	private void runAnimation(AnimationConfig anim, AnimationKind type) {
-		if (this.activeAnimation != null) {
-			if (this.activeAnimation.id == anim.id) { return; }
-			int totalTicks = (int) (this.entity.world.getTotalWorldTime() - this.startAnimationTime) % this.activeAnimation.totalTicks;
-			int animationFrame = -1;
-			int ticks = -1;
-			if (totalTicks >= 0) {
-				animationFrame = this.activeAnimation.getAnimationFrameByTime(totalTicks);
-				int startTick = 0;
-				if (animationFrame > 0 && this.activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) { startTick = this.activeAnimation.endingFrameTicks.get(animationFrame - 1) + 1; }
-				ticks = totalTicks - startTick;
-			}
-			this.startEvent(new AnimationEvent.StopEvent(this.entity, this.activeAnimation, animationFrame, totalTicks, ticks));
+		boolean isEdit = type == AnimationKind.EDITING_All || type == AnimationKind.EDITING_PART;
+		if (entity.isServerWorld() && isEdit) { return; }
+		if (activeAnimation != null) {
+			if (!isEdit && activeAnimation.id == anim.id) { return; }
 		}
-		this.activeAnimation = anim.create(type, this.preFrame);
-		this.startAnimationTime = this.entity.world.getTotalWorldTime();
-		this.completeAnimation = false;
-		this.startEvent(new AnimationEvent.StartEvent(this.entity, this.activeAnimation, 0, 0, 0));
+		activeAnimation = anim.copy();
+		activeAnimation.type = type;
+		stage = EnumAnimationStages.Started;
+		if (type == AnimationKind.EDITING_PART) { stage = EnumAnimationStages.Run; }
+		startAnimationTime = entity.world.getTotalWorldTime();
+		completeAnimation = false;
 	}
 
 	private boolean isMoving() {
-		double sp = this.entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
+		double sp = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
 		double speed = 0.069d;
 		if (sp != 0.0d) { speed = speed * 0.25d / sp; }
 		double xz = Math.sqrt(Math.pow(this.entity.motionX, 2.0d) + Math.pow(this.entity.motionZ, 2.0d));
 		return xz >= (speed / 2.0d) && (this.entity.motionY <= -speed || this.entity.motionY > 0.0d);
 	}
 
-	// (Player or NPC) -> this.reset(AnimationKind) or PacketHandlerClient
+	// (Player or NPC) -> this.reset(AnimationKind), or PacketHandlerClient, or Animation GUI
 	public void setAnimation(AnimationConfig anim, AnimationKind type) {
 		if (anim != null && anim.frames.isEmpty()) { anim = null; }
-
 		if (anim != null) {
-			this.runAnimation(anim, type);
+			runAnimation(anim, type);
 			// remember option
-			this.isJump = type == AnimationKind.JUMP;
-			this.isSwing = type == AnimationKind.SWING;
+			isJump = type == AnimationKind.JUMP;
+			isSwing = type == AnimationKind.SWING;
 			// special settings
 			if (type == AnimationKind.DIES) {
-				this.entity.motionX = 0.0d;
-				this.entity.motionY = 0.0d;
-				this.entity.motionZ = 0.0d;
+				entity.motionX = 0.0d;
+				entity.motionY = 0.0d;
+				entity.motionZ = 0.0d;
 			}
 		}
-		else if (this.activeAnimation != null && !this.activeAnimation.type.isMovement()) {
-			this.stopAnimation();
+		else if (activeAnimation != null && !activeAnimation.type.isMovement()) {
+			stopAnimation();
 		}
-		this.setToClient(anim, type);
+		setToClient(anim, type);
 	}
 
 	private void setToClient(AnimationConfig anim, AnimationKind type) {
-		if (!this.entity.isServerWorld()) { return; }
-		NBTTagCompound compound = this.save(new NBTTagCompound());
-		compound.setInteger("EntityId", this.entity.getEntityId());
-		compound.setInteger("animID", anim == null ? -1 : anim.id);
-		compound.setInteger("typeID", type.ordinal());
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC_ANIMATION, 6, compound);
+		if (!entity.isServerWorld()) { return; }
+		if (anim == null) {
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC_ANIMATION, entity.world.provider.getDimension(), 1, entity.getEntityId());
+		}
+		else {
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC_ANIMATION, entity.world.provider.getDimension(), 6, entity.getEntityId(), anim.id, type.ordinal());
+		}
 	}
+
+	public AnimationConfig getAnimation() { return activeAnimation; }
 
 }

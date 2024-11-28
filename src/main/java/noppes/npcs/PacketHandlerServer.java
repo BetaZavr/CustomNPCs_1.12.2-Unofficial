@@ -559,7 +559,7 @@ public class PacketHandlerServer {
                     if (pl == null) {
                         playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), name);
                     } else {
-                        playerdata = CustomNpcs.proxy.getPlayerData(pl);
+                        playerdata = PlayerData.get(pl);
                     }
                     playerdata.setNBT(new NBTTagCompound());
                     playerdata.save(true);
@@ -881,18 +881,19 @@ public class PacketHandlerServer {
                 NoppesUtilServer.createMobSpawner(pos, compound, player);
             }
         } else if (type == EnumPacketServer.ClonePreSave) {
-            boolean bo = ServerCloneController.Instance.getCloneData(null, Server.readString(buffer),
-                    buffer.readInt()) != null;
+            boolean bo = ServerCloneController.Instance.getCloneData(null, Server.readString(buffer), buffer.readInt()) != null;
             NBTTagCompound compound = new NBTTagCompound();
             compound.setBoolean("NameExists", bo);
             Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
         } else if (type == EnumPacketServer.CloneSave) {
-            PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+            PlayerData data = PlayerData.get(player);
             if (data.cloned == null) {
+                LogWriter.error("Error save entity: NBT is Empty!");
                 CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
                 return;
             }
             ServerCloneController.Instance.addClone(data.cloned, Server.readString(buffer), buffer.readInt());
+            data.cloned = null;
         } else if (type == EnumPacketServer.CloneRemove) {
             int tab = buffer.readInt();
             ServerCloneController.Instance.removeClone(Server.readString(buffer), tab);
@@ -1386,7 +1387,7 @@ public class PacketHandlerServer {
             if (pl == null) {
                 playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName);
             } else {
-                playerdata = CustomNpcs.proxy.getPlayerData(pl);
+                playerdata = PlayerData.get(pl);
             }
             if (playerdata == null) {
                 CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");

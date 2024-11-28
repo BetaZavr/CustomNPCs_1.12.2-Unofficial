@@ -356,8 +356,7 @@ implements ICustomScrollListener, ISubGuiListener {
 				break;
 			}
 			case 30: {
-				onlyMod = !onlyMod;
-				initGui();
+				onlyMod = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			default: {
@@ -587,7 +586,7 @@ implements ICustomScrollListener, ISubGuiListener {
 		addButton(button);
 		// Only mod list
 		if (recipe.global) {
-			addButton(new GuiNpcCheckBox(30, guiLeft + 7, guiTop + 97, 95, 12, "gui.recipe.type." + onlyMod, onlyMod));
+			addButton(new GuiNpcCheckBox(30, guiLeft + 7, guiTop + 97, 95, 12, "gui.recipe.type.true", "gui.recipe.type.false", onlyMod));
 		}
 		// Groups
 		addButton(new GuiNpcButton(1, this.guiLeft + 172, y, 59, 20, "gui.add"));

@@ -100,11 +100,11 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 			break;
 		}
 		case 11: { // next quest
-			this.setSubGui(new GuiQuestSelection(this.quest.nextQuestid));
+			this.setSubGui(new GuiQuestSelection(this.quest.nextQuest));
 			break;
 		}
 		case 12: { // remove next quest
-			this.quest.nextQuestid = -1;
+			this.quest.nextQuest = -1;
 			this.initGui();
 			break;
 		}
@@ -189,7 +189,7 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 				if (this.quest.forgetQuests.length == 0) {
 					TreeMap<Integer, Quest> quests = QuestController.instance.quests;
 					for (int id : quests.keySet()) {
-						if (id != this.quest.id && quests.get(id).nextQuestid == this.quest.id) {
+						if (id != this.quest.id && quests.get(id).nextQuest == this.quest.id) {
 							this.quest.forgetQuests = new int[] { id };
 							break;
 						}
@@ -352,7 +352,7 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 		if (this.isGet[0].equals("2")) {
 			TreeMap<Integer, Quest> quests = QuestController.instance.quests;
 			for (int id : quests.keySet()) {
-				if (id != this.quest.id && quests.get(id).nextQuestid == this.quest.id) {
+				if (id != this.quest.id && quests.get(id).nextQuest == this.quest.id) {
 					this.isGet = new String[] { "1", "" + id, ((char) 167) + "8" + quests.get(id).category.title + "/"
 							+ ((char) 167) + "r" + quests.get(id).getTitle() };
 					break;
@@ -492,7 +492,7 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 
 	@Override
 	public void selected(int id, String name) {
-		this.quest.nextQuestid = id;
+		this.quest.nextQuest = id;
 		this.quest.nextQuestTitle = name;
 		this.initGui();
 	}

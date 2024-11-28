@@ -1,8 +1,7 @@
 package noppes.npcs.client.gui.util;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -31,30 +30,36 @@ implements IComponentGui {
 	boolean check;
 	boolean centered;
 
-	public GuiNpcCheckBox(int id, int x, int y, int width, int height, String label) {
-		super(id, x, y, width, height, new TextComponentTranslation(label).getFormattedText());
-		this.offsetX = 0;
-		this.offsetY = 0;
-		this.offsetType = -1;
-		this.visible = true;
+	public String trueLabel;
+	public String falseLabel;
 
-		this.check = false;
-        this.scale = 1.0f;
-		this.centered = false;
-		this.labels = Lists.newArrayList();
-		this.showShadow = false;
-		this.textColor = CustomNpcs.LableColor.getRGB();
-		this.setText(label);
+	public GuiNpcCheckBox(int id, int x, int y, int width, int height, String trueLabel, String falseLabel) {
+		super(id, x, y, width, height, "");
+		offsetX = 0;
+		offsetY = 0;
+		offsetType = -1;
+		visible = true;
+
+		if (trueLabel == null) { trueLabel = ""; }
+		this.trueLabel = trueLabel;
+		this.falseLabel = falseLabel == null || falseLabel.isEmpty() ? trueLabel : falseLabel;
+		check = false;
+        scale = 1.0f;
+		centered = false;
+		labels = new ArrayList<>();
+		showShadow = false;
+		textColor = CustomNpcs.LableColor.getRGB();
+		setText();
 	}
 
-	public GuiNpcCheckBox(int id, int x, int y, int width, int height, String label, boolean select) {
-		this(id, x, y, width, height, label);
-		this.check = select;
+	public GuiNpcCheckBox(int id, int x, int y, int width, int height, String trueLabel, String falseLabel, boolean select) {
+		this(id, x, y, width, height, trueLabel, falseLabel);
+		check = select;
 	}
 
-	public GuiNpcCheckBox(int id, int x, int y, String label, boolean select) {
-		this(id, x, y, 120, 14, label);
-		this.check = select;
+	public GuiNpcCheckBox(int id, int x, int y, String trueLabel, String falseLabel, boolean select) {
+		this(id, x, y, 120, 14, trueLabel, falseLabel);
+		check = select;
 	}
 
 	public void addLine(String str) {
@@ -134,9 +139,10 @@ implements IComponentGui {
 
 	@Override
 	public boolean mousePressed(@Nonnull Minecraft mc, int mouseX, int mouseY) {
-		if (this.hovered && this.enabled && this.visible) {
+		if (hovered && enabled && visible) {
 			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-			this.check = !this.check;
+			check = !check;
+			setText();
 			return true;
 		}
 		return false;
@@ -152,18 +158,26 @@ implements IComponentGui {
 	}
 
 	public void setSelected(boolean select) {
-		this.check = select;
+		check = select;
+		setText();
 	}
 
-	public void setText(String label) {
-		this.fullLabel = new TextComponentTranslation(label).getFormattedText();
-		this.labels = Lists.newArrayList();
-		if (this.width - 13 < 5) {
+	private void setText() {
+		fullLabel = new TextComponentTranslation(check ? trueLabel : falseLabel).getFormattedText();
+		labels = new ArrayList<>();
+		if (width - 13 < 5) {
 			return;
 		}
-		for (String s : Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(this.fullLabel, this.width - 13)) {
-			this.addLine(s);
+		for (String s : Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(fullLabel, width - 13)) {
+			addLine(s);
 		}
+	}
+
+	public void setText(String trueLabel, String falseLabel) {
+		if (trueLabel == null) { trueLabel = ""; }
+		this.trueLabel = trueLabel;
+		this.falseLabel = falseLabel == null || falseLabel.isEmpty() ? trueLabel : falseLabel;
+		setText();
 	}
 
 	@Override

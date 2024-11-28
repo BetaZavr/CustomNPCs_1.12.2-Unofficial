@@ -91,7 +91,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 			break;
 		}
 		case 5: {
-			this.task.setPointOnMiniMap(((GuiNpcCheckBox) guibutton).isSelected());
+			task.setPointOnMiniMap(((GuiNpcCheckBox) guibutton).isSelected());
 			break;
 		}
 		case 10: {
@@ -268,7 +268,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 		this.addButton(new GuiButtonBiDirectional(4, x + 28, y - 1, 60, 16, dimIDs, p));
 		this.addButton(new GuiNpcButton(10, x + 103, y - 1, 60, 16, "gui.set"));
 
-		this.addButton(new GuiNpcCheckBox(5, x + 42, this.guiTop + this.ySize, 123, 16, "quest.set.minimap.point", this.task != null && this.task.isSetPointOnMiniMap()));
+		addButton(new GuiNpcCheckBox(5, x + 42, guiTop + ySize, 123, 16, "quest.set.minimap.point", null, task != null && task.isSetPointOnMiniMap()));
 	}
 
 	@Override

@@ -56,87 +56,85 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 1: {
-			this.setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
-			break;
-		}
-		case 2: {
-			if (!this.categoryData.containsKey(this.selectedCategory)) {
-				return;
+			case 1: {
+				this.setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				break;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this,
-					this.categoryData.get(this.selectedCategory).title,
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
-			this.displayGuiScreen(guiyesno);
-			break;
-		}
-		case 3: {
-			if (!this.categoryData.containsKey(this.selectedCategory)) {
-				return;
-			}
-			this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
-			break;
-		}
-		case 9: { // paste
-			if (this.copyQuest == null || !this.categoryData.containsKey(this.selectedCategory)) {
-				return;
-			}
-			Quest quest = this.copyQuest.copy();
-			quest.id = -1;
-			quest.category = this.categoryData.get(this.selectedCategory);
-
-			StringBuilder t = new StringBuilder(quest.title);
-			boolean has = true;
-			while (has) {
-				has = false;
-				for (Quest q : quest.category.quests.values()) {
-					if (quest.id != q.id && q.title.equalsIgnoreCase(t.toString())) {
-						has = true;
-						break;
-					}
+			case 2: {
+				if (!this.categoryData.containsKey(this.selectedCategory)) {
+					return;
 				}
-				if (has) { t.append("_"); }
+				GuiYesNo guiyesno = new GuiYesNo(this,
+						this.categoryData.get(this.selectedCategory).title,
+						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
+				this.displayGuiScreen(guiyesno);
+				break;
 			}
-			quest.setName(t.toString());
-			this.selectedQuest = getKey(quest);
-			Client.sendData(EnumPacketServer.QuestSave, quest.category.id, quest.writeToNBT(new NBTTagCompound()));
-			this.initGui();
-			break;
-		}
-		case 10: { // copy
-			if (!this.questData.containsKey(this.selectedQuest)) {
-				return;
+			case 3: {
+				if (!this.categoryData.containsKey(this.selectedCategory)) {
+					return;
+				}
+				this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
+				break;
 			}
-			this.copyQuest = this.questData.get(this.selectedQuest);
-			this.initGui();
-			break;
-		}
-		case 11: {
-			this.setSubGui(new SubGuiEditText(11, Util.instance
-					.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
-			break;
-		}
-		case 12: {
-			if (!this.questData.containsKey(this.selectedQuest)) {
-				return;
+			case 9: { // paste
+				if (this.copyQuest == null || !this.categoryData.containsKey(this.selectedCategory)) {
+					return;
+				}
+				Quest quest = this.copyQuest.copy();
+				quest.id = -1;
+				quest.category = this.categoryData.get(this.selectedCategory);
+
+				StringBuilder t = new StringBuilder(quest.title);
+				boolean has = true;
+				while (has) {
+					has = false;
+					for (Quest q : quest.category.quests.values()) {
+						if (quest.id != q.id && q.title.equalsIgnoreCase(t.toString())) {
+							has = true;
+							break;
+						}
+					}
+					if (has) { t.append("_"); }
+				}
+				quest.setName(t.toString());
+				this.selectedQuest = getKey(quest);
+				Client.sendData(EnumPacketServer.QuestSave, quest.category.id, quest.writeToNBT(new NBTTagCompound()));
+				this.initGui();
+				break;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this, this.questData.get(this.selectedQuest).getTitle(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
-			this.displayGuiScreen(guiyesno);
-			break;
-		}
-		case 13: {
-			if (!this.questData.containsKey(this.selectedQuest)) {
-				return;
+			case 10: { // copy
+				if (!this.questData.containsKey(this.selectedQuest)) {
+					return;
+				}
+				this.copyQuest = this.questData.get(this.selectedQuest);
+				this.initGui();
+				break;
 			}
-			this.setSubGui(new GuiQuestEdit(this.questData.get(this.selectedQuest)));
-			break;
-		}
-		case 14: {
-			GuiNPCManageQuest.isName = ((GuiNpcCheckBox) button).isSelected();
-			((GuiNpcCheckBox) button).setText(GuiNPCManageQuest.isName ? "gui.name" : "ID");
-			this.initGui();
-			break;
-		}
+			case 11: {
+				this.setSubGui(new SubGuiEditText(11, Util.instance
+						.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				break;
+			}
+			case 12: {
+				if (!this.questData.containsKey(this.selectedQuest)) {
+					return;
+				}
+				GuiYesNo guiyesno = new GuiYesNo(this, this.questData.get(this.selectedQuest).getTitle(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
+				this.displayGuiScreen(guiyesno);
+				break;
+			}
+			case 13: {
+				if (!this.questData.containsKey(this.selectedQuest)) {
+					return;
+				}
+				this.setSubGui(new GuiQuestEdit(this.questData.get(this.selectedQuest)));
+				break;
+			}
+			case 14: {
+				GuiNPCManageQuest.isName = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			}
 		}
 	}
 
@@ -271,9 +269,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 		this.addButton(new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !this.selectedCategory.isEmpty()));
 		this.getButton(10).setEnabled(!selectedQuest.isEmpty());
 		this.addButton(new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", this.copyQuest != null));
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y + 17, 64, 14, GuiNPCManageQuest.isName ? "gui.name" : "ID");
-		checkBox.setSelected(GuiNPCManageQuest.isName);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(14, x, y + 17, 64, 14, "gui.name", "ID", GuiNPCManageQuest.isName));
 		// category buttons
 		y = this.guiTop + 134;
 		this.addLabel(new GuiNpcLabel(2, "gui.categories", x + 2, y));
@@ -318,7 +314,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 		List<String> h = Lists.newArrayList(), quests = Lists.newArrayList(), dialogs = Lists.newArrayList();
 		h.add(new TextComponentTranslation(quest.title).getFormattedText() + ":");
 		for (Quest q : qData.quests.values()) {
-			if (q.nextQuestid != quest.id) {
+			if (q.nextQuest != quest.id) {
 				continue;
 			}
 			quests.add(chr + "7ID:" + q.id + chr + "8 " + q.category.getName() + "/" + chr + "r"

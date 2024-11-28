@@ -1,17 +1,16 @@
 package noppes.npcs.client.gui.animation;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import noppes.npcs.LogWriter;
+import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
+import noppes.npcs.client.model.animation.*;
+import noppes.npcs.constants.EnumAnimationStages;
+import noppes.npcs.util.ValueUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -69,10 +68,6 @@ import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.ModelNpcAlt;
-import noppes.npcs.client.model.animation.AddedPartConfig;
-import noppes.npcs.client.model.animation.AnimationConfig;
-import noppes.npcs.client.model.animation.AnimationFrameConfig;
-import noppes.npcs.client.model.animation.PartConfig;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -88,24 +83,51 @@ public class SubGuiEditAnimation
 	public AnimationConfig anim;
 	public AnimationFrameConfig frame;
 	public PartConfig part;
+	public AddedPartConfig addedPartConfig;
+	public AnimationDamageHitbox hitbox;
 	private GuiCustomScroll scrollParts;
-	private int blockType, blockSize, toolType, waitKey, waitKeyID;
-	private boolean onlyCurrentPart, hovered, hasExtend, hoverRight, hoverLeft, isHitPox;
+	private GuiCustomScroll scrollHitboxes;
+	private int blockType;
+	private int blockSize;
+	private int toolType;
+	private int waitKey;
+	private int waitKeyID;
+	private boolean onlyCurrentPart;
+	private boolean hovered;
+	private boolean hasExtend;
+	private boolean hoverRight;
+	private boolean hoverLeft;
+	private boolean isHitbox = false;
 	private final EntityNPCInterface npcAnim;
     private final EntityNPCInterface npcPart;
 	private final String[] blockNames, blockSizes;
 	// display
-	private int workU, workV, workS, winU, winV, winW, winH, mousePressId, mousePressX, mousePressY;
-	private final float[] dispRot, dispPos;
-	private float dispScale, winScale, offsetY;
-	private final Map<String, PartConfig> dataParts;
-	private final List<Entity> environmentEntitys;
-	private final Map<BlockPos, IBlockState> environmentStates;
-	private final Map<BlockPos, TileEntity> environmentTiles;
+	private int workU;
+	private int workV;
+	private int workS;
+	private int winU;
+	private int winV;
+	private int winW;
+	private int winH;
+	private int mousePressId;
+	private int mousePressX;
+	private int mousePressY;
+	private final float[] dispRot;
+	private final float[] dispPos;
+	private float dispScale;
+	private float winScale;
+	private float offsetY;
+	private final Map<String, PartConfig> dataParts = new LinkedHashMap<>();
+	private final Map<String, AnimationDamageHitbox> dataHitboxes = new LinkedHashMap<>();
+	private final List<Entity> environmentEntitys= new ArrayList<>();
+	private final Map<BlockPos, IBlockState> environmentStates = new HashMap<>();
+	private final Map<BlockPos, TileEntity> environmentTiles = new HashMap<>();
 
-	private GuiNpcMiniWindow partNames, tools;
-	private double w = -1.0d, h = -1.0d;
-	private String hitBoxPartName = "";
+	private GuiNpcMiniWindow partNames;
+	private GuiNpcMiniWindow tools;
+	private GuiNpcMiniWindow hitboxes;
+	private double w = -1.0d;
+	private double h = -1.0d;
 	private float baseRotation = 0.0f;
 
 	public SubGuiEditAnimation(EntityNPCInterface npc, AnimationConfig anim, int id, GuiNpcAnimation parent) {
@@ -116,7 +138,8 @@ public class SubGuiEditAnimation
 		this.parent = parent;
 		this.anim = anim;
 		frame = anim.frames.get(0);
-		this.setPart(frame.parts.get(3));
+		setPart(frame.parts.get(3));
+		setHitbox(frame.damageHitboxes.get(0));
 		waitKey = 0;
 
 		// Display
@@ -127,23 +150,18 @@ public class SubGuiEditAnimation
 		winScale = 1.0f;
 		dispRot = new float[] { 45.0f, 345.0f, 345.0f };
 		dispPos = new float[] { 0.0f, 0.0f, 0.0f };
-		dataParts = Maps.newLinkedHashMap();
-		environmentEntitys = Lists.newArrayList();
-		environmentStates = Maps.newHashMap();
-		environmentTiles = Maps.newHashMap();
 		setEnvironment();
 		mousePressId = -1;
 		mousePressX = 0;
 		mousePressY = 0;
 		onlyCurrentPart = false;
-		hitBoxPartName = new TextComponentTranslation("animation.hitbox.part.name").getFormattedText();
 
 		npcAnim = Util.instance.copyToGUI(npc, mc.world, true);
 		npcAnim.display.setName(npc.getName()+"_animation");
 		baseRotation = npcAnim.rotationYaw;
 
 		npcPart = Util.instance.copyToGUI(npc, mc.world, true);
-		npcAnim.display.setName(npc.getName()+"_anim_part");
+		npcPart.display.setName(npc.getName()+"_anim_part");
 
 		blockNames = new String[6];
 		blockNames[0] = "gui.environment";
@@ -176,8 +194,17 @@ public class SubGuiEditAnimation
 	private void setPart(PartConfig partConfig) {
 		GuiNpcTextField.unfocus();
 		if (partConfig != null) { part = frame.parts.get(partConfig.id); }
-		ModelNpcAlt.editAnimDataSelect.part = part == null ? null : part.getEnumType();
-		if (this.tools != null && this.tools.visible) { this.showTools(); }
+		ModelNpcAlt.editAnimDataSelect.part = part == null || isHitbox ? null : part.getEnumType();
+		if (part != null && part.id > 7) { addedPartConfig = anim.getAddedPart(part.id); }
+		else { addedPartConfig = null; }
+		if (tools != null && tools.visible) { showTools(); }
+	}
+
+	private void setHitbox(AnimationDamageHitbox hitboxConfig) {
+		GuiNpcTextField.unfocus();
+		if (hitboxConfig != null) { hitbox = frame.damageHitboxes.get(hitboxConfig.id); }
+		ModelNpcAlt.editAnimDataSelect.part = null;
+		if (tools != null && tools.visible) { showTools(); }
 	}
 
 	@Override
@@ -185,8 +212,8 @@ public class SubGuiEditAnimation
 		switch (button.id) {
 			case 0: { // block place
 				blockType = button.getValue();
-				if (this.getButton(16) != null) {
-					this.getButton(16).setEnabled(blockType != 1);
+				if (getButton(16) != null) {
+					getButton(16).setEnabled(blockType != 1);
 				}
 				break;
 			}
@@ -204,8 +231,8 @@ public class SubGuiEditAnimation
 					return;
 				}
 				frame = anim.frames.get(button.getValue());
-				this.setPart(frame.parts.get(part.id));
-				this.initGui();
+				setPart(frame.parts.get(part.id));
+				initGui();
 				break;
 			}
 			case 4: { // add frame
@@ -213,7 +240,7 @@ public class SubGuiEditAnimation
 				if (GuiScreen.isShiftKeyDown()) { // Shift pressed
 					SubGuiEditText subgui = new SubGuiEditText(0, "" + anim.frames.size());
 					subgui.numbersOnly = new int[] { 0, anim.frames.size(), anim.frames.size() };
-					this.setSubGui(subgui);
+					setSubGui(subgui);
 				} else {
 					frame = (AnimationFrameConfig) anim.addFrame(-1, frame);
 					this.setPart(frame.parts.get(part.id));
@@ -243,12 +270,14 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 7: { // add part
+				if (anim == null || part == null || part.id == 6 || part.id == 7) { return; }
+				addedPartConfig = anim.addAddedPart(part.id);
+				frame = anim.frames.get(frame.id);
+				setPart(frame.parts.get(addedPartConfig.id));
 				break;
 			}
 			case 8: { // del part
-				if (part == null) {
-					return;
-				}
+				if (anim == null || addedPartConfig == null || part == null) { return; }
 				GuiYesNo guiyesno = new GuiYesNo(this,
 						new TextComponentTranslation("animation.clear.part", "" + (part.id + 1),
 								this.scrollParts.getSelected()).getFormattedText(),
@@ -278,7 +307,6 @@ public class SubGuiEditAnimation
 						f.parts.get(part.id).setDisable(part.isDisable());
 					}
 				}
-				((GuiNpcCheckBox) button).setText(part.isDisable() ? "gui.disabled" : "gui.enabled");
 				this.resetAnimation();
 				break;
 			}
@@ -292,7 +320,6 @@ public class SubGuiEditAnimation
 						f.setSmooth(frame.isSmooth());
 					}
 				}
-				((GuiNpcCheckBox) button).setText(frame.isSmooth() ? "gui.smooth" : "gui.linearly");
 				this.resetAnimation();
 				break;
 			}
@@ -399,7 +426,9 @@ public class SubGuiEditAnimation
 			}
 			case 21: { // npc show
 				onlyCurrentPart = !onlyCurrentPart;
+				//onlyCurrentPart = true;
 				button.txrX = onlyCurrentPart ? 144 : 188;
+				resetAnimation();
 				break;
 			}
 			case 22: { // show part
@@ -412,7 +441,6 @@ public class SubGuiEditAnimation
 						f.parts.get(part.id).setShow(part.isShow());
 					}
 				}
-				((GuiNpcCheckBox) button).setText(part.isShow() ? "gui.show" : "gui.noshow");
 				this.resetAnimation();
 				break;
 			}
@@ -459,50 +487,50 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 30: { // reset part set X
-				if (this.isHitPox) {
-					if (anim != null) {
-						if (toolType == 1) { anim.offsetHitbox[0] = 0.0f; }
-						else { anim.scaleHitbox[0] = 1.0f; }
+				if (isHitbox) {
+					if (hitbox != null) {
+						if (toolType == 1) { hitbox.offset[0] = 0.0f; }
+						else { hitbox.scale[0] = 1.0f; }
 						this.initGui();
 					}
 				} else if (part != null) {
 					switch (toolType) {
 						case 0: {
-							part.rotation[0] = 0.5f;
+							part.rotation[0] = 0.0f;
 							break;
 						}
 						case 1: {
-							part.offset[0] = 0.5f;
+							part.offset[0] = 0.0f;
 							break;
 						}
 						case 2: {
-							part.scale[0] = 0.2f;
+							part.scale[0] = 1.0f;
 							break;
 						}
 					}
-					this.initGui();
+					initGui();
 				}
 				break;
 			}
 			case 31: { // reset part set Y
-				if (this.isHitPox) {
-					if (anim != null) {
-						if (toolType == 1) { anim.offsetHitbox[1] = 0.0f; }
-						else { anim.scaleHitbox[1] = 1.0f; }
-						this.initGui();
+				if (isHitbox) {
+					if (hitbox != null) {
+						if (toolType == 1) { hitbox.offset[1] = 0.0f; }
+						else { hitbox.scale[1] = 1.0f; }
+						initGui();
 					}
 				} else if (part != null) {
 					switch (toolType) {
 						case 0: {
-							part.rotation[1] = 0.5f;
+							part.rotation[1] = 0.0f;
 							break;
 						}
 						case 1: {
-							part.offset[1] = 0.5f;
+							part.offset[1] = 0.0f;
 							break;
 						}
 						case 2: {
-							part.scale[1] = 0.2f;
+							part.scale[1] = 1.0f;
 							break;
 						}
 					}
@@ -511,39 +539,39 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 32: { // reset part set Z
-				if (this.isHitPox) {
-					if (anim != null) {
-						if (toolType == 1) { anim.offsetHitbox[2] = 0.0f; }
-						else { anim.scaleHitbox[2] = 1.0f; }
-						this.initGui();
+				if (isHitbox) {
+					if (hitbox != null) {
+						if (toolType == 1) { hitbox.offset[2] = 0.0f; }
+						else { hitbox.scale[2] = 1.0f; }
+						initGui();
 					}
 				} else if (part != null) {
 					switch (toolType) {
 						case 0: {
-							part.rotation[2] = 0.5f;
+							part.rotation[2] = 0.0f;
 							break;
 						}
 						case 1: {
-							part.offset[2] = 0.5f;
+							part.offset[2] = 0.0f;
 							break;
 						}
 						case 2: {
-							part.scale[2] = 0.2f;
+							part.scale[2] = 1.0f;
 							break;
 						}
 					}
-					this.initGui();
+					initGui();
 				}
 				break;
 			}
 			case 33: { // reset part set X1 rot
-				part.rotation[3] = 0.5f;
-				this.initGui();
+				part.rotation[3] = 0.0f;
+				initGui();
 				break;
 			}
 			case 34: { // reset part set Y1 rot
-				part.rotation[4] = 0.5f;
-				this.initGui();
+				part.rotation[4] = 0.0f;
+				initGui();
 				break;
 			}
 			case 35: { // show tools
@@ -573,7 +601,6 @@ public class SubGuiEditAnimation
 					}
 					else { anim.frames.get(0).isNowDamage = true; }
 				}
-				((GuiNpcCheckBox) button).setText(frame.isNowDamage() ? "animation.now.attack" : "animation.notyet.attack");
 				break;
 			}
 			case 37: { // right stack type
@@ -621,13 +648,16 @@ public class SubGuiEditAnimation
 			case 44: { // show Feet's
 				if (frame == null) { return; }
 				frame.showFeets = !frame.showFeets;
-				this.initGui();
+				initGui();
 				break;
 			}
-			case 45: { // show Feet's
-				if (anim == null) { return; }
-				anim.setDamageHitboxType(button.getValue());
-				this.initGui();
+			case 45: { // is hitbox
+				if (hitboxes == null) { showHitBoxes(); }
+				if (mwindows.containsKey(hitboxes.id)) { return; }
+				hitboxes.isMoving = false;
+				hitboxes.visible = true;
+				mwindows.put(hitboxes.id, hitboxes);
+				button.enabled = false;
 				break;
 			}
 			case 46: { // show alpha // show armor
@@ -704,16 +734,13 @@ public class SubGuiEditAnimation
 				this.initGui();
 				break;
 			}
-			case 2: { // remove part
-				if (frame == null || part == null || frame.parts.size() <= 6) {
-					return;
-				}
-				int f = part.id - 1;
-				if (f < 0) {
-					f = 0;
-				}
-				frame.removePart(part);
-				this.setPart(frame.parts.get(f));
+			case 2: { // remove added part
+				if (anim == null || addedPartConfig == null || part == null) { return; }
+				int f = addedPartConfig.id - 1;
+				if (f < 0) { f = 0; }
+				anim.removeAddedPart(addedPartConfig);
+				frame = anim.frames.get(frame.id);
+				setPart(frame.parts.get(f));
 				this.initGui();
 				break;
 			}
@@ -823,7 +850,10 @@ public class SubGuiEditAnimation
 		GlStateManager.disableBlend();
 	}
 
-	private void drawLine(double x, double y, double z, double dist, int type, float red, float green, float blue) {
+	/**
+	 * @param type 0:X; 1:Y; 2:Z
+	 */
+	 private void drawLine(double x, double y, double z, double dist, int type, float red, float green, float blue) {
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		GlStateManager.pushMatrix();
@@ -865,6 +895,7 @@ public class SubGuiEditAnimation
 		for (int i = 0; i < 2; i++) {
 			EntityNPCInterface dNpc = (i == 0 ? this.npcAnim : this.npcPart);
 			if (dNpc == null) { continue; }
+			dNpc.animation.updateTime();
 			dNpc.field_20061_w = this.npc.field_20061_w;
 			dNpc.field_20062_v = this.npc.field_20062_v;
 			dNpc.field_20063_u = this.npc.field_20063_u;
@@ -886,7 +917,7 @@ public class SubGuiEditAnimation
 					this.displayOffset(x, y);
 				} // LMB
 				else if (mousePressId == 1) {
-					this.displayRotate(x, y);
+					this.displayRotate(x, -y);
 				} // RMB
 				mousePressX = mouseX;
 				mousePressY = mouseY;
@@ -895,17 +926,19 @@ public class SubGuiEditAnimation
 			mousePressId = -1;
 		}
 		this.hovered = this.isMouseHover(mouseX, mouseY, workU + 1, workV + 1, workS - 2, workS - 2);
-		int dWheel = Mouse.getDWheel();
-		if (hovered && dWheel != 0) {
-			this.dispScale += this.dispScale * (dWheel < 0 ? 0.1f : -0.1f);
-			if (this.dispScale < 0.5f) {
-				this.dispScale = 0.5f;
-			} else if (this.dispScale > 5.0f) {
-				this.dispScale = 5.0f;
-			}
-			this.dispScale = (float) (Math.round(this.dispScale * 20.0d) / 20.0d);
-			if (this.dispScale == 0.95f || this.dispScale == 1.05f) {
-				this.dispScale = 1.0f;
+		if (hovered && !tools.hovered && !partNames.hovered) {
+			int dWheel = Mouse.getDWheel();
+			if (dWheel != 0) {
+				this.dispScale += this.dispScale * (dWheel < 0 ? 0.1f : -0.1f);
+				if (this.dispScale < 0.5f) {
+					this.dispScale = 0.5f;
+				} else if (this.dispScale > 5.0f) {
+					this.dispScale = 5.0f;
+				}
+				this.dispScale = (float) (Math.round(this.dispScale * 20.0d) / 20.0d);
+				if (this.dispScale == 0.95f || this.dispScale == 1.05f) {
+					this.dispScale = 1.0f;
+				}
 			}
 		}
 		// back place
@@ -1176,8 +1209,6 @@ public class SubGuiEditAnimation
 			this.setHoverText(new TextComponentTranslation("animation.hover.4").getFormattedText());
 		} else if (this.getButton(44) != null && this.getButton(44).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.5").getFormattedText());
-		} else if (this.getButton(45) != null && this.getButton(45).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("animation.hover.hitbox.type."+anim.getDamageHitboxType()).getFormattedText());
 		} else if (this.getButton(46) != null && this.getButton(46).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.show.alpha").getFormattedText());
 		} else if (this.getButton(47) != null && this.getButton(47).isMouseOver()) {
@@ -1218,17 +1249,17 @@ public class SubGuiEditAnimation
 		if (c instanceof GuiNpcSlider) {
 			switch(((GuiNpcSlider) c).id) {
 				case 0: {
-					if (this.isHitPox) { this.setHoverText(new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.d" : "scale.hb"), "X").getFormattedText()); }
+					if (isHitbox) { this.setHoverText(new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.d" : "scale.hb"), "X").getFormattedText()); }
 					else { this.setHoverText(new TextComponentTranslation("animation.hover." + (this.toolType == 0 ? "rotation" : this.toolType == 1 ? "offset" : "scale"), "X").getFormattedText()); }
 					break;
 				}
 				case 1: {
-					if (this.isHitPox) { this.setHoverText(new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.h" : "scale.hb"), "Y").getFormattedText()); }
+					if (isHitbox) { this.setHoverText(new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.h" : "scale.hb"), "Y").getFormattedText()); }
 					else { this.setHoverText(new TextComponentTranslation("animation.hover." + (this.toolType == 0 ? "rotation" : this.toolType == 1 ? "offset" : "scale"), "Y").getFormattedText()); }
 					break;
 				}
 				case 2: {
-					if (this.isHitPox) { this.setHoverText(new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.w" : "scale.hb"), "Z").getFormattedText()); }
+					if (isHitbox) { this.setHoverText(new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.w" : "scale.hb"), "Z").getFormattedText()); }
 					else { this.setHoverText(new TextComponentTranslation("animation.hover." + (this.toolType == 0 ? "rotation" : this.toolType == 1 ? "offset" : "scale"), "Z").getFormattedText()); }
 					break; }
 				case 3: { this.setHoverText(new TextComponentTranslation("animation.hover.rotation.x1").getFormattedText()); break; }
@@ -1238,17 +1269,17 @@ public class SubGuiEditAnimation
 			ITextComponent text = null;
 			switch(((GuiNpcTextField) c).getId()) {
 				case 5: {
-					if (this.isHitPox) { text = new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.d" : "scale.hb"), "X"); }
+					if (isHitbox) { text = new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.d" : "scale.hb"), "X"); }
 					else { text = new TextComponentTranslation("animation.hover." + (this.toolType == 0 ? "rotation" : this.toolType == 1 ? "offset" : "scale"), "X"); }
 					break;
 				}
 				case 6: {
-					if (this.isHitPox) { text = new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.h" : "scale.hb"), "Y"); }
+					if (isHitbox) { text = new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.h" : "scale.hb"), "Y"); }
 					else { text = new TextComponentTranslation("animation.hover." + (this.toolType == 0 ? "rotation" : this.toolType == 1 ? "offset" : "scale"), "Y"); }
 					break;
 				}
 				case 7: {
-					if (this.isHitPox) { text = new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.w" : "scale.hb"), "Z"); }
+					if (isHitbox) { text = new TextComponentTranslation("animation.hover." + (this.toolType == 1 ? "offset.w" : "scale.hb"), "Z"); }
 					else { text = new TextComponentTranslation("animation.hover." + (this.toolType == 0 ? "rotation" : this.toolType == 1 ? "offset" : "scale"), "Z"); }
 					break; }
 				case 8: { text = new TextComponentTranslation("animation.hover.rotation.x1"); break; }
@@ -1308,7 +1339,7 @@ public class SubGuiEditAnimation
 		GlStateManager.scale(-16.0f, -16.0f, -16.0f);
 		GlStateManager.scale(winScale, winScale, winScale);
 		int yH = blockType == 0 ? blockSize : 0;
-		Map<BlockPos, TileEntity> tiles = Maps.newHashMap();
+		Map<BlockPos, TileEntity> tiles = new HashMap<>();
 		for (int y = -yH; y <= yH; y++) {
 			for (int x = -blockSize; x <= blockSize; x++) {
 				for (int z = -blockSize; z <= blockSize; z++) {
@@ -1408,19 +1439,47 @@ public class SubGuiEditAnimation
 			RenderGlobal.drawSelectionBoundingBox(new AxisAlignedBB(showNPC.width / -2.0d, 0.0d, showNPC.width / -2.0d, showNPC.width / 2.0d, showNPC.height, showNPC.width / 2.0d), 1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.enableTexture2D();
 		}
-		if (anim.type == AnimationKind.ATTACKING && anim.getDamageHitboxType() > 0) {
-			AxisAlignedBB aabb;
-			if (anim.getDamageHitboxType() == 1) {
-				aabb = new AxisAlignedBB(-showNPC.width, 0.0d, -showNPC.width, showNPC.width, showNPC.height, showNPC.width);
-				IRayTraceVec data = Util.instance.getPosition(showNPC.posX, showNPC.posY, showNPC.posZ, showNPC.rotationYaw, 0.0d, 1.0d);
-				aabb = aabb.offset((float) (data.getX() - showNPC.posX), (float) (data.getY() - showNPC.posY), (float) (data.getZ() - showNPC.posZ));
-			}
-			else { aabb = this.anim.getDamageHitbox(showNPC); }
+		if (anim.type == AnimationKind.ATTACKING && frame.isNowDamage() && !frame.damageHitboxes.isEmpty()) {
 			GlStateManager.glLineWidth(2.0F);
 			GlStateManager.disableTexture2D();
-			RenderGlobal.drawSelectionBoundingBox(aabb, 0.878431f, 0.0f, 0.25098f, 1.0f);
+			for (AnimationDamageHitbox aDH : frame.damageHitboxes.values()) {
+				AxisAlignedBB aabb = aDH.getScaledDamageHitbox();
+
+				double yawRad = Math.toRadians(showNPC.rotationYaw + aDH.offset[2]);
+				double x = aDH.offset[0] * Math.sin(yawRad);
+				double y = aDH.offset[1] + 0.35d;
+				double z = aDH.offset[0] * Math.cos(yawRad);
+				double[] data = new double[] { x, y, z};
+
+				float r = 0.75f;
+				float g = 0.5f;
+				float b = 0.5f;
+				if (scrollHitboxes.selected == aDH.id) {
+					r = 1.0f;
+					g = 0.0f;
+					b = 0.25f;
+				} else if (scrollHitboxes.hover == aDH.id) {
+					r = 0.875f;
+					g = 0.0f;
+					b = 0.875f;
+				}
+				RenderGlobal.drawSelectionBoundingBox(aabb.offset(data[0], data[1], data[2]), r, g, b, 1.0f);
+			}
 			GlStateManager.enableTexture2D();
 		}
+
+		// Axes:
+		/*double xN = 0.0d;
+		double yN = 0.0d;
+		double zN = 0.0d;
+		if (isHitbox) {}
+		else {
+			ModelNpcAlt model = (ModelNpcAlt) ((RenderLiving<?>) Objects.requireNonNull(mc.getRenderManager().getEntityRenderObject(showNPC))).getMainModel();
+			GlStateManager.pushMatrix();
+			model.bipedBody.postRender(0.0625f);
+			for (int i = 0; i < 3; i++) { drawLine(xN, yN, zN, 0.5d / dispScale, i, 0.5f, 0.5f, 0.5f); }
+			GlStateManager.popMatrix();
+		}*/
 
 		ModelNpcAlt.editAnimDataSelect.displayNpc = showNPC;
 		this.mc.getRenderManager().renderEntity(showNPC, 0.0, 0.0, 0.0, 0.0f, showNPC.rotationYaw != 0.0f ? 1.0f : 0.0f, false);
@@ -1460,6 +1519,10 @@ public class SubGuiEditAnimation
 		if (frame.id < 0) {
 			frame = anim.frames.get(0);
 			if (frame.id < 0) { frame.id = 0; }
+		}
+		if (hitbox.id < 0) {
+			hitbox = frame.damageHitboxes.get(0);
+			if (hitbox.id < 0) { hitbox.id = 0; }
 		}
 		ScaledResolution sw = new ScaledResolution(this.mc);
 		if (this.w > 0.0d && this.h > 0.0d) {
@@ -1543,7 +1606,7 @@ public class SubGuiEditAnimation
 		// Frame
 		GuiNpcLabel label = new GuiNpcLabel(lId++, "animation.frames", x, (y += 24) - 10);
 		this.addLabel(label);
-		List<String> lFrames = Lists.newArrayList();
+		List<String> lFrames = new ArrayList<>();
 		for (int i = 0; i < anim.frames.size(); i++) { lFrames.add((i + 1) + "/" + anim.frames.size()); }
 		this.addButton(new GuiButtonBiDirectional(3, x, y, 60, 10, lFrames.toArray(new String[0]), frame.id));
 		button = new GuiNpcButton(4, x + label.width + 2, y - 10, 10, 10, ""); // add frame
@@ -1563,9 +1626,9 @@ public class SubGuiEditAnimation
 		button.txrH = 24;
 		button.enabled = anim.frames.size() > 1;
 		this.addButton(button);
-		button = new GuiNpcCheckBox(11, x + 62, y - 2, 74, 12, frame.isSmooth() ? "gui.smooth" : "gui.linearly");
-		((GuiNpcCheckBox) button).setSelected(frame.isSmooth());
-		this.addButton(button);
+
+		addButton(new GuiNpcCheckBox(11, x + 62, y - 2, 74, 12, "gui.smooth", "gui.linearly", frame.isSmooth()));
+
 		button = new GuiNpcButton(6, x + 126, y - 10, 10, 10, ""); // clear frame
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
@@ -1596,9 +1659,7 @@ public class SubGuiEditAnimation
 		}
 		if (anim.type == AnimationKind.ATTACKING) {
 			this.hasExtend = true;
-			button = new GuiNpcCheckBox(36, x, y += 14, 136, 12, frame.isNowDamage() ? "animation.now.attack" : "animation.notyet.attack");
-			((GuiNpcCheckBox) button).setSelected(frame.isNowDamage());
-			this.addButton(button);
+			addButton(new GuiNpcCheckBox(36, x, y += 14, 136, 12, "animation.now.attack", "animation.notyet.attack", frame.isNowDamage()));
 		}
 		this.addLabel(new GuiNpcLabel(lId++, "animation.hold.right", x + 20, y += 13));
 		button = new GuiNpcButton(37, x + 20, y += 9, 116, 10, new String[] { "animation.stack.type.0", "animation.stack.type.1", "animation.stack.type.3", "animation.stack.type.4", "animation.stack.type.5", "animation.stack.type.6", "animation.stack.type.7", "animation.stack.type.8" }, frame.getHoldRightStackType());
@@ -1627,22 +1688,43 @@ public class SubGuiEditAnimation
 		button.txrH = 24;
 		button.enabled = this.partNames == null || !this.partNames.visible;
 		button.layerColor = CustomNpcs.colorAnimHoverPart + 0xFF000000;
-		this.addButton(button);
+		addButton(button);
+		if (anim.type == AnimationKind.ATTACKING) {
+			button = new GuiNpcButton(45, workU + 2, y + 12, 8, 8, ""); // show hitbox names
+			button.texture = ANIMATION_BUTTONS;
+			button.hasDefBack = false;
+			button.isAnim = true;
+			button.txrX = 232;
+			button.txrW = 24;
+			button.txrH = 24;
+			button.enabled = hitboxes == null || !hitboxes.visible;
+			button.layerColor = 0xFFFAF700;
+			addButton(button);
+		}
+
 		if (this.scrollParts == null) { (this.scrollParts = new GuiCustomScroll(this, 0)).setSize(67, 112); }
 		dataParts.clear();
-		List<String> lParts = Lists.newArrayList();
+		List<String> lParts = new ArrayList<>();
 		for (int id : frame.parts.keySet()) {
 			PartConfig ps = frame.parts.get(id);
 			String key = new TextComponentTranslation(ps.name).getFormattedText();
 			dataParts.put(key, ps);
 			lParts.add(key);
 		}
-		if (anim.type == AnimationKind.ATTACKING) {
-			lParts.add(this.hitBoxPartName);
+		scrollParts.setListNotSorted(lParts);
+
+		dataHitboxes.clear();
+		if (scrollHitboxes == null) { (scrollHitboxes = new GuiCustomScroll(this, 1)).setSize(112, 112); }
+		List<String> lHitboxes = new ArrayList<>();
+		for (int id : frame.damageHitboxes.keySet()) {
+			AnimationDamageHitbox aDH = frame.damageHitboxes.get(id);
+            String key = aDH.getKey();
+			dataHitboxes.put(key, aDH);
+			lHitboxes.add(key);
 		}
-		this.scrollParts.setListNotSorted(lParts);
-		this.isHitPox = this.scrollParts.hasSelected() && this.scrollParts.getSelected().equals(this.hitBoxPartName);
-		if (this.isHitPox && this.toolType == 0) { this.toolType = 1; }
+		scrollHitboxes.setListNotSorted(lHitboxes);
+
+		if (isHitbox && toolType == 0) { toolType = 1; }
 		button = new GuiNpcButton(7, x + label.width + 2, y, 10, 10, ""); // add part
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
@@ -1650,7 +1732,7 @@ public class SubGuiEditAnimation
 		button.txrX = 96;
 		button.txrW = 24;
 		button.txrH = 24;
-		button.enabled = this.part != null;
+		button.enabled = anim != null && part != null && part.id != 6 && part.id != 7;
 		this.addButton(button);
 		button = new GuiNpcButton(8, x + label.width + 12, y, 10, 10, ""); // del part
 		button.texture = ANIMATION_BUTTONS;
@@ -1659,7 +1741,7 @@ public class SubGuiEditAnimation
 		button.txrX = 72;
 		button.txrW = 24;
 		button.txrH = 24;
-		button.enabled = this.part != null && this.part.id > 11;
+		button.enabled = anim != null && addedPartConfig != null && part != null && part.id > 8;
 		this.addButton(button);
 		button = new GuiNpcButton(9, x + 126, y, 10, 10, ""); // clear part
 		button.texture = ANIMATION_BUTTONS;
@@ -1669,12 +1751,11 @@ public class SubGuiEditAnimation
 		button.txrW = 24;
 		button.txrH = 24;
 		this.addButton(button);
-		button = new GuiNpcCheckBox(10, x, y += 10, 67, 14, part.isDisable() ? "gui.disabled" : "gui.enabled");
-		((GuiNpcCheckBox) button).setSelected(!part.isDisable());
-		this.addButton(button);
-		button = new GuiNpcCheckBox(22, x + 69, y, 67, 14, part.isShow() ? "gui.show" : "gui.noshow");
-		((GuiNpcCheckBox) button).setSelected(part.isShow());
-		this.addButton(button);
+
+		addButton(new GuiNpcCheckBox(10, x, y += 10, 67, 14, "gui.disabled", "gui.enabled", part.isDisable()));
+
+		addButton(new GuiNpcCheckBox(22, x + 69, y, 67, 14, "gui.show", "gui.noshow", part.isShow()));
+
 		StringBuilder color = new StringBuilder(Integer.toHexString(CustomNpcs.colorAnimHoverPart));
 		while (color.length() < 6) { color.insert(0, "0"); }
 		button = new GuiNpcButton(12, x, y += 15, 67, 10, color.toString()); // color hover
@@ -1773,16 +1854,6 @@ public class SubGuiEditAnimation
 		button.txrH = 24;
 		this.addButton(button);
 
-		if (anim.type == AnimationKind.ATTACKING) {
-			this.addLabel(new GuiNpcLabel(lId, "animation.hitbox.type", x, y += 15));
-			button = new GuiNpcButton(45, x, y + 9, 136, 10, new String[] { "animation.hitbox.0", "animation.hitbox.1", "animation.hitbox.2" }, anim.getDamageHitboxType());
-			button.texture = ANIMATION_BUTTONS;
-			button.hasDefBack = false;
-			button.isAnim = true;
-			button.txrY = 96;
-			this.addButton(button);
-		}
-
 		// Exit
 		button = new GuiNpcButton(66, x, winV + winH - 12, 50, 10, "gui.back"); // back
 		button.texture = ANIMATION_BUTTONS;
@@ -1873,7 +1944,6 @@ public class SubGuiEditAnimation
 		button.txrW = 24;
 		button.txrH = 24;
 		button.layerColor = toolType == 1 ? 0xFFFF8080 : 0xFFFFFFFF;
-		button.enabled = !this.isHitPox || anim.getDamageHitboxType() == 2;
 		this.addButton(button);
 		button = new GuiNpcButton(24, workU + 2, y += 16, 14, 14, ""); // tool rot
 		button.texture = ANIMATION_BUTTONS;
@@ -1883,7 +1953,7 @@ public class SubGuiEditAnimation
 		button.txrW = 24;
 		button.txrH = 24;
 		button.layerColor = toolType == 0 ? 0xFF80FF80 : 0xFFFFFFFF;
-		button.enabled = !this.isHitPox;
+		button.enabled = !isHitbox;
 		this.addButton(button);
 		button = new GuiNpcButton(25, workU + 2, y + 16, 14, 14, ""); // tool scale
 		button.texture = ANIMATION_BUTTONS;
@@ -1893,90 +1963,100 @@ public class SubGuiEditAnimation
 		button.txrW = 24;
 		button.txrH = 24;
 		button.layerColor = toolType == 2 ? 0xFF8080FF : 0xFFFFFFFF;
-		button.enabled = !this.isHitPox || anim.getDamageHitboxType() == 2;
 		this.addButton(button);
 
 		this.resetAnimation();
 
+
+
 		// Parts window
 		boolean vPN = this.partNames == null || this.partNames.visible;
-		this.showPartNames();
+		showPartNames();
 		this.partNames.visible = vPN;
 		this.partNames.objs = new Object[] { part, toolType };
 		// Tool window
 		boolean vT = this.tools == null || this.tools.visible;
-		this.showTools();
-		this.tools.visible = vT;
+		showTools();
+		tools.visible = vT;
+		if (anim.type == AnimationKind.ATTACKING) {
+			boolean vH = hitboxes == null || hitboxes.visible;
+			showHitBoxes();
+			hitboxes.visible = vH;
+		}
+
+		if (ModelNpcAlt.editAnimDataSelect.part != (part == null ? null : part.getEnumType())) { setPart(part); }
+	}
+
+	private void showHitBoxes() {
+		if (hitboxes == null) {
+			hitboxes = new GuiNpcMiniWindow(this, 2, workU + 18, workV + 12, 120, 118, new TextComponentTranslation("gui.hitboxes").getFormattedText() + ":");
+			hitboxes.widthTexture = 256;
+			hitboxes.heightTexture = 256;
+			hitboxes.setPoint(getButton(45));
+			hitboxes.setColorLine(0xFAF700);
+
+			hitboxes.addScroll(scrollHitboxes);
+			scrollHitboxes.guiLeft = hitboxes.guiLeft + 4;
+			scrollHitboxes.guiTop = hitboxes.guiTop + 12;
+		}
+		addMiniWindow(hitboxes);
 	}
 
 	private void showTools() {
 		int f = 11, h = 0;
 		int x = workU + 18;
-		int y = workV + workS - 75;
+		int y = workV + workS - 65;
 		GuiNpcTextField textField;
 		GuiNpcButton button;
-		boolean notNormal = this.toolType == 0 && this.part != null && (
-				(this.part instanceof AddedPartConfig && !((AddedPartConfig) this.part).isNormal) ||
-						(this.part.id >= 1 && this.part.id <= 5));
-		if (this.isHitPox) { notNormal = false; }
+		boolean notNormal = toolType == 0 && part != null &&
+				((addedPartConfig != null && !addedPartConfig.isNormal) || (part.id >= 1 && part.id <= 5));
+		if (isHitbox) { notNormal = false; }
 		y += notNormal ? -11 : 0;
-		if (this.tools != null) {
-			x = this.tools.guiLeft;
-			y = this.tools.guiTop;
-			h = this.tools.ySize;
+		if (tools != null) {
+			x = tools.guiLeft;
+			y = tools.guiTop;
+			h = tools.ySize;
 		}
-		this.tools = new GuiNpcMiniWindow(this, 1, x, y, 146, notNormal ? 60 : 38, new TextComponentTranslation("gui.tools").getFormattedText() + ":");
-		this.tools.widthTexture = 256;
-		this.tools.heightTexture = 256;
+		tools = new GuiNpcMiniWindow(this, 1, x, y, 146, notNormal ? 60 : 38, new TextComponentTranslation("gui.tools").getFormattedText() + ":");
+		tools.widthTexture = 256;
+		tools.heightTexture = 256;
 
 		x += 4;
 		y += 13;
 		for (int i = 0; i < 3; i++) {
-			this.tools.addLabel(new GuiNpcLabel(i, i == 0 ? (this.isHitPox ? "D:" : "X:") : i == 1 ? (this.isHitPox ? "H:" : "Y:") : (this.isHitPox ? "W:" : "Z:"), x, y + i * f));
+			tools.addLabel(new GuiNpcLabel(i, i == 0 ? (this.isHitbox ? "D:" : "X:") : i == 1 ? (this.isHitbox ? "H:" : "Y:") : (this.isHitbox ? "W:" : "Z:"), x, y + i * f));
 			float[] values;
-			if (this.isHitPox) {
-				if (toolType == 1) { values = new float[] { 0.0f + anim.offsetHitbox[0], 0.0f + anim.offsetHitbox[1], 0.0f + anim.offsetHitbox[2] }; }
-				else { values = new float[] { 0.0f + anim.scaleHitbox[0], 0.0f + anim.scaleHitbox[1], 0.0f + anim.scaleHitbox[2] }; }
-			} else {
-				values = toolType == 0 ? part.rotation : toolType == 1 ? part.offset : part.scale;
-			}
-			float[] datas = new float[values.length];
+			if (isHitbox && hitbox != null) { values = toolType == 1 ? hitbox.offset : hitbox.scale; }
+			else { values = toolType == 0 ? part.rotation : toolType == 1 ? part.offset : part.scale; }
+			float[] textToFields = new float[values.length];
+			float[] sliderValues = new float[values.length];
 			switch (toolType) {
-				case 1: {
+				case 1: { // o
 					for (int j = 0; j < values.length; j++) {
-						if (this.isHitPox) { datas[j] = 0.0f + values[i]; }
-						else { datas[j] = (float) (Math.round((10.0f * values[i] - 5.0f) * 1000.0f) / 1000.0d); }
-					}
-					if (this.isHitPox) {
-						values[i] = (float) (Math.round((0.1f * values[i] + 0.5f) * 1000.0f) / 1000.0d);
-						if (values[i] < 0.0f) { values[i] = 0.0f; }
-						else if (values[i] > 1.0f) { values[i] = 1.0f; }
+						textToFields[j] = Math.round(values[i] * 1000.0f) / 1000.0f;
+						sliderValues[j] = ValueUtil.correctFloat(values[i] * 0.1f + 0.5f, 0.0f, 1.0f);
 					}
 					break;
 				}
-				case 2: {
+				case 2: { // s
 					for (int j = 0; j < values.length; j++) {
-						if (this.isHitPox) { datas[j] = 0.0f + values[j]; }
-						else { datas[j] = (float) (Math.round(5000.0f * values[i]) / 1000.0d); }
-					}
-					if (this.isHitPox) {
-						values[i] = (float) (Math.round(values[i] * 500.0f) / 1000.0d);
-						if (values[i] < 0.0f) { values[i] = 0.0f; }
-						else if (values[i] > 1.0f) { values[i] = 1.0f; }
+						textToFields[j] = Math.round(values[i] * 1000.0f) / 1000.0f;
+						sliderValues[j] = ValueUtil.correctFloat(values[i] * 0.2f, 0.0f, 1.0f);
 					}
 					break;
 				}
-				default: {
+				default: { // r
 					for (int j = 0; j < values.length; j++) {
-						datas[j] = (float) (Math.round(3600.0f * values[i]) / 10.0d);
+						textToFields[j] = Math.round(values[i] * 180000.0f / Math.PI) / 1000.0f;
+						sliderValues[j] = ValueUtil.correctFloat(values[i] * 0.159155f + 0.5f, 0.0f, 1.0f);
 					}
 					break;
 				}
 			}
-			this.tools.addSlider(new GuiNpcSlider(this.tools, i, x + 9, y + i * f, 75, 8, values[i]));
-			textField = new GuiNpcTextField(i + 5, this.tools, x + 86, y + i * f, 42, 8, "" + datas[i]);
+			tools.addSlider(new GuiNpcSlider(tools, i, x + 9, y + i * f, 75, 8, sliderValues[i]));
+			textField = new GuiNpcTextField(i + 5, tools, x + 86, y + i * f, 42, 8, "" + textToFields[i]);
 			textField.setDoubleNumbersOnly();
-			double m = 0.0d, n = 360.0d;
+			double m = -180.0d, n = 180.0d;
 			if (toolType == 1) {
 				m = -5.0d;
 				n = 5.0d;
@@ -1984,8 +2064,8 @@ public class SubGuiEditAnimation
 				m = 0.0d;
 				n = 5.0d;
 			}
-            textField.setMinMaxDoubleDefault(m, n, datas[i]);
-            this.tools.addTextField(textField);
+            textField.setMinMaxDoubleDefault(m, n, textToFields[i]);
+            tools.addTextField(textField);
 			button = new GuiNpcButton(30 + i, x + 130, y + i * f, 8, 8, "X");
 			button.texture = ANIMATION_BUTTONS;
 			button.hasDefBack = false;
@@ -1993,17 +2073,18 @@ public class SubGuiEditAnimation
 			button.txrY = 96;
 			button.dropShadow = false;
 			button.setTextColor(0xFFDC0000);
-			this.tools.addButton(button);
+			tools.addButton(button);
 		}
-		if (!this.isHitPox && notNormal) {
+		if (!this.isHitbox && notNormal) {
 			y += 33;
-			this.tools.addLabel(new GuiNpcLabel(3, "X1:", x, y));
-			this.tools.addSlider(new GuiNpcSlider(this.tools, 3, x + 9, y , 75, 8, part.rotation[3]));
-			double value = Math.round(3600.0d * part.rotation[3]) / 10.0d;
-			textField = new GuiNpcTextField(8, this.tools, x + 86, y, 42, 8, "" + (float) value);
+			tools.addLabel(new GuiNpcLabel(3, "X1:", x, y));
+			float sliderValue = part.rotation[3] * 0.159155f + 0.5f;
+			float textToFields = Math.round(part.rotation[3] * 180000.0f / Math.PI) / 1000.0f;
+			tools.addSlider(new GuiNpcSlider(tools, 3, x + 9, y , 75, 8, sliderValue));
+			textField = new GuiNpcTextField(8, tools, x + 86, y, 42, 8, "" + textToFields);
 			textField.setDoubleNumbersOnly();
-			textField.setMinMaxDoubleDefault(0.0d, 360.0d, value);
-			this.tools.addTextField(textField);
+			textField.setMinMaxDoubleDefault(-180.0d, 180.0d, textToFields);
+			tools.addTextField(textField);
 			button = new GuiNpcButton(33, x + 130, y, 8, 8, "X");
 			button.texture = ANIMATION_BUTTONS;
 			button.hasDefBack = false;
@@ -2011,16 +2092,17 @@ public class SubGuiEditAnimation
 			button.txrY = 96;
 			button.dropShadow = false;
 			button.setTextColor(0xFFDC0000);
-			this.tools.addButton(button);
+			tools.addButton(button);
 
 			y += 11;
-			this.tools.addLabel(new GuiNpcLabel(4, "Y1:", x, y));
-			this.tools.addSlider(new GuiNpcSlider(this.tools, 4, x + 9, y , 75, 8, part.rotation[4]));
-			value = Math.round(1800.0d * part.rotation[4] + 900.0d) / 10.0d;
-			textField = new GuiNpcTextField(9, this.tools, x + 86, y, 42, 8, "" + (float) value);
+			tools.addLabel(new GuiNpcLabel(4, "Y1:", x, y));
+			sliderValue = part.rotation[4] * 0.159155f + 0.5f;
+			textToFields = Math.round(part.rotation[4] * 180000.0f / Math.PI) / 1000.0f;
+			tools.addSlider(new GuiNpcSlider(tools, 4, x + 9, y , 75, 8, sliderValue));
+			textField = new GuiNpcTextField(9, tools, x + 86, y, 42, 8, "" + textToFields);
 			textField.setDoubleNumbersOnly();
-			textField.setMinMaxDoubleDefault(90.0d, 270.0d, value);
-			this.tools.addTextField(textField);
+			textField.setMinMaxDoubleDefault(-90.0d, 90.0d, textToFields);
+			tools.addTextField(textField);
 			button = new GuiNpcButton(34, x + 130, y, 8, 8, "X");
 			button.texture = ANIMATION_BUTTONS;
 			button.hasDefBack = false;
@@ -2028,45 +2110,45 @@ public class SubGuiEditAnimation
 			button.txrY = 96;
 			button.dropShadow = false;
 			button.setTextColor(0xFFDC0000);
-			this.tools.addButton(button);
-			if (h != 72) { this.tools.moveOffset(0, -11); }
+			tools.addButton(button);
+			if (h != 72) { tools.moveOffset(0, -11); }
 		}
-		else if (h != 50) { this.tools.moveOffset(0, 11); }
+		else if (h != 50) { tools.moveOffset(0, 11); }
 		switch(this.toolType) {
 			case 1: {
-				this.tools.setPoint(this.getButton(23));
-				this.tools.setColorLine(0xFF8080);
+				tools.setPoint(this.getButton(23));
+				tools.setColorLine(0xFF8080);
 				break;
 			}
 			case 2: {
-				this.tools.setPoint(this.getButton(25));
-				this.tools.setColorLine(0x8080FF);
+				tools.setPoint(this.getButton(25));
+				tools.setColorLine(0x8080FF);
 				break;
 			}
 			default: {
-				this.tools.setPoint(this.getButton(24));
-				this.tools.setColorLine(0x80FF80);
+				tools.setPoint(this.getButton(24));
+				tools.setColorLine(0x80FF80);
 				break;
 			}
 		}
-		if (this.getButton(35) != null) { this.getButton(35).layerColor = this.tools.getColorLine() + 0xFF000000; }
-		this.addMiniWindow(this.tools);
+		if (this.getButton(35) != null) { this.getButton(35).layerColor = tools.getColorLine() + 0xFF000000; }
+		this.addMiniWindow(tools);
 	}
 
 	private void showPartNames() {
-		if (this.partNames == null) {
-			this.partNames = new GuiNpcMiniWindow(this, 0, workU + workS - 78, workV + 12, 75, 118, new TextComponentTranslation("gui.parts").getFormattedText() + ":");
-			this.partNames.widthTexture = 256;
-			this.partNames.heightTexture = 256;
-			this.partNames.setPoint(this.getButton(29));
-			this.partNames.setColorLine(CustomNpcs.colorAnimHoverPart);
+		if (partNames == null) {
+			partNames = new GuiNpcMiniWindow(this, 0, workU + workS - 78, workV + 12, 75, 118, new TextComponentTranslation("gui.parts").getFormattedText() + ":");
+			partNames.widthTexture = 256;
+			partNames.heightTexture = 256;
+			partNames.setPoint(getButton(29));
+			partNames.setColorLine(CustomNpcs.colorAnimHoverPart);
 
-			this.partNames.addScroll(this.scrollParts);
-			this.scrollParts.guiLeft = this.partNames.guiLeft + 4;
-			this.scrollParts.guiTop = this.partNames.guiTop + 12;
-			this.scrollParts.selected = this.part.id;
+			partNames.addScroll(scrollParts);
+			scrollParts.guiLeft = partNames.guiLeft + 4;
+			scrollParts.guiTop = partNames.guiTop + 12;
+			scrollParts.selected = part.id;
 		}
-		this.addMiniWindow(this.partNames);
+		addMiniWindow(partNames);
 	}
 
 	private boolean isPressAltAndKey(int key, int id) {
@@ -2178,15 +2260,15 @@ public class SubGuiEditAnimation
 	@Override
 	public void mouseDragged(GuiNpcSlider slider) {
 		float value = 0.0f;
-		if (this.isHitPox) {
-			if (anim == null || toolType == 0) { return; }
+		if (this.isHitbox) {
+			if (hitbox == null || toolType == 0) { return; }
 			if (toolType == 1) {
 				value = Math.round((10.0f * slider.sliderValue - 5.0f) * 1000.0f) / 1000.0f;
-				anim.offsetHitbox[slider.id] = value;
+				hitbox.offset[slider.id] = value;
 			}
 			else {
 				value = Math.round(5000.0f * slider.sliderValue) / 1000.0f;
-				anim.scaleHitbox[slider.id] = value;
+				hitbox.scale[slider.id] = value;
 			}
 			if (this.tools.getTextField(5 + slider.id) != null) { this.tools.getTextField(5 + slider.id).setText("" + value); }
 			return;
@@ -2194,24 +2276,25 @@ public class SubGuiEditAnimation
 		if (part == null) { return; }
 		if (slider.id == 3 || slider.id == 4) {
 			if (toolType != 0) { return; }
-			part.rotation[slider.id] = slider.sliderValue;
-			if (slider.id == 3) { value = Math.round(360000.0f * slider.sliderValue) / 1000.0f; }
-			else { value = Math.round(180000.0f * slider.sliderValue + 90000.0f) / 1000.0f; }
+			float pi = (float) Math.PI;
+			part.rotation[slider.id] = (2.0f * pi * slider.sliderValue - pi) / (slider.id == 4 ? 2.0f : 1.0f);
+			value = Math.round(360.0f * slider.sliderValue - 180.0f) / (slider.id == 4 ? 2.0f : 1.0f);
 		} else {
 			switch (toolType) {
 				case 0: { // r
-					part.rotation[slider.id] = slider.sliderValue;
-					value = Math.round(360000.0f * slider.sliderValue) / 1000.0f;
+					float pi = (float) Math.PI;
+					part.rotation[slider.id] = 2.0f * pi * slider.sliderValue - pi;
+					value = Math.round(360.0f * slider.sliderValue - 180.0f);
 					break;
 				}
 				case 1: { // o
-					part.offset[slider.id] = slider.sliderValue;
-					value = Math.round((10.0f * slider.sliderValue - 5.0f) * 100000.0f) / 100000.0f;
+					part.offset[slider.id] = slider.sliderValue * 10.0f - 5.0f;
+					value = Math.round(part.offset[slider.id] * 1000.0f) / 1000.0f;
 					break;
 				}
 				case 2: { // s
-					part.scale[slider.id] = slider.sliderValue;
-					value = Math.round(5000.0f * slider.sliderValue) / 1000.0f;
+					part.scale[slider.id] = slider.sliderValue * 5.0f;
+					value = Math.round(part.scale[slider.id] * 1000.0f) / 1000.0f;
 					break;
 				}
 			}
@@ -2246,24 +2329,37 @@ public class SubGuiEditAnimation
 		}
 		AnimationConfig ac = this.anim.copy();
 
-		this.npcAnim.animation.clear();
-		this.npcAnim.animation.setAnimation(ac, AnimationKind.EDITING);
-		this.npcAnim.setHealth(this.npcAnim.getMaxHealth());
-		this.npcAnim.deathTime = 0;
+		npcAnim.animation.clear();
+		npcAnim.animation.setAnimation(ac, AnimationKind.EDITING_All);
+		npcAnim.setHealth(npcAnim.getMaxHealth());
+		npcAnim.deathTime = 0;
 
-		ac = this.anim.copy();
+		ac = anim.copy();
 		ac.frames.clear();
 		ac.frames.put(0, frame);
 
-		this.npcPart.animation.clear();
-		this.npcAnim.animation.setAnimation(ac, AnimationKind.EDITING);
-		this.npcPart.setHealth(this.npcPart.getMaxHealth());
-		this.npcPart.deathTime = 0;
+		npcPart.animation.clear();
+		npcPart.animation.setAnimation(ac, AnimationKind.EDITING_PART);
+		npcPart.setHealth(npcPart.getMaxHealth());
+		npcPart.deathTime = 0;
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		this.setPart(dataParts.get(scroll.getSelected()));
+		 if (scroll.id == 0) {
+			 if (anim.type == AnimationKind.ATTACKING) {
+				 isHitbox = false;
+				 if (scrollHitboxes != null) { scrollHitboxes.selected = -1; }
+			 }
+			 setPart(dataParts.get(scroll.getSelected()));
+			 initGui();
+		 }
+		 else if (scroll.id == 1 && anim.type == AnimationKind.ATTACKING) {
+			 isHitbox = true;
+			 setHitbox(dataHitboxes.get(scroll.getSelected()));
+			 if (scrollParts != null) { scrollParts.selected = -1; }
+			 initGui();
+		 }
 		this.initGui();
 	}
 
@@ -2301,7 +2397,7 @@ public class SubGuiEditAnimation
 				}
 			}
 		}
-		List<Entity> entities = this.npc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(this.npc.getPosition()).grow(4.55d, 4.55d, 4.55d));
+		List<Entity> entities = npc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(this.npc.getPosition()).grow(4.55d, 4.55d, 4.55d));
 		for (Entity e : entities) {
 			if (e.equals(this.npc)) {
 				continue;
@@ -2389,10 +2485,10 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 5: { // X
-				if (this.isHitPox) {
-					if (anim == null || toolType == 0) { return; }
+				if (this.isHitbox) {
+					if (hitbox == null || toolType == 0) { return; }
 					float value = (float) textField.getDouble();
-					if (toolType == 1) { anim.offsetHitbox[0] = value; } else { anim.scaleHitbox[0] = value; }
+					if (toolType == 1) { hitbox.offset[0] = value; } else { hitbox.scale[0] = value; }
 					textField.setText("" + (float) Math.round(value * 1000.0d) / 1000.0f);
 					return;
 				}
@@ -2401,16 +2497,19 @@ public class SubGuiEditAnimation
 				if (part == null || !part.equals(p) || tType != toolType) { return; }
 				float value = 0.0f;
 				switch (toolType) {
-					case 0: {
-						p.rotation[0] = (value = (float) (textField.getDouble()) / 360.0f);
+					case 0: { // r
+						p.rotation[0] = (float) textField.getDouble() * (float) Math.PI / 180.0f;
+						value = (float) textField.getDouble() * 0.002778f + 0.5f;
 						break;
 					}
 					case 1: { // o
-						p.offset[0] = (value = 0.1f * (float) (textField.getDouble()) + 0.5f);
+						p.offset[0] = (float) textField.getDouble();
+						value = (float) textField.getDouble() * 0.1f + 0.5f;
 						break;
 					}
 					case 2: { // s
-						p.scale[0] = (value = (float) (textField.getDouble()) / 5.0f);
+						p.scale[0] = (float) textField.getDouble();
+						value = (float) textField.getDouble() * 0.2f;
 						break;
 					}
 				}
@@ -2422,10 +2521,10 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 6: { // Y
-				if (this.isHitPox) {
-					if (anim == null || toolType == 0) { return; }
+				if (this.isHitbox) {
+					if (hitbox == null || toolType == 0) { return; }
 					float value = (float) textField.getDouble();
-					if (toolType == 1) { anim.offsetHitbox[1] = value; } else { anim.scaleHitbox[1] = value; }
+					if (toolType == 1) { hitbox.offset[1] = value; } else { hitbox.scale[1] = value; }
 					textField.setText("" + (float) Math.round(value * 1000.0d) / 1000.0f);
 					return;
 				}
@@ -2434,16 +2533,19 @@ public class SubGuiEditAnimation
 				if (part == null || !part.equals(p) || tType != toolType) { return; }
 				float value = 0.0f;
 				switch (toolType) {
-					case 0: { // r
-						p.rotation[1] = (value = (float) (textField.getDouble()) / 360.0f);
+					case 0: {
+						p.rotation[1] = (float) textField.getDouble() * (float) Math.PI / 180.0f;
+						value = (float) textField.getDouble() * 0.002778f + 0.5f;
 						break;
 					}
-					case 1: { // o
-						p.offset[1] = (value = 0.1f * (float) (textField.getDouble()) + 0.5f);
+					case 1: {
+						p.offset[1] = (float) textField.getDouble();
+						value = (float) textField.getDouble() * 0.1f + 0.5f;
 						break;
 					}
-					case 2: { // s
-						p.scale[1] = (value = (float) (textField.getDouble()) / 5.0f);
+					case 2: {
+						p.scale[1] = (float) textField.getDouble();
+						value = (float) textField.getDouble() * 0.2f;
 						break;
 					}
 				}
@@ -2455,10 +2557,10 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 7: { // Z
-				if (this.isHitPox) {
-					if (anim == null || toolType == 0) { return; }
+				if (this.isHitbox) {
+					if (hitbox == null || toolType == 0) { return; }
 					float value = (float) textField.getDouble();
-					if (toolType == 1) { anim.offsetHitbox[2] = value; } else { anim.scaleHitbox[2] = value; }
+					if (toolType == 1) { hitbox.offset[2] = value; } else { hitbox.scale[2] = value; }
 					textField.setText("" + (float) Math.round(value * 1000.0d) / 1000.0f);
 					return;
 				}
@@ -2467,16 +2569,19 @@ public class SubGuiEditAnimation
 				if (part == null || !part.equals(p) || tType != toolType) { return; }
 				float value = 0.0f;
 				switch (toolType) {
-					case 0: { // r
-						p.rotation[2] = (value = (float) (textField.getDouble()) / 360.0f);
+					case 0: {
+						p.rotation[2] = (float) textField.getDouble() * (float) Math.PI / 180.0f;
+						value = (float) textField.getDouble() * 0.002778f + 0.5f;
 						break;
 					}
-					case 1: { // o
-						p.offset[2] = (value = 0.1f * (float) (textField.getDouble()) + 0.5f);
+					case 1: {
+						p.offset[2] = (float) textField.getDouble();
+						value = (float) textField.getDouble() * 0.1f + 0.5f;
 						break;
 					}
-					case 2: { // s
-						p.scale[2] = (value = (float) (textField.getDouble()) / 5.0f);
+					case 2: {
+						p.scale[2] = (float) textField.getDouble();
+						value = (float) textField.getDouble() * 0.2f;
 						break;
 					}
 				}
@@ -2491,8 +2596,8 @@ public class SubGuiEditAnimation
 				PartConfig p = (PartConfig) this.partNames.objs[0];
 				int tType = (int) this.partNames.objs[1];
 				if (part == null || !part.equals(p) || tType != toolType) { return; }
-				float value = (float) (textField.getDouble()) / 360.0f;
-				p.rotation[3] = value;
+				p.rotation[3] = (float) textField.getDouble() * (float) Math.PI / 180.0f;
+				float value = (float) textField.getDouble() * 0.002778f + 0.5f;
 				textField.setText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
 				if (this.tools.getSlider(3) != null) {
 					this.tools.getSlider(3).sliderValue = value;
@@ -2504,8 +2609,8 @@ public class SubGuiEditAnimation
 				PartConfig p = (PartConfig) this.partNames.objs[0];
 				int tType = (int) this.partNames.objs[1];
 				if (part == null || !part.equals(p) || tType != toolType) { return; }
-				float value = (float) (textField.getDouble()) * 0.0055556f - 0.5f;
-				p.rotation[4] = value;
+				p.rotation[4] = (float) textField.getDouble() * (float) Math.PI / 180.0f;
+				float value = (float) textField.getDouble() * 0.005556f + 0.5f;
 				textField.setText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
 				if (this.tools.getSlider(4) != null) {
 					this.tools.getSlider(4).sliderValue = value;
@@ -2514,9 +2619,9 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 10: { // chance
-				if (this.anim == null) { return; }
-				this.anim.chance = (float) Math.round(textField.getDouble() * 1000.0d) / 100000.0f;
-				textField.setText("" + (this.anim.chance * 100.0f));
+				if (anim == null) { return; }
+				anim.chance = (float) Math.round(textField.getDouble() * 1000.0d) / 100000.0f;
+				textField.setText("" + (anim.chance * 100.0f));
 				this.resetAnimation();
 				break;
 			}
@@ -2534,11 +2639,15 @@ public class SubGuiEditAnimation
 	@Override
 	public void closeMiniWindow(GuiNpcMiniWindow miniWindow) {
 		this.mwindows.remove(miniWindow.id);
-		if (this.getButton(29) != null) {
-			this.getButton(29).enabled = !this.mwindows.containsKey(this.partNames.id);
+		if (miniWindow.id == 0 && getButton(29) != null) {
+			getButton(29).enabled = !mwindows.containsKey(0);
 		}
-		if (this.getButton(35) != null) {
-			this.getButton(35).enabled = !this.mwindows.containsKey(this.tools.id);
+		if (miniWindow.id == 1 && getButton(35) != null) {
+			getButton(35).enabled = !mwindows.containsKey(1);
+		}
+		else
+		if (miniWindow.id == 2 && getButton(45) != null) {
+			getButton(45).enabled = !mwindows.containsKey(2);
 		}
 	}
 

@@ -84,7 +84,7 @@ public class GuiNpcQuestTypeDialog extends SubGuiInterface
 			break;
 		}
 		case 5: {
-			this.task.setPointOnMiniMap(((GuiNpcCheckBox) guibutton).isSelected());
+			task.setPointOnMiniMap(((GuiNpcCheckBox) guibutton).isSelected());
 			break;
 		}
 		case 10: {
@@ -223,8 +223,7 @@ public class GuiNpcQuestTypeDialog extends SubGuiInterface
 		this.addButton(new GuiNpcButton(10, x + 174, y += 17, 60, 20, "gui.set"));
 		this.addButton(new GuiNpcButton(11, x + 152, y, 20, 20, "TP"));
 
-		this.addButton(
-				new GuiNpcCheckBox(5, x + 42, y, 109, 16, "quest.set.minimap.point", this.task.isSetPointOnMiniMap()));
+		addButton(new GuiNpcCheckBox(5, x + 42, y, 109, 16, "quest.set.minimap.point", null, task.isSetPointOnMiniMap()));
 
 		this.addButton(new GuiNpcButton(66, x, y, 40, 20, "gui.back"));
 	}

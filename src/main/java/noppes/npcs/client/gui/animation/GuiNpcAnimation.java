@@ -96,10 +96,7 @@ public class GuiNpcAnimation
 				if (this.scrollType == null || !this.scrollType.hasSelected()) {
 					return;
 				}
-				this.setSubGui(new SubGuiEditText(1,
-						Util.instance
-								.deleteColor(new TextComponentTranslation(this.scrollType.getSelected()).getFormattedText()
-										+ "_" + aData.getUnusedAnimId())));
+				this.setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation(scrollType.getSelected()).getFormattedText()+ "_" + aData.getUnusedAnimId())));
 				break;
 			}
 			case 1: { // del anim
@@ -151,14 +148,15 @@ public class GuiNpcAnimation
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		AnimationConfig anim = this.getAnim();
-		if (anim != null && !this.hasSubGui() && this.npcAnim != null) {
-			npcAnim.field_20061_w = this.npc.field_20061_w;
-			npcAnim.field_20062_v = this.npc.field_20062_v;
-			npcAnim.field_20063_u = this.npc.field_20063_u;
-			npcAnim.field_20064_t = this.npc.field_20064_t;
-			npcAnim.field_20065_s = this.npc.field_20065_s;
-			npcAnim.field_20066_r = this.npc.field_20066_r;
-			npcAnim.ticksExisted = this.npc.ticksExisted;
+		if (anim != null && !hasSubGui() && npcAnim != null) {
+			npcAnim.animation.updateTime();
+			npcAnim.field_20061_w = npc.field_20061_w;
+			npcAnim.field_20062_v = npc.field_20062_v;
+			npcAnim.field_20063_u = npc.field_20063_u;
+			npcAnim.field_20064_t = npc.field_20064_t;
+			npcAnim.field_20065_s = npc.field_20065_s;
+			npcAnim.field_20066_r = npc.field_20066_r;
+			npcAnim.ticksExisted = npc.ticksExisted;
 			npcAnim.deathTime = 0;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft + 342.0f, this.guiTop + 15.0f, 0.0f);
@@ -268,16 +266,15 @@ public class GuiNpcAnimation
 	}
 
 	private void resetAnimation() {
-		AnimationConfig anim = this.getAnim();
-		if (anim == null || this.npcAnim == null) {
+		AnimationConfig anim = getAnim();
+		if (anim == null || npcAnim == null) {
 			return;
 		}
 		AnimationConfig ac = anim.copy();
-
-		this.npcAnim.animation.clear();
-		this.npcAnim.animation.setAnimation(ac, AnimationKind.EDITING);
-		this.npcAnim.setHealth(this.npcAnim.getMaxHealth());
-		this.npcAnim.deathTime = 0;
+		npcAnim.animation.clear();
+		npcAnim.animation.setAnimation(ac, AnimationKind.EDITING_All);
+		npcAnim.setHealth(npcAnim.getMaxHealth());
+		npcAnim.deathTime = 0;
 	}
 
 	@Override

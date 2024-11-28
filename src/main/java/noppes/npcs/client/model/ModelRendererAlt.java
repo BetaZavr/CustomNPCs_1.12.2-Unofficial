@@ -1,13 +1,10 @@
 package noppes.npcs.client.model;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import noppes.npcs.api.mixin.client.model.IModelRendererMixin;
+import noppes.npcs.api.util.IModelRenderer;
 import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
@@ -32,14 +29,17 @@ import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.items.CustomArmor;
 
-public class ModelRendererAlt extends ModelRenderer {
+public class ModelRendererAlt
+		extends ModelRenderer
+		implements IModelRenderer {
 
 	// Data
 	public EnumParts part;
-	public int idPart;
+	public int partId;
+	public int parentPartId = -1;
 
-	private final Map<Integer, PositionTextureVertex> vs = Maps.newHashMap(); // vs
-	private final Map<Integer, TexturedQuad> quads = Maps.newHashMap(); // fases
+	private final Map<Integer, PositionTextureVertex> vs = new HashMap<>(); // vs
+	private final Map<Integer, TexturedQuad> quads = new HashMap<>(); // fases
 	private final Vec2f[] tvs = new Vec2f[8];
 
 	public float x, y, z, xe, ye0, ye1, ye2, ze, dx, dy0, dy1, dy2, dz, u, v;
@@ -65,25 +65,25 @@ public class ModelRendererAlt extends ModelRenderer {
 	public ModelRendererAlt(ModelBase model, EnumParts part, int textureU, int textureV, boolean isNormal) {
 		super(model, textureU, textureV);
 		this.part = part;
-		this.idPart = part.patterns;
+		this.partId = part.patterns;
 		this.u = textureU;
 		this.v = textureV;
 		this.isNormal = isNormal;
 		this.baseRotationPoint = new float[] { this.rotationPointX, this.rotationPointY, this.rotationPointZ };
 	}
 
-	public ModelRendererAlt(ModelBase baseModel, AddedPartConfig part, DataAnimation animation) {
-		super(baseModel, part.textureU, part.textureV);
-		this.part = EnumParts.CUSTOM;
-		this.idPart = part.id;
-		this.u = part.textureU;
-		this.v = part.textureV;
-		this.isNormal = part.isNormal;
-		this.location = part.location;
-		this.setBox(part.pos[0], part.pos[1], part.pos[2], part.size[0], part.size[1], part.size[2], part.size[3], part.size[4], 0.0f);
-		this.setRotationPoint(part.rot[0], part.rot[1], part.rot[2]);
-		this.setAnimation(animation);
-		this.baseRotationPoint = new float[] { this.rotationPointX, this.rotationPointY, this.rotationPointZ };
+	public ModelRendererAlt(ModelBase baseModel, AddedPartConfig addedPartConfig) {
+		super(baseModel, addedPartConfig.textureU, addedPartConfig.textureV);
+		part = EnumParts.CUSTOM;
+		partId = addedPartConfig.id;
+		parentPartId = addedPartConfig.parentPart;
+		u = addedPartConfig.textureU;
+		v = addedPartConfig.textureV;
+		isNormal = addedPartConfig.isNormal;
+		location = addedPartConfig.location;
+		setBox(addedPartConfig.pos[0], addedPartConfig.pos[1], addedPartConfig.pos[2], addedPartConfig.size[0], addedPartConfig.size[1], addedPartConfig.size[2], addedPartConfig.size[3], addedPartConfig.size[4], 0.0f);
+		setRotationPoint(addedPartConfig.rot[0], addedPartConfig.rot[1], addedPartConfig.rot[2]);
+		baseRotationPoint = new float[] { rotationPointX, rotationPointY, rotationPointZ };
 	}
 
 	public ModelRendererAlt(ModelBase model) {
@@ -126,10 +126,10 @@ public class ModelRendererAlt extends ModelRenderer {
 		if (this.rotateAngleY != 0.0F) { GlStateManager.rotate(this.rotateAngleY * (180F / (float)Math.PI), 0.0F, 1.0F, 0.0F); }
 		if (this.rotateAngleX != 0.0F) { GlStateManager.rotate(this.rotateAngleX * (180F / (float)Math.PI), 1.0F, 0.0F, 0.0F); }
 
-		if (this.scaleX != 1.0f || this.scaleY != 1.0f || this.scaleZ != 1.0f || this.smallArms) {
-			float sx = this.scaleX;
-			if (this.smallArms) { sx *= this.dx / (this.dx + 1.0f); }
-			GlStateManager.scale(sx, this.scaleY, this.scaleZ);
+		if (scaleX != 1.0f || scaleY != 1.0f || scaleZ != 1.0f || smallArms) {
+			float sx = scaleX;
+			if (smallArms) { sx *= dx / (dx + 1.0f); }
+			GlStateManager.scale(sx, scaleY, scaleZ);
 		}
 	}
 
@@ -159,7 +159,7 @@ public class ModelRendererAlt extends ModelRenderer {
 		}
 		// Child Models
 		if (this.childModels != null && !this.childModels.isEmpty()) {
-			List<ModelRenderer> del = Lists.newArrayList();
+			List<ModelRenderer> del = new ArrayList<>();
 			for (ModelRenderer model : this.childModels) {
 				if (model instanceof ModelRendererAlt) {
 					((ModelRendererAlt) model).checkBacklightColor(r, g, b);
@@ -758,7 +758,7 @@ public class ModelRendererAlt extends ModelRenderer {
 		if (stack.hasTagCompound() && stack.getTagCompound() != null && stack.getTagCompound().hasKey("OBJTexture")) {
 			ResourceLocation mainTexture = ModelBuffer.getMainOBJTexture(armor.objModel);
 			if (mainTexture != null) {
-				map = Maps.newHashMap();
+				map = new HashMap<>();
 				map.put(mainTexture.toString(), stack.getTagCompound().getString("OBJTexture"));
 			}
 		}
@@ -796,58 +796,50 @@ public class ModelRendererAlt extends ModelRenderer {
 
 	public void setBaseData(ModelPartConfig config) {
 		if (config == null) {
-			this.offsetAnimX = 0.0f;
-			this.offsetAnimY = 0.0f;
-			this.offsetAnimZ = 0.0f;
-			this.scaleX = 1.0f;
-			this.scaleY = 1.0f;
-			this.scaleZ = 1.0f;
+			offsetAnimX = 0.0f;
+			offsetAnimY = 0.0f;
+			offsetAnimZ = 0.0f;
+			scaleX = 1.0f;
+			scaleY = 1.0f;
+			scaleZ = 1.0f;
 			return;
 		}
-		this.offsetAnimX = config.offset[0];
-		this.offsetAnimY = config.offset[1];
-		this.offsetAnimZ = config.offset[2];
-		this.scaleX = config.scale[0];
-		this.scaleY = config.scale[1];
-		this.scaleZ = config.scale[2];
+		offsetAnimX = config.offset[0];
+		offsetAnimY = config.offset[1];
+		offsetAnimZ = config.offset[2];
+		scaleX = config.scale[0];
+		scaleY = config.scale[1];
+		scaleZ = config.scale[2];
 	}
 
+	public void setAnimation(Float[] partSets) {
+		if (partSets == null) { return; }
+		rotateAngleX = partSets[0];
+		rotateAngleY = partSets[1];
+		rotateAngleZ = partSets[2];
+		offsetAnimX += partSets[3];
+		offsetAnimY += partSets[4];
+		offsetAnimZ += partSets[5];
+		scaleX *= partSets[6];
+		scaleY *= partSets[7];
+		scaleZ *= partSets[8];
+		if (partSets[9] != 0.0f && partSets[10] != 0.0f) {
+			rotateAngleX1 = partSets[9];
+			rotateAngleY1 = partSets[10];
+			if (isNormal) { isNormal = false; }
+		}
+		isAnimPart = partSets[0] != 0.0f || partSets[1] != 0.0f || partSets[2] != 0.0f || partSets[3] != 0.0f || partSets[4] != 0.0f || partSets[5] != 0.0f || partSets[6] != 1.0f || partSets[7] != 1.0f || partSets[8] != 1.0f || partSets[9] != 0.0f || partSets[10] != 0.0f;
+	}
 	/**
 	 * @param animation = rots[ 0:rotX, 1:rotY, 2:rotZ, 3:ofsX, 4:ofsY, 5:ofsZ, 6:scX, 7:scY, 8:scZ, 9:rotX1, 10:rotY1 ]
 	 */
 	public void setAnimation(DataAnimation animation) {
-		if (!this.showModel) { return; }
-		if (animation.currentFrame != null && animation.currentFrame.parts.containsKey(this.idPart)) {
-			this.showModel = animation.currentFrame.parts.get(this.idPart).show;
+		if (!showModel) { return; }
+		if (animation.currentFrame != null && animation.currentFrame.parts.containsKey(partId)) {
+			showModel = animation.currentFrame.parts.get(partId).show;
 		}
-		if (!this.showModel) { return; }
-		Float[] partSets = animation.rots.get(this.idPart);
-		if (partSets != null) {
-			this.rotateAngleX = partSets[0];
-			this.rotateAngleY = partSets[1];
-			this.rotateAngleZ = partSets[2];
-			this.offsetAnimX += partSets[3];
-			this.offsetAnimY += partSets[4];
-			this.offsetAnimZ += partSets[5];
-			this.scaleX *= partSets[6];
-			this.scaleY *= partSets[7];
-			this.scaleZ *= partSets[8];
-			if (partSets[9] != 0.0f && partSets[10] != 0.0f) {
-				this.rotateAngleX1 = partSets[9];
-				this.rotateAngleY1 = partSets[10];
-				if (this.isNormal) { this.isNormal = false; }
-			}
-			this.isAnimPart = partSets[0] != 0.0f || partSets[1] != 0.0f || partSets[2] != 0.0f || partSets[3] != 0.0f || partSets[4] != 0.0f || partSets[5] != 0.0f || partSets[6] != 1.0f || partSets[7] != 1.0f || partSets[8] != 1.0f || partSets[9] != 0.0f || partSets[10] != 0.0f;
-		}
-		if (animation.addParts.containsKey(this.idPart)) {
-			ModelBase baseModel = ((IModelRendererMixin) this).npcs$getBaseModel();
-			if (baseModel != null) {
-				for (AddedPartConfig part : animation.addParts.get(this.idPart)) {
-					ModelRendererAlt child = new ModelRendererAlt(baseModel, part, animation);
-					this.addChild(child);
-				}
-			}
-		}
+		if (!showModel) { return; }
+		setAnimation(animation.rots.get(partId));
 	}
 
 	@Override
@@ -861,22 +853,40 @@ public class ModelRendererAlt extends ModelRenderer {
 	}
 
 	public void clearRotations() {
-		this.rotationPointX = this.baseRotationPoint[0];
-		this.rotationPointY = this.baseRotationPoint[1];
-		this.rotationPointZ = this.baseRotationPoint[2];
-		this.rotateAngleX = 0.0f;
-		this.rotateAngleY = 0.0f;
-		this.rotateAngleZ = 0.0f;
-		this.rotateAngleX1 = 0.0f;
-		this.rotateAngleY1 = 0.0f;
-		this.offsetAnimX = 0.0f;
-		this.offsetAnimY = 0.0f;
-		this.offsetAnimZ = 0.0f;
-		this.scaleX = 1.0f;
-		this.scaleY = 1.0f;
-		this.scaleZ = 1.0f;
-		this.isAnimPart = false;
-		this.showModel = true;
+		rotationPointX = baseRotationPoint[0];
+		rotationPointY = baseRotationPoint[1];
+		rotationPointZ = baseRotationPoint[2];
+		rotateAngleX = 0.0f;
+		rotateAngleY = 0.0f;
+		rotateAngleZ = 0.0f;
+		rotateAngleX1 = 0.0f;
+		rotateAngleY1 = 0.0f;
+		offsetAnimX = 0.0f;
+		offsetAnimY = 0.0f;
+		offsetAnimZ = 0.0f;
+		scaleX = 1.0f;
+		scaleY = 1.0f;
+		scaleZ = 1.0f;
+		isAnimPart = false;
+		showModel = true;
+	}
+
+	@Override
+	public boolean isShowModel() { return showModel; }
+
+	@Override
+	public float[] getRotations() {
+		return new float[] { rotateAngleX, rotateAngleY, rotateAngleZ, rotateAngleX1, rotateAngleY1 };
+	}
+
+	@Override
+	public float[] getOffsets() {
+		return new float[] { offsetAnimX, offsetAnimY, offsetAnimZ };
+	}
+
+	@Override
+	public float[] getScales() {
+		return new float[] { scaleX, scaleY, scaleZ };
 	}
 
 }

@@ -892,7 +892,6 @@ public class PacketHandlerPlayer {
 				DataAnimation animation = PlayerData.get((EntityPlayer) entity).animation;
 				if (animation != null) {
 					animation.stopAnimation();
-					//EventHooks.onPlayerStopAnimation((EntityPlayer) entity, buffer.readInt(), buffer.readInt());
 				}
 			}
 		} else if (type == EnumPlayerPacket.OpenGui) {

@@ -37,9 +37,7 @@ public class GuiScriptEncrypt extends SubGuiInterface {
 			if (!(button instanceof GuiNpcCheckBox)) {
 				return;
 			}
-			GuiNpcCheckBox checkBox = (GuiNpcCheckBox) button;
-			this.onlyTab = checkBox.isSelected();
-			checkBox.setText(this.onlyTab ? "encrypt.only.tab" : "encrypt.all.scripts");
+			onlyTab = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		case 1: {
@@ -86,10 +84,7 @@ public class GuiScriptEncrypt extends SubGuiInterface {
 		GuiNpcTextField textField = new GuiNpcTextField(0, this, x, y, 166, 20, "default");
 		textField.prohibitedSpecialChars = GuiNpcTextField.filePath;
 		this.addTextField(textField);
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(0, x + 1, y += 22, 164, 16, "");
-		checkBox.setText(this.onlyTab ? "encrypt.only.tab" : "encrypt.all.scripts");
-		checkBox.setSelected(this.onlyTab);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(0, x + 1, y += 22, 164, 16, "encrypt.only.tab", "encrypt.all.scripts", onlyTab));
 		this.addButton(new GuiNpcButton(66, x, y += 20, 82, 20, "gui.back"));
 		this.addButton(new GuiNpcButton(1, x + 84, y, 82, 20, "gui.encrypt"));
 	}

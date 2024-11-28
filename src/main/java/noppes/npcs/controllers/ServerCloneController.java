@@ -197,17 +197,17 @@ public class ServerCloneController implements ICloneHandler {
 	public void saveClone(int tab, String name, NBTTagCompound compound) {
 		try {
 			File dir = new File(this.getDir(), tab + "");
-			if (!dir.exists()) {
-				dir.mkdir();
+			if (!dir.exists() && !dir.mkdirs()) {
+				LogWriter.error("Error save server clone: Directory not created!");
+				return;
 			}
 			String filename = name + ".json";
 			File file = new File(dir, filename + "_new");
 			File file2 = new File(dir, filename);
 			Util.instance.saveFile(file, compound);
-			if (file2.exists()) {
-				file2.delete();
+			if (file2.exists() && !file2.delete() || !file.renameTo(file2)) {
+				LogWriter.error("Error save server clone: Delete or rename file2!");
 			}
-			file.renameTo(file2);
 		} catch (Exception e) {
 			LogWriter.except(e);
 		}

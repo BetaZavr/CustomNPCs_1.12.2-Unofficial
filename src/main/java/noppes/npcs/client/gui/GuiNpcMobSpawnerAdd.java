@@ -64,9 +64,9 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCall
 
 	public void confirmClicked(boolean confirm, int id) {
 		if (confirm) {
-			String name = this.getTextField(0).getText();
+			String name = getTextField(0).getText();
 			if (!GuiNpcMobSpawnerAdd.serverSide) {
-				ClientCloneController.Instance.addClone(this.compound, name, GuiNpcMobSpawnerAdd.tab);
+				ClientCloneController.Instance.addClone(compound, name, GuiNpcMobSpawnerAdd.tab);
 			} else {
 				Client.sendData(EnumPacketServer.CloneSave, name, GuiNpcMobSpawnerAdd.tab);
 			}

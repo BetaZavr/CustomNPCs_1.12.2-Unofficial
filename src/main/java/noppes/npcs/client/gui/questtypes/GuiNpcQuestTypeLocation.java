@@ -72,7 +72,7 @@ public class GuiNpcQuestTypeLocation extends SubGuiInterface implements ITextfie
 			break;
 		}
 		case 5: {
-			this.task.setPointOnMiniMap(((GuiNpcCheckBox) guibutton).isSelected());
+			task.setPointOnMiniMap(((GuiNpcCheckBox) guibutton).isSelected());
 			break;
 		}
 		case 11: {
@@ -177,8 +177,7 @@ public class GuiNpcQuestTypeLocation extends SubGuiInterface implements ITextfie
 
 		this.addButton(new GuiNpcButton(10, x + 185, y += 19, 60, 20, "gui.set"));
 		this.addButton(new GuiNpcButton(11, x + 163, y, 20, 20, "TP"));
-		this.addButton(
-				new GuiNpcCheckBox(5, x, y, 160, 16, "quest.set.minimap.point", this.task.isSetPointOnMiniMap()));
+		addButton(new GuiNpcCheckBox(5, x, y, 160, 16, "quest.set.minimap.point", null, task.isSetPointOnMiniMap()));
 
 		this.addButton(new GuiNpcButton(66, x, this.guiTop + this.ySize - 25, 98, 20, "gui.back"));
 	}

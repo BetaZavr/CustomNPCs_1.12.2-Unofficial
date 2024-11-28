@@ -29,32 +29,26 @@ public class SubGuiNpcJobHealerSettings extends SubGuiInterface implements IText
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 1: {
-			this.hs.type = (byte) button.getValue();
-			break;
-		}
-		case 2: {
-			this.hs.isMassive = button.getValue() == 0;
-			break;
-		}
-		case 3: {
-			if (!(button instanceof GuiNpcCheckBox)) {
-				return;
+			case 1: {
+				this.hs.type = (byte) button.getValue();
+				break;
 			}
-			this.hs.onHimself = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 4: {
-			if (!(button instanceof GuiNpcCheckBox)) {
-				return;
+			case 2: {
+				this.hs.isMassive = button.getValue() == 0;
+				break;
 			}
-			this.hs.possibleOnMobs = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 66: {
-			this.close();
-			break;
-		}
+			case 3: {
+				hs.onHimself = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			}
+			case 4: {
+				hs.possibleOnMobs = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			}
+			case 66: {
+				this.close();
+				break;
+			}
 		}
 	}
 
@@ -130,14 +124,9 @@ public class SubGuiNpcJobHealerSettings extends SubGuiInterface implements IText
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 88, this.guiTop + y, 80, 20,
 				new String[] { "beacon.massive", "beacon.not.massive" }, this.hs.isMassive ? 0 : 1));
 		y += 24;
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(3, this.guiLeft + 10, this.guiTop + y, 168, 20,
-				"beacon.on.him.self");
-		checkBox.setSelected(this.hs.onHimself);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(3, this.guiLeft + 10, this.guiTop + y, 168, 20, "beacon.on.him.self", null, hs.onHimself));
 		y += 17;
-		checkBox = new GuiNpcCheckBox(4, this.guiLeft + 10, this.guiTop + y, 168, 20, "beacon.on.mobs");
-		checkBox.setSelected(this.hs.possibleOnMobs);
-		this.addButton(checkBox);
+		addButton(new GuiNpcCheckBox(4, this.guiLeft + 10, this.guiTop + y, 168, 20, "beacon.on.mobs", null, hs.possibleOnMobs));
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 61, this.guiTop + this.ySize - 24, 45, 20, "gui.done"));
 	}
 

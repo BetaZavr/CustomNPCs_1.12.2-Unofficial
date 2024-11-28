@@ -321,8 +321,8 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 		this.addButton(new GuiNpcButton(6, x + 105, y, 60, 14, "selectServer.edit"));
 		this.getButton(6).enabled = quest.extraButton > 0;
 
-		this.addButton(new GuiNpcCheckBox(7, x, (y += 17), 239, 14, "quest.show.progress.in.chat", this.quest.showProgressInChat));
-		this.addButton(new GuiNpcCheckBox(8, x, y + 16, 239, 14, "quest.show.progress.in.window", this.quest.showProgressInWindow));
+		this.addButton(new GuiNpcCheckBox(7, x, (y += 17), 239, 14, "quest.show.progress.in.chat", "", quest.showProgressInChat));
+		this.addButton(new GuiNpcCheckBox(8, x, y + 16, 239, 14, "quest.show.progress.in.window", "", quest.showProgressInWindow));
 
 		this.addButton(new GuiNpcButton(66, x, this.guiTop + this.ySize - 19, 60, 14, "gui.done"));
 	}

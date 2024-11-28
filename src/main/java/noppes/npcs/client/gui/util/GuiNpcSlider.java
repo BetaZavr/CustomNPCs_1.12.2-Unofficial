@@ -68,8 +68,20 @@ implements IComponentGui {
 			w = this.height;
 			h = this.width;
 		}
-		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-				&& mouseY < this.y + this.height;
+		hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+		if (hovered) {
+			int dWheel = Mouse.getDWheel();
+			if (dWheel != 0) {
+				float f = (dWheel < 0 ? -1.0f : 1.0f) / width;
+				float t = sliderValue + f;
+				if (t < 0) { t += 1.0f; }
+				else if (t > 1.0f) { t -= 1.0f; }
+				sliderValue = ValueUtil.correctFloat(t, 0.0f, 1.0f);
+				if (listener != null) {
+					listener.mouseDragged(this);
+				}
+			}
+		}
 		if (this.isVertical) {
 			GlStateManager.translate(h, 0.0f, 0.0f);
 			GlStateManager.rotate(90.0f, 0.0f, 0.0f, 1.0f);
