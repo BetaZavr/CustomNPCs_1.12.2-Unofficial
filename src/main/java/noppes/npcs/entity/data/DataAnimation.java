@@ -128,19 +128,13 @@ public class DataAnimation implements INPCAnimation {
 	}
 
 	private float calcValue(float value_0, float value_1, float speed, float ticks, boolean isSmooth, float partialTicks) {
-		if (speed <= 0) { return 0.0f; }
-		if (ticks > speed || ticks < 0.0f) {
-			if (ticks > speed) { ticks = speed; } else { ticks = 0.0f; }
-			partialTicks = 0.0f;
+		if (speed <= 0 || ticks < 0.0f) { return value_0; }
+		float progress = Math.min((ticks + partialTicks) / speed, 1.0f);
+		if (progress >= 1.0f) { return value_1; }
+		if (isSmooth) { // Apply antialiasing if necessary
+			progress = -0.5f * MathHelper.cos(progress * (float) Math.PI) + 0.5f;
 		}
-		float val = ticks / speed;
-		float valNext = (ticks + 1) / speed;
-		if (isSmooth) {
-			val = -0.5f * MathHelper.cos(val * (float) Math.PI) + 0.5f;
-			valNext = -0.5f * MathHelper.cos(valNext * (float) Math.PI) + 0.5f;
-		}
-		float f = val + (valNext - val) * partialTicks;
-        return value_0 + (value_1 - value_0) * f;
+		return value_0 + (value_1 - value_0) * progress;
 	}
 
 	@Override
@@ -282,9 +276,7 @@ public class DataAnimation implements INPCAnimation {
 		showArmorParts.put(EnumParts.LEG_LEFT, currentFrame.showLegs);
 		showArmorParts.put(EnumParts.FEET_RIGHT, currentFrame.showFeets);
 		showArmorParts.put(EnumParts.FEET_LEFT, currentFrame.showFeets);
-if (stage == EnumAnimationStages.Ending) {
-	//System.out.println("CNPCs: " + stage + "; " + speed + "/" + ticks + "; {" + currentFrame.id + " -> " + nextFrame.id + "/" + activeAnimation.frames.size() + "}; " + activeAnimation.endingFrameTicks);
-}
+
 		// calculation of exact values for a body part
 		rots.clear();
 		if (currentFrame.delay != 0) { ticks -= currentFrame.delay; }
@@ -315,10 +307,8 @@ if (stage == EnumAnimationStages.Ending) {
 						default: {
 							value_0 = part0.rotation[a];
 							value_1 = part1.rotation[a];
-							// adjusting the nearest number
-							// example: to rotate in a circle
-							float result =  value_0 - value_1;
-							if (Math.abs(result) > Math.PI) {
+							float result =  value_0 - value_1; // adjusting the nearest number
+							if (Math.abs(result) > Math.PI) { // example: to rotate in a circle
 								value_1 = result;
 							}
 							value_0 *= correctorRotations;
@@ -326,7 +316,7 @@ if (stage == EnumAnimationStages.Ending) {
 							break;
 						}
 					}
-					values[t * 3 + a] = calcValue(value_0, value_1, speed - 1, ticks, currentFrame.isSmooth(), partialTicks);
+					values[t * 3 + a] = calcValue(value_0, value_1, speed, ticks, currentFrame.isSmooth(), partialTicks);
 				}
 			}
 			rots.put(part0.id, values);
@@ -539,7 +529,7 @@ if (stage == EnumAnimationStages.Ending) {
 							break;
 						}
 					}
-					values[t * 2 + a] = this.calcValue(value_0, value_1, speed - 1, ticks, currentEmotionFrame.isSmooth(), pt);
+					values[t * 2 + a] = this.calcValue(value_0, value_1, speed, ticks, currentEmotionFrame.isSmooth(), pt);
 					if (t != 0) { values[t * 2 + a] /= 2 * (float) Math.PI; }
 				}
 			}
