@@ -2,8 +2,6 @@ package noppes.npcs.entity.data;
 
 import java.util.*;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -36,9 +34,9 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	private final Map<String, Integer> attributeSlotsName;
 	private final DataInventory npcInv;
-	public List<AttributeSet> attributes = Lists.newArrayList();
-	public List<EnchantSet> enchants = Lists.newArrayList();
-	public List<DropNbtSet> tags = Lists.newArrayList();
+	public List<AttributeSet> attributes = new ArrayList<>();
+	public List<EnchantSet> enchants = new ArrayList<>();
+	public List<DropNbtSet> tags = new ArrayList<>();
 	public IItemStack item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(ItemStack.EMPTY);
 	public int questId = 0;
 	public int pos = 0;

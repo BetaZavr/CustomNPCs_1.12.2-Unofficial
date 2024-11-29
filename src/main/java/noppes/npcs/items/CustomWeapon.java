@@ -1,10 +1,10 @@
 package noppes.npcs.items;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
 public class CustomWeapon extends ItemSword implements ICustomElement {
 
 	protected NBTTagCompound nbtData;
-	protected Set<Block> effectiveBlocks = Sets.newHashSet();
+	protected Set<Block> effectiveBlocks = new HashSet<>();
 	protected float efficiency = 1.0f;
 	protected Material collectionMaterial = null;
 	protected float speedCollectionMaterial = 1.0f;

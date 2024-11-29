@@ -2,11 +2,8 @@ package noppes.npcs.controllers;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
-import com.google.common.collect.Maps;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -40,9 +37,9 @@ public class PlayerSkinController {
 		File file = CustomNpcs.Dir;
 		return file != null && !PlayerSkinController.instance.filePath.equals(file.getName());
 	}
-	public final Map<UUID, String> playerNames = Maps.newHashMap();
+	public final Map<UUID, String> playerNames = new HashMap<>();
 
-	public final Map<UUID, Map<Type, ResourceLocation>> playerTextures = Maps.newHashMap();
+	public final Map<UUID, Map<Type, ResourceLocation>> playerTextures = new HashMap<>();
 
 	private String filePath;
 
@@ -122,7 +119,7 @@ public class PlayerSkinController {
 		UUID uuid = nbtSkin.getUniqueId("UUID");
 		playerNames.put(uuid, nbtSkin.getString("Player"));
 		if (!playerTextures.containsKey(uuid)) {
-			playerTextures.put(uuid, Maps.newEnumMap(Type.class));
+			playerTextures.put(uuid, new EnumMap<>(Type.class));
 		}
 		Map<Type, ResourceLocation> skins = playerTextures.get(uuid);
 		for (int i = 0; i < nbtSkin.getTagList("Textures", 10).tagCount(); i++) {
@@ -217,7 +214,7 @@ public class PlayerSkinController {
 			int face, int eyesColor, int leg, int jacket, int shoes, int... peculiarities) {
 		UUID uuid = player.getUniqueID();
 		if (!playerTextures.containsKey(uuid)) {
-			playerTextures.put(uuid, Maps.newEnumMap(Type.class));
+			playerTextures.put(uuid, new EnumMap<>(Type.class));
 		}
 		Map<Type, ResourceLocation> data = getData(player.getUniqueID());
 		StringBuilder path = new StringBuilder("textures/entity/custom/" + (isSmallArms ? "female" : "male") + "_" + body + "_" + bodyColor + "_"
@@ -240,7 +237,7 @@ public class PlayerSkinController {
 		}
 		Type t = Type.values()[type % Type.values().length];
 		if (!playerTextures.containsKey(uuid)) {
-			playerTextures.put(uuid, Maps.newEnumMap(Type.class));
+			playerTextures.put(uuid, new EnumMap<>(Type.class));
 			playerTextures.get(uuid).put(Type.SKIN, new ResourceLocation("minecraft",
 					(uuid.hashCode() & 1) == 1 ? "textures/entity/alex.png" : "textures/entity/steve.png")); // DefaultPlayerSkin
 		}

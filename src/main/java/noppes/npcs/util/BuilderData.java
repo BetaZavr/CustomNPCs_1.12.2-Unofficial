@@ -1,12 +1,6 @@
 package noppes.npcs.util;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
@@ -44,15 +38,15 @@ public class BuilderData {
 	public NpcMiscInventory inv = new NpcMiscInventory(10);
 	public EntityPlayer player = null;
 	public boolean addAir = false, replaceAir = false, isSolid = false;
-	public Map<Integer, Integer> chances = Maps.newTreeMap();
+	public Map<Integer, Integer> chances = new TreeMap<>();
 	private final Random rnd = new Random();
 	// Schematic
-	public Map<Integer, BlockPos> schMap = Maps.newTreeMap();
+	public Map<Integer, BlockPos> schMap = new TreeMap<>();
 	public String schematicName = "";
 	// undo / redo
 	public int doPos = 0;
-	public Map<Integer, List<SchematicBlockData>> doMap = Maps.newTreeMap();
-	public Map<Integer, List<Entity>> enMap = Maps.newTreeMap();
+	public Map<Integer, List<SchematicBlockData>> doMap = new TreeMap<>();
+	public Map<Integer, List<Entity>> enMap = new TreeMap<>();
 	// technical
 	private long lastWork = 0L, lastMessage = 0L;
 
@@ -65,8 +59,8 @@ public class BuilderData {
 		if (this.doPos == 9) {
 			this.doMap.remove(0);
 			this.enMap.remove(0);
-			Map<Integer, List<SchematicBlockData>> db = Maps.newTreeMap();
-			Map<Integer, List<Entity>> de = Maps.newTreeMap();
+			Map<Integer, List<SchematicBlockData>> db = new TreeMap<>();
+			Map<Integer, List<Entity>> de = new TreeMap<>();
 			for (int i = 0; i < 9; i++) {
 				db.put(i, this.doMap.get(i + 1));
 				de.put(i, this.enMap.get(i + 1));
@@ -539,8 +533,8 @@ public class BuilderData {
 		if (!this.doMap.containsKey(this.doPos + 1)) {
 			return;
 		}
-		List<SchematicBlockData> listB = Lists.newArrayList();
-		List<Entity> listE = Lists.newArrayList();
+		List<SchematicBlockData> listB = new ArrayList<>();
+		List<Entity> listE = new ArrayList<>();
 		// Get Zone
 		int mx = Integer.MAX_VALUE, my = Integer.MAX_VALUE, mz = Integer.MAX_VALUE;
 		int nx = Integer.MIN_VALUE, ny = Integer.MIN_VALUE, nz = Integer.MIN_VALUE;
@@ -669,8 +663,8 @@ public class BuilderData {
 		int[] d = this.getDirections(player);
 		int cx = 0, cy = 0, cz = 0;
 		int size = this.region[0] * this.region[1] * this.region[2];
-		List<SchematicBlockData> listB = Lists.newArrayList();
-		List<Entity> listE = Lists.newArrayList();
+		List<SchematicBlockData> listB = new ArrayList<>();
+		List<Entity> listE = new ArrayList<>();
 		// remove Entity
 		for (Entity e : player.world.getEntitiesWithinAABB(Entity.class,
 				new AxisAlignedBB(d[0] - 0.25d, d[1] - 0.25d, d[2] - 0.25d, d[3] + 0.25d, d[4] + 0.25d, d[5] + 0.25d).offset(pos))) {
@@ -681,11 +675,11 @@ public class BuilderData {
 			e.isDead = true;
 		}
 		// Create block data to work
-		Map<Integer, SchematicBlockData> tempBlocks = Maps.newHashMap();
+		Map<Integer, SchematicBlockData> tempBlocks = new HashMap<>();
 		SchematicBlockData main = null;
 		if (this.type != 0) {
 			int total = 0, mPos = -1, max = -1;
-			Map<Integer, Integer> bls = Maps.newHashMap(); // [slot, chance]
+			Map<Integer, Integer> bls = new HashMap<>(); // [slot, chance]
 			if (!this.inv.getStackInSlot(0).isEmpty()) {
                 Block.getBlockFromItem(this.inv.getStackInSlot(0).getItem());
                 main = new SchematicBlockData(player.world, this.inv.getStackInSlot(0));
@@ -730,8 +724,8 @@ public class BuilderData {
 			if (fix < size && mPos >= 0) {
 				bls.put(mPos, bls.get(mPos) + size - fix);
 			}
-			Map<Integer, SchematicBlockData> amount = Maps.newHashMap(); // [slot, block]
-			List<Integer> slots = Lists.newArrayList();
+			Map<Integer, SchematicBlockData> amount = new HashMap<>(); // [slot, block]
+			List<Integer> slots = new ArrayList<>();
 			for (int slot : bls.keySet()) {
 				SchematicBlockData bd;
 				if (slot >= 10) { // Air
@@ -843,8 +837,8 @@ public class BuilderData {
 		if (!this.doMap.containsKey(this.doPos)) {
 			return;
 		}
-		List<SchematicBlockData> listB = Lists.newArrayList();
-		List<Entity> listE = Lists.newArrayList();
+		List<SchematicBlockData> listB = new ArrayList<>();
+		List<Entity> listE = new ArrayList<>();
 		// Get Zone
 		int mx = Integer.MAX_VALUE, my = Integer.MAX_VALUE, mz = Integer.MAX_VALUE;
 		int nx = Integer.MIN_VALUE, ny = Integer.MIN_VALUE, nz = Integer.MIN_VALUE;

@@ -1,14 +1,9 @@
 package noppes.npcs.client.gui.dimentions;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.lwjgl.input.Keyboard;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.block.BlockTallGrass;
 import net.minecraft.client.gui.Gui;
@@ -116,7 +111,7 @@ public class GuiFlatDimensionPresets extends GuiScreen {
 		}
 
 	}
-	private static final List<GuiFlatDimensionPresets.LayerItem> FLAT_WORLD_PRESETS = Lists.newArrayList();
+	private static final List<GuiFlatDimensionPresets.LayerItem> FLAT_WORLD_PRESETS = new ArrayList<>();
 	static {
 		registerPreset("Classic Flat", Item.getItemFromBlock(Blocks.GRASS), Biomes.PLAINS,
                 Collections.singletonList("village"),
@@ -171,7 +166,7 @@ public class GuiFlatDimensionPresets extends GuiScreen {
 		flatgeneratorinfo.updateLayers();
 		if (features != null) {
 			for (String s : features) {
-				flatgeneratorinfo.getWorldFeatures().put(s, Maps.newHashMap());
+				flatgeneratorinfo.getWorldFeatures().put(s, new HashMap<>());
 			}
 		}
 		FLAT_WORLD_PRESETS.add(new GuiFlatDimensionPresets.LayerItem(icon, iconMetadata, name, flatgeneratorinfo.toString()));

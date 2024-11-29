@@ -1,12 +1,6 @@
 package noppes.npcs.client.gui.global;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
@@ -180,7 +174,8 @@ public class SubGuiNpcDialogOption extends SubGuiInterface implements ICustomScr
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 62, this.guiTop + 40, 92, 20, color.toString()));
 		this.getButton(2).setTextColor(this.option.optionColor);
 
-		List<String> list = Lists.newArrayList("");
+		List<String> list = new ArrayList<>();
+		list.add("");
 		for (ResourceLocation res : GuiDialogInteract.icons.values()) {
 			list.add("");
 		}
@@ -201,7 +196,7 @@ public class SubGuiNpcDialogOption extends SubGuiInterface implements ICustomScr
 			this.data.clear();
 			char c = ((char) 167);
 			DialogController dData = DialogController.instance;
-			List<String> keys = Lists.newArrayList();
+			List<String> keys = new ArrayList<>();
 			int pos = -1, i = 0;
 			OptionDialogID del = null;
 			for (OptionDialogID od : this.option.dialogs) {
@@ -233,7 +228,7 @@ public class SubGuiNpcDialogOption extends SubGuiInterface implements ICustomScr
 			if (this.scroll == null) {
 				(this.scroll = new GuiCustomScroll(this, 0)).setSize(141, 116);
 			}
-			this.scroll.setList(Lists.newArrayList());
+			this.scroll.setList(new ArrayList<>());
 			this.scroll.setListNotSorted(keys);
 			this.scroll.guiLeft = this.guiLeft + 4;
 			this.scroll.guiTop = this.guiTop + 96;

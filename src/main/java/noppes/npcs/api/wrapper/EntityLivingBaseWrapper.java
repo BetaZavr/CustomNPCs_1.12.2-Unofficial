@@ -1,12 +1,11 @@
 package noppes.npcs.api.wrapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EntityTrackerEntry;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -162,7 +161,7 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 
 	@Override
 	public INpcAttribute[] getIAttributes() {
-		List<INpcAttribute> list = Lists.newArrayList();
+		List<INpcAttribute> list = new ArrayList<>();
 		for (IAttributeInstance attr : this.entity.getAttributeMap().getAllAttributes()) {
 			list.add(Objects.requireNonNull(NpcAPI.Instance()).getIAttribute(attr));
 		}

@@ -3,12 +3,7 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -34,22 +29,18 @@ public class TransportController {
 		return TransportController.instance;
 	}
 
-	public Map<Integer, TransportCategory> categories;
-	public List<Integer> worldIDs;
-	private int lastUsedID;
+	public Map<Integer, TransportCategory> categories = new TreeMap<>();
+	public List<Integer> worldIDs = new ArrayList<>();
+	private int lastUsedID = 0;
 
-	private final Map<Integer, TransportLocation> locations;
+	private final Map<Integer, TransportLocation> locations = new TreeMap<>();
 
 	public TransportController() {
-		this.locations = Maps.newTreeMap();
-		this.categories = Maps.newTreeMap();
-		this.lastUsedID = 0;
-		this.worldIDs = Lists.newArrayList();
 		(TransportController.instance = this).loadCategories();
         TransportCategory cat = new TransportCategory();
         cat.id = 1;
         cat.title = "Default";
-        this.categories.put(cat.id, cat);
+        categories.put(cat.id, cat);
     }
 
 	public boolean containsLocationName(String name) {

@@ -4,8 +4,6 @@ import java.util.*;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -123,7 +121,7 @@ public class NpcGuiRecipeOverlay extends GuiRecipeOverlay {
 
     private static final ResourceLocation RECIPE_BOOK_TEXTURE = new ResourceLocation("textures/gui/recipe_book.png");
     private static final ResourceLocation SPRITE = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
-    private final List<NpcGuiRecipeOverlay.Button> buttonList = Lists.newArrayList();
+    private final List<NpcGuiRecipeOverlay.Button> buttonList = new ArrayList<>();
     private boolean isGlobal = false;
     private IRecipe lastRecipeClicked;
     private Minecraft mc;

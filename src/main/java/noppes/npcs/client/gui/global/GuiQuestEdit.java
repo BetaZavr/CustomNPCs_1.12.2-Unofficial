@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.nbt.NBTTagCompound;
@@ -367,7 +365,7 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 		if (this.scrollTasks == null) {
 			(this.scrollTasks = new GuiCustomScroll(this, 6)).setSize(209, 94);
 		}
-		this.scrollTasks.setList(Lists.newArrayList(this.tasksData.keySet()));
+		this.scrollTasks.setList(new ArrayList<>(tasksData.keySet()));
 		this.scrollTasks.guiLeft = this.guiLeft + 172;
 		this.scrollTasks.guiTop = this.guiTop + 96;
 		int pos = -1;
@@ -428,11 +426,11 @@ public class GuiQuestEdit extends SubGuiInterface implements ICustomScrollListen
 		this.addButton(new GuiNpcButton(15, this.guiLeft + 120, this.guiTop + 118, 50, 20,
 				this.quest.command.isEmpty() ? "selectServer.edit" : "advanced.editingmode"));
 		// cancelable
-		GuiNpcLabel lable = new GuiNpcLabel(16,
+		GuiNpcLabel label = new GuiNpcLabel(16,
 				"quest.has." + (this.quest.forgetDialogues.length > 0 || this.quest.forgetQuests.length > 0),
 				this.guiLeft + 266, this.guiTop + 58);
-		lable.enabled = this.quest.isCancelable();
-		this.addLabel(lable);
+		label.enabled = this.quest.isCancelable();
+		this.addLabel(label);
 		this.addButton(new GuiNpcButton(22, this.guiLeft + 172, this.guiTop + 52, 90, 20,
 				new String[] { "quest.cancelable.true", "quest.cancelable.false" }, this.quest.isCancelable() ? 0 : 1));
 		// level

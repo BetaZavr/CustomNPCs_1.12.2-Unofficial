@@ -1,9 +1,8 @@
 package noppes.npcs.client.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
@@ -34,7 +33,7 @@ public class ModelNPCGolem extends ModelBipedAlt {
 		ModelRendererAlt nose = new ModelRendererAlt(this, EnumParts.HEAD, 24, 0, true);
 		nose.setTextureSize(128, 128);
 		nose.setBox(-1.0f, -5.0f, -7.5f, 2.0f, 2.0f, 1.0f, 1.0f, 2.0f, f);
-		this.bipedHead.childModels = Lists.newArrayList();
+		this.bipedHead.childModels = new ArrayList<>();
 		this.bipedHead.childModels.add(nose);
 		this.bipedHeadwear = new ModelRendererAlt(this, EnumParts.HEAD, 0, 85, true);
 		this.bipedHeadwear.setTextureSize(128, 128);
@@ -49,7 +48,7 @@ public class ModelNPCGolem extends ModelBipedAlt {
 		ModelRendererAlt bodyTopWear = new ModelRendererAlt(this, EnumParts.BODY, 0, 21, true);
 		bodyTopWear.setTextureSize(128, 128);
 		bodyTopWear.setBox(-9.0f, -2.0f, -6.0f, 18.0f, 3.0f, 3.0f, 2.0f, 11.0f, f);
-		this.bipedBody.childModels = Lists.newArrayList();
+		this.bipedBody.childModels = new ArrayList<>();
 		this.bipedBody.childModels.add(bodyTopWear);
 
 		this.bipedLowerBody = new ModelRendererAlt(this, EnumParts.BODY, 0, 70, true); // Lower
@@ -59,7 +58,7 @@ public class ModelNPCGolem extends ModelBipedAlt {
 		ModelRendererAlt bodyLowerWear = new ModelRendererAlt(this, EnumParts.BODY, 30, 70, true);
 		bodyLowerWear.setTextureSize(128, 128);
 		bodyLowerWear.setBox(-4.5f, 6.0f, -3.0f, 9.0f, 4.5f, 3.5f, 1.0f, 6.0f, f + 0.4f);
-		this.bipedLowerBody.childModels = Lists.newArrayList();
+		this.bipedLowerBody.childModels = new ArrayList<>();
 		this.bipedLowerBody.childModels.add(bodyLowerWear);
 
 		// Right Arm
@@ -73,7 +72,7 @@ public class ModelNPCGolem extends ModelBipedAlt {
 		ModelRendererAlt rightArmTopWear = new ModelRendererAlt(this, EnumParts.ARM_RIGHT, 100, 21, true);
 		rightArmTopWear.setTextureSize(128, 128);
 		rightArmTopWear.setBox(-13.0f, -2.5f, -3.0f, 4.0f, 9.0f, 7.0f, 4.0f, 6.0f, f + 1.0f);
-		this.bipedRightArm.childModels = Lists.newArrayList();
+		this.bipedRightArm.childModels = new ArrayList<>();
 		this.bipedRightArm.childModels.add(rightArmTop);
 		this.bipedRightArm.childModels.add(rightArmTopWear);
 
@@ -88,7 +87,7 @@ public class ModelNPCGolem extends ModelBipedAlt {
 		ModelRendererAlt leftArmTopWear = new ModelRendererAlt(this, EnumParts.ARM_LEFT, 100, 58, true);
 		leftArmTopWear.setTextureSize(128, 128);
 		leftArmTopWear.setBox(9.0f, -2.5f, -3.0f, 4.0f, 9.0f, 7.0f, 4.0f, 6.0f, f + 1.0f);
-		this.bipedLeftArm.childModels = Lists.newArrayList();
+		this.bipedLeftArm.childModels = new ArrayList<>();
 		this.bipedLeftArm.childModels.add(leftArmTop);
 		this.bipedLeftArm.childModels.add(leftArmTopWear);
 
@@ -109,7 +108,7 @@ public class ModelNPCGolem extends ModelBipedAlt {
 	public void render(@Nonnull Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 		float r = 1.0f, g = 1.0f, b = 1.0f;
-		Map<EnumParts, Boolean> ba = Maps.newHashMap();
+		Map<EnumParts, Boolean> ba = new HashMap<>();
 		if (entityIn instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) entityIn;
 			ba.putAll(npc.animation.showParts);

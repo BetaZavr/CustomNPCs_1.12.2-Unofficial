@@ -1,24 +1,17 @@
 package noppes.npcs.controllers.data;
 
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 public class TransportCategory {
 
-	public int id;
-	public Map<Integer, TransportLocation> locations;
-	public String title;
-
-	public TransportCategory() {
-		this.id = -1;
-		this.title = "";
-		this.locations = Maps.newTreeMap();
-	}
+	public int id = -1;
+	public Map<Integer, TransportLocation> locations = new TreeMap<>();
+	public String title = "";
 
 	public Vector<TransportLocation> getDefaultLocations() {
 		Vector<TransportLocation> list = new Vector<>();

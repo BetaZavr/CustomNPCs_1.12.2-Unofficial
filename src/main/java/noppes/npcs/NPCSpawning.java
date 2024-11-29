@@ -1,12 +1,6 @@
 package noppes.npcs;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
-import com.google.common.collect.Sets;
+import java.util.*;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -33,7 +27,7 @@ import noppes.npcs.api.mixin.world.biome.IBiomeMixin;
 
 public class NPCSpawning {
 
-	private static final Set<ChunkPos> eligibleChunksForSpawning = Sets.newHashSet();
+	private static final Set<ChunkPos> eligibleChunksForSpawning = new HashSet<>();
 
 	// World generation in progress
 	public static void performWorldGenSpawning(World world, int x, int z, Random rand) {

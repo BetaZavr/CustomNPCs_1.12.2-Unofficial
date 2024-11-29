@@ -1,8 +1,7 @@
 package noppes.npcs.entity.data;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -57,7 +56,7 @@ public class DataAI
 	public float stepheight = 0.6f;
 
 	private BlockPos startPos = null;
-	private List<int[]> movingPath = Lists.newArrayList();
+	private List<int[]> movingPath = new ArrayList<>();
 	private final EntityNPCInterface npc;
 
 	public DataAI(EntityNPCInterface npc) {

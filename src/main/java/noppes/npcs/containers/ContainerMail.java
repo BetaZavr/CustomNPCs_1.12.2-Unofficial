@@ -6,7 +6,6 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.controllers.data.PlayerMailData;
 
@@ -45,7 +44,7 @@ public class ContainerMail extends ContainerNpcInterface {
 		if (player.world.isRemote) { return; }
 		if (!this.canEdit) {
 			PlayerMailData data = CustomNpcs.proxy.getPlayerData(player).mailData;
-			for (PlayerMail mail : data.playermail) {
+			for (PlayerMail mail : data.playerMails) {
 				if (mail.timeWhenReceived == this.mail.timeWhenReceived && mail.sender.equals(this.mail.sender)) {
 					mail.readNBT(this.mail.writeNBT());
 					break;

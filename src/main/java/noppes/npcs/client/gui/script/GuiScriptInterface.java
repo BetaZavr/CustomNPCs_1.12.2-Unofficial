@@ -7,8 +7,7 @@ import java.awt.datatransfer.Transferable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
+import java.util.TreeMap;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiConfirmOpenLink;
@@ -345,7 +344,7 @@ implements IGuiData, ITextChangeListener {
 		Map<String, Map<String, Long>> languages = new HashMap<>();
 		for (int i = 0; i < data.tagCount(); ++i) {
 			NBTTagCompound comp = data.getCompoundTagAt(i);
-			Map<String, Long> scripts = Maps.newTreeMap();
+			Map<String, Long> scripts = new TreeMap<>();
 			NBTTagList list = comp.getTagList("Scripts", 8);
 			long[] ld = new long[list.tagCount()];
 			if (comp.hasKey("sizes", 12)) {

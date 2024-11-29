@@ -1,8 +1,7 @@
 package noppes.npcs.api.constants;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import noppes.npcs.LogWriter;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -36,7 +35,7 @@ public enum JobType {
 		return JobType.DEFAULT;
 	}
 	public static String[] getNames() {
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		for (JobType ej : JobType.values()) {
 			list.add(ej.name);
 		}

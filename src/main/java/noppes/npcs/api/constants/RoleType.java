@@ -1,8 +1,7 @@
 package noppes.npcs.api.constants;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesStringUtils;
@@ -33,7 +32,7 @@ public enum RoleType {
 		return RoleType.DEFAULT;
 	}
 	public static String[] getNames() {
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		for (RoleType er : RoleType.values()) {
 			if (er == COMPANION) {
 				list.add(NoppesStringUtils.translate(er.name, " (WIP)"));

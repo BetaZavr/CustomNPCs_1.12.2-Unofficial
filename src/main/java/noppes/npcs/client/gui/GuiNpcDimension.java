@@ -1,13 +1,6 @@
 package noppes.npcs.client.gui;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.Vector;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -174,12 +167,12 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
 		this.data.clear();
-		TreeMap<Integer, String> m = Maps.newTreeMap();
+		TreeMap<Integer, String> m = new TreeMap<>();
 		for (String key : data.keySet()) {
 			m.put(data.get(key), key);
 		}
-		List<String> l = Lists.newArrayList();
-		List<String> s = Lists.newArrayList();
+		List<String> l = new ArrayList<>();
+		List<String> s = new ArrayList<>();
 		String c = "" + ((char) 167);
 		for (int id : m.keySet()) {
 			String[] t = m.get(id).split("&");

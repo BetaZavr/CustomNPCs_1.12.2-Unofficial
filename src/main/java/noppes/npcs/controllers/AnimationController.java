@@ -3,12 +3,10 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeMap;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -29,8 +27,8 @@ import noppes.npcs.util.Util;
 public class AnimationController implements IAnimationHandler {
 
 	private static AnimationController instance;
-	public final TreeMap<Integer, AnimationConfig> animations = Maps.newTreeMap();
-	public final TreeMap<Integer, EmotionConfig> emotions = Maps.newTreeMap();
+	public final TreeMap<Integer, AnimationConfig> animations = new TreeMap<>();
+	public final TreeMap<Integer, EmotionConfig> emotions = new TreeMap<>();
 
 	public static AnimationController getInstance() {
 		if (AnimationController.instance == null) {
@@ -101,7 +99,7 @@ public class AnimationController implements IAnimationHandler {
 	}
 
 	public List<AnimationConfig> getAnimations(List<Integer> ids) {
-		List<AnimationConfig> list = Lists.newArrayList();
+		List<AnimationConfig> list = new ArrayList<>();
 		if (ids == null || ids.isEmpty()) { return list; }
 		for (AnimationConfig ac : animations.values()) {
 			for (int id : ids) {

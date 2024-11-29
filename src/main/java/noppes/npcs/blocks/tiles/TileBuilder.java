@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
@@ -30,7 +28,7 @@ import javax.annotation.Nonnull;
 
 public class TileBuilder extends TileEntity implements ITickable {
 
-	public static List<BlockPos> DrawPoses = Lists.newArrayList();
+	public static List<BlockPos> DrawPoses = new ArrayList<>();
 
 	public static boolean has(BlockPos pos) {
 		if (pos == null) {

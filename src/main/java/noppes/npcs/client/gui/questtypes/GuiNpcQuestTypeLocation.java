@@ -1,12 +1,6 @@
 package noppes.npcs.client.gui.questtypes;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -36,7 +30,7 @@ public class GuiNpcQuestTypeLocation extends SubGuiInterface implements ITextfie
 
 	public GuiScreen parent;
 	private final QuestObjective task;
-	private final Map<Integer, Integer> dataDimIDs = Maps.newHashMap();
+	private final Map<Integer, Integer> dataDimIDs = new HashMap<>();
 
 	public GuiNpcQuestTypeLocation(EntityNPCInterface npc, QuestObjective task, GuiScreen parent) {
 		this.npc = npc;
@@ -160,7 +154,7 @@ public class GuiNpcQuestTypeLocation extends SubGuiInterface implements ITextfie
 
 		this.addLabel(new GuiNpcLabel(14, "D:", x, (y += 20) + 2));
 		int p = 0, i = 0;
-		List<Integer> ids = Lists.newArrayList(DimensionManager.getStaticDimensionIDs());
+		List<Integer> ids = Arrays.asList(DimensionManager.getStaticDimensionIDs());
 		Collections.sort(ids);
 		String[] dimIDs = new String[ids.size()];
 		for (int id : ids) {

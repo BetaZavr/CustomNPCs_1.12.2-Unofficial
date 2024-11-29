@@ -2,8 +2,6 @@ package noppes.npcs.controllers.data;
 
 import java.util.TreeMap;
 
-import com.google.common.collect.Maps;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.handler.data.IDialog;
@@ -11,15 +9,9 @@ import noppes.npcs.api.handler.data.IDialogCategory;
 
 public class DialogCategory implements IDialogCategory {
 
-	public final TreeMap<Integer, Dialog> dialogs;
-	public int id;
-	public String title;
-
-	public DialogCategory() {
-		this.id = -1;
-		this.title = "";
-		this.dialogs = Maps.newTreeMap();
-	}
+	public final TreeMap<Integer, Dialog> dialogs = new TreeMap<>();
+	public int id = -1;
+	public String title = "";
 
 	public DialogCategory copy() {
 		DialogCategory newCat = new DialogCategory();

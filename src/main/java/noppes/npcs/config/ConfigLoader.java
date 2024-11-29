@@ -3,12 +3,7 @@ package noppes.npcs.config;
 import java.awt.Color;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.ConfigElement;
@@ -27,7 +22,7 @@ public class ConfigLoader {
 	public ConfigLoader(File directory) {
 		if (!directory.exists() && !directory.mkdir()) { return; }
 		File file = new File(directory, CustomNpcs.MODNAME + ".cfg");
-		List<String> lines = Lists.newArrayList();
+		List<String> lines = new ArrayList<>();
 		boolean isOldVersion = false;
 		boolean needSave = !file.exists();
 		if (!needSave) {
@@ -70,7 +65,7 @@ public class ConfigLoader {
 						}
 						needSave = true;
 					} else if (property.getStringList().length > 0) {
-						List<String> list = Lists.newArrayList();
+						List<String> list = new ArrayList<>();
 						boolean change = false;
 						for (String c : property.getStringList()) {
 							if (c.length() > 6) {
@@ -299,7 +294,7 @@ public class ConfigLoader {
 
 	public List<IConfigElement> getChildElements() {
 		Iterator<Property> pI = config.getCategory(Configuration.CATEGORY_GENERAL).getOrderedValues().iterator();
-		Map<String, ConfigElement> map = Maps.newTreeMap();
+		Map<String, ConfigElement> map = new TreeMap<>();
 		while (pI.hasNext()) {
 			Property p = pI.next();
 			map.put(p.getName(), new ConfigElement(p));
@@ -309,7 +304,7 @@ public class ConfigLoader {
 			Property p = pI.next();
 			map.put(p.getName(), new ConfigElement(p));
 		}
-		return Lists.newArrayList(map.values());
+		return new ArrayList<>(map.values());
 	}
 
 	public void resetConfig() {

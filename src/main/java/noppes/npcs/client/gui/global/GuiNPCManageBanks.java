@@ -1,11 +1,6 @@
 package noppes.npcs.client.gui.global;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
-
-import com.google.common.collect.Lists;
+import java.util.*;
 
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -321,7 +316,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		this.getTextField(0).setVisible(!this.selected.isEmpty());
 
 		y += 22;
-		List<String> csIds = Lists.newArrayList();
+		List<String> csIds = new ArrayList<>();
 		if (this.bank != null) {
 			for (int i = 0; i < this.bank.ceilSettings.size(); i++) {
 				csIds.add("" + (i + 1));

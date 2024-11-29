@@ -1,9 +1,9 @@
 package noppes.npcs.command;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import noppes.npcs.LogWriter;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -68,7 +68,7 @@ public class CmdNPC extends CommandNoppesBase {
 			}
 		}
 		if (this.selectedNpc == null) {
-			throw new CommandException("Npc '%s' was not found", npcname);
+			throw new CommandException("Npc \""+npcname+"\" was not found");
 		}
 		this.executeSub(server, sender, command, args);
 		this.selectedNpc = null;
@@ -100,7 +100,7 @@ public class CmdNPC extends CommandNoppesBase {
 		if (args.length == 3 && args[1].equalsIgnoreCase("owner")) {
 			return CommandBase.getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
 		}
-		return Lists.newArrayList();
+		return new ArrayList<>();
 	}
 
 	@Override

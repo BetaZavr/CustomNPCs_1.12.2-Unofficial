@@ -11,8 +11,6 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -262,11 +260,11 @@ public class ClientProxy extends CommonProxy {
 	public static FontContainer Font;
 	public static PlayerData playerData = new PlayerData();
 
-	public static final Map<String, TempFile> loadFiles = Maps.newTreeMap();
-	public static Map<Integer, List<UUID>> notVisibleNPC = Maps.newHashMap();
-	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.newHashMap();
-	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.newHashMap();
-    private final static List<ResourceLocation> notLoadTextures = Lists.newArrayList();
+	public static final Map<String, TempFile> loadFiles = new TreeMap<>();
+	public static Map<Integer, List<UUID>> notVisibleNPC = new HashMap<>();
+	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = new HashMap<>();
+	private final static Map<Integer, KeyBinding> keyBindingMap = new HashMap<>();
+    private final static List<ResourceLocation> notLoadTextures = new ArrayList<>();
 	public static IMinecraft mcWrapper = null;
 
 	public static void bindTexture(ResourceLocation location) {
@@ -437,7 +435,7 @@ public class ClientProxy extends CommonProxy {
 		String[] path = skin.getResourcePath().replace(".png", "").split("_");
 		String gender = "male";
 		BufferedImage bodyImage = null, hairImage = null, faseImage = null, legsImage = null, jacketsImage = null,  shoesImage = null;
-		List<BufferedImage> listBuffers = Lists.newArrayList();
+		List<BufferedImage> listBuffers = new ArrayList<>();
 		Map<ResourceLocation, ITextureObject> mapTextureObjects = ((ITextureManagerMixin) re).npcs$getMapTextureObjects();
 		for (int i = 0; i < path.length; i++) {
 			int id = -1;
@@ -1756,7 +1754,7 @@ public class ClientProxy extends CommonProxy {
 				break;
 			}
 			File lang = new File(langDir, (i == 0 ? "en_us" : currentLanguage) + ".lang");
-			Map<String, String> jsonMap = Maps.newTreeMap();
+			Map<String, String> jsonMap = new TreeMap<>();
 			jsonMap.put(key, (i == 0 ? value : transliteValue));
 			char chr = Character.toChars(0x000A)[0];
 			writer = null;
@@ -1864,14 +1862,14 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void updateKeys() {
-		List<KeyBinding> list = Lists.newArrayList();
+		List<KeyBinding> list = new ArrayList<>();
 		for (KeyBinding kb : Minecraft.getMinecraft().gameSettings.keyBindings) {
 			if (ClientProxy.keyBindingMap.containsValue(kb)) {
 				continue;
 			}
 			list.add(kb);
 		}
-		Map<Integer, KeyBinding> keysMap = Maps.newHashMap();
+		Map<Integer, KeyBinding> keysMap = new HashMap<>();
 		for (IKeySetting ks : KeyController.getInstance().getKeySettings()) {
 			KeyBinding kb;
 			KeyModifier modifer;

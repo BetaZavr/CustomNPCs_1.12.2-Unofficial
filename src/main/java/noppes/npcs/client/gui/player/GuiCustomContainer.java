@@ -1,11 +1,10 @@
 package noppes.npcs.client.gui.player;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.input.Mouse;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -174,7 +173,7 @@ public class GuiCustomContainer extends GuiContainer {
 			int u = (this.width - this.xSize) / 2 + 164 + (this.isMany ? 16 : 0);
 			int v = (this.height - this.ySize) / 2 - 8;
 			if (mouseX >= u && mouseX <= u + 20 && mouseY >= v && mouseY <= v + 20) {
-				List<String> textLines = Lists.newArrayList();
+				List<String> textLines = new ArrayList<>();
 				textLines.add(new TextComponentTranslation("companion.owner").getFormattedText() + ":");
 				textLines.add(this.lock.length() < 1000 ? this.lock : this.lock.substring(0, 1000) + "...");
 				this.drawHoveringText(textLines, mouseX, mouseY);

@@ -1,11 +1,10 @@
 package noppes.npcs.client.gui.recipebook;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -26,7 +25,7 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 public class NpcGhostRecipe extends GhostRecipe {
 
     private IRecipe recipe;
-    private final List<GhostRecipe.GhostIngredient> ingredients = Lists.newArrayList();
+    private final List<GhostRecipe.GhostIngredient> ingredients = new ArrayList<>();
 
     public void addIngredient(@Nonnull Ingredient p_194187_1_, int p_194187_2_, int p_194187_3_) {
         this.ingredients.add(new GhostRecipe.GhostIngredient(p_194187_1_, p_194187_2_, p_194187_3_));

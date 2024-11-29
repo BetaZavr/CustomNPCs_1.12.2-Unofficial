@@ -12,8 +12,6 @@ import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import com.google.common.collect.Maps;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
@@ -232,7 +230,7 @@ public class Server {
 	}
 
 	public static Map<Object, Object> readMap(ByteBuf buffer) {
-		Map<Object, Object> map = Maps.newLinkedHashMap();
+		Map<Object, Object> map = new LinkedHashMap<>();
 		int size = buffer.readInt();
 		for (int i = 0; i < size; i++) {
 			Object key;
@@ -321,11 +319,11 @@ public class Server {
 		for (int i = 0; i < nbt.getTagList("cp", 10).tagCount(); i++) {
 			closedSet[i] = Server.readPathPoint(nbt.getTagList("cp", 10).getCompoundTagAt(i));
 		}
-		Path navigating = new Path(points);
-		((IPathMixin) navigating).npcs$setOpenSet(openSet);
-		((IPathMixin) navigating).npcs$setClosedSet(closedSet);
-		((IPathMixin) navigating).npcs$setCurrentPathIndex(nbt.getInteger("ci"));
-		return navigating;
+		IPathMixin navigating = (IPathMixin) new Path(points);
+		navigating.npcs$setOpenSet(openSet);
+		navigating.npcs$setClosedSet(closedSet);
+		navigating.npcs$setCurrentPathIndex(nbt.getInteger("ci"));
+		return (Path) navigating;
 	}
 
 	public static String readString(ByteBuf buffer) {

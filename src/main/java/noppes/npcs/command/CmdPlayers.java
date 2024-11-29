@@ -1,8 +1,7 @@
 package noppes.npcs.command;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -85,7 +84,7 @@ public class CmdPlayers extends CommandNoppesBase {
 	}
 
 	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		if (args.length == 2) {
 			list = PlayerDataController.instance.getPlayerNames();
 		}

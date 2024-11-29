@@ -1,9 +1,8 @@
 package noppes.npcs.api.wrapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.pathfinding.Path;
@@ -76,7 +75,7 @@ public class EntityLivingWrapper<T extends EntityLiving> extends EntityLivingBas
 	public void navigateTo(Integer[][] posses, double speed) {
 		PathNavigate nav = this.entity.getNavigator();
 		nav.clearPath();
-		List<PathPoint> points = Lists.newArrayList();
+		List<PathPoint> points = new ArrayList<>();
 		for (Integer[] posId : posses) {
 			if (posId == null || posId.length < 3) {
 				return;

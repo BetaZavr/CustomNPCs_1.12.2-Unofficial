@@ -1,13 +1,11 @@
 package noppes.npcs.client.gui;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeMap;
 
 import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -38,8 +36,8 @@ public class GuiBoundarySetting
 		implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	private final int regID;
-	private final TreeMap<Integer, String> dataRegions = Maps.newTreeMap();
-	private final TreeMap<Integer, String> dataPoints = Maps.newTreeMap();
+	private final TreeMap<Integer, String> dataRegions = new TreeMap<>();
+	private final TreeMap<Integer, String> dataPoints = new TreeMap<>();
 	private GuiCustomScroll regions, points;
 	private Point point;
 	private Zone3D region;
@@ -110,7 +108,7 @@ public class GuiBoundarySetting
 			if (this.region == null || this.point == null) {
 				return;
 			}
-			TreeMap<Integer, Point> map = Maps.newTreeMap();
+			TreeMap<Integer, Point> map = new TreeMap<>();
 			int i = 0;
 			for (int pos : this.region.points.keySet()) {
 				Point p = this.region.points.get(pos);
@@ -137,7 +135,7 @@ public class GuiBoundarySetting
 			if (this.region == null || this.point == null) {
 				return;
 			}
-			TreeMap<Integer, Point> map = Maps.newTreeMap();
+			TreeMap<Integer, Point> map = new TreeMap<>();
 			int i = 0;
 			for (int pos : this.region.points.keySet()) {
 				Point p = this.region.points.get(pos);
@@ -560,7 +558,7 @@ public class GuiBoundarySetting
 		if (this.regions == null) {
 			(this.regions = new GuiCustomScroll(this, 0)).setSize(110, 130);
 		}
-		this.regions.setListNotSorted(Lists.newArrayList(this.dataRegions.values()));
+		this.regions.setListNotSorted(new ArrayList<>(dataRegions.values()));
 		this.regions.guiLeft = this.guiLeft + 5;
 		this.regions.guiTop = this.guiTop + 14;
 		if (!selectReg.isEmpty()) {
@@ -573,7 +571,7 @@ public class GuiBoundarySetting
 		if (this.points == null) {
 			(this.points = new GuiCustomScroll(this, 1)).setSize(this.xSize - side - 124, side / 2);
 		}
-		this.points.setListNotSorted(Lists.newArrayList(this.dataPoints.values()));
+		this.points.setListNotSorted(new ArrayList<>(dataPoints.values()));
 		this.points.guiLeft = r1;
 		this.points.guiTop = this.guiTop + 14;
 		if (!selectP.isEmpty()) {

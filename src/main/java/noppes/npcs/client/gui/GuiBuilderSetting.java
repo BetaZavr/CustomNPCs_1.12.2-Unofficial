@@ -6,12 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
@@ -51,7 +46,7 @@ import javax.annotation.Nonnull;
 
 public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICustomScrollListener, ITextfieldListener {
 
-	private static final Map<String, SchematicWrapper> basefiles = Maps.newTreeMap();
+	private static final Map<String, SchematicWrapper> baseFiles = new TreeMap<>();
 	ContainerBuilderSettings container;
 	private final ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
 	private final ResourceLocation inventory = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
@@ -100,7 +95,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 					Blueprint bp = BlueprintUtil.readBlueprintFromNBT(compound);
                     if (bp != null) {
 						bp.setName(name);
-						GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(bp));
+						GuiBuilderSetting.baseFiles.put(name, new SchematicWrapper(bp));
 					}
 				}
 				if (compound.getKeySet().isEmpty() || !compound.hasKey("Width", 2) || !compound.hasKey("Length", 2)
@@ -113,11 +108,11 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				}
 				Schematic schema = new Schematic(name);
 				schema.load(compound);
-				GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(schema));
+				GuiBuilderSetting.baseFiles.put(name, new SchematicWrapper(schema));
 			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
-		this.files = Maps.newTreeMap();
-		this.files.putAll(GuiBuilderSetting.basefiles);
+		this.files = new TreeMap<>();
+		this.files.putAll(GuiBuilderSetting.baseFiles);
 		File schematicDir = SchematicController.getDir();
 		if (schematicDir.exists()) {
 			for (File f : Objects.requireNonNull(schematicDir.listFiles())) {
@@ -410,7 +405,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 			if (this.schematics == null) {
 				(this.schematics = new GuiCustomScroll(this, 0)).setSize(110, 197);
 			}
-			this.schematics.setList(Lists.newArrayList(this.files.keySet()));
+			this.schematics.setList(new ArrayList<>(files.keySet()));
 			this.schematics.guiLeft = this.guiLeft + 5;
 			this.schematics.guiTop = this.guiTop + 14;
 			if (!this.builder.schematicName.isEmpty()) {

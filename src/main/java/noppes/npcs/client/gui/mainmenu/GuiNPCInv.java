@@ -1,12 +1,6 @@
 package noppes.npcs.client.gui.mainmenu;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import moe.plushie.armourers_workshop.api.ArmourersWorkshopClientApi;
 import net.minecraft.client.gui.GuiYesNo;
@@ -122,7 +116,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			}
 			case 9: { // add Drop
 				groupId = temp.groups.size();
-				temp.groups.put(groupId, Maps.newTreeMap());
+				temp.groups.put(groupId, new TreeMap<>());
 				initGui();
 				break;
 			}
@@ -133,7 +127,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			case 11: { // copy Group
 				if (this.temp == null) { return; }
 				Map<Integer, DropSet> parent = this.temp.groups.get(this.groupId);
-				Map<Integer, DropSet> newGroup = Maps.newTreeMap();
+				Map<Integer, DropSet> newGroup = new TreeMap<>();
 				for (int id : parent.keySet()) {
 					DropSet ds = new DropSet(this.inventory);
 					ds.load(parent.get(id).getNBT());
@@ -305,7 +299,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 				scrollDrops = new GuiCustomScroll(this, 1);
 			}
 			scrollDrops.setSize(238, 157);
-			scrollDrops.setList(Lists.newArrayList(dropsData.keySet()));
+			scrollDrops.setList(new ArrayList<>(dropsData.keySet()));
 			scrollDrops.guiLeft = this.guiLeft + 175;
 			scrollDrops.guiTop = this.guiTop + 38;
 			scrollDrops.hoversTexts = hoversTexts;
@@ -319,7 +313,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			this.addLabel(new GuiNpcLabel(4, "gui.templates", this.guiLeft + 176, this.guiTop + 27));
 			if (scrollTemplate == null) { scrollTemplate = new GuiCustomScroll(this, 0); }
 			scrollTemplate.setSize(98, 140);
-			scrollTemplate.setList(Lists.newArrayList(DropController.getInstance().templates.keySet()));
+			scrollTemplate.setList(new ArrayList<>(DropController.getInstance().templates.keySet()));
 			scrollTemplate.guiLeft = this.guiLeft + 175;
 			scrollTemplate.guiTop = this.guiTop + 38;
 			this.addScroll(scrollTemplate);
@@ -346,7 +340,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			this.addButton(new GuiNpcButton(7, this.guiLeft + 225, this.guiTop + 197, 48, 15, "gui.remove", !this.inventory.saveDropsName.isEmpty() && !inventory.saveDropsName.equals("default")));
 			this.addLabel(new GuiNpcLabel(5, "gui.groups", this.guiLeft + 277, this.guiTop + 30));
 
-			List<String> l = Lists.newArrayList();
+			List<String> l = new ArrayList<>();
 			int g = 1;
 			if (this.temp != null && !this.temp.groups.isEmpty()) {
 				g = this.temp.groups.size();
@@ -360,7 +354,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 				scrollDrops = new GuiCustomScroll(this, 1);
 			}
 			scrollDrops.setSize(140, 117);
-			scrollDrops.setList(Lists.newArrayList(dropsData.keySet()));
+			scrollDrops.setList(new ArrayList<>(dropsData.keySet()));
 			scrollDrops.guiLeft = guiLeft + 276;
 			scrollDrops.guiTop = guiTop + 44;
 			scrollDrops.hoversTexts = hoversTexts;
@@ -396,7 +390,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 				this.scrollTemplate = new GuiCustomScroll(this, 0);
 			}
 			this.scrollTemplate.setSize(98, 174);
-			this.scrollTemplate.setList(Lists.newArrayList(DropController.getInstance().templates.keySet()));
+			this.scrollTemplate.setList(new ArrayList<>(DropController.getInstance().templates.keySet()));
 			this.scrollTemplate.guiLeft = this.guiLeft + 175;
 			this.scrollTemplate.guiTop = this.guiTop + 38;
 			this.addScroll(this.scrollTemplate);
@@ -412,7 +406,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			}
 
 			scrollDrops.setSize(140, 157);
-			scrollDrops.setList(Lists.newArrayList(this.dropsData.keySet()));
+			scrollDrops.setList(new ArrayList<>(dropsData.keySet()));
 			scrollDrops.guiLeft = this.guiLeft + 276;
 			scrollDrops.guiTop = this.guiTop + 38;
 			scrollDrops.hoversTexts = hoversTexts;

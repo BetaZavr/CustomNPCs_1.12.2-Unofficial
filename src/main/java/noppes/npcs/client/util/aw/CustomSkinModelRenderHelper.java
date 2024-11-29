@@ -7,8 +7,6 @@ import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 import moe.plushie.armourers_workshop.api.common.skin.data.ISkin;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
@@ -38,7 +36,7 @@ public class CustomSkinModelRenderHelper {
 
 	public CustomSkinModelRenderHelper() {
 		INSTANCE = this;
-		helperModelsMap = Maps.newHashMap();
+		helperModelsMap = new HashMap<>();
 		helperModelsMap.put("armourers:head", new CustomModelSkinHead());
 		helperModelsMap.put("armourers:chest", new CustomModelSkinChest());
 		helperModelsMap.put("armourers:legs", new CustomModelSkinLegs());
@@ -79,15 +77,15 @@ public class CustomSkinModelRenderHelper {
 		catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
-	public boolean renderEquipmentPart(ISkin skin, Object renderData, EntityNPCInterface npc, ModelBiped modelBiped, float scale, Map<EnumParts, Boolean> ba) {
+	public void renderEquipmentPart(ISkin skin, Object renderData, EntityNPCInterface npc, ModelBiped modelBiped, float scale, Map<EnumParts, Boolean> ba) {
 		if (skin == null) {
-			return false;
+			return;
 		}
 		try {
 			String key = skin.getSkinType().getRegistryName();
 			Object model = helperModelsMap.get(key);
 			if (model == null) {
-				return false;
+				return;
 			}
 			GlStateManager.pushMatrix();
 			GlStateManager.pushAttrib();
@@ -129,9 +127,7 @@ public class CustomSkinModelRenderHelper {
 			GlStateManager.disableCull();
 			GlStateManager.popAttrib();
 			GlStateManager.popMatrix();
-			return true;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		return false;
 	}
 
 }

@@ -4,12 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -103,9 +98,8 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 		if (gui instanceof SubGuiNpcTextArea) {
 			try {
 				this.compound = JsonToNBT.getTagFromJson(((SubGuiNpcTextArea) gui).text);
-				String s = null;
-				this.faultyText = s;
-				this.errorMessage = s;
+				this.faultyText = null;
+				this.errorMessage = null;
 			} catch (NBTException e) {
 				this.errorMessage = e.getLocalizedMessage();
 				this.faultyText = ((SubGuiNpcTextArea) gui).text;
@@ -172,10 +166,10 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 			this.scroll.guiTop -= 20;
 			String name;
 			if (EntityRegistry.getEntry(this.entity.getClass()) == null) {
-				name = "Not registred name!";
+				name = "Not registered name!";
 				onlyClient = true;
 			} else {
-				name = "id: " + Objects.requireNonNull(EntityRegistry.getEntry(this.entity.getClass())).getRegistryName().toString();
+				name = "id: " + Objects.requireNonNull(Objects.requireNonNull(EntityRegistry.getEntry(entity.getClass())).getRegistryName());
 			}
 			this.addLabel(new GuiNpcLabel(12, name, this.guiLeft + 60, this.guiTop + 6));
 			this.setObjectToScroll(this.entity);
@@ -210,10 +204,10 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 		this.addLabel(new GuiNpcLabel(15, "(?) Class \"" + obj.getClass().getSimpleName() + "\":", this.guiLeft + 60, this.guiTop + (this.state != null ? 36 : 16)));
 		this.getLabel(15).hoverText = new String[] { obj.getClass().getName() };
 		
-		List<String> list = Lists.newArrayList();
-		Map<String, Field> fs = Maps.newTreeMap();
-		Map<String, Method> ms = Maps.newTreeMap();
-		Map<String, Class<?>> cs = Maps.newTreeMap();
+		List<String> list = new ArrayList<>();
+		Map<String, Field> fs = new TreeMap<>();
+		Map<String, Method> ms = new TreeMap<>();
+		Map<String, Class<?>> cs = new TreeMap<>();
 		for (Field f : obj.getClass().getDeclaredFields()) { fs.put(f.getName(), f); }
 		for (Method m : obj.getClass().getDeclaredMethods()) { ms.put(m.getName(), m); }
 		for (Class<?> c : obj.getClass().getDeclaredClasses()) { cs.put(c.getName(), c); }
@@ -252,27 +246,7 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 				if (!isAccessible) { m.setAccessible(true); }
 				int mdf = m.getModifiers();
 				list.add(((char) 167) + "3M: " + ((char) 167) + (Modifier.isPublic(mdf) ? "a" : "c") + key);
-				String mf = ((char) 167) + "3method: ";
-				if (Modifier.isPublic(mdf)) { mf += ((char) 167) + "apublic"; }
-				else if (Modifier.isProtected(mdf)) { mf += ((char) 167) + "cprotected"; }
-				else { mf += ((char) 167) + "4private"; }
-				if (Modifier.isStatic(mdf)) { mf += ((char) 167) + "e static"; }
-				if (Modifier.isFinal(mdf)) { mf += ((char) 167) + "b final"; }
-				
-				List<String> hoverText = Lists.newArrayList(mf, ((char) 167) + "7return type: " + ((char) 167) + "r" + m.getReturnType().getName());
-				if (m.getParameters() != null && m.getParameters().length > 0) {
-					hoverText.add(((char) 167) + "7parametrs: (");
-					Parameter[] prms = m.getParameters();
-					for (int j = 0; j < prms.length; j++) {
-						String nm = ((char) 167) + "8" + prms[j].getType().getName();
-						nm = nm.replace(prms[j].getType().getSimpleName(), ((char) 167) + "e" + prms[j].getType().getSimpleName());
-						nm += ((char) 167) + "r " + prms[j].getName() + (j < prms.length - 1 ? "," : "");
-						hoverText.add(nm);
-					}
-					hoverText.add(((char) 167) + "7)");
-				} else {
-					hoverText.add(((char) 167) + "7parametrs: " + ((char) 167) + "r()");
-				}
+				List<String> hoverText = getStringList(mdf, m);
 				this.scroll.hoversTexts[i] = hoverText.toArray(new String[0]);
 				if (!isAccessible) { m.setAccessible(false); }
 			}
@@ -296,6 +270,33 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 			i++;
 		}
 		this.scroll.setListNotSorted(list);
+	}
+
+	private static List<String> getStringList(int mdf, Method m) {
+		String mf = ((char) 167) + "3method: ";
+		if (Modifier.isPublic(mdf)) { mf += ((char) 167) + "apublic"; }
+		else if (Modifier.isProtected(mdf)) { mf += ((char) 167) + "cprotected"; }
+		else { mf += ((char) 167) + "4private"; }
+		if (Modifier.isStatic(mdf)) { mf += ((char) 167) + "e static"; }
+		if (Modifier.isFinal(mdf)) { mf += ((char) 167) + "b final"; }
+
+		List<String> hoverText = new ArrayList<>();
+		hoverText.add(mf);
+		hoverText.add(((char) 167) + "7return type: " + ((char) 167) + "r" + m.getReturnType().getName());
+		if (m.getParameters() != null && m.getParameters().length > 0) {
+			hoverText.add(((char) 167) + "7parameters: (");
+			Parameter[] prms = m.getParameters();
+			for (int j = 0; j < prms.length; j++) {
+				String nm = ((char) 167) + "8" + prms[j].getType().getName();
+				nm = nm.replace(prms[j].getType().getSimpleName(), ((char) 167) + "e" + prms[j].getType().getSimpleName());
+				nm += ((char) 167) + "r " + prms[j].getName() + (j < prms.length - 1 ? "," : "");
+				hoverText.add(nm);
+			}
+			hoverText.add(((char) 167) + "7)");
+		} else {
+			hoverText.add(((char) 167) + "7parameters: " + ((char) 167) + "r()");
+		}
+		return hoverText;
 	}
 
 	@Override

@@ -11,8 +11,6 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
 import org.lwjgl.input.Keyboard;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
@@ -35,7 +33,7 @@ import javax.annotation.Nonnull;
 
 public abstract class GuiNPCInterface
 extends GuiScreen
-implements IEditNPC {
+implements IEditNPC, ICustomScrollListener {
 
 	// Minecraft Resources
 	public static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/widgets.png");
@@ -69,8 +67,8 @@ implements IEditNPC {
 	private GuiButton selectedButton;
 	public SubGuiInterface subgui;
 
-	private final List<int[]> line = Lists.newArrayList(); // startX, startY, endX, endY, color, lineSize
-	private final List<IGui> components = Lists.newArrayList();
+	private final List<int[]> line = new ArrayList<>(); // startX, startY, endX, endY, color, lineSize
+	private final List<IGui> components = new ArrayList<>();
 	public final Map<Integer, GuiNpcButton> buttons = new ConcurrentHashMap<>();
 	public final Map<Integer, GuiScreen> extra = new ConcurrentHashMap<>();
 	public final Map<Integer, GuiNpcLabel> labels = new ConcurrentHashMap<>();

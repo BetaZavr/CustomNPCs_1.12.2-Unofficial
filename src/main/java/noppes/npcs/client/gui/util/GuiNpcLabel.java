@@ -1,8 +1,9 @@
 package noppes.npcs.client.gui.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -82,7 +83,7 @@ implements IComponentGui {
 		char chr = Character.toChars(0x000A)[0];
 
 		if (labels.toString().indexOf(chr) != -1) {
-			List<String> list = Lists.newArrayList();
+			List<String> list = new ArrayList<>();
 			String text = labels.toString();
 			while (text.indexOf(chr) != -1) {
 				list.add(text.substring(0, text.indexOf(chr)));
@@ -93,18 +94,18 @@ implements IComponentGui {
 		}
 
 		if (labels instanceof String[]) {
-			labels = Lists.newArrayList((String[]) labels);
+			labels = new ArrayList<>(Arrays.asList((String[]) labels));
 		}
 		if (labels instanceof List) {
 			if (((List<?>) labels).size() == 1) {
 				String str = ((List<?>) labels).get(0) == null ? ""
 						: new TextComponentTranslation(labels.toString()).getFormattedText();
-				this.label = Lists.newArrayList(str);
+				this.label = Collections.singletonList(str);
 				this.height = 10;
 				this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
 				return;
 			}
-			this.label = Lists.newArrayList();
+			this.label = new ArrayList<>();
 			this.height = 10 * ((List<?>) labels).size();
 			this.width = 0;
 			for (Object obj : (List<?>) labels) {
@@ -118,8 +119,8 @@ implements IComponentGui {
 			}
 		} else {
 			String str = labels.toString();
-			try { str = new TextComponentTranslation(labels.toString()).getFormattedText(); } catch (Exception e) { }
-			this.label = Lists.newArrayList(str);
+			try { str = new TextComponentTranslation(labels.toString()).getFormattedText(); } catch (Exception ignored) { }
+			this.label = Collections.singletonList(str);
 			this.height = 10;
 			this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
 		}

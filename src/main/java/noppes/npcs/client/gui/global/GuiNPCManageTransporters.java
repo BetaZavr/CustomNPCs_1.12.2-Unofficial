@@ -1,11 +1,6 @@
 package noppes.npcs.client.gui.global;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
@@ -39,8 +34,8 @@ import noppes.npcs.util.Util;
 public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 		implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener {
 
-	public final Map<String, Integer> dataCat = Maps.newTreeMap();
-	public final Map<String, Integer> dataLoc = Maps.newTreeMap();
+	public final Map<String, Integer> dataCat = new TreeMap<>();
+	public final Map<String, Integer> dataLoc = new TreeMap<>();
 	private GuiCustomScroll categories, locations;
 	public String catSel = "", locSel = "";
 	private boolean wait = true;
@@ -172,7 +167,7 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 		if (this.categories == null) {
 			(this.categories = new GuiCustomScroll(this, 0)).setSize(100, 96);
 		}
-		this.categories.setListNotSorted(Lists.newArrayList(this.dataCat.keySet()));
+		this.categories.setListNotSorted(new ArrayList<>(dataCat.keySet()));
 		int x = this.guiLeft + 5, y = this.guiTop + 14;
 		this.categories.guiLeft = x;
 		this.categories.guiTop = y;
@@ -189,7 +184,7 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 		if (this.locations == null) {
 			(this.locations = new GuiCustomScroll(this, 1)).setSize(100, 96);
 		}
-		this.locations.setListNotSorted(Lists.newArrayList(this.dataLoc.keySet()));
+		this.locations.setListNotSorted(new ArrayList<>(dataLoc.keySet()));
 		x += 102;
 		y = this.guiTop + 14;
 		this.locations.guiLeft = x;

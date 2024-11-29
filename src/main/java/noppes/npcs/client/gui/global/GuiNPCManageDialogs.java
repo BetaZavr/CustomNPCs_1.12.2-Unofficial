@@ -1,13 +1,7 @@
 package noppes.npcs.client.gui.global;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
@@ -45,8 +39,8 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
 	public static GuiScreen Instance;
 	private static boolean isName = true;
-	private final Map<String, DialogCategory> categoryData = Maps.newTreeMap();
-	private final Map<String, Dialog> dialogData = Maps.newLinkedHashMap();
+	private final Map<String, DialogCategory> categoryData = new TreeMap<>();
+	private final Map<String, Dialog> dialogData = new LinkedHashMap<>();
 	private GuiCustomScroll scrollCategories;
 	private GuiCustomScroll scrollDialogs;
 	private String selectedCategory = "";
@@ -226,7 +220,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		// dialogs
 		if (!this.selectedCategory.isEmpty()) {
 			if (this.categoryData.containsKey(this.selectedCategory)) {
-				Map<String, Dialog> map = Maps.newTreeMap();
+				Map<String, Dialog> map = new TreeMap<>();
 				for (Dialog dialog : this.categoryData.get(this.selectedCategory).dialogs.values()) {
 					boolean b = !dialog.text.isEmpty();
 					String key = chr + "7ID:" + dialog.id + "-\"" + chr + "r"
@@ -235,7 +229,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 							+ chr + (b ? "2)" : "c)");
 					map.put(key, dialog);
 				}
-				List<Entry<String, Dialog>> list = Lists.newArrayList(map.entrySet());
+				List<Entry<String, Dialog>> list = new ArrayList<>(map.entrySet());
 				list.sort((d_0, d_1) -> {
                     if (GuiNPCManageDialogs.isName) {
                         String n_0 = Util.instance
@@ -261,9 +255,11 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				if (!this.dialogData.isEmpty()) {
 					int pos = 0;
 					ht = new String[this.dialogData.size()][];
-					Map<String, Integer> nextDialogIDs = Maps.newTreeMap();
+					Map<String, Integer> nextDialogIDs = new TreeMap<>();
 					for (Dialog dialog : this.dialogData.values()) {
-						List<String> h = Lists.newArrayList(), activationDialogs = Lists.newArrayList(), nextDialogs = Lists.newArrayList();
+						List<String> h = new ArrayList<>();
+						List<String> activationDialogs = new ArrayList<>();
+						List<String> nextDialogs = new ArrayList<>();
 						h.add(new TextComponentTranslation(dialog.title).getFormattedText() + ":");
 						for (DialogOption option : dialog.options.values()) {
 							if (option.optionType != OptionType.DIALOG_OPTION || option.dialogs.isEmpty()) {
@@ -354,7 +350,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		if (this.scrollCategories == null) {
 			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, this.ySize - 3);
 		}
-		this.scrollCategories.setList(Lists.newArrayList(this.categoryData.keySet()));
+		this.scrollCategories.setList(new ArrayList<>(categoryData.keySet()));
 		this.scrollCategories.guiLeft = this.guiLeft + 4;
 		this.scrollCategories.guiTop = this.guiTop + 15;
 		if (!this.selectedCategory.isEmpty()) {
@@ -365,7 +361,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		if (this.scrollDialogs == null) {
 			(this.scrollDialogs = new GuiCustomScroll(this, 1)).setSize(170, this.ySize - 3);
 		}
-		this.scrollDialogs.setListNotSorted(Lists.newArrayList(this.dialogData.keySet()));
+		this.scrollDialogs.setListNotSorted(new ArrayList<>(dialogData.keySet()));
 		this.scrollDialogs.guiLeft = this.guiLeft + 176;
 		this.scrollDialogs.guiTop = this.guiTop + 15;
 		if (!this.selectedDialog.isEmpty()) {

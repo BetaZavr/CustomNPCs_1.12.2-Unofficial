@@ -10,8 +10,6 @@ import noppes.npcs.api.mixin.client.renderer.IBlockModelRendererMixin;
 import noppes.npcs.api.mixin.client.renderer.IBlockRendererDispatcherMixin;
 import org.lwjgl.opengl.GL11;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 
 import net.minecraft.block.state.IBlockState;
@@ -87,11 +85,11 @@ import noppes.npcs.util.CustomNPCsScheduler;
 
 public class ClientEventHandler {
 
-	public static final Map<EntityPlayer, RenderChatMessages> chatMessages = Maps.newHashMap();
+	public static final Map<EntityPlayer, RenderChatMessages> chatMessages = new HashMap<>();
 	public static GuiScreen gui;
 
 	public static SubGuiInterface subgui;
-	public static Map<ISchematic, Integer> displayMap = Maps.newHashMap();
+	public static Map<ISchematic, Integer> displayMap = new HashMap<>();
 	public static BlockPos schemaPos;
 	public static Schematic schema;
 	public static int rotation;
@@ -470,7 +468,7 @@ public class ClientEventHandler {
 			} catch (Exception e) { /*LogWriter.debug("VoxelMap is missing: "+vm);*/ }
 		}
 		// Check save client Points:
-		List<MiniMapData> points = Lists.newArrayList();
+		List<MiniMapData> points = new ArrayList<>();
 		if (hasJourneyMap) {
 			mm.addData.clear();
 			if (!mm.modName.equals("journeymap")) {

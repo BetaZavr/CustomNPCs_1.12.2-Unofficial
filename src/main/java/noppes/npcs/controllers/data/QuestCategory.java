@@ -2,8 +2,6 @@ package noppes.npcs.controllers.data;
 
 import java.util.TreeMap;
 
-import com.google.common.collect.Maps;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -12,15 +10,9 @@ import noppes.npcs.api.handler.data.IQuestCategory;
 
 public class QuestCategory implements IQuestCategory {
 
-	public int id;
-	public final TreeMap<Integer, Quest> quests;
-	public String title;
-
-	public QuestCategory() {
-		this.id = -1;
-		this.title = "";
-		this.quests = Maps.newTreeMap();
-	}
+	public int id = -1;
+	public final TreeMap<Integer, Quest> quests = new TreeMap<>();
+	public String title = "";
 
 	public QuestCategory copy() {
 		QuestCategory newCat = new QuestCategory();

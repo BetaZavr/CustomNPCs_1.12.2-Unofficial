@@ -1,12 +1,11 @@
 package noppes.npcs.client.layer;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import noppes.npcs.items.ItemNpcWand;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngameMenu;
@@ -482,7 +481,7 @@ public class LayerEyes<T extends EntityLivingBase>
 		mc.entityRenderer.setupFogColor(true);
 		float oU = 0.0f, oD = 0.0f, pU = -0.4f, pD = 0.25f, ox = 0.0f, oy = 0.0f, gU = 0.0f, gD = 0.0f;
 		if (this.playerdata.eyes.type != 0) { oU = 0.3f; oD = 1.0f; pU = 0.0f; pD = 1.0f; gU = 0.7f; gD = 0.15f; }
-		Map<Integer, Float[]> anim = Maps.newHashMap();
+		Map<Integer, Float[]> anim = new HashMap<>();
 		EmotionFrame frame = this.npc.animation.currentEmotionFrame;
 		if (this.npc.animation.activeEmotion == null && this.npc.animation.baseEmotionId >= 0) {
 			this.npc.animation.activeEmotion = (EmotionConfig) AnimationController.getInstance().getEmotion(this.npc.animation.baseEmotionId);

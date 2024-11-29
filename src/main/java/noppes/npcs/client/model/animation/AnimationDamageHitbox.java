@@ -7,7 +7,7 @@ public class AnimationDamageHitbox {
 
     public float[] offset = new float[] { 1.2f, 0.8f, 0.0f }; // [ D:radius, H:height, W:addYaw ]
     public float[] scale = new float[] { 1.2f, 1.5f, 1.2f }; // [ x, y, z ]
-    public int id = 0;
+    public int id;
 
     public AnimationDamageHitbox(int id) { this.id = id; }
 

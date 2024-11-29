@@ -1,13 +1,6 @@
 package noppes.npcs.client.gui;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.Client;
@@ -132,9 +125,9 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 		if (name != null && name.contains("ID:") && name.indexOf(" - ") >= name.indexOf("ID:")) {
 			name = name.substring(name.indexOf(" - ") + 3);
 		}
-		List<String> newList = Lists.newArrayList();
-		Map<String, String> hoverMap = Maps.newHashMap();
-		Map<String, Integer> newData = Maps.newHashMap();
+		List<String> newList = new ArrayList<>();
+		Map<String, String> hoverMap = new HashMap<>();
+		Map<String, Integer> newData = new HashMap<>();
 		for (String key : data.keySet()) {
 			int id = data.get(key);
 			String newName = Util.instance.deleteColor(key);

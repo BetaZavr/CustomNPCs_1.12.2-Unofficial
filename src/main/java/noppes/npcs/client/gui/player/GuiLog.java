@@ -5,9 +5,6 @@ import java.util.*;
 
 import org.lwjgl.opengl.GL11;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -81,9 +78,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 		public final QuestData qData;
 		private EntityNPCInterface npc;
-		private final Map<Integer, List<String>> map = Maps.newTreeMap(); // [key, data texts]
-		public final List<ItemStack> stacks = Lists.newArrayList();
-		public final Map<Integer, Entity> entitys = Maps.newTreeMap();
+		private final Map<Integer, List<String>> map = new TreeMap<>(); // [key, data texts]
+		public final List<ItemStack> stacks = new ArrayList<>();
+		public final Map<Integer, Entity> entitys = new TreeMap<>();
 		private final World world;
 
 		private boolean newInstance = true;
@@ -117,7 +114,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		}
 
 		public Map<Integer, List<String>> getText(int first, EntityPlayer player, FontRenderer fontRenderer) { // [listID/2,
-																												// lable
+																												// label
 																												// texts]
 			if (!newInstance && !map.isEmpty()) {
 				return map;
@@ -160,11 +157,11 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 										if (en.getName().equals(target)) {
 											NBTTagCompound compound = new NBTTagCompound();
 											en.writeToNBTAtomically(compound);
-											Entity enti = EntityList.createEntityFromNBT(compound, world);
-											if (enti == null) {
+											Entity entity = EntityList.createEntityFromNBT(compound, world);
+											if (entity == null) {
 												e = en;
 											} else {
-												e = enti;
+												e = entity;
 												if (e instanceof EntityNPCInterface) {
 													e = Util.instance.copyToGUI((EntityNPCInterface) e, world,
 															false);
@@ -183,7 +180,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				text = new StringBuilder(text.substring(0, text.length() - 1));
 			}
 			text.append(qData.quest.getLogText());
-			List<String> lines = Lists.newArrayList();
+			List<String> lines = new ArrayList<>();
 			int currentList = 0;
 			String line = "";
 			text = new StringBuilder(text.toString().replace("\n", " \n "));
@@ -223,12 +220,12 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				lines.add(color + line);
 			}
 
-			List<String> list = Lists.newArrayList();
+			List<String> list = new ArrayList<>();
 			float height = (3.57143f * GuiLog.scaleH + 116.42857f) * GuiLog.scaleH; // 1.0 - 120; 2.4 - 125
 			for (String l : lines) {
 				if ((list.size() * 10) > height - (currentList == 0 ? first : 0)) {
 					map.put(currentList, list);
-					list = Lists.newArrayList();
+					list = new ArrayList<>();
 					currentList++;
 				}
 				list.add(l);
@@ -238,7 +235,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			}
 			newInstance = false;
 
-			List<ItemStack> rewardist = Lists.newArrayList();
+			List<ItemStack> rewarList = new ArrayList<>();
 			for (int i = 0; i < qData.quest.rewardItems.getSizeInventory(); i++) {
 				ItemStack stack = qData.quest.rewardItems.getStackInSlot(i);
 				if (stack.isEmpty()) {
@@ -246,7 +243,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				}
 				boolean has = false;
 				if (qData.quest.rewardType == EnumRewardType.ALL) {
-					for (ItemStack it : rewardist) {
+					for (ItemStack it : rewarList) {
 						if (stack.isItemEqual(it) && ItemStack.areItemStackShareTagsEqual(stack, it)) {
 							has = true;
 							break;
@@ -254,11 +251,11 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					}
 				}
 				if (!has) {
-					rewardist.add(stack);
+					rewarList.add(stack);
 				}
 			}
-			if (!rewardist.isEmpty()) {
-				stacks.addAll(rewardist);
+			if (!rewarList.isEmpty()) {
+				stacks.addAll(rewarList);
 			}
 			return map;
 		}
@@ -268,7 +265,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		}
 
 	}
-	private static final Map<Integer, ResourceLocation> ql = Maps.newTreeMap();
+	private static final Map<Integer, ResourceLocation> ql = new TreeMap<>();
 	private static final ResourceLocation bookGuiTextures = new ResourceLocation("textures/gui/book.png");
 	private static final ResourceLocation killIcon = new ResourceLocation("textures/entity/skeleton/skeleton.png");
 
@@ -408,17 +405,28 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	 * list 30 - extended button 31 - compass look 32 - cancel quest
 	 */
 	private int hoverButton;
-	private int hoverQuestId, catRow, catSelect, page;
+	private int hoverQuestId;
+	private int catRow;
+	private int catSelect;
+	private int page;
+	private int step;
+	private int tick;
+	private int milliTick;
+	private int temp;
+	private int guiLLeft;
+	private int guiLRight;
+	private int guiLTop;
+	private int guiTopLog;
+	private int guiCenter;
 	public int type; // -1-inv; 0-faction; 1-quests; 2-compass
-	private int step, tick, mtick, temp, guiLLeft, guiLRight, guiLTop, guiTopLog, guiCenter;
 
 	private boolean toPrePage = true;
 	private final Random rnd = new Random();
 	private ScaledResolution sw;
-	private final Map<String, Map<Integer, QuestData>> quests = Maps.newTreeMap(); // {
+	private final Map<String, Map<Integer, QuestData>> quests = new TreeMap<>(); // {
 	// category																							// quest]}
-	private final Map<String, Color> categories = Maps.newTreeMap(); // [name, color]
-	private final List<Faction> playerFactions = Lists.newArrayList();
+	private final Map<String, Color> categories = new TreeMap<>(); // [name, color]
+	private final List<Faction> playerFactions = new ArrayList<>();
 
 	private final PlayerCompassHUDData compassData;
 
@@ -429,7 +437,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		type = t;
 		temp = 0;
 		tick = 15;
-		mtick = 15;
+		milliTick = 15;
 		step = 0;
 		closeOnEsc = true;
 
@@ -474,13 +482,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			if (catSelect == catList && page != 0) {
 				step = 11;
 				tick = 10;
-				mtick = 10;
+				milliTick = 10;
 				page = 0;
 			}
 			if (catSelect != catList || activeQuest != null) {
 				step = catSelect > catList || activeQuest != null ? 11 : 10;
 				tick = 11;
-				mtick = 10;
+				milliTick = 10;
 				catSelect = catList;
 				page = 0;
 				activeQuest = null;
@@ -491,7 +499,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		case 0: { // inventory
 			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 			tick = 15;
-			mtick = 15;
+			milliTick = 15;
 			step = type + 7;
 			type = -1;
 			break;
@@ -502,7 +510,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			}
 			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 			tick = 15;
-			mtick = 15;
+			milliTick = 15;
 			toPrePage = false;
 			step = type + 7;
 
@@ -518,7 +526,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			}
 			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 			tick = 15;
-			mtick = 15;
+			milliTick = 15;
 			toPrePage = type == 1;
 			step = type + 7;
 
@@ -536,7 +544,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			}
 			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 			tick = 15;
-			mtick = 15;
+			milliTick = 15;
 			toPrePage = true;
 			step = type + 7;
 
@@ -552,13 +560,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					page++;
 					step = 10;
 					tick = 10;
-					mtick = 10;
+					milliTick = 10;
 				}
 			} else if (type == 1) {
 				page++;
 				step = 10;
 				tick = 10;
-				mtick = 10;
+				milliTick = 10;
 			}
 			break;
 		}
@@ -568,13 +576,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					page--;
 					step = 11;
 					tick = 10;
-					mtick = 10;
+					milliTick = 10;
 				}
 			} else if (type == 1) {
 				page--;
 				step = 11;
 				tick = 10;
-				mtick = 10;
+				milliTick = 10;
 			}
 			break;
 		}
@@ -597,7 +605,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			activeQuest = new QuestInfo(quests.get(catName).get(hoverQuestId), this.mc.world);
 			step = 10;
 			tick = 10;
-			mtick = 10;
+			milliTick = 10;
 			break;
 		}
 		case 16: { // pre cat list
@@ -864,9 +872,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 		// Body
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("body", "dial", "arrow_1", "arrow_20", "fase"), null));
+		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, new ArrayList<>(Arrays.asList("body", "dial", "arrow_1", "arrow_20", "fase")), null));
 		GlStateManager.rotate((System.currentTimeMillis() % 3500L) / (3500.0f / 360.0f), 0.0f, 1.0f, 0.0f);
-		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_0"), null));
+		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_0"), null));
 		GlStateManager.popMatrix();
 
 	}
@@ -938,12 +946,12 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 			float w;
 			Color h;
-			int points = playerData.factionData.getFactionPoints(player, f.id), nextp = 0, t = 0;
+			int points = playerData.factionData.getFactionPoints(player, f.id), nextPoint = 0, t = 0;
 			if (f.isNeutralToPlayer(player)) {
 				t = 1;
 				h = new Color(0xF2DD00);
 				w = (float) (f.friendlyPoints - points) / (float) (f.friendlyPoints - f.neutralPoints);
-				nextp = f.friendlyPoints;
+				nextPoint = f.friendlyPoints;
 			} else if (f.isFriendlyToPlayer(player)) {
 				t = 2;
 				h = new Color(0x00DD00);
@@ -951,7 +959,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			} else {
 				h = new Color(0xDD0000);
 				w = (float) (f.neutralPoints - points) / (float) f.neutralPoints;
-				nextp = f.neutralPoints;
+				nextPoint = f.neutralPoints;
 			}
 
 			if (w < 0.0f) {
@@ -993,7 +1001,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 			if (isMouseHover(mouseX, mouseY, (int) (guiLLeft + (i > 4 ? 105.0f : 0) * scaleW),
 					(int) (guiLTop + (i % 8) * 19.0f * scaleH), (int) (98.0f * scaleW), (int) (16.0f * scaleH))) {
-				List<String> hover = Lists.newArrayList();
+				List<String> hover = new ArrayList<>();
 				// GM
 				if (f.hideFaction) {
 					hover.add(new TextComponentTranslation("faction.hover.hidden").getFormattedText());
@@ -1015,7 +1023,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 										: "6" + new TextComponentTranslation("faction.neutral").getFormattedText()));
 				// points
 				hover.add(((char) 167) + "7" + new TextComponentTranslation("faction.points").getFormattedText()
-						+ ((char) 167) + "7: " + ((char) 167) + "r" + points + (nextp != 0 ? "/" + nextp : ""));
+						+ ((char) 167) + "7: " + ((char) 167) + "r" + points + (nextPoint != 0 ? "/" + nextPoint : ""));
 				if (!f.description.isEmpty()) {
 					hover.add(((char) 167) + "7" + new TextComponentTranslation("gui.description").getFormattedText());
 					hover.add(new TextComponentTranslation(f.description).getFormattedText());
@@ -1075,7 +1083,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			fontRenderer.drawSplitString(noFaction, guiLLeft, guiLTop, (int) (98.0f * scaleW), CustomNpcs.QuestLogColor.getRGB());
 			return;
 		}
-		List<String> hover = Lists.newArrayList();
+		List<String> hover = new ArrayList<>();
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
 		this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
@@ -1488,7 +1496,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				partialTicks = 0.0f;
 			}
 			float part = (float) tick + partialTicks;
-			float cos = (float) Math.cos(90.0d * part / (double) mtick * Math.PI / 180.0d);
+			float cos = (float) Math.cos(90.0d * part / (double) milliTick * Math.PI / 180.0d);
 			if (cos < 0.0f) {
 				cos = 0.0f;
 			} else if (cos > 1.0f) {
@@ -1506,7 +1514,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (tick == 0) {
 					step = 1;
 					tick = 21;
-					mtick = 20;
+					milliTick = 20;
 					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.down",
 							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
 							0.75f + 0.25f * this.rnd.nextFloat());
@@ -1523,11 +1531,11 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 				GlStateManager.popMatrix();
 				// left
-				boolean up = tick >= mtick / 2;
+				boolean up = tick >= milliTick / 2;
 				GlStateManager.pushMatrix();
 				if (up) {
-					part = (float) (tick - (mtick / 2)) + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) mtick / 2.0d) * Math.PI / 180.0d);
+					part = (float) (tick - (milliTick / 2)) + partialTicks;
+					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
 					if (cos < 0.0f) {
 						cos = 0.0f;
 					} else if (cos > 1.0f) {
@@ -1540,7 +1548,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 				} else {
 					part = (float) tick + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) mtick / 2.0d) * Math.PI / 180.0d);
+					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
 					if (cos < 0.0f) {
 						cos = 0.0f;
 					} else if (cos > 1.0f) {
@@ -1556,7 +1564,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (tick == 0) {
 					step = 2;
 					tick = 11;
-					mtick = 10;
+					milliTick = 10;
 					GlStateManager.disableBlend();
 				}
 				break;
@@ -1575,11 +1583,11 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				GlStateManager.popMatrix();
 
 				// left
-				boolean up = tick >= mtick / 2;
+				boolean up = tick >= milliTick / 2;
 				GlStateManager.pushMatrix();
 				if (up) {
-					part = (float) (tick - (mtick / 2)) + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) mtick / 2.0d) * Math.PI / 180.0d);
+					part = (float) (tick - (milliTick / 2)) + partialTicks;
+					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
 					if (cos < 0.0f) {
 						cos = 0.0f;
 					} else if (cos > 1.0f) {
@@ -1592,7 +1600,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 				} else {
 					part = (float) tick + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) mtick / 2.0d) * Math.PI / 180.0d);
+					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
 					if (cos < 0.0f) {
 						cos = 0.0f;
 					} else if (cos > 1.0f) {
@@ -1606,7 +1614,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				}
 				GlStateManager.popMatrix();
 
-				if (tick == mtick) {
+				if (tick == milliTick) {
 					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
 							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
 							0.8f + 0.4f * this.rnd.nextFloat());
@@ -1616,12 +1624,12 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						temp++;
 						step = 2;
 						tick = 11;
-						mtick = 10;
+						milliTick = 10;
 					} else {
 						temp = 0;
 						step = 3;
 						tick = 21;
-						mtick = 20;
+						milliTick = 20;
 					}
 					GlStateManager.disableBlend();
 				}
@@ -1655,7 +1663,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (tick == 0) {
 					step = type + 4;
 					tick = 21;
-					mtick = 20;
+					milliTick = 20;
 					GlStateManager.disableBlend();
 				}
 				break;
@@ -1705,7 +1713,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (tick == 0) {
 					step = toPrePage ? 10 : 11;
 					tick = 11;
-					mtick = 10;
+					milliTick = 10;
 					GlStateManager.disableBlend();
 				}
 				break;
@@ -1715,7 +1723,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (tick == 0) {
 					step = toPrePage ? 10 : 11;
 					tick = 11;
-					mtick = 10;
+					milliTick = 10;
 					GlStateManager.disableBlend();
 				}
 				break;
@@ -1725,7 +1733,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (tick == 0) {
 					step = toPrePage ? 10 : 11;
 					tick = 11;
-					mtick = 10;
+					milliTick = 10;
 					GlStateManager.disableBlend();
 				}
 				break;
@@ -1775,7 +1783,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						step = type + 4;
                     }
                     tick = 21;
-                    mtick = 20;
+                    milliTick = 20;
                 }
 				break;
 			}
@@ -1790,7 +1798,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						step = type + 4;
                     }
                     tick = 21;
-                    mtick = 20;
+                    milliTick = 20;
                 }
 				break;
 			}
@@ -1805,18 +1813,18 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						step = type + 4;
                     }
                     tick = 21;
-                    mtick = 20;
+                    milliTick = 20;
                 }
 				break;
 			}
 			case 10: { // next page
 				drawBox(mouseX, mouseY);
-				boolean up = tick >= mtick / 2;
+				boolean up = tick >= milliTick / 2;
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				if (up) {
-					part = (float) (tick - (mtick / 2)) + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) mtick / 2.0d) * Math.PI / 180.0d);
+					part = (float) (tick - (milliTick / 2)) + partialTicks;
+					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
 					if (cos < 0.0f) {
 						cos = 0.0f;
 					} else if (cos > 1.0f) {
@@ -1829,7 +1837,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 				} else {
 					part = (float) tick + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) mtick / 2.0d) * Math.PI / 180.0d);
+					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
 					if (cos < 0.0f) {
 						cos = 0.0f;
 					} else if (cos > 1.0f) {
@@ -1843,7 +1851,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				}
 				GlStateManager.popMatrix();
 
-				if (tick == mtick) {
+				if (tick == milliTick) {
 					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
 							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
 							0.8f + 0.4f * this.rnd.nextFloat());
@@ -1851,19 +1859,19 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (tick == 0) {
 					step = -1;
 					tick = 11;
-					mtick = 10;
+					milliTick = 10;
 					GlStateManager.disableBlend();
 				}
 				break;
 			}
 			case 11: { // pre page
 				drawBox(mouseX, mouseY);
-				boolean up = tick >= mtick / 2;
+				boolean up = tick >= milliTick / 2;
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				if (up) {
-					part = (float) (tick - (mtick / 2)) + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) mtick / 2.0d) * Math.PI / 180.0d);
+					part = (float) (tick - (milliTick / 2)) + partialTicks;
+					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
 					if (cos < 0.0f) {
 						cos = 0.0f;
 					} else if (cos > 1.0f) {
@@ -1876,7 +1884,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 				} else {
 					part = (float) tick + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) mtick / 2.0d) * Math.PI / 180.0d);
+					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
 					if (cos < 0.0f) {
 						cos = 0.0f;
 					} else if (cos > 1.0f) {
@@ -1890,7 +1898,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				}
 				GlStateManager.popMatrix();
 
-				if (tick == mtick) {
+				if (tick == milliTick) {
 					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
 							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
 							0.8f + 0.4f * this.rnd.nextFloat());
@@ -1898,7 +1906,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (tick == 0) {
 					step = -1;
 					tick = 11;
-					mtick = 10;
+					milliTick = 10;
 					GlStateManager.disableBlend();
 				}
 				break;
@@ -1931,7 +1939,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (tick == 0) {
 					step = 13;
 					tick = 21;
-					mtick = 20;
+					milliTick = 20;
 					GlStateManager.disableBlend();
 				}
 				break;
@@ -1946,12 +1954,12 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				GlStateManager.popMatrix();
 
 				// right
-				boolean up = tick >= mtick / 2;
+				boolean up = tick >= milliTick / 2;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiCenter - 64.0f * cos, guiTopLog, 0.0f);
 				if (up) {
-					part = (float) (tick - (mtick / 2)) + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) mtick / 2.0d) * Math.PI / 180.0d);
+					part = (float) (tick - (milliTick / 2)) + partialTicks;
+					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
 					if (cos < 0.0f) {
 						cos = 0.0f;
 					} else if (cos > 1.0f) {
@@ -1968,7 +1976,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					}
 				} else {
 					part = (float) tick + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) mtick / 2.0d) * Math.PI / 180.0d);
+					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
 					if (cos < 0.0f) {
 						cos = 0.0f;
 					} else if (cos > 1.0f) {
@@ -1987,7 +1995,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 							0.75f + 0.25f * this.rnd.nextFloat());
 					step = 14;
 					tick = 21;
-					mtick = 20;
+					milliTick = 20;
 					GlStateManager.disableBlend();
 				}
 				break;
@@ -2002,7 +2010,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				if (tick == 0) {
 					step = 14;
 					tick = 101;
-					mtick = 100;
+					milliTick = 100;
 					save();
 					if (type == -1) {
 						mc.displayGuiScreen(new GuiInventory(player));
@@ -2141,7 +2149,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 								(g * catName.length()) % 256, (b * catName.length()) % 256));
 					}
 					if (!quests.containsKey(catName)) {
-						quests.put(catName, Maps.newTreeMap());
+						quests.put(catName, new TreeMap<>());
 					}
 					quests.get(catName).put(quest.id, qd);
 				}
@@ -2201,7 +2209,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		}
 		if (i == 1 || i == mc.gameSettings.keyBindInventory.getKeyCode()) {
 			tick = 15;
-			mtick = 15;
+			milliTick = 15;
 			step = type + 7;
 			type = i == 1 ? -2 : -1;
 		}

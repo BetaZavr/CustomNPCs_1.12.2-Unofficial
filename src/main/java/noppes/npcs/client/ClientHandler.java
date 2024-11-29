@@ -2,8 +2,6 @@ package noppes.npcs.client;
 
 import java.util.TreeSet;
 
-import com.google.common.collect.Sets;
-
 import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.CustomNpcs;
 
@@ -21,7 +19,7 @@ public class ClientHandler {
 	TreeSet<Integer> customDimensions;
 
 	public ClientHandler() {
-		this.customDimensions = Sets.newTreeSet();
+		this.customDimensions = new TreeSet<>();
 	}
 
 	public void cleanUp() {

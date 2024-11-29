@@ -1,14 +1,6 @@
 package noppes.npcs.client.gui.global;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -558,16 +550,17 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 		if (this.scroll == null) {
 			return;
 		}
-		List<String> list = Lists.newArrayList();
-		List<String> hovers = Lists.newArrayList();
-		List<String> suffixs = Lists.newArrayList();
-		List<Integer> colors = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
+		List<String> hovers = new ArrayList<>();
+		List<String> suffixes = new ArrayList<>();
+		List<Integer> colors = new ArrayList<>();
 		if (this.selection == EnumPlayerData.Wipe) {
 			this.selection = EnumPlayerData.Players;
 		}
 		switch (this.selection) {
 		case Players: {
-			List<String> listOn = Lists.newArrayList(), listOff = Lists.newArrayList();
+			List<String> listOn = new ArrayList<>();
+			List<String> listOff = new ArrayList<>();
 			for (String name : this.data.keySet()) {
 				if (this.search.isEmpty() || name.toLowerCase().contains(this.search)) {
 					if (this.data.get(name) == 1) {
@@ -582,14 +575,14 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			list = listOn;
             list.addAll(listOff);
 			for (String name : list) {
-				suffixs.add(new TextComponentTranslation(this.data.get(name) == 0 ? "gui.offline" : "gui.online")
+				suffixes.add(new TextComponentTranslation(this.data.get(name) == 0 ? "gui.offline" : "gui.online")
 						.getFormattedText());
 			}
 			break;
 		}
 		case Quest: {
-			Map<String, Map<Integer, String>> mapA = Maps.newTreeMap();
-			Map<String, Map<Integer, String>> mapF = Maps.newTreeMap();
+			Map<String, Map<Integer, String>> mapA = new TreeMap<>();
+			Map<String, Map<Integer, String>> mapF = new TreeMap<>();
 			for (String str : this.data.keySet()) {
 				String cat = str.substring(0, str.indexOf(": "));
 				String name = str.substring(str.indexOf(": ") + 2);
@@ -602,7 +595,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 					map = mapF;
 				}
 				if (!map.containsKey(cat)) {
-					map.put(cat, Maps.newTreeMap());
+					map.put(cat, new TreeMap<>());
 				}
 				map.get(cat).put(this.data.get(str), name);
 			}
@@ -610,7 +603,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 				ITextComponent sfx = new TextComponentTranslation("availability.active");
 				sfx.getStyle().setColor(TextFormatting.GREEN);
 				for (int id : mapA.get(cat).keySet()) {
-					suffixs.add(sfx.getFormattedText());
+					suffixes.add(sfx.getFormattedText());
 					String key = ((char) 167) + "aID:" + id + ((char) 167) + "7 " + cat + ": \"" + ((char) 167) + "r"
 							+ mapA.get(cat).get(id) + ((char) 167) + "7\"";
 					list.add(key);
@@ -626,7 +619,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 				ITextComponent sfx = new TextComponentTranslation("quest.complete");
 				sfx.getStyle().setColor(TextFormatting.LIGHT_PURPLE);
 				for (int id : mapF.get(cat).keySet()) {
-					suffixs.add(sfx.getFormattedText());
+					suffixes.add(sfx.getFormattedText());
 					String key = ((char) 167) + "dID:" + id + ((char) 167) + "7 " + cat + ": \"" + ((char) 167) + "r"
 							+ mapF.get(cat).get(id) + ((char) 167) + "7\"";
 					list.add(key);
@@ -641,7 +634,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			break;
 		}
 		case Dialog: {
-			Map<Integer, String> map = Maps.newTreeMap();
+			Map<Integer, String> map = new TreeMap<>();
 			for (String str : this.data.keySet()) {
 				map.put(this.data.get(str), ((char) 167) + "7ID:" + this.data.get(str) + " " + str.replace(": ", ": " + ((char) 167) + "r"));
 			}
@@ -657,7 +650,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			break;
 		}
 		case Transport: {
-			Map<Integer, String> map = Maps.newTreeMap();
+			Map<Integer, String> map = new TreeMap<>();
 			for (String str : this.data.keySet()) {
 				map.put(this.data.get(str), ((char) 167) + "7" + str.replace(": ", ": " + ((char) 167) + "r"));
 			}
@@ -700,8 +693,8 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			break;
 		}
 		case Factions: {
-			Map<String, String> mapH = Maps.newHashMap();
-			Map<String, Integer> mapC = Maps.newHashMap();
+			Map<String, String> mapH = new HashMap<>();
+			Map<String, Integer> mapC = new HashMap<>();
 			this.scrollData.clear();
 			for (String str : this.data.keySet()) {
 				if (this.search.isEmpty() || str.toLowerCase().contains(this.search)) {
@@ -761,8 +754,8 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 				i++;
 			}
 		}
-		if (!suffixs.isEmpty()) {
-			this.scroll.setSuffixes(suffixs);
+		if (!suffixes.isEmpty()) {
+			this.scroll.setSuffixes(suffixes);
 		}
 		this.scroll.setColors(null);
 		if (!colors.isEmpty()) {
@@ -798,12 +791,12 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			return;
 		}
 		this.gameData = compound;
-		Map<Integer, Integer> map = Maps.newTreeMap();
+		Map<Integer, Integer> map = new TreeMap<>();
 		for (int i = 0; i < compound.getCompoundTag("GameData").getTagList("MarketData", 10).tagCount(); i++) {
 			NBTTagCompound nbt = compound.getCompoundTag("GameData").getTagList("MarketData", 10).getCompoundTagAt(i);
 			map.put(nbt.getInteger("MarketID"), nbt.getInteger("Slot"));
 		}
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		MarcetController mData = MarcetController.getInstance();
 		this.scroll.hoversTexts = new String[map.size()][];
 		this.data.clear();

@@ -1,14 +1,8 @@
 package noppes.npcs.client.gui.player;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import org.lwjgl.input.Keyboard;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -58,7 +52,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 	private static final ResourceLocation mEnvelope = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/envelope.png");
 	private static final ResourceLocation mList = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/list.png");
 	private static final ResourceLocation mTable = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/table.png");
-	private static final ResourceLocation mSbox = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/send_box.png");
+	private static final ResourceLocation mSendBox = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/send_box.png");
 	private static final ResourceLocation widgets = new ResourceLocation("textures/gui/widgets.png");
 
 	public static PlayerMail mail = new PlayerMail();
@@ -74,7 +68,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
     private boolean hasSend;
 	private int bookTotalPages, currPage, updateCount, type;
 	private long totalCost;
-	private final Map<Integer, Long> cost = Maps.newTreeMap();
+	private final Map<Integer, Long> cost = new TreeMap<>();
 	private String username;
 
 	// Animations
@@ -198,7 +192,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 		}
 		case 7: { // return letter
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MailReturn, GuiMailmanWrite.mail.timeWhenReceived);
-			ClientProxy.playerData.mailData.playermail.remove(GuiMailmanWrite.mail);
+			ClientProxy.playerData.mailData.playerMails.remove(GuiMailmanWrite.mail);
 			aType = 1;
 			this.animClose();
 			break;
@@ -225,7 +219,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 			return;
 		}
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.MailDelete, GuiMailmanWrite.mail.timeWhenReceived, GuiMailmanWrite.mail.sender);
-		ClientProxy.playerData.mailData.playermail.remove(GuiMailmanWrite.mail);
+		ClientProxy.playerData.mailData.playerMails.remove(GuiMailmanWrite.mail);
 		aType = 2;
 		this.animClose();
 	}
@@ -259,7 +253,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 			if (hasStacks || this.canEdit) {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 180.0f, this.guiTop + 179.0f, 0.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 0, 0, 0, 74, 54);
 				GlStateManager.popMatrix();
 			}
@@ -546,8 +540,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				this.drawGradientRect(this.guiLeft + 11, this.guiTop + 36, this.guiLeft + 164, this.guiTop + 144,
 						0x40000000, 0x40000000);
 				if (this.isMouseHover(mouseX, mouseY, this.guiLeft + 11, this.guiTop + 36, 152, 108)) {
-					List<String> list = Lists
-							.newArrayList(new TextComponentTranslation("mailbox.hover.ransom.sell").getFormattedText());
+					List<String> list = Collections.singletonList(new TextComponentTranslation("mailbox.hover.ransom.sell").getFormattedText());
 					this.hoverText = list.toArray(new String[0]);
 					this.getLabel(7).backColor = 0x80FF0000;
 					this.getLabel(8).backColor = 0x80FF0000;
@@ -578,7 +571,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 						this.drawString(this.mc.fontRenderer, "" + count,
 								17 - this.mc.fontRenderer.getStringWidth("" + count), 9, 0xFFFFFFFF);
 						if (this.isMouseHover(mouseX, mouseY, px, py, 18, 18)) {
-							List<String> list = Lists.newArrayList();
+							List<String> list = new ArrayList<>();
 							list.add(new TextComponentTranslation("mailbox.hover.ransom.sell").getFormattedText());
 							list.addAll(slot.getStack().getTooltip(this.mc.player,
 									this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED
@@ -743,7 +736,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				GlStateManager.translate(u, v, 2.0f);
 				this.mc.getTextureManager().bindTexture(mEnvelope);
 				this.drawTexturedModalRect(5, 40, 0, 0, 164, 137);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(53, 168, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -766,7 +759,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				GlStateManager.popMatrix();
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + cos * 183.0f, this.guiTop + cos * 169.0f, 2.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -808,11 +801,11 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				this.drawTexturedModalRect(25, 27, 0, 0, 18, 18);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 41, 0, 95, 68, 33);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -851,11 +844,11 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				this.drawTexturedModalRect(25, 27, 0, 0, 18, 18);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 41, 0, 95, 68, 33);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -889,7 +882,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				// slots
@@ -940,7 +933,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				GlStateManager.popMatrix();
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 41, 0, 95, 68, 33);
 				GlStateManager.popMatrix();
 				if (tick % 4 == 0) {
@@ -991,7 +984,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				// slots
@@ -1011,7 +1004,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				GlStateManager.popMatrix();
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 2.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 41, 0, 95, 68, 33);
 				GlStateManager.popMatrix();
 				if (tick % 6 == 0) {
@@ -1063,7 +1056,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				v = this.guiTop + 169.0f - cos * 75.0f;
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u, v, 2.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -1091,7 +1084,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(u + 53.0f, v + 94.0f, 2.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				if (tick == 0) {
@@ -1106,13 +1099,13 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				if (hasStacks) {
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 0.0f);
-					this.mc.getTextureManager().bindTexture(mSbox);
+					this.mc.getTextureManager().bindTexture(mSendBox);
 					this.drawTexturedModalRect(0, 0, 74, 0, 74, 54);
 					GlStateManager.popMatrix();
 				} else {
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 0.0f);
-					this.mc.getTextureManager().bindTexture(mSbox);
+					this.mc.getTextureManager().bindTexture(mSendBox);
 					this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 					GlStateManager.popMatrix();
 				}
@@ -1172,7 +1165,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				if (hasStacks) {
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(this.guiLeft + 183.0f, this.guiTop + 169.0f, 0.0f);
-					this.mc.getTextureManager().bindTexture(mSbox);
+					this.mc.getTextureManager().bindTexture(mSendBox);
 					this.drawTexturedModalRect(0, 0, 74, 0, 74, 54);
 					GlStateManager.popMatrix();
 				}
@@ -1203,7 +1196,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(this.guiLeft + 183.0f + cos * 300.0f, this.guiTop + 169.0f - cos * 248.0f,
 							0.0f);
-					this.mc.getTextureManager().bindTexture(mSbox);
+					this.mc.getTextureManager().bindTexture(mSendBox);
 					this.drawTexturedModalRect(0, 0, 74, 0, 74, 54);
 					GlStateManager.popMatrix();
 				}
@@ -1224,7 +1217,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface implements ITextfi
 				// box
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.guiLeft + 183.0f - cos * 41.0f, this.guiTop + 169.0f - cos * 74.0f, 1.0f);
-				this.mc.getTextureManager().bindTexture(mSbox);
+				this.mc.getTextureManager().bindTexture(mSendBox);
 				this.drawTexturedModalRect(0, 0, 0, 54, 68, 74);
 				GlStateManager.popMatrix();
 				// envelope

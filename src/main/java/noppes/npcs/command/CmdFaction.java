@@ -1,9 +1,9 @@
 package noppes.npcs.command;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -32,12 +32,12 @@ public class CmdFaction extends CommandNoppesBase {
 		try {
 			points = Integer.parseInt(args[0]);
 		} catch (NumberFormatException ex) {
-			throw new CommandException("Must be an integer");
+			throw new CommandException(args[0]+" must be an integer");
 		}
-		int factionid = this.selectedFaction.id;
+		int factionId = this.selectedFaction.id;
 		for (PlayerData playerdata : this.data) {
 			PlayerFactionData playerfactiondata = playerdata.factionData;
-			playerfactiondata.increasePoints(playerdata.player, factionid, points);
+			playerfactiondata.increasePoints(playerdata.player, factionId, points);
 			playerdata.save(true);
 		}
 	}
@@ -54,18 +54,18 @@ public class CmdFaction extends CommandNoppesBase {
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args == null) { return; }
 		String playername = args[0];
-		String factionname = args[1];
+		String factionName = args[1];
 		this.data = PlayerDataController.instance.getPlayersData(sender, playername);
 		if (this.data.isEmpty()) {
-			throw new CommandException("Unknown player '%s'", playername);
+			throw new CommandException("Unknown player " + playername);
 		}
 		try {
-			this.selectedFaction = FactionController.instance.getFaction(Integer.parseInt(factionname));
+			this.selectedFaction = FactionController.instance.getFaction(Integer.parseInt(factionName));
 		} catch (NumberFormatException e) {
-			this.selectedFaction = FactionController.instance.getFactionFromName(factionname);
+			this.selectedFaction = FactionController.instance.getFactionFromName(factionName);
 		}
 		if (this.selectedFaction == null) {
-			throw new CommandException("Unknown faction '%s", factionname);
+			throw new CommandException("Unknown faction " + factionName);
 		}
 		this.executeSub(server, sender, args[2], Arrays.copyOfRange(args, 3, args.length));
 	}
@@ -84,7 +84,7 @@ public class CmdFaction extends CommandNoppesBase {
 		if (args.length == 3) {
 			return CommandBase.getListOfStringsMatchingLastWord(args, "add", "subtract", "set", "reset", "drop", "create");
 		}
-		return Lists.newArrayList();
+		return new ArrayList<>();
 	}
 
 	@Override
@@ -111,7 +111,7 @@ public class CmdFaction extends CommandNoppesBase {
 		try {
 			points = Integer.parseInt(args[0]);
 		} catch (NumberFormatException ex) {
-			throw new CommandException("Must be an integer");
+			throw new CommandException(args[0]+" - must be an integer");
 		}
 		for (PlayerData playerdata : this.data) {
 			PlayerFactionData playerfactiondata = playerdata.factionData;
@@ -128,10 +128,10 @@ public class CmdFaction extends CommandNoppesBase {
 		} catch (NumberFormatException ex) {
 			throw new CommandException("Must be an integer");
 		}
-		int factionid = this.selectedFaction.id;
+		int factionId = this.selectedFaction.id;
 		for (PlayerData playerdata : this.data) {
 			PlayerFactionData playerfactiondata = playerdata.factionData;
-			playerfactiondata.increasePoints(playerdata.player, factionid, -points);
+			playerfactiondata.increasePoints(playerdata.player, factionId, -points);
 			playerdata.save(true);
 		}
 	}

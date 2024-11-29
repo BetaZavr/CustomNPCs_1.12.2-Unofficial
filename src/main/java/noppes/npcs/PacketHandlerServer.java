@@ -3,9 +3,6 @@ package noppes.npcs;
 import java.io.File;
 import java.util.*;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -1512,7 +1509,7 @@ public class PacketHandlerServer {
             File dirMod = CustomNpcs.getWorldSaveDirectory("playerdata");
 
             int i = 0, s = Objects.requireNonNull(Objects.requireNonNull(dirMod).listFiles()).length;
-            List<String> opn = Lists.newArrayList(Objects.requireNonNull(player.getServer()).getPlayerList().getOnlinePlayerNames());
+            List<String> opn = Arrays.asList(Objects.requireNonNull(player.getServer()).getPlayerList().getOnlinePlayerNames());
             for (File dir : Objects.requireNonNull(dirMod.listFiles())) {
                 if (!dir.isDirectory()) {
                     if (dir.getName().endsWith(".json")) {
@@ -1565,7 +1562,7 @@ public class PacketHandlerServer {
                 }
             }
         } else if (type == EnumPacketServer.GetResistances) {
-            Map<String, Integer> map = Maps.newTreeMap();
+            Map<String, Integer> map = new TreeMap<>();
             for (String name : Resistances.allDamageNames) { map.put(name, 0); }
             NoppesUtilServer.sendScrollData(player, map);
         } else if (type == EnumPacketServer.DropTemplateSave) {

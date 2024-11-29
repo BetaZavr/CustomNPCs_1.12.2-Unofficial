@@ -16,9 +16,6 @@ import java.util.function.Function;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagByteArray;
@@ -88,7 +85,7 @@ public class ScriptContainer {
 	}
 	
 	public static ScriptContainer Current;
-	public static HashMap<String, Object> Data = Maps.newHashMap();
+	public static HashMap<String, Object> Data = new HashMap<>();
 	private static Method luaCall;
 	private static Method luaCoerce;
 	
@@ -168,7 +165,7 @@ public class ScriptContainer {
 			value = ((NBTTagString) tag).getString();
 			break;
 		case 9: // NBTTagList
-			List<Object> list = Lists.newArrayList();
+			List<Object> list = new ArrayList<>();
 			for (NBTBase obj : (NBTTagList) tag) {
 				Object v = getNBTValue(obj);
 				if (v != null) {
@@ -178,7 +175,7 @@ public class ScriptContainer {
 			value = list.toArray(new Object[0]);
 			break;
 		case 10: // NBTTagCompound
-			Map<String, Object> comp = Maps.newTreeMap();
+			Map<String, Object> comp = new TreeMap<>();
 			for (String key : ((NBTTagCompound) tag).getKeySet()) {
 				Object v = getNBTValue(((NBTTagCompound) tag).getTag(key));
 				if (v != null) {

@@ -1,11 +1,10 @@
 package noppes.npcs.client.gui.recipebook;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButtonToggle;
@@ -28,13 +27,13 @@ import noppes.npcs.util.Util;
 public class NpcRecipeBookPage extends RecipeBookPage {
 
     private GuiButtonToggle backButton;
-    private final List<NpcGuiButtonRecipe> buttons = Lists.newArrayListWithCapacity(20);
+    private final List<NpcGuiButtonRecipe> buttons = new ArrayList<>(20);
     private int currentPage;
     private GuiButtonToggle forwardButton;
     private NpcGuiButtonRecipe hoveredButton;
     private IRecipe lastClickedRecipe;
     private RecipeList lastClickedRecipeList;
-    private final List<IRecipeUpdateListener> listeners = Lists.newArrayList();
+    private final List<IRecipeUpdateListener> listeners = new ArrayList<>();
     private Minecraft minecraft;
     private final NpcGuiRecipeOverlay overlay = new NpcGuiRecipeOverlay();
     private RecipeBook recipeBook;

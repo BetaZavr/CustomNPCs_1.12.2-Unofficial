@@ -1,10 +1,9 @@
 package noppes.npcs.api.wrapper.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -232,10 +231,9 @@ public class AttributeWrapper implements INpcAttribute {
 
 	@Override
 	public void removeAllModifiers() {
-		List<AttributeModifier> list = Lists.newArrayList();
-        list.addAll(this.attribute.getModifiers());
+        List<AttributeModifier> list = new ArrayList<>(attribute.getModifiers());
 		for (AttributeModifier am : list) {
-			this.attribute.removeModifier(am);
+			attribute.removeModifier(am);
 		}
 	}
 

@@ -1,10 +1,9 @@
 package noppes.npcs.command;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -41,7 +40,7 @@ public class CmdScript extends CommandNoppesBase {
 	@SubCommand(desc = "List of available event names from all APIs in mod")
 	public Boolean apilist(MinecraftServer server, ICommandSender sender, String[] args) {
 		StringBuilder list = new StringBuilder();
-		List<String> g = Lists.newArrayList();
+		List<String> g = new ArrayList<>();
 		for (EnumScriptType est : EnumScriptType.values()) { g.add(est.function); }
 		Collections.sort(g);
 		for (String name : g) {
@@ -61,7 +60,7 @@ public class CmdScript extends CommandNoppesBase {
 	@SubCommand(desc = "List of available Forge event names")
 	public Boolean clientlist(MinecraftServer server, ICommandSender sender, String[] args) {
 		StringBuilder list = new StringBuilder();
-		List<String> g = Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
+		List<String> g = new ArrayList<>(CustomNpcs.forgeClientEventNames.values());
 		Collections.sort(g);
 		for (String name : g) {
 			if (list.length() > 0) {
@@ -80,7 +79,7 @@ public class CmdScript extends CommandNoppesBase {
 	@SubCommand(desc = "List of available Forge event names")
 	public Boolean forgelist(MinecraftServer server, ICommandSender sender, String[] args) {
 		StringBuilder list = new StringBuilder();
-		List<String> g = Lists.newArrayList(CustomNpcs.forgeEventNames.values());
+		List<String> g = new ArrayList<>(CustomNpcs.forgeEventNames.values());
 		Collections.sort(g);
 		for (String name : g) {
 			if (list.length() > 0) {
@@ -210,13 +209,13 @@ public class CmdScript extends CommandNoppesBase {
 	}
 
 	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		if (args.length == 2) {
             switch (args[0]) {
                 case "clientlist":
-                    return Lists.newArrayList(CustomNpcs.forgeClientEventNames.values());
+                    return new ArrayList<>(CustomNpcs.forgeClientEventNames.values());
                 case "forgelist":
-                    return Lists.newArrayList(CustomNpcs.forgeEventNames.values());
+                    return new ArrayList<>(CustomNpcs.forgeEventNames.values());
                 case "apilist":
                     for (EnumScriptType est : EnumScriptType.values()) {
                         list.add(est.function);

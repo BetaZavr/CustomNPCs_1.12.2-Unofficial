@@ -1,8 +1,7 @@
 package noppes.npcs.controllers.data;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -55,7 +54,7 @@ public class DialogOption implements IDialogOption {
 		this.command = "";
 		this.slot = -1;
 		this.iconId = 0;
-		this.dialogs = Lists.newArrayList();
+		this.dialogs = new ArrayList<>();
 	}
 
 	public void addDialog(int dialogId) {
@@ -71,7 +70,7 @@ public class DialogOption implements IDialogOption {
 	}
 
 	public void downPos(int dialogId) {
-		List<OptionDialogID> newDialogs = Lists.newArrayList();
+		List<OptionDialogID> newDialogs = new ArrayList<>();
 		boolean added = false;
 		OptionDialogID found = null;
 		for (OptionDialogID od : this.dialogs) {
@@ -164,7 +163,7 @@ public class DialogOption implements IDialogOption {
 	}
 
 	public void replaceDialogIDs(int oldId, int newId) {
-		List<OptionDialogID> newDialogs = Lists.newArrayList();
+		List<OptionDialogID> newDialogs = new ArrayList<>();
 		boolean added = false;
 		for (OptionDialogID od : this.dialogs) {
 			if (od.dialogId == oldId) {
@@ -180,7 +179,7 @@ public class DialogOption implements IDialogOption {
 	}
 
 	public void upPos(int dialogId) {
-		List<OptionDialogID> newDialogs = Lists.newArrayList();
+		List<OptionDialogID> newDialogs = new ArrayList<>();
 		boolean added = false;
 		OptionDialogID old = null;
 		for (OptionDialogID od : this.dialogs) {

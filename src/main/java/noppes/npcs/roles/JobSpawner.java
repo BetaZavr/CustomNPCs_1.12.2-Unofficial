@@ -1,14 +1,8 @@
 package noppes.npcs.roles;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import org.apache.commons.lang3.RandomStringUtils;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -64,9 +58,9 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 		this.cooldownSet = 3000L;
 		this.desTargetLost = new boolean[] { true, true };
 
-		this.spawnedEntitys = Maps.newHashMap();
-		this.spawnedEntitys.put(false, Lists.newArrayList());
-		this.spawnedEntitys.put(true, Lists.newArrayList());
+		this.spawnedEntitys = new HashMap<>();
+		this.spawnedEntitys.put(false, new ArrayList<>());
+		this.spawnedEntitys.put(true, new ArrayList<>());
 		this.cooldown = System.currentTimeMillis() + this.cooldownSet;
 
 		this.exact = false;
@@ -147,7 +141,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 			break;
 		}
 		case 1: { // all
-			Map<Integer, SpawnNPCData> map = Maps.newHashMap();
+			Map<Integer, SpawnNPCData> map = new HashMap<>();
 			for (int i = 0; i < this.dataEntitys[type].length; i++) {
 				map.put(i, this.dataEntitys[type][i]);
 			}
@@ -169,7 +163,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 
 	public void checkSpawns() {
 		for (int i = 0; i < 2; i++) {
-			List<EntityLivingBase> toDespawn = Lists.newArrayList();
+			List<EntityLivingBase> toDespawn = new ArrayList<>();
 			for (EntityLivingBase spawn : this.spawnedEntitys.get(i == 0)) {
 				if (this.shouldDelete(spawn)) {
 					spawn.isDead = true;
@@ -339,7 +333,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 
 			int[] osD = new int[] { compound.getInteger("SpawnerXOffset"), compound.getInteger("SpawnerYOffset"),
 					compound.getInteger("SpawnerZOffset") };
-            List<SpawnNPCData> sDs = Lists.newArrayList();
+            List<SpawnNPCData> sDs = new ArrayList<>();
 			for (int i = 1; i < 7; i++) {
 				if (!compound.hasKey("SpawnerNBT" + i, 10)) {
 					continue;

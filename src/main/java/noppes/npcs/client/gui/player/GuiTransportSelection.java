@@ -1,13 +1,6 @@
 package noppes.npcs.client.gui.player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
@@ -36,11 +29,12 @@ import noppes.npcs.util.Util;
 public class GuiTransportSelection extends GuiNPCInterface
 		implements ITopButtonListener, IScrollData, ICustomScrollListener {
 
-	private boolean canTransport;
-	protected int bxSize, bySize;
+	private boolean canTransport = true;
+	protected int bxSize = 0;
+	protected int bySize = 0;
 	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
 	private GuiCustomScroll scroll;
-	private final Map<String, Integer> data;
+	private final Map<String, Integer> data = new TreeMap<>();
 	private TransportLocation locSel;
 	private Map<ItemStack, Boolean> barterItems;
 
@@ -49,11 +43,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 		this.xSize = 176;
 		this.drawDefaultBackground = false;
 		this.title = "";
-		this.data = Maps.newTreeMap();
-		this.locSel = null;
-		this.canTransport = true;
-		this.bxSize = 0;
-		this.bySize = 0;
+
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.TransportCategoriesGet);
 	}
 
@@ -204,11 +194,11 @@ public class GuiTransportSelection extends GuiNPCInterface
 		this.scroll.guiTop = this.guiTop + 20;
 		this.addScroll(this.scroll);
 
-		List<String> list = Lists.newArrayList(this.data.keySet());
+		List<String> list = new ArrayList<>(data.keySet());
 		this.scroll.setList(list);
 		if (!this.data.isEmpty()) {
-			List<String> suffixs = Lists.newArrayList();
-			List<Integer> colors = Lists.newArrayList();
+			List<String> suffixes = new ArrayList<>();
+			List<Integer> colors = new ArrayList<>();
 			for (String name : list) {
 				int color = 0xFF00FF00;
 				String sfx = "";
@@ -235,11 +225,11 @@ public class GuiTransportSelection extends GuiNPCInterface
 						}
 					}
 				}
-				suffixs.add(sfx);
+				suffixes.add(sfx);
 				colors.add(color);
 			}
 			this.scroll.setColors(colors);
-			this.scroll.setSuffixes(suffixs);
+			this.scroll.setSuffixes(suffixes);
 		}
 	}
 

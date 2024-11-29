@@ -1,12 +1,6 @@
 package noppes.npcs.schematics;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.block.BlockBanner.BlockBannerStanding;
 import net.minecraft.block.BlockLever.EnumOrientation;
@@ -265,9 +259,9 @@ public class SchematicWrapper {
 	public ICommandSender sender;
 	private BuilderData builder;
 
-	private List<SchematicBlockData> listB = Lists.newArrayList();
+	private List<SchematicBlockData> listB = new ArrayList<>();
 
-	private List<Entity> listE = Lists.newArrayList();
+	private List<Entity> listE = new ArrayList<>();
 
 	public SchematicWrapper(ISchematic schematic) {
 		this.start = BlockPos.ORIGIN;
@@ -277,7 +271,7 @@ public class SchematicWrapper {
 		this.isBlock = true;
 		this.schema = schematic;
 		this.size = schematic.getWidth() * schematic.getHeight() * schematic.getLength();
-		this.tileEntities = Maps.newHashMap();
+		this.tileEntities = new HashMap<>();
 		this.sender = null;
 		this.builder = null;
 		for (int i = 0; i < schematic.getTileEntitySize(); ++i) {
@@ -298,8 +292,8 @@ public class SchematicWrapper {
 		// blocks first and next types
 		if (this.layer < 2) {
 			if (this.layer == 0 && this.builder != null) { // remove Entity
-				this.listB = Lists.newArrayList();
-				this.listE = Lists.newArrayList();
+				this.listB = new ArrayList<>();
+				this.listE = new ArrayList<>();
 				BlockPos ps = this.start;
 				BlockPos pe = this.start.add(this.rotation % 2 == 0 ? this.schema.getWidth() : this.schema.getLength(), this.schema.getHeight(), this.rotation % 2 == 0 ? this.schema.getLength() : this.schema.getWidth());
 				for (Entity e : this.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(ps.getX() - 0.5d,

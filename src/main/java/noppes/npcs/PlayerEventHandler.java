@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockBanner;
 import net.minecraft.tileentity.TileEntityBanner;
-import net.minecraft.util.math.MathHelper;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.*;
@@ -1362,17 +1361,18 @@ public class PlayerEventHandler {
 		} else {
 			try {
 				//noppes.npcs.util.TempClass.updateLocalization();
+
 				/*
 				java.io.File dir;
 				java.io.File dirMain = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
-				//dir = new java.io.File(dirMain, "src/main/java"); // CustomNpcs 1.12.2
-				dir = new java.io.File(dirMain.getParentFile(), "net"); // Minecraft 1.12.2
+				dir = new java.io.File(dirMain, "src/main/java"); // CustomNpcs 1.12.2
+				//dir = new java.io.File(dirMain.getParentFile(), "net"); // Minecraft 1.12.2
 				//dir = new java.io.File(dirMain.getParentFile(), "aw"); // Armourers Workshop 1.12.2
 
 				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
 				Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
 				//found.put("System.out.println", null);
-				found.put("sounds.json", null);
+				found.put("com.google.common.collect.", null);
 
 				for (java.io.File file : Util.instance.getFiles(dir, "java")) {
 					try {

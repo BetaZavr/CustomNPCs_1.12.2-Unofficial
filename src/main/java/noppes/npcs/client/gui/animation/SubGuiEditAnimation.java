@@ -98,6 +98,7 @@ public class SubGuiEditAnimation
 	private boolean hoverRight;
 	private boolean hoverLeft;
 	private boolean isHitbox = false;
+	private boolean isChanged = true;
 	private final EntityNPCInterface npcAnim;
     private final EntityNPCInterface npcPart;
 	private final String[] blockNames, blockSizes;
@@ -2179,27 +2180,27 @@ public class SubGuiEditAnimation
 			if (isPressAltAndKey(i, 16) && toolType != 1) {
 				toolType = 1;
 				playButtonClick();
-				this.initGui();
+				initGui();
 			}
 			// tool rot - Alt + W
 			if (isPressAltAndKey(i, 17) && toolType != 0) {
 				toolType = 0;
 				playButtonClick();
-				this.initGui();
+				initGui();
 			}
 			// tool rot - Alt + E
 			if (isPressAltAndKey(i, 18) && toolType != 2) {
 				toolType = 2;
 				playButtonClick();
-				this.initGui();
+				initGui();
 			}
 			// play stop - Alt + P
 			if (isPressAltAndKey(i, 25)) {
 				onlyCurrentPart = !onlyCurrentPart;
-				if (this.getButton(21) != null) {
-					this.getButton(21).txrX = onlyCurrentPart ? 144 : 188;
-				}
+				if (this.getButton(21) != null) { getButton(21).txrX = onlyCurrentPart ? 144 : 188; }
 				playButtonClick();
+				isChanged = true;
+				initGui();
 			}
 			// reset scale - Alt + S
 			if (isPressAltAndKey(i, 31)) {
@@ -2259,6 +2260,7 @@ public class SubGuiEditAnimation
 
 	@Override
 	public void mouseDragged(GuiNpcSlider slider) {
+		isChanged = true;
 		float value = 0.0f;
 		if (this.isHitbox) {
 			if (hitbox == null || toolType == 0) { return; }
@@ -2324,7 +2326,7 @@ public class SubGuiEditAnimation
 	}
 
 	private void resetAnimation() {
-		if (anim == null || frame == null || npcAnim == null) {
+		if (!isChanged || anim == null || frame == null || npcAnim == null) {
 			return;
 		}
 		AnimationConfig ac = this.anim.copy();
@@ -2351,11 +2353,13 @@ public class SubGuiEditAnimation
 				 isHitbox = false;
 				 if (scrollHitboxes != null) { scrollHitboxes.selected = -1; }
 			 }
+			 if (part.id == dataParts.get(scroll.getSelected()).id) { return; }
 			 setPart(dataParts.get(scroll.getSelected()));
 			 initGui();
 		 }
 		 else if (scroll.id == 1 && anim.type == AnimationKind.ATTACKING) {
 			 isHitbox = true;
+			 if (hitbox.id == dataHitboxes.get(scroll.getSelected()).id) { return; }
 			 setHitbox(dataHitboxes.get(scroll.getSelected()));
 			 if (scrollParts != null) { scrollParts.selected = -1; }
 			 initGui();
@@ -2446,8 +2450,8 @@ public class SubGuiEditAnimation
 					int pos = Integer.parseInt(guiText.text[0]) - 1;
 					if (pos < 0) { pos = 0; } else if (pos > anim.frames.size()) { pos = anim.frames.size(); }
 					frame = (AnimationFrameConfig) anim.addFrame(pos, frame);
-					this.setPart(frame.parts.get(part.id));
-					this.initGui();
+					setPart(frame.parts.get(part.id));
+					initGui();
 				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		}
@@ -2455,6 +2459,7 @@ public class SubGuiEditAnimation
 			SubGuiSelectItemStack guiStack = (SubGuiSelectItemStack) subgui;
 			if (guiStack.id == 0) { frame.setHoldRightStack(guiStack.stack); }
 			else { frame.setHoldLeftStack(guiStack.stack); }
+			isChanged = true;
 		}
 	}
 
@@ -2463,33 +2468,34 @@ public class SubGuiEditAnimation
 		if (this.hasSubGui() || anim == null) { return; }
 		switch (textField.getId()) {
 			case 0: { // repeatLast
-				if (anim == null) { return; }
+				if (anim == null || anim.repeatLast == textField.getInteger()) { return; }
 				anim.setRepeatLast(textField.getInteger());
-				this.resetAnimation();
+				isChanged = true;
+				resetAnimation();
 				break;
 			}
 			case 1: { // speed
-				if (frame == null) {
-					return;
-				}
+				if (frame == null || frame.speed == textField.getInteger()) { return; }
 				frame.setSpeed(textField.getInteger());
-				this.resetAnimation();
+				isChanged = true;
+				resetAnimation();
 				break;
 			}
 			case 2: { // delay
-				if (frame == null) {
-					return;
-				}
+				if (frame == null || frame.getEndDelay() == textField.getInteger()) { return; }
 				frame.setEndDelay(textField.getInteger());
-				this.resetAnimation();
+				isChanged = true;
+				resetAnimation();
 				break;
 			}
 			case 5: { // X
+				isChanged = true;
 				if (this.isHitbox) {
 					if (hitbox == null || toolType == 0) { return; }
 					float value = (float) textField.getDouble();
 					if (toolType == 1) { hitbox.offset[0] = value; } else { hitbox.scale[0] = value; }
 					textField.setText("" + (float) Math.round(value * 1000.0d) / 1000.0f);
+					isChanged = true;
 					return;
 				}
 				PartConfig p = (PartConfig) this.partNames.objs[0];
@@ -2521,6 +2527,7 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 6: { // Y
+				isChanged = true;
 				if (this.isHitbox) {
 					if (hitbox == null || toolType == 0) { return; }
 					float value = (float) textField.getDouble();
@@ -2557,6 +2564,7 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 7: { // Z
+				isChanged = true;
 				if (this.isHitbox) {
 					if (hitbox == null || toolType == 0) { return; }
 					float value = (float) textField.getDouble();
@@ -2593,6 +2601,7 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 8: { // X1
+				isChanged = true;
 				PartConfig p = (PartConfig) this.partNames.objs[0];
 				int tType = (int) this.partNames.objs[1];
 				if (part == null || !part.equals(p) || tType != toolType) { return; }
@@ -2606,6 +2615,7 @@ public class SubGuiEditAnimation
 				break;
 			}
 			case 9: { // Y1
+				isChanged = true;
 				PartConfig p = (PartConfig) this.partNames.objs[0];
 				int tType = (int) this.partNames.objs[1];
 				if (part == null || !part.equals(p) || tType != toolType) { return; }
@@ -2622,7 +2632,8 @@ public class SubGuiEditAnimation
 				if (anim == null) { return; }
 				anim.chance = (float) Math.round(textField.getDouble() * 1000.0d) / 100000.0f;
 				textField.setText("" + (anim.chance * 100.0f));
-				this.resetAnimation();
+				isChanged = true;
+				resetAnimation();
 				break;
 			}
 		}

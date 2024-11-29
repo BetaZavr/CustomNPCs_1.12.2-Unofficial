@@ -2,8 +2,6 @@ package noppes.npcs.entity.data;
 
 import java.util.HashSet;
 
-import com.google.common.collect.Sets;
-
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -64,8 +62,8 @@ public class DataAdvanced implements INPCAdvanced {
 		this.disablePitch = false;
 		this.throughWalls = true;
 		this.scenes = new DataScenes(npc);
-		this.attackFactions = Sets.newHashSet();
-		this.frendFactions = Sets.newHashSet();
+		this.attackFactions = new HashSet<>();
+		this.frendFactions = new HashSet<>();
 	}
 
 	public Line getAttackLine() {

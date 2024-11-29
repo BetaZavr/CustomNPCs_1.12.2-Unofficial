@@ -1,10 +1,9 @@
 package noppes.npcs.client.renderer.data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.obj.OBJModel;
@@ -13,16 +12,14 @@ public class ParameterizedModel {
 
 	public int listId;
 	public ResourceLocation file;
-	public List<String> visibleMeshes;
-	public Map<String, String> materialTextures;
-	public OBJModel iModel;
+	public List<String> visibleMeshes = new ArrayList<>();
+	public Map<String, String> materialTextures = new HashMap<>();
+	public OBJModel iModel = null;
 
 	public ParameterizedModel(int list, ResourceLocation file, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
 		this.listId = list;
 		this.file = file;
-		this.iModel = null;
-		this.visibleMeshes = Lists.newArrayList();
-		this.materialTextures = Maps.newHashMap();
+
 		if (visibleMeshes != null && !visibleMeshes.isEmpty()) {
 			this.visibleMeshes = visibleMeshes;
 		}

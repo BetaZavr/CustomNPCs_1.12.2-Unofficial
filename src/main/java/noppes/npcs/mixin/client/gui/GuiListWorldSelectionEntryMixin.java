@@ -1,6 +1,5 @@
 package noppes.npcs.mixin.client.gui;
 
-import com.google.common.collect.Lists;
 import net.minecraft.client.AnvilConverterException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -21,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(value = GuiListWorldSelectionEntry.class)
@@ -86,7 +86,7 @@ public class GuiListWorldSelectionEntryMixin {
         try { list = isaveformat.getSaveList(); }
         catch (AnvilConverterException anvilconverterexception) { return null; }
 
-        List<String> checkList = Lists.newArrayList();
+        List<String> checkList = new ArrayList<>();
         for (WorldSummary worldsummary : list) { checkList.add(((IWorldSummaryMixin) worldsummary).npcs$getAgreementName()); }
         return checkList;
     }

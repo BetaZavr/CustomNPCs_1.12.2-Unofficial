@@ -15,9 +15,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Lists;
-
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -70,16 +67,16 @@ public class ScriptController {
 	public File dir;
 	public File clientDir;
 	
-	public final Map<String, ScriptEngineFactory> factories = Maps.newTreeMap();
-	public final Map<String, String> languages = Maps.newTreeMap();
-	public final Map<String, Long> sizes = Maps.newTreeMap();
-	public final Map<String, Long> clientSizes = Maps.newTreeMap();
-	public final Map<String, String> scripts = Maps.newTreeMap();
-	public final Map<String, String> clients = Maps.newTreeMap();
-	public final Map<String, File> encrypts = Maps.newTreeMap();
+	public final Map<String, ScriptEngineFactory> factories = new TreeMap<>();
+	public final Map<String, String> languages = new TreeMap<>();
+	public final Map<String, Long> sizes = new TreeMap<>();
+	public final Map<String, Long> clientSizes = new TreeMap<>();
+	public final Map<String, String> scripts = new TreeMap<>();
+	public final Map<String, String> clients = new TreeMap<>();
+	public final Map<String, File> encrypts = new TreeMap<>();
 
 	// key create in CommonProxy.getAgreementKey() and in ClientEventHandler.cnpcOpenGUIEvent()
-	private final List<String> agreements = Lists.newArrayList();
+	private final List<String> agreements = new ArrayList<>();
 
 	public ForgeScriptData forgeScripts = new ForgeScriptData();
 	public ClientScriptData clientScripts = new ClientScriptData();
@@ -755,7 +752,7 @@ public class ScriptController {
 	public void checkAgreements(List<String> checkList) {
 		if (checkList == null) { return; }
 		boolean bo = false;
-		List<String> worldAgreements = Lists.newArrayList(this.agreements);
+		List<String> worldAgreements = new ArrayList<>(agreements);
 		for (String key : worldAgreements) {
 			if (key.split(";").length>2) { continue; }
 			if (!checkList.contains(key)) {

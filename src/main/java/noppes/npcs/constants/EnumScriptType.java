@@ -1,10 +1,9 @@
 package noppes.npcs.constants;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.TreeMap;
 
 public enum EnumScriptType
 {
@@ -92,7 +91,7 @@ public enum EnumScriptType
 
 	EnumScriptType(String function, int[] types) {
 		this.function = function;
-		this.hundelerTypes = Lists.newArrayList();
+		this.hundelerTypes = new ArrayList<>();
 		for (int type : types) { this.hundelerTypes.add(type); }
 	}
 
@@ -107,10 +106,10 @@ public enum EnumScriptType
 	 * 7 - world / mods;
 	 */
 	public static List<EnumScriptType> getAllFunctions(int type) {
-		Map<String, EnumScriptType> map = Maps.newTreeMap();
+		Map<String, EnumScriptType> map = new TreeMap<>();
 		for (EnumScriptType est : EnumScriptType.values()) {
 			if (type < 0 || est.hundelerTypes.contains(type)) { map.put(est.function, est); }
 		}
-		return Lists.newArrayList(map.values());
+		return new ArrayList<>(map.values());
 	}
 }

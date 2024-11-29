@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.google.common.collect.Maps;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -74,7 +72,7 @@ public class QuestInterface {
 
 	public void fix() {
 		List<QuestObjective> tsl = new ArrayList<>();
-		Map<Integer, ItemStack> stacks = Maps.newTreeMap();
+		Map<Integer, ItemStack> stacks = new TreeMap<>();
 		for (int i = 0; i < this.tasks.length; i++) {
 			if (this.tasks[i] == null) {
 				continue;
@@ -393,7 +391,7 @@ public class QuestInterface {
 			this.tasks = oldTasks.toArray(new QuestObjective[Math.min(oldTasks.size(), 9)]);
 		} else { // New
 			this.tasks = new QuestObjective[compound.getTagList("Tasks", 10).tagCount()];
-			Map<Integer, ItemStack> stacks = Maps.newTreeMap();
+			Map<Integer, ItemStack> stacks = new TreeMap<>();
 			for (int i = 0; i < compound.getTagList("Tasks", 10).tagCount(); i++) {
 				QuestObjective to = new QuestObjective(this.id, EnumQuestTask.ITEM);
 				to.load(compound.getTagList("Tasks", 10).getCompoundTagAt(i));

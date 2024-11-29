@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -277,7 +274,7 @@ public class Bank {
 				}
 			}
 			if (!this.access.isEmpty()) {
-				List<String> newAccess = Lists.newArrayList();
+				List<String> newAccess = new ArrayList<>();
 				boolean isChanged = false;
 				for (String ac : this.access) {
 					if (!names.contains(ac)) {
@@ -335,7 +332,7 @@ public class Bank {
 				try {
 					bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
 				} catch (IOException e) { LogWriter.error("Error:", e); }
-				Map<Integer, NpcMiscInventory> newCells = Maps.newTreeMap();
+				Map<Integer, NpcMiscInventory> newCells = new TreeMap<>();
 				int i = 0;
 				for (NpcMiscInventory inv : bd.cells.values()) {
 					if (i == ceilId) {
@@ -363,7 +360,7 @@ public class Bank {
 						try {
 							bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
 						} catch (IOException e) { LogWriter.error("Error:", e); }
-						Map<Integer, NpcMiscInventory> newCells = Maps.newTreeMap();
+						Map<Integer, NpcMiscInventory> newCells = new TreeMap<>();
 						int i = 0;
 						for (int c : bd.cells.keySet()) {
 							if (c == ceilId) {
@@ -379,7 +376,7 @@ public class Bank {
 				}
 			}
 		}
-		Map<Integer, CeilSettings> newCS = Maps.newTreeMap();
+		Map<Integer, CeilSettings> newCS = new TreeMap<>();
 		int i = 0;
 		for (int c : this.ceilSettings.keySet()) {
 			if (c == ceilId || this.ceilSettings.get(c).ceil == ceilId) {

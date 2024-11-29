@@ -1,14 +1,7 @@
 package noppes.npcs.client.gui.global;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Vector;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
@@ -48,8 +41,8 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 		implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISubGuiListener, GuiYesNoCallback {
 
 	public static boolean isName = true;
-	private HashMap<String, Integer> base = Maps.newHashMap();
-	private final Map<String, Integer> data = Maps.newLinkedHashMap();
+	private HashMap<String, Integer> base = new HashMap<>();
+	private final Map<String, Integer> data = new LinkedHashMap<>();
 	private Faction faction;
 	private GuiCustomScroll scrollFactions;
 
@@ -104,7 +97,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 			if (this.scrollFactions.getSelected() == null) {
 				return;
 			}
-			HashMap<String, Integer> corData = Maps.newHashMap();
+			HashMap<String, Integer> corData = new HashMap<>();
 			for (String name : this.base.keySet()) {
 				int id = this.base.get(name);
 				if (this.faction.id == id || this.faction.frendFactions.contains(id)) {
@@ -120,7 +113,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 			if (this.scrollFactions.getSelected() == null) {
 				return;
 			}
-			HashMap<String, Integer> corData = Maps.newHashMap();
+			HashMap<String, Integer> corData = new HashMap<>();
 			for (String name : this.base.keySet()) {
 				int id = this.base.get(name);
 				if (this.faction.id == id || this.faction.attackFactions.contains(id)) {
@@ -352,10 +345,10 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		this.base = Maps.newHashMap(data);
+		this.base = new HashMap<>(data);
 		String select = this.scrollFactions == null || this.scrollFactions.getSelected() == null ? "" : this.scrollFactions.getSelected();
 		this.data.clear();
-		List<Entry<String, Integer>> newList = Lists.newArrayList(data.entrySet());
+		List<Entry<String, Integer>> newList = new ArrayList<>(data.entrySet());
 		newList.sort((f_0, f_1) -> {
             if (GuiNPCManageFactions.isName) {
                 return f_0.getKey().compareTo(f_1.getKey());
@@ -376,7 +369,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 				select = key;
 			}
 		}
-		this.scrollFactions.setListNotSorted(Lists.newArrayList(this.data.keySet()));
+		this.scrollFactions.setListNotSorted(new ArrayList<>(data.keySet()));
 		if (select != null && !select.isEmpty()) {
 			this.scrollFactions.setSelected(select);
 		}

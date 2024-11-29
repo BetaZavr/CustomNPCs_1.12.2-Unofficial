@@ -1,8 +1,7 @@
 package noppes.npcs.client.model.animation;
 
 import java.util.Map;
-
-import com.google.common.collect.Maps;
+import java.util.TreeMap;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -22,7 +21,7 @@ public class EmotionConfig
 	public boolean immutable = false;
 
 	public EmotionConfig() {
-		this.frames = Maps.newTreeMap();
+		this.frames = new TreeMap<>();
 		this.frames.put(0, new EmotionFrame(0));
 	}
 
@@ -116,7 +115,7 @@ public class EmotionConfig
 		if (!this.frames.containsKey(frameId)) {
 			throw new CustomNPCsException("Unknown frame ID:" + frameId);
 		}
-		Map<Integer, EmotionFrame> newData = Maps.newTreeMap();
+		Map<Integer, EmotionFrame> newData = new TreeMap<>();
 		int i = 0;
 		boolean isDel = false;
 		for (int f : this.frames.keySet()) {

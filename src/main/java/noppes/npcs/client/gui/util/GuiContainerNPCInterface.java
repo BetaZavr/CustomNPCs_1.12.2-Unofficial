@@ -12,8 +12,6 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
 import org.lwjgl.input.Keyboard;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
@@ -37,7 +35,7 @@ import javax.annotation.Nonnull;
 
 public abstract class GuiContainerNPCInterface
 extends GuiContainer
-implements IEditNPC {
+implements IEditNPC, ICustomScrollListener {
 
 	public static ResourceLocation ball = new ResourceLocation(CustomNpcs.MODID, "textures/gui/info.png");
 
@@ -58,8 +56,8 @@ implements IEditNPC {
 	public SubGuiInterface subgui;
 
 	private final Poses[] ps;
-	private final List<int[]> line = Lists.newArrayList(); // startX, startY, endX, endY, color, lineSize
-	private final List<IGui> components = Lists.newArrayList();
+	private final List<int[]> line = new ArrayList<>(); // startX, startY, endX, endY, color, lineSize
+	private final List<IGui> components = new ArrayList<>();
 	private final HashMap<Integer, GuiNpcLabel> labels = new HashMap<>();
 	private final HashMap<Integer, GuiCustomScroll> scrolls = new HashMap<>();
 	private final HashMap<Integer, GuiNpcSlider> sliders = new HashMap<>();
@@ -119,6 +117,7 @@ implements IEditNPC {
 
 	public void addScroll(GuiCustomScroll scroll) {
 		scroll.setWorldAndResolution(this.mc, scroll.width, scroll.height);
+		scroll.setParent(this);
 		this.scrolls.put(scroll.id, scroll);
 	}
 

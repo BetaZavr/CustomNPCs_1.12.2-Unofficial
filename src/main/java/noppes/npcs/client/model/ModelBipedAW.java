@@ -1,6 +1,5 @@
 package noppes.npcs.client.model;
 
-import com.google.common.collect.Maps;
 import moe.plushie.armourers_workshop.api.ArmourersWorkshopApi;
 import moe.plushie.armourers_workshop.api.common.capability.IEntitySkinCapability;
 import moe.plushie.armourers_workshop.api.common.capability.IWardrobeCap;
@@ -23,6 +22,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,12 +50,10 @@ public class ModelBipedAW extends ModelBipedAlt {
 
         IWardrobeCap wardrobe = ArmourersWorkshopApi.getEntityWardrobeCapability(entityIn);
         CustomSkinModelRenderHelper modelRenderer = CustomSkinModelRenderHelper.getInstance();
-        Map<EnumParts, Boolean> ba = Maps.newHashMap();
-        Map<EnumParts, Boolean> baArmor = Maps.newHashMap();
 
         EntityNPCInterface npc = (EntityNPCInterface) entityIn;
-        ba.putAll(npc.animation.showParts);
-        baArmor.putAll(npc.animation.showArmorParts);
+        Map<EnumParts, Boolean> ba = new HashMap<>(npc.animation.showParts);
+        Map<EnumParts, Boolean> baArmor = new HashMap<>(npc.animation.showArmorParts);
 
         String type = slot.getName().toLowerCase();
         // moe.plushie.armourers_workshop.common.skin.data.SkinDescriptor

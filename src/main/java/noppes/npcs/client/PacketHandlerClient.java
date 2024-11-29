@@ -10,8 +10,6 @@ import java.util.*;
 
 import com.google.common.base.Charsets;
 import com.google.common.cache.Cache;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 
 import io.netty.buffer.ByteBuf;
@@ -192,7 +190,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				w.removeEntity(npc);
 			}
 			if (!ClientProxy.notVisibleNPC.containsKey(player.world.provider.getDimension())) {
-				ClientProxy.notVisibleNPC.put(player.world.provider.getDimension(), Lists.newArrayList());
+				ClientProxy.notVisibleNPC.put(player.world.provider.getDimension(), new ArrayList<>());
 			}
 			ClientProxy.notVisibleNPC.get(player.world.provider.getDimension()).add(uuid);
 		} else if (type == EnumPacketClient.VISIBLE_TRUE) {
@@ -217,7 +215,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				}
 			}
 			if (!ClientProxy.notVisibleNPC.containsKey(player.world.provider.getDimension())) {
-				ClientProxy.notVisibleNPC.put(player.world.provider.getDimension(), Lists.newArrayList());
+				ClientProxy.notVisibleNPC.put(player.world.provider.getDimension(), new ArrayList<>());
 			}
 			for (UUID uID : ClientProxy.notVisibleNPC.get(player.world.provider.getDimension())) {
 				if (uuid.equals(uID)) {
@@ -824,10 +822,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					ScriptController.Instance.clients.put(name, file.getDataText());
 					ScriptController.Instance.clientSizes.put(name, file.size);
 					// save on client
-					//File cdf = ScriptController.Instance.clientScriptsFile();
-					//if (cdf.exists()) {
-					//	File dir = new File(cdf.getParentFile(), ScriptController.Instance.clientScripts.getLanguage().toLowerCase());
-					//}
 				} else {
 					file.save();
 				}
@@ -930,7 +924,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 
 					// Create and Add new
 					isChanged = 1;
-					List<Object> waypoints = Lists.newArrayList();
+					List<Object> waypoints = new ArrayList<>();
 					for (MiniMapData mmd : mm.points) {
 						int dimID = mmd.dimIDs[0];
 						Object t = null;
@@ -950,7 +944,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 						int y = (int) mmd.pos.getY();
 						int z = (int) mmd.pos.getZ();
 						Color color = new Color(mmd.color);
-						List<Integer> dim = Lists.newArrayList();
+						List<Integer> dim = new ArrayList<>();
 						for (int dId : mmd.dimIDs) {
 							dim.add(dId);
 						}
@@ -1014,7 +1008,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
                     File worldDir = new File(parentFile, world_name);
 					Gson gson = new Gson();
 
-					Map<File, TempWaypointText> map = Maps.newHashMap();
+					Map<File, TempWaypointText> map = new HashMap<>();
 					for (MiniMapData mmd : mm.points) {
 						if (mmd.gsonData.containsKey("temporary") && gson.fromJson(mmd.gsonData.get("temporary"), boolean.class)) { continue; }
 						int dimID = mmd.dimIDs[0];
@@ -1139,12 +1133,12 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			byte t = names.indexOf(((char) 167) + "6Client") == 0 ? (byte) 0 : names.indexOf(((char) 167) + "6Server") == 0 ? (byte)1 : (byte)2;
 			List<String> list;
 			if (t == 2) {
-				list = Lists.newArrayList();
+				list = new ArrayList<>();
 				for (EnumScriptType est : EnumScriptType.values()) {
 					list.add(est.function);
 				}
 			} else {
-				list = Lists.newArrayList(t == 0 ? CustomNpcs.forgeClientEventNames.values() : CustomNpcs.forgeEventNames.values());
+				list = new ArrayList<>(t == 0 ? CustomNpcs.forgeClientEventNames.values() : CustomNpcs.forgeEventNames.values());
 			}
 			names = names.substring(names.indexOf("" + ((char) 10)) + 2);
 			names = names.substring(0, names.indexOf(";"));

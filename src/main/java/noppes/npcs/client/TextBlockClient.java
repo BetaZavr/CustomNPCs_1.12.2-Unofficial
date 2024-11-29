@@ -1,8 +1,7 @@
 package noppes.npcs.client;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -91,7 +90,7 @@ public class TextBlockClient extends TextBlock {
 
 	private List<String> getStrings() {
 		String tempText = this.text;
-		List<String> tempList = Lists.newArrayList();
+		List<String> tempList = new ArrayList<>();
 		int fm;
 		while (true) {
 			fm = -1;

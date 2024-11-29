@@ -1,12 +1,7 @@
 package noppes.npcs.client.gui.model;
 
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
+import java.util.*;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -33,15 +28,13 @@ import javax.annotation.Nonnull;
 
 public class GuiCreationEntities extends GuiCreationScreenInterface implements ICustomScrollListener {
 
-	public HashMap<String, Class<? extends EntityLivingBase>> data;
+	public HashMap<String, Class<? extends EntityLivingBase>> data = new HashMap<>();
 	private final List<String> list;
-	private boolean resetToSelected;
+	private boolean resetToSelected = true;
 	private GuiCustomScroll scroll;
 
 	public GuiCreationEntities(EntityNPCInterface npc) {
 		super(npc);
-		this.data = new HashMap<>();
-		this.resetToSelected = true;
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			String name = ent.getName();
 			Class<? extends Entity> c = ent.getEntityClass();
@@ -59,7 +52,7 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
 		this.data.put("NPC 64x32", EntityNPC64x32.class);
 		this.data.put("NPC Alex Arms", EntityNpcAlex.class);
 		this.data.put("NPC Classic Player", EntityNpcClassicPlayer.class);
-		(this.list = Lists.newArrayList(this.data.keySet())).add("NPC");
+		(this.list = new ArrayList<>(data.keySet())).add("NPC");
 		this.list.sort(String.CASE_INSENSITIVE_ORDER);
 		this.active = 1;
 		this.xOffset = 60;

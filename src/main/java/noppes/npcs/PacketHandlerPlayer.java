@@ -460,7 +460,7 @@ public class PacketHandlerPlayer {
 				plData.mailData.addMail(mail);
 				plData.save(false);
 			}
-			Iterator<PlayerMail> it = data.mailData.playermail.iterator();
+			Iterator<PlayerMail> it = data.mailData.playerMails.iterator();
 			while (it.hasNext()) {
 				PlayerMail m = it.next();
 				if (m.timeWhenReceived == id && m.sender.equals(mail.sender)) {
@@ -475,14 +475,14 @@ public class PacketHandlerPlayer {
 			if (time < 0) { // All letters
 				List<PlayerMail> del = Lists.newArrayList();
 				long serverTime = System.currentTimeMillis();
-				for (PlayerMail mail : mailData.playermail) {
+				for (PlayerMail mail : mailData.playerMails) {
 					if (serverTime - mail.timeWhenReceived - mail.timeWillCome < 0L) {
 						continue;
 					}
 					del.add(mail);
 				}
 				for (PlayerMail mail : del) {
-					mailData.playermail.remove(mail);
+					mailData.playerMails.remove(mail);
 				}
 				NBTTagCompound compound = new NBTTagCompound();
 				mailData.saveNBTData(compound);
@@ -492,14 +492,14 @@ public class PacketHandlerPlayer {
 				return;
 			} else if (time == 0) { // All read letters
 				List<PlayerMail> del = Lists.newArrayList();
-				for (PlayerMail mail : mailData.playermail) {
+				for (PlayerMail mail : mailData.playerMails) {
 					if (!mail.beenRead) {
 						continue;
 					}
 					del.add(mail);
 				}
 				for (PlayerMail mail : del) {
-					mailData.playermail.remove(mail);
+					mailData.playerMails.remove(mail);
 				}
 				NBTTagCompound compound = new NBTTagCompound();
 				mailData.saveNBTData(compound);
@@ -509,7 +509,7 @@ public class PacketHandlerPlayer {
 				return;
 			}
 			String username = Server.readString(buffer);
-			Iterator<PlayerMail> it = mailData.playermail.iterator();
+			Iterator<PlayerMail> it = mailData.playerMails.iterator();
 			while (it.hasNext()) {
 				PlayerMail mail = it.next();
 				if (mail.timeWhenReceived == time && mail.sender.equals(username)) {
@@ -573,7 +573,7 @@ public class PacketHandlerPlayer {
 				return;
 			}
 			PlayerMailData data4 = data.mailData;
-			for (PlayerMail mail : data4.playermail) {
+			for (PlayerMail mail : data4.playerMails) {
 				if (mail.timeWhenReceived == time && mail.sender.equals(username)) {
 					ContainerMail.staticmail = mail;
 					player.openGui(CustomNpcs.instance, EnumGuiType.PlayerMailOpen.ordinal(), player.world, 0, 0, 0);
@@ -584,7 +584,7 @@ public class PacketHandlerPlayer {
 			long time = buffer.readLong();
 			String username = Server.readString(buffer);
 			PlayerMailData data4 = data.mailData;
-			for (PlayerMail mail : data4.playermail) {
+			for (PlayerMail mail : data4.playerMails) {
 				if (!mail.beenRead && mail.timeWhenReceived == time && mail.sender.equals(username)) {
 					if (mail.hasQuest()) {
 						PlayerQuestController.addActiveQuest(mail.getQuest(), player, false);

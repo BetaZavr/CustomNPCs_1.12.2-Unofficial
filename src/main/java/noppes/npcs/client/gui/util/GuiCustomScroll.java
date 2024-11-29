@@ -3,10 +3,9 @@ package noppes.npcs.client.gui.util;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.lwjgl.input.Mouse;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -24,12 +23,11 @@ import noppes.npcs.util.Util;
 import noppes.npcs.util.NaturalOrderComparator;
 
 public class GuiCustomScroll
-extends GuiScreen
-implements IComponentGui {
+		extends GuiScreen
+		implements IComponentGui {
 
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/misc.png");
 
-	private GuiScreen parent;
 	private ICustomScrollListener listener;
 
 	public boolean hovered;
@@ -63,153 +61,150 @@ implements IComponentGui {
 	public String[][] hoversTexts = null;
 	public String[] hoverText;
 
-	public GuiCustomScroll(GuiScreen parent, int id) {
-		this.id = id;
-		this.setParent(parent);
-		this.setSize(176, 159);
+	// search data
+	private final GuiNpcTextField textField = new GuiNpcTextField(0, null, 0, 0, 176, 16, "");
+	private int listSize = 0;
+	private boolean hasSearch = false;
+	private String searchString = "";
+	private String[] searchWords = new String[0];
+
+	public GuiCustomScroll(ICustomScrollListener parent, int scrollId) {
+		id = scrollId;
+		setParent(parent);
 	}
 
-	public void setParent(GuiScreen parent) {
-		this.parent = parent;
-		if (parent instanceof ICustomScrollListener) {
-			this.listener = (ICustomScrollListener) parent;
-		}
-	}
-
-	public GuiCustomScroll(GuiScreen parent, int id, boolean multipleSelection) {
+	public GuiCustomScroll(ICustomScrollListener parent, int id, boolean isMultipleSelection) {
 		this(parent, id);
-		this.multipleSelection = multipleSelection;
+		multipleSelection = isMultipleSelection;
+	}
+
+	public void setParent(ICustomScrollListener parent) {
+		listener = parent;
 	}
 
 	public void clear() {
-		this.list.clear();
-		this.selected = -1;
-		this.scrollY = 0;
-		this.setSize(this.width, this.height);
+		list.clear();
+		selected = -1;
+		scrollY = 0;
+		searchString = "";
+		searchWords = new String[0];
+		textField.setText("");
+		reset();
 	}
 
 	protected void drawItems() {
-		int xOffset = (this.scrollHeight < this.height - 2) ? 0 : 10;
-		for (int i = 0; i < this.list.size(); ++i) {
+		int xOffset = (scrollHeight < height - 2) ? 0 : 10;
+		int displayIndex = 0;
+		for (int i = 0; i < list.size(); ++i) {
+			if (!isSearched(list.get(i))) { continue; }
 			int j = 4;
-			int k = 14 * i + 4 - this.scrollY;
-			if (k < 4 || k + 10 > this.height) {
-				continue;
-			}
-			String displayString = this.list.get(i) == null ? "null" : this.list.get(i);
-			try {
-				displayString = new TextComponentTranslation(displayString).getFormattedText();
-			} catch (Exception ignored) { }
-
+			int k = 14 * displayIndex + 4 - scrollY;
+			displayIndex++;
+			if (k < 4 || k + 10 > height) { continue; }
+			String displayString = list.get(i) == null ? "null" : list.get(i);
+			try { displayString = new TextComponentTranslation(displayString).getFormattedText(); } catch (Exception ignored) { }
 			String text = "";
-			float maxWidth = (this.width + xOffset - 8) * 0.8f;
-			if (this.fontRenderer.getStringWidth(displayString) > maxWidth) {
-				for (int h = 0; h < displayString.length(); ++h) {
-					char c = displayString.charAt(h);
+			float maxWidth = (width + xOffset - 8) * 0.8f;
+			if (fontRenderer.getStringWidth(displayString) > maxWidth) {
+				for (int strHeight = 0; strHeight < displayString.length(); ++strHeight) {
+					char c = displayString.charAt(strHeight);
 					text += c;
-					if (this.fontRenderer.getStringWidth(text) > maxWidth) {
-						break;
-					}
+					if (fontRenderer.getStringWidth(text) > maxWidth) { break; }
 				}
-				if (displayString.length() > text.length()) {
-					text += "...";
-				}
-			} else {
-				text = displayString;
+				if (displayString.length() > text.length()) { text += "..."; }
 			}
+			else { text = displayString; }
 			int xo = 0;
-			if ((this.stacks != null && i < this.stacks.size()) || (this.prefixes != null && i < this.prefixes.size())) {
+			if ((stacks != null && i < stacks.size()) || (prefixes != null && i < prefixes.size())) {
 				j = 14;
 				xo = -14;
 			}
 			int c = CustomNpcs.MainColor.getRGB();
-			if (this.colors != null && i < this.colors.size()) {
-				c = this.colors.get(i);
-			}
-			if ((this.multipleSelection && Util.instance.containsDeleteColor(this.selectedList, text, false))
-					|| (!this.multipleSelection && this.selected == i)) {
-				this.drawVerticalLine(j - 2, k - 4, k + 10, -1);
-				this.drawVerticalLine(j + width - 17 + xOffset + xo, k - 4, k + 10, -1);
-				this.drawHorizontalLine(j - 2, j + this.width - 17 + xOffset + xo, k - 3, -1);
-				this.drawHorizontalLine(j - 2, j + this.width - 17 + xOffset + xo, k + 10, -1);
-				this.fontRenderer.drawString(text, j, k, c);
+			if (colors != null && i < colors.size()) { c = colors.get(i); }
+			if ((multipleSelection && Util.instance.containsDeleteColor(selectedList, text, false)) || (!multipleSelection && selected == i)) {
+				drawVerticalLine(j - 2, k - 4, k + 10, -1);
+				drawVerticalLine(j + width - 17 + xOffset + xo, k - 4, k + 10, -1);
+				drawHorizontalLine(j - 2, j + width - 17 + xOffset + xo, k - 3, -1);
+				drawHorizontalLine(j - 2, j + width - 17 + xOffset + xo, k + 10, -1);
+				fontRenderer.drawString(text, j, k, c);
 				c = CustomNpcs.MainColor.getRGB();
-			} else if (i == this.hover) {
-				this.fontRenderer.drawString(text, j, k, 65280);
+			} else if (i == hover) {
+				fontRenderer.drawString(text, j, k, 65280);
 				c = CustomNpcs.HoverColor.getRGB();
 			} else {
-				this.fontRenderer.drawString(text, j, k, c);
+				fontRenderer.drawString(text, j, k, c);
 				c = CustomNpcs.MainColor.getRGB();
 			}
-			if (this.suffixes != null && i < this.suffixes.size() && this.suffixes.get(i) != null && !this.suffixes.get(i).isEmpty() && this.fontRenderer.getStringWidth(text + this.suffixes.get(i)) < this.width - 20) {
-				this.fontRenderer.drawString(this.suffixes.get(i), this.width - 6 + (this.listHeight > this.height ? -11 : 0) - this.fontRenderer.getStringWidth(this.suffixes.get(i)), k, c);
+			if (suffixes != null && i < suffixes.size() && suffixes.get(i) != null && !suffixes.get(i).isEmpty() && fontRenderer.getStringWidth(text + suffixes.get(i)) < width - 20) {
+				fontRenderer.drawString(suffixes.get(i), width - 6 + (listHeight > height ? -11 : 0) - fontRenderer.getStringWidth(suffixes.get(i)), k, c);
 			}
 		}
 	}
 
 	private void drawPrefixes() {
-		if (this.prefixes == null) {
-			return;
-		}
-		for (int i = 0; i < this.list.size() && i < this.prefixes.size(); ++i) {
-			int k = 14 * i + 4 - this.scrollY;
-			ResourceData rd = this.prefixes.get(i);
-			if (k < 4 || k + 12 >= this.height || rd == null || rd.resource == null || rd.width <= 0
-					|| rd.height <= 0) {
+		if (prefixes == null) { return; }
+		int displayIndex = 0;
+		for (int i = 0; i < list.size() && i < prefixes.size(); ++i) {
+			if (!isSearched(list.get(i))) { continue; }
+			int k = 14 * displayIndex + 4 - scrollY;
+			displayIndex++;
+			ResourceData rd = prefixes.get(i);
+			if (k < 4 || k + 12 >= height || rd == null || rd.resource == null || rd.width <= 0 || rd.height <= 0) {
 				continue;
 			}
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
+			GlStateManager.translate(guiLeft, guiTop, 0.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.translate(0.5f, k - 1.5f + rd.tH, 0.0f); // position X, Y, Z
 			float scale = 12.0f / (float) (Math.max(rd.width, rd.height));
 			GlStateManager.scale(scale, scale, scale);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(rd.resource);
-			this.drawTexturedModalRect(0, 0, rd.u, rd.v, rd.width, rd.height);
+			drawTexturedModalRect(0, 0, rd.u, rd.v, rd.width, rd.height);
 			GlStateManager.popMatrix();
 		}
 	}
 
 	public void drawScreen(int mouseX, int mouseY, boolean canScrolled) {
 		if (!visible) { return; }
-		// background
-		if (this.border != 0xFF000000) {
-			this.drawGradientRect(this.guiLeft - 1, this.guiTop - 1, this.width + this.guiLeft + 1, this.height + this.guiTop + 1, this.border, this.border);
+		if (hasSearch) {
+			textField.x = guiLeft;
+			textField.y = guiTop;
+			textField.drawTextBox(mouseX, mouseY);
 		}
-		this.hovered = this.isMouseOver(mouseX, mouseY);
-		this.drawGradientRect(this.guiLeft, this.guiTop, this.width + this.guiLeft, this.height + this.guiTop, this.colorBack, this.colorBack);
+		guiTop += textFieldHeight();
+		// background
+		if (border != 0xFF000000) { drawGradientRect(guiLeft - 1, guiTop - 1, width + guiLeft + 1, height + guiTop + 1, border, border); }
+		hovered = isMouseOver(mouseX, mouseY);
+		drawGradientRect(guiLeft, guiTop, width + guiLeft, height + guiTop , colorBack, colorBack);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// positions:
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
+		GlStateManager.translate(guiLeft, guiTop, 0.0f);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		if (selectable) { hover = getMouseOver(mouseX, mouseY); }
-		this.drawItems();
+		drawItems();
 		GlStateManager.popMatrix();
 
-		if (this.stacks != null && this.parent != null && ((this.parent instanceof GuiContainerNPCInterface && !((GuiContainerNPCInterface) this.parent).hasSubGui()) || (this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) {
-			this.drawStacks();
-		}
-		if (this.prefixes != null && this.parent != null && ((this.parent instanceof GuiContainerNPCInterface && !((GuiContainerNPCInterface) this.parent).hasSubGui()) || (this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) {
-			this.drawPrefixes();
+		boolean parentAllows = listener == null || !listener.hasSubGui();
+		if (parentAllows) {
+			if (stacks != null) { drawStacks(); }
+			if (prefixes != null) { drawPrefixes(); }
 		}
 
 		// scrolling
-		if (this.scrollHeight <= this.height - 6) {
+		if (scrollHeight <= height - 6) {
 			// Bar
 			drawScrollBar();
 			// pos
 			mouseX -= guiLeft;
 			mouseY -= guiTop;
 			isScrolling = Mouse.isButtonDown(0) && mouseX >= width - 9 && mouseX < width - 1 && mouseY >= 1 && mouseY < height - 1;
-
 			if (isScrolling) {
-				scrollY = (int) ((float) mouseY / ((float) height - 2.0f) * ((float) listHeight - (float) scrollHeight)); // Changed
+				scrollY = (int) ((float) mouseY / ((float) height - 2.0f) * ((float) listHeight - (float) scrollHeight));
 				if (scrollY < 0) { scrollY = 0; }
 				if (scrollY > maxScrollY) { scrollY = maxScrollY; }
 			}
-
 			if (canScrolled) {
 				int dWheel = Mouse.getDWheel();
 				if (dWheel != 0) {
@@ -219,337 +214,323 @@ implements IComponentGui {
 				}
 			}
 		}
-		if (this.hover >= 0 && this.hover < this.list.size()) {
-			if (!(this.parent instanceof IEditNPC) || !((IEditNPC) this.parent).hasSubGui()) {
+		if (hover >= 0 && hover < list.size()) {
+			if (parentAllows) {
 				String[] texts = new String[0];
-				if (this.hoverText != null) {
-					texts = this.hoverText;
-				} else if (this.hoversTexts != null && this.hover < this.hoversTexts.length) {
-					texts = this.hoversTexts[this.hover];
-				} else if (this.stacks != null && this.hover < this.stacks.size()) {
-					List<String> l = this.stacks.get(this.hover).getTooltip(this.mc.player, TooltipFlags.NORMAL);
+				if (hoverText != null) {
+					texts = hoverText;
+				} else if (hoversTexts != null && hover < hoversTexts.length) {
+					texts = hoversTexts[hover];
+				} else if (stacks != null && hover < stacks.size()) {
+					List<String> l = stacks.get(hover).getTooltip(mc.player, TooltipFlags.NORMAL);
 					texts = l.toArray(new String[0]);
 				}
 				if (texts != null) {
-					if (this.parent instanceof GuiNPCInterface) {
-						((GuiNPCInterface) this.parent).hoverText = texts;
-					} else if (this.parent instanceof GuiContainerNPCInterface) {
-						((GuiContainerNPCInterface) this.parent).hoverText = texts;
+					if (listener instanceof GuiNPCInterface) {
+						((GuiNPCInterface) listener).hoverText = texts;
+					} else if (listener instanceof GuiContainerNPCInterface) {
+						((GuiContainerNPCInterface) listener).hoverText = texts;
 					}
 				}
 			}
 		}
+		guiTop -= textFieldHeight();
 	}
 
 	private void drawScrollBar() {
+		int h = height - textFieldHeight();
 		int posX = guiLeft + width - 9;
-		int posY = guiTop + (int) ((float) scrollY / (float) listHeight * ((float) height - 2.0f)) + 1;
+		int posY = guiTop + (int) ((float) scrollY / (float) listHeight * ((float) h - 2.0f)) + 1;
 		Gui.drawRect(posX, posY, posX + 8, posY + scrollHeight + 1, 0xA0FFF0F0);
 	}
 
 	private void drawStacks() {
-		if (this.stacks == null) {
+		if (stacks == null) {
 			return;
 		}
-		for (int i = 0; i < this.list.size() && i < this.stacks.size(); ++i) {
-			int k = 14 * i + 4 - this.scrollY;
-			if (k < 4 || k + 12 >= this.height) {
-				continue;
-			}
+		int displayIndex = 0;
+		for (int i = 0; i < list.size() && i < stacks.size(); ++i) {
+			if (!isSearched(list.get(i))) { continue; }
+			int k = 14 * displayIndex + 4 - scrollY;
+			displayIndex++;
+			if (k < 4 || k + 12 >= height) { continue; }
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
+			GlStateManager.translate(guiLeft, guiTop, 0.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.translate(0, k - 2.5f, 300.0f);
 			GlStateManager.scale(0.75f, 0.75f, 0.75f);
 			RenderHelper.enableGUIStandardItemLighting();
-			this.mc.getRenderItem().renderItemAndEffectIntoGUI(this.stacks.get(i), 0, 0);
+			mc.getRenderItem().renderItemAndEffectIntoGUI(stacks.get(i), 0, 0);
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
 		}
 	}
 
 	public int getColor(int pos) {
-		if (this.colors == null || this.colors.isEmpty()) {
-			return 0;
-		}
-		return this.colors.get(pos);
+		if (colors == null || colors.isEmpty()) { return 0; }
+		return colors.get(pos);
 	}
 
-	public int getHeight() {
-		return this.height;
-	}
+	public int getHeight() { return height - textFieldHeight(); }
 
-	public List<String> getList() {
-		return this.list;
-	}
+	public List<String> getList() { return list; }
 
-	private int getMouseOver(int i, int j) {
-		i -= this.guiLeft;
-		j -= this.guiTop;
-		if (i >= 4 && i < this.width - 4 && j >= 4 && j < this.height) {
-			for (int j2 = 0; j2 < this.list.size(); ++j2) {
-				if (this.mouseInOption(i, j, j2)) {
-					return j2;
+	private int getMouseOver(int mouseX, int mouseY) {
+		mouseX -= guiLeft;
+		mouseY -= guiTop;
+		if (mouseX >= 4 && mouseX < width - 4 && mouseY >= 4 && mouseY < height) {
+			int displayIndex = 0;
+			for (int pos = 0; pos < list.size(); ++pos) {
+				if (isSearched(list.get(pos))) {
+					if (mouseInOption(mouseX, mouseY, displayIndex)) { return pos; }
+					++displayIndex;
 				}
-			}
-		}
-		return -1;
-	}
-
-	public int getPos(String select) {
-		if (select == null || select.isEmpty() || this.list.isEmpty()) {
-			return -1;
-		}
-		for (int i = 0; i < this.list.size(); i++) {
-			if (this.list.get(i).equalsIgnoreCase(select)) {
-				return i;
 			}
 		}
 		return -1;
 	}
 
 	public String getSelected() {
-		if (this.selected == -1 || this.selected >= this.list.size()) {
-			return null;
-		}
-		return this.list.get(this.selected);
+		if (selected == -1 || selected >= list.size()) { return null; }
+		return list.get(selected);
 	}
 
-	public HashSet<String> getSelectedList() {
-		return this.selectedList;
-	}
+	public HashSet<String> getSelectedList() { return selectedList; }
 
-	public int getWidth() {
-		return this.width;
-	}
+	public int getWidth() { return width; }
 
-	public boolean hasSelected() {
-		return this.selected >= 0 && this.getSelected() != null;
-	}
+	public boolean hasSelected() { return selected >= 0 && getSelected() != null; }
 
 	public boolean isMouseOver(int x, int y) {
-		return x >= this.guiLeft && x <= this.guiLeft + this.width && y >= this.guiTop
-				&& y <= this.guiTop + this.height;
+		return x >= guiLeft && x <= guiLeft + width && y >= guiTop && y <= guiTop + height;
 	}
 
-	private boolean isSameList(List<String> list) {
-		if (this.list.size() != list.size()) {
+	private boolean isSameList(List<String> checklist) {
+		if (list.size() != checklist.size()) {
 			return false;
 		}
-		for (int i = 0; i < this.list.size(); i++) {
-			String s = this.list.get(i);
-			if (!list.contains(s)) {
-				return false;
-			}
-			String l = list.get(i);
-			if (!s.equalsIgnoreCase(l)) {
-				return false;
-			}
+		for (int i = 0; i < checklist.size(); i++) {
+			String s = list.get(i);
+			if (!checklist.contains(s)) { return false; }
+			String l = checklist.get(i);
+			if (!s.equalsIgnoreCase(l)) { return false; }
 		}
 		return true;
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
-		if (!this.hovered || GuiNpcTextField.isActive()) {
-			return;
+		if (hasSearch) {
+			final boolean bo = textField.textboxKeyTyped(c, i);
+			if (!searchString.equals(textField.getText())) {
+				searchString = this.textField.getText().trim();
+				searchWords = searchString.split(" ");
+				reset();
+			}
+			if (bo) { return; }
 		}
-		if (this.list.size() <= 1) {
+		if (!hovered || GuiNpcTextField.isActive()) { return; }
+		if (list.size() <= 1) {
 			return;
 		}
 		if (i == 200 || i == ClientProxy.frontButton.getKeyCode()) { // up
-			if (this.selected < 1) {
+			if (selected < 1) {
 				return;
 			}
-			this.selected--;
-			if (this.maxScrollY > 0) {
-				this.scrollY -= 14;
-				if (this.scrollY < 0) {
-					this.scrollY = 0;
+			selected--;
+			if (maxScrollY > 0) {
+				scrollY -= 14;
+				if (scrollY < 0) {
+					scrollY = 0;
 				}
 			}
-			if (this.listener != null) {
-				this.listener.scrollClicked(-1, -1, 0, this);
+			if (listener != null) {
+				listener.scrollClicked(-1, -1, 0, this);
 			}
 		} else if (i == 208 || i == ClientProxy.backButton.getKeyCode()) { // down
-			if (this.selected >= this.getList().size() - 1) {
+			if (selected >= getList().size() - 1) {
 				return;
 			}
-			this.selected++;
-			if (this.maxScrollY > 0) {
-				this.scrollY += 14;
-				if (this.scrollY > this.maxScrollY) {
-					this.scrollY = this.maxScrollY;
+			selected++;
+			if (maxScrollY > 0) {
+				scrollY += 14;
+				if (scrollY > maxScrollY) {
+					scrollY = maxScrollY;
 				}
 			}
-			if (this.listener != null) {
-				this.listener.scrollClicked(-1, -1, 0, this);
+			if (listener != null) {
+				listener.scrollClicked(-1, -1, 0, this);
 			}
 		}
 	}
 
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (mouseButton != 0 || this.hover < 0) {
-			return;
-		}
-		if (this.multipleSelection) {
-			if (this.selectedList.contains(this.list.get(this.hover))) {
-				this.selectedList.remove(this.list.get(this.hover));
+		if (hasSearch) { textField.mouseClicked(mouseX, mouseY, mouseButton); }
+		if (mouseButton != 0 || hover < 0) { return; }
+		if (multipleSelection) {
+			if (selectedList.contains(list.get(hover))) {
+				selectedList.remove(list.get(hover));
 			} else {
-				this.selectedList.add(this.list.get(this.hover));
+				selectedList.add(list.get(hover));
 			}
 		} else {
-            this.selected = this.hover;
-            this.hover = -1;
+			selected = hover;
+			hover = -1;
 		}
-		if (this.listener != null) {
+		if (listener != null) {
 			long time = System.currentTimeMillis();
-			this.listener.scrollClicked(mouseX, mouseY, mouseButton, this);
-			if (this.selected >= 0 && this.selected == this.lastClickedItem && time - this.lastClickedTime < 500L) {
-				this.listener.scrollDoubleClicked(this.list.get(this.selected), this);
+			listener.scrollClicked(mouseX, mouseY, mouseButton, this);
+			if (selected >= 0 && selected == lastClickedItem && time - lastClickedTime < 500L) {
+				listener.scrollDoubleClicked(list.get(selected), this);
 			}
-			this.lastClickedTime = time;
-			this.lastClickedItem = this.selected;
+			lastClickedTime = time;
+			lastClickedItem = selected;
 		}
 	}
 
 	public boolean mouseInOption(int i, int j, int k) {
 		int l = 4;
-		int i2 = 14 * k + 4 - this.scrollY;
-		return i >= l - 1 && i < l + this.width - 11 && j >= i2 - 1 && j < i2 + 8;
+		int i2 = 14 * k + 4 - scrollY;
+		return i >= l - 1 && i < l + width - 11 && j >= i2 - 1 && j < i2 + 8;
 	}
 
 	public void replace(String oldName, String newName) {
-		if (!this.list.contains(oldName)) {
-			return;
-		}
-		String select = this.getSelected();
-		int i = this.list.indexOf(oldName);
-		this.list.remove(oldName);
-		this.list.add(i, newName);
-		if (this.isSorted) {
-			this.list.sort(new NaturalOrderComparator());
-		}
-		if (oldName.equals(select)) {
-			select = newName;
-		}
-		this.selected = this.list.indexOf(select);
-		this.setSize(this.width, this.height);
+		if (!list.contains(oldName)) { return; }
+		String select = getSelected();
+		int i = list.indexOf(oldName);
+		list.remove(oldName);
+		list.add(i, newName);
+		if (isSorted) { list.sort(new NaturalOrderComparator()); }
+		if (oldName.equals(select)) { select = newName; }
+		setSelected(select);
+		reset();
 	}
 
 	public void resetRoll() {
-		if (this.selected <= 0) {
-			return;
-		}
-		int pos = (this.selected + 1) * 14;
-		if (pos >= this.scrollY && pos <= this.scrollY + this.height) {
-			return;
-		}
-		this.scrollY = pos;
-		if (pos - this.height / 2 > 0) {
-			this.scrollY = pos - this.height / 2;
-		}
-		if (this.scrollY < 0) {
-			this.scrollY = 0;
-		}
-		if (this.scrollY > this.maxScrollY) {
-			this.scrollY = this.maxScrollY;
-		}
+		if (selected <= 0) { return; }
+		int pos = (selected + 1) * 14;
+		if (pos >= scrollY && pos <= scrollY + height) { return; }
+		scrollY = pos;
+		if (pos - height / 2 > 0) { scrollY = pos - height / 2; }
+		if (scrollY < 0) { scrollY = 0; }
+		if (scrollY > maxScrollY) { scrollY = maxScrollY; }
 	}
 
 	public void scrollTo(String name) {
-		int i = this.list.indexOf(name);
-		if (i < 0 || this.scrollHeight >= this.height - 2) {
-			return;
-		}
-		int pos = (int) (1.0f * i / this.list.size() * this.listHeight);
-		if (pos > this.maxScrollY) {
-			pos = this.maxScrollY;
-		}
-		this.scrollY = pos;
+		int i = list.indexOf(name);
+		if (i < 0 || scrollHeight >= height - 2) { return; }
+		int pos = (int) (1.0f * i / listSize * listHeight);
+		if (pos > maxScrollY) { pos = maxScrollY; }
+		scrollY = pos;
 	}
 
-	public void setColors(List<Integer> colors) {
-		this.colors = colors;
+	public void setColors(List<Integer> newColors) { colors = newColors; }
+
+	public void setList(List<String> newList) {
+		if (newList == null) { newList = new ArrayList<>(); }
+		if (isSameList(newList)) { return; }
+		isSorted = true;
+		scrollY = 0;
+		newList.sort(new NaturalOrderComparator());
+		list.clear();
+		list.addAll(newList);
+		reset();
 	}
 
-	public void setList(List<String> list) {
-		if (list == null) {
-			list = Lists.newArrayList();
-		}
-		if (this.isSameList(list)) {
-			return;
-		}
-		this.isSorted = true;
-		this.scrollY = 0;
-		list.sort(new NaturalOrderComparator());
-		this.list.clear();
-		this.list.addAll(list);
-		this.setSize(this.width, this.height);
+	public void setListNotSorted(List<String> newList) {
+		if (isSameList(newList)) { return; }
+		scrollY = 0;
+		list.clear();
+		list.addAll(newList);
+		isSorted = false;
+		reset();
 	}
 
-	public void setListNotSorted(List<String> list) {
-		if (this.isSameList(list)) {
-			return;
-		}
-		this.scrollY = 0;
-		this.list.clear();
-		this.list.addAll(list);
-		this.setSize(this.width, this.height);
-		this.isSorted = false;
-	}
+	public void setPrefixes(List<ResourceData> newPrefixes) { prefixes = newPrefixes; }
 
-	public void setPrefixes(List<ResourceData> prefixes) {
-		this.prefixes = prefixes;
+	public boolean hasSelected(String name) {
+		if (name == null || name.isEmpty()) { return false; }
+		if (list.contains(name)) { return true; }
+		name = Util.instance.deleteColor(name);
+        for (String s : list) {
+            if (Util.instance.deleteColor(s).equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+		return false;
 	}
 
 	public void setSelected(String name) {
-		if (name == null || name.isEmpty()) {
-			this.selected = -1;
-		}
-		this.selected = this.list.indexOf(name);
-		if (this.selected == -1) {
+		if (name == null || name.isEmpty()) { selected = -1; }
+		selected = list.indexOf(name);
+		if (selected == -1) {
 			name = Util.instance.deleteColor(name);
-			for (int i = 0; i < this.list.size(); i++) {
-				if (Util.instance.deleteColor(this.list.get(i)).equalsIgnoreCase(name)) {
-					this.selected = i;
+			for (int i = 0; i < list.size(); i++) {
+				if (Util.instance.deleteColor(list.get(i)).equalsIgnoreCase(name)) {
+					selected = i;
 					break;
 				}
 			}
 		}
-		this.resetRoll();
+		resetRoll();
 	}
 
-	public void setSelectedList(HashSet<String> selectedList) {
-		this.selectedList = selectedList;
-	}
+	public void setSelectedList(HashSet<String> newSelectedList) { selectedList = newSelectedList; }
 
 	public void setSize(int x, int y) {
-		height = y;
+		textField.width = x;
+		height = y - textFieldHeight();
 		width = x;
-		listHeight = 14 * list.size();
-		if (listHeight > 0) {scrollHeight = (int) Math.floor((float) height * ((float) height - 2.0f) / (float) listHeight); }
+		listHeight = 14 * listSize;
+		if (listHeight > 0) {
+			scrollHeight = (int) Math.floor((float) height * ((float) height - 2.0f) / (float) listHeight);
+		}
 		else { scrollHeight = Integer.MAX_VALUE; }
 		maxScrollY = listHeight - height;
 		if (maxScrollY < 0) { maxScrollY = 0; }
+		if (maxScrollY > 0 && scrollY > maxScrollY || maxScrollY == 0) {
+			scrollY = 0;
+		}
 	}
 
-	public void setStacks(List<ItemStack> stacks) {
-		this.stacks = stacks;
+	private int textFieldHeight() { return hasSearch ? textField.height + 2 : 0; }
+
+	private void reset() {
+		int h = textFieldHeight();
+		hasSearch = list.size() > 9;
+		if (hasSearch) {
+			if (searchString.isEmpty()) { listSize = list.size(); }
+			else { listSize = (int) list.stream().filter((Predicate<? super String>)this::isSearched).count(); }
+		}
+		else {
+			searchString = "";
+			searchWords = new String[0];
+			textField.setText("");
+		}
+		setSize(width, height + h);
 	}
 
-	public void setSuffixes(List<String> suffixes) {
-		this.suffixes = suffixes;
+	private boolean isSearched(String s) {
+		try { s = new TextComponentTranslation(s).getFormattedText(); } catch (Exception ignored) { }
+        s = Util.instance.deleteColor(s);
+		for (final String k : searchWords) {
+			if (!s.toLowerCase().contains(Util.instance.deleteColor(k).toLowerCase())) {
+				return false;
+			}
+		}
+		return true;
 	}
+
+	public void setStacks(List<ItemStack> newStacks) { stacks = newStacks; }
+
+	public void setSuffixes(List<String> newSuffixes) { suffixes = newSuffixes; }
 
 	public GuiCustomScroll setUnSelectable() {
-		this.selectable = false;
+		selectable = false;
 		return this;
 	}
 
 	@Override
-	public int[] getCenter() {
-		return new int[] { this.guiLeft + this.width / 2, this.guiTop + this.height / 2};
-	}
-	
+	public int[] getCenter() { return new int[] { guiLeft + width / 2, guiTop + height  / 2}; }
+
 }

@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.TreeMap;
 
-import com.google.common.collect.Maps;
-
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -35,14 +33,13 @@ public class KeyController implements IKeyBinding {
 		return CustomNpcs.Dir != null && !KeyController.instance.filePath.equals(CustomNpcs.Dir.getAbsolutePath());
 	}
 
-	public final TreeMap<Integer, IKeySetting> keybindings;
+	public final TreeMap<Integer, IKeySetting> keybindings = new TreeMap<>();
 
 	private String filePath;
 
 	public KeyController() {
 		KeyController.instance = this;
 		this.filePath = CustomNpcs.Dir.getAbsolutePath();
-		this.keybindings = Maps.newTreeMap();
 		this.loadKeys();
 	}
 

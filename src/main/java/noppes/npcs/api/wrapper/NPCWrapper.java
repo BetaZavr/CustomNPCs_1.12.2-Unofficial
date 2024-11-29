@@ -1,10 +1,9 @@
 package noppes.npcs.api.wrapper;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-
-import com.google.common.collect.Sets;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.BlockPos;
@@ -201,7 +200,7 @@ public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrappe
 			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1));
 		}
 		int s = 0;
-		Set<Integer> newIds = Sets.newHashSet();
+		Set<Integer> newIds = new HashSet<>();
 		for (int id : this.entity.dialogs) {
 			if (s == slot) {
 				if (dialog != null) {

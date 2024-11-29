@@ -8,9 +8,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.*;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -33,9 +30,18 @@ public class SchematicController {
 
 	public static SchematicController Instance = new SchematicController();
 	public static long time = 50L;
+	public static final List<String> included;
+	static {
+		included = Arrays.asList("archery_range.schematic", "bakery.schematic", "barn.schematic",
+				"building_site.schematic", "chapel.schematic", "church.schematic", "gate.schematic",
+				"glassworks.schematic", "guard_Tower.schematic", "guild_house.schematic", "house.schematic",
+				"house_small.schematic", "inn.schematic", "library.schematic", "lighthouse.schematic", "mill.schematic",
+				"observatory.schematic", "ship.schematic", "shop.schematic", "stall.schematic", "stall2.schematic",
+				"stall3.schematic", "tier_house1.schematic", "tier_house2.schematic", "tier_house3.schematic",
+				"tower.schematic", "wall.schematic", "wall_corner.schematic");
+	}
 
 	public static void buildBlocks(EntityPlayerMP player, BlockPos pos, int rotation, Schematic schema) { // Schematic
-																											// Build
 		if (player == null || pos == null || schema == null) {
 			return;
 		}
@@ -61,23 +67,14 @@ public class SchematicController {
 		}
 		return schematicDir;
 	}
-	private final List<SchematicWrapper> buildingList;
-	public List<String> included;
 
-	public Map<String, SchematicWrapper> map;
+	private final List<SchematicWrapper> buildingList = new ArrayList<>();
+
+	public Map<String, SchematicWrapper> map = new HashMap<>();
 
 	private final char chr = ((char) 167);
 
 	public SchematicController() {
-		this.buildingList = Lists.newArrayList();
-		this.included = Arrays.asList("archery_range.schematic", "bakery.schematic", "barn.schematic",
-				"building_site.schematic", "chapel.schematic", "church.schematic", "gate.schematic",
-				"glassworks.schematic", "guard_Tower.schematic", "guild_house.schematic", "house.schematic",
-				"house_small.schematic", "inn.schematic", "library.schematic", "lighthouse.schematic", "mill.schematic",
-				"observatory.schematic", "ship.schematic", "shop.schematic", "stall.schematic", "stall2.schematic",
-				"stall3.schematic", "tier_house1.schematic", "tier_house2.schematic", "tier_house3.schematic",
-				"tower.schematic", "wall.schematic", "wall_corner.schematic");
-		this.map = Maps.newHashMap();
 	}
 
 	public void build(SchematicWrapper schema, ICommandSender sender) {
@@ -206,7 +203,7 @@ public class SchematicController {
 	}
 
 	public void stop(ICommandSender sender) {
-		if (this.buildingList == null || this.buildingList.isEmpty()) {
+		if (buildingList.isEmpty()) {
 			this.sendMessage(sender, "schematic.info.build.empty");
 		} else {
 			StringBuilder smts = new StringBuilder();
@@ -222,11 +219,11 @@ public class SchematicController {
 	}
 
 	public void updateBuilding() {
-		if (this.buildingList == null || this.buildingList.isEmpty()) {
+		if (buildingList == null || this.buildingList.isEmpty()) {
 			return;
 		}
-		List<SchematicWrapper> del = Lists.newArrayList();
-		for (SchematicWrapper sm : this.buildingList) {
+		List<SchematicWrapper> del = new ArrayList<>();
+		for (SchematicWrapper sm : buildingList) {
 			sm.build();
 			if (sm.sender != null && sm.getPercentage() - sm.buildingPercentage >= 10) {
 				this.sendMessage(sm.sender, "schematic.info.build.percentage", this.chr + "7" + sm.schema.getName(), this.chr + "7" + sm.getPercentage(), this.chr + "7%");

@@ -42,14 +42,15 @@ public enum AnimationKind {
 		return list;
 	}
 
-	final boolean isMovement;
-	final boolean isQuickStart;
+	boolean isMovement;
+	boolean isQuickStart;
 	final int type;
+	AnimationKind parent = null;
 
 	AnimationKind(int i, boolean movement, boolean quickStart) {
-		this.type = i;
-		this.isMovement = movement;
-		this.isQuickStart = quickStart;
+		type = i;
+		isMovement = movement;
+		isQuickStart = quickStart;
 	}
 
 	public int get() { return this.type; }
@@ -57,5 +58,14 @@ public enum AnimationKind {
 	public boolean isMovement() { return this.isMovement; }
 
 	public boolean isQuickStart() { return this.isQuickStart; }
+
+	public void setEditingBooleans(AnimationKind parentEnum) {
+		if (this != AnimationKind.EDITING_All && this != AnimationKind.EDITING_PART) { return; }
+		parent = parentEnum;
+		isMovement = parentEnum.isMovement;
+		isQuickStart = parentEnum.isQuickStart;
+	}
+
+	public AnimationKind getParentEnum() { return parent; }
 
 }

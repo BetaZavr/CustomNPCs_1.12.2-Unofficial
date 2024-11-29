@@ -5,8 +5,6 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
@@ -433,7 +431,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 			if (isEmpty) { continue; }
 			ings.add(ingredient);
 		}
-		List<ItemStack> inputs = Lists.newArrayList();
+		List<ItemStack> inputs = new ArrayList<>();
 		for (int i = 0; i < inv.getHeight(); ++i) {
 			for (int j = 0; j < inv.getWidth(); ++j) {
 				ItemStack itemstack = inv.getStackInRowAndColumn(j, i);

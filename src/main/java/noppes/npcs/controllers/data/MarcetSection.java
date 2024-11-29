@@ -1,8 +1,7 @@
 package noppes.npcs.controllers.data;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,7 +27,7 @@ public class MarcetSection {
 	private final int id;
 	public String name = "market.default.section";
 
-	public List<Deal> deals = Lists.newArrayList();
+	public List<Deal> deals = new ArrayList<>();
 
 	public MarcetSection(int id) {
 		this.id = id;

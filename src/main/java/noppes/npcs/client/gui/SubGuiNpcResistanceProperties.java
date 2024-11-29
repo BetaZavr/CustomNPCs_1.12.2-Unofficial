@@ -1,14 +1,6 @@
 package noppes.npcs.client.gui;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -32,7 +24,7 @@ extends SubGuiInterface
 implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListener {
 
 	private final Resistances resistances;
-	private final Map<String, String> data = Maps.newHashMap();
+	private final Map<String, String> data = new HashMap<>();
 	private GuiCustomScroll scroll;
 	private String select = "";
 
@@ -77,9 +69,9 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 	@Override
 	public void initGui() {
 		super.initGui();
-		List<String> names = Lists.newArrayList();
-		List<String> notList = Lists.newArrayList();
-		Map<String, String> mapSfx = Maps.newHashMap();
+		List<String> names = new ArrayList<>();
+		List<String> notList = new ArrayList<>();
+		Map<String, String> mapSfx = new HashMap<>();
 		for (String name : this.data.keySet()) {
 			if (this.resistances.data.containsKey(this.data.get(name))) {
 				names.add(name);
@@ -98,15 +90,15 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 		names.addAll(notList);
 		if (this.select.isEmpty() && !names.isEmpty()) { this.select = Util.instance.deleteColor(names.get(0)); }
 		
-		List<String> suffixs = Lists.newArrayList();
-		for (String key : names) { suffixs.add(mapSfx.get(key)); }
+		List<String> suffixes = new ArrayList<>();
+		for (String key : names) { suffixes.add(mapSfx.get(key)); }
 		
 		if (this.scroll == null) { (this.scroll = new GuiCustomScroll(this, 0)).setSize(248, 176); }
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 4;
 		this.scroll.setSelected(this.npc.linkedName);
 		this.scroll.setListNotSorted(names);
-		this.scroll.setSuffixes(suffixs);
+		this.scroll.setSuffixes(suffixes);
 		this.scroll.setSelected(this.select);
 		
 		this.addScroll(this.scroll);

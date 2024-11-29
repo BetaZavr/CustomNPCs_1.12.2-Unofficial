@@ -1,13 +1,8 @@
 package noppes.npcs.client.gui.animation;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
@@ -56,7 +51,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 	private final DataAnimation animation;
 	private GuiCustomScroll scroll;
-	private final Map<String, EmotionConfig> dataEmtns = Maps.newTreeMap();
+	private final Map<String, EmotionConfig> dataEmtns = new TreeMap<>();
 	private String selEmtn;
 	public EntityNPCInterface npcEmtn;
 	private AnimationController aData;
@@ -339,7 +334,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		dataEmtns.clear();
 		aData = AnimationController.getInstance();
 		for (EmotionConfig ec : aData.emotions.values()) { dataEmtns.put(ec.getSettingName(), ec); }
-		this.scroll.setListNotSorted(Lists.newArrayList(this.dataEmtns.keySet()));
+		this.scroll.setListNotSorted(new ArrayList<>(dataEmtns.keySet()));
 		if (!selEmtn.isEmpty()) {
 			if (this.scroll.getList().contains(selEmtn)) { this.scroll.setSelected(selEmtn); }
 			else { selEmtn = ""; }
@@ -461,7 +456,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 		// Frame
 		this.addLabel(new GuiNpcLabel(lId++, "animation.frames", x, (y += 26) - 10));
-		List<String> lFrames = Lists.newArrayList();
+		List<String> lFrames = new ArrayList<>();
 		for (int i = 0; i < emtn.frames.size(); i++) { lFrames.add((i + 1) + "/" + emtn.frames.size()); }
 		button = new GuiButtonBiDirectional(3, x, y, 60, 14, lFrames.toArray(new String[0]), emtn.id);
 		button.setEnabled(emtn.frames.size() > 1);

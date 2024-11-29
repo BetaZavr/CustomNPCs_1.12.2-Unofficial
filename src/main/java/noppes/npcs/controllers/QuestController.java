@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
-import com.google.common.collect.Maps;
-
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -29,18 +27,13 @@ import noppes.npcs.util.NBTJsonUtil;
 public class QuestController implements IQuestHandler {
 
 	public static QuestController instance = new QuestController();
-	public final TreeMap<Integer, QuestCategory> categories;
-	public final TreeMap<Integer, QuestCategory> categoriesSync;
-	public final TreeMap<Integer, Quest> quests;
-	private int lastUsedCatID;
-	private int lastUsedQuestID;
+	public final TreeMap<Integer, QuestCategory> categories = new TreeMap<>();
+	public final TreeMap<Integer, QuestCategory> categoriesSync = new TreeMap<>();
+	public final TreeMap<Integer, Quest> quests = new TreeMap<>();
+	private int lastUsedCatID = 0;
+	private int lastUsedQuestID = 0;
 
 	public QuestController() {
-		this.categoriesSync = Maps.newTreeMap();
-		this.categories = Maps.newTreeMap();
-		this.quests = Maps.newTreeMap();
-		this.lastUsedCatID = 0;
-		this.lastUsedQuestID = 0;
 		QuestController.instance = this;
 	}
 

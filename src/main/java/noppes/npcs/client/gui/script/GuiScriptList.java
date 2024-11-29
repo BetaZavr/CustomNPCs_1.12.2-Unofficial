@@ -3,9 +3,7 @@ package noppes.npcs.client.gui.script;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.TreeMap;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -22,7 +20,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 
 	private final ScriptContainer container;
 	private final Map<String, Long> scripts;
-	private final Map<ResourceLocation, String> data = Maps.newTreeMap();
+	private final Map<ResourceLocation, String> data = new TreeMap<>();
 	private GuiCustomScroll base;
 	private GuiCustomScroll selected;
 	private final String back = "   " + Character.toChars(0x2190)[0] + " (" + new TextComponentTranslation("gui.back").getFormattedText() + ")";
@@ -34,7 +32,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		this.setBackground("menubg.png");
 		this.xSize = 346;
 		this.ySize = 216;
-		if (scripts == null) { scripts = Maps.newTreeMap(); }
+		if (scripts == null) { scripts = new TreeMap<>(); }
 		this.scripts = scripts;
 		for (String path : this.scripts.keySet()) {
 			ResourceLocation res;
@@ -110,19 +108,20 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		List<String> temp = new ArrayList<>(this.scripts.keySet());
 		temp.removeAll(this.container.scripts);
 
-		Map<String, Long> ds = Maps.newTreeMap();
-		Map<String, Long> fs = Maps.newTreeMap();
+		Map<String, Long> ds = new TreeMap<>();
+		Map<String, Long> fs = new TreeMap<>();
 
-		Map<String, Long> ft = Maps.newTreeMap();
+		Map<String, Long> ft = new TreeMap<>();
 
-		List<String> listBase = Lists.newArrayList();
-		List<Integer> colorsBase = Lists.newArrayList();
-		List<String> suffixsBase = Lists.newArrayList();
-		List<String> list = Lists.newArrayList();
-		List<Integer> colors = Lists.newArrayList();
-		List<String> suffixs = Lists.newArrayList();
+		Map<String, String> hs = new TreeMap<>();
 
-		Map<String, String> hs = Maps.newTreeMap();
+		List<String> listBase = new ArrayList<>();
+		List<Integer> colorsBase = new ArrayList<>();
+		List<String> suffixesBase = new ArrayList<>();
+		List<String> list = new ArrayList<>();
+		List<Integer> colors = new ArrayList<>();
+		List<String> suffixes = new ArrayList<>();
+
 		char c = ((char) 167);
 		int t = 1;
 		if (!this.path.isEmpty()) {
@@ -144,11 +143,11 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 					if (folder.isEmpty()) {
 						continue;
 					}
-					if (!this.path.isEmpty()) {
-						if (folder.indexOf(this.path) != 0) {
+					if (!path.isEmpty()) {
+						if (folder.indexOf(path) != 0) {
 							continue;
 						}
-						folder = folder.replace(this.path, "");
+						folder = folder.replace(path, "");
 						if (folder.indexOf("/") == 0) {
 							folder = folder.substring(1);
 						}
@@ -167,7 +166,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 						hs.put(key, file);
 					} else {
 						ds.put(folder, 0L);
-						hs.put(folder, this.path + (this.path.isEmpty() ? "" : "/") + folder);
+						hs.put(folder, path + (path.isEmpty() ? "" : "/") + folder);
 					}
 				} else {
 					ft.put(c + "7" + t + ":" + c + "r " + key, this.scripts.get(file));
@@ -181,7 +180,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		int i = 0;
 		for (String key : ds.keySet()) {
 			colorsBase.add(0xF3BE1E);
-			suffixsBase.add("");
+			suffixesBase.add("");
 			listBase.add(key);
 			if (hs.containsKey(key)) {
 				this.base.hoversTexts[i] = new String[] { hs.get(key) };
@@ -198,7 +197,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 			if (l > 999) {
 				size = Util.instance.getTextReducedNumber(l, false, false, true);
 			}
-			suffixsBase.add(size + "b");
+			suffixesBase.add(size + "b");
 			listBase.add(key);
 			if (hs.containsKey(key)) {
 				if (fs.get(key) < 0) {
@@ -223,7 +222,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 			if (l > 999) {
 				size = Util.instance.getTextReducedNumber(l, false, false, true);
 			}
-			suffixs.add(size + "b");
+			suffixes.add(size + "b");
 			list.add(key);
 			if (hs.containsKey(key)) {
 				if (ft.get(key) < 0) {
@@ -237,11 +236,11 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		}
 
 		this.base.setColors(colorsBase);
-		this.base.setSuffixes(suffixsBase);
+		this.base.setSuffixes(suffixesBase);
 		this.base.setListNotSorted(listBase);
 
 		this.selected.setColors(colors);
-		this.selected.setSuffixes(suffixs);
+		this.selected.setSuffixes(suffixes);
 		this.selected.setListNotSorted(list);
 		int x = this.guiLeft + 145, y = this.guiTop + 40;
 		this.addButton(new GuiNpcButton(1, x, y, 55, 20, ">", this.base.hasSelected()));

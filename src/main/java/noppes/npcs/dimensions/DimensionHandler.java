@@ -7,9 +7,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -44,6 +41,7 @@ import noppes.npcs.constants.EnumPacketClient;
 import javax.annotation.Nonnull;
 
 public class DimensionHandler extends WorldSavedData implements IDimensionHandler {
+
 	static String NAME = "CustomNpcsHandler";
 	
 	public DimensionHandler(String mapName) {
@@ -58,9 +56,9 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 		}
 		return INSTANCE;
 	}
-	private final Map<Integer, CustomWorldInfo> dimensionInfo = Maps.newTreeMap();
+	private final Map<Integer, CustomWorldInfo> dimensionInfo = new TreeMap<>();
 
-	private final Map<Integer, UUID> toBeDeleted = Maps.newTreeMap();
+	private final Map<Integer, UUID> toBeDeleted = new TreeMap<>();
 
 	public DimensionHandler() {
 		super(DimensionHandler.NAME);
@@ -113,7 +111,7 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 					}
 				}
 			}
-			List<EntityPlayerMP> players = Lists.newArrayList();
+			List<EntityPlayerMP> players = new ArrayList<>();
 			for (EntityPlayer player : worldObj.playerEntities) {
 				if (!(player instanceof EntityPlayerMP)) {
 					continue;
@@ -132,7 +130,7 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 		}
 		this.toBeDeleted.put(dimensionID, entitySender != null ? entitySender.getUniqueID() : null);
 		DimensionManager.unloadWorld(dimensionID);
-		List<WorldServer> list = Lists.newArrayList();
+		List<WorldServer> list = new ArrayList<>();
 		for (WorldServer w : CustomNpcs.Server.worlds) {
 			if (w.provider.getDimension() != dimensionID) {
 				list.add(w);

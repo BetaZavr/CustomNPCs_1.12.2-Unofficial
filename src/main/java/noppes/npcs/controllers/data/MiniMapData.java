@@ -2,8 +2,7 @@ package noppes.npcs.controllers.data;
 
 import java.util.Map;
 import java.util.Objects;
-
-import com.google.common.collect.Maps;
+import java.util.TreeMap;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -27,7 +26,7 @@ public class MiniMapData implements IMiniMapData {
 	public String icon = "icon.png";
 	public IPos pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(BlockPos.ORIGIN);
 	public boolean isEnable = true;
-	public Map<String, String> gsonData = Maps.newTreeMap();
+	public Map<String, String> gsonData = new TreeMap<>();
 
 	public MiniMapData() {
 		this.color = (int) ((double) 0xFF000000 + Math.random() * (double) 0xFFFFFF);

@@ -1,11 +1,6 @@
 package noppes.npcs.command;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import java.util.*;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -42,9 +37,9 @@ public class CmdDimensions extends CommandNoppesBase {
 	}
 
 	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		if (args.length == 3) {
-			Set<Integer> s = Sets.newTreeSet();
+			Set<Integer> s = new TreeSet<>();
 			for (int id : DimensionManager.getIDs()) {
 				if (DimensionHandler.getInstance().isDelete(id)) {
 					continue;
@@ -111,7 +106,7 @@ public class CmdDimensions extends CommandNoppesBase {
 				throw new CommandException("DimensionID: " + id + " - not found");
 			}
 		} catch (NumberFormatException ex) {
-			throw new CommandException("DimensionID must be an integer");
+			throw new CommandException("DimensionID \"" + args[1]+"\" - must be an integer");
 		}
 
 		WorldServer world = Objects.requireNonNull(sender.getServer()).getWorld(id);

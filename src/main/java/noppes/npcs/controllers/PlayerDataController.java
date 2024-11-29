@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.command.CommandException;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.ICommandSender;
@@ -191,7 +189,7 @@ public class PlayerDataController {
 	}
 
 	public List<String> getPlayerNames() {
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		for (File playerDir : Objects.requireNonNull(Objects.requireNonNull(CustomNpcs.getWorldSaveDirectory("playerdata")).listFiles())) {
 			if (!playerDir.isDirectory()) {
 				continue;

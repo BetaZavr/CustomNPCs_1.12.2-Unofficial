@@ -15,6 +15,7 @@ import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IClickListener;
 import noppes.npcs.client.gui.custom.interfaces.IDataHolder;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
+import noppes.npcs.client.gui.util.ICustomScrollListener;
 
 public class CustomGuiScrollComponent extends GuiCustomScroll implements IDataHolder, IClickListener {
 
@@ -22,7 +23,7 @@ public class CustomGuiScrollComponent extends GuiCustomScroll implements IDataHo
 	GuiCustom parent;
 	private final int[] offsets;
 
-	public CustomGuiScrollComponent(Minecraft mc, GuiScreen parent, int id, CustomGuiScrollWrapper component) {
+	public CustomGuiScrollComponent(Minecraft mc, ICustomScrollListener parent, int id, CustomGuiScrollWrapper component) {
 		super(parent, id, component.isMultiSelect());
 		this.mc = mc;
 		this.fontRenderer = mc.fontRenderer;

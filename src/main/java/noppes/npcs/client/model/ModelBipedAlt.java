@@ -1,11 +1,9 @@
 package noppes.npcs.client.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import noppes.npcs.CustomNpcs;
 import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -101,8 +99,8 @@ public class ModelBipedAlt extends ModelNpcAlt {
 		if (entityIn.equals(ModelNpcAlt.editAnimDataSelect.displayNpc) && !ModelNpcAlt.editAnimDataSelect.showArmor) { return; }
 		if (entityIn.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
 		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
-		Map<EnumParts, Boolean> ba = Maps.newHashMap();
-		Map<EnumParts, Boolean> baArmor = Maps.newHashMap();
+		Map<EnumParts, Boolean> ba = new HashMap<>();
+		Map<EnumParts, Boolean> baArmor = new HashMap<>();
 
 		float r = 1.0f, g = 1.0f, b = 1.0f;
 		if (entityIn instanceof EntityPlayer) {

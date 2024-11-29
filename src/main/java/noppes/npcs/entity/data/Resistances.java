@@ -1,12 +1,7 @@
 package noppes.npcs.entity.data;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -15,8 +10,8 @@ import noppes.npcs.LogWriter;
 
 public class Resistances {
 
-	public static final List<String> allDamageNames = Lists.newArrayList();
-	public final Map<String, Float> data = Maps.newHashMap();
+	public static final List<String> allDamageNames = new ArrayList<>();
+	public final Map<String, Float> data = new HashMap<>();
 
 	public Resistances() {
 		this.data.put("arrow", 1.0f);

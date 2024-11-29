@@ -1,16 +1,10 @@
 package noppes.npcs.potions;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -47,7 +41,7 @@ public class CustomPotion extends Potion implements ICustomElement {
 	protected NBTTagCompound nbtData;
 	protected ResourceLocation resource;
 	protected ItemStack cureItem = ItemStack.EMPTY;
-	protected final Map<IAttribute, AttributeModifier> attributeModifierMap = Maps.newHashMap(); // RangedAttribute, AttributeModifier
+	protected final Map<IAttribute, AttributeModifier> attributeModifierMap = new HashMap<>(); // RangedAttribute, AttributeModifier
 
 	public CustomPotion(NBTTagCompound nbtPotion) {
 		super(nbtPotion.getBoolean("IsBadEffect"), nbtPotion.getInteger("LiquidColor"));
@@ -111,7 +105,7 @@ public class CustomPotion extends Potion implements ICustomElement {
 
 	@Override
 	public @Nonnull java.util.List<net.minecraft.item.ItemStack> getCurativeItems() {
-		List<ItemStack> ret = Lists.newArrayList();
+		List<ItemStack> ret = new ArrayList<>();
 		if (!this.cureItem.isEmpty()) {
 			ret.add(this.cureItem);
 		} else {

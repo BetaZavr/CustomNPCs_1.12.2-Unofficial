@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.client.gui.select.GuiQuestSelection;
@@ -145,7 +143,7 @@ implements ICustomScrollListener, GuiSelectionListener {
 		if (!this.select.isEmpty() && !this.dataIDs.containsKey(this.select)) {
 			this.select = "";
 		}
-		this.scroll.setList(Lists.newArrayList(this.dataIDs.keySet()));
+		this.scroll.setList(new ArrayList<>(dataIDs.keySet()));
 		this.scroll.guiLeft = this.guiLeft + 6;
 		this.scroll.guiTop = this.guiTop + 14;
 		if (!this.select.isEmpty()) {

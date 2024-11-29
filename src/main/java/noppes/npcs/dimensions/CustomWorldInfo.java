@@ -1,9 +1,8 @@
 package noppes.npcs.dimensions;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.EnumDifficulty;
@@ -63,7 +62,7 @@ public class CustomWorldInfo extends WorldInfo implements IWorldInfo {
 	public double borderDamagePerBlock = 0.2D;
 	public int borderWarningDistance = 5;
 	public int borderWarningTime = 15;
-	public final Map<Integer, NBTTagCompound> dimensionData = Maps.newHashMap();
+	public final Map<Integer, NBTTagCompound> dimensionData = new HashMap<>();
 	public GameRules gameRules = new GameRules();
 
 	public CustomWorldInfo(NBTTagCompound nbt) {

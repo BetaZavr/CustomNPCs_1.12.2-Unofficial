@@ -1,10 +1,9 @@
 package noppes.npcs.controllers.data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,10 +17,10 @@ import noppes.npcs.util.Util;
 public class PlayerMiniMapData
 implements IPlayerMiniMap {
 
-	public final List<MiniMapData> points = Lists.newArrayList();
+	public final List<MiniMapData> points = new ArrayList<>();
 	public String modName = "non";
 	private boolean update;
-	public Map<String, Object> addData = Maps.newHashMap();
+	public Map<String, Object> addData = new HashMap<>();
 
 	@Override
 	public IMiniMapData addPoint(int dimensionId) {
@@ -73,7 +72,7 @@ implements IPlayerMiniMap {
 
 	@Override
 	public IMiniMapData[] getPoints(int dimensionId) {
-		List<MiniMapData> list = Lists.newArrayList();
+		List<MiniMapData> list = new ArrayList<>();
 		for (MiniMapData mmd : points) {
 			for (int id : mmd.dimIDs) {
 				if (id == dimensionId) {
@@ -134,7 +133,7 @@ implements IPlayerMiniMap {
 	
 	public void removeQuestPoints(int questId) {
 		boolean remove = false;
-		List<MiniMapData> tempList = Lists.newArrayList(points);
+		List<MiniMapData> tempList = new ArrayList<>(points);
 		for (MiniMapData mmd : tempList) {
 			if (mmd.isQuestTask(questId, -1)) {
 				points.remove(mmd);
@@ -175,7 +174,7 @@ implements IPlayerMiniMap {
 	@Override
 	public boolean removePoints(int dimensionId) {
 		boolean remove = false;
-		List<MiniMapData> tempList = Lists.newArrayList(points);
+		List<MiniMapData> tempList = new ArrayList<>(points);
 		for (MiniMapData mmd : tempList) {
 			for (int id : mmd.dimIDs) {
 				if (id == dimensionId && points.remove(mmd)) {

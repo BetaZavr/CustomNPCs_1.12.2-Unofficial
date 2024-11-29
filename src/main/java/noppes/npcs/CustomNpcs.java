@@ -5,8 +5,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.*;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockIce;
 import net.minecraft.block.BlockLeaves;
@@ -326,7 +324,7 @@ public class CustomNpcs {
 	}
 
 	public static List<String> showDebugs() {
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		String temp = "Debug information output:";
 		list.add(temp);
 		LogWriter.debug(temp);
@@ -341,15 +339,14 @@ public class CustomNpcs {
 					+ "\" side. |Number - EventName: { [Target name, Runs, Average time] }|:";
 			list.add(temp);
 			LogWriter.debug(temp);
-			List<String> events = Lists.newArrayList(CustomNpcs.debugData.data.get(side).times.keySet());
+			List<String> events = new ArrayList<>(CustomNpcs.debugData.data.get(side).times.keySet());
 			Collections.sort(events);
 			int i = 0;
 			long max = Long.MIN_VALUE;
 			String[] maxName = new String[] { "", "" };
 			for (String eventName : events) {
 				Debug dd = CustomNpcs.debugData.data.get(side);
-				List<String> targets = Lists
-						.newArrayList(CustomNpcs.debugData.data.get(side).times.get(eventName).keySet());
+				List<String> targets = new ArrayList<>(CustomNpcs.debugData.data.get(side).times.get(eventName).keySet());
 				Collections.sort(targets);
 				StringBuilder log = new StringBuilder();
 				for (String target : targets) {

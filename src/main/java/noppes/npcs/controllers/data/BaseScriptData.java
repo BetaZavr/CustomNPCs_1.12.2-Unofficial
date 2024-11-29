@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.NBTTags;
@@ -23,7 +21,7 @@ implements IScriptHandler {
 	public boolean hadInteract = true;
 	public long lastInited = -1L;
 	protected String scriptLanguage = "ECMAScript";
-	protected List<ScriptContainer> scripts = Lists.newArrayList();
+	protected List<ScriptContainer> scripts = new ArrayList<>();
 
 	public void clear() {
 		this.scripts = new ArrayList<>();

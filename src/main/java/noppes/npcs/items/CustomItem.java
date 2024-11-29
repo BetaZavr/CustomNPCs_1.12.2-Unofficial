@@ -1,9 +1,8 @@
 package noppes.npcs.items;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
-import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -128,7 +127,7 @@ public class CustomItem extends Item implements IPermission, ICustomElement {
 
 	protected float speedCollectionMaterial = 1.0f;
 	protected float efficiency = 1.0f;
-	protected Set<Block> effectiveBlocks = Sets.newHashSet();
+	protected Set<Block> effectiveBlocks = new HashSet<>();
 
 	protected double attackDamage = 0.0f;
 

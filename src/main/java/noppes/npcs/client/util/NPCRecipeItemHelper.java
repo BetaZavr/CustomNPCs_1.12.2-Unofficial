@@ -1,6 +1,5 @@
 package noppes.npcs.client.util;
 
-import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.*;
 import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.item.Item;
@@ -12,6 +11,7 @@ import noppes.npcs.items.crafting.NpcShapedRecipes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -84,7 +84,7 @@ public class NPCRecipeItemHelper extends RecipeItemHelper {
     class NPCRecipePicker {
 
         private final IRecipe recipe;
-        private final List<Ingredient> ingredients = Lists.<Ingredient>newArrayList();
+        private final List<Ingredient> ingredients = new ArrayList<>();
         private final int ingredientCount;
         private final int[] possessedIngredientStacks;
         private final int possessedIngredientStackCount;

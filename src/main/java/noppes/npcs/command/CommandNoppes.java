@@ -1,12 +1,8 @@
 package noppes.npcs.command;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import com.google.common.collect.Lists;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -92,7 +88,7 @@ public class CommandNoppes extends CommandBase {
 	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
 		if (args.length == 1) {
 			int per = this.getPermissionLevel(server, sender);
-			List<String> list = Lists.newArrayList();
+			List<String> list = new ArrayList<>();
 			for (Map.Entry<String, CommandNoppesBase> entry : this.map.entrySet()) {
 				if (entry.getValue().getRequiredPermissionLevel() > per) { continue; }
 				list.add(entry.getKey());
@@ -101,7 +97,7 @@ public class CommandNoppes extends CommandBase {
 		}
 		CommandNoppesBase command = this.getCommand(args);
 		if (command == null) {
-			return Lists.newArrayList();
+			return new ArrayList<>();
 		}
 		if (args.length == 2 && command.runSubCommands()) {
 			return CommandBase.getListOfStringsMatchingLastWord(args, command.subcommands.keySet());

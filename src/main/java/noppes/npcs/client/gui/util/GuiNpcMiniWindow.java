@@ -48,12 +48,12 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		if (!this.visible) {
-			this.hovered = false;
+		if (!visible) {
+			hovered = false;
 			return;
 		}
-		this.hovered = this.isMouseHover(mouseX, mouseY, guiLeft, guiTop, xSize, ySize);
-		if (this.point != null) {
+		hovered = isMouseHover(mouseX, mouseY, guiLeft, guiTop, xSize, ySize);
+		if (point != null) {
 			double xc = (double)guiLeft + (double)xSize / 2.0d, yc = (double)guiTop + (double)ySize / 2.0d;
 			double dist = Math.sqrt((mouseY - yc) * (mouseY - yc) + (mouseX - xc) * (mouseX - xc));
 			double base = Math.sqrt(Math.pow(xSize, 2.0d) + Math.pow(ySize, 2.0d)) / 2.0d;

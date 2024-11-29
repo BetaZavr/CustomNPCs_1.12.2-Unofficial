@@ -2,9 +2,6 @@ package noppes.npcs.client.gui.player;
 
 import java.util.*;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -44,7 +41,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
     };
 
 
-	private final Map<String, Deal> data = Maps.newTreeMap();
+	private final Map<String, Deal> data = new TreeMap<>();
 	int px, py, colorP = 0x01000000;
 	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trader.png");
 	private GuiCustomScroll scroll;
@@ -450,9 +447,9 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		List<String> sel = new ArrayList<>();
 		for (TempDeal td : selT) { sel.add(td.key); }
 		for (TempDeal td : selNotT) { sel.add(td.key); }
-		List<ItemStack> stacks = Lists.newArrayList();
-		List<String> suffixes = Lists.newArrayList();
-		List<String[]> infoList = Lists.newArrayList();
+		List<ItemStack> stacks = new ArrayList<>();
+		List<String> suffixes = new ArrayList<>();
+		List<String[]> infoList = new ArrayList<>();
 		for (String key : sel) {
 			Deal deal = this.data.get(key);
 			DealMarkup dm = mData.getBuyData(this.marcet, deal, level);
@@ -581,7 +578,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				} else if (!this.selectDealData.deal.availability.isAvailable(this.player)) {
 					this.canSell = 2;
 				} else {
-					Map<ItemStack, Integer> map = Maps.newHashMap();
+					Map<ItemStack, Integer> map = new HashMap<>();
 					map.put(this.selectDealData.main, this.selectDealData.count);
 					if (this.canSell == 0 && !this.selectDealData.main.isEmpty()
 							&& !Util.instance.canRemoveItems(this.player.inventory.mainInventory, map,

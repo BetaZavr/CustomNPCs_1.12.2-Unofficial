@@ -1,9 +1,8 @@
 package noppes.npcs.api.wrapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -28,7 +27,9 @@ import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.LayerModel;
 
-public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted {
+public class BlockScriptedWrapper
+		extends BlockWrapper
+		implements IBlockScripted {
 
 	private TileScripted tile;
 
@@ -172,7 +173,7 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 
 	@Override
 	public boolean removeLayerModel(ILayerModel layer) {
-		List<ILayerModel> newLM = Lists.newArrayList();
+		List<ILayerModel> newLM = new ArrayList<>();
 		boolean found = false;
 		for (int i = 0; i < this.tile.layers.length; i++) {
 			if (this.tile.layers[i] == null) {
@@ -195,7 +196,7 @@ public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted
 		if (id < 0 || id >= this.tile.layers.length) {
 			return false;
 		}
-		List<ILayerModel> newLM = Lists.newArrayList();
+		List<ILayerModel> newLM = new ArrayList<>();
 		for (int i = 0; i < this.tile.layers.length; i++) {
 			if (this.tile.layers[i] == null) {
 				continue;

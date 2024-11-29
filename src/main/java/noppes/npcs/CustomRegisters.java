@@ -6,10 +6,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockDoor;
@@ -229,11 +225,11 @@ public class CustomRegisters {
 	public static CreativeTabNpcs tabBlocks = new CreativeTabNpcs("blocks");
 	public static CreativeTabNpcs tabItems = new CreativeTabNpcs("items");
 
-	public static Map<Block, Item> customblocks = Maps.newHashMap();
-	public static List<Item> customitems = Lists.newArrayList();
-	public static List<Potion> custompotions = Lists.newArrayList();
-	public static Map<PotionType, PotionData> custompotiontypes = Maps.newHashMap();
-	public static Map<Integer, CustomParticleSettings> customparticles = Maps.newTreeMap();
+	public static Map<Block, Item> customblocks = new HashMap<>();
+	public static List<Item> customitems = new ArrayList<>();
+	public static List<Potion> custompotions = new ArrayList<>();
+	public static Map<PotionType, PotionData> custompotiontypes = new HashMap<>();
+	public static Map<Integer, CustomParticleSettings> customparticles = new TreeMap<>();
 	private static int newEntityStartId = 0;
 
 	public static void load() {
@@ -370,8 +366,8 @@ public class CustomRegisters {
 		}
 		Class<?>[] additionalTypes = { String.class, int.class, boolean.class, int.class }; // particleName, particleID,
 		// create new
-		Map<Integer, EnumParticleTypes> particles = Maps.newHashMap();
-		Map<String, EnumParticleTypes> by_name = Maps.newHashMap();
+		Map<Integer, EnumParticleTypes> particles = new HashMap<>();
+		Map<String, EnumParticleTypes> by_name = new HashMap<>();
 		try {
 			Class<?> cl = Class.forName("net.minecraft.util.EnumParticleTypes");
 			for (Field f : cl.getDeclaredFields()) {
@@ -498,8 +494,8 @@ public class CustomRegisters {
 		CustomRegisters.itemCarpentyBench = new ItemNpcBlock(CustomRegisters.carpentyBench);
 		CustomRegisters.itemMailbox = new ItemNpcBlock(CustomRegisters.mailbox).setHasSubtypes(true);
 
-		List<Block> blocks = Lists.newArrayList();
-		List<String> names = Lists.newArrayList();
+		List<Block> blocks = new ArrayList<>();
+		List<String> names = new ArrayList<>();
 		blocks.add(CustomRegisters.redstoneBlock);
 		blocks.add(CustomRegisters.carpentyBench);
 		blocks.add(CustomRegisters.mailbox);
@@ -690,8 +686,8 @@ public class CustomRegisters {
 		CustomRegisters.npcsaver = new ItemSaver();
 		Item tabItem = new ItemNpcBlock(CustomRegisters.scripted);
 
-		List<Item> items = Lists.newArrayList();
-		List<String> names = Lists.newArrayList();
+		List<Item> items = new ArrayList<>();
+		List<String> names = new ArrayList<>();
 		items.add(CustomRegisters.wand);
 		items.add(CustomRegisters.cloner);
 		items.add(CustomRegisters.scripter);
@@ -844,7 +840,7 @@ public class CustomRegisters {
 							nbtItem);
 					break;
 				case (byte) 2: // Tool
-					Set<Block> effectiveBlocks = Sets.newHashSet();
+					Set<Block> effectiveBlocks = new HashSet<>();
 					if (nbtItem.hasKey("CollectionBlocks", 9)) {
 						for (int j = 0; j < nbtItem.getTagList("CollectionBlocks", 8).tagCount(); j++) {
 							Block block = Block

@@ -1,6 +1,5 @@
 package noppes.npcs.mixin.inv;
 
-import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
@@ -25,10 +24,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // methods are mixed, as there are now recipes with more than 1 count ingredient
 @Mixin(value = SlotCrafting.class)
@@ -121,7 +117,7 @@ public class SlotCraftingMixin {
         InventoryCraftResult inventorycraftresult = (InventoryCraftResult) ((Slot) (Object) this).inventory;
         IRecipe irecipe = inventorycraftresult.getRecipeUsed();
         if (irecipe != null && !irecipe.isDynamic()) {
-            player.unlockRecipes(Lists.newArrayList(irecipe));
+            player.unlockRecipes(Collections.singletonList(irecipe));
             inventorycraftresult.setRecipeUsed(null);
         }
     }

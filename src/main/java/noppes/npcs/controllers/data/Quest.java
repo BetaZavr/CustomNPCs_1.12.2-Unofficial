@@ -1,11 +1,11 @@
 package noppes.npcs.controllers.data;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -169,7 +169,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 	public String getLogText() {
 		StringBuilder allTextLogs = new StringBuilder();
 		String ent = "" + ((char) 10);
-		Map<ItemStack, Integer> rewardist = Maps.newHashMap();
+		Map<ItemStack, Integer> rewardMap = new HashMap<>();
 		for (int i = 0; i < this.rewardItems.getSizeInventory(); i++) {
 			ItemStack item = this.rewardItems.getStackInSlot(i);
 			if (item.isEmpty()) {
@@ -177,28 +177,28 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 			}
 			boolean has = false;
 			if (this.rewardType == EnumRewardType.ALL) {
-				for (ItemStack it : rewardist.keySet()) {
+				for (ItemStack it : rewardMap.keySet()) {
 					if (item.isItemEqual(it) && ItemStack.areItemStackShareTagsEqual(item, it)) {
-                        rewardist.compute(it, (k, c) -> c == null ? item.getCount() : c + item.getCount());
+                        rewardMap.compute(it, (k, c) -> c == null ? item.getCount() : c + item.getCount());
 						has = true;
 						break;
 					}
 				}
 			}
 			if (!has) {
-				rewardist.put(item, item.getCount());
+				rewardMap.put(item, item.getCount());
 			}
 		}
 		if (showRewardText) {
-			if (!rewardist.isEmpty() || this.rewardExp > 0 || this.rewardMoney > 0 || !this.rewardText.isEmpty()) {
+			if (!rewardMap.isEmpty() || this.rewardExp > 0 || this.rewardMoney > 0 || !this.rewardText.isEmpty()) {
 				allTextLogs.append(ent).append(ent).append(new TextComponentTranslation("questlog.reward").getFormattedText());
 			}
-			if (!rewardist.isEmpty()) {
+			if (!rewardMap.isEmpty()) {
 				allTextLogs.append(ent).append(new TextComponentTranslation("questlog." + (this.rewardType == EnumRewardType.ONE_SELECT ? "one" : this.rewardType == EnumRewardType.RANDOM_ONE ? "rnd" : "all") + ".reward").getFormattedText());
 				int j = 1;
-				for (ItemStack item : rewardist.keySet()) {
-					int c = rewardist.get(item);
-					allTextLogs.append(ent).append(rewardist.size() > 1 ? j + " - " : "").append(" ").append((char) 0xffff).append(" ").append(item.getDisplayName()).append(c > 1 ? " x" + c : "");
+				for (ItemStack item : rewardMap.keySet()) {
+					int c = rewardMap.get(item);
+					allTextLogs.append(ent).append(rewardMap.size() > 1 ? j + " - " : "").append(" ").append((char) 0xffff).append(" ").append(item.getDisplayName()).append(c > 1 ? " x" + c : "");
 					j++;
 				}
 			}

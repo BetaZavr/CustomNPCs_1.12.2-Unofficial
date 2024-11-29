@@ -1,9 +1,8 @@
 package noppes.npcs.client.gui.roles;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -551,7 +550,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 		this.job.readFromNBT(compound);
 		for (int j = 0; j < 2; j++) {
 			boolean type = j == 0;
-			List<String> list = Lists.newArrayList();
+			List<String> list = new ArrayList<>();
 			for (int i = 0; i < this.job.size(type); i++) {
 				SpawnNPCData sd = this.job.get(i, type);
 				list.add(chr + "7" + (i + 1) + ": " + chr + "r" + sd.getTitle() + chr

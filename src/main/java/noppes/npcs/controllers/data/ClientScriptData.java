@@ -1,21 +1,19 @@
 package noppes.npcs.controllers.data;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.wrapper.data.StoredData;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -45,7 +43,7 @@ extends BaseScriptData {
 		if (this.script == null) {
 			this.createScript();
 		}
-		return Lists.newArrayList(this.script);
+		return Collections.singletonList(script);
 	}
 
 	@Override

@@ -2,8 +2,7 @@ package noppes.npcs.client.gui.player;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
@@ -11,9 +10,6 @@ import javax.imageio.ImageIO;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.client.resources.ILanguageManagerMixin;
 import org.lwjgl.input.Mouse;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -67,7 +63,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 	public static Map<Integer, ResourceLocation> icons;
 
 	static {
-		icons = Maps.newLinkedHashMap();
+		icons = new LinkedHashMap<>();
 		icons.put(1, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/important.png"));
 		icons.put(2, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/question.png"));
 		icons.put(3, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/circle.png"));
@@ -81,21 +77,21 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 
 	private boolean isGrabbed; // used for answer wheel
 	private final ResourceLocation wheel = new ResourceLocation(CustomNpcs.MODID, "textures/gui/wheel.png");
-	private final Map<Integer, List<String>> options; // [slotID, text]
+	private final Map<Integer, List<String>> options = new TreeMap<>(); // [slotID, text]
 	// dialog place
 	private int lineStart, lineTotal, lineVisibleSize;
 	private int[] scrollD;
 	// option place
 	private int selected, selectedStart, selectedSize, selectedVisibleSize;
-	private final Map<Integer, Integer> selectedTotal;
+	private final Map<Integer, Integer> selectedTotal = new HashMap<>();
 	private int[] scrollO;
 	// wheel option
 	private int wheelList, selectedX, selectedY, selectedWheel;
     // textures
 	private long waitToAnswer;
-	private final Map<Integer, DialogTexture> textures = Maps.newHashMap();
+	private final Map<Integer, DialogTexture> textures = new HashMap<>();
 	// Display
-	private final List<TextBlockClient> lines; // Dialog Logs
+	private final List<TextBlockClient> lines = new ArrayList<>(); // Dialog Logs
 	private final EntityNPCInterface dialogNpc;
 	private int w;
     private int h;
@@ -117,14 +113,11 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		selectedY = 0;
 		wheelList = 0;
 		selectedWheel = 0;
-		lines = Lists.newArrayList();
-		options = Maps.newTreeMap();
 		lineStart = 0;
 		lineTotal = 0;
 		isGrabbed = false;
 		ySize = 238;
 		selectedSize = 0;
-		selectedTotal = Maps.newHashMap();
 		this.dialog = dialog;
 		scrollD = null;
 		scrollO = null;
@@ -332,7 +325,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		int time = 1 + (int) ((System.currentTimeMillis() - this.startTime) / (1000L / CustomNpcs.DialogShowFitsSpeed));
 		int l = 0;
 		showOptions = true;
-		for (TextBlockClient textBlock : Lists.newArrayList(this.lines)) {
+		for (TextBlockClient textBlock : new ArrayList<>(lines)) {
 			int size = ClientProxy.Font.width(textBlock.getName() + ": ");
 			if (l >= this.lineStart) {
 				this.drawString(textBlock.getName() + ": ", 0, textBlock.color, l);
@@ -819,7 +812,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		}
 		// Dialog texture
 		if (!this.textures.isEmpty()) {
-			Map<Integer, DialogTexture> newTxts = Maps.newHashMap();
+			Map<Integer, DialogTexture> newTxts = new HashMap<>();
 			for (int pos : this.textures.keySet()) {
 				DialogTexture dt = this.textures.get(pos);
 				int lt = 0;
@@ -937,11 +930,11 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
 		if (scrollD != null && scrollD[7] > -1) {
-			int offsetline = (int) (((float) scrollD[7] - (float) mouseY) / (float) scrollD[6]);
-			if (offsetline == 0) {
+			int offsetLine = (int) (((float) scrollD[7] - (float) mouseY) / (float) scrollD[6]);
+			if (offsetLine == 0) {
 				return;
 			}
-			lineStart = scrollD[8] - offsetline;
+			lineStart = scrollD[8] - offsetLine;
 			if (lineStart < 0) {
 				lineStart = 0;
 				scrollD[8] = lineStart;
@@ -953,14 +946,14 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			}
 		}
 		if (scrollO != null && scrollO[7] > -1) {
-			int offsetline = (int) (((float) scrollO[7] - (float) mouseY) / (float) scrollO[6]);
-			if (offsetline == 0) {
+			int offsetLine = (int) (((float) scrollO[7] - (float) mouseY) / (float) scrollO[6]);
+			if (offsetLine == 0) {
 				return;
 			}
-			if (offsetline == 0.0) {
+			if (offsetLine == 0.0) {
 				return;
 			}
-			selectedStart = scrollO[8] - offsetline;
+			selectedStart = scrollO[8] - offsetLine;
 			checkSelected();
 		}
 	}
@@ -974,7 +967,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 				continue;
 			}
 			String optionText = NoppesStringUtils.formatText(option.title, this.player, dialogNpc);
-			List<String> lines = Lists.newArrayList();
+			List<String> lines = new ArrayList<>();
 			if (this.fontRenderer.getStringWidth(optionText) * this.corr > max) {
 				StringBuilder total = new StringBuilder();
 				for (String sct : optionText.split(" ")) {

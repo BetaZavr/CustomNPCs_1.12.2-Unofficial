@@ -1,13 +1,12 @@
 package noppes.npcs.client;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -55,7 +54,7 @@ public class RenderChatMessages implements IChatMessages {
 		this.lastMessageTime = time;
 	}
 
-	private void drawRect(int left, int top, int right, int bottom, int color, double zlevel) {
+	private void drawRect(int left, int top, int right, int bottom, int color, double zLevel) {
 		if (left < right) {
 			int j1 = left;
 			left = right;
@@ -73,10 +72,10 @@ public class RenderChatMessages implements IChatMessages {
 		BufferBuilder tessellator = Tessellator.getInstance().getBuffer();
 		GlStateManager.color(f2, f3, f4, f);
 		tessellator.begin(7, DefaultVertexFormats.POSITION);
-		tessellator.pos(left, bottom, zlevel).endVertex();
-		tessellator.pos(right, bottom, zlevel).endVertex();
-		tessellator.pos(right, top, zlevel).endVertex();
-		tessellator.pos(left, top, zlevel).endVertex();
+		tessellator.pos(left, bottom, zLevel).endVertex();
+		tessellator.pos(right, bottom, zLevel).endVertex();
+		tessellator.pos(right, top, zLevel).endVertex();
+		tessellator.pos(left, top, zLevel).endVertex();
 		Tessellator.getInstance().draw();
 	}
 
@@ -97,7 +96,7 @@ public class RenderChatMessages implements IChatMessages {
 		float var13 = 1.6f;
 		float var14 = 0.016666668f * var13;
 		int size = 0;
-		List<Long> del = Lists.newArrayList();
+		List<Long> del = new ArrayList<>();
 		for (Long time : this.messages.keySet()) {
 			TextBlockClient block = this.messages.get(time);
 			if (block.entity != null && !block.entity.isEntityAlive()) {

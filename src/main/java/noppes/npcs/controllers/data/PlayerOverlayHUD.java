@@ -1,11 +1,9 @@
 package noppes.npcs.controllers.data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -39,15 +37,15 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 	public boolean isMoved = false;
 	private byte[] showElementTypes;
 	private final double[] windowSize = new double[] { 0, 0 };
-	public List<Integer> keyPress = Lists.newArrayList();
-	public List<Integer> mousePress = Lists.newArrayList();
+	public List<Integer> keyPress = new ArrayList<>();
+	public List<Integer> mousePress = new ArrayList<>();
 	private int offsetType = 0;
 	public int questID = 0;
 
-	Map<Integer, List<ICustomGuiComponent>> components = Maps.newTreeMap();
-	private final Map<Integer, List<IItemSlot>> slots = Maps.newTreeMap();
-	private final TreeMap<Integer, TreeMap<Integer, IGuiComponent>> guiComponents = Maps.newTreeMap();
-	private final TreeMap<Integer, TreeMap<Integer, IItemSlot>> guiSlots = Maps.newTreeMap();
+	Map<Integer, List<ICustomGuiComponent>> components = new TreeMap<>();
+	private final Map<Integer, List<IItemSlot>> slots = new TreeMap<>();
+	private final TreeMap<Integer, TreeMap<Integer, IGuiComponent>> guiComponents = new TreeMap<>();
+	private final TreeMap<Integer, TreeMap<Integer, IItemSlot>> guiSlots = new TreeMap<>();
 
 	private boolean update = false;
 	private EntityPlayerMP player = null;
@@ -70,7 +68,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 	public IItemSlot addItemSlot(int orientationType, int x, int y, IItemStack stack) {
 		CustomGuiItemSlotWrapper slot = new CustomGuiItemSlotWrapper(x, y, stack);
 		if (!this.slots.containsKey(orientationType)) {
-			this.slots.put(orientationType, Lists.newArrayList());
+			this.slots.put(orientationType, new ArrayList<>());
 		}
 		this.slots.get(orientationType).add(slot);
 		return slot;
@@ -83,21 +81,21 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
 		if (component instanceof CustomGuiLabelWrapper) {
-			CustomGuiLabelWrapper lable = (CustomGuiLabelWrapper) component;
-			lable.setText(label);
-			lable.setPos(x, y);
-			lable.setSize(width, height);
-			return lable;
+			CustomGuiLabelWrapper l = (CustomGuiLabelWrapper) component;
+			l.setText(label);
+			l.setPos(x, y);
+			l.setSize(width, height);
+			return l;
 		}
 		if (component != null) {
 			this.components.get(orientationType).remove(component);
 		}
-		CustomGuiLabelWrapper lable = new CustomGuiLabelWrapper(id, label, x, y, width, height);
+		CustomGuiLabelWrapper l = new CustomGuiLabelWrapper(id, label, x, y, width, height);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.newArrayList());
+			this.components.put(orientationType, new ArrayList<>());
 		}
-		this.components.get(orientationType).add(lable);
-		return lable;
+		this.components.get(orientationType).add(l);
+		return l;
 	}
 
 	@Override
@@ -107,22 +105,22 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
 		if (component instanceof CustomGuiLabelWrapper) {
-			CustomGuiLabelWrapper lable = (CustomGuiLabelWrapper) component;
-			lable.setText(label);
-			lable.setPos(x, y);
-			lable.setSize(width, height);
-			lable.setColor(color);
-			return lable;
+			CustomGuiLabelWrapper l = (CustomGuiLabelWrapper) component;
+			l.setText(label);
+			l.setPos(x, y);
+			l.setSize(width, height);
+			l.setColor(color);
+			return l;
 		}
 		if (component != null) {
 			this.components.get(orientationType).remove(component);
 		}
-		CustomGuiLabelWrapper lable = new CustomGuiLabelWrapper(id, label, x, y, width, height, color);
+		CustomGuiLabelWrapper l = new CustomGuiLabelWrapper(id, label, x, y, width, height, color);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.newArrayList());
+			this.components.put(orientationType, new ArrayList<>());
 		}
-		this.components.get(orientationType).add(lable);
-		return lable;
+		this.components.get(orientationType).add(l);
+		return l;
 	}
 
 	@Override
@@ -144,7 +142,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		}
 		CustomGuiTexturedRectWrapper txtr = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.newArrayList());
+			this.components.put(orientationType, new ArrayList<>());
 		}
 		this.components.get(orientationType).add(txtr);
 		return txtr;
@@ -171,7 +169,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		CustomGuiTexturedRectWrapper txtr = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height, textureX,
 				textureY);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.newArrayList());
+			this.components.put(orientationType, new ArrayList<>());
 		}
 		this.components.get(orientationType).add(txtr);
 		return txtr;
@@ -196,7 +194,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		}
 		CustomGuiTimerWrapper timer = new CustomGuiTimerWrapper(id, start, end, x, y, width, height);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.newArrayList());
+			this.components.put(orientationType, new ArrayList<>());
 		}
 		this.components.get(orientationType).add(timer);
 		return timer;
@@ -222,7 +220,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		}
 		CustomGuiTimerWrapper timer = new CustomGuiTimerWrapper(id, start, end, x, y, width, height, color);
 		if (!this.components.containsKey(orientationType)) {
-			this.components.put(orientationType, Lists.newArrayList());
+			this.components.put(orientationType, new ArrayList<>());
 		}
 		this.components.get(orientationType).add(timer);
 		return timer;
@@ -261,7 +259,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 
 	@Override
 	public ICustomGuiComponent[] getComponents() {
-		List<ICustomGuiComponent> list = Lists.newArrayList();
+		List<ICustomGuiComponent> list = new ArrayList<>();
 		for (int type : this.components.keySet()) {
             list.addAll(this.components.get(type));
 		}
@@ -270,19 +268,18 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 
 	@Override
 	public ICustomGuiComponent[] getComponents(int orientationType) {
-		List<ICustomGuiComponent> list = Lists.newArrayList();
+		List<ICustomGuiComponent> list = new ArrayList<>();
 		if (!this.components.containsKey(orientationType)) {
 			return new ICustomGuiComponent[0];
 		}
-        list.addAll(this.components.get(orientationType));
-		return list.toArray(new ICustomGuiComponent[0]);
+		return components.get(orientationType).toArray(new ICustomGuiComponent[0]);
 	}
 
 	public TreeMap<Integer, TreeMap<Integer, IGuiComponent>> getGuiComponents() {
 		if (this.guiComponents.size() != this.components.size()) {
 			for (int type : this.components.keySet()) {
 				if (!this.guiComponents.containsKey(type)) {
-					this.guiComponents.put(type, Maps.newTreeMap());
+					this.guiComponents.put(type, new TreeMap<>());
 				}
 				for (ICustomGuiComponent component : this.components.get(type)) {
 					if (component instanceof CustomGuiLabelWrapper) {
@@ -322,7 +319,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 
 	public TreeMap<Integer, TreeMap<Integer, IItemSlot>> getGuiSlots() {
 		if (this.guiSlots.size() != this.slots.size()) {
-			Map<Integer, Integer> ids = Maps.newTreeMap();
+			Map<Integer, Integer> ids = new TreeMap<>();
 			for (int type : this.components.keySet()) {
 				if (!ids.containsKey(type)) {
 					ids.put(type, 0);
@@ -335,7 +332,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 			}
 			for (int type : this.slots.keySet()) {
 				if (!this.guiSlots.containsKey(type)) {
-					this.guiSlots.put(type, Maps.newTreeMap());
+					this.guiSlots.put(type, new TreeMap<>());
 				}
 				int id = ids.containsKey(type) ? ids.get(type) + 1 : 1;
 				for (IItemSlot slot : this.slots.get(type)) {
@@ -413,7 +410,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 
 	@Override
 	public IItemSlot[] getSlots() {
-		List<IItemSlot> list = Lists.newArrayList();
+		List<IItemSlot> list = new ArrayList<>();
 		for (int type : this.slots.keySet()) {
             list.addAll(this.slots.get(type));
 		}
@@ -422,12 +419,10 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 
 	@Override
 	public IItemSlot[] getSlots(int orientationType) {
-		List<IItemSlot> list = Lists.newArrayList();
-		if (!this.slots.containsKey(orientationType)) {
+        if (!this.slots.containsKey(orientationType)) {
 			return new IItemSlot[0];
 		}
-        list.addAll(this.slots.get(orientationType));
-		return list.toArray(new IItemSlot[0]);
+		return slots.get(orientationType).toArray(new IItemSlot[0]);
 	}
 
 	public double[] getWindowSize() {
@@ -496,11 +491,11 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 			this.guiComponents.clear();
 		} else {
 			for (int i = 0; i < list.tagCount(); i++) {
-				List<Integer> ids = Lists.newArrayList();
+				List<Integer> ids = new ArrayList<>();
 				NBTTagCompound compNbt = list.getCompoundTagAt(i);
 				int type = compNbt.getByte("OrientationType");
 				if (!this.components.containsKey(type)) {
-					this.components.put(type, Lists.newArrayList());
+					this.components.put(type, new ArrayList<>());
 				}
 				NBTTagList compList = compNbt.getTagList("components", 10);
 				for (int j = 0; j < compList.tagCount(); j++) {
@@ -528,7 +523,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 								.add(CustomGuiComponentWrapper.createFromNBT(compList.getCompoundTagAt(j)));
 					}
 				}
-				List<ICustomGuiComponent> del = Lists.newArrayList();
+				List<ICustomGuiComponent> del = new ArrayList<>();
 				for (ICustomGuiComponent c : this.components.get(type)) {
 					if (!ids.contains(c.getId())) {
 						del.add(c);
@@ -546,11 +541,11 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 			this.guiSlots.clear();
 		} else {
 			for (int i = 0; i < list.tagCount(); i++) {
-				List<Integer> ids = Lists.newArrayList();
+				List<Integer> ids = new ArrayList<>();
 				NBTTagCompound compNbt = list.getCompoundTagAt(i);
 				int type = compNbt.getByte("OrientationType");
 				if (!this.slots.containsKey(type)) {
-					this.slots.put(type, Lists.newArrayList());
+					this.slots.put(type, new ArrayList<>());
 				}
 				NBTTagList compList = compNbt.getTagList("components", 10);
 				for (int j = 0; j < compList.tagCount(); j++) {
@@ -573,7 +568,7 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 								.createFromNBT(compList.getCompoundTagAt(j)));
 					}
 				}
-				List<IItemSlot> del = Lists.newArrayList();
+				List<IItemSlot> del = new ArrayList<>();
 				for (IItemSlot c : this.slots.get(type)) {
 					if (!ids.contains(c.getId())) {
 						del.add(c);

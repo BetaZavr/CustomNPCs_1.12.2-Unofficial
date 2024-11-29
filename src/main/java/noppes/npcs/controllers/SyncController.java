@@ -1,10 +1,9 @@
 package noppes.npcs.controllers;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import com.google.common.collect.Maps;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,7 +31,7 @@ import noppes.npcs.util.BuilderData;
 
 public class SyncController {
 
-	public static final Map<Integer, BuilderData> dataBuilder = Maps.newHashMap();
+	public static final Map<Integer, BuilderData> dataBuilder = new HashMap<>();
 	
 	// SYNC_ADD or SYNC_END
 	public static void add(EnumSync synctype, NBTTagCompound compound, boolean syncEnd, EntityPlayer player) {
@@ -62,7 +61,7 @@ public class SyncController {
 			}
 			if (syncEnd) {
 				QuestController qData = QuestController.instance;
-				TreeMap<Integer, Quest> quests = Maps.newTreeMap();
+				TreeMap<Integer, Quest> quests = new TreeMap<>();
 				for (QuestCategory category2 : qData.categoriesSync.values()) {
 					for (Quest quest : category2.quests.values()) {
 						quests.put(quest.id, quest);
@@ -84,7 +83,7 @@ public class SyncController {
 			}
 			if (syncEnd) {
 				DialogController dData = DialogController.instance;
-				TreeMap<Integer, Dialog> dialogs = Maps.newTreeMap();
+				TreeMap<Integer, Dialog> dialogs = new TreeMap<>();
 				for (DialogCategory category4 : dData.categoriesSync.values()) {
 					for (Dialog dialog : category4.dialogs.values()) {
 						dialogs.put(dialog.id, dialog);

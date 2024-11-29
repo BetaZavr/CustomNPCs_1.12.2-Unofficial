@@ -2,8 +2,7 @@ package noppes.npcs.controllers.data;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
+import java.util.TreeMap;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,7 +25,7 @@ public class Dialog implements ICompatibilty, IDialog {
 	public DialogCategory category;
 	public PlayerMail mail;
 	public FactionOptions factionOptions;
-	public final Map<Integer, DialogOption> options;
+	public final Map<Integer, DialogOption> options = new TreeMap<>();
 	public boolean disableEsc, hideNPC, showWheel, stopSound, showFits;
 	public int id, quest, version, delay;
 	public String command, sound, text, title, texture;
@@ -38,7 +37,6 @@ public class Dialog implements ICompatibilty, IDialog {
 		this.text = "";
 		this.texture = "";
 		this.quest = -1;
-		this.options = Maps.newTreeMap();
 		this.availability = new Availability();
 		this.factionOptions = new FactionOptions();
 		this.command = "";
@@ -93,7 +91,7 @@ public class Dialog implements ICompatibilty, IDialog {
 		if (!this.options.containsKey(optionId) || optionId < 0 || optionId >= this.options.size() - 1) {
 			return;
 		}
-		Map<Integer, DialogOption> newOptions = Maps.newTreeMap();
+		Map<Integer, DialogOption> newOptions = new TreeMap<>();
 		for (int id : this.options.keySet()) {
 			DialogOption option = this.options.get(id);
 			if (id == optionId) {
@@ -283,7 +281,7 @@ public class Dialog implements ICompatibilty, IDialog {
 		if (!this.options.containsKey(optionId) || optionId <= 0) {
 			return;
 		}
-		Map<Integer, DialogOption> newOptions = Maps.newTreeMap();
+		Map<Integer, DialogOption> newOptions = new TreeMap<>();
 		for (int id : this.options.keySet()) {
 			DialogOption option = this.options.get(id);
 			if (id == optionId - 1) {

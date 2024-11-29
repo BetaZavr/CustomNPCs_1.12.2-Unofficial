@@ -1,10 +1,10 @@
 package noppes.npcs.command;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -38,7 +38,7 @@ public class CmdSlay extends CommandNoppesBase {
 		return 2;
 	}
 
-	public Map<String, Class<?>> slayMap = Maps.newHashMap();
+	public Map<String, Class<?>> slayMap = new HashMap<>();
 
 	public CmdSlay() {
         this.slayMap.put("all", EntityLivingBase.class);

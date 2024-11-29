@@ -2,9 +2,6 @@ package noppes.npcs.entity.data;
 
 import java.util.*;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -97,7 +94,7 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	private IItemStack[] createDrops(boolean isLooted, EntityLivingBase attacking) {
-		List<IItemStack> prelist = Lists.newArrayList();
+		List<IItemStack> prelist = new ArrayList<>();
 		double ch = 1.0d;
 		if (attacking != null) {
 			IAttributeInstance l = attacking.getEntityAttribute(SharedMonsterAttributes.LUCK);
@@ -209,7 +206,7 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public void dropStuff(NpcEvent.DiedEvent event, Entity entity, DamageSource damagesource) {
-		ArrayList<EntityItem> list = Lists.newArrayList();
+		ArrayList<EntityItem> list = new ArrayList<>();
 		if (event.droppedItems != null) {
 			for (IItemStack itemD : event.droppedItems) {
 				if (itemD == null || itemD.isEmpty()) {
@@ -471,7 +468,7 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public boolean removeDrop(ICustomDrop drop) {
-		Map<Integer, DropSet> newDrop = Maps.newTreeMap();
+		Map<Integer, DropSet> newDrop = new TreeMap<>();
 		boolean del = false;
 		int j = 0;
 		for (int slot : this.drops.keySet()) {
@@ -493,7 +490,7 @@ public class DataInventory implements IInventory, INPCInventory {
 	public boolean removeDrop(int slot) {
 		if (this.drops.containsKey(slot)) {
 			this.drops.remove(slot);
-			Map<Integer, DropSet> newDrop = Maps.newTreeMap();
+			Map<Integer, DropSet> newDrop = new TreeMap<>();
 			int j = 0;
 			for (int s : this.drops.keySet()) {
 				if (s == slot) {

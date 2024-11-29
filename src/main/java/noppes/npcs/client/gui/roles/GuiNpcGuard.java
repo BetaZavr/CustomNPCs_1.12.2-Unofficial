@@ -1,11 +1,9 @@
 package noppes.npcs.client.gui.roles;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -32,7 +30,7 @@ public class GuiNpcGuard extends GuiNPCInterface2 {
 	private final JobGuard role;
 	private GuiCustomScroll scroll1;
 	private GuiCustomScroll scroll2;
-	private final Map<String, String> data = Maps.newHashMap();
+	private final Map<String, String> data = new HashMap<>();
 
 	public GuiNpcGuard(EntityNPCInterface npc) {
 		super(npc);
@@ -130,7 +128,7 @@ public class GuiNpcGuard extends GuiNPCInterface2 {
 		this.scroll2.guiTop = this.guiTop + 58;
 		this.addScroll(this.scroll2);
 		this.addLabel(new GuiNpcLabel(12, "guard.currentTargets", this.guiLeft + 235, this.guiTop + 48));
-		List<String> all = Lists.newArrayList();
+		List<String> all = new ArrayList<>();
 		this.data.clear();
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			Class<? extends Entity> cl = ent.getEntityClass();
@@ -148,13 +146,13 @@ public class GuiNpcGuard extends GuiNPCInterface2 {
 			}
 		}
 		this.scroll1.setList(all);
-		List<String> trgs = Lists.newArrayList();
+		List<String> targets = new ArrayList<>();
 		for (String name : this.role.targets) {
 			String key = new TextComponentTranslation(name).getFormattedText();
-			trgs.add(key);
+			targets.add(key);
 			this.data.put(key, name);
 		}
-		this.scroll2.setList(trgs);
+		this.scroll2.setList(targets);
 		this.addButton(new GuiNpcButton(11, this.guiLeft + 180, this.guiTop + 80, 55, 20, ">"));
 		this.addButton(new GuiNpcButton(12, this.guiLeft + 180, this.guiTop + 102, 55, 20, "<"));
 		this.addButton(new GuiNpcButton(13, this.guiLeft + 180, this.guiTop + 130, 55, 20, ">>"));

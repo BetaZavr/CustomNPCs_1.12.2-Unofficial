@@ -1,10 +1,9 @@
 package noppes.npcs.client.gui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -114,7 +113,7 @@ public class SubGuiNpcAvailabilityScoreboard extends SubGuiInterface implements 
 		if (!this.select.isEmpty() && !this.dataNames.containsKey(this.select)) {
 			this.select = "";
 		}
-		this.scroll.setList(Lists.newArrayList(this.dataNames.keySet()));
+		this.scroll.setList(new ArrayList<>(dataNames.keySet()));
 		this.scroll.guiLeft = this.guiLeft + 6;
 		this.scroll.guiTop = this.guiTop + 14;
 		if (!this.select.isEmpty()) {

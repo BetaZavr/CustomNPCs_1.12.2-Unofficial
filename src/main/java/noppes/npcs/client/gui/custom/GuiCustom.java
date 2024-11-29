@@ -343,6 +343,11 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 				scroll.selected, this.getScrollSelection((CustomGuiScrollComponent) scroll), true);
 	}
 
+	@Override
+	public boolean hasSubGui() {
+		return false;
+	}
+
 	public void setGuiData(NBTTagCompound compound) {
 
 		Minecraft mc = Minecraft.getMinecraft();

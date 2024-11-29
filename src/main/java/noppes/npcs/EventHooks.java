@@ -1,11 +1,10 @@
 package noppes.npcs;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -87,7 +86,7 @@ import noppes.npcs.entity.data.DataScript;
 
 public class EventHooks {
 
-	private static final Map<String, Long> clientMap = Maps.newHashMap();
+	private static final Map<String, Long> clientMap = new HashMap<>();
 
 	public static void onClientInit(ClientScriptData handler) {
 		if (!handler.isClient()) { return; }

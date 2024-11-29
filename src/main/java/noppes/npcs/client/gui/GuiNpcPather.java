@@ -3,8 +3,6 @@ package noppes.npcs.client.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -37,7 +35,7 @@ public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
 			return;
 		}
 		if (button.id == 0) { // down
-			List<int[]> list = Lists.newArrayList(this.path);
+			List<int[]> list = new ArrayList<>(path);
 			int selected = this.scroll.selected;
 			if (list.size() <= selected + 1) {
 				return;
@@ -54,7 +52,7 @@ public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
 			if (this.scroll.selected - 1 < 0) {
 				return;
 			}
-			List<int[]> list = Lists.newArrayList(this.path);
+			List<int[]> list = new ArrayList<>(path);
 			int selected = this.scroll.selected;
 			int[] a = list.get(selected);
 			int[] b = list.get(selected - 1);
@@ -65,7 +63,7 @@ public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
 			this.scroll.selected = selected - 1;
 		}
 		if (button.id == 2) { // remove
-			List<int[]> list = Lists.newArrayList(this.path);
+			List<int[]> list = new ArrayList<>(path);
 			if (list.size() <= 1) {
 				return;
 			}

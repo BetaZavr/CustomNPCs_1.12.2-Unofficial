@@ -1,11 +1,6 @@
 package noppes.npcs.api.event;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -92,7 +87,7 @@ public class NpcEvent extends CustomNPCsEvent {
 		public IEntity<?> source;
 		public String type;
 		
-		private final Map<IEntity<?>, Double> damageMap = Maps.newHashMap();
+		private final Map<IEntity<?>, Double> damageMap = new HashMap<>();
 
 		public DiedEvent(ICustomNpc<?> npc, DamageSource damagesource, Entity entity, CombatHandler combatHandler) {
 			super(npc);

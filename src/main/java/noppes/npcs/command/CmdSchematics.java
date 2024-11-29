@@ -1,8 +1,8 @@
 package noppes.npcs.command;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -47,23 +47,23 @@ public class CmdSchematics extends CommandNoppesBase {
 				location = par[1];
 				world = this.getWorld(server, par[0]);
 				if (world == null) {
-					throw new CommandException("'%s' is an unknown world", par[0]);
+					throw new CommandException("\""+par[0]+"\" is an unknown world");
 				}
 			}
 			if (location.contains(",")) {
 				String[] par = location.split(",");
 				if (par.length != 3) {
-					throw new CommandException("Location should be x,y,z");
+					throw new CommandException("Location should be x,y,z. Length: "+par.length);
 				}
 				try {
 					pos = CommandBase.parseBlockPos(sender, par, 0, false);
 				} catch (NumberInvalidException e) {
-					throw new CommandException("Location should be in numbers");
+					throw new CommandException("Location should be in numbers " + location);
 				}
 			}
 		}
 		if (pos.getX() == 0 && pos.getY() == 0 && pos.getZ() == 0) {
-			throw new CommandException("Location needed");
+			throw new CommandException("Location needed - " + pos);
 		}
 		schem.init(pos, world, rotation);
 		SchematicController.Instance.build(schem, sender);
@@ -84,7 +84,7 @@ public class CmdSchematics extends CommandNoppesBase {
 			List<String> list = SchematicController.Instance.list();
 			return CommandBase.getListOfStringsMatchingLastWord(args, list.toArray(new String[0]));
 		}
-		return Lists.newArrayList();
+		return new ArrayList<>();
 	}
 
 	public World getWorld(MinecraftServer server, String t) {
@@ -105,7 +105,7 @@ public class CmdSchematics extends CommandNoppesBase {
 	public void list(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		List<String> list = SchematicController.Instance.list();
 		if (list.isEmpty()) {
-			throw new CommandException("No available schematics");
+			throw new CommandException("No available schematics " + list);
 		}
 		StringBuilder s = new StringBuilder();
 		for (String file : list) {

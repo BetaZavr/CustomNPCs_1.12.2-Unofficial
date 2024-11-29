@@ -3,9 +3,6 @@ package noppes.npcs.client.gui.global;
 import java.util.*;
 import java.util.Map.Entry;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -215,20 +212,11 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 		}
 		if (!this.selectedCategory.isEmpty()) {
 			if (this.categoryData.containsKey(this.selectedCategory)) {
-				Map<String, Quest> map = Maps.newTreeMap();
+				Map<String, Quest> map = new TreeMap<>();
 				for (Quest quest : this.categoryData.get(this.selectedCategory).quests.values()) {
 					map.put(getKey(quest), quest);
 				}
-				List<Entry<String, Quest>> list = Lists.newArrayList(map.entrySet());
-				list.sort((d_0, d_1) -> {
-                    if (GuiNPCManageQuest.isName) {
-                        String n_0 = Util.instance.deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText() + "_" + d_0.getValue().id).toLowerCase();
-                        String n_1 = Util.instance.deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText() + "_" + d_1.getValue().id).toLowerCase();
-                        return n_0.compareTo(n_1);
-                    } else {
-                        return Integer.compare(d_0.getValue().id, d_1.getValue().id);
-                    }
-                });
+				List<Entry<String, Quest>> list = getEntryList(map);
 				for (Entry<String, Quest> entry : list) {
 					this.questData.put(entry.getKey(), entry.getValue());
 					if (this.selectedQuest.isEmpty()) {
@@ -280,7 +268,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 		if (this.scrollCategories == null) {
 			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, this.ySize - 3);
 		}
-		this.scrollCategories.setList(Lists.newArrayList(this.categoryData.keySet()));
+		this.scrollCategories.setList(new ArrayList<>(categoryData.keySet()));
 		this.scrollCategories.guiLeft = this.guiLeft + 4;
 		this.scrollCategories.guiTop = this.guiTop + 15;
 		if (!this.selectedCategory.isEmpty()) {
@@ -291,7 +279,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 		if (this.scrollQuests == null) {
 			(this.scrollQuests = new GuiCustomScroll(this, 1)).setSize(170, this.ySize - 3);
 		}
-		this.scrollQuests.setListNotSorted(Lists.newArrayList(this.questData.keySet()));
+		this.scrollQuests.setListNotSorted(new ArrayList<>(questData.keySet()));
 		this.scrollQuests.guiLeft = this.guiLeft + 176;
 		this.scrollQuests.guiTop = this.guiTop + 15;
 		if (ht != null) {
@@ -303,6 +291,20 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 		this.addScroll(this.scrollQuests);
 	}
 
+	private static List<Entry<String, Quest>> getEntryList(Map<String, Quest> map) {
+		List<Entry<String, Quest>> list = new ArrayList<>(map.entrySet());
+		list.sort((d_0, d_1) -> {
+			if (GuiNPCManageQuest.isName) {
+			String n_0 = Util.instance.deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText() + "_" + d_0.getValue().id).toLowerCase();
+			String n_1 = Util.instance.deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText() + "_" + d_1.getValue().id).toLowerCase();
+			return n_0.compareTo(n_1);
+			} else {
+			return Integer.compare(d_0.getValue().id, d_1.getValue().id);
+			}
+		});
+		return list;
+	}
+
 	private String getKey(Quest quest) {
 		boolean b = quest.isSetUp();
 		return chr + "7ID:" + quest.id + "-\"" + chr + "r" + quest.getTitle() + chr + "7\"" + chr
@@ -311,7 +313,9 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 	}
 
 	private List<String> getStrings(Quest quest, QuestController qData, DialogController dData) {
-		List<String> h = Lists.newArrayList(), quests = Lists.newArrayList(), dialogs = Lists.newArrayList();
+		List<String> h = new ArrayList<>();
+		List<String> quests = new ArrayList<>();
+		List<String> dialogs = new ArrayList<>();
 		h.add(new TextComponentTranslation(quest.title).getFormattedText() + ":");
 		for (Quest q : qData.quests.values()) {
 			if (q.nextQuest != quest.id) {

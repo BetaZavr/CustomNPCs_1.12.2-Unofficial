@@ -1,8 +1,7 @@
 package noppes.npcs.controllers.data;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -57,11 +56,11 @@ public class QuestData {
 
 	public void readEntityFromNBT(NBTTagCompound nbttagcompound) {
 		this.isCompleted = nbttagcompound.getBoolean("QuestCompleted");
-		List<String> list = Lists.newArrayList(this.extraData.getKeySet());
+		List<String> list = new ArrayList<>(extraData.getKeySet());
 		for (String key : list) {
 			this.extraData.removeTag(key);
 		}
-		list = Lists.newArrayList(nbttagcompound.getCompoundTag("ExtraData").getKeySet());
+		list = new ArrayList<>(nbttagcompound.getCompoundTag("ExtraData").getKeySet());
 		for (String key : list) {
 			this.extraData.setTag(key, nbttagcompound.getCompoundTag("ExtraData").getTag(key));
 		}

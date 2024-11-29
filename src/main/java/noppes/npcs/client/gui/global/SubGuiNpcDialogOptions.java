@@ -1,10 +1,9 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.TreeMap;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
@@ -26,7 +25,7 @@ import noppes.npcs.controllers.data.DialogOption.OptionDialogID;
 public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 
 	private final Dialog dialog;
-	private final Map<String, Integer> data = Maps.newTreeMap(); // {scrollTitle, dialogID}
+	private final Map<String, Integer> data = new TreeMap<>(); // {scrollTitle, dialogID}
 	private GuiCustomScroll scroll;
 
 	public final GuiScreen parent;
@@ -113,7 +112,7 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 	}
 
 	private void fix() {
-		Map<Integer, DialogOption> map = Maps.newTreeMap();
+		Map<Integer, DialogOption> map = new TreeMap<>();
 		int i = 0;
 		boolean bo = false;
 		for (int id : this.dialog.options.keySet()) {
@@ -137,8 +136,8 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 		this.addLabel(new GuiNpcLabel(66, "dialog.options", this.guiLeft, this.guiTop + 4));
 		this.getLabel(66).center(this.xSize);
 		this.data.clear();
-		List<String> list = Lists.newArrayList();
-		List<Integer> colors = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
+		List<Integer> colors = new ArrayList<>();
 		fix();
 		String[][] hts = new String[this.dialog.options.size()][];
 		DialogController dData = DialogController.instance;
@@ -160,7 +159,7 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 			}
 			case DIALOG_OPTION: {
 				key += ((char) 167) + "3D";
-				List<String> ht = Lists.newArrayList();
+				List<String> ht = new ArrayList<>();
 				ht.add(new TextComponentTranslation("gui.type").getFormattedText() + ": " + option.optionType.get()
 						+ " - " + ((char) 167) + "3" + option.optionType.name());
 				if (option.hasDialogs()) {
@@ -227,7 +226,7 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 	}
 
 	private List<String> getHt(DialogOption option) {
-		List<String> ht = Lists.newArrayList();
+		List<String> ht = new ArrayList<>();
 		ht.add(new TextComponentTranslation("gui.type").getFormattedText() + ": " + option.optionType.get()
 				+ " - " + ((char) 167) + "a" + option.optionType.name());
 		ht.add(new TextComponentTranslation("role.name").getFormattedText() + " -"

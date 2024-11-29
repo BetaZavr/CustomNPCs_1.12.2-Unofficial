@@ -3,9 +3,8 @@ package noppes.npcs.controllers.data;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -28,7 +27,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class BankData {
 
 	public Bank bank;
-	public final Map<Integer, NpcMiscInventory> cells;
+	public final Map<Integer, NpcMiscInventory> cells = new TreeMap<>();
 	private final String uuid;
 
 	public BankData(Bank bank, String uuid) {
@@ -37,8 +36,7 @@ public class BankData {
 		if (this.bank == null) {
 			this.bank = new Bank();
 		}
-		this.cells = Maps.newTreeMap();
-		this.clear();
+		clear();
 	}
 
 	public void clear() {

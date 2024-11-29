@@ -2,8 +2,6 @@ package noppes.npcs;
 
 import java.util.*;
 
-import com.google.common.collect.Maps;
-
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -333,7 +331,7 @@ public class NoppesUtilPlayer {
 				return;
 			}
 			if (!player.capabilities.isCreativeMode) {
-				Map<ItemStack, Integer> map = Maps.newHashMap();
+				Map<ItemStack, Integer> map = new HashMap<>();
 				map.put(currency, currency.getCount());
 				if (!Util.instance.canRemoveItems(role.rentalItems.items, map, false, false)) {
 					return;

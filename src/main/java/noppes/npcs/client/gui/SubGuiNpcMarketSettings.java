@@ -1,11 +1,6 @@
 package noppes.npcs.client.gui;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -29,19 +24,18 @@ import noppes.npcs.util.Util;
 public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoCallback {
 
 	public Marcet marcet;
-	public int level;
-	private final Map<String, Integer> data;
+	public int level = 0;
+	private final Map<String, Integer> data = new HashMap<>();
 	private GuiCustomScroll scroll;
 
 	public SubGuiNpcMarketSettings(Marcet marcet) {
 		super();
-		this.marcet = marcet;
 		this.setBackground("menubg.png");
 		this.xSize = 256;
 		this.ySize = 217;
 		this.closeOnEsc = true;
-		this.level = 0;
-		this.data = Maps.newHashMap();
+
+		this.marcet = marcet;
 	}
 
 	@Override
@@ -179,7 +173,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 		}
 		this.scroll.guiLeft = x + 175;
 		this.scroll.guiTop = y;
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		this.scroll.hoversTexts = new String[this.marcet.sections.size()][];
 		int i = 0;
 		this.data.clear();

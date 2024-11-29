@@ -2,6 +2,7 @@ package noppes.npcs.client.renderer;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -10,7 +11,6 @@ import org.apache.commons.io.IOUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
@@ -38,9 +38,9 @@ import noppes.npcs.items.CustomArmor;
 
 public class ModelBuffer {
 
-	private static final List<ParameterizedModel> MODELS = Lists.newArrayList(); // list of parameterized
+	private static final List<ParameterizedModel> MODELS = new ArrayList<>(); // list of parameterized
 																									// rendered models
-	public static List<ResourceLocation> NOT_FOUND = Lists.newArrayList();	// list of missing models
+	public static List<ResourceLocation> NOT_FOUND = new ArrayList<>();	// list of missing models
 																				// so as not to freeze
 																				// the client
 	private static ModelOBJPlayerArmor objModel;
@@ -90,7 +90,7 @@ public class ModelBuffer {
 					return sprite;
 				};
 				if (model.visibleMeshes == null || model.visibleMeshes.isEmpty()) {
-					model.visibleMeshes = Lists.newArrayList(model.iModel.getMatLib().getGroups().keySet());
+					model.visibleMeshes = new ArrayList<>(model.iModel.getMatLib().getGroups().keySet());
 				}
 				@SuppressWarnings("deprecation")
 				IBakedModel bakedModel = model.iModel.bake(new OBJModel.OBJState(ImmutableList.copyOf(model.visibleMeshes), true), DefaultVertexFormats.ITEM, spriteFunction);
@@ -150,7 +150,7 @@ public class ModelBuffer {
 
 	public static IBakedModel getIBakedModel(CustomArmor armor) {
 		if (armor.objModel == null) { return null; }
-		List<String> visibleMeshes = Lists.newArrayList();
+		List<String> visibleMeshes = new ArrayList<>();
 		if (armor.getEquipmentSlot() == EntityEquipmentSlot.HEAD) {
 			visibleMeshes.addAll(armor.getMeshNames(EnumParts.HEAD));
 			visibleMeshes.addAll(armor.getMeshNames(EnumParts.MOHAWK));

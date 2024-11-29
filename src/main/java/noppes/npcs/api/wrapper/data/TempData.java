@@ -1,12 +1,6 @@
 package noppes.npcs.api.wrapper.data;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,28 +12,26 @@ import noppes.npcs.util.Util;
 
 public class TempData implements IData {
 
-	private Map<String, Object> map;
+	private Map<String, Object> map = new TreeMap<>();
 	private BlockWrapper block;
 
-	public TempData() {
-		this.map = Maps.newTreeMap();
-	}
+	public TempData() { }
 
 	public TempData(BlockWrapper wrapper) {
 		this();
-		this.block = wrapper;
+		block = wrapper;
 	}
 
 	@Override
 	public void clear() {
-		this.resetData();
-		this.map.clear();
+		resetData();
+		map.clear();
 	}
 
 	@Override
 	public Object get(String key) {
-		this.resetData();
-		return this.map.get(key);
+		resetData();
+		return map.get(key);
 	}
 
 	@Override
@@ -96,7 +88,7 @@ public class TempData implements IData {
 	@Override
 	public void setNbt(INbt nbt) {
 		this.resetData();
-		List<String> del = Lists.newArrayList();
+		List<String> del = new ArrayList<>();
 		for (String key : this.map.keySet()) {
 			Object value = this.map.get(key);
 			if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long || value instanceof Float || value instanceof Double || value instanceof String) {

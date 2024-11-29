@@ -1,12 +1,6 @@
 package noppes.npcs.client.gui.questtypes;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
@@ -46,7 +40,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 	private static final ResourceLocation inv = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
 	// New
 	private final QuestObjective task;
-	private final Map<Integer, Integer> dataDimIDs = Maps.newHashMap();
+	private final Map<Integer, Integer> dataDimIDs = new HashMap<>();
 
 	public GuiNpcQuestTypeItem(EntityNPCInterface npc, ContainerNpcQuestTypeItem container, QuestObjective task) {
 		super(npc, container);
@@ -254,7 +248,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 
 		this.addLabel(new GuiNpcLabel(14, "D:", x + 21, (y += 16) + 2));
 		int p = 0, i = 0;
-		List<Integer> ids = Lists.newArrayList(DimensionManager.getStaticDimensionIDs());
+		List<Integer> ids = Arrays.asList(DimensionManager.getStaticDimensionIDs());
 		Collections.sort(ids);
 		String[] dimIDs = new String[ids.size()];
 		for (int id : ids) {

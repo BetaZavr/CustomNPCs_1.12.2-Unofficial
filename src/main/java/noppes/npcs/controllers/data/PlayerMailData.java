@@ -1,8 +1,7 @@
 package noppes.npcs.controllers.data;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -10,11 +9,7 @@ import noppes.npcs.CustomNpcs;
 
 public class PlayerMailData {
 
-	public final List<PlayerMail> playermail;
-
-	public PlayerMailData() {
-		this.playermail = Lists.newArrayList();
-	}
+	public final List<PlayerMail> playerMails = new ArrayList<>();
 
 	public void addMail(PlayerMail mail) {
 		mail = mail.copy();
@@ -28,7 +23,7 @@ public class PlayerMailData {
 		boolean found = true;
 		while (found) {
 			found = false;
-			for (PlayerMail m : this.playermail) {
+			for (PlayerMail m : this.playerMails) {
 				if (m.timeWhenReceived == mail.timeWhenReceived) {
 					mail.timeWhenReceived--;
 					found = true;
@@ -36,11 +31,11 @@ public class PlayerMailData {
 				}
 			}
 		}
-		this.playermail.add(mail);
+		this.playerMails.add(mail);
 	}
 
 	public PlayerMail get(long id) {
-		for (PlayerMail mail : this.playermail) {
+		for (PlayerMail mail : this.playerMails) {
 			if (mail.timeWhenReceived == id) {
 				return mail;
 			}
@@ -49,7 +44,7 @@ public class PlayerMailData {
 	}
 
 	public PlayerMail get(PlayerMail selected) {
-		for (PlayerMail mail : this.playermail) {
+		for (PlayerMail mail : this.playerMails) {
 			if (mail.timeWhenReceived == selected.timeWhenReceived && mail.getSubject().equals(selected.getSubject())) {
 				return mail;
 			}
@@ -58,7 +53,7 @@ public class PlayerMailData {
 	}
 
 	public boolean hasMail() {
-		for (PlayerMail mail : this.playermail) {
+		for (PlayerMail mail : this.playerMails) {
 			if (!mail.beenRead) {
 				return true;
 			}
@@ -68,17 +63,17 @@ public class PlayerMailData {
 
 	public void loadNBTData(NBTTagCompound compound) {
 		NBTTagList list = compound.getTagList("MailData", 10);
-        this.playermail.clear();
+        this.playerMails.clear();
 		for (int i = 0; i < list.tagCount(); ++i) {
 			PlayerMail mail = new PlayerMail();
 			mail.readNBT(list.getCompoundTagAt(i));
-			this.playermail.add(mail);
+			this.playerMails.add(mail);
 		}
 	}
 
 	public NBTTagCompound saveNBTData(NBTTagCompound compound) {
 		NBTTagList list = new NBTTagList();
-		for (PlayerMail mail : this.playermail) {
+		for (PlayerMail mail : this.playerMails) {
 			list.appendTag(mail.writeNBT());
 		}
 		compound.setTag("MailData", list);

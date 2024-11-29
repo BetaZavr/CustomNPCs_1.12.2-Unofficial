@@ -4,12 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.IDataObject;
@@ -33,7 +28,7 @@ public class DataObject implements IDataObject {
 		builder.append("Class \"").append(this.object).append("\":");
 		IDataElement[] cs = this.getClasses();
 		if (cs.length > 0) {
-			List<String> list = Lists.newArrayList();
+			List<String> list = new ArrayList<>();
 			for (IDataElement ide : cs) {
 				list.add("" + ide.getValue());
 			}
@@ -51,7 +46,7 @@ public class DataObject implements IDataObject {
 		}
 		IDataElement[] fs = this.getFields();
 		if (fs.length > 0) {
-			List<String> list = Lists.newArrayList();
+			List<String> list = new ArrayList<>();
 			for (IDataElement ide : fs) {
 				list.add(((Field) ide.getObject()).getName());
 			}
@@ -69,7 +64,7 @@ public class DataObject implements IDataObject {
 		}
 		IDataElement[] ms = this.getMethods();
 		if (ms.length > 0) {
-			List<String> list = Lists.newArrayList();
+			List<String> list = new ArrayList<>();
 			for (IDataElement ide : ms) {
 				list.add(((Method) ide.getObject()).getName());
 			}
@@ -90,7 +85,7 @@ public class DataObject implements IDataObject {
 
 	@Override
 	public IDataElement[] getClasses() {
-		List<IDataElement> c = Lists.newArrayList();
+		List<IDataElement> c = new ArrayList<>();
 		for (IDataElement de : this.data) {
 			if (de.getObject() instanceof Class) {
 				c.add(de);
@@ -102,7 +97,7 @@ public class DataObject implements IDataObject {
 	@Override
 	public String getClassesInfo() {
 		StringBuilder builder = new StringBuilder();
-		List<IDataElement> c = Lists.newArrayList();
+		List<IDataElement> c = new ArrayList<>();
 		for (IDataElement de : this.data) {
 			if (de.getObject() instanceof Class) {
 				c.add(de);
@@ -137,7 +132,7 @@ public class DataObject implements IDataObject {
 
 	@Override
 	public IDataElement[] getConstructors() {
-		List<IDataElement> c = Lists.newArrayList();
+		List<IDataElement> c = new ArrayList<>();
 		for (IDataElement de : this.data) {
 			if (de.getObject() instanceof Constructor) {
 				c.add(de);
@@ -149,7 +144,7 @@ public class DataObject implements IDataObject {
 	@Override
 	public String getConstructorsInfo() {
 		StringBuilder builder = new StringBuilder();
-		List<IDataElement> c = Lists.newArrayList();
+		List<IDataElement> c = new ArrayList<>();
 		for (IDataElement de : this.data) {
 			if (de.getObject() instanceof Constructor) {
 				c.add(de);
@@ -190,7 +185,7 @@ public class DataObject implements IDataObject {
 
 	@Override
 	public IDataElement[] getFields() {
-		List<IDataElement> f = Lists.newArrayList();
+		List<IDataElement> f = new ArrayList<>();
 		for (IDataElement de : this.data) {
 			if (de.getObject() instanceof Field) {
 				f.add(de);
@@ -202,7 +197,7 @@ public class DataObject implements IDataObject {
 	@Override
 	public String getFieldsInfo() {
 		StringBuilder builder = new StringBuilder();
-		Map<String, IDataElement> f = Maps.newHashMap();
+		Map<String, IDataElement> f = new HashMap<>();
 		for (IDataElement de : this.data) {
 			if (de.getObject() instanceof Field) {
 				f.put(de.getName(), de);
@@ -211,7 +206,7 @@ public class DataObject implements IDataObject {
 		int i = 0;
 		if (!f.isEmpty()) {
 			String enter = new String(Character.toChars(0xA));
-			List<String> names = Lists.newArrayList(f.keySet());
+			List<String> names = new ArrayList<>(f.keySet());
 			Collections.sort(names);
 			String maxKey = "", maxValue = "";
 			for (IDataElement de : f.values()) {
@@ -293,7 +288,7 @@ public class DataObject implements IDataObject {
 
 	@Override
 	public IDataElement[] getMethods() {
-		List<IDataElement> m = Lists.newArrayList();
+		List<IDataElement> m = new ArrayList<>();
 		for (IDataElement de : this.data) {
 			if (de.getObject() instanceof Method) {
 				m.add(de);
@@ -305,7 +300,7 @@ public class DataObject implements IDataObject {
 	@Override
 	public String getMethodsInfo() {
 		StringBuilder builder = new StringBuilder();
-		Map<String, IDataElement> m = Maps.newHashMap();
+		Map<String, IDataElement> m = new HashMap<>();
 		for (IDataElement de : this.data) {
 			if (de.getObject() instanceof Method) {
 				m.put(de.getName(), de);
@@ -314,7 +309,7 @@ public class DataObject implements IDataObject {
 		int i;
 		if (!m.isEmpty()) {
 			String enter = new String(Character.toChars(0xA));
-			List<String> names = Lists.newArrayList(m.keySet());
+			List<String> names = new ArrayList<>(m.keySet());
 			Collections.sort(names);
 			String maxKey = "", maxValue = "";
 			for (IDataElement de : m.values()) {

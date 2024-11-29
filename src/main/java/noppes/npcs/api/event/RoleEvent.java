@@ -1,9 +1,8 @@
 package noppes.npcs.api.event;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -68,7 +67,7 @@ public class RoleEvent extends CustomNPCsEvent {
 
 		public TradeFailedEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, Map<ItemStack, Integer> items) {
 			super(player, npc);
-			this.currency = Maps.newLinkedHashMap();
+			this.currency = new LinkedHashMap<>();
 			for (ItemStack stack : items.keySet()) {
 				if (stack == null || stack.isEmpty()) {
 					continue;
@@ -87,7 +86,7 @@ public class RoleEvent extends CustomNPCsEvent {
 
 		public TraderEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, Map<ItemStack, Integer> items) {
 			super(player, npc);
-			this.currency = Maps.newLinkedHashMap();
+			this.currency = new LinkedHashMap<>();
 			for (ItemStack stack : items.keySet()) {
 				if (stack == null || stack.isEmpty()) {
 					continue;

@@ -3,18 +3,13 @@ package noppes.npcs.client;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import noppes.npcs.*;
 import noppes.npcs.api.mixin.client.audio.ISoundHandlerMixin;
 import noppes.npcs.api.mixin.client.audio.ISoundManagerMixin;
 import noppes.npcs.api.mixin.client.gui.IGuiYesNoMixin;
 import org.lwjgl.input.Keyboard;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
@@ -62,7 +57,7 @@ public class ClientTickHandler {
 
 	public static boolean checkMails = false;
 	public static boolean inGame = false;
-	public static Map<ISound, MusicData> musics = Maps.newHashMap();
+	public static Map<ISound, MusicData> musics = new HashMap<>();
 	
 	public static void loadFiles() {
 		if (ClientProxy.loadFiles.isEmpty()) {
@@ -91,14 +86,9 @@ public class ClientTickHandler {
 			ClientTickHandler.loadFiles();
 		}
 	}
-	private boolean otherContainer;
+	private boolean otherContainer = false;
 	private World prevWorld;
-	public final Map<String, ISound> nowPlayingSounds;
-
-	public ClientTickHandler() {
-		this.otherContainer = false;
-		this.nowPlayingSounds = Maps.newHashMap();
-	}
+	public final Map<String, ISound> nowPlayingSounds = new HashMap<>();
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void npcClientTick(TickEvent.ClientTickEvent event) {
@@ -149,7 +139,7 @@ public class ClientTickHandler {
 		}
 		SoundManager sm = ((ISoundHandlerMixin) mc.getSoundHandler()).npcs$getSndManager();
 		Map<String, ISound> playingSounds = ((ISoundManagerMixin) sm).npcs$getPlayingSounds();
-		List<String> del = Lists.newArrayList();
+		List<String> del = new ArrayList<>();
         if (playingSounds != null) {
 			for (String uuid : playingSounds.keySet()) { // is played
 				try {
@@ -237,7 +227,7 @@ public class ClientTickHandler {
 		if (ClientTickHandler.checkMails || CustomNpcs.MailWindow != -1 && CustomNpcs.ticks % 100 == 0) {
 			boolean hasNewMail = false;
 			long time = System.currentTimeMillis();
-			for (PlayerMail mail : ClientProxy.playerData.mailData.playermail) {
+			for (PlayerMail mail : ClientProxy.playerData.mailData.playerMails) {
 				if (!mail.beenRead && time - mail.timeWhenReceived >= mail.timeWillCome) {
 					hasNewMail = true;
 					break;
@@ -375,7 +365,7 @@ public class ClientTickHandler {
 			CustomNpcs.debugData.endDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
 			return;
 		}
-		List<ResourceLocation> objTextures = Lists.newArrayList();
+		List<ResourceLocation> objTextures = new ArrayList<>();
 		for (File file : Util.instance.getFiles(assets, ".mtl")) {
 			try {
 				for (String line : Files.readAllLines(file.toPath())) {

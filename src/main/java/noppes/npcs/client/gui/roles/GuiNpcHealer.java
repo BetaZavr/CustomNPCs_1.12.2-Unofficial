@@ -1,11 +1,6 @@
 package noppes.npcs.client.gui.roles;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
@@ -33,9 +28,9 @@ import noppes.npcs.roles.data.HealerSettings;
 public class GuiNpcHealer extends GuiNPCInterface2
 		implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 
-	private final Map<String, String> displays_0;
-    private final Map<String, String> displays_1; // [display name, registry name] (0-options, 1-configured)
-	private final Map<String, Integer> potions; // [registry name, registry ID]
+	private final Map<String, String> displays_0 = new TreeMap<>();
+    private final Map<String, String> displays_1 = new TreeMap<>(); // [display name, registry name] (0-options, 1-configured)
+	private final Map<String, Integer> potions = new TreeMap<>(); // [registry name, registry ID]
 	private final JobHealer job;
 	private int range, speed, amplifier;
 	private byte type;
@@ -48,9 +43,6 @@ public class GuiNpcHealer extends GuiNPCInterface2
 		this.amplifier = 0;
 		this.type = (byte) 2;
 		this.job = (JobHealer) npc.advanced.jobInterface;
-		this.potions = Maps.newTreeMap();
-		this.displays_0 = Maps.newTreeMap();
-		this.displays_1 = Maps.newTreeMap();
 		for (Potion p : Potion.REGISTRY) {
 			this.potions.put(p.getName(), Potion.getIdFromPotion(p));
 		}
@@ -186,7 +178,8 @@ public class GuiNpcHealer extends GuiNPCInterface2
 		this.addLabel(new GuiNpcLabel(12, "beacon.currentEffects", this.guiLeft + 235, y - 10));
 		this.displays_0.clear();
 		this.displays_1.clear();
-		List<String> h_0 = Lists.newArrayList(), h_1 = Lists.newArrayList();
+		List<String> h_0 = new ArrayList<>();
+		List<String> h_1 = new ArrayList<>();
 		ITextComponent r = new TextComponentTranslation("gui.range");
 		ITextComponent s = new TextComponentTranslation("gui.repeatable");
 		ITextComponent b = new TextComponentTranslation("gui.blocks");
@@ -237,14 +230,14 @@ public class GuiNpcHealer extends GuiNPCInterface2
 						+ u.getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "c" + h.getFormattedText());
 			}
 		}
-		this.options.setListNotSorted(Lists.newArrayList(this.displays_0.keySet()));
+		this.options.setListNotSorted(new ArrayList<>(displays_0.keySet()));
 		this.options.hoversTexts = new String[h_0.size()][];
 		int i = 0;
 		for (String str : h_0) {
 			this.options.hoversTexts[i] = str.split("<br>");
 			i++;
 		}
-		this.configured.setListNotSorted(Lists.newArrayList(this.displays_1.keySet()));
+		this.configured.setListNotSorted(new ArrayList<>(displays_1.keySet()));
 		this.configured.hoversTexts = new String[h_1.size()][];
 		i = 0;
 		for (String str : h_1) {

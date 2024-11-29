@@ -1,11 +1,8 @@
 package noppes.npcs.controllers.data;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -31,13 +28,13 @@ import noppes.npcs.util.CustomNPCsScheduler;
 
 public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 
-	public final Map<Integer, MarkupData> markup = Maps.newTreeMap();
-	public final Map<ItemStack, Integer> inventory = Maps.newHashMap();
-	public final Map<Integer, MarcetSection> sections = Maps.newTreeMap(); // [TabID, Section]
+	public final Map<Integer, MarkupData> markup = new TreeMap<>();
+	public final Map<ItemStack, Integer> inventory = new HashMap<>();
+	public final Map<Integer, MarcetSection> sections = new TreeMap<>(); // [TabID, Section]
 	private int id;
 	public boolean isLimited, showXP;
 	public long lastTime;
-	public List<EntityPlayer> listeners = Lists.newArrayList();
+	public List<EntityPlayer> listeners = new ArrayList<>();
 	public String name;
 	public long nextTime;
 	public int updateTime;
@@ -68,7 +65,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 				continue;
 			}
 			boolean added = false;
-			List<ItemStack> del = Lists.newArrayList();
+			List<ItemStack> del = new ArrayList<>();
 			for (ItemStack st : this.inventory.keySet()) {
 				if (NoppesUtilServer.IsItemStackNull(st)) {
 					del.add(st);
@@ -137,7 +134,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 
 	@Override
 	public IDeal[] getAllDeals() {
-		List<IDeal> list = Lists.newArrayList();
+		List<IDeal> list = new ArrayList<>();
 		for (MarcetSection ms : sections.values()) {
             list.addAll(ms.deals);
 		}
@@ -160,9 +157,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 		if (!sections.containsKey(section)) {
 			return new IDeal[0];
 		}
-		List<IDeal> list = Lists.newArrayList();
-        list.addAll(sections.get(section).deals);
-		return list.toArray(new IDeal[0]);
+		return sections.get(section).deals.toArray(new IDeal[0]);
 	}
 
 	@Override
@@ -255,7 +250,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 		}
 
 		this.sections.clear();
-		Map<Integer, MarcetSection> newsec = Maps.newTreeMap();
+		Map<Integer, MarcetSection> newsec = new TreeMap<>();
 		if (!compound.hasKey("Sections", 9) || compound.getTagList("Sections", 10).tagCount() == 0) {
 			newsec.put(0, new MarcetSection(0));
 		} else {
@@ -265,7 +260,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 				newsec.put(ms.getId(), MarcetSection.create(nbt));
 			}
 			// Sorting
-			Map<Integer, MarcetSection> sec = Maps.newTreeMap();
+			Map<Integer, MarcetSection> sec = new TreeMap<>();
 			int i = 0;
 			for (MarcetSection ms : newsec.values()) {
 				sec.put(i, ms);
@@ -289,7 +284,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 			if (NoppesUtilServer.IsItemStackNull(stack)) {
 				continue;
 			}
-			List<ItemStack> del = Lists.newArrayList();
+			List<ItemStack> del = new ArrayList<>();
 			for (ItemStack st : this.inventory.keySet()) {
 				if (NoppesUtilServer.IsItemStackNull(st)) {
 					del.add(st);

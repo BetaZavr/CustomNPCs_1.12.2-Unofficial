@@ -1,13 +1,11 @@
 package noppes.npcs.ai.attack;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.math.AxisAlignedBB;
-import noppes.npcs.LogWriter;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
@@ -15,17 +13,14 @@ public class EntityAICommanderTarget extends EntityAICustom {
 
 	public int baseAnimation;
 
-	private final List<EntityNPCInterface> npcs;
-	private boolean done;
-	private int time;
+	private final List<EntityNPCInterface> npcs = new ArrayList<>();
+	private boolean done = false;
+	private int time = 0;
 	private double minDist;
 
 	public EntityAICommanderTarget(IRangedAttackMob npc) {
 		super(npc);
-		this.npcs = Lists.newArrayList();
-		this.done = false;
 		this.baseAnimation = this.npc.currentAnimation;
-		this.time = 0;
 		this.npc.aiOwnerNPC = null;
 	}
 

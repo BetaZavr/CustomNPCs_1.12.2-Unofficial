@@ -1,10 +1,9 @@
 package noppes.npcs;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.entity.Entity;
@@ -37,7 +36,7 @@ import noppes.npcs.util.BuilderData;
 
 public class ServerTickHandler {
 
-	private final static Map<EntityPlayerMP, GameType> visibleData = Maps.newHashMap();
+	private final static Map<EntityPlayerMP, GameType> visibleData = new HashMap<>();
 	public static int ticks;
 
 	public ServerTickHandler() {
@@ -133,7 +132,7 @@ public class ServerTickHandler {
 						Server.sendData(player, EnumPacketClient.BANK_CEIL_OPEN, ceil);
 					}
 				}
-				List<FollowerSet> del = Lists.newArrayList();
+				List<FollowerSet> del = new ArrayList<>();
 				for (FollowerSet fs : data.game.getFollowers()) {
 					EntityNPCInterface npc = null;
 					if (fs.npc != null) {
@@ -185,15 +184,15 @@ public class ServerTickHandler {
 						data.questData.checkQuestCompletion(player, questData);
 					}
 				}
-				if (!data.mailData.playermail.isEmpty()) {
+				if (!data.mailData.playerMails.isEmpty()) {
 					boolean needSend = false;
 					long time = System.currentTimeMillis();
 					long timeToRemove = -1L;
 					if (CustomNpcs.MailTimeWhenLettersWillBeDeleted > 0) {
 						timeToRemove = CustomNpcs.MailTimeWhenLettersWillBeDeleted * 86400000L;
 					}
-					List<PlayerMail> del = Lists.newArrayList();
-					for (PlayerMail mail : data.mailData.playermail) {
+					List<PlayerMail> del = new ArrayList<>();
+					for (PlayerMail mail : data.mailData.playerMails) {
 						if (player.capabilities.isCreativeMode && mail.timeWillCome > 0L) {
 							mail.timeWillCome = 0L;
 							needSend = true;
@@ -209,7 +208,7 @@ public class ServerTickHandler {
 						needSend = true;
 					}
 					for (PlayerMail mail : del) {
-						data.mailData.playermail.remove(mail);
+						data.mailData.playerMails.remove(mail);
 					}
 					if (needSend) {
 						Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData,
@@ -265,7 +264,7 @@ public class ServerTickHandler {
 			}
 			DataScenes.ScenesToRun.clear();
 			if (ServerTickHandler.ticks % 6000 == 0) { // Deleting a construction date from the database every 5 min, for dates without a player
-				List<Integer> del = Lists.newArrayList();
+				List<Integer> del = new ArrayList<>();
 				for (int id : SyncController.dataBuilder.keySet()) {
 					BuilderData bd = SyncController.dataBuilder.get(id);
 					if (bd.player == null) {

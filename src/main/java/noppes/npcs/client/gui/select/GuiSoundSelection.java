@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundRegistry;
@@ -88,7 +86,7 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 		if (this.scrollCategories == null) {
 			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(90, 200);
 		}
-		this.scrollCategories.setList(Lists.newArrayList(this.domains.keySet()));
+		this.scrollCategories.setList(new ArrayList<>(domains.keySet()));
 		if (this.selectedDomain != null) {
 			this.scrollCategories.setSelected(this.selectedDomain);
 		}

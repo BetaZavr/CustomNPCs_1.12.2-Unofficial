@@ -3,13 +3,10 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityLivingBase;
@@ -60,7 +57,7 @@ public class DropController {
 	}
 
 	public List<IItemStack> createDrops(String saveDropsName, double ch, boolean isLooted, EntityLivingBase attacking) {
-		List<IItemStack> list = Lists.newArrayList();
+		List<IItemStack> list = new ArrayList<>();
 		if (saveDropsName == null || saveDropsName.isEmpty() || !this.templates.containsKey(saveDropsName)) {
 			return list;
 		}
@@ -95,7 +92,7 @@ public class DropController {
 		NpcAPI api = NpcAPI.Instance();
 		if (api == null) { return; }
 		DropsTemplate temp = new DropsTemplate();
-		temp.groups.put(0, Maps.newTreeMap());
+		temp.groups.put(0, new TreeMap<>());
 		DropSet ds0 = new DropSet(null);
 		ds0.amount[0] = 5;
 		ds0.amount[1] = 8;
@@ -125,7 +122,7 @@ public class DropController {
 		ds3.pos = 3;
 		temp.groups.get(0).put(3, ds3);
 
-		temp.groups.put(1, Maps.newTreeMap());
+		temp.groups.put(1, new TreeMap<>());
 		DropSet df0 = new DropSet(null);
 		df0.amount[0] = 1;
 		df0.amount[1] = 1;
@@ -221,8 +218,7 @@ public class DropController {
 			return;
 		}
 		Client.sendDirectData(EnumPacketServer.DropTemplateSave, 0);
-		Map<String, DropsTemplate> tempMap = Maps.newTreeMap();
-		tempMap.putAll(this.templates);
+        Map<String, DropsTemplate> tempMap = new TreeMap<>(templates);
 		for (String template : tempMap.keySet()) {
 			NBTTagCompound nbtTemplate = new NBTTagCompound();
 			nbtTemplate.setString("Name", template);

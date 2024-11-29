@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
-import com.google.common.collect.Maps;
-
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -32,18 +30,13 @@ import noppes.npcs.util.NBTJsonUtil;
 public class DialogController implements IDialogHandler {
 
 	public static DialogController instance = new DialogController();
-	public final TreeMap<Integer, DialogCategory> categories;
-	public final TreeMap<Integer, DialogCategory> categoriesSync;
-	public final TreeMap<Integer, Dialog> dialogs;
-	private int lastUsedCatID;
-	private int lastUsedDialogID;
+	public final TreeMap<Integer, DialogCategory> categories = new TreeMap<>();
+	public final TreeMap<Integer, DialogCategory> categoriesSync = new TreeMap<>();
+	public final TreeMap<Integer, Dialog> dialogs = new TreeMap<>();
+	private int lastUsedCatID = 0;
+	private int lastUsedDialogID = 0;
 
 	public DialogController() {
-		this.categoriesSync = Maps.newTreeMap();
-		this.categories = Maps.newTreeMap();
-		this.dialogs = Maps.newTreeMap();
-		this.lastUsedDialogID = 0;
-		this.lastUsedCatID = 0;
 		DialogController.instance = this;
 	}
 

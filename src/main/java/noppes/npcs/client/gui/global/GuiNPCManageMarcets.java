@@ -1,12 +1,6 @@
 package noppes.npcs.client.gui.global;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -45,9 +39,11 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 	private static Marcet selectedMarcet;
 	private static Deal selectedDeal;
 
-	private final Map<String, Integer> dataDeals = Maps.newLinkedHashMap();
-	private final Map<String, Integer> dataMarcets = Maps.newTreeMap();
-	private GuiCustomScroll scrollMarcets, scrollDeals, scrollAllDeals;
+	private final Map<String, Integer> dataDeals = new LinkedHashMap<>();
+	private final Map<String, Integer> dataMarkets = new TreeMap<>();
+	private GuiCustomScroll scrollMarkets;
+	private GuiCustomScroll scrollDeals;
+	private GuiCustomScroll scrollAllDeals;
 	private MarcetController mData;
 	private int tabSelect;
 
@@ -83,7 +79,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 				break;
 			}
 			case 1: { // Del market
-				GuiYesNo guiyesno = new GuiYesNo(this, scrollMarcets.getSelected(),
+				GuiYesNo guiyesno = new GuiYesNo(this, scrollMarkets.getSelected(),
 						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
 				displayGuiScreen(guiyesno);
 				break;
@@ -235,8 +231,8 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 		super.initGui();
 		mData = MarcetController.getInstance();
 		int w = 120, h = ySize - 24;
-		if (scrollMarcets == null) {
-			(scrollMarcets = new GuiCustomScroll(this, 0)).setSize(w, h);
+		if (scrollMarkets == null) {
+			(scrollMarkets = new GuiCustomScroll(this, 0)).setSize(w, h);
 		}
 		if (scrollDeals == null) {
 			(scrollDeals = new GuiCustomScroll(this, 1)).setSize(w, h);
@@ -247,10 +243,10 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 
 		int x0 = guiLeft + 5, x1 = x0 + w + 5, x2 = x1 + w + 45, y = guiTop + 14;
 		// Marcets:
-		scrollMarcets.setListNotSorted(Lists.newArrayList(dataMarcets.keySet()));
-		if (!dataMarcets.isEmpty()) {
+		scrollMarkets.setListNotSorted(new ArrayList<>(dataMarkets.keySet()));
+		if (!dataMarkets.isEmpty()) {
 			List<String[]> infoList = new ArrayList<>();
-			for (int id : dataMarcets.values()) {
+			for (int id : dataMarkets.values()) {
 				Marcet marcet = (Marcet) mData.getMarcet(id);
 				List<String> info = new ArrayList<>();
 				info.add(((char) 167) + "7ID: " + ((char) 167) + "r" + marcet.getId());
@@ -282,27 +278,27 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 				}
 				infoList.add(info.toArray(new String[0]));
 			}
-			scrollMarcets.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
+			scrollMarkets.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
 		} else {
-			scrollMarcets.hoversTexts = null;
+			scrollMarkets.hoversTexts = null;
 		}
-		scrollMarcets.setSelected(selectedMarcet.getSettingName());
+		scrollMarkets.setSelected(selectedMarcet.getSettingName());
 
 		// Deals:
-		scrollAllDeals.setListNotSorted(Lists.newArrayList(dataDeals.keySet()));
+		scrollAllDeals.setListNotSorted(new ArrayList<>(dataDeals.keySet()));
 		if (!dataDeals.isEmpty()) {
-			List<String[]> infoList = Lists.newArrayList();
-			List<ItemStack> stacks = Lists.newArrayList();
+			List<String[]> infoList = new ArrayList<>();
+			List<ItemStack> stacks = new ArrayList<>();
 
-			List<String> marcetDeals = Lists.newArrayList();
-			List<String[]> marcetInfoList = Lists.newArrayList();
-			List<ItemStack> marcetStacks = Lists.newArrayList();
+			List<String> marcetDeals = new ArrayList<>();
+			List<String[]> marcetInfoList = new ArrayList<>();
+			List<ItemStack> marcetStacks = new ArrayList<>();
 			for (String key : dataDeals.keySet()) {
 				int dealID = dataDeals.get(key);
 				Deal deal = (Deal) mData.getDeal(dealID);
-				List<String> totalInfo = Lists.newArrayList();
+				List<String> totalInfo = new ArrayList<>();
 				totalInfo.add(((char) 167) + "7ID: " + ((char) 167) + "r" + dealID);
-				List<String> marcetInfo = Lists.newArrayList();
+				List<String> marcetInfo = new ArrayList<>();
 				marcetInfo.add(((char) 167) + "7ID: " + ((char) 167) + "r" + dealID);
 				DealMarkup dm = new DealMarkup();
 				if (deal != null) {
@@ -373,16 +369,16 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 			scrollAllDeals.setSelected(selectedDeal.getSettingName());
 		}
 
-		scrollMarcets.guiLeft = x0;
-		scrollMarcets.guiTop = y;
+		scrollMarkets.guiLeft = x0;
+		scrollMarkets.guiTop = y;
 		scrollDeals.guiLeft = x1;
 		scrollDeals.guiTop = y;
 		scrollAllDeals.guiLeft = x2;
 		scrollAllDeals.guiTop = y;
-		addScroll(scrollMarcets);
+		addScroll(scrollMarkets);
 		addScroll(scrollDeals);
 		addScroll(scrollAllDeals);
-		scrollMarcets.resetRoll();
+		scrollMarkets.resetRoll();
 		scrollDeals.resetRoll();
 		scrollAllDeals.resetRoll();
 
@@ -391,7 +387,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 		addLabel(new GuiNpcLabel(lId++, "market.deals", x1, y - 9));
 		addLabel(new GuiNpcLabel(lId, "market.all.deals", x2, y - 9));
 
-		y += scrollMarcets.height + 2;
+		y += scrollMarkets.height + 2;
 		int bw = (w - 2) / 3;
 		addButton(new GuiNpcButton(0, x0, y, bw, 20, "gui.add"));
 		addButton(new GuiNpcButton(1, x0 + 2 + bw, y, bw, 20, "gui.remove"));
@@ -449,10 +445,10 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 		try {
 			switch (scroll.id) {
 				case 0: { // Marcets
-					if (!dataMarcets.containsKey(scroll.getSelected())) {
+					if (!dataMarkets.containsKey(scroll.getSelected())) {
 						return;
 					}
-					selectedMarcet = (Marcet) mData.getMarcet(dataMarcets.get(scroll.getSelected()));
+					selectedMarcet = (Marcet) mData.getMarcet(dataMarkets.get(scroll.getSelected()));
 					marcetId = selectedMarcet.getId();
 					initGui();
 					break;
@@ -497,9 +493,9 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		mData = MarcetController.getInstance();
-		dataMarcets.clear();
+		dataMarkets.clear();
 		for (Marcet m : mData.markets.values()) {
-			dataMarcets.put(m.getSettingName(), m.getId());
+			dataMarkets.put(m.getSettingName(), m.getId());
 			if (marcetId < 0 || marcetId == m.getId() || selectedMarcet == null) {
 				selectedMarcet = m;
 				marcetId = m.getId();

@@ -1,12 +1,11 @@
 package noppes.npcs.client.gui.config;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.lwjgl.input.Keyboard;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -299,7 +298,7 @@ public class CustomNpcsConfigGui extends GuiConfig implements ISubGuiListener {
 
 	@Override
 	public void drawToolTip(List<String> stringList, int x, int y) {
-		List<String> newToolTip = Lists.newArrayList();
+		List<String> newToolTip = new ArrayList<>();
 		String name = "";
 		for (String str : stringList) {
 			if (name != null) {
@@ -328,7 +327,7 @@ public class CustomNpcsConfigGui extends GuiConfig implements ISubGuiListener {
 			subGui.initGui();
 		}
 		int i = -1;
-		List<IConfigEntry> list = Lists.newArrayList(entryList.listEntries);
+		List<IConfigEntry> list = new ArrayList<>(entryList.listEntries);
 		for (IConfigEntry entry : list) {
 			i++;
 			if (entry.getConfigElement().getType() != ConfigGuiType.COLOR) {

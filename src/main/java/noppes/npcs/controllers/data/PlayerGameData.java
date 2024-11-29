@@ -1,9 +1,8 @@
 package noppes.npcs.controllers.data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
@@ -36,10 +35,10 @@ public class PlayerGameData {
 	private long money;
 	public boolean updateClient; // ServerTickHandler.onPlayerTick() 122
 	public boolean op = false; // ServerTickHandler.onPlayerTick() 62
-	public final List<MarkupData> marketData = Lists.newArrayList(); // ID market, slot
+	public final List<MarkupData> marketData = new ArrayList<>(); // ID market, slot
 
 	public double[] logPos;
-	private final List<FollowerSet> followers = Lists.newArrayList();
+	private final List<FollowerSet> followers = new ArrayList<>();
 
 	public double blockReachDistance = 5.0, renderDistance = 128.0;
 	public int dimID = 0;
@@ -108,7 +107,7 @@ public class PlayerGameData {
 	}
 
 	public List<EntityNPCInterface> getMercenaries() {
-		List<EntityNPCInterface> npcs = Lists.newArrayList();
+		List<EntityNPCInterface> npcs = new ArrayList<>();
 		for (FollowerSet fs : followers) {
 			if (fs.npc != null && !fs.npc.isDead) {
 				npcs.add(fs.npc);

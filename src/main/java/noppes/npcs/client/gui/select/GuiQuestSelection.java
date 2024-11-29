@@ -1,8 +1,7 @@
 package noppes.npcs.client.gui.select;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-
-import com.google.common.collect.Lists;
 
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -73,7 +72,7 @@ public class GuiQuestSelection extends SubGuiInterface implements ICustomScrollL
 		if (this.scrollCategories == null) {
 			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, 200);
 		}
-		this.scrollCategories.setList(Lists.newArrayList(categoryData.keySet()));
+		this.scrollCategories.setList(new ArrayList<>(categoryData.keySet()));
 		if (this.selectedCategory != null) {
 			this.scrollCategories.setSelected(this.selectedCategory.title);
 		}
@@ -83,7 +82,7 @@ public class GuiQuestSelection extends SubGuiInterface implements ICustomScrollL
 		if (this.scrollQuests == null) {
 			(this.scrollQuests = new GuiCustomScroll(this, 1)).setSize(170, 200);
 		}
-		this.scrollQuests.setList(Lists.newArrayList(questData.keySet()));
+		this.scrollQuests.setList(new ArrayList<>(questData.keySet()));
 		if (this.selectedQuest != null) {
 			this.scrollQuests.setSelected(this.selectedQuest.getTitle()); // Changed
 		}

@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
 
-import com.google.common.collect.Maps;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -27,12 +25,11 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCFactionSetup extends GuiNPCInterface2 implements IScrollData, ICustomScrollListener, ISubGuiListener {
 
-	private final HashMap<String, Integer> data;
+	private final HashMap<String, Integer> data = new HashMap<>();
 	private GuiCustomScroll scrollFactions;
 
 	public GuiNPCFactionSetup(EntityNPCInterface npc) {
 		super(npc);
-		this.data = Maps.newHashMap();
 	}
 
 	@Override
@@ -48,7 +45,7 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2 implements IScrollData,
 				break;
 			}
 			case 2: {
-				HashMap<String, Integer> corData = Maps.newHashMap();
+				HashMap<String, Integer> corData = new HashMap<>();
 				for (String name : this.data.keySet()) {
 					int id = this.data.get(name);
 					if (this.npc.faction.id == id || this.npc.faction.attackFactions.contains(id)
@@ -62,7 +59,7 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2 implements IScrollData,
 				break;
 			}
 			case 3: {
-				HashMap<String, Integer> corData = Maps.newHashMap();
+				HashMap<String, Integer> corData = new HashMap<>();
 				for (String name : this.data.keySet()) {
 					int id = this.data.get(name);
 					if (this.npc.faction.id == id || this.npc.faction.attackFactions.contains(id)

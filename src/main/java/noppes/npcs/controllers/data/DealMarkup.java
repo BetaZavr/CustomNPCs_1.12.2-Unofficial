@@ -3,9 +3,6 @@ package noppes.npcs.controllers.data;
 import java.util.*;
 import java.util.Map.Entry;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -16,17 +13,17 @@ public class DealMarkup {
 
 	public ItemStack main = ItemStack.EMPTY;
 	public int count = 0;
-	public final Map<ItemStack, Integer> baseItems = Maps.newLinkedHashMap(); // base ItemStacks
-	public Map<ItemStack, Integer> buyItems = Maps.newLinkedHashMap(); // ItemStacks required for
+	public final Map<ItemStack, Integer> baseItems = new LinkedHashMap<>(); // base ItemStacks
+	public Map<ItemStack, Integer> buyItems = new LinkedHashMap<>(); // ItemStacks required for
 																							// purchase
-	public Map<ItemStack, Integer> sellItems = Maps.newLinkedHashMap(); // ItemStacks received upon
+	public Map<ItemStack, Integer> sellItems = new LinkedHashMap<>(); // ItemStacks received upon
 																							// sale
-	public final Map<ItemStack, Boolean> baseHasPlayerItems = Maps.newLinkedHashMap(); // base
+	public final Map<ItemStack, Boolean> baseHasPlayerItems = new LinkedHashMap<>(); // base
 																											// ItemStacks
-	public Map<ItemStack, Boolean> buyHasPlayerItems = Maps.newLinkedHashMap(); // ItemStacks
+	public Map<ItemStack, Boolean> buyHasPlayerItems = new LinkedHashMap<>(); // ItemStacks
 																									// required for
 																									// purchase
-	public Map<ItemStack, Boolean> sellHasPlayerItems = Maps.newLinkedHashMap(); // ItemStacks
+	public Map<ItemStack, Boolean> sellHasPlayerItems = new LinkedHashMap<>(); // ItemStacks
 																										// received upon
 																										// sale
 	public long baseMoney = 0L, buyMoney = 0L, sellMoney = 0L;
@@ -118,7 +115,7 @@ public class DealMarkup {
 	public void set(IInventory inventory) {
 		this.baseItems.clear();
 		if (inventory == null || !inventory.isEmpty()) {
-			Map<ItemStack, Integer> map = Maps.newHashMap();
+			Map<ItemStack, Integer> map = new HashMap<>();
 			for (int slot = 0; slot < Objects.requireNonNull(inventory).getSizeInventory(); slot++) {
 				ItemStack stack = inventory.getStackInSlot(slot);
 				if (NoppesUtilServer.IsItemStackNull(stack)) {
@@ -140,7 +137,7 @@ public class DealMarkup {
 					}
 				}
 			}
-			List<Entry<ItemStack, Integer>> list = Lists.newArrayList(map.entrySet());
+			List<Entry<ItemStack, Integer>> list = new ArrayList<>(map.entrySet());
 			list.sort((st_0, st_1) -> st_1.getValue().compareTo(st_0.getValue()));
 			for (Entry<ItemStack, Integer> entry : list) {
 				this.baseItems.put(entry.getKey(), entry.getValue());

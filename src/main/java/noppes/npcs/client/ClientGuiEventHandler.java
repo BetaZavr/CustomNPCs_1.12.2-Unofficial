@@ -1,20 +1,12 @@
 package noppes.npcs.client;
 
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.api.mixin.pathfinding.IPathMixin;
 import org.lwjgl.opengl.GL11;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -109,9 +101,9 @@ public class ClientGuiEventHandler extends Gui {
 	public static final ResourceLocation COIN_NPC = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
 	public static final ResourceLocation RESOURCE_COMPASS = new ResourceLocation(CustomNpcs.MODID + ":models/util/compass.obj");
 	public static final CrashesData crashes = new CrashesData();
-	public static final List<double[]> movingPath = Lists.newArrayList();
+	public static final List<double[]> movingPath = new ArrayList<>();
 	public static RayTraceResult result;
-	public static List<CustomParticle> customParticle = Lists.newArrayList();
+	public static List<CustomParticle> customParticle = new ArrayList<>();
 	public static boolean hasNewMail = false;
 	public static long showNewMail = 0L, startMail = 0L;
 
@@ -126,7 +118,7 @@ public class ClientGuiEventHandler extends Gui {
     private double dx, dy, dz;
 	private int qt = 0;
 
-	private final List<Entity> tempEntity = Lists.newArrayList();
+	private final List<Entity> tempEntity = new ArrayList<>();
 
 	private void drawAddSegment(Point[] pns, Point p1, double minY, double maxY) {
 		if (pns == null || pns.length != 2 || p1 == null) {
@@ -1475,13 +1467,13 @@ public class ClientGuiEventHandler extends Gui {
 
 				// Body
 				GlStateManager.pushMatrix();
-				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("body"), null));
+				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("body"), null));
 				GlStateManager.popMatrix();
 
 				// Dial
 				GlStateManager.pushMatrix();
 				GlStateManager.rotate(-1.0f * this.mc.player.rotationYaw, 0.0f, 1.0f, 0.0f);
-				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("dial"), null));
+				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("dial"), null));
 				GlStateManager.popMatrix();
 
 				// Arrow_0
@@ -1492,12 +1484,12 @@ public class ClientGuiEventHandler extends Gui {
 						yaw += 360.0f;
 					}
 					GlStateManager.rotate(180.0f + yaw - (float) angles.getYaw(), 0.0f, 1.0f, 0.0f);
-					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_0"), null));
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_0"), null));
 				} else {
 					double t = System.currentTimeMillis() % 4000.0d;
 					double f0 = t < 2000.0d ? -0.00033d * t + 1.0d : 0.00033 * t - 0.30033d;
 					GlStateManager.scale(f0, f0, f0);
-					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_3"), null));
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_3"), null));
 				}
 				GlStateManager.popMatrix();
 
@@ -1518,25 +1510,25 @@ public class ClientGuiEventHandler extends Gui {
                             : 0.025d - 0.05d * (t % 500.0d) / 500.0d;
                     GlStateManager.translate(0.0d, f0, 0.0d);
                 }
-                GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_1"), null));
+                GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_1"), null));
                 GlStateManager.popMatrix();
 
                 // Arrow_2
                 GlStateManager.pushMatrix();
                 if (yP > 0.25d) {
-                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_21"), null));
+                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_21"), null));
                 } else if (yP < -0.25d) {
-                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_22"), null));
+                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_22"), null));
                 } else {
-                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("arrow_20"), null));
+                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_20"), null));
                 }
                 GlStateManager.popMatrix();
 
                 if (type >= 0 && type <= EnumQuestTask.values().length) {
-					Map<String, String> m = Maps.newHashMap();
+					Map<String, String> m = new HashMap<>();
 					m.put("customnpcs:util/task_0", "customnpcs:util/task_" + type);
 					GlStateManager.pushMatrix();
-					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.newArrayList("fase"), m));
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("fase"), m));
 					GlStateManager.popMatrix();
 				}
 
@@ -1682,7 +1674,7 @@ public class ClientGuiEventHandler extends Gui {
 		this.dz = this.mc.player.lastTickPosZ + (this.mc.player.posZ - this.mc.player.lastTickPosZ) * (double) event.getPartialTicks();
 
 		if (!ClientGuiEventHandler.customParticle.isEmpty()) {
-			List<CustomParticle> del = Lists.newArrayList();
+			List<CustomParticle> del = new ArrayList<>();
 			for (CustomParticle cp : ClientGuiEventHandler.customParticle) {
 				if (!cp.isAlive() || cp.obj == null) {
 					del.add(cp);

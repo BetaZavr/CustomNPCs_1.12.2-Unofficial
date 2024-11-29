@@ -1,6 +1,5 @@
 package noppes.npcs.mixin.network;
 
-import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.EnumPacketDirection;
@@ -16,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Mixin(value = NetworkManager.class)
@@ -23,7 +23,7 @@ public class NetworkManagerMixin {
 
     // Packets not allowed to be processed:
     @Unique
-    private static final List<String> npcs$notAllowed = Lists.newArrayList("SPacketTabComplete", "CPacketSpectate", "CPacketKeepAlive");
+    private static final List<String> npcs$notAllowed = Arrays.asList("SPacketTabComplete", "CPacketSpectate", "CPacketKeepAlive");
 
     @Final
     @Shadow

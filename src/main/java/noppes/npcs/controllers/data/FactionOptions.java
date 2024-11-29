@@ -1,8 +1,7 @@
 package noppes.npcs.controllers.data;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,11 +11,7 @@ import noppes.npcs.controllers.FactionController;
 
 public class FactionOptions {
 
-	public List<FactionOption> fps;
-
-	public FactionOptions() {
-		this.fps = Lists.newArrayList();
-	}
+	public final List<FactionOption> fps = new ArrayList<>();
 
 	public void addPoints(EntityPlayer player) {
         PlayerData playerdata = PlayerData.get(player);
@@ -81,7 +76,7 @@ public class FactionOptions {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		this.fps = Lists.newArrayList();
+		this.fps.clear();
 		if (!compound.hasKey("FactionOptions", 9)) { // OLD
 			if (compound.getInteger("OptionFactions1") > 0) {
 				this.fps.add(new FactionOption(compound.getInteger("OptionFactions1"),

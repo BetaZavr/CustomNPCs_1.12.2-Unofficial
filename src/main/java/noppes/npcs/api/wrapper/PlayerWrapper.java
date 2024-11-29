@@ -1,12 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -76,7 +71,7 @@ import noppes.npcs.util.ValueUtil;
 @SuppressWarnings("rawtypes")
 public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapper<T> implements IPlayer {
 
-	public static Map<String, WrapperEntityData> map = Maps.newHashMap();
+	public static Map<String, WrapperEntityData> map = new HashMap<>();
 	private PlayerData data;
 	private IContainer inventory;
 	private Object pixelmonPartyStorage;

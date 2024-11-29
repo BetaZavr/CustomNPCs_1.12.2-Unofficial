@@ -3,9 +3,6 @@ package noppes.npcs;
 import java.io.File;
 import java.util.*;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ICommandSender;
@@ -156,7 +153,7 @@ public class NoppesUtilServer {
 	}
 
 	private static Map<String, Integer> getScrollData(EntityPlayer player, EnumGuiType gui, EntityNPCInterface npc) {
-		Map<String, Integer> map = Maps.newHashMap();
+		Map<String, Integer> map = new HashMap<>();
 		if (gui == EnumGuiType.PlayerTransporter) {
 			RoleTransporter role = (RoleTransporter) npc.advanced.roleInterface;
 			TransportLocation location = role.getLocation();
@@ -481,8 +478,8 @@ public class NoppesUtilServer {
 
 	public static void sendNearbyEntitys(EntityPlayerMP player, boolean all) { // to gui show
 		HashMap<Float, NBTTagCompound> map = new HashMap<>();
-		List<Float> alist = Lists.newArrayList();
-		List<Float> nlist = Lists.newArrayList();
+		List<Float> alist = new ArrayList<>();
+		List<Float> nlist = new ArrayList<>();
 		NBTTagCompound compound = new NBTTagCompound();
 		NBTTagList list = new NBTTagList();
 		for (Entity entity : player.world.loadedEntityList) {
@@ -656,7 +653,7 @@ public class NoppesUtilServer {
 
 	public static void sendTransportData(EntityPlayerMP player, int categoryid) {
 		TransportCategory category = TransportController.getInstance().categories.get(categoryid);
-		HashMap<String, Integer> map = Maps.newHashMap();
+		HashMap<String, Integer> map = new HashMap<>();
 		if (category != null) {
 			for (TransportLocation transport : category.locations.values()) {
 				map.put(transport.name, transport.id);

@@ -1,12 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -77,7 +72,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 						fieldCaps.setAccessible(true);
 						ICapabilityProvider[] caps = (ICapabilityProvider[]) fieldCaps.get(capabilities);
 						if (caps != null) {
-							List<ICapabilityProvider> list = Lists.newArrayList();
+							List<ICapabilityProvider> list = new ArrayList<>();
 							Collections.addAll(list, caps);
 							list.add(ret);
 							fieldCaps.set(capabilities, list.toArray(new ICapabilityProvider[0]));
@@ -86,7 +81,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 					catch (Exception e) { LogWriter.error(e); }
 				}
 			} else {
-				Map<ResourceLocation, ICapabilityProvider> m = Maps.newHashMap();
+				Map<ResourceLocation, ICapabilityProvider> m = new HashMap<>();
 				m.put(WrapperEntityData.key, ret);
 				((IEntityMixin) entity).npcs$setCapabilities(new CapabilityDispatcher(m, null));
 			}

@@ -1,11 +1,6 @@
 package noppes.npcs.client.gui;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -30,25 +25,21 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 		implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 
 	public Lines lines;
-	private final Map<String, Integer> data;
+	private final Map<String, Integer> data = new LinkedHashMap<>();
 	private GuiCustomScroll scroll;
-	private String select;
+	private String select = "";
     private final String title;
 
 	public SubGuiNPCLinesEdit(int id, EntityNPCInterface npc, Lines lines, String title) {
-		super();
+		super(npc);
 		this.id = id;
-		this.npc = npc;
-		this.lines = lines.copy();
 		this.setBackground("menubg.png");
 		this.xSize = 256;
 		this.ySize = 217;
 		this.closeOnEsc = true;
-		this.data = Maps.newLinkedHashMap();
-		this.select = "";
-		if (title == null) {
-			title = "";
-		}
+
+		this.lines = lines.copy();
+		if (title == null) { title = ""; }
 		this.title = title;
 		Client.sendData(EnumPacketServer.MainmenuAdvancedGet);
 	}
@@ -126,7 +117,7 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 		t.getStyle().setColor(TextFormatting.GRAY);
 		m.getStyle().setColor(TextFormatting.GRAY);
 		s.getStyle().setColor(TextFormatting.GRAY);
-		List<String> suffixs = Lists.newArrayList();
+		List<String> suffixes = new ArrayList<>();
 		for (int i : this.lines.lines.keySet()) {
 			Line l = this.lines.lines.get(i);
 			this.data.put(((char) 167) + "7" + i + ": " + ((char) 167) + "r" + l.getText(), i);
@@ -134,16 +125,16 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 					+ m.getFormattedText() + ((char) 167) + "7:" + "<br>" + l.getText();
 			if (!l.getSound().isEmpty()) {
 				hover += "<br>" + s.getFormattedText() + ((char) 167) + "7:" + "<br>" + l.getSound();
-				suffixs.add(((char) 167) + "7[" + ((char) 167) + "eS" + ((char) 167) + "7]");
+				suffixes.add(((char) 167) + "7[" + ((char) 167) + "eS" + ((char) 167) + "7]");
 			} else {
-				suffixs.add("");
+				suffixes.add("");
 			}
 			ht[p] = hover.split("<br>");
 		}
 		if (this.scroll == null) {
 			(this.scroll = new GuiCustomScroll(this, 0)).setSize(this.xSize - 12, this.ySize - 63);
 		}
-		List<String> list = Lists.newArrayList(this.data.keySet());
+		List<String> list = new ArrayList<>(data.keySet());
 		this.scroll.setListNotSorted(list);
 		this.scroll.guiLeft = this.guiLeft + 6;
 		this.scroll.guiTop = this.guiTop + 14;
@@ -157,7 +148,7 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 			}
 		}
 		this.scroll.hoversTexts = ht;
-		this.scroll.setSuffixes(suffixs);
+		this.scroll.setSuffixes(suffixes);
 		this.addScroll(this.scroll);
 		this.addLabel(new GuiNpcLabel(1, this.title.isEmpty() ? "" : this.title, this.guiLeft, this.guiTop + 4));
 		this.getLabel(1).center(this.xSize);

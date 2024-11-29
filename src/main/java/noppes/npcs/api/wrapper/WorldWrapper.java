@@ -2,8 +2,6 @@ package noppes.npcs.api.wrapper;
 
 import java.util.*;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -281,7 +279,7 @@ public class WorldWrapper implements IWorld {
 
 	@Override
 	public IEntity<?>[] getEntitys(int type) {
-		List<IEntity<?>> list = Lists.newArrayList();
+		List<IEntity<?>> list = new ArrayList<>();
 		for (Entity living : this.world.loadedEntityList) {
 			IEntity<?> ie = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(living);
 			if (ie.getType() != type) {

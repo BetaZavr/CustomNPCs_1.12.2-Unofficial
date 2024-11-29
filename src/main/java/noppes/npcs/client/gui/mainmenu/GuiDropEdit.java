@@ -1,12 +1,7 @@
 package noppes.npcs.client.gui.mainmenu;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import com.google.common.collect.Lists;
+import java.util.*;
 
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.ClickType;
@@ -319,7 +314,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		if (this.scrollEnchants == null) {
 			(this.scrollEnchants = new GuiCustomScroll(this, 0)).setSize(133, 93);
 		}
-		this.scrollEnchants.setList(Lists.newArrayList(this.enchantData.keySet()));
+		this.scrollEnchants.setList(new ArrayList<>(enchantData.keySet()));
 		this.scrollEnchants.guiLeft = this.guiLeft + 4;
 		this.scrollEnchants.guiTop = this.guiTop + 16;
 		if (this.enchant != null) {
@@ -341,7 +336,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		if (this.scrollAttributes == null) {
 			(this.scrollAttributes = new GuiCustomScroll(this, 1)).setSize(133, 93);
 		}
-		this.scrollAttributes.setList(Lists.newArrayList(this.attributesData.keySet()));
+		this.scrollAttributes.setList(new ArrayList<>(attributesData.keySet()));
 		this.scrollAttributes.guiLeft = this.guiLeft + 143;
 		this.scrollAttributes.guiTop = this.guiTop + 16;
 		if (this.attribute != null) {
@@ -363,7 +358,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		if (this.scrollTags == null) {
 			(this.scrollTags = new GuiCustomScroll(this, 2)).setSize(133, 93);
 		}
-		this.scrollTags.setList(Lists.newArrayList(this.tagsData.keySet()));
+		this.scrollTags.setList(new ArrayList<>(tagsData.keySet()));
 		this.scrollTags.guiLeft = this.guiLeft + 283;
 		this.scrollTags.guiTop = this.guiTop + 16;
 		if (this.tag != null) {

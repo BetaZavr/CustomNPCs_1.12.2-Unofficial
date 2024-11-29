@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
-
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -215,7 +213,7 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 		if (!this.select.isEmpty() && !this.dataIDs.containsKey(this.select)) {
 			this.select = "";
 		}
-		this.scroll.setList(Lists.newArrayList(this.dataIDs.keySet()));
+		this.scroll.setList(new ArrayList<>(dataIDs.keySet()));
 		this.scroll.guiLeft = this.guiLeft + 6;
 		this.scroll.guiTop = this.guiTop + 14;
 		if (!this.select.isEmpty()) {

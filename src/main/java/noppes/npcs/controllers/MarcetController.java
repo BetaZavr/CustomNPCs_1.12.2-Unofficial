@@ -3,11 +3,7 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.*;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -47,15 +43,13 @@ public class MarcetController implements IMarcetHandler {
 	}
 	private String filePath;
 
-    public final Map<Integer, Marcet> markets;
+    public final Map<Integer, Marcet> markets = new TreeMap<>();
 
-	public final Map<Integer, Deal> deals;
+	public final Map<Integer, Deal> deals = new TreeMap<>();
 
 	public MarcetController() {
 		MarcetController.instance = this;
 		this.filePath = CustomNpcs.getWorldSaveDirectory().getAbsolutePath();
-		this.markets = Maps.newTreeMap();
-		this.deals = Maps.newTreeMap();
 		this.load();
 	}
 
@@ -215,7 +209,7 @@ public class MarcetController implements IMarcetHandler {
 		this.deals.clear();
 		int v = nbtFile.getInteger("Version");
 		if (v == 0) {
-			Map<Integer, Map<Integer, List<Deal>>> marketDeals = Maps.newHashMap();
+			Map<Integer, Map<Integer, List<Deal>>> marketDeals = new HashMap<>();
 			if (nbtFile.hasKey("Deals", 9)) {
 				for (int i = 0; i < nbtFile.getTagList("Deals", 10).tagCount(); ++i) {
 					NBTTagCompound nbtDeal = nbtFile.getTagList("Deals", 10).getCompoundTagAt(i);
@@ -223,9 +217,9 @@ public class MarcetController implements IMarcetHandler {
 					if (deal != null) {
 						this.deals.put(deal.getId(), deal);
 						int mId = nbtDeal.getInteger("MarcetID");
-						if (!marketDeals.containsKey(mId)) { marketDeals.put(mId, Maps.newTreeMap()); }
+						if (!marketDeals.containsKey(mId)) { marketDeals.put(mId, new TreeMap<>()); }
 						int tab = nbtDeal.getInteger("SectionID");
-						if (!marketDeals.get(mId).containsKey(tab)) { marketDeals.get(mId).put(tab, Lists.newArrayList()); }
+						if (!marketDeals.get(mId).containsKey(tab)) { marketDeals.get(mId).put(tab, new ArrayList<>()); }
 						Deal d = deal.copy();
 						d.updateNew();
 						marketDeals.get(mId).get(tab).add(d);
@@ -450,8 +444,8 @@ public class MarcetController implements IMarcetHandler {
 			if (this.markets.isEmpty() || !this.markets.containsKey(0)) {
 				this.loadDefaultMarcets();
 			}
-			Map<Integer, Marcet> mapM = Maps.newHashMap(this.markets);
-			Map<Integer, Deal> mapD = Maps.newHashMap(this.deals);
+			Map<Integer, Marcet> mapM = new HashMap<>(markets);
+			Map<Integer, Deal> mapD = new HashMap<>(deals);
 			Server.sendData(player, EnumPacketClient.MARCET_DATA, 0);
 			for (int id : mapD.keySet()) {
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 3, mapD.get(id).writeToNBT());

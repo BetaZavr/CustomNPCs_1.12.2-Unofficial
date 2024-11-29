@@ -1,15 +1,7 @@
 package noppes.npcs.client.gui;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -27,7 +19,7 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 
 	private final String name;
 	private final HashMap<String, Integer> base;
-	private final Map<String, Integer> data = Maps.newLinkedHashMap();
+	private final Map<String, Integer> data = new LinkedHashMap<>();
 	private GuiCustomScroll scrollHostileFactions;
 	public HashSet<Integer> selectFactions;
 
@@ -39,7 +31,7 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 		this.id = id;
 		this.name = name;
 		this.base = base;
-		this.selectFactions = Sets.newHashSet(setFactions);
+		this.selectFactions = new HashSet<>(setFactions);
 	}
 
 	@Override
@@ -78,7 +70,7 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 	@Override
 	public void initGui() {
 		super.initGui();
-		List<Entry<String, Integer>> newList = Lists.newArrayList(this.base.entrySet());
+		List<Entry<String, Integer>> newList = new ArrayList<>(base.entrySet());
 		newList.sort((f_0, f_1) -> {
             if (GuiNPCManageFactions.isName) {
                 return f_0.getKey().compareTo(f_1.getKey());
@@ -86,7 +78,7 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
                 return f_0.getValue().compareTo(f_1.getValue());
             }
         });
-		HashSet<String> set = Sets.newHashSet();
+		HashSet<String> set = new HashSet<>();
 		this.data.clear();
 		for (Entry<String, Integer> entry : newList) {
 			int id = entry.getValue();
@@ -109,7 +101,7 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
 		}
 		this.scrollHostileFactions.guiLeft = this.guiLeft + 4;
 		this.scrollHostileFactions.guiTop = this.guiTop + 28;
-		this.scrollHostileFactions.setListNotSorted(Lists.newArrayList(this.data.keySet()));
+		this.scrollHostileFactions.setListNotSorted(new ArrayList<>(data.keySet()));
 		this.scrollHostileFactions.setSelectedList(set);
 
 		this.addScroll(this.scrollHostileFactions);
@@ -124,20 +116,20 @@ public class SubGuiNpcFactionSelect extends SubGuiInterface implements ICustomSc
     @Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.id == 1) {
-			HashSet<Integer> set = Sets.newHashSet();
+			HashSet<Integer> set = new HashSet<>();
 			HashSet<String> list = scroll.getSelectedList();
-			HashSet<String> newlist = Sets.newHashSet();
+			HashSet<String> newList = new HashSet<>();
 			for (String key : this.data.keySet()) {
 				int id = this.data.get(key);
 				if (!list.contains(key)) {
 					continue;
 				}
 				set.add(id);
-				newlist.add(key);
+				newList.add(key);
 			}
 			this.selectFactions = set;
-			if (list.size() != newlist.size()) {
-				scroll.setSelectedList(newlist);
+			if (list.size() != newList.size()) {
+				scroll.setSelectedList(newList);
 			}
 		}
 	}
