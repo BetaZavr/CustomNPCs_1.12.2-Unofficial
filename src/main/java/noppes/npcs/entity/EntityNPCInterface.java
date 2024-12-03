@@ -349,29 +349,29 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		AnimationConfig anim = animation.reset(AnimationKind.ATTACKING);
 		if (anim != null) {
 			boolean found = false;
-			for (AnimationFrameConfig aFC : anim.frames.values()) {
-				if (aFC.isNowDamage() && aFC.damageDelay != 0) {
-					final int time = aFC.damageDelay * 50;
-					CustomNPCsScheduler.runTack(() -> this.tryAttackEntityAsMob(entity, time), time);
+			for (AnimationFrameConfig frame : anim.frames.values()) {
+				if (frame.isNowDamage() && frame.damageDelay != 0) {
+					final int time = frame.damageDelay * 50;
+					CustomNPCsScheduler.runTack(() -> this.tryAttackEntityAsMob(entity, time), frame.id);
 					found = true;
 				}
 			}
 			if (!found) {
 				final int time = (anim.totalTicks - 1) * 50;
-				CustomNPCsScheduler.runTack(() -> this.tryAttackEntityAsMob(entity, time), time);
+				CustomNPCsScheduler.runTack(() -> this.tryAttackEntityAsMob(entity, time), anim.frames.size() - 1);
 			}
 			return false;
 		}
 		return this.tryAttackEntityAsMob(entity, 0);
 	}
 
-	private boolean tryAttackEntityAsMob(Entity target, int delay) {
+	private boolean tryAttackEntityAsMob(Entity target, int frameID) {
 		if (this.ais.aiDisabled || target == null || !target.isEntityAlive()) { return false; }
-		List<Entity> entityList = new ArrayList<>();
+		Set<Entity> entityList = new HashSet<>();
 		entityList.add(target);
 		if (CustomNpcs.ShowCustomAnimation && isServerWorld() && animation.isAnimated(AnimationKind.ATTACKING)) {
-			AxisAlignedBB[] aabbs = animation.getAnimation().getDamageHitboxes(this, delay);
-			if (aabbs.length == 0) { // only target
+			List<AxisAlignedBB> aabbs = animation.getAnimation().getDamageHitboxes(this, frameID);
+			if (aabbs.isEmpty()) { // only target
 				double range = stats.melee.getRange();
 				double minRange = (width + target.width) * 0.425d; // (/ 2.0 * 0.85)
 				double yaw = Math.abs(Util.instance.getVector3D(posX, posY, posZ, target.posX, target.posY, target.posZ).getYaw());
@@ -379,11 +379,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 			else { // custom targets
 				for (AxisAlignedBB aabb : aabbs) {
-					List<Entity> tempEntityList = world.getEntitiesWithinAABB(Entity.class, aabb);
-					for (Entity e : tempEntityList) {
-						if (entityList.contains(e)) { continue; }
-						entityList.add(e);
-					}
+                    entityList.addAll(world.getEntitiesWithinAABB(Entity.class, aabb));
 				}
 				entityList.remove(this);
 			}
@@ -1743,6 +1739,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		this.bossInfo.setVisible(this.display.getBossbar() == 1);
 		this.advanced.jobInterface.reset();
+		if (animation.isAnimated()) { animation.stopAnimation(); }
 		animation.reset(AnimationKind.INIT);
 		this.updateClient = true;
 		if (this.ais.returnToStart && this.homeDimensionId != this.world.provider.getDimension() && !(this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing())) {

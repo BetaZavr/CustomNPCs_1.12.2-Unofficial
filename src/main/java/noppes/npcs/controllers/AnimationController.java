@@ -293,8 +293,8 @@ public class AnimationController implements IAnimationHandler {
 
 	@Override
 	public boolean removeAnimation(int animationId) {
-		if (this.animations.containsKey(animationId)) {
-			this.animations.remove(animationId);
+		if (animations.containsKey(animationId)) {
+			animations.remove(animationId);
 			this.save();
 			return true;
 		}

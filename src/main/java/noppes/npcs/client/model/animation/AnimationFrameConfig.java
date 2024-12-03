@@ -4,6 +4,7 @@ import java.util.*;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.api.NpcAPI;
@@ -34,8 +35,9 @@ public class AnimationFrameConfig implements IAnimationFrame {
 	public int speed = 10;
 	public int delay = 0;
 	public int id = -1;
-	public final double[] motions = new double[] { 0.0d, 0.0d, 0.0d }; // [ powerDirect(motionXZ), powerVertical(motionY), angleHorizontal (+/-180) ]
-	private int holdRightType = 0, holdLeftType = 0;
+	public final float[] motions = new float[] { 0.0f, 0.0f, 0.0f }; // [ powerDirect(motionXZ), powerVertical(motionY), angleHorizontal (+/-180) ]
+	private int holdRightType = 0;
+	private int holdLeftType = 0;
 	private IItemStack holdRightStack = ItemStackWrapper.AIR, holdLeftStack = ItemStackWrapper.AIR;
 	public int damageDelay = 0;
 	public final Map<Integer, AnimationDamageHitbox> damageHitboxes = new TreeMap<>();
@@ -70,9 +72,9 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		smooth = false;
 		speed = 10;
 		delay = 0;
-		motions[0] = 0.0d;
-		motions[1] = 0.0d;
-		motions[2] = 0.0d;
+		motions[0] = 0.0f;
+		motions[1] = 0.0f;
+		motions[2] = 0.0f;
 		damageHitboxes.clear();
 		damageHitboxes.put(0, new AnimationDamageHitbox(0));
 	}
@@ -189,7 +191,11 @@ public class AnimationFrameConfig implements IAnimationFrame {
 				this.parts.put(p, new PartConfig(p, AnimationFrameConfig.getPartType(p)));
 			}
 		}
-
+		if (compound.hasKey("Motion", 9) && ((NBTTagList) compound.getTag("Motion")).getTagType() == 5) {
+			for (int i = 0; i < 3 && i < compound.getTagList("Motion", 5).tagCount(); i++) {
+				motions[i] = compound.getTagList("Motion", 5).getFloatAt(i);
+			}
+		}
 		damageHitboxes.clear();
 		if (compound.hasKey("DamageHitboxes", 9) && compound.getTagList("DamageHitboxes", 6).tagCount() == 10) {
 			NBTTagList list = compound.getTagList("DamageHitboxes", 10);
@@ -272,6 +278,11 @@ public class AnimationFrameConfig implements IAnimationFrame {
 			list.appendTag(this.parts.get(id).writeNBT());
 		}
 		compound.setTag("PartConfigs", list);
+		NBTTagList listM = new NBTTagList();
+		for (int i = 0; i < 3; i++) {
+			listM.appendTag(new NBTTagFloat(motions[i]));
+		}
+		compound.setTag("Motion", listM);
 		compound.setString("StartSound", this.getStartSound());
 		compound.setInteger("EmotionID", this.emotionId);
         compound.setInteger("Version", 1);

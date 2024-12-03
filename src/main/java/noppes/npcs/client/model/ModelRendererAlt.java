@@ -2,7 +2,6 @@ package noppes.npcs.client.model;
 
 import java.util.*;
 
-import noppes.npcs.api.mixin.client.model.IModelRendererMixin;
 import noppes.npcs.api.util.IModelRenderer;
 import org.lwjgl.opengl.GL11;
 
@@ -69,7 +68,7 @@ public class ModelRendererAlt
 		this.u = textureU;
 		this.v = textureV;
 		this.isNormal = isNormal;
-		this.baseRotationPoint = new float[] { this.rotationPointX, this.rotationPointY, this.rotationPointZ };
+		this.baseRotationPoint = new float[] { rotationPointX, rotationPointY, rotationPointZ };
 	}
 
 	public ModelRendererAlt(ModelBase baseModel, AddedPartConfig addedPartConfig) {
@@ -81,9 +80,9 @@ public class ModelRendererAlt
 		v = addedPartConfig.textureV;
 		isNormal = addedPartConfig.isNormal;
 		location = addedPartConfig.location;
+		baseRotationPoint = new float[] { rotationPointX, rotationPointY, rotationPointZ };
 		setBox(addedPartConfig.pos[0], addedPartConfig.pos[1], addedPartConfig.pos[2], addedPartConfig.size[0], addedPartConfig.size[1], addedPartConfig.size[2], addedPartConfig.size[3], addedPartConfig.size[4], 0.0f);
 		setRotationPoint(addedPartConfig.rot[0], addedPartConfig.rot[1], addedPartConfig.rot[2]);
-		baseRotationPoint = new float[] { rotationPointX, rotationPointY, rotationPointZ };
 	}
 
 	public ModelRendererAlt(ModelBase model) {
@@ -844,12 +843,12 @@ public class ModelRendererAlt
 
 	@Override
 	public void setRotationPoint(float rotationPointXIn, float rotationPointYIn, float rotationPointZIn) {
-		this.rotationPointX = rotationPointXIn;
-		this.rotationPointY = rotationPointYIn;
-		this.rotationPointZ = rotationPointZIn;
-		this.baseRotationPoint[0] = rotationPointXIn;
-		this.baseRotationPoint[1] = rotationPointYIn;
-		this.baseRotationPoint[2] = rotationPointZIn;
+		rotationPointX = rotationPointXIn;
+		rotationPointY = rotationPointYIn;
+		rotationPointZ = rotationPointZIn;
+		baseRotationPoint[0] = rotationPointXIn;
+		baseRotationPoint[1] = rotationPointYIn;
+		baseRotationPoint[2] = rotationPointZIn;
 	}
 
 	public void clearRotations() {

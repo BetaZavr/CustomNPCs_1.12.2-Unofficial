@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.LogWriter;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
@@ -102,7 +101,14 @@ public class GuiNpcAnimation
 		switch (button.id) {
 			case 0: { // add anim
 				if (scrollType == null || !scrollType.hasSelected()) { return; }
-				setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation(selType).getFormattedText()+ "_" + aData.getUnusedAnimId())));
+				AnimationConfig newAnim = (AnimationConfig) aData.createNewAnim();
+				newAnim.name = Util.instance.deleteColor(new TextComponentTranslation(selType).getFormattedText().replaceAll(" ", "_")+ "_" + newAnim.id);
+				newAnim.type = dataType.get(selType);
+				animation.data.get(newAnim.type).add(newAnim.id);
+				selAnim = newAnim.getSettingName();
+				isChanged = true;
+				initGui();
+				CustomNPCsScheduler.runTack(() -> setSubGui(new SubGuiEditAnimation(npc, newAnim, 4, this)), 50);
 				break;
 			}
 			case 1: { // copy anim
@@ -149,7 +155,7 @@ public class GuiNpcAnimation
 		if (id == 0) {
 			if (anim == null) { return; }
 			if (dataType.containsKey(selType)) {
-				animation.data.get(dataType.get(selType)).remove(anim.id);
+				animation.data.get(dataType.get(selType)).remove(Integer.valueOf(anim.id));
 			}
 			AnimationController.getInstance().removeAnimation(anim.id);
 			isChanged = true;
@@ -361,7 +367,7 @@ public class GuiNpcAnimation
 		getButton(1).enabled = anim != null;
 		addButton(new GuiNpcButton(2, x, y += 22, 60, 20, "gui.remove"));
 		getButton(2).enabled = isOP;
-		addButton(new GuiNpcButton(3, x, y += 22, 60, 20, "gui.edit"));
+		addButton(new GuiNpcButton(3, x, y + 22, 60, 20, "gui.edit"));
 		getButton(3).enabled = isOP;
 		resetAnimation();
 	}
@@ -446,19 +452,7 @@ public class GuiNpcAnimation
 	public void subGuiClosed(SubGuiInterface subgui) {
 		AnimationConfig anim = getAnim();
 		AnimationKind type = dataType.get(selType);
-		if (subgui.id == 1) { // add new
-			if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).cancelled || !dataType.containsKey(selType)) {
-				return;
-			}
-			AnimationConfig newAnim = (AnimationConfig) aData.createNewAnim();
-			newAnim.name = ((SubGuiEditText) subgui).text[0];
-			newAnim.type = dataType.get(selType);
-			animation.data.get(type).add(newAnim.id);
-			selAnim = newAnim.getSettingName();
-			isChanged = true;
-			initGui();
-			CustomNPCsScheduler.runTack(() -> setSubGui(new SubGuiEditAnimation(npc, newAnim, 4, this)), 50);
-		} else if (subgui.id == 4) { // new
+		if (subgui.id == 4) { // new
 			displayGuiScreen(this);
 			if (!(subgui instanceof SubGuiEditAnimation) || ((SubGuiEditAnimation) subgui).anim == null) {
 				return;

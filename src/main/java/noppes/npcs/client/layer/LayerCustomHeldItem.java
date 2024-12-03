@@ -54,7 +54,15 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 				GlStateManager.scale(0.5F, 0.5F, 0.5F);
 			}
 			boolean showMain = false, showOff;
-			if (npc.animation.showParts.get(EnumParts.ARM_RIGHT)) {
+			boolean bo = npc.animation.showParts.get(EnumParts.ARM_RIGHT);
+			if (!bo) {
+				EnumParts ep = flag ? EnumParts.ARM_RIGHT : EnumParts.ARM_LEFT;
+				EnumParts es = flag ? EnumParts.RIGHT_STACK : EnumParts.LEFT_STACK;
+				if (ModelNpcAlt.editAnimDataSelect.isNPC && ModelNpcAlt.editAnimDataSelect.part == ep || ModelNpcAlt.editAnimDataSelect.part == es) {
+					bo = true;
+				}
+			}
+			if (bo) {
 				showMain = true;
 				if (model instanceof ModelBipedAlt) { showMain = flag ? ((ModelBipedAlt) this.model).rightStackData.showModel : ((ModelBipedAlt) this.model).leftStackData.showModel; }
 				else if (model instanceof ModelNpcAlt) { showMain = flag ? ((ModelNpcAlt) this.model).rightStackData.showModel : ((ModelNpcAlt) this.model).leftStackData.showModel; }
@@ -62,7 +70,16 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 					renderHeldItem(npc, mainhand, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, EnumHandSide.RIGHT, scale, distance, isAWShow);
 				}
 			}
-			if (npc.animation.showParts.get(EnumParts.ARM_LEFT)) {
+
+			bo = npc.animation.showParts.get(EnumParts.ARM_LEFT);
+			if (!bo) {
+				EnumParts ep = flag ? EnumParts.ARM_LEFT : EnumParts.ARM_RIGHT;
+				EnumParts es = flag ? EnumParts.LEFT_STACK : EnumParts.RIGHT_STACK;
+				if (ModelNpcAlt.editAnimDataSelect.isNPC && ModelNpcAlt.editAnimDataSelect.part == ep || ModelNpcAlt.editAnimDataSelect.part == es) {
+					bo = true;
+				}
+			}
+			if (bo) {
 				showOff = true;
 				if (model instanceof ModelBipedAlt) { showOff = flag ? ((ModelBipedAlt) this.model).leftStackData.showModel : ((ModelBipedAlt) this.model).rightStackData.showModel; }
 				else if (model instanceof ModelNpcAlt) { showOff = flag ? ((ModelNpcAlt) this.model).leftStackData.showModel : ((ModelNpcAlt) this.model).rightStackData.showModel; }
@@ -70,6 +87,7 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 					renderHeldItem(npc, offhand, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, EnumHandSide.LEFT, scale, distance, isAWShow);
 				}
 			}
+
 			if (ArmourersWorkshopApi.isAvailable() && isAWShow) {
 				IEntitySkinCapability skinCapability = ArmourersWorkshopApi.getEntitySkinCapability(npc);
 				ISkinType[] skinTypes = skinCapability.getValidSkinTypes();

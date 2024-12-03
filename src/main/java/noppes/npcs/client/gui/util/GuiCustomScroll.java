@@ -238,9 +238,8 @@ public class GuiCustomScroll
 	}
 
 	private void drawScrollBar() {
-		int h = height - textFieldHeight();
 		int posX = guiLeft + width - 9;
-		int posY = guiTop + (int) ((float) scrollY / (float) listHeight * ((float) h - 2.0f)) + 1;
+		int posY = guiTop + (int) ((float) scrollY / (float) listHeight * ((float) height - 2.0f)) + 1;
 		Gui.drawRect(posX, posY, posX + 8, posY + scrollHeight + 1, 0xA0FFF0F0);
 	}
 
@@ -477,10 +476,10 @@ public class GuiCustomScroll
 
 	public void setSelectedList(HashSet<String> newSelectedList) { selectedList = newSelectedList; }
 
-	public void setSize(int x, int y) {
-		textField.width = x;
-		height = y - textFieldHeight();
-		width = x;
+	public void setSize(int w, int h) {
+		textField.width = w;
+		height = h - textFieldHeight();
+		width = w;
 		listHeight = 14 * listSize;
 		if (listHeight > 0) {
 			scrollHeight = (int) Math.floor((float) height * ((float) height - 2.0f) / (float) listHeight);

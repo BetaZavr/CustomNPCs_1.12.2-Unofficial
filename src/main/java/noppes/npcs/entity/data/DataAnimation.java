@@ -225,16 +225,14 @@ public class DataAnimation implements INPCAnimation {
 				if (activeAnimation.repeatLast > 0) { frameId = ValueUtil.correctInt(lastFrameId - activeAnimation.repeatLast, 0, lastFrameId - 1); }
 				nextFrame = activeAnimation.frames.get(frameId);
 				speed = currentFrame.speed;
-if (entity.getName().equals("Target_animation")) { System.out.println("CNPCs: "+currentFrame.id+" -> "+nextFrame.id+"; "+ticks+" / "+speed); }
+//if (entity.getName().equals("Target_animation")) { System.out.println("CNPCs: "+currentFrame.id+" -> "+nextFrame.id+"; "+ticks+" / "+speed); }
 				break;
 			}
 			case Run: {
 				int animationFrame = activeAnimation.getAnimationFrameByTime(ticks);
 				currentFrame = activeAnimation.frames.get(animationFrame);
 				nextFrame = activeAnimation.frames.get(Math.min(animationFrame + 1, activeAnimation.frames.size() - 1));
-if (entity.getName().equals("Target_animation") && currentFrame == null) {
-	System.out.println("CNPCs: "+animationFrame+"; "+ticks);
-}
+//if (entity.getName().equals("Target_animation") && currentFrame == null) { System.out.println("CNPCs: "+animationFrame+"; "+ticks); }
 				speed = currentFrame.speed;
 				if (activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) {
 					ticks -= activeAnimation.endingFrameTicks.get(animationFrame - 1);
@@ -816,7 +814,7 @@ if (entity.getName().equals("Target_animation") && currentFrame == null) {
 			if (frameId != lastFrameId) {
 				stage = EnumAnimationStages.Run;
 			}
-System.out.println("CNPCs: "+stage+"; "+frameId+"; "+lastFrameId);
+//System.out.println("CNPCs: "+stage+"; "+frameId+"; "+lastFrameId);
 		}
 
 		int endFrameStartTicks = 1;

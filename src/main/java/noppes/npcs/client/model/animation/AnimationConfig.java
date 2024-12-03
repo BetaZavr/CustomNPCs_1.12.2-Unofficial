@@ -6,7 +6,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
@@ -17,12 +16,9 @@ import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.IAnimationFrame;
-import noppes.npcs.api.util.IRayTraceRotate;
-import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
-import noppes.npcs.util.Util;
 
 public class AnimationConfig implements IAnimation {
 
@@ -324,7 +320,6 @@ public class AnimationConfig implements IAnimation {
 			endingFrameTicks.put(0, totalTicks);
 			return;
 		}
-		int delay = 0;
 		for (Integer id : this.frames.keySet()) {
 			AnimationFrameConfig frame = frames.get(id);
 			if (frame.speed < 1) { frame.speed = 1; }
@@ -345,32 +340,13 @@ public class AnimationConfig implements IAnimation {
 		return false;
 	}
 
-	public AxisAlignedBB[] getDamageHitboxes(EntityLivingBase npc, int delay) {
-		for (AnimationFrameConfig aFC : frames.values()) {
-			if (aFC.isNowDamage() && aFC.damageDelay == delay) {
-				List<AxisAlignedBB> hitboxes = new ArrayList<>();
-				for (AnimationDamageHitbox aDH : aFC.damageHitboxes.values()) {
-					AxisAlignedBB aabb = aDH.getScaledDamageHitbox();
-					double yaw = 0.0d, pitch = 0.0d;
-					double x = aDH.offset[0];
-					double y = aDH.offset[1];
-					double z = aDH.offset[2];
-					if (x != 0.0f || y != 0.0f || z != 0.0f) {
-						IRayTraceRotate base = Util.instance.getAngles3D(0.0d, 0.0d, 0.0d, x, y, z);
-						yaw = base.getYaw();
-						pitch = base.getPitch();
-					}
-					IRayTraceVec data = Util.instance.getPosition(0.0d, 0.0d, 0.0d, npc.rotationYaw + yaw, pitch, Math.abs(Math.sqrt(Math.pow(x, 2.0d) + Math.pow(z, 2.0d))));
-					hitboxes.add(aabb.offset(npc.posX, npc.posY, npc.posZ).offset(data.getX(), data.getY() + y, data.getZ()));
-				}
-				if (hitboxes.isEmpty()) {
-					AxisAlignedBB aabb = new AxisAlignedBB(BlockPos.ORIGIN);
-					hitboxes.add(aabb.offset(npc.posX, npc.posY, npc.posZ));
-				}
-				return hitboxes.toArray(new AxisAlignedBB[0]);
-			}
+	public List<AxisAlignedBB> getDamageHitboxes(EntityLivingBase npc, int frameID) {
+		List<AxisAlignedBB> list = new ArrayList<>();
+		if (!frames.containsKey(frameID)) { return list; }
+		for (AnimationDamageHitbox aDHb : frames.get(frameID).damageHitboxes.values()) {
+			list.add(aDHb.getScaledDamageHitbox(npc));
 		}
-		return new AxisAlignedBB[0];
+		return list;
 	}
 
 	public int getAnimationFrameByTime(long ticks) {

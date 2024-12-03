@@ -54,6 +54,13 @@ public class ModelBipedAW extends ModelBipedAlt {
         EntityNPCInterface npc = (EntityNPCInterface) entityIn;
         Map<EnumParts, Boolean> ba = new HashMap<>(npc.animation.showParts);
         Map<EnumParts, Boolean> baArmor = new HashMap<>(npc.animation.showArmorParts);
+        for (EnumParts ep : ba.keySet()) {
+            if (!ba.get(ep)) { baArmor.put(ep, false); }
+        }
+        if (editAnimDataSelect.isNPC && editAnimDataSelect.part != null && !ba.get(editAnimDataSelect.part)) {
+            ba.put(editAnimDataSelect.part, true);
+            baArmor.put(editAnimDataSelect.part, true);
+        }
 
         String type = slot.getName().toLowerCase();
         // moe.plushie.armourers_workshop.common.skin.data.SkinDescriptor
@@ -119,27 +126,31 @@ public class ModelBipedAW extends ModelBipedAlt {
         bipedRightArm.showModel = ba.get(EnumParts.ARM_RIGHT) && baArmor.get(EnumParts.ARM_RIGHT) && slot == EntityEquipmentSlot.CHEST;
         bipedLeftArm.showModel = ba.get(EnumParts.ARM_LEFT) && baArmor.get(EnumParts.ARM_LEFT) && slot == EntityEquipmentSlot.CHEST;
         if (slot == EntityEquipmentSlot.CHEST) {
-            for (ISkinDescriptor skinDescriptor : outfits) {
-                try {
-                    ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
-                    if (skin != null) {
-                        ISkinDye dye = (ISkinDye) awu.skinDyeConstructor.newInstance(wardrobe.getDye());
-                        Object renderData = awu.skinRenderDataConstructor.newInstance(scale, dye, awu.extraColours, distance, true, true, false, DefaultPlayerSkin.getDefaultSkinLegacy());
-                        modelRenderer.renderEquipmentPart(skin, renderData, npc, this, scale, baArmor);
+            if (!outfits.isEmpty()) {
+                for (ISkinDescriptor skinDescriptor : outfits) {
+                    try {
+                        ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
+                        if (skin != null) {
+                            ISkinDye dye = (ISkinDye) awu.skinDyeConstructor.newInstance(wardrobe.getDye());
+                            Object renderData = awu.skinRenderDataConstructor.newInstance(scale, dye, awu.extraColours, distance, true, true, false, DefaultPlayerSkin.getDefaultSkinLegacy());
+                            modelRenderer.renderEquipmentPart(skin, renderData, npc, this, scale, baArmor);
+                        }
+                    } catch (Exception ignore) {
                     }
                 }
-                catch (Exception ignore) { }
             }
-            for (ISkinDescriptor skinDescriptor : wings) {
-                try {
-                    ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
-                    if (skin != null) {
-                        ISkinDye dye = (ISkinDye) awu.skinDyeConstructor.newInstance(wardrobe.getDye());
-                        Object renderData = awu.skinRenderDataConstructor.newInstance(scale, dye, awu.extraColours, distance, true, true, false, DefaultPlayerSkin.getDefaultSkinLegacy());
-                        modelRenderer.renderEquipmentPart(skin, renderData, npc, this, scale, baArmor);
+            if (ba.get(EnumParts.BODY) && !wings.isEmpty()) {
+                for (ISkinDescriptor skinDescriptor : wings) {
+                    try {
+                        ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
+                        if (skin != null) {
+                            ISkinDye dye = (ISkinDye) awu.skinDyeConstructor.newInstance(wardrobe.getDye());
+                            Object renderData = awu.skinRenderDataConstructor.newInstance(scale, dye, awu.extraColours, distance, true, true, false, DefaultPlayerSkin.getDefaultSkinLegacy());
+                            modelRenderer.renderEquipmentPart(skin, renderData, npc, this, scale, baArmor);
+                        }
+                    } catch (Exception ignore) {
                     }
                 }
-                catch (Exception ignore) { }
             }
         }
         if (!list.isEmpty() && bipedBody.showModel || bipedRightArm.showModel || bipedLeftArm.showModel) {

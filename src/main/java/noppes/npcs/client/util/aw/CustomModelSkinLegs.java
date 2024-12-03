@@ -28,12 +28,11 @@ public class CustomModelSkinLegs extends ModelBiped {
 			this.isRiding = npc.isRiding();
 
 			GlStateManager.pushAttrib();
+//GlStateManager.translate(0.125f, 0.0f, 0.0f);
 			RenderHelper.enableGUIStandardItemLighting();
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
-			if ((boolean) awu.hasPaintData.invoke(skin) & (boolean) awu.isShowSkinPaint.invoke(renderData)
-					& awu.getTexturePaintType.invoke(awu.clientProxy) == awu.TEXTURE_REPLACE) {
-				Object st = awu.getTextureForSkin.invoke(awu.clientSkinPaintCache, skin,
-						awu.getSkinDye.invoke(renderData), awu.getExtraColours.invoke(renderData));
+			if ((boolean) awu.hasPaintData.invoke(skin) & (boolean) awu.isShowSkinPaint.invoke(renderData) & awu.getTexturePaintType.invoke(awu.clientProxy) == awu.TEXTURE_REPLACE) {
+				Object st = awu.getTextureForSkin.invoke(awu.clientSkinPaintCache, skin, awu.getSkinDye.invoke(renderData), awu.getExtraColours.invoke(renderData));
 				awu.bindTexture.invoke(st);
 				GL11.glPushMatrix();
 				GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
@@ -89,7 +88,7 @@ public class CustomModelSkinLegs extends ModelBiped {
                     GL11.glPopMatrix();
                 } else if (part.getPartType().getRegistryName().equals("armourers:legs.skirt")) {
                     GL11.glPushMatrix();
-                    GlStateManager.translate(0.0f, -1.5f, 0.0f);
+                    GlStateManager.translate(0.25f, -1.5f, 0.0f);
                     GlStateManager.scale(2.0f, 2.0f, 2.0f);
                     modelBiped.bipedRightLeg.postRender(scale);
                     renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
