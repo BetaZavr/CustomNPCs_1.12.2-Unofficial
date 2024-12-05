@@ -1963,8 +1963,8 @@ public class ClientProxy extends CommonProxy {
 		return lang;
 	}
 
-	public void resetAnimationModel(AnimationConfig animation) {
-		ModelNpcAlt.resetAnimationModel(animation);
+	public void loadAnimationModel(AnimationConfig animation) {
+		ModelNpcAlt.loadAnimationModel(animation);
 	}
 
 }

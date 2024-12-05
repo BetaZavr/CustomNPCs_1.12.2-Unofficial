@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.*;
 import noppes.npcs.api.mixin.client.audio.ISoundHandlerMixin;
 import noppes.npcs.api.mixin.client.audio.ISoundManagerMixin;
@@ -52,6 +56,7 @@ import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.TempFile;
+import org.lwjgl.input.Mouse;
 
 public class ClientTickHandler {
 
@@ -248,10 +253,6 @@ public class ClientTickHandler {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 				ClientProxy.playerData.hud.keyPress.clear();
 			}
-			if (!ClientProxy.playerData.hud.mousePress.isEmpty()) {
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
-				ClientProxy.playerData.hud.mousePress.clear();
-			}
 		}
 		if (mc.currentScreen instanceof GuiNPCInterface || mc.currentScreen instanceof GuiContainerNPCInterface) {
 			SubGuiInterface subGui;
@@ -397,30 +398,38 @@ public class ClientTickHandler {
 		CustomNpcs.debugData.endDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
 	}
 
+
+	@SubscribeEvent
+	public void npcGuiScreenMouseInput(GuiScreenEvent.MouseInputEvent.Pre event) {
+		npcMouseInput(Mouse.getEventButton(), Mouse.getEventX(), Mouse.getEventY(), Mouse.getEventDX(), Mouse.getEventDY(), Mouse.getEventDWheel(), Mouse.getEventButtonState());
+	}
+
 	@SubscribeEvent
 	public void npcMouseInput(MouseEvent event) {
-		int key = event.getButton();
-		if (key == -1) {
+		npcMouseInput(event.getButton(), event.getX(), event.getY(), event.getDx(), event.getDy(), event.getDwheel(), event.isButtonstate());
+	}
+
+	public void npcMouseInput(int key, int x, int y, int dx, int dy, int dWheel, boolean isDown) {
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcMouseEvent");
+		boolean isCtrlPressed = GuiScreen.isCtrlKeyDown();
+		boolean isShiftPressed = GuiScreen.isShiftKeyDown();
+		boolean isAltPressed = GuiScreen.isAltKeyDown();
+		boolean isMetaPressed = Keyboard.isKeyDown(219) || Keyboard.isKeyDown(220); // Windows and Command
+		IPlayer<?> iPlayer = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(Minecraft.getMinecraft().player);
+		if (key < 0) {
+			Event event = new PlayerEvent.MouseMoveEvent(iPlayer, x, y, dx, dy, dWheel, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.MOUSE_MOVE, event);
 			return;
 		}
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
-		if (Minecraft.getMinecraft().currentScreen == null) {
-			boolean isCtrlPressed = ClientProxy.playerData.hud.hasOrKeysPressed(157, 29);
-			boolean isShiftPressed = ClientProxy.playerData.hud.hasOrKeysPressed(54, 42);
-			boolean isAltPressed = ClientProxy.playerData.hud.hasOrKeysPressed(184, 56);
-			boolean isMetaPressed = ClientProxy.playerData.hud.hasOrKeysPressed(220, 219);
-			boolean isDown = event.isButtonstate();
-			if (isDown) {
-				ClientProxy.playerData.hud.mousePress.add(key);
-			} else {
-				if (ClientProxy.playerData.hud.hasMousePress(key)) {
-					ClientProxy.playerData.hud.mousePress.remove((Integer) key);
-				}
+		Event event = new PlayerEvent.KeyPressedEvent(iPlayer, key, isCtrlPressed, isAltPressed, isShiftPressed, isMetaPressed);
+		EventHooks.onEvent(ScriptController.Instance.clientScripts, isDown ? EnumScriptType.MOUSE_DOWN : EnumScriptType.MOUSE_UP, event);
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed, dWheel);
+		if (isDown) {
+			ClientProxy.playerData.hud.mousePress.add(key);
+		} else {
+			if (ClientProxy.playerData.hud.hasMousePress(key)) {
+				ClientProxy.playerData.hud.mousePress.remove((Integer) key);
 			}
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
-		} else if (!ClientProxy.playerData.hud.mousePress.isEmpty()) {
-			ClientProxy.playerData.hud.mousePress.clear();
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
 		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
 	}

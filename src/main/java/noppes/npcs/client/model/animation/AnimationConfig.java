@@ -194,7 +194,7 @@ public class AnimationConfig implements IAnimation {
 				tTicks += aFC.delay;
 			}
 		}
-		CustomNpcs.proxy.resetAnimationModel(this);
+		CustomNpcs.proxy.loadAnimationModel(this);
 	}
 
 	@Override
@@ -264,7 +264,7 @@ public class AnimationConfig implements IAnimation {
 		if (npcEntity == null || npcEntity.modelData == null || npcEntity.modelData.entityClass != null) {
 			return;
 		}
-		npcEntity.animation.setAnimation(this, this.type);
+		npcEntity.animation.tryRunAnimation(this, type);
 		if (npcEntity.world == null || npcEntity.world.isRemote) {
 			return;
 		}

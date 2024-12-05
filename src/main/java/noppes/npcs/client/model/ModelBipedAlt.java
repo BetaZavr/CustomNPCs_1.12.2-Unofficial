@@ -29,8 +29,8 @@ import javax.annotation.Nonnull;
 public class ModelBipedAlt extends ModelNpcAlt {
 
 	private final boolean isArmorModel;
-	public final AnimationStack rightStackData = new AnimationStack();
-	public final AnimationStack leftStackData = new AnimationStack();
+	public final AnimationStack rightStackData = new AnimationStack(7);
+	public final AnimationStack leftStackData = new AnimationStack(6);
 	protected EntityEquipmentSlot slot;
 
 	public ModelBipedAlt(float modelSize, boolean isArmorModel, boolean smallArmsIn, boolean isClassicPlayer) {

@@ -1131,7 +1131,7 @@ public class Util implements IMethods {
 	@Override
 	public String getJSONStringFromObject(Object obj) {
 		if (obj == null) { return ""; }
-		LogWriter.info("Trying to write object \"" + obj.getClass().getName() + "\" to JSON string");
+		LogWriter.debug("Trying to write object \"" + obj.getClass().getName() + "\" to JSON string");
 		StringBuilder str = new StringBuilder();
 		if (obj.getClass().isArray()) {
 			str = new StringBuilder("[");
@@ -1892,8 +1892,24 @@ public class Util implements IMethods {
 		return Math.abs(entityTo.posX - (double) pos.x) <= 1.0 && Math.abs(entityTo.posY - (double) pos.y) < 2.0d && Math.abs(entityTo.posZ - (double) pos.z) <= 1.0d;
 	}
 
-	public void setParabolicJumpToPos(EntityLivingBase entity, BlockPos targetBlockPos) {
-		
+	public float getCurrentXZSpeed(EntityLivingBase entity) {
+		Vec3d currentPosition = new Vec3d(entity.posX, 0.0f, entity.posZ);
+		Vec3d delta = currentPosition.subtract(new Vec3d(entity.prevPosX, 0.0f, entity.prevPosZ));
+		double distanceMoved = delta.lengthSquared();
+		IAttributeInstance movementAttribute = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+		float speed = 1.0f;
+		if (movementAttribute != null) {
+			speed = (float) (distanceMoved / movementAttribute.getBaseValue() * 2.1475d);
+		}
+		return ValueUtil.correctFloat(speed, 0.25f, 1.0f);
+	}
+
+	public boolean isMoving(EntityLivingBase entity) {
+		double sp = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
+		double speed = 0.069d;
+		if (sp != 0.0d) { speed = speed * 0.25d / sp; }
+		double xz = Math.sqrt(Math.pow(entity.motionX, 2.0d) + Math.pow(entity.motionZ, 2.0d));
+		return xz >= (speed / 2.0d) && (entity.motionY <= -speed || entity.motionY > 0.0d);
 	}
 
 }

@@ -65,10 +65,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 	public GuiNpcEmotion(EntityCustomNpc npc) {
 		super(npc, 4);
-		this.closeOnEsc = true;
-		this.animation = new DataAnimation(npc);
-		this.animation.baseEmotionId = this.npc.animation.baseEmotionId;
-		this.setBackground("bgfilled.png");
+		closeOnEsc = true;
+		setBackground("bgfilled.png");
+
+		animation = new DataAnimation(npc);
+		animation.setBaseEmotionId(npc.animation.getBaseEmotionId());
 
 		selEmtn = "";
 		npcEmtn = Util.instance.copyToGUI(npc, mc.world, false);
@@ -245,13 +246,13 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			}
 			case 33: { // set base emotion
 				if (this.animation == null || !this.dataEmtns.containsKey(this.selEmtn)) { return; }
-				this.animation.baseEmotionId = this.dataEmtns.get(this.selEmtn).id;
+				animation.setBaseEmotionId(dataEmtns.get(selEmtn).id);
 				this.initGui();
 				break;
 			}
 			case 34: { // del base emotion
 				if (this.animation == null) { return; }
-				this.animation.baseEmotionId = -1;
+				animation.setBaseEmotionId(-1);
 				this.initGui();
 				break;
 			}
@@ -434,10 +435,10 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		this.addButton(button);
 
 		button = new GuiNpcButton(33, wX, y - 10, 70, 14, "gui.set");
-		button.setEnabled(this.animation.baseEmotionId != emtn.id);
+		button.setEnabled(this.animation.getBaseEmotionId() != emtn.id);
 		this.addButton(button);
 		button = new GuiNpcButton(34, wX + 72, y - 10, 70, 14, "gui.remove");
-		button.setEnabled(this.animation.baseEmotionId >= 0);
+		button.setEnabled(this.animation.getBaseEmotionId() >= 0);
 		this.addButton(button);
 
 		button = new GuiNpcButton(29, wX + 58, wY - 32, 82, 14, new String[] { "gui.right", "gui.left" }, this.isRight ? 0 : 1);
@@ -751,11 +752,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		if (emtn == null || this.npcEmtn == null) { return; }
 		EmotionConfig ec = emtn.copy();
 		NBTTagCompound npcNbt = new NBTTagCompound();
-		this.npcEmtn.animation.clear();
+		this.npcEmtn.animation.reset();
 		this.npcEmtn.writeEntityToNBT(npcNbt);
 		this.npcEmtn.writeToNBTOptional(npcNbt);
 		this.npcEmtn.display.setName("1_" + this.npc.getName());
-		this.npcEmtn.animation.activeEmotion = ec;
+		this.npcEmtn.animation.setActiveEmotion(ec);
 		this.npcEmtn.setHealth(this.npcEmtn.getMaxHealth());
 		this.npcEmtn.deathTime = 0;
 	}

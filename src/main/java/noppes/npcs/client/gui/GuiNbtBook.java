@@ -28,6 +28,7 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
+import noppes.npcs.util.NBTJsonUtil;
 
 public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 
@@ -61,10 +62,10 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
-			if (this.faultyText != null) {
-				this.setSubGui(new SubGuiNpcTextArea(this.compound.toString(), this.faultyText).enableHighlighting());
+			if (faultyText != null) {
+				this.setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound), faultyText).enableHighlighting());
 			} else {
-				this.setSubGui(new SubGuiNpcTextArea(this.compound.toString()).enableHighlighting());
+				this.setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound)).enableHighlighting());
 			}
 		} else if (button.id == 1) {
 			if (stack != null && !stack.isEmpty()) {

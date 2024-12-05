@@ -8,7 +8,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -481,21 +480,20 @@ public class LayerEyes<T extends EntityLivingBase>
 		mc.entityRenderer.setupFogColor(true);
 		float oU = 0.0f, oD = 0.0f, pU = -0.4f, pD = 0.25f, ox = 0.0f, oy = 0.0f, gU = 0.0f, gD = 0.0f;
 		if (this.playerdata.eyes.type != 0) { oU = 0.3f; oD = 1.0f; pU = 0.0f; pD = 1.0f; gU = 0.7f; gD = 0.15f; }
-		Map<Integer, Float[]> anim = new HashMap<>();
-		EmotionFrame frame = this.npc.animation.currentEmotionFrame;
-		if (this.npc.animation.activeEmotion == null && this.npc.animation.baseEmotionId >= 0) {
-			this.npc.animation.activeEmotion = (EmotionConfig) AnimationController.getInstance().getEmotion(this.npc.animation.baseEmotionId);
+		Map<Integer, Float[]> emotionData = new HashMap<>();
+		EmotionFrame frame = npc.animation.getCurrentEmotionFrame();
+		EmotionConfig activeEmotion = npc.animation.getActiveEmotion();
+		int baseEmotionId = npc.animation.getBaseEmotionId();
+		if (activeEmotion == null && baseEmotionId >= 0) {
+			activeEmotion = (EmotionConfig) AnimationController.getInstance().getEmotion(baseEmotionId);
 		}
-		if (CustomNpcs.ShowCustomAnimation && this.npc.animation.activeEmotion != null) {
-			float pt = 0.0f;
-			if (!(mc.currentScreen instanceof GuiIngameMenu)) { pt = mc.getRenderPartialTicks(); }
-			this.npc.animation.resetEmtnValues(this.npc, pt);
-			anim = this.npc.animation.emts;
+		if (CustomNpcs.ShowCustomAnimation && activeEmotion != null) {
+			emotionData = npc.animation.getEmotionData();
 			if (frame != null && frame.isBlink()) {
-				this.playerdata.eyes.ticks = (int) (this.npc.world.getTotalWorldTime() - this.npc.animation.startEmotionTime);
-				if (this.playerdata.eyes.ticks == 0) { this.playerdata.eyes.blinkStart = System.currentTimeMillis(); }
+				playerdata.eyes.ticks = (int) (npc.world.getTotalWorldTime() - npc.animation.getStartEmotionTime());
+				if (playerdata.eyes.ticks == 0) { playerdata.eyes.blinkStart = System.currentTimeMillis(); }
 			}
-			else if (this.npc.animation.activeEmotion != null && !this.npc.animation.activeEmotion.canBlink()) {
+			else if (!activeEmotion.canBlink()) {
 				this.playerdata.eyes.blinkStart = -20L;
 			}
 		}
@@ -541,13 +539,13 @@ public class LayerEyes<T extends EntityLivingBase>
 		int h = 0;
 
 		if (e < 2 && !r) { h = e + 1; }
-		this.drawLeft(s, anim.get(1), anim.get(3), h, c);
+		this.drawLeft(s, emotionData.get(1), emotionData.get(3), h, c);
 		h = 0;
 		if (e < 2 && r) { h = e + 1; }
-		this.drawRight(s, anim.get(0), anim.get(2), h, c);
+		this.drawRight(s, emotionData.get(0), emotionData.get(2), h, c);
 		h = 0;
 		if (e == 2) { h = r ? 1 : 2; }
-		this.drawBrows(anim.get(4), anim.get(5), anim.get(0), anim.get(1), h, c, frame);
+		this.drawBrows(emotionData.get(4), emotionData.get(5), emotionData.get(0), emotionData.get(1), h, c, frame);
 
 		mc.entityRenderer.setupFogColor(false);
 		GlStateManager.depthMask(true);

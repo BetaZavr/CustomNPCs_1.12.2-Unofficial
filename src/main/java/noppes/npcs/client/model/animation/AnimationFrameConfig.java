@@ -16,6 +16,8 @@ import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.constants.EnumParts;
 
+import javax.annotation.Nonnull;
+
 public class AnimationFrameConfig implements IAnimationFrame {
 
 	public static final AnimationFrameConfig EMPTY;
@@ -38,7 +40,8 @@ public class AnimationFrameConfig implements IAnimationFrame {
 	public final float[] motions = new float[] { 0.0f, 0.0f, 0.0f }; // [ powerDirect(motionXZ), powerVertical(motionY), angleHorizontal (+/-180) ]
 	private int holdRightType = 0;
 	private int holdLeftType = 0;
-	private IItemStack holdRightStack = ItemStackWrapper.AIR, holdLeftStack = ItemStackWrapper.AIR;
+	private IItemStack holdRightStack = ItemStackWrapper.AIR;
+	private IItemStack holdLeftStack = ItemStackWrapper.AIR;
 	public int damageDelay = 0;
 	public final Map<Integer, AnimationDamageHitbox> damageHitboxes = new TreeMap<>();
 
@@ -55,7 +58,7 @@ public class AnimationFrameConfig implements IAnimationFrame {
 	public ResourceLocation sound = null;
 	public int emotionId = -1;
 
-    public AnimationFrameConfig(int id) {
+	public AnimationFrameConfig(int id) {
 		this();
 		this.id = id;
 	}
@@ -391,6 +394,32 @@ public class AnimationFrameConfig implements IAnimationFrame {
 	public void setHoldLeftStack(ItemStack stack) {
 		if (stack == null) { stack = ItemStack.EMPTY; }
 		this.holdLeftStack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
+	}
+
+
+	public void resetFrom(Map<Integer, Float[]> rotationAngles, @Nonnull AnimationFrameConfig currentFrame) {
+		smooth = currentFrame.smooth;
+		showMainHand = currentFrame.showMainHand;
+		showOffHand = currentFrame.showOffHand;
+		showHelmet = currentFrame.showHelmet;
+		showBody = currentFrame.showBody;
+		showLegs = currentFrame.showLegs;
+		showFeets = currentFrame.showFeets;
+		holdRightType = currentFrame.holdRightType;
+		holdLeftType = currentFrame.holdLeftType;
+		holdRightStack = currentFrame.holdRightStack;
+		holdLeftStack = currentFrame.holdLeftStack;
+
+		parts.clear();
+		for (Integer i : rotationAngles.keySet()) {
+			PartConfig pc = new PartConfig(i, AnimationFrameConfig.getPartType(i));
+			if (currentFrame.parts.containsKey(i)) {
+				pc.show = currentFrame.parts.get(i).show;
+				pc.disable = currentFrame.parts.get(i).disable;
+			}
+			pc.set(rotationAngles.get(i));
+			parts.put(i, pc);
+		}
 	}
 
 }

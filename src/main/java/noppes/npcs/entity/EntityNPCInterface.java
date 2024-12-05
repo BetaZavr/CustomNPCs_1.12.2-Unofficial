@@ -10,7 +10,6 @@ import com.google.common.base.Predicate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
@@ -146,6 +145,7 @@ import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.part.ModelData;
+import noppes.npcs.constants.EnumAnimationStages;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.constants.EnumPlayerPacket;
@@ -270,7 +270,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		// New
 		this.initTime = System.currentTimeMillis();
 		if (!isServerWorld()) { CustomNpcs.proxy.checkTexture(this); }
-		animation.reset(AnimationKind.INIT);
+		animation.tryRunAnimation(AnimationKind.INIT);
 		this.maxHurtResistantTime = this.ais.getMaxHurtResistantTime();
 	}
 
@@ -346,7 +346,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean attackEntityAsMob(@Nonnull Entity entity) { // this NPCs attempt to damage the target <- EntityAICustom
-		AnimationConfig anim = animation.reset(AnimationKind.ATTACKING);
+		AnimationConfig anim = animation.tryRunAnimation(AnimationKind.ATTACKING);
 		if (anim != null) {
 			boolean found = false;
 			for (AnimationFrameConfig frame : anim.frames.values()) {
@@ -537,10 +537,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		if (!isKilled()) {
 			if (isHurt && damage > 0.0f) {
-				animation.reset(AnimationKind.HIT);
+				animation.tryRunAnimation(AnimationKind.HIT);
 			}
 			else  {
-				AnimationConfig anim = animation.reset(AnimationKind.BLOCKED);
+				AnimationConfig anim = animation.tryRunAnimation(AnimationKind.BLOCKED);
 				if (anim == null && !damagesource.isProjectile() && attackingEntity != null) { blockUsingShield(attackingEntity); }
 			}
 		}
@@ -1306,7 +1306,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 						(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null));
 			}
 		}
-		AnimationConfig anim = animation.reset(AnimationKind.DIES);
+		AnimationConfig anim = animation.tryRunAnimation(AnimationKind.DIES);
 		if (anim != null) {
 			motionX = 0.0d;
 			motionY = 0.0d;
@@ -1405,25 +1405,27 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		if (CustomNpcs.ShowCustomAnimation) {
 			// Jump
-			if (!animation.isJump && !isKilled() && getHealth() > 0.0f && world != null && !(isInWater() || isInLava()) && ais.getNavigationType() == 0 && !onGround && motionY > 0.0d) {
+			if (!animation.getJump() && !isKilled() && getHealth() > 0.0f && world != null && !(isInWater() || isInLava()) && ais.getNavigationType() == 0 && !onGround && motionY > 0.0d) {
 				BlockPos posUnderfoot = getPosition().down();
 				BlockPos posAhead = getPosition().add(motionX, 0, motionZ).down();
 				boolean canJumpHere = !(world.getBlockState(posUnderfoot).getBlock() instanceof BlockStairs);
 				boolean canLandThere = !(world.getBlockState(posAhead).getBlock() instanceof BlockStairs);
 				if (canJumpHere && canLandThere) {
-					animation.isJump = true;
-					animation.reset(AnimationKind.JUMP);
+					animation.setJump(true);
+					animation.tryRunAnimation(AnimationKind.JUMP);
 				}
 			}
-			else if (this.animation.isJump && this.onGround) {
-				animation.isJump = false;
-				if (animation.isAnimated(AnimationKind.JUMP)) { animation.stopAnimation(); }
+			else if (animation.getJump() && onGround && animation.getAnimationStage() != EnumAnimationStages.Started) {
+				animation.setJump(false);
+				if (animation.isAnimated(AnimationKind.JUMP)) {
+					animation.stopAnimation();
+				}
 			}
 			// Swing
-			if (!animation.isSwing && swingProgress > 0.0f) {
-				animation.isSwing = true;
+			if (!animation.getSwing() && swingProgress > 0.0f) {
+				animation.setSwing(true);
 				if (!animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.AIM, AnimationKind.SHOOT)) {
-					AnimationConfig anim = this.animation.reset(AnimationKind.SWING);
+					AnimationConfig anim = animation.tryRunAnimation(AnimationKind.SWING);
 					if (anim != null) {
 						swingProgress = 0.0f;
 						swingProgressInt = 0;
@@ -1432,11 +1434,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 					}
 				}
 			}
-			else if (animation.isSwing && swingProgress == 0.0f) {
-				animation.isSwing = false;
+			else if (animation.getSwing() && swingProgress == 0.0f) {
+				animation.setSwing(false);
 			}
 			// walking or standing
-			animation.resetWalkOrStand();
+			animation.resetWalkAndStandAnimations();
 		}
 
 		if (this.wasKilled != this.isKilled() && this.wasKilled) {
@@ -1573,7 +1575,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		this.addInteract(player);
 		if (!lookAi.fastRotation) {
-			AnimationConfig anim = animation.reset(AnimationKind.INTERACT);
+			AnimationConfig anim = animation.tryRunAnimation(AnimationKind.INTERACT);
 			if (anim != null ) {
 				lookAi.fastRotation = true;
 				CustomNPCsScheduler.runTack(() -> lookAi.fastRotation = false , 1500);
@@ -1739,8 +1741,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		this.bossInfo.setVisible(this.display.getBossbar() == 1);
 		this.advanced.jobInterface.reset();
-		if (animation.isAnimated()) { animation.stopAnimation(); }
-		animation.reset(AnimationKind.INIT);
+		if (animation.isAnimated()) {  animation.stopAnimation(); }
+		animation.tryRunAnimation(AnimationKind.INIT);
 		this.updateClient = true;
 		if (this.ais.returnToStart && this.homeDimensionId != this.world.provider.getDimension() && !(this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing())) {
 			try {
@@ -1969,8 +1971,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			} // can Jump
 			switch (this.ais.tacticalVariant) {
 				case 0: {
-					this.tasks.addTask(this.taskCount++,
-							(this.aiAttackTarget = new EntityAIOnslaught(this)));
+					this.tasks.addTask(this.taskCount++, (this.aiAttackTarget = new EntityAIOnslaught(this)));
 					break;
 				}
 				case 1: {
@@ -2022,7 +2023,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		float acc = 20.0f - MathHelper.floor(accuracy / 5.0f);
 		projectile.shoot(varX, varY, varZ, angle, acc);
 		this.world.spawnEntity(projectile);
-		animation.reset(AnimationKind.SHOOT);
+		animation.tryRunAnimation(AnimationKind.SHOOT);
 		if (animation.isAnimated(AnimationKind.AIM)) {
 			animation.stopAnimation();
 		}
@@ -2093,7 +2094,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (!this.isServerWorld()) {
 			return;
 		}
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC_ANIMATION, world.provider.getDimension(), 2, getEntityId(), currentAnimation);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC_ANIMATION, world.provider.getDimension(), getEntityId(), currentAnimation);
 	}
 
 	public void updateClient() {

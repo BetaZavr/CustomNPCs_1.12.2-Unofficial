@@ -216,4 +216,22 @@ public class PartConfig implements IAnimationPart {
 		return compound;
 	}
 
+	/**
+	 * @param inBase [ 0:rotX, 1:rotY, 2:rotZ, 3:ofsX, 4:ofsY, 5:ofsZ, 6:scX, 7:scY, 8:scZ, 9:rotX1, 10:rotY1 ]
+	 */
+    public void set(Float[] inBase) {
+		if (inBase == null) {
+			clear();
+			return;
+		}
+		for (int i = 0; i < 11; i++) {
+			if (inBase.length > i) {
+				if (i < 3) { rotation[i] = inBase[i]; }
+				else if (i < 6) { offset[i - 3] = inBase[i]; }
+				else if (i < 9){ scale[i - 6] = inBase[i]; }
+				else { rotation[i - 6] = inBase[i]; }
+			}
+		}
+    }
+
 }

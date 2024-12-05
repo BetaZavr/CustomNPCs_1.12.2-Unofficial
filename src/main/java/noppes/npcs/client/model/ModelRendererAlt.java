@@ -3,6 +3,7 @@ package noppes.npcs.client.model;
 import java.util.*;
 
 import noppes.npcs.api.util.IModelRenderer;
+import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
@@ -811,6 +812,27 @@ public class ModelRendererAlt
 		scaleZ = config.scale[2];
 	}
 
+
+	public void putAnimation(DataAnimation animation) {
+		AnimationFrameConfig preFrame = animation.getPreFrame();
+		if (preFrame == null || !preFrame.parts.containsKey(partId)) { return; }
+		preFrame.parts.get(partId).show = showModel;
+
+		preFrame.parts.get(partId).rotation[0] = rotateAngleX;
+		preFrame.parts.get(partId).rotation[1] = rotateAngleY;
+		preFrame.parts.get(partId).rotation[2] = rotateAngleZ;
+		preFrame.parts.get(partId).rotation[3] = rotateAngleX1;
+		preFrame.parts.get(partId).rotation[4] = rotateAngleY1;
+
+		preFrame.parts.get(partId).offset[0] = offsetAnimX;
+		preFrame.parts.get(partId).offset[1] = offsetAnimY;
+		preFrame.parts.get(partId).offset[2] = offsetAnimZ;
+
+		preFrame.parts.get(partId).scale[0] = scaleX;
+		preFrame.parts.get(partId).scale[1] = scaleY;
+		preFrame.parts.get(partId).scale[2] = scaleZ;
+	}
+
 	public void setAnimation(Float[] partSets) {
 		if (partSets == null) { return; }
 		rotateAngleX = partSets[0];
@@ -829,16 +851,15 @@ public class ModelRendererAlt
 		}
 		isAnimPart = partSets[0] != 0.0f || partSets[1] != 0.0f || partSets[2] != 0.0f || partSets[3] != 0.0f || partSets[4] != 0.0f || partSets[5] != 0.0f || partSets[6] != 1.0f || partSets[7] != 1.0f || partSets[8] != 1.0f || partSets[9] != 0.0f || partSets[10] != 0.0f;
 	}
+
 	/**
 	 * @param animation = rots[ 0:rotX, 1:rotY, 2:rotZ, 3:ofsX, 4:ofsY, 5:ofsZ, 6:scX, 7:scY, 8:scZ, 9:rotX1, 10:rotY1 ]
 	 */
 	public void setAnimation(DataAnimation animation) {
 		if (!showModel) { return; }
-		if (animation.currentFrame != null && animation.currentFrame.parts.containsKey(partId)) {
-			showModel = animation.currentFrame.parts.get(partId).show;
-		}
+		showModel = animation.getAnimationPartShow(partId);
 		if (!showModel) { return; }
-		setAnimation(animation.rots.get(partId));
+		setAnimation(animation.getAnimationPartData(partId));
 	}
 
 	@Override

@@ -228,6 +228,31 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	public static class MouseMoveEvent extends PlayerEvent {
+		public boolean isAltPressed;
+		public boolean isCtrlPressed;
+		public boolean isMetaPressed;
+		public boolean isShiftPressed;
+		public int posX;
+		public int posY;
+		public int mouseX;
+		public int mouseY;
+		public int dWheel;
+
+		public MouseMoveEvent(IPlayer<?> player, int x, int y, int dx, int dy, int wheel, boolean isCtrlPressed, boolean isAltPressed, boolean isShiftPressed, boolean isMetaPressed) {
+			super(player);
+			posX = x;
+			posY = y;
+			mouseX = dx;
+			mouseY = dx;
+			dWheel = wheel;
+			this.isCtrlPressed = isCtrlPressed;
+			this.isAltPressed = isAltPressed;
+			this.isShiftPressed = isShiftPressed;
+			this.isMetaPressed = isMetaPressed;
+		}
+	}
+
 	public static class KilledEntityEvent extends PlayerEvent {
 		public IEntityLivingBase<?> entity;
 

@@ -42,6 +42,7 @@ import noppes.npcs.*;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.handler.data.IQuest;
+import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.GuiAchievement;
@@ -76,6 +77,7 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
@@ -113,6 +115,11 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.PLAYER_SKIN_ADD);
 		PacketHandlerClient.list.add(EnumPacketClient.NPC_LOOK_POS);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_HUD);
+		PacketHandlerClient.list.add(EnumPacketClient.ANIMATION_DATA_SET);
+		PacketHandlerClient.list.add(EnumPacketClient.ANIMATION_DATA_BASE_ANIMATIONS);
+		PacketHandlerClient.list.add(EnumPacketClient.ANIMATION_DATA_RUN_ANIMATION);
+		PacketHandlerClient.list.add(EnumPacketClient.ANIMATION_DATA_STOP_ANIMATION);
+		PacketHandlerClient.list.add(EnumPacketClient.ANIMATION_DATA_STOP_EMOTION);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -148,14 +155,16 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				ClientEventHandler.chatMessages.put(pl, new RenderChatMessages());
 			}
 			ClientEventHandler.chatMessages.get(pl).addMessage(Server.readString(buffer), pl);
-		} else if (type == EnumPacketClient.CHAT) {
+		}
+		else if (type == EnumPacketClient.CHAT) {
 			StringBuilder message = new StringBuilder();
 			String str;
 			while ((str = Server.readString(buffer)) != null && !str.isEmpty()) {
 				message.append(new TextComponentTranslation(str).getFormattedText());
 			}
 			player.sendMessage(new TextComponentTranslation(message.toString()));
-		} else if (type == EnumPacketClient.EYE_BLINK) {
+		}
+		else if (type == EnumPacketClient.EYE_BLINK) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
@@ -163,18 +172,21 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			ModelData model = ((EntityCustomNpc) entity).modelData;
 			model.eyes.blinkStart = System.currentTimeMillis();
-		} else if (type == EnumPacketClient.MESSAGE) {
+		}
+		else if (type == EnumPacketClient.MESSAGE) {
 			TextComponentTranslation title = new TextComponentTranslation(Objects.requireNonNull(Server.readString(buffer)));
 			TextComponentTranslation message = new TextComponentTranslation(Objects.requireNonNull(Server.readString(buffer)));
 			mc.getToastGui().add(new GuiAchievement(title, message, buffer.readInt() % 3));
-		} else if (type == EnumPacketClient.UPDATE_ITEM) {
+		}
+		else if (type == EnumPacketClient.UPDATE_ITEM) {
 			int id = buffer.readInt();
 			NBTTagCompound compound = Server.readNBT(buffer);
 			ItemStack stack = player.inventory.getStackInSlot(id);
 			if (!stack.isEmpty()) {
 				((ItemStackWrapper) Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack)).setMCNbt(compound);
 			}
-		} else if (type == EnumPacketClient.VISIBLE_FALSE) {
+		}
+		else if (type == EnumPacketClient.VISIBLE_FALSE) {
 			WorldClient w = (WorldClient) player.world;
 			UUID uuid = Server.readUUID(buffer);
 			int id = buffer.readInt();
@@ -193,7 +205,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				ClientProxy.notVisibleNPC.put(player.world.provider.getDimension(), new ArrayList<>());
 			}
 			ClientProxy.notVisibleNPC.get(player.world.provider.getDimension()).add(uuid);
-		} else if (type == EnumPacketClient.VISIBLE_TRUE) {
+		}
+		else if (type == EnumPacketClient.VISIBLE_TRUE) {
 			WorldClient w = (WorldClient) player.world;
 			UUID uuid = Server.readUUID(buffer);
 			int id = buffer.readInt();
@@ -330,10 +343,12 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			} else {
 				MusicController.Instance.stopSounds();
 			}
-		} else if (type == EnumPacketClient.PLAY_SOUND) {
+		}
+		else if (type == EnumPacketClient.PLAY_SOUND) {
 			MusicController.Instance.playSound(SoundCategory.PLAYERS, Server.readString(buffer), buffer.readInt(),
 					buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
-		} else if (type == EnumPacketClient.FORCE_PLAY_SOUND) {
+		}
+		else if (type == EnumPacketClient.FORCE_PLAY_SOUND) {
 			int categoryType = buffer.readInt();
 			SoundCategory cat = SoundCategory.PLAYERS;
 			if (categoryType >= 0 && categoryType < SoundCategory.values().length) {
@@ -341,7 +356,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			MusicController.Instance.forcePlaySound(cat, Server.readString(buffer), buffer.readInt(), buffer.readInt(),
 					buffer.readInt(), buffer.readFloat(), buffer.readFloat());
-		} else if (type == EnumPacketClient.UPDATE_NPC) {
+		}
+		else if (type == EnumPacketClient.UPDATE_NPC) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
 			if (!(entity instanceof EntityNPCInterface)) {
@@ -353,7 +369,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				return;
 			}
 			((EntityNPCInterface) entity).readSpawnData(compound);
-		} else if (type == EnumPacketClient.ROLE) {
+		}
+		else if (type == EnumPacketClient.ROLE) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
 			if (!(entity instanceof EntityNPCInterface)) {
@@ -363,12 +380,15 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			((EntityNPCInterface) entity).advanced.setRole(compound.getInteger("Type"));
 			((EntityNPCInterface) entity).advanced.roleInterface.readFromNBT(compound);
 			NoppesUtil.setLastNpc((EntityNPCInterface) entity);
-		} else if (type == EnumPacketClient.GUI) {
+		}
+		else if (type == EnumPacketClient.GUI) {
 			EnumGuiType gui = EnumGuiType.values()[buffer.readInt()];
 			CustomNpcs.proxy.openGui(NoppesUtil.getLastNpc(), gui, buffer.readInt(), buffer.readInt(), buffer.readInt());
-		} else if (type == EnumPacketClient.PARTICLE) {
+		}
+		else if (type == EnumPacketClient.PARTICLE) {
 			NoppesUtil.spawnParticle(buffer);
-		} else if (type == EnumPacketClient.DELETE_ENTITY) {
+		}
+		else if (type == EnumPacketClient.DELETE_ENTITY) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityLivingBase)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
@@ -379,13 +399,17 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			} else {
 				entity.setDead();
 			}
-		} else if (type == EnumPacketClient.SCROLL_LIST) {
+		}
+		else if (type == EnumPacketClient.SCROLL_LIST) {
 			NoppesUtil.setScrollList(buffer);
-		} else if (type == EnumPacketClient.SCROLL_DATA) {
+		}
+		else if (type == EnumPacketClient.SCROLL_DATA) {
 			NoppesUtil.setScrollData(buffer);
-		} else if (type == EnumPacketClient.SCROLL_DATA_PART) {
+		}
+		else if (type == EnumPacketClient.SCROLL_DATA_PART) {
 			NoppesUtil.addScrollData(buffer);
-		} else if (type == EnumPacketClient.SCROLL_SELECTED) {
+		}
+		else if (type == EnumPacketClient.SCROLL_SELECTED) {
 			GuiScreen gui = mc.currentScreen;
 			String selected = Server.readString(buffer);
             assert selected != null;
@@ -402,10 +426,12 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				return;
 			}
 			((IScrollData) gui).setSelected(selected);
-		} else if (type == EnumPacketClient.CLONE) {
+		}
+		else if (type == EnumPacketClient.CLONE) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			NoppesUtil.openGUI(player, new GuiNpcMobSpawnerAdd(compound));
-		} else if (type == EnumPacketClient.GUI_DATA) {
+		}
+		else if (type == EnumPacketClient.GUI_DATA) {
 			GuiScreen gui = mc.currentScreen;
 			if (gui == null) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
@@ -420,14 +446,16 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				NBTTagCompound compound = Server.readNBT(buffer);
 				((IGuiData) gui).setGuiData(compound);
 			}
-		} else if (type == EnumPacketClient.GUI_UPDATE) {
+		}
+		else if (type == EnumPacketClient.GUI_UPDATE) {
 			GuiScreen gui = mc.currentScreen;
 			if (gui == null) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			gui.initGui();
-		} else if (type == EnumPacketClient.GUI_ERROR) {
+		}
+		else if (type == EnumPacketClient.GUI_ERROR) {
 			GuiScreen gui = mc.currentScreen;
 			if (!(gui instanceof IGuiError)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
@@ -436,7 +464,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			int i = buffer.readInt();
 			NBTTagCompound compound = Server.readNBT(buffer);
 			((IGuiError) gui).setError(i, compound);
-		} else if (type == EnumPacketClient.GUI_CLOSE) {
+		}
+		else if (type == EnumPacketClient.GUI_CLOSE) {
 			GuiScreen gui = mc.currentScreen;
 			if (gui == null) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
@@ -452,10 +481,12 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			mc.displayGuiScreen(null);
 			mc.setIngameFocus();
-		} else if (type == EnumPacketClient.VILLAGER_LIST) {
+		}
+		else if (type == EnumPacketClient.VILLAGER_LIST) {
 			MerchantRecipeList merchantrecipelist = MerchantRecipeList.readFromBuf(new PacketBuffer(buffer));
 			ServerEventsHandler.Merchant.setRecipes(merchantrecipelist);
-		} else if (type == EnumPacketClient.CONFIG_FONT) {
+		}
+		else if (type == EnumPacketClient.CONFIG_FONT) {
 			int config = buffer.readInt();
 			if (config == 0) {
 				String font = Server.readString(buffer);
@@ -547,7 +578,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			if (!found) {
 				mc.getToastGui().add(new GuiAchievement(title, message, compound.getInteger("MessageType")));
 			}
-		} else if (type == EnumPacketClient.NPC_VISUAL_DATA) {
+		}
+		else if (type == EnumPacketClient.NPC_VISUAL_DATA) {
 			int entityID = buffer.readInt();
 			Entity entity = player.world.getEntityByID(entityID);
 			if (entity instanceof EntityNPCInterface) {
@@ -557,7 +589,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				npcData.stats.setRarity(compound.getInteger("NPCRarity"));
 				npcData.stats.setRarityTitle(compound.getString("RarityTitle"));
 			}
-		} else if (type == EnumPacketClient.MARCET_CLOSE) {
+		}
+		else if (type == EnumPacketClient.MARCET_CLOSE) {
 			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (m != null) {
 				m.removeListener(player, false);
@@ -566,7 +599,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			if (gui instanceof GuiNPCTrader) {
 				gui.onGuiClosed();
 			}
-		} else if (type == EnumPacketClient.MARCET_DATA) {
+		}
+		else if (type == EnumPacketClient.MARCET_DATA) {
 			boolean updateGui = false;
 			int t = buffer.readInt();
 			switch (t) {
@@ -607,7 +641,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			} else if (gui instanceof GuiNPCManageMarcets) {
 				((GuiNPCManageMarcets) gui).setGuiData(new NBTTagCompound());
 			}
-		} else if (type == EnumPacketClient.DETECT_HELD_ITEM) {
+		}
+		else if (type == EnumPacketClient.DETECT_HELD_ITEM) {
 			try {
 				player.inventory.setInventorySlotContents(buffer.readInt(), new ItemStack(Server.readNBT(buffer)));
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
@@ -617,7 +652,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			ItemStack held = new ItemStack(Server.readNBT(buffer));
 			player.inventory.setItemStack(held);
-		} else if (type == EnumPacketClient.BORDER_DATA) {
+		}
+		else if (type == EnumPacketClient.BORDER_DATA) {
 			int id = buffer.readInt();
 			if (id == -1) {
 				BorderController.getInstance().regions.clear();
@@ -632,14 +668,16 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				return;
 			}
 			BorderController.getInstance().loadRegion(Server.readNBT(buffer));
-		} else if (type == EnumPacketClient.SAVE_SCHEMATIC) {
+		}
+		else if (type == EnumPacketClient.SAVE_SCHEMATIC) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			String name = compound.getString("Name") + ".schematic";
 			Schematic schema = new Schematic(name);
 			schema.load(compound);
 			schema.save(player);
 			SchematicController.Instance.map.put(name.toLowerCase(), new SchematicWrapper(schema));
-		} else if (type == EnumPacketClient.GET_SCHEMATIC) {
+		}
+		else if (type == EnumPacketClient.GET_SCHEMATIC) {
 			if (ClientEventHandler.schemaPos == null || ClientEventHandler.schema == null) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
@@ -648,12 +686,15 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			int y = ClientEventHandler.schemaPos.getY();
 			int z = ClientEventHandler.schemaPos.getZ();
 			Client.sendData(EnumPacketServer.SchematicsBuild, x, y, z, ClientEventHandler.rotation, ClientEventHandler.schema.getNBT());
-		} else if (type == EnumPacketClient.UPDATE_HUD) {
+		}
+		else if (type == EnumPacketClient.UPDATE_HUD) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			data.hud.loadNBTData(compound);
-		} else if (type == EnumPacketClient.DIMENSION_IDS) {
+		}
+		else if (type == EnumPacketClient.DIMENSION_IDS) {
 			ClientHandler.getInstance().sync(Server.readIntArray(buffer));
-		} else if (type == EnumPacketClient.DROP_GROUP_DATA) {
+		}
+		else if (type == EnumPacketClient.DROP_GROUP_DATA) {
 			NBTTagCompound nbtTemplate = Server.readNBT(buffer);
 			if (nbtTemplate.getKeySet().isEmpty()) {
 				DropController.getInstance().templates.clear();
@@ -666,64 +707,125 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			DropController.getInstance().templates.put(nbtTemplate.getString("Name"),
 					new DropsTemplate(nbtTemplate.getCompoundTag("Groups")));
-		} else if (type == EnumPacketClient.SET_TILE_DATA) {
+		}
+		else if (type == EnumPacketClient.SET_TILE_DATA) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			TileEntity tile = player.world.getTileEntity(
 					new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z")));
 			if (tile != null) {
 				tile.readFromNBT(compound);
 			}
-		} else if (type == EnumPacketClient.UPDATE_NPC_ANIMATION) {
+		}
+		else if (type == EnumPacketClient.ANIMATION_DATA_SET) {
+			if (buffer.readBoolean()) { // is NPC
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					Entity entity = mc.world.getEntityByID(buffer.readInt());
+					if (!(entity instanceof EntityNPCInterface)) {
+						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
+						return;
+					}
+					((EntityNPCInterface) entity).animation.load(Server.readNBT(buffer));
+				}
+			}
+			else { // is Player
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					IEntityPlayerMixin pl = (IEntityPlayerMixin) mc.world.getPlayerEntityByUUID(Server.readUUID(buffer));
+					if (pl != null) {
+						pl.npcs$getAnimation().load(Server.readNBT(buffer));
+					}
+				}
+			}
+		}
+		else if (type == EnumPacketClient.ANIMATION_DATA_STOP_ANIMATION) {
+			if (buffer.readBoolean()) { // is NPC
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					Entity entity = mc.world.getEntityByID(buffer.readInt());
+					if (!(entity instanceof EntityNPCInterface)) {
+						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
+						return;
+					}
+					((EntityNPCInterface) entity).animation.stopAnimation();
+				}
+			}
+			else { // is Player
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					IEntityPlayerMixin pl = (IEntityPlayerMixin) mc.world.getPlayerEntityByUUID(Server.readUUID(buffer));
+					if (pl != null) { pl.npcs$getAnimation().stopAnimation(); }
+				}
+			}
+		}
+		else if (type == EnumPacketClient.ANIMATION_DATA_STOP_EMOTION) {
+			if (buffer.readBoolean()) { // is NPC
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					Entity entity = mc.world.getEntityByID(buffer.readInt());
+					if (!(entity instanceof EntityNPCInterface)) {
+						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
+						return;
+					}
+					((EntityNPCInterface) entity).animation.stopEmotion();
+				}
+			}
+			else { // is Player
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					IEntityPlayerMixin pl = (IEntityPlayerMixin) mc.world.getPlayerEntityByUUID(Server.readUUID(buffer));
+					if (pl != null) { pl.npcs$getAnimation().stopEmotion(); }
+				}
+			}
+		}
+		else if (type == EnumPacketClient.ANIMATION_DATA_RUN_ANIMATION) {
+			DataAnimation animation = null;
+			if (buffer.readBoolean()) { // is NPC
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					Entity entity = mc.world.getEntityByID(buffer.readInt());
+					if (!(entity instanceof EntityNPCInterface)) {
+						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
+						return;
+					}
+					animation = ((EntityNPCInterface) entity).animation;
+				}
+			}
+			else { // is Player
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					IEntityPlayerMixin pl = (IEntityPlayerMixin) mc.world.getPlayerEntityByUUID(Server.readUUID(buffer));
+					if (pl != null) { animation = pl.npcs$getAnimation(); }
+				}
+			}
+			if (animation != null) {
+				AnimationConfig ac = AnimationController.getInstance().animations.get(buffer.readInt());
+				if (ac != null) { animation.tryRunAnimation(ac, AnimationKind.get(buffer.readInt())); }
+			}
+		}
+		else if (type == EnumPacketClient.ANIMATION_DATA_BASE_ANIMATIONS) {
+			if (buffer.readBoolean()) { // is NPC
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					Entity entity = mc.world.getEntityByID(buffer.readInt());
+					if (!(entity instanceof EntityNPCInterface)) {
+						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
+						return;
+					}
+					((EntityNPCInterface) entity).animation.loadBaseAnimations(Server.readMap(buffer));;
+				}
+			}
+			else { // is Player
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					IEntityPlayerMixin pl = (IEntityPlayerMixin) mc.world.getPlayerEntityByUUID(Server.readUUID(buffer));
+					if (pl != null) { pl.npcs$getAnimation().loadBaseAnimations(Server.readMap(buffer)); }
+				}
+			}
+		}
+		else if (type == EnumPacketClient.UPDATE_NPC_ANIMATION) {
 			if (mc.world.provider.getDimension() != buffer.readInt()) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
-			int t = buffer.readInt();
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityNPCInterface)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
-            switch (t) {
-				case 0: { // reload animation data
-					((EntityNPCInterface) entity).animation.load(Server.readNBT(buffer));
-					break;
-				}
-				case 1: { // stop animation
-					((EntityNPCInterface) entity).animation.stopAnimation();
-					break;
-				}
-				case 2: { // base mod current animation
-					((EntityNPCInterface) entity).currentAnimation = buffer.readInt();
-					break;
-				}
-				case 3: { // stop Emotion
-					((EntityNPCInterface) entity).animation.stopEmotion();
-					break;
-				}
-				case 4: { // start Emotion
-					((EntityNPCInterface) entity).animation.startEmotion(buffer.readInt());
-					break;
-				}
-				case 5: { // remove Animation
-					((EntityNPCInterface) entity).animation.load(Server.readNBT(buffer));
-					((EntityNPCInterface) entity).animation.stopAnimation();
-					break;
-				}
-				case 6: { // start Animation From Saved ID
-					int animID = buffer.readInt();
-					int animType = buffer.readInt();
-					AnimationConfig ac = AnimationController.getInstance().animations.get(animID);
-					AnimationKind at = AnimationKind.get(animType);
-					if (ac != null) {
-//System.out.println("CNPCs: "+entity.getName()+"; "+animID+"; "+animType);
-						((EntityNPCInterface) entity).animation.setAnimation(ac, at);
-					}
-					else { ((EntityNPCInterface) entity).animation.stopAnimation(); }
-					break;
-				}
-			}
-		} else if (type == EnumPacketClient.UPDATE_NPC_NAVIGATION) {
+			((EntityNPCInterface) entity).currentAnimation = buffer.readInt();
+		}
+		else if (type == EnumPacketClient.UPDATE_NPC_NAVIGATION) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
 			if (!(entity instanceof EntityNPCInterface)) {
@@ -739,7 +841,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				npc.navigating = null;
 				npc.getNavigator().setPath(null, 1.0d);
 			}
-		} else if (type == EnumPacketClient.UPDATE_NPC_AI_TARGET) {
+		}
+		else if (type == EnumPacketClient.UPDATE_NPC_AI_TARGET) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
 			if (!(entity instanceof EntityNPCInterface)) {
@@ -752,7 +855,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				npc.setSneaking(npc.aiIsSneak);
 			}
 
-		} else if (type == EnumPacketClient.UPDATE_NPC_TARGET) {
+		}
+		else if (type == EnumPacketClient.UPDATE_NPC_TARGET) {
 			int entityId = buffer.readInt();
 			Entity entity = mc.world.getEntityByID(entityId);
 			if (!(entity instanceof EntityNPCInterface)) {
@@ -767,13 +871,16 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				else { ((EntityLiving) npc).setAttackTarget(null); }
 			}
 			else { ((EntityLiving) npc).setAttackTarget(null); }
-		} else if (type == EnumPacketClient.SCRIPT_PACKAGE) {
+		}
+		else if (type == EnumPacketClient.SCRIPT_PACKAGE) {
 			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
-		} else if (type == EnumPacketClient.SCRIPT_CLIENT) {
+		}
+		else if (type == EnumPacketClient.SCRIPT_CLIENT) {
 			ScriptController.HasStart = true;
 			NBTTagCompound compound = Server.readNBT(buffer);
 			ScriptController.Instance.setClientScripts(compound);
-		} else if (type == EnumPacketClient.SEND_FILE_LIST) {
+		}
+		else if (type == EnumPacketClient.SEND_FILE_LIST) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			for (int i = 0; i < compound.getTagList("FileList", 10).tagCount(); i++) {
 				NBTTagCompound tempFile = compound.getTagList("FileList", 10).getCompoundTagAt(i);
@@ -785,12 +892,14 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				file.setTitle(tempFile);
 			}
 			ClientTickHandler.loadFiles();
-		} else if (type == EnumPacketClient.NPC_MOVINGPATH) {
+		}
+		else if (type == EnumPacketClient.NPC_MOVINGPATH) {
 			Entity entity = player.world.getEntityByID(buffer.readInt());
 			if (entity instanceof EntityCustomNpc) {
 				((EntityCustomNpc) entity).ais.readToNBT(Server.readNBT(buffer));
 			}
-		} else if (type == EnumPacketClient.SEND_FILE_PART) {
+		}
+		else if (type == EnumPacketClient.SEND_FILE_PART) {
 			if (buffer.readBoolean()) {
 				ClientProxy.loadFiles.remove(Server.readString(buffer));
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
@@ -828,35 +937,43 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				ClientProxy.loadFiles.remove(name);
 			}
 			ClientTickHandler.loadFiles();
-		} else if (type == EnumPacketClient.PLAY_CAMERA_SHAKING) {
+		}
+		else if (type == EnumPacketClient.PLAY_CAMERA_SHAKING) {
 			ClientGuiEventHandler.crashes.set(buffer.readInt(), buffer.readInt(), buffer.readInt(),
 					buffer.readBoolean());
-		} else if (type == EnumPacketClient.STOP_CAMERA_SHAKING) {
+		}
+		else if (type == EnumPacketClient.STOP_CAMERA_SHAKING) {
 			ClientGuiEventHandler.crashes.isActive = false;
-		} else if (type == EnumPacketClient.SHOW_BANK_PLAYER) {
+		}
+		else if (type == EnumPacketClient.SHOW_BANK_PLAYER) {
 			ContainerNPCBank.editPlayerBankData = Server.readString(buffer);
             if (ContainerNPCBank.editPlayerBankData != null && ContainerNPCBank.editPlayerBankData.isEmpty()) {
 				ContainerNPCBank.editPlayerBankData = null;
 			}
-		} else if (type == EnumPacketClient.BANK_CEIL_OPEN) {
+		}
+		else if (type == EnumPacketClient.BANK_CEIL_OPEN) {
 			if (!(player.openContainer instanceof ContainerNPCBank)) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			((ContainerNPCBank) player.openContainer).dataCeil = buffer.readInt();
-		} else if (type == EnumPacketClient.NPC_DATA) {
+		}
+		else if (type == EnumPacketClient.NPC_DATA) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity e = player.world.getEntityByID(compound.getInteger("EntityID"));
 			if (e instanceof EntityNPCInterface) {
 				e.readFromNBT(compound);
 			}
-		} else if (type == EnumPacketClient.PLAYER_SKIN_ADD) {
+		}
+		else if (type == EnumPacketClient.PLAYER_SKIN_ADD) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			UUID uuid = PlayerSkinController.getInstance().loadPlayerSkin(compound);
 			ClientProxy.resetSkin(uuid);
-		} else if (type == EnumPacketClient.PLAYER_SKIN_GET) {
+		}
+		else if (type == EnumPacketClient.PLAYER_SKIN_GET) {
 			ClientProxy.sendSkin(player.getUniqueID());
-		} else if (type == EnumPacketClient.MINIMAP_DATA) {
+		}
+		else if (type == EnumPacketClient.MINIMAP_DATA) {
 			PlayerMiniMapData mm = data.minimap;
 			String modName = mm.modName;
 			mm.loadNBTData(Server.readNBT(buffer));
@@ -1118,7 +1235,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				player.sendMessage(new TextComponentTranslation("minimap.set.points." + isChanged,
 						((char) 167) + "7" + modName));
 			}
-		} else if (type == EnumPacketClient.NPC_LOOK_POS) {
+		}
+		else if (type == EnumPacketClient.NPC_LOOK_POS) {
 			if (player.world.provider.getDimension() == buffer.readInt()) {
 				Entity npc = player.world.getEntityByID(buffer.readInt());
 				if (npc instanceof EntityNPCInterface) {
@@ -1127,7 +1245,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					else { ((EntityNPCInterface) npc).lookAt = player.world.getEntityByID(lookId); }
 				}
 			}
-		} else if (type == EnumPacketClient.EVENT_NAMES) {
+		}
+		else if (type == EnumPacketClient.EVENT_NAMES) {
 			String names = Server.readString(buffer);
 			if (names == null) { return; }
 			byte t = names.indexOf(((char) 167) + "6Client") == 0 ? (byte) 0 : names.indexOf(((char) 167) + "6Server") == 0 ? (byte)1 : (byte)2;

@@ -172,21 +172,13 @@ public class PacketHandlerPlayer {
 			PlayerOverlayHUD hud = data.hud;
 			int key = buffer.readInt();
 			if (key < 0) {
-				for (int k : hud.mousePress) {
-					EventHooks.onPlayerMousePressed(player, k, false, false, false, false, false);
-				}
 				hud.mousePress.clear();
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			boolean isDown = buffer.readBoolean();
-			if (isDown) {
-				hud.mousePress.add(key);
-			} else {
-				if (hud.hasMousePress(key)) {
-					hud.mousePress.remove((Integer) key);
-				}
-			}
+			if (isDown) { hud.mousePress.add(key); }
+			else if (hud.hasMousePress(key)) { hud.mousePress.remove((Integer) key); }
 			if (!CustomNpcs.EnableScripting || ScriptController.Instance.languages.isEmpty()) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;

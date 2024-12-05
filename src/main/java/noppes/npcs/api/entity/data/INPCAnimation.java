@@ -4,7 +4,7 @@ import noppes.npcs.api.INbt;
 
 public interface INPCAnimation {
 
-	boolean hasAnimations(int animationType);
+	/*boolean hasAnimations(int animationType);
 
 	boolean hasAnimation(int animationType, int animationId);
 
@@ -30,6 +30,6 @@ public interface INPCAnimation {
 
 	void setNbt(INbt nbt);
 
-	void update();
+	void update();*/
 
 }

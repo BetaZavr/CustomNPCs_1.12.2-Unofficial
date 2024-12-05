@@ -73,12 +73,12 @@ public class ModelNpcAlt extends ModelPlayer {
     protected ModelHeadwear bipedHeadwear_2048_old;
     protected ModelHeadwear bipedHeadwear_4096_old;
     protected ModelRendererAlt bipedCape;
-    public AnimationStack rightStackData = new AnimationStack();
-    public AnimationStack leftStackData = new AnimationStack();
+    public AnimationStack rightStackData = new AnimationStack(7);
+    public AnimationStack leftStackData = new AnimationStack(6);
     public boolean smallArmsIn;
     public boolean isClassicPlayer;
 
-    public static void resetAnimationModel(AnimationConfig animation) {
+    public static void loadAnimationModel(AnimationConfig animation) {
         if (animation == null) { return; }
         if (animation.addParts.isEmpty()) {
             animAddedChildren.remove(animation.id);
@@ -544,6 +544,7 @@ public class ModelNpcAlt extends ModelPlayer {
 
     @Override
     public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, @Nonnull Entity entityIn) {
+
         DataAnimation animation = null;
         if (entityIn instanceof EntityPlayer) {
             PlayerData data = PlayerData.get((EntityPlayer) entityIn);
@@ -664,41 +665,46 @@ public class ModelNpcAlt extends ModelPlayer {
             }
         }
         if (CustomNpcs.ShowCustomAnimation && animation != null) {
-            boolean bo = animation.stage != EnumAnimationStages.Run;
-            if (bo) { animation.preFrame.setRotationAngles(this); } // remember the base values
-            if (animation.isAnimated()) {
-//System.out.println("CNPCs: "+animation.getAnimation().name);
-                // Custom Animation
+            if (!animation.isAnimated() || (animation.getAnimationStage() != EnumAnimationStages.Waiting && animation.getAnimationStage() != EnumAnimationStages.Run)) {
+                ((ModelRendererAlt) bipedHead).putAnimation(animation);
+                ((ModelRendererAlt) bipedBody).putAnimation(animation);
+                ((ModelRendererAlt) bipedRightArm).putAnimation(animation);
+                ((ModelRendererAlt) bipedLeftArm).putAnimation(animation);
+                ((ModelRendererAlt) bipedRightLeg).putAnimation(animation);
+                rightStackData.putAnimation(animation);
+                leftStackData.putAnimation(animation);
+            }
+            if (animation.getAnimationStage() != EnumAnimationStages.Waiting) {
                 float partialTicks = 0.0f;
                 Minecraft mc = Minecraft.getMinecraft();
                 if (mc.currentScreen == null || mc.currentScreen.isFocused()) { partialTicks = mc.getRenderPartialTicks(); }
-                animation.calculationAnimationBeforeRendering(partialTicks);
-                //if (entityIn.equals(editAnimDataSelect.displayNpc)) { bipedHead.rotateAngleY = 0.0f; }
-
-                if (animation.showParts.get(EnumParts.HEAD)) { ((ModelRendererAlt) bipedHead).setAnimation(animation); }
-                if (animation.showParts.get(EnumParts.BODY)) { ((ModelRendererAlt) bipedBody).setAnimation(animation); }
-                if (animation.showParts.get(EnumParts.ARM_RIGHT)) {
-                    ((ModelRendererAlt) bipedRightArm).setAnimation(animation);
-                    rightStackData.setAnimation(animation, EnumParts.RIGHT_STACK.patterns);
-                }
-                if (animation.showParts.get(EnumParts.ARM_LEFT)) {
-                    ((ModelRendererAlt) bipedLeftArm).setAnimation(animation);
-                    leftStackData.setAnimation(animation, EnumParts.LEFT_STACK.patterns);
-                }
-                if (animation.showParts.get(EnumParts.LEG_RIGHT)) { ((ModelRendererAlt) bipedRightLeg).setAnimation(animation); }
-                if (animation.showParts.get(EnumParts.LEG_LEFT)) { ((ModelRendererAlt) bipedLeftLeg).setAnimation(animation); }
-                if (animAddedChildren.containsKey(animation.getAnimation().id)) {
-                    for (int partId : animAddedChildren.get(animation.getAnimation().id).keySet()) {
-                        if (partId < 8) { continue; }
-                        for (ModelRendererAlt renderModel : animAddedChildren.get(animation.getAnimation().id).get(partId)) {
-                            renderModel.clearRotations();
-                            renderModel.setAnimation(animation);
+                animation.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, partialTicks);
+                if (animation.isAnimated()) {
+                    if (animation.showParts.get(EnumParts.HEAD)) { ((ModelRendererAlt) bipedHead).setAnimation(animation); }
+                    if (animation.showParts.get(EnumParts.BODY)) { ((ModelRendererAlt) bipedBody).setAnimation(animation); }
+                    if (animation.showParts.get(EnumParts.ARM_RIGHT)) {
+                        ((ModelRendererAlt) bipedRightArm).setAnimation(animation);
+                        rightStackData.setAnimation(animation, EnumParts.RIGHT_STACK.patterns);
+                    }
+                    if (animation.showParts.get(EnumParts.ARM_LEFT)) {
+                        ((ModelRendererAlt) bipedLeftArm).setAnimation(animation);
+                        leftStackData.setAnimation(animation, EnumParts.LEFT_STACK.patterns);
+                    }
+                    if (animation.showParts.get(EnumParts.LEG_RIGHT)) { ((ModelRendererAlt) bipedRightLeg).setAnimation(animation); }
+                    if (animation.showParts.get(EnumParts.LEG_LEFT)) { ((ModelRendererAlt) bipedLeftLeg).setAnimation(animation); }
+                    if (animAddedChildren.containsKey(animation.getAnimation().id)) {
+                        for (int partId : animAddedChildren.get(animation.getAnimation().id).keySet()) {
+                            if (partId < 8) { continue; }
+                            for (ModelRendererAlt renderModel : animAddedChildren.get(animation.getAnimation().id).get(partId)) {
+                                renderModel.clearRotations();
+                                renderModel.setAnimation(animation);
+                            }
                         }
                     }
                 }
             }
-            if (!bo) { animation.preFrame.setRotationAngles(this); } // remember values from animation
         }
+
         if (CustomNpcs.HeadWearType != 2) {
             copyModelAngles((ModelRendererAlt) bipedHead, (ModelRendererAlt) bipedHeadwear);
             if (bipedHeadwear_64 != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_64); }

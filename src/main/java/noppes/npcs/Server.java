@@ -43,6 +43,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.internal.EntitySpawnMessageHelper;
 import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
+import noppes.npcs.client.PacketHandlerClient;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.api.mixin.pathfinding.IPathMixin;
@@ -77,6 +78,11 @@ public class Server {
 		Server.list.add(EnumPacketClient.FORCE_PLAY_SOUND);
 		Server.list.add(EnumPacketClient.NPC_LOOK_POS);
 		Server.list.add(EnumPacketClient.UPDATE_HUD);
+		Server.list.add(EnumPacketClient.ANIMATION_DATA_SET);
+		Server.list.add(EnumPacketClient.ANIMATION_DATA_BASE_ANIMATIONS);
+		Server.list.add(EnumPacketClient.ANIMATION_DATA_RUN_ANIMATION);
+		Server.list.add(EnumPacketClient.ANIMATION_DATA_STOP_ANIMATION);
+		Server.list.add(EnumPacketClient.ANIMATION_DATA_STOP_EMOTION);
 	}
 
 	public static boolean fillBuffer(ByteBuf buffer, Enum<?> enu, Object... obs) throws IOException {

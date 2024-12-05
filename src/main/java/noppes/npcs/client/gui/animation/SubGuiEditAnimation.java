@@ -1987,7 +1987,6 @@ System.out.println("buttonID: "+button.id);
 		// Part
 		label = new GuiNpcLabel(lId++, isMotion ? "animation.motion" :  isHitbox ? "animation.hitbox" : "animation.parts", x, y += 13);
 		addLabel(label);
-
 		// show part names
 		button = new GuiNpcButton(29, workU + 2, y, 8, 8, "");
 		button.texture = ANIMATION_BUTTONS;
@@ -2013,6 +2012,7 @@ System.out.println("buttonID: "+button.id);
 			addButton(button);
 		}
 
+		// scrolls data set
 		if (scrollParts == null) { (scrollParts = new GuiCustomScroll(this, 0)).setSize(67, 112); }
 		dataParts.clear();
 		List<String> lParts = new ArrayList<>();
@@ -2023,7 +2023,6 @@ System.out.println("buttonID: "+button.id);
 			lParts.add(key);
 		}
 		scrollParts.setListNotSorted(lParts);
-
 		dataHitboxes.clear();
 		if (scrollHitboxes == null) { (scrollHitboxes = new GuiCustomScroll(this, 1)).setSize(112, 112); }
 		List<String> lHitboxes = new ArrayList<>();
@@ -2047,9 +2046,9 @@ System.out.println("buttonID: "+button.id);
 			i++;
 		}
 		scrollHitboxes.setListNotSorted(lHitboxes);
-
 		if (isHitbox && toolType == 0) { toolType = 1; }
-		button = new GuiNpcButton(7, x + label.width + 2, y, 10, 10, ""); // add part / hitbox
+		// add part / hitbox
+		button = new GuiNpcButton(7, x + label.width + 2, y, 10, 10, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
@@ -2057,7 +2056,8 @@ System.out.println("buttonID: "+button.id);
 		button.txrW = 24;
 		button.txrH = 24;
 		addButton(button);
-		button = new GuiNpcButton(8, x + label.width + 12, y, 10, 10, ""); // del part / hitbox
+		// del part / hitbox
+		button = new GuiNpcButton(8, x + label.width + 12, y, 10, 10, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
@@ -2065,28 +2065,35 @@ System.out.println("buttonID: "+button.id);
 		button.txrW = 24;
 		button.txrH = 24;
 		addButton(button);
-		button = new GuiNpcButton(9, x + 126, y, 10, 10, ""); // clear part
+		// clear part
+		button = new GuiNpcButton(9, x + 126, y, 10, 10, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrX = 120;
 		button.txrW = 24;
 		button.txrH = 24;
+		button.enabled = !isMotion && !isHitbox;
 		addButton(button);
-
-		addButton(new GuiNpcCheckBox(10, x, y += 10, 67, 14, "gui.disabled", "gui.enabled", part.isDisable()));
-
-		addButton(new GuiNpcCheckBox(22, x + 69, y, 67, 14, "gui.show", "gui.noshow", part.isShow()));
-
+		// used part in frame
+		button = new GuiNpcCheckBox(10, x, y += 10, 67, 14, "gui.disabled", "gui.enabled", part.isDisable());
+		button.enabled = !isMotion && !isHitbox;
+		addButton(button);
+		// show part in frame
+		button = new GuiNpcCheckBox(22, x + 69, y, 67, 14, "gui.show", "gui.noshow", part.isShow());
+		button.enabled = !isMotion && !isHitbox;
+		addButton(button);
+		// display color hover
 		StringBuilder color = new StringBuilder(Integer.toHexString(CustomNpcs.colorAnimHoverPart));
 		while (color.length() < 6) { color.insert(0, "0"); }
-		button = new GuiNpcButton(12, x, y += 15, 67, 10, color.toString()); // color hover
+		button = new GuiNpcButton(12, x, y += 15, 67, 10, color.toString());
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
 		button.setTextColor(CustomNpcs.colorAnimHoverPart);
 		button.dropShadow = false;
+		button.enabled = !isMotion && !isHitbox;
 		addButton(button);
 
 		// Chance
@@ -2097,7 +2104,6 @@ System.out.println("buttonID: "+button.id);
 		textField.setMinMaxDoubleDefault(0.0f, 100.0f, ch);
 		addTextField(textField);
 		addLabel(new GuiNpcLabel(lId++, "%", x + 72, y + 1));
-
 		// Sound Settings
 		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("advanced.sounds").getFormattedText()+":", x, y += 16));
 		textField = new GuiNpcTextField(3, this, x, y + 10, 135, 12, frame.getStartSound());
@@ -2729,8 +2735,8 @@ System.out.println("buttonID: "+button.id);
 
 		AnimationConfig ac = anim.copy();
 
-		npcAnim.animation.clear();
-		npcAnim.animation.setAnimation(ac, AnimationKind.EDITING_All);
+		npcAnim.animation.reset();
+		npcAnim.animation.tryRunAnimation(ac, AnimationKind.EDITING_All);
 		npcAnim.setHealth(npcAnim.getMaxHealth());
 		npcAnim.deathTime = 0;
 
@@ -2738,8 +2744,8 @@ System.out.println("buttonID: "+button.id);
 		ac.frames.clear();
 		ac.frames.put(0, frame);
 
-		npcPart.animation.clear();
-		npcPart.animation.setAnimation(ac, AnimationKind.EDITING_PART);
+		npcPart.animation.reset();
+		npcPart.animation.tryRunAnimation(ac, AnimationKind.EDITING_PART);
 		npcPart.setHealth(npcPart.getMaxHealth());
 		npcPart.deathTime = 0;
 	}

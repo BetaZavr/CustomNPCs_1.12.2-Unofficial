@@ -530,7 +530,7 @@ public class CommonProxy implements IGuiHandler {
 		return lang;
 	}
 
-    public void resetAnimationModel(AnimationConfig animation) {
+    public void loadAnimationModel(AnimationConfig animation) {
     }
 
 }

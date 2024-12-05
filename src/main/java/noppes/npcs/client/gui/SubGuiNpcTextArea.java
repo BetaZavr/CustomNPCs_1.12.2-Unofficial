@@ -20,19 +20,20 @@ public class SubGuiNpcTextArea extends SubGuiInterface implements ITextChangeLis
 		this.id = id;
 	}
 
-	public SubGuiNpcTextArea(String text) {
-		this.highlighting = false;
-		this.text = text;
-		this.originalText = text;
-		this.setBackground("bgfilled.png");
-		this.xSize = 256;
-		this.ySize = 256;
-		this.closeOnEsc = true;
+	public SubGuiNpcTextArea(String t) {
+		setBackground("bgfilled.png");
+		xSize = 256;
+		ySize = 256;
+		closeOnEsc = true;
+
+		highlighting = false;
+		text = t;
+		originalText = t;
 	}
 
-	public SubGuiNpcTextArea(String originalText, String text) {
-		this(text);
-		this.originalText = originalText;
+	public SubGuiNpcTextArea(String textOriginal, String t) {
+		this(t);
+		this.originalText = textOriginal;
 	}
 
 	@Override

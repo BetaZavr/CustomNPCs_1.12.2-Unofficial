@@ -13,7 +13,6 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -104,7 +103,7 @@ public class GuiNpcAnimation
 				AnimationConfig newAnim = (AnimationConfig) aData.createNewAnim();
 				newAnim.name = Util.instance.deleteColor(new TextComponentTranslation(selType).getFormattedText().replaceAll(" ", "_")+ "_" + newAnim.id);
 				newAnim.type = dataType.get(selType);
-				animation.data.get(newAnim.type).add(newAnim.id);
+				animation.addAnimation(newAnim.type, newAnim.id);
 				selAnim = newAnim.getSettingName();
 				isChanged = true;
 				initGui();
@@ -122,7 +121,7 @@ public class GuiNpcAnimation
 				selAnim = anim.getSettingName();
 				selBaseAnim = anim.getSettingName();
 				if (dataType.containsKey(selType)) {
-					animation.data.get(dataType.get(selType)).add(anim.id);
+					animation.addAnimation(dataType.get(selType), anim.id);
 				}
 				isChanged = true;
 				initGui();
@@ -155,7 +154,7 @@ public class GuiNpcAnimation
 		if (id == 0) {
 			if (anim == null) { return; }
 			if (dataType.containsKey(selType)) {
-				animation.data.get(dataType.get(selType)).remove(Integer.valueOf(anim.id));
+				animation.removeAnimation(dataType.get(selType), anim.id);
 			}
 			AnimationController.getInstance().removeAnimation(anim.id);
 			isChanged = true;
@@ -312,7 +311,7 @@ public class GuiNpcAnimation
 		if (!selAnim.isEmpty() && !selBaseAnim.isEmpty() && !Util.instance.deleteColor(selAnim).equals(Util.instance.deleteColor(selBaseAnim))) { selAnim = ""; }
 		for (AnimationConfig ac : aData.animations.values()) {
 			String key = ((char) 167) + (type == ac.type ? "a" : "7") + ac.getSettingName();
-			if (animation.data.get(type).contains(ac.id)) { dataAnimations.add(key); }
+			if (animation.hasAnimation(type, ac.id)) { dataAnimations.add(key); }
 			dataAllAnimations.put(key, ac);
 			if (!selAnim.isEmpty() && Util.instance.deleteColor(selAnim).equals(Util.instance.deleteColor(key))) { selAnim = key; }
 			if (!selBaseAnim.isEmpty() && Util.instance.deleteColor(selBaseAnim).equals(Util.instance.deleteColor(key))) { selBaseAnim = key; }
@@ -378,8 +377,8 @@ public class GuiNpcAnimation
 		if (anim == null || npcAnim == null) { return; }
 		anim = anim.copy();
 		anim.type = dataType.get(selType);
-		npcAnim.animation.clear();
-		npcAnim.animation.setAnimation(anim, AnimationKind.EDITING_All);
+		npcAnim.animation.reset();
+		npcAnim.animation.tryRunAnimation(anim, AnimationKind.EDITING_All);
 		npcAnim.setHealth(npcAnim.getMaxHealth());
 		npcAnim.deathTime = 0;
 	}
@@ -417,14 +416,10 @@ public class GuiNpcAnimation
 			anim = getAnim();
 			if (anim == null) { return; }
 			AnimationKind type = dataType.get(selType);
-			if (animation.data.get(type).contains(anim.id)) {
-				for (Integer id : animation.data.get(type)) {
-					if (id == anim.id) {
-						animation.data.get(type).remove(id);
-						isChanged = true;
-						initGui();
-						return;
-					}
+			if (animation.hasAnimation(type, anim.id)) {
+				if (animation.removeAnimation(type, anim.id)) {
+					isChanged = true;
+					initGui();
 				}
 			}
 		}
@@ -435,7 +430,7 @@ public class GuiNpcAnimation
 			selAnim = anim.getSettingName();
 			selBaseAnim = anim.getSettingName();
 			AnimationKind type = dataType.get(selType);
-			if (!animation.data.get(type).contains(anim.id)) { animation.data.get(type).add(anim.id); }
+			if (!animation.hasAnimation(type, anim.id)) { animation.addAnimation(type, anim.id); }
 			isChanged = true;
 			initGui();
 		}
@@ -458,9 +453,8 @@ public class GuiNpcAnimation
 				return;
 			}
 			selAnim = ((SubGuiEditAnimation) subgui).anim.getSettingName();
-			if (!animation.data.containsKey(type)) { animation.data.put(type, new ArrayList<>()); }
-			if (anim != null && !animation.data.get(type).contains(anim.id)) {
-				animation.data.get(type).add(anim.id);
+			if (anim != null && !animation.hasAnimation(type, anim.id)) {
+				animation.addAnimation(type, anim.id);
 			}
 			Client.sendData(EnumPacketServer.AnimationChange, ((SubGuiEditAnimation) subgui).anim.save());
 			isChanged = true;

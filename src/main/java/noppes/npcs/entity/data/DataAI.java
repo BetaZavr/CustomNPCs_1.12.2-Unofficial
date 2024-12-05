@@ -37,7 +37,7 @@ public class DataAI
 	public int animationType = 0;
 	public int doorInteract = 2;
 	public int findShelter = 2;
-	public int movementType = 0; // 0:Ground, 1:Flying, 2:Swimming
+	public int movementType = 0;
 	private int moveSpeed = 5;
 	public int movingPattern = 0; // -> EntityAIMovingPath
 	public int movingPos = 0; // -> EntityAIMovingPath
@@ -206,6 +206,9 @@ public class DataAI
 		return this.movingType;
 	}
 
+	/**
+	 * @return 0:Ground, 1:Flying, 2:Swimming
+	 */
 	@Override
 	public int getNavigationType() {
 		return this.movementType;
