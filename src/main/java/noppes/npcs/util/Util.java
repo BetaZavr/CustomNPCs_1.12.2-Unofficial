@@ -109,7 +109,6 @@ public class Util implements IMethods {
 		put(1000, "M");
 	}};
 	private static final Map<String, String> translateDate = new HashMap<>();
-	public static final double GRAVITY = 0.08d;
 
 	public final static Util instance = new Util();
 	public static boolean hasInternet = true;
@@ -1892,24 +1891,35 @@ public class Util implements IMethods {
 		return Math.abs(entityTo.posX - (double) pos.x) <= 1.0 && Math.abs(entityTo.posY - (double) pos.y) < 2.0d && Math.abs(entityTo.posZ - (double) pos.z) <= 1.0d;
 	}
 
-	public float getCurrentXZSpeed(EntityLivingBase entity) {
-		Vec3d currentPosition = new Vec3d(entity.posX, 0.0f, entity.posZ);
-		Vec3d delta = currentPosition.subtract(new Vec3d(entity.prevPosX, 0.0f, entity.prevPosZ));
-		double distanceMoved = delta.lengthSquared();
-		IAttributeInstance movementAttribute = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-		float speed = 1.0f;
-		if (movementAttribute != null) {
-			speed = (float) (distanceMoved / movementAttribute.getBaseValue() * 2.1475d);
+	public int getColorI(int index) {
+		switch (index) {
+			case 0: return 0x000000; // BLACK
+			case 1: return 0x0000A8; // DARK_BLUE
+			case 2: return 0x00A800; // DARK_GREEN
+			case 3: return 0x00A8A8; // DARK_AQUA
+			case 4: return 0xA80000; // DARK_RED
+			case 5: return 0xA800A8; // DARK_PURPLE
+			case 6: return 0xFFAA00; // GOLD
+			case 7: return 0xA8A8A8; // GRAY
+			case 8: return 0x545454; // DARK_GRAY
+			case 9: return 0x5757FF; // BLUE
+			case 10: return 0x57FF57; // a / GREEN
+			case 11: return 0x57FFFF; // b / AQUA
+			case 12: return 0xFF5757; // c / RED
+			case 13: return 0xFF57FF; // d / LIGHT_PURPLE
+			case 14: return 0xFFFF57; // e / YELLOW
 		}
-		return ValueUtil.correctFloat(speed, 0.25f, 1.0f);
+		return 0xFFFFFF; // f / WHITE
 	}
 
-	public boolean isMoving(EntityLivingBase entity) {
-		double sp = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
-		double speed = 0.069d;
-		if (sp != 0.0d) { speed = speed * 0.25d / sp; }
-		double xz = Math.sqrt(Math.pow(entity.motionX, 2.0d) + Math.pow(entity.motionZ, 2.0d));
-		return xz >= (speed / 2.0d) && (entity.motionY <= -speed || entity.motionY > 0.0d);
+	public float[] getColorF(int index) {
+		int c = getColorI(index);
+		return new float[] {
+				(float)(c >> 16 & 255) / 255.0F, // red
+				(float)(c >> 8 & 255) / 255.0F, // green
+				(float)(c & 255) / 255.0F, // blue
+				1.0f // alpha
+		};
 	}
 
 }

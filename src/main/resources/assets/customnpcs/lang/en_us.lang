@@ -1839,6 +1839,7 @@ property.showhitboxwhenholdtools.hover=Display hitbox of nearby NPCs when holdin
 property.showjoints.hover=Display of joints when animating an NPC model. Disable it if you have a weak computer
 property.showlr.hover=Whether to display level and rarity. If 1, then it will be installed on all clients.
 property.showmoney.hover=Show player balance in inventory
+property.showrarityitem.hover=Show item rarity color layer behind in slots
 property.showquestcompass.hover=Show Quest Compass player
 property.simplifiedforgeevents.hover=Stop creating variables for each Forge event. It is not recommended to enable it if you have a slow computer or server
 property.soulstoneanimals.hover=Regular players can use the Soulstone on animals

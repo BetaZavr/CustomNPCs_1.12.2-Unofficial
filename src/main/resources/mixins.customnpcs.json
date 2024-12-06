@@ -73,6 +73,7 @@
     "client.particle.ParticleSmokeNormalMixin",
     "client.renderer.BlockModelRendererMixin",
     "client.renderer.BlockRendererDispatcherMixin",
+    "client.renderer.RenderItemMixin",
     "client.renderer.entity.RenderPlayerMixin",
     "client.renderer.texture.TextureManagerMixin",
     "client.renderer.texture.TextureMapMixin",
