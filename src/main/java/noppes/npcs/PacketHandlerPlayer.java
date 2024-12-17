@@ -2,10 +2,7 @@ package noppes.npcs;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 
@@ -41,12 +38,7 @@ import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
-import noppes.npcs.constants.EnumCompanionTalent;
-import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.constants.EnumPlayerPacket;
-import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.constants.EnumSync;
+import noppes.npcs.constants.*;
 import noppes.npcs.containers.ContainerCustomGui;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.containers.ContainerNPCBank;
@@ -81,6 +73,8 @@ import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAnimation;
+import noppes.npcs.entity.data.DataInventory;
+import noppes.npcs.entity.data.DataScript;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.roles.RoleCompanion;
@@ -585,7 +579,6 @@ public class PacketHandlerPlayer {
 				}
 			}
 		}
-		// New
 		else if (type == EnumPlayerPacket.QuestRemoveActive) {
 			int id = buffer.readInt();
 			IQuest quest = QuestController.instance.get(id);
@@ -1007,6 +1000,17 @@ public class PacketHandlerPlayer {
 					((NpcScriptData) handler).lastInited = -1L;
 					break;
 				}
+				case 7: { // NPC
+					Entity e = player.world.getEntityByID(compound.getInteger("EntityID"));
+					if (!(e instanceof EntityNPCInterface)) {
+						CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
+						return;
+					}
+					handler = ((EntityNPCInterface) e).script;
+					((DataScript) handler).readFromNBT(compound);
+					((DataScript) handler).lastInited = -1L;
+					break;
+				}
 			}
 			boolean error = false;
 			File file = new File(compound.getString("Path"));
@@ -1052,6 +1056,36 @@ public class PacketHandlerPlayer {
 			SyncController.update(synctype, Server.readNBT(buffer), buffer, player);
 		} else if (type == EnumPlayerPacket.AcceptScripts) {
 			ScriptController.Instance.setAgreement(Server.readString(buffer), buffer.readBoolean());
+		} else if (type == EnumPlayerPacket.DropsData) {
+			if (player.capabilities.isCreativeMode && data.editingNpc != null && !data.editingNpc.isEntityAlive() && data.editingNpc.inventory.deadLoots != null) {
+				List<String> list = new ArrayList<>();
+				for (EntityLivingBase e : data.editingNpc.inventory.deadLoots.keySet()) {
+					String name = e.getName();
+					if (!(e instanceof EntityPlayer)) { name = ((char) 167) + "7Mob: " + e.getName(); }
+					list.add(name);
+				}
+				Collections.sort(list);
+				Server.sendData(player, EnumPacketClient.SCROLL_LIST, list);
+			}
+		} else if (type == EnumPlayerPacket.DropData) {
+			if (player.capabilities.isCreativeMode && data.editingNpc != null && !data.editingNpc.isEntityAlive() && data.editingNpc.inventory.deadLoots != null) {
+				DataInventory dataInv = data.editingNpc.inventory;
+				String name = Server.readString(buffer);
+				if (name != null) {
+					int i = 0;
+					int size = 9;
+					for (EntityLivingBase e : dataInv.deadLoots.keySet()) {
+						String n = e.getName();
+						if (!(e instanceof EntityPlayer)) { n = "Mob: " + e.getName(); }
+						if (n.equals(name)) {
+							size = dataInv.deadLoots.get(e).getSizeInventory();
+							break;
+						}
+						i++;
+					}
+					NoppesUtilServer.sendOpenGui(player, EnumGuiType.DeadInventory, data.editingNpc, size, i, 0);
+				}
+			}
 		}
 		CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 	}

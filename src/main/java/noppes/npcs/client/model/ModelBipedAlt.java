@@ -29,6 +29,9 @@ import javax.annotation.Nonnull;
 public class ModelBipedAlt extends ModelNpcAlt {
 
 	private final boolean isArmorModel;
+	private float armorColorR = 1.0f;
+	private float armorColorG = 1.0f;
+	private float armorColorB = 1.0f;
 	public final AnimationStack rightStackData = new AnimationStack(7);
 	public final AnimationStack leftStackData = new AnimationStack(6);
 	protected EntityEquipmentSlot slot;
@@ -103,6 +106,11 @@ public class ModelBipedAlt extends ModelNpcAlt {
 		Map<EnumParts, Boolean> baArmor = new HashMap<>();
 
 		float r = 1.0f, g = 1.0f, b = 1.0f;
+		if (isArmorModel) {
+			r = armorColorR;
+			g = armorColorG;
+			b = armorColorB;
+		}
 		if (entityIn instanceof EntityPlayer) {
 			PlayerData data = PlayerData.get((EntityPlayer) entityIn);
 			if (data != null) {
@@ -114,7 +122,7 @@ public class ModelBipedAlt extends ModelNpcAlt {
 			EntityNPCInterface npc = (EntityNPCInterface) entityIn;
 			ba.putAll(npc.animation.showParts);
 			baArmor.putAll(npc.animation.showArmorParts);
-			if (!this.isArmorModel && npc.display.getTint() != 0xFFFFFF) {
+			if (!isArmorModel && npc.display.getTint() != 0xFFFFFF) {
 				r = (float)(npc.display.getTint() >> 16 & 255) / 255.0F;
 				g = (float)(npc.display.getTint() >> 8 & 255) / 255.0F;
 				b = (float)(npc.display.getTint() & 255) / 255.0F;
@@ -125,7 +133,8 @@ public class ModelBipedAlt extends ModelNpcAlt {
 		int entitySkinTextureID = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
-		bipedHead.showModel = ba.get(EnumParts.HEAD) || (isArmorModel && baArmor.get(EnumParts.HEAD) && slot == EntityEquipmentSlot.HEAD);
+
+		bipedHead.showModel = ba.get(EnumParts.HEAD) && (!isArmorModel || (baArmor.get(EnumParts.HEAD) && slot == EntityEquipmentSlot.HEAD));
 		if (this.bipedHead.showModel && entityIn instanceof EntityLivingBase) {
 			((ModelRendererAlt) this.bipedHead).checkBacklightColor(r, g, b);
 			if (this.isChild) {
@@ -133,7 +142,7 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				GlStateManager.translate(0.0F, 16.0F * scale, 0.0F);
 				if (renderHead((EntityLivingBase) entityIn, scale)) {
 					GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
-					this.renderHeadWear(scale);
+					renderHeadWear(scale);
 				}
 				GlStateManager.popMatrix();
 				GlStateManager.pushMatrix();
@@ -148,13 +157,13 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				}
 				if (renderHead((EntityLivingBase) entityIn, scale)) {
 					GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
-					this.renderHeadWear(scale);
+					renderHeadWear(scale);
 				}
 			}
 		}
 
-		this.bipedRightArm.showModel = ba.get(EnumParts.ARM_RIGHT) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.CHEST);
-		this.bipedLeftArm.showModel = ba.get(EnumParts.ARM_LEFT) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.CHEST);
+		bipedRightArm.showModel = ba.get(EnumParts.ARM_RIGHT) && (!isArmorModel || (baArmor.get(EnumParts.ARM_RIGHT) && slot == EntityEquipmentSlot.CHEST));
+		bipedLeftArm.showModel = ba.get(EnumParts.ARM_LEFT) && (!isArmorModel || (baArmor.get(EnumParts.ARM_LEFT) && slot == EntityEquipmentSlot.CHEST));
 		if (this.bipedRightArm.showModel || this.bipedLeftArm.showModel) {
 			if (this.isArmorModel && this.slot == EntityEquipmentSlot.CHEST) {
 				stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.CHEST);
@@ -176,7 +185,6 @@ public class ModelBipedAlt extends ModelNpcAlt {
             GlStateManager.pushMatrix();
             if (entityIn.isSneaking()) { GlStateManager.translate(0.0F, -0.2F, 0.0F); }
             if (this.bipedRightArm.showModel) {
-
                 ((ModelRendererAlt) this.bipedRightArm).checkBacklightColor(r, g, b);
                 if (((ModelRendererAlt) this.bipedRightArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
                 this.bipedRightArm.render(scale);
@@ -189,8 +197,8 @@ public class ModelBipedAlt extends ModelNpcAlt {
             GlStateManager.popMatrix();
         }
 
-		this.bipedRightLeg.showModel = ba.get(EnumParts.LEG_RIGHT) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.LEGS || this.slot == EntityEquipmentSlot.FEET);
-		this.bipedLeftLeg.showModel = ba.get(EnumParts.LEG_LEFT) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.LEGS || this.slot == EntityEquipmentSlot.FEET);
+		bipedLeftArm.showModel = ba.get(EnumParts.LEG_RIGHT) && (!isArmorModel || (baArmor.get(EnumParts.LEG_RIGHT) && (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)));
+		bipedLeftLeg.showModel = ba.get(EnumParts.LEG_LEFT) && (!isArmorModel || (baArmor.get(EnumParts.LEG_LEFT) && (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)));
 		if ((ba.get(EnumParts.LEG_RIGHT) && this.bipedRightLeg.showModel) || (ba.get(EnumParts.LEG_LEFT) && this.bipedLeftLeg.showModel)) {
 			boolean legsRender = true;
 			if (this.isArmorModel && (this.slot == EntityEquipmentSlot.LEGS || this.slot == EntityEquipmentSlot.FEET)) {
@@ -254,7 +262,8 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				GlStateManager.popMatrix();
 			}
 		}
-        this.bipedBody.showModel = baArmor.get(EnumParts.BODY) && ba.get(EnumParts.BODY) && (!this.isArmorModel || this.slot == EntityEquipmentSlot.CHEST);
+
+		bipedBody.showModel = ba.get(EnumParts.BODY) && (!isArmorModel || (baArmor.get(EnumParts.BODY) && slot == EntityEquipmentSlot.CHEST));
 		if (this.bipedBody.showModel) {
 			if (this.isArmorModel) {
 				((ModelRendererAlt) this.bipedBody).clearOBJ();
@@ -284,5 +293,11 @@ public class ModelBipedAlt extends ModelNpcAlt {
 	}
 
 	public void setSlot(EntityEquipmentSlot slotIn) { this.slot = slotIn; }
+
+	public void setArmorColor(float r, float g, float b) {
+		armorColorR = r;
+		armorColorG = g;
+		armorColorB = b;
+	}
 
 }

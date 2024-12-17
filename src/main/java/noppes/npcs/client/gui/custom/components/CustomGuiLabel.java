@@ -12,7 +12,9 @@ import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.api.mixin.client.gui.IGuiLabelMixin;
 
-public class CustomGuiLabel extends GuiLabel implements IGuiComponent {
+public class CustomGuiLabel
+extends GuiLabel
+implements IGuiComponent {
 
 	public static CustomGuiLabel fromComponent(CustomGuiLabelWrapper component) {
 		CustomGuiLabel lbl = new CustomGuiLabel(component.getText(), component.getId(), component.getPosX(),

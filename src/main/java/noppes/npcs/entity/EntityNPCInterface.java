@@ -16,6 +16,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityList;
@@ -51,21 +52,10 @@ import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.pathfinding.Path;
-import net.minecraft.pathfinding.PathNavigateFlying;
-import net.minecraft.pathfinding.PathNavigateGround;
-import net.minecraft.pathfinding.PathNavigateSwimmer;
-import net.minecraft.pathfinding.PathWorldListener;
+import net.minecraft.pathfinding.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -126,11 +116,9 @@ import noppes.npcs.ai.target.EntityAIOwnerHurtByTarget;
 import noppes.npcs.ai.target.EntityAIOwnerHurtTarget;
 import noppes.npcs.ai.target.EntityAIWatchClosest;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.constants.AnimationKind;
-import noppes.npcs.api.constants.JobType;
-import noppes.npcs.api.constants.PotionEffectType;
-import noppes.npcs.api.constants.RoleType;
+import noppes.npcs.api.constants.*;
 import noppes.npcs.api.entity.ICustomNpc;
+import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.event.NpcEvent;
 import noppes.npcs.api.event.PlayerEvent;
@@ -194,6 +182,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	private static final DataParameter<String> JobData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.STRING);
 	private static final DataParameter<String> RoleData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.STRING);
 	private static final DataParameter<Boolean> Walking = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
+	public static final DataParameter<Float> AimRotationYaw = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.FLOAT); // fix bug while aiming
 	public DataAbilities abilities;
 	public DataDisplay display;
 	public DataStats stats;
@@ -267,7 +256,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.setSize(1.0f, 1.0f);
 		this.bossInfo.setVisible(false);
 		this.stepHeight = this.ais.stepheight;
-		// New
 		this.initTime = System.currentTimeMillis();
 		if (!isServerWorld()) { CustomNpcs.proxy.checkTexture(this); }
 		animation.tryRunAnimation(AnimationKind.INIT);
@@ -352,13 +340,13 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			for (AnimationFrameConfig frame : anim.frames.values()) {
 				if (frame.isNowDamage() && frame.damageDelay != 0) {
 					final int time = frame.damageDelay * 50;
-					CustomNPCsScheduler.runTack(() -> this.tryAttackEntityAsMob(entity, time), frame.id);
+					CustomNPCsScheduler.runTack(() -> tryAttackEntityAsMob(entity, frame.id), time);
 					found = true;
 				}
 			}
 			if (!found) {
 				final int time = (anim.totalTicks - 1) * 50;
-				CustomNPCsScheduler.runTack(() -> this.tryAttackEntityAsMob(entity, time), anim.frames.size() - 1);
+				CustomNPCsScheduler.runTack(() -> tryAttackEntityAsMob(entity, anim.frames.size() - 1), time);
 			}
 			return false;
 		}
@@ -559,7 +547,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			amount *= 0.75F;
 		}
 		boolean isBlockedDamage = false;
-		if (amount > 0.0F && this.canBlockDamageSource(source)) {
+		if (amount > 0.0F && canBlockDamageSource(source)) {
 			this.damageShield(amount);
 			amount = 0.0F;
 			isBlockedDamage = true;
@@ -833,6 +821,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.dataManager.register(EntityNPCInterface.Interacting, false);
 		this.dataManager.register(EntityNPCInterface.IsDead, false);
 		this.dataManager.register(EntityNPCInterface.Attacking, false);
+		this.dataManager.register(EntityNPCInterface.AimRotationYaw, 361.0f);
 	}
 
 	public void fall(float distance, float modifier) {
@@ -1119,8 +1108,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isEntityAlive() {
-		if (ais != null && ais.aiDisabled) { return false; }
-		return super.isEntityAlive() && !this.isKilled();
+		boolean bo = super.isEntityAlive();
+		if (ais != null && ais.aiDisabled) { return bo; }
+		return bo && !isKilled();
 	}
 
 	public boolean isFollower() {
@@ -1135,9 +1125,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		EntityNPCInterface npcTarget = (EntityNPCInterface) entityTarget;
         return this.faction.id == npcTarget.faction.id || npcTarget.faction.frendFactions.contains(this.faction.id)
-                || npcTarget.advanced.frendFactions.contains(this.faction.id)
+                || npcTarget.advanced.friendFactions.contains(this.faction.id)
                 || this.faction.frendFactions.contains(npcTarget.faction.id)
-                || this.advanced.frendFactions.contains(npcTarget.faction.id);
+                || this.advanced.friendFactions.contains(npcTarget.faction.id);
     }
 
 	public boolean isInRange(double posX, double posY, double posZ, double range) {
@@ -1198,8 +1188,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isPlayerSleeping() {
-		return this.getHealth() <= 0.0f || this.currentAnimation == 2 && !this.isAttacking()
-				&& this.getAttackingEntity() == null && this.navigating == null;
+		return this.getHealth() <= 0.0f || currentAnimation == 2 && !isAttacking()
+				&& getAttackingEntity() == null && navigating == null;
 	}
 
 	public boolean isPotionApplicable(@Nonnull PotionEffect effect) {
@@ -1279,20 +1269,62 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.advanced.jobInterface.aiDeathExecute(attackingEntity);
 		}
 		if (this.isServerWorld()) {
-			this.advanced.playSound(3, this.getSoundVolume(), this.getSoundPitch());
+			advanced.playSound(3, this.getSoundVolume(), this.getSoundPitch());
 			NpcEvent.DiedEvent event = new NpcEvent.DiedEvent(this.wrappedNPC, damagesource, attackingEntity, this.combatHandler);
-			event.droppedItems = this.inventory.getItemsRNG(
-					(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null);
-			event.lootedItems = this.inventory.getItemsRNGL(
-					(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null);
-			event.expDropped = this.inventory.getExpRNG();
-			event.line = this.advanced.getKilledLine();
-			if (this.advanced.roleInterface instanceof RoleFollower
-					&& !((RoleFollower) this.advanced.roleInterface).inventory.isEmpty()) {
-				for (ItemStack stack : ((RoleFollower) this.advanced.roleInterface).inventory.items) {
-					if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) {
-						continue;
+			double baseChance = 1.0d;
+			if (!combatHandler.aggressors.isEmpty()) {
+				double luck = 0.0d;
+				double enchLv = 0.0d;
+				int i = 0;
+				int j = 0;
+				for (EntityLivingBase e : combatHandler.aggressors.keySet()) {
+					IAttributeInstance l = e.getEntityAttribute(SharedMonsterAttributes.LUCK);
+					if (l != null) {
+						luck += l.getAttributeValue();
+						i++;
 					}
+					ItemStack held = !e.getHeldItemMainhand().isEmpty() ? e.getHeldItemMainhand() : e.getHeldItemOffhand();
+					if (held.isItemEnchanted()) {
+						enchLv += EnchantmentHelper.getLootingModifier(e);
+						j++;
+					}
+				}
+				// Luck
+				if (i > 0 && luck > 0.0d) {
+					luck /= i;
+					if (luck < 0) {
+						luck *= -1;
+						baseChance -= luck * luck * -0.005555d + luck * 0.255555d; // 1lv = 25%$ 10lv = 200%
+					} else {
+						baseChance += luck * luck * -0.005555d + luck * 0.255555d; // 1lv = 25%$ 10lv = 200%
+					}
+				}
+				// Enchantment
+				if (j > 0 && enchLv > 0.0d) {
+					enchLv /= j;
+					baseChance += enchLv * enchLv * 0.000555d + enchLv * 0.019444d; // 1lv = +2%$ 10lv = +25%
+				}
+			} // chance
+			// drop on ground
+			Map<IEntity<?>, List<IItemStack>> mapD = inventory.createDrops(0, baseChance);
+			if (mapD.isEmpty()) { event.droppedItems = new IItemStack[0]; }
+			else {
+				List<IItemStack> list = new ArrayList<>();
+				event.droppedItems = new IItemStack[mapD.size()];
+				for(IEntity<?> attacking : mapD.keySet()) {
+					list.addAll(mapD.get(attacking));
+				}
+				event.droppedItems = list.toArray(new IItemStack[0]);
+			}
+			// drop on player
+			event.lootedItems = inventory.createDrops(1, baseChance);
+			// to inventory from player
+			event.inventoryItems = inventory.createDrops(2, baseChance);
+			event.expDropped = inventory.getExpRNG();
+			event.line = this.advanced.getKilledLine();
+			if (advanced.roleInterface instanceof RoleFollower && !((RoleFollower) advanced.roleInterface).inventory.isEmpty()) {
+				for (ItemStack stack : ((RoleFollower) this.advanced.roleInterface).inventory.items) {
+					if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) { continue; }
 					this.entityDropItem(stack, 0.0f);
 				}
 				((RoleFollower) this.advanced.roleInterface).inventory.clear();
@@ -1300,10 +1332,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			//
 			EventHooks.onNPCDied(this, event);
 			this.bossInfo.setVisible(false);
-			this.inventory.dropStuff(event, attackingEntity, damagesource);
+			this.inventory.dropStuff(event, damagesource);
 			if (event.line != null) {
-				this.saySurrounding(Line.formatTarget((Line) event.line,
-						(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null));
+				saySurrounding(Line.formatTarget((Line) event.line, (attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null));
 			}
 		}
 		AnimationConfig anim = animation.tryRunAnimation(AnimationKind.DIES);
@@ -1337,7 +1368,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			return;
 		}
 		CustomNpcs.debugData.startDebug(this.isServerWorld() ? "Server" : "Client", this, "NPCLivingUpdate");
-		if (this.isAIDisabled()) {
+		if (isAIDisabled()) {
 			super.onLivingUpdate();
 			CustomNpcs.debugData.endDebug(this.isServerWorld() ? "Server" : "Client", this, "NPCLivingUpdate");
 			return;
@@ -1452,6 +1483,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 		}
 		super.onLivingUpdate();
+		if (dataManager != null && isAttacking() && getAttackTarget() != null) {
+			dataManager.set(EntityNPCInterface.AimRotationYaw, rotationYawHead);
+		}
 		if (!this.isServerWorld()) {
 			this.advanced.roleInterface.clientUpdate();
 			if (this.textureCloakLocation != null) {
@@ -1488,16 +1522,22 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				}
 			}
 			// Path change
-			Path path = this.getNavigator().getPath();
-			if (this.isServerWorld()) {
+			Path path = getNavigator().getPath();
+			if (isServerWorld()) {
 				if (path != null) {
-					if (path != this.navigating) {
-						this.navigating = path;
-						this.updateNavClient();
+					PathPoint fp = path.getFinalPathPoint();
+					BlockPos pos = getPosition();
+					if (fp == null || pos.getX() == fp.x && pos.getY() == fp.y && pos.getZ() == fp.z) {
+						navigating = null;
+						updateNavClient();
 					}
-				} else if (this.navigating != null) {
-					this.navigating = null;
-					this.updateNavClient();
+					else if (path != navigating) {
+						navigating = path;
+						updateNavClient();
+					}
+				} else if (navigating != null) {
+					navigating = null;
+					updateNavClient();
 				}
 			}
 			if (this.ais.onAttack == 1) { // Panic
@@ -1522,9 +1562,15 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			super.setAttackTarget(null);
 		}
 		if (!this.ais.aiDisabled) {  this.timers.update(); }
-		if (!this.isServerWorld() && this.wasKilled != this.isKilled()) {
-			this.deathTime = 0;
-			this.updateHitbox();
+		if (!isServerWorld()) {
+			if (wasKilled != isKilled()) {
+				deathTime = 0;
+				updateHitbox();
+			}
+			else if (!isAttacking() && getNavigator().noPath() && currentAnimation != ais.animationType) {
+				currentAnimation = ais.animationType;
+				updateHitbox();
+			}
 		}
 		this.wasKilled = this.isKilled();
 		if (this.currentAnimation == 14) {
@@ -1553,14 +1599,16 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean processInteract(@Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
-		if (!this.isServerWorld()) { return !this.isAttacking(); }
+		if (!isServerWorld()) { return !isAttacking(); }
 		if (hand != EnumHand.MAIN_HAND) { return true; }
 		ItemStack stack = player.getHeldItem(hand);
         Item item = stack.getItem();
         if (item == CustomRegisters.moving) {
             this.setAttackTarget(null);
+			if (player.getHeldItemMainhand().getTagCompound() == null || getEntityId() != player.getHeldItemMainhand().getTagCompound().getInteger("NPCID")) {
+				player.sendMessage( new TextComponentTranslation("message.pather.reg", this.getName(), stack.getDisplayName()));
+			}
             stack.setTagInfo("NPCID", new NBTTagInt(this.getEntityId()));
-            player.sendMessage( new TextComponentTranslation("message.pather.reg", this.getName(), stack.getDisplayName()));
             Server.sendData((EntityPlayerMP) player, EnumPacketClient.NPC_MOVINGPATH, this.getEntityId(), this.ais.writeToNBT(new NBTTagCompound()));
             return true;
         } else if (item instanceof INPCToolItem) {
@@ -1578,7 +1626,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			AnimationConfig anim = animation.tryRunAnimation(AnimationKind.INTERACT);
 			if (anim != null ) {
 				lookAi.fastRotation = true;
-				CustomNPCsScheduler.runTack(() -> lookAi.fastRotation = false , 1500);
+				CustomNPCsScheduler.runTack(() -> lookAi.fastRotation = false , anim.totalTicks * 50);
 			}
 		}
 		Dialog dialog = this.getDialog(player);
@@ -2091,9 +2139,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void updateAnimationClient() {
-		if (!this.isServerWorld()) {
-			return;
-		}
+		if (!this.isServerWorld()) { return; }
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC_ANIMATION, world.provider.getDimension(), getEntityId(), currentAnimation);
 	}
 
@@ -2106,57 +2152,55 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void updateHitbox() {
-		
 		// collide in
 		// EntityRenderer.getMouseOver(0.0f);
 		// AABB = this.getEntityBoundingBox == (this.boundingBox);
 		// set in setPosition();
-		
-		if (this.currentAnimation == 2 || this.currentAnimation == 7 || this.deathTime > 0) {
-			this.width = 0.8f;
-			this.height = 0.4f;
+		if (((currentAnimation == AnimationType.SLEEP.get() || currentAnimation == AnimationType.CRAWL.get()) && !isAttacking()) || deathTime > 0) {
+			width = 0.8f;
+			height = 0.4f;
 		} else if (this.isRiding()) {
-			this.width = 0.6f;
-			this.height = this.baseHeight * 0.77f;
+			width = 0.6f;
+			height = this.baseHeight * 0.77f;
 		} else if (this.isSneaking()) {
-			this.width = 0.6f;
-			this.height = this.baseHeight * 0.775f;
+			width = 0.6f;
+			height = this.baseHeight * 0.775f;
 		} else {
-			this.width = 0.6f;
-			this.height = this.baseHeight;
+			width = 0.6f;
+			height = this.baseHeight;
 		}
-		if (!this.display.getHasHitbox() || (this.isKilled() && this.stats.hideKilledBody)) {
-			this.width = 1.0E-5f;
-			this.height = 0.25f;
+		if (!display.getHasHitbox() || (isKilled() && stats.hideKilledBody)) {
+			width = 1.0E-5f;
+			height = 0.25f;
 		}
-		else if (this.display.getHasHitbox() && this.display.width != 0.0f && this.display.height != 0.0f) {
-			this.width = this.display.width;
-			this.height = this.display.height;
+		else if (display.getHasHitbox() && display.width != 0.0f && display.height != 0.0f) {
+			width = display.width;
+			height = display.height;
 		}
-		if (this.display.getModel() == null && this instanceof EntityCustomNpc) {
+		if (display.getModel() == null && this instanceof EntityCustomNpc) {
 			ModelData modeldata = ((EntityCustomNpc) this).modelData;
 			ModelPartConfig model = modeldata.getPartConfig(EnumParts.HEAD);
 			float scaleHead = Math.max(model.scale[0], model.scale[2]);
 			model = modeldata.getPartConfig(EnumParts.BODY);
 			float scaleBody = Math.max(model.scale[0], model.scale[2]);
-			this.width *= Math.max(scaleHead, scaleBody);
-			this.width = this.width / 5.0f * this.display.getSize();
-			this.height = this.height / 5.0f * this.display.getSize();
+			width *= Math.max(scaleHead, scaleBody);
+			width = width / 5.0f * display.getSize();
+			this.height = height / 5.0f * display.getSize();
 		}
-		double n = this.width / 2.0f;
+		double n = width / 2.0f;
 		if (n > World.MAX_ENTITY_RADIUS) {
 			World.MAX_ENTITY_RADIUS = n;
 		}
-		if (this.getHealth() == 0) { return; }
-		this.setPosition(this.posX, this.posY, this.posZ); // set BoundingBox
+		if (getHealth() == 0) { return; }
+		setPosition(posX, posY, posZ); // set BoundingBox
 	}
 
 	public void updateNavClient() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("EntityId", this.getEntityId());
-		compound.setBoolean("IsNavigating", this.navigating != null);
-		if (this.navigating != null) {
-			compound.setTag("Navigating", Server.writePathToNBT(this.navigating));
+		compound.setBoolean("IsNavigating", navigating != null);
+		if (navigating != null) {
+			compound.setTag("Navigating", Server.writePathToNBT(navigating));
 		}
 		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_NAVIGATION, compound);
 	}

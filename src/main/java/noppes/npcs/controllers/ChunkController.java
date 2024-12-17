@@ -71,7 +71,7 @@ public class ChunkController implements ForgeChunkManager.LoadingCallback {
 				continue;
 			}
 			this.tickets.put(npc, ticket);
-			// New 3x3
+			// 3x3
 			int x = MathHelper.floor(npc.posX);
 			int z = MathHelper.floor(npc.posZ);
 			for (int u = -1; u < 2; u++) {

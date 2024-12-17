@@ -67,6 +67,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			GlStateManager.rotate(270.0f, 0.0f, 0.0f, 1.0f);
 			GlStateManager.rotate(270.0f, 0.0f, 1.0f, 0.0f);
 		} else {
+			if (npc.ais.getStandingType() == 4 && !npc.isAttacking()) { rotationYaw = npc.ais.orientation; }
 			super.applyRotations(npc, handleRotation, rotationYaw, partialTicks);
 		}
 	}

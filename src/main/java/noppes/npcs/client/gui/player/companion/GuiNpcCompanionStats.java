@@ -24,7 +24,9 @@ import noppes.npcs.roles.RoleCompanion;
 
 import javax.annotation.Nonnull;
 
-public class GuiNpcCompanionStats extends GuiNPCInterface implements IGuiData {
+public class GuiNpcCompanionStats
+extends GuiNPCInterface
+implements IGuiData {
 
 	public static void addTopMenu(RoleCompanion role, GuiScreen screen, int active) {
 		if (screen instanceof GuiNPCInterface) {

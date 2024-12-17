@@ -41,7 +41,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
+public class GuiDialogInteract
+extends GuiNPCInterface
+implements IGuiClose {
 
 	static class DialogTexture {
 

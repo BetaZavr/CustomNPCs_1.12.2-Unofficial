@@ -297,7 +297,6 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.entity.inventory.getItemStack());
 	}
 
-	// New
 	@Override
 	public int[] getKeyPressed() {
 		return this.getData().hud.getKeyPressed();
@@ -801,7 +800,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	public void updatePlayerInventory() {
 		this.entity.inventoryContainer.detectAndSendChanges();
 		PlayerQuestData playerdata = this.getData().questData;
-		for (QuestData data : playerdata.activeQuests.values()) { // Changed
+		for (QuestData data : playerdata.activeQuests.values()) {
 			for (IQuestObjective obj : data.quest
 					.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity))) {
 				if (obj.getType() != 0) {
@@ -814,7 +813,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public IEntity getLookingEntity() {
-		Entity target = Util.instance.getLookEntity(this.entity, null);
+		Entity target = Util.instance.getLookEntity(this.entity, null, true);
 		return target == null ? null : Objects.requireNonNull(NpcAPI.Instance()).getIEntity(target);
 	}
 

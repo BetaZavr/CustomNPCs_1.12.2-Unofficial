@@ -19,7 +19,9 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCManageLinkedNpc extends GuiNPCInterface2 implements IScrollData, ISubGuiListener {
+public class GuiNPCManageLinkedNpc
+extends GuiNPCInterface2
+implements IScrollData, ISubGuiListener {
 
 	public static GuiScreen Instance;
 	private List<String> data;

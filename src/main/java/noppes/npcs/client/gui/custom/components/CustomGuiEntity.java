@@ -33,7 +33,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.api.mixin.client.network.INetHandlerPlayClientMixin;
 import noppes.npcs.util.Util;
 
-public class CustomGuiEntity extends Gui implements IGuiComponent {
+public class CustomGuiEntity
+extends Gui
+implements IGuiComponent {
 
 	public static CustomGuiEntity fromComponent(CustomGuiEntityWrapper component) {
 		CustomGuiEntity entt = new CustomGuiEntity(component.getId(), component.getPosX(), component.getPosY(), component.getScale(), component.hasBorder(), component.isShowArmorAndItems(), component.entityNbt, component.rotType, component.rotYaw, component.rotPitch);

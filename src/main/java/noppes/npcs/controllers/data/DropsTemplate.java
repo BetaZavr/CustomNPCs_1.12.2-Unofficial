@@ -2,24 +2,20 @@ package noppes.npcs.controllers.data;
 
 import java.util.*;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
-import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.entity.data.DropSet;
 
 public class DropsTemplate {
 
 	public final Map<Integer, Map<Integer, DropSet>> groups = new TreeMap<>(); // <id, <pos, drop>>
-	private int dropType = 0; // 0-only rnd, 1-only min, 2-only max, 3-all
+	private boolean allDropsFromGroup = false; // or random
 	private final Random rnd = new Random();
 
 	public DropsTemplate() {
-		this.groups.put(0, new TreeMap<>());
+		groups.put(0, new TreeMap<>());
 	}
 
 	public DropsTemplate(NBTTagCompound nbtTemplate) {
@@ -39,89 +35,20 @@ public class DropsTemplate {
 		groups.get(id).put(ds.pos, ds);
 	}
 
-	public List<IItemStack> createDrops(double ch, boolean isLooted, EntityLivingBase attacking) {
-		List<IItemStack> list = new ArrayList<>();
-		
-		for (int groupId : this.groups.keySet()) {
-			float r = this.rnd.nextFloat();
-			Map<IItemStack, Double> preMap = new HashMap<>();
-			HashMap<Integer, QuestData> activeQuests = null;
-			if (attacking instanceof EntityPlayer) {
-				activeQuests = CustomNpcs.proxy.getPlayerData((EntityPlayer) attacking).questData.activeQuests;
-			}
-			for (DropSet ds : this.groups.get(groupId).values()) {
-				double c = ds.chance * ch / 100.0d;
-				if (this.dropType == 3) {
-					r = this.rnd.nextFloat();
-				}
-				if (ds.item == null || ds.item.isEmpty() || isLooted == ds.lootMode || (c < 1.0d && c < r)) {
-					continue;
-				}
-				boolean needAdd = true;
-				if (ds.getQuestID() > 0) {
-                    needAdd = false;
-                    if (activeQuests != null) {
-                        QuestData qData = activeQuests.get(ds.getQuestID());
-                        if (qData != null) {
-                            for (IQuestObjective objQ : qData.quest.getObjectives((EntityPlayer) attacking)) {
-                                if (!objQ.isCompleted()) {
-                                    needAdd = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-				}
-				if (needAdd && !(ds.amount[0] == 0 && ds.amount[1] == 0)) {
-					preMap.put(ds.createLoot(ch), ds.chance);
-				}
-			}
-			if (preMap.isEmpty()) {
-				continue;
-			}
-			int p = this.rnd.nextInt(preMap.size());
-			if (p == preMap.size()) {
-				p = preMap.size() - 1;
-			}
-            int i = 0;
-			IItemStack hStack = null;
-			double h = this.dropType == 1 ? 2.0d : -1.0d;
-			for (IItemStack stack : preMap.keySet()) {
-				if (this.dropType == 3) { // all
-					list.add(stack);
-					continue;
-				}
-				if (this.dropType == 0) { // rnd
-					if (i != p) {
-						i++;
-						continue;
-					}
-					list.add(stack);
-					break;
-				}
-				double c = preMap.get(stack);
-				if (this.dropType == 1) { // min
-					if (h >= c) {
-						h = c;
-						hStack = stack;
-					}
-				} else { // max
-					if (h <= c) {
-						h = c;
-						hStack = stack;
-					}
-				}
-			}
-			if (hStack != null) {
-				list.add(hStack);
-			}
+	public List<DropSet> getDrops() {
+		List<DropSet> allDrops = new ArrayList<>();
+		for (int groupId : groups.keySet()) {
+			ArrayList<DropSet> preList = new ArrayList<>(groups.get(groupId).values());
+			if (preList.isEmpty()) { continue; }
+			if (allDropsFromGroup) { allDrops.addAll(preList); }
+			else { allDrops.add(preList.get(rnd.nextInt(preList.size()))); }
 		}
-		return list;
+		return allDrops;
 	}
 
 	public NBTTagCompound getNBT() {
 		NBTTagCompound nbtTemplate = new NBTTagCompound();
-		nbtTemplate.setInteger("DropType", this.dropType);
+		nbtTemplate.setBoolean("DropType", allDropsFromGroup);
 		for (int id : this.groups.keySet()) {
 			NBTTagList list = new NBTTagList();
 			for (DropSet ds : this.groups.get(id).values()) {
@@ -133,7 +60,12 @@ public class DropsTemplate {
 	}
 
 	public void load(NBTTagCompound nbtTemplate) {
-		this.dropType = nbtTemplate.getInteger("DropType");
+		if (nbtTemplate.hasKey("DropType", 3)) {
+			allDropsFromGroup = nbtTemplate.getInteger("DropType") == 3;
+		} else if (nbtTemplate.hasKey("DropType", 1)) {
+			allDropsFromGroup = nbtTemplate.getBoolean("DropType");
+		}
+
 		this.groups.clear();
 		Set<String> keys = nbtTemplate.getKeySet();
 		for (String groupId : keys) {

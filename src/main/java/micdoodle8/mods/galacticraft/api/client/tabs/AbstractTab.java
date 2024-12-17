@@ -28,7 +28,7 @@ public abstract class AbstractTab extends GuiButton {
 
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		int newPotionOffset = TabRegistry.getPotionOffsetNEI();
-		if (mc.currentScreen instanceof GuiInventory) { // New
+		if (mc.currentScreen instanceof GuiInventory) {
 			ScaledResolution scaleW = new ScaledResolution(mc);
 			int left = (scaleW.getScaledWidth() - ((GuiContainer) mc.currentScreen).getXSize()) / 2;
 			newPotionOffset = ((GuiContainer) mc.currentScreen).getGuiLeft() - left;
@@ -37,7 +37,7 @@ public abstract class AbstractTab extends GuiButton {
 			this.x += newPotionOffset - this.potionOffsetLast;
 			this.potionOffsetLast = newPotionOffset;
 		}
-		if (this.visible) { // Changed
+		if (this.visible) {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			int yTexPos = this.enabled ? 3 : 32;
 			int ySize = this.enabled ? 25 : 32;

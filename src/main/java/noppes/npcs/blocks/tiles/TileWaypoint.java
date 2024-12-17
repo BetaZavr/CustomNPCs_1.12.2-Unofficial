@@ -70,7 +70,7 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 		}
         List<EntityPlayer> toCheck;
         (toCheck = around).removeAll(this.recentlyChecked);
-		int rng = this.range + (Math.min(this.range, 10)); // Changed
+		int rng = this.range + (Math.min(this.range, 10));
 		List<EntityPlayer> listMax = this.getPlayerList(rng, rng, rng);
 
 		this.recentlyChecked.retainAll(listMax);

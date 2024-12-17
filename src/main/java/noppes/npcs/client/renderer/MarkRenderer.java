@@ -22,8 +22,7 @@ public class MarkRenderer {
 
 	public static int[] displayList = new int[] { -1, -1, -1, -1, -1, -1, -1 }; // [0=2D, 1...6=3D]
 	public static ResourceLocation markCross = new ResourceLocation(CustomNpcs.MODID, "textures/marks/cross.png");
-	public static ResourceLocation markExclamation = new ResourceLocation(CustomNpcs.MODID,
-			"textures/marks/exclamation.png");
+	public static ResourceLocation markExclamation = new ResourceLocation(CustomNpcs.MODID, "textures/marks/exclamation.png");
 	public static ResourceLocation markPointer = new ResourceLocation(CustomNpcs.MODID, "textures/marks/pointer.png");
 	public static ResourceLocation markQuestion = new ResourceLocation(CustomNpcs.MODID, "textures/marks/question.png");
 	public static ResourceLocation markSkull = new ResourceLocation(CustomNpcs.MODID, "textures/marks/skull.png");
@@ -104,7 +103,7 @@ public class MarkRenderer {
 			if (list >= 0) {
 				if (mark.isRotate()) {
 					GlStateManager.rotate(entity.world.getTotalWorldTime() % 360 / 0.25f, 0.0f, 1.0f, 0.0f);
-				} // New
+				}
 				if (mark.is3D() && MarkRenderer.displayList[mark.type] != MarkRenderer.displayList[0]) {
 					Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 					GL11.glEnable(GL11.GL_LIGHTING);

@@ -52,7 +52,7 @@ public class PlayerQuestData {
 		return null;
 	}
 
-	public void loadNBTData(NBTTagCompound mainCompound) { // Changed
+	public void loadNBTData(NBTTagCompound mainCompound) {
 		if (mainCompound == null) {
 			return;
 		}
@@ -84,7 +84,7 @@ public class PlayerQuestData {
 
 	}
 
-	public void saveNBTData(NBTTagCompound maincompound) { // Changed
+	public void saveNBTData(NBTTagCompound mainCompound) {
 		NBTTagCompound compound = new NBTTagCompound();
 
 		NBTTagList finishedList = new NBTTagList();
@@ -105,7 +105,7 @@ public class PlayerQuestData {
 		}
 		compound.setTag("ActiveQuests", activeList);
 
-		maincompound.setTag("QuestData", compound);
+		mainCompound.setTag("QuestData", compound);
 	}
 
 }

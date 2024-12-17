@@ -6,9 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.CustomNpcResourceListener;
@@ -17,77 +15,69 @@ import noppes.npcs.util.Util;
 public class GuiNpcLabel
 implements IComponentGui {
 
-	public int backColor = 0, borderColor = 0;
+	public boolean enabled = true;
+	public boolean hovered;
+	public int backColor = 0;
+	public int borderColor = 0;
+	public int height = 9;
+	public int width = 0;
 	public int color;
-	public boolean enabled;
 	public int id;
-	public List<String> label;
 	public int x;
 	public int y;
-	public int height = 9, width = 0;
-	public String[] hoverText;
-	public boolean hovered;
+	public List<String> label;
+	private final List<String> hoverText = new ArrayList<>();
 
 	public GuiNpcLabel(int id, Object label, int x, int y) {
 		this(id, label, x, y, CustomNpcResourceListener.DefaultTextColor);
 	}
 
 	public GuiNpcLabel(int id, Object label, int x, int y, int color) {
-		this.enabled = true;
 		this.id = id;
 		this.x = x;
 		this.y = y;
 		this.color = color;
-		this.setLabel(label.toString());
+		setLabel(label.toString());
 	}
 
 	public void center(int width) {
-		this.x += (width - this.width) / 2;
+		x += (width - this.width) / 2;
 	}
 
-	public void drawLabel(GuiScreen gui, FontRenderer fontRenderer, int mouseX, int mouseY) {
-		if (this.enabled && this.label != null && !this.label.isEmpty()) {
-			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			if (this.hovered && this.hoverText != null) {
-				GlStateManager.color(0.5f, 0.5f, 0.5f, 0.5f);
-				if (this.hoverText != null) {
-					if (gui instanceof GuiContainerNPCInterface) {
-						((GuiContainerNPCInterface) gui).hoverText = this.hoverText;
-					} else if (gui instanceof GuiNPCInterface) {
-						((GuiNPCInterface) gui).hoverText = this.hoverText;
-					}
-				}
-			}
-			if (this.borderColor != 0) {
-				Gui.drawRect(this.x - 2, this.y - 1, this.x + this.width + 2, this.y + this.height, this.borderColor);
-			}
-			if (this.backColor != 0) {
-				Gui.drawRect(this.x - 1, this.y, this.x + this.width + 1, this.y + this.height - 1, this.backColor);
-			}
-			int i = 0;
-			for (String str : this.label) {
-				fontRenderer.drawString(str, this.x, this.y + i, this.color);
-				i += 10;
-			}
+	@Override
+	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
+		if (!enabled) { return; }
+		hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+		if (hovered && !hoverText.isEmpty()) { gui.setHoverText(hoverText); }
+		if (label == null || label.isEmpty()) { return; }
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		if (borderColor != 0) {
+			Gui.drawRect(x - 2, y - 1, x + width + 2, y + height, borderColor);
+		}
+		if (backColor != 0) {
+			Gui.drawRect(x - 1, y, x + width + 1, y + height - 1, backColor);
+		}
+		int i = 0;
+		for (String str : label) {
+			Minecraft.getMinecraft().fontRenderer.drawString(str, x, y + i, color);
+			i += 10;
 		}
 	}
 
 	public void setLabel(Object labels) {
 		if (labels == null) {
-			this.label = null;
-			this.height = 10;
-			this.width = 0;
+			label = null;
+			height = 10;
+			width = 0;
 			return;
 		}
-		char chr = Character.toChars(0x000A)[0];
 
-		if (labels.toString().indexOf(chr) != -1) {
+		if (labels.toString().contains("\n")) {
 			List<String> list = new ArrayList<>();
 			String text = labels.toString();
-			while (text.indexOf(chr) != -1) {
-				list.add(text.substring(0, text.indexOf(chr)));
-				text = text.substring(text.indexOf(chr) + 1);
+			while (text.contains("\n")) {
+				list.add(text.substring(0, text.indexOf("\n")));
+				text = text.substring(text.indexOf("\n") + 1);
 			}
 			list.add(text);
 			labels = list;
@@ -98,37 +88,50 @@ implements IComponentGui {
 		}
 		if (labels instanceof List) {
 			if (((List<?>) labels).size() == 1) {
-				String str = ((List<?>) labels).get(0) == null ? ""
-						: new TextComponentTranslation(labels.toString()).getFormattedText();
-				this.label = Collections.singletonList(str);
-				this.height = 10;
-				this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
+				String str = ((List<?>) labels).get(0) == null ? "" : new TextComponentTranslation(labels.toString()).getFormattedText();
+				label = Collections.singletonList(str);
+				height = 10;
+				width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
 				return;
 			}
-			this.label = new ArrayList<>();
-			this.height = 10 * ((List<?>) labels).size();
-			this.width = 0;
+			label = new ArrayList<>();
+			height = 10 * ((List<?>) labels).size();
+			width = 0;
 			for (Object obj : (List<?>) labels) {
 				String str = new TextComponentTranslation(obj.toString()).getFormattedText();
-				this.label.add(str);
-				int w = Minecraft.getMinecraft().fontRenderer
-						.getStringWidth(Util.instance.deleteColor(str));
-				if (this.width < w) {
-					this.width = w;
-				}
+				label.add(str);
+				int w = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
+				if (width < w) { width = w; }
 			}
 		} else {
 			String str = labels.toString();
 			try { str = new TextComponentTranslation(labels.toString()).getFormattedText(); } catch (Exception ignored) { }
-			this.label = Collections.singletonList(str);
-			this.height = 10;
-			this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
+			label = Collections.singletonList(str);
+			height = 10;
+			width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
 		}
 	}
 
 	@Override
-	public int[] getCenter() {
-		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
+	public int getId() { return id; }
+
+	@Override
+	public int[] getCenter() { return new int[] { x + width / 2, x + height / 2}; }
+
+	@Override
+	public void setHoverText(String text, Object ... args) {
+		hoverText.clear();
+		if (text == null || text.isEmpty()) { return; }
+		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
+		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
+		while (text.contains("<br>")) {
+			hoverText.add(text.substring(0, text.indexOf("<br>")));
+			text = text.substring(text.indexOf("<br>") + 4);
+		}
+		hoverText.add(text);
 	}
-	
+
+	@Override
+	public void updateScreen() { }
+
 }

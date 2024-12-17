@@ -6,7 +6,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityStackData;
@@ -18,12 +17,11 @@ import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class SubGuiNpcAvailabilityItemStacks
-        extends GuiContainerNPCInterface
-        implements ICustomScrollListener {
+extends GuiContainerNPCInterface
+implements ICustomScrollListener {
 
     public static GuiScreen parent;
     public static SubGuiNpcAvailability setting;
@@ -52,19 +50,22 @@ public class SubGuiNpcAvailabilityItemStacks
         switch (button.id) {
             case 0: {
                 aData.ignoreDamage = button.getValue() == 0;
+                button.setHoverText("gui.ignoreDamage." + button.getValue());
                 break;
             }
             case 1: {
                 aData.ignoreNBT = button.getValue() == 0;
+                button.setHoverText("gui.ignoreNBT." + button.getValue());
                 break;
             }
             case 2: {
                 aData.type = EnumAvailabilityStackData.values()[(aData.type.ordinal() + 1) % EnumAvailabilityStackData.values().length];
+                button.setHoverText("availability.hover.stack.type." + aData.type.name().toLowerCase());
                 initGui();
                 break;
             }
             case 66: {
-                this.close();
+                close();
                 break;
             }
         }
@@ -76,36 +77,20 @@ public class SubGuiNpcAvailabilityItemStacks
         super.drawScreen(mouseX, mouseY, partialTicks);
         if (reset > 0) {
             reset--;
-            if (reset == 0) {
-                initGui();
-            }
-        }
-        if (!CustomNpcs.ShowDescriptions) {
-            return;
-        }
-        if (getButton(0) != null && getButton(0).isMouseOver()) {
-            setHoverText(new TextComponentTranslation("gui.ignoreDamage." + getButton(0).getValue()).getFormattedText());
-        } else if (getButton(1) != null && getButton(1).isMouseOver()) {
-            setHoverText(new TextComponentTranslation("gui.ignoreNBT." + getButton(1).getValue()).getFormattedText());
-        } else if (getButton(2) != null && getButton(2).isMouseOver()) {
-            AvailabilityStackData aData = availability.stacksData.get(cont.slot.getSlotIndex());
-            setHoverText(new TextComponentTranslation("availability.hover.stack.type." + aData.type.name().toLowerCase()).getFormattedText());
-        } else if (getButton(66) != null && getButton(66).isMouseOver()) {
-            this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-        }
-        if (this.hoverText != null) {
-            this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-            this.hoverText = null;
+            if (reset == 0) { initGui(); }
         }
     }
 
     @Override
     public void initGui() {
         super.initGui();
-        addButton(new GuiNpcButton(66, guiLeft + xSize / 2 - 35, guiTop + 189, 70, 20, "gui.done"));
         int x = guiLeft + 8;
         int y = guiTop + 3;
-
+        // exit
+        GuiNpcButton button = new GuiNpcButton(66, guiLeft + xSize / 2 - 35, guiTop + 189, 70, 20, "gui.done");
+        button.setHoverText("hover.back");
+        addButton(button);
+        // data
         List<String> list = new ArrayList<>();
         List<String> suffixes = new ArrayList<>();
         List<ItemStack> stacks = new ArrayList<>();
@@ -139,9 +124,7 @@ public class SubGuiNpcAvailabilityItemStacks
                 select = key;
             }
         }
-        if (scroll == null) {
-            (scroll = new GuiCustomScroll(this, 0)).setSize(102, 107);
-        }
+        if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(102, 107); }
         scroll.setList(list);
         scroll.setStacks(stacks);
         scroll.setSuffixes(suffixes);
@@ -149,17 +132,23 @@ public class SubGuiNpcAvailabilityItemStacks
         scroll.guiTop = guiTop + 4;
         if (!select.isEmpty()) { scroll.setSelected(select); }
         addScroll(scroll);
-
+        // ignore damage
         AvailabilityStackData aData = availability.stacksData.get(cont.slot.getSlotIndex());
         addLabel(new GuiNpcLabel(0, "gui.ignoreDamage", x, y + 2));
-        addButton(new GuiNpcButton(0, x, y += 12, 50, 14, new String[] { "gui.yes", "gui.no" }, aData == null || aData.ignoreDamage ? 0 : 1));
-
+        button = new GuiNpcButton(0, x, y += 12, 50, 14, new String[] { "gui.yes", "gui.no" }, aData == null || aData.ignoreDamage ? 0 : 1);
+        button.setHoverText("gui.ignoreDamage." + button.getValue());
+        addButton(button);
+        // ignore nbt
         addLabel(new GuiNpcLabel(1, "gui.ignoreNBT", x, (y += 16) + 2));
-        addButton(new GuiNpcButton(1, x, y += 12, 50, 14, new String[] { "gui.yes", "gui.no" }, aData == null || aData.ignoreNBT ? 0 : 1));
-
+        button = new GuiNpcButton(1, x, y += 12, 50, 14, new String[] { "gui.yes", "gui.no" }, aData == null || aData.ignoreNBT ? 0 : 1);
+        button.setHoverText("gui.ignoreNBT." + button.getValue());
+        addButton(button);
+        // type
         addLabel(new GuiNpcLabel(2, "gui.type", x, (y += 16) + 2));
-        addButton(new GuiNpcButton(2, x, y + 12, 50, 14, "availability." + (aData == null ? "always" : aData.type.name().toLowerCase())));
-
+        button = new GuiNpcButton(2, x, y + 12, 50, 14, "availability." + (aData == null ? "always" : aData.type.name().toLowerCase()));
+        button.setHoverText("availability.hover.stack.type." + (aData == null ? "always" : aData.type.name().toLowerCase()));
+        addButton(button);
+        // id slot
         addLabel(new GuiNpcLabel(3, "ID: " + cont.slot.getSlotIndex(), x + 20, guiTop + 87));
     }
 

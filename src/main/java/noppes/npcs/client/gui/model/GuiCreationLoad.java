@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
@@ -16,7 +15,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 import javax.annotation.Nonnull;
 
-public class GuiCreationLoad extends GuiCreationScreenInterface implements ICustomScrollListener {
+public class GuiCreationLoad
+extends GuiCreationScreenInterface
+implements ICustomScrollListener {
 
 	private final List<String> list;
 	private GuiCustomScroll scroll;
@@ -67,10 +68,7 @@ public class GuiCreationLoad extends GuiCreationScreenInterface implements ICust
 				}
 			}
 		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		drawHoverText(null);
 	}
 
 	@Override

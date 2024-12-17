@@ -26,7 +26,7 @@ public interface ICustomDrop {
 
 	IItemStack getItem();
 
-	boolean getLootMode();
+	int getLootMode();
 
 	int getMaxAmount();
 
@@ -54,7 +54,7 @@ public interface ICustomDrop {
 
 	void setItem(IItemStack item);
 
-	void setLootMode(boolean lootMode);
+	void setLootMode(int lootMode);
 
 	void setQuestID(int id);
 

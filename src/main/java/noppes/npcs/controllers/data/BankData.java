@@ -76,8 +76,7 @@ public class BankData {
 			return;
 		}
 		if (this.bank.isPublic && !player.capabilities.isCreativeMode && !this.bank.access.isEmpty() && !this.bank.owner.equals(player.getName())) {
-			if ((this.bank.isWhiteList && !this.bank.access.contains(player.getName()))
-					|| (!this.bank.isWhiteList && this.bank.access.contains(player.getName()))) {
+			if ((this.bank.isWhiteList && !this.bank.access.contains(player.getName())) || (!this.bank.isWhiteList && this.bank.access.contains(player.getName()))) {
 				player.sendMessage(new TextComponentTranslation("message.bank.not.access"));
 				return;
 			}

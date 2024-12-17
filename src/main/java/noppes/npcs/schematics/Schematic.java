@@ -390,7 +390,6 @@ public class Schematic implements ISchematic {
 
 		compound.setTag("TileEntities", this.tileList);
 		compound.setTag("Entities", this.entityList);
-		// New
 		compound.setIntArray("Offset", new int[] { this.offset.getX(), this.offset.getY(), this.offset.getZ() });
 		compound.setString("Name", this.name);
 		return compound;
@@ -435,7 +434,6 @@ public class Schematic implements ISchematic {
 		this.blockMetadataArray = compound.getByteArray("Data");
 		this.tileList = compound.getTagList("TileEntities", 10);
 		this.entityList = compound.getTagList("Entities", 10);
-		// New
 		int[] arr = compound.getIntArray("Offset");
 		if (arr.length >= 3) {
 			this.offset = new BlockPos(arr[0], arr[1], arr[2]);

@@ -98,17 +98,7 @@ import noppes.npcs.client.gui.mainmenu.GuiNpcAI;
 import noppes.npcs.client.gui.mainmenu.GuiNpcAdvanced;
 import noppes.npcs.client.gui.mainmenu.GuiNpcDisplay;
 import noppes.npcs.client.gui.mainmenu.GuiNpcStats;
-import noppes.npcs.client.gui.player.GuiCustomChest;
-import noppes.npcs.client.gui.player.GuiCustomContainer;
-import noppes.npcs.client.gui.player.GuiMailbox;
-import noppes.npcs.client.gui.player.GuiMailmanWrite;
-import noppes.npcs.client.gui.player.GuiNPCBankChest;
-import noppes.npcs.client.gui.player.GuiNPCTrader;
-import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
-import noppes.npcs.client.gui.player.GuiNpcFollower;
-import noppes.npcs.client.gui.player.GuiNpcFollowerHire;
-import noppes.npcs.client.gui.player.GuiNpcQuestRewardItem;
-import noppes.npcs.client.gui.player.GuiTransportSelection;
+import noppes.npcs.client.gui.player.*;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionInv;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionStats;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionTalents;
@@ -290,8 +280,7 @@ public class ClientProxy extends CommonProxy {
 		LogWriter.info("Check Mod Localization");
 
 		// localization in game data
-		//net.minecraft.client.resources.I18n
-		Map<String, String> properties = ((II18nMixin) new net.minecraft.client.resources.I18n()).npcs$getProperties();
+		Map<String, String> properties = ((II18nMixin) new I18n()).npcs$getProperties();
 
 		// custom lang files:
 		String currentLanguage = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
@@ -1349,14 +1338,14 @@ public class ClientProxy extends CommonProxy {
 			case MainMenuInvDrop: {
 				return new GuiDropEdit(npc, (ContainerNPCDropSetup) container,
 						(GuiContainer) Minecraft.getMinecraft().currentScreen, x, y, z);
-			} // New
+			}
 			case MainMenuAdvanced: {
 				return new GuiNpcAdvanced(npc);
 			}
 			case QuestReward: {
 				return new GuiNpcQuestReward(npc, (ContainerNpcQuestReward) container);
 			}
-			case QuestTypeItem: { // New
+			case QuestTypeItem: {
 				Quest quest = NoppesUtilServer.getEditingQuest(getPlayer());
 				if (quest != null && quest.questInterface.tasks[x].getEnumType() == EnumQuestTask.ITEM || Objects.requireNonNull(quest).questInterface.tasks[x].getEnumType() == EnumQuestTask.CRAFT) {
 					return new GuiNpcQuestTypeItem(npc, (ContainerNpcQuestTypeItem) container, quest.questInterface.tasks[x]);
@@ -1453,12 +1442,12 @@ public class ClientProxy extends CommonProxy {
 			}
 			case SetupTrader: {
 				if (x >= 0) {
-					GuiNPCManageMarcets.marcetId = x;
+					GuiNPCManageMarkets.marcetId = x;
 				}
 				if (y >= 0) {
-					GuiNPCManageMarcets.dealId = y;
+					GuiNPCManageMarkets.dealId = y;
 				}
-				return new GuiNPCManageMarcets(npc);
+				return new GuiNPCManageMarkets(npc);
 			}
 			case SetupTraderDeal: {
 				return new SubGuiNPCManageDeal(npc, (ContainerNPCTraderSetup) container);
@@ -1532,6 +1521,9 @@ public class ClientProxy extends CommonProxy {
 			}
             case DimensionSetting: {
 				return new GuiCreateDimension(x);
+			}
+			case DeadInventory: {
+				return new GuiNPCDeadInventory(npc, (ContainerDead) container);
 			}
 			default: {
 				return null;
@@ -1732,19 +1724,18 @@ public class ClientProxy extends CommonProxy {
 		if (!langDir.exists() && !langDir.mkdirs()) { return; }
 		BufferedWriter writer;
 		boolean isExample = key.contains("example") && value.contains("Example");
-		boolean isTranslite = false;
+		boolean isTranslate = false;
 		String currentLanguage = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
-		String transliteValue = value;
+		String translateValue = value;
 		if (!currentLanguage.equals("en_us")) {
-			String parentLanguage = "auto";
 			String language = currentLanguage;
 			if (language.contains("_")) { language = language.substring(0, language.indexOf("_")); }
 			if (isExample) {
-				transliteValue = Util.instance.translateGoogle("en", language, value);
-				if (transliteValue.equals(value)) { return; }
-				isTranslite = true;
+				translateValue = Util.instance.translateGoogle("en", language, value);
+				if (translateValue.equals(value)) { return; }
+				isTranslate = true;
 			} else {
-				value = Util.instance.translateGoogle(language, "en", transliteValue);
+				value = Util.instance.translateGoogle(language, "en", translateValue);
 			}
 		}
 
@@ -1755,7 +1746,7 @@ public class ClientProxy extends CommonProxy {
 			}
 			File lang = new File(langDir, (i == 0 ? "en_us" : currentLanguage) + ".lang");
 			Map<String, String> jsonMap = new TreeMap<>();
-			jsonMap.put(key, (i == 0 ? value : transliteValue));
+			jsonMap.put(key, (i == 0 ? value : translateValue));
 			char chr = Character.toChars(0x000A)[0];
 			writer = null;
 			if (!lang.exists()) {
@@ -1772,7 +1763,7 @@ public class ClientProxy extends CommonProxy {
 						}
 						String[] vk = line.split("=");
 						if (vk[0].equals(key)) {
-							if (isExample && !isTranslite) {
+							if (isExample && !isTranslate) {
 								jsonMap.put(vk[0], vk[1]);
 							}
 							continue;
@@ -1947,8 +1938,6 @@ public class ClientProxy extends CommonProxy {
 			RecipeBookClient.RECIPES_BY_TAB.get(tab).remove(recipeList);
 			RecipeBookClient.ALL_RECIPES.remove(recipeList);
 		}
-
-		// Changed in Players
 		if (book != null && (!added || recipe.isKnown())) {
 			// recipe lock / unlock
 			if (!added) { book.lock((IRecipe) recipe); } else { book.unlock((IRecipe) recipe); }

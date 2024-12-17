@@ -1,9 +1,6 @@
 package noppes.npcs.client.gui.advanced;
 
-import java.util.Arrays;
-
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNPCLinesEdit;
@@ -18,7 +15,9 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCLinesMenu extends GuiNPCInterface2 implements IGuiData, ISubGuiListener {
+public class GuiNPCLinesMenu
+extends GuiNPCInterface2
+implements IGuiData, ISubGuiListener {
 
 	public GuiNPCLinesMenu(EntityNPCInterface npc) {
 		super(npc);
@@ -27,77 +26,56 @@ public class GuiNPCLinesMenu extends GuiNPCInterface2 implements IGuiData, ISubG
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 0: {
-			this.setSubGui(new SubGuiNPCLinesEdit(0, this.npc, this.npc.advanced.worldLines, "lines.world"));
-			break;
-		}
-		case 1: {
-			this.setSubGui(new SubGuiNPCLinesEdit(1, this.npc, this.npc.advanced.attackLines, "lines.attack"));
-			break;
-		}
-		case 2: {
-			this.setSubGui(new SubGuiNPCLinesEdit(2, this.npc, this.npc.advanced.interactLines, "lines.interact"));
-			break;
-		}
-		case 3: {
-			this.setSubGui(new SubGuiNPCLinesEdit(3, this.npc, this.npc.advanced.killedLines, "lines.killed"));
-			break;
-		}
-		case 4: {
-			this.setSubGui(new SubGuiNPCLinesEdit(4, this.npc, this.npc.advanced.killLines, "lines.kill"));
-			break;
-		}
-		case 5: {
-			this.setSubGui(
-					new SubGuiNPCLinesEdit(5, this.npc, this.npc.advanced.npcInteractLines, "lines.npcinteract"));
-			break;
-		}
-		case 6: {
-			this.npc.advanced.orderedLines = !((GuiNpcButtonYesNo) button).getBoolean();
-			break;
-		}
+			case 0: {
+				setSubGui(new SubGuiNPCLinesEdit(0, npc, npc.advanced.worldLines, "lines.world"));
+				break;
+			}
+			case 1: {
+				setSubGui(new SubGuiNPCLinesEdit(1, npc, npc.advanced.attackLines, "lines.attack"));
+				break;
+			}
+			case 2: {
+				setSubGui(new SubGuiNPCLinesEdit(2, npc, npc.advanced.interactLines, "lines.interact"));
+				break;
+			}
+			case 3: {
+				setSubGui(new SubGuiNPCLinesEdit(3, npc, npc.advanced.killedLines, "lines.killed"));
+				break;
+			}
+			case 4: {
+				setSubGui(new SubGuiNPCLinesEdit(4, npc, npc.advanced.killLines, "lines.kill"));
+				break;
+			}
+			case 5: {
+				setSubGui(new SubGuiNPCLinesEdit(5, npc, npc.advanced.npcInteractLines, "lines.npcinteract"));
+				break;
+			}
+			case 6: {
+				npc.advanced.orderedLines = !((GuiNpcButtonYesNo) button).getBoolean();
+				break;
+			}
 		}
 	}
 
 	@Override
 	public void close() {
-		this.save();
-		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
-	}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("lines.hover.add").getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("lines.hover.remove").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("bard.hover.select").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		save();
+		CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 85, this.guiTop + 20, "lines.world"));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 85, this.guiTop + 43, "lines.attack"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 85, this.guiTop + 66, "lines.interact"));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 85, this.guiTop + 89, "lines.killed"));
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 85, this.guiTop + 112, "lines.kill"));
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 85, this.guiTop + 135, "lines.npcinteract"));
-		this.addLabel(new GuiNpcLabel(16, "lines.random", this.guiLeft + 85, this.guiTop + 163));
-		this.addButton(
-				new GuiNpcButtonYesNo(6, this.guiLeft + 175, this.guiTop + 158, !this.npc.advanced.orderedLines));
+		int x = guiLeft + 85;
+		int y = guiTop + 20;
+		addButton(new GuiNpcButton(0, x, y, "lines.world"));
+		addButton(new GuiNpcButton(1, x, y += 23, "lines.attack"));
+		addButton(new GuiNpcButton(2, x, y += 23, "lines.interact"));
+		addButton(new GuiNpcButton(3, x, y += 23, "lines.killed"));
+		addButton(new GuiNpcButton(4, x, y += 23, "lines.kill"));
+		addButton(new GuiNpcButton(5, x, y += 23, "lines.npcinteract"));
+		addLabel(new GuiNpcLabel(16, "lines.random", x, (y += 23) + 5));
+		addButton(new GuiNpcButtonYesNo(6, x + 95, y, !this.npc.advanced.orderedLines));
 	}
 
 	@Override
@@ -128,30 +106,30 @@ public class GuiNPCLinesMenu extends GuiNPCInterface2 implements IGuiData, ISubG
 		SubGuiNPCLinesEdit sub = (SubGuiNPCLinesEdit) subgui;
 		sub.lines.correctLines();
 		switch (sub.id) {
-		case 0: {
-			this.npc.advanced.worldLines = sub.lines;
-			break;
-		}
-		case 1: {
-			this.npc.advanced.attackLines = sub.lines;
-			break;
-		}
-		case 2: {
-			this.npc.advanced.interactLines = sub.lines;
-			break;
-		}
-		case 3: {
-			this.npc.advanced.killedLines = sub.lines;
-			break;
-		}
-		case 4: {
-			this.npc.advanced.killLines = sub.lines;
-			break;
-		}
-		case 5: {
-			this.npc.advanced.npcInteractLines = sub.lines;
-			break;
-		}
+			case 0: {
+				this.npc.advanced.worldLines = sub.lines;
+				break;
+			}
+			case 1: {
+				this.npc.advanced.attackLines = sub.lines;
+				break;
+			}
+			case 2: {
+				this.npc.advanced.interactLines = sub.lines;
+				break;
+			}
+			case 3: {
+				this.npc.advanced.killedLines = sub.lines;
+				break;
+			}
+			case 4: {
+				this.npc.advanced.killLines = sub.lines;
+				break;
+			}
+			case 5: {
+				this.npc.advanced.npcInteractLines = sub.lines;
+				break;
+			}
 		}
 		this.save();
 	}

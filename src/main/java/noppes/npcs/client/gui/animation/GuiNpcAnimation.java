@@ -32,8 +32,8 @@ import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class GuiNpcAnimation
-		extends GuiNPCInterface2
-		implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
+extends GuiNPCInterface2
+implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 
 	public static int backColor = 0xFF000000;
 
@@ -42,7 +42,7 @@ public class GuiNpcAnimation
 	private GuiCustomScroll scrollAllAnimations;
 
 	private boolean isChanged = true;
-	private final String[][] typeHovers;
+	private final LinkedHashMap<Integer, List<String>> typeHovers = new LinkedHashMap<>();
 	private final Map<String, AnimationKind> dataType = new LinkedHashMap<>();
 	private final List<String> dataAnimations = new ArrayList<>();
 	private final Map<String, AnimationConfig> dataAllAnimations = new TreeMap<>();
@@ -80,11 +80,10 @@ public class GuiNpcAnimation
 		dataType.put("puppet." + AnimationKind.FLY_WALK.name().toLowerCase().replace("_", ""), AnimationKind.FLY_WALK);
 		dataType.put("puppet." + AnimationKind.WATER_WALK.name().toLowerCase().replace("_", ""), AnimationKind.WATER_WALK);
 		dataType.put("puppet." + AnimationKind.REVENGE_WALK.name().toLowerCase().replace("_", ""), AnimationKind.REVENGE_WALK);
-		typeHovers = new String[dataType.size()][];
 		int i = 0;
 		for (AnimationKind ak : dataType.values()) {
 			String hoverText = new TextComponentTranslation("animation.hover.anim." + ak.get()).getFormattedText();
-			typeHovers[i] = hoverText.split("<br>");
+			typeHovers.put(i, Arrays.asList(hoverText.split("<br>")));
 			i++;
 		}
 
@@ -242,25 +241,6 @@ public class GuiNpcAnimation
 		drawVerticalLine(7, -1, 2, color);
 		drawVerticalLine(8, 0, 2, color);
 		GlStateManager.popMatrix();
-
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (scrollAnimations != null && scrollAnimations.hover != -1) { // scroll anim
-			setHoverText(new TextComponentTranslation("animation.hover.anim.list").getFormattedText());
-		} else if (getButton(1) != null && getButton(1).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.anim.copy").getFormattedText());
-		} else if (getButton(0) != null && getButton(0).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.anim.create").getFormattedText());
-		} else if (getButton(2) != null && getButton(2).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.anim.del").getFormattedText());
-		} else if (getButton(3) != null && getButton(3).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.anim.edit").getFormattedText());
-		}
-		if (hoverText != null) {
-			drawHoveringText(Arrays.asList(hoverText), mouseX, mouseY, fontRenderer);
-			hoverText = null;
-		}
 	}
 
 	private AnimationConfig getAnim() {
@@ -282,12 +262,11 @@ public class GuiNpcAnimation
 		if (scrollType == null) {
 			(scrollType = new GuiCustomScroll(this, 0)).setSize(120, 198);
 			scrollType.setListNotSorted(new ArrayList<>(dataType.keySet()));
-			scrollType.hoversTexts = typeHovers;
+			scrollType.setHoverTexts(typeHovers);
 		}
 		scrollType.guiLeft = x;
 		scrollType.guiTop = y;
 		addScroll(scrollType);
-
 		if (selType.isEmpty()) {
 			for (String key : dataType.keySet()) {
 				if (dataType.get(key) == AnimationKind.STANDING) {
@@ -304,8 +283,7 @@ public class GuiNpcAnimation
 		dataAllAnimations.clear();
 		aData = AnimationController.getInstance();
 		ArrayList<String> allAnimations = Lists.newArrayList();
-		String[][] hts = new String[aData.animations.size()][];
-
+		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		int i = 0;
 		AnimationKind type = dataType.get(selType);
 		if (!selAnim.isEmpty() && !selBaseAnim.isEmpty() && !Util.instance.deleteColor(selAnim).equals(Util.instance.deleteColor(selBaseAnim))) { selAnim = ""; }
@@ -316,12 +294,16 @@ public class GuiNpcAnimation
 			if (!selAnim.isEmpty() && Util.instance.deleteColor(selAnim).equals(Util.instance.deleteColor(key))) { selAnim = key; }
 			if (!selBaseAnim.isEmpty() && Util.instance.deleteColor(selBaseAnim).equals(Util.instance.deleteColor(key))) { selBaseAnim = key; }
 			allAnimations.add(key);
-			hts[i] = new String[] { new TextComponentTranslation(ac.name).getFormattedText(), ((char) 167) + "7" + new TextComponentTranslation("gui.type").getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "r" + ac.type.name() };
+			List<String> list = new ArrayList<>();
+			list.add(new TextComponentTranslation(ac.name).getFormattedText());
+			list.add(((char) 167) + "7" + new TextComponentTranslation("gui.type").getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "r" + ac.type.name());
+			hts.put(i, list);
 			i++;
 		}
 
 		if (scrollAnimations == null) {
 			(scrollAnimations = new GuiCustomScroll(this, 1)).setSize(120, 198);
+			scrollAnimations.setHoverText("animation.hover.anim.list");
 		}
 		scrollAnimations.setListNotSorted(dataAnimations);
 		scrollAnimations.guiLeft = x;
@@ -349,7 +331,7 @@ public class GuiNpcAnimation
 			(scrollAllAnimations = new GuiCustomScroll(this, 2)).setSize(160, 110);
 		}
 		scrollAllAnimations.setListNotSorted(allAnimations);
-		scrollAllAnimations.hoversTexts = hts;
+		scrollAllAnimations.setHoverTexts(hts);
 		scrollAllAnimations.guiLeft = x;
 		scrollAllAnimations.guiTop = y + 88;
 		if (!selBaseAnim.isEmpty()) {
@@ -358,16 +340,32 @@ public class GuiNpcAnimation
 		this.addScroll(scrollAllAnimations);
 
 		AnimationConfig anim = getAnim();
-		boolean isOP = anim != null && (!anim.immutable || player.getName().equals("BetaZavr"));
+		boolean isOP = anim != null && !anim.immutable;
 		addLabel(new GuiNpcLabel(1, new TextComponentTranslation("movement.animation").getFormattedText() + ":", x + 1, y - 10));
-		addButton(new GuiNpcButton(0, x, y, 60, 20, "markov.generate"));
-		addButton(new GuiNpcButton(4, x + 148, y, 10, 10, new String[] { "b", "w" }, backColor == 0xFF000000 ? 0 : 1));
-		addButton(new GuiNpcButton(1, x, y += 22, 60, 20, "gui.copy"));
-		getButton(1).enabled = anim != null;
-		addButton(new GuiNpcButton(2, x, y += 22, 60, 20, "gui.remove"));
-		getButton(2).enabled = isOP;
-		addButton(new GuiNpcButton(3, x, y + 22, 60, 20, "gui.edit"));
-		getButton(3).enabled = isOP;
+		// create
+		GuiNpcButton button = new GuiNpcButton(0, x, y, 60, 20, "markov.generate");
+		button.setHoverText("animation.hover.anim.create");
+		addButton(button);
+		// back color
+		button = new GuiNpcButton(4, x + 148, y, 10, 10, new String[] { "b", "w" }, backColor == 0xFF000000 ? 0 : 1);
+		button.setHoverText("animation.hover.color");
+		addButton(button);
+		// copy
+		button = new GuiNpcButton(1, x, y += 22, 60, 20, "gui.copy");
+		button.setEnabled(anim != null);
+		button.setHoverText("animation.hover.anim.copy");
+		addButton(button);
+		// del
+		button = new GuiNpcButton(2, x, y += 22, 60, 20, "gui.remove");
+		button.setEnabled(isOP);
+		button.setHoverText("animation.hover.anim.del");
+		addButton(button);
+		// edit
+		button = new GuiNpcButton(3, x, y + 22, 60, 20, "gui.edit");
+		button.setEnabled(isOP);
+		button.setHoverText("animation.hover.anim.edit");
+		addButton(button);
+
 		resetAnimation();
 	}
 
@@ -445,17 +443,13 @@ public class GuiNpcAnimation
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		AnimationConfig anim = getAnim();
-		AnimationKind type = dataType.get(selType);
-		if (subgui.id == 4) { // new
+		if (subgui.id == 4) { // create
 			displayGuiScreen(this);
 			if (!(subgui instanceof SubGuiEditAnimation) || ((SubGuiEditAnimation) subgui).anim == null) {
 				return;
 			}
 			selAnim = ((SubGuiEditAnimation) subgui).anim.getSettingName();
-			if (anim != null && !animation.hasAnimation(type, anim.id)) {
-				animation.addAnimation(type, anim.id);
-			}
+			selBaseAnim = selAnim;
 			Client.sendData(EnumPacketServer.AnimationChange, ((SubGuiEditAnimation) subgui).anim.save());
 			isChanged = true;
 			initGui();

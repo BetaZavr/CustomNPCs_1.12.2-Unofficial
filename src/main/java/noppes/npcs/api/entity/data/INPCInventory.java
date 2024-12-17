@@ -1,7 +1,12 @@
 package noppes.npcs.api.entity.data;
 
 import net.minecraft.entity.EntityLivingBase;
+import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.entity.EntityNPCInterface;
+
+import java.util.List;
+import java.util.Map;
 
 public interface INPCInventory {
 
@@ -21,9 +26,7 @@ public interface INPCInventory {
 
 	int getExpRNG();
 
-	IItemStack[] getItemsRNG(EntityLivingBase attacking);
-
-	IItemStack[] getItemsRNGL(EntityLivingBase attacking);
+	Map<IEntity<?>, List<IItemStack>> createDrops(int lootType, double baseChance);
 
 	IItemStack getLeftHand();
 

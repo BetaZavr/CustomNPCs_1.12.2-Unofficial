@@ -1,15 +1,12 @@
 package noppes.npcs.client.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -21,109 +18,100 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.data.Marcet;
 
-public class SubGuiNpcSelectTrader extends SubGuiInterface implements IGuiData, ICustomScrollListener {
+public class SubGuiNpcSelectTrader
+extends SubGuiInterface
+implements IGuiData, ICustomScrollListener {
 
 	public int id;
-	private final Map<String, Integer> data;
-	private GuiCustomScroll scrollMarcets;
-	private String select;
+	private final Map<String, Integer> data = new HashMap<>();
+	private GuiCustomScroll scrollMarkets;
+	private String select = "";
 
-	public SubGuiNpcSelectTrader(int id) {
-		this.id = id;
-		this.setBackground("menubg.png");
-		this.xSize = 190;
-		this.ySize = 217;
-		this.closeOnEsc = true;
-		this.data = new HashMap<>();
-		this.select = "";
+	public SubGuiNpcSelectTrader(int i) {
+		setBackground("menubg.png");
+		xSize = 190;
+		ySize = 217;
+		closeOnEsc = true;
+
+		id = i;
 		Client.sendData(EnumPacketServer.TraderMarketGet);
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
         if (button.id == 66) {
-            this.close();
+            close();
         }
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
-		if (this.background != null) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		if (background != null) { // add right
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
-			GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
-			this.mc.getTextureManager().bindTexture(this.background);
-			this.drawTexturedModalRect(this.xSize, 0, 252, 0, 4, this.ySize);
+			GlStateManager.translate(guiLeft, guiTop, 0.0f);
+			GlStateManager.scale(bgScale, bgScale, bgScale);
+			mc.getTextureManager().bindTexture(background);
+			drawTexturedModalRect(xSize, 0, 252, 0, 4, ySize);
 			GlStateManager.popMatrix();
 		}
-		super.drawScreen(i, j, f);
-		if (!CustomNpcs.ShowDescriptions || this.subgui != null) {
-			return;
-		}
-		if (this.getLabel(0) != null && this.getLabel(0).hovered) {
-			this.setHoverText(new TextComponentTranslation("market.hover.role.list").getFormattedText());
-		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.role.own").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
 		List<String> list = new ArrayList<>();
-		this.data.clear();
+		data.clear();
 		for (Marcet m : MarcetController.getInstance().markets.values()) {
 			if (!m.isValid()) {
 				continue;
 			}
 			String name = m.getSettingName();
 			list.add(name);
-			this.data.put(name, m.getId());
-			if (this.id == m.getId()) {
-				this.select = name;
+			data.put(name, m.getId());
+			if (id == m.getId()) {
+				select = name;
 			}
 		}
-		if (this.scrollMarcets == null) {
-			(this.scrollMarcets = new GuiCustomScroll(this, 0)).setSize(170, 157);
+		if (scrollMarkets == null) {
+			(scrollMarkets = new GuiCustomScroll(this, 0)).setSize(170, 157);
 		}
-		int x = this.guiLeft + 12, y = this.guiTop + 14;
-		this.scrollMarcets.guiLeft = x;
-		this.scrollMarcets.guiTop = y;
-		this.scrollMarcets.setList(list);
-		if (this.data.containsValue(this.id) && !this.select.isEmpty()) {
-			this.scrollMarcets.setSelected(this.select);
+		int x = guiLeft + 12, y = guiTop + 14;
+		scrollMarkets.guiLeft = x;
+		scrollMarkets.guiTop = y;
+		scrollMarkets.setList(list);
+		if (data.containsValue(id) && !select.isEmpty()) {
+			scrollMarkets.setSelected(select);
 		}
-		this.addLabel(new GuiNpcLabel(0, "market.select", x + 2, y - 10));
-		this.addScroll(this.scrollMarcets);
+		GuiNpcLabel label = new GuiNpcLabel(0, "market.select", x + 2, y - 10);
+		label.setHoverText("market.hover.role.list");
+		addLabel(label);
+		addScroll(scrollMarkets);
 
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 50, this.guiTop + 190, 90, 20, "gui.done"));
+		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 50, guiTop + 190, 90, 20, "gui.done");
+		button.setHoverText("hover.back");
+		addButton(button);
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.getSelected().equals(this.select) || !this.data.containsKey(scroll.getSelected())) {
+		if (scroll.getSelected().equals(select) || !data.containsKey(scroll.getSelected())) {
 			return;
 		}
-		this.select = scroll.getSelected();
-		this.id = this.data.get(scroll.getSelected());
-		this.initGui();
+		select = scroll.getSelected();
+		id = data.get(scroll.getSelected());
+		initGui();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		this.close();
+		close();
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.initGui();
+		initGui();
 	}
 
 }

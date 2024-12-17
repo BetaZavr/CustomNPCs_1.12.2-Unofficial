@@ -6,18 +6,18 @@ import noppes.npcs.client.gui.util.GuiTextArea;
 import noppes.npcs.client.gui.util.ITextChangeListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 
-public class SubGuiNpcTextArea extends SubGuiInterface implements ITextChangeListener {
+public class SubGuiNpcTextArea
+extends SubGuiInterface
+implements ITextChangeListener {
 
 	private boolean highlighting;
-	// New
 	public String originalText;
 	public String text;
 	private GuiTextArea textarea;
 
-	// New
-	public SubGuiNpcTextArea(int id, String text) {
+	public SubGuiNpcTextArea(int i, String text) {
 		this(text);
-		this.id = id;
+		id = i;
 	}
 
 	public SubGuiNpcTextArea(String t) {
@@ -33,74 +33,66 @@ public class SubGuiNpcTextArea extends SubGuiInterface implements ITextChangeLis
 
 	public SubGuiNpcTextArea(String textOriginal, String t) {
 		this(t);
-		this.originalText = textOriginal;
+		originalText = textOriginal;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 100) {
-			NoppesStringUtils.setClipboardContents(this.textarea.getText());
+			NoppesStringUtils.setClipboardContents(textarea.getText());
 		}
 		if (button.id == 101) {
-			this.textarea.setText(NoppesStringUtils.getClipboardContents());
+			textarea.setText(NoppesStringUtils.getClipboardContents());
 		}
 		if (button.id == 102) {
-			this.textarea.setText("");
+			textarea.setText("");
 		}
 		if (button.id == 103) {
-			this.textarea.setText(this.originalText);
+			textarea.setText(originalText);
 		}
 		if (button.id == 0) {
-			this.close();
+			close();
 		}
 	}
 
 	public SubGuiNpcTextArea enableHighlighting() {
-		this.highlighting = true;
+		highlighting = true;
 		return this;
 	}
 
 	public int getId() {
-		return this.id;
+		return id;
 	}
 
 	@Override
 	public void initGui() {
-		this.xSize = (int) (this.width * 0.88);
-		this.ySize = (int) (this.xSize * 0.56);
-		if (this.ySize > this.height * 0.95) {
-			this.ySize = (int) (this.height * 0.95);
-			this.xSize = (int) (this.ySize / 0.56);
+		xSize = (int) (width * 0.88);
+		ySize = (int) (xSize * 0.56);
+		if (ySize > height * 0.95) {
+			ySize = (int) (height * 0.95);
+			xSize = (int) (ySize / 0.56);
 		}
-		this.bgScale = this.xSize / 440.0f;
+		bgScale = xSize / 440.0f;
 		super.initGui();
-		if (this.textarea != null) {
-			this.text = this.textarea.getText();
+		if (textarea != null) {
+			text = textarea.getText();
 		}
-		int yoffset = (int) (this.ySize * 0.02);
-		(this.textarea = new GuiTextArea(2, this.guiLeft + 1 + yoffset, this.guiTop + yoffset,
-				this.xSize - 100 - yoffset, this.ySize - yoffset * 2, this.text)).setListener(this);
-		if (this.highlighting) {
-			this.textarea.enableCodeHighlighting();
+		int yoffset = (int) (ySize * 0.02);
+		(textarea = new GuiTextArea(2, guiLeft + 1 + yoffset, guiTop + yoffset, xSize - 100 - yoffset, ySize - yoffset * 2, text)).setListener(this);
+		if (highlighting) {
+			textarea.enableCodeHighlighting();
 		}
-		this.add(this.textarea);
-		this.buttonList.add(
-				new GuiNpcButton(102, this.guiLeft + this.xSize - 90 - yoffset, this.guiTop + 20, 56, 20, "gui.clear"));
-		this.buttonList.add(
-				new GuiNpcButton(101, this.guiLeft + this.xSize - 90 - yoffset, this.guiTop + 43, 56, 20, "gui.paste"));
-		this.buttonList.add(
-				new GuiNpcButton(100, this.guiLeft + this.xSize - 90 - yoffset, this.guiTop + 66, 56, 20, "gui.copy"));
-		this.buttonList.add(new GuiNpcButton(103, this.guiLeft + this.xSize - 90 - yoffset, this.guiTop + 89, 56, 20,
-				"remote.reset"));
-		this.buttonList.add(
-				new GuiNpcButton(0, this.guiLeft + this.xSize - 90 - yoffset, this.guiTop + 160, 56, 20, "gui.close"));
-		this.xSize = 420;
-		this.ySize = 256;
+		add(textarea);
+		buttonList.add(new GuiNpcButton(102, guiLeft + xSize - 90 - yoffset, guiTop + 20, 56, 20, "gui.clear"));
+		buttonList.add(new GuiNpcButton(101, guiLeft + xSize - 90 - yoffset, guiTop + 43, 56, 20, "gui.paste"));
+		buttonList.add(new GuiNpcButton(100, guiLeft + xSize - 90 - yoffset, guiTop + 66, 56, 20, "gui.copy"));
+		buttonList.add(new GuiNpcButton(103, guiLeft + xSize - 90 - yoffset, guiTop + 89, 56, 20, "remote.reset"));
+		buttonList.add(new GuiNpcButton(0, guiLeft + xSize - 90 - yoffset, guiTop + 160, 56, 20, "gui.close"));
+		xSize = 420;
+		ySize = 256;
 	}
 
 	@Override
-	public void textUpdate(String text) {
-		this.text = text;
-	}
+	public void textUpdate(String t) { text = t; }
 
 }

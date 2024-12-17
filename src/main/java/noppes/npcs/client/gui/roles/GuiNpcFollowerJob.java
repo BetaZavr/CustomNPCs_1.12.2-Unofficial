@@ -16,34 +16,32 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobFollower;
 
-public class GuiNpcFollowerJob extends GuiNPCInterface2 implements ICustomScrollListener {
+public class GuiNpcFollowerJob
+extends GuiNPCInterface2
+implements ICustomScrollListener {
 
 	private final JobFollower job;
 
     public GuiNpcFollowerJob(EntityNPCInterface npc) {
 		super(npc);
-		this.job = (JobFollower) npc.advanced.jobInterface;
+		job = (JobFollower) npc.advanced.jobInterface;
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(1, "gui.name", this.guiLeft + 6, this.guiTop + 110));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 50, this.guiTop + 105, 200, 20, this.job.name));
+		addLabel(new GuiNpcLabel(1, "gui.name", guiLeft + 6, guiTop + 110));
+		addTextField(new GuiNpcTextField(1, this, fontRenderer, guiLeft + 50, guiTop + 105, 200, 20, job.name));
         GuiCustomScroll scroll;
         (scroll = new GuiCustomScroll(this, 0)).setSize(143, 208);
-		scroll.guiLeft = this.guiLeft + 268;
-		scroll.guiTop = this.guiTop + 4;
-		this.addScroll(scroll);
+		scroll.guiLeft = guiLeft + 268;
+		scroll.guiTop = guiTop + 4;
+		addScroll(scroll);
 		List<String> names = new ArrayList<>();
-		List<EntityNPCInterface> list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class, this.npc.getEntityBoundingBox().grow(40.0, 40.0, 40.0));
-		for (EntityNPCInterface npc : list) {
-			if (npc != this.npc) {
-				if (names.contains(npc.display.getName())) {
-					continue;
-				}
-				names.add(npc.display.getName());
-			}
+		List<EntityNPCInterface> list = npc.world.getEntitiesWithinAABB(EntityNPCInterface.class, npc.getEntityBoundingBox().grow(40.0, 40.0, 40.0));
+		for (EntityNPCInterface npcEntity : list) {
+			if (npcEntity.equals(npc) || names.contains(npcEntity.display.getName())) { continue; }
+			names.add(npcEntity.display.getName());
 		}
 		scroll.setList(names);
 	}
@@ -52,23 +50,23 @@ public class GuiNpcFollowerJob extends GuiNPCInterface2 implements ICustomScroll
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
 		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+			save();
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 		}
 	}
 
 	@Override
 	public void save() {
-		this.job.name = this.getTextField(1).getText();
-		Client.sendData(EnumPacketServer.JobSave, this.job.writeToNBT(new NBTTagCompound()));
+		job.name = getTextField(1).getText();
+		Client.sendData(EnumPacketServer.JobSave, job.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		this.getTextField(1).setText(scroll.getSelected());
+		getTextField(1).setText(scroll.getSelected());
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
+
 }

@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.model;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
@@ -14,8 +13,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -29,7 +26,7 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		void color(int p0);
 	}
 
-	private static final ResourceLocation colorgui = new ResourceLocation("moreplayermodels:textures/gui/color_gui.png");
+	private static final ResourceLocation colorGui = new ResourceLocation("moreplayermodels:textures/gui/color_gui.png");
 	private static final ResourceLocation colorPicker = new ResourceLocation("moreplayermodels:textures/gui/color.png");
 	private ResourceLocation npcSkin;
 	private final ColorCallback callback;
@@ -46,7 +43,7 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		this.ySize = 230;
 		this.closeOnEsc = false;
 		this.color = color;
-		this.background = GuiModelColor.colorgui;
+		this.background = GuiModelColor.colorGui;
 		this.npcSkin = null;
 		this.hover = 0;
 		this.hovered = false;
@@ -65,7 +62,7 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		
 		if (this.npcSkin != null) {
 			// back
-			this.mc.getTextureManager().bindTexture(GuiModelColor.colorgui);
+			this.mc.getTextureManager().bindTexture(GuiModelColor.colorGui);
 			int xs = this.colorX + 128;
 			int ys = this.colorY;
 			this.drawTexturedModalRect(xs + 3, ys - 5, 11, 0, 134, 1);
@@ -149,7 +146,6 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 				this.hovered = true;
 			}
 		}
-		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(this.colorX + 5, this.colorY - 25, 1.0f);
 		int c = this.hovered ? this.hover : this.color;
@@ -157,17 +153,6 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		this.drawGradientRect(0, 0, 20, 20, 0xFF000000 + c, 0xFF000000 + c);
 		this.drawGradientRect(0, 0, 20, 20, c, c);
 		GlStateManager.popMatrix();
-		
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.set.color").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
 	}
 
 	public String getColor() {
@@ -179,10 +164,14 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.colorX = this.guiLeft + 4;
-		this.colorY = this.guiTop + 50;
-		this.addTextField(this.textfield = new GuiNpcTextField(0, this, this.guiLeft + 35, this.guiTop + 25, 60, 20, this.getColor()));
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 107, this.guiTop + 8, 20, 20, "X"));
+		this.colorX = guiLeft + 4;
+		this.colorY = guiTop + 50;
+		textfield = new GuiNpcTextField(0, this, this.guiLeft + 35, this.guiTop + 25, 60, 20, getColor());
+		textfield.setHoverText("hover.set.color");
+		addTextField(textfield);
+		GuiNpcButton button = new GuiNpcButton(66, this.guiLeft + 107, this.guiTop + 8, 20, 20, "X");
+		button.setHoverText("hover.back");
+		addButton(button);
 	}
 
 	@Override

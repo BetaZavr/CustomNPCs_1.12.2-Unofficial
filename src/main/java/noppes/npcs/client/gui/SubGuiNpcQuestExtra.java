@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui;
 
-import java.util.Arrays;
+import java.awt.*;
+import java.util.List;
 
 import noppes.npcs.LogWriter;
 import org.lwjgl.opengl.GL11;
@@ -10,7 +11,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.select.GuiNPCSelection;
@@ -29,7 +29,9 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
-public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldListener, ISubGuiListener {
+public class SubGuiNpcQuestExtra
+extends SubGuiInterface
+implements ITextfieldListener, ISubGuiListener {
 
 	private static final ResourceLocation sheet = new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_3.png");
 	private static final ResourceLocation tabs = new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_4.png");
@@ -37,14 +39,14 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 	public Quest quest;
 	private ScaledResolution sw;
 
-	public SubGuiNpcQuestExtra(int id, Quest q) {
-		this.quest = q;
-		this.id = id;
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 217;
-		this.closeOnEsc = true;
+	public SubGuiNpcQuestExtra(int i, Quest q) {
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 217;
+		closeOnEsc = true;
 
+		quest = q;
+		id = i;
 		showNpc = Util.instance.copyToGUI(quest.completer, mc.world, false);
 	}
 
@@ -52,49 +54,48 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 0: { // icon select
-			GuiTextureSelection subGui = new GuiTextureSelection(showNpc, this.quest.icon.toString(), "png", 3);
+			GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.icon.toString(), "png", 3);
 			subGui.id = 0;
-			this.setSubGui(subGui);
+			setSubGui(subGui);
 			break;
 		}
 		case 1: { // completion type
-			this.quest.completion = EnumQuestCompletion.values()[button.getValue()];
+			quest.completion = EnumQuestCompletion.values()[button.getValue()];
 			break;
 		}
 		case 2: { // select npc
-			this.setSubGui(new GuiNPCSelection(this.quest.completer));
+			setSubGui(new GuiNPCSelection(quest.completer));
 			break;
 		}
 		case 3: { // texture select
-			GuiTextureSelection subGui = new GuiTextureSelection(showNpc,
-					this.quest.texture == null ? "" : this.quest.texture.toString(), "png", 3);
+			GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.texture == null ? "" : quest.texture.toString(), "png", 3);
 			subGui.id = 1;
-			this.setSubGui(subGui);
+			setSubGui(subGui);
 			break;
 		}
 		case 4: { // reward text
-			this.setSubGui(new SubGuiNpcTextArea(0, this.quest.rewardText));
+			setSubGui(new SubGuiNpcTextArea(0, quest.rewardText));
 			break;
 		}
 		case 5: { // extra button type
-			this.quest.extraButton = button.getValue();
-			this.initGui();
+			quest.extraButton = button.getValue();
+			initGui();
 			break;
 		}
 		case 6: { // extra button hover text
-			this.setSubGui(new SubGuiNpcTextArea(1, this.quest.extraButtonText));
+			setSubGui(new SubGuiNpcTextArea(1, quest.extraButtonText));
 			break;
 		}
 		case 7: {
-			this.quest.showProgressInChat = ((GuiNpcCheckBox) button).isSelected();
+			quest.showProgressInChat = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		case 8: {
-			this.quest.showProgressInWindow = ((GuiNpcCheckBox) button).isSelected();
+			quest.showProgressInWindow = ((GuiNpcCheckBox) button).isSelected();
 			break;
 		}
 		case 66: {
-			this.close();
+			close();
 			break;
 		}
 		}
@@ -120,13 +121,13 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 		GlStateManager.enableBlend();
 		GlStateManager.enableColorMaterial();
 		GlStateManager.enableDepth();
-		this.mc.getRenderManager().playerViewY = 180.0f;
+		mc.getRenderManager().playerViewY = 180.0f;
 		GlStateManager.scale(25.0f, 25.0f, 25.0f);
 		npc.ticksExisted = 100;
 		if (canUpdate) {
 			npc.onUpdate();
 		}
-		this.mc.getRenderManager().renderEntity(npc, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
+		mc.getRenderManager().renderEntity(npc, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
 
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
@@ -135,14 +136,14 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
-		if (this.subgui != null) {
-			super.drawScreen(i, j, f);
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		if (subgui != null) {
+			super.drawScreen(mouseX, mouseY, partialTicks);
 			return;
 		}
-		String[] temp = this.hoverText;
-		this.hoverText = null;
-		super.drawScreen(i, j, f);
+		List<String> tempHoverText = getHoverText();
+		setHoverText(null);
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		int u = guiLeft + 182;
 		int v = guiTop + 97;
 		if (getButton(2) != null) {
@@ -154,8 +155,8 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 		GlStateManager.translate(u + 5.0f, v + 3.0f, 0.0f);
 		GlStateManager.enableBlend();
 		GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
-		this.drawTexturedModalRect(-5, -5, 34, 54, 65, 65);
+		mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
+		drawTexturedModalRect(-5, -5, 34, 54, 65, 65);
 		GlStateManager.popMatrix();
 		if (showNpc != null) {
 			GlStateManager.pushMatrix();
@@ -165,7 +166,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 					: 1;
 			GL11.glScissor((u + 4) * c, (v + 17) * c, (56) * c, (44) * c);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.drawNpc(showNpc);
+			drawNpc(showNpc);
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 			GlStateManager.popMatrix();
 			// Fase
@@ -173,10 +174,10 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			GlStateManager.translate(u + 1.0f, v + 1.0f, 100.0f);
 			GlStateManager.enableBlend();
 			GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
-			this.mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.tabs);
-			this.drawTexturedModalRect(0, 0, 193, 0, 63, 52);
-			String name = ((char) 167) + "l" + this.quest.completer.getName();
-			this.mc.fontRenderer.drawString(name, 32 - (float) this.mc.fontRenderer.getStringWidth(name) / 2, 50, CustomNpcs.QuestLogColor.getRGB(), false);
+			mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.tabs);
+			drawTexturedModalRect(0, 0, 193, 0, 63, 52);
+			String name = ((char) 167) + "l" + quest.completer.getName();
+			mc.fontRenderer.drawString(name, 32 - (float) mc.fontRenderer.getStringWidth(name) / 2, 50, CustomNpcs.QuestLogColor.getRGB(), false);
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
@@ -204,22 +205,23 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			u = getButton(0).x + getButton(0).width + 5;
 			v = getButton(0).y - 1;
 		}
-		this.drawGradientRect(u, v, u + 34, v + 34, 0xFF404040, 0xFF404040);
+		int color = new Color(0xFF404040).getRGB();
+		drawGradientRect(u, v, u + 34, v + 34, color, color);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
 		GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
-		this.mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
-		this.drawTexturedModalRect(0, 0, 34, 54, 32, 32);
+		mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
+		drawTexturedModalRect(0, 0, 34, 54, 32, 32);
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
-		if (this.quest.icon != null) {
+		if (quest.icon != null) {
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
 			GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
 			GlStateManager.scale(0.125f, 0.125f, 1.0f);
-			this.mc.getTextureManager().bindTexture(this.quest.icon);
-			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			mc.getTextureManager().bindTexture(quest.icon);
+			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
@@ -230,107 +232,98 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			u = getButton(3).x + getButton(3).width + 5;
 			v = getButton(3).y - 1;
 		}
-		this.drawGradientRect(u, v, u + 34, v + 34, 0xFF404040, 0xFF404040);
+		drawGradientRect(u, v, u + 34, v + 34, color, color);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
 		GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
-		this.mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
-		this.drawTexturedModalRect(0, 0, 34, 54, 32, 32);
+		mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
+		drawTexturedModalRect(0, 0, 34, 54, 32, 32);
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
 
-		if (this.quest.texture != null) {
+		if (quest.texture != null) {
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
 			GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
 			GlStateManager.scale(0.125f, 0.125f, 1.0f);
 			try {
-				this.mc.getTextureManager().bindTexture(this.quest.texture);
-				this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+				mc.getTextureManager().bindTexture(quest.texture);
+				drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			}
 			catch (Exception e) { LogWriter.error("Error:", e); }
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
-		if (temp != null) {
-			this.drawHoveringText(Arrays.asList(temp), mouseX, mouseY, this.fontRenderer);
-		}
-		if (this.subgui != null || !CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.icon.path").getFormattedText());
-		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.texture.path").getFormattedText());
-		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.icon.sel").getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.completion").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.completion.npc").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.texture.sel").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.reward.text").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("quest.hover.extra.button.type", EnumScriptType.QUEST_LOG_BUTTON.function)
-							.getFormattedText());
-		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.extra.button.text").getFormattedText());
-		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.show.in.chat").getFormattedText());
-		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.show.in.window").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
+		if (tempHoverText != null) {
+			drawHoveringText(tempHoverText, mouseX, mouseY, fontRenderer);
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		sw = new ScaledResolution(this.mc);
-		int x = this.guiLeft + 5;
-		int y = this.guiTop + 5;
+		sw = new ScaledResolution(mc);
+		int x = guiLeft + 5;
+		int y = guiTop + 5;
 		int lId = 0;
-		this.addLabel(new GuiNpcLabel(lId++, "quest.icon", x + 1, y + 2));
-		this.addButton(new GuiNpcButton(0, x + 144, y, 60, 14, "availability.select"));
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, x, y += 16, 203, 16, this.quest.icon.toString()));
-
-		this.addLabel(new GuiNpcLabel(lId++, "quest.texture", x + 1, (y += 18) + 2));
-		this.addButton(new GuiNpcButton(3, x + 144, y, 60, 14, "availability.select"));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, x, y += 16, 203, 16, this.quest.texture == null ? "" : this.quest.texture.toString()));
-
-		this.addButton(new GuiNpcButton(1, x, y += 18, 100, 14, new String[] { "quest.npc", "quest.instant" }, this.quest.completion.ordinal()));
-		this.addButton(new GuiNpcButton(2, x + 105, y, 60, 14, "availability.select"));
-
-		this.addLabel(new GuiNpcLabel(lId++, "quest.questrewardtext", this.guiLeft + 5, (y += 16) + 2));
-		this.addButton(new GuiNpcButton(4, x + 105, y, 60, 14, this.quest.rewardText.isEmpty() ? "selectServer.edit" : "advanced.editing mode"));
-
-		this.addLabel(new GuiNpcLabel(lId++, "quest.extra.button.type", this.guiLeft + 5, (y += 16) + 2));
-		this.addButton(new GuiButtonBiDirectional(5, x + 105, y, 60, 14, new String[] { "gui.none", "1", "2", "3", "4", "5" }, quest.extraButton));
-
-		this.addLabel(new GuiNpcLabel(lId, "quest.extra.button.text", this.guiLeft + 5, (y += 16) + 2));
-		this.addButton(new GuiNpcButton(6, x + 105, y, 60, 14, "selectServer.edit"));
-		this.getButton(6).enabled = quest.extraButton > 0;
-
-		this.addButton(new GuiNpcCheckBox(7, x, (y += 17), 239, 14, "quest.show.progress.in.chat", "", quest.showProgressInChat));
-		this.addButton(new GuiNpcCheckBox(8, x, y + 16, 239, 14, "quest.show.progress.in.window", "", quest.showProgressInWindow));
-
-		this.addButton(new GuiNpcButton(66, x, this.guiTop + this.ySize - 19, 60, 14, "gui.done"));
+		// icon
+		addLabel(new GuiNpcLabel(lId++, "quest.icon", x + 1, y + 2));
+		GuiNpcButton button = new GuiNpcButton(0, x + 144, y, 60, 14, "availability.select");
+		button.setHoverText("quest.hover.edit.quest.icon.sel");
+		addButton(button);
+		GuiNpcTextField textField = new GuiNpcTextField(0, this, fontRenderer, x, y += 16, 203, 16, quest.icon.toString());
+		textField.setHoverText("quest.hover.edit.quest.icon.path");
+		addTextField(textField);
+		// texture description
+		addLabel(new GuiNpcLabel(lId++, "quest.texture", x + 1, (y += 18) + 2));
+		button = new GuiNpcButton(3, x + 144, y, 60, 14, "availability.select");
+		button.setHoverText("quest.hover.edit.quest.texture.sel");
+		addButton(button);
+		textField = new GuiNpcTextField(1, this, fontRenderer, x, y += 16, 203, 16, quest.texture == null ? "" : quest.texture.toString());
+		textField.setHoverText("quest.hover.edit.quest.texture.path");
+		addTextField(textField);
+		// completion npc
+		button = new GuiNpcButton(1, x, y += 18, 100, 14, new String[] { "quest.npc", "quest.instant" }, quest.completion.ordinal());
+		button.setHoverText("quest.hover.edit.quest.completion");
+		addButton(button);
+		button = new GuiNpcButton(2, x + 105, y, 60, 14, "availability.select");
+		button.setHoverText("quest.hover.edit.quest.completion.npc");
+		addButton(button);
+		// reward text
+		addLabel(new GuiNpcLabel(lId++, "quest.questrewardtext", guiLeft + 5, (y += 16) + 2));
+		button = new GuiNpcButton(4, x + 105, y, 60, 14, quest.rewardText.isEmpty() ? "selectServer.edit" : "advanced.editing mode");
+		button.setHoverText("quest.hover.edit.reward.text");
+		addButton(button);
+		// extra button
+		addLabel(new GuiNpcLabel(lId++, "quest.extra.button.type", guiLeft + 5, (y += 16) + 2));
+		button = new GuiButtonBiDirectional(5, x + 105, y, 60, 14, new String[] { "gui.none", "1", "2", "3", "4", "5" }, quest.extraButton);
+		button.setHoverText("quest.hover.extra.button.type", EnumScriptType.QUEST_LOG_BUTTON.function);
+		addButton(button);
+		// extra button text
+		addLabel(new GuiNpcLabel(lId, "quest.extra.button.text", guiLeft + 5, (y += 16) + 2));
+		button = new GuiNpcButton(6, x + 105, y, 60, 14, "selectServer.edit");
+		button.setEnabled(quest.extraButton > 0);
+		button.setHoverText("quest.hover.extra.button.text");
+		addButton(button);
+		// progress in chat / window
+		button = new GuiNpcCheckBox(7, x, (y += 17), 239, 14, "quest.show.progress.in.chat", "", quest.showProgressInChat);
+		button.setHoverText("quest.hover.show.in.chat");
+		addButton(button);
+		button = new GuiNpcCheckBox(8, x, y + 16, 239, 14, "quest.show.progress.in.window", "", quest.showProgressInWindow);
+		button.setHoverText("quest.hover.show.in.window");
+		addButton(button);
+		// exit
+		button = new GuiNpcButton(66, x, guiTop + ySize - 19, 60, 14, "gui.done");
+		button.setHoverText("hover.back");
+		addButton(button);
 	}
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
-		if (this.subgui != null) {
+		if (subgui != null) {
 			return;
 		}
 		int u = guiLeft + 214, v = guiTop + 5;
@@ -338,10 +331,10 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			u = getButton(0).x + getButton(0).width + 6;
 			v = getButton(0).y;
 		}
-		if (this.isMouseHover(mouseX, mouseY, u, v, 32, 32)) {
-			GuiTextureSelection subGui = new GuiTextureSelection(showNpc, this.quest.icon.toString(), "png", 3);
+		if (isMouseHover(mouseX, mouseY, u, v, 32, 32)) {
+			GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.icon.toString(), "png", 3);
 			subGui.id = 0;
-			this.setSubGui(subGui);
+			setSubGui(subGui);
 			return;
 		}
 		v = guiTop + 37;
@@ -349,15 +342,14 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			u = getButton(3).x + getButton(3).width + 6;
 			v = getButton(3).y;
 		}
-		if (this.isMouseHover(mouseX, mouseY, u, v, 32, 32)) {
-			GuiTextureSelection subGui = new GuiTextureSelection(showNpc,
-					this.quest.texture == null ? "" : this.quest.texture.toString(), "png", 3);
+		if (isMouseHover(mouseX, mouseY, u, v, 32, 32)) {
+			GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.texture == null ? "" : quest.texture.toString(), "png", 3);
 			subGui.id = 1;
-			this.setSubGui(subGui);
+			setSubGui(subGui);
 			return;
 		}
-		if (this.isMouseHover(mouseX, mouseY, guiLeft + 182, guiTop + 95, 65, 65)) {
-			this.setSubGui(new GuiNPCSelection(this.quest.completer));
+		if (isMouseHover(mouseX, mouseY, guiLeft + 182, guiTop + 95, 65, 65)) {
+			setSubGui(new GuiNPCSelection(quest.completer));
 		}
 	}
 
@@ -365,32 +357,32 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
 			if (((SubGuiNpcTextArea) subgui).getId() == 0) {
-				this.quest.rewardText = ((SubGuiNpcTextArea) subgui).text;
+				quest.rewardText = ((SubGuiNpcTextArea) subgui).text;
 			} else if (((SubGuiNpcTextArea) subgui).getId() == 1) {
-				this.quest.extraButtonText = ((SubGuiNpcTextArea) subgui).text;
+				quest.extraButtonText = ((SubGuiNpcTextArea) subgui).text;
 			}
-			this.initGui();
+			initGui();
 		} else if (subgui instanceof GuiTextureSelection) {
 			if (subgui.id == 0) {
-				this.quest.icon = ((GuiTextureSelection) subgui).resource;
-				if (this.quest.icon == null) {
-					this.quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
+				quest.icon = ((GuiTextureSelection) subgui).resource;
+				if (quest.icon == null) {
+					quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
 				}
 			} else {
-				this.quest.texture = ((GuiTextureSelection) subgui).resource;
+				quest.texture = ((GuiTextureSelection) subgui).resource;
 			}
-			this.initGui();
+			initGui();
 		} else if (subgui instanceof GuiNPCSelection) {
 			if (((GuiNPCSelection) subgui).selectEntity == null) {
 				return;
 			}
-			Entity entity = this.mc.world.getEntityByID(((GuiNPCSelection) subgui).selectEntity.getEntityId());
+			Entity entity = mc.world.getEntityByID(((GuiNPCSelection) subgui).selectEntity.getEntityId());
 			if (!(entity instanceof EntityNPCInterface)) {
 				return;
 			}
 			quest.completer = Util.instance.copyToGUI((EntityNPCInterface) entity, mc.world, false);
 			showNpc = Util.instance.copyToGUI((EntityNPCInterface) entity, mc.world, false);
-			this.initGui();
+			initGui();
 		}
 	}
 
@@ -398,18 +390,18 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 	public void unFocused(GuiNpcTextField textField) {
 		if (textField.getId() == 0) {
 			if (textField.getText().isEmpty()) {
-				this.quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
+				quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
 			} else {
-				this.quest.icon = new ResourceLocation(textField.getText());
+				quest.icon = new ResourceLocation(textField.getText());
 			}
-			textField.setText(this.quest.icon.toString());
+			textField.setText(quest.icon.toString());
 		} else if (textField.getId() == 1) {
 			if (textField.getText().isEmpty()) {
-				this.quest.texture = null;
+				quest.texture = null;
 			} else {
-				this.quest.texture = new ResourceLocation(textField.getText());
+				quest.texture = new ResourceLocation(textField.getText());
 			}
-			textField.setText(this.quest.texture == null ? "" : this.quest.texture.toString());
+			textField.setText(quest.texture == null ? "" : quest.texture.toString());
 		}
 	}
 

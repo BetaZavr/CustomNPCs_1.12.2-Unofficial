@@ -220,7 +220,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 	public boolean isLadder;
 	public boolean isPassable;
 	public ItemStack itemModel;
-	public int metaModel; // New
+	public int metaModel;
 	public long lastInited;
 	public int lightValue;
 	public boolean needsClientUpdate;
@@ -284,7 +284,6 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		this.text4 = new TextPlane();
 		this.text5 = new TextPlane();
 		this.text6 = new TextPlane();
-		// New
 		this.metaModel = 0;
 		this.layers = new ILayerModel[0];
 	}
@@ -337,7 +336,6 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		compound.setTag("Text4", this.text4.getNBT());
 		compound.setTag("Text5", this.text5.getNBT());
 		compound.setTag("Text6", this.text6.getNBT());
-		// New
 		compound.setInteger("ModelMeta", this.metaModel);
 		NBTTagList l = new NBTTagList();
         for (ILayerModel layer : this.layers) {
@@ -497,7 +495,6 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 			this.text5.setNBT(compound.getCompoundTag("Text5"));
 			this.text6.setNBT(compound.getCompoundTag("Text6"));
 		}
-		// New
 		this.metaModel = compound.getInteger("ModelMeta");
 		this.layers = new ILayerModel[compound.getTagList("Layers", 10).tagCount()];
 		for (int i = 0; i < compound.getTagList("Layers", 10).tagCount(); i++) {
@@ -522,7 +519,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		this.needsClientUpdate = true;
 	}
 
-	public void setItemModel(ItemStack item, Block b, int meta) { // new
+	public void setItemModel(ItemStack item, Block b, int meta) {
 		this.setItemModel(item, b);
 		this.metaModel = meta;
 	}

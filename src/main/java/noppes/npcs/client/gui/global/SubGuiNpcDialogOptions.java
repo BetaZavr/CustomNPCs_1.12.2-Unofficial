@@ -1,9 +1,6 @@
 package noppes.npcs.client.gui.global;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
@@ -22,7 +19,9 @@ import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.DialogOption.OptionDialogID;
 
-public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
+public class SubGuiNpcDialogOptions
+extends SubGuiInterface
+implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 
 	private final Dialog dialog;
 	private final Map<String, Integer> data = new TreeMap<>(); // {scrollTitle, dialogID}
@@ -30,14 +29,14 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 
 	public final GuiScreen parent;
 
-	public SubGuiNpcDialogOptions(Dialog dialog, GuiScreen parent) {
-		this.dialog = dialog;
-		this.parent = parent;
-
+	public SubGuiNpcDialogOptions(Dialog d, GuiScreen gui) {
 		setBackground("menubg.png");
 		xSize = 256;
 		ySize = 216;
 		closeOnEsc = true;
+
+		dialog = d;
+		parent = gui;
 	}
 
 	@Override
@@ -139,8 +138,8 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 		List<String> list = new ArrayList<>();
 		List<Integer> colors = new ArrayList<>();
 		fix();
-		String[][] hts = new String[this.dialog.options.size()][];
 		DialogController dData = DialogController.instance;
+		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		for (int id : this.dialog.options.keySet()) {
 			DialogOption option = this.dialog.options.get(id);
 			String key = ((char) 167) + "7ID:" + id + " ";
@@ -150,11 +149,10 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 			switch (option.optionType) {
 			case COMMAND_BLOCK: {
 				key += ((char) 167) + "eC";
-				hts[id] = new String[] {
-						new TextComponentTranslation("gui.type").getFormattedText() + ": " + option.optionType.get()
-								+ " - " + ((char) 167) + "e" + option.optionType.name(),
-						new TextComponentTranslation("quest.has." + !option.command.isEmpty()).getFormattedText()
-								+ (!option.command.isEmpty() ? " - \"" + option.command + "\"" : "") };
+				List<String> ht = new ArrayList<>();
+				ht.add(new TextComponentTranslation("gui.type").getFormattedText() + ": " + option.optionType.get() + " - " + ((char) 167) + "e" + option.optionType.name());
+				ht.add(new TextComponentTranslation("quest.has." + !option.command.isEmpty()).getFormattedText() + (!option.command.isEmpty() ? " - \"" + option.command + "\"" : ""));
+				hts.put(id, ht);
 				break;
 			}
 			case DIALOG_OPTION: {
@@ -176,25 +174,23 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 				} else {
 					ht.add(new TextComponentTranslation("quest.has.false").getFormattedText());
 				}
-				hts[id] = ht.toArray(new String[0]);
+				hts.put(id, ht);
 				break;
 			}
 			case QUIT_OPTION: {
 				key += ((char) 167) + "dE";
-				hts[id] = new String[] { new TextComponentTranslation("gui.type").getFormattedText() + ": "
-						+ option.optionType.get() + " - " + ((char) 167) + "d" + option.optionType.name() };
+				hts.put(id, Collections.singletonList(new TextComponentTranslation("gui.type").getFormattedText() + ": " + option.optionType.get() + " - " + ((char) 167) + "d" + option.optionType.name()));
 				break;
 			}
 			case ROLE_OPTION: {
 				key += ((char) 167) + "aR";
 				final List<String> ht = getHt(option);
-				hts[id] = ht.toArray(new String[0]);
+				hts.put(id, ht);
 				break;
 			}
 			case DISABLED: {
 				key += ((char) 167) + "4N";
-				hts[id] = new String[] { new TextComponentTranslation("gui.type").getFormattedText() + ": "
-						+ option.optionType.get() + " - " + ((char) 167) + "4" + option.optionType.name() };
+				hts.put(id, Collections.singletonList(new TextComponentTranslation("gui.type").getFormattedText() + ": " + option.optionType.get() + " - " + ((char) 167) + "4" + option.optionType.name()));
 				break;
 			}
 			}
@@ -208,7 +204,7 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 		}
 		this.scroll.setListNotSorted(list);
 		this.scroll.setColors(colors);
-		this.scroll.hoversTexts = hts;
+		this.scroll.setHoverTexts(hts);
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 14;
 		this.addScroll(this.scroll);

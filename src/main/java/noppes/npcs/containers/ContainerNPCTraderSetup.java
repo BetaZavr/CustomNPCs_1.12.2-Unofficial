@@ -29,8 +29,7 @@ public class ContainerNPCTraderSetup extends Container {
 		}
 		for (int i2 = 0; i2 < 3; ++i2) {
 			for (int l1 = 0; l1 < 9; ++l1) {
-				this.addSlotToContainer(
-						new Slot(player.inventory, l1 + i2 * 9 + 9, 48 + l1 * 18, 137 + i2 * 18));
+				this.addSlotToContainer(new Slot(player.inventory, l1 + i2 * 9 + 9, 48 + l1 * 18, 137 + i2 * 18));
 			}
 		}
 		for (int j1 = 0; j1 < 9; ++j1) {

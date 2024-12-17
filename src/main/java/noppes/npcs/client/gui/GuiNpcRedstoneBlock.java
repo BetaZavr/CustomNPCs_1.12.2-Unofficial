@@ -12,123 +12,129 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPacketServer;
 
-public class GuiNpcRedstoneBlock extends GuiNPCInterface implements IGuiData {
+import java.awt.*;
 
+public class GuiNpcRedstoneBlock
+extends GuiNPCInterface
+implements IGuiData {
+
+	private static final int minRange = 0;
+	private static final int maxRange = 50;
 	private final TileRedstoneBlock tile;
 
 	public GuiNpcRedstoneBlock(int x, int y, int z) {
-		this.tile = (TileRedstoneBlock) this.player.world.getTileEntity(new BlockPos(x, y, z));
+		super();
+		tile = (TileRedstoneBlock) player.world.getTileEntity(new BlockPos(x, y, z));
 		Client.sendData(EnumPacketServer.GetTileEntity, x, y, z);
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
-			this.close();
-		}
-		if (button.id == 1) {
-			this.tile.isDetailed = button.getValue() == 1;
-			this.initGui();
-		}
-		if (button.id == 4) {
-			this.save();
-			this.setSubGui(new SubGuiNpcAvailability(tile.availability, this));
+		switch (button.id) {
+			case 0: close(); break;
+			case 1: {
+				tile.isDetailed = button.getValue() == 1;
+				initGui();
+				break;
+			}
+			case 4: {
+				save();
+				setSubGui(new SubGuiNpcAvailability(tile.availability, this));
+				break;
+			}
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 40, this.guiTop + 20, 120, 20, "availability.options"));
-		this.addLabel(new GuiNpcLabel(11, "gui.detailed", this.guiLeft + 40, this.guiTop + 47, 16777215));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 110, this.guiTop + 42, 50, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.tile.isDetailed ? 1 : 0)));
-		if (this.tile.isDetailed) {
-			this.addLabel(new GuiNpcLabel(0, new TextComponentTranslation("bard.ondistance").getFormattedText() + " X:",
-					this.guiLeft + 1, this.guiTop + 76, 16777215));
-			this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 71, 30,
-					20, this.tile.onRangeX + ""));
-			this.getTextField(0).setNumbersOnly();
-			this.getTextField(0).setMinMaxDefault(0, 50, 6);
-			this.addLabel(new GuiNpcLabel(1, "Y:", this.guiLeft + 113, this.guiTop + 76, 16777215));
-			this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 122, this.guiTop + 71, 30,
-					20, this.tile.onRangeY + ""));
-			this.getTextField(1).setNumbersOnly();
-			this.getTextField(1).setMinMaxDefault(0, 50, 6);
-			this.addLabel(new GuiNpcLabel(2, "Z:", this.guiLeft + 155, this.guiTop + 76, 16777215));
-			this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 164, this.guiTop + 71, 30,
-					20, this.tile.onRangeZ + ""));
-			this.getTextField(2).setNumbersOnly();
-			this.getTextField(2).setMinMaxDefault(0, 50, 6);
-			this.addLabel(
-					new GuiNpcLabel(3, new TextComponentTranslation("bard.offdistance").getFormattedText() + " X:",
-							this.guiLeft - 3, this.guiTop + 99, 16777215));
-			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 94, 30,
-					20, this.tile.offRangeX + ""));
-			this.getTextField(3).setNumbersOnly();
-			this.getTextField(3).setMinMaxDefault(0, 50, 10);
-			this.addLabel(new GuiNpcLabel(4, "Y:", this.guiLeft + 113, this.guiTop + 99, 16777215));
-			this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 122, this.guiTop + 94, 30,
-					20, this.tile.offRangeY + ""));
-			this.getTextField(4).setNumbersOnly();
-			this.getTextField(4).setMinMaxDefault(0, 50, 10);
-			this.addLabel(new GuiNpcLabel(5, "Z:", this.guiLeft + 155, this.guiTop + 99, 16777215));
-			this.addTextField(new GuiNpcTextField(5, this, this.fontRenderer, this.guiLeft + 164, this.guiTop + 94, 30,
-					20, this.tile.offRangeZ + ""));
-			this.getTextField(5).setNumbersOnly();
-			this.getTextField(5).setMinMaxDefault(0, 50, 10);
-		} else {
-			this.addLabel(new GuiNpcLabel(0, "bard.ondistance", this.guiLeft + 1, this.guiTop + 76, 16777215));
-			this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 71, 30,
-					20, this.tile.onRange + ""));
-			this.getTextField(0).setNumbersOnly();
-			this.getTextField(0).setMinMaxDefault(0, 50, 6);
-			this.addLabel(new GuiNpcLabel(3, "bard.offdistance", this.guiLeft - 3, this.guiTop + 99, 16777215));
-			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 94, 30,
-					20, this.tile.offRange + ""));
-			this.getTextField(3).setNumbersOnly();
-			this.getTextField(3).setMinMaxDefault(0, 50, 10);
-		}
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 40, this.guiTop + 190, 120, 20, "Done"));
+		int color = new Color(0xFFFFFF).getRGB();
+		// options
+		GuiNpcButton button = new GuiNpcButton(4, guiLeft + 40, guiTop + 20, 120, 20, "availability.options");
+		addButton(button);
+		// detailed
+		addLabel(new GuiNpcLabel(11, "gui.detailed", guiLeft + 40, guiTop + 47, color));
+		button = new GuiNpcButton(1, guiLeft + 110, guiTop + 42, 50, 20, new String[] { "gui.no", "gui.yes" }, (tile.isDetailed ? 1 : 0));
+		addButton(button);
+		// data
+		GuiNpcTextField textField;
+		if (tile.isDetailed) {
+			// x on
+			addLabel(new GuiNpcLabel(0, new TextComponentTranslation("bard.ondistance").getFormattedText() + " X:", guiLeft + 1, guiTop + 76, color));
+			textField = new GuiNpcTextField(0, this, fontRenderer, guiLeft + 80, guiTop + 71, 30, 20, tile.onRangeX + "");
+			textField.setMinMaxDefault(minRange, maxRange, 6);
+			addTextField(textField);
+			// y on
+			addLabel(new GuiNpcLabel(1, "Y:", guiLeft + 113, guiTop + 76, color));
+			textField = new GuiNpcTextField(1, this, fontRenderer, guiLeft + 122, guiTop + 71, 30, 20, tile.onRangeY + "");
+			textField.setMinMaxDefault(minRange, maxRange, 6);
+			addTextField(textField);
+			// z on
+			addLabel(new GuiNpcLabel(2, "Z:", guiLeft + 155, guiTop + 76, color));
+			textField = new GuiNpcTextField(2, this, fontRenderer, guiLeft + 164, guiTop + 71, 30, 20, tile.onRangeZ + "");
+			textField.setMinMaxDefault(minRange, maxRange, 6);
+			addTextField(textField);
+			// x off
+			addLabel(new GuiNpcLabel(3, new TextComponentTranslation("bard.offdistance").getFormattedText() + " X:", guiLeft - 3, guiTop + 99, color));
+			textField = new GuiNpcTextField(3, this, fontRenderer, guiLeft + 80, guiTop + 94, 30, 20, tile.offRangeX + "");
+			textField.setMinMaxDefault(minRange, maxRange, 10);
+			addTextField(textField);
+			// y off
+			addLabel(new GuiNpcLabel(4, "Y:", guiLeft + 113, guiTop + 99, color));
+			textField = new GuiNpcTextField(4, this, fontRenderer, guiLeft + 122, guiTop + 94, 30, 20, tile.offRangeY + "");
+			textField.setMinMaxDefault(minRange, maxRange, 10);
+			addTextField(textField);
+			// z off
+			addLabel(new GuiNpcLabel(5, "Z:", guiLeft + 155, guiTop + 99, color));
+			textField = new GuiNpcTextField(5, this, fontRenderer, guiLeft + 164, guiTop + 94, 30, 20, tile.offRangeZ + "");
+        }
+		else {
+			// range on
+			addLabel(new GuiNpcLabel(0, "bard.ondistance", guiLeft + 1, guiTop + 76, color));
+			textField = new GuiNpcTextField(0, this, fontRenderer, guiLeft + 80, guiTop + 71, 30, 20, tile.onRange + "");
+			textField.setMinMaxDefault(minRange, maxRange, 6);
+			addTextField(textField);
+			// range off
+			addLabel(new GuiNpcLabel(3, "bard.offdistance", guiLeft - 3, guiTop + 99, color));
+			textField = new GuiNpcTextField(3, this, fontRenderer, guiLeft + 80, guiTop + 94, 30, 20, tile.offRange + "");
+        }
+        textField.setMinMaxDefault(minRange, maxRange, 10);
+        addTextField(textField);
+        button = new GuiNpcButton(0, guiLeft + 40, guiTop + 190, 120, 20, "gui.done");
+		button.setHoverText("hover.exit");
+		addButton(button);
 	}
 
 	@Override
 	public void save() {
-		if (this.tile == null) {
+		if (tile == null) {
 			return;
 		}
-		if (this.tile.isDetailed) {
-			this.tile.onRangeX = this.getTextField(0).getInteger();
-			this.tile.onRangeY = this.getTextField(1).getInteger();
-			this.tile.onRangeZ = this.getTextField(2).getInteger();
-			this.tile.offRangeX = this.getTextField(3).getInteger();
-			this.tile.offRangeY = this.getTextField(4).getInteger();
-			this.tile.offRangeZ = this.getTextField(5).getInteger();
-			if (this.tile.onRangeX > this.tile.offRangeX) {
-				this.tile.offRangeX = this.tile.onRangeX;
-			}
-			if (this.tile.onRangeY > this.tile.offRangeY) {
-				this.tile.offRangeY = this.tile.onRangeY;
-			}
-			if (this.tile.onRangeZ > this.tile.offRangeZ) {
-				this.tile.offRangeZ = this.tile.onRangeZ;
-			}
+		if (tile.isDetailed) {
+			tile.onRangeX = getTextField(0).getInteger();
+			tile.onRangeY = getTextField(1).getInteger();
+			tile.onRangeZ = getTextField(2).getInteger();
+			tile.offRangeX = getTextField(3).getInteger();
+			tile.offRangeY = getTextField(4).getInteger();
+			tile.offRangeZ = getTextField(5).getInteger();
+			if (tile.onRangeX > tile.offRangeX) { tile.offRangeX = tile.onRangeX; }
+			if (tile.onRangeY > tile.offRangeY) { tile.offRangeY = tile.onRangeY; }
+			if (tile.onRangeZ > tile.offRangeZ) { tile.offRangeZ = tile.onRangeZ; }
 		} else {
-			this.tile.onRange = this.getTextField(0).getInteger();
-			this.tile.offRange = this.getTextField(3).getInteger();
-			if (this.tile.onRange > this.tile.offRange) {
-				this.tile.offRange = this.tile.onRange;
-			}
+			tile.onRange = getTextField(0).getInteger();
+			tile.offRange = getTextField(3).getInteger();
+			if (tile.onRange > tile.offRange) { tile.offRange = tile.onRange; }
 		}
 		NBTTagCompound compound = new NBTTagCompound();
-		this.tile.writeToNBT(compound);
+		tile.writeToNBT(compound);
 		compound.removeTag("BlockActivated");
 		Client.sendData(EnumPacketServer.SaveTileEntity, compound);
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.tile.readFromNBT(compound);
-		this.initGui();
+		tile.readFromNBT(compound);
+		initGui();
 	}
+
 }

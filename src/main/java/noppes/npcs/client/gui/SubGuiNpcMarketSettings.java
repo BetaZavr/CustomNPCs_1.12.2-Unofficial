@@ -1,11 +1,12 @@
 package noppes.npcs.client.gui;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -21,32 +22,35 @@ import noppes.npcs.controllers.data.MarcetSection;
 import noppes.npcs.controllers.data.MarkupData;
 import noppes.npcs.util.Util;
 
-public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoCallback {
+public class SubGuiNpcMarketSettings
+extends SubGuiInterface
+implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoCallback {
 
 	public Marcet marcet;
 	public int level = 0;
 	private final Map<String, Integer> data = new HashMap<>();
 	private GuiCustomScroll scroll;
 
-	public SubGuiNpcMarketSettings(Marcet marcet) {
+	public SubGuiNpcMarketSettings(Marcet market) {
 		super();
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 217;
-		this.closeOnEsc = true;
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 217;
+		closeOnEsc = true;
 
-		this.marcet = marcet;
+		marcet = market;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 0: {
-			this.marcet.limitedType = button.getValue();
+			marcet.limitedType = button.getValue();
+			button.setHoverText("market.hover.only.currency." + marcet.limitedType);
 			break;
 		}
 		case 1: { // message
-			this.setSubGui(new SubGuiNPCLinesEdit(0, this.npc, this.marcet.lines, null));
+			setSubGui(new SubGuiNPCLinesEdit(0, npc, marcet.lines, null));
 			break;
 		}
 		case 2: { // is limited
@@ -58,199 +62,194 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 			break;
 		}
 		case 4: { // level
-			this.level = button.getValue();
-			if (!this.marcet.markup.containsKey(0)) {
-				this.marcet.markup.put(0, new MarkupData(0, 0.15f, 0.80f, 1000));
+			level = button.getValue();
+			if (!marcet.markup.containsKey(0)) {
+				marcet.markup.put(0, new MarkupData(0, 0.15f, 0.80f, 1000));
 			}
-			if (!this.marcet.markup.containsKey(this.level)) {
-				this.level = 0;
+			if (!marcet.markup.containsKey(level)) {
+				level = 0;
 			}
-			this.initGui();
+			initGui();
 			break;
 		}
 		case 5: { // add section
-			this.setSubGui(new SubGuiEditText(1, Util.instance
-					.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+			setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 			break;
 		}
 		case 6: { // del section
-			if (this.scroll.selected < 0) {
+			if (scroll.selected < 0) {
 				return;
 			}
 			GuiYesNo guiyesno = new GuiYesNo(this,
-					new TextComponentTranslation("gui.sections").getFormattedText() + ": " + this.scroll.getSelected(),
+					new TextComponentTranslation("gui.sections").getFormattedText() + ": " + scroll.getSelected(),
 					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			this.displayGuiScreen(guiyesno);
+			displayGuiScreen(guiyesno);
 			break;
 		}
 		case 66: { // exit
-			this.close();
+			close();
 			break;
 		}
 		}
 	}
 
 	public void confirmClicked(boolean result, int id) {
-		NoppesUtil.openGUI(this.player, this);
-		if (!result || this.scroll.selected < 0 || !this.data.containsKey(this.scroll.getSelected())
-				|| this.marcet.sections.size() < 2) {
+		NoppesUtil.openGUI(player, this);
+		if (!result || scroll.selected < 0 || !data.containsKey(scroll.getSelected())
+				|| marcet.sections.size() < 2) {
 			return;
 		}
-		this.marcet.sections.remove(this.data.get(this.scroll.getSelected()));
-		if (this.scroll.selected > 0) {
-			this.scroll.selected--;
+		marcet.sections.remove(data.get(scroll.getSelected()));
+		if (scroll.selected > 0) {
+			scroll.selected--;
 		}
-		this.initGui();
+		initGui();
 	}
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (this.subgui != null) {
-			return;
-		}
-		if (this.getButton(4) != null) {
-			this.drawHorizontalLine(this.guiLeft + 4, this.guiLeft + this.xSize - 4, this.getButton(4).y - 3, 0x80000000);
-			this.drawHorizontalLine(this.guiLeft + 4, this.guiLeft + this.xSize - 4, this.getButton(4).y + 44, 0x80000000);
-		}
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.set.name",
-					new TextComponentTranslation(this.marcet.name).getFormattedText()).getFormattedText());
-		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.set.update", Util.instance.ticksToElapsedTime(this.marcet.updateTime * 1200L, false, false, false)).getFormattedText());
-		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.extra.buy").getFormattedText());
-		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.extra.sell").getFormattedText());
-		} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.xp").getFormattedText());
-		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.only.currency." + this.getButton(0).getValue()).getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.message").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.limited").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.show.xp").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.extra.slot").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.section.add").getFormattedText());
-		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.section.del").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
+		if (subgui != null) { return; }
+		if (getButton(4) != null) {
+			int color = new Color(0x80000000).getRGB();
+			drawHorizontalLine(guiLeft + 4, guiLeft + xSize - 4, getButton(4).y - 3, color);
+			drawHorizontalLine(guiLeft + 4, guiLeft + xSize - 4, getButton(4).y + 44, color);
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		int lID = 0, x = this.guiLeft + 4, y = this.guiTop + 5;
-		this.addLabel(new GuiNpcLabel(lID++, "role.marketer", x + 2, y + 5));
-		this.addTextField(new GuiNpcTextField(0, this, x + 80, y, 167, 18, this.marcet.name));
-
+		int lID = 0;
+		int x = guiLeft + 4;
+		int y = guiTop + 5;
+		// name
+		addLabel(new GuiNpcLabel(lID++, "role.trader", x + 2, y + 5));
+		GuiNpcTextField textField = new GuiNpcTextField(0, this, x + 80, y, 167, 18, marcet.name);
+		textField.setHoverText("market.hover.set.name", new TextComponentTranslation(marcet.name).getFormattedText());
+		addTextField(textField);
+		// time
 		y += 22;
-		this.addLabel(new GuiNpcLabel(lID++, "market.uptime", x + 2, y + 5));
-		this.addTextField(new GuiNpcTextField(1, this, x + 80, y, 60, 18, "" + this.marcet.updateTime));
-		this.getTextField(1).setNumbersOnly();
-		this.getTextField(1).setMinMaxDefault(0, 360, this.marcet.updateTime);
-		if (this.marcet.updateTime >= 5) {
+		addLabel(new GuiNpcLabel(lID++, "market.uptime", x + 2, y + 5));
+		textField = new GuiNpcTextField(1, this, x + 80, y, 60, 18, "" + marcet.updateTime);
+		textField.setMinMaxDefault(0, 360, marcet.updateTime);
+		textField.setHoverText("market.hover.set.update", Util.instance.ticksToElapsedTime(marcet.updateTime * 1200L, false, false, false));
+		addTextField(textField);
+		GuiNpcButton button;
+		if (marcet.updateTime >= 5) {
 			y += 22;
-			this.addButton(new GuiNpcButton(0, x, y, 170, 20, new String[] { "market.limited.0", "market.limited.1", "market.limited.2" }, this.marcet.limitedType));
+			button = new GuiNpcButton(0, x, y, 170, 20, new String[] { "market.limited.0", "market.limited.1", "market.limited.2" }, marcet.limitedType);
+			button.setHoverText("market.hover.only.currency." + marcet.limitedType);
+			addButton(button);
 		}
-
-		this.addLabel(new GuiNpcLabel(lID++, "gui.sections", x + 176, y - 17));
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(72, 60);
+		// tabs
+		addLabel(new GuiNpcLabel(lID++, "gui.sections", x + 176, y - 17));
+		if (scroll == null) {
+			(scroll = new GuiCustomScroll(this, 0)).setSize(72, 60);
 		}
-		this.scroll.guiLeft = x + 175;
-		this.scroll.guiTop = y;
+		scroll.guiLeft = x + 175;
+		scroll.guiTop = y;
 		List<String> list = new ArrayList<>();
-		this.scroll.hoversTexts = new String[this.marcet.sections.size()][];
+		data.clear();
+		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		int i = 0;
-		this.data.clear();
-		for (int id : this.marcet.sections.keySet()) {
-			this.scroll.hoversTexts[i] = new String[] { "ID: " + id, new TextComponentTranslation("gui.name").getFormattedText() + ": " + this.marcet.sections.get(id) };
-			String key = this.marcet.sections.get(id).name;
-			this.data.put(key, id);
+		for (int id : marcet.sections.keySet()) {
+			List<String> l = new ArrayList<>();
+			l.add("ID: " + id);
+			l.add(new TextComponentTranslation("gui.name").getFormattedText() + ": " + marcet.sections.get(id));
+			hts.put(i, l);
+			String key = marcet.sections.get(id).name;
+			data.put(key, id);
 			list.add(key);
 			i++;
 		}
-		this.scroll.setListNotSorted(list);
-		this.addScroll(this.scroll);
-
+		scroll.setListNotSorted(list);
+		scroll.setHoverTexts(hts);
+		addScroll(scroll);
+		// update message
 		y += 22;
-		this.addButton(new GuiNpcButton(1, x, y, 170, 20, "lines.title"));
-
+		button = new GuiNpcButton(1, x, y, 170, 20, "lines.title");
+		button.setHoverText("market.hover.message");
+		addButton(button);
+		// isLimited
 		y += 20;
-		addButton(new GuiNpcCheckBox(2, x, y, 170, 18, "market.select.limited.true", "market.select.limited.false", marcet.isLimited));
-
+		button = new GuiNpcCheckBox(2, x, y, 170, 18, "market.select.limited.true", "market.select.limited.false", marcet.isLimited);
+		button.setHoverText("market.hover.limited");
+		addButton(button);
+		// show XP
 		y += 20;
-		addButton(new GuiNpcCheckBox(3, x, y, 170, 18, "market.select.show.xp.true", "market.select.show.xp.false", marcet.showXP));
-
-		this.addButton(new GuiNpcButton(5, x + 175, y, 37, 20, "type.add"));
-		this.addButton(new GuiNpcButton(6, x + 213, y, 35, 20, "type.del"));
-		this.getButton(6).setEnabled(this.marcet.sections.size() > 1 && this.scroll.selected > 0);
-
+		button = new GuiNpcCheckBox(3, x, y, 170, 18, "market.select.show.xp.true", "market.select.show.xp.false", marcet.showXP);
+		button.setHoverText("market.hover.show.xp");
+		addButton(button);
+		// add new section
+		button = new GuiNpcButton(5, x + 175, y, 37, 20, "type.add");
+		button.setHoverText("market.hover.section.add");
+		addButton(button);
+		// del section
+		button = new GuiNpcButton(6, x + 213, y, 35, 20, "type.del");
+		button.setEnabled(marcet.sections.size() > 1 && scroll.selected > 0);
+		button.setHoverText("market.hover.section.del");
+		addButton(button);
+		// levels
 		y += 25;
-		String[] values = new String[this.marcet.markup.size()];
+		String[] values = new String[marcet.markup.size()];
 		i = 0;
-		for (int level : this.marcet.markup.keySet()) {
+		for (int level : marcet.markup.keySet()) {
 			values[i] = (new TextComponentTranslation("type.level")).getFormattedText() + " " + level;
 			i++;
 		}
-		this.addLabel(new GuiNpcLabel(lID++, "gui.type", x + 2, y + 5));
-		this.addButton(new GuiNpcButton(4, x + 22, y, 50, 20, values, this.level));
-
-		MarkupData md = this.marcet.markup.get(this.level);
+		addLabel(new GuiNpcLabel(lID++, "gui.type", x + 2, y + 5));
+		button = new GuiNpcButton(4, x + 22, y, 50, 20, values, level);
+		button.setHoverText("market.hover.extra.slot");
+		addButton(button);
+		// extra markup
+		MarkupData md = marcet.markup.get(level);
 		if (md == null) {
-			this.level = 0;
-			if (!this.marcet.markup.containsKey(0)) {
-				this.marcet.markup.put(0, new MarkupData(0, 0.15f, 0.80f, 1000));
+			level = 0;
+			if (!marcet.markup.containsKey(0)) {
+				marcet.markup.put(0, new MarkupData(0, 0.15f, 0.80f, 1000));
 			}
-			md = this.marcet.markup.get(this.level);
+			md = marcet.markup.get(level);
 		}
-		this.addLabel(new GuiNpcLabel(lID++, "market.extra.markup", x + 76, y + 5));
-		this.addLabel(new GuiNpcLabel(lID++, "%", x + 174, y + 5));
-		this.addTextField(new GuiNpcTextField(2, this, x + 120, y, 50, 20, "" + (int) (md.buy * 100.0f)));
-		this.getTextField(2).setNumbersOnly();
-		this.getTextField(2).setMinMaxDefault(-100, 500, (int) (md.buy * 100.0f));
-
-		this.addLabel(new GuiNpcLabel(lID++, "%", x + 238, y + 5));
-		this.addTextField(new GuiNpcTextField(3, this, x + 184, y, 50, 20, "" + (int) (md.sell * 100.0f)));
-		this.getTextField(3).setDoubleNumbersOnly();
-		this.getTextField(3).setMinMaxDoubleDefault(-500, 100, (int) (md.sell * 100.0f));
-
+		// buy
+		addLabel(new GuiNpcLabel(lID++, "market.extra.markup", x + 76, y + 5));
+		addLabel(new GuiNpcLabel(lID++, "%", x + 174, y + 5));
+		textField = new GuiNpcTextField(2, this, x + 120, y, 50, 20, "" + (int) (md.buy * 100.0f));
+		textField.setMinMaxDefault(-100, 500, (int) (md.buy * 100.0f));
+		textField.setHoverText("market.hover.extra.buy");
+		addTextField(textField);
+		// sell
+		addLabel(new GuiNpcLabel(lID++, "%", x + 238, y + 5));
+		textField = new GuiNpcTextField(3, this, x + 184, y, 50, 20, "" + (int) (md.sell * 100.0f));
+		textField.setMinMaxDoubleDefault(-500, 100, (int) (md.sell * 100.0f));
+		textField.setHoverText("market.hover.extra.sell");
+		addTextField(textField);
+		// xp
 		y += 22;
-		this.addLabel(new GuiNpcLabel(lID, "quest.exp", x + 76, y + 5));
-		this.addTextField(new GuiNpcTextField(4, this, x + 120, y, 50, 20, "" + md.xp));
-		this.getTextField(4).setNumbersOnly();
-		this.getTextField(4).setMinMaxDefault(0, Integer.MAX_VALUE, md.xp);
-
-		this.addButton(new GuiNpcButton(66, x, this.guiTop + this.ySize - 24, 60, 20, "gui.done"));
+		addLabel(new GuiNpcLabel(lID, "quest.exp", x + 76, y + 5));
+		textField = new GuiNpcTextField(4, this, x + 120, y, 50, 20, "" + md.xp);
+		textField.setMinMaxDefault(0, Integer.MAX_VALUE, md.xp);
+		textField.setHoverText("market.hover.xp");
+		addTextField(textField);
+		// exit
+		button = new GuiNpcButton(66, x, guiTop + ySize - 24, 60, 20, "gui.done");
+		button.setHoverText("hover.back");
+		addButton(button);
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (this.getButton(6) != null) {
-			this.getButton(6).setEnabled(this.marcet.sections.size() > 1 && this.scroll.selected > 0);
+		if (getButton(6) != null) {
+			getButton(6).setEnabled(marcet.sections.size() > 1 && scroll.selected > 0);
 		}
 	}
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		if (this.scroll.getSelected() == null) {
+		if (scroll.getSelected() == null) {
 			return;
 		}
-		this.setSubGui(new SubGuiEditText(2, this.scroll.getSelected()));
+		setSubGui(new SubGuiEditText(2, scroll.getSelected()));
 	}
 
 	@SuppressWarnings("unlikely-arg-type")
@@ -265,7 +264,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 				boolean has = true;
 				while (has) {
 					has = false;
-					for (MarcetSection s : this.marcet.sections.values()) {
+					for (MarcetSection s : marcet.sections.values()) {
 						if (s.name.equals(name)) {
 							has = true;
 							break;
@@ -275,23 +274,23 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 						name += "_";
 					}
 				}
-				MarcetSection ms = new MarcetSection(this.marcet.sections.size());
+				MarcetSection ms = new MarcetSection(marcet.sections.size());
 				ms.name = name;
-				this.marcet.sections.put(ms.getId(), ms);
+				marcet.sections.put(ms.getId(), ms);
 			} else if (subgui.id == 2) {
-				if (!this.data.containsKey(this.scroll.getSelected())) {
+				if (!data.containsKey(scroll.getSelected())) {
 					return;
 				}
 				String name = ((SubGuiEditText) subgui).text[0];
-				int idSel = this.data.get(this.scroll.getSelected());
+				int idSel = data.get(scroll.getSelected());
 				boolean next = true;
 				while (next) {
 					next = false;
-					for (int id : this.marcet.sections.keySet()) {
+					for (int id : marcet.sections.keySet()) {
 						if (id == idSel) {
 							continue;
 						}
-						if (this.marcet.sections.get(id).name.equals(name)) {
+						if (marcet.sections.get(id).name.equals(name)) {
 							name += "_";
 							next = true;
 							break;
@@ -300,31 +299,30 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 				}
 				MarcetSection ms = new MarcetSection(idSel);
 				ms.name = name;
-				this.marcet.sections.put(ms.getId(), ms);
-				this.initGui();
+				marcet.sections.put(ms.getId(), ms);
 			}
-			this.initGui();
+			initGui();
 		} else if (subgui instanceof SubGuiNPCLinesEdit) {
 			SubGuiNPCLinesEdit sub = (SubGuiNPCLinesEdit) subgui;
 			sub.lines.correctLines();
-			this.marcet.lines = sub.lines;
+			marcet.lines = sub.lines;
 		}
 	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
-		if (this.hasSubGui()) {
+		if (hasSubGui()) {
 			return;
 		}
 		String text = textField.getText();
-		MarkupData md = this.marcet.markup.get(this.level);
+		MarkupData md = marcet.markup.get(level);
 		switch (textField.getId()) {
 		case 0: {
-			if (text.equals(this.marcet.name)) {
+			if (text.equals(marcet.name)) {
 				return;
 			}
-			this.marcet.name = text;
-			this.initGui();
+			marcet.name = text;
+			initGui();
 			break;
 		}
 		case 1: {
@@ -335,8 +333,8 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 			if (time > 360) {
 				time = 360;
 			}
-			this.marcet.updateTime = time;
-			this.initGui();
+			marcet.updateTime = time;
+			initGui();
 			break;
 		}
 		case 2: {
@@ -344,7 +342,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 				return;
 			}
 			md.buy = (float) (Math.round((double) textField.getInteger() * 100.0d) / 10000.0d);
-			this.initGui();
+			initGui();
 			break;
 		}
 		case 3: {
@@ -352,7 +350,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface implements ICustomS
 				return;
 			}
 			md.sell = (float) (Math.round((double) textField.getInteger() * 100.0d) / 10000.0d);
-			this.initGui();
+			initGui();
 			break;
 		}
 		case 4: {

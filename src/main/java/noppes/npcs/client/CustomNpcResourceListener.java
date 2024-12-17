@@ -13,17 +13,17 @@ public class CustomNpcResourceListener implements IResourceManagerReloadListener
 	public static int DefaultTextColor = CustomNpcs.LableColor.getRGB();
 
 	private void createTextureCache(IResourceManager resourceManager) {
-		this.enlargeTexture("planks_oak", resourceManager);
-		this.enlargeTexture("planks_big_oak", resourceManager);
-		this.enlargeTexture("planks_birch", resourceManager);
-		this.enlargeTexture("planks_jungle", resourceManager);
-		this.enlargeTexture("planks_spruce", resourceManager);
-		this.enlargeTexture("planks_acacia", resourceManager);
-		this.enlargeTexture("iron_block", resourceManager);
-		this.enlargeTexture("diamond_block", resourceManager);
-		this.enlargeTexture("stone", resourceManager);
-		this.enlargeTexture("gold_block", resourceManager);
-		this.enlargeTexture("wool_colored_white", resourceManager);
+		enlargeTexture("planks_oak", resourceManager);
+		enlargeTexture("planks_big_oak", resourceManager);
+		enlargeTexture("planks_birch", resourceManager);
+		enlargeTexture("planks_jungle", resourceManager);
+		enlargeTexture("planks_spruce", resourceManager);
+		enlargeTexture("planks_acacia", resourceManager);
+		enlargeTexture("iron_block", resourceManager);
+		enlargeTexture("diamond_block", resourceManager);
+		enlargeTexture("stone", resourceManager);
+		enlargeTexture("gold_block", resourceManager);
+		enlargeTexture("wool_colored_white", resourceManager);
 	}
 
 	private void enlargeTexture(String texture, IResourceManager resourceManager) {
@@ -39,7 +39,7 @@ public class CustomNpcResourceListener implements IResourceManagerReloadListener
 
 	public void onResourceManagerReload(@Nonnull IResourceManager resourceManager) {
 		if (resourceManager instanceof SimpleReloadableResourceManager) {
-			this.createTextureCache(resourceManager);
+			createTextureCache(resourceManager);
 			SimpleReloadableResourceManager simplemanager = (SimpleReloadableResourceManager) resourceManager;
 			FolderResourcePack pack = new FolderResourcePack(CustomNpcs.Dir);
 			simplemanager.reloadResourcePack(pack);

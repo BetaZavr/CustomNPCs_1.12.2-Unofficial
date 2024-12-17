@@ -73,5 +73,7 @@ public enum EnumPlayerPacket
 	ScriptEncrypt,
 	MiniMapData,
 	InGame,
+    DropsData,
+	DropData,
 	AcceptScripts
 }

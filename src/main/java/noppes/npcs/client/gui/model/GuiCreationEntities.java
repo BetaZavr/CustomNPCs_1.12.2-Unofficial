@@ -26,7 +26,9 @@ import noppes.npcs.entity.EntityNpcClassicPlayer;
 
 import javax.annotation.Nonnull;
 
-public class GuiCreationEntities extends GuiCreationScreenInterface implements ICustomScrollListener {
+public class GuiCreationEntities
+extends GuiCreationScreenInterface
+implements ICustomScrollListener {
 
 	public HashMap<String, Class<? extends EntityLivingBase>> data = new HashMap<>();
 	private final List<String> list;
@@ -95,10 +97,7 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
 				}
 			}
 		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		drawHoverText(null);
 	}
 
 	@Override

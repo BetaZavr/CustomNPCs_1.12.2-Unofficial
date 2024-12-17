@@ -28,7 +28,8 @@ import noppes.npcs.roles.RoleCompanion;
 
 import javax.annotation.Nonnull;
 
-public class GuiNpcCompanionTalents extends GuiNPCInterface {
+public class GuiNpcCompanionTalents
+extends GuiNPCInterface {
 
 	public static class GuiTalent extends GuiScreen {
 

@@ -102,7 +102,7 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	@Override
 	public ICustomGui createCustomGui(int id, int width, int height, boolean pauseGame) {
-		return new CustomGuiWrapper(id, width, height, pauseGame, null); // Changed
+		return new CustomGuiWrapper(id, width, height, pauseGame, null);
 	}
 
 	@Override
@@ -222,7 +222,7 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public IEntityDamageSource getIDamageSource(String name, IEntity<?> entity) { // new
+	public IEntityDamageSource getIDamageSource(String name, IEntity<?> entity) {
 		return new NpcEntityDamageSource(name, entity);
 	}
 

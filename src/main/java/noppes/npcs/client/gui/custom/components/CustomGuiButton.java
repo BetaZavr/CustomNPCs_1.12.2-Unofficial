@@ -12,7 +12,9 @@ import noppes.npcs.api.wrapper.gui.CustomGuiButtonWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IClickListener;
 
-public class CustomGuiButton extends GuiButton implements IClickListener {
+public class CustomGuiButton
+extends GuiButton
+implements IClickListener {
 
 	public static CustomGuiButton fromComponent(CustomGuiButtonWrapper component) {
 		CustomGuiButton btn;

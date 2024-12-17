@@ -47,14 +47,12 @@ public class NBTTags {
 		for (int i = 0; i < tagList.tagCount(); ++i) {
 			NBTTagCompound nbttagcompound = tagList.getCompoundTagAt(i);
 			Ingredient ingredients;
-			// new
 			if (nbttagcompound.hasKey("Ingredients", 9) && ((NBTTagList) nbttagcompound.getTag("Ingredients")).getTagType() == 10) {
 				NBTTagList ingredientsNBT = nbttagcompound.getTagList("Ingredients", 10);
 				List<ItemStack> ings = new ArrayList<>();
 				for (int j = 0; j < ingredientsNBT.tagCount(); j++) { ings.add(new ItemStack(ingredientsNBT.getCompoundTagAt(j))); }
 				ingredients = Ingredient.fromStacks(ings.toArray(new ItemStack[0]));
 			}
-			// old
 			else { ingredients = Ingredient.fromStacks(new ItemStack(nbttagcompound)); }
 			list.add(nbttagcompound.getByte("Slot") & 0xFF, ingredients);
 		}

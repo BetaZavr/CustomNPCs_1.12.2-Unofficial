@@ -2,7 +2,6 @@ package noppes.npcs.util;
 
 public class ValueUtil {
 
-	// New
 	public static double correctDouble(double given, double min, double max) {
 		if (given < min) {
 			return min;

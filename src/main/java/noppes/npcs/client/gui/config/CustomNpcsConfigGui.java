@@ -29,7 +29,9 @@ import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.util.Util;
 
-public class CustomNpcsConfigGui extends GuiConfig implements ISubGuiListener {
+public class CustomNpcsConfigGui
+extends GuiConfig
+implements ISubGuiListener {
 
 	public static class ColorEntry extends ButtonEntry {
 

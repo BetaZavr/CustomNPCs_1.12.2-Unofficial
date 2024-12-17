@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,7 @@ public class SubGuiNpcAvailabilityQuest
 extends SubGuiInterface
 implements ICustomScrollListener, GuiSelectionListener {
 
+	private static final String[] types = new String[] { "availability.always", "availability.after", "availability.before", "availability.active", "availability.notactive", "availability.completed", "availability.canstart" };
 	private final Availability availability;
 	private final String chr = "" + ((char) 167);
 	private final Map<String, EnumAvailabilityQuest> dataEnum = new HashMap<>();
@@ -32,168 +32,142 @@ implements ICustomScrollListener, GuiSelectionListener {
 	private String select;
 
 	public SubGuiNpcAvailabilityQuest(Availability availability) {
-		this.availability = availability;
 		setBackground("menubg.png");
 		xSize = 316;
 		ySize = 217;
 		select = "";
 		closeOnEsc = true;
+
+		this.availability = availability;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
-			if (this.select.isEmpty()) {
+			if (select.isEmpty()) {
 				return;
 			}
 			EnumAvailabilityQuest ead = EnumAvailabilityQuest.values()[button.getValue()];
-			int id = this.dataIDs.get(this.select);
-			this.availability.quests.put(id, ead);
-			Quest quest = QuestController.instance.quests.get(this.dataIDs.get(this.select));
-			this.select = "ID:" + id + " - ";
+			int id = dataIDs.get(select);
+			availability.quests.put(id, ead);
+			Quest quest = QuestController.instance.quests.get(dataIDs.get(select));
+			select = "ID:" + id + " - ";
 			if (quest == null) {
-				this.select += chr + "4" + (new TextComponentTranslation("quest.found").getFormattedText());
+				select += chr + "4" + (new TextComponentTranslation("quest.found").getFormattedText());
 			} else {
-				this.select += chr + "7" + quest.getCategory().getName() + "/" + chr + "r" + quest.getName() + chr
-						+ "7 (" + chr + "9"
-						+ new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + chr
-						+ "7)";
+				select += chr + "7" + quest.getCategory().getName() + "/" + chr + "r" + quest.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + chr + "7)";
 			}
-			this.initGui();
+			initGui();
 		}
 		if (button.id == 1) {
-			this.setSubGui(new GuiQuestSelection(this.select.isEmpty() ? 0 : this.dataIDs.get(this.select)));
+			setSubGui(new GuiQuestSelection(select.isEmpty() ? 0 : dataIDs.get(select)));
 		}
 		if (button.id == 2) {
-			this.availability.quests.remove(this.dataIDs.get(this.select));
-			this.select = "";
-			this.initGui();
+			availability.quests.remove(dataIDs.get(select));
+			select = "";
+			initGui();
 		}
 		if (button.id == 3) { // More
-			this.save();
-			this.initGui();
+			save();
+			initGui();
 		}
 		if (button.id == 66) {
-			this.close();
+			close();
 		}
 	}
 
-	// New
 	@Override
 	public void close() {
 		super.close();
 		List<Integer> delete = new ArrayList<>();
-		for (int id : this.availability.quests.keySet()) {
-			if (this.availability.quests.get(id) == EnumAvailabilityQuest.Always) {
+		for (int id : availability.quests.keySet()) {
+			if (availability.quests.get(id) == EnumAvailabilityQuest.Always) {
 				delete.add(id);
 			}
 		}
 		for (int id : delete) {
-			this.availability.quests.remove(id);
-		}
-	}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + this.ySize - 46, 100, 20)) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.enum.type").getFormattedText());
-		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 108, this.guiTop + this.ySize - 46, 180, 20)) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.quest").getFormattedText());
-		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 290, this.guiTop + this.ySize - 46, 20, 20)) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.remove").getFormattedText());
-		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + this.xSize - 76, this.guiTop + 192, 70, 20)) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.more").getFormattedText());
-		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + 192, 70, 20)) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
+			availability.quests.remove(id);
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(1, "availability.available", this.guiLeft, this.guiTop + 4));
-		this.getLabel(1).center(this.xSize);
-		// New
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 6, this.guiTop + 192, 70, 20, "gui.done"));
-		// New
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 6)).setSize(this.xSize - 12, this.ySize - 66);
-		}
-		this.dataIDs.clear();
-		this.dataEnum.clear();
-		for (int id : this.availability.quests.keySet()) {
+		// title
+		addLabel(new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4));
+		getLabel(1).center(xSize);
+		// exit
+		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 6, guiTop + 192, 70, 20, "gui.done");
+		button.setHoverText("hover.back");
+		addButton(button);
+		// data
+		if (scroll == null) { (scroll = new GuiCustomScroll(this, 6)).setSize(xSize - 12, ySize - 66); }
+		dataIDs.clear();
+		dataEnum.clear();
+		for (int id : availability.quests.keySet()) {
 			String key = "ID:" + id + " - ";
 			IQuest q = QuestController.instance.get(id);
 			if (q == null) {
 				key += chr + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
 			} else {
-				key += chr + "7" + q.getCategory().getName() + "/" + chr + "r" + q.getName() + chr + "7 (" + chr + "9"
-						+ new TextComponentTranslation(
-								("availability." + this.availability.quests.get(id)).toLowerCase()).getFormattedText()
-						+ chr + "7)";
+				key += chr + "7" + q.getCategory().getName() + "/" + chr + "r" + q.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + availability.quests.get(id)).toLowerCase()).getFormattedText() + chr + "7)";
 			}
-			this.dataIDs.put(key, id);
-			this.dataEnum.put(key, this.availability.quests.get(id));
+			dataIDs.put(key, id);
+			dataEnum.put(key, availability.quests.get(id));
 		}
-		if (!this.select.isEmpty() && !this.dataIDs.containsKey(this.select)) {
-			this.select = "";
-		}
-		this.scroll.setList(new ArrayList<>(dataIDs.keySet()));
-		this.scroll.guiLeft = this.guiLeft + 6;
-		this.scroll.guiTop = this.guiTop + 14;
-		if (!this.select.isEmpty()) {
-			this.scroll.setSelected(this.select);
-		}
-		this.addScroll(this.scroll);
+		if (!select.isEmpty() && !dataIDs.containsKey(select)) { select = ""; }
+		scroll.setList(new ArrayList<>(dataIDs.keySet()));
+		scroll.guiLeft = guiLeft + 6;
+		scroll.guiTop = guiTop + 14;
+		if (!select.isEmpty()) { scroll.setSelected(select); }
+		addScroll(scroll);
 		int p = 0;
-		if (!this.select.isEmpty()) {
-			p = this.dataEnum.get(this.select).ordinal();
-		}
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 6, this.guiTop + this.ySize - 46, 100, 20,
-				new String[] { "availability.always", "availability.after", "availability.before",
-						"availability.active", "availability.notactive", "availability.completed",
-						"availability.canstart" },
-				p));
-		this.addButton(
-				new GuiNpcButton(1, this.guiLeft + 108, this.guiTop + this.ySize - 46, 180, 20, "availability.select"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 290, this.guiTop + this.ySize - 46, 20, 20, "X"));
-
-		this.addButton(
-				new GuiNpcButton(3, this.guiLeft + this.xSize - 76, this.guiTop + 192, 70, 20, "availability.more"));
-		this.getButton(3).setEnabled(!this.select.isEmpty());
-		this.updateGuiButtons();
+		if (!select.isEmpty()) { p = dataEnum.get(select).ordinal(); }
+		// type
+		button = new GuiNpcButton(0, guiLeft + 6, guiTop + ySize - 46, 100, 20, types, p);
+		button.setHoverText("availability.hover.enum.type");
+		addButton(button);
+		// select
+		button = new GuiNpcButton(1, guiLeft + 108, guiTop + ySize - 46, 180, 20, "availability.select");
+		button.setHoverText("availability.hover.quest");
+		addButton(button);
+		// del
+		button = new GuiNpcButton(2, guiLeft + 290, guiTop + ySize - 46, 20, 20, "X");
+		button.setHoverText("availability.hover.remove");
+		addButton(button);
+		// extra
+		button = new GuiNpcButton(3, guiLeft + xSize - 76, guiTop + 192, 70, 20, "availability.more");
+		button.setEnabled(!select.isEmpty());
+		button.setHoverText("availability.hover.more");
+		addButton(button);
+		updateGuiButtons();
 	}
 
 	@Override
 	public void save() {
-		if (this.select.isEmpty()) {
+		if (select.isEmpty()) {
 			return;
 		}
-		EnumAvailabilityQuest ead = EnumAvailabilityQuest.values()[this.getButton(0).getValue()];
-		int id = this.dataIDs.get(this.select);
+		EnumAvailabilityQuest ead = EnumAvailabilityQuest.values()[getButton(0).getValue()];
+		int id = dataIDs.get(select);
 		if (ead != EnumAvailabilityQuest.Always) {
-			this.availability.quests.put(id, ead);
-			this.dataEnum.put(this.select, ead);
+			availability.quests.put(id, ead);
+			dataEnum.put(select, ead);
 		} else {
-			this.availability.quests.remove(id);
+			availability.quests.remove(id);
 		}
-		this.select = "";
+		select = "";
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		this.select = scroll.getSelected();
-		this.initGui();
+		select = scroll.getSelected();
+		initGui();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		this.setSubGui(new GuiQuestSelection(this.dataIDs.get(this.select)));
+		setSubGui(new GuiQuestSelection(dataIDs.get(select)));
 	}
 
 	@Override
@@ -201,32 +175,29 @@ implements ICustomScrollListener, GuiSelectionListener {
 		if (id <= 0) {
 			return;
 		}
-		if (!this.select.isEmpty()) {
-			this.availability.quests.remove(this.dataIDs.get(this.select));
+		if (!select.isEmpty()) {
+			availability.quests.remove(dataIDs.get(select));
 		}
 		Quest quest = QuestController.instance.quests.get(id);
-		this.select = "ID:" + id + " - " + chr + "7" + quest.category.getName() + "/" + chr + "r" + quest.getName()
-				+ chr + "7 (" + chr + "9" + new TextComponentTranslation("availability.after").getFormattedText() + chr
-				+ "7)";
-		this.availability.quests.put(id, EnumAvailabilityQuest.After);
-		this.initGui();
-		this.updateGuiButtons();
+		select = "ID:" + id + " - " + chr + "7" + quest.category.getName() + "/" + chr + "r" + quest.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation("availability.after").getFormattedText() + chr + "7)";
+		availability.quests.put(id, EnumAvailabilityQuest.After);
+		initGui();
+		updateGuiButtons();
 	}
 
 	private void updateGuiButtons() {
-		// New
 		int p = 0;
-		this.getButton(1).setDisplayText("availability.selectquest");
+		getButton(1).setDisplayText("availability.selectquest");
 		Quest quest = null;
-		if (!this.select.isEmpty()) {
-			quest = QuestController.instance.quests.get(this.dataIDs.get(this.select));
-			p = this.dataEnum.get(this.select).ordinal();
+		if (!select.isEmpty()) {
+			quest = QuestController.instance.quests.get(dataIDs.get(select));
+			p = dataEnum.get(select).ordinal();
 		}
-		this.getButton(0).setDisplay(p);
-		this.getButton(0).setEnabled(!this.select.isEmpty());
-		this.getButton(1).setEnabled(p != 0 || this.select.isEmpty());
-		this.getButton(1).setDisplayText(quest == null ? "availability.select" : quest.getName());
-		this.getButton(2).setEnabled(p != 0);
+		getButton(0).setDisplay(p);
+		getButton(0).setEnabled(!select.isEmpty());
+		getButton(1).setEnabled(p != 0 || select.isEmpty());
+		getButton(1).setDisplayText(quest == null ? "availability.select" : quest.getName());
+		getButton(2).setEnabled(p != 0);
 	}
 
 }

@@ -25,7 +25,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class GuiCreateFlatDimension extends GuiScreen {
+public class GuiCreateFlatDimension
+extends GuiScreen {
 
 	@SideOnly(Side.CLIENT)
 	class Details extends GuiSlot {

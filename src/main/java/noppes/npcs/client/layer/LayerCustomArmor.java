@@ -74,29 +74,26 @@ public class LayerCustomArmor<T extends ModelBase> extends LayerArmorBase<ModelB
 		t.setModelAttributes(this.renderer.getMainModel());
 		t.setLivingAnimations(entityLivingBaseIn, limbSwing, limbSwingAmount, partialTicks);
 		this.setModelSlotVisible((ModelBiped) t, slotIn);
-		this.renderer.bindTexture(this.getArmorResource(entityLivingBaseIn, itemstack, slotIn, null));
-		float alpha = 1.0F;
-		float colorR = 1.0F;
-		float colorG = 1.0F;
-		float colorB = 1.0F;
+		renderer.bindTexture(this.getArmorResource(entityLivingBaseIn, itemstack, slotIn, null));
+		if (t instanceof ModelBipedAlt) { ((ModelBipedAlt) t).setSlot(slotIn); }
 		if (itemarmor.hasOverlay(itemstack)) { // Allow this for anything, not only cloth
 			int i = itemarmor.getColor(itemstack);
 			float f = (float) (i >> 16 & 255) / 255.0F;
 			float f1 = (float) (i >> 8 & 255) / 255.0F;
 			float f2 = (float) (i & 255) / 255.0F;
-			GlStateManager.color(colorR * f, colorG * f1, colorB * f2, alpha);
+			GlStateManager.color(f, f1, f2, 1.0f);
+			if (t instanceof ModelBipedAlt) { ((ModelBipedAlt) t).setArmorColor(f, f1, f2); }
 			t.render(entityLivingBaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-			this.renderer.bindTexture(this.getArmorResource(entityLivingBaseIn, itemstack, slotIn, "overlay"));
+			renderer.bindTexture(this.getArmorResource(entityLivingBaseIn, itemstack, slotIn, "overlay"));
 		}
 		// Non-colored
-		GlStateManager.color(colorR, colorG, colorB, alpha);
-		if (t instanceof ModelBipedAlt) {
-			((ModelBipedAlt) t).setSlot(slotIn);
-		}
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		if (t instanceof ModelBipedAlt) { ((ModelBipedAlt) t).setArmorColor(1.0f, 1.0f, 1.0f); }
 		t.render(entityLivingBaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+
 		// Default
 		if (!this.skipRenderGlint && itemstack.hasEffect()) {
-			renderEnchantedGlint(this.renderer, entityLivingBaseIn, t, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
+			renderEnchantedGlint(renderer, entityLivingBaseIn, t, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
 		}
 	}
 

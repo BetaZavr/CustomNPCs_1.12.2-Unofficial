@@ -9,68 +9,68 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiSlot;
 import noppes.npcs.util.NaturalOrderComparator;
 
-public class GuiNPCStringSlot extends GuiSlot {
+public class GuiNPCStringSlot
+extends GuiSlot {
 
 	private List<String> list;
 	private final boolean multiSelect;
 	private final GuiNPCInterface parent;
 	public String selected;
-	public HashSet<String> selectedList;
+	public HashSet<String> selectedList = new HashSet<>();
 	public int size;
 
-	public GuiNPCStringSlot(Collection<String> list, GuiNPCInterface parent, boolean multiSelect, int size) {
-		super(Minecraft.getMinecraft(), parent.width, parent.height, 32, parent.height - 64, size);
-		this.selectedList = new HashSet<>();
-		this.parent = parent;
-		(this.list = new ArrayList<>(list)).sort(new NaturalOrderComparator());
-		this.multiSelect = multiSelect;
-		this.size = size;
+	public GuiNPCStringSlot(Collection<String> slotList, GuiNPCInterface gui, boolean isMultiSelect, int slotHeightIn) {
+		super(Minecraft.getMinecraft(), gui.width, gui.height, 32, gui.height - 64, slotHeightIn);
+		parent = gui;
+		(list = new ArrayList<>(slotList)).sort(new NaturalOrderComparator());
+		multiSelect = isMultiSelect;
+		size = slotHeightIn;
 	}
 
 	public void clear() {
-		this.list.clear();
+		list.clear();
 	}
 
 	protected void drawBackground() {
-		this.parent.drawDefaultBackground();
+		parent.drawDefaultBackground();
 	}
 
 	protected void drawSlot(int i, int j, int k, int l, int var6, int var7, float partialTick) {
-		String s = this.list.get(i);
-		this.parent.drawString(this.parent.getFontRenderer(), s, j + 50, k + 3, 16777215);
+		String s = list.get(i);
+		parent.drawString(parent.getFontRenderer(), s, j + 50, k + 3, 16777215);
 	}
 
 	protected void elementClicked(int i, boolean flag, int j, int k) {
-		if (this.selected != null && this.selected.equals(this.list.get(i)) && flag) {
-			this.parent.doubleClicked();
+		if (selected != null && selected.equals(list.get(i)) && flag) {
+			parent.doubleClicked();
 		}
-		this.selected = this.list.get(i);
-		if (this.selectedList.contains(this.selected)) {
-			this.selectedList.remove(this.selected);
+		selected = list.get(i);
+		if (selectedList.contains(selected)) {
+			selectedList.remove(selected);
 		} else {
-			this.selectedList.add(this.selected);
+			selectedList.add(selected);
 		}
-		this.parent.elementClicked();
+		parent.elementClicked();
 	}
 
 	protected int getContentHeight() {
-		return this.list.size() * this.size;
+		return list.size() * size;
 	}
 
 	protected int getSize() {
-		return this.list.size();
+		return list.size();
 	}
 
 	protected boolean isSelected(int i) {
-		if (!this.multiSelect) {
-			return this.selected != null && this.selected.equals(this.list.get(i));
+		if (!multiSelect) {
+			return selected != null && selected.equals(list.get(i));
 		}
-		return this.selectedList.contains(this.list.get(i));
+		return selectedList.contains(list.get(i));
 	}
 
-	public void setList(List<String> list) {
-		list.sort(new NaturalOrderComparator());
-		this.list = list;
-		this.selected = "";
+	public void setList(List<String> newList) {
+		newList.sort(new NaturalOrderComparator());
+		list = newList;
+		selected = "";
 	}
 }

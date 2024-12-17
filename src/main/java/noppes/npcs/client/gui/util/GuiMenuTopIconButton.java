@@ -13,7 +13,8 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class GuiMenuTopIconButton extends GuiMenuTopButton {
+public class GuiMenuTopIconButton
+extends GuiMenuTopButton {
 
 	protected static RenderItem itemRender;
 	private static final ResourceLocation resource = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
@@ -37,18 +38,18 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
 
 	@Override
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!this.getVisible()) {
+		if (!getVisible()) {
 			return;
 		}
 		super.drawButton(mc, mouseX, mouseY, partialTicks);
-        this.item.getItem();
+        item.getItem();
 		mc.getTextureManager().bindTexture(GuiMenuTopIconButton.resource);
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableBlend();
 		GlStateManager.disableLighting();
-		this.drawTexturedModalRect(x, y + (active ? 2 : 0), 0, active ? 32 : 0, 28, 28);
-		this.zLevel = 100.0f;
+		drawTexturedModalRect(x, y + (active ? 2 : 0), 0, active ? 32 : 0, 28, 28);
+		zLevel = 100.0f;
 		itemRender = mc.getRenderItem();
 		itemRender.zLevel = 100.0f;
 		GlStateManager.enableLighting();
@@ -59,7 +60,7 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();
 		itemRender.zLevel = 0.0f;
-		this.zLevel = 0.0f;
+		zLevel = 0.0f;
 		GlStateManager.popMatrix();
 	}
 
@@ -82,26 +83,26 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
 			if (textLines.size() > 1) {
 				i1 += 2 + (textLines.size() - 1) * 10;
 			}
-			if (j2 + k > this.width) {
+			if (j2 + k > width) {
 				j2 -= 28 + k;
 			}
-			if (k2 + i1 + 6 > this.height) {
-				k2 = this.height - i1 - 6;
+			if (k2 + i1 + 6 > height) {
+				k2 = height - i1 - 6;
 			}
-			this.zLevel = 300.0f;
+			zLevel = 300.0f;
 			itemRender.zLevel = 300.0f;
 			int j3 = -267386864;
-			this.drawGradientRect(j2 - 3, k2 - 4, j2 + k + 3, k2 - 3, j3, j3);
-			this.drawGradientRect(j2 - 3, k2 + i1 + 3, j2 + k + 3, k2 + i1 + 4, j3, j3);
-			this.drawGradientRect(j2 - 3, k2 - 3, j2 + k + 3, k2 + i1 + 3, j3, j3);
-			this.drawGradientRect(j2 - 4, k2 - 3, j2 - 3, k2 + i1 + 3, j3, j3);
-			this.drawGradientRect(j2 + k + 3, k2 - 3, j2 + k + 4, k2 + i1 + 3, j3, j3);
-			int k3 = 1347420415;
+			drawGradientRect(j2 - 3, k2 - 4, j2 + k + 3, k2 - 3, j3, j3);
+			drawGradientRect(j2 - 3, k2 + i1 + 3, j2 + k + 3, k2 + i1 + 4, j3, j3);
+			drawGradientRect(j2 - 3, k2 - 3, j2 + k + 3, k2 + i1 + 3, j3, j3);
+			drawGradientRect(j2 - 4, k2 - 3, j2 - 3, k2 + i1 + 3, j3, j3);
+			drawGradientRect(j2 + k + 3, k2 - 3, j2 + k + 4, k2 + i1 + 3, j3, j3);
+			int k3 = 0x505000FF;
 			int l2 = (k3 & 0xFEFEFE) >> 1 | (k3 & 0xFF000000);
-			this.drawGradientRect(j2 - 3, k2 - 3 + 1, j2 - 3 + 1, k2 + i1 + 3 - 1, k3, l2);
-			this.drawGradientRect(j2 + k + 2, k2 - 3 + 1, j2 + k + 3, k2 + i1 + 3 - 1, k3, l2);
-			this.drawGradientRect(j2 - 3, k2 - 3, j2 + k + 3, k2 - 3 + 1, k3, k3);
-			this.drawGradientRect(j2 - 3, k2 + i1 + 2, j2 + k + 3, k2 + i1 + 3, l2, l2);
+			drawGradientRect(j2 - 3, k2 - 3 + 1, j2 - 3 + 1, k2 + i1 + 3 - 1, k3, l2);
+			drawGradientRect(j2 + k + 2, k2 - 3 + 1, j2 + k + 3, k2 + i1 + 3 - 1, k3, l2);
+			drawGradientRect(j2 - 3, k2 - 3, j2 + k + 3, k2 - 3 + 1, k3, k3);
+			drawGradientRect(j2 - 3, k2 + i1 + 2, j2 + k + 3, k2 + i1 + 3, l2, l2);
 			for (int i2 = 0; i2 < textLines.size(); ++i2) {
 				String s2 = (String) textLines.get(i2);
 				font.drawStringWithShadow(s2, j2, k2, -1);
@@ -110,7 +111,7 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
 				}
 				k2 += 10;
 			}
-			this.zLevel = 0.0f;
+			zLevel = 0.0f;
 			itemRender.zLevel = 0.0f;
 			GlStateManager.enableLighting();
 			GlStateManager.enableDepth();

@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -16,6 +17,8 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -25,11 +28,14 @@ import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.item.INPCToolItem;
+import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityCustomNpc;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.IPermission;
+import noppes.npcs.util.Util;
 
 public class ItemNpcWand extends Item implements IPermission, INPCToolItem {
 	public ItemNpcWand() {
@@ -71,6 +77,13 @@ public class ItemNpcWand extends Item implements IPermission, INPCToolItem {
 		if (CustomNpcs.OpsOnly && !Objects.requireNonNull(player.getServer()).getPlayerList().canSendCommands(player.getGameProfile())) {
 			player.sendMessage(new TextComponentTranslation("availability.permission"));
 		} else if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_CREATE)) {
+			Entity rayTraceEntity = Util.instance.getLookEntity(player, 4.0d, false);
+			if (rayTraceEntity instanceof EntityNPCInterface) {
+				if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_GUI)) {
+					NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, (EntityNPCInterface) rayTraceEntity);
+				}
+				return EnumActionResult.FAIL;
+			}
 			EntityCustomNpc npc = new EntityCustomNpc(world);
 			npc.ais.setStartPos(pos.up());
 			npc.setLocationAndAngles((pos.getX() + 0.5f), npc.getStartYPos(), (pos.getZ() + 0.5f), player.rotationYaw, player.rotationPitch);

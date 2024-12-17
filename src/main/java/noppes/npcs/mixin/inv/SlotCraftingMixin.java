@@ -172,7 +172,7 @@ public class SlotCraftingMixin {
     }
 
     @Unique
-    public ItemStack npcs$apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) { // New
+    public ItemStack npcs$apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
         if (stack == null || ingredient == null) { return null; }
         ItemStack[] stacks = ingredient.getMatchingStacks();
         if (stacks.length == 0 && stack.isEmpty()) { return ItemStack.EMPTY; }

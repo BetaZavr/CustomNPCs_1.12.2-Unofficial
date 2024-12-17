@@ -23,7 +23,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class GuiScreenCustomizeDimensionPresets extends GuiScreen {
+public class GuiScreenCustomizeDimensionPresets
+extends GuiScreen {
 
 	@SideOnly(Side.CLIENT)
 	static class Info {

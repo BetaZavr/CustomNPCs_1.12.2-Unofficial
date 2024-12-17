@@ -17,7 +17,9 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.constants.EnumPacketServer;
 
-public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCallback, IGuiData, ITextfieldListener {
+public class GuiNpcMobSpawnerAdd
+extends GuiNPCInterface
+implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 
 	private static boolean serverSide = false;
 	private static int tab = 1;
@@ -25,34 +27,35 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCall
 	private final Entity toClone;
 	private final String[] arrSymbols = new String[] { "\\", "/", ":", "*", "?", "\"", "<", ">", "|" };
 
-	public GuiNpcMobSpawnerAdd(NBTTagCompound compound) {
-		this.toClone = EntityList.createEntityFromNBT(compound, Minecraft.getMinecraft().world);
-		this.compound = compound;
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 216;
+	public GuiNpcMobSpawnerAdd(NBTTagCompound nbt) {
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 216;
+
+		toClone = EntityList.createEntityFromNBT(nbt, Minecraft.getMinecraft().world);
+		compound = nbt;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
-			String name = this.getTextField(0).getText();
+			String name = getTextField(0).getText();
 			if (name.isEmpty()) {
 				return;
 			}
 			int tab = button.getValue() + 1;
 			if (!GuiNpcMobSpawnerAdd.serverSide) {
 				if (ClientCloneController.Instance.getCloneData(null, name, tab) != null) {
-					this.displayGuiScreen(new GuiYesNo(this, "", new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
+					displayGuiScreen(new GuiYesNo(this, "", new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
 				} else {
-					this.confirmClicked(true, 0);
+					confirmClicked(true, 0);
 				}
 			} else {
 				Client.sendData(EnumPacketServer.ClonePreSave, name, tab);
 			}
 		}
 		if (button.id == 1) {
-			this.close();
+			close();
 		}
 		if (button.id == 2) {
 			GuiNpcMobSpawnerAdd.tab = button.getValue() + 1;
@@ -70,32 +73,29 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCall
 			} else {
 				Client.sendData(EnumPacketServer.CloneSave, name, GuiNpcMobSpawnerAdd.tab);
 			}
-			this.close();
+			close();
 		} else {
-			this.displayGuiScreen(this);
+			displayGuiScreen(this);
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		String name = this.toClone.getName();
-		for (String c : this.arrSymbols) {
+		String name = toClone.getName();
+		for (String c : arrSymbols) {
 			while (name.contains(c)) {
 				name = name.replace(c, "_");
 			}
 		}
 
-		this.addLabel(new GuiNpcLabel(0, "Save as", this.guiLeft + 4, this.guiTop + 6));
-		this.addTextField(
-				new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 18, 200, 20, name));
-		this.addLabel(new GuiNpcLabel(1, "Tab", this.guiLeft + 10, this.guiTop + 50));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 40, this.guiTop + 45, 20, 20,
-				new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" }, GuiNpcMobSpawnerAdd.tab - 1));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 4, this.guiTop + 95,
-				new String[] { "clone.client", "clone.server" }, (GuiNpcMobSpawnerAdd.serverSide ? 1 : 0)));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 70, 80, 20, "gui.save"));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 86, this.guiTop + 70, 80, 20, "gui.cancel"));
+		addLabel(new GuiNpcLabel(0, "Save as", guiLeft + 4, guiTop + 6));
+		addTextField(new GuiNpcTextField(0, this, fontRenderer, guiLeft + 4, guiTop + 18, 200, 20, name));
+		addLabel(new GuiNpcLabel(1, "Tab", guiLeft + 10, guiTop + 50));
+		addButton(new GuiNpcButton(2, guiLeft + 40, guiTop + 45, 20, 20, new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" }, GuiNpcMobSpawnerAdd.tab - 1));
+		addButton(new GuiNpcButton(3, guiLeft + 4, guiTop + 95, new String[] { "clone.client", "clone.server" }, (GuiNpcMobSpawnerAdd.serverSide ? 1 : 0)));
+		addButton(new GuiNpcButton(0, guiLeft + 4, guiTop + 70, 80, 20, "gui.save"));
+		addButton(new GuiNpcButton(1, guiLeft + 86, guiTop + 70, 80, 20, "gui.cancel"));
 	}
 
 	@Override
@@ -105,9 +105,9 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCall
 	public void setGuiData(NBTTagCompound compound) {
 		if (compound.hasKey("NameExists")) {
 			if (compound.getBoolean("NameExists")) {
-				this.displayGuiScreen(new GuiYesNo(this, "", new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
+				displayGuiScreen(new GuiYesNo(this, "", new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
 			} else {
-				this.confirmClicked(true, 0);
+				confirmClicked(true, 0);
 			}
 		}
 	}
@@ -115,7 +115,7 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCall
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
 		String name = textField.getText();
-		for (String c : this.arrSymbols) {
+		for (String c : arrSymbols) {
 			while (name.contains(c)) {
 				name = name.replace(c, "_");
 			}

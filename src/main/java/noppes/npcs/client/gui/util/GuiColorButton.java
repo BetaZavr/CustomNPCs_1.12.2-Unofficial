@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.util;
 import net.minecraft.client.Minecraft;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
 
 public class GuiColorButton extends GuiNpcButton {
 
@@ -14,9 +15,9 @@ public class GuiColorButton extends GuiNpcButton {
 	}
 
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!this.visible) { return; }
-		drawRect(this.x, this.y, this.x + 50, this.y + this.height, 0xFF808080);
-		drawRect(this.x + 1, this.y + 1, this.x + 49, this.y + this.height - 1, 0xFF000000 + this.color);
+		if (!visible) { return; }
+		drawRect(x, y, x + 50, y + height, new Color(0x80, 0x80, 0x80, 0xFF).getRGB());
+		drawRect(x + 1, y + 1, x + 49, y + height - 1, 0xFF000000 + color);
 	}
 
 }

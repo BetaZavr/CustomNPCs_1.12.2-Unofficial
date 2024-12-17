@@ -1,12 +1,9 @@
 package noppes.npcs.client.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
@@ -16,7 +13,9 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumAvailabilityPlayerName;
 import noppes.npcs.controllers.data.Availability;
 
-public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICustomScrollListener, ISubGuiListener {
+public class SubGuiNpcAvailabilityNames
+extends SubGuiInterface
+implements ICustomScrollListener, ISubGuiListener {
 
 	private final Availability availability;
 	private final Map<String, EnumAvailabilityPlayerName> data = new HashMap<>();
@@ -24,141 +23,121 @@ public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICust
 	private String select = "";
 
 	public SubGuiNpcAvailabilityNames(Availability availability) {
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 217;
+		closeOnEsc = true;
+
 		this.availability = availability;
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 217;
-		this.closeOnEsc = true;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 0: {
-			if (this.select.isEmpty()) {
-				return;
+			case 0: {
+				if (select.isEmpty()) {
+					return;
+				}
+				EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.values()[button.getValue()];
+				availability.playerNames.put(select, eapn);
+				initGui();
+				break;
 			}
-			EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.values()[button.getValue()];
-			this.availability.playerNames.put(this.select, eapn);
-			this.initGui();
-			break;
-		}
-		case 1: {
-			SubGuiEditText subGui = new SubGuiEditText(0, this.select);
-			subGui.hovers[0] = "availability.hover.player.name";
-			this.setSubGui(subGui);
-			break;
-		}
-		case 2: {
-			this.availability.playerNames.remove(this.select);
-			this.select = "";
-			this.initGui();
-			break;
-		}
-		case 3: {
-			this.save();
-			this.initGui();
-			break;
-		}
-		case 66: {
-			this.close();
-			break;
-		}
-		default: {
-			break;
-		}
-		}
-	}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.name." + this.getButton(0).getValue())
-					.getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.player.name").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.remove").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.more").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
+			case 1: {
+				SubGuiEditText subGui = new SubGuiEditText(0, select);
+				subGui.hovers[0] = "availability.hover.player.name";
+				setSubGui(subGui);
+				break;
+			}
+			case 2: {
+				availability.playerNames.remove(select);
+				select = "";
+				initGui();
+				break;
+			}
+			case 3: {
+				save();
+				initGui();
+				break;
+			}
+			case 66: {
+				close();
+				break;
+			}
+			default: {
+				break;
+			}
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(1, "availability.available", this.guiLeft, this.guiTop + 4));
-		this.getLabel(1).center(this.xSize);
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 6, this.guiTop + 192, 70, 20, "gui.done"));
-
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 6)).setSize(this.xSize - 12, this.ySize - 66);
-		}
-		this.data.clear();
-		for (String name : this.availability.playerNames.keySet()) {
-			this.data.put(name, this.availability.playerNames.get(name));
-		}
-		if (!this.select.isEmpty() && !this.data.containsKey(this.select)) {
-			this.select = "";
-		}
-		this.scroll.setList(new ArrayList<>(data.keySet()));
-		this.scroll.guiLeft = this.guiLeft + 6;
-		this.scroll.guiTop = this.guiTop + 14;
-		if (!this.select.isEmpty()) {
-			this.scroll.setSelected(this.select);
-		} else {
-			this.scroll.selected = -1;
-		}
-		this.addScroll(this.scroll);
+		// title
+		GuiNpcLabel label = new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4);
+		label.center(xSize);
+		addLabel(label);
+		// exit
+		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 6, guiTop + 192, 70, 20, "gui.done");
+		button.setHoverText("hover.back");
+		addButton(button);
+		// data
+		if (scroll == null) { (scroll = new GuiCustomScroll(this, 6)).setSize(xSize - 12, ySize - 66); }
+		data.clear();
+		for (String name : availability.playerNames.keySet()) { data.put(name, availability.playerNames.get(name)); }
+		if (!select.isEmpty() && !data.containsKey(select)) { select = ""; }
+		scroll.setList(new ArrayList<>(data.keySet()));
+		scroll.guiLeft = guiLeft + 6;
+		scroll.guiTop = guiTop + 14;
+		if (!select.isEmpty()) { scroll.setSelected(select); }
+		else { scroll.selected = -1; }
+		addScroll(scroll);
 		int p = 0;
-		if (!this.select.isEmpty()) {
-			p = this.data.get(this.select).ordinal();
+		if (!select.isEmpty()) {
+			p = data.get(select).ordinal();
 		}
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 6, this.guiTop + this.ySize - 46, 50, 20,
-				new String[] { "availability.only", "availability.except" }, p));
-		this.addButton(
-				new GuiNpcButton(1, this.guiLeft + 58, this.guiTop + this.ySize - 46, 170, 20, "availability.select"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 230, this.guiTop + this.ySize - 46, 20, 20, "X"));
-		this.addButton(
-				new GuiNpcButton(3, this.guiLeft + this.xSize - 76, this.guiTop + 192, 70, 20, "availability.more"));
-		this.getButton(3).setEnabled(!this.select.isEmpty());
-		if (!this.select.isEmpty()) {
-			this.getButton(1).setDisplayText(this.select);
-		}
-		this.getButton(2).setEnabled(!this.select.isEmpty());
+		// type
+		button = new GuiNpcButton(0, guiLeft + 6, guiTop + ySize - 46, 50, 20, new String[] { "availability.only", "availability.except" }, p);
+		button.setHoverText("availability.hover.name." + button.getValue());
+		addButton(button);
+		// select
+		button = new GuiNpcButton(1, guiLeft + 58, guiTop + ySize - 46, 170, 20, "availability.select");
+		if (!select.isEmpty()) { button.setDisplayText(select); }
+		button.setHoverText("availability.hover.player.name");
+		addButton(button);
+		// del
+		button = new GuiNpcButton(2, guiLeft + 230, guiTop + ySize - 46, 20, 20, "X");
+		button.setEnabled(!select.isEmpty());
+		button.setHoverText("availability.hover.remove");
+		addButton(button);
+		// extra
+		button = new GuiNpcButton(3, guiLeft + xSize - 76, guiTop + 192, 70, 20, "availability.more");
+		button.setEnabled(!select.isEmpty());
+		button.setHoverText("availability.hover.more");
+		addButton(button);
 	}
 
 	@Override
 	public void save() {
-		if (this.select.isEmpty()) {
+		if (select.isEmpty()) {
 			return;
 		}
-		EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.values()[this.getButton(0).getValue()];
-		this.availability.playerNames.put(this.select, eapn);
-		this.select = "";
+		EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.values()[getButton(0).getValue()];
+		availability.playerNames.put(select, eapn);
+		select = "";
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		this.select = scroll.getSelected();
-		this.initGui();
+		select = scroll.getSelected();
+		initGui();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		SubGuiEditText subGui = new SubGuiEditText(0, this.select);
+		SubGuiEditText subGui = new SubGuiEditText(0, select);
 		subGui.hovers[0] = "availability.hover.player.name";
-		this.setSubGui(subGui);
+		setSubGui(subGui);
 	}
 
 	@Override
@@ -168,13 +147,13 @@ public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICust
 			return;
 		}
 		EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.Only;
-		if (!this.select.isEmpty()) {
-			eapn = this.data.get(this.select);
-			this.availability.playerNames.remove(this.select);
+		if (!select.isEmpty()) {
+			eapn = data.get(select);
+			availability.playerNames.remove(select);
 		}
-		this.select = selector.text[0];
-		this.availability.playerNames.put(this.select, eapn);
-		this.initGui();
+		select = selector.text[0];
+		availability.playerNames.put(select, eapn);
+		initGui();
 	}
 
 }

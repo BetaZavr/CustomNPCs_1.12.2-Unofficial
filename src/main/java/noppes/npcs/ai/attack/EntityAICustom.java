@@ -4,13 +4,16 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.ai.EntityLookHelper;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.MathHelper;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.api.mixin.entity.ai.IEntityAITasksMixin;
+import noppes.npcs.util.Util;
 
 public class EntityAICustom extends EntityAIBase {
 
@@ -62,6 +65,7 @@ public class EntityAICustom extends EntityAIBase {
 	@Override
 	public void resetTask() {
 		canSeeToAttack = false;
+		npc.updateHitbox();
 	}
 
 	/**

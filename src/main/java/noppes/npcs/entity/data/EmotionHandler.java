@@ -2,19 +2,11 @@ package noppes.npcs.entity.data;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.MathHelper;
-import noppes.npcs.CustomNpcs;
-import noppes.npcs.LogWriter;
-import noppes.npcs.Server;
-import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.data.IEmotion;
-import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.client.model.animation.EmotionFrame;
-import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -47,7 +39,7 @@ public class EmotionHandler {
         int ticks = (int) (this.entity.world.getTotalWorldTime() - this.startEmotionTime);
         // Speed ticks to next frame
         int speed = this.currentEmotionFrame != null ? this.currentEmotionFrame.speed : 0;
-        if (this.emotionFrame < 0) { // new animation
+        if (this.emotionFrame < 0) { // create animation
             if (this.activeEmotion == null) { // finishing the old animation
                 this.nextEmotionFrame = EmotionFrame.STANDARD.copy();
             }

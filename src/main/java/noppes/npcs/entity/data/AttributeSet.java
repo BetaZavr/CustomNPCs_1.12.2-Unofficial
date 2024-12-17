@@ -28,9 +28,7 @@ public class AttributeSet implements IAttributeSet {
 	}
 
 	@Override
-	public String getAttribute() {
-		return this.attr.getName();
-	}
+	public String getAttribute() { return attr.getName(); }
 
 	@Override
 	public double getChance() {
@@ -146,9 +144,8 @@ public class AttributeSet implements IAttributeSet {
             case "generic.luck":
                 this.attr = SharedMonsterAttributes.LUCK;
                 break;
-            default:  // new
-                this.attr = (new RangedAttribute(null, name, 0.0D, -1024.0D, 1024.0D))
-                        .setShouldWatch(true);
+            default:  // create
+                this.attr = (new RangedAttribute(null, name, 0.0D, -1024.0D, 1024.0D)).setShouldWatch(true);
                 break;
         }
 	}

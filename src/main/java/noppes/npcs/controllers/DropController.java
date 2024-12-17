@@ -3,10 +3,7 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityLivingBase;
@@ -21,11 +18,13 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.DropsTemplate;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.AttributeSet;
 import noppes.npcs.entity.data.DropSet;
 import noppes.npcs.entity.data.EnchantSet;
@@ -56,16 +55,12 @@ public class DropController {
 		this.load();
 	}
 
-	public List<IItemStack> createDrops(String saveDropsName, double ch, boolean isLooted, EntityLivingBase attacking) {
-		List<IItemStack> list = new ArrayList<>();
-		if (saveDropsName == null || saveDropsName.isEmpty() || !this.templates.containsKey(saveDropsName)) {
-			return list;
-		}
+	public List<DropSet> getDrops(String saveDropsName) {
+		List<DropSet> allDrops = new ArrayList<>();
+		if (saveDropsName == null || saveDropsName.isEmpty() || !this.templates.containsKey(saveDropsName)) { return allDrops; }
 		DropsTemplate template = this.templates.get(saveDropsName);
-		if (template == null) {
-			return list;
-		}
-		return template.createDrops(ch, isLooted, attacking);
+		if (template == null) { return allDrops; }
+		return template.getDrops();
 	}
 
 	public NBTTagCompound getNBT() {

@@ -49,7 +49,7 @@ import noppes.npcs.client.gui.GuiAchievement;
 import noppes.npcs.client.gui.GuiNpcMobSpawnerAdd;
 import noppes.npcs.client.gui.GuiNpcRemoteEditor;
 import noppes.npcs.client.gui.global.GuiNPCManageDialogs;
-import noppes.npcs.client.gui.global.GuiNPCManageMarcets;
+import noppes.npcs.client.gui.global.GuiNPCManageMarkets;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
 import noppes.npcs.client.gui.player.*;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
@@ -638,8 +638,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			if (gui instanceof GuiNPCTrader) {
 				((GuiNPCTrader) gui).setGuiData(new NBTTagCompound());
-			} else if (gui instanceof GuiNPCManageMarcets) {
-				((GuiNPCManageMarcets) gui).setGuiData(new NBTTagCompound());
+			} else if (gui instanceof GuiNPCManageMarkets) {
+				((GuiNPCManageMarkets) gui).setGuiData(new NBTTagCompound());
 			}
 		}
 		else if (type == EnumPacketClient.DETECT_HELD_ITEM) {
@@ -824,6 +824,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				return;
 			}
 			((EntityNPCInterface) entity).currentAnimation = buffer.readInt();
+			((EntityNPCInterface) entity).updateHitbox();
 		}
 		else if (type == EnumPacketClient.UPDATE_NPC_NAVIGATION) {
 			NBTTagCompound compound = Server.readNBT(buffer);

@@ -30,7 +30,7 @@ public class ContainerCustomGui extends Container {
 	public IInventory guiInventory;
 	int slotCount;
 
-	public ContainerCustomGui(IInventory inventory) { // Changed
+	public ContainerCustomGui(IInventory inventory) {
 		this.slotCount = 0;
 		this.guiInventory = inventory;
 		this.cx = 0;
@@ -68,7 +68,7 @@ public class ContainerCustomGui extends Container {
 			this.cx = -40 + (256 - this.customGui.getWidth()) / 2;
 			this.cy = -45 + (256 - this.customGui.getHeight()) / 2;
 		}
-		this.slotCount = 0; // New
+		this.slotCount = 0;
 		this.inventorySlots.clear();
 		for (IItemSlot slot : this.customGui.getSlots()) {
 			int index = this.slotCount++;

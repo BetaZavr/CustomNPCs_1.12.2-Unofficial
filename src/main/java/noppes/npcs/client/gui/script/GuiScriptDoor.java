@@ -10,27 +10,30 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 
-public class GuiScriptDoor extends GuiScriptInterface implements ISubGuiListener {
+public class GuiScriptDoor
+extends GuiScriptInterface
+implements ISubGuiListener {
 
 	private final TileScriptedDoor script;
 
 	public GuiScriptDoor(int x, int y, int z) {
-		TileScriptedDoor tileScriptedDoor = (TileScriptedDoor) this.player.world.getTileEntity(new BlockPos(x, y, z));
-		this.script = tileScriptedDoor;
-		this.handler = tileScriptedDoor;
+		super();
+		TileScriptedDoor tileScriptedDoor = (TileScriptedDoor) player.world.getTileEntity(new BlockPos(x, y, z));
+		script = tileScriptedDoor;
+		handler = tileScriptedDoor;
 		Client.sendData(EnumPacketServer.ScriptDoorDataGet, x, y, z);
 	}
 
 	@Override
 	public void save() {
 		super.save();
-		BlockPos pos = this.script.getPos();
-		Client.sendData(EnumPacketServer.ScriptDoorDataSave, pos.getX(), pos.getY(), pos.getZ(), this.script.getNBT(new NBTTagCompound()));
+		BlockPos pos = script.getPos();
+		Client.sendData(EnumPacketServer.ScriptDoorDataSave, pos.getX(), pos.getY(), pos.getZ(), script.getNBT(new NBTTagCompound()));
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.script.setNBT(compound);
+		script.setNBT(compound);
 		super.setGuiData(compound);
 	}
 
@@ -39,24 +42,20 @@ public class GuiScriptDoor extends GuiScriptInterface implements ISubGuiListener
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			NBTTagCompound data = new NBTTagCompound();
-			BlockPos pos = this.script.getPos();
+			BlockPos pos = script.getPos();
 			data.setInteger("x", pos.getX());
 			data.setInteger("y", pos.getY());
 			data.setInteger("z", pos.getZ());
 			nbt.setTag("data", data);
-			this.script.getNBT(nbt);
-			String p = this.path;
-			while (p.contains("\\")) {
-				p = p.replace("\\", "/");
-			}
+			script.getNBT(nbt);
 			nbt.setString("Name", subgui.getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
-			nbt.setString("Path", p + "/" + nbt.getString("Name"));
-			nbt.setInteger("Tab", this.activeTab - 1);
+			nbt.setString("Path", path.replaceAll("\\\\", "/") + "/" + nbt.getString("Name"));
+			nbt.setInteger("Tab", activeTab - 1);
 			nbt.setByte("Type", (byte) 0);
 			nbt.setBoolean("OnlyTab", ((GuiScriptEncrypt) subgui).onlyTab);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.ScriptEncrypt, nbt);
-			this.displayGuiScreen(null);
-			this.mc.setIngameFocus();
+			displayGuiScreen(null);
+			mc.setIngameFocus();
 		}
 	}
 

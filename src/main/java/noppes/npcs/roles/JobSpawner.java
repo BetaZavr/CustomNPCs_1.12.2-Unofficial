@@ -44,7 +44,6 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 	public JobSpawner(EntityNPCInterface npc) {
 		super(npc);
 		this.id = RandomStringUtils.random(8, true, true);
-		// new
 		this.dataEntitys = new SpawnNPCData[2][];
 		this.dataEntitys[0] = new SpawnNPCData[0];
 		this.dataEntitys[1] = new SpawnNPCData[0];

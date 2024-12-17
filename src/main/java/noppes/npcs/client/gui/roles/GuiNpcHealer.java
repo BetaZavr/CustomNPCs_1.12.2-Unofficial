@@ -25,26 +25,25 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobHealer;
 import noppes.npcs.roles.data.HealerSettings;
 
-public class GuiNpcHealer extends GuiNPCInterface2
-		implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
+public class GuiNpcHealer
+extends GuiNPCInterface2
+implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 
 	private final Map<String, String> displays_0 = new TreeMap<>();
     private final Map<String, String> displays_1 = new TreeMap<>(); // [display name, registry name] (0-options, 1-configured)
 	private final Map<String, Integer> potions = new TreeMap<>(); // [registry name, registry ID]
 	private final JobHealer job;
-	private int range, speed, amplifier;
-	private byte type;
+	private int range = 8;
+	private int speed = 10;
+	private int amplifier = 0;
+	private byte type = (byte) 2;
 	private GuiCustomScroll options, configured;
 
 	public GuiNpcHealer(EntityNPCInterface npc) {
 		super(npc);
-		this.range = 8;
-		this.speed = 10;
-		this.amplifier = 0;
-		this.type = (byte) 2;
-		this.job = (JobHealer) npc.advanced.jobInterface;
+		job = (JobHealer) npc.advanced.jobInterface;
 		for (Potion p : Potion.REGISTRY) {
-			this.potions.put(p.getName(), Potion.getIdFromPotion(p));
+			potions.put(p.getName(), Potion.getIdFromPotion(p));
 		}
 	}
 
@@ -52,103 +51,57 @@ public class GuiNpcHealer extends GuiNPCInterface2
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 0: {
-			if (!this.configured.hasSelected()) {
-				return;
-			}
-			int id = this.potions.get(this.displays_1.get(this.configured.getSelected()));
-			if (!this.job.effects.containsKey(id)) {
-				return;
-			}
-			this.setSubGui(new SubGuiNpcJobHealerSettings(0, this.job.effects.get(id)));
+			if (!configured.hasSelected()) { return; }
+			int id = potions.get(displays_1.get(configured.getSelected()));
+			if (!job.effects.containsKey(id)) { return; }
+			setSubGui(new SubGuiNpcJobHealerSettings(0, job.effects.get(id)));
 			break;
 		}
 		case 1: {
-			this.type = (byte) button.getValue();
+			type = (byte) button.getValue();
 			break;
 		}
 		case 11: {
-			if (!this.options.hasSelected()) {
-				return;
-			}
+			if (!options.hasSelected()) { return; }
 			GuiNpcTextField.unfocus();
-			int id = this.potions.get(this.displays_0.get(this.options.getSelected()));
-			HealerSettings hs = new HealerSettings(id, this.range, this.speed, this.amplifier, this.type);
-			this.job.effects.put(id, hs);
-			this.options.selected = -1;
-			this.configured.selected = -1;
-			this.initGui();
+			int id = potions.get(displays_0.get(options.getSelected()));
+			HealerSettings hs = new HealerSettings(id, range, speed, amplifier, type);
+			job.effects.put(id, hs);
+			options.selected = -1;
+			configured.selected = -1;
+			initGui();
 			break;
 		}
 		case 12: {
-			if (!this.configured.hasSelected()) {
+			if (!configured.hasSelected()) {
 				return;
 			}
-			this.job.effects.remove(this.potions.get(this.displays_1.get(this.configured.getSelected())));
-			this.options.selected = -1;
-			this.configured.selected = -1;
-			this.initGui();
+			job.effects.remove(potions.get(displays_1.get(configured.getSelected())));
+			options.selected = -1;
+			configured.selected = -1;
+			initGui();
 			break;
 		}
 		case 13: {
 			GuiNpcTextField.unfocus();
-			this.job.effects.clear();
+			job.effects.clear();
 			for (Potion p : Potion.REGISTRY) {
 				int id = Potion.getIdFromPotion(p);
-				HealerSettings hs = new HealerSettings(id, this.range, this.speed, this.amplifier, this.type);
-				this.job.effects.put(id, hs);
+				HealerSettings hs = new HealerSettings(id, range, speed, amplifier, type);
+				job.effects.put(id, hs);
 			}
-			this.options.selected = -1;
-			this.configured.selected = -1;
-			this.initGui();
+			options.selected = -1;
+			configured.selected = -1;
+			initGui();
 			break;
 		}
 		case 14: {
-			this.job.effects.clear();
-			this.options.selected = -1;
-			this.configured.selected = -1;
-			this.initGui();
+			job.effects.clear();
+			options.selected = -1;
+			configured.selected = -1;
+			initGui();
 			break;
 		}
-		}
-	}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions && this.subgui == null) {
-			return;
-		}
-		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("beacon.hover.edit").getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("beacon.hover.type")
-					.appendSibling(new TextComponentTranslation("beacon.hover.toall")).getFormattedText());
-		} else if (this.getButton(11) != null && this.getButton(11).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("beacon.hover.add").getFormattedText());
-		} else if (this.getButton(12) != null && this.getButton(12).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("beacon.hover.del").getFormattedText());
-		} else if (this.getButton(13) != null && this.getButton(13).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("beacon.hover.add.all").getFormattedText());
-		} else if (this.getButton(14) != null && this.getButton(14).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("beacon.hover.del.all").getFormattedText());
-		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("beacon.hover.dist")
-					.appendSibling(new TextComponentTranslation("beacon.hover.toall")).getFormattedText());
-		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("beacon.hover.speed")
-					.appendSibling(new TextComponentTranslation("beacon.hover.toall")).getFormattedText());
-		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
-			int p = this.amplifier;
-			if (this.getTextField(3).isInteger()) {
-				p = this.getTextField(3).getInteger() - 1;
-			}
-			this.setHoverText(new TextComponentTranslation("beacon.hover.power",
-					new TextComponentTranslation("enchantment.level." + p).getFormattedText())
-							.appendSibling(new TextComponentTranslation("beacon.hover.toall")).getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
 		}
 	}
 
@@ -159,25 +112,21 @@ public class GuiNpcHealer extends GuiNPCInterface2
 	@Override
 	public void initGui() {
 		super.initGui();
-		int y = this.guiTop + 14;
-		if (this.options == null) {
-			(this.options = new GuiCustomScroll(this, 0)).setSize(172, 154);
-		}
-		this.options.guiLeft = this.guiLeft + 4;
-		this.options.guiTop = y;
-		this.addScroll(this.options);
+		int y = guiTop + 14;
+		if (options == null) { (options = new GuiCustomScroll(this, 0)).setSize(172, 154); }
+		options.guiLeft = guiLeft + 4;
+		options.guiTop = y;
+		addScroll(options);
 
-		this.addLabel(new GuiNpcLabel(11, "beacon.availableEffects", this.guiLeft + 4, y - 10));
-		if (this.configured == null) {
-			(this.configured = new GuiCustomScroll(this, 1)).setSize(172, 154);
-		}
-		this.configured.guiLeft = this.guiLeft + 238;
-		this.configured.guiTop = y;
-		this.addScroll(this.configured);
+		addLabel(new GuiNpcLabel(11, "beacon.availableEffects", guiLeft + 4, y - 10));
+		if (configured == null) { (configured = new GuiCustomScroll(this, 1)).setSize(172, 154); }
+		configured.guiLeft = guiLeft + 238;
+		configured.guiTop = y;
+		addScroll(configured);
 
-		this.addLabel(new GuiNpcLabel(12, "beacon.currentEffects", this.guiLeft + 235, y - 10));
-		this.displays_0.clear();
-		this.displays_1.clear();
+		addLabel(new GuiNpcLabel(12, "beacon.currentEffects", guiLeft + 235, y - 10));
+		displays_0.clear();
+		displays_1.clear();
 		List<String> h_0 = new ArrayList<>();
 		List<String> h_1 = new ArrayList<>();
 		ITextComponent r = new TextComponentTranslation("gui.range");
@@ -199,17 +148,17 @@ public class GuiNpcHealer extends GuiNPCInterface2
 		j.getStyle().setColor(TextFormatting.GRAY);
 		u.getStyle().setColor(TextFormatting.GRAY);
 
-		for (String pointName : this.potions.keySet()) {
-			int id = this.potions.get(pointName);
+		for (String pointName : potions.keySet()) {
+			int id = potions.get(pointName);
 			Potion potion = Potion.getPotionById(id);
 			String name = ((char) 167) + (potion == null ? "5" : potion.isBadEffect() ? "c" : "a")
 					+ new TextComponentTranslation(pointName).getFormattedText();
-			if (!this.job.effects.containsKey(id)) { // has potion ID
-				this.displays_0.put(name, pointName);
+			if (!job.effects.containsKey(id)) { // has potion ID
+				displays_0.put(name, pointName);
 				h_0.add("ID: " + ((char) 167) + "6" + id);
 			} else { // to setts
-				HealerSettings hs = this.job.effects.get(id);
-				this.displays_1.put(
+				HealerSettings hs = job.effects.get(id);
+				displays_1.put(
 						name + " "
 								+ new TextComponentTranslation("enchantment.level." + hs.amplifier).getFormattedText(),
 						pointName);
@@ -230,61 +179,82 @@ public class GuiNpcHealer extends GuiNPCInterface2
 						+ u.getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "c" + h.getFormattedText());
 			}
 		}
-		this.options.setListNotSorted(new ArrayList<>(displays_0.keySet()));
-		this.options.hoversTexts = new String[h_0.size()][];
+		options.setListNotSorted(new ArrayList<>(displays_0.keySet()));
+		LinkedHashMap<Integer, List<String>> htsO = new LinkedHashMap<>();
 		int i = 0;
 		for (String str : h_0) {
-			this.options.hoversTexts[i] = str.split("<br>");
+			htsO.put(i, Arrays.asList(str.split("<br>")));
 			i++;
 		}
-		this.configured.setListNotSorted(new ArrayList<>(displays_1.keySet()));
-		this.configured.hoversTexts = new String[h_1.size()][];
+		options.setHoverTexts(htsO);
+
+		configured.setListNotSorted(new ArrayList<>(displays_1.keySet()));
+		LinkedHashMap<Integer, List<String>> htsC = new LinkedHashMap<>();
 		i = 0;
 		for (String str : h_1) {
-			this.configured.hoversTexts[i] = str.split("<br>");
+			htsC.put(i, Arrays.asList(str.split("<br>")));
 			i++;
 		}
+		configured.setHoverTexts(htsC);
 
+		ITextComponent toall = new TextComponentTranslation("beacon.hover.toall");
 		y += 156;
-		this.addLabel(new GuiNpcLabel(1, "beacon.range", this.guiLeft + 10, y + 5));
-		this.addTextField(
-				new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 80, y, 40, 20, this.range + ""));
-		this.getTextField(1).setNumbersOnly();
-		this.getTextField(1).setMinMaxDefault(1, 64, 16);
+		addLabel(new GuiNpcLabel(1, "beacon.range", guiLeft + 10, y + 5));
+		GuiNpcTextField textField = new GuiNpcTextField(1, this, fontRenderer, guiLeft + 80, y, 40, 20, range + "");
+		textField.setMinMaxDefault(1, 64, 16);
+		textField.setHoverText(new TextComponentTranslation("beacon.hover.dist").appendSibling(toall).getFormattedText());
+		addTextField(textField);
 
-		this.addLabel(new GuiNpcLabel(2, "stats.speed", this.guiLeft + 140, y + 5));
-		this.addTextField(
-				new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 220, y, 40, 20, this.speed + ""));
-		this.getTextField(2).setNumbersOnly();
-		this.getTextField(2).setMinMaxDefault(10, 72000, 20);
+		addLabel(new GuiNpcLabel(2, "stats.speed", guiLeft + 140, y + 5));
+		textField = new GuiNpcTextField(2, this, fontRenderer, guiLeft + 220, y, 40, 20, speed + "");
+		textField.setMinMaxDefault(10, 72000, 20);
+		textField.setHoverText(new TextComponentTranslation("beacon.hover.speed").appendSibling(toall).getFormattedText());
+		addTextField(textField);
+
 		y += 22;
-		this.addLabel(new GuiNpcLabel(3, "beacon.affect", this.guiLeft + 10, y + 5));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 56, y, 80, 20,
-				new String[] { "faction.friendly", "faction.unfriendly", "spawner.all" }, this.type));
+		addLabel(new GuiNpcLabel(3, "beacon.affect", guiLeft + 10, y + 5));
+		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 56, y, 80, 20, new String[] { "faction.friendly", "faction.unfriendly", "spawner.all" }, type);
+		button.setHoverText(new TextComponentTranslation("beacon.hover.type").appendSibling(toall).getFormattedText());
+		addButton(button);
 
-		this.addLabel(new GuiNpcLabel(4, "beacon.amplifier", this.guiLeft + 140, y + 5));
-		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 220, y, 40, 20,
-				(this.amplifier + 1) + ""));
-		this.getTextField(3).setNumbersOnly();
-		this.getTextField(3).setMinMaxDefault(1, 4, 1);
+		addLabel(new GuiNpcLabel(4, "beacon.amplifier", guiLeft + 140, y + 5));
+		textField = new GuiNpcTextField(3, this, fontRenderer, guiLeft + 220, y, 40, 20, (amplifier + 1) + "");
+		textField.setMinMaxDefault(1, 4, 1);
+		textField.setHoverText(new TextComponentTranslation("beacon.hover.power", new TextComponentTranslation("enchantment.level." + amplifier).getFormattedText()).appendSibling(toall).getFormattedText());
+		addTextField(textField);
+
 		y -= 198;
-		this.addButton(new GuiNpcButton(11, this.guiLeft + 177, (y += 33), 61, 20, ">"));
-		this.getButton(11).enabled = this.options.selected != -1;
-		this.addButton(new GuiNpcButton(12, this.guiLeft + 177, (y += 22), 61, 20, "<"));
-		this.getButton(12).enabled = this.configured.selected != -1;
-		this.addButton(new GuiNpcButton(13, this.guiLeft + 177, (y += 44), 61, 20, ">>"));
-		this.getButton(13).enabled = !this.displays_0.isEmpty();
-		this.addButton(new GuiNpcButton(14, this.guiLeft + 177, (y += 22), 61, 20, "<<"));
-		this.getButton(14).enabled = !this.displays_1.isEmpty();
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 177, y + 33, 61, 20, "gui.edit"));
-		this.getButton(0).enabled = this.configured.selected != -1;
+		button = new GuiNpcButton(11, guiLeft + 177, (y += 33), 61, 20, ">");
+		button.setEnabled(options.selected != -1);
+		button.setHoverText("beacon.hover.add");
+		addButton(button);
+
+		button = new GuiNpcButton(12, guiLeft + 177, (y += 22), 61, 20, "<");
+		button.setEnabled(configured.selected != -1);
+		button.setHoverText("beacon.hover.del");
+		addButton(button);
+
+		button = new GuiNpcButton(13, guiLeft + 177, (y += 44), 61, 20, ">>");
+		button.setEnabled(!displays_0.isEmpty());
+		button.setHoverText("beacon.hover.add.all");
+		addButton(button);
+
+		button = new GuiNpcButton(14, guiLeft + 177, (y += 22), 61, 20, "<<");
+		button.setEnabled(!displays_1.isEmpty());
+		button.setHoverText("beacon.hover.del.all");
+		addButton(button);
+
+		button = new GuiNpcButton(0, guiLeft + 177, y + 33, 61, 20, "gui.edit");
+		button.setEnabled(configured.selected != -1);
+		button.setHoverText("beacon.hover.edit");
+		addButton(button);
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui == null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		if (i == 1 && subgui == null) {
+			save();
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 			return;
 		}
 		super.keyTyped(c, i);
@@ -292,64 +262,58 @@ public class GuiNpcHealer extends GuiNPCInterface2
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.JobSave, this.job.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.JobSave, job.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		this.initGui();
+		initGui();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
 		if (scroll.id == 0) {
-			if (!this.options.hasSelected()) {
-				return;
-			}
+			if (!options.hasSelected()) { return; }
 			GuiNpcTextField.unfocus();
-			int id = this.potions.get(this.displays_0.get(this.options.getSelected()));
-			HealerSettings hs = new HealerSettings(id, this.range, this.speed, this.amplifier, this.type);
-			this.job.effects.put(id, hs);
-			this.options.selected = -1;
-			this.configured.selected = -1;
-			this.initGui();
+			int id = potions.get(displays_0.get(options.getSelected()));
+			HealerSettings hs = new HealerSettings(id, range, speed, amplifier, type);
+			job.effects.put(id, hs);
+			options.selected = -1;
+			configured.selected = -1;
+			initGui();
 		} else {
-			if (!this.configured.hasSelected()) {
-				return;
-			}
-			int id = this.potions.get(this.displays_1.get(this.configured.getSelected()));
-			if (!this.job.effects.containsKey(id)) {
-				return;
-			}
-			this.setSubGui(new SubGuiNpcJobHealerSettings(0, this.job.effects.get(id)));
+			if (!configured.hasSelected()) { return; }
+			int id = potions.get(displays_1.get(configured.getSelected()));
+			if (!job.effects.containsKey(id)) { return; }
+			setSubGui(new SubGuiNpcJobHealerSettings(0, job.effects.get(id)));
 		}
 	}
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (!(subgui instanceof SubGuiNpcJobHealerSettings) || !this.configured.hasSelected()) {
+		if (!(subgui instanceof SubGuiNpcJobHealerSettings) || !configured.hasSelected()) {
 			return;
 		}
-		int id = this.potions.get(this.displays_1.get(this.configured.getSelected()));
-		this.job.effects.put(id, ((SubGuiNpcJobHealerSettings) subgui).hs);
-		this.initGui();
+		int id = potions.get(displays_1.get(configured.getSelected()));
+		job.effects.put(id, ((SubGuiNpcJobHealerSettings) subgui).hs);
+		initGui();
 	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
 		switch (textField.getId()) {
-		case 1: {
-			this.range = textField.getInteger();
-			break;
-		}
-		case 2: {
-			this.speed = textField.getInteger();
-			break;
-		}
-		case 3: {
-			this.amplifier = textField.getInteger() - 1;
-			break;
-		}
+			case 1: {
+				range = textField.getInteger();
+				break;
+			}
+			case 2: {
+				speed = textField.getInteger();
+				break;
+			}
+			case 3: {
+				amplifier = textField.getInteger() - 1;
+				break;
+			}
 		}
 	}
 

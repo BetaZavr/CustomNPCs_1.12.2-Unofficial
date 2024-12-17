@@ -25,9 +25,11 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 import javax.annotation.Nonnull;
 
-public class GuiCreationExtra extends GuiCreationScreenInterface implements ICustomScrollListener {
+public class GuiCreationExtra
+extends GuiCreationScreenInterface
+implements ICustomScrollListener {
 
-	abstract static class GuiType {
+	public abstract static class GuiType {
 		public String name;
 
 		public GuiType(String name) {
@@ -217,10 +219,7 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 				}
 			}
 		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		drawHoverText(null);
 	}
 
 	public Map<String, GuiType> getData(EntityLivingBase entity) {

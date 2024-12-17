@@ -385,7 +385,6 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 			this.completerPos = compound.getIntArray("CompleterPos");
 		}
 		try {
-			// New
 			if (compound.hasKey("CompleterNpc", 10)) {
 				if (compound.getCompoundTag("CompleterNpc").hasKey("UUIDMost", 4)
 						&& compound.getCompoundTag("CompleterNpc").hasKey("UUIDLeast", 4)) {

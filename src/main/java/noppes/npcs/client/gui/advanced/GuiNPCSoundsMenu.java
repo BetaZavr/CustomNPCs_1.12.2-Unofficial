@@ -15,7 +15,9 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCSoundsMenu extends GuiNPCInterface2 implements ITextfieldListener, ISubGuiListener {
+public class GuiNPCSoundsMenu
+extends GuiNPCInterface2
+implements ITextfieldListener, ISubGuiListener {
 
 	public GuiSoundSelection gui;
 	private GuiNpcTextField selectedField;

@@ -163,7 +163,6 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 	public ItemStack recipeOutput;
 	public Availability availability;
 	private boolean global;
-	// New
 	public int id;
 	public boolean ignoreDamage;
 	public boolean ignoreNBT;

@@ -15,28 +15,31 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
+public class GuiNpcPather
+extends GuiNPCInterface
+implements IGuiData {
 
 	private List<int[]> path;
 	private GuiCustomScroll scroll;
 
 	public GuiNpcPather(EntityNPCInterface npc) {
 		super(npc);
-		this.drawDefaultBackground = false;
-		this.xSize = 176;
-		this.title = "Npc Pather";
-		this.setBackground("smallbg.png");
-		this.path = npc.ais.getMovingPath();
+		drawDefaultBackground = false;
+		xSize = 176;
+		title = "Npc Pather";
+		setBackground("smallbg.png");
+
+		path = npc.ais.getMovingPath();
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		if (this.scroll.selected < 0) {
+		if (scroll.selected < 0) {
 			return;
 		}
 		if (button.id == 0) { // down
 			List<int[]> list = new ArrayList<>(path);
-			int selected = this.scroll.selected;
+			int selected = scroll.selected;
 			if (list.size() <= selected + 1) {
 				return;
 			}
@@ -44,35 +47,35 @@ public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
 			int[] b = list.get(selected + 1);
 			list.set(selected, b);
 			list.set(selected + 1, a);
-			this.path = list;
-			this.initGui();
-			this.scroll.selected = selected + 1;
+			path = list;
+			initGui();
+			scroll.selected = selected + 1;
 		}
 		if (button.id == 1) { // up
-			if (this.scroll.selected - 1 < 0) {
+			if (scroll.selected - 1 < 0) {
 				return;
 			}
 			List<int[]> list = new ArrayList<>(path);
-			int selected = this.scroll.selected;
+			int selected = scroll.selected;
 			int[] a = list.get(selected);
 			int[] b = list.get(selected - 1);
 			list.set(selected, b);
 			list.set(selected - 1, a);
-			this.path = list;
-			this.initGui();
-			this.scroll.selected = selected - 1;
+			path = list;
+			initGui();
+			scroll.selected = selected - 1;
 		}
 		if (button.id == 2) { // remove
 			List<int[]> list = new ArrayList<>(path);
 			if (list.size() <= 1) {
 				return;
 			}
-			list.remove(this.scroll.selected);
-            this.scroll.selected = this.scroll.selected - 1;
-			this.path = list;
-			this.initGui();
+			list.remove(scroll.selected);
+            scroll.selected = scroll.selected - 1;
+			path = list;
+			initGui();
 		}
-		this.npc.ais.setMovingPath(this.path);
+		npc.ais.setMovingPath(path);
 	}
 
 	protected void drawGuiContainerBackgroundLayer(float ignoredF, int ignoredI, int ignoredJ) {
@@ -81,20 +84,20 @@ public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
 	@Override
 	public void initGui() {
 		int sel;
-		if (this.scroll != null) {
-			sel = this.scroll.selected;
+		if (scroll != null) {
+			sel = scroll.selected;
 		} else {
 			sel = 0;
-			Vec3d vec3d = this.player.getPositionEyes(1.0f);
-			Vec3d vec3d2 = this.player.getLook(1.0f);
+			Vec3d vec3d = player.getPositionEyes(1.0f);
+			Vec3d vec3d2 = player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 6.0d, vec3d2.y * 6.0d, vec3d2.z * 6.0d);
-			RayTraceResult result = this.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, true);
+			RayTraceResult result = player.world.rayTraceBlocks(vec3d, vec3d3, false, false, true);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK) {
                 int x = result.getBlockPos().getX();
                 int y = result.getBlockPos().getY();
                 int z = result.getBlockPos().getZ();
                 int i = 0;
-                for (int[] arr : this.path) {
+                for (int[] arr : path) {
                     if (arr[0] == x && y == arr[1] && z == arr[2]) {
                         sel = i;
                         break;
@@ -104,19 +107,19 @@ public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
             }
 		}
 		super.initGui();
-		(this.scroll = new GuiCustomScroll(this, 0)).setSize(160, 164);
+		(scroll = new GuiCustomScroll(this, 0)).setSize(160, 164);
 		List<String> list = new ArrayList<>();
-		for (int[] arr : this.path) {
+		for (int[] arr : path) {
 			list.add("x:" + arr[0] + " y:" + arr[1] + " z:" + arr[2]);
 		}
-		this.scroll.setListNotSorted(list);
-		this.scroll.guiLeft = this.guiLeft + 7;
-		this.scroll.guiTop = this.guiTop + 12;
-		this.scroll.selected = sel;
-		this.addScroll(this.scroll);
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 6, this.guiTop + 178, 52, 20, "gui.down"));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 62, this.guiTop + 178, 52, 20, "gui.up"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 118, this.guiTop + 178, 52, 20, "selectWorld.deleteButton"));
+		scroll.setListNotSorted(list);
+		scroll.guiLeft = guiLeft + 7;
+		scroll.guiTop = guiTop + 12;
+		scroll.selected = sel;
+		addScroll(scroll);
+		addButton(new GuiNpcButton(0, guiLeft + 6, guiTop + 178, 52, 20, "gui.down"));
+		addButton(new GuiNpcButton(1, guiLeft + 62, guiTop + 178, 52, 20, "gui.up"));
+		addButton(new GuiNpcButton(2, guiLeft + 118, guiTop + 178, 52, 20, "selectWorld.deleteButton"));
 	}
 
 	@Override
@@ -126,28 +129,28 @@ public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
 
 	@Override
 	public void keyTyped(char c, int i) {
-		if (i == 1 || this.isInventoryKey(i)) {
-			this.close();
+		if (i == 1 || isInventoryKey(i)) {
+			close();
 		}
 	}
 
 	@Override
 	public void mouseClicked(int i, int j, int k) {
 		super.mouseClicked(i, j, k);
-		this.scroll.mouseClicked(i, j, k);
+		scroll.mouseClicked(i, j, k);
 	}
 
 	@Override
 	public void save() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setTag("MovingPathNew", NBTTags.nbtIntegerArraySet(this.path));
+		compound.setTag("MovingPathNew", NBTTags.nbtIntegerArraySet(path));
 		Client.sendData(EnumPacketServer.MovingPathSave, compound);
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.path = NBTTags.getIntegerArraySet(compound.getTagList("MovingPathNew", 10));
-		this.npc.ais.setMovingPath(this.path);
-		this.initGui();
+		path = NBTTags.getIntegerArraySet(compound.getTagList("MovingPathNew", 10));
+		npc.ais.setMovingPath(path);
+		initGui();
 	}
 }

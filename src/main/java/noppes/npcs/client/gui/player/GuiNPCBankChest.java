@@ -31,7 +31,8 @@ import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCBankChest extends GuiContainerNPCInterface {
+public class GuiNPCBankChest
+extends GuiContainerNPCInterface {
 
 	private static final ResourceLocation backTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
 	private static final ResourceLocation tabsTexture = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
@@ -307,7 +308,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
                     Collections.addAll(list, t.split("<br>"));
 				}
 				list.addAll(stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
-				hoverText = list.toArray(new String[0]);
+				setHoverText(list);
 			}
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
@@ -317,7 +318,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 						Util.instance.getTextReducedNumber(money, true, true, false),
 						CustomNpcs.displayCurrencies,
 						Util.instance.getTextReducedNumber(data.game.getMoney(), true, true, false) + CustomNpcs.displayCurrencies).getFormattedText();
-				hoverText = hover.split("<br>");
+				setHoverText(Arrays.asList(hover.split("<br>")));
 			}
 		}
 		allCost = 0;
@@ -402,12 +403,8 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface {
 				}
 			}
 		}
-		if (hoverText != null) {
-			drawHoveringText(Arrays.asList(hoverText), mouseX, mouseY, fontRenderer);
-			hoverText = null;
-		} else {
-			renderHoveredToolTip(mouseX, mouseY);
-		}
+		if (hasHoverText()) { drawHoverText(null); }
+		else { renderHoveredToolTip(mouseX, mouseY); }
 	}
 
 	@Override

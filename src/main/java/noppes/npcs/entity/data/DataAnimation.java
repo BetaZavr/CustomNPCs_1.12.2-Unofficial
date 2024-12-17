@@ -3,8 +3,8 @@ package noppes.npcs.entity.data;
 import java.util.*;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
@@ -198,17 +198,17 @@ public class DataAnimation implements INPCAnimation {
 
 	public AnimationFrameConfig getPreFrame() { return animationHandler.preFrame; }
 
-	public void addAnimation(AnimationKind type, int id) {
-		animationHandler.addAnimation(type, id);
-	}
+	public void addAnimation(AnimationKind type, int id) { animationHandler.addAnimation(type, id); }
 
-	public boolean removeAnimation(AnimationKind type, int id) {
-		return animationHandler.removeAnimation(type, id);
-	}
+	public boolean removeAnimation(AnimationKind type, int id) { return animationHandler.removeAnimation(type, id); }
 
-	public boolean hasAnimation(AnimationKind type, int id) {
-		return animationHandler.hasAnimation(type, id);
-	}
+	public boolean hasAnimation(AnimationKind type, int id) { return animationHandler.hasAnimation(type, id); }
+
+	public boolean canSetBaseRotationAngles() { return animationHandler.canSetBaseRotationAngles(); }
+
+	public boolean canBeAnimated() { return animationHandler.canBeAnimated(); }
+
+	public ItemStack getCurrentHeldStack(boolean isMainHand) { return animationHandler.getCurrentHeldStack(isMainHand); }
 
 	// Emotions
 	public EmotionFrame getCurrentEmotionFrame() { return emotionHandler.currentEmotionFrame; }

@@ -1,9 +1,6 @@
 package noppes.npcs.client.gui.drop;
 
-import java.util.Arrays;
-
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
@@ -11,113 +8,94 @@ import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.AttributeSet;
 
-public class SubGuiDropAttribute extends SubGuiInterface implements ITextfieldListener {
+public class SubGuiDropAttribute
+extends SubGuiInterface
+implements ITextfieldListener {
 
 	public AttributeSet attribute;
 	private double[] values;
 
 	public SubGuiDropAttribute(AttributeSet attr) {
-		this.attribute = attr;
-		this.setBackground("companion_empty.png");
-		this.xSize = 172;
-		this.ySize = 167;
-		this.closeOnEsc = true;
+		setBackground("companion_empty.png");
+		xSize = 172;
+		ySize = 167;
+		closeOnEsc = true;
+
+		attribute = attr;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 70) { // slot
-			this.attribute.setSlot(button.getValue() - 1);
-			this.initGui();
+			attribute.setSlot(button.getValue() - 1);
+			initGui();
 		} else if (button.id == 71) { // done
-			this.close();
+			close();
 		}
 	}
 
 	private boolean check() {
-		if (this.getTextField(72) == null) {
+		if (getTextField(72) == null) {
 			return false;
 		}
-        return !this.getTextField(72).getText().isEmpty();
+        return !getTextField(72).getText().isEmpty();
     }
-
-	@Override
-	public void drawScreen(int i, int j, float f) {
-		super.drawScreen(i, j, f);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		String tied = new TextComponentTranslation("drop.tied.random").getFormattedText();
-		if (this.attribute.parent.tiedToLevel) {
-			tied = new TextComponentTranslation("drop.tied.level").getFormattedText();
-		}
-		if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 7, 159, 24)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.name", new TextComponentTranslation("attribute.name." + this.attribute.getAttribute()).getFormattedText()).getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 29, 46, 24)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.values", tied).getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 59, 76, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.slot").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 81, 46, 16)) {
-			this.setHoverText(new TextComponentTranslation("drop.hover.attribute.chance").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 144, 76, 16)) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
-	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
 		int anyIDs = 80;
 		// name
-		GuiNpcTextField nameAttr = new GuiNpcTextField(72, this, this.guiLeft + 4, this.guiTop + 5, 163, 20,
-				this.attribute.getAttribute());
-		this.addTextField(nameAttr);
+		GuiNpcTextField textField = new GuiNpcTextField(72, this, guiLeft + 4, guiTop + 5, 163, 20, attribute.getAttribute());
+		textField.setHoverText("drop.hover.attribute.name", new TextComponentTranslation("attribute.name." + attribute.getAttribute()).getFormattedText());
+		addTextField(textField);
 		// values
-		this.values = new double[] { this.attribute.getMinValue(), this.attribute.getMaxValue() };
-		this.addLabel(new GuiNpcLabel(anyIDs++, "type.value", this.guiLeft + 56, this.guiTop + 36));
-		GuiNpcTextField valueMin = new GuiNpcTextField(73, this, this.guiLeft + 4, this.guiTop + 27, 50, 14,
-				"" + this.values[0]);
-		valueMin.setDoubleNumbersOnly().setMinMaxDoubleDefault(-4096.0d, 4096.0d, this.attribute.getMinValue());
-		this.addTextField(valueMin);
-		GuiNpcTextField valueMax = new GuiNpcTextField(74, this, this.guiLeft + 4, this.guiTop + 41, 50, 14,
-				"" + this.values[1]);
-		valueMax.setDoubleNumbersOnly().setMinMaxDoubleDefault(-4096.0d, 4096.0d, this.attribute.getMaxValue());
-		this.addTextField(valueMax);
+		values = new double[] { attribute.getMinValue(), attribute.getMaxValue() };
+		addLabel(new GuiNpcLabel(anyIDs++, "type.value", guiLeft + 56, guiTop + 36));
+		String tied = new TextComponentTranslation("drop.tied.random").getFormattedText();
+		if (attribute.parent.tiedToLevel) { tied = new TextComponentTranslation("drop.tied.level").getFormattedText(); }
+		// min
+		textField = new GuiNpcTextField(73, this, guiLeft + 4, guiTop + 27, 50, 14, "" + values[0]);
+		textField.setMinMaxDoubleDefault(-4096.0d, 4096.0d, attribute.getMinValue());
+		textField.setHoverText("drop.hover.attribute.values", tied);
+		addTextField(textField);
+		// max
+		textField = new GuiNpcTextField(74, this, guiLeft + 4, guiTop + 41, 50, 14, "" + values[1]);
+		textField.setMinMaxDoubleDefault(-4096.0d, 4096.0d, attribute.getMaxValue());
+		textField.setHoverText("drop.hover.attribute.values", tied);
+		addTextField(textField);
 		// slot
 		String[] slots = new String[7];
-		for (int i = 0; i < 7; i++) {
-			slots[i] = "attribute.slot." + i;
-		}
-		this.addButton(
-				new GuiNpcButton(70, this.guiLeft + 4, this.guiTop + 57, 87, 20, slots, this.attribute.slot + 1));
+		for (int i = 0; i < 7; i++) { slots[i] = "attribute.slot." + i; }
+		GuiNpcButton button = new GuiNpcButton(70, guiLeft + 4, guiTop + 57, 87, 20, slots, attribute.slot + 1);
+		button.setHoverText("drop.hover.attribute.slot");
+		addButton(button);
 		// chance
-		this.addLabel(new GuiNpcLabel(anyIDs, "drop.chance", this.guiLeft + 56, this.guiTop + 84));
-		GuiNpcTextField chanceE = new GuiNpcTextField(75, this, this.guiLeft + 4, this.guiTop + 79, 50, 20,
-				String.valueOf(this.attribute.getChance()));
-		chanceE.setDoubleNumbersOnly().setMinMaxDoubleDefault(0.0001d, 100.0d, this.attribute.getChance());
-		this.addTextField(chanceE);
+		addLabel(new GuiNpcLabel(anyIDs, "drop.chance", guiLeft + 56, guiTop + 84));
+		textField = new GuiNpcTextField(75, this, guiLeft + 4, guiTop + 79, 50, 20, String.valueOf(attribute.getChance()));
+		textField.setMinMaxDoubleDefault(0.0001d, 100.0d, attribute.getChance());
+		textField.setHoverText("drop.hover.attribute.chance");
+		addTextField(textField);
 		// done
-		this.addButton(new GuiNpcButton(71, this.guiLeft + 4, this.guiTop + 142, 80, 20, "gui.done", check()));
+		button = new GuiNpcButton(71, guiLeft + 4, guiTop + 142, 80, 20, "gui.done", check());
+		button.setHoverText("hover.back");
+		addButton(button);
 	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textfield) {
 		if (textfield.getId() == 72) { // name
-			this.attribute.setAttribute(textfield.getText());
-			this.initGui();
+			attribute.setAttribute(textfield.getText());
+			initGui();
 		} else if (textfield.getId() == 73) { // value min
-			this.values[0] = textfield.getDouble();
-			this.attribute.setValues(this.values[0], this.values[1]);
+			values[0] = textfield.getDouble();
+			attribute.setValues(values[0], values[1]);
 		} else if (textfield.getId() == 74) { // value max
-			this.values[1] = textfield.getDouble();
-			this.attribute.setValues(this.values[0], this.values[1]);
+			values[1] = textfield.getDouble();
+			attribute.setValues(values[0], values[1]);
 		} else if (textfield.getId() == 75) { // chance
-			this.attribute.setChance(textfield.getDouble());
-			this.initGui();
+			attribute.setChance(textfield.getDouble());
+			initGui();
 		}
 	}
 }

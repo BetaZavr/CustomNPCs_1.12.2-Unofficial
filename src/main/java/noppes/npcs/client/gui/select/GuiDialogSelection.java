@@ -13,10 +13,12 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
 
-public class GuiDialogSelection extends SubGuiInterface implements ICustomScrollListener {
+public class GuiDialogSelection
+extends SubGuiInterface
+implements ICustomScrollListener {
 
-	private HashMap<String, DialogCategory> categoryData;
-	private HashMap<String, Dialog> dialogData;
+	private final HashMap<String, DialogCategory> categoryData = new HashMap<>();
+	private final HashMap<String, Dialog> dialogData = new HashMap<>();
 	private GuiSelectionListener listener;
 	private GuiCustomScroll scrollCategories;
 	private GuiCustomScroll scrollDialogs;
@@ -25,27 +27,24 @@ public class GuiDialogSelection extends SubGuiInterface implements ICustomScroll
 	public int id;
 
 	public GuiDialogSelection(int dialog, int id) {
+		drawDefaultBackground = false;
+		title = "";
+		setBackground("menubg.png");
+		xSize = 366;
+		ySize = 226;
+
 		this.id = id;
-		this.categoryData = new HashMap<>();
-		this.dialogData = new HashMap<>();
-		this.drawDefaultBackground = false;
-		this.title = "";
-		this.setBackground("menubg.png");
-		this.xSize = 366;
-		this.ySize = 226;
-		this.selectedDialog = DialogController.instance.dialogs.get(dialog);
-		if (this.selectedDialog != null) {
-			this.selectedCategory = this.selectedDialog.category;
-		}
+		selectedDialog = DialogController.instance.dialogs.get(dialog);
+		if (selectedDialog != null) { selectedCategory = selectedDialog.category; }
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 2) {
-			if (this.selectedDialog != null) {
-				this.scrollDoubleClicked(null, null);
+			if (selectedDialog != null) {
+				scrollDoubleClicked(null, null);
 			} else {
-				this.close();
+				close();
 			}
 		}
 	}
@@ -53,67 +52,46 @@ public class GuiDialogSelection extends SubGuiInterface implements ICustomScroll
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (this.parent instanceof GuiSelectionListener) {
-			this.listener = (GuiSelectionListener) this.parent;
+		if (parent instanceof GuiSelectionListener) { listener = (GuiSelectionListener) parent; }
+		addLabel(new GuiNpcLabel(0, "gui.categories", guiLeft + 8, guiTop + 4));
+		addLabel(new GuiNpcLabel(1, "dialog.dialogs", guiLeft + 175, guiTop + 4));
+		addButton(new GuiNpcButton(2, guiLeft + xSize - 26, guiTop + 4, 20, 20, "X"));
+		categoryData.clear();
+		for (DialogCategory category : DialogController.instance.categories.values()) { categoryData.put(category.title, category); }
+		dialogData.clear();
+		if (selectedCategory != null) {
+			for (Dialog dialog : selectedCategory.dialogs.values()) { dialogData.put(dialog.title, dialog); }
 		}
-		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 8, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(1, "dialog.dialogs", this.guiLeft + 175, this.guiTop + 4));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + this.xSize - 26, this.guiTop + 4, 20, 20, "X"));
-		HashMap<String, DialogCategory> categoryData = new HashMap<>();
-		HashMap<String, Dialog> dialogData = new HashMap<>();
-		for (DialogCategory category : DialogController.instance.categories.values()) {
-			categoryData.put(category.title, category);
-		}
-		this.categoryData = categoryData;
-		if (this.selectedCategory != null) {
-			for (Dialog dialog : this.selectedCategory.dialogs.values()) {
-				dialogData.put(dialog.title, dialog);
-			}
-		}
-		this.dialogData = dialogData;
-		if (this.scrollCategories == null) {
-			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, 200);
-		}
-		this.scrollCategories.setList(new ArrayList<>(categoryData.keySet()));
-		if (this.selectedCategory != null) {
-			this.scrollCategories.setSelected(this.selectedCategory.title);
-		}
-		this.scrollCategories.guiLeft = this.guiLeft + 4;
-		this.scrollCategories.guiTop = this.guiTop + 14;
-		this.addScroll(this.scrollCategories);
-		if (this.scrollDialogs == null) {
-			(this.scrollDialogs = new GuiCustomScroll(this, 1)).setSize(170, 200);
-		}
-		this.scrollDialogs.setList(new ArrayList<>(dialogData.keySet()));
-		if (this.selectedDialog != null) {
-			this.scrollDialogs.setSelected(this.selectedDialog.title);
-		}
-		this.scrollDialogs.guiLeft = this.guiLeft + 175;
-		this.scrollDialogs.guiTop = this.guiTop + 14;
-		this.addScroll(this.scrollDialogs);
+		if (scrollCategories == null) { (scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, 200); }
+		scrollCategories.setList(new ArrayList<>(categoryData.keySet()));
+		if (selectedCategory != null) { scrollCategories.setSelected(selectedCategory.title); }
+		scrollCategories.guiLeft = guiLeft + 4;
+		scrollCategories.guiTop = guiTop + 14;
+		addScroll(scrollCategories);
+		if (scrollDialogs == null) { (scrollDialogs = new GuiCustomScroll(this, 1)).setSize(170, 200); }
+		scrollDialogs.setList(new ArrayList<>(dialogData.keySet()));
+		if (selectedDialog != null) { scrollDialogs.setSelected(selectedDialog.title); }
+		scrollDialogs.guiLeft = guiLeft + 175;
+		scrollDialogs.guiTop = guiTop + 14;
+		addScroll(scrollDialogs);
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.id == 0) {
-			this.selectedCategory = this.categoryData.get(this.scrollCategories.getSelected());
-			this.selectedDialog = null;
-			this.scrollDialogs.selected = -1;
+			selectedCategory = categoryData.get(scrollCategories.getSelected());
+			selectedDialog = null;
+			scrollDialogs.selected = -1;
 		}
-		if (scroll.id == 1) {
-			this.selectedDialog = this.dialogData.get(this.scrollDialogs.getSelected());
-		}
-		this.initGui();
+		if (scroll.id == 1) { selectedDialog = dialogData.get(scrollDialogs.getSelected()); }
+		initGui();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-		if (this.selectedDialog == null) {
-			return;
-		}
-		if (this.listener != null) {
-			this.listener.selected(this.selectedDialog.id, this.selectedDialog.title);
-		}
-		this.close();
+		if (selectedDialog == null) { return; }
+		if (listener != null) { listener.selected(selectedDialog.id, selectedDialog.title); }
+		close();
 	}
+
 }

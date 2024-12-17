@@ -27,35 +27,35 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 @SideOnly(Side.CLIENT)
-public class GuiMerchantAdd extends GuiContainer {
+public class GuiMerchantAdd
+extends GuiContainer {
 
 	@SideOnly(Side.CLIENT)
 	static class MerchantButton extends GuiButton {
 
 		private final boolean forward;
 
-		public MerchantButton(int buttonId, int x, int y, boolean forward) {
+		public MerchantButton(int buttonId, int x, int y, boolean isForward) {
 			super(buttonId, x, y, 12, 19, "");
-			this.forward = forward;
+			forward = isForward;
 		}
 
 		public void drawButton(@Nonnull Minecraft minecraft, int mouseX, int mouseY, float partialTicks) {
-			if (this.visible) {
+			if (visible) {
 				minecraft.getTextureManager().bindTexture(GuiMerchantAdd.merchantGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-				boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-						&& mouseY < this.y + this.height;
+				boolean flag = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
 				int k = 0;
 				int l = 176;
-				if (!this.enabled) {
-					l += this.width * 2;
+				if (!enabled) {
+					l += width * 2;
 				} else if (flag) {
-					l += this.width;
+					l += width;
 				}
-				if (!this.forward) {
-					k += this.height;
+				if (!forward) {
+					k += height;
 				}
-				this.drawTexturedModalRect(this.x, this.y, l, k, this.width, this.height);
+				drawTexturedModalRect(x, y, l, k, width, height);
 			}
 		}
 	}
@@ -72,48 +72,48 @@ public class GuiMerchantAdd extends GuiContainer {
 
 	public GuiMerchantAdd() {
 		super(new ContainerMerchantAdd(Minecraft.getMinecraft().player, ServerEventsHandler.Merchant, Minecraft.getMinecraft().world));
-		this.theIMerchant = ServerEventsHandler.Merchant;
-		this.field_94082_v = I18n.format("entity.Villager.name");
+		theIMerchant = ServerEventsHandler.Merchant;
+		field_94082_v = I18n.format("entity.Villager.name");
 	}
 
 	protected void actionPerformed(@Nonnull GuiButton par1GuiButton) {
 		boolean flag = false;
 		Minecraft mc = Minecraft.getMinecraft();
-		if (par1GuiButton == this.nextRecipeButtonIndex) {
-			++this.currentRecipeIndex;
+		if (par1GuiButton == nextRecipeButtonIndex) {
+			++currentRecipeIndex;
 			flag = true;
-		} else if (par1GuiButton == this.previousRecipeButtonIndex) {
-			--this.currentRecipeIndex;
+		} else if (par1GuiButton == previousRecipeButtonIndex) {
+			--currentRecipeIndex;
 			flag = true;
 		}
 		if (par1GuiButton.id == 4) {
-			MerchantRecipeList merchantrecipelist = this.theIMerchant.getRecipes(mc.player);
-            if (merchantrecipelist != null && this.currentRecipeIndex < merchantrecipelist.size()) {
-				merchantrecipelist.remove(this.currentRecipeIndex);
-				if (this.currentRecipeIndex > 0) {
-					--this.currentRecipeIndex;
+			MerchantRecipeList merchantrecipelist = theIMerchant.getRecipes(mc.player);
+            if (merchantrecipelist != null && currentRecipeIndex < merchantrecipelist.size()) {
+				merchantrecipelist.remove(currentRecipeIndex);
+				if (currentRecipeIndex > 0) {
+					--currentRecipeIndex;
 				}
 				Client.sendData(EnumPacketServer.MerchantUpdate, ServerEventsHandler.Merchant.getEntityId(), merchantrecipelist);
 			}
 		}
 		if (par1GuiButton.id == 5) {
-			ItemStack item1 = this.inventorySlots.getSlot(0).getStack();
-			ItemStack item2 = this.inventorySlots.getSlot(1).getStack();
-			ItemStack sold = this.inventorySlots.getSlot(2).getStack();
+			ItemStack item1 = inventorySlots.getSlot(0).getStack();
+			ItemStack item2 = inventorySlots.getSlot(1).getStack();
+			ItemStack sold = inventorySlots.getSlot(2).getStack();
             item1 = item1.copy();
             sold = sold.copy();
             item2 = item2.copy();
             MerchantRecipe recipe = new MerchantRecipe(item1, item2, sold);
             recipe.increaseMaxTradeUses(2147483639);
-            MerchantRecipeList merchantrecipelist2 = this.theIMerchant.getRecipes(mc.player);
-			if (merchantrecipelist2 == null) { return; }
-            merchantrecipelist2.add(recipe);
-            Client.sendData(EnumPacketServer.MerchantUpdate, ServerEventsHandler.Merchant.getEntityId(), merchantrecipelist2);
+            MerchantRecipeList merchantrecipelist = theIMerchant.getRecipes(mc.player);
+			if (merchantrecipelist == null) { return; }
+			merchantrecipelist.add(recipe);
+            Client.sendData(EnumPacketServer.MerchantUpdate, ServerEventsHandler.Merchant.getEntityId(), merchantrecipelist);
         }
 		if (flag) {
 			PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
-			packetbuffer.writeInt(this.currentRecipeIndex);
-			Objects.requireNonNull(this.mc.getConnection()).sendPacket(new CPacketCustomPayload("MC|TrSel", packetbuffer));
+			packetbuffer.writeInt(currentRecipeIndex);
+			Objects.requireNonNull(mc.getConnection()).sendPacket(new CPacketCustomPayload("MC|TrSel", packetbuffer));
 		}
 	}
 
@@ -121,36 +121,36 @@ public class GuiMerchantAdd extends GuiContainer {
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		mc.getTextureManager().bindTexture(GuiMerchantAdd.merchantGuiTextures);
-		int k = (this.width - this.xSize) / 2;
-		int l = (this.height - this.ySize) / 2;
-		this.drawTexturedModalRect(k, l, 0, 0, this.xSize, this.ySize);
-		MerchantRecipeList merchantrecipelist = this.theIMerchant.getRecipes(mc.player);
+		int k = (width - xSize) / 2;
+		int l = (height - ySize) / 2;
+		drawTexturedModalRect(k, l, 0, 0, xSize, ySize);
+		MerchantRecipeList merchantrecipelist = theIMerchant.getRecipes(mc.player);
 		if (merchantrecipelist != null && !merchantrecipelist.isEmpty()) {
-			int i1 = this.currentRecipeIndex;
+			int i1 = currentRecipeIndex;
 			MerchantRecipe merchantrecipe = merchantrecipelist.get(i1);
 			if (merchantrecipe.isRecipeDisabled()) {
 				mc.getTextureManager().bindTexture(GuiMerchantAdd.merchantGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				GlStateManager.disableLighting();
-				this.drawTexturedModalRect(this.guiLeft + 83, this.guiTop + 21, 212, 0, 28, 21);
-				this.drawTexturedModalRect(this.guiLeft + 83, this.guiTop + 51, 212, 0, 28, 21);
+				drawTexturedModalRect(guiLeft + 83, guiTop + 21, 212, 0, 28, 21);
+				drawTexturedModalRect(guiLeft + 83, guiTop + 51, 212, 0, 28, 21);
 			}
 		}
 	}
 
 	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-		this.fontRenderer.drawString(this.field_94082_v, this.xSize / 2 - this.fontRenderer.getStringWidth(this.field_94082_v) / 2, 6, CustomNpcResourceListener.DefaultTextColor);
-		this.fontRenderer.drawString(I18n.format("container.inventory"), 8, this.ySize - 96 + 2, CustomNpcResourceListener.DefaultTextColor);
+		fontRenderer.drawString(field_94082_v, xSize / 2 - fontRenderer.getStringWidth(field_94082_v) / 2, 6, CustomNpcResourceListener.DefaultTextColor);
+		fontRenderer.drawString(I18n.format("container.inventory"), 8, ySize - 96 + 2, CustomNpcResourceListener.DefaultTextColor);
 	}
 
 	public void drawScreen(int par1, int par2, float par3) {
 		super.drawScreen(par1, par2, par3);
 		Minecraft mc = Minecraft.getMinecraft();
-		MerchantRecipeList merchantrecipelist = this.theIMerchant.getRecipes(mc.player);
+		MerchantRecipeList merchantrecipelist = theIMerchant.getRecipes(mc.player);
 		if (merchantrecipelist != null && !merchantrecipelist.isEmpty()) {
-			int k = (this.width - this.xSize) / 2;
-			int l = (this.height - this.ySize) / 2;
-			int i1 = this.currentRecipeIndex;
+			int k = (width - xSize) / 2;
+			int l = (height - ySize) / 2;
+			int i1 = currentRecipeIndex;
 			MerchantRecipe merchantrecipe = merchantrecipelist.get(i1);
 			GlStateManager.pushMatrix();
 			ItemStack itemstack = merchantrecipe.getItemToBuy();
@@ -160,21 +160,21 @@ public class GuiMerchantAdd extends GuiContainer {
 			GlStateManager.enableRescaleNormal();
 			GlStateManager.enableColorMaterial();
 			GlStateManager.enableLighting();
-			this.itemRender.zLevel = 100.0f;
-			this.itemRender.renderItemAndEffectIntoGUI(itemstack, k + 36, l + 24);
-			this.itemRender.renderItemOverlays(this.fontRenderer, itemstack, k + 36, l + 24);
-            this.itemRender.renderItemAndEffectIntoGUI(itemstack2, k + 62, l + 24);
-            this.itemRender.renderItemOverlays(this.fontRenderer, itemstack2, k + 62, l + 24);
-            this.itemRender.renderItemAndEffectIntoGUI(itemstack3, k + 120, l + 24);
-			this.itemRender.renderItemOverlays(this.fontRenderer, itemstack3, k + 120, l + 24);
-			this.itemRender.zLevel = 0.0f;
+			itemRender.zLevel = 100.0f;
+			itemRender.renderItemAndEffectIntoGUI(itemstack, k + 36, l + 24);
+			itemRender.renderItemOverlays(fontRenderer, itemstack, k + 36, l + 24);
+            itemRender.renderItemAndEffectIntoGUI(itemstack2, k + 62, l + 24);
+            itemRender.renderItemOverlays(fontRenderer, itemstack2, k + 62, l + 24);
+            itemRender.renderItemAndEffectIntoGUI(itemstack3, k + 120, l + 24);
+			itemRender.renderItemOverlays(fontRenderer, itemstack3, k + 120, l + 24);
+			itemRender.zLevel = 0.0f;
 			GlStateManager.disableLighting();
-			if (this.isPointInRegion(36, 24, 16, 16, par1, par2)) {
-				this.renderToolTip(itemstack, par1, par2);
-			} else if (this.isPointInRegion(62, 24, 16, 16, par1, par2)) {
-				this.renderToolTip(itemstack2, par1, par2);
-			} else if (this.isPointInRegion(120, 24, 16, 16, par1, par2)) {
-				this.renderToolTip(itemstack3, par1, par2);
+			if (isPointInRegion(36, 24, 16, 16, par1, par2)) {
+				renderToolTip(itemstack, par1, par2);
+			} else if (isPointInRegion(62, 24, 16, 16, par1, par2)) {
+				renderToolTip(itemstack2, par1, par2);
+			} else if (isPointInRegion(120, 24, 16, 16, par1, par2)) {
+				renderToolTip(itemstack3, par1, par2);
 			}
 			GlStateManager.popMatrix();
 			GlStateManager.enableLighting();
@@ -185,23 +185,23 @@ public class GuiMerchantAdd extends GuiContainer {
 
 	public void initGui() {
 		super.initGui();
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
-		this.buttonList.add(this.nextRecipeButtonIndex = new MerchantButton(1, i + 120 + 27, j + 24 - 1, true));
-		this.buttonList.add(this.previousRecipeButtonIndex = new MerchantButton(2, i + 36 - 19, j + 24 - 1, false));
-		this.buttonList.add(new GuiNpcButton(4, i + this.xSize, j + 20, 60, 20, "gui.remove"));
-		this.buttonList.add(new GuiNpcButton(5, i + this.xSize, j + 50, 60, 20, "gui.add"));
-		this.nextRecipeButtonIndex.enabled = false;
-		this.previousRecipeButtonIndex.enabled = false;
+		int i = (width - xSize) / 2;
+		int j = (height - ySize) / 2;
+		buttonList.add(nextRecipeButtonIndex = new MerchantButton(1, i + 120 + 27, j + 24 - 1, true));
+		buttonList.add(previousRecipeButtonIndex = new MerchantButton(2, i + 36 - 19, j + 24 - 1, false));
+		buttonList.add(new GuiNpcButton(4, i + xSize, j + 20, 60, 20, "gui.remove"));
+		buttonList.add(new GuiNpcButton(5, i + xSize, j + 50, 60, 20, "gui.add"));
+		nextRecipeButtonIndex.enabled = false;
+		previousRecipeButtonIndex.enabled = false;
 	}
 
 	public void updateScreen() {
 		super.updateScreen();
 		Minecraft mc = Minecraft.getMinecraft();
-		MerchantRecipeList merchantrecipelist = this.theIMerchant.getRecipes(mc.player);
+		MerchantRecipeList merchantrecipelist = theIMerchant.getRecipes(mc.player);
 		if (merchantrecipelist != null) {
-			this.nextRecipeButtonIndex.enabled = (this.currentRecipeIndex < merchantrecipelist.size() - 1);
-			this.previousRecipeButtonIndex.enabled = (this.currentRecipeIndex > 0);
+			nextRecipeButtonIndex.enabled = currentRecipeIndex < merchantrecipelist.size() - 1;
+			previousRecipeButtonIndex.enabled = currentRecipeIndex > 0;
 		}
 	}
 }

@@ -27,7 +27,6 @@ public class PlayerMail implements IInventory, IPlayerMail {
 	public boolean beenRead, returned;
 	public NonNullList<ItemStack> items;
 	public NBTTagCompound message;
-	// New
 	public int money, ransom, questId;
 	public String sender, title;
 	public long timeWillCome, timeWhenReceived;
@@ -195,7 +194,6 @@ public class PlayerMail implements IInventory, IPlayerMail {
 				this.items.set(j, new ItemStack(nbt));
 			}
 		}
-		// New
 		this.money = compound.getInteger("Money");
 		this.ransom = compound.getInteger("Ransom");
 	}
@@ -278,7 +276,6 @@ public class PlayerMail implements IInventory, IPlayerMail {
 			}
 		}
 		compound.setTag("MailItems", nbttaglist);
-		// New
 		compound.setInteger("Money", this.money);
 		compound.setInteger("Ransom", this.ransom);
 		return compound;

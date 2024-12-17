@@ -63,57 +63,57 @@ implements IComponentGui {
 	}
 
 	public void addLine(String str) {
-		this.labels.add(new TextComponentTranslation(str).getFormattedText());
+		labels.add(new TextComponentTranslation(str).getFormattedText());
 	}
 
 	private void drawBox(Minecraft mc) {
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(this.x, this.y + ((float) this.height / 4), (float) this.id);
+		GlStateManager.translate(x, y + ((float) height / 4), (float) id);
 		int colorBlack = 0xFF000000;
 		int colorWhite = 0xFFFFFFFF;
 		int colorDGray = 0xFF404040;
 		int colorGray = 0xFF808080;
 		int colorLGray = 0xD4D0C8;
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		if (this.hovered && this.enabled) {
-			Gui.drawRect(-1, -2, this.width, this.height - 2, 0x200000FF);
+		if (hovered && enabled) {
+			Gui.drawRect(-1, -2, width, height - 2, 0x200000FF);
 		}
-		int yC = this.height / 2 - 7;
-		this.drawHorizontalLine(0, 11, -1 + yC, colorGray); // top 1
-		this.drawHorizontalLine(1, 10, yC, colorDGray); // top 2
-		this.drawVerticalLine(0, -1 + yC, 10 + yC, colorGray); // left 1
-		this.drawVerticalLine(1, yC, 10 + yC, colorDGray); // left 2
-		this.drawVerticalLine(11, -2 + yC, 11 + yC, colorWhite); // right 1
-		this.drawVerticalLine(10, yC, 10 + yC, colorLGray); // right 2
-		this.drawHorizontalLine(2, 9, yC, colorLGray); // bottom 1
-		this.drawHorizontalLine(0, 10, 10 + yC, colorWhite); // bottom 2
+		int yC = height / 2 - 7;
+		drawHorizontalLine(0, 11, -1 + yC, colorGray); // top 1
+		drawHorizontalLine(1, 10, yC, colorDGray); // top 2
+		drawVerticalLine(0, -1 + yC, 10 + yC, colorGray); // left 1
+		drawVerticalLine(1, yC, 10 + yC, colorDGray); // left 2
+		drawVerticalLine(11, -2 + yC, 11 + yC, colorWhite); // right 1
+		drawVerticalLine(10, yC, 10 + yC, colorLGray); // right 2
+		drawHorizontalLine(2, 9, yC, colorLGray); // bottom 1
+		drawHorizontalLine(0, 10, 10 + yC, colorWhite); // bottom 2
 		Gui.drawRect(2, 1 + yC, 10, 9 + yC, colorWhite); // work
-		if (!this.enabled) {
-			Gui.drawRect(-1, -2, this.width, this.height - 2, 0x40000000);
+		if (!enabled) {
+			Gui.drawRect(-1, -2, width, height - 2, 0x40000000);
 			colorBlack = 0xFF606060;
 		}
-		if (this.check) {
-			this.drawVerticalLine(3, 2 + yC, 6 + yC, colorBlack); // left 1
-			this.drawVerticalLine(4, 3 + yC, 7 + yC, colorBlack); // left 2
-			this.drawVerticalLine(5, 4 + yC, 8 + yC, colorBlack); // center
-			this.drawVerticalLine(6, 3 + yC, 7 + yC, colorBlack); // right 3
-			this.drawVerticalLine(7, 2 + yC, 6 + yC, colorBlack); // right 2
-			this.drawVerticalLine(8, 1 + yC, 5 + yC, colorBlack); // right 1
+		if (check) {
+			drawVerticalLine(3, 2 + yC, 6 + yC, colorBlack); // left 1
+			drawVerticalLine(4, 3 + yC, 7 + yC, colorBlack); // left 2
+			drawVerticalLine(5, 4 + yC, 8 + yC, colorBlack); // center
+			drawVerticalLine(6, 3 + yC, 7 + yC, colorBlack); // right 3
+			drawVerticalLine(7, 2 + yC, 6 + yC, colorBlack); // right 2
+			drawVerticalLine(8, 1 + yC, 5 + yC, colorBlack); // right 1
 		}
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
 				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
 				GlStateManager.DestFactor.ZERO);
-		int i = 2 + this.height / 2;
-		int j = i - this.labels.size() * 10 / 2;
+		int i = 2 + height / 2;
+		int j = i - labels.size() * 10 / 2;
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		for (int k = 0; k < this.labels.size(); ++k) {
-			if (this.centered) {
-				mc.fontRenderer.drawString(this.labels.get(k),
-						14 + (float) this.width / 2 - (float) mc.fontRenderer.getStringWidth(this.labels.get(k)) / 2,
-						j + k * 10 - ((float) this.height / 2) + yC + 4, this.textColor, this.showShadow);
+		for (int k = 0; k < labels.size(); ++k) {
+			if (centered) {
+				mc.fontRenderer.drawString(labels.get(k),
+						14 + (float) width / 2 - (float) mc.fontRenderer.getStringWidth(labels.get(k)) / 2,
+						j + k * 10 - ((float) height / 2) + yC + 4, textColor, showShadow);
 			} else {
-				mc.fontRenderer.drawString(this.labels.get(k), 14, j + k * 10 - (float) (this.height / 2) + yC + 4, this.textColor, this.showShadow);
+				mc.fontRenderer.drawString(labels.get(k), 14, j + k * 10 - (float) (height / 2) + yC + 4, textColor, showShadow);
 			}
 		}
 		GlStateManager.popMatrix();
@@ -121,20 +121,19 @@ implements IComponentGui {
 
 	@Override
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!this.visible) {
+		if (!visible) {
 			return;
 		}
-		this.hovered = mouseX >= this.x - 1 && mouseY >= this.y + 1 && mouseX < this.x + this.width
-				&& mouseY < this.y + this.height + 2;
-		this.drawBox(mc);
+		hovered = mouseX >= x - 1 && mouseY >= y + 1 && mouseX < x + width && mouseY < y + height + 2;
+		drawBox(mc);
 	}
 
 	public String getText() {
-		return this.fullLabel;
+		return fullLabel;
 	}
 
 	public boolean isSelected() {
-		return this.check;
+		return check;
 	}
 
 	@Override
@@ -148,13 +147,13 @@ implements IComponentGui {
 		return false;
 	}
 
-	public void setColor(int textColor, boolean showShadow) {
-		this.textColor = textColor;
-		this.showShadow = showShadow;
+	public void setColor(int newTextColor, boolean isShowShadow) {
+		textColor = newTextColor;
+		showShadow = isShowShadow;
 	}
 
-	public void setScale(float scale) {
-		this.scale = scale;
+	public void setScale(float newScale) {
+		scale = newScale;
 	}
 
 	public void setSelected(boolean select) {
@@ -178,11 +177,6 @@ implements IComponentGui {
 		this.trueLabel = trueLabel;
 		this.falseLabel = falseLabel == null || falseLabel.isEmpty() ? trueLabel : falseLabel;
 		setText();
-	}
-
-	@Override
-	public int[] getCenter() {
-		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
 	}
 	
 }

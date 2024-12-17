@@ -11,48 +11,58 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 
-public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollListener, IKeyListener {
+import java.util.ArrayList;
+import java.util.List;
+
+public class GuiNpcMiniWindow
+extends GuiNPCInterface
+implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollListener, IKeyListener {
 
 	private final IEditNPC parent;
 	private IComponentGui point;
 	public int id, mousePressX, mousePressY;
 	private int colorLine = 0x6C00FF;
-	public boolean hovered = false, isMoving = false, visible = true;
+	public boolean hovered = false;
+	public boolean isMoving = false;
+	public boolean visible = true;
 	public String title;
 	public Object[] objs = null;
+	private final List<String> hoverText = new ArrayList<>();
 
-	public GuiNpcMiniWindow(IEditNPC parent, int id, int x, int y, int width, int height, String title) {
-		this.parent = parent;
+	public GuiNpcMiniWindow(IEditNPC gui, int id, int x, int y, int width, int height, String title) {
+		parent = gui;
 		this.id = id;
-		this.guiLeft = x;
-		this.guiTop = y;
-		this.xSize = width;
-		this.ySize = height + 12;
+		guiLeft = x;
+		guiTop = y;
+		xSize = width;
+		ySize = height + 12;
 		this.title = new TextComponentTranslation(title).getFormattedText();
-		this.setBackground("bgfilled.png");
-		this.buttonList.clear();
+		setBackground("bgfilled.png");
+		buttonList.clear();
 	}
 
 	@Override
 	public void save() { }
 
 	public void buttonEvent(GuiNpcButton button) {
-		if (!this.hovered) { return; }
+		if (!hovered) { return; }
 		if (button.id == 2500) {
-			this.parent.closeMiniWindow(this);
-			this.visible = false;
+			parent.closeMiniWindow(this);
+			visible = false;
 		}
-		else if (this.buttons.containsKey(button.id)) {
-			this.parent.buttonEvent(button);
+		else if (buttons.containsKey(button.id)) {
+			parent.buttonEvent(button);
 		}
 	}
 
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	@Override
+	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
 		if (!visible) {
 			hovered = false;
 			return;
 		}
 		hovered = isMouseHover(mouseX, mouseY, guiLeft, guiTop, xSize, ySize);
+		if (hovered && !hoverText.isEmpty()) { gui.setHoverText(hoverText); }
 		if (point != null) {
 			double xc = (double)guiLeft + (double)xSize / 2.0d, yc = (double)guiTop + (double)ySize / 2.0d;
 			double dist = Math.sqrt((mouseY - yc) * (mouseY - yc) + (mouseX - xc) * (mouseX - xc));
@@ -63,8 +73,8 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 				float alpha = (float) (a * dist + b);
 				if (alpha < 0.0f) { alpha = 0.0f; } else if (alpha > 1.0f) { alpha = 1.0f; }
 				int[] cr = point.getCenter();
-				int color = this.colorLine + ((int) (alpha * 255.0f) << 24);
-				this.parent.addLine(cr[0], cr[1], guiLeft + xSize / 2, guiTop + ySize / 2, color, 2);
+				int color = colorLine + ((int) (alpha * 255.0f) << 24);
+				parent.addLine(cr[0], cr[1], guiLeft + xSize / 2, guiTop + ySize / 2, color, 2);
 			}
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -72,16 +82,16 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 			int x = mouseX - mousePressX;
 			int y = mouseY - mousePressY;
 			if (x != 0 || y != 0) {
-				this.moveOffset(x, y);
+				moveOffset(x, y);
 				mousePressX = mouseX;
 				mousePressY = mouseY;
 			}
 		} else { isMoving = false; }
-		if (this.hasSubGui() || !CustomNpcs.ShowDescriptions || this.hoverMiniWin) { return; }
+		if (hasSubGui() || !CustomNpcs.ShowDescriptions || hoverMiniWin) { return; }
 		boolean foundHover = false;
-		for (GuiButton b : this.buttonList) {
+		for (GuiButton b : buttonList) {
 			if (b instanceof IComponentGui && b.isMouseOver()) {
-				this.parent.setMiniHoverText(id, (IComponentGui) b);
+				parent.setMiniHoverText(id, (IComponentGui) b);
 				foundHover = true;
 				break;
 			}
@@ -89,7 +99,7 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 		if (!foundHover) {
 			for (GuiCustomScroll s : scrolls.values()) {
 				if (s.hovered) {
-					this.parent.setMiniHoverText(id, s);
+					parent.setMiniHoverText(id, s);
 					foundHover = true;
 					break;
 				}
@@ -98,7 +108,7 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 		if (!foundHover) {
 			for (GuiNpcTextField t : textfields.values()) {
 				if (t.isMouseOver()) {
-					this.parent.setMiniHoverText(id, t);
+					parent.setMiniHoverText(id, t);
                     break;
 				}
 			}
@@ -106,24 +116,24 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 	}
 
 	public void postDrawBackground() {
-		GuiNpcMiniWindow.drawTopRect(guiLeft + 3, guiTop + 3, guiLeft + xSize - 3, guiTop + 11, this.zLevel, this.colorLine + 0xF0000000, this.colorLine + 0x40000000);
-		this.drawString(this.fontRenderer, this.title, guiLeft + 4, guiTop + 3, CustomNpcs.MainColor.getRGB());
+		GuiNpcMiniWindow.drawTopRect(guiLeft + 3, guiTop + 3, guiLeft + xSize - 3, guiTop + 11, zLevel, colorLine + 0xF0000000, colorLine + 0x40000000);
+		drawString(fontRenderer, title, guiLeft + 4, guiTop + 3, CustomNpcs.MainColor.getRGB());
 	}
 
 	public void moveOffset(int x, int y) {
 		guiLeft += x;
 		guiTop += y;
-		for (GuiButton b : this.buttonList) { b.x += x; b.y += y; }
+		for (GuiButton b : buttonList) { b.x += x; b.y += y; }
 		for (GuiNpcLabel l : labels.values()) { l.x += x; l.y += y; }
 		for (GuiCustomScroll s : scrolls.values()) { s.guiLeft += x; s.guiTop += y; }
 		for (GuiNpcTextField t : textfields.values()) { t.x += x; t.y += y; }
 	}
 
 	public void keyTyped(char c, int i) {
-		if (i == 15 && GuiNpcTextField.isActive() && this.textfields.containsValue(GuiNpcTextField.activeTextfield)) { // Tab
+		if (i == 15 && GuiNpcTextField.isActive() && textfields.containsValue(GuiNpcTextField.activeTextfield)) { // Tab
 			int id = GuiNpcTextField.activeTextfield.getId() + 1;
-			if (id > (this.getTextField(9) != null ? 9 : 7)) { id = 5; }
-			GuiNpcTextField textField = this.getTextField(id);
+			if (id > (getTextField(9) != null ? 9 : 7)) { id = 5; }
+			GuiNpcTextField textField = getTextField(id);
 			if (textField != null) {
 				GuiNpcTextField.activeTextfield.unFocused();
 				textField.setFocused(true);
@@ -136,9 +146,9 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 	}
 
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
-		if (!this.hovered) { return; }
+		if (!hovered) { return; }
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
-		if (this.hovered && mouseBottom == 0 && this.isMouseHover(mouseX, mouseY, guiLeft + 3, guiTop + 3, xSize - 3, 8)) {
+		if (hovered && mouseBottom == 0 && isMouseHover(mouseX, mouseY, guiLeft + 3, guiTop + 3, xSize - 3, 8)) {
 			mousePressX = mouseX;
 			mousePressY = mouseY;
 			isMoving = true;
@@ -146,59 +156,59 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 	}
 
 	public void mouseEvent(int mouseX, int mouseY, int mouseBottom) {
-		if (!this.hovered) { return; }
+		if (!hovered) { return; }
 		super.mouseEvent(mouseX, mouseY, mouseBottom);
 	}
 
 	public void mouseReleased(int mouseX, int mouseY, int mouseBottom) {
-		if (!this.hovered) { return; }
+		if (!hovered) { return; }
 		super.mouseReleased(mouseX, mouseY, mouseBottom);
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (!this.hovered) { return; }
-		if (this.scrolls.containsKey(scroll.id)) {
-			this.parent.scrollClicked(mouseX, mouseY, mouseButton, scroll);
+		if (!hovered) { return; }
+		if (scrolls.containsKey(scroll.id)) {
+			parent.scrollClicked(mouseX, mouseY, mouseButton, scroll);
 		}
 	}
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		if (!this.hovered) { return; }
-		if (this.scrolls.containsKey(scroll.id)) {
-			this.parent.scrollDoubleClicked(select, scroll);
+		if (!hovered) { return; }
+		if (scrolls.containsKey(scroll.id)) {
+			parent.scrollDoubleClicked(select, scroll);
 		}
 	}
 
 	@Override
 	public void mouseDragged(GuiNpcSlider slider) {
-		if (!this.hovered) { return; }
-		if (this.sliders.containsKey(slider.id)) {
-			this.parent.mouseDragged(slider);
+		if (!hovered) { return; }
+		if (sliders.containsKey(slider.id)) {
+			parent.mouseDragged(slider);
 		}
 	}
 
 	@Override
 	public void mousePressed(GuiNpcSlider slider) {
-		if (!this.hovered) { return; }
-		if (this.sliders.containsKey(slider.id)) {
-			this.parent.mousePressed(slider);
+		if (!hovered) { return; }
+		if (sliders.containsKey(slider.id)) {
+			parent.mousePressed(slider);
 		}
 	}
 
 	@Override
 	public void mouseReleased(GuiNpcSlider slider) {
-		if (!this.hovered) { return; }
-		if (this.sliders.containsKey(slider.id)) {
-			this.parent.mouseReleased(slider);
+		if (!hovered) { return; }
+		if (sliders.containsKey(slider.id)) {
+			parent.mouseReleased(slider);
 		}
 	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
-		if (this.textfields.containsKey(textField.getId())) {
-			this.parent.unFocused(textField);
+		if (textfields.containsKey(textField.getId())) {
+			parent.unFocused(textField);
 		}
 	}
 
@@ -232,28 +242,21 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 		GlStateManager.enableTexture2D();
 	}
 
-	public void setPoint(IComponentGui point) {
-		this.point = point;
-	}
-
-	@Override
-	public int[] getCenter() {
-		return new int[] { this.guiLeft + this.width / 2, this.guiTop + this.height / 2};
-	}
+	public void setPoint(IComponentGui component) { point = component; }
 
 	public void setColorLine(int color) {
 		int red = color >> 16 & 255;
 		int green = color >> 8 & 255;
 		int blue = color & 255;
-		this.colorLine = (red << 16) + (green << 8) + blue;
+		colorLine = (red << 16) + (green << 8) + blue;
 	}
 
-	public int getColorLine() { return this.colorLine; }
+	public int getColorLine() { return colorLine; }
 
 	public void resetButtons() {
-		for (GuiButton b : this.buttonList) {
+		for (GuiButton b : buttonList) {
 			if (b.id == 2500) {
-				this.buttonList.remove(b);
+				buttonList.remove(b);
 				break;
 			}
 		}
@@ -266,7 +269,26 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 		exit.txrH = 24;
 		exit.layerColor = 0xFFFF0000;
 		exit.textColor = 0xFF404040;
-		this.addButton(exit);
+		addButton(exit);
+	}
+
+	@Override
+	public int getId() { return id; }
+
+	@Override
+	public int[] getCenter() { return new int[] { guiLeft + width / 2, guiTop + height / 2}; }
+
+	@Override
+	public void setHoverText(String text, Object ... args) {
+		hoverText.clear();
+		if (text == null || text.isEmpty()) { return; }
+		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
+		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
+		while (text.contains("<br>")) {
+			hoverText.add(text.substring(0, text.indexOf("<br>")));
+			text = text.substring(text.indexOf("<br>") + 4);
+		}
+		hoverText.add(text);
 	}
 
 }

@@ -498,29 +498,29 @@ public class LayerEyes<T extends EntityLivingBase>
 			}
 		}
 		else {
-			if (this.npc.lookAt != null || (this.npc.lookPos[0] != -1 && this.npc.lookPos[1] != -1)) {
+			if (npc.lookAt != null || (npc.lookPos[0] != -1 && npc.lookPos[1] != -1)) {
 				float yaw, pitch;
-				if (this.npc.lookAt != null) {
+				if (npc.lookAt != null) {
 					double d0 = this.npc.posX - this.npc.lookAt.posX;
 					double d1 = (this.npc.posY + (double) this.npc.getEyeHeight()) - (this.npc.lookAt.posY + (double) this.npc.lookAt.getEyeHeight());
 					double d2 = this.npc.posZ - this.npc.lookAt.posZ;
 					double d3 = MathHelper.sqrt(d0 * d0 + d2 * d2);
-					yaw = MathHelper.wrapDegrees(this.npc.rotationYawHead - (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F) / (npc.ais.getStandingType() == 4 ? 2.0f : 1.0f);
-					pitch = MathHelper.wrapDegrees(this.npc.rotationPitch + (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)))) / (npc.ais.getStandingType() == 4 ? 2.0f : 1.0f);
+					yaw = MathHelper.wrapDegrees(npc.ais.orientation - (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F) / (npc.ais.getStandingType() == 4 ? 2.0f : 1.0f);
+					pitch = MathHelper.wrapDegrees(npc.rotationPitch + (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)))) / (npc.ais.getStandingType() == 4 ? 2.0f : 1.0f);
 				} else {
-					yaw = this.npc.lookPos[0];
-					pitch = this.npc.lookPos[1];
+					yaw = npc.lookPos[0];
+					pitch = npc.lookPos[1];
 				}
 				if (yaw < -45.0f) { yaw = -45.0f; }
 				else if (yaw > 45.0f) { yaw = 45.0f; }
 				if (pitch < -45.0f) { pitch = -45.0f; }
 				else if (pitch > 45.0f) { pitch = 45.0f; }
-				if (this.playerdata.eyes.type == 2) {
+				if (playerdata.eyes.type == 2) {
 					ox = (float) (Math.sin(yaw * Math.PI / 180D) * (-0.006667D * (pitch < 0 ? -pitch : pitch) + 0.8D));
 					oy = (float) (Math.sin(pitch * Math.PI / 180D) * (-0.003333D * (yaw < 0 ? -yaw : yaw) + 0.6D));
 				} else {
 					ox = yaw / 89.0f; // 45 -> 0.505
-					if (this.playerdata.eyes.type == 1) { oy = pitch / 150.0f; } // 45 -> 0.505
+					if (playerdata.eyes.type == 1) { oy = pitch / 150.0f; } // 45 -> 0.505
 					else { oy = pitch / 320.0f; } // 45 -> 0.505
 				}
 			}

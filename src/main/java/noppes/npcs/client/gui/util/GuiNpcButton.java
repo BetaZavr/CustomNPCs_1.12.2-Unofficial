@@ -13,19 +13,17 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GuiNpcButton
 extends GuiButton
 implements IComponentGui {
 
-	@Override
-	public int[] getCenter() {
-		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
-	}
 	private static final double step = 60;
 
 	protected String[] display;
-	private int displayValue;
+	private int displayValue = 0;
 	public int id;
 	public int layerColor;
 	public int txrX = 0;
@@ -37,7 +35,6 @@ implements IComponentGui {
 	public boolean dropShadow;
 	public boolean hasDefBack;
 	public boolean hasSound;
-	public boolean isPressed;
 	public int textColor = CustomNpcs.MainColor.getRGB();
 	public boolean isSimple = false;
 	public boolean isAnim = false;
@@ -46,11 +43,11 @@ implements IComponentGui {
 	public int currentStackID = -1;
 	private int ticks = 0;
 	private int wait = 0;
+	private final List<String> hoverText = new ArrayList<>();
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
 		display = new String[] { "" };
-		displayValue = 0;
 		this.texture = texture;
 		txrX = textureX;
 		txrY = textureY;
@@ -60,16 +57,15 @@ implements IComponentGui {
 	public GuiNpcButton(int id, int x, int y, int width, int height, int val, String... display) {
 		this(id, x, y, width, height, (display.length == 0) ? "" : display[val % display.length]);
 		this.display = display;
-		this.displayValue = ((display.length == 0) ? 0 : (val % display.length));
+		displayValue = ((display.length == 0) ? 0 : (val % display.length));
 	}
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, String label) {
 		super(id, x, y, width, height, new TextComponentTranslation(label).getFormattedText());
-		this.displayValue = 0;
 		this.id = id;
-		this.layerColor = 0;
-		this.dropShadow = true;
-		this.hasSound = true;
+		layerColor = 0;
+		dropShadow = true;
+		hasSound = true;
 	}
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, String label, boolean enabled) {
@@ -80,41 +76,44 @@ implements IComponentGui {
 	public GuiNpcButton(int id, int x, int y, int width, int height, String[] display, int val) {
 		this(id, x, y, width, height, (display.length == 0) ? "" : display[val % display.length]);
 		this.display = display;
-		this.displayValue = ((display.length == 0) ? 0 : (val % display.length));
+		displayValue = ((display.length == 0) ? 0 : (val % display.length));
 	}
 
 	public GuiNpcButton(int id, int x, int y, String label) {
 		super(id, x, y, new TextComponentTranslation(label).getFormattedText());
 		this.label = label;
-		this.displayValue = 0;
-		this.layerColor = 0;
 		this.id = id;
-		this.dropShadow = true;
-		this.hasSound = true;
+		layerColor = 0;
+		dropShadow = true;
+		hasSound = true;
 	}
 
 	public GuiNpcButton(int id, int x, int y, String[] display, int val) {
 		this(id, x, y, display[val]);
 		this.display = display;
-		this.displayValue = val;
+		displayValue = val;
 	}
 
 	public GuiNpcButton simple(boolean bo) {
-		this.isSimple = bo;
+		isSimple = bo;
 		return this;
 	}
 
 	@Override
+	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
+		drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
+		if (hovered && !hoverText.isEmpty()) { gui.setHoverText(hoverText); }
+	}
+
+	@Override
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!this.visible) {
-			return;
-		}
+		if (!visible) { return; }
 		hovered = (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height);
-		int state = this.getHoverState(this.hovered);
-		if (this.texture == null) {
+		int state = getHoverState(hovered);
+		if (texture == null) {
 			mc.getTextureManager().bindTexture(GuiNPCInterface.MENU_BUTTON);
-			if (this.layerColor != 0) {
-				GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f, (float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f, (float) (this.layerColor >> 24 & 255) / 255.0f);
+			if (layerColor != 0) {
+				GlStateManager.color((float) (layerColor >> 16 & 255) / 255.0f, (float) (layerColor >> 8 & 255) / 255.0f, (float) (layerColor & 255) / 255.0f, (float) (layerColor >> 24 & 255) / 255.0f);
 			} else {
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			}
@@ -122,32 +121,32 @@ implements IComponentGui {
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-			this.drawTexturedModalRect(this.x, this.y, 0, state * 20, this.width / 2, Math.min(this.height, 20));
-			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, state * 20, this.width / 2, Math.min(this.height, 20));
+			drawTexturedModalRect(x, y, 0, state * 20, width / 2, Math.min(height, 20));
+			drawTexturedModalRect(x + width / 2, y, 200 - width / 2, state * 20, width / 2, Math.min(height, 20));
 
-			if (this.height < 20 && this.height >= 6) {
-				this.drawTexturedModalRect(this.x, this.y + this.height - 3, 0, 17 + state * 20, this.width / 2, 3);
-				this.drawTexturedModalRect(this.x + this.width / 2, this.y + this.height - 3, 200 - this.width / 2, 17 + state * 20, this.width / 2, 3);
+			if (height < 20 && height >= 6) {
+				drawTexturedModalRect(x, y + height - 3, 0, 17 + state * 20, width / 2, 3);
+				drawTexturedModalRect(x + width / 2, y + height - 3, 200 - width / 2, 17 + state * 20, width / 2, 3);
 			}
-			if (this.height > 20) {
-				int h = this.height - 20;
+			if (height > 20) {
+				int h = height - 20;
 				int j = 0;
 				while (h > 0) {
-					this.drawTexturedModalRect(this.x, this.y + 17 + j * 15, 0, state * 20 + 2, this.width / 2, Math.min(h, 15));
-					this.drawTexturedModalRect(this.x + this.width / 2, this.y + 17 + j * 15, 200 - this.width / 2, state * 20 + 2, this.width / 2, Math.min(h, 15));
+					drawTexturedModalRect(x, y + 17 + j * 15, 0, state * 20 + 2, width / 2, Math.min(h, 15));
+					drawTexturedModalRect(x + width / 2, y + 17 + j * 15, 200 - width / 2, state * 20 + 2, width / 2, Math.min(h, 15));
 					h -= 15;
 					j++;
 				}
-				this.drawTexturedModalRect(this.x, this.y + this.height - 3, 0, state * 20 + 17, this.width / 2, 3);
-				this.drawTexturedModalRect(this.x + this.width / 2, this.y + this.height - 3, 200 - this.width / 2, state * 20 + 17, this.width / 2, 3);
+				drawTexturedModalRect(x, y + height - 3, 0, state * 20 + 17, width / 2, 3);
+				drawTexturedModalRect(x + width / 2, y + height - 3, 200 - width / 2, state * 20 + 17, width / 2, 3);
 			}
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			this.mouseDragged(mc, mouseX, mouseY);
+			mouseDragged(mc, mouseX, mouseY);
 		}
-		if (this.texture != null) {
-			if (this.hasDefBack) {
-				this.drawGradientRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xFF202020, 0xFF202020);
-				this.drawGradientRect(this.x, this.y, this.x + this.width, this.y + this.height, 0xFFA0A0A0, 0xFFA0A0A0);
+		if (texture != null) {
+			if (hasDefBack) {
+				drawGradientRect(x - 1, y - 1, x + width + 1, y + height + 1, 0xFF202020, 0xFF202020);
+				drawGradientRect(x, y, x + width, y + height, 0xFFA0A0A0, 0xFFA0A0A0);
 			}
 			if (isSimple) {
 				GlStateManager.pushMatrix();
@@ -156,25 +155,25 @@ implements IComponentGui {
 				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
-				GlStateManager.translate(this.x, this.y, 0.0f);
-				mc.getTextureManager().bindTexture(this.texture);
+				GlStateManager.translate(x, y, 0.0f);
+				mc.getTextureManager().bindTexture(texture);
 
-				this.drawTexturedModalRect(0, 0, txrX, txrY + state * this.height, this.width, this.height);
+				drawTexturedModalRect(0, 0, txrX, txrY + state * height, width, height);
 				GlStateManager.popMatrix();
 			} else {
 				boolean isPrefabricated = txrW == 0;
 				int tw = isPrefabricated ? 200 : txrW;
 				int th = txrH == 0 ? 20 : txrH;
-				float scaleH = this.height / (float) th;
-				float scaleW = isPrefabricated ? scaleH : this.width / (float) tw;
+				float scaleH = height / (float) th;
+				float scaleW = isPrefabricated ? scaleH : width / (float) tw;
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				GlStateManager.translate(this.x / scaleW, this.y / scaleH, 0.0f);
-				mc.getTextureManager().bindTexture(this.texture);
-				if (this.layerColor != 0) {
-					GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f,
-							(float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f,
-							(float) (this.layerColor >> 24 & 255) / 255.0f);
+				GlStateManager.translate(x / scaleW, y / scaleH, 0.0f);
+				mc.getTextureManager().bindTexture(texture);
+				if (layerColor != 0) {
+					GlStateManager.color((float) (layerColor >> 16 & 255) / 255.0f,
+							(float) (layerColor >> 8 & 255) / 255.0f, (float) (layerColor & 255) / 255.0f,
+							(float) (layerColor >> 24 & 255) / 255.0f);
 				} else {
 					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				}
@@ -183,11 +182,11 @@ implements IComponentGui {
 				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
 				if (isPrefabricated) {
-					tw = (int) (((float) this.width / 2.0f) / scaleH);
-					this.drawTexturedModalRect(0, 0, txrX, txrY + state * th, tw, th);
-					this.drawTexturedModalRect(tw, 0, txrX + 200 - tw, txrY + state * th, tw, th);
+					tw = (int) (((float) width / 2.0f) / scaleH);
+					drawTexturedModalRect(0, 0, txrX, txrY + state * th, tw, th);
+					drawTexturedModalRect(tw, 0, txrX + 200 - tw, txrY + state * th, tw, th);
 				} else {
-					this.drawTexturedModalRect(0, 0, txrX, txrY + state * th, tw, th);
+					drawTexturedModalRect(0, 0, txrX, txrY + state * th, tw, th);
 				}
 				GlStateManager.popMatrix();
 			}
@@ -217,7 +216,7 @@ implements IComponentGui {
 				RenderHelper.enableGUIStandardItemLighting();
 				GlStateManager.translate((float) x + (float) width / 2.0f - 8.0f, (float) y + (float) height / 2.0f - 8.0f, 0.0f);
 				mc.getRenderItem().renderItemAndEffectIntoGUI(currentStack, 0, 0);
-				this.drawString(mc.fontRenderer, "" + currentStack.getCount(), 16 - mc.fontRenderer.getStringWidth("" + currentStack.getCount()), 9, 0xFFFFFFFF);
+				drawString(mc.fontRenderer, "" + currentStack.getCount(), 16 - mc.fontRenderer.getStringWidth("" + currentStack.getCount()), 9, 0xFFFFFFFF);
 				RenderHelper.disableStandardItemLighting();
 				GlStateManager.popMatrix();
 			}
@@ -229,70 +228,70 @@ implements IComponentGui {
 	}
 
 	public int getHeight() {
-		return this.height;
+		return height;
 	}
 
 	public int getValue() {
-		return this.displayValue;
+		return displayValue;
 	}
 
 	public String[] getVariants() {
-		return this.display;
+		return display;
 	}
 
 	public boolean getVisible() {
-		return this.visible;
+		return visible;
 	}
 
 	public int getWidth() {
-		return this.width;
+		return width;
 	}
 
 	public boolean mousePressed(@Nonnull Minecraft mc, int mouseX, int mouseY) {
 		boolean bo = super.mousePressed(mc, mouseX, mouseY);
-		if (bo && this.display != null && this.display.length != 0) {
-			this.displayValue = (this.displayValue + 1) % this.display.length;
-			this.setDisplayText(this.display[this.displayValue]);
+		if (bo && display != null && display.length != 0) {
+			displayValue = (displayValue + 1) % display.length;
+			setDisplayText(display[displayValue]);
 		}
 		return bo;
 	}
 
 	public void playPressSound(@Nonnull SoundHandler soundHandlerIn) {
-		if (this.hasSound) {
+		if (hasSound) {
 			super.playPressSound(soundHandlerIn);
 		}
 	}
 
 	public void setDisplay(int value) {
-		this.displayValue = value;
-		this.setDisplayText(this.display[value]);
+		displayValue = value;
+		setDisplayText(display[value]);
 	}
 
 	public void setDisplayText(String text) {
-		this.displayString = new TextComponentTranslation(text).getFormattedText();
+		displayString = new TextComponentTranslation(text).getFormattedText();
 	}
 
 	public void setEnabled(boolean bo) {
-		this.enabled = bo;
+		enabled = bo;
 	}
 
 	public void setTextColor(int color) {
-		this.packedFGColour = color;
+		packedFGColour = color;
 	}
 
 	public void setVisible(boolean b) {
-		this.visible = b;
+		visible = b;
 	}
 
 	@Override
 	protected int getHoverState(boolean hovered) {
-		if (this.isAnim) {
-			if (!this.enabled) { return 1; }
+		if (isAnim) {
+			if (!enabled) { return 1; }
 			return hovered ? Mouse.isButtonDown(0) ? 3 : 2 : 0;
 		}
-		if (this.isSimple) {
+		if (isSimple) {
 			int i = 0;
-			if (!this.enabled) { i = 2; }
+			if (!enabled) { i = 2; }
 			else if (hovered) { i = Mouse.isButtonDown(0) ? 2 : 1; }
 			return i;
 		}
@@ -317,5 +316,28 @@ implements IComponentGui {
 		wait = 160;
 		ticks = 0;
 	}
+
+
+	@Override
+	public int getId() { return id; }
+
+	@Override
+	public int[] getCenter() { return new int[] { x + width / 2, x + height / 2}; }
+
+	@Override
+	public void setHoverText(String text, Object ... args) {
+		hoverText.clear();
+		if (text == null || text.isEmpty()) { return; }
+		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
+		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
+		while (text.contains("<br>")) {
+			hoverText.add(text.substring(0, text.indexOf("<br>")));
+			text = text.substring(text.indexOf("<br>") + 4);
+		}
+		hoverText.add(text);
+	}
+
+	@Override
+	public void updateScreen() { }
 
 }

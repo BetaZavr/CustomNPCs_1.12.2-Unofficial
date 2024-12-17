@@ -17,17 +17,17 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNpcMenu implements GuiYesNoCallback {
+public class GuiNpcMenu
+implements GuiYesNoCallback {
 
 	public int activeMenu;
 	private final EntityNPCInterface npc;
 	private final GuiScreen parent;
-	private GuiMenuTopButton[] topButtons;
+	private GuiMenuTopButton[] topButtons = new GuiMenuTopButton[0];
 
-	public GuiNpcMenu(GuiScreen parent, int activeMenu, EntityNPCInterface npc) {
-		this.topButtons = new GuiMenuTopButton[0];
-		this.parent = parent;
-		this.activeMenu = activeMenu;
+	public GuiNpcMenu(GuiScreen gui, int menu, EntityNPCInterface npc) {
+		parent = gui;
+		activeMenu = menu;
 		this.npc = npc;
 	}
 
@@ -38,12 +38,12 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 			mc.displayGuiScreen(null);
 			mc.setIngameFocus();
 		} else {
-			NoppesUtil.openGUI(mc.player, this.parent);
+			NoppesUtil.openGUI(mc.player, parent);
 		}
 	}
 
 	public void drawElements(int mouseX, int mouseY, Minecraft mc, float partialTicks) {
-		for (GuiMenuTopButton button : this.getTopButtons()) {
+		for (GuiMenuTopButton button : getTopButtons()) {
 			button.drawButton(mc, mouseX, mouseY, partialTicks);
 		}
 	}
@@ -63,19 +63,19 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 		GuiMenuTopButton close = new GuiMenuTopButton(0, guiLeft + width - 22, guiTop - 17, "X");
 		GuiMenuTopButton delete = new GuiMenuTopButton(66, guiLeft + width - 72, guiTop - 17, "selectWorld.deleteButton");
 		delete.x = close.x - delete.getWidth();
-		this.topButtons = new GuiMenuTopButton[] { display, stats, ai, inv, advanced, global, close, delete };
-		for (GuiMenuTopButton button : this.getTopButtons()) {
-			button.active = (button.id == this.activeMenu);
+		topButtons = new GuiMenuTopButton[] { display, stats, ai, inv, advanced, global, close, delete };
+		for (GuiMenuTopButton button : getTopButtons()) {
+			button.active = (button.id == activeMenu);
 		}
 	}
 
 	public void mouseClicked(int i, int j, int k) {
 		if (k == 0) {
 			Minecraft mc = Minecraft.getMinecraft();
-			for (GuiMenuTopButton button : this.getTopButtons()) {
+			for (GuiMenuTopButton button : getTopButtons()) {
 				boolean bo = button.getVisible() && button.isMouseOver();
 				if (button.mousePressed(mc, i, j) || (bo && button.id == 4 && (mc.currentScreen instanceof GuiNpcEmotion || mc.currentScreen instanceof GuiNpcAnimation))) {
-					this.topButtonPressed(button);
+					topButtonPressed(button);
 				}
 			}
 		}
@@ -83,31 +83,31 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 
 	public void save() {
 		GuiNpcTextField.unfocus();
-		if (this.parent instanceof GuiContainerNPCInterface2) {
-			((GuiContainerNPCInterface2) this.parent).save();
+		if (parent instanceof GuiContainerNPCInterface2) {
+			((GuiContainerNPCInterface2) parent).save();
 		}
-		if (this.parent instanceof GuiNPCInterface2) {
-			((GuiNPCInterface2) this.parent).save();
+		if (parent instanceof GuiNPCInterface2) {
+			((GuiNPCInterface2) parent).save();
 		}
 	}
 
 	public void topButtonPressed(GuiMenuTopButton button) {
-		if (button.displayString.equals("" + this.activeMenu)) {
+		if (button.displayString.equals("" + activeMenu)) {
 			return;
 		}
 		Minecraft mc = Minecraft.getMinecraft();
 		NoppesUtil.clickSound();
 		int id = button.id;
-		this.save();
+		save();
 		if (id == 0) {
-			if (this.parent instanceof GuiContainerNPCInterface2) {
-				((GuiContainerNPCInterface2) this.parent).close();
+			if (parent instanceof GuiContainerNPCInterface2) {
+				((GuiContainerNPCInterface2) parent).close();
 			}
-			if (this.parent instanceof GuiNPCInterface2) {
-				((GuiNPCInterface2) this.parent).close();
+			if (parent instanceof GuiNPCInterface2) {
+				((GuiNPCInterface2) parent).close();
 			}
-			if (this.npc != null) {
-				this.npc.reset();
+			if (npc != null) {
+				npc.reset();
 				Client.sendData(EnumPacketServer.NpcMenuClose);
 			}
 			mc.displayGuiScreen(null);
@@ -133,7 +133,7 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 		} else if (id == 6) {
 			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAI);
 		}
-		this.activeMenu = id;
+		activeMenu = id;
 	}
 
 }

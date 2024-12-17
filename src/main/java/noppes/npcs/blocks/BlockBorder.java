@@ -222,7 +222,7 @@ public class BlockBorder extends BlockInterface implements IPermission {
 		}
 		if (tile != null) { tile.rotation = l; }
 		if (entity instanceof EntityPlayer && !world.isRemote) {
-			if (adjacent == null) { // New
+			if (adjacent == null) {
 				NoppesUtilServer.sendOpenGui((EntityPlayer) entity, EnumGuiType.Border, null, pos.getX(), pos.getY(), pos.getZ());
 			} else { // Copy
 				entity.sendMessage(new TextComponentTranslation("barrier.copied.around"));

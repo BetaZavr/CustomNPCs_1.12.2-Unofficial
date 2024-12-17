@@ -24,7 +24,8 @@ import noppes.npcs.controllers.*;
 import noppes.npcs.api.mixin.scoreboard.IServerScoreboardMixin;
 import noppes.npcs.util.ValueUtil;
 
-public class Availability implements ICompatibilty, IAvailability {
+public class Availability
+implements ICompatibilty, IAvailability {
 
 	public static HashSet<String> scores = new HashSet<>();
 	public int[] daytime = new int[] { 0, 0 };
@@ -753,7 +754,7 @@ public class Availability implements ICompatibilty, IAvailability {
 	}
 
 	@Override
-	public void setDialog(int id, int type) { // Changed
+	public void setDialog(int id, int type) {
 		if (this.dialogues.size() >= this.max) {
 			throw new CustomNPCsException("The maximum number is already set to " + this.max);
 		}
@@ -808,7 +809,7 @@ public class Availability implements ICompatibilty, IAvailability {
 	}
 
 	@Override
-	public void setQuest(int id, int type) { // Changed
+	public void setQuest(int id, int type) {
 		if (this.quests.size() >= this.max) {
 			throw new CustomNPCsException("The maximum number is already set to " + this.max);
 		}

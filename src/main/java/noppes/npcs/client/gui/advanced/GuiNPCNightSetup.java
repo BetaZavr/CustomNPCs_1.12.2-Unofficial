@@ -12,7 +12,9 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.DataTransform;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCNightSetup extends GuiNPCInterface2 implements IGuiData {
+public class GuiNPCNightSetup
+extends GuiNPCInterface2
+implements IGuiData {
 
 	private final DataTransform data;
 

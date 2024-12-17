@@ -389,7 +389,7 @@ public class QuestInterface {
 				}
 			}
 			this.tasks = oldTasks.toArray(new QuestObjective[Math.min(oldTasks.size(), 9)]);
-		} else { // New
+		} else {
 			this.tasks = new QuestObjective[compound.getTagList("Tasks", 10).tagCount()];
 			Map<Integer, ItemStack> stacks = new TreeMap<>();
 			for (int i = 0; i < compound.getTagList("Tasks", 10).tagCount(); i++) {
@@ -432,7 +432,7 @@ public class QuestInterface {
 		return del;
 	}
 
-	public boolean setFound(QuestData data, String location) { // Changed
+	public boolean setFound(QuestData data, String location) {
 		if (data == null || data.quest.id != this.id) {
 			return false;
 		}

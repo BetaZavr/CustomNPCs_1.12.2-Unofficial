@@ -18,63 +18,62 @@ import noppes.npcs.controllers.data.Quest;
 
 import javax.annotation.Nonnull;
 
-public class GuiNpcQuestRewardItem extends GuiContainerNPCInterface {
+public class GuiNpcQuestRewardItem
+extends GuiContainerNPCInterface {
 
-	private final ResourceLocation resource = this.getResource("extrasmallbg.png");
-	private final ResourceLocation slots = this.getResource("baseinventory.png");
+	private final ResourceLocation resource = getResource("extrasmallbg.png");
+	private final ResourceLocation slots = getResource("baseinventory.png");
 	private final Quest quest;
 	private ItemStack reward = ItemStack.EMPTY;
 
 	public GuiNpcQuestRewardItem(ContainerNpcQuestRewardItem container, int questId) {
 		super(null, container);
-		this.quest = (Quest) QuestController.instance.get(questId);
-		this.xSize = 176;
-		this.ySize = 71;
+		xSize = 176;
+		ySize = 71;
+
+		quest = (Quest) QuestController.instance.get(questId);
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
-			this.close();
-		}
+		if (button.id == 0) { close(); }
 	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(this.resource);
-		int u = (this.width - this.xSize) / 2;
-		int v = (this.height - this.ySize) / 2;
-		this.drawTexturedModalRect(u, v, 0, 0, this.xSize, this.ySize);
+		mc.getTextureManager().bindTexture(resource);
+		int u = (width - xSize) / 2;
+		int v = (height - ySize) / 2;
+		drawTexturedModalRect(u, v, 0, 0, xSize, ySize);
 
 		super.drawGuiContainerBackgroundLayer(f, i, j);
 
 		v += 19;
-		int size = this.inventorySlots.inventoryItemStacks.size();
+		int size = inventorySlots.inventoryItemStacks.size();
 		u += 7 + (9 * 9) - size * 9;
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(this.slots);
-		this.drawTexturedModalRect(u, v, 0, 0, size * 18, 18);
+		mc.getTextureManager().bindTexture(slots);
+		drawTexturedModalRect(u, v, 0, 0, size * 18, 18);
 	}
 
 	@Override
 	protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
-        this.reward = slotIn.getStack();
-		this.close();
+        reward = slotIn.getStack();
+		close();
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
 		String text = new TextComponentTranslation("quest.choose.reward").getFormattedText();
-		this.addLabel(new GuiNpcLabel(0, text, this.guiLeft + (this.xSize - this.mc.fontRenderer.getStringWidth(text)) / 2, this.guiTop + 4));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + (this.xSize - 110) / 2, this.guiTop + this.ySize - 26, 110, 20, "quest.no.thanks"));
+		addLabel(new GuiNpcLabel(0, text, guiLeft + (xSize - mc.fontRenderer.getStringWidth(text)) / 2, guiTop + 4));
+		addButton(new GuiNpcButton(0, guiLeft + (xSize - 110) / 2, guiTop + ySize - 26, 110, 20, "quest.no.thanks"));
 	}
 
 	@Override
 	public void save() {
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestCompletionReward, this.quest.id,
-				this.reward.writeToNBT(new NBTTagCompound()));
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestCompletionReward, quest.id, reward.writeToNBT(new NBTTagCompound()));
 	}
 
 }

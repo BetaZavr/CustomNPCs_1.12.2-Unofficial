@@ -11,6 +11,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -1500,7 +1501,7 @@ public class Util implements IMethods {
 
 	@Override
 	public NBTBase writeObjectToNbt(Object value) {
-		LogWriter.info("Trying to write object \"" + value.toString() + "\" to NBT");
+		//LogWriter.debug("Trying to write object \"" + value.toString() + "\" to NBT");
 		if (value.getClass().isArray()) {
 			Object[] vs = (Object[]) value;
 			if (vs.length == 0) {
@@ -1732,7 +1733,7 @@ public class Util implements IMethods {
 		}
 	}
 
-	public Entity getLookEntity(Entity entity, Double d0) {
+	public Entity getLookEntity(Entity entity, Double d0, boolean aliveOnly) {
 		Entity target = null;
 		if (d0 == null) {
 			d0 = 32.0;
@@ -1745,25 +1746,26 @@ public class Util implements IMethods {
         list.remove(entity);
         double d2 = d0;
         Vec3d vec3d3 = null;
-        for (Entity entity1 : list) {
-            AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
+        for (Entity e : list) {
+            if (!e.isEntityAlive() && aliveOnly || (e instanceof EntityNPCInterface) && ((EntityNPCInterface) e).stats.hideKilledBody) { continue; }
+			AxisAlignedBB axisalignedbb = e.getEntityBoundingBox().grow(e.getCollisionBorderSize());
             RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
             if (axisalignedbb.contains(vec3d)) {
                 if (d2 >= 0.0D) {
-                    target = entity1;
+                    target = e;
                     vec3d3 = raytraceresult == null ? vec3d : raytraceresult.hitVec;
                     d2 = 0.0D;
                 }
             } else if (raytraceresult != null) {
                 double d3 = vec3d.distanceTo(raytraceresult.hitVec);
                 if (d3 < d2 || d2 == 0.0D) {
-                    if (entity1.getLowestRidingEntity() == entity.getLowestRidingEntity() && !entity1.canRiderInteract()) {
+                    if (e.getLowestRidingEntity() == entity.getLowestRidingEntity() && !e.canRiderInteract()) {
                         if (d2 == 0.0D) {
-                            target = entity1;
+                            target = e;
                             vec3d3 = raytraceresult.hitVec;
                         }
                     } else {
-                        target = entity1;
+                        target = e;
                         vec3d3 = raytraceresult.hitVec;
                         d2 = d3;
                     }
@@ -1891,6 +1893,26 @@ public class Util implements IMethods {
 		return Math.abs(entityTo.posX - (double) pos.x) <= 1.0 && Math.abs(entityTo.posY - (double) pos.y) < 2.0d && Math.abs(entityTo.posZ - (double) pos.z) <= 1.0d;
 	}
 
+	public float getCurrentXZSpeed(EntityLivingBase entity) {
+		IAttributeInstance movementAttribute = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+		float speed = 1.0f;
+		if (movementAttribute != null) {
+			if (movementAttribute.getBaseValue() != 0.0d) {
+				speed = (float) (movementAttribute.getAttributeValue() / movementAttribute.getBaseValue());
+			}
+		}
+		return ValueUtil.correctFloat(speed, 0.25f, 1.0f);
+	}
+
+	public boolean isMoving(EntityLivingBase entity) {
+		IAttributeInstance movementAttribute = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+		double speed = 0.004d;
+		if (movementAttribute != null) {
+			speed = movementAttribute.getBaseValue() / 5.0d;
+		}
+		return Math.sqrt(Math.pow(entity.motionX, 2.0d) + Math.pow(entity.motionZ, 2.0d)) > speed;
+	}
+
 	public int getColorI(int index) {
 		switch (index) {
 			case 0: return 0x000000; // BLACK
@@ -1920,6 +1942,28 @@ public class Util implements IMethods {
 				(float)(c & 255) / 255.0F, // blue
 				1.0f // alpha
 		};
+	}
+
+	public <K, V extends Comparable<V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map) {
+		if (map == null || map.isEmpty()) { return new LinkedHashMap<>(); }
+		Comparator<Map.Entry<K, V>> comparator = null;
+		V value = map.values().iterator().next();
+		if (value instanceof String) { comparator = Map.Entry.comparingByValue(); }
+		else if (value instanceof Integer) { comparator = Comparator.comparingInt(e -> (Integer) e.getValue()); }
+		else if (value instanceof Long) { comparator = Comparator.comparingLong(e -> (Long) e.getValue()); }
+		else if (value instanceof Double || value instanceof Float) { comparator = Comparator.comparingDouble(e -> ((Number) e.getValue()).doubleValue()); }
+		if (comparator != null) {
+			return map.entrySet()
+					.stream()
+					.sorted(comparator)
+					.collect(Collectors.toMap(
+							Map.Entry::getKey,
+							Map.Entry::getValue,
+							(e1, e2) -> e1,
+							LinkedHashMap::new
+					));
+		}
+		return new LinkedHashMap<>(map);
 	}
 
 }

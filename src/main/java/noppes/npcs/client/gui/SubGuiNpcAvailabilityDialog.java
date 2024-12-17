@@ -1,13 +1,11 @@
 package noppes.npcs.client.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.select.GuiDialogSelection;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -20,7 +18,9 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Dialog;
 
-public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICustomScrollListener, ISubGuiListener {
+public class SubGuiNpcAvailabilityDialog
+extends SubGuiInterface
+implements ICustomScrollListener, ISubGuiListener {
 
 	private final Availability availability;
 	private final String chr = "" + ((char) 167);
@@ -30,48 +30,44 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 	private String select = "";
 
 	public SubGuiNpcAvailabilityDialog(Availability availability) {
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 217;
+		closeOnEsc = true;
+
 		this.availability = availability;
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 217;
-		this.closeOnEsc = true;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
-			if (this.select.isEmpty()) {
-				return;
-			}
+			if (select.isEmpty()) { return; }
 			EnumAvailabilityDialog ead = EnumAvailabilityDialog.values()[button.getValue()];
-			int id = this.dataIDs.get(this.select);
-			this.availability.dialogues.put(id, ead);
-			Dialog dialog = DialogController.instance.dialogs.get(this.dataIDs.get(this.select));
-			this.select = "ID:" + id + " - ";
+			int id = dataIDs.get(select);
+			availability.dialogues.put(id, ead);
+			Dialog dialog = DialogController.instance.dialogs.get(dataIDs.get(select));
+			select = "ID:" + id + " - ";
 			if (dialog == null) {
-				this.select += chr + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
+				select += chr + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
 			} else {
-				this.select += chr + "7" + dialog.getCategory().getName() + "/" + chr + "r" + dialog.getName() + chr
-						+ "7 (" + chr + "9"
-						+ new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + chr
-						+ "7)";
+				select += chr + "7" + dialog.getCategory().getName() + "/" + chr + "r" + dialog.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + chr + "7)";
 			}
-			this.initGui();
+			initGui();
 		}
 		if (button.id == 1) {
-			this.setSubGui(new GuiDialogSelection(this.select.isEmpty() ? 0 : this.dataIDs.get(this.select), 0));
+			setSubGui(new GuiDialogSelection(select.isEmpty() ? 0 : dataIDs.get(select), 0));
 		}
 		if (button.id == 2) {
-			this.availability.dialogues.remove(this.dataIDs.get(this.select));
-			this.select = "";
-			this.initGui();
+			availability.dialogues.remove(dataIDs.get(select));
+			select = "";
+			initGui();
 		}
 		if (button.id == 3) {
-			this.save();
-			this.initGui();
+			save();
+			initGui();
 		}
 		if (button.id == 66) {
-			this.close();
+			close();
 		}
 	}
 
@@ -79,80 +75,51 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 	public void close() {
 		super.close();
 		List<Integer> delete = new ArrayList<>();
-		for (int id : this.availability.dialogues.keySet()) {
-			if (this.availability.dialogues.get(id) == EnumAvailabilityDialog.Always) {
+		for (int id : availability.dialogues.keySet()) {
+			if (availability.dialogues.get(id) == EnumAvailabilityDialog.Always) {
 				delete.add(id);
 			}
 		}
 		for (int id : delete) {
-			this.availability.dialogues.remove(id);
-		}
-	}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.enum.type").getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.dialog").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.remove").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availability.hover.more").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
+			availability.dialogues.remove(id);
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(1, "availability.available", this.guiLeft, this.guiTop + 4));
-		this.getLabel(1).center(this.xSize);
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 6, this.guiTop + 192, 70, 20, "gui.done"));
-
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 6)).setSize(this.xSize - 12, this.ySize - 66);
-		}
-		this.dataIDs.clear();
-		this.dataEnum.clear();
-		for (int id : this.availability.dialogues.keySet()) {
+		// title
+		GuiNpcLabel label = new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4);
+		label.center(xSize);
+		addLabel(label);
+		// exit
+		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 6, guiTop + 192, 70, 20, "gui.done");
+		button.setHoverText("hover.back");
+		addButton(button);
+		// data
+		if (scroll == null) { (scroll = new GuiCustomScroll(this, 6)).setSize(xSize - 12, ySize - 66); }
+		dataIDs.clear();
+		dataEnum.clear();
+		for (int id : availability.dialogues.keySet()) {
 			String key = "ID:" + id + " - ";
 			Dialog dialog = DialogController.instance.dialogs.get(id);
 			if (dialog == null) {
 				key += chr + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
 			} else {
-				key += chr + "7" + dialog.getCategory().getName() + "/" + chr + "r" + dialog.getName() + chr + "7 ("
-						+ chr + "9"
-						+ new TextComponentTranslation(
-								("availability." + this.availability.dialogues.get(id)).toLowerCase())
-										.getFormattedText()
-						+ chr + "7)";
+				key += chr + "7" + dialog.getCategory().getName() + "/" + chr + "r" + dialog.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + availability.dialogues.get(id)).toLowerCase()).getFormattedText() + chr + "7)";
 			}
-			this.dataIDs.put(key, id);
-			this.dataEnum.put(key, this.availability.dialogues.get(id));
+			dataIDs.put(key, id);
+			dataEnum.put(key, availability.dialogues.get(id));
 		}
-		if (!this.select.isEmpty() && !this.dataIDs.containsKey(this.select)) {
-			this.select = "";
-		}
-		this.scroll.setList(new ArrayList<>(dataIDs.keySet()));
-		this.scroll.guiLeft = this.guiLeft + 6;
-		this.scroll.guiTop = this.guiTop + 14;
-		if (!this.select.isEmpty()) {
-			this.scroll.setSelected(this.select);
-		}
-		this.addScroll(this.scroll);
+		if (!select.isEmpty() && !dataIDs.containsKey(select)) { select = ""; }
+		scroll.setList(new ArrayList<>(dataIDs.keySet()));
+		scroll.guiLeft = guiLeft + 6;
+		scroll.guiTop = guiTop + 14;
+		if (!select.isEmpty()) { scroll.setSelected(select); }
+		addScroll(scroll);
 		int p = 0;
-		if (!this.select.isEmpty()) {
-			switch (this.dataEnum.get(this.select)) {
+		if (!select.isEmpty()) {
+			switch (dataEnum.get(select)) {
 				case After: {
 					p = 1;
 					break;
@@ -165,44 +132,52 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 				}
 			}
 		}
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 6, this.guiTop + this.ySize - 46, 50, 20,
-				new String[] { "availability.always", "availability.after", "availability.before" }, p));
-		this.addButton(
-				new GuiNpcButton(1, this.guiLeft + 58, this.guiTop + this.ySize - 46, 170, 20, "availability.select"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 230, this.guiTop + this.ySize - 46, 20, 20, "X"));
+		// type
+		button = new GuiNpcButton(0, guiLeft + 6, guiTop + ySize - 46, 50, 20, new String[] { "availability.always", "availability.after", "availability.before" }, p);
+		button.setHoverText("availability.hover.enum.type");
+		addButton(button);
+		// select
+		button = new GuiNpcButton(1, guiLeft + 58, guiTop + ySize - 46, 170, 20, "availability.select");
+		button.setHoverText("availability.hover.dialog");
+		addButton(button);
+		// del
+		button = new GuiNpcButton(2, guiLeft + 230, guiTop + ySize - 46, 20, 20, "X");
+		button.setHoverText("availability.hover.remove");
+		addButton(button);
+		// extra
+		button = new GuiNpcButton(3, guiLeft + xSize - 76, guiTop + 192, 70, 20, "availability.more");
+		button.setEnabled(!select.isEmpty());
+		button.setHoverText("availability.hover.more");
+		addButton(button);
 
-		this.addButton(
-				new GuiNpcButton(3, this.guiLeft + this.xSize - 76, this.guiTop + 192, 70, 20, "availability.more"));
-		this.getButton(3).setEnabled(!this.select.isEmpty());
-
-		this.updateGuiButtons();
+		updateGuiButtons();
 	}
 
 	@Override
 	public void save() {
-		if (this.select.isEmpty()) {
+		if (select.isEmpty()) {
 			return;
 		}
-		EnumAvailabilityDialog ead = EnumAvailabilityDialog.values()[this.getButton(0).getValue()];
-		int id = this.dataIDs.get(this.select);
+		EnumAvailabilityDialog ead = EnumAvailabilityDialog.values()[getButton(0).getValue()];
+		int id = dataIDs.get(select);
 		if (ead != EnumAvailabilityDialog.Always) {
-			this.availability.dialogues.put(id, ead);
-			this.dataEnum.put(this.select, ead);
+			availability.dialogues.put(id, ead);
+			dataEnum.put(select, ead);
 		} else {
-			this.availability.dialogues.remove(id);
+			availability.dialogues.remove(id);
 		}
-		this.select = "";
+		select = "";
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		this.select = scroll.getSelected();
-		this.initGui();
+		select = scroll.getSelected();
+		initGui();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		this.setSubGui(new GuiDialogSelection(this.dataIDs.get(this.select), 0));
+		setSubGui(new GuiDialogSelection(dataIDs.get(select), 0));
 	}
 
 	@Override
@@ -211,30 +186,27 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 		if (selector.selectedDialog == null) {
 			return;
 		}
-		if (!this.select.isEmpty()) {
-			this.availability.dialogues.remove(this.dataIDs.get(this.select));
+		if (!select.isEmpty()) {
+			availability.dialogues.remove(dataIDs.get(select));
 		}
-		this.select = "ID:" + selector.selectedDialog.id + " - " + chr + "7" + selector.selectedCategory.getName() + "/"
-				+ chr + "r" + selector.selectedDialog.getName() + chr + "7 (" + chr + "9"
-				+ new TextComponentTranslation("availability.after").getFormattedText() + chr + "7)";
-		this.availability.dialogues.put(selector.selectedDialog.id, EnumAvailabilityDialog.After);
-		this.initGui();
+		select = "ID:" + selector.selectedDialog.id + " - " + chr + "7" + selector.selectedCategory.getName() + "/" + chr + "r" + selector.selectedDialog.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation("availability.after").getFormattedText() + chr + "7)";
+		availability.dialogues.put(selector.selectedDialog.id, EnumAvailabilityDialog.After);
+		initGui();
 	}
 
 	private void updateGuiButtons() {
-		// New
 		int p = 0;
-		this.getButton(1).setDisplayText("availability.selectdialog");
+		getButton(1).setDisplayText("availability.selectdialog");
 		Dialog dialog = null;
-		if (!this.select.isEmpty()) {
-			dialog = DialogController.instance.dialogs.get(this.dataIDs.get(this.select));
-			p = this.dataEnum.get(this.select).ordinal();
+		if (!select.isEmpty()) {
+			dialog = DialogController.instance.dialogs.get(dataIDs.get(select));
+			p = dataEnum.get(select).ordinal();
 		}
-		this.getButton(0).setDisplay(p);
-		this.getButton(0).setEnabled(!this.select.isEmpty());
-		this.getButton(1).setEnabled(p != 0 || this.select.isEmpty());
-		this.getButton(1).setDisplayText(dialog == null ? "availability.select" : dialog.getName());
-		this.getButton(2).setEnabled(p != 0);
+		getButton(0).setDisplay(p);
+		getButton(0).setEnabled(!select.isEmpty());
+		getButton(1).setEnabled(p != 0 || select.isEmpty());
+		getButton(1).setDisplayText(dialog == null ? "availability.select" : dialog.getName());
+		getButton(2).setEnabled(p != 0);
 	}
 
 }

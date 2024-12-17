@@ -1,6 +1,8 @@
 package noppes.npcs.client.gui.mainmenu;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import moe.plushie.armourers_workshop.api.ArmourersWorkshopClientApi;
 import net.minecraft.client.gui.GuiYesNo;
@@ -48,13 +50,14 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 	private int groupId;
 	private GuiCustomScroll scrollTemplate, scrollDrops;
 
-	public GuiNPCInv(EntityNPCInterface npc, ContainerNPCInv container) {
-		super(npc, container, 3);
-		this.inventory = this.npc.inventory;
-		this.setBackground("npcinv.png");
-		this.container = container;
-		this.ySize = 200;
-		this.groupId = 0;
+	public GuiNPCInv(EntityNPCInterface npc, ContainerNPCInv cont) {
+		super(npc, cont, 3);
+		setBackground("npcinv.png");
+		container = cont;
+		ySize = 200;
+
+		groupId = 0;
+		inventory = npc.inventory;
 		Client.sendData(EnumPacketServer.MainmenuInvGet);
 	}
 
@@ -84,7 +87,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 				Client.sendData(EnumPacketServer.MainmenuInvDropSave, inventory.dropType, groupId, scrollDrops.selected, compound);
 				break;
 			}
-			case 4: { // new template
+			case 4: { // create template
 				this.setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
 			}
@@ -178,8 +181,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 	}
 	
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		super.drawGuiContainerBackgroundLayer(f, i, j);
+	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		for (int id = 4; id <= 8; ++id) {
 			Slot slot = this.container.getSlot(id);
@@ -198,116 +201,86 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 				this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 0, 0, 18, 18);
 			}
 		}
+		int color = new Color(0xFF606060).getRGB();
 		if (this.inventory.dropType != 0) {
-			this.drawVerticalLine(this.guiLeft + 274, this.guiTop + 26, this.guiTop + this.ySize + 12, 0xFF606060);
+			this.drawVerticalLine(this.guiLeft + 274, this.guiTop + 26, this.guiTop + this.ySize + 12, color);
 		}
 		if (this.inventory.dropType == 1) {
-			this.drawVerticalLine(this.guiLeft + 327, this.guiTop + 162, this.guiTop + this.ySize + 12, 0xFF606060);
+			this.drawVerticalLine(this.guiLeft + 327, this.guiTop + 162, this.guiTop + this.ySize + 12, color);
 		}
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
-		int showname = this.npc.display.getShowName();
-		this.npc.display.setShowName(1);
-		this.drawNpc(50, 84);
-		this.npc.display.setShowName(showname);
-		super.drawScreen(i, j, f);
-		// New
-		if (this.hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
-		String dropName = "";
-		if (this.scrollDrops != null && this.scrollDrops.getSelected() != null
-				&& this.dropsData.get(this.scrollDrops.getSelected()) != null) {
-			dropName = this.dropsData.get(this.scrollDrops.getSelected()).getItem().getDisplayName();
-		}
-		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.drops.minxp").getFormattedText());
-		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.drops.maxxp").getFormattedText());
-		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.drops.amount").getFormattedText());
-		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.drops.type").getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.add.drop", this.inventory.dropType != 1 ? "" + CustomNpcs.MaxItemInDropsNPC : "9000").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.edit.drop", dropName).getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.del.drop", dropName).getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.new.template").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.copy.template").getFormattedText());
-		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.rename.template").getFormattedText());
-		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.del.template").getFormattedText());
-		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.group.id").getFormattedText());
-		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.add.group").getFormattedText());
-		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.auto.xp").getFormattedText());
-		} else if (this.getButton(11) != null && this.getButton(11).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.copy.group").getFormattedText());
-		} else if (this.getButton(12) != null && this.getButton(12).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.del.group").getFormattedText());
-		}
-		
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		int showname = npc.display.getShowName();
+		npc.display.setShowName(1);
+		drawNpc(50, 84);
+		npc.display.setShowName(showname);
+		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(0, "inv.minExp", this.guiLeft + 108, this.guiTop + 18));
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 29, 60, 20, this.inventory.getExpMin() + ""));
-		this.getTextField(0).setNumbersOnly();
-		this.getTextField(0).setMinMaxDefault(0, 32767, 0);
-		this.addLabel(new GuiNpcLabel(1, "inv.maxExp", this.guiLeft + 108, this.guiTop + 52));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 63, 60, 20, this.inventory.getExpMax() + ""));
-		this.getTextField(1).setNumbersOnly();
-		this.getTextField(1).setMinMaxDefault(0, 32767, 0);
-		this.addButton(new GuiNpcButton(10, this.guiLeft + 107, this.guiTop + 88, 62, 20, new String[] { "stats.normal", "inv.auto" }, this.inventory.lootMode ? 1 : 0)); // Changed
-		this.addLabel(new GuiNpcLabel(2, "inv.npcInventory", this.guiLeft + 191, this.guiTop + 5));
-		this.addLabel(new GuiNpcLabel(3, "inv.inventory", this.guiLeft + 8, this.guiTop + 101));
-
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 175, this.guiTop + 4, 120, 20, new String[] { "inv.use.drops.0", "inv.use.drops.1", "inv.use.drops.2" }, this.inventory.dropType));
-		GuiNpcTextField textField = new GuiNpcTextField(2, this, this.guiLeft + 300, this.guiTop + 4, 60, 20, "" + this.inventory.limitation);
-		textField.setNumbersOnly();
+		// min xp
+		addLabel(new GuiNpcLabel(0, "inv.minExp", this.guiLeft + 108, this.guiTop + 18));
+		GuiNpcTextField textField = new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 29, 60, 20, this.inventory.getExpMin() + "");
+		textField.setMinMaxDefault(0, Short.MAX_VALUE, 0);
+		textField.setHoverText("inv.hover.drops.minxp");
+		addTextField(textField);
+		// max xp
+		addLabel(new GuiNpcLabel(1, "inv.maxExp", this.guiLeft + 108, this.guiTop + 52));
+		textField = new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 63, 60, 20, this.inventory.getExpMax() + "");
+		textField.setMinMaxDefault(0, Short.MAX_VALUE, 0);
+		textField.setHoverText("inv.hover.drops.maxxp");
+		addTextField(textField);
+		// xp loot mode
+		GuiNpcButton button = new GuiNpcButton(10, this.guiLeft + 107, this.guiTop + 88, 62, 20, new String[] { "stats.normal", "inv.auto" }, this.inventory.lootMode ? 1 : 0);
+		button.setHoverText("inv.hover.auto.xp");
+		addButton(button);
+		// drop type
+		addLabel(new GuiNpcLabel(2, "inv.npcInventory", this.guiLeft + 191, this.guiTop + 5));
+		addLabel(new GuiNpcLabel(3, "inv.inventory", this.guiLeft + 8, this.guiTop + 101));
+		button = new GuiNpcButton(0, this.guiLeft + 175, this.guiTop + 4, 120, 20, new String[] { "inv.use.drops.0", "inv.use.drops.1", "inv.use.drops.2" }, this.inventory.dropType);
+		button.setHoverText("inv.hover.drops.type");
+		addButton(button);
+		// max amount
+		textField = new GuiNpcTextField(2, this, this.guiLeft + 300, this.guiTop + 4, 60, 20, "" + this.inventory.limitation);
 		textField.setMinMaxDefault(0, 128, this.inventory.limitation);
-		this.addTextField(textField);
-
+		textField.setHoverText("inv.hover.drops.amount");
+		addTextField(textField);
+		// data
 		dropsData.clear();
 		temp = null;
-		String[][] hoversTexts = null;
+		String dropName = "";
+		if (scrollDrops != null && scrollDrops.getSelected() != null && dropsData.get(scrollDrops.getSelected()) != null) { dropName = dropsData.get(scrollDrops.getSelected()).getItem().getDisplayName(); }
+		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		if (this.inventory.dropType == 0) {
 			if (inventory.getDrops().length > 0) {
-				hoversTexts = new String[inventory.getDrops().length][];
 				int i = 0;
 				for (ICustomDrop ids : inventory.getDrops()) {
 					DropSet ds = (DropSet) ids;
 					dropsData.put(ds.getKey(), ds);
-					hoversTexts[i] = ds.getHover(player);
-					i++;
+					hts.put(i++, ds.getHover(player));
 				}
 			}
-			if (scrollDrops == null) {
-				scrollDrops = new GuiCustomScroll(this, 1);
-			}
+			if (scrollDrops == null) { scrollDrops = new GuiCustomScroll(this, 1); }
 			scrollDrops.setSize(238, 157);
 			scrollDrops.setList(new ArrayList<>(dropsData.keySet()));
 			scrollDrops.guiLeft = this.guiLeft + 175;
 			scrollDrops.guiTop = this.guiTop + 38;
-			scrollDrops.hoversTexts = hoversTexts;
+			scrollDrops.setHoverTexts(hts);
 			addScroll(this.scrollDrops);
 			this.addLabel(new GuiNpcLabel(4, "inv.drops", this.guiLeft + 176, this.guiTop + 27));
-			this.addButton(new GuiNpcButton(1, this.guiLeft + 175, this.guiTop + 197, 60, 15, "gui.add", this.dropsData.size() < CustomNpcs.MaxItemInDropsNPC));
-			this.addButton(new GuiNpcButton(2, this.guiLeft + 240, this.guiTop + 197, 60, 15, "selectServer.edit", this.scrollDrops.selected >= 0));
-			this.addButton(new GuiNpcButton(3, this.guiLeft + 305, this.guiTop + 197, 60, 15, "gui.remove", this.scrollDrops.selected >= 0));
+			button = new GuiNpcButton(1, this.guiLeft + 175, this.guiTop + 197, 60, 15, "gui.add", this.dropsData.size() < CustomNpcs.MaxItemInDropsNPC);
+			button.setHoverText("inv.hover.add.drop", "" + CustomNpcs.MaxItemInDropsNPC);
+			addButton(button);
+			button = new GuiNpcButton(2, this.guiLeft + 240, this.guiTop + 197, 60, 15, "selectServer.edit", this.scrollDrops.selected >= 0);
+			button.setHoverText("inv.hover.edit.drop", dropName);
+			addButton(button);
+			button = new GuiNpcButton(3, this.guiLeft + 305, this.guiTop + 197, 60, 15, "gui.remove", this.scrollDrops.selected >= 0);
+			button.setHoverText("inv.hover.del.drop", dropName);
+			addButton(button);
 		}
 		else if (this.inventory.dropType == 1) {
 			this.addLabel(new GuiNpcLabel(4, "gui.templates", this.guiLeft + 176, this.guiTop + 27));
@@ -317,105 +290,106 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			scrollTemplate.guiLeft = this.guiLeft + 175;
 			scrollTemplate.guiTop = this.guiTop + 38;
 			this.addScroll(scrollTemplate);
-
 			if (DropController.getInstance().templates.containsKey(inventory.saveDropsName)) {
 				temp = DropController.getInstance().templates.get(inventory.saveDropsName);
 				scrollTemplate.setSelected(inventory.saveDropsName);
 				if (temp.groups.containsKey(groupId)) {
-					hoversTexts = new String[temp.groups.get(groupId).size()][];
 					int i = 0;
 					for (DropSet ds : temp.groups.get(groupId).values()) {
 						dropsData.put(ds.getKey(), ds);
-						hoversTexts[i] = ds.getHover(player);
-						i++;
+						hts.put(i++, ds.getHover(player));
 					}
 				}
-			} else {
-				this.groupId = 0;
 			}
-
-			this.addButton(new GuiNpcButton(4, this.guiLeft + 175, this.guiTop + 180, 48, 15, "gui.add", true));
-			this.addButton(new GuiNpcButton(5, this.guiLeft + 175, this.guiTop + 197, 48, 15, "gui.copy", !inventory.saveDropsName.isEmpty() && !inventory.saveDropsName.equals("default")));
-			this.addButton(new GuiNpcButton(6, this.guiLeft + 225, this.guiTop + 180, 48, 15, "selectServer.edit", !inventory.saveDropsName.isEmpty() && !inventory.saveDropsName.equals("default")));
-			this.addButton(new GuiNpcButton(7, this.guiLeft + 225, this.guiTop + 197, 48, 15, "gui.remove", !this.inventory.saveDropsName.isEmpty() && !inventory.saveDropsName.equals("default")));
+			else { this.groupId = 0; }
+			button = new GuiNpcButton(4, this.guiLeft + 175, this.guiTop + 180, 48, 15, "gui.add", true);
+			button.setHoverText("inv.hover.new.template");
+			addButton(button);
+			button = new GuiNpcButton(5, this.guiLeft + 175, this.guiTop + 197, 48, 15, "gui.copy", !inventory.saveDropsName.isEmpty() && !inventory.saveDropsName.equals("default"));
+			button.setHoverText("inv.hover.copy.template");
+			addButton(button);
+			button = new GuiNpcButton(6, this.guiLeft + 225, this.guiTop + 180, 48, 15, "selectServer.edit", !inventory.saveDropsName.isEmpty() && !inventory.saveDropsName.equals("default"));
+			button.setHoverText("inv.hover.rename.template");
+			addButton(button);
+			button = new GuiNpcButton(7, this.guiLeft + 225, this.guiTop + 197, 48, 15, "gui.remove", !this.inventory.saveDropsName.isEmpty() && !inventory.saveDropsName.equals("default"));
+			button.setHoverText("inv.hover.del.template");
+			addButton(button);
 			this.addLabel(new GuiNpcLabel(5, "gui.groups", this.guiLeft + 277, this.guiTop + 30));
-
 			List<String> l = new ArrayList<>();
 			int g = 1;
-			if (this.temp != null && !this.temp.groups.isEmpty()) {
-				g = this.temp.groups.size();
-			}
-			for (int i = 0; i < g; i++) {
-				l.add((i + 1)+ " / " + g);
-			}
-			this.addButton(new GuiNpcButton(8, this.guiLeft + 346, this.guiTop + 27, 70, 15, l.toArray(new String[0]), this.groupId));
-
-			if (scrollDrops == null) {
-				scrollDrops = new GuiCustomScroll(this, 1);
-			}
+			if (this.temp != null && !this.temp.groups.isEmpty()) { g = this.temp.groups.size(); }
+			for (int i = 0; i < g; i++) { l.add((i + 1)+ " / " + g); }
+			button = new GuiNpcButton(8, this.guiLeft + 346, this.guiTop + 27, 70, 15, l.toArray(new String[0]), this.groupId);
+			button.setHoverText("inv.hover.group.id");
+			addButton(button);
+			if (scrollDrops == null) { scrollDrops = new GuiCustomScroll(this, 1); }
 			scrollDrops.setSize(140, 117);
 			scrollDrops.setList(new ArrayList<>(dropsData.keySet()));
 			scrollDrops.guiLeft = guiLeft + 276;
 			scrollDrops.guiTop = guiTop + 44;
-			scrollDrops.hoversTexts = hoversTexts;
+			scrollDrops.setHoverTexts(hts);
 			addScroll(scrollDrops);
-
 			// Stacks
-			this.addButton(new GuiNpcButton(1, this.guiLeft + 330, this.guiTop + 163, 48, 15, "gui.add", !inventory.saveDropsName.isEmpty()));
-			this.addButton(new GuiNpcButton(2, this.guiLeft + 330, this.guiTop + 180, 48, 15, "selectServer.edit", scrollDrops.getSelected() != null));
-			this.addButton(new GuiNpcButton(3, this.guiLeft + 330, this.guiTop + 197, 48, 15, "gui.remove", scrollDrops.hasSelected() && !(inventory.saveDropsName.equals("default") && scrollDrops.selected < 4)));
-
+			button = new GuiNpcButton(1, this.guiLeft + 330, this.guiTop + 163, 48, 15, "gui.add", !inventory.saveDropsName.isEmpty());
+			button.setHoverText("inv.hover.add.drop", "9000");
+			addButton(button);
+			button = new GuiNpcButton(2, this.guiLeft + 330, this.guiTop + 180, 48, 15, "selectServer.edit", scrollDrops.getSelected() != null);
+			button.setHoverText("inv.hover.edit.drop", dropName);
+			addButton(button);
+			button = new GuiNpcButton(3, this.guiLeft + 330, this.guiTop + 197, 48, 15, "gui.remove", scrollDrops.hasSelected() && !(inventory.saveDropsName.equals("default") && scrollDrops.selected < 4));
+			button.setHoverText("inv.hover.del.drop", dropName);
+			addButton(button);
 			// Groups
-			this.addButton(new GuiNpcButton(9, this.guiLeft + 277, this.guiTop + 163, 48, 15, "gui.add", true));
-			this.addButton(new GuiNpcButton(11, this.guiLeft + 277, this.guiTop + 180, 48, 15, "gui.copy", temp != null && this.temp.groups.containsKey(this.groupId)));
-			this.addButton(new GuiNpcButton(12, this.guiLeft + 277, this.guiTop + 197, 48, 15, "gui.remove", temp != null && temp.groups.containsKey(groupId) && groupId > 0));
-
+			button = new GuiNpcButton(9, this.guiLeft + 277, this.guiTop + 163, 48, 15, "gui.add", true);
+			button.setHoverText("inv.hover.add.group");
+			addButton(button);
+			button = new GuiNpcButton(11, this.guiLeft + 277, this.guiTop + 180, 48, 15, "gui.copy", temp != null && this.temp.groups.containsKey(this.groupId));
+			button.setHoverText("inv.hover.copy.group");
+			addButton(button);
+			button = new GuiNpcButton(12, this.guiLeft + 277, this.guiTop + 197, 48, 15, "gui.remove", temp != null && temp.groups.containsKey(groupId) && groupId > 0);
+			button.setHoverText("inv.hover.del.group");
+			addButton(button);
 		}
 		else {
 			this.addLabel(new GuiNpcLabel(4, "gui.templates", this.guiLeft + 176, this.guiTop + 27));
 			this.addLabel(new GuiNpcLabel(5, "inv.drops", this.guiLeft + 277, this.guiTop + 27));
-
 			if (inventory.getDrops().length > 0) {
-				hoversTexts = new String[inventory.getDrops().length][];
 				int i = 0;
 				for (ICustomDrop ids : inventory.getDrops()) {
 					DropSet ds = (DropSet) ids;
 					dropsData.put(ds.getKey(), ds);
-					hoversTexts[i] = ds.getHover(player);
-					i++;
+					hts.put(i++, ds.getHover(player));
 				}
 			}
-
-			if (this.scrollTemplate == null) {
-				this.scrollTemplate = new GuiCustomScroll(this, 0);
-			}
+			if (this.scrollTemplate == null) { this.scrollTemplate = new GuiCustomScroll(this, 0); }
 			this.scrollTemplate.setSize(98, 174);
 			this.scrollTemplate.setList(new ArrayList<>(DropController.getInstance().templates.keySet()));
 			this.scrollTemplate.guiLeft = this.guiLeft + 175;
 			this.scrollTemplate.guiTop = this.guiTop + 38;
 			this.addScroll(this.scrollTemplate);
-
 			if (DropController.getInstance().templates.containsKey(this.inventory.saveDropsName)) {
 				this.temp = DropController.getInstance().templates.get(this.inventory.saveDropsName);
 				this.scrollTemplate.setSelected(this.inventory.saveDropsName);
-			} else {
-				this.groupId = 0;
 			}
-			if (scrollDrops == null) {
-				scrollDrops = new GuiCustomScroll(this, 1);
-			}
+			else { this.groupId = 0; }
+			if (scrollDrops == null) { scrollDrops = new GuiCustomScroll(this, 1); }
 
 			scrollDrops.setSize(140, 157);
 			scrollDrops.setList(new ArrayList<>(dropsData.keySet()));
 			scrollDrops.guiLeft = this.guiLeft + 276;
 			scrollDrops.guiTop = this.guiTop + 38;
-			scrollDrops.hoversTexts = hoversTexts;
+			scrollDrops.setHoverTexts(hts);
 			addScroll(scrollDrops);
 
-
-			this.addButton(new GuiNpcButton(1, this.guiLeft + 277, this.guiTop + 197, 45, 15, "gui.add", this.dropsData.size() < CustomNpcs.MaxItemInDropsNPC));
-			this.addButton(new GuiNpcButton(2, this.guiLeft + 324, this.guiTop + 197, 45, 15, "selectServer.edit", this.scrollDrops.selected >= 0));
-			this.addButton(new GuiNpcButton(3, this.guiLeft + 371, this.guiTop + 197, 45, 15, "gui.remove", this.scrollDrops.selected >= 0));
+			button = new GuiNpcButton(1, this.guiLeft + 277, this.guiTop + 197, 45, 15, "gui.add", this.dropsData.size() < CustomNpcs.MaxItemInDropsNPC);
+			button.setHoverText("inv.hover.add.drop", "" + CustomNpcs.MaxItemInDropsNPC);
+			addButton(button);
+			button = new GuiNpcButton(2, this.guiLeft + 324, this.guiTop + 197, 45, 15, "selectServer.edit", this.scrollDrops.selected >= 0);
+			button.setHoverText("inv.hover.edit.drop", dropName);
+			addButton(button);
+			button = new GuiNpcButton(3, this.guiLeft + 371, this.guiTop + 197, 45, 15, "gui.remove", this.scrollDrops.selected >= 0);
+			button.setHoverText("inv.hover.del.drop", dropName);
+			addButton(button);
 		}
 	}
 	
@@ -468,7 +442,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 		}
 		DropController dData = DropController.getInstance();
         String name = ((SubGuiEditText) subgui).text[0];
-		if (subgui.id == 1) { // new template
+		if (subgui.id == 1) { // create template
 			while (dData.templates.containsKey(name)) { name += "_"; }
 			this.inventory.saveDropsName = name;
 			dData.templates.put(this.inventory.saveDropsName, new DropsTemplate());

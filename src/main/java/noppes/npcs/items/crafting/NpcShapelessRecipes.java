@@ -34,7 +34,7 @@ import noppes.npcs.api.mixin.item.crafting.IIngredientMixin;
 import noppes.npcs.api.mixin.item.crafting.IShapelessRecipesMixin;
 import noppes.npcs.util.Util;
 
-public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe, IRecipe // Changed
+public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe, IRecipe
 {
 	public static INpcRecipe createRecipe(String group, String name, boolean global, ItemStack stack, Object... map) {
 		StringBuilder allRows = new StringBuilder();

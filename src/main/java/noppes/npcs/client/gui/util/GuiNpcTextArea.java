@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.util;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,51 +15,45 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.client.ClientProxy;
 
-public class GuiNpcTextArea extends GuiNpcTextField {
+public class GuiNpcTextArea
+extends GuiNpcTextField {
 
-	private boolean clickVerticalBar;
+	public boolean inMenu = true;
+	public boolean numbersOnly = false;
+	private boolean clickVerticalBar = false;
 	private int cursorCounter;
-	private int cursorPosition;
+	private int cursorPosition = 0;
 	private final ClientProxy.FontContainer font;
 	private final int height;
-	public boolean inMenu;
 	private int listHeight;
-	public boolean numbersOnly;
 	private final int posX;
 	private final int posY;
-	private float scrolledY;
-	private int startClick;
+	private float scrolledY = 0.0f;
+	private int startClick = -1;
 	private final int width;
-	private final boolean wrapLine;
+	private final boolean wrapLine = true;
 
-	public GuiNpcTextArea(int id, GuiScreen guiscreen, int i, int j, int k, int l, String s) {
-		super(id, guiscreen, i, j, k, l, s);
-		this.inMenu = true;
-		this.numbersOnly = false;
-		this.cursorPosition = 0;
-		this.scrolledY = 0.0f;
-		this.startClick = -1;
-		this.clickVerticalBar = false;
-		this.wrapLine = true;
-		this.posX = i;
-		this.posY = j;
-		this.width = k;
-		this.height = l;
-		this.listHeight = l;
-		this.font = ClientProxy.Font.copy();
-		this.font.useCustomFont = true;
-		this.setMaxStringLength(Integer.MAX_VALUE);
-		this.setText(s.replace("\r\n", "\n"));
+	public GuiNpcTextArea(int id, GuiScreen guiscreen, int x, int y, int width, int height, String text) {
+		super(id, guiscreen, x, y, width, height, text);
+		posX = x;
+		posY = y;
+		this.width = width;
+		this.height = height;
+		listHeight = height;
+		font = ClientProxy.Font.copy();
+		font.useCustomFont = true;
+		setMaxStringLength(Integer.MAX_VALUE);
+		setText(text.replace("\r\n", "\n"));
 	}
 
 	private void addScrollY(int scrolled) {
-		this.scrolledY -= 1.0f * scrolled / this.height;
-		if (this.scrolledY < 0.0f) {
-			this.scrolledY = 0.0f;
+		scrolledY -= 1.0f * scrolled / height;
+		if (scrolledY < 0.0f) {
+			scrolledY = 0.0f;
 		}
-		float max = 1.0f - 1.0f * (this.height + 2) / this.listHeight;
-		if (this.scrolledY > max) {
-			this.scrolledY = max;
+		float max = 1.0f - 1.0f * (height + 2) / listHeight;
+		if (scrolledY > max) {
+			scrolledY = max;
 		}
 	}
 
@@ -73,11 +68,11 @@ public class GuiNpcTextArea extends GuiNpcTextField {
 			startY = endY;
 			endY = i1;
 		}
-		if (endX > this.posX + this.width) {
-			endX = this.posX + this.width;
+		if (endX > posX + width) {
+			endX = posX + width;
 		}
-		if (startX > this.posX + this.width) {
-			startX = this.posX + this.width;
+		if (startX > posX + width) {
+			startX = posX + width;
 		}
 		BufferBuilder tessellator = Tessellator.getInstance().getBuffer();
 		GlStateManager.color(0.0f, 0.0f, 255.0f, 255.0f);
@@ -96,54 +91,53 @@ public class GuiNpcTextArea extends GuiNpcTextField {
 
 	public void drawString(String text, int x, int y, int color) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.font.drawString(text, x, y, color);
+		font.drawString(text, x, y, color);
 	}
 
 	@Override
-	public void drawTextBox(int mouseX, int mouseY) {
-		drawRect(this.posX - 1, this.posY - 1, this.posX + this.width + 1, this.posY + this.height + 1, -6250336);
-		drawRect(this.posX, this.posY, this.posX + this.width, this.posY + this.height, -16777216);
-		int color = 0xE0E0E0;
-		boolean flag = this.isFocused() && this.cursorCounter / 6 % 2 == 0;
-		int startLine = this.getStartLineY();
-		int maxLine = this.height / this.font.height(this.getText()) + startLine;
-		List<String> lines = this.getLines();
+	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
+		drawRect(posX - 1, posY - 1, posX + width + 1, posY + height + 1, new Color(0xA0, 0xA0, 0xA0, 0xFF).getRGB());
+		drawRect(posX, posY, posX + width, posY + height, new Color(0x00, 0x00, 0x00, 0xFF).getRGB());
+		int color = new Color(0xE0, 0xE0, 0xE0, 0xFF).getRGB();
+		boolean flag = isFocused() && cursorCounter / 6 % 2 == 0;
+		int startLine = getStartLineY();
+		int maxLine = height / font.height(getText()) + startLine;
+		List<String> lines = getLines();
 		int charCount = 0;
 		int lineCount = 0;
-		int maxSize = this.width - (this.isScrolling() ? 14 : 4);
+		int maxSize = width - (isScrolling() ? 14 : 4);
         for (String wholeLine : lines) {
             String line = "";
             for (char c : wholeLine.toCharArray()) {
-                if (this.font.width(line + c) > maxSize && this.wrapLine) {
+                if (font.width(line + c) > maxSize && wrapLine) {
                     if (lineCount >= startLine && lineCount < maxLine) {
-                        this.drawString(line, this.posX + 4, this.posY + 4 + (lineCount - startLine) * this.font.height(line), color);
+                        drawString(line, posX + 4, posY + 4 + (lineCount - startLine) * font.height(line), color);
                     }
                     line = "";
                     ++lineCount;
                 }
-                if (flag && charCount == this.cursorPosition && lineCount >= startLine && lineCount < maxLine
-                        && this.canEdit) {
-                    int xx = this.posX + this.font.width(line) + 4;
-                    int yy = this.posY + (lineCount - startLine) * this.font.height(line) + 4;
-                    if (this.getText().length() == this.cursorPosition) {
-                        this.font.drawString("_", xx, yy, color);
+                if (flag && charCount == cursorPosition && lineCount >= startLine && lineCount < maxLine
+                        && canEdit) {
+                    int xx = posX + font.width(line) + 4;
+                    int yy = posY + (lineCount - startLine) * font.height(line) + 4;
+                    if (getText().length() == cursorPosition) {
+                        font.drawString("_", xx, yy, color);
                     } else {
-                        this.drawCursorVertical(xx, yy, xx + 1, yy + this.font.height(line));
+                        drawCursorVertical(xx, yy, xx + 1, yy + font.height(line));
                     }
                 }
                 ++charCount;
                 line += c;
             }
             if (lineCount >= startLine && lineCount < maxLine) {
-                this.drawString(line, this.posX + 4,
-                        this.posY + 4 + (lineCount - startLine) * this.font.height(line), color);
-                if (flag && charCount == this.cursorPosition && this.canEdit) {
-                    int xx2 = this.posX + this.font.width(line) + 4;
-                    int yy2 = this.posY + (lineCount - startLine) * this.font.height(line) + 4;
-                    if (this.getText().length() == this.cursorPosition) {
-                        this.font.drawString("_", xx2, yy2, color);
+                drawString(line, posX + 4, posY + 4 + (lineCount - startLine) * font.height(line), color);
+                if (flag && charCount == cursorPosition && canEdit) {
+                    int xx2 = posX + font.width(line) + 4;
+                    int yy2 = posY + (lineCount - startLine) * font.height(line) + 4;
+                    if (getText().length() == cursorPosition) {
+                        font.drawString("_", xx2, yy2, color);
                     } else {
-                        this.drawCursorVertical(xx2, yy2, xx2 + 1, yy2 + this.font.height(line));
+                        drawCursorVertical(xx2, yy2, xx2 + 1, yy2 + font.height(line));
                     }
                 }
             }
@@ -155,39 +149,39 @@ public class GuiNpcTextArea extends GuiNpcTextField {
 			if (dWheel != 0) { addScrollY(dWheel < 0 ? -10 : 10); }
 		}
 		if (Mouse.isButtonDown(0)) {
-			if (this.clickVerticalBar) {
-				if (this.startClick >= 0) {
-					this.addScrollY(this.startClick - (mouseY - this.posY));
+			if (clickVerticalBar) {
+				if (startClick >= 0) {
+					addScrollY(startClick - (mouseY - posY));
 				}
-				this.startClick = mouseY - this.posY;
+				startClick = mouseY - posY;
 			}
 		} else {
-			this.clickVerticalBar = false;
+			clickVerticalBar = false;
 		}
-		this.listHeight = lineCount * this.font.height(this.getText());
-		this.drawVerticalScrollBar();
+		listHeight = lineCount * font.height(getText());
+		drawVerticalScrollBar();
 	}
 
 	private void drawVerticalScrollBar() {
-		if (this.listHeight <= this.height - 4) {
+		if (listHeight <= height - 4) {
 			return;
 		}
 		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomScroll.resource);
-		int x = this.posX + this.width - 6;
-		int y = (int) ((this.posY + this.scrolledY * this.height) + 2);
+		int x = posX + width - 6;
+		int y = (int) ((posY + scrolledY * height) + 2);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		int sbSize = this.getVerticalBarSize();
-		this.drawTexturedModalRect(x, y, this.width, 9, 5, 1);
+		int sbSize = getVerticalBarSize();
+		drawTexturedModalRect(x, y, width, 9, 5, 1);
 		for (int k = 0; k < sbSize; ++k) {
-			this.drawTexturedModalRect(x, y + k, this.width, 10, 5, 1);
+			drawTexturedModalRect(x, y + k, width, 10, 5, 1);
 		}
-		this.drawTexturedModalRect(x, y, this.width, 11, 5, 1);
+		drawTexturedModalRect(x, y, width, 11, 5, 1);
 	}
 
 	private List<String> getLines() {
 		List<String> list = new ArrayList<>();
 		StringBuilder line = new StringBuilder();
-		for (char c : this.getText().toCharArray()) {
+		for (char c : getText().toCharArray()) {
 			if (c == '\r' || c == '\n') {
 				list.add(line.toString());
 				line = new StringBuilder();
@@ -200,61 +194,60 @@ public class GuiNpcTextArea extends GuiNpcTextField {
 	}
 
 	private int getStartLineY() {
-		if (!this.isScrolling()) {
-			this.scrolledY = 0.0f;
+		if (!isScrolling()) {
+			scrolledY = 0.0f;
 		}
-		return MathHelper.ceil(this.scrolledY * this.listHeight / this.font.height(this.getText()));
+		return MathHelper.ceil(scrolledY * listHeight / font.height(getText()));
 	}
 
 	private int getVerticalBarSize() {
-		return (int) (1.0f * this.height / this.listHeight * (this.height - 4));
+		return (int) (1.0f * height / listHeight * (height - 4));
 	}
 
 	private boolean hoverVerticalScrollBar(int x, int y) {
-		return this.listHeight > this.height - 4 && (this.posY < y && this.posY + this.height > y
-				&& x < this.posX + this.width && x > this.posX + (this.width - 8));
+		return listHeight > height - 4 && (posY < y && posY + height > y && x < posX + width && x > posX + (width - 8));
 	}
 
 	private boolean isScrolling() {
-		return this.listHeight > this.height - 4;
+		return listHeight > height - 4;
 	}
 
 	@Override
 	public boolean mouseClicked(int i, int j, int k) {
 		super.mouseClicked(i, j, k);
-		if (this.hoverVerticalScrollBar(i, j)) {
-			this.clickVerticalBar = true;
-			this.startClick = -1;
+		if (hoverVerticalScrollBar(i, j)) {
+			clickVerticalBar = true;
+			startClick = -1;
 			return false;
 		}
-		if (k != 0 || !this.canEdit) {
+		if (k != 0 || !canEdit) {
 			return false;
 		}
-		int x = i - this.posX;
-		int y = (j - this.posY - 4) / this.font.height(this.getText()) + this.getStartLineY();
-		this.cursorPosition = 0;
-		List<String> lines = this.getLines();
+		int x = i - posX;
+		int y = (j - posY - 4) / font.height(getText()) + getStartLineY();
+		cursorPosition = 0;
+		List<String> lines = getLines();
 		int charCount = 0;
 		int lineCount = 0;
-		int maxSize = this.width - (this.isScrolling() ? 14 : 4);
+		int maxSize = width - (isScrolling() ? 14 : 4);
         for (String wholeLine : lines) {
             StringBuilder line = new StringBuilder();
             for (char c : wholeLine.toCharArray()) {
-                this.cursorPosition = charCount;
-                if (this.font.width(line.toString() + c) > maxSize && this.wrapLine) {
+                cursorPosition = charCount;
+                if (font.width(line.toString() + c) > maxSize && wrapLine) {
                     ++lineCount;
                     line = new StringBuilder();
                     if (y < lineCount) {
                         break;
                     }
                 }
-                if (lineCount == y && x <= this.font.width(line.toString() + c)) {
+                if (lineCount == y && x <= font.width(line.toString() + c)) {
                     return true;
                 }
                 ++charCount;
                 line.append(c);
             }
-            this.cursorPosition = charCount;
+            cursorPosition = charCount;
             ++lineCount;
             ++charCount;
             if (y < lineCount) {
@@ -262,32 +255,31 @@ public class GuiNpcTextArea extends GuiNpcTextField {
             }
         }
 		if (y >= lineCount) {
-			this.cursorPosition = this.getText().length();
+			cursorPosition = getText().length();
 		}
 		return true;
 	}
 
 	@Override
 	public boolean textboxKeyTyped(char c, int i) {
-		if (this.isFocused() && this.canEdit) {
-			String originalText = this.getText();
-			this.setText(originalText);
+		if (isFocused() && canEdit) {
+			String originalText = getText();
+			setText(originalText);
 			if (c == '\r' || c == '\n') {
-				this.setText(originalText.substring(0, this.cursorPosition) + c
-						+ originalText.substring(this.cursorPosition));
+				setText(originalText.substring(0, cursorPosition) + c + originalText.substring(cursorPosition));
 			}
-			this.setCursorPositionZero();
-			this.moveCursorBy(this.cursorPosition);
+			setCursorPositionZero();
+			moveCursorBy(cursorPosition);
 			boolean bo = super.textboxKeyTyped(c, i);
-			String newText = this.getText();
+			String newText = getText();
 			if (i != 211) {
-				this.cursorPosition += newText.length() - originalText.length();
+				cursorPosition += newText.length() - originalText.length();
 			}
-			if (i == 203 && this.cursorPosition > 0) {
-				--this.cursorPosition;
+			if (i == 203 && cursorPosition > 0) {
+				--cursorPosition;
 			}
-			if (i == 205 && this.cursorPosition < newText.length()) {
-				++this.cursorPosition;
+			if (i == 205 && cursorPosition < newText.length()) {
+				++cursorPosition;
 			}
 			return bo;
 		}
@@ -295,7 +287,7 @@ public class GuiNpcTextArea extends GuiNpcTextField {
 	}
 
 	public void updateCursorCounter() {
-		++this.cursorCounter;
+		++cursorCounter;
 	}
 
 }

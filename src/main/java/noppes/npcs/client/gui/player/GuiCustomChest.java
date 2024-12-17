@@ -8,7 +8,8 @@ import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomChest;
 
-public class GuiCustomChest extends GuiContainer {
+public class GuiCustomChest
+extends GuiContainer {
 
 	private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
 	private final int inventoryRows;

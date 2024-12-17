@@ -14,7 +14,6 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.ability.AbstractAbility;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.RayTraceVec;
 import noppes.npcs.util.Util;
 
 public class CombatHandler {
@@ -24,6 +23,8 @@ public class CombatHandler {
 	private int combatResetTimer = 0;
 	private int delay = 10;
 	private final EntityNPCInterface npc;
+	public boolean onlyPlayers = false;
+
 	public EntityLivingBase priorityTarget = null;
 
 	public CombatHandler(EntityNPCInterface npc) {
@@ -54,6 +55,10 @@ public class CombatHandler {
 		Entity e = NoppesUtilServer.GetDamageSource(source);
 		if (!(e instanceof EntityLivingBase)) { return; }
 		EntityLivingBase attackingEntity = (EntityLivingBase) e;
+		if (attackingEntity instanceof EntityPlayer) {
+			if (((EntityPlayer) attackingEntity).capabilities.isCreativeMode) { return; }
+			onlyPlayers = true;
+		}
 		// Minimum
 		if (damageAmount <= 0.25d) { damageAmount = 0.25d; }
 		// Distance
@@ -90,6 +95,7 @@ public class CombatHandler {
 	public void reset() {
 		combatResetTimer = 0;
 		delay = 10;
+		onlyPlayers = false;
 		aggressors.clear();
 		lastDamages.clear();
 		priorityTarget = null;
@@ -134,7 +140,6 @@ public class CombatHandler {
 		double maxValue = Double.MIN_VALUE;
 		priorityTarget = null;
 		double maxDist = npc.stats.aggroRange * 2.0d;
-		double dist = 0.0d;
 		for (EntityLivingBase entity : aggressors.keySet()) {
 			if (!isValidTarget(entity)) {
 				del.add(entity);
@@ -146,7 +151,6 @@ public class CombatHandler {
 			if (maxValue == Double.MIN_VALUE || aggressors.get(entity) >= maxValue) {
 				maxValue = aggressors.get(entity);
 				priorityTarget = entity;
-				dist = d;
 			}
 		}
 		for (EntityLivingBase entity : del) { aggressors.remove(entity); }
@@ -154,10 +158,6 @@ public class CombatHandler {
 		if (priorityTarget != null && (npc.getAttackTarget() == null || !npc.getAttackTarget().equals(priorityTarget))) {
 			npc.setPriorityAttackTarget(priorityTarget);
 			npc.getNavigator().tryMoveToEntityLiving(priorityTarget, 1.5);
-			if (npc.ais.canLeap && Math.abs(npc.posY - priorityTarget.posY) < 3 && dist > 3.0d && dist <= (double) npc.stats.aggroRange / 2.0d) {
-				RayTraceVec fg = Util.instance.getVector3D(npc.posX, npc.posY, npc.posZ, priorityTarget.posX, priorityTarget.posY, priorityTarget.posZ);
-				System.out.println("CNPCs: "+fg.getX()+"; "+fg.getY()+"; "+fg.getZ());
-			}
 			delay = 60;
 		}
 	}

@@ -145,19 +145,25 @@ public class CustomNpcs {
 	@ConfigProp(info = "Font size for custom fonts (doesn't work with minecraft fonts)", def = "18", min = "6", max = "36")
 	public static int FontSize = 18;
 	@ConfigProp(info = "Main text color of elements in GUI modification", def = "FFFFFF", type = Configuration.CATEGORY_CLIENT)
-	public static Color MainColor = new Color(0xFFFFFF);
+	public static Color MainColor = new Color(0xFFFFFFFF);
 	@ConfigProp(info = "Name text color in GUI modification", def = "404040", type = Configuration.CATEGORY_CLIENT)
-	public static Color LableColor = new Color(0x404040);
+	public static Color LableColor = new Color(0xFF404040);
 	@ConfigProp(info = "Text color for inactive elements in modification GUI", def = "A0A0A0", type = Configuration.CATEGORY_CLIENT)
-	public static Color NotEnableColor = new Color(0xA0A0A0);
+	public static Color NotEnableColor = new Color(0xFFA0A0A0);
 	@ConfigProp(info = "Text color of elements in modification GUI when the element is held down by the mouse cursor", def = "FFFFA0", type = Configuration.CATEGORY_CLIENT)
-	public static Color HoverColor = new Color(0xFFFFA0);
+	public static Color HoverColor = new Color(0xFFFFFFA0);
 	@ConfigProp(info = "Text Color for GUI Quest Log", def = "404060", type = Configuration.CATEGORY_CLIENT)
-	public static Color QuestLogColor = new Color(0x404060);
+	public static Color QuestLogColor = new Color(0xFF404060);
 	@ConfigProp(info = "Color of message bubbles above NPC head [text, frame, base]", def = "000000,000000,FFFFFF", type = Configuration.CATEGORY_CLIENT)
-	public static Color[] ChatNpcColors = new Color[] { new Color(0x000000), new Color(0x000000), new Color(0xFFFFFF) };
+	public static Color[] ChatNpcColors = new Color[] {
+			new Color(0xFF000000),
+			new Color(0xFF000000),
+			new Color(0xFFFFFFFF) };
 	@ConfigProp(info = "Color of message bubbles above Player head [text, frame, base]", def = "000000,2C4C00,E0FFB0", type = Configuration.CATEGORY_CLIENT)
-	public static Color[] ChatPlayerColors = new Color[] { new Color(0x000000), new Color(0x2C4C00), new Color(0xE0FFB0) };
+	public static Color[] ChatPlayerColors = new Color[] {
+			new Color(0xFF000000),
+			new Color(0xFF2C4C00),
+			new Color(0xFFE0FFB0) };
 	@ConfigProp(info = "When set to Minecraft it will use minecraft fonts, when Default it will use OpenSans. Can only use fonts installed on your PC", def = "Default")
 	public static String FontType = "Default";
 	@ConfigProp(info = "Type 0=Normal; 1=Solid; 2=Not show", def = "1", min = "0", max = "1")
@@ -274,9 +280,10 @@ public class CustomNpcs {
 	public static ModContainer mod;
 	public static final VisibilityController visibilityController = new VisibilityController();
 	
-	public static int colorAnimHoverPart = 0xFA7800;
+	public static int colorAnimHoverPart = new Color(0xFFFA7800).getRGB();
+    public static int PanoramaNumbers = 4;
 
-	static {
+    static {
 		FluidRegistry.enableUniversalBucket();
 	}
 
@@ -284,7 +291,7 @@ public class CustomNpcs {
 		return getWorldSaveDirectory(null);
 	}
 
-	public static File getWorldSaveDirectory(String s) { // Changed
+	public static File getWorldSaveDirectory(String s) {
 		try {
 			File dir = new File(".");
 			if (CustomNpcs.Server != null) {
@@ -305,7 +312,7 @@ public class CustomNpcs {
 	}
 
 	@Mod.EventHandler
-	public static void postload(FMLPostInitializationEvent ev) { // New
+	public static void postload(FMLPostInitializationEvent ev) {
 		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_postload");
 
 		new Util();

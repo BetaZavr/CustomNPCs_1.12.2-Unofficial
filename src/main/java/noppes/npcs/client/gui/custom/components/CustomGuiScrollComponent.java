@@ -17,7 +17,9 @@ import noppes.npcs.client.gui.custom.interfaces.IDataHolder;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 
-public class CustomGuiScrollComponent extends GuiCustomScroll implements IDataHolder, IClickListener {
+public class CustomGuiScrollComponent
+extends GuiCustomScroll
+implements IDataHolder, IClickListener {
 
 	public CustomGuiScrollWrapper component;
 	GuiCustom parent;

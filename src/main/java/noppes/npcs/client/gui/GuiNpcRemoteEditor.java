@@ -1,9 +1,8 @@
 package noppes.npcs.client.gui;
 
+import java.awt.*;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 
 import net.minecraft.client.gui.Gui;
@@ -35,27 +34,25 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 	private static boolean all = false;
 	private final HashMap<String, Integer> dataIDs = new HashMap<>();
 	private GuiCustomScroll scroll;
-	private String search = "";
-	private List<String> list;
 	public Entity selectEntity;
 	private final DecimalFormat df = new DecimalFormat("#.#");
-	private final char chr = ((char) 167);
 
 	public GuiNpcRemoteEditor() {
-		this.xSize = 256;
-		this.setBackground("menubg.png");
+		super();
+        xSize = 256;
+		setBackground("menubg.png");
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 			case 0: {
-				if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
+				if (!dataIDs.containsKey(scroll.getSelected())) {
 					return;
 				}
-				Entity entity = this.mc.world.getEntityByID(this.dataIDs.get(scroll.getSelected()));
+				Entity entity = mc.world.getEntityByID(dataIDs.get(scroll.getSelected()));
 				if (entity instanceof EntityNPCInterface) {
-					Client.sendData(EnumPacketServer.RemoteMainMenu, this.dataIDs.get(this.scroll.getSelected()));
+					Client.sendData(EnumPacketServer.RemoteMainMenu, dataIDs.get(scroll.getSelected()));
 					return;
 				} else {
 					if (entity == null) {
@@ -68,24 +65,24 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 					compound.setInteger("EntityId", entity.getEntityId());
 					compound.setTag("Data", data);
 					gui.setGuiData(compound);
-					this.mc.displayGuiScreen(gui);
+					mc.displayGuiScreen(gui);
 				}
 				break;
 			}
 			case 1: { // remove entity
-				if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
+				if (!dataIDs.containsKey(scroll.getSelected())) {
 					return;
 				}
-				GuiYesNo guiyesno = new GuiYesNo(this, this.scroll.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-				this.displayGuiScreen(guiyesno);
+				GuiYesNo guiyesno = new GuiYesNo(this, scroll.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 2: {
-				if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
+				if (!dataIDs.containsKey(scroll.getSelected())) {
 					return;
 				}
-				Client.sendData(EnumPacketServer.RemoteReset, this.dataIDs.get(this.scroll.getSelected()));
-				Entity entity2 = this.player.world.getEntityByID(this.dataIDs.get(this.scroll.getSelected()));
+				Client.sendData(EnumPacketServer.RemoteReset, dataIDs.get(scroll.getSelected()));
+				Entity entity2 = player.world.getEntityByID(dataIDs.get(scroll.getSelected()));
 				if (entity2 instanceof EntityNPCInterface) {
 					((EntityNPCInterface) entity2).reset();
 				}
@@ -96,17 +93,17 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 				break;
 			}
 			case 4: { // tp
-				if (!this.dataIDs.containsKey(this.scroll.getSelected())) {
+				if (!dataIDs.containsKey(scroll.getSelected())) {
 					return;
 				}
-				Client.sendData(EnumPacketServer.RemoteTpToNpc, this.dataIDs.get(this.scroll.getSelected()));
+				Client.sendData(EnumPacketServer.RemoteTpToNpc, dataIDs.get(scroll.getSelected()));
 				CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all), 250);
 				break;
 			}
 			case 5: {
-				for (int ids : this.dataIDs.values()) {
+				for (int ids : dataIDs.values()) {
 					Client.sendData(EnumPacketServer.RemoteReset, ids);
-					Entity entity = this.player.world.getEntityByID(ids);
+					Entity entity = player.world.getEntityByID(ids);
 					if (entity instanceof EntityNPCInterface) {
 						((EntityNPCInterface) entity).reset();
 					}
@@ -131,16 +128,15 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 
 	public void confirmClicked(boolean flag, int i) {
 		if (flag) {
-			Client.sendData(EnumPacketServer.RemoteDelete, this.dataIDs.get(this.scroll.getSelected()),
-					GuiNpcRemoteEditor.all);
-			this.selectEntity = null;
-			Entity e = this.player.world.getEntityByID(this.dataIDs.get(this.scroll.getSelected()));
+			Client.sendData(EnumPacketServer.RemoteDelete, dataIDs.get(scroll.getSelected()), GuiNpcRemoteEditor.all);
+			selectEntity = null;
+			Entity e = player.world.getEntityByID(dataIDs.get(scroll.getSelected()));
 			if (e != null) {
-				this.player.world.removeEntity(e);
+				player.world.removeEntity(e);
 			}
 		}
 		CustomNPCsScheduler.runTack(() -> {
-			NoppesUtil.openGUI(this.player, this);
+			NoppesUtil.openGUI(player, this);
 			Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
 		}, 250);
 
@@ -148,107 +144,85 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		if (this.subgui == null) {
+		if (subgui == null) {
 			GlStateManager.pushMatrix();
-			if (this.selectEntity != null) {
+			if (selectEntity != null) {
 				int r, p = 0, x = 221, y = 162;
-				if (this.selectEntity instanceof EntityLivingBase) {
-					r = (int) (3 * this.player.world.getTotalWorldTime() % 360);
+				if (selectEntity instanceof EntityLivingBase) {
+					r = (int) (3 * player.world.getTotalWorldTime() % 360);
 				} else {
 					r = 0;
 					y -= 34;
-					if (this.selectEntity instanceof EntityItem) {
+					if (selectEntity instanceof EntityItem) {
 						p = 30;
 						y += 10;
 					}
-					if (this.selectEntity instanceof EntityItemFrame) {
+					if (selectEntity instanceof EntityItemFrame) {
 						x += 16;
 					}
 				}
-				this.drawNpc(this.selectEntity, x, y, 1.0f, r, p, 0);
+				drawNpc(selectEntity, x, y, 1.0f, r, p, 0);
 			}
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
-			Gui.drawRect(this.guiLeft + 191, this.guiTop + 85, this.guiLeft + 252, this.guiTop + 171, 0xFF808080);
-			Gui.drawRect(this.guiLeft + 192, this.guiTop + 86, this.guiLeft + 251, this.guiTop + 170, 0xFF000000);
+			Gui.drawRect(guiLeft + 191, guiTop + 85, guiLeft + 252, guiTop + 171, new Color(0xFF808080).getRGB());
+			Gui.drawRect(guiLeft + 192, guiTop + 86, guiLeft + 251, guiTop + 170, new Color(0xFF000000).getRGB());
 			GlStateManager.popMatrix();
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
+		if (!CustomNpcs.ShowDescriptions) { return; }
+		if (isMouseHover(mouseX, mouseY, guiLeft + 191, guiTop + 85, 61, 86)) {
+			drawHoverText("wand.hover.entity");
 		}
-		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("wand.hover.edit").getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("wand.hover.del").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("wand.hover.reset").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("wand.hover.freeze").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("wand.hover.tp").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("wand.hover.resetall").getFormattedText());
-		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("wand.hover.showall").getFormattedText());
-		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.menu.global").getFormattedText());
-		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 191, this.guiTop + 85, 61, 86)) {
-			this.setHoverText(new TextComponentTranslation("wand.hover.entity").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
-	}
-
-	private List<String> getSearchList() {
-		if (this.search.isEmpty()) {
-			return new ArrayList<>(this.list);
-		}
-		List<String> list = new ArrayList<>();
-		for (String name : this.list) {
-			if (name.toLowerCase().contains(this.search)) {
-				list.add(name);
-			}
-		}
-		return list;
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(165, 191);
-		}
-		this.scroll.guiLeft = this.guiLeft + 4;
-		this.scroll.guiTop = this.guiTop + 21;
-		this.addScroll(this.scroll);
-
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 4, 165, 15, this.search));
-
+		if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(165, 191); }
+		scroll.guiLeft = guiLeft + 4;
+		scroll.guiTop = guiTop + 21;
+		addScroll(scroll);
+		// title
 		String title = new TextComponentTranslation("remote.title").getFormattedText();
-		int x = (this.xSize - this.fontRenderer.getStringWidth(title)) / 2;
-		this.addLabel(new GuiNpcLabel(0, title, this.guiLeft + x, this.guiTop - 8));
-		GuiNpcButton button = new GuiNpcButton(0, this.guiLeft + 170, this.guiTop + 4, 82, 20, "selectServer.edit");
-		button.enabled = this.selectEntity != null && !(this.selectEntity instanceof EntityPlayer);
-		this.addButton(button);
-		button = new GuiNpcButton(1, this.guiLeft + 170, this.guiTop + 24, 82, 20, "selectWorld.deleteButton");
-		button.enabled = this.selectEntity != null;
-		this.addButton(button);
-		button = new GuiNpcButton(2, this.guiLeft + 170, this.guiTop + 44, 82, 20, "remote.reset");
-		button.enabled = this.selectEntity instanceof EntityNPCInterface;
-		this.addButton(button);
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 170, this.guiTop + 192, 82, 20,  CustomNpcs.FreezeNPCs ? "remote.unfreeze" : "remote.freeze"));
-		button = new GuiNpcButton(4, this.guiLeft + 170, this.guiTop + 64, 82, 20, "remote.tp");
-		button.enabled = this.selectEntity != null;
-		this.addButton(button);
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 170, this.guiTop + 172, 82, 20, "remote.resetall"));
-
-		addButton(new GuiNpcCheckBox(6, this.guiLeft + 174, this.guiTop + 86, 20, 20, "", null, GuiNpcRemoteEditor.all));
-
+		int x = (xSize - fontRenderer.getStringWidth(title)) / 2;
+		addLabel(new GuiNpcLabel(0, title, guiLeft + x, guiTop - 8));
+		// edit
+		GuiNpcButton button = new GuiNpcButton(0, guiLeft + 170, guiTop + 4, 82, 20, "selectServer.edit");
+		button.setEnabled(selectEntity != null && !(selectEntity instanceof EntityPlayer));
+		button.setHoverText("wand.hover.edit");
+		addButton(button);
+		// del
+		button = new GuiNpcButton(1, guiLeft + 170, guiTop + 24, 82, 20, "selectWorld.deleteButton");
+		button.setEnabled(selectEntity != null);
+		button.setHoverText("wand.hover.del");
+		addButton(button);
+		// reset
+		button = new GuiNpcButton(2, guiLeft + 170, guiTop + 44, 82, 20, "remote.reset");
+		button.setEnabled(selectEntity instanceof EntityNPCInterface);
+		button.setHoverText("wand.hover.reset");
+		addButton(button);
+		// freeze
+		button = new GuiNpcButton(3, guiLeft + 170, guiTop + 192, 82, 20,  CustomNpcs.FreezeNPCs ? "remote.unfreeze" : "remote.freeze");
+		button.setHoverText("wand.hover.freeze");
+		addButton(button);
+		// tp
+		button = new GuiNpcButton(4, guiLeft + 170, guiTop + 64, 82, 20, "remote.tp");
+		button.setEnabled(selectEntity != null);
+		button.setHoverText("wand.hover.tp");
+		addButton(button);
+		// reset all
+		button = new GuiNpcButton(5, guiLeft + 170, guiTop + 172, 82, 20, "remote.resetall");
+		button.setHoverText("wand.hover.resetall");
+		addButton(button);
+		// all entities
+		button = new GuiNpcCheckBox(6, guiLeft + 174, guiTop + 86, 20, 20, "", null, GuiNpcRemoteEditor.all);
+		button.setHoverText("wand.hover.showall");
+		addButton(button);
+		// global
 		button = new GuiMenuSideButton(7, guiLeft + xSize, guiTop + 8, "menu.global");
 		((GuiMenuSideButton) button).setIsLeft(false);
-		this.addButton(button);
+		button.setHoverText("display.hover.menu.global");
+		addButton(button);
 	}
 
 	@Override
@@ -258,36 +232,26 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 
 	@Override
 	public void keyTyped(char c, int i) {
-		if (i == 1 || this.isInventoryKey(i)) {
-			this.close();
-		}
+		if (i == 1 || isInventoryKey(i)) { close(); }
 		super.keyTyped(c, i);
-		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode()
-				|| i == ClientProxy.backButton.getKeyCode()) {
-			this.resetEntity();
-		}
-		if (this.search.equals(this.getTextField(1).getText())) {
-			return;
-		}
-		this.search = this.getTextField(1).getText().toLowerCase();
-		this.scroll.setList(this.getSearchList());
+		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode() || i == ClientProxy.backButton.getKeyCode()) { resetEntity(); }
 	}
 
 	@Override
 	public void mouseClicked(int i, int j, int k) {
 		super.mouseClicked(i, j, k);
-		this.scroll.mouseClicked(i, j, k);
+		scroll.mouseClicked(i, j, k);
 	}
 
 	private void resetEntity() {
-		this.selectEntity = null;
-		if (this.dataIDs.containsKey(this.scroll.getSelected())) {
-			Entity entity = this.mc.world.getEntityByID(this.dataIDs.get(scroll.getSelected()));
+		selectEntity = null;
+		if (dataIDs.containsKey(scroll.getSelected())) {
+			Entity entity = mc.world.getEntityByID(dataIDs.get(scroll.getSelected()));
 			if (entity == null) {
 				Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
 				return;
 			}
-			this.selectEntity = entity;
+			selectEntity = entity;
 		}
 	}
 
@@ -297,67 +261,64 @@ public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, Gui
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		this.resetEntity();
-		this.initGui();
+		resetEntity();
+		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		NBTTagList nbtlist = compound.getTagList("Data", 10);
+		NBTTagList nbtList = compound.getTagList("Data", 10);
+		dataIDs.clear();
 		List<String> list = new ArrayList<>();
-		String[][] hs = new String[nbtlist.tagCount()][];
-		this.dataIDs.clear();
-		for (int i = 0; i < nbtlist.tagCount(); ++i) {
-			NBTTagCompound nbt = nbtlist.getCompoundTagAt(i);
-			Entity entity = this.mc.world.getEntityByID(nbt.getInteger("Id"));
+		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
+		for (int i = 0; i < nbtList.tagCount(); ++i) {
+			NBTTagCompound nbt = nbtList.getCompoundTagAt(i);
+			Entity entity = mc.world.getEntityByID(nbt.getInteger("Id"));
 			if (entity == null) {
 				continue;
 			}
-			String type = chr + "7";
+			String type = ((char) 167) + "7";
 			if (entity instanceof EntityNPCInterface) {
-				type = chr + "a";
+				type = ((char) 167) + "a";
 			} else if (entity instanceof EntityPlayer) {
-				type = chr + "c";
+				type = ((char) 167) + "c";
 			} else if (entity instanceof EntityAnimal) {
-				type = chr + "e";
+				type = ((char) 167) + "e";
 			} else if (entity instanceof EntityMob) {
-				type = chr + "b";
+				type = ((char) 167) + "b";
 			}
-			float distance = this.player.getDistance(entity);
-			hs[i] = new String[] { chr + "7Distance Of: " + chr + "6" + this.df.format(distance) };
-			String key = type + "ID:" + nbt.getInteger("Id") + " " + chr + "r"
-					+ (new TextComponentTranslation(entity.getName()).getFormattedText()) + " " + chr + "7"
-					+ this.df.format(distance);
+			float distance = player.getDistance(entity);
+			String key = type + "ID:" + nbt.getInteger("Id") + " " + ((char) 167) + "r" + (new TextComponentTranslation(entity.getName()).getFormattedText()) + " " + ((char) 167) + "7" + df.format(distance);
 			list.add(key);
-			this.dataIDs.put(key, nbt.getInteger("Id"));
+			dataIDs.put(key, nbt.getInteger("Id"));
+			hts.put(i, Collections.singletonList(((char) 167) + "7Distance Of: " + ((char) 167) + "6" + df.format(distance)));
 		}
-		this.list = list;
-		this.scroll.setListNotSorted(this.getSearchList());
-		this.scroll.hoversTexts = hs;
-		this.resetEntity();
+		scroll.setListNotSorted(list);
+		scroll.setHoverTexts(hts);
+		resetEntity();
 	}
 
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-		if (this.mc.world.getTotalWorldTime() % 40 != 0) {
+		if (mc.world.getTotalWorldTime() % 40 != 0) {
 			return;
 		}
-		for (int id : this.dataIDs.values()) {
-			Entity entity = this.mc.world.getEntityByID(id);
+		for (int id : dataIDs.values()) {
+			Entity entity = mc.world.getEntityByID(id);
 			if (entity != null) {
-				float distance = this.player.getDistance(entity);
-				for (int i = 0; i < this.scroll.getList().size(); i++) {
-					if (this.scroll.getList().get(i).contains("ID:" + id + " ")) {
-						this.scroll.hoversTexts[i] = new String[] {
-								chr + "7Name: " + chr + "r"
-										+ new TextComponentTranslation(entity.getName()).getFormattedText(),
-								chr + "7Distance Of: " + chr + "6" + this.df.format(distance),
-								chr + "7Class Type: " + chr + "f" + entity.getClass().getSimpleName() };
+				float distance = player.getDistance(entity);
+				for (int i = 0; i < scroll.getList().size(); i++) {
+					if (scroll.getList().get(i).contains("ID:" + id + " ")) {
+						List<String> l = new ArrayList<>();
+						l.add(((char) 167) + "7Name: " + ((char) 167) + "r");
+						l.add(new TextComponentTranslation(entity.getName()).getFormattedText());
+						l.add(((char) 167) + "7Distance Of: " + ((char) 167) + "6" + df.format(distance));
+						l.add(((char) 167) + "7Class Type: " + ((char) 167) + "f" + entity.getClass().getSimpleName());
+						scroll.getHoversTexts().put(i, l);
 						break;
 					}
 				}

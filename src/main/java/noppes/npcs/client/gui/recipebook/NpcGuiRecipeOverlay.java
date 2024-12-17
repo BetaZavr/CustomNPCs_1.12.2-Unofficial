@@ -27,7 +27,8 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 
 // Displaying variations of one recipe in the GUI recipe window
 @SideOnly(Side.CLIENT)
-public class NpcGuiRecipeOverlay extends GuiRecipeOverlay {
+public class NpcGuiRecipeOverlay
+extends GuiRecipeOverlay {
 
     @SideOnly(Side.CLIENT)
     class Button extends GuiButton {

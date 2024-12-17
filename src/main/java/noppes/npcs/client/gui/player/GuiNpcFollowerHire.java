@@ -20,7 +20,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.util.Util;
 
-public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
+public class GuiNpcFollowerHire
+extends GuiContainerNPCInterface {
 
 	private static final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/followerhire.png");
 
@@ -28,56 +29,56 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 	public ContainerNPCFollowerHire container;
 	public EntityNPCInterface npc;
 
-	public GuiNpcFollowerHire(EntityNPCInterface npc, ContainerNPCFollowerHire container) {
-		super(npc, container);
-		this.container = container;
-		this.npc = npc;
-		role = (RoleFollower) npc.advanced.roleInterface;
+	public GuiNpcFollowerHire(EntityNPCInterface npc, ContainerNPCFollowerHire cont) {
+		super(npc, cont);
 		closeOnEsc = true;
+
+		container = cont;
+		role = (RoleFollower) npc.advanced.roleInterface;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerHire, button.id);
-		this.close();
+		close();
 	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(resource);
+		mc.getTextureManager().bindTexture(resource);
 		int w = (width - xSize) / 2;
 		int h = (height - ySize) / 2;
-		this.drawTexturedModalRect(w, h, 0, 0, xSize, ySize);
+		drawTexturedModalRect(w, h, 0, 0, xSize, ySize);
 		int index = 0;
 		for (int slot = 0; slot < role.rentalItems.items.size(); ++slot) {
 			ItemStack itemstack = role.rentalItems.items.get(slot);
 			if (!NoppesUtilServer.IsItemStackNull(itemstack)) {
 				int days = 1;
-				if (this.role.rates.containsKey(slot)) {
-					days = this.role.rates.get(slot);
+				if (role.rates.containsKey(slot)) {
+					days = role.rates.get(slot);
 				}
 				int yOffset = index * 18;
-				int x = this.guiLeft + 78;
-				int y = this.guiTop + yOffset + 10;
+				int x = guiLeft + 78;
+				int y = guiTop + yOffset + 10;
 				GlStateManager.enableRescaleNormal();
 				RenderHelper.enableGUIStandardItemLighting();
-				this.itemRender.renderItemAndEffectIntoGUI(itemstack, x + 11, y);
-				this.itemRender.renderItemOverlays(this.fontRenderer, itemstack, x + 11, y);
+				itemRender.renderItemAndEffectIntoGUI(itemstack, x + 11, y);
+				itemRender.renderItemOverlays(fontRenderer, itemstack, x + 11, y);
 				RenderHelper.disableStandardItemLighting();
 				GlStateManager.disableRescaleNormal();
 				String daysS = days + " "
 						+ ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText()
 								: new TextComponentTranslation("follower.days").getFormattedText());
-				this.fontRenderer.drawString(" = " + daysS, x + 27, y + 4, CustomNpcResourceListener.DefaultTextColor);
-				if (this.isPointInRegion(x - this.guiLeft + 11, y - this.guiTop, 16, 16, this.mouseX, this.mouseY)) {
-					this.renderToolTip(itemstack, this.mouseX, this.mouseY);
+				fontRenderer.drawString(" = " + daysS, x + 27, y + 4, CustomNpcResourceListener.DefaultTextColor);
+				if (isPointInRegion(x - guiLeft + 11, y - guiTop, 16, 16, mouseX, mouseY)) {
+					renderToolTip(itemstack, mouseX, mouseY);
 				}
 				++index;
 			}
 		}
 		if (role.rates.containsKey(3) && role.rentalMoney > 0) {
-			int days = this.role.rates.get(3);
+			int days = role.rates.get(3);
 			String daysS = days + " " + ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText() : new TextComponentTranslation("follower.days").getFormattedText());
 			String money = Util.instance.getTextReducedNumber(role.rentalMoney, true, true, false) + " " + CustomNpcs.displayCurrencies;
 			fontRenderer.drawString(money + " = " + daysS, guiLeft + 90, guiTop + 68, CustomNpcResourceListener.DefaultTextColor);
@@ -90,29 +91,26 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 			if (getButton(i) == null) {
 				continue;
 			}
-			getButton(i).setEnabled(mc.player.capabilities.isCreativeMode || Util.instance.canRemoveItems(mc.player.inventory.mainInventory, this.role.rentalItems.getStackInSlot(i), false, false));
+			getButton(i).setEnabled(mc.player.capabilities.isCreativeMode || Util.instance.canRemoveItems(mc.player.inventory.mainInventory, role.rentalItems.getStackInSlot(i), false, false));
 		}
 		if (getButton(3) != null) {
 			getButton(3).setEnabled(mc.player.capabilities.isCreativeMode || ClientProxy.playerData.game.getMoney() >= role.rentalMoney);
 		}
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui != null || !CustomNpcs.ShowDescriptions) {
-			return;
-		}
 		for (int i = 0; i < 4; ++i) {
-			if (this.getButton(i) != null && this.getButton(i).isMouseOver()) {
+			if (getButton(i) != null && getButton(i).isMouseOver()) {
 				ITextComponent mes = new TextComponentTranslation("follower.hover.hire.info");
-				if (this.role.disableGui) {
+				if (role.disableGui) {
 					mes.appendSibling(new TextComponentString("<br>" + ((char) 167) + "7"));
 					mes.appendSibling(new TextComponentTranslation("follower.hover.disable.gui"));
 				}
-				if (this.role.infiniteDays) {
+				if (role.infiniteDays) {
 					mes.appendSibling(new TextComponentString("<br>" + ((char) 167) + "7"));
 					mes.appendSibling(new TextComponentTranslation("follower.hover.infinite"));
 				}
-				this.setHoverText(mes.getFormattedText());
+				setHoverText(mes.getFormattedText());
 			}
 		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
 	@Override
@@ -130,7 +128,6 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	public void save() {
-	}
+	public void save() { }
 
 }

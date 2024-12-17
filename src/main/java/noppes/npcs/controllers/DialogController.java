@@ -236,8 +236,6 @@ public class DialogController implements IDialogHandler {
 			return;
 		}
 		File dir = new File(this.getDir(), cat.title);
-		// if (!dir.delete()) { return; } Changed
-		// New
 		if (!Util.instance.removeFile(dir)) {
 			LogWriter.error("Error delete " + dir + "; no access or file not uploaded!");
 		}

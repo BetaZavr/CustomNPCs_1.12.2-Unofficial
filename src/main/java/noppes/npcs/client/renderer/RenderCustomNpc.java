@@ -78,6 +78,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 		GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
 		if (npc.deathTime > 0) {
 			if (npc.animation.hasAnim(AnimationKind.DIES)) {
+				if (!npc.animation.isAnimated(AnimationKind.DIES)) { npc.animation.tryRunAnimation(AnimationKind.DIES); }
 				return;
 			}
 			float f = ((float) npc.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;

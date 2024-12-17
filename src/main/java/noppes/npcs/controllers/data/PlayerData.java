@@ -184,7 +184,6 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 		this.updateClient = false;
 		this.dialogId = -1;
 		this.prevHeldItem = ItemStack.EMPTY;
-		// New
 		this.game = new PlayerGameData();
 	}
 
@@ -304,7 +303,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
 		this.mailData.loadNBTData(data);
 		this.hud.loadNBTData(data);
 		this.timers.readFromNBT(data);
-		this.game.readFromNBT(data); // New
+		this.game.readFromNBT(data);
 		this.companionID = data.getInteger("PlayerCompanionId");
 		if (data.hasKey("PlayerCompanion") && !this.hasCompanion()) {
 			EntityCustomNpc npc = new EntityCustomNpc(this.player.world);

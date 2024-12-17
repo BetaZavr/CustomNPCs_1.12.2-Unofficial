@@ -8,10 +8,11 @@ import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nonnull;
 
-public class GuiMenuTopButton extends GuiNpcButton {
+public class GuiMenuTopButton
+extends GuiNpcButton {
 
-	public boolean active;
-	protected int height;
+	public boolean active = false;
+	protected int height = 20;
 	public int offsetW = 0;
 
 	public GuiMenuTopButton(int id, GuiButton parent, String label) {
@@ -20,13 +21,11 @@ public class GuiMenuTopButton extends GuiNpcButton {
 
 	public GuiMenuTopButton(int id, int x, int y, String label) {
 		super(id, x, y, label);
-		this.active = false;
-		width = Minecraft.getMinecraft().fontRenderer.getStringWidth(this.displayString) + 10;
-		height = 20;
+		width = Minecraft.getMinecraft().fontRenderer.getStringWidth(displayString) + 10;
 	}
 
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!this.getVisible()) {
+		if (!getVisible()) {
 			return;
 		}
 		int w = offsetW + width;
@@ -37,10 +36,10 @@ public class GuiMenuTopButton extends GuiNpcButton {
 		int height = this.height - (active || hovered ? 0 : 2);
 		int state = getHoverState(hovered);
 		// background
-		this.drawTexturedModalRect(x, y, 0, state * 20, w / 2, height);
-		this.drawTexturedModalRect(x + w / 2, y, 200 - w / 2, state * 20, w / 2, height);
+		drawTexturedModalRect(x, y, 0, state * 20, w / 2, height);
+		drawTexturedModalRect(x + w / 2, y, 200 - w / 2, state * 20, w / 2, height);
 		// mouse
-		this.mouseDragged(mc, mouseX, mouseY);
+		mouseDragged(mc, mouseX, mouseY);
 		// label
 		int color = CustomNpcs.MainColor.getRGB();
 		if (packedFGColour != 0) {

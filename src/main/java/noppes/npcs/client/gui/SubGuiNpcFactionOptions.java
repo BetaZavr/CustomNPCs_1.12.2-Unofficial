@@ -17,36 +17,39 @@ import noppes.npcs.controllers.data.FactionOption;
 import noppes.npcs.controllers.data.FactionOptions;
 import noppes.npcs.util.Util;
 
-public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollData, ICustomScrollListener, ITextfieldListener {
+public class SubGuiNpcFactionOptions
+extends SubGuiInterface
+implements IScrollData, ICustomScrollListener, ITextfieldListener {
 
 	private final Map<String, Integer> data = new HashMap<>();
 	private final FactionOptions options;
 	private GuiCustomScroll scroll;
 
-	public SubGuiNpcFactionOptions(FactionOptions options) {
-		this.options = options;
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 216;
-		this.closeOnEsc = true;
+	public SubGuiNpcFactionOptions(FactionOptions factionOptions) {
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 216;
+		closeOnEsc = true;
+
+		options = factionOptions;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 1) {
-			this.change(button.getValue() == 1, this.getTextField(1) == null ? 0 : this.getTextField(1).getInteger());
+			change(button.getValue() == 1, getTextField(1) == null ? 0 : getTextField(1).getInteger());
 		}
 		if (button.id == 66) {
-			this.close();
+			close();
 		}
 	}
 
 	private void change(boolean isTake, int value) {
-		if (!scroll.hasSelected() || !data.containsKey(this.scroll.getSelected())) { return; }
+		if (!scroll.hasSelected() || !data.containsKey(scroll.getSelected())) { return; }
 		FactionOption fo = null;
 		int id = -1;
-		if (this.scroll.getSelected() != null && this.data.containsKey(this.scroll.getSelected())) {
-			id = data.get(this.scroll.getSelected());
+		if (scroll.getSelected() != null && data.containsKey(scroll.getSelected())) {
+			id = data.get(scroll.getSelected());
 			fo = options.get(id);
 		}
 		if (fo == null) {
@@ -57,7 +60,7 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 			options.fps.add(fo);
 		} else {
 			if (value == 0) {
-				if (this.options.remove(id)) {
+				if (options.remove(id)) {
 					fo = null;
 				}
 			} else {
@@ -72,36 +75,37 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(120, 196);
+		if (scroll == null) {
+			(scroll = new GuiCustomScroll(this, 0)).setSize(120, 196);
 		}
-		this.scroll.guiLeft = this.guiLeft + 4;
-		this.scroll.guiTop = this.guiTop + 14;
-		this.addScroll(this.scroll);
-		this.addLabel(new GuiNpcLabel(1, new TextComponentTranslation("faction.options").getFormattedText() + ":",
-				this.guiLeft + 5, this.guiTop + 4));
+		scroll.guiLeft = guiLeft + 4;
+		scroll.guiTop = guiTop + 14;
+		addScroll(scroll);
+
+		addLabel(new GuiNpcLabel(1, new TextComponentTranslation("faction.options").getFormattedText() + ":", guiLeft + 5, guiTop + 4));
 
 		FactionOption fo = null;
-		if (this.scroll.getSelected() != null && this.data.get(this.scroll.getSelected()) != null) {
-			fo = this.options.get(this.data.get(this.scroll.getSelected()));
+		if (scroll.getSelected() != null && data.get(scroll.getSelected()) != null) {
+			fo = options.get(data.get(scroll.getSelected()));
 		}
-		GuiNpcLabel lable = new GuiNpcLabel(2, new TextComponentTranslation("gui.settings").getFormattedText() + ":",
-				this.guiLeft + 130, this.guiTop + 4);
-		lable.enabled = this.scroll.selected >= 0;
-		this.addLabel(lable);
-		GuiNpcTextField textField = new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 130,
-				this.guiTop + 16, 110, 20, fo != null ? "" + fo.factionPoints : "0");
-		textField.setNumbersOnly();
+		GuiNpcLabel label = new GuiNpcLabel(2, new TextComponentTranslation("gui.settings").getFormattedText() + ":", guiLeft + 130, guiTop + 4);
+		label.enabled = scroll.selected >= 0;
+		addLabel(label);
+		// faction points
+		GuiNpcTextField textField = new GuiNpcTextField(1, this, fontRenderer, guiLeft + 130, guiTop + 16, 110, 20, fo != null ? "" + fo.factionPoints : "0");
 		textField.setMinMaxDefault(-100000, 100000, fo != null ? fo.factionPoints : 0);
-		textField.enabled = this.scroll.selected >= 0;
-		this.addTextField(textField);
+		textField.setEnabled(scroll.selected >= 0);
+		textField.setHoverText("faction.hover.option.points");
+		addTextField(textField);
 
-		GuiNpcButton button = new GuiNpcButton(1, this.guiLeft + 130, this.guiTop + 38, 90, 20,
-				new String[] { "gui.add", "gui.decrease" }, fo != null ? fo.decreaseFactionPoints ? 1 : 0 : 0);
-		button.visible = this.scroll.selected >= 0;
-		this.addButton(button);
+		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 130, guiTop + 38, 90, 20, new String[] { "gui.add", "gui.decrease" }, fo != null ? fo.decreaseFactionPoints ? 1 : 0 : 0);
+		button.setVisible(scroll.selected >= 0);
+		button.setHoverText("faction.hover.option.decrease");
+		addButton(button);
 
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 130, this.guiTop + this.ySize - 26, 90, 20, "gui.back"));
+		button = new GuiNpcButton(66, guiLeft + 130, guiTop + ySize - 26, 90, 20, "gui.back");
+		button.setHoverText("hover.back");
+		addButton(button);
 	}
 
 	@Override
@@ -111,7 +115,7 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		this.initGui();
+		initGui();
 	}
 
 	@Override
@@ -119,17 +123,17 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 	}
 
 	@Override
-	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		this.data.clear();
-		String name = Util.instance.deleteColor(this.scroll.getSelected());
+	public void setData(Vector<String> list, HashMap<String, Integer> dataMap) {
+		data.clear();
+		String name = Util.instance.deleteColor(scroll.getSelected());
 		if (name != null && name.contains("ID:") && name.indexOf(" - ") >= name.indexOf("ID:")) {
 			name = name.substring(name.indexOf(" - ") + 3);
 		}
 		List<String> newList = new ArrayList<>();
 		Map<String, String> hoverMap = new HashMap<>();
 		Map<String, Integer> newData = new HashMap<>();
-		for (String key : data.keySet()) {
-			int id = data.get(key);
+		for (String key : dataMap.keySet()) {
+			int id = dataMap.get(key);
 			String newName = Util.instance.deleteColor(key);
 			if (newName.contains("ID:" + id + " - ")) {
 				newName = newName.substring(newName.indexOf(" - ") + 3);
@@ -146,14 +150,15 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 			if (name != null && name.equals(Util.instance.deleteColor(newName))) { name = str; }
 		}
 		Collections.sort(newList);
-		this.data.putAll(newData);
-		this.scroll.setListNotSorted(newList);
-		this.scroll.hoversTexts = new String[hoverMap.size()][];
+		data.putAll(newData);
+		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		int i = 0;
 		for (String key : newList) {
-			this.scroll.hoversTexts[i] = new String[] { hoverMap.get(key) };
+			hts.put(i, Collections.singletonList(hoverMap.get(key)));
 			i++;
 		}
+		scroll.setListNotSorted(newList);
+		scroll.setHoverTexts(hts);
 		if (name != null) { scroll.setSelected(name); }
 		initGui();
 	}
@@ -164,7 +169,7 @@ public class SubGuiNpcFactionOptions extends SubGuiInterface implements IScrollD
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
-		this.change(this.getButton(1) != null && this.getButton(1).getValue() == 1, textField.getInteger());
+		change(getButton(1) != null && getButton(1).getValue() == 1, textField.getInteger());
 	}
 
 }

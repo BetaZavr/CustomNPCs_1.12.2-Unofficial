@@ -11,26 +11,29 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 
-public class GuiScriptItem extends GuiScriptInterface implements ISubGuiListener {
+public class GuiScriptItem
+extends GuiScriptInterface
+implements ISubGuiListener {
 
 	private final ItemScriptedWrapper item;
 
 	public GuiScriptItem() {
+		super();
 		ItemScriptedWrapper itemScriptedWrapper = new ItemScriptedWrapper(new ItemStack(CustomRegisters.scripted_item));
-		this.item = itemScriptedWrapper;
-		this.handler = itemScriptedWrapper;
+		item = itemScriptedWrapper;
+		handler = itemScriptedWrapper;
 		Client.sendData(EnumPacketServer.ScriptItemDataGet);
 	}
 
 	@Override
 	public void save() {
 		super.save();
-		Client.sendData(EnumPacketServer.ScriptItemDataSave, this.item.getMCNbt());
+		Client.sendData(EnumPacketServer.ScriptItemDataSave, item.getMCNbt());
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.item.setMCNbt(compound);
+		item.setMCNbt(compound);
 		super.setGuiData(compound);
 	}
 
@@ -38,19 +41,15 @@ public class GuiScriptItem extends GuiScriptInterface implements ISubGuiListener
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
-			((ItemScriptedWrapper) this.handler).getScriptNBT(nbt);
-			String p = this.path;
-			while (p.contains("\\")) {
-				p = p.replace("\\", "/");
-			}
+			((ItemScriptedWrapper) handler).getScriptNBT(nbt);
 			nbt.setString("Name", subgui.getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
-			nbt.setString("Path", p + "/" + nbt.getString("Name"));
-			nbt.setInteger("Tab", this.activeTab - 1);
+			nbt.setString("Path", path.replaceAll("\\\\", "/") + "/" + nbt.getString("Name"));
+			nbt.setInteger("Tab", activeTab - 1);
 			nbt.setByte("Type", (byte) 3);
 			nbt.setBoolean("OnlyTab", ((GuiScriptEncrypt) subgui).onlyTab);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.ScriptEncrypt, nbt);
-			this.displayGuiScreen(null);
-			this.mc.setIngameFocus();
+			displayGuiScreen(null);
+			mc.setIngameFocus();
 		}
 	}
 

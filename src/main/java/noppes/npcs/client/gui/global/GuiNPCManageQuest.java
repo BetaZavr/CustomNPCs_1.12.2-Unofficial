@@ -1,6 +1,8 @@
 package noppes.npcs.client.gui.global;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.Map.Entry;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -31,7 +33,9 @@ import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
-public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
+public class GuiNPCManageQuest
+extends GuiNPCInterface2
+implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
 	public static GuiScreen Instance;
 	private static boolean isName = true;
@@ -130,6 +134,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 			}
 			case 14: {
 				GuiNPCManageQuest.isName = ((GuiNpcCheckBox) button).isSelected();
+				button.setHoverText("hover.sort", new TextComponentTranslation("dialog.dialogs").getFormattedText(), ((GuiNpcCheckBox) button).getText());
 				break;
 			}
 		}
@@ -161,40 +166,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 		if (this.hasSubGui()) {
 			return;
 		}
-		this.drawHorizontalLine(this.guiLeft + 348, this.guiLeft + 414, this.guiTop + 128, 0x80000000);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.category.edit").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.category.del").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.category.add").getFormattedText());
-		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.quest.paste." + (this.copyQuest != null),
-					(this.copyQuest != null ? this.copyQuest.getKey() : "")).getFormattedText());
-		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("manager.hover.quest.copy", this.selectedQuest).getFormattedText());
-		} else if (this.getButton(11) != null && this.getButton(11).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("manager.hover.quest.add", this.selectedCategory).getFormattedText());
-		} else if (this.getButton(12) != null && this.getButton(12).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("manager.hover.quest.del", this.selectedQuest).getFormattedText());
-		} else if (this.getButton(13) != null && this.getButton(13).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("manager.hover.quest.edit", this.selectedQuest).getFormattedText());
-		} else if (this.getButton(14) != null && this.getButton(14).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.sort",
-					new TextComponentTranslation("dialog.dialogs").getFormattedText(),
-					((GuiNpcCheckBox) this.getButton(14)).getText()).getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		this.drawHorizontalLine(this.guiLeft + 348, this.guiLeft + 414, this.guiTop + 128, new Color(0x80000000).getRGB());
 	}
 
 	@Override
@@ -203,7 +175,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 		this.categoryData.clear();
 		this.questData.clear();
 		QuestController qData = QuestController.instance;
-		String[][] ht = null;
+		LinkedHashMap<Integer, List<String>> hts= new LinkedHashMap<>();
 		for (QuestCategory category : qData.categories.values()) {
 			this.categoryData.put(category.title, category);
 			if (this.selectedCategory.isEmpty()) {
@@ -230,61 +202,65 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 			// Hover Text:
 			if (!this.questData.isEmpty()) {
 				int pos = 0;
-				ht = new String[this.questData.size()][];
 				DialogController dData = DialogController.instance;
-				for (Quest quest : this.questData.values()) {
-					final List<String> h = getStrings(quest, qData, dData);
-					ht[pos] = h.toArray(new String[0]);
-					pos++;
+				for (Quest quest : questData.values()) {
+					hts.put(pos++, getStrings(quest, qData, dData));
 				}
 			}
 		}
-		if (!selectedCategory.isEmpty() && !categoryData.containsKey(selectedCategory)) {
-			selectedCategory = "";
-		}
-		if (!selectedQuest.isEmpty() && !questData.containsKey(selectedQuest)) {
-			selectedQuest = "";
-		}
+		if (!selectedCategory.isEmpty() && !categoryData.containsKey(selectedCategory)) { selectedCategory = ""; }
+		if (!selectedQuest.isEmpty() && !questData.containsKey(selectedQuest)) { selectedQuest = ""; }
 		// scroll info
 		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 8, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(1, "quest.quests", this.guiLeft + 180, this.guiTop + 4));
 		// quest buttons
 		int x = this.guiLeft + 350, y = this.guiTop + 8;
 		this.addLabel(new GuiNpcLabel(3, "quest.quests", this.guiLeft + 356, this.guiTop + 8));
-		this.addButton(new GuiNpcButton(13, x, y += 10, 64, 15, "selectServer.edit", !this.selectedQuest.isEmpty()));
-		this.addButton(new GuiNpcButton(12, x, y += 17, 64, 15, "gui.remove", !this.selectedQuest.isEmpty()));
-		this.addButton(new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !this.selectedCategory.isEmpty()));
-		this.addButton(new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !this.selectedCategory.isEmpty()));
-		this.getButton(10).setEnabled(!selectedQuest.isEmpty());
-		this.addButton(new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", this.copyQuest != null));
-		addButton(new GuiNpcCheckBox(14, x, y + 17, 64, 14, "gui.name", "ID", GuiNPCManageQuest.isName));
+		GuiNpcButton button = new GuiNpcButton(13, x, y += 10, 64, 15, "selectServer.edit", !this.selectedQuest.isEmpty());
+		button.setHoverText("manager.hover.quest.edit", selectedQuest);
+		addButton(button);
+		button = new GuiNpcButton(12, x, y += 17, 64, 15, "gui.remove", !this.selectedQuest.isEmpty());
+		button.setHoverText("manager.hover.quest.del", selectedQuest);
+		addButton(button);
+		button = new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !this.selectedCategory.isEmpty());
+		button.setHoverText("manager.hover.quest.add", selectedCategory);
+		addButton(button);
+		button = new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !this.selectedCategory.isEmpty());
+		button.setEnabled(!selectedQuest.isEmpty());
+		button.setHoverText("manager.hover.quest.copy", selectedQuest);
+		addButton(button);
+
+		button = new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", this.copyQuest != null);
+		button.setHoverText("manager.hover.quest.paste." + (copyQuest != null), copyQuest != null ? copyQuest.getKey() : "");
+		addButton(button);
+		button = new GuiNpcCheckBox(14, x, y + 17, 64, 14, "gui.name", "ID", GuiNPCManageQuest.isName);
+		button.setHoverText("hover.sort", new TextComponentTranslation("dialog.dialogs").getFormattedText(), ((GuiNpcCheckBox) button).getText());
+		addButton(button);
 		// category buttons
 		y = this.guiTop + 134;
 		this.addLabel(new GuiNpcLabel(2, "gui.categories", x + 2, y));
-		this.addButton(new GuiNpcButton(3, x, y += 10, 64, 15, "selectServer.edit", !this.selectedCategory.isEmpty()));
-		this.addButton(new GuiNpcButton(2, x, y += 17, 64, 15, "gui.remove", !this.selectedCategory.isEmpty()));
-		this.addButton(new GuiNpcButton(1, x, y + 17, 64, 15, "gui.add"));
+		button = new GuiNpcButton(3, x, y += 10, 64, 15, "selectServer.edit", !this.selectedCategory.isEmpty());
+		button.setHoverText("manager.hover.category.edit");
+		addButton(button);
+		button = new GuiNpcButton(2, x, y += 17, 64, 15, "gui.remove", !this.selectedCategory.isEmpty());
+		button.setHoverText("manager.hover.category.del");
+		addButton(button);
+		button = new GuiNpcButton(1, x, y + 17, 64, 15, "gui.add");
+		button.setHoverText("manager.hover.category.add");
+		addButton(button);
 
-		if (this.scrollCategories == null) {
-			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, this.ySize - 3);
-		}
+		if (this.scrollCategories == null) { (this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, this.ySize - 3); }
 		this.scrollCategories.setList(new ArrayList<>(categoryData.keySet()));
 		this.scrollCategories.guiLeft = this.guiLeft + 4;
 		this.scrollCategories.guiTop = this.guiTop + 15;
-		if (!this.selectedCategory.isEmpty()) {
-			this.scrollCategories.setSelected(this.selectedCategory);
-		}
+		if (!this.selectedCategory.isEmpty()) { this.scrollCategories.setSelected(this.selectedCategory); }
 		this.addScroll(this.scrollCategories);
 
-		if (this.scrollQuests == null) {
-			(this.scrollQuests = new GuiCustomScroll(this, 1)).setSize(170, this.ySize - 3);
-		}
+		if (this.scrollQuests == null) { (this.scrollQuests = new GuiCustomScroll(this, 1)).setSize(170, this.ySize - 3); }
 		this.scrollQuests.setListNotSorted(new ArrayList<>(questData.keySet()));
+		scrollQuests.setHoverTexts(hts);
 		this.scrollQuests.guiLeft = this.guiLeft + 176;
 		this.scrollQuests.guiTop = this.guiTop + 15;
-		if (ht != null) {
-			this.scrollQuests.hoversTexts = ht;
-		}
 		if (!this.selectedQuest.isEmpty()) {
 			this.scrollQuests.setSelected(this.selectedQuest);
 		}
@@ -402,7 +378,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText && !((SubGuiEditText) subgui).cancelled) {
-			if (subgui.id == 1) { // new category
+			if (subgui.id == 1) { // create category
 				QuestCategory category = new QuestCategory();
 				StringBuilder t = new StringBuilder(((SubGuiEditText) subgui).text[0]);
 				boolean has = true;
@@ -443,7 +419,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ISubGuiListen
 				Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
 				this.initGui();
 			}
-			if (subgui.id == 11) { // new quest
+			if (subgui.id == 11) { // create quest
 				if (((SubGuiEditText) subgui).text[0].isEmpty()) {
 					return;
 				}

@@ -28,42 +28,37 @@ import noppes.npcs.util.ValueUtil;
 
 public class DataAdvanced implements INPCAdvanced {
 
-	public boolean attackOtherFactions, defendFaction, disablePitch, orderedLines, throughWalls;
+	public boolean attackOtherFactions = false;
+	public boolean defendFaction = false;
+	public boolean disablePitch = false;
+	public boolean orderedLines = false;
+	public boolean throughWalls = true;
 	public JobInterface jobInterface;
 	public RoleInterface roleInterface;
-	private String angrySound, deathSound, hurtSound, idleSound, stepSound;
+	private String angrySound = "";
+	private String deathSound = "minecraft:entity.player.hurt";
+	private String hurtSound = "minecraft:entity.player.hurt";
+	private String idleSound = "";
+	private String stepSound = "";
 	private final EntityNPCInterface npc;
-	public Lines interactLines, npcInteractLines, worldLines, attackLines, killedLines, killLines;
-	public FactionOptions factions;
+	public Lines interactLines = new Lines();
+	public Lines npcInteractLines = new Lines();
+	public Lines worldLines = new Lines();
+	public Lines attackLines = new Lines();
+	public Lines killedLines = new Lines();
+	public Lines killLines = new Lines();
+	public FactionOptions factions = new FactionOptions();
 	public EntityNPCInterface spawner;
 	public DataScenes scenes;
 
-	public HashSet<Integer> attackFactions, frendFactions;
+	public HashSet<Integer> attackFactions = new HashSet<>();
+	public HashSet<Integer> friendFactions = new HashSet<>();
 
 	public DataAdvanced(EntityNPCInterface npc) {
 		this.npc = npc;
-		this.interactLines = new Lines();
-		this.worldLines = new Lines();
-		this.attackLines = new Lines();
-		this.killedLines = new Lines();
-		this.killLines = new Lines();
-		this.npcInteractLines = new Lines();
-		this.orderedLines = false;
-		this.idleSound = "";
-		this.angrySound = "";
-		this.hurtSound = "minecraft:entity.player.hurt";
-		this.deathSound = "minecraft:entity.player.hurt";
-		this.stepSound = "";
-		this.factions = new FactionOptions();
 		this.jobInterface = new JobInterface(npc);
 		this.roleInterface = new RoleInterface(npc);
-		this.attackOtherFactions = false;
-		this.defendFaction = false;
-		this.disablePitch = false;
-		this.throughWalls = true;
 		this.scenes = new DataScenes(npc);
-		this.attackFactions = new HashSet<>();
-		this.frendFactions = new HashSet<>();
 	}
 
 	public Line getAttackLine() {
@@ -258,8 +253,8 @@ public class DataAdvanced implements INPCAdvanced {
 			this.roleInterface.readFromNBT(compound);
 		}
 		if (compound.hasKey("NPCDialogOptions", 11)) {
-			this.npc.dialogs = compound.getIntArray("NPCDialogOptions"); // new
-		} else if (compound.hasKey("NPCDialogOptions", 9)) { // Old
+			this.npc.dialogs = compound.getIntArray("NPCDialogOptions");
+		} else if (compound.hasKey("NPCDialogOptions", 9)) {
 			this.npc.dialogs = new int[compound.getTagList("NPCDialogOptions", 10).tagCount()];
 			for (int i = 0; i < compound.getTagList("NPCDialogOptions", 10).tagCount(); ++i) {
 				this.npc.dialogs[i] = compound.getTagList("NPCDialogOptions", 10).getCompoundTagAt(i)
@@ -267,7 +262,7 @@ public class DataAdvanced implements INPCAdvanced {
 			}
 		}
 		this.attackFactions = NBTTags.getIntegerSet(compound.getTagList("AttackFactions", 10));
-		this.frendFactions = NBTTags.getIntegerSet(compound.getTagList("FrendFactions", 10));
+		this.friendFactions = NBTTags.getIntegerSet(compound.getTagList("FrendFactions", 10));
 	}
 
 	public void setJob(int i) {
@@ -319,17 +314,17 @@ public class DataAdvanced implements INPCAdvanced {
 		}
 	}
 
-	public void tryDefendFaction(int id, EntityLivingBase possibleAriend, EntityLivingBase attacked) {
-		if (this.npc.isKilled() || !this.defendFaction || possibleAriend.equals(attacked)) {
+	public void tryDefendFaction(int id, EntityLivingBase possibleFriend, EntityLivingBase attacked) {
+		if (this.npc.isKilled() || !this.defendFaction || possibleFriend.equals(attacked)) {
 			return;
 		}
-		boolean canSee = this.npc.canSee(possibleAriend);
+		boolean canSee = this.npc.canSee(possibleFriend);
 		if (!canSee && this.throughWalls) {
-			float dist = this.npc.getDistance(possibleAriend);
+			float dist = this.npc.getDistance(possibleFriend);
 			canSee = dist <= this.npc.stats.aggroRange;
 		}
 		if (!(this.npc.faction.id == id || this.npc.faction.frendFactions.contains(id)
-				|| this.frendFactions.contains(id)) || !canSee) {
+				|| this.friendFactions.contains(id)) || !canSee) {
 			return;
 		}
 		this.npc.onAttack(attacked);
@@ -364,7 +359,7 @@ public class DataAdvanced implements INPCAdvanced {
 		compound.setTag("Role", roleNbt);
 		compound.setTag("Job", jobNbt);
 		compound.setTag("AttackFactions", NBTTags.nbtIntegerCollection(this.attackFactions));
-		compound.setTag("FrendFactions", NBTTags.nbtIntegerCollection(this.frendFactions));
+		compound.setTag("FrendFactions", NBTTags.nbtIntegerCollection(this.friendFactions));
 
 		return compound;
 	}

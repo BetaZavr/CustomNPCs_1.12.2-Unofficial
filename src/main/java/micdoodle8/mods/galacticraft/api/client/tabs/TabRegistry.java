@@ -93,7 +93,7 @@ public class TabRegistry {
 		TabRegistry.mc.displayGuiScreen(inventory);
 	}
 
-	public static void registerTab(AbstractTab tab) { // Changed
+	public static void registerTab(AbstractTab tab) {
 		for (AbstractTab t : TabRegistry.tabList) {
 			if (t.getClass() == tab.getClass()) {
 				return;
@@ -119,7 +119,7 @@ public class TabRegistry {
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void guiPostInit(GuiScreenEvent.InitGuiEvent.Post event) { // Changed
+	public void guiPostInit(GuiScreenEvent.InitGuiEvent.Post event) {
 		if (event.getGui() instanceof GuiInventory) {
 			int guiLeft = (event.getGui().width - 176) / 2;
 			int guiTop = (event.getGui().height - 166) / 2;

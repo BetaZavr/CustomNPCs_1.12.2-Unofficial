@@ -609,7 +609,7 @@ public class PacketHandlerServer {
                 } else {
                     npc.inventory.removeDrop(slot);
                 }
-            } else if (slot == -1) { // new
+            } else if (slot == -1) {
                 DropSet drop = null;
                 if (dropType == 1) {
                     if (template != null) {
@@ -901,6 +901,8 @@ public class PacketHandlerServer {
             NBTTagCompound compound = new NBTTagCompound();
             compound.setTag("List", list);
             Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
+        } else if (type == EnumPacketServer.CloneSet) {
+            PlayerData.get(player).cloned = Server.readNBT(buffer);
         } else if (type == EnumPacketServer.CloneList) {
             NBTTagList list = new NBTTagList();
             for (String name : ServerCloneController.Instance.getClones(buffer.readInt())) {
@@ -1596,7 +1598,6 @@ public class PacketHandlerServer {
                 ((ContainerAvailabilityInv) player.openContainer).slot.setSlotIndex(buffer.readInt());
             }
         }
-
         CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
     }
 
@@ -1636,7 +1637,7 @@ public class PacketHandlerServer {
                 EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
                 if (!type.needsNpc || npc != null) {
                     if (!type.hasPermission() || CustomNpcsPermissions.hasPermission(player, type.permission)) {
-                        if (!PacketHandlerServer.list.contains(type) && !type.isExempt() && !this.allowItem(item, type)) {
+                        if (!PacketHandlerServer.list.contains(type) && !type.isExempt() && !allowItem(item, type)) {
                             this.warn(player, "tried to use custom npcs without a tool in hand, possibly a hacker");
                         } else {
                             this.handlePacket(type, buffer, player, npc);

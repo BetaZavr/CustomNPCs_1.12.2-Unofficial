@@ -194,7 +194,7 @@ public class NoppesUtilServer {
 					((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
 			player.onItemPickup(entityitem, i);
 			PlayerQuestData playerdata = PlayerData.get(player).questData;
-			for (QuestData data : playerdata.activeQuests.values()) { // Changed
+			for (QuestData data : playerdata.activeQuests.values()) {
 				for (IQuestObjective obj : data.quest
 						.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 					if (obj.getType() != EnumQuestTask.ITEM.ordinal()) {
@@ -309,7 +309,7 @@ public class NoppesUtilServer {
 			playerdata.updateClient = true;
 		}
 		setEditingNpc(player, npc);
-		for (QuestData qdata : playerdata.questData.activeQuests.values()) { // Changed
+		for (QuestData qdata : playerdata.questData.activeQuests.values()) {
 			for (IQuestObjective obj : qdata.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 				if (obj.getType() != EnumQuestTask.DIALOG.ordinal()) {
 					continue;
@@ -546,6 +546,7 @@ public class NoppesUtilServer {
 			try {
 				if (CustomNpcs.proxy.getServerGuiElement(gui.ordinal(), player, player.world, x, y, z) != null) {
 					player.openGui(CustomNpcs.instance, gui.ordinal(), player.world, x, y, z);
+					player.openContainer.detectAndSendChanges();
 				} else {
 					Server.sendDataChecked((EntityPlayerMP) player, EnumPacketClient.GUI, gui.ordinal(), x, y, z);
 					Map<String, Integer> map = getScrollData(player, gui, npc);
@@ -583,14 +584,14 @@ public class NoppesUtilServer {
 					if (quest == null) {
 						continue;
 					}
-					map.put(quest.category.title + ": " + quest.getTitle() + "(Active quest)", questId); // Changed
+					map.put(quest.category.title + ": " + quest.getTitle() + "(Active quest)", questId);
 				}
 				for (int questId : data2.finishedQuests.keySet()) {
 					Quest quest = QuestController.instance.quests.get(questId);
 					if (quest == null) {
 						continue;
 					}
-					map.put(quest.category.title + ": " + quest.getTitle() + "(Finished quest)", questId); // Changed
+					map.put(quest.category.title + ": " + quest.getTitle() + "(Finished quest)", questId);
 				}
 			} else if (type == EnumPlayerData.Transport) {
 				PlayerTransportData data3 = playerdata.transportData;

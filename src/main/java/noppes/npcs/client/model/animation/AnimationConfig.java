@@ -82,7 +82,7 @@ public class AnimationConfig implements IAnimation {
 
 	public AnimationConfig copy() {
 		AnimationConfig ac = new AnimationConfig();
-		ac.load(this.save());
+		ac.load(save());
 		ac.resetTicks();
 		return ac;
 	}
@@ -140,13 +140,15 @@ public class AnimationConfig implements IAnimation {
 
 	public void load(NBTTagCompound compound) {
 		frames.clear();
+
+		id = compound.getInteger("ID");
+		name = compound.getString("Name");
 		boolean hasDelayAttack = false;
 		for (int i = 0; i < compound.getTagList("FrameConfigs", 10).tagCount(); i++) {
 			AnimationFrameConfig afc = new AnimationFrameConfig();
-			afc.readNBT(compound.getTagList("FrameConfigs", 10).getCompoundTagAt(i));
+			afc.load(compound.getTagList("FrameConfigs", 10).getCompoundTagAt(i));
 			afc.id = i;
-			if (!hasDelayAttack) { hasDelayAttack = afc.isNowDamage(); }
-			else { afc.isNowDamage = false; }
+			if (!hasDelayAttack && afc.isNowDamage()) { hasDelayAttack = true; }
 			frames.put(i, afc);
 		}
 		if (frames.isEmpty()) { frames.put(0, new AnimationFrameConfig(0)); }
@@ -161,8 +163,6 @@ public class AnimationConfig implements IAnimation {
 			addParts.get(addPart.parentPart).add(addPart);
 		}
 
-		this.id = compound.getInteger("ID");
-		this.name = compound.getString("Name");
 		if (compound.hasKey("Chance", 5)) { setChance(compound.getFloat("Chance")); }
 		if (compound.hasKey("Immutable", 1)) { immutable = compound.getBoolean("Immutable"); }
 		if (compound.hasKey("Type", 3)) { type = AnimationKind.get(compound.getInteger("Type")); }
@@ -170,25 +170,17 @@ public class AnimationConfig implements IAnimation {
 
 		if (compound.hasKey("DamageHitbox", 9) && compound.getTagList("DamageHitbox", 6).tagCount() == 6) { // OLD
 			AnimationDamageHitbox aDHB = new AnimationDamageHitbox(0);
-			if (compound.hasKey("OffsetHitbox", 9) && compound.getTagList("OffsetHitbox", 9).getTagType() == 5 && compound.getTagList("OffsetHitbox", 9).tagCount() > 2) {
-				NBTTagList list = compound.getTagList("OffsetHitbox", 5);
-				aDHB.offset[0] = list.getFloatAt(0);
-				aDHB.offset[1] = list.getFloatAt(1);
-				aDHB.offset[2] = list.getFloatAt(2);
-			}
-			if (compound.hasKey("ScaleHitbox", 9) && compound.getTagList("ScaleHitbox", 9).getTagType() == 5 && compound.getTagList("ScaleHitbox", 9).tagCount() > 2) {
-				NBTTagList list = compound.getTagList("ScaleHitbox", 5);
-				aDHB.scale[0] = list.getFloatAt(0);
-				aDHB.scale[1] = list.getFloatAt(1);
-				aDHB.scale[2] = list.getFloatAt(2);
-			}
+
+			NBTTagList listO = compound.getTagList("OffsetHitbox", 5);
+			for (int j = 0; j < 3 && j < listO.tagCount(); j++) { aDHB.offset[j] = listO.getFloatAt(j); }
+			NBTTagList listS = compound.getTagList("ScaleHitbox", 5);
+			for (int j = 0; j < 3 && j < listS.tagCount(); j++) { aDHB.scale[j] = listS.getFloatAt(j); }
 			int tTicks = 0;
 			for (AnimationFrameConfig aFC : frames.values()) {
 				tTicks += aFC.speed;
 				if (aFC.isNowDamage()) {
 					aFC.damageDelay = tTicks;
-					aFC.damageHitboxes.clear();
-					aFC.damageHitboxes.put(0, aDHB);
+					if (aFC.damageHitboxes.isEmpty()) { aFC.damageHitboxes.put(0, aDHB); }
 					break;
 				}
 				tTicks += aFC.delay;
@@ -199,12 +191,12 @@ public class AnimationConfig implements IAnimation {
 
 	@Override
 	public void removeFrame(IAnimationFrame frameId) {
-		if (frameId == null || this.frames.size() <= 1) {
+		if (frameId == null || frames.size() <= 1) {
 			return;
 		}
-		for (int f : this.frames.keySet()) {
-			if (this.frames.get(f).equals(frameId)) {
-				this.removeFrame(f);
+		for (int f : frames.keySet()) {
+			if (frames.get(f).equals(frameId)) {
+				removeFrame(f);
 				return;
 			}
 		}
@@ -212,18 +204,18 @@ public class AnimationConfig implements IAnimation {
 
 	@Override
 	public void removeFrame(int frameId) {
-		if (!this.frames.containsKey(frameId)) {
+		if (!frames.containsKey(frameId)) {
 			throw new CustomNPCsException("Unknown frame ID:" + frameId);
 		}
 		Map<Integer, AnimationFrameConfig> newData = new TreeMap<>();
 		int i = 0;
 		boolean isDel = false;
-		for (int f : this.frames.keySet()) {
+		for (int f : frames.keySet()) {
 			if (f == frameId) {
 				isDel = true;
 				continue;
 			}
-			newData.put(i, this.frames.get(f).copy());
+			newData.put(i, frames.get(f).copy());
 			newData.get(i).id = i;
 			i++;
 		}

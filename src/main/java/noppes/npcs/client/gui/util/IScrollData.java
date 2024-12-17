@@ -5,7 +5,7 @@ import java.util.Vector;
 
 public interface IScrollData {
 
-	void setData(Vector<String> list, HashMap<String, Integer> data);
+	void setData(Vector<String> list, HashMap<String, Integer> dataMap);
 
 	void setSelected(String select);
 

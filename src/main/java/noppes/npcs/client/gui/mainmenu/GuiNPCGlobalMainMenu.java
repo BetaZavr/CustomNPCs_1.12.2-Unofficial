@@ -13,7 +13,8 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
+public class GuiNPCGlobalMainMenu
+extends GuiNPCInterface2 {
 
 	public GuiNPCGlobalMainMenu(EntityNPCInterface npc) {
 		super(npc, 5);
@@ -70,66 +71,52 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getButton(2) != null && this.getButton(2).isMouseOver()) { // add new
-			this.setHoverText(new TextComponentTranslation("global.hover.banks").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.factions").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.dialogs").getFormattedText());
-		} else if (this.getButton(11) != null && this.getButton(11).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.quests").getFormattedText());
-		} else if (this.getButton(12) != null && this.getButton(12).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.transports").getFormattedText());
-		} else if (this.getButton(13) != null && this.getButton(13).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.playerdatas").getFormattedText());
-		} else if (this.getButton(14) != null && this.getButton(14).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.recipes").getFormattedText());
-		} else if (this.getButton(15) != null && this.getButton(15).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.naturalspawns").getFormattedText());
-		} else if (this.getButton(16) != null && this.getButton(16).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.linkeds").getFormattedText());
-		} else if (this.getButton(17) != null && this.getButton(17).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.markets").getFormattedText());
-		} else if (this.getButton(18) != null && this.getButton(18).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.auctions").appendSibling(new TextComponentString("<br>")).appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
-		} else if (this.getButton(19) != null && this.getButton(19).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.mail").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
-	}
-
-	@Override
 	public void initGui() {
 		super.initGui();
 		int r0 = guiLeft + 75;
 		int r1 = guiLeft + 240;
 		int y = guiTop + 10;
-		this.addButton(new GuiNpcButton(2, r0, y, 110, 20, "global.banks"));
-		this.addButton(new GuiNpcButton(3, r0, (y += 22), 110, 20, "menu.factions"));
-		this.addButton(new GuiNpcButton(4, r0, (y += 22), 110, 20, "dialog.dialogs"));
-		this.addButton(new GuiNpcButton(11, r0, (y += 22), 110, 20, "quest.quests"));
-		this.addButton(new GuiNpcButton(12, r0, (y += 22), 110, 20, "global.transport"));
-		this.addButton(new GuiNpcButton(13, r0, (y += 22), 110, 20, "global.playerdata"));
-		this.addButton(new GuiNpcButton(14, r0, (y += 22), 110, 20, "global.recipes"));
-		this.addButton(new GuiNpcButton(15, r0, (y += 22), 110, 20, "global.naturalspawn"));
-		this.addButton(new GuiNpcButton(16, r0, y + 22, 110, 20, "global.linked"));
+		GuiNpcButton button = new GuiNpcButton(2, r0, y, 110, 20, "global.banks");
+		button.setHoverText("global.hover.banks");
+		addButton(button);
+		button = new GuiNpcButton(3, r0, (y += 22), 110, 20, "menu.factions");
+		button.setHoverText("global.hover.factions");
+		addButton(button);
+		button = new GuiNpcButton(4, r0, (y += 22), 110, 20, "dialog.dialogs");
+		button.setHoverText("global.hover.dialogs");
+		addButton(button);
+		button = new GuiNpcButton(11, r0, (y += 22), 110, 20, "quest.quests");
+		button.setHoverText("global.hover.quests");
+		addButton(button);
+		button = new GuiNpcButton(12, r0, (y += 22), 110, 20, "global.transport");
+		button.setHoverText("global.hover.transports");
+		addButton(button);
+		button = new GuiNpcButton(13, r0, (y += 22), 110, 20, "global.playerdata");
+		button.setHoverText("global.hover.playerdatas");
+		addButton(button);
+		button = new GuiNpcButton(14, r0, (y += 22), 110, 20, "global.recipes");
+		button.setHoverText("global.hover.recipes");
+		addButton(button);
+		button = new GuiNpcButton(15, r0, (y += 22), 110, 20, "global.naturalspawn");
+		button.setHoverText("global.hover.naturalspawns");
+		addButton(button);
+		button = new GuiNpcButton(16, r0, y + 22, 110, 20, "global.linked");
+		button.setHoverText("global.hover.linkeds");
+		addButton(button);
 		y = guiTop + 10;
-		this.addButton(new GuiNpcButton(17, r1, y, 110, 20, "global.market"));
-		this.addButton(new GuiNpcButton(18, r1, (y += 22), 110, 20, "global.auctions"));
-		this.getButton(18).enabled = false;
-		this.addButton(new GuiNpcButton(19, r1, y + 22, 110, 20, "global.mail"));
+		button = new GuiNpcButton(17, r1, y, 110, 20, "global.market");
+		button.setHoverText("global.hover.markets");
+		addButton(button);
+		button = new GuiNpcButton(18, r1, (y += 22), 110, 20, "global.auctions");
+		button.setEnabled(false);
+		button.setHoverText(new TextComponentTranslation("global.hover.auctions").appendSibling(new TextComponentString("<br>")).appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
+		addButton(button);
+		button = new GuiNpcButton(19, r1, y + 22, 110, 20, "global.mail");
+		button.setHoverText("global.hover.mail");
+		addButton(button);
 	}
 
 	@Override
-	public void save() {
-	}
+	public void save() { }
 
 }

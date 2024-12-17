@@ -14,7 +14,8 @@ import noppes.npcs.roles.RoleCompanion;
 
 import javax.annotation.Nonnull;
 
-public class GuiNpcCompanionInv extends GuiContainerNPCInterface {
+public class GuiNpcCompanionInv
+extends GuiContainerNPCInterface {
 
 	private final EntityNPCInterface npc;
 	private final ResourceLocation resource;

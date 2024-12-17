@@ -5,6 +5,7 @@ import java.util.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import noppes.npcs.ai.CombatHandler;
@@ -79,15 +80,18 @@ public class NpcEvent extends CustomNPCsEvent {
 	}
 
 	public static class DiedEvent extends NpcEvent {
+
+		public int expDropped = 0;
+		public double totalDamage = 0.0d;
+		public double totalDamageOnlyPlayers = 0.0d;
 		public IDamageSource damageSource;
 		public IItemStack[] droppedItems;
-		public int expDropped;
+		public Map<IEntity<?>, List<IItemStack>> lootedItems;
+		public Map<IEntity<?>, List<IItemStack>> inventoryItems;
 		public ILine line;
-		public IItemStack[] lootedItems;
 		public IEntity<?> source;
 		public String type;
-		
-		private final Map<IEntity<?>, Double> damageMap = new HashMap<>();
+		public final Map<IEntity<?>, Double> damageMap = new HashMap<>();
 
 		public DiedEvent(ICustomNpc<?> npc, DamageSource damagesource, Entity entity, CombatHandler combatHandler) {
 			super(npc);
@@ -95,7 +99,10 @@ public class NpcEvent extends CustomNPCsEvent {
 			this.source = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
 			this.damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
 			for (EntityLivingBase e : combatHandler.aggressors.keySet()) {
-				damageMap.put(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e), combatHandler.aggressors.get(e));
+				double damage = combatHandler.aggressors.get(e);
+				damageMap.put(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e), damage);
+				totalDamage += damage;
+				if (e instanceof EntityPlayer) { totalDamageOnlyPlayers = damage; }
 			}
 		}
 		

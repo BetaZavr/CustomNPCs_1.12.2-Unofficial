@@ -16,7 +16,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
 
-public class GuiNPCScenes extends GuiNPCInterface2 {
+public class GuiNPCScenes
+extends GuiNPCInterface2 {
 
 	private DataScenes.SceneContainer scene;
 	private final DataScenes scenes;

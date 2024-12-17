@@ -4,18 +4,23 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.client.gui.IGuiTextFieldMixin;
 import noppes.npcs.util.ValueUtil;
 import org.lwjgl.input.Mouse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GuiNpcTextField
-		extends GuiTextField
-		implements IComponentGui {
+extends GuiTextField
+implements IComponentGui {
 
 	public static char[] filePath = new char[] { ':', '*', '?', '"', '<', '>', '&', '|' };
 
 	public static GuiNpcTextField activeTextfield = null;
+	private final List<String> hoverText = new ArrayList<>();
 
 	public static boolean isActive() {
 		return GuiNpcTextField.activeTextfield != null;
@@ -48,10 +53,10 @@ public class GuiNpcTextField
 
 	public GuiNpcTextField(int id, GuiScreen parent, FontRenderer fontRenderer, int x, int y, int width, int height, String text) {
 		super(id, fontRenderer, x, y, width, height);
-		this.setMaxStringLength(500);
-		this.setText((text == null) ? "" : text);
+		setMaxStringLength(500);
+		setText((text == null) ? "" : text);
 		if (parent instanceof ITextfieldListener) {
-			this.listener = (ITextfieldListener) parent;
+			listener = (ITextfieldListener) parent;
 		}
 	}
 
@@ -60,37 +65,39 @@ public class GuiNpcTextField
 	}
 
 	private boolean charAllowed(char c, int i) {
-		for (char g : this.prohibitedSpecialChars) {
+		for (char g : prohibitedSpecialChars) {
 			if (g == c) {
 				return false;
 			}
 		}
-		for (int j : this.allowedSpecialKeyIDs) {
+		for (int j : allowedSpecialKeyIDs) {
 			if (j == i) {
 				return true;
 			}
 		}
+		boolean selectAll = getSelectedText().equals(getText());
+		if (numbersOnly) {
+			return Character.isDigit(c) || (c == '-' && selectAll || getCursorPosition() == 0 && !getText().contains("" + c));
+		}
+		if (doubleNumbersOnly) {
+			boolean hasDot = getText().contains(".") || getText().contains(",");
+			return Character.isDigit(c) || (c == '-' && selectAll || getCursorPosition() == 0 && !getText().contains("" + c)) || (!hasDot || selectAll && (c == '.' || c == ','));
+		}
 		if (!latinAlphabetOnly || Character.isLetterOrDigit(c) || c == '_') {
 			return true;
 		}
-		if (allowUppercase || Character.isLowerCase(c)) {
-			return true;
-		}
-		if (!this.numbersOnly || Character.isDigit(c) || (c == '-' && this.getText().isEmpty())) {
-			return true;
-		}
-        return !this.doubleNumbersOnly || Character.isDigit(c) || (c == '-' && this.getText().isEmpty())
-                || (c == '.' && this.getText().contains("."));
+        return allowUppercase || Character.isLowerCase(c);
     }
 
 	public void drawTextBox() {
-		if (this.enabled) {
-			super.drawTextBox();
-		}
+		if (!enabled) { return; }
+		super.drawTextBox();
 	}
 
-	public void drawTextBox(int mouseX, int mouseY) {
-		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+	@Override
+	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
+		hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+		if (hovered && !gui.hasSubGui() && !hoverText.isEmpty()) { gui.setHoverText(hoverText); }
 		if (hovered && (doubleNumbersOnly || numbersOnly)) {
 			int dWheel = Mouse.getDWheel();
 			if (dWheel != 0) {
@@ -116,13 +123,13 @@ public class GuiNpcTextField
 				}
 			}
 		}
-		this.drawTextBox();
+		drawTextBox();
 	}
 
 	public double getDouble() {
 		double d = 0.0d;
 		try {
-			d = Double.parseDouble(this.getText().replace(",", "."));
+			d = Double.parseDouble(getText().replace(",", "."));
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 		return d;
 	}
@@ -130,7 +137,7 @@ public class GuiNpcTextField
 	public int getInteger() {
 		int i = 0;
 		try {
-			i = Integer.parseInt(this.getText());
+			i = Integer.parseInt(getText());
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 		return i;
 	}
@@ -138,93 +145,85 @@ public class GuiNpcTextField
 	public long getLong() {
 		long i = 0L;
 		try {
-			i = Long.parseLong(this.getText());
+			i = Long.parseLong(getText());
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 		return i;
 	}
 
 	public boolean isDouble() {
 		try {
-			Double.parseDouble(this.getText().replace(",", "."));
+			Double.parseDouble(getText().replace(",", "."));
 			return true;
-		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException ignored) { }
 		return false;
 	}
 
 	public boolean isEmpty() {
-		return this.getText().trim().isEmpty();
+		return getText().trim().isEmpty();
 	}
 
 	public boolean isInteger() {
 		try {
-			Integer.parseInt(this.getText());
+			Integer.parseInt(getText());
 			return true;
-		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException ignored) {  }
 		return false;
 	}
 
 	public boolean isLong() {
 		try {
-			Long.parseLong(this.getText());
+			Long.parseLong(getText());
 			return true;
 		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		return false;
 	}
 
 	public boolean isMouseOver() {
-		return this.hovered;
+		return hovered;
 	}
 
 	public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (!this.canEdit) {
+		if (!canEdit) {
 			return false;
 		}
-		boolean isFocused = this.isFocused();
+		boolean isFocused = isFocused();
 		if (((IGuiTextFieldMixin) this).npcs$getCanLoseFocus()) {
-			this.setFocused(hovered);
+			setFocused(hovered);
 		}
 		if (isFocused && hovered && mouseButton == 0) {
-			int i = mouseX - this.x;
+			int i = mouseX - x;
 			if (((IGuiTextFieldMixin) this).npcs$getEnableBackgroundDrawing()) {
 				i -= 4;
 			}
 			FontRenderer fontRenderer = ((IGuiTextFieldMixin) this).npcs$getFontRenderer();
 			int lineScrollOffset = ((IGuiTextFieldMixin) this).npcs$getLineScrollOffset();
-			String s = fontRenderer.trimStringToWidth(this.getText().substring(lineScrollOffset), this.getWidth());
-			this.setCursorPosition(fontRenderer.trimStringToWidth(s, i).length() + lineScrollOffset);
+			String s = fontRenderer.trimStringToWidth(getText().substring(lineScrollOffset), getWidth());
+			setCursorPosition(fontRenderer.trimStringToWidth(s, i).length() + lineScrollOffset);
 			return true;
 		}
-		if (isFocused != this.isFocused() && isFocused) {
-			this.unFocused();
+		if (isFocused != isFocused() && isFocused) {
+			unFocused();
 		}
-		if (this.isFocused()) {
+		if (isFocused()) {
 			GuiNpcTextField.activeTextfield = this;
 		}
 		return false;
 	}
 
-	public GuiNpcTextField setDoubleNumbersOnly() {
-		this.numbersOnly = false;
-		this.doubleNumbersOnly = true;
-		return this;
+	public void setMinMaxDefault(long minValue, long maxValue, long defaultValue) {
+		numbersOnly = true;
+		doubleNumbersOnly = false;
+		min = minValue;
+		max = maxValue;
+		def = defaultValue;
 	}
 
-	public void setMinMaxDefault(long min, long max, long def) {
-		this.min = min;
-		this.max = max;
-		this.def = def;
-	}
-
-	public void setMinMaxDoubleDefault(double min, double max, double def) {
-		this.minD = min;
-		this.maxD = max;
-		this.defD = def;
-	}
-
-	public GuiNpcTextField setNumbersOnly() {
-		this.numbersOnly = true;
-		this.doubleNumbersOnly = false;
-		return this;
+	public void setMinMaxDoubleDefault(double minValue, double maxValue, double defaultValue) {
+		numbersOnly = false;
+		doubleNumbersOnly = true;
+		minD = minValue;
+		maxD = maxValue;
+		defD = defaultValue;
 	}
 
 	public boolean isAllowUppercase() { return allowUppercase; }
@@ -235,41 +234,58 @@ public class GuiNpcTextField
 
 	public void setLatinAlphabetOnly(boolean isLatinAlphabetOnly) { latinAlphabetOnly = isLatinAlphabetOnly; }
 
-	public boolean textboxKeyTyped(char c, int i) {
-		if (latinAlphabetOnly && c == ' ') { c = '_'; }
-		return this.charAllowed(c, i) && this.canEdit && super.textboxKeyTyped(c, i);
+	public boolean textboxKeyTyped(char typedChar, int keyCode) {
+		if (GuiScreen.isCtrlKeyDown() && !super.textboxKeyTyped(typedChar, keyCode)) { return false; }
+		if (latinAlphabetOnly && typedChar == ' ') { typedChar = '_'; }
+		return charAllowed(typedChar, keyCode) && canEdit && super.textboxKeyTyped(typedChar, keyCode);
 	}
 
 	public void unFocused() {
-		if (this.numbersOnly) {
-			if (this.isEmpty() || !this.isInteger()) {
-				this.setText(this.def + "");
-			} else if (this.getInteger() < this.min) {
-				this.setText(this.min + "");
-			} else if (this.getInteger() > this.max) {
-				this.setText(this.max + "");
+		if (numbersOnly) {
+			if (isEmpty() || !isInteger()) {
+				setText(def + "");
+			} else if (getInteger() < min) {
+				setText(min + "");
+			} else if (getInteger() > max) {
+				setText(max + "");
 			}
-		} else if (this.doubleNumbersOnly) { // New
-			if (this.isEmpty() || !this.isDouble()) {
-				this.setText(this.defD + "");
-			} else if (this.getDouble() < this.minD) {
-				this.setText(this.minD + "");
-			} else if (this.getDouble() > this.maxD) {
-				this.setText(this.maxD + "");
+		} else if (doubleNumbersOnly) {
+			if (isEmpty() || !isDouble()) {
+				setText(defD + "");
+			} else if (getDouble() < minD) {
+				setText(minD + "");
+			} else if (getDouble() > maxD) {
+				setText(maxD + "");
 			}
 		}
-		if (this.listener != null) {
-			this.listener.unFocused(this);
+		if (listener != null) {
+			listener.unFocused(this);
 		}
 		if (this == GuiNpcTextField.activeTextfield) {
 			GuiNpcTextField.activeTextfield = null;
 		}
-		this.setFocused(false);
+		setFocused(false);
 	}
 
 	@Override
-	public int[] getCenter() {
-		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
+	public int[] getCenter() { return new int[] { x + width / 2, x + height / 2}; }
+
+	@Override
+	public void setHoverText(String text, Object ... args) {
+		hoverText.clear();
+		if (text == null || text.isEmpty()) { return; }
+		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
+		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
+		while (text.contains("<br>")) {
+			hoverText.add(text.substring(0, text.indexOf("<br>")));
+			text = text.substring(text.indexOf("<br>") + 4);
+		}
+		hoverText.add(text);
+	}
+
+	@Override
+	public void updateScreen() {
+		if (enabled) { updateCursorCounter(); }
 	}
 
 }

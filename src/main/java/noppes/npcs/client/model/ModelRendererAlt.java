@@ -52,6 +52,7 @@ public class ModelRendererAlt
 	public float offsetAnimX = 0.0f, offsetAnimY = 0.0f, offsetAnimZ = 0.0f;
 	private boolean normalTop = false;
 	public boolean isNormal = false;
+	public final boolean baseNormal;
 
 	public boolean smallArms;
 	public boolean isAnimPart;
@@ -62,14 +63,15 @@ public class ModelRendererAlt
 	public ResourceLocation location = null;
 	public boolean isArmor;
 
-	public ModelRendererAlt(ModelBase model, EnumParts part, int textureU, int textureV, boolean isNormal) {
+	public ModelRendererAlt(ModelBase model, EnumParts enumPart, int textureU, int textureV, boolean normal) {
 		super(model, textureU, textureV);
-		this.part = part;
-		this.partId = part.patterns;
-		this.u = textureU;
-		this.v = textureV;
-		this.isNormal = isNormal;
-		this.baseRotationPoint = new float[] { rotationPointX, rotationPointY, rotationPointZ };
+		part = enumPart;
+		partId = enumPart.patterns;
+		u = textureU;
+		v = textureV;
+		isNormal = normal;
+		baseNormal = normal;
+		baseRotationPoint = new float[] { rotationPointX, rotationPointY, rotationPointZ };
 	}
 
 	public ModelRendererAlt(ModelBase baseModel, AddedPartConfig addedPartConfig) {
@@ -80,6 +82,7 @@ public class ModelRendererAlt
 		u = addedPartConfig.textureU;
 		v = addedPartConfig.textureV;
 		isNormal = addedPartConfig.isNormal;
+		baseNormal = addedPartConfig.isNormal;
 		location = addedPartConfig.location;
 		baseRotationPoint = new float[] { rotationPointX, rotationPointY, rotationPointZ };
 		setBox(addedPartConfig.pos[0], addedPartConfig.pos[1], addedPartConfig.pos[2], addedPartConfig.size[0], addedPartConfig.size[1], addedPartConfig.size[2], addedPartConfig.size[3], addedPartConfig.size[4], 0.0f);
@@ -88,7 +91,8 @@ public class ModelRendererAlt
 
 	public ModelRendererAlt(ModelBase model) {
 		super(model);
-		this.baseRotationPoint = new float[] { this.rotationPointX, this.rotationPointY, this.rotationPointZ };
+		baseNormal = true;
+		baseRotationPoint = new float[] { rotationPointX, rotationPointY, rotationPointZ };
 	}
 
 	public void setBox(float x, float y, float z, float dx, float dy0, float dy1, float dy2, float dz, float wear) {
@@ -136,7 +140,7 @@ public class ModelRendererAlt
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void render(float scale) {
-		if (this.isHidden || !this.showModel) { return; }
+		if (isHidden || !showModel) { return; }
 		GlStateManager.pushMatrix();
 		this.postRender(scale);
 		// Tint
@@ -151,10 +155,10 @@ public class ModelRendererAlt
 			this.clearData();
 			if (this.location != null) { Minecraft.getMinecraft().getTextureManager().bindTexture(this.location); }
 			if (this.isNormal || !CustomNpcs.ShowJoints || (this.rotateAngleX1 == 0.0f && this.rotateAngleY1 == 0.0f)) {
-				this.simpleDraw(scale);
+				simpleDraw(scale);
 			} else {
-				this.rotateTop();
-				this.drawJoint(scale);
+				rotateTop();
+				drawJoint(scale);
 			}
 		}
 		// Child Models
@@ -334,6 +338,7 @@ public class ModelRendererAlt
 		float cos1 = (float) Math.cos(-this.rotateAngleX1 / 1.5f), sin1 = (float) Math.sin(-this.rotateAngleX1 / 1.5f);
 		float cos2 = (float) Math.cos(-this.rotateAngleX1), sin2 = (float) Math.sin(-this.rotateAngleX1);
 		float tan = (float) Math.tan(-this.rotateAngleX1 / 2.0f);
+		if (rotateAngleX1 <= -3.1415) { tan = 0.0f; } // remove infinity
 		Vec2f cr = new Vec2f(ye0, this.rotateAngleX1 * -ze / (float) -Math.PI); // center
         Vec2f g0;
         Vec2f g1;
@@ -346,6 +351,7 @@ public class ModelRendererAlt
             g2 = new Vec2f(cr.x + (ze - cr.y) * sin2 + (ye0 - cr.x) * cos2, cr.y + (ze - cr.y) * cos2 - (ye0 - cr.x) * sin2);
             t = (z - cr.y) * tan;
 			Vec2f g3 = new Vec2f(ye0 + t, z);
+
 			float d0 = (float) Math.hypot(g0.x-g1.x, g0.y-g1.y);
 			float n0 = dy0 / (dy0 + d0 * 1.5f) * d0 * 1.5f;
 			float n1 = (dy1 - dy0) / ((dy1 - dy0) + d0 * 1.5f) * d0 * 1.5f;
@@ -469,7 +475,8 @@ public class ModelRendererAlt
 						u, v + dz + dy03,
 						u, v + dz + dy1,
 						u, v + dz + dy1);
-			} else {
+			}
+			else {
 				this.setQuard(i++, vs.get(5), vs.get(4), vs.get(14), vs.get(15), u + dz, v + dz + dy0, u + dz + dx, v + dz + dy1); // front
 				this.setQuard(i++, vs.get(13), vs.get(12), vs.get(16), vs.get(17), u + 2 * dz + dx, v + dz + dy03, u + 2 * (dz + dx), v + dz + dy1); // back
 				this.setQuard(i++, vs.get(12), vs.get(5), vs.get(15), vs.get(16), // inside
@@ -492,7 +499,8 @@ public class ModelRendererAlt
 			vs.put(19, new PositionTextureVertex(tvs[5].x, yz19.x, yz19.y, 0.0F, 0.0F));
 			vs.put(20, new PositionTextureVertex(tvs[6].x, yz20.x, yz20.y, 0.0F, 0.0F));
 			vs.put(21, new PositionTextureVertex(tvs[7].x, yz21.x, yz21.y, 0.0F, 0.0F));
-        } else {
+        }
+		else {
 			// Calculated fillet positions
             g0 = new Vec2f(cr.x + (z - cr.y) * sin0 + (ye0 - cr.x) * cos0, cr.y + (z - cr.y) * cos0 - (ye0 - cr.x) * sin0);
             g1 = new Vec2f(cr.x + (z - cr.y) * sin1 + (ye0 - cr.x) * cos1, cr.y + (z - cr.y) * cos1 - (ye0 - cr.x) * sin1);
@@ -725,19 +733,18 @@ public class ModelRendererAlt
 		this.offsetAnimZ = source.offsetAnimZ;
 	}
 
-	public void checkBacklightColor(float r, float g, float b) {
-		this.r = r;
-		this.g = g;
-		this.b = b;
-		this.al = 0.0f;
+	public void checkBacklightColor(float red, float green, float blue) {
+		r = red;
+		g = green;
+		b = blue;
 		if (ModelNpcAlt.editAnimDataSelect.isNPC) {
 			if (ModelNpcAlt.editAnimDataSelect.part == this.part) {
-				this.r = ModelNpcAlt.editAnimDataSelect.red;
-				this.g = ModelNpcAlt.editAnimDataSelect.green;
-				this.b = ModelNpcAlt.editAnimDataSelect.blue;
-				this.al = 1.0f;
+				r = ModelNpcAlt.editAnimDataSelect.red;
+				g = ModelNpcAlt.editAnimDataSelect.green;
+				b = ModelNpcAlt.editAnimDataSelect.blue;
+				al = 1.0f;
 			} else {
-				this.al = ModelNpcAlt.editAnimDataSelect.alpha;
+				al = ModelNpcAlt.editAnimDataSelect.alpha;
 			}
 		}
 	}
@@ -812,7 +819,6 @@ public class ModelRendererAlt
 		scaleZ = config.scale[2];
 	}
 
-
 	public void putAnimation(DataAnimation animation) {
 		AnimationFrameConfig preFrame = animation.getPreFrame();
 		if (preFrame == null || !preFrame.parts.containsKey(partId)) { return; }
@@ -844,7 +850,7 @@ public class ModelRendererAlt
 		scaleX *= partSets[6];
 		scaleY *= partSets[7];
 		scaleZ *= partSets[8];
-		if (partSets[9] != 0.0f && partSets[10] != 0.0f) {
+		if (partSets[9] != 0.0f || partSets[10] != 0.0f) {
 			rotateAngleX1 = partSets[9];
 			rotateAngleY1 = partSets[10];
 			if (isNormal) { isNormal = false; }
@@ -889,6 +895,7 @@ public class ModelRendererAlt
 		scaleZ = 1.0f;
 		isAnimPart = false;
 		showModel = true;
+		isNormal = baseNormal;
 	}
 
 	@Override

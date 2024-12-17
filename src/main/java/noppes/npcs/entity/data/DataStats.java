@@ -15,55 +15,36 @@ import noppes.npcs.util.ValueUtil;
 
 public class DataStats implements INPCStats {
 
-	public int aggroRange;
-	public boolean burnInSun;
-	public boolean calmdown;
-	public boolean canDrown;
-	public int combatRegen;
-	public EnumCreatureAttribute creatureType;
-	public int healthRegen;
-	public boolean hideKilledBody;
-	public boolean ignoreCobweb;
-	public boolean immuneToFire;
-	private int level;
-	private String rarityTitle;
-	private EnumCreatureRarity rarity;
-
-	public double maxHealth;
-	public DataMelee melee;
-	public boolean noFallDamage;
-	private final EntityNPCInterface npc;
-	public boolean potionImmune;
-	public DataRanged ranged;
-	public Resistances resistances;
-	public int respawnTime;
-	public int spawnCycle;
+	public boolean burnInSun = false;
+	public boolean calmdown = true;
+	public boolean canDrown = true;
+	public boolean hideKilledBody = false;
+	public boolean ignoreCobweb = false;
+	public boolean immuneToFire = false;
+	public boolean noFallDamage = false;
+	public boolean potionImmune = false;
+	public int aggroRange = 16;
+	public int combatRegen = 0;
+	public int healthRegen = 1;
+	private int level = 1;
+	public int respawnTime = 20;
+	public int spawnCycle = 0;
 	private float chanceBlockDamage = 2.0f;
+	public double maxHealth = 20.0d;
+
+	public EnumCreatureAttribute creatureType = EnumCreatureAttribute.UNDEFINED;
+	private String rarityTitle = ((char) 167) + "flv." + ((char) 167) + "21";
+	private EnumCreatureRarity rarity = EnumCreatureRarity.NORMAL;
+
+	public DataMelee melee;
+	private final EntityNPCInterface npc;
+	public DataRanged ranged;
+	public Resistances resistances = new Resistances();
 
 	public DataStats(EntityNPCInterface npc) {
-		this.aggroRange = 16;
-		this.maxHealth = 20.0d;
-		this.respawnTime = 20;
-		this.spawnCycle = 0;
-		this.hideKilledBody = false;
-		this.resistances = new Resistances();
-		this.immuneToFire = false;
-		this.potionImmune = false;
-		this.canDrown = true;
-		this.burnInSun = false;
-		this.noFallDamage = false;
-		this.ignoreCobweb = false;
-		this.healthRegen = 1;
-		this.combatRegen = 0;
-		this.creatureType = EnumCreatureAttribute.UNDEFINED;
 		this.npc = npc;
 		this.melee = new DataMelee(npc);
 		this.ranged = new DataRanged(npc);
-		// New
-		this.level = 1;
-		this.rarity = EnumCreatureRarity.NORMAL;
-		this.rarityTitle = ((char) 167) + "flv." + ((char) 167) + "21";
-		this.calmdown = true;
 	}
 
 	@Override
@@ -140,7 +121,6 @@ public class DataStats implements INPCStats {
 		throw new CustomNPCsException("Unknown immune type: " + type);
 	}
 
-	// new
 	@Override
 	public int getLevel() {
 		if (this.level < 1) {
@@ -225,7 +205,6 @@ public class DataStats implements INPCStats {
 		this.ignoreCobweb = compound.getBoolean("IgnoreCobweb");
 		this.melee.readFromNBT(compound);
 		this.ranged.readFromNBT(compound);
-		// New
 		this.level = compound.getInteger("NPCLevel");
 		this.rarity = EnumCreatureRarity.values()[compound.getInteger("NPCRarity")];
 		this.rarityTitle = compound.getString("RarityTitle");

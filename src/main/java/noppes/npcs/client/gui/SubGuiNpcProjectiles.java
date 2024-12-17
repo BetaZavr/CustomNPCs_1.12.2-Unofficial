@@ -1,9 +1,5 @@
 package noppes.npcs.client.gui;
 
-import java.util.Arrays;
-
-import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
@@ -11,183 +7,163 @@ import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.DataRanged;
 
-public class SubGuiNpcProjectiles extends SubGuiInterface implements ITextfieldListener {
+public class SubGuiNpcProjectiles
+extends SubGuiInterface
+implements ITextfieldListener {
 
-	private final String[] potionNames;
+	private static final String[] potionNames = new String[] { "gui.none", "tile.fire.name", "effect.poison", "effect.hunger", "effect.weakness", "effect.moveSlowdown", "effect.confusion", "effect.blindness", "effect.wither" };
+	private static final String[] trailNames= new String[] { "gui.none", "Smoke", "Portal", "Redstone", "Lightning", "LargeSmoke", "Magic", "Enchant" };
 	private final DataRanged stats;
-	private final String[] trailNames;
 
-	public SubGuiNpcProjectiles(DataRanged stats) {
-		this.potionNames = new String[] { "gui.none", "tile.fire.name", "effect.poison", "effect.hunger", "effect.weakness", "effect.moveSlowdown", "effect.confusion", "effect.blindness", "effect.wither" };
-		this.trailNames = new String[] { "gui.none", "Smoke", "Portal", "Redstone", "Lightning", "LargeSmoke", "Magic", "Enchant" };
-		this.stats = stats;
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 216;
-		this.closeOnEsc = true;
+	public SubGuiNpcProjectiles(DataRanged st) {
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 216;
+		closeOnEsc = true;
+
+		stats = st;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
-			this.stats.setHasGravity(button.getValue() == 1);
-			this.initGui();
+			stats.setHasGravity(button.getValue() == 1);
+			initGui();
 		}
 		if (button.id == 1) {
-			this.stats.setAccelerate(button.getValue() == 1);
+			stats.setAccelerate(button.getValue() == 1);
 		}
 		if (button.id == 3) {
-			this.stats.setExplodeSize(button.getValue());
+			stats.setExplodeSize(button.getValue());
 		}
 		if (button.id == 4) {
-			this.stats.setEffect(button.getValue(), this.stats.getEffectStrength(), this.stats.getEffectTime());
-			this.initGui();
+			stats.setEffect(button.getValue(), stats.getEffectStrength(), stats.getEffectTime());
+			initGui();
 		}
 		if (button.id == 5) {
-			this.stats.setParticle(button.getValue());
+			stats.setParticle(button.getValue());
 		}
 		if (button.id == 6) {
-			this.stats.setGlows(button.getValue() == 1);
+			stats.setGlows(button.getValue() == 1);
 		}
 		if (button.id == 7) {
-			this.stats.setRender3D(button.getValue() == 1);
-			this.initGui();
+			stats.setRender3D(button.getValue() == 1);
+			initGui();
 		}
 		if (button.id == 8) {
-			this.stats.setSpins(button.getValue() == 1);
+			stats.setSpins(button.getValue() == 1);
 		}
 		if (button.id == 9) {
-			this.stats.setSticks(button.getValue() == 1);
+			stats.setSticks(button.getValue() == 1);
 		}
 		if (button.id == 10) {
-			this.stats.setEffect(this.stats.getEffectType(), button.getValue(), this.stats.getEffectTime());
+			stats.setEffect(stats.getEffectType(), button.getValue(), stats.getEffectTime());
 		}
 		if (button.id == 66) {
-			this.close();
-		}
-	}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.attack.strength").getFormattedText());
-		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.attack.knockback").getFormattedText());
-		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bullet.size").getFormattedText());
-		} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bullet.speed").getFormattedText());
-		} else if (this.getTextField(5) != null && this.getTextField(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.attack.effect").getFormattedText());
-		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.gravity").getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.accelerating").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.explosion").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.attack.effects").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.particle").getFormattedText());
-		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.in.fire").getFormattedText());
-		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bullet.3d").getFormattedText());
-		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bullet.rotate").getFormattedText());
-		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bullet.cling").getFormattedText());
-		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.effect.power").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
+			close();
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(1, "enchantment.arrowDamage", this.guiLeft + 5, this.guiTop + 15));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 45, this.guiTop + 10, 50, 18,
-				this.stats.getStrength() + ""));
-		this.getTextField(1).setNumbersOnly();
-		this.getTextField(1).setMinMaxDefault(0, Integer.MAX_VALUE, 5);
-		this.addLabel(new GuiNpcLabel(2, "enchantment.arrowKnockback", this.guiLeft + 110, this.guiTop + 15));
-		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 150, this.guiTop + 10, 50, 18,
-				this.stats.getKnockback() + ""));
-		this.getTextField(2).setNumbersOnly();
-		this.getTextField(2).setMinMaxDefault(0, 3, 0);
-		this.addLabel(new GuiNpcLabel(3, "stats.size", this.guiLeft + 5, this.guiTop + 45));
-		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 45, this.guiTop + 40, 50, 18,
-				this.stats.getSize() + ""));
-		this.getTextField(3).setNumbersOnly();
-		this.getTextField(3).setMinMaxDefault(2, 20, 10); // Changed
-		this.addLabel(new GuiNpcLabel(4, "stats.speed", this.guiLeft + 5, this.guiTop + 75));
-		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 45, this.guiTop + 70, 50, 18,
-				this.stats.getSpeed() + ""));
-		this.getTextField(4).setNumbersOnly();
-		this.getTextField(4).setMinMaxDefault(1, 50, 10);
-		this.addLabel(new GuiNpcLabel(5, "stats.hasgravity", this.guiLeft + 5, this.guiTop + 105));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 60, this.guiTop + 100, 60, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.stats.getHasGravity() ? 1 : 0)));
-		if (!this.stats.getHasGravity()) {
-			this.addButton(new GuiNpcButton(1, this.guiLeft + 140, this.guiTop + 100, 60, 20,
-					new String[] { "gui.constant", "gui.accelerate" }, (this.stats.getAccelerate() ? 1 : 0)));
+		// attack strength / arrow damage
+		addLabel(new GuiNpcLabel(1, "enchantment.arrowDamage", guiLeft + 5, guiTop + 15));
+		GuiNpcTextField textField = new GuiNpcTextField(1, this, fontRenderer, guiLeft + 45, guiTop + 10, 50, 18, stats.getStrength() + "");
+		textField.setMinMaxDefault(0, Integer.MAX_VALUE, 5);
+		textField.setHoverText("stats.hover.attack.strength");
+		addTextField(textField);
+		// arrow knockback
+		addLabel(new GuiNpcLabel(2, "enchantment.arrowKnockback", guiLeft + 110, guiTop + 15));
+		textField = new GuiNpcTextField(2, this, fontRenderer, guiLeft + 150, guiTop + 10, 50, 18, stats.getKnockback() + "");
+		textField.setMinMaxDefault(0, 3, 0);
+		textField.setHoverText("stats.hover.attack.knockback");
+		addTextField(textField);
+		// arrow size
+		addLabel(new GuiNpcLabel(3, "stats.size", guiLeft + 5, guiTop + 45));
+		textField = new GuiNpcTextField(3, this, fontRenderer, guiLeft + 45, guiTop + 40, 50, 18, stats.getSize() + "");
+		textField.setMinMaxDefault(2, 20, 10);
+		textField.setHoverText("stats.hover.bullet.size");
+		addTextField(textField);
+		// arrow speed
+		addLabel(new GuiNpcLabel(4, "stats.speed", guiLeft + 5, guiTop + 75));
+		textField = new GuiNpcTextField(4, this, fontRenderer, guiLeft + 45, guiTop + 70, 50, 18, stats.getSpeed() + "");
+		textField.setMinMaxDefault(1, 50, 10);
+		textField.setHoverText("stats.hover.bullet.speed");
+		addTextField(textField);
+		// hasgravity
+		addLabel(new GuiNpcLabel(5, "stats.hasgravity", guiLeft + 5, guiTop + 105));
+		GuiNpcButton button = new GuiNpcButton(0, guiLeft + 60, guiTop + 100, 60, 20, new String[] { "gui.no", "gui.yes" }, (stats.getHasGravity() ? 1 : 0));
+		button.setHoverText("stats.hover.gravity");
+		addButton(button);
+		if (!stats.getHasGravity()) {
+			button = new GuiNpcButton(1, guiLeft + 140, guiTop + 100, 60, 20, new String[] { "gui.constant", "gui.accelerate" }, (stats.getAccelerate() ? 1 : 0));
+			button.setHoverText("stats.hover.accelerating");
+			addButton(button);
 		}
-		this.addLabel(new GuiNpcLabel(6, "stats.explosive", this.guiLeft + 5, this.guiTop + 135));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 60, this.guiTop + 130, 60, 20,
-				new String[] { "gui.none", "gui.small", "gui.medium", "gui.large" }, this.stats.getExplodeSize() % 4));
-		this.addLabel(new GuiNpcLabel(7, "stats.rangedeffect", this.guiLeft + 5, this.guiTop + 165));
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 60, this.guiTop + 160, 60, 20, this.potionNames,
-				this.stats.getEffectType()));
-		if (this.stats.getEffectType() != 0) {
-			this.addTextField(new GuiNpcTextField(5, this, this.fontRenderer, this.guiLeft + 140, this.guiTop + 160, 60,
-					18, this.stats.getEffectTime() + ""));
-			this.getTextField(5).setNumbersOnly();
-			this.getTextField(5).setMinMaxDefault(1, 99999, 5);
-			if (this.stats.getEffectType() != 1) {
-				this.addButton(new GuiNpcButton(10, this.guiLeft + 210, this.guiTop + 160, 40, 20,
-						new String[] { "stats.regular", "stats.amplified" }, this.stats.getEffectStrength() % 2));
+		// explosive
+		addLabel(new GuiNpcLabel(6, "stats.explosive", guiLeft + 5, guiTop + 135));
+		button = new GuiNpcButton(3, guiLeft + 60, guiTop + 130, 60, 20, new String[] { "gui.none", "gui.small", "gui.medium", "gui.large" }, stats.getExplodeSize() % 4);
+		button.setHoverText("stats.hover.explosion");
+		addButton(button);
+		// ranged effect
+		addLabel(new GuiNpcLabel(7, "stats.rangedeffect", guiLeft + 5, guiTop + 165));
+		button = new GuiNpcButton(4, guiLeft + 60, guiTop + 160, 60, 20, potionNames, stats.getEffectType());
+		button.setHoverText("stats.hover.attack.effects");
+		addButton(button);
+		if (stats.getEffectType() != 0) {
+			textField = new GuiNpcTextField(5, this, fontRenderer, guiLeft + 140, guiTop + 160, 60, 18, stats.getEffectTime() + "");
+			textField.setMinMaxDefault(1, 99999, 5);
+			textField.setHoverText("stats.hover.effect.time");
+			addTextField(textField);
+			if (stats.getEffectType() != 1) {
+				button = new GuiNpcButton(10, guiLeft + 210, guiTop + 160, 40, 20, new String[] { "stats.regular", "stats.amplified" }, stats.getEffectStrength() % 2);
+				button.setHoverText("stats.hover.effect.power");
+				addButton(button);
 			}
 		}
-		this.addLabel(new GuiNpcLabel(8, "stats.trail", this.guiLeft + 5, this.guiTop + 195));
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 60, this.guiTop + 190, 60, 20, this.trailNames,
-				this.stats.getParticle()));
-		this.addButton(new GuiNpcButton(7, this.guiLeft + 220, this.guiTop + 10, 30, 20, new String[] { "2D", "3D" },
-				(this.stats.getRender3D() ? 1 : 0)));
-		if (this.stats.getRender3D()) {
-			this.addLabel(new GuiNpcLabel(10, "stats.spin", this.guiLeft + 160, this.guiTop + 45));
-			this.addButton(new GuiNpcButton(8, this.guiLeft + 220, this.guiTop + 40, 30, 20,
-					new String[] { "gui.no", "gui.yes" }, (this.stats.getSpins() ? 1 : 0)));
-			this.addLabel(new GuiNpcLabel(11, "stats.stick", this.guiLeft + 160, this.guiTop + 75));
-			this.addButton(new GuiNpcButton(9, this.guiLeft + 220, this.guiTop + 70, 30, 20,
-					new String[] { "gui.no", "gui.yes" }, (this.stats.getSticks() ? 1 : 0)));
+		// trail
+		addLabel(new GuiNpcLabel(8, "stats.trail", guiLeft + 5, guiTop + 195));
+		button = new GuiNpcButton(5, guiLeft + 60, guiTop + 190, 60, 20, trailNames, stats.getParticle());
+		button.setHoverText("stats.hover.particle");
+		addButton(button);
+		button = new GuiNpcButton(7, guiLeft + 220, guiTop + 10, 30, 20, new String[] { "2D", "3D" }, (stats.getRender3D() ? 1 : 0));
+		button.setHoverText("stats.hover.bullet.3d");
+		addButton(button);
+		if (stats.getRender3D()) {
+			// spin
+			addLabel(new GuiNpcLabel(10, "stats.spin", guiLeft + 160, guiTop + 45));
+			button = new GuiNpcButton(8, guiLeft + 220, guiTop + 40, 30, 20, new String[] { "gui.no", "gui.yes" }, (stats.getSpins() ? 1 : 0));
+			button.setHoverText("stats.hover.bullet.rotate");
+			addButton(button);
+			// stick
+			addLabel(new GuiNpcLabel(11, "stats.stick", guiLeft + 160, guiTop + 75));
+			button = new GuiNpcButton(9, guiLeft + 220, guiTop + 70, 30, 20, new String[] { "gui.no", "gui.yes" }, (stats.getSticks() ? 1 : 0));
+			button.setHoverText("stats.hover.bullet.cling");
+			addButton(button);
 		}
-		this.addButton(new GuiNpcButton(6, this.guiLeft + 140, this.guiTop + 190, 60, 20,
-				new String[] { "stats.noglow", "stats.glows" }, (this.stats.getGlows() ? 1 : 0)));
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 210, this.guiTop + 190, 40, 20, "gui.done"));
+		// glows
+		button = new GuiNpcButton(6, guiLeft + 140, guiTop + 190, 60, 20, new String[] { "stats.noglow", "stats.glows" }, (stats.getGlows() ? 1 : 0));
+		button.setHoverText("stats.hover.in.fire");
+		addButton(button);
+		// exit
+		button = new GuiNpcButton(66, guiLeft + 210, guiTop + 190, 40, 20, "gui.done");
+		button.setHoverText("hover.back");
+		addButton(button);
 	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textfield) {
 		if (textfield.getId() == 1) {
-			this.stats.setStrength(textfield.getInteger());
+			stats.setStrength(textfield.getInteger());
 		} else if (textfield.getId() == 2) {
-			this.stats.setKnockback(textfield.getInteger());
+			stats.setKnockback(textfield.getInteger());
 		} else if (textfield.getId() == 3) {
-			this.stats.setSize(textfield.getInteger());
+			stats.setSize(textfield.getInteger());
 		} else if (textfield.getId() == 4) {
-			this.stats.setSpeed(textfield.getInteger());
+			stats.setSpeed(textfield.getInteger());
 		} else if (textfield.getId() == 5) {
-			this.stats.setEffect(this.stats.getEffectType(), this.stats.getEffectStrength(), textfield.getInteger());
+			stats.setEffect(stats.getEffectType(), stats.getEffectStrength(), textfield.getInteger());
 		}
 	}
 

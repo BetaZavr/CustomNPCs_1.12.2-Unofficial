@@ -58,7 +58,6 @@ public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 			return this.is3d;
 		}
 
-		// New
 		@Override
 		public boolean isRotate() {
 			return this.rotate;
@@ -159,7 +158,6 @@ public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 		return compound;
 	}
 
-	// New
 	public IMark getNewMark() {
 		return new Mark();
 	}

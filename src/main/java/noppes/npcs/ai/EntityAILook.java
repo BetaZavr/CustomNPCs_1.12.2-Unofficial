@@ -19,7 +19,7 @@ public class EntityAILook
 	private double lookX;
 	private double lookZ;
 	private final EntityNPCInterface npc;
-	boolean rotatebody;
+	boolean rotateBody;
 	public boolean fastRotation = false;
 
 	public EntityAILook(EntityNPCInterface npc) {
@@ -31,7 +31,7 @@ public class EntityAILook
 	}
 
 	public void resetTask() {
-		this.rotatebody = false;
+		this.rotateBody = false;
 		this.forced = false;
 		this.forcedEntity = null;
 	}
@@ -54,16 +54,16 @@ public class EntityAILook
 	}
 
 	public void startExecuting() {
-		this.rotatebody = (this.npc.ais.getStandingType() == 0 || this.npc.ais.getStandingType() == 3 || this.npc.ais.getStandingType() == 4);
+		this.rotateBody = (this.npc.ais.getStandingType() == 0 || this.npc.ais.getStandingType() == 3 || this.npc.ais.getStandingType() == 4);
 	}
 
 	public void updateTask() {
 		Entity lookat = null;
 		// has Target Entity
-		if (this.forced && this.forcedEntity != null) {
-			lookat = this.forcedEntity;
+		if (forced && forcedEntity != null) {
+			lookat = forcedEntity;
 		}
-		else if (this.npc.isInteracting()) {
+		else if (npc.isInteracting()) {
 			Iterator<EntityLivingBase> ita = this.npc.interactingEntities.iterator();
 			double closestDistance = 12.0;
 			while (ita.hasNext()) {
@@ -79,41 +79,43 @@ public class EntityAILook
 					ita.remove();
 				}
 			}
-		} else if (this.npc.ais.getStandingType() == 2 || this.npc.ais.getStandingType() == 4) {
-			lookat = this.npc.world.getClosestPlayerToEntity(this.npc, 16.0);
+		} else if (npc.ais.getStandingType() == 2 || npc.ais.getStandingType() == 4) {
+			lookat = npc.world.getClosestPlayerToEntity(npc, 16.0);
+
 		}
+		// looking at someone
 		if (lookat != null) {
-			this.npc.updateLook = this.npc.lookAt == null || !this.npc.lookAt.equals(lookat);
-			this.npc.lookAt = lookat;
+			npc.updateLook = npc.lookAt == null || !npc.lookAt.equals(lookat);
+			npc.lookAt = lookat;
 			double posY;
 			if (lookat instanceof EntityLivingBase) { posY = lookat.posY + (double)lookat.getEyeHeight(); }
 			else { posY = (lookat.getEntityBoundingBox().minY + lookat.getEntityBoundingBox().maxY) / 2.0D; }
-			this.setLookPosition(lookat.posX, posY, lookat.posZ, this.npc.getVerticalFaceSpeed());
+			setLookPosition(lookat.posX, posY, lookat.posZ, npc.getVerticalFaceSpeed());
 			return;
 		}
-
-		// any Look
-		this.npc.updateLook = this.npc.lookAt != null;
-		this.npc.lookAt = null;
-		if (this.rotatebody) {
-			if (this.idle == 0 && this.npc.getRNG().nextFloat() < 0.004f) {
+		// looks in a random direction
+		npc.updateLook = npc.lookAt != null;
+		npc.lookAt = null;
+		if (rotateBody) {
+			if (idle == 0 && npc.getRNG().nextFloat() < 0.004f) {
 				double var1 = 6.283185307179586 * this.npc.getRNG().nextDouble();
-				if (this.npc.ais.getStandingType() == 3) {
+				if (npc.ais.getStandingType() == 3) {
 					var1 = 0.017453292519943295 * this.npc.ais.orientation + 0.6283185307179586 + 1.8849555921538759 * this.npc.getRNG().nextDouble();
 				}
-				this.lookX = Math.cos(var1);
-				this.lookZ = Math.sin(var1);
-				this.idle = 20 + this.npc.getRNG().nextInt(20);
+				lookX = Math.cos(var1);
+				lookZ = Math.sin(var1);
+				idle = 20 + this.npc.getRNG().nextInt(20);
 			}
-			if (this.idle > 0) {
-				--this.idle;
-				this.setLookPosition(this.npc.posX + this.lookX, this.npc.posY + this.npc.getEyeHeight(), this.npc.posZ + this.lookZ, this.npc.getVerticalFaceSpeed());
+			if (idle > 0) {
+				--idle;
+				setLookPosition(npc.posX + lookX, npc.posY + npc.getEyeHeight(), npc.posZ + lookZ, npc.getVerticalFaceSpeed());
 			}
 		}
-		if ((this.npc.ais.getStandingType() == 1 || this.npc.ais.getStandingType() == 4) && !this.forced) {
-			this.npc.renderYawOffset = this.npc.ais.orientation;
-			this.npc.rotationYaw = this.npc.ais.orientation;
-			this.npc.rotationYawHead = this.npc.ais.orientation;
+		// doesn't look at anyone
+		if ((npc.ais.getStandingType() == 1 || npc.ais.getStandingType() == 4) && !forced) {
+			npc.renderYawOffset = npc.ais.orientation;
+			npc.rotationYaw = npc.ais.orientation;
+			npc.rotationYawHead = npc.ais.orientation;
 		}
 	}
 

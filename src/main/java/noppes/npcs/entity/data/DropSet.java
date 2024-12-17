@@ -44,7 +44,7 @@ public class DropSet implements IInventory, ICustomDrop {
 	public int[] amount = new int[] { 1, 1 };
 	public float damage = 1.0f;
 	public double chance = 100.0d; // 0-100
-	public boolean lootMode = false; // dropped or get to player
+	public int lootMode = 0; // 0: normal; 1: drop to Player; 2: inventory
 	public boolean tiedToLevel = false;
 
 	public DropSet(DataInventory ni) {
@@ -127,7 +127,7 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public IItemStack createLoot(double addChance) {
+	public @Nonnull IItemStack createLoot(double addChance) {
 		ItemStack dItem = this.item.getMCItemStack().copy();
 		// Amount
 		int a = this.amount[0];
@@ -304,7 +304,7 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public boolean getLootMode() {
+	public int getLootMode() {
 		return this.lootMode;
 	}
 
@@ -329,7 +329,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		nbtDS.setTag("Item", this.item.getMCItemStack().writeToNBT(new NBTTagCompound()));
 		nbtDS.setDouble("Chance", this.chance);
 		nbtDS.setDouble("DamageToItem", this.damage);
-		nbtDS.setBoolean("LootMode", this.lootMode);
+		nbtDS.setInteger("LootMode", this.lootMode);
 		nbtDS.setBoolean("TiedToLevel", this.tiedToLevel);
 		nbtDS.setInteger("QuestId", this.questId);
 		nbtDS.setIntArray("Amount", this.amount);
@@ -399,7 +399,8 @@ public class DropSet implements IInventory, ICustomDrop {
 		this.item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtDS.getCompoundTag("Item")));
 		this.chance = nbtDS.getDouble("Chance");
 		this.damage = nbtDS.getFloat("DamageToItem");
-		this.lootMode = nbtDS.getBoolean("LootMode");
+		if (nbtDS.hasKey("LootMode", 1)) { lootMode = nbtDS.getBoolean("LootMode") ? 1 : 0;}
+		else if (nbtDS.hasKey("LootMode", 3)) { lootMode = nbtDS.getInteger("LootMode");}
 		this.tiedToLevel = nbtDS.getBoolean("TiedToLevel");
 		this.questId = nbtDS.getInteger("QuestId");
 		int[] cnts = nbtDS.getIntArray("Amount");
@@ -494,7 +495,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		}
 		double ch = 85.0d;
 		this.damage = 1.0f;
-		this.lootMode = false;
+		this.lootMode = 0;
 		this.tiedToLevel = false;
 		this.enchants = new ArrayList<>();
 		this.attributes = new ArrayList<>();
@@ -515,7 +516,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		NBTTagCompound itemNbt = item.getNbt().getMCNBT();
 		// Enchants
 		if (itemNbt.hasKey("ench")) {
-			this.lootMode = true;
+			this.lootMode = 2;
 			ch /= itemNbt.getTagList("ench", 10).tagCount();
 			for (NBTBase nbtEnch : itemNbt.getTagList("ench", 10)) {
 				IEnchantSet es = addEnchant(((NBTTagCompound) nbtEnch).getShort("id"));
@@ -528,7 +529,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		}
 		// Attributes
 		if (itemNbt.hasKey("AttributeModifiers")) {
-			this.lootMode = true;
+			this.lootMode = 2;
 			ch /= itemNbt.getTagList("AttributeModifiers", 10).tagCount();
 			for (NBTBase nbtAttr : itemNbt.getTagList("AttributeModifiers", 10)) {
 				IAttributeSet as = addAttribute(((NBTTagCompound) nbtAttr).getString("AttributeName"));
@@ -617,8 +618,8 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public void setLootMode(boolean mode) {
-		this.lootMode = mode;
+	public void setLootMode(int mode) {
+		lootMode = mode % 3;
 	}
 
 	@Override
@@ -685,7 +686,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		return keyName;
 	}
 
-	public String[] getHover(EntityPlayer player) {
+	public List<String> getHover(EntityPlayer player) {
 		List<String> list = new ArrayList<>();
 		char c = ((char) 167);
 		// pos
@@ -702,8 +703,9 @@ public class DropSet implements IInventory, ICustomDrop {
 		if (chance == (int) chance) { list.add(c + "7- Chance: " + c + "e" + ((int) chance) + c + "7%"); }
 		else { list.add(c + "7- Chance: " + c + "e" + ("" + chance).replace(".", ",") + c + "7%"); }
 		// loot mode
-		if (lootMode) { list.add(c + "7- Loot: " + c + "r" + Util.instance.translateGoogle(player, "Will fall to the ground")); }
-		else { list.add(c + "7- Loot: " + c + "r" + Util.instance.translateGoogle(player, "Awarded to the player who killed this NPC")); }
+		if (lootMode == 1) { list.add(c + "7- Loot: " + c + "r" + Util.instance.translateGoogle(player, "Will fall to the ground")); }
+		else if (lootMode == 2) { list.add(c + "7- Loot: " + c + "r" + Util.instance.translateGoogle(player, "Will be placed in the inventory available when the NPC dies.")); }
+		else { list.add(c + "7- Loot: " + c + "r" + Util.instance.translateGoogle(player, "Will fall to the player who killed this NPC")); }
    		// damage
 		if (damage == 1.0f) { list.add(c + "7- Max. breakdown (meta): " + c + "r" + Util.instance.translateGoogle(player, "Doesn't change")); }
 		else { list.add(c + "7- Max. breakdown (meta): " + c + "6" + ("" + Math.round(damage * 10000.0f) / 100.0f).replace(".", ",") + c + "7% from " + c + "6" + (item == null ? "0" : item.getMaxItemDamage())); }
@@ -748,7 +750,7 @@ public class DropSet implements IInventory, ICustomDrop {
 			list.add(c + "7- Tags: [" + nbt + c + "7]");
 		}
 		else { list.add(c + "7- NBT " + Util.instance.translateGoogle(player, "tags not specified")); }
-		return list.toArray(new String[0]);
+		return list;
 	}
 
 }

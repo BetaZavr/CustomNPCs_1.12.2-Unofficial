@@ -16,7 +16,9 @@ import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleBank;
 
-public class GuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, ICustomScrollListener {
+public class GuiNpcBankSetup
+extends GuiNPCInterface2
+implements IScrollData, ICustomScrollListener {
 
 	private final HashMap<String, Integer> data = new HashMap<>();
 	private final RoleBank role;
@@ -24,19 +26,17 @@ public class GuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, IC
 
 	public GuiNpcBankSetup(EntityNPCInterface npc) {
 		super(npc);
-		this.role = (RoleBank) npc.advanced.roleInterface;
+		role = (RoleBank) npc.advanced.roleInterface;
 	}
 
     @Override
 	public void initGui() {
 		super.initGui();
-		if (this.scroll == null) {
-			this.scroll = new GuiCustomScroll(this, 0);
-		}
-		this.scroll.setSize(200, 152);
-		this.scroll.guiLeft = this.guiLeft + 85;
-		this.scroll.guiTop = this.guiTop + 20;
-		this.addScroll(this.scroll);
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0); }
+		scroll.setSize(200, 152);
+		scroll.guiLeft = guiLeft + 85;
+		scroll.guiTop = guiTop + 20;
+		addScroll(scroll);
 	}
 
 	@Override
@@ -48,55 +48,50 @@ public class GuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, IC
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
 		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+			save();
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 		}
 	}
 
 	@Override
 	public void mouseClicked(int i, int j, int k) {
 		super.mouseClicked(i, j, k);
-		if (k == 0 && this.scroll != null) {
-			this.scroll.mouseClicked(i, j, k);
+		if (k == 0 && scroll != null) {
+			scroll.mouseClicked(i, j, k);
 		}
 	}
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.RoleSave, this.role.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.RoleSave, role.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.id == 0) {
-			this.role.bankId = this.data.get(this.scroll.getSelected());
-			this.save();
+			role.bankId = data.get(scroll.getSelected());
+			save();
 		}
 	}
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-		this.close();
-		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		close();
+		CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override
-	public void setData(Vector<String> list, HashMap<String, Integer> data) {
+	public void setData(Vector<String> list, HashMap<String, Integer> dataMap) {
 		String name = null;
-		Bank bank = this.role.getBank();
-		if (bank != null) {
-			name = bank.name;
-		}
-		this.data.clear();
-		this.data.putAll(data);
-		this.scroll.setList(list);
-		if (name != null) {
-			this.setSelected(name);
-		}
+		Bank bank = role.getBank();
+		if (bank != null) { name = bank.name; }
+		data.clear();
+		data.putAll(dataMap);
+		scroll.setList(list);
+		if (name != null) { setSelected(name); }
 	}
 
 	@Override
-	public void setSelected(String selected) {
-		this.scroll.setSelected(selected);
-	}
+	public void setSelected(String selected) { scroll.setSelected(selected); }
+
 }

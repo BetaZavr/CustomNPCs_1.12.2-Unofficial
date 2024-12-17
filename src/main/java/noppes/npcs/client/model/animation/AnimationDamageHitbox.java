@@ -41,18 +41,10 @@ public class AnimationDamageHitbox {
 
     public AnimationDamageHitbox(NBTTagCompound compound, int i) {
         id = i;
-        if (compound.hasKey("Offset", 9) && compound.getTagList("Offset", 9).getTagType() == 5 && compound.getTagList("Offset", 9).tagCount() > 2) {
-            NBTTagList list = compound.getTagList("Offset", 5);
-            offset[0] = list.getFloatAt(0);
-            offset[1] = list.getFloatAt(1);
-            offset[2] = list.getFloatAt(2);
-        }
-        if (compound.hasKey("Scale", 9) && compound.getTagList("Scale", 9).getTagType() == 5 && compound.getTagList("Scale", 9).tagCount() > 2) {
-            NBTTagList list = compound.getTagList("Scale", 5);
-            scale[0] = list.getFloatAt(0);
-            scale[1] = list.getFloatAt(1);
-            scale[2] = list.getFloatAt(2);
-        }
+        NBTTagList listO = compound.getTagList("Offset", 5);
+        for (int j = 0; j < 3 && j < listO.tagCount(); j++) { offset[j] = listO.getFloatAt(j); }
+        NBTTagList listS = compound.getTagList("Scale", 5);
+        for (int j = 0; j < 3 && j < listS.tagCount(); j++) { scale[j] = listS.getFloatAt(j); }
     }
 
     public AxisAlignedBB getScaledDamageHitbox(EntityLivingBase entity) {

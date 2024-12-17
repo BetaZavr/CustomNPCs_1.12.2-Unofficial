@@ -38,7 +38,7 @@ public class AnimationController implements IAnimationHandler {
 	}
 
 	private AnimationController() {
-		this.loadAnimations();
+		loadAnimations();
 	}
 
 	@Override
@@ -138,9 +138,9 @@ public class AnimationController implements IAnimationHandler {
 		if (nbtAnimation == null || !nbtAnimation.hasKey("ID", 3) || nbtAnimation.getInteger("ID") < 0) {
 			return null;
 		}
-		if (this.animations.containsKey(nbtAnimation.getInteger("ID"))) {
-			this.animations.get(nbtAnimation.getInteger("ID")).load(nbtAnimation);
-			return this.animations.get(nbtAnimation.getInteger("ID"));
+		if (animations.containsKey(nbtAnimation.getInteger("ID"))) {
+			animations.get(nbtAnimation.getInteger("ID")).load(nbtAnimation);
+			return animations.get(nbtAnimation.getInteger("ID"));
 		}
 		AnimationConfig ac = new AnimationConfig();
 		ac.load(nbtAnimation);
@@ -179,7 +179,7 @@ public class AnimationController implements IAnimationHandler {
 
 		File animDir = new File(saveDir, "animations");
 		if (animDir.exists()) {
-			try { this.loadAnimations(animDir); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { loadAnimations(animDir); } catch (Exception e) { LogWriter.error("Error:", e); }
 		} else {
 			animDir.mkdirs();
 		}
@@ -188,7 +188,7 @@ public class AnimationController implements IAnimationHandler {
 		if (emtnDir.exists()) {
 			try { this.loadEmotions(emtnDir); } catch (Exception e) { LogWriter.error("Error:", e); }
 		} else { emtnDir.mkdirs(); }
-		this.loadDefaultAnimations();
+		loadDefaultAnimations();
 		LogWriter.info("End load animations");
 		CustomNpcs.debugData.endDebug("Common", null, "loadAnimations");
 	}
@@ -200,7 +200,7 @@ public class AnimationController implements IAnimationHandler {
 		else if (compound.hasKey("Data", 9)) { listA = compound.getTagList("Data", 10); }
         for (int i = 0; i < listA.tagCount(); ++i) {
             AnimationConfig anim = (AnimationConfig) this.loadAnimation(listA.getCompoundTagAt(i));
-            anim.immutable = true;
+            if (anim.id < 43) { anim.immutable = true; }
         }
         this.emotions.clear();
 		NBTTagList listE = compound.getTagList("Emotions", 10);
@@ -219,7 +219,7 @@ public class AnimationController implements IAnimationHandler {
 				try { id = Integer.parseInt(f.getName().toLowerCase().replace(".dat", "")); } catch (Exception e) { LogWriter.error("Error:", e); }
 				if (id != -1 && this.animations.containsKey(id)) { nbt.setInteger("ID", this.getUnusedAnimId()); }
 				else { nbt.setInteger("ID", id); }
-				this.loadAnimation(nbt);
+				loadAnimation(nbt);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 	}
@@ -250,10 +250,10 @@ public class AnimationController implements IAnimationHandler {
 			for (int i = 0; i < listA.tagCount(); ++i) {
 				NBTTagCompound nbt = listA.getCompoundTagAt(i);
 				int id = nbt.getInteger("ID");
-				if (this.animations.containsKey(id)) {
-					if (!this.animations.get(id).immutable || !this.animations.get(id).name.equals(nbt.getString("Name"))) {
+				if (animations.containsKey(id)) {
+					if (!animations.get(id).immutable || !animations.get(id).name.equals(nbt.getString("Name"))) {
 						boolean found = false;
-						for (AnimationConfig anim : this.animations.values()) {
+						for (AnimationConfig anim : animations.values()) {
 							if (anim.name.equals(nbt.getString("Name"))) {
 								id = anim.id;
 								found = true;
@@ -264,7 +264,10 @@ public class AnimationController implements IAnimationHandler {
 						nbt.setInteger("ID", id);
 					}
 				}
-				this.loadAnimation(nbt);
+				IAnimation iAnim = loadAnimation(nbt);
+				if (iAnim != null) {
+					((AnimationConfig) iAnim).immutable = true;
+				}
 			}
 		}
 		NBTTagList listE = compound.getTagList("Emotions", 10);
@@ -343,12 +346,13 @@ public class AnimationController implements IAnimationHandler {
 		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.startDebug("Common", null, "saveAnimations"); }
 		File animDir = new File(saveDir, "animations");
 		if (!animDir.exists()) { animDir.mkdirs(); }
-		for (int id : this.animations.keySet()) {
-			try { CompressedStreamTools.writeCompressed(this.animations.get(id).save(), Files.newOutputStream(new File(animDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error("Error:", e); }
+		for (int id : animations.keySet()) {
+			if (animations.get(id).immutable) { continue; }
+			try { CompressedStreamTools.writeCompressed(animations.get(id).save(), Files.newOutputStream(new File(animDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		File emtnDir = new File(saveDir, "emotions");
 		if (!emtnDir.exists()) { emtnDir.mkdirs(); }
-		for (int id : this.emotions.keySet()) {
+		for (int id : emotions.keySet()) {
 			try { CompressedStreamTools.writeCompressed(this.emotions.get(id).save(), Files.newOutputStream(new File(emtnDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 

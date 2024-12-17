@@ -75,18 +75,13 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 				}
 			}
 		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		drawHoverText(null);
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (this.scroll == null) {
-			this.scroll = new GuiCustomScroll(this, 0);
-		}
+		if (this.scroll == null) { this.scroll = new GuiCustomScroll(this, 0); }
 		List<String> list = new ArrayList<>();
 		EnumParts[] parts = { EnumParts.HEAD, EnumParts.BODY, EnumParts.ARM_LEFT, EnumParts.ARM_RIGHT, EnumParts.LEG_LEFT, EnumParts.LEG_RIGHT };
 		this.data.clear();
@@ -109,12 +104,12 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 			}
 		}
 		this.scroll.setListNotSorted(list);
-		this.scroll
-				.setSelected(new TextComponentTranslation("part." + GuiCreationScale.selected.name).getFormattedText());
+		this.scroll.setSelected(new TextComponentTranslation("part." + GuiCreationScale.selected.name).getFormattedText());
 		this.scroll.guiLeft = this.guiLeft;
 		this.scroll.guiTop = this.guiTop + 46;
 		this.scroll.setSize(100, this.ySize - 74);
 		this.addScroll(this.scroll);
+
 		ModelPartConfig config2 = this.playerdata.getPartConfig(GuiCreationScale.selected);
 		int y = this.guiTop + 65;
 		this.addLabel(new GuiNpcLabel(10, "scale.width", this.guiLeft + 102, y + 5, 16777215));
@@ -128,8 +123,7 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 		if (GuiCreationScale.selected == EnumParts.ARM_LEFT || GuiCreationScale.selected == EnumParts.LEG_LEFT) {
 			y += 22;
 			this.addLabel(new GuiNpcLabel(13, "scale.shared", this.guiLeft + 102, y + 5, 16777215));
-			this.addButton(new GuiNpcButton(13, this.guiLeft + 150, y, 50, 20, new String[] { "gui.no", "gui.yes" },
-					(config2.notShared ? 0 : 1)));
+			this.addButton(new GuiNpcButton(13, this.guiLeft + 150, y, 50, 20, new String[] { "gui.no", "gui.yes" }, (config2.notShared ? 0 : 1)));
 		}
 	}
 

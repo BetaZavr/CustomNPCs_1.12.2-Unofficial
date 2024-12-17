@@ -46,7 +46,7 @@ public class CustomGuiController {
 	public static void onClose(CustomGuiEvent.CloseEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
 		CustomGuiWrapper gui = getOpenGui(player);
-		if (checkGui(event) && gui != null && gui.getScriptHandler() != null) { // Changed
+		if (checkGui(event) && gui != null && gui.getScriptHandler() != null) {
 			gui.getScriptHandler().run(EnumScriptType.CUSTOM_GUI_CLOSED.function, event, true);
 			event.player.closeGui();
 		}

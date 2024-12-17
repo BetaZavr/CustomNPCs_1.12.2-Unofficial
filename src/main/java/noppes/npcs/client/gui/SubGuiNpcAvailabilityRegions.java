@@ -20,8 +20,8 @@ import noppes.npcs.controllers.data.Zone3D;
 import java.util.*;
 
 public class SubGuiNpcAvailabilityRegions
-        extends SubGuiInterface
-        implements ICustomScrollListener {
+extends SubGuiInterface
+implements ICustomScrollListener {
 
     private final Availability availability;
     private final Map<String, Integer> data = new TreeMap<>();
@@ -64,24 +64,9 @@ public class SubGuiNpcAvailabilityRegions
                 break;
             }
             case 66: {
-                this.close();
+                close();
                 break;
             }
-        }
-    }
-
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        super.drawScreen(mouseX, mouseY, partialTicks);
-        if (!CustomNpcs.ShowDescriptions) {
-            return;
-        }
-        if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
-            this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-        }
-        if (this.hoverText != null) {
-            this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-            this.hoverText = null;
         }
     }
 
@@ -90,8 +75,11 @@ public class SubGuiNpcAvailabilityRegions
         super.initGui();
         int x = guiLeft + 5;
         int y = guiTop + 197;
-        addButton(new GuiNpcButton(66, x, y, 70, 20, "gui.done"));
-
+        // exit
+        GuiNpcButton button = new GuiNpcButton(66, x, y, 70, 20, "gui.done");
+        button.setHoverText("hover.back");
+        addButton(button);
+        // data
         int selID = -1;
         if (!select.isEmpty() && data.containsKey(select)) {
             selID = data.get(select);
@@ -104,27 +92,26 @@ public class SubGuiNpcAvailabilityRegions
         List<String> suffixes = new ArrayList<>();
         BorderController bData = BorderController.getInstance();
         char c = ((char) 167);
-        scroll.hoversTexts = new String[bData.regions.size()][];
         Map<Integer, Map<Integer, Zone3D>> regionWorlds = new TreeMap<>();
         for (int id : bData.regions.keySet()) {
             Zone3D region = bData.regions.get(id);
             if (!regionWorlds.containsKey(region.getDimensionId())) { regionWorlds.put(region.getDimensionId(), new TreeMap<>()); }
             regionWorlds.get(region.getDimensionId()).put(id, region);
         }
+        LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
         for (int worldID : regionWorlds.keySet()) {
             for (int id : regionWorlds.get(worldID).keySet()) {
                 Zone3D region = regionWorlds.get(worldID).get(id);
                 IPos iPos = region.getCenter();
                 IWorld iWorld = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(worldID);
                 String name = new TextComponentTranslation(region.getName()).getFormattedText();
-                scroll.hoversTexts[list.size()] = new String[] {
-                        c + "7Name: " + c + "r" + name,
-                        c + "7World ID: " + c + "6" + region.getDimensionId() + c + "7 - " + c + "r" + iWorld.getDimension().getName(),
-                        c + "7Center in X:" + c + "e" + (int) iPos.getX() + c + "7, Y:" + c + "e" + (int) iPos.getY() + c + "7, Z:" + c + "e" + (int) iPos.getZ()
-                };
+                List<String> l = new ArrayList<>();
+                l.add(c + "7Name: " + c + "r" + name);
+                l.add(c + "7World ID: " + c + "6" + region.getDimensionId() + c + "7 - " + c + "r" + iWorld.getDimension().getName());
+                l.add(c + "7Center in X:" + c + "e" + (int) iPos.getX() + c + "7, Y:" + c + "e" + (int) iPos.getY() + c + "7, Z:" + c + "e" + (int) iPos.getZ());
+                hts.put(list.size(), l);
                 String key = id + " - " + name;
                 if (availability.regions.containsKey(id)) {
-                    System.out.println("CNPCs: "+id+"; "+availability.regions.get(id));
                     key = c + "r" + key;
                     if (availability.regions.get(id) == EnumAvailabilityRegion.Always) {
                         suffixes.add(c + "aA");
@@ -147,6 +134,7 @@ public class SubGuiNpcAvailabilityRegions
         }
         scroll.setListNotSorted(list);
         scroll.setSuffixes(suffixes);
+        scroll.setHoverTexts(hts);
         scroll.guiLeft = guiLeft + 4;
         scroll.guiTop = guiTop + 4;
         if (!select.isEmpty()) { scroll.setSelected(select); }
@@ -156,10 +144,16 @@ public class SubGuiNpcAvailabilityRegions
         if (!select.isEmpty() && data.containsKey(select) && availability.regions.containsKey(data.get(scroll.getSelected()))) {
             aData = availability.regions.get(data.get(scroll.getSelected()));
         }
-        addButton(new GuiNpcButton(0, x += 73, y, 20, 20, "TP"));
-        getButton(0).setEnabled(!select.isEmpty());
-        addButton(new GuiNpcButton(1, x + 23, y, 70, 20, new String[] { "gui.disabled", "availability.always", "availability.inside", "availability.outside" }, aData == null ? 0 : aData.ordinal() + 1));
-        getButton(1).setEnabled(!select.isEmpty());
+        // tp
+        button = new GuiNpcButton(0, x += 73, y, 20, 20, "TP");
+        button.setEnabled(!select.isEmpty());
+        button.setHoverText("hover.teleport");
+        addButton(button);
+        // type
+        button = new GuiNpcButton(1, x + 23, y, 70, 20, new String[] { "gui.disabled", "availability.always", "availability.inside", "availability.outside" }, aData == null ? 0 : aData.ordinal() + 1);
+        button.setEnabled(!select.isEmpty());
+        button.setHoverText("region.hover.available.type");
+        addButton(button);
     }
 
     @Override

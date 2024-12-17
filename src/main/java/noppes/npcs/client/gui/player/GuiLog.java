@@ -1028,8 +1028,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					hover.add(((char) 167) + "7" + new TextComponentTranslation("gui.description").getFormattedText());
 					hover.add(new TextComponentTranslation(f.description).getFormattedText());
 				}
-
-				this.hoverText = hover.toArray(new String[0]);
+				setHoverText(hover);
 			}
 			this.mc.getTextureManager().bindTexture(f.flag);
             mc.getTextureManager().getTexture(f.flag);
@@ -1219,7 +1218,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 							float y = (page == 0 && l == 0 ? first : 0.0f) + h * 12.0f;
 							if (isMouseHover(mouseX, mouseY, guiLLeft + (int) x, guiLTop + (int) y, 10, 10)) {
 								hover = stack.getTooltip(player, player.capabilities.isCreativeMode ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
-								this.hoverText = hover.toArray(new String[0]);
+								setHoverText(hover);
 							}
 							GlStateManager.pushMatrix();
 							GlStateManager.translate(x - 4.0f, y - 5.5f, 0.0f);
@@ -1473,7 +1472,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			}
 			GlStateManager.popMatrix();
 			if (!hover.isEmpty()) {
-				this.hoverText = hover.toArray(new String[0]);
+				setHoverText(hover);
 			}
 		}
 	}
@@ -2040,25 +2039,22 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		}
 		if (type == 2) {
 			if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("quest.hover.compass.edit.ups").getFormattedText());
+				this.setHoverText("quest.hover.compass.edit.ups");
 			} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("quest.hover.compass.edit.vpos").getFormattedText());
+				this.setHoverText("quest.hover.compass.edit.vpos");
 			} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("quest.hover.compass.edit.show name").getFormattedText());
+				this.setHoverText("quest.hover.compass.edit.show name");
 			} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("quest.hover.compass.edit.showcase").getFormattedText());
+				this.setHoverText("quest.hover.compass.edit.showcase");
 			} else if (this.getSlider(0) != null && this.getSlider(0).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("quest.hover.compass.edit.scale").getFormattedText());
+				this.setHoverText("quest.hover.compass.edit.scale");
 			} else if (this.getSlider(1) != null && this.getSlider(1).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("quest.hover.compass.edit.incline").getFormattedText());
+				this.setHoverText("quest.hover.compass.edit.incline");
 			} else if (this.getSlider(2) != null && this.getSlider(2).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("quest.hover.compass.edit.rotation").getFormattedText());
+				this.setHoverText("quest.hover.compass.edit.rotation");
 			}
 		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		drawHoverText(null);
 	}
 
 	private boolean hoverMob(int mouseX, int mouseY, Entity entity) {
@@ -2169,12 +2165,10 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			// Screen Pos
 			this.addTextField(new GuiNpcTextField(0, this, fontRenderer, x0, y, (int) (40.0f * scaleW),
 					(int) (10.0f * scaleH), "" + this.compassData.screenPos[0]));
-			this.getTextField(0).setDoubleNumbersOnly();
 			this.getTextField(0).setMinMaxDoubleDefault(0.0d, 1.0d, this.compassData.screenPos[0]);
 
 			this.addTextField(new GuiNpcTextField(1, this, fontRenderer, x0 + (int) (54.0f * scaleW), y,
 					(int) (40.0f * scaleW), (int) (10.0f * scaleH), "" + this.compassData.screenPos[1]));
-			this.getTextField(1).setDoubleNumbersOnly();
 			this.getTextField(1).setMinMaxDoubleDefault(0.0d, 1.0d, this.compassData.screenPos[1]);
 
 			// Scale

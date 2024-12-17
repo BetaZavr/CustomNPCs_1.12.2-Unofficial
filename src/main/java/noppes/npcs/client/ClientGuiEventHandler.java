@@ -1186,8 +1186,7 @@ public class ClientGuiEventHandler extends Gui {
 			this.drawTexturedModalRect(-16, -16, 0, 0, 32, 32);
 			GlStateManager.popMatrix();
 		}
-		if (this.mc.currentScreen != null && !(this.mc.currentScreen instanceof GuiChat)
-				&& !(this.mc.currentScreen instanceof GuiLog)) {
+		if (this.mc.currentScreen != null && !(this.mc.currentScreen instanceof GuiChat) && !(this.mc.currentScreen instanceof GuiLog)) {
 			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
 			return;
 		}
@@ -1551,7 +1550,7 @@ public class ClientGuiEventHandler extends Gui {
 			RayTraceResult result = this.mc.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, true);
 			if (result != null) {
 				BlockPos blockPos = result.getBlockPos();
-				Entity entity = Util.instance.getLookEntity(this.mc.player, distance);
+				Entity entity = Util.instance.getLookEntity(this.mc.player, distance, false);
 				ItemStack st = null;
 				IBlockState state = null;
 				double dist;
@@ -1740,7 +1739,7 @@ public class ClientGuiEventHandler extends Gui {
 			list.remove(this.mc.player);
 			Entity rayTrE = this.mc.objectMouseOver.entityHit;
 			if (rayTrE == null) {
-				rayTrE = Util.instance.getLookEntity(this.mc.player, (mainStack.getItem() instanceof ItemNbtBook ? ClientProxy.playerData.game.renderDistance : null));
+				rayTrE = Util.instance.getLookEntity(this.mc.player, (mainStack.getItem() instanceof ItemNbtBook ? ClientProxy.playerData.game.renderDistance : null), false);
 			}
 			if (rayTrE != null && !list.contains(rayTrE)) { list.add(rayTrE); }
 			GlStateManager.pushMatrix();
@@ -1769,7 +1768,6 @@ public class ClientGuiEventHandler extends Gui {
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
-		
 		if (mainStack.getItem() instanceof ItemNpcMovingPath) { nbtMP = mainStack.getTagCompound(); }
 		else if (offStack.getItem() instanceof ItemNpcMovingPath) { nbtMP = offStack.getTagCompound(); }
 		if (nbtMP != null && nbtMP.hasKey("NPCID", 3)) {

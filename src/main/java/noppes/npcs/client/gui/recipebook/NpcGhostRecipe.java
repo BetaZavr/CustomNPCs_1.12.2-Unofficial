@@ -22,7 +22,8 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 // Display recipe as translucent items in crafting grid
 // SPacketPlaceGhostRecipe <--> CPacketPlaceRecipe
 @SideOnly(Side.CLIENT)
-public class NpcGhostRecipe extends GhostRecipe {
+public class NpcGhostRecipe
+extends GhostRecipe {
 
     private IRecipe recipe;
     private final List<GhostRecipe.GhostIngredient> ingredients = new ArrayList<>();

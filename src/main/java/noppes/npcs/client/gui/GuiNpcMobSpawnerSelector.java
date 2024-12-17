@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import java.awt.*;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,82 +39,81 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.data.SpawnNPCData;
 import noppes.npcs.util.Util;
 
-public class GuiNpcMobSpawnerSelector extends SubGuiInterface implements IGuiData, ICustomScrollListener, ITextfieldListener {
+public class GuiNpcMobSpawnerSelector
+extends SubGuiInterface
+implements IGuiData, ICustomScrollListener, ITextfieldListener {
 
-	private static String search = "";
-	public int activeTab;
-	public int showingClones;
-	private List<String> list;
+	public int activeTab = 1;
+	public int showingClones = 0;
 	private GuiCustomScroll scroll;
 	public EntityLivingBase selectNpc;
 	public SpawnNPCData spawnData;
 
 	public GuiNpcMobSpawnerSelector() {
-		this.activeTab = 1;
-		this.showingClones = 0;
-		this.xSize = 256;
-		this.closeOnEsc = true;
-		this.setBackground("menubg.png");
+		xSize = 256;
+		closeOnEsc = true;
+		setBackground("menubg.png");
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
-		case 0: {
-			this.close();
-			break;
-		}
-		case 1: {
-			this.scroll.clear();
-			this.close();
-			break;
-		}
-		case 3: {
-			this.selectNpc = null;
-			this.showingClones = 0;
-			this.initGui();
-			break;
-		}
-		case 4: {
-			this.selectNpc = null;
-			this.showingClones = 1;
-			this.initGui();
-			break;
-		}
-		case 5: {
-			this.selectNpc = null;
-			this.showingClones = 2;
-			this.initGui();
-			break;
-		}
-		}
 		if (button.id > 20) {
-			this.activeTab = button.id - 20;
-			this.initGui();
+			activeTab = button.id - 20;
+			initGui();
+			return;
+		}
+		switch (button.id) {
+			case 0: {
+				close();
+				break;
+			}
+			case 1: {
+				scroll.clear();
+				close();
+				break;
+			}
+			case 3: {
+				selectNpc = null;
+				showingClones = 0;
+				initGui();
+				break;
+			}
+			case 4: {
+				selectNpc = null;
+				showingClones = 1;
+				initGui();
+				break;
+			}
+			case 5: {
+				selectNpc = null;
+				showingClones = 2;
+				initGui();
+				break;
+			}
 		}
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.selectNpc != null) {
-			this.drawNpc(this.selectNpc, 210, 80, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0, 0);
+		if (selectNpc != null) {
+			drawNpc(selectNpc, 210, 80, 1.0f, (int) (3 * player.world.getTotalWorldTime() % 360), 0, 0);
 		}
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.0f, 1.0f);
-		Gui.drawRect(this.guiLeft + 181, this.guiTop + 4, this.guiLeft + 242, this.guiTop + 90, 0xFF808080);
-		Gui.drawRect(this.guiLeft + 182, this.guiTop + 5, this.guiLeft + 241, this.guiTop + 89, 0xFF000000);
+		Gui.drawRect(guiLeft + 181, guiTop + 4, guiLeft + 242, guiTop + 90, new Color(0xFF808080).getRGB());
+		Gui.drawRect(guiLeft + 182, guiTop + 5, guiLeft + 241, guiTop + 89, new Color(0xFF000000).getRGB());
 		GlStateManager.popMatrix();
 	}
 
 	public NBTTagCompound getCompound() {
-		String sel = this.scroll.getSelected();
+		String sel = scroll.getSelected();
 		if (sel == null) { return null; }
 		NBTTagCompound nbtEntity = null;
-		if (this.showingClones == 0) {
-			nbtEntity = ClientCloneController.Instance.getCloneData(this.player, sel, this.activeTab);
-		} else if (this.showingClones == 1) {
-			if (this.spawnData != null) { nbtEntity = this.spawnData.compound; }
+		if (showingClones == 0) {
+			nbtEntity = ClientCloneController.Instance.getCloneData(player, sel, activeTab);
+		} else if (showingClones == 1) {
+			if (spawnData != null) { nbtEntity = spawnData.compound; }
 			else {
 				for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 					if (ent.getName().equals(sel)) {
@@ -129,178 +129,150 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface implements IGuiDat
 		return nbtEntity;
 	}
 
-	private List<String> getSearchList() {
-		if (GuiNpcMobSpawnerSelector.search.isEmpty()) {
-			return new ArrayList<>(this.list);
-		}
-		List<String> list = new ArrayList<>();
-		for (String name : this.list) {
-			if (name.toLowerCase().contains(GuiNpcMobSpawnerSelector.search)) {
-				list.add(name);
-			}
-		}
-		return list;
-	}
-
 	public String getSelected() {
-		return this.scroll.getSelected();
+		return scroll.getSelected();
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.guiTop += 10;
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(165, 188);
+		guiTop += 10;
+		if (scroll == null) {
+			(scroll = new GuiCustomScroll(this, 0)).setSize(165, 188);
 		} else {
-			this.scroll.clear();
+			scroll.clear();
 		}
-		this.scroll.guiLeft = this.guiLeft + 4;
-		this.scroll.guiTop = this.guiTop + 26;
-		this.addScroll(this.scroll);
-
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 4, 165, 20,
-				GuiNpcMobSpawnerSelector.search));
+		scroll.guiLeft = guiLeft + 4;
+		scroll.guiTop = guiTop + 26;
+		addScroll(scroll);
 		GuiMenuTopButton button;
-		this.addTopButton(button = new GuiMenuTopButton(3, this.guiLeft + 4, this.guiTop - 17, "spawner.clones"));
-		button.active = this.showingClones == 0;
-		this.addTopButton(button = new GuiMenuTopButton(4, button, "spawner.entities"));
-		button.active = this.showingClones == 1;
-		this.addTopButton(button = new GuiMenuTopButton(5, button, "gui.server"));
-		button.active = this.showingClones == 2;
-		if (this.showingClones == 0 || this.showingClones == 2) {
+		addTopButton(button = new GuiMenuTopButton(3, guiLeft + 4, guiTop - 17, "spawner.clones"));
+		button.active = showingClones == 0;
+		addTopButton(button = new GuiMenuTopButton(4, button, "spawner.entities"));
+		button.active = showingClones == 1;
+		addTopButton(button = new GuiMenuTopButton(5, button, "gui.server"));
+		button.active = showingClones == 2;
+		if (showingClones == 0 || showingClones == 2) {
 			int x = guiLeft;
 			int y = guiTop + 4;
 			GuiMenuSideButton sideButton;
 			for (int id = 1; id < 10; id++) {
 				sideButton = new GuiMenuSideButton(20 + id, x, y + (id - 1) * 21, "Tab " + id);
-				this.addSideButton(sideButton);
+				addSideButton(sideButton);
 			}
-			this.getSideButton(20 + this.activeTab).active = true;
-			this.showClones();
+			getSideButton(20 + activeTab).active = true;
+			showClones();
 		} else {
-			this.showEntities();
+			showEntities();
 		}
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 171, this.guiTop + 170, 80, 20, "gui.done"));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 171, this.guiTop + 192, 80, 20, "gui.cancel"));
+		addButton(new GuiNpcButton(0, guiLeft + 171, guiTop + 170, 80, 20, "gui.done"));
+		addButton(new GuiNpcButton(1, guiLeft + 171, guiTop + 192, 80, 20, "gui.cancel"));
 
-		if (this.spawnData == null) {
+		if (spawnData == null) {
 			return;
 		}
 
-		this.addLabel(new GuiNpcLabel(5, new TextComponentTranslation("type.count").getFormattedText() + ":",
-				this.guiLeft + 170, this.guiTop + 153));
-		GuiNpcTextField tf = new GuiNpcTextField(2, this, this.guiLeft + 216, this.guiTop + 148, 35, 20,
-				"" + this.spawnData.count);
-		tf.setNumbersOnly();
-		tf.setMinMaxDefault(0, 7, this.spawnData.count);
-		this.addTextField(tf);
+		addLabel(new GuiNpcLabel(5, new TextComponentTranslation("type.count").getFormattedText() + ":", guiLeft + 170, guiTop + 153));
+		GuiNpcTextField tf = new GuiNpcTextField(2, this, guiLeft + 216, guiTop + 148, 35, 20, "" + spawnData.count);
+		tf.setMinMaxDefault(0, 7, spawnData.count);
+		addTextField(tf);
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
-		if (!GuiNpcMobSpawnerSelector.search.equals(this.getTextField(1).getText())) {
-			GuiNpcMobSpawnerSelector.search = this.getTextField(1).getText().toLowerCase();
-			this.scroll.setList(this.getSearchList());
-		}
-		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode()
-				|| i == ClientProxy.backButton.getKeyCode()) {
-			this.resetEntity();
+		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode() || i == ClientProxy.backButton.getKeyCode()) {
+			resetEntity();
 		}
 	}
 
 	private void resetEntity() {
-		String sel = this.scroll.getSelected();
-		if (this.showingClones == 0) { // client
-			NBTTagCompound npcNbt = ClientCloneController.Instance.getCloneData(this.player, sel, this.activeTab);
+		String sel = scroll.getSelected();
+		if (showingClones == 0) { // client
+			NBTTagCompound npcNbt = ClientCloneController.Instance.getCloneData(player, sel, activeTab);
 			if (npcNbt == null) {
 				return;
 			}
 			Entity entity = EntityList.createEntityFromNBT(npcNbt, Minecraft.getMinecraft().world);
 			if (entity instanceof EntityLivingBase) {
-				if (this.spawnData != null) {
-					this.spawnData.typeClones = 0;
-					this.spawnData.compound = npcNbt;
+				if (spawnData != null) {
+					spawnData.typeClones = 0;
+					spawnData.compound = npcNbt;
 				}
-				this.selectNpc = (EntityLivingBase) entity;
+				selectNpc = (EntityLivingBase) entity;
 			}
-		} else if (this.showingClones == 1) { // mob
+		} else if (showingClones == 1) { // mob
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				if (ent.getName().equals(sel)) {
 					Entity entity = EntityList.createEntityByIDFromName(Objects.requireNonNull(ent.getRegistryName()), Minecraft.getMinecraft().world);
 					if (entity instanceof EntityLivingBase) {
-						this.selectNpc = (EntityLivingBase) entity;
-						if (this.spawnData != null) {
-							this.spawnData.typeClones = 1;
-							this.spawnData.compound = entity.writeToNBT(new NBTTagCompound());
-							this.spawnData.compound.setString("id", ent.getRegistryName().toString());
+						selectNpc = (EntityLivingBase) entity;
+						if (spawnData != null) {
+							spawnData.typeClones = 1;
+							spawnData.compound = entity.writeToNBT(new NBTTagCompound());
+							spawnData.compound.setString("id", ent.getRegistryName().toString());
 						}
 					}
 					return;
 				}
 			}
 		} else { // server
-			if (this.spawnData != null) {
-				this.spawnData.typeClones = 2;
-				this.spawnData.compound = new NBTTagCompound();
-				this.spawnData.compound.setString("Name", sel);
+			if (spawnData != null) {
+				spawnData.typeClones = 2;
+				spawnData.compound = new NBTTagCompound();
+				spawnData.compound.setString("Name", sel);
 			}
-			Client.sendData(EnumPacketServer.GetClone, false, sel, this.activeTab);
+			Client.sendData(EnumPacketServer.GetClone, false, sel, activeTab);
 		}
 	}
 
     @Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		String sel = this.scroll.getSelected();
+		String sel = scroll.getSelected();
 		if (sel == null) { return; }
-		this.resetEntity();
+		resetEntity();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		this.close();
+		close();
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		if (compound.hasKey("NPCData", 10)) {
-			this.selectNpc = (EntityNPCInterface) EntityList.createEntityFromNBT(compound.getCompoundTag("NPCData"),
-					this.player.world);
+			selectNpc = (EntityNPCInterface) EntityList.createEntityFromNBT(compound.getCompoundTag("NPCData"), player.world);
 			return;
 		}
-		NBTTagList nbtlist = compound.getTagList("List", 8);
+		NBTTagList nbtList = compound.getTagList("List", 8);
 		List<String> list = new ArrayList<>();
-		for (int i = 0; i < nbtlist.tagCount(); ++i) {
-			list.add(nbtlist.getStringTagAt(i));
+		for (int i = 0; i < nbtList.tagCount(); ++i) {
+			list.add(nbtList.getStringTagAt(i));
 		}
-		this.list = list;
-		this.scroll.setList(this.getSearchList());
-		if (this.spawnData != null) {
-			this.scroll.setSelected(Util.instance.deleteColor(this.spawnData.getTitle()));
-			if (this.selectNpc == null) {
+		scroll.setList(list);
+		if (spawnData != null) {
+			scroll.setSelected(Util.instance.deleteColor(spawnData.getTitle()));
+			if (selectNpc == null) {
 				String name = new TextComponentTranslation("type.empty").getFormattedText();
-				if (this.spawnData.compound != null) {
-					if (this.spawnData.compound.hasKey("ClonedName")) {
-						name = new TextComponentTranslation(this.spawnData.compound.getString("ClonedName"))
+				if (spawnData.compound != null) {
+					if (spawnData.compound.hasKey("ClonedName")) {
+						name = new TextComponentTranslation(spawnData.compound.getString("ClonedName"))
 								.getFormattedText();
-					} else if (this.spawnData.compound.hasKey("Name")) {
-						name = new TextComponentTranslation(this.spawnData.compound.getString("Name"))
-								.getFormattedText();
+					} else if (spawnData.compound.hasKey("Name")) {
+						name = new TextComponentTranslation(spawnData.compound.getString("Name")).getFormattedText();
 					}
 				}
-				Client.sendData(EnumPacketServer.GetClone, false, name, this.activeTab);
+				Client.sendData(EnumPacketServer.GetClone, false, name, activeTab);
 			}
 		}
 	}
 
 	private void showClones() {
-		if (this.showingClones == 2) {
-			Client.sendData(EnumPacketServer.CloneList, this.activeTab);
+		if (showingClones == 2) {
+			Client.sendData(EnumPacketServer.CloneList, activeTab);
 			return;
 		}
-		this.list = new ArrayList<>(ClientCloneController.Instance.getClones(this.activeTab));
-		this.scroll.setList(this.getSearchList());
+		scroll.setList(new ArrayList<>(ClientCloneController.Instance.getClones(activeTab)));
 	}
 
 	private void showEntities() {
@@ -325,16 +297,15 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface implements IGuiDat
 				classes.add(c);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		this.list = list;
-		this.scroll.setList(this.getSearchList());
+		scroll.setList(list);
 	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
-		if (this.spawnData == null || textField.getId() != 2) {
+		if (spawnData == null || textField.getId() != 2) {
 			return;
 		}
-		this.spawnData.count = textField.getInteger();
+		spawnData.count = textField.getInteger();
 	}
 
 }

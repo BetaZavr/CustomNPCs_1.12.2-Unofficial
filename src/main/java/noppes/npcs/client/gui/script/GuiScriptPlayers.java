@@ -9,25 +9,28 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.PlayerScriptData;
 
-public class GuiScriptPlayers extends GuiScriptInterface implements ISubGuiListener {
+public class GuiScriptPlayers
+extends GuiScriptInterface
+implements ISubGuiListener {
 
 	private final PlayerScriptData script;
 
 	public GuiScriptPlayers() {
-		this.script = new PlayerScriptData(null);
-		this.handler = this.script;
+		super();
+		script = new PlayerScriptData(null);
+		handler = script;
 		Client.sendData(EnumPacketServer.ScriptPlayerGet);
 	}
 
 	@Override
 	public void save() {
 		super.save();
-		Client.sendData(EnumPacketServer.ScriptPlayerSave, this.script.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.ScriptPlayerSave, script.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.script.readFromNBT(compound);
+		script.readFromNBT(compound);
 		super.setGuiData(compound);
 	}
 
@@ -35,19 +38,15 @@ public class GuiScriptPlayers extends GuiScriptInterface implements ISubGuiListe
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
-			this.script.writeToNBT(nbt);
-			String p = this.path;
-			while (p.contains("\\")) {
-				p = p.replace("\\", "/");
-			}
+			script.writeToNBT(nbt);
 			nbt.setString("Name", subgui.getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
-			nbt.setString("Path", p + "/" + nbt.getString("Name"));
-			nbt.setInteger("Tab", this.activeTab - 1);
+			nbt.setString("Path", path.replaceAll("\\\\", "/") + "/" + nbt.getString("Name"));
+			nbt.setInteger("Tab", activeTab - 1);
 			nbt.setByte("Type", (byte) 2);
 			nbt.setBoolean("OnlyTab", ((GuiScriptEncrypt) subgui).onlyTab);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.ScriptEncrypt, nbt);
-			this.displayGuiScreen(null);
-			this.mc.setIngameFocus();
+			displayGuiScreen(null);
+			mc.setIngameFocus();
 		}
 	}
 

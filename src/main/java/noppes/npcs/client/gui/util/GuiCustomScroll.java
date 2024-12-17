@@ -1,8 +1,6 @@
 package noppes.npcs.client.gui.util;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 
 import org.lwjgl.input.Mouse;
@@ -22,9 +20,11 @@ import noppes.npcs.client.util.ResourceData;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.NaturalOrderComparator;
 
+import javax.annotation.Nonnull;
+
 public class GuiCustomScroll
-		extends GuiScreen
-		implements IComponentGui {
+extends GuiScreen
+implements IComponentGui {
 
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/misc.png");
 
@@ -58,8 +58,8 @@ public class GuiCustomScroll
 	private List<ItemStack> stacks = null;
 	private List<ResourceData> prefixes;
 
-	public String[][] hoversTexts = null;
-	public String[] hoverText;
+	private final Map<Integer, List<String>> hoversTexts = new TreeMap<>();
+	private final List<String> hoverText = new ArrayList<>();
 
 	// search data
 	private final GuiNpcTextField textField = new GuiNpcTextField(0, null, 0, 0, 176, 16, "");
@@ -164,17 +164,22 @@ public class GuiCustomScroll
 		}
 	}
 
-	public void drawScreen(int mouseX, int mouseY, boolean canScrolled) {
+	@Override
+	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
 		if (!visible) { return; }
-		if (hasSearch) {
+		hovered = isMouseOver(mouseX, mouseY);
+		drawScreen(mouseX, mouseY, !gui.hasSubGui() && (hovered || !gui.hasArea()));
+	}
+
+	public void drawScreen(int mouseX, int mouseY, boolean canScrolled) {
+		if (hasSearch && listener instanceof IEditNPC) {
 			textField.x = guiLeft;
 			textField.y = guiTop;
-			textField.drawTextBox(mouseX, mouseY);
+			textField.render((IEditNPC) listener, mouseX, mouseY, 0.0f);
 		}
 		guiTop += textFieldHeight();
 		// background
 		if (border != 0xFF000000) { drawGradientRect(guiLeft - 1, guiTop - 1, width + guiLeft + 1, height + guiTop + 1, border, border); }
-		hovered = isMouseOver(mouseX, mouseY);
 		drawGradientRect(guiLeft, guiTop, width + guiLeft, height + guiTop , colorBack, colorBack);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -214,25 +219,10 @@ public class GuiCustomScroll
 				}
 			}
 		}
-		if (hover >= 0 && hover < list.size()) {
-			if (parentAllows) {
-				String[] texts = new String[0];
-				if (hoverText != null) {
-					texts = hoverText;
-				} else if (hoversTexts != null && hover < hoversTexts.length) {
-					texts = hoversTexts[hover];
-				} else if (stacks != null && hover < stacks.size()) {
-					List<String> l = stacks.get(hover).getTooltip(mc.player, TooltipFlags.NORMAL);
-					texts = l.toArray(new String[0]);
-				}
-				if (texts != null) {
-					if (listener instanceof GuiNPCInterface) {
-						((GuiNPCInterface) listener).hoverText = texts;
-					} else if (listener instanceof GuiContainerNPCInterface) {
-						((GuiContainerNPCInterface) listener).hoverText = texts;
-					}
-				}
-			}
+		if (hover >= 0 && hover < list.size() && parentAllows && listener instanceof IEditNPC) {
+			if (hoversTexts.containsKey(hover)) { ((IEditNPC) listener).setHoverText(hoversTexts.get(hover)); }
+			else if (!hoverText.isEmpty()) { ((IEditNPC) listener).setHoverText(hoverText); }
+			else if (stacks != null && hover < stacks.size()) { ((IEditNPC) listener).setHoverText(stacks.get(hover).getTooltip(mc.player, TooltipFlags.NORMAL)); }
 		}
 		guiTop -= textFieldHeight();
 	}
@@ -322,7 +312,7 @@ public class GuiCustomScroll
 		if (hasSearch) {
 			final boolean bo = textField.textboxKeyTyped(c, i);
 			if (!searchString.equals(textField.getText())) {
-				searchString = this.textField.getText().trim();
+				searchString = textField.getText().trim();
 				searchWords = searchString.split(" ");
 				reset();
 			}
@@ -530,6 +520,30 @@ public class GuiCustomScroll
 	}
 
 	@Override
+	public int getId() { return id; }
+
+	@Override
 	public int[] getCenter() { return new int[] { guiLeft + width / 2, guiTop + height  / 2}; }
+
+	@Override
+	public void setHoverText(String text, Object ... args) {
+		hoverText.clear();
+		if (text == null || text.isEmpty()) { return; }
+		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
+		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
+		while (text.contains("<br>")) {
+			hoverText.add(text.substring(0, text.indexOf("<br>")));
+			text = text.substring(text.indexOf("<br>") + 4);
+		}
+		hoverText.add(text);
+	}
+
+	public void setHoverTexts(LinkedHashMap<Integer, List<String>> map) {
+		hoversTexts.clear();
+		if (map == null || map.isEmpty()) { return; }
+		hoversTexts.putAll(map);
+	}
+
+	public @Nonnull Map<Integer, List<String>> getHoversTexts() { return hoversTexts; }
 
 }

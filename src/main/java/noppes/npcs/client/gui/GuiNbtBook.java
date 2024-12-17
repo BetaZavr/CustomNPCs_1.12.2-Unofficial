@@ -1,10 +1,12 @@
 package noppes.npcs.client.gui;
 
+import java.awt.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -30,7 +32,9 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.NBTJsonUtil;
 
-public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
+public class GuiNbtBook
+extends GuiNPCInterface
+implements IGuiData {
 
 	private ItemStack blockStack;
 	public NBTTagCompound compound;
@@ -47,49 +51,50 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 	private ItemStack stack;
 	private GuiCustomScroll scroll;
 
-	public GuiNbtBook(int x, int y, int z) {
-		this.faultyText = null;
-		this.errorMessage = null;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 217;
-		this.closeOnEsc = true;
+	public GuiNbtBook(int xPos, int yPos, int zPos) {
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 217;
+		closeOnEsc = true;
+
+		faultyText = null;
+		errorMessage = null;
+		x = xPos;
+		y = yPos;
+		z = zPos;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			if (faultyText != null) {
-				this.setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound), faultyText).enableHighlighting());
+				setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound), faultyText).enableHighlighting());
 			} else {
-				this.setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound)).enableHighlighting());
+				setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound)).enableHighlighting());
 			}
 		} else if (button.id == 1) {
 			if (stack != null && !stack.isEmpty()) {
 				Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound()));
 			}
 		} else if (button.id == 67) {
-			this.getLabel(0).setLabel("Saved");
-			if (this.compound.equals(this.originalCompound)) {
+			getLabel(0).setLabel("Saved");
+			if (compound.equals(originalCompound)) {
 				return;
 			}
-			if (this.stack != null) {
-				Client.sendData(EnumPacketServer.NbtBookSaveItem, this.compound);
+			if (stack != null) {
+				Client.sendData(EnumPacketServer.NbtBookSaveItem, compound);
 				return;
 			}
-			if (this.tile == null) {
-				Client.sendData(EnumPacketServer.NbtBookSaveEntity, this.entityId, this.compound);
+			if (tile == null) {
+				Client.sendData(EnumPacketServer.NbtBookSaveEntity, entityId, compound);
 				return;
 			}
-			Client.sendData(EnumPacketServer.NbtBookSaveBlock, this.x, this.y, this.z, this.compound);
-			this.originalCompound = this.compound.copy();
-			this.getButton(67).enabled = false;
+			Client.sendData(EnumPacketServer.NbtBookSaveBlock, x, y, z, compound);
+			originalCompound = compound.copy();
+			getButton(67).enabled = false;
 		}
 		if (button.id == 66) {
-			this.close();
+			close();
 		}
 	}
 
@@ -98,46 +103,46 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 		super.closeSubGui(gui);
 		if (gui instanceof SubGuiNpcTextArea) {
 			try {
-				this.compound = JsonToNBT.getTagFromJson(((SubGuiNpcTextArea) gui).text);
-				this.faultyText = null;
-				this.errorMessage = null;
+				compound = JsonToNBT.getTagFromJson(((SubGuiNpcTextArea) gui).text);
+				faultyText = null;
+				errorMessage = null;
 			} catch (NBTException e) {
-				this.errorMessage = e.getLocalizedMessage();
-				this.faultyText = ((SubGuiNpcTextArea) gui).text;
+				errorMessage = e.getLocalizedMessage();
+				faultyText = ((SubGuiNpcTextArea) gui).text;
 			}
-			this.initGui();
+			initGui();
 		}
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.hasSubGui()) {
+		if (hasSubGui()) {
 			return;
 		}
-		if (this.stack != null || this.state != null) {
+		if (stack != null || state != null) {
 			GlStateManager.pushMatrix();
-			Gui.drawRect(this.guiLeft + 3, this.guiTop + 3, this.guiLeft + 55, this.guiTop + 55, 0xFF808080);
-			Gui.drawRect(this.guiLeft + 4, this.guiTop + 4, this.guiLeft + 54, this.guiTop + 54, 0xFF000000);
+			Gui.drawRect(guiLeft + 3, guiTop + 3, guiLeft + 55, guiTop + 55, 0xFF808080);
+			Gui.drawRect(guiLeft + 4, guiTop + 4, guiLeft + 54, guiTop + 54, 0xFF000000);
 			GlStateManager.popMatrix();
 			GlStateManager.pushMatrix();
-			GlStateManager.translate((this.guiLeft + 5), (this.guiTop + 5), 0.0f);
+			GlStateManager.translate((guiLeft + 5), (guiTop + 5), 0.0f);
 			GlStateManager.scale(3.0f, 3.0f, 3.0f);
 			RenderHelper.enableGUIStandardItemLighting();
-			this.itemRender.renderItemAndEffectIntoGUI(this.stack != null ? this.stack : this.blockStack, 0, 0);
-			this.itemRender.renderItemOverlays(this.fontRenderer, this.stack != null ? this.stack : this.blockStack, 0,
+			itemRender.renderItemAndEffectIntoGUI(stack != null ? stack : blockStack, 0, 0);
+			itemRender.renderItemOverlays(fontRenderer, stack != null ? stack : blockStack, 0,
 					0);
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
 		}
-		if (this.entity != null) {
+		if (entity != null) {
 			GlStateManager.pushMatrix();
-			this.drawNpc(this.entity, 30, 80, 1.0f, 0, 0, 1);
+			drawNpc(entity, 30, 80, 1.0f, 0, 0, 1);
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
-			int color = 0xFF808080;
-			if (EntityRegistry.getEntry(this.entity.getClass()) == null) { color = 0xFFFF4040; }
-			Gui.drawRect(this.guiLeft + 5, this.guiTop + 13, this.guiLeft + 55, this.guiTop + 99, color);
-			Gui.drawRect(this.guiLeft + 6, this.guiTop + 14, this.guiLeft + 54, this.guiTop + 98, 0xFF000000);
+			int color = new Color(0xFF808080).getRGB();
+			if (EntityRegistry.getEntry(entity.getClass()) == null) { color = new Color(0xFFFF4040).getRGB(); }
+			Gui.drawRect(guiLeft + 5, guiTop + 13, guiLeft + 55, guiTop + 99, color);
+			Gui.drawRect(guiLeft + 6, guiTop + 14, guiLeft + 54, guiTop + 98, new Color(0xFF000000).getRGB());
 			GlStateManager.popMatrix();
 		}
 	}
@@ -145,65 +150,65 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 	@Override
 	public void initGui() {
 		super.initGui();
-		boolean onlyClient = this.stack == null && this.state == null && this.entity == null;
-		if (this.scroll == null) { (this.scroll = new GuiCustomScroll(this, 0)).setSize(188, 120); }
-		this.scroll.guiLeft = this.guiLeft + 60;
-		this.scroll.guiTop = this.guiTop + 45;
-		if (this.stack != null) {
-			this.scroll.setSize(188, 118);
-			this.scroll.guiTop -= 20;
-			this.addLabel(new GuiNpcLabel(11, "id: \"" + this.stack.getItem().getRegistryName() + "\"", this.guiLeft + 60, this.guiTop + 6));
-			this.addButton(new GuiNpcButton(1, this.guiLeft + 38, this.guiTop + 144, 180, 20, "gui.copy"));
-			this.setObjectToScroll(this.stack);
+		boolean onlyClient = stack == null && state == null && entity == null;
+		if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(188, 120); }
+		scroll.guiLeft = guiLeft + 60;
+		scroll.guiTop = guiTop + 45;
+		if (stack != null) {
+			scroll.setSize(188, 118);
+			scroll.guiTop -= 20;
+			addLabel(new GuiNpcLabel(11, "id: \"" + stack.getItem().getRegistryName() + "\"", guiLeft + 60, guiTop + 6));
+			addButton(new GuiNpcButton(1, guiLeft + 38, guiTop + 144, 180, 20, "gui.copy"));
+			setObjectToScroll(stack);
 		}
-		if (this.state != null) {
-			this.addLabel(new GuiNpcLabel(11, "x: " + this.x + ", y: " + this.y + ", z: " + this.z, this.guiLeft + 60, this.guiTop + 6));
-			this.addLabel(new GuiNpcLabel(12, "id: " + Block.REGISTRY.getNameForObject(this.state.getBlock()), this.guiLeft + 60, this.guiTop + 16));
-			this.addLabel(new GuiNpcLabel(13, "meta: " + this.state.getBlock().getMetaFromState(this.state), this.guiLeft + 60, this.guiTop + 26));
-			this.setObjectToScroll(this.state);
+		if (state != null) {
+			addLabel(new GuiNpcLabel(11, "x: " + x + ", y: " + y + ", z: " + z, guiLeft + 60, guiTop + 6));
+			addLabel(new GuiNpcLabel(12, "id: " + Block.REGISTRY.getNameForObject(state.getBlock()), guiLeft + 60, guiTop + 16));
+			addLabel(new GuiNpcLabel(13, "meta: " + state.getBlock().getMetaFromState(state), guiLeft + 60, guiTop + 26));
+			setObjectToScroll(state);
 		}
-		if (this.entity != null) {
-			this.scroll.setSize(188, 140);
-			this.scroll.guiTop -= 20;
+		if (entity != null) {
+			scroll.setSize(188, 140);
+			scroll.guiTop -= 20;
 			String name;
-			if (EntityRegistry.getEntry(this.entity.getClass()) == null) {
+			if (EntityRegistry.getEntry(entity.getClass()) == null) {
 				name = "Not registered name!";
 				onlyClient = true;
 			} else {
 				name = "id: " + Objects.requireNonNull(Objects.requireNonNull(EntityRegistry.getEntry(entity.getClass())).getRegistryName());
 			}
-			this.addLabel(new GuiNpcLabel(12, name, this.guiLeft + 60, this.guiTop + 6));
-			this.setObjectToScroll(this.entity);
+			addLabel(new GuiNpcLabel(12, name, guiLeft + 60, guiTop + 6));
+			setObjectToScroll(entity);
 		}
-		this.addScroll(this.scroll);
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 38, this.guiTop + 166, 180, 20, "nbt.edit"));
-		this.getButton(0).enabled = (this.compound != null && !this.compound.getKeySet().isEmpty());
-		this.addLabel(new GuiNpcLabel(0, "", this.guiLeft + 4, this.guiTop + 167));
-		this.addLabel(new GuiNpcLabel(1, "", this.guiLeft + 4, this.guiTop + 177));
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 128, this.guiTop + 190, 120, 20, "gui.close"));
+		addScroll(scroll);
+		addButton(new GuiNpcButton(0, guiLeft + 38, guiTop + 166, 180, 20, "nbt.edit"));
+		getButton(0).enabled = (compound != null && !compound.getKeySet().isEmpty());
+		addLabel(new GuiNpcLabel(0, "", guiLeft + 4, guiTop + 167));
+		addLabel(new GuiNpcLabel(1, "", guiLeft + 4, guiTop + 177));
+		addButton(new GuiNpcButton(66, guiLeft + 128, guiTop + 190, 120, 20, "gui.close"));
 		
-		this.addButton(new GuiNpcButton(67, this.guiLeft + 4, this.guiTop + 190, 120, 20, "gui.save"));
-		this.getButton(67).setEnabled(!onlyClient);
+		addButton(new GuiNpcButton(67, guiLeft + 4, guiTop + 190, 120, 20, "gui.save"));
+		getButton(67).setEnabled(!onlyClient);
 		if (!onlyClient) {
-			if (this.errorMessage != null) {
-				this.getButton(67).enabled = false;
-				int i = this.errorMessage.indexOf(" at: ");
+			if (errorMessage != null) {
+				getButton(67).enabled = false;
+				int i = errorMessage.indexOf(" at: ");
 				if (i > 0) {
-					this.getLabel(0).setLabel(this.errorMessage.substring(0, i));
-					this.getLabel(1).setLabel(this.errorMessage.substring(i));
+					getLabel(0).setLabel(errorMessage.substring(0, i));
+					getLabel(1).setLabel(errorMessage.substring(i));
 				} else {
-					this.getLabel(0).setLabel(this.errorMessage);
+					getLabel(0).setLabel(errorMessage);
 				}
 			}
-			if (this.getButton(67).enabled && this.originalCompound != null) {
-				this.getButton(67).enabled = !this.originalCompound.equals(this.compound);
+			if (getButton(67).enabled && originalCompound != null) {
+				getButton(67).enabled = !originalCompound.equals(compound);
 			}
 		}
 	}
 
 	private void setObjectToScroll(Object obj) {
-		this.addLabel(new GuiNpcLabel(15, "(?) Class \"" + obj.getClass().getSimpleName() + "\":", this.guiLeft + 60, this.guiTop + (this.state != null ? 36 : 16)));
-		this.getLabel(15).hoverText = new String[] { obj.getClass().getName() };
+		addLabel(new GuiNpcLabel(15, "(?) Class \"" + obj.getClass().getSimpleName() + "\":", guiLeft + 60, guiTop + (state != null ? 36 : 16)));
+		getLabel(15).setHoverText(obj.getClass().getName());
 		
 		List<String> list = new ArrayList<>();
 		Map<String, Field> fs = new TreeMap<>();
@@ -213,7 +218,7 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 		for (Method m : obj.getClass().getDeclaredMethods()) { ms.put(m.getName(), m); }
 		for (Class<?> c : obj.getClass().getDeclaredClasses()) { cs.put(c.getName(), c); }
 
-		this.scroll.hoversTexts = new String[fs.size() + ms.size() + cs.size()][];
+		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		int i = 0;
 		for (String key : fs.keySet()) {
 			try {
@@ -222,20 +227,11 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 				if (!isAccessible) { f.setAccessible(true); }
 				int mdf = f.getModifiers();
 				list.add(((char) 167) + "6F: " + ((char) 167) + (Modifier.isPublic(mdf) ? "a" : "c") + key);
-				String mf = ((char) 167) + "6field: ";
-				if (Modifier.isPublic(mdf)) { mf += ((char) 167) + "apublic"; }
-				else if (Modifier.isProtected(mdf)) { mf += ((char) 167) + "cprotected"; }
-				else { mf += ((char) 167) + "4private"; }
-				if (Modifier.isStatic(mdf)) { mf += ((char) 167) + "e static"; }
-				if (Modifier.isFinal(mdf)) { mf += ((char) 167) + "b final"; }
-				Object v = f.get(obj);
-				this.scroll.hoversTexts[i] = new String[] { mf,
-						((char) 167) + "7value type: " + ((char) 167) + "r" + f.getType().getName(),
-						((char) 167) + "7value = " + ((char) 167) + "r" + (v != null ? v.toString() : "null")};
+				hts.put(i, getFieldTypes(obj, mdf, f));
 				if (!isAccessible) { f.setAccessible(false); }
 			}
 			catch (Exception e) {
-				this.scroll.hoversTexts[i] = new String[] { "" };
+				hts.put(i, Collections.singletonList(""));
 				LogWriter.error("Error:", e);
 			}
 			i++;
@@ -247,12 +243,11 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 				if (!isAccessible) { m.setAccessible(true); }
 				int mdf = m.getModifiers();
 				list.add(((char) 167) + "3M: " + ((char) 167) + (Modifier.isPublic(mdf) ? "a" : "c") + key);
-				List<String> hoverText = getStringList(mdf, m);
-				this.scroll.hoversTexts[i] = hoverText.toArray(new String[0]);
+				hts.put(i, getMethodTypes(mdf, m));
 				if (!isAccessible) { m.setAccessible(false); }
 			}
 			catch (Exception e) {
-				this.scroll.hoversTexts[i] = new String[] { "" };
+				hts.put(i, Collections.singletonList(""));
 				LogWriter.error("Error:", e);
 			}
 			i++;
@@ -267,13 +262,32 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 			else { mf += ((char) 167) + "4private"; }
 			if (Modifier.isStatic(mdf)) { mf += ((char) 167) + "e static"; }
 			if (Modifier.isFinal(mdf)) { mf += ((char) 167) + "b final"; }
-			this.scroll.hoversTexts[i] = new String[] { mf, c.getSimpleName() };
+			List<String> l = new ArrayList<>();
+			l.add(mf);
+			l.add(c.getSimpleName());
+			hts.put(i, l);
 			i++;
 		}
-		this.scroll.setListNotSorted(list);
+		scroll.setListNotSorted(list);
+		scroll.setHoverTexts(hts);
 	}
 
-	private static List<String> getStringList(int mdf, Method m) {
+	private static List<String> getFieldTypes(Object obj, int mdf, Field f) throws IllegalAccessException {
+		String mf = ((char) 167) + "6field: ";
+		if (Modifier.isPublic(mdf)) { mf += ((char) 167) + "apublic"; }
+		else if (Modifier.isProtected(mdf)) { mf += ((char) 167) + "cprotected"; }
+		else { mf += ((char) 167) + "4private"; }
+		if (Modifier.isStatic(mdf)) { mf += ((char) 167) + "e static"; }
+		if (Modifier.isFinal(mdf)) { mf += ((char) 167) + "b final"; }
+		Object v = f.get(obj);
+		List<String> l = new ArrayList<>();
+		l.add(mf);
+		l.add(((char) 167) + "7value type: " + ((char) 167) + "r" + f.getType().getName());
+		l.add(((char) 167) + "7value = " + ((char) 167) + "r" + (v != null ? v.toString() : "null"));
+		return l;
+	}
+
+	private static List<String> getMethodTypes(int mdf, Method m) {
 		String mf = ((char) 167) + "3method: ";
 		if (Modifier.isPublic(mdf)) { mf += ((char) 167) + "apublic"; }
 		else if (Modifier.isProtected(mdf)) { mf += ((char) 167) + "cprotected"; }
@@ -306,20 +320,20 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void setGuiData(NBTTagCompound compound) {
-		if (compound.hasKey("Item") && compound.getBoolean("Item")) {
-			this.stack = new ItemStack(compound.getCompoundTag("Data"));
-		} else if (compound.hasKey("EntityId")) {
-			this.entityId = compound.getInteger("EntityId");
-			this.entity = this.player.world.getEntityByID(this.entityId);
+	public void setGuiData(NBTTagCompound nbt) {
+		if (nbt.hasKey("Item") && nbt.getBoolean("Item")) {
+			stack = new ItemStack(nbt.getCompoundTag("Data"));
+		} else if (nbt.hasKey("EntityId")) {
+			entityId = nbt.getInteger("EntityId");
+			entity = player.world.getEntityByID(entityId);
 		} else {
-			this.tile = this.player.world.getTileEntity(new BlockPos(this.x, this.y, this.z));
-			this.state = this.player.world.getBlockState(new BlockPos(this.x, this.y, this.z));
-			this.blockStack = this.state.getBlock().getItem(this.player.world, new BlockPos(this.x, this.y, this.z), this.state);
+			tile = player.world.getTileEntity(new BlockPos(x, y, z));
+			state = player.world.getBlockState(new BlockPos(x, y, z));
+			blockStack = state.getBlock().getItem(player.world, new BlockPos(x, y, z), state);
 		}
-		this.originalCompound = compound.getCompoundTag("Data");
-		this.compound = this.originalCompound.copy();
-		this.initGui();
+		originalCompound = nbt.getCompoundTag("Data");
+		compound = originalCompound.copy();
+		initGui();
 	}
 
 }

@@ -11,41 +11,38 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobFarmer;
 
-public class GuiJobFarmer extends GuiNPCInterface2 {
+public class GuiJobFarmer
+extends GuiNPCInterface2 {
 
 	private final JobFarmer job;
 
 	public GuiJobFarmer(EntityNPCInterface npc) {
 		super(npc);
-		this.job = (JobFarmer) npc.advanced.jobInterface;
+		job = (JobFarmer) npc.advanced.jobInterface;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
-			this.job.chestMode = button.getValue();
-		}
+		if (button.id == 0) { job.chestMode = button.getValue(); }
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(0, "farmer.itempicked", this.guiLeft + 10, this.guiTop + 20));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 100, this.guiTop + 15, 160, 20,
-				new String[] { "farmer.donothing", "farmer.chest", "farmer.drop" }, this.job.chestMode));
+		addLabel(new GuiNpcLabel(0, "farmer.itempicked", guiLeft + 10, guiTop + 20));
+		addButton(new GuiNpcButton(0, guiLeft + 100, guiTop + 15, 160, 20, new String[] { "farmer.donothing", "farmer.chest", "farmer.drop" }, job.chestMode));
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
 		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+			save();
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 		}
 	}
 
 	@Override
-	public void save() {
-		Client.sendData(EnumPacketServer.JobSave, this.job.writeToNBT(new NBTTagCompound()));
-	}
+	public void save() { Client.sendData(EnumPacketServer.JobSave, job.writeToNBT(new NBTTagCompound())); }
+
 }

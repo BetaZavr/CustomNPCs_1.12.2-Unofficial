@@ -51,7 +51,7 @@ public class ContainerMixin {
     @Overwrite
     protected void slotChangedCraftingGrid(World world, EntityPlayer player, InventoryCrafting invCrafting, InventoryCraftResult invCraftResult) {
         if (world.isRemote) { return; }
-        // Changed system of filling the crafting inventory is a little behind (1 tick)
+        // Change system of filling the crafting inventory is a little behind (1 tick)
         CustomNPCsScheduler.runTack(() -> {
             EntityPlayerMP playerMP = (EntityPlayerMP) player;
             IRecipe irecipe = CraftingManager.findMatchingRecipe(invCrafting, world);

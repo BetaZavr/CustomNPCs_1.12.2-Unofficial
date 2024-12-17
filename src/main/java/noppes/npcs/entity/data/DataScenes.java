@@ -57,39 +57,37 @@ public class DataScenes {
 					}
 					BlockPos pos;
 					if (param[0].startsWith("@")) {
-						EntityLivingBase entitylivingbase = CommandBase.getEntity(Objects.requireNonNull(DataScenes.this.npc.getServer()), DataScenes.this.npc, param[0], EntityLivingBase.class);
+						EntityLivingBase entitylivingbase = CommandBase.getEntity(Objects.requireNonNull(npc.getServer()), npc, param[0], EntityLivingBase.class);
                         pos = entitylivingbase.getPosition();
                         param = Arrays.copyOfRange(param, 2, param.length);
 					} else {
 						if (param.length < 4) {
 							return;
 						}
-						pos = CommandBase.parseBlockPos(DataScenes.this.npc, param, 1, false);
+						pos = CommandBase.parseBlockPos(npc, param, 1, false);
 						param = Arrays.copyOfRange(param, 4, param.length);
 					}
-                    DataScenes.this.npc.ais.setStartPos(pos);
-					DataScenes.this.npc.getNavigator().clearPath();
+					npc.ais.setStartPos(pos);
+					npc.getNavigator().clearPath();
 					if (move) {
-						Path pathentity = DataScenes.this.npc.getNavigator().getPathToPos(pos);
-						DataScenes.this.npc.getNavigator().setPath(pathentity, 1.0);
+						Path pathEntity = npc.getNavigator().getPathToPos(pos);
+						npc.getNavigator().setPath(pathEntity, 1.0);
 					} else {
-						if (DataScenes.this.npc.isInRange(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 2.0)) {
+						if (npc.isInRange(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 2.0)) {
 							continue;
 						}
-						DataScenes.this.npc.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+						npc.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
 					}
 				}
 			} else if (event.type == SceneType.SAY) {
-				DataScenes.this.npc.saySurrounding(new Line(event.param));
+				npc.saySurrounding(new Line(event.param));
 			} else if (event.type == SceneType.ROTATE) {
-				DataScenes.this.npc.lookAi.resetTask();
+				npc.lookAi.resetTask();
 				if (event.param.startsWith("@")) {
-					EntityLivingBase entitylivingbase2 = CommandBase.getEntity(Objects.requireNonNull(DataScenes.this.npc.getServer()),
-							DataScenes.this.npc, event.param, EntityLivingBase.class);
-					DataScenes.this.npc.lookAi
-							.rotate(DataScenes.this.npc.world.getClosestPlayerToEntity(entitylivingbase2, 30.0));
+					EntityLivingBase entity = CommandBase.getEntity(Objects.requireNonNull(npc.getServer()), npc, event.param, EntityLivingBase.class);
+					npc.lookAi.rotate(npc.world.getClosestPlayerToEntity(entity, 30.0));
 				} else {
-					DataScenes.this.npc.lookAi.rotate(Integer.parseInt(event.param));
+					npc.lookAi.rotate(Integer.parseInt(event.param));
 				}
 			} else if (event.type == SceneType.EQUIP) {
 				String[] args = event.param.split(" ");
@@ -98,68 +96,68 @@ public class DataScenes {
 				}
 				IItemStack itemstack = null;
 				if (!args[1].equalsIgnoreCase("none")) {
-					Item item = CommandBase.getItemByText(DataScenes.this.npc, args[1]);
+					Item item = CommandBase.getItemByText(npc, args[1]);
 					int i = (args.length >= 3) ? CommandBase.parseInt(args[2], 1, 64) : 1;
 					int j = (args.length >= 4) ? CommandBase.parseInt(args[3]) : 0;
 					itemstack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(item, i, j));
 				}
 				if (args[0].equalsIgnoreCase("main")) {
-					DataScenes.this.npc.inventory.weapons.put(0, itemstack);
+					npc.inventory.weapons.put(0, itemstack);
 				} else if (args[0].equalsIgnoreCase("off")) {
-					DataScenes.this.npc.inventory.weapons.put(2, itemstack);
+					npc.inventory.weapons.put(2, itemstack);
 				} else if (args[0].equalsIgnoreCase("proj")) {
-					DataScenes.this.npc.inventory.weapons.put(1, itemstack);
+					npc.inventory.weapons.put(1, itemstack);
 				} else if (args[0].equalsIgnoreCase("head")) {
-					DataScenes.this.npc.inventory.armor.put(0, itemstack);
+					npc.inventory.armor.put(0, itemstack);
 				} else if (args[0].equalsIgnoreCase("body")) {
-					DataScenes.this.npc.inventory.armor.put(1, itemstack);
+					npc.inventory.armor.put(1, itemstack);
 				} else if (args[0].equalsIgnoreCase("legs")) {
-					DataScenes.this.npc.inventory.armor.put(2, itemstack);
+					npc.inventory.armor.put(2, itemstack);
 				} else if (args[0].equalsIgnoreCase("boots")) {
-					DataScenes.this.npc.inventory.armor.put(3, itemstack);
+					npc.inventory.armor.put(3, itemstack);
 				}
 			} else if (event.type == SceneType.ATTACK) {
 				if (event.param.equals("none")) {
-					DataScenes.this.npc.setAttackTarget(null);
+					npc.setAttackTarget(null);
 				} else {
-					EntityLivingBase entity = CommandBase.getEntity(Objects.requireNonNull(DataScenes.this.npc.getServer()), DataScenes.this.npc, event.param, EntityLivingBase.class);
-                    DataScenes.this.npc.setAttackTarget(entity);
+					EntityLivingBase entity = CommandBase.getEntity(Objects.requireNonNull(npc.getServer()), npc, event.param, EntityLivingBase.class);
+					npc.setAttackTarget(entity);
                 }
 			} else if (event.type == SceneType.THROW) {
 				String[] args = event.param.split(" ");
-				EntityLivingBase entity2 = CommandBase.getEntity(Objects.requireNonNull(DataScenes.this.npc.getServer()), DataScenes.this.npc, args[0], EntityLivingBase.class);
+				EntityLivingBase entity2 = CommandBase.getEntity(Objects.requireNonNull(npc.getServer()), npc, args[0], EntityLivingBase.class);
                 float damage = Float.parseFloat(args[1]);
 				if (damage <= 0.0f) {
 					damage = 0.01f;
 				}
-				ItemStack stack = ItemStackWrapper.MCItem(DataScenes.this.npc.inventory.getProjectile());
+				ItemStack stack = ItemStackWrapper.MCItem(npc.inventory.getProjectile());
 				if (args.length > 2) {
-					Item item2 = CommandBase.getItemByText(DataScenes.this.npc, args[2]);
+					Item item2 = CommandBase.getItemByText(npc, args[2]);
 					stack = new ItemStack(item2, 1, 0);
 				}
-				EntityProjectile projectile = DataScenes.this.npc.shoot(entity2, 100, stack, false);
+				EntityProjectile projectile = npc.shoot(entity2, 100, stack, false);
 				projectile.damage = damage;
 			} else if (event.type == SceneType.ANIMATE) {
-				DataScenes.this.npc.animateAi.temp = 0;
+				npc.animateAi.tempAnimation = 0;
 				if (event.param.equalsIgnoreCase("sleep")) {
-					DataScenes.this.npc.animateAi.temp = 2;
+					npc.animateAi.tempAnimation = 2;
 				} else if (event.param.equalsIgnoreCase("sneak")) {
-					DataScenes.this.npc.ais.animationType = 4;
+					npc.ais.animationType = 4;
 				} else if (event.param.equalsIgnoreCase("normal")) {
-					DataScenes.this.npc.ais.animationType = 0;
+					npc.ais.animationType = 0;
 				} else if (event.param.equalsIgnoreCase("sit")) {
-					DataScenes.this.npc.animateAi.temp = 1;
+					npc.animateAi.tempAnimation = 1;
 				} else if (event.param.equalsIgnoreCase("crawl")) {
-					DataScenes.this.npc.ais.animationType = 7;
+					npc.ais.animationType = 7;
 				} else if (event.param.equalsIgnoreCase("bow")) {
-					DataScenes.this.npc.animateAi.temp = 11;
+					npc.animateAi.tempAnimation = 11;
 				} else if (event.param.equalsIgnoreCase("yes")) {
-					DataScenes.this.npc.animateAi.temp = 13;
+					npc.animateAi.tempAnimation = 13;
 				} else if (event.param.equalsIgnoreCase("no")) {
-					DataScenes.this.npc.animateAi.temp = 12;
+					npc.animateAi.tempAnimation = 12;
 				}
 			} else if (event.type == SceneType.COMMAND) {
-				NoppesUtilServer.runCommand(DataScenes.this.npc, DataScenes.this.npc.getName(), event.param, null);
+				NoppesUtilServer.runCommand(npc, npc.getName(), event.param, null);
 			} else if (event.type == SceneType.STATS) {
 				int k = event.param.indexOf(" ");
 				if (k <= 0) {
@@ -169,9 +167,9 @@ public class DataScenes {
 				String value = event.param.substring(k).trim();
 				try {
 					if (type.equals("walking_speed")) {
-						DataScenes.this.npc.ais.setWalkingSpeed(ValueUtil.correctInt(Integer.parseInt(value), 0, 10));
+						npc.ais.setWalkingSpeed(ValueUtil.correctInt(Integer.parseInt(value), 0, 10));
 					} else if (type.equals("size")) {
-						DataScenes.this.npc.display.setSize(ValueUtil.correctInt(Integer.parseInt(value), 1, 30));
+						npc.display.setSize(ValueUtil.correctInt(Integer.parseInt(value), 1, 30));
 					} else {
 						NoppesUtilServer.NotifyOPs("Unknown scene stat: " + type);
 					}
@@ -179,13 +177,13 @@ public class DataScenes {
 					NoppesUtilServer.NotifyOPs("Unknown scene stat " + type + " value: " + value);
 				}
 			} else if (event.type == SceneType.FACTION) {
-				DataScenes.this.npc.setFaction(Integer.parseInt(event.param));
+				npc.setFaction(Integer.parseInt(event.param));
 			} else if (event.type == SceneType.FOLLOW) {
 				if (event.param.equalsIgnoreCase("none")) {
 					DataScenes.this.owner = null;
 					DataScenes.this.ownerScene = null;
 				} else {
-                    DataScenes.this.owner = CommandBase.getEntity(Objects.requireNonNull(DataScenes.this.npc.getServer()), DataScenes.this.npc, event.param, EntityLivingBase.class);
+                    DataScenes.this.owner = CommandBase.getEntity(Objects.requireNonNull(npc.getServer()), npc, event.param, EntityLivingBase.class);
 					DataScenes.this.ownerScene = this.name;
 				}
 			}

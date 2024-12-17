@@ -12,7 +12,9 @@ import noppes.npcs.api.wrapper.gui.CustomGuiTexturedRectWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 
-public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
+public class CustomGuiTexturedRect
+extends Gui
+implements IGuiComponent {
 
 	public static CustomGuiTexturedRect fromComponent(CustomGuiTexturedRectWrapper component) {
 		CustomGuiTexturedRect rect;

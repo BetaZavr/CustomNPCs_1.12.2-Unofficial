@@ -203,7 +203,6 @@ public class ServerRecipeBookHelperMixin {
                 }
                 Slot slot = this.slots.get(slotID);
                 ItemStack itemstack = NPCRecipeItemHelper.unpack(iterator.next());
-System.out.println("CNPCs: "+slotID+" - "+itemstack);
                 if (!itemstack.isEmpty()) {
                     int count = 1;
                     if (recipe instanceof INpcRecipe) {

@@ -68,7 +68,7 @@ public class AnimationFrameConfig implements IAnimationFrame {
 			PartConfig pc = new PartConfig(i, AnimationFrameConfig.getPartType(i));
 			parts.put(i, pc);
 		}
-		this.clear();
+		clear();
 	}
 
 	public void clear() {
@@ -84,7 +84,7 @@ public class AnimationFrameConfig implements IAnimationFrame {
 
 	public AnimationFrameConfig copy() {
 		AnimationFrameConfig newAfc = new AnimationFrameConfig();
-		newAfc.readNBT(this.writeNBT());
+		newAfc.load(writeNBT());
 		return newAfc;
 	}
 
@@ -151,7 +151,7 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		return this.smooth;
 	}
 
-	public void readNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
 		id = compound.getInteger("ID");
 		setSmooth(compound.getBoolean("IsSmooth"));
 		setSpeed(compound.getInteger("Speed"));
@@ -200,11 +200,9 @@ public class AnimationFrameConfig implements IAnimationFrame {
 			}
 		}
 		damageHitboxes.clear();
-		if (compound.hasKey("DamageHitboxes", 9) && compound.getTagList("DamageHitboxes", 6).tagCount() == 10) {
-			NBTTagList list = compound.getTagList("DamageHitboxes", 10);
-			for (int i = 0; i < list.tagCount(); i++) {
-				damageHitboxes.put(i, new AnimationDamageHitbox(list.getCompoundTagAt(i), i));
-			}
+		NBTTagList list = compound.getTagList("DamageHitboxes", 10);
+		for (int i = 0; i < list.tagCount(); i++) {
+			damageHitboxes.put(i, new AnimationDamageHitbox(list.getCompoundTagAt(i), i));
 		}
 		if (damageHitboxes.isEmpty()) {
 			damageHitboxes.put(0, new AnimationDamageHitbox(0));

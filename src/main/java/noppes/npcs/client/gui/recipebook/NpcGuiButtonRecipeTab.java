@@ -18,13 +18,13 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.stats.RecipeBook;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.util.Util;
 
 // Displaying a tab button on the left edge of the GUI recipes window
 @SideOnly(Side.CLIENT)
-public class NpcGuiButtonRecipeTab extends GuiButtonRecipeTab {
+public class NpcGuiButtonRecipeTab
+extends GuiButtonRecipeTab {
 
     private float animationTime;
     private final CreativeTabs category;

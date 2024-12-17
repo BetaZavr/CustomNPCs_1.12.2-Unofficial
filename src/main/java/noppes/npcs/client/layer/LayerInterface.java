@@ -47,8 +47,8 @@ implements LayerRenderer<T> {
 			return;
 		}
 		this.playerdata = this.npc.modelData;
-		if (!(this.render.getMainModel() instanceof ModelBiped)) { return; }
-		this.model = (ModelBiped) this.render.getMainModel();
+		if (!(render.getMainModel() instanceof ModelBiped)) { return; }
+		this.model = (ModelBiped) render.getMainModel();
 		this.rotate(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 		GlStateManager.pushMatrix();
 		if (entity.isInvisible()) {

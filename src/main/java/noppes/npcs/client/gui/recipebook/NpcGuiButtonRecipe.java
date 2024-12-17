@@ -31,7 +31,8 @@ import noppes.npcs.controllers.data.Availability;
  * 3: already being processed in ServerRecipeBookHelper
  */
 @SideOnly(Side.CLIENT)
-public class NpcGuiButtonRecipe extends GuiButtonRecipe {
+public class NpcGuiButtonRecipe
+extends GuiButtonRecipe {
 
     private static final ResourceLocation RECIPE_BOOK = new ResourceLocation("textures/gui/recipe_book.png");
     private float animationTime;

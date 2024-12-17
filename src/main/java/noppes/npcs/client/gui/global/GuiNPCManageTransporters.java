@@ -31,8 +31,9 @@ import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
-public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
-		implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener {
+public class GuiNPCManageTransporters
+extends GuiContainerNPCInterface2
+implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener {
 
 	public final Map<String, Integer> dataCat = new TreeMap<>();
 	public final Map<String, Integer> dataLoc = new TreeMap<>();
@@ -49,13 +50,11 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 		this.container = container;
 		if (TransportController.getInstance().categories.containsKey(container.catId)) {
 			TransportCategory category = TransportController.getInstance().categories.get(container.catId);
-			this.catSel = ((char) 167) + "7ID: " + container.catId + " \"" + ((char) 167) + "r"
-					+ (new TextComponentTranslation(category.title).getFormattedText()) + ((char) 167) + "7\"";
+			this.catSel = ((char) 167) + "7ID: " + container.catId + " \"" + ((char) 167) + "r" + (new TextComponentTranslation(category.title).getFormattedText()) + ((char) 167) + "7\"";
 			this.dataCat.put(this.catSel, container.catId);
 		}
 		if (container.location.id > -1) {
-			this.locSel = ((char) 167) + "7ID: " + container.location.id + " \"" + ((char) 167) + "r"
-					+ (new TextComponentTranslation(container.location.name).getFormattedText()) + ((char) 167) + "7\"";
+			this.locSel = ((char) 167) + "7ID: " + container.location.id + " \"" + ((char) 167) + "r" + (new TextComponentTranslation(container.location.name).getFormattedText()) + ((char) 167) + "7\"";
 		}
 	}
 
@@ -67,29 +66,29 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 			cat = TransportController.getInstance().categories.get(this.dataCat.get(this.catSel));
 		}
 		switch (button.id) {
-		case 0: { // add cat
-			this.setSubGui(new SubGuiEditText(0, Util.instance
-					.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
-			break;
-		}
-		case 1: { // del cat
-			if (cat == null) {
-				return;
+			case 0: { // add cat
+				this.setSubGui(new SubGuiEditText(0, Util.instance
+						.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				break;
 			}
-			Client.sendData(EnumPacketServer.TransportCategoryRemove, cat.id);
-			break;
-		}
-		case 2: { // tp
-			this.transfer(loc);
-			break;
-		}
-		case 3: {
-			if (loc == null) {
-				return;
+			case 1: { // del cat
+				if (cat == null) {
+					return;
+				}
+				Client.sendData(EnumPacketServer.TransportCategoryRemove, cat.id);
+				break;
 			}
-			loc.type = button.getValue();
-			break;
-		}
+			case 2: { // tp
+				this.transfer(loc);
+				break;
+			}
+			case 3: {
+				if (loc == null) {
+					return;
+				}
+				loc.type = button.getValue();
+				break;
+			}
 		}
 
 	}
@@ -110,8 +109,8 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
-		super.drawScreen(i, j, f);
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (!this.wait && !this.catSel.isEmpty()) {
 			this.drawHorizontalLine(this.guiLeft + 212, this.guiLeft + this.xSize - 3, this.guiTop + 178, 0x80000000);
 			this.drawVerticalLine(this.guiLeft + 211, this.guiTop + 4, this.guiTop + this.ySize + 12, 0x80000000);
@@ -121,94 +120,55 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 			}
 			this.drawVerticalLine(this.guiLeft + 418, this.guiTop + 4, this.guiTop + this.ySize + 12, 0x80000000);
 		}
-		if (this.subgui != null || this.wait || !CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.transport.add").getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.transport.del", "\"" + this.catSel + "\"")
-					.getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.teleport").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.transport.type").getFormattedText());
-		} else if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.transport.cat.name").getFormattedText());
-		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.transport.money").getFormattedText());
-		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.transport.loc.name").getFormattedText());
-		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.entity.uuid").getFormattedText());
-		} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.dimension.id").getFormattedText());
-		} else if (this.getTextField(5) != null && this.getTextField(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.posx").getFormattedText());
-		} else if (this.getTextField(6) != null && this.getTextField(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.posy").getFormattedText());
-		} else if (this.getTextField(7) != null && this.getTextField(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.posz").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, fontRenderer);
-			this.hoverText = null;
-		}
 	}
 
 	@Override
 	public void initGui() {
 		if (this.wait) {
-			this.clear();
 			super.initGui();
 			return;
 		}
 		super.initGui();
-		if (this.categories == null) {
-			(this.categories = new GuiCustomScroll(this, 0)).setSize(100, 96);
-		}
+		if (this.categories == null) { (this.categories = new GuiCustomScroll(this, 0)).setSize(100, 96); }
 		this.categories.setListNotSorted(new ArrayList<>(dataCat.keySet()));
 		int x = this.guiLeft + 5, y = this.guiTop + 14;
 		this.categories.guiLeft = x;
 		this.categories.guiTop = y;
 		this.addScroll(this.categories);
-		if (!this.catSel.isEmpty()) {
-			this.categories.setSelected(this.catSel);
-		}
+		if (!this.catSel.isEmpty()) { this.categories.setSelected(this.catSel); }
 		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 5, y - 10));
 		y += this.categories.height + 2;
-		this.addButton(new GuiNpcButton(0, x, y, 49, 20, "gui.add"));
-		this.addButton(new GuiNpcButton(1, x + 52, y, 49, 20, "gui.remove"));
-		this.getButton(1).setEnabled(!this.catSel.isEmpty());
+		GuiNpcButton button = new GuiNpcButton(0, x, y, 49, 20, "gui.add");
+		button.setHoverText("manager.hover.transport.add");
+		addButton(button);
+		button = new GuiNpcButton(1, x + 52, y, 49, 20, "gui.remove");
+		button.setEnabled(!this.catSel.isEmpty());
+		button.setHoverText("manager.hover.transport.del", "\"" + this.catSel + "\"");
+		addButton(button);
 
-		if (this.locations == null) {
-			(this.locations = new GuiCustomScroll(this, 1)).setSize(100, 96);
-		}
+		if (this.locations == null) { (this.locations = new GuiCustomScroll(this, 1)).setSize(100, 96); }
 		this.locations.setListNotSorted(new ArrayList<>(dataLoc.keySet()));
 		x += 102;
 		y = this.guiTop + 14;
 		this.locations.guiLeft = x;
 		this.locations.guiTop = y;
 		this.addScroll(this.locations);
-		if (!this.locSel.isEmpty()) {
-			this.locations.setSelected(this.locSel);
-		}
+		if (!this.locSel.isEmpty()) { this.locations.setSelected(this.locSel); }
 		this.addLabel(new GuiNpcLabel(1, "gui.location", this.guiLeft + 113, y - 10));
 		y += this.locations.height + 2;
-		this.addButton(new GuiNpcButton(2, x, y, 100, 20, "transporter.travel"));
-		this.getButton(2).setEnabled(!this.locSel.isEmpty());
+		button = new GuiNpcButton(2, x, y, 100, 20, "transporter.travel");
+		button.setEnabled(!this.locSel.isEmpty());
+		button.setHoverText("hover.teleport");
+		addButton(button);
 
-		if (this.catSel.isEmpty()) {
-			return;
-		}
+		if (this.catSel.isEmpty()) { return; }
 		TransportCategory cat = TransportController.getInstance().categories.get(this.dataCat.get(this.catSel));
-
-		if (cat == null) {
-			return;
-		}
+		if (cat == null) { return; }
 		y = this.guiTop + 191;
 		this.addLabel(new GuiNpcLabel(2, "parameter.ikeysetting.catname", this.guiLeft + 216, y - 10));
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 214, y, 132, 20, cat.title));
+		GuiNpcTextField textField = new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 214, y, 132, 20, cat.title);
+		textField.setHoverText("manager.hover.transport.cat.name");
+		addTextField(textField);
 
 		if (this.locSel.isEmpty()) {
 			return;
@@ -218,26 +178,30 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 		this.addLabel(new GuiNpcLabel(3, "market.barter", x + 2, y));
 		y += 80;
 		this.addLabel(new GuiNpcLabel(4, "market.currency", x + 2, y - 10));
-		this.addTextField(new GuiNpcTextField(1, this, x, y, 50, 20, "" + this.container.location.money));
-		this.getTextField(1).setNumbersOnly();
-		this.getTextField(1).setMinMaxDefault(0, Integer.MAX_VALUE, (int) this.container.location.money);
+		textField = new GuiNpcTextField(1, this, x, y, 50, 20, "" + this.container.location.money);
+		textField.setMinMaxDefault(0, Integer.MAX_VALUE, (int) this.container.location.money);
+		textField.setHoverText("manager.hover.transport.money");
+		addTextField(textField);
 
 		y += 34;
 		this.addLabel(new GuiNpcLabel(5, "parameter.ikeysetting.name", x + 2, y - 10));
-		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, x, y, 202, 20, this.container.location.name));
+		textField = new GuiNpcTextField(2, this, this.fontRenderer, x, y, 202, 20, this.container.location.name);
+		textField.setHoverText("manager.hover.transport.loc.name");
+		addTextField(textField);
 		y += 34;
 		this.addLabel(new GuiNpcLabel(6, "UUID NPC", x + 2, y - 11));
-		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, x, y, 202, 20,
-				this.container.location.npc == null ? "" : this.container.location.npc.toString()));
+		textField = new GuiNpcTextField(3, this, this.fontRenderer, x, y, 202, 20, this.container.location.npc == null ? "" : this.container.location.npc.toString());
+		textField.setHoverText("parameter.entity.uuid");
+		addTextField(textField);
 
 		x += 60;
 		y = this.guiTop + 20;
 		this.addLabel(new GuiNpcLabel(7, "parameter.world", x + 2, y - 11));
 		this.addLabel(new GuiNpcLabel(8, "ID:", x + 2, y + 6));
-		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, x + 15, y, 42, 20,
-				"" + this.container.location.dimension));
-		this.getTextField(4).setNumbersOnly();
-		this.getTextField(4).setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, this.container.location.dimension);
+		textField = new GuiNpcTextField(4, this, this.fontRenderer, x + 15, y, 42, 20, "" + this.container.location.dimension);
+		textField.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, this.container.location.dimension);
+		textField.setHoverText("parameter.dimension.id");
+		addTextField(textField);
 
 		y += 34;
 		this.addLabel(new GuiNpcLabel(9, "parameter.position", x + 2, y - 11));
@@ -247,15 +211,16 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 		for (int i = 0; i < 3; i++) {
 			int v = i == 0 ? this.container.location.pos.getX()
 					: i == 1 ? this.container.location.pos.getY() : this.container.location.pos.getZ();
-			this.addTextField(new GuiNpcTextField(5 + i, this, this.fontRenderer, x + 1 + i * 48, y, 44, 20, "" + v));
-			this.getTextField(5 + i).setNumbersOnly();
-			this.getTextField(5 + i).setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, v);
+			textField = new GuiNpcTextField(5 + i, this, this.fontRenderer, x + 1 + i * 48, y, 44, 20, "" + v);
+			textField.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, v);
+			textField.setHoverText("parameter.pos" + (i == 0 ? "x" : i == 1 ? "y" : "z"));
+			addTextField(textField);
 		}
 		y += 34;
 		this.addLabel(new GuiNpcLabel(11, "gui.type", x + 2, y - 11));
-		this.addButton(new GuiNpcButton(3, x, y, 137, 20,
-				new String[] { "transporter.discovered", "transporter.start", "transporter.interaction" },
-				this.container.location.type));
+		button = new GuiNpcButton(3, x, y, 137, 20, new String[] { "transporter.discovered", "transporter.start", "transporter.interaction" }, this.container.location.type);
+		button.setHoverText("manager.hover.transport.type");
+		addButton(button);
 	}
 
 	@Override

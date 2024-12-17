@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.global;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -72,7 +73,8 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 				break;
 			}
 			case 4: { // set liquid
-				this.spawn.liquid = button.getValue() == 0;
+				spawn.liquid = button.getValue() == 0;
+				button.setHoverText("spawning.hover.liquid." + button.getValue());
 				break;
 			}
 			case 5: { // select npc
@@ -109,56 +111,29 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui == null) {
-			int r, p = 0, x = 387, y = 196;
-			GlStateManager.pushMatrix();
-			if (this.displayNpc != null) {
-				this.displayNpc.ticksExisted = this.player.ticksExisted;
-				if (this.displayNpc instanceof EntityLivingBase) {
-					r = (int) (3 * this.player.world.getTotalWorldTime() % 360);
-				} else {
-					r = 0;
-					y -= 34;
-					if (this.displayNpc instanceof EntityItem) {
-						p = 30;
-						y += 10;
-					}
-					if (this.displayNpc instanceof EntityItemFrame) {
-						x += 16;
-					}
+		if (this.subgui != null) { return; }
+		int r, p = 0, x = 387, y = 196;
+		GlStateManager.pushMatrix();
+		if (this.displayNpc != null) {
+			this.displayNpc.ticksExisted = this.player.ticksExisted;
+			if (this.displayNpc instanceof EntityLivingBase) {
+				r = (int) (3 * this.player.world.getTotalWorldTime() % 360);
+			} else {
+				r = 0;
+				y -= 34;
+				if (this.displayNpc instanceof EntityItem) {
+					p = 30;
+					y += 10;
 				}
-				this.drawNpc(this.displayNpc, x, y, 1.0f, r, p, 0);
+				if (this.displayNpc instanceof EntityItemFrame) {
+					x += 16;
+				}
 			}
-			Gui.drawRect(this.guiLeft + x - 30, this.guiTop + y - 77, this.guiLeft + x + 31, this.guiTop + y + 9, 0xFF808080);
-			Gui.drawRect(this.guiLeft + x - 29, this.guiTop + y - 76, this.guiLeft + x + 30, this.guiTop + y + 8, 0xFF000000);
-			GlStateManager.popMatrix();
-			if (!CustomNpcs.ShowDescriptions) { return; }
-			if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.name").getFormattedText());
-			} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.chance").getFormattedText());
-			} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.group").getFormattedText());
-			} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.range").getFormattedText());
-			} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.add").getFormattedText());
-			} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.del").getFormattedText());
-			} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.biomes").getFormattedText());
-			} else if (this.getSlider(4) != null && this.getSlider(4).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.chance").getFormattedText());
-			} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.liquid."+this.getButton(4).getValue()).getFormattedText());
-			} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.sel.npc").getFormattedText());
-			} else if (this.getButton(25) != null && this.getButton(25).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.del.npc").getFormattedText());
-			} else if (this.getButton(27) != null && this.getButton(27).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("spawning.hover.type").getFormattedText());
-			}
+			this.drawNpc(this.displayNpc, x, y, 1.0f, r, p, 0);
 		}
+		Gui.drawRect(this.guiLeft + x - 30, this.guiTop + y - 77, this.guiLeft + x + 31, this.guiTop + y + 9, new Color(0xFF808080).getRGB());
+		Gui.drawRect(this.guiLeft + x - 29, this.guiTop + y - 76, this.guiLeft + x + 30, this.guiTop + y + 8, new Color(0xFF000000).getRGB());
+		GlStateManager.popMatrix();
 	}
 	
 	private String getTitle(NBTTagCompound compound) {
@@ -174,9 +149,13 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 		this.scroll.guiLeft = this.guiLeft + 214;
 		this.scroll.guiTop = this.guiTop + 4;
 		this.addScroll(this.scroll);
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 358, this.guiTop + 38, 58, 20, "gui.add"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 358, this.guiTop + 61, 58, 20, "gui.remove"));
-		if (this.spawn.id >= 0) { this.showSpawn(); }
+		GuiNpcButton button = new GuiNpcButton(1, this.guiLeft + 358, this.guiTop + 38, 58, 20, "gui.add");
+		button.setHoverText("spawning.hover.add");
+		addButton(button);
+		button = new GuiNpcButton(2, this.guiLeft + 358, this.guiTop + 61, 58, 20, "gui.remove");
+		button.setHoverText("spawning.hover.del");
+		addButton(button);
+		if (this.spawn.id >= 0) { showSpawn(); }
 	}
 
 	@Override
@@ -225,8 +204,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
@@ -246,42 +224,59 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void setSelected(String selected) {
-	}
+	public void setSelected(String selected) { }
 
 	private void showSpawn() {
 		int lId = 0;
 		int x = this.guiLeft + 5;
 		int y = this.guiTop + 5;
 		this.addLabel(new GuiNpcLabel(lId++, "gui.title", x, y + 5));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, x + 56, y, 150, 20, this.spawn.name));
+		GuiNpcTextField textField = new GuiNpcTextField(1, this, this.fontRenderer, x + 56, y, 150, 20, this.spawn.name);
+		textField.setHoverText("spawning.hover.name");
+		addTextField(textField);
 		
 		this.addLabel(new GuiNpcLabel(lId++, "spawning.biomes", x, (y += 22) + 5));
-		this.addButton(new GuiNpcButton(3, x + 156, y, 50, 20, "selectServer.edit"));
-		if (this.spawn.biomes.isEmpty()) { this.getButton(3).layerColor = 0xFFF02020; }
-		
-		this.addSlider(new GuiNpcSlider(this, 4, x, y += 22, 160, 20, (float) this.spawn.itemWeight / 100.0f));
-		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, x + 163, y, 42, 20, "" + this.spawn.itemWeight));
-		this.getTextField(2).setNumbersOnly();
-		this.getTextField(2).setMinMaxDefault(1, 100, this.spawn.itemWeight);
+		GuiNpcButton button = new GuiNpcButton(3, x + 156, y, 50, 20, "selectServer.edit");
+		if (this.spawn.biomes.isEmpty()) { button.layerColor = new Color(0xFFF02020).getRGB(); }
+		button.setHoverText("spawning.hover.biomes");
+		addButton(button);
+
+		GuiNpcSlider slider = new GuiNpcSlider(this, 4, x, y += 22, 160, 20, (float) this.spawn.itemWeight / 100.0f);
+		slider.setHoverText(new TextComponentTranslation("spawning.hover.chance").getFormattedText());
+		addSlider(slider);
+
+		textField = new GuiNpcTextField(2, this, this.fontRenderer, x + 163, y, 42, 20, "" + this.spawn.itemWeight);
+		textField.setMinMaxDefault(1, 100, this.spawn.itemWeight);
+		textField.setHoverText("spawning.hover.chance");
+		addTextField(textField);
 		
 		this.addLabel(new GuiNpcLabel(lId++, "gui.type", x, (y += 22) + 5));
-		this.addButton(new GuiNpcButton(27, x + 86, y, 120, 20, new String[] { "spawner.any", "spawner.dark", "spawner.light" }, this.spawn.type));
+		button = new GuiNpcButton(27, x + 86, y, 120, 20, new String[] { "spawner.any", "spawner.dark", "spawner.light" }, this.spawn.type);
+		button.setHoverText("spawning.hover.type");
+		addButton(button);
 
-		this.addButton(new GuiNpcButton(5, x, y += 22, 184, 20, this.getTitle(this.spawn.compound1)));
-		this.addButton(new GuiNpcButton(25, x + 186, y, 20, 20, "X"));
+		button = new GuiNpcButton(5, x, y += 22, 184, 20, this.getTitle(this.spawn.compound1));
+		button.setHoverText("spawning.hover.sel.npc");
+		addButton(button);
+		button = new GuiNpcButton(25, x + 186, y, 20, 20, "X");
+		button.setHoverText("spawning.hover.del.npc");
+		addButton(button);
 
-		this.addButton(new GuiNpcButton(4, x, y += 22, 80, 20, new String[] { "spawning.liquid.0", "spawning.liquid.1" }, this.spawn.liquid ? 0 : 1));
+		button = new GuiNpcButton(4, x, y += 22, 80, 20, new String[] { "spawning.liquid.0", "spawning.liquid.1" }, this.spawn.liquid ? 0 : 1);
+		button.setHoverText("spawning.hover.liquid." + button.getValue());
+		addButton(button);
 
 		this.addLabel(new GuiNpcLabel(lId++, "spawning.group", x, (y += 22) + 5));
-		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, x + 164, y, 42, 20, "" + this.spawn.group));
-		this.getTextField(3).setNumbersOnly();
-		this.getTextField(3).setMinMaxDefault(1, 8, this.spawn.group);
+		textField = new GuiNpcTextField(3, this, this.fontRenderer, x + 164, y, 42, 20, "" + this.spawn.group);
+		textField.setMinMaxDefault(1, 8, this.spawn.group);
+		textField.setHoverText("spawning.hover.group");
+		addTextField(textField);
 
 		this.addLabel(new GuiNpcLabel(lId, "spawning.range", x, (y += 22) + 5));
-		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, x + 164, y, 42, 20, "" + this.spawn.range));
-		this.getTextField(4).setNumbersOnly();
-		this.getTextField(4).setMinMaxDefault(1, 16, this.spawn.range);
+		textField = new GuiNpcTextField(4, this, this.fontRenderer, x + 164, y, 42, 20, "" + this.spawn.range);
+		textField.setMinMaxDefault(1, 16, this.spawn.range);
+		textField.setHoverText("spawning.hover.range");
+		addTextField(textField);
 	}
 
 	@Override

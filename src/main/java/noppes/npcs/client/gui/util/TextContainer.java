@@ -9,29 +9,21 @@ import noppes.npcs.config.TrueTypeFont;
 
 public class TextContainer {
 
-	public Pattern regexString;
-	public Pattern regexFunction;
-	public Pattern regexWord;
-	public Pattern regexNumber;
-	public Pattern regexComment;
+	public Pattern regexString = Pattern.compile("([\"'])(?:\\\\.|[^\"'])*?\\1", Pattern.MULTILINE);
+	public Pattern regexFunction = Pattern.compile("\\b(if|else|switch|with|for|while|in|var|const|let|throw|then|function|continue|break|foreach|return|try|catch|finally|do|this|typeof|instanceof|new)(?=\\W)");
+	public Pattern regexWord = Pattern.compile("[\\p{L}-]+|\\n|$");
+	public Pattern regexNumber = Pattern.compile("\\b-?(?:0[xX][\\dA-Fa-f]+|0[bB][01]+|0[oO][0-7]+|\\d*\\.?\\d+(?:[Ee][+-]?\\d+)?[fFbBdDlLsS]?|NaN|null|Infinity|unidentified|true|false)\\b");
+	public Pattern regexComment = Pattern.compile("/\\*[\\s\\S]*?(?:\\*/|$)|//.*|#.*");
 	public String text;
-	public List<MarkUp> makeup;
-	public List<LineData> lines;
+	public List<MarkUp> makeup = new ArrayList<>();
+	public List<LineData> lines = new ArrayList<>();
+	public int visibleLines = 1;
 	public int lineHeight;
 	public int totalHeight;
-	public int visibleLines;
 	public int linesCount;
 
-	public TextContainer(String text) {
-		this.regexString = Pattern.compile("([\"'])(?:(?=(\\\\?))\\2.)*?\\1", Pattern.MULTILINE);
-		this.regexFunction = Pattern.compile("\\b(if|else|switch|with|for|while|in|var|const|let|throw|then|function|continue|break|foreach|return|try|catch|finally|do|this|typeof|instanceof|new)(?=[^\\w])");
-		this.regexWord = Pattern.compile("[\\p{L}-]+|\\n|$");
-		this.regexNumber = Pattern.compile("\\b-?(?:0[xX][\\dA-Fa-f]+|0[bB][01]+|0[oO][0-7]+|\\d*\\.?\\d+(?:[Ee][+-]?\\d+)?(?:[fFbBdDlLsS])?|NaN|null|Infinity|unidentified|true|false)\\b");
-		this.regexComment = Pattern.compile("\\/\\*[\\s\\S]*?(?:\\*\\/|$)|\\/\\/.*|#.*");
-		this.makeup = new ArrayList<>();
-		this.lines = new ArrayList<>();
-		this.visibleLines = 1;
-		(this.text = text).replaceAll("\\r?\\n|\\r", "\n");
+	public TextContainer(String mainText) {
+		text = mainText.replaceAll("\\r?\\n|\\r", "\n");
 	}
 
 	public boolean compareMarkUps(MarkUp mu1, MarkUp mu2) {
@@ -43,15 +35,6 @@ public class TextContainer {
 		for (int start = 0; (markup = this.getNextMatching(start)) != null; start = markup.end) {
 			this.makeup.add(markup);
 		}
-	}
-
-	public String getFormattedString() {
-		StringBuilder builder = new StringBuilder(this.text);
-		for (MarkUp entry : this.makeup) {
-			builder.insert(entry.start, '\uffff' + Character.toString(entry.c));
-			builder.insert(entry.end, '\uffff' + Character.toString('r'));
-		}
-		return builder.toString();
 	}
 
 	private MarkUp getNextMatching(int start) {

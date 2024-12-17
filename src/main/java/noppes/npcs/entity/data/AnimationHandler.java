@@ -3,7 +3,10 @@ package noppes.npcs.entity.data;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemBow;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
@@ -15,7 +18,9 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.constants.AnimationKind;
+import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.event.AnimationEvent;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
@@ -28,6 +33,7 @@ import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 
 import java.util.*;
@@ -47,13 +53,14 @@ public class AnimationHandler {
     private final Map<Integer, Long> waitData = new HashMap<>(); // animation ID, time
 
     public AnimationConfig activeAnimation = null;
-    public final Map<AnimationKind, AnimationConfig> movementAnimation = new HashMap<>();
+    public final Map<AnimationKind, Integer> movementAnimation = new HashMap<>();
 
     public long startAnimationTime = 0;
     public EnumAnimationStages stage = EnumAnimationStages.Waiting;
     private boolean completeAnimation = false;
     private ResourceLocation animationSound = null;
     public boolean isCyclical = false;
+    private boolean canSetBaseRotationAngles = true;
 
     // current state, used to smoothly start another animation
     public final AnimationFrameConfig preFrame = new AnimationFrameConfig();
@@ -107,9 +114,10 @@ public class AnimationHandler {
         stage = EnumAnimationStages.Waiting;
         isJump = false;
         isSwing = false;
+        canSetBaseRotationAngles = true;
     }
 
-    public void calculationAnimationData(float correctSpeed, float partialTicks) {
+    public void calculationAnimationData(float partialTicks) {
         if (stage == EnumAnimationStages.Waiting || activeAnimation == null) { return; }
         int ticks = (int) (entity.world.getTotalWorldTime() - startAnimationTime);
         if (ticks == -1) { ticks = 0; }
@@ -119,6 +127,9 @@ public class AnimationHandler {
             case Started: {
                 currentFrame = preFrame;
                 nextFrame = activeAnimation.frames.get(0);
+                if (activeAnimation.type.isMovement()) {
+                    speed = nextFrame.speed;
+                }
                 break;
             }
             case Looping: {
@@ -126,24 +137,17 @@ public class AnimationHandler {
                 int lastFrameId = activeAnimation.frames.size();
                 int frameId = 0;
                 if (activeAnimation.repeatLast > 0) { frameId = ValueUtil.correctInt(lastFrameId - activeAnimation.repeatLast, 0, lastFrameId - 1); }
+                else if (activeAnimation.type == AnimationKind.DIES) { frameId = lastFrameId - 1; }
                 nextFrame = activeAnimation.frames.get(frameId);
                 speed = currentFrame.speed;
                 break;
             }
             case Run: {
                 int animationFrame = activeAnimation.getAnimationFrameByTime(ticks);
+                if (animationFrame < 0) { animationFrame = 0; }
                 currentFrame = activeAnimation.frames.get(animationFrame);
                 nextFrame = activeAnimation.frames.get(Math.min(animationFrame + 1, activeAnimation.frames.size() - 1));
-                try {
-                    speed = currentFrame.speed;
-                } catch (Exception e) {
-                    System.out.println("CNPCs: animationFrame: "+animationFrame);
-                    System.out.println("CNPCs: ticks: "+ticks);
-                    System.out.println("CNPCs: currentFrame: "+currentFrame);
-                    System.out.println("CNPCs: nextFrame: "+nextFrame);
-                    e.printStackTrace();
-                    return;
-                }
+                speed = currentFrame.speed;
                 if (activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) {
                     ticks -= activeAnimation.endingFrameTicks.get(animationFrame - 1);
                 }
@@ -158,8 +162,6 @@ public class AnimationHandler {
                 stopAnimation();
             }
         }
-//System.out.println("CNPCs: "+stage+"; {"+currentFrame.id+"->"+nextFrame.id+" /"+(activeAnimation.frames.size()-1)+"}; "+ticks+"/"+speed+"//"+activeAnimation.totalTicks);
-
         // for start or finish use settings from animation frame
         if (nextFrame.id != -1 && currentFrame.id == -1) {
             for (int id : nextFrame.parts.keySet()) {
@@ -177,7 +179,7 @@ public class AnimationHandler {
         }
 
         // movement speed depends on the NPCs movement speed
-        float correctorRotations = !activeAnimation.type.isMovement() ? 1.0f : correctSpeed;
+        float correctorRotations = !activeAnimation.type.isMovement() ? 1.0f : Util.instance.getCurrentXZSpeed(entity);
 
         // start sound (ignore unloaded entities in GUI)
         if (animationSound == null &&
@@ -235,7 +237,7 @@ public class AnimationHandler {
                     values[id] = calcValue(value_0, value_1, speed, ticks, currentFrame.isSmooth(), partialTicks);
                 }
             }
-            rotationAngles.put(part0.id, values);
+            rotationAngles.put(partId, values);
         }
         preFrame.resetFrom(rotationAngles, currentFrame);
     }
@@ -294,12 +296,47 @@ public class AnimationHandler {
             completeAnimation = false;
             stage = EnumAnimationStages.Waiting;
             startAnimationTime = 0;
+            canSetBaseRotationAngles = true;
+            return;
+        }
+        if (!AnimationController.getInstance().animations.containsKey(activeAnimation.id) && stage != EnumAnimationStages.Ending && stage != EnumAnimationStages.Waiting) {
+            stage = EnumAnimationStages.Ending;
+            startAnimationTime = entity.world.getTotalWorldTime() + 1;
             return;
         }
         int ticks = (int) (entity.world.getTotalWorldTime() - startAnimationTime);
-//System.out.println("CNPCs: "+stage+"; "+ticks);
         int speed;
-        // Started
+        boolean isEdit = activeAnimation.type == AnimationKind.EDITING_All || activeAnimation.type == AnimationKind.EDITING_PART;
+        if (!isEdit && activeAnimation.type.isMovement() && stage != EnumAnimationStages.Ending && stage != EnumAnimationStages.Waiting) {
+            if (!movementAnimation.containsKey(activeAnimation.type)) {
+                stage = EnumAnimationStages.Ending;
+                startAnimationTime = entity.world.getTotalWorldTime() + 1;
+                return;
+            }
+            boolean isMoving = Util.instance.isMoving(entity);
+            boolean isWalk = activeAnimation.type.name().toLowerCase().contains("walk");
+            if (isWalk != isMoving) {
+                stage = EnumAnimationStages.Ending;
+                startAnimationTime = entity.world.getTotalWorldTime() + 1;
+                return;
+            }
+            boolean isRav = activeAnimation.type.name().toLowerCase().contains("revenge");
+            if (isRav) {
+                boolean stop = false;
+                if (entity instanceof EntityPlayer) {
+                    if (entity.getLastAttackedEntityTime() - entity.ticksExisted > 300) {
+                        stop = true;
+                    }
+                } else {
+                    stop = !((EntityNPCInterface) entity).isAttacking();
+                }
+                if (stop) {
+                    stage = EnumAnimationStages.Ending;
+                    startAnimationTime = entity.world.getTotalWorldTime() + 1;
+                    return;
+                }
+            }
+        }
         if (stage == EnumAnimationStages.Started) {
             speed = activeAnimation.type.isQuickStart() ? 4 : 10;
             if (ticks == 0) { startEvent(new AnimationEvent.StartEvent(entity, activeAnimation, -1, 0, EnumAnimationStages.Started)); }
@@ -310,7 +347,6 @@ public class AnimationHandler {
             }
             return;
         }
-        // Looping
         if (stage == EnumAnimationStages.Looping) {
             speed = activeAnimation.frames.get(activeAnimation.frames.size() - 1).speed;
             if (ticks == 0) { startEvent(new AnimationEvent.StartEvent(entity, activeAnimation, -1, 0, EnumAnimationStages.Looping)); }
@@ -320,20 +356,27 @@ public class AnimationHandler {
                 int frameId = 0;
                 if (activeAnimation.repeatLast > 0) {
                     frameId = ValueUtil.correctInt(lastFrameId - activeAnimation.repeatLast, 0, lastFrameId - 1);
+                } else if (activeAnimation.type == AnimationKind.DIES) {
+                    frameId = lastFrameId - 1;
                 }
                 if (frameId == 0) {
                     startAnimationTime = entity.world.getTotalWorldTime() + 1;
                 } else {
                     startAnimationTime = entity.world.getTotalWorldTime() + activeAnimation.endingFrameTicks.get(frameId - 1) + 1;
                 }
-                if (frameId != lastFrameId) {
-                    stage = EnumAnimationStages.Run;
-                }
+                if (frameId != lastFrameId - 1) { stage = EnumAnimationStages.Run; }
             }
             return;
         }
-        // Run
         if (stage == EnumAnimationStages.Run) {
+            canSetBaseRotationAngles = false;
+            if (ticks == 0) {
+                AnimationKind type = activeAnimation.type.getParentEnum() != null ? activeAnimation.type.getParentEnum() : activeAnimation.type;
+                isCyclical = activeAnimation.repeatLast > 0 ||
+                        type == AnimationKind.JUMP && isJump ||
+                        type.isMovement() && (isEdit || activeAnimation.chance >= 1.0f) ||
+                        type == AnimationKind.DIES && (isEdit || entity.getHealth() <= 0.0f);
+            }
             int animationFrame = activeAnimation.getAnimationFrameByTime(ticks);
             if (animationFrame < activeAnimation.frames.size() - 1) {
                 int startFrameTime = 0;
@@ -341,32 +384,24 @@ public class AnimationHandler {
                     startFrameTime = activeAnimation.endingFrameTicks.get(animationFrame - 1);
                 }
                 int frameTime = ticks - startFrameTime;
-//System.out.println("CNPCs: "+animationFrame+"/"+(activeAnimation.frames.size()-1)+"; "+ticks+"-"+startFrameTime+"="+frameTime+"/"+activeAnimation.frames.get(animationFrame).speed+"; "+isAnimated());
                 if (frameTime == 0) {
                     startEvent(new AnimationEvent.NextFrameEvent(entity, activeAnimation, animationFrame, 0, EnumAnimationStages.Run));
                 } else {
                     startEvent(new AnimationEvent.UpdateEvent(entity, activeAnimation, animationFrame, frameTime, EnumAnimationStages.Run));
-                }
-                if (animationFrame == 0 && frameTime == 0) {
-                    boolean isEdit = activeAnimation.type == AnimationKind.EDITING_All || activeAnimation.type == AnimationKind.EDITING_PART;
-                    AnimationKind type = activeAnimation.type.getParentEnum() != null ? activeAnimation.type.getParentEnum() : activeAnimation.type;
-                    isCyclical = activeAnimation.repeatLast > 0 ||
-                            type == AnimationKind.JUMP && isJump ||
-                            type.isMovement() && (isEdit || activeAnimation.chance >= 1.0f) ||
-                            type == AnimationKind.DIES && (isEdit || entity.getHealth() <= 0.0f);
                 }
             }
             else {
                 startAnimationTime = entity.world.getTotalWorldTime() + 1;
                 if (activeAnimation.type != AnimationKind.EDITING_PART) {
                     stage = isCyclical ? EnumAnimationStages.Looping : EnumAnimationStages.Ending;
+                    canSetBaseRotationAngles = true;
                 }
                 completeAnimation = true;
             }
             return;
         }
-        // Ending
         if (stage == EnumAnimationStages.Ending) {
+            canSetBaseRotationAngles = true;
             speed = activeAnimation.type.isQuickStart() ? 4 : 10;
             if (ticks == 0) { startEvent(new AnimationEvent.StartEvent(entity, activeAnimation, -1, 0, EnumAnimationStages.Ending)); }
             else { startEvent(new AnimationEvent.UpdateEvent(entity, activeAnimation, -1, ticks, EnumAnimationStages.Ending)); }
@@ -381,8 +416,8 @@ public class AnimationHandler {
             }
             return;
         }
-        // Waiting
         if (stage == EnumAnimationStages.Waiting) {
+            canSetBaseRotationAngles = true;
             stopAnimation();
         }
     }
@@ -464,7 +499,7 @@ public class AnimationHandler {
     }
 
     public AnimationConfig selectAnimation(AnimationKind type) {
-        if (!CustomNpcs.ShowCustomAnimation || !entity.isServerWorld() || data.get(type).isEmpty()) { return null; }
+        if (!CustomNpcs.ShowCustomAnimation || data.get(type).isEmpty()) { return null; }
         // get all animation settings
         List<AnimationConfig> list = AnimationController.getInstance().getAnimations(data.get(type));
         if (list.isEmpty()) { return null; }
@@ -474,16 +509,15 @@ public class AnimationHandler {
             if (waitData.containsKey(ac.id) && waitData.get(ac.id) > System.currentTimeMillis()) {
                 continue;
             }
-            float f = this.rnd.nextFloat();
-            if (ac.chance <= f) {
-                waitData.put(ac.id, System.currentTimeMillis() + 1000);
+            if (ac.chance <= rnd.nextFloat()) {
+                if (!type.isQuickStart()) { waitData.put(ac.id, System.currentTimeMillis() + 1000); }
                 continue;
             }
             selectList.add(ac);
         }
         AnimationConfig anim = null;
         if (!selectList.isEmpty()) { anim = selectList.get(rnd.nextInt(selectList.size())).copy(); }
-        if (anim == null && type == AnimationKind.ATTACKING && !list.isEmpty()) { anim = list.get(rnd.nextInt(list.size())).copy(); }
+        if (anim == null && type.isQuickStart() && !list.isEmpty()) { anim = list.get(rnd.nextInt(list.size())).copy(); }
         return anim;
     }
 
@@ -509,7 +543,12 @@ public class AnimationHandler {
         if (entity.isServerWorld() && isEdit) { return; }
         type.setEditingBooleans(anim.type);
         if (activeAnimation != null) {
-            if (!isEdit && activeAnimation.id == anim.id) { return; }
+            if (!isEdit && activeAnimation.id == anim.id &&
+                    type != AnimationKind.ATTACKING &&
+                    type != AnimationKind.HIT &&
+                    type != AnimationKind.SHOOT &&
+                    type != AnimationKind.SWING &&
+                    type != AnimationKind.BLOCKED) { return; }
         }
         activeAnimation = anim.copy();
         activeAnimation.type = type;
@@ -528,8 +567,8 @@ public class AnimationHandler {
             if (!ak.isMovement()) { continue; }
             if (!data.get(ak).isEmpty()) {
                 AnimationConfig anim = selectAnimation(ak);
-                if (anim != null && !anim.equals(movementAnimation.get(ak))) {
-                    movementAnimation.put(ak, anim);
+                if (anim != null && (!movementAnimation.containsKey(ak) || anim.id != movementAnimation.get(ak))) {
+                    movementAnimation.put(ak, anim.id);
                     isChanged = true;
                 }
             } else if (movementAnimation.containsKey(ak)) {
@@ -542,7 +581,7 @@ public class AnimationHandler {
 
         Map<Integer, Integer> map = new HashMap<>();
         for (AnimationKind ak : movementAnimation.keySet()) {
-            map.put(ak.ordinal(), movementAnimation.get(ak).id);
+            map.put(ak.ordinal(), movementAnimation.get(ak));
         }
         return map;
     }
@@ -553,22 +592,27 @@ public class AnimationHandler {
         for (Object key : map.keySet()) {
             if (!(key instanceof Integer) || !(map.get(key) instanceof Integer)) { continue; }
             AnimationConfig anim = aData.animations.get((int) map.get(key));
-            if (anim != null) { movementAnimation.put(AnimationKind.get((int) key), anim.copy()); }
+            if (anim != null) { movementAnimation.put(AnimationKind.get((int) key), anim.id); }
         }
     }
 
     public void setRotationAngles(float limbSwing, float limbSwingAmount, float ignoredAgeInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScaleFactor, float partialTicks) {
         AnimationKind base = null;
-        float correctSpeed = 1.0f;
-        boolean isMoving = limbSwing > 0 && limbSwingAmount > 0;
-        if (isMoving) { correctSpeed = limbSwingAmount / limbSwing; }
-        if (!movementAnimation.isEmpty() && (activeAnimation == null || activeAnimation.type.isMovement())) {
+        boolean isMoving = Util.instance.isMoving(entity);
+//if (entity.getName().equals("Stand Ground")) { System.out.println("CNPCs: "+entity.limbSwing+" == "+entity.prevLimbSwingAmount); }
+
+        if (!movementAnimation.isEmpty() && (activeAnimation == null || isMoving)) {
             // try to get AIM
-            if (movementAnimation.containsKey(AnimationKind.AIM)) {
+            if (movementAnimation.containsKey(AnimationKind.AIM) && !isMoving) {
                 if (entity instanceof EntityPlayer) {
                     if (entity.getActiveItemStack().getItem() instanceof ItemBow) { base = AnimationKind.AIM; }
                 } else {
-                    if (((EntityNPCInterface) entity).currentAnimation == 6) { base = AnimationKind.AIM; }
+                    if (((EntityNPCInterface) entity).isAttacking()) {
+                        int currentAnimation = ((EntityNPCInterface) entity).currentAnimation;
+                        if ((currentAnimation == 6 || currentAnimation == 11 || ((EntityNPCInterface) entity).stats.ranged.getHasAimAnimation()) && ((EntityNPCInterface) entity).inventory.getProjectile() != null) {
+                            base = AnimationKind.AIM;
+                        }
+                    }
                 }
             }
             // try to get REVENGE
@@ -621,10 +665,18 @@ public class AnimationHandler {
                 }
             }
         }
-        if (base != null && (activeAnimation == null || (activeAnimation.type.isMovement() && activeAnimation.id != movementAnimation.get(base).id))) {
-            tryRunAnimation(movementAnimation.get(base), base);
+        if (base != null && (activeAnimation == null || (activeAnimation.type.isMovement() && activeAnimation.id != movementAnimation.get(base)))) {
+            IAnimation anim = AnimationController.getInstance().getAnimation(movementAnimation.get(base));
+            if (anim != null) {
+                if (!waitData.containsKey(anim.getId()) || waitData.get(anim.getId()) <= System.currentTimeMillis()) {
+                    if (anim.getChance() <= rnd.nextFloat()) {
+                        waitData.put(anim.getId(), System.currentTimeMillis() + 1000);
+                    }
+                    else { tryRunAnimation((AnimationConfig) anim, base); }
+                }
+            }
         }
-        if (isAnimated()) { calculationAnimationData(correctSpeed, partialTicks); }
+        if (isAnimated()) { calculationAnimationData(partialTicks); }
     }
 
     public void addAnimation(AnimationKind type, int id) {
@@ -637,6 +689,37 @@ public class AnimationHandler {
 
     public boolean hasAnimation(AnimationKind type, int id) {
         return data.get(type).contains(id);
+    }
+
+    public boolean canSetBaseRotationAngles() { return canSetBaseRotationAngles; }
+
+    public boolean canBeAnimated() {
+        return stage != EnumAnimationStages.Waiting || (!movementAnimation.isEmpty() && (activeAnimation == null || activeAnimation.type.isMovement()) && entity.world.getTotalWorldTime() % 3 == 0);
+    }
+
+    public ItemStack getCurrentHeldStack(boolean isMainHand) {
+        if (!isAnimated()) { return null; }
+        IItemStack iStack = null;
+        switch(isMainHand ? currentFrame.getHoldRightStackType() : currentFrame.getHoldLeftStackType()) {
+            case 0: return isMainHand ? entity.getHeldItemMainhand() : entity.getHeldItemOffhand(); // normal
+            case 1: {
+                if (entity instanceof EntityPlayer) { return new ItemStack(Items.ARROW); }
+                else {
+                    iStack = ((EntityNPCInterface) entity).inventory.getProjectile();
+                    break;
+                }
+            } // projectile
+            case 2: return isMainHand ? entity.getHeldItemOffhand() : entity.getHeldItemMainhand(); // revers hand
+            case 3: {
+                iStack = isMainHand ? currentFrame.getHoldRightStack() : currentFrame.getHoldLeftStack();
+                break;
+            } // custom
+            case 4: return entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
+            case 5: return entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
+            case 6: return entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS);
+            case 7: return entity.getItemStackFromSlot(EntityEquipmentSlot.FEET);
+        }
+        return iStack == null ? isMainHand ? entity.getHeldItemMainhand() : entity.getHeldItemOffhand() : iStack.getMCItemStack();
     }
 
 }

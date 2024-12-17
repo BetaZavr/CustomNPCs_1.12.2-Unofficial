@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -44,7 +45,9 @@ import noppes.npcs.util.BuilderData;
 
 import javax.annotation.Nonnull;
 
-public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICustomScrollListener, ITextfieldListener {
+public class GuiBuilderSetting
+extends GuiContainerNPCInterface
+implements ICustomScrollListener, ITextfieldListener {
 
 	private static final Map<String, SchematicWrapper> baseFiles = new TreeMap<>();
 	ContainerBuilderSettings container;
@@ -52,21 +55,20 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 	private final ResourceLocation inventory = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
 
 	private final ResourceLocation invRes = new ResourceLocation("textures/gui/container/inventory.png");
-	private int maxRange;
+	private int maxRange = 10;
 	private GuiCustomScroll schematics;
 	private final BuilderData builder;
-	private final Map<String, SchematicWrapper> files;
+	private final Map<String, SchematicWrapper> files = new TreeMap<>();
 
 	public GuiBuilderSetting(ContainerBuilderSettings cont) {
 		super(null, cont);
-		this.container = cont;
-		this.closeOnEsc = true;
-		this.xSize = 228;
-		this.ySize = 216;
-		this.builder = cont.builderData;
-		this.maxRange = 10;
-		SchematicController sData = SchematicController.Instance;
-		for (String name : sData.included) {
+		closeOnEsc = true;
+		xSize = 228;
+		ySize = 216;
+
+		container = cont;
+		builder = cont.builderData;
+		for (String name : SchematicController.included) {
 			InputStream stream = MinecraftServer.class.getResourceAsStream("/assets/" + CustomNpcs.MODID + "/schematics/" + name);
 			if (stream == null) {
 				File file = new File(SchematicController.getDir(), name);
@@ -111,8 +113,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				GuiBuilderSetting.baseFiles.put(name, new SchematicWrapper(schema));
 			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
-		this.files = new TreeMap<>();
-		this.files.putAll(GuiBuilderSetting.baseFiles);
+		files.putAll(GuiBuilderSetting.baseFiles);
 		File schematicDir = SchematicController.getDir();
 		if (schematicDir.exists()) {
 			for (File f : Objects.requireNonNull(schematicDir.listFiles())) {
@@ -132,7 +133,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 					}
 					Schematic schema = new Schematic(f.getName());
 					schema.load(compound);
-					this.files.put(f.getName(), new SchematicWrapper(schema));
+					files.put(f.getName(), new SchematicWrapper(schema));
 				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		}
@@ -141,53 +142,53 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-			case 1: { // Fasing
-				if (this.builder == null) {
+			case 1: { // Facing
+				if (builder == null) {
 					return;
 				}
-				this.builder.facing = button.getValue();
+				builder.facing = button.getValue();
 				break;
 			}
 			case 2: { // reg[0]
-				if (this.builder == null) {
+				if (builder == null) {
 					return;
 				}
-				this.builder.region[0] = button.getValue() + 1;
+				builder.region[0] = button.getValue() + 1;
 				break;
 			}
 			case 3: { // reg[1]
-				if (this.builder == null) {
+				if (builder == null) {
 					return;
 				}
-				this.builder.region[1] = button.getValue() + 1;
+				builder.region[1] = button.getValue() + 1;
 				break;
 			}
 			case 4: { // reg[2]
-				if (this.builder == null) {
+				if (builder == null) {
 					return;
 				}
-				this.builder.region[2] = button.getValue() + 1;
+				builder.region[2] = button.getValue() + 1;
 				break;
 			}
 			case 5: { // add Air
-				if (this.builder == null) {
+				if (builder == null) {
 					return;
 				}
-				this.builder.addAir = ((GuiNpcCheckBox) button).isSelected();
+				builder.addAir = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 6: { // replace Air
-				if (this.builder == null) {
+				if (builder == null) {
 					return;
 				}
-				this.builder.replaceAir = ((GuiNpcCheckBox) button).isSelected();
+				builder.replaceAir = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 7: { // is Solid
-				if (this.builder == null) {
+				if (builder == null) {
 					return;
 				}
-				this.builder.isSolid = ((GuiNpcCheckBox) button).isSelected();
+				builder.isSolid = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 		}
@@ -198,61 +199,60 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
+		GlStateManager.translate(guiLeft, guiTop, 0.0f);
 		// Back
-		this.mc.getTextureManager().bindTexture(this.background);
-		this.drawTexturedModalRect(0, 0, 0, 0, this.xSize - 4, this.ySize - 4);
-		this.drawTexturedModalRect(this.xSize - 4, 0, 252, 0, 4, this.ySize - 4);
-		this.drawTexturedModalRect(0, this.ySize - 4, 0, 252, this.xSize - 4, 4);
-		this.drawTexturedModalRect(this.xSize - 4, this.ySize - 4, 252, 252, 4, 4);
-		if (this.builder == null) {
+		mc.getTextureManager().bindTexture(background);
+		drawTexturedModalRect(0, 0, 0, 0, xSize - 4, ySize - 4);
+		drawTexturedModalRect(xSize - 4, 0, 252, 0, 4, ySize - 4);
+		drawTexturedModalRect(0, ySize - 4, 0, 252, xSize - 4, 4);
+		drawTexturedModalRect(xSize - 4, ySize - 4, 252, 252, 4, 4);
+		if (builder == null) {
 			GlStateManager.popMatrix();
 			return;
 		}
+		int lineColor = new Color(0xFF808080).getRGB();
 		// Slots
-		if (this.builder.getType() < 3) {
+		if (builder.getType() < 3) {
 			// Region
-			Gui.drawRect(140, 92, 200, 130, 0xFF404040);
-			Gui.drawRect(141, 93, 199, 129, 0xFF606060);
+			Gui.drawRect(140, 92, 200, 130, new Color(0xFF404040).getRGB());
+			Gui.drawRect(141, 93, 199, 129, new Color(0xFF606060).getRGB());
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.mc.getTextureManager().bindTexture(this.invRes);
-			this.drawTexturedModalRect(140, 120, 73, 220, 16, 10);
+			mc.getTextureManager().bindTexture(invRes);
+			drawTexturedModalRect(140, 120, 73, 220, 16, 10);
 			// Borders
-			this.drawHorizontalLine(4, 170, 132, 0xFF808080);
-			this.drawVerticalLine(170, 131, 212, 0xFF808080);
-			if (this.builder.getType() == 2) {
-				this.drawHorizontalLine(58, 112, 108, 0xFF808080);
-				this.drawVerticalLine(58, 108, 132, 0xFF808080);
+			drawHorizontalLine(4, 170, 132, lineColor);
+			drawVerticalLine(170, 131, 212, lineColor);
+			if (builder.getType() == 2) {
+				drawHorizontalLine(58, 112, 108, lineColor);
+				drawVerticalLine(58, 108, 132, lineColor);
 			}
 
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.translate(7.0f, 135.0f, 0.0f);
-			this.mc.getTextureManager().bindTexture(inventory);
-			this.drawTexturedModalRect(0, 0, 0, 0, 162, 76); // player inventory
-			this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			mc.getTextureManager().bindTexture(inventory);
+			drawTexturedModalRect(0, 0, 0, 0, 162, 76); // player inventory
+			mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			GlStateManager.translate(0.0f, -119.0f, 0.0f);
 			// Slots
 			for (int i = 1; i < 10; i++) {
-				this.drawTexturedModalRect((i / 6) * 54, ((i < 6 ? 0 : -5) + i - 1) * 24, 0, 0, 18, 18); // main
+				drawTexturedModalRect((i / 6) * 54, ((i < 6 ? 0 : -5) + i - 1) * 24, 0, 0, 18, 18); // main
 			}
-			if (this.builder.getType() == 2) {
-				this.drawTexturedModalRect(54, 96, 0, 0, 18, 18);
-			}
-			this.drawHorizontalLine(-3, 106, -2, 0xFF808080);
-			this.drawVerticalLine(106, -13, 117, 0xFF808080);
+			if (builder.getType() == 2) { drawTexturedModalRect(54, 96, 0, 0, 18, 18); }
+			drawHorizontalLine(-3, 106, -2, lineColor);
+			drawVerticalLine(106, -13, 117, lineColor);
 			GlStateManager.popMatrix();
 
 			// Show Region
 			float r = 1.0f, g = 0.0f, b = 0.0f;
-			if (this.builder.getType() == 1) {
+			if (builder.getType() == 1) {
 				r = 0.0f;
 				g = 1.0f;
 				b = 1.0f;
-			} else if (this.builder.getType() == 2) {
+			} else if (builder.getType() == 2) {
 				g = 0.0f;
 				b = 1.0f;
 			}
-			float size = (float) this.builder.region[2] + (float) (this.builder.region[0] + this.builder.region[1]) / 2.0f;
+			float size = (float) builder.region[2] + (float) (builder.region[0] + builder.region[1]) / 2.0f;
 			float scale = size <= 0.0f ? 7.0f : 36.0f / size;
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
@@ -262,29 +262,28 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 			GlStateManager.glLineWidth(1.0F);
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
-			GlStateManager.translate(this.guiLeft + 170, this.guiTop + 111, 100.0f);
+			GlStateManager.translate(guiLeft + 170, guiTop + 111, 100.0f);
 			GlStateManager.scale(scale, scale, scale);
 			GlStateManager.rotate(45.0f, 0.0f, 1.0f, 0.0f);
 			GlStateManager.rotate(30.0f, 1.0f, 0.0f, 1.0f);
-			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d)), 1.0f,
-					1.0f, 1.0f, 1.0f);
-			if (this.builder.facing == 0) {
+			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d)), 1.0f, 1.0f, 1.0f, 1.0f);
+			if (builder.facing == 0) {
 				GlStateManager.translate(0.0f, 0.0f, 1.01f);
-			} else if (this.builder.facing == 2) {
+			} else if (builder.facing == 2) {
 				GlStateManager.translate(0.0f, 0.0f, -1.1f);
 			}
-			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d * (double) this.builder.region[0],
-					-0.5d * (double) this.builder.region[1], -0.5d * (double) this.builder.region[2],
-					0.5d * (double) this.builder.region[0], 0.5d * (double) this.builder.region[1],
-					0.5d * (double) this.builder.region[2])), r, g, b, 1.0f);
+			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d * (double) builder.region[0],
+					-0.5d * (double) builder.region[1], -0.5d * (double) builder.region[2],
+					0.5d * (double) builder.region[0], 0.5d * (double) builder.region[1],
+					0.5d * (double) builder.region[2])), r, g, b, 1.0f);
 			GlStateManager.depthMask(true);
 			GlStateManager.enableTexture2D();
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		} else {
 			// Borders
-			this.drawHorizontalLine(118, 223, 36, 0xFF808080);
-			this.drawVerticalLine(117, 3, 212, 0xFF808080);
+			drawHorizontalLine(118, 223, 36, lineColor);
+			drawVerticalLine(117, 3, 212, lineColor);
 			GlStateManager.popMatrix();
 
 		}
@@ -292,97 +291,19 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.builder == null || !CustomNpcs.ShowDescriptions || this.subgui != null) {
-			return;
-		}
-		// hover text
-		int type = this.builder.getType();
-		int t = 0, j = 0;
-		for (int i = 1; i < 10; i++) {
-			if (this.getTextField(i) != null && this.getTextField(i).isInteger()) {
-				t += this.getTextField(i).getInteger();
-				j++;
-			}
-		}
-		if (this.builder.addAir) {
-			t += (int) (t / (float) j);
-		}
-		for (int i = 1; i < 10; i++) {
-			if (this.getTextField(i) != null && this.getTextField(i).isMouseOver()) {
-				float c = 0.0f;
-				if (this.getTextField(i).isInteger()) {
-					if (type == 0) {
-						c = (float) this.getTextField(i).getInteger() / 100.0f;
-					} else {
-						c = (float) this.getTextField(i).getInteger() / t;
-					}
-				}
-				c = (float) (Math.round((double) c * 1000.d) / 10.d);
-				this.setHoverText(
-						new TextComponentTranslation("builder.hover.chance." + type, "" + c).getFormattedText());
-				return;
-			}
-		}
-		if (this.getTextField(10) != null && this.getTextField(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("scale.width").getFormattedText());
-		} else if (this.getTextField(11) != null && this.getTextField(11).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("scale.depth").getFormattedText());
-		} else if (this.getTextField(12) != null && this.getTextField(12).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("schematic.height").getFormattedText());
-		} else if (this.getLabel(0) != null && this.getLabel(0).hovered) {
-			this.setHoverText("builder.hover.blocks." + type);
-		} else if (this.getLabel(4) != null && this.getLabel(4).hovered) {
-			this.setHoverText("builder.hover.main.block");
-		} else if (this.getLabel(5) != null && this.getLabel(5).hovered) {
-			this.setHoverText(
-					new TextComponentTranslation("builder.hover.list", "" + this.maxRange).getFormattedText());
-		} else if (this.getLabel(3) != null && this.getLabel(3).hovered) {
-			this.setHoverText("builder.hover.type." + type);
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText("builder.hover.fasing");
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("schematic.length").getFormattedText() + "<br>"
-					+ new TextComponentTranslation("gui.limitation", "1", "10").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation(type < 3 ? "scale.depth" : "schematic.width").getFormattedText()
-							+ "<br>" + new TextComponentTranslation("gui.limitation", "1", "10").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("schematic.height").getFormattedText() + "<br>"
-					+ new TextComponentTranslation("gui.limitation", "1", "10").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("schematic" + (type == 3 ? ".schem" : "") + ".air")
-					.getFormattedText());
-		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("schematic" + (type == 3 ? ".schem" : "") + ".replace")
-					.getFormattedText());
-		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("schematic.schem.solid").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
-	}
-
-	@Override
 	protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
 		super.handleMouseClick(slotIn, slotId, mouseButton, type);
         if (slotId >= 36) {
-			int id = slotId - (this.builder.getType() == 2 ? 36 : 35);
-			GuiNpcTextField textField = this.getTextField(id);
+			int id = slotId - (builder.getType() == 2 ? 36 : 35);
+			GuiNpcTextField textField = getTextField(id);
 			if (textField == null) {
 				return;
 			}
 			if (slotIn.getStack().isEmpty()) {
 				textField.setText("");
 			} else {
-				if (!this.builder.chances.containsKey(id)) {
-					this.builder.chances.put(id, 100);
-				}
-				textField.setText("" + this.builder.chances.get(id));
+				if (!builder.chances.containsKey(id)) { builder.chances.put(id, 100); }
+				textField.setText("" + builder.chances.get(id));
 			}
 		}
 	}
@@ -390,109 +311,150 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (this.builder == null) {
+		if (builder == null) {
 			return;
 		}
-		this.maxRange = ClientProxy.playerData.game.op ? 100 : 10;
-		int type = this.builder.getType();
+		maxRange = ClientProxy.playerData.game.op ? 100 : 10;
+		int type = builder.getType();
+		GuiNpcLabel label;
+		GuiNpcButton button;
 		GuiNpcTextField textField;
-		int y = this.guiTop + 4;
-		if (this.builder.getID() > -1) {
-			this.addLabel(new GuiNpcLabel(1, "ID:" + this.builder.getID(), this.guiLeft + 120, y));
+		int y = guiTop + 4;
+		if (builder.getID() > -1) {
+			addLabel(new GuiNpcLabel(1, "ID:" + builder.getID(), guiLeft + 120, y));
 			y += 12;
 		}
 		if (type > 2) {
-			if (this.schematics == null) {
-				(this.schematics = new GuiCustomScroll(this, 0)).setSize(110, 197);
-			}
-			this.schematics.setList(new ArrayList<>(files.keySet()));
-			this.schematics.guiLeft = this.guiLeft + 5;
-			this.schematics.guiTop = this.guiTop + 14;
-			if (!this.builder.schematicName.isEmpty()) {
+			if (schematics == null) { (schematics = new GuiCustomScroll(this, 0)).setSize(110, 197); }
+			schematics.setList(new ArrayList<>(files.keySet()));
+			schematics.guiLeft = guiLeft + 5;
+			schematics.guiTop = guiTop + 14;
+			if (!builder.schematicName.isEmpty()) {
 				int i = 0;
-				for (String key : this.schematics.getList()) {
+				for (String key : schematics.getList()) {
 					String fName = key;
 					if (key.endsWith(".schematic")) {
 						fName = key.substring(0, key.lastIndexOf(".schematic"));
 					} else if (key.endsWith(".blueprint")) {
 						fName = key.substring(0, key.lastIndexOf(".blueprint"));
 					}
-					if (fName.equals(this.builder.schematicName)) {
-						this.schematics.selected = i;
+					if (fName.equals(builder.schematicName)) {
+						schematics.selected = i;
 						break;
 					}
 					i++;
 				}
-				if (i == this.schematics.getList().size()) {
-					this.schematics.selected = -1;
+				if (i == schematics.getList().size()) {
+					schematics.selected = -1;
 				}
 			}
-			this.addScroll(this.schematics);
-			this.addLabel(new GuiNpcLabel(6, new TextComponentTranslation("gui.name").getFormattedText() + ":", this.guiLeft + 120, this.guiTop + 40));
-			textField = new GuiNpcTextField(10, this, this.guiLeft + 120, this.guiTop + 54, 99, 15, this.builder.schematicName);
-			this.addTextField(textField);
+			addScroll(schematics);
+			addLabel(new GuiNpcLabel(6, new TextComponentTranslation("gui.name").getFormattedText() + ":", guiLeft + 120, guiTop + 40));
+			textField = new GuiNpcTextField(10, this, guiLeft + 120, guiTop + 54, 99, 15, builder.schematicName);
+			textField.setHoverText("scale.width");
+			addTextField(textField);
 		}
 		if (type < 3) {
-			this.addLabel(new GuiNpcLabel(0, new TextComponentTranslation("gui.help.block").getFormattedText() + " [?]:", this.guiLeft + 4, this.guiTop + 4));
-			this.addLabel(new GuiNpcLabel(3, new TextComponentTranslation("gui.area").getFormattedText() + " [?]:", this.guiLeft + 120, y));
+			label = new GuiNpcLabel(0, new TextComponentTranslation("gui.help.block").getFormattedText() + " [?]:", guiLeft + 4, guiTop + 4);
+			label.setHoverText("builder.hover.blocks." + type);
+			addLabel(label);
+			label = new GuiNpcLabel(3, new TextComponentTranslation("gui.area").getFormattedText() + " [?]:", guiLeft + 120, y);
+			label.setHoverText("builder.hover.type." + type);
+			addLabel(label);
 			y += 12;
 			for (int i = 0; i < 3; i++) { // Region
-				textField = new GuiNpcTextField(i + 10, this, this.guiLeft + 120 + i * 34, y, 30, 15, "" + this.builder.region[i]);
-				textField.setNumbersOnly();
-				textField.setMinMaxDefault(1, this.maxRange, this.builder.region[i]);
-				this.addTextField(textField);
+				textField = new GuiNpcTextField(i + 10, this, guiLeft + 120 + i * 34, y, 30, 15, "" + builder.region[i]);
+				textField.setMinMaxDefault(1, maxRange, builder.region[i]);
+				if (i == 0) { textField.setHoverText("scale.width"); }
+				else if (i == 1) { textField.setHoverText("scale.depth"); }
+				else { textField.setHoverText("schematic.height"); }
+				addTextField(textField);
 			}
-			this.addButton(new GuiButtonBiDirectional(1, this.guiLeft + 120, y += 18, 99, 20, new String[] { "builder.fasing.0", "builder.fasing.1", "builder.fasing.2" }, this.builder.facing));
+			button = new GuiButtonBiDirectional(1, guiLeft + 120, y += 18, 99, 20, new String[] { "builder.fasing.0", "builder.fasing.1", "builder.fasing.2" }, builder.facing);
+			button.setHoverText("builder.hover.fasing");
+			addButton(button);
+
+			double t = 0, j = 0;
+			for (int i = 1; i < 10; i++) {
+				if (builder.chances.containsKey(i)) {
+					t += (double) builder.chances.get(i);
+					j += 1.0d;
+				}
+			}
+			if (builder.addAir) { t += t / j; }
+			double[] vs = new double[10];
+			for (int i = 1; i < 10; i++) {
+				if (getTextField(i) != null && getTextField(i).isMouseOver()) {
+					double c = 0.0f;
+					if (builder.chances.containsKey(i)) {
+						if (type == 0) { c = (double) builder.chances.get(i) / 100.0d; }
+						else { c = (double) builder.chances.get(i) / t; }
+					}
+					vs[i] = Math.round(c * 1000.d) / 10.d;
+					return;
+				}
+			}
+
 			for (int i = 1; i < 10; i++) { // Blocks
-				textField = new GuiNpcTextField(i, this, this.guiLeft + 28 + (i / 6) * 54, this.guiTop + 17 + ((i < 6 ? 0 : -5) + i - 1) * 24, 28, 15, "" + (this.builder.chances.containsKey(i) ? this.builder.chances.get(i) : ""));
-				textField.setNumbersOnly();
-				textField.setMinMaxDefault(1, 100, this.builder.chances.getOrDefault(i, 100));
-				this.addTextField(textField);
+				textField = new GuiNpcTextField(i, this, guiLeft + 28 + (i / 6) * 54, guiTop + 17 + ((i < 6 ? 0 : -5) + i - 1) * 24, 28, 15, "" + (builder.chances.containsKey(i) ? builder.chances.get(i) : ""));
+				textField.setMinMaxDefault(1, 100, builder.chances.getOrDefault(i, 100));
+				textField.setHoverText("builder.hover.chance." + type, "" + vs[i]);
+				addTextField(textField);
 			}
-		} else {
-			this.addLabel(new GuiNpcLabel(5, new TextComponentTranslation("gui.file.list").getFormattedText() + " [?]:", this.guiLeft + 4, this.guiTop + 4));
+		}
+		else {
+			label = new GuiNpcLabel(5, new TextComponentTranslation("gui.file.list").getFormattedText() + " [?]:", guiLeft + 4, guiTop + 4);
+			label.setHoverText("builder.hover.list", "" + maxRange);
+			addLabel(label);
 		}
 		if (type < 4) {
-			addButton(new GuiNpcCheckBox(5, this.guiLeft + 120, y + 22, 99, 15, "tile.air.name", null, builder.addAir));
+			button = new GuiNpcCheckBox(5, guiLeft + 120, y + 22, 99, 15, "tile.air.name", null, builder.addAir);
+			button.setHoverText("schematic" + (type == 3 ? ".schem" : "") + ".air");
+			addButton(button);
 			if (type == 2 || type == 3) {
-				addButton(new GuiNpcCheckBox(6, this.guiLeft + 172 + (type == 3 ? -52 : 0), this.guiTop + 145 + (type == 3 ? -60 : 0), 70, 15, "drop.type.all", null, builder.replaceAir));
+				button = new GuiNpcCheckBox(6, guiLeft + 172 + (type == 3 ? -52 : 0), guiTop + 145 + (type == 3 ? -60 : 0), 70, 15, "drop.type.all", null, builder.replaceAir);
+				button.setHoverText("schematic" + (type == 3 ? ".schem" : "") + ".replace");
+				addButton(button);
+
 			}
 			if (type == 3) {
-				addButton(new GuiNpcCheckBox(7, this.guiLeft + 120, this.guiTop + 100, 70, 15, "gui.solid", null, builder.isSolid));
+				button = new GuiNpcCheckBox(7, guiLeft + 120, guiTop + 100, 70, 15, "gui.solid", null, builder.isSolid);
+				button.setHoverText("schematic.schem.solid");
+				addButton(button);
 			}
 		}
 		if (type == 2) {
-			this.addLabel(new GuiNpcLabel(4, "_[?]_", this.guiLeft + 88, this.guiTop + 116));
+			label = new GuiNpcLabel(4, "_[?]_", guiLeft + 88, guiTop + 116);
+			label.setHoverText("builder.hover.main.block");
+			addLabel(label);
 		}
 	}
 
 	@Override
 	public void save() {
-		if (this.builder == null || this.container == null) { return; }
-		this.container.save();
-		Client.sendData(EnumPacketServer.BuilderSetting, this.builder.getNbt());
+		if (builder == null || container == null) { return; }
+		container.save();
+		Client.sendData(EnumPacketServer.BuilderSetting, builder.getNbt());
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		// File List
-		this.builder.schematicName = scroll.getSelected();
-		if (this.builder.schematicName.endsWith(".schematic")) {
-			this.builder.schematicName = this.builder.schematicName.substring(0,
-					this.builder.schematicName.lastIndexOf(".schematic"));
-		} else if (this.builder.schematicName.endsWith(".blueprint")) {
-			this.builder.schematicName = this.builder.schematicName.substring(0,
-					this.builder.schematicName.lastIndexOf(".blueprint"));
+		builder.schematicName = scroll.getSelected();
+		if (builder.schematicName.endsWith(".schematic")) {
+			builder.schematicName = builder.schematicName.substring(0, builder.schematicName.lastIndexOf(".schematic"));
+		} else if (builder.schematicName.endsWith(".blueprint")) {
+			builder.schematicName = builder.schematicName.substring(0, builder.schematicName.lastIndexOf(".blueprint"));
 		}
-		SchematicWrapper schema = SchematicController.Instance.getSchema(this.builder.schematicName + ".schematic");
+		SchematicWrapper schema = SchematicController.Instance.getSchema(builder.schematicName + ".schematic");
 		if (schema != null) {
-			this.builder.region[0] = schema.schema.getLength();
-			this.builder.region[1] = schema.schema.getWidth();
-			this.builder.region[2] = schema.schema.getHeight();
+			builder.region[0] = schema.schema.getLength();
+			builder.region[1] = schema.schema.getWidth();
+			builder.region[2] = schema.schema.getHeight();
 		}
-		GuiNpcTextField textField = this.getTextField(10);
+		GuiNpcTextField textField = getTextField(10);
 		if (textField != null) {
-			textField.setText(this.builder.schematicName);
+			textField.setText(builder.schematicName);
 		}
 	}
 
@@ -502,35 +464,35 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
-		if (this.builder == null) {
+		if (builder == null) {
 			return;
 		}
 		if (textField.getId() < 10) {
 			if (textField.getText().isEmpty()) {
 				return;
 			}
-			if (this.builder.inv.getStackInSlot(textField.getId()).isEmpty()) {
+			if (builder.inv.getStackInSlot(textField.getId()).isEmpty()) {
 				textField.setText("");
 				return;
 			}
-			this.builder.chances.put(textField.getId(), textField.getInteger());
+			builder.chances.put(textField.getId(), textField.getInteger());
 			return;
 		}
-		if (this.builder.getType() == 3 || this.builder.getType() == 4) {
+		if (builder.getType() == 3 || builder.getType() == 4) {
 			if (textField.getId() == 10) {
-				this.builder.schematicName = textField.getText();
-				this.initGui();
+				builder.schematicName = textField.getText();
+				initGui();
 			}
 		} else {
 			int pos = textField.getId() - 10;
 			int value = textField.getInteger();
-			if (value > this.maxRange) {
-				value = this.maxRange;
+			if (value > maxRange) {
+				value = maxRange;
 			}
 			if (value <= 0) {
 				value = 1;
 			}
-			this.builder.region[pos] = value;
+			builder.region[pos] = value;
 		}
 	}
 

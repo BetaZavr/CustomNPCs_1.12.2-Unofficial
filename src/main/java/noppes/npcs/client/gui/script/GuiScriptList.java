@@ -1,9 +1,6 @@
 package noppes.npcs.client.gui.script;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -16,7 +13,9 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.util.Util;
 
-public class GuiScriptList extends SubGuiInterface implements ICustomScrollListener {
+public class GuiScriptList
+extends SubGuiInterface
+implements ICustomScrollListener {
 
 	private final ScriptContainer container;
 	private final Map<String, Long> scripts;
@@ -26,87 +25,89 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 	private final String back = "   " + Character.toChars(0x2190)[0] + " (" + new TextComponentTranslation("gui.back").getFormattedText() + ")";
 	private String path = "";
 
-	public GuiScriptList(Map<String, Long> scripts, ScriptContainer container) {
-		this.container = container;
-		this.closeOnEsc = true;
-		this.setBackground("menubg.png");
-		this.xSize = 346;
-		this.ySize = 216;
-		if (scripts == null) { scripts = new TreeMap<>(); }
-		this.scripts = scripts;
-		for (String path : this.scripts.keySet()) {
+	public GuiScriptList(Map<String, Long> scriptsList, ScriptContainer cont) {
+		super();
+		closeOnEsc = true;
+		setBackground("menubg.png");
+		xSize = 346;
+		ySize = 216;
+
+		container = cont;
+		if (scriptsList == null) { scriptsList = new TreeMap<>(); }
+		scripts = scriptsList;
+		for (String path : scripts.keySet()) {
 			ResourceLocation res;
 			if (path.contains("/")) {res = new ResourceLocation(path.substring(0, path.lastIndexOf("/")), path.substring(path.lastIndexOf("/") + 1)); }
 			else { res = new ResourceLocation("base", path); }
-			this.data.put(res, res.getResourcePath());
+			data.put(res, res.getResourcePath());
 		}
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		String file;
-		if (button.id == 1 && this.base.hasSelected()) {
+		if (button.id == 1 && base.hasSelected()) {
 			try {
-				file = this.base.hoversTexts[this.base.selected][0];
+				file = base.getHoversTexts().get(base.selected).get(0);
 			} catch (Exception e) {
 				return;
 			}
-			this.container.scripts.add(file);
-			this.base.selected = -1;
-			this.initGui();
+			container.scripts.add(file);
+			base.selected = -1;
+			initGui();
 		}
-		if (button.id == 2 && this.selected.hasSelected()) {
+		if (button.id == 2 && selected.hasSelected()) {
 			try {
-				file = this.selected.hoversTexts[this.selected.selected][0];
+				file = selected.getHoversTexts().get(selected.selected).get(0);
 			} catch (Exception e) {
 				return;
 			}
-			this.container.scripts.remove(file);
-			this.selected.selected = -1;
-			this.initGui();
+			container.scripts.remove(file);
+			selected.selected = -1;
+			initGui();
 		}
 		if (button.id == 3) {
-			this.container.scripts.clear();
-            this.container.scripts.addAll(this.scripts.keySet());
-			this.base.selected = -1;
-			this.initGui();
+			container.scripts.clear();
+            container.scripts.addAll(scripts.keySet());
+			base.selected = -1;
+			initGui();
 		}
 		if (button.id == 4) {
-			this.container.scripts.clear();
-			this.base.selected = -1;
-			this.initGui();
+			container.scripts.clear();
+			base.selected = -1;
+			initGui();
 		}
 		if (button.id == 66) {
-			this.close();
+			close();
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (this.base == null) {
-			(this.base = new GuiCustomScroll(this, 0)).setSize(140, 180);
+		if (base == null) {
+			(base = new GuiCustomScroll(this, 0)).setSize(140, 180);
 		}
-		this.base.guiLeft = this.guiLeft + 4;
-		this.base.guiTop = this.guiTop + 14;
-		this.addScroll(this.base);
-		this.addLabel(new GuiNpcLabel(1, "script.availableScripts", this.guiLeft + 4, this.guiTop + 4));
-		if (this.selected == null) {
-			(this.selected = new GuiCustomScroll(this, 1)).setSize(140, 180);
+		base.guiLeft = guiLeft + 4;
+		base.guiTop = guiTop + 14;
+		addScroll(base);
+		addLabel(new GuiNpcLabel(1, "script.availableScripts", guiLeft + 4, guiTop + 4));
+		if (selected == null) {
+			(selected = new GuiCustomScroll(this, 1)).setSize(140, 180);
 		}
-		this.selected.guiLeft = this.guiLeft + 200;
-		this.selected.guiTop = this.guiTop + 14;
-		this.addScroll(this.selected);
-		this.addLabel(new GuiNpcLabel(2, "script.loadedScripts", this.guiLeft + 200, this.guiTop + 4));
+		selected.guiLeft = guiLeft + 200;
+		selected.guiTop = guiTop + 14;
+		addScroll(selected);
+		addLabel(new GuiNpcLabel(2, "script.loadedScripts", guiLeft + 200, guiTop + 4));
 
-		String p = ".../" + this.path;
-		if (this.path.length() > 20) {
-			p = "..." + this.path.substring(this.path.length() - 20);
+		String p = ".../" + path;
+		if (path.length() > 20) {
+			p = "..." + path.substring(path.length() - 20);
 		}
-		this.addLabel(new GuiNpcLabel(3, ((char) 167) + "0" + ((char) 167) + "l" + p, this.guiLeft + 4, this.guiTop + 16 + this.base.height));
+		addLabel(new GuiNpcLabel(3, ((char) 167) + "0" + ((char) 167) + "l" + p, guiLeft + 4, guiTop + 16 + base.height));
 
-		List<String> temp = new ArrayList<>(this.scripts.keySet());
-		temp.removeAll(this.container.scripts);
+		List<String> temp = new ArrayList<>(scripts.keySet());
+		temp.removeAll(container.scripts);
 
 		Map<String, Long> ds = new TreeMap<>();
 		Map<String, Long> fs = new TreeMap<>();
@@ -124,19 +125,17 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 
 		char c = ((char) 167);
 		int t = 1;
-		if (!this.path.isEmpty()) {
-			ds.put(this.back, 0L);
-		}
-		for (ResourceLocation res : this.data.keySet()) {
-			String key = this.data.get(res);
+		if (!path.isEmpty()) { ds.put(back, 0L); }
+		for (ResourceLocation res : data.keySet()) {
+			String key = data.get(res);
 			boolean hasDir = !res.getResourceDomain().equals("base");
 			String file = (hasDir ? res.getResourceDomain() + "/" : "") + res.getResourcePath();
-			if (temp.contains(file) || this.container.scripts.contains(file)) {
+			if (temp.contains(file) || container.scripts.contains(file)) {
 				boolean isBase = temp.contains(file);
 				if (isBase) {
 					String folder = hasDir ? res.getResourceDomain() : "";
-					if (folder.isEmpty() && this.path.isEmpty()) {
-						fs.put(key, this.scripts.get(file));
+					if (folder.isEmpty() && path.isEmpty()) {
+						fs.put(key, scripts.get(file));
 						hs.put(key, file);
 						continue;
 					}
@@ -156,34 +155,34 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 						folder = folder.substring(0, folder.indexOf("/"));
 					}
 
-					if (this.path.isEmpty() && !folder.isEmpty()) {
+					if (path.isEmpty() && !folder.isEmpty()) {
 						ds.put(folder, 0L);
 						hs.put(folder, folder);
 						continue;
 					}
 					if (folder.isEmpty()) {
-						fs.put(key, this.scripts.get(file));
+						fs.put(key, scripts.get(file));
 						hs.put(key, file);
 					} else {
 						ds.put(folder, 0L);
-						hs.put(folder, path + (path.isEmpty() ? "" : "/") + folder);
+						hs.put(folder, path + "/" + folder);
 					}
 				} else {
-					ft.put(c + "7" + t + ":" + c + "r " + key, this.scripts.get(file));
+					ft.put(c + "7" + t + ":" + c + "r " + key, scripts.get(file));
 					hs.put(c + "7" + t + ":" + c + "r " + key, file);
 					t++;
 				}
 			}
 		}
 
-		this.base.hoversTexts = new String[ds.size() + fs.size()][];
+		LinkedHashMap<Integer, List<String>> htsB= new LinkedHashMap<>();
 		int i = 0;
 		for (String key : ds.keySet()) {
 			colorsBase.add(0xF3BE1E);
 			suffixesBase.add("");
 			listBase.add(key);
 			if (hs.containsKey(key)) {
-				this.base.hoversTexts[i] = new String[] { hs.get(key) };
+				htsB.put(i, Collections.singletonList(hs.get(key)));
 			}
 			i++;
 		}
@@ -201,15 +200,18 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 			listBase.add(key);
 			if (hs.containsKey(key)) {
 				if (fs.get(key) < 0) {
-					this.base.hoversTexts[i] = new String[] { hs.get(key), ((char) 167) + "4" + new TextComponentTranslation("gui.encrypted").getFormattedText() };
+					List<String> hl = new ArrayList<>();
+					hl.add(hs.get(key));
+					hl.add(((char) 167) + "4" + new TextComponentTranslation("gui.encrypted").getFormattedText());
+					htsB.put(i, hl);
 				} else {
-					this.base.hoversTexts[i] = new String[] { hs.get(key) };
+					htsB.put(i, Collections.singletonList(hs.get(key)));
 				}
 			}
 			i++;
 		}
 
-		this.selected.hoversTexts = new String[ft.size()][];
+		LinkedHashMap<Integer, List<String>> htsS= new LinkedHashMap<>();
 		i = 0;
 		for (String key : ft.keySet()) {
 			long l = ft.get(key);
@@ -226,69 +228,73 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 			list.add(key);
 			if (hs.containsKey(key)) {
 				if (ft.get(key) < 0) {
-					this.selected.hoversTexts[i] = new String[] { hs.get(key),
-							((char) 167) + "4" + new TextComponentTranslation("gui.encrypted").getFormattedText() };
+					List<String> hl = new ArrayList<>();
+					hl.add(hs.get(key));
+					hl.add(((char) 167) + "4" + new TextComponentTranslation("gui.encrypted").getFormattedText());
+					htsS.put(i, hl);
 				} else {
-					this.selected.hoversTexts[i] = new String[] { hs.get(key) };
+					htsS.put(i, Collections.singletonList(hs.get(key)));
 				}
 			}
 			i++;
 		}
 
-		this.base.setColors(colorsBase);
-		this.base.setSuffixes(suffixesBase);
-		this.base.setListNotSorted(listBase);
+		base.setColors(colorsBase);
+		base.setSuffixes(suffixesBase);
+		base.setListNotSorted(listBase);
+		base.setHoverTexts(htsB);
 
-		this.selected.setColors(colors);
-		this.selected.setSuffixes(suffixes);
-		this.selected.setListNotSorted(list);
-		int x = this.guiLeft + 145, y = this.guiTop + 40;
-		this.addButton(new GuiNpcButton(1, x, y, 55, 20, ">", this.base.hasSelected()));
-		this.addButton(new GuiNpcButton(2, x, (y += 22), 55, 20, "<", this.selected.hasSelected()));
-		this.addButton(new GuiNpcButton(3, x, (y += 44), 55, 20, ">>", !temp.isEmpty()));
-		this.addButton(new GuiNpcButton(4, x, (y += 22), 55, 20, "<<", !this.container.scripts.isEmpty()));
-		this.addButton(new GuiNpcButton(66, x, (y + 46), 55, 20, "gui.done"));
+		selected.setColors(colors);
+		selected.setSuffixes(suffixes);
+		selected.setListNotSorted(list);
+		selected.setHoverTexts(htsS);
+		int x = guiLeft + 145, y = guiTop + 40;
+		addButton(new GuiNpcButton(1, x, y, 55, 20, ">", base.hasSelected()));
+		addButton(new GuiNpcButton(2, x, (y += 22), 55, 20, "<", selected.hasSelected()));
+		addButton(new GuiNpcButton(3, x, (y += 44), 55, 20, ">>", !temp.isEmpty()));
+		addButton(new GuiNpcButton(4, x, (y += 22), 55, 20, "<<", !container.scripts.isEmpty()));
+		addButton(new GuiNpcButton(66, x, (y + 46), 55, 20, "gui.done"));
 	}
 
     @Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.id == 0) {
-			if (scroll.getSelected().equals(this.back)) {
-				if (this.path.lastIndexOf("/") == -1) {
-					this.path = "";
+			if (scroll.getSelected().equals(back)) {
+				if (path.lastIndexOf("/") == -1) {
+					path = "";
 				} else {
-					this.path = this.path.substring(0, this.path.lastIndexOf("/"));
+					path = path.substring(0, path.lastIndexOf("/"));
 				}
-				this.base.selected = -1;
+				base.selected = -1;
 			} else if (scroll.getColor(scroll.selected) == 0xF3BE1E) {
-				if (!this.path.isEmpty()) {
-					this.path += "/";
+				if (!path.isEmpty()) {
+					path += "/";
 				}
-				this.path += scroll.getSelected();
-				this.base.selected = -1;
+				path += scroll.getSelected();
+				base.selected = -1;
 			}
 		}
-		this.initGui();
+		initGui();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
 		String file = "";
 		try {
-			file = scroll.hoversTexts[scroll.selected][0];
+			file = scroll.getHoversTexts().get(scroll.selected).get(0);
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 		if (file.isEmpty()) {
 			return;
 		}
 		if (scroll.id == 0) {
-			this.container.scripts.add(file);
-			this.base.selected = -1;
-			this.initGui();
+			container.scripts.add(file);
+			base.selected = -1;
+			initGui();
 		}
 		if (scroll.id == 1) {
-			this.container.scripts.remove(file);
-			this.selected.selected = -1;
-			this.initGui();
+			container.scripts.remove(file);
+			selected.selected = -1;
+			initGui();
 		}
 	}
 

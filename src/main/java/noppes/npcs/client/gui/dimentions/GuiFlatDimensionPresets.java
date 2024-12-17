@@ -31,7 +31,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class GuiFlatDimensionPresets extends GuiScreen {
+public class GuiFlatDimensionPresets
+extends GuiScreen {
 
 	@SideOnly(Side.CLIENT)
 	static class LayerItem {

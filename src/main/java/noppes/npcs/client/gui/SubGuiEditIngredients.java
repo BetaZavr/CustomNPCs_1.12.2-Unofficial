@@ -9,9 +9,11 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 
+import java.awt.*;
 import java.util.Arrays;
 
-public class SubGuiEditIngredients extends SubGuiInterface {
+public class SubGuiEditIngredients
+extends SubGuiInterface {
 
     public final ItemStack[] stacks;
     private int hover;
@@ -27,14 +29,14 @@ public class SubGuiEditIngredients extends SubGuiInterface {
 
     @Override
     public void buttonEvent(GuiNpcButton button) {
-        this.close();
+        close();
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
         hover = -1;
-        mc.getTextureManager().bindTexture(this.background);
+        mc.getTextureManager().bindTexture(background);
         drawTexturedModalRect(guiLeft, guiTop + ySize, 0, 219, xSize, 3);
 
         GlStateManager.pushMatrix();
@@ -54,9 +56,9 @@ public class SubGuiEditIngredients extends SubGuiInterface {
             int x = (int) (guiLeft + 8.0d + (i % 9) * 18.0d);
             int y = (int) (guiTop + 17.0d + Math.floor(i / 9.0d) * 18.0d);
             GlStateManager.translate(x, y, 0.0f);
-            this.mc.getRenderItem().renderItemAndEffectIntoGUI(stacks[i], 0, 0);
+            mc.getRenderItem().renderItemAndEffectIntoGUI(stacks[i], 0, 0);
             GlStateManager.translate(0.0f, 0.0f, 200.0f);
-            this.drawString(this.mc.fontRenderer, "" + stacks[i].getCount(), 16 - this.mc.fontRenderer.getStringWidth("" + stacks[i].getCount()), 9, 0xFFFFFFFF);
+            drawString(mc.fontRenderer, "" + stacks[i].getCount(), 16 - mc.fontRenderer.getStringWidth("" + stacks[i].getCount()), 9, new Color(0xFFFFFFFF).getRGB());
             RenderHelper.disableStandardItemLighting();
             if (isMouseHover(mouseX, mouseY, x, y, 18, 18)) {
                 GlStateManager.translate(-x, -y + 32.0f, 0.0f);

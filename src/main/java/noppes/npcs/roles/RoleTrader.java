@@ -52,10 +52,10 @@ public class RoleTrader extends RoleInterface implements IRoleTrader {
 		this.type = RoleType.TRADER;
 		if (!compound.hasKey("MarketID", 3)) {
 			this.marcetID = MarcetController.getInstance().loadOld(compound);
-		} // Old
+		}
 		else {
 			this.marcetID = compound.getInteger("MarketID");
-		} // New
+		}
 	}
 
 	@Override

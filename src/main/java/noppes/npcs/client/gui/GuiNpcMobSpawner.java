@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import java.awt.*;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,125 +27,122 @@ import noppes.npcs.client.gui.util.GuiMenuSideButton;
 import noppes.npcs.client.gui.util.GuiMenuTopButton;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICustomScrollListener {
+public class GuiNpcMobSpawner
+extends GuiNPCInterface
+implements IGuiData, ICustomScrollListener {
 
-	private static String search = "";
 	private static int showingClones = 0;
-	private int activeTab;
-	private final List<String> list = new ArrayList<>();
+	private int activeTab = 1;
 	private final int posX;
     private final int posY;
     private final int posZ;
-    private int sel;
+    private int sel = -1;
 	private GuiCustomScroll scroll;
 	public EntityLivingBase selectNpc;
 
 	public GuiNpcMobSpawner(int x, int y, int z) {
-		this.activeTab = 1;
-		this.xSize = 256;
-		this.posX = x;
-		this.posY = y;
-		this.posZ = z;
-		this.sel = -1;
-		this.closeOnEsc = true;
-		this.setBackground("menubg.png");
+		xSize = 256;
+		closeOnEsc = true;
+		setBackground("menubg.png");
+
+		posX = x;
+		posY = y;
+		posZ = z;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 0: {
-			this.close();
+			close();
 			break;
 		}
 		case 1: {
 			if (GuiNpcMobSpawner.showingClones == 2) { // Server
-				String sel = this.scroll.getSelected();
+				String sel = scroll.getSelected();
 				if (sel == null) {
 					return;
 				}
-				Client.sendData(EnumPacketServer.SpawnMob, true, this.posX, this.posY, this.posZ, sel, this.activeTab);
-				this.close();
+				Client.sendData(EnumPacketServer.SpawnMob, true, posX, posY, posZ, sel, activeTab);
+				close();
 			} else {
-				NBTTagCompound compound = this.getCompound();
+				NBTTagCompound compound = getCompound();
 				if (compound == null) {
 					return;
 				}
-				Client.sendData(EnumPacketServer.SpawnMob, false, this.posX, this.posY, this.posZ, compound);
-				this.close();
+				Client.sendData(EnumPacketServer.SpawnMob, false, posX, posY, posZ, compound);
+				close();
 			}
 			break;
 		}
 		case 2: {
 			if (GuiNpcMobSpawner.showingClones == 2) {
-				String sel = this.scroll.getSelected();
+				String sel = scroll.getSelected();
 				if (sel == null) {
 					return;
 				}
-				Client.sendData(EnumPacketServer.MobSpawner, true, this.posX, this.posY, this.posZ, sel,
-						this.activeTab);
-				this.close();
+				Client.sendData(EnumPacketServer.MobSpawner, true, posX, posY, posZ, sel, activeTab);
+				close();
 			} else {
-				NBTTagCompound compound = this.getCompound();
+				NBTTagCompound compound = getCompound();
 				if (compound == null) {
 					return;
 				}
-				Client.sendData(EnumPacketServer.MobSpawner, false, this.posX, this.posY, this.posZ, compound);
-				this.close();
+				Client.sendData(EnumPacketServer.MobSpawner, false, posX, posY, posZ, compound);
+				close();
 			}
 			break;
 		}
 		case 3: {
-			this.selectNpc = null;
+			selectNpc = null;
 			GuiNpcMobSpawner.showingClones = 0;
-			this.initGui();
+			initGui();
 			break;
 		}
 		case 4: {
-			this.selectNpc = null;
+			selectNpc = null;
 			GuiNpcMobSpawner.showingClones = 1;
-			this.initGui();
+			initGui();
 			break;
 		}
 		case 5: {
-			this.selectNpc = null;
+			selectNpc = null;
 			GuiNpcMobSpawner.showingClones = 2;
-			this.initGui();
+			initGui();
 			break;
 		}
 		case 6: { // delete
-			String name = this.scroll.getSelected();
+			String name = scroll.getSelected();
 			if (name == null || name.isEmpty()) {
 				return;
 			}
-			this.scroll.selected--;
-			if (this.scroll.selected < 0) {
-				if (this.scroll.getList() == null || this.scroll.getList().isEmpty()) {
-					this.scroll.selected = -1;
+			scroll.selected--;
+			if (scroll.selected < 0) {
+				if (scroll.getList() == null || scroll.getList().isEmpty()) {
+					scroll.selected = -1;
 				} else {
-					this.scroll.selected = 0;
+					scroll.selected = 0;
 				}
 			}
-			this.sel = this.scroll.selected;
-			this.selectNpc = null;
+			sel = scroll.selected;
+			selectNpc = null;
 			if (GuiNpcMobSpawner.showingClones == 2) {
-				Client.sendData(EnumPacketServer.CloneRemove, this.activeTab, name);
+				Client.sendData(EnumPacketServer.CloneRemove, activeTab, name);
 				return;
 			}
-			ClientCloneController.Instance.removeClone(name, this.activeTab);
-			this.initGui();
+			ClientCloneController.Instance.removeClone(name, activeTab);
+			initGui();
 			break;
 		}
 		default: {
 			if (button.id > 20) {
-				this.activeTab = button.id - 20;
-				this.initGui();
+				activeTab = button.id - 20;
+				initGui();
 			}
 			break;
 		}
@@ -160,8 +158,8 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 				drawNpc(selectNpc, 210, 130, 1.0f, (int) (3 * player.world.getTotalWorldTime() % 360), 0, 0);
 			}
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
-			Gui.drawRect(guiLeft + 179, guiTop + 54, guiLeft + 242, guiTop + 142, 0xFF808080);
-			Gui.drawRect(guiLeft + 180, guiTop + 55, guiLeft + 241, guiTop + 141, 0xFF000000);
+			Gui.drawRect(guiLeft + 179, guiTop + 54, guiLeft + 242, guiTop + 142, new Color(0xFF808080).getRGB());
+			Gui.drawRect(guiLeft + 180, guiTop + 55, guiLeft + 241, guiTop + 141, new Color(0xFF000000).getRGB());
 			GlStateManager.popMatrix();
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -169,12 +167,12 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 
 	// Client Clones or Vanilla Mobs
 	private NBTTagCompound getCompound() {
-		String sel = this.scroll.getSelected();
+		String sel = scroll.getSelected();
 		if (sel == null) {
 			return null;
 		}
 		if (GuiNpcMobSpawner.showingClones == 0) { // Client Clones
-			return ClientCloneController.Instance.getCloneData(this.player, sel, this.activeTab);
+			return ClientCloneController.Instance.getCloneData(player, sel, activeTab);
 		}
 		// Vanilla Mobs
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
@@ -191,19 +189,6 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 		return null;
 	}
 
-	private List<String> getSearchList() {
-		if (GuiNpcMobSpawner.search.isEmpty()) {
-			return new ArrayList<>(this.list);
-		}
-		List<String> list = new ArrayList<>();
-		for (String name : this.list) {
-			if (name.toLowerCase().contains(GuiNpcMobSpawner.search)) {
-				list.add(name);
-			}
-		}
-		return list;
-	}
-
 	@Override
 	public void initGui() {
 		super.initGui();
@@ -217,18 +202,16 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 		scroll.selected = sel;
 		addScroll(scroll);
 
-		addTextField(new GuiNpcTextField(1, this, fontRenderer, guiLeft + 4, guiTop + 4, 165, 20, GuiNpcMobSpawner.search));
-
 		GuiMenuTopButton button;
-		addTopButton(button = new GuiMenuTopButton(3, this.guiLeft + 4, this.guiTop - 17, "spawner.clones"));
+		addTopButton(button = new GuiMenuTopButton(3, guiLeft + 4, guiTop - 17, "spawner.clones"));
 		button.active = (GuiNpcMobSpawner.showingClones == 0);
 		addTopButton(button = new GuiMenuTopButton(4, button, "spawner.entities"));
 		button.active = (GuiNpcMobSpawner.showingClones == 1);
 		addTopButton(button = new GuiMenuTopButton(5, button, "gui.server"));
 		button.active = (GuiNpcMobSpawner.showingClones == 2);
 
-		addButton(new GuiNpcButton(1, this.guiLeft + 170, this.guiTop + 6, 82, 20, "spawner.spawn"));
-		addButton(new GuiNpcButton(2, this.guiLeft + 170, this.guiTop + 146, 82, 20, "spawner.mobspawner"));
+		addButton(new GuiNpcButton(1, guiLeft + 170, guiTop + 6, 82, 20, "spawner.spawn"));
+		addButton(new GuiNpcButton(2, guiLeft + 170, guiTop + 146, 82, 20, "spawner.mobspawner"));
 		if (GuiNpcMobSpawner.showingClones == 0 || GuiNpcMobSpawner.showingClones == 2) {
 			int x = guiLeft;
 			int y = guiTop + 4;
@@ -248,11 +231,6 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
-		if (!GuiNpcMobSpawner.search.equals(getTextField(1).getText())) {
-			GuiNpcMobSpawner.search = getTextField(1).getText().toLowerCase();
-			scroll.setList(getSearchList());
-			scroll.selected = sel;
-		}
 		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode() || i == ClientProxy.backButton.getKeyCode()) {
 			resetEntity();
 		}
@@ -303,11 +281,11 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 			return;
 		}
 		NBTTagList nbtList = compound.getTagList("List", 8);
-		list.clear();
+		List<String> list = new ArrayList<>();
 		for (int i = 0; i < nbtList.tagCount(); ++i) {
 			list.add(nbtList.getStringTagAt(i));
 		}
-		scroll.setList(getSearchList());
+		scroll.setList(list);
 		scroll.selected = sel;
 	}
 
@@ -316,15 +294,13 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 			Client.sendData(EnumPacketServer.CloneList, activeTab);
 			return;
 		}
-		list.clear();
-		list.addAll(ClientCloneController.Instance.getClones(activeTab));
-		scroll.setList(getSearchList());
+		scroll.setList(ClientCloneController.Instance.getClones(activeTab));
 		scroll.selected = sel;
 		resetEntity();
 	}
 
 	private void showEntities() {
-		list.clear();
+		List<String> list = new ArrayList<>();
 		List<Class<? extends Entity>> classes = new ArrayList<>();
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			if (Objects.requireNonNull(ent.getRegistryName()).getResourceDomain().equals(CustomNpcs.MODID)) {
@@ -340,7 +316,7 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 				classes.add(c);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		scroll.setList(getSearchList());
+		scroll.setList(list);
 		scroll.selected = sel;
 	}
 

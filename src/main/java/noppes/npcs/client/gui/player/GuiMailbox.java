@@ -1,6 +1,8 @@
 package noppes.npcs.client.gui.player;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -27,7 +29,9 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.util.Util;
 
-public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
+public class GuiMailbox
+extends GuiNPCInterface
+implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 
 	public static final ResourceLocation icons = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/icons.png");
 	private static final ResourceLocation mBox = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/box_empty.png");
@@ -39,7 +43,9 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 
 	// Animations
 	private int closeType;
-	int step, tick, millyTick;
+	private int step;
+	private int tick;
+	private int millyTick;
 	private final Random rnd = new Random();
 
 	public GuiMailbox() {
@@ -405,23 +411,8 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 			}
 		}
 		if (!hover.isEmpty()) {
-			this.hoverText = hover.toArray(new String[0]);
-		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mailbox.hover.read").getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mailbox.hover.write").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mailbox.hover.del").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mailbox.hover.delall").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mailbox.hover.clear").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.exit").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
+			setHoverText(hover);
+			drawHoverText(null);
 		}
 	}
 
@@ -493,7 +484,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 		this.scroll.setListNotSorted(list);
 		this.scroll.setPrefixes(prefixes);
 		this.scroll.setColors(colors);
-		this.scroll.colorBack = 0x00000000;
+		this.scroll.colorBack = new Color(0x00000000).getRGB();
 		if (select != null && !select.isEmpty()) {
 			this.scroll.setSelected(select);
 		}
@@ -508,36 +499,42 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 		GuiNpcButton button = new GuiNpcButton(0, x, y, 58, 14, "mailbox.read");
 		button.texture = icons;
 		button.txrY = 96;
-		this.addButton(button);
-		this.getButton(0).setEnabled(this.selected != null);
+		button.setHoverText("mailbox.hover.read");
+		button.setEnabled(selected != null);
+		addButton(button);
 
 		button = new GuiNpcButton(1, x + 59, y, 58, 14, "mailbox.write");
 		button.texture = icons;
 		button.txrY = 96;
-		this.addButton(button);
+		button.setHoverText("mailbox.hover.write");
+		addButton(button);
 
 		button = new GuiNpcButton(2, x + 118, y, 58, 14, "gui.remove");
 		button.texture = icons;
 		button.txrY = 96;
-		this.addButton(button);
-		this.getButton(2).setEnabled(this.selected != null);
+		button.setHoverText("mailbox.hover.del");
+		button.setEnabled(selected != null);
+		addButton(button);
 
 		button = new GuiNpcButton(3, x, y += 16, 58, 14, "gui.remove.all");
 		button.texture = icons;
 		button.txrY = 96;
-		this.addButton(button);
-		this.getButton(2).setEnabled(!list.isEmpty());
+		button.setHoverText("mailbox.hover.delall");
+		button.setEnabled(!list.isEmpty());
+		addButton(button);
 
 		button = new GuiNpcButton(4, x + 59, y, 58, 14, "gui.clear");
 		button.texture = icons;
 		button.txrY = 96;
-		this.addButton(button);
-		this.getButton(3).setEnabled(!list.isEmpty());
+		button.setHoverText("mailbox.hover.clear");
+		button.setEnabled(!list.isEmpty());
+		addButton(button);
 
 		button = new GuiNpcButton(5, x + 118, y, 58, 14, "display.hover.X");
 		button.texture = icons;
 		button.txrY = 96;
-		this.addButton(button);
+		button.setHoverText("hover.exit");
+		addButton(button);
 	}
 
 	@Override
@@ -585,4 +582,5 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 		this.selected = null;
 		this.initGui();
 	}
+
 }

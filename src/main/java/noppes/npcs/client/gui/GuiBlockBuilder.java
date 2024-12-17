@@ -29,7 +29,9 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.schematics.ISchematic;
 import noppes.npcs.schematics.SchematicWrapper;
 
-public class GuiBlockBuilder extends GuiNPCInterface implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
+public class GuiBlockBuilder
+extends GuiNPCInterface
+implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 
 	private GuiCustomScroll scroll;
 	private ISchematic selected;
@@ -38,174 +40,134 @@ public class GuiBlockBuilder extends GuiNPCInterface implements IGuiData, ICusto
 	private final int y;
 	private final int z;
 
-	public GuiBlockBuilder(int x, int y, int z) {
-		this.selected = null;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.setBackground("menubg.png");
-		this.xSize = 256;
-		this.ySize = 216;
-		this.closeOnEsc = true;
-		this.tile = (TileBuilder) this.player.world.getTileEntity(new BlockPos(x, y, z));
+	public GuiBlockBuilder(int xPos, int yPos, int zPos) {
+		setBackground("menubg.png");
+		xSize = 256;
+		ySize = 216;
+		closeOnEsc = true;
+
+		selected = null;
+		x = xPos;
+		y = yPos;
+		z = zPos;
+		tile = (TileBuilder) player.world.getTileEntity(new BlockPos(x, y, z));
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 3) {
 			if (((GuiNpcButtonYesNo) button).getBoolean()) {
-				TileBuilder.SetDrawPos(new BlockPos(this.x, this.y, this.z));
-				this.tile.setDrawSchematic(new SchematicWrapper(this.selected));
+				TileBuilder.SetDrawPos(new BlockPos(x, y, z));
+				tile.setDrawSchematic(new SchematicWrapper(selected));
 			} else {
 				TileBuilder.SetDrawPos(null);
-				this.tile.setDrawSchematic(null);
+				tile.setDrawSchematic(null);
 			}
 		}
 		if (button.id == 4) {
-			this.tile.enabled = ((GuiNpcButtonYesNo) button).getBoolean();
+			tile.enabled = ((GuiNpcButtonYesNo) button).getBoolean();
 		}
 		if (button.id == 5) {
-			this.tile.rotation = button.getValue();
+			tile.rotation = button.getValue();
 		}
 		if (button.id == 6) {
-			this.setSubGui(new SubGuiNpcAvailability(tile.availability, this));
+			setSubGui(new SubGuiNpcAvailability(tile.availability, this));
 		}
 		if (button.id == 7) {
-			this.tile.finished = ((GuiNpcButtonYesNo) button).getBoolean();
-			Client.sendData(EnumPacketServer.SchematicsSet, this.x, this.y, this.z, this.scroll.getSelected());
+			tile.finished = ((GuiNpcButtonYesNo) button).getBoolean();
+			Client.sendData(EnumPacketServer.SchematicsSet, x, y, z, scroll.getSelected());
 		}
 		if (button.id == 8) {
-			this.tile.started = ((GuiNpcButtonYesNo) button).getBoolean();
+			tile.started = ((GuiNpcButtonYesNo) button).getBoolean();
 		}
 		if (button.id == 10) {
-			this.save();
+			save();
 			GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("schematic.instantBuildText").getFormattedText(), 0);
-			this.displayGuiScreen(guiyesno);
+			displayGuiScreen(guiyesno);
 		}
 	}
 
 	public void confirmClicked(boolean flag, int i) {
 		if (flag) {
-			Client.sendData(EnumPacketServer.SchematicsBuild, this.x, this.y, this.z);
-			this.close();
-			this.selected = null;
+			Client.sendData(EnumPacketServer.SchematicsBuild, x, y, z);
+			close();
+			selected = null;
 		} else {
-			NoppesUtil.openGUI(this.player, this);
+			NoppesUtil.openGUI(player, this);
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(125, 208);
-		}
-		this.scroll.guiLeft = this.guiLeft + 4;
-		this.scroll.guiTop = this.guiTop + 4;
-		this.addScroll(this.scroll);
-		if (this.selected != null) {
-			int y = this.guiTop + 4;
-			this.addButton(new GuiNpcButtonYesNo(3, this.guiLeft + 200, y, TileBuilder.has(this.tile.getPos())));
-			this.addLabel(new GuiNpcLabel(3, "schematic.preview", this.guiLeft + 130, y + 5));
-			int id = 0;
-			String string = new TextComponentTranslation("schematic.width").getFormattedText() + ": "
-					+ this.selected.getWidth();
-			int x = this.guiLeft + 130;
+		if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(125, 208); }
+		scroll.guiLeft = guiLeft + 4;
+		scroll.guiTop = guiTop + 4;
+		addScroll(scroll);
+		if (selected != null) {
+			int xL = guiLeft + 130;
+			int xB = guiLeft + 200;
+			int y = guiTop + 4;
+			addLabel(new GuiNpcLabel(3, "schematic.preview", xL, y + 5));
+			addButton(new GuiNpcButtonYesNo(3, xB, y, TileBuilder.has(tile.getPos())));
 			y += 21;
-			this.addLabel(new GuiNpcLabel(id, string, x, y));
-			int id2 = 1;
-			String string2 = new TextComponentTranslation("schematic.length").getFormattedText() + ": "
-					+ this.selected.getLength();
-			int x2 = this.guiLeft + 130;
+			addLabel(new GuiNpcLabel(0, new TextComponentTranslation("schematic.width").getFormattedText() + ": " + selected.getWidth(), xL, y));
 			y += 11;
-			this.addLabel(new GuiNpcLabel(id2, string2, x2, y));
-			int id3 = 2;
-			String string3 = new TextComponentTranslation("schematic.height").getFormattedText() + ": "
-					+ this.selected.getHeight();
-			int x3 = this.guiLeft + 130;
+			addLabel(new GuiNpcLabel(1, new TextComponentTranslation("schematic.length").getFormattedText() + ": " + selected.getLength(), xL, y));
 			y += 11;
-			this.addLabel(new GuiNpcLabel(id3, string3, x3, y));
-			int id4 = 4;
-			int x4 = this.guiLeft + 200;
+			addLabel(new GuiNpcLabel(2, new TextComponentTranslation("schematic.height").getFormattedText() + ": " + selected.getHeight(), xL, y));
 			y += 14;
-			this.addButton(new GuiNpcButtonYesNo(id4, x4, y, this.tile.enabled));
-			this.addLabel(new GuiNpcLabel(4, new TextComponentTranslation("gui.enabled").getFormattedText(),
-					this.guiLeft + 130, y + 5));
-			int id5 = 7;
-			int x5 = this.guiLeft + 200;
+			addButton(new GuiNpcButtonYesNo(4, xB, y, tile.enabled));
+			addLabel(new GuiNpcLabel(4, new TextComponentTranslation("gui.enabled").getFormattedText(), xL, y + 5));
 			y += 22;
-			this.addButton(new GuiNpcButtonYesNo(id5, x5, y, this.tile.finished));
-			this.addLabel(new GuiNpcLabel(7, new TextComponentTranslation("gui.finished").getFormattedText(),
-					this.guiLeft + 130, y + 5));
-			int id6 = 8;
-			int x6 = this.guiLeft + 200;
+			addButton(new GuiNpcButtonYesNo(7, xB, y, tile.finished));
+			addLabel(new GuiNpcLabel(7, new TextComponentTranslation("gui.finished").getFormattedText(), xL, y + 5));
 			y += 22;
-			this.addButton(new GuiNpcButtonYesNo(id6, x6, y, this.tile.started));
-			this.addLabel(new GuiNpcLabel(8, new TextComponentTranslation("gui.started").getFormattedText(),
-					this.guiLeft + 130, y + 5));
-			int id7 = 9;
-			int i = this.guiLeft + 200;
+			addButton(new GuiNpcButtonYesNo(8, xB, y, tile.started));
+			addLabel(new GuiNpcLabel(8, new TextComponentTranslation("gui.started").getFormattedText(), xL, y + 5));
 			y += 22;
-			this.addTextField(new GuiNpcTextField(id7, this, i, y, 50, 20, this.tile.yOffset + ""));
-			this.addLabel(new GuiNpcLabel(9, new TextComponentTranslation("gui.yoffset").getFormattedText(),
-					this.guiLeft + 130, y + 5));
-			this.getTextField(9).setNumbersOnly();
-			this.getTextField(9).setMinMaxDefault(-10, 10, 0);
-			int j = 5;
-			int k = this.guiLeft + 200;
+			addLabel(new GuiNpcLabel(9, new TextComponentTranslation("gui.yoffset").getFormattedText(), xL, y + 5));
+			GuiNpcTextField textField = new GuiNpcTextField(9, this, xB, y, 50, 20, tile.yOffset + "");
+			textField.setMinMaxDefault(-10, 10, 0);
+			addTextField(textField);
 			y += 22;
-			this.addButton(
-					new GuiNpcButton(j, k, y, 50, 20, new String[] { "0", "90", "180", "270" }, this.tile.rotation));
-			this.addLabel(new GuiNpcLabel(5, new TextComponentTranslation("movement.rotation").getFormattedText(),
-					this.guiLeft + 130, y + 5));
-			int l = 6;
-			int m = this.guiLeft + 130;
+			addLabel(new GuiNpcLabel(5, new TextComponentTranslation("movement.rotation").getFormattedText(), xL, y + 5));
+			addButton(new GuiNpcButton(5, xB, y, 50, 20, new String[] { "0", "90", "180", "270" }, tile.rotation));
 			y += 22;
-			this.addButton(new GuiNpcButton(l, m, y, 120, 20, "availability.options"));
-			int i2 = 10;
-			int j2 = this.guiLeft + 130;
+			addButton(new GuiNpcButton(6, xL, y, 120, 20, "availability.options"));
 			y += 22;
-			this.addButton(new GuiNpcButton(i2, j2, y, 120, 20, "schematic.instantBuild"));
+			addButton(new GuiNpcButton(10, xL, y, 120, 20, "schematic.instantBuild"));
 		}
 	}
 
 	@Override
 	public void initPacket() {
-		Client.sendData(EnumPacketServer.SchematicsTile, this.x, this.y, this.z);
+		Client.sendData(EnumPacketServer.SchematicsTile, x, y, z);
 	}
 
 	@Override
 	public void save() {
-		if (this.getTextField(9) != null) {
-			this.tile.yOffset = this.getTextField(9).getInteger();
-		}
-		Client.sendData(EnumPacketServer.SchematicsTileSave, this.x, this.y, this.z, this.tile.writePartNBT(new NBTTagCompound()));
+		if (getTextField(9) != null) { tile.yOffset = getTextField(9).getInteger(); }
+		Client.sendData(EnumPacketServer.SchematicsTileSave, x, y, z, tile.writePartNBT(new NBTTagCompound()));
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (!scroll.hasSelected()) {
-			return;
-		}
-		if (this.selected != null) {
-			this.getButton(3).setDisplay(0);
-		}
+		if (!scroll.hasSelected()) { return; }
+		if (selected != null) { getButton(3).setDisplay(0); }
 		TileBuilder.SetDrawPos(null);
-		this.tile.setDrawSchematic(null);
-		Client.sendData(EnumPacketServer.SchematicsSet, this.x, this.y, this.z, scroll.getSelected());
+		tile.setDrawSchematic(null);
+		Client.sendData(EnumPacketServer.SchematicsSet, x, y, z, scroll.getSelected());
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		this.scroll.setList(list);
-		if (this.selected != null) {
-			this.scroll.setSelected(this.selected.getName());
-		}
-		this.initGui();
+		scroll.setList(list);
+		if (selected != null) { scroll.setSelected(selected.getName()); }
+		initGui();
 	}
 
 	@Override
@@ -216,7 +178,7 @@ public class GuiBlockBuilder extends GuiNPCInterface implements IGuiData, ICusto
 			for (int i = 0; i < list.tagCount(); ++i) {
 				states.add(NBTUtil.readBlockState(list.getCompoundTagAt(i)));
 			}
-			this.selected = new ISchematic() {
+			selected = new ISchematic() {
 				@Override
 				public IBlockState getBlockState(int i) {
 					return states.get(i);
@@ -224,7 +186,7 @@ public class GuiBlockBuilder extends GuiNPCInterface implements IGuiData, ICusto
 
 				@Override
 				public IBlockState getBlockState(int x, int y, int z) {
-					return this.getBlockState((y * this.getLength() + z) * this.getWidth() + x);
+					return getBlockState((y * getLength() + z) * getWidth() + x);
 				}
 
 				@Override
@@ -277,20 +239,20 @@ public class GuiBlockBuilder extends GuiNPCInterface implements IGuiData, ICusto
 					return false;
 				}
 			};
-			if (TileBuilder.has(this.tile.getPos())) {
-				SchematicWrapper wrapper = new SchematicWrapper(this.selected);
-				wrapper.rotation = this.tile.rotation;
-				this.tile.setDrawSchematic(wrapper);
+			if (TileBuilder.has(tile.getPos())) {
+				SchematicWrapper wrapper = new SchematicWrapper(selected);
+				wrapper.rotation = tile.rotation;
+				tile.setDrawSchematic(wrapper);
 			}
-			this.scroll.setSelected(this.selected.getName());
-			this.scroll.scrollTo(this.selected.getName());
+			scroll.setSelected(selected.getName());
+			scroll.scrollTo(selected.getName());
 		} else {
-			this.tile.readPartNBT(compound);
+			tile.readPartNBT(compound);
 		}
-		this.initGui();
+		initGui();
 	}
 
 	@Override
-	public void setSelected(String selected) {
-	}
+	public void setSelected(String selected) { }
+
 }

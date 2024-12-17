@@ -8,6 +8,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
@@ -38,6 +39,7 @@ import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.items.CustomBow;
 import noppes.npcs.items.CustomFishingRod;
@@ -360,7 +362,7 @@ public class CommonProxy implements IGuiHandler {
 			}
 			case MainMenuInvDrop: {
 				return new ContainerNPCDropSetup(npc, player, x, y, z);
-			} // New
+			}
 			case ManageTransport: {
 				TransportLocation loc = TransportController.getInstance().getTransport(x);
 				if (loc == null) {
@@ -419,7 +421,7 @@ public class CommonProxy implements IGuiHandler {
 			}
 			case QuestRewardItem: {
 				return new ContainerNpcQuestRewardItem(x);
-			} // New
+			}
 			case ManageRecipes: {
 				return new ContainerManageRecipes(player);
 			} // Change
@@ -437,6 +439,41 @@ public class CommonProxy implements IGuiHandler {
 			}
 			case CustomGui: {
 				return new ContainerCustomGui(new InventoryBasic("", false, x));
+			}
+			case DeadInventory: {
+				npc = PlayerData.get(player).editingNpc;
+				IInventory deadInventory = null;
+				String name = player.getName();
+				if (npc != null && !npc.isEntityAlive()) {
+					DataInventory dataInv = npc.inventory;
+					deadInventory = dataInv.deadLoot;
+					if (y > -1 && dataInv.deadLoots != null && !dataInv.deadLoots.isEmpty()) {
+						if (dataInv.deadLoots.size() == 1) {
+							for (EntityLivingBase e : dataInv.deadLoots.keySet()) {
+								if (!(e instanceof EntityPlayer) && !e.getName().equals(npc.getName())) {
+									deadInventory = dataInv.deadLoots.get(e);
+								}
+							}
+							y = 0;
+						} else {
+							int i = 0;
+							for (EntityLivingBase e : dataInv.deadLoots.keySet()) {
+								if (i != y) {
+									i++;
+									continue;
+								}
+								name = e.getName();
+								deadInventory = dataInv.deadLoots.get(e);
+								break;
+							}
+						}
+					}
+					else if (deadInventory == null && dataInv.deadLoots != null && dataInv.deadLoots.containsKey(player)) {
+						deadInventory = dataInv.deadLoots.get(player);
+					}
+				}
+				if (deadInventory == null) { deadInventory = new InventoryBasic("NPC Loot", true, x); }
+				return new ContainerDead(player, deadInventory, name, y);
 			}
 			case BuilderSetting:
             case ReplaceSetting:
@@ -513,7 +550,6 @@ public class CommonProxy implements IGuiHandler {
 
     public void applyRecipe(INpcRecipe recipe, boolean added) {
 		if (recipe == null) { return; }
-		// Changed in Players
 		if (!added || recipe.isKnown()) {
 			List<EntityPlayerMP> players = CustomNpcs.Server != null ? CustomNpcs.Server.getPlayerList().getPlayers() : new ArrayList<>();
 			for (EntityPlayerMP player : players) {

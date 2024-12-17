@@ -35,7 +35,6 @@ public class CustomGuiWrapper implements ICustomGui {
 	int height;
 	int id;
 	boolean pauseGame;
-	// New
 	private EntityPlayer player;
 	int playerInvX, playerInvY;
 	ScriptContainer scriptHandler;
@@ -189,7 +188,7 @@ public class CustomGuiWrapper implements ICustomGui {
 		this.slots = slots;
 		if (this.player instanceof EntityPlayerMP) {
 			this.setPlayer((EntityPlayerMP) this.player);
-		} // New
+		}
 		this.showPlayerInv = tag.getBoolean("showPlayerInv");
 		this.showPlayerSlots = tag.getBoolean("showPlayerSlots");
 		if (this.showPlayerInv) {
@@ -270,7 +269,7 @@ public class CustomGuiWrapper implements ICustomGui {
 		for (int i = 0; i < this.components.size(); ++i) {
 			if (this.components.get(i).getId() == componentID) {
 				this.components.remove(i);
-				if (this.player instanceof EntityPlayerMP) { // New
+				if (this.player instanceof EntityPlayerMP) {
 					this.update((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player));
 				}
 				return;
@@ -304,7 +303,6 @@ public class CustomGuiWrapper implements ICustomGui {
 		this.pauseGame = pauseGame;
 	}
 
-	// New
 	public void setPlayer(EntityPlayerMP player) {
 		this.player = player;
 		if (this.slots.isEmpty()) {
@@ -378,7 +376,7 @@ public class CustomGuiWrapper implements ICustomGui {
 	@Override
 	public void update(IPlayer<?> player) {
 		CustomGuiController.updateGui((PlayerWrapper<?>) player, this);
-		player.getMCEntity().openContainer.detectAndSendChanges(); // New
+		player.getMCEntity().openContainer.detectAndSendChanges();
 	}
 
 	@Override
@@ -387,7 +385,7 @@ public class CustomGuiWrapper implements ICustomGui {
 			ICustomGuiComponent c = this.components.get(i);
 			if (c.getId() == component.getId()) {
 				this.components.set(i, component);
-				if (this.player instanceof EntityPlayerMP) { // New
+				if (this.player instanceof EntityPlayerMP) {
 					this.update((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player));
 				}
 				return;

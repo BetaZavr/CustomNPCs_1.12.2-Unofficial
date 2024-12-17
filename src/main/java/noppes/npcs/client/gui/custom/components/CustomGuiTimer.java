@@ -12,7 +12,9 @@ import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.util.Util;
 
-public class CustomGuiTimer extends GuiLabel implements IGuiComponent {
+public class CustomGuiTimer
+extends GuiLabel
+implements IGuiComponent {
 
 	public static CustomGuiTimer fromComponent(CustomGuiTimerWrapper component) {
 		CustomGuiTimer timer = new CustomGuiTimer(component.start, component.end, component.reverse, component.getId(),

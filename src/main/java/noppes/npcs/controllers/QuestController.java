@@ -53,7 +53,7 @@ public class QuestController implements IQuestHandler {
 
 	public boolean containsQuestName(QuestCategory category, Quest quest) {
 		for (Quest q : category.quests.values()) {
-			if (q.id != quest.id && q.getName().equalsIgnoreCase(quest.getName())) { // Changed
+			if (q.id != quest.id && q.getName().equalsIgnoreCase(quest.getName())) {
 				return true;
 			}
 		}
@@ -165,8 +165,6 @@ public class QuestController implements IQuestHandler {
 			return;
 		}
 		File dir = new File(this.getDir(), cat.title);
-		// if (!dir.delete()) { return; } Changed
-		// New
 		if (!Util.instance.removeFile(dir)) {
 			LogWriter.error("Error delete " + dir + "; no access or file not uploaded!");
 			return;
@@ -244,7 +242,7 @@ public class QuestController implements IQuestHandler {
 			return;
 		}
 		while (this.containsQuestName(quest.category, quest)) {
-			quest.setName(quest.getName() + "_"); // Changed
+			quest.setName(quest.getName() + "_");
 		}
 		if (quest.id < 0) {
 			++this.lastUsedQuestID;

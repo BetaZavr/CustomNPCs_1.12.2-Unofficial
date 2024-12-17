@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui.advanced;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.gui.Gui;
@@ -30,79 +29,80 @@ import noppes.npcs.controllers.data.MarkData.Mark;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, ICustomScrollListener {
+public class GuiNPCMarks
+extends GuiNPCInterface2
+implements ISubGuiListener, ICustomScrollListener {
+
+	private static final String[] marks = new String[] { "gui.none", "mark.question", "mark.exclamation", "mark.pointer", "mark.skull", "mark.cross", "mark.star" };
 
 	private final MarkData data;
 	private final MarkData dataDisplay;
-	private final String[] marks;
 	private final EntityNPCInterface npcDisplay;
 	private GuiCustomScroll scroll;
 	private MarkData.Mark selectedMark;
-	private String selMark;
+	private String selMark = "";
 	public final GuiScreen parent;
 
-	public GuiNPCMarks(EntityNPCInterface npc, GuiScreen parent) {
+	public GuiNPCMarks(EntityNPCInterface npc, GuiScreen gui) {
 		super(npc);
-		this.parent = parent;
-		this.marks = new String[] { "gui.none", "mark.question", "mark.exclamation", "mark.pointer", "mark.skull", "mark.cross", "mark.star" };
-		this.data = MarkData.get(npc);
-		this.npcDisplay = new EntityCustomNpc(npc.world);
+		parent = gui;
+		data = MarkData.get(npc);
+		npcDisplay = new EntityCustomNpc(npc.world);
 		NBTTagCompound nbtData = new NBTTagCompound();
 		npc.writeEntityToNBT(nbtData);
-		this.npcDisplay.readEntityFromNBT(nbtData);
-		this.npcDisplay.display.setShowName(1);
-		this.dataDisplay = MarkData.get(this.npcDisplay);
-		this.selMark = "";
+		npcDisplay.readEntityFromNBT(nbtData);
+		npcDisplay.display.setShowName(1);
+		dataDisplay = MarkData.get(npcDisplay);
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		if (this.selectedMark == null) {
+		if (selectedMark == null) {
 			return;
 		}
 		switch (button.id) {
 		case 0: {
-			this.selectedMark.type = button.getValue();
-			this.initGui();
+			selectedMark.type = button.getValue();
+			initGui();
 			break;
 		}
 		case 1: {
-			this.setSubGui(new SubGuiColorSelector(this.selectedMark.color));
+			setSubGui(new SubGuiColorSelector(selectedMark.color));
 			break;
 		}
 		case 2: {
-			this.setSubGui(new SubGuiNpcAvailability(selectedMark.availability, parent));
+			setSubGui(new SubGuiNpcAvailability(selectedMark.availability, parent));
 			break;
 		}
 		case 3: {
-			Mark newark = (Mark) this.data.addMark(this.selectedMark.type);
-			newark.color = this.selectedMark.color;
-			newark.rotate = this.selectedMark.rotate;
-			newark.availability.readFromNBT(this.selectedMark.availability.writeToNBT(new NBTTagCompound()));
-			this.selectedMark = newark;
-			this.initGui();
+			Mark newark = (Mark) data.addMark(selectedMark.type);
+			newark.color = selectedMark.color;
+			newark.rotate = selectedMark.rotate;
+			newark.availability.readFromNBT(selectedMark.availability.writeToNBT(new NBTTagCompound()));
+			selectedMark = newark;
+			initGui();
 			break;
 		}
 		case 4: {
-			if (this.scroll.selected < 0) {
+			if (scroll.selected < 0) {
 				return;
 			}
-			this.data.marks.remove(this.selectedMark);
-			this.scroll.selected = -1;
-			this.selMark = "";
-			this.selectedMark = null;
-			this.initGui();
+			data.marks.remove(selectedMark);
+			scroll.selected = -1;
+			selMark = "";
+			selectedMark = null;
+			initGui();
 			break;
 		}
 		case 5: {
-			this.selectedMark.rotate = button.getValue() == 0;
-			this.initGui();
+			selectedMark.rotate = button.getValue() == 0;
+			initGui();
 			break;
 		}
 		case 6: {
-			this.selectedMark.is3d = button.getValue() == 0;
+			selectedMark.is3d = button.getValue() == 0;
 			MarkRenderer.needReload = true;
-			this.initGui();
+			initGui();
 			break;
 		}
 		}
@@ -110,42 +110,19 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, IC
 
 	@Override
 	public void close() {
-		this.save();
-		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		save();
+		CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
-		drawNpc(this.npcDisplay, 350, 150, 1.0f, 0, 0, 1);
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		drawNpc(npcDisplay, 350, 150, 1.0f, 0, 0, 1);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.0f, 1.0f);
-		Gui.drawRect(this.guiLeft + 319, this.guiTop + 30, this.guiLeft + 380, this.guiTop + 165, 0xFF808080);
-		Gui.drawRect(this.guiLeft + 320, this.guiTop + 31, this.guiLeft + 379, this.guiTop + 164, 0xFF000000);
+		Gui.drawRect(guiLeft + 319, guiTop + 30, guiLeft + 380, guiTop + 165, 0xFF808080);
+		Gui.drawRect(guiLeft + 320, guiTop + 31, guiLeft + 379, guiTop + 164, 0xFF000000);
 		GlStateManager.popMatrix();
-		super.drawScreen(i, j, f);
-		// New
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mark.hover.type").getFormattedText());
-		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("color.hover").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availability.hover").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mark.hover.add").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mark.hover.del").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mark.hover.rotate").getFormattedText());
-		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mark.hover.is3d").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
 	@Override
@@ -154,78 +131,91 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, IC
 		List<String> ds = new ArrayList<>();
 		List<Integer> colors = new ArrayList<>();
 		int i = 0;
-		for (Mark mark : this.data.marks) {
-			String name = i + ": " + new TextComponentTranslation(this.marks[mark.type]).getFormattedText();
+		for (Mark mark : data.marks) {
+			String name = i + ": " + new TextComponentTranslation(marks[mark.type]).getFormattedText();
 			ds.add(name);
 			colors.add(mark.color);
-			if (!this.selMark.isEmpty() && this.selMark.equals(name)) {
-				this.selectedMark = mark;
+			if (!selMark.isEmpty() && selMark.equals(name)) {
+				selectedMark = mark;
 			}
 			i++;
 		}
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(130, 174);
+		if (scroll == null) {
+			(scroll = new GuiCustomScroll(this, 0)).setSize(130, 174);
 		}
-		this.scroll.setListNotSorted(ds);
-		this.scroll.guiLeft = this.guiLeft + 5;
-		this.scroll.guiTop = this.guiTop + 14;
-		this.scroll.setColors(colors);
-		if (this.selectedMark != null && !this.selMark.isEmpty()) {
-			this.scroll.setSelected(this.selMark);
+		scroll.setListNotSorted(ds);
+		scroll.guiLeft = guiLeft + 5;
+		scroll.guiTop = guiTop + 14;
+		scroll.setColors(colors);
+		if (selectedMark != null && !selMark.isEmpty()) {
+			scroll.setSelected(selMark);
 		}
-		this.addScroll(this.scroll);
-		if (this.selectedMark == null) {
-			this.selectedMark = (Mark) this.data.getNewMark();
+		addScroll(scroll);
+		if (selectedMark == null) {
+			selectedMark = (Mark) data.getNewMark();
 		}
-		this.addButton(new GuiButtonBiDirectional(0, this.guiLeft + 140, this.guiTop + 14, 120, 20, this.marks,
-				this.selectedMark.getType()));
-		StringBuilder color = new StringBuilder(Integer.toHexString(this.selectedMark.getColor()));
+		// type
+		GuiNpcButton button = new GuiButtonBiDirectional(0, guiLeft + 140, guiTop + 14, 120, 20, marks, selectedMark.getType());
+		button.setHoverText("mark.hover.type");
+		addButton(button);
+		// color
+		StringBuilder color = new StringBuilder(Integer.toHexString(selectedMark.getColor()));
 		while (color.length() < 6) { color.insert(0, "0"); }
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 140, this.guiTop + 36, 120, 20, color.toString()));
-		this.getButton(1).setTextColor(this.selectedMark.getColor());
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 140, this.guiTop + 58, 120, 20, "availability.options"));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 5, this.guiTop + this.ySize - 9, 64, 20, "gui.add"));
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 71, this.guiTop + this.ySize - 9, 64, 20, "gui.remove"));
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 140, this.guiTop + 80, 120, 20,
-				new String[] { "movement.rotation", "ai.standing" }, this.selectedMark.rotate ? 0 : 1));
-		this.addButton(new GuiNpcButton(6, this.guiLeft + 140, this.guiTop + 102, 120, 20, new String[] { "3D", "2D" },
-				this.selectedMark.is3d ? 0 : 1));
-
-		this.getButton(3).enabled = this.selectedMark.type > 0;
-		this.getButton(4).enabled = this.scroll.selected >= 0;
-
-		this.dataDisplay.marks.clear();
-		MarkData.Mark mark = (Mark) this.dataDisplay.addMark(this.selectedMark.type);
-		mark.setColor(this.selectedMark.color);
-		mark.setRotate(this.selectedMark.rotate);
-		mark.set3D(this.selectedMark.is3d);
+		button = new GuiNpcButton(1, guiLeft + 140, guiTop + 36, 120, 20, color.toString());
+		button.setHoverText("color.hover");
+		button.setTextColor(selectedMark.getColor());
+		addButton(button);
+		// availability
+		button = new GuiNpcButton(2, guiLeft + 140, guiTop + 58, 120, 20, "availability.options");
+		button.setHoverText("availability.hover");
+		addButton(button);
+		// add
+		button = new GuiNpcButton(3, guiLeft + 5, guiTop + ySize - 9, 64, 20, "gui.add");
+		button.enabled = selectedMark.type > 0;
+		button.setHoverText("mark.hover.add");
+		addButton(button);
+		// del
+		button = new GuiNpcButton(4, guiLeft + 71, guiTop + ySize - 9, 64, 20, "gui.remove");
+		button.enabled = scroll.selected >= 0;
+		button.setHoverText("mark.hover.del");
+		addButton(button);
+		// is rotation
+		button = new GuiNpcButton(5, guiLeft + 140, guiTop + 80, 120, 20, new String[] { "movement.rotation", "ai.standing" }, selectedMark.rotate ? 0 : 1);
+		button.setHoverText("mark.hover.rotate");
+		addButton(button);
+		// view
+		button = new GuiNpcButton(6, guiLeft + 140, guiTop + 102, 120, 20, new String[] { "3D", "2D" }, selectedMark.is3d ? 0 : 1);
+		button.setHoverText("mark.hover.is3d");
+		addButton(button);
+		// list
+		dataDisplay.marks.clear();
+		MarkData.Mark mark = (Mark) dataDisplay.addMark(selectedMark.type);
+		mark.setColor(selectedMark.color);
+		mark.setRotate(selectedMark.rotate);
+		mark.set3D(selectedMark.is3d);
 		mark.availability = new Availability();
-		this.addLabel(new GuiNpcLabel(5, new TextComponentTranslation("advanced.marks").getFormattedText() + ":",
-				this.guiLeft + 5, this.guiTop + 4));
+		addLabel(new GuiNpcLabel(5, new TextComponentTranslation("advanced.marks").getFormattedText() + ":", guiLeft + 5, guiTop + 4));
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui == null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		if (i == 1 && subgui == null) {
+			save();
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 		}
 		super.keyTyped(c, i);
 	}
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.MainmenuAdvancedMarkData, this.data.getNBT());
+		Client.sendData(EnumPacketServer.MainmenuAdvancedMarkData, data.getNBT());
 	}
 
-	// New
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
-		if (this.selMark.equals(scroll.getSelected())) {
-			return;
-		}
-		this.selMark = scroll.getSelected();
-		this.initGui();
+		if (selMark.equals(scroll.getSelected())) { return; }
+		selMark = scroll.getSelected();
+		initGui();
 	}
 
 	@Override
@@ -235,11 +225,9 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ISubGuiListener, IC
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiColorSelector) {
-			if (this.selectedMark == null) {
-				return;
-			}
-			this.selectedMark.color = ((SubGuiColorSelector) subgui).color;
-			this.initGui();
+			if (selectedMark == null) { return; }
+			selectedMark.color = ((SubGuiColorSelector) subgui).color;
+			initGui();
 		}
 	}
 

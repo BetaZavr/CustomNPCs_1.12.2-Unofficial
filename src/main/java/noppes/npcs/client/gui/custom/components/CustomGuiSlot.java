@@ -12,7 +12,8 @@ import noppes.npcs.containers.ContainerCustomGui;
 
 import java.util.Objects;
 
-public class CustomGuiSlot extends Slot {
+public class CustomGuiSlot
+extends Slot {
 
 	public EntityPlayer player;
 	public IItemSlot slot;

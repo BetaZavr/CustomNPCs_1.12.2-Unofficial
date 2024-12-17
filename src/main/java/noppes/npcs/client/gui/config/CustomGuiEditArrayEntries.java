@@ -27,7 +27,8 @@ import net.minecraftforge.fml.common.FMLLog;
 import noppes.npcs.client.gui.SubGuiColorSelector;
 import noppes.npcs.client.gui.config.CustomNpcsConfigGui.CustomGuiEditArray;
 
-public class CustomGuiEditArrayEntries extends GuiEditArrayEntries {
+public class CustomGuiEditArrayEntries
+extends GuiEditArrayEntries {
 
 	public static class BaseEntry implements IArrayEntry {
 

@@ -7,7 +7,8 @@ import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nonnull;
 
-public class GuiMenuSideButton extends GuiNpcButton {
+public class GuiMenuSideButton
+extends GuiNpcButton {
 
 	private boolean left = false;
 	public boolean active = false;

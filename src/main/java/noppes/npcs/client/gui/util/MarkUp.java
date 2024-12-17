@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.util;
 
 public class MarkUp {
+
     public int start;
     public int end;
     public int level;
@@ -12,4 +13,5 @@ public class MarkUp {
         this.c = c;
         this.level = level;
     }
+
 }

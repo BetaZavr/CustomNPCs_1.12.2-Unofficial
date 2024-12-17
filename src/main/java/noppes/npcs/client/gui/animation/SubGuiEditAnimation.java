@@ -71,8 +71,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
 public class SubGuiEditAnimation
-		extends SubGuiInterface
-		implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldListener, GuiYesNoCallback {
+extends SubGuiInterface
+implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldListener, GuiYesNoCallback {
 
 	// data
 	public static int meshType = 1;
@@ -208,6 +208,8 @@ public class SubGuiEditAnimation
 			if (scrollHitboxes != null && scrollHitboxes.hasSelected()) {
 				isHitbox = true;
 				ModelNpcAlt.editAnimDataSelect.part = null;
+				onlyCurrentPart = true;
+				if (getButton(21) != null) { getButton(21).txrX = 144; }
 			}
 		} else {
 			isHitbox = false;
@@ -242,6 +244,7 @@ System.out.println("buttonID: "+button.id);
 				}
 				frame = anim.frames.get(button.getValue());
 				setPart(frame.parts.get(part.id));
+				setHitbox(frame.damageHitboxes.get(0));
 				initGui();
 				break;
 			} // select frame
@@ -289,10 +292,6 @@ System.out.println("buttonID: "+button.id);
 				} else {
 					if (isMotion || anim == null || part == null || part.id == 6 || part.id == 7) { return; }
 					System.out.println("CNPCs: " + anim.addParts);
-
-					/*addedPartConfig = anim.addAddedPart(part.id);
-					frame = anim.frames.get(frame.id);
-					setPart(frame.parts.get(addedPartConfig.id));*/
 				}
 				break;
 			} // add new part / damage hitbox
@@ -318,12 +317,9 @@ System.out.println("buttonID: "+button.id);
 				break;
 			} // del part
 			case 9: {
-				if (part == null) {
-					return;
-				}
+				if (part == null) { return; }
 				GuiYesNo guiyesno = new GuiYesNo(this,
-						new TextComponentTranslation("animation.clear.part", "" + (part.id + 1),
-								scrollParts.getSelected()).getFormattedText(),
+						new TextComponentTranslation("animation.clear.part", "" + (part.id + 1), scrollParts.getSelected()).getFormattedText(),
 						new TextComponentTranslation("gui.clearMessage").getFormattedText(),
 						GuiScreen.isShiftKeyDown() ? 5 : 3);
 				displayGuiScreen(guiyesno);
@@ -339,6 +335,7 @@ System.out.println("buttonID: "+button.id);
 						f.parts.get(part.id).setDisable(part.isDisable());
 					}
 				}
+				button.setHoverText(new TextComponentTranslation("animation.hover.part.disabled." + !part.isDisable()).appendSibling(new TextComponentTranslation("animation.hover.shift.1")).getFormattedText());
 				resetAnimation();
 				break;
 			} // disabled part
@@ -352,6 +349,7 @@ System.out.println("buttonID: "+button.id);
 						f.setSmooth(frame.isSmooth());
 					}
 				}
+				button.setHoverText("animation.hover.smooth." + frame.isSmooth());
 				resetAnimation();
 				break;
 			} // smooth
@@ -457,6 +455,7 @@ System.out.println("buttonID: "+button.id);
 				break;
 			} // display reset rot
 			case 21: {
+				if (isHitbox || isMotion) { return; }
 				onlyCurrentPart = !onlyCurrentPart;
 				button.txrX = onlyCurrentPart ? 144 : 188;
 				resetAnimation();
@@ -472,6 +471,7 @@ System.out.println("buttonID: "+button.id);
 						f.parts.get(part.id).setShow(part.isShow());
 					}
 				}
+				button.setHoverText(new TextComponentTranslation("animation.hover.part.show." + part.isShow()).appendSibling(new TextComponentTranslation("animation.hover.shift.1")).getFormattedText());
 				resetAnimation();
 				break;
 			} // show part in frame
@@ -629,32 +629,24 @@ System.out.println("buttonID: "+button.id);
 			case 36: {
 				if (frame == null) { return; }
 				frame.isNowDamage = ((GuiNpcCheckBox) button).isSelected();
-				if (frame.isNowDamage) {
-					for (AnimationFrameConfig f : anim.frames.values()) {
-						if (f.id == frame.id) { continue; }
-						f.isNowDamage = false;
-					}
-				} else {
-					if (frame.id == 0) {
-						if (anim.frames.containsKey(1)) { anim.frames.get(1).isNowDamage = true; }
-						else {
-							frame.isNowDamage = true;
-							((GuiNpcCheckBox) button).setSelected(true);
-						}
-					}
-					else { anim.frames.get(0).isNowDamage = true; }
-				}
 				break;
 			} // is now damage
 			case 37: {
 				if (frame == null) { return; }
 				frame.setHoldRightStackType(button.getValue());
+				int type = frame.getHoldRightStackType();
+				if (type == 2) { type = 3; }
+				else if (type == 3) { type = 4; }
+				button.setHoverText("animation.hover.stack.type."+type);
 				resetAnimation();
 				break;
 			} // right stack type
 			case 38: {
 				if (frame == null) { return; }
 				frame.setHoldLeftStackType(button.getValue());
+				int type = frame.getHoldLeftStackType();
+				if (type == 3) { type = 4; }
+				button.setHoverText("animation.hover.stack.type."+type);
 				resetAnimation();
 				break;
 			} // left stack type
@@ -747,9 +739,37 @@ System.out.println("buttonID: "+button.id);
 
 				scrollParts.setSelected(null);
 				setPart(null);
+				setHitbox(null);
+
+				onlyCurrentPart = true;
+				if (getButton(21) != null) { getButton(21).txrX = 144; }
+				resetAnimation();
+
 				initGui();
 				break;
 			} // show motion type
+			case 49: {
+				dispRot[0] = 0.0f;
+				dispRot[1] = 0.0f;
+				dispRot[2] = 0.0f;
+				break;
+			} // align xy
+			case 50: {
+				dispRot[0] = 90.0f;
+				dispRot[1] = 0.0f;
+				dispRot[2] = 0.0f;
+				break;
+			} // align zy
+			case 51: {
+				dispRot[0] = 0.0f;
+				dispRot[1] = 270.0f;
+				dispRot[2] = 0.0f;
+				break;
+			} // align xz
+			case 52: {
+				displayRotate(180, 0);
+				break;
+			} // align revers
 			case 66: {
 				close();
 				break;
@@ -775,6 +795,7 @@ System.out.println("buttonID: "+button.id);
 				anim.removeFrame(frame);
 				frame = anim.frames.get(f);
 				setPart(frame.parts.get(part.id));
+				setHitbox(frame.damageHitboxes.get(0));
 				initGui();
 				break;
 			}
@@ -938,7 +959,7 @@ System.out.println("buttonID: "+button.id);
 		GlStateManager.popMatrix();
 	}
 
-	private void drawLine(double x0, double y0, double z0, double x1, double y1, double z1, float size, float red, float green, float blue) {
+	private void drawLine(double x0, double z0, double x1, double y1, double z1, float size, float red, float green, float blue) {
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		GlStateManager.pushMatrix();
@@ -950,7 +971,7 @@ System.out.println("buttonID: "+button.id);
 		GlStateManager.disableTexture2D();
 		GlStateManager.depthMask(false);
 		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-		buffer.pos(x0, y0, z0).color(red, green, blue, 1.0f).endVertex();
+		buffer.pos(x0, 0.0, z0).color(red, green, blue, 1.0f).endVertex();
 		buffer.pos(x1, y1, z1).color(red, green, blue, 1.0f).endVertex();
 		tessellator.draw();
 		GlStateManager.depthMask(true);
@@ -959,7 +980,7 @@ System.out.println("buttonID: "+button.id);
 		GlStateManager.popMatrix();
 	}
 
-	private void drawCircle(double cx, double cy, double cz, double radius, int type, int segments, float size, float red, float green, float blue) {
+	private void drawCircle(double radius, float size, float red, float green, float blue) {
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		GlStateManager.pushMatrix();
@@ -973,21 +994,10 @@ System.out.println("buttonID: "+button.id);
 
 		buffer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
 
-		for (int i = 0; i <= segments; ++i) {
-			double angle = ((double) i / segments) * Math.PI * 2;
-
-			switch (type) {
-				case 0: // XZ
-					buffer.pos(cx + Math.cos(angle) * radius, cy, cz + Math.sin(angle) * radius).color(red, green, blue, 1.0F).endVertex();
-					break;
-				case 1: // XY
-					buffer.pos(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius, cz).color(red, green, blue, 1.0F).endVertex();
-					break;
-				case 2: // YZ
-					buffer.pos(cx, cy + Math.cos(angle) * radius, cz + Math.sin(angle) * radius).color(red, green, blue, 1.0F).endVertex();
-					break;
-			}
-		}
+		for (int i = 0; i <= 64; ++i) {
+			double angle = ((double) i / 64) * Math.PI * 2;
+            buffer.pos(0.0 + Math.cos(angle) * radius, 0.0, 0.0 + Math.sin(angle) * radius).color(red, green, blue, 1.0F).endVertex();
+        }
 
 		tessellator.draw();
 
@@ -1074,7 +1084,8 @@ System.out.println("buttonID: "+button.id);
 				mousePressX = mouseX;
 				mousePressY = mouseY;
 			}
-		} else {
+		}
+		else {
 			mousePressId = -1;
 		}
 		hovered = isMouseHover(mouseX, mouseY, workU + 1, workV + 1, workS - 2, workS - 2);
@@ -1116,6 +1127,10 @@ System.out.println("buttonID: "+button.id);
 			case 1: stack = npc.inventory.getProjectile(); break;
 			case 2: stack = npc.inventory.getLeftHand(); break;
 			case 3: stack = frame.getHoldRightStack(); break;
+			case 4: stack = npc.inventory.getArmor(0); break;
+			case 5: stack = npc.inventory.getArmor(1); break;
+			case 6: stack = npc.inventory.getArmor(2); break;
+			case 7: stack = npc.inventory.getArmor(3); break;
 			default: stack = npc.inventory.getRightHand(); break;
 		}
 		hoverRight = isMouseHover(mouseX, mouseY, winU + 3, winV + y + 1, 16, 16);
@@ -1123,7 +1138,7 @@ System.out.println("buttonID: "+button.id);
 			Gui.drawRect(1, 1, 17, 17, 0x80FFFFFF);
 			if (stack != null && !stack.isEmpty()) {
 				List<String> list = stack.getMCItemStack().getTooltip(player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
-				if (!list.isEmpty()) { hoverText = list.toArray(new String[0]); }
+				if (!list.isEmpty()) { setHoverText(list); }
 			}
 		}
 		if (stack != null && !stack.isEmpty()) {
@@ -1143,6 +1158,10 @@ System.out.println("buttonID: "+button.id);
 			case 1: stack = npc.inventory.getProjectile(); break;
 			case 2: stack = npc.inventory.getRightHand(); break;
 			case 3: stack = frame.getHoldLeftStack(); break;
+			case 4: stack = npc.inventory.getArmor(0); break;
+			case 5: stack = npc.inventory.getArmor(1); break;
+			case 6: stack = npc.inventory.getArmor(2); break;
+			case 7: stack = npc.inventory.getArmor(3); break;
 			default: stack = npc.inventory.getLeftHand(); break;
 		}
 		hoverLeft = isMouseHover(mouseX, mouseY, winU + 3, winV + y + 1, 16, 16);
@@ -1150,7 +1169,7 @@ System.out.println("buttonID: "+button.id);
 			Gui.drawRect(1, 1, 17, 17, 0x80FFFFFF);
 			if (stack != null && !stack.isEmpty()) {
 				List<String> list = stack.getMCItemStack().getTooltip(player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
-				if (!list.isEmpty()) { hoverText = list.toArray(new String[0]); }
+				if (!list.isEmpty()) { setHoverText(list); }
 			}
 		}
 		if (stack != null && !stack.isEmpty()) {
@@ -1246,7 +1265,8 @@ System.out.println("buttonID: "+button.id);
 					GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000, false);
 			GlStateManager.popMatrix();
 			GlStateManager.popMatrix();
-		} else {
+		}
+		else {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			Gui.drawRect(workU + 1, workV + 1, workU + workS - 1, workV + workS - 1, GuiNpcAnimation.backColor);
@@ -1256,161 +1276,10 @@ System.out.println("buttonID: "+button.id);
 		GlStateManager.translate(0.0f, 0.0f, 975.0f);
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		GlStateManager.popMatrix();
-
 		getButton(7).enabled = !isMotion && ((isHitbox && hitbox != null) || (anim != null && part != null && part.id != 6 && part.id != 7));
 		getButton(8).enabled = !isMotion && ((isHitbox && hitbox != null) || (anim != null && addedPartConfig != null && part != null && part.id > 8));
-
 		if (hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
-		if (hoverMiniWin) {
-			if (hoverText != null) {
-				drawHoveringText(Arrays.asList(hoverText), mouseX, mouseY, fontRenderer);
-				hoverText = null;
-			}
-			return;
-		}
-		if (scrollParts != null && scrollParts.hovered) {
-			setHoverText(new TextComponentTranslation("animation.hover.part.sel").getFormattedText());
-		} else if (getLabel(0) != null && getLabel(0).hovered) {
-			setHoverText(new TextComponentTranslation("animation.hover.help").getFormattedText());
-		} else if (getButton(0) != null && getButton(0).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.block.type").getFormattedText());
-		} else if (getButton(1) != null && getButton(1).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.block.size").getFormattedText());
-		} else if (getButton(2) != null && getButton(2).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.color").getFormattedText());
-		} else if (getButton(3) != null && getButton(3).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.frame", "" + (frame.id + 1)).getFormattedText());
-		} else if (getButton(4) != null && getButton(4).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.frame.add").getFormattedText());
-		} else if (getButton(5) != null && getButton(5).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.frame.del").getFormattedText());
-		} else if (getButton(6) != null && getButton(6).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.reset.frame")
-					.appendSibling(new TextComponentTranslation("animation.hover.shift.0")).getFormattedText());
-		} else if (getButton(7) != null && getButton(7).isMouseOver()) {
-			if (isHitbox) {
-				setHoverText(new TextComponentTranslation("animation.hover.hitbox.add").getFormattedText());
-			} else if (isMotion) {
-				setHoverText(new TextComponentTranslation("animation.hover.not.in.motion").getFormattedText());
-			} else {
-				setHoverText(new TextComponentTranslation("animation.hover.part.add").getFormattedText());
-			}
-		} else if (getButton(8) != null && getButton(8).isMouseOver()) {
-			if (isHitbox) {
-				setHoverText(new TextComponentTranslation("animation.hover.hitbox.del").getFormattedText());
-			} else if (isMotion) {
-				setHoverText(new TextComponentTranslation("animation.hover.not.in.motion").getFormattedText());
-			} else {
-				setHoverText(new TextComponentTranslation("animation.hover.part.del").getFormattedText());
-			}
-		} else if (getButton(9) != null && getButton(9).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.reset.part")
-					.appendSibling(new TextComponentTranslation("animation.hover.shift.0")).getFormattedText());
-		} else if (getButton(10) != null && getButton(10).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.part.disabled." + !part.isDisable())
-					.appendSibling(new TextComponentTranslation("animation.hover.shift.1")).getFormattedText());
-		} else if (getButton(11) != null && getButton(11).isMouseOver()) {
-			setHoverText(
-					new TextComponentTranslation("animation.hover.smooth." + frame.isSmooth()).getFormattedText());
-		} else if (getButton(12) != null && getButton(12).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.part.color").getFormattedText());
-		} else if (getButton(13) != null && getButton(13).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.mesh.0").appendSibling(new TextComponentTranslation("animation.hover.again")).getFormattedText());
-		} else if (getButton(14) != null && getButton(14).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.mesh.1").appendSibling(new TextComponentTranslation("animation.hover.again")).getFormattedText());
-		} else if (getButton(15) != null && getButton(15).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.mesh.2").appendSibling(new TextComponentTranslation("animation.hover.again")).getFormattedText());
-		} else if (getButton(16) != null && getButton(16).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.mesh.3").appendSibling(new TextComponentTranslation("animation.hover.again")).getFormattedText());
-		} else if (getButton(18) != null && getButton(17).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.hitbox").appendSibling(new TextComponentTranslation("animation.hover.again")).getFormattedText());
-		} else if (getButton(18) != null && getButton(18).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.reset.scale").getFormattedText());
-		} else if (getButton(19) != null && getButton(19).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.reset.pos").getFormattedText());
-		} else if (getButton(20) != null && getButton(20).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.reset.rot").getFormattedText());
-		} else if (getButton(21) != null && getButton(21).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.work." + onlyCurrentPart, ((char) 167) + "6" + (frame != null ? frame.id + 1 : -1)).getFormattedText());
-		} else if (getButton(22) != null && getButton(22).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.part.show." + part.isShow()).appendSibling(new TextComponentTranslation("animation.hover.shift.1")).getFormattedText());
-		} else if (getButton(23) != null && getButton(23).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.tool.0").getFormattedText());
-		} else if (getButton(24) != null && getButton(24).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.tool.1").getFormattedText());
-		} else if (getButton(25) != null && getButton(25).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.tool.2").getFormattedText());
-		} else if (getButton(26) != null && getButton(26).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.show.armor").getFormattedText());
-		} else if (getButton(27) != null && getButton(27).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.select.sound").getFormattedText());
-		} else if (getButton(28) != null && getButton(28).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.del.sound").getFormattedText());
-		} else if (getButton(29) != null && getButton(29).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.show.parts").getFormattedText());
-		} else if (getButton(30) != null && getButton(30).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.reset." + toolType, "X").getFormattedText());
-		} else if (getButton(31) != null && getButton(31).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.reset." + toolType, "Y").getFormattedText());
-		} else if (getButton(32) != null && getButton(32).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.reset." + toolType, "Z").getFormattedText());
-		} else if (getButton(35) != null && getButton(35).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.show.tools").getFormattedText());
-		} else if (getButton(36) != null && getButton(36).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.now.attack").getFormattedText());
-		} else if (getButton(37) != null && getButton(37).isMouseOver()) {
-			int type = frame.getHoldRightStackType();
-			if (type == 2) { type = 3; }
-			else if (type == 3) { type = 4; }
-			setHoverText(new TextComponentTranslation("animation.hover.stack.type."+type).getFormattedText());
-		} else if (getButton(38) != null && getButton(38).isMouseOver()) {
-			int type = frame.getHoldLeftStackType();
-			if (type == 3) { type = 4; }
-			setHoverText(new TextComponentTranslation("animation.hover.stack.type."+type).getFormattedText());
-		} else if (getButton(39) != null && getButton(39).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.0").getFormattedText());
-		} else if (getButton(40) != null && getButton(40).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.1").getFormattedText());
-		} else if (getButton(41) != null && getButton(41).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.2").getFormattedText());
-		} else if (getButton(42) != null && getButton(42).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.3").getFormattedText());
-		} else if (getButton(43) != null && getButton(43).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.4").getFormattedText());
-		} else if (getButton(44) != null && getButton(44).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.5").getFormattedText());
-		} else if (getButton(46) != null && getButton(46).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.show.alpha").getFormattedText());
-		} else if (getButton(47) != null && getButton(47).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.base.rot").getFormattedText());
-		} else if (getButton(66) != null && getButton(66).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		} else if (getTextField(0) != null && getTextField(0).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.anim.repeat").getFormattedText());
-		} else if (getTextField(1) != null && getTextField(1).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.part.ticks").getFormattedText());
-		} else if (getTextField(2) != null && getTextField(2).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.part.delay").getFormattedText());
-		} else if ((getTextField(5) != null && getTextField(5).isMouseOver())
-				|| (getSlider(0) != null && getSlider(0).isMouseOver())) {
-			setHoverText(new TextComponentTranslation(
-					"animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"),
-					"X").getFormattedText());
-		} else if ((getTextField(6) != null && getTextField(6).isMouseOver())
-				|| (getSlider(1) != null && getSlider(1).isMouseOver())) {
-			setHoverText(new TextComponentTranslation(
-					"animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"),
-					"Y").getFormattedText());
-		} else if ((getTextField(7) != null && getTextField(7).isMouseOver())
-				|| (getSlider(2) != null && getSlider(2).isMouseOver())) {
-			setHoverText(new TextComponentTranslation(
-					"animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"),
-					"Z").getFormattedText());
-		}
-		if (hoverText != null) {
-			drawHoveringText(Arrays.asList(hoverText), mouseX, mouseY, fontRenderer);
-			hoverText = null;
-		}
+		if (hoverMiniWin) { drawHoverText(null); }
 	}
 
 	@Override
@@ -1460,11 +1329,13 @@ System.out.println("buttonID: "+button.id);
 				setHoverText(text.getFormattedText());
 			}
 		} else if (c instanceof GuiNpcButton) {
-			setHoverText(new TextComponentTranslation("hover.default.set").getFormattedText());
-		} else if (c instanceof GuiCustomScroll) {
-			if (((GuiCustomScroll) c).hoversTexts != null  && ((GuiCustomScroll) c).hover >= 0 && ((GuiCustomScroll) c).hover < ((GuiCustomScroll) c).hoversTexts.length) {
-				hoverText = ((GuiCustomScroll) c).hoversTexts[((GuiCustomScroll) c).hover];
+			if (((GuiNpcButton) c).id == 48) {
+				setHoverText(new TextComponentTranslation("animation.hover.show.motion").getFormattedText());
 			}
+			else { setHoverText(new TextComponentTranslation("hover.default.set").getFormattedText()); }
+		} else if (c instanceof GuiCustomScroll) {
+			Map<Integer, List<String>> hts = ((GuiCustomScroll) c).getHoversTexts();
+			if (hts.containsKey(((GuiCustomScroll) c).hover)) { setHoverText(hts.get(((GuiCustomScroll) c).hover)); }
 		}
 	}
 
@@ -1657,7 +1528,7 @@ System.out.println("buttonID: "+button.id);
 						s = 3.0f;
 					}
 					// distance
-					drawLine(0.0f, 0.0f, 0.0f, center.x, 0.0f, center.z, s, r, g, b);
+					drawLine(0.0f, 0.0f, center.x, 0.0f, center.z, s, r, g, b);
 
 					r = 0.5f;
 					g = 0.5f;
@@ -1670,7 +1541,7 @@ System.out.println("buttonID: "+button.id);
 						s = 3.0f;
 					}
 					// height
-					drawLine(center.x, 0.0f, center.z, center.x, center.y, center.z, s, r, g, b);
+					drawLine(center.x, center.z, center.x, center.y, center.z, s, r, g, b);
 
 					// round radius
 					r = 0.5f;
@@ -1683,7 +1554,7 @@ System.out.println("buttonID: "+button.id);
 						b = 0.195f;
 						s = 3.0f;
 					}
-					drawCircle(0.0d, 0.0d, 0.0d, Math.sqrt(Math.pow(center.x, 2.0d) + Math.pow(center.z, 2.0d)), 0, 64, s, r, g, b);
+					drawCircle(Math.sqrt(Math.pow(center.x, 2.0d) + Math.pow(center.z, 2.0d)), s, r, g, b);
 				}
 				i++;
 			}
@@ -1712,7 +1583,7 @@ System.out.println("buttonID: "+button.id);
 					s = 3.0f;
 				}
 				// distance
-				drawLine(0.0f, 0.0f, 0.0f, x, 0.0f, z, s, r, g, b);
+				drawLine(0.0f, 0.0f, x, 0.0f, z, s, r, g, b);
 
 				r = 0.5f;
 				g = 0.5f;
@@ -1725,7 +1596,7 @@ System.out.println("buttonID: "+button.id);
 					s = 3.0f;
 				}
 				// height
-				drawLine(x, 0.0f, z, x, y, z, s, r, g, b);
+				drawLine(x, z, x, y, z, s, r, g, b);
 
 				// round radius
 				r = 0.5f;
@@ -1738,7 +1609,7 @@ System.out.println("buttonID: "+button.id);
 					b = 0.195f;
 					s = 3.0f;
 				}
-				drawCircle(0.0d, 0.0d, 0.0d, Math.sqrt(Math.pow(x, 2.0d) + Math.pow(z, 2.0d)), 0, 64, s, r, g, b);
+				drawCircle(Math.sqrt(Math.pow(x, 2.0d) + Math.pow(z, 2.0d)), s, r, g, b);
 
 				r = 0.25f;
 				g = 0.25f;
@@ -1756,23 +1627,9 @@ System.out.println("buttonID: "+button.id);
 		}
 
 		// model mesh rotation axes:
-		/*double xN = 0.0d;
-		double yN = 0.0d;
-		double zN = 0.0d;
-		if (isHitbox) {}
-		else {
-			ModelNpcAlt model = (ModelNpcAlt) ((RenderLiving<?>) Objects.requireNonNull(mc.getRenderManager().getEntityRenderObject(showNPC))).getMainModel();
-			GlStateManager.pushMatrix();
-			model.bipedBody.postRender(0.0625f);
-			for (int i = 0; i < 3; i++) { drawLine(xN, yN, zN, 0.5d / dispScale, i, 0.5f, 0.5f, 0.5f); }
-			GlStateManager.popMatrix();
-		}*/
-
-
 
 		ModelNpcAlt.editAnimDataSelect.displayNpc = showNPC;
 		mc.getRenderManager().renderEntity(showNPC, 0.0, 0.0, 0.0, 0.0f, showNPC.rotationYaw != 0.0f ? 1.0f : 0.0f, false);
-
 
 		if (blockType == 0) {
 			for (Entity e : environmentEntitys) {
@@ -1813,6 +1670,10 @@ System.out.println("buttonID: "+button.id);
 			hitbox = frame.damageHitboxes.get(0);
 			if (hitbox.id < 0) { hitbox.id = 0; }
 		}
+		if (scrollParts == null) {
+			(scrollParts = new GuiCustomScroll(this, 0)).setSize(67, 112);
+			scrollParts.setHoverText("animation.hover.part.sel");
+		}
 		ScaledResolution sw = new ScaledResolution(mc);
 		if (w > 0.0d && h > 0.0d) {
 			if (partNames != null) {
@@ -1851,34 +1712,43 @@ System.out.println("buttonID: "+button.id);
 		workU = winU + 140;
 		workV = winV + 4;
 		winScale = (float) workS / 100.0f;
-		int x = winU + 3, y = winV + 12, lId = 0;
+		int x = winU + 3;
+		int y = winV + 12;
+		int lId = 0;
 		GuiNpcButton button;
 		GuiNpcTextField textField;
 
 		// common to settings
-		addLabel(new GuiNpcLabel(lId++, ((char) 167) + "n" + ((char) 167) + "l?", workU - 6, workV, 0xFF000000));
-
+		GuiNpcLabel label = new GuiNpcLabel(lId++, ((char) 167) + "n" + ((char) 167) + "l?", workU - 6, workV, 0xFF000000);
+		label.setHoverText("animation.hover.help");
+		addLabel(label);
 		// name
 		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.name").getFormattedText() + ":", x, y - 10));
 		textField = new GuiNpcTextField(11, this, x, y, 125, 12, anim.name);
 		addTextField(textField);
 
 		// work place
+		// type
 		addLabel(new GuiNpcLabel(lId++, "animation.place", x, (y += 26) - 10));
-		addButton(new GuiButtonBiDirectional(0, x, y, 105, 10, blockNames, blockType));
+		button = new GuiButtonBiDirectional(0, x, y, 105, 10, blockNames, blockType);
+		button.setHoverText("animation.hover.block.type");
+		addButton(button);
+		// size
 		button = new GuiNpcButton(1, x + 107, y, 17, 10, blockSizes, blockSize);
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText("animation.hover.block.size");
 		addButton(button);
-
+		// back color
 		button = new GuiNpcButton(2, workU + 2, workV + 23, 8, 8, "");
 		button.layerColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText("animation.hover.color");
 		addButton(button);
 
 		button = new GuiNpcButton(26, workU + 2, workV + 31, 8, 8, "");
@@ -1887,6 +1757,7 @@ System.out.println("buttonID: "+button.id);
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText("animation.hover.show.armor");
 		addButton(button);
 
 		button = new GuiNpcButton(46, workU + 2, workV + 39, 8, 8, "");
@@ -1895,6 +1766,7 @@ System.out.println("buttonID: "+button.id);
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText("animation.hover.show.alpha");
 		addButton(button);
 
 		button = new GuiNpcButton(47, workU + 2, workV + 47, 8, 8, "");
@@ -1903,14 +1775,16 @@ System.out.println("buttonID: "+button.id);
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText("animation.hover.base.rot");
 		addButton(button);
 
 		// frame
-		GuiNpcLabel label = new GuiNpcLabel(lId++, "animation.frames", x, (y += 23) - 10);
-		addLabel(label);
+		addLabel(new GuiNpcLabel(lId++, "animation.frames", x, (y += 23) - 10));
 		List<String> lFrames = new ArrayList<>();
 		for (int i = 0; i < anim.frames.size(); i++) { lFrames.add((i + 1) + "/" + anim.frames.size()); }
-		addButton(new GuiButtonBiDirectional(3, x, y, 60, 10, lFrames.toArray(new String[0]), frame.id));
+		button = new GuiButtonBiDirectional(3, x, y, 60, 10, lFrames.toArray(new String[0]), frame.id);
+		button.setHoverText("animation.hover.frame", "" + (frame.id + 1));
+		addButton(button);
 		// add frame
 		button = new GuiNpcButton(4, x + label.width + 2, y - 10, 10, 10, "");
 		button.texture = ANIMATION_BUTTONS;
@@ -1919,6 +1793,7 @@ System.out.println("buttonID: "+button.id);
 		button.txrX = 96;
 		button.txrW = 24;
 		button.txrH = 24;
+		button.setHoverText("animation.hover.frame.add");
 		addButton(button);
 		// del frame
 		button = new GuiNpcButton(5, x + label.width + 12, y - 10, 10, 10, "");
@@ -1928,10 +1803,13 @@ System.out.println("buttonID: "+button.id);
 		button.txrX = 72;
 		button.txrW = 24;
 		button.txrH = 24;
+		button.setHoverText("animation.hover.frame.del");
 		button.enabled = anim.frames.size() > 1;
 		addButton(button);
 		// frame smooth animated
-		addButton(new GuiNpcCheckBox(11, x + 62, y - 2, 74, 12, "gui.smooth", "gui.linearly", frame.isSmooth()));
+		button = new GuiNpcCheckBox(11, x + 62, y - 2, 74, 12, "gui.smooth", "gui.linearly", frame.isSmooth());
+		button.setHoverText("animation.hover.smooth." + frame.isSmooth());
+		addButton(button);
 		// clear frame
 		button = new GuiNpcButton(6, x + 126, y - 10, 10, 10, "");
 		button.texture = ANIMATION_BUTTONS;
@@ -1940,16 +1818,17 @@ System.out.println("buttonID: "+button.id);
 		button.txrX = 120;
 		button.txrW = 24;
 		button.txrH = 24;
+		button.setHoverText(new TextComponentTranslation("animation.hover.reset.frame").appendSibling(new TextComponentTranslation("animation.hover.shift.0")).getFormattedText());
 		addButton(button);
 		// frame times
 		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.time").getFormattedText() + ":", x, (y += 12) + 2));
 		textField = new GuiNpcTextField(1, this, x + 35, y, 48, 12, "" + frame.getSpeed());
-		textField.setNumbersOnly();
 		textField.setMinMaxDefault(0, 3600, frame.getSpeed());
+		textField.setHoverText("animation.hover.part.ticks");
 		addTextField(textField);
 		textField = new GuiNpcTextField(2, this, x + 87, y, 48, 12, "" + frame.getEndDelay());
-		textField.setNumbersOnly();
 		textField.setMinMaxDefault(0, 3600, frame.getEndDelay());
+		textField.setHoverText("animation.hover.part.delay");
 		addTextField(textField);
 		// frame repeat
 		hasExtend = false;
@@ -1959,34 +1838,34 @@ System.out.println("buttonID: "+button.id);
 			if (anim.repeatLast < 0) { anim.repeatLast *= -1; }
 			if (anim.repeatLast > anim.frames.size()) { anim.repeatLast = anim.frames.size(); }
 			textField = new GuiNpcTextField(0, this, x + 87, y, 48, 12, "" + anim.repeatLast);
-			textField.setNumbersOnly();
 			textField.setMinMaxDefault(0, anim.frames.size(), anim.repeatLast);
+			textField.setHoverText("animation.hover.anim.repeat");
 			addTextField(textField);
 		}
 		// has damage hitbox
 		if (anim.type == AnimationKind.ATTACKING) {
 			hasExtend = true;
-			addButton(new GuiNpcCheckBox(36, x, y += 14, 136, 12, "animation.now.attack", "animation.notyet.attack", frame.isNowDamage()));
+			button = new GuiNpcCheckBox(36, x, y += 14, 136, 12, "animation.now.attack", "animation.notyet.attack", frame.isNowDamage());
+			button.setHoverText("animation.hover.now.attack");
+			addButton(button);
 		}
-		// stack show
+		// show stack in right hand
 		addLabel(new GuiNpcLabel(lId++, "animation.hold.right", x + 20, y += 13));
-		button = new GuiNpcButton(37, x + 20, y += 9, 116, 10, new String[] { "animation.stack.type.0", "animation.stack.type.1", "animation.stack.type.3", "animation.stack.type.4", "animation.stack.type.5", "animation.stack.type.6", "animation.stack.type.7", "animation.stack.type.8" }, frame.getHoldRightStackType());
-		button.texture = ANIMATION_BUTTONS;
-		button.hasDefBack = false;
-		button.isAnim = true;
-		button.txrY = 96;
+		button = new GuiButtonBiDirectional(37, x + 20, y += 9, 116, 10, new String[] { "animation.stack.type.0", "animation.stack.type.1", "animation.stack.type.3", "animation.stack.type.4", "animation.stack.type.5", "animation.stack.type.6", "animation.stack.type.7", "animation.stack.type.8" }, frame.getHoldRightStackType());
+		int type = frame.getHoldRightStackType();
+		if (type == 2) { type = 3; }
+		else if (type == 3) { type = 4; }
+		button.setHoverText("animation.hover.stack.type."+type);
 		addButton(button);
+		// show stack in left hand
 		addLabel(new GuiNpcLabel(lId++, "animation.hold.left", x + 20, y += 10));
-		button = new GuiNpcButton(38, x + 20, y += 9, 116, 10, new String[] { "animation.stack.type.0", "animation.stack.type.1", "animation.stack.type.2", "animation.stack.type.4", "animation.stack.type.5", "animation.stack.type.6", "animation.stack.type.7", "animation.stack.type.8" }, frame.getHoldLeftStackType());
-		button.texture = ANIMATION_BUTTONS;
-		button.hasDefBack = false;
-		button.isAnim = true;
-		button.txrY = 96;
+		button = new GuiButtonBiDirectional(38, x + 20, y += 9, 116, 10, new String[] { "animation.stack.type.0", "animation.stack.type.1", "animation.stack.type.2", "animation.stack.type.4", "animation.stack.type.5", "animation.stack.type.6", "animation.stack.type.7", "animation.stack.type.8" }, frame.getHoldLeftStackType());
+		type = frame.getHoldLeftStackType();
+		if (type == 3) { type = 4; }
+		button.setHoverText("animation.hover.stack.type."+type);
 		addButton(button);
-
 		// Part
-		label = new GuiNpcLabel(lId++, isMotion ? "animation.motion" :  isHitbox ? "animation.hitbox" : "animation.parts", x, y += 13);
-		addLabel(label);
+		addLabel(new GuiNpcLabel(lId++, isMotion ? "animation.motion" :  isHitbox ? "animation.hitbox" : "animation.parts", x, y += 13));
 		// show part names
 		button = new GuiNpcButton(29, workU + 2, y, 8, 8, "");
 		button.texture = ANIMATION_BUTTONS;
@@ -1997,6 +1876,7 @@ System.out.println("buttonID: "+button.id);
 		button.txrH = 24;
 		button.enabled = partNames == null || !partNames.visible;
 		button.layerColor = CustomNpcs.colorAnimHoverPart + 0xFF000000;
+		button.setHoverText("animation.hover.show.parts");
 		addButton(button);
 		// show hitbox names
 		if (anim.type == AnimationKind.ATTACKING) {
@@ -2009,11 +1889,10 @@ System.out.println("buttonID: "+button.id);
 			button.txrH = 24;
 			button.enabled = hitboxes == null || !hitboxes.visible;
 			button.layerColor = 0xFFFAF700;
+			button.setHoverText("animation.hover.show.hitboxes");
 			addButton(button);
 		}
-
 		// scrolls data set
-		if (scrollParts == null) { (scrollParts = new GuiCustomScroll(this, 0)).setSize(67, 112); }
 		dataParts.clear();
 		List<String> lParts = new ArrayList<>();
 		for (int id : frame.parts.keySet()) {
@@ -2026,26 +1905,27 @@ System.out.println("buttonID: "+button.id);
 		dataHitboxes.clear();
 		if (scrollHitboxes == null) { (scrollHitboxes = new GuiCustomScroll(this, 1)).setSize(112, 112); }
 		List<String> lHitboxes = new ArrayList<>();
-		scrollHitboxes.hoversTexts = new String[frame.damageHitboxes.size()][];
 		int i = 0;
 		char c = (char) 167;
+		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		for (int id : frame.damageHitboxes.keySet()) {
 			AnimationDamageHitbox aDH = frame.damageHitboxes.get(id);
             String key = aDH.getKey();
 			dataHitboxes.put(key, aDH);
 			lHitboxes.add(key);
-			scrollHitboxes.hoversTexts[i] = new String[] {
-					c + "7ID: " + c + "6" + (id + 1),
-					c + "7D:" + c + "a" + aDH.offset[0],
-					c + "7H:" + c + "a" + aDH.offset[1],
-					c + "7W:" + c + "a" + aDH.offset[2],
-					c + "7Scale X:" + c + "b" + aDH.scale[0],
-					c + "7Scale Y:" + c + "b" + aDH.scale[1],
-					c + "7Scale Z:" + c + "b" + aDH.scale[2]
-			};
+			List<String> list = new ArrayList<>();
+			list.add(c + "7ID: " + c + "6" + (id + 1));
+			list.add(c + "7D:" + c + "a" + aDH.offset[0]);
+			list.add(c + "7H:" + c + "a" + aDH.offset[1]);
+			list.add(c + "7W:" + c + "a" + aDH.offset[2]);
+			list.add(c + "7Scale X:" + c + "b" + aDH.scale[0]);
+			list.add(c + "7Scale Y:" + c + "b" + aDH.scale[1]);
+			list.add(c + "7Scale Z:" + c + "b" + aDH.scale[2]);
+			hts.put(i, list);
 			i++;
 		}
 		scrollHitboxes.setListNotSorted(lHitboxes);
+		scrollHitboxes.setHoverTexts(hts);
 		if (isHitbox && toolType == 0) { toolType = 1; }
 		// add part / hitbox
 		button = new GuiNpcButton(7, x + label.width + 2, y, 10, 10, "");
@@ -2055,6 +1935,9 @@ System.out.println("buttonID: "+button.id);
 		button.txrX = 96;
 		button.txrW = 24;
 		button.txrH = 24;
+		if (isHitbox) { button.setHoverText("animation.hover.hitbox.add"); }
+		else if (isMotion) { button.setHoverText("animation.hover.not.in.motion"); }
+		else { button.setHoverText("animation.hover.part.add"); }
 		addButton(button);
 		// del part / hitbox
 		button = new GuiNpcButton(8, x + label.width + 12, y, 10, 10, "");
@@ -2064,6 +1947,9 @@ System.out.println("buttonID: "+button.id);
 		button.txrX = 72;
 		button.txrW = 24;
 		button.txrH = 24;
+		if (isHitbox) { button.setHoverText("animation.hover.hitbox.del"); }
+		else if (isMotion) { button.setHoverText("animation.hover.not.in.motion"); }
+		else { button.setHoverText("animation.hover.part.del"); }
 		addButton(button);
 		// clear part
 		button = new GuiNpcButton(9, x + 126, y, 10, 10, "");
@@ -2074,14 +1960,17 @@ System.out.println("buttonID: "+button.id);
 		button.txrW = 24;
 		button.txrH = 24;
 		button.enabled = !isMotion && !isHitbox;
+		button.setHoverText(new TextComponentTranslation("animation.hover.reset.part").appendSibling(new TextComponentTranslation("animation.hover.shift.0")).getFormattedText());
 		addButton(button);
 		// used part in frame
 		button = new GuiNpcCheckBox(10, x, y += 10, 67, 14, "gui.disabled", "gui.enabled", part.isDisable());
 		button.enabled = !isMotion && !isHitbox;
+		button.setHoverText(new TextComponentTranslation("animation.hover.part.disabled." + !part.isDisable()).appendSibling(new TextComponentTranslation("animation.hover.shift.1")).getFormattedText());
 		addButton(button);
 		// show part in frame
 		button = new GuiNpcCheckBox(22, x + 69, y, 67, 14, "gui.show", "gui.noshow", part.isShow());
 		button.enabled = !isMotion && !isHitbox;
+		button.setHoverText(new TextComponentTranslation("animation.hover.part.show." + part.isShow()).appendSibling(new TextComponentTranslation("animation.hover.shift.1")).getFormattedText());
 		addButton(button);
 		// display color hover
 		StringBuilder color = new StringBuilder(Integer.toHexString(CustomNpcs.colorAnimHoverPart));
@@ -2094,19 +1983,20 @@ System.out.println("buttonID: "+button.id);
 		button.setTextColor(CustomNpcs.colorAnimHoverPart);
 		button.dropShadow = false;
 		button.enabled = !isMotion && !isHitbox;
+		button.setHoverText("animation.hover.part.color");
 		addButton(button);
-
 		// Chance
 		float ch = Math.round(anim.chance * 100000.0f) / 1000.0f;
 		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("drop.chance").getFormattedText()+":", x, (y += 14) + 1));
 		textField = new GuiNpcTextField(10, this, x + 28, y, 40, 12, String.valueOf(ch));
-		textField.setDoubleNumbersOnly();
 		textField.setMinMaxDoubleDefault(0.0f, 100.0f, ch);
+		textField.setHoverText("animation.hover.chance");
 		addTextField(textField);
 		addLabel(new GuiNpcLabel(lId++, "%", x + 72, y + 1));
 		// Sound Settings
 		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("advanced.sounds").getFormattedText()+":", x, y += 16));
 		textField = new GuiNpcTextField(3, this, x, y + 10, 135, 12, frame.getStartSound());
+		textField.setHoverText("animation.hover.sound");
 		addTextField(textField);
 		button = new GuiNpcButton(27, x + textField.width - 17, y, 8, 8, "S");
 		button.texture = ANIMATION_BUTTONS;
@@ -2115,6 +2005,7 @@ System.out.println("buttonID: "+button.id);
 		button.txrY = 96;
 		button.dropShadow = false;
 		button.setTextColor(0xFFDC0000);
+		button.setHoverText("animation.hover.select.sound");
 		addButton(button);
 		button = new GuiNpcButton(28, x + textField.width - 8, y, 8, 8, "X");
 		button.texture = ANIMATION_BUTTONS;
@@ -2123,137 +2014,203 @@ System.out.println("buttonID: "+button.id);
 		button.txrY = 96;
 		button.dropShadow = false;
 		button.setTextColor(0xFFDC0000);
+		button.setHoverText("animation.hover.del.sound");
 		addButton(button);
 
 		// Emotion data
 		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("advanced.emotion").getFormattedText()+":", x, y += 26));
 		textField = new GuiNpcTextField(4, this, x, y + 10, 48, 12, "" + frame.getStartEmotion());
-		textField.setNumbersOnly();
 		textField.setMinMaxDefault(0, AnimationController.getInstance().getUnusedEmtnId() - 1, frame.getStartEmotion());
+		textField.setHoverText("animation.hover.emotion.id");
 		addTextField(textField);
 
-		// Equipment
+		// show equipment mainhand
 		addLabel(new GuiNpcLabel(lId, "animation.show.stacks", x, y += 26));
-		button = new GuiNpcButton(39, x + 2, y += 10, 12, 12, ""); // main hand
+		button = new GuiNpcButton(39, x + 2, y += 10, 12, 12, "");
 		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrY = frame.showMainHand ? 0 : 96;
 		button.txrW = 24;
 		button.txrH = 24;
+		button.setHoverText("animation.hover.0");
 		addButton(button);
-		button = new GuiNpcButton(40, x + 16, y, 12, 12, ""); // offhand
+		// show equipment offhand
+		button = new GuiNpcButton(40, x + 16, y, 12, 12, "");
 		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrX = 24;
 		button.txrY = frame.showOffHand ? 0 : 96;
 		button.txrW = 24;
 		button.txrH = 24;
+		button.setHoverText("animation.hover.1");
 		addButton(button);
-		button = new GuiNpcButton(41, x + 30, y, 12, 12, ""); // helmet
+		// show equipment helmet
+		button = new GuiNpcButton(41, x + 30, y, 12, 12, "");
 		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrX = 48;
 		button.txrY = frame.showHelmet ? 0 : 96;
 		button.txrW = 24;
 		button.txrH = 24;
+		button.setHoverText("animation.hover.2");
+		// show equipment body
 		addButton(button);
-		button = new GuiNpcButton(42, x + 44, y, 12, 12, ""); // body
+		button = new GuiNpcButton(42, x + 44, y, 12, 12, "");
 		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrX = 72;
 		button.txrY = frame.showBody ? 0 : 96;
 		button.txrW = 24;
 		button.txrH = 24;
+		button.setHoverText("animation.hover.3");
 		addButton(button);
-		button = new GuiNpcButton(43, x + 58, y, 12, 12, ""); // legs
+		// show equipment legs
+		button = new GuiNpcButton(43, x + 58, y, 12, 12, "");
 		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrX = 96;
 		button.txrY = frame.showLegs ? 0 : 96;
 		button.txrW = 24;
 		button.txrH = 24;
+		button.setHoverText("animation.hover.4");
 		addButton(button);
-		button = new GuiNpcButton(44, x + 72, y, 12, 12, ""); // feet's
+		// show equipment feet's
+		button = new GuiNpcButton(44, x + 72, y, 12, 12, "");
 		button.texture = ANIMATION_BUTTONS_SLOTS;
 		button.hasDefBack = false;
 		button.txrX = 120;
 		button.txrY = frame.showFeets ? 0 : 96;
 		button.txrW = 24;
 		button.txrH = 24;
+		button.setHoverText("animation.hover.5");
 		addButton(button);
 
-		// Exit
-		button = new GuiNpcButton(66, x, winV + winH - 12, 50, 10, "gui.back"); // back
+		// exit
+		button = new GuiNpcButton(66, x, winV + winH - 12, 50, 10, "gui.back");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText("hover.back");
 		addButton(button);
 
-		// work
-		button = new GuiNpcButton(13, workU + 25, workV + 2, 8, 8, ""); // simple mesh
+		// work place
+		// simple mesh
+		button = new GuiNpcButton(13, workU + 25, workV + 2, 8, 8, "");
 		button.layerColor = meshType == 0 ? 0xFFD93070 : 0xFF360C1C;
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText(new TextComponentTranslation("animation.hover.mesh.0").appendSibling(new TextComponentTranslation("animation.hover.again")).getFormattedText());
 		addButton(button);
-		button = new GuiNpcButton(14, workU + 34, workV + 2, 8, 8, ""); // xz mesh
+		// xz mesh
+		button = new GuiNpcButton(14, workU + 34, workV + 2, 8, 8, "");
 		button.layerColor = meshType == 1 ? 0xFF6830D9 : 0xFF1A0C36;
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText(new TextComponentTranslation("animation.hover.mesh.1").appendSibling(new TextComponentTranslation("animation.hover.again")).getFormattedText());
 		addButton(button);
-		button = new GuiNpcButton(15, workU + 43, workV + 2, 8, 8, ""); // xY mesh
+		// xy mesh
+		button = new GuiNpcButton(15, workU + 43, workV + 2, 8, 8, "");
 		button.layerColor = meshType == 2 ? 0xFF30D980 : 0xFF0C3620;
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText(new TextComponentTranslation("animation.hover.mesh.2").appendSibling(new TextComponentTranslation("animation.hover.again")).getFormattedText());
 		addButton(button);
-		button = new GuiNpcButton(16, workU + 52, workV + 2, 8, 8, ""); // zy mesh
+		// zy mesh
+		button = new GuiNpcButton(16, workU + 52, workV + 2, 8, 8, "");
 		button.layerColor = meshType == 3 ? 0xFFD7D930 : 0xFF35360C;
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText(new TextComponentTranslation("animation.hover.mesh.3").appendSibling(new TextComponentTranslation("animation.hover.again")).getFormattedText());
 		addButton(button);
-		button = new GuiNpcButton(17, workU + 61, workV + 2, 8, 8, ""); // show hit box
+		// show hit box
+		button = new GuiNpcButton(17, workU + 61, workV + 2, 8, 8, "");
 		button.layerColor = showHitBox ? 0 : 0xFF808080;
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText(new TextComponentTranslation("animation.hover.hitbox").appendSibling(new TextComponentTranslation("animation.hover.again")).getFormattedText());
+		addButton(button);
+		// align xy
+		button = new GuiNpcButton(49, workU + 79, workV + 2, 8, 8, "x");
+		button.layerColor = 0xFF8555BA;
+		button.texture = ANIMATION_BUTTONS;
+		button.hasDefBack = false;
+		button.isAnim = true;
+		button.txrY = 96;
+		button.setHoverText("animation.hover.align.xy");
+		addButton(button);
+		// align zy
+		button = new GuiNpcButton(50, workU + 79, workV + 11, 8, 8, "z");
+		button.layerColor = 0xFF8555BA;
+		button.texture = ANIMATION_BUTTONS;
+		button.hasDefBack = false;
+		button.isAnim = true;
+		button.txrY = 96;
+		button.setHoverText("animation.hover.align.zy");
+		addButton(button);
+		// align xz
+		button = new GuiNpcButton(51, workU + 88, workV + 2, 8, 8, "y");
+		button.layerColor = 0xFF8555BA;
+		button.texture = ANIMATION_BUTTONS;
+		button.hasDefBack = false;
+		button.isAnim = true;
+		button.txrY = 96;
+		button.setHoverText("animation.hover.align.xz");
+		addButton(button);
+		// align revers
+		button = new GuiNpcButton(52, workU + 97, workV + 11, 8, 8, "r");
+		button.layerColor = 0xFF557DBA;
+		button.texture = ANIMATION_BUTTONS;
+		button.hasDefBack = false;
+		button.isAnim = true;
+		button.txrY = 96;
+		button.setHoverText("animation.hover.align.revers");
 		addButton(button);
 
-		button = new GuiNpcButton(18, workU + workS - 10, workV + 2, 8, 8, ""); // reset scale
+		// reset scale
+		button = new GuiNpcButton(18, workU + workS - 10, workV + 2, 8, 8, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText("animation.hover.reset.scale");
 		addButton(button);
-		button = new GuiNpcButton(19, workU + 2, workV + workS - 10, 8, 8, ""); // reset pos
+		// reset pos
+		button = new GuiNpcButton(19, workU + 2, workV + workS - 10, 8, 8, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText("animation.hover.reset.pos");
 		addButton(button);
-		button = new GuiNpcButton(20, workU + workS - 10, workV + workS - 10, 8, 8, ""); // reset rot
+		// reset rot
+		button = new GuiNpcButton(20, workU + workS - 10, workV + workS - 10, 8, 8, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrY = 96;
+		button.setHoverText("animation.hover.reset.rot");
 		addButton(button);
-		button = new GuiNpcButton(21, workU + workS / 2 - 11, workV + workS - 12, 18, 10, ""); // part or anim
+		// part or anim
+		button = new GuiNpcButton(21, workU + workS / 2 - 11, workV + workS - 12, 18, 10, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
 		button.txrX = onlyCurrentPart ? 144 : 188;
 		button.txrW = 44;
 		button.txrH = 24;
+		button.setHoverText(new TextComponentTranslation("animation.hover.work." + onlyCurrentPart, ((char) 167) + "6" + (frame != null ? frame.id + 1 : -1)).getFormattedText());
 		addButton(button);
-
 		y = workV + workS - 74;
 		// show tools
 		button = new GuiNpcButton(35, workU + 5, y, 8, 8, "");
@@ -2264,6 +2221,7 @@ System.out.println("buttonID: "+button.id);
 		button.txrW = 24;
 		button.txrH = 24;
 		button.enabled = tools == null || !tools.visible;
+		button.setHoverText("animation.hover.show.tools");
 		addButton(button);
 		// tool pos
 		button = new GuiNpcButton(23, workU + 2, y += 10, 14, 14, "");
@@ -2273,6 +2231,7 @@ System.out.println("buttonID: "+button.id);
 		button.txrW = 24;
 		button.txrH = 24;
 		button.layerColor = toolType == 1 ? 0xFFFF8080 : 0xFFFFFFFF;
+		button.setHoverText("animation.hover.tool.0");
 		addButton(button);
 		// tool rot
 		button = new GuiNpcButton(24, workU + 2, y += 16, 14, 14, "");
@@ -2284,6 +2243,7 @@ System.out.println("buttonID: "+button.id);
 		button.txrH = 24;
 		button.layerColor = toolType == 0 ? 0xFF80FF80 : 0xFFFFFFFF;
 		button.enabled = !isHitbox && !isMotion;
+		button.setHoverText("animation.hover.tool.1");
 		addButton(button);
 		// tool scale
 		button = new GuiNpcButton(25, workU + 2, y + 16, 14, 14, "");
@@ -2295,6 +2255,7 @@ System.out.println("buttonID: "+button.id);
 		button.txrH = 24;
 		button.layerColor = toolType == 2 ? 0xFF8080FF : 0xFFFFFFFF;
 		button.enabled = !isMotion;
+		button.setHoverText("animation.hover.tool.2");
 		addButton(button);
 
 		resetAnimation();
@@ -2337,8 +2298,7 @@ System.out.println("buttonID: "+button.id);
 		int y = workV + workS - 65;
 		GuiNpcTextField textField;
 		GuiNpcButton button;
-		boolean notNormal = toolType == 0 && part != null &&
-				((addedPartConfig != null && !addedPartConfig.isNormal) || (part.id >= 1 && part.id <= 5));
+		boolean notNormal = toolType == 0 && part != null && ((addedPartConfig != null && !addedPartConfig.isNormal) || (part.id >= 1 && part.id <= 5));
 		if (isHitbox) { notNormal = false; }
 		y += notNormal ? -11 : 0;
 		if (tools != null) {
@@ -2353,7 +2313,7 @@ System.out.println("buttonID: "+button.id);
 		x += 4;
 		y += 13;
 		for (int i = 0; i < 3; i++) {
-			tools.addLabel(new GuiNpcLabel(i, i == 0 ? (isHitbox || isMotion ? "D:" : "X:") : i == 1 ? (isHitbox || isMotion ? "H:" : "Y:") : (isHitbox || isMotion ? "W:" : "Z:"), x, y + i * f));
+			tools.addLabel(new GuiNpcLabel(i, i == 0 ? (toolType == 1 && isHitbox || isMotion ? "D:" : "X:") : i == 1 ? (toolType == 1 && isHitbox || isMotion ? "H:" : "Y:") : (toolType == 1 && isHitbox || isMotion ? "W:" : "Z:"), x, y + i * f));
 			float[] values;
 			if (isHitbox && hitbox != null) {
 				values = toolType == 1 ? hitbox.offset : hitbox.scale;
@@ -2382,7 +2342,7 @@ System.out.println("buttonID: "+button.id);
 							if (i == 0) {
 								sliderValues[i] = ValueUtil.correctFloat(values[i] * 0.1f, 0.0f, 1.0f);
 							} else {
-								sliderValues[i] = ValueUtil.correctFloat(values[i] * 0.5f + 0.5f, 0.0f, 1.0f);
+								sliderValues[i] = ValueUtil.correctFloat(values[i] * 0.05f + 0.5f, 0.0f, 1.0f);
 							}
 						} else {
 							sliderValues[i] = ValueUtil.correctFloat(values[i] * 0.1f + 0.5f, 0.0f, 1.0f);
@@ -2401,9 +2361,10 @@ System.out.println("buttonID: "+button.id);
 					break;
 				}
 			}
-			tools.addSlider(new GuiNpcSlider(tools, i, x + 9, y + i * f, 75, 8, sliderValues[i]));
+			GuiNpcSlider slider = new GuiNpcSlider(tools, i, x + 9, y + i * f, 75, 8, sliderValues[i]);
+			slider.setHoverText("animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"), i == 0 ? "X" : i == 1 ? "y" : "Z");
+			tools.addSlider(slider);
 			textField = new GuiNpcTextField(i + 5, tools, x + 86, y + i * f, 42, 8, "" + textToFields[i]);
-			textField.setDoubleNumbersOnly();
 			double m = -180.0d, n = 180.0d;
 			if (toolType == 1) {
 				if (isMotion) { // D H W
@@ -2434,6 +2395,7 @@ System.out.println("buttonID: "+button.id);
 				n = 5.0d;
 			}
             textField.setMinMaxDoubleDefault(m, n, textToFields[i]);
+			textField.setHoverText("animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"), i == 0 ? "X" : i == 1 ? "y" : "Z");
             tools.addTextField(textField);
 			button = new GuiNpcButton(30 + i, x + 130, y + i * f, 8, 8, "X");
 			button.texture = ANIMATION_BUTTONS;
@@ -2442,6 +2404,9 @@ System.out.println("buttonID: "+button.id);
 			button.txrY = 96;
 			button.dropShadow = false;
 			button.setTextColor(0xFFDC0000);
+			if (i == 0) { button.setHoverText("animation.hover.reset." + toolType, "X"); }
+			else if (i == 1) { button.setHoverText("animation.hover.reset." + toolType, "Y"); }
+			else { button.setHoverText("animation.hover.reset." + toolType, "Z"); }
 			tools.addButton(button);
 		}
 		if (!isHitbox && notNormal) {
@@ -2449,10 +2414,12 @@ System.out.println("buttonID: "+button.id);
 			tools.addLabel(new GuiNpcLabel(3, "X1:", x, y));
 			float sliderValue = part.rotation[3] * 0.159155f + 0.5f;
 			float textToFields = Math.round(part.rotation[3] * 180000.0f / Math.PI) / 1000.0f;
-			tools.addSlider(new GuiNpcSlider(tools, 3, x + 9, y , 75, 8, sliderValue));
+			GuiNpcSlider slider = new GuiNpcSlider(tools, 3, x + 9, y , 75, 8, sliderValue);
+			slider.setHoverText("animation.hover.rotation", "X 1");
+			tools.addSlider(slider);
 			textField = new GuiNpcTextField(8, tools, x + 86, y, 42, 8, "" + textToFields);
-			textField.setDoubleNumbersOnly();
 			textField.setMinMaxDoubleDefault(-180.0d, 180.0d, textToFields);
+			textField.setHoverText("animation.hover.rotation", "X 1");
 			tools.addTextField(textField);
 			button = new GuiNpcButton(33, x + 130, y, 8, 8, "X");
 			button.texture = ANIMATION_BUTTONS;
@@ -2461,16 +2428,19 @@ System.out.println("buttonID: "+button.id);
 			button.txrY = 96;
 			button.dropShadow = false;
 			button.setTextColor(0xFFDC0000);
+			button.setHoverText("animation.hover.reset.0", "X 1");
 			tools.addButton(button);
 
 			y += 11;
 			tools.addLabel(new GuiNpcLabel(4, "Y1:", x, y));
-			sliderValue = part.rotation[4] * 0.159155f + 0.5f;
+			sliderValue = part.rotation[4] * 0.318310f + 0.5f;
 			textToFields = Math.round(part.rotation[4] * 180000.0f / Math.PI) / 1000.0f;
-			tools.addSlider(new GuiNpcSlider(tools, 4, x + 9, y , 75, 8, sliderValue));
+			slider = new GuiNpcSlider(tools, 4, x + 9, y , 75, 8, sliderValue);
+			slider.setHoverText("animation.hover.rotation", "Y 1");
+			tools.addSlider(slider);
 			textField = new GuiNpcTextField(9, tools, x + 86, y, 42, 8, "" + textToFields);
-			textField.setDoubleNumbersOnly();
 			textField.setMinMaxDoubleDefault(-90.0d, 90.0d, textToFields);
+			textField.setHoverText("animation.hover.rotation", "Y 1");
 			tools.addTextField(textField);
 			button = new GuiNpcButton(34, x + 130, y, 8, 8, "X");
 			button.texture = ANIMATION_BUTTONS;
@@ -2479,6 +2449,7 @@ System.out.println("buttonID: "+button.id);
 			button.txrY = 96;
 			button.dropShadow = false;
 			button.setTextColor(0xFFDC0000);
+			button.setHoverText("animation.hover.reset.0", "Y 1");
 			tools.addButton(button);
 			if (h != 72) { tools.moveOffset(0, -11); }
 		}
@@ -2528,9 +2499,9 @@ System.out.println("buttonID: "+button.id);
 		addMiniWindow(partNames);
 	}
 
-	private boolean isPressAltAndKey(int id) {
+	private boolean isPressAndKey(int type, int id) {
 		if (waitKey > 0 && waitKeyID == id) { return false; }
-		boolean isPress = isAltKeyDown() && Keyboard.isKeyDown(id);
+		boolean isPress = type == 0 ? isAltKeyDown() : type == 1 ? isCtrlKeyDown() : isShiftKeyDown() && Keyboard.isKeyDown(id);
 		if (isPress) {
 			waitKey = 30;
 			waitKeyID = id;
@@ -2546,25 +2517,25 @@ System.out.println("buttonID: "+button.id);
 				return;
 			}
 			// tool pos - Alt + Q
-			if (isPressAltAndKey(16) && toolType != 1) {
+			if (isPressAndKey(0, 16) && toolType != 1) {
 				toolType = 1;
 				playButtonClick();
 				initGui();
 			}
 			// tool rot - Alt + W
-			if (isPressAltAndKey(17) && toolType != 0) {
+			if (isPressAndKey(0, 17) && toolType != 0) {
 				toolType = 0;
 				playButtonClick();
 				initGui();
 			}
 			// tool rot - Alt + E
-			if (isPressAltAndKey(18) && toolType != 2) {
+			if (isPressAndKey(0, 18) && toolType != 2) {
 				toolType = 2;
 				playButtonClick();
 				initGui();
 			}
 			// play stop - Alt + P
-			if (isPressAltAndKey(25)) {
+			if (isPressAndKey(0, 25)) {
 				onlyCurrentPart = !onlyCurrentPart;
 				if (getButton(21) != null) { getButton(21).txrX = onlyCurrentPart ? 144 : 188; }
 				playButtonClick();
@@ -2572,22 +2543,48 @@ System.out.println("buttonID: "+button.id);
 				initGui();
 			}
 			// reset scale - Alt + S
-			if (isPressAltAndKey(31)) {
+			if (isPressAndKey(0, 31)) {
 				dispScale = 1.0f;
 				playButtonClick();
 			}
 			// reset rot - Alt + R
-			if (isPressAltAndKey(19)) {
+			if (isPressAndKey(0, 19)) {
 				dispRot[0] = 45.0f;
 				dispRot[1] = 345.0f;
 				dispRot[2] = 345.0f;
 				playButtonClick();
 			}
 			// reset pos - Alt + O
-			if (isPressAltAndKey(24)) {
+			if (isPressAndKey(0, 24)) {
 				for (int j = 0; j < 3; j++) {
 					dispPos[j] = 0.0f;
 				}
+				playButtonClick();
+			}
+			// align xy Shift + X
+			if (isPressAndKey(2, 45)) {
+				dispRot[0] = 0.0f;
+				dispRot[1] = 0.0f;
+				dispRot[2] = 0.0f;
+				playButtonClick();
+			}
+			// align xz Shift + Y
+			if (isPressAndKey(2, 21)) {
+				dispRot[0] = 0.0f;
+				dispRot[1] = 270.0f;
+				dispRot[2] = 0.0f;
+				playButtonClick();
+			}
+			// align zy Shift + Z
+			if (isPressAndKey(2, 44)) {
+				dispRot[0] = 90.0f;
+				dispRot[1] = 0.0f;
+				dispRot[2] = 0.0f;
+				playButtonClick();
+			}
+			// align revers Shift + R
+			if (isPressAndKey(2, 19)) {
+				displayRotate(180, 0);
 				playButtonClick();
 			}
 		}

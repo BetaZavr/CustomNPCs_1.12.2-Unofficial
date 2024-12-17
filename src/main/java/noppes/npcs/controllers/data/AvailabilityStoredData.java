@@ -5,7 +5,8 @@ import noppes.npcs.constants.EnumAvailabilityStoredData;
 
 public class AvailabilityStoredData {
 
-	public String key, value;
+	public String key;
+	public String value;
 	public EnumAvailabilityStoredData type;
 
 	public AvailabilityStoredData(NBTTagCompound nbt) {

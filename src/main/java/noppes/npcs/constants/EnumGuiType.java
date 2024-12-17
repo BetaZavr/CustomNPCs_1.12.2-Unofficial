@@ -67,5 +67,7 @@ public enum EnumGuiType
 	RemoverSetting,
 	DimensionSetting,
 	AvailabilityStack,
-	CustomContainer
+	CustomContainer,
+	DeadInventory
+
 }

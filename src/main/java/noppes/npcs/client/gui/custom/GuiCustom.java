@@ -49,7 +49,9 @@ import noppes.npcs.containers.ContainerCustomGui;
 
 import javax.annotation.Nonnull;
 
-public class GuiCustom extends GuiContainer implements ICustomScrollListener, IGuiData {
+public class GuiCustom
+extends GuiContainer
+implements ICustomScrollListener, IGuiData {
 
 	public static int guiLeft;
 	public static int guiTop;
@@ -254,7 +256,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 		for (IGuiComponent component : this.components.values()) {
 			component.onRender(this.mc, mouseX, mouseY, mouseWheel, partialTicks);
 		}
-		if (this.gui != null && this.gui.getSlots().length > 0) { // New
+		if (this.gui != null && this.gui.getSlots().length > 0) {
 			int cx = -41 + (256 - this.gui.getWidth()) / 2;
 			int cy = -46 + (256 - this.gui.getHeight()) / 2;
 			GlStateManager.pushMatrix();
@@ -310,7 +312,7 @@ public class GuiCustom extends GuiContainer implements ICustomScrollListener, IG
 		for (ICustomKeyListener listener : this.keyListeners) {
 			listener.keyTyped(typedChar, keyCode);
 		}
-		if (keyCode == 1) { // Changed
+		if (keyCode == 1) {
 			if (this.gui != null) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiClose, this.updateGui().toNBT());
 				return;

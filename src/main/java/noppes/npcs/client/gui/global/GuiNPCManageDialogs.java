@@ -57,35 +57,34 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-			case 1: { // new cat
-				this.setSubGui(new SubGuiEditText(1, Util.instance
-						.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+			case 1: { // create cat
+				setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
 			}
 			case 2: { // del cat
-				if (!this.categoryData.containsKey(this.selectedCategory)) {
+				if (!categoryData.containsKey(selectedCategory)) {
 					return;
 				}
 				GuiYesNo guiyesno = new GuiYesNo(this,
-						this.categoryData.get(this.selectedCategory).title,
+						categoryData.get(selectedCategory).title,
 						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
-				this.displayGuiScreen(guiyesno);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 3: {
-				if (!this.dialogData.containsKey(this.selectedDialog)) {
+				if (!dialogData.containsKey(selectedDialog)) {
 					return;
 				}
-				this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
+				setSubGui(new SubGuiEditText(3, categoryData.get(selectedCategory).title));
 				break;
 			}
 			case 9: { // paste
-				if (this.copyDialog == null || !this.categoryData.containsKey(this.selectedCategory)) {
+				if (copyDialog == null || !categoryData.containsKey(selectedCategory)) {
 					return;
 				}
-				Dialog dialog = this.copyDialog.copy(null);
+				Dialog dialog = copyDialog.copy(null);
 				dialog.id = -1;
-				dialog.category = this.categoryData.get(this.selectedCategory);
+				dialog.category = categoryData.get(selectedCategory);
 
 				StringBuilder t = new StringBuilder(dialog.title);
 				boolean has = true;
@@ -101,41 +100,41 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				}
 				dialog.title = t.toString();
 
-				this.selectedDialog = dialog.title;
-				Client.sendData(EnumPacketServer.DialogSave, this.categoryData.get(this.selectedCategory).id,
-						dialog.writeToNBT(new NBTTagCompound()));
-				this.initGui();
+				selectedDialog = dialog.title;
+				Client.sendData(EnumPacketServer.DialogSave, categoryData.get(selectedCategory).id, dialog.writeToNBT(new NBTTagCompound()));
+				initGui();
 				break;
 			}
 			case 10: { // copy
-				if (!this.dialogData.containsKey(this.selectedDialog)) {
+				if (!dialogData.containsKey(selectedDialog)) {
 					return;
 				}
-				this.copyDialog = this.dialogData.get(this.selectedDialog);
-				this.initGui();
+				copyDialog = dialogData.get(selectedDialog);
+				initGui();
 				break;
 			}
 			case 11: {
-				this.setSubGui(new SubGuiEditText(11, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				setSubGui(new SubGuiEditText(11, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
 			}
 			case 12: { // del dialog
-				if (!this.dialogData.containsKey(this.selectedDialog)) {
+				if (!dialogData.containsKey(selectedDialog)) {
 					return;
 				}
-				GuiYesNo guiyesno = new GuiYesNo(this, this.dialogData.get(this.selectedDialog).getKey(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
-				this.displayGuiScreen(guiyesno);
+				GuiYesNo guiyesno = new GuiYesNo(this, dialogData.get(selectedDialog).getKey(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 13: {
-				if (!this.dialogData.containsKey(this.selectedDialog)) {
+				if (!dialogData.containsKey(selectedDialog)) {
 					return;
 				}
-				this.setSubGui(new GuiDialogEdit(dialogData.get(selectedDialog), this));
+				setSubGui(new GuiDialogEdit(dialogData.get(selectedDialog), this));
 				break;
 			}
 			case 14: {
 				GuiNPCManageDialogs.isName = ((GuiNpcCheckBox) button).isSelected();
+				button.setHoverText("hover.sort", new TextComponentTranslation("dialog.dialogs").getFormattedText(), ((GuiNpcCheckBox) button).getText());
 				break;
 			}
 		}
@@ -146,117 +145,63 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	public void confirmClicked(boolean result, int id) {
-		NoppesUtil.openGUI(this.player, this);
+		NoppesUtil.openGUI(player, this);
 		if (!result) {
 			return;
 		}
 		if (id == 2) {
-			Client.sendData(EnumPacketServer.DialogCategoryRemove, this.categoryData.get(this.selectedCategory).id);
-			this.selectedCategory = "";
-			this.selectedDialog = "";
+			Client.sendData(EnumPacketServer.DialogCategoryRemove, categoryData.get(selectedCategory).id);
+			selectedCategory = "";
+			selectedDialog = "";
 		}
 		if (id == 12) {
-			Client.sendData(EnumPacketServer.DialogRemove, this.dialogData.get(this.selectedDialog).id);
-			this.selectedDialog = "";
+			Client.sendData(EnumPacketServer.DialogRemove, dialogData.get(selectedDialog).id);
+			selectedDialog = "";
 		}
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.hasSubGui()) {
-			return;
-		}
-		this.drawHorizontalLine(this.guiLeft + 348, this.guiLeft + 414, this.guiTop + 128, 0x80000000);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.category.edit").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.category.del").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.category.add").getFormattedText());
-		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.dialog.paste." + (this.copyDialog != null),
-					(this.copyDialog != null ? this.copyDialog.getKey() : "")).getFormattedText());
-		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("manager.hover.dialog.copy", this.selectedDialog).getFormattedText());
-		} else if (this.getButton(11) != null && this.getButton(11).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("manager.hover.dialog.add", this.selectedCategory).getFormattedText());
-		} else if (this.getButton(12) != null && this.getButton(12).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("manager.hover.dialog.del", this.selectedDialog).getFormattedText());
-		} else if (this.getButton(13) != null && this.getButton(13).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("manager.hover.dialog.edit", this.selectedDialog).getFormattedText());
-		} else if (this.getButton(14) != null && this.getButton(14).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.sort",
-					new TextComponentTranslation("dialog.dialogs").getFormattedText(),
-					((GuiNpcCheckBox) this.getButton(14)).getText()).getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		if (hasSubGui()) { return; }
+		drawHorizontalLine(guiLeft + 348, guiLeft + 414, guiTop + 128, 0x80000000);
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.categoryData.clear();
-		this.dialogData.clear();
-		String[][] ht = null;
+		categoryData.clear();
+		dialogData.clear();
 		DialogController dData = DialogController.instance;
 		// category's
 		for (DialogCategory category : dData.categories.values()) {
-			this.categoryData.put(category.title, category);
-			if (this.selectedCategory.isEmpty()) {
-				this.selectedCategory = category.title;
+			categoryData.put(category.title, category);
+			if (selectedCategory.isEmpty()) {
+				selectedCategory = category.title;
 			}
 		}
 		// dialogs
-		if (!this.selectedCategory.isEmpty()) {
-			if (this.categoryData.containsKey(this.selectedCategory)) {
+		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
+		if (!selectedCategory.isEmpty()) {
+			if (categoryData.containsKey(selectedCategory)) {
 				Map<String, Dialog> map = new TreeMap<>();
-				for (Dialog dialog : this.categoryData.get(this.selectedCategory).dialogs.values()) {
+				for (Dialog dialog : categoryData.get(selectedCategory).dialogs.values()) {
 					boolean b = !dialog.text.isEmpty();
-					String key = chr + "7ID:" + dialog.id + "-\"" + chr + "r"
-							+ new TextComponentTranslation(dialog.title).getFormattedText() + chr + "7\"" + chr
-							+ (b ? "2 (" : "c (") + (new TextComponentTranslation("quest.has." + b).getFormattedText())
-							+ chr + (b ? "2)" : "c)");
+					String key = chr + "7ID:" + dialog.id + "-\"" + chr + "r" + new TextComponentTranslation(dialog.title).getFormattedText() + chr + "7\"" + chr + (b ? "2 (" : "c (") + (new TextComponentTranslation("quest.has." + b).getFormattedText()) + chr + (b ? "2)" : "c)");
 					map.put(key, dialog);
 				}
-				List<Entry<String, Dialog>> list = new ArrayList<>(map.entrySet());
-				list.sort((d_0, d_1) -> {
-                    if (GuiNPCManageDialogs.isName) {
-                        String n_0 = Util.instance
-                                .deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText()
-                                        + "_" + d_0.getValue().id)
-                                .toLowerCase();
-                        String n_1 = Util.instance
-                                .deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText()
-                                        + "_" + d_1.getValue().id)
-                                .toLowerCase();
-                        return n_0.compareTo(n_1);
-                    } else {
-                        return Integer.compare(d_0.getValue().id, d_1.getValue().id);
-                    }
-                });
+				List<Entry<String, Dialog>> list = getEntryList(map);
 				for (Entry<String, Dialog> entry : list) {
-					this.dialogData.put(entry.getKey(), entry.getValue());
-					if (this.selectedDialog.isEmpty()) {
-						this.selectedDialog = entry.getKey();
+					dialogData.put(entry.getKey(), entry.getValue());
+					if (selectedDialog.isEmpty()) {
+						selectedDialog = entry.getKey();
 					}
 				}
 				// Hover Text:
-				if (!this.dialogData.isEmpty()) {
+				if (!dialogData.isEmpty()) {
 					int pos = 0;
-					ht = new String[this.dialogData.size()][];
 					Map<String, Integer> nextDialogIDs = new TreeMap<>();
-					for (Dialog dialog : this.dialogData.values()) {
+					for (Dialog dialog : dialogData.values()) {
 						List<String> h = new ArrayList<>();
 						List<String> activationDialogs = new ArrayList<>();
 						List<String> nextDialogs = new ArrayList<>();
@@ -287,10 +232,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 										if (od.dialogId != dialog.id) {
 											continue;
 										}
-										activationDialogs.add(chr + "7ID:" + d.id + chr + "8 "
-												+ (new TextComponentTranslation("gui.answer").getFormattedText()) + chr
-												+ "8: " + chr + "7" + option.slot + "." + i + chr + "8; "
-												+ d.category.getName() + "/" + chr + "r" + d.getName());
+										activationDialogs.add(chr + "7ID:" + d.id + chr + "8 " + (new TextComponentTranslation("gui.answer").getFormattedText()) + chr + "8: " + chr + "7" + option.slot + "." + i + chr + "8; " + d.category.getName() + "/" + chr + "r" + d.getName());
 										i++;
 									}
 								}
@@ -299,10 +241,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 										if (nextDialogIDs.get(k) != d.id) {
 											continue;
 										}
-										nextDialogs.add(chr + "8"
-												+ (new TextComponentTranslation("gui.answer").getFormattedText()) + chr
-												+ "8: " + chr + "7" + k + chr + "7 ID:" + d.id + chr + "8; "
-												+ d.category.getName() + "/" + chr + "r" + d.getName());
+										nextDialogs.add(chr + "8" + (new TextComponentTranslation("gui.answer").getFormattedText()) + chr + "8: " + chr + "7" + k + chr + "7 ID:" + d.id + chr + "8; " + d.category.getName() + "/" + chr + "r" + d.getName());
 									}
 								}
 							}
@@ -319,65 +258,98 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 						} else {
 							h.add(new TextComponentTranslation("dialog.hover.next.0").getFormattedText());
 						}
-						ht[pos] = h.toArray(new String[0]);
+						hts.put(pos, h);
 						pos++;
 					}
 				}
 			} else {
-				this.selectedCategory = "";
-				this.selectedDialog = "";
+				selectedCategory = "";
+				selectedDialog = "";
 			}
 		}
 		// scroll info
-		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 8, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(1, "dialog.dialogs", this.guiLeft + 180, this.guiTop + 4));
+		addLabel(new GuiNpcLabel(0, "gui.categories", guiLeft + 8, guiTop + 4));
+		addLabel(new GuiNpcLabel(1, "dialog.dialogs", guiLeft + 180, guiTop + 4));
 		// dialog buttons
-		int x = this.guiLeft + 350, y = this.guiTop + 8;
-		this.addLabel(new GuiNpcLabel(3, "dialog.dialogs", x + 2, y));
-		this.addButton(new GuiNpcButton(13, x, y += 10, 64, 15, "selectServer.edit", !this.selectedDialog.isEmpty()));
-		this.addButton(new GuiNpcButton(12, x, y += 17, 64, 15, "gui.remove", !this.selectedDialog.isEmpty()));
-		this.addButton(new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !this.selectedCategory.isEmpty()));
-		this.addButton(new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !this.selectedCategory.isEmpty()));
-		this.addButton(new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", this.copyDialog != null));
-		addButton(new GuiNpcCheckBox(14, x, y + 17, 64, 14, "gui.name", "ID", GuiNPCManageDialogs.isName));
+		int x = guiLeft + 350, y = guiTop + 8;
+		addLabel(new GuiNpcLabel(3, "dialog.dialogs", x + 2, y));
+		GuiNpcButton button = new GuiNpcButton(13, x, y += 10, 64, 15, "selectServer.edit", !selectedDialog.isEmpty());
+		button.setHoverText("manager.hover.dialog.edit", selectedDialog);
+		addButton(button);
+		button = new GuiNpcButton(12, x, y += 17, 64, 15, "gui.remove", !selectedDialog.isEmpty());
+		button.setHoverText("manager.hover.dialog.del", selectedDialog);
+		addButton(button);
+		button = new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !selectedCategory.isEmpty());
+		button.setHoverText("manager.hover.dialog.add", selectedCategory);
+		addButton(button);
+		button = new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !selectedCategory.isEmpty());
+		button.setHoverText("manager.hover.dialog.copy", selectedDialog);
+		addButton(button);
+		button = new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", copyDialog != null);
+		button.setHoverText("manager.hover.dialog.paste." + (copyDialog != null), (copyDialog != null ? copyDialog.getKey() : ""));
+		addButton(button);
+		button = new GuiNpcCheckBox(14, x, y + 17, 64, 14, "gui.name", "ID", GuiNPCManageDialogs.isName);
+		button.setHoverText("hover.sort", new TextComponentTranslation("dialog.dialogs").getFormattedText(), ((GuiNpcCheckBox) button).getText());
+		addButton(button);
 		// category buttons
-		y = this.guiTop + 130;
-		this.addLabel(new GuiNpcLabel(2, "gui.categories", x + 2, y));
-		this.addButton(new GuiNpcButton(3, x, y += 10, 64, 15, "selectServer.edit", !this.selectedCategory.isEmpty()));
-		this.addButton(new GuiNpcButton(2, x, y += 17, 64, 15, "gui.remove", !this.selectedCategory.isEmpty()));
-		this.addButton(new GuiNpcButton(1, x, y + 17, 64, 15, "gui.add"));
+		y = guiTop + 130;
+		addLabel(new GuiNpcLabel(2, "gui.categories", x + 2, y));
+		// edit
+		button = new GuiNpcButton(3, x, y += 10, 64, 15, "selectServer.edit", !selectedCategory.isEmpty());
+		button.setHoverText("manager.hover.category.edit");
+		addButton(button);
+		// del
+		button = new GuiNpcButton(2, x, y += 17, 64, 15, "gui.remove", !selectedCategory.isEmpty());
+		button.setHoverText("manager.hover.category.del");
+		addButton(button);
+		// add
+		button = new GuiNpcButton(1, x, y + 17, 64, 15, "gui.add");
+		button.setHoverText("manager.hover.category.add");
+		addButton(button);
 
-		if (this.scrollCategories == null) {
-			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, this.ySize - 3);
+		if (scrollCategories == null) {
+			(scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, ySize - 3);
 		}
-		this.scrollCategories.setList(new ArrayList<>(categoryData.keySet()));
-		this.scrollCategories.guiLeft = this.guiLeft + 4;
-		this.scrollCategories.guiTop = this.guiTop + 15;
-		if (!this.selectedCategory.isEmpty()) {
-			this.scrollCategories.setSelected(this.selectedCategory);
+		scrollCategories.setList(new ArrayList<>(categoryData.keySet()));
+		scrollCategories.guiLeft = guiLeft + 4;
+		scrollCategories.guiTop = guiTop + 15;
+		if (!selectedCategory.isEmpty()) {
+			scrollCategories.setSelected(selectedCategory);
 		}
-		this.addScroll(this.scrollCategories);
+		addScroll(scrollCategories);
 
-		if (this.scrollDialogs == null) {
-			(this.scrollDialogs = new GuiCustomScroll(this, 1)).setSize(170, this.ySize - 3);
+		if (scrollDialogs == null) {
+			(scrollDialogs = new GuiCustomScroll(this, 1)).setSize(170, ySize - 3);
 		}
-		this.scrollDialogs.setListNotSorted(new ArrayList<>(dialogData.keySet()));
-		this.scrollDialogs.guiLeft = this.guiLeft + 176;
-		this.scrollDialogs.guiTop = this.guiTop + 15;
-		if (!this.selectedDialog.isEmpty()) {
-			this.scrollDialogs.setSelected(this.selectedDialog);
+		scrollDialogs.setListNotSorted(new ArrayList<>(dialogData.keySet()));
+		scrollDialogs.guiLeft = guiLeft + 176;
+		scrollDialogs.guiTop = guiTop + 15;
+		if (!selectedDialog.isEmpty()) {
+			scrollDialogs.setSelected(selectedDialog);
 		}
-		if (ht != null) {
-			this.scrollDialogs.hoversTexts = ht;
-		}
-		this.addScroll(this.scrollDialogs);
+		scrollDialogs.setHoverTexts(hts);
+		addScroll(scrollDialogs);
+	}
+
+	private static List<Entry<String, Dialog>> getEntryList(Map<String, Dialog> map) {
+		List<Entry<String, Dialog>> list = new ArrayList<>(map.entrySet());
+		list.sort((d_0, d_1) -> {
+			if (GuiNPCManageDialogs.isName) {
+				String n_0 = Util.instance.deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText() + "_" + d_0.getValue().id).toLowerCase();
+				String n_1 = Util.instance.deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText() + "_" + d_1.getValue().id).toLowerCase();
+				return n_0.compareTo(n_1);
+			} else {
+				return Integer.compare(d_0.getValue().id, d_1.getValue().id);
+			}
+		});
+		return list;
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui == null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
+		if (i == 1 && subgui == null) {
+			save();
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuGlobal);
 			return;
 		}
 		super.keyTyped(c, i);
@@ -394,26 +366,26 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			return;
 		}
 		if (scroll.id == 0) {
-			if (this.selectedCategory.equals(scroll.getSelected())) {
+			if (selectedCategory.equals(scroll.getSelected())) {
 				return;
 			}
-			this.selectedCategory = scroll.getSelected();
-			this.selectedDialog = "";
+			selectedCategory = scroll.getSelected();
+			selectedDialog = "";
 			scroll.selected = -1;
 		}
 		if (scroll.id == 1) {
-			if (this.selectedDialog.equals(scroll.getSelected())) {
+			if (selectedDialog.equals(scroll.getSelected())) {
 				return;
 			}
-			this.selectedDialog = scroll.getSelected();
+			selectedDialog = scroll.getSelected();
 		}
-		this.initGui();
+		initGui();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-		if (!this.selectedDialog.isEmpty() && scroll.id == 1) {
-			this.setSubGui(new GuiDialogEdit(dialogData.get(selectedDialog), this));
+		if (!selectedDialog.isEmpty() && scroll.id == 1) {
+			setSubGui(new GuiDialogEdit(dialogData.get(selectedDialog), this));
 		}
 	}
 
@@ -438,10 +410,10 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				Client.sendData(EnumPacketServer.DialogCategorySave, category.writeNBT(new NBTTagCompound()));
 			}
 			if (subgui.id == 3) {
-				if (((SubGuiEditText) subgui).text[0].isEmpty() || !this.categoryData.containsKey(this.selectedCategory)) {
+				if (((SubGuiEditText) subgui).text[0].isEmpty() || !categoryData.containsKey(selectedCategory)) {
 					return;
 				}
-				DialogCategory category = this.categoryData.get(this.selectedCategory).copy();
+				DialogCategory category = categoryData.get(selectedCategory).copy();
 				if (category.title.equals(((SubGuiEditText) subgui).text[0])) {
 					return;
 				}
@@ -460,15 +432,15 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 					if (has) { t.append("_"); }
 				}
 				category.title = t.toString();
-				this.selectedCategory = category.title;
+				selectedCategory = category.title;
 				Client.sendData(EnumPacketServer.DialogCategorySave, category.writeNBT(new NBTTagCompound()));
-				this.initGui();
+				initGui();
 			}
 			if (subgui.id == 11) {
 				if (((SubGuiEditText) subgui).text[0].isEmpty()) {
 					return;
 				}
-				Dialog dialog = new Dialog(this.categoryData.get(this.selectedCategory));
+				Dialog dialog = new Dialog(categoryData.get(selectedCategory));
 
 				StringBuilder t = new StringBuilder(((SubGuiEditText) subgui).text[0]);
 				boolean has = true;
@@ -483,14 +455,13 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 					if (has) { t.append("_"); }
 				}
 				dialog.title = t.toString();
-				this.selectedDialog = dialog.title;
-				Client.sendData(EnumPacketServer.DialogSave, this.categoryData.get(this.selectedCategory).id,
-						dialog.writeToNBT(new NBTTagCompound()));
-				this.initGui();
+				selectedDialog = dialog.title;
+				Client.sendData(EnumPacketServer.DialogSave, categoryData.get(selectedCategory).id, dialog.writeToNBT(new NBTTagCompound()));
+				initGui();
 			}
 		}
 		if (subgui instanceof GuiDialogEdit) {
-			this.initGui();
+			initGui();
 		}
 	}
 

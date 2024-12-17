@@ -17,37 +17,38 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobConversation;
 
-public class GuiNpcConversation extends GuiNPCInterface2 implements ITextfieldListener, GuiSelectionListener {
+public class GuiNpcConversation
+extends GuiNPCInterface2
+implements ITextfieldListener, GuiSelectionListener {
 
 	private final JobConversation job;
-	private int slot;
+	private int slot = -1;
 
 	public GuiNpcConversation(EntityNPCInterface npc) {
 		super(npc);
-		this.slot = -1;
-		this.job = (JobConversation) npc.advanced.jobInterface;
+		job = (JobConversation) npc.advanced.jobInterface;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id >= 0 && button.id < 14) {
-			this.slot = button.id;
-			JobConversation.ConversationLine line = this.job.getLine(this.slot);
-			this.setSubGui(new SubGuiNpcConversationLine(line.getText(), line.getSound()));
+			slot = button.id;
+			JobConversation.ConversationLine line = job.getLine(slot);
+			setSubGui(new SubGuiNpcConversationLine(line.getText(), line.getSound()));
 		}
 		if (button.id == 51) {
-			this.setSubGui(new GuiQuestSelection(this.job.quest));
+			setSubGui(new GuiQuestSelection(job.quest));
 		}
 		if (button.id == 52) {
-			this.job.quest = -1;
-			this.job.questTitle = "";
-			this.initGui();
+			job.quest = -1;
+			job.questTitle = "";
+			initGui();
 		}
 		if (button.id == 53) {
-			this.setSubGui(new SubGuiNpcAvailability(job.availability, this));
+			setSubGui(new SubGuiNpcAvailability(job.availability, this));
 		}
 		if (button.id == 55) {
-			this.job.mode = button.getValue();
+			job.mode = button.getValue();
 		}
 	}
 
@@ -56,7 +57,7 @@ public class GuiNpcConversation extends GuiNPCInterface2 implements ITextfieldLi
 		super.closeSubGui(gui);
 		if (gui instanceof SubGuiNpcConversationLine) {
 			SubGuiNpcConversationLine sub = (SubGuiNpcConversationLine) gui;
-			JobConversation.ConversationLine line = this.job.getLine(this.slot);
+			JobConversation.ConversationLine line = job.getLine(slot);
 			line.setText(sub.line);
 			line.setSound(sub.sound);
 		}
@@ -65,85 +66,79 @@ public class GuiNpcConversation extends GuiNPCInterface2 implements ITextfieldLi
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(40, "gui.name", this.guiLeft + 40, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(41, "gui.name", this.guiLeft + 240, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(42, "conversation.delay", this.guiLeft + 164, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(43, "conversation.delay", this.guiLeft + 364, this.guiTop + 4));
+		addLabel(new GuiNpcLabel(40, "gui.name", guiLeft + 40, guiTop + 4));
+		addLabel(new GuiNpcLabel(41, "gui.name", guiLeft + 240, guiTop + 4));
+		addLabel(new GuiNpcLabel(42, "conversation.delay", guiLeft + 164, guiTop + 4));
+		addLabel(new GuiNpcLabel(43, "conversation.delay", guiLeft + 364, guiTop + 4));
+		GuiNpcTextField textField;
 		for (int i = 0; i < 14; ++i) {
-			JobConversation.ConversationLine line = this.job.getLine(i);
+			JobConversation.ConversationLine line = job.getLine(i);
 			int offset = (i >= 7) ? 200 : 0;
-			this.addLabel(new GuiNpcLabel(i, "" + (i + 1), this.guiLeft + 5 + offset - ((i > 8) ? 6 : 0),
-					this.guiTop + 18 + i % 7 * 22));
-			this.addTextField(new GuiNpcTextField(i, this, this.fontRenderer, this.guiLeft + 13 + offset,
-					this.guiTop + 13 + i % 7 * 22, 100, 20, line.npc));
-			this.addButton(new GuiNpcButton(i, this.guiLeft + 115 + offset, this.guiTop + 13 + i % 7 * 22, 46, 20,
-					"conversation.line"));
+			addLabel(new GuiNpcLabel(i, "" + (i + 1), guiLeft + 5 + offset - ((i > 8) ? 6 : 0), guiTop + 18 + i % 7 * 22));
+			addTextField(new GuiNpcTextField(i, this, fontRenderer, guiLeft + 13 + offset, guiTop + 13 + i % 7 * 22, 100, 20, line.npc));
+			addButton(new GuiNpcButton(i, guiLeft + 115 + offset, guiTop + 13 + i % 7 * 22, 46, 20, "conversation.line"));
 			if (i > 0) {
-				this.addTextField(new GuiNpcTextField(i + 14, this, this.fontRenderer, this.guiLeft + 164 + offset,
-						this.guiTop + 13 + i % 7 * 22, 30, 20, line.delay + ""));
-				this.getTextField(i + 14).setNumbersOnly();
-				this.getTextField(i + 14).setMinMaxDefault(5, 1000, 40);
+				textField = new GuiNpcTextField(i + 14, this, fontRenderer, guiLeft + 164 + offset, guiTop + 13 + i % 7 * 22, 30, 20, line.delay + "");
+				textField.setMinMaxDefault(5, 1000, 40);
+				addTextField(textField);
 			}
 		}
-		this.addLabel(new GuiNpcLabel(50, "conversation.delay", this.guiLeft + 202, this.guiTop + 175));
-		this.addTextField(new GuiNpcTextField(50, this, this.fontRenderer, this.guiLeft + 260, this.guiTop + 170, 40,
-				20, this.job.generalDelay + ""));
-		this.getTextField(50).setNumbersOnly();
-		this.getTextField(50).setMinMaxDefault(10, 1000000, 12000);
-		this.addLabel(new GuiNpcLabel(54, "gui.range", this.guiLeft + 202, this.guiTop + 196));
-		this.addTextField(new GuiNpcTextField(54, this, this.fontRenderer, this.guiLeft + 260, this.guiTop + 191, 40,
-				20, this.job.range + ""));
-		this.getTextField(54).setNumbersOnly();
-		this.getTextField(54).setMinMaxDefault(4, 60, 20);
-		this.addLabel(new GuiNpcLabel(51, "quest.quest", this.guiLeft + 13, this.guiTop + 175));
-		String title = this.job.questTitle;
-		if (title.isEmpty()) {
-			title = "gui.select";
-		}
-		this.addButton(new GuiNpcButton(51, this.guiLeft + 70, this.guiTop + 170, 100, 20, title));
-		this.addButton(new GuiNpcButton(52, this.guiLeft + 171, this.guiTop + 170, 20, 20, "X"));
-		this.addLabel(new GuiNpcLabel(53, "availability.name", this.guiLeft + 13, this.guiTop + 196));
-		this.addButton(new GuiNpcButton(53, this.guiLeft + 110, this.guiTop + 191, 60, 20, "selectServer.edit"));
-		this.addButton(new GuiNpcButton(55, this.guiLeft + 310, this.guiTop + 181, 96, 20,
-				new String[] { "gui.always", "gui.playernearby" }, this.job.mode));
+		addLabel(new GuiNpcLabel(50, "conversation.delay", guiLeft + 202, guiTop + 175));
+		textField = new GuiNpcTextField(50, this, fontRenderer, guiLeft + 260, guiTop + 170, 40, 20, job.generalDelay + "");
+		textField.setMinMaxDefault(10, 1000000, 12000);
+		addTextField(textField);
+
+		addLabel(new GuiNpcLabel(54, "gui.range", guiLeft + 202, guiTop + 196));
+		textField = new GuiNpcTextField(54, this, fontRenderer, guiLeft + 260, guiTop + 191, 40, 20, job.range + "");
+		textField.setMinMaxDefault(4, 60, 20);
+		addTextField(textField);
+
+		addLabel(new GuiNpcLabel(51, "quest.quest", guiLeft + 13, guiTop + 175));
+		String title = job.questTitle;
+		if (title.isEmpty()) { title = "gui.select"; }
+		addButton(new GuiNpcButton(51, guiLeft + 70, guiTop + 170, 100, 20, title));
+		addButton(new GuiNpcButton(52, guiLeft + 171, guiTop + 170, 20, 20, "X"));
+		addLabel(new GuiNpcLabel(53, "availability.name", guiLeft + 13, guiTop + 196));
+		addButton(new GuiNpcButton(53, guiLeft + 110, guiTop + 191, 60, 20, "selectServer.edit"));
+		addButton(new GuiNpcButton(55, guiLeft + 310, guiTop + 181, 96, 20, new String[] { "gui.always", "gui.playernearby" }, job.mode));
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
 		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+			save();
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 		}
 	}
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.JobSave, this.job.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.JobSave, job.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
 	public void selected(int ob, String name) {
-		this.job.quest = ob;
-		this.job.questTitle = name;
-		this.initGui();
+		job.quest = ob;
+		job.questTitle = name;
+		initGui();
 	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textfield) {
 		if (textfield.getId() >= 0 && textfield.getId() < 14) {
-			JobConversation.ConversationLine line = this.job.getLine(textfield.getId());
+			JobConversation.ConversationLine line = job.getLine(textfield.getId());
 			line.npc = textfield.getText();
 		}
 		if (textfield.getId() >= 14 && textfield.getId() < 28) {
-			JobConversation.ConversationLine line = this.job.getLine(textfield.getId() - 14);
+			JobConversation.ConversationLine line = job.getLine(textfield.getId() - 14);
 			line.delay = textfield.getInteger();
 		}
 		if (textfield.getId() == 50) {
-			this.job.generalDelay = textfield.getInteger();
+			job.generalDelay = textfield.getInteger();
 		}
 		if (textfield.getId() == 54) {
-			this.job.range = textfield.getInteger();
+			job.range = textfield.getInteger();
 		}
 	}
 

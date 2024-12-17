@@ -29,7 +29,7 @@ public class GuiCreationParts
 extends GuiCreationScreenInterface
 implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 
-	class GuiPart implements ISubGuiListener {
+	public class GuiPart implements ISubGuiListener {
 
 		protected boolean canBeDeleted;
 		protected ModelPartData data;
@@ -226,9 +226,9 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				int x0 = GuiCreationParts.this.guiLeft + 102;
 				int x1 = GuiCreationParts.this.guiLeft + 155;
 				y = GuiCreationParts.this.guiTop + 50;
-				GuiNpcLabel lable = GuiCreationParts.this.getLabel(20);
+				GuiNpcLabel label = GuiCreationParts.this.getLabel(20);
 				GuiNpcButton button = GuiCreationParts.this.getButton(20);
-				lable.y = y + 3;
+				label.y = y + 3;
 				button.x = x1;
 				button.y = y;
 				button.height = 14;
@@ -239,10 +239,10 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				// eye color
 				y += 16;
 				// left
-				lable = GuiCreationParts.this.getLabel(23);
+				label = GuiCreationParts.this.getLabel(23);
 				button = GuiCreationParts.this.getButton(23);
-				lable.setLabel("eye.color.0");
-				lable.y = y + 3;
+				label.setLabel("eye.color.0");
+				label.y = y + 3;
 				button.y = y;
 				button.x = x1;
 				button.height = 14;
@@ -380,8 +380,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 	class GuiPartLegs extends GuiPart {
 		public GuiPartLegs() {
 			super(EnumParts.LEGS);
-			this.types = new String[] { "gui.none", "gui.normal", "legs.naga", "legs.spider", "legs.horse",
-					"legs.mermaid", "legs.digitigrade" };
+			this.types = new String[] { "gui.none", "gui.normal", "legs.naga", "legs.spider", "legs.horse", "legs.mermaid", "legs.digitigrade" };
 			this.canBeDeleted = false;
 		}
 
@@ -491,7 +490,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 		}
 	}
 	
-	public GuiPart getPart() { return this.parts[GuiCreationParts.selected]; }
+	protected GuiPart getPart() { return this.parts[GuiCreationParts.selected]; }
 	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -568,10 +567,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				}
 			}
 		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		drawHoverText(null);
 	}
 
 	@Override

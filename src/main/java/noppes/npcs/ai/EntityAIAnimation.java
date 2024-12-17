@@ -29,74 +29,71 @@ public class EntityAIAnimation extends EntityAIBase {
 	}
 
 	private boolean hasPath;
-	private boolean isAtStartpoint;
+	private boolean isAtStartPoint;
 	private boolean isAttacking;
 	private boolean isDead;
 
 	private final EntityNPCInterface npc;
 
-	public int temp;
+	public int tempAnimation;
 
 	public EntityAIAnimation(EntityNPCInterface npc) {
-		this.isAttacking = false;
-		this.isDead = false;
-		this.isAtStartpoint = false;
-		this.hasPath = false;
-		this.temp = 0;
+		isAttacking = false;
+		isDead = false;
+		isAtStartPoint = false;
+		hasPath = false;
+		tempAnimation = 0;
 		this.npc = npc;
 	}
 
 	private boolean hasNavigation() {
-		return this.isAttacking || (this.npc.ais.shouldReturnHome() && !this.isAtStartpoint && !this.npc.isFollower())
-				|| this.hasPath;
+		return isAttacking || (npc.ais.shouldReturnHome() && !isAtStartPoint && !npc.isFollower()) || hasPath;
 	}
 
     private void setAnimation(int animation) {
-		this.npc.setCurrentAnimation(animation);
-		this.npc.updateHitbox();
-		this.npc.setPosition(this.npc.posX, this.npc.posY, this.npc.posZ);
+		npc.setCurrentAnimation(animation);
+		npc.updateHitbox();
+		npc.setPosition(npc.posX, npc.posY, npc.posZ);
+		npc.updateAnimationClient();
 	}
 
 	public boolean shouldExecute() {
-		this.isDead = !this.npc.isEntityAlive();
-		if (this.isDead) {
-			return this.npc.currentAnimation != 2;
+		isDead = !npc.isEntityAlive();
+		if (isDead) {
+			return npc.currentAnimation != 2;
 		}
-		if (this.npc.stats.ranged.getHasAimAnimation() && this.npc.isAttacking()) {
-			return this.npc.currentAnimation != 6;
+		if (npc.stats.ranged.getHasAimAnimation() && npc.isAttacking()) {
+			return npc.currentAnimation != 6;
 		}
-		this.hasPath = !this.npc.getNavigator().noPath();
-		this.isAttacking = this.npc.isAttacking();
-		this.isAtStartpoint = (this.npc.ais.shouldReturnHome() && this.npc.isVeryNearAssignedPlace());
-		if (this.temp != 0) {
-			if (!this.hasNavigation()) {
-				return this.npc.currentAnimation != this.temp;
+		hasPath = !npc.getNavigator().noPath();
+		isAttacking = npc.isAttacking();
+		isAtStartPoint = (npc.ais.shouldReturnHome() && this.npc.isVeryNearAssignedPlace());
+		if (tempAnimation != 0) {
+			if (!hasNavigation()) {
+				return npc.currentAnimation != tempAnimation;
 			}
-			this.temp = 0;
+			tempAnimation = 0;
 		}
-		if (this.hasNavigation() && notWalkingAnimation(this.npc.currentAnimation)) {
-			return this.npc.currentAnimation != 0;
+		if (hasNavigation() && notWalkingAnimation(npc.currentAnimation)) {
+			return npc.currentAnimation != 0;
 		}
-		return this.npc.currentAnimation != this.npc.ais.animationType;
+		return npc.currentAnimation != npc.ais.animationType;
 	}
 
 	public void updateTask() {
-		/*
-		 * if (this.npc.stats.ranged.getHasAimAnimation() && this.npc.isAttacking()) {
-		 * // shoot anim this.setAnimation(6); return; }
-		 */
-		int type = this.npc.ais.animationType;
-		if (this.isDead) {
+		int type = npc.ais.animationType;
+		if (isDead) {
 			type = 2;
-		} else if (notWalkingAnimation(this.npc.ais.animationType) && this.hasNavigation()) {
+		} else if (notWalkingAnimation(npc.ais.animationType) && hasNavigation()) {
 			type = 0;
-		} else if (this.temp != 0) {
+		} else if (tempAnimation != 0) {
 			if (this.hasNavigation()) {
-				this.temp = 0;
+				tempAnimation = 0;
 			} else {
-				type = this.temp;
+				type = tempAnimation;
 			}
 		}
-		this.setAnimation(type);
+		// if (this.npc.stats.ranged.getHasAimAnimation() && this.npc.isAttacking()) { type = 6; } // <- AI target
+		setAnimation(type);
 	}
 }

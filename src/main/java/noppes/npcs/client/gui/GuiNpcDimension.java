@@ -16,25 +16,27 @@ import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 
-public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICustomScrollListener {
+public class GuiNpcDimension
+extends GuiNPCInterface
+implements IScrollData, ICustomScrollListener {
 
 	private final HashMap<String, Integer> data = new HashMap<>();
 	private GuiCustomScroll scroll;
 
 	public GuiNpcDimension() {
-		this.xSize = 256;
-		this.setBackground("menubg.png");
+		xSize = 256;
+		setBackground("menubg.png");
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 1: { // settings
-			this.player.sendMessage(new TextComponentTranslation("gui.wip"));
-			if (!this.data.containsKey(this.scroll.getSelected())) {
+			player.sendMessage(new TextComponentTranslation("gui.wip"));
+			if (!data.containsKey(scroll.getSelected())) {
 				return;
 			}
-			int id = this.data.get(this.scroll.getSelected());
+			int id = data.get(scroll.getSelected());
 			if (!ClientHandler.getInstance().has(id)) {
 				return;
 			}
@@ -46,10 +48,10 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 			break;
 		}
 		case 3: { // remove
-			if (!this.data.containsKey(this.scroll.getSelected())) {
+			if (!data.containsKey(scroll.getSelected())) {
 				return;
 			}
-			int id = this.data.get(this.scroll.getSelected());
+			int id = data.get(scroll.getSelected());
 			if (!ClientHandler.getInstance().has(id)) {
 				return;
 			}
@@ -57,7 +59,7 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 			break;
 		}
 		case 4: {
-			this.tp();
+			tp();
 			break;
 		}
 		}
@@ -65,71 +67,50 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 
 	public void confirmClicked(boolean flag, int i) {
 		if (flag) {
-			Client.sendData(EnumPacketServer.RemoteDelete, this.data.get(this.scroll.getSelected()));
+			Client.sendData(EnumPacketServer.RemoteDelete, data.get(scroll.getSelected()));
 		}
-		NoppesUtil.openGUI(this.player, this);
-	}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
-			this.setHoverText("dimensions.hover.settings");
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText("dimensions.hover.add");
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText("dimensions.hover.del");
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
-			this.setHoverText("dimensions.hover.tp");
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		NoppesUtil.openGUI(player, this);
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
 		int id = 0;
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(186, 199);
-		}
-		this.scroll.guiLeft = this.guiLeft + 4;
-		this.scroll.guiTop = this.guiTop + 14;
-		this.addScroll(this.scroll);
-		if (this.scroll.selected == -1) {
-			for (String key : this.data.keySet()) {
-				if (this.data.get(key) == this.mc.player.world.provider.getDimension()) {
-					this.scroll.setSelected(key);
+		if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(186, 199); }
+		scroll.guiLeft = guiLeft + 4;
+		scroll.guiTop = guiTop + 14;
+		addScroll(scroll);
+		if (scroll.selected == -1) {
+			for (String key : data.keySet()) {
+				if (data.get(key) == mc.player.world.provider.getDimension()) {
+					scroll.setSelected(key);
 				}
 			}
 		}
-		if (this.data.containsKey(this.scroll.getSelected())) {
-			id = this.data.get(this.scroll.getSelected());
-		}
-
-		String title = new TextComponentTranslation("gui.dimensions").getFormattedText();
-		int x = (this.xSize - this.fontRenderer.getStringWidth(title)) / 2;
-		this.addLabel(new GuiNpcLabel(0, title, this.guiLeft + x, this.guiTop + 4));
-
-		GuiNpcButton button = new GuiNpcButton(1, this.guiLeft + 192, this.guiTop + 36, 60, 20, "gui.settings");
-		button.enabled = this.scroll.selected >= 0 && ClientHandler.getInstance().has(id);
-		this.addButton(button);
-
-		button = new GuiNpcButton(2, this.guiLeft + 192, this.guiTop + 80, 60, 20, "gui.add");
-		this.addButton(button);
-
-		button = new GuiNpcButton(3, this.guiLeft + 192, this.guiTop + 102, 60, 20, "gui.remove");
-		button.enabled = this.scroll.selected >= 0 && ClientHandler.getInstance().has(id);
-		this.addButton(button);
-
-		button = new GuiNpcButton(4, this.guiLeft + 192, this.guiTop + 14, 60, 20, "TP");
-		button.enabled = this.scroll.selected >= 0;
-		this.addButton(button);
+		if (data.containsKey(scroll.getSelected())) { id = data.get(scroll.getSelected()); }
+		// title
+		GuiNpcLabel label = new GuiNpcLabel(0, "gui.dimensions", guiLeft, guiTop + 4);
+		label.center(xSize);
+		addLabel(label);
+		// settings
+		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 192, guiTop + 36, 60, 20, "gui.settings");
+		button.setEnabled(scroll.selected >= 0 && ClientHandler.getInstance().has(id));
+		button.setHoverText("dimensions.hover.settings");
+		addButton(button);
+		// add
+		button = new GuiNpcButton(2, guiLeft + 192, guiTop + 80, 60, 20, "gui.add");
+		button.setHoverText("dimensions.hover.add");
+		addButton(button);
+		// del
+		button = new GuiNpcButton(3, guiLeft + 192, guiTop + 102, 60, 20, "gui.remove");
+		button.setEnabled(scroll.selected >= 0 && ClientHandler.getInstance().has(id));
+		button.setHoverText("dimensions.hover.del");
+		addButton(button);
+		// pt
+		button = new GuiNpcButton(4, guiLeft + 192, guiTop + 14, 60, 20, "TP");
+		button.setEnabled(scroll.selected >= 0);
+		button.setHoverText("dimensions.hover.tp");
+		addButton(button);
 	}
 
 	@Override
@@ -139,15 +120,15 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 
 	@Override
 	public void keyTyped(char c, int i) {
-		if (i == 1 || this.isInventoryKey(i)) {
-			this.close();
+		if (i == 1 || isInventoryKey(i)) {
+			close();
 		}
 	}
 
 	@Override
 	public void mouseClicked(int i, int j, int k) {
 		super.mouseClicked(i, j, k);
-		this.scroll.mouseClicked(i, j, k);
+		scroll.mouseClicked(i, j, k);
 	}
 
 	@Override
@@ -156,52 +137,48 @@ public class GuiNpcDimension extends GuiNPCInterface implements IScrollData, ICu
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		this.initGui();
+		initGui();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		this.tp();
+		tp();
 	}
 
 	@Override
-	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		this.data.clear();
+	public void setData(Vector<String> list, HashMap<String, Integer> dataMap) {
+		data.clear();
 		TreeMap<Integer, String> m = new TreeMap<>();
-		for (String key : data.keySet()) {
-			m.put(data.get(key), key);
-		}
+		// reverse K V
+		for (String key : dataMap.keySet()) { m.put(dataMap.get(key), key); }
 		List<String> l = new ArrayList<>();
 		List<String> s = new ArrayList<>();
 		String c = "" + ((char) 167);
 		for (int id : m.keySet()) {
 			String[] t = m.get(id).split("&");
 			String r = t[0].equals("delete") ? "8" : "7";
-			String str = c + r + "ID:" + (t[0].equals("delete") ? c + "7" : c + "6") + id + c + r + " - \""
-					+ (t[0].equals("delete") ? c + "7" : c + "r")
-					+ new TextComponentTranslation(t[1]).getFormattedText() + c + r + "\""
-					+ (t.length >= 3 && !t[2].isEmpty() ? " [" + t[2] + "]" : "");
+			String str = c + r + "ID:" + (t[0].equals("delete") ? c + "7" : c + "6") + id + c + r + " - \"" + (t[0].equals("delete") ? c + "7" : c + "r") + new TextComponentTranslation(t[1]).getFormattedText() + c + r + "\"" + (t.length >= 3 && !t[2].isEmpty() ? " [" + t[2] + "]" : "");
 			l.add(str);
 			String p = c + (id > 99 ? "6NPC" : "bMC") + c + r + ".";
 			s.add(p + (t[0].equals("delete") ? c + "7delete" : t[0].equals("true") ? c + "aloaded" : c + "cunloaded"));
-			this.data.put(str, id);
+			data.put(str, id);
 		}
-		this.scroll.setListNotSorted(l);
-		this.scroll.setSuffixes(s);
-		this.initGui();
+		scroll.setListNotSorted(l);
+		scroll.setSuffixes(s);
+		initGui();
 	}
 
 	@Override
 	public void setSelected(String selected) {
-		this.getButton(3).setDisplayText(selected);
+		getButton(3).setDisplayText(selected);
 	}
 
 	private void tp() {
-		if (!this.data.containsKey(this.scroll.getSelected())) {
+		if (!data.containsKey(scroll.getSelected())) {
 			return;
 		}
-		Client.sendData(EnumPacketServer.DimensionTeleport, this.data.get(this.scroll.getSelected()));
-		this.close();
+		Client.sendData(EnumPacketServer.DimensionTeleport, data.get(scroll.getSelected()));
+		close();
 	}
 
 }

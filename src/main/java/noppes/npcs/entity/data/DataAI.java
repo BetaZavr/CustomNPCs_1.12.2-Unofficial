@@ -44,7 +44,7 @@ public class DataAI
 	private int movingType = 0; // 0:Standing, 1:Wandering, 2:MovingPath -> EntityAIMovingPath
 	public int onAttack = 0; // 0:Normal, 1:Panic, 2:Retreat, 3:Nothing
 	public int orientation = 0;
-	private int standingType = 0; // 0:NoRotation, 1:RotateBody, 2:Stalking, 3:HeadRotation
+	private int standingType = 0; // 0:NoRotation, 1:RotateBody, 2:Stalking, 3:HeadRotation, 4:EyeRotation
 	private int tacticalRadius = 8;
 	public int tacticalVariant = 0;
 	public int walkingRange = 10;

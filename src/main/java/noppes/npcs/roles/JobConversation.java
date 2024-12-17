@@ -264,7 +264,7 @@ public class JobConversation extends JobInterface implements IJobConversation {
 		}
 		compound.setTag("ConversationLines", nbttaglist);
 		if (this.hasQuest()) {
-			compound.setString("ConversationQuestTitle", this.getQuest().getTitle()); // Changed
+			compound.setString("ConversationQuestTitle", this.getQuest().getTitle());
 		}
 		return compound;
 	}

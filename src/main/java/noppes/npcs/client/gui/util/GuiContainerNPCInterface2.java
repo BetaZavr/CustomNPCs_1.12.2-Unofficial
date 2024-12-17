@@ -11,7 +11,8 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface {
+public abstract class GuiContainerNPCInterface2
+extends GuiContainerNPCInterface {
 
 	protected ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
 	protected ResourceLocation defaultBackground = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
@@ -35,29 +36,29 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 	public void close() {
 		if (menu != null && menu.activeMenu != 1 && ClientProxy.playerData.editingNpc != null) {
 			menu.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuDisplay);
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuDisplay);
 			return;
 		}
 		super.close();
 	}
 
 	public void delete() {
-		this.npc.delete();
-		this.displayGuiScreen(null);
-		this.mc.setIngameFocus();
+		npc.delete();
+		displayGuiScreen(null);
+		mc.setIngameFocus();
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		this.drawDefaultBackground();
+	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+		drawDefaultBackground();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(this.background);
-		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, 256, 256);
+		mc.getTextureManager().bindTexture(background);
+		drawTexturedModalRect(guiLeft, guiTop, 0, 0, 256, 256);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(this.defaultBackground);
-		this.drawTexturedModalRect(this.guiLeft + this.xSize - 200, this.guiTop, 26, 0, 200, 220);
-		if (menu != null) { menu.drawElements(i, j, this.mc, f); }
-		super.drawGuiContainerBackgroundLayer(f, i, j);
+		mc.getTextureManager().bindTexture(defaultBackground);
+		drawTexturedModalRect(guiLeft + xSize - 200, guiTop, 26, 0, 200, 220);
+		if (menu != null) { menu.drawElements(mouseX, mouseY, mc, partialTicks); }
+		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 	}
 
 	@Override
@@ -68,27 +69,27 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 		}
 		if (menu != null && menu.getTopButtons().length > 0) {
 			char chr = ((char) 167);
-			for (GuiMenuTopButton tab : this.menu.getTopButtons()) {
+			for (GuiMenuTopButton tab : menu.getTopButtons()) {
 				if (tab.isMouseOver()) {
 					String text = new TextComponentTranslation("display.hover." + tab.label).getFormattedText();
 					String str;
 					switch (tab.label) {
 					case "menu.display": {
 						text += "<br>" + chr + "7" + new TextComponentTranslation("gui.name").getFormattedText() + chr
-								+ "7: " + chr + "r" + this.npc.display.getName() + chr + "7;";
+								+ "7: " + chr + "r" + npc.display.getName() + chr + "7;";
 						text += "<br>" + chr + "7" + new TextComponentTranslation("gui.title").getFormattedText() + chr
-								+ "7: <" + chr + "r" + this.npc.display.getTitle() + chr + "7>;";
+								+ "7: <" + chr + "r" + npc.display.getTitle() + chr + "7>;";
 						text += "<br>" + chr + "7" + new TextComponentTranslation("display.model").getFormattedText()
 								+ chr + "7 " + new TextComponentTranslation("display.size").getFormattedText() + chr
-								+ "7: " + chr + "r" + this.npc.display.getSize() + chr + "7;";
+								+ "7: " + chr + "r" + npc.display.getSize() + chr + "7;";
 						break;
 					}
 					case "menu.stats": {
 						text += "<br>" + chr + "7" + new TextComponentTranslation("stats.health").getFormattedText()
-								+ chr + "7: " + chr + "r" + this.npc.stats.maxHealth + chr + "7;";
+								+ chr + "7: " + chr + "r" + npc.stats.maxHealth + chr + "7;";
 						text += "<br>" + chr + "7" + new TextComponentTranslation("stats.aggro").getFormattedText()
-								+ chr + "7: " + chr + "r" + this.npc.stats.aggroRange + chr + "7;";
-						switch (this.npc.stats.spawnCycle) {
+								+ chr + "7: " + chr + "r" + npc.stats.aggroRange + chr + "7;";
+						switch (npc.stats.spawnCycle) {
 						case 0:
 							str = "gui.yes";
 							break;
@@ -110,15 +111,15 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 						text += "<br>" + chr + "7"
 								+ new TextComponentTranslation("stats.meleeproperties").getFormattedText() + chr + "7 "
 								+ new TextComponentTranslation("stats.meleestrength").getFormattedText() + chr + "7: "
-								+ chr + "r" + this.npc.stats.melee.getStrength() + chr + "7;";
+								+ chr + "r" + npc.stats.melee.getStrength() + chr + "7;";
 						text += "<br>" + chr + "7"
 								+ new TextComponentTranslation("stats.rangedproperties").getFormattedText() + chr + "7 "
 								+ new TextComponentTranslation("enchantment.arrowDamage").getFormattedText() + chr
-								+ "7: " + chr + "r" + this.npc.stats.ranged.getStrength() + chr + "7;";
+								+ "7: " + chr + "r" + npc.stats.ranged.getStrength() + chr + "7;";
 						break;
 					}
 					case "menu.ai": {
-						switch (this.npc.ais.onAttack) {
+						switch (npc.ais.onAttack) {
 						case 0:
 							str = "gui.retaliate";
 							break;
@@ -134,7 +135,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 						text += "<br>" + chr + "7" + new TextComponentTranslation("ai.enemyresponse").getFormattedText()
 								+ chr + "7: " + chr + "r" + new TextComponentTranslation(str).getFormattedText() + chr
 								+ "7;";
-						switch (this.npc.ais.getMovingType()) {
+						switch (npc.ais.getMovingType()) {
 						case 0:
 							str = "ai.standing";
 							break;
@@ -148,32 +149,32 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 								+ chr + "7: " + chr + "r" + new TextComponentTranslation(str).getFormattedText() + chr
 								+ "7;";
 						text += "<br>" + chr + "7" + new TextComponentTranslation("stats.movespeed").getFormattedText()
-								+ chr + "7: " + chr + "r" + this.npc.ais.getWalkingSpeed() + chr + "7;";
+								+ chr + "7: " + chr + "r" + npc.ais.getWalkingSpeed() + chr + "7;";
 						break;
 					}
 					case "menu.inventory": {
 						text += "<br>" + chr + "7" + new TextComponentTranslation("quest.exp").getFormattedText() + chr
-								+ "7: " + chr + "r" + this.npc.inventory.getExpMin() + chr + "7/" + chr + "r"
-								+ this.npc.inventory.getExpMax() + chr + "7;";
+								+ "7: " + chr + "r" + npc.inventory.getExpMin() + chr + "7/" + chr + "r"
+								+ npc.inventory.getExpMax() + chr + "7;";
 						text += "<br>" + chr + "7"
 								+ new TextComponentTranslation("questlog.all.reward").getFormattedText() + chr + "r"
-								+ this.npc.inventory.drops.size() + chr + "7;";
+								+ npc.inventory.drops.size() + chr + "7;";
 						break;
 					}
 					case "menu.advanced": {
 						text += "<br>" + chr + "7" + new TextComponentTranslation("role.name").getFormattedText() + chr
 								+ "7: " + chr + "r"
-								+ new TextComponentTranslation(this.npc.advanced.roleInterface.getEnumType().name)
+								+ new TextComponentTranslation(npc.advanced.roleInterface.getEnumType().name)
 										.getFormattedText()
 								+ chr + "7;";
 						text += "<br>" + chr + "7" + new TextComponentTranslation("job.name").getFormattedText() + chr
 								+ "7: " + chr + "r"
-								+ new TextComponentTranslation(this.npc.advanced.jobInterface.getEnumType().name)
+								+ new TextComponentTranslation(npc.advanced.jobInterface.getEnumType().name)
 										.getFormattedText()
 								+ chr + "7;";
 						text += "<br>" + chr + "7" + new TextComponentTranslation("menu.factions").getFormattedText()
 								+ chr + "7: " + chr + "r"
-								+ new TextComponentTranslation(this.npc.getFaction().name).getFormattedText() + chr
+								+ new TextComponentTranslation(npc.getFaction().name).getFormattedText() + chr
 								+ "7;";
 						break;
 					}
@@ -181,7 +182,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 						break;
 					}
 					}
-					this.setHoverText(text);
+					setHoverText(text);
 					return;
 				}
 			}
@@ -191,7 +192,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
     @Override
 	public void initGui() {
 		super.initGui();
-		if (menu != null) { menu.initGui(this.guiLeft, this.guiTop + this.menuYOffset, this.xSize); }
+		if (menu != null) { menu.initGui(guiLeft, guiTop + menuYOffset, xSize); }
 	}
 
 	@Override
@@ -203,7 +204,7 @@ public abstract class GuiContainerNPCInterface2 extends GuiContainerNPCInterface
 	}
 
 	public void setBackground(String texture) {
-		this.background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture);
+		background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture);
 	}
 
 }

@@ -30,16 +30,13 @@ public class SchematicController {
 
 	public static SchematicController Instance = new SchematicController();
 	public static long time = 50L;
-	public static final List<String> included;
-	static {
-		included = Arrays.asList("archery_range.schematic", "bakery.schematic", "barn.schematic",
+	public static final List<String> included = Arrays.asList("archery_range.schematic", "bakery.schematic", "barn.schematic",
 				"building_site.schematic", "chapel.schematic", "church.schematic", "gate.schematic",
 				"glassworks.schematic", "guard_Tower.schematic", "guild_house.schematic", "house.schematic",
 				"house_small.schematic", "inn.schematic", "library.schematic", "lighthouse.schematic", "mill.schematic",
 				"observatory.schematic", "ship.schematic", "shop.schematic", "stall.schematic", "stall2.schematic",
 				"stall3.schematic", "tier_house1.schematic", "tier_house2.schematic", "tier_house3.schematic",
 				"tower.schematic", "wall.schematic", "wall_corner.schematic");
-	}
 
 	public static void buildBlocks(EntityPlayerMP player, BlockPos pos, int rotation, Schematic schema) { // Schematic
 		if (player == null || pos == null || schema == null) {
@@ -112,7 +109,7 @@ public class SchematicController {
 	}
 
 	public List<String> list() {
-        List<String> list = new ArrayList<>(this.included);
+        List<String> list = new ArrayList<>(included);
 		for (File file : Objects.requireNonNull(SchematicController.getDir().listFiles())) {
 			String name = file.getName();
 			if (name.toLowerCase().endsWith(".schematic") || name.toLowerCase().endsWith(".blueprint")) {
@@ -125,7 +122,7 @@ public class SchematicController {
 
 	public SchematicWrapper load(String name) {
 		InputStream stream = null;
-		if (this.included.contains(name)) {
+		if (included.contains(name)) {
 			stream = MinecraftServer.class.getResourceAsStream("/assets/" + CustomNpcs.MODID + "/schematics/" + name);
 		}
 		if (stream == null) {
@@ -174,7 +171,7 @@ public class SchematicController {
 
 	public void save(ICommandSender sender, String name, int type, BlockPos pos, short height, short width, short length) {
 		name = name.replace(" ", "_");
-		if (this.included.contains(name)) {
+		if (included.contains(name)) {
 			return;
 		}
 		World world = sender.getEntityWorld();
@@ -219,7 +216,7 @@ public class SchematicController {
 	}
 
 	public void updateBuilding() {
-		if (buildingList == null || this.buildingList.isEmpty()) {
+		if (buildingList.isEmpty()) {
 			return;
 		}
 		List<SchematicWrapper> del = new ArrayList<>();

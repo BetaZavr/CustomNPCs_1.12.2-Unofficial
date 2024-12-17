@@ -29,7 +29,9 @@ import noppes.npcs.LogWriter;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class GuiCustomizeDimension extends GuiScreen implements GuiSlider.FormatHelper, GuiPageButtonList.GuiResponder {
+public class GuiCustomizeDimension
+extends GuiScreen
+implements GuiSlider.FormatHelper, GuiPageButtonList.GuiResponder {
 
 	private final GuiCreateDimension field_175343_i;
 	protected String field_175341_a = "Customize Dimension Settings";

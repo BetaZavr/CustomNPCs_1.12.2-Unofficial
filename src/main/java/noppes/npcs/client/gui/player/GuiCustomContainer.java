@@ -18,7 +18,8 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.containers.ContainerChestCustom;
 
-public class GuiCustomContainer extends GuiContainer {
+public class GuiCustomContainer
+extends GuiContainer {
 
 	private static final ResourceLocation backTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
 	private static final ResourceLocation tabsTexture = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");

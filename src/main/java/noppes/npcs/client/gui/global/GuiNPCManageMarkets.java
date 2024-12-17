@@ -33,7 +33,9 @@ import noppes.npcs.controllers.data.MarcetSection;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
+public class GuiNPCManageMarkets
+extends GuiNPCInterface2
+implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 
 	public static int marcetId, dealId;
 	private static Marcet selectedMarcet;
@@ -47,7 +49,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 	private MarcetController mData;
 	private int tabSelect;
 
-	public GuiNPCManageMarcets(EntityNPCInterface npc) {
+	public GuiNPCManageMarkets(EntityNPCInterface npc) {
 		super(npc);
 		mData = MarcetController.getInstance();
 		selectedMarcet = (Marcet) mData.getMarcet(marcetId);
@@ -185,48 +187,6 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (subgui != null || !CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		// Labels
-		if (getLabel(0) != null && getLabel(0).hovered) {
-			setHoverText(new TextComponentTranslation("market.hover.names").getFormattedText());
-		} else if (getLabel(1) != null && getLabel(1).hovered) {
-			setHoverText(new TextComponentTranslation("market.hover.deals").getFormattedText());
-		} else if (getLabel(2) != null && getLabel(2).hovered) {
-			setHoverText(new TextComponentTranslation("market.hover.all.deals").getFormattedText());
-		} else if (getButton(0) != null && getButton(0).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.market.add").getFormattedText());
-		} else if (getButton(1) != null && getButton(1).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.market.del").getFormattedText());
-		} else if (getButton(2) != null && getButton(2).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.market.settings").getFormattedText());
-		} else if (getButton(3) != null && getButton(3).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.deal.add").getFormattedText());
-		} else if (getButton(4) != null && getButton(4).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.deal.del").getFormattedText());
-		} else if (getButton(5) != null && getButton(5).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.deal.settings").getFormattedText());
-		} else if (getButton(6) != null && getButton(6).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.section").getFormattedText());
-		} else if (getButton(7) != null && getButton(7).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.add.deal").getFormattedText());
-		} else if (getButton(8) != null && getButton(8).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.del.deal").getFormattedText());
-		} else if (getButton(9) != null && getButton(9).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.add.deals").getFormattedText());
-		} else if (getButton(10) != null && getButton(10).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("market.hover.del.deals").getFormattedText());
-		}
-		if (hoverText != null) {
-			drawHoveringText(Arrays.asList(hoverText), mouseX, mouseY, fontRenderer);
-			hoverText = null;
-		}
-	}
-
-	@Override
 	public void initGui() {
 		super.initGui();
 		mData = MarcetController.getInstance();
@@ -240,12 +200,12 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 		if (scrollAllDeals == null) {
 			(scrollAllDeals = new GuiCustomScroll(this, 2)).setSize(w, h);
 		}
-
 		int x0 = guiLeft + 5, x1 = x0 + w + 5, x2 = x1 + w + 45, y = guiTop + 14;
-		// Marcets:
+		// Markets:
+		LinkedHashMap<Integer, List<String>> htsM = new LinkedHashMap<>();
 		scrollMarkets.setListNotSorted(new ArrayList<>(dataMarkets.keySet()));
 		if (!dataMarkets.isEmpty()) {
-			List<String[]> infoList = new ArrayList<>();
+			int i = 0;
 			for (int id : dataMarkets.values()) {
 				Marcet marcet = (Marcet) mData.getMarcet(id);
 				List<String> info = new ArrayList<>();
@@ -276,23 +236,24 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 						break;
 					}
 				}
-				infoList.add(info.toArray(new String[0]));
+				htsM.put(i, info);
+				i++;
 			}
-			scrollMarkets.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
-		} else {
-			scrollMarkets.hoversTexts = null;
 		}
+		scrollMarkets.setHoverTexts(htsM);
 		scrollMarkets.setSelected(selectedMarcet.getSettingName());
 
 		// Deals:
 		scrollAllDeals.setListNotSorted(new ArrayList<>(dataDeals.keySet()));
 		if (!dataDeals.isEmpty()) {
-			List<String[]> infoList = new ArrayList<>();
+			LinkedHashMap<Integer, List<String>> htsAD = new LinkedHashMap<>();
 			List<ItemStack> stacks = new ArrayList<>();
 
+			LinkedHashMap<Integer, List<String>> htsD = new LinkedHashMap<>();
 			List<String> marcetDeals = new ArrayList<>();
-			List<String[]> marcetInfoList = new ArrayList<>();
 			List<ItemStack> marcetStacks = new ArrayList<>();
+			int i = 0;
+			int j = 0;
 			for (String key : dataDeals.keySet()) {
 				int dealID = dataDeals.get(key);
 				Deal deal = (Deal) mData.getDeal(dealID);
@@ -350,24 +311,22 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 					totalInfo.add(((char) 167) + "e" + (new TextComponentTranslation("market.deal.type." + dm.deal.getType()).getFormattedText()));
 					totalInfo.add(((char) 167) + "6" + (new TextComponentTranslation("drop.chance").getFormattedText() + ((char) 167) + "6: " + ((char) 167) + "r" + dm.deal.getChance() + "%"));
 				}
-				infoList.add(totalInfo.toArray(new String[0]));
-				marcetInfoList.add(marcetInfo.toArray(new String[0]));
+				htsAD.put(i++, totalInfo);
 				stacks.add(stack);
 				if (tabSelect == tab) {
 					marcetDeals.add(key);
 					marcetStacks.add(stack);
+					htsD.put(j++, marcetInfo);
 				}
 			}
-			scrollAllDeals.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
+			scrollAllDeals.setHoverTexts(htsAD);
 			scrollAllDeals.setStacks(stacks);
 
-			scrollDeals.hoversTexts = marcetInfoList.toArray(new String[marcetInfoList.size()][1]);
+			scrollDeals.setHoverTexts(htsD);
 			scrollDeals.setStacks(marcetStacks);
 			scrollDeals.setListNotSorted(marcetDeals);
 		}
-		if (selectedDeal != null) {
-			scrollAllDeals.setSelected(selectedDeal.getSettingName());
-		}
+		if (selectedDeal != null) { scrollAllDeals.setSelected(selectedDeal.getSettingName()); }
 
 		scrollMarkets.guiLeft = x0;
 		scrollMarkets.guiTop = y;
@@ -383,43 +342,83 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 		scrollAllDeals.resetRoll();
 
 		int lId = 0;
-		addLabel(new GuiNpcLabel(lId++, "global.market", x0 + 2, y - 9));
-		addLabel(new GuiNpcLabel(lId++, "market.deals", x1, y - 9));
-		addLabel(new GuiNpcLabel(lId, "market.all.deals", x2, y - 9));
+		// market keys
+		GuiNpcLabel label = new GuiNpcLabel(lId++, "global.market", x0 + 2, y - 9);
+		label.setHoverText("market.hover.names");
+		addLabel(label);
+		// market deals keys
+		label = new GuiNpcLabel(lId++, "market.deals", x1, y - 9);
+		label.setHoverText("market.hover.deals");
+		addLabel(label);
+		// all deals keys
+		label = new GuiNpcLabel(lId, "market.all.deals", x2, y - 9);
+		label.setHoverText("market.hover.all.deals");
+		addLabel(label);
 
 		y += scrollMarkets.height + 2;
 		int bw = (w - 2) / 3;
-		addButton(new GuiNpcButton(0, x0, y, bw, 20, "gui.add"));
-		addButton(new GuiNpcButton(1, x0 + 2 + bw, y, bw, 20, "gui.remove"));
-		getButton(1).setEnabled(marcetId > 0 && selectedMarcet != null && mData.markets.size() > 1);
-		addButton(new GuiNpcButton(2, x0 + (2 + bw) * 2, y, bw, 20, "selectServer.edit"));
-		getButton(2).setEnabled(selectedMarcet != null);
+		// add market
+		GuiNpcButton button = new GuiNpcButton(0, x0, y, bw, 20, "gui.add");
+		button.setHoverText("market.hover.market.add");
+		addButton(button);
+		// del market
+		button = new GuiNpcButton(1, x0 + 2 + bw, y, bw, 20, "gui.remove");
+		button.setEnabled(marcetId > 0 && selectedMarcet != null && mData.markets.size() > 1);
+		button.setHoverText("market.hover.market.del");
+		addButton(button);
+		// edit market
+		button = new GuiNpcButton(2, x0 + (2 + bw) * 2, y, bw, 20, "selectServer.edit");
+		button.setEnabled(selectedMarcet != null);
+		button.setHoverText("market.hover.market.settings");
+		addButton(button);
 
-		addButton(new GuiNpcButton(3, x2, y, bw, 20, "gui.add"));
-		addButton(new GuiNpcButton(4, x2 + 2 + bw, y, bw, 20, "gui.remove"));
-		getButton(4).setEnabled(dealId > 0 && selectedDeal != null);
-		addButton(new GuiNpcButton(5, x2 + (2 + bw) * 2, y, bw, 20, "selectServer.edit"));
-		getButton(5).setEnabled(selectedDeal != null);
-
+		// add deal
+		button = new GuiNpcButton(3, x2, y, bw, 20, "gui.add");
+		button.setHoverText("market.hover.deal.add");
+		addButton(button);
+		// del deal
+		button = new GuiNpcButton(4, x2 + 2 + bw, y, bw, 20, "gui.remove");
+		button.setEnabled(dealId > 0 && selectedDeal != null);
+		button.setHoverText("market.hover.deal.del");
+		addButton(button);
+		// edit deal
+		button = new GuiNpcButton(5, x2 + (2 + bw) * 2, y, bw, 20, "selectServer.edit");
+		button.setEnabled(selectedDeal != null);
+		button.setHoverText("market.hover.deal.settings");
+		addButton(button);
+		// market tabs
 		String[] tabs = new String[selectedMarcet.sections.size()];
 		int i = 0;
 		for (MarcetSection tab : selectedMarcet.sections.values()) {
 			tabs[i] = new TextComponentTranslation(tab.name).getFormattedText();
 			i++;
 		}
-		addButton(new GuiButtonBiDirectional(6, x1, y, w, 20, tabs, tabSelect));
-
+		button = new GuiButtonBiDirectional(6, x1, y, w, 20, tabs, tabSelect);
+		button.setHoverText("market.hover.section");
+		addButton(button);
+		// work buttons
 		int x3 = x2 - 43;
 		y = guiTop + 60;
-		addButton(new GuiNpcButton(7, x3, y, 41, 20, "<"));
-		getButton(7).setEnabled(selectedMarcet != null && selectedMarcet.getDeal(dealId) == null
-				&& scrollAllDeals.hasSelected() && selectedDeal != null && selectedDeal.isValid());
-		addButton(new GuiNpcButton(8, x3, y += 22, 41, 20, ">"));
-		getButton(8).setEnabled(scrollDeals.hasSelected());
-		addButton(new GuiNpcButton(9, x3, y += 22, 41, 20, "<<"));
-		getButton(9).setEnabled(!dataDeals.isEmpty());
-		addButton(new GuiNpcButton(10, x3, y + 22, 41, 20, ">>"));
-		getButton(10).setEnabled(!scrollDeals.getList().isEmpty());
+		// add
+		button = new GuiNpcButton(7, x3, y, 41, 20, "<");
+		button.setEnabled(selectedMarcet != null && selectedMarcet.getDeal(dealId) == null && scrollAllDeals.hasSelected() && selectedDeal != null && selectedDeal.isValid());
+		button.setHoverText("market.hover.add.deal");
+		addButton(button);
+		// del
+		button = new GuiNpcButton(8, x3, y += 22, 41, 20, ">");
+		button.setHoverText("market.hover.del.deal");
+		addButton(button);
+		button.setEnabled(scrollDeals.hasSelected());
+		// add all
+		button = new GuiNpcButton(9, x3, y += 22, 41, 20, "<<");
+		button.setEnabled(!dataDeals.isEmpty());
+		button.setHoverText("market.hover.add.deals");
+		addButton(button);
+		// del all
+		button = new GuiNpcButton(10, x3, y + 22, 41, 20, ">>");
+		button.setEnabled(!scrollDeals.getList().isEmpty());
+		button.setHoverText("market.hover.del.deals");
+		addButton(button);
 	}
 
 	@Override
@@ -444,7 +443,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2 implements IGuiData, I
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		try {
 			switch (scroll.id) {
-				case 0: { // Marcets
+				case 0: { // Markets
 					if (!dataMarkets.containsKey(scroll.getSelected())) {
 						return;
 					}

@@ -82,25 +82,30 @@ public class EntityAIReturn extends EntityAIBase {
 				Util.instance.teleportEntity(npc.world.getMinecraftServer(), npc, npc.homeDimensionId, npc.getHomePosition());
 			} catch (CommandException e) {
 				LogWriter.error("Error teleport back home: ", e);
-				npc.getNavigator().tryMoveToXYZ(endPosX, endPosY, endPosZ, 1.0);
+				npc.getNavigator().tryMoveToXYZ(endPosX, endPosY, endPosZ, 1.3);
 			}
 		} else {
-			npc.getNavigator().tryMoveToXYZ(endPosX, endPosY, endPosZ, 1.0);
+			npc.getNavigator().tryMoveToXYZ(endPosX, endPosY, endPosZ, 1.3);
 		}
 	}
 
 	@Override
 	public void resetTask() {
-		this.wasAttacked = false;
-		this.npc.getNavigator().clearPath();
+		wasAttacked = false;
+		npc.setAttackTarget(null);
 	}
 
 	@Override
 	public boolean shouldContinueExecuting() {
+		boolean bo = true;
+		if (npc.ais.onAttack == 2) {
+			double dist = Util.instance.distanceTo(npc.posX, npc.posY, npc.posZ, npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos());
+			bo = dist > npc.stats.aggroRange;
+		}
 		return npc.getHealth() > 0 && !npc.isFollower() && !npc.isKilled() && !npc.isAttacking() && !npc.advanced.jobInterface.isWorking()
 				&& !npc.isVeryNearAssignedPlace() && !npc.isInteracting() && !npc.isRiding()
 				&& (!npc.getNavigator().noPath() || !wasAttacked || isTooFar())
-				&& totalTicks <= EntityAIReturn.MaxTotalTicks;
+				&& totalTicks <= EntityAIReturn.MaxTotalTicks && bo;
 	}
 
 	@Override
@@ -135,6 +140,12 @@ public class EntityAIReturn extends EntityAIBase {
 			}
 		}
 		if (npc.isAttacking()) {
+			if (npc.ais.onAttack == 2) {
+				double dist = Util.instance.distanceTo(npc.posX, npc.posY, npc.posZ, npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos());
+				if (dist > npc.stats.aggroRange) {
+					return true;
+				}
+			}
 			if (!wasAttacked) {
 				wasAttacked = true;
 				preAttackPos = new double[] { npc.posX, npc.posY, npc.posZ };
@@ -144,7 +155,6 @@ public class EntityAIReturn extends EntityAIBase {
 		if (!npc.isAttacking() && wasAttacked) {
 			return true;
 		}
-
 		if (npc.homeDimensionId != npc.world.provider.getDimension()) {
 			return true;
 		}

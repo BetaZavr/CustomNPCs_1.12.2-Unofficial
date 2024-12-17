@@ -113,7 +113,6 @@ public class EntityLivingBaseMixin implements IEntityLivingBaseMixin {
 
     @Inject(method = "canEntityBeSeen", at = @At("HEAD"))
     public void npcs$canEntityBeSeen(Entity entityIn, CallbackInfoReturnable<Boolean> cir) {
-        //System.out.println("CNPCs: ");
 
     }
 

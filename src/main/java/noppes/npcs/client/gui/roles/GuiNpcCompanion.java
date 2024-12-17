@@ -21,39 +21,40 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 
-public class GuiNpcCompanion extends GuiNPCInterface2 implements ITextfieldListener, ISliderListener {
+public class GuiNpcCompanion
+extends GuiNPCInterface2
+implements ITextfieldListener, ISliderListener {
 
+	private final List<GuiNpcCompanionTalents.GuiTalent> talents = new ArrayList<>();
 	private final RoleCompanion role;
-	private List<GuiNpcCompanionTalents.GuiTalent> talents;
 
 	public GuiNpcCompanion(EntityNPCInterface npc) {
 		super(npc);
-		this.talents = new ArrayList<>();
-		this.role = (RoleCompanion) npc.advanced.roleInterface;
+		role = (RoleCompanion) npc.advanced.roleInterface;
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
-			this.role.matureTo(EnumCompanionStage.values()[button.getValue()]);
-			if (this.role.canAge) {
-				this.role.ticksActive = this.role.stage.matureAge;
+			role.matureTo(EnumCompanionStage.values()[button.getValue()]);
+			if (role.canAge) {
+				role.ticksActive = role.stage.matureAge;
 			}
-			this.initGui();
+			initGui();
 		}
 		if (button.id == 1) {
-			Client.sendData(EnumPacketServer.RoleCompanionUpdate, this.role.stage.ordinal());
+			Client.sendData(EnumPacketServer.RoleCompanionUpdate, role.stage.ordinal());
 		}
 		if (button.id == 2) {
-			this.role.canAge = (button.getValue() == 1);
-			this.initGui();
+			role.canAge = (button.getValue() == 1);
+			initGui();
 		}
 	}
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		for (GuiNpcCompanionTalents.GuiTalent talent : new ArrayList<>(this.talents)) {
+		for (GuiNpcCompanionTalents.GuiTalent talent : new ArrayList<>(talents)) {
 			talent.drawScreen(i, j, f);
 		}
 	}
@@ -65,61 +66,46 @@ public class GuiNpcCompanion extends GuiNPCInterface2 implements ITextfieldListe
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.talents = new ArrayList<>();
-		int y = this.guiTop + 4;
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 70, y, 90, 20,
-				new String[] { EnumCompanionStage.BABY.name, EnumCompanionStage.CHILD.name,
-						EnumCompanionStage.TEEN.name, EnumCompanionStage.ADULT.name,
-						EnumCompanionStage.FULL_GROWN.name },
-				this.role.stage.ordinal()));
-		this.addLabel(new GuiNpcLabel(0, "companion.stage", this.guiLeft + 4, y + 5));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 162, y, 90, 20, "gui.update"));
-		int i = 2;
-		int j = this.guiLeft + 70;
+		int y = guiTop + 4;
+		addButton(new GuiNpcButton(0, guiLeft + 70, y, 90, 20, new String[] { EnumCompanionStage.BABY.name, EnumCompanionStage.CHILD.name, EnumCompanionStage.TEEN.name, EnumCompanionStage.ADULT.name, EnumCompanionStage.FULL_GROWN.name }, role.stage.ordinal()));
+		addLabel(new GuiNpcLabel(0, "companion.stage", guiLeft + 4, y + 5));
+		addButton(new GuiNpcButton(1, guiLeft + 162, y, 90, 20, "gui.update"));
+
 		y += 22;
-		this.addButton(
-				new GuiNpcButton(i, j, y, 90, 20, new String[] { "gui.no", "gui.yes" }, (this.role.canAge ? 1 : 0)));
-		this.addLabel(new GuiNpcLabel(2, "companion.age", this.guiLeft + 4, y + 5));
-		if (this.role.canAge) {
-			this.addTextField(new GuiNpcTextField(2, this, this.guiLeft + 162, y, 140, 20, this.role.ticksActive + ""));
-			this.getTextField(2).setNumbersOnly();
-			this.getTextField(2).setMinMaxDefault(0, Integer.MAX_VALUE, 0);
+		addButton(new GuiNpcButton(2, guiLeft + 70, y, 90, 20, new String[] { "gui.no", "gui.yes" }, (role.canAge ? 1 : 0)));
+		addLabel(new GuiNpcLabel(2, "companion.age", guiLeft + 4, y + 5));
+		if (role.canAge) {
+			GuiNpcTextField textField = new GuiNpcTextField(2, this, guiLeft + 162, y, 140, 20, role.ticksActive + "");
+			textField.setMinMaxDefault(0, Integer.MAX_VALUE, 0);
+			addTextField(textField);
 		}
-		List<GuiNpcCompanionTalents.GuiTalent> talents = this.talents;
-		RoleCompanion role = this.role;
+
 		EnumCompanionTalent inventory = EnumCompanionTalent.INVENTORY;
-		int x = this.guiLeft + 4;
+		talents.clear();
+
 		y += 26;
-		talents.add(new GuiNpcCompanionTalents.GuiTalent(role, inventory, x, y));
-		this.addSlider(new GuiNpcSlider(this, 10, this.guiLeft + 30, y + 2, 100, 20,
-				this.role.getExp(EnumCompanionTalent.INVENTORY) / 5000.0f));
-		List<GuiNpcCompanionTalents.GuiTalent> talents2 = this.talents;
-		RoleCompanion role2 = this.role;
+		talents.add(new GuiNpcCompanionTalents.GuiTalent(role, inventory, guiLeft + 4, y));
+		addSlider(new GuiNpcSlider(this, 10, guiLeft + 30, y + 2, 100, 20, role.getExp(EnumCompanionTalent.INVENTORY) / 5000.0f));
+
 		EnumCompanionTalent armor = EnumCompanionTalent.ARMOR;
-		int x2 = this.guiLeft + 4;
 		y += 26;
-		talents2.add(new GuiNpcCompanionTalents.GuiTalent(role2, armor, x2, y));
-		this.addSlider(new GuiNpcSlider(this, 11, this.guiLeft + 30, y + 2, 100, 20,
-				this.role.getExp(EnumCompanionTalent.ARMOR) / 5000.0f));
-		List<GuiNpcCompanionTalents.GuiTalent> talents3 = this.talents;
-		RoleCompanion role3 = this.role;
+		talents.add(new GuiNpcCompanionTalents.GuiTalent(role, armor, guiLeft + 4, y));
+		addSlider(new GuiNpcSlider(this, 11, guiLeft + 30, y + 2, 100, 20, role.getExp(EnumCompanionTalent.ARMOR) / 5000.0f));
+
 		EnumCompanionTalent sword = EnumCompanionTalent.SWORD;
-		int x3 = this.guiLeft + 4;
 		y += 26;
-		talents3.add(new GuiNpcCompanionTalents.GuiTalent(role3, sword, x3, y));
-		this.addSlider(new GuiNpcSlider(this, 12, this.guiLeft + 30, y + 2, 100, 20,
-				this.role.getExp(EnumCompanionTalent.SWORD) / 5000.0f));
-		for (GuiNpcCompanionTalents.GuiTalent gui : this.talents) {
-			gui.setWorldAndResolution(this.mc, this.width, this.height);
-		}
+		talents.add(new GuiNpcCompanionTalents.GuiTalent(role, sword, guiLeft + 4, y));
+		addSlider(new GuiNpcSlider(this, 12, guiLeft + 30, y + 2, 100, 20, role.getExp(EnumCompanionTalent.SWORD) / 5000.0f));
+
+		for (GuiNpcCompanionTalents.GuiTalent gui : talents) { gui.setWorldAndResolution(mc, width, height); }
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
 		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+			save();
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 		}
 	}
 
@@ -127,10 +113,10 @@ public class GuiNpcCompanion extends GuiNPCInterface2 implements ITextfieldListe
 	public void mouseDragged(GuiNpcSlider slider) {
 		if (slider.sliderValue <= 0.0f) {
 			slider.setString("gui.disabled");
-			this.role.talents.remove(EnumCompanionTalent.values()[slider.id - 10]);
+			role.talents.remove(EnumCompanionTalent.values()[slider.id - 10]);
 		} else {
 			slider.displayString = (int) Math.floor(slider.sliderValue * 5000.0f) + "/5000 exp";
-			this.role.setExp(EnumCompanionTalent.values()[slider.id - 10], (int) (slider.sliderValue * 5000.0f));
+			role.setExp(EnumCompanionTalent.values()[slider.id - 10], (int) (slider.sliderValue * 5000.0f));
 		}
 	}
 
@@ -144,13 +130,13 @@ public class GuiNpcCompanion extends GuiNPCInterface2 implements ITextfieldListe
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.RoleSave, this.role.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.RoleSave, role.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textfield) {
 		if (textfield.getId() == 2) {
-			this.role.ticksActive = textfield.getInteger();
+			role.ticksActive = textfield.getInteger();
 		}
 	}
 }

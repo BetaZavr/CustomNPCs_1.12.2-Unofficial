@@ -15,6 +15,7 @@ import noppes.npcs.controllers.data.*;
 import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
 import noppes.npcs.api.mixin.event.entity.living.ILivingAttackEventMixin;
 import noppes.npcs.api.mixin.tileentity.ITileEntityBanner;
+import noppes.npcs.entity.data.DataInventory;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.reflect.ClassPath;
@@ -446,8 +447,7 @@ public class PlayerEventHandler {
 
 	@SubscribeEvent
 	public void npcPlayerLeftClickBlockEvent(PlayerInteractEvent.LeftClickBlock event) {
-		if (event.getHand() != EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote
-				|| event.getWorld().isRemote) {
+		if (event.getHand() != EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || event.getWorld().isRemote) {
 			return;
 		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerLeftClickBlockEvent");
@@ -505,7 +505,7 @@ public class PlayerEventHandler {
 			public void sendAllWindowProperties(@Nonnull Container containerIn, @Nonnull IInventory inventory) {}
 			public void sendSlotContents(@Nonnull Container containerToSend, int slotInd, @Nonnull ItemStack stack) {
 				if (player.world.isRemote) { return; }
-				for (QuestData qd : data.questData.activeQuests.values()) { // Changed
+				for (QuestData qd : data.questData.activeQuests.values()) {
 					for (IQuestObjective obj : qd.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 						if (obj.getType() != 0) {
 							continue;
@@ -576,13 +576,24 @@ public class PlayerEventHandler {
 
 	@SubscribeEvent
 	public void npcPlayerRightClickBlockEvent(PlayerInteractEvent.RightClickBlock event) {
-		if (event.getHand() != EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote
-				|| event.getHand() != EnumHand.MAIN_HAND || event.getWorld().isRemote) {
+		if (event.getHand() != EnumHand.MAIN_HAND || event.getWorld().isRemote) {
 			return;
 		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
+		Entity deadTarget = Util.instance.getLookEntity(event.getEntityPlayer(), 4.0d, false);
+		if (deadTarget != null && !deadTarget.isEntityAlive() && deadTarget instanceof EntityNPCInterface) {
+			DataInventory dataInv = ((EntityNPCInterface) deadTarget).inventory;
+			IInventory deadInventory = dataInv.deadLoot;
+			if (deadInventory == null && dataInv.deadLoots != null && dataInv.deadLoots.containsKey(event.getEntityPlayer())) { deadInventory = dataInv.deadLoots.get(event.getEntityPlayer()); }
+			if (deadInventory != null) {
+				NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.DeadInventory, (EntityNPCInterface) deadTarget, deadInventory.getSizeInventory(), -1, 0);
+				event.setCanceled(true);
+				CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
+				return;
+			}
+		}
 		if (event.getItemStack().getItem() == CustomRegisters.nbt_book) {
-			Entity target = Util.instance.getLookEntity(event.getEntityPlayer(), PlayerData.get(event.getEntityPlayer()).game.renderDistance);
+			Entity target = Util.instance.getLookEntity(event.getEntityPlayer(), PlayerData.get(event.getEntityPlayer()).game.renderDistance, false);
 			if (target != null) { ((ItemNbtBook) event.getItemStack().getItem()).entityEvent((EntityPlayerMP) event.getEntityPlayer(), target); }
 			else { ((ItemNbtBook) event.getItemStack().getItem()).blockEvent((EntityPlayerMP) event.getEntityPlayer(), event.getPos()); }
 			event.setCanceled(true);
@@ -607,8 +618,7 @@ public class PlayerEventHandler {
 		event.setCanceled(EventHooks.onPlayerInteract(handler, ev));
 		if (event.getItemStack().getItem() == CustomRegisters.scripted_item && !event.isCanceled()) {
 			ItemScriptedWrapper isw = ItemScripted.GetWrapper(event.getItemStack());
-			ItemEvent.InteractEvent eve = new ItemEvent.InteractEvent(isw, handler.getPlayer(), 2,
-					Objects.requireNonNull(NpcAPI.Instance()).getIBlock(event.getWorld(), event.getPos()));
+			ItemEvent.InteractEvent eve = new ItemEvent.InteractEvent(isw, handler.getPlayer(), 2, Objects.requireNonNull(NpcAPI.Instance()).getIBlock(event.getWorld(), event.getPos()));
 			event.setCanceled(EventHooks.onScriptItemInteract(isw, eve));
 		}
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
@@ -637,7 +647,7 @@ public class PlayerEventHandler {
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * d0, vec3d2.y * d0, vec3d2.z * d0);
 			RayTraceResult result = player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
 			if (event.getItemStack().getItem() instanceof ItemNbtBook) {
-				Entity target = Util.instance.getLookEntity(player, d0);
+				Entity target = Util.instance.getLookEntity(player, d0, false);
 				if (target != null) {
 					((ItemNbtBook) event.getItemStack().getItem()).entityEvent(player, target);
 					CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
@@ -746,7 +756,7 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcServerTick");
 	}
 
-	public PlayerEventHandler registerForgeEvents(Side side) { // Changed
+	public PlayerEventHandler registerForgeEvents(Side side) {
 		ForgeEventHandler handler = new ForgeEventHandler();
 		LogWriter.info("CustomNpcs: Start load Forge Events:");
 		CustomNpcs.debugData.startDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
@@ -1361,7 +1371,20 @@ public class PlayerEventHandler {
 		} else {
 			try {
 				//noppes.npcs.util.TempClass.updateLocalization();
-
+/*
+				java.io.InputStream inputStream = Util.instance.getModInputStream("a_def.dat");
+				if (inputStream == null) { return; }
+				NBTTagCompound compound = new NBTTagCompound();
+				net.minecraft.nbt.NBTTagList list = new net.minecraft.nbt.NBTTagList();
+				for (noppes.npcs.client.model.animation.AnimationConfig anim : AnimationController.getInstance().animations.values()) {
+					list.appendTag(anim.save());
+				}
+				compound.setTag("Animations", list);
+				java.io.File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
+				//Util.instance.saveFile(new java.io.File(dir, "temp.java"), compound);
+				try { net.minecraft.nbt.CompressedStreamTools.writeCompressed(compound, java.nio.file.Files.newOutputStream(new java.io.File(dir, "a_def.dat").toPath())); } catch (Exception e) { LogWriter.error("Error:", e); }
+				AnimationController.getInstance().save();
+				/**/
 				/*
 				java.io.File dir;
 				java.io.File dirMain = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
@@ -1372,7 +1395,11 @@ public class PlayerEventHandler {
 				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
 				Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
 				//found.put("System.out.println", null);
-				found.put("com.google.common.collect.", null);
+				found.put("// Change", null);
+				found.put("// New", null);
+				found.put("// change", null);
+				found.put("// new", null);
+				found.put("0x", null); // color replace
 
 				for (java.io.File file : Util.instance.getFiles(dir, "java")) {
 					try {

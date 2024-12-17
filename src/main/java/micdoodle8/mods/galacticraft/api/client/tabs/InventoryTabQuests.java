@@ -1,5 +1,6 @@
 package micdoodle8.mods.galacticraft.api.client.tabs;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -73,14 +74,14 @@ public class InventoryTabQuests extends AbstractTab {
 		}
 		this.zLevel = 300.0f;
 		this.itemRender.zLevel = 300.0f;
-		int j3 = -267386864;
+		int j3 = new Color(0xF0100010).getRGB();
 		this.drawGradientRect(j2 - 3, k2 - 4, j2 + k + 3, k2 - 3, j3, j3);
 		this.drawGradientRect(j2 - 3, k2 + i1 + 3, j2 + k + 3, k2 + i1 + 4, j3, j3);
 		this.drawGradientRect(j2 - 3, k2 - 3, j2 + k + 3, k2 + i1 + 3, j3, j3);
 		this.drawGradientRect(j2 - 4, k2 - 3, j2 - 3, k2 + i1 + 3, j3, j3);
 		this.drawGradientRect(j2 + k + 3, k2 - 3, j2 + k + 4, k2 + i1 + 3, j3, j3);
-		int k3 = 1347420415;
-		int l2 = (k3 & 0xFEFEFE) >> 1 | (k3 & 0xFF000000);
+		int k3 = new Color(0x505000FF).getRGB();
+		int l2 = (k3 & new Color(0xFEFEFE).getRGB()) >> 1 | (k3 & new Color(0xFF000000).getRGB());
 		this.drawGradientRect(j2 - 3, k2 - 3 + 1, j2 - 3 + 1, k2 + i1 + 3 - 1, k3, l2);
 		this.drawGradientRect(j2 + k + 2, k2 - 3 + 1, j2 + k + 3, k2 + i1 + 3 - 1, k3, l2);
 		this.drawGradientRect(j2 - 3, k2 - 3, j2 + k + 3, k2 - 3 + 1, k3, k3);

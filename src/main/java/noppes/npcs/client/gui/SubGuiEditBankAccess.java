@@ -1,11 +1,9 @@
 package noppes.npcs.client.gui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcCheckBox;
@@ -17,8 +15,8 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.controllers.data.Bank;
 
 public class SubGuiEditBankAccess
-		extends SubGuiInterface
-		implements ICustomScrollListener, ITextfieldListener {
+extends SubGuiInterface
+implements ICustomScrollListener, ITextfieldListener {
 
 	public final List<String> names;
 	public String owner;
@@ -58,7 +56,7 @@ public class SubGuiEditBankAccess
 				if (sel.equals(scroll.getSelected())) {
 					sel = "";
 				}
-				names.remove(this.scroll.selected);
+				names.remove(scroll.selected);
 				scroll.selected--;
 				if (scroll.selected < 0) {
 					if (names.isEmpty()) {
@@ -73,10 +71,12 @@ public class SubGuiEditBankAccess
 			}
 			case 2: { // add
 				white = ((GuiNpcCheckBox) button).isSelected();
+				button.setHoverText("bank.hover." + (white ? "iswhite" : "isblack"));
 				break;
 			}
 			case 3: {
 				isChanging = ((GuiNpcCheckBox) button).isSelected();
+				button.setHoverText("bank.hover.changed." + isChanging);
 				break;
 			}
 			case 66: {
@@ -103,63 +103,49 @@ public class SubGuiEditBankAccess
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions && !hasSubGui()) {
-			return;
-		}
-		if (getButton(0) != null && getButton(0).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("bank.hover.player.add").getFormattedText());
-		} else if (getButton(1) != null && getButton(1).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("bank.hover.player.del").getFormattedText());
-		} else if (getButton(2) != null && getButton(2).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("bank.hover." + (white ? "iswhite" : "isblack")).getFormattedText());
-		} else if (getButton(3) != null && getButton(3).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("bank.hover.changed." + isChanging).getFormattedText());
-		} else if (getButton(66) != null && getButton(66).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		} else if (getTextField(0) != null && getTextField(0).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("bank.hover.owner").getFormattedText());
-		}
-		if (hoverText != null) {
-			drawHoveringText(Arrays.asList(hoverText), mouseX, mouseY, fontRenderer);
-			hoverText = null;
-		}
-	}
-
-	@Override
 	public void initGui() {
 		super.initGui();
 		int x = guiLeft + 4;
 		int y = guiTop + 14;
-
+		// owner
 		addLabel(new GuiNpcLabel(0, new TextComponentTranslation("bank.owner").getFormattedText() + ":", x, y - 10));
-		addTextField(new GuiNpcTextField(0, this, x, y, 168, 20, owner));
-
-		if (scroll == null) {
-			(scroll = new GuiCustomScroll(this, 0)).setSize(168, 145);
-		}
+		GuiNpcTextField textField = new GuiNpcTextField(0, this, x, y, 168, 20, owner);
+		textField.setHoverText("bank.hover.owner");
+		addTextField(textField);
+		// data
+		if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(168, 145); }
 		scroll.setList(names);
 		scroll.guiLeft = x;
 		scroll.guiTop = (y += 23);
 		addScroll(scroll);
-		if (!sel.isEmpty()) {
-			scroll.setSelected(sel);
-		} else {
+		if (!sel.isEmpty()) { scroll.setSelected(sel); }
+		else {
 			sel = "";
 			if (scroll.getSelected() != null) {
 				sel = scroll.getSelected();
 			}
 		}
-
-		addButton(new GuiNpcCheckBox(2, x, (y += 1 + scroll.height), 82, 12, "bank.iswhite", "bank.isblack", white));
-
-		addButton(new GuiNpcCheckBox(3, x + 86, y, 82, 12, "bank.changed.true", "bank.changed.false", isChanging));
-
-		addButton(new GuiNpcButton(66, x += 1, (y += 14), 54, 20, "gui.back"));
-		addButton(new GuiNpcButton(0, x += 56, y, 54, 20, "gui.add"));
-		addButton(new GuiNpcButton(1, x + 56, y, 54, 20, "gui.remove"));
-		getButton(1).enabled = scroll.hasSelected();
+		// white / black list
+		GuiNpcButton button = new GuiNpcCheckBox(2, x, (y += 1 + scroll.height), 82, 12, "bank.iswhite", "bank.isblack", white);
+		button.setHoverText("bank.hover." + (white ? "iswhite" : "isblack"));
+		addButton(button);
+		// changed
+		button = new GuiNpcCheckBox(3, x + 86, y, 82, 12, "bank.changed.true", "bank.changed.false", isChanging);
+		button.setHoverText("bank.hover.changed." + isChanging);
+		addButton(button);
+		// exit
+		button = new GuiNpcButton(66, x += 1, (y += 14), 54, 20, "gui.back");
+		button.setHoverText("hover.back");
+		addButton(button);
+		// add
+		button = new GuiNpcButton(0, x += 56, y, 54, 20, "gui.add");
+		button.setHoverText("bank.hover.player.add");
+		addButton(button);
+		// del
+		button = new GuiNpcButton(1, x + 56, y, 54, 20, "gui.remove");
+		button.setEnabled(scroll.hasSelected());
+		button.setHoverText("bank.hover.player.del");
+		addButton(button);
 	}
 
 	@Override

@@ -11,7 +11,9 @@ import noppes.npcs.client.gui.custom.interfaces.IClickListener;
 import noppes.npcs.client.gui.custom.interfaces.ICustomKeyListener;
 import noppes.npcs.client.gui.custom.interfaces.IDataHolder;
 
-public class CustomGuiTextField extends GuiTextField implements IDataHolder, IClickListener, ICustomKeyListener {
+public class CustomGuiTextField
+extends GuiTextField
+implements IDataHolder, IClickListener, ICustomKeyListener {
 
 	public static CustomGuiTextField fromComponent(CustomGuiTextFieldWrapper component) {
 		CustomGuiTextField txt = new CustomGuiTextField(component.getId(), component.getPosX(), component.getPosY(),

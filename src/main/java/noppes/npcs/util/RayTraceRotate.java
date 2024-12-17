@@ -36,27 +36,29 @@ public class RayTraceRotate implements IRayTraceRotate {
 		this.distance = Math.sqrt(Math.pow(this.radiusXZ, 2) + Math.pow(yVal, 2));
 
 		double rad = 180.0d / Math.PI;
-		this.pitch = -Math.atan(yVal / this.radiusXZ) * rad;
-		if (this.pitch < -90.0d) {
-			this.pitch = -90.0d;
+		pitch = -Math.atan(yVal / this.radiusXZ) * rad;
+		if (Float.isNaN((float) pitch)) { pitch = 0.0d; }
+		if (pitch < -90.0d) {
+			pitch = -90.0d;
 		}
-		if (this.pitch > 90.0d) {
-			this.pitch = 90.0d;
+		if (pitch > 90.0d) {
+			pitch = 90.0d;
 		}
 
 		if (xVal == 0.0d) {
-			this.yaw = dz > mz ? 180.0d : 0.0d;
+			yaw = dz > mz ? 180.0d : 0.0d;
 		} else {
 			double v = Math.atan(zVal / xVal) * rad;
 			if (xVal <= 0.0d) {
-				this.yaw = 90.0d + v;
+				yaw = 90.0d + v;
 			} else {
-				this.yaw = 270.0d + v;
+				yaw = 270.0d + v;
 			}
 		}
-		this.yaw %= 360.0d;
-		if (this.yaw < 0.0d) {
-			this.yaw += 360.0d;
+		if (Float.isNaN((float) yaw)) { yaw = 0.0d; }
+		yaw %= 360.0d;
+		if (yaw < 0.0d) {
+			yaw += 360.0d;
 		}
 	}
 

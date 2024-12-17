@@ -194,17 +194,17 @@ public class CustomRegisters {
 	public static Item teleporter = null;
 	@GameRegistry.ObjectHolder("npcwand")
 	public static Item wand = null;
-	@GameRegistry.ObjectHolder("npcboundary") // New
+	@GameRegistry.ObjectHolder("npcboundary")
 	public static ItemBoundary npcboundary = null;
-	@GameRegistry.ObjectHolder("npcbuilder") // New
+	@GameRegistry.ObjectHolder("npcbuilder")
 	public static Item npcbuilder = null;
-	@GameRegistry.ObjectHolder("npcremover") // New
+	@GameRegistry.ObjectHolder("npcremover")
 	public static Item npcremover = null;
-	@GameRegistry.ObjectHolder("npcplacer") // New
+	@GameRegistry.ObjectHolder("npcplacer")
 	public static Item npcplacer = null;
-	@GameRegistry.ObjectHolder("npcreplacer") // New
+	@GameRegistry.ObjectHolder("npcreplacer")
 	public static Item npcreplacer = null;
-	@GameRegistry.ObjectHolder("npcsaver") // New
+	@GameRegistry.ObjectHolder("npcsaver")
 	public static Item npcsaver = null;
 
 	@GameRegistry.ObjectHolder("nbt_book")
