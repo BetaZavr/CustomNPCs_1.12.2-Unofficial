@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
 import org.lwjgl.input.Keyboard;
@@ -59,7 +61,7 @@ implements IEditNPC, ICustomScrollListener {
 
 	private final Poses[] ps;
 	private final List<int[]> line = new ArrayList<>(); // startX, startY, endX, endY, color, lineSize
-	private final List<IComponentGui> components = new ArrayList<>();
+	protected final List<IComponentGui> components = new ArrayList<>();
 	private final HashMap<Integer, GuiNpcLabel> labels = new HashMap<>();
 	private final HashMap<Integer, GuiCustomScroll> scrolls = new HashMap<>();
 	private final HashMap<Integer, GuiNpcSlider> sliders = new HashMap<>();
@@ -107,13 +109,6 @@ implements IEditNPC, ICustomScrollListener {
 
 	public void addButton(GuiNpcButton button) {
 		buttons.put(button.id, button);
-		for (GuiButton b : buttonList) {
-			if (b.id == button.id) {
-				buttonList.remove(b);
-				break;
-			}
-		}
-		buttonList.add(button);
 		add(button);
 	}
 
@@ -131,13 +126,6 @@ implements IEditNPC, ICustomScrollListener {
 
 	public void addSlider(GuiNpcSlider slider) {
 		sliders.put(slider.id, slider);
-		for (GuiButton b : buttonList) {
-			if (b.id == slider.id) {
-				buttonList.remove(b);
-				break;
-			}
-		}
-		buttonList.add(slider);
 		add(slider);
 	}
 
@@ -148,13 +136,6 @@ implements IEditNPC, ICustomScrollListener {
 
 	public void addTopButton(GuiMenuTopButton button) {
 		topbuttons.put(button.id, button);
-		for (GuiButton b : buttonList) {
-			if (b.id == button.id) {
-				buttonList.remove(b);
-				break;
-			}
-		}
-		buttonList.add(button);
 		add(button);
 	}
 
@@ -219,6 +200,8 @@ implements IEditNPC, ICustomScrollListener {
 		hoverMiniWin = false;
 		for (IComponentGui component : new ArrayList<>(components)) {
 			component.render(this, mouseX, mouseY, partialTicks);
+			RenderHelper.enableGUIStandardItemLighting();
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			if (component instanceof GuiNpcMiniWindow && ((GuiNpcMiniWindow) component).hovered) { hoverMiniWin = true; }
 		}
 	}
@@ -321,6 +304,7 @@ implements IEditNPC, ICustomScrollListener {
 		if (hoverMiniWin) { return; }
 		if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
 			drawHoveringText(hoverText, mouseX, mouseY, fontRenderer);
+			RenderHelper.enableGUIStandardItemLighting();
 			hoverText.clear();
 		}
 	}
@@ -421,7 +405,6 @@ implements IEditNPC, ICustomScrollListener {
 			subgui.setWorldAndResolution(mc, width, height);
 			subgui.initGui();
 		}
-		buttonList.clear();
 		guiLeft = (width - xSize) / 2;
 		guiTop = (height - ySize) / 2;
 		hoverText.clear();
@@ -486,14 +469,32 @@ implements IEditNPC, ICustomScrollListener {
 				scroll.mouseClicked(mouseX, mouseY, mouseButton);
 			}
 		} else {
-			for (GuiButton guibutton : buttonList) {
-				if (guibutton.isMouseOver() && guibutton instanceof GuiNpcButton) {
-					buttonEvent((GuiNpcButton) guibutton, mouseButton);
+			for (GuiNpcButton button : buttons.values()) {
+				if (button.isMouseOver()) {
+					buttonEvent(button, mouseButton);
 					break;
 				}
 			}
 		}
 		mouseEvent(mouseX, mouseY, mouseButton);
+		List<GuiButton> allButtons = new ArrayList<>();
+		for (IComponentGui component : components) {
+			if (component instanceof GuiButton) { allButtons.add((GuiButton) component); }
+		}
+		for (GuiButton button : allButtons) {
+			if (button.mousePressed(mc, mouseX, mouseY)) {
+				GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, button, allButtons);
+				if (MinecraftForge.EVENT_BUS.post(event)) { break; }
+				button = event.getButton();
+				(selectedButton = button).playPressSound(mc.getSoundHandler());
+				actionPerformed(button);
+				if (equals(mc.currentScreen)) {
+					MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, event.getButton(), allButtons));
+					break;
+				}
+				break;
+			}
+		}
 		try {
 			super.mouseClicked(mouseX, mouseY, mouseButton);
 		} catch (Exception e) { LogWriter.error("Error:", e); }

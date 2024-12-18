@@ -67,13 +67,7 @@ import noppes.npcs.blocks.CustomChest;
 import noppes.npcs.blocks.CustomDoor;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.blocks.tiles.*;
-import noppes.npcs.client.renderer.blocks.BlockCarpentryBenchRenderer;
-import noppes.npcs.client.renderer.blocks.BlockChestRenderer;
-import noppes.npcs.client.renderer.blocks.BlockCopyRenderer;
-import noppes.npcs.client.renderer.blocks.BlockDoorRenderer;
-import noppes.npcs.client.renderer.blocks.BlockMailboxRenderer;
-import noppes.npcs.client.renderer.blocks.BlockPortalRenderer;
-import noppes.npcs.client.renderer.blocks.BlockScriptedRenderer;
+import noppes.npcs.client.renderer.blocks.*;
 import noppes.npcs.client.renderer.item.ItemCarpentryBenchRenderer;
 import noppes.npcs.client.renderer.item.ItemMailboxRenderer;
 import noppes.npcs.controllers.RecipeController;
@@ -477,7 +471,7 @@ public class CustomRegisters {
 		GameRegistry.registerTileEntity(TileBuilder.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCBuilder"));
 		GameRegistry.registerTileEntity(TileCopy.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCCopy"));
 		GameRegistry.registerTileEntity(TileBorder.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCBorder"));
-		//GameRegistry.registerTileEntity(TileDoor.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCDoor")); // Only Render
+		GameRegistry.registerTileEntity(TileDoor.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCDoor")); // Only Render
 		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
 		GameRegistry.registerTileEntity(CustomTileEntityChest.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
 
@@ -988,6 +982,9 @@ public class CustomRegisters {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileCopy.class, new BlockCopyRenderer<>());
 		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class, new BlockPortalRenderer<>());
 		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class, new BlockChestRenderer<>());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileBorder.class, new BlockBorderRenderer<>());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileRedstoneBlock.class, new BlockNpcRedstoneRenderer<>());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileWaypoint.class, new BlockWaypointRenderer<>());
 		// Item Block model renders
 		CustomRegisters.itemCarpentyBench.setTileEntityItemStackRenderer(new ItemCarpentryBenchRenderer());
 		CustomRegisters.itemMailbox.setTileEntityItemStackRenderer(new ItemMailboxRenderer());

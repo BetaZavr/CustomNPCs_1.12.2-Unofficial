@@ -56,7 +56,10 @@ public class ModelRendererAlt
 
 	public boolean smallArms;
 	public boolean isAnimPart;
-	private float r = 1.0f, g = 1.0f, b = 1.0f, al = 0.0f;
+	private float r = 1.0f;
+	private float g = 1.0f;
+	private float b = 1.0f;
+	private float al = 0.0f;
 	private final float[] baseRotationPoint;
 
 	// Custom
@@ -737,12 +740,12 @@ public class ModelRendererAlt
 		r = red;
 		g = green;
 		b = blue;
+		al = 1.0f;
 		if (ModelNpcAlt.editAnimDataSelect.isNPC) {
-			if (ModelNpcAlt.editAnimDataSelect.part == this.part) {
+			if (ModelNpcAlt.editAnimDataSelect.part == part) {
 				r = ModelNpcAlt.editAnimDataSelect.red;
 				g = ModelNpcAlt.editAnimDataSelect.green;
 				b = ModelNpcAlt.editAnimDataSelect.blue;
-				al = 1.0f;
 			} else {
 				al = ModelNpcAlt.editAnimDataSelect.alpha;
 			}

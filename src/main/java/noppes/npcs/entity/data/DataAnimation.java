@@ -210,6 +210,14 @@ public class DataAnimation implements INPCAnimation {
 
 	public ItemStack getCurrentHeldStack(boolean isMainHand) { return animationHandler.getCurrentHeldStack(isMainHand); }
 
+	public int getAnimationCurrentFrameID() { return animationHandler.getAnimationCurrentFrameID(); }
+
+	public int getAnimationNextFrameID() { return animationHandler.getAnimationNextFrameID(); }
+
+	public int getAnimationTicks() { return animationHandler.getAnimationTicks(); }
+
+	public int getAnimationSpeedTicks() { return animationHandler.getAnimationSpeedTicks(); }
+
 	// Emotions
 	public EmotionFrame getCurrentEmotionFrame() { return emotionHandler.currentEmotionFrame; }
 

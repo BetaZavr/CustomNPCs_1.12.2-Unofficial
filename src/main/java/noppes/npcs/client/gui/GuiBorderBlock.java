@@ -64,6 +64,7 @@ implements IGuiData {
 		addLabel(new GuiNpcLabel(0, "schematic.height", xl, (y += 25) + 5, color));
 		GuiNpcTextField textField = new GuiNpcTextField(0, this, fontRenderer, x, y, 40, 20, tile.height + "");
 		textField.setMinMaxDefault(0, 500, 6);
+		addTextField(textField);
 		// message
 		addLabel(new GuiNpcLabel(1, "gui.message", xl, (y += 24) + 5, color));
 		textField = new GuiNpcTextField(1, this, fontRenderer, x, y, 200, 20, tile.message);

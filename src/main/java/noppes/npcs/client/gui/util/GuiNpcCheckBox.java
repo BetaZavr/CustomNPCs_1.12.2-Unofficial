@@ -55,6 +55,7 @@ implements IComponentGui {
 	public GuiNpcCheckBox(int id, int x, int y, int width, int height, String trueLabel, String falseLabel, boolean select) {
 		this(id, x, y, width, height, trueLabel, falseLabel);
 		check = select;
+		setText();
 	}
 
 	public GuiNpcCheckBox(int id, int x, int y, String trueLabel, String falseLabel, boolean select) {
@@ -163,6 +164,11 @@ implements IComponentGui {
 
 	private void setText() {
 		fullLabel = new TextComponentTranslation(check ? trueLabel : falseLabel).getFormattedText();
+		if (id == 22) {
+			System.out.println("CNPCs: "+check);
+			System.out.println("CNPCs: "+this.trueLabel);
+			System.out.println("CNPCs: "+this.falseLabel);
+		}
 		labels = new ArrayList<>();
 		if (width - 13 < 5) {
 			return;

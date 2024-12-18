@@ -957,8 +957,7 @@ public class PacketHandlerServer {
             NoppesUtilPlayer.teleportPlayer(player, coords.getX(), coords.getY(), coords.getZ(), dimension,
                     player.rotationYaw, player.rotationPitch);
         } else if (type == EnumPacketServer.ScriptBlockDataGet) {
-            TileEntity tile = player.world
-                    .getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
+            TileEntity tile = player.world.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
             if (!(tile instanceof TileScripted)) {
                 CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
                 return;
@@ -1031,10 +1030,11 @@ public class PacketHandlerServer {
         } else if (type == EnumPacketServer.GetTileEntity) {
             BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
             TileEntity tile = player.world.getTileEntity(pos);
-            NBTTagCompound compound = new NBTTagCompound();
-            assert tile != null;
-            tile.writeToNBT(compound);
-            Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
+            if (tile != null) {
+                NBTTagCompound compound = new NBTTagCompound();
+                tile.writeToNBT(compound);
+                Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
+            }
         } else if (type == EnumPacketServer.ScriptBlockDataSave) {
             TileEntity tile = player.world.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
             if (!(tile instanceof TileScripted)) {
@@ -1045,8 +1045,7 @@ public class PacketHandlerServer {
             script.setNBT(Server.readNBT(buffer));
             script.lastInited = -1L;
         } else if (type == EnumPacketServer.ScriptDoorDataSave) {
-            TileEntity tile = player.world
-                    .getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
+            TileEntity tile = player.world.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
             if (!(tile instanceof TileScriptedDoor)) {
                 CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
                 return;
@@ -1055,8 +1054,7 @@ public class PacketHandlerServer {
             script.setNBT(Server.readNBT(buffer));
             script.lastInited = -1L;
         } else if (type == EnumPacketServer.ScriptDoorDataGet) {
-            TileEntity tile = player.world
-                    .getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
+            TileEntity tile = player.world.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
             if (!(tile instanceof TileScriptedDoor)) {
                 CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
                 return;

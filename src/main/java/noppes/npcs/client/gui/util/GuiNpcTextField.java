@@ -268,7 +268,7 @@ implements IComponentGui {
 	}
 
 	@Override
-	public int[] getCenter() { return new int[] { x + width / 2, x + height / 2}; }
+	public int[] getCenter() { return new int[] { x + width / 2, y + height / 2}; }
 
 	@Override
 	public void setHoverText(String text, Object ... args) {

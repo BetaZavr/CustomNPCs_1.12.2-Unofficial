@@ -40,8 +40,10 @@ public class AnimationConfig implements IAnimation {
 	public AnimationKind type = AnimationKind.STANDING;
 	public float chance = 1.0f;
 	public boolean immutable;
+    public int editTick = 0;
+	public int editFrame = 0;
 
-	public AnimationConfig() {
+    public AnimationConfig() {
 		this.frames.put(0, new AnimationFrameConfig(0));
 	}
 
@@ -342,10 +344,13 @@ public class AnimationConfig implements IAnimation {
 	}
 
 	public int getAnimationFrameByTime(long ticks) {
-		if (type == AnimationKind.EDITING_PART) { return 0; }
+		if (type == AnimationKind.EDITING_PART) {
+			return editFrame;
+		}
 		if (ticks >= 0) {
 			for (int id : endingFrameTicks.keySet()) {
-				if (ticks <= endingFrameTicks.get(id)) { return id; }
+				if (ticks <= endingFrameTicks.get(id)) {
+					return id; }
 			}
 			return frames.size();
 		}

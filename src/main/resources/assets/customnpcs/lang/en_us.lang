@@ -204,6 +204,7 @@ animation.hover.part.sel=A list of this NPC's body parts
 animation.hover.part.show.false=Hide the current body part in this frame
 animation.hover.part.show.true=Draw the current body part in this frame
 animation.hover.part.ticks=Animation time of the current frame<br>§7in ticks<br>From the settings of the current frame to the settings of the next<br>§7It is recommended to make frames no longer than §65§7 seconds
+animation.hover.part.all.ticks=Animation at a specific tick between frames
 animation.hover.reset.0=Reset the rotation setting for this body part in the %s axis
 animation.hover.reset.1=Reset the offset setting for this body part on the %s axis
 animation.hover.reset.2=Reset the scale setting for this body part on the %s axis

@@ -25,7 +25,9 @@ import noppes.npcs.util.IPermission;
 
 import javax.annotation.Nonnull;
 
-public class BlockWaypoint extends BlockInterface implements IPermission {
+public class BlockWaypoint
+extends BlockInterface
+implements IPermission {
 
 	public BlockWaypoint() {
 		super(Material.IRON);

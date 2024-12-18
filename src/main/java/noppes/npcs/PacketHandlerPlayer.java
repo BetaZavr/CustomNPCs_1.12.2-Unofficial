@@ -851,8 +851,7 @@ public class PacketHandlerPlayer {
 			data.hud.compassData.load(Server.readNBT(buffer));
 		} else if (type == EnumPlayerPacket.GetTileData) {
 			NBTTagCompound compound = Server.readNBT(buffer);
-			TileEntity tile = player.world.getTileEntity(
-					new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z")));
+			TileEntity tile = player.world.getTileEntity(new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z")));
 			if (tile != null) {
 				tile.writeToNBT(compound);
 				Server.sendData(player, EnumPacketClient.SET_TILE_DATA, compound);

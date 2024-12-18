@@ -133,7 +133,7 @@ implements ITextfieldListener, IGuiData {
 	@Override
 	public void initGui() {
 		super.initGui();
-		int y = this.guiTop + 4;
+		int y = guiTop + 4;
 		int lID = 0;
 		this.addLabel(new GuiNpcLabel(lID++, "gui.name", this.guiLeft + 5, y + 5));
 		GuiNpcTextField textField = new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 50, y, 206, 20, this.display.getName());

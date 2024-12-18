@@ -110,14 +110,16 @@ implements IComponentGui {
 		if (!visible) { return; }
 		hovered = (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height);
 		int state = getHoverState(hovered);
+		RenderHelper.enableGUIStandardItemLighting();
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.enableBlend();
+		GlStateManager.enableAlpha();
+		GlStateManager.disableLighting();
 		if (texture == null) {
 			mc.getTextureManager().bindTexture(GuiNPCInterface.MENU_BUTTON);
 			if (layerColor != 0) {
 				GlStateManager.color((float) (layerColor >> 16 & 255) / 255.0f, (float) (layerColor >> 8 & 255) / 255.0f, (float) (layerColor & 255) / 255.0f, (float) (layerColor >> 24 & 255) / 255.0f);
-			} else {
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			}
-			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
@@ -150,7 +152,6 @@ implements IComponentGui {
 			}
 			if (isSimple) {
 				GlStateManager.pushMatrix();
-				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -170,17 +171,12 @@ implements IComponentGui {
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				GlStateManager.translate(x / scaleW, y / scaleH, 0.0f);
 				mc.getTextureManager().bindTexture(texture);
-				if (layerColor != 0) {
-					GlStateManager.color((float) (layerColor >> 16 & 255) / 255.0f,
-							(float) (layerColor >> 8 & 255) / 255.0f, (float) (layerColor & 255) / 255.0f,
-							(float) (layerColor >> 24 & 255) / 255.0f);
-				} else {
-					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				}
-				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
+				if (layerColor != 0) {
+					GlStateManager.color((float) (layerColor >> 16 & 255) / 255.0f, (float) (layerColor >> 8 & 255) / 255.0f, (float) (layerColor & 255) / 255.0f, (float) (layerColor >> 24 & 255) / 255.0f);
+				}
 				if (isPrefabricated) {
 					tw = (int) (((float) width / 2.0f) / scaleH);
 					drawTexturedModalRect(0, 0, txrX, txrY + state * th, tw, th);
@@ -262,9 +258,18 @@ implements IComponentGui {
 		}
 	}
 
+	public void resetDisplay(List<String> list) {
+		display = list.toArray(new String[0]);
+		if (displayValue >= list.size()) { displayValue = list.size() - 1; }
+		if (list.isEmpty()) {
+			displayValue = 0;
+			displayString = "";
+		}
+		else { setDisplayText(display[displayValue]); }
+	}
+
 	public void setDisplay(int value) {
 		displayValue = value;
-		setDisplayText(display[value]);
 	}
 
 	public void setDisplayText(String text) {
@@ -322,7 +327,9 @@ implements IComponentGui {
 	public int getId() { return id; }
 
 	@Override
-	public int[] getCenter() { return new int[] { x + width / 2, x + height / 2}; }
+	public int[] getCenter() {
+		return new int[] { x + width / 2, y + height / 2};
+	}
 
 	@Override
 	public void setHoverText(String text, Object ... args) {

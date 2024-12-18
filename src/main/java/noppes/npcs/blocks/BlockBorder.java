@@ -29,7 +29,10 @@ import noppes.npcs.util.IPermission;
 
 import javax.annotation.Nonnull;
 
-public class BlockBorder extends BlockInterface implements IPermission {
+public class BlockBorder
+extends BlockInterface
+implements IPermission {
+
 	public static PropertyInteger ROTATION = PropertyInteger.create("rotation", 0, 3);
 
 	public BlockBorder() {

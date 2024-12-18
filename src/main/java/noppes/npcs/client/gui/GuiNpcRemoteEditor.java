@@ -29,7 +29,9 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class GuiNpcRemoteEditor extends GuiNPCInterface implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
+public class GuiNpcRemoteEditor
+extends GuiNPCInterface
+implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 
 	private static boolean all = false;
 	private final HashMap<String, Integer> dataIDs = new HashMap<>();

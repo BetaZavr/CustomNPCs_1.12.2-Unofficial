@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockBanner;
 import net.minecraft.tileentity.TileEntityBanner;
+import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.*;
@@ -576,20 +577,20 @@ public class PlayerEventHandler {
 
 	@SubscribeEvent
 	public void npcPlayerRightClickBlockEvent(PlayerInteractEvent.RightClickBlock event) {
-		if (event.getHand() != EnumHand.MAIN_HAND || event.getWorld().isRemote) {
-			return;
-		}
+		if (event.getHand() != EnumHand.MAIN_HAND || event.getWorld().isRemote) { return; }
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
-		Entity deadTarget = Util.instance.getLookEntity(event.getEntityPlayer(), 4.0d, false);
-		if (deadTarget != null && !deadTarget.isEntityAlive() && deadTarget instanceof EntityNPCInterface) {
-			DataInventory dataInv = ((EntityNPCInterface) deadTarget).inventory;
-			IInventory deadInventory = dataInv.deadLoot;
-			if (deadInventory == null && dataInv.deadLoots != null && dataInv.deadLoots.containsKey(event.getEntityPlayer())) { deadInventory = dataInv.deadLoots.get(event.getEntityPlayer()); }
-			if (deadInventory != null) {
-				NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.DeadInventory, (EntityNPCInterface) deadTarget, deadInventory.getSizeInventory(), -1, 0);
-				event.setCanceled(true);
-				CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
-				return;
+		if (!(event.getItemStack().getItem() instanceof INPCToolItem)) {
+			Entity deadTarget = Util.instance.getLookEntity(event.getEntityPlayer(), 4.0d, false);
+			if (deadTarget != null && !deadTarget.isEntityAlive() && deadTarget instanceof EntityNPCInterface) {
+				DataInventory dataInv = ((EntityNPCInterface) deadTarget).inventory;
+				IInventory deadInventory = dataInv.deadLoot;
+				if (deadInventory == null && dataInv.deadLoots != null && dataInv.deadLoots.containsKey(event.getEntityPlayer())) { deadInventory = dataInv.deadLoots.get(event.getEntityPlayer()); }
+				if (deadInventory != null) {
+					NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.DeadInventory, (EntityNPCInterface) deadTarget, deadInventory.getSizeInventory(), -1, 0);
+					event.setCanceled(true);
+					CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
+					return;
+				}
 			}
 		}
 		if (event.getItemStack().getItem() == CustomRegisters.nbt_book) {
@@ -626,14 +627,26 @@ public class PlayerEventHandler {
 
 	@SubscribeEvent
 	public void npcPlayerRightClickItemEvent(PlayerInteractEvent.RightClickItem event) {
-		if (event.getHand() != EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || event.getWorld().isRemote) {
-			return;
-		}
+		if (event.getHand() != EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || event.getWorld().isRemote) { return; }
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
 		if (event.getEntityPlayer().isCreative() && event.getEntityPlayer().isSneaking() && event.getItemStack().getItem() == CustomRegisters.scripted_item) {
 			NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.ScriptItem, null);
 			CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
 			return;
+		}
+		if (!(event.getItemStack().getItem() instanceof INPCToolItem)) {
+			Entity deadTarget = Util.instance.getLookEntity(event.getEntityPlayer(), 4.0d, false);
+			if (deadTarget != null && !deadTarget.isEntityAlive() && deadTarget instanceof EntityNPCInterface) {
+				DataInventory dataInv = ((EntityNPCInterface) deadTarget).inventory;
+				IInventory deadInventory = dataInv.deadLoot;
+				if (deadInventory == null && dataInv.deadLoots != null && dataInv.deadLoots.containsKey(event.getEntityPlayer())) { deadInventory = dataInv.deadLoots.get(event.getEntityPlayer()); }
+				if (deadInventory != null) {
+					NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.DeadInventory, (EntityNPCInterface) deadTarget, deadInventory.getSizeInventory(), -1, 0);
+					event.setCanceled(true);
+					CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
+					return;
+				}
+			}
 		}
 		// Empty Click:
 		if (event.getItemStack().getItem() instanceof ItemNbtBook
@@ -1371,7 +1384,7 @@ public class PlayerEventHandler {
 		} else {
 			try {
 				//noppes.npcs.util.TempClass.updateLocalization();
-/*
+				/*
 				java.io.InputStream inputStream = Util.instance.getModInputStream("a_def.dat");
 				if (inputStream == null) { return; }
 				NBTTagCompound compound = new NBTTagCompound();

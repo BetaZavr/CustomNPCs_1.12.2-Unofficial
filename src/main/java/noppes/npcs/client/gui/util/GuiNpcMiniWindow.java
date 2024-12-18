@@ -11,8 +11,11 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GuiNpcMiniWindow
 extends GuiNPCInterface
@@ -38,7 +41,6 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 		ySize = height + 12;
 		this.title = new TextComponentTranslation(title).getFormattedText();
 		setBackground("bgfilled.png");
-		buttonList.clear();
 	}
 
 	@Override
@@ -88,29 +90,13 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 			}
 		} else { isMoving = false; }
 		if (hasSubGui() || !CustomNpcs.ShowDescriptions || hoverMiniWin) { return; }
-		boolean foundHover = false;
-		for (GuiButton b : buttonList) {
-			if (b instanceof IComponentGui && b.isMouseOver()) {
-				parent.setMiniHoverText(id, (IComponentGui) b);
-				foundHover = true;
-				break;
-			}
-		}
-		if (!foundHover) {
-			for (GuiCustomScroll s : scrolls.values()) {
-				if (s.hovered) {
-					parent.setMiniHoverText(id, s);
-					foundHover = true;
-					break;
-				}
-			}
-		}
-		if (!foundHover) {
-			for (GuiNpcTextField t : textfields.values()) {
-				if (t.isMouseOver()) {
-					parent.setMiniHoverText(id, t);
-                    break;
-				}
+
+		for (IComponentGui component : components) {
+			if ((component instanceof GuiButton && ((GuiButton) component).isMouseOver() ||
+					(component instanceof GuiNpcTextField && ((GuiNpcTextField) component).isMouseOver()) ||
+					(component instanceof GuiCustomScroll && ((GuiCustomScroll) component).hovered)) ||
+					(component instanceof GuiNpcLabel && ((GuiNpcLabel) component).hovered)) {
+				parent.setMiniHoverText(id, component);
 			}
 		}
 	}
@@ -123,10 +109,14 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 	public void moveOffset(int x, int y) {
 		guiLeft += x;
 		guiTop += y;
-		for (GuiButton b : buttonList) { b.x += x; b.y += y; }
+		for (GuiNpcButton b : buttons.values()) { b.x += x; b.y += y; }
 		for (GuiNpcLabel l : labels.values()) { l.x += x; l.y += y; }
 		for (GuiCustomScroll s : scrolls.values()) { s.guiLeft += x; s.guiTop += y; }
+		for (GuiMenuSideButton sb : sidebuttons.values()) { sb.x += x; sb.y += y; }
+		for (GuiNpcSlider sl : sliders.values()) { sl.x += x; sl.y += y; }
 		for (GuiNpcTextField t : textfields.values()) { t.x += x; t.y += y; }
+		for (GuiMenuTopButton tb : topbuttons.values()) { tb.x += x; tb.y += y; }
+		for (GuiNpcMiniWindow mw : mwindows.values()) { mw.moveOffset(x, y); }
 	}
 
 	public void keyTyped(char c, int i) {
@@ -254,12 +244,9 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 	public int getColorLine() { return colorLine; }
 
 	public void resetButtons() {
-		for (GuiButton b : buttonList) {
-			if (b.id == 2500) {
-				buttonList.remove(b);
-				break;
-			}
-		}
+		buttons.remove(2500);
+		components.removeIf(c -> c instanceof GuiNpcButton && c.getId() == 2500);
+
 		GuiNpcButton exit = new GuiNpcButton(2500, guiLeft + xSize - 12, guiTop + 3, 8, 8, "X");
 		exit.texture = ANIMATION_BUTTONS;
 		exit.hasDefBack = false;
@@ -267,8 +254,8 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 		exit.txrX = 232;
 		exit.txrW = 24;
 		exit.txrH = 24;
-		exit.layerColor = 0xFFFF0000;
-		exit.textColor = 0xFF404040;
+		exit.layerColor = new Color(0xFFFF0000).getRGB();
+		exit.textColor = new Color(0xFF404040).getRGB();
 		addButton(exit);
 	}
 

@@ -1,10 +1,13 @@
 package noppes.npcs.client.gui.animation;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.minecraft.util.math.Vec3d;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.model.animation.*;
+import noppes.npcs.constants.EnumAnimationStages;
 import noppes.npcs.util.ValueUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -235,16 +238,17 @@ System.out.println("buttonID: "+button.id);
 			} // block size
 			case 2: {
 				GuiNpcAnimation.backColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000);
+				getLabel(50).color = GuiNpcAnimation.backColor;
 				button.layerColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
 				break;
 			} // back color
 			case 3: {
-				if (anim == null || part == null || !anim.frames.containsKey(button.getValue()) || anim.frames.get(button.getValue()).id == -1) {
-					return;
-				}
+				if (anim == null || part == null || !anim.frames.containsKey(button.getValue()) || anim.frames.get(button.getValue()).id == -1) { return; }
 				frame = anim.frames.get(button.getValue());
 				setPart(frame.parts.get(part.id));
 				setHitbox(frame.damageHitboxes.get(0));
+				anim.editTick = 0;
+				anim.editFrame = frame.id;
 				initGui();
 				break;
 			} // select frame
@@ -462,9 +466,7 @@ System.out.println("buttonID: "+button.id);
 				break;
 			} // show only current part or animation
 			case 22: {
-				if (anim == null || part == null) {
-					return;
-				}
+				if (anim == null || part == null) { return; }
 				part.setShow(((GuiNpcCheckBox) button).isSelected());
 				if (GuiScreen.isShiftKeyDown()) { // Shift pressed
 					for (AnimationFrameConfig f : anim.frames.values()) {
@@ -619,10 +621,11 @@ System.out.println("buttonID: "+button.id);
 			} // reset part set Y1 rot
 			case 35: {
 				if (tools == null) { showTools(); }
-				if (mwindows.containsKey(tools.id)) { return; }
+				if (tools == null) { return; }
 				tools.isMoving = false;
 				tools.visible = true;
 				mwindows.put(tools.id, tools);
+				System.out.println("CNPCs: "+tools.visible);
 				button.enabled = false;
 				break;
 			} // show window tools
@@ -770,6 +773,11 @@ System.out.println("buttonID: "+button.id);
 				displayRotate(180, 0);
 				break;
 			} // align revers
+			case 53: {
+				anim.editTick = button.getValue();
+				resetAnimation();
+				break;
+			} // set animation part tick
 			case 66: {
 				close();
 				break;
@@ -1070,6 +1078,47 @@ System.out.println("buttonID: "+button.id);
 			e.ticksExisted = npc.ticksExisted;
 		}
 		if (getDisplayNpc() == null) { close(); }
+		EntityNPCInterface showNPC = getDisplayNpc();
+		// Frame id
+		if (getLabel(50) != null) {
+			GuiNpcLabel label = getLabel(50);
+			int cId = showNPC.animation.getAnimationCurrentFrameID();
+			int nId = showNPC.animation.getAnimationNextFrameID();
+			String frame = new TextComponentTranslation("animation.frame", " ID: ").getFormattedText();
+			if (cId == nId) { label.setLabel(frame + ((char) 167) + "6" + cId); }
+			else { label.setLabel(frame + ((char) 167) + "6" + cId + ((char) 167) + "r -> " + ((char) 167) + "6" +  nId); }
+		}
+		if (getLabel(51) != null) {
+			GuiNpcLabel label = getLabel(51);
+			EnumAnimationStages stage = showNPC.animation.getAnimationStage();
+			int t = showNPC.animation.getAnimationTicks();
+			int s = showNPC.animation.getAnimationSpeedTicks();
+			String data = ((char) 167) + "6" + t + ((char) 167) + "r/" + ((char) 167) + "6" + s;
+			switch (stage) {
+				case Started: {
+					data += " " + ((char) 167) + "aStarted";
+					break;
+				}
+				case Looping: {
+					data += " " + ((char) 167) + "bLooping";
+					break;
+				}
+				case Run: {
+					data += " " + ((char) 167) + "eRun";
+					break;
+				}
+				case Ending: {
+					data += " " + ((char) 167) + "dEnding";
+					break;
+				}
+				case Waiting: {
+					data += " " + ((char) 167) + "cWaiting";
+					break;
+				}
+			}
+			label.setLabel(data);
+			label.x = workU + workS / 2 - 13 - label.width;
+		}
 		// display data
 		if (Mouse.isButtonDown(mousePressId)) {
 			int x = mouseX - mousePressX;
@@ -1095,8 +1144,8 @@ System.out.println("buttonID: "+button.id);
 				dispScale += dispScale * (dWheel < 0 ? 0.1f : -0.1f);
 				if (dispScale < 0.5f) {
 					dispScale = 0.5f;
-				} else if (dispScale > 5.0f) {
-					dispScale = 5.0f;
+				} else if (dispScale > 10.0f) {
+					dispScale = 10.0f;
 				}
 				dispScale = (float) (Math.round(dispScale * 20.0d) / 20.0d);
 				if (dispScale == 0.95f || dispScale == 1.05f) {
@@ -1107,13 +1156,17 @@ System.out.println("buttonID: "+button.id);
 		// back place
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.0f, -300.0f);
-		drawGradientRect(winU + 1, winV + 1, winU + winW - 1, winV + winH - 1, 0xFFC6C6C6, 0xFFC6C6C6);
-		drawHorizontalLine(winU + 1, winU + winW - 2, winV, 0xFF000000);
-		drawVerticalLine(winU, winV, winV + winH - 1, 0xFF000000);
-		drawVerticalLine(winU + winW - 1, winV, winV + winH - 1, 0xFF000000);
-		drawHorizontalLine(winU + 1, winU + winW - 2, winV + winH - 1, 0xFF000000);
+		int color = new Color(0xFFC6C6C6).getRGB();
+		drawGradientRect(winU + 1, winV + 1, winU + winW - 1, winV + winH - 1, color, color);
+		color = new Color(0xFF000000).getRGB();
+		drawHorizontalLine(winU + 1, winU + winW - 2, winV, color);
+		drawVerticalLine(winU, winV, winV + winH - 1, color);
+		drawVerticalLine(winU + winW - 1, winV, winV + winH - 1, color);
+		drawHorizontalLine(winU + 1, winU + winW - 2, winV + winH - 1, color);
 		// work place
-		int color = GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFF080F0 : 0xFFF020F0;
+		color = GuiNpcAnimation.backColor == 0xFF000000 ?
+				new Color(0xFFF080F0).getRGB() :
+				new Color(0xFFF020F0).getRGB();
 		drawGradientRect(workU, workV, workU + workS, workV + workS, color, color);
 		// Slots
 		int y = 86 + (hasExtend ? 14 : 0);
@@ -1135,7 +1188,7 @@ System.out.println("buttonID: "+button.id);
 		}
 		hoverRight = isMouseHover(mouseX, mouseY, winU + 3, winV + y + 1, 16, 16);
 		if (hoverRight) {
-			Gui.drawRect(1, 1, 17, 17, 0x80FFFFFF);
+			Gui.drawRect(1, 1, 17, 17, new Color(0x80FFFFFF).getRGB());
 			if (stack != null && !stack.isEmpty()) {
 				List<String> list = stack.getMCItemStack().getTooltip(player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
 				if (!list.isEmpty()) { setHoverText(list); }
@@ -1166,7 +1219,7 @@ System.out.println("buttonID: "+button.id);
 		}
 		hoverLeft = isMouseHover(mouseX, mouseY, winU + 3, winV + y + 1, 16, 16);
 		if (hoverLeft) {
-			Gui.drawRect(1, 1, 17, 17, 0x80FFFFFF);
+			Gui.drawRect(1, 1, 17, 17, new Color(0x80FFFFFF).getRGB());
 			if (stack != null && !stack.isEmpty()) {
 				List<String> list = stack.getMCItemStack().getTooltip(player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
 				if (!list.isEmpty()) { setHoverText(list); }
@@ -1183,36 +1236,37 @@ System.out.println("buttonID: "+button.id);
 		GlStateManager.popMatrix();
 		// Lines
 		y -= 80 + (hasExtend ? 14 : 0);
+		color = new Color(0xFF000000).getRGB();
 		for (int i = 0; i < 17; i++) { // name -> work
-			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, 0xFF000000);
+			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, color);
 		}
 		y += 23;
 		for (int i = 0; i < 17; i++) { // work -> frame
-			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, 0xFF000000);
+			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, color);
 		}
 		y += 76 + (hasExtend ? 14 : 0);
 		for (int i = 0; i < 17; i++) { // frame -> part
-			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, 0xFF000000);
+			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, color);
 		}
 		y += 38;
 		for (int i = 0; i < 17; i++) { // part -> chance
-			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, 0xFF000000);
+			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, color);
 		}
 		y += 17;
 		for (int i = 0; i < 17; i++) { // chance -> sound
-			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, 0xFF000000);
+			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, color);
 		}
 		y += 26;
 		for (int i = 0; i < 17; i++) { // sound -> emotion
-			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, 0xFF000000);
+			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, color);
 		}
 		y += 26;
 		for (int i = 0; i < 17; i++) { // emotion -> equipment
-			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, 0xFF000000);
+			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, color);
 		}
 		y += 25;
 		for (int i = 0; i < 17; i++) { // equipment -> end
-			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, 0xFF000000);
+			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, color);
 		}
 		GlStateManager.popMatrix();
 		if (subgui == null) {
@@ -1242,27 +1296,26 @@ System.out.println("buttonID: "+button.id);
 			GlStateManager.pushMatrix();
 			GlStateManager.rotate(90.0f, 0.0f, 1.0f, 0.0f);
 			GlStateManager.translate(0.0f, 0.0f, 0.5f);
-			drawCRect(-10.5, -0.5d, -0.5d, 0.5d, 0xFF0000FF);
+			drawCRect(-10.5, -0.5d, -0.5d, 0.5d, new Color(0xFF0000FF).getRGB());
 			GlStateManager.popMatrix();
 			GlStateManager.pushMatrix();
-			drawCRect(-10.5, -0.5d, -0.5d, 0.5d, 0xFFFF0000);
-			drawCRect(-0.5d, -10.5, 0.5d, -0.5d, 0xFF00D000);
-			drawCRect(-0.5d, -0.5d, 0.5d, 0.5d, GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000);
+			drawCRect(-10.5, -0.5d, -0.5d, 0.5d, new Color(0xFFFF0000).getRGB());
+			drawCRect(-0.5d, -10.5, 0.5d, -0.5d, new Color(0xFF00D000).getRGB());
+			color = GuiNpcAnimation.backColor == 0xFF000000 ?
+					new Color(0xFFFFFFFF).getRGB() :
+					new Color(0xFF000000).getRGB();
+			drawCRect(-0.5d, -0.5d, 0.5d, 0.5d, color);
 			GlStateManager.popMatrix();
 			GlStateManager.popMatrix();
 			// display info
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(workU, workV, 0.0f);
 			String ts = "x" + dispScale;
-			fontRenderer.drawString(ts, workS - 11 - fontRenderer.getStringWidth(ts), 1,
-					GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000, false);
-			ts = (int) dispRot[0] + "" + ((char) 176) + "/" + (int) dispRot[1] + ((char) 176) + "/"
-					+ (int) dispRot[2] + ((char) 176);
-			fontRenderer.drawString(ts, workS - 11 - fontRenderer.getStringWidth(ts), workS - 10,
-					GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000, false);
+			fontRenderer.drawString(ts, workS - 11 - fontRenderer.getStringWidth(ts), 1, color, false);
+			ts = (int) dispRot[0] + "" + ((char) 176) + "/" + (int) dispRot[1] + ((char) 176) + "/" + (int) dispRot[2] + ((char) 176);
+			fontRenderer.drawString(ts, workS - 11 - fontRenderer.getStringWidth(ts), workS - 10, color, false);
 			ts = (int) dispPos[0] + "/" + (int) dispPos[1];
-			fontRenderer.drawString(ts, 11, workS - 10,
-					GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000, false);
+			fontRenderer.drawString(ts, 11, workS - 10, color, false);
 			GlStateManager.popMatrix();
 			GlStateManager.popMatrix();
 		}
@@ -1279,7 +1332,7 @@ System.out.println("buttonID: "+button.id);
 		getButton(7).enabled = !isMotion && ((isHitbox && hitbox != null) || (anim != null && part != null && part.id != 6 && part.id != 7));
 		getButton(8).enabled = !isMotion && ((isHitbox && hitbox != null) || (anim != null && addedPartConfig != null && part != null && part.id > 8));
 		if (hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
-		if (hoverMiniWin) { drawHoverText(null); }
+		drawHoverText(null);
 	}
 
 	@Override
@@ -1301,10 +1354,11 @@ System.out.println("buttonID: "+button.id);
 					if (isHitbox || isMotion) { setHoverText(new TextComponentTranslation("animation.hover." + (toolType == 1 ? "offset.w" : "scale.hb"), "Z").getFormattedText()); }
 					else { setHoverText(new TextComponentTranslation("animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"), "Z").getFormattedText()); }
 					break; }
-				case 3: { setHoverText(new TextComponentTranslation("animation.hover.rotation.x1").getFormattedText()); break; }
-				case 4: { setHoverText(new TextComponentTranslation("animation.hover.rotation.y1").getFormattedText()); break; }
+				case 3: { setHoverText(new TextComponentTranslation("animation.hover.rotation", "X1").getFormattedText()); break; }
+				case 4: { setHoverText(new TextComponentTranslation("animation.hover.rotation", "Y1").getFormattedText()); break; }
 			}
-		} else if (c instanceof GuiNpcTextField) {
+		}
+		else if (c instanceof GuiNpcTextField) {
 			ITextComponent text = null;
 			switch(((GuiNpcTextField) c).getId()) {
 				case 5: {
@@ -1321,21 +1375,22 @@ System.out.println("buttonID: "+button.id);
 					if (isHitbox || isMotion) { text = new TextComponentTranslation("animation.hover." + (toolType == 1 ? "offset.w" : "scale.hb"), "Z"); }
 					else { text = new TextComponentTranslation("animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"), "Z"); }
 					break; }
-				case 8: { text = new TextComponentTranslation("animation.hover.rotation.x1"); break; }
-				case 9: { text = new TextComponentTranslation("animation.hover.rotation.y1"); break; }
+				case 8: { text = new TextComponentTranslation("animation.hover.rotation", "X1"); break; }
+				case 9: { text = new TextComponentTranslation("animation.hover.rotation", "Y1"); break; }
 			}
 			if (text != null) {
 				text.appendSibling(new TextComponentTranslation("animation.hover.tab"));
 				setHoverText(text.getFormattedText());
 			}
-		} else if (c instanceof GuiNpcButton) {
-			if (((GuiNpcButton) c).id == 48) {
-				setHoverText(new TextComponentTranslation("animation.hover.show.motion").getFormattedText());
-			}
+		}
+		else if (c instanceof GuiNpcButton) {
+			if (((GuiNpcButton) c).id == 48) { setHoverText(new TextComponentTranslation("animation.hover.show.motion").getFormattedText()); }
 			else { setHoverText(new TextComponentTranslation("hover.default.set").getFormattedText()); }
-		} else if (c instanceof GuiCustomScroll) {
+		}
+		else if (c instanceof GuiCustomScroll) {
 			Map<Integer, List<String>> hts = ((GuiCustomScroll) c).getHoversTexts();
-			if (hts.containsKey(((GuiCustomScroll) c).hover)) { setHoverText(hts.get(((GuiCustomScroll) c).hover)); }
+			if (hts.containsKey(((GuiCustomScroll) c).hover) && !hts.get(((GuiCustomScroll) c).hover).isEmpty()) { setHoverText(hts.get(((GuiCustomScroll) c).hover)); }
+			else if (!((GuiCustomScroll) c).getHoversText().isEmpty()) { setHoverText(((GuiCustomScroll) c).getHoversText()); }
 		}
 	}
 
@@ -1345,7 +1400,6 @@ System.out.println("buttonID: "+button.id);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.0f, -300.0f);
 		Gui.drawRect(workU + 1, workV + 1, workU + workS - 1, workV + workS - 1, GuiNpcAnimation.backColor);
-		drawCenteredString(fontRenderer, ((char) 167) + "7" + anim.getSettingName(), workU + workS / 2, workV + 3, 0xFFFFFFFF);
 		GlStateManager.popMatrix();
 
 		// blocks
@@ -1728,6 +1782,11 @@ System.out.println("buttonID: "+button.id);
 		addTextField(textField);
 
 		// work place
+		// animation frame init
+		label = new GuiNpcLabel(lId++, anim.getSettingName(), workU + workS / 2, workV + 3, GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000);
+		label.center(label.width / 2);
+		addLabel(label);
+
 		// type
 		addLabel(new GuiNpcLabel(lId++, "animation.place", x, (y += 26) - 10));
 		button = new GuiButtonBiDirectional(0, x, y, 105, 10, blockNames, blockType);
@@ -1781,12 +1840,12 @@ System.out.println("buttonID: "+button.id);
 		// frame
 		addLabel(new GuiNpcLabel(lId++, "animation.frames", x, (y += 23) - 10));
 		List<String> lFrames = new ArrayList<>();
-		for (int i = 0; i < anim.frames.size(); i++) { lFrames.add((i + 1) + "/" + anim.frames.size()); }
+		for (int i = 0; i < anim.frames.size(); i++) { lFrames.add(i + "/" + (anim.frames.size() - 1)); }
 		button = new GuiButtonBiDirectional(3, x, y, 60, 10, lFrames.toArray(new String[0]), frame.id);
 		button.setHoverText("animation.hover.frame", "" + (frame.id + 1));
 		addButton(button);
 		// add frame
-		button = new GuiNpcButton(4, x + label.width + 2, y - 10, 10, 10, "");
+		button = new GuiNpcButton(4, x + 106, y - 10, 10, 10, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
@@ -1796,7 +1855,7 @@ System.out.println("buttonID: "+button.id);
 		button.setHoverText("animation.hover.frame.add");
 		addButton(button);
 		// del frame
-		button = new GuiNpcButton(5, x + label.width + 12, y - 10, 10, 10, "");
+		button = new GuiNpcButton(5, x + 116, y - 10, 10, 10, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
@@ -2212,6 +2271,14 @@ System.out.println("buttonID: "+button.id);
 		button.setHoverText(new TextComponentTranslation("animation.hover.work." + onlyCurrentPart, ((char) 167) + "6" + (frame != null ? frame.id + 1 : -1)).getFormattedText());
 		addButton(button);
 		y = workV + workS - 74;
+		// animation init data
+		addLabel(new GuiNpcLabel(50, "0", workU + workS / 2 + 10, workV + workS - 12, GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000));
+		addLabel(new GuiNpcLabel(51, "0", workU + workS / 2 - 13, workV + workS - 12, GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000));
+		// set animation part tick
+		button = new GuiButtonBiDirectional(53, workU + workS / 2 - 56, workV + workS - 24, 108, 10, new String[] { "" }, 0);
+		button.setHoverText("animation.hover.part.all.ticks");
+		button.setVisible(onlyCurrentPart);
+		addButton(button);
 		// show tools
 		button = new GuiNpcButton(35, workU + 5, y, 8, 8, "");
 		button.texture = ANIMATION_BUTTONS;
@@ -2230,7 +2297,9 @@ System.out.println("buttonID: "+button.id);
 		button.isAnim = true;
 		button.txrW = 24;
 		button.txrH = 24;
-		button.layerColor = toolType == 1 ? 0xFFFF8080 : 0xFFFFFFFF;
+		button.layerColor = toolType == 1 ?
+				new Color(0xFFFF4040).getRGB() :
+				new Color(0xFFFFFFFF).getRGB();
 		button.setHoverText("animation.hover.tool.0");
 		addButton(button);
 		// tool rot
@@ -2241,7 +2310,9 @@ System.out.println("buttonID: "+button.id);
 		button.txrX = 24;
 		button.txrW = 24;
 		button.txrH = 24;
-		button.layerColor = toolType == 0 ? 0xFF80FF80 : 0xFFFFFFFF;
+		button.layerColor = toolType == 0 ?
+				new Color(0xFF40FF40).getRGB() :
+				new Color(0xFFFFFFFF).getRGB();
 		button.enabled = !isHitbox && !isMotion;
 		button.setHoverText("animation.hover.tool.1");
 		addButton(button);
@@ -2253,7 +2324,9 @@ System.out.println("buttonID: "+button.id);
 		button.txrX = 48;
 		button.txrW = 24;
 		button.txrH = 24;
-		button.layerColor = toolType == 2 ? 0xFF8080FF : 0xFFFFFFFF;
+		button.layerColor = toolType == 2 ?
+				new Color(0xFF4040FF).getRGB() :
+				new Color(0xFFFFFFFF).getRGB();
 		button.enabled = !isMotion;
 		button.setHoverText("animation.hover.tool.2");
 		addButton(button);
@@ -2730,21 +2803,25 @@ System.out.println("buttonID: "+button.id);
 		npcPart.posY = basePos[1];
 		npcPart.posZ = basePos[2];
 
-		AnimationConfig ac = anim.copy();
-
 		npcAnim.animation.reset();
-		npcAnim.animation.tryRunAnimation(ac, AnimationKind.EDITING_All);
+		npcAnim.animation.tryRunAnimation(anim, AnimationKind.EDITING_All);
 		npcAnim.setHealth(npcAnim.getMaxHealth());
 		npcAnim.deathTime = 0;
 
-		ac = anim.copy();
-		ac.frames.clear();
-		ac.frames.put(0, frame);
-
 		npcPart.animation.reset();
-		npcPart.animation.tryRunAnimation(ac, AnimationKind.EDITING_PART);
+		npcPart.animation.tryRunAnimation(anim, AnimationKind.EDITING_PART);
 		npcPart.setHealth(npcPart.getMaxHealth());
 		npcPart.deathTime = 0;
+		if (getButton(53) != null) {
+			GuiNpcButton button = getButton(53);
+			button.setVisible(onlyCurrentPart);
+			if (onlyCurrentPart) {
+				List<String> ticks = new ArrayList<>();
+				int s = npcPart.animation.getAnimationSpeedTicks();
+				for (int i = 0; i <= s; i++) { ticks.add(i + "/" + s); }
+				button.resetDisplay(ticks);
+			}
+		}
 	}
 
 	@Override

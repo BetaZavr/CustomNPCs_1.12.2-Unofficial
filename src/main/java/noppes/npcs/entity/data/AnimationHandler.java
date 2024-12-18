@@ -61,6 +61,8 @@ public class AnimationHandler {
     private ResourceLocation animationSound = null;
     public boolean isCyclical = false;
     private boolean canSetBaseRotationAngles = true;
+    private int timeTicks = -1;
+    private int speedTicks = -1;
 
     // current state, used to smoothly start another animation
     public final AnimationFrameConfig preFrame = new AnimationFrameConfig();
@@ -115,21 +117,26 @@ public class AnimationHandler {
         isJump = false;
         isSwing = false;
         canSetBaseRotationAngles = true;
+        timeTicks = -1;
     }
 
     public void calculationAnimationData(float partialTicks) {
         if (stage == EnumAnimationStages.Waiting || activeAnimation == null) { return; }
-        int ticks = (int) (entity.world.getTotalWorldTime() - startAnimationTime);
-        if (ticks == -1) { ticks = 0; }
-        int speed = activeAnimation.type.isQuickStart() ? 4 : 10;
+        int ticks = Math.max(0, (int) (entity.world.getTotalWorldTime() - startAnimationTime));
+        if (activeAnimation.type == AnimationKind.EDITING_PART) {
+            partialTicks = 0.0f;
+            ticks = activeAnimation.editTick;
+            if (activeAnimation.editFrame > 0) {
+                ticks += activeAnimation.endingFrameTicks.get(activeAnimation.editFrame - 1);
+            }
+        }
+        speedTicks = activeAnimation.type.isQuickStart() ? 4 : 10;
         boolean isEdit = activeAnimation.type == AnimationKind.EDITING_All || activeAnimation.type == AnimationKind.EDITING_PART;
         switch (stage) {
             case Started: {
                 currentFrame = preFrame;
                 nextFrame = activeAnimation.frames.get(0);
-                if (activeAnimation.type.isMovement()) {
-                    speed = nextFrame.speed;
-                }
+                if (activeAnimation.type.isMovement()) { speedTicks = nextFrame.speed; }
                 break;
             }
             case Looping: {
@@ -139,7 +146,7 @@ public class AnimationHandler {
                 if (activeAnimation.repeatLast > 0) { frameId = ValueUtil.correctInt(lastFrameId - activeAnimation.repeatLast, 0, lastFrameId - 1); }
                 else if (activeAnimation.type == AnimationKind.DIES) { frameId = lastFrameId - 1; }
                 nextFrame = activeAnimation.frames.get(frameId);
-                speed = currentFrame.speed;
+                speedTicks = currentFrame.speed;
                 break;
             }
             case Run: {
@@ -147,10 +154,8 @@ public class AnimationHandler {
                 if (animationFrame < 0) { animationFrame = 0; }
                 currentFrame = activeAnimation.frames.get(animationFrame);
                 nextFrame = activeAnimation.frames.get(Math.min(animationFrame + 1, activeAnimation.frames.size() - 1));
-                speed = currentFrame.speed;
-                if (activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) {
-                    ticks -= activeAnimation.endingFrameTicks.get(animationFrame - 1);
-                }
+                speedTicks = currentFrame.speed;
+                if (activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) { ticks -= activeAnimation.endingFrameTicks.get(animationFrame - 1); }
                 break;
             }
             case Ending: {
@@ -162,6 +167,7 @@ public class AnimationHandler {
                 stopAnimation();
             }
         }
+        timeTicks = ticks;
         // for start or finish use settings from animation frame
         if (nextFrame.id != -1 && currentFrame.id == -1) {
             for (int id : nextFrame.parts.keySet()) {
@@ -223,7 +229,7 @@ public class AnimationHandler {
                             value_1 = part1.rotation[a];
                             float result =  value_0 - value_1; // adjusting the nearest number
                             if (Math.abs(result) > Math.PI) { // example: to rotate in a circle
-                                value_1 = result;
+                                value_1 = (float) Math.PI * (result < 0.0f ? -2.0f : 2.0f) + value_1;
                             }
                             if (correctorRotations != 1.0f && (partId == 1 || partId == 2 || partId == 4 || partId == 5)) {
                                 value_0 *= correctorRotations;
@@ -234,7 +240,7 @@ public class AnimationHandler {
                     }
                     int id = t * 3 + a;
                     if (a > 2) { id = 6 + a; } // X1, Y1
-                    values[id] = calcValue(value_0, value_1, speed, ticks, currentFrame.isSmooth(), partialTicks);
+                    values[id] = calcValue(value_0, value_1, speedTicks, ticks, currentFrame.isSmooth(), partialTicks);
                 }
             }
             rotationAngles.put(partId, values);
@@ -297,6 +303,7 @@ public class AnimationHandler {
             stage = EnumAnimationStages.Waiting;
             startAnimationTime = 0;
             canSetBaseRotationAngles = true;
+            timeTicks = -1;
             return;
         }
         if (!AnimationController.getInstance().animations.containsKey(activeAnimation.id) && stage != EnumAnimationStages.Ending && stage != EnumAnimationStages.Waiting) {
@@ -304,8 +311,14 @@ public class AnimationHandler {
             startAnimationTime = entity.world.getTotalWorldTime() + 1;
             return;
         }
-        int ticks = (int) (entity.world.getTotalWorldTime() - startAnimationTime);
+        int ticks = Math.max(0, (int) (entity.world.getTotalWorldTime() - startAnimationTime));
         int speed;
+        if (activeAnimation.type == AnimationKind.EDITING_PART) {
+            ticks = activeAnimation.editTick;
+            if (activeAnimation.editFrame > 0) {
+                ticks += activeAnimation.endingFrameTicks.get(activeAnimation.editFrame - 1);
+            }
+        }
         boolean isEdit = activeAnimation.type == AnimationKind.EDITING_All || activeAnimation.type == AnimationKind.EDITING_PART;
         if (!isEdit && activeAnimation.type.isMovement() && stage != EnumAnimationStages.Ending && stage != EnumAnimationStages.Waiting) {
             if (!movementAnimation.containsKey(activeAnimation.type)) {
@@ -551,11 +564,14 @@ public class AnimationHandler {
                     type != AnimationKind.BLOCKED) { return; }
         }
         activeAnimation = anim.copy();
+        activeAnimation.editTick = anim.editTick;
+        activeAnimation.editFrame = anim.editFrame;
         activeAnimation.type = type;
         stage = EnumAnimationStages.Started;
         if (type == AnimationKind.EDITING_PART) { stage = EnumAnimationStages.Run; }
         startAnimationTime = entity.world.getTotalWorldTime();
         completeAnimation = false;
+        calculationAnimationData(0.0f);
     }
 
     public Map<Integer, Integer> resetWalkAndStandAnimations() {
@@ -596,11 +612,10 @@ public class AnimationHandler {
         }
     }
 
-    public void setRotationAngles(float limbSwing, float limbSwingAmount, float ignoredAgeInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScaleFactor, float partialTicks) {
+    public void setRotationAngles(float ignoredLimbSwing, float ignoredLimbSwingAmount, float ignoredAgeInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScaleFactor, float partialTicks) {
         AnimationKind base = null;
         boolean isMoving = Util.instance.isMoving(entity);
 //if (entity.getName().equals("Stand Ground")) { System.out.println("CNPCs: "+entity.limbSwing+" == "+entity.prevLimbSwingAmount); }
-
         if (!movementAnimation.isEmpty() && (activeAnimation == null || isMoving)) {
             // try to get AIM
             if (movementAnimation.containsKey(AnimationKind.AIM) && !isMoving) {
@@ -721,5 +736,19 @@ public class AnimationHandler {
         }
         return iStack == null ? isMainHand ? entity.getHeldItemMainhand() : entity.getHeldItemOffhand() : iStack.getMCItemStack();
     }
+
+    public int getAnimationCurrentFrameID() {
+        if (activeAnimation == null || currentFrame == null) { return -1; }
+        return currentFrame.id;
+    }
+
+    public int getAnimationNextFrameID() {
+        if (activeAnimation == null || nextFrame == null) { return -1; }
+        return nextFrame.id;
+    }
+
+    public int getAnimationTicks() { return timeTicks; }
+
+    public int getAnimationSpeedTicks() { return speedTicks; }
 
 }

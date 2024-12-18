@@ -69,7 +69,7 @@ implements IEditNPC, ICustomScrollListener {
 	public SubGuiInterface subgui;
 
 	private final List<int[]> line = new ArrayList<>(); // startX, startY, endX, endY, color, lineSize
-	private final List<IComponentGui> components = new ArrayList<>();
+	protected final List<IComponentGui> components = new ArrayList<>();
 	public final Map<Integer, GuiNpcButton> buttons = new ConcurrentHashMap<>();
 	public final Map<Integer, GuiNpcLabel> labels = new ConcurrentHashMap<>();
 	public final Map<Integer, GuiCustomScroll> scrolls = new ConcurrentHashMap<>();
@@ -126,13 +126,6 @@ implements IEditNPC, ICustomScrollListener {
 
 	public void addButton(GuiNpcButton button) {
 		buttons.put(button.id, button);
-		for (GuiButton b : buttonList) {
-			if (b.id == button.id) {
-				buttonList.remove(b);
-				break;
-			}
-		}
-		buttonList.add(button);
 		add(button);
 	}
 
@@ -150,25 +143,11 @@ implements IEditNPC, ICustomScrollListener {
 
 	public void addSideButton(GuiMenuSideButton slider) {
 		sidebuttons.put(slider.id, slider);
-		for (GuiButton b : buttonList) {
-			if (b.id == slider.id) {
-				buttonList.remove(b);
-				break;
-			}
-		}
-		buttonList.add(slider);
 		add(slider);
 	}
 
 	public void addSlider(GuiNpcSlider slider) {
 		sliders.put(slider.id, slider);
-		for (GuiButton b : buttonList) {
-			if (b.id == slider.id) {
-				buttonList.remove(b);
-				break;
-			}
-		}
-		buttonList.add(slider);
 		add(slider);
 	}
 
@@ -179,13 +158,6 @@ implements IEditNPC, ICustomScrollListener {
 
 	public void addTopButton(GuiMenuTopButton button) {
 		topbuttons.put(button.id, button);
-		for (GuiButton b : buttonList) {
-			if (b.id == button.id) {
-				buttonList.remove(b);
-				break;
-			}
-		}
-		buttonList.add(button);
 		add(button);
 	}
 
@@ -289,6 +261,7 @@ implements IEditNPC, ICustomScrollListener {
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		zLevel = 0;
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		int x = mouseX;
@@ -296,11 +269,10 @@ implements IEditNPC, ICustomScrollListener {
 		if (subgui != null) {
 			y = (x = 0);
 		}
-		if (drawDefaultBackground && subgui == null) {
-			drawDefaultBackground();
-		}
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		if (drawDefaultBackground && subgui == null) { drawDefaultBackground(); }
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		if (background != null) {
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(guiLeft, guiTop, 0.0f);
 			GlStateManager.scale(bgScale, bgScale, bgScale);
@@ -327,6 +299,7 @@ implements IEditNPC, ICustomScrollListener {
 			GlStateManager.popMatrix();
 		}
 		postDrawBackground();
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.translate(0, 0, 1.0f);
 		if (!line.isEmpty()) {
 			for (int[] ln : line) {
@@ -335,19 +308,23 @@ implements IEditNPC, ICustomScrollListener {
 			}
 			line.clear();
 		}
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		drawCenteredString(fontRenderer, title, width / 2, height + 10, CustomNpcs.MainColor.getRGB());
 		hoverMiniWin = false;
 		for (IComponentGui component : new ArrayList<>(components)) {
 			component.render(this, x, y, partialTicks);
+			RenderHelper.enableGUIStandardItemLighting();
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			if (component instanceof GuiNpcMiniWindow && ((GuiNpcMiniWindow) component).hovered) { hoverMiniWin = true; }
+		}
+		if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
+			drawHoveringText(hoverText, mouseX, mouseY, fontRenderer);
+			RenderHelper.enableGUIStandardItemLighting();
+			hoverText.clear();
 		}
 		super.drawScreen(x, y, partialTicks);
 		if (subgui != null) { subgui.drawScreen(mouseX, mouseY, partialTicks); }
 		if (hoverMiniWin) { return; }
-		if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
-			drawHoveringText(hoverText, mouseX, mouseY, fontRenderer);
-			hoverText.clear();
-		}
 	}
 
 	public void postDrawBackground() { }
@@ -497,16 +474,20 @@ implements IEditNPC, ICustomScrollListener {
 				tf.mouseClicked(mouseX, mouseY, mouseButton);
 			}
 		}
+		List<GuiButton> allButtons = new ArrayList<>();
 		for (IComponentGui component : components) {
 			if (component instanceof IMouseListener) {
 				((IMouseListener) component).mouseClicked(mouseX, mouseY, mouseButton);
 			}
+			if (component instanceof GuiButton) {
+				allButtons.add((GuiButton) component);
+			}
 		}
 		mouseEvent(mouseX, mouseY, mouseButton);
 		if (mouseButton != 0) {
-			for (GuiButton guibutton : buttonList) {
-				if (guibutton.isMouseOver() && guibutton instanceof GuiNpcButton) {
-					buttonEvent((GuiNpcButton) guibutton, mouseButton);
+			for (GuiNpcButton button : buttons.values()) {
+				if (button.isMouseOver()) {
+					buttonEvent(button, mouseButton);
 					break;
 				}
 			}
@@ -515,17 +496,15 @@ implements IEditNPC, ICustomScrollListener {
 		for (GuiCustomScroll scroll : new ArrayList<>(scrolls.values())) {
 			scroll.mouseClicked(mouseX, mouseY, mouseButton);
 		}
-		for (GuiButton guibutton : buttonList) {
-			if (guibutton.mousePressed(mc, mouseX, mouseY)) {
-				GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, guibutton, buttonList);
-				if (MinecraftForge.EVENT_BUS.post(event)) {
-					break;
-				}
-				guibutton = event.getButton();
-				(selectedButton = guibutton).playPressSound(mc.getSoundHandler());
-				actionPerformed(guibutton);
+		for (GuiButton button : allButtons) {
+			if (button.mousePressed(mc, mouseX, mouseY)) {
+				GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, button, allButtons);
+				if (MinecraftForge.EVENT_BUS.post(event)) { break; }
+				button = event.getButton();
+				(selectedButton = button).playPressSound(mc.getSoundHandler());
+				actionPerformed(button);
 				if (equals(mc.currentScreen)) {
-					MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, event.getButton(), buttonList));
+					MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, event.getButton(), allButtons));
 					break;
 				}
 				break;

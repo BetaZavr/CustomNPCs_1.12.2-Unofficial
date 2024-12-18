@@ -27,7 +27,10 @@ import noppes.npcs.util.IPermission;
 
 import javax.annotation.Nonnull;
 
-public class BlockNpcRedstone extends BlockInterface implements IPermission {
+public class BlockNpcRedstone
+extends BlockInterface
+implements IPermission {
+
 	public static PropertyBool ACTIVE = PropertyBool.create("active");
 
 	public BlockNpcRedstone() {

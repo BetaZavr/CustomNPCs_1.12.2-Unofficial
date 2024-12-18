@@ -14,4 +14,15 @@ public class AnimData{
 	public float alpha = 0.25f;
 	public boolean isNPC = false;
 
+	public void clear() {
+		part = null;
+		showArmor = true;
+		displayNpc = null;
+		red = 1.0f;
+		green = 1.0f;
+		blue = 1.0f;
+		alpha = 0.25f;
+		isNPC = false;
+	}
+
 }

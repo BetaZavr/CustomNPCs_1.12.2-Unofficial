@@ -14,7 +14,6 @@ import noppes.npcs.client.gui.animation.GuiNpcAnimation;
 import noppes.npcs.client.gui.animation.GuiNpcEmotion;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNpcMenu

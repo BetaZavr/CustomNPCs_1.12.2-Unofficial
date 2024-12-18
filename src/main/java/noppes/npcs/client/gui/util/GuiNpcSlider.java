@@ -99,16 +99,12 @@ implements IComponentGui {
 		}
 		drawTexturedModalRect(0, 0, 0, 46, w / 2, h);
 		drawTexturedModalRect(w / 2, 0, 200 - w / 2, 46, w / 2, h);
-		if (h < 20) {
-			drawHorizontalLine(0, w - 2, h - 1, 0xFF000000);
-		}
+		if (h < 20) { drawHorizontalLine(0, w - 2, h - 1, 0xFF000000); }
 		GlStateManager.popMatrix();
 		// button:
 		mouseDragged(mc, mouseX, mouseY);
 		// text:
-		if (displayString.isEmpty()) {
-			return;
-		}
+		if (displayString.isEmpty()) { return; }
 
 		int l = CustomNpcs.MainColor.getRGB();
 		if (packedFGColour != 0) {
@@ -173,8 +169,8 @@ implements IComponentGui {
 	}
 
 	public boolean mousePressed(@Nonnull Minecraft mc, int mouseX, int mouseY) {
-		if (enabled && visible && mouseX >= x && mouseY >= y && mouseX < x + width
-				&& mouseY < y + height) {
+		if (enabled && visible && hovered) {
+			System.out.println("CNPCs: "+id);
 			sliderValue = ValueUtil.correctFloat((mouseX - (x + 4)) / (float) (width - 8), 0.0f, 1.0f);
 			if (listener != null) {
 				listener.mousePressed(this);
@@ -204,7 +200,7 @@ implements IComponentGui {
 	public int getId() { return id; }
 
 	@Override
-	public int[] getCenter() { return new int[] { x + width / 2, x + height / 2}; }
+	public int[] getCenter() { return new int[] { x + width / 2, y + height / 2}; }
 
 	@Override
 	public void setHoverText(String text, Object ... args) {

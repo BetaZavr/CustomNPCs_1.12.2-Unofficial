@@ -168,7 +168,7 @@ implements IComponentGui {
 	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
 		if (!visible) { return; }
 		hovered = isMouseOver(mouseX, mouseY);
-		drawScreen(mouseX, mouseY, !gui.hasSubGui() && (hovered || !gui.hasArea()));
+		drawScreen(mouseX, mouseY, !gui.hasSubGui() && !gui.hasArea());
 	}
 
 	public void drawScreen(int mouseX, int mouseY, boolean canScrolled) {
@@ -210,7 +210,7 @@ implements IComponentGui {
 				if (scrollY < 0) { scrollY = 0; }
 				if (scrollY > maxScrollY) { scrollY = maxScrollY; }
 			}
-			if (canScrolled) {
+			if (canScrolled && hovered) {
 				int dWheel = Mouse.getDWheel();
 				if (dWheel != 0) {
 					scrollY += (dWheel > 0 ? -14 : 14);
@@ -545,5 +545,7 @@ implements IComponentGui {
 	}
 
 	public @Nonnull Map<Integer, List<String>> getHoversTexts() { return hoversTexts; }
+
+	public @Nonnull List<String> getHoversText() { return hoverText; }
 
 }

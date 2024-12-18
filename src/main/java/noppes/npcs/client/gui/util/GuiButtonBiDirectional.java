@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 
@@ -25,9 +26,7 @@ extends GuiNpcButton {
 	}
 
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!visible) {
-			return;
-		}
+		if (!visible) { return; }
 		hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
 		hoverL = hovered && mouseX < x + width / 2 && mouseY < y + height;
 		hoverR = !hoverL && hovered;
@@ -36,6 +35,7 @@ extends GuiNpcButton {
 		}
 
 		GlStateManager.pushMatrix();
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.translate(x, y, 0.0f);
 		float s = 1.0f;
 		if (height != 20) {
@@ -43,13 +43,20 @@ extends GuiNpcButton {
 			GlStateManager.scale(s, s, 1.0f);
 		}
 		int c;
+		int l = color;
 		if (!enabled) {
 			c = new Color(0xFF808080).getRGB();
-			drawGradientRect(11, 0, (int) ((float) width / s - 11.0f), (int) (((float) height - 0.5f) / s), c, c);
+			l = CustomNpcs.NotEnableColor.getRGB();
 		} else if (hovered) {
-			c = new Color(0xFF7E88BF).getRGB();
-			drawGradientRect(11, 0, (int) ((float) width / s - 11.0f), (int) (((float) height - 0.5f) / s), c, c);
+			c = new Color(0xFF48528C).getRGB();
+			l = CustomNpcs.HoverColor.getRGB();
+		} else {
+			c = new Color(0xFF707070).getRGB();
+			if (packedFGColour != 0) { l = packedFGColour; }
 		}
+		RenderHelper.enableGUIStandardItemLighting();
+		drawGradientRect(11, 0, (int) ((float) width / s - 11.0f), (int) (((float) height - 0.5f) / s), c, c);
+
 		c = new Color(0xFF000000).getRGB();
 		drawHorizontalLine(11, (int) ((float) width / s - 11.0f), 0, c);
 		drawHorizontalLine(11, (int) ((float) width / s - 11.0f), (int) (((float) height - 0.5f) / s), c);
@@ -58,15 +65,6 @@ extends GuiNpcButton {
 		drawTexturedModalRect(0, 0, 0, hoverL ? 40 : 20, 11, 20);
 		drawTexturedModalRect((int) ((float) width / s - 11.0f), 0, 11, hoverR ? 40 : 20, 11, 20);
 		GlStateManager.popMatrix();
-
-		int l = color;
-		if (packedFGColour != 0) {
-			l = packedFGColour;
-		} else if (!enabled) {
-			l = CustomNpcs.NotEnableColor.getRGB();
-		} else if (hovered) {
-			l = CustomNpcs.HoverColor.getRGB();
-		}
 
 		String text = "";
 		float maxWidth = (width - 36);

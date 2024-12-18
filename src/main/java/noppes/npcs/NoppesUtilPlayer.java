@@ -513,8 +513,7 @@ public class NoppesUtilPlayer {
 	}
 
 	public static void sendDataCheckDelay(EnumPlayerPacket enu, Object key, long time, Object... obs) {
-		if (NoppesUtilPlayer.delaySendMap.containsKey(key)
-				&& NoppesUtilPlayer.delaySendMap.get(key) > System.currentTimeMillis()) {
+		if (NoppesUtilPlayer.delaySendMap.containsKey(key) && NoppesUtilPlayer.delaySendMap.get(key) > System.currentTimeMillis()) {
 			return;
 		}
 		List<Object> del = new ArrayList<>();

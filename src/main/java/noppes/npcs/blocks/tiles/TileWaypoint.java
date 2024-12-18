@@ -7,6 +7,8 @@ import java.util.Objects;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -24,61 +26,57 @@ import noppes.npcs.quests.QuestObjective;
 
 import javax.annotation.Nonnull;
 
-public class TileWaypoint extends TileNpcEntity implements ITickable {
+public class TileWaypoint
+extends TileNpcEntity
+implements ITickable {
 
-	public String name;
-	public int range;
-	private List<EntityPlayer> recentlyChecked;
-	private int ticks;
-
-    public TileWaypoint() {
-		this.name = "";
-		this.ticks = 10;
-		this.recentlyChecked = new ArrayList<>();
-		this.range = 10;
-	}
+	public String name = "";
+	public int range = 10;
+	private List<EntityPlayer> recentlyChecked = new ArrayList<>();
+	private int ticks = 10;
 
 	private List<EntityPlayer> getPlayerList(int x, int y, int z) {
-		return this.world.getEntitiesWithinAABB(EntityPlayer.class,
-				new AxisAlignedBB(this.pos, this.pos.add(1, 1, 1)).grow(x, y, z));
+		return world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB(pos, pos.add(1, 1, 1)).grow(x, y, z));
+	}
+
+	public @Nonnull NBTTagCompound getUpdateTag() {
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setInteger("x", pos.getX());
+		compound.setInteger("y", pos.getY());
+		compound.setInteger("z", pos.getZ());
+		compound.setInteger("Range", range);
+		return compound;
+	}
+
+	public void onDataPacket(@Nonnull NetworkManager net, @Nonnull SPacketUpdateTileEntity pkt) {
+		range = pkt.getNbtCompound().getInteger("Range");
 	}
 
 	@Override
 	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		this.name = compound.getString("LocationName");
-		this.range = compound.getInteger("LocationRange");
-		if (this.range < 2) {
-			this.range = 2;
-		}
+		name = compound.getString("LocationName");
+		range = compound.getInteger("LocationRange");
+		if (range < 2) { range = 2; }
 	}
 
 	public void update() {
-		if (this.world.isRemote || this.name.isEmpty()) {
-			return;
-		}
-		--this.ticks;
-		if (this.ticks > 0) {
-			return;
-		}
-		this.ticks = 10;
-
-		List<EntityPlayer> around = this.getPlayerList(this.range, this.range, this.range);
+		if (world.isRemote || name.isEmpty()) { return; }
+		--ticks;
+		if (ticks > 0) { return; }
+		ticks = 10;
+		List<EntityPlayer> around = getPlayerList(range, range, range);
 		if (around.isEmpty()) {
-			this.recentlyChecked = new ArrayList<>();
+			recentlyChecked = new ArrayList<>();
 			return;
 		}
         List<EntityPlayer> toCheck;
-        (toCheck = around).removeAll(this.recentlyChecked);
-		int rng = this.range + (Math.min(this.range, 10));
-		List<EntityPlayer> listMax = this.getPlayerList(rng, rng, rng);
-
-		this.recentlyChecked.retainAll(listMax);
-		toCheck.addAll(this.recentlyChecked);
-
-		if (toCheck.isEmpty()) {
-			return;
-		}
+        (toCheck = around).removeAll(recentlyChecked);
+		int rng = range + (Math.min(range, 10));
+		List<EntityPlayer> listMax = getPlayerList(rng, rng, rng);
+		recentlyChecked.retainAll(listMax);
+		toCheck.addAll(recentlyChecked);
+		if (toCheck.isEmpty()) { return; }
 		for (EntityPlayer player : toCheck) {
 			PlayerData pdata = PlayerData.get(player);
 			PlayerQuestData questData = pdata.questData;
@@ -93,13 +91,12 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 						break;
 					}
 					bo = obj.isCompleted();
-					if (((QuestObjective) obj).getEnumType() != EnumQuestTask.LOCATION
-							|| !obj.getTargetName().equals(this.name)) {
+					if (((QuestObjective) obj).getEnumType() != EnumQuestTask.LOCATION || !obj.getTargetName().equals(name)) {
 						continue;
 					}
 
 					QuestInterface quest = data.quest.questInterface;
-					if (!quest.setFound(data, this.name)) {
+					if (!quest.setFound(data, name)) {
 						continue;
 					}
 					if (data.quest.showProgressInWindow) {
@@ -116,7 +113,6 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 								new TextComponentTranslation(obj.getTargetName()).getFormattedText(),
 								data.quest.getTitle()));
 					}
-
 					questData.checkQuestCompletion(player, data);
 					questData.updateClient = true;
 				}
@@ -127,10 +123,8 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 	@Nonnull
 	@Override
 	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
-		if (!this.name.isEmpty()) {
-			compound.setString("LocationName", this.name);
-		}
-		compound.setInteger("LocationRange", this.range);
+		if (!name.isEmpty()) { compound.setString("LocationName", name); }
+		compound.setInteger("LocationRange", range);
 		return super.writeToNBT(compound);
 	}
 }

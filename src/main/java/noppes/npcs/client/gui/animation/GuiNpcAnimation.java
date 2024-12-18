@@ -7,6 +7,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -340,7 +341,6 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 		this.addScroll(scrollAllAnimations);
 
 		AnimationConfig anim = getAnim();
-		boolean isOP = anim != null && !anim.immutable;
 		addLabel(new GuiNpcLabel(1, new TextComponentTranslation("movement.animation").getFormattedText() + ":", x + 1, y - 10));
 		// create
 		GuiNpcButton button = new GuiNpcButton(0, x, y, 60, 20, "markov.generate");
@@ -356,6 +356,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 		button.setHoverText("animation.hover.anim.copy");
 		addButton(button);
 		// del
+		boolean isOP = anim != null && !anim.immutable;
+		isOP = true;
 		button = new GuiNpcButton(2, x, y += 22, 60, 20, "gui.remove");
 		button.setEnabled(isOP);
 		button.setHoverText("animation.hover.anim.del");

@@ -6,6 +6,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -16,68 +18,83 @@ import noppes.npcs.controllers.data.Availability;
 
 import javax.annotation.Nonnull;
 
-public class TileRedstoneBlock extends TileNpcEntity implements ITickable {
-	public Availability availability;
-	public boolean isActivated;
-	public boolean isDetailed;
-	public int offRange;
-	public int offRangeX;
-	public int offRangeY;
-	public int offRangeZ;
-	public int onRange;
-	public int onRangeX;
-	public int onRangeY;
-	public int onRangeZ;
-	private int ticks;
+public class TileRedstoneBlock
+extends TileNpcEntity
+implements ITickable {
 
-	public TileRedstoneBlock() {
-		this.onRange = 12;
-		this.offRange = 20;
-		this.onRangeX = 12;
-		this.onRangeY = 12;
-		this.onRangeZ = 12;
-		this.offRangeX = 20;
-		this.offRangeY = 20;
-		this.offRangeZ = 20;
-		this.isDetailed = false;
-		this.availability = new Availability();
-		this.isActivated = false;
-		this.ticks = 10;
-	}
+	public Availability availability = new Availability();
+	public boolean isActivated = false;
+	public boolean isDetailed = false;
+	public int offRange = 20;
+	public int offRangeX = 20;
+	public int offRangeY = 20;
+	public int offRangeZ = 20;
+	public int onRange = 12;
+	public int onRangeX = 12;
+	public int onRangeY = 12;
+	public int onRangeZ = 12;
+	private int ticks = 10;
 
 	private List<EntityPlayer> getPlayerList(int x, int y, int z) {
-		return this.world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB(this.pos.getX(), this.pos.getY(),
-				this.pos.getZ(), (this.pos.getX() + 1), (this.pos.getY() + 1), (this.pos.getZ() + 1)).grow(x, y, z));
+		return world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), (pos.getX() + 1), (pos.getY() + 1), (pos.getZ() + 1)).grow(x, y, z));
+	}
+
+	public @Nonnull NBTTagCompound getUpdateTag() {
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setInteger("x", pos.getX());
+		compound.setInteger("y", pos.getY());
+		compound.setInteger("z", pos.getZ());
+		compound.setInteger("OffRange", offRange);
+		compound.setInteger("OffRangeX", offRangeX);
+		compound.setInteger("OffRangeY", offRangeY);
+		compound.setInteger("OffRangeZ", offRangeZ);
+		compound.setInteger("OnRange", onRange);
+		compound.setInteger("OnRangeX", onRangeX);
+		compound.setInteger("OnRangeY", onRangeY);
+		compound.setInteger("OnRangeZ", onRangeZ);
+		compound.setBoolean("IsDetailed", isDetailed);
+		return compound;
+	}
+
+	public void handleUpdateTag(@Nonnull NBTTagCompound compound) {
+		offRange = compound.getInteger("OffRange");
+		offRangeX = compound.getInteger("OffRangeX");
+		offRangeY = compound.getInteger("OffRangeY");
+		offRangeZ = compound.getInteger("OffRangeZ");
+		onRange = compound.getInteger("OnRange");
+		onRangeX = compound.getInteger("OnRangeX");
+		onRangeY = compound.getInteger("OnRangeY");
+		onRangeZ = compound.getInteger("OnRangeZ");
+		isDetailed = compound.getBoolean("IsDetailed");
+	}
+
+	public void onDataPacket(@Nonnull NetworkManager net, @Nonnull SPacketUpdateTileEntity pkt) {
+		handleUpdateTag(pkt.getNbtCompound());
 	}
 
 	@Override
 	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		this.onRange = compound.getInteger("BlockOnRange");
-		this.offRange = compound.getInteger("BlockOffRange");
-		this.isDetailed = compound.getBoolean("BlockIsDetailed");
-		if (compound.hasKey("BlockOnRangeX")) {
-			this.isDetailed = true;
-			this.onRangeX = compound.getInteger("BlockOnRangeX");
-			this.onRangeY = compound.getInteger("BlockOnRangeY");
-			this.onRangeZ = compound.getInteger("BlockOnRangeZ");
-			this.offRangeX = compound.getInteger("BlockOffRangeX");
-			this.offRangeY = compound.getInteger("BlockOffRangeY");
-			this.offRangeZ = compound.getInteger("BlockOffRangeZ");
-		}
-		if (compound.hasKey("BlockActivated")) {
-			this.isActivated = compound.getBoolean("BlockActivated");
-		}
-		this.availability.readFromNBT(compound);
+		onRange = compound.getInteger("BlockOnRange");
+		offRange = compound.getInteger("BlockOffRange");
+		isDetailed = compound.getBoolean("BlockIsDetailed");
+		onRangeX = compound.getInteger("BlockOnRangeX");
+		onRangeY = compound.getInteger("BlockOnRangeY");
+		onRangeZ = compound.getInteger("BlockOnRangeZ");
+		offRangeX = compound.getInteger("BlockOffRangeX");
+		offRangeY = compound.getInteger("BlockOffRangeY");
+		offRangeZ = compound.getInteger("BlockOffRangeZ");
+		if (compound.hasKey("BlockActivated")) { isActivated = compound.getBoolean("BlockActivated"); }
+		availability.readFromNBT(compound);
 	}
 
 	private void setActive(Block block, boolean bo) {
-		this.isActivated = bo;
-		IBlockState state = block.getDefaultState().withProperty(BlockNpcRedstone.ACTIVE, this.isActivated);
-		this.world.setBlockState(this.pos, state, 2);
-		this.markDirty();
-		this.world.notifyBlockUpdate(this.pos, state, state, 3);
-		block.onBlockAdded(this.world, this.pos, state);
+		isActivated = bo;
+		IBlockState state = block.getDefaultState().withProperty(BlockNpcRedstone.ACTIVE, isActivated);
+		world.setBlockState(pos, state, 2);
+		markDirty();
+		world.notifyBlockUpdate(pos, state, state, 3);
+		block.onBlockAdded(world, pos, state);
 	}
 
 	public boolean shouldRefresh(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState oldState, @Nonnull IBlockState newState) {
@@ -85,67 +102,65 @@ public class TileRedstoneBlock extends TileNpcEntity implements ITickable {
 	}
 
 	public void update() {
-		if (this.world.isRemote) {
+		if (world.isRemote) {
 			return;
 		}
-		--this.ticks;
-		if (this.ticks > 0) {
+		--ticks;
+		if (ticks > 0) {
 			return;
 		}
-		this.ticks = ((this.onRange > 10) ? 20 : 10);
-		Block block = this.getBlockType();
+		ticks = ((onRange > 10) ? 20 : 10);
+		Block block = getBlockType();
 		if (!(block instanceof BlockNpcRedstone)) {
 			return;
 		}
 		if (CustomNpcs.FreezeNPCs) {
-			if (this.isActivated) {
-				this.setActive(block, false);
+			if (isActivated) {
+				setActive(block, false);
 			}
 			return;
 		}
-		if (!this.isActivated) {
-			int x = this.isDetailed ? this.onRangeX : this.onRange;
-			int y = this.isDetailed ? this.onRangeY : this.onRange;
-			int z = this.isDetailed ? this.onRangeZ : this.onRange;
-			List<EntityPlayer> list = this.getPlayerList(x, y, z);
+		if (!isActivated) {
+			int x = isDetailed ? onRangeX : onRange;
+			int y = isDetailed ? onRangeY : onRange;
+			int z = isDetailed ? onRangeZ : onRange;
+			List<EntityPlayer> list = getPlayerList(x, y, z);
 			if (list.isEmpty()) {
 				return;
 			}
 			for (EntityPlayer player : list) {
-				if (this.availability.isAvailable(player)) {
-					this.setActive(block, true);
+				if (availability.isAvailable(player)) {
+					setActive(block, true);
 				}
 			}
 		} else {
-			int x = this.isDetailed ? this.offRangeX : this.offRange;
-			int y = this.isDetailed ? this.offRangeY : this.offRange;
-			int z = this.isDetailed ? this.offRangeZ : this.offRange;
-			List<EntityPlayer> list = this.getPlayerList(x, y, z);
+			int x = isDetailed ? offRangeX : offRange;
+			int y = isDetailed ? offRangeY : offRange;
+			int z = isDetailed ? offRangeZ : offRange;
+			List<EntityPlayer> list = getPlayerList(x, y, z);
 			for (EntityPlayer player : list) {
-				if (this.availability.isAvailable(player)) {
+				if (availability.isAvailable(player)) {
 					return;
 				}
 			}
-			this.setActive(block, false);
+			setActive(block, false);
 		}
 	}
 
 	@Nonnull
 	@Override
 	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
-		compound.setInteger("BlockOnRange", this.onRange);
-		compound.setInteger("BlockOffRange", this.offRange);
-		compound.setBoolean("BlockActivated", this.isActivated);
-		compound.setBoolean("BlockIsDetailed", this.isDetailed);
-		if (this.isDetailed) {
-			compound.setInteger("BlockOnRangeX", this.onRangeX);
-			compound.setInteger("BlockOnRangeY", this.onRangeY);
-			compound.setInteger("BlockOnRangeZ", this.onRangeZ);
-			compound.setInteger("BlockOffRangeX", this.offRangeX);
-			compound.setInteger("BlockOffRangeY", this.offRangeY);
-			compound.setInteger("BlockOffRangeZ", this.offRangeZ);
-		}
-		this.availability.writeToNBT(compound);
+		compound.setInteger("BlockOnRange", onRange);
+		compound.setInteger("BlockOffRange", offRange);
+		compound.setBoolean("BlockActivated", isActivated);
+		compound.setBoolean("BlockIsDetailed", isDetailed);
+		compound.setInteger("BlockOnRangeX", onRangeX);
+		compound.setInteger("BlockOnRangeY", onRangeY);
+		compound.setInteger("BlockOnRangeZ", onRangeZ);
+		compound.setInteger("BlockOffRangeX", offRangeX);
+		compound.setInteger("BlockOffRangeY", offRangeY);
+		compound.setInteger("BlockOffRangeZ", offRangeZ);
+		availability.writeToNBT(compound);
 		return super.writeToNBT(compound);
 	}
 }
