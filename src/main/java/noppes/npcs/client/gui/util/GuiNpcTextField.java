@@ -235,6 +235,12 @@ implements IComponentGui {
 	public void setLatinAlphabetOnly(boolean isLatinAlphabetOnly) { latinAlphabetOnly = isLatinAlphabetOnly; }
 
 	public boolean textboxKeyTyped(char typedChar, int keyCode) {
+		if (keyCode == 28 && !(this instanceof GuiNpcTextArea)) { // Enter
+			if (listener != null) {
+				listener.unFocused(this);
+				return false;
+			}
+		}
 		if (GuiScreen.isCtrlKeyDown() && !super.textboxKeyTyped(typedChar, keyCode)) { return false; }
 		if (latinAlphabetOnly && typedChar == ' ') { typedChar = '_'; }
 		return charAllowed(typedChar, keyCode) && canEdit && super.textboxKeyTyped(typedChar, keyCode);

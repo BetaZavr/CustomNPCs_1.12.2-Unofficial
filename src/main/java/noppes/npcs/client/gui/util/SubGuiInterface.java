@@ -25,7 +25,7 @@ extends GuiNPCInterface {
 			((IEditNPC) parent).closeSubGui(this);
 			displayGuiScreen(parent);
 		}
-		else if (parent instanceof ISubGuiListener) {
+		if (parent instanceof ISubGuiListener) {
 			((ISubGuiListener) parent).subGuiClosed(this);
 			displayGuiScreen(parent);
 		}

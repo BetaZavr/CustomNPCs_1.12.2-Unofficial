@@ -32,7 +32,7 @@ public enum EnumParts
 	BELT("belt", -1), 
 	FEET_LEFT("bootleft", 4), 
 	FEET_RIGHT("bootright", 5),
-	CUSTOM("custom", -2);
+	CUSTOM("custom", -1);
 	
 	public final String name;
 	public final int patterns;
@@ -50,4 +50,14 @@ public enum EnumParts
 		}
 		return null;
 	}
+
+	public static EnumParts get(int part) {
+		for (EnumParts e : values()) {
+			if (e.patterns == part) {
+				return e;
+			}
+		}
+		return EnumParts.CUSTOM;
+	}
+
 }

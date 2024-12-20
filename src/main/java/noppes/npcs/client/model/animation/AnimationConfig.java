@@ -17,7 +17,6 @@ import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.IAnimationFrame;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
 
 public class AnimationConfig implements IAnimation {
@@ -355,21 +354,6 @@ public class AnimationConfig implements IAnimation {
 			return frames.size();
 		}
 		return -1;
-	}
-
-	public AddedPartConfig addAddedPart(int parentPartID) {
-		AddedPartConfig addPart = new AddedPartConfig(parentPartID);
-		if (!addParts.containsKey(parentPartID)) { addParts.put(parentPartID, new ArrayList<>()); }
-		addPart.id = 8;
-		for (AddedPartConfig apc : addParts.get(parentPartID)) {
-			if (apc.id != addPart.id) { break; }
-			addPart.id++;
-		}
-		addParts.get(parentPartID).add(addPart);
-		for (AnimationFrameConfig frame : frames.values()) {
-			frame.parts.put(addPart.id, new PartConfig(addPart.id, EnumParts.CUSTOM));
-		}
-		return addPart;
 	}
 
 	public AddedPartConfig getAddedPart(int id) {

@@ -36,6 +36,7 @@ public class DataAnimation implements INPCAnimation {
 		showParts.put(EnumParts.ARM_LEFT, true);
 		showParts.put(EnumParts.LEG_RIGHT, true);
 		showParts.put(EnumParts.LEG_LEFT, true);
+		showParts.put(EnumParts.CUSTOM, true);
 
 		showAWParts.put(EnumParts.HEAD, true);
 		showAWParts.put(EnumParts.BODY, true);
@@ -43,6 +44,7 @@ public class DataAnimation implements INPCAnimation {
 		showAWParts.put(EnumParts.ARM_LEFT, true);
 		showAWParts.put(EnumParts.LEG_RIGHT, true);
 		showAWParts.put(EnumParts.LEG_LEFT, true);
+		showAWParts.put(EnumParts.CUSTOM, true);
 
 		showArmorParts.put(EnumParts.HEAD, true);
 		showArmorParts.put(EnumParts.BODY, true);
@@ -52,6 +54,7 @@ public class DataAnimation implements INPCAnimation {
 		showArmorParts.put(EnumParts.LEG_LEFT, true);
 		showArmorParts.put(EnumParts.FEET_RIGHT, true);
 		showArmorParts.put(EnumParts.FEET_LEFT, true);
+		showArmorParts.put(EnumParts.CUSTOM, true);
 	}
 
 	public void resetShowParts() {

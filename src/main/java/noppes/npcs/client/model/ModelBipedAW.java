@@ -57,9 +57,10 @@ public class ModelBipedAW extends ModelBipedAlt {
         for (EnumParts ep : ba.keySet()) {
             if (!ba.get(ep)) { baArmor.put(ep, false); }
         }
-        if (editAnimDataSelect.isNPC && editAnimDataSelect.part != null && !ba.get(editAnimDataSelect.part)) {
-            ba.put(editAnimDataSelect.part, true);
-            baArmor.put(editAnimDataSelect.part, true);
+        EnumParts ep = EnumParts.get(editAnimDataSelect.part);
+        if (editAnimDataSelect.isNPC && !ba.get(ep)) {
+            ba.put(ep, true);
+            baArmor.put(ep, true);
         }
 
         String type = slot.getName().toLowerCase();

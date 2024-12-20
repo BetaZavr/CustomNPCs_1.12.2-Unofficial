@@ -138,11 +138,13 @@ public class AnimationController implements IAnimationHandler {
 		if (nbtAnimation == null || !nbtAnimation.hasKey("ID", 3) || nbtAnimation.getInteger("ID") < 0) {
 			return null;
 		}
+		AnimationConfig ac;
 		if (animations.containsKey(nbtAnimation.getInteger("ID"))) {
-			animations.get(nbtAnimation.getInteger("ID")).load(nbtAnimation);
-			return animations.get(nbtAnimation.getInteger("ID"));
+			ac = animations.get(nbtAnimation.getInteger("ID"));
+			ac.load(nbtAnimation);
+			return ac;
 		}
-		AnimationConfig ac = new AnimationConfig();
+		ac = new AnimationConfig();
 		ac.load(nbtAnimation);
 		this.animations.put(ac.id, ac);
 		return this.animations.get(nbtAnimation.getInteger("ID"));

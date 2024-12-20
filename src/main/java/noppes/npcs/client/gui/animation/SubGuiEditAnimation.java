@@ -112,12 +112,12 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	private int winV;
 	private int winW;
 	private int winH;
-	private int mousePressId;
-	private int mousePressX;
-	private int mousePressY;
-	private final float[] dispRot;
-	private final float[] dispPos;
-	private float dispScale;
+	private int mousePressId = -1;
+	private int mousePressX = 0;
+	private int mousePressY = 0;
+	private final float[] dispRot = new float[] { 45.0f, 345.0f, 345.0f };
+	private final float[] dispPos = new float[] { 0.0f, 0.0f, 0.0f };
+	private float dispScale = 1.0f;
 	private float winScale;
 	private float offsetY;
 	private final Map<String, PartConfig> dataParts = new LinkedHashMap<>();
@@ -149,14 +149,8 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		toolType = 0; // 0 - rotation, 1 - offset, 2 - scale
 		blockType = 0; // 0 - environment, 1 - non, 2 - stone, 3 - stairs, 4 - stone_slab, 5 - carpet
 		blockSize = 2; // 0 - x1, 1 - x3, 2 - x5, 3 - x7, 4 - x9
-		dispScale = 1.0f;
 		winScale = 1.0f;
-		dispRot = new float[] { 45.0f, 345.0f, 345.0f };
-		dispPos = new float[] { 0.0f, 0.0f, 0.0f };
 		setEnvironment();
-		mousePressId = -1;
-		mousePressX = 0;
-		mousePressY = 0;
 		onlyCurrentPart = false;
 
 		basePos = new double[] {npc.posX, npc.posY, npc.posZ};
@@ -198,7 +192,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	private void setPart(PartConfig partConfig) {
 		GuiNpcTextField.unfocus();
 		if (partConfig != null) { part = frame.parts.get(partConfig.id); }
-		ModelNpcAlt.editAnimDataSelect.part = part == null || isHitbox || isMotion ? null : part.getEnumType();
+		ModelNpcAlt.editAnimDataSelect.part = part == null || isHitbox || isMotion ? -1 : part.id;
 		if (part != null && part.id > 7) { addedPartConfig = anim.getAddedPart(part.id); }
 		else { addedPartConfig = null; }
 		if (tools != null && tools.visible) { showTools(); }
@@ -210,7 +204,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			hitbox = frame.damageHitboxes.get(hitboxConfig.id);
 			if (scrollHitboxes != null && scrollHitboxes.hasSelected()) {
 				isHitbox = true;
-				ModelNpcAlt.editAnimDataSelect.part = null;
+				ModelNpcAlt.editAnimDataSelect.part = -1;
 				onlyCurrentPart = true;
 				if (getButton(21) != null) { getButton(21).txrX = 144; }
 			}
@@ -295,7 +289,9 @@ System.out.println("buttonID: "+button.id);
 					initGui();
 				} else {
 					if (isMotion || anim == null || part == null || part.id == 6 || part.id == 7) { return; }
-					System.out.println("CNPCs: " + anim.addParts);
+					SubGuiEditAddPart sGui = new SubGuiEditAddPart(this, npc, npcPart, null, null);
+					sGui.addPart.parentPart = part.id;
+					setSubGui(sGui);
 				}
 				break;
 			} // add new part / damage hitbox
@@ -625,7 +621,6 @@ System.out.println("buttonID: "+button.id);
 				tools.isMoving = false;
 				tools.visible = true;
 				mwindows.put(tools.id, tools);
-				System.out.println("CNPCs: "+tools.visible);
 				button.enabled = false;
 				break;
 			} // show window tools
@@ -1058,7 +1053,7 @@ System.out.println("buttonID: "+button.id);
 		}
 		if (w < 0 || h < 0) {
 			ScaledResolution sw = new ScaledResolution(mc);
-			w  = sw.getScaledWidth();
+			w = sw.getScaledWidth();
 			h = sw.getScaledHeight();
 		}
 		if (waitKey != 0) { waitKey--; }
@@ -1269,6 +1264,7 @@ System.out.println("buttonID: "+button.id);
 			drawHorizontalLine(winU + 4 + i * 8, winU + 8 + i * 8, winV + y, color);
 		}
 		GlStateManager.popMatrix();
+
 		if (subgui == null) {
 			GlStateManager.pushMatrix();
 			GL11.glEnable(GL11.GL_SCISSOR_TEST);
@@ -1280,43 +1276,43 @@ System.out.println("buttonID: "+button.id);
 			GlStateManager.popMatrix();
 
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(0.0f, 0.0f, 950.0f);
-			// axis xyz vector
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(workU + 12.5f, workV + 12.0f, dispScale > 1.0f ? -240.0f : 0.0f);
-			if (dispRot[0] != 0.0f) {
-				GlStateManager.rotate(dispRot[0], 0.0f, 1.0f, 0.0f);
-			}
-			if (dispRot[1] != 0.0f) {
-				GlStateManager.rotate(dispRot[1], 0.0f, 0.0f, 1.0f);
-			}
-			if (dispRot[2] != 0.0f) {
-				GlStateManager.rotate(dispRot[2], 1.0f, 0.0f, 0.0f);
-			}
-			GlStateManager.pushMatrix();
-			GlStateManager.rotate(90.0f, 0.0f, 1.0f, 0.0f);
-			GlStateManager.translate(0.0f, 0.0f, 0.5f);
-			drawCRect(-10.5, -0.5d, -0.5d, 0.5d, new Color(0xFF0000FF).getRGB());
-			GlStateManager.popMatrix();
-			GlStateManager.pushMatrix();
-			drawCRect(-10.5, -0.5d, -0.5d, 0.5d, new Color(0xFFFF0000).getRGB());
-			drawCRect(-0.5d, -10.5, 0.5d, -0.5d, new Color(0xFF00D000).getRGB());
-			color = GuiNpcAnimation.backColor == 0xFF000000 ?
-					new Color(0xFFFFFFFF).getRGB() :
-					new Color(0xFF000000).getRGB();
-			drawCRect(-0.5d, -0.5d, 0.5d, 0.5d, color);
-			GlStateManager.popMatrix();
-			GlStateManager.popMatrix();
-			// display info
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(workU, workV, 0.0f);
-			String ts = "x" + dispScale;
-			fontRenderer.drawString(ts, workS - 11 - fontRenderer.getStringWidth(ts), 1, color, false);
-			ts = (int) dispRot[0] + "" + ((char) 176) + "/" + (int) dispRot[1] + ((char) 176) + "/" + (int) dispRot[2] + ((char) 176);
-			fontRenderer.drawString(ts, workS - 11 - fontRenderer.getStringWidth(ts), workS - 10, color, false);
-			ts = (int) dispPos[0] + "/" + (int) dispPos[1];
-			fontRenderer.drawString(ts, 11, workS - 10, color, false);
-			GlStateManager.popMatrix();
+				GlStateManager.translate(0.0f, 0.0f, 950.0f);
+				// axis xyz vector
+				GlStateManager.pushMatrix();
+					GlStateManager.translate(workU + 12.5f, workV + 12.0f, dispScale > 1.0f ? -240.0f : 0.0f);
+					if (dispRot[0] != 0.0f) {
+						GlStateManager.rotate(dispRot[0], 0.0f, 1.0f, 0.0f);
+					}
+					if (dispRot[1] != 0.0f) {
+						GlStateManager.rotate(dispRot[1], 0.0f, 0.0f, 1.0f);
+					}
+					if (dispRot[2] != 0.0f) {
+						GlStateManager.rotate(dispRot[2], 1.0f, 0.0f, 0.0f);
+					}
+					GlStateManager.pushMatrix();
+						GlStateManager.rotate(90.0f, 0.0f, 1.0f, 0.0f);
+						GlStateManager.translate(0.0f, 0.0f, 0.5f);
+						drawCRect(-10.5, -0.5d, -0.5d, 0.5d, new Color(0xFF0000FF).getRGB());
+					GlStateManager.popMatrix();
+					GlStateManager.pushMatrix();
+						drawCRect(-10.5, -0.5d, -0.5d, 0.5d, new Color(0xFFFF0000).getRGB());
+						drawCRect(-0.5d, -10.5, 0.5d, -0.5d, new Color(0xFF00D000).getRGB());
+						color = GuiNpcAnimation.backColor == 0xFF000000 ?
+								new Color(0xFFFFFFFF).getRGB() :
+								new Color(0xFF000000).getRGB();
+						drawCRect(-0.5d, -0.5d, 0.5d, 0.5d, color);
+					GlStateManager.popMatrix();
+				GlStateManager.popMatrix();
+				// display info
+				GlStateManager.pushMatrix();
+					GlStateManager.translate(workU, workV, 0.0f);
+					String ts = "x" + dispScale;
+					fontRenderer.drawString(ts, workS - 11 - fontRenderer.getStringWidth(ts), 1, color, false);
+					ts = (int) dispRot[0] + "" + ((char) 176) + "/" + (int) dispRot[1] + ((char) 176) + "/" + (int) dispRot[2] + ((char) 176);
+					fontRenderer.drawString(ts, workS - 11 - fontRenderer.getStringWidth(ts), workS - 10, color, false);
+					ts = (int) dispPos[0] + "/" + (int) dispPos[1];
+					fontRenderer.drawString(ts, 11, workS - 10, color, false);
+				GlStateManager.popMatrix();
 			GlStateManager.popMatrix();
 		}
 		else {
@@ -1326,11 +1322,11 @@ System.out.println("buttonID: "+button.id);
 			GlStateManager.popMatrix();
 		}
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(0.0f, 0.0f, 975.0f);
-		super.drawScreen(mouseX, mouseY, partialTicks);
+			translateZ = 975.0f;
+			super.drawScreen(mouseX, mouseY, partialTicks);
 		GlStateManager.popMatrix();
 		getButton(7).enabled = !isMotion && ((isHitbox && hitbox != null) || (anim != null && part != null && part.id != 6 && part.id != 7));
-		getButton(8).enabled = !isMotion && ((isHitbox && hitbox != null) || (anim != null && addedPartConfig != null && part != null && part.id > 8));
+		getButton(8).enabled = !isMotion && ((isHitbox && hitbox != null) || (anim != null && addedPartConfig != null && part != null && part.id > 7));
 		if (hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
 		drawHoverText(null);
 	}
@@ -1398,183 +1394,244 @@ System.out.println("buttonID: "+button.id);
 	private void drawWork(float partialTicks) {
 		// work place
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(0.0f, 0.0f, -300.0f);
-		Gui.drawRect(workU + 1, workV + 1, workU + workS - 1, workV + workS - 1, GuiNpcAnimation.backColor);
+			GlStateManager.translate(0.0f, 0.0f, -300.0f);
+			Gui.drawRect(workU + 1, workV + 1, workU + workS - 1, workV + workS - 1, GuiNpcAnimation.backColor);
 		GlStateManager.popMatrix();
 
 		// blocks
 		GlStateManager.pushMatrix();
-		postRender();
-		RenderHelper.enableGUIStandardItemLighting();
-		IBlockState state;
-		switch (blockType) {
-			case 1:
-				state = Blocks.AIR.getDefaultState();
-				break;
-			case 3:
-				state = Blocks.STONE_STAIRS.getDefaultState();
-				break;
-			case 4:
-				state = Blocks.STONE_SLAB.getDefaultState();
-				break;
-			case 5:
-				state = Blocks.CARPET.getDefaultState();
-				break;
-			default:
-				state = Blocks.STONE.getDefaultState();
-				break;
-		}
-		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-		GlStateManager.enableRescaleNormal();
-		GlStateManager.enableAlpha();
-		GlStateManager.alphaFunc(516, 0.1F);
-		GlStateManager.enableBlend();
-		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		float ytr = offsetY;
-		GlStateManager.translate(-8.0f * winScale, ytr * winScale, 8.0f * winScale);
-		GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f);
-		GlStateManager.scale(-16.0f, -16.0f, -16.0f);
-		GlStateManager.scale(winScale, winScale, winScale);
-		int yH = blockType == 0 ? blockSize : 0;
-		Map<BlockPos, TileEntity> tiles = new HashMap<>();
-		for (int y = -yH; y <= yH; y++) {
-			for (int x = -blockSize; x <= blockSize; x++) {
-				for (int z = -blockSize; z <= blockSize; z++) {
-					BlockPos pos = new BlockPos(x, y + (blockSize == 0 ? 0 : 1), z);
-					TileEntity tile = null;
-					if (blockType == 0) {
-						IBlockState s = environmentStates.get(pos);
-						if (s != null) {
-							state = s;
+			postRender();
+			RenderHelper.enableGUIStandardItemLighting();
+			IBlockState state;
+			switch (blockType) {
+				case 1:
+					state = Blocks.AIR.getDefaultState();
+					break;
+				case 3:
+					state = Blocks.STONE_STAIRS.getDefaultState();
+					break;
+				case 4:
+					state = Blocks.STONE_SLAB.getDefaultState();
+					break;
+				case 5:
+					state = Blocks.CARPET.getDefaultState();
+					break;
+				default:
+					state = Blocks.STONE.getDefaultState();
+					break;
+			}
+			mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+			mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+			GlStateManager.enableRescaleNormal();
+			GlStateManager.enableAlpha();
+			GlStateManager.alphaFunc(516, 0.1F);
+			GlStateManager.enableBlend();
+			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			float ytr = offsetY;
+			GlStateManager.translate(-8.0f * winScale, ytr * winScale, 8.0f * winScale);
+			GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f);
+			GlStateManager.scale(-16.0f, -16.0f, -16.0f);
+			GlStateManager.scale(winScale, winScale, winScale);
+			int yH = blockType == 0 ? blockSize : 0;
+			Map<BlockPos, TileEntity> tiles = new HashMap<>();
+			for (int y = -yH; y <= yH; y++) {
+				for (int x = -blockSize; x <= blockSize; x++) {
+					for (int z = -blockSize; z <= blockSize; z++) {
+						BlockPos pos = new BlockPos(x, y + (blockSize == 0 ? 0 : 1), z);
+						TileEntity tile = null;
+						if (blockType == 0) {
+							IBlockState s = environmentStates.get(pos);
+							if (s != null) {
+								state = s;
+							}
+							TileEntity t = environmentTiles.get(pos);
+							if (t != null) {
+								tile = t;
+							}
 						}
-						TileEntity t = environmentTiles.get(pos);
-						if (t != null) {
-							tile = t;
+						if (tile != null) {
+							TileEntitySpecialRenderer<TileEntity> render = (TileEntitySpecialRenderer<TileEntity>) TileEntityRendererDispatcher.instance.renderers
+									.get(tile.getClass());
+							if (render != null) {
+								tiles.put(pos, tile);
+								continue;
+							}
 						}
-					}
-					if (tile != null) {
-						TileEntitySpecialRenderer<TileEntity> render = (TileEntitySpecialRenderer<TileEntity>) TileEntityRendererDispatcher.instance.renderers
-								.get(tile.getClass());
-						if (render != null) {
-							tiles.put(pos, tile);
+						if (state.getBlock() instanceof BlockAir) {
 							continue;
 						}
+						GlStateManager.pushMatrix();
+						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+						GlStateManager.translate(x, y - (blockSize == 0 || blockType > 1 ? 1 : 0), z);
+						if (blockType == 4) {
+							GlStateManager.translate(0.0f, 0.5f, 0.0f);
+						} else if (blockType == 5) {
+							GlStateManager.translate(0.0f, 0.9375f, 0.0f);
+						}
+						mc.getBlockRendererDispatcher().renderBlockBrightness(state, 1.0f);
+						GlStateManager.popMatrix();
 					}
-					if (state.getBlock() instanceof BlockAir) {
-						continue;
-					}
+				}
+			}
+			for (BlockPos p : tiles.keySet()) {
+				TileEntity tile = tiles.get(p);
+				TileEntitySpecialRenderer<TileEntity> render = (TileEntitySpecialRenderer<TileEntity>) TileEntityRendererDispatcher.instance.renderers
+						.get(tile.getClass());
+				if (render != null) {
 					GlStateManager.pushMatrix();
-					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-					GlStateManager.translate(x, y - (blockSize == 0 || blockType > 1 ? 1 : 0), z);
-					if (blockType == 4) {
-						GlStateManager.translate(0.0f, 0.5f, 0.0f);
-					} else if (blockType == 5) {
-						GlStateManager.translate(0.0f, 0.9375f, 0.0f);
-					}
-					mc.getBlockRendererDispatcher().renderBlockBrightness(state, 1.0f);
+					render.render(tile, p.getX(), p.getY() - 1.0D, p.getZ() - 1, partialTicks, 0, 1.0f);
 					GlStateManager.popMatrix();
 				}
 			}
-		}
-		for (BlockPos p : tiles.keySet()) {
-			TileEntity tile = tiles.get(p);
-			TileEntitySpecialRenderer<TileEntity> render = (TileEntitySpecialRenderer<TileEntity>) TileEntityRendererDispatcher.instance.renderers
-					.get(tile.getClass());
-			if (render != null) {
-				GlStateManager.pushMatrix();
-				render.render(tile, p.getX(), p.getY() - 1.0D, p.getZ() - 1, partialTicks, 0, 1.0f);
-				GlStateManager.popMatrix();
-			}
-		}
 
-		GlStateManager.pushMatrix();
-		GlStateManager.translate(0.0f, 0.0f, -1.0f);
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		if (meshType == 0) {
-			drawLine(0.0d, 0.0d, 0.0d, 10.0d, 0, 1.0f, 0.0f, 0.0f);
-			drawLine(0.0d, 0.0d, 0.0d, 10.0d, 1, 0.0f, 1.0f, 0.0f);
-			drawLine(0.0d, 0.0d, 0.0d, 10.0d, 2, 0.0f, 0.0f, 1.0f);
-		} else if (meshType == 1) {
-			drawLine(0.0d, 0.0d, -11.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
-			drawLine(-11.0d, 0.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
-			for (int i = -10; i <= 11; i++) {
-				drawLine(0.0d, 0.0d, i, 11.0d, 0, 1.0f, 1.0f, 1.0f);
-				drawLine(i, 0.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
-			}
-		} else if (meshType == 2) {
-			drawLine(0.0d, -11.0d, 0.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
-			drawLine(-11.0d, 0.0d, 0.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
-			for (int i = -10; i <= 11; i++) {
-				drawLine(0.0d, i, 0.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
-				drawLine(i, 0.0d, 0.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
-			}
-		} else if (meshType == 3) {
-			drawLine(0.0d, 0.0d, -11.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
-			drawLine(0.0d, -11.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
-			for (int i = -10; i <= 11; i++) {
-				drawLine(0.0d, 0.0d, i, 11.0d, 1, 1.0f, 1.0f, 1.0f);
-				drawLine(0.0d, i, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
-			}
-		}
-		GlStateManager.disableBlend();
-		GlStateManager.popMatrix();
-
-		// npc
-		GlStateManager.enableAlpha();
-		GlStateManager.disableRescaleNormal();
-		GlStateManager.disableLighting();
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-
-		GlStateManager.enableBlend();
-		GlStateManager.enableColorMaterial();
-		GlStateManager.translate(0.5f, 0.0f, -0.5f);
-		mc.getRenderManager().playerViewY = 180.0f;
-		EntityNPCInterface showNPC = getDisplayNpc();
-		if (showHitBox) {
-			GlStateManager.glLineWidth(1.0F);
-			GlStateManager.disableTexture2D();
-			RenderGlobal.drawSelectionBoundingBox(new AxisAlignedBB(showNPC.width / -2.0d, 0.0d, showNPC.width / -2.0d, showNPC.width / 2.0d, showNPC.height, showNPC.width / 2.0d), 1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.enableTexture2D();
-		}
-
-		// Damage hitboxes
-		if (anim.type == AnimationKind.ATTACKING && frame.isNowDamage() && !frame.damageHitboxes.isEmpty()) {
-			GlStateManager.glLineWidth(2.0F);
-			GlStateManager.disableTexture2D();
-			int i = 0;
-			for (AxisAlignedBB aabb : anim.getDamageHitboxes(showNPC, frame.id)) {
-				float r = 0.75f;
-				float g = 0.5f;
-				float b = 0.5f;
-				if (scrollHitboxes.selected == i) {
-					r = 1.0f;
-					g = 0.0f;
-					b = 0.25f;
-				} else if (scrollHitboxes.hover == i) {
-					r = 0.875f;
-					g = 0.0f;
-					b = 0.875f;
+			GlStateManager.pushMatrix();
+				GlStateManager.translate(0.0f, 0.0f, -1.0f);
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				if (meshType == 0) {
+					drawLine(0.0d, 0.0d, 0.0d, 10.0d, 0, 1.0f, 0.0f, 0.0f);
+					drawLine(0.0d, 0.0d, 0.0d, 10.0d, 1, 0.0f, 1.0f, 0.0f);
+					drawLine(0.0d, 0.0d, 0.0d, 10.0d, 2, 0.0f, 0.0f, 1.0f);
 				}
-				aabb = aabb.offset(-showNPC.posX, -showNPC.posY, -showNPC.posZ);
-				RenderGlobal.drawSelectionBoundingBox(aabb, r, g, b, 1.0f);
-
-				Vec3d center = aabb.getCenter();
-				for (int j = 0; j < 3; j++) {
-					AnimationDamageHitbox adh = frame.damageHitboxes.get(i);
-					double s = 0.1d;
-					if (adh != null) {
-						s *= adh.scale[j];
+				else if (meshType == 1) {
+					drawLine(0.0d, 0.0d, -11.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
+					drawLine(-11.0d, 0.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
+					for (int i = -10; i <= 11; i++) {
+						drawLine(0.0d, 0.0d, i, 11.0d, 0, 1.0f, 1.0f, 1.0f);
+						drawLine(i, 0.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
 					}
-					drawLine(center.x, center.y, center.z, ValueUtil.correctDouble(s, 0.025d, 0.25d), j, b, r, g);
 				}
+				else if (meshType == 2) {
+					drawLine(0.0d, -11.0d, 0.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
+					drawLine(-11.0d, 0.0d, 0.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
+					for (int i = -10; i <= 11; i++) {
+						drawLine(0.0d, i, 0.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
+						drawLine(i, 0.0d, 0.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
+					}
+				}
+				else if (meshType == 3) {
+					drawLine(0.0d, 0.0d, -11.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
+					drawLine(0.0d, -11.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
+					for (int i = -10; i <= 11; i++) {
+						drawLine(0.0d, 0.0d, i, 11.0d, 1, 1.0f, 1.0f, 1.0f);
+						drawLine(0.0d, i, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
+					}
+				}
+				GlStateManager.disableBlend();
+			GlStateManager.popMatrix();
 
-				if (scrollHitboxes.selected == i) {
-					r = 0.5f;
-					g = 0.5f;
-					b = 0.5f;
+			// npc
+			GlStateManager.enableAlpha();
+			GlStateManager.disableRescaleNormal();
+			GlStateManager.disableLighting();
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+
+			GlStateManager.enableBlend();
+			GlStateManager.enableColorMaterial();
+			GlStateManager.translate(0.5f, 0.0f, -0.5f);
+			mc.getRenderManager().playerViewY = 180.0f;
+			EntityNPCInterface showNPC = getDisplayNpc();
+			if (showHitBox) {
+				GlStateManager.glLineWidth(1.0F);
+				GlStateManager.disableTexture2D();
+				RenderGlobal.drawSelectionBoundingBox(new AxisAlignedBB(showNPC.width / -2.0d, 0.0d, showNPC.width / -2.0d, showNPC.width / 2.0d, showNPC.height, showNPC.width / 2.0d), 1.0f, 1.0f, 1.0f, 1.0f);
+				GlStateManager.enableTexture2D();
+			}
+
+			// Damage hitboxes
+			if (anim.type == AnimationKind.ATTACKING && frame.isNowDamage() && !frame.damageHitboxes.isEmpty()) {
+				GlStateManager.glLineWidth(2.0F);
+				GlStateManager.disableTexture2D();
+				int i = 0;
+				for (AxisAlignedBB aabb : anim.getDamageHitboxes(showNPC, frame.id)) {
+					float r = 0.75f;
+					float g = 0.5f;
+					float b = 0.5f;
 					float s = 1.0f;
+					if (scrollHitboxes.selected == i) {
+						r = 1.0f;
+						g = 0.0f;
+						b = 0.25f;
+						s = 2.0f;
+					}
+					if (scrollHitboxes.hover == i) {
+						r = 0.875f;
+						g = 0.0f;
+						b = 0.875f;
+						s = 3.0f;
+					}
+					aabb = aabb.offset(-showNPC.posX, -showNPC.posY, -showNPC.posZ);
+					GlStateManager.glLineWidth(s);
+					RenderGlobal.drawSelectionBoundingBox(aabb, r, g, b, 1.0f);
+
+					Vec3d center = aabb.getCenter();
+					for (int j = 0; j < 3; j++) {
+						AnimationDamageHitbox adh = frame.damageHitboxes.get(i);
+						s = 0.1f;
+						if (adh != null) {s *= adh.scale[j]; }
+						drawLine(center.x, center.y, center.z, ValueUtil.correctDouble(s, 0.025d, 0.25d), j, b, r, g);
+					}
+
+					if (scrollHitboxes.selected == i) {
+						r = 0.5f;
+						g = 0.5f;
+						b = 0.5f;
+						s = 1.0f;
+						if (tools.getSlider(0).isMouseOver() || tools.getTextField(5).hovered || tools.getTextField(5).isFocused() || tools.getButton(30).isMouseOver()) {
+							r = 0.825f;
+							g = 0.625f;
+							b = 0.195f;
+							s = 3.0f;
+						}
+						// distance
+						drawLine(0.0f, 0.0f, center.x, 0.0f, center.z, s, r, g, b);
+
+						r = 0.5f;
+						g = 0.5f;
+						b = 0.5f;
+						s = 1.0f;
+						if (tools.getSlider(1).isMouseOver() || tools.getTextField(6).hovered || tools.getTextField(6).isFocused() || tools.getButton(31).isMouseOver()) {
+							r = 0.825f;
+							g = 0.625f;
+							b = 0.195f;
+							s = 3.0f;
+						}
+						// height
+						drawLine(center.x, center.z, center.x, center.y, center.z, s, r, g, b);
+
+						// round radius
+						r = 0.5f;
+						g = 0.5f;
+						b = 0.5f;
+						s = 1.0f;
+						if (tools.getSlider(2).isMouseOver() || tools.getTextField(7).hovered || tools.getTextField(7).isFocused() || tools.getButton(32).isMouseOver()) {
+							r = 0.825f;
+							g = 0.625f;
+							b = 0.195f;
+							s = 3.0f;
+						}
+						drawCircle(Math.sqrt(Math.pow(center.x, 2.0d) + Math.pow(center.z, 2.0d)), s, r, g, b);
+					}
+					i++;
+				}
+				GlStateManager.enableTexture2D();
+			}
+
+			// Motion
+			if (frame.motions[0] != 0.0f || frame.motions[1] != 0.0f || frame.motions[2] != 0.0f) {
+
+				double radYaw = Math.toRadians(showNPC.rotationYaw) + frame.motions[2];
+
+				double x = Math.sin(radYaw) * -frame.motions[0];
+				double y = frame.motions[1];
+				double z = Math.cos(radYaw) * frame.motions[0];
+
+				float r = 0.5f;
+				float g = 0.5f;
+				float b = 0.75f;
+				float s = 2.0f;
+				if (isMotion) {
+					b = 0.5f;
 					if (tools.getSlider(0).isMouseOver() || tools.getTextField(5).hovered || tools.getTextField(5).isFocused() || tools.getButton(30).isMouseOver()) {
 						r = 0.825f;
 						g = 0.625f;
@@ -1582,7 +1639,7 @@ System.out.println("buttonID: "+button.id);
 						s = 3.0f;
 					}
 					// distance
-					drawLine(0.0f, 0.0f, center.x, 0.0f, center.z, s, r, g, b);
+					drawLine(0.0f, 0.0f, x, 0.0f, z, s, r, g, b);
 
 					r = 0.5f;
 					g = 0.5f;
@@ -1595,7 +1652,7 @@ System.out.println("buttonID: "+button.id);
 						s = 3.0f;
 					}
 					// height
-					drawLine(center.x, center.z, center.x, center.y, center.z, s, r, g, b);
+					drawLine(x, z, x, y, z, s, r, g, b);
 
 					// round radius
 					r = 0.5f;
@@ -1608,103 +1665,48 @@ System.out.println("buttonID: "+button.id);
 						b = 0.195f;
 						s = 3.0f;
 					}
-					drawCircle(Math.sqrt(Math.pow(center.x, 2.0d) + Math.pow(center.z, 2.0d)), s, r, g, b);
-				}
-				i++;
-			}
-			GlStateManager.enableTexture2D();
-		}
+					drawCircle(Math.sqrt(Math.pow(x, 2.0d) + Math.pow(z, 2.0d)), s, r, g, b);
 
-		// Motion
-		if (frame.motions[0] != 0.0f || frame.motions[1] != 0.0f || frame.motions[2] != 0.0f) {
-
-			double radYaw = Math.toRadians(showNPC.rotationYaw) + frame.motions[2];
-
-			double x = Math.sin(radYaw) * -frame.motions[0];
-			double y = frame.motions[1];
-			double z = Math.cos(radYaw) * frame.motions[0];
-
-			float r = 0.5f;
-			float g = 0.5f;
-			float b = 0.75f;
-			float s = 2.0f;
-			if (isMotion) {
-				b = 0.5f;
-				if (tools.getSlider(0).isMouseOver() || tools.getTextField(5).hovered || tools.getTextField(5).isFocused() || tools.getButton(30).isMouseOver()) {
-					r = 0.825f;
-					g = 0.625f;
-					b = 0.195f;
+					r = 0.25f;
+					g = 0.25f;
+					b = 0.875f;
 					s = 3.0f;
 				}
-				// distance
-				drawLine(0.0f, 0.0f, x, 0.0f, z, s, r, g, b);
+				double radius = Math.sqrt(Math.pow(x, 2.0d) + Math.pow(y, 2.0d) + Math.pow(z, 2.0d));
 
-				r = 0.5f;
-				g = 0.5f;
-				b = 0.5f;
-				s = 1.0f;
-				if (tools.getSlider(1).isMouseOver() || tools.getTextField(6).hovered || tools.getTextField(6).isFocused() || tools.getButton(31).isMouseOver()) {
-					r = 0.825f;
-					g = 0.625f;
-					b = 0.195f;
-					s = 3.0f;
-				}
-				// height
-				drawLine(x, z, x, y, z, s, r, g, b);
-
-				// round radius
-				r = 0.5f;
-				g = 0.5f;
-				b = 0.5f;
-				s = 1.0f;
-				if (tools.getSlider(2).isMouseOver() || tools.getTextField(7).hovered || tools.getTextField(7).isFocused() || tools.getButton(32).isMouseOver()) {
-					r = 0.825f;
-					g = 0.625f;
-					b = 0.195f;
-					s = 3.0f;
-				}
-				drawCircle(Math.sqrt(Math.pow(x, 2.0d) + Math.pow(z, 2.0d)), s, r, g, b);
-
-				r = 0.25f;
-				g = 0.25f;
-				b = 0.875f;
-				s = 3.0f;
-			}
-			double radius = Math.sqrt(Math.pow(x, 2.0d) + Math.pow(y, 2.0d) + Math.pow(z, 2.0d));
-
-			GlStateManager.pushMatrix();
-			GlStateManager.rotate((float) Math.toDegrees(-radYaw), 0.0f, 1.0f, 0.0f);
-			GlStateManager.rotate((float) Math.toDegrees(-Math.atan2(frame.motions[1], frame.motions[0])), 1.0f, 0.0f, 0.0f);
-			drawArrow(radius, s, r, g, b);
-
-			GlStateManager.popMatrix();
-		}
-
-		// model mesh rotation axes:
-
-		ModelNpcAlt.editAnimDataSelect.displayNpc = showNPC;
-		mc.getRenderManager().renderEntity(showNPC, 0.0, 0.0, 0.0, 0.0f, showNPC.rotationYaw != 0.0f ? 1.0f : 0.0f, false);
-
-		if (blockType == 0) {
-			for (Entity e : environmentEntitys) {
-				int x = Math.abs((int) Math.round(e.posX));
-				int y = Math.abs((int) Math.round(e.posY));
-				int z = Math.abs((int) Math.round(e.posZ));
-				int d = x;
-				if (d < y) { d = y; }
-				if (d < z) { d = z; }
-				if (d > blockSize) { continue; }
 				GlStateManager.pushMatrix();
-				mc.getRenderManager().renderEntity(e, e.posX, e.posY, e.posZ, 0.0f, 0.0f, false);
+				GlStateManager.rotate((float) Math.toDegrees(-radYaw), 0.0f, 1.0f, 0.0f);
+				GlStateManager.rotate((float) Math.toDegrees(-Math.atan2(frame.motions[1], frame.motions[0])), 1.0f, 0.0f, 0.0f);
+				drawArrow(radius, s, r, g, b);
+
 				GlStateManager.popMatrix();
 			}
-		}
 
-		GlStateManager.disableRescaleNormal();
-		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-		GlStateManager.disableTexture2D();
-		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-		GlStateManager.disableLighting();
+			// model mesh rotation axes:
+
+			ModelNpcAlt.editAnimDataSelect.displayNpc = showNPC;
+			mc.getRenderManager().renderEntity(showNPC, 0.0, 0.0, 0.0, 0.0f, showNPC.rotationYaw != 0.0f ? 1.0f : 0.0f, false);
+
+			if (blockType == 0) {
+				for (Entity e : environmentEntitys) {
+					int x = Math.abs((int) Math.round(e.posX));
+					int y = Math.abs((int) Math.round(e.posY));
+					int z = Math.abs((int) Math.round(e.posZ));
+					int d = x;
+					if (d < y) { d = y; }
+					if (d < z) { d = z; }
+					if (d > blockSize) { continue; }
+					GlStateManager.pushMatrix();
+					mc.getRenderManager().renderEntity(e, e.posX, e.posY, e.posZ, 0.0f, 0.0f, false);
+					GlStateManager.popMatrix();
+				}
+			}
+
+			GlStateManager.disableRescaleNormal();
+			GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+			GlStateManager.disableTexture2D();
+			GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+			GlStateManager.disableLighting();
 		GlStateManager.popMatrix();
 
 	}
@@ -1745,7 +1747,7 @@ System.out.println("buttonID: "+button.id);
 				tools.guiTop = (int) ((double) sw.getScaledHeight() * top);
 			}
 		}
-		w  = sw.getScaledWidth();
+		w = sw.getScaledWidth();
 		h = sw.getScaledHeight();
 
 		if ((sw.getScaledWidth() - 144) < sw.getScaledHeight() - 8) {
@@ -1754,7 +1756,6 @@ System.out.println("buttonID: "+button.id);
 			winW = sw.getScaledWidth();
 			winV = (sw.getScaledHeight() - workS - 8) / 2;
 			winH = workS + 8;
-
 		}
 		else {
 			workS = sw.getScaledHeight() - 8;
@@ -1802,7 +1803,9 @@ System.out.println("buttonID: "+button.id);
 		addButton(button);
 		// back color
 		button = new GuiNpcButton(2, workU + 2, workV + 23, 8, 8, "");
-		button.layerColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
+		button.layerColor = GuiNpcAnimation.backColor == 0xFF000000 ?
+				new Color(0xFF00FFFF).getRGB() :
+				new Color(0xFF008080).getRGB();
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
@@ -1811,7 +1814,9 @@ System.out.println("buttonID: "+button.id);
 		addButton(button);
 
 		button = new GuiNpcButton(26, workU + 2, workV + 31, 8, 8, "");
-		button.layerColor = (ModelNpcAlt.editAnimDataSelect.showArmor ? 0xFFFF7200 : 0xFF6F3200);
+		button.layerColor = ModelNpcAlt.editAnimDataSelect.showArmor ?
+				new Color(0xFFFF7200).getRGB() :
+				new Color(0xFF6F3200).getRGB();
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
@@ -1820,7 +1825,9 @@ System.out.println("buttonID: "+button.id);
 		addButton(button);
 
 		button = new GuiNpcButton(46, workU + 2, workV + 39, 8, 8, "");
-		button.layerColor = (ModelNpcAlt.editAnimDataSelect.alpha >= 1.0f ? 0xFFFFFEBF : 0xFF787758);
+		button.layerColor = ModelNpcAlt.editAnimDataSelect.alpha >= 1.0f ?
+				new Color(0xFFFFFEBF).getRGB() :
+				new Color(0xFF787758).getRGB();
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
@@ -1829,6 +1836,9 @@ System.out.println("buttonID: "+button.id);
 		addButton(button);
 
 		button = new GuiNpcButton(47, workU + 2, workV + 47, 8, 8, "");
+		button.layerColor = GuiNpcAnimation.backColor == 0xFF000000 ?
+				new Color(0xFF00FFFF).getRGB() :
+				new Color(0xFF008080).getRGB();
 		button.layerColor = (baseRotation == 0.0f || baseRotation == npcAnim.rotationYaw ? 0xFF96FFC0 : 0xFF426C53);
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
@@ -1987,7 +1997,7 @@ System.out.println("buttonID: "+button.id);
 		scrollHitboxes.setHoverTexts(hts);
 		if (isHitbox && toolType == 0) { toolType = 1; }
 		// add part / hitbox
-		button = new GuiNpcButton(7, x + label.width + 2, y, 10, 10, "");
+		button = new GuiNpcButton(7, x + 106, y, 10, 10, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
@@ -1999,7 +2009,7 @@ System.out.println("buttonID: "+button.id);
 		else { button.setHoverText("animation.hover.part.add"); }
 		addButton(button);
 		// del part / hitbox
-		button = new GuiNpcButton(8, x + label.width + 12, y, 10, 10, "");
+		button = new GuiNpcButton(8, x + 116, y, 10, 10, "");
 		button.texture = ANIMATION_BUTTONS;
 		button.hasDefBack = false;
 		button.isAnim = true;
@@ -2348,7 +2358,7 @@ System.out.println("buttonID: "+button.id);
 			hitboxes.visible = vH;
 		}
 
-		if (ModelNpcAlt.editAnimDataSelect.part != (part == null ? null : part.getEnumType())) { setPart(part); }
+		if (ModelNpcAlt.editAnimDataSelect.part != (part == null ? -1 : part.id)) { setPart(part); }
 	}
 
 	private void showHitBoxes() {
@@ -2914,6 +2924,40 @@ System.out.println("buttonID: "+button.id);
 			ModelNpcAlt.editAnimDataSelect.blue = (float) (CustomNpcs.colorAnimHoverPart & 255) / 255.0F;
 			partNames.setColorLine(CustomNpcs.colorAnimHoverPart);
 			initGui();
+		}
+		if (subgui instanceof SubGuiEditAddPart) {
+			SubGuiEditAddPart gui = (SubGuiEditAddPart) subgui;
+			if (gui.isNew) {
+				// remove old
+				for (int parentID : gui.animation.addParts.keySet()) {
+					for (AddedPartConfig apc : gui.animation.addParts.get(parentID)) {
+						if (apc.id == -1) {
+							gui.animation.addParts.get(parentID).remove(apc);
+							if (gui.animation.addParts.get(parentID).isEmpty()) {
+								gui.animation.addParts.remove(parentID);
+							}
+							break;
+						}
+					}
+				}
+				for (AnimationFrameConfig frame : gui.animation.frames.values()) { frame.parts.remove(-1); }
+				// create
+				if (gui.isSave) {
+					int id = 8;
+					for (int parentID : anim.addParts.keySet()) {
+						for (AddedPartConfig apc : anim.addParts.get(parentID)) {
+							if (id < apc.id) { id = apc.id + 1; }
+						}
+					}
+					gui.addPart.id = id;
+					gui.part.id = id;
+					if (!anim.addParts.containsKey(gui.addPart.parentPart)) { anim.addParts.put(gui.addPart.parentPart, new ArrayList<>()); }
+					anim.addParts.get(gui.addPart.parentPart).add(gui.addPart);
+					for (AnimationFrameConfig frame : anim.frames.values()) { frame.parts.put(id, gui.part.copy()); }
+					ModelNpcAlt.loadAnimationModel(anim);
+					initGui();
+				}
+			}
 		}
 		if (subgui instanceof GuiSoundSelection) {
 			if (frame != null) {

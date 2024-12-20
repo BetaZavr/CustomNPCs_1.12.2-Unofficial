@@ -455,7 +455,7 @@ public class LayerEyes<T extends EntityLivingBase>
 		if (this.npc.display.getVisible() == 1) { isInvisible = this.npc.display.getAvailability().isAvailable(mc.player); }
 		else if (this.npc.display.getVisible() == 2) { isInvisible = !(mc.player.getHeldItemMainhand().getItem() instanceof ItemNpcWand); }
 		if (isInvisible) { alpha = 0.5f; }
-		else if (this.npc.equals(ModelNpcAlt.editAnimDataSelect.displayNpc) && ModelNpcAlt.editAnimDataSelect.part != EnumParts.HEAD) {
+		else if (this.npc.equals(ModelNpcAlt.editAnimDataSelect.displayNpc) && ModelNpcAlt.editAnimDataSelect.part != 0) {
 			if (ModelNpcAlt.editAnimDataSelect.alpha >= 1.0f) { alpha = 1.0f; } else { alpha = 0.5f; }
 		}
 		else { alpha = 1.0f; }

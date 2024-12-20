@@ -1,11 +1,10 @@
 package noppes.npcs.client.model.part;
 
 import net.minecraft.entity.Entity;
-import noppes.npcs.constants.EnumParts;
 
 public class AnimData{
 
-	public EnumParts part = null;
+	public int part = -1;
 	public boolean showArmor = true;
 	public Entity displayNpc = null;
 	public float red = 1.0f;
@@ -15,7 +14,7 @@ public class AnimData{
 	public boolean isNPC = false;
 
 	public void clear() {
-		part = null;
+		part = -1;
 		showArmor = true;
 		displayNpc = null;
 		red = 1.0f;

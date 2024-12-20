@@ -81,8 +81,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 				break;
 			}
 			case 1: { // Del market
-				GuiYesNo guiyesno = new GuiYesNo(this, scrollMarkets.getSelected(),
-						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+				GuiYesNo guiyesno = new GuiYesNo(this, scrollMarkets.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
 				displayGuiScreen(guiyesno);
 				break;
 			}
@@ -97,8 +96,9 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 				break;
 			}
 			case 4: { // Del deal
-				GuiYesNo guiyesno = new GuiYesNo(this, scrollDeals.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
-				displayGuiScreen(guiyesno);
+				if (!dataDeals.containsKey(scrollDeals.getSelected())) { return; }
+				Client.sendData(EnumPacketServer.TraderMarketDel, -1, dealId);
+				dealId = 0;
 				break;
 			}
 			case 5: { // Deal settings
@@ -163,27 +163,14 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 
 	public void confirmClicked(boolean result, int id) {
 		NoppesUtil.openGUI(player, this);
-		if (!result) {
-			return;
-		}
-		switch (id) {
-		case 0: {
-			if (selectedMarcet == null) {
-				return;
-			}
-			Client.sendData(EnumPacketServer.TraderMarketDel, marcetId, -1);
-			marcetId = 0;
-			break;
-		}
-		case 1: {
-			if (selectedMarcet == null || dataDeals.containsKey(scrollDeals.getSelected())) {
-				return;
-			}
-			Client.sendData(EnumPacketServer.TraderMarketDel, -1, dealId);
-			dealId = 0;
-			break;
-		}
-		}
+		if (!result) { return; }
+        if (id == 0) {
+            if (selectedMarcet == null) {
+                return;
+            }
+            Client.sendData(EnumPacketServer.TraderMarketDel, marcetId, -1);
+            marcetId = 0;
+        }
 	}
 
 	@Override

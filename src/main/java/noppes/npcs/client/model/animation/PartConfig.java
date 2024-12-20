@@ -25,6 +25,7 @@ public class PartConfig implements IAnimationPart {
 
 	public PartConfig() {
 		clear();
+		setMainName();
 	}
 
 	public PartConfig(int id, EnumParts type) {
@@ -68,7 +69,7 @@ public class PartConfig implements IAnimationPart {
 
 	public PartConfig copy() {
 		PartConfig pc = new PartConfig();
-		pc.readNBT(this.writeNBT());
+		pc.readNBT(writeNBT());
 		return pc;
 	}
 

@@ -50,6 +50,8 @@ implements IEditNPC, ICustomScrollListener {
 	public int guiTop;
 	public int mouseX;
 	public int mouseY;
+	public int widthTexture = 0;
+	public int heightTexture = 0;
 	public float bgScale = 1.0f;
 	public String title = "Npc Mainmenu";
 	private final List<String> hoverText = new ArrayList<>();
@@ -173,13 +175,23 @@ implements IEditNPC, ICustomScrollListener {
 				GlStateManager.translate(guiLeft, guiTop, 0.0f);
 				GlStateManager.scale(bgScale, bgScale, bgScale);
 				mc.getTextureManager().bindTexture(background);
-				if (xSize > 252) {
-					drawTexturedModalRect(0, 0, 0, 0, 252, ySize);
-					int w = xSize - 252;
-					drawTexturedModalRect(252, 0, 256 - w, 0, w, ySize);
-				} else {
-					drawTexturedModalRect(0, 0, 0, 0, xSize, ySize);
+				if (xSize > 252 || ySize > 252) {
+					if (widthTexture != 0 && heightTexture != 0) {
+						int tilesW = xSize / 2;
+						int tilesH = ySize / 2;
+						drawTexturedModalRect(0, 0, 0, 0, tilesW, tilesH);
+						drawTexturedModalRect(tilesW, 0, widthTexture - tilesW, 0, tilesW, tilesH);
+						drawTexturedModalRect(0, tilesH, 0, heightTexture - tilesH, tilesW, tilesH);
+						drawTexturedModalRect(tilesW, tilesH, widthTexture - tilesW, heightTexture - tilesH, tilesW, tilesH);
+					}
+					else if (ySize < 257) {
+						int tilesW = xSize / 2;
+						drawTexturedModalRect(0, 0, 0, 0, tilesW, ySize);
+						drawTexturedModalRect(tilesW, 0, 256 - tilesW, 0, tilesW, ySize);
+					}
+					else { drawTexturedModalRect(0, 0, 0, 0, xSize, ySize); }
 				}
+				else { drawTexturedModalRect(0, 0, 0, 0, xSize, ySize); }
 				GlStateManager.popMatrix();
 			}
 		}

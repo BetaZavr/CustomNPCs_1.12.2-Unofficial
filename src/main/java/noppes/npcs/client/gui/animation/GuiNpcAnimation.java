@@ -357,7 +357,6 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 		addButton(button);
 		// del
 		boolean isOP = anim != null && !anim.immutable;
-		isOP = true;
 		button = new GuiNpcButton(2, x, y += 22, 60, 20, "gui.remove");
 		button.setEnabled(isOP);
 		button.setHoverText("animation.hover.anim.del");

@@ -6,23 +6,25 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
-import noppes.npcs.constants.EnumParts;
 import noppes.npcs.util.ValueUtil;
 
 public class AddedPartConfig {
 
 	public ResourceLocation location;
-	public ResourceLocation obj;
-	public int parentPart;
+	public ResourceLocation objUp;
+	public ResourceLocation objDown;
+	public int parentPart = -1;
 	public int id;
-	public int textureU = 0;
-	public int textureV = 0;
+	public int textureU = 40;
+	public int textureV = 16;
 	public boolean isNormal;
 	public final float[] pos = new float[] { 0.0f, 0.0f, 0.0f }; // offset position relative to parent [x, y, z]
 	public final float[] rot = new float[] { 0.0f, 0.0f, 0.0f }; // base rotation relative to parent [x, y, z]
 	public final float[] size = new float[] { 4.0f, 5.5f, 3.5f, 3.0f, 4.0f }; // cuboid size [dx, dy0, dy1, dy2, dz]
 
-	public AddedPartConfig() { }
+	public AddedPartConfig() {
+		clear();
+	}
 
 	public AddedPartConfig(int parentPartId) {
 		parentPart = parentPartId;
@@ -39,16 +41,19 @@ public class AddedPartConfig {
 		size[2] = 3.5f;
 		size[3] = 3.0f;
 		size[4] = 4.0f;
-		location = new ResourceLocation(CustomNpcs.MODID, "textures/gui/animation/default_part.png");
-		obj = null;
+		isNormal = true;
+		textureU = 40;
+		textureV = 16;
+		location = new ResourceLocation(CustomNpcs.MODID, "textures/entity/humanmale/steve.png");
+		objUp = null;
+		objDown = null;
 	}
 
 	public void load(NBTTagCompound compound) {
 		parentPart = compound.getInteger("ParentPart");
 		location = new ResourceLocation(compound.getString("Location"));
-		if (compound.hasKey("OBJLocation", 8)) {
-			obj = new ResourceLocation(compound.getString("OBJLocation"));
-		}
+		if (compound.hasKey("OBJUpLocation", 8)) { objUp = new ResourceLocation(compound.getString("OBJUpLocation")); }
+		if (compound.hasKey("OBJDownLocation", 8)) { objUp = new ResourceLocation(compound.getString("OBJDownLocation")); }
 		for (int i = 0; i < 5; i++) {
 			try { size[i] = ValueUtil.correctFloat(compound.getTagList("BaseSize", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
 			if (i > 2) { continue; }
@@ -61,8 +66,8 @@ public class AddedPartConfig {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("ParentPart", parentPart);
 		compound.setString("Location", location.toString());
-		if (obj != null) { compound.setString("OBJLocation", obj.toString()); }
-
+		if (objUp != null) { compound.setString("OBJUpLocation", objUp.toString()); }
+		if (objDown != null) { compound.setString("OBJDownLocation", objDown.toString()); }
 		NBTTagList listPos = new NBTTagList();
 		NBTTagList listRot = new NBTTagList();
 		NBTTagList listSize = new NBTTagList();

@@ -269,7 +269,11 @@ implements IComponentGui {
 	}
 
 	public void setDisplay(int value) {
+		if (display.length == 0) { return; }
+		if (value < 0) { value = 0; }
+		if (value >= display.length) { value = display.length; }
 		displayValue = value;
+		setDisplayText(display[displayValue]);
 	}
 
 	public void setDisplayText(String text) {

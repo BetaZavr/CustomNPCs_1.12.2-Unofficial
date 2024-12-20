@@ -82,8 +82,7 @@ public class ModelRendererAlt
 
 	// Custom
 	public ResourceLocation textureLocation = null;
-	public ResourceLocation objLocationUp = null;
-	public ResourceLocation objLocationDown = null;
+	public ResourceLocation objLocation = null;
 	public boolean isArmor;
 
 	public ModelRendererAlt(ModelBase model, EnumParts enumPart, int textureU, int textureV, boolean normal) {
@@ -107,10 +106,8 @@ public class ModelRendererAlt
 		isNormal = addedPartConfig.isNormal;
 		baseNormal = addedPartConfig.isNormal;
 		textureLocation = addedPartConfig.location;
-		objLocationUp = addedPartConfig.objUp;
-		objLocationDown = addedPartConfig.objDown;
-		if (objLocationUp != null) { displayOBJListUp = ModelBuffer.getDisplayList(objLocationUp, null, null); }
-		if (objLocationDown != null) { displayOBJListDown = ModelBuffer.getDisplayList(objLocationDown, null, null); }
+		objLocation = addedPartConfig.obj;
+		if (objLocation != null) { displayOBJListUp = ModelBuffer.getDisplayList(objLocation, null, null); }
 		baseRotationPoint = new float[] { rotationPointX, rotationPointY, rotationPointZ };
 		setBox(addedPartConfig.pos[0], addedPartConfig.pos[1], addedPartConfig.pos[2], addedPartConfig.size[0], addedPartConfig.size[1], addedPartConfig.size[2], addedPartConfig.size[3], addedPartConfig.size[4], 0.0f);
 		setRotationPoint(addedPartConfig.rot[0], addedPartConfig.rot[1], addedPartConfig.rot[2]);
@@ -139,7 +136,7 @@ public class ModelRendererAlt
 		if (mirror) {
 			float f3 = xe;
 			xe = x;
-			this.x = f3;
+			x = f3;
 		}
 	}
 
@@ -315,24 +312,38 @@ public class ModelRendererAlt
 		if (displayList > 0) {
 			GlStateManager.callList(displayList);
 			if (childModels != null) {
-                for (ModelRenderer childModel : childModels) { childModel.render(scale); }
+                for (ModelRenderer childModel : childModels) {
+                    childModel.render(scale);
+                }
 			}
 			return;
 		}
 		vs.put(0, new PositionTextureVertex(x, y, z, 0.0F, 0.0F));
 		vs.put(1, new PositionTextureVertex(xe, y, z, 0.0F, 8.0F));
-		vs.put(2, new PositionTextureVertex(xe, ye2, z, 8.0F, 8.0F));
-		vs.put(3, new PositionTextureVertex(x, ye2, z, 8.0F, 0.0F));
-		vs.put(4, new PositionTextureVertex(x, y, ze, 0.0F, 0.0F));
-		vs.put(5, new PositionTextureVertex(xe, y, ze, 0.0F, 8.0F));
+		vs.put(2, new PositionTextureVertex(xe, y, ze, 8.0F, 8.0F));
+		vs.put(3, new PositionTextureVertex(x, y, ze, 8.0F, 0.0F));
+		vs.put(4, new PositionTextureVertex(x, ye2, z, 0.0F, 0.0F));
+		vs.put(5, new PositionTextureVertex(xe, ye2, z, 0.0F, 8.0F));
 		vs.put(6, new PositionTextureVertex(xe, ye2, ze, 8.0F, 8.0F));
 		vs.put(7, new PositionTextureVertex(x, ye2, ze, 8.0F, 0.0F));
-		setQuard(0, vs.get(5), vs.get(1), vs.get(2), vs.get(6), u + dz + dx, v + dz, u + dz + dx + dz, v + dz + dy2); // right
-		setQuard(1, vs.get(0), vs.get(4), vs.get(7), vs.get(3), u, v + dz, u + dz, v + dz + dy2); // left
-		setQuard(2, vs.get(5), vs.get(4), vs.get(0), vs.get(1), u + dz, v, u + dz + dx, v + dz); // up
-		setQuard(3, vs.get(2), vs.get(3), vs.get(7), vs.get(6), u + dz + dx, v + dz, u + dz + dx + dx, v); // down
-		setQuard(4, vs.get(1), vs.get(0), vs.get(3), vs.get(2), u + dz, v + dz, u + dz + dx, v + dz + dy2); // front
-		setQuard(5, vs.get(4), vs.get(5), vs.get(6), vs.get(7), u + dz + dx + dz, v + dz, u + dz + dx + dz + dx, v + dz + dy2); // back
+		// Normals
+		if (mirror) {
+			setQuard(0, vs.get(3), vs.get(2), vs.get(1), vs.get(0), u + dz + dx, v, u + dz, v + dz); // up
+			setQuard(1, vs.get(7), vs.get(6), vs.get(5), vs.get(4), u + 2 * dz + dx, v, u + dz + dx, v + dz); // down
+			setQuard(2, vs.get(0), vs.get(1), vs.get(5), vs.get(4), u + dz + dx, v + dz, u + dz, v + dz + dy2); // front
+			setQuard(3, vs.get(2), vs.get(3), vs.get(7), vs.get(6), u + 2 * (dz + dx), v + dz, u + 2 * dz + dx, v + dz + dy2); // back
+			setQuard(4, vs.get(1), vs.get(2), vs.get(6), vs.get(5), u + 2 * dz + dx, v + dz, u + dz + dx, v + dz + dy2); // inside
+			setQuard(5, vs.get(3), vs.get(0), vs.get(4), vs.get(7), u + dz, v + dz, u, v + dz + dy2); // outside
+		}
+		else {
+			setQuard(0, vs.get(2), vs.get(3), vs.get(0), vs.get(1), u + dz, v, u + dz + dx, v + dz); // up
+			setQuard(1, vs.get(6), vs.get(7), vs.get(4), vs.get(5), u + dz + dx, v, u + 2 * dz + dx, v + dz); // down
+			setQuard(2, vs.get(1), vs.get(0), vs.get(4), vs.get(5), u + dz, v + dz, u + dz + dx, v + dz + dy2); // front
+			setQuard(3, vs.get(3), vs.get(2), vs.get(6), vs.get(7), u + 2 * dz + dx, v + dz, u + 2 * (dz + dx), v + dz + dy2); // back
+			setQuard(4, vs.get(2), vs.get(1), vs.get(5), vs.get(6), u + dz + dx, v + dz, u + 2 * dz + dx, v + dz + dy2); // inside
+			setQuard(5, vs.get(0), vs.get(3), vs.get(7), vs.get(4), u, v + dz, u + dz, v + dz + dy2); // outside
+		}
+
 		GlStateManager.glNewList(displayList = GLAllocation.generateDisplayLists(1), 4864);
 		draw(scale);
 		GL11.glEndList();
@@ -716,7 +727,7 @@ public class ModelRendererAlt
 	}
 
 	private void setQuard(int i, PositionTextureVertex ptv0, PositionTextureVertex ptv1, PositionTextureVertex ptv2, PositionTextureVertex ptv3, float u1, float v1, float u2, float v2) {
-        quads.put(i, new TexturedQuad(new PositionTextureVertex[] { ptv0, ptv1, ptv2, ptv3}));
+		quads.put(i, new TexturedQuad(new PositionTextureVertex[] { ptv0, ptv1, ptv2, ptv3}));
 		quads.get(i).vertexPositions[0] = ptv0.setTexturePosition(u2 / textureWidth, v1 / textureHeight);
 		quads.get(i).vertexPositions[1] = ptv1.setTexturePosition(u1 / textureWidth, v1 / textureHeight);
 		quads.get(i).vertexPositions[2] = ptv2.setTexturePosition(u1 / textureWidth, v2 / textureHeight);
@@ -756,19 +767,12 @@ public class ModelRendererAlt
 		b = blue;
 		al = 1.0f;
 		if (ModelNpcAlt.editAnimDataSelect.isNPC) {
-			if (ModelNpcAlt.editAnimDataSelect.part == part.patterns) {
+			if (ModelNpcAlt.editAnimDataSelect.part == part) {
 				r = ModelNpcAlt.editAnimDataSelect.red;
 				g = ModelNpcAlt.editAnimDataSelect.green;
 				b = ModelNpcAlt.editAnimDataSelect.blue;
 			} else {
 				al = ModelNpcAlt.editAnimDataSelect.alpha;
-			}
-		}
-		if (childModels != null) {
-			for (ModelRenderer modelRenderer : childModels) {
-				if (modelRenderer instanceof ModelRendererAlt) {
-					((ModelRendererAlt) modelRenderer).checkBacklightColor(r, g, b);
-				}
 			}
 		}
 	}

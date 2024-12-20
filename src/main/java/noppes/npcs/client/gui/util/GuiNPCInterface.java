@@ -56,9 +56,10 @@ implements IEditNPC, ICustomScrollListener {
 	public int mouseY;
 	public int xSize;
 	public int ySize;
-	public int widthTexture;
-	public int heightTexture;
+	public int widthTexture = 0;
+	public int heightTexture = 0;
 	public float bgScale = 1.0f;
+	public float translateZ = 0.0f;
 	public String title = "";
 
 	private final List<String> hoverText = new ArrayList<>();
@@ -84,9 +85,9 @@ implements IEditNPC, ICustomScrollListener {
 	}
 
 	public GuiNPCInterface(EntityNPCInterface npc) {
+		this.npc = npc;
 		xSize = 200;
 		ySize = 222;
-		this.npc = npc;
 		mc = Minecraft.getMinecraft();
 		player = mc.player;
 		itemRender = mc.getRenderItem();
@@ -261,7 +262,9 @@ implements IEditNPC, ICustomScrollListener {
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		zLevel = 0;
+		if (translateZ != 0.0f) {
+			GlStateManager.translate(0.0f, 0.0f, translateZ);
+		}
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		int x = mouseX;
@@ -277,25 +280,25 @@ implements IEditNPC, ICustomScrollListener {
 			GlStateManager.translate(guiLeft, guiTop, 0.0f);
 			GlStateManager.scale(bgScale, bgScale, bgScale);
 			mc.getTextureManager().bindTexture(background);
-			if (xSize > 252 && ySize <= 256) {
-				drawTexturedModalRect(0, 0, 0, 0, 252, ySize);
-				int w = xSize - 252;
-				drawTexturedModalRect(252, 0, 256 - w, 0, w, ySize);
-			} else {
-				if (widthTexture !=0 && heightTexture != 0) {
-					if (xSize < widthTexture) {
-						if (ySize < heightTexture) {
-							drawTexturedModalRect(0, 0, 0, 0, xSize - 4, ySize - 4);
-							drawTexturedModalRect(xSize - 4, 0, widthTexture - 4, 0, 4, ySize - 4);
-							drawTexturedModalRect(0, ySize - 4, 0, heightTexture - 4, xSize - 4, 4);
-							drawTexturedModalRect(xSize - 4, ySize - 4, widthTexture - 4, heightTexture - 4, 4, 4);
-						} else {
-							drawTexturedModalRect(0, 0, 0, 0, xSize, ySize);
-						}
-					}
+			if (xSize > 252 || ySize > 252) {
+				if (widthTexture != 0 && heightTexture != 0) {
+					int tilesWL = xSize / 2;
+					int tilesWR = xSize - tilesWL;
+					int tilesHL = ySize / 2;
+					int tilesHR = ySize - tilesWL;
+					drawTexturedModalRect(0, 0, 0, 0, tilesWL, tilesHL);
+					drawTexturedModalRect(tilesWL, 0, widthTexture - tilesWR, 0, tilesWR, tilesHL);
+					drawTexturedModalRect(0, tilesHL, 0, heightTexture - tilesHR, tilesWL, tilesHR);
+					drawTexturedModalRect(tilesWL, tilesHL, widthTexture - tilesWR, heightTexture - tilesHR, tilesWR, tilesHR);
+				}
+				else if (ySize < 257) {
+					int tilesW = xSize / 2;
+					drawTexturedModalRect(0, 0, 0, 0, tilesW, ySize);
+					drawTexturedModalRect(tilesW, 0, 256 - tilesW, 0, tilesW, ySize);
 				}
 				else { drawTexturedModalRect(0, 0, 0, 0, xSize, ySize); }
 			}
+			else { drawTexturedModalRect(0, 0, 0, 0, xSize, ySize); }
 			GlStateManager.popMatrix();
 		}
 		postDrawBackground();
@@ -316,6 +319,9 @@ implements IEditNPC, ICustomScrollListener {
 			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			if (component instanceof GuiNpcMiniWindow && ((GuiNpcMiniWindow) component).hovered) { hoverMiniWin = true; }
+		}
+		if (translateZ != 0.0f) {
+			GlStateManager.translate(0.0f, 0.0f, -translateZ);
 		}
 		if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
 			drawHoveringText(hoverText, mouseX, mouseY, fontRenderer);

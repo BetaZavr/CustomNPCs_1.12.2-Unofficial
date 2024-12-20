@@ -170,7 +170,6 @@ implements IComponentGui {
 
 	public boolean mousePressed(@Nonnull Minecraft mc, int mouseX, int mouseY) {
 		if (enabled && visible && hovered) {
-			System.out.println("CNPCs: "+id);
 			sliderValue = ValueUtil.correctFloat((mouseX - (x + 4)) / (float) (width - 8), 0.0f, 1.0f);
 			if (listener != null) {
 				listener.mousePressed(this);

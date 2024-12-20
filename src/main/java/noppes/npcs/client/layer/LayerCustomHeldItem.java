@@ -13,7 +13,6 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.RenderLiving;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerArmorBase;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -67,12 +66,11 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 			GlStateManager.scale(0.5F, 0.5F, 0.5F);
 		}
 		boolean showMain = npc.animation.showParts.get(EnumParts.ARM_RIGHT);
-		boolean showOff = npc.animation.showParts.get(EnumParts.ARM_LEFT);
 		// mainhand
 		if (!showMain) {
 			EnumParts ep = flag ? EnumParts.ARM_RIGHT : EnumParts.ARM_LEFT;
 			EnumParts es = flag ? EnumParts.RIGHT_STACK : EnumParts.LEFT_STACK;
-			if (ModelNpcAlt.editAnimDataSelect.isNPC && ModelNpcAlt.editAnimDataSelect.part == ep || ModelNpcAlt.editAnimDataSelect.part == es) {
+			if (ModelNpcAlt.editAnimDataSelect.isNPC && ModelNpcAlt.editAnimDataSelect.part == ep.patterns || ModelNpcAlt.editAnimDataSelect.part == es.patterns) {
 				showMain = true;
 			}
 		}
@@ -84,11 +82,11 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 			}
 		}
 		// offhand
-		showOff = npc.animation.showParts.get(EnumParts.ARM_LEFT);
+		boolean showOff = npc.animation.showParts.get(EnumParts.ARM_LEFT);
 		if (!showOff) {
 			EnumParts ep = flag ? EnumParts.ARM_LEFT : EnumParts.ARM_RIGHT;
 			EnumParts es = flag ? EnumParts.LEFT_STACK : EnumParts.RIGHT_STACK;
-			if (ModelNpcAlt.editAnimDataSelect.isNPC && ModelNpcAlt.editAnimDataSelect.part == ep || ModelNpcAlt.editAnimDataSelect.part == es) {
+			if (ModelNpcAlt.editAnimDataSelect.isNPC && ModelNpcAlt.editAnimDataSelect.part == ep.patterns || ModelNpcAlt.editAnimDataSelect.part == es.patterns) {
 				showOff = true;
 			}
 		}
@@ -131,7 +129,6 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 		GlStateManager.popMatrix();
 	}
 
-	@SuppressWarnings("unchecked")
 	private void renderHeldItem(EntityLivingBase entity, ItemStack stack, ItemCameraTransforms.TransformType transform, EnumHandSide handSide, float scale, double distance, boolean isAWShow, boolean isAnimated) {
 		if (stack == null || stack.isEmpty()) { return; }
 		GlStateManager.pushMatrix();
