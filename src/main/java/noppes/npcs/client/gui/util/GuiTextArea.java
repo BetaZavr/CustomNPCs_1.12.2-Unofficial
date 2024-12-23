@@ -559,7 +559,6 @@ implements IComponentGui, IKeyListener, IMouseListener {
 		hoverText.add(text);
 	}
 
-	@Override
 	public void updateScreen() {
 		++cursorCounter;
 		if (freeze) { return; }

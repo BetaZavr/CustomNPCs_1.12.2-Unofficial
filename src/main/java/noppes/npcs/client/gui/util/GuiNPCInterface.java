@@ -602,7 +602,10 @@ implements IEditNPC, ICustomScrollListener {
 	public void updateScreen() {
 		if (subgui != null) { subgui.updateScreen(); }
 		else {
-			for (IComponentGui component : components) { component.updateScreen(); }
+			for (IComponentGui component : components) {
+				if (component instanceof GuiNpcTextField) { ((GuiNpcTextField) component).updateScreen(); }
+				if (component instanceof GuiTextArea) { ((GuiTextArea) component).updateScreen(); }
+			}
 			super.updateScreen();
 		}
 	}

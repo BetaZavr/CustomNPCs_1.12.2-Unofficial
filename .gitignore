@@ -17,6 +17,7 @@ out
 build
 .gradle
 libs.lnk
+npcs.lnk
 
 # other
 eclipse

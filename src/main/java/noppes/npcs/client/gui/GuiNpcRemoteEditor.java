@@ -306,9 +306,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-		if (mc.world.getTotalWorldTime() % 40 != 0) {
-			return;
-		}
+		if (mc.world.getTotalWorldTime() % 40 != 0) { return; }
 		for (int id : dataIDs.values()) {
 			Entity entity = mc.world.getEntityByID(id);
 			if (entity != null) {

@@ -434,14 +434,16 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		if (subgui instanceof SubGuiDropEnchant) {
 			SubGuiDropEnchant gui = (SubGuiDropEnchant) subgui;
 			enchant.load(gui.enchant.getNBT());
-		} else if (subgui instanceof SubGuiDropAttribute) {
+		}
+		else if (subgui instanceof SubGuiDropAttribute) {
 			SubGuiDropAttribute gui = (SubGuiDropAttribute) subgui;
 			if (gui.attribute.getAttribute().isEmpty()) {
 				drop.removeAttribute(attribute);
 			} else {
 				attribute.load(gui.attribute.getNBT());
 			}
-		} else if (subgui instanceof SubGuiDropValueNbt) {
+		}
+		else if (subgui instanceof SubGuiDropValueNbt) {
 			SubGuiDropValueNbt gui = (SubGuiDropValueNbt) subgui;
 			if (gui.tag.getPath().isEmpty() || gui.tag.getValues().length == 0) {
 				drop.removeDropNbt(tag);
@@ -449,7 +451,9 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 				tag.load(gui.tag.getNBT());
 			}
 		} else if (subgui instanceof GuiQuestSelection) {
-			drop.questId = ((GuiQuestSelection) subgui).selectedQuest.id;
+			if (((GuiQuestSelection) subgui).selectedQuest != null) {
+				drop.questId = ((GuiQuestSelection) subgui).selectedQuest.id;
+			}
 		}
 		initGui();
 	}

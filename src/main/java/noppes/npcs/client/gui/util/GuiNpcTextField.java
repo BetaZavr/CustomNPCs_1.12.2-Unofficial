@@ -289,7 +289,6 @@ implements IComponentGui {
 		hoverText.add(text);
 	}
 
-	@Override
 	public void updateScreen() {
 		if (enabled) { updateCursorCounter(); }
 	}

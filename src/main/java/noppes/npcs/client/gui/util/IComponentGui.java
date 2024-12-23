@@ -10,6 +10,4 @@ public interface IComponentGui {
 
 	void setHoverText(String srt, Object ... args);
 
-	void updateScreen();
-
 }
