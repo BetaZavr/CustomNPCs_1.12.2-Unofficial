@@ -187,8 +187,7 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermiss
 				if (tile != null) {
 					String sound = open ? tile.openSound : tile.closeSound;
 					if (sound != null && !sound.isEmpty()) {
-						Server.sendRangedData(world, pos, 32, EnumPacketClient.FORCE_PLAY_SOUND,
-								SoundCategory.NEUTRAL.ordinal(), sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
+						Server.sendRangedData(world, pos, 32, EnumPacketClient.FORCE_PLAY_SOUND, SoundCategory.NEUTRAL.ordinal(), sound, (float) pos.getX(), (float) pos.getY(), (float) pos.getZ(), 1.0f, 1.0f);
 					} else {
 						world.playEvent(null, open ? this.blockMaterial == Material.IRON ? 1005 : 1006 : this.blockMaterial == Material.IRON ? 1011 : 1012, pos, 0);
 					}

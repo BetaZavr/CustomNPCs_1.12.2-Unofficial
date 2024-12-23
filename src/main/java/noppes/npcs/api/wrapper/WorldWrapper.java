@@ -130,8 +130,7 @@ public class WorldWrapper implements IWorld {
 
 	@Override
 	public void forcePlaySoundAt(int categoryType, IPos pos, String sound, float volume, float pitch) {
-		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.FORCE_PLAY_SOUND, categoryType,
-				sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
+		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.FORCE_PLAY_SOUND, categoryType, sound, (float) pos.getX(), (float) pos.getY(), (float) pos.getZ(), volume, pitch);
 	}
 
 	@Override

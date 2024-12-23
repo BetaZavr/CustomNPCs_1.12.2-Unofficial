@@ -27,9 +27,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
+import noppes.npcs.EventHooks;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.event.BlockEvent;
+import noppes.npcs.constants.EnumScriptType;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.items.ItemNpcBlock;
 import noppes.npcs.util.Util;
 
@@ -172,19 +176,19 @@ public class CustomDoor extends BlockDoor implements ITileEntityProvider, ICusto
 	}
 
 	public boolean onBlockActivated(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (this.nbtData != null && this.nbtData.hasKey("InteractOpen") && !this.nbtData.getBoolean("InteractOpen")) {
+		if (nbtData != null && nbtData.hasKey("InteractOpen") && !nbtData.getBoolean("InteractOpen")) {
 			return false;
 		}
 		BlockPos blockpos = state.getValue(HALF) == BlockDoor.EnumDoorHalf.LOWER ? pos : pos.down();
 		IBlockState iblockstate = pos.equals(blockpos) ? state : worldIn.getBlockState(blockpos);
-		if (iblockstate.getBlock() != this) {
-			return false;
-		}
+		if (iblockstate.getBlock() != this) { return false; }
+		BlockEvent.DoorToggleEvent event = new BlockEvent.DoorToggleEvent(Objects.requireNonNull(NpcAPI.Instance()).getIBlock(worldIn, pos));
+		EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.DOOR_TOGGLE, event);
+		if (event.isCanceled()) { return false; }
 		state = iblockstate.cycleProperty(OPEN);
 		worldIn.setBlockState(blockpos, state, 10);
 		worldIn.markBlockRangeForRenderUpdate(blockpos, pos);
-		worldIn.playEvent(playerIn, state.getValue(OPEN) ? (this.blockMaterial == Material.IRON ? 1005 : 1006) : (this.blockMaterial == Material.IRON ? 1011 : 1012),
-				pos, 0);
+		worldIn.playEvent(playerIn, state.getValue(OPEN) ? (blockMaterial == Material.IRON ? 1005 : 1006) : (blockMaterial == Material.IRON ? 1011 : 1012), pos, 0);
 		return true;
 	}
 

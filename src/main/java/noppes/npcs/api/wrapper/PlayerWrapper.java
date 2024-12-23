@@ -545,11 +545,8 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 			return;
 		}
 		BlockPos p = this.entity.getPosition();
-		if (pos != null) {
-			p = pos.getMCBlockPos();
-		}
-		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.FORCE_PLAY_SOUND, categoryType, sound, p.getX(),
-				p.getY(), p.getZ(), volume, pitch);
+		if (pos != null) { p = pos.getMCBlockPos(); }
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.FORCE_PLAY_SOUND, categoryType, sound, (float) p.getX(), (float) p.getY(), (float) p.getZ(), volume, pitch);
 	}
 
 	@Override
@@ -685,11 +682,8 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public void setPosition(double x, double y, double z) {
-		if (!(this.entity instanceof EntityPlayerMP)) {
-			return;
-		}
-		NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) this.entity, x, y, z, this.entity.dimension,
-				this.entity.rotationYaw, this.entity.rotationPitch);
+		if (!(entity instanceof EntityPlayerMP)) { return; }
+		NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) entity, x, y, z, entity.dimension, entity.rotationYaw, entity.rotationPitch);
 	}
 
 	@Override

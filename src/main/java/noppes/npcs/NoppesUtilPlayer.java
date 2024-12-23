@@ -493,8 +493,7 @@ public class NoppesUtilPlayer {
 		}
 	}
 
-	public static void teleportPlayer(EntityPlayerMP player, double x, double y, double z, int dimension, float yaw,
-			float pitch) {
+	public static void teleportPlayer(EntityPlayerMP player, double x, double y, double z, int dimension, float yaw, float pitch) {
 		if (player.dimension != dimension) {
 			MinecraftServer server = player.getServer();
             assert server != null;

@@ -32,7 +32,8 @@ import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCBankChest
-extends GuiContainerNPCInterface {
+extends GuiContainerNPCInterface
+implements ISubGuiListener {
 
 	private static final ResourceLocation backTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
 	private static final ResourceLocation tabsTexture = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
@@ -134,8 +135,7 @@ extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	public void closeSubGui(SubGuiInterface gui) {
-		super.closeSubGui(gui);
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiEditBankAccess) {
 			SubGuiEditBankAccess subGui = (SubGuiEditBankAccess) gui;
 			boolean isChanged = false;

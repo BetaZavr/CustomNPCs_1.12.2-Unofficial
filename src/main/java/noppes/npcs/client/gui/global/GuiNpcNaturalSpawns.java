@@ -17,18 +17,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.GuiNpcMobSpawnerSelector;
 import noppes.npcs.client.gui.SubGuiNpcBiomes;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcSlider;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.IScrollData;
-import noppes.npcs.client.gui.util.ISliderListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.SpawnData;
@@ -36,7 +25,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNpcNaturalSpawns
 extends GuiNPCInterface2
-implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISliderListener {
+implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISliderListener, ISubGuiListener {
 
 	private final HashMap<String, Integer> data = new HashMap<>();
 	private GuiCustomScroll scroll;
@@ -95,8 +84,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void closeSubGui(SubGuiInterface gui) {
-		super.closeSubGui(gui);
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof GuiNpcMobSpawnerSelector) {
 			GuiNpcMobSpawnerSelector selector = (GuiNpcMobSpawnerSelector) gui;
 			NBTTagCompound compound = selector.getCompound();

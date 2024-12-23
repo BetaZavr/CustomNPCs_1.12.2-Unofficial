@@ -10,13 +10,7 @@ import noppes.npcs.client.gui.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.SubGuiNpcName;
 import noppes.npcs.client.gui.model.GuiCreationParts;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumParts;
@@ -26,7 +20,7 @@ import noppes.npcs.entity.data.DataDisplay;
 
 public class GuiNpcDisplay
 extends GuiNPCInterface2
-implements ITextfieldListener, IGuiData {
+implements ITextfieldListener, IGuiData, ISubGuiListener {
 
 	private final DataDisplay display;
 	private boolean enableInvisibleNpcs;
@@ -125,9 +119,8 @@ implements ITextfieldListener, IGuiData {
 	}
 
 	@Override
-	public void closeSubGui(SubGuiInterface subgui) {
-		super.closeSubGui(subgui);
-		this.initGui();
+	public void subGuiClosed(SubGuiInterface subgui) {
+		initGui();
 	}
 
 	@Override

@@ -4,19 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.data.Bank;
 
 public class SubGuiEditBankAccess
 extends SubGuiInterface
-implements ICustomScrollListener, ITextfieldListener {
+implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	public final List<String> names;
 	public String owner;
@@ -87,8 +80,7 @@ implements ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void closeSubGui(SubGuiInterface gui) {
-		super.closeSubGui(gui);
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiEditText) {
 			String name = ((SubGuiEditText) gui).text[0];
 			if (name.length() < 4 || name.indexOf(' ') != -1

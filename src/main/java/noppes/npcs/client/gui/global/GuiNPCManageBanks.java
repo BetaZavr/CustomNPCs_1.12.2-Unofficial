@@ -12,18 +12,7 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditBankAccess;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.IScrollData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerManageBanks;
@@ -33,7 +22,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCManageBanks
 extends GuiContainerNPCInterface2
-implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
+implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, GuiYesNoCallback, ISubGuiListener {
 
 	private Bank bank = new Bank();
 	private final ContainerManageBanks container;
@@ -130,8 +119,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	}
 
 	@Override
-	public void closeSubGui(SubGuiInterface gui) {
-		super.closeSubGui(gui);
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiEditBankAccess) {
 			SubGuiEditBankAccess subGui = (SubGuiEditBankAccess) gui;
 			if (bank.isChanging != subGui.isChanging) {

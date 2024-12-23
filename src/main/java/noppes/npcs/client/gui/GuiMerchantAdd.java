@@ -76,17 +76,17 @@ extends GuiContainer {
 		field_94082_v = I18n.format("entity.Villager.name");
 	}
 
-	protected void actionPerformed(@Nonnull GuiButton par1GuiButton) {
+	protected void actionPerformed(@Nonnull GuiButton guiButton) {
 		boolean flag = false;
 		Minecraft mc = Minecraft.getMinecraft();
-		if (par1GuiButton == nextRecipeButtonIndex) {
+		if (guiButton == nextRecipeButtonIndex) {
 			++currentRecipeIndex;
 			flag = true;
-		} else if (par1GuiButton == previousRecipeButtonIndex) {
+		} else if (guiButton == previousRecipeButtonIndex) {
 			--currentRecipeIndex;
 			flag = true;
 		}
-		if (par1GuiButton.id == 4) {
+		if (guiButton.id == 4) {
 			MerchantRecipeList merchantrecipelist = theIMerchant.getRecipes(mc.player);
             if (merchantrecipelist != null && currentRecipeIndex < merchantrecipelist.size()) {
 				merchantrecipelist.remove(currentRecipeIndex);
@@ -96,7 +96,7 @@ extends GuiContainer {
 				Client.sendData(EnumPacketServer.MerchantUpdate, ServerEventsHandler.Merchant.getEntityId(), merchantrecipelist);
 			}
 		}
-		if (par1GuiButton.id == 5) {
+		if (guiButton.id == 5) {
 			ItemStack item1 = inventorySlots.getSlot(0).getStack();
 			ItemStack item2 = inventorySlots.getSlot(1).getStack();
 			ItemStack sold = inventorySlots.getSlot(2).getStack();
@@ -187,10 +187,10 @@ extends GuiContainer {
 		super.initGui();
 		int i = (width - xSize) / 2;
 		int j = (height - ySize) / 2;
-		buttonList.add(nextRecipeButtonIndex = new MerchantButton(1, i + 120 + 27, j + 24 - 1, true));
-		buttonList.add(previousRecipeButtonIndex = new MerchantButton(2, i + 36 - 19, j + 24 - 1, false));
-		buttonList.add(new GuiNpcButton(4, i + xSize, j + 20, 60, 20, "gui.remove"));
-		buttonList.add(new GuiNpcButton(5, i + xSize, j + 50, 60, 20, "gui.add"));
+		addButton(nextRecipeButtonIndex = new MerchantButton(1, i + 120 + 27, j + 24 - 1, true));
+		addButton(previousRecipeButtonIndex = new MerchantButton(2, i + 36 - 19, j + 24 - 1, false));
+		addButton(new GuiNpcButton(4, i + xSize, j + 20, 60, 20, "gui.remove"));
+		addButton(new GuiNpcButton(5, i + xSize, j + 50, 60, 20, "gui.add"));
 		nextRecipeButtonIndex.enabled = false;
 		previousRecipeButtonIndex.enabled = false;
 	}

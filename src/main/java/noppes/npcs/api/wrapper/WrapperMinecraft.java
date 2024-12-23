@@ -14,6 +14,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import noppes.npcs.api.IGlStateManager;
 import noppes.npcs.api.IMinecraft;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IPlayer;
+
+import java.util.Objects;
 
 public class WrapperMinecraft
 implements IMinecraft {
@@ -96,6 +100,11 @@ implements IMinecraft {
 	
 	@Override
 	public void setSoundVolume(String category, float volume) { this.minecraft.gameSettings.setSoundLevel(this.getCategory(category), volume); }
+
+	@Override
+	public IPlayer<?> getPlayer() {
+		return (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(minecraft.player);
+	}
 
 	private SoundCategory getCategory(String category) {
 		if (category != null && !category.isEmpty()) {

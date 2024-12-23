@@ -168,7 +168,6 @@ implements IGuiData {
 	@Override
 	public void initGui() {
 		super.initGui();
-		buttonList.clear();
 		int x = guiLeft + 12;
 		int y = guiTop - 11;
 		GuiNpcButton button;

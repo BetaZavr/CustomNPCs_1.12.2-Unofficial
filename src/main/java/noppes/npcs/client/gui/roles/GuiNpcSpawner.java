@@ -16,16 +16,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.GuiNpcMobSpawnerSelector;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -34,7 +25,7 @@ import noppes.npcs.roles.data.SpawnNPCData;
 
 public class GuiNpcSpawner
 extends GuiNPCInterface2
-implements IGuiData, ICustomScrollListener, ITextfieldListener {
+implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	private final JobSpawner job;
 	private int slot = -1;
@@ -162,8 +153,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void closeSubGui(SubGuiInterface gui) {
-		super.closeSubGui(gui);
+	public void subGuiClosed(SubGuiInterface gui) {
 		GuiNpcMobSpawnerSelector selector = (GuiNpcMobSpawnerSelector) gui;
 		if (slot < 0) { slot = (isDead ? deadScroll : aliveScroll).getList().size(); }
 		if (selector.showingClones == 2) {

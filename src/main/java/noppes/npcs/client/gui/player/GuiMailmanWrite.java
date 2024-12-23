@@ -151,62 +151,62 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 			return;
 		}
 		switch (button.id) {
-		case 0: { // send
-			GuiMailmanWrite.mail.message.setTag("pages", this.bookPages);
-			if (this.canSend) {
-				if (!this.hasSend) {
-					this.hasSend = true;
-					((ContainerMail) this.inventorySlots).sendMail = true;
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.MailSend, this.username, this.totalCost, GuiMailmanWrite.mail.writeNBT());
+			case 0: { // send
+				GuiMailmanWrite.mail.message.setTag("pages", this.bookPages);
+				if (this.canSend) {
+					if (!this.hasSend) {
+						this.hasSend = true;
+						((ContainerMail) this.inventorySlots).sendMail = true;
+						NoppesUtilPlayer.sendData(EnumPlayerPacket.MailSend, this.username, this.totalCost, GuiMailmanWrite.mail.writeNBT());
+					}
+				} else {
+					aType = 0;
+					this.animClose();
 				}
-			} else {
-				aType = 0;
-				this.animClose();
+				break;
 			}
-			break;
-		}
-		case 1: {
-			if (this.currPage < this.bookTotalPages - 1) {
-				++this.currPage;
-			} else if (this.canEdit) {
-				this.addNewPage();
+			case 1: {
 				if (this.currPage < this.bookTotalPages - 1) {
 					++this.currPage;
+				} else if (this.canEdit) {
+					this.addNewPage();
+					if (this.currPage < this.bookTotalPages - 1) {
+						++this.currPage;
+					}
 				}
+				break;
 			}
-			break;
-		}
-		case 2: {
-			if (this.currPage > 0) {
-				--this.currPage;
+			case 2: {
+				if (this.currPage > 0) {
+					--this.currPage;
+				}
+				break;
 			}
-			break;
-		}
-		case 3: { // back/exit
-			aType = 0;
-			this.animClose();
-			break;
-		}
-		case 4: { // delete
-			GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			this.displayGuiScreen(guiyesno);
-			break;
-		}
-		case 6: { // ransom
-			if (GuiMailmanWrite.mail.ransom > 0) {
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.MailRansom, GuiMailmanWrite.mail.timeWhenReceived);
-			} else if (GuiMailmanWrite.mail.money > 0) {
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.MailTakeMoney, GuiMailmanWrite.mail.timeWhenReceived);
+			case 3: { // back/exit
+				aType = 0;
+				this.animClose();
+				break;
 			}
-			break;
-		}
-		case 7: { // return letter
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.MailReturn, GuiMailmanWrite.mail.timeWhenReceived);
-			ClientProxy.playerData.mailData.playerMails.remove(GuiMailmanWrite.mail);
-			aType = 1;
-			this.animClose();
-			break;
-		}
+			case 4: { // delete
+				GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+				this.displayGuiScreen(guiyesno);
+				break;
+			}
+			case 6: { // ransom
+				if (GuiMailmanWrite.mail.ransom > 0) {
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.MailRansom, GuiMailmanWrite.mail.timeWhenReceived);
+				} else if (GuiMailmanWrite.mail.money > 0) {
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.MailTakeMoney, GuiMailmanWrite.mail.timeWhenReceived);
+				}
+				break;
+			}
+			case 7: { // return letter
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.MailReturn, GuiMailmanWrite.mail.timeWhenReceived);
+				ClientProxy.playerData.mailData.playerMails.remove(GuiMailmanWrite.mail);
+				aType = 1;
+				this.animClose();
+				break;
+			}
 		}
 		this.updateButtons();
 	}
@@ -1457,7 +1457,6 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.buttonList.clear();
 		Keyboard.enableRepeatEvents(true);
 		int x = this.guiLeft + 170, y = this.guiTop + 48;
 		// Text area
@@ -1569,8 +1568,8 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 			button.txrY = 176;
 			this.addButton(button);
 		}
-		this.buttonList.add(this.buttonNextPage = new GuiButtonNextPage(1, x + 135, y - 16, true));
-		this.buttonList.add(this.buttonPreviousPage = new GuiButtonNextPage(2, x, y - 16, false));
+		addButton(this.buttonNextPage = new GuiButtonNextPage(1, x + 135, y - 16, true));
+		addButton(this.buttonPreviousPage = new GuiButtonNextPage(2, x, y - 16, false));
 		this.updateButtons();
 	}
 

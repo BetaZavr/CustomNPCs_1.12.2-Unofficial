@@ -1408,11 +1408,8 @@ public class PlayerEventHandler {
 				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
 				Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
 				//found.put("System.out.println", null);
-				found.put("// Change", null);
-				found.put("// New", null);
-				found.put("// change", null);
-				found.put("// new", null);
-				found.put("0x", null); // color replace
+				found.put("buttonList", null);
+				found.put("closeSubGui", null);
 
 				for (java.io.File file : Util.instance.getFiles(dir, "java")) {
 					try {

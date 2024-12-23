@@ -7,10 +7,11 @@ import net.minecraft.world.WorldServer;
 import javax.annotation.Nonnull;
 
 public class CustomTeleporter extends Teleporter {
-	public CustomTeleporter(WorldServer par1WorldServer) {
-		super(par1WorldServer);
+
+	public CustomTeleporter(WorldServer worldServer) {
+		super(worldServer);
 	}
 
-	public void placeInPortal(@Nonnull Entity entityIn, float rotationYaw) {
-	}
+	public void placeInPortal(@Nonnull Entity entityIn, float rotationYaw) {}
+
 }

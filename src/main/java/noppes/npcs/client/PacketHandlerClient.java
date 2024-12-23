@@ -351,11 +351,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.FORCE_PLAY_SOUND) {
 			int categoryType = buffer.readInt();
 			SoundCategory cat = SoundCategory.PLAYERS;
-			if (categoryType >= 0 && categoryType < SoundCategory.values().length) {
-				cat = SoundCategory.values()[categoryType];
-			}
-			MusicController.Instance.forcePlaySound(cat, Server.readString(buffer), buffer.readInt(), buffer.readInt(),
-					buffer.readInt(), buffer.readFloat(), buffer.readFloat());
+			if (categoryType >= 0 && categoryType < SoundCategory.values().length) { cat = SoundCategory.values()[categoryType]; }
+			MusicController.Instance.forcePlaySound(cat, Server.readString(buffer), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
 		}
 		else if (type == EnumPacketClient.UPDATE_NPC) {
 			NBTTagCompound compound = Server.readNBT(buffer);

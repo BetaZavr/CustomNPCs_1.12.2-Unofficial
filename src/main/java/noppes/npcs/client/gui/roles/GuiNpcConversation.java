@@ -5,13 +5,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.select.GuiQuestSelection;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.GuiSelectionListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -19,7 +13,7 @@ import noppes.npcs.roles.JobConversation;
 
 public class GuiNpcConversation
 extends GuiNPCInterface2
-implements ITextfieldListener, GuiSelectionListener {
+implements ITextfieldListener, GuiSelectionListener, ISubGuiListener {
 
 	private final JobConversation job;
 	private int slot = -1;
@@ -53,8 +47,7 @@ implements ITextfieldListener, GuiSelectionListener {
 	}
 
 	@Override
-	public void closeSubGui(SubGuiInterface gui) {
-		super.closeSubGui(gui);
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiNpcConversationLine) {
 			SubGuiNpcConversationLine sub = (SubGuiNpcConversationLine) gui;
 			JobConversation.ConversationLine line = job.getLine(slot);

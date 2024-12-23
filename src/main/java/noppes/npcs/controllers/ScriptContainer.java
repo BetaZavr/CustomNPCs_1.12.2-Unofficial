@@ -104,6 +104,7 @@ public class ScriptContainer {
 		FillMap(TacticalType.class);
 		FillMap(ScriptController.Instance.constants);
 		ScriptContainer.Data.put("api", NpcAPI.Instance());
+		ScriptContainer.Data.put("API", NpcAPI.Instance());
 		ScriptContainer.Data.put("cnpcs", CustomNpcs.instance);
 		ScriptContainer.Data.put("PosZero", new BlockPosWrapper(BlockPos.ORIGIN));
 	}
@@ -428,9 +429,9 @@ public class ScriptContainer {
 			NBTBase tag = ScriptController.Instance.constants.getCompoundTag("Constants").getTag(key);
 			if (tag.getId() == 8) {
 				try {
-					ScriptContainer.Data.put(key, this.engine.eval(((NBTTagString) tag).getString()));
+					ScriptContainer.Data.put(key, engine.eval(((NBTTagString) tag).getString()));
 				}
-				catch (Exception e) { LogWriter.error("Error:", e); }
+				catch (Exception e) { LogWriter.error("Key: " + key + "; Value: " + ((NBTTagString) tag).getString() + " putw error:", e); }
 			}
 		}
 		// Base Functions

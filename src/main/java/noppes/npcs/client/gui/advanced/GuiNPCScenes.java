@@ -6,18 +6,15 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.SubGuiNpcTextArea;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
 
 public class GuiNPCScenes
-extends GuiNPCInterface2 {
+extends GuiNPCInterface2
+implements ISubGuiListener {
 
 	private DataScenes.SceneContainer scene;
 	private final DataScenes scenes;
@@ -60,8 +57,7 @@ extends GuiNPCInterface2 {
 	}
 
 	@Override
-	public void closeSubGui(SubGuiInterface gui) {
-		super.closeSubGui(gui);
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiNpcTextArea) {
 			this.scene.lines = ((SubGuiNpcTextArea) gui).text;
 			this.scene = null;

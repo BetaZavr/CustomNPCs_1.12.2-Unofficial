@@ -23,18 +23,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class GuiNbtBook
 extends GuiNPCInterface
-implements IGuiData {
+implements IGuiData, ISubGuiListener {
 
 	private ItemStack blockStack;
 	public NBTTagCompound compound;
@@ -99,8 +94,7 @@ implements IGuiData {
 	}
 
 	@Override
-	public void closeSubGui(SubGuiInterface gui) {
-		super.closeSubGui(gui);
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiNpcTextArea) {
 			try {
 				compound = JsonToNBT.getTagFromJson(((SubGuiNpcTextArea) gui).text);

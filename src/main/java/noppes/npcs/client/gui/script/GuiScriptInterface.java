@@ -27,11 +27,11 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiTextArea;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.ITextChangeListener;
-import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.api.mixin.nbt.INBTTagLongArrayMixin;
+import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
@@ -272,7 +272,7 @@ implements IGuiData, ITextChangeListener {
 		for (int i = 0; i < handler.getScripts().size(); ++i) {
 			addTopButton(top = new GuiMenuTopButton(i + 1, top, i + 1 + ""));
 		}
-		if (handler.getScripts().size() < CustomNpcs.ScriptMaxTabs) {
+		if (handler.getScripts().size() < CustomNpcs.ScriptMaxTabs && !(handler instanceof ClientScriptData)) {
 			addTopButton(new GuiMenuTopButton(CustomNpcs.ScriptMaxTabs + 1, top, "+"));
 		}
 		top = getTopButton(activeTab);

@@ -138,8 +138,7 @@ public class MusicController {
 			y = mc.player != null ? (float) mc.player.posY + 0.5f : 0.0f;
 			z = mc.player != null ? (float) mc.player.posZ : 0.0f;
 		}
-		mc.getSoundHandler().playSound(
-				new PositionedSoundRecord(new ResourceLocation(sound), cat, volume, pitch, false, 0, aType, x, y, z));
+		mc.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation(sound), cat, volume, pitch, false, 0, aType, x, y, z));
 	}
 
 	public boolean isBardPlaying(String song, boolean isStreamer) { // check Any Bards

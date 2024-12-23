@@ -644,8 +644,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 					projectile_0.playSound(se, 1.0f, pitch);
 				} else if (!sound.isEmpty()) {
 					BlockPos pos1 = new BlockPos(this.posX, this.posY, this.posZ);
-					Server.sendRangedData(this.world, pos1, 64, EnumPacketClient.FORCE_PLAY_SOUND,
-							SoundCategory.NEUTRAL.ordinal(), sound, pos1.getX(), pos1.getY(), pos1.getZ(), 1.0f, pitch);
+					Server.sendRangedData(this.world, pos1, 64, EnumPacketClient.FORCE_PLAY_SOUND, SoundCategory.NEUTRAL.ordinal(), sound, (float) pos1.getX(), (float) pos1.getY(), (float) pos1.getZ(), 1.0f, pitch);
 				}
 				return false;
 			});
@@ -655,8 +654,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				this.playSound(se, 2.0f, 1.0f);
 			} else if (!sound.isEmpty()) {
 				BlockPos pos = new BlockPos(this.posX, this.posY, this.posZ);
-				Server.sendRangedData(this.world, pos, 64, EnumPacketClient.FORCE_PLAY_SOUND,
-						SoundCategory.NEUTRAL.ordinal(), sound, pos.getX(), pos.getY(), pos.getZ(), 2.0f, 1.0f);
+				Server.sendRangedData(this.world, pos, 64, EnumPacketClient.FORCE_PLAY_SOUND, SoundCategory.NEUTRAL.ordinal(), sound, (float) pos.getX(), (float) pos.getY(), (float) pos.getZ(), 2.0f, 1.0f);
 			}
 			event.projectiles.add((IProjectile<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(projectile));
 		}

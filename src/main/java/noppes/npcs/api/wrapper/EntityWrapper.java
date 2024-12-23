@@ -265,7 +265,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	@Override
 	public IPos getPos() {
-		return new BlockPosWrapper(this.entity.getPosition());
+		return new BlockPosWrapper(entity.posX, entity.posY, entity.posZ);
 	}
 
 	@Override
@@ -450,9 +450,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	@Override
 	public void setMotionX(double motion) {
-		if (this.entity.motionX == motion) {
-			return;
-		}
+		if (this.entity.motionX == motion) { return; }
 		this.entity.motionX = motion;
 		this.entity.velocityChanged = true;
 	}

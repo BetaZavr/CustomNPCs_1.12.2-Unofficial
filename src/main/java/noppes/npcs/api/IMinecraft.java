@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.settings.GameSettings;
+import noppes.npcs.api.entity.IPlayer;
 
 public interface IMinecraft {
 	
@@ -43,5 +44,6 @@ public interface IMinecraft {
 	float getSoundVolume(String category);
 	
 	void setSoundVolume(String category, float value);
-	
+
+    IPlayer<?> getPlayer();
 }

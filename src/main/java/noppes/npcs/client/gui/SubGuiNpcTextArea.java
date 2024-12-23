@@ -38,20 +38,12 @@ implements ITextChangeListener {
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 100) {
-			NoppesStringUtils.setClipboardContents(textarea.getText());
-		}
-		if (button.id == 101) {
-			textarea.setText(NoppesStringUtils.getClipboardContents());
-		}
-		if (button.id == 102) {
-			textarea.setText("");
-		}
-		if (button.id == 103) {
-			textarea.setText(originalText);
-		}
-		if (button.id == 0) {
-			close();
+		switch (button.id) {
+			case 0: close(); break;
+			case 100: NoppesStringUtils.setClipboardContents(textarea.getText()); break;
+			case 101: textarea.setText(NoppesStringUtils.getClipboardContents()); break;
+			case 102: textarea.setText(""); break;
+			case 103: textarea.setText(originalText); break;
 		}
 	}
 
@@ -83,11 +75,11 @@ implements ITextChangeListener {
 			textarea.enableCodeHighlighting();
 		}
 		add(textarea);
-		buttonList.add(new GuiNpcButton(102, guiLeft + xSize - 90 - yoffset, guiTop + 20, 56, 20, "gui.clear"));
-		buttonList.add(new GuiNpcButton(101, guiLeft + xSize - 90 - yoffset, guiTop + 43, 56, 20, "gui.paste"));
-		buttonList.add(new GuiNpcButton(100, guiLeft + xSize - 90 - yoffset, guiTop + 66, 56, 20, "gui.copy"));
-		buttonList.add(new GuiNpcButton(103, guiLeft + xSize - 90 - yoffset, guiTop + 89, 56, 20, "remote.reset"));
-		buttonList.add(new GuiNpcButton(0, guiLeft + xSize - 90 - yoffset, guiTop + 160, 56, 20, "gui.close"));
+		addButton(new GuiNpcButton(102, guiLeft + xSize - 90 - yoffset, guiTop + 20, 56, 20, "gui.clear"));
+		addButton(new GuiNpcButton(101, guiLeft + xSize - 90 - yoffset, guiTop + 43, 56, 20, "gui.paste"));
+		addButton(new GuiNpcButton(100, guiLeft + xSize - 90 - yoffset, guiTop + 66, 56, 20, "gui.copy"));
+		addButton(new GuiNpcButton(103, guiLeft + xSize - 90 - yoffset, guiTop + 89, 56, 20, "remote.reset"));
+		addButton(new GuiNpcButton(0, guiLeft + xSize - 90 - yoffset, guiTop + 160, 56, 20, "gui.close"));
 		xSize = 420;
 		ySize = 256;
 	}
