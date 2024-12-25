@@ -84,7 +84,6 @@
     "client.resources.DefaultResourcePackMixin",
     "client.resources.FallbackResourceManagerMixin",
     "client.resources.I18nMixin",
-    "client.resources.LanguageManagerMixin",
     "client.resources.LegacyV2AdapterMixin",
     "client.resources.LocaleMixin",
     "client.resources.ResourceIndexMixin",

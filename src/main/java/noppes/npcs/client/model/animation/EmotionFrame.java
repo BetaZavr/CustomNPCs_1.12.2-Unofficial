@@ -6,10 +6,12 @@ import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.entity.data.IEmotionPart;
 import noppes.npcs.entity.EntityNPCInterface;
 
+import java.util.Map;
+
 public class EmotionFrame
 implements IEmotionPart {
 
-	public static final EmotionFrame STANDARD = new EmotionFrame(0);
+	public static final EmotionFrame EMPTY = new EmotionFrame(0);
 	public int id;
 	public int speed = 20;
 	public int delay = 0;
@@ -218,5 +220,61 @@ implements IEmotionPart {
 		this.rndMouth = false;
 		this.showMouth = false;
 	}
-	
+
+	public void resetFrom(Map<Integer, Float[]> rotationAngles, EmotionFrame currentFrame) {
+		speed = currentFrame.speed;
+		smooth = currentFrame.smooth;
+		disable = currentFrame.disable;
+		blink = currentFrame.blink;
+		rotMouth = currentFrame.rotMouth;
+		rndMouth = currentFrame.rndMouth;
+		showMouth = currentFrame.showMouth;
+
+		Float[] eyeRight = rotationAngles.get(0); // ofsX, ofsY, scX, scY, rot
+		offsetEye[0] = eyeRight[0];
+		offsetEye[1] = eyeRight[1];
+		scaleEye[0] = eyeRight[2];
+		scaleEye[1] = eyeRight[3];
+		rotEye[0] = eyeRight[4];
+		Float[] eyeLeft = rotationAngles.get(1);
+		offsetEye[2] = eyeLeft[0];
+		offsetEye[3] = eyeLeft[1];
+		scaleEye[2] = eyeLeft[2];
+		scaleEye[3] = eyeLeft[3];
+		rotEye[1] = eyeLeft[4];
+
+		Float[] pupilRight = rotationAngles.get(2); // ofsX, ofsY, scX, scY, rot
+		offsetPupil[0] = pupilRight[0];
+		offsetPupil[1] = pupilRight[1];
+		scalePupil[0] = pupilRight[2];
+		scalePupil[1] = pupilRight[3];
+		rotPupil[0] = pupilRight[4];
+		Float[] pupilLeft = rotationAngles.get(3);
+		offsetPupil[2] = pupilLeft[0];
+		offsetPupil[3] = pupilLeft[1];
+		scalePupil[2] = pupilLeft[2];
+		scalePupil[3] = pupilLeft[3];
+		rotPupil[1] = pupilLeft[4];
+
+		Float[] browRight = rotationAngles.get(4); // ofsX, ofsY, scX, scY, rot
+		offsetBrow[0] = browRight[0];
+		offsetBrow[1] = browRight[1];
+		scaleBrow[0] = browRight[2];
+		scaleBrow[1] = browRight[3];
+		rotBrow[0] = browRight[4];
+		Float[] browLeft = rotationAngles.get(5);
+		offsetBrow[2] = browLeft[0];
+		offsetBrow[3] = browLeft[1];
+		scaleBrow[2] = browLeft[2];
+		scaleBrow[3] = browLeft[3];
+		rotBrow[1] = browLeft[4];
+
+		Float[] mouth = rotationAngles.get(6); // ofsX, ofsY, scX, scY
+		offsetMouth[0] = mouth[0];
+		offsetMouth[1] = mouth[1];
+		scaleMouth[0] = mouth[2];
+		scaleMouth[1] = mouth[3];
+		rotMouth = mouth[4];
+
+	}
 }

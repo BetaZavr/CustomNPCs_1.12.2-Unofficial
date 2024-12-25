@@ -60,6 +60,7 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.IGuiError;
 import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.client.model.animation.AnimationConfig;
+import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.constants.*;
@@ -800,7 +801,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 						return;
 					}
-					((EntityNPCInterface) entity).animation.loadBaseAnimations(Server.readMap(buffer));;
+					((EntityNPCInterface) entity).animation.loadBaseAnimations(Server.readMap(buffer));
 				}
 			}
 			else { // is Player
@@ -808,6 +809,47 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					IEntityPlayerMixin pl = (IEntityPlayerMixin) mc.world.getPlayerEntityByUUID(Server.readUUID(buffer));
 					if (pl != null) { pl.npcs$getAnimation().loadBaseAnimations(Server.readMap(buffer)); }
 				}
+			}
+		}
+		else if (type == EnumPacketClient.EMOTION_DATA_STOP_ANIMATION) {
+			if (buffer.readBoolean()) { // is NPC
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					Entity entity = mc.world.getEntityByID(buffer.readInt());
+					if (!(entity instanceof EntityNPCInterface)) {
+						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
+						return;
+					}
+					((EntityNPCInterface) entity).animation.stopEmotion();
+				}
+			}
+			else { // is Player
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					IEntityPlayerMixin pl = (IEntityPlayerMixin) mc.world.getPlayerEntityByUUID(Server.readUUID(buffer));
+					if (pl != null) { pl.npcs$getAnimation().stopEmotion(); }
+				}
+			}
+		}
+		else if (type == EnumPacketClient.EMOTION_DATA_RUN_ANIMATION) {
+			DataAnimation animation = null;
+			if (buffer.readBoolean()) { // is NPC
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					Entity entity = mc.world.getEntityByID(buffer.readInt());
+					if (!(entity instanceof EntityNPCInterface)) {
+						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
+						return;
+					}
+					animation = ((EntityNPCInterface) entity).animation;
+				}
+			}
+			else { // is Player
+				if (mc.world.provider.getDimension() == buffer.readInt()) {
+					IEntityPlayerMixin pl = (IEntityPlayerMixin) mc.world.getPlayerEntityByUUID(Server.readUUID(buffer));
+					if (pl != null) { animation = pl.npcs$getAnimation(); }
+				}
+			}
+			if (animation != null) {
+				EmotionConfig ec = AnimationController.getInstance().emotions.get(buffer.readInt());
+				if (ec != null) { animation.tryRunEmotion(ec); }
 			}
 		}
 		else if (type == EnumPacketClient.UPDATE_NPC_ANIMATION) {

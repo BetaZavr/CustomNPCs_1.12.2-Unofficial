@@ -85,7 +85,8 @@ public enum EnumScriptType
 	GUI_OPEN("openGUI", new int[] { 0 }),
 	SOUND_TICK_EVENT("soundTickEvent", new int[] { 4 }),
 	QUEST_LOG_BUTTON("questButton", new int[] { 0 }),
-	IN_GAME("inGame", new int[] { 0 });
+	IN_GAME("inGame", new int[] { 0 }),
+	SEND_COMMAND("sendCommand", new int[] { 0 });
 	
 	public final String function;
 	public final List<Integer> hundelerTypes;

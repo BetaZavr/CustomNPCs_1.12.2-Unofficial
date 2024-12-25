@@ -713,11 +713,14 @@ public class ModelNpcAlt extends ModelPlayer {
                 rightStackData.putAnimation(animation);
                 leftStackData.putAnimation(animation);
             }
+            float partialTicks = 0.0f;
+            Minecraft mc = Minecraft.getMinecraft();
+            if (mc.currentScreen == null || mc.currentScreen.isFocused()) { partialTicks = mc.getRenderPartialTicks(); }
+            if (animation.isEmoted()) {
+                animation.setRotationAnglesEmotion(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, partialTicks);
+            }
             if (animation.canBeAnimated()) {
-                float partialTicks = 0.0f;
-                Minecraft mc = Minecraft.getMinecraft();
-                if (mc.currentScreen == null || mc.currentScreen.isFocused()) { partialTicks = mc.getRenderPartialTicks(); }
-                animation.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, partialTicks);
+                animation.setRotationAnglesAnimation(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, partialTicks);
                 if (animation.isAnimated()) {
                     if (animation.showParts.get(EnumParts.HEAD)) { ((ModelRendererAlt) bipedHead).setAnimation(animation); }
                     if (animation.showParts.get(EnumParts.BODY)) { ((ModelRendererAlt) bipedBody).setAnimation(animation); }

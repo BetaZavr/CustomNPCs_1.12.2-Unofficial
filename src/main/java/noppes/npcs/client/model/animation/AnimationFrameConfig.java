@@ -394,7 +394,6 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		this.holdLeftStack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
 	}
 
-
 	public void resetFrom(Map<Integer, Float[]> rotationAngles, @Nonnull AnimationFrameConfig currentFrame) {
 		smooth = currentFrame.smooth;
 		showMainHand = currentFrame.showMainHand;

@@ -8,7 +8,6 @@ import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
 import noppes.npcs.LogWriter;
-import noppes.npcs.api.mixin.client.resources.ILanguageManagerMixin;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
@@ -780,7 +779,7 @@ implements IGuiClose {
 		this.h = (int) Math.ceil(sw.getScaledHeight_double());
         int optionHeight = this.dialog.showWheel ? 60 : (int) (Math.ceil(sw.getScaledHeight_double()) / 3.0d);
 		this.dialogHeight = this.h - optionHeight;
-		this.corr = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage().equals("ru_ru") ? 1.14583f : 1.0f;
+		this.corr = mc.getLanguageManager().getCurrentLanguage().getLanguageCode().equals("ru_ru") ? 1.14583f : 1.0f;
 		this.dialogWidth = (int) ((float) (this.w - this.guiLeft - 43) / this.corr);
 		if (!this.lines.isEmpty()) {
 			int max = this.dialogWidth - (int) (13.0f / this.corr);

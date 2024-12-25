@@ -564,9 +564,7 @@ public class EventHooks {
 	public static CustomTeleport onPlayerTeleport(EntityPlayerMP player, BlockPos to, BlockPos portal, int dimId) {
 		NpcAPI api = NpcAPI.Instance();
 		assert api != null;
-		CustomTeleport event = new PlayerEvent.CustomTeleport((IPlayer<?>) api.getIEntity(player),
-				api.getIPos(portal.getX(), portal.getY(), portal.getZ()), api.getIPos(to.getX(), to.getY(), to.getZ()),
-				dimId);
+		CustomTeleport event = new PlayerEvent.CustomTeleport((IPlayer<?>) api.getIEntity(player),api.getIPos(portal), api.getIPos(to), dimId);
 		if (player == null) {
 			return event;
 		}

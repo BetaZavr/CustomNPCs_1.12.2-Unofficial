@@ -176,15 +176,16 @@ public class CustomDoor extends BlockDoor implements ITileEntityProvider, ICusto
 	}
 
 	public boolean onBlockActivated(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (nbtData != null && nbtData.hasKey("InteractOpen") && !nbtData.getBoolean("InteractOpen")) {
-			return false;
-		}
-		BlockPos blockpos = state.getValue(HALF) == BlockDoor.EnumDoorHalf.LOWER ? pos : pos.down();
-		IBlockState iblockstate = pos.equals(blockpos) ? state : worldIn.getBlockState(blockpos);
-		if (iblockstate.getBlock() != this) { return false; }
+		if (nbtData != null && nbtData.hasKey("InteractOpen") && !nbtData.getBoolean("InteractOpen")) { return false; }
+
 		BlockEvent.DoorToggleEvent event = new BlockEvent.DoorToggleEvent(Objects.requireNonNull(NpcAPI.Instance()).getIBlock(worldIn, pos));
 		EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.DOOR_TOGGLE, event);
 		if (event.isCanceled()) { return false; }
+
+		BlockPos blockpos = state.getValue(HALF) == BlockDoor.EnumDoorHalf.LOWER ? pos : pos.down();
+		IBlockState iblockstate = pos.equals(blockpos) ? state : worldIn.getBlockState(blockpos);
+		if (iblockstate.getBlock() != this) { return false; }
+
 		state = iblockstate.cycleProperty(OPEN);
 		worldIn.setBlockState(blockpos, state, 10);
 		worldIn.markBlockRangeForRenderUpdate(blockpos, pos);

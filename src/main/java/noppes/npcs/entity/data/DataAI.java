@@ -33,6 +33,7 @@ public class DataAI
 	public boolean returnToStart = true;
 	public boolean stopAndInteract = true;
 	public boolean aiDisabled = false;
+	public boolean canBeCollide = true;
 
 	public int animationType = 0;
 	public int doorInteract = 2;
@@ -305,6 +306,7 @@ public class DataAI
 		this.canLeap = compound.getBoolean("CanLeap");
 		this.aiDisabled = compound.getBoolean("AIDisabled");
 		this.canSprint = compound.getBoolean("CanSprint");
+		if (compound.hasKey("CanBeCollide", 1)) { this.canBeCollide = compound.getBoolean("CanBeCollide"); }
 		this.tacticalRadius = compound.getInteger("TacticalRadius");
 		this.movingPause = compound.getBoolean("MovingPause");
 		this.npcInteracting = compound.getBoolean("npcInteracting");
@@ -531,6 +533,7 @@ public class DataAI
 		compound.setBoolean("CanLeap", this.canLeap);
 		compound.setBoolean("AIDisabled", this.aiDisabled);
 		compound.setBoolean("CanSprint", this.canSprint);
+		compound.setBoolean("CanBeCollide", this.canBeCollide);
 		compound.setInteger("TacticalRadius", this.tacticalRadius);
 		compound.setBoolean("MovingPause", this.movingPause);
 		compound.setBoolean("npcInteracting", this.npcInteracting);
@@ -561,5 +564,11 @@ public class DataAI
 
 	@Override
 	public void setIsAIDisabled(boolean bo) { this.aiDisabled = bo; }
+
+	@Override
+	public boolean canBeCollide() { return canBeCollide; }
+
+	@Override
+	public void setCanBeCollide(boolean bo) { this.canBeCollide = bo; }
 
 }

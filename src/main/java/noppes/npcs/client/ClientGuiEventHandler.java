@@ -1112,6 +1112,7 @@ public class ClientGuiEventHandler extends Gui {
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
 		this.mc = Minecraft.getMinecraft();
 		this.sw = new ScaledResolution(this.mc);
+
 		if (!this.tempEntity.isEmpty()) {
 			for (Entity entity : this.tempEntity) {
 				entity.world.removeEntity(entity);

@@ -93,5 +93,8 @@ public interface INPCAi {
 	boolean isAIDisabled();
 	
 	void setIsAIDisabled(boolean aiDisabled);
-	
+
+    boolean canBeCollide();
+
+	void setCanBeCollide(boolean bo);
 }

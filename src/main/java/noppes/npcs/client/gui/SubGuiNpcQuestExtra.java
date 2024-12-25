@@ -176,7 +176,7 @@ implements ITextfieldListener, ISubGuiListener {
 			GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
 			mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.tabs);
 			drawTexturedModalRect(0, 0, 193, 0, 63, 52);
-			String name = ((char) 167) + "l" + quest.completer.getName();
+			String name = ((char) 167) + "l" + (quest.completer != null ? quest.completer.getName() : "Empty");
 			mc.fontRenderer.drawString(name, 32 - (float) mc.fontRenderer.getStringWidth(name) / 2, 50, CustomNpcs.QuestLogColor.getRGB(), false);
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();

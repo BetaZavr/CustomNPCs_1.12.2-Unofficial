@@ -44,6 +44,7 @@ import noppes.npcs.api.wrapper.WrapperEntityData;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumQuestTask;
+import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.controllers.data.Line;
 import noppes.npcs.controllers.data.MarkData;
@@ -177,12 +178,23 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcCommands(CommandEvent event) {
-		CustomNpcs.debugData.startDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client",
-				event.getSender(), "ServerEventsHandler_npcCommands");
+		CustomNpcs.debugData.startDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client", event.getSender(), "ServerEventsHandler_npcCommands");
+		if (event.getSender() instanceof EntityPlayer) {
+			noppes.npcs.api.event.PlayerEvent.CommandEvent ev = new noppes.npcs.api.event.PlayerEvent.CommandEvent(
+					(IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity((Entity) event.getSender()),
+					event.getCommand(),
+					event.getParameters()
+			);
+			EventHooks.onEvent(PlayerData.get((EntityPlayer) event.getSender()).scriptData, EnumScriptType.SEND_COMMAND, ev);
+			if (ev.isCanceled()) {
+				event.setCanceled(true);
+				CustomNpcs.debugData.endDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client", event.getSender(), "ServerEventsHandler_npcCommands");
+				return;
+			}
+		}
 		if (event.getCommand() instanceof CommandGive) {
 			if (!(event.getSender().getEntityWorld() instanceof WorldServer)) {
-				CustomNpcs.debugData.endDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client",
-						event.getSender(), "ServerEventsHandler_npcCommands");
+				CustomNpcs.debugData.endDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client", event.getSender(), "ServerEventsHandler_npcCommands");
 				return;
 			}
 			try {
@@ -213,8 +225,7 @@ public class ServerEventsHandler {
 				LogWriter.error("Error player update visible NPC:", e);
 			}
 		}
-		CustomNpcs.debugData.endDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client",
-				event.getSender(), "ServerEventsHandler_npcCommands");
+		CustomNpcs.debugData.endDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client", event.getSender(), "ServerEventsHandler_npcCommands");
 	}
 
 	@SubscribeEvent

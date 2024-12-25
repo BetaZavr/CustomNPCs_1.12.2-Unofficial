@@ -118,6 +118,7 @@ public class AnimationHandler {
         isSwing = false;
         canSetBaseRotationAngles = true;
         timeTicks = -1;
+        speedTicks = -1;
     }
 
     public void calculationAnimationData(float partialTicks) {

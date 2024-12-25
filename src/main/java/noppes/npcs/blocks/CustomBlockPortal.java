@@ -289,8 +289,7 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
                 }
             }
             if (entityIn instanceof EntityPlayerMP) {
-				CustomTeleport event = EventHooks.onPlayerTeleport((EntityPlayerMP) entityIn, p, pos,
-						isHome ? homeId : id);
+				CustomTeleport event = EventHooks.onPlayerTeleport((EntityPlayerMP) entityIn, p, pos, isHome ? homeId : id);
 				if (!event.isCanceled()) {
 					NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) entityIn, event.pos.getX() + 0.5d,
 							event.pos.getY(), event.pos.getZ() + 0.5d, event.dimension, entityIn.rotationYaw,

@@ -6,11 +6,19 @@ import java.util.TreeMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.data.IEmotion;
 import noppes.npcs.api.entity.data.IEmotionPart;
 
 public class EmotionConfig
 		implements IEmotion {
+
+	public static final EmotionConfig EMPTY;
+	static {
+		EMPTY = new EmotionConfig();
+		EMPTY.frames.put(0, EmotionFrame.EMPTY);
+		EMPTY.resetTicks();
+	}
 
 	public final Map<Integer, EmotionFrame> frames;
 	public int id = 0;
@@ -19,8 +27,11 @@ public class EmotionConfig
 	public boolean canBlink = true;
 
 	public boolean immutable = false;
+	public final Map<Integer, Integer> endingFrameTicks = new TreeMap<>(); // ticks info
+	public int totalTicks = 0;
+    public int editFrame = -1;
 
-	public EmotionConfig() {
+    public EmotionConfig() {
 		this.frames = new TreeMap<>();
 		this.frames.put(0, new EmotionFrame(0));
 	}
@@ -60,6 +71,7 @@ public class EmotionConfig
 	public EmotionConfig copy() {
 		EmotionConfig ec = new EmotionConfig();
 		ec.read(this.save());
+		ec.resetTicks();
 		return ec;
 	}
 
@@ -137,4 +149,31 @@ public class EmotionConfig
 		return isDel;
 	}
 
+	public void resetTicks() {
+		totalTicks = 0;
+		endingFrameTicks.clear();
+		if (this == EMPTY) {
+			totalTicks = EmotionFrame.EMPTY.speed + EmotionFrame.EMPTY.delay + 1;
+			endingFrameTicks.put(0, totalTicks);
+			return;
+		}
+		for (Integer id : this.frames.keySet()) {
+			EmotionFrame frame = frames.get(id);
+			if (frame.speed < 1) { frame.speed = 1; }
+			totalTicks += frame.speed + frame.delay;
+			endingFrameTicks.put(id, totalTicks);
+		}
+		if (totalTicks == 0) { totalTicks = 1; }
+	}
+
+    public int getEmotionFrameByTime(int ticks) {
+		if (ticks >= 0) {
+			if (endingFrameTicks.isEmpty() && !frames.isEmpty()) { resetTicks(); }
+			for (int id : endingFrameTicks.keySet()) {
+				if (ticks <= endingFrameTicks.get(id)) { return id; }
+			}
+			return frames.size();
+		}
+		return -1;
+    }
 }

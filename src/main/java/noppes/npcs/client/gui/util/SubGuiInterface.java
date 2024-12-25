@@ -29,7 +29,20 @@ extends GuiNPCInterface {
 			((ISubGuiListener) parent).subGuiClosed(this);
 			displayGuiScreen(parent);
 		}
-		else { super.close(); }
+		else {
+			if (mc.currentScreen != null) {
+				if (mc.currentScreen instanceof IEditNPC) {
+					((IEditNPC) mc.currentScreen).closeSubGui(this);
+					displayGuiScreen(mc.currentScreen);
+				}
+				if (mc.currentScreen instanceof ISubGuiListener) {
+					((ISubGuiListener) mc.currentScreen).subGuiClosed(this);
+					displayGuiScreen(mc.currentScreen);
+				}
+				return;
+			}
+			super.close();
+		}
 	}
 
 	public GuiScreen getParent() {

@@ -1,11 +1,8 @@
 package noppes.npcs.client.gui.global;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -323,7 +320,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		button.layerColor = new Color(0xFF00FFF0).getRGB();
 		button.setHoverText("quest.hover.edit.quest.extra");
 		addButton(button);
-		if (this.quest.completer == null) {
+		if (this.quest.completer == null && npc != null) {
 			this.quest.completer = this.npc;
 			this.quest.completerPos[0] = (int) this.npc.posX;
 			this.quest.completerPos[1] = (int) (this.npc.posY + 0.5d);

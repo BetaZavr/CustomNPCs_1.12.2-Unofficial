@@ -2,6 +2,7 @@ package noppes.npcs.api.event;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.command.ICommand;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.IInventory;
@@ -60,6 +61,18 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@Cancelable
+	public static class CommandEvent extends PlayerEvent {
+		public ICommand command;
+		public String[] parameters;
+
+		public CommandEvent(IPlayer<?> player, ICommand command, String[] parameters) {
+			super(player);
+			this.command = command;
+			this.parameters = parameters;
+		}
+	}
+
 	public static class ContainerClosed extends PlayerEvent {
 		public IContainer container;
 
@@ -89,6 +102,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 			this.pos = pos;
 			this.portal = portal;
 			this.dimension = dimensionID;
+			System.out.println("CNPCs: "+pos+"; "+portal);
 		}
 
 	}

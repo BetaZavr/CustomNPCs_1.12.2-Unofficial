@@ -347,6 +347,7 @@ public class AnimationConfig implements IAnimation {
 			return editFrame;
 		}
 		if (ticks >= 0) {
+			if (endingFrameTicks.isEmpty() && !frames.isEmpty()) { resetTicks(); }
 			for (int id : endingFrameTicks.keySet()) {
 				if (ticks <= endingFrameTicks.get(id)) {
 					return id; }

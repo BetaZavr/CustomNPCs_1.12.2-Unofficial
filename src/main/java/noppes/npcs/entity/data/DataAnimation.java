@@ -74,7 +74,7 @@ public class DataAnimation implements INPCAnimation {
 		else if (entity instanceof EntityNPCInterface) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.ANIMATION_DATA_SET, true, entity.world.provider.getDimension(), entity.getEntityId(), save(new NBTTagCompound())); }
 	}
 
-	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, float partialTicks) {
+	public void setRotationAnglesAnimation(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, float partialTicks) {
 		animationHandler.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, partialTicks);
 		// set show parts
 		if (animationHandler.currentFrame != null) {
@@ -222,7 +222,7 @@ public class DataAnimation implements INPCAnimation {
 	public int getAnimationSpeedTicks() { return animationHandler.getAnimationSpeedTicks(); }
 
 	// Emotions
-	public EmotionFrame getCurrentEmotionFrame() { return emotionHandler.currentEmotionFrame; }
+	public EmotionFrame getCurrentEmotionFrame() { return emotionHandler.currentFrame; }
 
 	public EmotionConfig getActiveEmotion() { return emotionHandler.activeEmotion; }
 
@@ -232,8 +232,32 @@ public class DataAnimation implements INPCAnimation {
 
 	public long getStartEmotionTime() { return emotionHandler.startEmotionTime; }
 
-	public Map<Integer, Float[]> getEmotionData() { return emotionHandler.emts; }
+	public Map<Integer, Float[]> getEmotionData() { return emotionHandler.rotationAngles; }
 
 	public void setActiveEmotion(EmotionConfig emotion) { emotionHandler.activeEmotion = emotion; }
 
+	public void tryRunEmotion(EmotionConfig emotion) {
+		if (entity == null) { return; }
+		if (emotion != null && emotion.frames.isEmpty()) { emotion = null; }
+		if (emotion == null) {
+			stopEmotion();
+			return;
+		}
+		emotion = emotionHandler.tryRunEmotion(emotion);
+		if (!entity.isServerWorld()) { return; }
+		if (emotion == null) {
+			if (entity instanceof EntityPlayerMP) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.EMOTION_DATA_STOP_ANIMATION, false, entity.world.provider.getDimension(), entity.getUniqueID()); }
+			else if (entity instanceof EntityNPCInterface) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.EMOTION_DATA_STOP_ANIMATION, true, entity.world.provider.getDimension(), entity.getEntityId()); }
+		}
+		else {
+			if (entity instanceof EntityPlayerMP) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.EMOTION_DATA_RUN_ANIMATION, false, entity.world.provider.getDimension(), entity.getUniqueID(), emotion.id); }
+			else if (entity instanceof EntityNPCInterface) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.EMOTION_DATA_RUN_ANIMATION, true, entity.world.provider.getDimension(), entity.getEntityId(), emotion.id); }
+		}
+	}
+
+	public boolean isEmoted() { return emotionHandler.isAnimated(); }
+
+	public void setRotationAnglesEmotion(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, float partialTicks) {
+		emotionHandler.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, partialTicks);
+	}
 }

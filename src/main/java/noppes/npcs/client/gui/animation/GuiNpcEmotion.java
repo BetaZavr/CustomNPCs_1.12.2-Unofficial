@@ -49,17 +49,19 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 	public static final ResourceLocation etns = new ResourceLocation(CustomNpcs.MODID, "textures/gui/emotion/buttons.png");
 
-	private final DataAnimation animation;
-	private GuiCustomScroll scroll;
-	private final Map<String, EmotionConfig> dataEmtns = new TreeMap<>();
-	private String selEmtn;
 	public EntityNPCInterface npcEmtn;
-	private AnimationController aData;
-	private ScaledResolution sw;
 	public EmotionFrame frame;
 	public int toolType = 0; // 0 - rotation, 1 - offset, 2 - scale
 	public int elementType = 0; // 0 - eye, 1 - pupil, 2 - brow, 3 - mouth
 	public boolean isRight = true;
+
+	private final Map<String, EmotionConfig> dataEmtns = new TreeMap<>();
+	private String selEmtn;
+	private boolean onlyPart = false;
+	private final DataAnimation animation;
+	private GuiCustomScroll scroll;
+	private AnimationController aData;
+	private ScaledResolution sw;
 	private ModelEyeData modelEye;
 	private final String[] types = new String[] { "gui.small", "gui.normal", "gui.select" };
 
@@ -647,6 +649,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			return;
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
+		npcEmtn.animation.updateTime();
 		EmotionConfig emtn = getEmtn();
 		if (emtn != null) {
 			if (sw == null) { sw = new ScaledResolution(mc); }
@@ -733,15 +736,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		ModelPartData model = ((EntityCustomNpc) npcEmtn).modelData.getPartData(EnumParts.EYES);
 		if (model instanceof ModelEyeData) { modelEye = (ModelEyeData) model; }
 		if (emtn == null || npcEmtn == null) { return; }
-		EmotionConfig ec = emtn.copy();
-		NBTTagCompound npcNbt = new NBTTagCompound();
-		npcEmtn.animation.reset();
-		npcEmtn.writeEntityToNBT(npcNbt);
-		npcEmtn.writeToNBTOptional(npcNbt);
-		npcEmtn.display.setName("1_" + npc.getName());
-		npcEmtn.animation.setActiveEmotion(ec);
+		//emtn.editFrame = frame.id;
+		npcEmtn.display.setName(npc.getName()+"_edit_emotion");
 		npcEmtn.setHealth(npcEmtn.getMaxHealth());
 		npcEmtn.deathTime = 0;
+		npcEmtn.animation.tryRunEmotion(emtn);
 	}
 
 	@Override
@@ -846,29 +845,29 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		EmotionConfig emtn = getEmtn();
 		if (hasSubGui() || emtn == null) { return; }
 		switch (textField.getId()) {
-			case 0: { // renames
+			case 0: {
 				emtn.name = textField.getText();
 				selEmtn = emtn.getSettingName();
 				initGui();
 				break;
-			}
-			case 1: { // speed
+			} // renames
+			case 1: {
 				if (frame == null) { return; }
 				frame.setSpeed(textField.getInteger());
 				resetEmtns();
 				break;
-			}
-			case 2: { // delay
+			} // speed
+			case 2: {
 				if (frame == null) { return; }
 				frame.setEndDelay(textField.getInteger());
 				resetEmtns();
 				break;
-			}
-			case 3: { // repeat
+			} // delay
+			case 3: {
 
 				break;
-			}
-			case 5: { // X
+			} // repeat
+			case 5: {
 				float value = 0.0f;
 				String text = "";
 				switch(elementType) {
@@ -957,8 +956,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				if (getSlider(0) != null) { getSlider(0).sliderValue = value; }
 				resetEmtns();
 				break;
-			}
-			case 6: { // Y
+			} // X
+			case 6: {
 				float value = 0.0f;
 				String text = "";
 				switch(elementType) {
@@ -970,8 +969,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 								break;
 							}
 							case 2: {
-								frame.scaleEye[isRight ? 1 : 3] = (value = (float) (textField.getDouble() + 100.0D) / 200.0f);
-								text = "" + Math.round((200.0f * value - 100.0f) * 1000.0f) / 1000.0f;
+								frame.scaleEye[isRight ? 1 : 3] = (value = (float) (textField.getDouble() - 0.5D));
+								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
 								break;
 							}
 						}
@@ -985,8 +984,9 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 								break;
 							}
 							case 2: {
-								frame.scalePupil[isRight ? 1 : 3] = (value = (float) (textField.getDouble() + 100.0D) / 200.0f);
-								text = "" + Math.round((200.0f * value - 100.0f) * 1000.0f) / 1000.0f;
+								frame.scalePupil[isRight ? 1 : 3] = (value = (float) (textField.getDouble() - 0.5D));
+								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
+								System.out.println("CNPCs: "+value);
 								break;
 							}
 						}
@@ -1000,8 +1000,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 								break;
 							}
 							case 2: {
-								frame.scaleBrow[isRight ? 1 : 3] = (value = (float) (textField.getDouble() + 100.0D) / 200.0f);
-								text = "" + Math.round((200.0f * value - 100.0f) * 1000.0f) / 1000.0f;
+								frame.scaleBrow[isRight ? 1 : 3] = (value = (float) (textField.getDouble() - 0.5D));
+								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
 								break;
 							}
 						}
@@ -1015,8 +1015,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 								break;
 							}
 							case 2: {
-								frame.scaleMouth[1] = (value = (float) (textField.getDouble() + 100.0D) / 200.0f);
-								text = "" + Math.round((200.0f * value - 100.0f) * 1000.0f) / 1000.0f;
+								frame.scaleMouth[1] = (value = (float) (textField.getDouble() - 0.5D));
+								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
 								break;
 							}
 						}
@@ -1024,10 +1024,10 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 					}
 				}
 				textField.setText(text);
-				if (getSlider(0) != null) { getSlider(0).sliderValue = value; }
+				if (getSlider(1) != null) { getSlider(1).sliderValue = value; }
 				resetEmtns();
 				break;
-			}
+			} // Y
 		}
 	}
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import noppes.npcs.LogWriter;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
 import org.lwjgl.input.Keyboard;
 
@@ -92,6 +93,7 @@ implements IEditNPC, ICustomScrollListener {
 		player = mc.player;
 		itemRender = mc.getRenderItem();
 		fontRenderer = mc.fontRenderer;
+		if (this.npc == null) { this.npc = NoppesUtilServer.getEditingNpc(player); }
 	}
 
 	protected List<String> getHoverText() { return hoverText; }

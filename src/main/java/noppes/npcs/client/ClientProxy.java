@@ -164,7 +164,6 @@ import noppes.npcs.api.mixin.client.particle.IParticleSmokeNormalMixin;
 import noppes.npcs.api.mixin.client.renderer.texture.ITextureManagerMixin;
 import noppes.npcs.api.mixin.client.renderer.tileentity.ITileEntityItemStackRendererMixin;
 import noppes.npcs.api.mixin.client.resources.II18nMixin;
-import noppes.npcs.api.mixin.client.resources.ILanguageManagerMixin;
 import noppes.npcs.api.mixin.client.settings.IKeyBindingMixin;
 import noppes.npcs.api.mixin.client.settings.IKeyBindingForgeMixin;
 import noppes.npcs.particles.CustomParticle;
@@ -283,7 +282,7 @@ public class ClientProxy extends CommonProxy {
 		Map<String, String> properties = ((II18nMixin) new I18n()).npcs$getProperties();
 
 		// custom lang files:
-		String currentLanguage = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
+		String currentLanguage = Minecraft.getMinecraft().getLanguageManager().getCurrentLanguage().getLanguageCode();
 		for (int i = 0; i < (currentLanguage.equals("en_us") ? 1 : 2) ; i++) {
 			File lang = new File(langDir, (i == 0 ? "en_us" : currentLanguage) + ".lang");
 			if (lang.exists() && lang.isFile()) { // loading localizations from mod file
@@ -1725,7 +1724,7 @@ public class ClientProxy extends CommonProxy {
 		BufferedWriter writer;
 		boolean isExample = key.contains("example") && value.contains("Example");
 		boolean isTranslate = false;
-		String currentLanguage = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
+		String currentLanguage = Minecraft.getMinecraft().getLanguageManager().getCurrentLanguage().getLanguageCode();
 		String translateValue = value;
 		if (!currentLanguage.equals("en_us")) {
 			String language = currentLanguage;
@@ -1947,7 +1946,7 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public String getTranslateLanguage(EntityPlayer player) {
-		String lang = ((ILanguageManagerMixin) Minecraft.getMinecraft().getLanguageManager()).npcs$getCurrentLanguage();
+		String lang = Minecraft.getMinecraft().getLanguageManager().getCurrentLanguage().getLanguageCode();
 		if (lang.contains("_")) { lang = lang.substring(0, lang.indexOf("_")); }
 		return lang;
 	}

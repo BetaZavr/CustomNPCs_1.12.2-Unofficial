@@ -687,7 +687,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean canBeCollidedWith() {
-		return !this.isKilled() && this.display.getHasHitbox();
+		return !isKilled() && display.getHasHitbox();
 	}
 
 	public boolean canBeLeashedTo(@Nonnull EntityPlayer player) {
@@ -1234,6 +1234,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	protected void collideWithEntity(@Nonnull Entity entityIn) {
 		if (this.canBeCollidedWith()) { entityIn.applyEntityCollision(this); }
+	}
+
+	public void applyEntityCollision(@Nonnull Entity entityIn) {
+		if (!canBeCollidedWith() || !ais.canBeCollide) { return; }
+		super.applyEntityCollision(entityIn);
 	}
 
 	public void onCollide() {

@@ -58,6 +58,8 @@ implements ITextfieldListener, IGuiData {
 			ai.tacticalVariant = button.getValue();
 			ai.directLOS = (button.getValue() != 5 && ai.directLOS);
 			initGui();
+		} else if (button.id == 18) {
+			ai.canBeCollide = (button.getValue() == 1);
 		} else if (button.id == 23) {
 			ai.attackInvisible = ((GuiNpcButtonYesNo) button).getBoolean();
 		} else if (button.id == 25) {
@@ -155,7 +157,12 @@ implements ITextfieldListener, IGuiData {
 		textField.setHoverText("ai.hover.hurt.resistant.time");
 		addTextField(textField);
 
-		addLabel(new GuiNpcLabel(lId++, "ai.tacticalvariant", x, (y += 50) + 7));
+		addLabel(new GuiNpcLabel(lId++, "ai.can.be.collide", x, (y += 25) + 7));
+		button = new GuiNpcButton(18, x + 111, y, 60, 20, new String[] { "gui.no", "gui.yes" }, (ai.canBeCollide ? 1 : 0));
+		button.setHoverText("ai.hover.can.be.collide");
+		addButton(button);
+
+		addLabel(new GuiNpcLabel(lId++, "ai.tacticalvariant", x, (y += 25) + 7));
 		button = new GuiNpcButton(17, x + 111, y, 60, 20, tactics, ai.tacticalVariant);
 		button.setEnabled(!ai.aiDisabled && ai.onAttack == 0);
 		mess = new TextComponentTranslation("ai.hover.attack.type", button.displayString).appendSibling(new TextComponentTranslation("ai.hover.attack.type." + ai.tacticalVariant));
