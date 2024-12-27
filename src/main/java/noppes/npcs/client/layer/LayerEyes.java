@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.client.gui.ScaledResolution;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.items.ItemNpcWand;
+import noppes.npcs.util.ValueUtil;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 
@@ -23,399 +26,457 @@ import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.client.model.animation.EmotionFrame;
 import noppes.npcs.constants.EnumParts;
-import noppes.npcs.controllers.AnimationController;
 
 public class LayerEyes<T extends EntityLivingBase>
-		extends LayerInterface<T> {
+extends LayerInterface<T> {
 
 	private float alpha;
 
     public LayerEyes(RenderLiving<?> render) {
 		super(render);
-		this.alpha = 1.0f;
+		alpha = 1.0f;
 	}
 
 	private void drawBrows(Float[] browRight, Float[] browLeft, Float[] eyeRight, Float[] eyeLeft, int h, int hoverColor, EmotionFrame frame) {
 		float oYl = 0.0f, oYr = 0.0f;
-		int cld = this.playerdata.eyes.closed;
-		if (this.npc.getHealth() <= 0.0f || this.npc.isPlayerSleeping()) { cld = 1; }
+		int cld = playerdata.eyes.closed;
+		if (npc.getHealth() <= 0.0f || npc.isPlayerSleeping()) { cld = 1; }
 		float oUp = 0.0f;
-		if (this.playerdata.eyes.type == 1) { oUp = 0.3f; }
+		if (playerdata.eyes.type == 1) { oUp = 0.3f; }
 
-		float olx = 0.0f, oly = 0.0f, orx = 0.0f, ory = 0.0f, rerx = 0.0f, rery = 0.0f, lerx = 0.0f, lery = 0.0f;
-		float slx = 1.0f, sly = 1.0f, srx = 1.0f, sry = 1.0f, srerx = 1.0f, srery = 1.0f, slerx = 1.0f, slery = 1.0f;
-		float rl = 0.0f, rr = 0.0f, rer = 0.0f, ler = 0.0f;
+		float offsetBrowLeftX = 0.0f;
+		float offsetBrowLeftY = 0.0f;
+		float offsetBrowRightX = 0.0f;
+		float offsetBrowRightY = 0.0f;
+		float offsetEyeLeftX = 0.0f;
+		float offsetEyeLeftY = 0.0f;
+		float offsetEyeRightX = 0.0f;
+		float offsetEyeRightY = 0.0f;
+
+		float scaleBrowLeftX = 1.0f;
+		float scaleBrowLeftY = 1.0f;
+		float scaleBrowRightX = 1.0f;
+		float scaleBrowRightY = 1.0f;
+		float scaleEyeLeftX = 1.0f;
+		float scaleEyeLeftY = 1.0f;
+		float scaleEyeRightX = 1.0f;
+		float scaleEyeRightY = 1.0f;
+
+		float rotateBrowLeft = 0.0f;
+		float rotateBrowRight = 0.0f;
+		float rotateEyeLeft = 0.0f;
+		float rotateEyeRight = 0.0f;
+
 		if (browRight != null) {
-			orx = (float) (browRight[0] / Math.PI) * 0.25f;
-			ory = (float) (browRight[1] / Math.PI) * 0.25f;
-			srx = browRight[2];
-			sry = browRight[3];
-			rr = browRight[4];
+			offsetBrowRightX = browRight[0];
+			offsetBrowRightY = browRight[1];
+			scaleBrowRightX = browRight[2];
+			scaleBrowRightY = browRight[3];
+			rotateBrowRight = browRight[4];
 		}
 		if (browLeft != null) {
-			olx = (float) (browLeft[0] / Math.PI) * 0.25f;
-			oly = (float) (browLeft[1] / Math.PI) * 0.25f;
-			slx = browLeft[2];
-			sly = browLeft[3];
-			rl = browLeft[4];
+			offsetBrowLeftX = browLeft[0];
+			offsetBrowLeftY = browLeft[1];
+			scaleBrowLeftX = browLeft[2];
+			scaleBrowLeftY = browLeft[3];
+			rotateBrowLeft = browLeft[4];
 		}
 		if (eyeRight != null) {
-			rerx = (float) (eyeRight[0] / Math.PI) * 0.25f;
-			rery = (float) (eyeRight[1] / Math.PI) * 0.25f;
-			srerx = eyeRight[2];
-			srery = eyeRight[3];
-			rer = eyeRight[4];
+			offsetEyeRightX = eyeRight[0];
+			offsetEyeRightY = eyeRight[1];
+			scaleEyeRightX = eyeRight[2];
+			scaleEyeRightY = eyeRight[3];
+			rotateEyeRight = eyeRight[4];
 		}
 		if (eyeLeft != null) {
-			lerx = (float) (eyeLeft[0] / Math.PI) * 0.25f;
-			lery = (float) (eyeLeft[1] / Math.PI) * 0.25f;
-			slerx = eyeLeft[2];
-			slery = eyeLeft[3];
-			ler = eyeLeft[4];
+			offsetEyeLeftX = eyeLeft[0];
+			offsetEyeLeftY = eyeLeft[1];
+			scaleEyeLeftX = eyeLeft[2];
+			scaleEyeLeftY = eyeLeft[3];
+			rotateEyeLeft = eyeLeft[4];
 		}
 
 		// skin close
 		boolean close = false;
 		if (frame != null) {
-			close = this.playerdata.eyes.ticks > 3 && frame.isEndBlink();
+			close = playerdata.eyes.ticks > 3 && frame.isEndBlink();
 		}
 		if (cld != 0 || close) {
 			if (cld == 1 || close || cld == 2) {
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
-				GlStateManager.translate(0.99 + lerx, -5.0 + oUp + lery, 4.02f);
-				if (ler != 0.0f) {
+				GlStateManager.translate(0.99 + offsetEyeLeftX, -5.0 + oUp + offsetEyeLeftY, 4.02f);
+				if (rotateEyeLeft != 0.0f) {
 					float ry = 0.85f;
 					GlStateManager.translate(1.01, ry, 0.0f);
-					GlStateManager.rotate(ler, 0.0f, 0.0f, 1.0f);
+					GlStateManager.rotate(rotateEyeLeft, 0.0f, 0.0f, 1.0f);
 					GlStateManager.translate(-1.01, -ry, 0.0f);
 				}
-				GlStateManager.scale(slerx, slery, 1.0f);
-				this.drawRect(0, 0, 2.02, (this.playerdata.eyes.type != 0) ? 1.7f : 1, this.playerdata.eyes.skinColor, 0.0f);
+				GlStateManager.scale(scaleEyeLeftX, scaleEyeLeftY, 1.0f);
+				drawRect(0, 0, 2.02, (playerdata.eyes.type != 0) ? 1.7f : 1, playerdata.eyes.skinColor, 0.0f);
 				GlStateManager.popMatrix();
 			}
 			if (cld == 1 || close ||  cld == 3) {
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
-				GlStateManager.translate(-0.99 + rerx, -5.0 + oUp + rery, 4.02f);
-				if (rer != 0.0f) {
+				GlStateManager.translate(-0.99 + offsetEyeRightX, -5.0 + oUp + offsetEyeRightY, 4.02f);
+				if (rotateEyeRight != 0.0f) {
 					float ry = 0.85f;
 					GlStateManager.translate(-1.01, ry, 0.0f);
-					GlStateManager.rotate(rer, 0.0f, 0.0f, 1.0f);
+					GlStateManager.rotate(rotateEyeRight, 0.0f, 0.0f, 1.0f);
 					GlStateManager.translate(1.01, -ry, 0.0f);
 				}
-				GlStateManager.scale(srerx, srery, 1.0f);
-				this.drawRect(0, 0, -2.02, (this.playerdata.eyes.type != 0) ? 1.7f : 1, this.playerdata.eyes.skinColor, 0.0f);
+				GlStateManager.scale(scaleEyeRightX, scaleEyeRightY, 1.0f);
+				drawRect(0, 0, -2.02, (playerdata.eyes.type != 0) ? 1.7f : 1, playerdata.eyes.skinColor, 0.0f);
 				GlStateManager.popMatrix();
 			}
 		}
 
 		// skin blink
-		if (cld != 1 && this.playerdata.eyes.blinkStart > 0L && this.npc.isEntityAlive() && this.npc.deathTime == 0) {
-			float f = (System.currentTimeMillis() - this.playerdata.eyes.blinkStart) / 150.0f;
+		if (cld != 1 && playerdata.eyes.blinkStart > 0L && npc.isEntityAlive() && npc.deathTime == 0) {
+			float f = (System.currentTimeMillis() - playerdata.eyes.blinkStart) / 150.0f;
 			if (f > 1.0f) { f = 2.0f - f; }
 			if (f < 0.0f) {
-				this.playerdata.eyes.blinkStart = 0L;
+				playerdata.eyes.blinkStart = 0L;
 				f = 0.0f;
 			}
 			if (cld == 0 || cld == 2) {
-				oYl = ((this.playerdata.eyes.type != 0) ? 2.0f : 1.0f) * f;
+				oYl = ((playerdata.eyes.type != 0) ? 2.0f : 1.0f) * f;
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
-				GlStateManager.translate(-0.99 + rerx, -5.0 + oUp + rery, 4.02f);
-				if (rer != 0.0f) {
+				GlStateManager.translate(-0.99 + offsetEyeRightX, -5.0 + oUp + offsetEyeRightY, 4.02f);
+				if (rotateEyeRight != 0.0f) {
 					float ry = 0.85f;
 					GlStateManager.translate(-1.01, ry, 0.0f);
-					GlStateManager.rotate(rer, 0.0f, 0.0f, 1.0f);
+					GlStateManager.rotate(rotateEyeRight, 0.0f, 0.0f, 1.0f);
 					GlStateManager.translate(1.01, -ry, 0.0f);
 				}
-				GlStateManager.scale(srerx, srery, 1.0f);
-				this.drawRect(0, 0, -2.02, oYl, this.playerdata.eyes.skinColor, 0.0f);
+				GlStateManager.scale(scaleEyeRightX, scaleEyeRightY, 1.0f);
+				drawRect(0, 0, -2.02, oYl, playerdata.eyes.skinColor, 0.0f);
 				GlStateManager.popMatrix();
 			}
 			if (cld == 0 || cld == 3) {
-				oYr = ((this.playerdata.eyes.type != 0) ? 2 : 1) * f;
+				oYr = ((playerdata.eyes.type != 0) ? 2 : 1) * f;
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
-				GlStateManager.translate(0.99 + lerx, -5.0 + oUp + lery, 4.02f);
-				if (ler != 0.0f) {
+				GlStateManager.translate(0.99 + offsetEyeLeftX, -5.0 + oUp + offsetEyeLeftY, 4.02f);
+				if (rotateEyeLeft != 0.0f) {
 					float ry = 0.85f;
 					GlStateManager.translate(1.01, ry, 0.0f);
-					GlStateManager.rotate(ler, 0.0f, 0.0f, 1.0f);
+					GlStateManager.rotate(rotateEyeLeft, 0.0f, 0.0f, 1.0f);
 					GlStateManager.translate(-1.01, -ry, 0.0f);
 				}
-				GlStateManager.scale(slerx, slery, 1.0f);
-				this.drawRect(0, 0, 2.02, oYr, this.playerdata.eyes.skinColor, 0.0f);
+				GlStateManager.scale(scaleEyeLeftX, scaleEyeLeftY, 1.0f);
+				drawRect(0, 0, 2.02, oYr, playerdata.eyes.skinColor, 0.0f);
 				GlStateManager.popMatrix();
 			}
 		}
 
 		// brow
-		if (this.playerdata.eyes.browThickness == 0) { return; }
+		if (playerdata.eyes.browThickness == 0) { return; }
 
-		float thickness = this.playerdata.eyes.browThickness / 10.0f;
+		float thickness = playerdata.eyes.browThickness / 10.0f;
 		oYl *= 0.075f;
 		oYr *= 0.075f;
-		if (this.playerdata.eyes.type == 0 ) { oYl -= 0.35f; oYr -= 0.35f; }
+		if (playerdata.eyes.type == 0 ) { oYl -= 0.35f; oYr -= 0.35f; }
 
 		// Right
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
-		GlStateManager.translate(-0.99 + orx, -4.8 + oYl + ory, 4.01f);
-		if (rr != 0.0f) {
+		GlStateManager.translate(-0.99 + offsetBrowRightX, -4.8 + oYl + offsetBrowRightY, 4.01f);
+		if (rotateBrowRight != 0.0f) {
 			float ry = thickness / -2.0f;
 			GlStateManager.translate(-1.01, ry, 0.0f);
-			GlStateManager.rotate(rr, 0.0f, 0.0f, 1.0f);
+			GlStateManager.rotate(rotateBrowRight, 0.0f, 0.0f, 1.0f);
 			GlStateManager.translate(1.01, -ry, 0.0f);
 		}
-		GlStateManager.scale(srx, sry, 1.0f);
+		GlStateManager.scale(scaleBrowRightX, scaleBrowRightY, 1.0f);
 		if (h == 1) {
-			this.drawRect(0.125d, 0.125d, -2.145, -0.125 -thickness, hoverColor, 0.0D);
+			drawRect(0.125d, 0.125d, -2.145, -0.125 -thickness, hoverColor, 0.0D);
 		}
-		if (this.playerdata.eyes.type == 2) {
-			float sH = (float) (this.playerdata.eyes.browThickness - 1) * 0.166667f + 0.333333f;
-			float red = (float)(this.playerdata.eyes.browColor[0] >> 16 & 255) / 127.5F;
-			float green = (float)(this.playerdata.eyes.browColor[0] >> 8 & 255) / 127.5F;
-			float blue = (float)(this.playerdata.eyes.browColor[0] & 255) / 127.5F;
+		if (playerdata.eyes.type == 2) {
+			float sH = (float) (playerdata.eyes.browThickness - 1) * 0.166667f + 0.333333f;
+			float red = (float)(playerdata.eyes.browColor[0] >> 16 & 255) / 127.5F;
+			float green = (float)(playerdata.eyes.browColor[0] >> 8 & 255) / 127.5F;
+			float blue = (float)(playerdata.eyes.browColor[0] & 255) / 127.5F;
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(-2.2f, -0.1f - thickness, 0.005f);
 			GlStateManager.scale(0.009, 0.0035f * sH, 1.0f);
 			GlStateManager.enableBlend();
-			this.render.bindTexture(this.playerdata.eyes.browRight);
+			render.bindTexture(playerdata.eyes.browRight);
 			GlStateManager.color(red, green, blue, 1.0f);
-			this.drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, true);
+			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, true);
 			GlStateManager.popMatrix();
 		}
-		else { this.drawRect(0, 0, -2.02, -thickness, this.playerdata.eyes.browColor[0], 0.0D); }
+		else { drawRect(0, 0, -2.02, -thickness, playerdata.eyes.browColor[0], 0.0D); }
 		GlStateManager.popMatrix();
 
 		// Left
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
-		GlStateManager.translate(0.99 + olx, -4.8 + oYr + oly, 4.01f);
-		if (rl != 0.0f) {
+		GlStateManager.translate(0.99 + offsetBrowLeftX, -4.8 + oYr + offsetBrowLeftY, 4.01f);
+		if (rotateBrowLeft != 0.0f) {
 			float ry = thickness / -2.0f;
 			GlStateManager.translate(1.01, ry, 0.0f);
-			GlStateManager.rotate(rl, 0.0f, 0.0f, 1.0f);
+			GlStateManager.rotate(rotateBrowLeft, 0.0f, 0.0f, 1.0f);
 			GlStateManager.translate(-1.01, -ry, 0.0f);
 		}
-		GlStateManager.scale(slx, sly, 1.0f);
+		GlStateManager.scale(scaleBrowLeftX, scaleBrowLeftY, 1.0f);
 		if (h == 2) {
-			this.drawRect(-0.125d, 0.125d, 2.145, -0.125 -thickness, hoverColor, 0.0D);
+			drawRect(-0.125d, 0.125d, 2.145, -0.125 -thickness, hoverColor, 0.0D);
 		}
-		if (this.playerdata.eyes.type == 2) {
-			float sH = (float) (this.playerdata.eyes.browThickness - 1) * 0.166667f + 0.333333f;
-			float red = (float)(this.playerdata.eyes.browColor[0] >> 16 & 255) / 127.5F;
-			float green = (float)(this.playerdata.eyes.browColor[0] >> 8 & 255) / 127.5F;
-			float blue = (float)(this.playerdata.eyes.browColor[0] & 255) / 127.5F;
+		if (playerdata.eyes.type == 2) {
+			float sH = (float) (playerdata.eyes.browThickness - 1) * 0.166667f + 0.333333f;
+			float red = (float)(playerdata.eyes.browColor[0] >> 16 & 255) / 127.5F;
+			float green = (float)(playerdata.eyes.browColor[0] >> 8 & 255) / 127.5F;
+			float blue = (float)(playerdata.eyes.browColor[0] & 255) / 127.5F;
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(-0.1f, -0.1f - thickness, 0.005f);
 			GlStateManager.scale(0.009, 0.0035f * sH, 1.0f);
 			GlStateManager.enableBlend();
-			this.render.bindTexture(this.playerdata.eyes.browRight);
+			render.bindTexture(playerdata.eyes.browRight);
 			GlStateManager.color(red, green, blue, 1.0f);
-			this.drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
+			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
 			GlStateManager.popMatrix();
 		}
-		else { this.drawRect(0, 0, 2.02, -thickness, this.playerdata.eyes.browColor[1], 0.0D); }
+		else { drawRect(0, 0, 2.02, -thickness, playerdata.eyes.browColor[1], 0.0D); }
 		GlStateManager.popMatrix();
 	}
 
-	private void drawLeft(float[] s, Float[] eye, Float[] pupil, int h, int hoverColor) {
-		int cld = this.playerdata.eyes.closed;
-		if (cld == 1 || cld == 2 || this.playerdata.eyes.pattern == 1 || this.npc.isDead || this.npc.isPlayerSleeping()) { return; }
-		float ex = 0.0f, ey = 0.0f, esx = 1.0f, esy = 1.0f, er = 0.0f;
-		if (eye != null) {
-			ex = (float) (eye[0] / Math.PI) * 0.25f;
-			ey = (float) (eye[1] / Math.PI) * 0.25f;
-			esx = eye[2];
-			esy = eye[3];
-			er = eye[4];
+	private void drawLeft(float[] data, Float[] eyeData, Float[] pupilData, int h, int hoverColor, boolean isDisableMoved, float[] glintData) {
+		int closedType = playerdata.eyes.closed;
+		if (closedType == 1 || closedType == 2 || playerdata.eyes.pattern == 1 || npc.isDead || npc.isPlayerSleeping()) { return; }
+		float eyePosX = 0.0f;
+		float eyePosY = 0.0f;
+		float eyeScaleX = 1.0f;
+		float eyeScaleY = 1.0f;
+		float eyeRotate = 0.0f;
+		if (eyeData != null) {
+			eyePosX = eyeData[0];
+			eyePosY = eyeData[1];
+			eyeScaleX = eyeData[2];
+			eyeScaleY = eyeData[3];
+			eyeRotate = eyeData[4];
 		}
-		float px = s[4], py = s[5], psx = 1.0f, psy = 1.0f, pr = 0.0f;
-		if (pupil != null) {
-			px = (float) (pupil[0] / Math.PI) * 0.275f; // 0.55
-			if (this.playerdata.eyes.type != 0) { py = (float) (pupil[1] / Math.PI) * 0.175f; } // 0.35
-			else { py = (float) (pupil[1] / Math.PI) * 0.075f; } // 0.15
-			psx = pupil[2];
-			psy = pupil[3];
-			pr = pupil[4];
+		float pupilPosX = data[4];
+		float pupilPosY = data[5];
+		float pupilScaleX = 1.0f;
+		float pupilScaleY = 1.0f;
+		float pupilRotate = 0.0f;
+		if (pupilData != null) {
+			if (!isDisableMoved) {
+				pupilPosX = pupilData[0] * -0.005f;
+				pupilPosY = pupilData[1] * -0.005f;
+				/*if (playerdata.eyes.type != 0) { pupilPosY = pupilData[1] * 0.175f; } // 0.35
+				else { pupilPosY = pupilData[1] * 0.075f; } // 0.15
+				pupilPosY = pupilData[1] * 0.015f;*/
+			}
+			pupilScaleX = pupilData[2];
+			pupilScaleY = pupilData[3];
+			pupilRotate = pupilData[4];
 		}
 		// Eye
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
-		GlStateManager.translate(0.99 + ex, -5.0 + s[0] + ey, 4.01f);
-		if (er != 0.0f) {
-			float ry = (float) ((1.0 + s[1] - s[0]) / 2.0f);
-			GlStateManager.translate(1.01, ry, 0.0f);
-			GlStateManager.rotate(er, 0.0f, 0.0f, 1.0f);
-			GlStateManager.translate(-1.01, -ry, 0.0f);
+		GlStateManager.translate(0.99 + eyePosX, -5.0 + data[0] + eyePosY, 4.01f);
+		if (eyeRotate != 0.0f) {
+			float tempPosY = (float) ((1.0 + data[1] - data[0]) / 2.0f);
+			GlStateManager.translate(1.01, tempPosY, 0.0f);
+			GlStateManager.rotate(eyeRotate, 0.0f, 0.0f, 1.0f);
+			GlStateManager.translate(-1.01, -tempPosY, 0.0f);
 		}
-		GlStateManager.scale(esx, esy, 1.0f);
+		GlStateManager.scale(eyeScaleX, eyeScaleY, 1.0f);
 		if (h == 1) {
-			this.drawRect(-0.125d, -0.125d, 2.135, 1.125 + s[1] - s[0], hoverColor, 0.0D);
+			drawRect(-0.125d, -0.125d, 2.135, 1.125 + data[1] - data[0], hoverColor, 0.0D);
 		}
-		if (this.playerdata.eyes.type == 2) {
-			float red = (float)(this.playerdata.eyes.eyeColor[1] >> 16 & 255) / 127.5F;
-			float green = (float)(this.playerdata.eyes.eyeColor[1] >> 8 & 255) / 127.5F;
-			float blue = (float)(this.playerdata.eyes.eyeColor[1] & 255) / 127.5F;
+		if (playerdata.eyes.type == 2) {
+			float red = (float)(playerdata.eyes.eyeColor[1] >> 16 & 255) / 127.5F;
+			float green = (float)(playerdata.eyes.eyeColor[1] >> 8 & 255) / 127.5F;
+			float blue = (float)(playerdata.eyes.eyeColor[1] & 255) / 127.5F;
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.007875f, 0.0067204f, 1.0f);
 			GlStateManager.enableBlend();
-			this.render.bindTexture(this.playerdata.eyes.eyeLeft);
+			render.bindTexture(playerdata.eyes.eyeLeft);
 			GlStateManager.color(red, green, blue, 1.0f);
-			this.drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, true);
+			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, true);
 			GlStateManager.popMatrix();
 		}
 		else {
-			this.drawRect(0, 0, 2.01, 1.0 + s[1] - s[0], this.playerdata.eyes.eyeColor[0], 0.0D);
+			drawRect(0, 0, 2.01, 1.0 + data[1] - data[0], playerdata.eyes.eyeColor[0], 0.0D);
 		}
 
 		// Pupil
-		if (!this.playerdata.eyes.activeLeft) { px = 0.0f; py = 0.0f; }
-		if (this.playerdata.eyes.type == 0) { py -= 0.075f; }
+		if (!playerdata.eyes.activeLeft) {
+			pupilPosX = 0.0f;
+			pupilPosY = 0.0f;
+		}
+		if (playerdata.eyes.type == 0) { pupilPosY -= 0.075f; }
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
-		GlStateManager.translate((1.45 + px) * (0.3f * psx + 0.7f), (0.65 + py) * (float) (2.0f * Math.pow(psy, 3.0d) - 6.2f * Math.pow(psy, 2.0d) + 5.2f * psy) - s[0], 0.005f);
-		if (pr != 0.0f) {
-			float ry = (s[3] - s[2]) / 2.0f;
+		GlStateManager.translate(
+				(1.45 + pupilPosX) * (0.3f * pupilScaleX + 0.7f),
+				(0.65 + pupilPosY) * (float) (2.0f * Math.pow(pupilScaleY, 3.0d) - 6.2f * Math.pow(pupilScaleY, 2.0d) + 5.2f * pupilScaleY) - data[0],
+				0.005f);
+		if (pupilRotate != 0.0f) {
+			float ry = (data[3] - data[2]) / 2.0f;
 			GlStateManager.translate(-0.45, ry, 0.0f);
-			GlStateManager.rotate(pr, 0.0f, 0.0f, 1.0f);
+			GlStateManager.rotate(pupilRotate, 0.0f, 0.0f, 1.0f);
 			GlStateManager.translate(0.45, -ry, 0.0f);
 		}
-		GlStateManager.scale(psx, psy, 1.0f);
-		if (h == 2) {
-			this.drawRect(0.125d, -0.125d, -1.025, 0.125 + s[3], hoverColor, 0.0D);
-		}
-		if (this.playerdata.eyes.type == 2) {
-			float red = (float)(this.playerdata.eyes.pupilColor[1] >> 16 & 255) / 127.5F;
-			float green = (float)(this.playerdata.eyes.pupilColor[1] >> 8 & 255) / 127.5F;
-			float blue = (float)(this.playerdata.eyes.pupilColor[1] & 255) / 127.5F;
+		GlStateManager.scale(pupilScaleX, pupilScaleY, 1.0f);
+		if (h == 2) {drawRect(0.125d, -0.125d, -1.025, 0.125 + data[3], hoverColor, 0.0D); }
+		if (playerdata.eyes.type == 2) {
+			float red = (float)(playerdata.eyes.pupilColor[1] >> 16 & 255) / 127.5F;
+			float green = (float)(playerdata.eyes.pupilColor[1] >> 8 & 255) / 127.5F;
+			float blue = (float)(playerdata.eyes.pupilColor[1] & 255) / 127.5F;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(-0.8f, 0.1f, 0.0f);
 			GlStateManager.scale(0.003f, 0.003f, 1.0f);
 			GlStateManager.enableBlend();
-			this.render.bindTexture(this.playerdata.eyes.pupilLeft);
+			render.bindTexture(playerdata.eyes.pupilLeft);
 			GlStateManager.color(red, green, blue, 1.0f);
-			this.drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, true);
+			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, true);
 			GlStateManager.popMatrix();
 		}
-		else { this.drawRect(0, s[2], -0.9, s[3], this.playerdata.eyes.pupilColor[1], 0.0D); }
+		else { drawRect(0, data[2], -0.9, data[3], playerdata.eyes.pupilColor[1], 0.0D); }
 		// Glint
-		if (this.playerdata.eyes.glint && this.npc.isEntityAlive()) {
-			if (this.playerdata.eyes.type == 2) {
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(-0.8f, 0.1f, 0.0f);
-				GlStateManager.scale(0.003f, 0.003f, 1.0f);
-				GlStateManager.enableBlend();
-				this.render.bindTexture(this.playerdata.eyes.glintRes);
-				GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-				this.drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
-				GlStateManager.popMatrix();
+		if (playerdata.eyes.glint && npc.isEntityAlive()) {
+			GlStateManager.translate(0.0f, 0.0f, 0.001f);
+			if (glintData != null) {
+				if (glintData[3] != 0.0f) {
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(-0.8f, 0.1f, 0.0f);
+					GlStateManager.translate(glintData[0], glintData[1], 0.0f);
+					GlStateManager.scale(0.003f, 0.003f, 1.0f);
+					GlStateManager.enableBlend();
+					GlStateManager.color(1.0f, 1.0f, 1.0f, glintData[2]);
+					render.bindTexture(playerdata.eyes.glintRes);
+					drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
+					GlStateManager.popMatrix();
+				}
 			}
-			else { this.drawRect(-0.05, -0.35 + s[6], -0.3, -0.1 + s[7], 0xFFFFFFFF, 0.0D); }
+			else { drawRect(-0.05, -0.35 + data[6], -0.3, -0.1 + data[7], 0xFFFFFFFF, 0.0D); }
 		}
 		GlStateManager.popMatrix();
 
 		GlStateManager.popMatrix();
 	}
 
-	private void drawRight(float[] s, Float[] eye, Float[] pupil, int h, int hoverColor) {
-		int cld = this.playerdata.eyes.closed;
-		if (cld == 1 || cld == 3 || this.playerdata.eyes.pattern == 1 || this.npc.isDead || this.npc.isPlayerSleeping()) { return; }
-		float ex = 0.0f, ey = 0.0f, esx = 1.0f, esy = 1.0f, er = 0.0f;
-		if (eye != null) { // ofsX, ofsY, scX, scY, rot
-			ex = (float) (eye[0] / Math.PI) * 0.25f;
-			ey = (float) (eye[1] / Math.PI) * 0.25f;
-			esx = eye[2];
-			esy = eye[3];
-			er = eye[4];
+	private void drawRight(float[] data, Float[] eyeData, Float[] pupilData, int h, int hoverColor, boolean isDisableMoved, float[] glintData) {
+		int cld = playerdata.eyes.closed;
+		if (cld == 1 || cld == 3 || playerdata.eyes.pattern == 1 || npc.isDead || npc.isPlayerSleeping()) { return; }
+		float eyePosX = 0.0f;
+		float eyePosY = 0.0f;
+		float eyeScaleX = 1.0f;
+		float eyeScaleY = 1.0f;
+		float eyeRotate = 0.0f;
+		if (eyeData != null) {
+			eyePosX = eyeData[0];
+			eyePosY = eyeData[1];
+			eyeScaleX = eyeData[2];
+			eyeScaleY = eyeData[3];
+			eyeRotate = eyeData[4];
 		}
-		float px = s[4], py = s[5], psx = 1.0f, psy = 1.0f, pr = 0.0f;
-		if (pupil != null) {
-			px = (float) (pupil[0] / Math.PI) * 0.275f; // 0.55
-			if (this.playerdata.eyes.type != 0) { py = (float) (pupil[1] / Math.PI) * 0.175f; } // 0.35
-			else { py = (float) (pupil[1] / Math.PI) * 0.075f; } // 0.15
-			psx = pupil[2];
-			psy = pupil[3];
-			pr = pupil[4];
+		float pupilPosX = data[4];
+		float pupilPosY = data[5];
+		float pupilScaleX = 1.0f;
+		float pupilScaleY = 1.0f;
+		float pr = 0.0f;
+		if (pupilData != null) {
+			if (!isDisableMoved) {
+				pupilPosX = pupilData[0] * -0.005f; // 0.55
+				pupilPosY = pupilData[1] * -0.005f;
+				/*if (playerdata.eyes.type != 0) { pupilPosY = pupilData[1] * 0.175f; } // 0.35
+				else { pupilPosY = pupilData[1] * 0.075f; } // 0.15
+				pupilPosY = pupilData[1] * 0.015f;*/
+			}
+			pupilScaleX = pupilData[2];
+			pupilScaleY = pupilData[3];
+			pr = pupilData[4];
 		}
 		// Eye
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
-		GlStateManager.translate(-0.99 + ex, -5.0 + s[0] + ey, 4.01f);
-		if (er != 0.0f) {
-			float ry = (float) ((1.0 + s[1] - s[0]) / 2.0f);
+		GlStateManager.translate(-0.99 + eyePosX, -5.0 + data[0] + eyePosY, 4.01f);
+		if (eyeRotate != 0.0f) {
+			float ry = (float) ((1.0 + data[1] - data[0]) / 2.0f);
 			GlStateManager.translate(-1.01, ry, 0.0f);
-			GlStateManager.rotate(er, 0.0f, 0.0f, 1.0f);
+			GlStateManager.rotate(eyeRotate, 0.0f, 0.0f, 1.0f);
 			GlStateManager.translate(1.01, -ry, 0.0f);
 		}
-		GlStateManager.scale(esx, esy, 1.0f);
+		GlStateManager.scale(eyeScaleX, eyeScaleY, 1.0f);
 		if (h == 1) {
-			this.drawRect(0.125d, -0.125d, -2.135, 1.125 + s[1] - s[0], hoverColor, 0.0D);
+			drawRect(0.125d, -0.125d, -2.135, 1.125 + data[1] - data[0], hoverColor, 0.0D);
 		}
-		if (this.playerdata.eyes.type == 2) {
-			float red = (float)(this.playerdata.eyes.eyeColor[0] >> 16 & 255) / 127.5F;
-			float green = (float)(this.playerdata.eyes.eyeColor[0] >> 8 & 255) / 127.5F;
-			float blue = (float)(this.playerdata.eyes.eyeColor[0] & 255) / 127.5F;
+		if (playerdata.eyes.type == 2) {
+			float red = (float)(playerdata.eyes.eyeColor[0] >> 16 & 255) / 127.5F;
+			float green = (float)(playerdata.eyes.eyeColor[0] >> 8 & 255) / 127.5F;
+			float blue = (float)(playerdata.eyes.eyeColor[0] & 255) / 127.5F;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(-2.01f, 0.0f, 0.0f);
 			GlStateManager.scale(0.007875f, 0.0067204f, 1.0f);
 			GlStateManager.enableBlend();
-			this.render.bindTexture(this.playerdata.eyes.eyeRight);
+			render.bindTexture(playerdata.eyes.eyeRight);
 			GlStateManager.color(red, green, blue, 1.0f);
-			this.drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
+			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
 			GlStateManager.popMatrix();
 		}
 		else {
-			this.drawRect(0, 0, -2.01, 1.0 + s[1] - s[0], this.playerdata.eyes.eyeColor[1], 0.0D);
+			drawRect(0, 0, -2.01, 1.0 + data[1] - data[0], playerdata.eyes.eyeColor[1], 0.0D);
 		}
 
 		// Pupil
-		if (!this.playerdata.eyes.activeRight) { px = 0.0f; py = 0.0f; }
-		if (this.playerdata.eyes.type == 0) { py -= 0.075f; }
+		if (!playerdata.eyes.activeRight) {
+			pupilPosX = 0.0f;
+			pupilPosY = 0.0f;
+		}
+		if (playerdata.eyes.type == 0) { pupilPosY -= 0.075f; }
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
-		GlStateManager.translate((-0.56 + px) * (-0.7f * psx + 1.7f), (0.65 + py) * (float) (2.0f * Math.pow(psy, 3.0d) - 6.2f * Math.pow(psy, 2.0d) + 5.2f * psy) - s[0], 0.005f);
+		GlStateManager.translate((-0.56 + pupilPosX) * (-0.7f * pupilScaleX + 1.7f), (0.65 + pupilPosY) * (float) (2.0f * Math.pow(pupilScaleY, 3.0d) - 6.2f * Math.pow(pupilScaleY, 2.0d) + 5.2f * pupilScaleY) - data[0], 0.005f);
 		if (pr != 0.0f) {
-			float ry = (s[3] - s[2]) / 2.0f;
+			float ry = (data[3] - data[2]) / 2.0f;
 			GlStateManager.translate(-0.45, ry, 0.0f);
 			GlStateManager.rotate(pr, 0.0f, 0.0f, 1.0f);
 			GlStateManager.translate(0.45, -ry, 0.0f);
 		}
-		GlStateManager.scale(psx, psy, 1.0f);
+		GlStateManager.scale(pupilScaleX, pupilScaleY, 1.0f);
 		if (h == 2) {
-			this.drawRect(0.125d, -0.125d, -1.025, 0.125 + s[3], hoverColor, 0.0D);
+			drawRect(0.125d, -0.125d, -1.025, 0.125 + data[3], hoverColor, 0.0D);
 		}
-		if (this.playerdata.eyes.type == 2) {
-			float red = (float)(this.playerdata.eyes.pupilColor[0] >> 16 & 255) / 127.5F;
-			float green = (float)(this.playerdata.eyes.pupilColor[0] >> 8 & 255) / 127.5F;
-			float blue = (float)(this.playerdata.eyes.pupilColor[0] & 255) / 127.5F;
+		if (playerdata.eyes.type == 2) {
+			float red = (float)(playerdata.eyes.pupilColor[0] >> 16 & 255) / 127.5F;
+			float green = (float)(playerdata.eyes.pupilColor[0] >> 8 & 255) / 127.5F;
+			float blue = (float)(playerdata.eyes.pupilColor[0] & 255) / 127.5F;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(-0.8f, 0.1f, 0.0f);
 			GlStateManager.scale(0.003f, 0.003f, 1.0f);
 			GlStateManager.enableBlend();
-			this.render.bindTexture(this.playerdata.eyes.pupilRight);
+			render.bindTexture(playerdata.eyes.pupilRight);
 			GlStateManager.color(red, green, blue, 1.0f);
-			this.drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
+			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
 			GlStateManager.popMatrix();
 		}
-		else { this.drawRect(0, s[2], -0.9, s[3], this.playerdata.eyes.pupilColor[0], 0.0D); }
+		else { drawRect(0, data[2], -0.9, data[3], playerdata.eyes.pupilColor[0], 0.0D); }
 		// Glint
-		if (this.playerdata.eyes.glint && this.npc.isEntityAlive()) {
-			if (this.playerdata.eyes.type == 2) {
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(-0.8f, 0.1f, 0.0f);
-				GlStateManager.scale(0.003f, 0.003f, 1.0f);
-				GlStateManager.enableBlend();
-				this.render.bindTexture(this.playerdata.eyes.glintRes);
-				GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-				this.drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
-				GlStateManager.popMatrix();
+		if (playerdata.eyes.glint && npc.isEntityAlive()) {
+			GlStateManager.translate(0.0f, 0.0f, 0.001f);
+			if (glintData != null) {
+				if (glintData[3] != 0.0f) {
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(-0.8f, 0.1f, 0.0f);
+					GlStateManager.translate(glintData[0], glintData[1], 0.0f);
+					GlStateManager.scale(0.003f, 0.003f, 1.0f);
+					GlStateManager.enableBlend();
+					render.bindTexture(playerdata.eyes.glintRes);
+					GlStateManager.color(1.0f, 1.0f, 1.0f, glintData[2]);
+					drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
+					GlStateManager.popMatrix();
+				}
 			}
-			else { this.drawRect(-0.05, -0.35 + s[6], -0.3, -0.1 + s[7], 0xFFFFFFFF, 0.0D); }
+			else { drawRect(-0.05, -0.35 + data[6], -0.3, -0.1 + data[7], 0xFFFFFFFF, 0.0D); }
 		}
 		GlStateManager.popMatrix();
 
@@ -434,7 +495,7 @@ public class LayerEyes<T extends EntityLivingBase>
 			y2 = j1;
 		}
 		float f0 = (color >> 24 & 0xFF) / 255.0f;
-		if (f0 == 0.0f) { f0 = this.alpha; }
+		if (f0 == 0.0f) { f0 = alpha; }
 		float f1 = (color >> 16 & 0xFF) / 255.0f;
 		float f2 = (color >> 8 & 0xFF) / 255.0f;
 		float f3 = (color & 0xFF) / 255.0f;
@@ -450,22 +511,21 @@ public class LayerEyes<T extends EntityLivingBase>
 
 	@Override
 	public void render(float par2, float par3, float par4, float par5, float par6, float par7) {
-		if (!this.playerdata.eyes.isEnabled() || this.npc.display.getModel() != null || !this.npc.getClass().getSimpleName().equals("EntityCustomNpc") || !this.npc.animation.showParts.get(EnumParts.HEAD)) { return; }
+		if (!playerdata.eyes.isEnabled() || npc.display.getModel() != null || !npc.getClass().getSimpleName().equals("EntityCustomNpc") || !npc.animation.showParts.get(EnumParts.HEAD)) { return; }
 		boolean isInvisible = false;
         Minecraft mc = Minecraft.getMinecraft();
-		if (this.npc.display.getVisible() == 1) { isInvisible = this.npc.display.getAvailability().isAvailable(mc.player); }
-		else if (this.npc.display.getVisible() == 2) { isInvisible = !(mc.player.getHeldItemMainhand().getItem() instanceof ItemNpcWand); }
+		if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(mc.player); }
+		else if (npc.display.getVisible() == 2) { isInvisible = !(mc.player.getHeldItemMainhand().getItem() instanceof ItemNpcWand); }
 		if (isInvisible) { alpha = 0.5f; }
-		else if (this.npc.equals(ModelNpcAlt.editAnimDataSelect.displayNpc) && ModelNpcAlt.editAnimDataSelect.part != 0) {
+		else if (npc.equals(ModelNpcAlt.editAnimDataSelect.displayNpc) && ModelNpcAlt.editAnimDataSelect.part != 0) {
 			if (ModelNpcAlt.editAnimDataSelect.alpha >= 1.0f) { alpha = 1.0f; } else { alpha = 0.5f; }
 		}
 		else { alpha = 1.0f; }
-
 		GlStateManager.pushMatrix();
-		this.model.bipedHead.postRender(0.0625f);
-		if (this.npc.isSneaking()) { GlStateManager.translate(0.0F, -0.2F, 0.0F); }
+		model.bipedHead.postRender(0.0625f);
+		if (npc.isSneaking()) { GlStateManager.translate(0.0F, -0.2F, 0.0F); }
 		GlStateManager.scale(par7, par7, -par7);
-		GlStateManager.translate(0.0f, (((this.playerdata.eyes.type != 0) ? 1 : 2) - this.playerdata.eyes.eyePos), 0.0f);
+		GlStateManager.translate(0.0f, (((playerdata.eyes.type != 0) ? 1 : 2) - playerdata.eyes.eyePos), 0.0f);
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.shadeModel(7425);
 		GlStateManager.disableTexture2D();
@@ -475,18 +535,23 @@ public class LayerEyes<T extends EntityLivingBase>
 		GlStateManager.disableAlpha();
 		GlStateManager.depthMask(false);
 		GlStateManager.disableLighting();
-		int i = this.npc.getBrightnessForRender();
+		int i = npc.getBrightnessForRender();
 
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, i % 65536.0F, i / 65536.0F);
 		mc.entityRenderer.setupFogColor(true);
-		float oU = 0.0f, oD = 0.0f, pU = -0.4f, pD = 0.25f, ox = 0.0f, oy = 0.0f, gU = 0.0f, gD = 0.0f;
-		if (this.playerdata.eyes.type != 0) { oU = 0.3f; oD = 1.0f; pU = 0.0f; pD = 1.0f; gU = 0.7f; gD = 0.15f; }
+		// [ offsetEyeY, offsetEyeY2, offsetPupilY, offsetPupilY2, pupilPosX, pupilPosY, offsetGlintYStart, offsetGlintYEnd ]
+		float[] data = new float[] { 0.0f, 0.0f, -0.4f, 0.25f, 0.0f, 0.0f, 0.0f, 0.0f };
+		if (playerdata.eyes.type != 0) { data = new float[] { 0.3f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.7f, 0.15f }; }
 		Map<Integer, Float[]> emotionData = new HashMap<>();
 		EmotionFrame frame = npc.animation.getCurrentEmotionFrame();
 		EmotionConfig activeEmotion = npc.animation.getActiveEmotion();
-		int baseEmotionId = npc.animation.getBaseEmotionId();
-		if (activeEmotion == null && baseEmotionId >= 0) {
-			activeEmotion = (EmotionConfig) AnimationController.getInstance().getEmotion(baseEmotionId);
+		boolean isDisableMoved = false;
+		if (npc.animation.isEmoted()) { isDisableMoved = npc.animation.emotionIsDisableMoved(); }
+		float scaleMoveX = 1.0f;
+		float scaleMoveY = 1.0f;
+		if (activeEmotion != null) {
+			scaleMoveX = Math.max(0.05f, Math.min(1.25f, activeEmotion.scaleMoveX));
+			scaleMoveY = Math.max(0.05f, Math.min(1.25f, activeEmotion.scaleMoveY));
 		}
 		if (CustomNpcs.ShowCustomAnimation && activeEmotion != null) {
 			emotionData = npc.animation.getEmotionData();
@@ -495,16 +560,32 @@ public class LayerEyes<T extends EntityLivingBase>
 				if (playerdata.eyes.ticks == 0) { playerdata.eyes.blinkStart = System.currentTimeMillis(); }
 			}
 			else if (!activeEmotion.canBlink()) {
-				this.playerdata.eyes.blinkStart = -20L;
+				playerdata.eyes.blinkStart = -20L;
 			}
 		}
-		else {
-			if (npc.lookAt != null || (npc.lookPos[0] != -1 && npc.lookPos[1] != -1)) {
+		if (isDisableMoved) {
+			if (mc.currentScreen instanceof GuiNpcEmotion && activeEmotion != null && activeEmotion.isEdit && (activeEmotion.editFrame > -1 || activeEmotion.frames.size() == 1)) {
+				EmotionFrame fr = npc.animation.getEmotionCurrentFrame();
+				if (fr != null && fr.disable) {
+					ScaledResolution sw = new ScaledResolution(mc);
+					float x = sw.getScaledWidth() / 2.0f + 134.0f;
+					float y = sw.getScaledHeight() / 2.0f + 41.0f;
+					GuiNPCInterface gui = (GuiNPCInterface) mc.currentScreen;
+					x -= gui.mouseX;
+					y -= gui.mouseY;
+					x = ValueUtil.correctFloat(x, -70.0f, 70.0f);
+					y = ValueUtil.correctFloat(y, -70.0f, 70.0f);
+					double theta = Math.atan2(y, x);
+					data[4] = -0.45f * (float) Math.cos(theta) * scaleMoveX;
+					data[5] = -0.45f * (float) Math.sin(theta) * scaleMoveY;
+				}
+			}
+			else if (npc.lookAt != null || (npc.lookPos[0] != -1 && npc.lookPos[1] != -1)) {
 				float yaw, pitch;
 				if (npc.lookAt != null) {
-					double d0 = this.npc.posX - this.npc.lookAt.posX;
-					double d1 = (this.npc.posY + (double) this.npc.getEyeHeight()) - (this.npc.lookAt.posY + (double) this.npc.lookAt.getEyeHeight());
-					double d2 = this.npc.posZ - this.npc.lookAt.posZ;
+					double d0 = npc.posX - npc.lookAt.posX;
+					double d1 = (npc.posY + (double) npc.getEyeHeight()) - (npc.lookAt.posY + (double) npc.lookAt.getEyeHeight());
+					double d2 = npc.posZ - npc.lookAt.posZ;
 					double d3 = MathHelper.sqrt(d0 * d0 + d2 * d2);
 					yaw = MathHelper.wrapDegrees(npc.ais.orientation - (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F) / (npc.ais.getStandingType() == 4 ? 2.0f : 1.0f);
 					pitch = MathHelper.wrapDegrees(npc.rotationPitch + (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)))) / (npc.ais.getStandingType() == 4 ? 2.0f : 1.0f);
@@ -517,36 +598,67 @@ public class LayerEyes<T extends EntityLivingBase>
 				if (pitch < -45.0f) { pitch = -45.0f; }
 				else if (pitch > 45.0f) { pitch = 45.0f; }
 				if (playerdata.eyes.type == 2) {
-					ox = (float) (Math.sin(yaw * Math.PI / 180D) * (-0.006667D * (pitch < 0 ? -pitch : pitch) + 0.8D));
-					oy = (float) (Math.sin(pitch * Math.PI / 180D) * (-0.003333D * (yaw < 0 ? -yaw : yaw) + 0.6D));
+					data[4] = (float) (Math.sin(yaw * Math.PI / 180D) * (-0.006667D * (pitch < 0 ? -pitch : pitch) + 0.8D)) * scaleMoveX;
+					data[5] = (float) (Math.sin(pitch * Math.PI / -180D) * (-0.003333D * (yaw < 0 ? -yaw : yaw) + 0.6D)) * scaleMoveY;
 				} else {
-					ox = yaw / 89.0f; // 45 -> 0.505
-					if (playerdata.eyes.type == 1) { oy = pitch / 150.0f; } // 45 -> 0.505
-					else { oy = pitch / 320.0f; } // 45 -> 0.505
+					data[4] = yaw / 89.0f * scaleMoveX; // 45 -> 0.505
+					if (playerdata.eyes.type == 1) { data[5] = pitch / -150.0f * scaleMoveY; } // 45 -> 0.505
+					else { data[5] = pitch / -320.0f * scaleMoveY; } // 45 -> 0.505
 				}
 			}
 		}
-		float[] s = new float[] { oU, oD, pU, pD, ox, -oy, gU, gD };
+		float[] glintData = null;
+		if (playerdata.eyes.glint && npc.isEntityAlive() && playerdata.eyes.type == 2 && npc.currentAnimation != 2 && npc.world.provider.getDimension() != -1) {
+			glintData = new float[] { 0.0f, 0.0f, 1.0f, 0.0f }; // [ x, y, alpha, isShow]
+			long time = npc.world.getWorldTime();
+			float yaw = npc.rotationYawHead < 0.0f ? npc.rotationYawHead + 360.0f: npc.rotationYawHead;
+			boolean show = true;
+			if ((time % 12000) < 3000) { // moonrise / sunrise
+				yaw -= 270.0f;
+				show = Math.abs(yaw) <= 90;
+				if (show) {
+					if (time > 12000) { glintData[2] = Math.abs(yaw) * -0.00333f + 0.7f; } // night
+					else { glintData[2] = Math.abs(yaw) * -0.0001f + 1.0f; } // day
+					yaw -= 90.0f;
+					glintData[0] = -0.25f * (float) Math.cos(Math.toRadians(yaw));
+					glintData[1] = 0.25f * (float) Math.sin(Math.toRadians(yaw));
+				}
+			}
+			else if ((time % 12000) > 9000) { // moonset / sunset
+				show = yaw >= 0 && yaw < 180.0f;
+				if (show) {
+					if (time > 12000) { glintData[2] = Math.abs(yaw - 90.0f) * -0.00333f + 0.7f; } // night
+					else { glintData[2] = Math.abs(yaw - 90.0f) * -0.0001f + 1.0f; } // day
+					glintData[0] = -0.25f * (float) Math.cos(Math.toRadians(yaw));
+					glintData[1] = -0.25f * (float) Math.sin(Math.toRadians(yaw));
+				}
+			} else { // +/- (midnight / noon)
+				yaw = 90.0f + (time % 12000) * -0.03f + 540.0f;
+				glintData[0] = -0.25f * (float) Math.cos(Math.toRadians(yaw));
+				glintData[1] = -0.25f * (float) Math.sin(Math.toRadians(yaw));
+			}
+			glintData[3] = show ? 1.0f : 0.0f;
+		}
 		int e = -1;
 		boolean r = true;
-		if (mc.currentScreen instanceof GuiNpcEmotion && ((GuiNpcEmotion) mc.currentScreen).npcEmtn.equals(this.npc)) {
+		if (mc.currentScreen instanceof GuiNpcEmotion && ((GuiNpcEmotion) mc.currentScreen).npcEmtn.equals(npc)) {
 			e = ((GuiNpcEmotion) mc.currentScreen).elementType;
 			r = ((GuiNpcEmotion) mc.currentScreen).isRight;
-			this.playerdata.eyes.update(this.npc);
+			playerdata.eyes.update(npc);
 		}
-		int t = (int) (this.npc.world.getTotalWorldTime() % 40L);
+		int t = (int) (npc.world.getTotalWorldTime() % 40L);
 		String a = Integer.toHexString((int) ((-12.25f * t + 255.0f) * (t > 20 ? -1.0f : 1.0f))) + "00FF00";
 		int c = (int) Long.parseLong(a, 16);
 		int h = 0;
 
 		if (e < 2 && !r) { h = e + 1; }
-		this.drawLeft(s, emotionData.get(1), emotionData.get(3), h, c);
+		drawLeft(data, emotionData.get(1), emotionData.get(3), h, c, isDisableMoved, glintData);
 		h = 0;
 		if (e < 2 && r) { h = e + 1; }
-		this.drawRight(s, emotionData.get(0), emotionData.get(2), h, c);
+		drawRight(data, emotionData.get(0), emotionData.get(2), h, c, isDisableMoved, glintData);
 		h = 0;
 		if (e == 2) { h = r ? 1 : 2; }
-		this.drawBrows(emotionData.get(4), emotionData.get(5), emotionData.get(0), emotionData.get(1), h, c, frame);
+		drawBrows(emotionData.get(4), emotionData.get(5), emotionData.get(0), emotionData.get(1), h, c, frame);
 
 		mc.entityRenderer.setupFogColor(false);
 		GlStateManager.depthMask(true);

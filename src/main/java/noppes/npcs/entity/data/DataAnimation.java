@@ -102,6 +102,13 @@ public class DataAnimation implements INPCAnimation {
 				else if (entity instanceof EntityNPCInterface) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.ANIMATION_DATA_STOP_ANIMATION, true, entity.world.provider.getDimension(), entity.getEntityId()); }
 			}
 		}
+		if (!animationHandler.movementAnimation.isEmpty()) {
+			animationHandler.movementAnimation.clear();
+			Map<Integer, Integer> map = animationHandler.resetWalkAndStandAnimations();
+			if (map == null) { map = new HashMap<>(); }
+			if (entity instanceof EntityPlayerMP) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.ANIMATION_DATA_BASE_ANIMATIONS, false, entity.world.provider.getDimension(), entity.getUniqueID(), map); }
+			else if (entity instanceof EntityNPCInterface) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.ANIMATION_DATA_BASE_ANIMATIONS, true, entity.world.provider.getDimension(), entity.getEntityId(), map); }
+		}
 		animationHandler.stopAnimation();
 	}
 
@@ -145,7 +152,7 @@ public class DataAnimation implements INPCAnimation {
 	public void resetWalkAndStandAnimations() {
 		if (entity == null || entity.world.getTotalWorldTime() % 20 != 0) { return; }
 		Map<Integer, Integer> map = animationHandler.resetWalkAndStandAnimations();
-		if (map != null) {
+		if (entity.isServerWorld() && map != null) {
 			if (entity instanceof EntityPlayerMP) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.ANIMATION_DATA_BASE_ANIMATIONS, false, entity.world.provider.getDimension(), entity.getUniqueID(), map); }
 			else if (entity instanceof EntityNPCInterface) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.ANIMATION_DATA_BASE_ANIMATIONS, true, entity.world.provider.getDimension(), entity.getEntityId(), map); }
 		}
@@ -260,4 +267,12 @@ public class DataAnimation implements INPCAnimation {
 	public void setRotationAnglesEmotion(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, float partialTicks) {
 		emotionHandler.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, partialTicks);
 	}
+
+	public boolean emotionIsDisableMoved() {
+		if (emotionHandler.currentFrame == null) { return true; }
+		return emotionHandler.currentFrame.disable;
+	}
+
+	public EmotionFrame getEmotionCurrentFrame() { return emotionHandler.currentFrame; }
+
 }

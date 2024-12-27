@@ -127,13 +127,9 @@ public class PartConfig implements IAnimationPart {
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		id = compound.getInteger("Part");
-		disable = compound.getBoolean("Disabled");
-		if (compound.hasKey("Show", 1)) {
-			show = compound.getBoolean("Show");
-		}
-		if (compound.hasKey("Name", 8)) {
-			name = compound.getString("Name");
-		}
+		if (compound.hasKey("Disabled", 1)) { disable = compound.getBoolean("Disabled"); }
+		if (compound.hasKey("Show", 1)) { show = compound.getBoolean("Show"); }
+		if (compound.hasKey("Name", 8)) { name = compound.getString("Name"); }
 		setMainName();
 		if (compound.hasKey("Type", 3)) {
 			type = EnumParts.values()[compound.getInteger("Type")];

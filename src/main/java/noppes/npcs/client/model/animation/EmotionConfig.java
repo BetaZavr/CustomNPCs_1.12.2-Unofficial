@@ -11,7 +11,7 @@ import noppes.npcs.api.entity.data.IEmotion;
 import noppes.npcs.api.entity.data.IEmotionPart;
 
 public class EmotionConfig
-		implements IEmotion {
+implements IEmotion {
 
 	public static final EmotionConfig EMPTY;
 	static {
@@ -27,11 +27,14 @@ public class EmotionConfig
 	public boolean canBlink = true;
 
 	public boolean immutable = false;
+	public boolean isEdit = false;
 	public final Map<Integer, Integer> endingFrameTicks = new TreeMap<>(); // ticks info
 	public int totalTicks = 0;
     public int editFrame = -1;
+	public float scaleMoveX = 1.0f;
+	public float scaleMoveY = 1.0f;
 
-    public EmotionConfig() {
+	public EmotionConfig() {
 		this.frames = new TreeMap<>();
 		this.frames.put(0, new EmotionFrame(0));
 	}
@@ -51,6 +54,12 @@ public class EmotionConfig
 		this.name = nbtEmotion.getString("Name");
 		this.repeatLast = nbtEmotion.getInteger("EmotionRepeat");
 		this.canBlink = nbtEmotion.getBoolean("CanBlink");
+		if (nbtEmotion.hasKey("ScaleMoveX", 5)) {
+			scaleMoveX = Math.max(0.05f, Math.min(1.25f, nbtEmotion.getFloat("ScaleMoveX")));;
+		}
+		if (nbtEmotion.hasKey("ScaleMoveY", 5)) {
+			scaleMoveY = Math.max(0.05f, Math.min(1.25f, nbtEmotion.getFloat("ScaleMoveY")));;
+		}
 	}
 
 	public NBTTagCompound save() {
@@ -63,6 +72,8 @@ public class EmotionConfig
 		nbtEmotion.setInteger("EmotionRepeat", this.repeatLast);
 		nbtEmotion.setBoolean("CanBlink", this.canBlink);
 		if (this.repeatLast < 0) { this.repeatLast = this.frames.size() - 1; }
+		nbtEmotion.setFloat("ScaleMoveX", scaleMoveX);
+		nbtEmotion.setFloat("ScaleMoveY", scaleMoveY);
 		return nbtEmotion;
 	}
 
@@ -70,7 +81,7 @@ public class EmotionConfig
 
 	public EmotionConfig copy() {
 		EmotionConfig ec = new EmotionConfig();
-		ec.read(this.save());
+		ec.read(save());
 		ec.resetTicks();
 		return ec;
 	}

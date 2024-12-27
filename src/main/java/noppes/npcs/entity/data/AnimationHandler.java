@@ -595,11 +595,8 @@ public class AnimationHandler {
         }
 
         if (!isChanged) { return null; }
-
         Map<Integer, Integer> map = new HashMap<>();
-        for (AnimationKind ak : movementAnimation.keySet()) {
-            map.put(ak.ordinal(), movementAnimation.get(ak));
-        }
+        for (AnimationKind ak : movementAnimation.keySet()) { map.put(ak.ordinal(), movementAnimation.get(ak)); }
         return map;
     }
 
@@ -616,7 +613,6 @@ public class AnimationHandler {
     public void setRotationAngles(float ignoredLimbSwing, float ignoredLimbSwingAmount, float ignoredAgeInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScaleFactor, float partialTicks) {
         AnimationKind base = null;
         boolean isMoving = Util.instance.isMoving(entity);
-//if (entity.getName().equals("Stand Ground")) { System.out.println("CNPCs: "+entity.limbSwing+" == "+entity.prevLimbSwingAmount); }
         if (!movementAnimation.isEmpty() && (activeAnimation == null || isMoving)) {
             // try to get AIM
             if (movementAnimation.containsKey(AnimationKind.AIM) && !isMoving) {

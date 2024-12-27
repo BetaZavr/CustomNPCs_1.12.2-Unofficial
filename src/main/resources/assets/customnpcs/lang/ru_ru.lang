@@ -872,6 +872,7 @@ emotion.end.blink=Моргание до конца кадра
 emotion.list=Список Эмоций:
 emotion.no.blink=Не моргать в этом кадре
 emotion.part.disable=Стандартное движение зрачка
+emotion.hover.scale.move=Масштаб движения зрачка по оси %s при слежении за целью глазами
 
 enchantment.confusion=Смятение
 enchantment.damage=Урон

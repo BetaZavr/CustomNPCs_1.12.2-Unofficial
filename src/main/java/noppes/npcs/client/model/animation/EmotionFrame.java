@@ -19,21 +19,21 @@ implements IEmotionPart {
 	public boolean disable = false;
 	public boolean blink = false;
 	public boolean endBlink = false;
-	public float[] offsetEye = new float[] { 0.5f, 0.5f, 0.5f, 0.5f }; // [rightX, rightY, leftX, leftY]
-	public float[] rotEye = new float[] { 0.5f, 0.5f }; // [right, left]
-	public float[] scaleEye = new float[] { 0.5f, 0.5f, 0.5f, 0.5f }; // [rightX, rightY, leftX, leftY]
+	public float[] offsetEye = new float[] { 0.0f, 0.0f, 0.0f, 0.0f }; // [rightX, rightY, leftX, leftY]
+	public float[] rotEye = new float[] { 0.0f, 0.0f }; // [right, left]
+	public float[] scaleEye = new float[] { 1.0f, 1.0f, 1.0f, 1.0f }; // [rightX, rightY, leftX, leftY]
 	
-	public float[] offsetPupil = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
-	public float[] rotPupil = new float[] { 0.5f, 0.5f };
-	public float[] scalePupil = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
+	public float[] offsetPupil = new float[] { 0.0f, 0.0f, 0.0f, 0.0f };
+	public float[] rotPupil = new float[] { 0.0f, 0.0f };
+	public float[] scalePupil = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
 	
-	public float[] offsetBrow = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
-	public float[] rotBrow = new float[] { 0.5f, 0.5f };
-	public float[] scaleBrow = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
+	public float[] offsetBrow = new float[] { 0.0f, 0.0f, 0.0f, 0.0f };
+	public float[] rotBrow = new float[] { 0.0f, 0.0f };
+	public float[] scaleBrow = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
 
-	public float[] offsetMouth = new float[] { 0.5f, 0.5f};
-	public float rotMouth = 0.5f;
-	public float[] scaleMouth = new float[] { 0.5f, 0.5f };
+	public float[] offsetMouth = new float[] { 0.0f, 0.0f };
+	public float rotMouth = 0.0f;
+	public float[] scaleMouth = new float[] { 1.0f, 1.0f };
 	public boolean rndMouth = false;
 	public boolean showMouth = false;
 
@@ -205,18 +205,18 @@ implements IEmotionPart {
 		this.disable = false;
 		this.blink = false;
 		this.endBlink = false;
-		this.offsetEye = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
-		this.rotEye = new float[] { 0.5f, 0.5f };
-		this.scaleEye = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
-		this.offsetPupil = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
-		this.rotPupil = new float[] { 0.5f, 0.5f };
-		this.scalePupil = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
-		this.offsetBrow = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
-		this.rotBrow = new float[] { 0.5f, 0.5f };
-		this.scaleBrow = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
-		this.offsetMouth = new float[] { 0.5f, 0.5f};
-		this.rotMouth = 0.5f;
-		this.scaleMouth = new float[] { 0.5f, 0.5f };
+		this.offsetEye = new float[] { 0.0f, 0.0f, 0.0f, 0.0f };
+		this.rotEye = new float[] { 0.0f, 0.0f };
+		this.scaleEye = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
+		this.offsetPupil = new float[] { 0.0f, 0.0f, 0.0f, 0.0f };
+		this.rotPupil = new float[] { 0.0f, 0.0f };
+		this.scalePupil = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
+		this.offsetBrow = new float[] { 0.0f, 0.0f, 0.0f, 0.0f };
+		this.rotBrow = new float[] { 0.0f, 0.0f };
+		this.scaleBrow = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
+		this.offsetMouth = new float[] { 0.0f, 0.0f};
+		this.rotMouth = 0.0f;
+		this.scaleMouth = new float[] { 1.0f, 1.0f };
 		this.rndMouth = false;
 		this.showMouth = false;
 	}
@@ -244,18 +244,21 @@ implements IEmotionPart {
 		rotEye[1] = eyeLeft[4];
 
 		Float[] pupilRight = rotationAngles.get(2); // ofsX, ofsY, scX, scY, rot
-		offsetPupil[0] = pupilRight[0];
-		offsetPupil[1] = pupilRight[1];
-		scalePupil[0] = pupilRight[2];
-		scalePupil[1] = pupilRight[3];
-		rotPupil[0] = pupilRight[4];
+		if (pupilRight != null) {
+			offsetPupil[0] = pupilRight[0];
+			offsetPupil[1] = pupilRight[1];
+			scalePupil[0] = pupilRight[2];
+			scalePupil[1] = pupilRight[3];
+			rotPupil[0] = pupilRight[4];
+		}
 		Float[] pupilLeft = rotationAngles.get(3);
-		offsetPupil[2] = pupilLeft[0];
-		offsetPupil[3] = pupilLeft[1];
-		scalePupil[2] = pupilLeft[2];
-		scalePupil[3] = pupilLeft[3];
-		rotPupil[1] = pupilLeft[4];
-
+		if (pupilLeft != null) {
+			offsetPupil[2] = pupilLeft[0];
+			offsetPupil[3] = pupilLeft[1];
+			scalePupil[2] = pupilLeft[2];
+			scalePupil[3] = pupilLeft[3];
+			rotPupil[1] = pupilLeft[4];
+		}
 		Float[] browRight = rotationAngles.get(4); // ofsX, ofsY, scX, scY, rot
 		offsetBrow[0] = browRight[0];
 		offsetBrow[1] = browRight[1];

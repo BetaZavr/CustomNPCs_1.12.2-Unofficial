@@ -1792,7 +1792,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		this.bossInfo.setVisible(this.display.getBossbar() == 1);
 		this.advanced.jobInterface.reset();
-		if (animation.isAnimated()) {  animation.stopAnimation(); }
+		animation.stopAnimation();
 		animation.tryRunAnimation(AnimationKind.INIT);
 		this.updateClient = true;
 		if (this.ais.returnToStart && this.homeDimensionId != this.world.provider.getDimension() && !(this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing())) {

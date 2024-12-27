@@ -153,13 +153,16 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		setEnvironment();
 		onlyCurrentPart = false;
 
+		baseRotation = npc.rotationYaw;
 		basePos = new double[] {npc.posX, npc.posY, npc.posZ};
 		npcAnim = Util.instance.copyToGUI(npc, mc.world, true);
 		npcAnim.display.setName(npc.getName()+"_animation");
-		baseRotation = npcAnim.rotationYaw;
 
 		npcPart = Util.instance.copyToGUI(npc, mc.world, true);
 		npcPart.display.setName(npc.getName()+"_anim_part");
+		GuiNpcButton b = new GuiNpcButton(47, 0,0, "");
+		buttonEvent(b);
+		buttonEvent(b);
 
 		blockNames = new String[6];
 		blockNames[0] = "gui.environment";
@@ -329,7 +332,7 @@ System.out.println("buttonID: "+button.id);
 				if (anim == null || part == null) {
 					return;
 				}
-				part.setDisable(!((GuiNpcCheckBox) button).isSelected());
+				part.setDisable(((GuiNpcCheckBox) button).isSelected());
 				if (GuiScreen.isShiftKeyDown()) { // Shift pressed
 					for (AnimationFrameConfig f : anim.frames.values()) {
 						f.parts.get(part.id).setDisable(part.isDisable());
@@ -707,12 +710,12 @@ System.out.println("buttonID: "+button.id);
 				if (npcAnim.rotationYaw != baseRotation) {
 					npcAnim.rotationYaw = baseRotation;
 					npcAnim.prevRotationYaw = baseRotation;
-					npcAnim.rotationYawHead = baseRotation;
-					npcAnim.prevRotationYawHead = baseRotation;
+					npcAnim.rotationYawHead = npc.rotationYawHead;
+					npcAnim.prevRotationYawHead = npc.prevRotationYawHead;
 					npcPart.rotationYaw = baseRotation;
 					npcPart.prevRotationYaw = baseRotation;
-					npcPart.rotationYawHead = baseRotation;
-					npcPart.prevRotationYawHead = baseRotation;
+					npcPart.rotationYawHead = npc.rotationYawHead;
+					npcPart.prevRotationYawHead = npc.prevRotationYawHead;
 					button.layerColor = 0xFF96FFC0;
 				} else {
 					npcAnim.rotationYaw = 0.0f;
@@ -1531,10 +1534,22 @@ System.out.println("buttonID: "+button.id);
 			GlStateManager.translate(0.5f, 0.0f, -0.5f);
 			mc.getRenderManager().playerViewY = 180.0f;
 			EntityNPCInterface showNPC = getDisplayNpc();
+			if (npc.ais.bodyOffsetX != 5.0f) {
+				float f = (npc.ais.bodyOffsetX - 5.0f) / 10.0f;
+				if (f == 0.5f) { f -= 1.0f; }
+				GlStateManager.translate(f, 0.0f, 0.0f); }
+			if (npc.ais.bodyOffsetZ != 5.0f) {
+				float f = (npc.ais.bodyOffsetZ - 5.0f) / 10.0f;
+				if (f == 0.5f) { f -= 1.0f; }
+				GlStateManager.translate(0.0f, 0.0f, f);
+			}
 			if (showHitBox) {
+				float w = npc.width / 2;
+				AxisAlignedBB col= npc.getCollisionBoundingBox();
+				if (col == null) { col = new AxisAlignedBB(-w, 0.0, -w, w, npc.height, w); }
 				GlStateManager.glLineWidth(1.0F);
 				GlStateManager.disableTexture2D();
-				RenderGlobal.drawSelectionBoundingBox(new AxisAlignedBB(showNPC.width / -2.0d, 0.0d, showNPC.width / -2.0d, showNPC.width / 2.0d, showNPC.height, showNPC.width / 2.0d), 1.0f, 1.0f, 1.0f, 1.0f);
+				RenderGlobal.drawSelectionBoundingBox(col, 1.0f, 1.0f, 1.0f, 1.0f);
 				GlStateManager.enableTexture2D();
 			}
 
@@ -1685,7 +1700,10 @@ System.out.println("buttonID: "+button.id);
 			// model mesh rotation axes:
 
 			ModelNpcAlt.editAnimDataSelect.displayNpc = showNPC;
-			mc.getRenderManager().renderEntity(showNPC, 0.0, 0.0, 0.0, 0.0f, showNPC.rotationYaw != 0.0f ? 1.0f : 0.0f, false);
+			float r = showNPC.rotationYaw < 0.0f ? showNPC.rotationYaw + 360.0f : showNPC.rotationYaw;
+			float oy = 0.0f;
+			showNPC.currentAnimation = npc.currentAnimation;
+			mc.getRenderManager().renderEntity(showNPC, 0.0, oy, 0.0, 0.0f, r / -45.0f + 8.0f, false);
 
 			if (blockType == 0) {
 				for (Entity e : environmentEntitys) {

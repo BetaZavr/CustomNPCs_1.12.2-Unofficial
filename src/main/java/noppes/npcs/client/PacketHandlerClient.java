@@ -801,7 +801,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 						return;
 					}
-					((EntityNPCInterface) entity).animation.loadBaseAnimations(Server.readMap(buffer));
+					Map<Object, Object> map = Server.readMap(buffer);
+					((EntityNPCInterface) entity).animation.loadBaseAnimations(map);
 				}
 			}
 			else { // is Player

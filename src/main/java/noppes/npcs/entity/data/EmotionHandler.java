@@ -3,7 +3,6 @@ package noppes.npcs.entity.data;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
-import noppes.npcs.api.entity.data.IEmotion;
 import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.client.model.animation.EmotionFrame;
 import noppes.npcs.constants.EnumAnimationStages;
@@ -62,7 +61,8 @@ public class EmotionHandler {
                 if (emotionFrame < 0) { emotionFrame = 0; }
                 currentFrame = activeEmotion.frames.get(emotionFrame);
                 nextFrame = activeEmotion.frames.get(Math.min(emotionFrame + 1, activeEmotion.frames.size() - 1));
-                speedTicks = currentFrame.speed;
+                if (activeEmotion.editFrame >= 0) { speedTicks = 1; ticks = 1; }
+                else { speedTicks = currentFrame.speed; }
                 if (activeEmotion.endingFrameTicks.containsKey(emotionFrame - 1)) { ticks -= activeEmotion.endingFrameTicks.get(emotionFrame - 1); }
                 break;
             }
@@ -89,38 +89,38 @@ public class EmotionHandler {
                         case 1: { // scales
                             switch (partId) {
                                 case 1: { // eyeLeft
-                                    value_0 = currentFrame.scaleEye[a + 2] + 0.5f;
-                                    value_1 = nextFrame.scaleEye[a + 2] + 0.5f;
+                                    value_0 = currentFrame.scaleEye[a + 2];
+                                    value_1 = nextFrame.scaleEye[a + 2];
                                     break;
                                 }
                                 case 2: { // pupilRight
-                                    value_0 = currentFrame.scalePupil[a] + 0.5f;
-                                    value_1 = nextFrame.scalePupil[a] + 0.5f;
+                                    value_0 = currentFrame.scalePupil[a];
+                                    value_1 = nextFrame.scalePupil[a];
                                     break;
                                 }
                                 case 3: { // pupilLeft
-                                    value_0 = currentFrame.scalePupil[a + 2] + 0.5f;
-                                    value_1 = nextFrame.scalePupil[a + 2] + 0.5f;
+                                    value_0 = currentFrame.scalePupil[a + 2];
+                                    value_1 = nextFrame.scalePupil[a + 2];
                                     break;
                                 }
                                 case 4: { // browRight
-                                    value_0 = currentFrame.scaleBrow[a] + 0.5f;
-                                    value_1 = nextFrame.scaleBrow[a] + 0.5f;
+                                    value_0 = currentFrame.scaleBrow[a];
+                                    value_1 = nextFrame.scaleBrow[a];
                                     break;
                                 }
                                 case 5: { // browLeft
-                                    value_0 = currentFrame.scaleBrow[a + 2] + 0.5f;
-                                    value_1 = nextFrame.scaleBrow[a + 2] + 0.5f;
+                                    value_0 = currentFrame.scaleBrow[a + 2];
+                                    value_1 = nextFrame.scaleBrow[a + 2];
                                     break;
                                 }
                                 case 6: { // mouth
-                                    value_0 = currentFrame.scaleMouth[a] + 0.5f;
-                                    value_1 = nextFrame.scaleMouth[a] + 0.5f;
+                                    value_0 = currentFrame.scaleMouth[a];
+                                    value_1 = nextFrame.scaleMouth[a];
                                     break;
                                 }
                                 default: { // eyeRight
-                                    value_0 = currentFrame.scaleEye[a] + 0.5f;
-                                    value_1 = nextFrame.scaleEye[a] + 0.5f;
+                                    value_0 = currentFrame.scaleEye[a];
+                                    value_1 = nextFrame.scaleEye[a];
                                     break;
                                 }
                             }
@@ -129,38 +129,38 @@ public class EmotionHandler {
                         case 2: { // rotations
                             switch (partId) {
                                 case 1: { // eyeLeft
-                                    value_0 = (currentFrame.rotEye[1] - 0.5f) * 360.0f;
-                                    value_1 = (nextFrame.rotEye[1] - 0.5f) * 360.0f;
+                                    value_0 = currentFrame.rotEye[1];
+                                    value_1 = nextFrame.rotEye[1];
                                     break;
                                 }
                                 case 2: { // pupilRight
-                                    value_0 = (currentFrame.rotPupil[0] - 0.5f) * 360.0f;
-                                    value_1 = (nextFrame.rotPupil[0] - 0.5f) * 360.0f;
+                                    value_0 = currentFrame.rotPupil[0];
+                                    value_1 = nextFrame.rotPupil[0];
                                     break;
                                 }
                                 case 3: { // pupilLeft
-                                    value_0 = (currentFrame.rotPupil[1] - 0.5f) * 360.0f;
-                                    value_1 = (nextFrame.rotPupil[1] - 0.5f) * 360.0f;
+                                    value_0 = currentFrame.rotPupil[1];
+                                    value_1 = nextFrame.rotPupil[1];
                                     break;
                                 }
                                 case 4: { // browRight
-                                    value_0 = (currentFrame.rotBrow[0] - 0.5f) * 360.0f;
-                                    value_1 = (nextFrame.rotBrow[0] - 0.5f) * 360.0f;
+                                    value_0 = currentFrame.rotBrow[0] - 0.5f;
+                                    value_1 = nextFrame.rotBrow[0] - 0.5f;
                                     break;
                                 }
                                 case 5: { // browLeft
-                                    value_0 = (currentFrame.rotBrow[1] - 0.5f) * 360.0f;
-                                    value_1 = (nextFrame.rotBrow[1] - 0.5f) * 360.0f;
+                                    value_0 = currentFrame.rotBrow[1];
+                                    value_1 = nextFrame.rotBrow[1];
                                     break;
                                 }
                                 case 6: { // mouth
-                                    value_0 = (currentFrame.rotMouth - 0.5f) * 360.0f;
-                                    value_1 = (nextFrame.rotMouth - 0.5f) * 360.0f;
+                                    value_0 = currentFrame.rotMouth;
+                                    value_1 = nextFrame.rotMouth;
                                     break;
                                 }
                                 default: { // eyeRight
-                                    value_0 = (currentFrame.rotEye[0] - 0.5f) * 360.0f;
-                                    value_1 = (nextFrame.rotEye[0] - 0.5f) * 360.0f;
+                                    value_0 = currentFrame.rotEye[0];
+                                    value_1 = nextFrame.rotEye[0];
                                     break;
                                 }
                             }
@@ -169,38 +169,38 @@ public class EmotionHandler {
                         default: { // offsets
                             switch (partId) {
                                 case 1: { // eyeLeft
-                                    value_0 = (currentFrame.offsetEye[a + 2] - 0.5f) * 2.0f;
-                                    value_1 = (nextFrame.offsetEye[a + 2] - 0.5f) * 2.0f;
+                                    value_0 = currentFrame.offsetEye[a + 2];
+                                    value_1 = nextFrame.offsetEye[a + 2];
                                     break;
                                 }
                                 case 2: { // pupilRight
-                                    value_0 = (currentFrame.offsetPupil[a] - 0.5f) * 2.0f;
-                                    value_1 = (nextFrame.offsetPupil[a] - 0.5f) * 2.0f;
+                                    value_0 = currentFrame.offsetPupil[a];
+                                    value_1 = nextFrame.offsetPupil[a];
                                     break;
                                 }
                                 case 3: { // pupilLeft
-                                    value_0 = (currentFrame.offsetPupil[a + 2] - 0.5f) * 2.0f;
-                                    value_1 = (nextFrame.offsetPupil[a + 2] - 0.5f) * 2.0f;
+                                    value_0 = currentFrame.offsetPupil[a + 2];
+                                    value_1 = nextFrame.offsetPupil[a + 2];
                                     break;
                                 }
                                 case 4: { // browRight
-                                    value_0 = (currentFrame.offsetBrow[a] - 0.5f) * 2.0f;
-                                    value_1 = (nextFrame.offsetBrow[a] - 0.5f) * 2.0f;
+                                    value_0 = currentFrame.offsetBrow[a];
+                                    value_1 = nextFrame.offsetBrow[a];
                                     break;
                                 }
                                 case 5: { // browLeft
-                                    value_0 = (currentFrame.offsetBrow[a + 2] - 0.5f) * 2.0f;
-                                    value_1 = (nextFrame.offsetBrow[a + 2] - 0.5f) * 2.0f;
+                                    value_0 = currentFrame.offsetBrow[a + 2];
+                                    value_1 = nextFrame.offsetBrow[a + 2];
                                     break;
                                 }
                                 case 6: { // mouth
-                                    value_0 = (currentFrame.offsetMouth[a] - 0.5f) * 2.0f;
-                                    value_1 = (nextFrame.offsetMouth[a] - 0.5f) * 2.0f;
+                                    value_0 = currentFrame.offsetMouth[a];
+                                    value_1 = nextFrame.offsetMouth[a];
                                     break;
                                 }
                                 default: { // eyeRight
-                                    value_0 = (currentFrame.offsetEye[a] - 0.5f) * 2.0f;
-                                    value_1 = (nextFrame.offsetEye[a] - 0.5f) * 2.0f;
+                                    value_0 = currentFrame.offsetEye[a];
+                                    value_1 = nextFrame.offsetEye[a];
                                     break;
                                 }
                             }
@@ -257,7 +257,7 @@ public class EmotionHandler {
     }
 
     public boolean isAnimated() {
-        return activeEmotion != null && stage != EnumAnimationStages.Waiting && entity.getHealth() > 0.0f;
+        return ((activeEmotion != null && stage != EnumAnimationStages.Waiting) || AnimationController.getInstance().emotions.containsKey(baseEmotionId)) && entity.getHealth() > 0.0f;
     }
 
     public void updateTime() {
@@ -279,7 +279,7 @@ public class EmotionHandler {
         int speed;
         if (activeEmotion.editFrame >= 0) {
             stage = EnumAnimationStages.Run;
-            speed = 0;
+            if (ticks >= activeEmotion.totalTicks) { startEmotionTime = entity.world.getTotalWorldTime() + 1; }
             return;
         }
         if (stage == EnumAnimationStages.Started) {
@@ -329,7 +329,7 @@ public class EmotionHandler {
 
     public void setRotationAngles(float ignoredLimbSwing, float ignoredLimbSwingAmount, float ignoredAgeInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScaleFactor, float partialTicks) {
         if (activeEmotion == null && !AnimationController.getInstance().emotions.containsKey(baseEmotionId)) { return; }
-        if (!isAnimated()) { tryRunEmotion(baseEmotionId); }
+        if (activeEmotion == null) { tryRunEmotion(baseEmotionId); }
         else { calculationEmotionData(partialTicks); }
     }
 

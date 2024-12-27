@@ -102,7 +102,6 @@ public class PlayerEvent extends CustomNPCsEvent {
 			this.pos = pos;
 			this.portal = portal;
 			this.dimension = dimensionID;
-			System.out.println("CNPCs: "+pos+"; "+portal);
 		}
 
 	}

@@ -82,42 +82,42 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	public void buttonEvent(GuiNpcButton button) {
 		EmotionConfig emtn = getEmtn();
 		switch (button.id) {
-			case 0: { // create new
+			case 0: {
 				setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
-			}
-			case 1: { // del
+			} // create new
+			case 1: {
 				if (emtn == null || !dataEmtns.containsKey(scroll.getSelected())) { return; }
 				if (aData.removeEmotion(emtn.id)) { selEmtn = ""; }
 				initGui();
 				break;
-			}
-			case 2: { // back color
+			} // del
+			case 2: {
 				GuiNpcAnimation.backColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000);
 				button.layerColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
 				break;
-			}
-			case 3: { // select frame
+			} // back color
+			case 3: {
 				if (emtn == null || !emtn.frames.containsKey(button.getValue())) { return; }
 				frame = emtn.frames.get(button.getValue());
 				initGui();
 				break;
-			}
-			case 4: { // add frame
+			} // select frame
+			case 4: {
 				if (emtn == null) { return; }
 				frame = (EmotionFrame) emtn.addFrame(frame);
 				initGui();
 				break;
-			}
-			case 5: { // del frame
+			} // add frame
+			case 5: {
 				if (frame == null) { return; }
 				GuiYesNo guiyesno = new GuiYesNo(this,
 						new TextComponentTranslation("animation.clear.frame", "" + (frame.id + 1)).getFormattedText(),
 						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
 				displayGuiScreen(guiyesno);
 				break;
-			}
-			case 6: { // clear frame
+			} // del frame
+			case 6: {
 				if (frame == null) { return; }
 				GuiYesNo guiyesno = new GuiYesNo(this,
 						new TextComponentTranslation("animation.clear.frame", "" + (frame.id + 1)).getFormattedText(),
@@ -125,8 +125,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 						GuiScreen.isShiftKeyDown() ? 4 : 1);
 				displayGuiScreen(guiyesno);
 				break;
-			}
-			case 11: { // smooth
+			} // clear frame
+			case 11: {
 				if (emtn == null || frame == null) { return; }
 				frame.setSmooth(((GuiNpcCheckBox) button).isSelected());
 				if (GuiScreen.isShiftKeyDown()) { // Shift pressed
@@ -136,147 +136,147 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				}
 				resetEmtns();
 				break;
-			}
-			case 22: { // element eye
+			} // smooth
+			case 22: {
 				if (elementType == 3) { return; }
 				elementType = 3;
 				initGui();
 				break;
-			}
-			case 23: { // tool pos
+			} // element eye
+			case 23: {
 				if (toolType == 1) { return; }
 				toolType = 1;
 				initGui();
 				break;
-			}
-			case 24: { // tool rot
+			} // tool pos
+			case 24: {
 				if (toolType == 0) { return; }
 				toolType = 0;
 				initGui();
 				break;
-			}
-			case 25: { // tool scale
+			} // tool rot
+			case 25: {
 				if (toolType == 2) { return; }
 				toolType = 2;
 				initGui();
 				break;
-			}
-			case 26: { // element eye
+			} // tool scale
+			case 26: {
 				if (elementType == 0) { return; }
 				elementType = 0;
 				initGui();
 				break;
-			}
-			case 27: { // element pupil
+			} // element eye
+			case 27: {
 				if (elementType == 1) { return; }
 				elementType = 1;
 				initGui();
 				break;
-			}
-			case 28: { // element brow
+			}// element pupil
+			case 28: {
 				if (elementType == 2) { return; }
 				elementType = 2;
 				initGui();
 				break;
-			}
-			case 29: { // element brow
+			} // element brow
+			case 29: {
 				isRight = button.getValue() == 0;
 				initGui();
 				break;
-			}
-			case 30: { // reset X
+			} // element brow
+			case 30: {
 				if (frame == null) { return; }
 				switch (toolType) {
 					case 0: {
 						switch (elementType) {
-							case 0: frame.rotEye[isRight ? 0 : 1] = 0.5f; break;
-							case 1: frame.rotPupil[isRight ? 0 : 1] = 0.5f; break;
-							case 2: frame.rotBrow[isRight ? 0 : 1] = 0.5f; break;
-							case 3: frame.rotMouth = 0.5f; break;
+							case 0: frame.rotEye[isRight ? 0 : 1] = 0.0f; break;
+							case 1: frame.rotPupil[isRight ? 0 : 1] = 0.0f; break;
+							case 2: frame.rotBrow[isRight ? 0 : 1] = 0.0f; break;
+							case 3: frame.rotMouth = 0.0f; break;
 						}
 						break;
 					}
 					case 1: {
 						switch (elementType) {
-							case 0: frame.offsetEye[isRight ? 0 : 2] = 0.5f; break;
-							case 1: frame.offsetPupil[isRight ? 0 : 2] = 0.5f; break;
-							case 2: frame.offsetBrow[isRight ? 0 : 2] = 0.5f; break;
-							case 3: frame.offsetMouth[0] = 0.5f; break;
+							case 0: frame.offsetEye[isRight ? 0 : 2] = 0.0f; break;
+							case 1: frame.offsetPupil[isRight ? 0 : 2] = 0.0f; break;
+							case 2: frame.offsetBrow[isRight ? 0 : 2] = 0.0f; break;
+							case 3: frame.offsetMouth[0] = 0.0f; break;
 						}
 						break;
 					}
 					case 2: {
 						switch (elementType) {
-							case 0: frame.scaleEye[isRight ? 0 : 2] = 0.5f; break;
-							case 1: frame.scalePupil[isRight ? 0 : 2] = 0.5f; break;
-							case 2: frame.scaleBrow[isRight ? 0 : 2] = 0.5f; break;
-							case 3: frame.scaleMouth[0] = 0.5f; break;
+							case 0: frame.scaleEye[isRight ? 0 : 2] = 1.0f; break;
+							case 1: frame.scalePupil[isRight ? 0 : 2] = 1.0f; break;
+							case 2: frame.scaleBrow[isRight ? 0 : 2] = 1.0f; break;
+							case 3: frame.scaleMouth[0] = 1.0f; break;
 						}
 						break;
 					}
 				}
 				initGui();
 				break;
-			}
-			case 31: { // reset part set Y
+			} // reset X
+			case 31: {
 				if (frame == null) { return; }
 				switch (toolType) {
 					case 1:
 						switch (elementType) {
-							case 0: frame.offsetEye[isRight ? 1 : 3] = 0.5f; break;
-							case 1: frame.offsetPupil[isRight ? 1 : 3] = 0.5f; break;
-							case 2: frame.offsetBrow[isRight ? 1 : 3] = 0.5f; break;
-							case 3: frame.offsetMouth[1] = 0.5f; break;
+							case 0: frame.offsetEye[isRight ? 1 : 3] = 0.0f; break;
+							case 1: frame.offsetPupil[isRight ? 1 : 3] = 0.0f; break;
+							case 2: frame.offsetBrow[isRight ? 1 : 3] = 0.0f; break;
+							case 3: frame.offsetMouth[1] = 0.0f; break;
 						}
 						break;
 					case 2:
 						switch (elementType) {// 0 - eye, 1 - pupil, 2 - brow
-							case 0: frame.scaleEye[isRight ? 1 : 3] = 0.5f; break;
-							case 1: frame.scalePupil[isRight ? 1 : 3] = 0.5f; break;
-							case 2: frame.scaleBrow[isRight ? 1 : 3] = 0.5f; break;
-							case 3: frame.scaleMouth[1] = 0.5f; break;
+							case 0: frame.scaleEye[isRight ? 1 : 3] = 1.0f; break;
+							case 1: frame.scalePupil[isRight ? 1 : 3] = 1.0f; break;
+							case 2: frame.scaleBrow[isRight ? 1 : 3] = 1.0f; break;
+							case 3: frame.scaleMouth[1] = 1.0f; break;
 						}
 						break;
 				}
 				initGui();
 				break;
-			}
-			case 32: { // reset part set Y
+			} // reset part set Y
+			case 32: {
 				if (modelEye == null) { return; }
 				modelEye.type = (byte) button.getValue();
 				break;
-			}
-			case 33: { // set base emotion
+			} // type
+			case 33: {
 				if (animation == null || !dataEmtns.containsKey(selEmtn)) { return; }
 				animation.setBaseEmotionId(dataEmtns.get(selEmtn).id);
 				initGui();
 				break;
-			}
-			case 34: { // del base emotion
+			} // set base emotion
+			case 34: {
 				if (animation == null) { return; }
 				animation.setBaseEmotionId(-1);
 				initGui();
 				break;
-			}
-			case 35: { // start blink
+			} // del base emotion
+			case 35: {
 				if (frame == null) { return; }
 				frame.setBlink(((GuiNpcCheckBox) button).isSelected());
 				initGui();
 				break;
-			}
-			case 36: { // end blink
+			} // start blink
+			case 36: {
 				if (frame == null) { return; }
 				frame.setEndBlink(((GuiNpcCheckBox) button).isSelected());
 				initGui();
 				break;
-			}
-			case 37: { // can blink
+			} // end blink
+			case 37: {
 				if (emtn == null) { return; }
 				emtn.setCanBlink(((GuiNpcCheckBox) button).isSelected());
 				initGui();
 				break;
-			}
-			case 38: { // disable pupil
+			} // can blink
+			case 38: {
 				if (frame == null) { return; }
 				frame.setDisable(((GuiNpcCheckBox) button).isSelected());
 				if (GuiScreen.isShiftKeyDown() && emtn != null) { // Shift pressed
@@ -286,7 +286,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				}
 				initGui();
 				break;
-			}
+			} // disable pupil
 		}
 	}
 
@@ -372,6 +372,21 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		button.isAnim = true;
 		button.txrY = 96;
 		addButton(button);
+
+		int xx = sw.getScaledWidth() / 2 - wX;
+		int yy = sw.getScaledHeight() / 2 - wY;
+		System.out.println("CNPCs: ["+sw.getScaledWidth()+", "+sw.getScaledHeight()+"]; ["+wX+", "+wY+"]; ["+xx+", "+yy+"]");
+
+		/*button = new GuiNpcButton(21, workU + workS / 2 - 11, workV + workS - 12, 18, 10, "");
+		button.texture = ANIMATION_BUTTONS;
+		button.hasDefBack = false;
+		button.isAnim = true;
+		button.txrX = onlyCurrentPart ? 144 : 188;
+		button.txrW = 44;
+		button.txrH = 24;
+		button.setHoverText(new TextComponentTranslation("animation.hover.work." + onlyCurrentPart, ((char) 167) + "6" + (frame != null ? frame.id + 1 : -1)).getFormattedText());
+		addButton(button);*/
+
 
 		// Tool type
 		button = new GuiNpcButton(23, wX + 10, wY - 16, 14, 14, ""); // tool pos
@@ -523,109 +538,101 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		if (frame.isBlink()) {
 			addButton(new GuiNpcCheckBox(36, x, y, 140, 14, "emotion.end.blink", null, frame.isEndBlink()));
 		}
-
 		// Tool sliders
 		y += 19;
 		int f = 18;
+		float[] values;
+		switch(elementType) {
+			case 1: {
+				switch(toolType) { // 0 - rotation, 1 - offset, 2 - scale
+					case 1: {
+						values = new float[] { frame.offsetPupil[isRight ? 0 : 2], frame.offsetPupil[isRight ? 1 : 3] };
+						break;
+					}
+					case 2: {
+						values = new float[] { frame.scalePupil[isRight ? 0 : 2], frame.scalePupil[isRight ? 1 : 3] };
+						break;
+					}
+					default: {
+						values = new float[] { frame.rotPupil[isRight ? 0 : 1] };
+						break;
+					}
+				}
+				break;
+			} // pupil
+			case 2: {
+				switch(toolType) {
+					case 1: {
+						values = new float[] { frame.offsetBrow[isRight ? 0 : 2], frame.offsetBrow[isRight ? 1 : 3] };
+						break;
+					}
+					case 2: {
+						values = new float[] { frame.scaleBrow[isRight ? 0 : 2], frame.scaleBrow[isRight ? 1 : 3] };
+						break;
+					}
+					default: {
+						values = new float[] { frame.rotBrow[isRight ? 0 : 1] };
+						break;
+					}
+				}
+				break;
+			} // brow
+			case 3: {
+				switch(toolType) {
+					case 1: {
+						values = frame.offsetMouth;
+						break;
+					}
+					case 2: {
+						values = frame.scaleMouth;
+						break;
+					}
+					default: {
+						values = new float[] { frame.rotMouth };
+						break;
+					}
+				}
+				break;
+			} // mouth
+			default: {
+				switch(toolType) {
+					case 1: {
+						values = new float[] { frame.offsetEye[isRight ? 0 : 2], frame.offsetEye[isRight ? 1 : 3] };
+						break;
+					}
+					case 2: {
+						values = new float[] { frame.scaleEye[isRight ? 0 : 2], frame.scaleEye[isRight ? 1 : 3] };
+						break;
+					}
+					default: {
+						values = new float[] { frame.rotEye[isRight ? 0 : 1] };
+						break;
+					}
+				}
+				break;
+			} // eye
+		}
 		for (int i = 0; i < 2; i++) {
 			if (toolType == 0 && i == 1) { break; }
 			addLabel(new GuiNpcLabel(lId++, i == 0 ? "X:" : "Y:", x, y + i * f + 4));
-			float[] values;
-			switch(elementType) {
-				case 1: { // pupil
-					switch(toolType) { // 0 - rotation, 1 - offset, 2 - scale
-						case 1: {
-							values = new float[] { frame.offsetPupil[isRight ? 0 : 2], frame.offsetPupil[isRight ? 1 : 3] };
-							break;
-						}
-						case 2: {
-							values = new float[] { frame.scalePupil[isRight ? 0 : 2], frame.scalePupil[isRight ? 1 : 3] };
-							break;
-						}
-						default: {
-							values = new float[] { frame.rotPupil[isRight ? 0 : 1] };
-							break;
-						}
-					}
-					break;
-				}
-				case 2: { // brow
-					switch(toolType) {
-						case 1: {
-							values = new float[] { frame.offsetBrow[isRight ? 0 : 2], frame.offsetBrow[isRight ? 1 : 3] };
-							break;
-						}
-						case 2: {
-							values = new float[] { frame.scaleBrow[isRight ? 0 : 2], frame.scaleBrow[isRight ? 1 : 3] };
-							break;
-						}
-						default: {
-							values = new float[] { frame.rotBrow[isRight ? 0 : 1] };
-							break;
-						}
-					}
-					break;
-				}
-				case 3: { // mouth
-					switch(toolType) {
-						case 1: {
-							values = frame.offsetMouth;
-							break;
-						}
-						case 2: {
-							values = frame.scaleMouth;
-							break;
-						}
-						default: {
-							values = new float[] { frame.rotMouth };
-							break;
-						}
-					}
-					break;
-				}
-				default: { // eye
-					switch(toolType) {
-						case 1: {
-							values = new float[] { frame.offsetEye[isRight ? 0 : 2], frame.offsetEye[isRight ? 1 : 3] };
-							break;
-						}
-						case 2: {
-							values = new float[] { frame.scaleEye[isRight ? 0 : 2], frame.scaleEye[isRight ? 1 : 3] };
-							break;
-						}
-						default: {
-							values = new float[] { frame.rotEye[isRight ? 0 : 1] };
-							break;
-						}
-					}
-					break;
-				}
-			}
-
-			float[] datas = new float[2];
+			float sliderData = 0.5f;
 			double m, n;
 			if (toolType == 1) { // offset
-				m = -0.5d;
-				n = 0.5d;
-				for (int j = 0; j < 2; j++) {
-					datas[j] = (float) (Math.round((values[i] - 0.5f) * 1000.0f) / 1000.0d);
-				}
+				m = isRight ? -1.0d : -1.5d;
+				n = isRight ? 1.5d : 1.0d;
+				sliderData = values[i] * 0.4f + (isRight ? 0.4f : 0.6f);
 			} else if (toolType == 2) { // scale
-				m = 0.5d;
-				n = 1.5d;
-				for (int j = 0; j < 2; j++) {
-					datas[j] = (float) (Math.round((values[i] + 0.5f) * 1000.0f) / 1000.0d);
-				}
+				m = 0.0d;
+				n = 2.0d;
+				sliderData = values[i] * 0.5f;
 			} else { // rotation
 				m = -180.0d;
 				n = 180.0d;
-				for (int j = 0; j < 2; j++) {
-					datas[j] = (float) (Math.round((360.0f * values[i] - 180.0f) * 1000.0f) / 1000.0d);
-				}
+				sliderData = values[i] * 0.0027778f + 0.5f;
 			}
-			addSlider(new GuiNpcSlider(this, i, x + 8, y + i * f, 128, 8, values[i]));
-			textField = new GuiNpcTextField(i + 5, this, x + 9, y + 9 + i * f, 56, 8, "" + datas[i]);
-			textField.setMinMaxDoubleDefault(m, n, datas[i]);
+			addSlider(new GuiNpcSlider(this, i, x + 8, y + i * f, 128, 8, sliderData));
+			textField = new GuiNpcTextField(i + 5, this, x + 9, y + 9 + i * f, 56, 8, "" + values[i]);
+			textField.setMinMaxDoubleDefault(m, n, sliderData);
 			addTextField(textField);
 			button = new GuiNpcButton(30 + i, x + 67, y + 9 + i * f, 8, 8, "X");
 			button.texture = ANIMATION_BUTTONS;
@@ -640,6 +647,16 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		y += 38;
 		addButton(new GuiNpcCheckBox(37, x, y, 140, 14, "emotion.can.blink", "emotion.can.no.blink", emtn.canBlink()));
 		resetEmtns();
+
+		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("ai.movement").getFormattedText() + ":", x, (y += 20) + 1));
+		textField = new GuiNpcTextField(7, this, x += 45,  y, 40, 12, "" + emtn.scaleMoveX);
+		textField.setMinMaxDoubleDefault(0.05d, 1.25d, emtn.scaleMoveX);
+		textField.setHoverText("emotion.hover.scale.move", "X");
+		addTextField(textField);
+		textField = new GuiNpcTextField(8, this, x + 45,  y, 40, 12, "" + emtn.scaleMoveY);
+		textField.setMinMaxDoubleDefault(0.05d, 1.25d, emtn.scaleMoveY);
+		textField.setHoverText("emotion.hover.scale.move", "Y");
+		addTextField(textField);
 	}
 
 	@Override
@@ -736,7 +753,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		ModelPartData model = ((EntityCustomNpc) npcEmtn).modelData.getPartData(EnumParts.EYES);
 		if (model instanceof ModelEyeData) { modelEye = (ModelEyeData) model; }
 		if (emtn == null || npcEmtn == null) { return; }
-		//emtn.editFrame = frame.id;
+		emtn.editFrame = onlyPart ? frame.id : -1;
+		emtn.isEdit = true;
 		npcEmtn.display.setName(npc.getName()+"_edit_emotion");
 		npcEmtn.setHealth(npcEmtn.getMaxHealth());
 		npcEmtn.deathTime = 0;
@@ -751,18 +769,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			case 1: { // pupil
 				switch(toolType) { // 0 - rotation, 1 - offset, 2 - scale
 					case 1: {
-						frame.offsetPupil[pos] = slider.sliderValue;
-						value = Math.round((slider.sliderValue - 0.5f) * 1000.0f) / 1000.0f;
+						frame.offsetPupil[pos] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scalePupil[pos] = slider.sliderValue;
-						value = Math.round((slider.sliderValue + 0.5f) * 1000.0f) / 1000.0f;
+						frame.offsetPupil[pos] = (value = slider.sliderValue * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotPupil[isRight ? 0 : 1] = slider.sliderValue;
-						value = Math.round((360.0f * slider.sliderValue - 180.0f) * 1000.0f) / 1000.0f;
+						frame.rotPupil[isRight ? 0 : 1] = (value = slider.sliderValue * 360.0f - 180.0f);
 						break;
 					}
 				}
@@ -771,18 +786,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			case 2: { // brow
 				switch(toolType) {
 					case 1: {
-						frame.offsetBrow[pos] = slider.sliderValue;
-						value = Math.round((slider.sliderValue - 0.5f) * 1000.0f) / 1000.0f;
+						frame.offsetBrow[pos] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scaleBrow[pos] = slider.sliderValue;
-						value = Math.round((slider.sliderValue + 0.5f) * 1000.0f) / 1000.0f;
+						frame.scaleBrow[pos] = (value = slider.sliderValue * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotBrow[isRight ? 0 : 1] = slider.sliderValue;
-						value = Math.round((360.0f * slider.sliderValue - 180.0f) * 1000.0f) / 1000.0f;
+						frame.rotBrow[isRight ? 0 : 1] = (value = slider.sliderValue * 360.0f - 180.0f);
 						break;
 					}
 				}
@@ -791,18 +803,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			case 3: { // mouth
 				switch(toolType) {
 					case 1: {
-						frame.offsetMouth[slider.id] = slider.sliderValue;
-						value = Math.round((slider.sliderValue - 0.5f) * 1000.0f) / 1000.0f;
+						frame.offsetMouth[slider.id] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scaleMouth[slider.id] = slider.sliderValue;
-						value = Math.round((slider.sliderValue + 0.5f) * 1000.0f) / 1000.0f;
+						frame.scaleMouth[slider.id] = (value = slider.sliderValue * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotMouth = slider.sliderValue;
-						value = Math.round((360.0f * slider.sliderValue - 180.0f) * 1000.0f) / 1000.0f;
+						frame.rotMouth = (value = slider.sliderValue * 360.0f - 180.0f);
 						break;
 					}
 				}
@@ -812,25 +821,22 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				elementType = 0;
 				switch(toolType) {
 					case 1: {
-						frame.offsetEye[pos] = slider.sliderValue;
-						value = Math.round((slider.sliderValue - 0.5f) * 1000.0f) / 1000.0f;
+						frame.offsetEye[pos] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scaleEye[pos] = slider.sliderValue;
-						value = Math.round((slider.sliderValue + 0.5f) * 1000.0f) / 1000.0f;
+						frame.scaleEye[pos] = (value = slider.sliderValue * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotEye[isRight ? 0 : 1] = slider.sliderValue;
-						value = Math.round((360.0f * slider.sliderValue - 180.0f) * 1000.0f) / 1000.0f;
+						frame.rotEye[isRight ? 0 : 1] = (value = slider.sliderValue * 360.0f - 180.0f);
 						break;
 					}
 				}
 				break;
 			}
 		}
-		if (getTextField(5 + slider.id) != null) { getTextField(5 + slider.id).setText("" + value); }
+		if (getTextField(5 + slider.id) != null) { getTextField(5 + slider.id).setText("" + (Math.round(value * 1000.0f) / 1000.0f)); }
 		resetEmtns();
 	}
 
@@ -869,165 +875,152 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			} // repeat
 			case 5: {
 				float value = 0.0f;
-				String text = "";
+				float data = (float) textField.getDouble();
 				switch(elementType) {
 					case 0: {
 						switch (toolType) {
 							case 1: {
-								frame.offsetEye[isRight ? 0 : 2] = (value = (float) (textField.getDouble() + 0.5D));
-								text = "" + Math.round((value - 0.5f) * 1000.0f) / 1000.0f;
+								value = data / 3.0f + 0.5f;
+								frame.offsetEye[isRight ? 0 : 2] = data;
 								break;
 							}
 							case 2: {
-								frame.scaleEye[isRight ? 0 : 2] = (value = (float) (textField.getDouble() - 0.5D));
-								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
+								value = data * 0.5f;
+								frame.scaleEye[isRight ? 0 : 2] = data;
 								break;
 							}
 							default: {
-								frame.rotEye[isRight ? 0 : 1] = (value = (float) (textField.getDouble() + 180.0D) / 360.0f);
-								text = "" + Math.round((360.0f * value - 180.0f) * 1000.0f) / 1000.0f;
+								value = data * 0.0027778f + 0.5f;
+								frame.rotEye[isRight ? 0 : 1] = data;
 								break;
 							}
 						}
 						break;
-					}
+					} // Eye
 					case 1: {
 						switch (toolType) {
 							case 1: {
-								frame.offsetPupil[isRight ? 0 : 2] = (value = (float) (textField.getDouble() + 0.5D));
-								text = "" + Math.round((value - 0.5f) * 1000.0f) / 1000.0f;
+								value = data / 3.0f + 0.5f;
+								frame.offsetPupil[isRight ? 0 : 2] = data;
 								break;
 							}
 							case 2: {
-								frame.scalePupil[isRight ? 0 : 2] = (value = (float) (textField.getDouble() - 0.5D));
-								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
+								value = data * 0.5f;
+								frame.scalePupil[isRight ? 0 : 2] = data;
 								break;
 							}
 							default: {
-								frame.rotPupil[isRight ? 0 : 1] = (value = (float) (textField.getDouble() + 180.0D) / 360.0f);
-								text = "" + Math.round((360.0f * value - 180.0f) * 1000.0f) / 1000.0f;
+								value = data * 0.0027778f + 0.5f;
+								frame.rotPupil[isRight ? 0 : 1] = data;
 								break;
 							}
 						}
 						break;
-					}
+					} // Pupil
 					case 2: {
 						switch (toolType) {
 							case 1: {
-								frame.offsetBrow[isRight ? 0 : 2] = (value = (float) (textField.getDouble() + 0.5D));
-								text = "" + Math.round((value - 0.5f) * 1000.0f) / 1000.0f;
+								value = data / 3.0f + 0.5f;
+								frame.offsetBrow[isRight ? 0 : 2] = data;
 								break;
 							}
 							case 2: {
-								frame.scaleBrow[isRight ? 0 : 2] = (value = (float) (textField.getDouble() - 0.5D));
-								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
+								value = data * 0.5f;
+								frame.scaleBrow[isRight ? 0 : 2] = data;
 								break;
 							}
 							default: {
-								frame.rotBrow[isRight ? 0 : 1] = (value = (float) (textField.getDouble() + 180.0D) / 360.0f);
-								text = "" + Math.round((360.0f * value - 180.0f) * 1000.0f) / 1000.0f;
+								value = data * 0.0027778f + 0.5f;
+								frame.rotBrow[isRight ? 0 : 1] = data;
 								break;
 							}
 						}
 						break;
-					}
+					} // Brow
 					case 3: {
 						switch (toolType) {
 							case 1: {
-								frame.offsetMouth[0] = (value = (float) (textField.getDouble() + 0.5D));
-								text = "" + Math.round((value - 0.5f) * 1000.0f) / 1000.0f;
+								value = data / 3.0f + 0.5f;
+								frame.offsetMouth[0] = data;
 								break;
 							}
 							case 2: {
-								frame.scaleMouth[0] = (value = (float) (textField.getDouble() - 0.5D));
-								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
+								value = data * 0.5f;
+								frame.scaleMouth[0] = data;
 								break;
 							}
 							default: {
-								frame.rotMouth = (value = (float) (textField.getDouble() + 180.0D) / 360.0f);
-								text = "" + Math.round((360.0f * value - 180.0f) * 1000.0f) / 1000.0f;
+								value = data * 0.0027778f + 0.5f;
+								frame.rotMouth = data;
 								break;
 							}
 						}
 						break;
-					}
+					} // Mouth
 				}
-				textField.setText(text);
+				textField.setText("" + (Math.round(data * 1000.0f) / 1000.0f));
 				if (getSlider(0) != null) { getSlider(0).sliderValue = value; }
 				resetEmtns();
 				break;
 			} // X
 			case 6: {
 				float value = 0.0f;
-				String text = "";
+				float data = (float) textField.getDouble();
 				switch(elementType) {
 					case 0: {
-						switch (toolType) {
-							case 1: {
-								frame.offsetEye[isRight ? 1 : 3] = (value = (float) (textField.getDouble() + 100.0D) / 200.0f);
-								text = "" + Math.round((200.0f * value - 100.0f) * 1000.0f) / 1000.0f;
-								break;
-							}
-							case 2: {
-								frame.scaleEye[isRight ? 1 : 3] = (value = (float) (textField.getDouble() - 0.5D));
-								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
-								break;
-							}
-						}
+                        if (toolType == 1) {
+                            value = data / 3.0f + 0.5f;
+                            frame.offsetEye[isRight ? 1 : 3] = data;
+                        } else {
+                            value = data * 0.5f;
+                            frame.scaleEye[isRight ? 1 : 3] = data;
+                        }
 						break;
-					}
+					} // Eye
 					case 1: {
-						switch (toolType) {
-							case 1: {
-								frame.offsetPupil[isRight ? 1 : 3] = (value = (float) (textField.getDouble() + 100.0D) / 200.0f);
-								text = "" + Math.round((200.0f * value - 100.0f) * 1000.0f) / 1000.0f;
-								break;
-							}
-							case 2: {
-								frame.scalePupil[isRight ? 1 : 3] = (value = (float) (textField.getDouble() - 0.5D));
-								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
-								System.out.println("CNPCs: "+value);
-								break;
-							}
+						if (toolType == 1) {
+							value = data / 3.0f + 0.5f;
+							frame.offsetPupil[isRight ? 1 : 3] = data;
+						} else {
+							value = data * 0.5f;
+							frame.scalePupil[isRight ? 1 : 3] = data;
 						}
 						break;
-					}
+					} // Pupil
 					case 2: {
-						switch (toolType) {
-							case 1: {
-								frame.offsetBrow[isRight ? 1 : 3] = (value = (float) (textField.getDouble() + 100.0D) / 200.0f);
-								text = "" + Math.round((200.0f * value - 100.0f) * 1000.0f) / 1000.0f;
-								break;
-							}
-							case 2: {
-								frame.scaleBrow[isRight ? 1 : 3] = (value = (float) (textField.getDouble() - 0.5D));
-								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
-								break;
-							}
+						if (toolType == 1) {
+							value = data / 3.0f + 0.5f;
+							frame.offsetBrow[isRight ? 1 : 3] = data;
+						} else {
+							value = data * 0.5f;
+							frame.scaleBrow[isRight ? 1 : 3] = data;
 						}
 						break;
-					}
+					} // Brow
 					case 3: {
-						switch (toolType) {
-							case 1: {
-								frame.offsetMouth[1] = (value = (float) (textField.getDouble() + 100.0D) / 200.0f);
-								text = "" + Math.round((200.0f * value - 100.0f) * 1000.0f) / 1000.0f;
-								break;
-							}
-							case 2: {
-								frame.scaleMouth[1] = (value = (float) (textField.getDouble() - 0.5D));
-								text = "" + Math.round((value + 0.5f) * 1000.0f) / 1000.0f;
-								break;
-							}
+						if (toolType == 1) {
+							value = data / 3.0f + 0.5f;
+							frame.offsetMouth[1] = data;
+						} else {
+							value = data * 0.5f;
+							frame.scaleMouth[1] = data;
 						}
 						break;
-					}
+					} // Mouth
 				}
-				textField.setText(text);
+				textField.setText("" + (Math.round(data * 1000.0f) / 1000.0f));
 				if (getSlider(1) != null) { getSlider(1).sliderValue = value; }
 				resetEmtns();
 				break;
 			} // Y
+			case 7: {
+				emtn.scaleMoveX = (float) textField.getDouble();
+				break;
+			} // scale move x
+			case 8: {
+				emtn.scaleMoveY = (float) textField.getDouble();
+				break;
+			} // scale move y
 		}
 	}
 

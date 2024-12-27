@@ -260,14 +260,17 @@ public class Util implements IMethods {
 		npc.prevRotationPitch = 0;
 		npc.ais.orientation = 0;
 		if (copyRotation) {
-			npc.rotationYaw = npcParent.rotationYawHead;
-			npc.prevRotationYaw = npcParent.rotationYawHead;
+			npc.rotationYaw = npcParent.rotationYaw;
+			npc.prevRotationYaw = npcParent.prevRotationYaw;
 			npc.rotationYawHead = npcParent.rotationYawHead;
-			npc.prevRotationYawHead = npcParent.rotationYawHead;
+			npc.prevRotationYawHead = npcParent.prevRotationYawHead;
 			
 			npc.rotationPitch = npcParent.rotationPitch;
-			npc.prevRotationPitch = npcParent.rotationPitch;
+			npc.prevRotationPitch = npcParent.prevRotationPitch;
 			npc.ais.orientation = npcParent.ais.orientation;
+			if (npcParent.ais.getStandingType() != 0 && npcParent.ais.getStandingType() != 2) {
+				npc.rotationYaw = npcParent.ais.orientation;
+			}
 		}
 		npc.ais.setStandingType(1);
 		npc.ticksExisted = 100;

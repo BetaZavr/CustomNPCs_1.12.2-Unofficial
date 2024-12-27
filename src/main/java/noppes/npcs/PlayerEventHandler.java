@@ -11,6 +11,7 @@ import net.minecraft.block.BlockBanner;
 import net.minecraft.tileentity.TileEntityBanner;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
+import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;

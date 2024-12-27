@@ -30,8 +30,8 @@ import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.items.CustomArmor;
 
 public class ModelRendererAlt
-		extends ModelRenderer
-		implements IModelRenderer {
+extends ModelRenderer
+implements IModelRenderer {
 
 	// Data
 	public EnumParts part;
@@ -612,75 +612,88 @@ public class ModelRendererAlt
 			vs.put(16, new PositionTextureVertex(tvs[2].x, yz16.x, yz16.y, 0.0F, 0.0F));
 			vs.put(17, new PositionTextureVertex(tvs[3].x, yz17.x, yz17.y, 0.0F, 0.0F));
 			if (c) {
-				setQuard(i++, vs.get(13), vs.get(12), vs.get(15), vs.get(15), u, v + dz + dy03, u + dz, v + dz + dy1); // front 0
-				setQuard(i++, vs.get(15), vs.get(13), vs.get(14), vs.get(15),
-						u, v + dz + dy1,
-						u + dz, v + dz + dy03,
-						u + dz, v + dz + dy1,
-						u + dz, v + dz + dy1); // front 1
-				setQuard(i++, vs.get(6), vs.get(7), vs.get(17), vs.get(17), u + dz + dx, v + dz + dy0, u + 2 * dz + dx, v + dz + dy1); // back 0
-				setQuard(i++, vs.get(6), vs.get(17), vs.get(16), vs.get(16), // back 1
-						u + 2 * dz + dx, v + dz + dy0,
+				setQuard(i++, vs.get(15), vs.get(13), vs.get(12), vs.get(15),
 						u + dz + dx, v + dz + dy1,
-						u + 2 * dz + dx, v + dz + dy1,
-						u + 2 * dz + dx, v + dz + dy1);
-				setQuard(i++, vs.get(12), vs.get(6), vs.get(16), vs.get(16), // in side 0
+						u + dz, v + dz + dy03,
 						u + dz + dx, v + dz + dy03,
-						u + 2 * dz + dx, v + dz + dy0,
-						u + 2 * dz + dx, v + dz + dy1,
-						u + dz + dx, v + dz + dy0);
-				setQuard(i++, vs.get(12), vs.get(16), vs.get(15), vs.get(15), // in side 1
-						u + dz + dx, v + dz + dy03,
-						u + 2 * dz + dx, v + dz + dy1,
+						u + dz + dx, v + dz + dy1); // front-left
+				setQuard(i++, vs.get(15), vs.get(14), vs.get(13), vs.get(15),
 						u + dz + dx, v + dz + dy1,
-						u + dz + dx, v + dz + dy1);
-				setQuard(i++, vs.get(13), vs.get(7), vs.get(14), vs.get(14), // outside 0
+						u + dz, v + dz + dy1,
 						u + dz, v + dz + dy03,
-						u, v + dz + dy0,
-						u + dz, v + dz + dy1,
-						u + dz, v + dz + dy1);
-				setQuard(i++, vs.get(14), vs.get(7), vs.get(17), vs.get(14), // outside 1
-						u + dz, v + dz + dy1,
-						u, v + dz + dy0,
-						u, v + dz + dy1,
-						u + dz, v + dz + dy1);
-			} else {
-				setQuard(i++, vs.get(13), vs.get(12), vs.get(14), vs.get(14), // front 0
-						u + dz, v + dz + dy03,
-						u, v + dz + dy03,
-						u + dz, v + dz + dy1,
-						u + dz, v + dz + dy1);
-				setQuard(i++, vs.get(12), vs.get(14), vs.get(15), vs.get(15), // front 1
-						u, v + dz + dy03,
-						u + dz, v + dz + dy1,
-						u, v + dz + dy1,
-						u, v + dz + dy1);
-				setQuard(i++, vs.get(7), vs.get(6), vs.get(16), vs.get(16), u + 2 * dz + dx, v + dz + dy0, u + 2 * (dz + dx), v + dz + dy1); // back 0
-				setQuard(i++, vs.get(7), vs.get(16), vs.get(17), vs.get(17), // back 1
+						u + dz + dx, v + dz + dy1); // front-right
+				setQuard(i++, vs.get(7), vs.get(6), vs.get(17), vs.get(17),
+						u + 2 * dz + dx,
+						v + dz + dy0,
+						u + 2 * (dz + dx),
+						v + dz + dy1); // back-right
+				setQuard(i++, vs.get(17), vs.get(6), vs.get(16), vs.get(17),
+						u + 2 * dz + dx,
+						v + dz + dy0,
+						u + 2 * (dz + dx),
+						v + dz + dy1); // back-left
+				setQuard(i++, vs.get(6), vs.get(12), vs.get(16), vs.get(16),
+						u + dz + dx,
+						v + dz + dy03,
+						u + 2 * dz + dx,
+						v + dz + dy1); // left-back
+				setQuard(i++, vs.get(16), vs.get(12), vs.get(15), vs.get(16),
+						u + dz + dx,
+						v + dz + dy03,
+						u + 2 * dz + dx,
+						v + dz + dy1); // left-front
+				setQuard(i++, vs.get(13), vs.get(7), vs.get(14), vs.get(14),
+						u,
+						v + dz + dy03,
+						u + dz,
+						v + dz + dy1); // right-back
+				setQuard(i++, vs.get(14), vs.get(7), vs.get(17), vs.get(14),
+						u,
+						v + dz + dy03,
+						u + dz,
+						v + dz + dy1); // right-front
+			}
+			else {
+				setQuard(i++, vs.get(13), vs.get(12), vs.get(14), vs.get(14),
+						u + dz + dx,
+						v + dz + dy03,
+						u + dz,
+						v + dz + dy1); // front-left
+				setQuard(i++, vs.get(14), vs.get(12), vs.get(15), vs.get(14),
+						u + dz + dx,
+						v + dz + dy03,
+						u + dz,
+						v + dz + dy1); // front-right
+				setQuard(i++, vs.get(16), vs.get(7), vs.get(6), vs.get(16),
+						u + 2 * dz + dx, v + dz + dy1,
+						u + 2 * (dz + dx), v + dz + dy0,
+						u + 2 * dz + dx, v + dz + dy0,
+						u + 2 * dz + dx, v + dz + dy1); // back-left
+				setQuard(i++, vs.get(7), vs.get(16), vs.get(17), vs.get(17),
 						u + 2 * (dz + dx), v + dz + dy0,
 						u + 2 * dz + dx, v + dz + dy1,
 						u + 2 * (dz + dx), v + dz + dy1,
-						u + 2 * (dz + dx), v + dz + dy1);
-				setQuard(i++, vs.get(12), vs.get(6), vs.get(15), vs.get(15), // inside 0
+						u + 2 * (dz + dx), v + dz + dy1); // back-right
+				setQuard(i++, vs.get(6), vs.get(12), vs.get(15), vs.get(15),
+						u + 2 * dz + dx, v + dz + dy0,
 						u + dz + dx, v + dz + dy03,
+						u + dz + dx, v + dz + dy1,
+						u + dz + dx, v + dz + dy1); // left-front
+				setQuard(i++, vs.get(16), vs.get(6), vs.get(15), vs.get(16),
+						u + 2 * dz + dx,v + dz + dy1,
 						u + 2 * dz + dx, v + dz + dy0,
 						u + dz + dx, v + dz + dy1,
-						u + dz + dx, v + dz + dy1);
-				setQuard(i++, vs.get(15), vs.get(6), vs.get(16), vs.get(16), // inside 1
-						u + dz + dx, v + dz + dy1,
-						u + 2 * dz + dx, v + dz + dy0,
-						u + 2 * dz + dx, v + dz + dy1,
-						u + 2 * dz + dx, v + dz + dy1);
-				setQuard(i++, vs.get(13), vs.get(7), vs.get(17), vs.get(17), // outside 0
-						u + dz, v + dz + dy03,
-						u, v + dz + dy0,
-						u, v + dz + dy1,
-						u, v + dz + dy1);
+						u + 2 * dz + dx,v + dz + dy1); // left-back
 				setQuard(i++, vs.get(13), vs.get(17), vs.get(14), vs.get(14), // outside 1
 						u + dz, v + dz + dy03,
 						u, v + dz + dy1,
 						u + dz, v + dz + dy1,
 						u + dz, v + dz + dy1);
+				setQuard(i++, vs.get(13), vs.get(7), vs.get(17), vs.get(17), // outside 0
+						u + dz, v + dz + dy03,
+						u, v + dz + dy0,
+						u, v + dz + dy1,
+						u, v + dz + dy1); // right-front
 			}
 			// level #5
 			Vec2f yz18 = rotate(cr, new Vec2f(ye2, tvs[4].y), cos2, sin2);

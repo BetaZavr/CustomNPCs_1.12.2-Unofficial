@@ -871,6 +871,7 @@ emotion.end.blink=Blink until end of frame
 emotion.list=List of Emotions:
 emotion.no.blink=Don't blink in this frame
 emotion.part.disable=Standard pupil movement
+emotion.hover.scale.move=Scale of pupil movement along the %s axis when tracking a target with the eyes
 
 enchantment.confusion=Confusion
 enchantment.damage=Damage
