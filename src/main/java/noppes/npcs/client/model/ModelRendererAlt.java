@@ -340,9 +340,8 @@ implements IModelRenderer {
 
 	// Joint and rotate Top
 	private void drawJoint(float scale) {
-		// Counter clock-wise
-		boolean c = rotateAngleY1 <= 0.0f;
-		if (isArmor && part != EnumParts.ARM_RIGHT && part != EnumParts.LEG_RIGHT) { c = !c; }
+		boolean counterClockWise = rotateAngleY1 <= 0.0f;
+		if (isArmor && part != EnumParts.ARM_RIGHT && part != EnumParts.LEG_RIGHT) { counterClockWise = !counterClockWise; }
 		vs.put(0, new PositionTextureVertex(x, y, z, 0.0F, 0.0F));
 		vs.put(1, new PositionTextureVertex(xe, y, z, 0.0F, 8.0F));
 		vs.put(2, new PositionTextureVertex(xe, y, ze, 8.0F, 8.0F));
@@ -456,56 +455,89 @@ implements IModelRenderer {
 			vs.put(15, new PositionTextureVertex(tvs[1].x, yz15.x, yz15.y, 0.0F, 0.0F));
 			vs.put(16, new PositionTextureVertex(tvs[2].x, yz16.x, yz16.y, 0.0F, 0.0F));
 			vs.put(17, new PositionTextureVertex(tvs[3].x, yz17.x, yz17.y, 0.0F, 0.0F));
-			if (c) {
-				setQuard(i++, vs.get(5), vs.get(4), vs.get(15), vs.get(15), // front 0
+			if (counterClockWise) {
+				setQuard(i++, vs.get(5), vs.get(4), vs.get(15), vs.get(15),
 						u + dz + dx, v + dz + dy0,
 						u + dz, v + dz + dy0,
 						u + dz + dx, v + dz + dy1,
-						u + dz + dx, v + dz + dy1);
-				setQuard(i++, vs.get(15), vs.get(4), vs.get(14), vs.get(14), // front 1
+						u + dz + dx, v + dz + dy1); // front-left
+				setQuard(i++, vs.get(15), vs.get(4), vs.get(14), vs.get(14),
 						u + dz + dx, v + dz + dy1,
 						u + dz, v + dz + dy0,
-						u + dx, v + dz + dy1,
-						u + dx, v + dz + dy1);
-				setQuard(i++, vs.get(12), vs.get(13), vs.get(17), vs.get(16), // back
-						u + 2 * dz + dx, v + dz + dy03,
-						u + 2 * (dz + dx), v + dz + dy03,
+						u + dz, v + dz + dy1,
+						u + dz, v + dz + dy1); // front-right
+				setQuard(i++, vs.get(13), vs.get(12), vs.get(17), vs.get(17),
+						u + 2 * dz + dx,
+						v + dz + dy03,
+						u + 2 * (dz + dx),
+						v + dz + dy1); // back-left
+				setQuard(i++, vs.get(16), vs.get(17), vs.get(12), vs.get(16),
+						u + 2 * dz + dx, v + dz + dy1,
 						u + 2 * (dz + dx), v + dz + dy1,
-						u + 2 * dz + dx, v + dz + dy1);
-				setQuard(i++, vs.get(12), vs.get(5), vs.get(16), vs.get(16), // inside 0
 						u + 2 * dz + dx, v + dz + dy03,
-						u + dz + dx, v + dz + dy0,
-						u + 2 * dz + dx, v + dz + dy1,
-						u + 2 * dz + dx, v + dz + dy1);
-				setQuard(i++, vs.get(16), vs.get(5), vs.get(15), vs.get(15), // inside 1
+						u + 2 * dz + dx, v + dz + dy1); // back-right
+				setQuard(i++, vs.get(16), vs.get(5), vs.get(15), vs.get(15),
 						u + 2 * dz + dx, v + dz + dy1,
 						u + dz + dx, v + dz + dy0,
 						u + dz + dx, v + dz + dy1,
-						u + dz + dx, v + dz + dy1);
-				setQuard(i++, vs.get(4), vs.get(13), vs.get(14), vs.get(14), // outside 0
+						u + dz + dx, v + dz + dy1); // left-front
+				setQuard(i++, vs.get(12), vs.get(5), vs.get(16), vs.get(16),
+						u + 2 * dz + dx, v + dz + dy03,
+						u + dz + dx, v + dz + dy0,
+						u + 2 * dz + dx, v + dz + dy1,
+						u + 2 * dz + dx, v + dz + dy1); // left-back
+				setQuard(i++, vs.get(4), vs.get(13), vs.get(14), vs.get(14),
 						u + dz, v + dz + dy0,
 						u, v + dz + dy03,
 						u + dz, v + dz + dy1,
-						u + dz, v + dz + dy1);
-				setQuard(i++, vs.get(14), vs.get(13), vs.get(17), vs.get(17), // outside 1
+						u + dz, v + dz + dy1); // right-front
+				setQuard(i++, vs.get(14), vs.get(13), vs.get(17), vs.get(17),
 						u + dz, v + dz + dy1,
 						u, v + dz + dy03,
 						u, v + dz + dy1,
-						u, v + dz + dy1);
+						u, v + dz + dy1); // right-back
 			}
 			else {
-				setQuard(i++, vs.get(5), vs.get(4), vs.get(14), vs.get(15), u + dz, v + dz + dy0, u + dz + dx, v + dz + dy1); // front
-				setQuard(i++, vs.get(13), vs.get(12), vs.get(16), vs.get(17), u + 2 * dz + dx, v + dz + dy03, u + 2 * (dz + dx), v + dz + dy1); // back
-				setQuard(i++, vs.get(12), vs.get(5), vs.get(15), vs.get(16), // inside
-						u + 2 * dz + dx, v + dz + dy03,
-						u + dz + dx, v + dz + dy0,
+				setQuard(i++, vs.get(14), vs.get(15), vs.get(5), vs.get(5),
+						u + dz, v + dz + dy1,
 						u + dz + dx, v + dz + dy1,
-						u + 2 * dz + dx, v + dz + dy1);
-				setQuard(i++, vs.get(4), vs.get(13), vs.get(17), vs.get(14), // outside
-						u + dz, v + dz + dy0,
+						u + dz + dx, v + dz + dy03,
+						u + dz + dx, v + dz + dy03); // front-left
+				setQuard(i++, vs.get(5), vs.get(4), vs.get(14), vs.get(14),
+						u + dz + dx, v + dz + dy03,
+						u + dz, v + dz + dy03,
+						u + dz, v + dz + dy1,
+						u + dz, v + dz + dy1); // front-right
+				setQuard(i++, vs.get(16), vs.get(17), vs.get(13), vs.get(13),
+						u + 2 * dz + dx, v + dz + dy1,
+						u + 2 * (dz + dx), v + dz + dy1,
+						u + 2 * (dz + dx), v + dz + dy03,
+						u + 2 * (dz + dx), v + dz + dy03); // back-left
+				setQuard(i++, vs.get(13), vs.get(12), vs.get(16), vs.get(16),
+						u + 2 * (dz + dx), v + dz + dy03,
+						u + 2 * dz + dx, v + dz + dy03,
+						u + 2 * dz + dx, v + dz + dy1,
+						u + 2 * dz + dx, v + dz + dy1); // back-right
+				setQuard(i++, vs.get(12), vs.get(5), vs.get(15), vs.get(15),
+						u + 2 * dz + dx, v + dz + dy03,
+						u + dz + dx, v + dz + dy03,
+						u + dz + dx, v + dz + dy1,
+						u + dz + dx, v + dz + dy1); // left-front
+				setQuard(i++, vs.get(15), vs.get(16), vs.get(12), vs.get(12),
+						u + dz + dx, v + dz + dy1,
+						u + 2 * dz + dx, v + dz + dy1,
+						u + 2 * dz + dx, v + dz + dy03,
+						u + 2 * dz + dx, v + dz + dy03); // left-back
+				setQuard(i++, vs.get(17), vs.get(14), vs.get(4), vs.get(4),
+						u, v + dz + dy1,
+						u + dz, v + dz + dy1,
+						u + dz, v + dz + dy03,
+						u + dz, v + dz + dy03); // right-front
+				setQuard(i++, vs.get(4), vs.get(13), vs.get(17), vs.get(17),
+						u + dz, v + dz + dy03,
 						u, v + dz + dy03,
 						u, v + dz + dy1,
-						u + dz, v + dz + dy1);
+						u, v + dz + dy1); // right-back
 			}
 			// level #5
 			Vec2f yz18 = rotate(cr, new Vec2f(ye2, tvs[4].y), cos2, sin2);
@@ -530,7 +562,7 @@ implements IModelRenderer {
 			float dy00 = dy0 - n0;
 			float dy01 = dy00 + n0 / 1.5f;
 			float dy02 = dy0 + n1 / 3.0f;
-			float dy03 = (dy0 + n1) * 0.85f;
+			float dy03 = dy0 + n1;
 			vs.put(4, new PositionTextureVertex(x, ye0, z, 0.0F, 0.0F));
 			vs.put(5, new PositionTextureVertex(xe, ye0, z, 0.0F, 8.0F));
 			vs.put(6, new PositionTextureVertex(xe, g3.x, ze, 8.0F, 8.0F));
@@ -551,57 +583,60 @@ implements IModelRenderer {
 			// level #1
 			vs.put(8, new PositionTextureVertex(xe, g0.x, g0.y, 0.0F, 0.0F));
 			vs.put(9, new PositionTextureVertex(x, g0.x, g0.y, 0.0F, 8.0F));
-			setQuard(i++, vs.get(4), vs.get(5), vs.get(8), vs.get(9), // front
-					u + dz, v + dz + dy00,
+			setQuard(i++, vs.get(5), vs.get(4), vs.get(9), vs.get(8),
 					u + dz + dx, v + dz + dy00,
-					u + dz + dx, v + dz + dy01,
-					u + dz, v + dz + dy01);
-			setQuard(i++, vs.get(5), vs.get(6), vs.get(8), vs.get(5), // inside
+					u + dz, v + dz + dy00,
+					u + dz, v + dz + dy01,
+					u + dz + dx, v + dz + dy01); // front-segment-1
+			setQuard(i++, vs.get(5), vs.get(6), vs.get(8), vs.get(5),
 					u + dz + dx, v + dz + dy00,
 					u + 2 * dz + dx, v + dz + dy0,
 					u + dz + dx, v + dz + dy01,
-					u + dz + dx, v + dz + dy00);
-			setQuard(i++, vs.get(4), vs.get(7), vs.get(9), vs.get(4), // outside
+					u + dz + dx, v + dz + dy00); // left-segment-1
+			setQuard(i++, vs.get(4), vs.get(7), vs.get(9), vs.get(4),
 					u + dz, v + dz + dy00,
 					u, v + dz + dy0,
 					u + dz, v + dz + dy01,
-					u + dz, v + dz + dy00);
+					u + dz, v + dz + dy00); // right-segment-1
 			// level #2
 			vs.put(10, new PositionTextureVertex(xe, g1.x, g1.y, 0.0F, 0.0F));
 			vs.put(11, new PositionTextureVertex(x, g1.x, g1.y, 0.0F, 8.0F));
-			setQuard(i++, vs.get(9), vs.get(8), vs.get(10), vs.get(11), // front
-					u + dz, v + dz + dy01,
+			setQuard(i++, vs.get(8), vs.get(9), vs.get(11), vs.get(10),
 					u + dz + dx, v + dz + dy01,
-					u + dz + dx, v + dz + dy02,
-					u + dz, v + dz + dy02);
-			setQuard(i++, vs.get(8), vs.get(6), vs.get(10), vs.get(8), // inside
+					u + dz, v + dz + dy01,
+					u + dz, v + dz + dy02,
+					u + dz + dx, v + dz + dy02); // front-segment-2
+			setQuard(i++, vs.get(8), vs.get(6), vs.get(10), vs.get(8),
 					u + dz + dx, v + dz + dy01,
 					u + 2 * dz + dx, v + dz + dy0,
 					u + dz + dx, v + dz + dy02,
-					u + dz + dx, v + dz + dy01);
-			setQuard(i++, vs.get(9), vs.get(7), vs.get(11), vs.get(9), // outside
+					u + dz + dx, v + dz + dy01); // left-segment-2
+			setQuard(i++, vs.get(9), vs.get(7), vs.get(11), vs.get(9),
 					u + dz, v + dz + dy01,
 					u, v + dz + dy0,
 					u + dz, v + dz + dy02,
-					u + dz, v + dz + dy01);
+					u + dz, v + dz + dy01); // right-segment-2
 			// level #3
 			vs.put(12, new PositionTextureVertex(xe, g2.x, g2.y, 0.0F, 0.0F));
 			vs.put(13, new PositionTextureVertex(x, g2.x, g2.y, 0.0F, 8.0F));
-			setQuard(i++, vs.get(11), vs.get(10), vs.get(12), vs.get(13), // front
-					u + dz, v + dz + dy02,
+			if (partId == 3) {
+				//System.out.println("Y: ["+dy0+", "+dy1+", "+dy2+"], ["+dy01+", "+dy02+", "+dy03+"]");
+			}
+			setQuard(i++, vs.get(10), vs.get(11), vs.get(13), vs.get(12),
 					u + dz + dx, v + dz + dy02,
-					u + dz + dx, v + dz + dy03,
-					u + dz, v + dz + dy03);
-			setQuard(i++, vs.get(10), vs.get(6), vs.get(12), vs.get(10), // inside
+					u + dz, v + dz + dy02,
+					u + dz, v + dz + dy03,
+					u + dz + dx, v + dz + dy03); // front-segment-3
+			setQuard(i++, vs.get(10), vs.get(6), vs.get(12), vs.get(10),
 					u + dz + dx, v + dz + dy02,
 					u + 2 * dz + dx, v + dz + dy0,
 					u + dz + dx, v + dz + dy03,
-					u + dz + dx, v + dz + dy02);
-			setQuard(i++, vs.get(11), vs.get(7), vs.get(13), vs.get(11), // outside
+					u + dz + dx, v + dz + dy02); // left-segment-3
+			setQuard(i++, vs.get(11), vs.get(7), vs.get(13), vs.get(11),
 					u + dz, v + dz + dy02,
 					u, v + dz + dy0,
 					u + dz, v + dz + dy03,
-					u + dz, v + dz + dy02);
+					u + dz, v + dz + dy02); // right-segment-3
 			// level #4
 			Vec2f yz14 = rotate(cr, new Vec2f(ye1, tvs[0].y), cos2, sin2);
 			Vec2f yz15 = rotate(cr, new Vec2f(ye1, tvs[1].y), cos2, sin2);
@@ -611,16 +646,16 @@ implements IModelRenderer {
 			vs.put(15, new PositionTextureVertex(tvs[1].x, yz15.x, yz15.y, 0.0F, 0.0F));
 			vs.put(16, new PositionTextureVertex(tvs[2].x, yz16.x, yz16.y, 0.0F, 0.0F));
 			vs.put(17, new PositionTextureVertex(tvs[3].x, yz17.x, yz17.y, 0.0F, 0.0F));
-			if (c) {
-				setQuard(i++, vs.get(15), vs.get(13), vs.get(12), vs.get(15),
+			if (counterClockWise) {
+				setQuard(i++, vs.get(15), vs.get(12), vs.get(13), vs.get(15),
 						u + dz + dx, v + dz + dy1,
-						u + dz, v + dz + dy03,
 						u + dz + dx, v + dz + dy03,
-						u + dz + dx, v + dz + dy1); // front-left
-				setQuard(i++, vs.get(15), vs.get(14), vs.get(13), vs.get(15),
-						u + dz + dx, v + dz + dy1,
-						u + dz, v + dz + dy1,
 						u + dz, v + dz + dy03,
+						u + dz + dx, v + dz + dy1); // front-left
+				setQuard(i++, vs.get(15), vs.get(13), vs.get(14), vs.get(15),
+						u + dz + dx, v + dz + dy1,
+						u + dz, v + dz + dy03,
+						u + dz, v + dz + dy1,
 						u + dz + dx, v + dz + dy1); // front-right
 				setQuard(i++, vs.get(7), vs.get(6), vs.get(17), vs.get(17),
 						u + 2 * dz + dx,

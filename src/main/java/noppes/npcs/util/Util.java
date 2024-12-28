@@ -24,6 +24,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
+import net.minecraft.world.Teleporter;
 import noppes.npcs.*;
 
 import net.minecraft.block.state.IBlockState;
@@ -1026,7 +1027,13 @@ public class Util implements IMethods {
 			throw new CommandException("Server cannot " + "have value Null");
 		}
         if (entity instanceof EntityPlayerMP) {
-			server.getPlayerList().transferPlayerToDimension((EntityPlayerMP) entity, dimension, new CustomNpcsTeleporter((WorldServer) server.getEntityWorld()));
+			try {
+				WorldServer world = (WorldServer) server.getEntityWorld();
+				if (world == null || world.provider == null) { world = (WorldServer) entity.world; }
+				server.getPlayerList().transferPlayerToDimension((EntityPlayerMP) entity, dimension, new CustomNpcsTeleporter(world));
+			} catch (Exception e) {
+                LogWriter.error("Try travel player: "+entity.getName()+"; to "+dimension, e);
+            }
 			return entity;
 		} else {
 			return travelEntity(server, entity, dimension);
@@ -1504,7 +1511,6 @@ public class Util implements IMethods {
 
 	@Override
 	public NBTBase writeObjectToNbt(Object value) {
-		//LogWriter.debug("Trying to write object \"" + value.toString() + "\" to NBT");
 		if (value.getClass().isArray()) {
 			Object[] vs = (Object[]) value;
 			if (vs.length == 0) {

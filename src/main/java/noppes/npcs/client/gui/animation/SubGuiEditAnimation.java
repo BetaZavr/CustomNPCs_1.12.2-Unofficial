@@ -786,11 +786,10 @@ System.out.println("buttonID: "+button.id);
 	@Override
 	public void confirmClicked(boolean result, int id) {
 		displayGuiScreen(parent);
-		if (!result) {
-			return;
-		}
+		if (!result) { return; }
+		System.out.println("buttonID: "+id);
 		switch (id) {
-			case 0: { // remove frame
+			case 0: {
 				if (anim == null || frame == null || anim.frames.size() <= 1) {
 					return;
 				}
@@ -804,8 +803,8 @@ System.out.println("buttonID: "+button.id);
 				setHitbox(frame.damageHitboxes.get(0));
 				initGui();
 				break;
-			}
-			case 1: { // clear frame
+			} // remove frame
+			case 1: {
 				if (frame == null) {
 					return;
 				}
@@ -814,8 +813,8 @@ System.out.println("buttonID: "+button.id);
 				}
 				initGui();
 				break;
-			}
-			case 2: { // remove added part
+			} // clear frame
+			case 2: {
 				if (anim == null || addedPartConfig == null || part == null) { return; }
 				int f = addedPartConfig.id - 1;
 				if (f < 0) { f = 0; }
@@ -824,16 +823,16 @@ System.out.println("buttonID: "+button.id);
 				setPart(frame.parts.get(f));
 				initGui();
 				break;
-			}
-			case 3: { // clear part
+			} // remove added part
+			case 3: {
 				if (part == null) {
 					return;
 				}
 				part.clear();
 				initGui();
 				break;
-			}
-			case 4: { // clear all frames
+			} // clear part
+			case 4: {
 				if (anim == null) {
 					return;
 				}
@@ -844,17 +843,15 @@ System.out.println("buttonID: "+button.id);
 				}
 				initGui();
 				break;
-			}
-			case 5: { // clear all part
-				if (anim == null || part == null) {
-					return;
-				}
+			} // clear all frames
+			case 5: {
+				if (anim == null || part == null) { return; }
 				for (AnimationFrameConfig f : anim.frames.values()) {
 					f.parts.get(part.id).clear();
 				}
 				initGui();
 				break;
-			}
+			} // clear all part
 		}
 	}
 

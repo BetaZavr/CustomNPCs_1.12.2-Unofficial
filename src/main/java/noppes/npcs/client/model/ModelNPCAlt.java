@@ -678,7 +678,7 @@ public class ModelNpcAlt extends ModelPlayer {
                     AniYes.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, this);
                 }
             } // Mod base animation
-            if (npc.ais.getStandingType() == 4 && npc.lookAt != null && !npc.isAttacking()) {
+            if (currentAnimation != 2 && npc.ais.getStandingType() == 4 && npc.lookAt != null && !npc.isAttacking()) {
                 double d0 = entityIn.posX - npc.lookAt.posX;
                 double d1 = (entityIn.posY + (double) entityIn.getEyeHeight()) - (npc.lookAt.posY + (double) npc.lookAt.getEyeHeight());
                 double d2 = entityIn.posZ - npc.lookAt.posZ;

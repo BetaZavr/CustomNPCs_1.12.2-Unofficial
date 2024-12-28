@@ -154,6 +154,14 @@ public class AnimationHandler {
                 int animationFrame = activeAnimation.getAnimationFrameByTime(ticks);
                 if (animationFrame < 0) { animationFrame = 0; }
                 currentFrame = activeAnimation.frames.get(animationFrame);
+                if (currentFrame == null) {
+                    if (activeAnimation.frames.isEmpty()) {
+                        stopAnimation();
+                        return;
+                    }
+                    animationFrame = 0;
+                    currentFrame = activeAnimation.frames.get(animationFrame);
+                }
                 nextFrame = activeAnimation.frames.get(Math.min(animationFrame + 1, activeAnimation.frames.size() - 1));
                 speedTicks = currentFrame.speed;
                 if (activeAnimation.endingFrameTicks.containsKey(animationFrame - 1)) { ticks -= activeAnimation.endingFrameTicks.get(animationFrame - 1); }
