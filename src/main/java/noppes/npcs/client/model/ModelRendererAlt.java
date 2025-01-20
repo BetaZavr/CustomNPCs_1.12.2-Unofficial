@@ -619,9 +619,6 @@ implements IModelRenderer {
 			// level #3
 			vs.put(12, new PositionTextureVertex(xe, g2.x, g2.y, 0.0F, 0.0F));
 			vs.put(13, new PositionTextureVertex(x, g2.x, g2.y, 0.0F, 8.0F));
-			if (partId == 3) {
-				//System.out.println("Y: ["+dy0+", "+dy1+", "+dy2+"], ["+dy01+", "+dy02+", "+dy03+"]");
-			}
 			setQuard(i++, vs.get(10), vs.get(11), vs.get(13), vs.get(12),
 					u + dz + dx, v + dz + dy02,
 					u + dz, v + dz + dy02,

@@ -253,8 +253,8 @@ implements ISubGuiListener {
 
 	public static SubGuiInterface subGui;
 
-	public CustomNpcsConfigGui(GuiScreen parentScreen) {
-		super(parentScreen, CustomNpcs.Config.getChildElements(), CustomNpcs.MODNAME, false, false, CustomNpcs.MODNAME);
+	public CustomNpcsConfigGui(GuiScreen parentScreen, List<IConfigElement> elementsList, String modName) {
+		super(parentScreen, elementsList, modName, false, false, modName);
 		subGui = null;
 	}
 

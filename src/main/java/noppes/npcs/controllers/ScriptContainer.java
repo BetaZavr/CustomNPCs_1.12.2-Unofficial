@@ -431,7 +431,7 @@ public class ScriptContainer {
 				try {
 					ScriptContainer.Data.put(key, engine.eval(((NBTTagString) tag).getString()));
 				}
-				catch (Exception e) { LogWriter.error("Key: " + key + "; Value: " + ((NBTTagString) tag).getString() + " putw error:", e); }
+				catch (Exception e) { LogWriter.error("Key: " + key + "; Value: " + ((NBTTagString) tag).getString() + " put error:", e); }
 			}
 		}
 		// Base Functions

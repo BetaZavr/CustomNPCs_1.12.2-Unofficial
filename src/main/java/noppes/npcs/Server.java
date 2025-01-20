@@ -363,8 +363,7 @@ public class Server {
 						LogWriter.debug("SendAssociatedData: " + type);
 					}
                     for (EntityPlayerMP entityPlayerMP : list) {
-                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
-                                entityPlayerMP);
+                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
                     }
 				}
 			} catch (IOException e) {
@@ -388,7 +387,7 @@ public class Server {
 			if (!Server.list.contains(type)) {
 				LogWriter.debug("SendDataChecked: " + type);
 			}
-			CustomNpcs.Channel.sendTo(new FMLProxyPacket(buffer, "CustomNPCs"), player);
+			CustomNpcs.Channel.sendTo(new FMLProxyPacket(buffer, CustomNpcs.MODNAME), player);
 		} catch (IOException e) {
 			LogWriter.error(type + " Errored", e);
 		}
@@ -403,7 +402,7 @@ public class Server {
 					if (!Server.list.contains(type)) {
 						LogWriter.debug("SendData: " + type);
 					}
-					CustomNpcs.Channel.sendTo(new FMLProxyPacket(buffer, "CustomNPCs"), player);
+					CustomNpcs.Channel.sendTo(new FMLProxyPacket(buffer, CustomNpcs.MODNAME), player);
 				} else {
 					LogWriter.error("Not Send: " + type);
 				}
@@ -427,8 +426,7 @@ public class Server {
 						LogWriter.debug("SendRangedData: " + type);
 					}
                     for (EntityPlayerMP entityPlayerMP : list) {
-                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
-                                entityPlayerMP);
+                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
                     }
 				}
 			} catch (IOException e) {
@@ -453,8 +451,7 @@ public class Server {
 						LogWriter.debug("SendRangedData: " + type);
 					}
                     for (EntityPlayerMP entityPlayerMP : list) {
-                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
-                                entityPlayerMP);
+                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
                     }
 				}
 			} catch (IOException e) {
@@ -478,8 +475,7 @@ public class Server {
 						LogWriter.debug("SendToAll: " + type);
 					}
                     for (EntityPlayerMP entityPlayerMP : list) {
-                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
-                                entityPlayerMP);
+                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
                     }
 				}
 			} catch (IOException e) {

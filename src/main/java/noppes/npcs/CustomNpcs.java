@@ -110,7 +110,7 @@ import noppes.npcs.util.Util;
 import noppes.npcs.util.DataDebug;
 import noppes.npcs.util.DataDebug.Debug;
 
-@Mod(modid = CustomNpcs.MODID, name = CustomNpcs.MODNAME, version = "3.422", acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2", guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
+@Mod(modid = CustomNpcs.MODID, name = CustomNpcs.MODNAME, version = "3.424", acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2", guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
 public class CustomNpcs {
 
 	@ConfigProp(info = "Currency symbol displayed in stores (unicode)", def = "20AC")
@@ -426,7 +426,7 @@ public class CustomNpcs {
 	@Mod.EventHandler
 	public void preload(FMLPreInitializationEvent ev) {
 		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_preload");
-		CustomNpcs.Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCs");
+		Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(MODNAME);
 		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCsPlayer");
 		CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), "customnpcs");
 		if (!CustomNpcs.Dir.exists() && !CustomNpcs.Dir.mkdir()) {

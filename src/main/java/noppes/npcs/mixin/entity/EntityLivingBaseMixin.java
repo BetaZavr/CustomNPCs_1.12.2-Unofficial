@@ -3,15 +3,13 @@ package noppes.npcs.mixin.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.entity.EntityNPCInterface;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -22,6 +20,10 @@ import java.util.Random;
 
 @Mixin(value = EntityLivingBase.class)
 public class EntityLivingBaseMixin implements IEntityLivingBaseMixin {
+
+    @Final
+    @Shadow
+    protected static DataParameter<Byte> HAND_STATES;
 
     @Mutable
     @Shadow
@@ -143,5 +145,8 @@ public class EntityLivingBaseMixin implements IEntityLivingBaseMixin {
 
     @Override
     public void npcs$setCurrentDamageSource(DamageSource source) { npcs$currentDamageSource = source; }
+
+    @Override
+    public DataParameter<Byte> npcs$getHandStates() { return HAND_STATES; }
 
 }

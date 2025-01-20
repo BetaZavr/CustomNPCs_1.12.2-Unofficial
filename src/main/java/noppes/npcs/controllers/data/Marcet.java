@@ -101,8 +101,10 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 
 	@Override
 	public boolean apply(EntityNPCInterface npc) {
-		return (npc.advanced.roleInterface instanceof RoleTrader)
-				&& ((RoleTrader) npc.advanced.roleInterface).getMarket().getId() == getId();
+		if (npc == null || !(npc.advanced.roleInterface instanceof RoleTrader)) { return false; }
+		return ((RoleTrader) npc.advanced.roleInterface).getMarket() == null ?
+				((RoleTrader) npc.advanced.roleInterface).getMarketID() == getId() :
+				((RoleTrader) npc.advanced.roleInterface).getMarket().getId() == getId();
 	}
 
 	public void closeForAllPlayers() { // server only
@@ -250,25 +252,25 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 		}
 
 		this.sections.clear();
-		Map<Integer, MarcetSection> newsec = new TreeMap<>();
+		Map<Integer, MarcetSection> newSec = new TreeMap<>();
 		if (!compound.hasKey("Sections", 9) || compound.getTagList("Sections", 10).tagCount() == 0) {
-			newsec.put(0, new MarcetSection(0));
+			newSec.put(0, new MarcetSection(0));
 		} else {
 			for (int i = 0; i < compound.getTagList("Sections", 10).tagCount(); i++) {
 				NBTTagCompound nbt = compound.getTagList("Sections", 10).getCompoundTagAt(i);
 				MarcetSection ms = MarcetSection.create(nbt);
-				newsec.put(ms.getId(), MarcetSection.create(nbt));
+				newSec.put(ms.getId(), MarcetSection.create(nbt));
 			}
 			// Sorting
 			Map<Integer, MarcetSection> sec = new TreeMap<>();
 			int i = 0;
-			for (MarcetSection ms : newsec.values()) {
+			for (MarcetSection ms : newSec.values()) {
 				sec.put(i, ms);
 				i++;
 			}
-			newsec = sec;
+			newSec = sec;
 		}
-		this.sections.putAll(newsec);
+		this.sections.putAll(newSec);
 
 		this.limitedType = compound.getInteger("LimitedType");
 		this.updateTime = compound.getInteger("UpdateTime");
@@ -365,8 +367,8 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 			for (Deal deal : ms.deals) {
 				deal.updateNew();
 				this.money += (long) ((double) (deal.getMoney()) * (this.coefficient + Math.random() * this.coefficient));
-				for (IItemStack istack : deal.getCurrency().getItems()) {
-					ItemStack stack = istack.getMCItemStack();
+				for (IItemStack iStack : deal.getCurrency().getItems()) {
+					ItemStack stack = iStack.getMCItemStack();
 					if (NoppesUtilServer.IsItemStackNull(stack)) {
 						continue;
 					}

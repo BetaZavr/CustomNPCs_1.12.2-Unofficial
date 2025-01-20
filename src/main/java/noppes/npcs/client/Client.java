@@ -30,7 +30,7 @@ public class Client {
 					if (!notDebugShow.contains(type)) {
 						LogWriter.debug("Send: " + type);
 					}
-					CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, "CustomNPCs"));
+					CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, CustomNpcs.MODNAME));
 				}
 			} catch (IOException e) { LogWriter.error("Error:", e); }
 		});
@@ -43,7 +43,7 @@ public class Client {
 				return;
 			}
 			LogWriter.debug("Send: " + type);
-			CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, "CustomNPCs"));
+			CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, CustomNpcs.MODNAME));
 		} catch (IOException e) { LogWriter.error("Error:", e); }
 	}
 

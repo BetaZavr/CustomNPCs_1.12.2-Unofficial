@@ -5,6 +5,8 @@ buildscript {
         mavenCentral()
         maven { url = 'https://files.minecraftforge.net/maven' }
         maven { url = 'https://repo.spongepowered.org/maven' }
+        maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
+        maven { url = "https://plugins.gradle.org/m2" }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+'
@@ -16,6 +18,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 apply plugin: 'idea'
 
 // JAR naming
@@ -79,7 +82,9 @@ minecraft {
 
 // Add Maven repositories
 repositories {
-    maven { url = 'https://repo.spongepowered.org/maven' }
+    mavenCentral()
+    maven { url 'https://maven.cleanroommc.com' }
+    //maven { url = 'https://repo.spongepowered.org/maven' }
 }
 
 // Project dependencies (required libraries)

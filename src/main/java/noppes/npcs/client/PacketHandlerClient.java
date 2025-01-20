@@ -24,6 +24,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.tileentity.TileEntity;
@@ -508,8 +509,20 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		}
 		else if (type == EnumPacketClient.MESSAGE_DATA) {
 			NBTTagCompound compound = Server.readNBT(buffer);
-			TextComponentTranslation title = new TextComponentTranslation(compound.getString("Title"));
-			TextComponentTranslation message = new TextComponentTranslation(compound.getString("Message"));
+			Object[] titleObjs = new Object[0];
+			if (compound.hasKey("TitleObjects", 9) && ((NBTTagList) compound.getTag("TitleObjects")).getTagType() == 8) {
+				NBTTagList list = compound.getTagList("TitleObjects", 8);
+				titleObjs = new Object[list.tagCount()];
+				for (int i = 0; i < list.tagCount(); i++) { titleObjs[i] = list.getStringTagAt(i); }
+			}
+			Object[] mesObjs = new Object[0];
+			if (compound.hasKey("MessageObjects", 9) && ((NBTTagList) compound.getTag("MessageObjects")).getTagType() == 8) {
+				NBTTagList list = compound.getTagList("MessageObjects", 8);
+				mesObjs = new Object[list.tagCount()];
+				for (int i = 0; i < list.tagCount(); i++) { mesObjs[i] = list.getStringTagAt(i); }
+			}
+			TextComponentTranslation title = new TextComponentTranslation(compound.getString("Title"), titleObjs);
+			TextComponentTranslation message = new TextComponentTranslation(compound.getString("Message"), mesObjs);
 			if (compound.hasKey("QuestID", 3)) {
 				IQuest quest = QuestController.instance.get(compound.getInteger("QuestID"));
 				if (quest == null) {

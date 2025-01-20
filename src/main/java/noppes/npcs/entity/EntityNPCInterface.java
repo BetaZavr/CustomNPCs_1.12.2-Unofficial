@@ -43,10 +43,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemShield;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.network.datasync.DataParameter;
@@ -1434,7 +1431,22 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.dataManager.set(EntityNPCInterface.Interacting, this.isInteracting());
 			this.combatHandler.update();
 			this.onCollide();
-		} else {
+		}
+		else {
+			DataParameter<Byte> hand_states = ((IEntityLivingBaseMixin) this).npcs$getHandStates();
+			ItemStack stack = getHeldItemMainhand();
+			if (stack.getItem() instanceof ItemBow && hand_states != null) {
+				if (currentAnimation == 6 && getDataManager().get(hand_states) != 1) {
+					if (getDataManager().get(hand_states) != 1) {
+						getDataManager().set(hand_states, (byte) 1);
+						setActiveHand(EnumHand.MAIN_HAND);
+					}
+				} else if (currentAnimation != 6 && getDataManager().get(hand_states) == 1) {
+					stopActiveHand();
+					getDataManager().set(hand_states, (byte) 0);
+				}
+				stack.getItem().onUpdate(stack, world, this, 0, true);
+			}
 			isAirBorne = this.canFly() && world.getBlockState(this.getPosition().down()).getMaterial() == Material.AIR;
 		}
 		if (CustomNpcs.ShowCustomAnimation) {
@@ -1474,7 +1486,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			// walking or standing
 			animation.resetWalkAndStandAnimations();
 		}
-
 		if (this.wasKilled != this.isKilled() && this.wasKilled) {
 			this.reset();
 		}

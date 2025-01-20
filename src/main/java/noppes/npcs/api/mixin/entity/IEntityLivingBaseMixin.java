@@ -1,5 +1,6 @@
 package noppes.npcs.api.mixin.entity;
 
+import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 
 public interface IEntityLivingBaseMixin {
@@ -18,4 +19,7 @@ public interface IEntityLivingBaseMixin {
 
     void npcs$setCurrentDamageSource(DamageSource source);
 
+    DataParameter<Byte> npcs$getHandStates();
+
 }
+
