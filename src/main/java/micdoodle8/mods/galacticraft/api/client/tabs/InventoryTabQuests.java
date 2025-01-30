@@ -11,9 +11,11 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.player.GuiLog;
+import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 import javax.annotation.Nonnull;
@@ -25,7 +27,7 @@ public class InventoryTabQuests extends AbstractTab {
 	}
 
 	private static void run() {
-		Minecraft.getMinecraft().displayGuiScreen(new GuiLog(0));
+		CustomNpcs.proxy.openGui(0, 0, 0, EnumGuiType.QuestLog, Minecraft.getMinecraft().player);
 	}
 
 	@Override

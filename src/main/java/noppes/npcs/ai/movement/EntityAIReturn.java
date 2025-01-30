@@ -203,4 +203,11 @@ public class EntityAIReturn extends EntityAIBase {
 			stuckCount = 0;
 		}
 	}
+
+	public BlockPos getEndPositions() {
+		if (!wasAttacked) {
+			return new BlockPos(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos());
+		}
+		return new BlockPos(preAttackPos[0], preAttackPos[1], preAttackPos[2]);
+	}
 }

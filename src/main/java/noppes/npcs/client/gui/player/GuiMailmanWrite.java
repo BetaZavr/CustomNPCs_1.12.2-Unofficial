@@ -189,7 +189,7 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 			}
 			case 4: { // delete
 				GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-				this.displayGuiScreen(guiyesno);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 6: { // ransom

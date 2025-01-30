@@ -300,10 +300,13 @@ public class WrapperNpcAPI extends NpcAPI {
 		ResourceLocation loc = new ResourceLocation(dimension);
 		for (World world : this.worlds) {
 			if (world.provider.getDimensionType().getName().equals(loc.getResourcePath())) {
-				return this.getIWorld(world);
+				return getIWorld(world);
 			}
 		}
-		throw new CustomNPCsException("Unknown dimension: \"" + dimension + "\"");
+		if (!Thread.currentThread().getName().toLowerCase().contains("client")) {
+			throw new CustomNPCsException("Unknown dimension: \"" + dimension + "\"");
+		}
+		return null;
 	}
 
 	@Override
@@ -316,10 +319,13 @@ public class WrapperNpcAPI extends NpcAPI {
 		if (player != null && !worlds.contains(player.world)) { worlds.add(player.world); }
 		for (World world : worlds) {
 			if (world.provider.getDimension() == dimensionId) {
-				return this.getIWorld(world);
+				return getIWorld(world);
 			}
 		}
-		throw new CustomNPCsException("Unknown dimension id: " + dimensionId);
+		if (!Thread.currentThread().getName().toLowerCase().contains("client")) {
+			throw new CustomNPCsException("Unknown dimension: \"" + dimensionId + "\"");
+		}
+		return null;
 	}
 
 	@SuppressWarnings("deprecation")

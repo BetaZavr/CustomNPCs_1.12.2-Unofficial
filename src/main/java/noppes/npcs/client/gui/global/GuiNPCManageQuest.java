@@ -68,7 +68,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				GuiYesNo guiyesno = new GuiYesNo(this,
 						this.categoryData.get(this.selectedCategory).title,
 						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
-				this.displayGuiScreen(guiyesno);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 3: {

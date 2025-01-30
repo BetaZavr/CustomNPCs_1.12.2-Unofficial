@@ -33,10 +33,38 @@ import noppes.npcs.api.wrapper.BlockScriptedWrapper;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.blocks.BlockScripted;
 import noppes.npcs.blocks.BlockScriptedDoor;
+import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.entity.EntityNPCInterface;
 
 @Cancelable
 public class ForgeEvent extends CustomNPCsEvent {
+
+	public static class EnterToRegion extends CustomNPCsEvent {
+
+		public Entity entity;
+		public Zone3D region;
+
+		public EnterToRegion(Entity entityIn, Zone3D zone) {
+			super();
+			entity = entityIn;
+			region = zone;
+		}
+
+	}
+
+	public static class LeaveRegion extends CustomNPCsEvent {
+
+		public Entity entity;
+		public Zone3D region;
+
+		public LeaveRegion(Entity entityIn, Zone3D zone) {
+			super();
+			entity = entityIn;
+			region = zone;
+		}
+
+	}
+
 
 	public static class InitEvent extends ForgeEvent {
 

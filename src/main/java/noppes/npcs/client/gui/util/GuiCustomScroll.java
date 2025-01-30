@@ -152,10 +152,11 @@ implements IComponentGui {
 			if (k < 4 || k + 12 >= height || rd == null || rd.resource == null || rd.width <= 0 || rd.height <= 0) {
 				continue;
 			}
+			boolean hasStack = stacks != null && !stacks.isEmpty() && i < stacks.size() - 1;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(guiLeft, guiTop, 0.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.translate(0.5f, k - 1.5f + rd.tH, 0.0f); // position X, Y, Z
+			GlStateManager.translate(hasStack ? -13.0f : 0.5f, k - 1.5f + rd.tH, 0.0f); // position X, Y, Z
 			float scale = 12.0f / (float) (Math.max(rd.width, rd.height));
 			GlStateManager.scale(scale, scale, scale);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(rd.resource);
@@ -242,7 +243,7 @@ implements IComponentGui {
 			if (!isSearched(list.get(i))) { continue; }
 			int k = 14 * displayIndex + 4 - scrollY;
 			displayIndex++;
-			if (k < 4 || k + 12 >= height) { continue; }
+			if (k < 4 || k + 10 > height) { continue; }
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(guiLeft, guiTop, 0.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);

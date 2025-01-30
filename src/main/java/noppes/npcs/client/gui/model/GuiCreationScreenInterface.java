@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.model;
 
+import net.minecraftforge.common.MinecraftForge;
+import noppes.npcs.api.event.ClientEvent;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -163,7 +165,7 @@ implements ISubGuiListener, ISliderListener {
 			if (!gui.getData(this.entity).isEmpty()) {
 				this.addButton(new GuiNpcButton(2, this.guiLeft, this.guiTop + 23, 60, 20, "gui.extra"));
 			} else if (this.active == 2) {
-				this.mc.displayGuiScreen(new GuiCreationEntities(this.npc));
+				openGui(new GuiCreationEntities(this.npc));
 				return;
 			}
 		}
@@ -215,7 +217,11 @@ implements ISubGuiListener, ISliderListener {
 	}
 
 	public void openGui(GuiScreen gui) {
-		this.mc.displayGuiScreen(gui);
+		ClientEvent.NextToGuiCustomNpcs event = new ClientEvent.NextToGuiCustomNpcs(npc, this, gui);
+		MinecraftForge.EVENT_BUS.post(event);
+		if (event.returnGui == null || event.isCanceled()) { return; }
+		mc.displayGuiScreen(event.returnGui);
+		if (mc.currentScreen == null) { mc.setIngameFocus(); }
 	}
 
 	@Override

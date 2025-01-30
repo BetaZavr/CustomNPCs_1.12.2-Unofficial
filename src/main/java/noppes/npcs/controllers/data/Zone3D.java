@@ -14,13 +14,17 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.api.event.ClientEvent;
+import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.api.util.IRayTraceRotate;
@@ -69,7 +73,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	private final List<Entity> entitiesWithinRegion = new ArrayList<>();
 	private final Map<Entity, AntiLagTime> playerAntiLag = new HashMap<>();
 	public IPos homePos;
-	public boolean keepOut, showInClient;
+	public boolean keepOut;
+	public boolean showInClient;
+	public NBTTagCompound addData = new NBTTagCompound();
 
 	private boolean update;
 
@@ -574,7 +580,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	@Override
 	public INbt getNbt() {
 		NBTTagCompound nbtRegion = new NBTTagCompound();
-		this.readFromNBT(nbtRegion);
+		this.load(nbtRegion);
 		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtRegion);
 	}
 
@@ -712,6 +718,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 
 	private void kick(Entity entity) {
+		if (entitiesWithinRegion.contains(entity)) {
+			MinecraftForge.EVENT_BUS.post(new ForgeEvent.LeaveRegion(entity, this));
+		}
 		double[] pos = this.getPlayerTeleportPosition(entity);
 		EntityPlayerMP player = null;
 		if (entity instanceof EntityPlayerMP) {
@@ -782,7 +791,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		this.offset(point.x, 0, point.y);
 	}
 
-	public void readFromNBT(NBTTagCompound nbtRegion) {
+	public void load(NBTTagCompound nbtRegion) {
 		this.id = nbtRegion.getInteger("ID");
 		this.name = nbtRegion.getString("Name");
 		this.dimensionID = nbtRegion.getInteger("DimensionID");
@@ -814,6 +823,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		this.keepOut = nbtRegion.getBoolean("IsKeepOut");
 		this.showInClient = nbtRegion.getBoolean("ShowInClient");
+
+		addData = nbtRegion.getCompoundTag("AddData");
 		this.fix();
 		this.update = false;
 	}
@@ -951,7 +962,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public void setNbt(INbt nbt) {
-		this.writeToNBT(nbt.getMCNBT());
+		this.save(nbt.getMCNBT());
 		this.update = true;
 	}
 
@@ -1063,19 +1074,20 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		if (this.points.isEmpty() || this.dimensionID != world.provider.getDimension()) {
 			return;
 		}
-		List<Entity> listEntitiesInside = world.getEntities(Entity.class, this);
-		for (Entity entity : listEntitiesInside) {
+		List<Entity> entities = world.getEntities(Entity.class, this);
+		for (Entity entity : entities) {
 			if (this.keepOut) {
 				this.kick(entity);
 				continue;
 			}
 			if (!this.entitiesWithinRegion.contains(entity)) {
 				this.entitiesWithinRegion.add(entity);
+				MinecraftForge.EVENT_BUS.post(new ForgeEvent.EnterToRegion(entity, this));
 			}
 		}
 		List<Entity> del = new ArrayList<>();
 		for (Entity entity : this.entitiesWithinRegion) {
-			if (entity.isDead || (!this.keepOut && listEntitiesInside.contains(entity))) {
+			if (entity.isDead || (!this.keepOut && entities.contains(entity))) {
 				if (entity.isDead) {
 					this.entitiesWithinRegion.remove(entity);
 				}
@@ -1101,7 +1113,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 	}
 
-	public void writeToNBT(NBTTagCompound nbtRegion) {
+	public void save(NBTTagCompound nbtRegion) {
 		nbtRegion.setInteger("ID", this.id);
 		nbtRegion.setString("Name", this.name);
 		nbtRegion.setInteger("DimensionID", this.dimensionID);
@@ -1119,6 +1131,17 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		nbtRegion.setLong("HomePos", homePos.getMCBlockPos().toLong());
 		nbtRegion.setBoolean("IsKeepOut", this.keepOut);
 		nbtRegion.setBoolean("ShowInClient", this.showInClient);
+		nbtRegion.setTag("AddData", addData);
+	}
+
+	public AxisAlignedBB getAxisAlignedBB(boolean isFlat) {
+		return new AxisAlignedBB(
+				(5.0d + getMinX() * 10.0d) / 10.0d,
+				isFlat ? 0.0d : (5.0d + getMinY() * 10.0d) / 10.0d,
+				(5.0d + getMinZ() * 10.0d) / 10.0d,
+				(5.0d + getMaxX() * 10.0d) / 10.0d,
+				isFlat ? 1.0d : (5.0d + getMaxY() * 10.0d) / 10.0d,
+				(5.0d + getMaxZ() * 10.0d) / 10.0d);
 	}
 
 }

@@ -45,7 +45,6 @@ extends GuiContainerNPCInterface {
 	public void delete() {
 		npc.delete();
 		displayGuiScreen(null);
-		mc.setIngameFocus();
 	}
 
 	@Override

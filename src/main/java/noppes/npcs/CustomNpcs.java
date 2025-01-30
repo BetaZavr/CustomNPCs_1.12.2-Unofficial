@@ -66,6 +66,7 @@ import noppes.npcs.api.handler.capability.IItemStackWrapperHandler;
 import noppes.npcs.api.handler.capability.IMarkDataHandler;
 import noppes.npcs.api.handler.capability.IPlayerDataHandler;
 import noppes.npcs.api.handler.capability.IWrapperEntityDataHandler;
+import noppes.npcs.api.mixin.entity.ai.attributes.IBaseAttributeMixin;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperEntityData;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
@@ -334,7 +335,7 @@ public class CustomNpcs {
 
 	public static List<String> showDebugs() {
 		List<String> list = new ArrayList<>();
-		String temp = "Debug information output:";
+		String temp = CustomNpcs.MODNAME + " debug information output:";
 		list.add(temp);
 		LogWriter.debug(temp);
 		CustomNpcs.debugData.stopAll();
@@ -458,6 +459,7 @@ public class CustomNpcs {
 
 		CustomNpcs.proxy.preload();
 		((IRangedAttributeMixin) SharedMonsterAttributes.MAX_HEALTH).npcs$setMaxValue(Double.MAX_VALUE);
+		((IBaseAttributeMixin) SharedMonsterAttributes.MAX_HEALTH).npcs$setDefaultValue(100.0d);
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_preload");
 	}
 

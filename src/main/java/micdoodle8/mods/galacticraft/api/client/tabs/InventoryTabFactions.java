@@ -10,8 +10,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
-import noppes.npcs.client.gui.player.GuiLog;
+import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 import javax.annotation.Nonnull;
@@ -23,7 +24,7 @@ public class InventoryTabFactions extends AbstractTab {
 	}
 
 	private static void run() {
-		Minecraft.getMinecraft().displayGuiScreen(new GuiLog(1));
+		CustomNpcs.proxy.openGui(1, 0, 0, EnumGuiType.QuestLog, Minecraft.getMinecraft().player);
 	}
 
 	@Override

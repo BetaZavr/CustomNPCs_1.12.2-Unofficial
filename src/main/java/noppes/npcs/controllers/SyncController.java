@@ -151,6 +151,15 @@ public class SyncController {
 			for (String str : list) {
 				player.sendMessage(new TextComponentString(str));
 			}
+			try {
+				Class<?> nirn = Class.forName("nirn.betazavr.Nirn");
+				Object nirnMod = nirn.getField("instance").get(null);
+				List<String> nirnList = (List<String>) nirn.getMethod("showDebugs").invoke(nirnMod);
+				for (String str : nirnList) {
+					player.sendMessage(new TextComponentString(str));
+				}
+			}
+			catch (Exception ignored) { }
 			break;
 		}
 		default: {

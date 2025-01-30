@@ -58,7 +58,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 				DialogOption option = this.dialog.options.get(this.data.get(this.scroll.getSelected()));
 				GuiYesNo guiyesno = new GuiYesNo(this, "ID:" + option.slot + " - " + option.title,
 						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-				this.displayGuiScreen(guiyesno);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 2: { // edit

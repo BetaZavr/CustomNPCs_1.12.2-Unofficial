@@ -110,7 +110,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			case 7: { // del template
 				if (scrollTemplate == null || !scrollTemplate.hasSelected()) { return; }
 				GuiYesNo guiyesno = new GuiYesNo(this, scrollTemplate.getSelected(), new TextComponentTranslation("gui.clearMessage").getFormattedText(), 0);
-				this.displayGuiScreen(guiyesno);
+				displayGuiScreen(guiyesno);
 			}
 			case 8: { // group ID
 				this.groupId = button.getValue();
@@ -149,7 +149,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 					this.initGui();
 				} else {
 					GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.group").getFormattedText() + " ID: " + this.groupId, new TextComponentTranslation("gui.clearMessage").getFormattedText(), 1);
-					this.displayGuiScreen(guiyesno);
+					displayGuiScreen(guiyesno);
 				}
 				break;
 			}

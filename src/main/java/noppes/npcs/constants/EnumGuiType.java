@@ -68,6 +68,7 @@ public enum EnumGuiType
 	DimensionSetting,
 	AvailabilityStack,
 	CustomContainer,
-	DeadInventory
+	DeadInventory,
+	QuestLog
 
 }

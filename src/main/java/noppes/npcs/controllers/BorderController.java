@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import noppes.npcs.CustomNpcs;
@@ -67,7 +68,7 @@ public class BorderController implements IBorderHandler {
 		NBTTagList list = new NBTTagList();
 		for (Zone3D region : this.regions.values()) {
 			NBTTagCompound nbtRegion = new NBTTagCompound();
-			region.writeToNBT(nbtRegion);
+			region.save(nbtRegion);
 			list.appendTag(nbtRegion);
 		}
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
@@ -101,6 +102,18 @@ public class BorderController implements IBorderHandler {
 		return regs;
 	}
 
+	@Override
+	public List<Zone3D> getNearestRegions(int dimensionID, double xPos, double yPos, double zPos, double distance) {
+		AxisAlignedBB searchBox = new AxisAlignedBB(xPos, 0.0d, zPos, 1.0d, 1.0d, 1.0d);
+		searchBox.expand(distance, 0.0d, distance);
+		List<Zone3D> regions = new ArrayList<>();
+		for (Zone3D reg : this.regions.values()) {
+			if (reg.dimensionID != dimensionID) { continue; }
+			if (searchBox.intersects(reg.getAxisAlignedBB(true))) { regions.add(reg); }
+		}
+		return regions;
+	}
+
 	public int getUnusedId() {
 		int id = 0;
 		while (this.regions.containsKey(id)) { id++; }
@@ -113,11 +126,11 @@ public class BorderController implements IBorderHandler {
 		}
 		int id = nbtRegion.getInteger("ID");
 		if (this.regions.containsKey(id)) {
-			this.regions.get(id).readFromNBT(nbtRegion);
+			this.regions.get(id).load(nbtRegion);
 			return this.regions.get(id);
 		}
 		Zone3D region = new Zone3D();
-		region.readFromNBT(nbtRegion);
+		region.load(nbtRegion);
 		this.regions.put(region.getId(), region);
 		return this.regions.get(region.getId());
 	}
@@ -198,7 +211,7 @@ public class BorderController implements IBorderHandler {
 				continue;
 			}
 			NBTTagCompound nbtRegion = new NBTTagCompound();
-			this.regions.get(id).writeToNBT(nbtRegion);
+			this.regions.get(id).save(nbtRegion);
 			Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, id, nbtRegion);
 		}
 		Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, -2);
@@ -222,7 +235,7 @@ public class BorderController implements IBorderHandler {
 		if (id < 0) {
 			for (int i : this.regions.keySet()) {
 				NBTTagCompound nbtRegion = new NBTTagCompound();
-				this.regions.get(i).writeToNBT(nbtRegion);
+				this.regions.get(i).save(nbtRegion);
 				for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
 					Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, i, nbtRegion);
 					Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, -2);
@@ -230,7 +243,7 @@ public class BorderController implements IBorderHandler {
 			}
 		} else if (this.regions.containsKey(id)) {
 			NBTTagCompound nbtRegion = new NBTTagCompound();
-			this.regions.get(id).writeToNBT(nbtRegion);
+			this.regions.get(id).save(nbtRegion);
 			for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
 				Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, id, nbtRegion);
 				Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, -2);

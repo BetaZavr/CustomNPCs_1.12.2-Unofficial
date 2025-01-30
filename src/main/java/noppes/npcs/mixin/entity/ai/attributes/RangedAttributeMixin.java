@@ -1,6 +1,7 @@
 package noppes.npcs.mixin.entity.ai.attributes;
 
 import net.minecraft.entity.ai.attributes.RangedAttribute;
+import noppes.npcs.api.mixin.entity.ai.attributes.IBaseAttributeMixin;
 import noppes.npcs.api.mixin.entity.ai.attributes.IRangedAttributeMixin;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,12 +13,12 @@ public class RangedAttributeMixin implements IRangedAttributeMixin {
 
     @Mutable
     @Final
-    @Shadow(aliases = "minimumValue")
+    @Shadow
     private double minimumValue;
 
     @Mutable
     @Final
-    @Shadow(aliases = "maximumValue")
+    @Shadow
     private double maximumValue;
 
     @Override

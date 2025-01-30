@@ -496,14 +496,15 @@ public class NoppesUtilPlayer {
 	public static void teleportPlayer(EntityPlayerMP player, double x, double y, double z, int dimension, float yaw, float pitch) {
 		if (player.dimension != dimension) {
 			MinecraftServer server = player.getServer();
-            assert server != null;
-            WorldServer wor = server.getWorld(dimension);
+            if (server == null) { return; }
+            WorldServer world = server.getWorld(dimension);
+			if (world == null) { return; }
             net.minecraftforge.common.ForgeHooks.onTravelToDimension(player, dimension);
 			player.setLocationAndAngles(x, y, z, yaw, pitch);
-			server.getPlayerList().transferPlayerToDimension(player, dimension, new CustomTeleporter(wor));
+			server.getPlayerList().transferPlayerToDimension(player, dimension, new CustomTeleporter(world));
 			player.connection.setPlayerLocation(x, y, z, yaw, pitch);
-			if (!wor.playerEntities.contains(player)) {
-				wor.spawnEntity(player);
+			if (!world.playerEntities.contains(player)) {
+				world.spawnEntity(player);
 			}
 		} else {
 			player.connection.setPlayerLocation(x, y, z, yaw, pitch);

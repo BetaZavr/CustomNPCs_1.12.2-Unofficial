@@ -643,7 +643,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	public void save() {
 		if (region != null) {
 			NBTTagCompound regionNbt = new NBTTagCompound();
-			region.writeToNBT(regionNbt);
+			region.save(regionNbt);
 			Client.sendData(EnumPacketServer.RegionData, 2, regionNbt);
 		}
 	}

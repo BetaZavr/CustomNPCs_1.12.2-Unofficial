@@ -11,6 +11,7 @@
     "entity.ai.EntitySensesMixin",
     "entity.ai.attributes.AbstractAttributeMapMixin",
     "entity.ai.attributes.AttributeModifierMixin",
+    "entity.ai.attributes.BaseAttributeMixin",
     "entity.ai.attributes.ModifiableAttributeInstanceMixin",
     "entity.ai.attributes.RangedAttributeMixin",
     "entity.item.EntityItemMixin",

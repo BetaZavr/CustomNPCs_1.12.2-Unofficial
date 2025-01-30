@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import net.minecraft.client.gui.*;
+import noppes.npcs.api.event.ClientEvent;
 import noppes.npcs.api.mixin.client.renderer.IBlockModelRendererMixin;
 import noppes.npcs.api.mixin.client.renderer.IBlockRendererDispatcherMixin;
 import org.lwjgl.opengl.GL11;

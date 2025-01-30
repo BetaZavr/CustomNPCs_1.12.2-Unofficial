@@ -9,4 +9,5 @@ public interface IRangedAttributeMixin {
     void npcs$setMinValue(double newMinValue);
 
     void npcs$setMaxValue(double newMaxValue);
+
 }

@@ -65,7 +65,16 @@ public class CmdDebug extends CommandNoppesBase {
 		for (String str : list) {
 			sender.sendMessage(new TextComponentString(str));
 		}
-		sender.sendMessage(new TextComponentTranslation("command.debug.show"));
+		try {
+			Class<?> nirn = Class.forName("nirn.betazavr.Nirn");
+			Object nirnMod = nirn.getField("instance").get(null);
+			List<String> nirnList = (List<String>) nirn.getMethod("showDebugs").invoke(nirnMod);
+			for (String str : nirnList) {
+				sender.sendMessage(new TextComponentString(str));
+			}
+		}
+		catch (Exception ignored) { }
+        sender.sendMessage(new TextComponentTranslation("command.debug.show"));
 	}
 
 }

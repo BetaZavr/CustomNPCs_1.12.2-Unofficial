@@ -6,6 +6,7 @@ import java.util.*;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.api.mixin.pathfinding.IPathMixin;
+import noppes.npcs.constants.EnumGuiType;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.block.Block;
@@ -1874,14 +1875,14 @@ public class ClientGuiEventHandler extends Gui {
 		if (event.getGui() instanceof GuiContainerCreative) {
 			CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onButtonEvent");
 			switch (event.getButton().id) {
-			case 150: {
-				this.mc.displayGuiScreen(new GuiLog(2));
-				break;
-			}
-			case 151: {
-				this.mc.displayGuiScreen(new GuiLog(0));
-				break;
-			}
+				case 150: {
+					CustomNpcs.proxy.openGui(2, 0, 0, EnumGuiType.QuestLog, mc.player);
+					break;
+				}
+				case 151: {
+					CustomNpcs.proxy.openGui(0, 0, 0, EnumGuiType.QuestLog, mc.player);
+					break;
+				}
 			}
 			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_onButtonEvent");
 		}

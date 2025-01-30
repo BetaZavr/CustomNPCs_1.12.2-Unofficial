@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.api.event.ClientEvent;
 import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
 import org.lwjgl.input.Keyboard;
 
@@ -181,7 +182,13 @@ implements IEditNPC, ICustomScrollListener {
 	@Override
 	public void closeSubGui(SubGuiInterface gui) { subgui = null; }
 
-	public void displayGuiScreen(GuiScreen gui) { mc.displayGuiScreen(gui); }
+	public void displayGuiScreen(GuiScreen gui) {
+		ClientEvent.NextToGuiCustomNpcs event = new ClientEvent.NextToGuiCustomNpcs(npc, this, gui);
+		MinecraftForge.EVENT_BUS.post(event);
+		if (event.returnGui == null || event.isCanceled()) { return; }
+		mc.displayGuiScreen(event.returnGui);
+		if (mc.currentScreen == null) { mc.setIngameFocus(); }
+	}
 
 	public boolean doesGuiPauseGame() {return false; }
 

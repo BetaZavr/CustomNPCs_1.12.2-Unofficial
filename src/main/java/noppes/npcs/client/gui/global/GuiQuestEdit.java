@@ -223,7 +223,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				GuiYesNo guiyesno = new GuiYesNo(this,
 						new TextComponentTranslation("message.change.id", "" + this.quest.id).getFormattedText(),
 						new TextComponentTranslation("message.change").getFormattedText(), 0);
-				this.displayGuiScreen(guiyesno);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 66: { // exit

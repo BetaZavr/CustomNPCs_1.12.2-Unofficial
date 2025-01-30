@@ -657,7 +657,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				for (QuestData qd : map.values()) {
 					if (qd.quest.id == hoverQuestId) {
 						GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("drop.quest", new TextComponentTranslation(qd.quest.getTitle()).getFormattedText()).getFormattedText(), new TextComponentTranslation("quest.cancel.info").getFormattedText(), hoverQuestId);
-						this.displayGuiScreen(guiyesno);
+						displayGuiScreen(guiyesno);
 						break;
 					}
 				}
@@ -2014,8 +2014,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					if (type == -1) {
 						mc.displayGuiScreen(new GuiInventory(player));
 					} else {
-						mc.displayGuiScreen(null);
-						mc.setIngameFocus();
+						displayGuiScreen(null);
 					}
 					GlStateManager.disableBlend();
 				}

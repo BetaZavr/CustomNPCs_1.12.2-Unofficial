@@ -13,6 +13,7 @@ import noppes.npcs.*;
 import noppes.npcs.api.mixin.client.audio.ISoundHandlerMixin;
 import noppes.npcs.api.mixin.client.audio.ISoundManagerMixin;
 import noppes.npcs.api.mixin.client.gui.IGuiYesNoMixin;
+import noppes.npcs.constants.*;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -46,10 +47,6 @@ import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.client.util.MusicData;
-import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.constants.EnumPlayerPacket;
-import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerMail;
@@ -299,7 +296,7 @@ public class ClientTickHandler {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (ClientProxy.QuestLog.isPressed()) {
 			if (mc.currentScreen == null) {
-				NoppesUtil.openGUI(mc.player, new GuiLog(0));
+				CustomNpcs.proxy.openGui(0, 0, 0, EnumGuiType.QuestLog, mc.player);
 			} else if (mc.currentScreen instanceof GuiLog) {
 				mc.setIngameFocus();
 			}

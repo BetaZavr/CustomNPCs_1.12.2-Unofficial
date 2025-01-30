@@ -208,6 +208,7 @@ public class CmdScript extends CommandNoppesBase {
 		return true;
 	}
 
+	@Override
 	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
 		List<String> list = new ArrayList<>();
 		if (args.length == 2) {

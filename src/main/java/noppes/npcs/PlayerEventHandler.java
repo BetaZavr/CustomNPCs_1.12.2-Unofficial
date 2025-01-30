@@ -573,6 +573,7 @@ public class PlayerEventHandler {
 		} else {
 			data.game.logPos = null;
 		}
+		data.save(false);
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerLogoutEvent");
 	}
 
@@ -1402,14 +1403,14 @@ public class PlayerEventHandler {
 				/*
 				java.io.File dir;
 				java.io.File dirMain = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
-				//dir = new java.io.File(dirMain, "src/main/java"); // CustomNpcs 1.12.2
-				dir = new java.io.File(dirMain.getParentFile(), "net"); // Minecraft 1.12.2
+				dir = new java.io.File(dirMain, "src/main/java"); // CustomNpcs 1.12.2
+				//dir = new java.io.File(dirMain.getParentFile(), "net"); // Minecraft 1.12.2
 				//dir = new java.io.File(dirMain.getParentFile(), "aw"); // Armourers Workshop 1.12.2
 
 				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
 				Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
 				//found.put("System.out.println", null);
-				found.put("getInventoryStackLimit", null);
+				found.put("displayGuiScreen", null);
 
 				for (java.io.File file : Util.instance.getFiles(dir, "java")) {
 					try {

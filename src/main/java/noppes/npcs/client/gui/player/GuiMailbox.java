@@ -88,7 +88,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 					return;
 				}
 				GuiYesNo guiyesno = new GuiYesNo(this, this.scroll.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-				this.displayGuiScreen(guiyesno);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 3: {
@@ -96,7 +96,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 					return;
 				}
 				GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("mailbox.name").getFormattedText() + ":", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
-				this.displayGuiScreen(guiyesno);
+				displayGuiScreen(guiyesno);
 				break;
 			}
 			case 4: {

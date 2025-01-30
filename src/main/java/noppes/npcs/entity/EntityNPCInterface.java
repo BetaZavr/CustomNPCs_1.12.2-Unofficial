@@ -201,6 +201,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public EntityAICustom aiAttackTarget;
 	public EntityAIAnimation animateAi;
 	public EntityAILook lookAi;
+	public EntityAIReturn returnAi;
 	public Entity lookAt = null;
 	public float[] lookPos = new float[] { -1.0f, -1.0f };
 	public boolean updateLook = false;
@@ -274,7 +275,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void addRegularEntries() {
-		this.tasks.addTask(this.taskCount++, new EntityAIReturn(this));
+		this.tasks.addTask(this.taskCount++, this.returnAi = new EntityAIReturn(this));
 		this.tasks.addTask(this.taskCount++, new EntityAIFollow(this));
 		if (this.ais.getStandingType() != 1 && this.ais.getStandingType() != 3) {
 			this.tasks.addTask(this.taskCount++, new EntityAIWatchClosest(this, EntityLivingBase.class, 5.0f));
@@ -529,7 +530,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				if (anim == null && !damagesource.isProjectile() && attackingEntity != null) { blockUsingShield(attackingEntity); }
 			}
 		}
-
 		return isHurt;
 	}
 

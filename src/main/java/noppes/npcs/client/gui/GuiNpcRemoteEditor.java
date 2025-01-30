@@ -67,7 +67,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 					compound.setInteger("EntityId", entity.getEntityId());
 					compound.setTag("Data", data);
 					gui.setGuiData(compound);
-					mc.displayGuiScreen(gui);
+					displayGuiScreen(gui);
 				}
 				break;
 			}

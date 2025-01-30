@@ -228,11 +228,11 @@ implements IGuiData, ISubGuiListener {
 						break;
 					}
 					case TRANSPORTER: {
-						this.displayGuiScreen(new GuiNpcTransporter(this.npc));
+						displayGuiScreen(new GuiNpcTransporter(this.npc));
 						break;
 					}
 					case COMPANION: {
-						this.displayGuiScreen(new GuiNpcCompanion(this.npc));
+						displayGuiScreen(new GuiNpcCompanion(this.npc));
 						break;
 					}
 					case DIALOG: {
