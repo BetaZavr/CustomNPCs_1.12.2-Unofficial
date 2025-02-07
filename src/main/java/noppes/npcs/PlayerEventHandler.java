@@ -1410,7 +1410,8 @@ public class PlayerEventHandler {
 				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
 				Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
 				//found.put("System.out.println", null);
-				found.put("displayGuiScreen", null);
+				found.put("EntityTracker", null);
+				found.put("getEntityTracker", null);
 
 				for (java.io.File file : Util.instance.getFiles(dir, "java")) {
 					try {

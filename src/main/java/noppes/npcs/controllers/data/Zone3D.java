@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.google.common.base.Predicate;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderPearl;
@@ -16,6 +17,7 @@ import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,7 +25,6 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
-import noppes.npcs.api.event.ClientEvent;
 import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.IBorder;
@@ -31,7 +32,9 @@ import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.controllers.BorderController;
+import noppes.npcs.util.RayTraceVec;
 import noppes.npcs.util.Util;
+import noppes.npcs.util.ValueUtil;
 
 public class Zone3D implements IBorder, Predicate<Entity> {
 
@@ -40,36 +43,36 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		private long time;
 		private BlockPos pos;
 
-		public AntiLagTime(BlockPos pos) {
-			this.count = 0;
-			this.time = System.currentTimeMillis();
-			this.pos = pos;
+		public AntiLagTime(BlockPos blockPos) {
+			count = 0;
+			time = System.currentTimeMillis();
+			pos = blockPos;
 		}
 
-		public void clear(BlockPos pos) {
-			this.time = System.currentTimeMillis();
-			this.count = 0;
-			this.pos = pos;
+		public void clear(BlockPos blockPos) {
+			time = System.currentTimeMillis();
+			count = 0;
+			pos = blockPos;
 		}
 
-		public boolean isLag(BlockPos pos) {
-			if (!this.pos.equals(pos) || this.time + 3000L >= System.currentTimeMillis()) {
-				this.clear(pos);
+		public boolean isLag(BlockPos blockPos) {
+			if (!pos.equals(blockPos) || time + 3000L >= System.currentTimeMillis()) {
+				clear(blockPos);
 				return false;
 			}
-			this.count++;
-			return this.count > 50;
+			count++;
+			return count > 50;
 		}
 	}
 	private int id = -1;
 	public String name = "Default Region";
-	public TreeMap<Integer, Point> points = new TreeMap<>();
+	public final TreeMap<Integer, Point> points = new TreeMap<>();
 	public int[] y = new int[] { 0, 255 };
 	public int dimensionID = 0;
 
 	public int color;
 	public Availability availability;
-	public String message;
+	public String message; // kick message
 	private final List<Entity> entitiesWithinRegion = new ArrayList<>();
 	private final Map<Entity, AntiLagTime> playerAntiLag = new HashMap<>();
 	public IPos homePos;
@@ -80,29 +83,23 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	private boolean update;
 
 	public Zone3D() {
-		this.color = (new Random()).nextInt(0xFFFFFF);
-		this.availability = new Availability();
-		this.message = "availability.areaNotAvailable";
-		this.keepOut = false;
-		this.showInClient = false;
-		this.update = true;
+		color = (new Random()).nextInt(0xFFFFFF);
+		availability = new Availability();
+		message = "availability.areaNotAvailable";
+		keepOut = false;
+		showInClient = false;
+		update = true;
 	}
 
-	public Zone3D(int id, int dimensionID, int x, int y, int z) {
+	public Zone3D(int id, int dimID, int posX, int posY, int posZ) {
 		this();
 		this.id = id;
-		this.dimensionID = dimensionID;
-		this.y[0] = y - 1;
-		this.y[1] = y + 4;
-		if (this.y[0] < 0) {
-			this.y[0] = 0;
-		}
-		if (this.y[1] > 255) {
-			this.y[1] = 255;
-		}
-		points.put(0, new Point(x, z - 4));
-		points.put(1, new Point(x + 4, z + 2));
-		points.put(2, new Point(x - 4, z + 2));
+		dimensionID = dimID;
+		y[0] = ValueUtil.correctInt(posY - 1, 0, 255);
+		y[1] = ValueUtil.correctInt(posY + 4, 0, 255);
+		points.put(0, new Point(posX, posZ - 4));
+		points.put(1, new Point(posX + 4, posZ + 2));
+		points.put(2, new Point(posX - 4, posZ + 2));
 		update = true;
 	}
 
@@ -112,7 +109,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 * @param position - block pos
 	 */
 	public Point addPoint(BlockPos position) {
-		return this.addPoint(position.getX(), position.getY(), position.getZ());
+		return addPoint(position.getX(), position.getY(), position.getZ());
 	}
 
 	/**
@@ -127,61 +124,39 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		Point point = new Point();
 		point.x = x;
 		point.y = z;
-		return this.addPoint(point, y);
+		return addPoint(point, y);
 	}
 
 	@Override
 	public Point addPoint(IPos position) {
-		return this.addPoint(position.getMCBlockPos());
+		return addPoint(position.getMCBlockPos());
 	}
 
 	/**
 	 * Adds a new point to the end
 	 * 
 	 * @param point - pos
-	 * @param y - height
+	 * @param posY - height
 	 */
 	@Override
-	public Point addPoint(Point point, int y) {
-		for (Point p : this.points.values()) {
+	public Point addPoint(Point point, int posY) {
+		for (Point p : points.values()) {
 			if (p.x == point.x && p.y == point.y) {
 				return null;
 			}
 		}
-		this.points.put(this.points.size(), point);
-		if (y < 0) {
-			y = 0;
-		} else if (y > 255) {
-			y = 255;
-		}
-		if (y < this.y[0]) {
-			this.y[0] = y;
-		} else if (y > this.y[1]) {
-			this.y[1] = y;
-		}
-		this.update = true;
+		points.put(points.size(), point);
+		posY = ValueUtil.correctInt(posY, 0, 255);
+		if (posY < y[0]) { y[0] = posY; }
+		else if (posY > y[1]) { y[1] = posY; }
+		update = true;
 		return point;
 	}
 
 	@Override
 	public boolean apply(Entity entity) {
-		if (entity == null || entity.isDead || (!(entity instanceof EntityPlayerMP) && !(entity instanceof EntityEnderPearl))) {
-			return false;
-		}
-		EntityPlayerMP player = entity instanceof EntityPlayerMP ? (EntityPlayerMP) entity : null;
-		if (entity instanceof EntityEnderPearl) {
-			if (((EntityEnderPearl) entity).getThrower() instanceof EntityPlayerMP) {
-				player = (EntityPlayerMP) ((EntityEnderPearl) entity).getThrower();
-			} else {
-				return false;
-			}
-		}
-		if (player != null) {
-			if (this.availability.isAvailable(player) || player.capabilities.isCreativeMode) {
-				return false;
-			}
-		}
-		return this.contains(entity.posX, entity.posY, entity.posZ, entity.height);
+		if (entity == null || entity.isDead) { return false; }
+		return contains(entity.posX, entity.posY, entity.posZ, entity.height);
 	}
 
 	/**
@@ -191,41 +166,41 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 * @param type = 0 - relative to the zero coordinate; 1 - relative to the center of the described contour; 2 - relative to the center of mass
 	 */
 	public void centerOffsetTo(BlockPos position, boolean type) {
-		this.centerOffsetTo(position.getX(), position.getY(), position.getZ(), type);
+		centerOffsetTo(position.getX(), position.getY(), position.getZ(), type);
 	}
 
 	/**
 	 * Offsets the position of the zone
 	 * 
-	 * @param x - x pos
-	 * @param y - y pos
-	 * @param z - z pos
+	 * @param posX - x pos
+	 * @param posY - y pos
+	 * @param posZ - z pos
 	 * @param type - 0 - relative to the zero coordinate, 1 - relative to the center of
 	 *            the described contour;
 	 */
 	@Override
-	public void centerOffsetTo(int x, int y, int z, boolean type) {
+	public void centerOffsetTo(int posX, int posY, int posZ, boolean type) {
 		IPos ctr;
-		int ry = (this.y[1] - this.y[0]) / 2;
+		int ry = (y[1] - y[0]) / 2;
 		if (type) {
-			ctr = this.getCenter();
-			this.y[0] = y - ry;
-			this.y[1] = y + ry;
+			ctr = getCenter();
+			y[0] = posY - ry;
+			y[1] = posY + ry;
 		} else {
-			ctr = Objects.requireNonNull(NpcAPI.Instance()).getIPos(this.getMinX(), this.y[0], this.getMinZ());
-			this.y[0] = y;
-			this.y[1] = y + ry * 2;
+			ctr = Objects.requireNonNull(NpcAPI.Instance()).getIPos(getMinX(), y[0], getMinZ());
+			y[0] = posY;
+			y[1] = posY + ry * 2;
 		}
-		for (int key : this.points.keySet()) {
-			Point p = this.points.get(key);
-			this.points.get(key).move(x + p.x - (int) ctr.getX(), z + p.y - (int) ctr.getZ());
+		for (int key : points.keySet()) {
+			Point p = points.get(key);
+			points.get(key).move(posX + p.x - (int) ctr.getX(), posZ + p.y - (int) ctr.getZ());
 		}
-		this.update = true;
+		update = true;
 	}
 
 	@Override
 	public void centerOffsetTo(IPos position, boolean type) {
-		this.centerOffsetTo(position.getMCBlockPos(), type);
+		centerOffsetTo(position.getMCBlockPos(), type);
 	}
 
 	/**
@@ -236,21 +211,25 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	@Override
 	public void centerOffsetTo(Point point, boolean type) {
-		this.centerOffsetTo(point.x, (this.y[0] + this.y[1]) / 2, point.y, type);
+		centerOffsetTo(point.x, (y[0] + y[1]) / 2, point.y, type);
 	}
 
 	@Override
 	public void clear() {
-		this.points.clear();
-		this.availability.clear();
-		this.playerAntiLag.clear();
-		this.entitiesWithinRegion.clear();
-		this.y[0] = 255;
-		this.y[1] = 0;
-		this.message = "availability.areaNotAvailable";
-		this.keepOut = false;
-		this.showInClient = false;
-		this.update = true;
+		points.clear();
+		availability.clear();
+		playerAntiLag.clear();
+		entitiesWithinRegion.clear();
+		y[0] = 255;
+		y[1] = 0;
+		message = "availability.areaNotAvailable";
+		keepOut = false;
+		showInClient = false;
+		update = true;
+	}
+
+	public boolean contains(Entity entity) {
+		return entity.world.provider.getDimension() == dimensionID && contains(entity.posX, entity.posY, entity.posZ, entity.height);
 	}
 
 	@Override
@@ -259,12 +238,10 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 
 	@Override
-	public boolean contains(double x, double y, double z, double height) {
-		int dx = (int) (x * 10.0d);
-		int dz = (int) (z * 10.0d);
-		if (y + height < this.y[0] || y - height > this.y[1]) {
-			return false;
-		}
+	public boolean contains(double posX, double posY, double posZ, double height) {
+		if (posY + height < y[0] || posY - height > y[1]) { return false; }
+		int dx = (int) (posX * 10.0d);
+		int dz = (int) (posZ * 10.0d);
 		Polygon poly = new Polygon();
 		boolean isIn = false;
 		for (Point p : points.values()) {
@@ -280,51 +257,49 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 
 	@Override
-	public boolean contains(int x, int z) {
-		for (Point p : this.points.values()) {
-			if (p.x == x && p.y == z) {
-				return true;
-			}
+	public boolean contains(int posX, int posZ) {
+		for (Point p : points.values()) {
+			if (p.x == posX && p.y == posZ) { return true; }
 		}
 		return false;
 	}
 
 	@Override
-	public double distanceTo(double x, double z) {
-		IPos pos = this.getCenter();
-		return Util.instance.distanceTo(pos.getX() + 0.5d, 0.0d, pos.getZ() + 0.5d, x, 0.0d, z);
+	public double distanceTo(double posX, double posZ) {
+		IPos pos = getCenter();
+		return Util.instance.distanceTo(pos.getX() + 0.5d, 0.0d, pos.getZ() + 0.5d, posX, 0.0d, posZ);
 	}
 
 	public double distanceTo(Entity entity) {
 		if (entity == null) {
 			return -1;
 		}
-		IPos c = this.getCenter();
+		IPos c = getCenter();
 		return Util.instance.distanceTo(entity.posX, entity.posY, entity.posZ, c.getX() + 0.5d,
 				c.getY() + 0.5d, c.getZ() + 0.5d);
 	}
 
 	@Override
 	public double distanceTo(IEntity<?> entity) {
-		return this.distanceTo(entity.getMCEntity());
+		return distanceTo(entity.getMCEntity());
 	}
 
 	public boolean equals(Zone3D zone) {
 		if (zone == null) {
 			return false;
 		}
-		if (zone.y[0] != this.y[0] || zone.y[1] != this.y[1]) {
+		if (zone.y[0] != y[0] || zone.y[1] != y[1]) {
 			return false;
 		}
-		if (zone.points.size() != this.points.size()) {
+		if (zone.points.size() != points.size()) {
 			return false;
 		}
 		for (int key : zone.points.keySet()) {
-			if (!this.points.containsKey(key)) {
+			if (!points.containsKey(key)) {
 				return false;
 			}
 			Point p0 = zone.points.get(key);
-			Point p1 = this.points.get(key);
+			Point p1 = points.get(key);
 			if (p0.x != p1.x || p0.y != p1.y) {
 				return false;
 			}
@@ -336,28 +311,26 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 * orders positions
 	 */
 	public void fix() {
-		if (this.points == null) {
-			this.points = new TreeMap<>();
-		}
-		TreeMap<Integer, Point> newList = new TreeMap<>();
+		TreeMap<Integer, Point> newPoints = new TreeMap<>();
 		int i = 0;
 		boolean needChange = false;
-		for (int pos : this.points.keySet()) {
-			newList.put(i, this.points.get(pos));
+		for (int pos : points.keySet()) {
+			newPoints.put(i, points.get(pos));
 			if (i != pos) {
 				needChange = true;
 			}
 			i++;
 		}
 		if (needChange) {
-			this.points = newList;
+			points.clear();
+			points.putAll(newPoints);
 		}
-		this.getHomePos();
+		getHomePos();
 	}
 
 	@Override
 	public IAvailability getAvailability() {
-		return this.availability;
+		return availability;
 	}
 
 	/**
@@ -379,23 +352,23 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public int getClosestPoint(Point point, IPos pos) {
-		if (this.points.isEmpty()) {
+		if (points.isEmpty()) {
 			return -1;
 		}
-		if (this.points.size() == 1) {
+		if (points.size() == 1) {
 			return 0;
 		}
 		int n = 0;
 		Point entPoint = new Point((int) pos.getX(), (int) pos.getZ());
-		double dm0 = this.points.get(0).distance(point);
-		double dm1 = this.points.get(1).distance(point);
-		double dm2 = this.points.get(0).distance(entPoint);
-		double dm3 = this.points.get(1).distance(entPoint);
-		for (int p = 0; (p + 1) < this.points.size(); p++) {
-			double d0 = this.points.get(p).distance(point);
-			double d1 = this.points.get(p + 1).distance(point);
-			double d2 = this.points.get(p).distance(entPoint);
-			double d3 = this.points.get(p + 1).distance(entPoint);
+		double dm0 = points.get(0).distance(point);
+		double dm1 = points.get(1).distance(point);
+		double dm2 = points.get(0).distance(entPoint);
+		double dm3 = points.get(1).distance(entPoint);
+		for (int p = 0; (p + 1) < points.size(); p++) {
+			double d0 = points.get(p).distance(point);
+			double d1 = points.get(p + 1).distance(point);
+			double d2 = points.get(p).distance(entPoint);
+			double d3 = points.get(p + 1).distance(entPoint);
 			if (dm0 + dm1 + dm2 + dm3 > d0 + d1 + d2 + d3) {
 				dm0 = d0;
 				dm1 = d1;
@@ -404,12 +377,12 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 				n = p;
 			}
 		}
-		double d0 = this.points.get(0).distance(point);
-		double d1 = this.points.get(this.points.size() - 1).distance(point);
-		double d2 = this.points.get(0).distance(entPoint);
-		double d3 = this.points.get(this.points.size() - 1).distance(entPoint);
+		double d0 = points.get(0).distance(point);
+		double d1 = points.get(points.size() - 1).distance(point);
+		double d2 = points.get(0).distance(entPoint);
+		double d3 = points.get(points.size() - 1).distance(entPoint);
 		if (dm0 + dm1 + dm2 + dm3 > d0 + d1 + d2 + d3) {
-			n = this.points.size() - 1;
+			n = points.size() - 1;
 		}
 		return n;
 	}
@@ -419,40 +392,40 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		Point[] ps = new Point[2];
 		ps[0] = null;
 		ps[1] = null;
-		int n = this.getClosestPoint(point, pos);
-		if (this.points.containsKey(n)) {
-			ps[0] = this.points.get(n);
+		int n = getClosestPoint(point, pos);
+		if (points.containsKey(n)) {
+			ps[0] = points.get(n);
 		}
-		if (this.points.containsKey(n + 1)) {
-			ps[1] = this.points.get(n + 1);
-		} else if (n == this.points.size() - 1) {
-			ps[1] = this.points.get(0);
+		if (points.containsKey(n + 1)) {
+			ps[1] = points.get(n + 1);
+		} else if (n == points.size() - 1) {
+			ps[1] = points.get(0);
 		}
 		return ps;
 	}
 
 	@Override
 	public int getColor() {
-		return this.color;
+		return color;
 	}
 
 	@Override
 	public int getDimensionId() {
-		return this.dimensionID;
+		return dimensionID;
 	}
 
 	public int getHeight() {
-		return this.y[1] - this.y[0];
+		return y[1] - y[0];
 	}
 
 	@Override
 	public IPos getHomePos() {
-		if (this.homePos == null || this.keepOut != this.contains(this.homePos.getX() + 0.5d,
-				this.homePos.getY() + 0.5d, this.homePos.getZ() + 0.5d, 0.0d)) {
-			this.homePos = this.getCenter();
-			if (this.keepOut && !this.points.isEmpty()) {
+		if (homePos == null || keepOut != contains(homePos.getX() + 0.5d,
+				homePos.getY() + 0.5d, homePos.getZ() + 0.5d, 0.0d)) {
+			homePos = getCenter();
+			if (keepOut && !points.isEmpty()) {
 				for (int i = 0; i < 4; i++) {
-					int x = this.points.get(0).x, z = this.points.get(0).y;
+					int x = points.get(0).x, z = points.get(0).y;
 					switch (i) {
 					case 1: {
 						x--;
@@ -470,28 +443,28 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 						x++;
 					}
 					}
-					if (!this.contains(x, z)) {
-						this.homePos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(x, this.y[0] + (double) (this.y[1] - this.y[0]) / 2, z);
+					if (!contains(x, z)) {
+						homePos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(x, y[0] + (double) (y[1] - y[0]) / 2, z);
 					}
 				}
 			}
 		}
-		return this.homePos;
+		return homePos;
 	}
 
 	@Override
 	public int getId() {
-		return this.id;
+		return id;
 	}
 
 	public int getIdNearestPoint(BlockPos pos) {
-		if (this.points.isEmpty() || pos == null) {
+		if (points.isEmpty() || pos == null) {
 			return -1;
 		}
 		double min = Double.MAX_VALUE;
 		int id = -1;
-		for (int i : this.points.keySet()) {
-			double dist = Util.instance.distanceTo(this.points.get(i).x, 0, this.points.get(i).y,
+		for (int i : points.keySet()) {
+			double dist = Util.instance.distanceTo(points.get(i).x, 0, points.get(i).y,
 					pos.getX(), 0, pos.getZ());
 			if (dist <= min) {
 				min = dist;
@@ -503,11 +476,11 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public int getMaxX() {
-		if (this.points.isEmpty()) {
+		if (points.isEmpty()) {
 			return 0;
 		}
-		int value = this.points.get(0).x;
-		for (Point v : this.points.values()) {
+		int value = points.get(0).x;
+		for (Point v : points.values()) {
 			if (value < v.x) {
 				value = v.x;
 			}
@@ -517,16 +490,16 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public int getMaxY() {
-		return Math.max(this.y[0], this.y[1]);
+		return Math.max(y[0], y[1]);
 	}
 
 	@Override
 	public int getMaxZ() {
-		if (this.points.isEmpty()) {
+		if (points.isEmpty()) {
 			return 0;
 		}
-		int value = this.points.get(0).y;
-		for (Point v : this.points.values()) {
+		int value = points.get(0).y;
+		for (Point v : points.values()) {
 			if (value < v.y) {
 				value = v.y;
 			}
@@ -536,16 +509,16 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public String getMessage() {
-		return this.message;
+		return message;
 	}
 
 	@Override
 	public int getMinX() {
-		if (this.points.isEmpty()) {
+		if (points.isEmpty()) {
 			return 0;
 		}
-		int value = this.points.get(0).x;
-		for (Point v : this.points.values()) {
+		int value = points.get(0).x;
+		for (Point v : points.values()) {
 			if (value > v.x) {
 				value = v.x;
 			}
@@ -555,16 +528,16 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public int getMinY() {
-		return Math.min(this.y[0], this.y[1]);
+		return Math.min(y[0], y[1]);
 	}
 
 	@Override
 	public int getMinZ() {
-		if (this.points.isEmpty()) {
+		if (points.isEmpty()) {
 			return 0;
 		}
-		int value = this.points.get(0).y;
-		for (Point v : this.points.values()) {
+		int value = points.get(0).y;
+		for (Point v : points.values()) {
 			if (value > v.y) {
 				value = v.y;
 			}
@@ -574,100 +547,40 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 
 	@Override
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	@Override
 	public INbt getNbt() {
 		NBTTagCompound nbtRegion = new NBTTagCompound();
-		this.load(nbtRegion);
+		load(nbtRegion);
 		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtRegion);
-	}
-
-	private double[] getPlayerTeleportPosition(Entity entity) {
-		double x = 0.0d, z = 0.0d;
-		for (Point v : this.points.values()) {
-			x += v.x;
-			z += v.y;
-		}
-		if (!this.points.isEmpty()) {
-			x /= this.points.size();
-			z /= this.points.size();
-		}
-		double y = ((double) this.y[1] - (double) this.y[0]) / 2.0d;
-
-		IRayTraceRotate d = Util.instance.getAngles3D(entity.posX, entity.posY, entity.posZ, x, y, z);
-		double[] p = new double[] { (x - entity.posX), (y - entity.posY), (z - entity.posZ) };
-		for (int i = 0; i < 4; i++) {
-			double radiusXZ = d.getRadiusXZ() + ((double) (i + 1) * (this.keepOut ? 0.5d : -0.5d));
-			p[0] = Math.sin(d.getYaw() * Math.PI / 180.0d) * radiusXZ * -1.0d;
-			p[2] = Math.cos(d.getYaw() * Math.PI / 180.0d) * radiusXZ;
-			if (this.keepOut == this.contains(entity.posX, this.y[0], entity.posZ, 0.0d)) {
-				break;
-			}
-		}
-		p[0] = x - p[0];
-		p[1] = entity.getPosition().getY();
-		p[2] = z - p[2];
-
-		boolean rev = false;
-		while (p[1] > 0 && p[1] < 256) {
-			if (!rev && p[1] > this.y[1]) {
-				p[1] = entity.posY;
-				rev = true;
-			}
-			if (this.keepOut != this.contains(p[0], p[1], p[2], entity.height)) {
-				BlockPos pos = new BlockPos(p[0], p[1], p[2]);
-				IBlockState state = entity.world.getBlockState(pos);
-				if (state.getBlock().isAir(state, entity.world, pos.up(1))
-						&& state.getBlock().isAir(state, entity.world, pos.up(2))) {
-					break;
-				}
-			}
-			p[1] += rev ? -1.0d : 1.0d;
-		}
-		if (p[1] <= 0 || p[1] >= 256) {
-			p[1] = entity.posY;
-		}
-		return p;
 	}
 
 	@Override
 	public Point[] getPoints() {
-		return this.points.values().toArray(new Point[0]);
+		return points.values().toArray(new Point[0]);
 	}
 
 	/**
 	 * @return size X x Y x Z
 	 */
 	public String getSize() {
-		int x = this.getMaxX() - this.getMinX();
-		if (x < 0) {
-			x *= -1;
-		}
-		int y = this.y[0] - this.y[1];
-		if (y < 0) {
-			y *= -1;
-		}
-		int z = this.getMaxZ() - this.getMinZ();
-		if (z < 0) {
-			z *= -1;
-		}
-		return x + "x" + y + "x" + z;
+		return (getMaxX() - getMinX()) + "x" + getHeight() + "x" + (getMaxZ() - getMinZ());
 	}
 	/**
 	 * Adds a new point between two existing ones (through the smallest lengths)
 	 * 
-	 * @param x - x pos
-	 * @param y - y pos
-	 * @param z - z pos
+	 * @param posX - x pos
+	 * @param posY - y pos
+	 * @param posZ - z pos
 	 */
 	@Override
-	public boolean insertPoint(int x, int y, int z, IPos pos) {
+	public boolean insertPoint(int posX, int posY, int posZ, IPos pos) {
 		Point p = new Point();
-		p.x = x;
-		p.y = z;
-		return this.insertPoint(p, y, pos);
+		p.x = posX;
+		p.y = posZ;
+		return insertPoint(p, posY, pos);
 	}
 
 	/**
@@ -678,75 +591,44 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	@Override
 	public boolean insertPoint(IPos pos0, IPos pos1) {
-		return this.insertPoint((int) pos0.getX(), (int) pos0.getY(), (int) pos0.getZ(), pos1);
+		return insertPoint((int) pos0.getX(), (int) pos0.getY(), (int) pos0.getZ(), pos1);
 	}
 
 	@Override
-	public boolean insertPoint(Point point, int y, IPos pos) {
-		if (y >= 0) {
-			int min = Math.abs(this.y[0] - y);
-			int max = Math.abs(this.y[1] - y);
-			if (min <= max) {
-				this.y[0] = y;
-			} else {
-				this.y[1] = y;
-			}
-		}
-		if (this.contains(point.x, point.y)) {
-			return false;
-		}
-		if (this.points.size() < 2) {
-			return this.addPoint(point, y) != null;
-		}
-		int n = this.getClosestPoint(point, pos);
-		TreeMap<Integer, Point> temp = new TreeMap<>();
-		for (int i = 0, j = 0; i < this.points.size(); i++) {
-			temp.put(i + j, this.points.get(i));
+	public boolean insertPoint(Point point, int posY, IPos pos) {
+		posY = ValueUtil.correctInt(posY, 0, 255);
+		if (posY < y[0]) { y[0] = posY; }
+		if (posY > y[1]) { y[1] = posY; }
+		if (contains(point.x, point.y)) { return false; }
+		if (points.size() < 2) { return addPoint(point, posY) != null; }
+		int n = getClosestPoint(point, pos);
+		TreeMap<Integer, Point> newPoints = new TreeMap<>();
+		for (int i = 0, j = 0; i < points.size(); i++) {
+			newPoints.put(i + j, points.get(i));
 			if (i == n) {
 				j = 1;
-				temp.put(i + j, point);
+				newPoints.put(i + j, point);
 			}
 		}
-		this.points = temp;
-		this.update = true;
-		return true;
+		if (newPoints.size() != points.size()) {
+			points.clear();
+			points.putAll(newPoints);
+			update = true;
+		}
+		return update;
 	}
 
 	@Override
 	public boolean isShowToPlayers() {
-		return this.showInClient;
+		return showInClient;
 	}
 
-	private void kick(Entity entity) {
-		if (entitiesWithinRegion.contains(entity)) {
-			MinecraftForge.EVENT_BUS.post(new ForgeEvent.LeaveRegion(entity, this));
+	private EntityPlayerMP convertToPlayer(Entity entity) {
+		if (entity instanceof EntityPlayerMP) { return (EntityPlayerMP) entity; }
+		else if (entity instanceof EntityEnderPearl && ((EntityEnderPearl) entity).getThrower() instanceof EntityPlayerMP) {
+			return (EntityPlayerMP) ((EntityEnderPearl) entity).getThrower();
 		}
-		double[] pos = this.getPlayerTeleportPosition(entity);
-		EntityPlayerMP player = null;
-		if (entity instanceof EntityPlayerMP) {
-			player = (EntityPlayerMP) entity;
-		} else if (entity instanceof EntityEnderPearl
-				&& ((EntityEnderPearl) entity).getThrower() instanceof EntityPlayerMP) {
-			player = (EntityPlayerMP) ((EntityEnderPearl) entity).getThrower();
-			entity.isDead = true;
-		}
-		if (player == null) {
-			return;
-		}
-		if (!this.playerAntiLag.containsKey(player)) {
-			this.playerAntiLag.put(player, new AntiLagTime(player.getPosition()));
-		}
-		if (this.playerAntiLag.get(player).isLag(player.getPosition())) {
-			pos[0] = this.homePos.getX() + 0.5d;
-			pos[1] = this.homePos.getY();
-			pos[2] = this.homePos.getZ() + 0.5d;
-			this.playerAntiLag.get(player).clear(player.getPosition());
-		}
-		player.setPositionAndUpdate(pos[0], pos[1], pos[2]);
-		if (this.message.isEmpty()) {
-			return;
-		}
-		player.sendStatusMessage(new TextComponentTranslation(this.message), true);
+		return null;
 	}
 
 	/**
@@ -755,30 +637,30 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 * @param position - block pos
 	 */
 	public void offset(BlockPos position) {
-		this.offset(position.getX(), position.getY(), position.getZ());
+		offset(position.getX(), position.getY(), position.getZ());
 	}
 
 	/**
-	 * (this.y[1]+this.y[0])/2 Offsets the entire zone by the specified value
+	 * (y[1]+y[0])/2 Offsets the entire zone by the specified value
 	 * 
-	 * @param x - x pos
-	 * @param y - y pos
-	 * @param z - z pos
+	 * @param posX - x pos
+	 * @param posY - y pos
+	 * @param posZ - z pos
 	 */
 	@Override
-	public void offset(int x, int y, int z) {
-		this.y[0] += y;
-		this.y[1] += y;
-		for (int key : this.points.keySet()) {
-			Point p = this.points.get(key);
-			this.points.get(key).move(p.x + x, p.y + z);
+	public void offset(int posX, int posY, int posZ) {
+		y[0] = ValueUtil.correctInt(y[0] + posY, 0, 255);
+		y[1] = ValueUtil.correctInt(y[1] + posY, 0, 255);
+		for (int key : points.keySet()) {
+			Point p = points.get(key);
+			points.get(key).move(p.x + posX, p.y + posZ);
 		}
-		this.update = true;
+		update = true;
 	}
 
 	@Override
 	public void offset(IPos position) {
-		this.offset(position.getMCBlockPos());
+		offset(position.getMCBlockPos());
 	}
 
 	/**
@@ -788,45 +670,41 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	@Override
 	public void offset(Point point) {
-		this.offset(point.x, 0, point.y);
+		offset(point.x, 0, point.y);
 	}
 
 	public void load(NBTTagCompound nbtRegion) {
-		this.id = nbtRegion.getInteger("ID");
-		this.name = nbtRegion.getString("Name");
-		this.dimensionID = nbtRegion.getInteger("DimensionID");
-		this.color = nbtRegion.getInteger("Color");
+		id = nbtRegion.getInteger("ID");
+		name = nbtRegion.getString("Name");
+		dimensionID = nbtRegion.getInteger("DimensionID");
+		color = nbtRegion.getInteger("Color");
 
 		int[] sy = nbtRegion.getIntArray("AxisY");
-		this.y[0] = sy[0];
-		this.y[1] = sy[1];
-		if (this.y[0] < 0) {
-			this.y[0] = 0;
-		}
-		if (this.y[1] > 255) {
-			this.y[1] = 255;
-		}
-		this.points = new TreeMap<>();
+		if (sy.length > 0) { y[0] = ValueUtil.correctInt(sy[0], 0, 255); }
+		if (sy.length > 1) { y[1] = ValueUtil.correctInt(sy[1], 0, 255); }
+
+		points.clear();
 		for (int i = 0; i < nbtRegion.getTagList("Points", 11).tagCount(); i++) {
 			int[] p = nbtRegion.getTagList("Points", 11).getIntArrayAt(i);
-			this.points.put(i, new Point(p[0], p[1]));
+			points.put(i, new Point(p[0], p[1]));
 		}
-		this.availability.readFromNBT(nbtRegion.getCompoundTag("Availability"));
-		this.message = nbtRegion.getString("Message");
+		availability.readFromNBT(nbtRegion.getCompoundTag("Availability"));
+		message = nbtRegion.getString("Message");
 
 		if (nbtRegion.hasKey("HomePos", 4)) {
 			BlockPos pos = BlockPos.fromLong(nbtRegion.getLong("HomePos"));
-			this.setHomePos(pos.getX(), pos.getY(), pos.getZ());
+			setHomePos(pos.getX(), pos.getY(), pos.getZ());
 		} else if (nbtRegion.hasKey("HomePos", 11)) { // old
 			int[] pos = nbtRegion.getIntArray("HomePos");
-			this.setHomePos(pos[0], pos[1], pos[2]);
+			setHomePos(pos[0], pos[1], pos[2]);
 		}
-		this.keepOut = nbtRegion.getBoolean("IsKeepOut");
-		this.showInClient = nbtRegion.getBoolean("ShowInClient");
+		keepOut = nbtRegion.getBoolean("IsKeepOut");
+		showInClient = nbtRegion.getBoolean("ShowInClient");
 
 		addData = nbtRegion.getCompoundTag("AddData");
-		this.fix();
-		this.update = false;
+		fix();
+		update = false;
+		entitiesWithinRegion.clear();
 	}
 
 	/**
@@ -837,14 +715,12 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	@Override
 	public boolean removePoint(int x, int z) {
-		if (this.points == null || this.points.isEmpty()) {
-			return false;
-		}
-		for (int key : this.points.keySet()) {
-			if (this.points.get(key).x == x && this.points.get(key).y == z) {
-				this.points.remove(key);
-				this.fix();
-				this.update = true;
+		if (points.size() <= 1) { return false; }
+		for (int key : points.keySet()) {
+			if (points.get(key).x == x && points.get(key).y == z) {
+				points.remove(key);
+				fix();
+				update = true;
 				return true;
 			}
 		}
@@ -858,9 +734,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	@Override
 	public boolean removePoint(Point point) {
-		if (point == null || this.points == null || this.points.size() <= 3) {
-			return false;
-		}
+		if (point == null || points.size() <= 1) { return false; }
 		return removePoint(point.x, point.y);
 	}
 
@@ -872,24 +746,19 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	@Override
 	public void scaling(double radius, boolean type) {
-		if (this.points.size() <= 1) {
-			return;
-		}
-		this.y[0] -= (int) radius;
-		this.y[1] += (int) radius;
+		if (points.isEmpty()) { return; }
+		y[0] = ValueUtil.correctInt(y[0] - (int) radius, 0, 255);
+		y[1] = ValueUtil.correctInt(y[0] + (int) radius, 0, 255);
 		IPos pos;
-		if (type) {
-			pos = this.getCenter();
-		} else {
-			pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(this.getMinX(), this.y[0], this.getMinZ());
-		}
-		for (int key : this.points.keySet()) {
-			Point v = this.points.get(key);
+		if (type) { pos = getCenter(); }
+		else { pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(getMinX(), y[0], getMinZ()); }
+		for (int id : points.keySet()) {
+			Point v = points.get(id);
 			IRayTraceRotate d = Util.instance.getAngles3D(pos.getX(), 0, pos.getZ(), v.x, 0, v.y);
 			IRayTraceVec p = Util.instance.getPosition(pos.getX(), 0, pos.getZ(), d.getYaw(), d.getPitch(), radius + d.getRadiusXZ());
-			this.points.put(key, new Point((int) p.getX(), (int) p.getZ()));
+			points.put(id, new Point((int) p.getX(), (int) p.getZ()));
 		}
-		this.update = true;
+		update = true;
 	}
 
 	/**
@@ -900,55 +769,46 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	@Override
 	public void scaling(float scale, boolean type) {
-		if (this.points.size() <= 1) {
-			return;
-		}
+		if (points.isEmpty()) { return; }
 		IPos pos;
-		if (type) {
-			pos = this.getCenter();
-		} else {
-			pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(this.getMinX(), this.y[0], this.getMinZ());
-		}
-		for (int key : this.points.keySet()) {
-			Point v = this.points.get(key);
+		if (type) { pos = getCenter(); }
+		else { pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(getMinX(), y[0], getMinZ()); }
+		for (int key : points.keySet()) {
+			Point v = points.get(key);
 			IRayTraceRotate d = Util.instance.getAngles3D(pos.getX(), pos.getY(), pos.getZ(), v.x, pos.getY(), v.y);
 			IRayTraceVec p = Util.instance.getPosition(pos.getX(), pos.getY(), pos.getZ(), d.getYaw(), d.getPitch(), (double) scale * d.getRadiusXZ());
-			this.points.put(key, new Point((int) p.getX(), (int) p.getZ()));
-			if (this.y[0] > (int) p.getY()) {
-				this.y[0] = (int) p.getY();
-			}
-			if (this.y[1] < (int) p.getY()) {
-				this.y[1] = (int) p.getY();
-			}
+			points.put(key, new Point((int) p.getX(), (int) p.getZ()));
+			if (y[0] > (int) p.getY()) { y[0] = ValueUtil.correctInt((int) p.getY(), 0, 255); }
+			if (y[1] < (int) p.getY()) { y[1] = ValueUtil.correctInt((int) p.getY(), 0, 255); }
 		}
-		this.update = true;
+		update = true;
 	}
 
 	@Override
 	public void setColor(int color) {
 		this.color = color;
-		this.update = true;
+		update = true;
 	}
 
 	@Override
 	public void setDimensionId(int dimID) {
-		this.dimensionID = dimID;
-		this.update = true;
+		dimensionID = dimID;
+		update = true;
 	}
 
 	@Override
 	public void setHomePos(int x, int y, int z) {
-		if (this.homePos == null || this.keepOut != this.contains(x + 0.5d, y, z + 0.5d, 0.0d)) {
+		if (homePos == null || keepOut != contains(x + 0.5d, y, z + 0.5d, 0.0d)) {
 			return;
 		}
-		this.homePos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(x, y, z);
-		this.update = true;
+		homePos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(x, y, z);
+		update = true;
 	}
 
 	@Override
 	public void setMessage(String message) {
-		this.message = message;
-		this.update = true;
+		this.message = message == null ? "" : message;
+		update = true;
 	}
 
 	@Override
@@ -957,13 +817,13 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			name = "Default Region";
 		}
 		this.name = name;
-		this.update = true;
+		update = true;
 	}
 
 	@Override
 	public void setNbt(INbt nbt) {
-		this.save(nbt.getMCNBT());
-		this.update = true;
+		save(nbt.getMCNBT());
+		update = true;
 	}
 
 	/**
@@ -973,7 +833,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 * @param position - new block pos
 	 */
 	public Point setPoint(int index, BlockPos position) {
-		return this.setPoint(index, position.getX(), position.getY(), position.getZ());
+		return setPoint(index, position.getX(), position.getY(), position.getZ());
 	}
 
 	/**
@@ -989,13 +849,13 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		Point point = new Point();
 		point.x = x;
 		point.y = z;
-		this.update = true;
-		return this.setPoint(index, point, y);
+		update = true;
+		return setPoint(index, point, y);
 	}
 
 	@Override
 	public Point setPoint(int index, IPos position) {
-		return this.setPoint(index, position.getMCBlockPos());
+		return setPoint(index, position.getMCBlockPos());
 	}
 
 	/**
@@ -1006,11 +866,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	@Override
 	public Point setPoint(int index, Point point) {
-		if (!this.points.containsKey(index) && index != this.points.size()) {
-			return null;
-		}
-		this.points.put(index, point);
-		this.update = true;
+		if (!points.containsKey(index) || index > points.size()) { return null; }
+		points.put(index, point);
+		update = true;
 		return point;
 	}
 
@@ -1018,31 +876,24 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 * Sets a point instead of an existing one
 	 * 
 	 * @param index - index
-	 * @param y - new height
+	 * @param posY - new height
 	 * @param point - new pos
 	 */
 	@Override
-	public Point setPoint(int index, Point point, int y) {
-		if (!this.points.containsKey(index) && index != this.points.size()) {
-			return null;
-		}
-		this.points.put(index, point);
-		if (y >= 0) {
-			if (y < this.y[0]) {
-				this.y[0] = y;
-			}
-			if (y > this.y[1]) {
-				this.y[1] = y;
-			}
-		}
-		this.update = true;
+	public Point setPoint(int index, Point point, int posY) {
+		if (!points.containsKey(index) || index > points.size()) { return null; }
+		points.put(index, point);
+		posY = ValueUtil.correctInt(posY, 0, 255);
+		if (posY < y[0]) { y[0] = posY; }
+		if (posY > y[1]) { y[1] = posY; }
+		update = true;
 		return point;
 	}
 
 	@Override
 	public void setShowToPlayers(boolean show) {
-		this.showInClient = show;
-		this.update = true;
+		showInClient = show;
+		update = true;
 	}
 
 	/**
@@ -1050,88 +901,104 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	 */
 	@Override
 	public int size() {
-		return this.points.size();
+		return points.size();
 	}
 
 	@Override
 	public String toString() {
-		return "ID:" + this.id + "; name: \"" + this.name + "\"";
+		return "ID:" + id + "; name: \"" + name + "\"";
 	}
 
 	@Override
 	public void update() {
-		this.update = true;
+		update = true;
 	}
 
 	public void update(WorldServer world) {
-		if (this.update) {
-			this.entitiesWithinRegion.clear();
-			this.playerAntiLag.clear();
-			BorderController.getInstance().update(this.id);
-			this.update = false;
+		if (update) {
+			entitiesWithinRegion.clear();
+			playerAntiLag.clear();
+			BorderController.getInstance().update(id);
+			update = false;
 			return;
 		}
-		if (this.points.isEmpty() || this.dimensionID != world.provider.getDimension()) {
+		if (points.isEmpty() || dimensionID != world.provider.getDimension()) {
 			return;
 		}
 		List<Entity> entities = world.getEntities(Entity.class, this);
 		for (Entity entity : entities) {
-			if (this.keepOut) {
-				this.kick(entity);
-				continue;
-			}
-			if (!this.entitiesWithinRegion.contains(entity)) {
-				this.entitiesWithinRegion.add(entity);
+			if (!entitiesWithinRegion.contains(entity)) {
+				if (tryEntityEnter(entity)) { continue; }
+				entitiesWithinRegion.add(entity);
 				MinecraftForge.EVENT_BUS.post(new ForgeEvent.EnterToRegion(entity, this));
 			}
 		}
 		List<Entity> del = new ArrayList<>();
-		for (Entity entity : this.entitiesWithinRegion) {
-			if (entity.isDead || (!this.keepOut && entities.contains(entity))) {
-				if (entity.isDead) {
-					this.entitiesWithinRegion.remove(entity);
-				}
-				continue;
-			}
-			if (entity instanceof EntityPlayer) {
-				if (this.availability.isAvailable((EntityPlayer) entity)
-						|| ((EntityPlayer) entity).capabilities.isCreativeMode) {
-					del.add(entity);
-					continue;
-				}
-			}
-			boolean cont = this.contains(entity.posX, entity.posY, entity.posZ, entity.height);
-			if (this.keepOut == cont) {
-				this.kick(entity);
-			} else {
-				this.playerAntiLag.remove(entity);
-			}
+		for (Entity entity : entitiesWithinRegion) {
+			if (tryEntityLeave(entity, contains(entity))) { del.add(entity); }
 		}
 		for (Entity entity : del) {
-			this.entitiesWithinRegion.remove(entity);
-			this.playerAntiLag.remove(entity);
+			entitiesWithinRegion.remove(entity);
+			playerAntiLag.remove(entity);
+			MinecraftForge.EVENT_BUS.post(new ForgeEvent.LeaveRegion(entity, this));
+		}
+	}
+
+	private boolean tryEntityEnter(Entity entity) {
+		EntityPlayerMP player = convertToPlayer(entity);
+		if (player == null || availability.isAvailable(player) || player.capabilities.isCreativeMode) { return false; }
+		if (!keepOut) { return false; }
+		IPos center = getCenter();
+		motionPlayer(player, new Vec3d(player.posX, player.posY, player.posZ).subtract(new Vec3d(center.getX(), center.getY(), center.getZ())).normalize());
+		if (entity instanceof EntityEnderPearl) { entity.isDead = true; }
+		return true;
+	}
+
+	private boolean tryEntityLeave(Entity entity, boolean isContains) {
+		EntityPlayerMP player = convertToPlayer(entity);
+		if (player == null || availability.isAvailable(player) || player.capabilities.isCreativeMode) { return !isContains; }
+		if (!keepOut && isContains) { return false; }
+		IPos center = getCenter();
+		motionPlayer(player, new Vec3d(center.getX(), center.getY(), center.getZ()).subtract(new Vec3d(player.posX, player.posY, player.posZ)).normalize());
+		if (entity instanceof EntityEnderPearl) { entity.isDead = true; }
+		return false;
+	}
+
+	private void motionPlayer(EntityPlayerMP player, Vec3d vec) {
+		double corrector = 0.25d;
+		player.motionX = vec.x * corrector;
+		player.motionY = vec.y * corrector;
+		player.motionZ = vec.z * corrector;
+		player.velocityChanged = true;
+		if (!message.isEmpty()) { player.sendStatusMessage(new TextComponentTranslation(message), true); }
+		// if the player is stuck
+		if (!playerAntiLag.containsKey(player)) { playerAntiLag.put(player, new AntiLagTime(keepOut ? homePos.getMCBlockPos() : player.getPosition())); }
+		if (playerAntiLag.get(player).isLag(player.getPosition())) {
+			playerAntiLag.get(player).clear(player.getPosition());
+			player.setPositionAndUpdate(homePos.getX() + 0.5d, homePos.getY(), homePos.getZ() + 0.5d);
 		}
 	}
 
 	public void save(NBTTagCompound nbtRegion) {
-		nbtRegion.setInteger("ID", this.id);
-		nbtRegion.setString("Name", this.name);
-		nbtRegion.setInteger("DimensionID", this.dimensionID);
-		nbtRegion.setInteger("Color", this.color);
-		this.fix();
+		nbtRegion.setInteger("ID", id);
+		nbtRegion.setString("Name", name);
+		nbtRegion.setInteger("DimensionID", dimensionID);
+		nbtRegion.setInteger("Color", color);
 		NBTTagList ps = new NBTTagList();
-		for (int pos : this.points.keySet()) {
-			ps.appendTag(new NBTTagIntArray(new int[] { this.points.get(pos).x, this.points.get(pos).y }));
+		for (int pos : points.keySet()) {
+			ps.appendTag(new NBTTagIntArray(new int[] { points.get(pos).x, points.get(pos).y }));
 		}
 		nbtRegion.setTag("Points", ps);
-		nbtRegion.setIntArray("AxisY", this.y);
-		nbtRegion.setTag("Availability", this.availability.writeToNBT(new NBTTagCompound()));
-		nbtRegion.setString("Message", this.message);
+		nbtRegion.setIntArray("AxisY", y);
+		nbtRegion.setTag("Availability", availability.writeToNBT(new NBTTagCompound()));
+		nbtRegion.setString("Message", message);
 
 		nbtRegion.setLong("HomePos", homePos.getMCBlockPos().toLong());
-		nbtRegion.setBoolean("IsKeepOut", this.keepOut);
-		nbtRegion.setBoolean("ShowInClient", this.showInClient);
+		nbtRegion.setBoolean("IsKeepOut", keepOut);
+		nbtRegion.setBoolean("ShowInClient", showInClient);
 		nbtRegion.setTag("AddData", addData);
+
+		fix();
 	}
 
 	public AxisAlignedBB getAxisAlignedBB(boolean isFlat) {
@@ -1143,5 +1010,83 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 				isFlat ? 1.0d : (5.0d + getMaxY() * 10.0d) / 10.0d,
 				(5.0d + getMaxZ() * 10.0d) / 10.0d);
 	}
+
+	@Override
+	public Vec3d intersectsWithLine(Vec3d startPos, Vec3d endPos) {
+		// create vertices
+		double baseY = getMinY();
+		double height = getMaxY() - baseY;
+		List<Vec3d> vertices = new ArrayList<>();
+		for (Point point : points.values()) { vertices.add(new Vec3d(point.x, baseY, point.y)); }
+
+		// Create the top and bottom base of the prism
+		List<Vec3d> topVertices = createOffsetVertices(vertices, height);
+
+		// We check the intersection of the ray with the upper and lower faces
+		Vec3d topResult = checkIntersection(startPos, endPos, topVertices, baseY);
+		Vec3d bottomResult = checkIntersection(startPos, endPos, vertices, baseY);
+
+		// Check intersection with vertical sides
+		Vec3d wallResult = null;
+		for (int i = 0; i < vertices.size(); i++) {
+			Vec3d v1 = vertices.get(i);
+			Vec3d v2 = vertices.get((i + 1) % vertices.size());
+			Vec3d topV1 = new Vec3d(v1.x, v1.y + height, v1.z);
+			Vec3d topV2 = new Vec3d(v2.x, v2.y + height, v2.z);
+			wallResult = checkSegmentIntersection(startPos, endPos, v1, v2);
+			if (wallResult != null) { break; }
+			wallResult = checkSegmentIntersection(startPos, endPos, topV1, topV2);
+			if (wallResult != null) { break; }
+		}
+		if (wallResult != null) {
+			if (topResult == null && bottomResult == null) { return wallResult; }
+			double topDist = Double.MAX_VALUE;
+			double bottomDist = Double.MAX_VALUE;
+			double wallDist = startPos.distanceTo(wallResult);
+			if (topResult != null) { topDist = startPos.distanceTo(topResult); }
+			if (bottomResult != null) { bottomDist = startPos.distanceTo(bottomResult); }
+			if (topDist < wallDist) {
+				return topDist < bottomDist ? topResult : bottomResult;
+			}
+			return bottomDist < wallDist ? bottomResult : wallResult;
+		}
+		if (topResult == null) { return bottomResult; }
+		return topResult;
+    }
+
+	private List<Vec3d> createOffsetVertices(List<Vec3d> originalVertices, double offset) {
+		List<Vec3d> offsetVertices = new ArrayList<>();
+		for (Vec3d vertex : originalVertices) { offsetVertices.add(new Vec3d(vertex.x, vertex.y + offset, vertex.z)); }
+		return offsetVertices;
+	}
+
+	private static Vec3d checkIntersection(Vec3d start, Vec3d end, List<Vec3d> polygon, double baseY) {
+		// Ray-Polygon Intersection Check Algorithm
+		// Use Mo's algorithm to determine ray-polygon intersection
+		int crossings = 0;
+		for (int i = 0, j = polygon.size() - 1; i < polygon.size(); j = i++) {
+			Vec3d edgeStart = polygon.get(i);
+			Vec3d edgeEnd = polygon.get(j);
+			if ((edgeStart.y > start.y) != (edgeEnd.y > start.y) && start.x < (edgeEnd.x - edgeStart.x) * (start.y - edgeStart.y) / (edgeEnd.y - edgeStart.y) + edgeStart.x) {
+				crossings++;
+			}
+		}
+		return (crossings % 2 == 1) ? new Vec3d((end.x - start.x) / (end.y - start.y) * (baseY - start.y) + start.x, baseY, (end.z - start.z) / (end.y - start.y) * (baseY - start.y) + start.z) : null;
+	}
+
+	private Vec3d checkSegmentIntersection(Vec3d startPos, Vec3d endPos, Vec3d segmentStart, Vec3d segmentEnd) {
+		//Algorithm for checking the intersection of two segments
+		double denominator = (segmentEnd.z - segmentStart.z) * (endPos.x - startPos.x) - (segmentEnd.x - segmentStart.x) * (endPos.z - startPos.z);
+		if (denominator == 0) { return null; } // Parallel lines
+		double ua = ((segmentEnd.x - segmentStart.x) * (startPos.z - segmentStart.z) - (segmentEnd.z - segmentStart.z) * (startPos.x - segmentStart.x)) / denominator;
+		double ub = ((endPos.x - startPos.x) * (startPos.z - segmentStart.z) - (endPos.z - startPos.z) * (startPos.x - segmentStart.x)) / denominator;
+		if (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1) { // Calculate the intersection point
+			double x = startPos.x + ua * (endPos.x - startPos.x);
+			double y = startPos.y + ua * (endPos.y - startPos.y);
+			double z = startPos.z + ua * (endPos.z - startPos.z);
+			return new Vec3d(x, y, z);
+		}
+		return null;
+    }
 
 }

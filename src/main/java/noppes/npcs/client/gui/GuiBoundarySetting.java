@@ -128,7 +128,8 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 					Point p = region.points.get(pos);
 					map.put(j++, p);
 				}
-				region.points = map;
+				region.points.clear();
+				region.points.putAll(map);
 				break;
 			}
 			case 11: { // Down Point Pos
@@ -155,7 +156,8 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 						map.put(j++, point);
 					}
 				}
-				region.points = map;
+				region.points.clear();
+				region.points.putAll(map);
 				break;
 			}
 			case 12: { // OffSet Point -X
@@ -571,7 +573,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		button.setHoverText("hover.teleport", trPoint);
 		addButton(button);
 		// ID 25 - Keep Out Type
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(25, guiLeft + 5, guiTop + side + 9, 110, 12, "region.keepout.false", "region.keepout.true", region != null && region.keepOut);
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(25, guiLeft + 5, guiTop + side + 9, 110, 12, "region.keepout.true", "region.keepout.false" , region != null && region.keepOut);
 		checkBox.setSelected(region != null && region.keepOut);
 		checkBox.setHoverText("region.hover.keepout");
 		addButton(checkBox);

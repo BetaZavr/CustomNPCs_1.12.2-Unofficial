@@ -2,6 +2,7 @@ package noppes.npcs.api.handler.data;
 
 import java.awt.Point;
 
+import net.minecraft.util.math.Vec3d;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.entity.IEntity;
@@ -115,5 +116,7 @@ public interface IBorder {
 	int size();
 
 	void update();
+
+	Vec3d intersectsWithLine(Vec3d startPos, Vec3d endPos);
 
 }

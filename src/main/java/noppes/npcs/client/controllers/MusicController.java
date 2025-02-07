@@ -106,7 +106,7 @@ public class MusicController {
 				if (entity == null) {
 					this.unloadSongBard = true;
 					JobBard job = (JobBard) this.songBard.advanced.jobInterface;
-					if (job.hasOffRange) {
+					if (job != null && job.hasOffRange) {
 						int x = job.range[1], y = job.range[1], z = job.range[1];
 						if (!job.isRange) {
 							x = job.maxPos[0];

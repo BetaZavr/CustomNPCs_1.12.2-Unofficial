@@ -431,7 +431,13 @@ public class ScriptContainer {
 				try {
 					ScriptContainer.Data.put(key, engine.eval(((NBTTagString) tag).getString()));
 				}
-				catch (Exception e) { LogWriter.error("Key: " + key + "; Value: " + ((NBTTagString) tag).getString() + " put error:", e); }
+				catch (Exception e) {
+					if (!isClient ||
+							!((NBTTagString) tag).getString().contains(".Instance().getIWorld(0).getTempdata()") ||
+							!((NBTTagString) tag).getString().contains(".Instance().getIWorld(0).getStoreddata()")) {
+						LogWriter.error("Key: " + key + "; Value: " + ((NBTTagString) tag).getString() + " put error:", e);
+					}
+				}
 			}
 		}
 		// Base Functions

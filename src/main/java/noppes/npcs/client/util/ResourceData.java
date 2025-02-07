@@ -7,6 +7,8 @@ public class ResourceData {
 	public ResourceLocation resource;
 	public int u, v, width, height;
 	public float tH;
+	public float scaleX = 0.0f;
+	public float scaleY = 0.0f;
 
 	public ResourceData(ResourceLocation texture, int u, int v, int width, int height) {
 		this.resource = texture;

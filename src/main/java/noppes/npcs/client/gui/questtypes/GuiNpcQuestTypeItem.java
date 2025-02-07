@@ -17,7 +17,6 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
 import noppes.npcs.client.gui.global.GuiQuestEdit;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
@@ -27,6 +26,7 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNpcQuestTypeItem;
+import noppes.npcs.controllers.BorderController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.CustomNPCsScheduler;
@@ -52,7 +52,10 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 
 	@Override
 	public void actionPerformed(@Nonnull GuiButton guibutton) {
-		super.actionPerformed(guibutton);
+		if (!(guibutton instanceof GuiNpcButton)) {
+			super.actionPerformed(guibutton);
+			return;
+		}
 		if (task == null) { return; }
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
@@ -71,6 +74,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 			case 4: {
 				if (!dataDimIDs.containsKey(button.getValue())) { return; }
 				task.dimensionID = dataDimIDs.get(button.getValue());
+				button.setHoverText(new TextComponentTranslation("quest.hover.compass.dim", "" + task.dimensionID).appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 				break;
 			}
 			case 5: {
@@ -199,7 +203,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 		textField.setHoverText(new TextComponentTranslation("quest.hover.compass.entity").appendSibling(compass).getFormattedText());
 		addTextField(textField);
 		// dim ID
-		addLabel(new GuiNpcLabel(lId, "D:", x + 21, (y += 16) + 2));
+		addLabel(new GuiNpcLabel(lId++, "D:", x + 21, (y += 16) + 2));
 		int p = 0, i = 0;
 		List<Integer> ids = Arrays.asList(DimensionManager.getStaticDimensionIDs());
 		Collections.sort(ids);
@@ -210,12 +214,21 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 			if (task != null && id == task.dimensionID) { p = i; }
 			i++;
 		}
-		button = new GuiButtonBiDirectional(4, x + 28, y - 1, 60, 16, dimIDs, p);
-		button.setHoverText(new TextComponentTranslation("quest.hover.compass.dim").appendSibling(compass).getFormattedText());
+		button = new GuiNpcButton(4, x + 28, y - 1, 30, 16, dimIDs, p);
+		button.setHoverText(new TextComponentTranslation("quest.hover.compass.dim", dimIDs[p]).appendSibling(compass).getFormattedText());
 		addButton(button);
+		// region ID
+		addLabel(new GuiNpcLabel(lId, "P:", x + 60, y + 2));
+		int id = (task == null ? -1 : task.regionID);
+		textField = new GuiNpcTextField(9, this, fontRenderer, x + 67, y, 32, 14, "" + id);
+		textField.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, id);
+		textField.setHoverText(new TextComponentTranslation("quest.hover.compass.reg", id).appendSibling(compass).getFormattedText());
+		addTextField(textField);
+		// set player pos
 		button = new GuiNpcButton(10, x + 103, y - 1, 60, 16, "gui.set");
 		button.setHoverText(new TextComponentTranslation("quest.hover.compass.set").appendSibling(compass).getFormattedText());
 		addButton(button);
+		// mini map point
 		button = new GuiNpcCheckBox(5, x + 42, guiTop + ySize, 123, 16, "quest.set.minimap.point", null, task != null && task.isSetPointOnMiniMap());
 		button.setHoverText("quest.hover.set.minimap.point");
 		addButton(button);
@@ -232,6 +245,15 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 		switch (textField.getId()) {
 			case 0: {
 				task.setMaxProgress(textField.getInteger());
+				break;
+			}
+			case 9: {
+				if (!BorderController.getInstance().regions.containsKey(textField.getInteger())) {
+					textField.setText("" + textField.def);
+					return;
+				}
+				task.regionID = textField.getInteger();
+				textField.setHoverText(new TextComponentTranslation("quest.hover.compass.reg", "" + task.regionID).appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 				break;
 			}
 			case 10: {

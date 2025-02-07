@@ -46,6 +46,7 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 	@Override
 	public void save() { }
 
+	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (!hovered) { return; }
 		if (button.id == 2500) {

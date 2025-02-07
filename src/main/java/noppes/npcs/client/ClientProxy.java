@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -38,6 +39,7 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.resources.*;
+import net.minecraft.client.resources.Locale;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.RecipeBookClient;
 import net.minecraft.creativetab.CreativeTabs;
@@ -77,6 +79,7 @@ import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.mixin.client.resources.ILocaleMixin;
 import noppes.npcs.api.wrapper.WrapperMinecraft;
 import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomBlockPortal;
@@ -164,7 +167,6 @@ import noppes.npcs.api.mixin.client.particle.IParticleManagerMixin;
 import noppes.npcs.api.mixin.client.particle.IParticleSmokeNormalMixin;
 import noppes.npcs.api.mixin.client.renderer.texture.ITextureManagerMixin;
 import noppes.npcs.api.mixin.client.renderer.tileentity.ITileEntityItemStackRendererMixin;
-import noppes.npcs.api.mixin.client.resources.II18nMixin;
 import noppes.npcs.api.mixin.client.settings.IKeyBindingMixin;
 import noppes.npcs.api.mixin.client.settings.IKeyBindingForgeMixin;
 import noppes.npcs.particles.CustomParticle;
@@ -280,25 +282,38 @@ public class ClientProxy extends CommonProxy {
 		LogWriter.info("Check Mod Localization");
 
 		// localization in game data
-		Map<String, String> properties = ((II18nMixin) new I18n()).npcs$getProperties();
-
-		// custom lang files:
-		String currentLanguage = Minecraft.getMinecraft().getLanguageManager().getCurrentLanguage().getLanguageCode();
-		for (int i = 0; i < (currentLanguage.equals("en_us") ? 1 : 2) ; i++) {
-			File lang = new File(langDir, (i == 0 ? "en_us" : currentLanguage) + ".lang");
-			if (lang.exists() && lang.isFile()) { // loading localizations from mod file
-				try {
-					BufferedReader reader = Files.newBufferedReader(lang.toPath());
-					String line;
-					while ((line = reader.readLine()) != null) {
-						if (line.startsWith("#") || !line.contains("=")) { continue; }
-						String[] vk = line.split("=");
-						properties.put(vk[0], vk[1]);
-					}
-					reader.close();
-				} catch (IOException e) { LogWriter.error("Error load custom localization", e); }
+		try {
+			Class<?> i18n = Class.forName("net.minecraft.client.resources.I18n");
+			Map<String, String> properties = null;
+			for (Field field : i18n.getDeclaredFields()) {
+				if (field.getType() == Locale.class) {
+					field.setAccessible(true);
+					properties = ((ILocaleMixin) field.get(null)).npcs$getProperties();
+					break;
+				}
+			}
+			if (properties == null) { return; }
+			LogWriter.debug("Localization properties found. Size: "+properties.size());
+			// custom lang files:
+			String currentLanguage = Minecraft.getMinecraft().getLanguageManager().getCurrentLanguage().getLanguageCode();
+			for (int i = 0; i < (currentLanguage.equals("en_us") ? 1 : 2) ; i++) {
+				File lang = new File(langDir, (i == 0 ? "en_us" : currentLanguage) + ".lang");
+				if (lang.exists() && lang.isFile()) { // loading localizations from mod file
+					try {
+						BufferedReader reader = Files.newBufferedReader(lang.toPath());
+						String line;
+						while ((line = reader.readLine()) != null) {
+							if (line.startsWith("#") || !line.contains("=")) { continue; }
+							String[] vk = line.split("=");
+							properties.put(vk[0], vk[1]);
+						}
+						reader.close();
+					} catch (Exception e) { LogWriter.error("Error load custom localization", e); }
+				}
 			}
 		}
+		catch (Exception e) { LogWriter.error("Error localization class found: ", e); }
+
 	}
 
 	// Blending texture colors with a mask

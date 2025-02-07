@@ -49,6 +49,7 @@ public class QuestObjective implements IQuestObjective {
 	private String name = "";
 	private final EntityPlayer player;
 
+	public int regionID = -1;
 	public int dimensionID = 0;
 	public int rangeCompass = 5;
 	public BlockPos pos = new BlockPos(0, 0, 0);
@@ -149,6 +150,7 @@ public class QuestObjective implements IQuestObjective {
 		NBTTagCompound nbtCompass = new NBTTagCompound();
 		nbtCompass.setIntArray("Pos", new int[] { this.pos.getX(), this.pos.getY(), this.pos.getZ() });
 		nbtCompass.setInteger("DimensionID", this.dimensionID);
+		nbtCompass.setInteger("RegionID", regionID);
 		nbtCompass.setInteger("Range", this.rangeCompass);
 		nbtCompass.setString("EntityName", this.entityName);
 		nbtTask.setTag("CompassData", nbtCompass);
@@ -347,6 +349,7 @@ public class QuestObjective implements IQuestObjective {
 			int[] bp = nbtCompass.getIntArray("Pos");
 			this.pos = new BlockPos(bp[0], bp[1], bp[2]);
 			this.dimensionID = nbtCompass.getInteger("DimensionID");
+			if (nbtCompass.hasKey("RegionID", 3)) { regionID = nbtCompass.getInteger("RegionID"); }
 			this.rangeCompass = nbtCompass.getInteger("Range");
 			this.entityName = nbtCompass.getString("EntityName");
 		}

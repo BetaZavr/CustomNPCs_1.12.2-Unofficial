@@ -334,10 +334,17 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		addButton(button);
 		// next quest
 		button = new GuiNpcButton(11, this.guiLeft + 4, this.guiTop + 192, 144, 20, "quest.next");
-		if (!this.quest.nextQuestTitle.isEmpty()) {
-			this.getButton(11).setDisplayText(this.quest.nextQuestTitle);
+		if (quest.nextQuest != -1) {
+			if (!quest.nextQuestTitle.isEmpty()) { button.setDisplayText(quest.nextQuestTitle); }
+			Quest q = QuestController.instance.quests.get(quest.nextQuest);
+			String hover = "";
+			if (q != null) {
+				hover = "<br>" + ((char) 167) + "7" + new TextComponentTranslation(q.category.title).getFormattedText() + ((char) 167) + "7/" +
+						((char) 167) + "r" + new TextComponentTranslation(q.title).getFormattedText();
+			}
+			button.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.next").getFormattedText() + hover);
 		}
-		button.setHoverText("quest.hover.edit.quest.next");
+		else { button.setHoverText("quest.hover.edit.quest.next"); }
 		addButton(button);
 		button = new GuiNpcButton(12, this.guiLeft + 150, this.guiTop + 192, 20, 20, "X");
 		button.setHoverText("quest.hover.edit.quest.del.next");

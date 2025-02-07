@@ -64,6 +64,7 @@ implements IComponentGui {
 	// search data
 	private final GuiNpcTextField textField = new GuiNpcTextField(0, null, 0, 0, 176, 16, "");
 	private int listSize = 0;
+	private boolean canSearch = true;
 	private boolean hasSearch = false;
 	private String searchString = "";
 	private String[] searchWords = new String[0];
@@ -71,6 +72,11 @@ implements IComponentGui {
 	public GuiCustomScroll(ICustomScrollListener parent, int scrollId) {
 		id = scrollId;
 		setParent(parent);
+	}
+
+	public GuiCustomScroll(ICustomScrollListener parent, boolean setSearch, int id) {
+		this(parent, id);
+		canSearch = setSearch;
 	}
 
 	public GuiCustomScroll(ICustomScrollListener parent, int id, boolean isMultipleSelection) {
@@ -103,17 +109,19 @@ implements IComponentGui {
 			if (k < 4 || k + 10 > height) { continue; }
 			String displayString = list.get(i) == null ? "null" : list.get(i);
 			try { displayString = new TextComponentTranslation(displayString).getFormattedText(); } catch (Exception ignored) { }
-			String text = "";
-			float maxWidth = (width + xOffset - 8) * 0.8f;
+			StringBuilder text = new StringBuilder();
+			float maxWidth = width - xOffset - j - 2;
+			if ((stacks != null && !stacks.isEmpty()) || (prefixes != null && !prefixes.isEmpty())) { maxWidth -= 12; }
+			if (suffixes != null && !suffixes.get(i).isEmpty()) { maxWidth -= fontRenderer.getStringWidth(suffixes.get(i)) + 1; }
 			if (fontRenderer.getStringWidth(displayString) > maxWidth) {
-				for (int strHeight = 0; strHeight < displayString.length(); ++strHeight) {
-					char c = displayString.charAt(strHeight);
-					text += c;
-					if (fontRenderer.getStringWidth(text) > maxWidth) { break; }
+				for (int s = 0; s < displayString.length(); ++s) {
+					if (fontRenderer.getStringWidth(text + "...") > maxWidth) { break; }
+					char c = displayString.charAt(s);
+					text.append(c);
 				}
-				if (displayString.length() > text.length()) { text += "..."; }
+				text.append("...");
 			}
-			else { text = displayString; }
+			else { text = new StringBuilder(displayString); }
 			int xo = 0;
 			if ((stacks != null && i < stacks.size()) || (prefixes != null && i < prefixes.size())) {
 				j = 14;
@@ -121,22 +129,22 @@ implements IComponentGui {
 			}
 			int c = CustomNpcs.MainColor.getRGB();
 			if (colors != null && i < colors.size()) { c = colors.get(i); }
-			if ((multipleSelection && Util.instance.containsDeleteColor(selectedList, text, false)) || (!multipleSelection && selected == i)) {
+			if ((multipleSelection && Util.instance.containsDeleteColor(selectedList, text.toString(), false)) || (!multipleSelection && selected == i)) {
 				drawVerticalLine(j - 2, k - 4, k + 10, -1);
 				drawVerticalLine(j + width - 17 + xOffset + xo, k - 4, k + 10, -1);
 				drawHorizontalLine(j - 2, j + width - 17 + xOffset + xo, k - 3, -1);
 				drawHorizontalLine(j - 2, j + width - 17 + xOffset + xo, k + 10, -1);
-				fontRenderer.drawString(text, j, k, c);
+				fontRenderer.drawString(text.toString(), j, k, c);
 				c = CustomNpcs.MainColor.getRGB();
 			} else if (i == hover) {
-				fontRenderer.drawString(text, j, k, 65280);
+				fontRenderer.drawString(text.toString(), j, k, 65280);
 				c = CustomNpcs.HoverColor.getRGB();
 			} else {
-				fontRenderer.drawString(text, j, k, c);
+				fontRenderer.drawString(text.toString(), j, k, c);
 				c = CustomNpcs.MainColor.getRGB();
 			}
 			if (suffixes != null && i < suffixes.size() && suffixes.get(i) != null && !suffixes.get(i).isEmpty() && fontRenderer.getStringWidth(text + suffixes.get(i)) < width - 20) {
-				fontRenderer.drawString(suffixes.get(i), width - 6 + (listHeight > height ? -11 : 0) - fontRenderer.getStringWidth(suffixes.get(i)), k, c);
+				fontRenderer.drawString(suffixes.get(i), width - xOffset - 2 - fontRenderer.getStringWidth(suffixes.get(i)), k, c);
 			}
 		}
 	}
@@ -152,13 +160,20 @@ implements IComponentGui {
 			if (k < 4 || k + 12 >= height || rd == null || rd.resource == null || rd.width <= 0 || rd.height <= 0) {
 				continue;
 			}
-			boolean hasStack = stacks != null && !stacks.isEmpty() && i < stacks.size() - 1;
+			boolean hasStack = stacks != null && !stacks.isEmpty() && i < stacks.size();
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(guiLeft, guiTop, 0.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.translate(hasStack ? -13.0f : 0.5f, k - 1.5f + rd.tH, 0.0f); // position X, Y, Z
 			float scale = 12.0f / (float) (Math.max(rd.width, rd.height));
-			GlStateManager.scale(scale, scale, scale);
+			float scaleX = scale;
+			float scaleY = scale;
+			if (rd.scaleX != 0.0f || rd.scaleY != 0.0f) {
+				scaleX *= rd.scaleX;
+				scaleY *= rd.scaleY;
+				GlStateManager.translate(12.0f * rd.scaleX, 6.0f * rd.scaleY, 0.0f);
+			}
+			GlStateManager.scale(scaleX, scaleY, 1.0f);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(rd.resource);
 			drawTexturedModalRect(0, 0, rd.u, rd.v, rd.width, rd.height);
 			GlStateManager.popMatrix();
@@ -487,7 +502,7 @@ implements IComponentGui {
 
 	private void reset() {
 		int h = textFieldHeight();
-		hasSearch = list.size() > 9;
+		hasSearch = canSearch && list.size() > 9;
 		if (hasSearch) {
 			if (searchString.isEmpty()) { listSize = list.size(); }
 			else { listSize = (int) list.stream().filter((Predicate<? super String>)this::isSearched).count(); }
