@@ -6,6 +6,7 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
+import noppes.npcs.client.gui.util.IGuiNpcButton;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -22,8 +23,8 @@ extends GuiNPCInterface2 {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) { job.chestMode = button.getValue(); }
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) { job.chestMode = button.getValue(); }
 	}
 
 	@Override

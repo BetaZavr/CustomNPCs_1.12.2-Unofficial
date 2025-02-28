@@ -8,12 +8,7 @@ import java.util.Map;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.data.Marcet;
@@ -38,8 +33,8 @@ implements IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-        if (button.id == 66) {
+	public void buttonEvent(IGuiNpcButton button) {
+        if (button.getId() == 66) {
             close();
         }
 	}
@@ -95,7 +90,7 @@ implements IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (scroll.getSelected().equals(select) || !data.containsKey(scroll.getSelected())) {
 			return;
 		}
@@ -105,7 +100,7 @@ implements IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		close();
 	}
 

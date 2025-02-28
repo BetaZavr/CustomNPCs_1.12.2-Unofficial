@@ -14,6 +14,7 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
+import noppes.npcs.client.gui.util.IGuiNpcButton;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -38,8 +39,8 @@ extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerHire, button.id);
+	public void buttonEvent(IGuiNpcButton button) {
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerHire, button.getId());
 		close();
 	}
 
@@ -126,8 +127,5 @@ extends GuiContainerNPCInterface {
 			addButton(new GuiNpcButton(3, x, y + 18, 50, 14, new TextComponentTranslation("follower.hire").getFormattedText()));
 		}
 	}
-
-	@Override
-	public void save() { }
 
 }

@@ -42,8 +42,8 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: {
 				this.display.setShowName(button.getValue());
 				break;
@@ -94,8 +94,8 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 			}
 			case 13: {
 				this.display.setHasHitbox(button.getValue() != 1);
-				this.getLabel(20).enabled = button.getValue() == 2;
-				this.getLabel(21).enabled = button.getValue() == 2;
+				this.getLabel(20).setEnabled(button.getValue() == 2);
+				this.getLabel(21).setEnabled(button.getValue() == 2);
 				this.getTextField(12).setVisible(button.getValue() == 2);
 				this.getTextField(13).setVisible(button.getValue() == 2);
 				break;
@@ -119,7 +119,7 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		initGui();
 	}
 
@@ -211,7 +211,7 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 		button = new GuiNpcButton(16, this.guiLeft + 92, y, 78, 20, "availability.available");
 		button.setHoverText("display.hover.visible." + (CustomNpcs.EnableInvisibleNpcs ? 1 : 0));
 		addButton(button);
-		this.getButton(16).enabled = (this.enableInvisibleNpcs && this.display.getVisible() == 1);
+		this.getButton(16).setEnabled(this.enableInvisibleNpcs && this.display.getVisible() == 1);
 		this.addLabel(new GuiNpcLabel(lID++, "display.interactable", this.guiLeft + 180, y + 5));
 		
 		int hb = this.display.getHasHitbox() ? 0 : 1;
@@ -252,8 +252,8 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 		textField.setMinMaxDoubleDefault(0.0, 15.0, this.display.height);
 		textField.setHoverText(new TextComponentTranslation("display.hover.hitbox.height", ("" + Math.round(this.baseHitBoxHeight * 1000.0) / 1000.0).replace(".", ","), ("" + Math.round(h * 1000.0) / 1000.0).replace(".", ",")).getFormattedText());
 		addTextField(textField);
-		this.getLabel(20).enabled = hb == 2;
-		this.getLabel(21).enabled = hb == 2;
+		this.getLabel(20).setEnabled(hb == 2);
+		this.getLabel(21).setEnabled(hb == 2);
 				
 		y += 23;
 		this.addLabel(new GuiNpcLabel(lID++, "display.bossbar", this.guiLeft + 5, y + 5));
@@ -285,7 +285,7 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 0) {
 			if (!textfield.isEmpty()) {
 				this.display.setName(textfield.getText());

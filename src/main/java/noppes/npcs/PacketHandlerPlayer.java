@@ -14,6 +14,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -399,12 +400,15 @@ public class PacketHandlerPlayer {
 			NoppesUtilPlayer.bankResetCeil(player, npc);
 		} else if (type == EnumPlayerPacket.Dialog) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
+			int dialogId = buffer.readInt();
+			int optionId = buffer.readInt();
+			data.dialogData.option(dialogId, optionId);
 			LogWriter.debug("Dialog npc: " + npc);
 			if (npc == null) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
-			NoppesUtilPlayer.dialogSelected(buffer.readInt(), buffer.readInt(), player, npc);
+			NoppesUtilPlayer.dialogSelected(dialogId, optionId, player, npc);
 		} else if (type == EnumPlayerPacket.CheckQuestCompletion) {
 			int id = buffer.readInt();
 			PlayerQuestData playerdata = PlayerData.get(player).questData;
@@ -1042,7 +1046,31 @@ public class PacketHandlerPlayer {
 						}
 						catch (Exception e) { error = true; }
 					}
-					if (!error) { error = !ScriptEncryption.encryptScript(file, compound.getString("Name"), code, onlyTab, container, handler); }
+					if (!error) {
+						error = !ScriptEncryption.encryptScript(file, compound.getString("Name"), code, onlyTab, container, handler);
+						if (!error) {
+							compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
+							compound.setString("DirPath", ScriptController.Instance.dir.getAbsolutePath());
+							NBTTagCompound tabNBT = compound.getTagList("Scripts", 10).getCompoundTagAt(tab);
+							if (!tabNBT.getKeySet().isEmpty()) {
+								tabNBT.setString("Script", "");
+								NBTTagList scriptList = tabNBT.getTagList("ScriptList", 10);
+								boolean added = true;
+								for (int i = 0; i < scriptList.tagCount(); i++) {
+									if (scriptList.getCompoundTagAt(i).getString("Line").equals(compound.getString("Name"))) {
+										added = false;
+										break;
+									}
+								}
+								if (added) {
+									NBTTagCompound nbtFile = new NBTTagCompound();
+									nbtFile.setString("Line", compound.getString("Name"));
+									scriptList.appendTag(nbtFile);
+								}
+							}
+							Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
+						}
+					}
 				}
 			}
 			player.sendMessage(new TextComponentString(((char) 167) + "2CustomNPCs" + ((char) 167) + (error ? "c: Error encrypt" : "7: Encrypt") + " script to file \"" + filePath + "\"" + handlerType));

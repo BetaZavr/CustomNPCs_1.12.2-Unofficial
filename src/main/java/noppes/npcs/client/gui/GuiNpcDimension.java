@@ -7,12 +7,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientHandler;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IScrollData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 
@@ -29,39 +24,39 @@ implements IScrollData, ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
-		case 1: { // settings
-			player.sendMessage(new TextComponentTranslation("gui.wip"));
-			if (!data.containsKey(scroll.getSelected())) {
-				return;
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
+			case 1: { // settings
+				player.sendMessage(new TextComponentTranslation("gui.wip"));
+				if (!data.containsKey(scroll.getSelected())) {
+					return;
+				}
+				int id = data.get(scroll.getSelected());
+				if (!ClientHandler.getInstance().has(id)) {
+					return;
+				}
+				CustomNpcs.proxy.openGui(null, EnumGuiType.DimensionSetting, id, 0, 0);
+				break;
 			}
-			int id = data.get(scroll.getSelected());
-			if (!ClientHandler.getInstance().has(id)) {
-				return;
+			case 2: { // add
+				CustomNpcs.proxy.openGui(null, EnumGuiType.DimensionSetting, 0, 0, 0);
+				break;
 			}
-			CustomNpcs.proxy.openGui(null, EnumGuiType.DimensionSetting, id, 0, 0);
-			break;
-		}
-		case 2: { // add
-			CustomNpcs.proxy.openGui(null, EnumGuiType.DimensionSetting, 0, 0, 0);
-			break;
-		}
-		case 3: { // remove
-			if (!data.containsKey(scroll.getSelected())) {
-				return;
+			case 3: { // remove
+				if (!data.containsKey(scroll.getSelected())) {
+					return;
+				}
+				int id = data.get(scroll.getSelected());
+				if (!ClientHandler.getInstance().has(id)) {
+					return;
+				}
+				Client.sendData(EnumPacketServer.DimensionDelete, id);
+				break;
 			}
-			int id = data.get(scroll.getSelected());
-			if (!ClientHandler.getInstance().has(id)) {
-				return;
+			case 4: {
+				tp();
+				break;
 			}
-			Client.sendData(EnumPacketServer.DimensionDelete, id);
-			break;
-		}
-		case 4: {
-			tp();
-			break;
-		}
 		}
 	}
 
@@ -80,7 +75,7 @@ implements IScrollData, ICustomScrollListener {
 		scroll.guiLeft = guiLeft + 4;
 		scroll.guiTop = guiTop + 14;
 		addScroll(scroll);
-		if (scroll.selected == -1) {
+		if (scroll.getSelect() == -1) {
 			for (String key : data.keySet()) {
 				if (data.get(key) == mc.player.world.provider.getDimension()) {
 					scroll.setSelected(key);
@@ -90,11 +85,11 @@ implements IScrollData, ICustomScrollListener {
 		if (data.containsKey(scroll.getSelected())) { id = data.get(scroll.getSelected()); }
 		// title
 		GuiNpcLabel label = new GuiNpcLabel(0, "gui.dimensions", guiLeft, guiTop + 4);
-		label.center(xSize);
+		label.setCenter(xSize);
 		addLabel(label);
 		// settings
 		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 192, guiTop + 36, 60, 20, "gui.settings");
-		button.setEnabled(scroll.selected >= 0 && ClientHandler.getInstance().has(id));
+		button.setEnabled(scroll.getSelect() >= 0 && ClientHandler.getInstance().has(id));
 		button.setHoverText("dimensions.hover.settings");
 		addButton(button);
 		// add
@@ -103,12 +98,12 @@ implements IScrollData, ICustomScrollListener {
 		addButton(button);
 		// del
 		button = new GuiNpcButton(3, guiLeft + 192, guiTop + 102, 60, 20, "gui.remove");
-		button.setEnabled(scroll.selected >= 0 && ClientHandler.getInstance().has(id));
+		button.setEnabled(scroll.getSelect() >= 0 && ClientHandler.getInstance().has(id));
 		button.setHoverText("dimensions.hover.del");
 		addButton(button);
 		// pt
 		button = new GuiNpcButton(4, guiLeft + 192, guiTop + 14, 60, 20, "TP");
-		button.setEnabled(scroll.selected >= 0);
+		button.setEnabled(scroll.getSelect() >= 0);
 		button.setHoverText("dimensions.hover.tp");
 		addButton(button);
 	}
@@ -131,17 +126,13 @@ implements IScrollData, ICustomScrollListener {
 		scroll.mouseClicked(i, j, k);
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+    @Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		tp();
 	}
 

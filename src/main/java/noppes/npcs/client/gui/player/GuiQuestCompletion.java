@@ -8,10 +8,7 @@ import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.TextBlockClient;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ITopButtonListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumRewardType;
 import noppes.npcs.controllers.data.Quest;
@@ -38,8 +35,8 @@ implements ITopButtonListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) { close(); }
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) { close(); }
 	}
 
 	private void drawQuestText() {

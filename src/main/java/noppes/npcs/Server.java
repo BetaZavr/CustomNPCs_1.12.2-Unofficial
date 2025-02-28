@@ -169,7 +169,8 @@ public class Server {
 					}
 				} else if (ob instanceof MerchantRecipeList) {
 					((MerchantRecipeList) ob).writeToBuf(new PacketBuffer(buffer));
-				} else if (ob instanceof List) {
+				}
+				else if (ob instanceof List) {
 					try {
 						@SuppressWarnings("unchecked")
 						List<String> list = (List<String>) ob;

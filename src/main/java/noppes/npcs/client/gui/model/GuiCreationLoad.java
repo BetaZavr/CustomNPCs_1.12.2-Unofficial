@@ -11,6 +11,7 @@ import noppes.npcs.client.controllers.PresetController;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
+import noppes.npcs.client.gui.util.IGuiCustomScroll;
 import noppes.npcs.entity.EntityNPCInterface;
 
 import javax.annotation.Nonnull;
@@ -90,14 +91,14 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		Preset preset = PresetController.instance.getPreset(scroll.getSelected());
 		this.playerdata.readFromNBT(preset.data.writeToNBT());
 		this.initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 	}
 
 }

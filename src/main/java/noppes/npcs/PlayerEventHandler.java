@@ -11,7 +11,6 @@ import net.minecraft.block.BlockBanner;
 import net.minecraft.tileentity.TileEntityBanner;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
-import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
@@ -99,6 +98,7 @@ import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.Util;
+import org.apache.logging.log4j.Logger;
 
 public class PlayerEventHandler {
 
@@ -1381,62 +1381,34 @@ public class PlayerEventHandler {
 			return;
 		}
 		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-		if (player instanceof EntityPlayerMP) {
+		noppes.npcs.util.CustomNPCsScheduler.runTack(() -> {
+			if (player instanceof EntityPlayerMP) {
 
-		} else {
-			try {
-				//noppes.npcs.util.TempClass.updateLocalization();
-				/*
-				java.io.InputStream inputStream = Util.instance.getModInputStream("a_def.dat");
-				if (inputStream == null) { return; }
-				NBTTagCompound compound = new NBTTagCompound();
-				net.minecraft.nbt.NBTTagList list = new net.minecraft.nbt.NBTTagList();
-				for (noppes.npcs.client.model.animation.AnimationConfig anim : AnimationController.getInstance().animations.values()) {
-					list.appendTag(anim.save());
-				}
-				compound.setTag("Animations", list);
-				java.io.File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
-				//Util.instance.saveFile(new java.io.File(dir, "temp.java"), compound);
-				try { net.minecraft.nbt.CompressedStreamTools.writeCompressed(compound, java.nio.file.Files.newOutputStream(new java.io.File(dir, "a_def.dat").toPath())); } catch (Exception e) { LogWriter.error("Error:", e); }
-				AnimationController.getInstance().save();
-				/**/
-				/*
-				java.io.File dir;
-				java.io.File dirMain = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
-				dir = new java.io.File(dirMain, "src/main/java"); // CustomNpcs 1.12.2
-				//dir = new java.io.File(dirMain.getParentFile(), "net"); // Minecraft 1.12.2
-				//dir = new java.io.File(dirMain.getParentFile(), "aw"); // Armourers Workshop 1.12.2
+			}
+			else {
+				try {
+					/*
+					java.io.File dir;
+					//java.io.File dirMain = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
+					//dir = new java.io.File(dirMain, "src/main/java"); // CustomNpcs 1.12.2
+					dir = new java.io.File("E:/Sources/1.16.5/minecraft 1.16.5/net"); // Minecraft
 
-				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
-				Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
-				//found.put("System.out.println", null);
-				found.put("EntityTracker", null);
-				found.put("getEntityTracker", null);
+					String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
+					Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
+					//found.put("System.out.println", null);
+					found.put("ResourcePackType", null);
 
-				for (java.io.File file : Util.instance.getFiles(dir, "java")) {
-					try {
-						java.io.BufferedReader reader = com.google.common.io.Files.newReader(file, java.nio.charset.StandardCharsets.UTF_8);
-						String line;
-						int l = 1;
-						while ((line = reader.readLine()) != null) {
-							for (String key : found.keySet()) {
-								if (key.contains("&&")) {
-									String k = key.substring(0, key.indexOf("&&"));
-									String s = key.substring(key.indexOf("&&") + 2);
-									if (line.contains(k) && line.toLowerCase().contains(s.toLowerCase())) {
-										found.computeIfAbsent(key, k1 -> new TreeMap<>());
-										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
-										if (!found.get(key).containsKey(fPath)) {
-											found.get(key).put(fPath, new ArrayList<>());
-										}
-										found.get(key).get(fPath).add(l);
-									}
-								} else if (key.indexOf("&") == 0) {
-									String k = key.replace("&", "");
-									if (line.contains(k)) {
-										int s = line.indexOf(k) - 1;
-										int e = line.indexOf(k) + k.length();
-										if (br.contains("" + line.charAt(s)) && br.contains("" + line.charAt(e))) {
+					for (java.io.File file : Util.instance.getFiles(dir, "java")) {
+						try {
+							java.io.BufferedReader reader = com.google.common.io.Files.newReader(file, java.nio.charset.StandardCharsets.UTF_8);
+							String line;
+							int l = 1;
+							while ((line = reader.readLine()) != null) {
+								for (String key : found.keySet()) {
+									if (key.contains("&&")) {
+										String k = key.substring(0, key.indexOf("&&"));
+										String s = key.substring(key.indexOf("&&") + 2);
+										if (line.contains(k) && line.toLowerCase().contains(s.toLowerCase())) {
 											found.computeIfAbsent(key, k1 -> new TreeMap<>());
 											String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
 											if (!found.get(key).containsKey(fPath)) {
@@ -1444,37 +1416,51 @@ public class PlayerEventHandler {
 											}
 											found.get(key).get(fPath).add(l);
 										}
+									} else if (key.indexOf("&") == 0) {
+										String k = key.replace("&", "");
+										if (line.contains(k)) {
+											int s = line.indexOf(k) - 1;
+											int e = line.indexOf(k) + k.length();
+											if (br.contains("" + line.charAt(s)) && br.contains("" + line.charAt(e))) {
+												found.computeIfAbsent(key, k1 -> new TreeMap<>());
+												String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
+												if (!found.get(key).containsKey(fPath)) {
+													found.get(key).put(fPath, new ArrayList<>());
+												}
+												found.get(key).get(fPath).add(l);
+											}
+										}
+									} else if (line.contains(key)) {
+										found.computeIfAbsent(key, k -> new TreeMap<>());
+										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
+										if (!found.get(key).containsKey(fPath)) {
+											found.get(key).put(fPath, new ArrayList<>());
+										}
+										found.get(key).get(fPath).add(l);
 									}
-								} else if (line.contains(key)) {
-									found.computeIfAbsent(key, k -> new TreeMap<>());
-									String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
-									if (!found.get(key).containsKey(fPath)) {
-										found.get(key).put(fPath, new ArrayList<>());
-									}
-									found.get(key).get(fPath).add(l);
 								}
+								l++;
 							}
-							l++;
+						} catch (Exception e) { LogWriter.error(e); }
+					}
+					System.out.println("Directory: " + dir);
+					for (String key : found.keySet()) {
+						if (found.get(key) == null || found.get(key).isEmpty()) {
+							System.out.println("\"" + key + "\" not found;");
+							continue;
 						}
-					} catch (Exception e) { LogWriter.error(e); }
-				}
-				System.out.println("Directory: " + dir);
-				for (String key : found.keySet()) {
-					if (found.get(key) == null || found.get(key).isEmpty()) {
-						System.out.println("\"" + key + "\" not found;");
-						continue;
+						System.out.println("\"" + key + "\" found in:");
+						Map<String, List<Integer>> map = found.get(key);
+						for (String fPath : map.keySet()) {
+							System.out.println(" - " + fPath + ": lines:" + map.get(fPath));
+						}
 					}
-					System.out.println("\"" + key + "\" found in:");
-					Map<String, List<Integer>> map = found.get(key);
-					for (String fPath : map.keySet()) {
-						System.out.println(" - " + fPath + ": lines:" + map.get(fPath));
-					}
+					/**/
+				} catch (Exception e) {
+					LogWriter.error("Error:", e);
 				}
-				/**/
-			} catch (Exception e) {
-				LogWriter.error("Error:", e);
 			}
-		}
+		});
 	}
 
 }

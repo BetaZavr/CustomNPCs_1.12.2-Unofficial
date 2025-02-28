@@ -87,7 +87,6 @@ import noppes.npcs.util.CustomNPCsScheduler;
 public class ClientEventHandler {
 
 	public static final Map<EntityPlayer, RenderChatMessages> chatMessages = new HashMap<>();
-	public static GuiScreen gui;
 
 	public static SubGuiInterface subgui;
 	public static Map<ISchematic, Integer> displayMap = new HashMap<>();
@@ -101,7 +100,6 @@ public class ClientEventHandler {
 	public void cnpcOpenGUIEvent(GuiOpenEvent event) {
 		Minecraft mc = Minecraft.getMinecraft();
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientEventHandler_onOpenGUIEvent");
-		ClientEventHandler.gui = event.getGui();
 		ClientEventHandler.subgui = null;
 		LogWriter.debug(((event.getGui() == null ? "Close GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
 		mc.getRenderPartialTicks();

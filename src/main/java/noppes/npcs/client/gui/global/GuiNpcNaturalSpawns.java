@@ -38,8 +38,8 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch(button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch(button.getId()) {
 			case 1: { // add
 				this.save();
 				String name = new TextComponentTranslation("gui.new").getFormattedText();
@@ -84,7 +84,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(ISubGuiInterface gui) {
 		if (gui instanceof GuiNpcMobSpawnerSelector) {
 			GuiNpcMobSpawnerSelector selector = (GuiNpcMobSpawnerSelector) gui;
 			NBTTagCompound compound = selector.getCompound();
@@ -157,20 +157,20 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void mouseDragged(GuiNpcSlider guiNpcSlider) {
-		this.spawn.itemWeight = (int) (guiNpcSlider.sliderValue * 100.0f);
+	public void mouseDragged(IGuiNpcSlider guiNpcSlider) {
+		this.spawn.itemWeight = (int) (guiNpcSlider.getSliderValue() * 100.0f);
 		if (this.spawn.itemWeight < 1) { this.spawn.itemWeight = 1; }
-		guiNpcSlider.displayString = new TextComponentTranslation("spawning.weightedChance").getFormattedText() + ": " + this.spawn.itemWeight + "%";
+		guiNpcSlider.setDisplayString(new TextComponentTranslation("spawning.weightedChance").getFormattedText() + ": " + this.spawn.itemWeight + "%");
 		if (this.getTextField(2) != null) { this.getTextField(2).setText("" + this.spawn.itemWeight); }
 	}
 
 	@Override
-	public void mousePressed(GuiNpcSlider guiNpcSlider) {
+	public void mousePressed(IGuiNpcSlider guiNpcSlider) {
 	}
 
 	@Override
-	public void mouseReleased(GuiNpcSlider guiNpcSlider) {
-		this.spawn.itemWeight = (int) (guiNpcSlider.sliderValue * 100.0f);
+	public void mouseReleased(IGuiNpcSlider guiNpcSlider) {
+		this.spawn.itemWeight = (int) (guiNpcSlider.getSliderValue() * 100.0f);
 	}
 
 	@Override
@@ -182,8 +182,8 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) {
 			this.save();
 			String selected = this.scroll.getSelected();
 			this.spawn = new SpawnData();
@@ -192,7 +192,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) { }
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
@@ -268,7 +268,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (textField.getId() == 1) {
 			String name = textField.getText();
 			if (name.isEmpty() || this.data.containsKey(name)) {
@@ -283,7 +283,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 		}
 		else if (textField.getId() == 2) {
 			this.spawn.itemWeight = textField.getInteger();
-			if (this.getSlider(4) != null) { this.getSlider(4).displayString = new TextComponentTranslation("spawning.weightedChance").getFormattedText() + ": " + this.spawn.itemWeight; }
+			if (this.getSlider(4) != null) { this.getSlider(4).setDisplayString(new TextComponentTranslation("spawning.weightedChance").getFormattedText() + ": " + this.spawn.itemWeight); }
 		}
 		else if (textField.getId() == 3) {
 			this.spawn.group = textField.getInteger();

@@ -2,9 +2,7 @@ package noppes.npcs.mixin.network;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import net.minecraft.network.EnumPacketDirection;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
+import net.minecraft.network.*;
 import noppes.npcs.EventHooks;
 import noppes.npcs.api.event.PackageReceived;
 import org.spongepowered.asm.mixin.Final;
@@ -32,6 +30,9 @@ public class NetworkManagerMixin {
     @Shadow
     private Channel channel;
 
+    @Shadow
+    private INetHandler packetListener;
+
     /**
      * @author BetaZavr
      * @reason Processing packets with scripts
@@ -42,6 +43,11 @@ public class NetworkManagerMixin {
             PackageReceived event = new PackageReceived(packet);
             EventHooks.onPackageReceived(event, direction == EnumPacketDirection.SERVERBOUND);
             if (event.isCanceled()) { ci.cancel(); }
+            if (event.message != null && event.message.getClass() == packet.getClass()) {
+                ci.cancel();
+                try { ((Packet<INetHandler>) event.message).processPacket(packetListener); }
+                catch (Exception ignored) { }
+            }
         }
     }
 

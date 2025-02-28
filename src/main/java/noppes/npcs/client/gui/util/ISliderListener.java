@@ -2,10 +2,10 @@ package noppes.npcs.client.gui.util;
 
 public interface ISliderListener {
 
-	void mouseDragged(GuiNpcSlider slider);
+	void mouseDragged(IGuiNpcSlider slider);
 
-	void mousePressed(GuiNpcSlider slider);
+	void mousePressed(IGuiNpcSlider slider);
 
-	void mouseReleased(GuiNpcSlider slider);
+	void mouseReleased(IGuiNpcSlider slider);
 
 }

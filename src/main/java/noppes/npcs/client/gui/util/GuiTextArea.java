@@ -18,7 +18,7 @@ import noppes.npcs.config.TrueTypeFont;
 
 public class GuiTextArea
 extends Gui
-implements IComponentGui, IKeyListener, IMouseListener {
+implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 
 	private static TrueTypeFont font;
 
@@ -312,9 +312,16 @@ implements IComponentGui, IKeyListener, IMouseListener {
 		return container.text.length();
 	}
 
+	@Override
+	public void setFocused(boolean bo) { }
+
+	@Override
 	public String getText() {
 		return text;
 	}
+
+	@Override
+	public void unFocused() {  }
 
 	public boolean hasVerticalScrollbar() {
 		return container.visibleLines < container.linesCount;
@@ -324,10 +331,20 @@ implements IComponentGui, IKeyListener, IMouseListener {
 		return active;
 	}
 
+	@Override
 	public boolean isEnabled() {
 		return enabled && visible;
 	}
 
+	@Override
+	public void setEnabled(boolean bo) { enabled = bo; }
+
+	@Override
+	public boolean isMouseOver() {
+		return false;
+	}
+
+	@Override
 	public void keyTyped(char c, int i) {
 		if (!active) {
 			return;
@@ -456,6 +473,7 @@ implements IComponentGui, IKeyListener, IMouseListener {
         undoing = false;
     }
 
+	@Override
 	public boolean mouseClicked(int xMouse, int yMouse, int mouseButton) {
 		if (freeze) {
 			return false;
@@ -517,6 +535,7 @@ implements IComponentGui, IKeyListener, IMouseListener {
 		listener = gui;
 	}
 
+	@Override
 	public void setText(String newText) {
 		newText = newText.replace("\r", "");
 		if (text != null && text.equals(newText)) {
@@ -541,6 +560,72 @@ implements IComponentGui, IKeyListener, IMouseListener {
 	}
 
 	@Override
+	public int getInteger() { return 0; }
+
+	@Override
+	public long getLong() { return 0; }
+
+	@Override
+	public double getDouble() { return 0; }
+
+	@Override
+	public boolean isDouble() { return false; }
+
+	@Override
+	public boolean isEmpty() { return false; }
+
+	@Override
+	public void setTextColor(int color) { }
+
+	@Override
+	public void setDisabledTextColour(int color) { }
+
+	@Override
+	public boolean isFocused() { return false; }
+
+	@Override
+	public long getDefault() { return 0; }
+
+	@Override
+	public double getDoubleDefault() { return 0; }
+
+	@Override
+	public boolean isInteger() { return false; }
+
+	@Override
+	public boolean isLong() { return false; }
+
+	@Override
+	public void setMinMaxDefault(long minValue, long maxValue, long defaultValue) { }
+
+	@Override
+	public boolean isLatinAlphabetOnly() { return false; }
+
+	@Override
+	public void setLatinAlphabetOnly(boolean latinAlphabetOnly) { }
+
+	@Override
+	public void setMinMaxDoubleDefault(double minValue, double maxValue, double defaultValue) { }
+
+	@Override
+	public boolean isAllowUppercase() { return false; }
+
+	@Override
+	public void setAllowUppercase(boolean allowUppercase) { }
+
+	@Override
+	public long getMax() { return 0; }
+
+	@Override
+	public long getMin() { return 0; }
+
+	@Override
+	public double getDoubleMax() { return 0; }
+
+	@Override
+	public double getDoubleMin() { return 0; }
+
+	@Override
 	public int getId() { return id; }
 
 	@Override
@@ -558,6 +643,39 @@ implements IComponentGui, IKeyListener, IMouseListener {
 		}
 		hoverText.add(text);
 	}
+
+	@Override
+	public int getLeft() { return x; }
+
+	@Override
+	public int getTop() { return y; }
+
+	@Override
+	public void setLeft(int left) { x = left; }
+
+	@Override
+	public void setTop(int top) { y = top; }
+
+	@Override
+	public int getWidth() { return width; }
+
+	@Override
+	public int getHeight() { return height; }
+
+	@Override
+	public void customKeyTyped(char c, int id) { keyTyped(c, id); }
+
+	@Override
+	public void customMouseClicked(int mouseX, int mouseY, int mouseButton) { mouseClicked(mouseX, mouseY, mouseButton); }
+
+	@Override
+	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { }
+
+	@Override
+	public boolean isVisible() { return visible; }
+
+	@Override
+	public void setVisible(boolean bo) { visible = bo; }
 
 	public void updateScreen() {
 		++cursorCounter;

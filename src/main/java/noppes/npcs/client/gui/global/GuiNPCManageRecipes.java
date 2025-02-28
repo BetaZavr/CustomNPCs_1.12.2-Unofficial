@@ -55,11 +55,11 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	protected void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+	public void buttonEvent(@Nonnull IGuiNpcButton button, int mouseButton) {
 		if (mouseButton == 1) {
 			ItemStack heldStack = player.inventory.getItemStack();
-			if (button.id >= 10 && button.id < 27) {
-				if (button.id == 10) {
+			if (button.getId() >= 10 && button.getId() < 27) {
+				if (button.getId() == 10) {
 					if (heldStack.isEmpty()) {
 						recipe.product.setCount(Math.max(1, recipe.product.getCount() - 1));
 					}
@@ -82,13 +82,13 @@ implements ICustomScrollListener, ISubGuiListener {
 					else if (!recipe.main || NoppesUtilPlayer.compareItems(recipe.product, heldStack, false, false)) { // +N
 						recipe.product.setCount(Math.min(recipe.product.getMaxStackSize(), recipe.product.getCount() + 1));
 					}
-					if (recipe.product.isEmpty()) { button.layerColor = red; }
+					if (recipe.product.isEmpty()) { button.setLayerColor(red); }
 				}
 				else {
-					int pos = button.id - 11;
+					int pos = button.getId() - 11;
 					ItemStack[] array = recipe.recipeItems.get(pos);
 					if (heldStack.isEmpty() && array != null && array.length > 0) {
-						int p = button.currentStackID;
+						int p = button.getCurrentStackID();
 						int count = Math.max(0, array[p].getCount() - 1);
 						if (count > 0) { array[p].setCount(count); }
 						else {
@@ -122,7 +122,7 @@ implements ICustomScrollListener, ISubGuiListener {
 						}
 					}
 					if (recipe.domen.equals(CustomNpcs.MODID)) {
-						button.layerColor = recipe.isValid() ? array != null && array.length > 0 ? 0 : green : red;
+						button.setLayerColor(recipe.isValid() ? array != null && array.length > 0 ? 0 : green : red);
 					}
 				}
 			}
@@ -130,7 +130,7 @@ implements ICustomScrollListener, ISubGuiListener {
 		if (mouseButton == 2) {
 			ItemStack heldStack = player.inventory.getItemStack();
 			if (heldStack.isEmpty()) {
-				ItemStack stack = button.currentStack.copy();
+				ItemStack stack = button.getCurrentStack().copy();
 				stack.setCount(stack.getMaxStackSize());
 				player.inventory.setItemStack(stack);
 				Client.sendData(EnumPacketServer.SetItem, stack.writeToNBT(new NBTTagCompound()));
@@ -139,19 +139,19 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id >= 10 && button.id < 27) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() >= 10 && button.getId() < 27) {
 			if (!recipe.domen.equals(CustomNpcs.MODID)) { return; }
 			// show list of ingredients
-			if (button.id != 10 && isShiftKeyDown()) {
-				if (recipe.recipeItems.get(button.id - 11).length > 0) {
-					this.setSubGui(new SubGuiEditIngredients(button.id - 11, recipe.recipeItems.get(button.id - 11)));
+			if (button.getId() != 10 && isShiftKeyDown()) {
+				if (recipe.recipeItems.get(button.getId() - 11).length > 0) {
+					this.setSubGui(new SubGuiEditIngredients(button.getId() - 11, recipe.recipeItems.get(button.getId() - 11)));
 				}
 				return;
 			}
 			ItemStack heldStack = player.inventory.getItemStack();
 			// product
-			if (button.id == 10) {
+			if (button.getId() == 10) {
 				if (isAltKeyDown()) { recipe.product.setCount(1); }
 				else if (recipe.product.isEmpty()) {
 					ItemStack stack = null;
@@ -175,11 +175,11 @@ implements ICustomScrollListener, ISubGuiListener {
 					else if (recipe.main) { recipe.product = heldStack.copy(); } // replace
 					button.setStacks(recipe.product);
 				}
-				if (recipe.product.isEmpty()) { button.layerColor = red; }
+				if (recipe.product.isEmpty()) { button.setLayerColor(red); }
 			}
 			// ingredient
 			else {
-				int pos = button.id - 11;
+				int pos = button.getId() - 11;
 				ItemStack[] array = recipe.recipeItems.get(pos);
 				if (isCtrlKeyDown()) { // try to add new
 					if (heldStack.isEmpty() || array.length >= 16) { return; }
@@ -205,8 +205,8 @@ implements ICustomScrollListener, ISubGuiListener {
 					}
 				}
 				else if (isAltKeyDown()) { // set count == 1
-					if (button.currentStackID < array.length) {
-						array[button.currentStackID].setCount(1);
+					if (button.getCurrentStackID() < array.length) {
+						array[button.getCurrentStackID()].setCount(1);
 						button.setStacks(array);
 						recipe.recipeItems.put(pos, array);
 					} else if (array.length == 0 && !heldStack.isEmpty()) {
@@ -225,7 +225,7 @@ implements ICustomScrollListener, ISubGuiListener {
 				}
 				else { // +/- count? and set display found stack
 					if (heldStack.isEmpty()) { // -1
-						int p = button.currentStackID;
+						int p = button.getCurrentStackID();
 						int count = Math.max(0, array[p].getCount() - 1);
 						if (count > 0) { array[p].setCount(count); }
 						else {
@@ -252,20 +252,20 @@ implements ICustomScrollListener, ISubGuiListener {
 							}
 						}
 						if (!found) {
-							array[button.currentStackID] = heldStack.copy();
+							array[button.getCurrentStackID()] = heldStack.copy();
 							button.setStacks(array);
-							button.setCurrentStackPos(button.currentStackID);
+							button.setCurrentStackPos(button.getCurrentStackID());
 						}
 					}
 					recipe.recipeItems.put(pos, array);
 				}
 				if (recipe.domen.equals(CustomNpcs.MODID)) {
-					button.layerColor = recipe.isValid() ? array != null && array.length > 0 ? 0 : green : red;
+					button.setLayerColor(recipe.isValid() ? array != null && array.length > 0 ? 0 : green : red);
 				}
 			}
 			return;
 		}
-		switch (button.id) {
+		switch (button.getId()) {
 			case 0: { // global type
 				this.save();
 				recipe.clear();
@@ -381,8 +381,8 @@ implements ICustomScrollListener, ISubGuiListener {
 			return;
 		}
 		for (int i = 11; i < 27; i++) {
-			if (this.getButton(i) != null && this.getButton(i).visible && this.getButton(i).isMouseOver()) {
-				if (getButton(i).currentStack.isEmpty()) { continue; }
+			if (this.getButton(i) != null && this.getButton(i).isVisible() && this.getButton(i).isMouseOver()) {
+				if (getButton(i).getCurrentStack().isEmpty()) { continue; }
 				ITextComponent hover = new TextComponentTranslation("recipe.hover.ingredients", "" + (i - 11));
 				if (recipe.domen.equals(CustomNpcs.MODID)) {
 					hover.appendSibling(new TextComponentTranslation("recipe.hover.ingredient.0"));
@@ -390,9 +390,9 @@ implements ICustomScrollListener, ISubGuiListener {
 					hover.appendSibling(new TextComponentTranslation("recipe.hover.ingredient.2"));
 				}
 				hover.appendSibling(new TextComponentTranslation("recipe.hover.ingredient.3"));
-				if (getButton(i).currentStack != null) {
+				if (getButton(i).getCurrentStack() != null) {
 					hover.appendSibling(new TextComponentString("<br>"));
-					List<String> list = getButton(i).currentStack.getTooltip(player, player.capabilities.isCreativeMode ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
+					List<String> list = getButton(i).getCurrentStack().getTooltip(player, player.capabilities.isCreativeMode ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
 					for (String str : list) {
 						hover.appendSibling(new TextComponentString("<br>" + str));
 					}
@@ -624,7 +624,7 @@ implements ICustomScrollListener, ISubGuiListener {
 				int id = 11 + h * recipe.height + w;
 				int slotID = h * recipe.width + w;
 				ItemStack[] stacks = recipe.recipeItems.get(slotID);
-				button = getButton(id);
+				button = (GuiNpcButton) getButton(id);
 				button.setStacks(stacks);
 				if (recipe.domen.equals(CustomNpcs.MODID)) { button.layerColor = recipe.isValid() ? (stacks != null && stacks.length > 0) ? 0 : green : red; }
 			}
@@ -658,8 +658,8 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
-		if (scroll.id == 0) { // Group
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) { // Group
 			if (recipe.group.equals(groups.getSelected()) && !data.get(recipe.global).containsKey(groups.getSelected())) { return; }
 			this.save();
 			recipe.clear();
@@ -678,8 +678,8 @@ implements ICustomScrollListener, ISubGuiListener {
     }
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-		switch (scroll.id) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
+		switch (scroll.getId()) {
 			case 0: { // rename Group
 				this.setSubGui(new SubGuiEditText(2, new String[] { selection }));
 				break;
@@ -692,7 +692,7 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcAvailability) {
 			this.save();
 		}
@@ -706,8 +706,8 @@ implements ICustomScrollListener, ISubGuiListener {
 				}
 				if (!list.isEmpty()) { stacks = list.toArray(stacks); }
 			}
-			if (getButton(11 + subgui.id) != null) {
-				GuiNpcButton button = getButton(11 + subgui.id);
+			if (getButton(11 + subgui.getId()) != null) {
+				GuiNpcButton button = (GuiNpcButton) getButton(11 + subgui.getId());
 				button.setStacks(stacks);
 				button.setCurrentStackPos(0);
 				if (stacks.length == 0) {
@@ -716,19 +716,19 @@ implements ICustomScrollListener, ISubGuiListener {
 							new Color(0xFFF07070).getRGB();
 				}
 			}
-			recipe.recipeItems.put(subgui.id, stacks);
+			recipe.recipeItems.put(subgui.getId(), stacks);
 		}
 		else if (subgui instanceof SubGuiEditText) {
 			if (((SubGuiEditText) subgui).cancelled) {
 				return;
 			}
-			if (subgui.id == 0) { // Add new Group
+			if (subgui.getId() == 0) { // Add new Group
 				this.save();
 				recipe.clear();
 				recipe.group = Util.instance.getResourceName(((SubGuiEditText) subgui).text[0]);
 				recipe.name = "default";
 				Client.sendData(EnumPacketServer.RecipesAddGroup, recipe.global, recipe.group);
-			} else if (subgui.id == 1) { // Add new Recipe
+			} else if (subgui.getId() == 1) { // Add new Recipe
 				this.save();
 				String name = ((SubGuiEditText) subgui).text[0];
 				while (true) {
@@ -744,15 +744,15 @@ implements ICustomScrollListener, ISubGuiListener {
 				}
 				recipe.name = name;
 				Client.sendData(EnumPacketServer.RecipeAdd, recipe.getNbt());
-			} else if (subgui.id == 2) { // Rename Group
+			} else if (subgui.getId() == 2) { // Rename Group
 				String old = recipe.group;
 				recipe.group = Util.instance.getResourceName(((SubGuiEditText) subgui).text[0]);
 				Client.sendData(EnumPacketServer.RecipesRenameGroup, recipe.global, old, recipe.group);
-			} else if (subgui.id == 3) { // Rename Recipe
+			} else if (subgui.getId() == 3) { // Rename Recipe
 				String old = recipe.name;
 				recipe.name = Util.instance.getResourceName(((SubGuiEditText) subgui).text[0]);
 				Client.sendData(EnumPacketServer.RecipesRename, recipe.global, old, recipe.group, recipe.name);
-			} else if (subgui.id == 4) { // Copy vanilla Recipe
+			} else if (subgui.getId() == 4) { // Copy vanilla Recipe
 				String group = ((SubGuiEditText) subgui).text[0];
 				if (data.get(recipe.global).containsKey(group) && data.get(recipe.global).get(group).size() >= 16) { return; }
 				recipe.group = Util.instance.getResourceName(group);

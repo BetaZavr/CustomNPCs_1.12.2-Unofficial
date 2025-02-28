@@ -104,12 +104,11 @@ public class BorderController implements IBorderHandler {
 
 	@Override
 	public List<Zone3D> getNearestRegions(int dimensionID, double xPos, double yPos, double zPos, double distance) {
-		AxisAlignedBB searchBox = new AxisAlignedBB(xPos, 0.0d, zPos, 1.0d, 1.0d, 1.0d);
-		searchBox.expand(distance, 0.0d, distance);
+		AxisAlignedBB searchBox = new AxisAlignedBB(xPos - distance, 0.0d, zPos - distance, xPos + distance + 1.0d, 255.0d, zPos + distance + 1.0d);
 		List<Zone3D> regions = new ArrayList<>();
 		for (Zone3D reg : this.regions.values()) {
 			if (reg.dimensionID != dimensionID) { continue; }
-			if (searchBox.intersects(reg.getAxisAlignedBB(true))) { regions.add(reg); }
+			if (searchBox.intersects(reg.getAxisAlignedBB())) { regions.add(reg); }
 		}
 		return regions;
 	}

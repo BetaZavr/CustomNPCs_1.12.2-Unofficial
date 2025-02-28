@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.model;
 
 import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.api.event.ClientEvent;
+import noppes.npcs.client.gui.util.*;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -20,13 +21,6 @@ import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.mainmenu.GuiNpcDisplay;
 import noppes.npcs.client.gui.model.GuiCreationParts.GuiPartEyes;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcSlider;
-import noppes.npcs.client.gui.util.ISliderListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.MarkData;
@@ -181,10 +175,10 @@ implements ISubGuiListener, ISliderListener {
 			this.openGui(new GuiCreationEntities(this.npc));
 			return;
 		}
-		this.getButton(this.active).enabled = false;
+		this.getButton(this.active).setEnabled(false);
 		this.addButton(new GuiNpcButton(66, this.guiLeft + this.xSize - 20, this.guiTop, 20, 20, "X"));
 		this.addLabel(new GuiNpcLabel(0, GuiCreationScreenInterface.Message, this.guiLeft + 120, this.guiTop + this.ySize - 10, 16711680));
-		this.getLabel(0).center(this.xSize - 120);
+		this.getLabel(0).setCenter(this.xSize - 120);
 		this.addSlider(new GuiNpcSlider(this, 500, this.guiLeft + this.xOffset + 142, this.guiTop + 210, 120, 20, GuiCreationScreenInterface.rotation));
 	}
 
@@ -196,19 +190,19 @@ implements ISubGuiListener, ISliderListener {
 	}
 
 	@Override
-	public void mouseDragged(GuiNpcSlider slider) {
-		if (slider.id == 500) {
-			GuiCreationScreenInterface.rotation = slider.sliderValue;
+	public void mouseDragged(IGuiNpcSlider slider) {
+		if (slider.getId() == 500) {
+			GuiCreationScreenInterface.rotation = slider.getSliderValue();
 			slider.setString("" + (GuiCreationScreenInterface.rotation * 360.0f));
 		}
 	}
 
 	@Override
-	public void mousePressed(GuiNpcSlider slider) {
+	public void mousePressed(IGuiNpcSlider slider) {
 	}
 
 	@Override
-	public void mouseReleased(GuiNpcSlider slider) {
+	public void mouseReleased(IGuiNpcSlider slider) {
 	}
 
 	@Override
@@ -232,7 +226,7 @@ implements ISubGuiListener, ISliderListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		this.initGui();
 	}
 

@@ -7,6 +7,7 @@ import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.api.mixin.pathfinding.IPathMixin;
 import noppes.npcs.constants.EnumGuiType;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.block.Block;
@@ -1110,6 +1111,16 @@ public class ClientGuiEventHandler extends Gui {
 			tempEntity.clear();
 		}
 		PlayerOverlayHUD hud = ClientProxy.playerData.hud;
+
+		boolean isMoved = Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode()) ||
+				Keyboard.isKeyDown(mc.gameSettings.keyBindBack.getKeyCode()) ||
+				Keyboard.isKeyDown(mc.gameSettings.keyBindRight.getKeyCode()) ||
+				Keyboard.isKeyDown(mc.gameSettings.keyBindLeft.getKeyCode());
+		if (hud.isMoved != isMoved) {
+			hud.isMoved = isMoved;
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved, isMoved);
+		}
+
 		if ((hasNewMail || startMail > 0L) && CustomNpcs.MailWindow != -1) { // Mail
 			CustomNpcs.MailWindow = 1;
 			int[] offsets = new int[2];

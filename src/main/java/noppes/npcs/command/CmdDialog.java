@@ -50,7 +50,7 @@ public class CmdDialog extends CommandNoppesBase {
 			throw new CommandException("Unknown player '%s'", playername);
 		}
 		for (PlayerData playerdata : data) {
-			playerdata.dialogData.dialogsRead.add(diagid);
+			playerdata.dialogData.read(diagid);
 			playerdata.save(true);
 		}
 	}

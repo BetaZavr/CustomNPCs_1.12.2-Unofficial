@@ -8,10 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNpcItemGiver;
@@ -33,16 +30,16 @@ extends GuiContainerNPCInterface2 {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			role.givingMethod = button.getValue();
 		}
-		if (button.id == 1) {
+		if (button.getId() == 1) {
 			role.cooldownType = button.getValue();
-			getTextField(0).enabled = role.isOnTimer();
-			getLabel(0).enabled = role.isOnTimer();
+			getTextField(0).setEnabled(role.isOnTimer());
+			getLabel(0).setEnabled(role.isOnTimer());
 		}
-		if (button.id == 4) {
+		if (button.getId() == 4) {
 			setSubGui(new SubGuiNpcAvailability(role.availability, parent));
 		}
 	}
@@ -89,7 +86,7 @@ extends GuiContainerNPCInterface2 {
 	public void save() {
 		List<String> lines = new ArrayList<>();
 		for (int i = 1; i < 4; ++i) {
-			GuiNpcTextField tf = getTextField(i);
+			IGuiNpcTextField tf = getTextField(i);
 			if (!tf.isEmpty()) {
 				lines.add(tf.getText());
 			}

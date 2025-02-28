@@ -6,10 +6,7 @@ import java.util.Vector;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IScrollData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.Bank;
@@ -67,15 +64,15 @@ implements IScrollData, ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) {
 			role.bankId = data.get(scroll.getSelected());
 			save();
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 		close();
 		CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 	}

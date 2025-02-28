@@ -14,17 +14,7 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiDataSend;
 import noppes.npcs.client.gui.SubGuiEditText;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.IScrollData;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerData;
@@ -60,8 +50,8 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		int id = button.id;
+	public void buttonEvent(IGuiNpcButton button) {
+		int id = button.getId();
 		GuiNpcTextField.unfocus();
 		String title = selectedPlayer;
 		switch (selection) {
@@ -229,7 +219,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			Client.sendData(EnumPacketServer.PlayerDataRemove, selection, selectedPlayer, selected);
 			selected = null;
 			selectedPlayer = null;
-			scroll.selected = -1;
+			scroll.setSelect(-1);
 			initButtons();
 		} else if (id == 1) {
 			Client.sendData(EnumPacketServer.PlayerDataSet, selection.ordinal(), selectedPlayer, 3, -1);
@@ -241,7 +231,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			Client.sendData(EnumPacketServer.PlayerDataRemove, selection, selectedPlayer, selected);
 			selected = null;
 			selectedPlayer = null;
-			scroll.selected = -1;
+			scroll.setSelect(-1);
 		} else if (id == 12) {
 			SubGuiDataSend subgui = new SubGuiDataSend(0);
 			setSubGui(subgui);
@@ -261,7 +251,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 				int factionId = data.get(scrollData.get(scroll.getSelected()));
 				SubGuiEditText subgui = new SubGuiEditText(1, "");
 				Faction f = FactionController.instance.factions.get(factionId);
-				String v = scroll.getHoversTexts().get(scroll.selected).get(0);
+				String v = scroll.getHoversTexts().get(scroll.getSelect()).get(0);
 				int value = -1;
 				try {
 					value = Integer.parseInt(v.substring(v.indexOf(((char) 167) + "3") + 2));
@@ -336,13 +326,13 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 				scroll.setSize(120, 138);
 			}
 		}
-		getLabel(1).enabled = selection != EnumPlayerData.Game;
+		getLabel(1).setEnabled(selection != EnumPlayerData.Game);
 		getTextField(0).setVisible(selection != EnumPlayerData.Game);
 		if (getLabel(2) != null) {
-			getLabel(2).enabled = selection == EnumPlayerData.Game;
+			getLabel(2).setEnabled(selection == EnumPlayerData.Game);
 		}
 		if (getLabel(3) != null) {
-			getLabel(3).enabled = selection == EnumPlayerData.Game;
+			getLabel(3).setEnabled(selection == EnumPlayerData.Game);
 		}
 		if (getTextField(1) != null) {
 			getTextField(1).setVisible(selection == EnumPlayerData.Game);
@@ -501,7 +491,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		selected = scroll.getSelected();
 		if (selection == EnumPlayerData.Players) {
 			selectedPlayer = selected;
@@ -511,7 +501,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 		editData();
 	}
 
@@ -794,17 +784,17 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText) {
-			if (subgui.id == 0) { // add
+			if (subgui.getId() == 0) { // add
 				try {
 					Client.sendData(EnumPacketServer.PlayerDataSet, selection.ordinal(), selectedPlayer, 0, Integer.parseInt(((SubGuiEditText) subgui).text[0]));
 				} catch (Exception e) { LogWriter.error("Error:", e); }
-			} else if (subgui.id == 1) { // set
+			} else if (subgui.getId() == 1) { // set
 				try {
 					Client.sendData(EnumPacketServer.PlayerDataSet, selection.ordinal(), selectedPlayer, 2, data.get(scrollData.get(scroll.getSelected())), Integer.parseInt(((SubGuiEditText) subgui).text[0]));
 				} catch (Exception e) { LogWriter.error("Error:", e); }
-			} else if (subgui.id == 2) { // change market slot
+			} else if (subgui.getId() == 2) { // change market slot
 				if (gameData == null || !data.containsKey(scroll.getSelected())) {
 					return;
 				}
@@ -827,7 +817,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (subgui != null && subgui instanceof SubGuiDataSend) {
 			subgui.unFocused(textField);
 			return;

@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.List;
 
 import noppes.npcs.LogWriter;
+import noppes.npcs.client.gui.util.*;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.gui.ScaledResolution;
@@ -15,14 +16,6 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.select.GuiNPCSelection;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.data.Quest;
@@ -51,53 +44,53 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
-		case 0: { // icon select
-			GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.icon.toString(), "png", 3);
-			subGui.id = 0;
-			setSubGui(subGui);
-			break;
-		}
-		case 1: { // completion type
-			quest.completion = EnumQuestCompletion.values()[button.getValue()];
-			break;
-		}
-		case 2: { // select npc
-			setSubGui(new GuiNPCSelection(quest.completer));
-			break;
-		}
-		case 3: { // texture select
-			GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.texture == null ? "" : quest.texture.toString(), "png", 3);
-			subGui.id = 1;
-			setSubGui(subGui);
-			break;
-		}
-		case 4: { // reward text
-			setSubGui(new SubGuiNpcTextArea(0, quest.rewardText));
-			break;
-		}
-		case 5: { // extra button type
-			quest.extraButton = button.getValue();
-			initGui();
-			break;
-		}
-		case 6: { // extra button hover text
-			setSubGui(new SubGuiNpcTextArea(1, quest.extraButtonText));
-			break;
-		}
-		case 7: {
-			quest.showProgressInChat = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 8: {
-			quest.showProgressInWindow = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 66: {
-			close();
-			break;
-		}
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
+			case 0: { // icon select
+				GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.icon.toString(), "png", 3);
+				subGui.id = 0;
+				setSubGui(subGui);
+				break;
+			}
+			case 1: { // completion type
+				quest.completion = EnumQuestCompletion.values()[button.getValue()];
+				break;
+			}
+			case 2: { // select npc
+				setSubGui(new GuiNPCSelection(quest.completer));
+				break;
+			}
+			case 3: { // texture select
+				GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.texture == null ? "" : quest.texture.toString(), "png", 3);
+				subGui.id = 1;
+				setSubGui(subGui);
+				break;
+			}
+			case 4: { // reward text
+				setSubGui(new SubGuiNpcTextArea(0, quest.rewardText));
+				break;
+			}
+			case 5: { // extra button type
+				quest.extraButton = button.getValue();
+				initGui();
+				break;
+			}
+			case 6: { // extra button hover text
+				setSubGui(new SubGuiNpcTextArea(1, quest.extraButtonText));
+				break;
+			}
+			case 7: {
+				quest.showProgressInChat = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			}
+			case 8: {
+				quest.showProgressInWindow = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			}
+			case 66: {
+				close();
+				break;
+			}
 		}
 	}
 
@@ -108,11 +101,10 @@ implements ITextfieldListener, ISubGuiListener {
 		double u = 170.0d;
 		double v = 90.0d;
 		if (getButton(2) != null) {
-			u = getButton(2).x - 25;
-			v = getButton(2).y - 26;
+			u = getButton(2).getLeft() - 25;
+			v = getButton(2).getTop() - 26;
 		}
-		GlStateManager.translate((sw.getScaledWidth_double() + u) / 2.0d, (sw.getScaledHeight_double() + v) / 2.0d,
-				10.0d);
+		GlStateManager.translate((sw.getScaledWidth_double() + u) / 2.0d, (sw.getScaledHeight_double() + v) / 2.0d, 10.0d);
 		String modelName = "";
 		if (npc.display.getModel() != null) {
 			modelName = npc.display.getModel();
@@ -147,8 +139,8 @@ implements ITextfieldListener, ISubGuiListener {
 		int u = guiLeft + 182;
 		int v = guiTop + 97;
 		if (getButton(2) != null) {
-			u = getButton(2).x + getButton(2).width + 9;
-			v = getButton(2).y + 2;
+			u = getButton(2).getLeft() + getButton(2).getWidth() + 9;
+			v = getButton(2).getTop() + 2;
 		}
 		// Back
 		GlStateManager.pushMatrix();
@@ -185,8 +177,8 @@ implements ITextfieldListener, ISubGuiListener {
 			u = guiLeft + 98;
 			v = guiTop + 134;
 			if (getButton(5) != null) {
-				u = getButton(5).x - 12;
-				v = getButton(5).y + 3;
+				u = getButton(5).getLeft() - 12;
+				v = getButton(5).getTop() + 3;
 			}
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(u, v, 100.0f);
@@ -202,8 +194,8 @@ implements ITextfieldListener, ISubGuiListener {
 		u = guiLeft + 214;
 		v = guiTop + 4;
 		if (getButton(0) != null) {
-			u = getButton(0).x + getButton(0).width + 5;
-			v = getButton(0).y - 1;
+			u = getButton(0).getLeft() + getButton(0).getWidth() + 5;
+			v = getButton(0).getTop() - 1;
 		}
 		int color = new Color(0xFF404040).getRGB();
 		drawGradientRect(u, v, u + 34, v + 34, color, color);
@@ -229,8 +221,8 @@ implements ITextfieldListener, ISubGuiListener {
 		u = guiLeft + 214;
 		v = guiTop + 38;
 		if (getButton(3) != null) {
-			u = getButton(3).x + getButton(3).width + 5;
-			v = getButton(3).y - 1;
+			u = getButton(3).getLeft() + getButton(3).getWidth() + 5;
+			v = getButton(3).getTop() - 1;
 		}
 		drawGradientRect(u, v, u + 34, v + 34, color, color);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -328,8 +320,8 @@ implements ITextfieldListener, ISubGuiListener {
 		}
 		int u = guiLeft + 214, v = guiTop + 5;
 		if (getButton(0) != null) {
-			u = getButton(0).x + getButton(0).width + 6;
-			v = getButton(0).y;
+			u = getButton(0).getLeft() + getButton(0).getWidth() + 6;
+			v = getButton(0).getTop();
 		}
 		if (isMouseHover(mouseX, mouseY, u, v, 32, 32)) {
 			GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.icon.toString(), "png", 3);
@@ -339,8 +331,8 @@ implements ITextfieldListener, ISubGuiListener {
 		}
 		v = guiTop + 37;
 		if (getButton(3) != null) {
-			u = getButton(3).x + getButton(3).width + 6;
-			v = getButton(3).y;
+			u = getButton(3).getLeft() + getButton(3).getWidth() + 6;
+			v = getButton(3).getTop();
 		}
 		if (isMouseHover(mouseX, mouseY, u, v, 32, 32)) {
 			GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.texture == null ? "" : quest.texture.toString(), "png", 3);
@@ -354,16 +346,16 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
-			if (((SubGuiNpcTextArea) subgui).getId() == 0) {
+			if (subgui.getId() == 0) {
 				quest.rewardText = ((SubGuiNpcTextArea) subgui).text;
-			} else if (((SubGuiNpcTextArea) subgui).getId() == 1) {
+			} else if (subgui.getId() == 1) {
 				quest.extraButtonText = ((SubGuiNpcTextArea) subgui).text;
 			}
 			initGui();
 		} else if (subgui instanceof GuiTextureSelection) {
-			if (subgui.id == 0) {
+			if (subgui.getId() == 0) {
 				quest.icon = ((GuiTextureSelection) subgui).resource;
 				if (quest.icon == null) {
 					quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
@@ -387,7 +379,7 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (textField.getId() == 0) {
 			if (textField.getText().isEmpty()) {
 				quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");

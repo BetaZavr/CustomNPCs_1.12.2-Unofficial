@@ -3,12 +3,15 @@ package noppes.npcs.api;
 import java.io.File;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.INpc;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Loader;
@@ -22,18 +25,12 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
-import noppes.npcs.api.handler.IAnimationHandler;
-import noppes.npcs.api.handler.IBorderHandler;
-import noppes.npcs.api.handler.ICloneHandler;
-import noppes.npcs.api.handler.IDialogHandler;
-import noppes.npcs.api.handler.IDimensionHandler;
-import noppes.npcs.api.handler.IFactionHandler;
-import noppes.npcs.api.handler.IKeyBinding;
-import noppes.npcs.api.handler.IMarcetHandler;
-import noppes.npcs.api.handler.IQuestHandler;
-import noppes.npcs.api.handler.IRecipeHandler;
+import noppes.npcs.api.handler.*;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
+import noppes.npcs.client.gui.util.IEditNPC;
+import noppes.npcs.client.gui.util.IResourceData;
+import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class NpcAPI {
 
@@ -140,5 +137,9 @@ public abstract class NpcAPI {
 	public abstract ICustomNpc<?> spawnNPC(World world, int x, int y, int z);
 
 	public abstract INbt stringToNbt(String str);
+
+	public abstract ICustomPlayerData getPlayerData(EntityPlayer player);
+
+	public abstract IResourceData getResourceData(ResourceLocation texture, int u, int v, int width, int height);
 
 }

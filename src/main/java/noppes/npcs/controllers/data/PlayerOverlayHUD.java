@@ -367,7 +367,6 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 		NBTTagCompound hudNBT = new NBTTagCompound();
 		hudNBT.setByteArray("ShowElementTypes", this.showElementTypes);
 
-		hudNBT.setBoolean("IsMoved", this.isMoved);
 		NBTTagList list = new NBTTagList();
 		list.appendTag(new NBTTagDouble(this.windowSize[0]));
 		list.appendTag(new NBTTagDouble(this.windowSize[1]));
@@ -447,10 +446,6 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 			}
 		}
 		return false;
-	}
-
-	public boolean isMoved() {
-		return this.isMoved;
 	}
 
 	@Override

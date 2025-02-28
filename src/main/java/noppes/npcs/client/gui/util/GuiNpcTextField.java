@@ -15,18 +15,18 @@ import java.util.List;
 
 public class GuiNpcTextField
 extends GuiTextField
-implements IComponentGui {
+implements IComponentGui, IGuiNpcTextField {
 
 	public static char[] filePath = new char[] { ':', '*', '?', '"', '<', '>', '&', '|' };
 
-	public static GuiNpcTextField activeTextfield = null;
+	public static IGuiNpcTextField activeTextfield = null;
 	private final List<String> hoverText = new ArrayList<>();
 
 	public static boolean isActive() {
 		return GuiNpcTextField.activeTextfield != null;
 	}
 	public static void unfocus() {
-		GuiNpcTextField prev = GuiNpcTextField.activeTextfield;
+		IGuiNpcTextField prev = GuiNpcTextField.activeTextfield;
 		GuiNpcTextField.activeTextfield = null;
 		if (prev != null) {
 			prev.unFocused();
@@ -126,30 +126,34 @@ implements IComponentGui {
 		drawTextBox();
 	}
 
+	@Override
 	public double getDouble() {
-		double d = 0.0d;
+		double d = defD;
 		try {
 			d = Double.parseDouble(getText().replace(",", "."));
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException ignored) { }
 		return d;
 	}
 
+	@Override
 	public int getInteger() {
-		int i = 0;
+		int i = (int) def;
 		try {
 			i = Integer.parseInt(getText());
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException ignored) { }
 		return i;
 	}
 
+	@Override
 	public long getLong() {
 		long i = 0L;
 		try {
 			i = Long.parseLong(getText());
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException ignored) { }
 		return i;
 	}
 
+	@Override
 	public boolean isDouble() {
 		try {
 			Double.parseDouble(getText().replace(",", "."));
@@ -158,10 +162,18 @@ implements IComponentGui {
 		return false;
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return getText().trim().isEmpty();
 	}
 
+	@Override
+	public long getDefault() { return def; }
+
+	@Override
+	public double getDoubleDefault() { return defD; }
+
+	@Override
 	public boolean isInteger() {
 		try {
 			Integer.parseInt(getText());
@@ -170,6 +182,7 @@ implements IComponentGui {
 		return false;
 	}
 
+	@Override
 	public boolean isLong() {
 		try {
 			Long.parseLong(getText());
@@ -210,6 +223,13 @@ implements IComponentGui {
 		return false;
 	}
 
+	@Override
+	public boolean isVisible() { return getVisible(); }
+
+	@Override
+	public boolean isEnabled() { return enabled; }
+
+	@Override
 	public void setMinMaxDefault(long minValue, long maxValue, long defaultValue) {
 		numbersOnly = true;
 		doubleNumbersOnly = false;
@@ -218,6 +238,7 @@ implements IComponentGui {
 		def = defaultValue;
 	}
 
+	@Override
 	public void setMinMaxDoubleDefault(double minValue, double maxValue, double defaultValue) {
 		numbersOnly = false;
 		doubleNumbersOnly = true;
@@ -226,12 +247,28 @@ implements IComponentGui {
 		defD = defaultValue;
 	}
 
+	@Override
 	public boolean isAllowUppercase() { return allowUppercase; }
 
+	@Override
 	public void setAllowUppercase(boolean isAllowUppercase) { allowUppercase = isAllowUppercase; }
 
+	@Override
+	public long getMax() { return max; }
+
+	@Override
+	public long getMin() { return min; }
+
+	@Override
+	public double getDoubleMax() { return maxD; }
+
+	@Override
+	public double getDoubleMin() { return minD; }
+
+	@Override
 	public boolean isLatinAlphabetOnly() { return latinAlphabetOnly; }
 
+	@Override
 	public void setLatinAlphabetOnly(boolean isLatinAlphabetOnly) { latinAlphabetOnly = isLatinAlphabetOnly; }
 
 	public boolean textboxKeyTyped(char typedChar, int keyCode) {
@@ -246,6 +283,7 @@ implements IComponentGui {
 		return charAllowed(typedChar, keyCode) && canEdit && super.textboxKeyTyped(typedChar, keyCode);
 	}
 
+	@Override
 	public void unFocused() {
 		if (numbersOnly) {
 			if (isEmpty() || !isInteger()) {
@@ -288,6 +326,30 @@ implements IComponentGui {
 		}
 		hoverText.add(text);
 	}
+
+	@Override
+	public int getLeft() { return x; }
+
+	@Override
+	public int getTop() { return y; }
+
+	@Override
+	public void setLeft(int left) { x = left; }
+
+	@Override
+	public void setTop(int top) { y = top; }
+
+	@Override
+	public int getHeight() { return height; }
+
+	@Override
+	public void customKeyTyped(char c, int id) { textboxKeyTyped(c, id); }
+
+	@Override
+	public void customMouseClicked(int mouseX, int mouseY, int mouseButton) { mouseClicked(mouseX, mouseY, mouseButton); }
+
+	@Override
+	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { }
 
 	public void updateScreen() {
 		if (enabled) { updateCursorCounter(); }

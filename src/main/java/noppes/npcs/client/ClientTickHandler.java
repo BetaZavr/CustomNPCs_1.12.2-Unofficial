@@ -13,6 +13,7 @@ import noppes.npcs.*;
 import noppes.npcs.api.mixin.client.audio.ISoundHandlerMixin;
 import noppes.npcs.api.mixin.client.audio.ISoundManagerMixin;
 import noppes.npcs.api.mixin.client.gui.IGuiYesNoMixin;
+import noppes.npcs.client.gui.util.IEditNPC;
 import noppes.npcs.constants.*;
 import org.lwjgl.input.Keyboard;
 
@@ -254,13 +255,13 @@ public class ClientTickHandler {
 		if (mc.currentScreen instanceof GuiNPCInterface || mc.currentScreen instanceof GuiContainerNPCInterface) {
 			SubGuiInterface subGui;
 			if (mc.currentScreen instanceof GuiNPCInterface) {
-				subGui = ((GuiNPCInterface) mc.currentScreen).getSubGui();
+				subGui = (SubGuiInterface) ((GuiNPCInterface) mc.currentScreen).getSubGui();
 			} else {
-				subGui = ((GuiContainerNPCInterface) mc.currentScreen).getSubGui();
+				subGui = (SubGuiInterface) ((GuiContainerNPCInterface) mc.currentScreen).getSubGui();
 			}
 			if (subGui != null && subGui.getSubGui() != null) {
 				while (subGui.getSubGui() != null) {
-					subGui = subGui.getSubGui();
+					subGui = (SubGuiInterface) subGui.getSubGui();
 				}
 			}
 			if (ClientEventHandler.subgui != subGui) {
@@ -325,7 +326,6 @@ public class ClientTickHandler {
 				if (key == 219 || key == 220) { isMetaPressed = false; }
 			}
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved, ClientProxy.playerData.hud.hasOrKeysPressed(ClientProxy.frontButton.getKeyCode(), ClientProxy.backButton.getKeyCode(), ClientProxy.leftButton.getKeyCode(), ClientProxy.rightButton.getKeyCode()));
 		} else if (!ClientProxy.playerData.hud.keyPress.isEmpty()) {
 			ClientProxy.playerData.hud.keyPress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);

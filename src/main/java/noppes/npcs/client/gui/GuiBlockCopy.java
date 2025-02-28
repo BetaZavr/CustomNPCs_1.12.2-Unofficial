@@ -4,12 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.blocks.tiles.TileCopy;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 
 public class GuiBlockCopy
@@ -33,14 +28,14 @@ implements IGuiData, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			NBTTagCompound compound = new NBTTagCompound();
 			tile.writeToNBT(compound);
 			Client.sendData(EnumPacketServer.SchematicStore, getTextField(5).getText(), getButton(6).getValue(), compound);
 			close();
 		}
-		if (button.id == 1) {
+		if (button.getId() == 1) {
 			close();
 		}
 	}
@@ -89,7 +84,7 @@ implements IGuiData, ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		switch (textfield.getId()) {
 			case 0: {
 				tile.height = (short) textfield.getInteger();

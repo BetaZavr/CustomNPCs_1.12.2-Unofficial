@@ -6,13 +6,7 @@ import java.util.Map;
 
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.NoppesStringUtils;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityScoreboard;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.AvailabilityScoreboardData;
@@ -38,8 +32,8 @@ implements ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			if (select.isEmpty()) {
 				return;
 			}
@@ -49,14 +43,14 @@ implements ICustomScrollListener, ITextfieldListener {
 			availability.scoreboards.put(obj, asd);
 			select = obj + " - " + chr + "7 (" + chr + "3" + new TextComponentTranslation(("availability." + asd.scoreboardType).toLowerCase()).getFormattedText() + chr + "7: " + chr + "9" + asd.scoreboardValue + chr + "7)";
 			initGui();
-		} else if (button.id == 2) {
+		} else if (button.getId() == 2) {
 			availability.scoreboards.remove(dataNames.get(select));
 			select = "";
 			initGui();
-		} else if (button.id == 3) { // More
+		} else if (button.getId() == 3) { // More
 			save();
 			initGui();
-		} else if (button.id == 66) {
+		} else if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -66,7 +60,7 @@ implements ICustomScrollListener, ITextfieldListener {
 		super.initGui();
 		// title
 		GuiNpcLabel label = new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4);
-		label.center(xSize);
+		label.setCenter(xSize);
 		addLabel(label);
 		// exit
 		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 6, guiTop + 192, 70, 20, "gui.done");
@@ -147,17 +141,17 @@ implements ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		select = scroll.getSelected();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.isEmpty()) {
 			return;
 		}

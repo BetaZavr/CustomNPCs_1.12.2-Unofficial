@@ -13,7 +13,7 @@ import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.util.Util;
 
 public class GuiNpcLabel
-implements IComponentGui {
+implements IComponentGui, IGuiNpcLabel {
 
 	public boolean enabled = true;
 	public boolean hovered;
@@ -40,9 +40,13 @@ implements IComponentGui {
 		setLabel(label.toString());
 	}
 
-	public void center(int width) {
+	@Override
+	public void setCenter(int width) {
 		x += (width - this.width) / 2;
 	}
+
+	@Override
+	public List<String> getLabels() { return label; }
 
 	@Override
 	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
@@ -64,6 +68,7 @@ implements IComponentGui {
 		}
 	}
 
+	@Override
 	public void setLabel(Object labels) {
 		if (labels == null) {
 			label = null;
@@ -113,6 +118,21 @@ implements IComponentGui {
 	}
 
 	@Override
+	public void setBackColor(int color) { backColor = color; }
+
+	@Override
+	public int getBorderColor() { return borderColor; }
+
+	@Override
+	public void setBorderColor(int color) { borderColor = color; }
+
+	@Override
+	public int getColor() { return color; }
+
+	@Override
+	public int getBackColor() { return backColor; }
+
+	@Override
 	public int getId() { return id; }
 
 	@Override
@@ -130,5 +150,50 @@ implements IComponentGui {
 		}
 		hoverText.add(text);
 	}
+
+	@Override
+	public int getLeft() { return x; }
+
+	@Override
+	public int getTop() { return y; }
+
+	@Override
+	public void setLeft(int left) { x = left; }
+
+	@Override
+	public void setTop(int top) { y = top; }
+
+	@Override
+	public int getWidth() { return width; }
+
+	@Override
+	public int getHeight() { return height; }
+
+	@Override
+	public void customKeyTyped(char c, int id) { }
+
+	@Override
+	public void customMouseClicked(int mouseX, int mouseY, int mouseButton) { }
+
+	@Override
+	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { }
+
+	@Override
+	public boolean isVisible() { return enabled; }
+
+	@Override
+	public void setVisible(boolean bo) { enabled = bo; }
+
+	@Override
+	public boolean isEnabled() { return enabled; }
+
+	@Override
+	public void setEnabled(boolean bo) { enabled = bo; }
+
+	@Override
+	public boolean isMouseOver() { return hovered; }
+
+	@Override
+	public void setColor(int color) { this.color = color; }
 
 }

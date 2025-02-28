@@ -160,7 +160,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 	/** Is array of ItemStack that composes the recipe. */
 	public NonNullList<Ingredient> recipeItems;
 	/** Is the ItemStack that you get when craft the recipe. */
-	public ItemStack recipeOutput;
+	private ItemStack recipeOutput;
 	public Availability availability;
 	private boolean global;
 	public int id;
@@ -229,7 +229,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		this.global = recipe.isGlobal();
 		this.ignoreDamage = recipe.getIgnoreDamage();
 		this.ignoreNBT = recipe.getIgnoreNBT();
-		this.recipeOutput = recipe instanceof NpcShapelessRecipes ? ((NpcShapelessRecipes) recipe).recipeOutput : ((NpcShapedRecipes) recipe).recipeOutput;
+		this.recipeOutput = recipe.getProduct().getMCItemStack();
 		NonNullList<Ingredient> ingredients = recipe instanceof NpcShapelessRecipes ? ((NpcShapelessRecipes) recipe).recipeItems : ((NpcShapedRecipes) recipe).recipeItems;
 		if (this.recipeItems != ingredients) {
 			this.recipeItems.clear();
@@ -447,6 +447,12 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 	@Override
 	public boolean isChanged() {
 		return savesRecipe;
+	}
+
+	@Override
+	public void setRecipeOutput(ItemStack cms) {
+		if (cms == null || cms.isEmpty()) { return; }
+		recipeOutput = cms.copy();
 	}
 
 	@SuppressWarnings("unchecked")

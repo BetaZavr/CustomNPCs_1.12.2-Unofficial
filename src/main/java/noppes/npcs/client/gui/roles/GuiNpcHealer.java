@@ -10,15 +10,7 @@ import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNpcJobHealerSettings;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -48,60 +40,60 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
-		case 0: {
-			if (!configured.hasSelected()) { return; }
-			int id = potions.get(displays_1.get(configured.getSelected()));
-			if (!job.effects.containsKey(id)) { return; }
-			setSubGui(new SubGuiNpcJobHealerSettings(0, job.effects.get(id)));
-			break;
-		}
-		case 1: {
-			type = (byte) button.getValue();
-			break;
-		}
-		case 11: {
-			if (!options.hasSelected()) { return; }
-			GuiNpcTextField.unfocus();
-			int id = potions.get(displays_0.get(options.getSelected()));
-			HealerSettings hs = new HealerSettings(id, range, speed, amplifier, type);
-			job.effects.put(id, hs);
-			options.selected = -1;
-			configured.selected = -1;
-			initGui();
-			break;
-		}
-		case 12: {
-			if (!configured.hasSelected()) {
-				return;
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
+			case 0: {
+				if (!configured.hasSelected()) { return; }
+				int id = potions.get(displays_1.get(configured.getSelected()));
+				if (!job.effects.containsKey(id)) { return; }
+				setSubGui(new SubGuiNpcJobHealerSettings(0, job.effects.get(id)));
+				break;
 			}
-			job.effects.remove(potions.get(displays_1.get(configured.getSelected())));
-			options.selected = -1;
-			configured.selected = -1;
-			initGui();
-			break;
-		}
-		case 13: {
-			GuiNpcTextField.unfocus();
-			job.effects.clear();
-			for (Potion p : Potion.REGISTRY) {
-				int id = Potion.getIdFromPotion(p);
+			case 1: {
+				type = (byte) button.getValue();
+				break;
+			}
+			case 11: {
+				if (!options.hasSelected()) { return; }
+				GuiNpcTextField.unfocus();
+				int id = potions.get(displays_0.get(options.getSelected()));
 				HealerSettings hs = new HealerSettings(id, range, speed, amplifier, type);
 				job.effects.put(id, hs);
+				options.setSelect(-1);
+				configured.setSelect(-1);
+				initGui();
+				break;
 			}
-			options.selected = -1;
-			configured.selected = -1;
-			initGui();
-			break;
-		}
-		case 14: {
-			job.effects.clear();
-			options.selected = -1;
-			configured.selected = -1;
-			initGui();
-			break;
-		}
+			case 12: {
+				if (!configured.hasSelected()) {
+					return;
+				}
+				job.effects.remove(potions.get(displays_1.get(configured.getSelected())));
+				options.setSelect(-1);
+				configured.setSelect(-1);
+				initGui();
+				break;
+			}
+			case 13: {
+				GuiNpcTextField.unfocus();
+				job.effects.clear();
+				for (Potion p : Potion.REGISTRY) {
+					int id = Potion.getIdFromPotion(p);
+					HealerSettings hs = new HealerSettings(id, range, speed, amplifier, type);
+					job.effects.put(id, hs);
+				}
+				options.setSelect(-1);
+				configured.setSelect(-1);
+				initGui();
+				break;
+			}
+			case 14: {
+				job.effects.clear();
+				options.setSelect(-1);
+				configured.setSelect(-1);
+				initGui();
+				break;
+			}
 		}
 	}
 
@@ -225,12 +217,12 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 
 		y -= 198;
 		button = new GuiNpcButton(11, guiLeft + 177, (y += 33), 61, 20, ">");
-		button.setEnabled(options.selected != -1);
+		button.setEnabled(options.getSelect() != -1);
 		button.setHoverText("beacon.hover.add");
 		addButton(button);
 
 		button = new GuiNpcButton(12, guiLeft + 177, (y += 22), 61, 20, "<");
-		button.setEnabled(configured.selected != -1);
+		button.setEnabled(configured.getSelect() != -1);
 		button.setHoverText("beacon.hover.del");
 		addButton(button);
 
@@ -245,7 +237,7 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 		addButton(button);
 
 		button = new GuiNpcButton(0, guiLeft + 177, y + 33, 61, 20, "gui.edit");
-		button.setEnabled(configured.selected != -1);
+		button.setEnabled(configured.getSelect() != -1);
 		button.setHoverText("beacon.hover.edit");
 		addButton(button);
 	}
@@ -266,20 +258,20 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		if (scroll.id == 0) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) {
 			if (!options.hasSelected()) { return; }
 			GuiNpcTextField.unfocus();
 			int id = potions.get(displays_0.get(options.getSelected()));
 			HealerSettings hs = new HealerSettings(id, range, speed, amplifier, type);
 			job.effects.put(id, hs);
-			options.selected = -1;
-			configured.selected = -1;
+			options.setSelect(-1);
+			configured.setSelect(-1);
 			initGui();
 		} else {
 			if (!configured.hasSelected()) { return; }
@@ -290,7 +282,7 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (!(subgui instanceof SubGuiNpcJobHealerSettings) || !configured.hasSelected()) {
 			return;
 		}
@@ -300,7 +292,7 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getId()) {
 			case 1: {
 				range = textField.getInteger();

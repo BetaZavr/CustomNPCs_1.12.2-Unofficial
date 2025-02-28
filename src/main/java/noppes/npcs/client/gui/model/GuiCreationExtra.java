@@ -14,11 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityFakeLiving;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -42,7 +38,7 @@ implements ICustomScrollListener {
 		public void initGui() {
 		}
 
-		public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+		public void scrollClicked(int i, int j, int k, IGuiCustomScroll scroll) {
 		}
 	}
 
@@ -153,7 +149,7 @@ implements ICustomScrollListener {
 		}
 
 		@Override
-		public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+		public void scrollClicked(int i, int j, int k, IGuiCustomScroll scroll) {
 			String name = scroll.getSelected();
 			GuiCreationExtra.this.playerdata.setExtra(GuiCreationExtra.this.entity, "name", name);
 			GuiCreationExtra.this.updateTexture();
@@ -310,8 +306,8 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) {
 			this.initGui();
 		} else if (this.selected != null) {
 			this.selected.scrollClicked(mouseX, mouseY, mouseButton, scroll);
@@ -319,7 +315,7 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 	}
 
 	@SuppressWarnings("unchecked")

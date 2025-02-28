@@ -609,12 +609,12 @@ public class PacketHandlerServer {
                 } else {
                     npc.inventory.removeDrop(slot);
                 }
-            } else if (slot == -1) {
+            } // remove
+            else if (slot == -1) {
                 DropSet drop = null;
                 if (dropType == 1) {
                     if (template != null) {
-                        template.addDropItem(groupId, stack, 85.0d);
-                        drop = template.groups.get(groupId).get(template.groups.get(groupId).size() - 1);
+                        drop = template.addDropItem(groupId, stack, 85.0d);
                     }
                 } else {
                     drop = (DropSet) npc.inventory.addDropItem(stack, 1.0d);
@@ -622,7 +622,8 @@ public class PacketHandlerServer {
                 if (drop != null) {
                     drop.load(compound);
                 }
-            } else {
+            } // add new
+            else {
                 if (dropType == 1) {
                     if (template != null && template.groups.containsKey(groupId)
                             && template.groups.get(groupId).containsKey(slot)) {
@@ -631,7 +632,7 @@ public class PacketHandlerServer {
                 } else if (npc.inventory.drops.containsKey(slot)) {
                     npc.inventory.drops.get(slot).load(compound);
                 }
-            }
+            } // change
             npc.updateAI = true;
             npc.updateClient = true;
             DropController.getInstance().sendTo(player);
@@ -1419,10 +1420,10 @@ public class PacketHandlerServer {
                 case Dialog: {
                     int dialogId = buffer.readInt();
                     Dialog d = DialogController.instance.dialogs.get(dialogId);
-                    if (t == 0 && d != null && !playerdata.dialogData.dialogsRead.contains(dialogId)) {
-                        playerdata.dialogData.dialogsRead.add(dialogId);
+                    if (t == 0 && d != null && !playerdata.dialogData.has(dialogId)) {
+                        playerdata.dialogData.read(dialogId);
                         isChange = true;
-                    } else if (t == 1 && playerdata.dialogData.dialogsRead.contains(dialogId)) {
+                    } else if (t == 1 && playerdata.dialogData.has(dialogId)) {
                         playerdata.dialogData.dialogsRead.remove(dialogId);
                         isChange = true;
                     } else if (t == 3) {

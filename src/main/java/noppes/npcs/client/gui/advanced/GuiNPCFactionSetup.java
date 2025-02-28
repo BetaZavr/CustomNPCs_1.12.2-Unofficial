@@ -8,15 +8,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNpcFactionOptions;
 import noppes.npcs.client.gui.SubGuiNpcFactionSelect;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IScrollData;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -33,8 +25,8 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: {
 				npc.advanced.attackOtherFactions = (button.getValue() == 1);
 				break;
@@ -151,14 +143,14 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) {
 			Client.sendData(EnumPacketServer.FactionSet, data.get(scrollFactions.getSelected()));
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 	}
 
 	@Override
@@ -176,7 +168,7 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (!(subgui instanceof SubGuiNpcFactionSelect)) {
 			return;
 		}

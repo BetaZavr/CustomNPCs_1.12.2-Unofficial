@@ -14,12 +14,10 @@ import noppes.npcs.CustomNpcs;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class GuiNpcMiniWindow
 extends GuiNPCInterface
-implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollListener, IKeyListener {
+implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener, ICustomScrollListener, IKeyListener {
 
 	private final IEditNPC parent;
 	private IComponentGui point;
@@ -44,16 +42,13 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 	}
 
 	@Override
-	public void save() { }
-
-	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		if (!hovered) { return; }
-		if (button.id == 2500) {
+		if (button.getId() == 2500) {
 			parent.closeMiniWindow(this);
 			visible = false;
 		}
-		else if (buttons.containsKey(button.id)) {
+		else if (buttons.containsKey(button.getId())) {
 			parent.buttonEvent(button);
 		}
 	}
@@ -94,7 +89,7 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 
 		for (IComponentGui component : components) {
 			if ((component instanceof GuiButton && ((GuiButton) component).isMouseOver() ||
-					(component instanceof GuiNpcTextField && ((GuiNpcTextField) component).isMouseOver()) ||
+					(component instanceof GuiNpcTextField && component.isMouseOver()) ||
 					(component instanceof GuiCustomScroll && ((GuiCustomScroll) component).hovered)) ||
 					(component instanceof GuiNpcLabel && ((GuiNpcLabel) component).hovered)) {
 				parent.setMiniHoverText(id, component);
@@ -110,21 +105,21 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 	public void moveOffset(int x, int y) {
 		guiLeft += x;
 		guiTop += y;
-		for (GuiNpcButton b : buttons.values()) { b.x += x; b.y += y; }
-		for (GuiNpcLabel l : labels.values()) { l.x += x; l.y += y; }
-		for (GuiCustomScroll s : scrolls.values()) { s.guiLeft += x; s.guiTop += y; }
-		for (GuiMenuSideButton sb : sidebuttons.values()) { sb.x += x; sb.y += y; }
-		for (GuiNpcSlider sl : sliders.values()) { sl.x += x; sl.y += y; }
-		for (GuiNpcTextField t : textfields.values()) { t.x += x; t.y += y; }
-		for (GuiMenuTopButton tb : topbuttons.values()) { tb.x += x; tb.y += y; }
-		for (GuiNpcMiniWindow mw : mwindows.values()) { mw.moveOffset(x, y); }
+		for (IGuiNpcButton b : buttons.values()) { b.setLeft(b.getLeft() + x); b.setTop(b.getTop() + y); }
+		for (IGuiNpcLabel l : labels.values()) { l.setLeft(l.getLeft() + x); l.setTop(l.getTop() + y); }
+		for (IGuiCustomScroll s : scrolls.values()) { s.setLeft(s.getLeft() + x); s.setTop(s.getTop() + y); }
+		for (IGuiMenuSideButton sb : sidebuttons.values()) { sb.setLeft(sb.getLeft() + x); sb.setTop(sb.getTop() + y); }
+		for (IGuiNpcSlider sl : sliders.values()) { sl.setLeft(sl.getLeft() + x); sl.setTop(sl.getTop() + y); }
+		for (IGuiNpcTextField t : textfields.values()) { t.setLeft(t.getLeft() + x); t.setTop(t.getTop() + y); }
+		for (IGuiMenuTopButton tb : topbuttons.values()) { tb.setLeft(tb.getLeft() + x); tb.setTop(tb.getTop() + y); }
+		for (IGuiNpcMiniWindow mw : mwindows.values()) { mw.setLeft(mw.getLeft() + x); mw.setTop(mw.getTop() + y); }
 	}
 
 	public void keyTyped(char c, int i) {
 		if (i == 15 && GuiNpcTextField.isActive() && textfields.containsValue(GuiNpcTextField.activeTextfield)) { // Tab
 			int id = GuiNpcTextField.activeTextfield.getId() + 1;
 			if (id > (getTextField(9) != null ? 9 : 7)) { id = 5; }
-			GuiNpcTextField textField = getTextField(id);
+			IGuiNpcTextField textField = getTextField(id);
 			if (textField != null) {
 				GuiNpcTextField.activeTextfield.unFocused();
 				textField.setFocused(true);
@@ -157,48 +152,48 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (!hovered) { return; }
-		if (scrolls.containsKey(scroll.id)) {
-			parent.scrollClicked(mouseX, mouseY, mouseButton, scroll);
+		if (scrolls.containsKey(scroll.getId()) && parent instanceof ICustomScrollListener) {
+			((ICustomScrollListener) parent).scrollClicked(mouseX, mouseY, mouseButton, scroll);
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		if (!hovered) { return; }
-		if (scrolls.containsKey(scroll.id)) {
-			parent.scrollDoubleClicked(select, scroll);
+		if (scrolls.containsKey(scroll.getId()) && parent instanceof ICustomScrollListener) {
+			((ICustomScrollListener) parent).scrollDoubleClicked(select, scroll);
 		}
 	}
 
 	@Override
-	public void mouseDragged(GuiNpcSlider slider) {
+	public void mouseDragged(IGuiNpcSlider slider) {
 		if (!hovered) { return; }
-		if (sliders.containsKey(slider.id)) {
+		if (sliders.containsKey(slider.getId())) {
 			parent.mouseDragged(slider);
 		}
 	}
 
 	@Override
-	public void mousePressed(GuiNpcSlider slider) {
+	public void mousePressed(IGuiNpcSlider slider) {
 		if (!hovered) { return; }
-		if (sliders.containsKey(slider.id)) {
+		if (sliders.containsKey(slider.getId())) {
 			parent.mousePressed(slider);
 		}
 	}
 
 	@Override
-	public void mouseReleased(GuiNpcSlider slider) {
+	public void mouseReleased(IGuiNpcSlider slider) {
 		if (!hovered) { return; }
-		if (sliders.containsKey(slider.id)) {
+		if (sliders.containsKey(slider.getId())) {
 			parent.mouseReleased(slider);
 		}
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
-		if (textfields.containsKey(textField.getId())) {
+	public void unFocused(IGuiNpcTextField textField) {
+		if (textfields.containsKey(textField.getId()) ) {
 			parent.unFocused(textField);
 		}
 	}
@@ -244,20 +239,20 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 
 	public int getColorLine() { return colorLine; }
 
+	@Override
 	public void resetButtons() {
 		buttons.remove(2500);
 		components.removeIf(c -> c instanceof GuiNpcButton && c.getId() == 2500);
 
 		GuiNpcButton exit = new GuiNpcButton(2500, guiLeft + xSize - 12, guiTop + 3, 8, 8, "X");
-		exit.texture = ANIMATION_BUTTONS;
-		exit.hasDefBack = false;
-		exit.isAnim = true;
-		exit.txrX = 232;
-		exit.txrW = 24;
-		exit.txrH = 24;
-		exit.layerColor = new Color(0xFFFF0000).getRGB();
-		exit.textColor = new Color(0xFF404040).getRGB();
-		addButton(exit);
+		exit.setTexture(ANIMATION_BUTTONS);
+		exit.setHasDefaultBack(false);
+		exit.setIsAnim(true);
+		exit.setTextureXY(232, 0);
+		exit.setTextureUV(24, 24);
+		exit.setLayerColor(new Color(0xFFFF0000).getRGB());
+		exit.setTextColor(new Color(0xFF404040).getRGB());
+		addButton((IGuiNpcButton) exit);
 	}
 
 	@Override
@@ -278,5 +273,47 @@ implements IComponentGui, ITextfieldListener, ISliderListener, ICustomScrollList
 		}
 		hoverText.add(text);
 	}
+
+	@Override
+	public int getLeft() { return guiLeft; }
+
+	@Override
+	public int getTop() { return guiTop; }
+
+	@Override
+	public void setLeft(int left) { guiLeft = left; }
+
+	@Override
+	public void setTop(int top) { guiTop = top; }
+
+	@Override
+	public int getWidth() { return width; }
+
+	@Override
+	public int getHeight() { return height; }
+
+	@Override
+	public void customKeyTyped(char c, int id) { keyTyped(c, id); }
+
+	@Override
+	public void customMouseClicked(int mouseX, int mouseY, int mouseButton) { mouseClicked(mouseX, mouseY, mouseButton); }
+
+	@Override
+	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { mouseReleased(mouseX, mouseY, mouseButton); }
+
+	@Override
+	public boolean isVisible() { return visible; }
+
+	@Override
+	public void setVisible(boolean bo) { visible = bo; }
+
+	@Override
+	public boolean isEnabled() { return true; }
+
+	@Override
+	public void setEnabled(boolean bo) { }
+
+	@Override
+	public boolean isMouseOver() { return hovered; }
 
 }

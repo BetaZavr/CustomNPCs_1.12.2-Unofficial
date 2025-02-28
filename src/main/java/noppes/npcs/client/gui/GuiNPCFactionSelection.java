@@ -7,11 +7,7 @@ import java.util.Vector;
 import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNPCStringSlot;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiSelectionListener;
-import noppes.npcs.client.gui.util.IScrollData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -38,12 +34,12 @@ implements IScrollData {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 2) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 2) {
 			close();
 			NoppesUtil.openGUI(player, parent);
 		}
-		if (button.id == 4) {
+		if (button.getId() == 4) {
 			doubleClicked();
 		}
 	}

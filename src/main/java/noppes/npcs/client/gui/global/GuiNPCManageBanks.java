@@ -42,84 +42,84 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
-		case 0: { // ceil
-			if (ceil == button.getValue()) {
-				return;
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
+			case 0: { // ceil
+				if (ceil == button.getValue()) {
+					return;
+				}
+				save();
+				ceil = button.getValue();
+				Client.sendData(EnumPacketServer.BankGet, bank.id, ceil);
+				isWait = true;
+				waitTime = 30;
+				initGui();
+				break;
 			}
-			save();
-			ceil = button.getValue();
-			Client.sendData(EnumPacketServer.BankGet, bank.id, ceil);
-			isWait = true;
-			waitTime = 30;
-			initGui();
-			break;
-		}
-		case 1: { // add ceil
-			ceil = bank.ceilSettings.size();
-			Client.sendData(EnumPacketServer.BankAddCeil, bank.id, ceil);
-			isWait = true;
-			waitTime = 30;
-			initGui();
-			break;
-		}
-		case 2: { // remove ceil
-			if (!data.containsKey(selected) || !bank.ceilSettings.containsKey(ceil)) {
-				return;
+			case 1: { // add ceil
+				ceil = bank.ceilSettings.size();
+				Client.sendData(EnumPacketServer.BankAddCeil, bank.id, ceil);
+				isWait = true;
+				waitTime = 30;
+				initGui();
+				break;
 			}
-			String msg = new TextComponentTranslation("bank.hover.ceil.del").getFormattedText();
-			while (msg.contains("<br>")) {
-				msg = msg.replace("<br>", "" + ((char) 10));
+			case 2: { // remove ceil
+				if (!data.containsKey(selected) || !bank.ceilSettings.containsKey(ceil)) {
+					return;
+				}
+				String msg = new TextComponentTranslation("bank.hover.ceil.del").getFormattedText();
+				while (msg.contains("<br>")) {
+					msg = msg.replace("<br>", "" + ((char) 10));
+				}
+				GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.bank", ": ID:" + bank.id + " \"" + bank.name + "\"; " + new TextComponentTranslation("gui.ceil", ": ID:" + (ceil + 1)).getFormattedText()).getFormattedText(), msg, 1);
+				displayGuiScreen(guiyesno);
+				break;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.bank", ": ID:" + bank.id + " \"" + bank.name + "\"; " + new TextComponentTranslation("gui.ceil", ": ID:" + (ceil + 1)).getFormattedText()).getFormattedText(), msg, 1);
-			displayGuiScreen(guiyesno);
-			break;
-		}
-		case 3: { // public
-			bank.isPublic = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 6: { // add bank
-			save();
-			scroll.clear();
-			StringBuilder t = new StringBuilder("New");
-			while (data.containsKey(t.toString())) { t.append("_"); }
-			selected = t.toString();
-			Bank bank = new Bank();
-			bank.name = selected;
-			NBTTagCompound compound = new NBTTagCompound();
-			bank.writeToNBT(compound);
-			Client.sendData(EnumPacketServer.BankSave, compound);
-			isWait = true;
-			waitTime = 30;
-			initGui();
-			break;
-		}
-		case 7: { // remove bank
-			if (!data.containsKey(selected)) {
-				return;
+			case 3: { // public
+				bank.isPublic = ((GuiNpcCheckBox) button).isSelected();
+				break;
 			}
-			String msg = new TextComponentTranslation("bank.hover.del").getFormattedText();
-			while (msg.contains("<br>")) {
-				msg = msg.replace("<br>", "" + ((char) 10));
+			case 6: { // add bank
+				save();
+				scroll.clear();
+				StringBuilder t = new StringBuilder("New");
+				while (data.containsKey(t.toString())) { t.append("_"); }
+				selected = t.toString();
+				Bank bank = new Bank();
+				bank.name = selected;
+				NBTTagCompound compound = new NBTTagCompound();
+				bank.writeToNBT(compound);
+				Client.sendData(EnumPacketServer.BankSave, compound);
+				isWait = true;
+				waitTime = 30;
+				initGui();
+				break;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.bank", ": ID:" + bank.id + " \"" + bank.name + "\"").getFormattedText(), msg, 0);
-			displayGuiScreen(guiyesno);
-			break;
-		}
-		case 8: { // settings
-			if (bank == null) {
-				return;
+			case 7: { // remove bank
+				if (!data.containsKey(selected)) {
+					return;
+				}
+				String msg = new TextComponentTranslation("bank.hover.del").getFormattedText();
+				while (msg.contains("<br>")) {
+					msg = msg.replace("<br>", "" + ((char) 10));
+				}
+				GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.bank", ": ID:" + bank.id + " \"" + bank.name + "\"").getFormattedText(), msg, 0);
+				displayGuiScreen(guiyesno);
+				break;
 			}
-			setSubGui(new SubGuiEditBankAccess(0, bank));
-			break;
-		}
+			case 8: { // settings
+				if (bank == null) {
+					return;
+				}
+				setSubGui(new SubGuiEditBankAccess(0, bank));
+				break;
+			}
 		}
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(ISubGuiInterface gui) {
 		if (gui instanceof SubGuiEditBankAccess) {
 			SubGuiEditBankAccess subGui = (SubGuiEditBankAccess) gui;
 			if (bank.isChanging != subGui.isChanging) {
@@ -365,8 +365,8 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 0 && !scroll.getSelected().equals(selected)) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0 && !scroll.getSelected().equals(selected)) {
 			save();
 			ceil = 0;
 			selected = scroll.getSelected();
@@ -378,7 +378,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 	}
 
 	@Override
@@ -411,7 +411,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (bank.id == -1) {
 			return;
 		}
@@ -430,7 +430,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			}
 			case 1: { // startCells
 				if (!textField.isInteger()) {
-					textField.setText("" + textField.def);
+					textField.setText("" + textField.getDefault());
 					return;
 				}
 				bank.ceilSettings.get(ceil).startCells = textField.getInteger();
@@ -438,7 +438,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			}
 			case 2: { // maxCells
 				if (!textField.isInteger()) {
-					textField.setText("" + textField.def);
+					textField.setText("" + textField.getDefault());
 					return;
 				}
 				bank.ceilSettings.get(ceil).maxCells = textField.getInteger();
@@ -446,7 +446,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			}
 			case 3: { // open money
 				if (!textField.isInteger()) {
-					textField.setText("" + textField.def);
+					textField.setText("" + textField.getDefault());
 					return;
 				}
 				bank.ceilSettings.get(ceil).openMoney = textField.getInteger();
@@ -454,7 +454,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			}
 			case 4: { // upgrade money
 				if (!textField.isInteger()) {
-					textField.setText("" + textField.def);
+					textField.setText("" + textField.getDefault());
 					return;
 				}
 				bank.ceilSettings.get(ceil).upgradeMoney = textField.getInteger();

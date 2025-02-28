@@ -7,12 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.global.GuiNPCManageFactions;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.util.Util;
 
 public class SubGuiNpcFactionSelect
@@ -38,8 +33,8 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 14: {
 				GuiNPCManageFactions.isName = ((GuiNpcCheckBox) button).isSelected();
 				button.setHoverText("hover.sort",
@@ -107,8 +102,8 @@ implements ICustomScrollListener {
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 1) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 1) {
 			HashSet<Integer> set = new HashSet<>();
 			HashSet<String> list = scroll.getSelectedList();
 			HashSet<String> newList = new HashSet<>();
@@ -128,7 +123,7 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 	}
 
 }

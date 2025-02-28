@@ -9,12 +9,7 @@ import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiEditText;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.IScrollData;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -35,12 +30,12 @@ implements IScrollData, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 1) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 1) {
 			this.save();
 			this.setSubGui(new SubGuiEditText(0, "New"));
 		}
-		if (button.id == 2 && this.scroll.hasSelected()) {
+		if (button.getId() == 2 && this.scroll.hasSelected()) {
 			Client.sendData(EnumPacketServer.LinkedRemove, this.scroll.getSelected());
 		}
 	}
@@ -84,7 +79,7 @@ implements IScrollData, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (!((SubGuiEditText) subgui).cancelled) {
 			Client.sendData(EnumPacketServer.LinkedAdd, ((SubGuiEditText) subgui).text[0]);
 		}

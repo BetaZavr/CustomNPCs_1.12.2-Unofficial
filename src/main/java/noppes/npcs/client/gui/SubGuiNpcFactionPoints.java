@@ -1,11 +1,7 @@
 package noppes.npcs.client.gui;
 
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.data.Faction;
 
 public class SubGuiNpcFactionPoints
@@ -24,8 +20,8 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 66) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -35,7 +31,7 @@ implements ITextfieldListener {
 		super.initGui();
 		// default Points
 		addLabel(new GuiNpcLabel(2, "faction.default", guiLeft + 4, guiTop + 33));
-		GuiNpcTextField textField = new GuiNpcTextField(2, this, guiLeft + 8 + fontRenderer.getStringWidth(getLabel(2).label.get(0)), guiTop + 28, 70, 20, faction.defaultPoints + "");
+		GuiNpcTextField textField = new GuiNpcTextField(2, this, guiLeft + 8 + fontRenderer.getStringWidth(getLabel(2).getLabels().get(0)), guiTop + 28, 70, 20, faction.defaultPoints + "");
 		textField.setMinMaxDefault(-999999, 999999, 0);
 		textField.setHoverText("faction.hover.point.def");
 		addTextField(textField);
@@ -53,8 +49,8 @@ implements ITextfieldListener {
 		textField.setMinMaxDefault(-999999, 999999, 0);
 		textField.setHoverText("faction.hover.point.unfr");
 		addTextField(textField);
-		if (getTextField(3).x > getTextField(4).x) { getTextField(4).x = getTextField(3).x; }
-		else { getTextField(3).x = getTextField(4).x; }
+		if (getTextField(3).getLeft() > getTextField(4).getLeft()) { getTextField(4).setLeft(getTextField(3).getLeft()); }
+		else { getTextField(3).setLeft(getTextField(4).getLeft()); }
 		// exit
 		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 20, guiTop + 192, 90, 20, "gui.done");
 		button.setHoverText("hover.back");
@@ -62,7 +58,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		switch (textfield.getId()) {
 			case 2: faction.defaultPoints = textfield.getInteger(); break;
 			case 3: faction.neutralPoints = textfield.getInteger(); break;

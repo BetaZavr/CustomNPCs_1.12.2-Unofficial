@@ -16,15 +16,7 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
 import noppes.npcs.client.gui.global.GuiQuestEdit;
 import noppes.npcs.client.gui.select.GuiDialogSelection;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.GuiSelectionListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.BorderController;
@@ -136,7 +128,7 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 		addButton(button);
 		String tx = "Quest Dialog Setup";
 		GuiNpcLabel label = new GuiNpcLabel(lId++, tx, width / 2, y - 10, 0);
-		label.center(label.width);
+		label.setCenter(label.width);
 		addLabel(label);
 
 		// X
@@ -214,7 +206,7 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 			NoppesUtilServer.getEditingQuest(player).questInterface.removeTask(task);
 		} else {
 			if (((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui instanceof GuiQuestEdit) {
-				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.subgui = null;
+				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.setSubGui(null);
 				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.initGui();
 			}
 		}
@@ -241,12 +233,12 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (task == null) { return; }
 		switch (textField.getId()) {
 			case 9: {
 				if (!BorderController.getInstance().regions.containsKey(textField.getInteger())) {
-					textField.setText("" + textField.def);
+					textField.setText("" + textField.getDefault());
 					return;
 				}
 				task.regionID = textField.getInteger();

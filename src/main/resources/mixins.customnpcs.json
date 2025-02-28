@@ -37,6 +37,7 @@
     "scoreboard.ScoreboardMixin",
     "scoreboard.ServerScoreboardMixin",
     "stats.RecipeBookMixin",
+    "stats.RecipeBookServerMixin",
     "tileentity.TileEntityBannerMixin",
     "tileentity.TileEntityMixin",
     "util.ServerRecipeBookHelperMixin",

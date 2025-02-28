@@ -1,19 +1,13 @@
 package noppes.npcs.client.gui.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.ModelPartConfig;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcSlider;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISliderListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -128,35 +122,35 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 	}
 
 	@Override
-	public void mouseDragged(GuiNpcSlider slider) {
+	public void mouseDragged(IGuiNpcSlider slider) {
 		super.mouseDragged(slider);
-		if (slider.id >= 10 && slider.id <= 12) {
-			int percent = (int) (50.0f + slider.sliderValue * 100.0f);
+		if (slider.getId() >= 10 && slider.getId() <= 12) {
+			int percent = (int) (50.0f + slider.getSliderValue() * 100.0f);
 			slider.setString(percent + "%");
 			ModelPartConfig config = this.playerdata.getPartConfig(GuiCreationScale.selected);
-			if (slider.id == 10) {
-				config.scale[0] = slider.sliderValue + 0.5f;
+			if (slider.getId() == 10) {
+				config.scale[0] = slider.getSliderValue() + 0.5f;
 			}
-			if (slider.id == 11) {
-				config.scale[1] = slider.sliderValue + 0.5f;
+			if (slider.getId() == 11) {
+				config.scale[1] = slider.getSliderValue() + 0.5f;
 			}
-			if (slider.id == 12) {
-				config.scale[2] = slider.sliderValue + 0.5f;
+			if (slider.getId() == 12) {
+				config.scale[2] = slider.getSliderValue() + 0.5f;
 			}
 			this.updateTranslate();
 		}
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.selected >= 0) {
-			GuiCreationScale.selected = this.data.get(scroll.selected);
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getSelect() >= 0) {
+			GuiCreationScale.selected = this.data.get(scroll.getSelect());
 			this.initGui();
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 	}
 
 	private void updateTranslate() {

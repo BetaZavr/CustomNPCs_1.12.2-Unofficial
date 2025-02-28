@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.resources.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -51,7 +52,7 @@ implements ICustomScrollListener {
 		this.id = id;
 	}
 	
-	public GuiTextureSelection(EntityNPCInterface npc, String texture, String suffix, int type) {
+	public GuiTextureSelection(EntityNPCInterface npc, @Nonnull String texture, String suffix, int type) {
 		super(npc);
 		if (this.npc != null) {
 			showName = this.npc.display.getShowName();
@@ -71,7 +72,10 @@ implements ICustomScrollListener {
 		}
 		ResourceLocation loc = new ResourceLocation(texture);
 		if (data.containsKey(loc.getResourceDomain()) && !data.get(loc.getResourceDomain()).containsKey(loc)) {
-			mc.getTextureManager().bindTexture(loc);
+			try {
+				if (!texture.isEmpty()) { mc.getTextureManager().bindTexture(loc); }
+			}
+			catch (Exception ignored) { }
 			data.remove(loc.getResourceDomain());
 		}
 		if (!data.containsKey(loc.getResourceDomain())) {
@@ -375,8 +379,8 @@ implements ICustomScrollListener {
 			scroll.setColors(colors);
 			scroll.setSuffixes(suffixes);
 			scroll.setListNotSorted(list);
-			if (scroll.selected != pos) {
-				scroll.selected = pos;
+			if (scroll.getSelect() != pos) {
+				scroll.setSelect(pos);
 			}
 			scroll.resetRoll();
 			char chr = ((char) 167);
@@ -388,7 +392,7 @@ implements ICustomScrollListener {
 		}
 		addScroll(scroll);
 		addLabel(new GuiNpcLabel(0, domain, guiLeft + 4, guiTop + 4));
-		getLabel(0).color = new Color(new Color(0xFF000000).getRGB()).getRGB();
+		getLabel(0).setColor(new Color(new Color(0xFF000000).getRGB()).getRGB());
 	}
 
 	private void progressFile(File file) {
@@ -478,7 +482,7 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (scroll.getSelected().equals(back)) {
 			if (selectDir == null) { return; }
 			if (!selectDir.getResourcePath().contains("/")) {
@@ -531,7 +535,7 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 		if (resource != null) {
 			if (npc != null && type >= 0 && type <= 2) {
 				switch (type) {

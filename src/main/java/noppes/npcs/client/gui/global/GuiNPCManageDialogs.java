@@ -14,15 +14,7 @@ import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditText;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.DialogController;
@@ -55,8 +47,8 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 1: { // create cat
 				setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
@@ -361,19 +353,19 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (scroll.getSelected() == null) {
 			return;
 		}
-		if (scroll.id == 0) {
+		if (scroll.getId() == 0) {
 			if (selectedCategory.equals(scroll.getSelected())) {
 				return;
 			}
 			selectedCategory = scroll.getSelected();
 			selectedDialog = "";
-			scroll.selected = -1;
+			scroll.setSelect(-1);
 		}
-		if (scroll.id == 1) {
+		if (scroll.getId() == 1) {
 			if (selectedDialog.equals(scroll.getSelected())) {
 				return;
 			}
@@ -383,16 +375,16 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-		if (!selectedDialog.isEmpty() && scroll.id == 1) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
+		if (!selectedDialog.isEmpty() && scroll.getId() == 1) {
 			setSubGui(new GuiDialogEdit(dialogData.get(selectedDialog), this));
 		}
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText && !((SubGuiEditText) subgui).cancelled) {
-			if (subgui.id == 1) {
+			if (subgui.getId() == 1) {
 				DialogCategory category = new DialogCategory();
 				StringBuilder t = new StringBuilder(((SubGuiEditText) subgui).text[0]);
 				boolean has = true;
@@ -409,7 +401,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				category.title = t.toString();
 				Client.sendData(EnumPacketServer.DialogCategorySave, category.writeNBT(new NBTTagCompound()));
 			}
-			if (subgui.id == 3) {
+			if (subgui.getId() == 3) {
 				if (((SubGuiEditText) subgui).text[0].isEmpty() || !categoryData.containsKey(selectedCategory)) {
 					return;
 				}
@@ -436,7 +428,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				Client.sendData(EnumPacketServer.DialogCategorySave, category.writeNBT(new NBTTagCompound()));
 				initGui();
 			}
-			if (subgui.id == 11) {
+			if (subgui.getId() == 11) {
 				if (((SubGuiEditText) subgui).text[0].isEmpty()) {
 					return;
 				}

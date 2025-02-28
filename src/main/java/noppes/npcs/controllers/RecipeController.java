@@ -442,8 +442,7 @@ public class RecipeController implements IRecipeHandler {
 			for (INpcRecipe npcRecipe : map.get(recipe.getNpcGroup())) {
 				ItemStack cms = mainStack.copy();
 				cms.setCount(((IRecipe) npcRecipe).getRecipeOutput().getCount());
-				if (npcRecipe instanceof NpcShapedRecipes) { ((NpcShapedRecipes) npcRecipe).recipeOutput = cms; }
-				else { ((NpcShapelessRecipes) npcRecipe).recipeOutput = cms; }
+				npcRecipe.setRecipeOutput(cms);
 			}
 		}
 		// add new

@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.player;
 import java.awt.Color;
 import java.util.*;
 
+import noppes.npcs.client.gui.util.*;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -43,14 +44,6 @@ import noppes.npcs.client.ClientGuiEventHandler;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.controllers.MusicController;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcSlider;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ISliderListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestCompletion;
@@ -77,13 +70,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	public static class QuestInfo {
 
 		public final QuestData qData;
-		private EntityNPCInterface npc;
-		private final Map<Integer, List<String>> map = new TreeMap<>(); // [key, data texts]
+		protected EntityNPCInterface npc;
+		protected final Map<Integer, List<String>> map = new TreeMap<>(); // [key, data texts]
 		public final List<ItemStack> stacks = new ArrayList<>();
 		public final Map<Integer, Entity> entitys = new TreeMap<>();
-		private final World world;
+		protected final World world;
 
-		private boolean newInstance = true;
+		protected boolean newInstance = true;
 
 		public QuestInfo(QuestData qd, World world) {
 			this.world = world;
@@ -265,9 +258,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		}
 
 	}
-	private static final Map<Integer, ResourceLocation> ql = new TreeMap<>();
-	private static final ResourceLocation bookGuiTextures = new ResourceLocation("textures/gui/book.png");
-	private static final ResourceLocation killIcon = new ResourceLocation("textures/entity/skeleton/skeleton.png");
+	protected static final Map<Integer, ResourceLocation> ql = new TreeMap<>();
+	protected static final ResourceLocation bookGuiTextures = new ResourceLocation("textures/gui/book.png");
+	protected static final ResourceLocation killIcon = new ResourceLocation("textures/entity/skeleton/skeleton.png");
 
 	public static float scaleW, scaleH;
 
@@ -404,33 +397,33 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	 * left 6-quest; 7/14-tab categories 16-pre cat list; 17-next cat list 20/28-cat
 	 * list 30 - extended button 31 - compass look 32 - cancel quest
 	 */
-	private int hoverButton;
-	private int hoverQuestId;
-	private int catRow;
-	private int catSelect;
-	private int page;
-	private int step;
-	private int tick;
-	private int milliTick;
-	private int temp;
-	private int guiLLeft;
-	private int guiLRight;
-	private int guiLTop;
-	private int guiTopLog;
-	private int guiCenter;
+	protected int hoverButton;
+	protected int hoverQuestId;
+	protected int catRow;
+	protected int catSelect;
+	protected int page;
+	protected int step;
+	protected int tick;
+	protected int milliTick;
+	protected int temp;
+	protected int guiLLeft;
+	protected int guiLRight;
+	protected int guiLTop;
+	protected int guiTopLog;
+	protected int guiCenter;
 	public int type; // -1-inv; 0-faction; 1-quests; 2-compass
 
-	private boolean toPrePage = true;
-	private final Random rnd = new Random();
-	private ScaledResolution sw;
-	private final Map<String, Map<Integer, QuestData>> quests = new TreeMap<>(); // {
+	protected boolean toPrePage = true;
+	protected final Random rnd = new Random();
+	protected ScaledResolution sw;
+	protected final Map<String, Map<Integer, QuestData>> quests = new TreeMap<>(); // {
 	// category																							// quest]}
-	private final Map<String, Color> categories = new TreeMap<>(); // [name, color]
-	private final List<Faction> playerFactions = new ArrayList<>();
+	protected final Map<String, Color> categories = new TreeMap<>(); // [name, color]
+	protected final List<Faction> playerFactions = new ArrayList<>();
 
-	private final PlayerCompassHUDData compassData;
+	protected final PlayerCompassHUDData compassData;
 
-	private PlayerData playerData;
+	protected PlayerData playerData;
 
 	public GuiLog(int t) {
 		super();
@@ -460,11 +453,11 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		if (type != 2) {
 			return;
 		}
-		switch (button.id) {
+		switch (button.getId()) {
 			case 0: {
 				compassData.showQuestName = ((GuiNpcCheckBox) button).isSelected();
 				break;
@@ -688,7 +681,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		}
 	}
 
-    private void drawBox(int mouseX, int mouseY) {
+	protected void drawBox(int mouseX, int mouseY) {
 		hoverButton = -1;
 		hoverQuestId = 0;
 		// tabs
@@ -805,7 +798,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		}
 	}
 
-	private void drawCompass() {
+	protected void drawCompass() {
 		if (!CustomNpcs.ShowQuestCompass || step != -1) {
 			return;
 		}
@@ -879,7 +872,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 	}
 
-	private void drawFaction(int mouseX, int mouseY) {
+	protected void drawFaction(int mouseX, int mouseY) {
 		if (step != -1) {
 			return;
 		}
@@ -1048,7 +1041,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		GlStateManager.popMatrix();
 	}
 
-	private void drawNpc(EntityNPCInterface npc) {
+	protected void drawNpc(EntityNPCInterface npc) {
 		if (npc == null) {
 			return;
 		}
@@ -1076,7 +1069,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
 	}
 
-	private void drawQuestLog(int mouseX, int mouseY) {
+	protected void drawQuestLog(int mouseX, int mouseY) {
 		if (categories.isEmpty()) {
 			String noFaction = new TextComponentTranslation("quest.noquests").getFormattedText();
 			fontRenderer.drawSplitString(noFaction, guiLLeft, guiLTop, (int) (98.0f * scaleW), CustomNpcs.QuestLogColor.getRGB());
@@ -2056,7 +2049,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		drawHoverText(null);
 	}
 
-	private boolean hoverMob(int mouseX, int mouseY, Entity entity) {
+	protected boolean hoverMob(int mouseX, int mouseY, Entity entity) {
 		if (entity == null) {
 			return false;
 		}
@@ -2183,7 +2176,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					(int) (12.0f * scaleH), v));
 			this.getSlider(1).setString(("" + (45.0f + this.compassData.incline * -1.0f)).replace(".", ","));
 			addButton(new GuiNpcCheckBox(0, x1, y - (int) scaleH, (int) (100.0f * scaleW), (int) (12.0f * scaleH), "quest.screen.show.quest", null, compassData.showQuestName));
-			this.getButton(0).textColor = CustomNpcs.QuestLogColor.getRGB();
+			getButton(0).setTextColor(CustomNpcs.QuestLogColor.getRGB());
 
 			// Rotation
 			v = this.compassData.rot * 0.016667f + 0.5f;
@@ -2191,7 +2184,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					(int) (12.0f * scaleH), v));
 			this.getSlider(2).setString(("" + this.compassData.rot).replace(".", ","));
 			addButton(new GuiNpcCheckBox(1, x1, y - (int) scaleH, (int) (100.0f * scaleW), (int) (12.0f * scaleH), "quest.screen.show.task", null, compassData.showTaskProgress));
-			this.getButton(1).textColor = CustomNpcs.QuestLogColor.getRGB();
+			getButton(1).setTextColor(CustomNpcs.QuestLogColor.getRGB());
 		}
 	}
 
@@ -2231,23 +2224,23 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	}
 
 	@Override
-	public void mouseDragged(GuiNpcSlider slider) {
+	public void mouseDragged(IGuiNpcSlider slider) {
 		if (type != 2) {
 			return;
 		}
-		switch (slider.id) {
+		switch (slider.getId()) {
 		case 0: {
-			this.compassData.scale = Math.round((slider.sliderValue + 0.5f) * 100.0f) / 100.0f;
+			this.compassData.scale = Math.round((slider.getSliderValue() + 0.5f) * 100.0f) / 100.0f;
 			slider.setString(("" + this.compassData.scale).replace(".", ","));
 			break;
 		}
 		case 1: {
-			this.compassData.incline = Math.round((-45.0f * slider.sliderValue + 22.5f) * 100.0f) / 100.0f;
+			this.compassData.incline = Math.round((-45.0f * slider.getSliderValue() + 22.5f) * 100.0f) / 100.0f;
 			slider.setString(("" + (45.0f + this.compassData.incline * -1.0f)).replace(".", ","));
 			break;
 		}
 		case 2: {
-			this.compassData.rot = Math.round((60.0f * slider.sliderValue - 30.0f) * 100.0f) / 100.0f;
+			this.compassData.rot = Math.round((60.0f * slider.getSliderValue() - 30.0f) * 100.0f) / 100.0f;
 			slider.setString(("" + this.compassData.rot).replace(".", ","));
 			break;
 		}
@@ -2255,11 +2248,11 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	}
 
 	@Override
-	public void mousePressed(GuiNpcSlider slider) {
+	public void mousePressed(IGuiNpcSlider slider) {
 	}
 
 	@Override
-	public void mouseReleased(GuiNpcSlider slider) {
+	public void mouseReleased(IGuiNpcSlider slider) {
 	}
 
 	@Override
@@ -2292,7 +2285,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (type != 2) {
 			return;
 		}

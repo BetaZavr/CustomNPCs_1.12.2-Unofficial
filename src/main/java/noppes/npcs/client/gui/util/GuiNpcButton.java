@@ -18,7 +18,7 @@ import java.util.List;
 
 public class GuiNpcButton
 extends GuiButton
-implements IComponentGui {
+implements IComponentGui, IGuiNpcButton {
 
 	private static final double step = 60;
 
@@ -35,7 +35,6 @@ implements IComponentGui {
 	public boolean dropShadow;
 	public boolean hasDefBack;
 	public boolean hasSound;
-	public int textColor = CustomNpcs.MainColor.getRGB();
 	public boolean isSimple = false;
 	public boolean isAnim = false;
 	private ItemStack[] itemStacks = null;
@@ -223,25 +222,74 @@ implements IComponentGui {
 		}
 	}
 
+	@Override
 	public int getHeight() {
 		return height;
 	}
 
+	@Override
+	public void customKeyTyped(char c, int id) { }
+
+	@Override
+	public void customMouseClicked(int mouseX, int mouseY, int mouseButton) { mousePressed(Minecraft.getMinecraft(), mouseX, mouseY); }
+
+	@Override
+	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { mouseReleased(mouseX, mouseY); }
+
+	@Override
+	public boolean isVisible() { return visible; }
+
+	@Override
 	public int getValue() {
 		return displayValue;
 	}
 
-	public String[] getVariants() {
-		return display;
+	@Override
+	public String[] getVariants() { return display; }
+
+	@Override
+	public int[] getTextureXY() { return new int[] { txrX, txrY }; }
+
+	@Override
+	public void setTextureXY(int x, int y) {
+		txrX = x;
+		txrY = y;
 	}
 
-	public boolean getVisible() {
-		return visible;
+	@Override
+	public int[] getTextureUV() { return new int[] { txrW, txrH }; }
+
+	@Override
+	public void setTextureUV(int u, int v) {
+		txrW = u;
+		txrH = v;
 	}
 
+	@Override
+	public void setLayerColor(int color) { layerColor = color; }
+
+	@Override
+	public String getDisplayString() { return displayString; }
+
+	@Override
+	public void setActive(boolean bo) { }
+
+	@Override
+	public void setHasSound(boolean bo) { hasSound = bo; }
+
+	@Override
+	public boolean hasSound() { return hasSound; }
+
+	@Override
 	public int getWidth() {
 		return width;
 	}
+
+	@Override
+	public int getCurrentStackID() { return currentStackID; }
+
+	@Override
+	public ItemStack getCurrentStack() { return currentStack; }
 
 	public boolean mousePressed(@Nonnull Minecraft mc, int mouseX, int mouseY) {
 		boolean bo = super.mousePressed(mc, mouseX, mouseY);
@@ -258,6 +306,7 @@ implements IComponentGui {
 		}
 	}
 
+	@Override
 	public void resetDisplay(List<String> list) {
 		display = list.toArray(new String[0]);
 		if (displayValue >= list.size()) { displayValue = list.size() - 1; }
@@ -268,6 +317,7 @@ implements IComponentGui {
 		else { setDisplayText(display[displayValue]); }
 	}
 
+	@Override
 	public void setDisplay(int value) {
 		if (display.length == 0) { return; }
 		if (value < 0) { value = 0; }
@@ -276,21 +326,33 @@ implements IComponentGui {
 		setDisplayText(display[displayValue]);
 	}
 
+	@Override
 	public void setDisplayText(String text) {
 		displayString = new TextComponentTranslation(text).getFormattedText();
 	}
 
+	@Override
+	public void setTexture(ResourceLocation location) { texture = location; }
+
+	@Override
 	public void setEnabled(boolean bo) {
 		enabled = bo;
 	}
 
-	public void setTextColor(int color) {
-		packedFGColour = color;
-	}
+	@Override
+	public void setHasDefaultBack(boolean bo) { hasDefBack = bo; }
 
-	public void setVisible(boolean b) {
-		visible = b;
-	}
+	@Override
+	public void setIsAnim(boolean bo) { isAnim = bo; }
+
+	@Override
+	public void setTextColor(int color) { packedFGColour = color; }
+
+	@Override
+	public void setVisible(boolean bo) { visible = bo; }
+
+	@Override
+	public boolean isEnabled() { return enabled; }
 
 	@Override
 	protected int getHoverState(boolean hovered) {
@@ -310,22 +372,24 @@ implements IComponentGui {
 		return enabled ? 0 : 3;
 	}
 
-	public void setStacks(ItemStack ... stacks) {
+	@Override
+	public void setStacks(ItemStack... stacks) {
 		if (itemStacks != null && stacks != null) { wait = 160; }
 		itemStacks = stacks;
 		currentStackID = itemStacks != null ? 0 : -1;
 		ticks = 0;
 	}
 
+	@Override
 	public ItemStack[] getStacks() { return itemStacks; }
 
+	@Override
 	public void setCurrentStackPos(int pos) {
 		if (itemStacks == null || pos < 0 || pos >= itemStacks.length) { return; }
 		currentStackID = pos;
 		wait = 160;
 		ticks = 0;
 	}
-
 
 	@Override
 	public int getId() { return id; }
@@ -347,5 +411,17 @@ implements IComponentGui {
 		}
 		hoverText.add(text);
 	}
+
+	@Override
+	public int getLeft() { return x; }
+
+	@Override
+	public int getTop() { return y; }
+
+	@Override
+	public void setLeft(int left) { x = left; }
+
+	@Override
+	public void setTop(int top) { y = top; }
 
 }

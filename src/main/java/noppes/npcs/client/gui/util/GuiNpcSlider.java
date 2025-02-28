@@ -18,7 +18,7 @@ import java.util.List;
 
 public class GuiNpcSlider
 extends GuiButton
-implements IComponentGui {
+implements IComponentGui, IGuiNpcSlider {
 
 	public boolean dragging;
 	public boolean isVertical;
@@ -117,6 +117,7 @@ implements IComponentGui {
 		drawCenteredString(mc.fontRenderer, displayString, x + width / 2, y + 2 + (height - ClientProxy.Font.height(displayString)) / 2, l);
 	}
 
+	@Override
 	public String getDisplayString() {
 		return displayString;
 	}
@@ -186,6 +187,7 @@ implements IComponentGui {
 		}
 	}
 
+	@Override
 	public void setString(String str) {
 		try {
 			float f = Math.round(Double.parseDouble(str.replace(",", ".")) * 10.0d) / 10.0f;
@@ -194,6 +196,15 @@ implements IComponentGui {
 		catch (Exception ignored) { }
 		displayString = NoppesStringUtils.translate(str);
 	}
+
+	@Override
+	public void setDisplayString(String newDisplayString) { displayString = newDisplayString; }
+
+	@Override
+	public float getSliderValue() { return sliderValue; }
+
+	@Override
+	public void setSliderValue(float value) { sliderValue = ValueUtil.correctFloat(value, 0.0f, 1.0f); }
 
 	@Override
 	public int getId() { return id; }
@@ -213,5 +224,44 @@ implements IComponentGui {
 		}
 		hoverText.add(text);
 	}
-	
+
+	@Override
+	public int getLeft() { return x; }
+
+	@Override
+	public int getTop() { return y; }
+
+	@Override
+	public void setLeft(int left) { x = left; }
+
+	@Override
+	public void setTop(int top) { y = top; }
+
+	@Override
+	public int getWidth() { return width; }
+
+	@Override
+	public int getHeight() { return height; }
+
+	@Override
+	public void customKeyTyped(char c, int id) { }
+
+	@Override
+	public void customMouseClicked(int mouseX, int mouseY, int mouseButton) { mousePressed(Minecraft.getMinecraft(), mouseX, mouseY); }
+
+	@Override
+	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { mouseReleased(mouseX, mouseY); }
+
+	@Override
+	public boolean isVisible() { return visible; }
+
+	@Override
+	public void setVisible(boolean bo) { visible = bo; }
+
+	@Override
+	public boolean isEnabled() { return enabled; }
+
+	@Override
+	public void setEnabled(boolean bo) { enabled = bo; }
+
 }

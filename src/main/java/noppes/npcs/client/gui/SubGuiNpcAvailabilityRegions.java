@@ -1,16 +1,12 @@
 package noppes.npcs.client.gui;
 
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityRegion;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.BorderController;
@@ -38,8 +34,8 @@ implements ICustomScrollListener {
     }
 
     @Override
-    public void buttonEvent(GuiNpcButton button) {
-        switch (button.id) {
+    public void buttonEvent(IGuiNpcButton button) {
+        switch (button.getId()) {
             case 0: {
                 if (!data.containsKey(select)) { return; }
                 IBorder region = BorderController.getInstance().getRegion(data.get(select));
@@ -157,13 +153,13 @@ implements ICustomScrollListener {
     }
 
     @Override
-    public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+    public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
         select = scroll.getSelected();
         initGui();
     }
 
     @Override
-    public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+    public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 
     }
 

@@ -5,13 +5,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNpcMovement;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAI;
@@ -32,41 +26,41 @@ implements ITextfieldListener, IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			ai.onAttack = button.getValue();
 			initGui();
-		} else if (button.id == 1) {
+		} else if (button.getId() == 1) {
 			ai.doorInteract = button.getValue();
-		} else if (button.id == 2) {
+		} else if (button.getId() == 2) {
 			setSubGui(new SubGuiNpcMovement(ai));
-		} else if (button.id == 5) {
+		} else if (button.getId() == 5) {
 			npc.ais.setAvoidsWater(button.getValue() == 1);
-		} else if (button.id == 6) {
+		} else if (button.getId() == 6) {
 			ai.returnToStart = (button.getValue() == 1);
-		} else if (button.id == 7) {
+		} else if (button.getId() == 7) {
 			ai.canSwim = (button.getValue() == 1);
-		} else if (button.id == 9) {
+		} else if (button.getId() == 9) {
 			ai.findShelter = button.getValue();
-		} else if (button.id == 10) {
+		} else if (button.getId() == 10) {
 			ai.directLOS = (button.getValue() == 1);
-		} else if (button.id == 15) {
+		} else if (button.getId() == 15) {
 			ai.canLeap = (button.getValue() == 1);
-		} else if (button.id == 16) {
+		} else if (button.getId() == 16) {
 			ai.canSprint = (button.getValue() == 1);
-		} else if (button.id == 17) {
+		} else if (button.getId() == 17) {
 			ai.tacticalVariant = button.getValue();
 			ai.directLOS = (button.getValue() != 5 && ai.directLOS);
 			initGui();
-		} else if (button.id == 18) {
+		} else if (button.getId() == 18) {
 			ai.canBeCollide = (button.getValue() == 1);
-		} else if (button.id == 23) {
+		} else if (button.getId() == 23) {
 			ai.attackInvisible = ((GuiNpcButtonYesNo) button).getBoolean();
-		} else if (button.id == 25) {
+		} else if (button.getId() == 25) {
 			ai.aiDisabled = (button.getValue() == 1);
-			button.layerColor = ai.aiDisabled ?
+			button.setLayerColor(ai.aiDisabled ?
 					new Color(0xFFF02020).getRGB() :
-					new Color(0xFF20F020).getRGB();
+					new Color(0xFF20F020).getRGB());
 			initGui();
 		}
 	}
@@ -212,7 +206,7 @@ implements ITextfieldListener, IGuiData {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 3) {
 			ai.setTacticalRange(textfield.getInteger());
 		} else if (textfield.getId() == 4) {

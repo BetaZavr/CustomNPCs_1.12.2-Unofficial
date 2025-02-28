@@ -1,10 +1,7 @@
 package noppes.npcs.client.gui;
 
 import net.minecraft.client.renderer.GlStateManager;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.util.Util;
 
 public class SubGuiEditText
@@ -45,8 +42,8 @@ extends SubGuiInterface {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			cancelled = false;
 			for (int i = 0; i < text.length; i++) {
 				text[i] = getTextField(i).getText();

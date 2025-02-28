@@ -392,7 +392,6 @@ public class ModelNpcAlt extends ModelPlayer {
             if (animatedMap != null) { list = animatedMap.get(3); }
             if (list != null) {
                 for (ModelRendererAlt child : list) {
-                    //System.out.println("CNPCs: "+child.partId+" / "+editAnimDataSelect.part);
                     child.checkBacklightColor(r,g,b);
                     bipedBody.addChild(child);
                 }

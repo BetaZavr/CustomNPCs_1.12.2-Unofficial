@@ -4,12 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityPlayerName;
 import noppes.npcs.controllers.data.Availability;
 
@@ -32,8 +27,8 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: {
 				if (select.isEmpty()) {
 					return;
@@ -75,7 +70,7 @@ implements ICustomScrollListener, ISubGuiListener {
 		super.initGui();
 		// title
 		GuiNpcLabel label = new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4);
-		label.center(xSize);
+		label.setCenter(xSize);
 		addLabel(label);
 		// exit
 		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 6, guiTop + 192, 70, 20, "gui.done");
@@ -90,7 +85,7 @@ implements ICustomScrollListener, ISubGuiListener {
 		scroll.guiLeft = guiLeft + 6;
 		scroll.guiTop = guiTop + 14;
 		if (!select.isEmpty()) { scroll.setSelected(select); }
-		else { scroll.selected = -1; }
+		else { scroll.setSelect(-1); }
 		addScroll(scroll);
 		int p = 0;
 		if (!select.isEmpty()) {
@@ -128,20 +123,20 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		select = scroll.getSelected();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		SubGuiEditText subGui = new SubGuiEditText(0, select);
 		subGui.hovers[0] = "availability.hover.player.name";
 		setSubGui(subGui);
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		SubGuiEditText selector = (SubGuiEditText) subgui;
 		if (selector.cancelled) {
 			return;

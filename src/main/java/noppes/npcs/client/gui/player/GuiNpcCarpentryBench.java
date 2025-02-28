@@ -14,6 +14,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
+import noppes.npcs.client.gui.util.IGuiNpcButton;
 import noppes.npcs.containers.ContainerCarpentryBench;
 
 import javax.annotation.Nonnull;
@@ -44,8 +45,8 @@ implements IRecipeShownListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 10) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 10) {
 			recipeBookGui.initVisuals(widthTooNarrow, ((ContainerCarpentryBench) inventorySlots).craftMatrix);
 			recipeBookGui.toggleVisibility();
 			guiLeft = recipeBookGui.updateScreenPosition(widthTooNarrow, width, xSize);
@@ -104,7 +105,8 @@ implements IRecipeShownListener {
 		widthTooNarrow = width < 379;
 		recipeBookGui.func_194303_a(width, height, mc, widthTooNarrow, ((ContainerCarpentryBench) inventorySlots).craftMatrix);
 		guiLeft = recipeBookGui.updateScreenPosition(widthTooNarrow, width, xSize);
-		addButton(recipeButton = new GuiNpcButton(10, guiLeft + 5, height / 2 - 49, 20, 19, 0, 168, buttonTexture).simple(true));
+		recipeButton = new GuiNpcButton(10, guiLeft + 5, height / 2 - 49, 20, 19, 0, 168, buttonTexture).simple(true);
+		addButton((IGuiNpcButton) recipeButton);
 	}
 
 	@Override
@@ -113,13 +115,14 @@ implements IRecipeShownListener {
 	}
 
 	@Override
-	protected void keyTyped(char typedChar, int keyCode) {
+	public void keyTyped(char typedChar, int keyCode) {
 		if (!recipeBookGui.keyPressed(typedChar, keyCode)) {
 			super.keyTyped(typedChar, keyCode);
 		}
 	}
 
-	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+	@Override
+	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
 		if (!recipeBookGui.mouseClicked(mouseX, mouseY, mouseButton)) {
 			if (!widthTooNarrow || !recipeBookGui.isVisible()) {
 				super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -138,11 +141,7 @@ implements IRecipeShownListener {
 		recipeBookGui.recipesUpdated();
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void updateScreen() {
 		super.updateScreen();
 		recipeBookGui.tick();

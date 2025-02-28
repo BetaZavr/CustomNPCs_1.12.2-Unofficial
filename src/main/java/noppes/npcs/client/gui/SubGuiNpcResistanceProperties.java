@@ -5,15 +5,7 @@ import java.util.*;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcSlider;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IScrollData;
-import noppes.npcs.client.gui.util.ISliderListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.data.Resistances;
 import noppes.npcs.util.Util;
@@ -38,8 +30,8 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 66) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -107,18 +99,18 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 	}
 
 	@Override
-	public void mouseDragged(GuiNpcSlider slider) {
+	public void mouseDragged(IGuiNpcSlider slider) {
 		float n = 5.0f / 6.0f;
-		slider.displayString = (slider.sliderValue == n ? "" : (((char) 167) + (slider.sliderValue < n ? "c" : "a+"))) + String.valueOf(Math.round(slider.sliderValue * 600.0f - 500.0f)).replace(".", ",") + "%";
+		slider.setDisplayString(slider.getSliderValue() == n ? "" : (((char) 167) + (slider.getSliderValue() < n ? "c" : "a+")) + String.valueOf(Math.round(slider.getSliderValue() * 600.0f - 500.0f)).replace(".", ",") + "%");
 	}
 
 	@Override
-	public void mousePressed(GuiNpcSlider slider) { }
+	public void mousePressed(IGuiNpcSlider slider) { }
 
 	@Override
-	public void mouseReleased(GuiNpcSlider slider) {
+	public void mouseReleased(IGuiNpcSlider slider) {
 		if (!data.containsKey(select)) { return; }
-		setValue(data.get(select), (int) (slider.sliderValue * 600.0f - 500.0f));
+		setValue(data.get(select), (int) (slider.getSliderValue() * 600.0f - 500.0f));
 	}
 
 	@Override
@@ -136,17 +128,17 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 	public void setSelected(String select) { }
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (!scroll.hasSelected() || !data.containsKey(Util.instance.deleteColor(scroll.getSelected()))) { return; }
 		select = Util.instance.deleteColor(scroll.getSelected());
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (!data.containsKey(select)) { return; }
 		setValue(data.get(select), textField.getInteger());
 	}

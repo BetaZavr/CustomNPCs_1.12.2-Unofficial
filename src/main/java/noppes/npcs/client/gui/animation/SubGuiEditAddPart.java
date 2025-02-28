@@ -16,7 +16,6 @@ import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.animation.PartConfig;
 import noppes.npcs.client.renderer.RenderNPCInterface;
-import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
@@ -110,10 +109,10 @@ implements ITextfieldListener {
     }
 
     @Override
-    public void buttonEvent(GuiNpcButton button) {
-        switch (button.id) {
+    public void buttonEvent(IGuiNpcButton button) {
+        switch (button.getId()) {
             case 0: {
-                String value = Util.instance.deleteColor(button.displayString);
+                String value = Util.instance.deleteColor(button.getDisplayString());
                 if (!dataPartIDs.containsKey(value)) { return; }
                 addPart.parentPart = dataPartIDs.get(value);
                 String hover = "info.item.cloner.empty.0";
@@ -138,7 +137,7 @@ implements ITextfieldListener {
             } // only part
             case 2: {
                 GuiNpcAnimation.backColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000);
-                button.layerColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
+                button.setLayerColor(GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
                 break;
             } // back color
             case 3: {
@@ -647,7 +646,7 @@ implements ITextfieldListener {
         textField.setHoverText("animation.add.part.hover.rot", "Y");
         addTextField(textField);
         // Z
-        addLabel(new GuiNpcLabel(lId++, "Z:", x, (y += 14) + 2));
+        addLabel(new GuiNpcLabel(lId, "Z:", x, (y += 14) + 2));
         textField = new GuiNpcTextField(17, this, x + 12, y, 59, 12, "" + addPart.rot[2]);
         textField.setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.rot[2]);
         textField.setHoverText("animation.add.part.hover.rot", "Z");
@@ -739,7 +738,7 @@ implements ITextfieldListener {
     }
 
     @Override
-    public void unFocused(GuiNpcTextField textField) {
+    public void unFocused(IGuiNpcTextField textField) {
         switch (textField.getId()) {
             case 0: {
                 part.name = textField.getText();
@@ -748,7 +747,7 @@ implements ITextfieldListener {
             case 1: {
                 String value = "" + textField.getInteger();
                 if (!dataPartIDs.containsKey(value)) {
-                    textField.setText("" + textField.def);
+                    textField.setText("" + textField.getDefault());
                     return;
                 }
                 addPart.parentPart = dataPartIDs.get(value);

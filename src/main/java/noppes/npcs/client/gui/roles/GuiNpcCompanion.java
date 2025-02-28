@@ -7,13 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionTalents;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcSlider;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ISliderListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumCompanionStage;
 import noppes.npcs.constants.EnumCompanionTalent;
 import noppes.npcs.constants.EnumGuiType;
@@ -34,18 +28,18 @@ implements ITextfieldListener, ISliderListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			role.matureTo(EnumCompanionStage.values()[button.getValue()]);
 			if (role.canAge) {
 				role.ticksActive = role.stage.matureAge;
 			}
 			initGui();
 		}
-		if (button.id == 1) {
+		if (button.getId() == 1) {
 			Client.sendData(EnumPacketServer.RoleCompanionUpdate, role.stage.ordinal());
 		}
-		if (button.id == 2) {
+		if (button.getId() == 2) {
 			role.canAge = (button.getValue() == 1);
 			initGui();
 		}
@@ -110,22 +104,22 @@ implements ITextfieldListener, ISliderListener {
 	}
 
 	@Override
-	public void mouseDragged(GuiNpcSlider slider) {
-		if (slider.sliderValue <= 0.0f) {
+	public void mouseDragged(IGuiNpcSlider slider) {
+		if (slider.getSliderValue() <= 0.0f) {
 			slider.setString("gui.disabled");
-			role.talents.remove(EnumCompanionTalent.values()[slider.id - 10]);
+			role.talents.remove(EnumCompanionTalent.values()[slider.getId() - 10]);
 		} else {
-			slider.displayString = (int) Math.floor(slider.sliderValue * 5000.0f) + "/5000 exp";
-			role.setExp(EnumCompanionTalent.values()[slider.id - 10], (int) (slider.sliderValue * 5000.0f));
+			slider.setDisplayString ((int) Math.floor(slider.getSliderValue() * 5000.0f) + "/5000 exp");
+			role.setExp(EnumCompanionTalent.values()[slider.getId() - 10], (int) (slider.getSliderValue() * 5000.0f));
 		}
 	}
 
 	@Override
-	public void mousePressed(GuiNpcSlider slider) {
+	public void mousePressed(IGuiNpcSlider slider) {
 	}
 
 	@Override
-	public void mouseReleased(GuiNpcSlider slider) {
+	public void mouseReleased(IGuiNpcSlider slider) {
 	}
 
 	@Override
@@ -134,7 +128,7 @@ implements ITextfieldListener, ISliderListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 2) {
 			role.ticksActive = textfield.getInteger();
 		}

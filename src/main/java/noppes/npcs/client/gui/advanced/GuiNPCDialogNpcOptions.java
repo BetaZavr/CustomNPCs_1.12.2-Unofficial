@@ -12,13 +12,7 @@ import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.select.GuiDialogSelection;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiSelectionListener;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -39,8 +33,8 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 1: { // add
 				selectedSlot = -1;
 				setSubGui(new GuiDialogSelection(-1, 0));
@@ -118,10 +112,10 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 		scroll.guiLeft = guiLeft + 5;
 		scroll.guiTop = guiTop + 14;
 		if (selectedSlot >= 0 && data.containsKey(selectedSlot)) {
-			scroll.selected = selectedSlot;
+			scroll.setSelect(selectedSlot);
 		} else {
 			selectedSlot = -1;
-			scroll.selected = -1;
+			scroll.setSelect(-1);
 		}
 		addScroll(scroll);
 		// add
@@ -171,13 +165,13 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 	public void save() { }
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		selectedSlot = scroll.selected;
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		selectedSlot = scroll.getSelect();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		// change
 		if (!data.containsKey(selectedSlot)) {
 			return;

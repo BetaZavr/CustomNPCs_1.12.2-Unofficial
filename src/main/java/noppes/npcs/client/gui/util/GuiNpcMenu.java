@@ -72,7 +72,7 @@ implements GuiYesNoCallback {
 		if (k == 0) {
 			Minecraft mc = Minecraft.getMinecraft();
 			for (GuiMenuTopButton button : getTopButtons()) {
-				boolean bo = button.getVisible() && button.isMouseOver();
+				boolean bo = button.isVisible() && button.isMouseOver();
 				if (button.mousePressed(mc, i, j) || (bo && button.id == 4 && (mc.currentScreen instanceof GuiNpcEmotion || mc.currentScreen instanceof GuiNpcAnimation))) {
 					topButtonPressed(button);
 				}

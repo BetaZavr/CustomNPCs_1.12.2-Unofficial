@@ -1947,7 +1947,6 @@ public class ClientProxy extends CommonProxy {
 		}
 		Map<Integer, KeyBinding> keysMap = new HashMap<>();
 		for (IKeySetting ks : KeyController.getInstance().getKeySettings()) {
-			KeyBinding kb;
 			KeyModifier modifer;
 			switch (ks.getModiferType()) {
 				case 1:
@@ -1963,17 +1962,32 @@ public class ClientProxy extends CommonProxy {
 					modifer = KeyModifier.NONE;
 					break;
 			}
-			if (ClientProxy.keyBindingMap.containsKey(ks.getId())) {
-				kb = ClientProxy.keyBindingMap.get(ks.getId());
-				((IKeyBindingForgeMixin) kb).npcs$setModifier(modifer);
-				((IKeyBindingMixin) kb).npcs$setKeyDescription(ks.getName());
-				((IKeyBindingMixin) kb).npcs$setKeyCodeDefault(ks.getKeyId());
-				((IKeyBindingMixin) kb).npcs$setKeyCategory(ks.getCategory());
-			} else {
-				kb = new KeyBinding(ks.getName(), KeyConflictContext.IN_GAME, modifer, ks.getKeyId(), ks.getCategory());
+
+			boolean added = true;
+			for (KeyBinding kbD : list) {
+				if (kbD.getKeyModifier() == modifer &&
+						kbD.getKeyDescription().equals(ks.getName()) &&
+						kbD.getKeyCodeDefault() == ks.getKeyId() &&
+						kbD.getKeyCategory().equals(ks.getCategory())) {
+					added = false;
+					break;
+				}
 			}
-			list.add(kb);
-			keysMap.put(ks.getId(), kb);
+
+			if (added) {
+				KeyBinding kb;
+				if (ClientProxy.keyBindingMap.containsKey(ks.getId())) {
+					kb = ClientProxy.keyBindingMap.get(ks.getId());
+					((IKeyBindingForgeMixin) kb).npcs$setModifier(modifer);
+					((IKeyBindingMixin) kb).npcs$setKeyDescription(ks.getName());
+					((IKeyBindingMixin) kb).npcs$setKeyCodeDefault(ks.getKeyId());
+					((IKeyBindingMixin) kb).npcs$setKeyCategory(ks.getCategory());
+				} else {
+					kb = new KeyBinding(ks.getName(), KeyConflictContext.IN_GAME, modifer, ks.getKeyId(), ks.getCategory());
+				}
+				list.add(kb);
+				keysMap.put(ks.getId(), kb);
+			}
 		}
 		ClientProxy.keyBindingMap.clear();
 		ClientProxy.keyBindingMap.putAll(keysMap);

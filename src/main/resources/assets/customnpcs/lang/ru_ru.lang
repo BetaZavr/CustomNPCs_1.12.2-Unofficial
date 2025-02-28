@@ -2258,6 +2258,18 @@ script.hover.forge=События Forge<br>§7Некоторые ядра сер
 script.hover.npcs=События каждого NPC<br>§7Работает даже если у NPC отключены собственные скрипты<br>§7Список функций NPC:<br>§f%s<br>§8Пример по языку §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>  §eevent§9.§fnpc§9.§fsay§9(§7"Следующий Шаг"§9);<br>§9}
 script.hover.players=События каждого Игрока<br>§7Список функций игрока:<br>§f%s<br>§8Пример по языку §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>  §eevent§9.§fplayer§9.§fmessage§9(§7"Следующий Шаг"§9);<br>§9}
 script.hover.potion=События добавленых в игру Зелий<br>§6Для PRO§7, события при активации зелья на сущности<br>§7Список функций своих зелий:<br>§f%s<br>§8Пример по языку §eERMAScript для §fIsReadyEvent§8:<br>§9function§f isReady§9(§eevent§9) {<br>  §9if (§eevent§9.§fpotion§9.§fgetCustomName§9().§fequals§9(§7"potionexample"§9)) {<br>    §9var §fi§9 = §eevent§9.§famplifier§9 == §60 §9? §620§9 :§6 30§9;<br>    §eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§f i§9);<br>  §9}<br>§9}
+
+script.hover.info.ecmascript=Встроенный JavaScript-движок в JDK до версии 11<br>§7Мощный движок ECMAScript, позволяющий легко интегрировать код JavaScript в приложения Java, но обладающий низкой производительностью
+script.hover.info.graaljs=Высокопроизводительный JavaScript-движок, разработанный Oracle Labs<br>§7Современная альтернатива Nashorn, обеспечивающая отличную производительность и совместимость с ECMAScript
+script.hover.info.lua= JVM-реализация языка программирования Lua<br>§7Она обеспечивает высокую производительность и совместимость с широким спектром библиотек Java
+script.hover.info.jython=Реализация Python на платформе Java<br>§7Позволяет запускать код Python внутри виртуальной машины Java
+script.hover.info.jruby=Реализация Ruby на платформе Java<br>§7Поддерживает интеграцию с Java API и использование существующих библиотек Ruby
+script.hover.info.groovy=Динамически типизированный язык программирования, который компилируется в байт-код Java и работает поверх JVM
+script.hover.info.kotlin=Скрипты на языке Kotlin<br>§7Современный статически типизированный язык, созданный JetBrains
+script.hover.info.rhino=Интерпретатор JavaScript от Mozilla, работающий на платформе Java<br>§7Один из старейших и наиболее стабильных JavaScript-движков для JVM
+script.hover.info.dir=<br>§7Директория для ваших файлов-модулей:<br>%s<br>§7Индекс файлов: %s
+script.hover.info=Библиотеки, необходимые для подключения скриптовых языков:<br>§bECMAScript Nashorn§7 - §aне требуется<br>§bGraalJS§7_§eKotlin§7 - §fgraal_kotlin_libs-1.8.21.jar<br>§bLua§7 - §fluaj-jse-3.0.1.jar<br>§bPython§7 - §fjython-standalone-2.7.4.jar<br>§bKotlin§7 - §cпока недоступно<br>§bRhino§7 - §cпока недоступно<br>§bRuby§7 - §fjruby-complete-9.2.19.0.jar<br>§bGroovy§7 - §fgroovy-all-2.4.15.jar
+
 script.init=Внутри
 script.interact=Инициализация
 script.killed=Убит

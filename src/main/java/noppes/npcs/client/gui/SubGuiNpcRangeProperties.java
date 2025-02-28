@@ -3,13 +3,7 @@ package noppes.npcs.client.gui;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.gui.select.GuiSoundSelection;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.data.DataRanged;
 import noppes.npcs.entity.data.DataStats;
 
@@ -34,23 +28,23 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 7) {
-			soundSelected = getTextField(7);
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 7) {
+			soundSelected = (GuiNpcTextField) getTextField(7);
 			setSubGui(new GuiSoundSelection(soundSelected.getText()));
 		}
-		if (button.id == 11) {
-			soundSelected = getTextField(11);
+		if (button.getId() == 11) {
+			soundSelected = (GuiNpcTextField) getTextField(11);
 			setSubGui(new GuiSoundSelection(soundSelected.getText()));
 		}
-		if (button.id == 10) {
-			soundSelected = getTextField(10);
+		if (button.getId() == 10) {
+			soundSelected = (GuiNpcTextField) getTextField(10);
 			setSubGui(new GuiSoundSelection(soundSelected.getText()));
-		} else if (button.id == 66) {
+		} else if (button.getId() == 66) {
 			close();
-		} else if (button.id == 9) {
+		} else if (button.getId() == 9) {
 			ranged.setHasAimAnimation(((GuiNpcButtonYesNo) button).getBoolean());
-		} else if (button.id == 13) {
+		} else if (button.getId() == 13) {
 			ranged.setFireType(button.getValue());
 			ITextComponent hover = new TextComponentTranslation("stats.hover.availability");
 			hover.appendSibling(new TextComponentTranslation("stats.hover.availability." + ranged.getFireType(), new TextComponentTranslation(fireType[ranged.getFireType()]).getFormattedText(), "" + (ranged.getRange() / 2.0d)));
@@ -166,7 +160,7 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		GuiSoundSelection gss = (GuiSoundSelection) subgui;
 		if (gss.selectedResource != null) {
 			soundSelected.setText(gss.selectedResource.toString());
@@ -175,7 +169,7 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 1) {
 			ranged.setAccuracy(textfield.getInteger());
 		} else if (textfield.getId() == 2) {

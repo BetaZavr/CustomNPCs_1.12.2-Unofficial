@@ -11,6 +11,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 
 import javax.script.Invocable;
@@ -54,15 +58,17 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.api.wrapper.DataObject;
+import noppes.npcs.api.wrapper.data.TempData;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.api.mixin.nbt.INBTTagLongArrayMixin;
+import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ScriptEncryption;
 
 public class ScriptContainer {
 
 	public ScriptContainer copyTo(IScriptHandler scriptHandler) {
 		ScriptContainer scriptContainer = new ScriptContainer(scriptHandler, isClient);
-		scriptContainer.readFromNBT(this.writeToNBT(new NBTTagCompound()), isClient);
+		scriptContainer.readFromNBT(writeToNBT(new NBTTagCompound()), isClient);
 		return scriptContainer;
 	}
 
@@ -78,7 +84,7 @@ public class ScriptContainer {
 	public class Log implements Function<Object, Void> {
 		@Override
 		public Void apply(Object o) {
-			ScriptContainer.this.appendConsole(o + "");
+			appendConsole(o + "");
 			LogWriter.info(o + "");
 			return null;
 		}
@@ -88,6 +94,10 @@ public class ScriptContainer {
 	public static HashMap<String, Object> Data = new HashMap<>();
 	private static Method luaCall;
 	private static Method luaCoerce;
+
+	private static final Executor executor = Executors.newFixedThreadPool(16);
+	public static final ConcurrentSkipListMap<Long, ScriptEngine> contexts = new ConcurrentSkipListMap<>();
+	private static final ConcurrentSkipListMap<String, ExecutorService> links = new ConcurrentSkipListMap<>();
 	
 	static {
 		FillMap(AnimationKind.class);
@@ -199,36 +209,21 @@ public class ScriptContainer {
 		ScriptContainer.Data.remove("dump");
 	}
 	
-	public TreeMap<Long, String> console;
-	public ScriptEngine engine;
-	public boolean errored;
-	private String fullscript;
-
-	private boolean hasNoEncryptScriptCode = false;
-
-	private final IScriptHandler handler;
-
-	public long lastCreated;
-
-	public String script;
-
-	public List<String> scripts;
-
-	private HashSet<String> unknownFunctions;
-
+	public TreeMap<Long, String> console = new TreeMap<>();
+	public ScriptEngine engine = null;
 	public boolean isClient;
+	public boolean errored = false;
+	private String fullscript = null;
+	private boolean hasNoEncryptScriptCode = false;
+	private final IScriptHandler handler;
+	public long lastCreated = 0L;
+	public String script = "";
+	public List<String> scripts = new ArrayList<>();
+	private HashSet<String> unknownFunctions = new HashSet<>();
 
-	public ScriptContainer(IScriptHandler handler, boolean isClient) {
-		this.fullscript = null;
-		this.script = "";
-		this.console = new TreeMap<>();
-		this.errored = false;
-		this.scripts = new ArrayList<>();
-		this.unknownFunctions = new HashSet<>();
-		this.lastCreated = 0L;
-		this.engine = null;
-		this.handler = handler;
-		this.isClient = isClient;
+	public ScriptContainer(IScriptHandler handlerIn, boolean isClientIn) {
+		handler = handlerIn;
+		isClient = isClientIn;
 	}
 
 	public void appendConsole(String message) {
@@ -236,96 +231,92 @@ public class ScriptContainer {
 			return;
 		}
 		long time = System.currentTimeMillis();
-		if (this.console.containsKey(time)) {
-			message = this.console.get(time) + "\n" + message;
+		if (console.containsKey(time)) {
+			message = console.get(time) + "\n" + message;
 		}
-		this.console.put(time, message);
-		while (this.console.size() > 250) {
-			this.console.remove(this.console.firstKey());
+		console.put(time, message);
+		while (console.size() > 250) {
+			console.remove(console.firstKey());
 		}
 	}
 
 	public void clear() {
-		this.script = "";
-		this.fullscript = null;
-		this.scripts.clear();
+		script = "";
+		fullscript = null;
+		scripts.clear();
 	}
 
 	private String getTotalCode() {
-		if (this.fullscript == null) {
-			this.hasNoEncryptScriptCode = this.script != null && !this.script.isEmpty();
-			this.fullscript = this.script;
-			if (!this.fullscript.isEmpty()) {
-				this.fullscript += "\n";
+		if (fullscript == null) {
+			hasNoEncryptScriptCode = script != null && !script.isEmpty();
+			fullscript = script;
+			if (!fullscript.isEmpty()) {
+				fullscript += "\n";
 			}
 			ScriptController sData = ScriptController.Instance;
-			Map<String, String> map = this.isClient ? sData.clients : sData.scripts;
+			Map<String, String> map = isClient ? sData.clients : sData.scripts;
 
 			StringBuilder sbCode = new StringBuilder();
-			for (String loc : this.scripts) {
+			for (String loc : scripts) {
 				String code;
-				if (!this.isClient && sData.encrypts.containsKey(loc)) {
+				if (!isClient && sData.encrypts.containsKey(loc)) {
 					code = ScriptEncryption.decryptScriptFromFile(sData.encrypts.get(loc));
 				}
 				else {
 					code =  map.get(loc);
-					if (code != null) { this.hasNoEncryptScriptCode = true; }
+					if (code != null) { hasNoEncryptScriptCode = true; }
 				}
 				if (code != null && !code.isEmpty()) {
 					sbCode.append(code).append("\n");
 				}
 			}
-			this.fullscript += sbCode.toString();
-			if (map.containsKey("all.js")) {
-				this.fullscript = map.get("all.js") + "\n" + this.fullscript;
-			}
-			this.unknownFunctions = new HashSet<>();
+			fullscript += sbCode.toString();
+			if (map.containsKey("all.js")) { fullscript = map.get("all.js") + "\n" + fullscript; }
+			unknownFunctions = new HashSet<>();
 		}
-		return this.fullscript;
+		return fullscript;
 	}
 
 	public boolean hasNoEncryptScriptCode() {
-		boolean sr = !(this.script == null || this.script.isEmpty());
+		boolean sr = !(script == null || script.isEmpty());
 		if (sr) {
-			String tempScript = this.script.replace(" ", "").replace("" + ((char) 9), "").replace("" + ((char) 10), "");
+			String tempScript = script.replace(" ", "").replace("" + ((char) 9), "").replace("" + ((char) 10), "");
 			sr = !tempScript.isEmpty();
 		}
-		return sr || this.hasNoEncryptScriptCode;
+		return sr || hasNoEncryptScriptCode;
 	}
 
 	public boolean hasScriptCode() {
-		return !this.getTotalCode().isEmpty();
+		return !getTotalCode().isEmpty();
 	}
 
 	public boolean isInit() {
-		return this.fullscript != null;
+		return fullscript != null;
 	}
 
 	public boolean isValid() {
-		return this.isInit() && !this.errored;
+		return isInit() && !errored;
 	}
 
-	public void readFromNBT(NBTTagCompound compound, boolean isClient) {
+	public void readFromNBT(NBTTagCompound compound, boolean isClientIn) {
 		if (compound.hasKey("Script", 9)) {
 			NBTTagList list = compound.getTagList("Script", 8);
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < list.tagCount(); i++) {
 				sb.append(list.getStringTagAt(i));
 			}
-			this.script = sb.toString();
+			script = sb.toString();
 		} else {
-			this.script = compound.getString("Script");
+			script = compound.getString("Script");
 		}
-		this.console = NBTTags.GetLongStringMap(compound.getTagList("Console", 10));
-		this.scripts = NBTTags.getStringList(compound.getTagList("ScriptList", 10));
-		this.hasNoEncryptScriptCode = compound.getBoolean("HasNoEncryptScriptCode");
-		this.isClient = isClient;
-		if (this.isClient) {
-			this.errored = false;
-		}
-		this.lastCreated = 0L;
-		this.fullscript = null;
-		this.unknownFunctions.clear();
+		console = NBTTags.GetLongStringMap(compound.getTagList("Console", 10));
+		scripts = NBTTags.getStringList(compound.getTagList("ScriptList", 10));
+		hasNoEncryptScriptCode = compound.getBoolean("HasNoEncryptScriptCode");
+		isClient = isClientIn;
+		if (isClient) { errored = false; }
+		lastCreated = 0L;
+		fullscript = null;
+		unknownFunctions.clear();
 	}
 
 	public void run(String type, Event event, boolean side) {
@@ -333,104 +324,123 @@ public class ScriptContainer {
 				: event instanceof PlayerEvent ? "Player"
 						: event instanceof ItemEvent ? "Item" : event instanceof NpcEvent ? "Npc" : null;
 		CustomNpcs.debugData.startDebug(side ? "Server" : "Client", "Run" + key + "Script_" + type, "ScriptContainer_run");
-		this.run(type, event);
+		run(type, event);
 		CustomNpcs.debugData.endDebug(side ? "Server" : "Client", "Run" + key + "Script_" + type, "ScriptContainer_run");
 	}
 
 	private void run(String type, Object event) {
-		if (this.engine == null) {
-			this.setEngine(this.handler.getLanguage());
-		}
-		if (this.errored || !this.hasScriptCode() || this.unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || this.engine == null) {
+		if (engine == null) { setEngine(handler.getLanguage()); }
+		if (errored || !hasScriptCode() || unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || engine == null) {
 			return;
 		}
-		if (ScriptController.Instance.lastLoaded > this.lastCreated) {
-			this.lastCreated = ScriptController.Instance.lastLoaded;
-			this.fullscript = null;
-			this.hasNoEncryptScriptCode = false;
+		if (ScriptController.Instance.lastLoaded > lastCreated) {
+			lastCreated = ScriptController.Instance.lastLoaded;
+			fullscript = null;
+			hasNoEncryptScriptCode = false;
 		}
 		synchronized ("lock") {
 			ScriptContainer.Current = this;
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
-			this.engine.getContext().setWriter(pw);
-			this.engine.getContext().setErrorWriter(pw);
+			ScriptEngine action = engine;
+			action.getContext().setWriter(pw);
+			action.getContext().setErrorWriter(pw);
+			if (action.get("dump") == null) { fillEngine(action); }
+			else if (isClient && (action.get("mc") == null || action.get("storedData") == null)) { fillEngineClient(action); }
 			try {
-				if (this.engine.get("dump") == null) {
-					this.fillEngine();
-				}
-				else if (this.isClient && (this.engine.get("mc") == null || this.engine.get("storedData") == null)) {
-					this.fillEngineClient();
-				}
-				if (this.fullscript == null) {
-					this.engine.eval(this.getTotalCode());
-				}
-				if (this.engine.getFactory().getLanguageName().equals("lua")) {
-					Object ob = this.engine.get(type);
+				if (fullscript == null) { action.eval(getTotalCode()); }
+				if (action.getFactory().getLanguageName().equals("lua")) {
+					Object ob = action.get(type);
 					if (ob != null) {
 						if (ScriptContainer.luaCoerce == null) {
-							ScriptContainer.luaCoerce = Class.forName("org.luaj.vm2.lib.jse.CoerceJavaToLua")
-									.getMethod("coerce", Object.class);
-							ScriptContainer.luaCall = ob.getClass().getMethod("call",
-									Class.forName("org.luaj.vm2.LuaValue"));
+							ScriptContainer.luaCoerce = Class.forName("org.luaj.vm2.lib.jse.CoerceJavaToLua").getMethod("coerce", Object.class);
+							ScriptContainer.luaCall = ob.getClass().getMethod("call", Class.forName("org.luaj.vm2.LuaValue"));
 						}
 						ScriptContainer.luaCall.invoke(ob, ScriptContainer.luaCoerce.invoke(null, event));
-					} else {
-						this.unknownFunctions.add(type);
 					}
-				} else {
-					((Invocable) this.engine).invokeFunction(type, event);
+					else { unknownFunctions.add(type); }
 				}
-			} catch (NoSuchMethodException e2) {
-				this.unknownFunctions.add(type);
-			} catch (Throwable e) {
-				this.errored = true;
-				e.printStackTrace(pw);
-				if (!this.isClient) { NoppesUtilServer.NotifyOPs(this.handler.noticeString() + " script errored"); }
-				LogWriter.error(this.handler.noticeString() + " script errored: " + e);
-			} finally {
-				this.appendConsole(sw.getBuffer().toString().trim());
+				else { ((Invocable) action).invokeFunction(type, event); }
+			} catch (NoSuchMethodException err0) { unknownFunctions.add(type); }
+			catch (Exception err1) {
+				errored = true;
+				err1.printStackTrace(pw);
+				if (!isClient) { NoppesUtilServer.NotifyOPs(handler.noticeString() + " script errored"); }
+				LogWriter.error(handler.noticeString() + " script errored: ", err1);
+			}
+			finally {
+				appendConsole(sw.getBuffer().toString().trim());
 				pw.close();
 				ScriptContainer.Current = null;
 			}
 		}
 	}
 
-	public void setEngine(String scriptLanguage) {
-		this.engine = ScriptController.Instance.getEngineByName(scriptLanguage);
-		if (this.engine == null) {
-			this.errored = true;
-			return;
+	public void runAsync(String link, String async, String sync, Object arguments) {
+		if (!async.isEmpty()) {
+			if (!link.isEmpty()) {
+				if (!links.containsKey(link)) {
+					links.put(link, Executors.newSingleThreadExecutor());
+				}
+				links.get(link).execute(() -> generateAsyncContext(async, sync, arguments));
+			}
+			else { executor.execute(() -> generateAsyncContext(async, sync, arguments)); }
 		}
-		if (this.engine.get("dump") == null) { this.fillEngine(); }
-		this.fullscript = null;
-		this.hasNoEncryptScriptCode = false;
+		else { runSync(sync, arguments); }
 	}
 
-	private void fillEngine() {
+	private void generateAsyncContext(String async, String sync, Object arguments) {
+		try {
+			ScriptEngine engine;
+			if (!contexts.containsKey(Thread.currentThread().getId())) {
+				engine = ScriptController.Instance.getEngineByName(handler.getLanguage());
+				fillEngine(engine);
+				Map<String, String> map = isClient ? ScriptController.Instance.clients : ScriptController.Instance.scripts;
+				engine.eval(map.get("all.js") + "\n");
+				contexts.put(Thread.currentThread().getId(), engine);
+			}
+			engine = contexts.get(Thread.currentThread().getId());
+			engine.eval("var asyncFunction = (" + async + ");");
+			Object result = ((Invocable) engine).invokeFunction("asyncFunction", arguments);
+			if (!sync.isEmpty()) { runSync(sync, result); }
+		}
+		catch (Exception e) { LogWriter.error(handler.noticeString() + " script generate async context: ", e); }
+	}
+
+	private void runSync(String sync, Object arguments) {
+		CustomNPCsScheduler.runTack(() -> {
+			try { ((Invocable) engine).invokeFunction(sync, arguments); }
+			catch (Exception e) { LogWriter.error(handler.noticeString() + " script sync errored: ", e); }
+		});
+	}
+
+	public void setEngine(String scriptLanguage) {
+		engine = ScriptController.Instance.getEngineByName(scriptLanguage);
+		fullscript = null;
+		hasNoEncryptScriptCode = false;
+		if (engine != null && engine.get("dump") == null) { fillEngine(engine); }
+		errored = engine == null;
+	}
+
+	private void fillEngine(ScriptEngine scriptEngine) {
 		// Custom Functions
 		for (int i = 0; i < ScriptController.Instance.constants.getTagList("Functions", 8).tagCount(); i++) {
 			String body = ScriptController.Instance.constants.getTagList("Functions", 8).getStringTagAt(i);
-			if (body.toLowerCase().indexOf("function ") != 0) {
-				continue;
-			}
+			if (body.toLowerCase().indexOf("function ") != 0) { continue; }
 			try {
 				String key = body.substring(body.indexOf(" ") + 1, body.indexOf("("));
-				if (!this.isClient || (!key.equals("getField") && !key.equals("setField") && !key.equals("invoke"))) {
-					ScriptContainer.Data.put(key, this.engine.eval(body));
+				if (!isClient || (!key.equals("getField") && !key.equals("setField") && !key.equals("invoke"))) {
+					try { ScriptContainer.Data.put(key, scriptEngine.eval(body)); } catch (Exception ignored) { }
 					ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i).removeTag("EvalIsError");
 				}
-			} catch (Exception e) {
-				ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i).setBoolean("EvalIsError", true);
 			}
+			catch (Exception e) { ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i).setBoolean("EvalIsError", true); }
 		}
 		// Custom Constants
 		for (String key : ScriptController.Instance.constants.getCompoundTag("Constants").getKeySet()) {
 			NBTBase tag = ScriptController.Instance.constants.getCompoundTag("Constants").getTag(key);
 			if (tag.getId() == 8) {
-				try {
-					ScriptContainer.Data.put(key, engine.eval(((NBTTagString) tag).getString()));
-				}
+				try { ScriptContainer.Data.put(key, scriptEngine.eval(((NBTTagString) tag).getString())); }
 				catch (Exception e) {
 					if (!isClient ||
 							!((NBTTagString) tag).getString().contains(".Instance().getIWorld(0).getTempdata()") ||
@@ -444,35 +454,33 @@ public class ScriptContainer {
 		ScriptContainer.Data.put("dump", new Dump());
 		ScriptContainer.Data.put("log", new Log());
 		// Base Constants
-		try {
-			ScriptContainer.Data.put("date", this.engine.eval("Java.type('" + Date.class.getName() + "')"));
-			ScriptContainer.Data.put("calendar", this.engine.eval("Java.type('" + Calendar.class.getName() + "')"));
-		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		try { ScriptContainer.Data.put("date", scriptEngine.eval("Java.type('" + Date.class.getName() + "')")); } catch (Exception ignored) { }
+		try { ScriptContainer.Data.put("calendar", scriptEngine.eval("Java.type('" + Calendar.class.getName() + "')")); } catch (Exception ignored) { }
 		// Try to put all
 		for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
-			try { this.engine.put(entry.getKey(), entry.getValue()); }
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			try { scriptEngine.put(entry.getKey(), entry.getValue()); } catch (Exception ignored) { }
 		}
-		if (this.isClient) { this.fillEngineClient(); }
-		this.engine.put("currentThread", Thread.currentThread().getName());
+		if (isClient) { fillEngineClient(scriptEngine); }
+		scriptEngine.put("api", NpcAPI.Instance());
+		scriptEngine.put("currentThread", Thread.currentThread().getName());
+		scriptEngine.put("main", scriptEngine);
+		scriptEngine.put("currentScriptContainer", this);
+		scriptEngine.put("tempData", new TempData());
 	}
 
-	private void fillEngineClient() {
-		if (!this.isClient) { return; }
+	private void fillEngineClient(ScriptEngine scriptEngine) {
+		if (!isClient) { return; }
 		// Try to put MC
-		try { this.engine.put("mc", ClientProxy.mcWrapper); }
-		catch (Exception e) { LogWriter.error("Error:", e); }
-		try { this.engine.put("storedData", ScriptController.Instance.clientScripts.storedData); }
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		try { scriptEngine.put("mc", ClientProxy.mcWrapper); } catch (Exception ignored) {  }
+		try { scriptEngine.put("storedData", ScriptController.Instance.clientScripts.storedData); } catch (Exception ignored) {  }
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setString("Script", this.script);
-		compound.setTag("Console", NBTTags.NBTLongStringMap(this.console));
-		compound.setTag("ScriptList", NBTTags.nbtStringList(this.scripts));
-		compound.setBoolean("isClient", this.isClient);
-		compound.setBoolean("HasNoEncryptScriptCode", this.hasNoEncryptScriptCode);
+		compound.setString("Script", script);
+		compound.setTag("Console", NBTTags.NBTLongStringMap(console));
+		compound.setTag("ScriptList", NBTTags.nbtStringList(scripts));
+		compound.setBoolean("isClient", isClient);
+		compound.setBoolean("HasNoEncryptScriptCode", hasNoEncryptScriptCode);
 		return compound;
 	}
 

@@ -17,14 +17,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureAttribute;
-import net.minecraft.entity.IRangedAttackMob;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAIHurtByTarget;
 import net.minecraft.entity.ai.EntityAIOpenDoor;
@@ -163,7 +156,7 @@ import noppes.npcs.util.GameProfileAlt;
 
 public abstract class EntityNPCInterface
 extends EntityCreature
-implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimals {
+implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimals, INpc {
 
 	public static FakePlayer ChatEventPlayer;
 	public static FakePlayer CommandPlayer;

@@ -2,12 +2,7 @@ package noppes.npcs.client.gui;
 
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.data.DataStats;
 
 public class SubGuiNpcRespawn
@@ -26,8 +21,8 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			stats.spawnCycle = button.getValue();
 			if (stats.spawnCycle == 3 || stats.spawnCycle == 4) {
 				stats.respawnTime = 0;
@@ -35,10 +30,10 @@ implements ITextfieldListener {
 				stats.respawnTime = 20;
 			}
 			initGui();
-		} else if (button.id == 4) {
+		} else if (button.getId() == 4) {
 			stats.hideKilledBody = (button.getValue() == 1);
 		}
-		if (button.id == 66) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -69,7 +64,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (textField.getId() == 2) {
 			stats.respawnTime = textField.getInteger();
 		}

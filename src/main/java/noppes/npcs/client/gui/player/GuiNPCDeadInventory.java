@@ -95,23 +95,20 @@ implements ICustomScrollListener,  IScrollData {
     }
 
     @Override
-    public void save() {  }
-
-    @Override
     public void setData(Vector<String> list, HashMap<String, Integer> dataMap) {
         scroll.setList(list);
         scroll.setSelected(container.playerParent);
     }
 
     @Override
-    public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+    public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
         if (container.playerParent.equals(scroll.getSelected())) { return; }
         wait = true;
         NoppesUtilPlayer.sendData(EnumPlayerPacket.DropData, Util.instance.deleteColor(scroll.getSelected()));
     }
 
     @Override
-    public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
+    public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
 
     @Override
     public void setSelected(String select) { }

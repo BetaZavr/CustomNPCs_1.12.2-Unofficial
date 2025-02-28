@@ -14,15 +14,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditText;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.DialogController;
@@ -55,8 +47,8 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 1: {
 				this.setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
@@ -344,19 +336,19 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (scroll.getSelected() == null) {
 			return;
 		}
-		if (scroll.id == 0) {
+		if (scroll.getId() == 0) {
 			if (this.selectedCategory.equals(scroll.getSelected())) {
 				return;
 			}
 			this.selectedCategory = scroll.getSelected();
 			this.selectedQuest = "";
-			this.scrollQuests.selected = -1;
+			this.scrollQuests.setSelect(-1);
 		}
-		if (scroll.id == 1) {
+		if (scroll.getId() == 1) {
 			if (this.selectedQuest.equals(scroll.getSelected())) {
 				return;
 			}
@@ -366,19 +358,19 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-		if (!this.selectedQuest.isEmpty() && scroll.id == 1) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
+		if (!this.selectedQuest.isEmpty() && scroll.getId() == 1) {
 			this.setSubGui(new GuiQuestEdit(this.questData.get(this.selectedQuest)));
 		}
-		if (!this.selectedCategory.isEmpty() && scroll.id == 0) {
+		if (!this.selectedCategory.isEmpty() && scroll.getId() == 0) {
 			this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
 		}
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText && !((SubGuiEditText) subgui).cancelled) {
-			if (subgui.id == 1) { // create category
+			if (subgui.getId() == 1) { // create category
 				QuestCategory category = new QuestCategory();
 				StringBuilder t = new StringBuilder(((SubGuiEditText) subgui).text[0]);
 				boolean has = true;
@@ -397,7 +389,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
 				this.initGui();
 			}
-			if (subgui.id == 3) { // rename category
+			if (subgui.getId() == 3) { // rename category
 				if (((SubGuiEditText) subgui).text[0].isEmpty() || !this.categoryData.containsKey(this.selectedCategory)) { return; }
 				QuestCategory category = this.categoryData.get(this.selectedCategory).copy();
 				if (category.title.equals(((SubGuiEditText) subgui).text[0])) { return; }
@@ -419,7 +411,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
 				this.initGui();
 			}
-			if (subgui.id == 11) { // create quest
+			if (subgui.getId() == 11) { // create quest
 				if (((SubGuiEditText) subgui).text[0].isEmpty()) {
 					return;
 				}

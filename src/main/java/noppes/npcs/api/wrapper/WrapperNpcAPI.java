@@ -44,19 +44,12 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
-import noppes.npcs.api.handler.IAnimationHandler;
-import noppes.npcs.api.handler.IBorderHandler;
-import noppes.npcs.api.handler.ICloneHandler;
-import noppes.npcs.api.handler.IDialogHandler;
-import noppes.npcs.api.handler.IDimensionHandler;
-import noppes.npcs.api.handler.IFactionHandler;
-import noppes.npcs.api.handler.IKeyBinding;
-import noppes.npcs.api.handler.IMarcetHandler;
-import noppes.npcs.api.handler.IQuestHandler;
-import noppes.npcs.api.handler.IRecipeHandler;
+import noppes.npcs.api.handler.*;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.data.AttributeWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
+import noppes.npcs.client.gui.util.IResourceData;
+import noppes.npcs.client.util.ResourceData;
 import noppes.npcs.containers.ContainerNpcInterface;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.BorderController;
@@ -446,6 +439,16 @@ public class WrapperNpcAPI extends NpcAPI {
 		} catch (NBTJsonUtil.JsonException e) {
 			throw new CustomNPCsException(e, "Failed converting " + str);
 		}
+	}
+
+	@Override
+	public ICustomPlayerData getPlayerData(EntityPlayer player) {
+		return PlayerData.get(player);
+	}
+
+	@Override
+	public IResourceData getResourceData(ResourceLocation texture, int u, int v, int width, int height) {
+		return new ResourceData(texture, u, v, width, height);
 	}
 
 }

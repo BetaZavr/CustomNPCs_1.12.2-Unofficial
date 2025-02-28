@@ -5,13 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcSlider;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ISliderListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumDayTime;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
@@ -36,8 +30,8 @@ implements ISliderListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: {
 				setSubGui(new SubGuiNpcAvailabilityDialog(availability));
 				break;
@@ -57,7 +51,7 @@ implements ISliderListener, ITextfieldListener {
 			case 4: {
 				availability.healthType = button.getValue();
 				if (getSlider(5) != null) {
-					getSlider(5).visible = availability.healthType != 0;
+					getSlider(5).setVisible(availability.healthType != 0);
 				}
 				break;
 			}
@@ -125,7 +119,7 @@ implements ISliderListener, ITextfieldListener {
 		super.initGui();
 		// title
 		GuiNpcLabel label = new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4);
-		label.center(xSize);
+		label.setCenter(xSize);
 		addLabel(label);
 		// colloquium 1
 		int x = guiLeft + 6;
@@ -196,17 +190,17 @@ implements ISliderListener, ITextfieldListener {
 	}
 
 	@Override
-	public void mouseDragged(GuiNpcSlider slider) {
-		availability.health = (int) (slider.sliderValue * 100.0f);
+	public void mouseDragged(IGuiNpcSlider slider) {
+		availability.health = (int) (slider.getSliderValue() * 100.0f);
 		slider.setString(availability.health + "%");
 	}
 
 	@Override
-	public void mousePressed(GuiNpcSlider slider) {
+	public void mousePressed(IGuiNpcSlider slider) {
 	}
 
 	@Override
-	public void mouseReleased(GuiNpcSlider slider) {
+	public void mouseReleased(IGuiNpcSlider slider) {
 	}
 
 	@Override
@@ -217,7 +211,7 @@ implements ISliderListener, ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		switch (textfield.getId()) {
 			case 51: availability.minPlayerLevel = textfield.getInteger(); break;
 			case 52: availability.daytime[0] = textfield.getInteger(); break;

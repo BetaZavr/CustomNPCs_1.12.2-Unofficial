@@ -1,11 +1,6 @@
 package noppes.npcs.client.gui;
 
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.data.DataDisplay;
 
 public class SubGuiNpcName
@@ -28,8 +23,8 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id){
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()){
 			case 1: display.setMarkovGeneratorId(button.getValue()); break;
 			case 2: display.setMarkovGender(button.getValue()); break;
 			case 3: {
@@ -69,7 +64,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 0) {
 			if (!textfield.isEmpty()) { display.setName(textfield.getText());
 			}

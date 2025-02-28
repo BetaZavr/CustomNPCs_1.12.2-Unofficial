@@ -1,14 +1,7 @@
 package noppes.npcs.client.gui.drop;
 
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.GuiTextArea;
-import noppes.npcs.client.gui.util.ITextChangeListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.data.DropNbtSet;
 
 public class SubGuiDropValueNbt
@@ -44,14 +37,14 @@ implements ITextfieldListener, ITextChangeListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 90) { // type
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 90) { // type
 			tag.setType(Integer.parseInt(button.getVariants()[button.getValue()].replace("tag.type.", "")));
 			initGui();
-		} else if (button.id == 91) { // done
+		} else if (button.getId() == 91) { // done
 			close();
 		}
-		if (button.id == 92) { // list type
+		if (button.getId() == 92) { // list type
 			tag.setTypeList(Integer.parseInt(button.getVariants()[button.getValue()].replace("tag.type.", "")));
 			initGui();
 		}
@@ -168,7 +161,7 @@ implements ITextfieldListener, ITextChangeListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 93) { tag.setPath(textfield.getText()); } // path
 		else if (textfield.getId() == 95) { tag.setChance(textfield.getDouble()); } // chance
 		initGui();

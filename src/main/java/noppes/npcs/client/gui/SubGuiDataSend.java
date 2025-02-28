@@ -5,11 +5,7 @@ import java.util.GregorianCalendar;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 
 public class SubGuiDataSend
 extends SubGuiInterface
@@ -31,8 +27,8 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			cancelled = false;
 		}
 		GuiNpcTextField.unfocus();
@@ -83,17 +79,17 @@ implements ITextfieldListener {
 
 		GuiNpcTextField textField = new GuiNpcTextField(0, parent, guiLeft + 4, guiTop + 16, 54, 20, "" + day);
 		textField.setMinMaxDefault(year == 2011 && month == 11 ? 18 : 1, setCal.getActualMaximum(Calendar.DAY_OF_MONTH), day);
-		textField.setHoverText("hover.data.day", "" + getTextField(0).max);
+		textField.setHoverText("hover.data.day", "" + getTextField(0).getMax());
 		addTextField(textField);
 
 		textField = new GuiNpcTextField(1, parent, guiLeft + 61, guiTop + 16, 54, 20, "" + (month + 1));
 		textField.setMinMaxDefault(year == 2011 ? 11 : 1, (year == cal.get(Calendar.YEAR) ? cal.get(Calendar.MONTH) + 1 : 12), (month + 1));
-		textField.setHoverText("hover.data.month", "" + getTextField(1).max, new TextComponentTranslation("month." + month).getFormattedText());
+		textField.setHoverText("hover.data.month", "" + getTextField(1).getMax(), new TextComponentTranslation("month." + month).getFormattedText());
 		addTextField(textField);
 
 		textField = new GuiNpcTextField(2, parent, guiLeft + 118, guiTop + 16, 54, 20, "" + year);
 		textField.setMinMaxDefault(2011, cal.get(Calendar.YEAR), year);
-		textField.setHoverText("hover.data.year", "" + getTextField(2).min, "" + getTextField(2).max);
+		textField.setHoverText("hover.data.year", "" + getTextField(2).getMin(), "" + getTextField(2).getMax());
 		addTextField(textField);
 
 		addButton(new GuiNpcButton(0, guiLeft + 4, guiTop + 44, 80, 20, "gui.done"));
@@ -101,7 +97,7 @@ implements ITextfieldListener {
 	}
 
     @Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getId()) {
 			case 0: {
 				day = textField.getInteger();

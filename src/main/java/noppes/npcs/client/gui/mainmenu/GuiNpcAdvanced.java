@@ -20,13 +20,7 @@ import noppes.npcs.client.gui.advanced.GuiNPCSoundsMenu;
 import noppes.npcs.client.gui.animation.GuiNpcAnimation;
 import noppes.npcs.client.gui.animation.GuiNpcEmotion;
 import noppes.npcs.client.gui.roles.*;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -50,73 +44,73 @@ implements IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id != 5 && button.id != 8) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() != 5 && button.getId() != 8) {
 			this.save();
 		}
-		switch (button.id) {
-		case 3: {
-			Client.sendData(EnumPacketServer.RoleGet);
-			break;
-		}
-		case 4: {
-			Client.sendData(EnumPacketServer.JobGet);
-			break;
-		}
-		case 5: {
-			hasChanges = true;
-			int id = button.getValue();
-			if (id > 8) { id++; }
-			npc.advanced.setJob(id);
-			getButton(4).setEnabled(npc.advanced.jobInterface.getEnumType().hasSettings);
-			break;
-		}
-		case 7: {
-			NoppesUtil.openGUI(this.player, new GuiNPCLinesMenu(this.npc));
-			break;
-		}
-		case 8: {
-			this.hasChanges = true;
-			this.npc.advanced.setRole(button.getValue());
-			getButton(3).setEnabled(this.npc.advanced.roleInterface.getEnumType().hasSettings);
-			break;
-		}
-		case 9: {
-			NoppesUtil.openGUI(this.player, new GuiNPCFactionSetup(this.npc));
-			break;
-		}
-		case 10: {
-			NoppesUtil.openGUI(this.player, new GuiNPCDialogNpcOptions(this.npc));
-			break;
-		}
-		case 11: {
-			NoppesUtil.openGUI(this.player, new GuiNPCSoundsMenu(this.npc));
-			break;
-		}
-		case 12: {
-			NoppesUtil.openGUI(this.player, new GuiNPCNightSetup(this.npc));
-			break;
-		}
-		case 13: {
-			NoppesUtil.openGUI(this.player, new GuiNPCAdvancedLinkedNpc(this.npc));
-			break;
-		}
-		case 14: {
-			NoppesUtil.openGUI(this.player, new GuiNPCScenes(this.npc));
-			break;
-		}
-		case 15: {
-			NoppesUtil.openGUI(this.player, new GuiNPCMarks(this.npc, this));
-			break;
-		}
-		case 16: { // Animation Settings
-			NoppesUtil.openGUI(this.player, new GuiNpcAnimation((EntityCustomNpc) this.npc));
-			break;
-		}
-		case 18: { // Emotion Settings
-			NoppesUtil.openGUI(this.player, new GuiNpcEmotion((EntityCustomNpc) this.npc));
-			break;
-		}
+		switch (button.getId()) {
+			case 3: {
+				Client.sendData(EnumPacketServer.RoleGet);
+				break;
+			}
+			case 4: {
+				Client.sendData(EnumPacketServer.JobGet);
+				break;
+			}
+			case 5: {
+				hasChanges = true;
+				int id = button.getValue();
+				if (id > 8) { id++; }
+				npc.advanced.setJob(id);
+				getButton(4).setEnabled(npc.advanced.jobInterface.getEnumType().hasSettings);
+				break;
+			}
+			case 7: {
+				NoppesUtil.openGUI(this.player, new GuiNPCLinesMenu(this.npc));
+				break;
+			}
+			case 8: {
+				this.hasChanges = true;
+				this.npc.advanced.setRole(button.getValue());
+				getButton(3).setEnabled(this.npc.advanced.roleInterface.getEnumType().hasSettings);
+				break;
+			}
+			case 9: {
+				NoppesUtil.openGUI(this.player, new GuiNPCFactionSetup(this.npc));
+				break;
+			}
+			case 10: {
+				NoppesUtil.openGUI(this.player, new GuiNPCDialogNpcOptions(this.npc));
+				break;
+			}
+			case 11: {
+				NoppesUtil.openGUI(this.player, new GuiNPCSoundsMenu(this.npc));
+				break;
+			}
+			case 12: {
+				NoppesUtil.openGUI(this.player, new GuiNPCNightSetup(this.npc));
+				break;
+			}
+			case 13: {
+				NoppesUtil.openGUI(this.player, new GuiNPCAdvancedLinkedNpc(this.npc));
+				break;
+			}
+			case 14: {
+				NoppesUtil.openGUI(this.player, new GuiNPCScenes(this.npc));
+				break;
+			}
+			case 15: {
+				NoppesUtil.openGUI(this.player, new GuiNPCMarks(this.npc, this));
+				break;
+			}
+			case 16: { // Animation Settings
+				NoppesUtil.openGUI(this.player, new GuiNpcAnimation((EntityCustomNpc) this.npc));
+				break;
+			}
+			case 18: { // Emotion Settings
+				NoppesUtil.openGUI(this.player, new GuiNpcEmotion((EntityCustomNpc) this.npc));
+				break;
+			}
 		}
 	}
 
@@ -300,7 +294,7 @@ implements IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcSelectTrader) {
 			this.hasChanges = true;
 			RoleTrader role = (RoleTrader) this.npc.advanced.roleInterface;

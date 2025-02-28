@@ -16,15 +16,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.IScrollData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.schematics.ISchematic;
 import noppes.npcs.schematics.SchematicWrapper;
@@ -54,8 +46,8 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 3) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 3) {
 			if (((GuiNpcButtonYesNo) button).getBoolean()) {
 				TileBuilder.SetDrawPos(new BlockPos(x, y, z));
 				tile.setDrawSchematic(new SchematicWrapper(selected));
@@ -64,23 +56,23 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 				tile.setDrawSchematic(null);
 			}
 		}
-		if (button.id == 4) {
+		if (button.getId() == 4) {
 			tile.enabled = ((GuiNpcButtonYesNo) button).getBoolean();
 		}
-		if (button.id == 5) {
+		if (button.getId() == 5) {
 			tile.rotation = button.getValue();
 		}
-		if (button.id == 6) {
+		if (button.getId() == 6) {
 			setSubGui(new SubGuiNpcAvailability(tile.availability, this));
 		}
-		if (button.id == 7) {
+		if (button.getId() == 7) {
 			tile.finished = ((GuiNpcButtonYesNo) button).getBoolean();
 			Client.sendData(EnumPacketServer.SchematicsSet, x, y, z, scroll.getSelected());
 		}
-		if (button.id == 8) {
+		if (button.getId() == 8) {
 			tile.started = ((GuiNpcButtonYesNo) button).getBoolean();
 		}
-		if (button.id == 10) {
+		if (button.getId() == 10) {
 			save();
 			GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("schematic.instantBuildText").getFormattedText(), 0);
 			displayGuiScreen(guiyesno);
@@ -152,7 +144,7 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (!scroll.hasSelected()) { return; }
 		if (selected != null) { getButton(3).setDisplay(0); }
 		TileBuilder.SetDrawPos(null);
@@ -161,7 +153,7 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) { }
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {

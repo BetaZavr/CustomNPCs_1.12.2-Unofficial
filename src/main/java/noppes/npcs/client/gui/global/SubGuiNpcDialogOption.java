@@ -11,14 +11,7 @@ import noppes.npcs.client.gui.SubGuiColorSelector;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.player.GuiDialogInteract;
 import noppes.npcs.client.gui.select.GuiDialogSelection;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
@@ -48,8 +41,8 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 1: { // type
 				this.option.optionType = OptionType.get(button.getValue());
 				this.initGui();
@@ -113,7 +106,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 					return;
 				}
 				this.option.iconId = button.getValue();
-				button.texture = GuiDialogInteract.icons.get(this.option.iconId);
+				button.setTexture(GuiDialogInteract.icons.get(this.option.iconId));
 				break;
 			}
 			case 66: { // exit
@@ -127,7 +120,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	public void initGui() {
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(66, "dialog.editoption", this.guiLeft, this.guiTop + 4));
-		this.getLabel(66).center(this.xSize);
+		this.getLabel(66).setCenter(this.xSize);
 		this.addLabel(new GuiNpcLabel(0, "gui.title", this.guiLeft + 4, this.guiTop + 20));
 		GuiNpcTextField textField = new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 40, this.guiTop + 15, 196, 20, this.option.title);
 		textField.setHoverText("dialog.option.hover.name");
@@ -233,20 +226,20 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int ticks, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int ticks, IGuiCustomScroll scroll) {
 		if (this.option.optionType != OptionType.DIALOG_OPTION || scroll.getSelected() == null) { return; }
 		select = scroll.getSelected();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 		if (option.optionType != OptionType.DIALOG_OPTION || select.isEmpty()  || !data.containsKey(this.select)) { return; }
 		setSubGui(new GuiDialogSelection(data.get(select).dialogId, 1));
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiColorSelector) {
 			DialogOption option = this.option;
 			int color = ((SubGuiColorSelector) subgui).color;
@@ -271,7 +264,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 0) {
 			if (textfield.isEmpty()) {
 				this.option.title = "Talk";

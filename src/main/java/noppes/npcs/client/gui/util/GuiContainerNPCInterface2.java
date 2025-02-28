@@ -195,7 +195,7 @@ extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int mouseBottom) throws IOException {
+	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		if (!hasSubGui() && menu != null) {
 			menu.mouseClicked(mouseX, mouseY, mouseBottom);
 		}

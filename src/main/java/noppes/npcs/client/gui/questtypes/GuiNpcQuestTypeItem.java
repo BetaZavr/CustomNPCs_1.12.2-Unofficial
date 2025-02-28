@@ -17,13 +17,7 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
 import noppes.npcs.client.gui.global.GuiQuestEdit;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNpcQuestTypeItem;
 import noppes.npcs.controllers.BorderController;
@@ -97,7 +91,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 					NoppesUtilServer.getEditingQuest(player).questInterface.removeTask(task);
 				} else {
 					if (((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui instanceof GuiQuestEdit) {
-						((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.subgui = null;
+						((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.setSubGui(null);
 						((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.initGui();
 					}
 				}
@@ -238,7 +232,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 	public void save() { }
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (task == null) {
 			return;
 		}
@@ -249,7 +243,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 			}
 			case 9: {
 				if (!BorderController.getInstance().regions.containsKey(textField.getInteger())) {
-					textField.setText("" + textField.def);
+					textField.setText("" + textField.getDefault());
 					return;
 				}
 				task.regionID = textField.getInteger();

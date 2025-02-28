@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import noppes.npcs.client.gui.util.*;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -32,16 +33,6 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.ClientTickHandler;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.controllers.MusicController;
-import noppes.npcs.client.gui.util.GuiButtonNextPage;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.IGuiClose;
-import noppes.npcs.client.gui.util.IGuiError;
-import noppes.npcs.client.gui.util.ITextChangeListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.controllers.data.PlayerMail;
@@ -146,11 +137,11 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (!button.enabled) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (!button.isEnabled()) {
 			return;
 		}
-		switch (button.id) {
+		switch (button.getId()) {
 			case 0: { // send
 				GuiMailmanWrite.mail.message.setTag("pages", this.bookPages);
 				if (this.canSend) {
@@ -296,7 +287,7 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 			}
 			int x = this.guiLeft + 170, y = this.guiTop + 48;
 			// player name
-			GuiNpcLabel l = this.getLabel(0);
+			GuiNpcLabel l = (GuiNpcLabel) getLabel(0);
 			GuiNpcTextField tf;
 			GuiNpcButton b;
 			if (l != null && l.x == 250000) {
@@ -304,32 +295,32 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 				l.y = y;
 			}
 			if (this.canEdit) {
-				tf = this.getTextField(!this.canSend ? 2 : 0);
+				tf = (GuiNpcTextField) getTextField(!this.canSend ? 2 : 0);
 				if (tf != null && tf.x == 250000) {
 					tf.x = x;
 					tf.y = (y += 10);
 				}
 			} else {
-				l = this.getLabel(10);
+				l = (GuiNpcLabel) getLabel(10);
 				if (l != null && l.x == 250000) {
 					l.x = x + 2;
 					l.y = (y += 10);
 				}
 			}
 			// title
-			l = this.getLabel(1);
+			l = (GuiNpcLabel) getLabel(1);
 			if (l != null && l.x == 250000) {
 				l.x = x;
 				l.y = (y += 18);
 			}
-			if (this.canEdit) {
-				tf = this.getTextField(1);
+			if (canEdit) {
+				tf = (GuiNpcTextField) getTextField(1);
 				if (tf != null && tf.x == 250000) {
 					tf.x = x;
 					tf.y = (y += 10);
 				}
 			} else {
-				l = this.getLabel(11);
+				l = (GuiNpcLabel) getLabel(11);
 				if (l != null && l.x == 250000) {
 					l.x = x;
 					l.y = (y += 10);
@@ -337,30 +328,30 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 			}
 			// ransom
 			if (this.getLabel(7) != null) {
-				this.getLabel(7).backColor = 0;
+				this.getLabel(7).setBackColor(0);
 			}
 			if (this.getLabel(8) != null) {
-				this.getLabel(8).backColor = 0;
+				this.getLabel(8).setBackColor(0);
 			}
 			if (this.getButton(6) != null) {
-				this.getButton(6).layerColor = 0;
+				this.getButton(6).setLayerColor(0);
 				if (!this.canEdit && !this.canSend) {
 					if (mail.ransom > 0) {
-						this.getButton(6).enabled = this.player.capabilities.isCreativeMode
-								|| ClientProxy.playerData.game.getMoney() >= mail.ransom;
+						this.getButton(6).setEnabled(player.capabilities.isCreativeMode
+								|| ClientProxy.playerData.game.getMoney() >= mail.ransom);
 					} else {
-						this.getButton(6).enabled = mail.money > 0;
+						this.getButton(6).setEnabled(mail.money > 0);
 					}
 				}
 			}
 			if (!this.canEdit) {
 				if (GuiMailmanWrite.mail.ransom > 0 || GuiMailmanWrite.mail.money > 0) {
-					l = this.getLabel(7);
+					l = (GuiNpcLabel) getLabel(7);
 					if (l != null && l.x == 250000) {
 						l.x = x;
 						l.y = y + 18;
 					}
-					l = this.getLabel(8);
+					l = (GuiNpcLabel) getLabel(8);
 					if (l != null && l.x == 250000) {
 						l.x = x + 2;
 						l.y = y + 28;
@@ -374,18 +365,18 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 			}
 			// Moneys
 			if (this.canEdit) {
-				l = this.getLabel(3);
+				l = (GuiNpcLabel) getLabel(3);
 				if (l != null && l.x == 250000) {
 					l.x = x;
 					l.y = (y += 19) + 4;
 				}
-				l = this.getLabel(6);
+				l = (GuiNpcLabel) getLabel(6);
 				if (l != null && l.x == 250000) {
 					l.x = x + 102;
 					l.y = y + 4;
 				}
-				GuiNpcTextField tf3 = this.getTextField(3);
-				GuiNpcTextField tf4 = this.getTextField(4);
+				GuiNpcTextField tf3 = (GuiNpcTextField) getTextField(3);
+				GuiNpcTextField tf4 = (GuiNpcTextField) getTextField(4);
 				if (tf3 != null) {
 					if (tf3.x == 250000) {
 						tf3.x = x + 48;
@@ -397,29 +388,29 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 							tf4.setVisible(false);
 						}
 						if (this.getLabel(7) != null) {
-							this.getLabel(7).enabled = false;
+							this.getLabel(7).setEnabled(false);
 						}
 						if (this.getLabel(8) != null) {
-							this.getLabel(8).enabled = false;
+							this.getLabel(8).setEnabled(false);
 						}
 					} else {
 						if (tf4 != null) {
 							tf4.setVisible(true);
 						}
 						if (this.getLabel(7) != null) {
-							this.getLabel(7).enabled = true;
+							this.getLabel(7).setEnabled(true);
 						}
 						if (this.getLabel(8) != null) {
-							this.getLabel(8).enabled = true;
+							this.getLabel(8).setEnabled(true);
 						}
 					}
 				}
-				l = this.getLabel(7);
+				l = (GuiNpcLabel) getLabel(7);
 				if (l != null && l.x == 250000) {
 					l.x = x;
 					l.y = (y += 19) + 4;
 				}
-				l = this.getLabel(8);
+				l = (GuiNpcLabel) getLabel(8);
 				if (l != null && l.x == 250000) {
 					l.x = x + 102;
 					l.y = y + 4;
@@ -435,20 +426,20 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 							tf3.setVisible(false);
 						}
 						if (this.getLabel(3) != null) {
-							this.getLabel(3).enabled = false;
+							this.getLabel(3).setEnabled(false);
 						}
 						if (this.getLabel(6) != null) {
-							this.getLabel(6).enabled = false;
+							this.getLabel(6).setEnabled(false);
 						}
 					} else {
 						if (tf3 != null) {
 							tf3.setVisible(true);
 						}
 						if (this.getLabel(3) != null) {
-							this.getLabel(3).enabled = true;
+							this.getLabel(3).setEnabled(true);
 						}
 						if (this.getLabel(6) != null) {
-							this.getLabel(6).enabled = true;
+							this.getLabel(6).setEnabled(true);
 						}
 					}
 				}
@@ -456,13 +447,13 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 			x = this.guiLeft + 7;
 			y = this.guiTop + 149;
 			if (this.canEdit && !this.canSend) { // dialog/quest add to
-				b = this.getButton(0);
+				b = (GuiNpcButton) getButton(0);
 				if (b != null && b.x == 250000) {
 					b.x = x + 52;
 					b.y = y;
 				}
 			} else if (this.canEdit) { // write
-				b = this.getButton(0);
+				b = (GuiNpcButton) getButton(0);
 				if (b != null && b.x == 250000) {
 					b.x = x + 52;
 					b.y = y;
@@ -470,25 +461,25 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 			}
 			if (!this.canEdit && !this.canSend) { // read -> delete
 				if (GuiMailmanWrite.mail.ransom > 0 || GuiMailmanWrite.mail.money > 0) {
-					b = this.getButton(6);
+					b = (GuiNpcButton) getButton(6);
 					if (b != null && b.x == 250000) {
 						b.x = x + 220;
 						b.y = y - 42;
 					}
 				}
-				b = this.getButton(4);
+				b = (GuiNpcButton) getButton(4);
 				if (b != null && b.x == 250000) {
 					b.x = x;
 					b.y = y;
 				}
-				b = this.getButton(7);
+				b = (GuiNpcButton) getButton(7);
 				if (b != null && b.x == 250000) {
 					b.x = x + 52;
 					b.y = y;
 				}
 			}
 			if (!this.canEdit || this.canSend) { // write -> cancel
-				b = this.getButton(3);
+				b = (GuiNpcButton) getButton(3);
 				if (b != null && b.x == 250000) {
 					b.x = x + 104;
 					b.y = y;
@@ -551,9 +542,9 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 				this.drawGradientRect(this.guiLeft + 11, this.guiTop + 36, this.guiLeft + 164, this.guiTop + 144, borderC, borderC);
 				if (this.isMouseHover(mouseX, mouseY, this.guiLeft + 11, this.guiTop + 36, 152, 108)) {
 					setHoverText("mailbox.hover.ransom.sell");
-					this.getLabel(7).backColor = new Color(0x80FF0000).getRGB();
-					this.getLabel(8).backColor = new Color(0x80FF0000).getRGB();
-					this.getButton(6).layerColor = new Color(0xFFF00000).getRGB();
+					this.getLabel(7).setBackColor(new Color(0x80FF0000).getRGB());
+					this.getLabel(8).setBackColor(new Color(0x80FF0000).getRGB());
+					this.getButton(6).setLayerColor(new Color(0xFFF00000).getRGB());
 				}
 			}
 			// add slots
@@ -588,9 +579,9 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 									this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED
 											: TooltipFlags.NORMAL));
 							setHoverText(list);
-							this.getLabel(7).backColor = new Color(0x80FF0000).getRGB();
-							this.getLabel(8).backColor = new Color(0x80FF0000).getRGB();
-							this.getButton(6).layerColor = new Color(0xFFF00000).getRGB();
+							this.getLabel(7).setBackColor(new Color(0x80FF0000).getRGB());
+							this.getLabel(8).setBackColor(new Color(0x80FF0000).getRGB());
+							this.getButton(6).setLayerColor(new Color(0xFFF00000).getRGB());
 						}
 						this.mc.getTextureManager().bindTexture(icons);
 						this.drawTexturedModalRect(-2, -2, 0, 32, 20, 20);
@@ -618,17 +609,17 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 				this.buttonPreviousPage.y = 250000;
 			}
 			for (int i = 0; i < 12; i++) {
-				GuiNpcLabel l = this.getLabel(i);
+				GuiNpcLabel l = (GuiNpcLabel) getLabel(i);
 				if (l != null && l.x != 250000) {
 					l.x = 250000;
 					l.y = 250000;
 				}
-				GuiNpcButton b = this.getButton(i);
+				GuiNpcButton b = (GuiNpcButton) getButton(i);
 				if (b != null && b.x != 250000) {
 					b.x = 250000;
 					b.y = 250000;
 				}
-				GuiNpcTextField tf = this.getTextField(i);
+				GuiNpcTextField tf = (GuiNpcTextField) getTextField(i);
 				if (tf != null && tf.x != 250000) {
 					tf.x = 250000;
 					tf.y = 250000;
@@ -1618,11 +1609,7 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 		Keyboard.enableRepeatEvents(false);
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void setClose(int i, NBTTagCompound data) {
 		this.player.sendMessage(
 				new TextComponentTranslation("mailbox.success", data.getString("username")));
@@ -1664,7 +1651,7 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getId()) {
 		case 0:
 			this.username = textField.getText();
@@ -1678,13 +1665,13 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 		case 3: {
 			GuiMailmanWrite.mail.money = textField.getInteger();
 			textField.setText("" + GuiMailmanWrite.mail.money);
-			textField.def = GuiMailmanWrite.mail.money;
+			textField.setMinMaxDefault(textField.getMin(), textField.getMax(), GuiMailmanWrite.mail.money);
 			break;
 		}
 		case 4: {
 			GuiMailmanWrite.mail.ransom = textField.getInteger();
 			textField.setText("" + GuiMailmanWrite.mail.ransom);
-			textField.def = GuiMailmanWrite.mail.ransom;
+			textField.setMinMaxDefault(textField.getMin(), textField.getMax(), GuiMailmanWrite.mail.ransom);
 			break;
 		}
 		}
@@ -1705,16 +1692,16 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 		super.updateScreen();
 		++this.updateCount;
 		if (this.getLabel(4) != null) {
-			this.getLabel(4).enabled = false;
+			this.getLabel(4).setEnabled(false);
 		}
 		if (this.canEdit) {
 			if (this.getLabel(4) != null) {
-				this.getLabel(4).enabled = true;
+				this.getLabel(4).setEnabled(true);
 			}
 		} else {
 			if (!this.canSend && GuiMailmanWrite.mail.money > 0) {
 				if (this.getLabel(4) != null) {
-					this.getLabel(4).enabled = true;
+					this.getLabel(4).setEnabled(true);
 				}
 			}
 		}

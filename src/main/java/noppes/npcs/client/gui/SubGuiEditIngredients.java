@@ -4,10 +4,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -28,7 +25,7 @@ extends SubGuiInterface {
     }
 
     @Override
-    public void buttonEvent(GuiNpcButton button) {
+    public void buttonEvent(IGuiNpcButton button) {
         close();
     }
 

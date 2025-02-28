@@ -14,10 +14,7 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 
 public class SubGuiColorSelector
 extends SubGuiInterface
@@ -126,7 +123,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		try { color = Integer.parseInt(textfield.getText(), 16); }
 		catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 	}

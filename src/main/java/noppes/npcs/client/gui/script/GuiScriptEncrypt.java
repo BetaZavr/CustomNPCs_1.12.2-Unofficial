@@ -1,11 +1,7 @@
 package noppes.npcs.client.gui.script;
 
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 
 public class GuiScriptEncrypt
 extends SubGuiInterface {
@@ -30,8 +26,8 @@ extends SubGuiInterface {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: {
 				if (!(button instanceof GuiNpcCheckBox)) { return; }
 				onlyTab = ((GuiNpcCheckBox) button).isSelected();
@@ -64,7 +60,7 @@ extends SubGuiInterface {
 		addLabel(new GuiNpcLabel(0, new TextComponentTranslation("gui.path", ":").getFormattedText(), x + 2, y - 10));
 		GuiNpcTextField textField = new GuiNpcTextField(0, this, x, y, 166, 20, "default");
 		textField.prohibitedSpecialChars = GuiNpcTextField.filePath;
-		textField.setHoverText("encrypt.hover.path", path + getTextField(0).getText() + ext);
+		textField.setHoverText("encrypt.hover.path", path + textField.getText() + ext);
 		addTextField(textField);
 		GuiNpcButton button = new GuiNpcCheckBox(0, x + 1, y += 22, 164, 16, "encrypt.only.tab", "encrypt.all.scripts", onlyTab);
 		button.setHoverText("encrypt.hover.type." + onlyTab);

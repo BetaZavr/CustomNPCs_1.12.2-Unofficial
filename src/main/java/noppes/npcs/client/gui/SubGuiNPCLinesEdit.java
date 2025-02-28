@@ -8,14 +8,7 @@ import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.select.GuiSoundSelection;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.Line;
 import noppes.npcs.controllers.data.Lines;
@@ -46,38 +39,38 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		if (select.isEmpty() && scroll.hasSelected()) {
 			select = scroll.getSelected();
 		}
-		switch (button.id) {
-		case 0: { // add
-			setSubGui(new SubGuiEditText(0, CustomNpcs.DefaultInteractLine));
-			break;
-		}
-		case 1: { // remove
-			if (!data.containsKey(select)) {
-				return;
+		switch (button.getId()) {
+			case 0: { // add
+				setSubGui(new SubGuiEditText(0, CustomNpcs.DefaultInteractLine));
+				break;
 			}
-			lines.remove(data.get(select));
-			if (scroll != null && scroll.selected > 0) {
-				scroll.selected--;
+			case 1: { // remove
+				if (!data.containsKey(select)) {
+					return;
+				}
+				lines.remove(data.get(select));
+				if (scroll != null && scroll.getSelect() > 0) {
+					scroll.setSelect(scroll.getSelect() - 1);
+				}
+				initGui();
+				break;
 			}
-			initGui();
-			break;
-		}
-		case 2: { // sel sound
-			if (!data.containsKey(select) || !lines.lines.containsKey(data.get(select))) {
-				setSubGui(new SubGuiEditText(0, CustomNpcs.DefaultInteractLine)); // add
-				return;
+			case 2: { // sel sound
+				if (!data.containsKey(select) || !lines.lines.containsKey(data.get(select))) {
+					setSubGui(new SubGuiEditText(0, CustomNpcs.DefaultInteractLine)); // add
+					return;
+				}
+				setSubGui(new GuiSoundSelection(lines.lines.get(data.get(select)).getSound()));
+				break;
 			}
-			setSubGui(new GuiSoundSelection(lines.lines.get(data.get(select)).getSound()));
-			break;
-		}
-		case 66: {
-			close();
-			break;
-		}
+			case 66: {
+				close();
+				break;
+			}
 		}
 	}
 
@@ -131,7 +124,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		addScroll(scroll);
 		// title
 		addLabel(new GuiNpcLabel(1, title.isEmpty() ? "" : title, guiLeft, guiTop + 4));
-		getLabel(1).center(xSize);
+		getLabel(1).setCenter(xSize);
 		// text
 		int x = guiLeft + 6;
 		int y = guiTop + 170;
@@ -158,7 +151,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (!data.containsKey(scroll.getSelected())) {
 			return;
 		}
@@ -167,11 +160,10 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText) {
 			SubGuiEditText sub = (SubGuiEditText) subgui;
 			if (sub.cancelled || sub.text[0].isEmpty()) {
@@ -200,7 +192,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (hasSubGui()) {
 			return;
 		}

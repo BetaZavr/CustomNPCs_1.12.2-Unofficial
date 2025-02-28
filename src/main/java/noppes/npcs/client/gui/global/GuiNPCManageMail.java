@@ -5,13 +5,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -26,8 +20,8 @@ implements IGuiData, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			CustomNpcs.MailSendToYourself = ((GuiNpcCheckBox) button).isSelected();
 		}
 	}
@@ -134,7 +128,7 @@ implements IGuiData, ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (!textField.isInteger()) {
 			this.initGui();
 			return;
@@ -152,7 +146,7 @@ implements IGuiData, ITextfieldListener {
 			if (this.getTextField(2) == null) {
 				return;
 			}
-			GuiNpcTextField textField2 = this.getTextField(2);
+			GuiNpcTextField textField2 = (GuiNpcTextField) getTextField(2);
 			int[] vd = new int[] { textField.getInteger(), textField2.getInteger() };
 			if (vd[0] > vd[1]) {
 				int m = vd[0];
@@ -169,7 +163,7 @@ implements IGuiData, ITextfieldListener {
 			if (this.getTextField(1) == null) {
 				return;
 			}
-			GuiNpcTextField textField1 = this.getTextField(1);
+			GuiNpcTextField textField1 = (GuiNpcTextField) getTextField(1);
 			int[] vd = new int[] { textField1.getInteger(), textField.getInteger() };
 			if (vd[0] > vd[1]) {
 				int m = vd[0];

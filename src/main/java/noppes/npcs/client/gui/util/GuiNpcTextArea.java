@@ -16,7 +16,7 @@ import net.minecraft.util.math.MathHelper;
 import noppes.npcs.client.ClientProxy;
 
 public class GuiNpcTextArea
-extends GuiNpcTextField {
+extends GuiNpcTextField implements IGuiTextArea {
 
 	public boolean inMenu = true;
 	public boolean numbersOnly = false;

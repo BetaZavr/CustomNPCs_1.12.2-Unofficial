@@ -10,6 +10,7 @@ import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeLocation;
 import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeManual;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
+import noppes.npcs.client.gui.util.IGuiNpcButton;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumQuestTask;
@@ -32,9 +33,9 @@ extends SubGuiInterface {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		QuestObjective task;
-		switch (button.id) {
+		switch (button.getId()) {
 			case 66: {
 				close();
 				return;

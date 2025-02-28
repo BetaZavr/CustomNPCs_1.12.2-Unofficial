@@ -15,16 +15,7 @@ import noppes.npcs.client.gui.SubGuiNpcTextArea;
 import noppes.npcs.client.gui.select.GuiQuestSelection;
 import noppes.npcs.client.gui.select.GuiSoundSelection;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.PlayerMail;
@@ -47,8 +38,8 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 3: {
 				setSubGui(new SubGuiNpcTextArea(dialog.text));
 				break;
@@ -289,7 +280,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
 			SubGuiNpcTextArea gui = (SubGuiNpcTextArea) subgui;
 			dialog.text = gui.text;
@@ -325,7 +316,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField guiNpcTextField) {
+	public void unFocused(IGuiNpcTextField guiNpcTextField) {
 		if (guiNpcTextField.getId() == 1) {
 			StringBuilder t = new StringBuilder(guiNpcTextField.getText());
 			boolean has = true;

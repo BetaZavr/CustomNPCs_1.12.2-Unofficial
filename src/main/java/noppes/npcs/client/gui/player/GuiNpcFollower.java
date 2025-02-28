@@ -13,10 +13,7 @@ import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.CustomNpcResourceListener;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.controllers.data.MarkData;
@@ -61,11 +58,11 @@ implements IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id < 4) {
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerExtend, button.id);
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() < 4) {
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerExtend, button.getId());
 		} else {
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerState, button.id - 5);
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerState, button.getId() - 5);
 		}
 	}
 
@@ -194,10 +191,7 @@ implements IGuiData {
 		addButton(button);
 	}
 
-	@Override
-	public void save() { }
-
-	@Override
+    @Override
 	public void setGuiData(NBTTagCompound compound) {
 		npc.advanced.roleInterface.readFromNBT(compound);
 		initGui();

@@ -69,14 +69,14 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		if (isWait) { return; }
-		if (button.id > 2 && button.id < 8) {
+		if (button.getId() > 2 && button.getId() < 8) {
 			close();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.OpenCeilBank, cont.bank.id, ((GuiMenuSideButton) button).data);
 			return;
 		}
-		switch (button.id) {
+		switch (button.getId()) {
 			case 0: {
 				NoppesUtilPlayer.sendData((upgrade ? EnumPlayerPacket.BankUpgrade : EnumPlayerPacket.BankUnlock), npc.getEntityId(), true, 1);
 				isWait = true;
@@ -135,7 +135,7 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(ISubGuiInterface gui) {
 		if (gui instanceof SubGuiEditBankAccess) {
 			SubGuiEditBankAccess subGui = (SubGuiEditBankAccess) gui;
 			boolean isChanged = false;
@@ -343,17 +343,17 @@ implements ISubGuiListener {
 					canPayMoney = data.game.getMoney() >= money;
 				}
 			}
-			getButton(0).enabled = player.capabilities.isCreativeMode || (max > 0 && canPayStack && canPayMoney);
+			getButton(0).setEnabled(player.capabilities.isCreativeMode || (max > 0 && canPayStack && canPayMoney));
 
-			getButton(0).visible = isOwner;
-			getButton(14).enabled = allCost != 0 && allCost <= max;
-			getButton(14).visible = isOwner && upgrade && max > 0;
+			getButton(0).setVisible(isOwner);
+			getButton(14).setEnabled(allCost != 0 && allCost <= max);
+			getButton(14).setVisible(isOwner && upgrade && max > 0);
 		}
 		if (getButton(10) != null) {
-			getButton(10).enabled = cont.items.getSizeInventory() > 0 && !cont.items.isEmpty();
+			getButton(10).setEnabled(cont.items.getSizeInventory() > 0 && !cont.items.isEmpty());
 		}
 		if (getButton(13) != null) {
-			getButton(13).enabled = cont.items.getSizeInventory() > 0 && (!cont.items.isEmpty() || cont.items.getSizeInventory() != cont.bank.ceilSettings.get(cont.ceil).startCells);
+			getButton(13).setEnabled(cont.items.getSizeInventory() > 0 && (!cont.items.isEmpty() || cont.items.getSizeInventory() != cont.bank.ceilSettings.get(cont.ceil).startCells));
 		}
 		if (CustomNpcs.ShowDescriptions && subgui == null) {
 			if (getButton(0) != null && getButton(0).isMouseOver()) {
@@ -372,17 +372,17 @@ implements ISubGuiListener {
 				setHoverText(new TextComponentTranslation("bank.hover.up").getFormattedText());
 			} else if (getButton(2) != null && getButton(2).isMouseOver()) {
 				setHoverText(new TextComponentTranslation("bank.hover.down").getFormattedText());
-			} else if (getButton(9) != null && getButton(9).visible && getButton(9).isMouseOver()) {
+			} else if (getButton(9) != null && getButton(9).isVisible() && getButton(9).isMouseOver()) {
 				setHoverText(new TextComponentTranslation("bank.hover.settings").getFormattedText());
-			} else if (getButton(10) != null && getButton(10).visible && getButton(10).isMouseOver()) {
+			} else if (getButton(10) != null && getButton(10).isVisible() && getButton(10).isMouseOver()) {
 				setHoverText(new TextComponentTranslation("bank.hover.clear.slots").getFormattedText());
-			} else if (getButton(11) != null && getButton(11).visible && getButton(11).isMouseOver()) {
+			} else if (getButton(11) != null && getButton(11).isVisible() && getButton(11).isMouseOver()) {
 				setHoverText(new TextComponentTranslation("bank.hover.lock").getFormattedText());
-			} else if (getButton(12) != null && getButton(12).visible && getButton(12).isMouseOver()) {
+			} else if (getButton(12) != null && getButton(12).isVisible() && getButton(12).isMouseOver()) {
 				setHoverText(new TextComponentTranslation("bank.hover.regrade").getFormattedText());
-			} else if (getButton(13) != null && getButton(13).visible && getButton(13).isMouseOver()) {
+			} else if (getButton(13) != null && getButton(13).isVisible() && getButton(13).isMouseOver()) {
 				setHoverText(new TextComponentTranslation("bank.hover.reset").getFormattedText());
-			} else if (getButton(14) != null && getButton(14).visible && getButton(14).isMouseOver()) {
+			} else if (getButton(14) != null && getButton(14).isVisible() && getButton(14).isMouseOver()) {
 				ITextComponent it = new TextComponentTranslation("bank.hover.update.true", ((char)167) + "6" + allCost + ((char)167) + "7/" + max, "" + cont.items.getSizeInventory(), "" + cont.bank.ceilSettings.get(cont.ceil).maxCells);
 				if (!upgrade && cont.dataCeil < cont.bank.ceilSettings.size()) {
 					it.appendSibling(new TextComponentTranslation("bank.hover.update.not.1", "" + (cont.dataCeil + 1)));
@@ -452,7 +452,7 @@ implements ISubGuiListener {
 			addButton(button);
 
 			button = new GuiNpcButton(14, x + 52, y, 25, 18, "gui.max");
-			button.enabled = getButton(0).enabled;
+			button.enabled = getButton(0).isEnabled();
 			button.visible = cs.maxCells - cont.items.getSizeInventory() > 0;
 			addButton(button);
 
@@ -502,7 +502,7 @@ implements ISubGuiListener {
 		if (cont.bank.isPublic) {
 			if (!cont.bank.owner.isEmpty() || player.capabilities.isCreativeMode) {
 				this.addButton(new GuiNpcButton(9, (isMany ? 12 : -4) + (width + xSize) / 2, guiTop - 8, 20, 20, 20, 146, GuiNPCInterface.WIDGETS));
-				getButton(9).visible = isOwner;
+				getButton(9).setVisible(isOwner);
 			}
 		}
 		GuiNpcButton button = new GuiNpcButton(10, u + slot.xPos + (isMany ? 166 : 159), v + slot.yPos - 24, 20, 20, "");
@@ -530,7 +530,7 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
 		if (hoverScroll) {
 			yPos = mouseY;
 			isScrolling = true;
@@ -610,8 +610,5 @@ implements ISubGuiListener {
 			slot.yPos = 18 + (i / 9) * 18;
 		}
 	}
-
-	@Override
-	public void save() { }
 
 }

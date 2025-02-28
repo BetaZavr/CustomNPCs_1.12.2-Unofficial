@@ -363,7 +363,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
-			if (mc.currentScreen instanceof IEditNPC && entity.equals(((IEditNPC) mc.currentScreen).getNPC())) {
+			if (mc.currentScreen instanceof IEditNPC && entity.equals(((IEditNPC) mc.currentScreen).getNpc())) {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
@@ -437,9 +437,9 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				return;
 			}
 			if (gui instanceof GuiNPCInterface && ((GuiNPCInterface) gui).hasSubGui()) {
-				gui = ((GuiNPCInterface) gui).getSubGui();
+				gui = (GuiScreen) ((GuiNPCInterface) gui).getSubGui();
 			} else if (gui instanceof GuiContainerNPCInterface && ((GuiContainerNPCInterface) gui).hasSubGui()) {
-				gui = ((GuiContainerNPCInterface) gui).getSubGui();
+				gui = (GuiScreen) ((GuiContainerNPCInterface) gui).getSubGui();
 			}
 			if (gui instanceof IGuiData) {
 				NBTTagCompound compound = Server.readNBT(buffer);
@@ -716,8 +716,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
-			DropController.getInstance().templates.put(nbtTemplate.getString("Name"),
-					new DropsTemplate(nbtTemplate.getCompoundTag("Groups")));
+			DropsTemplate template = new DropsTemplate(nbtTemplate.getCompoundTag("Groups"));
+			DropController.getInstance().templates.put(nbtTemplate.getString("Name"), template);
 		}
 		else if (type == EnumPacketClient.SET_TILE_DATA) {
 			NBTTagCompound compound = Server.readNBT(buffer);

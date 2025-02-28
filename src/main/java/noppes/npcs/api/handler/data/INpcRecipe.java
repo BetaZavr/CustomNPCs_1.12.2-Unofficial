@@ -1,5 +1,6 @@
 package noppes.npcs.api.handler.data;
 
+import net.minecraft.item.ItemStack;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.WrapperRecipe;
@@ -57,5 +58,7 @@ public interface INpcRecipe {
     boolean isMain();
 
 	boolean isChanged();
+
+    void setRecipeOutput(ItemStack cms);
 
 }

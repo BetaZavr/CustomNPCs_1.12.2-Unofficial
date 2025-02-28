@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import noppes.npcs.client.gui.util.*;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
@@ -40,10 +41,6 @@ import noppes.npcs.client.gui.custom.interfaces.IClickListener;
 import noppes.npcs.client.gui.custom.interfaces.ICustomKeyListener;
 import noppes.npcs.client.gui.custom.interfaces.IDataHolder;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomGui;
 
@@ -335,14 +332,14 @@ implements ICustomScrollListener, IGuiData {
 		super.onGuiClosed();
 	}
 
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiScrollClick, this.updateGui().toNBT(), scroll.id,
-				scroll.selected, this.getScrollSelection((CustomGuiScrollComponent) scroll), false);
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiScrollClick, this.updateGui().toNBT(), scroll.getId(),
+				scroll.getSelect(), this.getScrollSelection((CustomGuiScrollComponent) scroll), false);
 	}
 
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiScrollClick, this.updateGui().toNBT(), scroll.id,
-				scroll.selected, this.getScrollSelection((CustomGuiScrollComponent) scroll), true);
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiScrollClick, this.updateGui().toNBT(), scroll.getId(),
+				scroll.getSelect(), this.getScrollSelection((CustomGuiScrollComponent) scroll), true);
 	}
 
 	@Override

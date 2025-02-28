@@ -1,10 +1,6 @@
 package noppes.npcs.client.gui;
 
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 
 public class SubGuiNpcCommand
 extends SubGuiInterface
@@ -22,8 +18,8 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 66) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -49,7 +45,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 4) {
 			this.command = textfield.getText();
 		}

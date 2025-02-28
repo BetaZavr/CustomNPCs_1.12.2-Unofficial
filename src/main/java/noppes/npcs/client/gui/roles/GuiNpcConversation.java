@@ -24,30 +24,30 @@ implements ITextfieldListener, GuiSelectionListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id >= 0 && button.id < 14) {
-			slot = button.id;
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() >= 0 && button.getId() < 14) {
+			slot = button.getId();
 			JobConversation.ConversationLine line = job.getLine(slot);
 			setSubGui(new SubGuiNpcConversationLine(line.getText(), line.getSound()));
 		}
-		if (button.id == 51) {
+		if (button.getId() == 51) {
 			setSubGui(new GuiQuestSelection(job.quest));
 		}
-		if (button.id == 52) {
+		if (button.getId() == 52) {
 			job.quest = -1;
 			job.questTitle = "";
 			initGui();
 		}
-		if (button.id == 53) {
+		if (button.getId() == 53) {
 			setSubGui(new SubGuiNpcAvailability(job.availability, this));
 		}
-		if (button.id == 55) {
+		if (button.getId() == 55) {
 			job.mode = button.getValue();
 		}
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(ISubGuiInterface gui) {
 		if (gui instanceof SubGuiNpcConversationLine) {
 			SubGuiNpcConversationLine sub = (SubGuiNpcConversationLine) gui;
 			JobConversation.ConversationLine line = job.getLine(slot);
@@ -118,7 +118,7 @@ implements ITextfieldListener, GuiSelectionListener, ISubGuiListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() >= 0 && textfield.getId() < 14) {
 			JobConversation.ConversationLine line = job.getLine(textfield.getId());
 			line.npc = textfield.getText();

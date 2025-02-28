@@ -3,10 +3,7 @@ package noppes.npcs.client.gui.advanced;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.DataTransform;
@@ -25,41 +22,41 @@ implements IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
-		case 0:
-			this.data.hasDisplay = button.getValue() == 1;
-			break;
-		case 1:
-			this.data.hasStats = button.getValue() == 1;
-			break;
-		case 2:
-			this.data.hasAi = button.getValue() == 1;
-			break;
-		case 3:
-			this.data.hasInv = button.getValue() == 1;
-			break;
-		case 4:
-			this.data.hasAdvanced = button.getValue() == 1;
-			break;
-		case 5:
-			this.data.hasRole = button.getValue() == 1;
-			break;
-		case 6:
-			this.data.hasJob = button.getValue() == 1;
-			break;
-		case 10: {
-			this.data.editingModus = button.getValue() == 1;
-			this.save();
-			this.initGui();
-			break;
-		}
-		case 11:
-			Client.sendData(EnumPacketServer.TransformLoad, false);
-			break;
-		case 12:
-			Client.sendData(EnumPacketServer.TransformLoad, true);
-			break;
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
+			case 0:
+				this.data.hasDisplay = button.getValue() == 1;
+				break;
+			case 1:
+				this.data.hasStats = button.getValue() == 1;
+				break;
+			case 2:
+				this.data.hasAi = button.getValue() == 1;
+				break;
+			case 3:
+				this.data.hasInv = button.getValue() == 1;
+				break;
+			case 4:
+				this.data.hasAdvanced = button.getValue() == 1;
+				break;
+			case 5:
+				this.data.hasRole = button.getValue() == 1;
+				break;
+			case 6:
+				this.data.hasJob = button.getValue() == 1;
+				break;
+			case 10: {
+				this.data.editingModus = button.getValue() == 1;
+				this.save();
+				this.initGui();
+				break;
+			}
+			case 11:
+				Client.sendData(EnumPacketServer.TransformLoad, false);
+				break;
+			case 12:
+				Client.sendData(EnumPacketServer.TransformLoad, true);
+				break;
 		}
 	}
 

@@ -197,7 +197,4 @@ extends GuiNPCInterface {
 		}
 	}
 
-	@Override
-	public void save() {
-	}
 }

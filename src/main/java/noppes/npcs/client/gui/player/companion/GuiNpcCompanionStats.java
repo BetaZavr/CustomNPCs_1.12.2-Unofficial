@@ -40,7 +40,7 @@ implements IGuiData {
 			if (role.job != EnumCompanionJobs.NONE) {
 				gui.addTopButton(new GuiMenuTopIconButton(4, button, "job.name", new ItemStack(Items.CARROT)));
 			}
-			gui.getTopButton(active).active = true;
+			gui.getTopButton(active).setActive(true);
 		}
 		if (screen instanceof GuiContainerNPCInterface) {
 			GuiContainerNPCInterface gui2 = (GuiContainerNPCInterface) screen;
@@ -56,7 +56,7 @@ implements IGuiData {
 			if (role.job != EnumCompanionJobs.NONE) {
 				gui2.addTopButton(new GuiMenuTopIconButton(4, button, "job.name", new ItemStack(Items.CARROT)));
 			}
-			gui2.getTopButton(active).active = true;
+			gui2.getTopButton(active).setActive(true);
 		}
 	}
 
@@ -180,11 +180,7 @@ implements IGuiData {
 		addTopMenu(this.role, this, 1);
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void setGuiData(NBTTagCompound compound) {
 		this.role.readFromNBT(compound);
 	}

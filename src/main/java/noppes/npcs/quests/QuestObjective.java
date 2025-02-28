@@ -201,7 +201,7 @@ public class QuestObjective implements IQuestObjective {
 		PlayerData data = PlayerData.get(this.player);
 		QuestData questData = data.questData.activeQuests.get(this.parentID);
 		if (this.type == EnumQuestTask.DIALOG) {
-			return data.dialogData.dialogsRead.contains(this.id) ? 1 : 0;
+			return data.dialogData.has(id) ? 1 : 0;
 		}
 		if (this.type == EnumQuestTask.LOCATION) {
 			for (NBTBase dataNBT : questData.extraData.getTagList("Locations", 10)) {
@@ -306,7 +306,7 @@ public class QuestObjective implements IQuestObjective {
 			return NoppesUtilPlayer.compareItems(this.player, this.item, this.ignoreDamage, this.ignoreNBT,
 					this.maxProgress);
 		} else if (this.type == EnumQuestTask.DIALOG) {
-			return PlayerData.get(this.player).dialogData.dialogsRead.contains(this.id);
+			return PlayerData.get(this.player).dialogData.has(id);
 		}
 		return this.getProgress() >= this.maxProgress;
 	}
@@ -489,11 +489,11 @@ public class QuestObjective implements IQuestObjective {
 			if (progress < 0 || progress > 1) {
 				throw new CustomNPCsException("Progress has to be 0 or 1");
 			}
-			boolean completed = data.dialogData.dialogsRead.contains(this.id);
+			boolean completed = data.dialogData.has(id);
 			if (progress == 0 && completed) {
-				data.dialogData.dialogsRead.remove(this.id);
+				data.dialogData.dialogsRead.remove(id);
 			} else if (progress == 1 && !completed) {
-				data.dialogData.dialogsRead.add(this.id);
+				data.dialogData.read(this.id);
 			} else {
 				return;
 			}

@@ -2257,6 +2257,18 @@ script.hover.forge=Forge events<br>§7Some server kernels §8(like Magma)§7 way
 script.hover.npcs=Events of each NPC<br>§7Works even if NPCs have their own scripts disabled<br>§7List of NPC functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fnpc§9.§fsay§9(§7"Next Step"§9);<br>§9}
 script.hover.players=Events of each Player<br>§7List of player functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fplayer§9.§fmessage§9(§7 "Next Step"§9);<br>§9}
 script.hover.potion=Events of Potions added to the game<br>§6For PRO§7, events when a potion is activated on an entity<br>§7List the functions of its potions:<br>§f%s<br>§8Example by §eERMAScript language for §fIsReadyEvent§8:<br>§9function§f isReady§9(§eevent§9) {<br>§9if (§eevent§9.§fpotion§9.§fgetCustomName§9().§fequals§9(§7 "potionexample"§9)) {<br>§9var §fi§9 = §eevent§9.§famplifier§9 == §60 §9? §620§9 :§6 30§9;<br>§eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§f i§9);<br>§9}<br>§9}
+
+script.hover.info.ecmascript=The built-in JavaScript engine in JDK up to version 11<br>§7A powerful ECMAScript engine that allows you to easily integrate JavaScript code into Java applications, but is low-performance
+script.hover.info.graaljs=A high-performance JavaScript engine developed by Oracle Labs<br>§7A modern alternative to Nashorn that provides excellent performance and ECMAScript compatibility
+script.hover.info.lua=A JVM implementation of the Lua programming language<br>§7It provides high performance and compatibility with a wide range of Java libraries
+script.hover.info.jython=A Python implementation on the Java platform<br>§7Allows you to run Python code inside the Java virtual machine
+script.hover.info.jruby=A Ruby implementation on the Java platform<br>§7Supports integration with the Java API and the use of existing libraries Ruby
+script.hover.info.groovy=A dynamically typed programming language that compiles to Java bytecode and runs on top of the JVM
+script.hover.info.kotlin=Scripting in Kotlin<br>§7A modern statically typed language created by JetBrains
+script.hover.info.rhino=A JavaScript interpreter from Mozilla that runs on the Java platform<br>§7One of the oldest and most stable JavaScript engines for the JVM
+script.hover.info.dir=<br>§7Directory for your module files:<br>%s<br>§7File index: %s
+script.hover.info=Libraries required for connecting scripting languages:<br>§bECMAScript Nashorn§7 - §anot required<br>§bGraalJS§7_§eKotlin§7 - §fgraal_kotlin_libs-1.8.21.jar<br>§bLua§7 - §fluaj-jse-3.0.1.jar<br>§bPython§7 - §fjython-standalone-2.7.4.jar<br>§bKotlin§7 - §cnot yet available<br>§bRhino§7 - §cnot yet available<br>§bRuby§7 - §fjruby-complete-9.2.19.0.jar<br>§bGroovy§7 - §fgroovy-all-2.4.15.jar
+
 script.init=Inside.
 script.interact=Initialization
 script.killed=Murdered

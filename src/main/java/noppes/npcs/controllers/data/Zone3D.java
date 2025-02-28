@@ -925,7 +925,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		if (points.isEmpty() || dimensionID != world.provider.getDimension()) {
 			return;
 		}
-		List<Entity> entities = world.getEntities(Entity.class, this);
+		List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, getAxisAlignedBB().grow(1.0d), this);
 		for (Entity entity : entities) {
 			if (!entitiesWithinRegion.contains(entity)) {
 				if (tryEntityEnter(entity)) { continue; }
@@ -1001,13 +1001,13 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		fix();
 	}
 
-	public AxisAlignedBB getAxisAlignedBB(boolean isFlat) {
+	public AxisAlignedBB getAxisAlignedBB() {
 		return new AxisAlignedBB(
 				(5.0d + getMinX() * 10.0d) / 10.0d,
-				isFlat ? 0.0d : (5.0d + getMinY() * 10.0d) / 10.0d,
+				(5.0d + getMinY() * 10.0d) / 10.0d,
 				(5.0d + getMinZ() * 10.0d) / 10.0d,
 				(5.0d + getMaxX() * 10.0d) / 10.0d,
-				isFlat ? 1.0d : (5.0d + getMaxY() * 10.0d) / 10.0d,
+				(5.0d + getMaxY() * 10.0d) / 10.0d,
 				(5.0d + getMaxZ() * 10.0d) / 10.0d);
 	}
 

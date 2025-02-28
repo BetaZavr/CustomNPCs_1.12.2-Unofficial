@@ -4,14 +4,7 @@ import java.util.*;
 
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IScrollData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.FactionOption;
 import noppes.npcs.controllers.data.FactionOptions;
@@ -35,11 +28,11 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 1) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 1) {
 			change(button.getValue() == 1, getTextField(1) == null ? 0 : getTextField(1).getInteger());
 		}
-		if (button.id == 66) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -89,17 +82,17 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 			fo = options.get(data.get(scroll.getSelected()));
 		}
 		GuiNpcLabel label = new GuiNpcLabel(2, new TextComponentTranslation("gui.settings").getFormattedText() + ":", guiLeft + 130, guiTop + 4);
-		label.enabled = scroll.selected >= 0;
+		label.enabled = scroll.getSelect() >= 0;
 		addLabel(label);
 		// faction points
 		GuiNpcTextField textField = new GuiNpcTextField(1, this, fontRenderer, guiLeft + 130, guiTop + 16, 110, 20, fo != null ? "" + fo.factionPoints : "0");
 		textField.setMinMaxDefault(-100000, 100000, fo != null ? fo.factionPoints : 0);
-		textField.setEnabled(scroll.selected >= 0);
+		textField.setEnabled(scroll.getSelect() >= 0);
 		textField.setHoverText("faction.hover.option.points");
 		addTextField(textField);
 
 		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 130, guiTop + 38, 90, 20, new String[] { "gui.add", "gui.decrease" }, fo != null ? fo.decreaseFactionPoints ? 1 : 0 : 0);
-		button.setVisible(scroll.selected >= 0);
+		button.setVisible(scroll.getSelect() >= 0);
 		button.setHoverText("faction.hover.option.decrease");
 		addButton(button);
 
@@ -114,12 +107,12 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 	}
 
 	@Override
@@ -168,7 +161,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		change(getButton(1) != null && getButton(1).getValue() == 1, textField.getInteger());
 	}
 

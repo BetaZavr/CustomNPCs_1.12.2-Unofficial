@@ -304,8 +304,8 @@ public class NoppesUtilServer {
 			PlayerDataController.instance.addPlayerMessage(player.getServer(), player.getName(), dialog.mail);
 		}
 		PlayerDialogData data = playerdata.dialogData;
-		if (!data.dialogsRead.contains(dialog.id) && dialog.id >= 0) {
-			data.dialogsRead.add(dialog.id);
+		if (!data.has(dialog.id) && dialog.id >= 0) {
+			data.read(dialog.id);
 			playerdata.updateClient = true;
 		}
 		setEditingNpc(player, npc);
@@ -570,12 +570,10 @@ public class NoppesUtilServer {
 			PlayerData playerdata = PlayerDataController.instance.getDataFromUsername(Objects.requireNonNull(player.getServer()), name);
 			if (type == EnumPlayerData.Dialog) {
 				PlayerDialogData data = playerdata.dialogData;
-				for (int questId : data.dialogsRead) {
-					Dialog dialog = DialogController.instance.dialogs.get(questId);
-					if (dialog == null) {
-						continue;
-					}
-					map.put(dialog.category.title + ": " + dialog.title, questId);
+				for (int dialogId : data.dialogsRead.keySet()) {
+					Dialog dialog = DialogController.instance.dialogs.get(dialogId);
+					if (dialog == null) { continue; }
+					map.put(dialog.category.title + ": " + dialog.title, dialogId);
 				}
 			} else if (type == EnumPlayerData.Quest) {
 				PlayerQuestData data2 = playerdata.questData;

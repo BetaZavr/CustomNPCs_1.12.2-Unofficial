@@ -7,12 +7,7 @@ import java.util.Map;
 
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.gui.select.GuiDialogSelection;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityDialog;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Availability;
@@ -39,8 +34,8 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			if (select.isEmpty()) { return; }
 			EnumAvailabilityDialog ead = EnumAvailabilityDialog.values()[button.getValue()];
 			int id = dataIDs.get(select);
@@ -54,19 +49,19 @@ implements ICustomScrollListener, ISubGuiListener {
 			}
 			initGui();
 		}
-		if (button.id == 1) {
+		if (button.getId() == 1) {
 			setSubGui(new GuiDialogSelection(select.isEmpty() ? 0 : dataIDs.get(select), 0));
 		}
-		if (button.id == 2) {
+		if (button.getId() == 2) {
 			availability.dialogues.remove(dataIDs.get(select));
 			select = "";
 			initGui();
 		}
-		if (button.id == 3) {
+		if (button.getId() == 3) {
 			save();
 			initGui();
 		}
-		if (button.id == 66) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -90,7 +85,7 @@ implements ICustomScrollListener, ISubGuiListener {
 		super.initGui();
 		// title
 		GuiNpcLabel label = new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4);
-		label.center(xSize);
+		label.setCenter(xSize);
 		addLabel(label);
 		// exit
 		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 6, guiTop + 192, 70, 20, "gui.done");
@@ -170,18 +165,18 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		select = scroll.getSelected();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		setSubGui(new GuiDialogSelection(dataIDs.get(select), 0));
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		GuiDialogSelection selector = (GuiDialogSelection) subgui;
 		if (selector.selectedDialog == null) {
 			return;

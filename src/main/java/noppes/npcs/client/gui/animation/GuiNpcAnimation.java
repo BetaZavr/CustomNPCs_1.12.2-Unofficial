@@ -13,14 +13,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
@@ -94,9 +87,9 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		AnimationConfig anim = getAnim();
-		switch (button.id) {
+		switch (button.getId()) {
 			case 0: { // add anim
 				if (scrollType == null || !scrollType.hasSelected()) { return; }
 				AnimationConfig newAnim = (AnimationConfig) aData.createNewAnim();
@@ -382,20 +375,20 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 0) { // animation Type
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) { // animation Type
 			if (selType.equals(scroll.getSelected())) { return; }
 			selType = scroll.getSelected();
 			isChanged = true;
 		}
-		else if (scroll.id == 1) { // animation in type
+		else if (scroll.getId() == 1) { // animation in type
 			if (selAnim.equals(scroll.getSelected())) { return; }
 			selAnim = scroll.getSelected();
 			scrollAllAnimations.setSelected(selAnim);
 			selBaseAnim = scrollAllAnimations.getSelected();
 			isChanged = true;
 		}
-		else if (scroll.id == 2) { // animation in base
+		else if (scroll.getId() == 2) { // animation in base
 			if (selBaseAnim.equals(scroll.getSelected())) { return; }
 			selBaseAnim = scroll.getSelected();
 			if (scrollAnimations.hasSelected(selBaseAnim)) {
@@ -408,9 +401,9 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 		AnimationConfig anim;
-		if (scroll.id == 1) {
+		if (scroll.getId() == 1) {
 			anim = getAnim();
 			if (anim == null) { return; }
 			AnimationKind type = dataType.get(selType);
@@ -421,7 +414,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 				}
 			}
 		}
-		else if (scroll.id == 2) {
+		else if (scroll.getId() == 2) {
 			if (scrollAnimations.hasSelected(selBaseAnim)) { return; }
 			anim = dataAllAnimations.get(selBaseAnim);
 			if (anim == null) { return; }
@@ -442,8 +435,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui.id == 4) { // create
+	public void subGuiClosed(ISubGuiInterface subgui) {
+		if (subgui.getId() == 4) { // create
 			displayGuiScreen(this);
 			if (!(subgui instanceof SubGuiEditAnimation) || ((SubGuiEditAnimation) subgui).anim == null) {
 				return;

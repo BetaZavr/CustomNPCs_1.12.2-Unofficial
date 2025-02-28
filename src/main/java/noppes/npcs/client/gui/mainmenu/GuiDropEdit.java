@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.mainmenu;
 
-import java.io.IOException;
 import java.util.*;
 
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -18,15 +17,7 @@ import noppes.npcs.client.gui.drop.SubGuiDropAttribute;
 import noppes.npcs.client.gui.drop.SubGuiDropEnchant;
 import noppes.npcs.client.gui.drop.SubGuiDropValueNbt;
 import noppes.npcs.client.gui.select.GuiQuestSelection;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCDropSetup;
 import noppes.npcs.controllers.QuestController;
@@ -77,8 +68,8 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: { // reset drop
 				drop.resetTo(drop.item);
 				initGui();
@@ -165,7 +156,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
         inventorySlots.getSlot(0);
         if (getButton(0) != null) {
 			ItemStack stack = inventorySlots.getSlot(0).getStack();
-			GuiNpcButton button = getButton(0);
+			GuiNpcButton button = (GuiNpcButton) getButton(0);
 			if (button.enabled && stack.isEmpty()) {
 				drop.item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
 			} else if (!button.enabled && !stack.isEmpty()) {
@@ -367,12 +358,12 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	protected void mouseClicked(int i, int j, int k) throws IOException {
+	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		// check error inventory gui
-		if (isMouseHover(i, j, guiLeft, guiTop - 20, width, 20)) {
+		if (isMouseHover(mouseX, mouseY, guiLeft, guiTop - 20, width, 20)) {
 			close();
 		} else {
-			super.mouseClicked(i, j, k);
+			super.mouseClicked(mouseX, mouseY, mouseBottom);
 		}
 	}
 
@@ -392,9 +383,9 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (!scroll.hasSelected()) { return; }
-		switch (scroll.id) {
+		switch (scroll.getId()) {
 			case 0: { // scrollEnchants
 				enchant = enchantData.get(scroll.getSelected());
 				break;
@@ -412,8 +403,8 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-		switch (scroll.id) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
+		switch (scroll.getId()) {
 			case 0: { // scrollEnchants
 				setSubGui(new SubGuiDropEnchant(enchant));
 				break;
@@ -430,7 +421,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiDropEnchant) {
 			SubGuiDropEnchant gui = (SubGuiDropEnchant) subgui;
 			enchant.load(gui.enchant.getNBT());
@@ -459,7 +450,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getId()) {
 			case 0: { // common chance
 				drop.setChance(textField.getDouble());

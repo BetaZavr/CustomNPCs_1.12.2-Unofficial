@@ -93,6 +93,13 @@ public class DataInventory implements IInventory, INPCInventory {
 
 	public void closeInventory(@Nonnull EntityPlayer player) {}
 
+	/**
+	 * @param lootType 0: drop on ground
+	 * 1: drop under player feet
+	 * 2: into inventory
+	 * @param baseChance 0 <> 1.0
+	 * @return
+	 */
 	@Override
 	public Map<IEntity<?>, List<IItemStack>> createDrops(int lootType, double baseChance) {
 		List<DropSet> allDrops = new ArrayList<>();
@@ -279,8 +286,8 @@ public class DataInventory implements IInventory, INPCInventory {
 					}
 					if (stacks.size() == 54) { break; }
 				}
-				deadLoot = new InventoryBasic("NPC Loot", true, (int) (Math.ceil((double) stacks.size() / 9.0d) * 9.0d));
-				System.out.println("CNPCs: ");
+				int size = (int) (Math.ceil((double) stacks.size() / 9.0d) * 9.0d);
+				deadLoot = new InventoryBasic("NPC Loot", true, Math.max(9, size));
 				int i = 0;
 				for (ItemStack stack : stacks) {
 					deadLoot.setInventorySlotContents(i, stack);
@@ -288,7 +295,8 @@ public class DataInventory implements IInventory, INPCInventory {
 				}
 			}
 			for (IEntity<?> iEntity : event.inventoryItems.keySet()) {
-				InventoryBasic inv = new InventoryBasic("NPC Loot", true, (int) (Math.ceil((double) event.inventoryItems.get(iEntity).size() / 9.0d) * 9.0d));
+				int size = (int) (Math.ceil((double) event.inventoryItems.get(iEntity).size() / 9.0d) * 9.0d);
+				InventoryBasic inv = new InventoryBasic("NPC Loot", true, Math.max(9, size));
 				int i = 0;
 				for (IItemStack iStack : event.inventoryItems.get(iEntity)) {
 					inv.setInventorySlotContents(i, iStack.getMCItemStack());

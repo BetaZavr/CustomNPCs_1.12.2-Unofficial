@@ -9,7 +9,8 @@ import org.lwjgl.input.Mouse;
 import javax.annotation.Nonnull;
 
 public class GuiMenuTopButton
-extends GuiNpcButton {
+extends GuiNpcButton
+implements IGuiMenuTopButton {
 
 	public boolean active = false;
 	protected int height = 20;
@@ -25,7 +26,7 @@ extends GuiNpcButton {
 	}
 
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!getVisible()) {
+		if (!isVisible()) {
 			return;
 		}
 		int w = offsetW + width;
@@ -73,4 +74,21 @@ extends GuiNpcButton {
 		return !active && visible && hovered;
 	}
 
+	@Override
+	public int getLeft() { return 0; }
+
+	@Override
+	public int getTop() {
+		return 0;
+	}
+
+	@Override
+	public void setLeft(int left) {
+
+	}
+
+	@Override
+	public void setTop(int top) {
+
+	}
 }

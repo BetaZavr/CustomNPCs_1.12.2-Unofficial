@@ -31,12 +31,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.wrapper.WorldWrapper;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.controllers.data.ClientScriptData;
-import noppes.npcs.controllers.data.ForgeScriptData;
-import noppes.npcs.controllers.data.NpcScriptData;
-import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerScriptData;
-import noppes.npcs.controllers.data.PotionScriptData;
+import noppes.npcs.controllers.data.*;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.NBTJsonUtil;
@@ -47,15 +42,6 @@ public class ScriptController {
 	private static final boolean isClient = Thread.currentThread().getName().toLowerCase().contains("client");
 	public static boolean HasStart = false;
 	public static ScriptController Instance;
-
-	public static boolean hasGraalLib() {
-		try {
-			Class.forName("com.oracle.truffle.js.scriptengine.GraalJSScriptEngine");
-			return true;
-		}
-		catch (Exception ignored) {  }
-		return false;
-	}
 
     public boolean isLoad = false;
 	public boolean shouldSave = false;
@@ -86,111 +72,163 @@ public class ScriptController {
 
 	public ScriptController() {
 		ScriptController.Instance = this;
-		if (!CustomNpcs.NashorArguments.isEmpty()) {
-			System.setProperty("nashorn.args", CustomNpcs.NashorArguments);
-		}
+		if (!CustomNpcs.NashorArguments.isEmpty()) { System.setProperty("nashorn.args", CustomNpcs.NashorArguments); }
         ScriptEngineManager manager = new ScriptEngineManager();
-        try {
-			if (manager.getEngineByName("ecmascript") == null) {
-				LogWriter.debug("Try create Nashorn Script Engine");
-				Launch.classLoader.addClassLoaderExclusion("jdk.nashorn.");
-				Launch.classLoader.addClassLoaderExclusion("jdk.internal.dynalink");
-				Class<?> c = Class.forName("jdk.nashorn.api.scripting.NashornScriptEngineFactory");
-				ScriptEngineFactory factory = (ScriptEngineFactory) c.newInstance();
-				factory.getScriptEngine();
-				try {
-					Class<?> require = Class.forName("com.coveo.nashorn_modules.Require");
-					Method methodEnable = require.getMethod("enable");
-					MethodHandle handle = MethodHandles.lookup().unreflect(methodEnable);
-					handle.invoke(factory, CustomNpcs.getWorldSaveDirectory("scripts/common_js"));
-				}
-				catch (Throwable t) { LogWriter.info("Kotlin Require is missed:"); }
-				manager.registerEngineName("ecmascript", factory);
-				manager.registerEngineExtension("js", factory);
-				manager.registerEngineMimeType("application/ecmascript", factory);
-				this.languages.put(Util.instance.deleteColor(factory.getLanguageName()), ".js");
-				this.factories.put(factory.getLanguageName().toLowerCase(), factory);
-			}
-		} catch (Exception t) { LogWriter.info("Kotlin JS is missed:"); }
+		// Rhino
+		try {
+			Class<?> c = Class.forName("org.mozilla.javascript.engine.RhinoScriptEngineFactory");
+			ScriptEngineFactory factory = (ScriptEngineFactory) c.newInstance();
+			factory.getScriptEngine();
+			manager.registerEngineName("rhino", factory);
+			manager.registerEngineExtension("js", factory);
+			manager.registerEngineMimeType("application/rhino", factory);
+			LogWriter.info("Added script Library: \"rhino\"; type: \"RhinoScriptEngineFactory\"; files index: \".js\"");
+			languages.put(Util.instance.deleteColor(factory.getLanguageName()), ".js");
+			factories.put(factory.getLanguageName().toLowerCase(), factory);
+		}
+		catch (Exception e) { LogWriter.info("Rhino JS is missed"); }
+		// Groovy
+		try {
+			Class<?> c = Class.forName("org.codehaus.groovy.jsr223.GroovyScriptEngineFactory");
+			ScriptEngineFactory factory = (ScriptEngineFactory) c.newInstance();
+			factory.getScriptEngine();
+			manager.registerEngineName("groovy", factory);
+			manager.registerEngineExtension("groovy", factory);
+			manager.registerEngineMimeType("application/groovy", factory);
+			LogWriter.info("Added script Library: \"groovy\"; type: \"GroovyScriptEngineFactory\"; files index: \".groovy\"");
+			languages.put(Util.instance.deleteColor(factory.getLanguageName()), ".groovy");
+			factories.put(factory.getLanguageName().toLowerCase(), factory);
+		}
+		catch (Exception e) { LogWriter.info("Groovy JS is missed"); }
+		// Kotlin
 		try {
 			Class<?> c = Class.forName("org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmLocalScriptEngineFactory");
 			ScriptEngineFactory factory = (ScriptEngineFactory) c.newInstance();
 			factory.getScriptEngine();
 			manager.registerEngineName("kotlin", factory);
-			manager.registerEngineExtension("ktl", factory);
+			manager.registerEngineExtension("kt", factory);
 			manager.registerEngineMimeType("application/kotlin", factory);
-			this.languages.put(Util.instance.deleteColor(factory.getLanguageName()), ".ktl");
-			this.factories.put(factory.getLanguageName().toLowerCase(), factory);
+			LogWriter.info("Added script Library: \"kotlin\"; type: \"KotlinJsr223JvmLocalScriptEngineFactory\"; files index: \".kt\"");
+			languages.put(Util.instance.deleteColor(factory.getLanguageName()), ".kt");
+			factories.put(factory.getLanguageName().toLowerCase(), factory);
 		}
-		catch (Exception e) { LogWriter.info("Kotlin JS is missed:"); }
+		catch (Exception e) { LogWriter.info("Kotlin JS is missed"); }
+		// Any
 		LogWriter.info("Script Engines Available:");
-		for (ScriptEngineFactory fac : manager.getEngineFactories()) {
+		for (ScriptEngineFactory factory : manager.getEngineFactories()) {
 			try {
-				LogWriter.debug("Found script Library: \"" + fac.getLanguageName() + "\"; type: \"" + fac.getClass().getSimpleName() + "\"");
-				if (fac.getExtensions().isEmpty()) {
-					LogWriter.debug("Library: \"" + fac.getLanguageName() + "\"; type: \"" + fac.getClass().getSimpleName() + "\" Extensions isEmpty ");
+				//LogWriter.debug("Found script Library: \"" + factory.getLanguageName() + "\"; type: \"" + factory.getClass().getSimpleName() + "\"");
+				if (factory.getExtensions().isEmpty()) {
+					LogWriter.debug("Library: \"" + factory.getLanguageName() + "\"; type: \"" + factory.getClass().getSimpleName() + "\" Extensions isEmpty ");
 					continue;
 				}
-				if (!(fac.getScriptEngine() instanceof Invocable) && !fac.getLanguageName().equals("lua")) {
-					LogWriter.debug("Library: \"" + fac.getLanguageName() + "\"; type: \"" + fac.getClass().getSimpleName() + "\" Engine is not Invocable or not Lua");
+				if (!(factory.getScriptEngine() instanceof Invocable) && !factory.getLanguageName().equals("lua")) {
+					LogWriter.debug("Library: \"" + factory.getLanguageName() + "\"; type: \"" + factory.getClass().getSimpleName() + "\" Engine is not Invocable or not Lua");
 					continue;
 				}
-				String ext = "." + fac.getExtensions().get(0).toLowerCase();
-				LogWriter.info("Added script Library: \"" + fac.getLanguageName() + "\"; type: \"" + fac.getClass().getSimpleName() + "\"; files index: \"" + ext + "\"");
-				this.languages.put(Util.instance.deleteColor(fac.getLanguageName()), ext);
-				this.factories.put(fac.getLanguageName().toLowerCase(), fac);
+				String ext = "." + factory.getExtensions().get(0).toLowerCase();
+				LogWriter.info("Added script Library: \"" + factory.getLanguageName() + "\"; type: \"" + factory.getClass().getSimpleName() + "\"; files index: \"" + ext + "\"");
+				String name = Util.instance.deleteColor(factory.getLanguageName());
+				if (name.toLowerCase().startsWith("lua")) { name = "LuaJ"; }
+				else if (name.toLowerCase().startsWith("python") || name.toLowerCase().startsWith("jython")) { name = "Jython"; }
+				else if (name.toLowerCase().startsWith("ruby")) { name = "JRuby"; }
+				languages.put(name, ext);
+				factories.put(name.toLowerCase(), factory);
 			} catch (Throwable t3) {
-				LogWriter.error("Error Added Script Library: \"" + fac.getLanguageName() + "\": " + t3);
+				LogWriter.error("Error Added Script Library: \"" + factory.getLanguageName() + "\": " + t3);
 			}
 		}
-		if (isClient) { this.loadAgreements(); }
+		// ECMAScript Nashorn
+		try {
+			LogWriter.debug("Try create Nashorn Script Engine");
+			Launch.classLoader.addClassLoaderExclusion("jdk.nashorn.");
+			Launch.classLoader.addClassLoaderExclusion("jdk.internal.dynalink");
+			Class<?> c = Class.forName("jdk.nashorn.api.scripting.NashornScriptEngineFactory");
+			ScriptEngineFactory factory = (ScriptEngineFactory) c.newInstance();
+			factory.getScriptEngine();
+			try {
+				Class<?> require = Class.forName("com.coveo.nashorn_modules.Require");
+				Method methodEnable = require.getMethod("enable");
+				MethodHandle handle = MethodHandles.lookup().unreflect(methodEnable);
+				handle.invoke(factory, CustomNpcs.getWorldSaveDirectory("scripts/common_js"));
+			}
+			catch (Throwable t) { LogWriter.info("Nashorn Require is missed:"); }
+			String name = Util.instance.deleteColor(factory.getLanguageName()); // ECMAScript
+			boolean isNotRegister = true;
+			if (languages.containsKey(name)) {
+				String ext = languages.get(name);
+				ScriptEngineFactory fac = factories.get(Util.instance.deleteColor(name).toLowerCase());
+				if (fac != null) {
+					String newName = fac.getClass().getSimpleName().replace("EngineFactory", "");
+					languages.put(newName, ext);
+					factories.put(newName.toLowerCase(), fac);
+					manager.registerEngineName(newName.toLowerCase(), fac);
+					manager.registerEngineMimeType("application/" + newName.toLowerCase(), factory);
+					isNotRegister = !ext.equals(".js");
+				}
+			}
+			languages.put(name, ".js");
+			factories.put(name.toLowerCase(), factory);
+			manager.registerEngineName(name.toLowerCase(), factory);
+			manager.registerEngineMimeType("application/" + name.toLowerCase(), factory);
+			if (isNotRegister) { manager.registerEngineExtension("js", factory); }
+		} catch (Exception e) { LogWriter.info("Nashorn JS is missed"); }
+		if (isClient) { loadAgreements(); }
 	}
-	
+
 	public File clientScriptsFile() {
 		boolean isClient = Thread.currentThread().getName().toLowerCase().contains("client");
-		if (isClient && this.clientDir == null) {
+		if (isClient && clientDir == null) {
 			return new File(CustomNpcs.Dir, "client_default/client_scripts.json");
 		}
-		return new File(this.dir, "client_scripts.json");
+		return new File(dir, "client_scripts.json");
 	}
 
 	private File constantScriptsFile() {
-		return new File(this.dir, "constant_scripts.json");
+		return new File(dir, "constant_scripts.json");
 	}
 
 	private File npcsScriptsFile() {
-		return new File(this.dir, "npc_scripts.json");
+		return new File(dir, "npc_scripts.json");
 	}
 	
 	private File forgeScriptsFile() {
-		return new File(this.dir, "forge_scripts.json");
+		return new File(dir, "forge_scripts.json");
 	}
 
 	private File playerScriptsFile() {
-		return new File(this.dir, "player_scripts.json");
+		return new File(dir, "player_scripts.json");
 	}
 
 	private File potionScriptsFile() {
-		return new File(this.dir, "potion_scripts.json");
+		return new File(dir, "potion_scripts.json");
 	}
 
 	private File worldDataFile() {
-		return new File(this.dir, "world_data.json");
+		return new File(dir, "world_data.json");
 	}
 	
 	public ScriptEngine getEngineByName(String language) {
-		if (language.equalsIgnoreCase("ECMAScript") && ScriptController.hasGraalLib()) {
-			return this.getNewGraalEngine();
-		}
-		ScriptEngineFactory fac = this.factories.get(Util.instance.deleteColor(language).toLowerCase());
-		if (fac == null) {
-			return null;
-		}
-		return fac.getScriptEngine();
+		ScriptEngineFactory factory = factories.get(Util.instance.deleteColor(language).toLowerCase());
+		if (factory == null) { return null; }
+		if (factory.getClass().getSimpleName().equals("GraalJSEngineFactory")) { return getNewGraalEngine(); }
+		return factory.getScriptEngine();
 	}
 
 	private ScriptEngine getNewGraalEngine() {
 		try {
+			/*GraalJSScriptEngine.create((Engine)null, Context.newBuilder("js")
+					.allowExperimentalOptions(true)
+					.allowHostClassLookup((s) -> true)
+					.allowCreateProcess(true)
+					.allowHostClassLoading(true)
+					.allowNativeAccess(true)
+					.allowAllAccess(true)
+					.allowIO(true)
+					.allowHostAccess(ScriptConstants.hostAccess)
+					.allowCreateProcess(true)
+					.option("js.ecmascript-version", "2022")
+					.option("js.nashorn-compat", "true"));*/
 			Class<?> graal = Class.forName("com.oracle.truffle.js.scriptengine.GraalJSScriptEngine");
 			Method create = null;
 			for (Method m : graal.getMethods()) {
@@ -199,6 +237,8 @@ public class ScriptController {
 					break;
 				}
 			}
+			if (create == null) { return null; }
+
 			Class<?> cnt = Class.forName("org.graalvm.polyglot.Context");
 			Class<?> hostA = Class.forName("org.graalvm.polyglot.HostAccess");
 			Object contextBuilder; // org.graalvm.polyglot.Context.Builder
@@ -281,7 +321,6 @@ public class ScriptController {
 					default:
                     }
 				}
-                if (create == null) { return null; }
                 return (ScriptEngine) create.invoke(graal, null, contextBuilder);
 			}
 		}
@@ -289,20 +328,20 @@ public class ScriptController {
 		return null;
 	}
 
-	private List<String> getScripts(String language, boolean isClient) {
-		List<String> list = new ArrayList<>();
-		String ext = this.languages.get(Util.instance.deleteColor(language));
-		if (ext == null) { return list; }
-		for (String script : (isClient ? this.clients : this.scripts).keySet()) {
-			if (script.endsWith(ext)) { list.add(script); }
+	private Map<String, Long> getScripts(String language, boolean isClient) {
+		Map<String, Long> map = new TreeMap<>();
+		String ext = languages.get(Util.instance.deleteColor(language));
+		if (ext == null) { return map; }
+		for (String script : (isClient ? clients : scripts).keySet()) {
+			if (script.endsWith(ext)) { map.put(script, (isClient ? clientSizes : sizes).get(script)); }
 		}
 		if (!isClient) {
 			ext = ext.replace(".", ".p");
-			for (String script : this.encrypts.keySet()) {
-				if (script.endsWith(ext)) { list.add(script); }
+			for (String script : encrypts.keySet()) {
+				if (script.endsWith(ext)) { map.put(script, sizes.get(script)); }
 			}
 		}
-		return list;
+		return map;
 	}
 
 	public void load() {
@@ -319,46 +358,40 @@ public class ScriptController {
 	}
 
 	public void loadCategories() {
-		this.dir = new File(CustomNpcs.getWorldSaveDirectory(), "scripts");
-		if (!this.dir.exists() && !this.dir.mkdirs()) {
-			return;
-		}
-		this.clientDir = new File(this.dir, "client");
-		if (!this.clientDir.exists() && !this.clientDir.mkdirs()) {
-			return;
-		}
+		dir = new File(CustomNpcs.getWorldSaveDirectory(), "scripts");
+		if (!dir.exists() && !dir.mkdirs()) { return; }
+		clientDir = new File(dir, "client");
+		if (!clientDir.exists() && !clientDir.mkdirs()) { return; }
 
-		if (!this.worldDataFile().exists()) {
-			this.shouldSave = true;
-		}
+		if (!worldDataFile().exists()) { shouldSave = true; }
 		WorldWrapper.tempData.clear();
-		this.scripts.clear();
-		this.encrypts.clear();
-		this.sizes.clear();
-		for (String key : this.clients.keySet()) { CommonProxy.downloadableFiles.remove(key); }
-		this.clients.clear();
-		this.clientSizes.clear();
-		for (String language : this.languages.keySet()) {
-			String ext = this.languages.get(Util.instance.deleteColor(language));
-			File scriptDir = new File(this.dir, language.toLowerCase());
+		scripts.clear();
+		encrypts.clear();
+		sizes.clear();
+		for (String key : clients.keySet()) { CommonProxy.downloadableFiles.remove(key); }
+		clients.clear();
+		clientSizes.clear();
+		for (String language : languages.keySet()) {
+			String ext = languages.get(Util.instance.deleteColor(language));
+			File scriptDir = new File(dir, language.toLowerCase());
 			if (!scriptDir.exists() && !scriptDir.mkdir()) { continue; }
 			else {
-				this.loadDir(scriptDir, "", ext, false, false);
-				this.loadDir(scriptDir, "", ext.replace(".", ".p"), true, false);
+				loadDir(scriptDir, "", ext, false, false);
+				loadDir(scriptDir, "", ext.replace(".", ".p"), true, false);
 			}
-			scriptDir = new File(this.clientDir, language.toLowerCase());
-			if (scriptDir.exists() || scriptDir.mkdir()) { this.loadDir(scriptDir, "", ext, false, true); }
+			scriptDir = new File(clientDir, language.toLowerCase());
+			if (scriptDir.exists() || scriptDir.mkdir()) { loadDir(scriptDir, "", ext, false, true); }
 		}
-		this.lastLoaded = System.currentTimeMillis();
-		this.isLoad = true;
+		lastLoaded = System.currentTimeMillis();
+		isLoad = true;
 	}
 
 	public boolean loadClientScripts() {
-		this.clientScripts.clear();
-		File file = this.clientScriptsFile();
+		clientScripts.clear();
+		File file = clientScriptsFile();
 		try {
 			if (!file.exists()) { return false; }
-			this.clientScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
+			clientScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
 		} catch (Exception e) {
 			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
 			return false;
@@ -367,12 +400,12 @@ public class ScriptController {
 	}
 
 	public boolean loadConstantData() {
-		this.constants = new NBTTagCompound();
-		File file = this.constantScriptsFile();
+		constants = new NBTTagCompound();
+		File file = constantScriptsFile();
 		boolean isLoad = true;
 		try {
 			if (file.exists()) {
-				this.constants = NBTJsonUtil.LoadFile(file);
+				constants = NBTJsonUtil.LoadFile(file);
 			} else {
 				NBTTagCompound nbtC = new NBTTagCompound();
 				nbtC.setInteger("value", 0);
@@ -431,10 +464,10 @@ public class ScriptController {
 				list.appendTag(new NBTTagString("function setField(value,object,key) { try { var f = dump(object).getField(key); if (f) { return f.setValue(value); } } catch (error) { log('Error: \"'+key+'\" is not a Field or not found, or not type mismatch in \"'+object.getClass().getName()+'\". Error: ' + error); } return false; }"));
 				list.appendTag(new NBTTagString("function invoke(value,object,key) { try { var m = dump(object).getMethod(key); if (m) { var jo = Java.type('java.lang.Object[]'); if (value!=jo) { try { if (value.length>=0) { var v = new jo(value.length); for (var i=0; i<value.length; i++) { v[i] = value[i]; } return m.invoke(v); } } catch (err) { } var v = new jo(1); v[0] = value; return m.invoke(v); } else { return m.invoke(value); } } } catch (error) { log('Error: \"'+key+'\" is not a Method or not found, or not type mismatch in \"'+object.getClass().getName()+'\"'); } return null; }"));
 				list.appendTag(new NBTTagString("function getCustomFunction(name, ev) {var fhm;try {var actor=\"Any\";if (ev) {if (ev.player) { actor = \"Player\"; }else if (ev.npc) { actor = \"NPC\"; }else if (ev.block) { actor = \"Block\"; }};fhm = api.getIWorld(0).getTempdata().get(\"functions\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)};if (name!=\"loadFile\") {var dir = existsDir(api.getWorldDir().toPath().resolve(\"data\").resolve(\"functions\"));gFunc(\"loadFile\",ev)(dir.resolve(name+\".json\"), \"fhm\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)}}} catch (error) {if (fhm && fhm instanceof JHMap) {gFunc(\"errorMes\",ev)(actor, error, \"Name: §f\"+name, ev);}};return eval(\"function fnull(a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,r,s,t,q,v) {return;}\");}"));
-				this.constants.setTag("Constants", nbtC);
-				this.constants.setTag("Functions", list);
+				constants.setTag("Constants", nbtC);
+				constants.setTag("Functions", list);
 				try {
-					Util.instance.saveFile(file, this.constants.copy());
+					Util.instance.saveFile(file, constants.copy());
 					isLoad = false;
 				} catch (Exception e) {
 					LogWriter.except(e);
@@ -449,11 +482,11 @@ public class ScriptController {
 	}
 
 	public boolean loadNPCsScripts() {
-		this.npcsScripts.clear();
-		File file = this.npcsScriptsFile();
+		npcsScripts.clear();
+		File file = npcsScriptsFile();
 		try {
 			if (!file.exists()) { return false; }
-			this.npcsScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
+			npcsScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
 		} catch (Exception e) {
 			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
 			return false;
@@ -462,13 +495,13 @@ public class ScriptController {
 	}
 	
 	public boolean loadForgeScripts() {
-		this.forgeScripts.clear();
-		File file = this.forgeScriptsFile();
+		forgeScripts.clear();
+		File file = forgeScriptsFile();
 		try {
 			if (!file.exists()) {
 				return false;
 			}
-			this.forgeScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
+			forgeScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
 		} catch (Exception e) {
 			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
 			return false;
@@ -478,7 +511,7 @@ public class ScriptController {
 
 	public void loadItemTextures() {
 		ItemScripted.Resources.clear();
-		File file = new File(this.dir, "item_models.dat");
+		File file = new File(dir, "item_models.dat");
 		if (!file.exists()) {
 			return;
 		}
@@ -492,13 +525,13 @@ public class ScriptController {
 	}
 
 	public boolean loadPlayerScripts() {
-		this.playerScripts.clear();
-		File file = this.playerScriptsFile();
+		playerScripts.clear();
+		File file = playerScriptsFile();
 		try {
 			if (!file.exists()) {
 				return false;
 			}
-			this.playerScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
+			playerScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
 		} catch (Exception e) {
 			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
 			return false;
@@ -507,13 +540,13 @@ public class ScriptController {
 	}
 
 	public boolean loadPotionScripts() {
-		this.potionScripts.clear();
-		File file = this.potionScriptsFile();
+		potionScripts.clear();
+		File file = potionScriptsFile();
 		try {
 			if (!file.exists()) {
 				return false;
 			}
-			this.potionScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
+			potionScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
 		} catch (Exception e) {
 			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
 			return false;
@@ -522,13 +555,13 @@ public class ScriptController {
 	}
 
 	public boolean loadStoredData() {
-		this.compound = new NBTTagCompound();
-		File file = this.worldDataFile();
+		compound = new NBTTagCompound();
+		File file = worldDataFile();
 		boolean isLoad = true;
 		try {
 			if (file.exists()) {
-				this.compound = NBTJsonUtil.LoadFile(file);
-				this.shouldSave = false;
+				compound = NBTJsonUtil.LoadFile(file);
+				shouldSave = false;
 			} else {
 				isLoad = false;
 			}
@@ -543,49 +576,44 @@ public class ScriptController {
 		for (File file : Objects.requireNonNull(dir.listFiles())) {
 			String filename = name + file.getName().toLowerCase();
 			if (file.isDirectory()) {
-				this.loadDir(file, filename + "/", ext, encrypt, isClient);
+				loadDir(file, filename + "/", ext, encrypt, isClient);
 			} else if (filename.endsWith(ext)) {
 				if (encrypt) {
-					if (!isClient) { this.encrypts.put(filename, file); }
+					if (!isClient) { encrypts.put(filename, file); }
 				}
 				else {
 					String code = Util.instance.loadFile(file);
-					if (isClient) { this.clients.put(filename, code); } else { this.scripts.put(filename, code); }
+					if (isClient) { clients.put(filename, code); } else { scripts.put(filename, code); }
 				}
-				if (isClient) { this.clientSizes.put(filename, file.length()); } else { this.sizes.put(filename, file.length()); }
+				if (isClient) { clientSizes.put(filename, file.length()); } else { sizes.put(filename, file.length()); }
 			}
 		}
 	}
 	
 	public NBTTagList nbtLanguages(boolean isClient) {
 		NBTTagList list = new NBTTagList();
-		for (String language : this.languages.keySet()) {
-			String ext = this.languages.get(Util.instance.deleteColor(language));
+		for (String language : languages.keySet()) {
+			String ext = languages.get(Util.instance.deleteColor(language));
 			NBTTagCompound compound = new NBTTagCompound();
 			NBTTagList scripts = new NBTTagList();
-			for (String script : this.getScripts(language, isClient)) {
+			Map<String, Long> map = getScripts(language, isClient);
+			long[] cs = new long[map.size()];
+			int i = 0;
+			for (String script : map.keySet()) {
 				scripts.appendTag(new NBTTagString(script));
+				cs[i++] = map.get(script) * (!script.endsWith(ext) ? -1 : 1);
 			}
 			compound.setTag("Scripts", scripts);
 			compound.setString("Language", language);
 			compound.setString("FileSfx", ext);
-			long[] sizes = new long[scripts.tagCount()];
-			int i = 0;
-			for (Long l : (isClient ? this.clientSizes : this.sizes).values()) {
-				sizes[i] = l;
-				if (!scripts.getStringTagAt(i).endsWith(ext)) {
-					sizes[i] *= -1;
-				}
-				i++;
-			}
-			compound.setTag("sizes", new NBTTagLongArray(sizes));
+			compound.setTag("sizes", new NBTTagLongArray(cs));
 			list.appendTag(compound);
 		}
 		return list;
 	}
 
 	public void saveItemTextures() {
-		File file = new File(this.dir, "item_models.dat");
+		File file = new File(dir, "item_models.dat");
 		if (!file.exists()) {
 			try {
 				if (!file.createNewFile()) { return; }
@@ -609,36 +637,36 @@ public class ScriptController {
 
 	@SubscribeEvent
 	public void saveWorld(WorldEvent.Save event) {
-		if (!this.shouldSave || event.getWorld().isRemote || event.getWorld() != Objects.requireNonNull(event.getWorld().getMinecraftServer()).worlds[0]) {
+		if (!shouldSave || event.getWorld().isRemote || event.getWorld() != Objects.requireNonNull(event.getWorld().getMinecraftServer()).worlds[0]) {
 			return;
 		}
 		try {
-			Util.instance.saveFile(this.worldDataFile(), this.compound.copy());
+			Util.instance.saveFile(worldDataFile(), compound.copy());
 		} catch (Exception e) {
 			LogWriter.except(e);
 		}
 		try {
-			Util.instance.saveFile(this.constantScriptsFile(), this.compound.copy());
+			Util.instance.saveFile(constantScriptsFile(), compound.copy());
 		} catch (Exception e) {
 			LogWriter.except(e);
 		}
-		this.shouldSave = false;
+		shouldSave = false;
 	}
 
 	public void sendClientTo(EntityPlayerMP player) {
 		NBTTagCompound compound = new NBTTagCompound();
-		this.clientScripts.writeToNBT(compound);
+		clientScripts.writeToNBT(compound);
 		Server.sendData(player, EnumPacketClient.SCRIPT_CLIENT, compound);
 		NBTTagList list = new NBTTagList();
-		for (String key : this.clients.keySet()) {
+		for (String key : clients.keySet()) {
 			if (!CommonProxy.downloadableFiles.containsKey(key)) {
-				CommonProxy.downloadableFiles.put(key, new TempFile(key, 0, 1, this.clientSizes.get(key)));
+				CommonProxy.downloadableFiles.put(key, new TempFile(key, 0, 1, clientSizes.get(key)));
 			}
 			TempFile file = CommonProxy.downloadableFiles.get(key);
 			if (!file.isLoad()) {
 				file.size = -1;
 				file.saveType = 1;
-				file.reset(this.clients.get(key));
+				file.reset(clients.get(key));
 			}
 			list.appendTag(file.getTitle());
 		}
@@ -648,35 +676,35 @@ public class ScriptController {
 	}
 
 	public void setClientScripts(NBTTagCompound compound) {
-		this.clientScripts.readFromNBT(compound);
-		File file = this.clientScriptsFile();
+		clientScripts.readFromNBT(compound);
+		File file = clientScriptsFile();
 		try {
 			compound.removeTag("WorldName");
 			Util.instance.saveFile(file, compound);
-			this.clientScripts.lastInited = -1L;
+			clientScripts.lastInited = -1L;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void setNPCsScripts(NBTTagCompound compound) {
-		this.npcsScripts.readFromNBT(compound);
-		File file = this.npcsScriptsFile();
+		npcsScripts.readFromNBT(compound);
+		File file = npcsScriptsFile();
 		try {
 			Util.instance.saveFile(file, compound);
-			this.npcsScripts.lastInited = -1L;
+			npcsScripts.lastInited = -1L;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 	
 	public void setForgeScripts(NBTTagCompound compound) {
-		this.forgeScripts.readFromNBT(compound);
-		File file = this.forgeScriptsFile();
+		forgeScripts.readFromNBT(compound);
+		File file = forgeScriptsFile();
 		try {
 			Util.instance.saveFile(file, compound);
-			this.forgeScripts.lastInited = -1L;
+			forgeScripts.lastInited = -1L;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void setPlayerScripts(NBTTagCompound compound) {
-		this.playerScripts.readFromNBT(compound);
+		playerScripts.readFromNBT(compound);
 		if (CustomNpcs.Server != null) {
 			for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
 				PlayerData data = PlayerData.get(player);
@@ -686,22 +714,22 @@ public class ScriptController {
 			}
 		}
 		try {
-			Util.instance.saveFile(this.playerScriptsFile(), compound);
-			this.lastPlayerUpdate = System.currentTimeMillis();
+			Util.instance.saveFile(playerScriptsFile(), compound);
+			lastPlayerUpdate = System.currentTimeMillis();
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	public void setPotionScripts(NBTTagCompound compound) {
-		this.potionScripts.readFromNBT(compound);
-		File file = this.potionScriptsFile();
+		potionScripts.readFromNBT(compound);
+		File file = potionScriptsFile();
 		try {
 			Util.instance.saveFile(file, compound);
-			this.potionScripts.lastInited = -1L;
+			potionScripts.lastInited = -1L;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 
 	private void loadAgreements() {
-		this.agreements.clear();
+		agreements.clear();
 		LogWriter.error("Load player script agreements");
 		File file = new File(CustomNpcs.Dir, "agreements.dat");
 		boolean err = false;
@@ -709,7 +737,7 @@ public class ScriptController {
 			try {
 				NBTTagCompound compound = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
 				for (int i = 0; i < compound.getTagList("Agreements", 8).tagCount(); i++) {
-					this.agreements.add(compound.getTagList("Agreements", 8).getStringTagAt(i));
+					agreements.add(compound.getTagList("Agreements", 8).getStringTagAt(i));
 				}
 			}
 			catch (Exception e) {
@@ -721,7 +749,7 @@ public class ScriptController {
 			try { CompressedStreamTools.writeCompressed(new NBTTagCompound(), Files.newOutputStream(file.toPath())); }
 			catch (Exception e) { LogWriter.error("Error default save agreements:", e); }
 		}
-		LogWriter.debug("Found "+this.agreements.size()+" agreements");
+		LogWriter.debug("Found "+agreements.size()+" agreements");
 	}
 
 	private void saveAgreements() {
@@ -730,24 +758,24 @@ public class ScriptController {
 		try {
 			NBTTagCompound compound = new NBTTagCompound();
 			NBTTagList list = new NBTTagList();
-			for (String agreement : this.agreements) {
+			for (String agreement : agreements) {
 				list.appendTag(new NBTTagString(agreement));
 			}
 			compound.setTag("Agreements", list);
 			CompressedStreamTools.writeCompressed(compound, Files.newOutputStream(file.toPath()));
 		}
 		catch (Exception e) { LogWriter.error("Error save agreements:", e); }
-		LogWriter.debug("Save "+this.agreements.size()+" agreements");
+		LogWriter.debug("Save "+agreements.size()+" agreements");
 	}
 
 	public void setAgreement(String agreementName, boolean isAgree) {
 		boolean bo;
-		if (isAgree) { bo = this.agreements.add(agreementName); }
-		else { bo = this.agreements.remove(agreementName); }
-		if (bo) { this.saveAgreements(); }
+		if (isAgree) { bo = agreements.add(agreementName); }
+		else { bo = agreements.remove(agreementName); }
+		if (bo) { saveAgreements(); }
 	}
 
-	public boolean notAgreement(String agreementName) { return !this.agreements.contains(agreementName); }
+	public boolean notAgreement(String agreementName) { return !agreements.contains(agreementName); }
 
 	public void checkAgreements(List<String> checkList) {
 		if (checkList == null) { return; }
@@ -756,10 +784,10 @@ public class ScriptController {
 		for (String key : worldAgreements) {
 			if (key.split(";").length>2) { continue; }
 			if (!checkList.contains(key)) {
-				if (this.agreements.remove(key)) { bo = true; }
+				if (agreements.remove(key)) { bo = true; }
 				checkList.remove(key);
 			}
 		}
-		if (bo) { this.saveAgreements(); }
+		if (bo) { saveAgreements(); }
 	}
 }

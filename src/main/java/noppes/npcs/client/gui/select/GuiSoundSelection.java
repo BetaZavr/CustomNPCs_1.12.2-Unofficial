@@ -13,10 +13,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.client.controllers.MusicController;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.api.mixin.client.audio.ISoundHandlerMixin;
 
 import javax.annotation.Nonnull;
@@ -82,7 +79,7 @@ implements ICustomScrollListener {
 		super.initGui();
 		addButton(new GuiNpcButton(2, guiLeft + xSize - 26, guiTop + 4, 20, 20, "X"));
 		addButton(new GuiNpcButton(1, guiLeft + 160, guiTop + 212, 70, 20, "gui.play", selectedResource != null));
-		getButton(1).hasSound = false;
+		getButton(1).setHasSound(false);
 		if (scrollCategories == null) { (scrollCategories = new GuiCustomScroll(this, 0)).setSize(90, 200); }
 		scrollCategories.setList(new ArrayList<>(domains.keySet()));
 		if (selectedDomain != null) { scrollCategories.setSelected(selectedDomain); }
@@ -98,20 +95,20 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) {
 			selectedDomain = scroll.getSelected();
 			selectedResource = null;
-			scrollQuests.selected = -1;
+			scrollQuests.setSelect(-1);
 		}
-		if (scroll.id == 1) {
+		if (scroll.getId() == 1) {
 			selectedResource = new ResourceLocation(selectedDomain, scroll.getSelected());
 		}
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 		if (selectedResource == null) { return; }
 		close();
 	}

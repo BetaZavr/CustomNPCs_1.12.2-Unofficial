@@ -16,10 +16,7 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -39,28 +36,28 @@ extends GuiNPCInterface2 {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
 				if (EntityAnimal.class.isAssignableFrom(cl) && !role.targets.contains(name)) { role.targets.add(name); }
 			}
-			scroll1.selected = -1;
-			scroll2.selected = -1;
+			scroll1.setSelect(-1);
+			scroll2.setSelect(-1);
 			initGui();
 		}
-		if (button.id == 1) {
+		if (button.getId() == 1) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
 				if (EntityMob.class.isAssignableFrom(cl) && !EntityCreeper.class.isAssignableFrom(cl)  && !role.targets.contains(name)) { role.targets.add(name); }
 			}
-			scroll1.selected = -1;
-			scroll2.selected = -1;
+			scroll1.setSelect(-1);
+			scroll2.setSelect(-1);
 			initGui();
 		}
-		if (button.id == 2) {
+		if (button.getId() == 2) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
@@ -68,22 +65,22 @@ extends GuiNPCInterface2 {
 					role.targets.add(name);
 				}
 			}
-			scroll1.selected = -1;
-			scroll2.selected = -1;
+			scroll1.setSelect(-1);
+			scroll2.setSelect(-1);
 			initGui();
 		}
-		if (button.id == 11 && scroll1.hasSelected()) {
+		if (button.getId() == 11 && scroll1.hasSelected()) {
 			role.targets.add(data.get(scroll1.getSelected()));
-			scroll1.selected = -1;
-			scroll2.selected = -1;
+			scroll1.setSelect(-1);
+			scroll2.setSelect(-1);
 			initGui();
 		}
-		if (button.id == 12 && scroll2.hasSelected()) {
+		if (button.getId() == 12 && scroll2.hasSelected()) {
 			role.targets.remove(data.get(scroll2.getSelected()));
-			scroll2.selected = -1;
+			scroll2.setSelect(-1);
 			initGui();
 		}
-		if (button.id == 13) {
+		if (button.getId() == 13) {
 			role.targets.clear();
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = ent.getEntityClass();
@@ -92,14 +89,14 @@ extends GuiNPCInterface2 {
 					role.targets.add(name);
 				}
 			}
-			scroll1.selected = -1;
-			scroll2.selected = -1;
+			scroll1.setSelect(-1);
+			scroll2.setSelect(-1);
 			initGui();
 		}
-		if (button.id == 14) {
+		if (button.getId() == 14) {
 			role.targets.clear();
-			scroll1.selected = -1;
-			scroll2.selected = -1;
+			scroll1.setSelect(-1);
+			scroll2.setSelect(-1);
 			initGui();
 		}
 	}

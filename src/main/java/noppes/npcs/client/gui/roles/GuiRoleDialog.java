@@ -6,12 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNpcTextArea;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -31,10 +26,10 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id <= 6) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() <= 6) {
 			save();
-			slot = button.id;
+			slot = button.getId();
 			String text = role.dialog;
 			if (slot >= 1) { text = role.optionsTexts.get(slot); }
 			if (text == null) { text = ""; }
@@ -81,7 +76,7 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
 			SubGuiNpcTextArea text = (SubGuiNpcTextArea) subgui;
 			if (slot == 0) { role.dialog = text.text; }

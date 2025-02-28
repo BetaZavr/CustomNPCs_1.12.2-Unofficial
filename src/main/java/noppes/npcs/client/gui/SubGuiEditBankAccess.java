@@ -34,8 +34,8 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: { // add
 				SubGuiEditText gui = new SubGuiEditText(3, "");
 				gui.hovers = new String[] { "hover.player" };
@@ -43,21 +43,21 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				break;
 			}
 			case 1: { // delete
-				if (scroll.selected < 0 || scroll.selected >= names.size()) {
+				if (scroll.getSelect() < 0 || scroll.getSelect() >= names.size()) {
 					return;
 				}
 				if (sel.equals(scroll.getSelected())) {
 					sel = "";
 				}
-				names.remove(scroll.selected);
-				scroll.selected--;
-				if (scroll.selected < 0) {
+				int selId = scroll.getSelect();
+				names.remove(scroll.getSelect());
+				scroll.setSelect(selId - 1);
+				if (scroll.getSelect() < 0) {
 					if (names.isEmpty()) {
-						scroll.selected = -1;
+						scroll.setSelect(-1);
 					} else {
-						scroll.selected = 0;
+						scroll.setSelect(0);
 					}
-
 				}
 				initGui();
 				break;
@@ -80,7 +80,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(ISubGuiInterface gui) {
 		if (gui instanceof SubGuiEditText) {
 			String name = ((SubGuiEditText) gui).text[0];
 			if (name.length() < 4 || name.indexOf(' ') != -1
@@ -141,19 +141,19 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		sel = scroll.getSelected();
 		if (getButton(1) != null) {
-			getButton(1).enabled = scroll.hasSelected();
+			getButton(1).setEnabled(scroll.hasSelected());
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (hasSubGui()) {
 			return;
 		}

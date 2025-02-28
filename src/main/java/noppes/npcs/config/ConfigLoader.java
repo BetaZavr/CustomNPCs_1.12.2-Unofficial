@@ -21,7 +21,7 @@ public class ConfigLoader {
 
 	public ConfigLoader(File directory) {
 		if (!directory.exists() && !directory.mkdir()) { return; }
-		File file = new File(directory, CustomNpcs.MODNAME + ".cfg");
+		File file = new File(directory, CustomNpcs.MODNAME + " Unofficial.cfg");
 		List<String> lines = new ArrayList<>();
 		boolean isOldVersion = false;
 		boolean needSave = !file.exists();

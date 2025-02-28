@@ -14,15 +14,7 @@ import noppes.npcs.api.handler.data.IDeal;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiNpcMarketSettings;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.MarcetController;
@@ -70,8 +62,8 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: { // Add market
 				save();
 				selectedMarcet = (Marcet) mData.addMarcet();
@@ -102,7 +94,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 				break;
 			}
 			case 5: { // Deal settings
-				if (scrollAllDeals.selected < 0 || dealId < 0) {
+				if (scrollAllDeals.getSelect() < 0 || dealId < 0) {
 					return;
 				}
 				SubGuiNPCManageDeal.parent = this;
@@ -427,9 +419,9 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) {
 		try {
-			switch (scroll.id) {
+			switch (scroll.getId()) {
 				case 0: { // Markets
 					if (!dataMarkets.containsKey(scroll.getSelected())) {
 						return;
@@ -454,25 +446,25 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		switch (scroll.id) {
-		case 0: { // Marcets
-			if (selectedMarcet == null) {
-				return;
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
+		switch (scroll.getId()) {
+			case 0: { // Markets
+				if (selectedMarcet == null) {
+					return;
+				}
+				setSubGui(new SubGuiNpcMarketSettings(selectedMarcet));
+				break;
 			}
-			setSubGui(new SubGuiNpcMarketSettings(selectedMarcet));
-			break;
-		}
-		case 1: // Deals
-		case 2: { // All Deals
-			if (selectedMarcet == null || !dataDeals.containsKey(scroll.getSelected())) {
-				return;
+			case 1: // Deals
+			case 2: { // All Deals
+				if (selectedMarcet == null || !dataDeals.containsKey(scroll.getSelected())) {
+					return;
+				}
+				save();
+				SubGuiNPCManageDeal.parent = this;
+				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, marcetId, dealId, 0);
+				break;
 			}
-			save();
-			SubGuiNPCManageDeal.parent = this;
-			NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, marcetId, dealId, 0);
-			break;
-		}
 		}
 	}
 
@@ -500,7 +492,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcMarketSettings) {
 			setGuiData(null);
 		}

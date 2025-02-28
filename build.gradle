@@ -1,3 +1,5 @@
+import java.time.LocalDateTime
+
 // DEV resources path
 buildscript {
     repositories {
@@ -22,31 +24,15 @@ apply plugin: 'maven-publish'
 apply plugin: 'idea'
 
 // JAR naming
-version = getVersion()
+version = getCustomVersion()
 group = mod_group
 archivesBaseName = mod_name
 
 // Snapshot version
-def getVersion() {
-    String month
-    switch (Calendar.getInstance().get(Calendar.MONTH)) {
-        case Calendar.FEBRUARY: month = "Feb"; break
-        case Calendar.MARCH: month = "Mar"; break
-        case Calendar.APRIL: month = "Apr"; break
-        case Calendar.MAY: month = "May"; break
-        case Calendar.JUNE: month = "Jun"; break
-        case Calendar.JULY: month = "Jul"; break
-        case Calendar.AUGUST: month = "Aug"; break
-        case Calendar.SEPTEMBER: month = "Sep"; break
-        case Calendar.OCTOBER: month = "Oct"; break
-        case Calendar.NOVEMBER: month = "Nov"; break
-        case Calendar.DECEMBER: month = "Dec"; break
-        default: month = "Jan"
-    }
-    Calendar calendar = Calendar.getInstance()
-    int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
-    int year = calendar.get(Calendar.YEAR)
-    return "v." + mod_version + "-" + String.format("%02d", dayOfMonth) + month + year + '-Snapshot'
+def getCustomVersion() {
+    Date date = new Date()
+    String month = LocalDateTime.now().month.toString().substring(0, 3)
+    return "_v." + mod_version + "_" + date.format("dd") + month + date.format("yyyy") + '-Snapshot'
 }
 
 // Set Java compatibility to version
@@ -102,6 +88,7 @@ dependencies {
     // Encrypt Lib
     implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.67'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.15'
+
 }
 
 // Resource processing (mcmod.info file)

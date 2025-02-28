@@ -1,8 +1,9 @@
 package noppes.npcs.client.util;
 
 import net.minecraft.util.ResourceLocation;
+import noppes.npcs.client.gui.util.IResourceData;
 
-public class ResourceData {
+public class ResourceData implements IResourceData {
 
 	public ResourceLocation resource;
 	public int u, v, width, height;
@@ -16,7 +17,31 @@ public class ResourceData {
 		this.v = v;
 		this.width = width;
 		this.height = height;
-		this.tH = 0.0f;
+		tH = 0.0f;
 	}
+
+	@Override
+	public ResourceLocation getResource() { return resource; }
+
+	@Override
+	public int getWidth() { return width; }
+
+	@Override
+	public int getHeight() { return height; }
+
+	@Override
+	public float getTextureHeight() { return tH; }
+
+	@Override
+	public float getScaleX() { return scaleX; }
+
+	@Override
+	public float getScaleY() { return scaleY; }
+
+	@Override
+	public int getU() { return u; }
+
+	@Override
+	public int getV() { return v; }
 
 }

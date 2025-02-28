@@ -12,14 +12,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiColorSelector;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
@@ -56,55 +49,55 @@ implements ISubGuiListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		if (selectedMark == null) {
 			return;
 		}
-		switch (button.id) {
-		case 0: {
-			selectedMark.type = button.getValue();
-			initGui();
-			break;
-		}
-		case 1: {
-			setSubGui(new SubGuiColorSelector(selectedMark.color));
-			break;
-		}
-		case 2: {
-			setSubGui(new SubGuiNpcAvailability(selectedMark.availability, parent));
-			break;
-		}
-		case 3: {
-			Mark newark = (Mark) data.addMark(selectedMark.type);
-			newark.color = selectedMark.color;
-			newark.rotate = selectedMark.rotate;
-			newark.availability.readFromNBT(selectedMark.availability.writeToNBT(new NBTTagCompound()));
-			selectedMark = newark;
-			initGui();
-			break;
-		}
-		case 4: {
-			if (scroll.selected < 0) {
-				return;
+		switch (button.getId()) {
+			case 0: {
+				selectedMark.type = button.getValue();
+				initGui();
+				break;
 			}
-			data.marks.remove(selectedMark);
-			scroll.selected = -1;
-			selMark = "";
-			selectedMark = null;
-			initGui();
-			break;
-		}
-		case 5: {
-			selectedMark.rotate = button.getValue() == 0;
-			initGui();
-			break;
-		}
-		case 6: {
-			selectedMark.is3d = button.getValue() == 0;
-			MarkRenderer.needReload = true;
-			initGui();
-			break;
-		}
+			case 1: {
+				setSubGui(new SubGuiColorSelector(selectedMark.color));
+				break;
+			}
+			case 2: {
+				setSubGui(new SubGuiNpcAvailability(selectedMark.availability, parent));
+				break;
+			}
+			case 3: {
+				Mark newark = (Mark) data.addMark(selectedMark.type);
+				newark.color = selectedMark.color;
+				newark.rotate = selectedMark.rotate;
+				newark.availability.readFromNBT(selectedMark.availability.writeToNBT(new NBTTagCompound()));
+				selectedMark = newark;
+				initGui();
+				break;
+			}
+			case 4: {
+				if (scroll.getSelect() < 0) {
+					return;
+				}
+				data.marks.remove(selectedMark);
+				scroll.setSelect(-1);
+				selMark = "";
+				selectedMark = null;
+				initGui();
+				break;
+			}
+			case 5: {
+				selectedMark.rotate = button.getValue() == 0;
+				initGui();
+				break;
+			}
+			case 6: {
+				selectedMark.is3d = button.getValue() == 0;
+				MarkRenderer.needReload = true;
+				initGui();
+				break;
+			}
 		}
 	}
 
@@ -176,7 +169,7 @@ implements ISubGuiListener, ICustomScrollListener {
 		addButton(button);
 		// del
 		button = new GuiNpcButton(4, guiLeft + 71, guiTop + ySize - 9, 64, 20, "gui.remove");
-		button.enabled = scroll.selected >= 0;
+		button.enabled = scroll.getSelect() >= 0;
 		button.setHoverText("mark.hover.del");
 		addButton(button);
 		// is rotation
@@ -212,18 +205,18 @@ implements ISubGuiListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) {
 		if (selMark.equals(scroll.getSelected())) { return; }
 		selMark = scroll.getSelected();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiColorSelector) {
 			if (selectedMark == null) { return; }
 			selectedMark.color = ((SubGuiColorSelector) subgui).color;

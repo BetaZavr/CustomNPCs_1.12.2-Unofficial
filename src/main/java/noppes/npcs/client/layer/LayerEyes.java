@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.*;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.items.ItemNpcWand;
 import noppes.npcs.util.ValueUtil;
@@ -12,10 +13,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
@@ -534,10 +531,7 @@ extends LayerInterface<T> {
 		GlStateManager.enableCull();
 		GlStateManager.disableAlpha();
 		GlStateManager.depthMask(false);
-		GlStateManager.disableLighting();
-		int i = npc.getBrightnessForRender();
 
-		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, i % 65536.0F, i / 65536.0F);
 		mc.entityRenderer.setupFogColor(true);
 		// [ offsetEyeY, offsetEyeY2, offsetPupilY, offsetPupilY2, pupilPosX, pupilPosY, offsetGlintYStart, offsetGlintYEnd ]
 		float[] data = new float[] { 0.0f, 0.0f, -0.4f, 0.25f, 0.0f, 0.0f, 0.0f, 0.0f };
@@ -650,6 +644,11 @@ extends LayerInterface<T> {
 		String a = Integer.toHexString((int) ((-12.25f * t + 255.0f) * (t > 20 ? -1.0f : 1.0f))) + "00FF00";
 		int c = (int) Long.parseLong(a, 16);
 		int h = 0;
+
+
+		GlStateManager.disableLighting();
+		int i = npc.getBrightnessForRender();
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, i % 65536.0F, i / 65536.0F);
 
 		if (e < 2 && !r) { h = e + 1; }
 		drawLeft(data, emotionData.get(1), emotionData.get(3), h, c, isDisableMoved, glintData);

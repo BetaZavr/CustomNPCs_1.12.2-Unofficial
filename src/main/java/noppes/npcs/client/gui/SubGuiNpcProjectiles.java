@@ -1,10 +1,6 @@
 package noppes.npcs.client.gui;
 
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.data.DataRanged;
 
 public class SubGuiNpcProjectiles
@@ -25,42 +21,31 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
-			stats.setHasGravity(button.getValue() == 1);
-			initGui();
-		}
-		if (button.id == 1) {
-			stats.setAccelerate(button.getValue() == 1);
-		}
-		if (button.id == 3) {
-			stats.setExplodeSize(button.getValue());
-		}
-		if (button.id == 4) {
-			stats.setEffect(button.getValue(), stats.getEffectStrength(), stats.getEffectTime());
-			initGui();
-		}
-		if (button.id == 5) {
-			stats.setParticle(button.getValue());
-		}
-		if (button.id == 6) {
-			stats.setGlows(button.getValue() == 1);
-		}
-		if (button.id == 7) {
-			stats.setRender3D(button.getValue() == 1);
-			initGui();
-		}
-		if (button.id == 8) {
-			stats.setSpins(button.getValue() == 1);
-		}
-		if (button.id == 9) {
-			stats.setSticks(button.getValue() == 1);
-		}
-		if (button.id == 10) {
-			stats.setEffect(stats.getEffectType(), button.getValue(), stats.getEffectTime());
-		}
-		if (button.id == 66) {
-			close();
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
+			case 0: {
+				stats.setHasGravity(button.getValue() == 1);
+				initGui();
+				break;
+			}
+			case 1: stats.setAccelerate(button.getValue() == 1); break;
+			case 3: stats.setExplodeSize(button.getValue()); break;
+			case 4: {
+				stats.setEffect(button.getValue(), stats.getEffectStrength(), stats.getEffectTime());
+				initGui();
+				break;
+			}
+			case 5: stats.setParticle(button.getValue()); break;
+			case 6: stats.setGlows(button.getValue() == 1); break;
+			case 7: {
+				stats.setRender3D(button.getValue() == 1);
+				initGui();
+				break;
+			}
+			case 8: stats.setSpins(button.getValue() == 1); break;
+			case 9: stats.setSticks(button.getValue() == 1); break;
+			case 10: stats.setEffect(stats.getEffectType(), button.getValue(), stats.getEffectTime()); break;
+			case 66: close(); break;
 		}
 	}
 
@@ -153,7 +138,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 1) {
 			stats.setStrength(textfield.getInteger());
 		} else if (textfield.getId() == 2) {

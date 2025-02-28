@@ -1,10 +1,7 @@
 package noppes.npcs.client.gui;
 
 import noppes.npcs.NoppesStringUtils;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiTextArea;
-import noppes.npcs.client.gui.util.ITextChangeListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 
 public class SubGuiNpcTextArea
 extends SubGuiInterface
@@ -37,8 +34,8 @@ implements ITextChangeListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: close(); break;
 			case 100: NoppesStringUtils.setClipboardContents(textarea.getText()); break;
 			case 101: textarea.setText(NoppesStringUtils.getClipboardContents()); break;
@@ -52,11 +49,7 @@ implements ITextChangeListener {
 		return this;
 	}
 
-	public int getId() {
-		return id;
-	}
-
-	@Override
+    @Override
 	public void initGui() {
 		xSize = (int) (width * 0.88);
 		ySize = (int) (xSize * 0.56);

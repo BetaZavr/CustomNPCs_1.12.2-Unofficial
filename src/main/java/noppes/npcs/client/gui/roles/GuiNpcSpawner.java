@@ -40,8 +40,8 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 1: { // add alive
 				isDead = false;
 				slot = -1;
@@ -153,7 +153,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(ISubGuiInterface gui) {
 		GuiNpcMobSpawnerSelector selector = (GuiNpcMobSpawnerSelector) gui;
 		if (slot < 0) { slot = (isDead ? deadScroll : aliveScroll).getList().size(); }
 		if (selector.showingClones == 2) {
@@ -214,13 +214,13 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 		aliveScroll.guiTop = guiTop + 14;
 		if (!isDead) {
 			if (slot >= 0 && slot < aliveScroll.getList().size()) {
-				aliveScroll.selected = slot;
+				aliveScroll.setSelect(slot);
 			} else {
 				slot = -1;
-				aliveScroll.selected = -1;
+				aliveScroll.setSelect(-1);
 				selectNpc = null;
 			}
-		} else { aliveScroll.selected = -1; }
+		} else { aliveScroll.setSelect(-1); }
 		addScroll(aliveScroll);
 
 		if (deadScroll == null) { (deadScroll = new GuiCustomScroll(this, 0)).setSize(172, 101); }
@@ -228,13 +228,13 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 		deadScroll.guiTop = guiTop + 14;
 		if (isDead) {
 			if (slot >= 0 && slot < deadScroll.getList().size()) {
-				deadScroll.selected = slot;
+				deadScroll.setSelect(slot);
 			} else {
 				slot = -1;
-				deadScroll.selected = -1;
+				deadScroll.setSelect(-1);
 				selectNpc = null;
 			}
-		} else { deadScroll.selected = -1; }
+		} else { deadScroll.setSelect(-1); }
 		addScroll(deadScroll);
 
 		GuiNpcLabel label = new GuiNpcLabel(1, "spawner.list.0", guiLeft + 6, guiTop + 4);
@@ -441,17 +441,17 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		slot = scroll.selected;
-		isDead = scroll.id == 0;
-		(isDead ? aliveScroll : deadScroll).selected = -1;
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		slot = scroll.getSelect();
+		isDead = scroll.getId() == 0;
+		(isDead ? aliveScroll : deadScroll).setSelect(-1);
 		SpawnNPCData sd = job.get(slot, isDead);
 		if (sd != null && sd.compound != null) { Client.sendData(EnumPacketServer.GetClone, true, slot, isDead); }
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		setSubGui(getSelector());
 	}
 
@@ -479,7 +479,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 		}
 		if (compound.hasKey("SetDead", 1)) {
 			isDead = compound.getBoolean("SetDead");
-			(isDead ? deadScroll : aliveScroll).selected = -1;
+			(isDead ? deadScroll : aliveScroll).setSelect(-1);
 		}
 		SpawnNPCData sd = job.get(slot, isDead);
 		if (sd != null && sd.compound != null) {
@@ -489,7 +489,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getId()) {
 			case 0: { // X alive
 				job.getOffset(false)[0] = textField.getInteger();

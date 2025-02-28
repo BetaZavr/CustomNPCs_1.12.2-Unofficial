@@ -38,7 +38,7 @@ extends GuiMenuTopButton {
 
 	@Override
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!getVisible()) {
+		if (!isVisible()) {
 			return;
 		}
 		super.drawButton(mc, mouseX, mouseY, partialTicks);

@@ -120,10 +120,10 @@ public class NoppesUtil {
 			return;
 		}
 		if (gui instanceof GuiNPCInterface && ((GuiNPCInterface) gui).hasSubGui()) {
-			gui = ((GuiNPCInterface) gui).getSubGui();
+			gui = (GuiScreen) ((GuiNPCInterface) gui).getSubGui();
 		}
 		if (gui instanceof GuiContainerNPCInterface && ((GuiContainerNPCInterface) gui).hasSubGui()) {
-			gui = ((GuiContainerNPCInterface) gui).getSubGui();
+			gui = (GuiScreen) ((GuiContainerNPCInterface) gui).getSubGui();
 		}
 		if (!(gui instanceof IScrollData)) {
 			return;
@@ -141,7 +141,7 @@ public class NoppesUtil {
 	public static void setScrollList(ByteBuf buffer) {
 		GuiScreen gui = Minecraft.getMinecraft().currentScreen;
 		if (gui instanceof GuiNPCInterface && ((GuiNPCInterface) gui).hasSubGui()) {
-			gui = ((GuiNPCInterface) gui).getSubGui();
+			gui = (GuiScreen) ((GuiNPCInterface) gui).getSubGui();
 		}
 		if (!(gui instanceof IScrollData)) {
 			return;

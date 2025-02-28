@@ -8,13 +8,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.select.GuiSoundSelection;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -32,8 +26,8 @@ implements ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: {
 				MusicController.Instance.stopSound("", SoundCategory.MUSIC);
 				MusicController.Instance.stopSound("", SoundCategory.AMBIENT);
@@ -115,7 +109,7 @@ implements ISubGuiListener, ITextfieldListener {
 
 		y += 30;
 		addLabel(new GuiNpcLabel(1, "bard.offdistance", guiLeft + x, guiTop + y + 6));
-		getLabel(1).enabled = job.hasOffRange;
+		getLabel(1).setEnabled(job.hasOffRange);
 		if (job.hasOffRange) {
 			for (int i = 0; i < 3; i++) {
 				textField = new GuiNpcTextField(5 + i, this, fontRenderer, guiLeft + x + 104 + i * 44, guiTop + y, 40, 20, "");
@@ -153,14 +147,14 @@ implements ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		GuiSoundSelection gss = (GuiSoundSelection) subgui;
 		if (gss.selectedResource != null) { job.song = gss.selectedResource.toString(); }
 		initGui();
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getId()) {
 			case 1: {
 				job.song = textField.getText();

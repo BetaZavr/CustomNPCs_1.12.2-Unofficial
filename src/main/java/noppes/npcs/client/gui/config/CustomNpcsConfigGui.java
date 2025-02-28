@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import noppes.npcs.client.gui.util.ISubGuiInterface;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -238,17 +239,16 @@ implements ISubGuiListener {
 		}
 
 		@Override
-		public void subGuiClosed(SubGuiInterface subgui) {
+		public void subGuiClosed(ISubGuiInterface subgui) {
 			String color = ((SubGuiColorSelector) subgui).getColor().toUpperCase();
-			if (subgui.object instanceof CustomGuiEditArrayEntries.ColorEntry) {
-				ConfigElement element = (ConfigElement) ((CustomGuiEditArrayEntries.ColorEntry) subgui.object).configElement;
-				((CustomGuiEditArrayEntries.ColorEntry) subgui.object).getButton().displayString = color;
-				((CustomGuiEditArrayEntries.ColorEntry) subgui.object).value = color;
+			if (subgui.getObject() instanceof CustomGuiEditArrayEntries.ColorEntry) {
+				ConfigElement element = (ConfigElement) ((CustomGuiEditArrayEntries.ColorEntry) subgui.getObject()).configElement;
+				((CustomGuiEditArrayEntries.ColorEntry) subgui.getObject()).getButton().displayString = color;
+				((CustomGuiEditArrayEntries.ColorEntry) subgui.getObject()).value = color;
 				element.set(color);
 			}
 			subGui = null;
 		}
-
 	}
 
 	public static SubGuiInterface subGui;
@@ -384,12 +384,12 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		String color = ((SubGuiColorSelector) subgui).getColor().toUpperCase();
-		if (subgui.object instanceof ColorEntry) {
-			ConfigElement element = (ConfigElement) ((ColorEntry) subgui.object).getConfigElement();
-			((ColorEntry) subgui.object).getButton().displayString = color;
-			((ColorEntry) subgui.object).currentValue = color;
+		if (subgui.getObject() instanceof ColorEntry) {
+			ConfigElement element = (ConfigElement) ((ColorEntry) subgui.getObject()).getConfigElement();
+			((ColorEntry) subgui.getObject()).getButton().displayString = color;
+			((ColorEntry) subgui.getObject()).currentValue = color;
 			element.set(color);
 		}
 		subGui = null;

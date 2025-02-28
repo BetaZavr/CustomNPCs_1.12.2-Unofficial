@@ -263,7 +263,7 @@ public class QuestInterface {
 		for (QuestObjective to : this.tasks) {
 			switch (to.getEnumType()) {
 			case DIALOG: {
-				complete = playerdata.dialogData.dialogsRead.contains(to.getTargetID());
+				complete = playerdata.dialogData.has(to.getTargetID());
 				break;
 			}
 			case LOCATION: {

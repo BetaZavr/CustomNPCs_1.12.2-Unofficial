@@ -4,10 +4,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiConfirmOpenLink;
@@ -19,14 +16,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiMenuTopButton;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiTextArea;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ITextChangeListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -107,6 +97,9 @@ implements IGuiData, ITextChangeListener {
 		}
 		if (guibutton.id == 103) {
 			handler.setLanguage(guibutton.displayString);
+			String[] data = getLanguageData(guibutton.displayString);
+			((GuiNpcButton) guibutton).setHoverText(new TextComponentTranslation("script.hover.info." + data[0]).
+					appendSibling(new TextComponentTranslation("script.hover.info.dir", data[1], data[2])).getFormattedText());
 		}
 		if (guibutton.id == 104) {
 			handler.setEnabled(((GuiNpcButton) guibutton).getValue() == 1);
@@ -120,16 +113,12 @@ implements IGuiData, ITextChangeListener {
 		}
 		if (guibutton.id == 107) {
 			ScriptContainer container = handler.getScripts().get(activeTab - 1);
-			if (container == null) {
-				handler.getScripts().add(container = new ScriptContainer(handler, true));
-			}
+			if (container == null) { handler.getScripts().add(container = new ScriptContainer(handler, true)); }
 			setSubGui(new GuiScriptList(languages.get(Util.instance.deleteColor(handler.getLanguage())), container));
 		}
 		if (guibutton.id == 108) {
 			ScriptContainer container = handler.getScripts().get(activeTab - 1);
-			if (container != null) {
-				setScript();
-			}
+			if (container != null) { setScript(); }
 		}
 		if (guibutton.id == 109) {
 			displayGuiScreen(new GuiConfirmOpenLink(this, web_site , 0, true));
@@ -188,12 +177,12 @@ implements IGuiData, ITextChangeListener {
 				ScriptContainer container = handler.getScripts().get(activeTab - 1);
 				boolean e = container == null || container.script.isEmpty();
 				if (getButton(100) != null) { // copy
-					if (getButton(100).enabled && e) { getButton(100).setEnabled(false); }
-					else if (!getButton(100).enabled && !e) { getButton(100).setEnabled(true); }
+					if (getButton(100).isEnabled() && e) { getButton(100).setEnabled(false); }
+					else if (!getButton(100).isEnabled() && !e) { getButton(100).setEnabled(true); }
 				}
 				if (getButton(102) != null) { // clear
-					if (getButton(102).enabled && e) { getButton(102).setEnabled(false); }
-					else if (!getButton(102).enabled && !e) { getButton(102).setEnabled(true); }
+					if (getButton(102).isEnabled() && e) { getButton(102).setEnabled(false); }
+					else if (!getButton(102).isEnabled() && !e) { getButton(102).setEnabled(true); }
 				}
 				if (getButton(118) != null) { // encode
 					getButton(118).setEnabled(container != null && container.hasNoEncryptScriptCode());
@@ -202,37 +191,52 @@ implements IGuiData, ITextChangeListener {
 				if (getButton(107) != null) { // files
 					Map<String, Long> map = languages.get(Util.instance.deleteColor(handler.getLanguage()));
 					e = map != null && !map.isEmpty();
-					if (getButton(107).enabled && !e) { getButton(107).setEnabled(false); }
-					else if (!getButton(107).enabled && e) { getButton(107).setEnabled(true); }
+					if (getButton(107).isEnabled() && !e) { getButton(107).setEnabled(false); }
+					else if (!getButton(107).isEnabled() && e) { getButton(107).setEnabled(true); }
 				}
 				if (getButton(101) != null) { // paste
 					try {
 						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 						Transferable contents = clipboard.getContents(null);
 						e = contents != null && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-						if (getButton(101).enabled && !e) { getButton(101).setEnabled(false); }
-						else if (!getButton(101).enabled && e) { getButton(101).setEnabled(true); }
+						if (getButton(101).isEnabled() && !e) { getButton(101).setEnabled(false); }
+						else if (!getButton(101).isEnabled() && e) { getButton(101).setEnabled(true); }
 					}
 					catch (Exception ee) { LogWriter.error("Error:", ee); }
 				}
 			} else {
 				boolean e = handler == null || handler.getConsoleText().isEmpty();
 				if (getButton(100) != null) { // copy
-					if (getButton(100).enabled && e) { getButton(100).setEnabled(false); }
-					else if (!getButton(100).enabled && !e) { getButton(100).setEnabled(true); }
+					if (getButton(100).isEnabled() && e) { getButton(100).setEnabled(false); }
+					else if (!getButton(100).isEnabled() && !e) { getButton(100).setEnabled(true); }
 				}
 				if (getButton(102) != null) { // clear
-					if (getButton(102).enabled && e) { getButton(102).setEnabled(false); }
-					else if (!getButton(102).enabled && !e) { getButton(102).setEnabled(true); }
+					if (getButton(102).isEnabled() && e) { getButton(102).setEnabled(false); }
+					else if (!getButton(102).isEnabled() && !e) { getButton(102).setEnabled(true); }
 				}
 			}
 		}
 		
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (getButton(1) != null && getButton(1).isMouseOver()) {
-			setHoverText(new TextComponentTranslation("animation.hover.anim.del").getFormattedText());
+	}
+
+	private static String[] getLanguageData(String name) {
+		String key = "ecmascript";
+		String ext = ".js";
+		if (name.toLowerCase().startsWith("graaljs")) { key = "graaljs"; }
+		else if (name.toLowerCase().startsWith("luaj")) { key = "lua"; ext = ".lua"; }
+		else if (name.toLowerCase().startsWith("jython")) { key = "jython"; ext = ".py"; }
+		else if (name.toLowerCase().startsWith("jruby")) { key = "jruby"; ext = ".rb"; }
+		else if (name.toLowerCase().startsWith("groovy")) { key = "groovy"; ext = ".groovy"; }
+		else if (name.toLowerCase().startsWith("kotlin")) { key = "kotlin"; ext = ".kt"; }
+		else if (name.toLowerCase().startsWith("rhino")) { key = "rhino"; }
+		String dir = "./(world_name)/customnpcs/scripts/" + name.toLowerCase();
+		if (CustomNpcs.Server != null) {
+			dir = CustomNpcs.getWorldSaveDirectory().getAbsolutePath().replace("\\", "/");
+			if (dir.lastIndexOf("/./") != -1) { dir = dir.substring(dir.lastIndexOf("/./") + 1); }
+			dir += "/scripts/" + name.toLowerCase();
 		}
+		return new String[] { key, dir, ext };
 	}
 
 	private String getConsoleText() {
@@ -275,10 +279,10 @@ implements IGuiData, ITextChangeListener {
 		if (handler.getScripts().size() < CustomNpcs.ScriptMaxTabs && !(handler instanceof ClientScriptData)) {
 			addTopButton(new GuiMenuTopButton(CustomNpcs.ScriptMaxTabs + 1, top, "+"));
 		}
-		top = getTopButton(activeTab);
+		top = (GuiMenuTopButton) getTopButton(activeTab);
 		if (top == null) {
 			activeTab = 0;
-			top = getTopButton(0);
+			top = (GuiMenuTopButton) getTopButton(0);
 		}
 		top.active = true;
 		if (activeTab > 0) {
@@ -294,7 +298,7 @@ implements IGuiData, ITextChangeListener {
 			addButton(new GuiNpcButton(105, left + 61, guiTop + 21 + yoffset, 60, 20, "gui.remove"));
 			addButton(new GuiNpcButton(107, left, guiTop + 66 + yoffset, 80, 20, "script.loadscript"));
 			addButton(new GuiNpcButton(115, left + 30, guiTop + 43 + yoffset, 60, 20, "gui.remove.all"));
-			GuiCustomScroll scroll = new GuiCustomScroll(this, 0).setUnSelectable();
+			GuiCustomScroll scroll = (GuiCustomScroll) (new GuiCustomScroll(this, 0)).setUnSelectable();
 			scroll.setSize(100, (int) ((ySize * 0.54) - yoffset * 2) - 22);
 			scroll.guiLeft = left;
 			scroll.guiTop = guiTop + 88 + yoffset;
@@ -306,7 +310,8 @@ implements IGuiData, ITextChangeListener {
 			button.setEnabled(!(this instanceof GuiScriptClient));
 			button.setHoverText("" + button.enabled);
 			addButton(button);
-		} else {
+		} // script
+		else { // info
 			GuiTextArea ta2 = new GuiTextArea(2, guiLeft + 4 + yoffset, guiTop + 6 + yoffset, xSize - 160 - yoffset, (int) ((ySize * 0.92f) - yoffset * 2), getConsoleText());
 			ta2.enabled = false;
 			add(ta2);
@@ -314,8 +319,18 @@ implements IGuiData, ITextChangeListener {
 			addButton(new GuiNpcButton(100, left2, guiTop + 125, 60, 20, "gui.copy"));
 			addButton(new GuiNpcButton(102, left2, guiTop + 146, 60, 20, "gui.clear"));
 			addLabel(new GuiNpcLabel(1, "script.language", left2, guiTop + 15));
-			addButton(new GuiNpcButton(103, left2 + 60, guiTop + 10, 80, 20, languages.keySet().toArray(new String[0]), getScriptIndex()));
-			getButton(103).enabled = (!languages.isEmpty());
+			String[] ls = languages.keySet().toArray(new String[0]);
+			if (ls.length < 1) { addButton(new GuiNpcButton(103, left2 + 60, guiTop + 10, 80, 20, ls, getScriptIndex())); }
+			else { addButton(new GuiButtonBiDirectional(103, left2 + 60, guiTop + 10, 80, 20, ls, getScriptIndex())); }
+			getButton(103).setEnabled(!languages.isEmpty());
+
+			String[] data = getLanguageData(getButton(103).getDisplayString());
+			getButton(103).setHoverText(new TextComponentTranslation("script.hover.info." + data[0]).
+					appendSibling(new TextComponentTranslation("script.hover.info.dir", data[1], data[2])).getFormattedText());
+
+			addLabel(new GuiNpcLabel(3, "[?]", left2 + 145, guiTop + 15));
+			getLabel(3).setHoverText("script.hover.info");
+
 			addLabel(new GuiNpcLabel(2, "gui.enabled", left2, guiTop + 36));
 			addButton(new GuiNpcButton(104, left2 + 60, guiTop + 31, 50, 20, new String[] { "gui.no", "gui.yes" }, (handler.getEnabled() ? 1 : 0)));
 			if (player.getServer() != null) {
@@ -328,6 +343,7 @@ implements IGuiData, ITextChangeListener {
 		}
 		xSize = 420;
 		ySize = 256;
+		if (getButton(1) != null && getButton(1).isMouseOver()) { setHoverText("animation.hover.anim.del"); }
 	}
 
 	@Override

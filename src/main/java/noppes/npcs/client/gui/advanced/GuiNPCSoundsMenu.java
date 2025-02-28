@@ -4,13 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.select.GuiSoundSelection;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -27,14 +21,14 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 6) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 6) {
 			this.npc.advanced.disablePitch = button.getValue() == 0;
-		} else if (button.id < 10) {
-			this.selectedField = this.getTextField(button.id);
+		} else if (button.getId() < 10) {
+			this.selectedField = (GuiNpcTextField) this.getTextField(button.getId());
 			this.setSubGui(new GuiSoundSelection(this.selectedField.getText()));
 		} else {
-			this.selectedField = this.getTextField(button.id - 10);
+			this.selectedField = (GuiNpcTextField) this.getTextField(button.getId() - 10);
 			this.selectedField.setText("");
 			this.unFocused(this.selectedField);
 		}
@@ -95,7 +89,7 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		GuiSoundSelection gss = (GuiSoundSelection) subgui;
 		if (gss.selectedResource != null) {
 			this.selectedField.setText(gss.selectedResource.toString());
@@ -104,7 +98,7 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		this.npc.advanced.setSound(textfield.getId(), textfield.getText());
 		this.initGui();
 	}

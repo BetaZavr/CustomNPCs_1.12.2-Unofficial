@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 
 public class GuiNpcCheckBox
 extends GuiNpcButton
-implements IComponentGui {
+implements IComponentGui, IGuiNpcCheckBox {
 
 	public int id;
 	int offsetX;
@@ -164,11 +164,6 @@ implements IComponentGui {
 
 	private void setText() {
 		fullLabel = new TextComponentTranslation(check ? trueLabel : falseLabel).getFormattedText();
-		if (id == 22) {
-			System.out.println("CNPCs: "+check);
-			System.out.println("CNPCs: "+this.trueLabel);
-			System.out.println("CNPCs: "+this.falseLabel);
-		}
 		labels = new ArrayList<>();
 		if (width - 13 < 5) {
 			return;

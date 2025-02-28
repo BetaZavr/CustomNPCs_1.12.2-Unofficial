@@ -8,10 +8,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import noppes.npcs.NBTTags;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -33,13 +30,13 @@ implements IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (scroll.selected < 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (scroll.getSelect() < 0) {
 			return;
 		}
-		if (button.id == 0) { // down
+		if (button.getId() == 0) { // down
 			List<int[]> list = new ArrayList<>(path);
-			int selected = scroll.selected;
+			int selected = scroll.getSelect();
 			if (list.size() <= selected + 1) {
 				return;
 			}
@@ -49,29 +46,29 @@ implements IGuiData {
 			list.set(selected + 1, a);
 			path = list;
 			initGui();
-			scroll.selected = selected + 1;
+			scroll.setSelect(selected + 1);
 		}
-		if (button.id == 1) { // up
-			if (scroll.selected - 1 < 0) {
+		if (button.getId() == 1) { // up
+			if (scroll.getSelect() - 1 < 0) {
 				return;
 			}
 			List<int[]> list = new ArrayList<>(path);
-			int selected = scroll.selected;
+			int selected = scroll.getSelect();
 			int[] a = list.get(selected);
 			int[] b = list.get(selected - 1);
 			list.set(selected, b);
 			list.set(selected - 1, a);
 			path = list;
 			initGui();
-			scroll.selected = selected - 1;
+			scroll.setSelect(selected - 1);
 		}
-		if (button.id == 2) { // remove
+		if (button.getId() == 2) { // remove
 			List<int[]> list = new ArrayList<>(path);
 			if (list.size() <= 1) {
 				return;
 			}
-			list.remove(scroll.selected);
-            scroll.selected = scroll.selected - 1;
+			list.remove(scroll.getSelect());
+            scroll.setSelect(scroll.getSelect() - 1);
 			path = list;
 			initGui();
 		}
@@ -85,7 +82,7 @@ implements IGuiData {
 	public void initGui() {
 		int sel;
 		if (scroll != null) {
-			sel = scroll.selected;
+			sel = scroll.getSelect();
 		} else {
 			sel = 0;
 			Vec3d vec3d = player.getPositionEyes(1.0f);
@@ -115,7 +112,7 @@ implements IGuiData {
 		scroll.setListNotSorted(list);
 		scroll.guiLeft = guiLeft + 7;
 		scroll.guiTop = guiTop + 12;
-		scroll.selected = sel;
+		scroll.setSelect(sel);
 		addScroll(scroll);
 		addButton(new GuiNpcButton(0, guiLeft + 6, guiTop + 178, 52, 20, "gui.down"));
 		addButton(new GuiNpcButton(1, guiLeft + 62, guiTop + 178, 52, 20, "gui.up"));

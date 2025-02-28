@@ -8,12 +8,7 @@ import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
@@ -40,14 +35,14 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: { // add new
 				DialogOption option = new DialogOption();
 				option.slot = this.dialog.options.size();
 				this.dialog.options.put(option.slot, option);
 				option.optionColor = SubGuiNpcDialogOption.LastColor;
-				this.scroll.selected = option.slot;
+				this.scroll.setSelect(option.slot);
 				this.setSubGui(new SubGuiNpcDialogOption(option, parent));
 				break;
 			}
@@ -76,7 +71,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 					return;
 				}
 				this.dialog.upPos(this.data.get(this.scroll.getSelected()));
-				this.scroll.selected--;
+				scroll.setSelect(scroll.getSelect() - 1);
 				this.initGui();
 				break;
 			}
@@ -85,7 +80,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 					return;
 				}
 				this.dialog.downPos(this.data.get(this.scroll.getSelected()));
-				this.scroll.selected++;
+				scroll.setSelect(scroll.getSelect() + 1);
 				this.initGui();
 				break;
 			}
@@ -133,7 +128,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 	public void initGui() {
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(66, "dialog.options", this.guiLeft, this.guiTop + 4));
-		this.getLabel(66).center(this.xSize);
+		this.getLabel(66).setCenter(this.xSize);
 		this.data.clear();
 		List<String> list = new ArrayList<>();
 		List<Integer> colors = new ArrayList<>();
@@ -210,14 +205,14 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 		this.addScroll(this.scroll);
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 170, 48, 20, "gui.add"));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 54, this.guiTop + 170, 48, 20, "gui.remove"));
-		this.getButton(1).setEnabled(this.scroll.selected != -1);
+		this.getButton(1).setEnabled(this.scroll.getSelect() != -1);
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 104, this.guiTop + 170, 48, 20, "selectServer.edit"));
-		this.getButton(2).setEnabled(this.scroll.selected != -1);
+		this.getButton(2).setEnabled(this.scroll.getSelect() != -1);
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 154, this.guiTop + 170, 48, 20, "type.up",
-				this.scroll.selected != -1 && this.scroll.selected != 0));
+				this.scroll.getSelect() != -1 && this.scroll.getSelect() != 0));
 		this.addButton(new GuiNpcButton(4, this.guiLeft + 204, this.guiTop + 170, 48, 20, "type.down",
-				this.scroll.selected != -1 && this.scroll.selected > -1
-						&& this.scroll.selected < this.data.size() - 1));
+				this.scroll.getSelect() != -1 && this.scroll.getSelect() > -1
+						&& this.scroll.getSelect() < this.data.size() - 1));
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 82, this.guiTop + 192, 98, 20, "gui.done"));
 	}
 
@@ -234,16 +229,16 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) {
 		if (!this.data.containsKey(scroll.getSelected())) {
-			scroll.selected = -1;
+			scroll.setSelect(-1);
 			return;
 		}
 		this.initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		if (!this.data.containsKey(scroll.getSelected())) {
 			return;
 		}
@@ -255,7 +250,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (this.parent instanceof GuiDialogEdit && ((GuiDialogEdit) this.parent).parent != null) {
 			NoppesUtil.openGUI(this.player, ((GuiDialogEdit) this.parent).parent);
 		}

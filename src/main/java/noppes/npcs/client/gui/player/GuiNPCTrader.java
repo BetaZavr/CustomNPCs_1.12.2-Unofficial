@@ -70,13 +70,13 @@ implements ICustomScrollListener, IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id > 4 && button.id < 10) {
-			section = button.id - 5 + ceilPos * 5;
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() > 4 && button.getId() < 10) {
+			section = button.getId() - 5 + ceilPos * 5;
 			initGui();
 			return;
 		}
-		switch (button.id) {
+		switch (button.getId()) {
 			case 0: { // buy
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, marcet.getId(), selectDealData.deal.getId(), npc.getEntityId());
 				break;
@@ -137,7 +137,7 @@ implements ICustomScrollListener, IGuiData {
 			Gui.drawRect(px + 1, py + 1, px + 24, py + 24, colorP);
 			GlStateManager.disableRescaleNormal();
 			// Currency Colored
-			if (getLabel(4) != null && getLabel(4).enabled) {
+			if (getLabel(4) != null && getLabel(4).isEnabled()) {
 				if (money != ClientProxy.playerData.game.getMoney()) {
 					money = ClientProxy.playerData.game.getMoney();
 					if (selectDealData.buyMoney > 0) {
@@ -285,7 +285,7 @@ implements ICustomScrollListener, IGuiData {
 				}
 			}
 		}
-		if (getLabel(6) != null && getLabel(6).enabled) {
+		if (getLabel(6) != null && getLabel(6).isEnabled()) {
 			getLabel(6).setLabel(new TextComponentTranslation("market.uptime", Util.instance.ticksToElapsedTime(marcet.nextTime / 50, false, false, false)).getFormattedText());
 			if (marcet.nextTime <= 0) {
 				NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.MarketTime, this, 2500, marcet.getId());
@@ -297,17 +297,17 @@ implements ICustomScrollListener, IGuiData {
 		if (subgui != null) {
 			return;
 		}
-		if (getLabel(3) != null && getLabel(3).enabled && isMouseHover(mouseX, mouseY, guiLeft + 140, guiTop + 113, 80, 24)) {
+		if (getLabel(3) != null && getLabel(3).isEnabled() && isMouseHover(mouseX, mouseY, guiLeft + 140, guiTop + 113, 80, 24)) {
 			int buyMoney = selectDealData.deal.getMoney();
 			if (selectDealData != null && selectDealData.buyMoney > 0) { buyMoney = (int) selectDealData.buyMoney; }
 			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", "" + buyMoney, CustomNpcs.displayCurrencies, "" + money, CustomNpcs.displayCurrencies);
 			if (marcet.isLimited) { text.appendSibling(new TextComponentTranslation("market.hover.currency.1", "" + marcet.money)); }
 			setHoverText(text.getFormattedText());
-		} else if (getButton(0) != null && getButton(0).visible && getButton(0).isMouseOver()) {
+		} else if (getButton(0) != null && getButton(0).isVisible() && getButton(0).isMouseOver()) {
 			ITextComponent text = new TextComponentTranslation("market.hover.buy", stack.getDisplayName());
 			if (canBuy != 0) { text.appendSibling(new TextComponentTranslation("market.hover.notbuy." + canBuy)); }
 			setHoverText(text.getFormattedText());
-		} else if (getButton(1) != null && getButton(1).visible && getButton(1).isMouseOver()) {
+		} else if (getButton(1) != null && getButton(1).isVisible() && getButton(1).isMouseOver()) {
 			colorP = new Color(0x8000FF00).getRGB();
 			if (Util.instance.inventoryItemCount(player, stack, selectDealData.deal.availability, selectDealData.deal.getIgnoreDamage(), selectDealData.deal.getIgnoreNBT()) < ct) { colorP = new Color(0x80FF0000).getRGB(); }
 			TextComponentBase text = new TextComponentTranslation("market.hover.sell.0", stack.getDisplayName());
@@ -331,11 +331,11 @@ implements ICustomScrollListener, IGuiData {
 			MarkupData mm = marcet.markup.get(md.level);
 			int pXP = Math.min(md.xp, mm.xp);
 			setHoverText("market.hover.you.level", "" + (md.level + 1), "" + pXP, "" + mm.xp, "" + (int) (mm.buy * 100.0f), "" + (int) (mm.sell * 100.0f));
-		} else if (getButton(2) != null && getButton(2).visible && getButton(2).isMouseOver()) {
+		} else if (getButton(2) != null && getButton(2).isVisible() && getButton(2).isMouseOver()) {
 			setHoverText(new TextComponentTranslation("market.hover.reset").getFormattedText());
 		} else if (selectDealData.deal != null && selectDealData.deal.getMaxCount() > 0 && isMouseHover(mouseX, mouseY, guiLeft + 177, guiTop + 24, 45, 14)) {
 			setHoverText(selectDealData.deal.getMaxCount() > 0 ? new TextComponentTranslation("market.hover.item.amount", "" + selectDealData.deal.getAmount()).getFormattedText() : "");
-		} else if (getLabel(6) != null && getLabel(6).enabled && getLabel(6).hovered) {
+		} else if (getLabel(6) != null && getLabel(6).isEnabled() && getLabel(6).isMouseOver()) {
 			setHoverText(new TextComponentTranslation("market.hover.update").getFormattedText());
 		}
 		drawHoverText(null);
@@ -449,14 +449,14 @@ implements ICustomScrollListener, IGuiData {
 		addLabel(new GuiNpcLabel(4, "", guiLeft + 140, guiTop + 126, gray)); // Money
 		money = ClientProxy.playerData.game.getMoney();
 		if (selectDealData.buyMoney > 0) {
-			getLabel(3).enabled = true;
+			getLabel(3).setEnabled(true);
 			String text = Util.instance.getTextReducedNumber(selectDealData.buyMoney, true, true, false) + CustomNpcs.displayCurrencies + " / " + ClientProxy.playerData.game.getTextMoney() + CustomNpcs.displayCurrencies;
 			if (marcet.isLimited) { text += " / " + Util.instance.getTextReducedNumber(marcet.money, true, true, false) + CustomNpcs.displayCurrencies; }
-			getLabel(4).enabled = true;
+			getLabel(4).setEnabled(true);
 			getLabel(4).setLabel(text);
 		} else {
-			getLabel(3).enabled = false;
-			getLabel(4).enabled = false;
+			getLabel(3).setEnabled(false);
+			getLabel(4).setEnabled(false);
 		}
 		addLabel(new GuiNpcLabel(5, "", guiLeft + 177, guiTop + 25, gray)); // amount
 		if (selectDealData.deal.getMaxCount() > 0) {
@@ -466,13 +466,13 @@ implements ICustomScrollListener, IGuiData {
 		}
 		if (marcet.updateTime > 0) {
 			addLabel(new GuiNpcLabel(6, "", guiLeft + 80, guiTop + 5, gray)); // time
-			getLabel(6).enabled = marcet.updateTime > 0;
+			getLabel(6).setEnabled(marcet.updateTime > 0);
 		}
 
 		addButton(new GuiNpcButton(0, guiLeft + 4, guiTop + 117, 64, 20, "gui.buy"));
 		getButton(0).setVisible(selectDealData.deal.getType() != 1);
 		canBuy = 0;
-		if (getButton(0).visible) {
+		if (getButton(0).isVisible()) {
 			if (!player.capabilities.isCreativeMode) {
 				if (wait || selectDealData.deal.getType() == 1) { canBuy = 1; }
 				if (canBuy == 0 && selectDealData.deal.getAmount() <= 0) { canBuy = 6; }
@@ -492,7 +492,7 @@ implements ICustomScrollListener, IGuiData {
 		addButton(new GuiNpcButton(1, guiLeft + 70, guiTop + 117, 64, 20, "gui.sell"));
 		getButton(1).setVisible(selectDealData.deal.getType() != 0);
 		canSell = 0;
-		if (getButton(1).visible) {
+		if (getButton(1).isVisible()) {
 			if (!player.capabilities.isCreativeMode) {
 				if (wait) {
 					canSell = 1;
@@ -539,7 +539,7 @@ implements ICustomScrollListener, IGuiData {
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
 		if (i == 200 || i == ClientProxy.frontButton.getKeyCode() || i == 208 || i == ClientProxy.backButton.getKeyCode()) {
-			int pos = scroll.selected + ((i == 200 || i == ClientProxy.frontButton.getKeyCode()) ? -1 : 1);
+			int pos = scroll.getSelect() + ((i == 200 || i == ClientProxy.frontButton.getKeyCode()) ? -1 : 1);
 			if (pos < 0 || pos >= scroll.getList().size()) { return; }
 			String sel = scroll.getList().get(pos);
 			if (!data.containsKey(sel)) { return; }
@@ -554,7 +554,7 @@ implements ICustomScrollListener, IGuiData {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (!data.containsKey(scroll.getSelected())) {
 			return;
 		}
@@ -563,7 +563,7 @@ implements ICustomScrollListener, IGuiData {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 	}
 
 	@Override

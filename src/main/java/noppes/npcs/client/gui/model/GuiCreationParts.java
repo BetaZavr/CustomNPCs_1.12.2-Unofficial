@@ -9,16 +9,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.ModelPartData;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiColorButton;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.model.part.ModelEyeData;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -110,7 +101,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 		}
 
 		@Override
-		public void subGuiClosed(SubGuiInterface subgui) { }
+		public void subGuiClosed(ISubGuiInterface subgui) { }
 
 	}
 
@@ -226,8 +217,8 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				int x0 = GuiCreationParts.this.guiLeft + 102;
 				int x1 = GuiCreationParts.this.guiLeft + 155;
 				y = GuiCreationParts.this.guiTop + 50;
-				GuiNpcLabel label = GuiCreationParts.this.getLabel(20);
-				GuiNpcButton button = GuiCreationParts.this.getButton(20);
+				GuiNpcLabel label = (GuiNpcLabel) GuiCreationParts.this.getLabel(20);
+				GuiNpcButton button = (GuiNpcButton) GuiCreationParts.this.getButton(20);
 				label.y = y + 3;
 				button.x = x1;
 				button.y = y;
@@ -239,8 +230,8 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				// eye color
 				y += 16;
 				// left
-				label = GuiCreationParts.this.getLabel(23);
-				button = GuiCreationParts.this.getButton(23);
+				label = (GuiNpcLabel) GuiCreationParts.this.getLabel(23);
+				button = (GuiNpcButton) GuiCreationParts.this.getButton(23);
 				label.setLabel("eye.color.0");
 				label.y = y + 3;
 				button.y = y;
@@ -337,15 +328,15 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 		}
 		
 		@Override
-		public void subGuiClosed(SubGuiInterface subgui) {
+		public void subGuiClosed(ISubGuiInterface subgui) {
 			if (subgui instanceof GuiTextureSelection) {
 				GuiTextureSelection tGui = (GuiTextureSelection) subgui;
-				if (subgui.id == 0) { this.eyes.eyeRight = tGui.resource; }
-				else if (subgui.id == 1) { this.eyes.eyeLeft = tGui.resource; }
-				else if (subgui.id == 2) { this.eyes.pupilRight = tGui.resource; }
-				else if (subgui.id == 3) { this.eyes.pupilLeft = tGui.resource; }
-				else if (subgui.id == 4) { this.eyes.browRight = tGui.resource; }
-				else if (subgui.id == 5) { this.eyes.browLeft = tGui.resource; }
+				if (subgui.getId() == 0) { this.eyes.eyeRight = tGui.resource; }
+				else if (subgui.getId() == 1) { this.eyes.eyeLeft = tGui.resource; }
+				else if (subgui.getId() == 2) { this.eyes.pupilRight = tGui.resource; }
+				else if (subgui.getId() == 3) { this.eyes.pupilLeft = tGui.resource; }
+				else if (subgui.getId() == 4) { this.eyes.browRight = tGui.resource; }
+				else if (subgui.getId() == 5) { this.eyes.browLeft = tGui.resource; }
 			}
 		}
 		
@@ -515,21 +506,21 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		} else if (this.getPart() instanceof GuiPartEyes) {
-			if (this.getButton(23) != null && this.getButton(23).visible && isMouseHover(mouseX, mouseY, this.getButton(23).x, this.getButton(23).y, this.getButton(23).width, this.getButton(23).height)) {
+			if (this.getButton(23) != null && this.getButton(23).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(23).getLeft(), this.getButton(23).getTop(), this.getButton(23).getWidth(), this.getButton(23).getHeight())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.color.r").getFormattedText());
-			} else if (this.getButton(24) != null && this.getButton(24).visible && isMouseHover(mouseX, mouseY, this.getButton(24).x, this.getButton(24).y, this.getButton(24).width, this.getButton(24).height)) {
+			} else if (this.getButton(24) != null && this.getButton(24).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(24).getLeft(), this.getButton(24).getTop(), this.getButton(24).getWidth(), this.getButton(24).getHeight())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.color.l").getFormattedText());
-			} else if (this.getButton(25) != null && this.getButton(25).visible && isMouseHover(mouseX, mouseY, this.getButton(25).x, this.getButton(25).y, this.getButton(25).width, this.getButton(25).height)) {
+			} else if (this.getButton(25) != null && this.getButton(25).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(25).getLeft(), this.getButton(25).getTop(), this.getButton(25).getWidth(), this.getButton(25).getHeight())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.color.r").getFormattedText());
-			} else if (this.getButton(26) != null && this.getButton(26).visible && isMouseHover(mouseX, mouseY, this.getButton(26).x, this.getButton(26).y, this.getButton(26).width, this.getButton(26).height)) {
+			} else if (this.getButton(26) != null && this.getButton(26).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(26).getLeft(), this.getButton(26).getTop(), this.getButton(26).getWidth(), this.getButton(26).getHeight())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.color.l").getFormattedText());
-			} else if (this.getButton(27) != null && this.getButton(27).visible && isMouseHover(mouseX, mouseY, this.getButton(27).x, this.getButton(27).y, this.getButton(27).width, this.getButton(27).height)) {
+			} else if (this.getButton(27) != null && this.getButton(27).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(27).getLeft(), this.getButton(27).getTop(), this.getButton(27).getWidth(), this.getButton(27).getHeight())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.color.r").getFormattedText());
-			} else if (this.getButton(28) != null && this.getButton(28).visible && isMouseHover(mouseX, mouseY, this.getButton(28).x, this.getButton(28).y, this.getButton(28).width, this.getButton(28).height)) {
+			} else if (this.getButton(28) != null && this.getButton(28).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(28).getLeft(), this.getButton(28).getTop(), this.getButton(28).getWidth(), this.getButton(28).getHeight())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.color.l").getFormattedText());
 			} else if (this.getButton(29) != null && this.getButton(29).isMouseOver()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.size").getFormattedText());
-			} else if (this.getButton(30) != null && this.getButton(30).visible && isMouseHover(mouseX, mouseY, this.getButton(30).x, this.getButton(30).y, this.getButton(30).width, this.getButton(30).height)) {
+			} else if (this.getButton(30) != null && this.getButton(30).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(30).getLeft(), this.getButton(30).getTop(), this.getButton(30).getWidth(), this.getButton(30).getHeight())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.skin.color").getFormattedText());
 			} else if (this.getButton(31) != null && this.getButton(31).isMouseOver()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.closed").getFormattedText());
@@ -555,7 +546,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.active").getFormattedText());
 			}
 		} else {
-			if (this.getButton(23) != null && this.getButton(23).visible && isMouseHover(mouseX, mouseY, this.getButton(23).x, this.getButton(23).y, this.getButton(23).width, this.getButton(23).height)) {
+			if (this.getButton(23) != null && this.getButton(23).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(23).getLeft(), this.getButton(23).getTop(), this.getButton(23).getWidth(), this.getButton(23).getHeight())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.color").getFormattedText());
 				return;
 			}
@@ -595,19 +586,19 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.selected >= 0) {
-			GuiCreationParts.selected = scroll.selected;
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getSelect() >= 0) {
+			GuiCreationParts.selected = scroll.getSelect();
 			this.initGui();
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 	}
 	
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (this.getPart() != null) {
 			this.getPart().subGuiClosed(subgui);
 		}

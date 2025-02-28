@@ -85,7 +85,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	@Override
 	public void addDialog(int id) {
 		PlayerData data = this.getData();
-		data.dialogData.dialogsRead.add(id);
+		data.dialogData.read(id);
 		data.updateClient = true;
 	}
 
@@ -465,7 +465,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	@Override
 	public boolean hasReadDialog(int id) {
 		PlayerDialogData data = this.getData().dialogData;
-		return data.dialogsRead.contains(id);
+		return data.has(id);
 	}
 
 	@Override
@@ -519,7 +519,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public boolean isMoved() {
-		return this.getData().hud.isMoved();
+		return this.getData().hud.isMoved;
 	}
 
 	@Override

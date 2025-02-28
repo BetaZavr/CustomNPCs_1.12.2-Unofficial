@@ -1,12 +1,7 @@
 package noppes.npcs.client.gui.roles;
 
 import noppes.npcs.client.gui.select.GuiSoundSelection;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 
 public class SubGuiNpcConversationLine
 extends SubGuiInterface
@@ -26,15 +21,15 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 1) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 1) {
 			setSubGui(new GuiSoundSelection(sound));
 		}
-		if (button.id == 2) {
+		if (button.getId() == 2) {
 			sound = "";
 			initGui();
 		}
-		if (button.id == 66) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -51,12 +46,12 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		GuiSoundSelection gss = (GuiSoundSelection) subgui;
 		if (gss.selectedResource != null) { sound = gss.selectedResource.toString(); }
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) { line = textfield.getText(); }
+	public void unFocused(IGuiNpcTextField textfield) { line = textfield.getText(); }
 
 }

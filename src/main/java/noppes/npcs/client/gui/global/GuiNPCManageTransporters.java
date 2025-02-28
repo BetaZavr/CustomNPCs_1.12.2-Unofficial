@@ -11,17 +11,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditText;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCTransportSetup;
@@ -59,13 +49,13 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		TransportCategory cat = null;
 		TransportLocation loc = this.container.location;
 		if (!this.catSel.isEmpty()) {
 			cat = TransportController.getInstance().categories.get(this.dataCat.get(this.catSel));
 		}
-		switch (button.id) {
+		switch (button.getId()) {
 			case 0: { // add cat
 				this.setSubGui(new SubGuiEditText(0, Util.instance
 						.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
@@ -263,39 +253,39 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		switch (scroll.id) {
-		case 0: {
-			if (this.catSel.equals(scroll.getSelected()) || !this.dataCat.containsKey(scroll.getSelected())) {
-				return;
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		switch (scroll.getId()) {
+			case 0: {
+				if (this.catSel.equals(scroll.getSelected()) || !this.dataCat.containsKey(scroll.getSelected())) {
+					return;
+				}
+				this.save();
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, this.container.location.id,
+						this.dataCat.get(scroll.getSelected()), 0);
+				this.wait = true;
+				this.initGui();
+				break;
 			}
-			this.save();
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, this.container.location.id,
-					this.dataCat.get(scroll.getSelected()), 0);
-			this.wait = true;
-			this.initGui();
-			break;
-		}
-		case 1: {
-			if (this.locSel.equals(scroll.getSelected()) || !this.dataLoc.containsKey(scroll.getSelected())
-					|| !this.dataCat.containsKey(this.catSel)) {
-				return;
+			case 1: {
+				if (this.locSel.equals(scroll.getSelected()) || !this.dataLoc.containsKey(scroll.getSelected())
+						|| !this.dataCat.containsKey(this.catSel)) {
+					return;
+				}
+				this.save();
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, this.dataLoc.get(scroll.getSelected()),
+						this.dataCat.get(this.catSel), 0);
+				this.wait = true;
+				this.initGui();
+				break;
 			}
-			this.save();
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, this.dataLoc.get(scroll.getSelected()),
-					this.dataCat.get(this.catSel), 0);
-			this.wait = true;
-			this.initGui();
-			break;
-		}
 		}
 
 		this.setGuiData(null);
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		if (scroll.id == 1 && scroll.hasSelected()) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 1 && scroll.hasSelected()) {
 			this.transfer(this.container.location);
 		}
 	}
@@ -333,7 +323,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).text[0].isEmpty()) {
 			return;
 		}
@@ -353,7 +343,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		TransportCategory cat = null;
 		TransportLocation loc = this.container.location;
 		if (!this.catSel.isEmpty()) {

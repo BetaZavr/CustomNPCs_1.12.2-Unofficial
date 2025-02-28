@@ -693,28 +693,33 @@ public class DropSet implements IInventory, ICustomDrop {
 		if (pos < 0) { list.add(c + "7-" + c + "8 ID:" + toString().substring(toString().indexOf("@") + 1)); }
 		else { list.add(c + "7- ID: " + c + "r" + pos); }
 		// stack
-		if (item == null) { list.add(c + "7- Item: " + c + "4null"); }
-		else if (item.isEmpty()) { list.add(c + "7- Item: " + c + "cEmpty"); }
-		else { list.add(c + "7- Item: " + c + "r" + item.getMCItemStack().getItem().getRegistryName()); }
+		String itemString = Util.instance.translateGoogle(player, "Item");
+		if (item == null) { list.add(c + "7- " + itemString + ": " + c + "4null"); }
+		else if (item.isEmpty()) { list.add(c + "7- " + itemString + ": " + c + "cEmpty"); }
+		else { list.add(c + "7- " + itemString + ": " + c + "r" + item.getMCItemStack().getItem().getRegistryName()); }
 		// amount
-		if (amount[0] == amount[1]) { list.add(c + "7- Amount: " + c + "6" + amount[0]); }
-		else { list.add(c + "7- Amount: " + c + "7[min:" + c + "6" + amount[0] + c + "7; max:" + c + "6" + amount[1] + c + "7]"); }
+		String amountString = Util.instance.translateGoogle(player, "Amount");
+		if (amount[0] == amount[1]) { list.add(c + "7- " + amountString + ": " + c + "6" + amount[0]); }
+		else { list.add(c + "7- " + amountString + ": " + c + "7[min:" + c + "6" + amount[0] + c + "7; max:" + c + "6" + amount[1] + c + "7]"); }
 		// chance
-		if (chance == (int) chance) { list.add(c + "7- Chance: " + c + "e" + ((int) chance) + c + "7%"); }
-		else { list.add(c + "7- Chance: " + c + "e" + ("" + chance).replace(".", ",") + c + "7%"); }
+		String chanceString = Util.instance.translateGoogle(player, "Chance");
+		if (chance == (int) chance) { list.add(c + "7- " + chanceString + ": " + c + "e" + ((int) chance) + c + "7%"); }
+		else { list.add(c + "7- " + chanceString + ": " + c + "e" + ("" + chance).replace(".", ",") + c + "7%"); }
 		// loot mode
-		if (lootMode == 1) { list.add(c + "7- Loot: " + c + "r" + Util.instance.translateGoogle(player, "Will fall to the ground")); }
-		else if (lootMode == 2) { list.add(c + "7- Loot: " + c + "r" + Util.instance.translateGoogle(player, "Will be placed in the inventory available when the NPC dies.")); }
-		else { list.add(c + "7- Loot: " + c + "r" + Util.instance.translateGoogle(player, "Will fall to the player who killed this NPC")); }
+		String lootString = Util.instance.translateGoogle(player, "Loot");
+		if (lootMode == 1) { list.add(c + "7- " + lootString + ": " + c + "r" + Util.instance.translateGoogle(player, "Will fall to the ground")); }
+		else if (lootMode == 2) { list.add(c + "7- " + lootString + ": " + c + "r" + Util.instance.translateGoogle(player, "Will be placed in the inventory available when the NPC dies.")); }
+		else { list.add(c + "7- " + lootString + ": " + c + "r" + Util.instance.translateGoogle(player, "Will fall to the player who killed this NPC")); }
    		// damage
-		if (damage == 1.0f) { list.add(c + "7- Max. breakdown (meta): " + c + "r" + Util.instance.translateGoogle(player, "Doesn't change")); }
-		else { list.add(c + "7- Max. breakdown (meta): " + c + "6" + ("" + Math.round(damage * 10000.0f) / 100.0f).replace(".", ",") + c + "7% from " + c + "6" + (item == null ? "0" : item.getMaxItemDamage())); }
+		String damageString = Util.instance.translateGoogle(player, "Broken");
+		if (damage == 1.0f) { list.add(c + "7- " + damageString + ": (max. meta): " + c + "r" + Util.instance.translateGoogle(player, "Doesn't change")); }
+		else { list.add(c + "7- " + damageString + " (max. meta): " + c + "6" + ("" + Math.round(damage * 10000.0f) / 100.0f).replace(".", ",") + c + "7% from " + c + "6" + (item == null ? "0" : item.getMaxItemDamage())); }
 		// tiedToLevel
 		if (tiedToLevel) { list.add(c + "7- " + Util.instance.translateGoogle(player, "NPC level is taken into account. Average: ") + c + "6" + npcLevel); }
 		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "NPC level does not affect parameters")); }
 		// quest
 		if (questId > 0) {
-			String quest = c + "7- Quest ID: " + c + "2" + questId;
+			String quest = c + "7- " + Util.instance.translateGoogle(player, "Quest") + " ID: " + c + "2" + questId;
 			Quest q = QuestController.instance.quests.get(questId);
 			if (q != null) { quest += c + "7; Name: " + c + "r" + q.getTitle(); }
 			list.add(quest);
@@ -727,9 +732,9 @@ public class DropSet implements IInventory, ICustomDrop {
 				if (ench.length() > 0) { ench.append(c).append("7, "); }
 				ench.append(es.ench == null ? "null" : c + "7id: " + c + "b" + Enchantment.getEnchantmentID(es.ench));
 			}
-			list.add(c + "7- Enchants: [" + ench + c + "7]");
+			list.add(c + "7- " + Util.instance.translateGoogle(player, "Enchants") + ": [" + ench + c + "7]");
 		}
-		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "Enchants not specified")); }
+		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "\"Enchants\" - not specified")); }
 		// enchants
 		if (!attributes.isEmpty()) {
 			StringBuilder attr = new StringBuilder();
@@ -737,9 +742,9 @@ public class DropSet implements IInventory, ICustomDrop {
 				if (attr.length() > 0) { attr.append(c).append("7, "); }
 				attr.append(as.attr == null ? "null" : c + "9" + as.attr.getName());
 			}
-			list.add(c + "7- Attributes: [" + attr + c + "7]");
+			list.add(c + "7- " + Util.instance.translateGoogle(player, "Attributes") + ": [" + attr + c + "7]");
 		}
-		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "Attributes not specified")); }
+		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "\"Attributes\" - not specified")); }
 		// tags
 		if (!tags.isEmpty()) {
 			StringBuilder nbt = new StringBuilder();
@@ -747,9 +752,9 @@ public class DropSet implements IInventory, ICustomDrop {
 				if (nbt.length() > 0) { nbt.append(c).append("7, "); }
 				nbt.append(ns.path == null ? "null" : c + "a" + ns.path);
 			}
-			list.add(c + "7- Tags: [" + nbt + c + "7]");
+			list.add(c + "7- " + Util.instance.translateGoogle(player, "Tags") + ": [" + nbt + c + "7]");
 		}
-		else { list.add(c + "7- NBT " + Util.instance.translateGoogle(player, "tags not specified")); }
+		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "\"NBT tags\" - not specified")); }
 		return list;
 	}
 

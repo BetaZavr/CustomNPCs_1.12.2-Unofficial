@@ -11,6 +11,7 @@ import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
+import noppes.npcs.client.gui.util.IGuiNpcButton;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNpcQuestRewardItem;
 import noppes.npcs.controllers.QuestController;
@@ -35,8 +36,8 @@ extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) { close(); }
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) { close(); }
 	}
 
 	@Override

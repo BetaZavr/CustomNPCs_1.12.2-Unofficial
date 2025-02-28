@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.animation;
 
 import java.util.*;
 
+import noppes.npcs.client.gui.util.*;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -16,20 +17,6 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.ModelPartData;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiEditText;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcSlider;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ISliderListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.client.model.animation.EmotionFrame;
 import noppes.npcs.client.model.part.ModelEyeData;
@@ -79,9 +66,9 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		EmotionConfig emtn = getEmtn();
-		switch (button.id) {
+		switch (button.getId()) {
 			case 0: {
 				setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
@@ -94,7 +81,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			} // del
 			case 2: {
 				GuiNpcAnimation.backColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF : 0xFF000000);
-				button.layerColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
+				button.setLayerColor(GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
 				break;
 			} // back color
 			case 3: {
@@ -351,9 +338,9 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			}
 		}
 		addButton(new GuiNpcButton(0, x, y + scroll.height + 1, 59, 20, "markov.generate"));
-		getButton(0).enabled = dataEmtns.isEmpty();
+		getButton(0).setEnabled(dataEmtns.isEmpty());
 		addButton(new GuiNpcButton(1, x + 62, y + scroll.height + 1, 59, 20, "gui.remove"));
-		getButton(1).enabled = !selEmtn.isEmpty();
+		getButton(1).setEnabled(!selEmtn.isEmpty());
 
 		EmotionConfig emtn = getEmtn();
 		if (emtn == null) { return; }
@@ -375,7 +362,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 		int xx = sw.getScaledWidth() / 2 - wX;
 		int yy = sw.getScaledHeight() / 2 - wY;
-		System.out.println("CNPCs: ["+sw.getScaledWidth()+", "+sw.getScaledHeight()+"]; ["+wX+", "+wY+"]; ["+xx+", "+yy+"]");
+//System.out.println("CNPCs: ["+sw.getScaledWidth()+", "+sw.getScaledHeight()+"]; ["+wX+", "+wY+"]; ["+xx+", "+yy+"]");
 
 		/*button = new GuiNpcButton(21, workU + workS / 2 - 11, workV + workS - 12, 18, 10, "");
 		button.texture = ANIMATION_BUTTONS;
@@ -712,8 +699,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) {
 			if (selEmtn.equals(scroll.getSelected())) { return; }
 			save();
 			selEmtn = scroll.getSelected();
@@ -722,7 +709,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { initGui(); }
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) { initGui(); }
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
@@ -731,8 +718,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui.id == 1) { // add new
+	public void subGuiClosed(ISubGuiInterface subgui) {
+		if (subgui.getId() == 1) { // add new
 			if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).cancelled) { return; }
 			EmotionConfig newEmtn = (EmotionConfig) aData.createNewEmtn();
 			newEmtn.name = ((SubGuiEditText) subgui).text[0];
@@ -762,22 +749,22 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void mouseDragged(GuiNpcSlider slider) {
+	public void mouseDragged(IGuiNpcSlider slider) {
 		float value;
-		int pos = slider.id + (isRight ? 0 : 2);
+		int pos = slider.getId() + (isRight ? 0 : 2);
 		switch(elementType) {
 			case 1: { // pupil
 				switch(toolType) { // 0 - rotation, 1 - offset, 2 - scale
 					case 1: {
-						frame.offsetPupil[pos] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
+						frame.offsetPupil[pos] = (value = slider.getSliderValue() * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.offsetPupil[pos] = (value = slider.sliderValue * 2.0f);
+						frame.offsetPupil[pos] = (value = slider.getSliderValue() * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotPupil[isRight ? 0 : 1] = (value = slider.sliderValue * 360.0f - 180.0f);
+						frame.rotPupil[isRight ? 0 : 1] = (value = slider.getSliderValue() * 360.0f - 180.0f);
 						break;
 					}
 				}
@@ -786,15 +773,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			case 2: { // brow
 				switch(toolType) {
 					case 1: {
-						frame.offsetBrow[pos] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
+						frame.offsetBrow[pos] = (value = slider.getSliderValue() * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scaleBrow[pos] = (value = slider.sliderValue * 2.0f);
+						frame.scaleBrow[pos] = (value = slider.getSliderValue() * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotBrow[isRight ? 0 : 1] = (value = slider.sliderValue * 360.0f - 180.0f);
+						frame.rotBrow[isRight ? 0 : 1] = (value = slider.getSliderValue() * 360.0f - 180.0f);
 						break;
 					}
 				}
@@ -803,15 +790,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			case 3: { // mouth
 				switch(toolType) {
 					case 1: {
-						frame.offsetMouth[slider.id] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
+						frame.offsetMouth[slider.getId()] = (value = slider.getSliderValue() * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scaleMouth[slider.id] = (value = slider.sliderValue * 2.0f);
+						frame.scaleMouth[slider.getId()] = (value = slider.getSliderValue() * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotMouth = (value = slider.sliderValue * 360.0f - 180.0f);
+						frame.rotMouth = (value = slider.getSliderValue() * 360.0f - 180.0f);
 						break;
 					}
 				}
@@ -821,33 +808,33 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				elementType = 0;
 				switch(toolType) {
 					case 1: {
-						frame.offsetEye[pos] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
+						frame.offsetEye[pos] = (value = slider.getSliderValue() * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scaleEye[pos] = (value = slider.sliderValue * 2.0f);
+						frame.scaleEye[pos] = (value = slider.getSliderValue() * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotEye[isRight ? 0 : 1] = (value = slider.sliderValue * 360.0f - 180.0f);
+						frame.rotEye[isRight ? 0 : 1] = (value = slider.getSliderValue() * 360.0f - 180.0f);
 						break;
 					}
 				}
 				break;
 			}
 		}
-		if (getTextField(5 + slider.id) != null) { getTextField(5 + slider.id).setText("" + (Math.round(value * 1000.0f) / 1000.0f)); }
+		if (getTextField(5 + slider.getId()) != null) { getTextField(5 + slider.getId()).setText("" + (Math.round(value * 1000.0f) / 1000.0f)); }
 		resetEmtns();
 	}
 
 	@Override
-	public void mousePressed(GuiNpcSlider slider) { }
+	public void mousePressed(IGuiNpcSlider slider) { }
 
 	@Override
-	public void mouseReleased(GuiNpcSlider slider) { }
+	public void mouseReleased(IGuiNpcSlider slider) { }
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		EmotionConfig emtn = getEmtn();
 		if (hasSubGui() || emtn == null) { return; }
 		switch (textField.getId()) {
@@ -959,7 +946,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 					} // Mouth
 				}
 				textField.setText("" + (Math.round(data * 1000.0f) / 1000.0f));
-				if (getSlider(0) != null) { getSlider(0).sliderValue = value; }
+				if (getSlider(0) != null) { getSlider(0).setSliderValue(value); }
 				resetEmtns();
 				break;
 			} // X
@@ -1009,7 +996,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 					} // Mouth
 				}
 				textField.setText("" + (Math.round(data * 1000.0f) / 1000.0f));
-				if (getSlider(1) != null) { getSlider(1).sliderValue = value; }
+				if (getSlider(1) != null) { getSlider(1).setSliderValue(value); }
 				resetEmtns();
 				break;
 			} // Y

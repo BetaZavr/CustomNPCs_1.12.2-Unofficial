@@ -24,16 +24,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerBuilderSettings;
 import noppes.npcs.controllers.SchematicController;
@@ -140,8 +131,8 @@ implements ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 1: { // Facing
 				if (builder == null) {
 					return;
@@ -295,7 +286,7 @@ implements ICustomScrollListener, ITextfieldListener {
 		super.handleMouseClick(slotIn, slotId, mouseButton, type);
         if (slotId >= 36) {
 			int id = slotId - (builder.getType() == 2 ? 36 : 35);
-			GuiNpcTextField textField = getTextField(id);
+			IGuiNpcTextField textField = getTextField(id);
 			if (textField == null) {
 				return;
 			}
@@ -339,13 +330,13 @@ implements ICustomScrollListener, ITextfieldListener {
 						fName = key.substring(0, key.lastIndexOf(".blueprint"));
 					}
 					if (fName.equals(builder.schematicName)) {
-						schematics.selected = i;
+						schematics.setSelect(i);
 						break;
 					}
 					i++;
 				}
 				if (i == schematics.getList().size()) {
-					schematics.selected = -1;
+					schematics.setSelect(-1);
 				}
 			}
 			addScroll(schematics);
@@ -438,7 +429,7 @@ implements ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		// File List
 		builder.schematicName = scroll.getSelected();
 		if (builder.schematicName.endsWith(".schematic")) {
@@ -452,18 +443,18 @@ implements ICustomScrollListener, ITextfieldListener {
 			builder.region[1] = schema.schema.getWidth();
 			builder.region[2] = schema.schema.getHeight();
 		}
-		GuiNpcTextField textField = getTextField(10);
+		IGuiNpcTextField textField = getTextField(10);
 		if (textField != null) {
 			textField.setText(builder.schematicName);
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (builder == null) {
 			return;
 		}

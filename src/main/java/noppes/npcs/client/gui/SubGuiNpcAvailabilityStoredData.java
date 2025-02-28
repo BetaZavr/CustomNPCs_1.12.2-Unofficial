@@ -4,13 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityStoredData;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.AvailabilityStoredData;
@@ -35,8 +29,8 @@ implements ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: {
 				if (select == null) { return; }
 				select.type = EnumAvailabilityStoredData.values()[button.getValue()];
@@ -100,7 +94,7 @@ implements ICustomScrollListener, ITextfieldListener {
 		if (keyError > 0) {
 			keyError--;
 			if (getTextField(0) != null) {
-				GuiNpcTextField textField = getTextField(0);
+				IGuiNpcTextField textField = getTextField(0);
 				if (keyError != 0) {
 					textField.setTextColor(0xFFFF0000);
 					textField.setDisabledTextColour(0xFFFF0000);
@@ -121,7 +115,7 @@ implements ICustomScrollListener, ITextfieldListener {
 		super.initGui();
 		// title
 		GuiNpcLabel label = new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4);
-		label.center(xSize);
+		label.setCenter(xSize);
 		addLabel(label);
 		// exit
 		int y = guiTop + ySize - 46;
@@ -156,7 +150,7 @@ implements ICustomScrollListener, ITextfieldListener {
 		scroll.guiLeft = guiLeft + 6;
 		scroll.guiTop = guiTop + 14;
 		if (!selKey.isEmpty()) { scroll.setSelected(selKey); }
-		else { scroll.selected = -1; }
+		else { scroll.setSelect(-1); }
 		addScroll(scroll);
 		// type
 		String[] enumNames = new String[EnumAvailabilityStoredData.values().length];
@@ -190,17 +184,17 @@ implements ICustomScrollListener, ITextfieldListener {
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) {
 		if (!data.containsKey(scroll.getSelected())) { return; }
 		select = data.get(scroll.getSelected());
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 0) {
 			if (textfield.isEmpty()) {
 				return;

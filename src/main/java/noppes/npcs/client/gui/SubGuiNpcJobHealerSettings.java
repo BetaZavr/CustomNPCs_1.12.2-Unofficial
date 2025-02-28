@@ -3,12 +3,7 @@ package noppes.npcs.client.gui;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.roles.data.HealerSettings;
 
 public class SubGuiNpcJobHealerSettings
@@ -28,8 +23,8 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 1: {
 				hs.type = (byte) button.getValue();
 				break;
@@ -39,11 +34,11 @@ implements ITextfieldListener {
 				break;
 			}
 			case 3: {
-				hs.onHimself = ((GuiNpcCheckBox) button).isSelected();
+				hs.onHimself = ((IGuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 4: {
-				hs.possibleOnMobs = ((GuiNpcCheckBox) button).isSelected();
+				hs.possibleOnMobs = ((IGuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 66: {
@@ -112,25 +107,25 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getId()) {
-		case 1: {
-			hs.range = textField.getInteger();
-			break;
-		}
-		case 2: {
-			hs.speed = textField.getInteger();
-			break;
-		}
-		case 3: {
-			hs.amplifier = textField.getInteger() - 1;
-			textField.setHoverText("beacon.hover.power", new TextComponentTranslation("enchantment.level." + hs.amplifier).getFormattedText());
-			break;
-		}
-		case 4: {
-			hs.time = textField.getInteger();
-			break;
-		}
+			case 1: {
+				hs.range = textField.getInteger();
+				break;
+			}
+			case 2: {
+				hs.speed = textField.getInteger();
+				break;
+			}
+			case 3: {
+				hs.amplifier = textField.getInteger() - 1;
+				textField.setHoverText("beacon.hover.power", new TextComponentTranslation("enchantment.level." + hs.amplifier).getFormattedText());
+				break;
+			}
+			case 4: {
+				hs.time = textField.getInteger();
+				break;
+			}
 		}
 	}
 

@@ -18,12 +18,7 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.ClientTickHandler;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.controllers.MusicController;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.util.ResourceData;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.PlayerMail;
@@ -62,9 +57,9 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		GuiMailmanWrite.parent = this;
-		switch (button.id) {
+		switch (button.getId()) {
 			case 0: {
 				if (this.selected == null) {
 					return;
@@ -157,8 +152,8 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 			scroll.guiLeft = (int) u + 9;
 			scroll.guiTop = (int) v + 45;
 		}
-		if (this.getLabel(0) != null && this.getLabel(0).enabled) {
-			GuiNpcLabel l = this.getLabel(0);
+		if (this.getLabel(0) != null && this.getLabel(0).isEnabled()) {
+			GuiNpcLabel l = (GuiNpcLabel) getLabel(0);
 			l.x = (int) u + 95 - (l.width / 2);
 			l.y = (int) v + 11;
 		}
@@ -166,7 +161,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 			if (this.getButton(i) == null) {
 				return;
 			}
-			GuiNpcButton b = this.getButton(i);
+			GuiNpcButton b = (GuiNpcButton) getButton(i);
 			b.setEnabled(step == 3);
 			switch (i) {
 			case 0: { // read
@@ -365,7 +360,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 						NoppesUtilPlayer.sendData(EnumPlayerPacket.MailboxOpenMail, this.selected.timeWhenReceived,
 								this.selected.sender, 0, 0, 0);
 						this.selected = null;
-						this.scroll.selected = -1;
+						this.scroll.setSelect(-1);
 					}
 					GlStateManager.disableBlend();
 					GlStateManager.popMatrix();
@@ -449,7 +444,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
         });
 		List<String> list = new ArrayList<>();
 		List<Integer> colors = new ArrayList<>();
-		List<ResourceData> prefixes = new ArrayList<>();
+		List<IResourceData> prefixes = new ArrayList<>();
 		int i = 1;
 		for (PlayerMail mail : listN) {
 			String key = ((char) 167) + "8" + i + ": " + ((char) 167) + "r\""
@@ -492,7 +487,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 		String title = new TextComponentTranslation("mailbox.name").getFormattedText();
 		int x = (this.xSize - this.fontRenderer.getStringWidth(title)) / 2;
 		this.addLabel(new GuiNpcLabel(0, title, this.guiLeft + x, this.guiTop + 11));
-		this.getLabel(0).color = CustomNpcs.MainColor.getRGB();
+		this.getLabel(0).setColor(CustomNpcs.MainColor.getRGB());
 		x = this.guiLeft + 8;
 		int y = this.guiTop + 202;
 
@@ -553,18 +548,14 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 		this.scroll.mouseClicked(i, j, k);
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+    @Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		this.selected = this.scrollData.get(scroll.getSelected());
 		this.initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 		if (this.selected == null) {
 			return;
 		}

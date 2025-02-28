@@ -24,16 +24,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.controllers.ClientCloneController;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiMenuSideButton;
-import noppes.npcs.client.gui.util.GuiMenuTopButton;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.data.SpawnNPCData;
@@ -56,13 +47,13 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id > 20) {
-			activeTab = button.id - 20;
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() > 20) {
+			activeTab = button.getId() - 20;
 			initGui();
 			return;
 		}
-		switch (button.id) {
+		switch (button.getId()) {
 			case 0: {
 				close();
 				break;
@@ -160,7 +151,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 				sideButton = new GuiMenuSideButton(20 + id, x, y + (id - 1) * 21, "Tab " + id);
 				addSideButton(sideButton);
 			}
-			getSideButton(20 + activeTab).active = true;
+			getSideButton(20 + activeTab).setActive(true);
 			showClones();
 		} else {
 			showEntities();
@@ -227,14 +218,14 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		String sel = scroll.getSelected();
 		if (sel == null) { return; }
 		resetEntity();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		close();
 	}
 
@@ -301,7 +292,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (spawnData == null || textField.getId() != 2) {
 			return;
 		}

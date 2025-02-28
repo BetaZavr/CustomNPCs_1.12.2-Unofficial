@@ -78,7 +78,4 @@ extends GuiContainerNPCInterface {
 		GuiNpcCompanionStats.addTopMenu(this.role, this, 3);
 	}
 
-	@Override
-	public void save() {
-	}
 }

@@ -1,11 +1,7 @@
 package noppes.npcs.client.gui.drop;
 
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.data.AttributeSet;
 
 public class SubGuiDropAttribute
@@ -25,11 +21,11 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 70) { // slot
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 70) { // slot
 			attribute.setSlot(button.getValue() - 1);
 			initGui();
-		} else if (button.id == 71) { // done
+		} else if (button.getId() == 71) { // done
 			close();
 		}
 	}
@@ -83,7 +79,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 72) { // name
 			attribute.setAttribute(textfield.getText());
 			initGui();

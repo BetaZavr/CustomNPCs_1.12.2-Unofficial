@@ -45,9 +45,9 @@ implements ICustomScrollListener {
     }
 
     @Override
-    public void buttonEvent(GuiNpcButton button) {
+    public void buttonEvent(IGuiNpcButton button) {
         AvailabilityStackData aData = availability.stacksData.get(cont.slot.getSlotIndex());
-        switch (button.id) {
+        switch (button.getId()) {
             case 0: {
                 aData.ignoreDamage = button.getValue() == 0;
                 button.setHoverText("gui.ignoreDamage." + button.getValue());
@@ -178,15 +178,15 @@ implements ICustomScrollListener {
     }
 
     @Override
-    public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-        cont.slot.setSlotIndex(scroll.selected);
-        scroll.selected = cont.slot.getSlotIndex();
+    public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+        cont.slot.setSlotIndex(scroll.getSelect());
+        scroll.setSelect(cont.slot.getSlotIndex());
         Client.sendData(EnumPacketServer.AvailabilitySlot, cont.slot.getSlotIndex());
         initGui();
     }
 
     @Override
-    public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+    public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 
     }
 

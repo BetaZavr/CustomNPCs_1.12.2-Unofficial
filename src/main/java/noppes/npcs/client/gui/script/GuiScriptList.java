@@ -5,11 +5,7 @@ import java.util.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.LogWriter;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.util.Util;
 
@@ -44,40 +40,40 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void buttonEvent(IGuiNpcButton button) {
 		String file;
-		if (button.id == 1 && base.hasSelected()) {
+		if (button.getId() == 1 && base.hasSelected()) {
 			try {
-				file = base.getHoversTexts().get(base.selected).get(0);
+				file = base.getHoversTexts().get(base.getSelect()).get(0);
 			} catch (Exception e) {
 				return;
 			}
 			container.scripts.add(file);
-			base.selected = -1;
+			base.setSelect(-1);
 			initGui();
 		}
-		if (button.id == 2 && selected.hasSelected()) {
+		if (button.getId() == 2 && selected.hasSelected()) {
 			try {
-				file = selected.getHoversTexts().get(selected.selected).get(0);
+				file = selected.getHoversTexts().get(selected.getSelect()).get(0);
 			} catch (Exception e) {
 				return;
 			}
 			container.scripts.remove(file);
-			selected.selected = -1;
+			selected.setSelect(-1);
 			initGui();
 		}
-		if (button.id == 3) {
+		if (button.getId() == 3) {
 			container.scripts.clear();
             container.scripts.addAll(scripts.keySet());
-			base.selected = -1;
+			base.setSelect(-1);
 			initGui();
 		}
-		if (button.id == 4) {
+		if (button.getId() == 4) {
 			container.scripts.clear();
-			base.selected = -1;
+			base.setSelect(-1);
 			initGui();
 		}
-		if (button.id == 66) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -257,43 +253,43 @@ implements ICustomScrollListener {
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) {
 			if (scroll.getSelected().equals(back)) {
 				if (path.lastIndexOf("/") == -1) {
 					path = "";
 				} else {
 					path = path.substring(0, path.lastIndexOf("/"));
 				}
-				base.selected = -1;
-			} else if (scroll.getColor(scroll.selected) == 0xF3BE1E) {
+				base.setSelect(-1);
+			} else if (scroll.getColor(scroll.getSelect()) == 0xF3BE1E) {
 				if (!path.isEmpty()) {
 					path += "/";
 				}
 				path += scroll.getSelected();
-				base.selected = -1;
+				base.setSelect(-1);
 			}
 		}
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		String file = "";
 		try {
-			file = scroll.getHoversTexts().get(scroll.selected).get(0);
+			file = scroll.getHoversTexts().get(scroll.getSelect()).get(0);
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 		if (file.isEmpty()) {
 			return;
 		}
-		if (scroll.id == 0) {
+		if (scroll.getId() == 0) {
 			container.scripts.add(file);
-			base.selected = -1;
+			base.setSelect(-1);
 			initGui();
 		}
-		if (scroll.id == 1) {
+		if (scroll.getId() == 1) {
 			container.scripts.remove(file);
-			selected.selected = -1;
+			selected.setSelect(-1);
 			initGui();
 		}
 	}

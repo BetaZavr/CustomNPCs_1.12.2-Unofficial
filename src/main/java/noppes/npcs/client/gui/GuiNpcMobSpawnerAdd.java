@@ -9,12 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.controllers.ClientCloneController;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 
 public class GuiNpcMobSpawnerAdd
@@ -37,8 +32,8 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			String name = getTextField(0).getText();
 			if (name.isEmpty()) {
 				return;
@@ -54,13 +49,13 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 				Client.sendData(EnumPacketServer.ClonePreSave, name, tab);
 			}
 		}
-		if (button.id == 1) {
+		if (button.getId() == 1) {
 			close();
 		}
-		if (button.id == 2) {
+		if (button.getId() == 2) {
 			GuiNpcMobSpawnerAdd.tab = button.getValue() + 1;
 		}
-		if (button.id == 3) {
+		if (button.getId() == 3) {
 			GuiNpcMobSpawnerAdd.serverSide = button.getValue() == 1;
 		}
 	}
@@ -98,11 +93,7 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 		addButton(new GuiNpcButton(1, guiLeft + 86, guiTop + 70, 80, 20, "gui.cancel"));
 	}
 
-	@Override
-	public void save() {
-	}
-
-	public void setGuiData(NBTTagCompound compound) {
+    public void setGuiData(NBTTagCompound compound) {
 		if (compound.hasKey("NameExists")) {
 			if (compound.getBoolean("NameExists")) {
 				displayGuiScreen(new GuiYesNo(this, "", new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
@@ -113,7 +104,7 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		String name = textField.getText();
 		for (String c : arrSymbols) {
 			while (name.contains(c)) {

@@ -9,12 +9,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.data.EnchantSet;
 
 public class SubGuiDropEnchant
@@ -42,11 +37,11 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 50) { // select
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 50) { // select
 			enchant.setEnchant(Integer.parseInt(button.getVariants()[button.getValue()]));
 			initGui();
-		} else if (button.id == 51) { // done
+		} else if (button.getId() == 51) { // done
 			close();
 		}
 	}
@@ -95,7 +90,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 52) { // level min
 			levels[0] = textfield.getInteger();
 			enchant.setLevels(levels[0], levels[1]);

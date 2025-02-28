@@ -16,7 +16,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientProxy;
-import noppes.npcs.client.util.ResourceData;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.NaturalOrderComparator;
 
@@ -24,7 +23,7 @@ import javax.annotation.Nonnull;
 
 public class GuiCustomScroll
 extends GuiScreen
-implements IComponentGui {
+implements IComponentGui, IGuiCustomScroll {
 
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/misc.png");
 
@@ -47,7 +46,7 @@ implements IComponentGui {
 	public int maxScrollY;
 	private int scrollHeight = 0;
 	public int scrollY = 0;
-	public int selected = -1;
+	protected int selected = -1;
 
 	private long lastClickedTime = 0L;
 
@@ -56,7 +55,7 @@ implements IComponentGui {
 	private List<Integer> colors = null;
 	private List<String> suffixes;
 	private List<ItemStack> stacks = null;
-	private List<ResourceData> prefixes;
+	private List<IResourceData> prefixes;
 
 	private final Map<Integer, List<String>> hoversTexts = new TreeMap<>();
 	private final List<String> hoverText = new ArrayList<>();
@@ -84,10 +83,7 @@ implements IComponentGui {
 		multipleSelection = isMultipleSelection;
 	}
 
-	public void setParent(ICustomScrollListener parent) {
-		listener = parent;
-	}
-
+	@Override
 	public void clear() {
 		list.clear();
 		selected = -1;
@@ -156,26 +152,26 @@ implements IComponentGui {
 			if (!isSearched(list.get(i))) { continue; }
 			int k = 14 * displayIndex + 4 - scrollY;
 			displayIndex++;
-			ResourceData rd = prefixes.get(i);
-			if (k < 4 || k + 12 >= height || rd == null || rd.resource == null || rd.width <= 0 || rd.height <= 0) {
+			IResourceData rd = prefixes.get(i);
+			if (k < 4 || k + 12 >= height || rd == null || rd.getResource() == null || rd.getWidth() <= 0 || rd.getHeight() <= 0) {
 				continue;
 			}
 			boolean hasStack = stacks != null && !stacks.isEmpty() && i < stacks.size();
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(guiLeft, guiTop, 0.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.translate(hasStack ? -13.0f : 0.5f, k - 1.5f + rd.tH, 0.0f); // position X, Y, Z
-			float scale = 12.0f / (float) (Math.max(rd.width, rd.height));
+			GlStateManager.translate(hasStack ? -13.0f : 0.5f, k - 1.5f + rd.getTextureHeight(), 0.0f); // position X, Y, Z
+			float scale = 12.0f / (float) (Math.max(rd.getWidth(), rd.getHeight()));
 			float scaleX = scale;
 			float scaleY = scale;
-			if (rd.scaleX != 0.0f || rd.scaleY != 0.0f) {
-				scaleX *= rd.scaleX;
-				scaleY *= rd.scaleY;
-				GlStateManager.translate(12.0f * rd.scaleX, 6.0f * rd.scaleY, 0.0f);
+			if (rd.getScaleX() != 0.0f || rd.getScaleY() != 0.0f) {
+				scaleX *= rd.getScaleX();
+				scaleY *= rd.getScaleY();
+				GlStateManager.translate(12.0f * rd.getScaleX(), 6.0f * rd.getScaleY(), 0.0f);
 			}
 			GlStateManager.scale(scaleX, scaleY, 1.0f);
-			Minecraft.getMinecraft().getTextureManager().bindTexture(rd.resource);
-			drawTexturedModalRect(0, 0, rd.u, rd.v, rd.width, rd.height);
+			Minecraft.getMinecraft().getTextureManager().bindTexture(rd.getResource());
+			drawTexturedModalRect(0, 0, rd.getU(), rd.getV(), rd.getWidth(), rd.getHeight());
 			GlStateManager.popMatrix();
 		}
 	}
@@ -271,6 +267,7 @@ implements IComponentGui {
 		}
 	}
 
+	@Override
 	public int getColor(int pos) {
 		if (colors == null || colors.isEmpty()) { return 0; }
 		return colors.get(pos);
@@ -278,6 +275,31 @@ implements IComponentGui {
 
 	public int getHeight() { return height - textFieldHeight(); }
 
+	@Override
+	public void customKeyTyped(char c, int id) { keyTyped(c, id); }
+
+	@Override
+	public void customMouseClicked(int mouseX, int mouseY, int mouseButton) { mouseClicked(mouseX, mouseY, mouseButton); }
+
+	@Override
+	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { mouseReleased(mouseX, mouseY, mouseButton); }
+
+	@Override
+	public boolean isVisible() { return visible; }
+
+	@Override
+	public void setVisible(boolean bo) { visible = bo; }
+
+	@Override
+	public boolean isEnabled() { return true; }
+
+	@Override
+	public void setEnabled(boolean bo) { }
+
+	@Override
+	public boolean isMouseOver() { return hovered; }
+
+	@Override
 	public List<String> getList() { return list; }
 
 	private int getMouseOver(int mouseX, int mouseY) {
@@ -295,15 +317,19 @@ implements IComponentGui {
 		return -1;
 	}
 
+	@Override
 	public String getSelected() {
 		if (selected == -1 || selected >= list.size()) { return null; }
 		return list.get(selected);
 	}
 
+	@Override
 	public HashSet<String> getSelectedList() { return selectedList; }
 
+	@Override
 	public int getWidth() { return width; }
 
+	@Override
 	public boolean hasSelected() { return selected >= 0 && getSelected() != null; }
 
 	public boolean isMouseOver(int x, int y) {
@@ -369,6 +395,7 @@ implements IComponentGui {
 		}
 	}
 
+	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
 		if (hasSearch) { textField.mouseClicked(mouseX, mouseY, mouseButton); }
 		if (mouseButton != 0 || hover < 0) { return; }
@@ -411,6 +438,7 @@ implements IComponentGui {
 		reset();
 	}
 
+	@Override
 	public void resetRoll() {
 		if (selected <= 0) { return; }
 		int pos = (selected + 1) * 14;
@@ -421,6 +449,7 @@ implements IComponentGui {
 		if (scrollY > maxScrollY) { scrollY = maxScrollY; }
 	}
 
+	@Override
 	public void scrollTo(String name) {
 		int i = list.indexOf(name);
 		if (i < 0 || scrollHeight >= height - 2) { return; }
@@ -429,8 +458,10 @@ implements IComponentGui {
 		scrollY = pos;
 	}
 
+	@Override
 	public void setColors(List<Integer> newColors) { colors = newColors; }
 
+	@Override
 	public void setList(List<String> newList) {
 		if (newList == null) { newList = new ArrayList<>(); }
 		if (isSameList(newList)) { return; }
@@ -442,6 +473,7 @@ implements IComponentGui {
 		reset();
 	}
 
+	@Override
 	public void setListNotSorted(List<String> newList) {
 		if (isSameList(newList)) { return; }
 		scrollY = 0;
@@ -451,8 +483,10 @@ implements IComponentGui {
 		reset();
 	}
 
-	public void setPrefixes(List<ResourceData> newPrefixes) { prefixes = newPrefixes; }
+	@Override
+	public void setPrefixes(List<IResourceData> newPrefixes) { prefixes = newPrefixes; }
 
+	@Override
 	public boolean hasSelected(String name) {
 		if (name == null || name.isEmpty()) { return false; }
 		if (list.contains(name)) { return true; }
@@ -465,6 +499,7 @@ implements IComponentGui {
 		return false;
 	}
 
+	@Override
 	public void setSelected(String name) {
 		if (name == null || name.isEmpty()) { selected = -1; }
 		selected = list.indexOf(name);
@@ -480,8 +515,10 @@ implements IComponentGui {
 		resetRoll();
 	}
 
+	@Override
 	public void setSelectedList(HashSet<String> newSelectedList) { selectedList = newSelectedList; }
 
+	@Override
 	public void setSize(int w, int h) {
 		textField.width = w;
 		height = h - textFieldHeight();
@@ -526,11 +563,14 @@ implements IComponentGui {
 		return true;
 	}
 
+	@Override
 	public void setStacks(List<ItemStack> newStacks) { stacks = newStacks; }
 
+	@Override
 	public void setSuffixes(List<String> newSuffixes) { suffixes = newSuffixes; }
 
-	public GuiCustomScroll setUnSelectable() {
+	@Override
+	public IGuiCustomScroll setUnSelectable() {
 		selectable = false;
 		return this;
 	}
@@ -554,14 +594,45 @@ implements IComponentGui {
 		hoverText.add(text);
 	}
 
+	@Override
 	public void setHoverTexts(LinkedHashMap<Integer, List<String>> map) {
 		hoversTexts.clear();
 		if (map == null || map.isEmpty()) { return; }
 		hoversTexts.putAll(map);
 	}
 
-	public @Nonnull Map<Integer, List<String>> getHoversTexts() { return hoversTexts; }
+	@Nonnull
+	@Override
+	public Map<Integer, List<String>> getHoversTexts() { return hoversTexts; }
 
-	public @Nonnull List<String> getHoversText() { return hoverText; }
+	@Nonnull
+	@Override
+	public List<String> getHoversText() { return hoverText; }
+
+
+	@Override
+	public int getLeft() { return guiLeft; }
+
+	@Override
+	public int getTop() { return guiTop; }
+
+	@Override
+	public void setLeft(int left) { guiLeft = left; }
+
+	@Override
+	public void setTop(int top) { guiTop = top; }
+
+	@Override
+	public void setParent(ICustomScrollListener parent) { listener = parent; }
+
+	@Override
+	public int getSelect() { return selected; }
+
+	@Override
+	public void setSelect(int slotIndex) {
+		if (slotIndex < 0) { selected = -1; }
+		if (slotIndex >= list.size()) { return; }
+		selected = slotIndex;
+	}
 
 }

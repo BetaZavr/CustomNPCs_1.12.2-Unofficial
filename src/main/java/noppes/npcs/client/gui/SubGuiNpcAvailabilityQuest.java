@@ -8,12 +8,7 @@ import java.util.Map;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.client.gui.select.GuiQuestSelection;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiSelectionListener;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityQuest;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Availability;
@@ -42,8 +37,8 @@ implements ICustomScrollListener, GuiSelectionListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			if (select.isEmpty()) {
 				return;
 			}
@@ -59,19 +54,19 @@ implements ICustomScrollListener, GuiSelectionListener {
 			}
 			initGui();
 		}
-		if (button.id == 1) {
+		if (button.getId() == 1) {
 			setSubGui(new GuiQuestSelection(select.isEmpty() ? 0 : dataIDs.get(select)));
 		}
-		if (button.id == 2) {
+		if (button.getId() == 2) {
 			availability.quests.remove(dataIDs.get(select));
 			select = "";
 			initGui();
 		}
-		if (button.id == 3) { // More
+		if (button.getId() == 3) { // More
 			save();
 			initGui();
 		}
-		if (button.id == 66) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -95,7 +90,7 @@ implements ICustomScrollListener, GuiSelectionListener {
 		super.initGui();
 		// title
 		addLabel(new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4));
-		getLabel(1).center(xSize);
+		getLabel(1).setCenter(xSize);
 		// exit
 		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 6, guiTop + 192, 70, 20, "gui.done");
 		button.setHoverText("hover.back");
@@ -160,13 +155,13 @@ implements ICustomScrollListener, GuiSelectionListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		select = scroll.getSelected();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		setSubGui(new GuiQuestSelection(dataIDs.get(select)));
 	}
 

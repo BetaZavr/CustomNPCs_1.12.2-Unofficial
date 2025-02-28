@@ -17,6 +17,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
+import noppes.npcs.api.handler.ICustomPlayerData;
 import noppes.npcs.api.handler.capability.IPlayerDataHandler;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -29,7 +30,7 @@ import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 
-public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
+public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICustomPlayerData {
 
 	@CapabilityInject(IPlayerDataHandler.class)
 	public static Capability<IPlayerDataHandler> PLAYERDATA_CAPABILITY = null;

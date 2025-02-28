@@ -3,12 +3,7 @@ package noppes.npcs.client.gui.select;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiSelectionListener;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
@@ -39,8 +34,8 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 2) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 2) {
 			if (selectedDialog != null) {
 				scrollDoubleClicked(null, null);
 			} else {
@@ -77,18 +72,18 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
-		if (scroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 0) {
 			selectedCategory = categoryData.get(scrollCategories.getSelected());
 			selectedDialog = null;
-			scrollDialogs.selected = -1;
+			scrollDialogs.setSelect(-1);
 		}
-		if (scroll.id == 1) { selectedDialog = dialogData.get(scrollDialogs.getSelected()); }
+		if (scroll.getId() == 1) { selectedDialog = dialogData.get(scrollDialogs.getSelected()); }
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 		if (selectedDialog == null) { return; }
 		if (listener != null) { listener.selected(selectedDialog.id, selectedDialog.title); }
 		close();

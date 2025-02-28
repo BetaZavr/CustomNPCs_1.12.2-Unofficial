@@ -17,12 +17,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.controllers.ClientCloneController;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiMenuSideButton;
-import noppes.npcs.client.gui.util.GuiMenuTopButton;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 
 public class GuiNpcMobSpawnerMounter
@@ -47,11 +42,11 @@ implements IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			close();
 		}
-		if (button.id == 1) {
+		if (button.getId() == 1) {
 			NBTTagCompound compound = getCompound();
 			if (compound != null) {
 				compound.setTag("Pos", newDoubleNBTList(posX + 0.5, posY + 1, posZ + 0.5));
@@ -59,24 +54,24 @@ implements IGuiData {
 				close();
 			}
 		}
-		if (button.id == 2) {
+		if (button.getId() == 2) {
 			Client.sendData(EnumPacketServer.PlayerRider);
 			close();
 		}
-		if (button.id == 3) {
+		if (button.getId() == 3) {
 			GuiNpcMobSpawnerMounter.showingClones = 0;
 			initGui();
 		}
-		if (button.id == 4) {
+		if (button.getId() == 4) {
 			GuiNpcMobSpawnerMounter.showingClones = 1;
 			initGui();
 		}
-		if (button.id == 5) {
+		if (button.getId() == 5) {
 			GuiNpcMobSpawnerMounter.showingClones = 2;
 			initGui();
 		}
-		if (button.id > 20) {
-			activeTab = button.id - 20;
+		if (button.getId() > 20) {
+			activeTab = button.getId() - 20;
 			initGui();
 		}
 	}
@@ -134,7 +129,7 @@ implements IGuiData {
 				sideButton = new GuiMenuSideButton(20 + id, x, y + (id - 1) * 21, "Tab " + id);
 				addSideButton(sideButton);
 			}
-			getSideButton(20 + activeTab).active = true;
+			getSideButton(20 + activeTab).setActive(true);
 			showClones();
 		} else {
 			showEntities();
@@ -150,11 +145,7 @@ implements IGuiData {
 		return nbttaglist;
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void setGuiData(NBTTagCompound compound) {
 		NBTTagList nbtList = compound.getTagList("List", 8);
 		List<String> list = new ArrayList<>();

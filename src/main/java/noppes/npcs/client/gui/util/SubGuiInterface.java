@@ -4,7 +4,8 @@ import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class SubGuiInterface
-extends GuiNPCInterface {
+extends GuiNPCInterface
+implements ISubGuiInterface {
 
 	public int id;
 	public GuiScreen parent;
@@ -45,10 +46,23 @@ extends GuiNPCInterface {
 		}
 	}
 
+	@Override
+	public int getId() { return id; }
+
+	@Override
 	public GuiScreen getParent() {
 		if (parent instanceof SubGuiInterface) { return ((SubGuiInterface) parent).getParent(); }
 		return parent;
 	}
+
+	@Override
+	public void setParent(GuiScreen gui) { parent = gui; }
+
+	@Override
+	public Object getObject() { return object; }
+
+	@Override
+	public void setObject(Object obj) { object = obj; }
 
 	@Override
 	public void save() { }

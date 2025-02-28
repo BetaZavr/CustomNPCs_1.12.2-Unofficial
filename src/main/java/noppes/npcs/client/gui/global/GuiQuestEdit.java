@@ -24,19 +24,7 @@ import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeKill;
 import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeLocation;
 import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeManual;
 import noppes.npcs.client.gui.select.GuiQuestSelection;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.GuiSelectionListener;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumQuestRepeat;
@@ -69,8 +57,8 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 3: { // end text
 				this.setSubGui(new SubGuiNpcTextArea(0, this.quest.completeText));
 				break;
@@ -172,7 +160,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 			}
 			case 22: { // cancelable
 				this.quest.setCancelable(button.getValue() == 0);
-				this.getLabel(16).enabled = this.quest.isCancelable();
+				getLabel(16).setEnabled(quest.isCancelable());
 				if (this.quest.isCancelable()) {
 					if (this.quest.forgetDialogues.length == 0) {
 						TreeMap<Integer, Dialog> dialogs = DialogController.instance.dialogs;
@@ -417,19 +405,19 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (scroll.getSelected() == null) {
 			return;
 		}
-		if (scroll.id == 6) {
+		if (scroll.getId() == 6) {
 			this.task = scroll.getSelected();
 		}
 		this.initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-		if (scroll.id == 6) {
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
+		if (scroll.getId() == 6) {
 			if (this.task.isEmpty()) {
 				return;
 			}
@@ -469,7 +457,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
 			SubGuiNpcTextArea gui = (SubGuiNpcTextArea) subgui;
 			if (gui.getId() == 0) {
@@ -525,7 +513,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField guiNpcTextField) {
+	public void unFocused(IGuiNpcTextField guiNpcTextField) {
 		if (guiNpcTextField.getId() == 1) {
 			this.quest.setName(guiNpcTextField.getText());
 			while (QuestController.instance.containsQuestName(this.quest.category, this.quest)) {

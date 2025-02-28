@@ -60,18 +60,18 @@ implements IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0) {
 			if (faultyText != null) {
 				setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound), faultyText).enableHighlighting());
 			} else {
 				setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound)).enableHighlighting());
 			}
-		} else if (button.id == 1) {
+		} else if (button.getId() == 1) {
 			if (stack != null && !stack.isEmpty()) {
 				Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound()));
 			}
-		} else if (button.id == 67) {
+		} else if (button.getId() == 67) {
 			getLabel(0).setLabel("Saved");
 			if (compound.equals(originalCompound)) {
 				return;
@@ -86,15 +86,15 @@ implements IGuiData, ISubGuiListener {
 			}
 			Client.sendData(EnumPacketServer.NbtBookSaveBlock, x, y, z, compound);
 			originalCompound = compound.copy();
-			getButton(67).enabled = false;
+			getButton(67).setEnabled(false);
 		}
-		if (button.id == 66) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(ISubGuiInterface gui) {
 		if (gui instanceof SubGuiNpcTextArea) {
 			try {
 				compound = JsonToNBT.getTagFromJson(((SubGuiNpcTextArea) gui).text);
@@ -176,7 +176,7 @@ implements IGuiData, ISubGuiListener {
 		}
 		addScroll(scroll);
 		addButton(new GuiNpcButton(0, guiLeft + 38, guiTop + 166, 180, 20, "nbt.edit"));
-		getButton(0).enabled = (compound != null && !compound.getKeySet().isEmpty());
+		getButton(0).setEnabled(compound != null && !compound.getKeySet().isEmpty());
 		addLabel(new GuiNpcLabel(0, "", guiLeft + 4, guiTop + 167));
 		addLabel(new GuiNpcLabel(1, "", guiLeft + 4, guiTop + 177));
 		addButton(new GuiNpcButton(66, guiLeft + 128, guiTop + 190, 120, 20, "gui.close"));
@@ -185,7 +185,7 @@ implements IGuiData, ISubGuiListener {
 		getButton(67).setEnabled(!onlyClient);
 		if (!onlyClient) {
 			if (errorMessage != null) {
-				getButton(67).enabled = false;
+				getButton(67).setEnabled(false);
 				int i = errorMessage.indexOf(" at: ");
 				if (i > 0) {
 					getLabel(0).setLabel(errorMessage.substring(0, i));
@@ -194,8 +194,8 @@ implements IGuiData, ISubGuiListener {
 					getLabel(0).setLabel(errorMessage);
 				}
 			}
-			if (getButton(67).enabled && originalCompound != null) {
-				getButton(67).enabled = !originalCompound.equals(compound);
+			if (getButton(67).isEnabled() && originalCompound != null) {
+				getButton(67).setEnabled(!originalCompound.equals(compound));
 			}
 		}
 	}
@@ -308,11 +308,7 @@ implements IGuiData, ISubGuiListener {
 		return hoverText;
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")
 	@Override
 	public void setGuiData(NBTTagCompound nbt) {
 		if (nbt.hasKey("Item") && nbt.getBoolean("Item")) {

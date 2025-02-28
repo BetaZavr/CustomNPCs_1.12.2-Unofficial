@@ -22,13 +22,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.controllers.ClientCloneController;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiMenuSideButton;
-import noppes.npcs.client.gui.util.GuiMenuTopButton;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -56,8 +50,8 @@ implements IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 		case 0: {
 			close();
 			break;
@@ -121,15 +115,15 @@ implements IGuiData, ICustomScrollListener {
 			if (name == null || name.isEmpty()) {
 				return;
 			}
-			scroll.selected--;
-			if (scroll.selected < 0) {
+			scroll.setSelect(scroll.getSelect() - 1);
+			if (scroll.getSelect() < 0) {
 				if (scroll.getList() == null || scroll.getList().isEmpty()) {
-					scroll.selected = -1;
+					scroll.setSelect(-1);
 				} else {
-					scroll.selected = 0;
+					scroll.setSelect(0);
 				}
 			}
-			sel = scroll.selected;
+			sel = scroll.getSelect();
 			selectNpc = null;
 			if (GuiNpcMobSpawner.showingClones == 2) {
 				Client.sendData(EnumPacketServer.CloneRemove, activeTab, name);
@@ -140,8 +134,8 @@ implements IGuiData, ICustomScrollListener {
 			break;
 		}
 		default: {
-			if (button.id > 20) {
-				activeTab = button.id - 20;
+			if (button.getId() > 20) {
+				activeTab = button.getId() - 20;
 				initGui();
 			}
 			break;
@@ -199,7 +193,7 @@ implements IGuiData, ICustomScrollListener {
 		else { scroll.clear(); }
 		scroll.guiLeft = guiLeft + 4;
 		scroll.guiTop = guiTop + 26;
-		scroll.selected = sel;
+		scroll.setSelect(sel);
 		addScroll(scroll);
 
 		GuiMenuTopButton button;
@@ -215,13 +209,11 @@ implements IGuiData, ICustomScrollListener {
 		if (GuiNpcMobSpawner.showingClones == 0 || GuiNpcMobSpawner.showingClones == 2) {
 			int x = guiLeft;
 			int y = guiTop + 4;
-			GuiMenuSideButton sideButton;
 			for (int id = 1; id < 10; id++) {
-				sideButton = new GuiMenuSideButton(20 + id, x, y + (id - 1) * 19, "Tab " + id);
-				addSideButton(sideButton);
+				addSideButton(new GuiMenuSideButton(20 + id, x, y + (id - 1) * 19, "Tab " + id));
 			}
-			addButton(new GuiNpcButton(6, guiLeft + 170, guiTop + 30, 82, 20, "gui.remove"));
-			getSideButton(20 + activeTab).active = true;
+			addButton((IGuiNpcButton) new GuiNpcButton(6, guiLeft + 170, guiTop + 30, 82, 20, "gui.remove"));
+			getSideButton(20 + activeTab).setActive(true);
 			showClones();
 		} else {
 			showEntities();
@@ -261,17 +253,13 @@ implements IGuiData, ICustomScrollListener {
 		}
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+    @Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		resetEntity();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 	}
 
 	@Override
@@ -286,7 +274,7 @@ implements IGuiData, ICustomScrollListener {
 			list.add(nbtList.getStringTagAt(i));
 		}
 		scroll.setList(list);
-		scroll.selected = sel;
+		scroll.setSelect(sel);
 	}
 
 	private void showClones() {
@@ -295,7 +283,7 @@ implements IGuiData, ICustomScrollListener {
 			return;
 		}
 		scroll.setList(ClientCloneController.Instance.getClones(activeTab));
-		scroll.selected = sel;
+		scroll.setSelect(sel);
 		resetEntity();
 	}
 
@@ -317,7 +305,7 @@ implements IGuiData, ICustomScrollListener {
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		scroll.setList(list);
-		scroll.selected = sel;
+		scroll.setSelect(sel);
 	}
 
 }

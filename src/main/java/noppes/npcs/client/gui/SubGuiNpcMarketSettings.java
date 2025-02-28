@@ -8,15 +8,7 @@ import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarcetSection;
 import noppes.npcs.controllers.data.MarkupData;
@@ -42,66 +34,66 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
-		case 0: {
-			marcet.limitedType = button.getValue();
-			button.setHoverText("market.hover.only.currency." + marcet.limitedType);
-			break;
-		}
-		case 1: { // message
-			setSubGui(new SubGuiNPCLinesEdit(0, npc, marcet.lines, null));
-			break;
-		}
-		case 2: { // is limited
-			marcet.isLimited = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 3: { // show xp
-			marcet.showXP = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 4: { // level
-			level = button.getValue();
-			if (!marcet.markup.containsKey(0)) {
-				marcet.markup.put(0, new MarkupData(0, 0.15f, 0.80f, 1000));
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
+			case 0: {
+				marcet.limitedType = button.getValue();
+				button.setHoverText("market.hover.only.currency." + marcet.limitedType);
+				break;
 			}
-			if (!marcet.markup.containsKey(level)) {
-				level = 0;
+			case 1: { // message
+				setSubGui(new SubGuiNPCLinesEdit(0, npc, marcet.lines, null));
+				break;
 			}
-			initGui();
-			break;
-		}
-		case 5: { // add section
-			setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
-			break;
-		}
-		case 6: { // del section
-			if (scroll.selected < 0) {
-				return;
+			case 2: { // is limited
+				marcet.isLimited = ((GuiNpcCheckBox) button).isSelected();
+				break;
 			}
-			GuiYesNo guiyesno = new GuiYesNo(this,
-					new TextComponentTranslation("gui.sections").getFormattedText() + ": " + scroll.getSelected(),
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			displayGuiScreen(guiyesno);
-			break;
-		}
-		case 66: { // exit
-			close();
-			break;
-		}
+			case 3: { // show xp
+				marcet.showXP = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			}
+			case 4: { // level
+				level = button.getValue();
+				if (!marcet.markup.containsKey(0)) {
+					marcet.markup.put(0, new MarkupData(0, 0.15f, 0.80f, 1000));
+				}
+				if (!marcet.markup.containsKey(level)) {
+					level = 0;
+				}
+				initGui();
+				break;
+			}
+			case 5: { // add section
+				setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				break;
+			}
+			case 6: { // del section
+				if (scroll.getSelect() < 0) {
+					return;
+				}
+				GuiYesNo guiyesno = new GuiYesNo(this,
+						new TextComponentTranslation("gui.sections").getFormattedText() + ": " + scroll.getSelected(),
+						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+				displayGuiScreen(guiyesno);
+				break;
+			}
+			case 66: { // exit
+				close();
+				break;
+			}
 		}
 	}
 
 	public void confirmClicked(boolean result, int id) {
 		NoppesUtil.openGUI(player, this);
-		if (!result || scroll.selected < 0 || !data.containsKey(scroll.getSelected())
+		if (!result || scroll.getSelect() < 0 || !data.containsKey(scroll.getSelected())
 				|| marcet.sections.size() < 2) {
 			return;
 		}
 		marcet.sections.remove(data.get(scroll.getSelected()));
-		if (scroll.selected > 0) {
-			scroll.selected--;
+		if (scroll.getSelect() > 0) {
+			scroll.setSelect(scroll.getSelect() - 1);
 		}
 		initGui();
 	}
@@ -112,8 +104,8 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 		if (subgui != null) { return; }
 		if (getButton(4) != null) {
 			int color = new Color(0x80000000).getRGB();
-			drawHorizontalLine(guiLeft + 4, guiLeft + xSize - 4, getButton(4).y - 3, color);
-			drawHorizontalLine(guiLeft + 4, guiLeft + xSize - 4, getButton(4).y + 44, color);
+			drawHorizontalLine(guiLeft + 4, guiLeft + xSize - 4, getButton(4).getLeft() - 3, color);
+			drawHorizontalLine(guiLeft + 4, guiLeft + xSize - 4, getButton(4).getTop() + 44, color);
 		}
 	}
 
@@ -187,7 +179,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 		addButton(button);
 		// del section
 		button = new GuiNpcButton(6, x + 213, y, 35, 20, "type.del");
-		button.setEnabled(marcet.sections.size() > 1 && scroll.selected > 0);
+		button.setEnabled(marcet.sections.size() > 1 && scroll.getSelect() > 0);
 		button.setHoverText("market.hover.section.del");
 		addButton(button);
 		// levels
@@ -238,14 +230,14 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (getButton(6) != null) {
-			getButton(6).setEnabled(marcet.sections.size() > 1 && scroll.selected > 0);
+			getButton(6).setEnabled(marcet.sections.size() > 1 && scroll.getSelect() > 0);
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		if (scroll.getSelected() == null) {
 			return;
 		}
@@ -254,12 +246,12 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 
 	@SuppressWarnings("unlikely-arg-type")
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText) {
 			if (((SubGuiEditText) subgui).cancelled) {
 				return;
 			}
-			if (subgui.id == 1) {
+			if (subgui.getId() == 1) {
 				String name = ((SubGuiEditText) subgui).text[0];
 				boolean has = true;
 				while (has) {
@@ -277,7 +269,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 				MarcetSection ms = new MarcetSection(marcet.sections.size());
 				ms.name = name;
 				marcet.sections.put(ms.getId(), ms);
-			} else if (subgui.id == 2) {
+			} else if (subgui.getId() == 2) {
 				if (!data.containsKey(scroll.getSelected())) {
 					return;
 				}
@@ -310,7 +302,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (hasSubGui()) {
 			return;
 		}

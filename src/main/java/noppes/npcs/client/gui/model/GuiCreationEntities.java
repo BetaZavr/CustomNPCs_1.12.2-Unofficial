@@ -19,6 +19,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
+import noppes.npcs.client.gui.util.IGuiCustomScroll;
 import noppes.npcs.entity.EntityNPC64x32;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityNpcAlex;
@@ -119,7 +120,7 @@ implements ICustomScrollListener {
 		}
 		
 		this.addButton(new GuiNpcButton(10, this.guiLeft, this.guiTop + 46, 120, 20, "Reset To NPC"));
-		this.getButton(10).visible = !selected.equals("NPC");
+		this.getButton(10).setVisible(!selected.equals("NPC"));
 		
 		this.scroll.setSelected(selected);
 		if (this.resetToSelected) {
@@ -131,7 +132,7 @@ implements ICustomScrollListener {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		this.playerdata.setEntityClass(this.data.get(scroll.getSelected()));
 		EntityLivingBase entity = this.playerdata.getEntity(this.npc);
 		if (entity != null) {
@@ -147,6 +148,6 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) { }
 	
 }

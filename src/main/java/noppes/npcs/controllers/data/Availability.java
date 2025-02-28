@@ -122,7 +122,7 @@ implements ICompatibilty, IAvailability {
 		if (en == EnumAvailabilityDialog.Always) {
 			return true;
 		}
-		boolean hasRead = PlayerData.get(player).dialogData.dialogsRead.contains(id);
+		boolean hasRead = PlayerData.get(player).dialogData.has(id);
 		return (hasRead && en == EnumAvailabilityDialog.After) || (!hasRead && en == EnumAvailabilityDialog.Before);
 	}
 

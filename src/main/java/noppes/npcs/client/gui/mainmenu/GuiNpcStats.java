@@ -11,14 +11,7 @@ import noppes.npcs.client.gui.SubGuiNpcProjectiles;
 import noppes.npcs.client.gui.SubGuiNpcRangeProperties;
 import noppes.npcs.client.gui.SubGuiNpcResistanceProperties;
 import noppes.npcs.client.gui.SubGuiNpcRespawn;
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiNPCInterface2;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAI;
@@ -48,74 +41,74 @@ implements ITextfieldListener, IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
-		case 0: {
-			this.setSubGui(new SubGuiNpcRespawn(this.stats));
-			break;
-		}
-		case 2: {
-			this.setSubGui(new SubGuiNpcMeleeProperties(this.stats.melee));
-			break;
-		}
-		case 3: {
-			this.setSubGui(new SubGuiNpcRangeProperties(this.stats));
-			break;
-		}
-		case 4: {
-			this.stats.immuneToFire = (button.getValue() == 1);
-			break;
-		}
-		case 5: {
-			this.stats.canDrown = (button.getValue() == 1);
-			break;
-		}
-		case 6: {
-			this.stats.burnInSun = (button.getValue() == 1);
-			break;
-		}
-		case 7: {
-			this.stats.noFallDamage = (button.getValue() == 1);
-			break;
-		}
-		case 8: {
-			this.stats.creatureType = EnumCreatureAttribute.values()[button.getValue()];
-			break;
-		}
-		case 9: {
-			this.setSubGui(new SubGuiNpcProjectiles(this.stats.ranged));
-			break;
-		}
-		case 15: {
-			this.setSubGui(new SubGuiNpcResistanceProperties(this.stats.resistances));
-			break;
-		}
-		case 17: {
-			this.stats.potionImmune = ((GuiNpcButtonYesNo) button).getBoolean();
-			break;
-		}
-		case 22: {
-			this.stats.ignoreCobweb = (button.getValue() == 0);
-			break;
-		}
-		case 40: {
-			this.save();
-			break;
-		}
-		case 41: {
-			this.stats.setLevel(1 + button.getValue());
-			this.setBaseStats();
-			break;
-		}
-		case 43: {
-			this.stats.setRarity(button.getValue());
-			this.setBaseStats();
-			break;
-		}
-		case 44: {
-			this.stats.calmdown = (button.getValue() == 1);
-			break;
-		}
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
+			case 0: {
+				this.setSubGui(new SubGuiNpcRespawn(this.stats));
+				break;
+			}
+			case 2: {
+				this.setSubGui(new SubGuiNpcMeleeProperties(this.stats.melee));
+				break;
+			}
+			case 3: {
+				this.setSubGui(new SubGuiNpcRangeProperties(this.stats));
+				break;
+			}
+			case 4: {
+				this.stats.immuneToFire = (button.getValue() == 1);
+				break;
+			}
+			case 5: {
+				this.stats.canDrown = (button.getValue() == 1);
+				break;
+			}
+			case 6: {
+				this.stats.burnInSun = (button.getValue() == 1);
+				break;
+			}
+			case 7: {
+				this.stats.noFallDamage = (button.getValue() == 1);
+				break;
+			}
+			case 8: {
+				this.stats.creatureType = EnumCreatureAttribute.values()[button.getValue()];
+				break;
+			}
+			case 9: {
+				this.setSubGui(new SubGuiNpcProjectiles(this.stats.ranged));
+				break;
+			}
+			case 15: {
+				this.setSubGui(new SubGuiNpcResistanceProperties(this.stats.resistances));
+				break;
+			}
+			case 17: {
+				this.stats.potionImmune = ((GuiNpcButtonYesNo) button).getBoolean();
+				break;
+			}
+			case 22: {
+				this.stats.ignoreCobweb = (button.getValue() == 0);
+				break;
+			}
+			case 40: {
+				this.save();
+				break;
+			}
+			case 41: {
+				this.stats.setLevel(1 + button.getValue());
+				this.setBaseStats();
+				break;
+			}
+			case 43: {
+				this.stats.setRarity(button.getValue());
+				this.setBaseStats();
+				break;
+			}
+			case 44: {
+				this.stats.calmdown = (button.getValue() == 1);
+				break;
+			}
 		}
 	}
 
@@ -410,7 +403,7 @@ implements ITextfieldListener, IGuiData {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getId() == 0) {
 			this.stats.maxHealth = textfield.getInteger();
 			this.npc.heal((float) this.stats.maxHealth);

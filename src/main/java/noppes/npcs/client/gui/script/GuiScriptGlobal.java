@@ -119,7 +119,4 @@ extends GuiNPCInterface {
 		else { super.keyTyped(c, i); }
 	}
 
-	@Override
-	public void save() { }
-	
 }

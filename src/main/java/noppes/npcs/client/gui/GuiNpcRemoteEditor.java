@@ -46,8 +46,8 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: {
 				if (!dataIDs.containsKey(scroll.getSelected())) {
 					return;
@@ -257,18 +257,14 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 		}
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+    @Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		resetEntity();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {

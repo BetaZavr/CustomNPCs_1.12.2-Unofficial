@@ -44,13 +44,13 @@ public class GuiDialogInteract
 extends GuiNPCInterface
 implements IGuiClose {
 
-	static class DialogTexture {
+	public static class DialogTexture {
 
 		public ResourceLocation res;
 		public int left, uS, vS, height;
 		public TextBlockClient line;
 
-		private DialogTexture(ResourceLocation r, int[] uv, TextBlockClient tb) {
+		protected DialogTexture(ResourceLocation r, int[] uv, TextBlockClient tb) {
 			res = r;
 			left = 0;
 			uS = uv[0];
@@ -74,36 +74,36 @@ implements IGuiClose {
 		icons.put(7, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/hexagon.png"));
 		icons.put(8, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/dice.png"));
 	}
-	private Dialog dialog; // current dialog
+	public Dialog dialog; // current dialog
 
-	private boolean isGrabbed; // used for answer wheel
-	private final ResourceLocation wheel = new ResourceLocation(CustomNpcs.MODID, "textures/gui/wheel.png");
-	private final Map<Integer, List<String>> options = new TreeMap<>(); // [slotID, text]
+	protected boolean isGrabbed; // used for answer wheel
+	protected final ResourceLocation wheel = new ResourceLocation(CustomNpcs.MODID, "textures/gui/wheel.png");
+	protected final Map<Integer, List<String>> options = new TreeMap<>(); // [slotID, text]
 	// dialog place
-	private int lineStart, lineTotal, lineVisibleSize;
-	private int[] scrollD;
+	protected int lineStart, lineTotal, lineVisibleSize;
+	protected int[] scrollD;
 	// option place
-	private int selected, selectedStart, selectedSize, selectedVisibleSize;
-	private final Map<Integer, Integer> selectedTotal = new HashMap<>();
-	private int[] scrollO;
+	protected int selected, selectedStart, selectedSize, selectedVisibleSize;
+	protected final Map<Integer, Integer> selectedTotal = new HashMap<>();
+	protected int[] scrollO;
 	// wheel option
-	private int wheelList, selectedX, selectedY, selectedWheel;
+	protected int wheelList, selectedX, selectedY, selectedWheel;
     // textures
-	private long waitToAnswer;
-	private final Map<Integer, DialogTexture> textures = new HashMap<>();
+	protected long waitToAnswer;
+	protected final Map<Integer, DialogTexture> textures = new HashMap<>();
 	// Display
-	private final List<TextBlockClient> lines = new ArrayList<>(); // Dialog Logs
-	private final EntityNPCInterface dialogNpc;
-	private int w;
-    private int h;
-    private int tf;
-    private int dialogHeight;
-    private int dialogWidth;
-    private int startLine;
-	private long startTime;
-	private float corr = 1.0f;
+	protected final List<TextBlockClient> lines = new ArrayList<>(); // Dialog Logs
+	protected final EntityNPCInterface dialogNpc;
+	protected int w;
+	protected int h;
+	protected int tf;
+	protected int dialogHeight;
+	protected int dialogWidth;
+	protected int startLine;
+	protected long startTime;
+	protected float corr = 1.0f;
 
-	private boolean showOptions, newDialogSet;
+	protected boolean showOptions, newDialogSet;
 
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
@@ -209,7 +209,7 @@ implements IGuiClose {
 		}
 	}
 
-	private void checkSelected() {
+	protected void checkSelected() {
 		int selSize = 0, pos = 1;
 		for (int i = selectedTotal.size() - 1; i > 0; i--) {
 			selSize += selectedTotal.get(i);
@@ -245,7 +245,7 @@ implements IGuiClose {
 		super.close();
 	}
 
-	private void drawLinedOptions() {
+	protected void drawLinedOptions() {
 		int i = 0, optPos = 0, endW = this.w - 3;
 		if (selectedSize > selectedVisibleSize) {
 			endW -= 13;
@@ -512,7 +512,7 @@ implements IGuiClose {
 		ClientProxy.Font.drawString(text, x, y, color);
 	}
 
-	private void drawString(String text, int left, int color, int linePos) {
+	protected void drawString(String text, int left, int color, int linePos) {
 		int height = (linePos - this.lineStart) * this.tf;
 		int line = this.guiTop + this.dialogHeight - this.tf / 3;
 		if (height > line) {
@@ -524,7 +524,7 @@ implements IGuiClose {
 		}
 	}
 
-	private void drawWheel() {
+	protected void drawWheel() {
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
 		int center = this.dialogWidth / 2;
@@ -689,7 +689,7 @@ implements IGuiClose {
 		GlStateManager.popMatrix();
 	}
 
-	private int getFontHeight(String str) {
+	protected int getFontHeight(String str) {
 		int h = ClientProxy.Font.height(str);
 		return h <= 1 ? 13 : h;
 	}
@@ -716,7 +716,7 @@ implements IGuiClose {
 		}
 	}
 
-	private void handleDialogSelection() {
+	protected void handleDialogSelection() {
 		int optionId = this.getSelected();
 		if (!this.options.containsKey(optionId)) {
 			if (this.options.isEmpty() && this.closeOnEsc) {
@@ -959,7 +959,7 @@ implements IGuiClose {
 		}
 	}
 
-	private void resetOptions() {
+	protected void resetOptions() {
 		int max = this.dialogWidth - (int) (14.0f / this.corr);
 		this.options.clear();
 		for (int slot : this.dialog.options.keySet()) {
@@ -993,17 +993,13 @@ implements IGuiClose {
 		if (!this.closeOnEsc && this.options.isEmpty()) { this.closeOnEsc = true; }
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void setClose(int id, NBTTagCompound nbt) {
 		this.grabMouse(false);
 	}
 
 	@SuppressWarnings("unused")
-	private void setStartLine() {
+	protected void setStartLine() {
 		startLine = 0;
 		for (TextBlockClient textBlock : this.lines) {
 			startLine++;

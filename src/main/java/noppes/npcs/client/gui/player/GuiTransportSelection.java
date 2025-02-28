@@ -14,13 +14,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.client.ClientProxy;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IScrollData;
-import noppes.npcs.client.gui.util.ITopButtonListener;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.TransportLocation;
@@ -46,13 +40,12 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 		xSize = 176;
 		drawDefaultBackground = false;
 		title = "";
-
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.TransportCategoriesGet);
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0 && locSel != null) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 0 && locSel != null) {
 			close();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Transport, locSel.id);
 		}
@@ -139,9 +132,9 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 			}
 		}
 		if (getButton(0) != null) {
-			GuiNpcButton button = getButton(0);
+			IGuiNpcButton button = getButton(0);
 			button.setEnabled(canTransport && locSel != null);
-			if (!button.enabled && button.isMouseOver()) {
+			if (!button.isEnabled() && button.isMouseOver()) {
 				if (locSel == null) {
 					setHoverText(new TextComponentTranslation("transporter.hover.not.select").getFormattedText());
 				} else if (locSel.money > ClientProxy.playerData.game.getMoney()) {
@@ -228,12 +221,8 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 		scroll.mouseClicked(i, j, k);
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+    @Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (data.containsKey(scroll.getSelected())) {
 			locSel = TransportController.getInstance().getTransport(data.get(scroll.getSelected()));
 			initGui();
@@ -241,7 +230,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		if (locSel != null) {
 			close();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Transport, locSel.id);

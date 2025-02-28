@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import noppes.npcs.client.gui.util.*;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.gui.Gui;
@@ -16,16 +17,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.IPos;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcCheckBox;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.data.Zone3D;
@@ -55,8 +46,8 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		switch (button.id) {
+	public void buttonEvent(IGuiNpcButton button) {
+		switch (button.getId()) {
 			case 0: { // color
 				if (region == null) {
 					return;
@@ -651,73 +642,73 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
-		switch (scroll.id) {
-		case 0: { // Region List
-			if (!dataRegions.containsValue(scroll.getSelected())) {
-				return;
-			}
-			BorderController bData = BorderController.getInstance();
-			for (int id : dataRegions.keySet()) {
-				if (region != null && region.getId() == id) {
-					continue;
+	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) {
+		switch (scroll.getId()) {
+			case 0: { // Region List
+				if (!dataRegions.containsValue(scroll.getSelected())) {
+					return;
 				}
-				if (dataRegions.get(id).equals(scroll.getSelected()) && bData.regions.containsKey(id)) {
-					region = (Zone3D) bData.getRegion(id);
-					point = null;
-					if (!region.points.isEmpty()) {
-						point = region.points.get(0);
+				BorderController bData = BorderController.getInstance();
+				for (int id : dataRegions.keySet()) {
+					if (region != null && region.getId() == id) {
+						continue;
 					}
-					Client.sendData(EnumPacketServer.RegionData, 0, id);
-					initGui();
-					break;
+					if (dataRegions.get(id).equals(scroll.getSelected()) && bData.regions.containsKey(id)) {
+						region = (Zone3D) bData.getRegion(id);
+						point = null;
+						if (!region.points.isEmpty()) {
+							point = region.points.get(0);
+						}
+						Client.sendData(EnumPacketServer.RegionData, 0, id);
+						initGui();
+						break;
+					}
 				}
+				break;
 			}
-			break;
-		}
-		case 1: { // Point List
-			if (region == null || !dataPoints.containsValue(scroll.getSelected())) {
-				return;
-			}
-			for (int id : dataPoints.keySet()) {
-				if (dataPoints.get(id).equals(scroll.getSelected()) && region.points.containsKey(id)) {
-					point = region.points.get(id);
-					initGui();
-					break;
+			case 1: { // Point List
+				if (region == null || !dataPoints.containsValue(scroll.getSelected())) {
+					return;
 				}
+				for (int id : dataPoints.keySet()) {
+					if (dataPoints.get(id).equals(scroll.getSelected()) && region.points.containsKey(id)) {
+						point = region.points.get(id);
+						initGui();
+						break;
+					}
+				}
+				break;
 			}
-			break;
-		}
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		switch (scroll.id) {
-		case 0: { // Region List
-			if (region == null) {
-				return;
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
+		switch (scroll.getId()) {
+			case 0: { // Region List
+				if (region == null) {
+					return;
+				}
+				IPos pos = region.getCenter();
+				Client.sendData(EnumPacketServer.TeleportTo, region.dimensionID, pos.getX(), pos.getY(), pos.getZ());
+				Client.sendData(EnumPacketServer.RegionData, 0, region.getId());
+				close();
+				break;
 			}
-			IPos pos = region.getCenter();
-			Client.sendData(EnumPacketServer.TeleportTo, region.dimensionID, pos.getX(), pos.getY(), pos.getZ());
-			Client.sendData(EnumPacketServer.RegionData, 0, region.getId());
-			close();
-			break;
-		}
-		case 1: { // Point List
-			if (region == null || point == null) {
-				return;
+			case 1: { // Point List
+				if (region == null || point == null) {
+					return;
+				}
+				Client.sendData(EnumPacketServer.TeleportTo, region.dimensionID, point.x, region.y[0] + (region.y[1] - region.y[0]) / 2, point.y);
+				Client.sendData(EnumPacketServer.RegionData, 0, region.getId());
+				close();
+				break;
 			}
-			Client.sendData(EnumPacketServer.TeleportTo, region.dimensionID, point.x, region.y[0] + (region.y[1] - region.y[0]) / 2, point.y);
-			Client.sendData(EnumPacketServer.RegionData, 0, region.getId());
-			close();
-			break;
-		}
 		}
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(ISubGuiInterface subgui) {
 		if (subgui instanceof SubGuiColorSelector && region != null) {
 			region.color = ((SubGuiColorSelector) subgui).color;
 			initGui();
@@ -726,7 +717,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textField) {
+	public void unFocused(IGuiNpcTextField textField) {
 		if (textField.getText().isEmpty()) {
 			return;
 		}

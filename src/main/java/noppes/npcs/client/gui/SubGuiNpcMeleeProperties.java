@@ -1,11 +1,6 @@
 package noppes.npcs.client.gui;
 
-import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
-import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.data.DataMelee;
 
 public class SubGuiNpcMeleeProperties
@@ -25,15 +20,15 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 5) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() == 5) {
 			stats.setEffect(button.getValue(), stats.getEffectStrength(), stats.getEffectTime());
 			initGui();
 		}
-		if (button.id == 7) {
+		if (button.getId() == 7) {
 			stats.setEffect(stats.getEffectType(), button.getValue(), stats.getEffectTime());
 		}
-		if (button.id == 66) {
+		if (button.getId() == 66) {
 			close();
 		}
 	}
@@ -89,7 +84,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField textfield) {
+	public void unFocused(IGuiNpcTextField textfield) {
 		switch (textfield.getId()) {
 			case 1: stats.setStrength(textfield.getInteger()); break;
 			case 2: stats.setRange(textfield.getDouble()); break;

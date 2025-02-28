@@ -66,7 +66,6 @@ import noppes.npcs.api.handler.capability.IItemStackWrapperHandler;
 import noppes.npcs.api.handler.capability.IMarkDataHandler;
 import noppes.npcs.api.handler.capability.IPlayerDataHandler;
 import noppes.npcs.api.handler.capability.IWrapperEntityDataHandler;
-import noppes.npcs.api.mixin.entity.ai.attributes.IBaseAttributeMixin;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperEntityData;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
@@ -262,7 +261,7 @@ public class CustomNpcs {
 	public static CommonProxy proxy;
 	public static long ticks;
 	public static final String MODID = "customnpcs";
-	public static final String MODNAME = "CustomNpcs Unofficial";
+	public static final String MODNAME = "CustomNpcs";
 	public static FMLEventChannel Channel;
 	public static FMLEventChannel ChannelPlayer;
 	public static CustomNpcs instance;
@@ -428,8 +427,8 @@ public class CustomNpcs {
 	public void preload(FMLPreInitializationEvent ev) {
 		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_preload");
 		Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(MODNAME);
-		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCsPlayer");
-		CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), "customnpcs");
+		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel(MODNAME + "Player");
+		CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), MODID);
 		if (!CustomNpcs.Dir.exists() && !CustomNpcs.Dir.mkdir()) {
 			throw new RuntimeException("Impossible error: Failed to create sections important for the " + MODNAME + " mod!");
 		}
@@ -459,7 +458,6 @@ public class CustomNpcs {
 
 		CustomNpcs.proxy.preload();
 		((IRangedAttributeMixin) SharedMonsterAttributes.MAX_HEALTH).npcs$setMaxValue(Double.MAX_VALUE);
-		((IBaseAttributeMixin) SharedMonsterAttributes.MAX_HEALTH).npcs$setDefaultValue(100.0d);
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_preload");
 	}
 

@@ -25,26 +25,26 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id < 60) {
-			DataScenes.SceneContainer scene = this.scenes.scenes.get(button.id / 10);
-			if (button.id % 10 == 1) {
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getId() < 60) {
+			DataScenes.SceneContainer scene = this.scenes.scenes.get(button.getId() / 10);
+			if (button.getId() % 10 == 1) {
 				scene.enabled = button.getValue() == 1;
 			}
-			if (button.id % 10 == 2) {
+			if (button.getId() % 10 == 2) {
 				this.scene = scene;
 				this.setSubGui(new SubGuiNpcTextArea(scene.lines));
 			}
-			if (button.id % 10 == 3) {
+			if (button.getId() % 10 == 3) {
 				this.scenes.scenes.remove(scene);
 				this.initGui();
 			}
-			if (button.id % 10 == 4) {
+			if (button.getId() % 10 == 4) {
 				scene.btn = button.getValue();
 				this.initGui();
 			}
 		}
-		if (button.id == 101) {
+		if (button.getId() == 101) {
 			this.scenes.addScene(this.getTextField(101).getText());
 			this.initGui();
 		}
@@ -57,7 +57,7 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(ISubGuiInterface gui) {
 		if (gui instanceof SubGuiNpcTextArea) {
 			this.scene.lines = ((SubGuiNpcTextArea) gui).text;
 			this.scene = null;
