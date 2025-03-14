@@ -148,21 +148,16 @@ public class ModelNPCGolem extends ModelBipedAlt {
 			this.bipedLeftArm.rotateAngleY = 0.1f - f6 * 0.6f;
 			this.bipedRightArm.rotateAngleX = -1.5707964f;
 			this.bipedLeftArm.rotateAngleX = -1.5707964f;
-			ModelRenderer bipedRightArm = this.bipedRightArm;
 			bipedRightArm.rotateAngleX -= f6 * 1.2f - f7 * 0.4f;
-			ModelRenderer bipedLeftArm = this.bipedLeftArm;
 			bipedLeftArm.rotateAngleX -= f6 * 1.2f - f7 * 0.4f;
 		} else if (this.rightArmPose == ModelBiped.ArmPose.BOW_AND_ARROW) {
 			float f8 = 0.0f;
 			float f9 = 0.0f;
 			this.bipedRightArm.rotateAngleZ = 0.0f;
 			this.bipedRightArm.rotateAngleX = -1.5707964f + this.bipedHead.rotateAngleX;
-			ModelRenderer bipedRightArm2 = this.bipedRightArm;
-			bipedRightArm2.rotateAngleX -= f8 * 1.2f - f9 * 0.4f;
-			ModelRenderer bipedRightArm3 = this.bipedRightArm;
-			bipedRightArm3.rotateAngleZ += MathHelper.cos(par3 * 0.09f) * 0.05f + 0.05f;
-			ModelRenderer bipedRightArm4 = this.bipedRightArm;
-			bipedRightArm4.rotateAngleX += MathHelper.sin(par3 * 0.067f) * 0.05f;
+			bipedRightArm.rotateAngleX -= f8 * 1.2f - f9 * 0.4f;
+			bipedRightArm.rotateAngleZ += MathHelper.cos(par3 * 0.09f) * 0.05f + 0.05f;
+			bipedRightArm.rotateAngleX += MathHelper.sin(par3 * 0.067f) * 0.05f;
 			this.bipedLeftArm.rotateAngleX = (-0.2f - 1.5f * this.triangleWave(par1)) * par2;
 			this.bipedBody.rotateAngleY = -(0.1f - f8 * 0.6f) + this.bipedHead.rotateAngleY;
 			this.bipedRightArm.rotateAngleY = -(0.1f - f8 * 0.6f) + this.bipedHead.rotateAngleY;
@@ -177,10 +172,8 @@ public class ModelNPCGolem extends ModelBipedAlt {
 			this.bipedLeftArm.rotateAngleZ = 0.0f;
 		}
 		if (this.isRiding) {
-			ModelRenderer bipedRightArm5 = this.bipedRightArm;
-			bipedRightArm5.rotateAngleX -= 0.62831855f;
-			ModelRenderer bipedLeftArm2 = this.bipedLeftArm;
-			bipedLeftArm2.rotateAngleX -= 0.62831855f;
+			bipedRightArm.rotateAngleX -= 0.62831855f;
+			bipedLeftArm.rotateAngleX -= 0.62831855f;
 			this.bipedLeftLeg.rotateAngleX = -1.2566371f;
 			this.bipedRightLeg.rotateAngleX = -1.2566371f;
 			this.bipedLeftLeg.rotateAngleY = 0.31415927f;

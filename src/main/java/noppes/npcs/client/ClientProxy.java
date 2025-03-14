@@ -1888,8 +1888,7 @@ public class ClientProxy extends CommonProxy {
 			BlockPos pos = (BlockPos) ob[0];
 			int id = (int) ob[1];
 			Block block = Block.getBlockById(id & 0xFFF);
-			Minecraft.getMinecraft().effectRenderer.addBlockDestroyEffects(pos,
-					block.getStateFromMeta(id >> 12 & 0xFF));
+			Minecraft.getMinecraft().effectRenderer.addBlockDestroyEffects(pos, block.getStateFromMeta(id >> 12 & 0xFF));
 		} else if (string.equals("ModelData")) {
 			ModelData data = (ModelData) ob[0];
 			ModelPartData particles = (ModelPartData) ob[1];

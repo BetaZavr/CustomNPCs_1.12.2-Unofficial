@@ -41,6 +41,7 @@ import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
@@ -87,8 +88,12 @@ public class WrapperNpcAPI extends NpcAPI {
 		return WrapperNpcAPI.instance;
 	}
 
+	public static void resetScriptControllerData(NBTTagCompound compound) {
+		WorldWrapper.getStoredData().setNbt(new NBTWrapper(compound));
+	}
+
 	private void checkWorld() {
-		if (CustomNpcs.Server == null || CustomNpcs.Server.isServerStopped()) {
+		if (CustomNpcs.Server != null && CustomNpcs.Server.isServerStopped()) {
 			throw new CustomNPCsException("No world is loaded right now");
 		}
 	}
@@ -252,23 +257,12 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public IPlayer<?> getIPlayer(String name) {
-		EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayerByUsername(name);
-		if (player == null) {
-			try {
-				player = CustomNpcs.Server.getPlayerList().getPlayerByUUID(UUID.fromString(name));
-			}
-			catch (Exception e) { LogWriter.error("Error:", e); }
+	public IPlayer<?> getIPlayer(String nameOrUUID) {
+		IPlayer<?>[] iPlayers = getAllPlayers();
+		for (IPlayer<?> iPlayer : iPlayers) {
+			if (iPlayer.getName().equals(nameOrUUID) || iPlayer.getUUID().equals(nameOrUUID)) { return iPlayer; }
 		}
-		if (player == null) {
-			for (EntityPlayerMP p : CustomNpcs.Server.getPlayerList().getPlayers()) {
-				if (p.getName().equalsIgnoreCase(name)) {
-					player = p;
-					break;
-				}
-			}
-		}
-		return player == null ? null : (IPlayer<?>) this.getIEntity(player);
+		return null;
 	}
 
 	@Override
@@ -290,9 +284,8 @@ public class WrapperNpcAPI extends NpcAPI {
 			this.worlds.clear();
 			this.worlds.addAll(Arrays.asList(CustomNpcs.Server.worlds));
 		}
-		ResourceLocation loc = new ResourceLocation(dimension);
 		for (World world : this.worlds) {
-			if (world.provider.getDimensionType().getName().equals(loc.getResourcePath())) {
+			if (world.provider.getDimensionType().getName().equals(dimension)) {
 				return getIWorld(world);
 			}
 		}
@@ -450,5 +443,11 @@ public class WrapperNpcAPI extends NpcAPI {
 	public IResourceData getResourceData(ResourceLocation texture, int u, int v, int width, int height) {
 		return new ResourceData(texture, u, v, width, height);
 	}
+
+	@Override
+	public IData getTempdata() { return WorldWrapper.getTempData(); }
+
+	@Override
+	public IData getStoreddata() { return WorldWrapper.getStoredData(); }
 
 }

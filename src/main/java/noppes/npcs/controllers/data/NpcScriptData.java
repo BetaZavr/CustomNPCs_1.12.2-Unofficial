@@ -13,7 +13,7 @@ extends BaseScriptData {
 	
 	@Override
 	public String noticeString() {
-		return "NPCScript";
+		return "NPCs Script";
 	}
 	
 	@Override
@@ -36,4 +36,5 @@ extends BaseScriptData {
 			});
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
+
 }

@@ -260,20 +260,17 @@ public class DialogController implements IDialogHandler {
 	public void saveCategory(DialogCategory category) {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
-			StringBuilder title = new StringBuilder("default");
+			category.title = "default";
 			while (this.containsCategoryName(category)) {
-				title.append("_");
+				category.title += "_";
 			}
-			category.title = title.toString();
 		}
 		if (this.categories.containsKey(category.id)) {
 			DialogCategory currentCategory = this.categories.get(category.id);
 			if (!currentCategory.title.equals(category.title)) {
-				StringBuilder title = new StringBuilder(category.title);
 				while (this.containsCategoryName(category)) {
-					title.append("_");
+					category.title += "_";
 				}
-				category.title = title.toString();
 				File newdir = new File(this.getDir(), category.title);
 				File olddir = new File(this.getDir(), currentCategory.title);
 				if (newdir.exists() || !olddir.renameTo(newdir)) {
@@ -287,11 +284,9 @@ public class DialogController implements IDialogHandler {
 				++this.lastUsedCatID;
 				category.id = this.lastUsedCatID;
 			}
-			StringBuilder title = new StringBuilder(category.title);
 			while (this.containsCategoryName(category)) {
-				title.append("_");
+				category.title += "_";
 			}
-			category.title = title.toString();
 			File dir = new File(this.getDir(), category.title);
 			if (!dir.exists()) {
 				dir.mkdirs();

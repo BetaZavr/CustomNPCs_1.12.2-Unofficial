@@ -116,16 +116,12 @@ public class CombatHandler {
 
 	public void update() {
 		if (npc.isKilled()) {
-			if (npc.isAttacking()) {
-				reset();
-			}
+			if (npc.isAttacking()) { reset(); }
 			return;
 		}
 		if (npc.getAttackTarget() != null && !npc.isAttacking()) { start(); }
 		if (!shouldCombatContinue()) {
-			if (combatResetTimer++ > 40) {
-				reset();
-			}
+			if (combatResetTimer++ > 40) { reset(); }
 			return;
 		}
 		combatResetTimer = 0;

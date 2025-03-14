@@ -27,13 +27,13 @@ import noppes.npcs.entity.EntityProjectile;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class RenderProjectile<T extends Entity> extends Render<T> {
+public class RenderProjectile<T extends EntityProjectile> extends Render<T> {
 
 	private static final ResourceLocation ARROW_TEXTURES;
 
 	static {
 		ARROW_TEXTURES = new ResourceLocation("textures/entity/arrow.png");
-		new ResourceLocation("textures/misc/enchanted_item_glint.png");
+		//new ResourceLocation("textures/misc/enchanted_item_glint.png");
 	}
 	private boolean crash;
 	private boolean crash2;
@@ -47,8 +47,8 @@ public class RenderProjectile<T extends Entity> extends Render<T> {
 		this.crash2 = false;
 	}
 
-	public void doRender(@Nonnull Entity entity, double par2, double par4, double par6, float par8, float par9) {
-		this.doRenderProjectile((EntityProjectile) entity, par2, par4, par6, par9);
+	public void doRender(@Nonnull T entity, double par2, double par4, double par6, float par8, float par9) {
+		this.doRenderProjectile(entity, par2, par4, par6, par9);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -183,11 +183,7 @@ public class RenderProjectile<T extends Entity> extends Render<T> {
 		GlStateManager.enableLighting();
 	}
 
-	protected ResourceLocation func_110779_a(EntityProjectile projectile) {
-		return projectile.isArrow() ? RenderProjectile.ARROW_TEXTURES : TextureMap.LOCATION_BLOCKS_TEXTURE;
-	}
-
-	protected ResourceLocation getEntityTexture(@Nonnull Entity entity) {
-		return this.func_110779_a((EntityProjectile) entity);
+	protected ResourceLocation getEntityTexture(@Nonnull T entity) {
+		return entity.isArrow() ? RenderProjectile.ARROW_TEXTURES : TextureMap.LOCATION_BLOCKS_TEXTURE;
 	}
 }

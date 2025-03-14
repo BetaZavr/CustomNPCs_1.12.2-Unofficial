@@ -28,9 +28,7 @@ extends BaseScriptData {
 	public ScriptContainer script = null;
 	public final StoredData storedData = new StoredData();
 
-	public void clear() {
-		this.script.clear();
-	}
+	public void clear() { script.clear(); }
 	
 	private void createScript() {
 		if (this.script == null) {
@@ -106,7 +104,7 @@ extends BaseScriptData {
 		} catch (Exception e) {
 			LogWriter.error("Error Default loading: " + sData.getName(), e);
 		}
-		this.storedData.resetData(ScriptController.Instance.compound);
+		this.storedData.setNbt(ScriptController.Instance.compound);
 		// Modules
 		String language = this.getLanguage().toLowerCase();
 		saveDir = new File(saveDir, language);

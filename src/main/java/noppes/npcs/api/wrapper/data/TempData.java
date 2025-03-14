@@ -4,16 +4,17 @@ import java.util.*;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.wrapper.BlockWrapper;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.util.Util;
 
 public class TempData implements IData {
 
-	private Map<String, Object> map = new TreeMap<>();
-	private BlockWrapper block;
+	protected final Map<String, Object> map = new TreeMap<>();
+	protected BlockWrapper block;
 
 	public TempData() { }
 
@@ -26,6 +27,7 @@ public class TempData implements IData {
 	public void clear() {
 		resetData();
 		map.clear();
+		if (block != null && block.storage != null) { block.storage.tempData.clear(); }
 	}
 
 	@Override
@@ -36,84 +38,72 @@ public class TempData implements IData {
 
 	@Override
 	public String[] getKeys() {
-		this.resetData();
-		Set<String> sets = this.map.keySet();
+		resetData();
+		Set<String> sets = map.keySet();
 		return sets.toArray(new String[0]);
 	}
 
 	@Override
 	public INbt getNbt() {
-		this.resetData();
-		NBTTagCompound compound = new NBTTagCompound();
-		for (String key : this.map.keySet()) {
-			NBTBase nbt = Util.instance.writeObjectToNbt(this.map.get(key));
-			if (nbt != null) {
-				compound.setTag(key, nbt);
-			}
-		}
-		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound);
+		NBTBase tag = Util.instance.writeObjectToNbt(map);
+		if (tag instanceof NBTTagCompound) { return new NBTWrapper((NBTTagCompound) tag); }
+		return new NBTWrapper(new NBTTagCompound());
 	}
 
 	@Override
 	public boolean has(String key) {
-		this.resetData();
-		return this.map.containsKey(key);
+		resetData();
+		return map.containsKey(key);
 	}
 
 	@Override
 	public void put(String key, Object value) {
-		this.resetData();
-		this.map.put(key, value);
+		resetData();
+		if (value == null) {
+			remove(key);
+			return;
+		}
+		map.put(key, value);
+		if (block != null && block.storage != null) { block.storage.tempData.put(key, value); }
 	}
 
 	@Override
-	public boolean remove(String key) {
-		this.resetData();
-		if (this.map.containsKey(key)) {
-			this.map.remove(key);
-			return true;
-		}
-		return false;
+	public void remove(String key) {
+		resetData();
+		map.remove(key);
+		if (block != null && block.storage != null) { block.storage.tempData.remove(key); }
 	}
 
-	private void resetData() {
-		if (this.block != null) {
-			if (this.block.storage == null) {
+	protected void resetData() {
+		if (block != null) {
+			if (block.storage == null) {
 				return;
 			}
-			this.map = this.block.storage.tempData;
+			map.clear();
+			map.putAll(block.storage.tempData);
         }
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setNbt(NBTTagCompound compound) {
+		Object obj = Util.instance.readObjectFromNbt(compound);
+		if (obj instanceof TreeMap) {
+			try {
+				TreeMap<String, Object> newMap = (TreeMap<String, Object>) obj;
+				map.clear();
+				map.putAll(newMap);
+			}
+			catch (Exception ignored) { }
+		}
+		if (block != null && block.storage != null) {
+			block.storage.tempData.clear();
+			block.storage.tempData.putAll(map);
+		}
 	}
 
 	@Override
 	public void setNbt(INbt nbt) {
-		this.resetData();
-		List<String> del = new ArrayList<>();
-		for (String key : this.map.keySet()) {
-			Object value = this.map.get(key);
-			if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long || value instanceof Float || value instanceof Double || value instanceof String) {
-				del.add(key);
-			}
-			if (value.getClass().isArray()) {
-                assert value instanceof Object[];
-                Object[] vs = (Object[]) value;
-				if (vs.length > 0 && vs[0] instanceof Byte || vs[0] instanceof Short || vs[0] instanceof Integer
-						|| vs[0] instanceof Long || vs[0] instanceof Float || vs[0] instanceof Double
-						|| vs[0] instanceof String) {
-					del.add(key);
-				}
-			}
-		}
-		for (String key : del) {
-			this.map.remove(key);
-		}
-		for (String key : nbt.getMCNBT().getKeySet()) {
-			Object value = Util.instance.readObjectFromNbt(nbt.getMCNBT().getTag(key));
-			if (value == null) {
-				continue;
-			}
-			this.map.put(key, value);
-		}
+		setNbt(nbt.getMCNBT());
 	}
 
 }

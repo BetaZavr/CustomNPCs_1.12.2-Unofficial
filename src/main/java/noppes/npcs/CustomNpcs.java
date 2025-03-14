@@ -66,6 +66,7 @@ import noppes.npcs.api.handler.capability.IItemStackWrapperHandler;
 import noppes.npcs.api.handler.capability.IMarkDataHandler;
 import noppes.npcs.api.handler.capability.IPlayerDataHandler;
 import noppes.npcs.api.handler.capability.IWrapperEntityDataHandler;
+import noppes.npcs.api.wrapper.DataObject;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperEntityData;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
@@ -448,16 +449,14 @@ public class CustomNpcs {
 		MinecraftForge.EVENT_BUS.register(new ServerEventsHandler());
 		MinecraftForge.EVENT_BUS.register(new ServerTickHandler());
 		MinecraftForge.EVENT_BUS.register(CustomNpcs.proxy);
-
 		Objects.requireNonNull(NpcAPI.Instance()).events().register(new AbilityEventHandler());
 		ForgeChunkManager.setForcedChunkLoadingCallback(this,
                 new ChunkController());
-
 		CustomNpcs.customDimensionType = DimensionType.register("CustomDimensions", "CustomNpcs",
 				"CustomDimensions".hashCode(), CustomWorldProvider.class, false);
-
 		CustomNpcs.proxy.preload();
 		((IRangedAttributeMixin) SharedMonsterAttributes.MAX_HEALTH).npcs$setMaxValue(Double.MAX_VALUE);
+		DataObject.load();
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_preload");
 	}
 

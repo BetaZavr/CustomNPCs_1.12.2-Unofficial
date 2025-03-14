@@ -112,8 +112,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 		if (type < 0 || type > 5) {
 			throw new CustomNPCsException("Type should be between 0 and 5 value. You have: " + type);
 		}
-		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_CAMERA_SHAKING, time, amplitude, type,
-				isFading);
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_CAMERA_SHAKING, time, amplitude, type, isFading);
 	}
 
 	@Override
@@ -379,11 +378,6 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	@Override
 	public IBlock getSpawnPoint() {
         return Objects.requireNonNull(NpcAPI.Instance()).getIBlock(this.entity.world, this.entity.getBedLocation());
-	}
-
-	@Override
-	public IData getStoreddata() {
-		return super.getStoreddata();
 	}
 
 	@Override

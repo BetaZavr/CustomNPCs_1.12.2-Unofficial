@@ -153,7 +153,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 	public EntityPlayer player;
 	public int playerLevel;
 	public ItemStack prevHeldItem;
-	public NBTTagCompound scriptStoreddata;
+	public final NBTTagCompound scriptStoreddata;
 
 	public DataTimers timers;
 
@@ -316,7 +316,9 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 				this.player.world.spawnEntity(npc);
 			}
 		}
-		this.scriptStoreddata = data.getCompoundTag("ScriptStoreddata");
+		for (String key : scriptStoreddata.getKeySet()) { scriptStoreddata.removeTag(key); }
+		NBTTagCompound nbt = data.getCompoundTag("ScriptStoreddata");
+		for (String key : nbt.getKeySet()) { scriptStoreddata.setTag(key, nbt.getTag(key)); }
 	}
 
 	public void updateCompanion(World world) {

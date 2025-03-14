@@ -53,24 +53,23 @@ import noppes.npcs.api.mixin.world.biome.IBiomeMixin;
 
 public class WorldWrapper implements IWorld {
 
-	public static Map<String, Object> tempData = new HashMap<>();
+	private static final TempData tempdata = new TempData();
+	private static final StoredData storeddata = new StoredData(ScriptController.Instance);
 
 	@Deprecated
 	public static WorldWrapper createNew(World world) {
 		return new WorldWrapper(world);
 	}
 	public IDimension dimension;
-	private final IData storeddata;
-	private final IData tempdata;
 
 	public World world;
 
 	private WorldWrapper(World world) {
-		this.tempdata = new TempData();
-		this.storeddata = new StoredData();
 		this.world = world;
 		this.dimension = new DimensionWrapper(world.provider.getDimension(), world.provider.getDimensionType());
 	}
+
+	public static void clearTempdata() { tempdata.clear(); }
 
 	@Override
 	public void broadcast(String message) {
@@ -358,16 +357,15 @@ public class WorldWrapper implements IWorld {
 		}
 		return Objects.requireNonNull(NpcAPI.Instance()).getIBlock(this.world, pos);
 	}
+	@Override
+	public IData getStoreddata() { return storeddata; }
 
 	@Override
-	public IData getStoreddata() {
-		return this.storeddata;
-	}
+	public IData getTempdata() { return tempdata; }
 
-	@Override
-	public IData getTempdata() {
-		return this.tempdata;
-	}
+	public static IData getTempData() { return tempdata; }
+
+	public static IData getStoredData() { return storeddata; }
 
 	@Override
 	public long getTime() {

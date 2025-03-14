@@ -1472,6 +1472,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		//super.close();
+		//if (true) { return; }
+
 		playerData = CustomNpcs.proxy.getPlayerData(player);
 		// Back
 		GlStateManager.pushMatrix();
@@ -1495,524 +1498,525 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				cos = 1.0f;
 			}
 			switch (step) {
-			case 0: { // start open
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(2));
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiCenter + (1.0f - cos) * (guiCenter + 50.0f),
-						guiTopLog + (1.0f - cos) * 250.0f, 0.0f);
-				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
-				GlStateManager.popMatrix();
-				if (tick == 0) {
-					step = 1;
-					tick = 21;
-					milliTick = 20;
-					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.down",
-							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
-							0.75f + 0.25f * this.rnd.nextFloat());
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 1: { // open
-				// right
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
-				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
-				this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
-				GlStateManager.popMatrix();
-				// left
-				boolean up = tick >= milliTick / 2;
-				GlStateManager.pushMatrix();
-				if (up) {
-					part = (float) (tick - (milliTick / 2)) + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
-					if (cos < 0.0f) {
-						cos = 0.0f;
-					} else if (cos > 1.0f) {
-						cos = 1.0f;
-					}
-					GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
-					GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
-					GlStateManager.scale(scaleW, scaleH, 1.0f);
+				case 0: {
 					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(2));
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(guiCenter + (1.0f - cos) * (guiCenter + 50.0f),
+							guiTopLog + (1.0f - cos) * 250.0f, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
-				} else {
-					part = (float) tick + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
-					if (cos < 0.0f) {
-						cos = 0.0f;
-					} else if (cos > 1.0f) {
-						cos = 1.0f;
+					GlStateManager.popMatrix();
+					if (tick == 0) {
+						step = 1;
+						tick = 21;
+						milliTick = 20;
+						MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.down",
+								(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
+								0.75f + 0.25f * this.rnd.nextFloat());
+						GlStateManager.disableBlend();
 					}
-					GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
-					GlStateManager.scale(cos, 1.0f, 1.0f);
+					break;
+				} // start open
+				case 1: {
+					// right
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
-					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
-				}
-				GlStateManager.popMatrix();
-				if (tick == 0) {
-					step = 2;
-					tick = 11;
-					milliTick = 10;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 2: { // open lists
-				// place
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
-				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
-				this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
-				if (temp > 0) {
-					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
-					this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
-				}
-				GlStateManager.popMatrix();
-
-				// left
-				boolean up = tick >= milliTick / 2;
-				GlStateManager.pushMatrix();
-				if (up) {
-					part = (float) (tick - (milliTick / 2)) + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
-					if (cos < 0.0f) {
-						cos = 0.0f;
-					} else if (cos > 1.0f) {
-						cos = 1.0f;
-					}
-					GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
-					GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
-					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
 					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
-				} else {
-					part = (float) tick + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
-					if (cos < 0.0f) {
-						cos = 0.0f;
-					} else if (cos > 1.0f) {
-						cos = 1.0f;
+					GlStateManager.popMatrix();
+					// left
+					boolean up = tick >= milliTick / 2;
+					GlStateManager.pushMatrix();
+					if (up) {
+						part = (float) (tick - (milliTick / 2)) + partialTicks;
+						cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
+						if (cos < 0.0f) {
+							cos = 0.0f;
+						} else if (cos > 1.0f) {
+							cos = 1.0f;
+						}
+						GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
+						GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(2));
+						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
+					} else {
+						part = (float) tick + partialTicks;
+						cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
+						if (cos < 0.0f) {
+							cos = 0.0f;
+						} else if (cos > 1.0f) {
+							cos = 1.0f;
+						}
+						GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
+						GlStateManager.scale(cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
+						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					}
-					GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
-					GlStateManager.scale(cos, 1.0f, 1.0f);
-					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
-					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
-				}
-				GlStateManager.popMatrix();
-
-				if (tick == milliTick) {
-					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
-							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
-							0.8f + 0.4f * this.rnd.nextFloat());
-				}
-				if (tick == 0) {
-					if (temp < 3) {
-						temp++;
+					GlStateManager.popMatrix();
+					if (tick == 0) {
 						step = 2;
 						tick = 11;
 						milliTick = 10;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // open
+				case 2: {
+					// place
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
+					this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
+					if (temp > 0) {
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
+						this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
+					}
+					GlStateManager.popMatrix();
+
+					// left
+					boolean up = tick >= milliTick / 2;
+					GlStateManager.pushMatrix();
+					if (up) {
+						part = (float) (tick - (milliTick / 2)) + partialTicks;
+						cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
+						if (cos < 0.0f) {
+							cos = 0.0f;
+						} else if (cos > 1.0f) {
+							cos = 1.0f;
+						}
+						GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
+						GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
+						this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 					} else {
+						part = (float) tick + partialTicks;
+						cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
+						if (cos < 0.0f) {
+							cos = 0.0f;
+						} else if (cos > 1.0f) {
+							cos = 1.0f;
+						}
+						GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
+						GlStateManager.scale(cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
+						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
+					}
+					GlStateManager.popMatrix();
+
+					if (tick == milliTick) {
+						MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
+								(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
+								0.8f + 0.4f * this.rnd.nextFloat());
+					}
+					if (tick == 0) {
+						if (temp < 3) {
+							temp++;
+							step = 2;
+							tick = 11;
+							milliTick = 10;
+						} else {
+							temp = 0;
+							step = 3;
+							tick = 21;
+							milliTick = 20;
+						}
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // open lists
+				case 3: {
+					// Tabs
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(guiLeft + 10, guiTop + (1.0f - cos) * 28.0f, 0.0f);
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
+					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
+					GlStateManager.translate(33.0f, 0.0f, 0.0f);
+					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
+					GlStateManager.translate(33.0f, 0.0f, 0.0f);
+					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
+					if (CustomNpcs.ShowQuestCompass) {
+						GlStateManager.translate(-114.0f + 256.0f * scaleW, 0.0f, 0.0f);
+						this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
+					}
+					GlStateManager.popMatrix();
+					// place
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
+					this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
+					this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
+					GlStateManager.popMatrix();
+
+					if (tick == 0) {
+						step = type + 4;
+						tick = 21;
+						milliTick = 20;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // tab open
+				case 4: {
+					drawBox(mouseX, mouseY);
+					if (!categories.isEmpty()) {
+						GlStateManager.pushMatrix();
+						GlStateManager.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
+						int i = 0, p = 0;
+						for (String catName : categories.keySet()) {
+							int catW = (int) ((this.fontRenderer.getStringWidth(catName) + 10 + i) * cos);
+							this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
+							if (isMouseHover(mouseX, mouseY, guiLeft + (int) ((5 - catW) * scaleW),
+									(int) (guiTopLog + (23.5f + i * 16.0f) * scaleH), (int) (catW * scaleH),
+									(int) (16.0f * scaleH))) {
+								hoverButton = 7 + i;
+							} // 7/15-tab categories;
+							GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+							GlStateManager.pushMatrix();
+							GlStateManager.scale(scaleW, scaleH, 1.0f);
+							this.drawTexturedModalRect(4 - (int) (catW / scaleW) + i, i * 16, 0,
+									90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), (int) (catW / scaleW), 16);
+							GlStateManager.popMatrix();
+							StringBuilder name = new StringBuilder();
+							for (int j = 0; j < catName.length(); j++) {
+								if (this.fontRenderer.getStringWidth(name.toString() + catName.charAt(j)) > catW - 5) {
+									break;
+								}
+								name.append(catName.charAt(j));
+							}
+							this.fontRenderer.drawString(name.toString(), 4 - catW + 10 + i,
+									(16.0f * scaleH - 10.0f) / 2.0f + (i * 16) * scaleH, CustomNpcs.QuestLogColor.getRGB(),
+									false);
+							i++;
+							p++;
+							if (i >= 8) {
+								break;
+							}
+						}
+						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+						GlStateManager.popMatrix();
+					} else {
+						tick = 0;
+					}
+					if (tick == 0) {
+						step = toPrePage ? 10 : 11;
+						tick = 11;
+						milliTick = 10;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // quest tab open
+				case 5: {
+					drawBox(mouseX, mouseY);
+					if (tick == 0) {
+						step = toPrePage ? 10 : 11;
+						tick = 11;
+						milliTick = 10;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // faction open
+				case 6: {
+					drawBox(mouseX, mouseY);
+					if (tick == 0) {
+						step = toPrePage ? 10 : 11;
+						tick = 11;
+						milliTick = 10;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // compass open
+				case 7: {
+					drawBox(mouseX, mouseY);
+					if (!categories.isEmpty()) {
+						temp = 1;
+						GlStateManager.pushMatrix();
+						GlStateManager.translate(guiLeft, guiTopLog + 7.5f, 0.0f);
+						GlStateManager.translate(0.0f, 16.0f, 0.0f);
+						int i = 0, p = 0, st = catRow * 8;
+						for (String catName : categories.keySet()) {
+							if (p < st) {
+								p++;
+								continue;
+							}
+							int catW = (int) ((this.fontRenderer.getStringWidth(catName) + 10) * (1.0f - cos));
+							this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
+							this.drawTexturedModalRect(5 - catW, i * 16, 0, 90 + (catSelect == p ? 0 : 16), catW, 16);
+							StringBuilder name = new StringBuilder();
+							for (int j = 0; j < catName.length(); j++) {
+								if (this.fontRenderer.getStringWidth(name.toString() + catName.charAt(j)) > catW - 5) {
+									break;
+								}
+								name.append(catName.charAt(j));
+							}
+							this.fontRenderer.drawString(name.toString(), 10 - catW, 3 + i * 16, CustomNpcs.QuestLogColor.getRGB(),
+									false);
+							GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+							i++;
+							if (i >= 8) {
+								break;
+							}
+						}
+						GlStateManager.popMatrix();
+					} else {
+						tick = 0;
 						temp = 0;
-						step = 3;
+					}
+
+					if (tick == 0) {
+						GlStateManager.disableBlend();
+						if (type < 0) {
+							step = 12;
+						} else {
+							step = type + 4;
+						}
 						tick = 21;
 						milliTick = 20;
 					}
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 3: { // tab open
-				// Tabs
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiLeft + 10, guiTop + (1.0f - cos) * 28.0f, 0.0f);
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
-				this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
-				GlStateManager.translate(33.0f, 0.0f, 0.0f);
-				this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
-				GlStateManager.translate(33.0f, 0.0f, 0.0f);
-				this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
-				if (CustomNpcs.ShowQuestCompass) {
-					GlStateManager.translate(-114.0f + 256.0f * scaleW, 0.0f, 0.0f);
-					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
-				}
-				GlStateManager.popMatrix();
-				// place
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
-				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
-				this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
-				this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
-				GlStateManager.popMatrix();
+					break;
+				} // quest tab close
+				case 8: {
+					drawBox(mouseX, mouseY);
 
-				if (tick == 0) {
-					step = type + 4;
-					tick = 21;
-					milliTick = 20;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 4: { // quest tab open
-				drawBox(mouseX, mouseY);
-				if (!categories.isEmpty()) {
-					GlStateManager.pushMatrix();
-					GlStateManager.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
-					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
-					int i = 0, p = 0;
-					for (String catName : categories.keySet()) {
-						int catW = (int) ((this.fontRenderer.getStringWidth(catName) + 10 + i) * cos);
-						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
-						if (isMouseHover(mouseX, mouseY, guiLeft + (int) ((5 - catW) * scaleW),
-								(int) (guiTopLog + (23.5f + i * 16.0f) * scaleH), (int) (catW * scaleH),
-								(int) (16.0f * scaleH))) {
-							hoverButton = 7 + i;
-						} // 7/15-tab categories;
-						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-						GlStateManager.pushMatrix();
-						GlStateManager.scale(scaleW, scaleH, 1.0f);
-						this.drawTexturedModalRect(4 - (int) (catW / scaleW) + i, i * 16, 0,
-								90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), (int) (catW / scaleW), 16);
-						GlStateManager.popMatrix();
-						StringBuilder name = new StringBuilder();
-						for (int j = 0; j < catName.length(); j++) {
-							if (this.fontRenderer.getStringWidth(name.toString() + catName.charAt(j)) > catW - 5) {
-								break;
-							}
-							name.append(catName.charAt(j));
+					if (tick == 0) {
+						GlStateManager.disableBlend();
+						if (type < 0) {
+							step = 12;
+						} else {
+							step = type + 4;
 						}
-						this.fontRenderer.drawString(name.toString(), 4 - catW + 10 + i,
-								(16.0f * scaleH - 10.0f) / 2.0f + (i * 16) * scaleH, CustomNpcs.QuestLogColor.getRGB(),
-								false);
-						i++;
-						p++;
-						if (i >= 8) {
-							break;
-						}
+						tick = 21;
+						milliTick = 20;
 					}
+					break;
+				} // faction close
+				case 9: {
+					drawBox(mouseX, mouseY);
+
+					if (tick == 0) {
+						GlStateManager.disableBlend();
+						if (type < 0) {
+							step = 12;
+						} else {
+							step = type + 4;
+						}
+						tick = 21;
+						milliTick = 20;
+					}
+					break;
+				} // compass close
+				case 10: {
+					drawBox(mouseX, mouseY);
+					boolean up = tick >= milliTick / 2;
+					GlStateManager.pushMatrix();
 					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-					GlStateManager.popMatrix();
-				} else {
-					tick = 0;
-				}
-				if (tick == 0) {
-					step = toPrePage ? 10 : 11;
-					tick = 11;
-					milliTick = 10;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 5: { // faction open
-				drawBox(mouseX, mouseY);
-				if (tick == 0) {
-					step = toPrePage ? 10 : 11;
-					tick = 11;
-					milliTick = 10;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 6: { // compass open
-				drawBox(mouseX, mouseY);
-				if (tick == 0) {
-					step = toPrePage ? 10 : 11;
-					tick = 11;
-					milliTick = 10;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 7: { // quest tab close
-				drawBox(mouseX, mouseY);
-				if (!categories.isEmpty()) {
-					temp = 1;
-					GlStateManager.pushMatrix();
-					GlStateManager.translate(guiLeft, guiTopLog + 7.5f, 0.0f);
-					GlStateManager.translate(0.0f, 16.0f, 0.0f);
-					int i = 0, p = 0, st = catRow * 8;
-					for (String catName : categories.keySet()) {
-						if (p < st) {
-							p++;
-							continue;
+					if (up) {
+						part = (float) (tick - (milliTick / 2)) + partialTicks;
+						cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
+						if (cos < 0.0f) {
+							cos = 0.0f;
+						} else if (cos > 1.0f) {
+							cos = 1.0f;
 						}
-						int catW = (int) ((this.fontRenderer.getStringWidth(catName) + 10) * (1.0f - cos));
-						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
-						this.drawTexturedModalRect(5 - catW, i * 16, 0, 90 + (catSelect == p ? 0 : 16), catW, 16);
-						StringBuilder name = new StringBuilder();
-						for (int j = 0; j < catName.length(); j++) {
-							if (this.fontRenderer.getStringWidth(name.toString() + catName.charAt(j)) > catW - 5) {
-								break;
-							}
-							name.append(catName.charAt(j));
+						GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
+						GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
+						this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
+					} else {
+						part = (float) tick + partialTicks;
+						cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
+						if (cos < 0.0f) {
+							cos = 0.0f;
+						} else if (cos > 1.0f) {
+							cos = 1.0f;
 						}
-						this.fontRenderer.drawString(name.toString(), 10 - catW, 3 + i * 16, CustomNpcs.QuestLogColor.getRGB(),
-								false);
-						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-						i++;
-						if (i >= 8) {
-							break;
-						}
-					}
-					GlStateManager.popMatrix();
-				} else {
-					tick = 0;
-					temp = 0;
-				}
-
-				if (tick == 0) {
-					GlStateManager.disableBlend();
-					if (type < 0) {
-						step = 12;
-                    } else {
-						step = type + 4;
-                    }
-                    tick = 21;
-                    milliTick = 20;
-                }
-				break;
-			}
-			case 8: { // faction close
-				drawBox(mouseX, mouseY);
-
-				if (tick == 0) {
-					GlStateManager.disableBlend();
-					if (type < 0) {
-						step = 12;
-                    } else {
-						step = type + 4;
-                    }
-                    tick = 21;
-                    milliTick = 20;
-                }
-				break;
-			}
-			case 9: { // compass close
-				drawBox(mouseX, mouseY);
-
-				if (tick == 0) {
-					GlStateManager.disableBlend();
-					if (type < 0) {
-						step = 12;
-                    } else {
-						step = type + 4;
-                    }
-                    tick = 21;
-                    milliTick = 20;
-                }
-				break;
-			}
-			case 10: { // next page
-				drawBox(mouseX, mouseY);
-				boolean up = tick >= milliTick / 2;
-				GlStateManager.pushMatrix();
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-				if (up) {
-					part = (float) (tick - (milliTick / 2)) + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
-					if (cos < 0.0f) {
-						cos = 0.0f;
-					} else if (cos > 1.0f) {
-						cos = 1.0f;
-					}
-					GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
-					GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
-					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
-					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
-				} else {
-					part = (float) tick + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
-					if (cos < 0.0f) {
-						cos = 0.0f;
-					} else if (cos > 1.0f) {
-						cos = 1.0f;
-					}
-					GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
-					GlStateManager.scale(cos, 1.0f, 1.0f);
-					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
-					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
-				}
-				GlStateManager.popMatrix();
-
-				if (tick == milliTick) {
-					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
-							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
-							0.8f + 0.4f * this.rnd.nextFloat());
-				}
-				if (tick == 0) {
-					step = -1;
-					tick = 11;
-					milliTick = 10;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 11: { // pre page
-				drawBox(mouseX, mouseY);
-				boolean up = tick >= milliTick / 2;
-				GlStateManager.pushMatrix();
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-				if (up) {
-					part = (float) (tick - (milliTick / 2)) + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
-					if (cos < 0.0f) {
-						cos = 0.0f;
-					} else if (cos > 1.0f) {
-						cos = 1.0f;
-					}
-					GlStateManager.translate(guiCenter - (1.0f - cos) * width / 2.0f, guiTopLog, 0.0f);
-					GlStateManager.scale((1.0f - cos), 1.0f, 1.0f);
-					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
-					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
-				} else {
-					part = (float) tick + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
-					if (cos < 0.0f) {
-						cos = 0.0f;
-					} else if (cos > 1.0f) {
-						cos = 1.0f;
-					}
-					GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
-					GlStateManager.scale(cos, 1.0f, 1.0f);
-					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
-					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
-				}
-				GlStateManager.popMatrix();
-
-				if (tick == milliTick) {
-					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
-							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
-							0.8f + 0.4f * this.rnd.nextFloat());
-				}
-				if (tick == 0) {
-					step = -1;
-					tick = 11;
-					milliTick = 10;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 12: { // close tabs
-				// Tabs
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiLeft + 10, guiTop + cos * 28.0f, 0.0f);
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
-				this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
-				GlStateManager.translate(33.0f, 0.0f, 0.0f);
-				this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
-				GlStateManager.translate(33.0f, 0.0f, 0.0f);
-				this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
-				if (CustomNpcs.ShowQuestCompass) {
-					GlStateManager.translate(-114.0f + 256.0f * scaleW, 0.0f, 0.0f);
-					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
-				}
-				GlStateManager.popMatrix();
-
-				// place
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
-				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
-				this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
-				this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
-				GlStateManager.popMatrix();
-				if (tick == 0) {
-					step = 13;
-					tick = 21;
-					milliTick = 20;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 13: { // close book
-				// left
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiCenter - 64.0f * cos, guiTopLog, 0.0f);
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
-				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
-				GlStateManager.popMatrix();
-
-				// right
-				boolean up = tick >= milliTick / 2;
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiCenter - 64.0f * cos, guiTopLog, 0.0f);
-				if (up) {
-					part = (float) (tick - (milliTick / 2)) + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
-					if (cos < 0.0f) {
-						cos = 0.0f;
-					} else if (cos > 1.0f) {
-						cos = 1.0f;
-					}
-					GlStateManager.translate(-128.0f * (1.0d - cos), 0.0f, 0.0f);
-					GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
-					GlStateManager.scale(scaleW, scaleH, 1.0f);
-					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
-					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
-					if (temp > 0) {
-						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
+						GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
+						GlStateManager.scale(cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
 						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					}
-				} else {
-					part = (float) tick + partialTicks;
-					cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
-					if (cos < 0.0f) {
-						cos = 0.0f;
-					} else if (cos > 1.0f) {
-						cos = 1.0f;
+					GlStateManager.popMatrix();
+
+					if (tick == milliTick) {
+						MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
+								(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
+								0.8f + 0.4f * this.rnd.nextFloat());
 					}
-					GlStateManager.scale(cos, 1.0f, 1.0f);
+					if (tick == 0) {
+						step = -1;
+						tick = 11;
+						milliTick = 10;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // next page
+				case 11: {
+					drawBox(mouseX, mouseY);
+					boolean up = tick >= milliTick / 2;
+					GlStateManager.pushMatrix();
+					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					if (up) {
+						part = (float) (tick - (milliTick / 2)) + partialTicks;
+						cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
+						if (cos < 0.0f) {
+							cos = 0.0f;
+						} else if (cos > 1.0f) {
+							cos = 1.0f;
+						}
+						GlStateManager.translate(guiCenter - (1.0f - cos) * width / 2.0f, guiTopLog, 0.0f);
+						GlStateManager.scale((1.0f - cos), 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
+						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
+					} else {
+						part = (float) tick + partialTicks;
+						cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
+						if (cos < 0.0f) {
+							cos = 0.0f;
+						} else if (cos > 1.0f) {
+							cos = 1.0f;
+						}
+						GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
+						GlStateManager.scale(cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(3));
+						this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
+					}
+					GlStateManager.popMatrix();
+
+					if (tick == milliTick) {
+						MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
+								(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
+								0.8f + 0.4f * this.rnd.nextFloat());
+					}
+					if (tick == 0) {
+						step = -1;
+						tick = 11;
+						milliTick = 10;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // pre page
+				case 12: {
+					// Tabs
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(guiLeft + 10, guiTop + cos * 28.0f, 0.0f);
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
+					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
+					GlStateManager.translate(33.0f, 0.0f, 0.0f);
+					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
+					GlStateManager.translate(33.0f, 0.0f, 0.0f);
+					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
+					if (CustomNpcs.ShowQuestCompass) {
+						GlStateManager.translate(-114.0f + 256.0f * scaleW, 0.0f, 0.0f);
+						this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
+					}
+					GlStateManager.popMatrix();
+
+					// place
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
+					this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
+					this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
+					GlStateManager.popMatrix();
+					if (tick == 0) {
+						step = 13;
+						tick = 21;
+						milliTick = 20;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // close tabs
+				case 13: {
+					// left
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(guiCenter - 64.0f * cos, guiTopLog, 0.0f);
+					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
+					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
+					GlStateManager.popMatrix();
+
+					// right
+					boolean up = tick >= milliTick / 2;
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(guiCenter - 64.0f * cos, guiTopLog, 0.0f);
+					if (up) {
+						part = (float) (tick - (milliTick / 2)) + partialTicks;
+						cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
+						if (cos < 0.0f) {
+							cos = 0.0f;
+						} else if (cos > 1.0f) {
+							cos = 1.0f;
+						}
+						GlStateManager.translate(-128.0f * (1.0d - cos), 0.0f, 0.0f);
+						GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(0));
+						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
+						if (temp > 0) {
+							this.mc.getTextureManager().bindTexture(GuiLog.ql.get(1));
+							this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
+						}
+					} else {
+						part = (float) tick + partialTicks;
+						cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
+						if (cos < 0.0f) {
+							cos = 0.0f;
+						} else if (cos > 1.0f) {
+							cos = 1.0f;
+						}
+						GlStateManager.scale(cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
+						this.mc.getTextureManager().bindTexture(GuiLog.ql.get(2));
+						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
+					}
+					GlStateManager.popMatrix();
+
+					if (tick == 0) {
+						MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.down",
+								(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
+								0.75f + 0.25f * this.rnd.nextFloat());
+						step = 14;
+						tick = 21;
+						milliTick = 20;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // close book
+				case 14: {
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(guiCenter - 64.0f + cos * (guiCenter + 50.0f), guiTopLog + cos * 250.0f, 0.0f);
 					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					this.mc.getTextureManager().bindTexture(GuiLog.ql.get(2));
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
-				}
-				GlStateManager.popMatrix();
-
-				if (tick == 0) {
-					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.down",
-							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
-							0.75f + 0.25f * this.rnd.nextFloat());
-					step = 14;
-					tick = 21;
-					milliTick = 20;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 14: { // close
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiCenter - 64.0f + cos * (guiCenter + 50.0f), guiTopLog + cos * 250.0f, 0.0f);
-				GlStateManager.scale(scaleW, scaleH, 1.0f);
-				this.mc.getTextureManager().bindTexture(GuiLog.ql.get(2));
-				this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
-				GlStateManager.popMatrix();
-				if (tick == 0) {
-					step = 14;
-					tick = 101;
-					milliTick = 100;
-					save();
-					if (type == -1) {
-						mc.displayGuiScreen(new GuiInventory(player));
-					} else {
-						displayGuiScreen(null);
+					GlStateManager.popMatrix();
+					if (tick == 0) {
+						step = 14;
+						tick = 101;
+						milliTick = 100;
+						save();
+						if (type == -1) {
+							mc.displayGuiScreen(new GuiInventory(player));
+						} else {
+							displayGuiScreen(null);
+							mc.setIngameFocus();
+						}
+						GlStateManager.disableBlend();
 					}
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
+					break;
+				} // close
 			}
 			tick--;
 			if (step != -1) {
@@ -2198,6 +2202,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			milliTick = 15;
 			step = type + 7;
 			type = i == 1 ? -2 : -1;
+			return;
 		}
 		super.keyTyped(c, i);
 	}

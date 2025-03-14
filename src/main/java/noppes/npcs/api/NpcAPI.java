@@ -22,6 +22,7 @@ import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
@@ -141,5 +142,9 @@ public abstract class NpcAPI {
 	public abstract ICustomPlayerData getPlayerData(EntityPlayer player);
 
 	public abstract IResourceData getResourceData(ResourceLocation texture, int u, int v, int width, int height);
+
+	public abstract IData getTempdata();
+
+	public abstract IData getStoreddata();
 
 }

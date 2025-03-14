@@ -68,16 +68,18 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 	}
 	
 	protected T entity;
-	protected IData storeddata;
-	protected IData tempdata;
+	protected final StoredData storeddata;
+	protected final TempData tempdata = new TempData();
 
 	private IWorld worldWrapper;
 
-	@SuppressWarnings("deprecation")
-	public EntityWrapper(T entity) {
-		this.entity = entity;
-		this.tempdata = new TempData();
-		this.storeddata = new StoredData(this);
+	public EntityWrapper(T entityIn) {
+		entity = entityIn;
+		storeddata = new StoredData(this);
+		resetWorld();
+	}
+
+	private void resetWorld() {
 		if (entity.world instanceof WorldServer) {
 			this.worldWrapper = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(entity.world);
 		} else if (entity.world != null) {
@@ -87,8 +89,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 					w.world = entity.world;
 				}
 			} else {
-				WrapperNpcAPI.worldCache.put(entity.world.provider.getDimension(),
-						w = WorldWrapper.createNew(entity.world));
+				WrapperNpcAPI.worldCache.put(entity.world.provider.getDimension(), w = WorldWrapper.createNew(entity.world));
 			}
 			this.worldWrapper = w;
 		}
@@ -320,9 +321,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	@Override
 	public IWorld getWorld() {
-		if (this.entity.world != this.worldWrapper.getMCWorld() && this.entity.world instanceof WorldServer) {
-			this.worldWrapper = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(this.entity.world);
-		}
+		if (worldWrapper == null || entity.world != worldWrapper.getMCWorld()) { resetWorld(); }
 		return this.worldWrapper;
 	}
 

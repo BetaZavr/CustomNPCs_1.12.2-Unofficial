@@ -16,10 +16,10 @@ public interface IContainer {
 
 	int getSize();
 
-	IItemStack getSlot(int slot);
+	IItemStack getSlot(int slotId);
 
 	boolean isEmpty();
 
-	void setSlot(int slot, IItemStack item);
+	void setSlot(int slotId, IItemStack item);
 
 }

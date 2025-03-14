@@ -11,8 +11,7 @@ public class ItemBlockWrapper extends ItemStackWrapper implements IItemBlock {
 
 	protected ItemBlockWrapper(ItemStack item) {
 		super(item);
-		Block b = Block.getBlockFromItem(item.getItem());
-		this.blockName = Block.REGISTRY.getNameForObject(b) + "";
+		this.blockName = Block.REGISTRY.getNameForObject(Block.getBlockFromItem(item.getItem())) + "";
 	}
 
 	@Override
@@ -24,4 +23,5 @@ public class ItemBlockWrapper extends ItemStackWrapper implements IItemBlock {
 	public int getType() {
 		return ItemType.BLOCK.get();
 	}
+
 }

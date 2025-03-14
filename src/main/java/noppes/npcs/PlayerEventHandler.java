@@ -1,8 +1,6 @@
 package noppes.npcs;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.Nonnull;
@@ -17,6 +15,7 @@ import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
 import noppes.npcs.api.mixin.event.entity.living.ILivingAttackEventMixin;
 import noppes.npcs.api.mixin.tileentity.ITileEntityBanner;
 import noppes.npcs.entity.data.DataInventory;
+import noppes.npcs.util.CustomNPCsScheduler;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.reflect.ClassPath;
@@ -98,9 +97,131 @@ import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.Util;
-import org.apache.logging.log4j.Logger;
 
 public class PlayerEventHandler {
+
+	/**
+	 * Using quotes in JavaScripts for any Forge event requires binding to these events;
+	 * The method written by the Noppes team is not applicable for all cases (sometimes events simply did not work in JS);
+	 * And there is also a conflict with mods written with the "Cleanroom" base;
+	 * A manual method for implementing classes is written:
+	 */
+	private static final String[] pathsToForgeEventClasses = new String[] {
+			"net.minecraftforge.event.AnvilUpdateEvent",
+			"net.minecraftforge.event.AttachCapabilitiesEvent",
+			"net.minecraftforge.event.CommandEvent",
+			"net.minecraftforge.event.DifficultyChangeEvent",
+			"net.minecraftforge.event.GameRuleChangeEvent",
+			"net.minecraftforge.event.LootTableLoadEvent",
+			"net.minecraftforge.event.RegistryEvent",
+			"net.minecraftforge.event.ServerChatEvent",
+			"net.minecraftforge.event.brewing.PlayerBrewedPotionEvent",
+			"net.minecraftforge.event.brewing.PotionBrewEvent",
+			"net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent",
+			"net.minecraftforge.event.entity.EntityJoinWorldEvent",
+			"net.minecraftforge.event.entity.EntityMobGriefingEvent",
+			"net.minecraftforge.event.entity.EntityMountEvent",
+			"net.minecraftforge.event.entity.EntityStruckByLightningEvent",
+			"net.minecraftforge.event.entity.EntityTravelToDimensionEvent",
+			"net.minecraftforge.event.entity.PlaySoundAtEntityEvent",
+			"net.minecraftforge.event.entity.ProjectileImpactEvent",
+			"net.minecraftforge.event.entity.ThrowableImpactEvent",
+			"net.minecraftforge.event.entity.item.ItemEvent",
+			"net.minecraftforge.event.entity.item.ItemExpireEvent",
+			"net.minecraftforge.event.entity.item.ItemTossEvent",
+			"net.minecraftforge.event.entity.living.AnimalTameEvent",
+			"net.minecraftforge.event.entity.living.BabyEntitySpawnEvent",
+			"net.minecraftforge.event.entity.living.EnderTeleportEvent",
+			"net.minecraftforge.event.entity.living.LivingAttackEvent",
+			"net.minecraftforge.event.entity.living.LivingDamageEvent",
+			"net.minecraftforge.event.entity.living.LivingDeathEvent",
+			"net.minecraftforge.event.entity.living.LivingDestroyBlockEvent",
+			"net.minecraftforge.event.entity.living.LivingDropsEvent",
+			"net.minecraftforge.event.entity.living.LivingEntityUseItemEvent",
+			"net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent",
+			"net.minecraftforge.event.entity.living.LivingEvent",
+			"net.minecraftforge.event.entity.living.LivingExperienceDropEvent",
+			"net.minecraftforge.event.entity.living.LivingFallEvent",
+			"net.minecraftforge.event.entity.living.LivingHealEvent",
+			"net.minecraftforge.event.entity.living.LivingHurtEvent",
+			"net.minecraftforge.event.entity.living.LivingKnockBackEvent",
+			"net.minecraftforge.event.entity.living.LivingPackSizeEvent",
+			"net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent",
+			"net.minecraftforge.event.entity.living.LivingSpawnEvent",
+			"net.minecraftforge.event.entity.living.LootingLevelEvent",
+			"net.minecraftforge.event.entity.living.PotionColorCalculationEvent",
+			"net.minecraftforge.event.entity.living.ZombieEvent",
+			"net.minecraftforge.event.entity.minecart.MinecartCollisionEvent",
+			"net.minecraftforge.event.entity.minecart.MinecartEvent",
+			"net.minecraftforge.event.entity.minecart.MinecartInteractEvent",
+			"net.minecraftforge.event.entity.minecart.MinecartUpdateEvent",
+			"net.minecraftforge.event.entity.player.AdvancementEvent",
+			"net.minecraftforge.event.entity.player.AnvilRepairEvent",
+			"net.minecraftforge.event.entity.player.ArrowLooseEvent",
+			"net.minecraftforge.event.entity.player.ArrowNockEvent",
+			"net.minecraftforge.event.entity.player.AttackEntityEvent",
+			"net.minecraftforge.event.entity.player.BonemealEvent",
+			"net.minecraftforge.event.entity.player.CriticalHitEvent",
+			"net.minecraftforge.event.entity.player.EntityItemPickupEvent",
+			"net.minecraftforge.event.entity.player.FillBucketEvent",
+			"net.minecraftforge.event.entity.player.ItemFishedEvent",
+			"net.minecraftforge.event.entity.player.PlayerContainerEvent",
+			"net.minecraftforge.event.entity.player.PlayerDestroyItemEvent",
+			"net.minecraftforge.event.entity.player.PlayerDropsEvent",
+			"net.minecraftforge.event.entity.player.PlayerEvent",
+			"net.minecraftforge.event.entity.player.PlayerFlyableFallEvent",
+			"net.minecraftforge.event.entity.player.PlayerInteractEvent",
+			"net.minecraftforge.event.entity.player.PlayerPickupXpEvent",
+			"net.minecraftforge.event.entity.player.PlayerSetSpawnEvent",
+			"net.minecraftforge.event.entity.player.PlayerSleepInBedEvent",
+			"net.minecraftforge.event.entity.player.PlayerWakeUpEvent",
+			"net.minecraftforge.event.entity.player.SleepingLocationCheckEvent",
+			"net.minecraftforge.event.entity.player.SleepingTimeCheckEvent",
+			"net.minecraftforge.event.entity.player.UseHoeEvent",
+			"net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent",
+			"net.minecraftforge.event.world.BlockEvent",
+			"net.minecraftforge.event.world.ChunkDataEvent",
+			"net.minecraftforge.event.world.ChunkEvent",
+			"net.minecraftforge.event.world.ChunkWatchEvent",
+			"net.minecraftforge.event.world.ExplosionEvent",
+			"net.minecraftforge.event.world.NoteBlockEvent",
+			"net.minecraftforge.event.world.WorldEvent",
+			"net.minecraftforge.event.entity.EntityEvent",
+			"net.minecraftforge.fml.common.gameevent.InputEvent",
+			"net.minecraftforge.fml.common.gameevent.PlayerEvent",
+			"net.minecraftforge.fml.common.gameevent.TickEvent",
+			"net.minecraftforge.fluids.FluidEvent",
+			"net.minecraftforge.client.event.sound.PlaySoundEvent",
+			"net.minecraftforge.client.event.sound.PlaySoundSourceEvent",
+			"net.minecraftforge.client.event.sound.PlayStreamingSourceEvent",
+			"net.minecraftforge.client.event.sound.SoundEvent",
+			"net.minecraftforge.client.event.sound.SoundLoadEvent",
+			"net.minecraftforge.client.event.sound.SoundSetupEvent",
+			"net.minecraftforge.client.event.ClientChatEvent",
+			"net.minecraftforge.client.event.ClientChatReceivedEvent",
+			"net.minecraftforge.client.event.ColorHandlerEvent",
+			"net.minecraftforge.client.event.DrawBlockHighlightEvent",
+			"net.minecraftforge.client.event.EntityViewRenderEvent",
+			"net.minecraftforge.client.event.FOVUpdateEvent",
+			"net.minecraftforge.client.event.GuiContainerEvent",
+			"net.minecraftforge.client.event.GuiOpenEvent",
+			"net.minecraftforge.client.event.GuiScreenEvent",
+			"net.minecraftforge.client.event.InputUpdateEvent",
+			"net.minecraftforge.client.event.ModelBakeEvent",
+			"net.minecraftforge.client.event.MouseEvent",
+			"net.minecraftforge.client.event.PlayerSPPushOutOfBlocksEvent",
+			"net.minecraftforge.client.event.RenderBlockOverlayEvent",
+			"net.minecraftforge.client.event.RenderGameOverlayEvent",
+			"net.minecraftforge.client.event.RenderHandEvent",
+			"net.minecraftforge.client.event.RenderItemInFrameEvent",
+			"net.minecraftforge.client.event.RenderLivingEvent",
+			"net.minecraftforge.client.event.RenderPlayerEvent",
+			"net.minecraftforge.client.event.RenderSpecificHandEvent",
+			"net.minecraftforge.client.event.RenderTooltipEvent",
+			"net.minecraftforge.client.event.RenderWorldLastEvent",
+			"net.minecraftforge.client.event.ScreenshotEvent",
+			"net.minecraftforge.client.event.TextureStitchEvent"
+	};
 
 	public static class ForgeEventHandler {
 		@SubscribeEvent
@@ -479,9 +600,8 @@ public class PlayerEventHandler {
 
 	@SubscribeEvent
 	public void npcPlayerLoginEvent(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
-		if (event.player.world.isRemote) {
-			return;
-		}
+		NoppesUtilServer.sendScriptErrorsTo(event.player);
+		if (event.player.world.isRemote) { return; }
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerLoginEvent");
 		PlayerData data = PlayerData.get(event.player);
 		EventHooks.onPlayerLogin(data.scriptData);
@@ -784,494 +904,28 @@ public class PlayerEventHandler {
 			Method register = MinecraftForge.EVENT_BUS.getClass().getDeclaredMethod("register", Class.class, Object.class, Method.class, ModContainer.class);
 			register.setAccessible(true);
 
+			for (String forgeEventClassPath : pathsToForgeEventClasses) {
+				Class<?> event;
+				try { event = Class.forName(forgeEventClassPath); } catch (ClassNotFoundException e) { continue; }
+				if (!listClasses.contains(event)) { listClasses.add(event); }
+			}
+			int eventSize = pathsToForgeEventClasses.length;
+			LogWriter.debug("Manually found " + listClasses.size() + " / " + eventSize + " classes of Forge events");
+
 			ClassPath loader = ClassPath.from(this.getClass().getClassLoader());
 			// Get all loaded Forge event classes
 			List<ClassPath.ClassInfo> list = new ArrayList<>(loader.getTopLevelClassesRecursive("net.minecraftforge.event"));
 			list.addAll(loader.getTopLevelClassesRecursive("net.minecraftforge.fml.common"));
-
-			int i = 0;
-			boolean collectClasses = true;
-			// I have no desire to import client events into a common class and check for events when the Forge version changes:
-			while (collectClasses) {
-				Class<?> c = null;
-				i++;
-				try {
-					switch (i) {
-						// Forge Event Classes
-						case 1: {
-							c = Class.forName("net.minecraftforge.event.AnvilUpdateEvent");
-							break;
-						}
-						case 2: {
-							c = Class.forName("net.minecraftforge.event.AttachCapabilitiesEvent");
-							break;
-						}
-						case 3: {
-							c = Class.forName("net.minecraftforge.event.CommandEvent");
-							break;
-						}
-						case 4: {
-							c = Class.forName("net.minecraftforge.event.DifficultyChangeEvent");
-							break;
-						}
-						case 5: {
-							c = Class.forName("net.minecraftforge.event.GameRuleChangeEvent");
-							break;
-						}
-						case 6: {
-							c = Class.forName("net.minecraftforge.event.LootTableLoadEvent");
-							break;
-						}
-						case 7: {
-							c = Class.forName("net.minecraftforge.event.RegistryEvent");
-							break;
-						}
-						case 8: {
-							c = Class.forName("net.minecraftforge.event.ServerChatEvent");
-							break;
-						}
-						case 9: {
-							c = Class.forName("net.minecraftforge.event.brewing.PlayerBrewedPotionEvent");
-							break;
-						}
-						case 10: {
-							c = Class.forName("net.minecraftforge.event.brewing.PotionBrewEvent");
-							break;
-						}
-						case 11: {
-							c = Class.forName("net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent");
-							break;
-						}
-						case 12: {
-							c = Class.forName("net.minecraftforge.event.entity.EntityJoinWorldEvent");
-							break;
-						}
-						case 13: {
-							c = Class.forName("net.minecraftforge.event.entity.EntityMobGriefingEvent");
-							break;
-						}
-						case 14: {
-							c = Class.forName("net.minecraftforge.event.entity.EntityMountEvent");
-							break;
-						}
-						case 15: {
-							c = Class.forName("net.minecraftforge.event.entity.EntityStruckByLightningEvent");
-							break;
-						}
-						case 16: {
-							c = Class.forName("net.minecraftforge.event.entity.EntityTravelToDimensionEvent");
-							break;
-						}
-						case 17: {
-							c = Class.forName("net.minecraftforge.event.entity.PlaySoundAtEntityEvent");
-							break;
-						}
-						case 18: {
-							c = Class.forName("net.minecraftforge.event.entity.ProjectileImpactEvent");
-							break;
-						}
-						case 19: {
-							c = Class.forName("net.minecraftforge.event.entity.ThrowableImpactEvent");
-							break;
-						}
-						case 20: {
-							c = Class.forName("net.minecraftforge.event.entity.item.ItemEvent");
-							break;
-						}
-						case 21: {
-							c = Class.forName("net.minecraftforge.event.entity.item.ItemExpireEvent");
-							break;
-						}
-						case 22: {
-							c = Class.forName("net.minecraftforge.event.entity.item.ItemTossEvent");
-							break;
-						}
-						case 23: {
-							c = Class.forName("net.minecraftforge.event.entity.living.AnimalTameEvent");
-							break;
-						}
-						case 24: {
-							c = Class.forName("net.minecraftforge.event.entity.living.BabyEntitySpawnEvent");
-							break;
-						}
-						case 25: {
-							c = Class.forName("net.minecraftforge.event.entity.living.EnderTeleportEvent");
-							break;
-						}
-						case 26: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingAttackEvent");
-							break;
-						}
-						case 27: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingDamageEvent");
-							break;
-						}
-						case 28: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingDeathEvent");
-							break;
-						}
-						case 29: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingDestroyBlockEvent");
-							break;
-						}
-						case 30: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingDropsEvent");
-							break;
-						}
-						case 31: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingEntityUseItemEvent");
-							break;
-						}
-						case 32: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent");
-							break;
-						}
-						case 33: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingEvent");
-							break;
-						}
-						case 34: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingExperienceDropEvent");
-							break;
-						}
-						case 35: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingFallEvent");
-							break;
-						}
-						case 36: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingHealEvent");
-							break;
-						}
-						case 37: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingHurtEvent");
-							break;
-						}
-						case 38: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingKnockBackEvent");
-							break;
-						}
-						case 39: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingPackSizeEvent");
-							break;
-						}
-						case 40: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent");
-							break;
-						}
-						case 41: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LivingSpawnEvent");
-							break;
-						}
-						case 42: {
-							c = Class.forName("net.minecraftforge.event.entity.living.LootingLevelEvent");
-							break;
-						}
-						case 43: {
-							c = Class.forName("net.minecraftforge.event.entity.living.PotionColorCalculationEvent");
-							break;
-						}
-						case 44: {
-							c = Class.forName("net.minecraftforge.event.entity.living.ZombieEvent");
-							break;
-						}
-						case 45: {
-							c = Class.forName("net.minecraftforge.event.entity.minecart.MinecartCollisionEvent");
-							break;
-						}
-						case 46: {
-							c = Class.forName("net.minecraftforge.event.entity.minecart.MinecartEvent");
-							break;
-						}
-						case 47: {
-							c = Class.forName("net.minecraftforge.event.entity.minecart.MinecartInteractEvent");
-							break;
-						}
-						case 48: {
-							c = Class.forName("net.minecraftforge.event.entity.minecart.MinecartUpdateEvent");
-							break;
-						}
-						case 49: {
-							c = Class.forName("net.minecraftforge.event.entity.player.AdvancementEvent");
-							break;
-						}
-						case 50: {
-							c = Class.forName("net.minecraftforge.event.entity.player.AnvilRepairEvent");
-							break;
-						}
-						case 51: {
-							c = Class.forName("net.minecraftforge.event.entity.player.ArrowLooseEvent");
-							break;
-						}
-						case 52: {
-							c = Class.forName("net.minecraftforge.event.entity.player.ArrowNockEvent");
-							break;
-						}
-						case 53: {
-							c = Class.forName("net.minecraftforge.event.entity.player.AttackEntityEvent");
-							break;
-						}
-						case 54: {
-							c = Class.forName("net.minecraftforge.event.entity.player.BonemealEvent");
-							break;
-						}
-						case 55: {
-							c = Class.forName("net.minecraftforge.event.entity.player.CriticalHitEvent");
-							break;
-						}
-						case 56: {
-							c = Class.forName("net.minecraftforge.event.entity.player.EntityItemPickupEvent");
-							break;
-						}
-						case 57: {
-							c = Class.forName("net.minecraftforge.event.entity.player.FillBucketEvent");
-							break;
-						}
-						case 58: {
-							c = Class.forName("net.minecraftforge.event.entity.player.ItemFishedEvent");
-							break;
-						}
-						case 59: {
-							c = Class.forName("net.minecraftforge.event.entity.player.PlayerContainerEvent");
-							break;
-						}
-						case 60: {
-							c = Class.forName("net.minecraftforge.event.entity.player.PlayerDestroyItemEvent");
-							break;
-						}
-						case 61: {
-							c = Class.forName("net.minecraftforge.event.entity.player.PlayerDropsEvent");
-							break;
-						}
-						case 62: {
-							c = Class.forName("net.minecraftforge.event.entity.player.PlayerEvent");
-							break;
-						}
-						case 63: {
-							c = Class.forName("net.minecraftforge.event.entity.player.PlayerFlyableFallEvent");
-							break;
-						}
-						case 64: {
-							c = Class.forName("net.minecraftforge.event.entity.player.PlayerInteractEvent");
-							break;
-						}
-						case 65: {
-							c = Class.forName("net.minecraftforge.event.entity.player.PlayerPickupXpEvent");
-							break;
-						}
-						case 66: {
-							c = Class.forName("net.minecraftforge.event.entity.player.PlayerSetSpawnEvent");
-							break;
-						}
-						case 67: {
-							c = Class.forName("net.minecraftforge.event.entity.player.PlayerSleepInBedEvent");
-							break;
-						}
-						case 68: {
-							c = Class.forName("net.minecraftforge.event.entity.player.PlayerWakeUpEvent");
-							break;
-						}
-						case 69: {
-							c = Class.forName("net.minecraftforge.event.entity.player.SleepingLocationCheckEvent");
-							break;
-						}
-						case 70: {
-							c = Class.forName("net.minecraftforge.event.entity.player.SleepingTimeCheckEvent");
-							break;
-						}
-						case 71: {
-							c = Class.forName("net.minecraftforge.event.entity.player.UseHoeEvent");
-							break;
-						}
-						case 72: {
-							c = Class.forName("net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent");
-							break;
-						}
-						case 73: {
-							c = Class.forName("net.minecraftforge.event.world.BlockEvent");
-							break;
-						}
-						case 74: {
-							c = Class.forName("net.minecraftforge.event.world.ChunkDataEvent");
-							break;
-						}
-						case 75: {
-							c = Class.forName("net.minecraftforge.event.world.ChunkEvent");
-							break;
-						}
-						case 76: {
-							c = Class.forName("net.minecraftforge.event.world.ChunkWatchEvent");
-							break;
-						}
-						case 77: {
-							c = Class.forName("net.minecraftforge.event.world.ExplosionEvent");
-							break;
-						}
-						case 78: {
-							c = Class.forName("net.minecraftforge.event.world.NoteBlockEvent");
-							break;
-						}
-						case 79: {
-							c = Class.forName("net.minecraftforge.event.world.WorldEvent");
-							break;
-						}
-						case 80: {
-							c = Class.forName("net.minecraftforge.event.entity.EntityEvent");
-							break;
-						}
-						case 81: {
-							c = Class.forName("net.minecraftforge.fml.common.gameevent.InputEvent");
-							break;
-						}
-						case 82: {
-							c = Class.forName("net.minecraftforge.fml.common.gameevent.PlayerEvent");
-							break;
-						}
-						case 83: {
-							c = Class.forName("net.minecraftforge.fml.common.gameevent.TickEvent");
-							break;
-						}
-						case 84: {
-							c = Class.forName("net.minecraftforge.fluids.FluidEvent");
-							break;
-						}
-						// Client
-						case 85: {
-							c = Class.forName("net.minecraftforge.client.event.sound.PlaySoundEvent");
-							break;
-						}
-						case 86: {
-							c = Class.forName("net.minecraftforge.client.event.sound.PlaySoundSourceEvent");
-							break;
-						}
-						case 87: {
-							c = Class.forName("net.minecraftforge.client.event.sound.PlayStreamingSourceEvent");
-							break;
-						}
-						case 88: {
-							c = Class.forName("net.minecraftforge.client.event.sound.SoundEvent");
-							break;
-						}
-						case 89: {
-							c = Class.forName("net.minecraftforge.client.event.sound.SoundLoadEvent");
-							break;
-						}
-						case 90: {
-							c = Class.forName("net.minecraftforge.client.event.sound.SoundSetupEvent");
-							break;
-						}
-						case 91: {
-							c = Class.forName("net.minecraftforge.client.event.ClientChatEvent");
-							break;
-						}
-						case 92: {
-							c = Class.forName("net.minecraftforge.client.event.ClientChatReceivedEvent");
-							break;
-						}
-						case 93: {
-							c = Class.forName("net.minecraftforge.client.event.ColorHandlerEvent");
-							break;
-						}
-						case 94: {
-							c = Class.forName("net.minecraftforge.client.event.DrawBlockHighlightEvent");
-							break;
-						}
-						case 95: {
-							c = Class.forName("net.minecraftforge.client.event.EntityViewRenderEvent");
-							break;
-						}
-						case 96: {
-							c = Class.forName("net.minecraftforge.client.event.FOVUpdateEvent");
-							break;
-						}
-						case 97: {
-							c = Class.forName("net.minecraftforge.client.event.GuiContainerEvent");
-							break;
-						}
-						case 98: {
-							c = Class.forName("net.minecraftforge.client.event.GuiOpenEvent");
-							break;
-						}
-						case 99: {
-							c = Class.forName("net.minecraftforge.client.event.GuiScreenEvent");
-							break;
-						}
-						case 100: {
-							c = Class.forName("net.minecraftforge.client.event.InputUpdateEvent");
-							break;
-						}
-						case 101: {
-							c = Class.forName("net.minecraftforge.client.event.ModelBakeEvent");
-							break;
-						}
-						case 102: {
-							c = Class.forName("net.minecraftforge.client.event.MouseEvent");
-							break;
-						}
-						case 103: {
-							c = Class.forName("net.minecraftforge.client.event.PlayerSPPushOutOfBlocksEvent");
-							break;
-						}
-						case 104: {
-							c = Class.forName("net.minecraftforge.client.event.RenderBlockOverlayEvent");
-							break;
-						}
-						case 105: {
-							c = Class.forName("net.minecraftforge.client.event.RenderGameOverlayEvent");
-							break;
-						}
-						case 106: {
-							c = Class.forName("net.minecraftforge.client.event.RenderHandEvent");
-							break;
-						}
-						case 107: {
-							c = Class.forName("net.minecraftforge.client.event.RenderItemInFrameEvent");
-							break;
-						}
-						case 108: {
-							c = Class.forName("net.minecraftforge.client.event.RenderLivingEvent");
-							break;
-						}
-						case 109: {
-							c = Class.forName("net.minecraftforge.client.event.RenderPlayerEvent");
-							break;
-						}
-						case 110: {
-							c = Class.forName("net.minecraftforge.client.event.RenderSpecificHandEvent");
-							break;
-						}
-						case 111: {
-							c = Class.forName("net.minecraftforge.client.event.RenderTooltipEvent");
-							break;
-						}
-						case 112: {
-							c = Class.forName("net.minecraftforge.client.event.RenderWorldLastEvent");
-							break;
-						}
-						case 113: {
-							c = Class.forName("net.minecraftforge.client.event.ScreenshotEvent");
-							break;
-						}
-						case 114: {
-							c = Class.forName("net.minecraftforge.client.event.TextureStitchEvent");
-							break;
-						}
-						default: {
-							collectClasses = false;
-							break;
-						}
-					}
-				} catch (ClassNotFoundException e) {
-					continue;
-				}
-				if (c != null && !listClasses.contains(c)) {
-					listClasses.add(c);
-				}
-			}
+			if (eventSize < list.size()) { eventSize = list.size(); }
 			for (ClassPath.ClassInfo info : list) {
-				String name = info.getName();
-				if (name.startsWith("net.minecraftforge.event.terraingen")) { continue; }
-				try { listClasses.add(info.load()); } catch (Exception e) { LogWriter.debug("Error: " + e); }
+				String forgeEventClassPath = info.getName();
+				if (forgeEventClassPath.startsWith("net.minecraftforge.event.terraingen")) { continue; }
+				Class<?> event;
+				try { event = Class.forName(forgeEventClassPath); } catch (ClassNotFoundException e) { continue; }
+				if (!listClasses.contains(event)) { listClasses.add(event); }
 			}
+			if (eventSize < listClasses.size()) { eventSize = listClasses.size(); }
+			LogWriter.debug("Total of " + listClasses.size() + " / " + eventSize + " classes of Forge events");
 			// Not Assing List
 			List<Class<?>> notAssingException = new ArrayList<>();
 			notAssingException.add(GenericEvent.class);
@@ -1324,7 +978,7 @@ public class PlayerEventHandler {
 						if (!isClient) {
 							isClient = eventName.toLowerCase().contains("client") || eventName.toLowerCase().contains("render");
 						}
-						i = eventName.lastIndexOf(".");
+						int i = eventName.lastIndexOf(".");
 						eventName = pfx + StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
 						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
 						if (!isClient) {
@@ -1358,7 +1012,7 @@ public class PlayerEventHandler {
 							if (CustomNpcs.forgeEventNames.containsKey(c2)) { continue; }
 							// Put Name
 							String eventName = c2.getName();
-							i = eventName.lastIndexOf(".");
+							int i = eventName.lastIndexOf(".");
 							eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
 							if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
 							// Add
@@ -1383,45 +1037,38 @@ public class PlayerEventHandler {
 		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
 		noppes.npcs.util.CustomNPCsScheduler.runTack(() -> {
 			if (player instanceof EntityPlayerMP) {
-
+				try {
+					ScriptController.class.getDeclaredMethod("checkExampleModules").invoke(ScriptController.Instance);
+				}
+				catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			else {
 				try {
 					/*
 					java.io.File dir;
-					//java.io.File dirMain = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
-					//dir = new java.io.File(dirMain, "src/main/java"); // CustomNpcs 1.12.2
-					dir = new java.io.File("E:/Sources/1.16.5/minecraft 1.16.5/net"); // Minecraft
+					//dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
+					dir = new java.io.File("D:/1.20.1/cnpcs_mixin/src/main/java");
+					//dir = new java.io.File("E:/Sources/1.16.5/minecraft 1.16.5/net"); // Minecraft
 
 					String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
 					Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
 					//found.put("System.out.println", null);
-					found.put("ResourcePackType", null);
+					found.put("net.minecraft.client.resources.language.I18n", null);
+					found.put("Component.translatable(\"\")", null);
 
-					for (java.io.File file : Util.instance.getFiles(dir, "java")) {
-						try {
-							java.io.BufferedReader reader = com.google.common.io.Files.newReader(file, java.nio.charset.StandardCharsets.UTF_8);
-							String line;
-							int l = 1;
-							while ((line = reader.readLine()) != null) {
-								for (String key : found.keySet()) {
-									if (key.contains("&&")) {
-										String k = key.substring(0, key.indexOf("&&"));
-										String s = key.substring(key.indexOf("&&") + 2);
-										if (line.contains(k) && line.toLowerCase().contains(s.toLowerCase())) {
-											found.computeIfAbsent(key, k1 -> new TreeMap<>());
-											String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
-											if (!found.get(key).containsKey(fPath)) {
-												found.get(key).put(fPath, new ArrayList<>());
-											}
-											found.get(key).get(fPath).add(l);
-										}
-									} else if (key.indexOf("&") == 0) {
-										String k = key.replace("&", "");
-										if (line.contains(k)) {
-											int s = line.indexOf(k) - 1;
-											int e = line.indexOf(k) + k.length();
-											if (br.contains("" + line.charAt(s)) && br.contains("" + line.charAt(e))) {
+					System.out.println("Start founds: "+found.keySet());
+					noppes.npcs.util.CustomNPCsScheduler.runTack(() -> {
+						for (java.io.File file : Util.instance.getFiles(dir, "java")) {
+							try {
+								java.io.BufferedReader reader = com.google.common.io.Files.newReader(file, java.nio.charset.StandardCharsets.UTF_8);
+								String line;
+								int l = 1;
+								while ((line = reader.readLine()) != null) {
+									for (String key : found.keySet()) {
+										if (key.contains("&&")) {
+											String k = key.substring(0, key.indexOf("&&"));
+											String s = key.substring(key.indexOf("&&") + 2);
+											if (line.contains(k) && line.toLowerCase().contains(s.toLowerCase())) {
 												found.computeIfAbsent(key, k1 -> new TreeMap<>());
 												String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
 												if (!found.get(key).containsKey(fPath)) {
@@ -1429,36 +1076,49 @@ public class PlayerEventHandler {
 												}
 												found.get(key).get(fPath).add(l);
 											}
+										} else if (key.indexOf("&") == 0) {
+											String k = key.replace("&", "");
+											if (line.contains(k)) {
+												int s = line.indexOf(k) - 1;
+												int e = line.indexOf(k) + k.length();
+												if (br.contains("" + line.charAt(s)) && br.contains("" + line.charAt(e))) {
+													found.computeIfAbsent(key, k1 -> new TreeMap<>());
+													String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
+													if (!found.get(key).containsKey(fPath)) {
+														found.get(key).put(fPath, new ArrayList<>());
+													}
+													found.get(key).get(fPath).add(l);
+												}
+											}
+										} else if (line.contains(key)) {
+											found.computeIfAbsent(key, k -> new TreeMap<>());
+											String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
+											if (!found.get(key).containsKey(fPath)) {
+												found.get(key).put(fPath, new ArrayList<>());
+											}
+											found.get(key).get(fPath).add(l);
 										}
-									} else if (line.contains(key)) {
-										found.computeIfAbsent(key, k -> new TreeMap<>());
-										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
-										if (!found.get(key).containsKey(fPath)) {
-											found.get(key).put(fPath, new ArrayList<>());
-										}
-										found.get(key).get(fPath).add(l);
 									}
+									l++;
 								}
-								l++;
+							} catch (Exception e) { LogWriter.error(e); }
+						}
+						System.out.println("Directory: " + dir);
+						for (String key : found.keySet()) {
+							if (found.get(key) == null || found.get(key).isEmpty()) {
+								System.out.println("\"" + key + "\" not found;");
+								continue;
 							}
-						} catch (Exception e) { LogWriter.error(e); }
-					}
-					System.out.println("Directory: " + dir);
-					for (String key : found.keySet()) {
-						if (found.get(key) == null || found.get(key).isEmpty()) {
-							System.out.println("\"" + key + "\" not found;");
-							continue;
+							System.out.println("\"" + key + "\" found in:");
+							Map<String, List<Integer>> map = found.get(key);
+							for (String fPath : map.keySet()) {
+								System.out.println(" - " + fPath + ": lines:" + map.get(fPath));
+							}
 						}
-						System.out.println("\"" + key + "\" found in:");
-						Map<String, List<Integer>> map = found.get(key);
-						for (String fPath : map.keySet()) {
-							System.out.println(" - " + fPath + ": lines:" + map.get(fPath));
-						}
-					}
+					});
 					/**/
-				} catch (Exception e) {
-					LogWriter.error("Error:", e);
 				}
+				catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		});
 	}

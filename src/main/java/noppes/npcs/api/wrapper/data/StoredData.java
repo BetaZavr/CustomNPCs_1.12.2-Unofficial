@@ -1,155 +1,124 @@
 package noppes.npcs.api.wrapper.data;
 
 import java.util.Objects;
-import java.util.Set;
 
-import net.minecraft.command.CommandException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.EntityWrapper;
-import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.util.Util;
 
-public class StoredData implements IData {
+public class StoredData extends TempData implements IData {
 
-	private NBTTagCompound data;
-	private BlockWrapper block;
 	private EntityWrapper<?> entity;
-	private ItemStackWrapper stack;
-	private final ScriptController controller;
+	private ScriptController controller;
 
-	public StoredData() {
-		this.data = new NBTTagCompound();
-		this.controller = ScriptController.Instance;
-	}
+	public StoredData() { super(); }
 
 	public StoredData(BlockWrapper wrapper) {
-		this();
-		this.block = wrapper;
+		super(wrapper);
+	}
+
+	public StoredData(ScriptController controllerIn) {
+		controller = controllerIn;
 	}
 
 	public StoredData(EntityWrapper<?> wrapper) {
-		this();
-		this.entity = wrapper;
-	}
-
-	public StoredData(ItemStackWrapper stack) {
-		this();
-		stack.storedNBT = new NBTTagCompound();
-		this.data = stack.storedNBT;
-		this.stack = stack;
+		super();
+		entity = wrapper;
 	}
 
 	@Override
 	public void clear() {
-		this.resetData();
-		for (String key : this.data.getKeySet().toArray(new String[0])) {
-			this.data.removeTag(key);
-		}
-		if (this.controller != null) {
-			this.controller.shouldSave = true;
-		}
-	}
-
-	@Override
-	public Object get(String key) {
-		this.resetData();
-		if (!this.data.hasKey(key)) {
-			return null;
-		}
-		return Util.instance.readObjectFromNbt(this.data.getTag(key));
-	}
-
-	@Override
-	public String[] getKeys() {
-		this.resetData();
-		Set<String> sets = this.data.getKeySet();
-		return sets.toArray(new String[0]);
-	}
-
-	@Override
-	public INbt getNbt() {
-		this.resetData();
-		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.data);
-	}
-
-	@Override
-	public boolean has(String key) {
-		this.resetData();
-		return this.data.hasKey(key);
-	}
-
-	@Override
-	public void put(String key, Object value) throws CommandException {
-		this.resetData();
-		NBTBase nbt = Util.instance.writeObjectToNbt(value);
-		if (nbt != null) {
-			this.data.setTag(key, nbt);
-			if (this.controller != null) {
-				this.controller.shouldSave = true;
+		super.clear();
+		if (entity != null) {
+			if (entity.getMCEntity() instanceof EntityPlayer) {
+				PlayerData data = PlayerData.get((EntityPlayer) entity.getMCEntity());
+				for (String key : data.scriptStoreddata.getKeySet()) { data.scriptStoreddata.removeTag(key); }
 			}
+			else { entity.getMCEntity().getEntityData().setTag("CNPCStoredData", new NBTTagCompound()); }
+		}
+		else if (controller != null) {
+			controller.compound = new NBTTagCompound();
+			controller.shouldSave = true;
+		}
+	}
+
+	@Override
+	public void put(String key, Object value) {
+		resetData();
+		if (value == null) {
+			remove(key);
 			return;
 		}
-		throw new CommandException("Unsupported data type to put in StoredData. Key: \"" + key + "\"; Value: " + value.toString());
-	}
-
-	@Override
-	public boolean remove(String key) {
-		this.resetData();
-		if (!this.data.hasKey(key)) {
-			return false;
+		NBTBase tag = Util.instance.writeObjectToNbt(value);
+		if (tag == null || Util.instance.readObjectFromNbt(tag) == null) { throw new NullPointerException("Unsupported data type to put in StoredData. Key: \"" + key + "\"; Value: " + value); }
+		map.put(key, value);
+		if (block != null && block.storage != null) { block.storage.tempData.put(key, value); }
+		else if (entity != null) {
+			if (entity.getMCEntity() instanceof EntityPlayer) { PlayerData.get((EntityPlayer) entity.getMCEntity()).scriptStoreddata.setTag(key, tag); }
+			else {
+				if (!entity.getMCEntity().getEntityData().hasKey("CNPCStoredData", 10)) { entity.getMCEntity().getEntityData().setTag("CNPCStoredData", new NBTTagCompound()); }
+				entity.getMCEntity().getEntityData().getCompoundTag("CNPCStoredData").setTag(key, tag);
+			}
 		}
-		this.data.removeTag(key);
-		if (this.controller != null) {
-			this.controller.shouldSave = true;
-		}
-		return true;
-	}
-
-	private void resetData() {
-		if (this.block != null) {
-			if (this.block.tile == null) {
-				return;
-			}
-			if (!this.block.tile.getTileData().hasKey("CustomNPCsData", 10)) {
-				this.block.tile.getTileData().setTag("CustomNPCsData", new NBTTagCompound());
-			}
-			this.data = this.block.tile.getTileData().getCompoundTag("CustomNPCsData");
-		} else if (this.entity != null) {
-			if (this.entity.getMCEntity() instanceof EntityPlayer) {
-				this.data = PlayerData.get((EntityPlayer) this.entity.getMCEntity()).scriptStoreddata;
-			} else {
-				if (!this.entity.getMCEntity().getEntityData().hasKey("CNPCStoredData", 10)) {
-					this.entity.getMCEntity().getEntityData().setTag("CNPCStoredData", new NBTTagCompound());
-				}
-				this.data = this.entity.getMCEntity().getEntityData().getCompoundTag("CNPCStoredData");
-			}
-		} else if (this.stack != null) {
-			this.data = this.stack.storedNBT;
-		} else if (this.controller != null) {
-			this.data = this.controller.compound;
+		else if (controller != null) {
+			if (controller.compound == null) { controller.compound = new NBTTagCompound(); }
+			controller.compound.setTag(key, tag);
 		}
 	}
 
 	@Override
-	public void setNbt(INbt nbt) {
-		NBTTagCompound compound = nbt.getMCNBT().copy();
-		this.clear();
-		for (String key : compound.getKeySet()) {
-			this.data.setTag(key, compound.getTag(key));
+	public void remove(String key) {
+		super.remove(key);
+		if (entity != null) {
+			if (entity.getMCEntity() instanceof EntityPlayer ) { PlayerData.get((EntityPlayer) entity.getMCEntity()).scriptStoreddata.removeTag(key); }
+			else {
+				if (!entity.getMCEntity().getEntityData().hasKey("CNPCStoredData", 10)) { entity.getMCEntity().getEntityData().setTag("CNPCStoredData", new NBTTagCompound()); }
+				entity.getMCEntity().getEntityData().getCompoundTag("CNPCStoredData").removeTag(key);
+			}
 		}
-		if (this.controller != null) {
-			this.controller.shouldSave = true;
+		else if (controller != null && controller.compound != null) {
+			controller.compound.removeTag(key);
 		}
 	}
 
-	public void resetData(NBTTagCompound compound) { this.data = compound; }
+	@Override
+	protected void resetData() {
+		super.resetData();
+		if (entity != null) {
+			if (entity.getMCEntity() instanceof EntityPlayer) { setNbt(PlayerData.get((EntityPlayer) entity.getMCEntity()).scriptStoreddata); }
+			else {
+				if (!entity.getMCEntity().getEntityData().hasKey("CNPCStoredData", 10)) { entity.getMCEntity().getEntityData().setTag("CNPCStoredData", new NBTTagCompound()); }
+				setNbt(entity.getMCEntity().getEntityData().getCompoundTag("CNPCStoredData"));
+			}
+		} else if (controller != null) {
+			setNbt(controller.compound);
+		}
+	}
+
+	@Override
+	public void setNbt(NBTTagCompound compound) {
+		super.setNbt(compound);
+		NBTTagCompound nbt = getNbt().getMCNBT();
+		if (entity != null) {
+			if (entity.getMCEntity() instanceof EntityPlayer) {
+				PlayerData data = PlayerData.get((EntityPlayer) entity.getMCEntity());
+				for (String key : data.scriptStoreddata.getKeySet()) { data.scriptStoreddata.removeTag(key); }
+				for (String key : nbt.getKeySet()) { data.scriptStoreddata.setTag(key, Objects.requireNonNull(nbt.getTag(key))); }
+			}
+			else {
+				if (!entity.getMCEntity().getEntityData().hasKey("CNPCStoredData", 10)) { entity.getMCEntity().getEntityData().setTag("CNPCStoredData", new NBTTagCompound()); }
+				for (String key : nbt.getKeySet()) { entity.getMCEntity().getEntityData().getCompoundTag("CNPCStoredData").setTag(key, Objects.requireNonNull(nbt.getTag(key))); }
+			}
+		} else if (controller != null && controller.compound != null) {
+			for (String key : nbt.getKeySet()) { controller.compound.setTag(key, Objects.requireNonNull(nbt.getTag(key))); }
+		}
+	}
 
 }

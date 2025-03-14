@@ -105,8 +105,7 @@ public interface IWorld {
 
 	void spawnEntity(IEntity<?> entity);
 
-	void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz, double speed,
-			int count);
+	void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz, double speed, int count);
 
 	void thunderStrike(double x, double y, double z);
 

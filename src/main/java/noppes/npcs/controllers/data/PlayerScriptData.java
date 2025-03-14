@@ -69,13 +69,14 @@ extends BaseScriptData {
 
 	@Override
 	public String noticeString() {
-		if (this.player == null) {
-			return "Global script";
-		}
-		BlockPos pos = this.player.getPosition();
-		return MoreObjects.toStringHelper(this.player).add("name", this.player.getName())
-				.add("dimID", this.player.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY())
-				.add("z", pos.getZ()).toString();
+		if (player == null) { return "Global players script"; }
+		BlockPos pos = player.getPosition();
+		return "Player: \"" + player.getName() + "\"; UUID: \"" + player.getUniqueID() + "\"" +
+				" in: dimension ID:" + player.world.provider.getDimension() +
+				"; X:" + pos.getX() +
+				"; Y:" + pos.getY() +
+				"; Z:" + pos.getZ() +
+				"; Side: " + (isClient() ? "Client" : "Server");
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {

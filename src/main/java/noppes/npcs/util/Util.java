@@ -1,9 +1,7 @@
 package noppes.npcs.util;
 
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -15,16 +13,19 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.annotation.Nullable;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.internal.LinkedTreeMap;
+import net.minecraft.nbt.*;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
-import net.minecraft.world.Teleporter;
 import noppes.npcs.*;
 
 import net.minecraft.block.state.IBlockState;
@@ -44,19 +45,6 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagByte;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagFloat;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagLong;
-import net.minecraft.nbt.NBTTagLongArray;
-import net.minecraft.nbt.NBTTagShort;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
@@ -71,10 +59,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
-import noppes.npcs.api.ICustomElement;
-import noppes.npcs.api.IMethods;
-import noppes.npcs.api.IPos;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.*;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
@@ -83,6 +68,7 @@ import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.util.IRayTraceResults;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.api.wrapper.data.DataElement;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Availability;
@@ -111,8 +97,9 @@ public class Util implements IMethods {
 		put(1000, "M");
 	}};
 	private static final Map<String, String> translateDate = new HashMap<>();
+	private static final Gson gson = new Gson();
 
-	public final static Util instance = new Util();
+	public static final Util instance = new Util();
 	public static boolean hasInternet = true;
 	public static final ResourceLocation RECIPE_BOOK = new ResourceLocation("textures/gui/recipe_book.png");
 
@@ -443,7 +430,7 @@ public class Util implements IMethods {
 				list.addAll(this.getFiles(f, index));
 				continue;
 			}
-			if (!f.isFile() || !f.getName().toLowerCase().endsWith(index.toLowerCase())) {
+			if (!f.isFile() || (index != null && !index.isEmpty() && !f.getName().toLowerCase().endsWith(index.toLowerCase()))) {
 				continue;
 			}
 			list.add(f);
@@ -1427,61 +1414,82 @@ public class Util implements IMethods {
 
 	@Override
 	public Object readObjectFromNbt(NBTBase tag) {
-		LogWriter.info("Attempt to read object from tag type:  " + tag.getId());
-		if (tag instanceof NBTTagByte) {
-			return ((NBTTagByte) tag).getByte();
-		} else if (tag instanceof NBTTagShort) {
-			return ((NBTTagShort) tag).getShort();
-		} else if (tag instanceof NBTTagInt) {
-			return ((NBTTagInt) tag).getInt();
-		} else if (tag instanceof NBTTagLong) {
-			return ((NBTTagLong) tag).getLong();
-		} else if (tag instanceof NBTTagFloat) {
-			return ((NBTTagFloat) tag).getFloat();
-		} else if (tag instanceof NBTTagDouble) {
-			return ((NBTTagDouble) tag).getDouble();
-		} else if (tag instanceof NBTTagString) {
-			return ((NBTTagString) tag).getString();
-		} else if (tag instanceof NBTTagByteArray) {
-			return ((NBTTagByteArray) tag).getByteArray();
-		} else if (tag instanceof NBTTagIntArray) {
-			return ((NBTTagIntArray) tag).getIntArray();
-		} else if (tag instanceof NBTTagLongArray) {
-			return ((INBTTagLongArrayMixin) tag).npcs$getData();
-		} else if (tag instanceof NBTTagCompound && ((NBTTagCompound) tag).hasKey("IsArray", 1)) {
-			boolean isArray = ((NBTTagCompound) tag).getBoolean("IsArray");
-			ScriptEngine engine = ScriptController.Instance.getEngineByName("ECMAScript");
-			if (engine == null) {
-				return null;
+		if (tag == null) { return null; }
+		//LogWriter.debug("Attempt to write object from tag type: "+tag.getId());
+		if (tag instanceof NBTTagCompound) {
+			NBTTagCompound compound = (NBTTagCompound) tag;
+			if (compound.getBoolean("IsBindings")) {
+				ScriptEngine engine = ScriptController.Instance.getEngineByName("ECMAScript");
+				if (engine == null) { return null; }
+				boolean isArray = compound.getBoolean("IsArray");
+				try {
+					StringBuilder str = new StringBuilder("JSON.parse('" + (isArray ? "[" : "{"));
+					Set<String> sets = ((NBTTagCompound) tag).getKeySet();
+					Map<String, Object> map = new TreeMap<>();
+					for (String k : sets) {
+						if (k.equals("IsArray")) { continue; }
+						Object v = this.readObjectFromNbt(((NBTTagCompound) tag).getTag(k));
+						if (v != null) { map.put(k, v); }
+					}
+					for (String k : map.keySet()) {
+						String s = this.getJSONStringFromObject(map.get(k));
+						if (isArray) { str.append(s).append(", "); }
+						else { str.append("\"").append(k).append("\":").append(s).append(", "); }
+					}
+					if (!map.isEmpty()) { str = new StringBuilder(str.substring(0, str.length() - 2)); }
+					str.append(isArray ? "]" : "}").append("')");
+					return engine.eval(str.toString());
+				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
-			try {
-				StringBuilder str = new StringBuilder("JSON.parse('" + (isArray ? "[" : "{"));
-				Set<String> sets = ((NBTTagCompound) tag).getKeySet();
-				Map<String, Object> map = new TreeMap<>();
-				for (String k : sets) {
-					if (k.equals("IsArray")) {
-						continue;
-					}
-					Object v = this.readObjectFromNbt(((NBTTagCompound) tag).getTag(k));
-					if (v != null) {
-						map.put(k, v);
-					}
+			else if (compound.getBoolean("IsList")) {
+				Map<Integer, Object> map = new TreeMap<>();
+				for (String k : compound.getKeySet()) {
+					try { map.put(Integer.parseInt(k.replace("K", "")), readObjectFromNbt(Objects.requireNonNull(compound.getTag(k)))); }
+					catch (Exception e) { map.put(map.size(), null); }
 				}
-				for (String k : map.keySet()) {
-					String s = this.getJSONStringFromObject(map.get(k));
-					if (isArray) {
-						str.append(s).append(", ");
-					} else {
-						str.append("\"").append(k).append("\":").append(s).append(", ");
-					}
+				return new ArrayList<>(map.values());
+			}
+			else if (compound.hasKey("IsMap", 3)) {
+				Map<Object, Object> map;
+				switch (compound.getInteger("IsMap")) {
+					case 1: map = new TreeMap<>(); break;
+					case 2: map = new LinkedHashMap<>(); break;
+					case 3: map = new LinkedTreeMap<>(); break;
+					default: map = new HashMap<>(); break;
 				}
-				if (!map.isEmpty()) {
-					str = new StringBuilder(str.substring(0, str.length() - 2));
+				NBTTagList tagList = compound.getTagList("Content", 10);
+				for (int i = 0; i < tagList.tagCount(); i++) {
+					NBTTagCompound nbt = tagList.getCompoundTagAt(i);
+					Object k = readObjectFromNbt(nbt.getTag("K"));
+					Object v = readObjectFromNbt(nbt.getTag("V"));
+					if (k != null && v != null) { map.put(k, v); }
 				}
-				str.append(isArray ? "]" : "}").append("')");
-				return engine.eval(str.toString());
-			} catch (Exception e) { LogWriter.error("Error:", e); }
-		} else if (tag instanceof NBTTagList) {
+				return map;
+			}
+			else if (compound.hasKey("IsNBT", 1)) {
+				NBTBase nbt = compound.getTag("V");
+				if (!compound.getBoolean("IsNBT") && nbt instanceof NBTTagCompound) { return new NBTWrapper((NBTTagCompound) nbt); }
+				return nbt;
+			}
+			else if (compound.getBoolean("IsJSON")) {
+				try {
+					Class<?> clss = Class.forName(compound.getString("Class"));
+					return gson.fromJson(compound.getString("Content"), clss);
+				} catch (Exception ignored) { }
+			}
+		}
+		else if (tag instanceof NBTTagEnd) { return null; }
+		else if (tag instanceof NBTTagByte) { return ((NBTTagByte) tag).getByte(); }
+		else if (tag instanceof NBTTagShort) { return ((NBTTagShort) tag).getShort(); }
+		else if (tag instanceof NBTTagInt) { return ((NBTTagInt) tag).getInt(); }
+		else if (tag instanceof NBTTagLong) { return ((NBTTagLong) tag).getLong(); }
+		else if (tag instanceof NBTTagFloat) { return ((NBTTagFloat) tag).getFloat(); }
+		else if (tag instanceof NBTTagDouble) { return ((NBTTagDouble) tag).getDouble(); }
+		else if (tag instanceof NBTTagString) { return ((NBTTagString) tag).getString(); }
+		else if (tag instanceof NBTTagByteArray) { return ((NBTTagByteArray) tag).getByteArray(); }
+		else if (tag instanceof NBTTagIntArray) { return ((NBTTagIntArray) tag).getIntArray(); }
+		else if (tag instanceof NBTTagLongArray) { return ((INBTTagLongArrayMixin) tag).npcs$getData(); }
+		else if (tag instanceof NBTTagList) {
 			Object[] arr = new Object[((NBTTagList) tag).tagCount()];
 			int i = 0;
 			for (NBTBase listTag : (NBTTagList) tag) {
@@ -1510,93 +1518,40 @@ public class Util implements IMethods {
 	}
 
 	@Override
-	public NBTBase writeObjectToNbt(Object value) {
-		if (value.getClass().isArray()) {
-			Object[] vs = (Object[]) value;
-			if (vs.length == 0) {
-				return new NBTTagList();
+	@SuppressWarnings("unchecked")
+	public @Nullable NBTBase writeObjectToNbt(Object value) {
+		//LogWriter.debug("Attempt to write object \"" + value + "\" to tag");
+		if (value == null) { return null; }
+		if (value instanceof NBTBase || value instanceof INbt) {
+			NBTTagCompound compound = new NBTTagCompound();
+			compound.setBoolean("IsNBT", value instanceof NBTBase);
+			if (value instanceof NBTBase) { compound.setTag("V", (NBTBase) value); }
+			else { compound.setTag("V", ((INbt) value).getMCNBT());}
+			return compound;
+		}
+		else if (value.getClass().isArray()) {
+			Object[] values = (Object[]) value;
+			NBTTagList list = new NBTTagList();
+			for (Object v : values) {
+				NBTBase tag = writeObjectToNbt(v);
+				if (tag != null) { list.appendTag(tag); }
 			}
-			if (vs[0] instanceof Byte) {
-				List<Byte> l = new ArrayList<>();
-				for (Object v : vs) {
-					if (v instanceof Byte) {
-						l.add((Byte) v);
-					}
-				}
-				byte[] arr = new byte[l.size()];
-				int i = 0;
-				for (byte d : l) {
-					arr[i] = d;
-					i++;
-				}
-				return new NBTTagByteArray(arr);
-			} else if (vs[0] instanceof Integer) {
-				List<Integer> l = new ArrayList<>();
-				for (Object v : vs) {
-					if (v instanceof Integer) {
-						l.add((Integer) v);
-					}
-				}
-				int[] arr = new int[l.size()];
-				int i = 0;
-				for (int d : l) {
-					arr[i] = d;
-					i++;
-				}
-				return new NBTTagIntArray(arr);
-			} else if (vs[0] instanceof Long) {
-				List<Long> l = new ArrayList<>();
-				for (Object v : vs) {
-					if (v instanceof Long) {
-						l.add((Long) v);
-					}
-				}
-				long[] arr = new long[l.size()];
-				int i = 0;
-				for (long d : l) {
-					arr[i] = d;
-					i++;
-				}
-				return new NBTTagLongArray(arr);
-			} else if (vs[0] instanceof Short || vs[0] instanceof Float || vs[0] instanceof Double) {
-				NBTTagList list = new NBTTagList();
-				for (Object v : vs) {
-					double d;
-					if (v instanceof Short) {
-						d = (double) (Short) v;
-					} else if (v instanceof Float) {
-						d = (double) (Float) v;
-					} else if (v instanceof Double) {
-						d = (Double) v;
-					} else {
-						continue;
-					}
-					list.appendTag(new NBTTagDouble(d));
-				}
-				return list;
-			}
-		} else if (value instanceof Byte) {
-			return new NBTTagByte((Byte) value);
-		} else if (value instanceof Short) {
-			return new NBTTagShort((Short) value);
-		} else if (value instanceof Integer) {
-			return new NBTTagInt((Integer) value);
-		} else if (value instanceof Long) {
-			return new NBTTagLong((Long) value);
-		} else if (value instanceof Float) {
-			return new NBTTagFloat((Float) value);
-		} else if (value instanceof Double) {
-			return new NBTTagDouble((Double) value);
-		} else if (value instanceof String) {
-			return new NBTTagString((String) value);
-		} else if (value instanceof Bindings) {
+			return list;
+		}
+		else if (value instanceof Byte) { return new NBTTagByte((Byte) value); }
+		else if (value instanceof Short) { return new NBTTagShort((Short) value); }
+		else if (value instanceof Integer) { return new NBTTagInt((Integer) value); }
+		else if (value instanceof Long) { return new NBTTagLong((Long) value); }
+		else if (value instanceof Float) { return new NBTTagFloat((Float) value); }
+		else if (value instanceof Double) { return new NBTTagDouble((Double) value); }
+		else if (value instanceof String) { return new NBTTagString((String) value); }
+		else if (value instanceof Bindings) {
 			String clazz = value.toString();
-			if (!clazz.equals("[object Array]") && !clazz.equals("[object Object]")) {
-				return null;
-			}
+			if (!clazz.equals("[object Array]") && !clazz.equals("[object Object]")) { return null; }
 			boolean isArray = clazz.equals("[object Array]");
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setBoolean("IsArray", isArray);
+			nbt.setBoolean("IsBindings", true);
 			for (Map.Entry<String, Object> scopeEntry : ((Bindings) value).entrySet()) {
 				Object v = scopeEntry.getValue();
 				if (v.getClass().isArray()) {
@@ -1687,6 +1642,57 @@ public class Util implements IMethods {
 			}
 			return nbt;
 		}
+		else if (value instanceof Map) {
+			try {
+				Map<Object, Object> map = (Map<Object, Object>) value;
+				NBTTagCompound compound = new NBTTagCompound();
+				int type = 0; // HashMap
+				if (value instanceof TreeMap) { type = 1; }
+				else if (value instanceof LinkedHashMap) { type = 2; }
+				else if (value instanceof LinkedTreeMap) { type = 3; }
+				compound.setInteger("IsMap", type);
+				NBTTagList tagList = new NBTTagList();
+				for (Object key : map.keySet()) {
+					NBTBase k = writeObjectToNbt(key);
+					NBTBase v = writeObjectToNbt(map.get(key));
+					if (k != null && v != null) {
+						NBTTagCompound nbt = new NBTTagCompound();
+						nbt.setTag("K", k);
+						nbt.setTag("V", v);
+						tagList.appendTag(nbt);
+					}
+				}
+				compound.setTag("Content", tagList);
+				return compound;
+			}
+			catch (Exception ignored) { }
+		}
+		else if (value instanceof List) {
+			try {
+				List<Object> list = (List<Object>) value;
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setBoolean("IsList", true);
+				int i = 0;
+				for (Object obj : list) {
+					NBTBase tag = writeObjectToNbt(obj);
+					compound.setTag("K" + i, tag == null ? new NBTTagEnd() : tag);
+					i++;
+				}
+				return compound;
+			}
+			catch (Exception ignored) { }
+		}
+		try {
+			String jsonString = gson.toJson(value);
+			Object obj = gson.fromJson(jsonString, value.getClass());
+			if (obj != null) {
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setBoolean("IsJSON", true);
+				compound.setString("Class", value.getClass().getName());
+				compound.setString("Content", jsonString);
+				return compound;
+			}
+		} catch (Exception ignored) { }
 		return null;
 	}
 
@@ -1973,6 +1979,85 @@ public class Util implements IMethods {
 					));
 		}
 		return new LinkedHashMap<>(map);
+	}
+
+	public static String getAgrName(Class<?> classType, Type genericType, Object obj) {
+		StringBuilder key = new StringBuilder(classType.getName());
+		if (List.class.isAssignableFrom(classType) || Map.class.isAssignableFrom(classType)) {
+			key.append("<");
+			boolean has = false;
+			if (obj != null) {
+				if (obj instanceof List) {
+					if (!((List<?>) obj).isEmpty()) {
+						for (Object o : (List<?>) obj) {
+							if (o == null) { continue; }
+							key.append(getAgrName(o.getClass(), o.getClass().getGenericSuperclass(), obj));
+							has = true;
+							break;
+						}
+					}
+				}
+				else if (obj instanceof Map) {
+					if (!((Map<?, ?>) obj).isEmpty()) {
+						Class<?> k = null;
+						Class<?> v = null;
+						for (Object o : ((Map<?, ?>) obj).keySet()) {
+							if (o != null) {
+								if (k == null) { k = o.getClass(); }
+								if (((Map<?, ?>) obj).get(o) != null) {
+									v = ((Map<?, ?>) obj).get(o).getClass();
+								}
+							}
+							if (k != null && v != null) { break; }
+						}
+						if (k != null && v != null) {
+							key.append(getAgrName(k, k.getGenericSuperclass(), obj))
+									.append(", ")
+									.append(getAgrName(k, k.getGenericSuperclass(), obj));
+							has = true;
+						}
+					}
+				}
+			}
+			if (!has && genericType instanceof ParameterizedType) {
+				Type[] actualTypes = ((ParameterizedType) genericType).getActualTypeArguments();
+				for (int i = 0; i < actualTypes.length; i++) {
+					String name = actualTypes[i].toString();
+					if (name.contains(".")) { name = name.substring(name.lastIndexOf(".") + 1); }
+					key.append(name);
+					if (i < actualTypes.length - 1) { key.append(", "); }
+				}
+			}
+			key.append(">");
+		}
+		if (classType.isArray()) {
+			Class<?> ct = classType.getComponentType();
+			key = new StringBuilder(getAgrName(ct, ct.getGenericSuperclass(), obj));
+			key.append("[]");
+		}
+		TypeVariable<?>[] typeParams = classType.getTypeParameters();
+		if (typeParams.length != 0) {
+			key.append("<");
+			for (int i = 0; i < typeParams.length; i++) {
+				key.append(typeParams[i].getName()).append(" extends ");
+				for (Type bound : typeParams[i].getBounds()) {
+					Class<?> boundClass = null;
+					if (bound instanceof Class) {
+						boundClass = (Class<?>) bound;
+					} else {
+						try { boundClass = Class.forName(bound.getTypeName()); }
+						catch (Exception ignored) {}
+                    }
+					if (boundClass != null) {
+						key.append(getAgrName(boundClass, boundClass.getGenericSuperclass(), null));
+						break;
+					}
+				}
+				if (i < typeParams.length - 1) { key.append(", "); }
+			}
+			key.append(">");
+		}
+		return key.toString();
 	}
 
 }

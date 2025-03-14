@@ -25,11 +25,9 @@ import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import noppes.npcs.CommonProxy;
-import noppes.npcs.CustomNpcs;
-import noppes.npcs.LogWriter;
-import noppes.npcs.Server;
+import noppes.npcs.*;
 import noppes.npcs.api.wrapper.WorldWrapper;
+import noppes.npcs.api.wrapper.WrapperNpcAPI;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.items.ItemScripted;
@@ -74,6 +72,7 @@ public class ScriptController {
 		ScriptController.Instance = this;
 		if (!CustomNpcs.NashorArguments.isEmpty()) { System.setProperty("nashorn.args", CustomNpcs.NashorArguments); }
         ScriptEngineManager manager = new ScriptEngineManager();
+		LogWriter.info("Script Engines Available:");
 		// Rhino
 		try {
 			Class<?> c = Class.forName("org.mozilla.javascript.engine.RhinoScriptEngineFactory");
@@ -114,10 +113,8 @@ public class ScriptController {
 		}
 		catch (Exception e) { LogWriter.info("Kotlin JS is missed"); }
 		// Any
-		LogWriter.info("Script Engines Available:");
 		for (ScriptEngineFactory factory : manager.getEngineFactories()) {
 			try {
-				//LogWriter.debug("Found script Library: \"" + factory.getLanguageName() + "\"; type: \"" + factory.getClass().getSimpleName() + "\"");
 				if (factory.getExtensions().isEmpty()) {
 					LogWriter.debug("Library: \"" + factory.getLanguageName() + "\"; type: \"" + factory.getClass().getSimpleName() + "\" Extensions isEmpty ");
 					continue;
@@ -184,7 +181,7 @@ public class ScriptController {
 		return new File(dir, "client_scripts.json");
 	}
 
-	private File constantScriptsFile() {
+	public File constantScriptsFile() {
 		return new File(dir, "constant_scripts.json");
 	}
 
@@ -247,79 +244,91 @@ public class ScriptController {
 			if (contextBuilder != null) {
 				for (Method m : contextBuilder.getClass().getDeclaredMethods()) {
 					switch (m.getName()) {
-					case "allowExperimentalOptions":
-                        case "allowHostClassLoading":
-                        case "allowNativeAccess":
-                        case "allowIO":
-                        case "allowCreateProcess":
-                            contextBuilder = m.invoke(contextBuilder, true);
-						break;
-					case "allowHostClassLookup":
-						contextBuilder = m.invoke(contextBuilder, (Predicate<String>) (s -> true));
-						break;
-                        case "allowHostAccess": {
-						if (m.getParameters()[0].getType() == Boolean.class
-								|| m.getParameters()[0].getType() == boolean.class) {
-							continue;
-						}
-						Field f = hostA.getDeclaredField("ALL");
-						Method nb = hostA.getMethod("newBuilder", f.getType());
-						Object hostAccessBuilder = nb.invoke(hostA, f.get(hostA)); // org.graalvm.polyglot.HostAccess
-						Method ttm = null, b = null;
-						for (Method d : hostAccessBuilder.getClass().getMethods()) {
-							if (d.getName().equals("targetTypeMapping") && d.getParameterCount() == 4) {
-								ttm = d;
+						case "allowExperimentalOptions":
+						case "allowHostClassLoading":
+						case "allowNativeAccess":
+						case "allowIO":
+						case "allowCreateProcess":
+							contextBuilder = m.invoke(contextBuilder, true);
+							break;
+						case "allowHostClassLookup":
+							contextBuilder = m.invoke(contextBuilder, (Predicate<String>) (s -> true));
+							break;
+						case "allowHostAccess": {
+							if (m.getParameters()[0].getType() == Boolean.class
+									|| m.getParameters()[0].getType() == boolean.class) {
+								continue;
 							}
-							if (d.getName().equals("build") && d.getParameterCount() == 0) {
-								b = d;
+							Field f = hostA.getDeclaredField("ALL");
+							Method nb = hostA.getMethod("newBuilder", f.getType());
+							Object hostAccessBuilder = nb.invoke(hostA, f.get(hostA)); // org.graalvm.polyglot.HostAccess
+							Method ttm = null, b = null;
+							for (Method d : hostAccessBuilder.getClass().getMethods()) {
+								if (d.getName().equals("targetTypeMapping") && d.getParameterCount() == 4) {
+									ttm = d;
+								}
+								if (d.getName().equals("build") && d.getParameterCount() == 0) {
+									b = d;
+								}
 							}
+							if (ttm != null) {
+								// Double to
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Byte.class, null, (Function<Double, Byte>) (Double::byteValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Short.class, null, (Function<Double, Short>) (Double::shortValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Integer.class, null, (Function<Double, Integer>) (Double::intValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Long.class, null, (Function<Double, Long>) (Double::longValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Float.class, null, (Function<Double, Float>) (Double::floatValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Double.class, null, (Function<Double, Short>) (Double::shortValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, String.class, null, (Function<Double, String>) (Object::toString));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Boolean.class, null, (Function<Double, Boolean>) (n -> n != 0.0d));
+								// Float to
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Byte.class, null, (Function<Float, Byte>) (Float::byteValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Short.class, null, (Function<Float, Short>) (Float::shortValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Integer.class, null, (Function<Float, Integer>) (Float::intValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Long.class, null, (Function<Float, Long>) (Float::longValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Double.class, null, (Function<Float, Double>) (Float::doubleValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, String.class, null, (Function<Float, String>) (Object::toString));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Boolean.class, null, (Function<Float, Boolean>) (n -> n != 0.0f));
+								// Integer to
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Byte.class, null, (Function<Integer, Byte>) (Integer::byteValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Short.class, null, (Function<Integer, Short>) (Integer::shortValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Long.class, null, (Function<Integer, Long>) (Integer::longValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Float.class, null, (Function<Integer, Float>) (Integer::floatValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Double.class, null, (Function<Integer, Double>) (Integer::doubleValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, String.class, null, (Function<Integer, String>) (Object::toString));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Boolean.class, null, (Function<Integer, Boolean>) (n -> n != 0));
+								// Long to
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Byte.class, null, (Function<Long, Byte>) (Long::byteValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Short.class, null, (Function<Long, Short>) (Long::shortValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Integer.class, null, (Function<Long, Integer>) (Long::intValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Float.class, null, (Function<Long, Float>) (Long::floatValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Double.class, null, (Function<Long, Double>) (Long::doubleValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, String.class, null, (Function<Long, String>) (Object::toString));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Boolean.class, null, (Function<Long, Boolean>) (n -> n != 0L));
+
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Number.class, Byte.class, null, (Function<Number, Byte>) (Number::byteValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Number.class, Short.class, null, (Function<Number, Short>) (Number::shortValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Number.class, Integer.class, null, (Function<Number, Integer>) (Number::intValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Number.class, Long.class, null, (Function<Number, Long>) (Number::longValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Number.class, Float.class, null, (Function<Number, Float>) (Number::floatValue));
+								hostAccessBuilder = ttm.invoke(hostAccessBuilder, Number.class, Double.class, null, (Function<Number, Double>) (Number::doubleValue));
+								if (b != null) { hostAccessBuilder = b.invoke(hostAccessBuilder); }
+								// invoke to main
+								contextBuilder = m.invoke(contextBuilder, hostAccessBuilder);
+							}
+							break;
 						}
-						// Double to
-                        if (ttm != null) {
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Byte.class, null, (Function<Double, Byte>) (Double::byteValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Float.class, null, (Function<Double, Float>) (Double::floatValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Integer.class, null, (Function<Double, Integer>) (Double::intValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Long.class, null, (Function<Double, Long>) (Double::longValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, String.class, null, (Function<Double, String>) (Object::toString));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Boolean.class, null, (Function<Double, Boolean>) (n -> n != 0.0d));
-							// Float to
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Byte.class, null, (Function<Float, Byte>) (Float::byteValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Double.class, null, (Function<Float, Double>) (Float::doubleValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Integer.class, null, (Function<Float, Integer>) (Float::intValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Long.class, null, (Function<Float, Long>) (Float::longValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, String.class, null, (Function<Float, String>) (Object::toString));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Boolean.class, null, (Function<Float, Boolean>) (n -> n != 0.0f));
-							// Integer to
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Byte.class, null, (Function<Integer, Byte>) (Integer::byteValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Double.class, null, (Function<Integer, Double>) (Integer::doubleValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Float.class, null, (Function<Integer, Float>) (Integer::floatValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Long.class, null, (Function<Integer, Long>) (Integer::longValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, String.class, null, (Function<Integer, String>) (Object::toString));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Boolean.class, null, (Function<Integer, Boolean>) (n -> n != 0));
-							// Long to
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Byte.class, null, (Function<Long, Byte>) (Long::byteValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Double.class, null, (Function<Long, Double>) (Long::doubleValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Float.class, null, (Function<Long, Float>) (Long::floatValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Integer.class, null, (Function<Long, Integer>) (Long::intValue));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, String.class, null, (Function<Long, String>) (Object::toString));
-							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Boolean.class, null, (Function<Long, Boolean>) (n -> n != 0L));
-							if (b != null) { hostAccessBuilder = b.invoke(hostAccessBuilder); }
-							// invoke to main
-							contextBuilder = m.invoke(contextBuilder, hostAccessBuilder);
+						case "allowAllAccess": {
+							contextBuilder = m.invoke(contextBuilder, true);
+							break;
 						}
-						break;
+						case "option": {
+							contextBuilder = m.invoke(contextBuilder, "js.ecmascript-version", "2022");
+							contextBuilder = m.invoke(contextBuilder, "js.nashorn-compat", "true");
+							break;
+						}
+						default:
 					}
-                        case "allowAllAccess": {
-						contextBuilder = m.invoke(contextBuilder, true);
-						break;
-					}
-                        case "option": {
-						contextBuilder = m.invoke(contextBuilder, "js.ecmascript-version", "2022");
-						contextBuilder = m.invoke(contextBuilder, "js.nashorn-compat", "true");
-						break;
-					}
-					default:
-                    }
 				}
                 return (ScriptEngine) create.invoke(graal, null, contextBuilder);
 			}
@@ -354,6 +363,7 @@ public class ScriptController {
 		sData.loadPotionScripts();
 		sData.loadConstantData();
 		if (isClient) { sData.loadClientScripts(); }
+		checkExampleModules();
 		ScriptController.HasStart = true;
 	}
 
@@ -364,7 +374,7 @@ public class ScriptController {
 		if (!clientDir.exists() && !clientDir.mkdirs()) { return; }
 
 		if (!worldDataFile().exists()) { shouldSave = true; }
-		WorldWrapper.tempData.clear();
+		WorldWrapper.clearTempdata();
 		scripts.clear();
 		encrypts.clear();
 		sizes.clear();
@@ -406,66 +416,82 @@ public class ScriptController {
 		try {
 			if (file.exists()) {
 				constants = NBTJsonUtil.LoadFile(file);
-			} else {
+				boolean needResave = false;
+				// Main
+				NBTBase tag = constants.getTag("Constants");
+				if (!(tag instanceof NBTTagCompound)) {
+					needResave = true;
+					constants.setTag("Constants", new NBTTagCompound());
+				}
+				// Check OLD data:
 				NBTTagCompound nbtC = new NBTTagCompound();
-				nbtC.setInteger("value", 0);
-				nbtC.setString("sData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getStoreddata()");
-				nbtC.setString("tData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getTempdata()");
-				nbtC.setString("System", "Java.type(\"java.lang.System\")");
-				nbtC.setString("JLists", "Java.type(\"com.google.common.collect.Lists\")");
-				nbtC.setString("JList", "Java.type(\"java.util.ArrayList\")");
-				nbtC.setString("JClt", "Java.type(\"java.util.Collections\")");
-				nbtC.setString("Juuid", "Java.type(\"java.util.UUID\")");
-				nbtC.setString("JHMap", "Java.type(\"java.util.HashMap\")");
-				nbtC.setString("JHSet", "Java.type(\"java.util.HashSet\")");
-				nbtC.setString("JFiles", "Java.type(\"java.nio.file.Files\")");
-				nbtC.setString("JioF", "Java.type(\"java.io.File\")");
-				nbtC.setString("JioFOS", "Java.type(\"java.io.FileOutputStream\")");
-				nbtC.setString("JioFIS", "Java.type(\"java.io.FileInputStream\")");
-				nbtC.setString("JStr", "Java.type(\"java.lang.String\")");
-				nbtC.setString("JSArr", "Java.type(\"java.lang.String[]\")");
-				nbtC.setString("JSToNbt", "Java.type(\"net.minecraft.nbt.JsonToNBT\")");
-				nbtC.setString("JnbtB", "Java.type(\"net.minecraft.nbt.NBTTagByte\")");
-				nbtC.setString("JnbtI", "Java.type(\"net.minecraft.nbt.NBTTagInt\")");
-				nbtC.setString("JnbtF", "Java.type(\"net.minecraft.nbt.NBTTagFloat\")");
-				nbtC.setString("JnbtD", "Java.type(\"net.minecraft.nbt.NBTTagDouble\")");
-				nbtC.setString("JnbtBA", "Java.type(\"net.minecraft.nbt.NBTTagByteArray\")");
-				nbtC.setString("JnbtS", "Java.type(\"net.minecraft.nbt.NBTTagString\")");
-				nbtC.setString("JnbtL", "Java.type(\"net.minecraft.nbt.NBTTagList\")");
-				nbtC.setString("Jnbt", "Java.type(\"net.minecraft.nbt.NBTTagCompound\")");
-				nbtC.setString("JnbtIA", "Java.type(\"net.minecraft.nbt.NBTTagIntArray\")");
-				nbtC.setString("JCST", "Java.type(\"net.minecraft.nbt.CompressedStreamTools\")");
-				nbtC.setString("JEnPart", "Java.type(\"net.minecraft.util.EnumParticleTypes\")");
-				nbtC.setString("JComSr", "Java.type(\"net.minecraft.util.text.ITextComponent.Serializer\")");
-				nbtC.setString("JTCs", "Java.type(\"net.minecraft.util.text.TextComponentTranslation\")");
-				nbtC.setString("JTC", "Java.type(\"net.minecraft.util.text.TextComponentString\")");
-				nbtC.setString("JItB", "Java.type(\"net.minecraft.util.text.TextComponentSelector\")");
-				nbtC.setString("JStl", "Java.type(\"net.minecraft.util.text.Style\")");
-				nbtC.setString("JECe", "Java.type(\"net.minecraft.util.text.event.ClickEvent\")");
-				nbtC.setString("JEHe", "Java.type(\"net.minecraft.util.text.event.HoverEvent\")");
-				nbtC.setString("JCa", "Java.type(\"net.minecraft.util.text.event.ClickEvent.Action\")");
-				nbtC.setString("JHa", "Java.type(\"net.minecraft.util.text.event.HoverEvent.Action\")");
-				nbtC.setString("JBPos", "Java.type(\"net.minecraft.util.math.BlockPos\")");
-				nbtC.setString("JItem", "Java.type(\"net.minecraft.item.Item\")");
-				nbtC.setString("JItemS", "Java.type(\"net.minecraft.item.ItemStack\")");
-				nbtC.setString("JResloc", "Java.type(\"net.minecraft.util.ResourceLocation\")");
-				nbtC.setString("JAmod", "Java.type(\"net.minecraft.entity.ai.attributes.AttributeModifier\")");
-				nbtC.setString("JRAtr", "Java.type(\"net.minecraft.entity.ai.attributes.RangedAttribute\")");
-				nbtC.setString("JSAtr", "Java.type(\"net.minecraft.entity.SharedMonsterAttributes\")");
-				nbtC.setString("JIvnB", "Java.type(\"net.minecraft.inventory.InventoryBasic\")");
-				nbtC.setString("JPEff", "Java.type(\"net.minecraft.potion.PotionEffect\")");
-				nbtC.setString("Jreg", "Java.type(\"net.minecraftforge.fml.common.registry.ForgeRegistries\")");
-				nbtC.setString("Jobf", "Java.type(\"net.minecraftforge.fml.common.ObfuscationReflectionHelper\")");
-				nbtC.setString("Nsrts", "Java.type(\"noppes.npcs.controllers.ScriptController\").Instance");
-				nbtC.setString("NSc", "Java.type(\"noppes.npcs.controllers.ScriptContainer\")");
-				nbtC.setString("NTrP", "Java.type(\"noppes.npcs.controllers.TransportController\")");
+				NBTTagCompound cons = constants.getCompoundTag("Constants");
+				Set<String> keys = new HashSet<>(cons.getKeySet());
+				for (String key : keys) {
+					if (!cons.hasKey(key)) { continue; }
+					tag = cons.getTag(key);
+					if (!(tag instanceof NBTTagCompound) || !factories.containsKey(key)) {
+						nbtC.setTag(key, tag);
+						cons.removeTag(key);
+						needResave = true;
+					}
+				}
+				if (needResave) {
+					cons.setTag("ecmascript", nbtC);
+					constants.setTag("Constants", cons);
+				}
+				tag = constants.getTag("Functions");
+				if (!(tag instanceof NBTTagCompound)) {
+					// Check OLD data:
+					if (tag instanceof NBTTagList && ((NBTTagList) tag).getTagType() == 8) {
+						NBTTagList list = ((NBTTagList) tag).copy();
+						constants.setTag("Functions", new NBTTagCompound());
+						constants.getCompoundTag("Functions").setTag("ecmascript", list);
+					} else {
+						constants.setTag("Functions", new NBTTagCompound());
+					}
+					needResave = true;
+				}
+				// Check contains all languages:
+				for (String key : factories.keySet()) {
+					tag = constants.getCompoundTag("Constants").getTag(key);
+					if (!(tag instanceof NBTTagCompound)) {
+						needResave = true;
+						constants.getCompoundTag("Constants").setTag(key, new NBTTagCompound());
+					}
+					tag = constants.getCompoundTag("Functions").getTag(key);
+					if (!(tag instanceof NBTTagList)) {
+						needResave = true;
+						constants.getCompoundTag("Functions").setTag(key, new NBTTagList());
+					}
+				}
+				if (needResave) {
+					try {
+						Util.instance.saveFile(file, constants.copy());
+						NoppesUtilServer.NotifyOPs("Constants have been rewritten for all scripts to " + file.getName());
+					}
+					catch (Exception e) { LogWriter.except(e); }
+				}
+			}
+			else {
+				for (String key : factories.keySet()) {
+					if (!constants.getCompoundTag("Constants").hasKey(key, 10)) {
+						constants.getCompoundTag("Constants").setTag(key, new NBTTagCompound());
+					}
+					if (!constants.getCompoundTag("Functions").hasKey(key, 10)) {
+						constants.getCompoundTag("Functions").setTag(key, new NBTTagCompound());
+					}
+				}
+				NBTTagCompound nbtC = getNbtDefaultConstants();
 				NBTTagList list = new NBTTagList();
 				list.appendTag(new NBTTagString("function getField(key,object) { try { var f = dump(object).getField(key); if (f) { return f.getValue(); } } catch (error) { log('Error: \"'+key+'\" is not a Field or not found in \"'+object.getClass().getName()+'\"');} return null; }"));
 				list.appendTag(new NBTTagString("function setField(value,object,key) { try { var f = dump(object).getField(key); if (f) { return f.setValue(value); } } catch (error) { log('Error: \"'+key+'\" is not a Field or not found, or not type mismatch in \"'+object.getClass().getName()+'\". Error: ' + error); } return false; }"));
 				list.appendTag(new NBTTagString("function invoke(value,object,key) { try { var m = dump(object).getMethod(key); if (m) { var jo = Java.type('java.lang.Object[]'); if (value!=jo) { try { if (value.length>=0) { var v = new jo(value.length); for (var i=0; i<value.length; i++) { v[i] = value[i]; } return m.invoke(v); } } catch (err) { } var v = new jo(1); v[0] = value; return m.invoke(v); } else { return m.invoke(value); } } } catch (error) { log('Error: \"'+key+'\" is not a Method or not found, or not type mismatch in \"'+object.getClass().getName()+'\"'); } return null; }"));
 				list.appendTag(new NBTTagString("function getCustomFunction(name, ev) {var fhm;try {var actor=\"Any\";if (ev) {if (ev.player) { actor = \"Player\"; }else if (ev.npc) { actor = \"NPC\"; }else if (ev.block) { actor = \"Block\"; }};fhm = api.getIWorld(0).getTempdata().get(\"functions\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)};if (name!=\"loadFile\") {var dir = existsDir(api.getWorldDir().toPath().resolve(\"data\").resolve(\"functions\"));gFunc(\"loadFile\",ev)(dir.resolve(name+\".json\"), \"fhm\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)}}} catch (error) {if (fhm && fhm instanceof JHMap) {gFunc(\"errorMes\",ev)(actor, error, \"Name: §f\"+name, ev);}};return eval(\"function fnull(a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,r,s,t,q,v) {return;}\");}"));
-				constants.setTag("Constants", nbtC);
-				constants.setTag("Functions", list);
+				constants.setTag("Constants", new NBTTagCompound());
+				constants.setTag("Functions", new NBTTagCompound());
+				constants.getCompoundTag("Constants").setTag("ecmascript", nbtC);
+				constants.getCompoundTag("Functions").setTag("ecmascript", list);
 				try {
 					Util.instance.saveFile(file, constants.copy());
 					isLoad = false;
@@ -479,6 +505,122 @@ public class ScriptController {
 			return false;
 		}
 		return isLoad;
+	}
+
+	private static NBTTagCompound getNbtDefaultConstants() {
+		NBTTagCompound nbtC = new NBTTagCompound();
+		nbtC.setInteger("value", 0);
+		nbtC.setString("sData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getStoreddata()");
+		nbtC.setString("tData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getTempdata()");
+		nbtC.setString("System", "Java.type(\"java.lang.System\")");
+		nbtC.setString("JLists", "Java.type(\"com.google.common.collect.Lists\")");
+		nbtC.setString("JList", "Java.type(\"java.util.ArrayList\")");
+		nbtC.setString("JClt", "Java.type(\"java.util.Collections\")");
+		nbtC.setString("Juuid", "Java.type(\"java.util.UUID\")");
+		nbtC.setString("JHMap", "Java.type(\"java.util.HashMap\")");
+		nbtC.setString("JHSet", "Java.type(\"java.util.HashSet\")");
+		nbtC.setString("JFiles", "Java.type(\"java.nio.file.Files\")");
+		nbtC.setString("JioF", "Java.type(\"java.io.File\")");
+		nbtC.setString("JioFOS", "Java.type(\"java.io.FileOutputStream\")");
+		nbtC.setString("JioFIS", "Java.type(\"java.io.FileInputStream\")");
+		nbtC.setString("JStr", "Java.type(\"java.lang.String\")");
+		nbtC.setString("JSArr", "Java.type(\"java.lang.String[]\")");
+		nbtC.setString("JSToNbt", "Java.type(\"net.minecraft.nbt.JsonToNBT\")");
+		nbtC.setString("JnbtB", "Java.type(\"net.minecraft.nbt.NBTTagByte\")");
+		nbtC.setString("JnbtI", "Java.type(\"net.minecraft.nbt.NBTTagInt\")");
+		nbtC.setString("JnbtF", "Java.type(\"net.minecraft.nbt.NBTTagFloat\")");
+		nbtC.setString("JnbtD", "Java.type(\"net.minecraft.nbt.NBTTagDouble\")");
+		nbtC.setString("JnbtBA", "Java.type(\"net.minecraft.nbt.NBTTagByteArray\")");
+		nbtC.setString("JnbtS", "Java.type(\"net.minecraft.nbt.NBTTagString\")");
+		nbtC.setString("JnbtL", "Java.type(\"net.minecraft.nbt.NBTTagList\")");
+		nbtC.setString("Jnbt", "Java.type(\"net.minecraft.nbt.NBTTagCompound\")");
+		nbtC.setString("JnbtIA", "Java.type(\"net.minecraft.nbt.NBTTagIntArray\")");
+		nbtC.setString("JCST", "Java.type(\"net.minecraft.nbt.CompressedStreamTools\")");
+		nbtC.setString("JEnPart", "Java.type(\"net.minecraft.util.EnumParticleTypes\")");
+		nbtC.setString("JComSr", "Java.type(\"net.minecraft.util.text.ITextComponent.Serializer\")");
+		nbtC.setString("JTCs", "Java.type(\"net.minecraft.util.text.TextComponentTranslation\")");
+		nbtC.setString("JTC", "Java.type(\"net.minecraft.util.text.TextComponentString\")");
+		nbtC.setString("JItB", "Java.type(\"net.minecraft.util.text.TextComponentSelector\")");
+		nbtC.setString("JStl", "Java.type(\"net.minecraft.util.text.Style\")");
+		nbtC.setString("JECe", "Java.type(\"net.minecraft.util.text.event.ClickEvent\")");
+		nbtC.setString("JEHe", "Java.type(\"net.minecraft.util.text.event.HoverEvent\")");
+		nbtC.setString("JCa", "Java.type(\"net.minecraft.util.text.event.ClickEvent.Action\")");
+		nbtC.setString("JHa", "Java.type(\"net.minecraft.util.text.event.HoverEvent.Action\")");
+		nbtC.setString("JBPos", "Java.type(\"net.minecraft.util.math.BlockPos\")");
+		nbtC.setString("JItem", "Java.type(\"net.minecraft.item.Item\")");
+		nbtC.setString("JItemS", "Java.type(\"net.minecraft.item.ItemStack\")");
+		nbtC.setString("JResloc", "Java.type(\"net.minecraft.util.ResourceLocation\")");
+		nbtC.setString("JAmod", "Java.type(\"net.minecraft.entity.ai.attributes.AttributeModifier\")");
+		nbtC.setString("JRAtr", "Java.type(\"net.minecraft.entity.ai.attributes.RangedAttribute\")");
+		nbtC.setString("JSAtr", "Java.type(\"net.minecraft.entity.SharedMonsterAttributes\")");
+		nbtC.setString("JIvnB", "Java.type(\"net.minecraft.inventory.InventoryBasic\")");
+		nbtC.setString("JPEff", "Java.type(\"net.minecraft.potion.PotionEffect\")");
+		nbtC.setString("Jreg", "Java.type(\"net.minecraftforge.fml.common.registry.ForgeRegistries\")");
+		nbtC.setString("Jobf", "Java.type(\"net.minecraftforge.fml.common.ObfuscationReflectionHelper\")");
+		nbtC.setString("Nsrts", "Java.type(\"noppes.npcs.controllers.ScriptController\").Instance");
+		nbtC.setString("NSc", "Java.type(\"noppes.npcs.controllers.ScriptContainer\")");
+		nbtC.setString("NTrP", "Java.type(\"noppes.npcs.controllers.TransportController\")");
+		return nbtC;
+	}
+
+	private void checkExampleModules() {
+		for (String fName : languages.keySet()) {
+			String factoryName = Util.instance.deleteColor(fName).toLowerCase();
+			String code = "";
+			switch (factoryName) {
+				case "ecmascript":
+                case "rhino": {
+					code = "var hi = \"Hello\";" + ((char) 10) +
+							"function init(ev) {" + ((char) 10) +
+							((char) 9) + "var id = 0;" + ((char) 10) +
+							((char) 9) + "ev.API.getIWorld(0).broadcast(hi  + \" world ID:\" + id);" + ((char) 10) +
+							"}" + ((char) 10);
+					break;
+				}
+				case "graaljs": {
+					code = "var hi = \"Hello\";" + ((char) 10) +
+							"function init(ev) {" + ((char) 10) +
+							((char) 9) + "let id = 0;" + ((char) 10) +
+							((char) 9) + "ev.API.getIWorld(\"overworld\").broadcast(hi + \" world ID: \" + id);" + ((char) 10) +
+							"}" + ((char) 10);
+					break;
+				}
+				case "groovy": {
+					code = "binding.setVariable('hi', 'Hello')" + ((char) 10) +
+							"void init(def ev) {" + ((char) 10) +
+							((char) 9) + "def id = 0" + ((char) 10) +
+							((char) 9) + "ev.API.getIWorld(0).broadcast(hi + \" world ID:\" + id)" + ((char) 10) +
+							"}" + ((char) 10);
+					break;
+				}
+                case "jruby": {
+					code = "hi = \"Hello\"" + ((char) 10) +
+							"def init(ev)" + ((char) 10) +
+							((char) 9) + "id = 0" + ((char) 10) +
+							((char) 9) + "ev.API.getIWorld(0).broadcast(hi + \" world ID:\" + id.to_s)" + ((char) 10) +
+							"end" + ((char) 10);
+					break;
+				}
+				case "jython": {
+					code = "hi = \"Hello\"" + ((char) 10) +
+							"def init(ev):" + ((char) 10) +
+							((char) 9) + "id = 0" + ((char) 10) +
+							((char) 9) + "ev.API.getIWorld(0).broadcast(hi + \" world ID:\" + str(id))" + ((char) 10);
+					break;
+				}
+				case "luaj": {
+					code = "local hi = \"Hello\"" + ((char) 10) +
+							"function init(ev)" + ((char) 10) +
+							((char) 9) + "local id = 0" + ((char) 10) +
+							((char) 9) + "ev.API:getIWorld(0):broadcast(hi .. \" world ID:\" .. tostring(id))" + ((char) 10) +
+							"end" + ((char) 10);
+					break;
+				}
+			}
+			if (code.isEmpty()) { continue; }
+			File file = new File(dir, factoryName + "/example" + Util.instance.deleteColor(languages.get(fName)).toLowerCase());
+			if (!file.exists()) { Util.instance.saveFile(file, code); }
+		}
 	}
 
 	public boolean loadNPCsScripts() {
@@ -561,6 +703,7 @@ public class ScriptController {
 		try {
 			if (file.exists()) {
 				compound = NBTJsonUtil.LoadFile(file);
+				WrapperNpcAPI.resetScriptControllerData(compound);
 				shouldSave = false;
 			} else {
 				isLoad = false;
@@ -646,7 +789,7 @@ public class ScriptController {
 			LogWriter.except(e);
 		}
 		try {
-			Util.instance.saveFile(constantScriptsFile(), compound.copy());
+			Util.instance.saveFile(constantScriptsFile(), constants.copy());
 		} catch (Exception e) {
 			LogWriter.except(e);
 		}

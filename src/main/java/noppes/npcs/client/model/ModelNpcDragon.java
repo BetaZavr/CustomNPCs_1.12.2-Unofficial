@@ -90,7 +90,7 @@ public class ModelNpcDragon extends ModelBase {
 		this.rearLegTip.addChild(this.rearFoot);
 	}
 
-	private float func_40307_a(double d) {
+	private float correctAngle(double d) {
 		while (d >= 180.0d) {
 			d -= 360.0d;
 		}
@@ -114,9 +114,9 @@ public class ModelNpcDragon extends ModelBase {
 		float f10 = 0.0f;
 		float f11 = 1.5f;
 		double[] ad = entitydragon.func_40160_a(6, this.field_40317_s);
-		float f12 = this.func_40307_a(entitydragon.func_40160_a(5, this.field_40317_s)[0]
+		float f12 = this.correctAngle(entitydragon.func_40160_a(5, this.field_40317_s)[0]
 				- entitydragon.func_40160_a(10, this.field_40317_s)[0]);
-		float f13 = this.func_40307_a(entitydragon.func_40160_a(5, this.field_40317_s)[0] + f12 / 2.0f);
+		float f13 = this.correctAngle(entitydragon.func_40160_a(5, this.field_40317_s)[0] + f12 / 2.0f);
         float f14;
 		float f15 = f6 * 3.141593f * 2.0f;
 		f8 = 20.0f;
@@ -124,9 +124,9 @@ public class ModelNpcDragon extends ModelBase {
 		for (int i = 0; i < 5; ++i) {
 			double[] ad2 = entitydragon.func_40160_a(5 - i, this.field_40317_s);
 			f14 = (float) (Math.cos(i * 0.45f + f15) * 0.15f);
-			this.neck.rotateAngleY = this.func_40307_a(ad2[0] - ad[0]) * 3.1415927f / 180.0f * f11;
+			this.neck.rotateAngleY = this.correctAngle(ad2[0] - ad[0]) * 3.1415927f / 180.0f * f11;
 			this.neck.rotateAngleX = (float) (f14 + (ad2[1] - ad[1]) * 3.1415927f / 180.0f * f11 * 5.0f);
-			this.neck.rotateAngleZ = -this.func_40307_a(ad2[0] - f13) * 3.1415927f / 180.0f * f11;
+			this.neck.rotateAngleZ = -this.correctAngle(ad2[0] - f13) * 3.1415927f / 180.0f * f11;
 			this.neck.rotationPointY = f8;
 			this.neck.rotationPointZ = f9;
 			this.neck.rotationPointX = f10;
@@ -139,8 +139,8 @@ public class ModelNpcDragon extends ModelBase {
 		this.head.rotationPointZ = f9;
 		this.head.rotationPointX = f10;
 		double[] ad3 = entitydragon.func_40160_a(0, this.field_40317_s);
-		this.head.rotateAngleY = this.func_40307_a(ad3[0] - ad[0]) * 3.1415927f / 180.0f;
-		this.head.rotateAngleZ = -this.func_40307_a(ad3[0] - f13) * 3.1415927f / 180.0f;
+		this.head.rotateAngleY = this.correctAngle(ad3[0] - ad[0]) * 3.1415927f / 180.0f;
+		this.head.rotateAngleZ = -this.correctAngle(ad3[0] - f13) * 3.1415927f / 180.0f;
 		this.head.render(f5);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 1.0f, 0.0f);
@@ -215,9 +215,9 @@ public class ModelNpcDragon extends ModelBase {
 		for (int k = 0; k < 12; ++k) {
 			double[] ad4 = entitydragon.func_40160_a(12 + k, this.field_40317_s);
 			f14 += (float) (Math.sin(k * 0.45f + f15) * 0.05000000074505806);
-			this.neck.rotateAngleY = (this.func_40307_a(ad4[0] - ad[0]) * f11 + 180.0f) * 3.1415927f / 180.0f;
+			this.neck.rotateAngleY = (this.correctAngle(ad4[0] - ad[0]) * f11 + 180.0f) * 3.1415927f / 180.0f;
 			this.neck.rotateAngleX = (float) (f14 + (ad4[1] - ad[1]) * 3.1415927f / 180.0f * f11 * 5.0f);
-			this.neck.rotateAngleZ = this.func_40307_a(ad4[0] - f13) * 3.1415927f / 180.0f * f11;
+			this.neck.rotateAngleZ = this.correctAngle(ad4[0] - f13) * 3.1415927f / 180.0f * f11;
 			this.neck.rotationPointY = f8;
 			this.neck.rotationPointZ = f9;
 			this.neck.rotationPointX = f10;

@@ -44,7 +44,7 @@ public class QuestController implements IQuestHandler {
 
 	public boolean containsCategoryName(QuestCategory category) {
 		for (QuestCategory cat : this.categories.values()) {
-			if (cat.id != category.id && cat.title.equalsIgnoreCase(category.title)) {
+			if (cat.id == category.id && cat.title.equalsIgnoreCase(category.title)) {
 				return true;
 			}
 		}
@@ -169,8 +169,8 @@ public class QuestController implements IQuestHandler {
 			LogWriter.error("Error delete " + dir + "; no access or file not uploaded!");
 			return;
 		}
-		for (int dia : cat.quests.keySet()) {
-			this.quests.remove(dia);
+		for (Integer qId : cat.quests.keySet()) {
+			quests.remove(qId);
 		}
 		this.categories.remove(category);
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.QuestCategoriesData, category);
@@ -192,21 +192,18 @@ public class QuestController implements IQuestHandler {
 	public void saveCategory(QuestCategory category) {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
-			StringBuilder title = new StringBuilder("default");
+			category.title = "default";
 			while (this.containsCategoryName(category)) {
-				title.append("_");
+				category.title += "_";
 			}
-			category.title = title.toString();
 		}
 		if (categories.containsKey(category.id)) {
 			QuestCategory currentCategory = this.categories.get(category.id);
 			File newdir = new File(this.getDir(), category.title);
 			File olddir = new File(this.getDir(), currentCategory.title);
-			StringBuilder title = new StringBuilder(category.title);
 			while (this.containsCategoryName(category)) {
-				title.append("_");
+				category.title += "_";
 			}
-			category.title = title.toString();
 			if (newdir.exists() || !olddir.renameTo(newdir)) {
 				return;
 			}
@@ -217,11 +214,9 @@ public class QuestController implements IQuestHandler {
 				++this.lastUsedCatID;
 				category.id = this.lastUsedCatID;
 			}
-			StringBuilder title = new StringBuilder(category.title);
 			while (this.containsCategoryName(category)) {
-				title.append("_");
+				category.title += "_";
 			}
-			category.title = title.toString();
 			File dir = new File(this.getDir(), category.title);
 			if (!dir.exists()) {
 				dir.mkdirs();

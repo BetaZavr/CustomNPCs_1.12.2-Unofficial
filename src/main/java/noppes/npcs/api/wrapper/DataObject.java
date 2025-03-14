@@ -1,17 +1,38 @@
 package noppes.npcs.api.wrapper;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.handler.data.IDataElement;
+import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
 
+import javax.annotation.Nonnull;
+
 public class DataObject implements IDataObject {
+
+	private static final Map<String, String> obfuscated = new HashMap<>();
+
+	public static void load() {
+		CustomNPCsScheduler.runTack(() -> {
+			obfuscated.clear();
+			String data = Util.instance.getDataFile("obf.dat");
+			if (data.isEmpty()) { return; }
+			for (String line : data.split("\n")) {
+				if (line.contains("=")) {
+					String[] d = line.split("=");
+					obfuscated.put(d[0], d[1]);
+				}
+			}
+		});
+	}
+
+	public static @Nonnull String getObfuscatedName(String name) {
+		if (obfuscated.containsKey(name)) { return obfuscated.get(name); }
+		return "";
+	}
 
 	public List<IDataElement> data;
 	public Object object;
@@ -106,13 +127,13 @@ public class DataObject implements IDataObject {
 		int i = 0;
 		if (!c.isEmpty()) {
 			String enter = new String(Character.toChars(0xA));
-			builder.append("Classes: [").append(enter);
+			builder.append("Sub-Classes: [").append(enter);
 			StringBuilder sp = new StringBuilder(" ");
 			for (int j = 0; j < String.valueOf(c.size()).length() - String.valueOf(i).length(); j++) {
 				sp.append(" ");
 			}
 			for (IDataElement de : c) {
-				builder.append(i).append(sp).append(de.getData()).append(enter);
+				builder.append(" ").append(i).append(sp).append(de.getData()).append(enter);
 				i++;
 			}
 			builder.append("]");
@@ -159,7 +180,7 @@ public class DataObject implements IDataObject {
 				sp.append(" ");
 			}
 			for (IDataElement de : c) {
-				builder.append(i).append(sp).append(de.getData()).append(enter);
+				builder.append(" ").append(i).append(sp).append(de.getData()).append(enter);
 				i++;
 			}
 			builder.append("]");
@@ -232,7 +253,7 @@ public class DataObject implements IDataObject {
 				for (int j = 0; j < maxValue.length() - ("" + de.getValue()).length(); j++) {
 					sx.append(" ");
 				}
-				builder.append(i).append(sp).append(de.getData()).append(fx).append(" = ").append(de.getValue()).append(!de.isBelong(this.object.getClass()) ? sx + " [" + de.getParent().getName() + "]" : "").append(enter);
+				builder.append(" ").append(i).append(sp).append(de.getData()).append(fx).append(" = ").append(de.getValue()).append(!de.isBelong(this.object.getClass()) ? sx + " [" + de.getParent().getName() + "]" : "").append(enter);
 				i++;
 			}
 			builder.append("]");
@@ -245,28 +266,36 @@ public class DataObject implements IDataObject {
 		StringBuilder builder = new StringBuilder();
 		int md = this.object.getClass().getModifiers();
 		String key = "", enter = new String(Character.toChars(0xA));
-		if (Modifier.isPrivate(md)) {
-			key = "Private ";
-		} else if (Modifier.isProtected(md)) {
-			key = "Protected ";
-		} else if (Modifier.isPublic(md)) {
-			key = "Public ";
+		if (Modifier.isPrivate(md)) { key = "Private "; }
+		else if (Modifier.isPublic(md)) { key = "Public "; }
+		else if (Modifier.isProtected(md)) { key = "Protected "; }
+		if (Modifier.isAbstract(md)) { key += "Abstract"; }
+		if (Modifier.isInterface(md)) { key += "Interface"; }
+		builder.append(key).append("Class: \"").append(object.getClass().getName());
+		if (object.getClass().getSuperclass() != null && object.getClass().getSuperclass() != Object.class) {
+			builder.append(" extends ").append(Util.getAgrName(object.getClass().getSuperclass(), object.getClass().getSuperclass().getGenericSuperclass(), null));
 		}
-		if (Modifier.isAbstract(md)) {
-			key += "Abstract";
+		Class<?>[] implementers = object.getClass().getInterfaces();
+		if (implementers.length > 0) {
+			builder.append(" implements ");
+			for (int i = 0; i < implementers.length; i++) {
+				builder.append(Util.getAgrName(implementers[i], implementers[i].getGenericSuperclass(), null));
+				if (i < implementers.length - 1) { builder.append(", "); }
+			}
 		}
-		if (Modifier.isInterface(md)) {
-			key += "Interface";
-		}
-		builder.append(key).append("Class: \"").append(this.object.getClass().getName()).append("\"; value = ").append(this.object).append(enter);
+		builder.append("\";").append(enter).append("As an object: ").append(object).append(enter);
 		// Constructors
-		builder.append(this.getConstructorsInfo()).append(enter);
+		String values = getConstructorsInfo();
+		if (!values.isEmpty()) { builder.append(values).append(enter); }
 		// Classes
-		builder.append(this.getClassesInfo()).append(enter);
+		values = getClassesInfo();
+		if (!values.isEmpty()) { builder.append(values).append(enter); }
 		// Fields
-		builder.append(this.getFieldsInfo()).append(enter);
+		values = getFieldsInfo();
+		if (!values.isEmpty()) { builder.append(values).append(enter); }
 		// Methods
-		builder.append(this.getMethodsInfo());
+		values = getMethodsInfo();
+		if (!values.isEmpty()) { builder.append(values); }
 		return builder.toString();
 	}
 
@@ -311,13 +340,10 @@ public class DataObject implements IDataObject {
 			String enter = new String(Character.toChars(0xA));
 			List<String> names = new ArrayList<>(m.keySet());
 			Collections.sort(names);
-			String maxKey = "", maxValue = "";
+			String maxKey = "";
 			for (IDataElement de : m.values()) {
 				if (de.getData().length() > maxKey.length()) {
 					maxKey = de.getData();
-				}
-				if (("" + de.getValue()).length() > maxValue.length()) {
-					maxValue = "" + de.getValue();
 				}
 			}
 			i = 0;
@@ -325,23 +351,18 @@ public class DataObject implements IDataObject {
 			for (String name : names) {
 				IDataElement de = m.get(name);
 				StringBuilder sp = new StringBuilder(" ");
-                StringBuilder fx = new StringBuilder();
-                StringBuilder sx = new StringBuilder();
                 for (int j = 0; j < String.valueOf(names.size()).length() - String.valueOf(i).length(); j++) {
 					sp.append(" ");
 				}
-				for (int j = 0; j < maxKey.length() - de.getData().length(); j++) {
-					fx.append(" ");
-				}
-				for (int j = 0; j < maxValue.length() - ("" + de.getValue()).length(); j++) {
-					sx.append(" ");
-				}
-				builder.append(i).append(sp).append(de.getData()).append(fx).append(" = ").append(de.getValue()).append(!de.isBelong(this.object.getClass()) ? sx + " [" + de.getParent().getName() + "]" : "").append(enter);
+				builder.append(" ").append(i).append(sp).append(de.getData()).append(enter);
 				i++;
 			}
 			builder.append("]");
 		}
 		return builder.toString();
 	}
+
+	@Override
+	public String toString() { return getInfo(); }
 
 }

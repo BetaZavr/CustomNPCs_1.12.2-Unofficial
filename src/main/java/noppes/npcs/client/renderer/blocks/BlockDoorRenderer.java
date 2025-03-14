@@ -1,7 +1,5 @@
 package noppes.npcs.client.renderer.blocks;
 
-import java.util.Random;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
@@ -22,10 +20,6 @@ import noppes.npcs.blocks.tiles.TileDoor;
 import javax.annotation.Nullable;
 
 public class BlockDoorRenderer<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
-
-	static {
-		new Random();
-	}
 
 	private boolean overrideModel() {
 		ItemStack held = Minecraft.getMinecraft().player.getHeldItemMainhand();

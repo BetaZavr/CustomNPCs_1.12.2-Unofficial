@@ -80,6 +80,7 @@ public class NoppesUtilServer {
 
 	private static final HashMap<UUID, Quest> editingQuests = new HashMap<>();
 	private static final HashMap<UUID, Quest> editingQuestsClient = new HashMap<>();
+	private static final List<ITextComponent> errorMessagesToAdmin = new ArrayList<>();
 
 	public static void createMobSpawner(BlockPos pos, NBTTagCompound comp, EntityPlayer player) {
 		ServerCloneController.Instance.cleanTags(comp);
@@ -262,17 +263,42 @@ public class NoppesUtilServer {
 	}
 
 	public static void NotifyOPs(String message, Object... obs) {
-		TextComponentTranslation chat_component_translation = new TextComponentTranslation(message, obs);
-		chat_component_translation.getStyle().setColor(TextFormatting.GRAY);
-		chat_component_translation.getStyle().setItalic(Boolean.TRUE);
+		ITextComponent component = new TextComponentString("[CustomNPCs]");
+		component.getStyle().setColor(TextFormatting.YELLOW);
+		ITextComponent mess = new TextComponentTranslation(": " + message, obs);
+		mess.getStyle().setColor(TextFormatting.GRAY);
+		component.appendSibling(mess);
+		boolean isSend = false;
 		for (EntityPlayer entityplayer : CustomNpcs.Server.getPlayerList().getPlayers()) {
 			if (entityplayer.sendCommandFeedback() && isOp(entityplayer)) {
-				entityplayer.sendMessage(chat_component_translation);
+				entityplayer.sendMessage(component);
+				isSend = true;
 			}
 		}
-		if (CustomNpcs.Server.worlds[0].getGameRules().getBoolean("logAdminCommands")) {
-			LogWriter.info(chat_component_translation.getUnformattedText());
+		if (CustomNpcs.Server == null
+				|| CustomNpcs.Server.worlds == null
+				|| CustomNpcs.Server.worlds.length == 0
+				|| CustomNpcs.Server.worlds[0] == null
+				|| !CustomNpcs.Server.worlds[0].getGameRules().getBoolean("logAdminCommands")) {
+			isSend = false;
 		}
+		else {
+			LogWriter.info(component.getUnformattedText());
+		}
+		if (!isSend) { errorMessagesToAdmin.add(component); }
+	}
+
+	public static void sendScriptErrorsTo(EntityPlayer player) {
+		if (errorMessagesToAdmin.isEmpty() ||
+				player == null ||
+				CustomNpcs.Server == null ||
+				CustomNpcs.Server.worlds == null ||
+				CustomNpcs.Server.worlds.length == 0 ||
+				CustomNpcs.Server.worlds[0] == null) {
+			return;
+		}
+		for (ITextComponent component : errorMessagesToAdmin) { player.sendMessage(component); }
+		errorMessagesToAdmin.clear();
 	}
 
 	public static void openDialog(EntityPlayer player, EntityNPCInterface npc, Dialog dia) {

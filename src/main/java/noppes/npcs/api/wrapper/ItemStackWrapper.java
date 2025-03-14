@@ -65,6 +65,8 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 	public static ItemStackWrapper AIR = new ItemStackWrapper(ItemStack.EMPTY);
 	private static final EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] { EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET };
 
+	public ItemStackWrapper() { this(ItemStack.EMPTY); }
+
 	private static ItemStackWrapper createNew(ItemStack item) {
 		if (item == null || item.isEmpty()) {
 			return ItemStackWrapper.AIR;
@@ -100,18 +102,18 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 
 	public ItemStack item;
 
-	private IData tempdata;
-	private IData storeddata;
-	public NBTTagCompound storedNBT;
-	public ItemStackWrapper() {
-	}
+	private final TempData tempdata;
+	private final StoredData storeddata;
 
 	protected ItemStackWrapper(ItemStack stack) {
-		if (!stack.isEmpty()) {
-			this.tempdata = new TempData();
-			this.storeddata = new StoredData(this);
+		if (stack.isEmpty()) {
+			tempdata = null;
+			storeddata = null;
+		} else {
+			tempdata = new TempData();
+			storeddata = new StoredData();
 		}
-		this.item = stack;
+		item = stack;
 	}
 
 	@Override
@@ -262,8 +264,8 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 
 	public NBTTagCompound getMCNbt() {
 		NBTTagCompound compound = new NBTTagCompound();
-		if (this.storedNBT != null && !this.storedNBT.getKeySet().isEmpty()) {
-			compound.setTag("StoredData", this.storedNBT);
+		if (storeddata.getNbt().getKeys().length > 0) {
+			compound.setTag("StoredData", storeddata.getNbt().getMCNBT());
 		}
 		return compound;
 	}
@@ -533,21 +535,25 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 			compound.removeTag("Lore");
 			return;
 		}
-		NBTTagList nbtlist = new NBTTagList();
+		NBTTagList nbtList = new NBTTagList();
 		for (String s : lore) {
-			nbtlist.appendTag(new NBTTagString(s));
+			nbtList.appendTag(new NBTTagString(s));
 		}
-		compound.setTag("Lore", nbtlist);
+		compound.setTag("Lore", nbtList);
 	}
 
 	public void setMCNbt(NBTTagCompound compound) {
-		this.storedNBT = compound.getCompoundTag("StoredData");
+		if (compound == null) {
+			storeddata.clear();
+		} else {
+			storeddata.setNbt(compound.getCompoundTag("StoredData"));
+		}
 	}
 
 	@Override
 	public void setStackSize(int size) {
 		if (size > this.getMaxStackSize()) {
-			throw new CustomNPCsException("Can't set the stacksize bigger than MaxStacksize");
+			throw new CustomNPCsException("Can't set the stack size bigger than Max Stack size");
 		}
 		this.item.setCount(size);
 	}

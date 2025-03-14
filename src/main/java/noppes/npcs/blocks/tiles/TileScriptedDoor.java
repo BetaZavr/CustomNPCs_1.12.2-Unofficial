@@ -120,9 +120,12 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 	}
 
 	public String noticeString() {
-		BlockPos pos = this.getPos();
-		return MoreObjects.toStringHelper(this).add("dimID", this.world.provider.getDimension()).add("x", pos.getX())
-				.add("y", pos.getY()).add("z", pos.getZ()).toString();
+		BlockPos pos = getPos();
+		return "Block door in: dimension ID:" + (world == null ? 0 : world.provider.getDimension()) +
+				"; X:" + pos.getX() +
+				"; Y:" + pos.getY() +
+				"; Z:" + pos.getZ() +
+				"; Side: " + (isClient() ? "Client" : "Server");
 	}
 
 	@Override

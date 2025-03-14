@@ -47,15 +47,10 @@ public class BlockWrapper implements IBlock {
 		String key = state + pos.toString();
 		BlockWrapper b = BlockWrapper.blockCache.get(key);
 		if (b == null) {
-			if (block instanceof BlockScripted) {
-				b = new BlockScriptedWrapper(world, block, pos);
-			} else if (block instanceof BlockScriptedDoor) {
-				b = new BlockScriptedDoorWrapper(world, block, pos);
-			} else if (block instanceof BlockFluidBase) {
-				b = new BlockFluidContainerWrapper(world, block, pos);
-			} else {
-				b = new BlockWrapper(world, block, pos);
-			}
+			if (block instanceof BlockScripted) { b = new BlockScriptedWrapper(world, block, pos); }
+			else if (block instanceof BlockScriptedDoor) { b = new BlockScriptedDoorWrapper(world, block, pos); }
+			else if (block instanceof BlockFluidBase) { b = new BlockFluidContainerWrapper(world, block, pos); }
+			else { b = new BlockWrapper(world, block, pos); }
 			BlockWrapper.blockCache.put(key, b);
 		}
         b.setTile(world.getTileEntity(pos));

@@ -56,8 +56,7 @@ implements ITickable {
 	public void readFromNBT(@Nonnull NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		name = compound.getString("LocationName");
-		range = compound.getInteger("LocationRange");
-		if (range < 2) { range = 2; }
+		range = Math.max(2, compound.getInteger("LocationRange"));
 	}
 
 	public void update() {

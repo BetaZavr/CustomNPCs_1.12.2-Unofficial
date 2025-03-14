@@ -71,4 +71,5 @@ public interface INbt {
 	void setString(String key, String value);
 
 	String toJsonString();
+
 }

@@ -83,18 +83,9 @@ public class BlockPosWrapper implements IPos {
 
 	@Override
 	public IPos offset(int direction, double n) {
-		double ox = 0.0d;
-		double oy = 0.0d;
-		double oz = 0.0d;
-		switch (EnumFacing.VALUES[direction]) {
-			case DOWN: oy = -1.0d; break;
-			case UP: oy = 1.0d; break;
-			case NORTH: oz = -1.0d; break;
-			case SOUTH: oz = 1.0d; break;
-			case WEST: ox = -1.0d; break;
-			case EAST: ox = 1.0d; break;
-		}
-		return new BlockPosWrapper(x + ox * n, y + oy * n, z + oz * n);
+		if (n == 0) { return this; }
+		EnumFacing d = EnumFacing.getHorizontal(direction);
+		return new BlockPosWrapper(x + d.getFrontOffsetX() * n, y + d.getFrontOffsetY() * n, z + d.getFrontOffsetZ() * n);
 	}
 
 	@Override

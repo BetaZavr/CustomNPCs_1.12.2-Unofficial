@@ -17,7 +17,7 @@ public interface IData {
 
 	void put(String key, Object value) throws CommandException;
 
-	boolean remove(String key);
+	void remove(String key);
 
 	void setNbt(INbt nbt);
 

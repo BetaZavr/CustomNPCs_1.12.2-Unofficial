@@ -251,9 +251,7 @@ implements IGuiData, ITextChangeListener {
 	private int getScriptIndex() {
 		int i = 0;
 		for (String language : languages.keySet()) {
-			if (language.equalsIgnoreCase(handler.getLanguage())) {
-				return i;
-			}
+			if (Util.instance.equalsDeleteColor(language, handler.getLanguage(), true)) { return i; }
 			++i;
 		}
 		return 0;

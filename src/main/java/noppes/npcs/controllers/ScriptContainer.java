@@ -58,11 +58,13 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.api.wrapper.DataObject;
+import noppes.npcs.api.wrapper.data.StoredData;
 import noppes.npcs.api.wrapper.data.TempData;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.api.mixin.nbt.INBTTagLongArrayMixin;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ScriptEncryption;
+import noppes.npcs.util.Util;
 
 public class ScriptContainer {
 
@@ -84,8 +86,9 @@ public class ScriptContainer {
 	public class Log implements Function<Object, Void> {
 		@Override
 		public Void apply(Object o) {
-			appendConsole(o + "");
-			LogWriter.info(o + "");
+			String message = o == null ? "null" : o.toString();
+			appendConsole(message);
+			LogWriter.info(message);
 			return null;
 		}
 	}
@@ -112,7 +115,6 @@ public class ScriptContainer {
 		FillMap(RoleType.class);
 		FillMap(SideType.class);
 		FillMap(TacticalType.class);
-		FillMap(ScriptController.Instance.constants);
 		ScriptContainer.Data.put("api", NpcAPI.Instance());
 		ScriptContainer.Data.put("API", NpcAPI.Instance());
 		ScriptContainer.Data.put("cnpcs", CustomNpcs.instance);
@@ -134,73 +136,60 @@ public class ScriptContainer {
 			} catch (Exception error) { LogWriter.error("Error:", error); }
 		}
 	}
-	
-	private static void FillMap(NBTTagCompound c) {
-		if (!c.hasKey("Constants", 10)) {
-			return;
-		}
-		for (String key : c.getCompoundTag("Constants").getKeySet()) {
-			NBTBase tag = c.getCompoundTag("Constants").getTag(key);
-			Object value = getNBTValue(tag);
-			if (value != null) {
-				ScriptContainer.Data.put(key, value);
-			}
-		}
-	}
-	
+
 	private static Object getNBTValue(NBTBase tag) {
 		Object value = null;
 		switch (tag.getId()) {
-		case 1:
-			value = ((NBTTagByte) tag).getByte();
-			break;
-		case 2:
-			value = ((NBTTagShort) tag).getShort();
-			break;
-		case 3:
-			value = ((NBTTagInt) tag).getInt();
-			break;
-		case 4:
-			value = ((NBTTagLong) tag).getLong();
-			break;
-		case 5:
-			value = ((NBTTagFloat) tag).getFloat();
-			break;
-		case 6:
-			value = ((NBTTagDouble) tag).getDouble();
-			break;
-		case 7:
-			value = ((NBTTagByteArray) tag).getByteArray();
-			break;
-		case 8:
-			value = ((NBTTagString) tag).getString();
-			break;
-		case 9: // NBTTagList
-			List<Object> list = new ArrayList<>();
-			for (NBTBase obj : (NBTTagList) tag) {
-				Object v = getNBTValue(obj);
-				if (v != null) {
-					list.add(v);
+			case 1:
+				value = ((NBTTagByte) tag).getByte();
+				break;
+			case 2:
+				value = ((NBTTagShort) tag).getShort();
+				break;
+			case 3:
+				value = ((NBTTagInt) tag).getInt();
+				break;
+			case 4:
+				value = ((NBTTagLong) tag).getLong();
+				break;
+			case 5:
+				value = ((NBTTagFloat) tag).getFloat();
+				break;
+			case 6:
+				value = ((NBTTagDouble) tag).getDouble();
+				break;
+			case 7:
+				value = ((NBTTagByteArray) tag).getByteArray();
+				break;
+			case 8:
+				value = ((NBTTagString) tag).getString();
+				break;
+			case 9: // NBTTagList
+				List<Object> list = new ArrayList<>();
+				for (NBTBase obj : (NBTTagList) tag) {
+					Object v = getNBTValue(obj);
+					if (v != null) {
+						list.add(v);
+					}
 				}
-			}
-			value = list.toArray(new Object[0]);
-			break;
-		case 10: // NBTTagCompound
-			Map<String, Object> comp = new TreeMap<>();
-			for (String key : ((NBTTagCompound) tag).getKeySet()) {
-				Object v = getNBTValue(((NBTTagCompound) tag).getTag(key));
-				if (v != null) {
-					comp.put(key, v);
+				value = list.toArray(new Object[0]);
+				break;
+			case 10: // NBTTagCompound
+				Map<String, Object> comp = new TreeMap<>();
+				for (String key : ((NBTTagCompound) tag).getKeySet()) {
+					Object v = getNBTValue(((NBTTagCompound) tag).getTag(key));
+					if (v != null) {
+						comp.put(key, v);
+					}
 				}
-			}
-			value = comp;
-			break;
-		case 11:
-			value = ((NBTTagIntArray) tag).getIntArray();
-			break;
-		case 12:
-			value = ((INBTTagLongArrayMixin) tag).npcs$getData();
-			break;
+				value = comp;
+				break;
+			case 11:
+				value = ((NBTTagIntArray) tag).getIntArray();
+				break;
+			case 12:
+				value = ((INBTTagLongArrayMixin) tag).npcs$getData();
+				break;
 		}
 		return value;
 	}
@@ -365,7 +354,7 @@ public class ScriptContainer {
 			catch (Exception err1) {
 				errored = true;
 				err1.printStackTrace(pw);
-				if (!isClient) { NoppesUtilServer.NotifyOPs(handler.noticeString() + " script errored"); }
+				NoppesUtilServer.NotifyOPs(handler.noticeString() + " - script errored");
 				LogWriter.error(handler.noticeString() + " script errored: ", err1);
 			}
 			finally {
@@ -423,31 +412,66 @@ public class ScriptContainer {
 	}
 
 	private void fillEngine(ScriptEngine scriptEngine) {
+		NBTTagCompound constants = ScriptController.Instance.constants;
+		String language = Util.instance.deleteColor(handler.getLanguage()).toLowerCase();
+		String side = isClient ? "Client" : "Server";
+		boolean needResave= false;
+
 		// Custom Functions
-		for (int i = 0; i < ScriptController.Instance.constants.getTagList("Functions", 8).tagCount(); i++) {
-			String body = ScriptController.Instance.constants.getTagList("Functions", 8).getStringTagAt(i);
-			if (body.toLowerCase().indexOf("function ") != 0) { continue; }
+		NBTTagList functions = constants.getCompoundTag("Functions").getTagList(language, 8);
+		for (int i = 0; i < functions.tagCount(); i++) {
+			String body = functions.getStringTagAt(i);
 			try {
+				if (!body.contains(" ") || !body.contains("(")) { continue; }
 				String key = body.substring(body.indexOf(" ") + 1, body.indexOf("("));
-				if (!isClient || (!key.equals("getField") && !key.equals("setField") && !key.equals("invoke"))) {
-					try { ScriptContainer.Data.put(key, scriptEngine.eval(body)); } catch (Exception ignored) { }
-					ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i).removeTag("EvalIsError");
-				}
-			}
-			catch (Exception e) { ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i).setBoolean("EvalIsError", true); }
-		}
-		// Custom Constants
-		for (String key : ScriptController.Instance.constants.getCompoundTag("Constants").getKeySet()) {
-			NBTBase tag = ScriptController.Instance.constants.getCompoundTag("Constants").getTag(key);
-			if (tag.getId() == 8) {
-				try { ScriptContainer.Data.put(key, scriptEngine.eval(((NBTTagString) tag).getString())); }
+				if (key.isEmpty()) { continue; }
+				try { ScriptContainer.Data.put(key, scriptEngine.eval(body)); }
 				catch (Exception e) {
-					if (!isClient ||
-							!((NBTTagString) tag).getString().contains(".Instance().getIWorld(0).getTempdata()") ||
-							!((NBTTagString) tag).getString().contains(".Instance().getIWorld(0).getStoreddata()")) {
-						LogWriter.error("Key: " + key + "; Value: " + ((NBTTagString) tag).getString() + " put error:", e);
+					LogWriter.error("Key: " + key + "; Value: " + body + " put error:", e);
+					if (!constants.getCompoundTag("Functions").hasKey("EvalIsError", 10)) {
+						constants.getCompoundTag("Functions").setTag("EvalIsError", new NBTTagCompound());
+					}
+					if (!constants.getCompoundTag("Functions").getCompoundTag("EvalIsError").hasKey(side, 10)) {
+						constants.getCompoundTag("Functions").getCompoundTag("EvalIsError").setTag(side, new NBTTagCompound());
+					}
+					NBTTagList errors = constants.getCompoundTag("Functions").getCompoundTag("EvalIsError").getCompoundTag(side).getTagList(language, 8);
+					boolean has = false;
+					for (int j = 0; j < errors.tagCount(); j++) {
+						if (errors.getStringTagAt(i).equals(body)) { has = true; break; }
+					}
+					if (!has) {
+						errors.appendTag(new NBTTagString(e.getCause().getClass().getSimpleName() + ": " + body));
+						constants.getCompoundTag("Functions").getCompoundTag("EvalIsError").getCompoundTag(side).setTag(language, errors);
+						needResave = true;
 					}
 				}
+			}
+			catch (Exception e) { constants.getTagList("Functions", 10).getCompoundTagAt(i).setBoolean("EvalIsError", true); }
+		}
+		// Custom Constants
+		NBTTagCompound cons = constants.getCompoundTag("Constants").getCompoundTag(language);
+		for (String key : cons.getKeySet()) {
+			Object value = getNBTValue(cons.getTag(key));
+			String err = "";
+			if (value == null) { err = "NullPointerException"; }
+			else {
+				if (value instanceof String) {
+					try { ScriptContainer.Data.put(key, scriptEngine.eval((String) value)); }
+					catch (Throwable e) { ScriptContainer.Data.put(key, value); }
+				}
+				else { ScriptContainer.Data.put(key, value); }
+			}
+			if (!err.isEmpty()) {
+				if (!constants.getCompoundTag("Constants").hasKey("EvalIsError", 10)) {
+					constants.getCompoundTag("Constants").setTag("EvalIsError", new NBTTagCompound());
+				}
+				if (!constants.getCompoundTag("Constants").getCompoundTag("EvalIsError").hasKey(side, 10)) {
+					constants.getCompoundTag("Constants").getCompoundTag("EvalIsError").setTag(side, new NBTTagCompound());
+				}
+				NBTTagCompound errors = constants.getCompoundTag("Constants").getCompoundTag("EvalIsError").getCompoundTag(side).getCompoundTag(language);
+				errors.setString(key, err);
+				constants.getCompoundTag("Constants").getCompoundTag("EvalIsError").getCompoundTag(side).setTag(language, errors);
+				needResave = true;
 			}
 		}
 		// Base Functions
@@ -466,6 +490,11 @@ public class ScriptContainer {
 		scriptEngine.put("main", scriptEngine);
 		scriptEngine.put("currentScriptContainer", this);
 		scriptEngine.put("tempData", new TempData());
+
+		if (needResave) {
+			try { Util.instance.saveFile(ScriptController.Instance.constantScriptsFile(), constants.copy()); }
+			catch (Exception e) { LogWriter.except(e); }
+		}
 	}
 
 	private void fillEngineClient(ScriptEngine scriptEngine) {

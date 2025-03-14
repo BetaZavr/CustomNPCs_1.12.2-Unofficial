@@ -1,13 +1,13 @@
 package noppes.npcs.api.wrapper.data;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
+import java.util.List;
+import java.util.Map;
 
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.data.IDataElement;
+import noppes.npcs.api.wrapper.DataObject;
+import noppes.npcs.util.Util;
 
 public class DataElement implements IDataElement {
 
@@ -92,68 +92,64 @@ public class DataElement implements IDataElement {
 		String key;
 		if (this.object instanceof Method) {
 			Method m = (Method) this.object;
+			int md = m.getModifiers();
+			if (Modifier.isPrivate(md)) { key = "private "; }
+			else if (Modifier.isProtected(md)) { key = "protected "; }
+			else if (Modifier.isPublic(md)) { key = "public "; }
+			else { key = "default "; }
+			if (Modifier.isStatic(md)) { key += "static "; }
+			if (Modifier.isSynchronized(md)) { key += "synchronized "; }
+			if (Modifier.isFinal(md)) { key += "final "; }
 			StringBuilder body = new StringBuilder("(");
 			for (Parameter p : m.getParameters()) {
-				if (!body.toString().equals("(")) {
-					body.append(", ");
-				}
-				body.append(p);
+				if (!body.toString().equals("(")) { body.append(", "); }
+				body.append(p.getType().getName());
 			}
-			int md = m.getModifiers();
-			key = m.getName() + body + ") ";
-			if (Modifier.isPrivate(md)) {
-				key += "private ";
-			} else if (Modifier.isProtected(md)) {
-				key += "protected ";
-			} else if (Modifier.isPublic(md)) {
-				key += "public ";
-			} else {
-				key += "default ";
-			}
-			if (Modifier.isStatic(md)) {
-				key += "static ";
-			}
-			if (Modifier.isSynchronized(md)) {
-				key += "synchronized ";
-			}
-			if (Modifier.isFinal(md)) {
-				key += "final ";
-			}
-		} else if (this.object instanceof Field) {
+			body.append(")");
+			key += Util.getAgrName(m.getReturnType(), m.getGenericReturnType(), null) + " " + getNameOfForm(m.getName()) + body;
+		}
+		else if (this.object instanceof Field) {
 			Field f = (Field) this.object;
 			int md = f.getModifiers();
-			key = f.getName() + " (" + f.getType().getName() + ") ";
-			if (Modifier.isPrivate(md)) {
-				key += "private ";
-			} else if (Modifier.isProtected(md)) {
-				key += "protected ";
-			} else if (Modifier.isPublic(md)) {
-				key += "public ";
-			} else {
-				key += "default ";
-			}
-			if (Modifier.isStatic(md)) {
-				key += "static ";
-			}
-			if (Modifier.isFinal(md)) {
-				key += "final ";
-			}
+			if (Modifier.isPrivate(md)) { key = "private "; }
+			else if (Modifier.isProtected(md)) { key = "protected "; }
+			else if (Modifier.isPublic(md)) { key = "public "; }
+			else { key = "default "; }
+			if (Modifier.isStatic(md)) { key += "static "; }
+			if (Modifier.isFinal(md)) { key += "final "; }
+			key += Util.getAgrName(f.getType(), f.getGenericType(), null) + " " + getNameOfForm(f.getName());
 			f.setAccessible(true);
-		} else if (this.object instanceof Constructor) {
+		}
+		else if (this.object instanceof Constructor) {
 			StringBuilder body = new StringBuilder("(");
-			for (Parameter p : ((Constructor<?>) this.object).getParameters()) {
-				if (!body.toString().equals("(")) {
-					body.append(", ");
-				}
-				body.append(p);
+			int md = ((Constructor<?>) this.object).getModifiers();
+			if (Modifier.isPrivate(md)) { key = "private "; }
+			else if (Modifier.isProtected(md)) { key = "protected "; }
+			else if (Modifier.isPublic(md)) { key = "public "; }
+			else { key = "default "; }
+			Class<?>[] params = ((Constructor<?>) this.object).getParameterTypes();
+			for (Class<?> p : params) {
+				if (!body.toString().equals("(")) { body.append(", "); }
+				body.append(Util.getAgrName(p, p.getGenericSuperclass(), null));
 			}
-			key = this.data.getClass().getSimpleName() + body + ")";
+			body.append(")");
+			key += data.getClass().getSimpleName() + body;
 		} else if (this.object instanceof Class) {
-			key = ((Class<?>) this.object).getName();
+			int md = ((Class<?>) this.object).getModifiers();
+			if (Modifier.isPrivate(md)) { key = "private "; }
+			else if (Modifier.isProtected(md)) { key = "protected "; }
+			else if (Modifier.isPublic(md)) { key = "public "; }
+			else { key = "default "; }
+			key += Util.getAgrName((Class<?>) this.object, ((Class<?>) this.object).getGenericSuperclass(), null);
 		} else {
 			key = this.data.toString();
 		}
 		return key;
+	}
+
+	private String getNameOfForm(String name) {
+		String obfName = DataObject.getObfuscatedName(name);
+		return name + (obfName.isEmpty() ? "" : "["  + obfName + "]" );
 	}
 
 	@Override
@@ -198,7 +194,18 @@ public class DataElement implements IDataElement {
 		} else if (this.object instanceof Field) {
 			((Field) this.object).setAccessible(true);
 			try {
-				return ((Field) this.object).get(this.data);
+				Object obj = ((Field) this.object).get(this.data);
+				if (obj == null) { return "null"; }
+				String value = obj.toString();
+				if (obj.getClass().isArray()) {
+					Class<?> ct = obj.getClass().getComponentType();
+					String key = Util.getAgrName(ct, ct.getGenericSuperclass(), obj);
+					return key + "[]" + value.substring(value.indexOf("@"));
+				}
+				else if (obj instanceof List || obj instanceof Map) {
+					return Util.getAgrName(obj.getClass(), obj.getClass().getGenericSuperclass(), obj) + value;
+				}
+				return value;
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		return this.object;
@@ -217,9 +224,7 @@ public class DataElement implements IDataElement {
 
 	@Override
 	public boolean isBelong(Class<?> cz) {
-		if (this.parent == null) {
-			return false;
-		}
+		if (this.parent == null) { return false; }
 		Class<?> sc = this.parent;
 		while (sc.getSuperclass() != null) {
 			if (sc == cz) {
@@ -299,4 +304,5 @@ public class DataElement implements IDataElement {
 		}
 		return false;
 	}
+
 }
