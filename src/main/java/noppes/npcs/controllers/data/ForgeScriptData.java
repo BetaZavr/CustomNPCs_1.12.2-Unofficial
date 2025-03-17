@@ -12,8 +12,8 @@ public class ForgeScriptData
 extends BaseScriptData {
 
 	@Override
-	public String noticeString() {
-		return "ForgeScript";
+	public String noticeString(String type, Object event) {
+		return "Forge Script" + super.noticeString(type, event);
 	}
 	
 	@Override

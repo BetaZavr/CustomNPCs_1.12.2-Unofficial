@@ -442,13 +442,15 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		return this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();
 	}
 
-	public String noticeString() {
+	public String noticeString(String type, Object event) {
+		String notice = "Block Script";
+		if (type != null) { notice += " hook \""+type+"\""; }
 		BlockPos pos = getPos();
-		return "Block in: dimension ID:" + (world == null ? 0 : world.provider.getDimension()) +
+		notice += " in dimension ID:" + (world == null ? 0 : world.provider.getDimension()) +
 				"; X:" + pos.getX() +
 				"; Y:" + pos.getY() +
-				"; Z:" + pos.getZ() +
-				"; Side: " + (isClient() ? "Client" : "Server");
+				"; Z:" + pos.getZ();
+		return notice + "; Side: " + (isClient() ? "Client" : "Server");
 	}
 
 	public void onDataPacket(@Nonnull NetworkManager net, @Nonnull SPacketUpdateTileEntity pkt) {

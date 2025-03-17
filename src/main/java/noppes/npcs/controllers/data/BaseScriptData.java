@@ -5,12 +5,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.NBTTags;
+import noppes.npcs.api.block.IBlock;
+import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.api.event.*;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
 public class BaseScriptData
@@ -78,7 +84,48 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public String noticeString() { return ""; }
+	public String noticeString(String type, Object event) {
+		String notice = "";
+		if (type != null) { notice += " hook \""+type+"\""; }
+		IEntity<?> iEntity = null;
+		IBlock iBlock = null;
+		if (event instanceof Event && !(event instanceof CustomNPCsEvent)) {
+			event = new ForgeEvent((Event) event);
+		}
+		if (event instanceof ForgeEvent) {
+			((ForgeEvent) event).createData();
+			if (((ForgeEvent) event).player != null) { iEntity = ((ForgeEvent) event).player; }
+			else if (((ForgeEvent) event).npc != null) { iEntity = ((ForgeEvent) event).npc; }
+			else if (((ForgeEvent) event).entity != null) { iEntity = ((ForgeEvent) event).entity; }
+			else if (((ForgeEvent) event).block != null) { iBlock = ((ForgeEvent) event).block; }
+		}
+		if (event instanceof PlayerEvent) {
+			notice = ((PlayerEvent) event).player == null ? ". Global players script" : ". Player:";
+			if (type != null) { notice += " hook \""+type+"\""; }
+			if (((PlayerEvent) event).player == null) { return notice + "; Side: " + (isClient() ? "Client" : "Server"); }
+			iEntity =  ((PlayerEvent) event).player;
+		}
+		else if (event instanceof NpcEvent && ((NpcEvent) event).npc != null) { iEntity = ((NpcEvent) event).npc; }
+		if (iEntity != null) {
+			if (iEntity.getMCEntity() instanceof EntityPlayer) { notice += ". Player "; }
+			else if (iEntity.getMCEntity() instanceof EntityNPCInterface) { notice += ". NPC "; }
+			else { notice += ". Entity "; }
+			return notice + "\"" + iEntity.getName() + "\"; UUID: \"" + iEntity.getUUID() + "\"" +
+					" in dimension ID:" + (iEntity.getWorld().getMCWorld() == null ? 0 : iEntity.getWorld().getMCWorld().provider.getDimension()) +
+					"; X:" + (Math.round(iEntity.getPos().getX() * 100.0d) / 100.0d) +
+					"; Y:" + (Math.round(iEntity.getPos().getY() * 100.0d) / 100.0d) +
+					"; Z:" + (Math.round(iEntity.getPos().getZ() * 100.0d) / 100.0d) +
+					"; Side: " + (isClient() ? "Client" : "Server");
+		}
+		if (event instanceof BlockEvent && ((BlockEvent) event).block != null) { iBlock = ((BlockEvent) event).block; }
+		if (iBlock != null) {
+			notice += ". Block in dimension ID:" + (iBlock.getWorld().getMCWorld() == null ? 0 : iBlock.getWorld().getMCWorld().provider.getDimension()) +
+					"; X:" + ((int) iBlock.getPos().getX()) +
+					"; Y:" + ((int) iBlock.getPos().getY()) +
+					"; Z:" + ((int) iBlock.getPos().getZ());
+		}
+		return notice;
+	}
 
 	@Override
 	public void runScript(String type, Event event) { }

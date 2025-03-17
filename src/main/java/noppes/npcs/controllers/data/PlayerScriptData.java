@@ -13,6 +13,7 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -73,15 +74,19 @@ extends BaseScriptData {
 	}
 
 	@Override
-	public String noticeString() {
-		if (player == null) { return "Global players script"; }
-		BlockPos pos = player.getPosition();
-		return "Player: \"" + player.getName() + "\"; UUID: \"" + player.getUniqueID() + "\"" +
-				" in: dimension ID:" + player.world.provider.getDimension() +
-				"; X:" + pos.getX() +
-				"; Y:" + pos.getY() +
-				"; Z:" + pos.getZ() +
+	public String noticeString(String type, Object event) {
+		EntityPlayer p = player;
+		if (event instanceof PlayerEvent && p == null) { p = ((PlayerEvent) event).player.getMCEntity(); }
+		String notice = p == null ? "Global players script" : "Player:";
+		if (type != null) { notice += " hook \""+type+"\""; }
+		if (p == null) { return notice + "; Side: " + (isClient() ? "Client" : "Server"); }
+		notice += " \"" + p.getName() + "\"; UUID: \"" + p.getUniqueID() + "\"" +
+				" in dimension ID:" + (p.world == null ? 0 : p.world.provider.getDimension()) +
+				"; X:" + (Math.round(p.posX * 100.0d) / 100.0d) +
+				"; Y:" + (Math.round(p.posY * 100.0d) / 100.0d) +
+				"; Z:" + (Math.round(p.posZ * 100.0d) / 100.0d) +
 				"; Side: " + (isClient() ? "Client" : "Server");
+		return notice;
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {

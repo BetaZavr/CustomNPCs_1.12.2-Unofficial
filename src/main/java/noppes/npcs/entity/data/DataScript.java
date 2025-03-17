@@ -85,14 +85,13 @@ public class DataScript implements IScriptHandler {
 	}
 
 	@Override
-	public String noticeString() {
-		BlockPos pos = npc.getPosition();
-        return "NPC: \"" + npc.getName() + "\"; UUID: \"" + npc.getUniqueID() + "\"" +
-                " in: dimension ID:" + npc.world.provider.getDimension() +
-                "; X:" + pos.getX() +
-                "; Y:" + pos.getY() +
-                "; Z:" + pos.getZ() +
-                "; Side: " + (isClient() ? "Client" : "Server");
+	public String noticeString(String type, Object event) {
+        return "NPC \"" + npc.getName() + "\"; UUID: \"" + npc.getUniqueID() + "\"" +
+				" in dimension ID:" + (npc.world == null ? 0 : npc.world.provider.getDimension()) +
+				"; X:" + (Math.round(npc.posX * 100.0d) / 100.0d) +
+				"; Y:" + (Math.round(npc.posY * 100.0d) / 100.0d) +
+				"; Z:" + (Math.round(npc.posZ * 100.0d) / 100.0d) +
+				"; Side: " + (isClient() ? "Client" : "Server");
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {

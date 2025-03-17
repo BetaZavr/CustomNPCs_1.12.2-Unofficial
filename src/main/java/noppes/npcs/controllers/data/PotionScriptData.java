@@ -2,22 +2,44 @@ package noppes.npcs.controllers.data;
 
 import java.util.Iterator;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
+import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.api.event.potion.AffectEntity;
+import noppes.npcs.api.event.potion.EndEffect;
+import noppes.npcs.api.event.potion.PerformEffect;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
 public class PotionScriptData
 extends BaseScriptData {
 
 	@Override
-	public String noticeString() {
-		return "PotionScript";
+	public String noticeString(String type, Object event) {
+		String notice = "Potion Script";
+		if (type != null) { notice += " hook \""+type+"\""; }
+		IEntity<?> entity = null;
+		if (event instanceof AffectEntity && ((AffectEntity) event).entity != null) { entity = ((AffectEntity) event).entity; }
+		else if (event instanceof EndEffect && ((EndEffect) event).entity != null) { entity = ((EndEffect) event).entity; }
+		else if (event instanceof PerformEffect && ((PerformEffect) event).entity != null) { entity = ((PerformEffect) event).entity; }
+		if (entity != null) {
+			if (entity.getMCEntity() instanceof EntityPlayer) { notice += ". Player:"; }
+			else if (entity.getMCEntity() instanceof EntityNPCInterface) { notice += ". NPC:"; }
+			else  { notice += ". Entity:"; }
+			notice += entity.getName() + "\"; UUID: \"" + entity.getUUID() + "\"" +
+				" in dimension ID:" + (entity.getWorld().getMCWorld() == null ? 0 : entity.getWorld().getMCWorld().provider.getDimension()) +
+					"; X:" + (Math.round(entity.getPos().getX() * 100.0d) / 100.0d) +
+					"; Y:" + (Math.round(entity.getPos().getY() * 100.0d) / 100.0d) +
+					"; Z:" + (Math.round(entity.getPos().getZ() * 100.0d) / 100.0d);
+		}
+		return notice + "; Side: " + (isClient() ? "Client" : "Server");
 	}
 	
 	public void readFromNBT(NBTTagCompound compound) {

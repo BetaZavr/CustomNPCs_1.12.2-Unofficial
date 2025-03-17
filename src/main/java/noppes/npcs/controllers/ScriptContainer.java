@@ -363,8 +363,8 @@ public class ScriptContainer {
 					}
 				}
 				else { error = new StringBuilder(((char) 167) + "8" + e); }
-				NoppesUtilServer.NotifyOPs(handler.noticeString() + " - script errored:\n" + ((char) 167) + "8" + err1.getCause().getClass().getSimpleName() + ": " + error);
-				LogWriter.error(handler.noticeString() + " script errored: ", err1);
+				NoppesUtilServer.NotifyOPs(handler.noticeString(type, event) + " - script errored:\n" + ((char) 167) + "8" + err1.getCause().getClass().getSimpleName() + ": " + error);
+				LogWriter.error(handler.noticeString(type, event) + " script errored: ", err1);
 			}
 			finally {
 				appendConsole(sw.getBuffer().toString().trim());
@@ -402,13 +402,13 @@ public class ScriptContainer {
 			Object result = ((Invocable) engine).invokeFunction("asyncFunction", arguments);
 			if (!sync.isEmpty()) { runSync(sync, result); }
 		}
-		catch (Exception e) { LogWriter.error(handler.noticeString() + " script generate async context: ", e); }
+		catch (Exception e) { LogWriter.error(handler.noticeString(async, null) + " script generate async context: ", e); }
 	}
 
 	private void runSync(String sync, Object arguments) {
 		CustomNPCsScheduler.runTack(() -> {
 			try { ((Invocable) engine).invokeFunction(sync, arguments); }
-			catch (Exception e) { LogWriter.error(handler.noticeString() + " script sync errored: ", e); }
+			catch (Exception e) { LogWriter.error(handler.noticeString(sync, null) + " script sync errored: ", e); }
 		});
 	}
 

@@ -9,6 +9,8 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.constants.ItemType;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.IScriptHandler;
@@ -166,8 +168,28 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 	}
 
 	@Override
-	public String noticeString() {
-		return "ScriptedItem";
+	public String noticeString(String type, Object event) {
+		String notice = "Scripted Item Script";
+		if (type != null) { notice += " hook \""+type+"\""; }
+		IPlayer<?> iPlayer = getIPlayer(event);
+		if (iPlayer != null) {
+			notice += " Player: \"" + iPlayer.getName() + "\"; UUID: \"" + iPlayer.getUUID() + "\"" +
+					" in dimension ID:" + (iPlayer.getWorld().getMCWorld() == null ? 0 : iPlayer.getWorld().getMCWorld().provider.getDimension()) +
+					"; X:" + (Math.round(iPlayer.getPos().getX() * 100.0d) / 100.0d) +
+					"; Y:" + (Math.round(iPlayer.getPos().getY() * 100.0d) / 100.0d) +
+					"; Z:" + (Math.round(iPlayer.getPos().getZ() * 100.0d) / 100.0d) +
+					"; Side: " + (isClient() ? "Client" : "Server");
+		}
+		return notice;
+	}
+
+	private static IPlayer<?> getIPlayer(Object event) {
+		if (event instanceof ItemEvent.AttackEvent) { return ((ItemEvent.AttackEvent) event).player; }
+		if (event instanceof ItemEvent.InteractEvent) { return ((ItemEvent.InteractEvent) event).player; }
+		if (event instanceof ItemEvent.PickedUpEvent) { return ((ItemEvent.PickedUpEvent) event).player; }
+		if (event instanceof ItemEvent.TossedEvent) { return ((ItemEvent.TossedEvent) event).player; }
+		if (event instanceof ItemEvent.UpdateEvent) { return ((ItemEvent.UpdateEvent) event).player; }
+		return null;
 	}
 
 	@Override

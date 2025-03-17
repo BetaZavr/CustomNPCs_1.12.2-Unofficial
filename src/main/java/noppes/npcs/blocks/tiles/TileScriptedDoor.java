@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.google.common.base.MoreObjects;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
@@ -129,13 +127,15 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		return this.enabled && ScriptController.HasStart && !this.world.isRemote;
 	}
 
-	public String noticeString() {
+	public String noticeString(String type, Object event) {
+		String notice = "Door Script";
+		if (type != null) { notice += " hook \""+type+"\""; }
 		BlockPos pos = getPos();
-		return "Block door in: dimension ID:" + (world == null ? 0 : world.provider.getDimension()) +
+		notice += " in dimension ID:" + (world == null ? 0 : world.provider.getDimension()) +
 				"; X:" + pos.getX() +
 				"; Y:" + pos.getY() +
-				"; Z:" + pos.getZ() +
-				"; Side: " + (isClient() ? "Client" : "Server");
+				"; Z:" + pos.getZ();
+		return notice + "; Side: " + (isClient() ? "Client" : "Server");
 	}
 
 	@Override

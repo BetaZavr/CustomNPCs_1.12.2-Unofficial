@@ -112,6 +112,10 @@ public class ForgeEvent extends CustomNPCsEvent {
 		if (event == null || CustomNpcs.SimplifiedForgeEvents) {
 			return;
 		}
+		createData();
+	}
+
+	public void createData() {
 		// Common
 		Block bl = null;
 		IBlockState st = null;
@@ -120,7 +124,7 @@ public class ForgeEvent extends CustomNPCsEvent {
 			for (Field f : sp.getDeclaredFields()) {
 				if (this.entity == null && !f.getType().getSimpleName().contains("EntityPlayer")
 						&& (f.getType() == Entity.class || f.getType() == EntityLiving.class
-								|| f.getType() == EntityLivingBase.class)) {
+						|| f.getType() == EntityLivingBase.class)) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
@@ -189,7 +193,7 @@ public class ForgeEvent extends CustomNPCsEvent {
 				}
 				if (this.entity == null && !m.getReturnType().getName().contains(".EntityPlayer")
 						&& (m.getReturnType() == Entity.class || m.getReturnType() == EntityLiving.class
-								|| m.getReturnType() == EntityLivingBase.class)) {
+						|| m.getReturnType() == EntityLivingBase.class)) {
 					try {
 						if (!m.isAccessible()) {
 							m.setAccessible(true);

@@ -8,10 +8,12 @@ import java.util.List;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
+import noppes.npcs.api.event.BlockEvent;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.wrapper.data.StoredData;
 import noppes.npcs.constants.EnumScriptType;
@@ -50,8 +52,8 @@ extends BaseScriptData {
 	}
 
 	@Override
-	public String noticeString() {
-		return "ClientScript";
+	public String noticeString(String type, Object event) {
+		return "Client Script" + super.noticeString(type, event);
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {

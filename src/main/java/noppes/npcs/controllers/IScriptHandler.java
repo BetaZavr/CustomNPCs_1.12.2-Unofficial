@@ -22,7 +22,7 @@ public interface IScriptHandler {
 
 	boolean isClient();
 
-	String noticeString();
+	String noticeString(String type, Object event);
 
 	void runScript(String type, Event event);
 
