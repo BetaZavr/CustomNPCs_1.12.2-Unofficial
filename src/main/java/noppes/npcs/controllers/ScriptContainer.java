@@ -353,6 +353,8 @@ public class ScriptContainer {
 			} catch (NoSuchMethodException err0) { unknownFunctions.add(type); }
 			catch (Exception err1) {
 				errored = true;
+				String notice = handler.noticeString(type, event);
+				pw.write(notice + "\n");
 				err1.printStackTrace(pw);
 				String e = err1.getCause().getLocalizedMessage().replaceAll("" + ((char) 13), "");
 				StringBuilder error = new StringBuilder();
@@ -363,8 +365,8 @@ public class ScriptContainer {
 					}
 				}
 				else { error = new StringBuilder(((char) 167) + "8" + e); }
-				NoppesUtilServer.NotifyOPs(handler.noticeString(type, event) + " - script errored:\n" + ((char) 167) + "8" + err1.getCause().getClass().getSimpleName() + ": " + error);
-				LogWriter.error(handler.noticeString(type, event) + " script errored: ", err1);
+				NoppesUtilServer.NotifyOPs(notice + "\n" + ((char) 167) + "8Script " + err1.getCause().getClass().getSimpleName() + ": " + error);
+				LogWriter.error(notice + " ", err1);
 			}
 			finally {
 				appendConsole(sw.getBuffer().toString().trim());
