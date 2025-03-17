@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import noppes.npcs.LogWriter;
+import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.handler.data.IDataElement;
 import noppes.npcs.api.wrapper.DataObject;
 import noppes.npcs.util.Util;
@@ -106,7 +107,9 @@ public class DataElement implements IDataElement {
 				body.append(p.getType().getName());
 			}
 			body.append(")");
-			key += Util.getAgrName(m.getReturnType(), m.getGenericReturnType(), null) + " " + getNameOfForm(m.getName()) + body;
+			key += Util.getAgrName(m.getReturnType()) + " " + m.getName() + body;
+			String obfName = DataObject.getObfuscatedName(m.getName());
+			if (!obfName.isEmpty()) { key += " {obf_name=\""  + obfName + "\"}"; }
 		}
 		else if (this.object instanceof Field) {
 			Field f = (Field) this.object;
@@ -117,7 +120,9 @@ public class DataElement implements IDataElement {
 			else { key = "default "; }
 			if (Modifier.isStatic(md)) { key += "static "; }
 			if (Modifier.isFinal(md)) { key += "final "; }
-			key += Util.getAgrName(f.getType(), f.getGenericType(), null) + " " + getNameOfForm(f.getName());
+			key += Util.getAgrName(f.getType()) + " " + f.getName();
+			String obfName = DataObject.getObfuscatedName(f.getName());
+			if (!obfName.isEmpty()) { key += " {obf_name=\""  + obfName + "\"}"; }
 			f.setAccessible(true);
 		}
 		else if (this.object instanceof Constructor) {
@@ -130,26 +135,21 @@ public class DataElement implements IDataElement {
 			Class<?>[] params = ((Constructor<?>) this.object).getParameterTypes();
 			for (Class<?> p : params) {
 				if (!body.toString().equals("(")) { body.append(", "); }
-				body.append(Util.getAgrName(p, p.getGenericSuperclass(), null));
+				body.append(Util.getAgrName(p));
 			}
 			body.append(")");
 			key += data.getClass().getSimpleName() + body;
-		} else if (this.object instanceof Class) {
+		}
+		else if (this.object instanceof Class) {
 			int md = ((Class<?>) this.object).getModifiers();
 			if (Modifier.isPrivate(md)) { key = "private "; }
 			else if (Modifier.isProtected(md)) { key = "protected "; }
 			else if (Modifier.isPublic(md)) { key = "public "; }
 			else { key = "default "; }
-			key += Util.getAgrName((Class<?>) this.object, ((Class<?>) this.object).getGenericSuperclass(), null);
-		} else {
-			key = this.data.toString();
+			key += Util.getAgrName((Class<?>) this.object);
 		}
+		else { key = this.data.toString(); }
 		return key;
-	}
-
-	private String getNameOfForm(String name) {
-		String obfName = DataObject.getObfuscatedName(name);
-		return name + (obfName.isEmpty() ? "" : "["  + obfName + "]" );
 	}
 
 	@Override
@@ -165,7 +165,7 @@ public class DataElement implements IDataElement {
 	@Override
 	public Class<?> getParent() {
 		try {
-			return this.parent != null ? this.parent : Class.forName("java.lang.Object");
+			return parent != null ? parent : Class.forName("java.lang.Object");
 		} catch (ClassNotFoundException e) { LogWriter.error("Error:", e); }
 		return null;
 	}
@@ -191,7 +191,8 @@ public class DataElement implements IDataElement {
 	public Object getValue() {
 		if (this.object instanceof Method) {
 			return ((Method) this.object).getReturnType();
-		} else if (this.object instanceof Field) {
+		}
+		else if (this.object instanceof Field) {
 			((Field) this.object).setAccessible(true);
 			try {
 				Object obj = ((Field) this.object).get(this.data);
@@ -199,11 +200,11 @@ public class DataElement implements IDataElement {
 				String value = obj.toString();
 				if (obj.getClass().isArray()) {
 					Class<?> ct = obj.getClass().getComponentType();
-					String key = Util.getAgrName(ct, ct.getGenericSuperclass(), obj);
+					String key = Util.getAgrName(ct);
 					return key + "[]" + value.substring(value.indexOf("@"));
 				}
 				else if (obj instanceof List || obj instanceof Map) {
-					return Util.getAgrName(obj.getClass(), obj.getClass().getGenericSuperclass(), obj) + value;
+					return Util.getAgrName(obj.getClass()) + value;
 				}
 				return value;
 			} catch (Exception e) { LogWriter.error("Error:", e); }
@@ -224,15 +225,8 @@ public class DataElement implements IDataElement {
 
 	@Override
 	public boolean isBelong(Class<?> cz) {
-		if (this.parent == null) { return false; }
-		Class<?> sc = this.parent;
-		while (sc.getSuperclass() != null) {
-			if (sc == cz) {
-				return true;
-			}
-			sc = sc.getSuperclass();
-		}
-		return false;
+		if (parent == null) { return false; }
+		return parent.isAssignableFrom(cz);
 	}
 
 	@Override
@@ -246,7 +240,7 @@ public class DataElement implements IDataElement {
 					modifiersField.setAccessible(true);
 					modifiersField.setInt(f, mod - Modifier.FINAL - (Modifier.isPrivate(mod) ? Modifier.PRIVATE : 0));
 					f.setAccessible(true);
-					f.set(Modifier.isStatic(mod) ? null : this.data, value);
+					f.set(Modifier.isStatic(mod) ? null : data, value);
 					modifiersField.setInt(f, mod);
 					return true;
 				}
@@ -257,50 +251,12 @@ public class DataElement implements IDataElement {
 			}
 			try {
 				f.setAccessible(true);
-				if (f.getType() == int.class) {
-					int v = (int) ((double) value);
-					f.set(this.data, v);
-				}
-				else if (f.getType() == Integer.class) {
-					Integer v = (int) ((double) value);
-					f.set(this.data, v);
-				}
-				else if (f.getType() == float.class) {
-					float v = (float) ((double) value);
-					f.set(this.data, v);
-				}
-				else if (f.getType() == Float.class) {
-					Float v = (float) ((double) value);
-					f.set(this.data, v);
-				}
-				else if (f.getType() == long.class) {
-					long v = (long) ((double) value);
-					f.set(this.data, v);
-				}
-				else if (f.getType() == Long.class) {
-					Long v = (long) ((double) value);
-					f.set(this.data, v);
-				}
-				else if (f.getType() == byte.class) {
-					byte v = (byte) ((double) value);
-					f.set(this.data, v);
-				}
-				else if (f.getType() == Byte.class) {
-					Byte v = (byte) ((double) value);
-					f.set(this.data, v);
-				}
-				else if (f.getType() == short.class) {
-					short v = (short) ((double) value);
-					f.set(this.data, v);
-				}
-				else if (f.getType() == Short.class) {
-					Short v = (short) ((double) value);
-					f.set(this.data, v);
-				}
-				else { f.set(this.data, value); }
+				f.set(data, value);
 				return true;
 			}
-			catch (Exception e) {  LogWriter.error("Error:", e); }
+			catch (Exception e) {
+				throw new CustomNPCsException(e, "Error set value.");
+			}
 		}
 		return false;
 	}

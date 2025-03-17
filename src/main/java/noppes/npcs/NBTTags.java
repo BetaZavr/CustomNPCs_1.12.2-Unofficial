@@ -4,16 +4,14 @@ import java.util.*;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.*;
 import net.minecraft.util.NonNullList;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.api.mixin.item.crafting.IIngredientMixin;
+import noppes.npcs.util.Util;
 
 public class NBTTags {
 
@@ -137,8 +135,17 @@ public class NBTTags {
 	public static TreeMap<Long, String> GetLongStringMap(NBTTagList tagList) {
 		TreeMap<Long, String> list = new TreeMap<>();
 		for (int i = 0; i < tagList.tagCount(); ++i) {
-			NBTTagCompound nbttagcompound = tagList.getCompoundTagAt(i);
-			list.put(nbttagcompound.getLong("Long"), nbttagcompound.getString("String"));
+			NBTTagCompound nbt = tagList.getCompoundTagAt(i);
+			if (nbt.hasKey("String", 8)) {
+				list.put(nbt.getLong("Long"), nbt.getString("String"));
+			} // OLD
+			if (nbt.hasKey("String", 9) && ((NBTTagList) nbt.getTag("String")).getTagType() == 8) {
+				StringBuilder totalStr = new StringBuilder();
+				for (NBTBase sNbt : nbt.getTagList("String", 8)) {
+					totalStr.append(((NBTTagString) sNbt).getString());
+				}
+				list.put(nbt.getLong("Long"), totalStr.toString());
+			} // NEW
 		}
 		return list;
 	}
@@ -321,10 +328,16 @@ public class NBTTags {
 			return nbttaglist;
 		}
 		for (long slot : map.keySet()) {
-			NBTTagCompound nbttagcompound = new NBTTagCompound();
-			nbttagcompound.setLong("Long", slot);
-			nbttagcompound.setString("String", map.get(slot));
-			nbttaglist.appendTag(nbttagcompound);
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setLong("Long", slot);
+			String totalStr = map.get(slot);
+			if (totalStr.length() < 32767) { nbt.setString("String", totalStr); }
+			else {
+				NBTTagList list = new NBTTagList();
+				for (String line : Util.splitString(totalStr)) { list.appendTag(new NBTTagString(line)); }
+				nbt.setTag("String", list);
+			}
+			nbttaglist.appendTag(nbt);
 		}
 		return nbttaglist;
 	}

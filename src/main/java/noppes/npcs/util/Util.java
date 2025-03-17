@@ -1224,7 +1224,7 @@ public class Util implements IMethods {
 			return false;
 		}
 		LogWriter.info("Trying save text to file \"" + file.getAbsolutePath() + "\"");
-		if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) { // create directories
+		if (file.getParentFile() != null && !file.getParentFile().exists() && !file.getParentFile().mkdirs()) { // create directories
 			LogWriter.debug("Error creating directories from file path \"" + file.getAbsolutePath() + "\"");
 			return false;
 		}
@@ -1520,7 +1520,6 @@ public class Util implements IMethods {
 	@Override
 	@SuppressWarnings("unchecked")
 	public @Nullable NBTBase writeObjectToNbt(Object value) {
-		//LogWriter.debug("Attempt to write object \"" + value + "\" to tag");
 		if (value == null) { return null; }
 		if (value instanceof NBTBase || value instanceof INbt) {
 			NBTTagCompound compound = new NBTTagCompound();
@@ -1981,58 +1980,11 @@ public class Util implements IMethods {
 		return new LinkedHashMap<>(map);
 	}
 
-	public static String getAgrName(Class<?> classType, Type genericType, Object obj) {
+	public static String getAgrName(Class<?> classType) {
 		StringBuilder key = new StringBuilder(classType.getName());
-		if (List.class.isAssignableFrom(classType) || Map.class.isAssignableFrom(classType)) {
-			key.append("<");
-			boolean has = false;
-			if (obj != null) {
-				if (obj instanceof List) {
-					if (!((List<?>) obj).isEmpty()) {
-						for (Object o : (List<?>) obj) {
-							if (o == null) { continue; }
-							key.append(getAgrName(o.getClass(), o.getClass().getGenericSuperclass(), obj));
-							has = true;
-							break;
-						}
-					}
-				}
-				else if (obj instanceof Map) {
-					if (!((Map<?, ?>) obj).isEmpty()) {
-						Class<?> k = null;
-						Class<?> v = null;
-						for (Object o : ((Map<?, ?>) obj).keySet()) {
-							if (o != null) {
-								if (k == null) { k = o.getClass(); }
-								if (((Map<?, ?>) obj).get(o) != null) {
-									v = ((Map<?, ?>) obj).get(o).getClass();
-								}
-							}
-							if (k != null && v != null) { break; }
-						}
-						if (k != null && v != null) {
-							key.append(getAgrName(k, k.getGenericSuperclass(), obj))
-									.append(", ")
-									.append(getAgrName(k, k.getGenericSuperclass(), obj));
-							has = true;
-						}
-					}
-				}
-			}
-			if (!has && genericType instanceof ParameterizedType) {
-				Type[] actualTypes = ((ParameterizedType) genericType).getActualTypeArguments();
-				for (int i = 0; i < actualTypes.length; i++) {
-					String name = actualTypes[i].toString();
-					if (name.contains(".")) { name = name.substring(name.lastIndexOf(".") + 1); }
-					key.append(name);
-					if (i < actualTypes.length - 1) { key.append(", "); }
-				}
-			}
-			key.append(">");
-		}
 		if (classType.isArray()) {
 			Class<?> ct = classType.getComponentType();
-			key = new StringBuilder(getAgrName(ct, ct.getGenericSuperclass(), obj));
+			key = new StringBuilder(getAgrName(ct));
 			key.append("[]");
 		}
 		TypeVariable<?>[] typeParams = classType.getTypeParameters();
@@ -2049,7 +2001,7 @@ public class Util implements IMethods {
 						catch (Exception ignored) {}
                     }
 					if (boundClass != null) {
-						key.append(getAgrName(boundClass, boundClass.getGenericSuperclass(), null));
+						key.append(getAgrName(boundClass));
 						break;
 					}
 				}
@@ -2058,6 +2010,20 @@ public class Util implements IMethods {
 			key.append(">");
 		}
 		return key.toString();
+	}
+
+	public static List<String> splitString(String input) {
+		if (input == null || input.isEmpty()) {
+			return Collections.emptyList();
+		}
+		int maxLength = 32767;
+		List<String> result = new ArrayList<>();
+		for (int i = 0; i < input.length(); i += maxLength) {
+			int endIndex = Math.min(i + maxLength, input.length());
+			String part = input.substring(i, endIndex);
+			result.add(part);
+		}
+		return result;
 	}
 
 }

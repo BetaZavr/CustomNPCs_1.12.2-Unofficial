@@ -264,7 +264,7 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 
 	public NBTTagCompound getMCNbt() {
 		NBTTagCompound compound = new NBTTagCompound();
-		if (storeddata.getNbt().getKeys().length > 0) {
+		if (storeddata != null && storeddata.getNbt().getKeys().length > 0) {
 			compound.setTag("StoredData", storeddata.getNbt().getMCNBT());
 		}
 		return compound;
@@ -543,6 +543,7 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 	}
 
 	public void setMCNbt(NBTTagCompound compound) {
+		if (storeddata == null) { return; }
 		if (compound == null) {
 			storeddata.clear();
 		} else {

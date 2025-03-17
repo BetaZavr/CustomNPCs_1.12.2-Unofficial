@@ -1,4 +1,4 @@
-# Motsvarande version: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] och senare;
+# Motsvarande version: [CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot] och senare;
 # Sorterat, kontrollerat och lagt till av BetaZavr
 # Översatt med Google Translate
 
@@ -48,6 +48,7 @@ advanced.stepsound=Ljudet av fotsteg
 
 ai.avoidwater=Undviker vatten
 ai.backtracking=Rundresa
+ai.can.be.collide=Tryck från platsen
 ai.cansprint=Kan springa
 ai.clearlos=Skyldighet Se mål
 ai.cobwebAffected=Webben saktar ner.
@@ -65,6 +66,7 @@ ai.hover.attack.type.4=<br>§7NP C samlar sina kamrater nära sig (av samma frak
 ai.hover.attack.type.5=<br>§7NP C rör sig långsamt mot målet.<br>§7Om målet ser NPC ,<br>§7eller NPC når det specificerade avståndet,<br>§7eller NPC träffar målet,<br> §7då attackerar NPC målet med hjälp av typen "Onslaught".
 ai.hover.attack.type.6=<br>§7Ingen stridstaktik<br>§7Går nära målet och försöker orsaka skada
 ai.hover.back.home=Om NPC inte är engagerad i strid kommer han att återgå till sin hemmaposition.
+ai.hover.can.be.collide=Ingen varelse kan driva denna NPC.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=Handlingar av en NPC när han befinner sig i ett kvarter med en dörr
 ai.hover.found.refuge=Söker skydd och när<br>§7På natten - en dörr<br>§7På dagen - ett kvarter ovanför huvudet
@@ -871,6 +873,7 @@ emotion.blink=Blink in this frame
 emotion.can.blink=Blinks if it wants to
 emotion.can.no.blink=Does not blink
 emotion.end.blink=Blink until end of frame
+emotion.hover.scale.move=Skala av elevrörelse längs %S -axeln när du spårar ett mål med ögonen
 emotion.list=List of Emotions:
 emotion.no.blink=Don't blink in this frame
 emotion.part.disable=Standard pupil movement
@@ -886,9 +889,6 @@ encrypt.hover.path=Sökväg till filen där den kommer att sparas<br>§7Nu: %s
 encrypt.hover.type.false=Kryptera skriptet från den aktuella fliken tillsammans med alla skript från de laddade filerna
 encrypt.hover.type.true=Kryptera endast synligt skript från aktuell flik
 encrypt.only.tab=Endast synligt flikskript
-
-entity.CustomNpc.name=Beställnings Npc
-entity.customnpcs.CustomNpc.name=Beställnings NPC
 
 enum.animation.aim=Siktar
 enum.animation.bow=Håller en båge
@@ -1949,6 +1949,7 @@ quest.hover.compass.entity=Entitetsnamn<br>§7Pilen för uppdragets kompass komm
 quest.hover.compass.false=Byt Quest Compass för att spåra detta uppdrag
 quest.hover.compass.pos=Placering av det centrala blocket längs %s- axeln <br>§7Uppdragets kompassspil kommer att vara orienterad mot detta block
 quest.hover.compass.range=Lösningssökningsområde<br>§7Uppdragskompasspilen kommer att inaktiveras när spelaren befinner sig inom zonen som bildas av det centrala blocket och det inställda avståndet från det
+quest.hover.compass.reg=Region -ID: %S <br> §7 Du kan också ange region -ID för regionen som denna position är i om du använder modifieringsregioner
 quest.hover.compass.set=Ställ in positionen för denna uppgift för Quest Compass<br>§7Din position
 quest.hover.compass.settings=Ställ in Quest Compass
 quest.hover.compass.track=Uppdragskompassen kommer att spåra det valda uppdraget<br>§7Fungerar endast om kompassen är konfigurerad i uppdragets mål
@@ -2256,6 +2257,20 @@ script.hover.client=Händelser som är aktiva på varje spelares klient<br>§6F�
 script.hover.encrypt.false=§cScripts för klienter kan inte krypteras!
 script.hover.encrypt.true=Kryptera det här skriptet från nyfikna ögon<br>§7 Skriptet är krypterat med lösenordsnyckeln som anges i modkonfigurationen<br>§cObs! 
 script.hover.forge=Forge -händelser <br>§7Vissa serverkärnor §8(som ett exempel Magma )§7 sätt att kombinera plugins och mods, vilket är anledningen till att vissa Forge- händelser inte är tillgängliga!<br>§8Språkexempel §eERMAScript §8för §fTickEvent . WorldTickEvent §8:<br>§9 var§f api §9=§fJava §9.§ftyp §9(§7" noppes . npcs . api . NpcAPI "§9).§fInstans §9();<br>§9 funktion§f tickEventWorldTickEvent §9(§eevent §9) {<br> §9 var§f iWorld §9= §fapi §9.§fgetIWorld §9(§fevent §9.§fworld §9);<br> §fiWorld §9.§fsändning §9(§7"Aktuell tid i världen ID ["§9 +§fiWorld §9.§fgetDimension §9().§fgetId §9()+§7"]: "§9+§fiWorld §9.§fgetTime §9());<br>§9}<br>§8Den fullständiga listan över tillgängliga händelsenamn kan ses med kommandot:§f / noppes manus forgelist
+script.hover.info=Bibliotek som krävs för att ansluta skriptspråk: <br> §BecMascript Nashorn§7 - §anot krävs <br> §BgRAALJS§7_§ekotlin§7 - §Fgraal_kotlin_libs -1.8.21.jar <br> §Blua§7 - §FLUAJ -J -JSE -3.0.1BLIBLIBLIBLIBLYBYBYBYBPYGPHYBYBYBYBYMBPYG. 
+script.hover.info.dir=<br> §7Directory för dina modulfiler: <br> %s <br> §7File Index: %s
+script.hover.info.ecmascript=Den inbyggda JavaScript-motorn i JDK fram till version 11 <br> §7A Kraftfull Ecmascript-motor som gör att du enkelt kan integrera JavaScript-kod i Java-applikationer, men är lågpresterande
+script.hover.info.graaljs=En högpresterande JavaScript-motor utvecklad av Oracle Labs <br> §7A Modernt alternativ till Nashorn som ger utmärkt prestanda och Ecmascript-kompatibilitet
+script.hover.info.groovy=Ett dynamiskt typat programmeringsspråk som sammanställs till Java Bytecode och kör ovanpå JVM
+script.hover.info.jruby=En Ruby -implementering på Java -plattformen <br> §7Supports integration med Java API och användningen av befintliga bibliotek Ruby
+script.hover.info.jython=En Python -implementering på Java -plattformen <br> §7 Gelar du för att köra Python -kod inuti Java Virtual Machine
+script.hover.info.kotlin=Skript i Kotlin <br> §7A Modern Statiskt typ Språk skapat av Jetbrains
+script.hover.info.lua=En JVM -implementering av LUA -programmeringsspråket <br> §7it ger hög prestanda och kompatibilitet med ett brett utbud av Java -bibliotek
+script.hover.info.rhino=En JavaScript -tolk från Mozilla som körs på Java -plattformen <br> §7on av de äldsta och mest stabila JavaScript -motorerna för JVM
+script.hover.log.clear=Ta bort endast loggen som visas i fältet
+script.hover.log.clear.all=Ta bort alla loggar
+script.hover.log.copy=Kopiera endast logtexten som visas i fältet
+script.hover.log.copy.all=Kopiera alla loggar i kronologisk ordning
 script.hover.npcs=Events of each NPC<br>§7Works even if NPCs have their own scripts disabled<br>§7List of NPC functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fnpc§9.§fsay§9(§7"Next Step"§9);<br>§9}
 script.hover.players=Händelser för varje spelare<br>§7Lista över spelarfunktioner:<br>§f %s <br>§8Språkexempel §eERMAScript §8:<br>§9 -funktion§f bocka för §9(§eehändelse §9) {<br> §eehändelse §9.§fspelare §9.§fmeddelande §9(§7"Nästa steg"§9);<br>§9}
 script.hover.potion=Events of Potions som lagts till i spelet<br>§6För PRO §7, händelser när en potion aktiveras på en enhet<br>§7Lista över funktioner för dina potions:<br>§f %s <br>§8Språkexempel §eERMAScript för §fIsReadyEvent §8:<br>§9 funktion§f isReady §9(§eevent §9) {<br> §9 if (§eevent §9.§fpotion §9.§fgetCustomName §9().§c motsvarar §9(§7" potionexempel "§9)) {<br> §9 var §fi §9 = §eevent §9.§famplifier §9 == §60 §9? §620§9 :§6 30§9;<br>§eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§fi§9);<br>§9}<br >§9}
@@ -2403,7 +2418,7 @@ stats.hover.level=NPC- nivå för bekvämlighet<br>§7När den ändras kommer de
 stats.hover.max.health=Maximal hälsa
 stats.hover.melee=Inställningar för närstridsattacker
 stats.hover.particle=Tillsammans med partiklar
-stats.hover.potion=NPC:er tar inte skada av drycker
+stats.hover.potion=NPC ignorerar alla drycker
 stats.hover.range=Inställningar för avståndsattack<br>§7För att en NPC ska börja använda skjutvapen måste du konfigurera utrustningen på fliken "Inventering"
 stats.hover.rarity=NPC- sällsynthet för bekvämlighet<br>§7När den ändras kommer den att beräknas om: skada, motstånd, erfarenhet, hastighet, återuppbyggnadstid<br>§8Visning och omräkning kan inaktiveras i modkonfigurationerna
 stats.hover.resist=Current damage resistance readings from "%s"
@@ -2469,7 +2484,7 @@ stats.undead=Odöda
 system.check.scripts.agree=Have you §ecarefully§r read the warning and agree to its requirements?
 system.check.scripts.title=§4Attention! §rYou have the §6CustomNpcs Unofficial mod installed§r - this means that the map developer could have created scripts necessary for specific gameplay mechanics to work. However, ill-wishers create scripts that can harm your system or steal your personal data. To run the game, your agreement is required, that you trust the map developer and understand your responsibility for this decision!
 
-tag.type.0=logisk
+tag.type.0=Logisk
 tag.type.1=Byte
 tag.type.10=Sammansatt
 tag.type.11=Heltalsmatris

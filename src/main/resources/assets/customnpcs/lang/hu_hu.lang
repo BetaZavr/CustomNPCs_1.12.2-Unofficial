@@ -1,4 +1,4 @@
-# Megfelelő verzió: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] és újabb;
+# Megfelelő verzió: [CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot] és újabb;
 # A BetaZavr rendezte , ellenőrizte és hozzáadta
 # Google Fordítóval lefordítva
 
@@ -48,6 +48,7 @@ advanced.stepsound=Lépések hangja
 
 ai.avoidwater=Kerüli a vizet
 ai.backtracking=Körút
+ai.can.be.collide=Tolva a helyről
 ai.cansprint=Tud futni
 ai.clearlos=Kötelezettség Lásd a gólokat
 ai.cobwebAffected=A web lelassul.
@@ -65,6 +66,7 @@ ai.hover.attack.type.4=<br>7. NP C. összegyűjti a maga közelében lévő (mag
 ai.hover.attack.type.5=<br>§7NP C lassan mozog a cél felé.<br>§7Ha a célpont látja az NPC-t ,<br>§7vagy az NPC eléri a megadott távolságot,<br>§7vagy az NPC eltalálja a célpontot,<br> 7. §, majd az NPC "Onslaught" típussal támadja meg a célpontot
 ai.hover.attack.type.6=<br>§7Nincs harci taktika<br>§7. Közel sétál a célponthoz, próbálva sebzést okozni
 ai.hover.back.home=Ha az NPC nem vesz részt a harcban, akkor visszatér otthoni pozíciójába.
+ai.hover.can.be.collide=Egyetlen lény sem tudja megnyomni ezt az NPC -t.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=Egy NPC tettei, amikor egy ajtós blokkban találja magát
 ai.hover.found.refuge=Menedéket keres és mikor<br>§7Éjszaka - ajtó<br>§7Nappal - háztömb a fejed felett
@@ -871,6 +873,7 @@ emotion.blink=Blink in this frame
 emotion.can.blink=Blinks if it wants to
 emotion.can.no.blink=Does not blink
 emotion.end.blink=Blink until end of frame
+emotion.hover.scale.move=A tanuló mozgásának skálája a %S tengely mentén, amikor egy célt nyomon követ a szemmel
 emotion.list=List of Emotions:
 emotion.no.blink=Don't blink in this frame
 emotion.part.disable=Standard pupil movement
@@ -886,9 +889,6 @@ encrypt.hover.path=A mentési fájl elérési útja<br>§7Most: %s
 encrypt.hover.type.false=Titkosítsa a szkriptet az aktuális lapról a betöltött fájlokból származó összes szkripttel együtt
 encrypt.hover.type.true=Csak az aktuális lap látható szkriptjének titkosítása
 encrypt.only.tab=Csak látható lapszkript
-
-entity.CustomNpc.name=Egyedi Npc
-entity.customnpcs.CustomNpc.name=Egyedi NPC
 
 enum.animation.aim=Célzás
 enum.animation.bow=Egy íjat tart
@@ -1949,6 +1949,7 @@ quest.hover.compass.entity=Entitás neve<br>§7A küldetés iránytűje egy ilye
 quest.hover.compass.false=A küldetés nyomon követéséhez váltson a Quest Compassre
 quest.hover.compass.pos=A központi blokk helyzete a %s tengely mentén <br>§7A küldetés iránytűje e blokk felé fog mutatni
 quest.hover.compass.range=Megoldás keresési tartomány<br>§7A küldetés iránytűje le lesz tiltva, ha a játékos a központi blokk által alkotott zónán belül van és a beállított távolságon belül van.
+quest.hover.compass.reg=Region ID: %S <br> §7. A régió régió -azonosítója is meghatározhatja, hogy ez a helyzet, ha módosító régiókat használ, akkor
 quest.hover.compass.set=Állítsa be ennek a feladatnak a pozícióját a Quest Compass-hez<br>§7Az Ön pozíciója
 quest.hover.compass.settings=Állítsa be a Quest Compass alkalmazást
 quest.hover.compass.track=A küldetés iránytűje követi a kiválasztott küldetést<br>§7Csak akkor működik, ha az iránytű be van állítva a küldetés céljaiban
@@ -2256,6 +2257,20 @@ script.hover.client=Minden játékos kliensén aktív események<br>§6For §9 M
 script.hover.encrypt.false=§cScriptek az ügyfelek számára nem titkosíthatók!
 script.hover.encrypt.true=Titkosítsa ezt a szkriptet a kíváncsi szemek elől<br>§7A szkript a mod konfigurációban megadott jelszókulccsal titkosítva<br>§cFigyelem! 
 script.hover.forge=Forge események <br>§7Egyes kiszolgálómagok §8(például Magma )§7 módjai a bővítmények és a modok kombinálására, ezért egyes Forge események nem érhetők el!<br>§8Nyelvi példa §eERMAScript §8az §fTickEvent számára . WorldTickEvent §8:<br>§9 var§f api §9=§fJava §9.§ftype §9(§7" noppes . npcs . api . NpcAPI "§9).§fInstance §9();<br>§9 function§f tickEventWorldTickEvent §9(§eevent §9) {<br> §9 var§f iWorld §9= §fapi §9.§fgetIWorld §9(§fevent §9.§fworld §9);<br> §fiWorld §9.§fbroadcast §9(§7"Jelenlegi idő a világban ID ["§9 +§fiWorld §9.§fgetDimension §9().§fgetId §9()+§7"]: "§9+§fiWorld §9.§fgetTime §9());<br>§9}<br>§8Az elérhető eseménynevek teljes listája a következő paranccsal tekinthető meg:§f / noppes forgatókönyv forgelist
+script.hover.info=A szkriptnyelvek csatlakoztatásához szükséges könyvtárak: <br> §BeCMAScript Nashorn§7 - §anot szükséges 
+script.hover.info.dir=<br> §7Directory a modulfájlokhoz: <br> %s <br> §7File index: %s
+script.hover.info.ecmascript=A beépített JavaScript motor a JDK-ban, a 11. verzióig <br> §7A hatékony ECMAScript motor, amely lehetővé teszi a JavaScript kód egyszerű integrálását a Java alkalmazásokba, de alacsony teljesítményű
+script.hover.info.graaljs=Az Oracle Labs által kifejlesztett nagy teljesítményű JavaScript motor <br> §7a.
+script.hover.info.groovy=Egy dinamikusan gépelt programozási nyelv, amely összeállítja a Java bytecode -t, és a JVM tetején fut
+script.hover.info.jruby=Ruby -megvalósítás a Java platformon <br> §7Supports integráció a Java API -val és a meglévő könyvtárak használatával Ruby
+script.hover.info.jython=Python megvalósítás a Java platformon
+script.hover.info.kotlin=Szkript Kotlinban <br> §7a modern statikusan gépelt nyelv, amelyet a jetbrains készített
+script.hover.info.lua=A LUA programozási nyelv JVM megvalósítása <br> §7IT nagy teljesítményt és kompatibilitást biztosít a Java könyvtárak széles skálájával
+script.hover.info.rhino=JavaScript tolmács a Mozilla -ból, amely a Java platformon fut.
+script.hover.log.clear=Törölje csak a mezőben megjelenített naplót
+script.hover.log.clear.all=Törölje az összes naplót
+script.hover.log.copy=Másolja csak a mezőben megjelenített naplószöveget
+script.hover.log.copy.all=Másolja az összes naplót időrendi sorrendben
 script.hover.npcs=Events of each NPC<br>§7Works even if NPCs have their own scripts disabled<br>§7List of NPC functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fnpc§9.§fsay§9(§7"Next Step"§9);<br>§9}
 script.hover.players=Az egyes játékosok eseményei<br>§7A játékos funkcióinak listája:<br>§f %s <br>§8Nyelvi példa §eERMAScript §8:<br>§9 funkció§f jelölje be a §9(§eevent §9) {<br> §eevent §9.§fplayer §9.§fmessage §9(§7"Következő lépés"§9);<br>§9}
 script.hover.potion=A játékhoz hozzáadott bájitalok eseményei<br>§6PROesetében 7. §, események, amikor egy entitáson aktivál egy bájitalt<br>§7. A bájitalok funkcióinak listája:<br>§f %s <br>§8Nyelvi példa §eERMAScript §fIsReadyEvent §8:<br>§9 funkcióhoz§f isReady §9(§eevent §9) {<br> §9 if (§eevent §9.§fpotion §9.§fgetCustomName §9().§fequals §9(§7" potionexample "§9)) {<br> §9 var §fi §9 = §eevent §9.§famplifier §9 == §60 §9? §620§9 :§6 30§9;<br>§eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§fi§9);<br>§9}<br >§9}
@@ -2403,7 +2418,7 @@ stats.hover.level=NPC szint a kényelem kedvéért<br>§7Ha módosítja, újrasz
 stats.hover.max.health=Maximális egészség
 stats.hover.melee=Közelharci támadás beállításai
 stats.hover.particle=Részecskék kíséretében
-stats.hover.potion=Az NPC-k nem sebznek meg a bájitaloktól
+stats.hover.potion=Az NPC figyelmen kívül hagyja a bájitalokat
 stats.hover.range=Távolsági támadási beállítások<br>§7Ahhoz, hogy egy NPC elkezdhesse használni a lőfegyvereket, be kell állítania a felszerelést a „Készlet” lapon
 stats.hover.rarity=NPC ritkaság a kényelem kedvéért<br>§7Ha módosítja, újraszámolja: sebzés, ellenállás, tapasztalat, sebesség, újrakezdési idő<br>§8 A megjelenítés és az újraszámítás letiltható a mod konfigurációkban
 stats.hover.resist=Current damage resistance readings from "%s"
@@ -2469,7 +2484,7 @@ stats.undead=Élőhalott
 system.check.scripts.agree=Have you §ecarefully§r read the warning and agree to its requirements?
 system.check.scripts.title=§4Attention! §rYou have the §6CustomNpcs Unofficial mod installed§r - this means that the map developer could have created scripts necessary for specific gameplay mechanics to work. However, ill-wishers create scripts that can harm your system or steal your personal data. To run the game, your agreement is required, that you trust the map developer and understand your responsibility for this decision!
 
-tag.type.0=logikus
+tag.type.0=Logikus
 tag.type.1=Byte
 tag.type.10=Összetett
 tag.type.11=Egész tömb

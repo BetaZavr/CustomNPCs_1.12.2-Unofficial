@@ -1,4 +1,4 @@
-# Versi yang Sesuai: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] dan yang lebih baru;
+# Versi yang Sesuai: [CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot] dan yang lebih baru;
 # Diurutkan, Diperiksa, dan Ditambahkan oleh BetaZavr
 # Diterjemahkan dengan Google Terjemahan
 
@@ -48,6 +48,7 @@ advanced.stepsound=Suara langkah kaki
 
 ai.avoidwater=Menghindari air
 ai.backtracking=Perjalanan pulang pergi
+ai.can.be.collide=Mendorong dari tempat
 ai.cansprint=Dapat berlari
 ai.clearlos=Kewajiban Lihat tujuan
 ai.cobwebAffected=Web melambat.
@@ -65,6 +66,7 @@ ai.hover.attack.type.4=<br>§7NPC mengumpulkan rekan-rekannya di dekatnya (dari 
 ai.hover.attack.type.5=<br>§7NPC bergerak perlahan menuju target.<br>§7Jika target melihat NPC ,<br>§7atau NPC mencapai jarak yang ditentukan,<br>§7atau NPC mengenai target,<br> §7kemudian NPC menyerang target menggunakan tipe "Onslaught".
 ai.hover.attack.type.6=<br>§7Tidak ada taktik tempur<br>§7Berjalan mendekati target, mencoba menimbulkan kerusakan
 ai.hover.back.home=Jika NPC tidak terlibat dalam pertempuran, dia akan kembali ke posisi asalnya.
+ai.hover.can.be.collide=Tidak ada makhluk yang bisa mendorong NPC ini.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=Tindakan NPC ketika dia menemukan dirinya berada di blok dengan pintu
 ai.hover.found.refuge=Mencari tempat berlindung dan ketika<br>§7Di malam hari - sebuah pintu<br>§7Siang hari - satu blok di atas kepala Anda
@@ -871,6 +873,7 @@ emotion.blink=Blink in this frame
 emotion.can.blink=Blinks if it wants to
 emotion.can.no.blink=Does not blink
 emotion.end.blink=Blink until end of frame
+emotion.hover.scale.move=Skala gerakan pupil di sepanjang sumbu %S saat melacak target dengan mata
 emotion.list=List of Emotions:
 emotion.no.blink=Don't blink in this frame
 emotion.part.disable=Standard pupil movement
@@ -886,9 +889,6 @@ encrypt.hover.path=Jalur file tempat file tersebut akan disimpan<br>§7Sekarang:
 encrypt.hover.type.false=Enkripsi skrip dari tab saat ini bersama dengan semua skrip dari file yang dimuat
 encrypt.hover.type.true=Enkripsi hanya skrip yang terlihat dari tab saat ini
 encrypt.only.tab=Hanya skrip tab yang terlihat
-
-entity.CustomNpc.name=Kebiasaan NPC
-entity.customnpcs.CustomNpc.name=Kebiasaan NPC
 
 enum.animation.aim=Membidik
 enum.animation.bow=Memegang busur
@@ -1949,6 +1949,7 @@ quest.hover.compass.entity=Nama entitas<br>§7Panah kompas pencarian akan berori
 quest.hover.compass.false=Ganti Quest Compass untuk melacak pencarian ini
 quest.hover.compass.pos=Posisi blok pusat sepanjang sumbu %s <br>§7Panah kompas pencarian akan berorientasi pada blok ini
 quest.hover.compass.range=Rentang pencarian solusi<br>§7Panah kompas pencarian akan dinonaktifkan ketika pemain berada di dalam zona yang dibentuk oleh blok pusat dan jarak yang ditentukan darinya
+quest.hover.compass.reg=ID Wilayah: %s <br> §7Anda juga dapat menentukan ID wilayah wilayah posisi ini jika Anda menggunakan wilayah modifikasi
 quest.hover.compass.set=Tetapkan posisi tugas ini untuk Quest Compass<br>§7Posisi Anda
 quest.hover.compass.settings=Siapkan Kompas Quest
 quest.hover.compass.track=Kompas pencarian akan melacak pencarian yang dipilih<br>§7Hanya berfungsi jika kompas dikonfigurasikan dalam tujuan pencarian
@@ -2256,6 +2257,20 @@ script.hover.client=Acara yang aktif di klien masing-masing pemain<br>§6Untuk �
 script.hover.encrypt.false=§cScript untuk klien tidak dapat dienkripsi!
 script.hover.encrypt.true=Enkripsi skrip ini dari pengintaian<br>§7Skrip ini dienkripsi dengan kunci sandi yang ditentukan dalam konfigurasi mod<br>§cPerhatian! 
 script.hover.forge=Acara Forge <br>§7Beberapa inti server §8(sebagai contoh Magma )§7 cara menggabungkan plugin dan mod, itulah sebabnya beberapa acara Forge tidak tersedia!<br>§8Contoh bahasa §eERMAScript §8untuk §fTickEvent . WorldTickEvent §8:<br>§9 var§f api §9=§fJava §9.§ftype §9(§7" noppes .npcs .api . NpcAPI "§9).§fInstance §9(); <br> §9 fungsi§f tickEventWorldTickEvent §9(§acara §9) {<br> §9 var§f iWorld §9= §fapi §9.§fgetIWorld §9(§fevent §9.§fworld §9);<br> §fiWorld §9.§fbroadcast §9(§7"Waktu saat ini di ID dunia ["§9 +§fiWorld §9.§fgetDimension §9().§fgetId §9()+§7"]: "§9+§fiWorld §9.§fgetTime §9());<br>§9}<br>§8Daftar lengkap nama acara yang tersedia dapat dilihat menggunakan perintah:§f / noppes naskah orang yang lupa
+script.hover.info=Perpustakaan Diperlukan untuk Menghubungkan Bahasa Scripting: <br> §BecMascript nashorn§7 - §anot diperlukan <br> §bgraaljs§7_§Ekotlin§7 - §fgraal_kotlin_libs -.8.21.jar <br> §blua§7 - §fluaj -jar. 
+script.hover.info.dir=<br> §7direktori untuk file modul Anda: <br> %s <br> §7file indeks: %s
+script.hover.info.ecmascript=Mesin JavaScript bawaan di JDK hingga versi 11 <br> §7a mesin ecmascript yang kuat yang memungkinkan Anda untuk dengan mudah mengintegrasikan kode JavaScript ke dalam aplikasi Java, tetapi berkinerja rendah
+script.hover.info.graaljs=Mesin JavaScript berkinerja tinggi yang dikembangkan oleh Oracle Labs <br> §7a Alternatif modern untuk Nashorn yang memberikan kinerja yang sangat baik dan kompatibilitas ecmascript
+script.hover.info.groovy=Bahasa pemrograman yang diketik secara dinamis yang dikompilasi ke java bytecode dan berjalan di atas JVM
+script.hover.info.jruby=Implementasi Ruby di Platform Java <br> §7 mendukung integrasi dengan Java API dan penggunaan perpustakaan yang ada Ruby
+script.hover.info.jython=Implementasi Python di Platform Java <br> §7 masuk Anda untuk menjalankan kode Python di dalam mesin virtual Java
+script.hover.info.kotlin=Scripting di Kotlin <br> §7a Bahasa modern yang diketik secara statis yang dibuat oleh JetBrains
+script.hover.info.lua=Implementasi JVM dari bahasa pemrograman LUA <br> §7it memberikan kinerja tinggi dan kompatibilitas dengan berbagai perpustakaan Java
+script.hover.info.rhino=Interpreter JavaScript dari Mozilla yang berjalan di platform Java <br> §7one dari mesin JavaScript tertua dan paling stabil untuk JVM
+script.hover.log.clear=Hapus hanya log yang ditampilkan di bidang
+script.hover.log.clear.all=Hapus semua log
+script.hover.log.copy=Salin hanya teks log yang ditampilkan di bidang
+script.hover.log.copy.all=Salin semua log dalam urutan kronologis
 script.hover.npcs=Events of each NPC<br>§7Works even if NPCs have their own scripts disabled<br>§7List of NPC functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fnpc§9.§fsay§9(§7"Next Step"§9);<br>§9}
 script.hover.players=Peristiwa setiap Pemain<br>§7Daftar fungsi pemain:<br>§f %s <br>§8Contoh bahasa §eERMAScript §8:<br>§9 fungsi§f centang §9(§acara §9) {<br> §acara §9.§fplayer §9.§fmessage §9(§7"Langkah Berikutnya"§9);<br>§9}
 script.hover.potion=Peristiwa Ramuan ditambahkan ke permainan<br>§6Untuk PRO §7, peristiwa saat mengaktifkan ramuan pada suatu entitas<br>§7Daftar fungsi ramuan Anda:<br>§f %s <br>§8Contoh bahasa §eERMAScript untuk §fIsReadyEvent §8:<br>§9 fungsi§f isReady §9(§eevent §9) {<br> §9 if (§eevent §9.§fpotion §9.§fgetCustomName §9().§fequals §9(§7" Potionexample "§9)) {<br> §9 var §fi §9 = §acara §9.§c penguat §9 == §60 §9? §620§9 :§6 30§9;<br>§eeevent§9.§fready§9 = (§eeevent§9.§fduration§9 ==§fi§9);<br>§9}<br >§9}
@@ -2403,7 +2418,7 @@ stats.hover.level=Level NPC untuk kenyamanan<br>§7Ketika diubah, itu akan mengh
 stats.hover.max.health=Kesehatan Maksimal
 stats.hover.melee=Pengaturan serangan jarak dekat
 stats.hover.particle=Disertai dengan partikel
-stats.hover.potion=NPC tidak menerima kerusakan dari ramuan
+stats.hover.potion=NPC mengabaikan ramuan apa pun
 stats.hover.range=Pengaturan serangan jarak jauh<br>§7Agar NPC dapat mulai menggunakan senjata api, Anda perlu mengonfigurasi item peralatan di tab "Inventaris"
 stats.hover.rarity=Kelangkaan NPC demi kenyamanan<br>§7Saat diubah, ia akan menghitung ulang: kerusakan, ketahanan, pengalaman, kecepatan, waktu respawn<br>§8Tampilan dan Penghitungan Ulang dapat dinonaktifkan di konfigurasi mod
 stats.hover.resist=Current damage resistance readings from "%s"
@@ -2469,7 +2484,7 @@ stats.undead=Mayat hidup
 system.check.scripts.agree=Have you §ecarefully§r read the warning and agree to its requirements?
 system.check.scripts.title=§4Attention! §rYou have the §6CustomNpcs Unofficial mod installed§r - this means that the map developer could have created scripts necessary for specific gameplay mechanics to work. However, ill-wishers create scripts that can harm your system or steal your personal data. To run the game, your agreement is required, that you trust the map developer and understand your responsibility for this decision!
 
-tag.type.0=logis
+tag.type.0=Logis
 tag.type.1=byte
 tag.type.10=Gabungan
 tag.type.11=Susunan bilangan bulat

@@ -29,15 +29,20 @@ import javax.annotation.Nonnull;
 public class GuiScriptInterface
 extends GuiNPCInterface
 implements IGuiData, ITextChangeListener {
-	
-	protected int activeTab;
-	public IScriptHandler handler;
-	public Map<String, Map<String, Long>> languages = new HashMap<>();
-	public String path, ext;
+
 	private static final String web_site = "http://www.kodevelopment.nl/minecraft/customnpcs/scripting";
 	private static final String api_doc_site = "https://github.com/BetaZavr/CustomNPCsAPI-Unofficial";
 	private static final String api_site = "https://github.com/BetaZavr/CustomNPCsAPI-Unofficial";
 	private static final String dis_site = "https://discord.gg/RGb4JqE6Qz";
+
+	protected int activeTab;
+	protected final Map<Integer, Long> dataLog = new HashMap<>();
+	protected Long selectLog = 0L;
+
+	public IScriptHandler handler;
+	public Map<String, Map<String, Long>> languages = new HashMap<>();
+	public String path, ext;
+
 
 	public GuiScriptInterface() {
 		super();
@@ -50,13 +55,13 @@ implements IGuiData, ITextChangeListener {
 	}
 
 	@Override
-	protected void actionPerformed(@Nonnull GuiButton guibutton) {
-		if (guibutton.id >= 0 && guibutton.id < CustomNpcs.ScriptMaxTabs) {
+	protected void actionPerformed(@Nonnull GuiButton button) {
+		if (button.id >= 0 && button.id < CustomNpcs.ScriptMaxTabs) {
 			setScript();
-			activeTab = guibutton.id;
+			activeTab = button.id;
 			initGui();
 		}
-		if (guibutton.id == CustomNpcs.ScriptMaxTabs + 1) {
+		if (button.id == CustomNpcs.ScriptMaxTabs + 1) {
 			if (handler.getScripts().size() >= CustomNpcs.ScriptMaxTabs) {
 				activeTab = CustomNpcs.ScriptMaxTabs;
 				initGui();
@@ -66,11 +71,15 @@ implements IGuiData, ITextChangeListener {
 			activeTab = handler.getScripts().size();
 			initGui();
 		}
-
-		if (guibutton.id == 100) {
-			NoppesStringUtils.setClipboardContents(getTextArea(2).getText());
+		if (button.id == 100) { // copy all logs
+			Map<Long, String> map = handler.getConsoleText();
+			StringBuilder builder = new StringBuilder();
+			for (Map.Entry<Long, String> entry : map.entrySet()) {
+				builder.insert(0, new Date(entry.getKey()) + entry.getValue() + "\n\n");
+			}
+			NoppesStringUtils.setClipboardContents(builder.toString());
 		}
-		if (guibutton.id == 101) {
+		if (button.id == 101) {
 			ScriptContainer container = handler.getScripts().get(activeTab - 1);
 			if (container != null) {
 				boolean sr = !(container.script == null || container.script.isEmpty());
@@ -86,7 +95,7 @@ implements IGuiData, ITextChangeListener {
 			}
 			getTextArea(2).setText(NoppesStringUtils.getClipboardContents());
 		}
-		if (guibutton.id == 102) { // clear text
+		if (button.id == 102) { // clear all logs
 			if (activeTab > 0) {
 				GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 5);
 				displayGuiScreen(guiyesno);
@@ -95,52 +104,69 @@ implements IGuiData, ITextChangeListener {
 			}
 			initGui();
 		}
-		if (guibutton.id == 103) {
-			handler.setLanguage(guibutton.displayString);
-			String[] data = getLanguageData(guibutton.displayString);
-			((GuiNpcButton) guibutton).setHoverText(new TextComponentTranslation("script.hover.info." + data[0]).
+		if (button.id == 103) {
+			handler.setLanguage(button.displayString);
+			String[] data = getLanguageData(button.displayString);
+			((GuiNpcButton) button).setHoverText(new TextComponentTranslation("script.hover.info." + data[0]).
 					appendSibling(new TextComponentTranslation("script.hover.info.dir", data[1], data[2])).getFormattedText());
 		}
-		if (guibutton.id == 104) {
-			handler.setEnabled(((GuiNpcButton) guibutton).getValue() == 1);
+		if (button.id == 104) {
+			handler.setEnabled(((GuiNpcButton) button).getValue() == 1);
 		}
-		if (guibutton.id == 105) {
+		if (button.id == 105) {
 			GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 10);
 			displayGuiScreen(guiyesno);
 		}
-		if (guibutton.id == 106) {
+		if (button.id == 106) {
 			NoppesUtil.openFolder(ScriptController.Instance.dir);
 		}
-		if (guibutton.id == 107) {
+		if (button.id == 107) {
 			ScriptContainer container = handler.getScripts().get(activeTab - 1);
 			if (container == null) { handler.getScripts().add(container = new ScriptContainer(handler, true)); }
 			setSubGui(new GuiScriptList(languages.get(Util.instance.deleteColor(handler.getLanguage())), container));
 		}
-		if (guibutton.id == 108) {
+		if (button.id == 108) {
 			ScriptContainer container = handler.getScripts().get(activeTab - 1);
 			if (container != null) { setScript(); }
 		}
-		if (guibutton.id == 109) {
+		if (button.id == 109) {
 			displayGuiScreen(new GuiConfirmOpenLink(this, web_site , 0, true));
 		}
-		if (guibutton.id == 110) {
+		if (button.id == 110) {
 			displayGuiScreen(new GuiConfirmOpenLink(this, api_doc_site, 1, true));
 		}
-		if (guibutton.id == 111) {
+		if (button.id == 111) {
 			displayGuiScreen(new GuiConfirmOpenLink(this, api_site, 2, true));
 		}
-		if (guibutton.id == 112) {
+		if (button.id == 112) {
 			displayGuiScreen(new GuiConfirmOpenLink(this, dis_site, 3, true));
 		}
-		if (guibutton.id == 115) {
+		if (button.id == 115) {
 			GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.remove.all").getFormattedText(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 4);
 			displayGuiScreen(guiyesno);
 		}
-		if (guibutton.id == 118) {
+		if (button.id == 118) {
 			ScriptContainer container = handler.getScripts().get(activeTab - 1);
 			if (container != null) {
 				setSubGui(new GuiScriptEncrypt(path, ext));
 			}
+		}
+		if (button.id == 119) {
+			if (activeTab > 0 ||
+					!(get(2) instanceof GuiTextArea) ||
+					!dataLog.containsKey(((GuiNpcButton) button).getValue()) ||
+					!handler.getConsoleText().containsKey(dataLog.get(((GuiNpcButton) button).getValue()))) { return; }
+			selectLog = dataLog.get(((GuiNpcButton) button).getValue());
+			((GuiTextArea) get(2)).setText(new Date(selectLog) + handler.getConsoleText().get(selectLog));
+		}
+		if (button.id == 120) { // copy log
+			if (activeTab > 0) { return; }
+			NoppesStringUtils.setClipboardContents(getTextArea(2).getText());
+		}
+		if (button.id == 121) { // clear log
+			if (activeTab > 0) { return; }
+			handler.clearConsoleText(selectLog);
+			initGui();
 		}
 	}
 	
@@ -239,15 +265,6 @@ implements IGuiData, ITextChangeListener {
 		return new String[] { key, dir, ext };
 	}
 
-	private String getConsoleText() {
-		Map<Long, String> map = handler.getConsoleText();
-		StringBuilder builder = new StringBuilder();
-		for (Map.Entry<Long, String> entry : map.entrySet()) {
-			builder.insert(0, new Date(entry.getKey()) + entry.getValue() + "\n");
-		}
-		return builder.toString();
-	}
-
 	private int getScriptIndex() {
 		int i = 0;
 		for (String language : languages.keySet()) {
@@ -269,6 +286,7 @@ implements IGuiData, ITextChangeListener {
 		super.initGui();
 		guiTop += 10;
 		int yoffset = (int) (ySize * 0.02);
+		GuiNpcButton button;
 		GuiMenuTopButton top;
 		addTopButton(top = new GuiMenuTopButton(0, guiLeft + 4, guiTop - 17, "gui.settings"));
 		for (int i = 0; i < handler.getScripts().size(); ++i) {
@@ -285,7 +303,7 @@ implements IGuiData, ITextChangeListener {
 		top.active = true;
 		if (activeTab > 0) {
 			ScriptContainer container = handler.getScripts().get(activeTab - 1);
-			GuiTextArea ta = new GuiTextArea(2, guiLeft + 1 + yoffset, guiTop + yoffset, xSize - 108 - yoffset, (int) ((ySize * 0.96) - yoffset * 2), (container == null) ? "" : container.script);
+			GuiTextArea ta = new GuiTextArea(2, guiLeft + 1 + yoffset, guiTop + 1 + yoffset, xSize - 108 - yoffset, (int) ((ySize * 0.96) - yoffset * 2), (container == null) ? "" : container.script);
 			ta.enableCodeHighlighting();
 			ta.setListener(this);
 			add(ta);
@@ -304,40 +322,77 @@ implements IGuiData, ITextChangeListener {
 				scroll.setList(container.scripts);
 			}
 			addScroll(scroll);
-			GuiNpcButton button = new GuiNpcButton(118, left, guiTop + 90 + yoffset + scroll.height, 80, 20, "gui.encrypt");
+			addButton(button = new GuiNpcButton(118, left, guiTop + 90 + yoffset + scroll.height, 80, 20, "gui.encrypt"));
 			button.setEnabled(!(this instanceof GuiScriptClient));
 			button.setHoverText("" + button.enabled);
-			addButton(button);
 		} // script
 		else { // info
-			GuiTextArea ta2 = new GuiTextArea(2, guiLeft + 4 + yoffset, guiTop + 6 + yoffset, xSize - 160 - yoffset, (int) ((ySize * 0.92f) - yoffset * 2), getConsoleText());
-			ta2.enabled = false;
-			add(ta2);
-			int left2 = guiLeft + xSize - 150;
-			addButton(new GuiNpcButton(100, left2, guiTop + 125, 60, 20, "gui.copy"));
-			addButton(new GuiNpcButton(102, left2, guiTop + 146, 60, 20, "gui.clear"));
-			addLabel(new GuiNpcLabel(1, "script.language", left2, guiTop + 15));
+			TreeMap<Long, String> map = handler.getConsoleText();
+			String log = "";
+			if (!map.isEmpty()) {
+				if (!map.containsKey(selectLog)) { selectLog = map.firstKey(); }
+				log = new Date(selectLog) + map.get(selectLog);
+			}
+			GuiTextArea ta = new GuiTextArea(2, guiLeft + 4, guiTop + 7 + yoffset + (map.size() > 1 ? 22 : 0), xSize - 160, (int) ((ySize * 0.92f) - yoffset * 2) - (map.size() > 1 ? 22 : 0), log);
+			ta.enabled = false;
+			add(ta);
+			int left = guiLeft + xSize - 150;
+			addButton(button = new GuiNpcButton(100, left, guiTop + 125, 60, 20,
+					map.size() < 2 ? "gui.copy" :
+							new TextComponentTranslation("gui.copy").getFormattedText() + " "
+							+ new TextComponentTranslation("gui.all").getFormattedText()));
+			button.setHoverText("script.hover.log.copy.all");
+
+			addButton(button = new GuiNpcButton(102, left, guiTop + 146, 60, 20,
+					map.size() < 2 ? "gui.clear" :
+							new TextComponentTranslation("gui.clear").getFormattedText() + " "
+									+ new TextComponentTranslation("gui.all").getFormattedText()));
+			button.setHoverText("script.hover.log.clear.all");
+
+			if (map.size() > 1) {
+				List<String> selects = new ArrayList<>();
+				dataLog.clear();
+				int i = 0;
+				int pos = 0;
+				for(Long key : map.keySet()) {
+					dataLog.put(i, key);
+					if (Objects.equals(key, selectLog)) { pos = i; }
+					selects.add((i + 1) + ": "+new Date(key));
+					i++;
+				}
+				addButton(new GuiButtonBiDirectional(119, guiLeft + 4, guiTop + 7 + yoffset, xSize - 160, 20, selects.toArray(new String[0]), pos));
+				if (map.size() > 1) {
+					getButton(100).setLeft(left + 62);
+					getButton(102).setLeft(left + 62);
+					addButton(button = new GuiNpcButton(120, left, guiTop + 125, 60, 20, "gui.copy"));
+					button.setHoverText("script.hover.log.copy");
+					addButton(button = new GuiNpcButton(121, left, guiTop + 146, 60, 20, "gui.clear"));
+					button.setHoverText("script.hover.log.clear");
+				}
+			}
+
+			addLabel(new GuiNpcLabel(1, "script.language", left, guiTop + 15));
 			String[] ls = languages.keySet().toArray(new String[0]);
-			if (ls.length < 1) { addButton(new GuiNpcButton(103, left2 + 60, guiTop + 10, 80, 20, ls, getScriptIndex())); }
-			else { addButton(new GuiButtonBiDirectional(103, left2 + 60, guiTop + 10, 80, 20, ls, getScriptIndex())); }
+			if (ls.length < 1) { addButton(new GuiNpcButton(103, left + 60, guiTop + 10, 80, 20, ls, getScriptIndex())); }
+			else { addButton(new GuiButtonBiDirectional(103, left + 60, guiTop + 10, 80, 20, ls, getScriptIndex())); }
 			getButton(103).setEnabled(!languages.isEmpty());
 
 			String[] data = getLanguageData(getButton(103).getDisplayString());
 			getButton(103).setHoverText(new TextComponentTranslation("script.hover.info." + data[0]).
 					appendSibling(new TextComponentTranslation("script.hover.info.dir", data[1], data[2])).getFormattedText());
 
-			addLabel(new GuiNpcLabel(3, "[?]", left2 + 145, guiTop + 15));
+			addLabel(new GuiNpcLabel(3, "[?]", left + 145, guiTop + 15));
 			getLabel(3).setHoverText("script.hover.info");
 
-			addLabel(new GuiNpcLabel(2, "gui.enabled", left2, guiTop + 36));
-			addButton(new GuiNpcButton(104, left2 + 60, guiTop + 31, 50, 20, new String[] { "gui.no", "gui.yes" }, (handler.getEnabled() ? 1 : 0)));
+			addLabel(new GuiNpcLabel(2, "gui.enabled", left, guiTop + 36));
+			addButton(new GuiNpcButton(104, left + 60, guiTop + 31, 50, 20, new String[] { "gui.no", "gui.yes" }, (handler.getEnabled() ? 1 : 0)));
 			if (player.getServer() != null) {
-				addButton(new GuiNpcButton(106, left2, guiTop + 55, 150, 20, "script.openfolder"));
+				addButton(new GuiNpcButton(106, left, guiTop + 55, 150, 20, "script.openfolder"));
 			}
-			addButton(new GuiNpcButton(109, left2, guiTop + 78, 80, 20, "gui.website"));
-			addButton(new GuiNpcButton(112, left2 + 81, guiTop + 78, 80, 20, "gui.forum"));
-			addButton(new GuiNpcButton(110, left2, guiTop + 99, 80, 20, "script.apidoc"));
-			addButton(new GuiNpcButton(111, left2 + 81, guiTop + 99, 80, 20, "script.apisrc"));
+			addButton(new GuiNpcButton(109, left, guiTop + 78, 80, 20, "gui.website"));
+			addButton(new GuiNpcButton(112, left + 81, guiTop + 78, 80, 20, "gui.forum"));
+			addButton(new GuiNpcButton(110, left, guiTop + 99, 80, 20, "script.apidoc"));
+			addButton(new GuiNpcButton(111, left + 81, guiTop + 99, 80, 20, "script.apisrc"));
 		}
 		xSize = 420;
 		ySize = 256;

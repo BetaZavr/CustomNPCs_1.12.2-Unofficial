@@ -1,10 +1,11 @@
 package noppes.npcs.client.gui.util;
 
-import java.awt.Font;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
 import org.lwjgl.input.Mouse;
 
@@ -108,8 +109,8 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		}
 		hovered = xMouse >= x && xMouse <= x + width && yMouse >= y && yMouse <= y + height;
 		if (hovered && !gui.hasSubGui() && !hoverText.isEmpty()) { gui.setHoverText(hoverText); }
-		drawRect(x - 1, y - 1, x + width + 1, y + height + 1, -6250336);
-		drawRect(x, y, x + width, y + height, -16777216);
+		drawRect(x - 1, y - 1, x + width + 1, y + height + 1, new Color(0xFFA0A0A0).getRGB());
+		drawRect(x, y, x + width, y + height, new Color(0xFF000000).getRGB());
 		container.visibleLines = height / container.lineHeight;
 		if (!freeze) {
 			if (clicked) {
@@ -160,6 +161,9 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 				drawRect(x + 1, posY, x + width - 1, posY + container.lineHeight + 1, 0x99CC0000);
 			}
 		}
+
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0.0f, 0.0f, 1.0f);
 		for (int j = 0; j < list.size(); ++j) {
 			LineData data = list.get(j);
 			String line = data.text;
@@ -204,6 +208,8 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 				}
 			}
 		}
+		GlStateManager.popMatrix();
+
 		if (hasVerticalScrollbar()) {
 			Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomScroll.resource);
 			int sbSize = (int) Math.max((1.0f * container.visibleLines / container.linesCount * height), 2);

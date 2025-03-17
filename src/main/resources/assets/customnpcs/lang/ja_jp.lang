@@ -1,4 +1,4 @@
-# 対応するバージョン: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] 以降;
+# 対応するバージョン: [CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot] 以降;
 # 並べ替え、チェックし、追加すると BetaZavr になります
 # Google Translight でトランスライト
 
@@ -48,6 +48,7 @@ advanced.stepsound=足音
 
 ai.avoidwater=水を避ける
 ai.backtracking=行ったり来たり
+ai.can.be.collide=その場から押し出す
 ai.cansprint=走れる
 ai.clearlos=義務です。
 ai.cobwebAffected=ウェブの速度が遅くなりました。
@@ -65,6 +66,7 @@ ai.hover.attack.type.4=<br>§7NPCは指定された範囲に仲間(自分と同�
 ai.hover.attack.type.5=<br>§7NPC はターゲットに向かってゆっくりと移動します。<br>§7ターゲットが NPC を認識した場合、<br>§7 または NPC が指定された距離に到達した場合、<br>§7 または NPC がターゲットに攻撃した場合、<br>§7その後
 ai.hover.attack.type.6=<br>§7戦闘戦術はありません<br>§7ターゲットに近づき、ダメージを与えようとします
 ai.hover.back.home=NPC が戦闘中でない場合、ホームポジションに戻ります。
+ai.hover.can.be.collide=このNPCをプッシュするクリーチャーはありません。
 ai.hover.disabled=§6注意§r! 
 ai.hover.door=ドアのあるブロックにいることに気づいたときの NPC の行動
 ai.hover.found.refuge=避難所を求めますが、そのとき<br>§7 夜が扉です<br>§7 昼が頭上のブロックです
@@ -871,6 +873,7 @@ emotion.blink=このフレーム内で点滅します
 emotion.can.blink=必要に応じて点滅します
 emotion.can.no.blink=点滅しない
 emotion.end.blink=フレームの終わりまで点滅する
+emotion.hover.scale.move=目でターゲットを追跡するときの％S軸に沿った瞳孔の動きのスケール
 emotion.list=感情のリスト:
 emotion.no.blink=このフレームでは瞬きしないでください
 emotion.part.disable=標準的な瞳孔の動き
@@ -886,9 +889,6 @@ encrypt.hover.path=保存されるファイル パス<br>§7現在: %s
 encrypt.hover.type.false=現在のタブのスクリプトを、ロードされたファイルのすべてのスクリプトとともに暗号化します。
 encrypt.hover.type.true=現在のタブに表示されているスクリプトのみを暗号化します
 encrypt.only.tab=表示されるタブスクリプトのみ
-
-entity.CustomNpc.name=カスタムNPC
-entity.customnpcs.CustomNpc.name=カスタムNPC
 
 enum.animation.aim=ケーキの一部
 enum.animation.bow=タマネギを保持しています
@@ -1949,6 +1949,7 @@ quest.hover.compass.entity=エンティティ名<br>§7クエストコンパス�
 quest.hover.compass.false=このクエストを追跡するには、クエスト コンパスを切り替えてください
 quest.hover.compass.pos=%s 軸上の中央ブロックの位置<br>§7クエスト コンパスの矢印はこのブロックの方向を向くようになります
 quest.hover.compass.range=解決策の探索範囲<br>§7プレイヤーが中央のブロックとそこから設定された距離で形成されるゾーン内にいる場合、クエストコンパスの矢印は無効になります
+quest.hover.compass.reg=リージョンID：％s <br>§7あなたは、変更領域を使用している場合、この位置の領域の領域IDを指定することもできます
 quest.hover.compass.set=クエスト コンパスのこのタスクの位置を設定します<br>§7あなたの位置
 quest.hover.compass.settings=クエストコンパスをカスタマイズする
 quest.hover.compass.track=クエスト コンパスは選択したクエストを追跡します<br>§7コンパスがクエスト タスクで構成されている場合にのみ機能します
@@ -2256,6 +2257,20 @@ script.hover.client=各プレイヤーのクライアントでアクティブな
 script.hover.encrypt.false=§cクライアント用のスクリプトは暗号化できません。
 script.hover.encrypt.true=このスクリプトを第三者の目から暗号化します<br>§7スクリプトは、MOD 設定で指定されたパスワード キーで暗号化されます<br>§c注意! 
 script.hover.forge=Forge イベント<br>§7一部のサーバー カーネル§8 (Magma など)§7 プラグインと MOD を組み合わせる方法があるため、一部の Forge イベントは利用できません!<br>§8§fTickEvent.WorldTickEvent§8 の §eERMAScript§8 の例: 
+script.hover.info=スクリプト言語の接続に必要なライブラリ：<br>§becmascriptnashorn§7 -§Anot必要<br>§bgraaljs§7_§ekotlin§7 -§fgraal_kotlin_libs -1.8.21.jar<brua§7-§fluaj -jse -jse -3.0.1.1.1.1.1. 
+script.hover.info.dir=<br>モジュールファイルの§7directory：<br>％s <br>§7fileインデックス：％s
+script.hover.info.ecmascript=JDKの組み込みのJavaScriptエンジンは、JavaScriptコードをJavaアプリケーションに簡単に統合できるが、低性能です。
+script.hover.info.graaljs=Oracle Labs <br>§7Aが開発した高性能JavaScriptエンジンは、優れたパフォーマンスとECMascriptの互換性を提供するNashornに代わる現代的な代替品
+script.hover.info.groovy=Java bytecodeにコンパイルし、JVMの上で実行される動的に型付けされたプログラミング言語
+script.hover.info.jruby=JavaプラットフォームでのRubyの実装<br>§7SupportsJava APIと既存のライブラリの使用Rubyの使用
+script.hover.info.jython=JavaプラットフォームでのPython実装<br>§7は、Java仮想マシン内でPythonコードを実行するようになります
+script.hover.info.kotlin=Kotlinのスクリプト<br>§7aジェットブレインによって作成された最新の静的なタイプされた言語
+script.hover.info.lua=LUAプログラミング言語のJVM実装<br>§7itは、幅広いJavaライブラリと高いパフォーマンスと互換性を提供します
+script.hover.info.rhino=JVM用の最も古く、最も安定したJavaScriptエンジンのJavaプラットフォームで実行されるMozillaのJavaScript通訳者<br>§7one
+script.hover.log.clear=フィールドに表示されるログのみを削除します
+script.hover.log.clear.all=すべてのログを削除します
+script.hover.log.copy=フィールドに表示されるログテキストのみをコピーします
+script.hover.log.copy.all=すべてのログを年代順にコピーします
 script.hover.npcs=各 NPC のイベント<br>§7 NPC が独自のスクリプトを無効にしている場合でも機能します<br>§7 NPC 関数のリスト:<br>§f%s<br>§8 言語別の例 §eERMAScript§8:<br>§9 関数
 script.hover.players=各プレイヤーのイベント<br>§7プレイヤー関数のリスト:<br>§f%s<br>§8言語別の例 §eERMAScript§8:<br>§9function§fick§9(§eevent§9) {< 
 script.hover.potion=ゲームに追加されたポーションのイベント<br>§6PRO§7 の場合、エンティティ上でポーションが有効になったときのイベント<br>§7そのポーションの機能をリストします:<br>§f%s<br>§8§ による例
@@ -2403,7 +2418,7 @@ stats.hover.level=利便性のための NPC レベル<br>§7 変更すると再�
 stats.hover.max.health=最大の健康状態
 stats.hover.melee=近接攻撃の設定
 stats.hover.particle=粒子を伴う
-stats.hover.potion=NPCはポーションによるダメージを受けません
+stats.hover.potion=NPCはポーションを無視します
 stats.hover.range=遠距離攻撃の設定<br>§7NPCが銃器の使用を開始するには、[在庫]タブでアイテムスナップを設定する必要があります
 stats.hover.rarity=利便性のための NPC レア度<br>§7 変更すると再計算されます: ダメージ、抵抗、経験値、速度、リスポーン時間<br>§8 MOD 設定で表示と再計算を無効にすることができます
 stats.hover.resist=「%s」からの現在のダメージ耐性測定値
@@ -2469,7 +2484,7 @@ stats.undead=アンデッド
 system.check.scripts.agree=警告を注意深く読み、その要件に同意しましたか?
 system.check.scripts.title=§4注意！ 
 
-tag.type.0=論理的な
+tag.type.0=論理
 tag.type.1=バイト
 tag.type.10=コンパウンド
 tag.type.11=整数配列

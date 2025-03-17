@@ -11,6 +11,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.event.ClientEvent;
 import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
+import noppes.npcs.client.gui.custom.components.CustomGuiScrollComponent;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -246,7 +247,9 @@ implements IEditNPC, ICustomScrollListener {
 
 	@Override
 	public void addScroll(IGuiCustomScroll scroll) {
-		scroll.setWorldAndResolution(mc, scroll.getWidth(), scroll.getHeight());
+		if (scroll instanceof GuiScreen) {
+			((GuiScreen) scroll).setWorldAndResolution(mc, scroll.getWidth(), scroll.getHeight());
+		}
 		scroll.setParent(this);
 		scrolls.put(scroll.getId(), scroll);
 		add(scroll);
@@ -770,10 +773,12 @@ implements IEditNPC, ICustomScrollListener {
 	@Override
 	public void setSubGui(ISubGuiInterface gui) {
 		subgui = gui;
-		subgui.setNpc(npc);
-		subgui.setWorldAndResolution(mc, width, height);
-		subgui.setParent(this);
-		subgui.getParent().initGui();
+		if (subgui != null) {
+			subgui.setNpc(npc);
+			subgui.setWorldAndResolution(mc, width, height);
+			subgui.setParent(this);
+			subgui.getParent().initGui();
+		}
 	}
 
 	public void setWorldAndResolution(@Nonnull Minecraft mc, int width, int height) {

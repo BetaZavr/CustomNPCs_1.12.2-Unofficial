@@ -21,7 +21,7 @@ import noppes.npcs.util.Util;
 public class PlayerScriptData
 extends BaseScriptData {
 
-	private static Map<Long, String> console = new TreeMap<>();
+	private static TreeMap<Long, String> console = new TreeMap<>();
 	private static List<Integer> errored = new ArrayList<>();
 	
 	private long lastPlayerUpdate = 0L;
@@ -56,8 +56,13 @@ extends BaseScriptData {
 	}
 
 	@Override
-	public Map<Long, String> getConsoleText() {
+	public TreeMap<Long, String> getConsoleText() {
 		return PlayerScriptData.console;
+	}
+
+	@Override
+	public void clearConsoleText(Long key) {
+		PlayerScriptData.console.remove(key);
 	}
 
 	public IPlayer<?> getPlayer() {

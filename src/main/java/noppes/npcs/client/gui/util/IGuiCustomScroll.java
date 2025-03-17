@@ -58,8 +58,6 @@ public interface IGuiCustomScroll extends IComponentGui {
 
     void setParent(ICustomScrollListener gui);
 
-    void setWorldAndResolution(Minecraft mc, int width, int height);
-
     int getSelect();
 
     void setSelect(int slotIndex);

@@ -1,4 +1,4 @@
-# 해당 버전: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] 이상;
+# 해당 버전: [CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot] 이상;
 # BetaZavr 에 의해 정렬, 확인 및 추가됨
 # Google 번역으로 번역
 
@@ -48,6 +48,7 @@ advanced.stepsound=발자국 소리
 
 ai.avoidwater=물을 피함
 ai.backtracking=왕복 여행
+ai.can.be.collide=그 자리에서 밀기
 ai.cansprint=실행할 수 있습니다
 ai.clearlos=의무 목표 보기
 ai.cobwebAffected=웹 속도가 느려집니다.
@@ -65,6 +66,7 @@ ai.hover.attack.type.4=<br>§7NP C는 자신이 지정한 범위 내에서 자�
 ai.hover.attack.type.5=<br>§7NP C는 대상을 향해 천천히 이동합니다.<br>§7대상이 NPC를 발견하거나 ,<br> §7NPC가 지정된 거리에 도달하거나,<br> §7NPC가 대상에 명중하면,<br> §7그러면 NPC는 "맹공격" 유형을 사용하여 대상을 공격합니다.
 ai.hover.attack.type.6=<br>§7전투 전술 없음<br>§7대상에게 가까이 다가가 피해를 입히려고 합니다.
 ai.hover.back.home=NPC가 전투에 참여하지 않으면 원래 위치로 돌아갑니다.
+ai.hover.can.be.collide=어떤 생물 도이 NPC를 밀 수 없습니다.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=문이 있는 블록에 있을 때 NPC 의 행동
 ai.hover.found.refuge=피난처를 찾을 때<br>§7밤에는 문<br>§7낮에는 머리 위 블록
@@ -871,6 +873,7 @@ emotion.blink=Blink in this frame
 emotion.can.blink=Blinks if it wants to
 emotion.can.no.blink=Does not blink
 emotion.end.blink=Blink until end of frame
+emotion.hover.scale.move=눈으로 대상을 추적 할 때 %s 축을 따라 학생 움직임의 규모
 emotion.list=List of Emotions:
 emotion.no.blink=Don't blink in this frame
 emotion.part.disable=Standard pupil movement
@@ -886,9 +889,6 @@ encrypt.hover.path=저장될 파일 경로<br>§7현재: %s
 encrypt.hover.type.false=로드된 파일의 모든 스크립트와 함께 현재 탭의 스크립트를 암호화합니다.
 encrypt.hover.type.true=현재 탭에서 보이는 스크립트만 암호화
 encrypt.only.tab=표시되는 탭 스크립트만
-
-entity.CustomNpc.name=관습 NPC
-entity.customnpcs.CustomNpc.name=관습 NPC
 
 enum.animation.aim=조준
 enum.animation.bow=활을 쥐고 있다
@@ -1949,6 +1949,7 @@ quest.hover.compass.entity=엔터티 이름<br>§7퀘스트 나침반 화살표�
 quest.hover.compass.false=이 퀘스트를 추적하려면 Quest Compass를 전환하세요.
 quest.hover.compass.pos=s 축을 따라 중앙 블록의 위치 <br>§7퀘스트 나침반 화살표는 이 블록을 향하게 됩니다.
 quest.hover.compass.range=솔루션 검색 범위<br>§7플레이어가 중앙 블록으로 구성된 영역 내에 있고 그로부터 설정된 거리 내에 있으면 퀘스트 나침반 화살표가 비활성화됩니다.
+quest.hover.compass.reg=지역 ID : %s <br> §7 당신은 수정 영역을 사용하는 경우이 위치에있는 지역의 지역 ID를 지정할 수 있습니다.
 quest.hover.compass.set=Quest Compass에 대해 이 작업의 위치를 설정하세요.<br>§7내 위치
 quest.hover.compass.settings=Quest Compass 설정
 quest.hover.compass.track=퀘스트 나침반은 선택한 퀘스트를 추적합니다.<br>§7나침반이 퀘스트 목표에 구성된 경우에만 작동합니다.
@@ -2256,6 +2257,20 @@ script.hover.client=각 플레이어의 클라이언트에서 활성화된 이�
 script.hover.encrypt.false=§c클라이언트용 스크립트는 암호화할 수 없습니다!
 script.hover.encrypt.true=엿보는 눈으로부터 이 스크립트를 암호화하세요<br>§7스크립트는 모드 구성에 지정된 비밀번호 키로 암호화됩니다<br>§c주의! 
 script.hover.forge=Forge 이벤트 <br>§7일부 서버 코어 §8(예: Magma )§7 플러그인과 모드를 결합하는 방법이 있기 때문에 일부 Forge 이벤트를 사용할 수 없습니다!<br>§8언어 예제 §fTickEvent 에 대한 eERMAScript §8. WorldTickEvent §8:<br>§9 var§f api §9=§fJava §9.§ftype §9(§7" noppes . npcs . api . NpcAPI "§9).§fInstance §9();<br>§9 함수§f TickEventWorldTickEvent §9(§eevent §9) {<br> §9 var§f iWorld §9= §fapi §9.§fgetIWorld §9(§fevent §9.§fworld §9);<br> §fiWorld §9.§fbroadcast §9(§7"세계 ID 의 현재 시간 ["§9 +§fiWorld §9.§fgetDimension §9().§fgetId §9()+§7"]: "§9+§fiWorld §9.§fgetTime §9());<br>§9}<br>§8사용 가능한 이벤트 이름의 전체 목록은 다음 명령을 사용하여 볼 수 있습니다:§f / noppes 스크립트 위조업자
+script.hover.info=스크립팅 언어를 연결하는 데 필요한 라이브러리 : <br> §becmascript nashorn§7 -§anot 필수 <br> §bgraaljs§7_§ekotlin§7 -§fgraal_kotlin_libs-1.8.21.jar <br> §blua§7 -§fluaj -jse-3.0.1.jar <br> 
+script.hover.info.dir=<br> §7 모듈 파일의 디렉토리 : <br> %s <br> §7file 색인 : %s
+script.hover.info.ecmascript=JDK의 내장 JavaScript 엔진은 버전 11 <br> §7a 강력한 ecmascript 엔진으로 JavaScript 코드를 Java 응용 프로그램에 쉽게 통합 할 수 있지만 성능이 낮습니다.
+script.hover.info.graaljs=Oracle Labs가 개발 한 고성능 JavaScript 엔진 <br> §7a 탁월한 성능과 ECMAScript 호환성을 제공하는 Nashorn의 현대 대안
+script.hover.info.groovy=Java Bytecode에 컴파일하고 JVM 위에서 실행되는 동적으로 입력 한 프로그래밍 언어
+script.hover.info.jruby=Java 플랫폼의 루비 구현 <br> §7supports java api 및 기존 라이브러리 사용 Ruby 사용
+script.hover.info.jython=Java 플랫폼에서의 파이썬 구현 <br> §7Allows Java Virtual Machine 내에서 Python 코드를 실행할 수 있습니다.
+script.hover.info.kotlin=Kotlin의 스크립팅 <br> §7a Jetbrains에 의해 생성 된 현대 정적 유형 언어
+script.hover.info.lua=LUA 프로그래밍 언어의 JVM 구현 <br> §7it 광범위한 Java 라이브러리와 고성능 및 호환성을 제공합니다.
+script.hover.info.rhino=Java 플랫폼에서 실행되는 Mozilla의 JavaScript 통역사 <br> §7one JVM에 대한 가장 오래되고 가장 안정적인 JavaScript 엔진
+script.hover.log.clear=필드에 표시된 로그 만 삭제합니다
+script.hover.log.clear.all=모든 로그를 삭제합니다
+script.hover.log.copy=필드에 표시된 로그 텍스트 만 복사하십시오
+script.hover.log.copy.all=모든 로그를 연대순으로 복사하십시오
 script.hover.npcs=Events of each NPC<br>§7Works even if NPCs have their own scripts disabled<br>§7List of NPC functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fnpc§9.§fsay§9(§7"Next Step"§9);<br>§9}
 script.hover.players=각 플레이어의 이벤트<br>§7플레이어 기능 목록:<br>§f %s <br>§8언어 예 §eERMAScript §8:<br>§9 기능§f 진드기 §9(§eevent §9) {<br> §eeevent §9.§fplayer §9.§fmessage §9(§7"다음 단계"§9);<br>§9}
 script.hover.potion=게임에 추가된 물약 이벤트<br>§6PRO§7 의 경우 엔터티에서 물약을 활성화할 때의 이벤트<br>§7물약 기능 목록:<br>§f %s <br>§8언어 예 §eERMAScript §fIsReadyEvent §8:<br>§9 함수§f isReady §9(§eevent §9) {<br> §9 if (§eevent §9.§fpotion §9.§fgetCustomName §9().§fequals §9(§7" potionexample "§9)) {<br> §9 var §fi §9 = §c이벤트 §9.§c 앰플리파이어 §9 == §60 §9? §620§9 :§6 30§9;<br>§eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§fi§9);<br>§9}<br >§9}
@@ -2403,7 +2418,7 @@ stats.hover.level=NPC 레벨 <br>§7변경 시 손상, 저항, 경험치, 속도
 stats.hover.max.health=최대 건강
 stats.hover.melee=근접 공격 설정
 stats.hover.particle=입자를 동반
-stats.hover.potion=NPC는 물약으로 인해 피해를 입지 않습니다.
+stats.hover.potion=NPC는 물약을 무시합니다
 stats.hover.range=원거리 공격 설정<br> §7NPC가 총기 사용을 시작 하려면 "인벤토리" 탭에서 장비 항목을 구성해야 합니다.
 stats.hover.rarity=NPC 희귀도 <br>§7변경 시 손상, 저항, 경험치, 속도, 리스폰 시간이 다시 계산됩니다.<br>§8모드 구성에서 표시 및 재계산을 비활성화할 수 있습니다.
 stats.hover.resist=Current damage resistance readings from "%s"

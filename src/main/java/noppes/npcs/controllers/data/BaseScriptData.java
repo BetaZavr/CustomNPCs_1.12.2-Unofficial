@@ -35,16 +35,26 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public Map<Long, String> getConsoleText() {
-		Map<Long, String> map = new TreeMap<>();
+	public TreeMap<Long, String> getConsoleText() {
+		TreeMap<Long, String> map = new TreeMap<>();
 		int tab = 0;
 		for (ScriptContainer script : this.getScripts()) {
 			++tab;
 			for (Map.Entry<Long, String> entry : script.console.entrySet()) {
-				map.put(entry.getKey(), " tab " + tab + ":\n" + entry.getValue());
+				String log;
+				if (map.containsKey(entry.getKey())) { log = map.get(entry.getKey()) + "\n\n" + "ScriptTab " + tab + ":\n" + entry.getValue(); }
+				else { log = " ScriptTab " + tab + ":\n" + entry.getValue(); }
+				map.put(entry.getKey(), log);
 			}
 		}
 		return map;
+	}
+
+	@Override
+	public void clearConsoleText(Long key) {
+		for (ScriptContainer script : this.getScripts()) {
+			script.console.remove(key);
+		}
 	}
 
 	@Override

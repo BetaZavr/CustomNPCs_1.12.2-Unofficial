@@ -2,6 +2,7 @@ package noppes.npcs.controllers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import net.minecraftforge.fml.common.eventhandler.Event;
 
@@ -9,7 +10,9 @@ public interface IScriptHandler {
 
 	void clearConsole();
 
-	Map<Long, String> getConsoleText();
+	void clearConsoleText(Long key);
+
+	TreeMap<Long, String> getConsoleText();
 
 	boolean getEnabled();
 

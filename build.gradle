@@ -32,7 +32,7 @@ archivesBaseName = mod_name
 def getCustomVersion() {
     Date date = new Date()
     String month = LocalDateTime.now().month.toString().substring(0, 3)
-    return "_v." + mod_version + "_" + date.format("dd") + month + date.format("yyyy") + '-Snapshot'
+    return "_v." + mod_version + "_" + date.format("dd") + month.charAt(0) + month.substring(1).toLowerCase() + date.format("yyyy") + '-Snapshot'
 }
 
 // Set Java compatibility to version

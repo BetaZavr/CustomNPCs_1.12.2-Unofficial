@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,26 +74,37 @@ public class TextContainer {
 	}
 
 	public void init(TrueTypeFont font, int width, int height) {
-		if (this.lineHeight == 0) {
-			this.lineHeight = 12;
-		}
-		String[] split = this.text.split("\n");
+		if (lineHeight == 0) { lineHeight = 12; }
 		int totalChars = 0;
-		for (String l : split) {
+		for (String l : text.split("\n")) {
 			StringBuilder line = new StringBuilder();
-			Matcher m = this.regexWord.matcher(l);
+			Matcher m = regexWord.matcher(l);
 			int i = 0;
 			while (m.find()) {
 				String word = l.substring(i, m.start());
 				if (font.width(line + word) > width - 10) {
-					this.lines.add(new LineData(line.toString(), totalChars, totalChars + line.length()));
+					lines.add(new LineData(line.toString(), totalChars, totalChars + line.length()));
 					totalChars += line.length();
 					line = new StringBuilder();
 				}
-				line.append(word);
+				if (font.width(word) > width - 10) {
+					StringBuilder w = new StringBuilder();
+					for (int c = 0; c < word.length(); c++) {
+						if (font.width(w.toString() + word.charAt(c)) <= width - 10) { w.append(word.charAt(c)); }
+						else {
+							lines.add(new LineData(w.toString(), totalChars, totalChars + w.length()));
+							totalChars += w.length();
+							line = new StringBuilder();
+							w = new StringBuilder("" + word.charAt(c));
+						}
+					}
+					line.append(w);
+				} else {
+					line.append(word);
+				}
 				i = m.start();
 			}
-			this.lines.add(new LineData(line.toString(), totalChars, totalChars + line.length() + 1));
+			lines.add(new LineData(line.toString(), totalChars, totalChars + line.length() + 1));
 			totalChars += line.length() + 1;
 		}
 		this.linesCount = this.lines.size();

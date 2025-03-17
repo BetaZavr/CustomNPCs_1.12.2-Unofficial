@@ -1,4 +1,4 @@
-# 對應版本：[CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot]及更高版本；
+# 對應版本：[CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot]及更高版本；
 # 由 BetaZavr 排序、檢查和添加
 # 用谷歌翻譯翻譯
 
@@ -48,6 +48,7 @@ advanced.stepsound=腳步聲
 
 ai.avoidwater=避免水
 ai.backtracking=往返
+ai.can.be.collide=从地点推
 ai.cansprint=能跑
 ai.clearlos=義務查看目標
 ai.cobwebAffected=網路速度變慢。
@@ -65,6 +66,7 @@ ai.hover.attack.type.4=<br>§7NPC在自己指定的範圍內聚集他身邊的�
 ai.hover.attack.type.5=<br>§7NPC慢慢往目標移動。<br>§7如果目標看到NPC ，<br>§7或NPC到達指定距離，<br>§7或NPC擊中目標， <br>§7然後NPC使用“猛攻”類型攻擊目標
 ai.hover.attack.type.6=<br>§7沒有戰鬥策略<br>§7靠近目標，試圖造成傷害
 ai.hover.back.home=如果NPC沒有進行戰鬥，他會回到自己的位置。
+ai.hover.can.be.collide=没有生物可以推动此NPC。
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=NPC發現自己處於有門的街區時的行動
 ai.hover.found.refuge=尋找庇護所以及何時<br>§7夜間 - 一扇門<br>§7白天 - 頭頂上方的一個方塊
@@ -871,6 +873,7 @@ emotion.blink=Blink in this frame
 emotion.can.blink=Blinks if it wants to
 emotion.can.no.blink=Does not blink
 emotion.end.blink=Blink until end of frame
+emotion.hover.scale.move=用眼睛跟踪目标时沿％s轴运动的尺度
 emotion.list=List of Emotions:
 emotion.no.blink=Don't blink in this frame
 emotion.part.disable=Standard pupil movement
@@ -886,9 +889,6 @@ encrypt.hover.path=儲存檔案的路徑<br>§7現在：%s
 encrypt.hover.type.false=加密目前選項卡中的腳本以及載入文件中的所有腳本
 encrypt.hover.type.true=僅加密目前標籤中可見的腳本
 encrypt.only.tab=僅可見選項卡腳本
-
-entity.CustomNpc.name=風俗 NPC
-entity.customnpcs.CustomNpc.name=風俗 全國人大
 
 enum.animation.aim=瞄準
 enum.animation.bow=拿著弓
@@ -1949,6 +1949,7 @@ quest.hover.compass.entity=實體名稱<br>§7任務羅盤箭頭將指向具有�
 quest.hover.compass.false=切換任務指南針來追蹤該任務
 quest.hover.compass.pos=中心區塊沿 %s軸的位置<br>§7任務羅盤箭頭將指向該區塊
 quest.hover.compass.range=解決方案搜尋範圍§7當玩家處於由中心區塊及其設定距離形成的區域內時，任務羅盤箭頭將被停用
+quest.hover.compass.reg=区域ID：％s <br>§7you也可以指定该位置的区域ID，如果您使用修改区域
 quest.hover.compass.set=設定任務指南針的位置<br>§7您的位置
 quest.hover.compass.settings=設定任務指南針
 quest.hover.compass.track=任務羅盤將追蹤選定的任務<br>§7僅當羅盤在任務目標中配置時才有效
@@ -2256,6 +2257,20 @@ script.hover.client=每個玩家客戶端上活躍的活動<br>§6對於 §9 Meg
 script.hover.encrypt.false=§c客户端脚本无法加密！
 script.hover.encrypt.true=加密此脚本以防窥探<br>§7该脚本使用 mod 配置中指定的密码密钥进行加密<br>§c注意！ 
 script.hover.forge=Forge事件§7某些伺服器核心§8（例如Magma ）§7 種組合插件和 mod 的方法，這就是為什麼某些Forge事件不可用！<br>§8語言範例 §eERMAScript §8for §fTickEvent 。 WorldTickEvent §8:<br>§9 var§f api §9=§fJava §9.§ftype §9(§7" noppes . npcs . api . NpcAPI "§9).§fInstance §9(); <br>§9函數§f tickEventWorldTickEvent §9(§eevent §9) {<br> §9 var§f iWorld §9= §fapi §9.§fgetIWorld §9(§fevent §9.§fworld §9);<br> §fiWorld §9.§fbroadcast §9(§7"世界ID中的當前時間["§9 +§fiWorld §9.§fgetDimension §9().§fgetId §9()+§7"]: "§9+§fiWorld §9.§fgetTime §9());<br>§9}<br>§8可以使用以下指令查看可用事件名稱的完整清單：§f / noppes 腳本 偽造者
+script.hover.info=连接脚本语言所需的库：<br>§becmascriptnashorn§7-§anot所需的<br>§bgraaljs§7_§ekotlin§7-§fgraal_kotlin_libs-1.8.21.8.8.21.jar<br> 
+script.hover.info.dir=<br>§7directoryfor your模块文件：<br>％s <br>§7file索引：％s
+script.hover.info.ecmascript=JDK中的内置JavaScript引擎直至版本11 <br>§7A功能强大的Ecmasixt Engine，它使您可以轻松地将JavaScript代码集成到Java应用程序中，但是低绩效的
+script.hover.info.graaljs=Oracle Labs开发的高性能JavaScript引擎<br>§7aNashorn的现代替代品，提供了出色的性能和Ecmascript的兼容性
+script.hover.info.groovy=一种动态键入的编程语言，该语言将其编译到Java字节码并在JVM顶部运行
+script.hover.info.jruby=Java平台上的Ruby实现<br>§7Supports与Java API集成和现有库Ruby的使用
+script.hover.info.jython=Java平台上的Python实现<br>§7让您在Java虚拟机内运行Python代码
+script.hover.info.kotlin=kotlin中的脚本<br>§7a现代静态打字语言由喷气式脑创建
+script.hover.info.lua=LUA编程语言的JVM实施<br>§7IT提供了高性能和兼容性与广泛的Java库
+script.hover.info.rhino=Mozilla的JavaScript解释器在Java平台上运行<br>§7§7的JVM最古老，最稳定的JavaScript引擎的一个。
+script.hover.log.clear=仅删除字段中显示的日志
+script.hover.log.clear.all=删除所有日志
+script.hover.log.copy=仅复制字段中显示的日志文本
+script.hover.log.copy.all=按时间顺序复制所有日志
 script.hover.npcs=Events of each NPC<br>§7Works even if NPCs have their own scripts disabled<br>§7List of NPC functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fnpc§9.§fsay§9(§7"Next Step"§9);<br>§9}
 script.hover.players=每個玩家的事件<br>§7玩家函數列表：<br>§f %s <br>§8語言範例§eERMAScript§8 ： <br>§9函數§f 勾選§9(§事件§9) {<br> §事件§9.§fplayer §9.§fmessage §9(§7"下一步"§9);<br>§9}
 script.hover.potion=加入遊戲中的藥水事件<br>§6對於PRO §7，在實體上啟動藥水時的事件<br>§7藥水功能清單：<br>§f %s <br>§8語言範例 §eERMAScript對於§fIsReadyEvent §8: §9函數§f isReady §9(§eevent §9) {<br> §9 if (§eevent §9.§fpotion §9.§fgetCustomName §9().§fequals §9(§7" potionexample "§9)) {<br> §9 var §fi §9 = §eevent §9.§fampler §9 == §60 §9？ §620§9 :§6 30§9;<br>§eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§fi§9);<br>§9}<br >§9}
@@ -2403,7 +2418,7 @@ stats.hover.level=NPC等級方便<br>§7改變後，它將重新計算：傷害�
 stats.hover.max.health=最大生命值
 stats.hover.melee=近戰攻擊設置
 stats.hover.particle=伴隨顆粒
-stats.hover.potion=NPC不會受到藥水的傷害
+stats.hover.potion=NPC忽略任何藥水
 stats.hover.range=遠端攻擊設定§7為了讓NPC開始使用槍械，您需要在「庫存」標籤中配置裝備項目
 stats.hover.rarity=NPC稀有度方便<br>§7更改後，它將重新計算：傷害、抵抗力、經驗、速度、重生時間<br>§8可以在 mod 配置中停用顯示和重新計算
 stats.hover.resist=Current damage resistance readings from "%s"
@@ -2469,7 +2484,7 @@ stats.undead=亡靈
 system.check.scripts.agree=Have you §ecarefully§r read the warning and agree to its requirements?
 system.check.scripts.title=§4Attention! §rYou have the §6CustomNpcs Unofficial mod installed§r - this means that the map developer could have created scripts necessary for specific gameplay mechanics to work. However, ill-wishers create scripts that can harm your system or steal your personal data. To run the game, your agreement is required, that you trust the map developer and understand your responsibility for this decision!
 
-tag.type.0=邏輯的
+tag.type.0=邏輯
 tag.type.1=位元組
 tag.type.10=合成的
 tag.type.11=整數數組

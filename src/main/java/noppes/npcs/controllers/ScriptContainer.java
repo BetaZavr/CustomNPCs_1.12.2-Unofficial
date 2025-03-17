@@ -354,7 +354,16 @@ public class ScriptContainer {
 			catch (Exception err1) {
 				errored = true;
 				err1.printStackTrace(pw);
-				NoppesUtilServer.NotifyOPs(handler.noticeString() + " - script errored");
+				String e = err1.getCause().getLocalizedMessage().replaceAll("" + ((char) 13), "");
+				StringBuilder error = new StringBuilder();
+				if (e.contains("" + (char) 10)) {
+					for (int c = 0; c < e.length(); c++) {
+						error.append(e.charAt(c));
+						if (e.charAt(c) == 10) { error.append((char) 167).append("8"); }
+					}
+				}
+				else { error = new StringBuilder(((char) 167) + "8" + e); }
+				NoppesUtilServer.NotifyOPs(handler.noticeString() + " - script errored:\n" + ((char) 167) + "8" + err1.getCause().getClass().getSimpleName() + ": " + error);
 				LogWriter.error(handler.noticeString() + " script errored: ", err1);
 			}
 			finally {

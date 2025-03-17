@@ -1,4 +1,4 @@
-# Version correspondante : [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] et versions ultérieures ;
+# Version correspondante : [CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot] et versions ultérieures ;
 # Trié, vérifié et ajouté par BetaZavr
 # Traduit avec Google Traduction
 
@@ -48,6 +48,7 @@ advanced.stepsound=Bruit de pas
 
 ai.avoidwater=Évite l'eau
 ai.backtracking=Aller-retour
+ai.can.be.collide=Pousser de l'endroit
 ai.cansprint=Peut courir
 ai.clearlos=Obligation Voir les objectifs
 ai.cobwebAffected=Le Web ralentit.
@@ -65,6 +66,7 @@ ai.hover.attack.type.4=<br>§7NP C rassemble ses camarades près de lui (de la m
 ai.hover.attack.type.5=<br>§7NP C se déplace lentement vers la cible.<br>§7Si la cible voit le PNJ ,<br>§7ou le PNJ atteint la distance spécifiée,<br>§7ou le PNJ atteint la cible,<br> §7puis le PNJ attaque la cible en utilisant le type "Onslaught"
 ai.hover.attack.type.6=<br>§7Aucune tactique de combat<br>§7Marche près de la cible, essayant de causer des dégâts
 ai.hover.back.home=Si le PNJ n’est pas engagé dans le combat, il retournera à sa position d’origine.
+ai.hover.can.be.collide=Aucune créature ne peut pousser ce PNJ.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=Actions d' un PNJ lorsqu'il se retrouve dans un bloc avec une porte
 ai.hover.found.refuge=Cherche un abri et quand<br>§7La nuit - une porte<br>§7Pendant la journée - un bloc au-dessus de votre tête
@@ -871,6 +873,7 @@ emotion.blink=Blink in this frame
 emotion.can.blink=Blinks if it wants to
 emotion.can.no.blink=Does not blink
 emotion.end.blink=Blink until end of frame
+emotion.hover.scale.move=Échelle du mouvement des élèves le long de l'axe% s lors du suivi d'une cible avec les yeux
 emotion.list=List of Emotions:
 emotion.no.blink=Don't blink in this frame
 emotion.part.disable=Standard pupil movement
@@ -886,9 +889,6 @@ encrypt.hover.path=Chemin du fichier où il sera enregistré<br>§7Maintenant: %
 encrypt.hover.type.false=Chiffrez le script de l'onglet actuel avec tous les scripts des fichiers chargés
 encrypt.hover.type.true=Chiffrer uniquement le script visible de l'onglet actuel
 encrypt.only.tab=Script d'onglet visible uniquement
-
-entity.CustomNpc.name=Coutume PNJ
-entity.customnpcs.CustomNpc.name=Coutume PNJ
 
 enum.animation.aim=Visée
 enum.animation.bow=Tient un arc
@@ -1949,6 +1949,7 @@ quest.hover.compass.entity=Nom de l'entité<br>§7La flèche de la boussole de l
 quest.hover.compass.false=Changez de boussole de quête pour suivre cette quête
 quest.hover.compass.pos=Position du bloc central le long de l'axe %s <br>§7La flèche de la boussole de quête sera orientée vers ce bloc
 quest.hover.compass.range=Plage de recherche de solution<br>§7La flèche de la boussole de la quête sera désactivée lorsque le joueur se trouvera à l'intérieur de la zone formée par le bloc central et à la distance fixée de celui-ci
+quest.hover.compass.reg=ID de région:% s <br> §7 Vous pouvez également spécifier l'ID de la région de la région dans cette position si vous utilisez des régions de modification
 quest.hover.compass.set=Définissez la position de cette tâche pour le Quest Compass<br>§7Votre position
 quest.hover.compass.settings=Configurer la boussole de quête
 quest.hover.compass.track=La boussole de quête suivra la quête sélectionnée<br>§7Fonctionne uniquement si la boussole est configurée dans les objectifs de quête
@@ -2256,6 +2257,20 @@ script.hover.client=Événements actifs sur le client de chaque joueur<br>§6Pou
 script.hover.encrypt.false=§Les cScripts pour les clients ne peuvent pas être chiffrés !
 script.hover.encrypt.true=Crypter ce script des regards indiscrets<br>§7Le script est crypté avec la clé de mot de passe spécifiée dans la configuration du mod<br>§cAttention ! 
 script.hover.forge=Événements Forge <br>§7Quelques cœurs de serveur §8(comme exemple Magma )§7 façons de combiner plugins et mods, c'est pourquoi certains événements Forge ne sont pas disponibles !<br>§8Exemple de langage §eERMAScript §8pour §fTickEvent . WorldTickEvent §8:<br>§9 var§f api §9=§fJava §9.§ftype §9(§7" noppes . npcs . api . NpcAPI "§9).§fInstance §9();<br>§9 fonction§f tickEventWorldTickEvent §9(§eevent §9) {<br> §9 var§f iWorld §9= §fapi §9.§fgetIWorld §9(§fevent §9.§fworld §9);<br> §fiWorld §9.§fbroadcast §9(§7"Heure actuelle dans l'ID du monde ["§9 +§fiWorld §9.§fgetDimension §9().§fgetId §9()+§7"]: "§9+§fiWorld §9.§fgetTime §9());<br>§9}<br>§8La liste complète des noms d'événements disponibles peut être consultée à l'aide de la commande :§f / noppes scénario forgéliste
+script.hover.info=Bibliothèques requises pour connecter les langues de script: <br> §becmascript nashorn§7 - §anot requis <br> §bgraaljs§7_§ekotlin§7 - §fgraal_kotlin_libs-1.8.21.jar <br> §Blua§7 - §fluaj-jse-3.0.1.jar <blua§7 - §fluaj-jse-3.0.1.jar <blued> §bpry 
+script.hover.info.dir=<br> §7directory pour vos fichiers de module: <br>% s <br> §7 index:% s
+script.hover.info.ecmascript=Le moteur JavaScript intégré dans JDK jusqu'à la version 11 <br> §7a puissant moteur ECMascript qui vous permet d'intégrer facilement le code JavaScript dans les applications Java, mais est une faible performance
+script.hover.info.graaljs=Un moteur JavaScript haute performance développé par Oracle Labs <br> §7a Alternative moderne à Nashorn qui offre d'excellentes performances et une compatibilité ECMAScript
+script.hover.info.groovy=Un langage de programmation dynamiquement dactylo
+script.hover.info.jruby=Une implémentation Ruby sur la plate-forme Java <br> §7Supports Intégration avec l'API Java et l'utilisation de bibliothèques existantes Ruby
+script.hover.info.jython=Une implémentation Python sur la plate-forme Java <br> §7 vous a fait pour exécuter le code Python à l'intérieur de la machine virtuelle Java
+script.hover.info.kotlin=Scripting in kotlin <br> §7a Langue typique statiquement moderne créée par Jetbrains
+script.hover.info.lua=Une implémentation JVM du langage de programmation LUA <br> §7it offre des performances et une compatibilité élevées avec un large éventail de bibliothèques Java
+script.hover.info.rhino=Un interprète JavaScript de Mozilla qui fonctionne sur la plate-forme Java <br> §7one des moteurs JavaScript les plus anciens et les plus stables pour le JVM
+script.hover.log.clear=Supprimer uniquement le journal affiché sur le terrain
+script.hover.log.clear.all=Supprimer tous les journaux
+script.hover.log.copy=Copiez uniquement le texte du journal affiché dans le champ
+script.hover.log.copy.all=Copiez tous les journaux dans l'ordre chronologique
 script.hover.npcs=Events of each NPC<br>§7Works even if NPCs have their own scripts disabled<br>§7List of NPC functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fnpc§9.§fsay§9(§7"Next Step"§9);<br>§9}
 script.hover.players=Événements de chaque joueur<br>§7Liste des fonctions du joueur :<br>§f %s <br>§8Exemple de langage §eERMAScript §8:<br>§9 fonction§f cochez §9(§eevent §9) {<br> §eevent §9.§fplayer §9.§fmessage §9(§7"Prochaine étape"§9);<br>§9}
 script.hover.potion=Evénements de Potions ajoutées au jeu<br>§6Pour PRO §7, événements lors de l'activation d'une potion sur une entité<br>§7Liste des fonctions de vos potions :<br>§f %s <br>§8Exemple de langage §eERMAScript pour §fIsReadyEvent §8:<br>§9 fonction§f isReady §9(§eevent §9) {<br> §9 if (§eevent §9.§fpotion §9.§fgetCustomName §9().§fequals §9(§7" potionexample "§9)) {<br> §9 var §fi §9 = §eevent §9.§famplifier §9 == §60 §9 ? §620§9 :§6 30§9;<br>§eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§fi§9);<br>§9}<br >§9}
@@ -2403,7 +2418,7 @@ stats.hover.level=Niveau de PNJ pour plus de commodité<br>§7Une fois modifié,
 stats.hover.max.health=Santé maximale
 stats.hover.melee=Paramètres d'attaque en mêlée
 stats.hover.particle=Accompagné de particules
-stats.hover.potion=Les PNJ ne subissent pas de dégâts des potions
+stats.hover.potion=NPC ignore toutes les potions
 stats.hover.range=Paramètres d'attaque à distance<br>§7Pour qu'un PNJ puisse commencer à utiliser des armes à feu, vous devez configurer l'élément d'équipement dans l'onglet "Inventaire"
 stats.hover.rarity=Rareté des PNJ pour plus de commodité<br>§7Une fois modifié, il recalculera: dégâts, résistance, expérience, vitesse, temps de réapparition<br>§8L'affichage et le recalcul peuvent être désactivés dans les configurations du mod
 stats.hover.resist=Current damage resistance readings from "%s"
@@ -2469,7 +2484,7 @@ stats.undead=Mort-vivant
 system.check.scripts.agree=Have you §ecarefully§r read the warning and agree to its requirements?
 system.check.scripts.title=§4Attention! §rYou have the §6CustomNpcs Unofficial mod installed§r - this means that the map developer could have created scripts necessary for specific gameplay mechanics to work. However, ill-wishers create scripts that can harm your system or steal your personal data. To run the game, your agreement is required, that you trust the map developer and understand your responsibility for this decision!
 
-tag.type.0=logique
+tag.type.0=Logique
 tag.type.1=Octet
 tag.type.10=Composite
 tag.type.11=Tableau d'entiers

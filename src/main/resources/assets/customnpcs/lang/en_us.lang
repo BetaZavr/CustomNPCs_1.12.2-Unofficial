@@ -1,4 +1,4 @@
-# Corresponding Version: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] and later;
+# Corresponding Version: [CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot] and later;
 # Sorted, Checked and Added by BetaZavr
 # Translated with Google Translate
 
@@ -48,6 +48,7 @@ advanced.stepsound=The sound of footsteps
 
 ai.avoidwater=Avoids water
 ai.backtracking=Back and forth
+ai.can.be.collide=Pushing from the spot
 ai.cansprint=Can run
 ai.clearlos=Obliged. See goals
 ai.cobwebAffected=The web has slowed down.
@@ -101,7 +102,6 @@ ai.hover.walking.stop=Stops for a while when it comes to a new position.
 ai.hover.walking.type=NPC movement type
 ai.hover.water=NPCs will float on the surface when hit by water
 ai.hurt.resistant.time=Immortality delay
-ai.can.be.collide=Pushing from the spot
 ai.leapattarget=Target jump
 ai.looping=In circles.
 ai.movement=Movement
@@ -868,10 +868,10 @@ emotion.blink=Blink in this frame
 emotion.can.blink=Blinks if it wants to
 emotion.can.no.blink=Does not blink
 emotion.end.blink=Blink until end of frame
+emotion.hover.scale.move=Scale of pupil movement along the %s axis when tracking a target with the eyes
 emotion.list=List of Emotions:
 emotion.no.blink=Don't blink in this frame
 emotion.part.disable=Standard pupil movement
-emotion.hover.scale.move=Scale of pupil movement along the %s axis when tracking a target with the eyes
 
 enchantment.confusion=Confusion
 enchantment.damage=Damage
@@ -884,9 +884,6 @@ encrypt.hover.path=File path where it will be saved<br>§7Now: %s
 encrypt.hover.type.false=Encrypt the script from the current tab together with all scripts from the loaded files
 encrypt.hover.type.true=Encrypt only visible script from the current tab
 encrypt.only.tab=Visible tab script only
-
-entity.CustomNpc.name=Custom Npc
-entity.customnpcs.CustomNpc.name=Custom NPC
 
 enum.animation.aim=Piece of cake
 enum.animation.bow=Holds an onion
@@ -1935,7 +1932,6 @@ quest.hover.add.title=When killing NPCs with the signature/%s, the target name w
 quest.hover.area.range=Distance from the player in blocks<br>§7When a player kills a specified entity, it also counts against all players around no further away than the specified distance
 quest.hover.compass=<br>§7To disable compass orientation, set the distance to §60
 quest.hover.compass.dim=Dimension ID: %s<br>§7The quest compass arrow will only be active if the player is in a dimension with this ID
-quest.hover.compass.reg=Region ID: %s<br>§7You can also specify the region ID of the region this position is in if you are using modification regions
 quest.hover.compass.edit.incline=Quest compass tilt
 quest.hover.compass.edit.rotation=Rotate quest compass
 quest.hover.compass.edit.scale=Quest compass scale
@@ -1947,6 +1943,7 @@ quest.hover.compass.entity=Entity name<br>§7The quest compass arrow will be ori
 quest.hover.compass.false=Switch the Quest Compass to track this quest
 quest.hover.compass.pos=Position of the center block on the %s axis<br>§7The quest compass arrow will be oriented to this block
 quest.hover.compass.range=Solution Search Range<br>§7The quest compass arrow will be disabled when the player is inside the zone formed by the center block and the set distance from it
+quest.hover.compass.reg=Region ID: %s<br>§7You can also specify the region ID of the region this position is in if you are using modification regions
 quest.hover.compass.set=Set the position of this task for the Quest Compass<br>§7Your Position
 quest.hover.compass.settings=Customize Quest Compass
 quest.hover.compass.track=The quest compass will track the selected quest<br>§7Works only if the compass is configured in quest tasks
@@ -2254,21 +2251,23 @@ script.hover.client=Events that are active on each player's client<br>§6For §9
 script.hover.encrypt.false=§cScripts for clients cannot be encrypted!
 script.hover.encrypt.true=Encrypt this script from prying eyes<br>§7The script is encrypted with the password key specified in the mod configuration<br>§cAttention! §7When encrypting, you can lose the original script code. Make a copy in advance. In extreme cases, contact the mod developer for decryption.
 script.hover.forge=Forge events<br>§7Some server kernels §8(like Magma)§7 ways to combine plugins and mods, so some Forge events are not available!<br>§8Example in §eERMAScript§8 for §fTickEvent.WorldTickEvent§8:<br>§9var§f api§9=§fJava§9.§ftype§9(§7 "noppes.npcs.api.NpcAPI"§9).§fInstance§9();<br>§9function§f tickEventWorldTickEvent§9(§eevent§9) {<br>§9var§f iWorld §9= §fapi§9.§fgetIWorld§9(§fevent§9.§fworld§9);<br>§fiWorld§9.§fbroadcast§9(§7 "Current time in world ID["§9+§fiWorld§9.§fgetDimension§9().§fgetId§9()+§7"]: "§9+§fiWorld§9.§fgetTime§9());<br>§9}<br>§8The full list of available event names can be viewed via the command: §f/noppes script forgelist
+script.hover.info=Libraries required for connecting scripting languages:<br>§bECMAScript Nashorn§7 - §anot required<br>§bGraalJS§7_§eKotlin§7 - §fgraal_kotlin_libs-1.8.21.jar<br>§bLua§7 - §fluaj-jse-3.0.1.jar<br>§bPython§7 - §fjython-standalone-2.7.4.jar<br>§bKotlin§7 - §cnot yet available<br>§bRhino§7 - §cnot yet available<br>§bRuby§7 - §fjruby-complete-9.2.19.0.jar<br>§bGroovy§7 - §fgroovy-all-2.4.15.jar
+script.hover.info.dir=<br>§7Directory for your module files:<br>%s<br>§7File index: %s
+script.hover.info.ecmascript=The built-in JavaScript engine in JDK up to version 11<br>§7A powerful ECMAScript engine that allows you to easily integrate JavaScript code into Java applications, but is low-performance
+script.hover.info.graaljs=A high-performance JavaScript engine developed by Oracle Labs<br>§7A modern alternative to Nashorn that provides excellent performance and ECMAScript compatibility
+script.hover.info.groovy=A dynamically typed programming language that compiles to Java bytecode and runs on top of the JVM
+script.hover.info.jruby=A Ruby implementation on the Java platform<br>§7Supports integration with the Java API and the use of existing libraries Ruby
+script.hover.info.jython=A Python implementation on the Java platform<br>§7Allows you to run Python code inside the Java virtual machine
+script.hover.info.kotlin=Scripting in Kotlin<br>§7A modern statically typed language created by JetBrains
+script.hover.info.lua=A JVM implementation of the Lua programming language<br>§7It provides high performance and compatibility with a wide range of Java libraries
+script.hover.info.rhino=A JavaScript interpreter from Mozilla that runs on the Java platform<br>§7One of the oldest and most stable JavaScript engines for the JVM
+script.hover.log.clear=Delete only the log displayed in the field
+script.hover.log.clear.all=Delete all logs
+script.hover.log.copy=Copy only the log text displayed in the field
+script.hover.log.copy.all=Copy all logs in chronological order
 script.hover.npcs=Events of each NPC<br>§7Works even if NPCs have their own scripts disabled<br>§7List of NPC functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fnpc§9.§fsay§9(§7"Next Step"§9);<br>§9}
 script.hover.players=Events of each Player<br>§7List of player functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fplayer§9.§fmessage§9(§7 "Next Step"§9);<br>§9}
 script.hover.potion=Events of Potions added to the game<br>§6For PRO§7, events when a potion is activated on an entity<br>§7List the functions of its potions:<br>§f%s<br>§8Example by §eERMAScript language for §fIsReadyEvent§8:<br>§9function§f isReady§9(§eevent§9) {<br>§9if (§eevent§9.§fpotion§9.§fgetCustomName§9().§fequals§9(§7 "potionexample"§9)) {<br>§9var §fi§9 = §eevent§9.§famplifier§9 == §60 §9? §620§9 :§6 30§9;<br>§eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§f i§9);<br>§9}<br>§9}
-
-script.hover.info.ecmascript=The built-in JavaScript engine in JDK up to version 11<br>§7A powerful ECMAScript engine that allows you to easily integrate JavaScript code into Java applications, but is low-performance
-script.hover.info.graaljs=A high-performance JavaScript engine developed by Oracle Labs<br>§7A modern alternative to Nashorn that provides excellent performance and ECMAScript compatibility
-script.hover.info.lua=A JVM implementation of the Lua programming language<br>§7It provides high performance and compatibility with a wide range of Java libraries
-script.hover.info.jython=A Python implementation on the Java platform<br>§7Allows you to run Python code inside the Java virtual machine
-script.hover.info.jruby=A Ruby implementation on the Java platform<br>§7Supports integration with the Java API and the use of existing libraries Ruby
-script.hover.info.groovy=A dynamically typed programming language that compiles to Java bytecode and runs on top of the JVM
-script.hover.info.kotlin=Scripting in Kotlin<br>§7A modern statically typed language created by JetBrains
-script.hover.info.rhino=A JavaScript interpreter from Mozilla that runs on the Java platform<br>§7One of the oldest and most stable JavaScript engines for the JVM
-script.hover.info.dir=<br>§7Directory for your module files:<br>%s<br>§7File index: %s
-script.hover.info=Libraries required for connecting scripting languages:<br>§bECMAScript Nashorn§7 - §anot required<br>§bGraalJS§7_§eKotlin§7 - §fgraal_kotlin_libs-1.8.21.jar<br>§bLua§7 - §fluaj-jse-3.0.1.jar<br>§bPython§7 - §fjython-standalone-2.7.4.jar<br>§bKotlin§7 - §cnot yet available<br>§bRhino§7 - §cnot yet available<br>§bRuby§7 - §fjruby-complete-9.2.19.0.jar<br>§bGroovy§7 - §fgroovy-all-2.4.15.jar
-
 script.init=Inside.
 script.interact=Initialization
 script.killed=Murdered
@@ -2413,7 +2412,7 @@ stats.hover.level=NPC level for convenience<br>§7When changing will recalculate
 stats.hover.max.health=Maximum health
 stats.hover.melee=Melee attack settings
 stats.hover.particle=Accompanied by particles
-stats.hover.potion=NPCs do not take damage from potions
+stats.hover.potion=NPC ignores any potions
 stats.hover.range=Ranged attack settings<br>§7For an NPC to start using firearms, you must set up an item-snap in the Inventory tab
 stats.hover.rarity=NPC rarity for convenience<br>§7When changing will recalculate: damage, resistance, experience, speed, respawn time<br>§8Display and Recalculation can be disabled in mod configs
 stats.hover.resist=Current damage resistance readings from "%s"
@@ -2479,11 +2478,11 @@ stats.undead=Undead
 system.check.scripts.agree=Have you §ecarefully§r read the warning and agree to its requirements?
 system.check.scripts.title=§4Attention! §rYou have the §6CustomNpcs Unofficial mod installed§r - this means that the map developer could have created scripts necessary for specific gameplay mechanics to work. However, ill-wishers create scripts that can harm your system or steal your personal data. To run the game, your agreement is required, that you trust the map developer and understand your responsibility for this decision!
 
-tag.type.0=logical
+tag.type.0=Boolean
 tag.type.1=Byte
 tag.type.10=Compound
 tag.type.11=Integer array
-tag.type.12=Array of long numbers
+tag.type.12=Long array
 tag.type.2=Short
 tag.type.3=Integer
 tag.type.4=Long number

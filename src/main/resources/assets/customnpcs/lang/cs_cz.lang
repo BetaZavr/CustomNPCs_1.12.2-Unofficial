@@ -1,4 +1,4 @@
-# Odpovídající verze: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] a novější;
+# Odpovídající verze: [CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot] a novější;
 # Seřazeno, zkontrolováno a přidáno pomocí BetaZavr
 
 advanced.angersound=Zvuk agrese
@@ -47,6 +47,7 @@ advanced.stepsound=Zvuk kroků
 
 ai.avoidwater=Vyhýbá se vodě
 ai.backtracking=Sem a tam
+ai.can.be.collide=Tlačení z místa
 ai.cansprint=Může běžet
 ai.clearlos=Povinný. 
 ai.cobwebAffected=Web se zpomalil.
@@ -64,6 +65,7 @@ ai.hover.attack.type.4=<br>§7NPC shromáždí své spolubojovníky (ze stejné 
 ai.hover.attack.type.5=<br>§7NPC se pomalu pohybuje směrem k cíli.<br>§7Pokud cíl uvidí NPC,<br>§7nebo NPC dosáhne zadané vzdálenosti,<br>§7nebo NPC zasáhne cíl,<br>§7pak 
 ai.hover.attack.type.6=<br>§7Bojová taktika chybí<br>§7Pohybuje se blízko cíle a pokouší se způsobit poškození
 ai.hover.back.home=Pokud NPC není v boji, vrátí se do své domovské pozice.
+ai.hover.can.be.collide=Žádné stvoření nemůže tlačit tento NPC.
 ai.hover.disabled=§6Pozor§r! 
 ai.hover.door=NPC akce, když se ocitne v bloku s dveřmi
 ai.hover.found.refuge=Hledá úkryt a když<br>§7Noc jsou dveře<br>§7Den je blok nad jeho hlavou
@@ -870,6 +872,7 @@ emotion.blink=Mrkněte v tomto rámu
 emotion.can.blink=Bliká, pokud chce
 emotion.can.no.blink=Nebliká
 emotion.end.blink=Blikejte až do konce snímku
+emotion.hover.scale.move=Měřítko pohybu žáků podél osy %s při sledování cíle očima
 emotion.list=Seznam emocí:
 emotion.no.blink=V tomto rámu nemrkněte
 emotion.part.disable=Standardní pohyb zornice
@@ -885,9 +888,6 @@ encrypt.hover.path=Cesta k souboru, kam bude uložen<br>§7Nyní: %s
 encrypt.hover.type.false=Zašifrujte skript z aktuální karty společně se všemi skripty z načtených souborů
 encrypt.hover.type.true=Šifrovat pouze viditelný skript z aktuální karty
 encrypt.only.tab=Pouze skript viditelných karet
-
-entity.CustomNpc.name=Vlastní Npc
-entity.customnpcs.CustomNpc.name=Vlastní NPC
 
 enum.animation.aim=Kus dortu
 enum.animation.bow=Drží cibuli
@@ -1948,6 +1948,7 @@ quest.hover.compass.entity=Entity name<br>§7The quest compass arrow will be ori
 quest.hover.compass.false=Switch the Quest Compass to track this quest
 quest.hover.compass.pos=Position of the center block on the %s axis<br>§7The quest compass arrow will be oriented to this block
 quest.hover.compass.range=Solution Search Range<br>§7The quest compass arrow will be disabled when the player is inside the zone formed by the center block and the set distance from it
+quest.hover.compass.reg=ID regionu: %S <br> §7Y You můžete také specifikovat ID regionu v regionu, v této poloze je, pokud používáte modifikační oblasti
 quest.hover.compass.set=Set the position of this task for the Quest Compass<br>§7Your Position
 quest.hover.compass.settings=Customize Quest Compass
 quest.hover.compass.track=The quest compass will track the selected quest<br>§7Works only if the compass is configured in quest tasks
@@ -2255,6 +2256,20 @@ script.hover.client=Events that are active on each player's client<br>§6For §9
 script.hover.encrypt.false=§cScripty pro klienty nelze šifrovat!
 script.hover.encrypt.true=Zašifrujte tento skript před zvědavýma očima<br>§7Skript je zašifrován pomocí klíče hesla uvedeného v konfiguraci modu<br>§cPozor! 
 script.hover.forge=Forge events<br>§7Some server kernels §8(like Magma)§7 ways to combine plugins and mods, so some Forge events are not available!<br>§8Example in §eERMAScript§8 for §fTickEvent.WorldTickEvent§8:<br>§9var§f api§9=§fJava§9.§ftype§9(§7 "noppes.npcs.api.NpcAPI"§9).§fInstance§9();<br>§9function§f tickEventWorldTickEvent§9(§eevent§9) {<br>§9var§f iWorld §9= §fapi§9.§fgetIWorld§9(§fevent§9.§fworld§9);<br>§fiWorld§9.§fbroadcast§9(§7 "Current time in world ID["§9+§fiWorld§9.§fgetDimension§9().§fgetId§9()+§7"]: "§9+§fiWorld§9.§fgetTime§9());<br>§9}<br>§8The full list of available event names can be viewed via the command: §f/noppes script forgelist
+script.hover.info=Knihovny požadované pro propojení skriptovacích jazyků: <br> §becmascript Nashorn§7 - §anot Požadováno <br> §bgraaljs§7_§ekotlin§7 - §fgraal_kotlin_libs -1.8.21.jar <br> §blua§7 - §fluaj -jse -13.0.0. 
+script.hover.info.dir=<br> §7directory pro vaše soubory modulu: <br> %s <br> §7file index: %s
+script.hover.info.ecmascript=Vestavěný motor JavaScript v JDK až do verze 11 <br> §7a výkonný motor ECMAScript, který vám umožní snadno integrovat kód JavaScript do aplikací Java, ale je nízký výkon
+script.hover.info.graaljs=Vysoce výkonný motor JavaScript vyvinutý společností Oracle Labs <br> §7a moderní alternativa k Nashorn, která poskytuje vynikající výkon a kompatibilitu ECMAScript
+script.hover.info.groovy=Dynamicky napsaný programovací jazyk, který sestavuje na Java Bytecode a běží na vrcholu JVM
+script.hover.info.jruby=Implementace Ruby na platformě Java <br> §7Supports Integration s Java API a použití stávajících knihoven Ruby
+script.hover.info.jython=Implementace Pythonu na platformě Java <br> § 7Allows vám spustí kód Python uvnitř virtuálního počítače Java
+script.hover.info.kotlin=Skriptování v Kotlin <br> §7a Moderní staticky psaný jazyk vytvořený Jetbrains
+script.hover.info.lua=Implementace JVM programovacího jazyka LUA <br> §7it poskytuje vysokou výkonnost a kompatibilitu s širokou škálou knihoven Java
+script.hover.info.rhino=Tlumočník JavaScriptu z Mozilly, který běží na platformě Java <br> §7one nejstarších a nejstabilnějších javascriptů pro JVM
+script.hover.log.clear=Odstraňte pouze protokol zobrazený v poli
+script.hover.log.clear.all=Odstranit všechny protokoly
+script.hover.log.copy=Zkopírujte pouze text protokolu zobrazený v poli
+script.hover.log.copy.all=Zkopírujte všechny protokoly v chronologickém pořadí
 script.hover.npcs=Události každého NPC<br>§7Funguje, i když mají NPC vypnuté vlastní skripty<br>§7Seznam funkcí NPC:<br>§f%s<br>§8Příklad podle jazyka §eERMAScript§8:<br>Funkce §9 
 script.hover.players=Events of each Player<br>§7List of player functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fplayer§9.§fmessage§9(§7 "Next Step"§9);<br>§9}
 script.hover.potion=Events of Potions added to the game<br>§6For PRO§7, events when a potion is activated on an entity<br>§7List the functions of its potions:<br>§f%s<br>§8Example by §eERMAScript language for §fIsReadyEvent§8:<br>§9function§f isReady§9(§eevent§9) {<br>§9if (§eevent§9.§fpotion§9.§fgetCustomName§9().§fequals§9(§7 "potionexample"§9)) {<br>§9var §fi§9 = §eevent§9.§famplifier§9 == §60 §9? §620§9 :§6 30§9;<br>§eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§f i§9);<br>§9}<br>§9}
@@ -2402,7 +2417,7 @@ stats.hover.level=NPC level for convenience<br>§7When changing will recalculate
 stats.hover.max.health=Maximum health
 stats.hover.melee=Melee attack settings
 stats.hover.particle=Accompanied by particles
-stats.hover.potion=NPCs do not take damage from potions
+stats.hover.potion=NPC ignoruje jakékoli lektvary
 stats.hover.range=Ranged attack settings<br>§7For an NPC to start using firearms, you must set up an item-snap in the Inventory tab
 stats.hover.rarity=NPC rarity for convenience<br>§7When changing will recalculate: damage, resistance, experience, speed, respawn time<br>§8Display and Recalculation can be disabled in mod configs
 stats.hover.resist=Aktuální hodnoty odolnosti proti poškození z "%s"
@@ -2468,7 +2483,7 @@ stats.undead=Undead
 system.check.scripts.agree=Přečetli jste si pozorně varování a souhlasíte s jeho požadavky?
 system.check.scripts.title=§4Pozor! 
 
-tag.type.0=logical
+tag.type.0=Logický
 tag.type.1=Byte
 tag.type.10=Compound
 tag.type.11=Integer array

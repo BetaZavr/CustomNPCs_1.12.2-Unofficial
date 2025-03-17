@@ -1,4 +1,4 @@
-# Overeenkomstige versie: [CustomNPCs-1.12.2-Unofficial-v.3.420-18Oct2024-Snapshot] en hoger;
+# Overeenkomstige versie: [CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot] en hoger;
 # Gesorteerd, gecontroleerd en toegevoegd door BetaZavr
 # Vertaald met Google Translate
 
@@ -48,6 +48,7 @@ advanced.stepsound=Geluid van voetstappen
 
 ai.avoidwater=Vermijdt water
 ai.backtracking=Rondvaart
+ai.can.be.collide=Duwend van de plek
 ai.cansprint=Kan rennen
 ai.clearlos=Verplichting Zie doelen
 ai.cobwebAffected=Het web vertraagt.
@@ -65,6 +66,7 @@ ai.hover.attack.type.4=<br>§7NP C verzamelt zijn kameraden bij hem in de buurt 
 ai.hover.attack.type.5=<br>§7NP C beweegt langzaam richting het doel.<br>§7Als het doel de NPC ziet ,<br>§7of de NPC de opgegeven afstand bereikt,<br>§7of de NPC het doel raakt,<br> §7Vervolgens valt de NPC het doelwit aan met behulp van het type "Onslaught".
 ai.hover.attack.type.6=<br>§7Geen gevechtstactieken<br>§7Loopt dicht bij het doel en probeert schade aan te richten
 ai.hover.back.home=Als de NPC niet in gevecht is, keert hij terug naar zijn thuispositie.
+ai.hover.can.be.collide=Geen enkel wezen kan deze NPC pushen.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=Acties van een NPC wanneer hij zich in een blok met een deur bevindt
 ai.hover.found.refuge=Zoekt beschutting en wanneer<br>§7's Nachts - een deur<br>§7Overdag - een blok boven je hoofd
@@ -871,6 +873,7 @@ emotion.blink=Blink in this frame
 emotion.can.blink=Blinks if it wants to
 emotion.can.no.blink=Does not blink
 emotion.end.blink=Blink until end of frame
+emotion.hover.scale.move=Schaal van leerlingbeweging langs de %S -as bij het volgen van een doelwit met de ogen
 emotion.list=List of Emotions:
 emotion.no.blink=Don't blink in this frame
 emotion.part.disable=Standard pupil movement
@@ -886,9 +889,6 @@ encrypt.hover.path=Pad van het bestand waar het zal worden opgeslagen<br>§7Nu: 
 encrypt.hover.type.false=Versleutel het script van het huidige tabblad samen met alle scripts uit de geladen bestanden
 encrypt.hover.type.true=Versleutel alleen het zichtbare script van het huidige tabblad
 encrypt.only.tab=Alleen zichtbaar tabbladscript
-
-entity.CustomNpc.name=Aangepast Npc
-entity.customnpcs.CustomNpc.name=Aangepast NPC
 
 enum.animation.aim=Richten
 enum.animation.bow=Houdt een boog vast
@@ -1949,6 +1949,7 @@ quest.hover.compass.entity=Naam van de entiteit<br>§7De zoekkompaspijl zal geri
 quest.hover.compass.false=Schakel Quest Compass om deze zoektocht te volgen
 quest.hover.compass.pos=Positie van het centrale blok langs de %s -as <br>§7De kompaspijl van de zoektocht zal op dit blok gericht zijn
 quest.hover.compass.range=Oplossingszoekbereik<br>§7De zoektochtkompaspijl wordt uitgeschakeld als de speler zich binnen de zone bevindt die wordt gevormd door het centrale blok en de ingestelde afstand ervan
+quest.hover.compass.reg=Regio -ID: %s <br> §7U kunt ook de regio -ID van de regio specificeren die deze positie bevindt als u modificatiegebieden gebruikt
 quest.hover.compass.set=Stel de positie van deze taak in voor het Quest Compass<br>§7Uw positie
 quest.hover.compass.settings=Quest-kompas instellen
 quest.hover.compass.track=Het zoektochtkompas volgt de geselecteerde zoektocht<br>§7Werkt alleen als het kompas is geconfigureerd in de missiedoelen
@@ -2256,6 +2257,20 @@ script.hover.client=Gebeurtenissen die actief zijn op de client van elke speler<
 script.hover.encrypt.false=§cScripts voor clients kunnen niet worden gecodeerd!
 script.hover.encrypt.true=Codeer dit script tegen nieuwsgierige blikken<br>§7Het script is gecodeerd met de wachtwoordsleutel die is opgegeven in de mod-configuratie<br>§cLet op! 
 script.hover.forge=Forge- evenementen <br>§7Sommige servercores §8(als voorbeeld Magma )§7 manieren om plug-ins en mods te combineren, daarom zijn sommige Forge- evenementen niet beschikbaar!<br>§8Taalvoorbeeld §eERMAScript §8voor §fTickEvent . WorldTickEvent §8:<br>§9 var§f api §9=§fJava §9.§ftype §9(§7" noppes . npcs . api . NpcAPI "§9).§fInstance §9();<br>§9 functie§f tickEventWorldTickEvent §9(§eevent §9) {<br> §9 var§f iWorld §9= §fapi §9.§fgetIWorld §9(§fevent §9.§fworld §9);<br> §fiWorld §9.§fbroadcast §9(§7"Huidige tijd in wereld- ID ["§9 +§fiWorld §9.§fgetDimension §9().§fgetId §9()+§7"]: "§9+§fiWorld §9.§fgetTime §9());<br>§9}<br>§8De volledige lijst met beschikbare gebeurtenisnamen kan worden bekeken met de opdracht:§f / noppes script forgelist
+script.hover.info=Libraries required for connecting scripting languages:<br>§bECMAScript Nashorn§7 - §anot required<br>§bGraalJS§7_§eKotlin§7 - §fgraal_kotlin_libs-1.8.21.jar<br>§bLua§7 - §fluaj-jse-3.0.1.jar<br>§bPython§7 - 
+script.hover.info.dir=<br> §7Directory voor uw modulebestanden: <br> %s <br> §7File Index: %s
+script.hover.info.ecmascript=De ingebouwde JavaScript-engine in JDK tot versie 11 <br> §7a krachtige Ecmascript-engine waarmee u JavaScript-code eenvoudig kunt integreren in Java-applicaties, maar is weinig prestaties
+script.hover.info.graaljs=Een krachtige JavaScript-engine ontwikkeld door Oracle Labs <br> §7a Modern alternatief voor Nashorn die uitstekende prestaties en ECMAScript-compatibiliteit biedt
+script.hover.info.groovy=Een dynamisch getypte programmeertaal die samenstelt naar Java bytecode en bovenop de JVM wordt uitgevoerd
+script.hover.info.jruby=Een Ruby -implementatie op het Java -platform <br> §7Supports Integratie met de Java API en het gebruik van bestaande bibliotheken Ruby
+script.hover.info.jython=Een Python -implementatie op het Java -platform <br> §7 wijst u toe om python -code uit te voeren in de virtuele Java -machine
+script.hover.info.kotlin=Scripting in Kotlin <br> §7a moderne statisch getypte taal gecreëerd door jetbrains
+script.hover.info.lua=Een JVM -implementatie van de LUA -programmeertaal <br> §7it biedt hoge prestaties en compatibiliteit met een breed scala aan Java -bibliotheken
+script.hover.info.rhino=Een JavaScript -tolk van Mozilla die op het Java -platform draait <br> §7One van de oudste en meest stabiele JavaScript -motoren voor de JVM
+script.hover.log.clear=Verwijder alleen het logboek dat in het veld wordt weergegeven
+script.hover.log.clear.all=Verwijder alle logboeken
+script.hover.log.copy=Kopieer alleen de logtekst die in het veld wordt weergegeven
+script.hover.log.copy.all=Kopieer alle logboeken in chronologische volgorde
 script.hover.npcs=Events of each NPC<br>§7Works even if NPCs have their own scripts disabled<br>§7List of NPC functions:<br>§f%s<br>§8Example by language §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>§eevent§9.§fnpc§9.§fsay§9(§7"Next Step"§9);<br>§9}
 script.hover.players=Gebeurtenissen van elke speler<br>§7Lijst met spelerfuncties:<br>§f %s <br>§8Taalvoorbeeld §eERMAScript §8:<br>§9 functie§f vink §9(§eevent §9) {<br> §eevent §9.§fplayer §9.§fmessage §9(§7"Volgende stap"§9);<br>§9}
 script.hover.potion=Gebeurtenissen van drankjes die aan het spel zijn toegevoegd<br>§6Voor PRO §7, gebeurtenissen bij het activeren van een drankje op een entiteit<br>§7Lijst met functies van je drankjes:<br>§f %s <br>§8Taalvoorbeeld §eERMAScript voor §fIsReadyEvent §8:<br>§9 functie§f isReady §9(§eevent §9) {<br> §9 if (§eevent §9.§fpotion §9.§fgetCustomName §9().§fequals §9(§7" potionexample "§9)) {<br> §9 var §fi §9 = §eevent §9.§famplifier §9 == §60 §9? §620§9 :§6 30§9;<br>§eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§fi§9);<br>§9}<br >§9}
@@ -2403,7 +2418,7 @@ stats.hover.level=NPC- niveau voor het gemak<br>§7Wanneer gewijzigd, wordt het 
 stats.hover.max.health=Maximale gezondheid
 stats.hover.melee=Instellingen voor melee-aanvallen
 stats.hover.particle=Begeleid door deeltjes
-stats.hover.potion=NPC's lopen geen schade op door drankjes
+stats.hover.potion=NPC negeert drankjes
 stats.hover.range=Instellingen voor afstandsaanvallen<br>§7Om een NPC vuurwapens te laten gebruiken, moet je het uitrustingsitem configureren op het tabblad 'Inventaris'
 stats.hover.rarity=NPC- zeldzaamheid voor het gemak<br>§7Wanneer gewijzigd, wordt het opnieuw berekend: schade, weerstand, ervaring, snelheid, respawn-tijd<br>§8Weergave en herberekening kunnen worden uitgeschakeld in de mod-configuraties
 stats.hover.resist=Current damage resistance readings from "%s"
@@ -2469,7 +2484,7 @@ stats.undead=Ondood
 system.check.scripts.agree=Have you §ecarefully§r read the warning and agree to its requirements?
 system.check.scripts.title=§4Attention! §rYou have the §6CustomNpcs Unofficial mod installed§r - this means that the map developer could have created scripts necessary for specific gameplay mechanics to work. However, ill-wishers create scripts that can harm your system or steal your personal data. To run the game, your agreement is required, that you trust the map developer and understand your responsibility for this decision!
 
-tag.type.0=logisch
+tag.type.0=Logisch
 tag.type.1=Byte
 tag.type.10=Composiet
 tag.type.11=Geheel getal

@@ -45,7 +45,6 @@ public class DataObject implements IDataObject {
 	@Override
 	public String get() {
 		StringBuilder builder = new StringBuilder();
-		String enter = new String(Character.toChars(0xA));
 		builder.append("Class \"").append(this.object).append("\":");
 		IDataElement[] cs = this.getClasses();
 		if (cs.length > 0) {
@@ -55,7 +54,7 @@ public class DataObject implements IDataObject {
 			}
 			Collections.sort(list);
 			int i = 0;
-			builder.append(enter).append("Classes:[");
+			builder.append((char) 10).append("Classes:[");
 			for (String str : list) {
 				builder.append(str);
 				if (i < list.size() - 1) {
@@ -73,7 +72,7 @@ public class DataObject implements IDataObject {
 			}
 			Collections.sort(list);
 			int i = 0;
-			builder.append(enter).append("Fields:[");
+			builder.append((char) 10).append("Fields:[");
 			for (String str : list) {
 				builder.append(str);
 				if (i < list.size() - 1) {
@@ -91,7 +90,7 @@ public class DataObject implements IDataObject {
 			}
 			Collections.sort(list);
 			int i = 0;
-			builder.append(enter).append("Methods:[");
+			builder.append((char) 10).append("Methods:[");
 			for (String str : list) {
 				builder.append(str);
 				if (i < list.size() - 1) {
@@ -126,14 +125,13 @@ public class DataObject implements IDataObject {
 		}
 		int i = 0;
 		if (!c.isEmpty()) {
-			String enter = new String(Character.toChars(0xA));
-			builder.append("Sub-Classes: [").append(enter);
+			builder.append("Sub-Classes: [").append((char) 10);
 			StringBuilder sp = new StringBuilder(" ");
 			for (int j = 0; j < String.valueOf(c.size()).length() - String.valueOf(i).length(); j++) {
 				sp.append(" ");
 			}
 			for (IDataElement de : c) {
-				builder.append(" ").append(i).append(sp).append(de.getData()).append(enter);
+				builder.append(" ").append(i).append(sp).append(de.getData()).append((char) 10);
 				i++;
 			}
 			builder.append("]");
@@ -173,14 +171,13 @@ public class DataObject implements IDataObject {
 		}
 		int i = 0;
 		if (!c.isEmpty()) {
-			String enter = new String(Character.toChars(0xA));
-			builder.append("Constructors: [").append(enter);
+			builder.append("Constructors: [").append((char) 10);
 			StringBuilder sp = new StringBuilder(" ");
 			for (int j = 0; j < String.valueOf(c.size()).length() - String.valueOf(i).length(); j++) {
 				sp.append(" ");
 			}
 			for (IDataElement de : c) {
-				builder.append(" ").append(i).append(sp).append(de.getData()).append(enter);
+				builder.append(" ").append(i).append(sp).append(de.getData()).append((char) 10);
 				i++;
 			}
 			builder.append("]");
@@ -224,37 +221,38 @@ public class DataObject implements IDataObject {
 				f.put(de.getName(), de);
 			}
 		}
-		int i = 0;
 		if (!f.isEmpty()) {
-			String enter = new String(Character.toChars(0xA));
 			List<String> names = new ArrayList<>(f.keySet());
 			Collections.sort(names);
+			Map<Integer, String> dataMap = new LinkedHashMap<>();
+			Map<Integer, String> ptMap = new LinkedHashMap<>();
+			Map<Integer, String> prMap = new LinkedHashMap<>();
+			Map<Integer, String> dMap = new LinkedHashMap<>();
+			Map<Integer, Object> valueMap = new LinkedHashMap<>();
 			String maxKey = "", maxValue = "";
+			int i = 0;
 			for (IDataElement de : f.values()) {
-				if (de.getData().length() > maxKey.length()) {
-					maxKey = de.getData();
-				}
-				if (("" + de.getValue()).length() > maxValue.length()) {
-					maxValue = "" + de.getValue();
-				}
+				String data = de.getData();
+				Object value = de.getValue();
+				if (data.length() > maxKey.length()) { maxKey = data; }
+				if (("" + value).length() > maxValue.length()) { maxValue = "" + value; }
+				if (data.startsWith("public")) { dataMap.put(i, data); }
+				else if (data.startsWith("protected")) { ptMap.put(i, data); }
+				else if (data.startsWith("private")) { prMap.put(i, data); }
+				else { dMap.put(i, data); }
+				valueMap.put(i, value);
+				i++;
 			}
-            builder.append("Fields: [").append(enter);
-			for (String name : names) {
-				IDataElement de = f.get(name);
+			dataMap.putAll(ptMap);
+			dataMap.putAll(prMap);
+			dataMap.putAll(dMap);
+            builder.append("Fields: [").append((char) 10);
+			for (int pos : dataMap.keySet()) {
 				StringBuilder sp = new StringBuilder(" ");
                 StringBuilder fx = new StringBuilder();
-                StringBuilder sx = new StringBuilder();
-                for (int j = 0; j < String.valueOf(names.size()).length() - String.valueOf(i).length(); j++) {
-					sp.append(" ");
-				}
-				for (int j = 0; j < maxKey.length() - de.getData().length(); j++) {
-					fx.append(" ");
-				}
-				for (int j = 0; j < maxValue.length() - ("" + de.getValue()).length(); j++) {
-					sx.append(" ");
-				}
-				builder.append(" ").append(i).append(sp).append(de.getData()).append(fx).append(" = ").append(de.getValue()).append(!de.isBelong(this.object.getClass()) ? sx + " [" + de.getParent().getName() + "]" : "").append(enter);
-				i++;
+                for (int j = 0; j < String.valueOf(names.size()).length() - String.valueOf(pos).length(); j++) { sp.append(" "); }
+				for (int j = 0; j < maxKey.length() - dataMap.get(pos).length(); j++) { fx.append(" "); }
+				builder.append(" ").append(pos).append(sp).append(dataMap.get(pos)).append(fx).append(" = ").append(valueMap.get(pos)).append((char) 10);
 			}
 			builder.append("]");
 		}
@@ -265,34 +263,34 @@ public class DataObject implements IDataObject {
 	public String getInfo() {
 		StringBuilder builder = new StringBuilder();
 		int md = this.object.getClass().getModifiers();
-		String key = "", enter = new String(Character.toChars(0xA));
+		String key = "";
 		if (Modifier.isPrivate(md)) { key = "Private "; }
 		else if (Modifier.isPublic(md)) { key = "Public "; }
 		else if (Modifier.isProtected(md)) { key = "Protected "; }
 		if (Modifier.isAbstract(md)) { key += "Abstract"; }
 		if (Modifier.isInterface(md)) { key += "Interface"; }
-		builder.append(key).append("Class: \"").append(object.getClass().getName());
+		builder.append(key).append("Class ").append(object.getClass().getName());
 		if (object.getClass().getSuperclass() != null && object.getClass().getSuperclass() != Object.class) {
-			builder.append(" extends ").append(Util.getAgrName(object.getClass().getSuperclass(), object.getClass().getSuperclass().getGenericSuperclass(), null));
+			builder.append(" extends ").append(Util.getAgrName(object.getClass().getSuperclass()));
 		}
 		Class<?>[] implementers = object.getClass().getInterfaces();
 		if (implementers.length > 0) {
 			builder.append(" implements ");
 			for (int i = 0; i < implementers.length; i++) {
-				builder.append(Util.getAgrName(implementers[i], implementers[i].getGenericSuperclass(), null));
+				builder.append(Util.getAgrName(implementers[i]));
 				if (i < implementers.length - 1) { builder.append(", "); }
 			}
 		}
-		builder.append("\";").append(enter).append("As an object: ").append(object).append(enter);
+		builder.append(":").append((char) 10).append("As an object: ").append(object).append((char) 10);
 		// Constructors
 		String values = getConstructorsInfo();
-		if (!values.isEmpty()) { builder.append(values).append(enter); }
+		if (!values.isEmpty()) { builder.append(values).append((char) 10); }
 		// Classes
 		values = getClassesInfo();
-		if (!values.isEmpty()) { builder.append(values).append(enter); }
+		if (!values.isEmpty()) { builder.append(values).append((char) 10); }
 		// Fields
 		values = getFieldsInfo();
-		if (!values.isEmpty()) { builder.append(values).append(enter); }
+		if (!values.isEmpty()) { builder.append(values).append((char) 10); }
 		// Methods
 		values = getMethodsInfo();
 		if (!values.isEmpty()) { builder.append(values); }
@@ -335,27 +333,31 @@ public class DataObject implements IDataObject {
 				m.put(de.getName(), de);
 			}
 		}
-		int i;
 		if (!m.isEmpty()) {
-			String enter = new String(Character.toChars(0xA));
 			List<String> names = new ArrayList<>(m.keySet());
 			Collections.sort(names);
+			Map<Integer, String> dataMap = new LinkedHashMap<>();
+			Map<Integer, String> ptMap = new LinkedHashMap<>();
+			Map<Integer, String> prMap = new LinkedHashMap<>();
+			Map<Integer, String> dMap = new LinkedHashMap<>();
 			String maxKey = "";
+			int i = 0;
 			for (IDataElement de : m.values()) {
-				if (de.getData().length() > maxKey.length()) {
-					maxKey = de.getData();
-				}
+				String data = de.getData();
+				if (data.length() > maxKey.length()) { maxKey = data; }
+				if (data.startsWith("public")) { dataMap.put(i++, data); }
+				else if (data.startsWith("protected")) { ptMap.put(i++, data); }
+				else if (data.startsWith("private")) { prMap.put(i++, data); }
+				else { dMap.put(i++, data); }
 			}
-			i = 0;
-			builder.append("Methods: [").append(enter);
-			for (String name : names) {
-				IDataElement de = m.get(name);
+			dataMap.putAll(ptMap);
+			dataMap.putAll(prMap);
+			dataMap.putAll(dMap);
+			builder.append("Methods: [").append((char) 10);
+			for (int pos : dataMap.keySet()) {
 				StringBuilder sp = new StringBuilder(" ");
-                for (int j = 0; j < String.valueOf(names.size()).length() - String.valueOf(i).length(); j++) {
-					sp.append(" ");
-				}
-				builder.append(" ").append(i).append(sp).append(de.getData()).append(enter);
-				i++;
+                for (int j = 0; j < String.valueOf(names.size()).length() - String.valueOf(pos).length(); j++) { sp.append(" "); }
+				builder.append(" ").append(pos).append(sp).append(dataMap.get(pos)).append((char) 10);
 			}
 			builder.append("]");
 		}
@@ -363,6 +365,8 @@ public class DataObject implements IDataObject {
 	}
 
 	@Override
-	public String toString() { return getInfo(); }
+	public String toString() {
+		return getInfo().replaceAll("\\n", System.lineSeparator());
+	}
 
 }
