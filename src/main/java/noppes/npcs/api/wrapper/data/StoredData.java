@@ -5,7 +5,6 @@ import java.util.Objects;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.LogWriter;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.EntityWrapper;
@@ -51,7 +50,6 @@ public class StoredData extends TempData implements IData {
 
 	@Override
 	public void put(String key, Object value) {
-		resetData();
 		if (value == null) {
 			remove(key);
 			return;
@@ -85,20 +83,6 @@ public class StoredData extends TempData implements IData {
 		}
 		else if (controller != null && controller.compound != null) {
 			controller.compound.removeTag(key);
-		}
-	}
-
-	@Override
-	protected void resetData() {
-		super.resetData();
-		if (entity != null) {
-			if (entity.getMCEntity() instanceof EntityPlayer) { setNbt(PlayerData.get((EntityPlayer) entity.getMCEntity()).scriptStoreddata); }
-			else {
-				if (!entity.getMCEntity().getEntityData().hasKey("CNPCStoredData", 10)) { entity.getMCEntity().getEntityData().setTag("CNPCStoredData", new NBTTagCompound()); }
-				setNbt(entity.getMCEntity().getEntityData().getCompoundTag("CNPCStoredData"));
-			}
-		} else if (controller != null) {
-			setNbt(controller.compound);
 		}
 	}
 

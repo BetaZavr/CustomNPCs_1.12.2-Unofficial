@@ -25,9 +25,10 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 5) {
+		if (button.getID() == 5) {
 			close();
-		} else if (button.getId() == 0) {
+		}
+		else if (button.getID() == 0) {
 			quest.setRewardType(button.getValue());
 		}
 	}
@@ -76,15 +77,12 @@ implements ITextfieldListener {
 		addButton(button);
 	}
 
-	@Override
-	public void save() {
-	}
-
-	@Override
+    @Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 0) {
+		if (textfield.getID() == 0) {
 			quest.rewardExp = textfield.getInteger();
-		} else if (textfield.getId() == 1) {
+		}
+		else if (textfield.getID() == 1) {
 			quest.rewardMoney = textfield.getInteger();
 		}
 	}

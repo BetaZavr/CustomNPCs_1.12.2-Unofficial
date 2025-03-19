@@ -21,7 +21,7 @@ import noppes.npcs.api.handler.data.*;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.*;
 import noppes.npcs.controllers.*;
-import noppes.npcs.api.mixin.scoreboard.IServerScoreboardMixin;
+import noppes.npcs.reflection.scoreboard.ScoreboardReflection;
 import noppes.npcs.util.ValueUtil;
 
 public class Availability
@@ -251,7 +251,7 @@ implements ICompatibilty, IAvailability {
 			ServerScoreboard board = (ServerScoreboard) world.getScoreboard();
 			ScoreObjective so = board.getObjective(objective);
 			if (so != null) {
-				Set<ScoreObjective> addedObjectives = ((IServerScoreboardMixin) board).npcs$getAddedObjectives();
+				Set<ScoreObjective> addedObjectives = ScoreboardReflection.getAddedObjectives(board);
                 if (addedObjectives != null && !addedObjectives.contains(so)) {
 					board.addObjective(so);
 				}

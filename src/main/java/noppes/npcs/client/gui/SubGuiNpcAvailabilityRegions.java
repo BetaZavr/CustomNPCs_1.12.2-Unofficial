@@ -35,7 +35,7 @@ implements ICustomScrollListener {
 
     @Override
     public void buttonEvent(IGuiNpcButton button) {
-        switch (button.getId()) {
+        switch (button.getID()) {
             case 0: {
                 if (!data.containsKey(select)) { return; }
                 IBorder region = BorderController.getInstance().getRegion(data.get(select));

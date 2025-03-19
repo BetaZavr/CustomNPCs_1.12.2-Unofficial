@@ -58,7 +58,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 3: { // end text
 				this.setSubGui(new SubGuiNpcTextArea(0, this.quest.completeText));
 				break;
@@ -409,7 +409,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		if (scroll.getSelected() == null) {
 			return;
 		}
-		if (scroll.getId() == 6) {
+		if (scroll.getID() == 6) {
 			this.task = scroll.getSelected();
 		}
 		this.initGui();
@@ -417,7 +417,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 
 	@Override
 	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 6) {
+		if (scroll.getID() == 6) {
 			if (this.task.isEmpty()) {
 				return;
 			}
@@ -514,7 +514,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 
 	@Override
 	public void unFocused(IGuiNpcTextField guiNpcTextField) {
-		if (guiNpcTextField.getId() == 1) {
+		if (guiNpcTextField.getID() == 1) {
 			this.quest.setName(guiNpcTextField.getText());
 			while (QuestController.instance.containsQuestName(this.quest.category, this.quest)) {
 				StringBuilder sb = new StringBuilder();

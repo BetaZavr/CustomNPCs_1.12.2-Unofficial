@@ -51,7 +51,7 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
-            args '--username=' + mod_author.replace('[', '').replace(']', ''), '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_mixin_configs
+            args '--username=BetaZavr', '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_mixin_configs
         }
         server {
             workingDirectory project.file('run/server')
@@ -104,7 +104,7 @@ processResources {
                 'description': mod_description,
                 'credits': mod_credits,
                 'logoFile' : mod_logoFile,
-                'authorList': mod_author
+                'authorList': mod_authors
     }
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
@@ -130,7 +130,7 @@ jar {
         attributes([
             "Implementation-Title"       : mod_name,
             "Implementation-Version"     : mod_version,
-            "Implementation-Vendor"      : mod_author.replace('[', '').replace(']', ''),
+            "Implementation-Vendor"      : mod_authors,
             "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
             "FMLCorePluginContainsFMLMod": "true",
             "FMLCorePlugin"              : mod_group + ".mixin.NpcMixinCore",

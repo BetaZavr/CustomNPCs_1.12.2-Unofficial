@@ -32,7 +32,7 @@ public class SubGuiEditAddPart
 extends SubGuiInterface
 implements ITextfieldListener {
 
-    private static final ResourceLocation backResource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
+    protected static final ResourceLocation backResource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
 
     public final AddedPartConfig addPart;
     public final PartConfig part;
@@ -41,12 +41,12 @@ implements ITextfieldListener {
     public final Map<String, Integer> dataPartIDs = new TreeMap<>();
     public final AnimationConfig animation;
     public boolean isSave = false;
-    private boolean onlyPart = false;
-    private final EntityNPCInterface npcPart;
-    private ModelRendererAlt partRender;
-    private final ModelNpcAlt model;
-    private int typeModel = 0;
-    private int typePart = 0;
+    protected boolean onlyPart = false;
+    protected final EntityNPCInterface npcPart;
+    protected ModelRendererAlt partRender;
+    protected final ModelNpcAlt model;
+    protected int typeModel = 0;
+    protected int typePart = 0;
 
     // display
     private int workU;
@@ -110,7 +110,7 @@ implements ITextfieldListener {
 
     @Override
     public void buttonEvent(IGuiNpcButton button) {
-        switch (button.getId()) {
+        switch (button.getID()) {
             case 0: {
                 String value = Util.instance.deleteColor(button.getDisplayString());
                 if (!dataPartIDs.containsKey(value)) { return; }
@@ -739,7 +739,7 @@ implements ITextfieldListener {
 
     @Override
     public void unFocused(IGuiNpcTextField textField) {
-        switch (textField.getId()) {
+        switch (textField.getID()) {
             case 0: {
                 part.name = textField.getText();
                 break;

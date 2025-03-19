@@ -42,15 +42,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	public int elementType = 0; // 0 - eye, 1 - pupil, 2 - brow, 3 - mouth
 	public boolean isRight = true;
 
-	private final Map<String, EmotionConfig> dataEmtns = new TreeMap<>();
-	private String selEmtn;
-	private boolean onlyPart = false;
-	private final DataAnimation animation;
-	private GuiCustomScroll scroll;
-	private AnimationController aData;
-	private ScaledResolution sw;
-	private ModelEyeData modelEye;
-	private final String[] types = new String[] { "gui.small", "gui.normal", "gui.select" };
+	protected final Map<String, EmotionConfig> dataEmtns = new TreeMap<>();
+	protected String selEmtn;
+	protected boolean onlyPart = false;
+	protected final DataAnimation animation;
+	protected GuiCustomScroll scroll;
+	protected AnimationController aData;
+	protected ScaledResolution sw;
+	protected ModelEyeData modelEye;
+	protected final String[] types = new String[] { "gui.small", "gui.normal", "gui.select" };
 
 	public GuiNpcEmotion(EntityCustomNpc npc) {
 		super(npc, 4);
@@ -68,7 +68,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 		EmotionConfig emtn = getEmtn();
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
@@ -700,7 +700,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			if (selEmtn.equals(scroll.getSelected())) { return; }
 			save();
 			selEmtn = scroll.getSelected();
@@ -751,7 +751,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	@Override
 	public void mouseDragged(IGuiNpcSlider slider) {
 		float value;
-		int pos = slider.getId() + (isRight ? 0 : 2);
+		int pos = slider.getID() + (isRight ? 0 : 2);
 		switch(elementType) {
 			case 1: { // pupil
 				switch(toolType) { // 0 - rotation, 1 - offset, 2 - scale
@@ -790,11 +790,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			case 3: { // mouth
 				switch(toolType) {
 					case 1: {
-						frame.offsetMouth[slider.getId()] = (value = slider.getSliderValue() * 2.5f - (isRight ? 1.0f : 1.5f));
+						frame.offsetMouth[slider.getID()] = (value = slider.getSliderValue() * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scaleMouth[slider.getId()] = (value = slider.getSliderValue() * 2.0f);
+						frame.scaleMouth[slider.getID()] = (value = slider.getSliderValue() * 2.0f);
 						break;
 					}
 					default: {
@@ -823,7 +823,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				break;
 			}
 		}
-		if (getTextField(5 + slider.getId()) != null) { getTextField(5 + slider.getId()).setText("" + (Math.round(value * 1000.0f) / 1000.0f)); }
+		if (getTextField(5 + slider.getID()) != null) { getTextField(5 + slider.getID()).setText("" + (Math.round(value * 1000.0f) / 1000.0f)); }
 		resetEmtns();
 	}
 
@@ -837,7 +837,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	public void unFocused(IGuiNpcTextField textField) {
 		EmotionConfig emtn = getEmtn();
 		if (hasSubGui() || emtn == null) { return; }
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 0: {
 				emtn.name = textField.getText();
 				selEmtn = emtn.getSettingName();

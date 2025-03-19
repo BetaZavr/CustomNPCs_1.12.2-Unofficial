@@ -307,7 +307,7 @@ implements ICustomScrollListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			this.initGui();
 		} else if (this.selected != null) {
 			this.selected.scrollClicked(mouseX, mouseY, mouseButton, scroll);

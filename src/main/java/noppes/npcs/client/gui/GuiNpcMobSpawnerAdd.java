@@ -33,30 +33,27 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			String name = getTextField(0).getText();
-			if (name.isEmpty()) {
-				return;
-			}
-			int tab = button.getValue() + 1;
-			if (!GuiNpcMobSpawnerAdd.serverSide) {
-				if (ClientCloneController.Instance.getCloneData(null, name, tab) != null) {
-					displayGuiScreen(new GuiYesNo(this, "", new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
-				} else {
-					confirmClicked(true, 0);
+		switch (button.getID()) {
+			case 0 : {
+				String name = getTextField(0).getText();
+				if (name.isEmpty()) {
+					return;
 				}
-			} else {
-				Client.sendData(EnumPacketServer.ClonePreSave, name, tab);
+				int tab = button.getValue() + 1;
+				if (!GuiNpcMobSpawnerAdd.serverSide) {
+					if (ClientCloneController.Instance.getCloneData(null, name, tab) != null) {
+						displayGuiScreen(new GuiYesNo(this, "", new TextComponentTranslation("clone.overwrite").getFormattedText(), 1));
+					} else {
+						confirmClicked(true, 0);
+					}
+				} else {
+					Client.sendData(EnumPacketServer.ClonePreSave, name, tab);
+				}
+				break;
 			}
-		}
-		if (button.getId() == 1) {
-			close();
-		}
-		if (button.getId() == 2) {
-			GuiNpcMobSpawnerAdd.tab = button.getValue() + 1;
-		}
-		if (button.getId() == 3) {
-			GuiNpcMobSpawnerAdd.serverSide = button.getValue() == 1;
+			case 1: close(); break;
+			case 2: GuiNpcMobSpawnerAdd.tab = button.getValue() + 1; break;
+			case 3: GuiNpcMobSpawnerAdd.serverSide = button.getValue() == 1; break;
 		}
 	}
 

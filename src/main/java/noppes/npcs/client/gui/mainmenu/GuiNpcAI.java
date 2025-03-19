@@ -27,41 +27,38 @@ implements ITextfieldListener, IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			ai.onAttack = button.getValue();
-			initGui();
-		} else if (button.getId() == 1) {
-			ai.doorInteract = button.getValue();
-		} else if (button.getId() == 2) {
-			setSubGui(new SubGuiNpcMovement(ai));
-		} else if (button.getId() == 5) {
-			npc.ais.setAvoidsWater(button.getValue() == 1);
-		} else if (button.getId() == 6) {
-			ai.returnToStart = (button.getValue() == 1);
-		} else if (button.getId() == 7) {
-			ai.canSwim = (button.getValue() == 1);
-		} else if (button.getId() == 9) {
-			ai.findShelter = button.getValue();
-		} else if (button.getId() == 10) {
-			ai.directLOS = (button.getValue() == 1);
-		} else if (button.getId() == 15) {
-			ai.canLeap = (button.getValue() == 1);
-		} else if (button.getId() == 16) {
-			ai.canSprint = (button.getValue() == 1);
-		} else if (button.getId() == 17) {
-			ai.tacticalVariant = button.getValue();
-			ai.directLOS = (button.getValue() != 5 && ai.directLOS);
-			initGui();
-		} else if (button.getId() == 18) {
-			ai.canBeCollide = (button.getValue() == 1);
-		} else if (button.getId() == 23) {
-			ai.attackInvisible = ((GuiNpcButtonYesNo) button).getBoolean();
-		} else if (button.getId() == 25) {
-			ai.aiDisabled = (button.getValue() == 1);
-			button.setLayerColor(ai.aiDisabled ?
-					new Color(0xFFF02020).getRGB() :
-					new Color(0xFF20F020).getRGB());
-			initGui();
+		switch (button.getID()) {
+			case 0: {
+				ai.onAttack = button.getValue();
+				initGui();
+				break;
+			}
+			case 1: ai.doorInteract = button.getValue(); break;
+			case 2: setSubGui(new SubGuiNpcMovement(ai)); break;
+			case 5: npc.ais.setAvoidsWater(button.getValue() == 1); break;
+			case 6: ai.returnToStart = (button.getValue() == 1); break;
+			case 7: ai.canSwim = (button.getValue() == 1); break;
+			case 9: ai.findShelter = button.getValue(); break;
+			case 10: ai.directLOS = (button.getValue() == 1); break;
+			case 15: ai.canLeap = (button.getValue() == 1); break;
+			case 16: ai.canSprint = (button.getValue() == 1); break;
+			case 17: {
+				ai.tacticalVariant = button.getValue();
+				ai.directLOS = (button.getValue() != 5 && ai.directLOS);
+				initGui();
+				break;
+			}
+			case 18: ai.canBeCollide = (button.getValue() == 1); break;
+			case 23: ai.attackInvisible = ((GuiNpcButtonYesNo) button).getBoolean(); break;
+			case 25: {
+				ai.aiDisabled = (button.getValue() == 1);
+				button.setLayerColor(ai.aiDisabled ?
+						new Color(0xFFF02020).getRGB() :
+						new Color(0xFF20F020).getRGB());
+				initGui();
+				break;
+			}
+			case 66: close(); break;
 		}
 	}
 
@@ -207,9 +204,10 @@ implements ITextfieldListener, IGuiData {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 3) {
+		if (textfield.getID() == 3) {
 			ai.setTacticalRange(textfield.getInteger());
-		} else if (textfield.getId() == 4) {
+		}
+		else if (textfield.getID() == 4) {
 			ai.setMaxHurtResistantTime(textfield.getInteger() * 2);
 			if (textfield.getInteger() * 2 != ai.getMaxHurtResistantTime()) {
 				textfield.setText("" + ai.getMaxHurtResistantTime());

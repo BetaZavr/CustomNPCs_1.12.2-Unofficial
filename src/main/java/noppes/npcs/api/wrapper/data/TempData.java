@@ -25,20 +25,17 @@ public class TempData implements IData {
 
 	@Override
 	public void clear() {
-		resetData();
 		map.clear();
 		if (block != null && block.storage != null) { block.storage.tempData.clear(); }
 	}
 
 	@Override
 	public Object get(String key) {
-		resetData();
 		return map.get(key);
 	}
 
 	@Override
 	public String[] getKeys() {
-		resetData();
 		Set<String> sets = map.keySet();
 		return sets.toArray(new String[0]);
 	}
@@ -52,13 +49,11 @@ public class TempData implements IData {
 
 	@Override
 	public boolean has(String key) {
-		resetData();
 		return map.containsKey(key);
 	}
 
 	@Override
 	public void put(String key, Object value) {
-		resetData();
 		if (value == null) {
 			remove(key);
 			return;
@@ -69,19 +64,8 @@ public class TempData implements IData {
 
 	@Override
 	public void remove(String key) {
-		resetData();
 		map.remove(key);
 		if (block != null && block.storage != null) { block.storage.tempData.remove(key); }
-	}
-
-	protected void resetData() {
-		if (block != null) {
-			if (block.storage == null) {
-				return;
-			}
-			map.clear();
-			map.putAll(block.storage.tempData);
-        }
 	}
 
 	@SuppressWarnings("unchecked")

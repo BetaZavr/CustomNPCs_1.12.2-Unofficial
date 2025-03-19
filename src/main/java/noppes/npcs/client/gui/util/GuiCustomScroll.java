@@ -576,7 +576,7 @@ implements IComponentGui, IGuiCustomScroll {
 	}
 
 	@Override
-	public int getId() { return id; }
+	public int getID() { return id; }
 
 	@Override
 	public int[] getCenter() { return new int[] { guiLeft + width / 2, guiTop + height  / 2}; }

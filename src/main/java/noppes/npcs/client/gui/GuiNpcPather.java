@@ -31,46 +31,49 @@ implements IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (scroll.getSelect() < 0) {
-			return;
-		}
-		if (button.getId() == 0) { // down
-			List<int[]> list = new ArrayList<>(path);
-			int selected = scroll.getSelect();
-			if (list.size() <= selected + 1) {
-				return;
+		if (scroll.getSelect() < 0) { return; }
+		switch (button.getID()) {
+			case 0 : { // down
+				List<int[]> list = new ArrayList<>(path);
+				int selected = scroll.getSelect();
+				if (list.size() <= selected + 1) {
+					return;
+				}
+				int[] a = list.get(selected);
+				int[] b = list.get(selected + 1);
+				list.set(selected, b);
+				list.set(selected + 1, a);
+				path = list;
+				initGui();
+				scroll.setSelect(selected + 1);
+				break;
 			}
-			int[] a = list.get(selected);
-			int[] b = list.get(selected + 1);
-			list.set(selected, b);
-			list.set(selected + 1, a);
-			path = list;
-			initGui();
-			scroll.setSelect(selected + 1);
-		}
-		if (button.getId() == 1) { // up
-			if (scroll.getSelect() - 1 < 0) {
-				return;
+			case 1 : { // up
+				if (scroll.getSelect() - 1 < 0) {
+					return;
+				}
+				List<int[]> list = new ArrayList<>(path);
+				int selected = scroll.getSelect();
+				int[] a = list.get(selected);
+				int[] b = list.get(selected - 1);
+				list.set(selected, b);
+				list.set(selected - 1, a);
+				path = list;
+				initGui();
+				scroll.setSelect(selected - 1);
+				break;
 			}
-			List<int[]> list = new ArrayList<>(path);
-			int selected = scroll.getSelect();
-			int[] a = list.get(selected);
-			int[] b = list.get(selected - 1);
-			list.set(selected, b);
-			list.set(selected - 1, a);
-			path = list;
-			initGui();
-			scroll.setSelect(selected - 1);
-		}
-		if (button.getId() == 2) { // remove
-			List<int[]> list = new ArrayList<>(path);
-			if (list.size() <= 1) {
-				return;
+			case 2 : { // remove
+				List<int[]> list = new ArrayList<>(path);
+				if (list.size() <= 1) {
+					return;
+				}
+				list.remove(scroll.getSelect());
+				scroll.setSelect(scroll.getSelect() - 1);
+				path = list;
+				initGui();
+				break;
 			}
-			list.remove(scroll.getSelect());
-            scroll.setSelect(scroll.getSelect() - 1);
-			path = list;
-			initGui();
 		}
 		npc.ais.setMovingPath(path);
 	}

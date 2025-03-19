@@ -41,7 +41,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 1: { // add alive
 				isDead = false;
 				slot = -1;
@@ -443,7 +443,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		slot = scroll.getSelect();
-		isDead = scroll.getId() == 0;
+		isDead = scroll.getID() == 0;
 		(isDead ? aliveScroll : deadScroll).setSelect(-1);
 		SpawnNPCData sd = job.get(slot, isDead);
 		if (sd != null && sd.compound != null) { Client.sendData(EnumPacketServer.GetClone, true, slot, isDead); }
@@ -490,7 +490,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 0: { // X alive
 				job.getOffset(false)[0] = textField.getInteger();
 				break;

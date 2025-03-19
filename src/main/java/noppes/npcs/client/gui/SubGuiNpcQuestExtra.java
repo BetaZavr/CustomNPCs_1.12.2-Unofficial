@@ -45,7 +45,7 @@ implements ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // icon select
 				GuiTextureSelection subGui = new GuiTextureSelection(showNpc, quest.icon.toString(), "png", 3);
 				subGui.id = 0;
@@ -380,14 +380,15 @@ implements ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		if (textField.getId() == 0) {
+		if (textField.getID() == 0) {
 			if (textField.getText().isEmpty()) {
 				quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
 			} else {
 				quest.icon = new ResourceLocation(textField.getText());
 			}
 			textField.setText(quest.icon.toString());
-		} else if (textField.getId() == 1) {
+		}
+		else if (textField.getID() == 1) {
 			if (textField.getText().isEmpty()) {
 				quest.texture = null;
 			} else {

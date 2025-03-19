@@ -25,7 +25,7 @@ implements IScrollData, ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 1: { // settings
 				player.sendMessage(new TextComponentTranslation("gui.wip"));
 				if (!data.containsKey(scroll.getSelected())) {

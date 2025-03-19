@@ -126,6 +126,10 @@ implements IComponentGui, IGuiNpcTextField {
 		drawTextBox();
 	}
 
+
+	@Override
+	public int getID() { return this.getId(); }
+
 	@Override
 	public double getDouble() {
 		double d = defD;

@@ -18,6 +18,8 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataDisplay;
 
+import java.awt.*;
+
 public class GuiNpcDisplay
 extends GuiNPCInterface2
 implements ITextfieldListener, IGuiData, ISubGuiListener {
@@ -43,7 +45,7 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				this.display.setShowName(button.getValue());
 				break;
@@ -286,40 +288,32 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 0) {
-			if (!textfield.isEmpty()) {
-				this.display.setName(textfield.getText());
+		switch (textfield.getID()) {
+			case 0: {
+				if (!textfield.isEmpty()) { display.setName(textfield.getText()); }
+				textfield.setText(display.getName());
+				break;
 			}
-			textfield.setText(this.display.getName());
-		} else if (textfield.getId() == 2) {
-			this.display.setSize(textfield.getInteger());
-		} else if (textfield.getId() == 3) {
-			if (this.display.skinType == 2) {
-				this.display.setSkinUrl(textfield.getText());
-			} else if (this.display.skinType == 1) {
-				this.display.setSkinPlayer(textfield.getText());
-			} else {
-				this.display.setSkinTexture(textfield.getText());
+			case 2: display.setSize(textfield.getInteger()); break;
+			case 3: {
+				if (display.skinType == 2) { display.setSkinUrl(textfield.getText()); }
+				else if (display.skinType == 1) { display.setSkinPlayer(textfield.getText()); }
+				else { display.setSkinTexture(textfield.getText()); }
+				break;
 			}
-		} else if (textfield.getId() == 6) {
-			int color;
-			try {
-				color = Integer.parseInt(textfield.getText(), 16);
-			} catch (NumberFormatException e) {
-				color = 16777215;
+			case 6: {
+				int color;
+				try { color = Integer.parseInt(textfield.getText(), 16); }
+				catch (NumberFormatException e) { color = new Color(0xFFFFFF).getRGB(); }
+				this.display.setTint(color);
+				textfield.setTextColor(this.display.getTint());
+				break;
 			}
-			this.display.setTint(color);
-			textfield.setTextColor(this.display.getTint());
-		} else if (textfield.getId() == 8) {
-			this.display.setCapeTexture(textfield.getText());
-		} else if (textfield.getId() == 9) {
-			this.display.setOverlayTexture(textfield.getText());
-		} else if (textfield.getId() == 11) {
-			this.display.setTitle(textfield.getText());
-		} else if (textfield.getId() == 12) {
-			this.display.width = (float) textfield.getDouble();
-		} else if (textfield.getId() == 13) {
-			this.display.height = (float) textfield.getDouble();
+			case 8: display.setCapeTexture(textfield.getText()); break;
+			case 9: display.setOverlayTexture(textfield.getText()); break;
+			case 11: display.setTitle(textfield.getText()); break;
+			case 12: display.width = (float) textfield.getDouble(); break;
+			case 13: display.height = (float) textfield.getDouble(); break;
 		}
 	}
 

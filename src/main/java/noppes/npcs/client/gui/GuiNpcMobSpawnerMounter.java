@@ -43,36 +43,44 @@ implements IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			close();
-		}
-		if (button.getId() == 1) {
-			NBTTagCompound compound = getCompound();
-			if (compound != null) {
-				compound.setTag("Pos", newDoubleNBTList(posX + 0.5, posY + 1, posZ + 0.5));
-				Client.sendData(EnumPacketServer.SpawnRider, compound);
-				close();
+		switch (button.getID()) {
+			case 0 : close(); break;
+			case 1: {
+				NBTTagCompound compound = getCompound();
+				if (compound != null) {
+					compound.setTag("Pos", newDoubleNBTList(posX + 0.5, posY + 1, posZ + 0.5));
+					Client.sendData(EnumPacketServer.SpawnRider, compound);
+					close();
+				}
+				break;
 			}
-		}
-		if (button.getId() == 2) {
-			Client.sendData(EnumPacketServer.PlayerRider);
-			close();
-		}
-		if (button.getId() == 3) {
-			GuiNpcMobSpawnerMounter.showingClones = 0;
-			initGui();
-		}
-		if (button.getId() == 4) {
-			GuiNpcMobSpawnerMounter.showingClones = 1;
-			initGui();
-		}
-		if (button.getId() == 5) {
-			GuiNpcMobSpawnerMounter.showingClones = 2;
-			initGui();
-		}
-		if (button.getId() > 20) {
-			activeTab = button.getId() - 20;
-			initGui();
+			case 2: {
+				Client.sendData(EnumPacketServer.PlayerRider);
+				close();
+				break;
+			}
+			case 3: {
+				GuiNpcMobSpawnerMounter.showingClones = 0;
+				initGui();
+				break;
+			}
+			case 4: {
+				GuiNpcMobSpawnerMounter.showingClones = 1;
+				initGui();
+				break;
+			}
+			case 5: {
+				GuiNpcMobSpawnerMounter.showingClones = 2;
+				initGui();
+				break;
+			}
+			default: {
+				if (button.getID() > 20) {
+					activeTab = button.getID() - 20;
+					initGui();
+				}
+				break;
+			}
 		}
 	}
 

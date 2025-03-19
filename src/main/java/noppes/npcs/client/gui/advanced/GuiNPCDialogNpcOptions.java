@@ -34,7 +34,7 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 1: { // add
 				selectedSlot = -1;
 				setSubGui(new GuiDialogSelection(-1, 0));

@@ -333,12 +333,12 @@ implements ICustomScrollListener, IGuiData {
 	}
 
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiScrollClick, this.updateGui().toNBT(), scroll.getId(),
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiScrollClick, this.updateGui().toNBT(), scroll.getID(),
 				scroll.getSelect(), this.getScrollSelection((CustomGuiScrollComponent) scroll), false);
 	}
 
 	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiScrollClick, this.updateGui().toNBT(), scroll.getId(),
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiScrollClick, this.updateGui().toNBT(), scroll.getID(),
 				scroll.getSelect(), this.getScrollSelection((CustomGuiScrollComponent) scroll), true);
 	}
 

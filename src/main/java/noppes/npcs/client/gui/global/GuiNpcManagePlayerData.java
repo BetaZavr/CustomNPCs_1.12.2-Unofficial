@@ -51,7 +51,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		int id = button.getId();
+		int id = button.getID();
 		GuiNpcTextField.unfocus();
 		String title = selectedPlayer;
 		switch (selection) {
@@ -822,7 +822,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			subgui.unFocused(textField);
 			return;
 		}
-		if (textField.getId() != 1 || gameData == null || !textField.isLong()) {
+		if (textField.getID() != 1 || gameData == null || !textField.isLong()) {
 			return;
 		}
 		gameData.getCompoundTag("GameData").setLong("Money", textField.getLong());

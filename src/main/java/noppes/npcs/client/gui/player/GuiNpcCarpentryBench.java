@@ -1,7 +1,5 @@
 package noppes.npcs.client.gui.player;
 
-import java.io.IOException;
-
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.recipebook.GuiRecipeBook;
 import net.minecraft.client.gui.recipebook.IRecipeShownListener;
@@ -46,7 +44,7 @@ implements IRecipeShownListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 10) {
+		if (button.getID() == 10) {
 			recipeBookGui.initVisuals(widthTooNarrow, ((ContainerCarpentryBench) inventorySlots).craftMatrix);
 			recipeBookGui.toggleVisibility();
 			guiLeft = recipeBookGui.updateScreenPosition(widthTooNarrow, width, xSize);

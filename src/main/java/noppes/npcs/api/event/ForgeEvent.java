@@ -65,7 +65,6 @@ public class ForgeEvent extends CustomNPCsEvent {
 
 	}
 
-
 	public static class InitEvent extends ForgeEvent {
 
 		public InitEvent() {
@@ -81,22 +80,20 @@ public class ForgeEvent extends CustomNPCsEvent {
 		public String name, resource;
 		public float volume, pitch;
 
-		public SoundTickEvent(IPlayer<?> player, String name, String resource, IPos pos, float volume, float pitch,
-				float milliSeconds, float totalSecond) {
+		public SoundTickEvent(IPlayer<?> playerIn, String nameIn, String resourceIn, IPos posIn, float volumeIn, float pitchIn, float milliSecondsIn, float totalSecondIn) {
 			super(null);
-			this.milliSeconds = milliSeconds;
-			this.totalSecond = totalSecond;
-			this.name = name;
-			this.resource = resource;
-			this.volume = volume;
-			this.pitch = pitch;
+			milliSeconds = milliSecondsIn;
+			totalSecond = totalSecondIn;
+			name = nameIn;
+			resource = resourceIn;
+			volume = volumeIn;
+			pitch = pitchIn;
 
-			this.pos = pos;
-			this.player = player;
+			pos = posIn;
+			player = playerIn;
 		}
 	}
 
-	public NpcAPI API;
 	public Event event;
 	public IEntity<?> entity;
 	public IPlayer<?> player;
@@ -106,72 +103,71 @@ public class ForgeEvent extends CustomNPCsEvent {
 	public IBlock block;
 	public IItemStack stack;
 
-	public ForgeEvent(Event event) {
-		this.API = NpcAPI.Instance();
-		this.event = event;
-		if (event == null || CustomNpcs.SimplifiedForgeEvents) {
-			return;
-		}
-		createData();
+	public ForgeEvent(Event eventIn) {
+		super();
+		event = eventIn;
+		if (!CustomNpcs.SimplifiedForgeEvents) { createData(); }
 	}
 
 	public void createData() {
+		if (event == null) { return; }
+		if (API == null) { return; }
 		// Common
 		Block bl = null;
 		IBlockState st = null;
 		Class<?> sp = event.getClass();
-		while (this.entity == null && sp.getSuperclass() != null && sp.getSuperclass() != Event.class) {
+		while (entity == null && sp.getSuperclass() != null && sp.getSuperclass() != Event.class) {
 			for (Field f : sp.getDeclaredFields()) {
-				if (this.entity == null && !f.getType().getSimpleName().contains("EntityPlayer")
+				if (entity == null && !f.getType().getSimpleName().contains("EntityPlayer")
 						&& (f.getType() == Entity.class || f.getType() == EntityLiving.class
 						|| f.getType() == EntityLivingBase.class)) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.entity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity((Entity) f.get(event));
+						entity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity((Entity) f.get(event));
 					}
 					catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
-				if (this.player == null && f.getType().getSimpleName().contains("EntityPlayer")) {
+				if (player == null && f.getType().getSimpleName().contains("EntityPlayer")) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity((Entity) f.get(event));
+						player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity((Entity) f.get(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
-				if (this.npc == null && f.getType() == EntityNPCInterface.class) {
+				if (npc == null && f.getType() == EntityNPCInterface.class) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.npc = (ICustomNpc<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity((EntityNPCInterface) f.get(event));
+						npc = (ICustomNpc<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity((EntityNPCInterface) f.get(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
-				if (this.world == null && (f.getType().getSimpleName().equals("WorldClient")
+				if (world == null && (f.getType().getSimpleName().equals("WorldClient")
 						|| f.getType() == WorldServer.class || f.getType() == World.class)) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.world = Objects.requireNonNull(NpcAPI.Instance()).getIWorld((World) f.get(event));
+						world = Objects.requireNonNull(NpcAPI.Instance()).getIWorld((World) f.get(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
-				if (this.pos == null && f.getType() == BlockPos.class) {
+				if (pos == null && f.getType() == BlockPos.class) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos((BlockPos) f.get(event));
+						pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos((BlockPos) f.get(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
-				if (this.stack == null && f.getType() == ItemStack.class) {
+				if (stack == null && f.getType() == ItemStack.class) {
 					try {
 						if (!f.isAccessible()) {
 							f.setAccessible(true);
 						}
-						this.stack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack((ItemStack) f.get(event));
+						stack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack((ItemStack) f.get(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if ((bl == null || st == null) && (f.getType() == Block.class || f.getType() == IBlockState.class)) {
@@ -191,56 +187,56 @@ public class ForgeEvent extends CustomNPCsEvent {
 				if (m.getParameterCount() != 0) {
 					continue;
 				}
-				if (this.entity == null && !m.getReturnType().getName().contains(".EntityPlayer")
+				if (entity == null && !m.getReturnType().getName().contains(".EntityPlayer")
 						&& (m.getReturnType() == Entity.class || m.getReturnType() == EntityLiving.class
 						|| m.getReturnType() == EntityLivingBase.class)) {
 					try {
 						if (!m.isAccessible()) {
 							m.setAccessible(true);
 						}
-						this.entity = NpcAPI.Instance().getIEntity((EntityPlayer) m.invoke(event));
+						entity = API.getIEntity((EntityPlayer) m.invoke(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 
-				if (this.player == null && m.getReturnType().getName().contains(".EntityPlayer")) {
+				if (player == null && m.getReturnType().getName().contains(".EntityPlayer")) {
 					try {
 						if (!m.isAccessible()) {
 							m.setAccessible(true);
 						}
-						this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayer) m.invoke(event));
+						player = (IPlayer<?>) API.getIEntity((EntityPlayer) m.invoke(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
-				if (this.npc == null && m.getReturnType() == EntityNPCInterface.class) {
+				if (npc == null && m.getReturnType() == EntityNPCInterface.class) {
 					try {
 						if (!m.isAccessible()) {
 							m.setAccessible(true);
 						}
-						this.npc = (ICustomNpc<?>) NpcAPI.Instance().getIEntity((EntityNPCInterface) m.invoke(event));
+						npc = (ICustomNpc<?>) API.getIEntity((EntityNPCInterface) m.invoke(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
-				if (this.world == null && (m.getReturnType().getSimpleName().equals("WorldClient")
+				if (world == null && (m.getReturnType().getSimpleName().equals("WorldClient")
 						|| m.getReturnType() == WorldServer.class || m.getReturnType() == World.class)) {
 					try {
 						if (!m.isAccessible()) {
 							m.setAccessible(true);
 						}
-						this.world = NpcAPI.Instance().getIWorld((World) m.invoke(event));
+						world = API.getIWorld((World) m.invoke(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
-				if (this.pos == null && m.getReturnType() == BlockPos.class) {
+				if (pos == null && m.getReturnType() == BlockPos.class) {
 					try {
 						if (!m.isAccessible()) {
 							m.setAccessible(true);
 						}
-						this.pos = NpcAPI.Instance().getIPos((BlockPos) m.invoke(event));
+						pos = API.getIPos((BlockPos) m.invoke(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
-				if (this.stack == null && m.getReturnType() == ItemStack.class) {
+				if (stack == null && m.getReturnType() == ItemStack.class) {
 					try {
 						if (!m.isAccessible()) {
 							m.setAccessible(true);
 						}
-						this.stack = NpcAPI.Instance().getIItemStack((ItemStack) m.invoke(event));
+						stack = API.getIItemStack((ItemStack) m.invoke(event));
 					} catch (Exception e) { LogWriter.debug("Forge event error:" + e); }
 				}
 				if ((bl == null || st == null)
@@ -261,48 +257,48 @@ public class ForgeEvent extends CustomNPCsEvent {
 		}
 
 		// player
-		if (this.player == null && this.entity != null && this.entity.getMCEntity() instanceof EntityPlayer) {
-			this.player = (IPlayer<?>) this.entity;
+		if (player == null && entity != null && entity.getMCEntity() instanceof EntityPlayer) {
+			player = (IPlayer<?>) entity;
 		}
-		if (this.player == null && CustomNpcs.proxy.getPlayer() != null) {
-			this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(CustomNpcs.proxy.getPlayer());
+		if (player == null && CustomNpcs.proxy.getPlayer() != null) {
+			player = (IPlayer<?>) API.getIEntity(CustomNpcs.proxy.getPlayer());
 		}
 
 		// NPC
-		if (this.npc == null && this.entity != null && this.entity.getMCEntity() instanceof EntityNPCInterface) {
-			this.npc = (ICustomNpc<?>) this.entity;
+		if (npc == null && entity != null && entity.getMCEntity() instanceof EntityNPCInterface) {
+			npc = (ICustomNpc<?>) entity;
 		}
-		if (this.entity == null && this.player != null) {
-			this.entity = this.player;
+		if (entity == null && player != null) {
+			entity = player;
 		}
-		if (this.entity == null && this.npc != null) {
-			this.entity = this.npc;
+		if (entity == null && npc != null) {
+			entity = npc;
 		}
 
 		// world
-		if (this.world == null && this.entity != null) {
-			this.world = this.entity.getWorld();
+		if (world == null && entity != null) {
+			world = entity.getWorld();
 		}
-		if (this.world == null && this.player != null) {
-			this.world = this.player.getWorld();
+		if (world == null && player != null) {
+			world = player.getWorld();
 		}
-		if (this.world == null && this.npc != null) {
-			this.world = this.npc.getWorld();
+		if (world == null && npc != null) {
+			world = npc.getWorld();
 		}
 
 		// pos
-		if (this.pos == null && this.entity != null) {
-			this.pos = this.entity.getPos();
+		if (pos == null && entity != null) {
+			pos = entity.getPos();
 		}
-		if (this.pos == null && this.player != null) {
-			this.pos = this.player.getPos();
+		if (pos == null && player != null) {
+			pos = player.getPos();
 		}
-		if (this.pos == null && this.npc != null) {
-			this.pos = this.npc.getPos();
+		if (pos == null && npc != null) {
+			pos = npc.getPos();
 		}
 
 		// block
-		this.getBlock(bl, st);
+		getBlock(bl, st);
 	}
 
 	private void getBlock(Block block, IBlockState state) {

@@ -40,7 +40,7 @@ extends GuiContainerNPCInterface {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerHire, button.getId());
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerHire, button.getID());
 		close();
 	}
 

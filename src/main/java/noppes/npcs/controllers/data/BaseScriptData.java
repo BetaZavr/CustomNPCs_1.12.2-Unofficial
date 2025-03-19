@@ -8,6 +8,12 @@ import java.util.TreeMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.block.IBlock;
@@ -84,14 +90,24 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public String noticeString(String type, Object event) {
-		String notice = "";
-		if (type != null) { notice += " hook \""+type+"\""; }
+	public ITextComponent noticeString(String type, Object event) {
+		ITextComponent message = new TextComponentString("");
+		message.getStyle().setColor(TextFormatting.DARK_GRAY);
+		String pos = "";
+		int dimID = 0;
+		double x = 0.0d, y = 0.0d, z = 0.0d, tpY = 0.0d;
+		if (type != null) {
+			ITextComponent hook = new TextComponentString("Hook \"");
+			hook.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent hookType = new TextComponentString(type);
+			hookType.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent hookEnd = new TextComponentString("\"");
+			hookEnd.getStyle().setColor(TextFormatting.DARK_GRAY);
+			message = message.appendSibling(hook).appendSibling(hookType).appendSibling(hookEnd);
+		}
 		IEntity<?> iEntity = null;
 		IBlock iBlock = null;
-		if (event instanceof Event && !(event instanceof CustomNPCsEvent)) {
-			event = new ForgeEvent((Event) event);
-		}
+		if (event instanceof Event && !(event instanceof CustomNPCsEvent)) { event = new ForgeEvent((Event) event); }
 		if (event instanceof ForgeEvent) {
 			((ForgeEvent) event).createData();
 			if (((ForgeEvent) event).player != null) { iEntity = ((ForgeEvent) event).player; }
@@ -100,31 +116,61 @@ implements IScriptHandler {
 			else if (((ForgeEvent) event).block != null) { iBlock = ((ForgeEvent) event).block; }
 		}
 		if (event instanceof PlayerEvent) {
-			notice = ((PlayerEvent) event).player == null ? ". Global players script" : ". Player:";
-			if (type != null) { notice += " hook \""+type+"\""; }
-			if (((PlayerEvent) event).player == null) { return notice + "; Side: " + (isClient() ? "Client" : "Server"); }
-			iEntity =  ((PlayerEvent) event).player;
+			if (((PlayerEvent) event).player != null) { iEntity =  ((PlayerEvent) event).player; }
+			else {
+				ITextComponent mesPlayer = new TextComponentString("; Global players script");
+				mesPlayer.getStyle().setColor(TextFormatting.DARK_GRAY);
+				message = message.appendSibling(mesPlayer);
+			}
+			if (((PlayerEvent) event).player != null) { iEntity =  ((PlayerEvent) event).player; }
 		}
 		else if (event instanceof NpcEvent && ((NpcEvent) event).npc != null) { iEntity = ((NpcEvent) event).npc; }
 		if (iEntity != null) {
-			if (iEntity.getMCEntity() instanceof EntityPlayer) { notice += ". Player "; }
-			else if (iEntity.getMCEntity() instanceof EntityNPCInterface) { notice += ". NPC "; }
-			else { notice += ". Entity "; }
-			return notice + "\"" + iEntity.getName() + "\"; UUID: \"" + iEntity.getUUID() + "\"" +
-					" in dimension ID:" + (iEntity.getWorld().getMCWorld() == null ? 0 : iEntity.getWorld().getMCWorld().provider.getDimension()) +
-					"; X:" + (Math.round(iEntity.getPos().getX() * 100.0d) / 100.0d) +
-					"; Y:" + (Math.round(iEntity.getPos().getY() * 100.0d) / 100.0d) +
-					"; Z:" + (Math.round(iEntity.getPos().getZ() * 100.0d) / 100.0d) +
-					"; Side: " + (isClient() ? "Client" : "Server");
+			ITextComponent mesEntity;
+			if (iEntity.getMCEntity() instanceof EntityPlayer) { mesEntity = new TextComponentString("; Player \""); }
+			else if (iEntity.getMCEntity() instanceof EntityNPCInterface) { mesEntity = new TextComponentString("; NPC \""); }
+			else { mesEntity = new TextComponentString("; Entity \""); }
+			mesEntity.getStyle().setColor(TextFormatting.DARK_GRAY);
+
+			ITextComponent name = new TextComponentString(iEntity.getName());
+			name.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent mesUUID = new TextComponentString("\"; UUID: \"");
+			mesUUID.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent uuid = new TextComponentString(iEntity.getUUID());
+			uuid.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent mesIn = new TextComponentString("\" in ");
+			mesIn.getStyle().setColor(TextFormatting.DARK_GRAY);
+			message = message.appendSibling(mesEntity).appendSibling(name).appendSibling(mesUUID).appendSibling(uuid).appendSibling(mesIn);
+
+			x = Math.round(iEntity.getPos().getX() * 100.0d) / 100.0d;
+			y = Math.round(iEntity.getPos().getY() * 100.0d) / 100.0d;
+			z = Math.round(iEntity.getPos().getZ() * 100.0d) / 100.0d;
+			dimID = iEntity.getWorld().getMCWorld() == null ? 0 : iEntity.getWorld().getMCWorld().provider.getDimension();
+			pos = "dimension ID:" + dimID + "; X:" + x + "; Y:" + y + "; Z:" + z;
 		}
 		if (event instanceof BlockEvent && ((BlockEvent) event).block != null) { iBlock = ((BlockEvent) event).block; }
 		if (iBlock != null) {
-			notice += ". Block in dimension ID:" + (iBlock.getWorld().getMCWorld() == null ? 0 : iBlock.getWorld().getMCWorld().provider.getDimension()) +
-					"; X:" + ((int) iBlock.getPos().getX()) +
-					"; Y:" + ((int) iBlock.getPos().getY()) +
-					"; Z:" + ((int) iBlock.getPos().getZ());
+			ITextComponent mesBlock = new TextComponentString("; Block in ");
+			mesBlock.getStyle().setColor(TextFormatting.DARK_GRAY);
+			message = message.appendSibling(mesBlock);
+			x = Math.floor(iBlock.getPos().getX());
+			y = Math.floor(iBlock.getPos().getY());
+			z = Math.floor(iBlock.getPos().getZ());
+			dimID = iBlock.getWorld().getMCWorld() == null ? 0 : iBlock.getWorld().getMCWorld().provider.getDimension();
+			pos = "dimension ID:" + dimID + "; X:" + x + "; Y:" + y + "; Z:" + z;
+			tpY = 1.0d;
 		}
-		return notice;
+		if (!pos.isEmpty()) {
+			ITextComponent posClick = new TextComponentString(pos);
+			posClick.getStyle().setColor(TextFormatting.BLUE)
+					.setUnderlined(true)
+					.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/noppes world tp @p " + dimID + " " + x + " " + (y + tpY) + " "+z))
+					.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("script.hover.error.pos.tp")));
+			message = message.appendSibling(posClick);
+		}
+		ITextComponent side = new TextComponentString("; Side: " + (isClient() ? "Client" : "Server"));
+		side.getStyle().setColor(TextFormatting.DARK_GRAY);
+		return message.appendSibling(side);
 	}
 
 	@Override

@@ -18,7 +18,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.blocks.CustomChest;
 import noppes.npcs.containers.ContainerChestCustom;
-import noppes.npcs.api.mixin.util.ISoundEventMixin;
+import noppes.npcs.reflection.util.SoundEventReflection;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -244,8 +244,8 @@ public class CustomTileEntityChest extends TileEntityLockableLoot implements ITi
 		if (this.guiColorArr != null) {
 			compound.setIntArray("GUIColor", this.guiColorArr);
 		}
-		compound.setString("SoundOpen", ((ISoundEventMixin) this.sound_open).npcs$getSoundName().toString());
-		compound.setString("SoundClose", ((ISoundEventMixin) this.sound_close).npcs$getSoundName().toString());
+		compound.setString("SoundOpen", SoundEventReflection.getSoundName(sound_open).toString());
+		compound.setString("SoundClose", SoundEventReflection.getSoundName(sound_close).toString());
 		ItemStackHelper.saveAllItems(compound, this.inventory);
 		return compound;
 	}

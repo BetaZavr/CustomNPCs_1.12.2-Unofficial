@@ -47,7 +47,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // color
 				if (region == null) {
 					return;
@@ -643,7 +643,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) {
-		switch (scroll.getId()) {
+		switch (scroll.getID()) {
 			case 0: { // Region List
 				if (!dataRegions.containsValue(scroll.getSelected())) {
 					return;
@@ -684,7 +684,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-		switch (scroll.getId()) {
+		switch (scroll.getID()) {
 			case 0: { // Region List
 				if (region == null) {
 					return;
@@ -721,7 +721,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		if (textField.getText().isEmpty()) {
 			return;
 		}
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 16: { // X Point pos
 				if (point == null || !textField.isInteger()) {
 					return;

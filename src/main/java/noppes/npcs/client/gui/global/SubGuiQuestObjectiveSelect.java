@@ -35,11 +35,8 @@ extends SubGuiInterface {
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 		QuestObjective task;
-		switch (button.getId()) {
-			case 66: {
-				close();
-				return;
-			}
+		switch (button.getID()) {
+			case 66: close(); return;
 			case 71: { // collect item
 				task = (QuestObjective) quest.addTask();
 				if (task == null) {

@@ -28,9 +28,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			cancelled = false;
-		}
+		if (button.getID() == 0) { cancelled = false; }
 		GuiNpcTextField.unfocus();
 		close();
 	}
@@ -98,7 +96,7 @@ implements ITextfieldListener {
 
     @Override
 	public void unFocused(IGuiNpcTextField textField) {
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 0: {
 				day = textField.getInteger();
 				break;

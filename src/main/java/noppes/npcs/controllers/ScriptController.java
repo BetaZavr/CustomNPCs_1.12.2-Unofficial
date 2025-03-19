@@ -23,6 +23,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import noppes.npcs.*;
@@ -468,7 +472,9 @@ public class ScriptController {
 				if (needResave) {
 					try {
 						Util.instance.saveFile(file, constants.copy());
-						NoppesUtilServer.NotifyOPs("Constants have been rewritten for all scripts to " + file.getName());
+						ITextComponent message = new TextComponentString("Constants have been rewritten for all scripts to ");
+						message.getStyle().setColor(TextFormatting.GRAY);
+						NoppesUtilServer.NotifyOPs(message.appendText(file.getName()));
 					}
 					catch (Exception e) { LogWriter.except(e); }
 				}

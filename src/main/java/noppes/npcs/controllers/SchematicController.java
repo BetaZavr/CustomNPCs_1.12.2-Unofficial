@@ -14,7 +14,10 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
@@ -184,7 +187,9 @@ public class SchematicController {
 			file = new File(SchematicController.getDir(), name + ".blueprint");
 			schema = BlueprintUtil.createBlueprint(world, pos, width, length, height);
 		}
-		NoppesUtilServer.NotifyOPs("Schematic " + name + " succesfully created");
+		ITextComponent message = new TextComponentString("Schematic " + name + " successfully created");
+		message.getStyle().setColor(TextFormatting.GRAY);
+		NoppesUtilServer.NotifyOPs(message);
 		try {
 			if (schema != null) {
 				CompressedStreamTools.writeCompressed(schema.getNBT(), Files.newOutputStream(file.toPath()));

@@ -53,7 +53,7 @@ implements ISubGuiListener, ICustomScrollListener {
 		if (selectedMark == null) {
 			return;
 		}
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				selectedMark.type = button.getValue();
 				initGui();

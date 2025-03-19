@@ -22,10 +22,11 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 70) { // slot
+		if (button.getID() == 70) { // slot
 			attribute.setSlot(button.getValue() - 1);
 			initGui();
-		} else if (button.getId() == 71) { // done
+		}
+		else if (button.getID() == 71) { // done
 			close();
 		}
 	}
@@ -80,18 +81,27 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 72) { // name
-			attribute.setAttribute(textfield.getText());
-			initGui();
-		} else if (textfield.getId() == 73) { // value min
-			values[0] = textfield.getDouble();
-			attribute.setValues(values[0], values[1]);
-		} else if (textfield.getId() == 74) { // value max
-			values[1] = textfield.getDouble();
-			attribute.setValues(values[0], values[1]);
-		} else if (textfield.getId() == 75) { // chance
-			attribute.setChance(textfield.getDouble());
-			initGui();
+		switch (textfield.getID()) {
+			case 72: { // name
+				attribute.setAttribute(textfield.getText());
+				initGui();
+				break;
+			}
+			case 73: { // value min
+				values[0] = textfield.getDouble();
+				attribute.setValues(values[0], values[1]);
+				break;
+			}
+			case 74: { // value max
+				values[1] = textfield.getDouble();
+				attribute.setValues(values[0], values[1]);
+				break;
+			}
+			case 75: { // chance
+				attribute.setChance(textfield.getDouble());
+				initGui();
+				break;
+			}
 		}
 	}
 }

@@ -42,7 +42,7 @@ implements ITextfieldListener, IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				this.setSubGui(new SubGuiNpcRespawn(this.stats));
 				break;
@@ -404,15 +404,15 @@ implements ITextfieldListener, IGuiData {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 0) {
-			this.stats.maxHealth = textfield.getInteger();
-			this.npc.heal((float) this.stats.maxHealth);
-		} else if (textfield.getId() == 1) {
-			this.stats.aggroRange = textfield.getInteger();
-		} else if (textfield.getId() == 14) {
-			this.stats.healthRegen = textfield.getInteger();
-		} else if (textfield.getId() == 16) {
-			this.stats.combatRegen = textfield.getInteger();
+		switch (textfield.getID()) {
+			case 0: {
+				stats.maxHealth = textfield.getInteger();
+				npc.heal((float) stats.maxHealth);
+				break;
+			}
+			case 1: stats.aggroRange = textfield.getInteger(); break;
+			case 14: stats.healthRegen = textfield.getInteger(); break;
+			case 16: stats.combatRegen = textfield.getInteger(); break;
 		}
 	}
 

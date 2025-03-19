@@ -48,12 +48,12 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() > 20) {
-			activeTab = button.getId() - 20;
+		if (button.getID() > 20) {
+			activeTab = button.getID() - 20;
 			initGui();
 			return;
 		}
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				close();
 				break;
@@ -293,9 +293,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		if (spawnData == null || textField.getId() != 2) {
-			return;
-		}
+		if (spawnData == null || textField.getID() != 2) { return; }
 		spawnData.count = textField.getInteger();
 	}
 

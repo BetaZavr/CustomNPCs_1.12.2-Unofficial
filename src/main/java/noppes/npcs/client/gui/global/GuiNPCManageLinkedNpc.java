@@ -31,11 +31,11 @@ implements IScrollData, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 1) {
+		if (button.getID() == 1) {
 			this.save();
 			this.setSubGui(new SubGuiEditText(0, "New"));
 		}
-		if (button.getId() == 2 && this.scroll.hasSelected()) {
+		if (button.getID() == 2 && this.scroll.hasSelected()) {
 			Client.sendData(EnumPacketServer.LinkedRemove, this.scroll.getSelected());
 		}
 	}

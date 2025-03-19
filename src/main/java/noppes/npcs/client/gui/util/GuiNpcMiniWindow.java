@@ -44,11 +44,11 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 		if (!hovered) { return; }
-		if (button.getId() == 2500) {
+		if (button.getID() == 2500) {
 			parent.closeMiniWindow(this);
 			visible = false;
 		}
-		else if (buttons.containsKey(button.getId())) {
+		else if (buttons.containsKey(button.getID())) {
 			parent.buttonEvent(button);
 		}
 	}
@@ -117,7 +117,7 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 
 	public void keyTyped(char c, int i) {
 		if (i == 15 && GuiNpcTextField.isActive() && textfields.containsValue(GuiNpcTextField.activeTextfield)) { // Tab
-			int id = GuiNpcTextField.activeTextfield.getId() + 1;
+			int id = GuiNpcTextField.activeTextfield.getID() + 1;
 			if (id > (getTextField(9) != null ? 9 : 7)) { id = 5; }
 			IGuiNpcTextField textField = getTextField(id);
 			if (textField != null) {
@@ -154,7 +154,7 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (!hovered) { return; }
-		if (scrolls.containsKey(scroll.getId()) && parent instanceof ICustomScrollListener) {
+		if (scrolls.containsKey(scroll.getID()) && parent instanceof ICustomScrollListener) {
 			((ICustomScrollListener) parent).scrollClicked(mouseX, mouseY, mouseButton, scroll);
 		}
 	}
@@ -162,7 +162,7 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 	@Override
 	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
 		if (!hovered) { return; }
-		if (scrolls.containsKey(scroll.getId()) && parent instanceof ICustomScrollListener) {
+		if (scrolls.containsKey(scroll.getID()) && parent instanceof ICustomScrollListener) {
 			((ICustomScrollListener) parent).scrollDoubleClicked(select, scroll);
 		}
 	}
@@ -170,7 +170,7 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 	@Override
 	public void mouseDragged(IGuiNpcSlider slider) {
 		if (!hovered) { return; }
-		if (sliders.containsKey(slider.getId())) {
+		if (sliders.containsKey(slider.getID())) {
 			parent.mouseDragged(slider);
 		}
 	}
@@ -178,7 +178,7 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 	@Override
 	public void mousePressed(IGuiNpcSlider slider) {
 		if (!hovered) { return; }
-		if (sliders.containsKey(slider.getId())) {
+		if (sliders.containsKey(slider.getID())) {
 			parent.mousePressed(slider);
 		}
 	}
@@ -186,14 +186,14 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 	@Override
 	public void mouseReleased(IGuiNpcSlider slider) {
 		if (!hovered) { return; }
-		if (sliders.containsKey(slider.getId())) {
+		if (sliders.containsKey(slider.getID())) {
 			parent.mouseReleased(slider);
 		}
 	}
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		if (textfields.containsKey(textField.getId()) ) {
+		if (textfields.containsKey(textField.getID()) ) {
 			parent.unFocused(textField);
 		}
 	}
@@ -242,7 +242,7 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 	@Override
 	public void resetButtons() {
 		buttons.remove(2500);
-		components.removeIf(c -> c instanceof GuiNpcButton && c.getId() == 2500);
+		components.removeIf(c -> c instanceof GuiNpcButton && c.getID() == 2500);
 
 		GuiNpcButton exit = new GuiNpcButton(2500, guiLeft + xSize - 12, guiTop + 3, 8, 8, "X");
 		exit.setTexture(ANIMATION_BUTTONS);
@@ -256,7 +256,7 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 	}
 
 	@Override
-	public int getId() { return id; }
+	public int getID() { return id; }
 
 	@Override
 	public int[] getCenter() { return new int[] { guiLeft + width / 2, guiTop + height / 2}; }

@@ -4,11 +4,18 @@ import java.util.Iterator;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.api.event.potion.AffectEntity;
 import noppes.npcs.api.event.potion.EndEffect;
 import noppes.npcs.api.event.potion.PerformEffect;
@@ -22,24 +29,57 @@ public class PotionScriptData
 extends BaseScriptData {
 
 	@Override
-	public String noticeString(String type, Object event) {
-		String notice = "Potion Script";
-		if (type != null) { notice += " hook \""+type+"\""; }
-		IEntity<?> entity = null;
-		if (event instanceof AffectEntity && ((AffectEntity) event).entity != null) { entity = ((AffectEntity) event).entity; }
-		else if (event instanceof EndEffect && ((EndEffect) event).entity != null) { entity = ((EndEffect) event).entity; }
-		else if (event instanceof PerformEffect && ((PerformEffect) event).entity != null) { entity = ((PerformEffect) event).entity; }
-		if (entity != null) {
-			if (entity.getMCEntity() instanceof EntityPlayer) { notice += ". Player:"; }
-			else if (entity.getMCEntity() instanceof EntityNPCInterface) { notice += ". NPC:"; }
-			else  { notice += ". Entity:"; }
-			notice += entity.getName() + "\"; UUID: \"" + entity.getUUID() + "\"" +
-				" in dimension ID:" + (entity.getWorld().getMCWorld() == null ? 0 : entity.getWorld().getMCWorld().provider.getDimension()) +
-					"; X:" + (Math.round(entity.getPos().getX() * 100.0d) / 100.0d) +
-					"; Y:" + (Math.round(entity.getPos().getY() * 100.0d) / 100.0d) +
-					"; Z:" + (Math.round(entity.getPos().getZ() * 100.0d) / 100.0d);
+	public ITextComponent noticeString(String type, Object event) {
+		ITextComponent message = new TextComponentString("");
+		message.getStyle().setColor(TextFormatting.DARK_GRAY);
+		if (type != null) {
+			ITextComponent hook = new TextComponentString("Hook \"");
+			hook.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent hookType = new TextComponentString(type);
+			hookType.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent hookEnd = new TextComponentString("\"; ");
+			hookEnd.getStyle().setColor(TextFormatting.DARK_GRAY);
+			message = message.appendSibling(hook).appendSibling(hookType).appendSibling(hookEnd);
 		}
-		return notice + "; Side: " + (isClient() ? "Client" : "Server");
+		ITextComponent mes = new TextComponentString("Potion Scripts");
+		mes.getStyle().setColor(TextFormatting.DARK_GRAY);
+		message = message.appendSibling(mes);
+
+		IEntity<?> iEntity = null;
+		if (event instanceof AffectEntity && ((AffectEntity) event).entity != null) { iEntity = ((AffectEntity) event).entity; }
+		else if (event instanceof EndEffect && ((EndEffect) event).entity != null) { iEntity = ((EndEffect) event).entity; }
+		else if (event instanceof PerformEffect && ((PerformEffect) event).entity != null) { iEntity = ((PerformEffect) event).entity; }
+		if (iEntity != null) {
+			ITextComponent mesEntity;
+			if (iEntity.getMCEntity() instanceof EntityPlayer) { mesEntity = new TextComponentString("Player \""); }
+			else if (iEntity.getMCEntity() instanceof EntityNPCInterface) { mesEntity = new TextComponentString("NPC \""); }
+			else { mesEntity = new TextComponentString("Entity \""); }
+			mesEntity.getStyle().setColor(TextFormatting.DARK_GRAY);
+
+			ITextComponent name = new TextComponentString(iEntity.getName());
+			name.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent mesUUID = new TextComponentString("\"; UUID: \"");
+			mesUUID.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent uuid = new TextComponentString(iEntity.getUUID());
+			uuid.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent mesIn = new TextComponentString("\" in ");
+			mesIn.getStyle().setColor(TextFormatting.DARK_GRAY);
+
+			double x = Math.round(iEntity.getPos().getX() * 100.0d) / 100.0d;
+			double y = Math.round(iEntity.getPos().getY() * 100.0d) / 100.0d;
+			double z = Math.round(iEntity.getPos().getZ() * 100.0d) / 100.0d;
+			int dimID = iEntity.getWorld().getMCWorld() == null ? 0 : iEntity.getWorld().getMCWorld().provider.getDimension();
+
+			ITextComponent posClick = new TextComponentString("dimension ID:" + dimID + "; X:" + x + "; Y:" + y + "; Z:" + z);
+			posClick.getStyle().setColor(TextFormatting.BLUE)
+					.setUnderlined(true)
+					.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/noppes world tp @p " + dimID + " " + x + " " + y + " "+z))
+					.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("script.hover.error.pos.tp")));
+			message = message.appendSibling(mesEntity).appendSibling(name).appendSibling(mesUUID).appendSibling(uuid).appendSibling(mesIn).appendSibling(posClick);
+		}
+		ITextComponent side = new TextComponentString("; Side: " + (isClient() ? "Client" : "Server"));
+		side.getStyle().setColor(TextFormatting.DARK_GRAY);
+		return message.appendSibling(side);
 	}
 	
 	public void readFromNBT(NBTTagCompound compound) {
@@ -69,6 +109,7 @@ extends BaseScriptData {
 				this.scripts.add(0, script);
 			}
 		}
+		runScript(EnumScriptType.INIT.function, new ForgeEvent.InitEvent());
 	}
 
 	@Override

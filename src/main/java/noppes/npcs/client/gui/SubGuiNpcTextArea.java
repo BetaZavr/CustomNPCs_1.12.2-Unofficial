@@ -35,7 +35,7 @@ implements ITextChangeListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: close(); break;
 			case 100: NoppesStringUtils.setClipboardContents(textarea.getText()); break;
 			case 101: textarea.setText(NoppesStringUtils.getClipboardContents()); break;

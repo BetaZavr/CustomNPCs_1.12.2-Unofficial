@@ -45,7 +45,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0 && locSel != null) {
+		if (button.getID() == 0 && locSel != null) {
 			close();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Transport, locSel.id);
 		}

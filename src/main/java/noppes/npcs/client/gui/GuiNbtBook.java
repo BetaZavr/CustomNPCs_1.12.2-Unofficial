@@ -61,35 +61,40 @@ implements IGuiData, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			if (faultyText != null) {
-				setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound), faultyText).enableHighlighting());
-			} else {
-				setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound)).enableHighlighting());
+		switch (button.getID()) {
+			case 0: {
+				if (faultyText != null) {
+					setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound), faultyText).enableHighlighting());
+				} else {
+					setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound)).enableHighlighting());
+				}
+				break;
 			}
-		} else if (button.getId() == 1) {
-			if (stack != null && !stack.isEmpty()) {
-				Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound()));
+			case 1: {
+				if (stack != null && !stack.isEmpty()) {
+					Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound()));
+				}
+				break;
 			}
-		} else if (button.getId() == 67) {
-			getLabel(0).setLabel("Saved");
-			if (compound.equals(originalCompound)) {
-				return;
+			case 66: close(); break;
+			case 67: {
+				getLabel(0).setLabel("Saved");
+				if (compound.equals(originalCompound)) {
+					return;
+				}
+				if (stack != null) {
+					Client.sendData(EnumPacketServer.NbtBookSaveItem, compound);
+					return;
+				}
+				if (tile == null) {
+					Client.sendData(EnumPacketServer.NbtBookSaveEntity, entityId, compound);
+					return;
+				}
+				Client.sendData(EnumPacketServer.NbtBookSaveBlock, x, y, z, compound);
+				originalCompound = compound.copy();
+				getButton(67).setEnabled(false);
+				break;
 			}
-			if (stack != null) {
-				Client.sendData(EnumPacketServer.NbtBookSaveItem, compound);
-				return;
-			}
-			if (tile == null) {
-				Client.sendData(EnumPacketServer.NbtBookSaveEntity, entityId, compound);
-				return;
-			}
-			Client.sendData(EnumPacketServer.NbtBookSaveBlock, x, y, z, compound);
-			originalCompound = compound.copy();
-			getButton(67).setEnabled(false);
-		}
-		if (button.getId() == 66) {
-			close();
 		}
 	}
 

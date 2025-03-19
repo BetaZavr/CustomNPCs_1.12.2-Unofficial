@@ -28,7 +28,7 @@ implements ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				if (select.isEmpty()) {
 					return;

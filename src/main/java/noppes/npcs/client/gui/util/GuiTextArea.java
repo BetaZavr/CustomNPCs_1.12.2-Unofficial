@@ -632,7 +632,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	public double getDoubleMin() { return 0; }
 
 	@Override
-	public int getId() { return id; }
+	public int getID() { return id; }
 
 	@Override
 	public int[] getCenter() { return new int[] { x + width / 2, y + height  / 2}; }

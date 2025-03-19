@@ -29,14 +29,15 @@ implements IGuiData, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			NBTTagCompound compound = new NBTTagCompound();
-			tile.writeToNBT(compound);
-			Client.sendData(EnumPacketServer.SchematicStore, getTextField(5).getText(), getButton(6).getValue(), compound);
-			close();
-		}
-		if (button.getId() == 1) {
-			close();
+		switch (button.getID()) {
+			case 0: {
+				NBTTagCompound compound = new NBTTagCompound();
+				tile.writeToNBT(compound);
+				Client.sendData(EnumPacketServer.SchematicStore, getTextField(5).getText(), getButton(6).getValue(), compound);
+				close();
+				break;
+			}
+			case 66: close(); break;
 		}
 	}
 
@@ -67,7 +68,7 @@ implements IGuiData, ITextfieldListener {
 		addButton(new GuiNpcButton(6, xL, y, 200, 20, 0, "copy.schematic", "copy.blueprint"));
 		y += 30;
 		addButton(new GuiNpcButton(0, xL, y, 60, 20, "gui.save"));
-		addButton(new GuiNpcButton(1, guiLeft + 67, y, 60, 20, "gui.cancel"));
+		addButton(new GuiNpcButton(66, guiLeft + 67, y, 60, 20, "gui.cancel"));
 	}
 
     @Override
@@ -85,7 +86,7 @@ implements IGuiData, ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		switch (textfield.getId()) {
+		switch (textfield.getID()) {
 			case 0: {
 				tile.height = (short) textfield.getInteger();
 				break;

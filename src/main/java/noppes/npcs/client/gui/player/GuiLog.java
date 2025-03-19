@@ -457,7 +457,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		if (type != 2) {
 			return;
 		}
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				compassData.showQuestName = ((GuiNpcCheckBox) button).isSelected();
 				break;
@@ -1472,9 +1472,6 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		//super.close();
-		//if (true) { return; }
-
 		playerData = CustomNpcs.proxy.getPlayerData(player);
 		// Back
 		GlStateManager.pushMatrix();
@@ -2233,22 +2230,22 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		if (type != 2) {
 			return;
 		}
-		switch (slider.getId()) {
-		case 0: {
-			this.compassData.scale = Math.round((slider.getSliderValue() + 0.5f) * 100.0f) / 100.0f;
-			slider.setString(("" + this.compassData.scale).replace(".", ","));
-			break;
-		}
-		case 1: {
-			this.compassData.incline = Math.round((-45.0f * slider.getSliderValue() + 22.5f) * 100.0f) / 100.0f;
-			slider.setString(("" + (45.0f + this.compassData.incline * -1.0f)).replace(".", ","));
-			break;
-		}
-		case 2: {
-			this.compassData.rot = Math.round((60.0f * slider.getSliderValue() - 30.0f) * 100.0f) / 100.0f;
-			slider.setString(("" + this.compassData.rot).replace(".", ","));
-			break;
-		}
+		switch (slider.getID()) {
+			case 0: {
+				this.compassData.scale = Math.round((slider.getSliderValue() + 0.5f) * 100.0f) / 100.0f;
+				slider.setString(("" + this.compassData.scale).replace(".", ","));
+				break;
+			}
+			case 1: {
+				this.compassData.incline = Math.round((-45.0f * slider.getSliderValue() + 22.5f) * 100.0f) / 100.0f;
+				slider.setString(("" + (45.0f + this.compassData.incline * -1.0f)).replace(".", ","));
+				break;
+			}
+			case 2: {
+				this.compassData.rot = Math.round((60.0f * slider.getSliderValue() - 30.0f) * 100.0f) / 100.0f;
+				slider.setString(("" + this.compassData.rot).replace(".", ","));
+				break;
+			}
 		}
 	}
 
@@ -2294,15 +2291,15 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		if (type != 2) {
 			return;
 		}
-		switch (textField.getId()) {
-		case 0: {
-			this.compassData.screenPos[0] = Math.round(textField.getDouble() * 100.0d) / 100.0d;
-			break;
-		}
-		case 1: {
-			this.compassData.screenPos[1] = Math.round(textField.getDouble() * 100.0d) / 100.0d;
-			break;
-		}
+		switch (textField.getID()) {
+			case 0: {
+				this.compassData.screenPos[0] = Math.round(textField.getDouble() * 100.0d) / 100.0d;
+				break;
+			}
+			case 1: {
+				this.compassData.screenPos[1] = Math.round(textField.getDouble() * 100.0d) / 100.0d;
+				break;
+			}
 		}
 	}
 

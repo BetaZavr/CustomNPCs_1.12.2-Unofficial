@@ -39,7 +39,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch(button.getId()) {
+		switch(button.getID()) {
 			case 1: { // add
 				this.save();
 				String name = new TextComponentTranslation("gui.new").getFormattedText();
@@ -183,7 +183,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			this.save();
 			String selected = this.scroll.getSelected();
 			this.spawn = new SpawnData();
@@ -269,27 +269,27 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		if (textField.getId() == 1) {
-			String name = textField.getText();
-			if (name.isEmpty() || this.data.containsKey(name)) {
-				textField.setText(this.spawn.name);
-			} else {
-				String old = this.spawn.name;
-				this.data.remove(old);
-				this.spawn.name = name;
-				this.data.put(this.spawn.name, this.spawn.id);
-				this.scroll.replace(old, this.spawn.name);
+		switch (textField.getID()) {
+			case 1: {
+				String name = textField.getText();
+				if (name.isEmpty() || data.containsKey(name)) {
+					textField.setText(spawn.name);
+				} else {
+					String old = spawn.name;
+					data.remove(old);
+					spawn.name = name;
+					data.put(spawn.name, spawn.id);
+					scroll.replace(old, spawn.name);
+				}
+				break;
 			}
-		}
-		else if (textField.getId() == 2) {
-			this.spawn.itemWeight = textField.getInteger();
-			if (this.getSlider(4) != null) { this.getSlider(4).setDisplayString(new TextComponentTranslation("spawning.weightedChance").getFormattedText() + ": " + this.spawn.itemWeight); }
-		}
-		else if (textField.getId() == 3) {
-			this.spawn.group = textField.getInteger();
-		}
-		else if (textField.getId() == 4) {
-			this.spawn.range = textField.getInteger();
+			case 2: {
+				spawn.itemWeight = textField.getInteger();
+				if (getSlider(4) != null) { getSlider(4).setDisplayString(new TextComponentTranslation("spawning.weightedChance").getFormattedText() + ": " + spawn.itemWeight); }
+				break;
+			}
+			case 3: spawn.group = textField.getInteger(); break;
+			case 4: spawn.range = textField.getInteger(); break;
 		}
 	}
 }

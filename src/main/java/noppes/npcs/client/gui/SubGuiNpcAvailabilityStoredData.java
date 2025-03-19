@@ -30,7 +30,7 @@ implements ICustomScrollListener, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				if (select == null) { return; }
 				select.type = EnumAvailabilityStoredData.values()[button.getValue()];
@@ -195,7 +195,7 @@ implements ICustomScrollListener, ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 0) {
+		if (textfield.getID() == 0) {
 			if (textfield.isEmpty()) {
 				return;
 			}

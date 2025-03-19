@@ -1,4 +1,4 @@
-# Corresponding Version: [CustomNPCs-1.12.2-Unofficial-v.3.425-17Mar2025-Snapshot] and later;
+# Corresponding Version: [CustomNPCs-1.12.2-Unofficial-v.3.425-19Mar2025-Snapshot] and later;
 # Sorted, Checked and Added by BetaZavr
 # Translated with Google Translate
 
@@ -2250,8 +2250,9 @@ script.hooks=Brackets
 script.hover.client=Events that are active on each player's client<br>§6For §9Mega§6PRO
 script.hover.encrypt.false=§cScripts for clients cannot be encrypted!
 script.hover.encrypt.true=Encrypt this script from prying eyes<br>§7The script is encrypted with the password key specified in the mod configuration<br>§cAttention! §7When encrypting, you can lose the original script code. Make a copy in advance. In extreme cases, contact the mod developer for decryption.
+script.hover.error.pos.tp=Click to teleport to the displayed location
 script.hover.forge=Forge events<br>§7Some server kernels §8(like Magma)§7 ways to combine plugins and mods, so some Forge events are not available!<br>§8Example in §eERMAScript§8 for §fTickEvent.WorldTickEvent§8:<br>§9var§f api§9=§fJava§9.§ftype§9(§7 "noppes.npcs.api.NpcAPI"§9).§fInstance§9();<br>§9function§f tickEventWorldTickEvent§9(§eevent§9) {<br>§9var§f iWorld §9= §fapi§9.§fgetIWorld§9(§fevent§9.§fworld§9);<br>§fiWorld§9.§fbroadcast§9(§7 "Current time in world ID["§9+§fiWorld§9.§fgetDimension§9().§fgetId§9()+§7"]: "§9+§fiWorld§9.§fgetTime§9());<br>§9}<br>§8The full list of available event names can be viewed via the command: §f/noppes script forgelist
-script.hover.info=Libraries required for connecting scripting languages:<br>§bECMAScript Nashorn§7 - §anot required<br>§bGraalJS§7_§eKotlin§7 - §fgraal_kotlin_libs-1.8.21.jar<br>§bLua§7 - §fluaj-jse-3.0.1.jar<br>§bPython§7 - §fjython-standalone-2.7.4.jar<br>§bKotlin§7 - §cnot yet available<br>§bRhino§7 - §cnot yet available<br>§bRuby§7 - §fjruby-complete-9.2.19.0.jar<br>§bGroovy§7 - §fgroovy-all-2.4.15.jar
+script.hover.info=Libraries required for connecting scripting languages:<br>§bECMAScript Nashorn§7 - §anot required<br>§bGraalJS§7 - §fgraal_kotlin_libs-1.8.21.jar<br>§bLua§7 - §fluaj-jse-3.0.1.jar<br>§bPython§7 - §fjython-standalone-2.7.4.jar<br>§bKotlin§7 - §cnot yet available<br>§bRhino§7 - §cnot yet available<br>§bRuby§7 - §fjruby-complete-9.2.19.0.jar<br>§bGroovy§7 - §fgroovy-all-2.4.15.jar
 script.hover.info.dir=<br>§7Directory for your module files:<br>%s<br>§7File index: %s
 script.hover.info.ecmascript=The built-in JavaScript engine in JDK up to version 11<br>§7A powerful ECMAScript engine that allows you to easily integrate JavaScript code into Java applications, but is low-performance
 script.hover.info.graaljs=A high-performance JavaScript engine developed by Oracle Labs<br>§7A modern alternative to Nashorn that provides excellent performance and ECMAScript compatibility
@@ -2477,20 +2478,6 @@ stats.undead=Undead
 
 system.check.scripts.agree=Have you §ecarefully§r read the warning and agree to its requirements?
 system.check.scripts.title=§4Attention! §rYou have the §6CustomNpcs Unofficial mod installed§r - this means that the map developer could have created scripts necessary for specific gameplay mechanics to work. However, ill-wishers create scripts that can harm your system or steal your personal data. To run the game, your agreement is required, that you trust the map developer and understand your responsibility for this decision!
-
-tag.type.0=Boolean
-tag.type.1=Byte
-tag.type.10=Compound
-tag.type.11=Integer array
-tag.type.12=Long array
-tag.type.2=Short
-tag.type.3=Integer
-tag.type.4=Long number
-tag.type.5=Number with a dot
-tag.type.6=Double with a dot
-tag.type.7=Byte array
-tag.type.8=String
-tag.type.9=List
 
 task.chose=Select Task Type:
 

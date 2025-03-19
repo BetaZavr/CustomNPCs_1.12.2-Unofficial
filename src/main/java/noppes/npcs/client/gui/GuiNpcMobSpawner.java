@@ -51,95 +51,95 @@ implements IGuiData, ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
-		case 0: {
-			close();
-			break;
-		}
-		case 1: {
-			if (GuiNpcMobSpawner.showingClones == 2) { // Server
-				String sel = scroll.getSelected();
-				if (sel == null) {
-					return;
-				}
-				Client.sendData(EnumPacketServer.SpawnMob, true, posX, posY, posZ, sel, activeTab);
+		switch (button.getID()) {
+			case 0: {
 				close();
-			} else {
-				NBTTagCompound compound = getCompound();
-				if (compound == null) {
-					return;
-				}
-				Client.sendData(EnumPacketServer.SpawnMob, false, posX, posY, posZ, compound);
-				close();
+				break;
 			}
-			break;
-		}
-		case 2: {
-			if (GuiNpcMobSpawner.showingClones == 2) {
-				String sel = scroll.getSelected();
-				if (sel == null) {
-					return;
-				}
-				Client.sendData(EnumPacketServer.MobSpawner, true, posX, posY, posZ, sel, activeTab);
-				close();
-			} else {
-				NBTTagCompound compound = getCompound();
-				if (compound == null) {
-					return;
-				}
-				Client.sendData(EnumPacketServer.MobSpawner, false, posX, posY, posZ, compound);
-				close();
-			}
-			break;
-		}
-		case 3: {
-			selectNpc = null;
-			GuiNpcMobSpawner.showingClones = 0;
-			initGui();
-			break;
-		}
-		case 4: {
-			selectNpc = null;
-			GuiNpcMobSpawner.showingClones = 1;
-			initGui();
-			break;
-		}
-		case 5: {
-			selectNpc = null;
-			GuiNpcMobSpawner.showingClones = 2;
-			initGui();
-			break;
-		}
-		case 6: { // delete
-			String name = scroll.getSelected();
-			if (name == null || name.isEmpty()) {
-				return;
-			}
-			scroll.setSelect(scroll.getSelect() - 1);
-			if (scroll.getSelect() < 0) {
-				if (scroll.getList() == null || scroll.getList().isEmpty()) {
-					scroll.setSelect(-1);
+			case 1: {
+				if (GuiNpcMobSpawner.showingClones == 2) { // Server
+					String sel = scroll.getSelected();
+					if (sel == null) {
+						return;
+					}
+					Client.sendData(EnumPacketServer.SpawnMob, true, posX, posY, posZ, sel, activeTab);
+					close();
 				} else {
-					scroll.setSelect(0);
+					NBTTagCompound compound = getCompound();
+					if (compound == null) {
+						return;
+					}
+					Client.sendData(EnumPacketServer.SpawnMob, false, posX, posY, posZ, compound);
+					close();
 				}
+				break;
 			}
-			sel = scroll.getSelect();
-			selectNpc = null;
-			if (GuiNpcMobSpawner.showingClones == 2) {
-				Client.sendData(EnumPacketServer.CloneRemove, activeTab, name);
-				return;
+			case 2: {
+				if (GuiNpcMobSpawner.showingClones == 2) {
+					String sel = scroll.getSelected();
+					if (sel == null) {
+						return;
+					}
+					Client.sendData(EnumPacketServer.MobSpawner, true, posX, posY, posZ, sel, activeTab);
+					close();
+				} else {
+					NBTTagCompound compound = getCompound();
+					if (compound == null) {
+						return;
+					}
+					Client.sendData(EnumPacketServer.MobSpawner, false, posX, posY, posZ, compound);
+					close();
+				}
+				break;
 			}
-			ClientCloneController.Instance.removeClone(name, activeTab);
-			initGui();
-			break;
-		}
-		default: {
-			if (button.getId() > 20) {
-				activeTab = button.getId() - 20;
+			case 3: {
+				selectNpc = null;
+				GuiNpcMobSpawner.showingClones = 0;
 				initGui();
+				break;
 			}
-			break;
-		}
+			case 4: {
+				selectNpc = null;
+				GuiNpcMobSpawner.showingClones = 1;
+				initGui();
+				break;
+			}
+			case 5: {
+				selectNpc = null;
+				GuiNpcMobSpawner.showingClones = 2;
+				initGui();
+				break;
+			}
+			case 6: { // delete
+				String name = scroll.getSelected();
+				if (name == null || name.isEmpty()) {
+					return;
+				}
+				scroll.setSelect(scroll.getSelect() - 1);
+				if (scroll.getSelect() < 0) {
+					if (scroll.getList() == null || scroll.getList().isEmpty()) {
+						scroll.setSelect(-1);
+					} else {
+						scroll.setSelect(0);
+					}
+				}
+				sel = scroll.getSelect();
+				selectNpc = null;
+				if (GuiNpcMobSpawner.showingClones == 2) {
+					Client.sendData(EnumPacketServer.CloneRemove, activeTab, name);
+					return;
+				}
+				ClientCloneController.Instance.removeClone(name, activeTab);
+				initGui();
+				break;
+			}
+			default: {
+				if (button.getID() > 20) {
+					activeTab = button.getID() - 20;
+					initGui();
+				}
+				break;
+			}
 		}
 
 	}

@@ -27,7 +27,7 @@ extends SubGuiInterface {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				if (!(button instanceof GuiNpcCheckBox)) { return; }
 				onlyTab = ((GuiNpcCheckBox) button).isSelected();

@@ -35,7 +35,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				marcet.limitedType = button.getValue();
 				button.setHoverText("market.hover.only.currency." + marcet.limitedType);
@@ -308,50 +308,50 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 		}
 		String text = textField.getText();
 		MarkupData md = marcet.markup.get(level);
-		switch (textField.getId()) {
-		case 0: {
-			if (text.equals(marcet.name)) {
-				return;
+		switch (textField.getID()) {
+			case 0: {
+				if (text.equals(marcet.name)) {
+					return;
+				}
+				marcet.name = text;
+				initGui();
+				break;
 			}
-			marcet.name = text;
-			initGui();
-			break;
-		}
-		case 1: {
-			int time = textField.getInteger();
-			if (time < 5) {
-				time = 0;
+			case 1: {
+				int time = textField.getInteger();
+				if (time < 5) {
+					time = 0;
+				}
+				if (time > 360) {
+					time = 360;
+				}
+				marcet.updateTime = time;
+				initGui();
+				break;
 			}
-			if (time > 360) {
-				time = 360;
+			case 2: {
+				if (md == null) {
+					return;
+				}
+				md.buy = (float) (Math.round((double) textField.getInteger() * 100.0d) / 10000.0d);
+				initGui();
+				break;
 			}
-			marcet.updateTime = time;
-			initGui();
-			break;
-		}
-		case 2: {
-			if (md == null) {
-				return;
+			case 3: {
+				if (md == null) {
+					return;
+				}
+				md.sell = (float) (Math.round((double) textField.getInteger() * 100.0d) / 10000.0d);
+				initGui();
+				break;
 			}
-			md.buy = (float) (Math.round((double) textField.getInteger() * 100.0d) / 10000.0d);
-			initGui();
-			break;
-		}
-		case 3: {
-			if (md == null) {
-				return;
+			case 4: {
+				if (md == null) {
+					return;
+				}
+				md.xp = textField.getInteger();
+				break;
 			}
-			md.sell = (float) (Math.round((double) textField.getInteger() * 100.0d) / 10000.0d);
-			initGui();
-			break;
-		}
-		case 4: {
-			if (md == null) {
-				return;
-			}
-			md.xp = textField.getInteger();
-			break;
-		}
 		}
 	}
 

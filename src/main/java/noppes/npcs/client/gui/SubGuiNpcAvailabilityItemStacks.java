@@ -47,7 +47,7 @@ implements ICustomScrollListener {
     @Override
     public void buttonEvent(IGuiNpcButton button) {
         AvailabilityStackData aData = availability.stacksData.get(cont.slot.getSlotIndex());
-        switch (button.getId()) {
+        switch (button.getID()) {
             case 0: {
                 aData.ignoreDamage = button.getValue() == 0;
                 button.setHoverText("gui.ignoreDamage." + button.getValue());

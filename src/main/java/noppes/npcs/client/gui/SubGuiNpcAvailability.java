@@ -31,7 +31,7 @@ implements ISliderListener, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				setSubGui(new SubGuiNpcAvailabilityDialog(availability));
 				break;
@@ -212,7 +212,7 @@ implements ISliderListener, ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		switch (textfield.getId()) {
+		switch (textfield.getID()) {
 			case 51: availability.minPlayerLevel = textfield.getInteger(); break;
 			case 52: availability.daytime[0] = textfield.getInteger(); break;
 			case 53: availability.daytime[1] = textfield.getInteger(); break;

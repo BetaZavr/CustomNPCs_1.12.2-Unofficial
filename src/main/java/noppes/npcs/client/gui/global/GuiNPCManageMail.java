@@ -21,7 +21,7 @@ implements IGuiData, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
+		if (button.getID() == 0) {
 			CustomNpcs.MailSendToYourself = ((GuiNpcCheckBox) button).isSelected();
 		}
 	}
@@ -133,49 +133,49 @@ implements IGuiData, ITextfieldListener {
 			this.initGui();
 			return;
 		}
-		switch (textField.getId()) {
-		case 0: {
-			int v = textField.getInteger();
-			if (v == 0) {
-				v = 1;
+		switch (textField.getID()) {
+			case 0: {
+				int v = textField.getInteger();
+				if (v == 0) {
+					v = 1;
+				}
+				CustomNpcs.MailTimeWhenLettersWillBeDeleted = v;
+				break;
 			}
-			CustomNpcs.MailTimeWhenLettersWillBeDeleted = v;
-			break;
-		}
-		case 1: {
-			if (this.getTextField(2) == null) {
-				return;
+			case 1: {
+				if (this.getTextField(2) == null) {
+					return;
+				}
+				GuiNpcTextField textField2 = (GuiNpcTextField) getTextField(2);
+				int[] vd = new int[] { textField.getInteger(), textField2.getInteger() };
+				if (vd[0] > vd[1]) {
+					int m = vd[0];
+					vd[0] = vd[1];
+					vd[1] = m;
+				}
+				CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
+				CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
+				textField.setText("" + vd[0]);
+				textField2.setText("" + vd[1]);
+				break;
 			}
-			GuiNpcTextField textField2 = (GuiNpcTextField) getTextField(2);
-			int[] vd = new int[] { textField.getInteger(), textField2.getInteger() };
-			if (vd[0] > vd[1]) {
-				int m = vd[0];
-				vd[0] = vd[1];
-				vd[1] = m;
+			case 2: {
+				if (this.getTextField(1) == null) {
+					return;
+				}
+				GuiNpcTextField textField1 = (GuiNpcTextField) getTextField(1);
+				int[] vd = new int[] { textField1.getInteger(), textField.getInteger() };
+				if (vd[0] > vd[1]) {
+					int m = vd[0];
+					vd[0] = vd[1];
+					vd[1] = m;
+				}
+				CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
+				CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
+				textField1.setText("" + vd[0]);
+				textField.setText("" + vd[1]);
+				break;
 			}
-			CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
-			CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
-			textField.setText("" + vd[0]);
-			textField2.setText("" + vd[1]);
-			break;
-		}
-		case 2: {
-			if (this.getTextField(1) == null) {
-				return;
-			}
-			GuiNpcTextField textField1 = (GuiNpcTextField) getTextField(1);
-			int[] vd = new int[] { textField1.getInteger(), textField.getInteger() };
-			if (vd[0] > vd[1]) {
-				int m = vd[0];
-				vd[0] = vd[1];
-				vd[1] = m;
-			}
-			CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
-			CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
-			textField1.setText("" + vd[0]);
-			textField.setText("" + vd[1]);
-			break;
-		}
 		}
 	}
 

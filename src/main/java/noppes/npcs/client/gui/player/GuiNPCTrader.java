@@ -71,12 +71,12 @@ implements ICustomScrollListener, IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() > 4 && button.getId() < 10) {
-			section = button.getId() - 5 + ceilPos * 5;
+		if (button.getID() > 4 && button.getID() < 10) {
+			section = button.getID() - 5 + ceilPos * 5;
 			initGui();
 			return;
 		}
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // buy
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, marcet.getId(), selectDealData.deal.getId(), npc.getEntityId());
 				break;

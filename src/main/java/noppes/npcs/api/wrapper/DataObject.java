@@ -3,6 +3,7 @@ package noppes.npcs.api.wrapper;
 import java.lang.reflect.*;
 import java.util.*;
 
+import jdk.internal.dynalink.beans.StaticClass;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.handler.data.IDataElement;
@@ -38,6 +39,7 @@ public class DataObject implements IDataObject {
 	public Object object;
 
 	public DataObject(Object obj) {
+		if (obj != null && obj.getClass().getSimpleName().equals("StaticClass")) { obj = ((StaticClass) obj).getRepresentedClass(); }
 		this.object = obj;
 		this.data = Util.instance.getClassData(obj, false, true);
 	}

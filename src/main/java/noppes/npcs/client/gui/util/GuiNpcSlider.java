@@ -207,7 +207,7 @@ implements IComponentGui, IGuiNpcSlider {
 	public void setSliderValue(float value) { sliderValue = ValueUtil.correctFloat(value, 0.0f, 1.0f); }
 
 	@Override
-	public int getId() { return id; }
+	public int getID() { return id; }
 
 	@Override
 	public int[] getCenter() { return new int[] { x + width / 2, y + height / 2}; }

@@ -37,84 +37,89 @@ implements ICustomScrollListener, GuiSelectionListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			if (select.isEmpty()) { return; }
-			int id = dataIDs.get(select);
-			AvailabilityFactionData afd = availability.factions.get(id);
-			afd.factionAvailable = EnumAvailabilityFactionType.values()[button.getValue()];
-			availability.factions.put(id, afd);
-			select = "ID:" + id + " - ";
-			Faction faction = FactionController.instance.factions.get(id);
-			if (faction == null) {
-				select += chr + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
-			} else {
-				String stance = "";
-				switch (afd.factionStance) {
-					case Friendly: {
-						stance = "faction.friendly";
-						break;
+		switch (button.getID()) {
+			case 0 : {
+				if (select.isEmpty()) { return; }
+				int id = dataIDs.get(select);
+				AvailabilityFactionData afd = availability.factions.get(id);
+				afd.factionAvailable = EnumAvailabilityFactionType.values()[button.getValue()];
+				availability.factions.put(id, afd);
+				select = "ID:" + id + " - ";
+				Faction faction = FactionController.instance.factions.get(id);
+				if (faction == null) {
+					select += chr + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
+				} else {
+					String stance = "";
+					switch (afd.factionStance) {
+						case Friendly: {
+							stance = "faction.friendly";
+							break;
+						}
+						case Neutral: {
+							stance = "faction.neutral";
+							break;
+						}
+						case Hostile: {
+							stance = "faction.unfriendly";
+							break;
+						}
 					}
-					case Neutral: {
-						stance = "faction.neutral";
-						break;
-					}
-					case Hostile: {
-						stance = "faction.unfriendly";
-						break;
-					}
+					select += faction.getName() + chr + "7 (" + chr + "3" + new TextComponentTranslation(("availability." + afd.factionAvailable).toLowerCase()).getFormattedText() + chr + "7)" + chr + "7 (" + chr + "9" + new TextComponentTranslation(stance).getFormattedText() + chr + "7)";
 				}
-				select += faction.getName() + chr + "7 (" + chr + "3" + new TextComponentTranslation(("availability." + afd.factionAvailable).toLowerCase()).getFormattedText() + chr + "7)" + chr + "7 (" + chr + "9" + new TextComponentTranslation(stance).getFormattedText() + chr + "7)";
-			}
 
-			initGui();
-		}
-		if (button.getId() == 1) {
-			GuiNPCFactionSelection gui = new GuiNPCFactionSelection(npc, getParent(), select.isEmpty() ? 0 : dataIDs.get(select));
-			gui.listener = this;
-			NoppesUtil.openGUI(player, gui);
-		}
-		if (button.getId() == 2) {
-			availability.factions.remove(dataIDs.get(select));
-			select = "";
-			initGui();
-		}
-		if (button.getId() == 3) { // More
-			save();
-			initGui();
-		}
-		if (button.getId() == 4) {
-			if (select.isEmpty()) { return; }
-			EnumAvailabilityFaction eaf = EnumAvailabilityFaction.values()[button.getValue()];
-			int id = dataIDs.get(select);
-			AvailabilityFactionData afd = availability.factions.get(id);
-			afd.factionStance = eaf;
-			availability.factions.put(id, afd);
-			select = "ID:" + id + " - ";
-			Faction faction = FactionController.instance.factions.get(id);
-			if (faction == null) {
-				select += chr + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
-			} else {
-				String stance = "";
-				switch (eaf) {
-					case Friendly: {
-						stance = "faction.friendly";
-						break;
-					}
-					case Neutral: {
-						stance = "faction.neutral";
-						break;
-					}
-					case Hostile: {
-						stance = "faction.unfriendly";
-						break;
-					}
-				}
-				select += faction.getName() + chr + "7 (" + chr + "3" + new TextComponentTranslation(("availability." + afd.factionAvailable).toLowerCase()).getFormattedText() + chr + "7)" + chr + "7 (" + chr + "9" + new TextComponentTranslation(stance).getFormattedText() + chr + "7)";
+				initGui();
+				break;
 			}
-			initGui();
-		}
-		if (button.getId() == 66) {
-			close();
+			case  1: {
+				GuiNPCFactionSelection gui = new GuiNPCFactionSelection(npc, getParent(), select.isEmpty() ? 0 : dataIDs.get(select));
+				gui.listener = this;
+				NoppesUtil.openGUI(player, gui);
+				break;
+			}
+			case  2: {
+				availability.factions.remove(dataIDs.get(select));
+				select = "";
+				initGui();
+				break;
+			}
+			case  3: { // More
+				save();
+				initGui();
+				break;
+			}
+			case  4: {
+				if (select.isEmpty()) { return; }
+				EnumAvailabilityFaction eaf = EnumAvailabilityFaction.values()[button.getValue()];
+				int id = dataIDs.get(select);
+				AvailabilityFactionData afd = availability.factions.get(id);
+				afd.factionStance = eaf;
+				availability.factions.put(id, afd);
+				select = "ID:" + id + " - ";
+				Faction faction = FactionController.instance.factions.get(id);
+				if (faction == null) {
+					select += chr + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
+				} else {
+					String stance = "";
+					switch (eaf) {
+						case Friendly: {
+							stance = "faction.friendly";
+							break;
+						}
+						case Neutral: {
+							stance = "faction.neutral";
+							break;
+						}
+						case Hostile: {
+							stance = "faction.unfriendly";
+							break;
+						}
+					}
+					select += faction.getName() + chr + "7 (" + chr + "3" + new TextComponentTranslation(("availability." + afd.factionAvailable).toLowerCase()).getFormattedText() + chr + "7)" + chr + "7 (" + chr + "9" + new TextComponentTranslation(stance).getFormattedText() + chr + "7)";
+				}
+				initGui();
+				break;
+			}
+			case 66 : close(); break;
 		}
 	}
 

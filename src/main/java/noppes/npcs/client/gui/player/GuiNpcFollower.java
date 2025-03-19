@@ -59,10 +59,10 @@ implements IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() < 4) {
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerExtend, button.getId());
+		if (button.getID() < 4) {
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerExtend, button.getID());
 		} else {
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerState, button.getId() - 5);
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerState, button.getID() - 5);
 		}
 	}
 

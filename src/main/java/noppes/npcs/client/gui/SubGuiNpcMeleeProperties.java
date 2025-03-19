@@ -21,15 +21,14 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 5) {
-			stats.setEffect(button.getValue(), stats.getEffectStrength(), stats.getEffectTime());
-			initGui();
-		}
-		if (button.getId() == 7) {
-			stats.setEffect(stats.getEffectType(), button.getValue(), stats.getEffectTime());
-		}
-		if (button.getId() == 66) {
-			close();
+		switch (button.getID()) {
+			case 5 : {
+				stats.setEffect(button.getValue(), stats.getEffectStrength(), stats.getEffectTime());
+				initGui();
+				break;
+			}
+			case 7 : stats.setEffect(stats.getEffectType(), button.getValue(), stats.getEffectTime()); break;
+			case 66 : close(); break;
 		}
 	}
 
@@ -85,7 +84,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		switch (textfield.getId()) {
+		switch (textfield.getID()) {
 			case 1: stats.setStrength(textfield.getInteger()); break;
 			case 2: stats.setRange(textfield.getDouble()); break;
 			case 3: stats.setDelay(textfield.getInteger()); break;

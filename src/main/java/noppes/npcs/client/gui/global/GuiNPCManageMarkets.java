@@ -63,7 +63,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // Add market
 				save();
 				selectedMarcet = (Marcet) mData.addMarcet();
@@ -421,7 +421,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) {
 		try {
-			switch (scroll.getId()) {
+			switch (scroll.getID()) {
 				case 0: { // Markets
 					if (!dataMarkets.containsKey(scroll.getSelected())) {
 						return;
@@ -447,7 +447,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 
 	@Override
 	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-		switch (scroll.getId()) {
+		switch (scroll.getID()) {
 			case 0: { // Markets
 				if (selectedMarcet == null) {
 					return;

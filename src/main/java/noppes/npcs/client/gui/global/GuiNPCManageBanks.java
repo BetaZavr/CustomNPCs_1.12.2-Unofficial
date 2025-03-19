@@ -43,7 +43,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // ceil
 				if (ceil == button.getValue()) {
 					return;
@@ -366,7 +366,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0 && !scroll.getSelected().equals(selected)) {
+		if (scroll.getID() == 0 && !scroll.getSelected().equals(selected)) {
 			save();
 			ceil = 0;
 			selected = scroll.getSelected();
@@ -415,7 +415,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		if (bank.id == -1) {
 			return;
 		}
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 0: { // name
 				String name = textField.getText();
 				if (!name.isEmpty() && !data.containsKey(name)) {

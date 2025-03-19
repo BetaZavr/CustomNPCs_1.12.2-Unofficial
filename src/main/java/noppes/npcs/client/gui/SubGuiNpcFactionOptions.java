@@ -29,11 +29,9 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 1) {
-			change(button.getValue() == 1, getTextField(1) == null ? 0 : getTextField(1).getInteger());
-		}
-		if (button.getId() == 66) {
-			close();
+		switch (button.getID()) {
+			case 1 : change(button.getValue() == 1, getTextField(1) == null ? 0 : getTextField(1).getInteger()); break;
+			case 66 : close(); break;
 		}
 	}
 

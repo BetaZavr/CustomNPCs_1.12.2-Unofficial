@@ -96,12 +96,12 @@ implements ICustomScrollListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			selectedDomain = scroll.getSelected();
 			selectedResource = null;
 			scrollQuests.setSelect(-1);
 		}
-		if (scroll.getId() == 1) {
+		if (scroll.getID() == 1) {
 			selectedResource = new ResourceLocation(selectedDomain, scroll.getSelected());
 		}
 		initGui();

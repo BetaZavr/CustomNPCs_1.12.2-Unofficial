@@ -26,7 +26,7 @@ implements IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: close(); break;
 			case 1: {
 				tile.isDetailed = button.getValue() == 1;

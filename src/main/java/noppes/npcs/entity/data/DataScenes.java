@@ -11,7 +11,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
@@ -171,10 +174,14 @@ public class DataScenes {
 					} else if (type.equals("size")) {
 						npc.display.setSize(ValueUtil.correctInt(Integer.parseInt(value), 1, 30));
 					} else {
-						NoppesUtilServer.NotifyOPs("Unknown scene stat: " + type);
+						ITextComponent message = new TextComponentString("Unknown scene stat: " + type);
+						message.getStyle().setColor(TextFormatting.GRAY);
+						NoppesUtilServer.NotifyOPs(message);
 					}
 				} catch (NumberFormatException e) {
-					NoppesUtilServer.NotifyOPs("Unknown scene stat " + type + " value: " + value);
+					ITextComponent message = new TextComponentString("Unknown scene stat " + type + " value: " + value);
+					message.getStyle().setColor(TextFormatting.GRAY);
+					NoppesUtilServer.NotifyOPs(message);
 				}
 			} else if (event.type == SceneType.FACTION) {
 				npc.setFaction(Integer.parseInt(event.param));
@@ -324,11 +331,16 @@ public class DataScenes {
 			for (SceneState state : DataScenes.StartedScenes.values()) {
 				state.paused = true;
 			}
-			NoppesUtilServer.NotifyOPs("Paused all scenes");
+			ITextComponent message = new TextComponentString("Paused all scenes");
+			message.getStyle().setColor(TextFormatting.GRAY);
+			NoppesUtilServer.NotifyOPs(message);
 		} else {
 			SceneState state2 = DataScenes.StartedScenes.get(id.toLowerCase());
 			state2.paused = true;
-			NoppesUtilServer.NotifyOPs("Paused scene %s at %s", id, state2.ticks);
+
+			ITextComponent message = new TextComponentString("Paused scene " + id + " at " + state2.ticks);
+			message.getStyle().setColor(TextFormatting.GRAY);
+			NoppesUtilServer.NotifyOPs(message);
 		}
 	}
 
@@ -338,22 +350,30 @@ public class DataScenes {
 				return;
 			}
 			DataScenes.StartedScenes = new HashMap<>();
-			NoppesUtilServer.NotifyOPs("Reset all scene");
+			ITextComponent message = new TextComponentString("Reset all scene");
+			message.getStyle().setColor(TextFormatting.GRAY);
+			NoppesUtilServer.NotifyOPs(message);
 		} else if (DataScenes.StartedScenes.remove(id.toLowerCase()) == null) {
 			sender.sendMessage(new TextComponentTranslation("Unknown scene %s ", id));
 		} else {
-			NoppesUtilServer.NotifyOPs("Reset scene %s", id);
+			ITextComponent message = new TextComponentString("Reset scene " + id);
+			message.getStyle().setColor(TextFormatting.GRAY);
+			NoppesUtilServer.NotifyOPs(message);
 		}
 	}
 
 	public static void Start(String id) {
 		SceneState state = DataScenes.StartedScenes.get(id.toLowerCase());
 		if (state == null) {
-			NoppesUtilServer.NotifyOPs("Started scene %s", id);
+			ITextComponent message = new TextComponentString("Started scene " + id);
+			message.getStyle().setColor(TextFormatting.GRAY);
+			NoppesUtilServer.NotifyOPs(message);
 			DataScenes.StartedScenes.put(id.toLowerCase(), new SceneState());
 		} else if (state.paused) {
 			state.paused = false;
-			NoppesUtilServer.NotifyOPs("Started scene %s from %s", id, state.ticks);
+			ITextComponent message = new TextComponentString("Started scene " + id + " from " + state.ticks);
+			message.getStyle().setColor(TextFormatting.GRAY);
+			NoppesUtilServer.NotifyOPs(message);
 		}
 	}
 
@@ -363,7 +383,9 @@ public class DataScenes {
 			Start(id);
 		} else {
 			state.paused = true;
-			NoppesUtilServer.NotifyOPs("Paused scene %s at %s", id, state.ticks);
+			ITextComponent message = new TextComponentString("Paused scene " + id + " from " + state.ticks);
+			message.getStyle().setColor(TextFormatting.GRAY);
+			NoppesUtilServer.NotifyOPs(message);
 		}
 	}
 

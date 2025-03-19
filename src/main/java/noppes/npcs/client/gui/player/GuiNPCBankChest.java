@@ -71,12 +71,12 @@ implements ISubGuiListener {
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 		if (isWait) { return; }
-		if (button.getId() > 2 && button.getId() < 8) {
+		if (button.getID() > 2 && button.getID() < 8) {
 			close();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.OpenCeilBank, cont.bank.id, ((GuiMenuSideButton) button).data);
 			return;
 		}
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				NoppesUtilPlayer.sendData((upgrade ? EnumPlayerPacket.BankUpgrade : EnumPlayerPacket.BankUnlock), npc.getEntityId(), true, 1);
 				isWait = true;

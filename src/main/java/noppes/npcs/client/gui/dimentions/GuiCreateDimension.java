@@ -33,7 +33,7 @@ extends GuiScreen {
 
 	private static final String[] disallowedFilenames = new String[] { "CON", "COM", "PRN", "AUX", "CLOCK$", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
 	public static String func_146317_a(ISaveFormat p_146317_0_, String p_146317_1_) {
-		p_146317_1_ = p_146317_1_.replaceAll("[\\./\"]", "_");
+		p_146317_1_ = p_146317_1_.replaceAll("[\\\\./\"]", "_");
         StringBuilder p_146317_1_Builder = new StringBuilder(p_146317_1_);
         for (String s1 : disallowedFilenames) {
             if (p_146317_1_Builder.toString().equalsIgnoreCase(s1)) {

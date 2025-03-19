@@ -26,25 +26,25 @@ implements ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() < 60) {
-			DataScenes.SceneContainer scene = this.scenes.scenes.get(button.getId() / 10);
-			if (button.getId() % 10 == 1) {
+		if (button.getID() < 60) {
+			DataScenes.SceneContainer scene = this.scenes.scenes.get(button.getID() / 10);
+			if (button.getID() % 10 == 1) {
 				scene.enabled = button.getValue() == 1;
 			}
-			if (button.getId() % 10 == 2) {
+			if (button.getID() % 10 == 2) {
 				this.scene = scene;
 				this.setSubGui(new SubGuiNpcTextArea(scene.lines));
 			}
-			if (button.getId() % 10 == 3) {
+			if (button.getID() % 10 == 3) {
 				this.scenes.scenes.remove(scene);
 				this.initGui();
 			}
-			if (button.getId() % 10 == 4) {
+			if (button.getID() % 10 == 4) {
 				scene.btn = button.getValue();
 				this.initGui();
 			}
 		}
-		if (button.getId() == 101) {
+		if (button.getID() == 101) {
 			this.scenes.addScene(this.getTextField(101).getText());
 			this.initGui();
 		}

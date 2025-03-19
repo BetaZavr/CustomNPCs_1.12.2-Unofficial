@@ -5,8 +5,8 @@ import java.util.*;
 
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
-import noppes.npcs.api.mixin.pathfinding.IPathMixin;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.reflection.PathReflection;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -469,7 +469,7 @@ public class ClientGuiEventHandler extends Gui {
 		// Now way
 		Path path = npc.getNavigator().getPath();
 		if (path != null) {
-			PathPoint[] points = ((IPathMixin) path).npcs$getPoints();
+			PathPoint[] points = PathReflection.getPoints(path);
 			if (points != null) {
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();

@@ -24,7 +24,7 @@ extends GuiNPCInterface2 {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) { job.chestMode = button.getValue(); }
+		if (button.getID() == 0) { job.chestMode = button.getValue(); }
 	}
 
 	@Override

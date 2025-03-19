@@ -34,7 +34,7 @@ implements ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 14: {
 				GuiNPCManageFactions.isName = ((GuiNpcCheckBox) button).isSelected();
 				button.setHoverText("hover.sort",
@@ -42,10 +42,7 @@ implements ICustomScrollListener {
 						((GuiNpcCheckBox) button).getText());
 				break;
 			}
-			case 66: {
-				close();
-				break;
-			}
+			case 66: close(); break;
 		}
 	}
 
@@ -103,7 +100,7 @@ implements ICustomScrollListener {
 
     @Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 1) {
+		if (scroll.getID() == 1) {
 			HashSet<Integer> set = new HashSet<>();
 			HashSet<String> list = scroll.getSelectedList();
 			HashSet<String> newList = new HashSet<>();

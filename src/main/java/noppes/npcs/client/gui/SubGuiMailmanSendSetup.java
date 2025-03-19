@@ -25,7 +25,7 @@ implements ITextfieldListener, GuiSelectionListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				close();
 				break;
@@ -90,11 +90,7 @@ implements ITextfieldListener, GuiSelectionListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		if (textField.getId() == 0) {
-			mail.sender = textField.getText();
-		}
-		if (textField.getId() == 1) {
-			mail.title = textField.getText();
-		}
+		if (textField.getID() == 0) { mail.sender = textField.getText(); }
+		else if (textField.getID() == 1) { mail.title = textField.getText(); }
 	}
 }

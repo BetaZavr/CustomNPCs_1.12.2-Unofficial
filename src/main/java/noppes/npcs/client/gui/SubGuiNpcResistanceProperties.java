@@ -31,7 +31,7 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 66) {
+		if (button.getID() == 66) {
 			close();
 		}
 	}

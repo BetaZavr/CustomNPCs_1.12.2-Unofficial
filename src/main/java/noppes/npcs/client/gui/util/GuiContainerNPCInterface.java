@@ -13,7 +13,6 @@ import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.event.ClientEvent;
 import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
-import noppes.npcs.client.gui.custom.components.CustomGuiScrollComponent;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -120,7 +119,7 @@ implements IEditNPC, ICustomScrollListener {
 	@Override
 	public IComponentGui get(int id) {
 		for (IComponentGui component : components) {
-			if (component.getId() == id) { return component; }
+			if (component.getID() == id) { return component; }
 		}
 		return id < components.size() ? components.get(id) : null;
 	}
@@ -129,7 +128,7 @@ implements IEditNPC, ICustomScrollListener {
 
 	@Override
 	public void addButton(IGuiNpcButton button) {
-		buttons.put(button.getId(), button);
+		buttons.put(button.getID(), button);
 		add(button);
 	}
 
@@ -207,7 +206,7 @@ implements IEditNPC, ICustomScrollListener {
 
 	@Override
 	public void addLabel(IGuiNpcLabel label) {
-		labels.put(label.getId(), label);
+		labels.put(label.getID(), label);
 		add(label);
 	}
 
@@ -233,7 +232,7 @@ implements IEditNPC, ICustomScrollListener {
 			((GuiScreen) scroll).setWorldAndResolution(mc, scroll.getWidth(), scroll.getHeight());
 		}
 		scroll.setParent(this);
-		scrolls.put(scroll.getId(), scroll);
+		scrolls.put(scroll.getID(), scroll);
 		add(scroll);
 	}
 
@@ -262,7 +261,7 @@ implements IEditNPC, ICustomScrollListener {
 
 	@Override
 	public void addSlider(IGuiNpcSlider slider) {
-		sliders.put(slider.getId(), slider);
+		sliders.put(slider.getID(), slider);
 		add(slider);
 	}
 
@@ -270,7 +269,7 @@ implements IEditNPC, ICustomScrollListener {
 
 	@Override
 	public void addTextField(IGuiNpcTextField textField) {
-		textfields.put(textField.getId(), textField);
+		textfields.put(textField.getID(), textField);
 		add(textField);
 	}
 
@@ -283,7 +282,7 @@ implements IEditNPC, ICustomScrollListener {
 
 	@Override
 	public void addMiniWindow(IGuiNpcMiniWindow miniwindows) {
-		mwindows.put(miniwindows.getId(), miniwindows);
+		mwindows.put(miniwindows.getID(), miniwindows);
 		miniwindows.resetButtons();
 		add(miniwindows);
 	}
@@ -500,7 +499,7 @@ implements IEditNPC, ICustomScrollListener {
 	@Override
 	public IGuiTextArea getTextArea(int id) {
 		for (IComponentGui component : components) {
-			if (component instanceof IGuiTextArea && component.getId() == id) { return (IGuiTextArea) component; }
+			if (component instanceof IGuiTextArea && component.getID() == id) { return (IGuiTextArea) component; }
 		}
 		return null;
 	}
@@ -764,7 +763,7 @@ implements IEditNPC, ICustomScrollListener {
 	public void addLine(int sX, int sY, int eX, int eY, int color, int size) { line.add(new int[] { sX, sY, eX, eY, color, size }); }
 	
 	@Override
-	public void closeMiniWindow(IGuiNpcMiniWindow miniWindow) { mwindows.remove(miniWindow.getId()); }
+	public void closeMiniWindow(IGuiNpcMiniWindow miniWindow) { mwindows.remove(miniWindow.getID()); }
 	
 	@Override
 	public void setMiniHoverText(int id, IComponentGui component) {}

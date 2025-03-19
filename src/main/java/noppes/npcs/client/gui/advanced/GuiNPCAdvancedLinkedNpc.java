@@ -29,7 +29,7 @@ implements IScrollData, ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 1) {
+		if (button.getID() == 1) {
 			Client.sendData(EnumPacketServer.LinkedSet, "");
 		}
 	}

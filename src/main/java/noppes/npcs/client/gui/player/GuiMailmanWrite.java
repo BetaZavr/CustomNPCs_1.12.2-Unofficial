@@ -141,7 +141,7 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 		if (!button.isEnabled()) {
 			return;
 		}
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // send
 				GuiMailmanWrite.mail.message.setTag("pages", this.bookPages);
 				if (this.canSend) {
@@ -1652,7 +1652,7 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 		case 0:
 			this.username = textField.getText();
 			break;

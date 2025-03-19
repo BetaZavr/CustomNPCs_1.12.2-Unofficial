@@ -36,7 +36,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // add new
 				DialogOption option = new DialogOption();
 				option.slot = this.dialog.options.size();

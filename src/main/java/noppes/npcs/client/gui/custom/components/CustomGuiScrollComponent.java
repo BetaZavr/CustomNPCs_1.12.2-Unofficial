@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -49,6 +48,7 @@ implements IDataHolder, IClickListener {
 		}
 	}
 
+	@Override
 	public int getId() {
 		return this.id;
 	}

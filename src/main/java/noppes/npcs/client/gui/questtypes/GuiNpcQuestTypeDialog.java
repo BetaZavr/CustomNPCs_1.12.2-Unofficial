@@ -235,7 +235,7 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
 		if (task == null) { return; }
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 9: {
 				if (!BorderController.getInstance().regions.containsKey(textField.getInteger())) {
 					textField.setText("" + textField.getDefault());

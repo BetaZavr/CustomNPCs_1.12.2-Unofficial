@@ -121,7 +121,7 @@ implements GuiSlider.FormatHelper, GuiPageButtonList.GuiResponder {
 				break;
 			case 304:
 				if (this.field_175338_A) {
-					this.func_175322_b(304);
+					this.func_175322_b();
 				}
 				break;
 			case 305:
@@ -177,8 +177,8 @@ implements GuiSlider.FormatHelper, GuiPageButtonList.GuiResponder {
 		}
 	}
 
-	private void func_175322_b(int p_175322_1_) {
-		this.field_175339_B = p_175322_1_;
+	private void func_175322_b() {
+		this.field_175339_B = 304;
 		this.func_175329_a(true);
 	}
 

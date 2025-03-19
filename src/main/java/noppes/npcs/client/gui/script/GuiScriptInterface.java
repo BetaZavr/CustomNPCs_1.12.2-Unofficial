@@ -357,7 +357,7 @@ implements IGuiData, ITextChangeListener {
 				for(Long key : map.keySet()) {
 					dataLog.put(i, key);
 					if (Objects.equals(key, selectLog)) { pos = i; }
-					selects.add((i + 1) + ": "+new Date(key));
+					selects.add((i + 1) + "/" + map.size() + ": "+new Date(key));
 					i++;
 				}
 				addButton(new GuiButtonBiDirectional(119, guiLeft + 4, guiTop + 7 + yoffset, xSize - 160, 20, selects.toArray(new String[0]), pos));

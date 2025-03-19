@@ -132,7 +132,7 @@ implements ICustomScrollListener, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 1: { // Facing
 				if (builder == null) {
 					return;
@@ -458,24 +458,24 @@ implements ICustomScrollListener, ITextfieldListener {
 		if (builder == null) {
 			return;
 		}
-		if (textField.getId() < 10) {
+		if (textField.getID() < 10) {
 			if (textField.getText().isEmpty()) {
 				return;
 			}
-			if (builder.inv.getStackInSlot(textField.getId()).isEmpty()) {
+			if (builder.inv.getStackInSlot(textField.getID()).isEmpty()) {
 				textField.setText("");
 				return;
 			}
-			builder.chances.put(textField.getId(), textField.getInteger());
+			builder.chances.put(textField.getID(), textField.getInteger());
 			return;
 		}
 		if (builder.getType() == 3 || builder.getType() == 4) {
-			if (textField.getId() == 10) {
+			if (textField.getID() == 10) {
 				builder.schematicName = textField.getText();
 				initGui();
 			}
 		} else {
-			int pos = textField.getId() - 10;
+			int pos = textField.getID() - 10;
 			int value = textField.getInteger();
 			if (value > maxRange) {
 				value = maxRange;

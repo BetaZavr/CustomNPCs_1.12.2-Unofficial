@@ -35,7 +35,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				deal.setIgnoreDamage(button.getValue() == 1);
 				break;
@@ -180,7 +180,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 0: {
 				deal.setMoney(textField.getInteger());
 				break;

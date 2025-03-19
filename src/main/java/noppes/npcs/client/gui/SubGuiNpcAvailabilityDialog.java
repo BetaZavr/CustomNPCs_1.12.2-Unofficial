@@ -35,34 +35,38 @@ implements ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			if (select.isEmpty()) { return; }
-			EnumAvailabilityDialog ead = EnumAvailabilityDialog.values()[button.getValue()];
-			int id = dataIDs.get(select);
-			availability.dialogues.put(id, ead);
-			Dialog dialog = DialogController.instance.dialogs.get(dataIDs.get(select));
-			select = "ID:" + id + " - ";
-			if (dialog == null) {
-				select += chr + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
-			} else {
-				select += chr + "7" + dialog.getCategory().getName() + "/" + chr + "r" + dialog.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + chr + "7)";
+		switch (button.getID()) {
+			case  0: {
+				if (select.isEmpty()) { return; }
+				EnumAvailabilityDialog ead = EnumAvailabilityDialog.values()[button.getValue()];
+				int id = dataIDs.get(select);
+				availability.dialogues.put(id, ead);
+				Dialog dialog = DialogController.instance.dialogs.get(dataIDs.get(select));
+				select = "ID:" + id + " - ";
+				if (dialog == null) {
+					select += chr + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
+				} else {
+					select += chr + "7" + dialog.getCategory().getName() + "/" + chr + "r" + dialog.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + chr + "7)";
+				}
+				initGui();
+				break;
 			}
-			initGui();
-		}
-		if (button.getId() == 1) {
-			setSubGui(new GuiDialogSelection(select.isEmpty() ? 0 : dataIDs.get(select), 0));
-		}
-		if (button.getId() == 2) {
-			availability.dialogues.remove(dataIDs.get(select));
-			select = "";
-			initGui();
-		}
-		if (button.getId() == 3) {
-			save();
-			initGui();
-		}
-		if (button.getId() == 66) {
-			close();
+			case  1: {
+				setSubGui(new GuiDialogSelection(select.isEmpty() ? 0 : dataIDs.get(select), 0));
+				break;
+			}
+			case  2: {
+				availability.dialogues.remove(dataIDs.get(select));
+				select = "";
+				initGui();
+				break;
+			}
+			case  3: {
+				save();
+				initGui();
+				break;
+			}
+			case 66 : close(); break;
 		}
 	}
 

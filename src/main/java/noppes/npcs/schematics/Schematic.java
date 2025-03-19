@@ -236,7 +236,11 @@ public class Schematic implements ISchematic {
 		int size = height * width * length;
 		schema.blockIdsArray = new short[size];
 		schema.blockMetadataArray = new byte[size];
-		NoppesUtilServer.NotifyOPs("Creating schematic at: " + pos + " might lag slightly");
+
+		ITextComponent message = new TextComponentString("Creating schematic at: " + pos + " might lag slightly");
+		message.getStyle().setColor(TextFormatting.GRAY);
+		NoppesUtilServer.NotifyOPs(message);
+
 		schema.tileList = new NBTTagList();
 		for (int i = 0; i < size; ++i) {
 			int x = i % width;

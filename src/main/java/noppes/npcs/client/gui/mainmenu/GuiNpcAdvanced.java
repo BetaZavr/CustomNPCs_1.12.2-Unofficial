@@ -45,10 +45,10 @@ implements IGuiData, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() != 5 && button.getId() != 8) {
+		if (button.getID() != 5 && button.getID() != 8) {
 			this.save();
 		}
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 3: {
 				Client.sendData(EnumPacketServer.RoleGet);
 				break;

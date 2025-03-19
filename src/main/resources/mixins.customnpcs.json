@@ -33,18 +33,12 @@
     "nbt.NBTTagListMixin",
     "nbt.NBTTagLongArrayMixin",
     "network.NetworkManagerMixin",
-    "pathfinding.PathMixin",
-    "scoreboard.ScoreboardMixin",
-    "scoreboard.ServerScoreboardMixin",
     "stats.RecipeBookMixin",
     "stats.RecipeBookServerMixin",
     "tileentity.TileEntityBannerMixin",
     "tileentity.TileEntityMixin",
     "util.ServerRecipeBookHelperMixin",
-    "util.SoundEventMixin",
-    "util.text.translation.LanguageMapMixin",
-    "world.WorldMixin",
-    "world.biome.BiomeMixin"
+    "util.text.translation.LanguageMapMixin"
   ],
   "client": [
     "client.ItemModelMesherForgeMixin",

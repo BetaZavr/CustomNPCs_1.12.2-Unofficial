@@ -111,7 +111,11 @@ import noppes.npcs.util.Util;
 import noppes.npcs.util.DataDebug;
 import noppes.npcs.util.DataDebug.Debug;
 
-@Mod(modid = CustomNpcs.MODID, name = CustomNpcs.MODNAME, version = "3.424", acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2", guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
+@Mod(modid = CustomNpcs.MODID,
+		name = CustomNpcs.MODNAME,
+		version = "3.426",
+		acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2",
+		guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
 public class CustomNpcs {
 
 	@ConfigProp(info = "Currency symbol displayed in stores (unicode)", def = "20AC")
@@ -428,7 +432,7 @@ public class CustomNpcs {
 	public void preload(FMLPreInitializationEvent ev) {
 		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_preload");
 		Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(MODNAME);
-		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel(MODNAME + "Player");
+		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel("CNPCsPlayer");
 		CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), MODID);
 		if (!CustomNpcs.Dir.exists() && !CustomNpcs.Dir.mkdir()) {
 			throw new RuntimeException("Impossible error: Failed to create sections important for the " + MODNAME + " mod!");

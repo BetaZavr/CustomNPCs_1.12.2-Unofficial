@@ -191,7 +191,7 @@ implements ISubGuiListener, ISliderListener {
 
 	@Override
 	public void mouseDragged(IGuiNpcSlider slider) {
-		if (slider.getId() == 500) {
+		if (slider.getID() == 500) {
 			GuiCreationScreenInterface.rotation = slider.getSliderValue();
 			slider.setString("" + (GuiCreationScreenInterface.rotation * 360.0f));
 		}

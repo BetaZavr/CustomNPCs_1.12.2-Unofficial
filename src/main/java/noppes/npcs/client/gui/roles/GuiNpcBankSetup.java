@@ -65,7 +65,7 @@ implements IScrollData, ICustomScrollListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			role.bankId = data.get(scroll.getSelected());
 			save();
 		}

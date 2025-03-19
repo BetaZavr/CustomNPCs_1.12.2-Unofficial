@@ -38,36 +38,38 @@ implements ICustomScrollListener, GuiSelectionListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			if (select.isEmpty()) {
-				return;
+		switch (button.getID()) {
+			case 0 : {
+				if (select.isEmpty()) { return; }
+				EnumAvailabilityQuest ead = EnumAvailabilityQuest.values()[button.getValue()];
+				int id = dataIDs.get(select);
+				availability.quests.put(id, ead);
+				Quest quest = QuestController.instance.quests.get(dataIDs.get(select));
+				select = "ID:" + id + " - ";
+				if (quest == null) {
+					select += chr + "4" + (new TextComponentTranslation("quest.found").getFormattedText());
+				} else {
+					select += chr + "7" + quest.getCategory().getName() + "/" + chr + "r" + quest.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + chr + "7)";
+				}
+				initGui();
+				break;
 			}
-			EnumAvailabilityQuest ead = EnumAvailabilityQuest.values()[button.getValue()];
-			int id = dataIDs.get(select);
-			availability.quests.put(id, ead);
-			Quest quest = QuestController.instance.quests.get(dataIDs.get(select));
-			select = "ID:" + id + " - ";
-			if (quest == null) {
-				select += chr + "4" + (new TextComponentTranslation("quest.found").getFormattedText());
-			} else {
-				select += chr + "7" + quest.getCategory().getName() + "/" + chr + "r" + quest.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + chr + "7)";
+			case 1 : {
+				setSubGui(new GuiQuestSelection(select.isEmpty() ? 0 : dataIDs.get(select)));
+				break;
 			}
-			initGui();
-		}
-		if (button.getId() == 1) {
-			setSubGui(new GuiQuestSelection(select.isEmpty() ? 0 : dataIDs.get(select)));
-		}
-		if (button.getId() == 2) {
-			availability.quests.remove(dataIDs.get(select));
-			select = "";
-			initGui();
-		}
-		if (button.getId() == 3) { // More
-			save();
-			initGui();
-		}
-		if (button.getId() == 66) {
-			close();
+			case 2 : {
+				availability.quests.remove(dataIDs.get(select));
+				select = "";
+				initGui();
+				break;
+			}
+			case 3 : { // More
+				save();
+				initGui();
+				break;
+			}
+			case 66 : close(); break;
 		}
 	}
 

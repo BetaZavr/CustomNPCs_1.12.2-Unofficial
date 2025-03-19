@@ -1031,4 +1031,26 @@ public class PlayerEventHandler {
 		return this;
 	}
 
+	@SubscribeEvent
+	public void npcLivingJumpEvent(net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent event) {
+		if (!(event.getEntityLiving() instanceof EntityPlayer)) {
+			return;
+		}
+		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+		noppes.npcs.util.CustomNPCsScheduler.runTack(() -> {
+			if (player instanceof EntityPlayerMP) {
+				try {
+
+				}
+				catch (Exception e) { LogWriter.error("Error:", e); }
+			}
+			else {
+				try {
+
+				}
+				catch (Exception e) { LogWriter.error("Error:", e); }
+			}
+		});
+	}
+
 }

@@ -42,39 +42,45 @@ implements ICustomScrollListener {
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 		String file;
-		if (button.getId() == 1 && base.hasSelected()) {
-			try {
-				file = base.getHoversTexts().get(base.getSelect()).get(0);
-			} catch (Exception e) {
-				return;
+		switch (button.getID()) {
+			case 1: {
+				if (!base.hasSelected()) { return; }
+				try {
+					file = base.getHoversTexts().get(base.getSelect()).get(0);
+				} catch (Exception e) {
+					return;
+				}
+				container.scripts.add(file);
+				base.setSelect(-1);
+				initGui();
+				break;
 			}
-			container.scripts.add(file);
-			base.setSelect(-1);
-			initGui();
-		}
-		if (button.getId() == 2 && selected.hasSelected()) {
-			try {
-				file = selected.getHoversTexts().get(selected.getSelect()).get(0);
-			} catch (Exception e) {
-				return;
+			case 2: {
+				if (!base.hasSelected()) { return; }
+				try {
+					file = selected.getHoversTexts().get(selected.getSelect()).get(0);
+				} catch (Exception e) {
+					return;
+				}
+				container.scripts.remove(file);
+				selected.setSelect(-1);
+				initGui();
+				break;
 			}
-			container.scripts.remove(file);
-			selected.setSelect(-1);
-			initGui();
-		}
-		if (button.getId() == 3) {
-			container.scripts.clear();
-            container.scripts.addAll(scripts.keySet());
-			base.setSelect(-1);
-			initGui();
-		}
-		if (button.getId() == 4) {
-			container.scripts.clear();
-			base.setSelect(-1);
-			initGui();
-		}
-		if (button.getId() == 66) {
-			close();
+			case 3: {
+				container.scripts.clear();
+				container.scripts.addAll(scripts.keySet());
+				base.setSelect(-1);
+				initGui();
+				break;
+			}
+			case 4: {
+				container.scripts.clear();
+				base.setSelect(-1);
+				initGui();
+				break;
+			}
+			case 66: close(); break;
 		}
 	}
 
@@ -254,7 +260,7 @@ implements ICustomScrollListener {
 
     @Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			if (scroll.getSelected().equals(back)) {
 				if (path.lastIndexOf("/") == -1) {
 					path = "";
@@ -282,12 +288,12 @@ implements ICustomScrollListener {
 		if (file.isEmpty()) {
 			return;
 		}
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			container.scripts.add(file);
 			base.setSelect(-1);
 			initGui();
 		}
-		if (scroll.getId() == 1) {
+		if (scroll.getID() == 1) {
 			container.scripts.remove(file);
 			selected.setSelect(-1);
 			initGui();

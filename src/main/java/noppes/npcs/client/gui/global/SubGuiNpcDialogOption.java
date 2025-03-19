@@ -42,7 +42,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 1: { // type
 				this.option.optionType = OptionType.get(button.getValue());
 				this.initGui();
@@ -265,7 +265,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 0) {
+		if (textfield.getID() == 0) {
 			if (textfield.isEmpty()) {
 				this.option.title = "Talk";
 				textfield.setText(this.option.title);
@@ -273,7 +273,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				this.option.title = textfield.getText();
 			}
 		}
-		if (textfield.getId() == 4) {
+		else if (textfield.getID() == 4) {
 			this.option.command = textfield.getText();
 		}
 	}

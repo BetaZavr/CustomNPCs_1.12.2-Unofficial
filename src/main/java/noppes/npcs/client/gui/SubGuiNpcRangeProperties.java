@@ -29,28 +29,36 @@ implements ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 7) {
-			soundSelected = (GuiNpcTextField) getTextField(7);
-			setSubGui(new GuiSoundSelection(soundSelected.getText()));
-		}
-		if (button.getId() == 11) {
-			soundSelected = (GuiNpcTextField) getTextField(11);
-			setSubGui(new GuiSoundSelection(soundSelected.getText()));
-		}
-		if (button.getId() == 10) {
-			soundSelected = (GuiNpcTextField) getTextField(10);
-			setSubGui(new GuiSoundSelection(soundSelected.getText()));
-		} else if (button.getId() == 66) {
-			close();
-		} else if (button.getId() == 9) {
-			ranged.setHasAimAnimation(((GuiNpcButtonYesNo) button).getBoolean());
-		} else if (button.getId() == 13) {
-			ranged.setFireType(button.getValue());
-			ITextComponent hover = new TextComponentTranslation("stats.hover.availability");
-			hover.appendSibling(new TextComponentTranslation("stats.hover.availability." + ranged.getFireType(), new TextComponentTranslation(fireType[ranged.getFireType()]).getFormattedText(), "" + (ranged.getRange() / 2.0d)));
-			if (ranged.getFireType() != 0) {
-				hover.appendSibling(new TextComponentTranslation("stats.hover.availability.3")); }
-			button.setHoverText(hover.getFormattedText());
+		switch (button.getID()) {
+			case 7: {
+				soundSelected = (GuiNpcTextField) getTextField(7);
+				setSubGui(new GuiSoundSelection(soundSelected.getText()));
+				break;
+			}
+			case 9: {
+				ranged.setHasAimAnimation(((GuiNpcButtonYesNo) button).getBoolean());
+				break;
+			}
+			case 10: {
+				soundSelected = (GuiNpcTextField) getTextField(10);
+				setSubGui(new GuiSoundSelection(soundSelected.getText()));
+				break;
+			}
+			case 11: {
+				soundSelected = (GuiNpcTextField) getTextField(11);
+				setSubGui(new GuiSoundSelection(soundSelected.getText()));
+				break;
+			}
+			case 13: {
+				ranged.setFireType(button.getValue());
+				ITextComponent hover = new TextComponentTranslation("stats.hover.availability");
+				hover.appendSibling(new TextComponentTranslation("stats.hover.availability." + ranged.getFireType(), new TextComponentTranslation(fireType[ranged.getFireType()]).getFormattedText(), "" + (ranged.getRange() / 2.0d)));
+				if (ranged.getFireType() != 0) {
+					hover.appendSibling(new TextComponentTranslation("stats.hover.availability.3")); }
+				button.setHoverText(hover.getFormattedText());
+				break;
+			}
+			case 66: close(); break;
 		}
 	}
 
@@ -170,30 +178,18 @@ implements ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 1) {
-			ranged.setAccuracy(textfield.getInteger());
-		} else if (textfield.getId() == 2) {
-			ranged.setRange(textfield.getDouble());
-		} else if (textfield.getId() == 3) {
-			ranged.setDelay(textfield.getInteger(), ranged.getDelayMax());
-			initGui();
-		} else if (textfield.getId() == 4) {
-			ranged.setDelay(ranged.getDelayMin(), textfield.getInteger());
-			initGui();
-		} else if (textfield.getId() == 5) {
-			ranged.setBurstDelay(textfield.getInteger());
-		} else if (textfield.getId() == 6) {
-			ranged.setBurst(textfield.getInteger());
-		} else if (textfield.getId() == 7) {
-			ranged.setSound(0, textfield.getText());
-		} else if (textfield.getId() == 8) {
-			ranged.setShotCount(textfield.getInteger());
-		} else if (textfield.getId() == 9) {
-			ranged.setMeleeRange(textfield.getInteger());
-		} else if (textfield.getId() == 10) {
-			ranged.setSound(2, textfield.getText());
-		} else if (textfield.getId() == 11) {
-			ranged.setSound(1, textfield.getText());
+		switch (textfield.getID()) {
+			case 1: ranged.setAccuracy(textfield.getInteger()); break;
+			case 2: ranged.setRange(textfield.getDouble()); break;
+			case 3: ranged.setDelay(textfield.getInteger(), ranged.getDelayMax()); break;
+			case 4: ranged.setDelay(ranged.getDelayMin(), textfield.getInteger()); break;
+			case 5: ranged.setBurstDelay(textfield.getInteger()); break;
+			case 6: ranged.setBurst(textfield.getInteger()); break;
+			case 7: ranged.setSound(0, textfield.getText()); break;
+			case 8: ranged.setShotCount(textfield.getInteger()); break;
+			case 9: ranged.setMeleeRange(textfield.getInteger()); break;
+			case 10: ranged.setSound(2, textfield.getText()); break;
+			case 11: ranged.setSound(1, textfield.getText()); break;
 		}
 		initGui();
 	}

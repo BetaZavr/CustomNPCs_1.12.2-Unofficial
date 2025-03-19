@@ -38,15 +38,21 @@ implements ITextfieldListener, ITextChangeListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 90) { // type
-			tag.setType(Integer.parseInt(button.getVariants()[button.getValue()].replace("tag.type.", "")));
-			initGui();
-		} else if (button.getId() == 91) { // done
-			close();
-		}
-		if (button.getId() == 92) { // list type
-			tag.setTypeList(Integer.parseInt(button.getVariants()[button.getValue()].replace("tag.type.", "")));
-			initGui();
+		switch (button.getID()) {
+			case 90: { // type
+				tag.setType(Integer.parseInt(button.getVariants()[button.getValue()].replace("tag.type.", "")));
+				initGui();
+				break;
+			}
+			case 91: { // done
+				close();
+				break;
+			}
+			case 92: { // list type
+				tag.setTypeList(Integer.parseInt(button.getVariants()[button.getValue()].replace("tag.type.", "")));
+				initGui();
+				break;
+			}
 		}
 	}
 
@@ -162,8 +168,8 @@ implements ITextfieldListener, ITextChangeListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 93) { tag.setPath(textfield.getText()); } // path
-		else if (textfield.getId() == 95) { tag.setChance(textfield.getDouble()); } // chance
+		if (textfield.getID() == 93) { tag.setPath(textfield.getText()); } // path
+		else if (textfield.getID() == 95) { tag.setChance(textfield.getDouble()); } // chance
 		initGui();
 	}
 }

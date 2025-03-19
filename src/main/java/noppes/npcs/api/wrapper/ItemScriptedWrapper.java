@@ -4,6 +4,12 @@ import java.util.*;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
@@ -168,19 +174,45 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 	}
 
 	@Override
-	public String noticeString(String type, Object event) {
-		String notice = "Scripted Item Script";
-		if (type != null) { notice += " hook \""+type+"\""; }
+	public ITextComponent noticeString(String type, Object event) {
+		ITextComponent message = new TextComponentString("Scripted Item Script");
+		message.getStyle().setColor(TextFormatting.DARK_GRAY);
+		if (type != null) {
+			ITextComponent hook = new TextComponentString(" hook \"");
+			hook.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent hookType = new TextComponentString(type);
+			hookType.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent hookEnd = new TextComponentString("\"; ");
+			hookEnd.getStyle().setColor(TextFormatting.DARK_GRAY);
+			message = message.appendSibling(hook).appendSibling(hookType).appendSibling(hookEnd);
+		}
 		IPlayer<?> iPlayer = getIPlayer(event);
 		if (iPlayer != null) {
-			notice += " Player: \"" + iPlayer.getName() + "\"; UUID: \"" + iPlayer.getUUID() + "\"" +
-					" in dimension ID:" + (iPlayer.getWorld().getMCWorld() == null ? 0 : iPlayer.getWorld().getMCWorld().provider.getDimension()) +
-					"; X:" + (Math.round(iPlayer.getPos().getX() * 100.0d) / 100.0d) +
-					"; Y:" + (Math.round(iPlayer.getPos().getY() * 100.0d) / 100.0d) +
-					"; Z:" + (Math.round(iPlayer.getPos().getZ() * 100.0d) / 100.0d) +
-					"; Side: " + (isClient() ? "Client" : "Server");
+			ITextComponent mesPlayer = new TextComponentString("Player \"");
+			mesPlayer.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent name = new TextComponentString(iPlayer.getName());
+			name.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent mesUUID = new TextComponentString("\"; UUID: \"");
+			mesUUID.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent uuid = new TextComponentString(iPlayer.getUUID());
+			uuid.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent mesEnd = new TextComponentString("\" in ");
+			mesEnd.getStyle().setColor(TextFormatting.DARK_GRAY);
+			message = message.appendSibling(mesPlayer).appendSibling(name).appendSibling(mesUUID).appendSibling(uuid).appendSibling(mesEnd);
+			int dimID = iPlayer.getWorld().getMCWorld() == null ? 0 : iPlayer.getWorld().getMCWorld().provider.getDimension();
+			double x = Math.round(iPlayer.getPos().getX() * 100.0d) / 100.0d;
+			double y = Math.round(iPlayer.getPos().getX() * 100.0d) / 100.0d;
+			double z = Math.round(iPlayer.getPos().getX() * 100.0d) / 100.0d;
+			ITextComponent posClick = new TextComponentString("dimension ID:" + dimID + "; X:" + x + "; Y:" + y + "; Z:" + z);
+			posClick.getStyle().setColor(TextFormatting.BLUE)
+					.setUnderlined(true)
+					.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/noppes world tp @p " + dimID + " " + x + " " + y + " "+z))
+					.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("script.hover.error.pos.tp")));
+			message = message.appendSibling(posClick);
 		}
-		return notice;
+		ITextComponent side = new TextComponentString("; Side: " + (isClient() ? "Client" : "Server"));
+		side.getStyle().setColor(TextFormatting.DARK_GRAY);
+		return message.appendSibling(side);
 	}
 
 	private static IPlayer<?> getIPlayer(Object event) {

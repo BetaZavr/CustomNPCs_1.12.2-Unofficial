@@ -37,67 +37,79 @@ extends GuiNPCInterface2 {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl = ent.getEntityClass();
-				String name = "entity." + ent.getName() + ".name";
-				if (EntityAnimal.class.isAssignableFrom(cl) && !role.targets.contains(name)) { role.targets.add(name); }
-			}
-			scroll1.setSelect(-1);
-			scroll2.setSelect(-1);
-			initGui();
-		}
-		if (button.getId() == 1) {
-			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl = ent.getEntityClass();
-				String name = "entity." + ent.getName() + ".name";
-				if (EntityMob.class.isAssignableFrom(cl) && !EntityCreeper.class.isAssignableFrom(cl)  && !role.targets.contains(name)) { role.targets.add(name); }
-			}
-			scroll1.setSelect(-1);
-			scroll2.setSelect(-1);
-			initGui();
-		}
-		if (button.getId() == 2) {
-			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl = ent.getEntityClass();
-				String name = "entity." + ent.getName() + ".name";
-				if (EntityCreeper.class.isAssignableFrom(cl) && !role.targets.contains(name)) {
-					role.targets.add(name);
+		switch (button.getID()) {
+			case 0: {
+				for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
+					Class<? extends Entity> cl = ent.getEntityClass();
+					String name = "entity." + ent.getName() + ".name";
+					if (EntityAnimal.class.isAssignableFrom(cl) && !role.targets.contains(name)) { role.targets.add(name); }
 				}
+				scroll1.setSelect(-1);
+				scroll2.setSelect(-1);
+				initGui();
+				break;
 			}
-			scroll1.setSelect(-1);
-			scroll2.setSelect(-1);
-			initGui();
-		}
-		if (button.getId() == 11 && scroll1.hasSelected()) {
-			role.targets.add(data.get(scroll1.getSelected()));
-			scroll1.setSelect(-1);
-			scroll2.setSelect(-1);
-			initGui();
-		}
-		if (button.getId() == 12 && scroll2.hasSelected()) {
-			role.targets.remove(data.get(scroll2.getSelected()));
-			scroll2.setSelect(-1);
-			initGui();
-		}
-		if (button.getId() == 13) {
-			role.targets.clear();
-			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
-				Class<? extends Entity> cl = ent.getEntityClass();
-				String name = "entity." + ent.getName() + ".name";
-				if (EntityLivingBase.class.isAssignableFrom(cl) && !EntityNPCInterface.class.isAssignableFrom(cl)) {
-					role.targets.add(name);
+			case 1: {
+				for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
+					Class<? extends Entity> cl = ent.getEntityClass();
+					String name = "entity." + ent.getName() + ".name";
+					if (EntityMob.class.isAssignableFrom(cl) && !EntityCreeper.class.isAssignableFrom(cl)  && !role.targets.contains(name)) { role.targets.add(name); }
 				}
+				scroll1.setSelect(-1);
+				scroll2.setSelect(-1);
+				initGui();
+				break;
 			}
-			scroll1.setSelect(-1);
-			scroll2.setSelect(-1);
-			initGui();
-		}
-		if (button.getId() == 14) {
-			role.targets.clear();
-			scroll1.setSelect(-1);
-			scroll2.setSelect(-1);
-			initGui();
+			case 2: {
+				for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
+					Class<? extends Entity> cl = ent.getEntityClass();
+					String name = "entity." + ent.getName() + ".name";
+					if (EntityCreeper.class.isAssignableFrom(cl) && !role.targets.contains(name)) {
+						role.targets.add(name);
+					}
+				}
+				scroll1.setSelect(-1);
+				scroll2.setSelect(-1);
+				initGui();
+				break;
+			}
+			case 11: {
+				if (!scroll1.hasSelected()) { return; }
+				role.targets.add(data.get(scroll1.getSelected()));
+				scroll1.setSelect(-1);
+				scroll2.setSelect(-1);
+				initGui();
+				break;
+			}
+			case 12: {
+				if (!scroll2.hasSelected()) { return; }
+				role.targets.remove(data.get(scroll2.getSelected()));
+				scroll2.setSelect(-1);
+				initGui();
+				break;
+			}
+			case 13: {
+				role.targets.clear();
+				for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
+					Class<? extends Entity> cl = ent.getEntityClass();
+					String name = "entity." + ent.getName() + ".name";
+					if (EntityLivingBase.class.isAssignableFrom(cl) && !EntityNPCInterface.class.isAssignableFrom(cl)) {
+						role.targets.add(name);
+					}
+				}
+				scroll1.setSelect(-1);
+				scroll2.setSelect(-1);
+				initGui();
+				break;
+			}
+			case 14: {
+				role.targets.clear();
+				scroll1.setSelect(-1);
+				scroll2.setSelect(-1);
+				initGui();
+				break;
+			}
+			case 66: close(); break;
 		}
 	}
 

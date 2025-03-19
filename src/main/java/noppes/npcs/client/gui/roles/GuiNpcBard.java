@@ -27,7 +27,7 @@ implements ISubGuiListener, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				MusicController.Instance.stopSound("", SoundCategory.MUSIC);
 				MusicController.Instance.stopSound("", SoundCategory.AMBIENT);
@@ -155,7 +155,7 @@ implements ISubGuiListener, ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 1: {
 				job.song = textField.getText();
 				break;

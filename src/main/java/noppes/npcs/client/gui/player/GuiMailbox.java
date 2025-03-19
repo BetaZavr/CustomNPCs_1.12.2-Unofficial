@@ -59,7 +59,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 		GuiMailmanWrite.parent = this;
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				if (this.selected == null) {
 					return;

@@ -35,11 +35,11 @@ implements IScrollData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 2) {
+		if (button.getID() == 2) {
 			close();
 			NoppesUtil.openGUI(player, parent);
 		}
-		if (button.getId() == 4) {
+		if (button.getID() == 4) {
 			doubleClicked();
 		}
 	}

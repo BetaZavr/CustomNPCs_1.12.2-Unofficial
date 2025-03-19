@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public interface IScriptHandler {
@@ -22,7 +23,7 @@ public interface IScriptHandler {
 
 	boolean isClient();
 
-	String noticeString(String type, Object event);
+	ITextComponent noticeString(String type, Object event);
 
 	void runScript(String type, Event event);
 

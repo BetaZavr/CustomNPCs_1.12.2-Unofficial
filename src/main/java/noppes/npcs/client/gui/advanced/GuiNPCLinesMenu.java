@@ -19,7 +19,7 @@ implements IGuiData, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				setSubGui(new SubGuiNPCLinesEdit(0, npc, npc.advanced.worldLines, "lines.world"));
 				break;

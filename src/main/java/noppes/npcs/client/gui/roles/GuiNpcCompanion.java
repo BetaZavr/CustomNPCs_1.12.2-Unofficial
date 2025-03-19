@@ -29,19 +29,24 @@ implements ITextfieldListener, ISliderListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			role.matureTo(EnumCompanionStage.values()[button.getValue()]);
-			if (role.canAge) {
-				role.ticksActive = role.stage.matureAge;
+		switch (button.getID()) {
+			case 0: {
+				role.matureTo(EnumCompanionStage.values()[button.getValue()]);
+				if (role.canAge) {
+					role.ticksActive = role.stage.matureAge;
+				}
+				initGui();
+				break;
 			}
-			initGui();
-		}
-		if (button.getId() == 1) {
-			Client.sendData(EnumPacketServer.RoleCompanionUpdate, role.stage.ordinal());
-		}
-		if (button.getId() == 2) {
-			role.canAge = (button.getValue() == 1);
-			initGui();
+			case 1: {
+				Client.sendData(EnumPacketServer.RoleCompanionUpdate, role.stage.ordinal());
+				break;
+			}
+			case 2: {
+				role.canAge = (button.getValue() == 1);
+				initGui();
+				break;
+			}
 		}
 	}
 
@@ -107,10 +112,10 @@ implements ITextfieldListener, ISliderListener {
 	public void mouseDragged(IGuiNpcSlider slider) {
 		if (slider.getSliderValue() <= 0.0f) {
 			slider.setString("gui.disabled");
-			role.talents.remove(EnumCompanionTalent.values()[slider.getId() - 10]);
+			role.talents.remove(EnumCompanionTalent.values()[slider.getID() - 10]);
 		} else {
 			slider.setDisplayString ((int) Math.floor(slider.getSliderValue() * 5000.0f) + "/5000 exp");
-			role.setExp(EnumCompanionTalent.values()[slider.getId() - 10], (int) (slider.getSliderValue() * 5000.0f));
+			role.setExp(EnumCompanionTalent.values()[slider.getID() - 10], (int) (slider.getSliderValue() * 5000.0f));
 		}
 	}
 
@@ -129,7 +134,7 @@ implements ITextfieldListener, ISliderListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 2) {
+		if (textfield.getID() == 2) {
 			role.ticksActive = textfield.getInteger();
 		}
 	}

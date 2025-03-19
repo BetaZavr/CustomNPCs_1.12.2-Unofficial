@@ -69,7 +69,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // reset drop
 				drop.resetTo(drop.item);
 				initGui();
@@ -385,7 +385,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (!scroll.hasSelected()) { return; }
-		switch (scroll.getId()) {
+		switch (scroll.getID()) {
 			case 0: { // scrollEnchants
 				enchant = enchantData.get(scroll.getSelected());
 				break;
@@ -404,7 +404,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 
 	@Override
 	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-		switch (scroll.getId()) {
+		switch (scroll.getID()) {
 			case 0: { // scrollEnchants
 				setSubGui(new SubGuiDropEnchant(enchant));
 				break;
@@ -451,7 +451,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 0: { // common chance
 				drop.setChance(textField.getDouble());
 				break;

@@ -210,7 +210,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 //System.out.println("buttonID: "+button.id);
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				blockType = button.getValue();
 				if (getButton(16) != null) {
@@ -2723,66 +2723,66 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		if (isHitbox) {
 			if (hitbox == null || toolType == 0) { return; }
 			if (toolType == 1) {
-				if (slider.getId() == 0) {
+				if (slider.getID() == 0) {
 					hitbox.offset[0] = 10.0f * slider.getSliderValue();
 					value = Math.round(hitbox.offset[0] * 1000.0f) / 1000.0f;
 				}
-				else if (slider.getId() == 1) {
+				else if (slider.getID() == 1) {
 					hitbox.offset[1] = 20.0f * slider.getSliderValue() - 10.0f;
 					value = Math.round(hitbox.offset[1] * 1000.0f) / 1000.0f;
 				}
-				else if (slider.getId() == 2) {
+				else if (slider.getID() == 2) {
 					hitbox.offset[2] = 2.0f * pi * slider.getSliderValue() - pi;
 					value = Math.round(360.0f * slider.getSliderValue() - 180.0f);
 				}
 			}
 			else {
 				value = Math.round(5000.0f * slider.getSliderValue()) / 1000.0f;
-				hitbox.scale[slider.getId()] = value;
+				hitbox.scale[slider.getID()] = value;
 			}
-			if (tools.getTextField(5 + slider.getId()) != null) { tools.getTextField(5 + slider.getId()).setText("" + value); }
+			if (tools.getTextField(5 + slider.getID()) != null) { tools.getTextField(5 + slider.getID()).setText("" + value); }
 			return;
 		}
 		if (isMotion) {
 			if (toolType != 1) { return; }
-			if (slider.getId() == 0) {
+			if (slider.getID() == 0) {
 				value = Math.round(slider.getSliderValue() * 1500.0f) / 1000.0f;
 				frame.motions[0] = value;
-			} else if (slider.getId() == 1) {
+			} else if (slider.getID() == 1) {
 				value = Math.round((slider.getSliderValue() * 3.0f - 1.5f) * 1000.0f) / 1000.0f;
 				frame.motions[1] = value;
-			} else if (slider.getId() == 2) {
+			} else if (slider.getID() == 2) {
 				value = Math.round(360.0f * slider.getSliderValue() - 180.0f);
 				frame.motions[2] = 2.0f * pi * slider.getSliderValue() - pi;
 			}
-			if (tools.getTextField(5 + slider.getId()) != null) { tools.getTextField(5 + slider.getId()).setText("" + value); }
+			if (tools.getTextField(5 + slider.getID()) != null) { tools.getTextField(5 + slider.getID()).setText("" + value); }
 			return;
 		}
 		if (part == null) { return; }
-		if (slider.getId() == 3 || slider.getId() == 4) {
+		if (slider.getID() == 3 || slider.getID() == 4) {
 			if (toolType != 0) { return; }
-			part.rotation[slider.getId()] = (2.0f * pi * slider.getSliderValue() - pi) / (slider.getId() == 4 ? 2.0f : 1.0f);
-			value = Math.round(360.0f * slider.getSliderValue() - 180.0f) / (slider.getId() == 4 ? 2.0f : 1.0f);
+			part.rotation[slider.getID()] = (2.0f * pi * slider.getSliderValue() - pi) / (slider.getID() == 4 ? 2.0f : 1.0f);
+			value = Math.round(360.0f * slider.getSliderValue() - 180.0f) / (slider.getID() == 4 ? 2.0f : 1.0f);
 		} else {
 			switch (toolType) {
 				case 0: { // r
-					part.rotation[slider.getId()] = 2.0f * pi * slider.getSliderValue() - pi;
+					part.rotation[slider.getID()] = 2.0f * pi * slider.getSliderValue() - pi;
 					value = Math.round(360.0f * slider.getSliderValue() - 180.0f);
 					break;
 				}
 				case 1: { // o
-					part.offset[slider.getId()] = slider.getSliderValue() * 10.0f - 5.0f;
-					value = Math.round(part.offset[slider.getId()] * 1000.0f) / 1000.0f;
+					part.offset[slider.getID()] = slider.getSliderValue() * 10.0f - 5.0f;
+					value = Math.round(part.offset[slider.getID()] * 1000.0f) / 1000.0f;
 					break;
 				}
 				case 2: { // s
-					part.scale[slider.getId()] = slider.getSliderValue() * 5.0f;
-					value = Math.round(part.scale[slider.getId()] * 1000.0f) / 1000.0f;
+					part.scale[slider.getID()] = slider.getSliderValue() * 5.0f;
+					value = Math.round(part.scale[slider.getID()] * 1000.0f) / 1000.0f;
 					break;
 				}
 			}
 		}
-		if (tools.getTextField(5 + slider.getId()) != null) { tools.getTextField(5 + slider.getId()).setText("" + value); }
+		if (tools.getTextField(5 + slider.getID()) != null) { tools.getTextField(5 + slider.getID()).setText("" + value); }
 		resetAnimation();
 	}
 
@@ -2845,13 +2845,13 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			 isMotion = false;
 			 partNames.getButton(48).setEnabled(true);
 		 }
-		 if (scroll.getId() == 0) {
+		 if (scroll.getID() == 0) {
 			 if (anim.type == AnimationKind.ATTACKING) { setHitbox(null); }
 			 if (part.id == dataParts.get(scroll.getSelected()).id) { return; }
 			 setPart(dataParts.get(scroll.getSelected()));
 			 initGui();
 		 }
-		 else if (scroll.getId() == 1 && anim.type == AnimationKind.ATTACKING) {
+		 else if (scroll.getID() == 1 && anim.type == AnimationKind.ATTACKING) {
 			 setHitbox(dataHitboxes.get(scroll.getSelected()));
 			 if (scrollParts != null) { scrollParts.setSelect(-1); }
 			 initGui();
@@ -2992,7 +2992,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
 		if (hasSubGui() || anim == null) { return; }
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 0: {
 				if (anim == null || anim.repeatLast == textField.getInteger()) { return; }
 				anim.setRepeatLast(textField.getInteger());
@@ -3247,15 +3247,15 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 
 	@Override
 	public void closeMiniWindow(IGuiNpcMiniWindow miniWindow) {
-		mwindows.remove(miniWindow.getId());
-		if (miniWindow.getId() == 0 && getButton(29) != null) {
+		mwindows.remove(miniWindow.getID());
+		if (miniWindow.getID() == 0 && getButton(29) != null) {
 			getButton(29).setEnabled(!mwindows.containsKey(0));
 		}
-		if (miniWindow.getId() == 1 && getButton(35) != null) {
+		if (miniWindow.getID() == 1 && getButton(35) != null) {
 			getButton(35).setEnabled(!mwindows.containsKey(1));
 		}
 		else
-		if (miniWindow.getId() == 2 && getButton(45) != null) {
+		if (miniWindow.getID() == 2 && getButton(45) != null) {
 			getButton(45).setEnabled(!mwindows.containsKey(2));
 		}
 	}

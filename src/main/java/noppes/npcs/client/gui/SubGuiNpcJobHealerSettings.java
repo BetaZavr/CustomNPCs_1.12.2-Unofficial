@@ -24,7 +24,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 1: {
 				hs.type = (byte) button.getValue();
 				break;
@@ -108,7 +108,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 1: {
 				hs.range = textField.getInteger();
 				break;

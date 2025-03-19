@@ -6,7 +6,7 @@ import java.util.List;
 import net.minecraft.world.biome.Biome;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.data.SpawnData;
-import noppes.npcs.api.mixin.world.biome.IBiomeMixin;
+import noppes.npcs.reflection.world.biome.BiomeReflection;
 
 public class SubGuiNpcBiomes
 extends SubGuiInterface {
@@ -26,32 +26,32 @@ extends SubGuiInterface {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 1 && scroll1.hasSelected()) {
+		if (button.getID() == 1 && scroll1.hasSelected()) {
 			data.biomes.add(scroll1.getSelected());
 			scroll1.setSelect(-1);
             initGui();
 		}
-		if (button.getId() == 2 && scroll2.hasSelected()) {
+		if (button.getID() == 2 && scroll2.hasSelected()) {
 			data.biomes.remove(scroll2.getSelected());
 			scroll1.setSelect(-1);
 			initGui();
 		}
-		if (button.getId() == 3) {
+		if (button.getID() == 3) {
 			data.biomes.clear();
-			for (Biome base : Biome.REGISTRY) {
-				if (base != null) {
-					data.biomes.add(((IBiomeMixin) base).npcs$getBiomeName());
+			for (Biome biome : Biome.REGISTRY) {
+				if (biome != null) {
+					data.biomes.add(BiomeReflection.getBiomeName(biome));
 				}
 			}
 			scroll1.setSelect(-1);
 			initGui();
 		}
-		if (button.getId() == 4) {
+		if (button.getID() == 4) {
 			data.biomes.clear();
 			scroll1.setSelect(-1);
 			initGui();
 		}
-		if (button.getId() == 66) {
+		if (button.getID() == 66) {
 			close();
 		}
 	}
@@ -74,8 +74,8 @@ extends SubGuiInterface {
 		addScroll(scroll2);
 		addLabel(new GuiNpcLabel(2, "spawning.spawningBiomes", guiLeft + 200, guiTop + 4));
 		List<String> biomes = new ArrayList<>();
-		for (Biome base : Biome.REGISTRY) {
-			String name = ((IBiomeMixin) base).npcs$getBiomeName();
+		for (Biome biome : Biome.REGISTRY) {
+			String name = BiomeReflection.getBiomeName(biome);
 			if (name != null && !data.biomes.contains(name)) {
 				biomes.add(name);
 			}

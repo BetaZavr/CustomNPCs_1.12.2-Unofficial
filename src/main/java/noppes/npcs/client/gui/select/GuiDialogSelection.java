@@ -35,7 +35,7 @@ implements ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 2) {
+		if (button.getID() == 2) {
 			if (selectedDialog != null) {
 				scrollDoubleClicked(null, null);
 			} else {
@@ -73,12 +73,12 @@ implements ICustomScrollListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			selectedCategory = categoryData.get(scrollCategories.getSelected());
 			selectedDialog = null;
 			scrollDialogs.setSelect(-1);
 		}
-		if (scroll.getId() == 1) { selectedDialog = dialogData.get(scrollDialogs.getSelected()); }
+		if (scroll.getID() == 1) { selectedDialog = dialogData.get(scrollDialogs.getSelected()); }
 		initGui();
 	}
 

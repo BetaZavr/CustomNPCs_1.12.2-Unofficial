@@ -108,6 +108,7 @@ implements IGuiClose {
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
 		dialogNpc = Util.instance.copyToGUI(npc, mc.world, false);
+		dialogNpc.display.setVisible(0);
 		selected = 0;
 		selectedStart = 0;
 		selectedX = 0;
@@ -126,7 +127,7 @@ implements IGuiClose {
 		appendDialog(dialog);
 	}
 
-	public void appendDialog(Dialog d) { // 62: NoppesUtil.openDialog();
+	public void appendDialog(Dialog d) {
 		this.closeOnEsc = !d.disableEsc;
 		this.newDialogSet = true;
 		Dialog oldDialog = this.dialog;
@@ -224,7 +225,8 @@ implements IGuiClose {
 				scrollO[8] = selectedStart;
 				scrollO[7] = mouseY;
 			}
-		} else if (selectedStart >= selectedTotal.size() - pos) {
+		}
+		else if (selectedStart >= selectedTotal.size() - pos) {
 			selectedStart = selectedTotal.size() - pos;
 			if (scrollO != null) {
 				scrollO[8] = selectedStart;
@@ -718,28 +720,21 @@ implements IGuiClose {
 
 	protected void handleDialogSelection() {
 		int optionId = this.getSelected();
-		if (!this.options.containsKey(optionId)) {
-			if (this.options.isEmpty() && this.closeOnEsc) {
-				this.close();
-			}
+		if (!options.containsKey(optionId)) {
+			if (options.isEmpty() && closeOnEsc) { close(); }
 			return;
 		}
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.Dialog, this.dialog.id, optionId);
-		if (this.dialog == null || this.dialog.notHasOtherOptions() || this.options.isEmpty()) {
-			if (this.closeOnEsc) {
-				this.close();
-			}
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.Dialog, dialog.id, optionId);
+		if (dialog == null || dialog.notHasOtherOptions() || options.isEmpty()) {
+			if (closeOnEsc) { close(); }
 			return;
 		}
-		DialogOption option = this.dialog.options.get(optionId);
+		DialogOption option = dialog.options.get(optionId);
 		if (option == null || option.optionType != OptionType.DIALOG_OPTION) {
-			if (this.closeOnEsc) {
-				this.close();
-			}
+			if (closeOnEsc) { close(); }
 			return;
 		}
-		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, this.dialogWidth,
-				option.optionColor, dialogNpc, this.player, dialogNpc));
+		lines.add(new TextBlockClient(player.getDisplayNameString(), option.title, dialogWidth, option.optionColor, dialogNpc, player, dialogNpc));
 		NoppesUtil.clickSound();
 	}
 
@@ -916,16 +911,11 @@ implements IGuiClose {
 				this.mc.getSoundHandler()
 						.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 				return;
-			} else if (selected < 0) {
-				return;
 			}
-		} else if (!this.isMouseHover(mouseX, mouseY, this.guiLeft, this.dialogHeight, this.w - this.guiLeft,
-				this.h - this.dialogHeight)) {
-			return;
+			else if (selected < 0) { return; }
 		}
-		if (mouseBottom == 0) {
-			this.handleDialogSelection();
-		}
+		else if (!isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, w - guiLeft, h - dialogHeight)) { return; }
+		if (mouseBottom == 0) { handleDialogSelection(); }
 	}
 
 	@Override

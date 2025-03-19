@@ -31,16 +31,15 @@ extends GuiContainerNPCInterface2 {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			role.givingMethod = button.getValue();
-		}
-		if (button.getId() == 1) {
-			role.cooldownType = button.getValue();
-			getTextField(0).setEnabled(role.isOnTimer());
-			getLabel(0).setEnabled(role.isOnTimer());
-		}
-		if (button.getId() == 4) {
-			setSubGui(new SubGuiNpcAvailability(role.availability, parent));
+		switch (button.getID()) {
+			case 0: role.givingMethod = button.getValue(); break;
+			case 1: {
+				role.cooldownType = button.getValue();
+				getTextField(0).setEnabled(role.isOnTimer());
+				getLabel(0).setEnabled(role.isOnTimer());
+				break;
+			}
+			case 4: setSubGui(new SubGuiNpcAvailability(role.availability, parent)); break;
 		}
 	}
 

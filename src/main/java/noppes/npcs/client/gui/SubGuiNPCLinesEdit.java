@@ -43,7 +43,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		if (select.isEmpty() && scroll.hasSelected()) {
 			select = scroll.getSelected();
 		}
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // add
 				setSubGui(new SubGuiEditText(0, CustomNpcs.DefaultInteractLine));
 				break;
@@ -196,7 +196,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		if (hasSubGui()) {
 			return;
 		}
-        if (textField.getId() == 0) {
+        if (textField.getID() == 0) {
             if (!data.containsKey(select) || !lines.lines.containsKey(data.get(select))) {
                 return;
             }

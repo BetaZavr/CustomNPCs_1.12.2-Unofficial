@@ -1,14 +1,12 @@
 package noppes.npcs.client.gui.drop;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.data.EnchantSet;
 
@@ -38,10 +36,11 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 50) { // select
+		if (button.getID() == 50) { // select
 			enchant.setEnchant(Integer.parseInt(button.getVariants()[button.getValue()]));
 			initGui();
-		} else if (button.getId() == 51) { // done
+		}
+		else if (button.getID() == 51) { // done
 			close();
 		}
 	}
@@ -91,15 +90,17 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 52) { // level min
+		if (textfield.getID() == 52) { // level min
 			levels[0] = textfield.getInteger();
 			enchant.setLevels(levels[0], levels[1]);
 			initGui();
-		} else if (textfield.getId() == 53) { // level max
+		}
+		else if (textfield.getID() == 53) { // level max
 			levels[1] = textfield.getInteger();
 			enchant.setLevels(levels[0], levels[1]);
 			initGui();
-		} else if (textfield.getId() == 54) { // chance
+		}
+		else if (textfield.getID() == 54) { // chance
 			enchant.setChance(textfield.getDouble());
 			initGui();
 		}

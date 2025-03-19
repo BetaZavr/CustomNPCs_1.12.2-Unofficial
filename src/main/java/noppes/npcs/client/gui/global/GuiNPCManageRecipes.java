@@ -57,9 +57,10 @@ implements ICustomScrollListener, ISubGuiListener {
 	@Override
 	public void buttonEvent(@Nonnull IGuiNpcButton button, int mouseButton) {
 		if (mouseButton == 1) {
+			int id = button.getID();
 			ItemStack heldStack = player.inventory.getItemStack();
-			if (button.getId() >= 10 && button.getId() < 27) {
-				if (button.getId() == 10) {
+			if (id >= 10 && id < 27) {
+				if (id == 10) {
 					if (heldStack.isEmpty()) {
 						recipe.product.setCount(Math.max(1, recipe.product.getCount() - 1));
 					}
@@ -85,7 +86,7 @@ implements ICustomScrollListener, ISubGuiListener {
 					if (recipe.product.isEmpty()) { button.setLayerColor(red); }
 				}
 				else {
-					int pos = button.getId() - 11;
+					int pos = id - 11;
 					ItemStack[] array = recipe.recipeItems.get(pos);
 					if (heldStack.isEmpty() && array != null && array.length > 0) {
 						int p = button.getCurrentStackID();
@@ -140,18 +141,19 @@ implements ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() >= 10 && button.getId() < 27) {
+		int id = button.getID();
+		if (id >= 10 && id < 27) {
 			if (!recipe.domen.equals(CustomNpcs.MODID)) { return; }
 			// show list of ingredients
-			if (button.getId() != 10 && isShiftKeyDown()) {
-				if (recipe.recipeItems.get(button.getId() - 11).length > 0) {
-					this.setSubGui(new SubGuiEditIngredients(button.getId() - 11, recipe.recipeItems.get(button.getId() - 11)));
+			if (id != 10 && isShiftKeyDown()) {
+				if (recipe.recipeItems.get(id - 11).length > 0) {
+					this.setSubGui(new SubGuiEditIngredients(id - 11, recipe.recipeItems.get(id - 11)));
 				}
 				return;
 			}
 			ItemStack heldStack = player.inventory.getItemStack();
 			// product
-			if (button.getId() == 10) {
+			if (id == 10) {
 				if (isAltKeyDown()) { recipe.product.setCount(1); }
 				else if (recipe.product.isEmpty()) {
 					ItemStack stack = null;
@@ -179,7 +181,7 @@ implements ICustomScrollListener, ISubGuiListener {
 			}
 			// ingredient
 			else {
-				int pos = button.getId() - 11;
+				int pos = id - 11;
 				ItemStack[] array = recipe.recipeItems.get(pos);
 				if (isCtrlKeyDown()) { // try to add new
 					if (heldStack.isEmpty() || array.length >= 16) { return; }
@@ -265,7 +267,7 @@ implements ICustomScrollListener, ISubGuiListener {
 			}
 			return;
 		}
-		switch (button.getId()) {
+		switch (id) {
 			case 0: { // global type
 				this.save();
 				recipe.clear();
@@ -287,18 +289,18 @@ implements ICustomScrollListener, ISubGuiListener {
 				break;
 			}
 			case 3: { // Add Recipe
-				int id;
+				int i;
 				String[] text;
 				String[] hovers;
 				String label;
 				if (recipe.domen.equals(CustomNpcs.MODID)) {
-					id = 1;
+					i = 1;
 					text = new String[] { Util.instance.getResourceName(recipe.name) };
 					label = new TextComponentTranslation("gui.name").getFormattedText()+":";
 					hovers = new String[] { new TextComponentTranslation("recipe.hover.recipe.named").getFormattedText() + ". " + new TextComponentTranslation("hover.latin.alphabet.only").getFormattedText() };
 				}
 				else {
-					id = 4;
+					i = 4;
 					text = new String[] { recipe.group, recipe.name };
 					label = new TextComponentTranslation("gui.group").getFormattedText()+" / "+new TextComponentTranslation("gui.name").getFormattedText()+":";
 					hovers = new String[] {
@@ -306,7 +308,7 @@ implements ICustomScrollListener, ISubGuiListener {
 							new TextComponentTranslation("recipe.hover.recipe.named").getFormattedText() + ". " + new TextComponentTranslation("hover.latin.alphabet.only").getFormattedText()
 					};
 				}
-				SubGuiEditText subGui = new SubGuiEditText(id, text);
+				SubGuiEditText subGui = new SubGuiEditText(i, text);
 				subGui.label = label;
 				subGui.hovers = hovers;
 				subGui.latinAlphabetOnly = true;
@@ -659,7 +661,7 @@ implements ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) { // Group
+		if (scroll.getID() == 0) { // Group
 			if (recipe.group.equals(groups.getSelected()) && !data.get(recipe.global).containsKey(groups.getSelected())) { return; }
 			this.save();
 			recipe.clear();
@@ -679,7 +681,7 @@ implements ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-		switch (scroll.getId()) {
+		switch (scroll.getID()) {
 			case 0: { // rename Group
 				this.setSubGui(new SubGuiEditText(2, new String[] { selection }));
 				break;

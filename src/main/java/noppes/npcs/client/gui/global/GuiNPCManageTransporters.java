@@ -55,7 +55,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 		if (!this.catSel.isEmpty()) {
 			cat = TransportController.getInstance().categories.get(this.dataCat.get(this.catSel));
 		}
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // add cat
 				this.setSubGui(new SubGuiEditText(0, Util.instance
 						.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
@@ -254,7 +254,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		switch (scroll.getId()) {
+		switch (scroll.getID()) {
 			case 0: {
 				if (this.catSel.equals(scroll.getSelected()) || !this.dataCat.containsKey(scroll.getSelected())) {
 					return;
@@ -285,7 +285,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 
 	@Override
 	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 1 && scroll.hasSelected()) {
+		if (scroll.getID() == 1 && scroll.hasSelected()) {
 			this.transfer(this.container.location);
 		}
 	}
@@ -349,78 +349,78 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 		if (!this.catSel.isEmpty()) {
 			cat = TransportController.getInstance().categories.get(this.dataCat.get(this.catSel));
 		}
-		switch (textField.getId()) {
-		case 0: { // cat name
-			if (textField.getText().isEmpty() || cat == null) {
-				return;
+		switch (textField.getID()) {
+			case 0: { // cat name
+				if (textField.getText().isEmpty() || cat == null) {
+					return;
+				}
+				cat.title = textField.getText();
+				break;
 			}
-			cat.title = textField.getText();
-			break;
-		}
-		case 1: { // money
-			if (textField.getText().isEmpty() || loc == null) {
-				return;
+			case 1: { // money
+				if (textField.getText().isEmpty() || loc == null) {
+					return;
+				}
+				loc.money = textField.getInteger();
+				break;
 			}
-			loc.money = textField.getInteger();
-			break;
-		}
-		case 2: { // loc name
-			if (textField.getText().isEmpty() || loc == null) {
-				return;
+			case 2: { // loc name
+				if (textField.getText().isEmpty() || loc == null) {
+					return;
+				}
+				loc.name = textField.getText();
+				break;
 			}
-			loc.name = textField.getText();
-			break;
-		}
-		case 3: { // npc uuid
-			if (textField.getText().isEmpty() || loc == null) {
-				return;
+			case 3: { // npc uuid
+				if (textField.getText().isEmpty() || loc == null) {
+					return;
+				}
+				try {
+					loc.npc = UUID.fromString(textField.getText());
+				} catch (Exception e) {
+					textField.setText(loc.npc == null ? "" : loc.npc.toString());
+				}
+				break;
 			}
-			try {
-				loc.npc = UUID.fromString(textField.getText());
-			} catch (Exception e) {
-				textField.setText(loc.npc == null ? "" : loc.npc.toString());
+			case 4: { // dim ID
+				if (textField.getText().isEmpty() || loc == null) {
+					return;
+				}
+				int dimId = textField.getInteger();
+				if (!TransportController.getInstance().worldIDs.contains(dimId)) {
+					textField.setText("" + loc.dimension);
+					return;
+				}
+				loc.dimension = dimId;
+				break;
 			}
-			break;
-		}
-		case 4: { // dim ID
-			if (textField.getText().isEmpty() || loc == null) {
-				return;
+			case 5: { // X
+				if (textField.getText().isEmpty() || loc == null) {
+					return;
+				}
+				int y = loc.pos.getY();
+				int z = loc.pos.getZ();
+				loc.pos = new BlockPos(textField.getInteger(), y, z);
+				break;
 			}
-			int dimId = textField.getInteger();
-			if (!TransportController.getInstance().worldIDs.contains(dimId)) {
-				textField.setText("" + loc.dimension);
-				return;
+			case 6: { // Y
+				if (textField.getText().isEmpty() || loc == null) {
+					return;
+				}
+				int x = loc.pos.getX();
+				int z = loc.pos.getZ();
+				loc.pos = new BlockPos(x, textField.getInteger(), z);
+				break;
 			}
-			loc.dimension = dimId;
-			break;
-		}
-		case 5: { // X
-			if (textField.getText().isEmpty() || loc == null) {
-				return;
+			case 7: { // Z
+				if (textField.getText().isEmpty() || loc == null) {
+					return;
+				}
+				int x = loc.pos.getX();
+				int y = loc.pos.getY();
+				loc.pos = new BlockPos(x, y, textField.getInteger());
+				break;
 			}
-			int y = loc.pos.getY();
-			int z = loc.pos.getZ();
-			loc.pos = new BlockPos(textField.getInteger(), y, z);
-			break;
-		}
-		case 6: { // Y
-			if (textField.getText().isEmpty() || loc == null) {
-				return;
-			}
-			int x = loc.pos.getX();
-			int z = loc.pos.getZ();
-			loc.pos = new BlockPos(x, textField.getInteger(), z);
-			break;
-		}
-		case 7: { // Z
-			if (textField.getText().isEmpty() || loc == null) {
-				return;
-			}
-			int x = loc.pos.getX();
-			int y = loc.pos.getY();
-			loc.pos = new BlockPos(x, y, textField.getInteger());
-			break;
-		}
 		}
 	}
 

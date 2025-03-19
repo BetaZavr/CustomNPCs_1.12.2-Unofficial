@@ -43,7 +43,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				save();
 				String name = new TextComponentTranslation("gui.new").getFormattedText();
@@ -313,7 +313,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			if (!data.containsKey(scrollFactions.getSelected())) {
 				return;
 			}
@@ -425,7 +425,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		if (faction.id == -1) {
 			return;
 		}
-		if (textField.getId() == 0) {
+		if (textField.getID() == 0) {
 			String name = textField.getText();
 			if (!name.isEmpty() && !data.containsKey(name)) {
 				String old = scrollFactions.getSelected();
@@ -438,7 +438,8 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				scrollFactions.replace(old, str);
 			}
 			initGui();
-		} else if (textField.getId() == 1) {
+		}
+		else if (textField.getID() == 1) {
 			faction.setFlag(textField.getText());
 		}
 	}

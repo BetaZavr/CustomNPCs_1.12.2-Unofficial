@@ -47,7 +47,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				if (!dataIDs.containsKey(scroll.getSelected())) {
 					return;

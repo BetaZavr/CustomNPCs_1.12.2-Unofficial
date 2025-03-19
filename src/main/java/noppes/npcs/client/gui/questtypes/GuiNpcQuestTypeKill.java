@@ -256,7 +256,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
 		if (task == null) { return; }
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 0: {
 				task.setTargetName(textField.getText());
 				break;

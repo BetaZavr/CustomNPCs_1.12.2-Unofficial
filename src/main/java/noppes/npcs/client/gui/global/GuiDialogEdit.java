@@ -39,7 +39,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 3: {
 				setSubGui(new SubGuiNpcTextArea(dialog.text));
 				break;
@@ -316,25 +316,26 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void unFocused(IGuiNpcTextField guiNpcTextField) {
-		if (guiNpcTextField.getId() == 1) {
-			StringBuilder t = new StringBuilder(guiNpcTextField.getText());
-			boolean has = true;
-			while (has) {
-				has = false;
-				for (Dialog dia : dialog.category.dialogs.values()) {
-					if (dia.id != dialog.id && dia.title.equalsIgnoreCase(dialog.title)) {
-						has = true;
-						break;
+	public void unFocused(IGuiNpcTextField textField) {
+		switch (textField.getID()) {
+			case 1: {
+				StringBuilder t = new StringBuilder(textField.getText());
+				boolean has = true;
+				while (has) {
+					has = false;
+					for (Dialog dia : dialog.category.dialogs.values()) {
+						if (dia.id != dialog.id && dia.title.equalsIgnoreCase(dialog.title)) {
+							has = true;
+							break;
+						}
 					}
+					if (has) { t.append("_"); }
 				}
-				if (has) { t.append("_"); }
+				dialog.title = t.toString();
+				break;
 			}
-			dialog.title = t.toString();
-		} else if (guiNpcTextField.getId() == 2) {
-			dialog.sound = guiNpcTextField.getText();
-		} else if (guiNpcTextField.getId() == 3) {
-			dialog.delay = guiNpcTextField.getInteger();
+			case 2: dialog.sound = textField.getText(); break;
+			case 3: dialog.delay = textField.getInteger(); break;
 		}
 	}
 

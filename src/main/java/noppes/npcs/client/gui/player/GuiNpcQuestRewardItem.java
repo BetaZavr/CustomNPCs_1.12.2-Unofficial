@@ -37,7 +37,7 @@ extends GuiContainerNPCInterface {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) { close(); }
+		if (button.getID() == 0) { close(); }
 	}
 
 	@Override

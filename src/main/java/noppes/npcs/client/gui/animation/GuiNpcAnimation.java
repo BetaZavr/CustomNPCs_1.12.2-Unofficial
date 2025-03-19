@@ -89,7 +89,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 		AnimationConfig anim = getAnim();
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // add anim
 				if (scrollType == null || !scrollType.hasSelected()) { return; }
 				AnimationConfig newAnim = (AnimationConfig) aData.createNewAnim();
@@ -376,19 +376,19 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) { // animation Type
+		if (scroll.getID() == 0) { // animation Type
 			if (selType.equals(scroll.getSelected())) { return; }
 			selType = scroll.getSelected();
 			isChanged = true;
 		}
-		else if (scroll.getId() == 1) { // animation in type
+		else if (scroll.getID() == 1) { // animation in type
 			if (selAnim.equals(scroll.getSelected())) { return; }
 			selAnim = scroll.getSelected();
 			scrollAllAnimations.setSelected(selAnim);
 			selBaseAnim = scrollAllAnimations.getSelected();
 			isChanged = true;
 		}
-		else if (scroll.getId() == 2) { // animation in base
+		else if (scroll.getID() == 2) { // animation in base
 			if (selBaseAnim.equals(scroll.getSelected())) { return; }
 			selBaseAnim = scroll.getSelected();
 			if (scrollAnimations.hasSelected(selBaseAnim)) {
@@ -403,7 +403,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 	@Override
 	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
 		AnimationConfig anim;
-		if (scroll.getId() == 1) {
+		if (scroll.getID() == 1) {
 			anim = getAnim();
 			if (anim == null) { return; }
 			AnimationKind type = dataType.get(selType);
@@ -414,7 +414,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 				}
 			}
 		}
-		else if (scroll.getId() == 2) {
+		else if (scroll.getID() == 2) {
 			if (scrollAnimations.hasSelected(selBaseAnim)) { return; }
 			anim = dataAllAnimations.get(selBaseAnim);
 			if (anim == null) { return; }

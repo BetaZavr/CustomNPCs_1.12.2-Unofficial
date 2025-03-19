@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -82,7 +83,7 @@ import noppes.npcs.items.CustomArmor;
 import noppes.npcs.api.mixin.entity.IEntityMixin;
 import noppes.npcs.api.mixin.entity.ai.IEntitySensesMixin;
 import noppes.npcs.api.mixin.nbt.INBTTagLongArrayMixin;
-import noppes.npcs.api.mixin.world.IWorldMixin;
+import noppes.npcs.reflection.world.WorldReflection;
 import org.apache.commons.io.IOUtils;
 
 public class Util implements IMethods {
@@ -408,7 +409,7 @@ public class Util implements IMethods {
 				return entity;
 			}
 		}
-		List<Entity> unloadedEntityList = ((IWorldMixin) world).npcs$getUnloadedEntityList();
+		List<Entity> unloadedEntityList = WorldReflection.getUnloadedEntityList(world);
 		if (unloadedEntityList != null) {
 			for (Entity entity : unloadedEntityList) {
 				if (entity.getUniqueID().equals(uuid)) {
@@ -696,39 +697,58 @@ public class Util implements IMethods {
 
 	@SuppressWarnings("deprecation")
 	public boolean npcCanSeeTarget(EntityLivingBase entity, EntityLivingBase target, boolean toShoot, boolean directLOS) {
-		if (entity == null || target == null) {
-			return false;
-		}
-		IAttributeInstance follow_range = entity.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-		double aggroRange = follow_range.getAttributeValue();
-		if (entity.isPlayerSleeping()) {
-			aggroRange /= 4.0d;
-		}
-		if (aggroRange < 1.0d) {
-			aggroRange = 1.0d;
-		}
-		IRayTraceRotate rtr = Util.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
-		List<Entity> seenEntities = null, unseenEntities = null;
-		if (entity instanceof EntityLiving) {
-			EntitySenses senses = ((EntityLiving) entity).getEntitySenses();
-			seenEntities = ((IEntitySensesMixin) senses).npcs$getSeenEntities();
-			unseenEntities = ((IEntitySensesMixin) senses).npcs$getUnseenEntities();
-		}
-		if (rtr.getDistance() > aggroRange) {
-			if (seenEntities != null) {
-				seenEntities.remove(target);
+		if (entity == null || target == null) { return false; }
+		try {
+			IAttributeInstance follow_range = entity.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+			double aggroRange = follow_range == null ? 32.0d : follow_range.getAttributeValue();
+			if (entity.isPlayerSleeping()) { aggroRange /= 4.0d; }
+			if (aggroRange < 1.0d) { aggroRange = 1.0d; }
+			IRayTraceRotate rtr = Util.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
+			List<Entity> seenEntities = null;
+			List<Entity> unseenEntities = null;
+			if (entity instanceof EntityLiving) {
+				EntitySenses senses = ((EntityLiving) entity).getEntitySenses();
+				if (senses != null) {
+					seenEntities = ((IEntitySensesMixin) senses).npcs$getSeenEntities();
+					unseenEntities = ((IEntitySensesMixin) senses).npcs$getUnseenEntities();
+				}
 			}
-			if (unseenEntities != null && !unseenEntities.contains(target)) {
-				unseenEntities.add(target);
+			if (rtr.getDistance() > aggroRange) {
+				if (seenEntities != null) {
+					seenEntities.remove(target);
+				}
+				if (unseenEntities != null && !unseenEntities.contains(target)) {
+					unseenEntities.add(target);
+				}
+				return false;
 			}
-			return false;
-		}
-		IRayTraceResults rtrs = Util.instance.rayTraceBlocksAndEntitys(entity, rtr.getYaw(), rtr.getPitch(), rtr.getDistance());
-		if (rtrs != null) {
-			if (toShoot && rtrs.getEntitys().length > 0) {
-				double d = Util.instance.distanceTo(entity, target);
-				for (IEntity<?> ei : rtrs.getEntitys()) {
-					if (d > Util.instance.distanceTo(entity, ei.getMCEntity())) {
+			IRayTraceResults rtrs = Util.instance.rayTraceBlocksAndEntitys(entity, rtr.getYaw(), rtr.getPitch(), rtr.getDistance());
+			if (rtrs != null) {
+				if (toShoot && rtrs.getEntitys().length > 0) {
+					double d = Util.instance.distanceTo(entity, target);
+					for (IEntity<?> ei : rtrs.getEntitys()) {
+						if (d > Util.instance.distanceTo(entity, ei.getMCEntity())) {
+							if (seenEntities != null) {
+								seenEntities.remove(target);
+							}
+							if (unseenEntities != null && !unseenEntities.contains(target)) {
+								unseenEntities.add(target);
+							}
+							return false;
+						}
+					}
+				}
+				boolean shoot = toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).stats.ranged.getFireType() != 2);
+				for (IBlock bi : rtrs.getBlocks()) {
+					if (shoot && !bi.getMCBlock().isPassable(entity.world, bi.getPos().getMCBlockPos())) {
+						if (seenEntities != null) {
+							seenEntities.remove(target);
+						}
+						if (unseenEntities != null && !unseenEntities.contains(target)) {
+							unseenEntities.add(target);
+						}
+						return false;
+					} else if (bi.getMCBlock().isOpaqueCube(entity.world.getBlockState(bi.getPos().getMCBlockPos()))) {
 						if (seenEntities != null) {
 							seenEntities.remove(target);
 						}
@@ -739,17 +759,14 @@ public class Util implements IMethods {
 					}
 				}
 			}
-			boolean shoot = toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).stats.ranged.getFireType() != 2);
-			for (IBlock bi : rtrs.getBlocks()) {
-				if (shoot && !bi.getMCBlock().isPassable(entity.world, bi.getPos().getMCBlockPos())) {
-					if (seenEntities != null) {
-						seenEntities.remove(target);
-					}
-					if (unseenEntities != null && !unseenEntities.contains(target)) {
-						unseenEntities.add(target);
-					}
-					return false;
-				} else if (bi.getMCBlock().isOpaqueCube(entity.world.getBlockState(bi.getPos().getMCBlockPos()))) {
+			if (directLOS && !toShoot
+					&& (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS)) {
+				double yaw = (entity.rotationYawHead - rtr.getYaw()) % 360.0d;
+				double pitch = (entity.rotationPitch - rtr.getPitch()) % 360.0d;
+				if (yaw < 0.0d) {
+					yaw += 360.0d;
+				}
+				if (!(yaw <= 60.0d || yaw >= 300.0d) || !(pitch <= 60.0d || pitch >= -60.0d)) {
 					if (seenEntities != null) {
 						seenEntities.remove(target);
 					}
@@ -759,43 +776,29 @@ public class Util implements IMethods {
 					return false;
 				}
 			}
-		}
-		if (directLOS && !toShoot
-				&& (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS)) {
-			double yaw = (entity.rotationYawHead - rtr.getYaw()) % 360.0d;
-			double pitch = (entity.rotationPitch - rtr.getPitch()) % 360.0d;
-			if (yaw < 0.0d) {
-				yaw += 360.0d;
-			}
-			if (!(yaw <= 60.0d || yaw >= 300.0d) || !(pitch <= 60.0d || pitch >= -60.0d)) {
+			int invisible = 1 + (!target.isPotionActive(MobEffects.INVISIBILITY) ? -1 : Objects.requireNonNull(target.getActivePotionEffect(MobEffects.INVISIBILITY)).getAmplifier());
+			final double chance = getChance(invisible, rtr, aggroRange);
+			boolean canSee = chance > Math.random();
+			if (canSee) {
+				if (seenEntities != null && !seenEntities.contains(target)) {
+					seenEntities.add(target);
+				}
+				if (unseenEntities != null) {
+					unseenEntities.remove(target);
+				}
+			} else {
 				if (seenEntities != null) {
 					seenEntities.remove(target);
 				}
 				if (unseenEntities != null && !unseenEntities.contains(target)) {
 					unseenEntities.add(target);
 				}
-				return false;
 			}
+			return canSee;
+		} catch (Exception e) {
+			LogWriter.error(e);
 		}
-		int invisible = 1 + (!target.isPotionActive(MobEffects.INVISIBILITY) ? -1 : Objects.requireNonNull(target.getActivePotionEffect(MobEffects.INVISIBILITY)).getAmplifier());
-		final double chance = getChance(invisible, rtr, aggroRange);
-		boolean canSee = chance > Math.random();
-		if (canSee) {
-			if (seenEntities != null && !seenEntities.contains(target)) {
-				seenEntities.add(target);
-			}
-			if (unseenEntities != null) {
-				unseenEntities.remove(target);
-			}
-		} else {
-			if (seenEntities != null) {
-				seenEntities.remove(target);
-			}
-			if (unseenEntities != null && !unseenEntities.contains(target)) {
-				unseenEntities.add(target);
-			}
-		}
-		return canSee;
+		return false;
 	}
 
 	private double getChance(int invisible, IRayTraceRotate rtr, double aggroRange) {
@@ -1114,14 +1117,14 @@ public class Util implements IMethods {
 	}
 
 	@Override
-	public IRayTraceRotate getAngles3D(double dx, double dy, double dz, double mx, double my, double mz) {
+	public @Nonnull IRayTraceRotate getAngles3D(double dx, double dy, double dz, double mx, double my, double mz) {
 		RayTraceRotate rtr = new RayTraceRotate();
 		rtr.calculate(dx, dy, dz, mx, my, mz);
 		return rtr;
 	}
 
 	@Override
-	public IRayTraceRotate getAngles3D(IEntity<?> entity, IEntity<?> target) {
+	public @Nonnull IRayTraceRotate getAngles3D(IEntity<?> entity, IEntity<?> target) {
 		return this.getAngles3D(entity.getMCEntity(), target.getMCEntity());
 	}
 

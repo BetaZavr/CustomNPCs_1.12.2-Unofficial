@@ -2,7 +2,7 @@ package noppes.npcs.client.gui.util;
 
 public interface IComponentGui {
 
-	int getId();
+	int getID();
 
 	int[] getCenter();
 

@@ -262,12 +262,12 @@ public class NoppesUtilServer {
 		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 	}
 
-	public static void NotifyOPs(String message, Object... obs) {
+	public static void NotifyOPs(ITextComponent message) {
 		ITextComponent component = new TextComponentString("[CustomNPCs]");
 		component.getStyle().setColor(TextFormatting.YELLOW);
-		ITextComponent mess = new TextComponentTranslation(": " + message, obs);
-		mess.getStyle().setColor(TextFormatting.GRAY);
-		component.appendSibling(mess);
+		ITextComponent doubleDot = new TextComponentString(": ");
+		doubleDot.getStyle().setColor(TextFormatting.GRAY);
+		component.appendSibling(doubleDot).appendSibling(message);
 		boolean isSend = false;
 		for (EntityPlayer entityplayer : CustomNpcs.Server.getPlayerList().getPlayers()) {
 			if (entityplayer.sendCommandFeedback() && isOp(entityplayer)) {
@@ -275,17 +275,14 @@ public class NoppesUtilServer {
 				isSend = true;
 			}
 		}
-		if (CustomNpcs.Server == null
-				|| CustomNpcs.Server.worlds == null
-				|| CustomNpcs.Server.worlds.length == 0
-				|| CustomNpcs.Server.worlds[0] == null
-				|| !CustomNpcs.Server.worlds[0].getGameRules().getBoolean("logAdminCommands")) {
-			isSend = false;
-		}
-		else {
+		if (!isSend) { errorMessagesToAdmin.add(component); }
+		if (CustomNpcs.Server != null
+				&& CustomNpcs.Server.worlds != null
+				&& CustomNpcs.Server.worlds.length > 0
+				&& CustomNpcs.Server.worlds[0] != null
+				&& CustomNpcs.Server.worlds[0].getGameRules().getBoolean("logAdminCommands")) {
 			LogWriter.info(component.getUnformattedText());
 		}
-		if (!isSend) { errorMessagesToAdmin.add(component); }
 	}
 
 	public static void sendScriptErrorsTo(EntityPlayer player) {

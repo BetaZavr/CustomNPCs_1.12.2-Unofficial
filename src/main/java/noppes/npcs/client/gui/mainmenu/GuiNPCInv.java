@@ -53,7 +53,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // lootMode
 				this.inventory.dropType = button.getValue();
 				this.initGui();
@@ -399,7 +399,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (scroll.getSelected() == null) { return; }
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			saveTemplate();
 			if (scroll.getSelected().equals(inventory.saveDropsName)) {
 				inventory.saveDropsName = "";
@@ -410,14 +410,14 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			if (inventory.dropType == 1) { groupId = 0; }
 			initGui();
 		}
-		if (scroll.getId() == 1) {
+		if (scroll.getID() == 1) {
 			initGui();
 		}
 	}
 
 	@Override
 	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 1) {
+		if (scroll.getID() == 1) {
 			if (dropsData.get(scrollDrops.getSelected()) != null) {
 				this.saveTemplate();
 				NoppesUtil.requestOpenGUI(EnumGuiType.MainMenuInvDrop, this.inventory.dropType, this.groupId, this.scrollDrops.getSelect());
@@ -462,7 +462,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		switch(textField.getId()) {
+		switch(textField.getID()) {
 			case 0: {
 				this.inventory.setExp(textField.getInteger(), this.getTextField(1).getInteger());
 				break;

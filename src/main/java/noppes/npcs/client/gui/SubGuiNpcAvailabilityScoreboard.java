@@ -33,25 +33,29 @@ implements ICustomScrollListener, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			if (select.isEmpty()) {
-				return;
+		switch (button.getID()) {
+			case 0 : {
+				if (select.isEmpty()) { return; }
+				String obj = dataNames.get(select);
+				AvailabilityScoreboardData asd = availability.scoreboards.get(obj);
+				asd.scoreboardType = EnumAvailabilityScoreboard.values()[button.getValue()];
+				availability.scoreboards.put(obj, asd);
+				select = obj + " - " + chr + "7 (" + chr + "3" + new TextComponentTranslation(("availability." + asd.scoreboardType).toLowerCase()).getFormattedText() + chr + "7: " + chr + "9" + asd.scoreboardValue + chr + "7)";
+				initGui();
+				break;
 			}
-			String obj = dataNames.get(select);
-			AvailabilityScoreboardData asd = availability.scoreboards.get(obj);
-			asd.scoreboardType = EnumAvailabilityScoreboard.values()[button.getValue()];
-			availability.scoreboards.put(obj, asd);
-			select = obj + " - " + chr + "7 (" + chr + "3" + new TextComponentTranslation(("availability." + asd.scoreboardType).toLowerCase()).getFormattedText() + chr + "7: " + chr + "9" + asd.scoreboardValue + chr + "7)";
-			initGui();
-		} else if (button.getId() == 2) {
-			availability.scoreboards.remove(dataNames.get(select));
-			select = "";
-			initGui();
-		} else if (button.getId() == 3) { // More
-			save();
-			initGui();
-		} else if (button.getId() == 66) {
-			close();
+			case 2 : {
+				availability.scoreboards.remove(dataNames.get(select));
+				select = "";
+				initGui();
+				break;
+			}
+			case 3 : { // More
+				save();
+				initGui();
+				break;
+			}
+			case 66 : close(); break;
 		}
 	}
 
@@ -162,7 +166,7 @@ implements ICustomScrollListener, ITextfieldListener {
 			obj = dataNames.get(select);
 			asd = availability.scoreboards.get(obj);
 		}
-		if (textfield.getId() == 0) {
+		if (textfield.getID() == 0) {
 			if (obj == null || obj.isEmpty() || asd == null) {
 				obj = textfield.getText();
 				asd = new AvailabilityScoreboardData(EnumAvailabilityScoreboard.SMALLER, value);
@@ -173,7 +177,8 @@ implements ICustomScrollListener, ITextfieldListener {
 				obj = textfield.getText();
 				availability.scoreboards.remove(dataNames.get(select));
 			}
-		} else if (textfield.getId() == 1) {
+		}
+		else if (textfield.getID() == 1) {
 			if (asd == null || asd.scoreboardValue == value) {
 				return;
 			}

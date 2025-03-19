@@ -27,7 +27,7 @@ implements IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 4: {
 				save();
 				setSubGui(new SubGuiNpcAvailability(tile.availability, this));

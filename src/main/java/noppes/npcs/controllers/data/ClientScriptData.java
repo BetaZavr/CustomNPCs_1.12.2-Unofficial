@@ -1,19 +1,22 @@
 package noppes.npcs.controllers.data;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
-import noppes.npcs.api.event.BlockEvent;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.wrapper.data.StoredData;
 import noppes.npcs.constants.EnumScriptType;
@@ -52,8 +55,10 @@ extends BaseScriptData {
 	}
 
 	@Override
-	public String noticeString(String type, Object event) {
-		return "Client Script" + super.noticeString(type, event);
+	public ITextComponent noticeString(String type, Object event) {
+		ITextComponent message = new TextComponentString("Client Scripts ");
+		message.getStyle().setColor(TextFormatting.DARK_GRAY);
+		return message.appendSibling(super.noticeString(type, event));
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
@@ -62,6 +67,7 @@ extends BaseScriptData {
 		this.script.readFromNBT(compound.getCompoundTag("Scripts"), true);
 		this.scriptLanguage = Util.instance.deleteColor(compound.getString("ScriptLanguage"));
 		this.enabled = compound.getBoolean("ScriptEnabled");
+		runScript(EnumScriptType.INIT.function, new PlayerEvent.InitEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(CustomNpcs.proxy.getPlayer())));
 	}
 
 	@Override

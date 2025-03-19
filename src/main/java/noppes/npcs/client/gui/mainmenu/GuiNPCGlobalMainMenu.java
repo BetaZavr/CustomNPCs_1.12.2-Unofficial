@@ -20,7 +20,7 @@ extends GuiNPCInterface2 {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 2: {
 				NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks);
 				break;

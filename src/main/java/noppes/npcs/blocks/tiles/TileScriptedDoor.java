@@ -8,6 +8,12 @@ import java.util.TreeMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
@@ -127,15 +133,33 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		return this.enabled && ScriptController.HasStart && !this.world.isRemote;
 	}
 
-	public String noticeString(String type, Object event) {
-		String notice = "Door Script";
-		if (type != null) { notice += " hook \""+type+"\""; }
+	public ITextComponent noticeString(String type, Object event) {
+		ITextComponent message = new TextComponentString("");
+		message.getStyle().setColor(TextFormatting.DARK_GRAY);
+		if (type != null) {
+			ITextComponent hook = new TextComponentString("Hook \"");
+			hook.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent hookType = new TextComponentString(type);
+			hookType.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent hookEnd = new TextComponentString("\"; ");
+			hookEnd.getStyle().setColor(TextFormatting.DARK_GRAY);
+			message = message.appendSibling(hook).appendSibling(hookType).appendSibling(hookEnd);
+		}
 		BlockPos pos = getPos();
-		notice += " in dimension ID:" + (world == null ? 0 : world.provider.getDimension()) +
-				"; X:" + pos.getX() +
-				"; Y:" + pos.getY() +
-				"; Z:" + pos.getZ();
-		return notice + "; Side: " + (isClient() ? "Client" : "Server");
+		ITextComponent mesDoor = new TextComponentString("Scripted Door in ");
+		mesDoor.getStyle().setColor(TextFormatting.DARK_GRAY);
+		int x = pos.getX();
+		int y = pos.getY();
+		int z = pos.getZ();
+		int dimID = world == null ? 0 : world.provider.getDimension();
+		ITextComponent posClick = new TextComponentString("dimension ID:" + dimID + "; X:" + x + "; Y:" + y + "; Z:" + z);
+		posClick.getStyle().setColor(TextFormatting.BLUE)
+				.setUnderlined(true)
+				.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/noppes world tp @p " + dimID + " " + x + " " + (y + 1) + " "+z))
+				.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("script.hover.error.pos.tp")));
+		ITextComponent side = new TextComponentString("; Side: " + (isClient() ? "Client" : "Server"));
+		side.getStyle().setColor(TextFormatting.DARK_GRAY);
+		return message.appendSibling(mesDoor).appendSibling(posClick).appendSibling(side);
 	}
 
 	@Override

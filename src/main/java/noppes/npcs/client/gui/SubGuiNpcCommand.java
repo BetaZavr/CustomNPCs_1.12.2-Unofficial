@@ -19,7 +19,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 66) {
+		if (button.getID() == 66) {
 			close();
 		}
 	}
@@ -46,8 +46,6 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 4) {
-			this.command = textfield.getText();
-		}
+		if (textfield.getID() == 4) { command = textfield.getText(); }
 	}
 }

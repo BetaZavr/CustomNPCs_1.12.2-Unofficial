@@ -133,7 +133,7 @@ implements IComponentGui, IGuiNpcLabel {
 	public int getBackColor() { return backColor; }
 
 	@Override
-	public int getId() { return id; }
+	public int getID() { return id; }
 
 	@Override
 	public int[] getCenter() { return new int[] { x + width / 2, y + height / 2}; }

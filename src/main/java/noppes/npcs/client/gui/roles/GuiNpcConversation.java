@@ -25,24 +25,22 @@ implements ITextfieldListener, GuiSelectionListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() >= 0 && button.getId() < 14) {
-			slot = button.getId();
+		if (button.getID() >= 0 && button.getID() < 14) {
+			slot = button.getID();
 			JobConversation.ConversationLine line = job.getLine(slot);
 			setSubGui(new SubGuiNpcConversationLine(line.getText(), line.getSound()));
+			return;
 		}
-		if (button.getId() == 51) {
-			setSubGui(new GuiQuestSelection(job.quest));
-		}
-		if (button.getId() == 52) {
-			job.quest = -1;
-			job.questTitle = "";
-			initGui();
-		}
-		if (button.getId() == 53) {
-			setSubGui(new SubGuiNpcAvailability(job.availability, this));
-		}
-		if (button.getId() == 55) {
-			job.mode = button.getValue();
+		switch (button.getID()) {
+			case 51: setSubGui(new GuiQuestSelection(job.quest)); break;
+			case 52: {
+				job.quest = -1;
+				job.questTitle = "";
+				initGui();
+				break;
+			}
+			case 53: setSubGui(new SubGuiNpcAvailability(job.availability, this)); break;
+			case 55: job.mode = button.getValue(); break;
 		}
 	}
 
@@ -119,20 +117,16 @@ implements ITextfieldListener, GuiSelectionListener, ISubGuiListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() >= 0 && textfield.getId() < 14) {
-			JobConversation.ConversationLine line = job.getLine(textfield.getId());
+		if (textfield.getID() >= 0 && textfield.getID() < 14) {
+			JobConversation.ConversationLine line = job.getLine(textfield.getID());
 			line.npc = textfield.getText();
 		}
-		if (textfield.getId() >= 14 && textfield.getId() < 28) {
-			JobConversation.ConversationLine line = job.getLine(textfield.getId() - 14);
+		if (textfield.getID() >= 14 && textfield.getID() < 28) {
+			JobConversation.ConversationLine line = job.getLine(textfield.getID() - 14);
 			line.delay = textfield.getInteger();
 		}
-		if (textfield.getId() == 50) {
-			job.generalDelay = textfield.getInteger();
-		}
-		if (textfield.getId() == 54) {
-			job.range = textfield.getInteger();
-		}
+		if (textfield.getID() == 50) { job.generalDelay = textfield.getInteger(); }
+		if (textfield.getID() == 54) { job.range = textfield.getInteger(); }
 	}
 
 }

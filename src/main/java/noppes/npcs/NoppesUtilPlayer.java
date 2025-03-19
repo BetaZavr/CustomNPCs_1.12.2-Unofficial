@@ -53,9 +53,7 @@ public class NoppesUtilPlayer {
 		}
 		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
 		BankData bd = ((ContainerNPCBank) player.openContainer).data;
-		if (!bd.cells.containsKey(ceilId)) {
-			return;
-		}
+		if (!bd.cells.containsKey(ceilId)) { return; }
 		((ContainerNPCBank) player.openContainer).items.clear();
 		player.openContainer.detectAndSendChanges();
 		bd.save();
@@ -484,10 +482,8 @@ public class NoppesUtilPlayer {
 	public static void sendData(EnumPlayerPacket enu, Object... obs) {
 		PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 		try {
-			if (!Server.fillBuffer(buffer, enu, obs)) {
-				return;
-			}
-			CustomNpcs.ChannelPlayer.sendToServer(new FMLProxyPacket(buffer, "CustomNPCsPlayer"));
+			if (!Server.fillBuffer(buffer, enu, obs)) { return; }
+			CustomNpcs.ChannelPlayer.sendToServer(new FMLProxyPacket(buffer, "CNPCsPlayer"));
 		} catch (Exception e) {
 			LogWriter.error("Error send data:", e);
 		}

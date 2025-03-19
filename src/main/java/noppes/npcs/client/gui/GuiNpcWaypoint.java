@@ -25,7 +25,7 @@ implements IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
+		if (button.getID() == 0) {
 			close();
 		}
 	}

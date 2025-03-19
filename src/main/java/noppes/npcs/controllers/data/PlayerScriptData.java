@@ -8,6 +8,12 @@ import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
@@ -74,19 +80,53 @@ extends BaseScriptData {
 	}
 
 	@Override
-	public String noticeString(String type, Object event) {
+	public ITextComponent noticeString(String type, Object event) {
 		EntityPlayer p = player;
 		if (event instanceof PlayerEvent && p == null) { p = ((PlayerEvent) event).player.getMCEntity(); }
-		String notice = p == null ? "Global players script" : "Player:";
-		if (type != null) { notice += " hook \""+type+"\""; }
-		if (p == null) { return notice + "; Side: " + (isClient() ? "Client" : "Server"); }
-		notice += " \"" + p.getName() + "\"; UUID: \"" + p.getUniqueID() + "\"" +
-				" in dimension ID:" + (p.world == null ? 0 : p.world.provider.getDimension()) +
-				"; X:" + (Math.round(p.posX * 100.0d) / 100.0d) +
-				"; Y:" + (Math.round(p.posY * 100.0d) / 100.0d) +
-				"; Z:" + (Math.round(p.posZ * 100.0d) / 100.0d) +
-				"; Side: " + (isClient() ? "Client" : "Server");
-		return notice;
+
+		ITextComponent message = new TextComponentString("");
+		message.getStyle().setColor(TextFormatting.DARK_GRAY);
+		if (type != null) {
+			ITextComponent hook = new TextComponentString("Hook \"");
+			hook.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent hookType = new TextComponentString(type);
+			hookType.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent hookEnd = new TextComponentString("\"; ");
+			hookEnd.getStyle().setColor(TextFormatting.DARK_GRAY);
+			message = message.appendSibling(hook).appendSibling(hookType).appendSibling(hookEnd);
+		}
+
+		ITextComponent mesPlayer;
+		if (p == null) {
+			mesPlayer = new TextComponentString("Global players script");
+			mesPlayer.getStyle().setColor(TextFormatting.DARK_GRAY);
+		} else {
+			mesPlayer = new TextComponentString("Player: \"");
+			mesPlayer.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent name = new TextComponentString(p.getName());
+			name.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent mesUUID = new TextComponentString("\"; UUID: \"");
+			mesUUID.getStyle().setColor(TextFormatting.DARK_GRAY);
+			ITextComponent uuid = new TextComponentString(p.getUniqueID().toString());
+			uuid.getStyle().setColor(TextFormatting.GRAY);
+			ITextComponent mesEnd = new TextComponentString("\" in ");
+			mesEnd.getStyle().setColor(TextFormatting.DARK_GRAY);
+			mesPlayer = mesPlayer.appendSibling(name).appendSibling(mesUUID).appendSibling(uuid).appendSibling(mesEnd);
+
+			int dimID = p.world == null ? 0 : p.world.provider.getDimension();
+			double x = Math.round(p.posX * 100.0d) / 100.0d;
+			double y = Math.round(p.posY * 100.0d) / 100.0d;
+			double z = Math.round(p.posZ * 100.0d) / 100.0d;
+			ITextComponent posClick = new TextComponentString("dimension ID:" + dimID + "; X:" + x + "; Y:" + y + "; Z:" + z);
+			posClick.getStyle().setColor(TextFormatting.BLUE)
+					.setUnderlined(true)
+					.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/noppes world tp @p " + dimID + " " + x + " " + y + " "+z))
+					.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("script.hover.error.pos.tp")));
+			mesPlayer = mesPlayer.appendSibling(posClick);
+		}
+		ITextComponent side = new TextComponentString("; Side: " + (isClient() ? "Client" : "Server"));
+		side.getStyle().setColor(TextFormatting.DARK_GRAY);
+		return message.appendSibling(mesPlayer).appendSibling(side);
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {

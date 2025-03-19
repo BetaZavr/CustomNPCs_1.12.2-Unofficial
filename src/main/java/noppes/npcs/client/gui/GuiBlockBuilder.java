@@ -47,35 +47,44 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 3) {
-			if (((GuiNpcButtonYesNo) button).getBoolean()) {
-				TileBuilder.SetDrawPos(new BlockPos(x, y, z));
-				tile.setDrawSchematic(new SchematicWrapper(selected));
-			} else {
-				TileBuilder.SetDrawPos(null);
-				tile.setDrawSchematic(null);
+		switch (button.getID()) {
+			case 3: {
+				if (((GuiNpcButtonYesNo) button).getBoolean()) {
+					TileBuilder.SetDrawPos(new BlockPos(x, y, z));
+					tile.setDrawSchematic(new SchematicWrapper(selected));
+				} else {
+					TileBuilder.SetDrawPos(null);
+					tile.setDrawSchematic(null);
+				}
+				break;
 			}
-		}
-		if (button.getId() == 4) {
-			tile.enabled = ((GuiNpcButtonYesNo) button).getBoolean();
-		}
-		if (button.getId() == 5) {
-			tile.rotation = button.getValue();
-		}
-		if (button.getId() == 6) {
-			setSubGui(new SubGuiNpcAvailability(tile.availability, this));
-		}
-		if (button.getId() == 7) {
-			tile.finished = ((GuiNpcButtonYesNo) button).getBoolean();
-			Client.sendData(EnumPacketServer.SchematicsSet, x, y, z, scroll.getSelected());
-		}
-		if (button.getId() == 8) {
-			tile.started = ((GuiNpcButtonYesNo) button).getBoolean();
-		}
-		if (button.getId() == 10) {
-			save();
-			GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("schematic.instantBuildText").getFormattedText(), 0);
-			displayGuiScreen(guiyesno);
+			case 4: {
+				tile.enabled = ((GuiNpcButtonYesNo) button).getBoolean();
+				break;
+			}
+			case 5: {
+				tile.rotation = button.getValue();
+				break;
+			}
+			case 6: {
+				setSubGui(new SubGuiNpcAvailability(tile.availability, this));
+				break;
+			}
+			case 7: {
+				tile.finished = ((GuiNpcButtonYesNo) button).getBoolean();
+				Client.sendData(EnumPacketServer.SchematicsSet, x, y, z, scroll.getSelected());
+				break;
+			}
+			case 8: {
+				tile.started = ((GuiNpcButtonYesNo) button).getBoolean();
+				break;
+			}
+			case 10: {
+				save();
+				GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("schematic.instantBuildText").getFormattedText(), 0);
+				displayGuiScreen(guiyesno);
+				break;
+			}
 		}
 	}
 

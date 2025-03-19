@@ -26,7 +26,7 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				npc.advanced.attackOtherFactions = (button.getValue() == 1);
 				break;
@@ -144,7 +144,7 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			Client.sendData(EnumPacketServer.FactionSet, data.get(scrollFactions.getSelected()));
 		}
 	}

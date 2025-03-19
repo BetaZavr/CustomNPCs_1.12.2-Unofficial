@@ -35,7 +35,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: { // add
 				SubGuiEditText gui = new SubGuiEditText(3, "");
 				gui.hovers = new String[] { "hover.player" };

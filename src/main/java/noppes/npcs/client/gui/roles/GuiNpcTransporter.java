@@ -32,7 +32,7 @@ implements IScrollData, IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) { location.type = button.getValue(); }
+		if (button.getID() == 0) { location.type = button.getValue(); }
 	}
 
 	@Override

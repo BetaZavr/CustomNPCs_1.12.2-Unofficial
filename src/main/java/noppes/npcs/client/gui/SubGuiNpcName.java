@@ -24,7 +24,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()){
+		switch (button.getID()){
 			case 1: display.setMarkovGeneratorId(button.getValue()); break;
 			case 2: display.setMarkovGender(button.getValue()); break;
 			case 3: {
@@ -65,9 +65,8 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 0) {
-			if (!textfield.isEmpty()) { display.setName(textfield.getText());
-			}
+		if (textfield.getID() == 0) {
+			if (!textfield.isEmpty()) { display.setName(textfield.getText()); }
 			else { textfield.setText(display.getName()); }
 		}
 	}

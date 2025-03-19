@@ -43,10 +43,9 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.internal.EntitySpawnMessageHelper;
 import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
-import noppes.npcs.client.PacketHandlerClient;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.dimensions.CustomWorldInfo;
-import noppes.npcs.api.mixin.pathfinding.IPathMixin;
+import noppes.npcs.reflection.PathReflection;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
@@ -326,11 +325,11 @@ public class Server {
 		for (int i = 0; i < nbt.getTagList("cp", 10).tagCount(); i++) {
 			closedSet[i] = Server.readPathPoint(nbt.getTagList("cp", 10).getCompoundTagAt(i));
 		}
-		IPathMixin navigating = (IPathMixin) new Path(points);
-		navigating.npcs$setOpenSet(openSet);
-		navigating.npcs$setClosedSet(closedSet);
-		navigating.npcs$setCurrentPathIndex(nbt.getInteger("ci"));
-		return (Path) navigating;
+		Path navigating = new Path(points);
+		PathReflection.setOpenSet(navigating, openSet);
+		PathReflection.setClosedSet(navigating, closedSet);
+		PathReflection.setCurrentPathIndex(navigating, nbt.getInteger("ci"));
+		return navigating;
 	}
 
 	public static String readString(ByteBuf buffer) {
@@ -520,10 +519,9 @@ public class Server {
 
 	public static NBTTagCompound writePathToNBT(Path path) {
 		NBTTagCompound nbt = new NBTTagCompound();
-
-		PathPoint[] points = ((IPathMixin) path).npcs$getPoints();
-		PathPoint[] openSet = ((IPathMixin) path).npcs$getOpenSet();
-		PathPoint[] closedSet = ((IPathMixin) path).npcs$getClosedSet();
+		PathPoint[] points = PathReflection.getPoints(path);
+		PathPoint[] openSet = PathReflection.getOpenSet(path);
+		PathPoint[] closedSet = PathReflection.getClosedSet(path);
 
 		NBTTagList ps = new NBTTagList();
         assert points != null;
@@ -546,7 +544,7 @@ public class Server {
 		}
 		nbt.setTag("cp", cp);
 
-		nbt.setInteger("ci", ((IPathMixin) path).npcs$getCurrentPathIndex());
+		nbt.setInteger("ci", PathReflection.getCurrentPathIndex(path));
 		return nbt;
 	}
 

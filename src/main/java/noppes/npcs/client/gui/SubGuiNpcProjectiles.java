@@ -22,7 +22,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				stats.setHasGravity(button.getValue() == 1);
 				initGui();
@@ -139,16 +139,12 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getId() == 1) {
-			stats.setStrength(textfield.getInteger());
-		} else if (textfield.getId() == 2) {
-			stats.setKnockback(textfield.getInteger());
-		} else if (textfield.getId() == 3) {
-			stats.setSize(textfield.getInteger());
-		} else if (textfield.getId() == 4) {
-			stats.setSpeed(textfield.getInteger());
-		} else if (textfield.getId() == 5) {
-			stats.setEffect(stats.getEffectType(), stats.getEffectStrength(), textfield.getInteger());
+		switch (textfield.getID()) {
+			case 1: stats.setStrength(textfield.getInteger()); break;
+			case 2: stats.setKnockback(textfield.getInteger()); break;
+			case 3: stats.setSize(textfield.getInteger()); break;
+			case 4: stats.setSpeed(textfield.getInteger()); break;
+			case 5: stats.setEffect(stats.getEffectType(), stats.getEffectStrength(), textfield.getInteger()); break;
 		}
 	}
 

@@ -23,7 +23,7 @@ implements IGuiData {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0:
 				this.data.hasDisplay = button.getValue() == 1;
 				break;

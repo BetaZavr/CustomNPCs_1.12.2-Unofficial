@@ -22,19 +22,22 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 0) {
-			stats.spawnCycle = button.getValue();
-			if (stats.spawnCycle == 3 || stats.spawnCycle == 4) {
-				stats.respawnTime = 0;
-			} else {
-				stats.respawnTime = 20;
+		switch (button.getID()) {
+			case 0: {
+				stats.spawnCycle = button.getValue();
+				if (stats.spawnCycle == 3 || stats.spawnCycle == 4) {
+					stats.respawnTime = 0;
+				} else {
+					stats.respawnTime = 20;
+				}
+				initGui();
+				break;
 			}
-			initGui();
-		} else if (button.getId() == 4) {
-			stats.hideKilledBody = (button.getValue() == 1);
-		}
-		if (button.getId() == 66) {
-			close();
+			case 4: {
+				stats.hideKilledBody = (button.getValue() == 1);
+				break;
+			}
+			case 66: close(); break;
 		}
 	}
 
@@ -65,7 +68,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		if (textField.getId() == 2) {
+		if (textField.getID() == 2) {
 			stats.respawnTime = textField.getInteger();
 		}
 	}

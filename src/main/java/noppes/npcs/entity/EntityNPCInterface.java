@@ -115,7 +115,6 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
-import noppes.npcs.api.mixin.world.IWorldMixin;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NPCWrapper;
 import noppes.npcs.api.wrapper.PlayerWrapper;
@@ -146,6 +145,7 @@ import noppes.npcs.entity.data.DataScript;
 import noppes.npcs.entity.data.DataStats;
 import noppes.npcs.entity.data.DataTimers;
 import noppes.npcs.items.ItemSoulstoneFilled;
+import noppes.npcs.reflection.world.WorldReflection;
 import noppes.npcs.roles.JobBard;
 import noppes.npcs.roles.JobFollower;
 import noppes.npcs.roles.RoleCompanion;
@@ -2233,7 +2233,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.targetTasks.addTask(3, new EntityAIOwnerHurtByTarget(this));
 		this.targetTasks.addTask(4, new EntityAIOwnerHurtTarget(this));
 
-		PathWorldListener pwl = ((IWorldMixin) this.world).npcs$getPathListener();
+		PathWorldListener pwl = WorldReflection.getPathListener(world);
 		if (pwl != null) { pwl.onEntityRemoved(this); }
 		if (this.ais.movementType == 1) {
 			this.moveHelper = new FlyingMoveHelper(this);

@@ -41,7 +41,7 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				if (!configured.hasSelected()) { return; }
 				int id = potions.get(displays_1.get(configured.getSelected()));
@@ -264,7 +264,7 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 
 	@Override
 	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			if (!options.hasSelected()) { return; }
 			GuiNpcTextField.unfocus();
 			int id = potions.get(displays_0.get(options.getSelected()));
@@ -293,7 +293,7 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 1: {
 				range = textField.getInteger();
 				break;

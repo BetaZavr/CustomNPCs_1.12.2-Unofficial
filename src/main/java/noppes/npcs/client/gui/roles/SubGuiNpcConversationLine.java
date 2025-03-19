@@ -22,15 +22,14 @@ implements ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 1) {
-			setSubGui(new GuiSoundSelection(sound));
-		}
-		if (button.getId() == 2) {
-			sound = "";
-			initGui();
-		}
-		if (button.getId() == 66) {
-			close();
+		switch (button.getID()) {
+			case 1: setSubGui(new GuiSoundSelection(sound)); break;
+			case 2: {
+				sound = "";
+				initGui();
+				break;
+			}
+			case 66: close(); break;
 		}
 	}
 

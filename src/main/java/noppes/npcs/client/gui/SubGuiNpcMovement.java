@@ -25,7 +25,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 0: {
 				ai.setMovingType(button.getValue());
 				if (ai.getMovingType() != 0) {
@@ -201,7 +201,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		switch (textfield.getId()) {
+		switch (textfield.getID()) {
 			case 4: {
 				ai.walkingRange = textfield.getInteger();
 				break;

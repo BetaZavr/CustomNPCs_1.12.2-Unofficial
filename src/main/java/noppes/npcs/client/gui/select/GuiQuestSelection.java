@@ -33,7 +33,7 @@ implements ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 2) {
+		if (button.getID() == 2) {
 			if (selectedQuest != null) { scrollDoubleClicked(null, null); }
 			else { close(); }
 		}
@@ -66,12 +66,12 @@ implements ICustomScrollListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			selectedCategory = categoryData.get(scrollCategories.getSelected());
 			selectedQuest = null;
 			scrollQuests.setSelect(-1);
 		}
-		if (scroll.getId() == 1) {
+		if (scroll.getID() == 1) {
 			selectedQuest = questData.get(scrollQuests.getSelected());
 		}
 		initGui();

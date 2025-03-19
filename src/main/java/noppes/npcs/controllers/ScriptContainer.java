@@ -2,6 +2,7 @@ package noppes.npcs.controllers;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,6 +20,7 @@ import java.util.function.Function;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
@@ -33,6 +35,9 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
@@ -319,9 +324,11 @@ public class ScriptContainer {
 
 	private void run(String type, Object event) {
 		if (engine == null) { setEngine(handler.getLanguage()); }
-		if (errored || !hasScriptCode() || unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || engine == null) {
-			return;
+		if (errored && console.isEmpty()) {
+			errored = false;
+			fullscript = null;
 		}
+		if (errored || !hasScriptCode() || unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || engine == null) { return; }
 		if (ScriptController.Instance.lastLoaded > lastCreated) {
 			lastCreated = ScriptController.Instance.lastLoaded;
 			fullscript = null;
@@ -350,23 +357,27 @@ public class ScriptContainer {
 					else { unknownFunctions.add(type); }
 				}
 				else { ((Invocable) action).invokeFunction(type, event); }
-			} catch (NoSuchMethodException err0) { unknownFunctions.add(type); }
-			catch (Exception err1) {
+			}
+			catch (NoSuchMethodException notFunction) { unknownFunctions.add(type); }
+			catch (ScriptException | ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
 				errored = true;
-				String notice = handler.noticeString(type, event);
-				pw.write(notice + "\n");
-				err1.printStackTrace(pw);
-				String e = err1.getCause().getLocalizedMessage().replaceAll("" + ((char) 13), "");
+				ITextComponent notice = handler.noticeString(type, event);
+				String noticeToLog = Util.instance.deleteColor(notice.getFormattedText());
+				pw.write(noticeToLog + "\n");
+				e.printStackTrace(pw);
+				String errorText = e.getCause().getLocalizedMessage().replaceAll("" + ((char) 13), "");
 				StringBuilder error = new StringBuilder();
-				if (e.contains("" + (char) 10)) {
-					for (int c = 0; c < e.length(); c++) {
-						error.append(e.charAt(c));
-						if (e.charAt(c) == 10) { error.append((char) 167).append("8"); }
+				if (errorText.contains("" + (char) 10)) {
+					for (int c = 0; c < errorText.length(); c++) {
+						error.append(errorText.charAt(c));
+						if (errorText.charAt(c) == 10) { error.append((char) 167).append("8"); }
 					}
 				}
 				else { error = new StringBuilder(((char) 167) + "8" + e); }
-				NoppesUtilServer.NotifyOPs(notice + "\n" + ((char) 167) + "8Script " + err1.getCause().getClass().getSimpleName() + ": " + error);
-				LogWriter.error(notice + " ", err1);
+				ITextComponent errInfo = new TextComponentString("Script " + e.getCause().getClass().getSimpleName() + ": " + error);
+				errInfo.getStyle().setColor(TextFormatting.DARK_GRAY);
+				NoppesUtilServer.NotifyOPs(notice.appendText("\n").appendSibling(errInfo));
+				LogWriter.error(noticeToLog + " ", e);
 			}
 			finally {
 				appendConsole(sw.getBuffer().toString().trim());

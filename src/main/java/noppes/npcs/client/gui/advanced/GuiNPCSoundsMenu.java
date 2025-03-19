@@ -22,13 +22,13 @@ implements ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 6) {
+		if (button.getID() == 6) {
 			this.npc.advanced.disablePitch = button.getValue() == 0;
-		} else if (button.getId() < 10) {
-			this.selectedField = (GuiNpcTextField) this.getTextField(button.getId());
+		} else if (button.getID() < 10) {
+			this.selectedField = (GuiNpcTextField) this.getTextField(button.getID());
 			this.setSubGui(new GuiSoundSelection(this.selectedField.getText()));
 		} else {
-			this.selectedField = (GuiNpcTextField) this.getTextField(button.getId() - 10);
+			this.selectedField = (GuiNpcTextField) this.getTextField(button.getID() - 10);
 			this.selectedField.setText("");
 			this.unFocused(this.selectedField);
 		}
@@ -99,7 +99,7 @@ implements ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		this.npc.advanced.setSound(textfield.getId(), textfield.getText());
+		this.npc.advanced.setSound(textfield.getID(), textfield.getText());
 		this.initGui();
 	}
 }

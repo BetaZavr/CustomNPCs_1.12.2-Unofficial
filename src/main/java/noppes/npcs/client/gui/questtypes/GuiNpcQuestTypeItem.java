@@ -236,7 +236,7 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 		if (task == null) {
 			return;
 		}
-		switch (textField.getId()) {
+		switch (textField.getID()) {
 			case 0: {
 				task.setMaxProgress(textField.getInteger());
 				break;

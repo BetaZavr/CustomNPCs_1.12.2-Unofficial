@@ -21,7 +21,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() == 66) {
+		if (button.getID() == 66) {
 			close();
 		}
 	}
@@ -59,7 +59,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		switch (textfield.getId()) {
+		switch (textfield.getID()) {
 			case 2: faction.defaultPoints = textfield.getInteger(); break;
 			case 3: faction.neutralPoints = textfield.getInteger(); break;
 			case 4: faction.friendlyPoints = textfield.getInteger(); break;

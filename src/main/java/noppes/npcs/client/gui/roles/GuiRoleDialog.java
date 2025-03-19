@@ -27,9 +27,9 @@ implements ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getId() <= 6) {
+		if (button.getID() <= 6) {
 			save();
-			slot = button.getId();
+			slot = button.getID();
 			String text = role.dialog;
 			if (slot >= 1) { text = role.optionsTexts.get(slot); }
 			if (text == null) { text = ""; }

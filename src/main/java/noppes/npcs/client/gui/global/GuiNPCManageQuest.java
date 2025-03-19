@@ -48,7 +48,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 1: {
 				this.setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
@@ -340,7 +340,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		if (scroll.getSelected() == null) {
 			return;
 		}
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			if (this.selectedCategory.equals(scroll.getSelected())) {
 				return;
 			}
@@ -348,7 +348,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			this.selectedQuest = "";
 			this.scrollQuests.setSelect(-1);
 		}
-		if (scroll.getId() == 1) {
+		if (scroll.getID() == 1) {
 			if (this.selectedQuest.equals(scroll.getSelected())) {
 				return;
 			}
@@ -359,10 +359,10 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
 	@Override
 	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-		if (!this.selectedQuest.isEmpty() && scroll.getId() == 1) {
+		if (!this.selectedQuest.isEmpty() && scroll.getID() == 1) {
 			this.setSubGui(new GuiQuestEdit(this.questData.get(this.selectedQuest)));
 		}
-		if (!this.selectedCategory.isEmpty() && scroll.getId() == 0) {
+		else if (!this.selectedCategory.isEmpty() && scroll.getID() == 0) {
 			this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
 		}
 	}

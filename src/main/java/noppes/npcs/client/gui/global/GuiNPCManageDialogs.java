@@ -48,7 +48,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		switch (button.getId()) {
+		switch (button.getID()) {
 			case 1: { // create cat
 				setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
@@ -357,7 +357,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		if (scroll.getSelected() == null) {
 			return;
 		}
-		if (scroll.getId() == 0) {
+		if (scroll.getID() == 0) {
 			if (selectedCategory.equals(scroll.getSelected())) {
 				return;
 			}
@@ -365,7 +365,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			selectedDialog = "";
 			scroll.setSelect(-1);
 		}
-		if (scroll.getId() == 1) {
+		if (scroll.getID() == 1) {
 			if (selectedDialog.equals(scroll.getSelected())) {
 				return;
 			}
@@ -376,7 +376,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
 	@Override
 	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-		if (!selectedDialog.isEmpty() && scroll.getId() == 1) {
+		if (!selectedDialog.isEmpty() && scroll.getID() == 1) {
 			setSubGui(new GuiDialogEdit(dialogData.get(selectedDialog), this));
 		}
 	}
