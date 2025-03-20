@@ -4,16 +4,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.ai.EntityLookHelper;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.MathHelper;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.api.mixin.entity.ai.IEntityAITasksMixin;
-import noppes.npcs.util.Util;
+import noppes.npcs.reflection.entity.ai.EntityAITasksReflection;
 
 public class EntityAICustom extends EntityAIBase {
 
@@ -40,18 +37,18 @@ public class EntityAICustom extends EntityAIBase {
 	public EntityAICustom(EntityNPCInterface npc) {
 		this.npc = npc;
 		navOverride(true);
-		tickRate = ((IEntityAITasksMixin) this.npc.tasks).npcs$getTickRate();
+		tickRate = EntityAITasksReflection.getTickRate(npc.tasks);
 		step = 0;
 		distance = -1.0d;
 	}
 
-	public EntityAICustom(IRangedAttackMob npc) {
-		if (!(npc instanceof EntityNPCInterface)) {
+	public EntityAICustom(IRangedAttackMob npcIn) {
+		if (!(npcIn instanceof EntityNPCInterface)) {
 			throw new IllegalArgumentException("ArrowAttackGoal requires Mob implements RangedAttackMob");
 		}
-		this.npc = (EntityNPCInterface) npc;
+		this.npc = (EntityNPCInterface) npcIn;
 		navOverride(true);
-		tickRate = ((IEntityAITasksMixin) this.npc.tasks).npcs$getTickRate();
+		tickRate = EntityAITasksReflection.getTickRate(npc.tasks);
 		distance = -1.0d;
 	}
 

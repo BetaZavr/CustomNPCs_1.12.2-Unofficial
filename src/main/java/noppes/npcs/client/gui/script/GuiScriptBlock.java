@@ -36,6 +36,7 @@ implements ISubGuiListener {
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
+
 		script.setNBT(compound);
 		super.setGuiData(compound);
 	}

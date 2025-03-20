@@ -1,9 +1,6 @@
 package noppes.npcs.command;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -11,7 +8,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
@@ -26,8 +25,10 @@ import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumScriptType;
+import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.dimensions.DimensionHandler;
+import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 
@@ -92,6 +93,25 @@ public class CmdScript extends CommandNoppesBase {
 		list.append(";\n" + ((char) 167) + "6Total Size: " + ((char) 167) + "e").append(g.size());
 		sender.sendMessage(new TextComponentString(list.toString()));
 		if (sender instanceof EntityPlayerMP) { Server.sendData((EntityPlayerMP) sender, EnumPacketClient.EVENT_NAMES, list.toString()); }
+		return true;
+	}
+
+	@SubCommand(desc = "Displays all script owners that have logs.")
+	public Boolean logs(MinecraftServer server, ICommandSender sender, String[] args) {
+		Map<String, ITextComponent> map = new LinkedHashMap<>();
+	 	for (ScriptContainer container : ScriptController.Instance.getErrored()) {
+			ITextComponent message = container.noticeString();
+			map.put(Util.instance.deleteColor(message.getFormattedText()), message);
+		}
+		if (map.isEmpty()) {
+			sender.sendMessage(new TextComponentTranslation("command.script.logs.empty"));
+		} else {
+			sender.sendMessage(new TextComponentTranslation("command.script.logs.info"));
+			for (ITextComponent message : map.values()) {
+				sender.sendMessage(message);
+			}
+		}
+		sender.sendMessage(new TextComponentTranslation("command.script.logs.end"));
 		return true;
 	}
 

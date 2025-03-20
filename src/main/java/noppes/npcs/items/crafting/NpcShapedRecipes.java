@@ -33,8 +33,8 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperRecipe;
 import noppes.npcs.controllers.data.Availability;
-import noppes.npcs.api.mixin.item.crafting.IIngredientMixin;
-import noppes.npcs.api.mixin.item.crafting.IShapedRecipesMixin;
+import noppes.npcs.reflection.item.crafting.IngredientReflection;
+import noppes.npcs.reflection.item.crafting.ShapedRecipesReflection;
 import noppes.npcs.util.Util;
 
 public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IRecipe
@@ -139,11 +139,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 			for (int y = 0; y < maxH; y++) {
 				for (int x = 0; x < maxW; x++) {
 					int slotIndex = (y + startH) * recipeWidth + (x + startW);
-					if (map.containsKey(slotIndex)) {
-						newIngredient.add(map.get(slotIndex));
-					} else {
-						newIngredient.add(Ingredient.EMPTY);
-					}
+                    newIngredient.add(map.getOrDefault(slotIndex, Ingredient.EMPTY));
 				}
 			}
 		} else {
@@ -241,7 +237,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 				}
 			}
 		}
-		((IShapedRecipesMixin) this).npcs$setGroup(recipe.getNpcGroup());
+		ShapedRecipesReflection.setGroup(this, recipe.getNpcGroup());
 		this.known = recipe.isKnown();
 		this.recipeWidth = recipe.getWidthRecipe();
 		this.recipeHeight = recipe.getHeightRecipe();
@@ -430,7 +426,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		wrapper.recipeItems.clear();
 		int pos = 0;
 		for (Ingredient ingr : recipeItems) {
-			ItemStack[] rawMatchingStacks = ((IIngredientMixin) ingr).npcs$getRawMatchingStacks();
+			ItemStack[] rawMatchingStacks = IngredientReflection.getRawMatchingStacks(ingr);
 			ItemStack[] array = new ItemStack[rawMatchingStacks.length];
 			for (int j = 0; j < rawMatchingStacks.length; j++) {
 				array[j] = rawMatchingStacks[j].copy();

@@ -2,7 +2,7 @@ package noppes.npcs.containers;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import noppes.npcs.api.mixin.inv.ISlotMixin;
+import noppes.npcs.reflection.inv.SlotReflection;
 
 public class SlotAvailability extends Slot {
 
@@ -11,7 +11,7 @@ public class SlotAvailability extends Slot {
     }
 
     public void setSlotIndex(int slotID) {
-        ((ISlotMixin) this).npcs$setSlotIndex(slotID);
+        SlotReflection.setSlotIndex(this, slotID);
     }
 
 }

@@ -18,6 +18,7 @@ import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.rcon.RConConsoleSource;
@@ -46,15 +47,7 @@ import noppes.npcs.constants.EnumPlayerData;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerManageBanks;
-import noppes.npcs.controllers.BankController;
-import noppes.npcs.controllers.DialogController;
-import noppes.npcs.controllers.FactionController;
-import noppes.npcs.controllers.PlayerDataController;
-import noppes.npcs.controllers.PlayerQuestController;
-import noppes.npcs.controllers.QuestController;
-import noppes.npcs.controllers.ServerCloneController;
-import noppes.npcs.controllers.SyncController;
-import noppes.npcs.controllers.TransportController;
+import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.Faction;
@@ -756,4 +749,29 @@ public class NoppesUtilServer {
 		Server.sendAssociatedData(entity, EnumPacketClient.PARTICLE, entity.posX, entity.posY, entity.posZ, entity.height, entity.width, particle);
 	}
 
+    public static void sendScriptData(EntityPlayerMP player, NBTTagCompound compound, List<ScriptContainer> listContainers) {
+		for (int tab = 0; tab < compound.getTagList("Scripts", 10).tagCount(); tab++) {
+			NBTTagCompound tabNbt = compound.getTagList("Scripts", 10).getCompoundTagAt(tab);
+			tabNbt.setString("Script", "");
+			tabNbt.setTag("Console", new NBTTagList());
+		}
+		compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
+		compound.setString("DirPath", ScriptController.Instance.dir.getAbsolutePath());
+		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
+		int tab = 0;
+		for (ScriptContainer container : listContainers) {
+			Server.sendData(player, EnumPacketClient.SCRIPT_CODE, tab, "");
+			for (String part : Util.splitString(container.script, 128)) {
+				Server.sendData(player, EnumPacketClient.SCRIPT_CODE, tab, part);
+			}
+			for (long time : container.console.keySet()) {
+				Server.sendData(player, EnumPacketClient.SCRIPT_CONSOLE, tab, time, "");
+				for (String part : Util.splitString(container.console.get(time), 128)) {
+					Server.sendData(player, EnumPacketClient.SCRIPT_CONSOLE, tab, time, part);
+				}
+			}
+			tab ++;
+		}
+		Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+    }
 }

@@ -50,25 +50,29 @@ public class VisibilityController {
 		if (!VisibilityController.invisibleNPCsTable.containsKey(playerMP)) {
 			VisibilityController.invisibleNPCsTable.put(playerMP, new ArrayList<>());
 		}
+		EntityNPCInterface npc = null;
 		try {
 			List<String> del = new ArrayList<>();
 			for (String key : VisibilityController.trackedEntityHashTable.keySet()) {
-				EntityNPCInterface npc = VisibilityController.trackedEntityHashTable.get(key);
-				if (npc == null || npc.world.getEntityByID(npc.getEntityId()) == null) {
-					if (npc != null) {
-						del.add(key);
-					}
+				npc = VisibilityController.trackedEntityHashTable.get(key);
+				if (npc == null || npc.world == null || npc.world.getEntityByID(npc.getEntityId()) == null) {
+					if (npc != null) { del.add(key); }
 					continue;
 				}
-				if (npc.world.provider.getDimension() != playerMP.world.provider.getDimension() || npc.display.getVisible() != 1) {
+				if (playerMP.world == null || npc.world.provider.getDimension() != playerMP.world.provider.getDimension() || npc.display.getVisible() != 1) {
 					continue;
 				}
 				this.checkIsVisible(npc, playerMP);
 			}
-			for (String npc : del) {
-				VisibilityController.trackedEntityHashTable.remove(npc);
+			for (String npcName : del) {
+				VisibilityController.trackedEntityHashTable.remove(npcName);
 			} // clear RAM
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) {
+			LogWriter.debug("CNPCs: npc: "+npc);
+			LogWriter.debug("CNPCs: npc.world: "+(npc != null ? npc.world : "n/a"));
+			LogWriter.debug("CNPCs: npc.getEntityId(): "+(npc != null ? npc.getEntityId() : "n/a"));
+			LogWriter.error("Error:", e);
+		}
 	}
 
 	public void trackNpc(EntityNPCInterface npc) { // from DataDisplay

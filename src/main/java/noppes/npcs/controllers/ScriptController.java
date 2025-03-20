@@ -65,6 +65,7 @@ public class ScriptController {
 
 	// key create in CommonProxy.getAgreementKey() and in ClientEventHandler.cnpcOpenGUIEvent()
 	private final List<String> agreements = new ArrayList<>();
+	private final List<ScriptContainer> errors = new ArrayList<>();
 
 	public ForgeScriptData forgeScripts = new ForgeScriptData();
 	public ClientScriptData clientScripts = new ClientScriptData();
@@ -938,4 +939,23 @@ public class ScriptController {
 		}
 		if (bo) { saveAgreements(); }
 	}
+
+	public void tryAddErrored(ScriptContainer scriptContainer) {
+		if (errors.contains(scriptContainer)) { return; }
+		errors.add(scriptContainer);
+	}
+
+	public List<ScriptContainer> getErrored() {
+		List<ScriptContainer> list = new ArrayList<>();
+		for (ScriptContainer container : errors) {
+			if (container == null ||
+					!container.hasHandler() ||
+					container.console.isEmpty()) { continue; }
+			list.add(container);
+		}
+		errors.clear();
+		errors.addAll(list);
+		return errors;
+	}
+
 }

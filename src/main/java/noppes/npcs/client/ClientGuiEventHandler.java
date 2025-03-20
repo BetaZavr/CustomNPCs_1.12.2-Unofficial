@@ -6,7 +6,7 @@ import java.util.*;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.reflection.PathReflection;
+import noppes.npcs.reflection.pathfinding.PathReflection;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 

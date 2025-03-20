@@ -6,7 +6,7 @@ import net.minecraft.village.MerchantRecipeList;
 import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.IVillager;
-import noppes.npcs.api.mixin.entity.passive.IEntityVillagerMixin;
+import noppes.npcs.reflection.entity.passive.EntityVillagerReflection;
 
 @SuppressWarnings("rawtypes")
 public class VillagerWrapper<T extends EntityVillager> extends EntityLivingWrapper<T> implements IVillager {
@@ -16,7 +16,7 @@ public class VillagerWrapper<T extends EntityVillager> extends EntityLivingWrapp
 	}
 
 	public String getCareer() {
-		return this.entity.getProfessionForge().getCareer(((IEntityVillagerMixin) this.entity).npcs$getCareerID()).getName();
+		return this.entity.getProfessionForge().getCareer(EntityVillagerReflection.getCareerID(entity)).getName();
 	}
 
 	@SuppressWarnings("deprecation")

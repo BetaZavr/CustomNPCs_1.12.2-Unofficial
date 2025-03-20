@@ -26,7 +26,7 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.mixin.item.IItemSwordMixin;
+import noppes.npcs.reflection.item.ItemSwordReflection;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
@@ -52,7 +52,7 @@ public class CustomWeapon extends ItemSword implements ICustomElement {
 			this.attackSpeed = nbtItem.getDouble("SpeedAttack");
 		}
 		if (nbtItem.hasKey("EntityDamage", 6)) {
-			((IItemSwordMixin) this).npcs$setAttackDamage((float) nbtItem.getDouble("EntityDamage"));
+			ItemSwordReflection.setAttackDamage(this, (float) nbtItem.getDouble("EntityDamage"));
 		}
 		if (nbtItem.getInteger("MaxStackDamage") > 1) {
 			this.setMaxDamage(nbtItem.getInteger("MaxStackDamage"));
@@ -94,7 +94,7 @@ public class CustomWeapon extends ItemSword implements ICustomElement {
 				|| (this.collectionMaterial != null && blockIn.getMaterial() == this.collectionMaterial);
 	}
 
-	public float getAttackDamage() { return ((IItemSwordMixin) this).npcs$getAttackDamage(); }
+	public float getAttackDamage() { return ItemSwordReflection.getAttackDamage(this); }
 
 	@Override
 	public String getCustomName() {
@@ -125,7 +125,7 @@ public class CustomWeapon extends ItemSword implements ICustomElement {
 	public boolean getIsRepairable(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
 		ItemStack mat = this.repairItemStack;
 		if (this.repairItemStack.isEmpty()) {
-			mat = ((IItemSwordMixin) this).npcs$getMaterial().getRepairItemStack();
+			mat = ItemSwordReflection.getMaterial(this).getRepairItemStack();
 		}
 		if (!mat.isEmpty() && net.minecraftforge.oredict.OreDictionary.itemMatches(mat, repair, false)) {
 			return true;
@@ -137,7 +137,7 @@ public class CustomWeapon extends ItemSword implements ICustomElement {
 	public @Nonnull Multimap<String, AttributeModifier> getItemAttributeModifiers(@Nonnull EntityEquipmentSlot equipmentSlot) {
 		Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
 		if (equipmentSlot == EntityEquipmentSlot.MAINHAND) {
-			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", ((IItemSwordMixin) this).npcs$getAttackDamage(), 0));
+			multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Weapon modifier", ItemSwordReflection.getAttackDamage(this), 0));
 			multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", this.attackSpeed, 0));
 		}
 		return multimap;

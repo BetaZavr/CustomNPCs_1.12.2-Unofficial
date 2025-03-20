@@ -22,18 +22,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagByte;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagFloat;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagLong;
-import net.minecraft.nbt.NBTTagShort;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -63,21 +52,17 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.api.wrapper.DataObject;
-import noppes.npcs.api.wrapper.data.StoredData;
 import noppes.npcs.api.wrapper.data.TempData;
+import noppes.npcs.blocks.tiles.TileNpcEntity;
 import noppes.npcs.client.ClientProxy;
-import noppes.npcs.api.mixin.nbt.INBTTagLongArrayMixin;
+import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.entity.data.DataScript;
+import noppes.npcs.reflection.nbt.TagLongArrayReflection;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ScriptEncryption;
 import noppes.npcs.util.Util;
 
 public class ScriptContainer {
-
-	public ScriptContainer copyTo(IScriptHandler scriptHandler) {
-		ScriptContainer scriptContainer = new ScriptContainer(scriptHandler, isClient);
-		scriptContainer.readFromNBT(writeToNBT(new NBTTagCompound()), isClient);
-		return scriptContainer;
-	}
 
 	public static class Dump implements Function<Object, IDataObject> {
 
@@ -193,7 +178,7 @@ public class ScriptContainer {
 				value = ((NBTTagIntArray) tag).getIntArray();
 				break;
 			case 12:
-				value = ((INBTTagLongArrayMixin) tag).npcs$getData();
+				value = TagLongArrayReflection.getData((NBTTagLongArray) tag);
 				break;
 		}
 		return value;
@@ -218,6 +203,31 @@ public class ScriptContainer {
 	public ScriptContainer(IScriptHandler handlerIn, boolean isClientIn) {
 		handler = handlerIn;
 		isClient = isClientIn;
+	}
+
+
+	public ScriptContainer copyTo(IScriptHandler scriptHandler) {
+		ScriptContainer scriptContainer = new ScriptContainer(scriptHandler, isClient);
+		scriptContainer.readFromNBT(writeToNBT(new NBTTagCompound()), isClient);
+		return scriptContainer;
+	}
+
+	public boolean hasHandler() {
+		if (handler == null) { return false; }
+		if (handler instanceof DataScript) {
+			EntityNPCInterface npc = ((DataScript) handler).npc;
+			return npc != null && npc.world != null && npc.getEntityId() > 0 && npc.equals(npc.world.getEntityByID(npc.getEntityId()));
+		}
+		if (handler instanceof TileNpcEntity) {
+			if (!((TileNpcEntity) handler).hasWorld()) { return false; }
+			BlockPos pos = ((TileNpcEntity) handler).getPos();
+			return ((TileNpcEntity) handler).getWorld().getTileEntity(pos) instanceof IScriptBlockHandler;
+		}
+		return true;
+	}
+
+	public ITextComponent noticeString() {
+		return hasHandler() ? handler.noticeString(null, null) : null;
 	}
 
 	public void appendConsole(String message) {
@@ -304,6 +314,7 @@ public class ScriptContainer {
 			script = compound.getString("Script");
 		}
 		console = NBTTags.GetLongStringMap(compound.getTagList("Console", 10));
+		if (!console.isEmpty()) { ScriptController.Instance.tryAddErrored(this); }
 		scripts = NBTTags.getStringList(compound.getTagList("ScriptList", 10));
 		hasNoEncryptScriptCode = compound.getBoolean("HasNoEncryptScriptCode");
 		isClient = isClientIn;
@@ -385,6 +396,7 @@ public class ScriptContainer {
 				ScriptContainer.Current = null;
 			}
 		}
+		if (!console.isEmpty()) { ScriptController.Instance.tryAddErrored(this); }
 	}
 
 	public void runAsync(String link, String async, String sync, Object arguments) {

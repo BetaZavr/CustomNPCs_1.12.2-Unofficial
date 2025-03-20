@@ -29,9 +29,9 @@ import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.api.entity.data.IMark;
 import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.mixin.entity.IEntityTrackerMixin;
 import noppes.npcs.api.wrapper.data.AttributeWrapper;
 import noppes.npcs.controllers.data.MarkData;
-import noppes.npcs.api.mixin.entity.IEntityTrackerMixin;
 import noppes.npcs.api.mixin.entity.ai.attributes.IAbstractAttributeMapMixin;
 
 @SuppressWarnings("rawtypes")
@@ -392,7 +392,7 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 			this.entity.isSwingInProgress = true;
 			this.entity.swingingHand = hand;
 			SPacketAnimation pack = new SPacketAnimation(this.entity, hand == EnumHand.MAIN_HAND ? 0 : 3);
-			IntHashMap<EntityTrackerEntry> trackedEntityHashTable = ((IEntityTrackerMixin) ((WorldServer) this.entity.world).getEntityTracker()).npcs$getTrackedEntityHashTable();
+			IntHashMap<EntityTrackerEntry> trackedEntityHashTable = ((IEntityTrackerMixin) ((WorldServer) entity.world).getEntityTracker()).npcs$getTrackedEntityHashTable();
 			EntityTrackerEntry entitytrackerentry = trackedEntityHashTable.lookup(this.entity.getEntityId());
 			if (entitytrackerentry != null) {
 				for (EntityPlayerMP entityplayermp : entitytrackerentry.trackingPlayers) {

@@ -12,11 +12,16 @@ public class BiomeReflection {
     public static String getBiomeName(Biome biome) {
         if (biome == null) { return ""; }
         if (biomeName == null) {
-            try {
-                try { biomeName = Biome.class.getDeclaredField("field_76791_y"); }
-                catch (Exception e) { biomeName = Biome.class.getDeclaredField("biomeName"); }
-            } catch (Exception e) {
-                LogWriter.error("Error found field \"biomeName\" in ", e);
+            Exception error = null;
+            try { biomeName = Biome.class.getDeclaredField("field_76791_y"); } catch (Exception e) { error = e; }
+            if (biomeName == null) {
+                try {
+                    biomeName = Biome.class.getDeclaredField("biomeName");
+                    error = null;
+                } catch (Exception e) { error = e; }
+            }
+            if (error != null) {
+                LogWriter.error("Error found field \"biomeName\"", error);
                 return "";
             }
         }

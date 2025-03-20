@@ -38,11 +38,16 @@ public class WorldReflection {
     public static PathWorldListener getPathListener(World world) {
         if (world == null) { return null; }
         if (pathListener == null) {
-            try {
-                try { pathListener = World.class.getDeclaredField("field_184152_t"); }
-                catch (Exception e) { pathListener = World.class.getDeclaredField("pathListener"); }
-            } catch (Exception e) {
-                LogWriter.error("Error found field \"pathListener\"", e);
+            Exception error = null;
+            try { pathListener = World.class.getDeclaredField("field_184152_t"); } catch (Exception e) { error = e; }
+            if (pathListener == null) {
+                try {
+                    pathListener = World.class.getDeclaredField("pathListener");
+                    error = null;
+                } catch (Exception e) { error = e; }
+            }
+            if (error != null) {
+                LogWriter.error("Error found field \"pathListener\"", error);
                 return null;
             }
         }

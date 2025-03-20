@@ -53,6 +53,7 @@ import noppes.npcs.client.gui.global.GuiNPCManageDialogs;
 import noppes.npcs.client.gui.global.GuiNPCManageMarkets;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
 import noppes.npcs.client.gui.player.*;
+import noppes.npcs.client.gui.script.GuiScriptInterface;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.IEditNPC;
@@ -1334,6 +1335,16 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			File file = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile(), "all "+(t ==0 ? "client" : t ==1 ? "forge" : "api" )+ " event names.txt");
 			Util.instance.saveFile(file, text.toString());
 			player.sendMessage(new TextComponentString(((char) 167) + "e[" + ((char) 167) + "2CustomNpcs" + ((char) 167) + "e]" + ((char) 167) + "r: " + ((char) 167) + "7Save event names to file: " + ((char) 167) + "r" + file));
+		}
+		else if (type == EnumPacketClient.SCRIPT_CODE) {
+			if (mc.currentScreen instanceof GuiScriptInterface) {
+				((GuiScriptInterface) mc.currentScreen).addScript(buffer.readInt(), Server.readString(buffer));
+			}
+		}
+		else if (type == EnumPacketClient.SCRIPT_CONSOLE) {
+			if (mc.currentScreen instanceof GuiScriptInterface) {
+				((GuiScriptInterface) mc.currentScreen).addConsole(buffer.readInt(), buffer.readLong(), Server.readString(buffer));
+			}
 		}
 		CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 	}

@@ -30,8 +30,8 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperRecipe;
 import noppes.npcs.controllers.data.Availability;
-import noppes.npcs.api.mixin.item.crafting.IIngredientMixin;
-import noppes.npcs.api.mixin.item.crafting.IShapelessRecipesMixin;
+import noppes.npcs.reflection.item.crafting.IngredientReflection;
+import noppes.npcs.reflection.item.crafting.ShapelessRecipesReflection;
 import noppes.npcs.util.Util;
 
 public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe, IRecipe
@@ -148,18 +148,19 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	private NonNullList<Ingredient> getGrid() {
 		NonNullList<Ingredient> newIngredient = NonNullList.create();
-		for (int i = 0; i < recipeItems.size(); i++) {
-			Ingredient ingredient = recipeItems.get(i);
-			if (ingredient.getMatchingStacks().length == 0) { continue; }
-			boolean added = false;
-			for (ItemStack stack : ingredient.getMatchingStacks()) {
-				if (!NoppesUtilServer.IsItemStackNull(stack)) {
-					added = true;
-					break;
-				}
-			}
-			if (added) { newIngredient.add(ingredient); }
-		}
+        for (Ingredient ingredient : recipeItems) {
+            if (ingredient.getMatchingStacks().length == 0) { continue; }
+            boolean added = false;
+            for (ItemStack stack : ingredient.getMatchingStacks()) {
+                if (!NoppesUtilServer.IsItemStackNull(stack)) {
+                    added = true;
+                    break;
+                }
+            }
+            if (added) {
+                newIngredient.add(ingredient);
+            }
+        }
 		return newIngredient;
 	}
 
@@ -206,7 +207,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 				}
 			}
 		}
-		((IShapelessRecipesMixin) this).npcs$setGroup(recipe.getNpcGroup());
+		ShapelessRecipesReflection.setGroup(this, recipe.getNpcGroup());
 		this.known = recipe.isKnown();
 		this.recipeWidth = recipe.getWidthRecipe();
 		this.recipeHeight = recipe.getHeightRecipe();
@@ -395,7 +396,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		wrapper.recipeItems.clear();
 		int pos = 0;
 		for (Ingredient ingr : recipeItems) {
-			ItemStack[] rawMatchingStacks = ((IIngredientMixin) ingr).npcs$getRawMatchingStacks();
+			ItemStack[] rawMatchingStacks = IngredientReflection.getRawMatchingStacks(ingr);
 			ItemStack[] array = new ItemStack[rawMatchingStacks.length];
 			for (int j = 0; j < rawMatchingStacks.length; j++) {
 				array[j] = rawMatchingStacks[j].copy();

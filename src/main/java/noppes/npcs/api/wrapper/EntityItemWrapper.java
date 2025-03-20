@@ -6,7 +6,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.mixin.entity.item.IEntityItemMixin;
+import noppes.npcs.reflection.entity.item.EntityItemReflection;
 
 import java.util.Objects;
 
@@ -19,7 +19,7 @@ public class EntityItemWrapper<T extends EntityItem> extends EntityWrapper<T> im
 
 	@Override
 	public long getAge() {
-		return ((IEntityItemMixin) this.entity).npcs$getAge(); // parent getAge() is only Client
+		return EntityItemReflection.getAge(entity); // parent getAge() is only Client
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class EntityItemWrapper<T extends EntityItem> extends EntityWrapper<T> im
 
 	@Override
 	public void setAge(long age) {
-		((IEntityItemMixin) this.entity).npcs$setAge((int) Math.max(Math.min(age, 2147483647L), 0));
+		EntityItemReflection.setAge(entity, (int) Math.max(Math.min(age, 2147483647L), 0));
 	}
 
 	@Override

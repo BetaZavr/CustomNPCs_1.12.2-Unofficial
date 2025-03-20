@@ -1814,7 +1814,11 @@ public class ClientProxy extends CommonProxy {
 		String translateValue = value;
 		if (!currentLanguage.equals("en_us")) {
 			String language = currentLanguage;
-			if (language.contains("_")) { language = language.substring(0, language.indexOf("_")); }
+			if (currentLanguage.contains("_")) {
+				if (currentLanguage.equals("zh_cn")) { language = "zh_CN"; }
+				else if (currentLanguage.equals("zh_tw")) { language = "zh_TW"; }
+				else { language = currentLanguage.substring(0, currentLanguage.indexOf("_")); }
+			}
 			if (isExample) {
 				translateValue = Util.instance.translateGoogle("en", language, value);
 				if (translateValue.equals(value)) { return; }

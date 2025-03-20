@@ -193,9 +193,11 @@ public class DataElement implements IDataElement {
 			return ((Method) this.object).getReturnType();
 		}
 		else if (this.object instanceof Field) {
-			((Field) this.object).setAccessible(true);
+			if (data.getClass() == Class.class) { return null; }
 			try {
-				Object obj = ((Field) this.object).get(this.data);
+				Field field = (Field) object;
+				field.setAccessible(true);
+				Object obj = field.get(data);
 				if (obj == null) { return "null"; }
 				String value = obj.toString();
 				if (obj.getClass().isArray()) {

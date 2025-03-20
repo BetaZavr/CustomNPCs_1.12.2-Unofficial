@@ -13,11 +13,16 @@ public class SoundEventReflection {
     public static ResourceLocation getSoundName(SoundEvent event) {
         if (event == null) { return new ResourceLocation(""); }
         if (soundName == null) {
-            try {
-                try { soundName = SoundEvent.class.getDeclaredField("field_187506_b"); }
-                catch (Exception e) { soundName = SoundEvent.class.getDeclaredField("soundName"); }
-            } catch (Exception e) {
-                LogWriter.error("Error found field \"soundName\"", e);
+            Exception error = null;
+            try { soundName = SoundEvent.class.getDeclaredField("field_187506_b"); } catch (Exception e) { error = e; }
+            if (soundName == null) {
+                try {
+                    soundName = SoundEvent.class.getDeclaredField("soundName");
+                    error = null;
+                } catch (Exception e) { error = e; }
+            }
+            if (error != null) {
+                LogWriter.error("Error found field \"soundName\"", error);
                 return new ResourceLocation("");
             }
         }

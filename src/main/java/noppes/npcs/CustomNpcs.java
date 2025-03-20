@@ -11,6 +11,7 @@ import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockVine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -106,14 +107,14 @@ import noppes.npcs.dimensions.CustomWorldProvider;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
-import noppes.npcs.api.mixin.entity.ai.attributes.IRangedAttributeMixin;
+import noppes.npcs.reflection.entity.ai.attributes.RangedAttributeReflection;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.DataDebug;
 import noppes.npcs.util.DataDebug.Debug;
 
 @Mod(modid = CustomNpcs.MODID,
 		name = CustomNpcs.MODNAME,
-		version = "3.426",
+		version = "4.426",
 		acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2",
 		guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
 public class CustomNpcs {
@@ -459,7 +460,7 @@ public class CustomNpcs {
 		CustomNpcs.customDimensionType = DimensionType.register("CustomDimensions", "CustomNpcs",
 				"CustomDimensions".hashCode(), CustomWorldProvider.class, false);
 		CustomNpcs.proxy.preload();
-		((IRangedAttributeMixin) SharedMonsterAttributes.MAX_HEALTH).npcs$setMaxValue(Double.MAX_VALUE);
+		RangedAttributeReflection.setMaxValue((RangedAttribute) SharedMonsterAttributes.MAX_HEALTH, Double.MAX_VALUE);
 		DataObject.load();
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_preload");
 	}

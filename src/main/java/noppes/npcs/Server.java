@@ -45,7 +45,7 @@ import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.dimensions.CustomWorldInfo;
-import noppes.npcs.reflection.PathReflection;
+import noppes.npcs.reflection.pathfinding.PathReflection;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
@@ -82,10 +82,12 @@ public class Server {
 		Server.list.add(EnumPacketClient.ANIMATION_DATA_RUN_ANIMATION);
 		Server.list.add(EnumPacketClient.ANIMATION_DATA_STOP_ANIMATION);
 		Server.list.add(EnumPacketClient.ANIMATION_DATA_STOP_EMOTION);
+		Server.list.add(EnumPacketClient.SCRIPT_CONSOLE);
+		Server.list.add(EnumPacketClient.SCRIPT_CODE);
 	}
 
-	public static boolean fillBuffer(ByteBuf buffer, Enum<?> enu, Object... obs) throws IOException {
-		buffer.writeInt(enu.ordinal());
+	public static boolean fillBuffer(ByteBuf buffer, Enum<?> type, Object... obs) throws Exception {
+		buffer.writeInt(type.ordinal());
 		for (Object ob : obs) {
 			if (ob != null) {
 				if (ob instanceof Map) {
@@ -166,7 +168,8 @@ public class Server {
 						}
 						i++;
 					}
-				} else if (ob instanceof MerchantRecipeList) {
+				}
+				else if (ob instanceof MerchantRecipeList) {
 					((MerchantRecipeList) ob).writeToBuf(new PacketBuffer(buffer));
 				}
 				else if (ob instanceof List) {
@@ -190,39 +193,51 @@ public class Server {
 							writeIntArray(buffer, a);
 						} catch (Exception ignored) { }
 					}
-				} else if (ob instanceof UUID) {
+				}
+				else if (ob instanceof UUID) {
 					writeString(buffer, ob.toString());
-				} else if (ob instanceof Enum) {
+				}
+				else if (ob instanceof Enum) {
 					buffer.writeInt(((Enum<?>) ob).ordinal());
-				} else if (ob instanceof Integer) {
+				}
+				else if (ob instanceof Integer) {
 					buffer.writeInt((int) ob);
-				} else if (ob instanceof Boolean) {
+				}
+				else if (ob instanceof Boolean) {
 					buffer.writeBoolean((boolean) ob);
-				} else if (ob instanceof String) {
+				}
+				else if (ob instanceof String) {
 					writeString(buffer, (String) ob);
-				} else if (ob instanceof ResourceLocation) {
+				}
+				else if (ob instanceof ResourceLocation) {
 					writeString(buffer, ((ResourceLocation) ob).toString());
-				} else if (ob instanceof Float) {
+				}
+				else if (ob instanceof Float) {
 					buffer.writeFloat((float) ob);
-				} else if (ob instanceof Long) {
+				}
+				else if (ob instanceof Long) {
 					buffer.writeLong((long) ob);
-				} else if (ob instanceof Double) {
+				}
+				else if (ob instanceof Double) {
 					buffer.writeDouble((double) ob);
-				} else if (ob instanceof NBTTagCompound) {
+				}
+				else if (ob instanceof NBTTagCompound) {
 					writeNBT(buffer, (NBTTagCompound) ob);
-				} else if (ob instanceof FMLMessage.EntitySpawnMessage) {
+				}
+				else if (ob instanceof FMLMessage.EntitySpawnMessage) {
 					EntitySpawnMessageHelper.toBytes((FMLMessage.EntitySpawnMessage) ob, buffer);
-				} else if (ob instanceof Integer[] || ob instanceof int[]) {
+				}
+				else if (ob instanceof Integer[] || ob instanceof int[]) {
                     assert ob instanceof int[];
                     writeIntArray(buffer, (int[]) ob);
-				} else if (ob instanceof WorldInfo) {
+				}
+				else if (ob instanceof WorldInfo) {
 					writeWorldInfo(buffer, (WorldInfo) ob);
 				}
 			}
 		}
-		if (buffer.array().length >= 65534) {
-			LogWriter.error("Packet " + enu + " was too big to be send");
-			return false;
+		if (buffer.array().length > 32768) {
+			throw new RuntimeException("Packet " + type + " was too big to be send ["+buffer.array().length+"/32768]");
 		}
 		return true;
 	}
@@ -355,27 +370,31 @@ public class Server {
 		if (list.isEmpty()) {
 			return;
 		}
-		CustomNPCsScheduler.runTack(() -> {
-			ByteBuf buffer = Unpooled.buffer();
-			try {
-				if (fillBuffer(buffer, type, obs)) {
-					if (!Server.list.contains(type)) {
-						LogWriter.debug("SendAssociatedData: " + type);
-					}
-                    for (EntityPlayerMP entityPlayerMP : list) {
-                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
-                    }
+		ByteBuf buffer = Unpooled.buffer();
+		try {
+			if (fillBuffer(buffer, type, obs)) {
+				if (!Server.list.contains(type)) {
+					LogWriter.debug("SendAssociatedData: " + type);
 				}
-			} catch (IOException e) {
-				LogWriter.error(type + " Errored", e);
-			} finally {
-				buffer.release();
+				for (EntityPlayerMP entityPlayerMP : list) {
+					CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
+				}
 			}
-		});
+		}
+		catch (Exception e) { LogWriter.error("Error send data:", e); }
 	}
 
-	public static void sendData(EntityPlayerMP player, EnumPacketClient enu, Object... obs) {
-		sendDataDelayed(player, enu, 0, obs);
+	public static void sendData(EntityPlayerMP player, EnumPacketClient type, Object... obs) {
+		ByteBuf buffer = Unpooled.buffer();
+		try {
+			if (fillBuffer(buffer, type, obs)) {
+				if (!Server.list.contains(type)) {
+					LogWriter.debug("SendAssociatedData: " + type);
+				}
+				CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), player);
+			}
+		}
+		catch (Exception e) { LogWriter.error("Error send data:", e); }
 	}
 
 	public static boolean sendDataChecked(EntityPlayerMP player, EnumPacketClient type, Object... obs) {
@@ -388,9 +407,8 @@ public class Server {
 				LogWriter.debug("SendDataChecked: " + type);
 			}
 			CustomNpcs.Channel.sendTo(new FMLProxyPacket(buffer, CustomNpcs.MODNAME), player);
-		} catch (IOException e) {
-			LogWriter.error(type + " Errored", e);
 		}
+		catch (Exception e) { LogWriter.error("Error send data:", e); }
 		return true;
 	}
 
@@ -399,16 +417,13 @@ public class Server {
 			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 			try {
 				if (fillBuffer(buffer, type, obs)) {
-					if (!Server.list.contains(type)) {
-						LogWriter.debug("SendData: " + type);
-					}
+					if (!Server.list.contains(type)) { LogWriter.debug("SendData: " + type); }
 					CustomNpcs.Channel.sendTo(new FMLProxyPacket(buffer, CustomNpcs.MODNAME), player);
 				} else {
 					LogWriter.error("Not Send: " + type);
 				}
-			} catch (IOException e) {
-				LogWriter.error(type + " Errored", e);
 			}
+			catch (Exception e) { LogWriter.error("Error send data:", e); }
 		}, delay);
 	}
 
@@ -418,72 +433,52 @@ public class Server {
 		if (list.isEmpty()) {
 			return;
 		}
-		CustomNPCsScheduler.runTack(() -> {
-			ByteBuf buffer = Unpooled.buffer();
-			try {
-				if (fillBuffer(buffer, type, obs)) {
-					if (!Server.list.contains(type)) {
-						LogWriter.debug("SendRangedData: " + type);
-					}
-                    for (EntityPlayerMP entityPlayerMP : list) {
-                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
-                    }
+		ByteBuf buffer = Unpooled.buffer();
+		try {
+			if (fillBuffer(buffer, type, obs)) {
+				if (!Server.list.contains(type)) {
+					LogWriter.debug("SendRangedData: " + type);
 				}
-			} catch (IOException e) {
-				LogWriter.error(type + " Errored", e);
-			} finally {
-				buffer.release();
+				for (EntityPlayerMP entityPlayerMP : list) {
+					CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
+				}
 			}
-		});
+		}
+		catch (Exception e) { LogWriter.error("Error send data:", e); }
 	}
 
 	public static void sendRangedData(World world, BlockPos pos, int range, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = world.getEntitiesWithinAABB(EntityPlayerMP.class,
-				new AxisAlignedBB(pos).grow(range, range, range));
-		if (list.isEmpty()) {
-			return;
-		}
-		CustomNPCsScheduler.runTack(() -> {
-			ByteBuf buffer = Unpooled.buffer();
-			try {
-				if (fillBuffer(buffer, type, obs)) {
-					if (!Server.list.contains(type)) {
-						LogWriter.debug("SendRangedData: " + type);
-					}
-                    for (EntityPlayerMP entityPlayerMP : list) {
-                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
-                    }
+		List<EntityPlayerMP> list = world.getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(pos).grow(range, range, range));
+		if (list.isEmpty()) { return; }
+		ByteBuf buffer = Unpooled.buffer();
+		try {
+			if (fillBuffer(buffer, type, obs)) {
+				if (!Server.list.contains(type)) {
+					LogWriter.debug("SendRangedData: " + type);
 				}
-			} catch (IOException e) {
-				LogWriter.error(type + " Errored", e);
-			} finally {
-				buffer.release();
+				for (EntityPlayerMP entityPlayerMP : list) {
+					CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
+				}
 			}
-		});
+		}
+		catch (Exception e) { LogWriter.error("Error send data:", e); }
 	}
 
 	public static void sendToAll(MinecraftServer server, EnumPacketClient type, Object ... obs) {
-		if (server == null) {
-			return;
-		}
+		if (server == null) { return; }
 		List<EntityPlayerMP> list = new ArrayList<>(server.getPlayerList().getPlayers());
-		CustomNPCsScheduler.runTack(() -> {
-			ByteBuf buffer = Unpooled.buffer();
-			try {
-				if (fillBuffer(buffer, type, obs)) {
-					if (!Server.list.contains(type)) {
-						LogWriter.debug("SendToAll: " + type);
-					}
-                    for (EntityPlayerMP entityPlayerMP : list) {
-                        CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
-                    }
+		ByteBuf buffer = Unpooled.buffer();
+		try {
+			if (fillBuffer(buffer, type, obs)) {
+				if (!Server.list.contains(type)) {
+					LogWriter.debug("SendToAll: " + type);
 				}
-			} catch (IOException e) {
-				LogWriter.error(type + " Errored", e);
-			} finally {
-				buffer.release();
+				for (EntityPlayerMP entityPlayerMP : list) {
+					CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), CustomNpcs.MODNAME), entityPlayerMP);
+				}
 			}
-		});
+		}
+		catch (Exception e) { LogWriter.error("Error send data:", e); }
 	}
 
 	public static void writeIntArray(ByteBuf buffer, int[] a) {
@@ -557,4 +552,5 @@ public class Server {
 	public static void writeWorldInfo(ByteBuf buffer, WorldInfo wi) {
 		ByteBufUtils.writeTag(buffer, wi.cloneNBTCompound(null));
 	}
+
 }

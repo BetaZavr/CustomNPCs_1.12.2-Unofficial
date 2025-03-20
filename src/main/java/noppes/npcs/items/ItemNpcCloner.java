@@ -106,7 +106,7 @@ public class ItemNpcCloner extends Item implements IPermission, INPCToolItem {
 							Client.sendData(EnumPacketServer.CloneSet, compound);
 							NoppesUtil.openGUI(player, new GuiNpcMobSpawnerAdd(compound));
 						}
-					} catch (Exception ignored) { }
+					} catch (Exception e) { LogWriter.error("Error send data:", e); }
 					return EnumActionResult.FAIL;
 				}
 				Client.sendData(EnumPacketServer.Gui, EnumGuiType.MobSpawner, pos.getX(), pos.getY(), pos.getZ());

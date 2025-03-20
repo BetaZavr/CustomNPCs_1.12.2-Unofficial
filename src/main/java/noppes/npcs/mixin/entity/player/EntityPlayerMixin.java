@@ -1,11 +1,7 @@
 package noppes.npcs.mixin.entity.player;
 
-import net.minecraft.block.BlockStairs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.stats.StatList;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;

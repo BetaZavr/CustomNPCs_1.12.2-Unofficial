@@ -20,11 +20,16 @@ public class ScoreboardReflection {
     public static Map<String, ScorePlayerTeam> getTeams(Scoreboard board) {
         if (board == null) { return Collections.emptyMap(); }
         if (teams == null) {
-            try {
-                try { teams = Scoreboard.class.getDeclaredField("field_96542_e"); }
-                catch (Exception e) { teams = Scoreboard.class.getDeclaredField("teams"); }
-            } catch (Exception e) {
-                LogWriter.error("Not Found field \"teams\" in " + board);
+            Exception error = null;
+            try { teams = Scoreboard.class.getDeclaredField("field_96542_e"); } catch (Exception e) { error = e; }
+            if (teams == null) {
+                try {
+                    teams = Scoreboard.class.getDeclaredField("teams");
+                    error = null;
+                } catch (Exception e) { error = e; }
+            }
+            if (error != null) {
+                LogWriter.error("Error found field \"teams\"", error);
                 return Collections.emptyMap();
             }
         }
@@ -41,11 +46,16 @@ public class ScoreboardReflection {
     public static Set<ScoreObjective> getAddedObjectives(ServerScoreboard board) {
         if (board == null) { return Collections.emptySet(); }
         if (addedObjectives == null) {
-            try {
-                try { addedObjectives = ServerScoreboard.class.getDeclaredField("field_96553_b"); }
-                catch (Exception e) { addedObjectives = ServerScoreboard.class.getDeclaredField("addedObjectives"); }
-            } catch (Exception e) {
-                LogWriter.error("Not Found field \"addedObjectives\" in " + board);
+            Exception error = null;
+            try { addedObjectives = ServerScoreboard.class.getDeclaredField("field_96553_b"); } catch (Exception e) { error = e; }
+            if (addedObjectives == null) {
+                try {
+                    addedObjectives = ServerScoreboard.class.getDeclaredField("addedObjectives");
+                    error = null;
+                } catch (Exception e) { error = e; }
+            }
+            if (error != null) {
+                LogWriter.error("Error found field \"addedObjectives\"", error);
                 return Collections.emptySet();
             }
         }

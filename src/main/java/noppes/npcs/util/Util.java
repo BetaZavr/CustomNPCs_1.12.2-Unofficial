@@ -81,8 +81,8 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.api.mixin.entity.IEntityMixin;
-import noppes.npcs.api.mixin.entity.ai.IEntitySensesMixin;
-import noppes.npcs.api.mixin.nbt.INBTTagLongArrayMixin;
+import noppes.npcs.reflection.entity.ai.EntitySensesReflection;
+import noppes.npcs.reflection.nbt.TagLongArrayReflection;
 import noppes.npcs.reflection.world.WorldReflection;
 import org.apache.commons.io.IOUtils;
 
@@ -709,8 +709,8 @@ public class Util implements IMethods {
 			if (entity instanceof EntityLiving) {
 				EntitySenses senses = ((EntityLiving) entity).getEntitySenses();
 				if (senses != null) {
-					seenEntities = ((IEntitySensesMixin) senses).npcs$getSeenEntities();
-					unseenEntities = ((IEntitySensesMixin) senses).npcs$getUnseenEntities();
+					seenEntities = EntitySensesReflection.getSeenEntities(senses);
+					unseenEntities = EntitySensesReflection.getUnseenEntities(senses);
 				}
 			}
 			if (rtr.getDistance() > aggroRange) {
@@ -1491,7 +1491,7 @@ public class Util implements IMethods {
 		else if (tag instanceof NBTTagString) { return ((NBTTagString) tag).getString(); }
 		else if (tag instanceof NBTTagByteArray) { return ((NBTTagByteArray) tag).getByteArray(); }
 		else if (tag instanceof NBTTagIntArray) { return ((NBTTagIntArray) tag).getIntArray(); }
-		else if (tag instanceof NBTTagLongArray) { return ((INBTTagLongArrayMixin) tag).npcs$getData(); }
+		else if (tag instanceof NBTTagLongArray) { return TagLongArrayReflection.getData((NBTTagLongArray) tag); }
 		else if (tag instanceof NBTTagList) {
 			Object[] arr = new Object[((NBTTagList) tag).tagCount()];
 			int i = 0;
@@ -1888,6 +1888,10 @@ public class Util implements IMethods {
 			JsonElement jsonElement = parser.parse(json);
 			JsonArray array = jsonElement.getAsJsonArray();
 			hasInternet = true;
+			// Do not change the original text if the languages are the same
+			if (textLanguageKey.equals("auto") && array.get(2) != null && array.get(2).getAsString().equals(translationLanguageKey)) {
+				return originalText;
+			}
 			// Extract translation
 			return array.get(0).getAsJsonArray().get(0).getAsJsonArray().get(0).getAsString();
 		}
@@ -2015,11 +2019,11 @@ public class Util implements IMethods {
 		return key.toString();
 	}
 
-	public static List<String> splitString(String input) {
+	public static List<String> splitString(String input, int offset) {
 		if (input == null || input.isEmpty()) {
 			return Collections.emptyList();
 		}
-		int maxLength = 32767;
+		int maxLength = 32767 - offset;
 		List<String> result = new ArrayList<>();
 		for (int i = 0; i < input.length(); i += maxLength) {
 			int endIndex = Math.min(i + maxLength, input.length());

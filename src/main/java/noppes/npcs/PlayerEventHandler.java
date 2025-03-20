@@ -9,12 +9,13 @@ import net.minecraft.block.BlockBanner;
 import net.minecraft.tileentity.TileEntityBanner;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
+import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.*;
-import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
-import noppes.npcs.api.mixin.event.entity.living.ILivingAttackEventMixin;
 import noppes.npcs.api.mixin.tileentity.ITileEntityBanner;
 import noppes.npcs.entity.data.DataInventory;
+import noppes.npcs.reflection.event.entity.living.LivingAttackEventReflection;
+import noppes.npcs.util.CustomNPCsScheduler;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.reflect.ClassPath;
@@ -442,7 +443,7 @@ public class PlayerEventHandler {
 			PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 1, target);
 			event.setCanceled(EventHooks.onPlayerAttack(handler, ev));
 			if (event.isCanceled() || ev.isCanceled()) {
-				((ILivingAttackEventMixin) event).npcs$setAmount(0.0f);
+				LivingAttackEventReflection.setAmount(event, 0.0f);
 			}
 			if (item.getItem() == CustomRegisters.scripted_item && !event.isCanceled()) {
 				ItemScriptedWrapper isw = ItemScripted.GetWrapper(item);
@@ -601,6 +602,9 @@ public class PlayerEventHandler {
 	public void npcPlayerLoginEvent(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
 		NoppesUtilServer.sendScriptErrorsTo(event.player);
 		if (event.player.world.isRemote) { return; }
+		if (!ScriptController.Instance.getErrored().isEmpty()) {
+			CustomNPCsScheduler.runTack(() -> event.player.sendMessage(new TextComponentTranslation("command.script.logs.view")), 2500);
+		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerLoginEvent");
 		PlayerData data = PlayerData.get(event.player);
 		EventHooks.onPlayerLogin(data.scriptData);

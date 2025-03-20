@@ -124,6 +124,13 @@ implements IEditNPC, ICustomScrollListener {
 		return id < components.size() ? components.get(id) : null;
 	}
 
+	public IComponentGui get(int id, Class<?> classType) {
+		for (IComponentGui component : components) {
+			if (component.getID() == id && component.getClass().isAssignableFrom(classType)) { return component; }
+		}
+		return id < components.size() ? components.get(id) : null;
+	}
+
 	public void addButton(GuiNpcButton button) { addButton((IGuiNpcButton) button); }
 
 	@Override

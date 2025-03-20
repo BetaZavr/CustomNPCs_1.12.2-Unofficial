@@ -27,12 +27,11 @@ public class Client {
 			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 			try {
 				if (Server.fillBuffer(buffer, type, obs)) {
-					if (!notDebugShow.contains(type)) {
-						LogWriter.debug("Send: " + type);
-					}
+					if (!notDebugShow.contains(type)) { LogWriter.debug("Send: " + type); }
 					CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, CustomNpcs.MODNAME));
 				}
-			} catch (IOException e) { LogWriter.error("Error:", e); }
+			}
+			catch (Exception e) { LogWriter.error("Error send data:", e); }
 		});
 	}
 
@@ -44,7 +43,8 @@ public class Client {
 			}
 			LogWriter.debug("Send: " + type);
 			CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, CustomNpcs.MODNAME));
-		} catch (IOException e) { LogWriter.error("Error:", e); }
+		}
+		catch (Exception e) { LogWriter.error("Error send data:", e); }
 	}
 
 }

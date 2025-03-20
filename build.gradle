@@ -26,7 +26,7 @@ apply plugin: 'idea'
 // JAR naming
 version = getCustomVersion()
 group = mod_group
-archivesBaseName = mod_name
+archivesBaseName = mod_name + " " + minecraft_version + " Unofficial"
 
 // Snapshot version
 def getCustomVersion() {
@@ -104,7 +104,8 @@ processResources {
                 'description': mod_description,
                 'credits': mod_credits,
                 'logoFile' : mod_logoFile,
-                'authorList': mod_authors
+                'authorList': mod_authors,
+                'url': mod_url
     }
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'

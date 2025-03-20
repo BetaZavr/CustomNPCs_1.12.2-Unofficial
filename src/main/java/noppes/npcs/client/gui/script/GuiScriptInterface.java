@@ -11,6 +11,7 @@ import net.minecraft.client.gui.GuiConfirmOpenLink;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
@@ -20,8 +21,8 @@ import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
-import noppes.npcs.api.mixin.nbt.INBTTagLongArrayMixin;
 import noppes.npcs.controllers.data.ClientScriptData;
+import noppes.npcs.reflection.nbt.TagLongArrayReflection;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
@@ -43,6 +44,7 @@ implements IGuiData, ITextChangeListener {
 	public Map<String, Map<String, Long>> languages = new HashMap<>();
 	public String path, ext;
 
+	protected boolean wait = true;
 
 	public GuiScriptInterface() {
 		super();
@@ -50,12 +52,12 @@ implements IGuiData, ITextChangeListener {
 		closeOnEsc = true;
 		xSize = 420;
 		setBackground("menubg.png");
-
 		activeTab = 0;
 	}
 
 	@Override
 	protected void actionPerformed(@Nonnull GuiButton button) {
+		if (wait) { return; }
 		if (button.id >= 0 && button.id < CustomNpcs.ScriptMaxTabs) {
 			setScript();
 			activeTab = button.id;
@@ -153,11 +155,11 @@ implements IGuiData, ITextChangeListener {
 		}
 		if (button.id == 119) {
 			if (activeTab > 0 ||
-					!(get(2) instanceof GuiTextArea) ||
+					get(2, GuiTextArea.class) == null ||
 					!dataLog.containsKey(((GuiNpcButton) button).getValue()) ||
 					!handler.getConsoleText().containsKey(dataLog.get(((GuiNpcButton) button).getValue()))) { return; }
 			selectLog = dataLog.get(((GuiNpcButton) button).getValue());
-			((GuiTextArea) get(2)).setText(new Date(selectLog) + handler.getConsoleText().get(selectLog));
+			((GuiTextArea) get(2, GuiTextArea.class)).setText(new Date(selectLog) + handler.getConsoleText().get(selectLog));
 		}
 		if (button.id == 120) { // copy log
 			if (activeTab > 0) { return; }
@@ -169,7 +171,8 @@ implements IGuiData, ITextChangeListener {
 			initGui();
 		}
 	}
-	
+
+
 	@Override
 	public void confirmClicked(boolean flag, int i) {
 		if (flag) {
@@ -276,6 +279,8 @@ implements IGuiData, ITextChangeListener {
 
 	@Override
 	public void initGui() {
+		super.initGui();
+		wait = false;
 		xSize = (int) (width * 0.88);
 		ySize = (int) (xSize * 0.56);
 		if (ySize > height * 0.95) {
@@ -327,10 +332,14 @@ implements IGuiData, ITextChangeListener {
 			button.setHoverText("" + button.enabled);
 		} // script
 		else { // info
-			TreeMap<Long, String> map = handler.getConsoleText();
+			NavigableMap<Long, String> map = handler.getConsoleText().descendingMap();
 			String log = "";
 			if (!map.isEmpty()) {
-				if (!map.containsKey(selectLog)) { selectLog = map.firstKey(); }
+				if (!map.containsKey(selectLog)) {
+					for (long time : map.keySet()) {
+						if (selectLog < time) { selectLog = time; }
+					}
+				}
 				log = new Date(selectLog) + map.get(selectLog);
 			}
 			GuiTextArea ta = new GuiTextArea(2, guiLeft + 4, guiTop + 7 + yoffset + (map.size() > 1 ? 22 : 0), xSize - 160, (int) ((ySize * 0.92f) - yoffset * 2) - (map.size() > 1 ? 22 : 0), log);
@@ -413,7 +422,7 @@ implements IGuiData, ITextChangeListener {
 			Map<String, Long> scripts = new TreeMap<>();
 			NBTTagList list = comp.getTagList("Scripts", 8);
 			long[] ld = new long[list.tagCount()];
-			if (comp.hasKey("sizes", 12)) { ld = ((INBTTagLongArrayMixin) comp.getTag("sizes")).npcs$getData(); }
+			if (comp.hasKey("sizes", 12)) { ld = TagLongArrayReflection.getData((NBTTagLongArray) comp.getTag("sizes")); }
 			if (ld != null) {
 				for (int j = 0; j < list.tagCount(); ++j) { scripts.put(list.getStringTagAt(j), ld[j]); }
 			}
@@ -439,6 +448,29 @@ implements IGuiData, ITextChangeListener {
 	public void textUpdate(String text) {
 		ScriptContainer container = handler.getScripts().get(activeTab - 1);
 		if (container != null) { container.script = text; }
+	}
+
+	public void addScript(int tab, String codePart) {
+		if (tab < 0) { return; }
+		List<ScriptContainer> scripts = handler.getScripts();
+		while (tab >= scripts.size()) { scripts.add(new ScriptContainer(handler, true)); }
+		ScriptContainer container = scripts.get(tab);
+		if (container.script == null || codePart.isEmpty()) {
+			container.script = "";
+			if (codePart.isEmpty()) { return; }
+		}
+		container.script += codePart;
+	}
+
+	public void addConsole(int tab, long time, String consolePart) {
+		if (tab < 0) { return; }
+		List<ScriptContainer> scripts = handler.getScripts();
+		while (tab >= scripts.size()) { scripts.add(new ScriptContainer(handler, true)); }
+		ScriptContainer container = scripts.get(tab);
+		if (container.console == null) { container.console = new TreeMap<>();}
+		if (!container.console.containsKey(time) || consolePart.isEmpty()) { container.console.put(time, ""); }
+		String consoleText = container.console.get(time) + consolePart;
+		container.console.put(time, consoleText);
 	}
 
 }

@@ -63,7 +63,7 @@ import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityDialogNpc;
-import noppes.npcs.api.mixin.entity.player.IEntityPlayerMPMixin;
+import noppes.npcs.reflection.entity.player.EntityPlayerMPReflection;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ValueUtil;
@@ -304,7 +304,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	@Override
 	public String getLanguage() {
 		if (!(this.entity instanceof EntityPlayerMP)) { return "en_en"; }
-		return ((IEntityPlayerMPMixin) this.entity).npcs$getLanguage();
+		return EntityPlayerMPReflection.getLanguage((EntityPlayerMP) entity);
 	}
 
 	@Override

@@ -17,7 +17,7 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
-import noppes.npcs.api.mixin.nbt.INBTTagListMixin;
+import noppes.npcs.reflection.nbt.NBTTagListReflection;
 
 public class NBTJsonUtil {
 
@@ -196,7 +196,7 @@ public class NBTJsonUtil {
 	}
 
 	private static List<NBTBase> getListData(NBTTagList list) {
-		return ((INBTTagListMixin) list).npcs$getTagList();
+		return NBTTagListReflection.getTagList(list);
 	}
 
 	public static NBTTagCompound LoadFile(File file) throws IOException, JsonException {

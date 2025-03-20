@@ -2,7 +2,7 @@ package noppes.npcs.items;
 
 import java.util.*;
 
-import noppes.npcs.api.mixin.item.IItemArmorAPIMixin;
+import noppes.npcs.reflection.item.ItemArmorReflection;
 import org.lwjgl.util.vector.Vector3f;
 
 import net.minecraft.client.model.ModelBiped;
@@ -88,12 +88,8 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 		if (maxStackDamage > 1) {
 			this.setMaxDamage(maxStackDamage);
 		}
-		if (damageReduceAmount > 0) {
-			((IItemArmorAPIMixin) this).npcs$setDamageReduceAmount(damageReduceAmount);
-		}
-		if (toughness > 0.0f) {
-			((IItemArmorAPIMixin) this).npcs$setToughness(toughness);
-		}
+		if (damageReduceAmount > 0) { ItemArmorReflection.setDamageReduceAmount(this, damageReduceAmount); }
+		if (toughness > 0.0f) { ItemArmorReflection.setToughness(this, toughness); }
 		if (nbtItem.hasKey("RepairItem", 10)) {
 			this.repairItemStack = new ItemStack(nbtItem.getCompoundTag("RepairItem"));
 		} else {

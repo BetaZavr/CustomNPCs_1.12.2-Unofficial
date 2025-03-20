@@ -10,7 +10,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
-import noppes.npcs.api.mixin.item.crafting.IIngredientMixin;
+import noppes.npcs.reflection.item.crafting.IngredientReflection;
 import noppes.npcs.util.Util;
 
 public class NBTTags {
@@ -216,7 +216,7 @@ public class NBTTags {
 			NBTTagCompound nbttagcompound = new NBTTagCompound();
 			nbttagcompound.setByte("Slot", (byte) slot);
 				NBTTagList ingredients = new NBTTagList();
-				ItemStack[] ings = ((IIngredientMixin) ingredient).npcs$getRawMatchingStacks();
+				ItemStack[] ings = IngredientReflection.getRawMatchingStacks(ingredient);
 				for (ItemStack ing : ings) {
 					ingredients.appendTag(ing.writeToNBT(new NBTTagCompound()));
 				}
@@ -334,7 +334,7 @@ public class NBTTags {
 			if (totalStr.length() < 32767) { nbt.setString("String", totalStr); }
 			else {
 				NBTTagList list = new NBTTagList();
-				for (String line : Util.splitString(totalStr)) { list.appendTag(new NBTTagString(line)); }
+				for (String line : Util.splitString(totalStr, 0)) { list.appendTag(new NBTTagString(line)); }
 				nbt.setTag("String", list);
 			}
 			nbttaglist.appendTag(nbt);
