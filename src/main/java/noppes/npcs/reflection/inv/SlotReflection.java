@@ -5,6 +5,7 @@ import net.minecraft.inventory.Slot;
 import noppes.npcs.LogWriter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class SlotReflection {
 
@@ -53,6 +54,13 @@ public class SlotReflection {
         }
         try {
             slotIndex.setAccessible(true);
+
+            if (Modifier.isFinal(slotIndex.getModifiers())) {
+                Field modifiersField = Field.class.getDeclaredField("modifiers");
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(slotIndex, slotIndex.getModifiers() & ~Modifier.FINAL);
+            }
+
             slotIndex.set(slot, newSlotID);
         }
         catch (Exception e) {

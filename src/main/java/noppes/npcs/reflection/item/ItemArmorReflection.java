@@ -5,6 +5,7 @@ import net.minecraft.item.ItemArmor;
 import noppes.npcs.LogWriter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class ItemArmorReflection {
 
@@ -31,6 +32,13 @@ public class ItemArmorReflection {
         }
         try {
             damageReduceAmount.setAccessible(true);
+
+            if (Modifier.isFinal(damageReduceAmount.getModifiers())) {
+                Field modifiersField = Field.class.getDeclaredField("modifiers");
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(damageReduceAmount, damageReduceAmount.getModifiers() & ~Modifier.FINAL);
+            }
+
             damageReduceAmount.set(item, newDamageReduceAmount);
         } catch (Exception e) {
             LogWriter.error("Error set \"damageReduceAmount\":\"" + newDamageReduceAmount + "\" to " + item, e);

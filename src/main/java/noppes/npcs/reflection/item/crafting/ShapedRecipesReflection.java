@@ -4,6 +4,7 @@ import net.minecraft.item.crafting.ShapedRecipes;
 import noppes.npcs.LogWriter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class ShapedRecipesReflection {
 
@@ -27,6 +28,13 @@ public class ShapedRecipesReflection {
         }
         try {
             group.setAccessible(true);
+
+            if (Modifier.isFinal(group.getModifiers())) {
+                Field modifiersField = Field.class.getDeclaredField("modifiers");
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(group, group.getModifiers() & ~Modifier.FINAL);
+            }
+
             group.set(recipe, newGroupName);
         } catch (Exception e) {
             LogWriter.error("Error set \"damageReduceAmount\":\"" + newGroupName + "\" to " + recipe, e);

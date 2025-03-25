@@ -33,7 +33,7 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.api.mixin.block.IBlockMixin;
+import noppes.npcs.reflection.block.BlockReflection;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.IPermission;
 
@@ -123,19 +123,19 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 		this.INT = null;
 		this.FACING = null;
 		if (nbtBlock.hasKey("Property", 10)) {
-			((IBlockMixin) this).npcs$setBlockState(this.createBlockState());
+			BlockReflection.setBlockState(this, createBlockState());
 			NBTTagCompound nbtProperty = nbtBlock.getCompoundTag("Property");
 			switch (nbtProperty.getByte("Type")) {
 				case (byte) 1: {
-					this.setDefaultState(this.blockState.getBaseState().withProperty(this.BO, false));
+					this.setDefaultState(blockState.getBaseState().withProperty(this.BO, false));
 					break;
 				}
 				case (byte) 3: {
-					this.setDefaultState(this.blockState.getBaseState().withProperty(this.INT, 0));
+					this.setDefaultState(blockState.getBaseState().withProperty(this.INT, 0));
 					break;
 				}
 				case (byte) 4: {
-					this.setDefaultState(this.blockState.getBaseState().withProperty(this.FACING, EnumFacing.NORTH));
+					this.setDefaultState(blockState.getBaseState().withProperty(this.FACING, EnumFacing.NORTH));
 					break;
 				}
 			}

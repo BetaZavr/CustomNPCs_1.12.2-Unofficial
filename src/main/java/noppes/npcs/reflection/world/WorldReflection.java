@@ -18,11 +18,16 @@ public class WorldReflection {
     public static List<Entity> getUnloadedEntityList(World world) {
         if (world == null) { return Collections.emptyList(); }
         if (unloadedEntityList == null) {
-            try {
-                try { unloadedEntityList = World.class.getDeclaredField("field_72997_g"); }
-                catch (Exception e) { unloadedEntityList = World.class.getDeclaredField("unloadedEntityList"); }
-            } catch (Exception e) {
-                LogWriter.debug("Not Found field \"unloadedEntityList\" in " + world);
+            Exception error = null;
+            try { unloadedEntityList = World.class.getDeclaredField("field_72997_g"); } catch (Exception e) { error = e; }
+            if (unloadedEntityList == null) {
+                try {
+                    unloadedEntityList = World.class.getDeclaredField("unloadedEntityList");
+                    error = null;
+                } catch (Exception e) { error = e; }
+            }
+            if (error != null) {
+                LogWriter.error("Error found field \"unloadedEntityList\"", error);
                 return Collections.emptyList();
             }
         }

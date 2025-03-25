@@ -6,9 +6,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import net.minecraft.client.gui.*;
-import noppes.npcs.api.event.ClientEvent;
-import noppes.npcs.api.mixin.client.renderer.IBlockModelRendererMixin;
-import noppes.npcs.api.mixin.client.renderer.IBlockRendererDispatcherMixin;
+import noppes.npcs.reflection.client.renderer.BlockModelRendererReflection;
+import noppes.npcs.reflection.client.renderer.BlockRendererDispatcherReflection;
 import org.lwjgl.opengl.GL11;
 
 import com.google.gson.Gson;
@@ -385,8 +384,8 @@ public class ClientEventHandler {
 		case MODEL:
 			IBakedModel ibakedmodel = dispatcher.getModelForState(state);
 			GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
-			BlockModelRenderer bmr = ((IBlockRendererDispatcherMixin) dispatcher).npcs$getBlockModelRenderer();
-			BlockColors bc = ((IBlockModelRendererMixin) bmr).npcs$getBlockColors();
+			BlockModelRenderer bmr = BlockRendererDispatcherReflection.getBlockModelRenderer(dispatcher);
+			BlockColors bc = BlockModelRendererReflection.getBlockColors(bmr);
 			int color = bc.colorMultiplier(state, null, null, 0);
 			if (EntityRenderer.anaglyphEnable) {
 				color = TextureUtil.anaglyphColor(color);
@@ -400,7 +399,7 @@ public class ClientEventHandler {
 			this.renderModelBlockQuads(ibakedmodel.getQuads(state, null, 0L), r, g, b);
 			break;
 		case ENTITYBLOCK_ANIMATED:
-			ChestRenderer chestRenderer = ((IBlockRendererDispatcherMixin) dispatcher).npcs$getChestRenderer();
+			ChestRenderer chestRenderer = BlockRendererDispatcherReflection.getChestRenderer(dispatcher);
 			chestRenderer.renderChestBrightness(state.getBlock(), 1.0f);
             default:
 			break;

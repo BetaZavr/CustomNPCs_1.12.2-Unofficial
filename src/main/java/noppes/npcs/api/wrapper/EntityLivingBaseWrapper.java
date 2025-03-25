@@ -32,7 +32,7 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.mixin.entity.IEntityTrackerMixin;
 import noppes.npcs.api.wrapper.data.AttributeWrapper;
 import noppes.npcs.controllers.data.MarkData;
-import noppes.npcs.api.mixin.entity.ai.attributes.IAbstractAttributeMapMixin;
+import noppes.npcs.reflection.entity.ai.attributes.AbstractAttributeMapReflection;
 
 @SuppressWarnings("rawtypes")
 public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityWrapper<T> implements IEntityLivingBase {
@@ -147,14 +147,14 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 
 	@Override
 	public INpcAttribute getIAttribute(String attributeName) {
-		Map<String, IAttributeInstance> attributesByName = ((IAbstractAttributeMapMixin) this.entity.getAttributeMap()).npcs$getAttributesByName();
+		Map<String, IAttributeInstance> attributesByName = AbstractAttributeMapReflection.getAttributesByName(entity.getAttributeMap());
         if (attributesByName == null) { return null; }
         return Objects.requireNonNull(NpcAPI.Instance()).getIAttribute(attributesByName.get(attributeName));
 	}
 
 	@Override
 	public String[] getIAttributeNames() {
-		Map<String, IAttributeInstance> attributesByName = ((IAbstractAttributeMapMixin) this.entity.getAttributeMap()).npcs$getAttributesByName();
+		Map<String, IAttributeInstance> attributesByName = AbstractAttributeMapReflection.getAttributesByName(entity.getAttributeMap());
 		if (attributesByName == null) { return new String[0]; }
         return attributesByName.keySet().toArray(new String[0]);
 	}
@@ -256,7 +256,7 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 
 	@Override
 	public boolean hasAttribute(String attributeName) {
-		Map<String, IAttributeInstance> attributesByName = ((IAbstractAttributeMapMixin) this.entity.getAttributeMap()).npcs$getAttributesByName();
+		Map<String, IAttributeInstance> attributesByName = AbstractAttributeMapReflection.getAttributesByName(entity.getAttributeMap());
 		if (attributesByName == null) { return false; }
 		return attributesByName.containsKey(attributeName);
 	}
@@ -277,9 +277,9 @@ public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityW
 		if (attribute == null || !attribute.isCustom() || !this.hasAttribute(attribute)) {
 			return false;
 		}
-		Map<IAttribute, IAttributeInstance> attributes = ((IAbstractAttributeMapMixin) this.entity.getAttributeMap()).npcs$getAttributes();
-		Map<String, IAttributeInstance> attributesByName = ((IAbstractAttributeMapMixin) this.entity.getAttributeMap()).npcs$getAttributesByName();
-		Multimap<IAttribute, IAttribute> descendantsByParent = ((IAbstractAttributeMapMixin) this.entity.getAttributeMap()).npcs$getDescendantsByParent();
+		Map<IAttribute, IAttributeInstance> attributes = AbstractAttributeMapReflection.getAttributes(entity.getAttributeMap());
+		Map<String, IAttributeInstance> attributesByName = AbstractAttributeMapReflection.getAttributesByName(entity.getAttributeMap());
+		Multimap<IAttribute, IAttribute> descendantsByParent = AbstractAttributeMapReflection.getDescendantsByParent(entity.getAttributeMap());
 		if (attributes == null || descendantsByParent == null || attributesByName == null) { return false; }
 		IAttribute key = null;
 		String name = null;

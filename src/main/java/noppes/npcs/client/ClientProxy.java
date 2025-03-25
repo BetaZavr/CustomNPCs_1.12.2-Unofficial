@@ -79,7 +79,6 @@ import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.mixin.client.resources.ILocaleMixin;
 import noppes.npcs.api.wrapper.WrapperMinecraft;
 import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomBlockPortal;
@@ -159,18 +158,18 @@ import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.ItemScripted;
-import noppes.npcs.api.mixin.client.IItemModelMesherForgeMixin;
 import noppes.npcs.api.mixin.client.gui.recipebook.IRecipeListMixin;
 import noppes.npcs.api.mixin.client.network.INetworkPlayerInfoMixin;
 import noppes.npcs.api.mixin.client.particle.IParticleFlameMixin;
 import noppes.npcs.api.mixin.client.particle.IParticleManagerMixin;
 import noppes.npcs.api.mixin.client.particle.IParticleSmokeNormalMixin;
-import noppes.npcs.api.mixin.client.renderer.texture.ITextureManagerMixin;
-import noppes.npcs.api.mixin.client.renderer.tileentity.ITileEntityItemStackRendererMixin;
-import noppes.npcs.api.mixin.client.settings.IKeyBindingMixin;
-import noppes.npcs.api.mixin.client.settings.IKeyBindingForgeMixin;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
+import noppes.npcs.reflection.client.ItemModelMesherForgeReflection;
+import noppes.npcs.reflection.client.renderer.texture.TextureManagerReflection;
+import noppes.npcs.reflection.client.renderer.tileentity.TileEntityItemStackRendererReflection;
+import noppes.npcs.reflection.client.resources.LocaleReflection;
+import noppes.npcs.reflection.client.settings.KeyBindingReflection;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.TempFile;
 
@@ -288,7 +287,7 @@ public class ClientProxy extends CommonProxy {
 			for (Field field : i18n.getDeclaredFields()) {
 				if (field.getType() == Locale.class) {
 					field.setAccessible(true);
-					properties = ((ILocaleMixin) field.get(null)).npcs$getProperties();
+					properties = LocaleReflection.getProperties((Locale) field.get(null));
 					break;
 				}
 			}
@@ -423,7 +422,7 @@ public class ClientProxy extends CommonProxy {
 		if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) { return skin; }
 		TextureManager re = Minecraft.getMinecraft().getTextureManager();
 		if (file.exists() && file.isFile()) {
-			Map<ResourceLocation, ITextureObject> mapTextureObjects = ((ITextureManagerMixin) re).npcs$getMapTextureObjects();
+			Map<ResourceLocation, ITextureObject> mapTextureObjects = TextureManagerReflection.getMapTextureObjects(re);
 			if (!mapTextureObjects.containsKey(skin)) {
 				try {
 					BufferedImage skinImage = ImageIO.read(file);
@@ -440,7 +439,7 @@ public class ClientProxy extends CommonProxy {
 		String gender = "male";
 		BufferedImage bodyImage = null, hairImage = null, faseImage = null, legsImage = null, jacketsImage = null,  shoesImage = null;
 		List<BufferedImage> listBuffers = new ArrayList<>();
-		Map<ResourceLocation, ITextureObject> mapTextureObjects = ((ITextureManagerMixin) re).npcs$getMapTextureObjects();
+		Map<ResourceLocation, ITextureObject> mapTextureObjects = TextureManagerReflection.getMapTextureObjects(re);
 		for (int i = 0; i < path.length; i++) {
 			int id = -1;
 			try {
@@ -648,7 +647,7 @@ public class ClientProxy extends CommonProxy {
 							"dynamic/skin_" + pData.playerNames.get(uuid));
 					ResourceLocation locSkins = new ResourceLocation("minecraft", "skins/" + pData.playerNames.get(uuid));
 					ITextureObject texture = re.getTexture(loc);
-					Map<ResourceLocation, ITextureObject> mapTextureObjects = ((ITextureManagerMixin) re).npcs$getMapTextureObjects();
+					Map<ResourceLocation, ITextureObject> mapTextureObjects = TextureManagerReflection.getMapTextureObjects(re);
 					mapTextureObjects.put(locDynamic, texture);
 					mapTextureObjects.put(locSkins, texture);
 					break;
@@ -1720,7 +1719,7 @@ public class ClientProxy extends CommonProxy {
 		ArmourersWorkshopUtil.getInstance();
 		// Banner Model Replace
 		TileEntityRendererDispatcher.instance.renderers.put(TileEntityBanner.class, new TileEntityCustomBannerRenderer());
-		((ITileEntityItemStackRendererMixin) TileEntityItemStackRenderer.instance).npcs$setBanner(new TileEntityBanner());
+		TileEntityItemStackRendererReflection.setBanner(TileEntityItemStackRenderer.instance, new TileEntityBanner());
 
 		// Shield Model Replace
 		Item shield = Item.REGISTRY.getObject(new ResourceLocation("shield"));
@@ -1728,7 +1727,7 @@ public class ClientProxy extends CommonProxy {
 		// OBJ ItemStack Model Replace
 		Minecraft mc = Minecraft.getMinecraft();
 		RenderItem ri = mc.getRenderItem();
-		Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models = ((IItemModelMesherForgeMixin) ri.getItemModelMesher()).npcs$getModels();
+		Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models = ItemModelMesherForgeReflection.getModels(ri.getItemModelMesher());
 		if (models != null) {
 			for (IRegistryDelegate<Item> key : models.keySet()) {
 				if (!(key.get() instanceof CustomArmor) || ((CustomArmor) key.get()).objModel == null) {
@@ -1981,10 +1980,10 @@ public class ClientProxy extends CommonProxy {
 				KeyBinding kb;
 				if (ClientProxy.keyBindingMap.containsKey(ks.getId())) {
 					kb = ClientProxy.keyBindingMap.get(ks.getId());
-					((IKeyBindingForgeMixin) kb).npcs$setModifier(modifer);
-					((IKeyBindingMixin) kb).npcs$setKeyDescription(ks.getName());
-					((IKeyBindingMixin) kb).npcs$setKeyCodeDefault(ks.getKeyId());
-					((IKeyBindingMixin) kb).npcs$setKeyCategory(ks.getCategory());
+					KeyBindingReflection.setModifier(kb, modifer);
+					KeyBindingReflection.setKeyDescription(kb, ks.getName());
+					KeyBindingReflection.setKeyCodeDefault(kb, ks.getKeyId());
+					KeyBindingReflection.setKeyCategory(kb, ks.getCategory());
 				} else {
 					kb = new KeyBinding(ks.getName(), KeyConflictContext.IN_GAME, modifer, ks.getKeyId(), ks.getCategory());
 				}

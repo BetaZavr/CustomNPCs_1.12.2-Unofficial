@@ -89,16 +89,12 @@ public class DropsTemplate {
 		if (!this.groups.containsKey(groupId) || !this.groups.get(groupId).containsKey(slot)) {
 			return;
 		}
-		Map<Integer, DropSet> newDrop = new TreeMap<>();
-		int j = 0;
-		for (int s : groups.keySet()) {
-			if (s == slot) { continue; }
-			newDrop.put(j, groups.get(groupId).get(s));
-			newDrop.get(j).pos = j;
-			j++;
+		if (groups.get(groupId).remove(slot) != null) {
+			int j = 0;
+			for (int s : groups.get(groupId).keySet()) {
+				groups.get(groupId).get(s).pos = j++;
+			}
 		}
-		this.groups.get(groupId).clear();
-		this.groups.get(groupId).putAll(newDrop);
 	}
 
 	public void removeGroup(int groupId) {

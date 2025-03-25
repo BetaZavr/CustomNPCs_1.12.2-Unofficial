@@ -713,7 +713,7 @@ public class Util implements IMethods {
 					unseenEntities = EntitySensesReflection.getUnseenEntities(senses);
 				}
 			}
-			if (rtr.getDistance() > aggroRange) {
+			if (rtr == null || rtr.getDistance() > aggroRange) {
 				if (seenEntities != null) {
 					seenEntities.remove(target);
 				}
@@ -1677,7 +1677,8 @@ public class Util implements IMethods {
 				int i = 0;
 				for (Object obj : list) {
 					NBTBase tag = writeObjectToNbt(obj);
-					compound.setTag("K" + i, tag == null ? new NBTTagEnd() : tag);
+					if (tag == null) { continue; }
+					compound.setTag("K" + i, tag);
 					i++;
 				}
 				return compound;

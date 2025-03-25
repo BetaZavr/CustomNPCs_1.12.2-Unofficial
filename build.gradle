@@ -3,12 +3,8 @@ import java.time.LocalDateTime
 // DEV resources path
 buildscript {
     repositories {
-        //mavenLocal() // -> used only for installation mixingradle 0.7-SNAPSHOT
         mavenCentral()
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        maven { url = 'https://repo.spongepowered.org/maven' }
-        maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
-        maven { url = "https://plugins.gradle.org/m2" }
+        mavenLocal()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+'
@@ -70,7 +66,7 @@ minecraft {
 repositories {
     mavenCentral()
     maven { url 'https://maven.cleanroommc.com' }
-    //maven { url = 'https://repo.spongepowered.org/maven' }
+    flatDir { dirs 'libs' }
 }
 
 // Project dependencies (required libraries)
@@ -88,7 +84,6 @@ dependencies {
     // Encrypt Lib
     implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.67'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.15'
-
 }
 
 // Resource processing (mcmod.info file)
@@ -129,16 +124,16 @@ jar {
     // Manifest settings
     manifest {
         attributes([
-            "Implementation-Title"       : mod_name,
-            "Implementation-Version"     : mod_version,
-            "Implementation-Vendor"      : mod_authors,
-            "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "FMLCorePluginContainsFMLMod": "true",
-            "FMLCorePlugin"              : mod_group + ".mixin.NpcMixinCore",
-            "FMLAT"                      : "deobfuscation.cfg",
-            "TweakClass"                 : "org.spongepowered.asm.launch.MixinTweaker",
-            "MixinConfigs"               : mod_mixin_configs,
-            "ForceLoadAsMod"             : "true"
+                "Implementation-Title"       : mod_name,
+                "Implementation-Version"     : mod_version,
+                "Implementation-Vendor"      : mod_authors,
+                "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "FMLCorePluginContainsFMLMod": "true",
+                "FMLCorePlugin"              : mod_group + ".mixin.NpcMixinCore",
+                "FMLAT"                      : "deobfuscation.cfg",
+                "TweakClass"                 : "org.spongepowered.asm.launch.MixinTweaker",
+                "MixinConfigs"               : mod_mixin_configs,
+                "ForceLoadAsMod"             : "true"
         ])
     }
     // Reobfuscate field and method names

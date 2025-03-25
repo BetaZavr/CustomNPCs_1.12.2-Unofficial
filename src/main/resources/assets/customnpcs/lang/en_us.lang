@@ -1904,6 +1904,7 @@ property.soulstoneanimals.hover=Regular players can use the Soulstone on animals
 property.soulstonenpcs.hover=Regular players can use the soul stone on all NPCs
 property.verbosedebug.hover=Show debug
 property.vinegrowthenabled.hover=Enables vine growth
+property.showhitboxblocktools.hover=Displaying mod toolbox hitboxes in the world
 
 puppet.aim=§9§lAims
 puppet.animation=Animation

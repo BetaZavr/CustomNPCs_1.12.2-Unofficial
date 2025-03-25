@@ -355,6 +355,11 @@ implements IComponentGui, IGuiNpcTextField {
 	@Override
 	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { }
 
+	@Override
+	public void setVisible(boolean bo) {
+		super.setVisible(bo);
+	}
+
 	public void updateScreen() {
 		if (enabled) { updateCursorCounter(); }
 	}

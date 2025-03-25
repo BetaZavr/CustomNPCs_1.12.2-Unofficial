@@ -10,9 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.texture.TextureManager;
 import noppes.npcs.LogWriter;
-import noppes.npcs.api.mixin.client.renderer.texture.ITextureManagerMixin;
 import noppes.npcs.client.gui.util.GuiNpcUtil;
+import noppes.npcs.reflection.client.renderer.texture.TextureManagerReflection;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -177,13 +178,14 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	private static void loadSkin(ResourceLocation resource, String url) {
-		ITextureObject iTexture = Minecraft.getMinecraft().getTextureManager().getTexture(resource);
+		TextureManager re = Minecraft.getMinecraft().getTextureManager();
+		ITextureObject iTexture = re.getTexture(resource);
 		if (iTexture == null) {
 			try {
 				byte[] imageBytes = IOUtils.toByteArray(new URL(url).openStream());
 				ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
 				iTexture = new DynamicTexture(ImageIO.read(inputStream));
-				((ITextureManagerMixin) Minecraft.getMinecraft().getTextureManager()).npcs$getMapTextureObjects().put(resource, iTexture);
+				TextureManagerReflection.getMapTextureObjects(re).put(resource, iTexture);
 			}
 			catch (Exception ignored) { }
         }

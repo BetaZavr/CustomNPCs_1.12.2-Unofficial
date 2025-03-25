@@ -8,7 +8,8 @@ import org.lwjgl.input.Mouse;
 import javax.annotation.Nonnull;
 
 public class GuiMenuSideButton
-extends GuiNpcButton {
+extends GuiNpcButton
+implements IGuiMenuSideButton {
 
 	private boolean left = false;
 	public boolean active = false;

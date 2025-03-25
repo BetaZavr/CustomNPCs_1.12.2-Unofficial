@@ -3,8 +3,7 @@ package noppes.npcs.api.wrapper.data;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import noppes.npcs.api.entity.data.IAttributeModifier;
 import noppes.npcs.api.entity.data.INpcAttribute;
-import noppes.npcs.api.mixin.entity.ai.attributes.IAttributeModifierMixin;
-import noppes.npcs.util.ValueUtil;
+import noppes.npcs.reflection.entity.ai.attributes.AttributeModifierReflection;
 
 public class AttributeModifierWrapper implements IAttributeModifier {
 
@@ -44,7 +43,7 @@ public class AttributeModifierWrapper implements IAttributeModifier {
 	@Override
 	public IAttributeModifier setAmount(double amount) {
 		if (this.parent == null) {
-			((IAttributeModifierMixin) this.modifer).npcs$setAmount(amount);
+			AttributeModifierReflection.setAmount(modifer, amount);
 			return this;
 		}
 		AttributeModifier newModifier = new AttributeModifier(this.modifer.getID(), this.modifer.getName(), amount, this.modifer.getOperation());
@@ -56,7 +55,7 @@ public class AttributeModifierWrapper implements IAttributeModifier {
 	@Override
 	public IAttributeModifier setName(String name) {
 		if (this.parent == null) {
-			((IAttributeModifierMixin) this.modifer).npcs$setName(name);
+			AttributeModifierReflection.setName(modifer, name);
 			return this;
 		}
 		AttributeModifier newModifier = new AttributeModifier(this.modifer.getID(), name, this.modifer.getAmount(), this.modifer.getOperation());
@@ -67,7 +66,7 @@ public class AttributeModifierWrapper implements IAttributeModifier {
 
 	@Override
 	public void setOperation(int operation) {
-		((IAttributeModifierMixin) this.modifer).npcs$setOperation(ValueUtil.correctInt(operation, 0, 2));
+		AttributeModifierReflection.setOperation(modifer, operation);
 	}
 
 	public String toString() {

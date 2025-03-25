@@ -4,6 +4,7 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import noppes.npcs.LogWriter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class LivingAttackEventReflection {
 
@@ -16,12 +17,19 @@ public class LivingAttackEventReflection {
             try {
                 amount = LivingAttackEvent.class.getDeclaredField("amount");
             } catch (Exception error) {
-                LogWriter.error("Error found field \"openSet\"", error);
+                LogWriter.error("Error found field \"amount\"", error);
                 return;
             }
         }
         try {
             amount.setAccessible(true);
+
+            if (Modifier.isFinal(amount.getModifiers())) {
+                Field modifiersField = Field.class.getDeclaredField("modifiers");
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(amount, amount.getModifiers() & ~Modifier.FINAL);
+            }
+
             amount.set(event, newAmount);
         } catch (Exception e) {
             LogWriter.error("Error set \"amount\":\"" + newAmount + "\" in " + event, e);

@@ -20,13 +20,12 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
-import noppes.npcs.api.mixin.client.renderer.texture.ITextureManagerMixin;
-import noppes.npcs.api.mixin.client.renderer.texture.ITextureMapMixin;
-import noppes.npcs.api.mixin.client.resources.*;
-import noppes.npcs.api.mixin.client.resources.ILegacyV2AdapterMixin;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.reflection.client.renderer.texture.TextureManagerReflection;
+import noppes.npcs.reflection.client.resources.*;
+import noppes.npcs.reflection.client.renderer.texture.TextureMapReflection;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
@@ -419,35 +418,33 @@ implements ICustomScrollListener {
 		data.clear();
 		mc = Minecraft.getMinecraft();
 		/* Texture manager data */
-		for (ResourceLocation key : ((ITextureManagerMixin) mc.getTextureManager()).npcs$getMapTextureObjects().keySet()) {
+		for (ResourceLocation key : TextureManagerReflection.getMapTextureObjects(mc.getTextureManager()).keySet()) {
 			addFile(key);
 		}
 		/* Texture blocks data */
-		for (String key : ((ITextureMapMixin) mc.getTextureMapBlocks()).npcs$getMapRegisteredSprites().keySet()) {
+		for (String key : TextureMapReflection.getMapRegisteredSprites(mc.getTextureMapBlocks()).keySet()) {
 			addFile(new ResourceLocation(key.substring(0, key.indexOf(":")), "textures/" + key.substring(key.indexOf(":") +1) + ".png"));
 		}
 		/* Resource manager data */
-		Map<String, FallbackResourceManager> map = ((ISimpleReloadableResourceManagerMixin) mc.getResourceManager()).npcs$getDomainResourceManagers();
+		Map<String, FallbackResourceManager> map = IResourceManagerReflection.getDomainResourceManagers(mc.getResourceManager());
 		if (map == null) { return; }
 		for (String name : map.keySet()) {
-			FallbackResourceManager manager = map.get(name);
-			List<IResourcePack> list = ((IFallbackResourceManagerMixin) manager).npcs$getResourcePacks();
+			List<IResourcePack> list = FallbackResourceManagerReflection.getResourcePacks(map.get(name));
 			if (list == null) { return; }
 			for (IResourcePack pack : list) {
 				if (pack instanceof LegacyV2Adapter) {
-					pack = ((ILegacyV2AdapterMixin) pack).npcs$getIResourcePack();
+					pack = LegacyV2AdapterReflection.getIResourcePack((LegacyV2Adapter) pack);
 				}
 				if (pack instanceof DefaultResourcePack) {
-					ResourceIndex resourceIndex = ((IDefaultResourcePackMixin) pack).npcs$getResourceIndex();
-					Map<String, File> resourceMap = ((IResourceIndexMixin) resourceIndex).npcs$getResourceMap();
+					ResourceIndex resourceIndex = DefaultResourcePackReflection.getResourceIndex((DefaultResourcePack) pack);
+					Map<String, File> resourceMap = ResourceIndexReflection.getResourceMap(resourceIndex);
 					for (String key : resourceMap.keySet()) {
 						File f = resourceMap.get(key);
 						addFile(key, f.length());
 					}
 				}
 				else if (pack instanceof AbstractResourcePack) {
-					AbstractResourcePack p = (AbstractResourcePack) pack;
-					File directory = ((IAbstractResourcePackMixin) p).npcs$getResourcePackFile();
+					File directory = AbstractResourcePackReflection.getResourcePackFile((AbstractResourcePack) pack);
 					if (directory == null || !directory.isDirectory()) { continue; }
 					File dir = new File(directory, "assets");
 					if (!dir.exists() || !dir.isDirectory()) { continue; }

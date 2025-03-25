@@ -5,6 +5,7 @@ import net.minecraft.item.ItemSword;
 import noppes.npcs.LogWriter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class ItemSwordReflection {
 
@@ -16,6 +17,13 @@ public class ItemSwordReflection {
         try {
             Field field = getAttackDamageField();
             field.setAccessible(true);
+
+            if (Modifier.isFinal(field.getModifiers())) {
+                Field modifiersField = Field.class.getDeclaredField("modifiers");
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            }
+
             field.set(item, newAttackDamage);
         } catch (Exception e) {
             LogWriter.error("Error set \"attackDamage\":\"" + newAttackDamage + "\" to " + item, e);

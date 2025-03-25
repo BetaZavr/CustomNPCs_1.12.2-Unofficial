@@ -222,6 +222,8 @@ public class CustomNpcs {
 	public static boolean VerboseDebug = false;
 	@ConfigProp(info = "Enables Vine Growth", def = "true")
 	public static boolean VineGrowthEnabled = true;
+	@ConfigProp(info = "Displaying mod toolbox hitboxes in the world", def = "true")
+	public static boolean ShowHitboxBlockTools = true;
 	@ConfigProp(info = "Maximum blocks to install per second with the Builder item", def = "10000", min = "100", max = "100000000")
 	public static int MaxBuilderBlocks = 10000;
 	@ConfigProp(info = "Maximum number of items in one Drop group", def = "32", min = "1", max = "64")

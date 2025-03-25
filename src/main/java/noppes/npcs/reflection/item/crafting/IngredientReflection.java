@@ -2,7 +2,6 @@ package noppes.npcs.reflection.item.crafting;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.SoundEvent;
 import noppes.npcs.LogWriter;
 
 import java.lang.reflect.Field;

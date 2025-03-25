@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.entity.data.ICustomDrop;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
@@ -246,6 +247,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 		if (scrollDrops != null && scrollDrops.getSelected() != null && dropsData.get(scrollDrops.getSelected()) != null) { dropName = dropsData.get(scrollDrops.getSelected()).getItem().getDisplayName(); }
 		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		List<ItemStack> stacks = new ArrayList<>();
+		LogWriter.debug("Inventory drop type: " + inventory.dropType);
 		if (this.inventory.dropType == 0) {
 			if (inventory.getDrops().length > 0) {
 				int i = 0;
@@ -313,7 +315,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 			int g = 1;
 			if (this.temp != null && !this.temp.groups.isEmpty()) { g = this.temp.groups.size(); }
 			for (int i = 0; i < g; i++) { l.add((i + 1)+ " / " + g); }
-			button = new GuiNpcButton(8, this.guiLeft + 346, this.guiTop + 27, 70, 15, l.toArray(new String[0]), this.groupId);
+			button = new GuiButtonBiDirectional(8, this.guiLeft + 346, this.guiTop + 27, 70, 15, l.toArray(new String[0]), this.groupId);
 			button.setHoverText("inv.hover.group.id");
 			addButton(button);
 			if (scrollDrops == null) { scrollDrops = new GuiCustomScroll(this, 1); }

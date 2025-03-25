@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.util.math.AxisAlignedBB;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.blocks.tiles.TileBorder;
 
 import javax.annotation.Nullable;
@@ -13,7 +14,7 @@ import javax.annotation.Nullable;
 public class BlockBorderRenderer<T extends TileBorder> extends TileEntitySpecialRenderer<T> {
 
     public void render(@Nullable T te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
-        if (te == null || !Minecraft.getMinecraft().player.capabilities.isCreativeMode) { return; }
+        if (te == null || !Minecraft.getMinecraft().player.capabilities.isCreativeMode || !CustomNpcs.ShowHitboxBlockTools) { return; }
         AxisAlignedBB aabb = new AxisAlignedBB(-0.5d, 0.5d, -0.5d, 0.5d, 0.5d + te.height, 0.5d);
         AxisAlignedBB aabbPlayer = getAABBPlayerPos(te);
 

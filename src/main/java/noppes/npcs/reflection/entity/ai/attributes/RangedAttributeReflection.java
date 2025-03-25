@@ -4,6 +4,7 @@ import net.minecraft.entity.ai.attributes.RangedAttribute;
 import noppes.npcs.LogWriter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class RangedAttributeReflection {
 
@@ -39,6 +40,13 @@ public class RangedAttributeReflection {
         try {
             Field field = getMinimumValueField();
             field.setAccessible(true);
+
+            if (Modifier.isFinal(field.getModifiers())) {
+                Field modifiersField = Field.class.getDeclaredField("modifiers");
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            }
+
             field.set(attribute, newMinValue);
         } catch (Exception e) {
             LogWriter.error("Error get \"minimumValue\" in " + attribute, e);
@@ -50,6 +58,13 @@ public class RangedAttributeReflection {
         try {
             Field field = getMaximumValueField();
             field.setAccessible(true);
+
+            if (Modifier.isFinal(field.getModifiers())) {
+                Field modifiersField = Field.class.getDeclaredField("modifiers");
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            }
+
             field.set(attribute, newMaxValue);
         } catch (Exception e) {
             LogWriter.error("Error get \"maximumValue\" in " + attribute, e);

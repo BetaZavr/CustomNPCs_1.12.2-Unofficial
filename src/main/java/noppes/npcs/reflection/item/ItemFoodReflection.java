@@ -4,6 +4,7 @@ import net.minecraft.item.ItemFood;
 import noppes.npcs.LogWriter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class ItemFoodReflection {
 
@@ -29,6 +30,13 @@ public class ItemFoodReflection {
         }
         try {
             itemUseDuration.setAccessible(true);
+
+            if (Modifier.isFinal(itemUseDuration.getModifiers())) {
+                Field modifiersField = Field.class.getDeclaredField("modifiers");
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(itemUseDuration, itemUseDuration.getModifiers() & ~Modifier.FINAL);
+            }
+
             itemUseDuration.set(item, newItemUseDuration);
         } catch (Exception e) {
             LogWriter.error("Error set \"itemUseDuration\":\"" + newItemUseDuration + "\" to " + item, e);

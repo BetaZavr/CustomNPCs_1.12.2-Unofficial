@@ -38,27 +38,39 @@ implements ICustomScrollListener,  IScrollData {
     public void drawDefaultBackground() {
         super.drawDefaultBackground();
         if (npc.isEntityAlive()) { close(); }
+        int size = container.size - 1;
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+
         GlStateManager.pushMatrix();
         GlStateManager.translate(guiLeft, guiTop + 20, 0.0f);
         GlStateManager.scale(bgScale, bgScale, bgScale);
         // background
         mc.getTextureManager().bindTexture(background);
         int w = xSize - 4;
+        // up
         drawTexturedModalRect(0, 0, 0, 0, w, ySize - 34);
-        drawTexturedModalRect(0, ySize - 34, 0, 227, w, 4);
+        int sh = 227;
+        int h = 4;
+        if (size > 0) {
+            sh -= size * 18 - size;
+            h += size * 18 - size;
+        }
+        // down
+        drawTexturedModalRect(0, ySize - 34, 0, sh, w, h);
+        // left
         if (player.capabilities.isCreativeMode) {
             GlStateManager.translate(xSize - 5, 0.0f, 0.0f);
             drawTexturedModalRect(0, 0, 84, 0, 108, ySize - 34);
-            drawTexturedModalRect(0, ySize - 34, 84, 227, 108, 4);
+            drawTexturedModalRect(0, ySize - 34, 84, sh, 108, h);
             GlStateManager.translate(5 - xSize, 0.0f, 0.0f);
         } else {
             drawTexturedModalRect(w, 0, 189, 0, 3, ySize - 34);
-            drawTexturedModalRect(w, ySize - 34, 189, 227, 3, 4);
+            drawTexturedModalRect(w, ySize - 34, 189, sh, 3, h);
         }
         // inventory slots
         mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
         GlStateManager.translate(-1.0f, -21.0f, 0.0f);
+        if (size > 0) { GlStateManager.translate(0.0f, size * 9.0f, 0.0f); }
         for (Slot slot : container.inventorySlots) { drawTexturedModalRect(slot.xPos, slot.yPos, 0, 0, 18, 18); }
         GlStateManager.popMatrix();
         // title
@@ -85,6 +97,8 @@ implements ICustomScrollListener,  IScrollData {
     @Override
     public void initGui() {
         super.initGui();
+        int size = container.size - 1;
+        if (size > 0) { guiTop -= size * 9; }
         if (player.capabilities.isCreativeMode) {
             if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(100, ySize - 50); }
             scroll.guiLeft = guiLeft + xSize - 1;

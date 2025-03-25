@@ -11,6 +11,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.event.ClientEvent;
 import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
+import noppes.npcs.reflection.client.gui.GuiScreenReflection;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -500,7 +501,7 @@ implements IEditNPC, ICustomScrollListener {
 			hoverText.clear();
 		}
 		super.drawScreen(x, y, partialTicks);
-		if (subgui != null) { subgui.drawScreen(mouseX, mouseY, partialTicks); }
+		if (subgui instanceof GuiScreen) { ((GuiScreen) subgui).drawScreen(mouseX, mouseY, partialTicks); }
 	}
 
 	public void postDrawBackground() { }
@@ -568,9 +569,9 @@ implements IEditNPC, ICustomScrollListener {
 	public void initGui() {
 		super.initGui();
 		GuiNpcTextField.unfocus();
-		if (subgui != null) {
-			subgui.setWorldAndResolution(mc, width, height);
-			subgui.initGui();
+		if (subgui instanceof GuiScreen) {
+			((GuiScreen) subgui).setWorldAndResolution(mc, width, height);
+			((GuiScreen) subgui).initGui();
 		}
 		guiLeft = (width - xSize) / 2;
 		guiTop = (height - ySize) / 2;
@@ -602,8 +603,8 @@ implements IEditNPC, ICustomScrollListener {
 	}
 
 	public void keyTyped(char c, int i) {
-		if (subgui != null) {
-			subgui.keyTyped(c, i);
+		if (subgui instanceof GuiScreen) {
+			GuiScreenReflection.keyTyped((GuiScreen) subgui, c, i);
 			return;
 		}
 		for (IGuiNpcMiniWindow mwin : mwindows.values()) {
@@ -645,8 +646,8 @@ implements IEditNPC, ICustomScrollListener {
 	}
 
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (subgui != null) {
-			subgui.mouseClicked(mouseX, mouseY, mouseButton);
+		if (subgui instanceof GuiScreen) {
+			GuiScreenReflection.mouseClicked((GuiScreen) subgui, mouseX, mouseY, mouseButton);
 			return;
 		}
 		for (IGuiNpcMiniWindow mwin : mwindows.values()) {
@@ -781,7 +782,9 @@ implements IEditNPC, ICustomScrollListener {
 		subgui = gui;
 		if (subgui != null) {
 			subgui.setNpc(npc);
-			subgui.setWorldAndResolution(mc, width, height);
+			if (subgui instanceof GuiScreen) {
+				((GuiScreen) subgui).setWorldAndResolution(mc, width, height);
+			}
 			subgui.setParent(this);
 			subgui.getParent().initGui();
 		}
@@ -793,7 +796,7 @@ implements IEditNPC, ICustomScrollListener {
 	}
 
 	public void updateScreen() {
-		if (subgui != null) { subgui.updateScreen(); }
+		if (subgui instanceof GuiScreen) { ((GuiScreen) subgui).updateScreen(); }
 		else {
 			for (IComponentGui component : components) {
 				if (component instanceof GuiNpcTextField) { ((GuiNpcTextField) component).updateScreen(); }

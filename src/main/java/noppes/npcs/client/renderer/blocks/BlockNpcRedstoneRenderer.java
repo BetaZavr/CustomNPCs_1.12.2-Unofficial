@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.blocks.tiles.TileRedstoneBlock;
 import org.lwjgl.opengl.GL11;
 
@@ -17,7 +18,7 @@ import java.util.List;
 public class BlockNpcRedstoneRenderer<T extends TileRedstoneBlock> extends TileEntitySpecialRenderer<T> {
 
     public void render(@Nullable T te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
-        if (te == null || !Minecraft.getMinecraft().player.capabilities.isCreativeMode) { return; }
+        if (te == null || !Minecraft.getMinecraft().player.capabilities.isCreativeMode || !CustomNpcs.ShowHitboxBlockTools) { return; }
         AxisAlignedBB aabbOn;
         AxisAlignedBB aabbOff;
         if (te.isDetailed) {

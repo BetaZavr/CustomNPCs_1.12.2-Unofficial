@@ -84,7 +84,7 @@ public class LogWriter {
 	}
 
 	public static void error(Object msg) {
-		error(msg, new Exception());
+		LogWriter.logger.log(Level.WARNING, msg.toString());
 	}
 
 	public static void error(Object msg, Exception e) {
