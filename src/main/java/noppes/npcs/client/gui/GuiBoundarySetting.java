@@ -718,7 +718,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		if (textField.getText().isEmpty()) {
+		if (textField.getFullText().isEmpty()) {
 			return;
 		}
 		switch (textField.getID()) {
@@ -758,7 +758,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				if (region == null) {
 					return;
 				}
-				region.name = textField.getText();
+				region.name = textField.getFullText();
 				break;
 			}
 			case 25: { // Home X

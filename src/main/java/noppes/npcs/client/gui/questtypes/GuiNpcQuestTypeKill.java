@@ -214,7 +214,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 
 	@Override
 	public void save() {
-		task.setTargetName(getTextField(0).getText());
+		task.setTargetName(getTextField(0).getFullText());
 		task.setMaxProgress(getTextField(1).getInteger());
 
 		for (QuestObjective taskObj : NoppesUtilServer.getEditingQuest(player).questInterface.tasks) {
@@ -222,7 +222,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 				continue;
 			}
 			if (taskObj.getTargetName().equals(task.getTargetName())) {
-				getTextField(0).setText("");
+				getTextField(0).setFullText("");
 				task.setTargetName("");
 				task.setMaxProgress(1);
 				break;
@@ -240,13 +240,13 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 	}
 
 	private void saveTargets() {
-		task.setTargetName(getTextField(0).getText());
+		task.setTargetName(getTextField(0).getFullText());
 		task.setMaxProgress(getTextField(1).getInteger());
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		getTextField(0).setText(scroll.getSelected());
+		getTextField(0).setFullText(scroll.getSelected());
 		saveTargets();
 	}
 
@@ -258,7 +258,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 		if (task == null) { return; }
 		switch (textField.getID()) {
 			case 0: {
-				task.setTargetName(textField.getText());
+				task.setTargetName(textField.getFullText());
 				break;
 			}
 			case 1: {
@@ -271,7 +271,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 			}
 			case 9: {
 				if (!BorderController.getInstance().regions.containsKey(textField.getInteger())) {
-					textField.setText("" + textField.getDefault());
+					textField.setFullText("" + textField.getDefault());
 					return;
 				}
 				task.regionID = textField.getInteger();
@@ -295,7 +295,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 				break;
 			}
 			case 15: {
-				task.entityName = textField.getText();
+				task.entityName = textField.getFullText();
 				break;
 			}
 		}

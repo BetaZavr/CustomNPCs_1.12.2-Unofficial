@@ -29,7 +29,7 @@ extends SubGuiInterface {
 		super.actionPerformed(btn);
 		GuiNpcButton button = (GuiNpcButton) btn;
 		if (button.id == 0) {
-			String name = this.getTextField(0).getText().trim();
+			String name = this.getTextField(0).getFullText().trim();
 			if (name.isEmpty()) {
 				return;
 			}

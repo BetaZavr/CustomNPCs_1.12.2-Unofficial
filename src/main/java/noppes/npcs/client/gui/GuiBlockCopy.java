@@ -33,7 +33,7 @@ implements IGuiData, ITextfieldListener {
 			case 0: {
 				NBTTagCompound compound = new NBTTagCompound();
 				tile.writeToNBT(compound);
-				Client.sendData(EnumPacketServer.SchematicStore, getTextField(5).getText(), getButton(6).getValue(), compound);
+				Client.sendData(EnumPacketServer.SchematicStore, getTextField(5).getFullText(), getButton(6).getValue(), compound);
 				close();
 				break;
 			}

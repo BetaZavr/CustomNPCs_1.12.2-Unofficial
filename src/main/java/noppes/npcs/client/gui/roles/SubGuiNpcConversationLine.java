@@ -51,6 +51,6 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void unFocused(IGuiNpcTextField textfield) { line = textfield.getText(); }
+	public void unFocused(IGuiNpcTextField textfield) { line = textfield.getFullText(); }
 
 }

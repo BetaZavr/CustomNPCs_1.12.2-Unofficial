@@ -210,7 +210,7 @@ implements ITextfieldListener, IGuiData {
 		else if (textfield.getID() == 4) {
 			ai.setMaxHurtResistantTime(textfield.getInteger() * 2);
 			if (textfield.getInteger() * 2 != ai.getMaxHurtResistantTime()) {
-				textfield.setText("" + ai.getMaxHurtResistantTime());
+				textfield.setFullText("" + ai.getMaxHurtResistantTime());
 			}
 		}
 	}

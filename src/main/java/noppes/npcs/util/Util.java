@@ -554,7 +554,7 @@ public class Util implements IMethods {
 	@Override
 	public String getTextReducedNumber(double value, boolean isInteger, boolean color, boolean notPfx) {
 		if (value == 0.0d) {
-			return String.valueOf(value).replace(".", ",");
+			return isInteger ? "0" : String.valueOf(value).replace(".", ",");
 		}
 		String chr = "" + ((char) 167);
 		String chrPR= "" + ((char) 8776);

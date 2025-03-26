@@ -291,10 +291,10 @@ implements ICustomScrollListener, ITextfieldListener {
 				return;
 			}
 			if (slotIn.getStack().isEmpty()) {
-				textField.setText("");
+				textField.setFullText("");
 			} else {
 				if (!builder.chances.containsKey(id)) { builder.chances.put(id, 100); }
-				textField.setText("" + builder.chances.get(id));
+				textField.setFullText("" + builder.chances.get(id));
 			}
 		}
 	}
@@ -445,7 +445,7 @@ implements ICustomScrollListener, ITextfieldListener {
 		}
 		IGuiNpcTextField textField = getTextField(10);
 		if (textField != null) {
-			textField.setText(builder.schematicName);
+			textField.setFullText(builder.schematicName);
 		}
 	}
 
@@ -459,11 +459,11 @@ implements ICustomScrollListener, ITextfieldListener {
 			return;
 		}
 		if (textField.getID() < 10) {
-			if (textField.getText().isEmpty()) {
+			if (textField.getFullText().isEmpty()) {
 				return;
 			}
 			if (builder.inv.getStackInSlot(textField.getID()).isEmpty()) {
-				textField.setText("");
+				textField.setFullText("");
 				return;
 			}
 			builder.chances.put(textField.getID(), textField.getInteger());
@@ -471,7 +471,7 @@ implements ICustomScrollListener, ITextfieldListener {
 		}
 		if (builder.getType() == 3 || builder.getType() == 4) {
 			if (textField.getID() == 10) {
-				builder.schematicName = textField.getText();
+				builder.schematicName = textField.getFullText();
 				initGui();
 			}
 		} else {

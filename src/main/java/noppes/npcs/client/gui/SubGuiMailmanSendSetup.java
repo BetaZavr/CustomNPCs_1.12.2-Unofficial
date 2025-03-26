@@ -90,7 +90,7 @@ implements ITextfieldListener, GuiSelectionListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		if (textField.getID() == 0) { mail.sender = textField.getText(); }
-		else if (textField.getID() == 1) { mail.title = textField.getText(); }
+		if (textField.getID() == 0) { mail.sender = textField.getFullText(); }
+		else if (textField.getID() == 1) { mail.title = textField.getFullText(); }
 	}
 }

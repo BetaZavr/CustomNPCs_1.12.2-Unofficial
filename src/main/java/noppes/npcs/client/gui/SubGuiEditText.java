@@ -46,7 +46,7 @@ extends SubGuiInterface {
 		if (button.getID() == 0) {
 			cancelled = false;
 			for (int i = 0; i < text.length; i++) {
-				text[i] = getTextField(i).getText();
+				text[i] = getTextField(i).getFullText();
 			}
 		}
 		close();

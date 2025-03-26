@@ -41,7 +41,7 @@ implements ISubGuiListener {
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			script.writeToNBT(nbt);
-			nbt.setString("Name", subgui.getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
+			nbt.setString("Name", subgui.getTextField(0).getFullText() + ((GuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", path.replaceAll("\\\\", "/") + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", activeTab - 1);
 			nbt.setInteger("EntityID", npc.getEntityId());

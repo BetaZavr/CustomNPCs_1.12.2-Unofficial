@@ -66,7 +66,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 				break;
 			}
 			case 9: {
-				setSubGui(new GuiSoundSelection(getTextField(2).getText()));
+				setSubGui(new GuiSoundSelection(getTextField(2).getFullText()));
 				break;
 			}
 			case 10: {
@@ -139,7 +139,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (getButton(17) != null) {
-			getButton(17).setEnabled(getTextField(2) != null && !getTextField(2).getText().isEmpty());
+			getButton(17).setEnabled(getTextField(2) != null && !getTextField(2).getFullText().isEmpty());
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (subgui == null) {
@@ -174,7 +174,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 		button.setHoverText("hover.back");
 		addButton(button);
 		// text
-		addLabel(new GuiNpcLabel(++lID, "dialog.dialogues", xl, (y += 22) + 5));
+		addLabel(new GuiNpcLabel(++lID, "dialog.dialogtext", xl, (y += 22) + 5));
 		button = new GuiNpcButton(3, x, y, 50, 20, "selectServer.edit");
 		button.setHoverText("dialog.hover.text");
 		addButton(button);
@@ -301,7 +301,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 		if (subgui instanceof GuiSoundSelection) {
 			GuiSoundSelection gss = (GuiSoundSelection) subgui;
 			if (gss.selectedResource != null) {
-				getTextField(2).setText(gss.selectedResource.toString());
+				getTextField(2).setFullText(gss.selectedResource.toString());
 				unFocused(getTextField(2));
 			}
 		}
@@ -319,7 +319,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getID()) {
 			case 1: {
-				StringBuilder t = new StringBuilder(textField.getText());
+				StringBuilder t = new StringBuilder(textField.getFullText());
 				boolean has = true;
 				while (has) {
 					has = false;
@@ -334,7 +334,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 				dialog.title = t.toString();
 				break;
 			}
-			case 2: dialog.sound = textField.getText(); break;
+			case 2: dialog.sound = textField.getFullText(); break;
 			case 3: dialog.delay = textField.getInteger(); break;
 		}
 	}

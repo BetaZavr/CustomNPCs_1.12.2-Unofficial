@@ -46,6 +46,6 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getID() == 4) { command = textfield.getText(); }
+		if (textfield.getID() == 4) { command = textfield.getFullText(); }
 	}
 }

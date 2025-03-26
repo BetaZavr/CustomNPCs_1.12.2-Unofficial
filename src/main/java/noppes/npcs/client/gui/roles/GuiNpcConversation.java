@@ -119,7 +119,7 @@ implements ITextfieldListener, GuiSelectionListener, ISubGuiListener {
 	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getID() >= 0 && textfield.getID() < 14) {
 			JobConversation.ConversationLine line = job.getLine(textfield.getID());
-			line.npc = textfield.getText();
+			line.npc = textfield.getFullText();
 		}
 		if (textfield.getID() >= 14 && textfield.getID() < 28) {
 			JobConversation.ConversationLine line = job.getLine(textfield.getID() - 14);

@@ -36,7 +36,7 @@ implements ISubGuiListener, ITextfieldListener {
 			}
 			case 1: {
 				job.song = "";
-				getTextField(1).setText("");
+				getTextField(1).setFullText("");
 				MusicController.Instance.stopSound("", SoundCategory.MUSIC);
 				MusicController.Instance.stopSound("", SoundCategory.AMBIENT);
 				break;
@@ -157,7 +157,7 @@ implements ISubGuiListener, ITextfieldListener {
 	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getID()) {
 			case 1: {
-				job.song = textField.getText();
+				job.song = textField.getFullText();
 				break;
 			}
 			case 2: {

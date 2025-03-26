@@ -45,7 +45,7 @@ implements ISubGuiListener {
 			}
 		}
 		if (button.getID() == 101) {
-			this.scenes.addScene(this.getTextField(101).getText());
+			this.scenes.addScene(this.getTextField(101).getFullText());
 			this.initGui();
 		}
 	}

@@ -121,10 +121,10 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 			if (id > (getTextField(9) != null ? 9 : 7)) { id = 5; }
 			IGuiNpcTextField textField = getTextField(id);
 			if (textField != null) {
-				GuiNpcTextField.activeTextfield.unFocused();
-				textField.setFocused(true);
+				GuiNpcTextField.activeTextfield.unFocus();
+				textField.setFocus(true);
 				((IGuiTextFieldMixin) textField).npcs$setCursorPosition(0);
-				((IGuiTextFieldMixin) textField).npcs$setSelectionEnd(textField.getText().length());
+				((IGuiTextFieldMixin) textField).npcs$setSelectionEnd(textField.getFullText().length());
 				GuiNpcTextField.activeTextfield = textField;
 			}
 		}

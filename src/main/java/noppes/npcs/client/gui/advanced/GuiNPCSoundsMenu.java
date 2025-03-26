@@ -99,7 +99,7 @@ implements ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		this.npc.advanced.setSound(textfield.getID(), textfield.getText());
+		this.npc.advanced.setSound(textfield.getID(), textfield.getFullText());
 		this.initGui();
 	}
 }

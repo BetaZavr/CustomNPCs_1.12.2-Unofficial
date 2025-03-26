@@ -200,7 +200,7 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
     @Override
 	public void unFocused(IGuiNpcTextField textfield) {
 		try {
-			this.color = Integer.parseInt(textfield.getText(), 16);
+			this.color = Integer.parseInt(textfield.getFullText(), 16);
 		} catch (NumberFormatException e) {
 			this.color = 0;
 		}

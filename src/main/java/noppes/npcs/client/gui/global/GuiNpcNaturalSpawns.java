@@ -71,7 +71,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 				break;
 			}
 			case 25: { // nbt
-				this.spawn.compound1 = new NBTTagCompound();
+				this.spawn.compoundEntity = new NBTTagCompound();
 				displayNpc = null;
 				this.initGui();
 				break;
@@ -89,7 +89,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 			GuiNpcMobSpawnerSelector selector = (GuiNpcMobSpawnerSelector) gui;
 			NBTTagCompound compound = selector.getCompound();
 			if (compound != null) {
-				this.spawn.compound1 = compound;
+				this.spawn.compoundEntity = compound;
 				if (compound.hasKey("SpawnCycle", 3)) { compound.setInteger("SpawnCycle", 4); }
 			}
 		}
@@ -161,7 +161,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 		this.spawn.itemWeight = (int) (guiNpcSlider.getSliderValue() * 100.0f);
 		if (this.spawn.itemWeight < 1) { this.spawn.itemWeight = 1; }
 		guiNpcSlider.setDisplayString(new TextComponentTranslation("spawning.weightedChance").getFormattedText() + ": " + this.spawn.itemWeight + "%");
-		if (this.getTextField(2) != null) { this.getTextField(2).setText("" + this.spawn.itemWeight); }
+		if (this.getTextField(2) != null) { this.getTextField(2).setFullText("" + this.spawn.itemWeight); }
 	}
 
 	@Override
@@ -243,7 +243,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 		button.setHoverText("spawning.hover.type");
 		addButton(button);
 
-		button = new GuiNpcButton(5, x, y += 22, 184, 20, this.getTitle(this.spawn.compound1));
+		button = new GuiNpcButton(5, x, y += 22, 184, 20, this.getTitle(this.spawn.compoundEntity));
 		button.setHoverText("spawning.hover.sel.npc");
 		addButton(button);
 		button = new GuiNpcButton(25, x + 186, y, 20, 20, "X");
@@ -271,9 +271,9 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getID()) {
 			case 1: {
-				String name = textField.getText();
+				String name = textField.getFullText();
 				if (name.isEmpty() || data.containsKey(name)) {
-					textField.setText(spawn.name);
+					textField.setFullText(spawn.name);
 				} else {
 					String old = spawn.name;
 					data.remove(old);

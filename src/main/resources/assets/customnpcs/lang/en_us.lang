@@ -1618,6 +1618,7 @@ market.hover.item=§5The price of exchange, one of the items:
 market.hover.item.amount=§7(available: %s§7)
 market.hover.item.infinitely=§7(many)
 market.hover.item.not=§7(now defunct)
+market.hover.is.search=Whether to display the product search input field or not
 market.hover.limited=Limiting currency and items to be purchased by the store<br>§7When creating a store and each time it is updated, the amount of currency and items is calculated as the sum of all transaction prices or items * ?(§65§7<-->§610§7) for each separately!
 market.hover.market.add=Create a new Store
 market.hover.market.del=Delete the selected Store

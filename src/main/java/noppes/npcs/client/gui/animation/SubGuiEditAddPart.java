@@ -118,7 +118,7 @@ implements ITextfieldListener {
                 String hover = "info.item.cloner.empty.0";
                 if (parent.frame.parts.containsKey(addPart.parentPart)) { hover = parent.frame.parts.get(addPart.parentPart).name; }
                 if (getTextField(1) != null) {
-                    getTextField(1).setText("" + addPart.parentPart);
+                    getTextField(1).setFullText("" + addPart.parentPart);
                     getTextField(1).setHoverText("animation.add.part.hover.part.ids", new TextComponentTranslation(hover).getFormattedText());
                 }
                 button.setHoverText("animation.add.part.hover.part.ids", new TextComponentTranslation(hover).getFormattedText());
@@ -741,13 +741,13 @@ implements ITextfieldListener {
     public void unFocused(IGuiNpcTextField textField) {
         switch (textField.getID()) {
             case 0: {
-                part.name = textField.getText();
+                part.name = textField.getFullText();
                 break;
             } // name
             case 1: {
                 String value = "" + textField.getInteger();
                 if (!dataPartIDs.containsKey(value)) {
-                    textField.setText("" + textField.getDefault());
+                    textField.setFullText("" + textField.getDefault());
                     return;
                 }
                 addPart.parentPart = dataPartIDs.get(value);
@@ -768,24 +768,24 @@ implements ITextfieldListener {
                 break;
             } // parent part ID
             case 2: {
-                String text = textField.getText();
+                String text = textField.getFullText();
                 if (text.isEmpty()) { addPart.objUp = null; }
                 else { addPart.objUp = new ResourceLocation(text); }
                 initGui();
                 break;
             } // obj up
             case 3: {
-                String text = textField.getText();
+                String text = textField.getFullText();
                 if (text.isEmpty()) { addPart.objDown = null; }
                 else { addPart.objDown = new ResourceLocation(text); }
                 initGui();
                 break;
             } // obj up
             case 4: {
-                String text = textField.getText();
+                String text = textField.getFullText();
                 if (text.isEmpty()) {
                     addPart.location = new ResourceLocation(CustomNpcs.MODID, "textures/entity/humanmale/steve.png");
-                    textField.setText(addPart.location.toString());
+                    textField.setFullText(addPart.location.toString());
                 }
                 else { addPart.location = new ResourceLocation(text); }
                 initGui();

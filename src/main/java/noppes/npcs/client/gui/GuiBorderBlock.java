@@ -88,7 +88,7 @@ implements IGuiData {
 			return;
 		}
 		tile.height = getTextField(0).getInteger();
-		tile.message = getTextField(1).getText();
+		tile.message = getTextField(1).getFullText();
 		NBTTagCompound compound = new NBTTagCompound();
 		tile.writeToNBT(compound);
 		Client.sendData(EnumPacketServer.SaveTileEntity, compound);

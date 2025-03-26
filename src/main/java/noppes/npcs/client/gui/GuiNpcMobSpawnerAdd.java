@@ -35,7 +35,7 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 	public void buttonEvent(IGuiNpcButton button) {
 		switch (button.getID()) {
 			case 0 : {
-				String name = getTextField(0).getText();
+				String name = getTextField(0).getFullText();
 				if (name.isEmpty()) {
 					return;
 				}
@@ -59,7 +59,7 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 
 	public void confirmClicked(boolean confirm, int id) {
 		if (confirm) {
-			String name = getTextField(0).getText();
+			String name = getTextField(0).getFullText();
 			if (!GuiNpcMobSpawnerAdd.serverSide) {
 				ClientCloneController.Instance.addClone(compound, name, GuiNpcMobSpawnerAdd.tab);
 			} else {
@@ -102,14 +102,14 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		String name = textField.getText();
+		String name = textField.getFullText();
 		for (String c : arrSymbols) {
 			while (name.contains(c)) {
 				name = name.replace(c, "_");
 			}
 		}
-		if (!textField.getText().equals(name)) {
-			textField.setText(name);
+		if (!textField.getFullText().equals(name)) {
+			textField.setFullText(name);
 		}
 	}
 

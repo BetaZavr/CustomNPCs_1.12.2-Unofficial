@@ -127,7 +127,7 @@ implements ICustomScrollListener, ITextfieldListener {
 	@Override
 	public void keyTyped(char c, int key) {
 		if (key == 28 && getTextField(0).isFocused()) { // Enter
-			getTextField(0).unFocused();
+			getTextField(0).unFocus();
 		}
 		super.keyTyped(c, key);
 	}
@@ -138,7 +138,7 @@ implements ICustomScrollListener, ITextfieldListener {
 			return;
 		}
 		EnumAvailabilityScoreboard eas = EnumAvailabilityScoreboard.values()[getButton(0).getValue()];
-		int value = NoppesStringUtils.parseInt(getTextField(1).getText(), 0);
+		int value = NoppesStringUtils.parseInt(getTextField(1).getFullText(), 0);
 		String obj = dataNames.get(select);
 		availability.scoreboards.put(obj, new AvailabilityScoreboardData(eas, value));
 		select = "";
@@ -161,20 +161,20 @@ implements ICustomScrollListener, ITextfieldListener {
 		}
 		String obj = "";
 		AvailabilityScoreboardData asd = null;
-		int value = NoppesStringUtils.parseInt(getTextField(1).getText(), 0);
+		int value = NoppesStringUtils.parseInt(getTextField(1).getFullText(), 0);
 		if (!select.isEmpty()) {
 			obj = dataNames.get(select);
 			asd = availability.scoreboards.get(obj);
 		}
 		if (textfield.getID() == 0) {
 			if (obj == null || obj.isEmpty() || asd == null) {
-				obj = textfield.getText();
+				obj = textfield.getFullText();
 				asd = new AvailabilityScoreboardData(EnumAvailabilityScoreboard.SMALLER, value);
 			} else {
-				if (obj.equals(textfield.getText())) {
+				if (obj.equals(textfield.getFullText())) {
 					return;
 				}
-				obj = textfield.getText();
+				obj = textfield.getFullText();
 				availability.scoreboards.remove(dataNames.get(select));
 			}
 		}

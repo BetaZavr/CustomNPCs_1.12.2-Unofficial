@@ -144,9 +144,9 @@ extends GuiContainerNPCInterface2 {
 			map.put(3, days);
 		}
 		role.rates = map;
-		role.dialogHire = getTextField(3).getText();
-		role.dialogFarewell = getTextField(4).getText();
-		role.dialogFired = getTextField(5).getText();
+		role.dialogHire = getTextField(3).getFullText();
+		role.dialogFarewell = getTextField(4).getFullText();
+		role.dialogFired = getTextField(5).getFullText();
 		int size = role.disableGui ? 0 : getTextField(8).getInteger();
 		if (role.inventory.getSizeInventory() != size) { role.inventory = new NpcMiscInventory(size); }
 		Client.sendData(EnumPacketServer.RoleSave, role.writeToNBT(new NBTTagCompound()));

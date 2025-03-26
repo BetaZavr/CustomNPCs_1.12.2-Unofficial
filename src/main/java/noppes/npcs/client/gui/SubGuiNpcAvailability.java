@@ -81,23 +81,23 @@ implements ISliderListener, ITextfieldListener {
 			}
 			case 50: {
 				if (button.getValue() == 0) {
-					getTextField(52).setText("" + availability.daytime[0]);
-					getTextField(53).setText("" + availability.daytime[1]);
+					getTextField(52).setFullText("" + availability.daytime[0]);
+					getTextField(53).setFullText("" + availability.daytime[1]);
 				} else {
 					switch (EnumDayTime.values()[button.getValue() - 1]) {
 						case Always: {
-							getTextField(52).setText("0");
-							getTextField(53).setText("0");
+							getTextField(52).setFullText("0");
+							getTextField(53).setFullText("0");
 							break;
 						}
 						case Night: {
-							getTextField(52).setText("18");
-							getTextField(53).setText("6");
+							getTextField(52).setFullText("18");
+							getTextField(53).setFullText("6");
 							break;
 						}
 						case Day: {
-							getTextField(52).setText("6");
-							getTextField(53).setText("18");
+							getTextField(52).setFullText("6");
+							getTextField(53).setFullText("18");
 							break;
 						}
 					}

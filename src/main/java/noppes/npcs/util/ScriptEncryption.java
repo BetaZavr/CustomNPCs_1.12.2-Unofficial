@@ -5,9 +5,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
 import javax.crypto.Cipher;
@@ -105,7 +103,7 @@ public class ScriptEncryption {
         return null;
     }
 
-    private static SecretKey generateSecretKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
+    private static SecretKey generateSecretKey() {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[SALT_LENGTH];
         random.nextBytes(salt);

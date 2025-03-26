@@ -231,17 +231,12 @@ public class ScriptContainer {
 	}
 
 	public void appendConsole(String message) {
-		if (message == null || message.isEmpty()) {
-			return;
-		}
+		if (message == null || message.isEmpty()) { return; }
 		long time = System.currentTimeMillis();
-		if (console.containsKey(time)) {
-			message = console.get(time) + "\n" + message;
-		}
+		if (console.containsKey(time)) { message = console.get(time) + "\n" + message; }
 		console.put(time, message);
-		while (console.size() > 250) {
-			console.remove(console.firstKey());
-		}
+		while (console.size() > 30) { console.remove(console.firstKey()); }
+		ScriptController.Instance.tryAddErrored(this);
 	}
 
 	public void clear() {
@@ -314,7 +309,8 @@ public class ScriptContainer {
 			script = compound.getString("Script");
 		}
 		console = NBTTags.GetLongStringMap(compound.getTagList("Console", 10));
-		if (!console.isEmpty()) { ScriptController.Instance.tryAddErrored(this); }
+		if (console.isEmpty()) { ScriptController.Instance.tryRemoveErrored(this); }
+		else { ScriptController.Instance.tryAddErrored(this); }
 		scripts = NBTTags.getStringList(compound.getTagList("ScriptList", 10));
 		hasNoEncryptScriptCode = compound.getBoolean("HasNoEncryptScriptCode");
 		isClient = isClientIn;

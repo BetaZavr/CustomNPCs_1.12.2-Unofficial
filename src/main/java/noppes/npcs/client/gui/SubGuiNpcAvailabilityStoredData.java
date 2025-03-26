@@ -50,7 +50,7 @@ implements ICustomScrollListener, ITextfieldListener {
 				if (getTextField(0) == null || getTextField(1) == null || getButton(0) == null) {
 					return;
 				}
-				String key = getTextField(0).getText();
+				String key = getTextField(0).getFullText();
 				int i = 0;
 				if (select != null) {
 					while (i < availability.storeddata.size()) {
@@ -65,7 +65,7 @@ implements ICustomScrollListener, ITextfieldListener {
 						}
 					}
 					select.key = key;
-					select.value = getTextField(1).getText();
+					select.value = getTextField(1).getFullText();
 					select.type = EnumAvailabilityStoredData.values()[getButton(0).getValue()];
 					select = null;
 				} else {
@@ -77,7 +77,7 @@ implements ICustomScrollListener, ITextfieldListener {
 							i = 0;
 						}
 					}
-					availability.storeddata.add(new AvailabilityStoredData(key, getTextField(1).getText(), EnumAvailabilityStoredData.values()[getButton(0).getValue()]));
+					availability.storeddata.add(new AvailabilityStoredData(key, getTextField(1).getFullText(), EnumAvailabilityStoredData.values()[getButton(0).getValue()]));
 				}
 				initGui();
 				break;
@@ -105,7 +105,7 @@ implements ICustomScrollListener, ITextfieldListener {
 			}
 		}
 		if (getButton(3) != null && getTextField(0) != null) {
-			getButton(3).setEnabled(!getTextField(0).getText().isEmpty());
+			getButton(3).setEnabled(!getTextField(0).getFullText().isEmpty());
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
@@ -199,7 +199,7 @@ implements ICustomScrollListener, ITextfieldListener {
 			if (textfield.isEmpty()) {
 				return;
 			}
-			String key = textfield.getText();
+			String key = textfield.getFullText();
 			int i = 0;
             while (i < availability.storeddata.size()) {
                 AvailabilityStoredData asd = availability.storeddata.get(i);
@@ -212,8 +212,8 @@ implements ICustomScrollListener, ITextfieldListener {
                     i = 0;
                 }
             }
-			if (!textfield.getText().equals(key)) {
-				textfield.setText(key);
+			if (!textfield.getFullText().equals(key)) {
+				textfield.setFullText(key);
 				keyError = 60;
 			}
 			if (select != null) {
@@ -221,7 +221,7 @@ implements ICustomScrollListener, ITextfieldListener {
 				initGui();
 			}
 		} else if (select != null) {
-			select.value = textfield.getText();
+			select.value = textfield.getFullText();
 			initGui();
 		}
 	}

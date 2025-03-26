@@ -124,7 +124,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		try { color = Integer.parseInt(textfield.getText(), 16); }
+		try { color = Integer.parseInt(textfield.getFullText(), 16); }
 		catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 	}
 

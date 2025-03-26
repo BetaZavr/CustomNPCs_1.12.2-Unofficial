@@ -55,7 +55,7 @@ implements IGuiData {
 
 	@Override
 	public void save() {
-		tile.name = getTextField(0).getText();
+		tile.name = getTextField(0).getFullText();
 		tile.range = getTextField(1).getInteger();
 		NBTTagCompound compound = new NBTTagCompound();
 		tile.writeToNBT(compound);

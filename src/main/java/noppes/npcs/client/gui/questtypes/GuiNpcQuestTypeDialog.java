@@ -238,7 +238,7 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 		switch (textField.getID()) {
 			case 9: {
 				if (!BorderController.getInstance().regions.containsKey(textField.getInteger())) {
-					textField.setText("" + textField.getDefault());
+					textField.setFullText("" + textField.getDefault());
 					return;
 				}
 				task.regionID = textField.getInteger();
@@ -262,7 +262,7 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 				break;
 			}
 			case 15: {
-				task.entityName = textField.getText();
+				task.entityName = textField.getFullText();
 				break;
 			}
 		}

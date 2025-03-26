@@ -37,10 +37,10 @@ implements ITextChangeListener {
 	public void buttonEvent(IGuiNpcButton button) {
 		switch (button.getID()) {
 			case 0: close(); break;
-			case 100: NoppesStringUtils.setClipboardContents(textarea.getText()); break;
-			case 101: textarea.setText(NoppesStringUtils.getClipboardContents()); break;
-			case 102: textarea.setText(""); break;
-			case 103: textarea.setText(originalText); break;
+			case 100: NoppesStringUtils.setClipboardContents(textarea.getFullText()); break;
+			case 101: textarea.setFullText(NoppesStringUtils.getClipboardContents()); break;
+			case 102: textarea.setFullText(""); break;
+			case 103: textarea.setFullText(originalText); break;
 		}
 	}
 
@@ -60,7 +60,7 @@ implements ITextChangeListener {
 		bgScale = xSize / 440.0f;
 		super.initGui();
 		if (textarea != null) {
-			text = textarea.getText();
+			text = textarea.getFullText();
 		}
 		int yoffset = (int) (ySize * 0.02);
 		(textarea = new GuiTextArea(2, guiLeft + 1 + yoffset, guiTop + yoffset, xSize - 100 - yoffset, ySize - yoffset * 2, text)).setListener(this);

@@ -87,7 +87,7 @@ extends GuiContainerNPCInterface2 {
 		for (int i = 1; i < 4; ++i) {
 			IGuiNpcTextField tf = getTextField(i);
 			if (!tf.isEmpty()) {
-				lines.add(tf.getText());
+				lines.add(tf.getFullText());
 			}
 		}
 		role.lines = lines;

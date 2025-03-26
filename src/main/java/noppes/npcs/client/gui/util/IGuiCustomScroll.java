@@ -11,6 +11,8 @@ import java.util.Map;
 
 public interface IGuiCustomScroll extends IComponentGui {
 
+    void canSearch(boolean setSearch);
+
     void clear();
 
     int getColor(int pos);

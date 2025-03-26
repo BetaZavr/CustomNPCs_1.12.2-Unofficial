@@ -306,7 +306,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 		if (hasSubGui()) {
 			return;
 		}
-		String text = textField.getText();
+		String text = textField.getFullText();
 		MarkupData md = marcet.markup.get(level);
 		switch (textField.getID()) {
 			case 0: {

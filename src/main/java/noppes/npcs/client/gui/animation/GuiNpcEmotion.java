@@ -823,7 +823,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				break;
 			}
 		}
-		if (getTextField(5 + slider.getID()) != null) { getTextField(5 + slider.getID()).setText("" + (Math.round(value * 1000.0f) / 1000.0f)); }
+		if (getTextField(5 + slider.getID()) != null) { getTextField(5 + slider.getID()).setFullText("" + (Math.round(value * 1000.0f) / 1000.0f)); }
 		resetEmtns();
 	}
 
@@ -839,7 +839,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		if (hasSubGui() || emtn == null) { return; }
 		switch (textField.getID()) {
 			case 0: {
-				emtn.name = textField.getText();
+				emtn.name = textField.getFullText();
 				selEmtn = emtn.getSettingName();
 				initGui();
 				break;
@@ -945,7 +945,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 						break;
 					} // Mouth
 				}
-				textField.setText("" + (Math.round(data * 1000.0f) / 1000.0f));
+				textField.setFullText("" + (Math.round(data * 1000.0f) / 1000.0f));
 				if (getSlider(0) != null) { getSlider(0).setSliderValue(value); }
 				resetEmtns();
 				break;
@@ -995,7 +995,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 						break;
 					} // Mouth
 				}
-				textField.setText("" + (Math.round(data * 1000.0f) / 1000.0f));
+				textField.setFullText("" + (Math.round(data * 1000.0f) / 1000.0f));
 				if (getSlider(1) != null) { getSlider(1).setSliderValue(value); }
 				resetEmtns();
 				break;

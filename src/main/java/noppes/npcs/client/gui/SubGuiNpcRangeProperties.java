@@ -185,11 +185,11 @@ implements ITextfieldListener, ISubGuiListener {
 			case 4: ranged.setDelay(ranged.getDelayMin(), textfield.getInteger()); break;
 			case 5: ranged.setBurstDelay(textfield.getInteger()); break;
 			case 6: ranged.setBurst(textfield.getInteger()); break;
-			case 7: ranged.setSound(0, textfield.getText()); break;
+			case 7: ranged.setSound(0, textfield.getFullText()); break;
 			case 8: ranged.setShotCount(textfield.getInteger()); break;
 			case 9: ranged.setMeleeRange(textfield.getInteger()); break;
-			case 10: ranged.setSound(2, textfield.getText()); break;
-			case 11: ranged.setSound(1, textfield.getText()); break;
+			case 10: ranged.setSound(2, textfield.getFullText()); break;
+			case 11: ranged.setSound(1, textfield.getFullText()); break;
 		}
 		initGui();
 	}

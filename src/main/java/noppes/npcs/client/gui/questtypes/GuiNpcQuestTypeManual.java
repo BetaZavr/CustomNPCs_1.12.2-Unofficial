@@ -178,7 +178,7 @@ implements ITextfieldListener {
 
 	@Override
 	public void save() {
-		task.setTargetName(getTextField(0).getText());
+		task.setTargetName(getTextField(0).getFullText());
 		task.setMaxProgress(getTextField(1).getInteger());
 
 		for (QuestObjective taskObj : NoppesUtilServer.getEditingQuest(player).questInterface.tasks) {
@@ -186,7 +186,7 @@ implements ITextfieldListener {
 				continue;
 			}
 			if (taskObj.getTargetName().equals(task.getTargetName())) {
-				getTextField(0).setText("");
+				getTextField(0).setFullText("");
 				task.setTargetName("");
 				task.setMaxProgress(1);
 				break;
@@ -208,7 +208,7 @@ implements ITextfieldListener {
 		if (task == null) { return; }
 		switch (textField.getID()) {
 			case 0: {
-				task.setTargetName(textField.getText());
+				task.setTargetName(textField.getFullText());
 				break;
 			}
 			case 1: {
@@ -217,7 +217,7 @@ implements ITextfieldListener {
 			}
 			case 9: {
 				if (!BorderController.getInstance().regions.containsKey(textField.getInteger())) {
-					textField.setText("" + textField.getDefault());
+					textField.setFullText("" + textField.getDefault());
 					return;
 				}
 				task.regionID = textField.getInteger();
@@ -241,7 +241,7 @@ implements ITextfieldListener {
 				break;
 			}
 			case 15: {
-				task.entityName = textField.getText();
+				task.entityName = textField.getFullText();
 				break;
 			}
 		}

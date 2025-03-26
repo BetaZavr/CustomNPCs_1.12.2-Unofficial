@@ -35,7 +35,7 @@ implements ITextfieldListener {
 		if (getTextField(72) == null) {
 			return false;
 		}
-        return !getTextField(72).getText().isEmpty();
+        return !getTextField(72).getFullText().isEmpty();
     }
 
 	@Override
@@ -83,7 +83,7 @@ implements ITextfieldListener {
 	public void unFocused(IGuiNpcTextField textfield) {
 		switch (textfield.getID()) {
 			case 72: { // name
-				attribute.setAttribute(textfield.getText());
+				attribute.setAttribute(textfield.getFullText());
 				initGui();
 				break;
 			}

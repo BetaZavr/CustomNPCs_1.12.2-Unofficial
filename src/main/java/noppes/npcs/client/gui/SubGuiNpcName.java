@@ -30,7 +30,7 @@ implements ITextfieldListener {
 			case 3: {
 				String name = display.getRandomName();
 				display.setName(name);
-				getTextField(0).setText(name);
+				getTextField(0).setFullText(name);
 				break;
 			}
 			case 66: close(); break;
@@ -66,8 +66,8 @@ implements ITextfieldListener {
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getID() == 0) {
-			if (!textfield.isEmpty()) { display.setName(textfield.getText()); }
-			else { textfield.setText(display.getName()); }
+			if (!textfield.isEmpty()) { display.setName(textfield.getFullText()); }
+			else { textfield.setFullText(display.getName()); }
 		}
 	}
 }

@@ -515,7 +515,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	@Override
 	public void unFocused(IGuiNpcTextField guiNpcTextField) {
 		if (guiNpcTextField.getID() == 1) {
-			this.quest.setName(guiNpcTextField.getText());
+			this.quest.setName(guiNpcTextField.getFullText());
 			while (QuestController.instance.containsQuestName(this.quest.category, this.quest)) {
 				StringBuilder sb = new StringBuilder();
 				Quest quest = this.quest;

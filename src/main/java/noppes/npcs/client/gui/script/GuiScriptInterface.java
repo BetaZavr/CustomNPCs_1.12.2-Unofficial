@@ -95,7 +95,7 @@ implements IGuiData, ITextChangeListener {
 					return;
 				}
 			}
-			getTextArea(2).setText(NoppesStringUtils.getClipboardContents());
+			getTextArea(2).setFullText(NoppesStringUtils.getClipboardContents());
 		}
 		if (button.id == 102) { // clear all logs
 			if (activeTab > 0) {
@@ -159,11 +159,11 @@ implements IGuiData, ITextChangeListener {
 					!dataLog.containsKey(((GuiNpcButton) button).getValue()) ||
 					!handler.getConsoleText().containsKey(dataLog.get(((GuiNpcButton) button).getValue()))) { return; }
 			selectLog = dataLog.get(((GuiNpcButton) button).getValue());
-			((GuiTextArea) get(2, GuiTextArea.class)).setText(new Date(selectLog) + handler.getConsoleText().get(selectLog));
+			((GuiTextArea) get(2, GuiTextArea.class)).setFullText(new Date(selectLog) + handler.getConsoleText().get(selectLog));
 		}
 		if (button.id == 120) { // copy log
 			if (activeTab > 0) { return; }
-			NoppesStringUtils.setClipboardContents(getTextArea(2).getText());
+			NoppesStringUtils.setClipboardContents(getTextArea(2).getFullText());
 		}
 		if (button.id == 121) { // clear log
 			if (activeTab > 0) { return; }
@@ -171,7 +171,6 @@ implements IGuiData, ITextChangeListener {
 			initGui();
 		}
 	}
-
 
 	@Override
 	public void confirmClicked(boolean flag, int i) {
@@ -189,7 +188,7 @@ implements IGuiData, ITextChangeListener {
 				container.script = "";
 			}
 			else if (i == 6) {
-				getTextArea(2).setText(NoppesStringUtils.getClipboardContents());
+				getTextArea(2).setFullText(NoppesStringUtils.getClipboardContents());
 			}
 			else if (i == 10) {
 				handler.getScripts().remove(activeTab - 1);
@@ -437,7 +436,7 @@ implements IGuiData, ITextChangeListener {
 		if (activeTab > 0) {
 			ScriptContainer container = handler.getScripts().get(activeTab - 1);
 			if (container == null) { handler.getScripts().add(container = new ScriptContainer(handler, true)); }
-			String text = getTextArea(2).getText();
+			String text = getTextArea(2).getFullText();
 			text = text.replace("\r\n", "\n");
 			text = text.replace("\r", "\n");
 			container.script = text;

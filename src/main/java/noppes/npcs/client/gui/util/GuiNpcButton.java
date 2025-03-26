@@ -160,7 +160,8 @@ implements IComponentGui, IGuiNpcButton {
 
 				drawTexturedModalRect(0, 0, txrX, txrY + state * height, width, height);
 				GlStateManager.popMatrix();
-			} else {
+			}
+			else {
 				boolean isPrefabricated = txrW == 0;
 				int tw = isPrefabricated ? 200 : txrW;
 				int th = txrH == 0 ? 20 : txrH;
@@ -187,13 +188,9 @@ implements IComponentGui, IGuiNpcButton {
 			}
 		}
 		int color = CustomNpcs.MainColor.getRGB();
-		if (packedFGColour != 0) {
-			color = packedFGColour;
-		} else if (!enabled) {
-			color = CustomNpcs.NotEnableColor.getRGB();
-		} else if (hovered) {
-			color = CustomNpcs.HoverColor.getRGB();
-		}
+		if (packedFGColour != 0) { color = packedFGColour; }
+		else if (!enabled) { color = CustomNpcs.NotEnableColor.getRGB(); }
+		else if (hovered) { color = CustomNpcs.HoverColor.getRGB(); }
 		mc.fontRenderer.drawString(displayString, x + (float) (width - mc.fontRenderer.getStringWidth(displayString)) / 2, y + (float) (height - 8) / 2, color, dropShadow);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		if (itemStacks != null && itemStacks.length != 0) {
@@ -343,7 +340,10 @@ implements IComponentGui, IGuiNpcButton {
 	public void setHasDefaultBack(boolean bo) { hasDefBack = bo; }
 
 	@Override
-	public void setIsAnim(boolean bo) { isAnim = bo; }
+	public void setIsAnim(boolean bo) {
+		isAnim = bo;
+		isSimple = !bo;
+	}
 
 	@Override
 	public void setTextColor(int color) { packedFGColour = color; }
@@ -367,7 +367,7 @@ implements IComponentGui, IGuiNpcButton {
 			return i;
 		}
 		if (hovered) {
-			return enabled ? 1 : 4;
+			return (enabled ? 1 : 4) + (Mouse.isButtonDown(0) ? 1 : 0);
 		}
 		return enabled ? 0 : 3;
 	}

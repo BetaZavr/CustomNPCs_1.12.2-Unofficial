@@ -701,7 +701,7 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 			this.type = !this.player.capabilities.isCreativeMode && this.username.equals(this.player.getName())
 					&& !CustomNpcs.MailSendToYourself ? 3 : 0;
 			if (this.type == 0) {
-				this.type = this.getTextField(0) != null && this.getTextField(0).getText().isEmpty() ? 1 : 0;
+				this.type = this.getTextField(0) != null && this.getTextField(0).getFullText().isEmpty() ? 1 : 0;
 			} // player
 			if (this.type == 0) {
 				this.type = GuiMailmanWrite.mail.title.isEmpty() ? 4 : 0;
@@ -1654,23 +1654,23 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getID()) {
 		case 0:
-			this.username = textField.getText();
+			this.username = textField.getFullText();
 			break;
 		case 1:
-			GuiMailmanWrite.mail.title = textField.getText();
+			GuiMailmanWrite.mail.title = textField.getFullText();
 			break;
 		case 2:
-			GuiMailmanWrite.mail.sender = textField.getText();
+			GuiMailmanWrite.mail.sender = textField.getFullText();
 			break;
 		case 3: {
 			GuiMailmanWrite.mail.money = textField.getInteger();
-			textField.setText("" + GuiMailmanWrite.mail.money);
+			textField.setFullText("" + GuiMailmanWrite.mail.money);
 			textField.setMinMaxDefault(textField.getMin(), textField.getMax(), GuiMailmanWrite.mail.money);
 			break;
 		}
 		case 4: {
 			GuiMailmanWrite.mail.ransom = textField.getInteger();
-			textField.setText("" + GuiMailmanWrite.mail.ransom);
+			textField.setFullText("" + GuiMailmanWrite.mail.ransom);
 			textField.setMinMaxDefault(textField.getMin(), textField.getMax(), GuiMailmanWrite.mail.ransom);
 			break;
 		}

@@ -268,13 +268,13 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		if (textfield.getID() == 0) {
 			if (textfield.isEmpty()) {
 				this.option.title = "Talk";
-				textfield.setText(this.option.title);
+				textfield.setFullText(this.option.title);
 			} else {
-				this.option.title = textfield.getText();
+				this.option.title = textfield.getFullText();
 			}
 		}
 		else if (textfield.getID() == 4) {
-			this.option.command = textfield.getText();
+			this.option.command = textfield.getFullText();
 		}
 	}
 

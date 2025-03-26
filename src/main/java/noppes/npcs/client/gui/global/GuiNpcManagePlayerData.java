@@ -103,7 +103,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			data.clear();
 			Client.sendData(EnumPacketServer.PlayerDataGet, selection, selectedPlayer);
 			selected = null;
-			getTextField(0).setText("");
+			getTextField(0).setFullText("");
 		} else if (id == 7) {
 			GuiYesNo guiyesno = new GuiYesNo(this,
 					new TextComponentTranslation("gui.wipe").getFormattedText() + "?",
@@ -464,10 +464,10 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 		if (selection == EnumPlayerData.Wipe) {
 			return;
 		}
-		if (search.equals(getTextField(0).getText())) {
+		if (search.equals(getTextField(0).getFullText())) {
 			return;
 		}
-		search = getTextField(0).getText().toLowerCase();
+		search = getTextField(0).getFullText().toLowerCase();
 		setCurrentList();
 	}
 

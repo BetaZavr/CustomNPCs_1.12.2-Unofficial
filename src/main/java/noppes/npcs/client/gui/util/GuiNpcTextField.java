@@ -29,7 +29,7 @@ implements IComponentGui, IGuiNpcTextField {
 		IGuiNpcTextField prev = GuiNpcTextField.activeTextfield;
 		GuiNpcTextField.activeTextfield = null;
 		if (prev != null) {
-			prev.unFocused();
+			prev.unFocus();
 		}
 	}
 	private final int[] allowedSpecialKeyIDs = new int[] { 14, 211, 203, 205 };
@@ -54,7 +54,7 @@ implements IComponentGui, IGuiNpcTextField {
 	public GuiNpcTextField(int id, GuiScreen parent, FontRenderer fontRenderer, int x, int y, int width, int height, String text) {
 		super(id, fontRenderer, x, y, width, height);
 		setMaxStringLength(500);
-		setText((text == null) ? "" : text);
+		setFullText((text == null) ? "" : text);
 		if (parent instanceof ITextfieldListener) {
 			listener = (ITextfieldListener) parent;
 		}
@@ -75,13 +75,13 @@ implements IComponentGui, IGuiNpcTextField {
 				return true;
 			}
 		}
-		boolean selectAll = getSelectedText().equals(getText());
+		boolean selectAll = getSelectedText().equals(getFullText());
 		if (numbersOnly) {
-			return Character.isDigit(c) || (c == '-' && selectAll || getCursorPosition() == 0 && !getText().contains("" + c));
+			return Character.isDigit(c) || (c == '-' && selectAll || getCursorPosition() == 0 && !getFullText().contains("" + c));
 		}
 		if (doubleNumbersOnly) {
-			boolean hasDot = getText().contains(".") || getText().contains(",");
-			return Character.isDigit(c) || (c == '-' && selectAll || getCursorPosition() == 0 && !getText().contains("" + c)) || (!hasDot || selectAll && (c == '.' || c == ','));
+			boolean hasDot = getFullText().contains(".") || getFullText().contains(",");
+			return Character.isDigit(c) || (c == '-' && selectAll || getCursorPosition() == 0 && !getFullText().contains("" + c)) || (!hasDot || selectAll && (c == '.' || c == ','));
 		}
 		if (!latinAlphabetOnly || Character.isLetterOrDigit(c) || c == '_') {
 			return true;
@@ -108,7 +108,7 @@ implements IComponentGui, IGuiNpcTextField {
 					double t = d + f;
 					if (t < minD) { t = t - minD + maxD; }
 					else if (t > maxD) { t = t - maxD + minD; }
-					setText("" + ValueUtil.correctDouble(Math.round(t * 1000.0d) / 1000.0d, minD, maxD));
+					setFullText("" + ValueUtil.correctDouble(Math.round(t * 1000.0d) / 1000.0d, minD, maxD));
 				} else {
 					int i = getInteger();
 					int v = (int) (max - min);
@@ -116,7 +116,7 @@ implements IComponentGui, IGuiNpcTextField {
 					int t = i + f;
 					if (t < min) { t = t - (int) (min + max); }
 					else if (t > max) { t = t - (int) (max + min); }
-					setText("" + ValueUtil.correctInt((int) (Math.round((double) t * 1000.0d) / 1000.0d), (int) min, (int) max));
+					setFullText("" + ValueUtil.correctInt((int) (Math.round((double) t * 1000.0d) / 1000.0d), (int) min, (int) max));
 				}
 				if (listener != null) {
 					listener.unFocused(this);
@@ -134,7 +134,7 @@ implements IComponentGui, IGuiNpcTextField {
 	public double getDouble() {
 		double d = defD;
 		try {
-			d = Double.parseDouble(getText().replace(",", "."));
+			d = Double.parseDouble(getFullText().replace(",", "."));
 		} catch (NumberFormatException ignored) { }
 		return d;
 	}
@@ -143,7 +143,7 @@ implements IComponentGui, IGuiNpcTextField {
 	public int getInteger() {
 		int i = (int) def;
 		try {
-			i = Integer.parseInt(getText());
+			i = Integer.parseInt(getFullText());
 		} catch (NumberFormatException ignored) { }
 		return i;
 	}
@@ -152,7 +152,7 @@ implements IComponentGui, IGuiNpcTextField {
 	public long getLong() {
 		long i = 0L;
 		try {
-			i = Long.parseLong(getText());
+			i = Long.parseLong(getFullText());
 		} catch (NumberFormatException ignored) { }
 		return i;
 	}
@@ -160,7 +160,7 @@ implements IComponentGui, IGuiNpcTextField {
 	@Override
 	public boolean isDouble() {
 		try {
-			Double.parseDouble(getText().replace(",", "."));
+			Double.parseDouble(getFullText().replace(",", "."));
 			return true;
 		} catch (NumberFormatException ignored) { }
 		return false;
@@ -168,7 +168,7 @@ implements IComponentGui, IGuiNpcTextField {
 
 	@Override
 	public boolean isEmpty() {
-		return getText().trim().isEmpty();
+		return getFullText().trim().isEmpty();
 	}
 
 	@Override
@@ -180,7 +180,7 @@ implements IComponentGui, IGuiNpcTextField {
 	@Override
 	public boolean isInteger() {
 		try {
-			Integer.parseInt(getText());
+			Integer.parseInt(getFullText());
 			return true;
 		} catch (NumberFormatException ignored) {  }
 		return false;
@@ -189,7 +189,7 @@ implements IComponentGui, IGuiNpcTextField {
 	@Override
 	public boolean isLong() {
 		try {
-			Long.parseLong(getText());
+			Long.parseLong(getFullText());
 			return true;
 		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
 		return false;
@@ -205,7 +205,7 @@ implements IComponentGui, IGuiNpcTextField {
 		}
 		boolean isFocused = isFocused();
 		if (((IGuiTextFieldMixin) this).npcs$getCanLoseFocus()) {
-			setFocused(hovered);
+			setFocus(hovered);
 		}
 		if (isFocused && hovered && mouseButton == 0) {
 			int i = mouseX - x;
@@ -214,12 +214,12 @@ implements IComponentGui, IGuiNpcTextField {
 			}
 			FontRenderer fontRenderer = ((IGuiTextFieldMixin) this).npcs$getFontRenderer();
 			int lineScrollOffset = ((IGuiTextFieldMixin) this).npcs$getLineScrollOffset();
-			String s = fontRenderer.trimStringToWidth(getText().substring(lineScrollOffset), getWidth());
+			String s = fontRenderer.trimStringToWidth(getFullText().substring(lineScrollOffset), getWidth());
 			setCursorPosition(fontRenderer.trimStringToWidth(s, i).length() + lineScrollOffset);
 			return true;
 		}
 		if (isFocused != isFocused() && isFocused) {
-			unFocused();
+			unFocus();
 		}
 		if (isFocused()) {
 			GuiNpcTextField.activeTextfield = this;
@@ -288,31 +288,43 @@ implements IComponentGui, IGuiNpcTextField {
 	}
 
 	@Override
-	public void unFocused() {
+	public void setFocus(boolean bo) {
+		setFocused(bo);
+	}
+
+	@Override
+	public String getFullText() {
+		return getText();
+	}
+
+	@Override
+	public void setFullText(String text) {
+		setText(text);
+	}
+
+	@Override
+	public void unFocus() {
 		if (numbersOnly) {
 			if (isEmpty() || !isInteger()) {
-				setText(def + "");
+				setFullText(def + "");
 			} else if (getInteger() < min) {
-				setText(min + "");
+				setFullText(min + "");
 			} else if (getInteger() > max) {
-				setText(max + "");
+				setFullText(max + "");
 			}
-		} else if (doubleNumbersOnly) {
+		}
+		else if (doubleNumbersOnly) {
 			if (isEmpty() || !isDouble()) {
-				setText(defD + "");
+				setFullText(defD + "");
 			} else if (getDouble() < minD) {
-				setText(minD + "");
+				setFullText(minD + "");
 			} else if (getDouble() > maxD) {
-				setText(maxD + "");
+				setFullText(maxD + "");
 			}
 		}
-		if (listener != null) {
-			listener.unFocused(this);
-		}
-		if (this == GuiNpcTextField.activeTextfield) {
-			GuiNpcTextField.activeTextfield = null;
-		}
-		setFocused(false);
+		if (listener != null) { listener.unFocused(this); }
+		if (this == GuiNpcTextField.activeTextfield) { GuiNpcTextField.activeTextfield = null; }
+		setFocus(false);
 	}
 
 	@Override

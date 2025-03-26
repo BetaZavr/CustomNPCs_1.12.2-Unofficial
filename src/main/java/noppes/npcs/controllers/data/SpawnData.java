@@ -10,7 +10,7 @@ import noppes.npcs.NBTTags;
 public class SpawnData extends WeightedRandom.Item {
 	
 	public List<String> biomes = new ArrayList<>();
-	public NBTTagCompound compound1 = new NBTTagCompound();
+	public NBTTagCompound compoundEntity = new NBTTagCompound();
 	public int id = -1;
 	public boolean liquid = false;
 	public String name = "";
@@ -28,7 +28,7 @@ public class SpawnData extends WeightedRandom.Item {
 			this.itemWeight = 1;
 		}
 		this.biomes = NBTTags.getStringList(compound.getTagList("SpawnBiomes", 10));
-		this.compound1 = compound.getCompoundTag("SpawnCompound1");
+		this.compoundEntity = compound.getCompoundTag("SpawnCompound1");
 		this.type = compound.getInteger("SpawnType");
 		if (compound.hasKey("MaxInGroup", 3)) { this.group = compound.getInteger("MaxInGroup"); }
 		if (compound.hasKey("GroupInRange", 3)) { this.range = compound.getInteger("GroupInRange"); }
@@ -39,7 +39,7 @@ public class SpawnData extends WeightedRandom.Item {
 		compound.setString("SpawnName", this.name);
 		compound.setInteger("SpawnWeight", this.itemWeight);
 		compound.setTag("SpawnBiomes", NBTTags.nbtStringList(this.biomes));
-		compound.setTag("SpawnCompound1", this.compound1);
+		compound.setTag("SpawnCompound1", this.compoundEntity);
 		compound.setInteger("SpawnType", this.type);
 		compound.setInteger("MaxInGroup", this.group);
 		compound.setInteger("GroupInRange", this.range);

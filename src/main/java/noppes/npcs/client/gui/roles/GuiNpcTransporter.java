@@ -83,7 +83,7 @@ implements IScrollData, IGuiData {
 		if (!scroll.hasSelected()) {
 			return;
 		}
-		String name = getTextField(0).getText();
+		String name = getTextField(0).getFullText();
 		if (!name.isEmpty()) { location.name = name; }
 		location.pos = new BlockPos(player);
 		location.dimension = player.dimension;

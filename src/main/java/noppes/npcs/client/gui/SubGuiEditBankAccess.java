@@ -157,7 +157,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		if (hasSubGui()) {
 			return;
 		}
-		owner = textField.getText();
+		owner = textField.getFullText();
 	}
 
 }

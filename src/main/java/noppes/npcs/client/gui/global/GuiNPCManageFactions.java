@@ -426,7 +426,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 			return;
 		}
 		if (textField.getID() == 0) {
-			String name = textField.getText();
+			String name = textField.getFullText();
 			if (!name.isEmpty() && !data.containsKey(name)) {
 				String old = scrollFactions.getSelected();
 				data.remove(faction.name);
@@ -440,7 +440,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 			initGui();
 		}
 		else if (textField.getID() == 1) {
-			faction.setFlag(textField.getText());
+			faction.setFlag(textField.getFullText());
 		}
 	}
 

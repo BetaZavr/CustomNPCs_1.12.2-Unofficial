@@ -417,7 +417,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		}
 		switch (textField.getID()) {
 			case 0: { // name
-				String name = textField.getText();
+				String name = textField.getFullText();
 				if (!name.isEmpty() && !data.containsKey(name)) {
 					String old = bank.name;
 					data.remove(bank.name);
@@ -430,7 +430,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			}
 			case 1: { // startCells
 				if (!textField.isInteger()) {
-					textField.setText("" + textField.getDefault());
+					textField.setFullText("" + textField.getDefault());
 					return;
 				}
 				bank.ceilSettings.get(ceil).startCells = textField.getInteger();
@@ -438,7 +438,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			}
 			case 2: { // maxCells
 				if (!textField.isInteger()) {
-					textField.setText("" + textField.getDefault());
+					textField.setFullText("" + textField.getDefault());
 					return;
 				}
 				bank.ceilSettings.get(ceil).maxCells = textField.getInteger();
@@ -446,7 +446,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			}
 			case 3: { // open money
 				if (!textField.isInteger()) {
-					textField.setText("" + textField.getDefault());
+					textField.setFullText("" + textField.getDefault());
 					return;
 				}
 				bank.ceilSettings.get(ceil).openMoney = textField.getInteger();
@@ -454,7 +454,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			}
 			case 4: { // upgrade money
 				if (!textField.isInteger()) {
-					textField.setText("" + textField.getDefault());
+					textField.setFullText("" + textField.getDefault());
 					return;
 				}
 				bank.ceilSettings.get(ceil).upgradeMoney = textField.getInteger();

@@ -233,7 +233,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 		if (cat == null) {
 			return;
 		}
-		cat.title = this.getTextField(0).getText();
+		cat.title = this.getTextField(0).getFullText();
 		if (this.locSel.isEmpty() || this.getTextField(1) == null) {
 			NBTTagCompound compound = new NBTTagCompound();
 			cat.writeNBT(compound);
@@ -241,12 +241,12 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 			return;
 		}
 		this.container.location.money = this.getTextField(1).getInteger();
-		this.container.location.name = this.getTextField(2).getText();
+		this.container.location.name = this.getTextField(2).getFullText();
 		this.container.location.dimension = this.getTextField(4).getInteger();
 		this.container.location.pos = new BlockPos(this.getTextField(5).getInteger(), this.getTextField(6).getInteger(),
 				this.getTextField(7).getInteger());
 		try {
-			this.container.location.npc = UUID.fromString(this.getTextField(3).getText());
+			this.container.location.npc = UUID.fromString(this.getTextField(3).getFullText());
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 		this.container.location.type = this.getButton(3).getValue();
 		Client.sendData(EnumPacketServer.TransportCategorySave, this.container.saveTransport(cat));
@@ -351,51 +351,51 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 		}
 		switch (textField.getID()) {
 			case 0: { // cat name
-				if (textField.getText().isEmpty() || cat == null) {
+				if (textField.getFullText().isEmpty() || cat == null) {
 					return;
 				}
-				cat.title = textField.getText();
+				cat.title = textField.getFullText();
 				break;
 			}
 			case 1: { // money
-				if (textField.getText().isEmpty() || loc == null) {
+				if (textField.getFullText().isEmpty() || loc == null) {
 					return;
 				}
 				loc.money = textField.getInteger();
 				break;
 			}
 			case 2: { // loc name
-				if (textField.getText().isEmpty() || loc == null) {
+				if (textField.getFullText().isEmpty() || loc == null) {
 					return;
 				}
-				loc.name = textField.getText();
+				loc.name = textField.getFullText();
 				break;
 			}
 			case 3: { // npc uuid
-				if (textField.getText().isEmpty() || loc == null) {
+				if (textField.getFullText().isEmpty() || loc == null) {
 					return;
 				}
 				try {
-					loc.npc = UUID.fromString(textField.getText());
+					loc.npc = UUID.fromString(textField.getFullText());
 				} catch (Exception e) {
-					textField.setText(loc.npc == null ? "" : loc.npc.toString());
+					textField.setFullText(loc.npc == null ? "" : loc.npc.toString());
 				}
 				break;
 			}
 			case 4: { // dim ID
-				if (textField.getText().isEmpty() || loc == null) {
+				if (textField.getFullText().isEmpty() || loc == null) {
 					return;
 				}
 				int dimId = textField.getInteger();
 				if (!TransportController.getInstance().worldIDs.contains(dimId)) {
-					textField.setText("" + loc.dimension);
+					textField.setFullText("" + loc.dimension);
 					return;
 				}
 				loc.dimension = dimId;
 				break;
 			}
 			case 5: { // X
-				if (textField.getText().isEmpty() || loc == null) {
+				if (textField.getFullText().isEmpty() || loc == null) {
 					return;
 				}
 				int y = loc.pos.getY();
@@ -404,7 +404,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 				break;
 			}
 			case 6: { // Y
-				if (textField.getText().isEmpty() || loc == null) {
+				if (textField.getFullText().isEmpty() || loc == null) {
 					return;
 				}
 				int x = loc.pos.getX();
@@ -413,7 +413,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 				break;
 			}
 			case 7: { // Z
-				if (textField.getText().isEmpty() || loc == null) {
+				if (textField.getFullText().isEmpty() || loc == null) {
 					return;
 				}
 				int x = loc.pos.getX();

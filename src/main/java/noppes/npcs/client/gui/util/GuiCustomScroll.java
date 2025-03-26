@@ -84,6 +84,12 @@ implements IComponentGui, IGuiCustomScroll {
 	}
 
 	@Override
+	public void canSearch(boolean setSearch) {
+		canSearch = setSearch;
+		reset();
+	}
+
+	@Override
 	public void clear() {
 		list.clear();
 		selected = -1;
@@ -273,7 +279,7 @@ implements IComponentGui, IGuiCustomScroll {
 		return colors.get(pos);
 	}
 
-	public int getHeight() { return height - textFieldHeight(); }
+	public int getHeight() { return height; }
 
 	@Override
 	public void customKeyTyped(char c, int id) { keyTyped(c, id); }

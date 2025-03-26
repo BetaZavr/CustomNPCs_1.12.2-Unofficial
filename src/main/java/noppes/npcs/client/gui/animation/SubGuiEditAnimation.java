@@ -2740,7 +2740,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				value = Math.round(5000.0f * slider.getSliderValue()) / 1000.0f;
 				hitbox.scale[slider.getID()] = value;
 			}
-			if (tools.getTextField(5 + slider.getID()) != null) { tools.getTextField(5 + slider.getID()).setText("" + value); }
+			if (tools.getTextField(5 + slider.getID()) != null) { tools.getTextField(5 + slider.getID()).setFullText("" + value); }
 			return;
 		}
 		if (isMotion) {
@@ -2755,7 +2755,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				value = Math.round(360.0f * slider.getSliderValue() - 180.0f);
 				frame.motions[2] = 2.0f * pi * slider.getSliderValue() - pi;
 			}
-			if (tools.getTextField(5 + slider.getID()) != null) { tools.getTextField(5 + slider.getID()).setText("" + value); }
+			if (tools.getTextField(5 + slider.getID()) != null) { tools.getTextField(5 + slider.getID()).setFullText("" + value); }
 			return;
 		}
 		if (part == null) { return; }
@@ -2782,7 +2782,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				}
 			}
 		}
-		if (tools.getTextField(5 + slider.getID()) != null) { tools.getTextField(5 + slider.getID()).setText("" + value); }
+		if (tools.getTextField(5 + slider.getID()) != null) { tools.getTextField(5 + slider.getID()).setFullText("" + value); }
 		resetAnimation();
 	}
 
@@ -3026,7 +3026,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						hitbox.scale[0] = (float) textField.getDouble();
 						sliderValue = (float) textField.getDouble() * 0.2f; // 0 -> 5
 					}
-					textField.setText("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
+					textField.setFullText("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
 					if (tools.getSlider(0) != null) {
 						tools.getSlider(0).setSliderValue(sliderValue);
 					}
@@ -3037,7 +3037,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					if (frame == null || toolType != 1) { return; }
 					frame.motions[0] = (float) textField.getDouble();
 					sliderValue = (float) textField.getDouble() * 2.0f / 3.0f; // 0 -> 1.5
-					textField.setText("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
+					textField.setFullText("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
 					if (tools.getSlider(0) != null) {
 						tools.getSlider(0).setSliderValue(sliderValue);
 					}
@@ -3064,7 +3064,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						break;
 					}
 				}
-				textField.setText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
+				textField.setFullText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
 				if (tools.getSlider(0) != null) {
 					tools.getSlider(0).setSliderValue(sliderValue);
 				}
@@ -3083,7 +3083,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						hitbox.scale[1] = (float) textField.getDouble();
 						sliderValue = (float) textField.getDouble() * 0.2f; // 0.0 -> 5.0
 					}
-					textField.setText("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
+					textField.setFullText("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
 					if (tools.getSlider(1) != null) {
 						tools.getSlider(1).setSliderValue(sliderValue);
 					}
@@ -3093,7 +3093,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					if (frame == null || toolType != 1) { return; }
 					frame.motions[1] = (float) textField.getDouble();
 					sliderValue = (float) textField.getDouble() / 3.0f + 0.5f; // -1.5 -> 1.5
-					textField.setText("" + (float) Math.round(frame.motions[1] * 1000.0d) / 1000.0f);
+					textField.setFullText("" + (float) Math.round(frame.motions[1] * 1000.0d) / 1000.0f);
 					if (tools.getSlider(1) != null) {
 						tools.getSlider(1).setSliderValue(sliderValue);
 					}
@@ -3120,7 +3120,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						break;
 					}
 				}
-				textField.setText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
+				textField.setFullText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
 				if (tools.getSlider(1) != null) {
 					tools.getSlider(1).setSliderValue(sliderValue);
 				}
@@ -3140,7 +3140,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						hitbox.scale[2] = (float) textField.getDouble();
 						sliderValue = (float) textField.getDouble() * 0.2f;
 					}
-					textField.setText("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
+					textField.setFullText("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
 					if (tools.getSlider(2) != null) {
 						tools.getSlider(2).setSliderValue(sliderValue);
 					}
@@ -3150,7 +3150,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					if (frame == null || toolType != 1) { return; }
 					frame.motions[2] = (float) Math.toRadians(textField.getDouble());
 					float sliderValue = (float) textField.getDouble() * 0.002778f + 0.5f;
-					textField.setText("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
+					textField.setFullText("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
 					if (tools.getSlider(2) != null) {
 						tools.getSlider(2).setSliderValue(sliderValue);
 					}
@@ -3178,7 +3178,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						break;
 					}
 				}
-				textField.setText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
+				textField.setFullText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
 				if (tools.getSlider(2) != null) {
 					tools.getSlider(2).setSliderValue(value);
 				}
@@ -3196,7 +3196,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				if (part == null || !part.equals(p) || tType != toolType) { return; }
 				p.rotation[3] = (float) Math.toRadians(textField.getDouble());
 				float value = (float) textField.getDouble() * 0.002778f + 0.5f;
-				textField.setText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
+				textField.setFullText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
 				if (tools.getSlider(3) != null) {
 					tools.getSlider(3).setSliderValue(value);
 				}
@@ -3214,7 +3214,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				if (part == null || !part.equals(p) || tType != toolType) { return; }
 				p.rotation[4] = (float) Math.toRadians(textField.getDouble());
 				float value = (float) textField.getDouble() * 0.005556f + 0.5f;
-				textField.setText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
+				textField.setFullText("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
 				if (tools.getSlider(4) != null) {
 					tools.getSlider(4).setSliderValue(value);
 				}
@@ -3224,14 +3224,14 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			case 10: {
 				if (anim == null) { return; }
 				anim.chance = (float) Math.round(textField.getDouble() * 1000.0d) / 100000.0f;
-				textField.setText("" + (anim.chance * 100.0f));
+				textField.setFullText("" + (anim.chance * 100.0f));
 				isChanged = true;
 				resetAnimation();
 				break;
 			} // chance
 			case 11: {
 				if (anim == null) { return; }
-				anim.name = textField.getText();
+				anim.name = textField.getFullText();
 				break;
 			} // name
 		}

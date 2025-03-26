@@ -18,8 +18,6 @@ import noppes.npcs.client.ClientProxy;
 public class GuiNpcTextArea
 extends GuiNpcTextField implements IGuiTextArea {
 
-	public boolean inMenu = true;
-	public boolean numbersOnly = false;
 	private boolean clickVerticalBar = false;
 	private int cursorCounter;
 	private int cursorPosition = 0;
@@ -43,7 +41,7 @@ extends GuiNpcTextField implements IGuiTextArea {
 		font = ClientProxy.Font.copy();
 		font.useCustomFont = true;
 		setMaxStringLength(Integer.MAX_VALUE);
-		setText(text.replace("\r\n", "\n"));
+		setFullText(text.replace("\r\n", "\n"));
 	}
 
 	private void addScrollY(int scrolled) {
@@ -101,7 +99,7 @@ extends GuiNpcTextField implements IGuiTextArea {
 		int color = new Color(0xE0, 0xE0, 0xE0, 0xFF).getRGB();
 		boolean flag = isFocused() && cursorCounter / 6 % 2 == 0;
 		int startLine = getStartLineY();
-		int maxLine = height / font.height(getText()) + startLine;
+		int maxLine = height / font.height(getFullText()) + startLine;
 		List<String> lines = getLines();
 		int charCount = 0;
 		int lineCount = 0;
@@ -120,7 +118,7 @@ extends GuiNpcTextField implements IGuiTextArea {
                         && canEdit) {
                     int xx = posX + font.width(line) + 4;
                     int yy = posY + (lineCount - startLine) * font.height(line) + 4;
-                    if (getText().length() == cursorPosition) {
+                    if (getFullText().length() == cursorPosition) {
                         font.drawString("_", xx, yy, color);
                     } else {
                         drawCursorVertical(xx, yy, xx + 1, yy + font.height(line));
@@ -134,7 +132,7 @@ extends GuiNpcTextField implements IGuiTextArea {
                 if (flag && charCount == cursorPosition && canEdit) {
                     int xx2 = posX + font.width(line) + 4;
                     int yy2 = posY + (lineCount - startLine) * font.height(line) + 4;
-                    if (getText().length() == cursorPosition) {
+                    if (getFullText().length() == cursorPosition) {
                         font.drawString("_", xx2, yy2, color);
                     } else {
                         drawCursorVertical(xx2, yy2, xx2 + 1, yy2 + font.height(line));
@@ -158,7 +156,7 @@ extends GuiNpcTextField implements IGuiTextArea {
 		} else {
 			clickVerticalBar = false;
 		}
-		listHeight = lineCount * font.height(getText());
+		listHeight = lineCount * font.height(getFullText());
 		drawVerticalScrollBar();
 	}
 
@@ -181,7 +179,7 @@ extends GuiNpcTextField implements IGuiTextArea {
 	private List<String> getLines() {
 		List<String> list = new ArrayList<>();
 		StringBuilder line = new StringBuilder();
-		for (char c : getText().toCharArray()) {
+		for (char c : getFullText().toCharArray()) {
 			if (c == '\r' || c == '\n') {
 				list.add(line.toString());
 				line = new StringBuilder();
@@ -197,7 +195,7 @@ extends GuiNpcTextField implements IGuiTextArea {
 		if (!isScrolling()) {
 			scrolledY = 0.0f;
 		}
-		return MathHelper.ceil(scrolledY * listHeight / font.height(getText()));
+		return MathHelper.ceil(scrolledY * listHeight / font.height(getFullText()));
 	}
 
 	private int getVerticalBarSize() {
@@ -224,7 +222,7 @@ extends GuiNpcTextField implements IGuiTextArea {
 			return false;
 		}
 		int x = i - posX;
-		int y = (j - posY - 4) / font.height(getText()) + getStartLineY();
+		int y = (j - posY - 4) / font.height(getFullText()) + getStartLineY();
 		cursorPosition = 0;
 		List<String> lines = getLines();
 		int charCount = 0;
@@ -255,7 +253,7 @@ extends GuiNpcTextField implements IGuiTextArea {
             }
         }
 		if (y >= lineCount) {
-			cursorPosition = getText().length();
+			cursorPosition = getFullText().length();
 		}
 		return true;
 	}
@@ -263,15 +261,15 @@ extends GuiNpcTextField implements IGuiTextArea {
 	@Override
 	public boolean textboxKeyTyped(char c, int i) {
 		if (isFocused() && canEdit) {
-			String originalText = getText();
-			setText(originalText);
+			String originalText = getFullText();
+			setFullText(originalText);
 			if (c == '\r' || c == '\n') {
-				setText(originalText.substring(0, cursorPosition) + c + originalText.substring(cursorPosition));
+				setFullText(originalText.substring(0, cursorPosition) + c + originalText.substring(cursorPosition));
 			}
 			setCursorPositionZero();
 			moveCursorBy(cursorPosition);
 			boolean bo = super.textboxKeyTyped(c, i);
-			String newText = getText();
+			String newText = getFullText();
 			if (i != 211) {
 				cursorPosition += newText.length() - originalText.length();
 			}

@@ -66,7 +66,7 @@ implements ISubGuiListener {
 	public void save() {
 		HashMap<Integer, String> map = new HashMap<>();
 		for (int i = 1; i <= 6; ++i) {
-			String text = getTextField(i).getText();
+			String text = getTextField(i).getFullText();
 			if (!text.isEmpty()) {
 				map.put(i, text);
 			}

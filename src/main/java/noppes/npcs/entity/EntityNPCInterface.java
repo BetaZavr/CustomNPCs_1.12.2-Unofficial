@@ -1097,8 +1097,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public boolean isEntityAlive() {
 		boolean bo = super.isEntityAlive();
-		if (ais != null && ais.aiDisabled) { return bo; }
-		return bo && !isKilled();
+		if (!bo || ais != null && ais.aiDisabled) { return bo; }
+		return !isKilled();
 	}
 
 	public boolean isFollower() {

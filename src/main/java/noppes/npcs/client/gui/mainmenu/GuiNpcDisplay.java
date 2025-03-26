@@ -105,7 +105,7 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 			case 14: {
 				String name = this.display.getRandomName();
 				this.display.setName(name);
-				this.getTextField(0).setText(name);
+				this.getTextField(0).setFullText(name);
 				break;
 			}
 			case 15: {
@@ -290,28 +290,28 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 	public void unFocused(IGuiNpcTextField textfield) {
 		switch (textfield.getID()) {
 			case 0: {
-				if (!textfield.isEmpty()) { display.setName(textfield.getText()); }
-				textfield.setText(display.getName());
+				if (!textfield.isEmpty()) { display.setName(textfield.getFullText()); }
+				textfield.setFullText(display.getName());
 				break;
 			}
 			case 2: display.setSize(textfield.getInteger()); break;
 			case 3: {
-				if (display.skinType == 2) { display.setSkinUrl(textfield.getText()); }
-				else if (display.skinType == 1) { display.setSkinPlayer(textfield.getText()); }
-				else { display.setSkinTexture(textfield.getText()); }
+				if (display.skinType == 2) { display.setSkinUrl(textfield.getFullText()); }
+				else if (display.skinType == 1) { display.setSkinPlayer(textfield.getFullText()); }
+				else { display.setSkinTexture(textfield.getFullText()); }
 				break;
 			}
 			case 6: {
 				int color;
-				try { color = Integer.parseInt(textfield.getText(), 16); }
+				try { color = Integer.parseInt(textfield.getFullText(), 16); }
 				catch (NumberFormatException e) { color = new Color(0xFFFFFF).getRGB(); }
 				this.display.setTint(color);
 				textfield.setTextColor(this.display.getTint());
 				break;
 			}
-			case 8: display.setCapeTexture(textfield.getText()); break;
-			case 9: display.setOverlayTexture(textfield.getText()); break;
-			case 11: display.setTitle(textfield.getText()); break;
+			case 8: display.setCapeTexture(textfield.getFullText()); break;
+			case 9: display.setOverlayTexture(textfield.getFullText()); break;
+			case 11: display.setTitle(textfield.getFullText()); break;
 			case 12: display.width = (float) textfield.getDouble(); break;
 			case 13: display.height = (float) textfield.getDouble(); break;
 		}

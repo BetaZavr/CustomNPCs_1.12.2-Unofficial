@@ -80,10 +80,6 @@ dependencies {
         exclude module: 'commons-io'
         exclude module: 'gson'
     }
-
-    // Encrypt Lib
-    implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.67'
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.15'
 }
 
 // Resource processing (mcmod.info file)

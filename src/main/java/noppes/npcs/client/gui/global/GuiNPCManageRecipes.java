@@ -360,6 +360,7 @@ implements ICustomScrollListener, ISubGuiListener {
 			}
 			case 30: {
 				onlyMod = ((GuiNpcCheckBox) button).isSelected();
+				initGui();
 				break;
 			}
 			default: {

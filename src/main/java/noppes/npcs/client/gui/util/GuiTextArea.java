@@ -63,13 +63,13 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		this.width = width;
 		this.height = height;
 		undoing = true;
-		setText(label);
+		setFullText(label);
 		undoing = false;
 		GuiTextArea.font.setSpecial('\uffff');
 	}
 
 	private void addText(String s) {
-		setText(getSelectionBeforeText() + s + getSelectionAfterText());
+		setFullText(getSelectionBeforeText() + s + getSelectionAfterText());
 		int endSel = startSelection + s.length();
 		cursorPosition = endSel;
 		startSelection = endSel;
@@ -319,15 +319,15 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	}
 
 	@Override
-	public void setFocused(boolean bo) { }
+	public void setFocus(boolean bo) { }
 
 	@Override
-	public String getText() {
+	public String getFullText() {
 		return text;
 	}
 
 	@Override
-	public void unFocused() {  }
+	public void unFocus() {  }
 
 	public boolean hasVerticalScrollbar() {
 		return container.visibleLines < container.linesCount;
@@ -403,7 +403,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 			if (!s.isEmpty() && startSelection == endSelection) {
 				s = s.substring(1);
 			}
-			setText(getSelectionBeforeText() + s);
+			setFullText(getSelectionBeforeText() + s);
 			cursorPosition = startSelection;
 			endSelection = startSelection;
 			return;
@@ -414,7 +414,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 				s = s.substring(0, s.length() - 1);
 				--startSelection;
 			}
-			setText(s + getSelectionAfterText());
+			setFullText(s + getSelectionAfterText());
 			cursorPosition = startSelection;
 			endSelection = startSelection;
 			return;
@@ -423,7 +423,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 			if (startSelection != endSelection) {
 				NoppesStringUtils.setClipboardContents(text.substring(startSelection, endSelection));
 				String s = getSelectionBeforeText();
-				setText(s + getSelectionAfterText());
+				setFullText(s + getSelectionAfterText());
 				int length = s.length();
 				cursorPosition = length;
 				startSelection = length;
@@ -448,7 +448,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 			undoing = true;
 			redoList.add(new UndoData(text, cursorPosition));
 			UndoData data = undoList.remove(undoList.size() - 1);
-			setText(data.text);
+			setFullText(data.text);
 			cursorPosition = data.cursorPosition;
 			startSelection = data.cursorPosition;
 			endSelection = data.cursorPosition;
@@ -471,7 +471,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 			undoing = true;
 			undoList.add(new UndoData(text, cursorPosition));
 			UndoData data = redoList.remove(redoList.size() - 1);
-			setText(data.text);
+			setFullText(data.text);
 			cursorPosition = data.cursorPosition;
 			startSelection = data.cursorPosition;
 			endSelection = data.cursorPosition;
@@ -542,7 +542,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	}
 
 	@Override
-	public void setText(String newText) {
+	public void setFullText(String newText) {
 		newText = newText.replace("\r", "");
 		if (text != null && text.equals(newText)) {
 			return;

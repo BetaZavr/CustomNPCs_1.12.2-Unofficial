@@ -200,8 +200,8 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
             if (!data.containsKey(select) || !lines.lines.containsKey(data.get(select))) {
                 return;
             }
-            lines.lines.get(data.get(select)).setText(textField.getText());
-            select = textField.getText();
+            lines.lines.get(data.get(select)).setText(textField.getFullText());
+            select = textField.getFullText();
             initGui();
         }
 	}

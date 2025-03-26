@@ -52,7 +52,6 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.dimensions.DimensionHandler;
-import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemSoulstoneEmpty;
 import noppes.npcs.quests.QuestObjective;
@@ -449,7 +448,7 @@ public class ServerEventsHandler {
 	}
 
 	@SubscribeEvent
-	public void worldUnload(net.minecraftforge.event.world.WorldEvent.Unload event) {
+	public void npcWorldUnload(net.minecraftforge.event.world.WorldEvent.Unload event) {
 		int dimensionID = event.getWorld().provider.getDimension();
 		if (!event.getWorld().isRemote) {
 			DimensionHandler.getInstance().unload(event.getWorld(), dimensionID);

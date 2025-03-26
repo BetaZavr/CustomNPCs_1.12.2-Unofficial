@@ -6,6 +6,7 @@
     "entity.EntityLivingBaseMixin",
     "entity.EntityMixin",
     "entity.EntityTrackerMixin",
+    "entity.ai.EntityAIAttackRangedBowMixin",
     "entity.player.EntityPlayerMixin",
     "init.ItemsMixin",
     "inv.ContainerMixin",

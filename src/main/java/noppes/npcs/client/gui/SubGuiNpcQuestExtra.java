@@ -381,20 +381,20 @@ implements ITextfieldListener, ISubGuiListener {
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
 		if (textField.getID() == 0) {
-			if (textField.getText().isEmpty()) {
+			if (textField.getFullText().isEmpty()) {
 				quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
 			} else {
-				quest.icon = new ResourceLocation(textField.getText());
+				quest.icon = new ResourceLocation(textField.getFullText());
 			}
-			textField.setText(quest.icon.toString());
+			textField.setFullText(quest.icon.toString());
 		}
 		else if (textField.getID() == 1) {
-			if (textField.getText().isEmpty()) {
+			if (textField.getFullText().isEmpty()) {
 				quest.texture = null;
 			} else {
-				quest.texture = new ResourceLocation(textField.getText());
+				quest.texture = new ResourceLocation(textField.getFullText());
 			}
-			textField.setText(quest.texture == null ? "" : quest.texture.toString());
+			textField.setFullText(quest.texture == null ? "" : quest.texture.toString());
 		}
 	}
 

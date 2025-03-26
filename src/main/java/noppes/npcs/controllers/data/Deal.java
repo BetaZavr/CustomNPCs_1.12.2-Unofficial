@@ -124,7 +124,7 @@ public class Deal implements IDeal {
 		StringBuilder name = new StringBuilder();
 		ItemStack stack = this.inventoryProduct.getStackInSlot(0);
 		if (!stack.isEmpty()) {
-			name.append(amount == 0 ? ((char) 167) + "c" : "")
+			name.append(count[1] != 0 && amount == 0 ? ((char) 167) + "c" : "")
 					.append("x").append(stack.getCount())
 					.append(" ").append(stack.getDisplayName());
 		} else {

@@ -60,10 +60,10 @@ implements ITextfieldListener, ITextChangeListener {
 		if (getTextField(93) == null || textarea == null) {
 			return false;
 		}
-		if (getTextField(93).getText().isEmpty() || textarea.getText().isEmpty()) {
+		if (getTextField(93).getFullText().isEmpty() || textarea.getFullText().isEmpty()) {
 			return false;
 		}
-		String vs = textarea.getText();
+		String vs = textarea.getFullText();
 		if (vs.contains("|")) {
 			for (String str : vs.split("\\|")) {
 				String ch = tag.checkValue(str, tag.getType());
@@ -168,7 +168,7 @@ implements ITextfieldListener, ITextChangeListener {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		if (textfield.getID() == 93) { tag.setPath(textfield.getText()); } // path
+		if (textfield.getID() == 93) { tag.setPath(textfield.getFullText()); } // path
 		else if (textfield.getID() == 95) { tag.setChance(textfield.getDouble()); } // chance
 		initGui();
 	}

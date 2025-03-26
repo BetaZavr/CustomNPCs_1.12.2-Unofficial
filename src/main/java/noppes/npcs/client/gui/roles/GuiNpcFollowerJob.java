@@ -53,13 +53,13 @@ implements ICustomScrollListener {
 
 	@Override
 	public void save() {
-		job.name = getTextField(1).getText();
+		job.name = getTextField(1).getFullText();
 		Client.sendData(EnumPacketServer.JobSave, job.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		getTextField(1).setText(scroll.getSelected());
+		getTextField(1).setFullText(scroll.getSelected());
 	}
 
 	@Override

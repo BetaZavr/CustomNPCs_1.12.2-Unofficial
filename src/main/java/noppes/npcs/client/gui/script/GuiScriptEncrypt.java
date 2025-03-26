@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.script;
 
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.gui.util.*;
 
@@ -13,6 +14,7 @@ extends SubGuiInterface {
 
 	public GuiScriptEncrypt(String pathStr, String extStr) {
 		super();
+		id = 1;
 		xSize = 176;
 		ySize = 80;
 		setBackground("smallbg.png");
@@ -47,8 +49,9 @@ extends SubGuiInterface {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		GlStateManager.translate(0.0f, 0.0f, id);
 		drawDefaultBackground();
-		if (getButton(1) != null && getTextField(0) != null) { getButton(1).setEnabled(!getTextField(0).getText().isEmpty()); }
+		if (getButton(1) != null && getTextField(0) != null) { getButton(1).setEnabled(!getTextField(0).getFullText().isEmpty()); }
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 

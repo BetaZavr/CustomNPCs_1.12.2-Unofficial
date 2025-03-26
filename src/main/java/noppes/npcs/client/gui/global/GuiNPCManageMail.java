@@ -155,7 +155,7 @@ implements IGuiData, ITextfieldListener {
 				}
 				CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
 				CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
-				textField.setText("" + vd[0]);
+				textField.setFullText("" + vd[0]);
 				textField2.setText("" + vd[1]);
 				break;
 			}
@@ -173,7 +173,7 @@ implements IGuiData, ITextfieldListener {
 				CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
 				CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
 				textField1.setText("" + vd[0]);
-				textField.setText("" + vd[1]);
+				textField.setFullText("" + vd[1]);
 				break;
 			}
 		}

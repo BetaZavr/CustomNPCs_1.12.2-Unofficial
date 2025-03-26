@@ -2,13 +2,13 @@ package noppes.npcs.client.gui.util;
 
 public interface IGuiNpcTextField extends IComponentGui {
 
-    void setFocused(boolean bo);
+    void setFocus(boolean bo);
 
-    String getText();
+    String getFullText();
 
-    void unFocused();
+    void setFullText(String text);
 
-    void setText(String text);
+    void unFocus();
 
     int getInteger();
 
