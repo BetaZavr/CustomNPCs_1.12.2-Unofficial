@@ -3,7 +3,6 @@ package noppes.npcs.client.gui;
 import java.awt.*;
 import java.util.List;
 
-import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.util.*;
 import org.lwjgl.opengl.GL11;
 
@@ -95,16 +94,8 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	private void drawNpc(EntityNPCInterface npc) {
-		if (npc == null) {
-			return;
-		}
-		double u = 170.0d;
-		double v = 90.0d;
-		if (getButton(2) != null) {
-			u = getButton(2).getLeft() - 25;
-			v = getButton(2).getTop() - 26;
-		}
-		GlStateManager.translate((sw.getScaledWidth_double() + u) / 2.0d, (sw.getScaledHeight_double() + v) / 2.0d, 10.0d);
+		if (npc == null) { return; }
+		GlStateManager.translate((sw.getScaledWidth() + 170.0f) / 2.0f, (sw.getScaledHeight() + 60.0f) / 2.0f, 10.0f);
 		String modelName = "";
 		if (npc.display.getModel() != null) {
 			modelName = npc.display.getModel();
@@ -129,10 +120,6 @@ implements ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		if (subgui != null) {
-			super.drawScreen(mouseX, mouseY, partialTicks);
-			return;
-		}
 		List<String> tempHoverText = getHoverText();
 		setHoverText(null);
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -144,13 +131,14 @@ implements ITextfieldListener, ISubGuiListener {
 		}
 		// Back
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(u + 5.0f, v + 3.0f, 0.0f);
+		GlStateManager.translate(u + 5.0f, v + 3.0f, 1.0f);
 		GlStateManager.enableBlend();
 		GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
 		mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
 		drawTexturedModalRect(-5, -5, 34, 54, 65, 65);
 		GlStateManager.popMatrix();
-		if (showNpc != null) {
+
+		if (showNpc != null && subgui == null) {
 			GlStateManager.pushMatrix();
 			GL11.glEnable(GL11.GL_SCISSOR_TEST);
 			int c = sw.getScaledWidth() < mc.displayWidth
@@ -173,7 +161,7 @@ implements ITextfieldListener, ISubGuiListener {
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
-		if (quest.extraButton > 0) {
+		if (quest.extraButton > 0 && subgui == null) {
 			u = guiLeft + 98;
 			v = guiTop + 134;
 			if (getButton(5) != null) {
@@ -191,6 +179,7 @@ implements ITextfieldListener, ISubGuiListener {
 			GlStateManager.popMatrix();
 		}
 
+		// quest icon
 		u = guiLeft + 214;
 		v = guiTop + 4;
 		if (getButton(0) != null) {
@@ -198,11 +187,11 @@ implements ITextfieldListener, ISubGuiListener {
 			v = getButton(0).getTop() - 1;
 		}
 		int color = new Color(0xFF404040).getRGB();
-		drawGradientRect(u, v, u + 34, v + 34, color, color);
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
-		GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
+		GlStateManager.translate(u + 1.0f, v + 1.0f, 1.0f);
+		drawGradientRect(-1, -1,  33, 33, color, color);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
 		drawTexturedModalRect(0, 0, 34, 54, 32, 32);
 		GlStateManager.disableBlend();
@@ -210,7 +199,7 @@ implements ITextfieldListener, ISubGuiListener {
 		if (quest.icon != null) {
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
-			GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
+			GlStateManager.translate(u + 1.0f, v + 1.0f, 1.0f);
 			GlStateManager.scale(0.125f, 0.125f, 1.0f);
 			mc.getTextureManager().bindTexture(quest.icon);
 			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
@@ -218,39 +207,34 @@ implements ITextfieldListener, ISubGuiListener {
 			GlStateManager.popMatrix();
 		}
 
+		// quest texture
 		u = guiLeft + 214;
 		v = guiTop + 38;
 		if (getButton(3) != null) {
 			u = getButton(3).getLeft() + getButton(3).getWidth() + 5;
 			v = getButton(3).getTop() - 1;
 		}
-		drawGradientRect(u, v, u + 34, v + 34, color, color);
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
-		GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
+		GlStateManager.translate(u + 1.0f, v + 1.0f, 1.0f);
+		drawGradientRect(-1, -1, 33, 33, color, color);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		mc.getTextureManager().bindTexture(SubGuiNpcQuestExtra.sheet);
 		drawTexturedModalRect(0, 0, 34, 54, 32, 32);
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
-
 		if (quest.texture != null) {
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
-			GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
+			GlStateManager.translate(u + 1.0f, v + 1.0f, 1.0f);
 			GlStateManager.scale(0.125f, 0.125f, 1.0f);
-			try {
-				mc.getTextureManager().bindTexture(quest.texture);
-				drawTexturedModalRect(0, 0, 0, 0, 256, 256);
-			}
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			mc.getTextureManager().bindTexture(quest.texture);
+			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
-		if (tempHoverText != null) {
-			drawHoveringText(tempHoverText, mouseX, mouseY, fontRenderer);
-		}
+		if (tempHoverText != null) { setHoverText(tempHoverText); }
+		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
 	@Override

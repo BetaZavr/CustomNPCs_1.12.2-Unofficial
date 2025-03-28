@@ -589,7 +589,7 @@ public class AnimationHandler {
         boolean isChanged = false;
 
         for (AnimationKind ak : AnimationKind.values()) {
-            if (!ak.isMovement()) { continue; }
+            if (!ak.isMovement() || !data.containsKey(ak)) { continue; }
             if (!data.get(ak).isEmpty()) {
                 AnimationConfig anim = selectAnimation(ak);
                 if (anim != null && (!movementAnimation.containsKey(ak) || anim.id != movementAnimation.get(ak))) {

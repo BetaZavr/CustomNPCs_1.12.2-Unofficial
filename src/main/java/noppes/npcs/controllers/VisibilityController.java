@@ -1,9 +1,6 @@
 package noppes.npcs.controllers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.internal.FMLMessage;
@@ -53,7 +50,8 @@ public class VisibilityController {
 		EntityNPCInterface npc = null;
 		try {
 			List<String> del = new ArrayList<>();
-			for (String key : VisibilityController.trackedEntityHashTable.keySet()) {
+			Set<String> set = new HashSet<>(VisibilityController.trackedEntityHashTable.keySet());
+			for (String key : set) {
 				npc = VisibilityController.trackedEntityHashTable.get(key);
 				if (npc == null || npc.world == null || npc.world.getEntityByID(npc.getEntityId()) == null) {
 					if (npc != null) { del.add(key); }

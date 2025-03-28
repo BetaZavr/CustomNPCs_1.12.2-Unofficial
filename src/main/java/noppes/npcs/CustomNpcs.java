@@ -264,9 +264,6 @@ public class CustomNpcs {
 	public static int KnockBackBasePower = 100;
 	@ConfigProp(info = "Shows the rarity of the item in the inventory slot", def = "true", type = Configuration.CATEGORY_CLIENT)
 	public static boolean ShowRarityItem = true;
-	@ConfigProp(info = "Percentage of knockback power of all entities in the game when dealing damage or blocking", def = "50", min = "5", max = "250")
-	public static int MaxSpawnEntities = 50;
-
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;

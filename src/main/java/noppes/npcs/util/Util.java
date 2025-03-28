@@ -759,20 +759,13 @@ public class Util implements IMethods {
 					}
 				}
 			}
-			if (directLOS && !toShoot
-					&& (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS)) {
+			if (directLOS && !toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS)) {
 				double yaw = (entity.rotationYawHead - rtr.getYaw()) % 360.0d;
 				double pitch = (entity.rotationPitch - rtr.getPitch()) % 360.0d;
-				if (yaw < 0.0d) {
-					yaw += 360.0d;
-				}
-				if (!(yaw <= 60.0d || yaw >= 300.0d) || !(pitch <= 60.0d || pitch >= -60.0d)) {
-					if (seenEntities != null) {
-						seenEntities.remove(target);
-					}
-					if (unseenEntities != null && !unseenEntities.contains(target)) {
-						unseenEntities.add(target);
-					}
+				while (yaw < 0.0d) { yaw += 360.0d; }
+				if ((yaw > 60.0d && yaw < 300.0d) || pitch > 60.0d || pitch < -60.0d) {
+					if (seenEntities != null) { seenEntities.remove(target); }
+					if (unseenEntities != null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
 					return false;
 				}
 			}
@@ -780,19 +773,12 @@ public class Util implements IMethods {
 			final double chance = getChance(invisible, rtr, aggroRange);
 			boolean canSee = chance > Math.random();
 			if (canSee) {
-				if (seenEntities != null && !seenEntities.contains(target)) {
-					seenEntities.add(target);
-				}
-				if (unseenEntities != null) {
-					unseenEntities.remove(target);
-				}
-			} else {
-				if (seenEntities != null) {
-					seenEntities.remove(target);
-				}
-				if (unseenEntities != null && !unseenEntities.contains(target)) {
-					unseenEntities.add(target);
-				}
+				if (seenEntities != null && !seenEntities.contains(target)) { seenEntities.add(target); }
+				if (unseenEntities != null) { unseenEntities.remove(target); }
+			}
+			else {
+				if (seenEntities != null) { seenEntities.remove(target); }
+				if (unseenEntities != null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
 			}
 			return canSee;
 		} catch (Exception e) {

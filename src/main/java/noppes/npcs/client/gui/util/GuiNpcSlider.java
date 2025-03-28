@@ -65,7 +65,8 @@ implements IComponentGui, IGuiNpcSlider {
 			return;
 		}
 		mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.color(2.0F, 2.0F, 2.0F, 1.0F);
+		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
 				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,

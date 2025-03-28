@@ -2,23 +2,16 @@ package noppes.npcs.client;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.*;
 
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.fml.client.GuiModList;
-import net.minecraftforge.fml.client.GuiScrollingList;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.*;
 import noppes.npcs.api.mixin.client.audio.ISoundHandlerMixin;
 import noppes.npcs.api.mixin.client.audio.ISoundManagerMixin;
 import noppes.npcs.api.mixin.client.gui.IGuiYesNoMixin;
-import noppes.npcs.client.gui.util.IEditNPC;
 import noppes.npcs.constants.*;
 import org.lwjgl.input.Keyboard;
 
@@ -421,6 +414,7 @@ public class ClientTickHandler {
 		if (key < 0) {
 			Event event = new PlayerEvent.MouseMoveEvent(iPlayer, x, y, dx, dy, dWheel, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
 			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.MOUSE_MOVE, event);
+			CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
 			return;
 		}
 		Event event = new PlayerEvent.KeyPressedEvent(iPlayer, key, isCtrlPressed, isAltPressed, isShiftPressed, isMetaPressed);

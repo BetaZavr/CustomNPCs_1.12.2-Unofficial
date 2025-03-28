@@ -398,6 +398,8 @@ public class EventHooks {
 	}
 
 	public static void onNPCTick(EntityNPCInterface npc) {
+		if (!npc.script.isEnabled()) { return; }
+		ScriptController.Instance.tryAdd(2, npc);
 		if (npc.script.isClient()) {
 			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new NpcEvent.UpdateEvent(npc.wrappedNPC));
 			return;
@@ -578,8 +580,7 @@ public class EventHooks {
 
 	public static void onPlayerTick(PlayerScriptData handler) {
 		if (handler.isClient()) {
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK,
-					new PlayerEvent.UpdateEvent(handler.getPlayer()));
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new PlayerEvent.UpdateEvent(handler.getPlayer()));
 			return;
 		}
 		EventHooks.onEvent(handler, EnumScriptType.TICK, new PlayerEvent.UpdateEvent(handler.getPlayer()));
@@ -761,8 +762,7 @@ public class EventHooks {
 
 	public static void onScriptBlockUpdate(IScriptBlockHandler handler) {
 		if (handler.isClient()) {
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK,
-					new BlockEvent.UpdateEvent(handler.getBlock()));
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new BlockEvent.UpdateEvent(handler.getBlock()));
 			return;
 		}
 		EventHooks.onEvent(handler, EnumScriptType.TICK, new BlockEvent.UpdateEvent(handler.getBlock()));
@@ -811,12 +811,10 @@ public class EventHooks {
 
 	public static void onScriptItemUpdate(ItemScriptedWrapper handler, EntityPlayer player) {
 		if (handler.isClient()) {
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK,
-					new ItemEvent.UpdateEvent(handler, PlayerData.get(player).scriptData.getPlayer()));
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new ItemEvent.UpdateEvent(handler, PlayerData.get(player).scriptData.getPlayer()));
 			return;
 		}
-		EventHooks.onEvent(handler, EnumScriptType.TICK,
-				new ItemEvent.UpdateEvent(handler, PlayerData.get(player).scriptData.getPlayer()));
+		EventHooks.onEvent(handler, EnumScriptType.TICK, new ItemEvent.UpdateEvent(handler, PlayerData.get(player).scriptData.getPlayer()));
 	}
 
 	public static void onScriptPackage(EntityPlayer player, NBTTagCompound nbt) {

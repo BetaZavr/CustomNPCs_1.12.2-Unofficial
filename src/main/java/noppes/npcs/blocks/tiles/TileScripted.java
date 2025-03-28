@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.google.common.base.MoreObjects;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
@@ -50,7 +48,6 @@ import javax.annotation.Nonnull;
 public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlockHandler {
 
 	public class TextPlane implements ITextPlane {
-
 		public float offsetX;
 		public float offsetY;
 		public float offsetZ;
@@ -626,7 +623,10 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 		}
 		this.timers.update();
 		if (this.ticksExisted >= 10) {
-			EventHooks.onScriptBlockUpdate(this);
+			if (isEnabled()) {
+				ScriptController.Instance.tryAdd(0, this);
+				EventHooks.onScriptBlockUpdate(this);
+			}
 			this.ticksExisted = 0;
 		}
 		if (this.needsClientUpdate) {

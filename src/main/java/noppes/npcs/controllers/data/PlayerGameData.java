@@ -40,7 +40,8 @@ public class PlayerGameData {
 	public double[] logPos;
 	private final List<FollowerSet> followers = new ArrayList<>();
 
-	public double blockReachDistance = 5.0, renderDistance = 128.0;
+	public double blockReachDistance = 5.0;
+	public double renderDistance = 128.0;
 	public int dimID = 0;
 
 	public FollowerSet addFollower(EntityNPCInterface npc) {

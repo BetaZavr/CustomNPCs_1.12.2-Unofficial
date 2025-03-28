@@ -25,6 +25,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -34,9 +35,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import noppes.npcs.*;
 import noppes.npcs.api.wrapper.WorldWrapper;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
+import noppes.npcs.blocks.tiles.TileScripted;
+import noppes.npcs.blocks.tiles.TileScriptedDoor;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.*;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
+import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.TempFile;
@@ -68,6 +73,7 @@ public class ScriptController {
 	// key create in CommonProxy.getAgreementKey() and in ClientEventHandler.cnpcOpenGUIEvent()
 	private final List<String> agreements = new ArrayList<>();
 	private final List<ScriptContainer> errors = new ArrayList<>();
+	private final Map<Integer,List<Object>> elements = new TreeMap<>();
 
 	public ForgeScriptData forgeScripts = new ForgeScriptData();
 	public ClientScriptData clientScripts = new ClientScriptData();
@@ -977,6 +983,63 @@ public class ScriptController {
 		errors.clear();
 		errors.addAll(list);
 		return errors;
+	}
+
+	public void tryAdd(int type, Object obj) {
+		CustomNPCsScheduler.runTack(() -> {
+			if (!elements.containsKey(type)) { elements.put(type, new ArrayList<>()); }
+			if (elements.get(type).contains(obj)) { return; }
+			elements.get(type).add(obj);
+		});
+	}
+
+	public ITextComponent getElements(int type) {
+		if (!elements.containsKey(type)) { return null; }
+		List<String> list = new ArrayList<>();
+		List<Object> objs = new ArrayList<>(elements.get(type));
+		for (Object obj : objs) {
+			BlockPos pos = null;
+			int dimId = 0;
+			if (type == 0 && obj instanceof TileScripted) {
+				TileScripted tile = ((TileScripted) obj);
+				pos = tile.getPos();
+				if (tile.getWorld() == null || tile.getWorld().getTileEntity(pos) != tile) {
+					pos = null;
+					elements.get(type).remove(obj);
+				}
+				else { dimId = tile.getWorld().provider.getDimension(); }
+			}
+			else if (type == 1 && obj instanceof TileScriptedDoor) {
+				TileScriptedDoor tile = ((TileScriptedDoor) obj);
+				pos = tile.getPos();
+				if (tile.getWorld() == null || tile.getWorld().getTileEntity(pos) != tile) {
+					pos = null;
+					elements.get(type).remove(obj);
+				}
+				else { dimId = tile.getWorld().provider.getDimension(); }
+			}
+			else if (type == 2 && obj instanceof EntityNPCInterface) {
+				EntityNPCInterface npc = (EntityNPCInterface) obj;
+				pos = npc.getPosition();
+				if (npc.world == null || npc.world.getEntityByID(npc.getEntityId()) != npc) {
+					pos = null;
+					elements.get(type).remove(obj);
+				}
+				else { dimId = npc.world.provider.getDimension(); }
+			}
+			if (pos != null) {
+				String key = ":[DimID: "+dimId+"; X:"+pos.getX()+", Y:"+pos.getY()+", Z:"+pos.getZ()+"]";
+				if (!list.contains(key)) { list.add(key); }
+			}
+		}
+		StringBuilder positions = new StringBuilder();
+		int i = 0;
+		for (String pos : list) {
+			positions.append(i + 1).append(pos);
+			if (i < list.size() - 1) { positions.append(", "); }
+			i++;
+		}
+		return new TextComponentString(positions.toString());
 	}
 
 }

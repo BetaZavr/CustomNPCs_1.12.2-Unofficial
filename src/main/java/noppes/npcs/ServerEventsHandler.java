@@ -416,9 +416,10 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcPopulateChunk(PopulateChunkEvent.Post event) {
-		CustomNpcs.debugData.startDebug(!event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcPopulateChunk");
-		NPCSpawning.performWorldGenSpawning(event.getWorld(), event.getChunkX(), event.getChunkZ(), event.getRand());
-		CustomNpcs.debugData.endDebug(!event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcPopulateChunk");
+		if (!(event.getWorld() instanceof WorldServer)) { return; }
+		CustomNpcs.debugData.startDebug("Server", null, "ServerEventsHandler_npcPopulateChunk");
+		NPCSpawning.performWorldGenSpawning((WorldServer) event.getWorld(), event.getChunkX(), event.getChunkZ(), event.getRand());
+		CustomNpcs.debugData.endDebug("Server", null, "ServerEventsHandler_npcPopulateChunk");
 	}
 
 	@SubscribeEvent

@@ -59,7 +59,7 @@ public class EmotionHandler {
             case Run: {
                 int emotionFrame = activeEmotion.getEmotionFrameByTime(ticks);
                 if (emotionFrame < 0) { emotionFrame = 0; }
-                currentFrame = activeEmotion.frames.get(emotionFrame);
+                currentFrame = activeEmotion.frames.getOrDefault(emotionFrame, activeEmotion.frames.get(0));
                 nextFrame = activeEmotion.frames.get(Math.min(emotionFrame + 1, activeEmotion.frames.size() - 1));
                 if (activeEmotion.editFrame >= 0) { speedTicks = 1; ticks = 1; }
                 else { speedTicks = currentFrame.speed; }

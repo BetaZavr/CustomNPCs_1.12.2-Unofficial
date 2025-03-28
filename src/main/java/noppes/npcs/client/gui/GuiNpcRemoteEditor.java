@@ -149,21 +149,23 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 		if (subgui == null) {
 			GlStateManager.pushMatrix();
 			if (selectEntity != null) {
-				int r, p = 0, x = 221, y = 162;
-				if (selectEntity instanceof EntityLivingBase) {
-					r = (int) (3 * player.world.getTotalWorldTime() % 360);
-				} else {
-					r = 0;
+				int yaw;
+				int pitch = 0;
+				int x = 221;
+				int y = 162;
+				if (selectEntity instanceof EntityLivingBase) { yaw = (int) (3 * player.world.getTotalWorldTime() % 360); }
+				else {
+					yaw = 0;
 					y -= 34;
 					if (selectEntity instanceof EntityItem) {
-						p = 30;
+						pitch = 30;
 						y += 10;
 					}
 					if (selectEntity instanceof EntityItemFrame) {
 						x += 16;
 					}
 				}
-				drawNpc(selectEntity, x, y, 1.0f, r, p, 0);
+				drawNpc(selectEntity, x, y, 1.0f, yaw, pitch, 0);
 			}
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			Gui.drawRect(guiLeft + 191, guiTop + 85, guiLeft + 252, guiTop + 171, new Color(0xFF808080).getRGB());

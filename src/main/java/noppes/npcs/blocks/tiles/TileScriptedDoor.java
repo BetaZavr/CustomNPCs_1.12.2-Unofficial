@@ -232,7 +232,10 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		}
 		this.timers.update();
 		if (this.ticksExisted >= 10) {
-			EventHooks.onScriptBlockUpdate(this);
+			if (isEnabled()) {
+				ScriptController.Instance.tryAdd(1, this);
+				EventHooks.onScriptBlockUpdate(this);
+			}
 			this.ticksExisted = 0;
 		}
 	}

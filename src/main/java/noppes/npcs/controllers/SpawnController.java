@@ -45,9 +45,9 @@ public class SpawnController {
 	public NBTTagCompound getNBT() {
 		NBTTagList list = new NBTTagList();
 		for (SpawnData spawn : this.data) {
-			NBTTagCompound nbtfactions = new NBTTagCompound();
-			spawn.writeNBT(nbtfactions);
-			list.appendTag(nbtfactions);
+			NBTTagCompound nbtSummon = new NBTTagCompound();
+			spawn.writeNBT(nbtSummon);
+			list.appendTag(nbtSummon);
 		}
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
 		nbttagcompound.setInteger("lastID", this.lastUsedID);
@@ -110,9 +110,10 @@ public class SpawnController {
 		NBTTagList nbtList = compound.getTagList("NPCSpawnData", 10);
 		data.clear();
         for (int i = 0; i < nbtList.tagCount(); ++i) {
-            NBTTagCompound nbt = nbtList.getCompoundTagAt(i);
+            NBTTagCompound nbtSummon = nbtList.getCompoundTagAt(i);
             SpawnData spawn = new SpawnData();
-            spawn.readNBT(nbt);
+            spawn.readNBT(nbtSummon);
+			if (spawn.name == null || spawn.name.isEmpty()) { continue; }
             data.add(spawn);
         }
 		this.fillBiomeData();
@@ -130,6 +131,7 @@ public class SpawnController {
 			if (spawn.id == id) {
 				continue;
 			}
+			if (spawn.name == null || spawn.name.isEmpty()) { continue; }
 			newData.add(spawn);
 		}
 		data.clear();
@@ -162,6 +164,7 @@ public class SpawnController {
 	}
 
 	public void saveSpawnData(SpawnData spawn) {
+		if (spawn.name == null || spawn.name.isEmpty()) { return; }
 		if (spawn.id < 0) { spawn.id = getUnusedId(); }
 		SpawnData spawnData = getSpawnData(spawn.id);
 		if (spawnData == null) {

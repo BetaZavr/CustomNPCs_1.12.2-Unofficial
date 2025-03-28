@@ -115,16 +115,6 @@ public class CmdScript extends CommandNoppesBase {
 		return true;
 	}
 
-	@Override
-	public String getDescription() {
-		return "Commands for scripts";
-	}
-
-	@Nonnull
-	public String getName() {
-		return "script";
-	}
-
 	@SubCommand(desc = "Reload scripts and saved data from disks script folder.")
 	public Boolean reload(MinecraftServer server, ICommandSender sender, String[] args) {
 		ScriptController.Instance.loadCategories();
@@ -215,10 +205,10 @@ public class CmdScript extends CommandNoppesBase {
 			throw new CommandException("TriggerID \"" + args[0] + "\" must be an integer");
 		}
 		Object[] arguments = new String[args.length - 6];
-        System.arraycopy(args, 6, arguments, 0, args.length - 6);
+		System.arraycopy(args, 6, arguments, 0, args.length - 6);
 		if (entity == null) {
-            assert pos != null;
-            TileEntity tile = world.getMCWorld().getTileEntity(pos.getMCBlockPos());
+			assert pos != null;
+			TileEntity tile = world.getMCWorld().getTileEntity(pos.getMCBlockPos());
 			if (tile instanceof TileScripted) {
 				EventHooks.onScriptTriggerEvent((TileScripted) tile, id, world, pos, null, arguments);
 				return true;
@@ -226,6 +216,69 @@ public class CmdScript extends CommandNoppesBase {
 		}
 		EventHooks.onScriptTriggerEvent(id, world, pos, entity, arguments);
 		return true;
+	}
+
+	@SubCommand(desc = "Display a list of all load script elements positions in chat")
+	public Boolean list(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		ITextComponent positions;
+		String key = args.length > 0 ? args[0] : "all";
+		switch (key) {
+			case "blocks":
+				positions = ScriptController.Instance.getElements(0);
+				if (positions != null) {
+					sender.sendMessage(new TextComponentTranslation("script.command.blocks"));
+					sender.sendMessage(positions);
+				}
+				break;
+			case "doors":
+				positions = ScriptController.Instance.getElements(1);
+				if (positions != null) {
+					sender.sendMessage(new TextComponentTranslation("script.command.doors"));
+					sender.sendMessage(positions);
+				}
+				break;
+			case "npcs":
+				positions = ScriptController.Instance.getElements(2);
+				if (positions != null) {
+					sender.sendMessage(new TextComponentTranslation("script.command.npcs"));
+					sender.sendMessage(positions);
+				}
+				break;
+			case "all":
+				sender.sendMessage(new TextComponentTranslation("script.command.all"));
+				positions = ScriptController.Instance.getElements(0);
+				if (positions != null) {
+					sender.sendMessage(new TextComponentTranslation("script.command.blocks"));
+					sender.sendMessage(positions);
+				}
+				positions = ScriptController.Instance.getElements(1);
+				if (positions != null) {
+					sender.sendMessage(new TextComponentTranslation("script.command.doors"));
+					sender.sendMessage(positions);
+				}
+				positions = ScriptController.Instance.getElements(2);
+				if (positions != null) {
+					sender.sendMessage(new TextComponentTranslation("script.command.npcs"));
+					sender.sendMessage(positions);
+				}
+				break;
+			default:
+				throw new CommandException("Unknown type \""+key+"\"");
+		}
+		if (positions == null) {
+			sender.sendMessage(new TextComponentTranslation("script.command.not.found"));
+		}
+		return true;
+	}
+
+	@Override
+	public String getDescription() {
+		return "Commands for scripts";
+	}
+
+	@Nonnull
+	public String getName() {
+		return "script";
 	}
 
 	@Override
@@ -238,10 +291,14 @@ public class CmdScript extends CommandNoppesBase {
                 case "forgelist":
                     return new ArrayList<>(CustomNpcs.forgeEventNames.values());
                 case "apilist":
-                    for (EnumScriptType est : EnumScriptType.values()) {
-                        list.add(est.function);
-                    }
-                    return list;
+                    for (EnumScriptType est : EnumScriptType.values()) { list.add(est.function); }
+                    break;
+				case "list":
+					list.add("blocks");
+					list.add("doors");
+					list.add("npcs");
+					list.add("all");
+					break;
             }
 		}
 		return list;
