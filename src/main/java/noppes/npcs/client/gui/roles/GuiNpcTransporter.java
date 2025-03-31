@@ -38,8 +38,8 @@ implements IScrollData, IGuiData {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (scroll != null) {
-			if (getTextField(0) != null) { getTextField(0).setVisible(scroll.hasSelected()); }
-			if (getButton(0) != null) { getButton(0).setVisible(scroll.hasSelected()); }
+			if (getTextField(0) != null) { getTextField(0).setIsVisible(scroll.hasSelected()); }
+			if (getButton(0) != null) { getButton(0).setIsVisible(scroll.hasSelected()); }
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}

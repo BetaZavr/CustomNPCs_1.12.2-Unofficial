@@ -40,19 +40,19 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
+		if (this.getButton(1) != null && this.getButton(1).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2) != null && this.getButton(2).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.parts").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3) != null && this.getButton(3).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.size").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
+		} else if (this.getButton(4) != null && this.getButton(4).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.save").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
+		} else if (this.getButton(5) != null && this.getButton(5).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.load").getFormattedText());
-		} else if (this.getButton(13) != null && this.getButton(13).isMouseOver()) {
+		} else if (this.getButton(13) != null && this.getButton(13).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.pattern").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
+		} else if (this.getButton(66) != null && this.getButton(66).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		} else {
 			for (GuiButton b : this.buttonList) {

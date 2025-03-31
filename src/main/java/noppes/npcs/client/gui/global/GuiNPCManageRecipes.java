@@ -384,7 +384,7 @@ implements ICustomScrollListener, ISubGuiListener {
 			return;
 		}
 		for (int i = 11; i < 27; i++) {
-			if (this.getButton(i) != null && this.getButton(i).isVisible() && this.getButton(i).isMouseOver()) {
+			if (this.getButton(i) != null && this.getButton(i).isVisible() && this.getButton(i).isHovered()) {
 				if (getButton(i).getCurrentStack().isEmpty()) { continue; }
 				ITextComponent hover = new TextComponentTranslation("recipe.hover.ingredients", "" + (i - 11));
 				if (recipe.domen.equals(CustomNpcs.MODID)) {

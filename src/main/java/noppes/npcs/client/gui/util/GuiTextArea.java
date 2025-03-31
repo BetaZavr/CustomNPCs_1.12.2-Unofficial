@@ -346,8 +346,8 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	public void setEnabled(boolean bo) { enabled = bo; }
 
 	@Override
-	public boolean isMouseOver() {
-		return false;
+	public boolean isHovered() {
+		return hovered;
 	}
 
 	@Override
@@ -681,7 +681,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	public boolean isVisible() { return visible; }
 
 	@Override
-	public void setVisible(boolean bo) { visible = bo; }
+	public void setIsVisible(boolean bo) { visible = bo; }
 
 	public void updateScreen() {
 		++cursorCounter;

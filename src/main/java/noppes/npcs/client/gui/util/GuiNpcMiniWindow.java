@@ -89,7 +89,7 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 
 		for (IComponentGui component : components) {
 			if ((component instanceof GuiButton && ((GuiButton) component).isMouseOver() ||
-					(component instanceof GuiNpcTextField && component.isMouseOver()) ||
+					(component instanceof GuiNpcTextField && component.isHovered()) ||
 					(component instanceof GuiCustomScroll && ((GuiCustomScroll) component).hovered)) ||
 					(component instanceof GuiNpcLabel && ((GuiNpcLabel) component).hovered)) {
 				parent.setMiniHoverText(id, component);
@@ -305,7 +305,7 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 	public boolean isVisible() { return visible; }
 
 	@Override
-	public void setVisible(boolean bo) { visible = bo; }
+	public void setIsVisible(boolean bo) { visible = bo; }
 
 	@Override
 	public boolean isEnabled() { return true; }
@@ -314,6 +314,6 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 	public void setEnabled(boolean bo) { }
 
 	@Override
-	public boolean isMouseOver() { return hovered; }
+	public boolean isHovered() { return hovered; }
 
 }

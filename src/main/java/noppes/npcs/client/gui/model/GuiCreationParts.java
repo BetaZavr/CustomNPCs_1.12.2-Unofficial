@@ -487,23 +487,23 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
-		if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
+		if (this.getButton(1) != null && this.getButton(1).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2) != null && this.getButton(2).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.parts").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3) != null && this.getButton(3).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.size").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
+		} else if (this.getButton(4) != null && this.getButton(4).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.save").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
+		} else if (this.getButton(5) != null && this.getButton(5).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.load").getFormattedText());
-		} else if (this.getButton(20) != null && this.getButton(20).isMouseOver()) {
+		} else if (this.getButton(20) != null && this.getButton(20).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.type").getFormattedText());
-		} else if (this.getButton(21) != null && this.getButton(21).isMouseOver()) {
+		} else if (this.getButton(21) != null && this.getButton(21).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.skin").getFormattedText());
-		} else if (this.getButton(22) != null && this.getButton(22).isMouseOver()) {
+		} else if (this.getButton(22) != null && this.getButton(22).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.pattern").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
+		} else if (this.getButton(66) != null && this.getButton(66).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		} else if (this.getPart() instanceof GuiPartEyes) {
 			if (this.getButton(23) != null && this.getButton(23).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(23).getLeft(), this.getButton(23).getTop(), this.getButton(23).getWidth(), this.getButton(23).getHeight())) {
@@ -518,31 +518,31 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.color.r").getFormattedText());
 			} else if (this.getButton(28) != null && this.getButton(28).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(28).getLeft(), this.getButton(28).getTop(), this.getButton(28).getWidth(), this.getButton(28).getHeight())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.color.l").getFormattedText());
-			} else if (this.getButton(29) != null && this.getButton(29).isMouseOver()) {
+			} else if (this.getButton(29) != null && this.getButton(29).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.size").getFormattedText());
 			} else if (this.getButton(30) != null && this.getButton(30).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(30).getLeft(), this.getButton(30).getTop(), this.getButton(30).getWidth(), this.getButton(30).getHeight())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.skin.color").getFormattedText());
-			} else if (this.getButton(31) != null && this.getButton(31).isMouseOver()) {
+			} else if (this.getButton(31) != null && this.getButton(31).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.closed").getFormattedText());
-			} else if (this.getButton(32) != null && this.getButton(32).isMouseOver()) {
+			} else if (this.getButton(32) != null && this.getButton(32).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.pos").getFormattedText());
-			} else if (this.getButton(33) != null && this.getButton(33).isMouseOver()) {
+			} else if (this.getButton(33) != null && this.getButton(33).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.glint").getFormattedText());
-			} else if (this.getButton(34) != null && this.getButton(34).isMouseOver()) {
+			} else if (this.getButton(34) != null && this.getButton(34).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.txr.r").getFormattedText());
-			} else if (this.getButton(35) != null && this.getButton(35).isMouseOver()) {
+			} else if (this.getButton(35) != null && this.getButton(35).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.txr.l").getFormattedText());
-			} else if (this.getButton(36) != null && this.getButton(36).isMouseOver()) {
+			} else if (this.getButton(36) != null && this.getButton(36).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.txr.r").getFormattedText());
-			} else if (this.getButton(37) != null && this.getButton(37).isMouseOver()) {
+			} else if (this.getButton(37) != null && this.getButton(37).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.txr.l").getFormattedText());
-			} else if (this.getButton(38) != null && this.getButton(38).isMouseOver()) {
+			} else if (this.getButton(38) != null && this.getButton(38).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.txr.r").getFormattedText());
-			} else if (this.getButton(39) != null && this.getButton(39).isMouseOver()) {
+			} else if (this.getButton(39) != null && this.getButton(39).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.txr.l").getFormattedText());
-			} else if (this.getButton(40) != null && this.getButton(40).isMouseOver()) {
+			} else if (this.getButton(40) != null && this.getButton(40).isHovered()) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.rnd").getFormattedText());
-			} else if ((this.getButton(41) != null && this.getButton(41).isMouseOver()) || (this.getButton(42) != null && this.getButton(42).isMouseOver())) {
+			} else if ((this.getButton(41) != null && this.getButton(41).isHovered()) || (this.getButton(42) != null && this.getButton(42).isHovered())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.active").getFormattedText());
 			}
 		} else {

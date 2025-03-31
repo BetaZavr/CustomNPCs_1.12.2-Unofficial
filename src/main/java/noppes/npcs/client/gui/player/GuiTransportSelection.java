@@ -92,7 +92,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 				if (canTransport) {
 					canTransport = barterItems.get(stack);
 				}
-				if (getButton(0) != null && getButton(0).isMouseOver()) {
+				if (getButton(0) != null && getButton(0).isHovered()) {
 					Gui.drawRect(u + 1, v + 1, u + 17, v + 17, barterItems.get(stack) ? 0x8000FF00 : player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000);
 				}
 				slot++;
@@ -134,7 +134,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 		if (getButton(0) != null) {
 			IGuiNpcButton button = getButton(0);
 			button.setEnabled(canTransport && locSel != null);
-			if (!button.isEnabled() && button.isMouseOver()) {
+			if (!button.isEnabled() && button.isHovered()) {
 				if (locSel == null) {
 					setHoverText(new TextComponentTranslation("transporter.hover.not.select").getFormattedText());
 				} else if (locSel.money > ClientProxy.playerData.game.getMoney()) {

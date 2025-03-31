@@ -1,7 +1,5 @@
 package noppes.npcs.client.gui.util;
 
-import java.io.IOException;
-
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;

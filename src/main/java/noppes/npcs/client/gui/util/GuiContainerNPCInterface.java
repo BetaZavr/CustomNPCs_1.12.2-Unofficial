@@ -642,7 +642,7 @@ implements IEditNPC, ICustomScrollListener {
 			}
 		} else {
 			for (IGuiNpcButton button : buttons.values()) {
-				if (button.isMouseOver()) {
+				if (button.isHovered()) {
 					buttonEvent(button, mouseButton);
 					break;
 				}

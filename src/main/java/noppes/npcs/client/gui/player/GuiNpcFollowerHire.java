@@ -98,7 +98,7 @@ extends GuiContainerNPCInterface {
 			getButton(3).setEnabled(mc.player.capabilities.isCreativeMode || ClientProxy.playerData.game.getMoney() >= role.rentalMoney);
 		}
 		for (int i = 0; i < 4; ++i) {
-			if (getButton(i) != null && getButton(i).isMouseOver()) {
+			if (getButton(i) != null && getButton(i).isHovered()) {
 				ITextComponent mes = new TextComponentTranslation("follower.hover.hire.info");
 				if (role.disableGui) {
 					mes.appendSibling(new TextComponentString("<br>" + ((char) 167) + "7"));

@@ -136,7 +136,7 @@ implements ITextfieldListener, ITextChangeListener {
 		}
 		button = new GuiButtonBiDirectional(92, guiLeft + 87, guiTop + 142, 80, 20, tagListIds, posListId);
 		button.setHoverText("drop.hover.tag.listtype", name, getValuesData(tl));
-		button.setVisible(t == 9);
+		button.setIsVisible(t == 9);
 		addButton(button);
 		// done
 		button = new GuiNpcButton(91, guiLeft + 4, guiTop + 142, 80, 20, "gui.done", check());

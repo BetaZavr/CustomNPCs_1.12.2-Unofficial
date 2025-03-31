@@ -345,9 +345,9 @@ implements ISubGuiListener {
 			}
 			getButton(0).setEnabled(player.capabilities.isCreativeMode || (max > 0 && canPayStack && canPayMoney));
 
-			getButton(0).setVisible(isOwner);
+			getButton(0).setIsVisible(isOwner);
 			getButton(14).setEnabled(allCost != 0 && allCost <= max);
-			getButton(14).setVisible(isOwner && upgrade && max > 0);
+			getButton(14).setIsVisible(isOwner && upgrade && max > 0);
 		}
 		if (getButton(10) != null) {
 			getButton(10).setEnabled(cont.items.getSizeInventory() > 0 && !cont.items.isEmpty());
@@ -356,7 +356,7 @@ implements ISubGuiListener {
 			getButton(13).setEnabled(cont.items.getSizeInventory() > 0 && (!cont.items.isEmpty() || cont.items.getSizeInventory() != cont.bank.ceilSettings.get(cont.ceil).startCells));
 		}
 		if (CustomNpcs.ShowDescriptions && subgui == null) {
-			if (getButton(0) != null && getButton(0).isMouseOver()) {
+			if (getButton(0) != null && getButton(0).isHovered()) {
 				ITextComponent it = new TextComponentTranslation("bank.hover.update." + upgrade, ((char)167) + "61", "" + cont.items.getSizeInventory(), "" + cont.bank.ceilSettings.get(cont.ceil).maxCells);
 				if (!upgrade && cont.dataCeil < cont.bank.ceilSettings.size()) {
 					it.appendSibling(new TextComponentTranslation("bank.hover.update.not.1", "" + (cont.dataCeil + 1)));
@@ -368,21 +368,21 @@ implements ISubGuiListener {
 					it.appendSibling(new TextComponentTranslation("bank.hover.update.not.1"));
 				}
 				setHoverText(it.getFormattedText());
-			} else if (getButton(1) != null && getButton(1).isMouseOver()) {
+			} else if (getButton(1) != null && getButton(1).isHovered()) {
 				setHoverText(new TextComponentTranslation("bank.hover.up").getFormattedText());
-			} else if (getButton(2) != null && getButton(2).isMouseOver()) {
+			} else if (getButton(2) != null && getButton(2).isHovered()) {
 				setHoverText(new TextComponentTranslation("bank.hover.down").getFormattedText());
-			} else if (getButton(9) != null && getButton(9).isVisible() && getButton(9).isMouseOver()) {
+			} else if (getButton(9) != null && getButton(9).isVisible() && getButton(9).isHovered()) {
 				setHoverText(new TextComponentTranslation("bank.hover.settings").getFormattedText());
-			} else if (getButton(10) != null && getButton(10).isVisible() && getButton(10).isMouseOver()) {
+			} else if (getButton(10) != null && getButton(10).isVisible() && getButton(10).isHovered()) {
 				setHoverText(new TextComponentTranslation("bank.hover.clear.slots").getFormattedText());
-			} else if (getButton(11) != null && getButton(11).isVisible() && getButton(11).isMouseOver()) {
+			} else if (getButton(11) != null && getButton(11).isVisible() && getButton(11).isHovered()) {
 				setHoverText(new TextComponentTranslation("bank.hover.lock").getFormattedText());
-			} else if (getButton(12) != null && getButton(12).isVisible() && getButton(12).isMouseOver()) {
+			} else if (getButton(12) != null && getButton(12).isVisible() && getButton(12).isHovered()) {
 				setHoverText(new TextComponentTranslation("bank.hover.regrade").getFormattedText());
-			} else if (getButton(13) != null && getButton(13).isVisible() && getButton(13).isMouseOver()) {
+			} else if (getButton(13) != null && getButton(13).isVisible() && getButton(13).isHovered()) {
 				setHoverText(new TextComponentTranslation("bank.hover.reset").getFormattedText());
-			} else if (getButton(14) != null && getButton(14).isVisible() && getButton(14).isMouseOver()) {
+			} else if (getButton(14) != null && getButton(14).isVisible() && getButton(14).isHovered()) {
 				ITextComponent it = new TextComponentTranslation("bank.hover.update.true", ((char)167) + "6" + allCost + ((char)167) + "7/" + max, "" + cont.items.getSizeInventory(), "" + cont.bank.ceilSettings.get(cont.ceil).maxCells);
 				if (!upgrade && cont.dataCeil < cont.bank.ceilSettings.size()) {
 					it.appendSibling(new TextComponentTranslation("bank.hover.update.not.1", "" + (cont.dataCeil + 1)));
@@ -397,7 +397,7 @@ implements ISubGuiListener {
 			} else {
 				// left tabs
 				for (int i = 3; i < 8; i++) {
-					if (getButton(i) != null && getButton(i).isMouseOver()) {
+					if (getButton(i) != null && getButton(i).isHovered()) {
 						setHoverText(new TextComponentTranslation("bank.hover.ceil." + ((GuiMenuSideButton) getButton(i)).active, "" + ((GuiMenuSideButton) getButton(i)).data).getFormattedText());
 					}
 				}
@@ -502,7 +502,7 @@ implements ISubGuiListener {
 		if (cont.bank.isPublic) {
 			if (!cont.bank.owner.isEmpty() || player.capabilities.isCreativeMode) {
 				this.addButton(new GuiNpcButton(9, (isMany ? 12 : -4) + (width + xSize) / 2, guiTop - 8, 20, 20, 20, 146, GuiNPCInterface.WIDGETS));
-				getButton(9).setVisible(isOwner);
+				getButton(9).setIsVisible(isOwner);
 			}
 		}
 		GuiNpcButton button = new GuiNpcButton(10, u + slot.xPos + (isMany ? 166 : 159), v + slot.yPos - 24, 20, 20, "");

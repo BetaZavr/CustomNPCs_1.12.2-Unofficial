@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 public class GuiNpcPngAnimation {
 
     private final int mcmetaFrameTime;
-    private int mcmetaFrameSize = -1;
+    private final int mcmetaFrameSize;
     private long mcmetaCurrentTime = 0;
     private final long mcmetaTotalTime;
     private final int[] mcmetaFrames;

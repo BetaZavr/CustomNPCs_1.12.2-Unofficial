@@ -79,7 +79,7 @@ public class GuiNpcUtil {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.pos(x, (double)(y + height), 0.0d).tex((float) textureX * f, (float)(textureY + height) * f1).endVertex();
+        bufferbuilder.pos(x, y + height, 0.0d).tex((float) textureX * f, (float)(textureY + height) * f1).endVertex();
         bufferbuilder.pos(x + width, y + height, 0.0d).tex((float)(textureX + width) * f, (float)(textureY + height) * f1).endVertex();
         bufferbuilder.pos(x + width, y, 0.0d).tex((float) (textureX + width) * f, (float) textureY * f1).endVertex();
         bufferbuilder.pos(x, y, 0.0d).tex((float) textureX * f, (float) textureY * f1).endVertex();

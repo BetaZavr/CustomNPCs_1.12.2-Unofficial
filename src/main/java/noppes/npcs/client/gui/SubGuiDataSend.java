@@ -70,7 +70,7 @@ implements ITextfieldListener {
 		if (year < 2011) { year = 2011; }
 		if (year == 2011 && month < 10) { month = 10; }
 		if (year == 2011 && month == 11 && day < 18) { day = 18; }
-        GregorianCalendar setCal = new GregorianCalendar(year, month, day);
+		GregorianCalendar setCal = new GregorianCalendar(year, month, day);
 		time = setCal.getTimeInMillis();
 
 		addLabel(new GuiNpcLabel(0, "gui.setdata", guiLeft + 7, guiTop + 4));

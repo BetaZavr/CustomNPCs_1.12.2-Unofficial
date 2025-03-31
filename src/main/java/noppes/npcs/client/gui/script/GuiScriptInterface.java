@@ -404,7 +404,7 @@ implements IGuiData, ITextChangeListener {
 		}
 		xSize = 420;
 		ySize = 256;
-		if (getButton(1) != null && getButton(1).isMouseOver()) { setHoverText("animation.hover.anim.del"); }
+		if (getButton(1) != null && getButton(1).isHovered()) { setHoverText("animation.hover.anim.del"); }
 	}
 
 	@Override

@@ -204,7 +204,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		addButton(button);
 		// get flag
 		button = new GuiNpcButton(11, x, y + 87, 45, 16, "gui.get");
-		button.setVisible(faction != null && faction.id > -1);
+		button.setIsVisible(faction != null && faction.id > -1);
 		button.setHoverText("faction.hover.flag.get");
 		addButton(button);
 		// factions list

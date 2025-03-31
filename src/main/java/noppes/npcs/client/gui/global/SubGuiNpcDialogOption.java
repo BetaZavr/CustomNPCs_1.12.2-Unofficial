@@ -192,16 +192,16 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			button.setHoverText("dialog.option.hover.add");
 			addButton(button);
 			button = new GuiNpcButton(4, this.guiLeft + 201, this.guiTop + 96, 50, 20, "gui.remove", !this.select.isEmpty());
-			button.setHoverText("dialog.option.hover.вуд");
+			button.setHoverText("dialog.option.hover.del");
 			addButton(button);
 			button = new GuiNpcButton(5, this.guiLeft + 149, this.guiTop + 118, 80, 20, "gui.edit");
-			button.setHoverText("dialog.option.hover.увше");
+			button.setHoverText("dialog.option.hover.edit");
 			addButton(button);
 			button = new GuiNpcButton(6, this.guiLeft + 149, this.guiTop + 140, 50, 20, "type.up", !this.select.isEmpty() && pos != 0);
-			button.setHoverText("dialog.option.hover.гз");
+			button.setHoverText("dialog.option.hover.up");
 			addButton(button);
 			button = new GuiNpcButton(7, this.guiLeft + 201, this.guiTop + 140, 50, 20, "type.down", !this.select.isEmpty() && pos > -1 && pos < this.data.size() - 1);
-			button.setHoverText("dialog.option.hover.вщцт");
+			button.setHoverText("dialog.option.hover.down");
 			addButton(button);
 			button = new GuiNpcButton(8, this.guiLeft + 149, this.guiTop + 162, 80, 20, "availability.available");
         } else {

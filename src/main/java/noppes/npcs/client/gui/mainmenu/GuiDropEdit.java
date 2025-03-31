@@ -171,7 +171,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			drawHoverText("drop.hover.amount", tied);
 		} else if (isMouseHover(mouseX, mouseY, guiLeft + 270, guiTop + 171, 46, 16)) {
 			drawHoverText("drop.hover.break", tied);
-		} else if (getTextField(4) != null && getTextField(4).isMouseOver()) {
+		} else if (getTextField(4) != null && getTextField(4).isHovered()) {
 			Quest quest = QuestController.instance.quests.get(getTextField(4).getInteger());
 			if (quest != null) { drawHoverText("drop.hover.quest", quest.getName()); }
 			else { drawHoverText("drop.hover.any.quest"); }

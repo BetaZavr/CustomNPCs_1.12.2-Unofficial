@@ -229,9 +229,6 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 	}
 
 	@Override
-	public void save() { }
-
-	@Override
 	public void unFocused(IGuiNpcTextField textField) {
 		if (task == null) {
 			return;

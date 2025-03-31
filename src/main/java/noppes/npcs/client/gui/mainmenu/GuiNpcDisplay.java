@@ -98,8 +98,8 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 				this.display.setHasHitbox(button.getValue() != 1);
 				this.getLabel(20).setEnabled(button.getValue() == 2);
 				this.getLabel(21).setEnabled(button.getValue() == 2);
-				this.getTextField(12).setVisible(button.getValue() == 2);
-				this.getTextField(13).setVisible(button.getValue() == 2);
+				this.getTextField(12).setIsVisible(button.getValue() == 2);
+				this.getTextField(13).setIsVisible(button.getValue() == 2);
 				break;
 			}
 			case 14: {

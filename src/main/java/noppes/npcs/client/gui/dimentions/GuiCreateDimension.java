@@ -177,8 +177,8 @@ extends GuiScreen {
 		while (this.field_146336_i.contains(" ")) {
 			this.field_146336_i = this.field_146336_i.replace(" ", "_");
 		}
-		char[] achar = ChatAllowedCharacters.ILLEGAL_FILE_CHARACTERS;
-        for (char c0 : achar) {
+		char[] aChar = ChatAllowedCharacters.ILLEGAL_FILE_CHARACTERS;
+        for (char c0 : aChar) {
             this.field_146336_i = this.field_146336_i.replace(c0, '_');
         }
 		if (StringUtils.isEmpty(this.field_146336_i)) {

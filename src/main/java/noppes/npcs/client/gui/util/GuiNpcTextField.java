@@ -195,7 +195,8 @@ implements IComponentGui, IGuiNpcTextField {
 		return false;
 	}
 
-	public boolean isMouseOver() {
+	@Override
+	public boolean isHovered() {
 		return hovered;
 	}
 
@@ -368,7 +369,7 @@ implements IComponentGui, IGuiNpcTextField {
 	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { }
 
 	@Override
-	public void setVisible(boolean bo) {
+	public void setIsVisible(boolean bo) {
 		super.setVisible(bo);
 	}
 

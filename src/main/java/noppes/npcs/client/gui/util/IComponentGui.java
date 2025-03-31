@@ -30,12 +30,12 @@ public interface IComponentGui {
 
 	boolean isVisible();
 
-	void setVisible(boolean bo);
+	void setIsVisible(boolean bo);
 
 	boolean isEnabled();
 
 	void setEnabled(boolean bo);
 
-	boolean isMouseOver();
+	boolean isHovered();
 
 }

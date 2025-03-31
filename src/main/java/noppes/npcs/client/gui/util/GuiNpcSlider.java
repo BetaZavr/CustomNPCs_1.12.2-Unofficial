@@ -257,12 +257,15 @@ implements IComponentGui, IGuiNpcSlider {
 	public boolean isVisible() { return visible; }
 
 	@Override
-	public void setVisible(boolean bo) { visible = bo; }
+	public void setIsVisible(boolean bo) { visible = bo; }
 
 	@Override
 	public boolean isEnabled() { return enabled; }
 
 	@Override
 	public void setEnabled(boolean bo) { enabled = bo; }
+
+	@Override
+	public boolean isHovered() { return isMouseOver(); }
 
 }

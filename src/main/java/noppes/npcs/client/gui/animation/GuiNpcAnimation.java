@@ -201,7 +201,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 		for (int i = 0; i < 5; i++) {
 			GlStateManager.translate(0.0f, 22.0f, 0.0f);
 			int c = color;
-			if (getButton(i) != null && getButton(i).isMouseOver()) {
+			if (getButton(i) != null && getButton(i).isHovered()) {
 				c = 0xA0FFFF00;
 				hoverButton = i;
 			}

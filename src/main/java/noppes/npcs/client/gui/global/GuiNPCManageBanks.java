@@ -278,17 +278,17 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			}
 		}
 		button = new GuiButtonBiDirectional(0, x, y, 50, 20, csIds.toArray(new String[0]), ceil);
-		button.setVisible(!selected.isEmpty());
+		button.setIsVisible(!selected.isEmpty());
 		button.setHoverText("bank.hover.ceil", "" + bank.ceilSettings.size());
 		addButton(button);
 		// add ceil
 		button = new GuiNpcButton(1, x + 55, y, 50, 20, "gui.add");
-		button.setVisible(!selected.isEmpty());
+		button.setIsVisible(!selected.isEmpty());
 		button.setHoverText(new TextComponentTranslation("bank.hover.ceil.add").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
 		addButton(button);
 		// del ceil
 		button = new GuiNpcButton(2, x + 110, y, 50, 20, "gui.remove");
-		button.setVisible(!selected.isEmpty());
+		button.setIsVisible(!selected.isEmpty());
 		button.setEnabled(ceil > 0);
 		button.setHoverText(new TextComponentTranslation("bank.hover.ceil.add").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
 		addButton(button);
@@ -311,13 +311,13 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		addTextField(textField);
 		// is public
 		button = new GuiNpcCheckBox(3, x, (y += 18), 160, 16, "bank.public.true", "bank.public.false", bank.isPublic);
-		button.setVisible(!selected.isEmpty());
+		button.setIsVisible(!selected.isEmpty());
 		button.setHoverText("bank.hover.public");
 		addButton(button);
 		// setting names
 		button = new GuiNpcButton(8, x, y + 20, 20, 20, 20, 146, GuiNPCInterface.WIDGETS);
 		button.setHoverText("bank.hover.settings");
-		button.setVisible(!selected.isEmpty() && bank.isPublic);
+		button.setIsVisible(!selected.isEmpty() && bank.isPublic);
 		addButton(button);
 		// open money
 		textField = new GuiNpcTextField(3, this, fontRenderer, x += 126, y += 52, 50, 18, "" + cs.openMoney);

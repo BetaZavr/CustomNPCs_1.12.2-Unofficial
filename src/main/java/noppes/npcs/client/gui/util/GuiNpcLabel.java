@@ -182,7 +182,7 @@ implements IComponentGui, IGuiNpcLabel {
 	public boolean isVisible() { return enabled; }
 
 	@Override
-	public void setVisible(boolean bo) { enabled = bo; }
+	public void setIsVisible(boolean bo) { enabled = bo; }
 
 	@Override
 	public boolean isEnabled() { return enabled; }
@@ -191,7 +191,7 @@ implements IComponentGui, IGuiNpcLabel {
 	public void setEnabled(boolean bo) { enabled = bo; }
 
 	@Override
-	public boolean isMouseOver() { return hovered; }
+	public boolean isHovered() { return hovered; }
 
 	@Override
 	public void setColor(int color) { this.color = color; }

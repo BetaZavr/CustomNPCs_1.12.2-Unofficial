@@ -1352,7 +1352,7 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 		if (this.hasSubGui() || !CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
+		if (this.getButton(0) != null && this.getButton(0).isHovered()) {
 			if (!this.canSend) {
 				this.setHoverText(new TextComponentTranslation("mailbox.hover.done").getFormattedText());
 			} // done
@@ -1421,18 +1421,18 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 							new TextComponentTranslation("mailbox.hover.send." + this.type).getFormattedText());
 				}
 			}
-		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3) != null && this.getButton(3).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.X").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) { // take money
+		} else if (this.getButton(5) != null && this.getButton(5).isHovered()) { // take money
 			this.setHoverText(new TextComponentTranslation("display.hover.X").getFormattedText());
-		} else if ((this.getTextField(0) != null && this.getTextField(0).isMouseOver())
-				|| (this.getTextField(2) != null && this.getTextField(2).isMouseOver())) {
+		} else if ((this.getTextField(0) != null && this.getTextField(0).isHovered())
+				|| (this.getTextField(2) != null && this.getTextField(2).isHovered())) {
 			this.setHoverText(new TextComponentTranslation("mailbox.hover.to").getFormattedText());
-		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
+		} else if (this.getTextField(1) != null && this.getTextField(1).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("mailbox.hover.title").getFormattedText());
-		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
+		} else if (this.getTextField(3) != null && this.getTextField(3).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("mailbox.hover.money").getFormattedText());
-		} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
+		} else if (this.getTextField(4) != null && this.getTextField(4).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("mailbox.hover.ransom").getFormattedText());
 		}
 		drawHoverText(null);
@@ -1679,12 +1679,12 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 
 	private void updateButtons() {
 		if (!this.canEdit && GuiMailmanWrite.mail.ransom > 0) {
-			this.buttonNextPage.setVisible(false);
-			this.buttonPreviousPage.setVisible(false);
+			this.buttonNextPage.setIsVisible(false);
+			this.buttonPreviousPage.setIsVisible(false);
 			return;
 		}
-		this.buttonNextPage.setVisible(this.currPage < this.bookTotalPages - 1 || this.canEdit);
-		this.buttonPreviousPage.setVisible(this.currPage > 0);
+		this.buttonNextPage.setIsVisible(this.currPage < this.bookTotalPages - 1 || this.canEdit);
+		this.buttonPreviousPage.setIsVisible(this.currPage > 0);
 	}
 
 	@Override

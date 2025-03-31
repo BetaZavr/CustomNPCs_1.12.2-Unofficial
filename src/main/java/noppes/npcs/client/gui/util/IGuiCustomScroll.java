@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.util;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;

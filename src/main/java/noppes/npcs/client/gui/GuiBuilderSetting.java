@@ -375,7 +375,7 @@ implements ICustomScrollListener, ITextfieldListener {
 			if (builder.addAir) { t += t / j; }
 			double[] vs = new double[10];
 			for (int i = 1; i < 10; i++) {
-				if (getTextField(i) != null && getTextField(i).isMouseOver()) {
+				if (getTextField(i) != null && getTextField(i).isHovered()) {
 					double c = 0.0f;
 					if (builder.chances.containsKey(i)) {
 						if (type == 0) { c = (double) builder.chances.get(i) / 100.0d; }

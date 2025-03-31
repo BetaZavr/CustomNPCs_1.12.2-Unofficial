@@ -294,7 +294,7 @@ implements IComponentGui, IGuiCustomScroll {
 	public boolean isVisible() { return visible; }
 
 	@Override
-	public void setVisible(boolean bo) { visible = bo; }
+	public void setIsVisible(boolean bo) { visible = bo; }
 
 	@Override
 	public boolean isEnabled() { return true; }
@@ -303,7 +303,7 @@ implements IComponentGui, IGuiCustomScroll {
 	public void setEnabled(boolean bo) { }
 
 	@Override
-	public boolean isMouseOver() { return hovered; }
+	public boolean isHovered() { return hovered; }
 
 	@Override
 	public List<String> getList() { return list; }

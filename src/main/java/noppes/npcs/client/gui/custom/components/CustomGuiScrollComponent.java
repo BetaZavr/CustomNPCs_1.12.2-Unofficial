@@ -61,7 +61,7 @@ implements IDataHolder, IClickListener {
 	@Override
 	public boolean mouseClicked(GuiCustom gui, int mouseX, int mouseY, int mouseButton) {
 		super.mouseClicked(mouseX, mouseY, mouseButton);
-		return this.isMouseOver(mouseX, mouseY);
+		return isMouseOver(mouseX, mouseY);
 	}
 
 	@Override

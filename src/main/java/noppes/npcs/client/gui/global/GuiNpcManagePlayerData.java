@@ -300,7 +300,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 
 	public void initButtons() {
 		boolean hasPlayer = selectedPlayer != null && !selectedPlayer.isEmpty();
-		getButton(0).setVisible(true);
+		getButton(0).setIsVisible(true);
 		getButton(0).setEnabled(hasPlayer);
 		getButton(1).setEnabled(selection != EnumPlayerData.Players && hasPlayer);
 		getButton(2).setEnabled(selection != EnumPlayerData.Quest && hasPlayer);
@@ -310,9 +310,9 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 		getButton(6).setEnabled(selection != EnumPlayerData.Factions && hasPlayer);
 		getButton(9).setEnabled(selection != EnumPlayerData.Game && hasPlayer);
 		boolean canEdit = selection != EnumPlayerData.Players && selection != EnumPlayerData.Wipe;
-		getButton(8).setVisible(true);
-		getButton(10).setVisible(true);
-		getButton(11).setVisible(true);
+		getButton(8).setIsVisible(true);
+		getButton(10).setIsVisible(true);
+		getButton(11).setIsVisible(true);
 		getButton(12).setEnabled(selection == EnumPlayerData.Players);
 
 		if (scroll != null) {
@@ -327,7 +327,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			}
 		}
 		getLabel(1).setEnabled(selection != EnumPlayerData.Game);
-		getTextField(0).setVisible(selection != EnumPlayerData.Game);
+		getTextField(0).setIsVisible(selection != EnumPlayerData.Game);
 		if (getLabel(2) != null) {
 			getLabel(2).setEnabled(selection == EnumPlayerData.Game);
 		}
@@ -335,7 +335,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			getLabel(3).setEnabled(selection == EnumPlayerData.Game);
 		}
 		if (getTextField(1) != null) {
-			getTextField(1).setVisible(selection == EnumPlayerData.Game);
+			getTextField(1).setIsVisible(selection == EnumPlayerData.Game);
 		}
 
 		switch (selection) {
@@ -361,15 +361,15 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			}
 			case Game: {
 				getButton(0).setEnabled(canEdit && hasPlayer && scroll.hasSelected());
-				getButton(8).setVisible(false);
+				getButton(8).setIsVisible(false);
 				getButton(10).setEnabled(canEdit && hasPlayer && gameData != null);
 				getButton(11).setEnabled(canEdit && hasPlayer && scroll.hasSelected());
 				break;
 			}
 			default: {
-				getButton(8).setVisible(false);
-				getButton(10).setVisible(false);
-				getButton(11).setVisible(false);
+				getButton(8).setIsVisible(false);
+				getButton(10).setIsVisible(false);
+				getButton(11).setIsVisible(false);
 			}
 		}
 		if (!hasPlayer) {

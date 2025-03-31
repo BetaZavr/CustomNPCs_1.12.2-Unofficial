@@ -349,7 +349,7 @@ implements IComponentGui, IGuiNpcButton {
 	public void setTextColor(int color) { packedFGColour = color; }
 
 	@Override
-	public void setVisible(boolean bo) { visible = bo; }
+	public void setIsVisible(boolean bo) { visible = bo; }
 
 	@Override
 	public boolean isEnabled() { return enabled; }
@@ -423,5 +423,8 @@ implements IComponentGui, IGuiNpcButton {
 
 	@Override
 	public void setTop(int top) { y = top; }
+
+	@Override
+	public boolean isHovered() { return isMouseOver(); }
 
 }

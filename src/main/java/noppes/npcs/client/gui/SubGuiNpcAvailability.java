@@ -51,7 +51,7 @@ implements ISliderListener, ITextfieldListener {
 			case 4: {
 				availability.healthType = button.getValue();
 				if (getSlider(5) != null) {
-					getSlider(5).setVisible(availability.healthType != 0);
+					getSlider(5).setIsVisible(availability.healthType != 0);
 				}
 				break;
 			}

@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.util;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.api.handler.data.INpcRecipe;
 
 import java.util.List;
 
@@ -16,7 +15,7 @@ public interface IGuiNpcButton extends IComponentGui {
 
     void setTexture(ResourceLocation location);
 
-    boolean isMouseOver();
+    boolean isHovered();
 
     void setHasDefaultBack(boolean bo);
 

@@ -602,7 +602,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		for (int i = 0; i < 2; i++) {
 			if (toolType == 0 && i == 1) { break; }
 			addLabel(new GuiNpcLabel(lId++, i == 0 ? "X:" : "Y:", x, y + i * f + 4));
-			float sliderData = 0.5f;
+			float sliderData;
 			double m, n;
 			if (toolType == 1) { // offset
 				m = isRight ? -1.0d : -1.5d;
@@ -635,7 +635,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		addButton(new GuiNpcCheckBox(37, x, y, 140, 14, "emotion.can.blink", "emotion.can.no.blink", emtn.canBlink()));
 		resetEmtns();
 
-		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("ai.movement").getFormattedText() + ":", x, (y += 20) + 1));
+		addLabel(new GuiNpcLabel(lId, new TextComponentTranslation("ai.movement").getFormattedText() + ":", x, (y += 20) + 1));
 		textField = new GuiNpcTextField(7, this, x += 45,  y, 40, 12, "" + emtn.scaleMoveX);
 		textField.setMinMaxDoubleDefault(0.05d, 1.25d, emtn.scaleMoveX);
 		textField.setHoverText("emotion.hover.scale.move", "X");

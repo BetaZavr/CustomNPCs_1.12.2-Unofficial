@@ -2031,19 +2031,19 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			GlStateManager.popMatrix();
 		}
 		if (type == 2) {
-			if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
+			if (this.getTextField(0) != null && this.getTextField(0).isHovered()) {
 				this.setHoverText("quest.hover.compass.edit.ups");
-			} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
+			} else if (this.getTextField(1) != null && this.getTextField(1).isHovered()) {
 				this.setHoverText("quest.hover.compass.edit.vpos");
-			} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
+			} else if (this.getButton(0) != null && this.getButton(0).isHovered()) {
 				this.setHoverText("quest.hover.compass.edit.show name");
-			} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
+			} else if (this.getButton(1) != null && this.getButton(1).isHovered()) {
 				this.setHoverText("quest.hover.compass.edit.showcase");
-			} else if (this.getSlider(0) != null && this.getSlider(0).isMouseOver()) {
+			} else if (this.getSlider(0) != null && this.getSlider(0).isHovered()) {
 				this.setHoverText("quest.hover.compass.edit.scale");
-			} else if (this.getSlider(1) != null && this.getSlider(1).isMouseOver()) {
+			} else if (this.getSlider(1) != null && this.getSlider(1).isHovered()) {
 				this.setHoverText("quest.hover.compass.edit.incline");
-			} else if (this.getSlider(2) != null && this.getSlider(2).isMouseOver()) {
+			} else if (this.getSlider(2) != null && this.getSlider(2).isHovered()) {
 				this.setHoverText("quest.hover.compass.edit.rotation");
 			}
 		}

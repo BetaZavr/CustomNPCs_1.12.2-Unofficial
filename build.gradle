@@ -3,11 +3,12 @@ import java.time.LocalDateTime
 // DEV resources path
 buildscript {
     repositories {
-        mavenCentral()
+        //maven { url = 'https://files.minecraftforge.net/maven/' }
+        //mavenCentral()
         mavenLocal()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.0.195'
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7.38'
     }
 }
@@ -28,7 +29,7 @@ archivesBaseName = mod_name + " " + minecraft_version + " Unofficial"
 def getCustomVersion() {
     Date date = new Date()
     String month = LocalDateTime.now().month.toString().substring(0, 3)
-    return "_v." + mod_version + "_" + date.format("dd") + month.charAt(0) + month.substring(1).toLowerCase() + date.format("yyyy") + '-Snapshot'
+    return "v." + mod_version + "-" + date.format("dd") + month.charAt(0) + month.substring(1).toLowerCase() + date.format("yyyy") + '-Snapshot'
 }
 
 // Set Java compatibility to version
