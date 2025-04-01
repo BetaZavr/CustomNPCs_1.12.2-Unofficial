@@ -3,22 +3,23 @@ import java.time.LocalDateTime
 // DEV resources path
 buildscript {
     repositories {
-        //maven { url = 'https://files.minecraftforge.net/maven/' }
+        maven { url = 'https://mvnrepository.com/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
         //mavenCentral()
-        mavenLocal()
+        //mavenLocal()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.0.195'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.0.+'
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7.38'
     }
 }
 
 // Plugins for creating JAR
+apply plugin: 'maven-publish'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
-apply plugin: 'idea'
 
 // JAR naming
 version = getCustomVersion()
@@ -66,7 +67,7 @@ minecraft {
 // Add Maven repositories
 repositories {
     mavenCentral()
-    maven { url 'https://maven.cleanroommc.com' }
+    //maven { url 'https://maven.cleanroommc.com' }
     flatDir { dirs 'libs' }
 }
 
@@ -81,6 +82,7 @@ dependencies {
         exclude module: 'commons-io'
         exclude module: 'gson'
     }
+
 }
 
 // Resource processing (mcmod.info file)

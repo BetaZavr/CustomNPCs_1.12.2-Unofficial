@@ -437,7 +437,7 @@ public class ScriptContainer {
 		engine = ScriptController.Instance.getEngineByName(scriptLanguage);
 		fullscript = null;
 		hasNoEncryptScriptCode = false;
-		if (engine != null && engine.get("dump") == null) { fillEngine(engine); }
+		if (engine != null) { fillEngine(engine); }
 		errored = engine == null;
 	}
 
