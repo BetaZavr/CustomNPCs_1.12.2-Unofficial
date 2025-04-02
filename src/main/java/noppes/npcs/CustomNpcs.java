@@ -114,7 +114,7 @@ import noppes.npcs.util.DataDebug.Debug;
 
 @Mod(modid = CustomNpcs.MODID,
 		name = CustomNpcs.MODNAME,
-		version = "4.426",
+		version = "4.428",
 		acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2",
 		guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
 public class CustomNpcs {

@@ -15,6 +15,7 @@ import java.util.zip.ZipFile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.net.ssl.SSLHandshakeException;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -1859,9 +1860,9 @@ public class Util implements IMethods {
 		try {
 			URLConnection connection = new URL("https://translate.google.com/translate_a/single?client=gtx&sl=" + textLanguageKey + "&tl=" + translationLanguageKey + "&dt=t&q=" + URLEncoder.encode(originalText, "UTF-8")).openConnection();
 			// Sending a GET request instead of POST
-			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			connection.setRequestProperty("User-Agent", "Chrome/99.0.4844.51");
+			connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36");
 			connection.setConnectTimeout(10000);
+			connection.setReadTimeout(10000);
 			// Read returned
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			StringBuilder text = new StringBuilder();
@@ -1882,7 +1883,7 @@ public class Util implements IMethods {
 			// Extract translation
 			return array.get(0).getAsJsonArray().get(0).getAsJsonArray().get(0).getAsString();
 		}
-		catch (SocketTimeoutException se) {
+		catch (SocketTimeoutException | SSLHandshakeException se) {
 			hasInternet = false;
 			LogWriter.error("Error: No internet connection", se);
 		}

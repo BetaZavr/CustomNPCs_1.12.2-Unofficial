@@ -90,7 +90,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 		addTextField(textField);
 
 		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 130, guiTop + 38, 90, 20, new String[] { "gui.add", "gui.decrease" }, fo != null ? fo.decreaseFactionPoints ? 1 : 0 : 0);
-		button.setVisible(scroll.getSelect() >= 0);
+		button.setIsVisible(scroll.getSelect() >= 0);
 		button.setHoverText("faction.hover.option.decrease");
 		addButton(button);
 

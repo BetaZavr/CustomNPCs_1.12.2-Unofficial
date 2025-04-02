@@ -1,7 +1,7 @@
 {
   "compatibilityLevel": "JAVA_8",
   "package": "noppes.npcs.mixin",
-  "refmap": "mixins.customnpcs.refmap.json",
+  "refmap": "customnpcs.refmap.json",
   "mixins": [
     "entity.EntityLivingBaseMixin",
     "entity.EntityMixin",

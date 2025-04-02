@@ -1578,7 +1578,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						g = 0.5f;
 						b = 0.5f;
 						s = 1.0f;
-						if (tools.getSlider(0).isMouseOver() || tools.getTextField(5).isMouseOver() || tools.getTextField(5).isFocused() || tools.getButton(30).isMouseOver()) {
+						if (tools.getSlider(0).isHovered() || tools.getTextField(5).isHovered() || tools.getTextField(5).isFocused() || tools.getButton(30).isHovered()) {
 							r = 0.825f;
 							g = 0.625f;
 							b = 0.195f;
@@ -1591,7 +1591,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						g = 0.5f;
 						b = 0.5f;
 						s = 1.0f;
-						if (tools.getSlider(1).isMouseOver() || tools.getTextField(6).isMouseOver() || tools.getTextField(6).isFocused() || tools.getButton(31).isMouseOver()) {
+						if (tools.getSlider(1).isHovered() || tools.getTextField(6).isHovered() || tools.getTextField(6).isFocused() || tools.getButton(31).isHovered()) {
 							r = 0.825f;
 							g = 0.625f;
 							b = 0.195f;
@@ -1605,7 +1605,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						g = 0.5f;
 						b = 0.5f;
 						s = 1.0f;
-						if (tools.getSlider(2).isMouseOver() || tools.getTextField(7).isMouseOver() || tools.getTextField(7).isFocused() || tools.getButton(32).isMouseOver()) {
+						if (tools.getSlider(2).isHovered() || tools.getTextField(7).isHovered() || tools.getTextField(7).isFocused() || tools.getButton(32).isHovered()) {
 							r = 0.825f;
 							g = 0.625f;
 							b = 0.195f;
@@ -1633,7 +1633,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				float s = 2.0f;
 				if (isMotion) {
 					b = 0.5f;
-					if (tools.getSlider(0).isMouseOver() || tools.getTextField(5).isMouseOver() || tools.getTextField(5).isFocused() || tools.getButton(30).isMouseOver()) {
+					if (tools.getSlider(0).isHovered() || tools.getTextField(5).isHovered() || tools.getTextField(5).isFocused() || tools.getButton(30).isHovered()) {
 						r = 0.825f;
 						g = 0.625f;
 						b = 0.195f;
@@ -1646,7 +1646,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					g = 0.5f;
 					b = 0.5f;
 					s = 1.0f;
-					if (tools.getSlider(1).isMouseOver() || tools.getTextField(6).isMouseOver() || tools.getTextField(6).isFocused() || tools.getButton(31).isMouseOver()) {
+					if (tools.getSlider(1).isHovered() || tools.getTextField(6).isHovered() || tools.getTextField(6).isFocused() || tools.getButton(31).isHovered()) {
 						r = 0.825f;
 						g = 0.625f;
 						b = 0.195f;
@@ -1660,7 +1660,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					g = 0.5f;
 					b = 0.5f;
 					s = 1.0f;
-					if (tools.getSlider(2).isMouseOver() || tools.getTextField(7).isMouseOver() || tools.getTextField(7).isFocused() || tools.getButton(32).isMouseOver()) {
+					if (tools.getSlider(2).isHovered() || tools.getTextField(7).isHovered() || tools.getTextField(7).isFocused() || tools.getButton(32).isHovered()) {
 						r = 0.825f;
 						g = 0.625f;
 						b = 0.195f;
@@ -2291,7 +2291,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		// set animation part tick
 		button = new GuiButtonBiDirectional(53, workU + workS / 2 - 56, workV + workS - 24, 108, 10, new String[] { "" }, 0);
 		button.setHoverText("animation.hover.part.all.ticks");
-		button.setVisible(onlyCurrentPart);
+		button.setIsVisible(onlyCurrentPart);
 		addButton(button);
 		// show tools
 		button = new GuiNpcButton(35, workU + 5, y, 8, 8, "");
@@ -2828,7 +2828,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		npcPart.deathTime = 0;
 		if (getButton(53) != null) {
 			GuiNpcButton button = (GuiNpcButton) getButton(53);
-			button.setVisible(onlyCurrentPart);
+			button.setIsVisible(onlyCurrentPart);
 			if (onlyCurrentPart) {
 				List<String> ticks = new ArrayList<>();
 				int s = npcPart.animation.getAnimationSpeedTicks();
