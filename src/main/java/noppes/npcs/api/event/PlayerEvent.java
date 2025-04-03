@@ -351,8 +351,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 		public float volume;
 		public float pitch;
 
-		public PlayerSound(IPlayer<?> player, String resource, String name, String category, float x, float y, float z,
-				float volume, float pitch) {
+		public PlayerSound(IPlayer<?> player, String resource, String name, String category, float x, float y, float z, float volume, float pitch) {
 			super(player);
 			this.name = name;
 			this.resource = resource;

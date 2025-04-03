@@ -277,6 +277,7 @@ public class Util implements IMethods {
 	}
 
 	public IRayTraceRotate getAngles3D(Entity entity, Entity target) {
+		if (entity == null || target == null) { return RayTraceRotate.EMPTY; }
 		return Util.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
 	}
 
@@ -531,6 +532,7 @@ public class Util implements IMethods {
 	}
 
 	public IRayTraceVec getPosition(BlockPos pos, double yaw, double pitch, double radius) {
+		if (pos == null) { return RayTraceVec.EMPTY; }
 		return Util.instance.getPosition(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, yaw, pitch, radius);
 	}
 
@@ -1094,11 +1096,13 @@ public class Util implements IMethods {
 	}
 
 	public double distanceTo(Entity entity, Entity target) {
+		if (entity == null || target == null) { return 0.0d; }
 		return this.distanceTo(entity.posX, entity.posY, entity.posZ, target.posX, target.posY, target.posZ);
 	}
 
 	@Override
 	public double distanceTo(IEntity<?> entity, IEntity<?> target) {
+		if (entity == null || target == null) { return 0.0d; }
 		return this.distanceTo(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ,
 				target.getMCEntity().posX, target.getMCEntity().posY, target.getMCEntity().posZ);
 	}
@@ -1112,6 +1116,7 @@ public class Util implements IMethods {
 
 	@Override
 	public @Nonnull IRayTraceRotate getAngles3D(IEntity<?> entity, IEntity<?> target) {
+		if (entity == null || target == null) { return RayTraceRotate.EMPTY; }
 		return this.getAngles3D(entity.getMCEntity(), target.getMCEntity());
 	}
 
@@ -1260,6 +1265,7 @@ public class Util implements IMethods {
 
 	@Override
 	public IRayTraceVec getPosition(IEntity<?> entity, double yaw, double pitch, double radius) {
+		if (entity == null) { return RayTraceVec.EMPTY; }
 		return this.getPosition(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, yaw,
 				pitch, radius);
 	}
@@ -1273,19 +1279,19 @@ public class Util implements IMethods {
 
 	@Override
 	public RayTraceVec getVector3D(IEntity<?> entity, IEntity<?> target) {
-		return this.getVector3D(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ,
-				target.getMCEntity().posX, target.getMCEntity().posY, target.getMCEntity().posZ);
+		if (entity == null || target == null) { return RayTraceVec.EMPTY; }
+		return this.getVector3D(entity.getX(), entity.getY() + entity.getEyeHeight(), entity.getZ(), target.getX(), target.getY() + target.getEyeHeight(), target.getZ());
 	}
 
 	@Override
 	public RayTraceVec getVector3D(IEntity<?> entity, IPos pos) {
-		return this.getVector3D(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ,
-				pos.getX() + 0.5d, pos.getY(), pos.getZ() + 0.5d);
+		if (entity == null || pos == null) { return RayTraceVec.EMPTY; }
+		return this.getVector3D(entity.getX(), entity.getY() + entity.getEyeHeight(), entity.getZ(), pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public IRayTraceResults rayTraceBlocksAndEntitys(Entity entity, double yaw, double pitch, double distance) {
 		if (entity == null || entity.world == null || distance <= 0.0d) {
-			return null;
+			return RayTraceResults.EMPTY;
 		}
 		RayTraceResults rtrs = new RayTraceResults();
 
@@ -1398,7 +1404,7 @@ public class Util implements IMethods {
 
 	@Override
 	public IRayTraceResults rayTraceBlocksAndEntitys(IEntity<?> entity, double yaw, double pitch, double distance) {
-		if (entity == null) { return null; }
+		if (entity == null) { return RayTraceResults.EMPTY; }
 		return rayTraceBlocksAndEntitys(entity.getMCEntity(), yaw, pitch, distance);
 	}
 

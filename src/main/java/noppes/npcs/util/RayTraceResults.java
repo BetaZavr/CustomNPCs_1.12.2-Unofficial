@@ -15,6 +15,8 @@ import noppes.npcs.api.wrapper.EntityWrapper;
 
 public class RayTraceResults implements IRayTraceResults {
 
+	public static RayTraceResults EMPTY = new RayTraceResults();
+
 	private IBlock[] blocks;
 	private IEntity<?>[] entitys;
 
@@ -43,4 +45,5 @@ public class RayTraceResults implements IRayTraceResults {
 
 	@Override
 	public IEntity<?>[] getEntitys() { return entitys; }
+
 }

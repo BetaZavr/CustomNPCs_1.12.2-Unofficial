@@ -157,7 +157,7 @@ public class EventHooks {
 			}
 		}
 		if (event == null || enumFunction == null || enumFunction.function.isEmpty()) { return false; }
-		if ((handler instanceof DataScript || handler instanceof NpcScriptData) && ScriptController.Instance.npcsScripts.getEnabled()) {
+		if (handler instanceof NpcScriptData && ScriptController.Instance.npcsScripts.getEnabled()) {
 			ScriptController.Instance.npcsScripts.runScript(enumFunction.function, event);
 		}
 		if (handler == null || !handler.getEnabled()) { return false; }
@@ -168,7 +168,7 @@ public class EventHooks {
 	public static boolean onEvent(IScriptHandler handler, String enumFunction, Event event) {
 		if (handler instanceof DataScript  && ((DataScript) handler).npc.ais.aiDisabled) { return false; }
 		if (event == null || enumFunction == null || enumFunction.isEmpty()) { return false; }
-		if ((handler instanceof DataScript || handler instanceof NpcScriptData) && ScriptController.Instance.npcsScripts.getEnabled()) {
+		if (handler instanceof NpcScriptData && ScriptController.Instance.npcsScripts.getEnabled()) {
 			ScriptController.Instance.npcsScripts.runScript(enumFunction, event);
 		}
 		if (handler == null || !handler.getEnabled()) { return false; }
@@ -184,28 +184,26 @@ public class EventHooks {
 		return WrapperNpcAPI.EVENT_BUS.post(event) && event.isCanceled();
 	}
 
-	public static void onForgeEvent(ForgeEvent event) {
+	public static void onForgeEvent(ForgeEvent ev) {
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
 		String eventName;
 		if (!handler.isClient() && handler.isEnabled()) {
-			if (!CustomNpcs.forgeEventNames.containsKey(event.event.getClass())) {
-				eventName = event.event.getClass().getName();
+			if (!ScriptController.forgeEventNames.containsKey(ev.event.getClass())) {
+				eventName = ev.event.getClass().getName();
 				int i = eventName.lastIndexOf(".");
 				eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
-				CustomNpcs.forgeEventNames.put(event.event.getClass(), eventName);
-				LogWriter.info("Found new Forge Event \"" + eventName + "\" to event: "+event.event.getClass().getName());
+				ScriptController.forgeEventNames.put(ev.event.getClass(), eventName);
+				LogWriter.info("Found new Forge Event \"" + eventName + "\" to event: "+ev.event.getClass().getName());
 			} else {
-				eventName = CustomNpcs.forgeEventNames.get(event.event.getClass());
+				eventName = ScriptController.forgeEventNames.get(ev.event.getClass());
 			}
 			try {
-				handler.runScript(eventName, event);
-				if (event.isCanceled() && event.event.isCancelable()) {
-					event.event.setCanceled(true);
+				handler.runScript(eventName, ev);
+				if (ev.isCanceled() && ev.event.isCancelable()) {
+					ev.event.setCanceled(true);
 				}
-				WrapperNpcAPI.EVENT_BUS.post(event.event);
-				if (event.isCancelable()) {
-					event.setCanceled(event.event.isCanceled());
-				}
+				WrapperNpcAPI.EVENT_BUS.post(ev.event);
+				if (ev.isCancelable()) { ev.setCanceled(ev.event.isCanceled()); }
 			} catch (Exception e) {
 				LogWriter.error("Error:", e);
 			}
@@ -213,25 +211,23 @@ public class EventHooks {
 		if (handler.isClient()) {
 			ClientScriptData handlerClient = ScriptController.Instance.clientScripts;
 			if (!handlerClient.isClient() || !handlerClient.isEnabled()) { return; }
-			if (!CustomNpcs.forgeClientEventNames.containsKey(event.event.getClass())) {
-				eventName = event.event.getClass().getName();
+			if (!ScriptController.forgeClientEventNames.containsKey(ev.event.getClass())) {
+				eventName = ev.event.getClass().getName();
 				int i = eventName.lastIndexOf(".");
 				eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
-				CustomNpcs.forgeClientEventNames.put(event.event.getClass(), eventName);
-				LogWriter.info("Found new Forge Event \"" + eventName + "\" to event: "+event.event.getClass().getName());
+				ScriptController.forgeClientEventNames.put(ev.event.getClass(), eventName);
+				LogWriter.info("Found new Forge Event \"" + eventName + "\" to event: "+ev.event.getClass().getName());
 			} else {
-				eventName = CustomNpcs.forgeClientEventNames.get(event.event.getClass());
+				eventName = ScriptController.forgeClientEventNames.get(ev.event.getClass());
 			}
 			if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName) == System.currentTimeMillis())) {
 				return;
 			}
 			EventHooks.clientMap.put(eventName, System.currentTimeMillis());
 			try {
-				handlerClient.runScript(eventName, event);
-				if (event.isCanceled() && event.event.isCancelable()) {
-					event.event.setCanceled(true);
-				}
-				WrapperNpcAPI.EVENT_BUS.post(event.event);
+				handlerClient.runScript(eventName, ev);
+				if (ev.isCanceled() && ev.event.isCancelable()) { ev.event.setCanceled(true); }
+				WrapperNpcAPI.EVENT_BUS.post(ev.event);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 	}
@@ -239,7 +235,6 @@ public class EventHooks {
 	public static void onForgeInit(ForgeScriptData handler) {
 		EventHooks.onEvent(handler, EnumScriptType.INIT, new ForgeEvent.InitEvent());
 	}
-
 
 	public static void onNPCsInit(NpcScriptData handler) {
 		EventHooks.onEvent(handler, EnumScriptType.INIT, new NpcEvent.InitEvent(null));
@@ -251,16 +246,12 @@ public class EventHooks {
 	}
 
 	public static boolean onNPCAttacksMelee(EntityNPCInterface npc, NpcEvent.MeleeAttackEvent event) {
-		if (npc.script.isClient()) {
-			return false;
-		}
+		if (npc.script.isClient()) { return false; }
 		return EventHooks.onEvent(npc.script, EnumScriptType.ATTACK_MELEE, event);
 	}
 
 	public static void onNPCCollide(EntityNPCInterface npc, Entity entity) {
-		if (npc.script.isClient()) {
-			return;
-		}
+		if (npc.script.isClient()) { return; }
 		EventHooks.onEvent(npc.script, EnumScriptType.COLLIDE, new NpcEvent.CollideEvent(npc.wrappedNPC, entity));
 	}
 
@@ -272,89 +263,61 @@ public class EventHooks {
 	}
 
 	public static boolean onNPCDamaged(EntityNPCInterface npc, NpcEvent.DamagedEvent event) {
-		if (npc.script.isClient()) {
-			return false;
-		}
+		if (npc.script.isClient()) { return false; }
 		event.setCanceled(npc.isKilled());
 		return EventHooks.onEvent(npc.script, EnumScriptType.DAMAGED, event);
 	}
 
 	public static boolean onNPCDialog(EntityNPCInterface npc, EntityPlayer player, Dialog dialog) {
-		if (npc.script.isClient()) {
-			return false;
-		}
+		if (npc.script.isClient()) { return false; }
 		DialogEvent.OpenEvent event = new DialogEvent.OpenEvent(npc.wrappedNPC, player, dialog);
-		if (npc.script != null && !(npc instanceof EntityDialogNpc)) {
-			EventHooks.onEvent(npc.script, EnumScriptType.DIALOG, event);
-		}
+		if (npc.script != null && !(npc instanceof EntityDialogNpc)) { EventHooks.onEvent(npc.script, EnumScriptType.DIALOG, event); }
 		return EventHooks.onEvent(PlayerData.get(player).scriptData, EnumScriptType.DIALOG, event);
 	}
 
 	public static void onNPCDialogClose(EntityNPCInterface npc, EntityPlayerMP player, Dialog dialog) {
-		if (npc.script.isClient()) {
-			return;
-		}
+		if (npc.script.isClient()) { return; }
 		DialogEvent.CloseEvent event = new DialogEvent.CloseEvent(npc.wrappedNPC, player, dialog);
-		if (npc.script != null && !(npc instanceof EntityDialogNpc)) {
-			EventHooks.onEvent(npc.script, EnumScriptType.DIALOG_CLOSE, event);
-		}
+		if (npc.script != null && !(npc instanceof EntityDialogNpc)) { EventHooks.onEvent(npc.script, EnumScriptType.DIALOG_CLOSE, event); }
 		EventHooks.onEvent(PlayerData.get(player).scriptData, EnumScriptType.DIALOG_CLOSE, event);
 	}
 
 	public static boolean onNPCDialogOption(EntityNPCInterface npc, EntityPlayerMP player, Dialog dialog, DialogOption option) {
-		if (npc.script.isClient()) {
-			return false;
-		}
-		DialogEvent.OptionEvent event = new DialogEvent.OptionEvent(npc.wrappedNPC, player, dialog,
-				option);
-		if (npc.script != null && !(npc instanceof EntityDialogNpc)) {
-			EventHooks.onEvent(npc.script, EnumScriptType.DIALOG_OPTION, event);
-		}
+		if (npc.script.isClient()) { return false; }
+		DialogEvent.OptionEvent event = new DialogEvent.OptionEvent(npc.wrappedNPC, player, dialog, option);
+		if (npc.script != null && !(npc instanceof EntityDialogNpc)) { EventHooks.onEvent(npc.script, EnumScriptType.DIALOG_OPTION, event); }
 		return EventHooks.onEvent(PlayerData.get(player).scriptData, EnumScriptType.DIALOG_OPTION, event);
 	}
 
 	public static void onNPCDied(EntityNPCInterface npc, NpcEvent.DiedEvent event) {
-		if (npc.script.isClient()) {
-			return;
-		}
+		if (npc.script.isClient()) { return; }
 		EventHooks.onEvent(npc.script, EnumScriptType.DIED, event);
 	}
 
 	public static void onNPCInit(EntityNPCInterface npc) {
-		if (npc.script.isClient()) {
-			return;
-		}
+		if (npc.script.isClient()) { return; }
 		EventHooks.onEvent(npc.script, EnumScriptType.INIT, new NpcEvent.InitEvent(npc.wrappedNPC));
 	}
 
 	public static boolean onNPCInteract(EntityNPCInterface npc, EntityPlayer player) {
-		if (npc.script.isClient()) {
-			return false;
-		}
+		if (npc.script.isClient()) { return false; }
 		NpcEvent.InteractEvent event = new NpcEvent.InteractEvent(npc.wrappedNPC, player);
 		event.setCanceled(npc.isAttacking() || npc.isKilled() || npc.faction.isAggressiveToPlayer(player));
 		return EventHooks.onEvent(npc.script, EnumScriptType.INTERACT, event);
 	}
 
 	public static void onNPCKills(EntityNPCInterface npc, EntityLivingBase entityLiving) {
-		if (npc.script.isClient()) {
-			return;
-		}
-		EventHooks.onEvent(npc.script, EnumScriptType.KILL,
-				new NpcEvent.KilledEntityEvent(npc.wrappedNPC, entityLiving));
+		if (npc.script.isClient()) { return; }
+		EventHooks.onEvent(npc.script, EnumScriptType.KILL, new NpcEvent.KilledEntityEvent(npc.wrappedNPC, entityLiving));
 	}
 
 	public static void onNPCRangedLaunched(EntityNPCInterface npc, NpcEvent.RangedLaunchedEvent event) {
-		if (npc.script.isClient()) {
-			return;
-		}
+		if (npc.script.isClient()) { return; }
 		EventHooks.onEvent(npc.script, EnumScriptType.RANGED_LAUNCHED, event);
 	}
 
 	public static boolean onNPCRole(EntityNPCInterface npc, RoleEvent event) {
-		if (npc.script.isClient()) {
-			return false;
-		}
+		if (npc.script.isClient()) { return false; }
 		return EventHooks.onEvent(npc.script, EnumScriptType.ROLE, event);
 	}
 
@@ -366,18 +329,13 @@ public class EventHooks {
 	}
 
 	public static boolean onNPCTarget(EntityNPCInterface npc, NpcEvent.TargetEvent event) {
-		if (npc.script.isClient()) {
-			return false;
-		}
+		if (npc.script.isClient()) { return false; }
 		return EventHooks.onEvent(npc.script, EnumScriptType.TARGET, event);
 	}
 
 	public static boolean onNPCTargetLost(EntityNPCInterface npc, EntityLivingBase prevtarget) {
-		if (npc.script.isClient()) {
-			return false;
-		}
-		return EventHooks.onEvent(npc.script, EnumScriptType.TARGET_LOST,
-				new NpcEvent.TargetLostEvent(npc.wrappedNPC, prevtarget));
+		if (npc.script.isClient()) { return false; }
+		return EventHooks.onEvent(npc.script, EnumScriptType.TARGET_LOST,  new NpcEvent.TargetLostEvent(npc.wrappedNPC, prevtarget));
 	}
 
 	public static CustomNpcTeleport onNpcTeleport(EntityNPCInterface npc, BlockPos to, BlockPos portal, int dimId) {
@@ -431,13 +389,11 @@ public class EventHooks {
 	}
 
 	public static void onPlayerContainerClose(PlayerScriptData handler, Container container) {
-		EventHooks.onEvent(handler, EnumScriptType.CONTAINER_CLOSED,
-				new PlayerEvent.ContainerClosed(handler.getPlayer(), Objects.requireNonNull(NpcAPI.Instance()).getIContainer(container)));
+		EventHooks.onEvent(handler, EnumScriptType.CONTAINER_CLOSED, new PlayerEvent.ContainerClosed(handler.getPlayer(), Objects.requireNonNull(NpcAPI.Instance()).getIContainer(container)));
 	}
 
 	public static void onPlayerContainerOpen(PlayerScriptData handler, Container container) {
-		EventHooks.onEvent(handler, EnumScriptType.CONTAINER_OPEN,
-				new PlayerEvent.ContainerOpen(handler.getPlayer(), Objects.requireNonNull(NpcAPI.Instance()).getIContainer(container)));
+		EventHooks.onEvent(handler, EnumScriptType.CONTAINER_OPEN, new PlayerEvent.ContainerOpen(handler.getPlayer(), Objects.requireNonNull(NpcAPI.Instance()).getIContainer(container)));
 	}
 
 	public static void onPlayerCrafted(PlayerScriptData handler, ItemStack crafting, IInventory craftMatrix) {
@@ -454,14 +410,11 @@ public class EventHooks {
 	}
 
 	public static void onPlayerDeath(PlayerScriptData handler, DamageSource source, Entity entity) {
-		EventHooks.onEvent(handler, EnumScriptType.DIED,
-				new PlayerEvent.DiedEvent(handler.getPlayer(), source, entity));
+		EventHooks.onEvent(handler, EnumScriptType.DIED, new PlayerEvent.DiedEvent(handler.getPlayer(), source, entity));
 	}
 
 	public static void onPlayerFactionChange(PlayerScriptData handler, PlayerEvent.FactionUpdateEvent event) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.FACTION_UPDATE, event);
 	}
 
@@ -479,32 +432,22 @@ public class EventHooks {
 	}
 
 	public static void onPlayerKeyActive(EntityPlayerMP player, int id) {
-		if (player == null) {
-			return;
-		}
+		if (player == null) { return; }
 		IKeySetting kb = Objects.requireNonNull(NpcAPI.Instance()).getIKeyBinding().getKeySetting(id);
-		if (kb == null) {
-			return;
-		}
+		if (kb == null) { return; }
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
-		if (!handler.getEnabled()) {
-			return;
-		}
-		EventHooks.onEvent(handler, EnumScriptType.KEY_ACTIVE,
-				new PlayerEvent.KeyActive((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), kb));
+		if (!handler.getEnabled()) { return; }
+		EventHooks.onEvent(handler, EnumScriptType.KEY_ACTIVE, new PlayerEvent.KeyActive((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), kb));
 	}
 
-	public static void onPlayerKeyPressed(EntityPlayerMP player, int button, boolean isDown, boolean isCtrlPressed,
-										  boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed) {
+	public static void onPlayerKeyPressed(EntityPlayerMP player, int button, boolean isDown, boolean isCtrlPressed, boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed) {
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
-		Event event = new PlayerEvent.KeyPressedEvent(handler.getPlayer(), button, isCtrlPressed, isAltPressed,
-				isShiftPressed, isMetaPressed);
+		Event event = new PlayerEvent.KeyPressedEvent(handler.getPlayer(), button, isCtrlPressed, isAltPressed, isShiftPressed, isMetaPressed);
 		EventHooks.onEvent(handler, isDown ? EnumScriptType.KEY_DOWN : EnumScriptType.KEY_UP, event);
 	}
 
 	public static void onPlayerKills(PlayerScriptData handler, EntityLivingBase entityLiving) {
-		EventHooks.onEvent(handler, EnumScriptType.KILL,
-				new PlayerEvent.KilledEntityEvent(handler.getPlayer(), entityLiving));
+		EventHooks.onEvent(handler, EnumScriptType.KILL, new PlayerEvent.KilledEntityEvent(handler.getPlayer(), entityLiving));
 	}
 
 	public static void onPlayerLevelUp(PlayerScriptData handler, int change) {
@@ -587,13 +530,11 @@ public class EventHooks {
 	}
 
 	public static void onPlayerTimer(PlayerData data, int id) {
-		EventHooks.onEvent(data.scriptData, EnumScriptType.TIMER,
-				new PlayerEvent.TimerEvent(data.scriptData.getPlayer(), id));
+		EventHooks.onEvent(data.scriptData, EnumScriptType.TIMER, new PlayerEvent.TimerEvent(data.scriptData.getPlayer(), id));
 	}
 
 	public static boolean onPlayerToss(PlayerScriptData handler, EntityItem entityItem) {
-		return EventHooks.onEvent(handler, EnumScriptType.TOSS,
-				new PlayerEvent.TossEvent(handler.getPlayer(), Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(entityItem.getItem())));
+		return EventHooks.onEvent(handler, EnumScriptType.TOSS, new PlayerEvent.TossEvent(handler.getPlayer(), Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(entityItem.getItem())));
 	}
 
 	public static void onPotionInit(PotionScriptData handler) {
@@ -603,20 +544,17 @@ public class EventHooks {
 	public static void onProjectileImpact(EntityProjectile projectile, ProjectileEvent.ImpactEvent event) {
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
-				script.run(EnumScriptType.PROJECTILE_IMPACT.function, event,
-						!projectile.world.isRemote);
+				script.run(EnumScriptType.PROJECTILE_IMPACT.function, event, !projectile.world.isRemote);
 			}
 		}
 		WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 
 	public static void onProjectileTick(EntityProjectile projectile) {
-		ProjectileEvent.UpdateEvent event = new ProjectileEvent.UpdateEvent(
-				(IProjectile<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(projectile));
+		ProjectileEvent.UpdateEvent event = new ProjectileEvent.UpdateEvent((IProjectile<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(projectile));
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
-				script.run(EnumScriptType.PROJECTILE_TICK.function, event,
-						!projectile.world.isRemote);
+				script.run(EnumScriptType.PROJECTILE_TICK.function, event, !projectile.world.isRemote);
 			}
 		}
 		WrapperNpcAPI.EVENT_BUS.post(event);
@@ -631,132 +569,89 @@ public class EventHooks {
 	}
 
 	public static void onQuestFinished(PlayerScriptData handler, Quest quest) {
-		if (handler.isClient()) {
-			return;
-		}
-		EventHooks.onEvent(handler, EnumScriptType.QUEST_COMPLETED,
-				new QuestEvent.QuestCompletedEvent(handler.getPlayer(), quest));
+		if (handler.isClient()) { return; }
+		EventHooks.onEvent(handler, EnumScriptType.QUEST_COMPLETED,  new QuestEvent.QuestCompletedEvent(handler.getPlayer(), quest));
 	}
 
 	public static boolean onQuestStarted(PlayerScriptData handler, Quest quest) {
-		if (handler.isClient()) {
-			return false;
-		}
-		return EventHooks.onEvent(handler, EnumScriptType.QUEST_START,
-				new QuestEvent.QuestStartEvent(handler.getPlayer(), quest));
+		if (handler.isClient()) { return false; }
+		return EventHooks.onEvent(handler, EnumScriptType.QUEST_START,  new QuestEvent.QuestStartEvent(handler.getPlayer(), quest));
 	}
 
 	public static void onQuestTurnedIn(PlayerScriptData handler, QuestEvent.QuestTurnedInEvent event) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.QUEST_TURNING, event);
 	}
 
-	public static void onRecipesLoaded(IRecipeHandler handler) {
+	public static void onGlobalRecipesLoaded(IRecipeHandler handler) {
 		HandlerEvent.RecipesLoadedEvent event = new HandlerEvent.RecipesLoadedEvent(handler);
 		WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 
 	public static void onScriptBlockBreak(IScriptBlockHandler handler) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.BROKEN, new BlockEvent.BreakEvent(handler.getBlock()));
 	}
 
 	public static void onScriptBlockClicked(IScriptBlockHandler handler, EntityPlayer player) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.CLICKED, new BlockEvent.ClickedEvent(handler.getBlock(), player));
 	}
 
 	public static void onScriptBlockCollide(IScriptBlockHandler handler, Entity entityIn) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.COLLIDE, new BlockEvent.CollidedEvent(handler.getBlock(), entityIn));
 	}
 
 	public static boolean onScriptBlockDoorToggle(IScriptBlockHandler handler) {
-		if (handler.isClient()) {
-			return false;
-		}
-		return EventHooks.onEvent(handler, EnumScriptType.DOOR_TOGGLE,
-				new BlockEvent.DoorToggleEvent(handler.getBlock()));
+		if (handler.isClient()) { return false; }
+		return EventHooks.onEvent(handler, EnumScriptType.DOOR_TOGGLE, new BlockEvent.DoorToggleEvent(handler.getBlock()));
 	}
 
 	public static boolean onScriptBlockExploded(IScriptBlockHandler handler) {
-		if (handler.isClient()) {
-			return false;
-		}
+		if (handler.isClient()) { return false; }
 		return EventHooks.onEvent(handler, EnumScriptType.EXPLODED, new BlockEvent.ExplodedEvent(handler.getBlock()));
 	}
 
 	public static float onScriptBlockFallenUpon(IScriptBlockHandler handler, Entity entity, float distance) {
-		if (handler.isClient()) {
-			return distance;
-		}
-		BlockEvent.EntityFallenUponEvent event = new BlockEvent.EntityFallenUponEvent(handler.getBlock(), entity,
-				distance);
-		if (EventHooks.onEvent(handler, EnumScriptType.FALLEN_UPON, event)) {
-			return 0.0f;
-		}
+		if (handler.isClient()) { return distance; }
+		BlockEvent.EntityFallenUponEvent event = new BlockEvent.EntityFallenUponEvent(handler.getBlock(), entity, distance);
+		if (EventHooks.onEvent(handler, EnumScriptType.FALLEN_UPON, event)) { return 0.0f; }
 		return event.distanceFallen;
 	}
 
 	public static boolean onScriptBlockHarvest(IScriptBlockHandler handler, EntityPlayer player) {
-		if (handler.isClient()) {
-			return false;
-		}
-		return EventHooks.onEvent(handler, EnumScriptType.HARVESTED,
-				new BlockEvent.HarvestedEvent(handler.getBlock(), player));
+		if (handler.isClient()) { return false; }
+		return EventHooks.onEvent(handler, EnumScriptType.HARVESTED, new BlockEvent.HarvestedEvent(handler.getBlock(), player));
 	}
 
 	public static void onScriptBlockInit(IScriptBlockHandler handler) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.INIT, new BlockEvent.InitEvent(handler.getBlock()));
 	}
 
-	public static boolean onScriptBlockInteract(IScriptBlockHandler handler, EntityPlayer player, int side, float hitX,
-												float hitY, float hitZ) {
-		if (handler.isClient()) {
-			return false;
-		}
-		return EventHooks.onEvent(handler, EnumScriptType.INTERACT,
-				new BlockEvent.InteractEvent(handler.getBlock(), player, side, hitX, hitY, hitZ));
+	public static boolean onScriptBlockInteract(IScriptBlockHandler handler, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+		if (handler.isClient()) { return false; }
+		return EventHooks.onEvent(handler, EnumScriptType.INTERACT, new BlockEvent.InteractEvent(handler.getBlock(), player, side, hitX, hitY, hitZ));
 	}
 
 	public static void onScriptBlockNeighborChanged(IScriptBlockHandler handler, BlockPos changedPos) {
-		if (handler.isClient()) {
-			return;
-		}
-		EventHooks.onEvent(handler, EnumScriptType.NEIGHBOR_CHANGED,
-				new BlockEvent.NeighborChangedEvent(handler.getBlock(), new BlockPosWrapper(changedPos)));
+		if (handler.isClient()) { return; }
+		EventHooks.onEvent(handler, EnumScriptType.NEIGHBOR_CHANGED,  new BlockEvent.NeighborChangedEvent(handler.getBlock(), new BlockPosWrapper(changedPos)));
 	}
 
 	public static void onScriptBlockRainFill(IScriptBlockHandler handler) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.RAIN_FILLED, new BlockEvent.RainFillEvent(handler.getBlock()));
 	}
 
 	public static void onScriptBlockRedstonePower(IScriptBlockHandler handler, int prevPower, int power) {
-		if (handler.isClient()) {
-			return;
-		}
-		EventHooks.onEvent(handler, EnumScriptType.REDSTONE,
-				new BlockEvent.RedstoneEvent(handler.getBlock(), prevPower, power));
+		if (handler.isClient()) { return; }
+		EventHooks.onEvent(handler, EnumScriptType.REDSTONE, new BlockEvent.RedstoneEvent(handler.getBlock(), prevPower, power));
 	}
 
 	public static void onScriptBlockTimer(IScriptBlockHandler handler, int id) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.TIMER, new BlockEvent.TimerEvent(handler.getBlock(), id));
 	}
 
@@ -773,38 +668,27 @@ public class EventHooks {
 	}
 
 	public static void onScriptItemInit(ItemScriptedWrapper handler) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.INIT, new ItemEvent.InitEvent(handler));
 	}
 
 	public static boolean onScriptItemInteract(ItemScriptedWrapper handler, ItemEvent.InteractEvent event) {
-		if (handler.isClient()) {
-			return false;
-		}
 		return EventHooks.onEvent(handler, EnumScriptType.INTERACT, event);
 	}
 
 	public static void onScriptItemPickedUp(ItemScriptedWrapper handler, EntityPlayer player, EntityItem entity) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.PICKEDUP, new ItemEvent.PickedUpEvent(handler,
 				PlayerData.get(player).scriptData.getPlayer(), (IEntityItem<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity)));
 	}
 
 	public static boolean onScriptItemSpawn(ItemScriptedWrapper handler, EntityItem entity) {
-		if (handler.isClient()) {
-			return false;
-		}
+		if (handler.isClient()) { return false; }
 		return EventHooks.onEvent(handler, EnumScriptType.SPAWN, new ItemEvent.SpawnEvent(handler, (IEntityItem<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity)));
 	}
 
 	public static boolean onScriptItemTossed(ItemScriptedWrapper handler, EntityPlayer player, EntityItem entity) {
-		if (handler.isClient()) {
-			return false;
-		}
+		if (handler.isClient()) { return false; }
 		return EventHooks.onEvent(handler, EnumScriptType.TOSSED, new ItemEvent.TossedEvent(handler,
 				PlayerData.get(player).scriptData.getPlayer(), (IEntityItem<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity)));
 	}
@@ -837,11 +721,9 @@ public class EventHooks {
 		ScriptTriggerEvent event = new ScriptTriggerEvent(id, level, pos, entity, arguments);
 		if (event.entity != null && event.world != null && !(event.entity.getMCEntity() instanceof FakePlayer)) {
 			if (event.entity.getType() == 1) {
-				EventHooks.onEvent(PlayerData.get((EntityPlayer) event.entity.getMCEntity()).scriptData,
-						EnumScriptType.SCRIPT_TRIGGER, event);
+				EventHooks.onEvent(PlayerData.get((EntityPlayer) event.entity.getMCEntity()).scriptData, EnumScriptType.SCRIPT_TRIGGER, event);
 			} else if (event.entity.getType() == 2) {
-				EventHooks.onEvent(((EntityNPCInterface) event.entity.getMCEntity()).script,
-						EnumScriptType.SCRIPT_TRIGGER, event);
+				EventHooks.onEvent(((EntityNPCInterface) event.entity.getMCEntity()).script, EnumScriptType.SCRIPT_TRIGGER, event);
 			} else {
 				TileEntity tile = event.world.getMCWorld().getTileEntity(event.pos.getMCBlockPos());
 				if (tile instanceof IScriptBlockHandler) {

@@ -12,7 +12,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.DimensionManager;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
@@ -61,7 +60,7 @@ public class CmdScript extends CommandNoppesBase {
 	@SubCommand(desc = "List of available Forge event names")
 	public Boolean clientlist(MinecraftServer server, ICommandSender sender, String[] args) {
 		StringBuilder list = new StringBuilder();
-		List<String> g = new ArrayList<>(CustomNpcs.forgeClientEventNames.values());
+		List<String> g = new ArrayList<>(ScriptController.forgeClientEventNames.values());
 		Collections.sort(g);
 		for (String name : g) {
 			if (list.length() > 0) {
@@ -80,7 +79,7 @@ public class CmdScript extends CommandNoppesBase {
 	@SubCommand(desc = "List of available Forge event names")
 	public Boolean forgelist(MinecraftServer server, ICommandSender sender, String[] args) {
 		StringBuilder list = new StringBuilder();
-		List<String> g = new ArrayList<>(CustomNpcs.forgeEventNames.values());
+		List<String> g = new ArrayList<>(ScriptController.forgeEventNames.values());
 		Collections.sort(g);
 		for (String name : g) {
 			if (list.length() > 0) {
@@ -287,9 +286,9 @@ public class CmdScript extends CommandNoppesBase {
 		if (args.length == 2) {
             switch (args[0]) {
                 case "clientlist":
-                    return new ArrayList<>(CustomNpcs.forgeClientEventNames.values());
+                    return new ArrayList<>(ScriptController.forgeClientEventNames.values());
                 case "forgelist":
-                    return new ArrayList<>(CustomNpcs.forgeEventNames.values());
+                    return new ArrayList<>(ScriptController.forgeEventNames.values());
                 case "apilist":
                     for (EnumScriptType est : EnumScriptType.values()) { list.add(est.function); }
                     break;

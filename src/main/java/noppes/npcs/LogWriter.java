@@ -87,13 +87,13 @@ public class LogWriter {
 		LogWriter.logger.log(Level.WARNING, msg.toString());
 	}
 
-	public static void error(Object msg, Exception e) {
+	public static void error(Object msg, Throwable e) {
 		LogWriter.logger.log(Level.WARNING, msg.toString());
 		LogWriter.logger.log(Level.WARNING, e.getMessage(), e);
 		LogWriter.handler.flush();
 	}
 
-	public static void except(Exception e) {
+	public static void except(Throwable e) {
 		LogWriter.logger.log(Level.SEVERE, e.getMessage(), e);
 		LogWriter.handler.flush();
 	}

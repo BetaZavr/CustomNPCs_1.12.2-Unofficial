@@ -6,6 +6,8 @@ import noppes.npcs.api.wrapper.BlockPosWrapper;
 
 public class RayTraceVec implements IRayTraceVec {
 
+	public static RayTraceVec EMPTY = new RayTraceVec();
+
 	private double yaw = 0.0d;
 	private double distance = 0.0d;
 	private double x = 0.0d;

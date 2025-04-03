@@ -114,7 +114,7 @@ import noppes.npcs.util.DataDebug.Debug;
 
 @Mod(modid = CustomNpcs.MODID,
 		name = CustomNpcs.MODNAME,
-		version = "4.428",
+		version = "2.4",
 		acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2",
 		guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
 public class CustomNpcs {
@@ -277,8 +277,6 @@ public class CustomNpcs {
 	public static MarkovGenerator[] MARKOV_GENERATOR = new MarkovGenerator[10];
 	public static MinecraftServer Server;
 	public static DataDebug debugData = new DataDebug();
-	public static final Map<Class<?>, String> forgeEventNames = new HashMap<>();
-	public static final Map<Class<?>, String> forgeClientEventNames = new HashMap<>();
 	public static boolean FreezeNPCs = false;
 	public static boolean showServerQuestCompass = true;
 	public static File Dir;
@@ -330,10 +328,10 @@ public class CustomNpcs {
 			}
 		}
 
-		forgeClientEventNames.put(IsReadyEvent.class, "customPotionIsReady");
-		forgeClientEventNames.put(PerformEffect.class, "customPotionPerformEffect");
-		forgeClientEventNames.put(AffectEntity.class, "customPotionAffectEntity");
-		forgeClientEventNames.put(EndEffect.class, "customPotionEndEffect");
+		ScriptController.forgeClientEventNames.put(IsReadyEvent.class, "customPotionIsReady");
+		ScriptController.forgeClientEventNames.put(PerformEffect.class, "customPotionPerformEffect");
+		ScriptController.forgeClientEventNames.put(AffectEntity.class, "customPotionAffectEntity");
+		ScriptController.forgeClientEventNames.put(EndEffect.class, "customPotionEndEffect");
 
 		CustomNpcs.proxy.postload();
 		LogWriter.info("Mod loaded ^_^ Have a good game!");

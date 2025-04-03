@@ -260,28 +260,26 @@ extends GuiNpcTextField implements IGuiTextArea {
 
 	@Override
 	public boolean textboxKeyTyped(char c, int i) {
-		if (isFocused() && canEdit) {
-			String originalText = getFullText();
-			setFullText(originalText);
-			if (c == '\r' || c == '\n') {
-				setFullText(originalText.substring(0, cursorPosition) + c + originalText.substring(cursorPosition));
-			}
-			setCursorPositionZero();
-			moveCursorBy(cursorPosition);
-			boolean bo = super.textboxKeyTyped(c, i);
-			String newText = getFullText();
-			if (i != 211) {
-				cursorPosition += newText.length() - originalText.length();
-			}
-			if (i == 203 && cursorPosition > 0) {
-				--cursorPosition;
-			}
-			if (i == 205 && cursorPosition < newText.length()) {
-				++cursorPosition;
-			}
-			return bo;
+		if (!isFocused() || !canEdit) { return false; }
+		String originalText = getFullText();
+		setFullText(originalText);
+		if (c == '\r' || c == '\n') {
+			setFullText(originalText.substring(0, cursorPosition) + c + originalText.substring(cursorPosition));
 		}
-		return false;
+		setCursorPositionZero();
+		moveCursorBy(cursorPosition);
+		boolean bo = super.textboxKeyTyped(c, i);
+		String newText = getFullText();
+		if (i != 211) {
+			cursorPosition += newText.length() - originalText.length();
+		}
+		if (i == 203 && cursorPosition > 0) {
+			--cursorPosition;
+		}
+		if (i == 205 && cursorPosition < newText.length()) {
+			++cursorPosition;
+		}
+		return bo;
 	}
 
 	public void updateCursorCounter() {

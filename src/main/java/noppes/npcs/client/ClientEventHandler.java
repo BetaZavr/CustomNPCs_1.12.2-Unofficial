@@ -101,8 +101,7 @@ public class ClientEventHandler {
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientEventHandler_onOpenGUIEvent");
 		ClientEventHandler.subgui = null;
 		LogWriter.debug(((event.getGui() == null ? "Close GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
-		mc.getRenderPartialTicks();
-		
+
 		String newGUI = event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName();
 		if (event.getGui() instanceof GuiLog) {
 			switch(((GuiLog) event.getGui()).type) {

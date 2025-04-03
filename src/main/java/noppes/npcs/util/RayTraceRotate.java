@@ -6,6 +6,8 @@ import noppes.npcs.api.wrapper.BlockPosWrapper;
 
 public class RayTraceRotate implements IRayTraceRotate {
 
+	public static RayTraceRotate EMPTY = new RayTraceRotate();
+
 	private double yaw;
 	private double pitch;
 	private double radiusXZ;

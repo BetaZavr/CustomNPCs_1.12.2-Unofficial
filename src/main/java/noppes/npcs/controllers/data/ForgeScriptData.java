@@ -8,7 +8,6 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
-import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -25,7 +24,6 @@ extends BaseScriptData {
 	
 	@Override
 	public void runScript(String type, Event event) {
-		super.runScript(type, event);
 		if (!isEnabled()) { return; }
 		try {
 			CustomNpcs.Server.addScheduledTask(() -> {
@@ -44,7 +42,7 @@ extends BaseScriptData {
 
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		runScript(EnumScriptType.INIT.function, new ForgeEvent.InitEvent());
+		EventHooks.onForgeInit(this);
 	}
 
 }

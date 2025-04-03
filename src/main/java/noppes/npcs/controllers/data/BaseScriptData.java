@@ -7,7 +7,6 @@ import java.util.TreeMap;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -15,6 +14,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
@@ -70,9 +70,7 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public String getLanguage() {
-		return this.scriptLanguage;
-	}
+	public String getLanguage() { return scriptLanguage; }
 
 	@Override
 	public List<ScriptContainer> getScripts() {
@@ -86,7 +84,7 @@ implements IScriptHandler {
 	public boolean getEnabled() { return this.enabled; }
 
 	public boolean isEnabled() {
-		return this.enabled && ScriptController.HasStart && !this.scripts.isEmpty();
+		return CustomNpcs.EnableScripting && enabled && ScriptController.HasStart && !scripts.isEmpty();
 	}
 
 	@Override
@@ -189,8 +187,11 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public void setLanguage(String lang) {
-		this.scriptLanguage = Util.instance.deleteColor(lang);
+	public void setLanguage(String language) {
+		language = Util.instance.deleteColor(language);
+		if (ScriptController.Instance.languages.containsKey(language)) {
+			scriptLanguage = Util.instance.deleteColor(language);
+		}
 	}
 
 	@Override

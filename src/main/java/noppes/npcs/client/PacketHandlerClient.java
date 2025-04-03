@@ -1312,7 +1312,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					list.add(est.function);
 				}
 			} else {
-				list = new ArrayList<>(t == 0 ? CustomNpcs.forgeClientEventNames.values() : CustomNpcs.forgeEventNames.values());
+				list = new ArrayList<>(t == 0 ? ScriptController.forgeClientEventNames.values() : ScriptController.forgeEventNames.values());
 			}
 			names = names.substring(names.indexOf("" + ((char) 10)) + 2);
 			names = names.substring(0, names.indexOf(";"));

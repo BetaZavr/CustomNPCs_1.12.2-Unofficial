@@ -898,7 +898,7 @@ public class PlayerEventHandler {
 		ForgeEventHandler handler = new ForgeEventHandler();
 		LogWriter.info("CustomNpcs: Start load Forge Events:");
 		CustomNpcs.debugData.startDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
-		CustomNpcs.forgeEventNames.clear();
+		ScriptController.forgeEventNames.clear();
 		List<Class<?>> listClasses = new ArrayList<>();
 		try {
 			// Get Maim mod Method for All Events
@@ -976,7 +976,7 @@ public class PlayerEventHandler {
 						}
 						if ((side == Side.SERVER && isClient) || !canAdd || !Event.class.isAssignableFrom(c)
 								|| Modifier.isAbstract(c.getModifiers()) || !Modifier.isPublic(c.getModifiers())
-								|| CustomNpcs.forgeEventNames.containsKey(c)) {
+								|| ScriptController.forgeEventNames.containsKey(c)) {
 							continue;
 						}
 						// Put Name
@@ -986,14 +986,14 @@ public class PlayerEventHandler {
 						}
 						int i = eventName.lastIndexOf(".");
 						eventName = pfx + StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
-						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
+						if (ScriptController.forgeEventNames.containsValue(eventName)) { continue; }
 						if (!isClient) {
-							CustomNpcs.forgeEventNames.put(c, eventName);
-							CustomNpcs.forgeClientEventNames.put(c, eventName);
+							ScriptController.forgeEventNames.put(c, eventName);
+							ScriptController.forgeClientEventNames.put(c, eventName);
 							register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
 						}
 						else {
-							CustomNpcs.forgeClientEventNames.put(c, eventName);
+							ScriptController.forgeClientEventNames.put(c, eventName);
 							if (threadIsClient) { register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer()); }
 						}
 						LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event " +c.getName());
@@ -1015,46 +1015,23 @@ public class PlayerEventHandler {
 						if (c2.getName().startsWith("com.pixelmonmod.pixelmon.api.events")
 								&& Event.class.isAssignableFrom(c2) && !Modifier.isAbstract(c2.getModifiers())
 								&& Modifier.isPublic(c2.getModifiers())) {
-							if (CustomNpcs.forgeEventNames.containsKey(c2)) { continue; }
+							if (ScriptController.forgeEventNames.containsKey(c2)) { continue; }
 							// Put Name
 							String eventName = c2.getName();
 							int i = eventName.lastIndexOf(".");
 							eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
-							if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
+							if (ScriptController.forgeEventNames.containsValue(eventName)) { continue; }
 							// Add
 							register.invoke(PixelmonHelper.EVENT_BUS, c2, handler, m, Loader.instance().activeModContainer());
-							CustomNpcs.forgeEventNames.put(c2, eventName);
-							LogWriter.debug("Add Pixelmon Event[" + CustomNpcs.forgeEventNames.size() + "]; " + c2.getName());
+							ScriptController.forgeEventNames.put(c2, eventName);
+							LogWriter.debug("Add Pixelmon Event[" + ScriptController.forgeEventNames.size() + "]; " + c2.getName());
 						}
 					}
 				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size() + "; Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
+		LogWriter.info("CustomNpcs: Registered [Client:" + ScriptController.forgeClientEventNames.size() + "; Server: " + ScriptController.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
 		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		return this;
 	}
-
-	@SubscribeEvent
-	public void npcLivingJumpEvent(net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent event) {
-		if (!(event.getEntityLiving() instanceof EntityPlayer)) {
-			return;
-		}
-		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-		noppes.npcs.util.CustomNPCsScheduler.runTack(() -> {
-			if (player instanceof EntityPlayerMP) {
-				try {
-
-				}
-				catch (Exception e) { LogWriter.error("Error:", e); }
-			}
-			else {
-				try {
-
-				}
-				catch (Exception e) { LogWriter.error("Error:", e); }
-			}
-		});
-	}
-
 }

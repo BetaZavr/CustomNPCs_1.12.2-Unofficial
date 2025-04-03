@@ -283,7 +283,6 @@ implements IComponentGui, IGuiNpcTextField {
 				return false;
 			}
 		}
-		if (GuiScreen.isCtrlKeyDown() && !super.textboxKeyTyped(typedChar, keyCode)) { return false; }
 		if (latinAlphabetOnly && typedChar == ' ') { typedChar = '_'; }
 		return charAllowed(typedChar, keyCode) && canEdit && super.textboxKeyTyped(typedChar, keyCode);
 	}

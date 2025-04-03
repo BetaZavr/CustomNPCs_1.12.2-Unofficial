@@ -88,7 +88,7 @@ extends BaseScriptData {
 
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		runScript(EnumScriptType.INIT.function, new NpcEvent.InitEvent(null));
+		EventHooks.onNPCsInit(this);
 	}
 
 }

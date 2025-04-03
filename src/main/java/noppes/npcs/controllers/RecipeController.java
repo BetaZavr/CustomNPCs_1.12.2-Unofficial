@@ -229,7 +229,7 @@ public class RecipeController implements IRecipeHandler {
 		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.startDebug("Common", null, "loadRecipes"); }
 		LogWriter.info("Loading Recipes");
 		this.loadFile();
-		EventHooks.onRecipesLoaded(this);
+		EventHooks.onGlobalRecipesLoaded(this);
 		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.endDebug("Common", null, "loadRecipes"); }
 	}
 

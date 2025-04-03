@@ -34,6 +34,7 @@ public class SyncController {
 	public static final Map<Integer, BuilderData> dataBuilder = new HashMap<>();
 	
 	// SYNC_ADD or SYNC_END
+	@SuppressWarnings("unchecked")
 	public static void add(EnumSync synctype, NBTTagCompound compound, boolean syncEnd, EntityPlayer player) {
 		switch (synctype) {
 		case FactionsData: {
@@ -124,7 +125,7 @@ public class SyncController {
             System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
 			vs = compound.getIntArray("CostSendingLetter");
             System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
-			CustomNpcs.forgeEventNames.clear();
+			ScriptController.forgeEventNames.clear();
 			for (int i = 0; i < compound.getTagList("ForgeEventNames", 10).tagCount(); i++) {
 				NBTTagCompound nbt = compound.getTagList("ForgeEventNames", 10).getCompoundTagAt(i);
 				String name = nbt.getString("Name");
@@ -133,7 +134,7 @@ public class SyncController {
 					cls = Class.forName(nbt.getString("Class"));
 				}
 				catch (Exception e) { LogWriter.error("Error:", e); }
-				CustomNpcs.forgeEventNames.put(cls, name);
+				ScriptController.forgeEventNames.put(cls, name);
 			}
 			break;
 		}
@@ -303,9 +304,9 @@ public class SyncController {
 		compound.setBoolean("SendToYourself", CustomNpcs.MailSendToYourself);
 
 		list = new NBTTagList();
-		for (Class<?> cls : CustomNpcs.forgeEventNames.keySet()) {
+		for (Class<?> cls : ScriptController.forgeEventNames.keySet()) {
 			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setString("Name", CustomNpcs.forgeEventNames.get(cls));
+			nbt.setString("Name", ScriptController.forgeEventNames.get(cls));
 			nbt.setString("Class", cls.getName());
 			list.appendTag(nbt);
 		}

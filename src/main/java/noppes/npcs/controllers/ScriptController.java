@@ -48,6 +48,8 @@ import noppes.npcs.util.TempFile;
 
 public class ScriptController {
 
+	public static final Map<Class<?>, String> forgeEventNames = new HashMap<>();
+	public static final Map<Class<?>, String> forgeClientEventNames = new HashMap<>();
 	private static final boolean isClient = Thread.currentThread().getName().toLowerCase().contains("client");
 	public static boolean HasStart = false;
 	public static ScriptController Instance;
