@@ -178,22 +178,16 @@ public class ClientProxy extends CommonProxy {
 
 	public static class FontContainer {
 		private TrueTypeFont textFont;
-		public boolean useCustomFont;
+		public boolean useCustomFont = true;
 
-		private FontContainer() {
-			this.textFont = null;
-			this.useCustomFont = true;
-		}
+		private FontContainer() { }
 
 		public FontContainer(String fontType, int fontSize) {
-			this.textFont = null;
-			this.useCustomFont = true;
-			this.textFont = new TrueTypeFont(new Font(fontType, java.awt.Font.PLAIN, fontSize), 1.0f);
-			this.useCustomFont = !fontType.equalsIgnoreCase("minecraft");
+			textFont = new TrueTypeFont(new Font(fontType, java.awt.Font.PLAIN, fontSize), 1.0f);
+			useCustomFont = !fontType.equalsIgnoreCase("minecraft");
 			try {
-				if (!this.useCustomFont || fontType.isEmpty() || fontType.equalsIgnoreCase("default")) {
-					this.textFont = new TrueTypeFont(new ResourceLocation(CustomNpcs.MODID, "opensans.ttf"), fontSize,
-							1.0f);
+				if (!useCustomFont || fontType.isEmpty() || fontType.equalsIgnoreCase("default")) {
+					textFont = new TrueTypeFont(new ResourceLocation(CustomNpcs.MODID, "fonts/jetbrainsmono.ttf"), fontSize, 1.0f);
 				}
 			} catch (Exception e) {
 				LogWriter.info("Failed loading font so using Arial");
@@ -201,51 +195,36 @@ public class ClientProxy extends CommonProxy {
 		}
 
 		public void clear() {
-			if (this.textFont != null) {
-				this.textFont.dispose();
-			}
+			if (textFont != null) { textFont.dispose(); }
 		}
 
 		public FontContainer copy() {
 			FontContainer font = new FontContainer();
-			font.textFont = this.textFont;
-			font.useCustomFont = this.useCustomFont;
+			font.textFont = textFont;
+			font.useCustomFont = useCustomFont;
 			return font;
 		}
 
 		public void drawString(String text, int x, int y, int color) {
-			if (this.useCustomFont) {
-				this.textFont.draw(text, x, y, color);
-			} else {
-				Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(text, x, y, color);
-			}
+			if (useCustomFont && textFont.hasFont()) { textFont.draw(text, x, y, color); }
+			else { Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(text, x, y, color); }
 		}
 
 		public String getName() {
-			if (!this.useCustomFont) {
-				return "Minecraft";
-			}
-			return this.textFont.getFontName();
+			if (!useCustomFont) { return "Minecraft"; }
+			return textFont.getFontName();
 		}
 
 		public int height(String text) {
-			if (this.useCustomFont) {
-				return this.textFont.height(text);
-			}
+			if (useCustomFont) { return textFont.height(text); }
 			return Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT;
 		}
 
 		public int width(String text) {
-			if (this.useCustomFont) {
-				return this.textFont.width(text);
-			}
+			if (useCustomFont) { return textFont.width(text); }
 			return Minecraft.getMinecraft().fontRenderer.getStringWidth(text);
 		}
 	}
-	public static KeyBinding frontButton = Minecraft.getMinecraft().gameSettings.keyBindForward; // w
-	public static KeyBinding leftButton = Minecraft.getMinecraft().gameSettings.keyBindLeft; // a
-	public static KeyBinding backButton = Minecraft.getMinecraft().gameSettings.keyBindBack; // s
-	public static KeyBinding rightButton = Minecraft.getMinecraft().gameSettings.keyBindRight; // d
 
 	public static KeyBinding QuestLog = new KeyBinding("key.quest.log", 38, "key.categories.gameplay"), Scene1, Scene2, Scene3, SceneReset;
 	public static FontContainer Font;
@@ -1265,24 +1244,22 @@ public class ClientProxy extends CommonProxy {
 			return;
 		}
 		File sounds = new File(dir, "sounds");
-		if (!sounds.exists() && !sounds.mkdirs()) {
-			LogWriter.error("Failed to create directory " + sounds.getAbsolutePath());
-		}
+		if (!sounds.exists() && !sounds.mkdirs()) { LogWriter.error("Failed to create directory " + sounds.getAbsolutePath()); }
+
 		File json = new File(dir, "sounds.json");
 		if (!json.exists()) {
 			try {
-				if (!json.createNewFile()) {
-					LogWriter.error("Failed to create file " + json.getAbsolutePath());
-				}
+				if (!json.createNewFile()) { LogWriter.error("Failed to create file " + json.getAbsolutePath()); }
 				BufferedWriter writer = new BufferedWriter(new FileWriter(json));
 				writer.write("{\n\n}");
 				writer.close();
 			} catch (IOException e) { LogWriter.error("Error:", e); }
 		}
 		File textures = new File(dir, "textures");
-		if (!textures.exists()) {
-			LogWriter.error("Failed to create directory " + textures.getAbsolutePath());
-		}
+		if (!textures.exists() && !textures.mkdirs()) { LogWriter.error("Failed to create directory " + textures.getAbsolutePath()); }
+
+		File fonts = new File(dir, "fonts");
+		if (!fonts.exists() && !fonts.mkdir()) { LogWriter.error("Failed to create directory " + fonts.getAbsolutePath()); }
 	}
 
 	@Override
@@ -1747,7 +1724,8 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void preload() {
 		ClientProxy.Font = new FontContainer(CustomNpcs.FontType, CustomNpcs.FontSize);
-		this.createFolders();
+		createFolders();
+
 		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(new CustomNpcResourceListener());
 		CustomNpcs.Channel.register(new PacketHandlerClient());
 		CustomNpcs.ChannelPlayer.register(new PacketHandlerPlayer());

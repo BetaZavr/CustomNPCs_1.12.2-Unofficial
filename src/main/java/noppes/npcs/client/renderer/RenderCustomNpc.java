@@ -99,10 +99,10 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 	@SuppressWarnings("unchecked")
 	@Override
 	public void doRender(@Nonnull T npc, double d, double d1, double d2, float f, float partialTicks) {
-		this.partialTicks = partialTicks;
-		this.entity = npc.modelData.getEntity(npc);
-		if (this.entity != null) {
-			Render<?> render = this.renderManager.getEntityRenderObject(this.entity);
+		partialTicks = partialTicks;
+		entity = npc.modelData.getEntity(npc);
+		if (entity != null) {
+			Render<?> render = renderManager.getEntityRenderObject(this.entity);
 			if (render instanceof RenderLivingBase) {
 				this.renderEntity = (RenderLivingBase<EntityLivingBase>) render;
 			} else {
@@ -110,16 +110,16 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 				this.entity = null;
 			}
 		} else {
-			this.renderEntity = null;
-			List<LayerRenderer<T>> list = this.layerRenderers;
+			renderEntity = null;
+			List<LayerRenderer<T>> list = layerRenderers;
 			for (LayerRenderer<T> layer : list) {
 				if (layer instanceof LayerPreRender) {
 					((LayerPreRender)layer).preRender(npc);
 				}
 			}
 		}
-		this.npcmodel.rightArmPose = this.getPose(npc, npc.getHeldItemMainhand());
-		this.npcmodel.leftArmPose = this.getPose(npc, npc.getHeldItemOffhand());
+		npcmodel.rightArmPose = getPose(npc, npc.getHeldItemMainhand());
+		npcmodel.leftArmPose = getPose(npc, npc.getHeldItemOffhand());
 		super.doRender(npc, d, d1, d2, f, partialTicks);
 	}
 

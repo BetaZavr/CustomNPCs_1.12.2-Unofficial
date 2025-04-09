@@ -135,8 +135,8 @@ implements ITextfieldListener {
 		textField.setHoverText(new TextComponentTranslation("quest.hover.compass.reg", task.regionID).appendSibling(compass).getFormattedText());
 		addTextField(textField);
 		// N
-		addLabel(new GuiNpcLabel(lId, "N:", x + 71, y + 2));
-		textField = new GuiNpcTextField(15, this, fontRenderer, x + 79, y, 165, 14, task.entityName);
+		addLabel(new GuiNpcLabel(lId, "N:", x + 81, y + 2));
+		textField = new GuiNpcTextField(15, this, fontRenderer, x + 89, y, 155, 14, task.entityName);
 		textField.setHoverText(new TextComponentTranslation("quest.hover.compass.entity").appendSibling(compass).getFormattedText());
 		addTextField(textField);
 		// set player pos

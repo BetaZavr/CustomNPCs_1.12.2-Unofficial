@@ -22,7 +22,6 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.controllers.ClientCloneController;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
@@ -172,7 +171,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
-		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode() || i == ClientProxy.backButton.getKeyCode()) {
+		if (i == 200 || i == 208 || i == mc.gameSettings.keyBindForward.getKeyCode() || i == mc.gameSettings.keyBindBack.getKeyCode()) {
 			resetEntity();
 		}
 	}

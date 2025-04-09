@@ -102,7 +102,7 @@ public class Util implements IMethods {
 	private static final Gson gson = new Gson();
 
 	public static final Util instance = new Util();
-	public static boolean hasInternet = true;
+	public static boolean hasInternet = false;
 	public static final ResourceLocation RECIPE_BOOK = new ResourceLocation("textures/gui/recipe_book.png");
 
 	public boolean canAddItemAfterRemoveItems(NonNullList<ItemStack> inventory, ItemStack addStack, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
@@ -1235,7 +1235,7 @@ public class Util implements IMethods {
 	@Override
 	public boolean saveFile(File file, NBTTagCompound compound) {
 		if (compound == null) { return false; }
-		return this.saveFile(file, NBTJsonUtil.Convert(compound));
+		return saveFile(file, NBTJsonUtil.Convert(compound));
 	}
 
 	@Override
@@ -1866,7 +1866,8 @@ public class Util implements IMethods {
 		try {
 			URLConnection connection = new URL("https://translate.google.com/translate_a/single?client=gtx&sl=" + textLanguageKey + "&tl=" + translationLanguageKey + "&dt=t&q=" + URLEncoder.encode(originalText, "UTF-8")).openConnection();
 			// Sending a GET request instead of POST
-			connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36");
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			connection.setRequestProperty("User-Agent", "Chrome/99.0.4844.51");
 			connection.setConnectTimeout(10000);
 			connection.setReadTimeout(10000);
 			// Read returned

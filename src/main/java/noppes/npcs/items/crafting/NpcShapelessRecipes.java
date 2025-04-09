@@ -422,9 +422,9 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	}
 
 	public boolean matches(@Nonnull InventoryCrafting inv, @Nullable World worldIn) {
-		if (recipeItems.isEmpty() || (!global && (inv.getWidth() != 4) || (inv.getHeight() != 4))) {
-			return false;
-		}
+		if (recipeItems.isEmpty()) { return false; }
+		if (global && inv.getHeight() < 3 && inv.getHeight() < 3) { return false; }
+		if (!global && inv.getWidth() == 4 && inv.getHeight() == 4) { return false; }
 		List<Ingredient> ings = new ArrayList<>();
 		for (Ingredient ingredient : recipeItems) {
 			if (ingredient.getMatchingStacks().length == 0) { continue; }

@@ -560,8 +560,8 @@ implements ICustomScrollListener, IGuiData {
 	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
-		if (i == 200 || i == ClientProxy.frontButton.getKeyCode() || i == 208 || i == ClientProxy.backButton.getKeyCode()) {
-			int pos = scroll.getSelect() + ((i == 200 || i == ClientProxy.frontButton.getKeyCode()) ? -1 : 1);
+		if (i == 200 || i == mc.gameSettings.keyBindForward.getKeyCode() || i == 208 || i == mc.gameSettings.keyBindBack.getKeyCode()) {
+			int pos = scroll.getSelect() + ((i == 200 || i == mc.gameSettings.keyBindForward.getKeyCode()) ? -1 : 1);
 			if (pos < 0 || pos >= scroll.getList().size()) { return; }
 			String sel = scroll.getList().get(pos);
 			if (!data.containsKey(sel)) { return; }

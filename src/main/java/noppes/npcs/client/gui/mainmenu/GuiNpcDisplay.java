@@ -19,6 +19,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataDisplay;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 
 public class GuiNpcDisplay
 extends GuiNPCInterface2
@@ -26,14 +27,18 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 
 	private final DataDisplay display;
 	private boolean enableInvisibleNpcs;
-	private float baseHitBoxWidth, baseHitBoxHeight;
+	private float baseHitBoxWidth;
+	private float baseHitBoxHeight;
+	private float hitBoxWidth;
+	private float hitBoxHeight;
+	private final DecimalFormat df = new DecimalFormat("#.#");
 	
 	public GuiNpcDisplay(EntityNPCInterface npc) {
 		super(npc, 1);
 		this.display = npc.display;
 		Client.sendData(EnumPacketServer.MainmenuDisplayGet);
 		
-		this.baseHitBoxWidth = 0.8f;
+		this.baseHitBoxWidth = npc.baseWidth;
 		this.baseHitBoxHeight = npc.baseHeight;
 
 		if (npc instanceof EntityCustomNpc && this.display.getModel() != null) {
@@ -95,11 +100,7 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 				break;
 			}
 			case 13: {
-				this.display.setHasHitbox(button.getValue() != 1);
-				this.getLabel(20).setEnabled(button.getValue() == 2);
-				this.getLabel(21).setEnabled(button.getValue() == 2);
-				this.getTextField(12).setIsVisible(button.getValue() == 2);
-				this.getTextField(13).setIsVisible(button.getValue() == 2);
+				display.setHitboxState((byte) button.getValue());
 				break;
 			}
 			case 14: {
@@ -215,17 +216,15 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 		addButton(button);
 		this.getButton(16).setEnabled(this.enableInvisibleNpcs && this.display.getVisible() == 1);
 		this.addLabel(new GuiNpcLabel(lID++, "display.interactable", this.guiLeft + 180, y + 5));
-		
-		int hb = this.display.getHasHitbox() ? 0 : 1;
-		if (this.display.getHasHitbox() && this.display.width != 0.0f && this.display.height != 0.0f) { hb = 2; }
+
 		int x = this.guiLeft + 240;
-		button = new GuiNpcButton(13, x, y, 50, 20, new String[] { "gui.yes", "gui.no", "gui.set"}, hb);
+		button = new GuiNpcButton(13, x, y, 50, 20, new String[] { "gui.yes", "gui.no", "gui.solid"}, display.getHitboxState());
 		button.setHoverText("display.hover.interactable");
 		addButton(button);
 
 		this.addLabel(new GuiNpcLabel(20, "W:", x += 54, y + 5));
-		textField = new GuiNpcTextField(12, this, this.fontRenderer, x += 8, y + 1, 50, 18, "" + this.display.width);
-		float w = this.npc.width;
+		textField = new GuiNpcTextField(12, this, this.fontRenderer, x += 8, y + 1, 50, 18, df.format(display.width));
+		hitBoxWidth = this.npc.width;
 		if (this.npc instanceof EntityCustomNpc) {
 			float scaleHead = 1.0f, scaleBody = 1.0f;
 			if (this.display.getModel() != null) {
@@ -234,28 +233,24 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 				scaleHead = Math.max(model.scale[0], model.scale[2]);
 				model = modeldata.getPartConfig(EnumParts.BODY);
 				scaleBody = Math.max(model.scale[0], model.scale[2]);
-				w = modeldata.entity.width;
+				hitBoxWidth = modeldata.entity.width;
 			}
-			w *= Math.max(scaleHead, scaleBody);
-			w = w / 5.0f * this.display.getSize();
+			hitBoxWidth *= Math.max(scaleHead, scaleBody);
+			hitBoxWidth = hitBoxWidth / 5.0f * this.display.getSize();
 		}
-		textField.setVisible(hb == 2);
-		textField.setMinMaxDoubleDefault(0.0, 7.5, this.display.width);
-		textField.setHoverText("display.hover.hitbox.width", ("" + Math.round(this.baseHitBoxWidth * 1000.0) / 1000.0).replace(".", ","), ("" + Math.round(w * 1000.0) / 1000.0).replace(".", ","));
+		textField.setMinMaxDoubleDefault(-1.0, 7.5, this.display.width);
+		textField.setHoverText("display.hover.hitbox.width", ("" + Math.round(this.baseHitBoxWidth * 1000.0) / 1000.0).replace(".", ","), ("" + Math.round(hitBoxWidth * 1000.0) / 1000.0).replace(".", ","));
 		addTextField(textField);
 		this.addLabel(new GuiNpcLabel(21, "H:", x += 54, y + 5));
-		textField = new GuiNpcTextField(13, this, this.fontRenderer, x + 8, y + 1, 50, 18, "" + this.display.height);
-		float h = this.npc.height;
+		textField = new GuiNpcTextField(13, this, this.fontRenderer, x + 8, y + 1, 50, 18, df.format(display.height));
+		hitBoxHeight = this.npc.height;
 		if (this.npc instanceof EntityCustomNpc) {
-			if (this.display.getModel() != null) { h = ((EntityCustomNpc) npc).modelData.entity.height; }
-			h = h / 5.0f * this.display.getSize();
+			if (this.display.getModel() != null) { hitBoxHeight = ((EntityCustomNpc) npc).modelData.entity.height; }
+			hitBoxHeight = hitBoxHeight / 5.0f * this.display.getSize();
 		}
-		textField.setVisible(hb == 2);
-		textField.setMinMaxDoubleDefault(0.0, 15.0, this.display.height);
-		textField.setHoverText(new TextComponentTranslation("display.hover.hitbox.height", ("" + Math.round(this.baseHitBoxHeight * 1000.0) / 1000.0).replace(".", ","), ("" + Math.round(h * 1000.0) / 1000.0).replace(".", ",")).getFormattedText());
+		textField.setMinMaxDoubleDefault(-1.0, 15.0, display.height);
+		textField.setHoverText(new TextComponentTranslation("display.hover.hitbox.height", ("" + Math.round(this.baseHitBoxHeight * 1000.0) / 1000.0).replace(".", ","), ("" + Math.round(hitBoxHeight * 1000.0) / 1000.0).replace(".", ",")).getFormattedText());
 		addTextField(textField);
-		this.getLabel(20).setEnabled(hb == 2);
-		this.getLabel(21).setEnabled(hb == 2);
 				
 		y += 23;
 		this.addLabel(new GuiNpcLabel(lID++, "display.bossbar", this.guiLeft + 5, y + 5));
@@ -312,8 +307,18 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 			case 8: display.setCapeTexture(textfield.getFullText()); break;
 			case 9: display.setOverlayTexture(textfield.getFullText()); break;
 			case 11: display.setTitle(textfield.getFullText()); break;
-			case 12: display.width = (float) textfield.getDouble(); break;
-			case 13: display.height = (float) textfield.getDouble(); break;
+			case 12: {
+				float f = (float) textfield.getDouble();
+				display.width = f < 0.0f ? baseHitBoxWidth : f;
+				if (f < 0.0f) { textfield.setFullText(df.format(display.width)); }
+				break;
+			}
+			case 13: {
+				float f = (float) textfield.getDouble();
+				display.height = f < 0.0f ? baseHitBoxHeight : f;
+				if (f < 0.0f) { textfield.setFullText(df.format(display.height)); }
+				break;
+			}
 		}
 	}
 

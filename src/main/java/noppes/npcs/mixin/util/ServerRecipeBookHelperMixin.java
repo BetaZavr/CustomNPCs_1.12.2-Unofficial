@@ -67,24 +67,24 @@ public class ServerRecipeBookHelperMixin {
     public void npcs$processCraftRecipe(EntityPlayerMP playerMP, @Nullable IRecipe iRecipe, boolean shiftPressed, CallbackInfo ci) {
         ci.cancel();
         if (iRecipe == null || !playerMP.getRecipeBook().isUnlocked(iRecipe)) { return; }
-        this.player = playerMP;
-        this.recipe = iRecipe;
-        this.isShiftPressed = shiftPressed;
-        this.slots = playerMP.openContainer.inventorySlots;
+        player = playerMP;
+        recipe = iRecipe;
+        isShiftPressed = shiftPressed;
+        slots = playerMP.openContainer.inventorySlots;
         Container container = playerMP.openContainer;
-        this.invCraftResult = null;
-        this.invCrafting = null;
+        invCraftResult = null;
+        invCrafting = null;
         if (container instanceof ContainerWorkbench) {
-            this.invCraftResult = ((ContainerWorkbench)container).craftResult;
-            this.invCrafting = ((ContainerWorkbench)container).craftMatrix;
+            invCraftResult = ((ContainerWorkbench)container).craftResult;
+            invCrafting = ((ContainerWorkbench)container).craftMatrix;
         }
         else if (container instanceof ContainerPlayer) {
-            this.invCraftResult = ((ContainerPlayer)container).craftResult;
-            this.invCrafting = ((ContainerPlayer)container).craftMatrix;
+            invCraftResult = ((ContainerPlayer)container).craftResult;
+            invCrafting = ((ContainerPlayer)container).craftMatrix;
         }
         else if (container instanceof IRecipeContainer) {
-            this.invCraftResult = ((IRecipeContainer)container).getCraftResult();
-            this.invCrafting = ((IRecipeContainer)container).getCraftMatrix();
+            invCraftResult = ((IRecipeContainer)container).getCraftResult();
+            invCrafting = ((IRecipeContainer)container).getCraftMatrix();
         }
         boolean isAvailability = true;
         if (recipe instanceof INpcRecipe) {
@@ -93,14 +93,14 @@ public class ServerRecipeBookHelperMixin {
             Availability availability = (Availability) ((INpcRecipe) recipe).getAvailability();
             isAvailability = availability.isAvailable(player);
         }
-        if (this.invCraftResult == null && this.invCrafting == null || !(npcs$canPlaceStacks() || playerMP.isCreative())) { return; }
-        this.recipeItemHelper.clear();
-        playerMP.inventory.fillStackedContents(this.recipeItemHelper, false);
-        this.invCrafting.fillStackedContents(this.recipeItemHelper);
+        if (invCraftResult == null && invCrafting == null || !(npcs$canPlaceStacks() || playerMP.isCreative())) { return; }
+        recipeItemHelper.clear();
+        playerMP.inventory.fillStackedContents(recipeItemHelper, false);
+        invCrafting.fillStackedContents(recipeItemHelper);
 
-        if (isAvailability && this.recipeItemHelper.canCraft(iRecipe, null)) { this.npcs$placeRecipeInCraftingGrid(); }
+        if (isAvailability && recipeItemHelper.canCraft(iRecipe, null)) { npcs$placeRecipeInCraftingGrid(); }
         else {
-            this.npcs$clearInventoryCrafting();
+            npcs$clearInventoryCrafting();
             playerMP.connection.sendPacket(new SPacketPlaceGhostRecipe(playerMP.openContainer.windowId, iRecipe));
         }
         playerMP.inventory.markDirty();
@@ -109,9 +109,9 @@ public class ServerRecipeBookHelperMixin {
     // parent: func_194326_a()
     @Unique
     private void npcs$clearInventoryCrafting() {
-        InventoryPlayer inventoryplayer = this.player.inventory;
-        for (int i = 0; i < this.invCrafting.getSizeInventory(); ++i) {
-            ItemStack itemstack = this.invCrafting.getStackInSlot(i);
+        InventoryPlayer inventoryplayer = player.inventory;
+        for (int i = 0; i < invCrafting.getSizeInventory(); ++i) {
+            ItemStack itemstack = invCrafting.getStackInSlot(i);
             if (itemstack.isEmpty()) { continue; }
             // return item to player 1 piece at a time
             while (itemstack.getCount() > 0) {
@@ -120,11 +120,11 @@ public class ServerRecipeBookHelperMixin {
                 ItemStack itemstack1 = itemstack.copy();
                 itemstack1.setCount(1);
                 inventoryplayer.add(slotID, itemstack1);
-                this.invCrafting.decrStackSize(i, 1);
+                invCrafting.decrStackSize(i, 1);
             }
         }
-        this.invCrafting.clear();
-        this.invCraftResult.clear();
+        invCrafting.clear();
+        invCraftResult.clear();
     }
 
     // parent: func_194326_a()
@@ -132,7 +132,7 @@ public class ServerRecipeBookHelperMixin {
     public void npcs$placeRecipeInCraftingGrid() {
         boolean isMatches = recipe.matches(invCrafting, player.world);
         /*
-         * int craftableStacks = this.recipeItemHelper.getBiggestCraftableStack(this.recipe, null); // -> RecipePicker(recipe).tryPickAll()
+         * int craftableStacks = recipeItemHelper.getBiggestCraftableStack(recipe, null); // -> RecipePicker(recipe).tryPickAll()
          *
          * this method should return the maximum number of crafts relative to items in the player's inventory,
          * but for some reason it doesn't take into account the amount of ingredient in the slot
@@ -142,15 +142,15 @@ public class ServerRecipeBookHelperMixin {
         if (isMatches) {
             // have all items in crafting grid
             boolean flag = true;
-            for (int i = 0; i < this.invCrafting.getSizeInventory(); ++i) {
-                ItemStack itemstack = this.invCrafting.getStackInSlot(i);
+            for (int i = 0; i < invCrafting.getSizeInventory(); ++i) {
+                ItemStack itemstack = invCrafting.getStackInSlot(i);
                 if (!itemstack.isEmpty() && Math.min(maxCraftableStacks, itemstack.getMaxStackSize()) > itemstack.getCount()) {
                     flag = false;
                 }
             }
             if (flag) { return; }
         }
-        int minCraftableStacks = this.npcs$getSmallestCraftableStack(maxCraftableStacks, isMatches);
+        int minCraftableStacks = npcs$getSmallestCraftableStack(maxCraftableStacks, isMatches);
         IntList listOfItemIDs = new IntArrayList();
         if (!recipeItemHelper.canCraft(recipe, listOfItemIDs, minCraftableStacks)) { return; }
         int craftableCount = minCraftableStacks;
@@ -160,9 +160,9 @@ public class ServerRecipeBookHelperMixin {
                 craftableCount = maxStack;
             }
         }
-        if (this.recipeItemHelper.canCraft(this.recipe, listOfItemIDs, craftableCount)) {
-            this.npcs$clearInventoryCrafting();
-            this.npcs$fillCraftingGrid(craftableCount, listOfItemIDs);
+        if (recipeItemHelper.canCraft(recipe, listOfItemIDs, craftableCount)) {
+            npcs$clearInventoryCrafting();
+            npcs$fillCraftingGrid(craftableCount, listOfItemIDs);
         }
     }
 
@@ -170,11 +170,11 @@ public class ServerRecipeBookHelperMixin {
     @Unique
     private int npcs$getSmallestCraftableStack(int maximum, boolean isMatches) {
         int amount = 1;
-        if (this.isShiftPressed) { return maximum; }
+        if (isShiftPressed) { return maximum; }
         if (isMatches) {
             amount = 64;
-            for (int i = 0; i < this.invCrafting.getSizeInventory(); ++i) {
-                ItemStack itemstack = this.invCrafting.getStackInSlot(i);
+            for (int i = 0; i < invCrafting.getSizeInventory(); ++i) {
+                ItemStack itemstack = invCrafting.getStackInSlot(i);
                 if (!itemstack.isEmpty() && amount > itemstack.getCount()) { amount = itemstack.getCount(); }
             }
             if (amount < 64) { ++amount; }
@@ -185,10 +185,10 @@ public class ServerRecipeBookHelperMixin {
     // parent: func_194323_a(int p_194323_1_, IntList p_194323_2_)
     @Unique
     private void npcs$fillCraftingGrid(int craftableCount, IntList listOfItemIDs) {
-        int width = this.invCrafting.getWidth();
-        int height = this.invCrafting.getHeight();
-        if (this.recipe instanceof IShapedRecipe) {
-            IShapedRecipe shapedrecipes = (IShapedRecipe) this.recipe;
+        int width = invCrafting.getWidth();
+        int height = invCrafting.getHeight();
+        if (recipe instanceof IShapedRecipe) {
+            IShapedRecipe shapedrecipes = (IShapedRecipe) recipe;
             width = shapedrecipes.getRecipeWidth();
             height = shapedrecipes.getRecipeHeight();
         }
@@ -198,10 +198,10 @@ public class ServerRecipeBookHelperMixin {
         for (int k = 0; k < invCrafting.getWidth() && height != k; ++k) {
             for (int l = 0; l < invCrafting.getHeight(); ++l) {
                 if (width == l || !iterator.hasNext()) {
-                    slotID += this.invCrafting.getWidth() - l;
+                    slotID += invCrafting.getWidth() - l;
                     break;
                 }
-                Slot slot = this.slots.get(slotID);
+                Slot slot = slots.get(slotID);
                 ItemStack itemstack = NPCRecipeItemHelper.unpack(iterator.next());
                 if (!itemstack.isEmpty()) {
                     int count = 1;
@@ -216,7 +216,7 @@ public class ServerRecipeBookHelperMixin {
                         }
                     }
                     for (int i = 0; i < craftableCount; ++i) {
-                        this.npcs$decrStack(slot, itemstack, count);
+                        npcs$decrStack(slot, itemstack, count);
                     }
                 }
                 ++slotID;
@@ -251,23 +251,23 @@ public class ServerRecipeBookHelperMixin {
     // parent: func_194328_c()
     @Unique
     private boolean npcs$canPlaceStacks() {
-        InventoryPlayer inventoryplayer = this.player.inventory;
+        InventoryPlayer inventoryplayer = player.inventory;
         if (recipe instanceof INpcRecipe) {
             int stackLimit = inventoryplayer.getInventoryStackLimit();
-            for (int i = 0; i < this.invCrafting.getSizeInventory(); ++i) {
-                ItemStack craftStack = this.invCrafting.getStackInSlot(i);
+            for (int i = 0; i < invCrafting.getSizeInventory(); ++i) {
+                ItemStack craftStack = invCrafting.getStackInSlot(i);
                 if (craftStack.isEmpty()) { continue; }
                 ItemStack playerStack = inventoryplayer.getCurrentItem();
                 int slotID = -1;
-                if (this.npcs$canMergeStacks(playerStack, craftStack, stackLimit)) { slotID = inventoryplayer.currentItem; }
+                if (npcs$canMergeStacks(playerStack, craftStack, stackLimit)) { slotID = inventoryplayer.currentItem; }
                 if (slotID == -1) {
                     playerStack = inventoryplayer.getStackInSlot(40);
-                    if (this.npcs$canMergeStacks(playerStack, craftStack, stackLimit)) { slotID = inventoryplayer.currentItem; }
+                    if (npcs$canMergeStacks(playerStack, craftStack, stackLimit)) { slotID = inventoryplayer.currentItem; }
                 }
                 if (slotID == -1) {
                     for (int s = 0; s < inventoryplayer.mainInventory.size(); ++s) {
                         playerStack = inventoryplayer.mainInventory.get(i);
-                        if (this.npcs$canMergeStacks(playerStack, craftStack, stackLimit)) {
+                        if (npcs$canMergeStacks(playerStack, craftStack, stackLimit)) {
                             slotID = s;
                             break;
                         }
@@ -278,8 +278,8 @@ public class ServerRecipeBookHelperMixin {
             }
         }
         else {
-            for (int i = 0; i < this.invCrafting.getSizeInventory(); ++i) {
-                ItemStack craftStack = this.invCrafting.getStackInSlot(i);
+            for (int i = 0; i < invCrafting.getSizeInventory(); ++i) {
+                ItemStack craftStack = invCrafting.getStackInSlot(i);
                 if (craftStack.isEmpty()) { continue; }
                 int slotID = inventoryplayer.storeItemStack(craftStack);
                 if (slotID == -1) { slotID = inventoryplayer.getFirstEmptyStack(); }

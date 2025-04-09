@@ -19,6 +19,7 @@ build
 libs.lnk
 npcs.lnk
 libs
+lang
 
 # other
 eclipse

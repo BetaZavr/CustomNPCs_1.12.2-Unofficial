@@ -19,6 +19,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ClassInheritanceMultiMap;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -32,6 +33,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
+import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -450,10 +452,27 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcWorldUnload(net.minecraftforge.event.world.WorldEvent.Unload event) {
+		CustomNpcs.debugData.startDebug("Server", null, "ServerEventsHandler_npcWorldUnload");
 		int dimensionID = event.getWorld().provider.getDimension();
 		if (!event.getWorld().isRemote) {
 			DimensionHandler.getInstance().unload(event.getWorld(), dimensionID);
 		}
+		CustomNpcs.debugData.endDebug("Server", null, "ServerEventsHandler_npcWorldUnload");
+	}
+
+	@SubscribeEvent
+	public void npcGetCollisionBoxes(GetCollisionBoxesEvent event) {
+		if (event.getEntity() == null || event.getEntity().world == null) { return; }
+		CustomNpcs.debugData.startDebug(!event.getEntity().world.isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcGetCollisionBoxes");
+		List<EntityNPCInterface> npcs = event.getEntity().world.getEntitiesWithinAABB(EntityNPCInterface.class, event.getAabb());
+		AxisAlignedBB mainAABB = event.getEntity().getEntityBoundingBox();
+		for (EntityNPCInterface npc : npcs) {
+			if (npc.isEntityAlive() && npc.display.getHitboxState() == (byte) 2) {
+				AxisAlignedBB aabb = npc.getEntityBoundingBox();
+				if (!aabb.equals(mainAABB)) { event.getCollisionBoxesList().add(npc.getEntityBoundingBox()); }
+			}
+		}
+		CustomNpcs.debugData.endDebug(!event.getEntity().world.isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcGetCollisionBoxes");
 	}
 
 }

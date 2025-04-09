@@ -347,7 +347,6 @@ implements ICustomScrollListener, ISubGuiListener {
 			case 9: { // replace shaped <-> shapeless
 				recipe.isShaped = !recipe.isShaped;
 				save();
-				initGui();
 				break;
 			}
 			case 28: {

@@ -391,10 +391,16 @@ public class RecipeController implements IRecipeHandler {
 		if (recipe == null) { return null; }
 		// Minecraft data:
 		IRecipe mcRecipe = RecipeController.Registry.getValue(((IRecipe) recipe).getRegistryName());
-		if (!(mcRecipe instanceof INpcRecipe) || ((INpcRecipe) mcRecipe).isGlobal() != recipe.isGlobal() || !((INpcRecipe) mcRecipe).getNpcGroup().equals(recipe.getNpcGroup()) || !((INpcRecipe) mcRecipe).getName().equals(recipe.getName())) {
+		if (!(mcRecipe instanceof INpcRecipe) ||
+				((INpcRecipe) mcRecipe).isGlobal() != recipe.isGlobal() ||
+				!((INpcRecipe) mcRecipe).getNpcGroup().equals(recipe.getNpcGroup()) ||
+				!((INpcRecipe) mcRecipe).getName().equals(recipe.getName()) ||
+				((INpcRecipe) mcRecipe).isShaped() != recipe.isShaped()) {
 			boolean isReset = false;
 			if (mcRecipe != null) {
-				if (mcRecipe instanceof INpcRecipe && ((INpcRecipe) mcRecipe).isGlobal() == recipe.isGlobal()) {
+				if (mcRecipe instanceof INpcRecipe &&
+						((INpcRecipe) mcRecipe).isGlobal() == recipe.isGlobal()
+						&& ((INpcRecipe) mcRecipe).isShaped() == recipe.isShaped()) {
 					isReset = true;
 					((INpcRecipe) mcRecipe).setNbt(recipe.getNbt());
 					recipe = (INpcRecipe) mcRecipe;

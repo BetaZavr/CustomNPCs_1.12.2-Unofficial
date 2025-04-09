@@ -704,6 +704,7 @@ public class PlayerEventHandler {
 	public void npcPlayerRightClickBlockEvent(PlayerInteractEvent.RightClickBlock event) {
 		if (event.getHand() != EnumHand.MAIN_HAND || event.getWorld().isRemote) { return; }
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
+		// NPC dead inventory
 		if (!(event.getItemStack().getItem() instanceof INPCToolItem)) {
 			Entity deadTarget = Util.instance.getLookEntity(event.getEntityPlayer(), 4.0d, false);
 			if (deadTarget != null && !deadTarget.isEntityAlive() && deadTarget instanceof EntityNPCInterface) {
@@ -753,10 +754,11 @@ public class PlayerEventHandler {
 	@SubscribeEvent
 	public void npcPlayerRightClickItemEvent(PlayerInteractEvent.RightClickItem event) {
 		if (event.getHand() != EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || event.getWorld().isRemote) { return; }
-		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
+		EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
+		CustomNpcs.debugData.startDebug("Server", player, "PlayerEventHandler_npcPlayerRightClickItemEvent");
 		if (event.getEntityPlayer().isCreative() && event.getEntityPlayer().isSneaking() && event.getItemStack().getItem() == CustomRegisters.scripted_item) {
 			NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.ScriptItem, null);
-			CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
+			CustomNpcs.debugData.endDebug("Server", player, "PlayerEventHandler_npcPlayerRightClickItemEvent");
 			return;
 		}
 		if (!(event.getItemStack().getItem() instanceof INPCToolItem)) {
@@ -768,58 +770,52 @@ public class PlayerEventHandler {
 				if (deadInventory != null) {
 					NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.DeadInventory, (EntityNPCInterface) deadTarget, deadInventory.getSizeInventory(), -1, 0);
 					event.setCanceled(true);
-					CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
+					CustomNpcs.debugData.endDebug("Server", player, "PlayerEventHandler_npcPlayerRightClickBlockEvent");
 					return;
 				}
 			}
 		}
 		// Empty Click:
-		if (event.getItemStack().getItem() instanceof ItemNbtBook
-				|| event.getItemStack().getItem() instanceof ItemBoundary
-				|| event.getItemStack().getItem() instanceof ISpecBuilder) {
-            EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
-			Vec3d vec3d = player.getPositionEyes(1.0f);
-			Vec3d vec3d2 = player.getLook(1.0f);
+		if (event.getItemStack().getItem() instanceof ItemNbtBook) {
 			PlayerData data = PlayerData.get(player);
 			double d0 = data.game.renderDistance;
+			Entity target = Util.instance.getLookEntity(player, d0, false);
+			if (target != null) {
+				((ItemNbtBook) event.getItemStack().getItem()).entityEvent(player, target);
+				CustomNpcs.debugData.endDebug("Server", player, "PlayerEventHandler_npcPlayerRightClickItemEvent");
+				return;
+			}
+			else if (!player.getHeldItemOffhand().isEmpty()) {
+				((ItemNbtBook) event.getItemStack().getItem()).itemEvent(player);
+				CustomNpcs.debugData.endDebug("Server", player, "PlayerEventHandler_npcPlayerRightClickItemEvent");
+				return;
+			}
+			Vec3d vec3d = player.getPositionEyes(1.0f);
+			Vec3d vec3d2 = player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * d0, vec3d2.y * d0, vec3d2.z * d0);
 			RayTraceResult result = player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
-			if (event.getItemStack().getItem() instanceof ItemNbtBook) {
-				Entity target = Util.instance.getLookEntity(player, d0, false);
-				if (target != null) {
-					((ItemNbtBook) event.getItemStack().getItem()).entityEvent(player, target);
-					CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
-					return;
-				}
-				else if (!player.getHeldItemOffhand().isEmpty()) {
-					((ItemNbtBook) event.getItemStack().getItem()).itemEvent(player);
-					CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
-					return;
-				}
-				if (result != null) {
-					if (result.typeOfHit == RayTraceResult.Type.BLOCK) {
-						((ItemNbtBook) event.getItemStack().getItem()).blockEvent(player, result.getBlockPos());
-					}
-					return;
-				}
-			}
-			if (event.getItemStack().getItem() instanceof ItemBoundary) {
-				((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(),
-						(EntityPlayerMP) event.getEntityPlayer());
-				CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
+			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK) {
+				((ItemNbtBook) event.getItemStack().getItem()).blockEvent(player, result.getBlockPos());
+				CustomNpcs.debugData.endDebug("Server", player, "PlayerEventHandler_npcPlayerRightClickItemEvent");
 				return;
 			}
-			if (event.getItemStack().getItem() instanceof ISpecBuilder) {
-				((ISpecBuilder) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer(), event.getPos());
-				CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
-				event.setCanceled(true);
-				return;
-			}
+		}
+		if (event.getItemStack().getItem() instanceof ItemBoundary) {
+			((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(),
+					(EntityPlayerMP) event.getEntityPlayer());
+			CustomNpcs.debugData.endDebug("Server", player, "PlayerEventHandler_npcPlayerRightClickItemEvent");
+			return;
+		}
+		if (event.getItemStack().getItem() instanceof ISpecBuilder) {
+			((ISpecBuilder) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer(), event.getPos());
+			CustomNpcs.debugData.endDebug("Server", player, "PlayerEventHandler_npcPlayerRightClickBlockEvent");
+			event.setCanceled(true);
+			return;
 		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
 		if (handler.hadInteract) {
 			handler.hadInteract = false;
-			CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
+			CustomNpcs.debugData.endDebug("Server", player, "PlayerEventHandler_npcPlayerRightClickItemEvent");
 			return;
 		}
 		PlayerEvent.InteractEvent ev = new PlayerEvent.InteractEvent(handler.getPlayer(), 0, null);
@@ -829,7 +825,7 @@ public class PlayerEventHandler {
 			ItemEvent.InteractEvent eve = new ItemEvent.InteractEvent(isw, handler.getPlayer(), 0, null);
 			event.setCanceled(EventHooks.onScriptItemInteract(isw, eve));
 		}
-		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
+		CustomNpcs.debugData.endDebug("Server", player, "PlayerEventHandler_npcPlayerRightClickItemEvent");
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -1034,4 +1030,5 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		return this;
 	}
+
 }

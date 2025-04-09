@@ -14,11 +14,12 @@ public class EntityAITransform extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-		return !this.npc.isKilled() && !this.npc.isAttacking() && !this.npc.transform.editingModus
-				&& ((this.npc.world.getWorldTime() % 24000L < 12000L) == this.npc.transform.isActive);
+		boolean isDay = npc.world.getWorldTime() % 24000L < 12000L;
+		return !npc.isKilled() && !npc.isAttacking() && npc.transform.editingModus && isDay == npc.transform.isDay;
 	}
 
 	public void startExecuting() {
-		this.npc.transform.transform(!this.npc.transform.isActive);
+		npc.transform.transform(!npc.transform.isDay);
 	}
+
 }

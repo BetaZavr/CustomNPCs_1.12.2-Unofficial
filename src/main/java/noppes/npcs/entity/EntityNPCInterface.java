@@ -1,6 +1,7 @@
 package noppes.npcs.entity;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import javax.annotation.Nonnull;
@@ -183,7 +184,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public DataAnimation animation;
 	public int animationStart = 0;
 	public int currentAnimation = 0;
-	public float baseHeight = 1.8f;
+	public float baseWidth = 0.6f;
+	public float baseHeight = 1.9f;
 	public BossInfoServer bossInfo;
 	public CombatHandler combatHandler;
 	public int[] dialogs = new int[0];
@@ -452,25 +454,23 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	@Override
 	public boolean attackEntityFrom(@Nonnull DamageSource damagesource, float damage) {
 		//if (this.animation.isAnimated() && this.animation.getAnimationType() == AnimationKind.INIT) { return false; }
-		if (!this.isServerWorld() || CustomNpcs.FreezeNPCs || damagesource.damageType.equals("inWall")) {
-			return false;
-		}
-		if (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing() && damagesource == DamageSource.FALL) {
-			return false;
-		}
-		if (damagesource.damageType.equals("outOfWorld") && this.isKilled()) { this.reset(); }
-		damage = this.stats.resistances.applyResistance(damagesource, damage);
-		if (!this.combatHandler.canDamage(damagesource, damage)) { return false; }
+		if (!isServerWorld() || CustomNpcs.FreezeNPCs || damagesource.damageType.equals("inWall")) { return false; }
+		if (damagesource.getClass().getSimpleName().equals("TGDamageSource") && damage < 0.5f) { return false; }
+		if (advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && advanced.roleInterface.isFollowing() && damagesource == DamageSource.FALL) { return false; }
+		if (damagesource.damageType.equals("outOfWorld") && isKilled()) { reset(); }
+		damage = stats.resistances.applyResistance(damagesource, damage);
+		if (!combatHandler.canDamage(damagesource, damage)) { return false; }
 		Entity entity = NoppesUtilServer.GetDamageSource(damagesource);
 		EntityLivingBase attackingEntity = null;
 		if (entity instanceof EntityLivingBase) { attackingEntity = (EntityLivingBase) entity; }
-		if (attackingEntity != null && attackingEntity == this.getOwner()) { return false; }
+		if (attackingEntity != null && attackingEntity == getOwner()) { return false; }
 		if (attackingEntity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) attackingEntity;
 			if (npc.faction.id == this.faction.id) { return false; }
 			if (npc.getOwner() instanceof EntityPlayer) { this.recentlyHit = 100; }
-		} else if (attackingEntity instanceof EntityPlayer && this.faction.isFriendlyToPlayer((EntityPlayer) attackingEntity)) {
-			ForgeHooks.onLivingAttack(this, damagesource, damage);
+		}
+		else if (attackingEntity instanceof EntityPlayer && faction.isFriendlyToPlayer((EntityPlayer) attackingEntity)) {
+			if (!damagesource.getClass().getSimpleName().equals("TGDamageSource")) { ForgeHooks.onLivingAttack(this, damagesource, damage); }
 			return false;
 		}
 		NpcEvent.DamagedEvent event = new NpcEvent.DamagedEvent(this.wrappedNPC, entity, damage, damagesource);
@@ -488,7 +488,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		boolean isHurt = false;
 		if (attackingEntity == null) {
 			isHurt = customAttackEntityFrom(damagesource, damage);
-		} else {
+		}
+		else {
 			try {
 				boolean check = false;
 				if (!(attackingEntity instanceof EntityPlayer) || !((EntityPlayer) attackingEntity).capabilities.disableDamage) {
@@ -528,7 +529,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	private boolean customAttackEntityFrom(DamageSource source, float amount) {
 		if (!net.minecraftforge.common.ForgeHooks.onLivingAttack(this, source, amount)) { return false; }
-		if (!this.isServerWorld() || this.isEntityInvulnerable(source)) { return false; }
+		if (!isServerWorld() || isEntityInvulnerable(source)) { return false; }
 		this.idleTime = 0;
 		if (this.getHealth() <= 0.0F || (source.isFireDamage() && this.isPotionActive(MobEffects.FIRE_RESISTANCE))) { return false; }
 		float f = amount;
@@ -554,7 +555,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.hurtResistantTime = this.ais.getMaxHurtResistantTime();
 			this.damageEntity(source, amount);
 			this.maxHurtTime = 10;
-			this.hurtTime = this.maxHurtTime;
+			this.hurtTime = maxHurtTime;
 		}
 		this.attackedAtYaw = 0.0F;
 		Entity entity1 = source.getTrueSource();
@@ -677,7 +678,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean canBeCollidedWith() {
-		return !isKilled() && display.getHasHitbox();
+		return !isKilled() && display.getHitboxState() != 1;
 	}
 
 	public boolean canBeLeashedTo(@Nonnull EntityPlayer player) {
@@ -685,7 +686,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean canBePushed() {
-		return super.canBePushed() && this.display.getHasHitbox();
+		return super.canBePushed() && display.getHitboxState() == 0;
 	}
 
 	public boolean canBreatheUnderwater() {
@@ -1021,7 +1022,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public @Nonnull EnumPushReaction getPushReaction() {
-		return this.display.getHasHitbox() ? super.getPushReaction() : EnumPushReaction.IGNORE;
+		return display.getHitboxState() == 0 ? super.getPushReaction() : EnumPushReaction.IGNORE;
 	}
 
 	public String getRoleData() {
@@ -1223,7 +1224,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	protected void collideWithEntity(@Nonnull Entity entityIn) {
-		if (this.canBeCollidedWith()) { entityIn.applyEntityCollision(this); }
+		if (canBeCollidedWith() && display.getHitboxState() == 0) { entityIn.applyEntityCollision(this); }
 	}
 
 	public void applyEntityCollision(@Nonnull Entity entityIn) {
@@ -1378,14 +1379,18 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				}
 				if (!this.isKilled() && this.totalTicksAlive % 20 == 0) {
 					this.advanced.scenes.update();
-					if (this.getHealth() < this.getMaxHealth()) {
-						if (this.stats.healthRegen > 0 && !this.isAttacking()) {
-							this.heal(this.stats.healthRegen);
-							((WorldServer) this.world).spawnParticle(EnumParticleTypes.VILLAGER_HAPPY, this.posX, this.posY + this.height, this.posZ, 1, this.width / 3.0d, 0.05d, this.width / 3.0d, 1.0d);
+					if (getHealth() < getMaxHealth()) {
+						if (stats.healthRegen > 0 && !isAttacking()) {
+							heal(stats.healthRegen);
+							if (CustomNpcs.ShowHealingParticles) {
+								((WorldServer) world).spawnParticle(EnumParticleTypes.VILLAGER_HAPPY, posX, posY + height, posZ, 1, width / 3.0d, 0.05d, width / 3.0d, 1.0d);
+							}
 						}
-						if (this.stats.combatRegen > 0 && this.isAttacking()) {
-							this.heal(this.stats.combatRegen);
-							((WorldServer) this.world).spawnParticle(EnumParticleTypes.VILLAGER_HAPPY, this.posX, this.posY + this.height, this.posZ, 1, this.width / 3.0d, 0.05d, this.width / 3.0d, 1.0d);
+						if (stats.combatRegen > 0 && isAttacking()) {
+							heal(stats.combatRegen);
+							if (CustomNpcs.ShowHealingParticles) {
+								((WorldServer) world).spawnParticle(EnumParticleTypes.VILLAGER_HAPPY, posX, posY + height, posZ, 1, width / 3.0d, 0.05d, width / 3.0d, 1.0d);
+							}
 						}
 					}
 					if (this.faction.getsAttacked && !this.isAttacking()) {
@@ -1737,6 +1742,22 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void reset() {
+		if (!isServerWorld()) {
+			// Remove special death effect from specific weapons mod TechGuns
+			try	{
+				Class<?> tgDTC = Class.forName("techguns.capabilities.TGDeathTypeCap");
+				Method get = tgDTC.getMethod("get", EntityLivingBase.class);
+				Object cap = get.invoke(null, this);
+				Method getDeathType = tgDTC.getMethod("getDeathType");
+				Object dt = getDeathType.invoke(cap);
+				if (!dt.toString().equals("DEFAULT")) {
+					Class<?> edt = Class.forName("techguns.deatheffects.EntityDeathUtils$DeathType");
+					Method setDeathType = tgDTC.getMethod("setDeathType", edt);
+					setDeathType.invoke(cap, edt.getEnumConstants()[0]);
+				}
+			}
+			catch (Exception ignored) { }
+		}
 		this.hasDied = false;
 		this.isDead = false;
 		this.setSprinting(this.wasKilled = false);
@@ -1791,8 +1812,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.updateHitbox();
 		this.updateAI = true;
 		this.ais.movingPos = 0;
-		if (this.getOwner() != null) {
-			this.getOwner().setLastAttackedEntity(Objects.requireNonNull(EntityList.newEntity(EntityPainting.class, this.world)));
+		if (getOwner() != null) {
+			getOwner().setLastAttackedEntity(Objects.requireNonNull(EntityList.newEntity(EntityPainting.class, this.world)));
 		}
 		this.bossInfo.setVisible(this.display.getBossbar() == 1);
 		this.advanced.jobInterface.reset();
@@ -2134,9 +2155,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void updateAiClient() {
-		if (!this.isServerWorld() || this.aiAttackTarget == null) {
-			return;
-		}
+		if (!isServerWorld() || aiAttackTarget == null) { return; }
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("EntityId", this.getEntityId());
 		aiAttackTarget.writeToClientNBT(compound);
@@ -2163,26 +2182,23 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		// EntityRenderer.getMouseOver(0.0f);
 		// AABB = this.getEntityBoundingBox == (this.boundingBox);
 		// set in setPosition();
+		float w = baseWidth;
+		float h = baseHeight;
+		if (display.width != 0.0f || display.height != 0.0f) {
+			w = display.width;
+			h = display.height;
+		}
 		if (((currentAnimation == AnimationType.SLEEP.get() || currentAnimation == AnimationType.CRAWL.get()) && !isAttacking()) || deathTime > 0) {
-			width = 0.8f;
-			height = 0.4f;
-		} else if (this.isRiding()) {
-			width = 0.6f;
-			height = this.baseHeight * 0.77f;
-		} else if (this.isSneaking()) {
-			width = 0.6f;
-			height = this.baseHeight * 0.775f;
-		} else {
-			width = 0.6f;
-			height = this.baseHeight;
+			width = w / 0.75f;
+			height = h / 4.75f;
 		}
-		if (!display.getHasHitbox() || (isKilled() && stats.hideKilledBody)) {
-			width = 1.0E-5f;
-			height = 0.25f;
+		else if (isRiding() || isSneaking()) {
+			width = w;
+			height = h / 1.3f;
 		}
-		else if (display.getHasHitbox() && display.width != 0.0f && display.height != 0.0f) {
-			width = display.width;
-			height = display.height;
+		else {
+			width = w;
+			height = h;
 		}
 		if (display.getModel() == null && this instanceof EntityCustomNpc) {
 			ModelData modeldata = ((EntityCustomNpc) this).modelData;
@@ -2192,12 +2208,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			float scaleBody = Math.max(model.scale[0], model.scale[2]);
 			width *= Math.max(scaleHead, scaleBody);
 			width = width / 5.0f * display.getSize();
-			this.height = height / 5.0f * display.getSize();
+			height = height / 5.0f * display.getSize();
 		}
 		double n = width / 2.0f;
-		if (n > World.MAX_ENTITY_RADIUS) {
-			World.MAX_ENTITY_RADIUS = n;
-		}
+		if (n > World.MAX_ENTITY_RADIUS) { World.MAX_ENTITY_RADIUS = n; }
 		if (getHealth() == 0) { return; }
 		setPosition(posX, posY, posZ); // set BoundingBox
 	}

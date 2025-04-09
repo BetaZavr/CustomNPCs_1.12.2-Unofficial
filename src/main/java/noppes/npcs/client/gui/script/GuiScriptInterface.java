@@ -58,6 +58,7 @@ implements IGuiData, ITextChangeListener {
 	@Override
 	protected void actionPerformed(@Nonnull GuiButton button) {
 		if (wait) { return; }
+		System.out.println("buttonID: "+button.id);
 		if (button.id >= 0 && button.id < CustomNpcs.ScriptMaxTabs) {
 			setScript();
 			activeTab = button.id;
@@ -73,13 +74,16 @@ implements IGuiData, ITextChangeListener {
 			activeTab = handler.getScripts().size();
 			initGui();
 		}
-		if (button.id == 100) { // copy all logs
-			Map<Long, String> map = handler.getConsoleText();
-			StringBuilder builder = new StringBuilder();
-			for (Map.Entry<Long, String> entry : map.entrySet()) {
-				builder.insert(0, new Date(entry.getKey()) + entry.getValue() + "\n\n");
+		if (button.id == 100) { // copy code or all logs
+			if (activeTab == 0) { // copy all logs
+				Map<Long, String> map = handler.getConsoleText();
+				StringBuilder builder = new StringBuilder();
+				for (Map.Entry<Long, String> entry : map.entrySet()) {
+					builder.insert(0, new Date(entry.getKey()) + entry.getValue() + "\n\n");
+				}
+				NoppesStringUtils.setClipboardContents(builder.toString());
 			}
-			NoppesStringUtils.setClipboardContents(builder.toString());
+			else { NoppesStringUtils.setClipboardContents(((GuiTextArea) get(2, GuiTextArea.class)).getFullText()); }
 		}
 		if (button.id == 101) {
 			ScriptContainer container = handler.getScripts().get(activeTab - 1);

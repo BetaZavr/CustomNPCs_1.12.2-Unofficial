@@ -1,8 +1,13 @@
 {
-	"_comment": "Texture by max100500profi",
-    "parent": "block/cube_all",
-    "textures": {
-        "all": "customnpcs:blocks/builder_block"
-    }
+	"parent": "customnpcs:block/orientable",
+	"textures": {
+		"particle": "customnpcs:blocks/builder_side",
+		"bottom": "customnpcs:blocks/builder_side",
+		"top": "customnpcs:blocks/builder_block",
+		"front": "customnpcs:blocks/builder_block",
+		"right": "customnpcs:blocks/builder_side",
+		"back": "customnpcs:blocks/builder_block",
+		"left": "customnpcs:blocks/builder_side"
+	}
 }
 

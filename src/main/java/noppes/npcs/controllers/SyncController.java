@@ -409,6 +409,7 @@ public class SyncController {
 					RecipeController.getInstance().clear();
 				} else {
 					RecipeController.getInstance().loadNBTRecipe(compound);
+
 				}
 				break;
 			}

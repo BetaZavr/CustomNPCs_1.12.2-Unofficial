@@ -178,8 +178,8 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 		textField.setHoverText(new TextComponentTranslation("quest.hover.compass.reg", task.regionID).appendSibling(compass).getFormattedText());
 		addTextField(textField);
 		// N
-		addLabel(new GuiNpcLabel(lId, "N:", x + 74, y + 2));
-		textField = new GuiNpcTextField(15, this, fontRenderer, x + 82, y, 151, 14, task.entityName);
+		addLabel(new GuiNpcLabel(lId, "N:", x + 84, y + 2));
+		textField = new GuiNpcTextField(15, this, fontRenderer, x + 92, y, 141, 14, task.entityName);
 		textField.setHoverText(new TextComponentTranslation("quest.hover.compass.entity").appendSibling(compass).getFormattedText());
 		addTextField(textField);
 		// set player pos

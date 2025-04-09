@@ -144,7 +144,7 @@ implements ITextfieldListener {
 			if (id == task.dimensionID) { p = i; }
 			i++;
 		}
-		GuiNpcButton button = new GuiNpcButton(4, x + 8, y - 1, 60, 16, dimIDs, p);
+		GuiNpcButton button = new GuiNpcButton(4, x + 8, y - 1, 30, 16, dimIDs, p);
 		button.setHoverText(new TextComponentTranslation("quest.hover.compass.dim").appendSibling(compass).getFormattedText());
 		addButton(button);
 		// region ID
@@ -154,8 +154,8 @@ implements ITextfieldListener {
 		textField.setHoverText(new TextComponentTranslation("quest.hover.compass.reg", task.regionID).appendSibling(compass).getFormattedText());
 		addTextField(textField);
 		// N
-		addLabel(new GuiNpcLabel(lId, "N:", x + 71, y + 2));
-		textField = new GuiNpcTextField(15, this, fontRenderer, x + 79, y, 126, 14, task.entityName);
+		addLabel(new GuiNpcLabel(lId, "N:", x + 81, y + 2));
+		textField = new GuiNpcTextField(15, this, fontRenderer, x + 89, y, 116, 14, task.entityName);
 		textField.setHoverText(new TextComponentTranslation("quest.hover.compass.entity").appendSibling(compass).getFormattedText());
 		addTextField(textField);
 		// set player pos

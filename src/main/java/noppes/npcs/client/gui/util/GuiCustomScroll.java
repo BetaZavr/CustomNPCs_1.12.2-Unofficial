@@ -15,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.NaturalOrderComparator;
 
@@ -209,6 +208,7 @@ implements IComponentGui, IGuiCustomScroll {
 		drawItems();
 		GlStateManager.popMatrix();
 
+		// add elements
 		boolean parentAllows = listener == null || !listener.hasSubGui();
 		if (parentAllows) {
 			if (stacks != null) { drawStacks(); }
@@ -370,7 +370,7 @@ implements IComponentGui, IGuiCustomScroll {
 		if (list.size() <= 1) {
 			return;
 		}
-		if (i == 200 || i == ClientProxy.frontButton.getKeyCode()) { // up
+		if (i == 200 || i == mc.gameSettings.keyBindForward.getKeyCode()) { // up
 			if (selected < 1) {
 				return;
 			}
@@ -384,7 +384,8 @@ implements IComponentGui, IGuiCustomScroll {
 			if (listener != null) {
 				listener.scrollClicked(-1, -1, 0, this);
 			}
-		} else if (i == 208 || i == ClientProxy.backButton.getKeyCode()) { // down
+		}
+		else if (i == 208 || i == mc.gameSettings.keyBindBack.getKeyCode()) { // down
 			if (selected >= getList().size() - 1) {
 				return;
 			}

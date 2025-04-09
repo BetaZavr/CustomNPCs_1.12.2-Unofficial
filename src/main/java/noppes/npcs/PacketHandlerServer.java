@@ -795,7 +795,13 @@ public class PacketHandlerServer {
             Server.sendData(player, EnumPacketClient.GUI_DATA, npc.transform.writeOptions(new NBTTagCompound()));
         } else if (type == EnumPacketServer.TransformLoad) {
             if (npc.transform.isValid()) {
-                npc.transform.transform(buffer.readBoolean());
+                boolean isDay = buffer.readBoolean();
+                npc.transform.transform(isDay);
+                if (CustomNpcs.Server != null) {
+                    CustomNPCsScheduler.runTack(() -> {
+                        for (WorldServer world : CustomNpcs.Server.worlds) { world.setWorldTime(isDay ? 1000 : 13000); }
+                    }, 500);
+                }
             }
         } else if (type == EnumPacketServer.MovingPathGet) {
             NBTTagCompound compound = new NBTTagCompound();

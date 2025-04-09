@@ -362,7 +362,8 @@ public class ModelNpcAlt extends ModelPlayer {
                 }
                 GlStateManager.scale(0.5F, 0.5F, 0.5F);
                 GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
-            } else {
+            }
+            else {
                 if (entityIn.isSneaking()) { GlStateManager.translate(0.0F, 0.2F, 0.0F); }
 
                 List<ModelRendererAlt> list = null;
@@ -422,7 +423,6 @@ public class ModelNpcAlt extends ModelPlayer {
             if (list != null) {
                 for (ModelRendererAlt child : list) { bipedRightArm.childModels.remove(child); }
             }
-
             if (bipedRightArmwear != null && ((ModelRendererAlt) bipedLeftArm).notOBJModel()) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 bipedRightArmwear.render(scale);

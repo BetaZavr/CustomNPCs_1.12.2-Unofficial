@@ -909,7 +909,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				npc.aiIsSneak = compound.getBoolean("aiIsSneak");
 				npc.setSneaking(npc.aiIsSneak);
 			}
-
 		}
 		else if (type == EnumPacketClient.UPDATE_NPC_TARGET) {
 			int entityId = buffer.readInt();

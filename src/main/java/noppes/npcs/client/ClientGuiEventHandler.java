@@ -230,9 +230,9 @@ public class ClientGuiEventHandler extends Gui {
 				entity = npc;
 			}
         }
+		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableColorMaterial();
-		GlStateManager.pushMatrix();
 
 		GlStateManager.translate(-12, 10, 50.0f);
 		float scale = 1.0f;
@@ -273,12 +273,12 @@ public class ClientGuiEventHandler extends Gui {
 		if (npc != null) {
 			npc.ais.orientation = orientation;
 		}
-		GlStateManager.popMatrix();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.disableTexture2D();
 		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+		GlStateManager.popMatrix();
 	}
 
 	private void drawNpcMovingPath(EntityCustomNpc npc) {

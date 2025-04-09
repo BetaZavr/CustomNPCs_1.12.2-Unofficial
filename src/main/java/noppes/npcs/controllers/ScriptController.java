@@ -528,7 +528,6 @@ public class ScriptController {
 		NBTTagCompound nbtC = new NBTTagCompound();
 		nbtC.setInteger("value", 0);
 		nbtC.setString("Lists", "Java.type(\"com.google.common.collect.Lists\")");
-		nbtC.setString("System", "Java.type(\"java.lang.System\")");
 		nbtC.setString("List", "Java.type(\"java.util.ArrayList\")");
 		nbtC.setString("Collections", "Java.type(\"java.util.Collections\")");
 		nbtC.setString("UUID", "Java.type(\"java.util.UUID\")");

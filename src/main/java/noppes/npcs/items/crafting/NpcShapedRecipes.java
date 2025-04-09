@@ -454,9 +454,9 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean matches(@Nonnull InventoryCrafting inv, @Nullable World world) {
-		if (recipeItems.isEmpty() || (!global && (inv.getWidth() != 4) || (inv.getHeight() != 4))) {
-			return false;
-		}
+		if (recipeItems.isEmpty()) { return false; }
+		if (global && inv.getHeight() < 3 && inv.getHeight() < 3) { return false; }
+		if (!global && inv.getWidth() == 4 && inv.getHeight() == 4) { return false; }
 		int startW = -1, startH = -1;
 		for (int i = 0; i < inv.getSizeInventory(); i++) {
 			if (!inv.getStackInSlot(i).isEmpty()) {
@@ -465,18 +465,17 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 				break;
 			}
 		}
+		if (startW < 0 || startH < 0) { return false; }
 		Object[] objs = getGrid();
 		int recipeW = (int) objs[0];
 		int recipeH = (int) objs[1];
 		NonNullList<Ingredient> ingredients = (NonNullList<Ingredient>) objs[2];
 		for (int r = 0; r < 2; ++r) {
 			int ings = recipeW * recipeH;
-			for (int h = 0; h <= inv.getHeight() - recipeH; ++h) {
-				for (int w = 0; w <= inv.getWidth() - recipeW; ++w) {
+			for (int h = 0; h < recipeH; ++h) {
+				for (int w = 0; w < recipeW; ++w) {
 					int index = h * recipeW + (r == 1 ? recipeW - w - 1 : w);
-					if (index >= ingredients.size()) {
-						continue;
-					}
+					if (index >= ingredients.size()) { continue; }
 					int slotIndex = (h + startH) * inv.getWidth() + (w + startW);
 					Ingredient ingredient = ingredients.get(index);
 					if (apply(ingredient, inv.getStackInSlot(slotIndex))) { ings--; }

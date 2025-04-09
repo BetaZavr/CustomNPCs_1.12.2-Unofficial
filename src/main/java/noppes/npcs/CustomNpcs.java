@@ -170,7 +170,7 @@ public class CustomNpcs {
 			new Color(0xFF000000),
 			new Color(0xFF2C4C00),
 			new Color(0xFFE0FFB0) };
-	@ConfigProp(info = "When set to Minecraft it will use minecraft fonts, when Default it will use OpenSans. Can only use fonts installed on your PC", def = "Default")
+	@ConfigProp(info = "Font for writing scripts. When set to \"Minecraft\" it will use minecraft fonts, when \"Default\" it will use \"JetBrainsMono\". Can only use fonts installed on <you game dir>/customnpcs/assets/customnpcs/fonts/*.ttf", def = "Default")
 	public static String FontType = "Default";
 	@ConfigProp(info = "Type 0=Normal; 1=Solid; 2=Not show", def = "1", min = "0", max = "1")
 	public static int HeadWearType = 1;
@@ -264,6 +264,10 @@ public class CustomNpcs {
 	public static int KnockBackBasePower = 100;
 	@ConfigProp(info = "Shows the rarity of the item in the inventory slot", def = "true", type = Configuration.CATEGORY_CLIENT)
 	public static boolean ShowRarityItem = true;
+	@ConfigProp(info = "Percentage of knockback power of all entities in the game when dealing damage or blocking", def = "10", min = "0", max = "100")
+	public static int DefaultHurtResistantTime = 10;
+	@ConfigProp(info = "When NPCs self-heal, particles will appear above their heads", def = "true", type = Configuration.CATEGORY_CLIENT)
+	public static boolean ShowHealingParticles = true;
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;

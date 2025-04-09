@@ -495,13 +495,13 @@ implements IEditNPC, ICustomScrollListener {
 		if (translateZ != 0.0f) {
 			GlStateManager.translate(0.0f, 0.0f, -translateZ);
 		}
-		if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
+		super.drawScreen(x, y, partialTicks);
+		if (subgui instanceof GuiScreen) { ((GuiScreen) subgui).drawScreen(mouseX, mouseY, partialTicks); }
+		else if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
 			drawHoveringText(hoverText, mouseX, mouseY, fontRenderer);
 			RenderHelper.enableGUIStandardItemLighting();
 			hoverText.clear();
 		}
-		super.drawScreen(x, y, partialTicks);
-		if (subgui instanceof GuiScreen) { ((GuiScreen) subgui).drawScreen(mouseX, mouseY, partialTicks); }
 	}
 
 	public void postDrawBackground() { }

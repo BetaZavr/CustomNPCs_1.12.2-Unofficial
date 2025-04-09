@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import java.awt.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -79,20 +78,12 @@ implements IGuiData, ISubGuiListener {
 			case 66: close(); break;
 			case 67: {
 				getLabel(0).setLabel("Saved");
-				if (compound.equals(originalCompound)) {
-					return;
-				}
-				if (stack != null) {
-					Client.sendData(EnumPacketServer.NbtBookSaveItem, compound);
-					return;
-				}
-				if (tile == null) {
-					Client.sendData(EnumPacketServer.NbtBookSaveEntity, entityId, compound);
-					return;
-				}
-				Client.sendData(EnumPacketServer.NbtBookSaveBlock, x, y, z, compound);
+				if (compound.equals(originalCompound)) { return; }
+				if (stack != null) { Client.sendData(EnumPacketServer.NbtBookSaveItem, compound); }
+				if (tile == null) { Client.sendData(EnumPacketServer.NbtBookSaveEntity, entityId, compound); }
+				else { Client.sendData(EnumPacketServer.NbtBookSaveBlock, x, y, z, compound); }
 				originalCompound = compound.copy();
-				getButton(67).setEnabled(false);
+				button.setEnabled(false);
 				break;
 			}
 		}
@@ -103,8 +94,7 @@ implements IGuiData, ISubGuiListener {
 		if (gui instanceof SubGuiNpcTextArea) {
 			try {
 				compound = JsonToNBT.getTagFromJson(((SubGuiNpcTextArea) gui).text);
-				faultyText = null;
-				errorMessage = null;
+				errorMessage = faultyText = null;
 			} catch (NBTException e) {
 				errorMessage = e.getLocalizedMessage();
 				faultyText = ((SubGuiNpcTextArea) gui).text;
@@ -124,13 +114,13 @@ implements IGuiData, ISubGuiListener {
 			Gui.drawRect(guiLeft + 3, guiTop + 3, guiLeft + 55, guiTop + 55, 0xFF808080);
 			Gui.drawRect(guiLeft + 4, guiTop + 4, guiLeft + 54, guiTop + 54, 0xFF000000);
 			GlStateManager.popMatrix();
+
 			GlStateManager.pushMatrix();
 			GlStateManager.translate((guiLeft + 5), (guiTop + 5), 0.0f);
 			GlStateManager.scale(3.0f, 3.0f, 3.0f);
 			RenderHelper.enableGUIStandardItemLighting();
 			itemRender.renderItemAndEffectIntoGUI(stack != null ? stack : blockStack, 0, 0);
-			itemRender.renderItemOverlays(fontRenderer, stack != null ? stack : blockStack, 0,
-					0);
+			itemRender.renderItemOverlays(fontRenderer, stack != null ? stack : blockStack, 0, 0);
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
 		}
@@ -138,10 +128,10 @@ implements IGuiData, ISubGuiListener {
 			GlStateManager.pushMatrix();
 			drawNpc(entity, 30, 80, 1.0f, 0, 0, 1);
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
-			int color = new Color(0xFF808080).getRGB();
-			if (EntityRegistry.getEntry(entity.getClass()) == null) { color = new Color(0xFFFF4040).getRGB(); }
+			int color = 0xFF808080;
+			if (EntityRegistry.getEntry(entity.getClass()) == null) { color = 0xFFFF4040; }
 			Gui.drawRect(guiLeft + 5, guiTop + 13, guiLeft + 55, guiTop + 99, color);
-			Gui.drawRect(guiLeft + 6, guiTop + 14, guiLeft + 54, guiTop + 98, new Color(0xFF000000).getRGB());
+			Gui.drawRect(guiLeft + 6, guiTop + 14, guiLeft + 54, guiTop + 98, 0xFF000000);
 			GlStateManager.popMatrix();
 		}
 	}
@@ -160,13 +150,13 @@ implements IGuiData, ISubGuiListener {
 			addButton(new GuiNpcButton(1, guiLeft + 38, guiTop + 144, 180, 20, "gui.copy"));
 			setObjectToScroll(stack);
 		}
-		if (state != null) {
+		else if (state != null) {
 			addLabel(new GuiNpcLabel(11, "x: " + x + ", y: " + y + ", z: " + z, guiLeft + 60, guiTop + 6));
 			addLabel(new GuiNpcLabel(12, "id: " + Block.REGISTRY.getNameForObject(state.getBlock()), guiLeft + 60, guiTop + 16));
 			addLabel(new GuiNpcLabel(13, "meta: " + state.getBlock().getMetaFromState(state), guiLeft + 60, guiTop + 26));
 			setObjectToScroll(state);
 		}
-		if (entity != null) {
+		else if (entity != null) {
 			scroll.setSize(188, 140);
 			scroll.guiTop -= 20;
 			String name;
@@ -182,10 +172,11 @@ implements IGuiData, ISubGuiListener {
 		addScroll(scroll);
 		addButton(new GuiNpcButton(0, guiLeft + 38, guiTop + 166, 180, 20, "nbt.edit"));
 		getButton(0).setEnabled(compound != null && !compound.getKeySet().isEmpty());
+
 		addLabel(new GuiNpcLabel(0, "", guiLeft + 4, guiTop + 167));
 		addLabel(new GuiNpcLabel(1, "", guiLeft + 4, guiTop + 177));
+
 		addButton(new GuiNpcButton(66, guiLeft + 128, guiTop + 190, 120, 20, "gui.close"));
-		
 		addButton(new GuiNpcButton(67, guiLeft + 4, guiTop + 190, 120, 20, "gui.save"));
 		getButton(67).setEnabled(!onlyClient);
 		if (!onlyClient) {
@@ -214,8 +205,11 @@ implements IGuiData, ISubGuiListener {
 		Map<String, Method> ms = new TreeMap<>();
 		Map<String, Class<?>> cs = new TreeMap<>();
 		for (Field f : obj.getClass().getDeclaredFields()) { fs.put(f.getName(), f); }
+		for (Field f : obj.getClass().getFields()) { if (!fs.containsKey(f.getName())) { fs.put(f.getName(), f); } }
 		for (Method m : obj.getClass().getDeclaredMethods()) { ms.put(m.getName(), m); }
+		for (Method m : obj.getClass().getMethods()) { if (!ms.containsKey(m.getName())) { ms.put(m.getName(), m); } }
 		for (Class<?> c : obj.getClass().getDeclaredClasses()) { cs.put(c.getName(), c); }
+		for (Class<?> c : obj.getClass().getClasses()) { if (!cs.containsKey(c.getName())) { cs.put(c.getName(), c); } }
 
 		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		int i = 0;

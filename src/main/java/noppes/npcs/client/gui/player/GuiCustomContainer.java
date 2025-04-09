@@ -14,7 +14,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.containers.ContainerChestCustom;
 
@@ -205,11 +204,11 @@ extends GuiContainer {
 
 	@Override
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
-		if (keyCode == 200 || keyCode == ClientProxy.frontButton.getKeyCode()) {
-			this.resetRow(false);
+		if (keyCode == 200 || keyCode == mc.gameSettings.keyBindForward.getKeyCode()) {
+			resetRow(false);
 		}
-		if (keyCode == 208 || keyCode == ClientProxy.backButton.getKeyCode()) {
-			this.resetRow(true);
+		if (keyCode == 208 || keyCode == mc.gameSettings.keyBindBack.getKeyCode()) {
+			resetRow(true);
 		}
 		super.keyTyped(typedChar, keyCode);
 	}

@@ -10,7 +10,7 @@ public interface INPCDisplay {
 
 	String getCapeTexture();
 
-	boolean getHasHitbox();
+	int getHitboxState();
 
 	boolean getHasLivingAnimation();
 
@@ -48,7 +48,7 @@ public interface INPCDisplay {
 
 	void setCapeTexture(String texture);
 
-	void setHasHitbox(boolean bo);
+	void setHitboxState(int state);
 
 	void setHasLivingAnimation(boolean enabled);
 

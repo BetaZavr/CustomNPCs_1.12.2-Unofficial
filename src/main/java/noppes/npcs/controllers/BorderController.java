@@ -76,6 +76,16 @@ public class BorderController implements IBorderHandler {
 		return nbttagcompound;
 	}
 
+	public int getRegionID(int dimensionID, BlockPos pos) {
+		for (Zone3D reg : this.regions.values()) {
+			if (reg.contains(pos.getX(), pos.getY(), pos.getZ(), dimensionID)) {
+				return reg.getId();
+			}
+		}
+		return -1;
+	}
+
+
 	@Override
 	public IBorder getRegion(int regionId) {
 		return this.regions.get(regionId);

@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.pathfinding.PathNavigateGround;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.util.math.BlockPos;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IPos;
@@ -49,7 +50,7 @@ public class DataAI
 	private int tacticalRadius = 8;
 	public int tacticalVariant = 0;
 	public int walkingRange = 10;
-	private int maxHurtResistantTime = 20;
+	private int maxHurtResistantTime = CustomNpcs.DefaultHurtResistantTime * 2;
 
 	public float bodyOffsetX = 5.0f;
 	public float bodyOffsetY = 5.0f;

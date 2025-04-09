@@ -14,7 +14,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.GuiNpcMobSpawnerSelector;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
@@ -407,7 +406,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 		}
 		super.keyTyped(c, i);
-		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode() || i == ClientProxy.backButton.getKeyCode()) {
+		if (i == 200 || i == 208 || i == mc.gameSettings.keyBindForward.getKeyCode() || i == mc.gameSettings.keyBindBack.getKeyCode()) {
 			resetEntity();
 		}
 	}

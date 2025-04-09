@@ -74,10 +74,9 @@ public class TrueTypeFont {
 			this.g = (Graphics2D) this.bufferedImage.getGraphics();
 		}
 	}
-	private static final List<Font> allFonts;
-	static {
-		allFonts = Arrays.asList(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts());
-	}
+
+	private static final List<Font> allFonts = Arrays.asList(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts());
+
 	private final List<Font> usedFonts;
 	private final LinkedHashMap<String, GlyphCache> textcache;
 	private final Map<Character, Glyph> glyphcache;
@@ -121,15 +120,15 @@ public class TrueTypeFont {
 		this.lineHeight = this.globalG.getFontMetrics(font).getHeight();
 	}
 
+	public boolean hasFont() { return font != null; }
+
 	public void dispose() {
-		for (TextureCache cache : this.textures) {
-			GlStateManager.deleteTexture(cache.textureId);
-		}
+		for (TextureCache cache : this.textures) { GlStateManager.deleteTexture(cache.textureId); }
 		this.textcache.clear();
 	}
 
 	public void draw(String text, float x, float y, int color) {
-		GlyphCache cache = this.getOrCreateCache(text);
+		GlyphCache cache = getOrCreateCache(text);
 		float r = (color >> 16 & 0xFF) / 255.0f;
 		float g = (color >> 8 & 0xFF) / 255.0f;
 		float b = (color & 0xFF) / 255.0f;
@@ -332,4 +331,5 @@ public class TrueTypeFont {
 		GlyphCache cache = this.getOrCreateCache(text);
 		return (int) (cache.width * this.scale * this.textureScale());
 	}
+
 }

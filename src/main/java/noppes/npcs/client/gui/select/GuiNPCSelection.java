@@ -12,7 +12,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -68,7 +67,7 @@ implements IGuiData, ICustomScrollListener {
 	public void keyTyped(char c, int i) {
 		if (i == 1 || isInventoryKey(i)) { close(); }
 		super.keyTyped(c, i);
-		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode() || i == ClientProxy.backButton.getKeyCode()) {
+		if (i == 200 || i == 208 || i == mc.gameSettings.keyBindForward.getKeyCode() || i == mc.gameSettings.keyBindBack.getKeyCode()) {
 			resetEntity();
 		}
 	}

@@ -44,15 +44,10 @@ public class BlockBorderRenderer<T extends TileBorder> extends TileEntitySpecial
 
     private static <T extends TileBorder> AxisAlignedBB getAABBPlayerPos(T te) {
         AxisAlignedBB aabbPlayer = new AxisAlignedBB(-0.35d, 0.65d, -0.35d, 0.35d, 0.35d + te.height, 0.35d);
-        if (te.rotation == 2) {
-            aabbPlayer = aabbPlayer.offset(0.0d, 0.0d, 1.0d);
-        } else if (te.rotation == 0) {
-            aabbPlayer = aabbPlayer.offset(0.0d, 0.0d, -1.0d);
-        } else if (te.rotation == 1) {
-            aabbPlayer = aabbPlayer.offset(1.0d, 0.0d, 0.0d);
-        } else if (te.rotation == 3) {
-            aabbPlayer = aabbPlayer.offset(-1.0d, 0.0d, 0.0d);
-        }
+        if (te.rotation == 2) { aabbPlayer = aabbPlayer.offset(0.0d, 0.0d, 1.0d); }
+        else if (te.rotation == 0) { aabbPlayer = aabbPlayer.offset(0.0d, 0.0d, -1.0d); }
+        else if (te.rotation == 1) { aabbPlayer = aabbPlayer.offset(1.0d, 0.0d, 0.0d); }
+        else if (te.rotation == 3) { aabbPlayer = aabbPlayer.offset(-1.0d, 0.0d, 0.0d); }
         return aabbPlayer;
     }
 

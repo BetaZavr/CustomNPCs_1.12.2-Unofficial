@@ -49,8 +49,8 @@ public class DataDisplay implements INPCDisplay {
 	private final Availability availability = new Availability();
 	private BossInfo.Color bossColor = BossInfo.Color.PINK;
 	private boolean disableLivingAnimation = false;
-	private boolean noHitbox = false;
 	private boolean isNormalModel = false;
+	private byte hitboxState = 0;
 	private byte showBossBar = 0;
 	private int markovGender = 0;
 	private int markovGeneratorId;
@@ -94,9 +94,7 @@ public class DataDisplay implements INPCDisplay {
 	}
 
 	@Override
-	public boolean getHasHitbox() {
-		return !this.noHitbox;
-	}
+	public int getHitboxState() { return hitboxState; }
 
 	@Override
 	public boolean isNormalModel() {
@@ -300,7 +298,7 @@ public class DataDisplay implements INPCDisplay {
 		this.visible = displayNbt.getInteger("NpcVisible");
 		this.availability.readFromNBT(displayNbt.getCompoundTag("VisibleAvailability"));
 		this.disableLivingAnimation = displayNbt.getBoolean("NoLivingAnimation");
-		this.noHitbox = displayNbt.getBoolean("IsStatue");
+		hitboxState = displayNbt.getByte("IsStatue");
 		this.isNormalModel = displayNbt.getBoolean("HasJoints");
 		
 		this.setBossbar(displayNbt.getByte("BossBar"));
@@ -319,10 +317,10 @@ public class DataDisplay implements INPCDisplay {
 		}
 		if (displayNbt.hasKey("HitBoxWidth", 5)) { this.width = ValueUtil.correctFloat(displayNbt.getFloat("HitBoxWidth"), 0.0f, 5.0f); }
 		if (displayNbt.hasKey("HitBoxHeight", 5)) { this.height = ValueUtil.correctFloat(displayNbt.getFloat("HitBoxHeight"), 0.0f, 10.0f); }
-        if (this.getHasHitbox() && this.width != 0.0f && this.height != 0.0f) {
-        	this.npc.width = this.width;
-        	this.npc.height = this.height;
-        	this.npc.setPosition(this.npc.posX, this.npc.posY, this.npc.posZ);
+        if (hitboxState != (byte) 1 && (width != 0.0f || height != 0.0f)) {
+        	npc.width = width;
+        	npc.height = height;
+        	npc.setPosition(npc.posX, npc.posY, npc.posZ);
 		}
 		CustomNpcs.visibilityController.trackNpc(this.npc);
 	}
@@ -357,12 +355,11 @@ public class DataDisplay implements INPCDisplay {
 	}
 
 	@Override
-	public void setHasHitbox(boolean bo) {
-		if (this.noHitbox != bo) {
-			return;
-		}
-		this.noHitbox = !bo;
-		this.npc.updateClient = true;
+	public void setHitboxState(int state) {
+		state = ValueUtil.correctInt(state, 0,2);
+		if (hitboxState == state) { return; }
+		hitboxState = (byte) state;
+		npc.updateClient = true;
 	}
 
 	@Override
@@ -587,7 +584,7 @@ public class DataDisplay implements INPCDisplay {
 		displayNbt.setInteger("NpcVisible", this.visible);
 		displayNbt.setTag("VisibleAvailability", this.availability.writeToNBT(new NBTTagCompound()));
 		displayNbt.setBoolean("NoLivingAnimation", this.disableLivingAnimation);
-		displayNbt.setBoolean("IsStatue", this.noHitbox);
+		displayNbt.setByte("IsStatue", this.hitboxState);
 		displayNbt.setBoolean("HasJoints", this.isNormalModel);
 		displayNbt.setByte("BossBar", this.showBossBar);
 		displayNbt.setInteger("BossColor", this.bossColor.ordinal());

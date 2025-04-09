@@ -39,12 +39,26 @@ public class ModelDataShared {
 		this.entity = null;
 	}
 
+	public float getBodyX() {
+		return (1.0f - Math.max(body.scale[0], body.scale[2])) * 0.75f + getLegsX();
+	}
+
 	public float getBodyY() {
-		return (1.0f - this.body.scale[1]) * 0.75f + this.getLegsY();
+		return (1.0f - body.scale[1]) * 0.75f + getLegsY();
 	}
 
 	public Class<? extends EntityLivingBase> getEntityClass() {
 		return this.entityClass;
+	}
+
+	public float getLegsX() {
+		ModelPartConfig legs = this.leg1;
+		if (leg2.notShared) {
+			float s0 = Math.max(leg1.scale[0], leg1.scale[2]);
+			float s1 = Math.max(leg2.scale[0], leg2.scale[2]);
+			if (s1 > s0) { legs = leg2; }
+		}
+		return (1.0f - Math.max(legs.scale[0], legs.scale[2])) * 0.75f;
 	}
 
 	public float getLegsY() {

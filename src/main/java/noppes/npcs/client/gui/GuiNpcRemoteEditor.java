@@ -21,7 +21,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
@@ -56,19 +55,16 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 				if (entity instanceof EntityNPCInterface) {
 					Client.sendData(EnumPacketServer.RemoteMainMenu, dataIDs.get(scroll.getSelected()));
 					return;
-				} else {
-					if (entity == null) {
-						return;
-					}
-					GuiNbtBook gui = new GuiNbtBook(0, 0, 0);
-					NBTTagCompound data = new NBTTagCompound();
-					entity.writeToNBTAtomically(data);
-					NBTTagCompound compound = new NBTTagCompound();
-					compound.setInteger("EntityId", entity.getEntityId());
-					compound.setTag("Data", data);
-					gui.setGuiData(compound);
-					displayGuiScreen(gui);
 				}
+				if (entity == null) { return; }
+				GuiNbtBook gui = new GuiNbtBook(0, 0, 0);
+				NBTTagCompound data = new NBTTagCompound();
+				entity.writeToNBTAtomically(data);
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setInteger("EntityId", entity.getEntityId());
+				compound.setTag("Data", data);
+				gui.setGuiData(compound);
+				displayGuiScreen(gui);
 				break;
 			}
 			case 1: { // remove entity
@@ -141,11 +137,11 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 			NoppesUtil.openGUI(player, this);
 			Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
 		}, 250);
-
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (subgui == null) {
 			GlStateManager.pushMatrix();
 			if (selectEntity != null) {
@@ -172,7 +168,6 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 			Gui.drawRect(guiLeft + 192, guiTop + 86, guiLeft + 251, guiTop + 170, new Color(0xFF000000).getRGB());
 			GlStateManager.popMatrix();
 		}
-		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (isMouseHover(mouseX, mouseY, guiLeft + 191, guiTop + 85, 61, 86)) {
 			drawHoverText("wand.hover.entity");
@@ -238,7 +233,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 	public void keyTyped(char c, int i) {
 		if (i == 1 || isInventoryKey(i)) { close(); }
 		super.keyTyped(c, i);
-		if (i == 200 || i == 208 || i == ClientProxy.frontButton.getKeyCode() || i == ClientProxy.backButton.getKeyCode()) { resetEntity(); }
+		if (i == 200 || i == 208 || i == mc.gameSettings.keyBindForward.getKeyCode() || i == mc.gameSettings.keyBindBack.getKeyCode()) { resetEntity(); }
 	}
 
 	@Override

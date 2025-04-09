@@ -23,7 +23,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.SubGuiEditBankAccess;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
@@ -520,10 +519,10 @@ implements ISubGuiListener {
 
 	@Override
 	public void keyTyped(char typedChar, int keyCode) {
-		if (keyCode == 200 || keyCode == ClientProxy.frontButton.getKeyCode()) {
+		if (keyCode == 200 || keyCode == mc.gameSettings.keyBindForward.getKeyCode()) {
 			resetRow(false);
 		}
-		if (keyCode == 208 || keyCode == ClientProxy.backButton.getKeyCode()) {
+		if (keyCode == 208 || keyCode == mc.gameSettings.keyBindBack.getKeyCode()) {
 			resetRow(true);
 		}
 		super.keyTyped(typedChar, keyCode);

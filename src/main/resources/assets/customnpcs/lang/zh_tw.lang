@@ -149,10 +149,6 @@ animation.clear.part=身體部位設定ID: %s - “%s ”
 animation.frame=框架%s
 animation.frames=框架設定：
 animation.hitbox=命中框设置：
-animation.hitbox.0=Anyway
-animation.hitbox.1=In front of you
-animation.hitbox.2=Touches the hitbox
-animation.hitbox.part.name=Hitbox Attacks
 animation.hitbox.type=Attack hitbox type:
 animation.hold.left=In left hand:
 animation.hold.right=In right hand:
@@ -2506,6 +2502,14 @@ trader.insufficient=貨幣不足
 trader.sufficient=可以買
 trader.trade=交易
 trader.waiting=等待達成交易
+
+transform.hover.edit=啟用 NPC 狀態切換<br>§7白天一個狀態，夜晚另一個狀態<br>§7通常白天持續§6 0§7 到§6 12000§7 個刻，夜晚持續§6 12000§7 到§6 24000§7 個刻
+transform.hover.tab=變更標籤設定「%s」的狀態
+transform.hover.role=更改角色<br>§7在整個選項卡“%s§7”上啟用更改時，無論如何都會發生更改
+transform.hover.job=更改工作<br>§7在整個標籤“%s§7”上啟用更改時，無論如何都會發生更改
+transform.hover.loadday=將 NPC 的當前狀態設定為白天<br>§7將所有世界的當前時間設定為白天（§61000§7 個刻度）
+transform.hover.loadnight=將 NPC 的當前狀態設定為夜晚<br>§7將所有世界的當前時間設定為夜晚（§613000§7 刻）
+transform.hover.state=<br>§7此後，當前時間對此 NPC 的任何更改都將應用於此狀態<br>§7如果您要進行大量更改，建議使用命令§a /gamerule doDaylightCycle§c false 停止時間流動
 
 transporter.discovered=如果您看到NPC，則可用
 transporter.hover.not.item=§c您沒有足夠的物品來支付搬家費用

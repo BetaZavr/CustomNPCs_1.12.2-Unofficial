@@ -5,10 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.google.common.base.MoreObjects;
-
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -172,4 +169,5 @@ public class DataScript implements IScriptHandler {
 		compound.setBoolean("ScriptEnabled", this.enabled);
 		return compound;
 	}
+
 }

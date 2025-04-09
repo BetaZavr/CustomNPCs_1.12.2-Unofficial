@@ -2,7 +2,6 @@ package noppes.npcs.controllers;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,7 +19,6 @@ import java.util.function.Function;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 
 import net.minecraft.nbt.*;
 import net.minecraft.util.math.BlockPos;
@@ -216,7 +214,9 @@ public class ScriptContainer {
 		if (handler == null) { return false; }
 		if (handler instanceof DataScript) {
 			EntityNPCInterface npc = ((DataScript) handler).npc;
-			return npc != null && npc.world != null && npc.getEntityId() > 0 && npc.equals(npc.world.getEntityByID(npc.getEntityId()));
+			try { return npc != null && npc.world != null && npc.getEntityId() > 0 && npc.equals(npc.world.getEntityByID(npc.getEntityId())); }
+			catch (Throwable ignored) {}
+			return false;
 		}
 		if (handler instanceof TileNpcEntity) {
 			if (!((TileNpcEntity) handler).hasWorld()) { return false; }
@@ -345,15 +345,14 @@ public class ScriptContainer {
 			ScriptContainer.Current = this;
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
-			ScriptEngine action = engine;
-			action.getContext().setWriter(pw);
-			action.getContext().setErrorWriter(pw);
-			if (action.get("dump") == null) { fillEngine(action); }
-			else if (isClient && (action.get("mc") == null || action.get("storedData") == null)) { fillEngineClient(action); }
 			try {
-				if (fullscript == null) { action.eval(getTotalCode()); }
-				if (action.getFactory().getLanguageName().equals("lua")) {
-					Object ob = action.get(type);
+				engine.getContext().setWriter(pw);
+				engine.getContext().setErrorWriter(pw);
+				if (engine.get("dump") == null) { fillEngine(engine); }
+				else if (isClient && (engine.get("mc") == null || engine.get("storedData") == null)) { fillEngineClient(engine); }
+				if (fullscript == null) { engine.eval(getTotalCode()); }
+				if (engine.getFactory().getLanguageName().equals("lua")) {
+					Object ob = engine.get(type);
 					if (ob != null) {
 						if (ScriptContainer.luaCoerce == null) {
 							ScriptContainer.luaCoerce = Class.forName("org.luaj.vm2.lib.jse.CoerceJavaToLua").getMethod("coerce", Object.class);
@@ -363,10 +362,10 @@ public class ScriptContainer {
 					}
 					else { unknownFunctions.add(type); }
 				}
-				else { ((Invocable) action).invokeFunction(type, event); }
+				else { ((Invocable) engine).invokeFunction(type, event); }
 			}
 			catch (NoSuchMethodException notFunction) { unknownFunctions.add(type); }
-			catch (ScriptException | ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
+			catch (Throwable e) {
 				errored = true;
 				ITextComponent notice = handler.noticeString(type, event);
 				String noticeToLog = Util.instance.deleteColor(notice.getFormattedText());
@@ -393,6 +392,7 @@ public class ScriptContainer {
 			}
 		}
 		if (!console.isEmpty()) { ScriptController.Instance.tryAddErrored(this); }
+
 	}
 
 	public void runAsync(String link, String async, String sync, Object arguments) {
@@ -446,8 +446,12 @@ public class ScriptContainer {
 		String language = Util.instance.deleteColor(handler.getLanguage()).toLowerCase();
 		String side = isClient ? "Client" : "Server";
 		boolean needResave= false;
-
+		LogWriter.debug("Fill main classes to data");
+		try { scriptEngine.put("Date", scriptEngine.eval("Java.type('" + Date.class.getName() + "')")); } catch (Throwable ignored) { LogWriter.error("Not put key \"Date\" to engine"); }
+		try { scriptEngine.put("Calendar", scriptEngine.eval("Java.type('" + Calendar.class.getName() + "')")); } catch (Throwable ignored) { LogWriter.error("Not put key \"Calendar\" to engine"); }
+		try { scriptEngine.put("System", scriptEngine.eval("Java.type('" + System.class.getName() + "')")); } catch (Throwable ignored) { LogWriter.error("Not put key \"System\" to engine"); }
 		// Custom Functions
+		LogWriter.debug("Fill custom functions to data");
 		NBTTagList functions = constants.getCompoundTag("Functions").getTagList(language, 8);
 		for (int i = 0; i < functions.tagCount(); i++) {
 			String body = functions.getStringTagAt(i);
@@ -460,7 +464,7 @@ public class ScriptContainer {
 					ScriptContainer.Data.put(key, scriptEngine.eval(body));
 				}
 				catch (Throwable e) {
-					LogWriter.error("Key: " + key + "; Value: " + body + " put error:", e);
+					LogWriter.error("Not add function key: \"" + body + "\"; body: \"" + body + "\" to data");
 					// save error
 					if (!constants.getCompoundTag("Functions").hasKey("EvalIsError", 10)) {
 						constants.getCompoundTag("Functions").setTag("EvalIsError", new NBTTagCompound());
@@ -483,20 +487,25 @@ public class ScriptContainer {
 			catch (Throwable e) { constants.getTagList("Functions", 10).getCompoundTagAt(i).setBoolean("EvalIsError", true); }
 		}
 		// Custom Constants
+		LogWriter.debug("Fill custom constants to data");
 		NBTTagCompound cons = constants.getCompoundTag("Constants").getCompoundTag(language);
 		for (String key : cons.getKeySet()) {
 			Object value = getNBTValue(cons.getTag(key));
 			String err = "";
 			if (value == null) { err = "NullPointerException"; }
 			else {
-				LogWriter.debug("Put constant to data key: " + key + "; value: " + value);
-				if (value instanceof String) {
-					try { ScriptContainer.Data.put(key, scriptEngine.eval((String) value)); }
-					catch (Throwable e) { ScriptContainer.Data.put(key, value); }
+				try {
+					LogWriter.debug("Put constant to data key: " + key + "; value: " + value);
+					if (value instanceof String) {
+						try { ScriptContainer.Data.put(key, scriptEngine.eval((String) value)); }
+						catch (Throwable e) { ScriptContainer.Data.put(key, value); }
+					}
+					else { ScriptContainer.Data.put(key, value); }
 				}
-				else { ScriptContainer.Data.put(key, value); }
+				catch (Throwable t) { err = t.getCause().getClass().getSimpleName(); }
 			}
 			if (!err.isEmpty()) {
+				LogWriter.error("Not add constant key: \"" + key + "\"; value: \"" + value + "\" to data");
 				// save error
 				if (!constants.getCompoundTag("Constants").hasKey("EvalIsError", 10)) {
 					constants.getCompoundTag("Constants").setTag("EvalIsError", new NBTTagCompound());
@@ -513,34 +522,35 @@ public class ScriptContainer {
 		// Base Functions
 		ScriptContainer.Data.put("dump", new Dump());
 		ScriptContainer.Data.put("log", new Log());
-		// Base Constants
-		try { ScriptContainer.Data.put("date", scriptEngine.eval("Java.type('" + Date.class.getName() + "')")); } catch (Throwable ignored) { }
-		try { ScriptContainer.Data.put("calendar", scriptEngine.eval("Java.type('" + Calendar.class.getName() + "')")); } catch (Throwable ignored) { }
 		// Try to put all
+		LogWriter.debug("Fill data to engine");
 		for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
 			try {
 				LogWriter.debug("Put to engine key: " + entry.getKey() + "; value: " + entry.getValue());
 				scriptEngine.put(entry.getKey(), entry.getValue());
-			} catch (Throwable ignored) { }
+			} catch (Throwable ignored) { LogWriter.error("Not put data key \"" + entry.getKey() + "\" to engine"); }
 		}
 		if (isClient) { fillEngineClient(scriptEngine); }
-		scriptEngine.put("api", NpcAPI.Instance());
-		scriptEngine.put("currentThread", Thread.currentThread().getName());
-		scriptEngine.put("main", scriptEngine);
-		scriptEngine.put("currentScriptContainer", this);
-		scriptEngine.put("tempData", new TempData());
-
-		if (needResave) {
-			try { Util.instance.saveFile(ScriptController.Instance.constantScriptsFile(), constants.copy()); }
-			catch (Throwable e) { LogWriter.except(e); }
-		}
+		// Main Constants
+		LogWriter.debug("Fill mod fields and methods to engine");
+		try { scriptEngine.put("cnpcs", CustomNpcs.instance); } catch (Throwable ignored) { LogWriter.error("Not put key \"cnpcs\" to engine"); }
+		try { scriptEngine.put("api", NpcAPI.Instance()); } catch (Throwable ignored) { LogWriter.error("Not put key \"api\" to engine"); }
+		try { scriptEngine.put("currentThread", Thread.currentThread().getName()); } catch (Throwable ignored) { LogWriter.error("Not put key \"currentThread\" to engine"); }
+		try { scriptEngine.put("main", scriptEngine); } catch (Throwable ignored) { LogWriter.error("Not put key \"main\" to engine"); }
+		try { scriptEngine.put("currentScriptContainer", this); } catch (Throwable ignored) { LogWriter.error("Not put key \"currentScriptContainer\" to engine"); }
+		try { scriptEngine.put("tempData", new TempData()); } catch (Throwable ignored) { LogWriter.error("Not put key \"tempData\" to engine"); }
+		// resave constants file
+		if (needResave) { Util.instance.saveFile(ScriptController.Instance.constantScriptsFile(), constants.copy()); }
+		LogWriter.debug("Done fill engine");
 	}
 
 	private void fillEngineClient(ScriptEngine scriptEngine) {
 		if (!isClient) { return; }
 		// Try to put MC
-		try { scriptEngine.put("mc", ClientProxy.mcWrapper); } catch (Throwable ignored) {  }
-		try { scriptEngine.put("storedData", ScriptController.Instance.clientScripts.storedData); } catch (Throwable ignored) {  }
+		try { scriptEngine.put("mc", ClientProxy.mcWrapper); }
+		catch (Throwable ignored) { LogWriter.error("Not put key \"mc\" to engine"); }
+		try { scriptEngine.put("storedData", ScriptController.Instance.clientScripts.storedData); }
+		catch (Throwable ignored) { LogWriter.error("Not put key \"storedData\" to engine"); }
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {

@@ -1,12 +1,14 @@
 package noppes.npcs.client.gui.questtypes;
 
 import java.lang.reflect.Modifier;
+import java.text.DecimalFormat;
 import java.util.*;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -24,6 +26,7 @@ import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
+import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 
@@ -33,6 +36,8 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 	private GuiCustomScroll scroll;
 	private final QuestObjective task;
 	private final Map<Integer, Integer> dataDimIDs = new HashMap<>();
+	private final Map<String, EntityNPCInterface> dataNPCs = new HashMap<>();
+	private final DecimalFormat df = new DecimalFormat("#.#");
 
 	public GuiNpcQuestTypeKill(EntityNPCInterface npc, QuestObjective taskObj, GuiScreen gui) {
 		super(npc);
@@ -119,16 +124,49 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 		addTextField(textField);
 		// entities list
 		ArrayList<String> list = new ArrayList<>();
+		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
+		int i = 1;
+		list.add(0, ((char) 167) + "bPlayer");
+		hts.put(0, Collections.singletonList(((char) 167) + "7Any player"));
+		List<EntityNPCInterface> npcs = player.world.getEntitiesWithinAABB(EntityNPCInterface.class, new AxisAlignedBB(player.getPosition()).grow(32));
+		TreeMap<Float, EntityNPCInterface> map = new TreeMap<>();
+		for (EntityNPCInterface npc : npcs) {
+			float distance = player.getDistance(npc);
+			while (map.containsKey(distance)) { distance += 0.0001f; }
+			map.put(distance, npc);
+		}
+		dataNPCs.clear();
+		for (Float distance : map.keySet()) {
+			String name = map.get(distance).getName();
+			String key = ((char) 167) + "a" + name;
+			if (list.contains(key)) { continue; }
+			list.add(key);
+			dataNPCs.put(key, map.get(distance));
+			ArrayList<String> hoverList = new ArrayList<>();
+			hoverList.add(((char) 167) + "7NPC name: \"" + ((char) 167) + "r" + name + ((char) 167) + "7\"");
+			hoverList.add(((char) 167) + "7Distance Of: " + ((char) 167) + "6" + df.format(distance));
+			hts.put(i++, hoverList);
+		}
+		// Registry entity names
+		ArrayList<String> regNames = new ArrayList<>();
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			Class<? extends Entity> c = ent.getEntityClass();
 			String name = ent.getName();
 			try {
 				if (!EntityLivingBase.class.isAssignableFrom(c) || EntityNPCInterface.class.isAssignableFrom(c) || Modifier.isAbstract(c.getModifiers())) { continue; }
-				list.add(name);
+				regNames.add(name);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 		if (scroll == null) { scroll = new GuiCustomScroll(this, 0); }
-		scroll.setList(list);
+		Collections.sort(regNames);
+
+		list.addAll(regNames);
+		for (String name : regNames) {
+			hts.put(i++, Collections.singletonList(((char) 167) + "7Normal entity name"));
+		}
+
+		scroll.setListNotSorted(list);
+		scroll.setHoverTexts(hts);
 		scroll.setSize(130, 198);
 		scroll.guiLeft = guiLeft + 220;
 		scroll.guiTop = guiTop + 14;
@@ -174,7 +212,8 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 		addTextField(textField);
 		// dim ID
 		addLabel(new GuiNpcLabel(lId++, "D:", x, (y += 17) + 2));
-		int p = 0, i = 0;
+		int p = 0;
+		i = 0;
 		List<Integer> ids = Arrays.asList(DimensionManager.getStaticDimensionIDs());
 		Collections.sort(ids);
 		String[] dimIDs = new String[ids.size()];
@@ -194,8 +233,8 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 		textField.setHoverText(new TextComponentTranslation("quest.hover.compass.reg", task.regionID).appendSibling(compass).getFormattedText());
 		addTextField(textField);
 		// N
-		addLabel(new GuiNpcLabel(lId, "N:", x + 71, y + 2));
-		textField = new GuiNpcTextField(15, this, fontRenderer, x + 79, y, 133, 14, task.entityName);
+		addLabel(new GuiNpcLabel(lId, "N:", x + 81, y + 2));
+		textField = new GuiNpcTextField(15, this, fontRenderer, x + 89, y, 123, 14, task.entityName);
 		textField.setHoverText(new TextComponentTranslation("quest.hover.compass.entity").appendSibling(compass).getFormattedText());
 		addTextField(textField);
 		// set player pos
@@ -246,8 +285,47 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		getTextField(0).setFullText(scroll.getSelected());
+		String name = Util.instance.deleteColor(scroll.getSelected());
+		getTextField(0).setFullText(name);
+		if (dataNPCs.containsKey(scroll.getSelected())) {
+			EntityNPCInterface npcIn = dataNPCs.get(scroll.getSelected());
+			task.dimensionID = npcIn.world.provider.getDimension();
+			task.pos = npcIn.getPosition();
+			task.entityName = name;
+			int range = 5;
+			if (npcIn.ais.getMovingType() == 1) { range = npcIn.ais.getWanderingRange(); }
+			else if (npcIn.ais.getMovingType() == 2) {
+				int xm = Integer.MAX_VALUE, xn = Integer.MIN_VALUE;
+				int ym = Integer.MAX_VALUE, yn = Integer.MIN_VALUE;
+				int zm = Integer.MAX_VALUE, zn = Integer.MIN_VALUE;
+				for (int[] pos : npcIn.ais.getMovingPath()) {
+					if (xm > pos[0]) { xm = pos[0]; }
+					if (xn < pos[0]) { xn = pos[0]; }
+					if (ym > pos[1]) { ym = pos[1]; }
+					if (yn < pos[1]) { yn = pos[1]; }
+					if (zm > pos[2]) { zm = pos[2]; }
+					if (zn < pos[2]) { zn = pos[2]; }
+				}
+				if (xm != Integer.MAX_VALUE) {
+					if (xm == xn) { task.pos = new BlockPos(xm, ym, zm); } // One pos
+					else {
+						task.pos = new BlockPos(xm + (xn - xm) / 2, ym + (yn - ym) / 2, zm + (zn - zm) / 2);
+						range = 5 + Math.max(xn - xm, Math.max(yn - ym, zn - zm)) / 2;
+					}
+				}
+			}
+			task.regionID = BorderController.getInstance().getRegionID(task.dimensionID, task.pos);
+			task.setAreaRange(Math.max(range, 32));
+		}
+		else {
+			task.dimensionID = player.world.provider.getDimension();
+			task.pos = BlockPos.ORIGIN;
+			task.entityName = "";
+			task.regionID = BorderController.getInstance().getRegionID(task.dimensionID, player.getPosition());
+			task.setAreaRange(5);
+		}
 		saveTargets();
+		initGui();
 	}
 
 	@Override
