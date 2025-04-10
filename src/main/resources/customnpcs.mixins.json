@@ -8,6 +8,7 @@
     "entity.EntityTrackerMixin",
     "entity.ai.EntityAIAttackRangedBowMixin",
     "entity.player.EntityPlayerMixin",
+    "fml.common.eventhandler.EventBusMixin",
     "init.ItemsMixin",
     "inv.ContainerMixin",
     "inv.SlotCraftingMixin",

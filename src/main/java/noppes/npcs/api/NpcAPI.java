@@ -3,7 +3,6 @@ package noppes.npcs.api;
 import java.io.File;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.INpc;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -29,30 +28,23 @@ import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.handler.*;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
-import noppes.npcs.client.gui.util.IEditNPC;
 import noppes.npcs.client.gui.util.IResourceData;
-import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class NpcAPI {
 
 	private static NpcAPI instance = null;
 
 	public static NpcAPI Instance() {
-		if (NpcAPI.instance != null) {
-			return NpcAPI.instance;
-		}
-		if (!IsAvailable()) {
-			return null;
-		}
-		try {
-			NpcAPI.instance = WrapperNpcAPI.Instance();
-		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		if (NpcAPI.instance != null) { return NpcAPI.instance; }
+		if (!IsAvailable()) { return null; }
+		try { NpcAPI.instance = WrapperNpcAPI.Instance(); }
+		catch (Exception e) { LogWriter.error("Error NpcAPI instance: ", e); }
 		return NpcAPI.instance;
 	}
 
 	public static boolean IsAvailable() {
-		return Loader.isModLoaded(CustomNpcs.MODID);
+		try { return Loader.isModLoaded(CustomNpcs.MODID); } catch (Throwable ignored) { }
+        return false;
 	}
 
 	public abstract ICustomGui createCustomGui(int id, int width, int height, boolean pauseGame);

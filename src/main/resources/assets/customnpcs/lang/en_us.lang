@@ -1908,7 +1908,8 @@ property.verbosedebug.hover=Show debug
 property.vinegrowthenabled.hover=Enables vine growth
 property.showhitboxblocktools.hover=Displaying mod toolbox hitboxes in the world
 property.defaulthurtresistanttime.hover=Time of immortality after NPC takes damage (in ticks, default)
-property.showhealingparticles.hover=
+property.showhealingparticles.hover=When NPCs self-heal, particles will appear above their heads
+property.enableforgescripting.hover=Are scripts enabled for Forge events or not
 
 puppet.aim=§9§lAims
 puppet.animation=Animation

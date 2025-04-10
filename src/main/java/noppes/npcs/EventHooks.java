@@ -185,8 +185,9 @@ public class EventHooks {
 	}
 
 	public static void onForgeEvent(ForgeEvent ev) {
+		if (!CustomNpcs.EnableForgeScripting) { return; }
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
-		String eventName;
+		String eventName = "";
 		if (!handler.isClient() && handler.isEnabled()) {
 			if (!ScriptController.forgeEventNames.containsKey(ev.event.getClass())) {
 				eventName = ev.event.getClass().getName();
@@ -202,7 +203,6 @@ public class EventHooks {
 				if (ev.isCanceled() && ev.event.isCancelable()) {
 					ev.event.setCanceled(true);
 				}
-				WrapperNpcAPI.EVENT_BUS.post(ev.event);
 				if (ev.isCancelable()) { ev.setCanceled(ev.event.isCanceled()); }
 			} catch (Exception e) {
 				LogWriter.error("Error:", e);
@@ -227,7 +227,6 @@ public class EventHooks {
 			try {
 				handlerClient.runScript(eventName, ev);
 				if (ev.isCanceled() && ev.event.isCancelable()) { ev.event.setCanceled(true); }
-				WrapperNpcAPI.EVENT_BUS.post(ev.event);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 	}

@@ -105,7 +105,10 @@ public class Util implements IMethods {
 	public static boolean hasInternet = false;
 	public static final ResourceLocation RECIPE_BOOK = new ResourceLocation("textures/gui/recipe_book.png");
 
-	public boolean canAddItemAfterRemoveItems(NonNullList<ItemStack> inventory, ItemStack addStack, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
+	public static void test(Object obj) {
+	}
+
+    public boolean canAddItemAfterRemoveItems(NonNullList<ItemStack> inventory, ItemStack addStack, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
 		if (inventory == null || addStack.isEmpty()) {
 			return false;
 		}
@@ -1220,9 +1223,18 @@ public class Util implements IMethods {
 		}
 		LogWriter.info("Trying save text to file \"" + file.getAbsolutePath() + "\"");
 		if (file.getParentFile() != null && !file.getParentFile().exists() && !file.getParentFile().mkdirs()) { // create directories
-			LogWriter.debug("Error creating directories from file path \"" + file.getAbsolutePath() + "\"");
+			LogWriter.debug("Error creating directories \"" + file.getParentFile() + "\"");
 			return false;
 		}
+		try {
+			if (!file.exists() && !file.createNewFile()) {
+				LogWriter.debug("Error creating file \"" + file.getAbsolutePath() + "\"");
+				return false;
+			}
+		} catch (Exception e) {
+			LogWriter.debug("Error creating file \"" + file.getAbsolutePath() + "\"");
+			return false;
+        }
 		try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8)) {
 			writer.write(text);
 		} catch (IOException e) {
