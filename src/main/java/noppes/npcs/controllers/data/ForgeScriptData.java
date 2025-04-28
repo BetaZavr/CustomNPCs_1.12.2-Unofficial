@@ -16,11 +16,6 @@ public class ForgeScriptData
 extends BaseScriptData {
 
 	@Override
-	public boolean isEnabled() {
-		return CustomNpcs.EnableForgeScripting && super.isEnabled();
-	}
-
-	@Override
 	public ITextComponent noticeString(String type, Object event) {
 		ITextComponent message = new TextComponentString("Forge Scripts ");
 		message.getStyle().setColor(TextFormatting.DARK_GRAY);

@@ -18,7 +18,7 @@ import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
 import noppes.npcs.api.util.IModelRenderer;
 import noppes.npcs.client.model.animation.*;
 import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
-import noppes.npcs.api.mixin.client.model.IModelPlayerMixin;
+import noppes.npcs.reflection.client.model.ModelPlayerReflection;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
@@ -163,7 +163,7 @@ public class ModelNpcAlt extends ModelPlayer {
         bipedCape.setTextureSize(64, 32);
         bipedCape.setBox(-5.0F, 0.0F, -1.0F, 10, 9, 5, 2, 1, modelSize);
         bipedCape.setRotationPoint(0.0F, 0.0F, 0.0F);
-        ((IModelPlayerMixin) this).npcs$setBipedCape(bipedCape);
+        ModelPlayerReflection.setBipedCape(this, bipedCape);
 
         float handWidth = smallArmsIn ? 3.0f : 4.0f;
         bipedRightArm = new ModelRendererAlt(this, EnumParts.ARM_RIGHT, 40, 16, false);
@@ -588,7 +588,7 @@ public class ModelNpcAlt extends ModelPlayer {
             animation = npc.animation;
             if (npc.navigating != null && (netHeadYaw < -2.0f || netHeadYaw > 2.0f)) {
                 entityIn.turn(netHeadYaw / 3.0f, headPitch / 3.0f);
-                ((IModelPlayerMixin) this).npcs$setBipedCape(bipedCape);
+                ModelPlayerReflection.setBipedCape(this, bipedCape);
                 ((IEntityLivingBaseMixin) entityIn).npcs$setInterpTargetYaw(entityIn.rotationYaw);
                 ((IEntityLivingBaseMixin) entityIn).npcs$setInterpTargetPitch(entityIn.rotationPitch);
             }

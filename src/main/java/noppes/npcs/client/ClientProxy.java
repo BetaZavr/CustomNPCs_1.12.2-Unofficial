@@ -91,6 +91,7 @@ import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.controllers.PresetController;
 import noppes.npcs.client.fx.EntityEnderFX;
 import noppes.npcs.client.gui.*;
+import noppes.npcs.client.gui.availability.SubGuiNpcAvailabilityItemStacks;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.dimentions.GuiCreateDimension;
 import noppes.npcs.client.gui.global.*;

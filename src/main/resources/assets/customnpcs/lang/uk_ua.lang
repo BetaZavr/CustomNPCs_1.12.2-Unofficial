@@ -1900,7 +1900,6 @@ property.vinegrowthenabled.hover=Увімкнення росту ліан
 property.showhitboxblocktools.hover=Відображення хітбоксів інструментальних блоків мода у світі
 property.defaulthurtresistanttime.hover=Час безсмертя після того, як NPC отримає шкоду (у тиках, за замовчуванням)
 property.showhealingparticles.hover=При самолікуванні NPC над головою з'являтиметься частинки
-property.enableforgescripting.hover=Чи увімкнені скрипти для подій Forge чи ні
 
 puppet.aim=§9§lЦілиться
 puppet.animation=Анімація

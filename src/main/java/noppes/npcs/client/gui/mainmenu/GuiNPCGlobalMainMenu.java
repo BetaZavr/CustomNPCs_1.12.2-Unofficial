@@ -21,50 +21,17 @@ extends GuiNPCInterface2 {
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 		switch (button.getID()) {
-			case 2: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks);
-				break;
-			}
-			case 3: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageFactions);
-				break;
-			}
-			case 4: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageDialogs);
-				break;
-			}
-			case 11: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageQuests);
-				break;
-			}
-			case 12: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, -1, 0, 0);
-				break;
-			}
-			case 13: {
-				NoppesUtil.openGUI(this.player, new GuiNpcManagePlayerData(this.npc));
-				break;
-			}
-			case 14: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, 0, 0, 0);
-				break;
-			}
-			case 15: {
-				NoppesUtil.openGUI(this.player, new GuiNpcNaturalSpawns(this.npc));
-				break;
-			}
-			case 16: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageLinked);
-				break;
-			}
-			case 17: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, -1, -1, 0);
-				break;
-			}
-			case 19: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageMail, 0, 0, 0);
-				break;
-			}
+			case 2: NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks); break;
+			case 3: NoppesUtil.requestOpenGUI(EnumGuiType.ManageFactions); break;
+			case 4: NoppesUtil.requestOpenGUI(EnumGuiType.ManageDialogs); break;
+			case 11: NoppesUtil.requestOpenGUI(EnumGuiType.ManageQuests); break;
+			case 12: NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, -1, 0, 0); break;
+			case 13: NoppesUtil.openGUI(player, new GuiNpcManagePlayerData(npc)); break;
+			case 14: NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, 0, 0, 0); break;
+			case 15: NoppesUtil.openGUI(player, new GuiNpcNaturalSpawns(npc)); break;
+			case 16: NoppesUtil.requestOpenGUI(EnumGuiType.ManageLinked); break;
+			case 17: NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, -1, -1, 0); break;
+			case 19: NoppesUtil.requestOpenGUI(EnumGuiType.ManageMail, 0, 0, 0); break;
 		}
 	}
 

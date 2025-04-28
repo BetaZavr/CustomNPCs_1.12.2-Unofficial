@@ -1,4 +1,4 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.availability;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.NoppesUtil;
+import noppes.npcs.client.gui.GuiNPCFactionSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityFaction;
 import noppes.npcs.constants.EnumAvailabilityFactionType;
@@ -19,20 +20,19 @@ public class SubGuiNpcAvailabilityFaction
 extends SubGuiInterface
 implements ICustomScrollListener, GuiSelectionListener {
 
-	private final Availability availability;
-	private final String chr = "" + ((char) 167);
-	private final Map<String, Integer> dataIDs = new HashMap<>();
-	private final Map<String, AvailabilityFactionData> dataSets = new HashMap<>();
-	private GuiCustomScroll scroll;
-	private String select = "";
+	protected final Availability availability;
+	protected final Map<String, Integer> dataIDs = new HashMap<>();
+	protected final Map<String, AvailabilityFactionData> dataSets = new HashMap<>();
+	protected GuiCustomScroll scroll;
+	protected String select = "";
 
-	public SubGuiNpcAvailabilityFaction(Availability availability) {
+	public SubGuiNpcAvailabilityFaction(Availability availabilityIn) {
 		setBackground("menubg.png");
 		xSize = 316;
 		ySize = 217;
 		closeOnEsc = true;
 
-		this.availability = availability;
+		availability = availabilityIn;
 	}
 
 	@Override
@@ -47,7 +47,7 @@ implements ICustomScrollListener, GuiSelectionListener {
 				select = "ID:" + id + " - ";
 				Faction faction = FactionController.instance.factions.get(id);
 				if (faction == null) {
-					select += chr + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
+					select += ((char) 167) + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
 				} else {
 					String stance = "";
 					switch (afd.factionStance) {
@@ -64,9 +64,8 @@ implements ICustomScrollListener, GuiSelectionListener {
 							break;
 						}
 					}
-					select += faction.getName() + chr + "7 (" + chr + "3" + new TextComponentTranslation(("availability." + afd.factionAvailable).toLowerCase()).getFormattedText() + chr + "7)" + chr + "7 (" + chr + "9" + new TextComponentTranslation(stance).getFormattedText() + chr + "7)";
+					select += faction.getName() + ((char) 167) + "7 (" + ((char) 167) + "3" + new TextComponentTranslation(("availability." + afd.factionAvailable).toLowerCase()).getFormattedText() + ((char) 167) + "7) (" + ((char) 167) + "9" + new TextComponentTranslation(stance).getFormattedText() + ((char) 167) + "7)";
 				}
-
 				initGui();
 				break;
 			}
@@ -97,7 +96,7 @@ implements ICustomScrollListener, GuiSelectionListener {
 				select = "ID:" + id + " - ";
 				Faction faction = FactionController.instance.factions.get(id);
 				if (faction == null) {
-					select += chr + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
+					select += ((char) 167) + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
 				} else {
 					String stance = "";
 					switch (eaf) {
@@ -114,7 +113,7 @@ implements ICustomScrollListener, GuiSelectionListener {
 							break;
 						}
 					}
-					select += faction.getName() + chr + "7 (" + chr + "3" + new TextComponentTranslation(("availability." + afd.factionAvailable).toLowerCase()).getFormattedText() + chr + "7)" + chr + "7 (" + chr + "9" + new TextComponentTranslation(stance).getFormattedText() + chr + "7)";
+					select += faction.getName() + ((char) 167) + "7 (" + ((char) 167) + "3" + new TextComponentTranslation(("availability." + afd.factionAvailable).toLowerCase()).getFormattedText() + ((char) 167) + "7) (" + ((char) 167) + "9" + new TextComponentTranslation(stance).getFormattedText() + ((char) 167) + "7)";
 				}
 				initGui();
 				break;
@@ -157,7 +156,7 @@ implements ICustomScrollListener, GuiSelectionListener {
 			Faction faction = FactionController.instance.factions.get(id);
 			AvailabilityFactionData afd = availability.factions.get(id);
 			if (faction == null) {
-				key += chr + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
+				key += ((char) 167) + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
 			} else {
 				String stance = "";
 				switch (afd.factionStance) {
@@ -174,11 +173,11 @@ implements ICustomScrollListener, GuiSelectionListener {
 					break;
 				}
 				}
-				key += faction.getName() + chr + "7 (" + chr + "3"
+				key += faction.getName() + ((char) 167) + "7 (" + ((char) 167) + "3"
 						+ new TextComponentTranslation(("availability." + afd.factionAvailable).toLowerCase())
 								.getFormattedText()
-						+ chr + "7)" + chr + "7 (" + chr + "9" + new TextComponentTranslation(stance).getFormattedText()
-						+ chr + "7)";
+						+ ((char) 167) + "7) (" + ((char) 167) + "9" + new TextComponentTranslation(stance).getFormattedText()
+						+ ((char) 167) + "7)";
 			}
 			dataIDs.put(key, id);
 			dataSets.put(key, availability.factions.get(id));
@@ -261,9 +260,9 @@ implements ICustomScrollListener, GuiSelectionListener {
 				EnumAvailabilityFaction.Friendly);
 		select = "ID:" + id + " - ";
 		if (faction == null) {
-			select += chr + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
+			select += ((char) 167) + "4" + (new TextComponentTranslation("faction.notfound").getFormattedText());
 		} else {
-			select += faction.getName() + chr + "7 (" + chr + "3" + new TextComponentTranslation("availability.is").getFormattedText() + chr + "7)" + chr + "7 (" + chr + "9" + new TextComponentTranslation("faction.friendly").getFormattedText() + chr + "7)";
+			select += faction.getName() + ((char) 167) + "7 (" + ((char) 167) + "3" + new TextComponentTranslation("availability.is").getFormattedText() + ((char) 167) + "7) (" + ((char) 167) + "9" + new TextComponentTranslation("faction.friendly").getFormattedText() + ((char) 167) + "7)";
 		}
 		availability.factions.put(id, afd);
 		initGui();

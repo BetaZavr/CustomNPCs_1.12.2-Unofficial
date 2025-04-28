@@ -228,8 +228,8 @@ public class CustomNpcs {
 	public static int MaxBuilderBlocks = 10000;
 	@ConfigProp(info = "Maximum number of items in one Drop group", def = "32", min = "1", max = "64")
 	public static int MaxItemInDropsNPC = 32;
-	@ConfigProp(info = "Cancel the creation of variables in each Forge event (saves FPS)", def = "true")
-	public static boolean SimplifiedForgeEvents = true;
+	@ConfigProp(info = "Cancel the creation of variables in each Forge event (saves FPS)", def = "false")
+	public static boolean SimplifiedForgeEvents = false;
 	@ConfigProp(info = "NPC scenes can be activated using special keys", def = "true")
 	public static boolean SceneButtonsEnabled = true;
 	@ConfigProp(info = "NPC speech can trigger a chat event", def = "false")
@@ -268,8 +268,6 @@ public class CustomNpcs {
 	public static int DefaultHurtResistantTime = 10;
 	@ConfigProp(info = "When NPCs self-heal, particles will appear above their heads", def = "true", type = Configuration.CATEGORY_CLIENT)
 	public static boolean ShowHealingParticles = true;
-	@ConfigProp(info = "Are scripts enabled for Forge events or not", def = "true")
-	public static boolean EnableForgeScripting = true;
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;
@@ -285,7 +283,6 @@ public class CustomNpcs {
 	public static DataDebug debugData = new DataDebug();
 	public static boolean FreezeNPCs = false;
 	public static boolean showServerQuestCompass = true;
-	public static boolean isLoaded = false;
 	public static File Dir;
 	public static ConfigLoader Config;
 	public static ITextComponent prefix = new TextComponentString(((char) 167) + "e[" + ((char) 167) + "2CustomNpcs" + ((char) 167) + "e]" + ((char) 167) + "r: ");
@@ -297,7 +294,7 @@ public class CustomNpcs {
     public static int PanoramaNumbers = 4;
 
     static {
-		try { FluidRegistry.enableUniversalBucket(); } catch (Throwable ignored) { }
+		FluidRegistry.enableUniversalBucket();
 	}
 
 	public static File getWorldSaveDirectory() {
@@ -342,7 +339,6 @@ public class CustomNpcs {
 
 		CustomNpcs.proxy.postload();
 		LogWriter.info("Mod loaded ^_^ Have a good game!");
-		isLoaded = true;
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_postload");
 	}
 
@@ -417,7 +413,7 @@ public class CustomNpcs {
 		ScriptController controller = new ScriptController();
 		if (CustomNpcs.EnableScripting && !controller.languages.isEmpty()) {
 			MinecraftForge.EVENT_BUS.register(controller);
-			MinecraftForge.EVENT_BUS.register(new PlayerEventHandler().containsForgeEvents(ev.getSide()));
+			MinecraftForge.EVENT_BUS.register(new PlayerEventHandler().registerForgeEvents(ev.getSide()));
 			MinecraftForge.EVENT_BUS.register(new ScriptItemEventHandler());
 		}
 		ForgeModContainer.fullBoundingBoxLadders = true;
@@ -465,8 +461,7 @@ public class CustomNpcs {
 		Objects.requireNonNull(NpcAPI.Instance()).events().register(new AbilityEventHandler());
 		ForgeChunkManager.setForcedChunkLoadingCallback(this,
                 new ChunkController());
-		CustomNpcs.customDimensionType = DimensionType.register("CustomDimensions", "CustomNpcs",
-				"CustomDimensions".hashCode(), CustomWorldProvider.class, false);
+		CustomNpcs.customDimensionType = DimensionType.register("CustomDimensions", "CustomNpcs", "CustomDimensions".hashCode(), CustomWorldProvider.class, false);
 		CustomNpcs.proxy.preload();
 		RangedAttributeReflection.setMaxValue((RangedAttribute) SharedMonsterAttributes.MAX_HEALTH, Double.MAX_VALUE);
 		DataObject.load();

@@ -222,11 +222,13 @@ implements IComponentGui, IGuiCustomScroll {
 			// pos
 			mouseX -= guiLeft;
 			mouseY -= guiTop;
-			isScrolling = Mouse.isButtonDown(0) && mouseX >= width - 9 && mouseX < width - 1 && mouseY >= 1 && mouseY < height - 1;
 			if (isScrolling) {
-				scrollY = (int) ((float) mouseY / ((float) height - 2.0f) * ((float) listHeight - (float) scrollHeight));
-				if (scrollY < 0) { scrollY = 0; }
-				if (scrollY > maxScrollY) { scrollY = maxScrollY; }
+				isScrolling = Mouse.isButtonDown(0);
+				if (isScrolling) {
+					scrollY = (int) ((float) mouseY / ((float) height - 2.0f) * ((float) listHeight - (float) scrollHeight));
+					if (scrollY < 0) { scrollY = 0; }
+					if (scrollY > maxScrollY) { scrollY = maxScrollY; }
+				}
 			}
 			if (canScrolled && hovered) {
 				int dWheel = Mouse.getDWheel();
@@ -405,6 +407,12 @@ implements IComponentGui, IGuiCustomScroll {
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
 		if (hasSearch) { textField.mouseClicked(mouseX, mouseY, mouseButton); }
+		if (scrollHeight < height - 2) {
+			double x = mouseX - guiLeft;
+			double y = mouseY - guiTop;
+			isScrolling = x >= width - 10 && x < width - 1 && y >= 1 && y < height - 2;
+			if (isScrolling) { return; }
+		}
 		if (mouseButton != 0 || hover < 0) { return; }
 		if (multipleSelection) {
 			if (selectedList.contains(list.get(hover))) {
@@ -412,19 +420,20 @@ implements IComponentGui, IGuiCustomScroll {
 			} else {
 				selectedList.add(list.get(hover));
 			}
-		} else {
+		}
+		else {
 			selected = hover;
 			hover = -1;
 		}
 		if (listener != null) {
-			long time = System.currentTimeMillis();
 			listener.scrollClicked(mouseX, mouseY, mouseButton, this);
-			if (selected >= 0 && selected == lastClickedItem && time - lastClickedTime < 500L) {
-				listener.scrollDoubleClicked(list.get(selected), this);
-			}
-			lastClickedTime = time;
-			lastClickedItem = selected;
 		}
+		long time = System.currentTimeMillis();
+		if (listener != null && selected >= 0 && selected == lastClickedItem && time - lastClickedTime < 500L) {
+			listener.scrollDoubleClicked(list.get(selected), this);
+		}
+		lastClickedTime = time;
+		lastClickedItem = selected;
 	}
 
 	public boolean mouseInOption(int i, int j, int k) {

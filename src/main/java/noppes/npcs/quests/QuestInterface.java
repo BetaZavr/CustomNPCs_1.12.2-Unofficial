@@ -17,7 +17,6 @@ import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcMiscInventory;
-import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
@@ -205,8 +204,8 @@ public class QuestInterface {
 		return keys;
 	}
 
-	public IQuestObjective[] getObjectives(EntityPlayer player) {
-		IQuestObjective[] array = new IQuestObjective[this.tasks.length];
+	public QuestObjective[] getObjectives(EntityPlayer player) {
+		QuestObjective[] array = new QuestObjective[this.tasks.length];
 		for (int i = 0; i < this.tasks.length; i++) {
 			array[i] = this.tasks[i].copyToPlayer(player);
 		}

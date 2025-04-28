@@ -47,8 +47,8 @@ public class QuestEvent extends CustomNPCsEvent {
 
 		public QuestTurnedInEvent(IPlayer<?> player, IQuest quest) {
 			super(player, quest);
-			this.itemRewards = new IItemStack[0];
-			this.factionOptions = ((Quest) quest).factionOptions.copy();
+			itemRewards = new IItemStack[0];
+			factionOptions = ((Quest) quest).factionOptions.copy();
 			this.mail = ((Quest) quest).mail.copy();
 			this.nextQuestId = ((Quest) quest).nextQuest;
 			this.command = ((Quest) quest).command;

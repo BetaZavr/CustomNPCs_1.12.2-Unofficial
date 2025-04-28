@@ -181,7 +181,7 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 	public @Nonnull IBlockState getStateFromMeta(int meta) {
 		IBlockState iblockstate = getDefaultState();
 		try {
-			iblockstate = iblockstate.withProperty(VARIANT, CustomBlockTypes.TreeType.values()[meta & 7]);
+			iblockstate = iblockstate.withProperty(VARIANT, CustomBlockTypes.TreeType.values()[meta & CustomBlockTypes.TreeType.values().length]);
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 		if (!isDouble()) {
 			iblockstate = iblockstate.withProperty(HALF,
@@ -191,7 +191,7 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 	}
 
 	public @Nonnull Comparable<?> getTypeForItem(@Nonnull ItemStack stack) {
-		return CustomBlockTypes.TreeType.values()[stack.getItemDamage() & 7];
+		return CustomBlockTypes.TreeType.values()[stack.getItemDamage() & CustomBlockTypes.TreeType.values().length];
 	}
 
 	@Override

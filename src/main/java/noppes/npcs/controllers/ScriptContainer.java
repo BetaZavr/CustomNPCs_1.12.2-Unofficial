@@ -371,7 +371,8 @@ public class ScriptContainer {
 				String noticeToLog = Util.instance.deleteColor(notice.getFormattedText());
 				pw.write(noticeToLog + "\n");
 				e.printStackTrace(pw);
-				String errorText = e.getCause().getLocalizedMessage().replaceAll("" + ((char) 13), "");
+				String errorText = (e.getCause() == null || e.getCause().getLocalizedMessage() == null) ?
+						"" + e.getCause() : e.getCause().getLocalizedMessage().replaceAll("" + ((char) 13), "");
 				StringBuilder error = new StringBuilder();
 				if (errorText.contains("" + (char) 10)) {
 					for (int c = 0; c < errorText.length(); c++) {
@@ -446,12 +447,12 @@ public class ScriptContainer {
 		String language = Util.instance.deleteColor(handler.getLanguage()).toLowerCase();
 		String side = isClient ? "Client" : "Server";
 		boolean needResave= false;
-		//LogWriter.debug("Fill main classes to data");
+		LogWriter.debug("Fill main classes to data");
 		try { scriptEngine.put("Date", scriptEngine.eval("Java.type('" + Date.class.getName() + "')")); } catch (Throwable ignored) { LogWriter.error("Not put key \"Date\" to engine"); }
 		try { scriptEngine.put("Calendar", scriptEngine.eval("Java.type('" + Calendar.class.getName() + "')")); } catch (Throwable ignored) { LogWriter.error("Not put key \"Calendar\" to engine"); }
 		try { scriptEngine.put("System", scriptEngine.eval("Java.type('" + System.class.getName() + "')")); } catch (Throwable ignored) { LogWriter.error("Not put key \"System\" to engine"); }
 		// Custom Functions
-		//LogWriter.debug("Fill custom functions to data");
+		LogWriter.debug("Fill custom functions to data");
 		NBTTagList functions = constants.getCompoundTag("Functions").getTagList(language, 8);
 		for (int i = 0; i < functions.tagCount(); i++) {
 			String body = functions.getStringTagAt(i);
@@ -460,7 +461,7 @@ public class ScriptContainer {
 				String key = body.substring(body.indexOf(" ") + 1, body.indexOf("("));
 				if (key.isEmpty()) { continue; }
 				try {
-					//LogWriter.debug("Put function to data key: " + key + "; value: " + body);
+					LogWriter.debug("Put function to data key: " + key + "; value: " + body);
 					ScriptContainer.Data.put(key, scriptEngine.eval(body));
 				}
 				catch (Throwable e) {
@@ -487,7 +488,7 @@ public class ScriptContainer {
 			catch (Throwable e) { constants.getTagList("Functions", 10).getCompoundTagAt(i).setBoolean("EvalIsError", true); }
 		}
 		// Custom Constants
-		//LogWriter.debug("Fill custom constants to data");
+		LogWriter.debug("Fill custom constants to data");
 		NBTTagCompound cons = constants.getCompoundTag("Constants").getCompoundTag(language);
 		for (String key : cons.getKeySet()) {
 			Object value = getNBTValue(cons.getTag(key));
@@ -495,7 +496,7 @@ public class ScriptContainer {
 			if (value == null) { err = "NullPointerException"; }
 			else {
 				try {
-					//LogWriter.debug("Put constant to data key: " + key + "; value: " + value);
+					LogWriter.debug("Put constant to data key: " + key + "; value: " + value);
 					if (value instanceof String) {
 						try { ScriptContainer.Data.put(key, scriptEngine.eval((String) value)); }
 						catch (Throwable e) { ScriptContainer.Data.put(key, value); }
@@ -523,16 +524,16 @@ public class ScriptContainer {
 		ScriptContainer.Data.put("dump", new Dump());
 		ScriptContainer.Data.put("log", new Log());
 		// Try to put all
-		//LogWriter.debug("Fill data to engine");
+		LogWriter.debug("Fill data to engine");
 		for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
 			try {
-				//LogWriter.debug("Put to engine key: " + entry.getKey() + "; value: " + entry.getValue());
+				LogWriter.debug("Put to engine key: " + entry.getKey() + "; value: " + entry.getValue());
 				scriptEngine.put(entry.getKey(), entry.getValue());
 			} catch (Throwable ignored) { LogWriter.error("Not put data key \"" + entry.getKey() + "\" to engine"); }
 		}
 		if (isClient) { fillEngineClient(scriptEngine); }
 		// Main Constants
-		//LogWriter.debug("Fill mod fields and methods to engine");
+		LogWriter.debug("Fill mod fields and methods to engine");
 		try { scriptEngine.put("cnpcs", CustomNpcs.instance); } catch (Throwable ignored) { LogWriter.error("Not put key \"cnpcs\" to engine"); }
 		try { scriptEngine.put("api", NpcAPI.Instance()); } catch (Throwable ignored) { LogWriter.error("Not put key \"api\" to engine"); }
 		try { scriptEngine.put("currentThread", Thread.currentThread().getName()); } catch (Throwable ignored) { LogWriter.error("Not put key \"currentThread\" to engine"); }
@@ -541,7 +542,7 @@ public class ScriptContainer {
 		try { scriptEngine.put("tempData", new TempData()); } catch (Throwable ignored) { LogWriter.error("Not put key \"tempData\" to engine"); }
 		// resave constants file
 		if (needResave) { Util.instance.saveFile(ScriptController.Instance.constantScriptsFile(), constants.copy()); }
-		//LogWriter.debug("Done fill engine");
+		LogWriter.debug("Done fill engine");
 	}
 
 	private void fillEngineClient(ScriptEngine scriptEngine) {

@@ -211,8 +211,7 @@ public class NoppesUtilPlayer {
 		return size >= item.getCount();
 	}
 
-	public static boolean compareItems(EntityPlayer player, ItemStack item, boolean ignoreDamage, boolean ignoreNBT,
-			int amount) {
+	public static boolean compareItems(EntityPlayer player, ItemStack item, boolean ignoreDamage, boolean ignoreNBT, int amount) {
 		int size = 0;
 		if (player == null) {
 			return false;
@@ -401,13 +400,9 @@ public class NoppesUtilPlayer {
 		PlayerData data = PlayerData.get(player);
 		PlayerQuestData playerdata = data.questData;
 		QuestData activeData = playerdata.activeQuests.get(questId);
-		if (activeData == null) {
-			return;
-		}
+		if (activeData == null) { return; }
 		Quest quest = activeData.quest;
-		if (!quest.questInterface.isCompleted(player) && !activeData.isCompleted) {
-			return;
-		}
+		if (!quest.questInterface.isCompleted(player) && !activeData.isCompleted) { return; }
 		QuestTurnedInEvent event = new QuestTurnedInEvent(data.scriptData.getPlayer(), quest);
 		event.expReward = quest.rewardExp;
 		event.moneyReward = quest.rewardMoney;
@@ -419,25 +414,25 @@ public class NoppesUtilPlayer {
 		}
 		if (!rewardList.isEmpty()) {
 			switch (quest.rewardType) {
-			case RANDOM_ONE: {
-				event.itemRewards = new IItemStack[] { rewardList.get(player.getRNG().nextInt(rewardList.size())) };
-				break;
-			}
-			case ONE_SELECT: {
-				if (stack == null) {
-					stack = ItemStack.EMPTY;
+				case RANDOM_ONE: {
+					event.itemRewards = new IItemStack[] { rewardList.get(player.getRNG().nextInt(rewardList.size())) };
+					break;
 				}
-				event.itemRewards = new IItemStack[] { Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack) };
-				break;
-			}
-			default: { // ALL
-				event.itemRewards = new IItemStack[rewardList.size()];
-				int i = 0;
-				for (IItemStack item : rewardList) {
-					event.itemRewards[i] = item;
-					i++;
+				case ONE_SELECT: {
+					if (stack == null) {
+						stack = ItemStack.EMPTY;
+					}
+					event.itemRewards = new IItemStack[] { Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack) };
+					break;
 				}
-			}
+				default: { // ALL
+					event.itemRewards = new IItemStack[rewardList.size()];
+					int i = 0;
+					for (IItemStack item : rewardList) {
+						event.itemRewards[i] = item;
+						i++;
+					}
+				}
 			}
 		}
 		event.factionOptions = quest.factionOptions;

@@ -33,17 +33,15 @@ public class QuestController implements IQuestHandler {
 	private int lastUsedCatID = 0;
 	private int lastUsedQuestID = 0;
 
-	public QuestController() {
-		QuestController.instance = this;
-	}
+	public QuestController() { instance = this; }
 
 	@Override
 	public IQuestCategory[] categories() {
-		return this.categories.values().toArray(new IQuestCategory[0]);
+		return categories.values().toArray(new IQuestCategory[0]);
 	}
 
 	public boolean containsCategoryName(QuestCategory category) {
-		for (QuestCategory cat : this.categories.values()) {
+		for (QuestCategory cat : categories.values()) {
 			if (cat.id == category.id && cat.title.equalsIgnoreCase(category.title)) {
 				return true;
 			}
@@ -62,7 +60,7 @@ public class QuestController implements IQuestHandler {
 
 	@Override
 	public IQuest get(int id) {
-		return this.quests.get(id);
+		return quests.get(id);
 	}
 
 	private File getDir() {
@@ -70,14 +68,14 @@ public class QuestController implements IQuestHandler {
 	}
 
 	public void load() {
-		this.categories.clear();
-		this.quests.clear();
-		this.lastUsedCatID = 0;
-		this.lastUsedQuestID = 0;
+		categories.clear();
+		quests.clear();
+		lastUsedCatID = 0;
+		lastUsedQuestID = 0;
 		try {
 			File file = new File(CustomNpcs.getWorldSaveDirectory(), "quests.dat");
 			if (file.exists()) {
-				this.loadCategoriesOld(file);
+				loadCategoriesOld(file);
 				file.delete();
 				file = new File(CustomNpcs.getWorldSaveDirectory(), "quests.dat_old");
 				if (file.exists()) {
@@ -86,30 +84,30 @@ public class QuestController implements IQuestHandler {
 				return;
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		File dir = this.getDir();
+		File dir = getDir();
 		if (!dir.exists()) {
 			dir.mkdir();
 		} else {
 			for (File file2 : Objects.requireNonNull(dir.listFiles())) {
 				if (file2.isDirectory()) {
-					QuestCategory category = this.loadCategoryDir(file2);
+					QuestCategory category = loadCategoryDir(file2);
 					Iterator<Integer> ite = category.quests.keySet().iterator();
 					while (ite.hasNext()) {
 						int id = ite.next();
-						if (id > this.lastUsedQuestID) {
-							this.lastUsedQuestID = id;
+						if (id > lastUsedQuestID) {
+							lastUsedQuestID = id;
 						}
 						Quest quest = category.quests.get(id);
-						if (this.quests.containsKey(id)) {
+						if (quests.containsKey(id)) {
 							LogWriter.error("Duplicate id " + quest.id + " from category " + category.title);
 							ite.remove();
 						} else {
-							this.quests.put(id, quest);
+							quests.put(id, quest);
 						}
 					}
-					++this.lastUsedCatID;
-					category.id = this.lastUsedCatID;
-					this.categories.put(category.id, category);
+					++lastUsedCatID;
+					category.id = lastUsedCatID;
+					categories.put(category.id, category);
 				}
 			}
 		}
@@ -117,23 +115,23 @@ public class QuestController implements IQuestHandler {
 
 	private void loadCategoriesOld(File file) throws Exception {
 		NBTTagCompound compound = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
-		this.lastUsedCatID = compound.getInteger("lastID");
-		this.lastUsedQuestID = compound.getInteger("lastQuestID");
+		lastUsedCatID = compound.getInteger("lastID");
+		lastUsedQuestID = compound.getInteger("lastQuestID");
 		NBTTagList list = compound.getTagList("Data", 10);
         for (int i = 0; i < list.tagCount(); ++i) {
             QuestCategory category = new QuestCategory();
             category.readNBT(list.getCompoundTagAt(i));
-            this.categories.put(category.id, category);
-            this.saveCategory(category);
+            categories.put(category.id, category);
+            saveCategory(category);
             Iterator<Map.Entry<Integer, Quest>> ita = category.quests.entrySet().iterator();
             while (ita.hasNext()) {
                 Map.Entry<Integer, Quest> entry = ita.next();
                 Quest quest = entry.getValue();
                 quest.id = entry.getKey();
-                if (this.quests.containsKey(quest.id)) {
+                if (quests.containsKey(quest.id)) {
                     ita.remove();
                 } else {
-                    this.saveQuest(category, quest);
+                    saveQuest(category, quest);
                 }
             }
         }
@@ -160,11 +158,11 @@ public class QuestController implements IQuestHandler {
 	}
 
 	public void removeCategory(int category) {
-		QuestCategory cat = this.categories.get(category);
+		QuestCategory cat = categories.get(category);
 		if (cat == null) {
 			return;
 		}
-		File dir = new File(this.getDir(), cat.title);
+		File dir = new File(getDir(), cat.title);
 		if (!Util.instance.removeFile(dir)) {
 			LogWriter.error("Error delete " + dir + "; no access or file not uploaded!");
 			return;
@@ -172,18 +170,18 @@ public class QuestController implements IQuestHandler {
 		for (Integer qId : cat.quests.keySet()) {
 			quests.remove(qId);
 		}
-		this.categories.remove(category);
+		categories.remove(category);
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.QuestCategoriesData, category);
 	}
 
 	public void removeQuest(Quest quest) {
-		File file = new File(new File(this.getDir(), quest.category.title), quest.id + ".json");
+		File file = new File(new File(getDir(), quest.category.title), quest.id + ".json");
 		if (file.exists()) {
 			file.delete();
 		}
-		this.quests.remove(quest.id);
+		quests.remove(quest.id);
 		quest.category.quests.remove(quest.id);
-		for (QuestCategory cat : this.categories.values()) {
+		for (QuestCategory cat : categories.values()) {
             cat.quests.remove(quest.id);
 		}
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.QuestData, quest.id);
@@ -193,15 +191,15 @@ public class QuestController implements IQuestHandler {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
 			category.title = "default";
-			while (this.containsCategoryName(category)) {
+			while (containsCategoryName(category)) {
 				category.title += "_";
 			}
 		}
 		if (categories.containsKey(category.id)) {
-			QuestCategory currentCategory = this.categories.get(category.id);
-			File newdir = new File(this.getDir(), category.title);
-			File olddir = new File(this.getDir(), currentCategory.title);
-			while (this.containsCategoryName(category)) {
+			QuestCategory currentCategory = categories.get(category.id);
+			File newdir = new File(getDir(), category.title);
+			File olddir = new File(getDir(), currentCategory.title);
+			while (containsCategoryName(category)) {
 				category.title += "_";
 			}
 			if (newdir.exists() || !olddir.renameTo(newdir)) {
@@ -211,18 +209,18 @@ public class QuestController implements IQuestHandler {
 			category.quests.putAll(currentCategory.quests);
 		} else {
 			if (category.id < 0) {
-				++this.lastUsedCatID;
-				category.id = this.lastUsedCatID;
+				++lastUsedCatID;
+				category.id = lastUsedCatID;
 			}
-			while (this.containsCategoryName(category)) {
+			while (containsCategoryName(category)) {
 				category.title += "_";
 			}
-			File dir = new File(this.getDir(), category.title);
+			File dir = new File(getDir(), category.title);
 			if (!dir.exists()) {
 				dir.mkdirs();
 			}
 		}
-		this.categories.put(category.id, category);
+		categories.put(category.id, category);
 		for (Quest quest : quests.values()) {
 			if (quest.category.id == category.id) {
 				quest.category = category;
@@ -236,16 +234,16 @@ public class QuestController implements IQuestHandler {
 		if (category == null) {
 			return;
 		}
-		while (this.containsQuestName(quest.category, quest)) {
+		while (containsQuestName(quest.category, quest)) {
 			quest.setName(quest.getName() + "_");
 		}
 		if (quest.id < 0) {
-			++this.lastUsedQuestID;
-			quest.id = this.lastUsedQuestID;
+			++lastUsedQuestID;
+			quest.id = lastUsedQuestID;
 		}
-		this.quests.put(quest.id, quest);
+		quests.put(quest.id, quest);
 		category.quests.put(quest.id, quest);
-		File dir = new File(this.getDir(), category.title);
+		File dir = new File(getDir(), category.title);
 		if (!dir.exists()) {
 			dir.mkdirs();
 		}

@@ -1,4 +1,4 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.availability;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.inventory.ClickType;

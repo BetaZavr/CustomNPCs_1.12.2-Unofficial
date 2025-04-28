@@ -2,12 +2,8 @@ package noppes.npcs.controllers.data;
 
 import java.util.*;
 
-import com.google.common.base.MoreObjects;
-
-import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -73,10 +69,8 @@ extends BaseScriptData {
 	}
 
 	public IPlayer<?> getPlayer() {
-		if (this.playerAPI == null) {
-			this.playerAPI = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player);
-		}
-		return this.playerAPI;
+		if (playerAPI == null) { playerAPI = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player); }
+		return playerAPI;
 	}
 
 	@Override

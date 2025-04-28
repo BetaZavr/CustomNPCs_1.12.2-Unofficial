@@ -1,4 +1,4 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.availability;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,7 +18,7 @@ implements ISliderListener, ITextfieldListener {
 	public final Availability availability;
 	public final GuiScreen parent;
 
-	public SubGuiNpcAvailability(Availability availability, GuiScreen gui) {
+	public SubGuiNpcAvailability(Availability availabilityIn, GuiScreen gui) {
 		super();
 		setBackground("menubg.png");
 		xSize = 256;
@@ -26,7 +26,7 @@ implements ISliderListener, ITextfieldListener {
 		closeOnEsc = true;
 
 		parent = gui;
-		this.availability = availability;
+		availability = availabilityIn;
 	}
 
 	@Override
@@ -102,6 +102,8 @@ implements ISliderListener, ITextfieldListener {
 						}
 					}
 				}
+				availability.daytime[0] = getTextField(52).getInteger();
+				availability.daytime[1] = getTextField(53).getInteger();
 				break;
 			}
 			case 66: {
@@ -196,12 +198,10 @@ implements ISliderListener, ITextfieldListener {
 	}
 
 	@Override
-	public void mousePressed(IGuiNpcSlider slider) {
-	}
+	public void mousePressed(IGuiNpcSlider slider) { }
 
 	@Override
-	public void mouseReleased(IGuiNpcSlider slider) {
-	}
+	public void mouseReleased(IGuiNpcSlider slider) { }
 
 	@Override
 	public void save() {

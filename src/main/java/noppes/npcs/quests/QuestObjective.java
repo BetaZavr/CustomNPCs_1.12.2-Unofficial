@@ -55,9 +55,9 @@ public class QuestObjective implements IQuestObjective {
 	public BlockPos pos = new BlockPos(0, 0, 0);
 	public String entityName = "";
 
-	public QuestObjective(int parentID, EntityPlayer player) {
-		this.parentID = parentID;
-		this.player = player;
+	public QuestObjective(int parentIDIn, EntityPlayer playerIn) {
+		parentID = parentIDIn;
+		player = playerIn;
 	}
 
 	public QuestObjective(int parentID, EnumQuestTask type) {
@@ -191,7 +191,7 @@ public class QuestObjective implements IQuestObjective {
 			for (int i = 0; i < Objects.requireNonNull(this.player).inventory.getSizeInventory(); ++i) {
 				ItemStack item = this.player.inventory.getStackInSlot(i);
 				if (!NoppesUtilServer.IsItemStackNull(item)) {
-					if (NoppesUtilPlayer.compareItems(this.item, item, this.ignoreDamage, this.ignoreNBT)) {
+					if (NoppesUtilPlayer.compareItems(item, item, ignoreDamage, ignoreNBT)) {
 						count += item.getCount();
 					}
 				}
@@ -385,7 +385,7 @@ public class QuestObjective implements IQuestObjective {
 	@Override
 	public void setAreaRange(int range) {
 		if (range < 3 || range > 32) {
-			throw new CustomNPCsException("Range must be between 3 and 24");
+			throw new CustomNPCsException("Range must be between 3 and 32");
 		}
 		this.range = range;
 	}

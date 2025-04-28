@@ -11,7 +11,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiColorSelector;
-import noppes.npcs.client.gui.SubGuiNpcAvailability;
+import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.constants.EnumGuiType;

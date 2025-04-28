@@ -22,7 +22,7 @@ import noppes.npcs.api.wrapper.WrapperRecipe;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiEditIngredients;
 import noppes.npcs.client.gui.SubGuiEditText;
-import noppes.npcs.client.gui.SubGuiNpcAvailability;
+import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;

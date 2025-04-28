@@ -12,7 +12,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -185,9 +184,8 @@ public class EventHooks {
 	}
 
 	public static void onForgeEvent(ForgeEvent ev) {
-		if (!CustomNpcs.EnableForgeScripting) { return; }
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
-		String eventName = "";
+		String eventName;
 		if (!handler.isClient() && handler.isEnabled()) {
 			if (!ScriptController.forgeEventNames.containsKey(ev.event.getClass())) {
 				eventName = ev.event.getClass().getName();
@@ -203,6 +201,7 @@ public class EventHooks {
 				if (ev.isCanceled() && ev.event.isCancelable()) {
 					ev.event.setCanceled(true);
 				}
+				WrapperNpcAPI.EVENT_BUS.post(ev.event);
 				if (ev.isCancelable()) { ev.setCanceled(ev.event.isCanceled()); }
 			} catch (Exception e) {
 				LogWriter.error("Error:", e);
@@ -227,6 +226,7 @@ public class EventHooks {
 			try {
 				handlerClient.runScript(eventName, ev);
 				if (ev.isCanceled() && ev.event.isCancelable()) { ev.event.setCanceled(true); }
+				WrapperNpcAPI.EVENT_BUS.post(ev.event);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
 	}
@@ -393,11 +393,6 @@ public class EventHooks {
 
 	public static void onPlayerContainerOpen(PlayerScriptData handler, Container container) {
 		EventHooks.onEvent(handler, EnumScriptType.CONTAINER_OPEN, new PlayerEvent.ContainerOpen(handler.getPlayer(), Objects.requireNonNull(NpcAPI.Instance()).getIContainer(container)));
-	}
-
-	public static void onPlayerCrafted(PlayerScriptData handler, ItemStack crafting, IInventory craftMatrix) {
-		EventHooks.onEvent(handler, EnumScriptType.ITEM_CRAFTED, new PlayerEvent.ItemCrafted(handler.getPlayer(),
-				Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(crafting), craftMatrix));
 	}
 
 	public static boolean onPlayerDamaged(PlayerScriptData handler, PlayerEvent.DamagedEvent event) {

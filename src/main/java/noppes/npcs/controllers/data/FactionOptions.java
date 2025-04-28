@@ -40,6 +40,7 @@ public class FactionOptions {
 			player.sendMessage(new TextComponentTranslation(message, faction.name, points));
 		}
 		data.increasePoints(player, factionId, decrease ? (-points) : points);
+		PlayerData.get(player).updateClient = true;
 	}
 
 	public FactionOptions copy() {

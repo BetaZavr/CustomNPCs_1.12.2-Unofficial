@@ -396,13 +396,7 @@ implements IGuiData, ITextChangeListener {
 			getLabel(3).setHoverText("script.hover.info");
 
 			addLabel(new GuiNpcLabel(2, "gui.enabled", left, guiTop + 36));
-
-			boolean bo = CustomNpcs.EnableScripting;
-			if (bo && (this instanceof GuiScriptForge || this instanceof GuiScriptClient)) { bo = CustomNpcs.EnableForgeScripting; }
-			if (!bo && handler.getEnabled()) { handler.setEnabled(false); }
-			addButton(button = new GuiNpcButton(104, left + 60, guiTop + 31, 50, 20, new String[] { "gui.no", "gui.yes" }, (handler.getEnabled() ? 1 : 0)));
-			button.setEnabled(bo);
-
+			addButton(new GuiNpcButton(104, left + 60, guiTop + 31, 50, 20, new String[] { "gui.no", "gui.yes" }, (handler.getEnabled() ? 1 : 0)));
 			if (player.getServer() != null) {
 				addButton(new GuiNpcButton(106, left, guiTop + 55, 150, 20, "script.openfolder"));
 			}

@@ -2,7 +2,6 @@
 # Ordenado, Verificado e Adicionado por BetaZavr
 # Traduzido com o Google Tradutor
 
-.hover.select=Selecione um som dentre aqueles registrados pelo jogo
 advanced.angersound=Som de agressão
 advanced.deathsound=Som da morte
 advanced.editingmode=Mudar
@@ -150,10 +149,6 @@ animation.clear.part=ID de configurações de parte do corpo :%s - "%s "
 animation.frame=Quadro%s
 animation.frames=Configurações do quadro:
 animation.hitbox=Configurações de hitbox:
-animation.hitbox.0=Anyway
-animation.hitbox.1=In front of you
-animation.hitbox.2=Touches the hitbox
-animation.hitbox.part.name=Hitbox Attacks
 animation.hitbox.type=Attack hitbox type:
 animation.hold.left=In left hand:
 animation.hold.right=In right hand:
@@ -192,7 +187,6 @@ animation.hover.anim.create=Crie uma nova animação no tipo selecionado
 animation.hover.anim.del=Exclua a animação selecionada do banco de dados<br>§cA animação será excluída para sempre!
 animation.hover.anim.edit=Edite a animação selecionada
 animation.hover.anim.list=Opção de animação do tipo selecionado<br>§7Para animar um NPC em uma situação específica, selecione uma animação aleatória nesta lista
-animation.hover.anim.load=Carregar animação no tipo selecionado
 animation.hover.anim.repeat=Número de quadros repetidos no final da animação<br>§7Aplicável apenas para animação em loop<br>§60§7 ou §6todos§7 quadros: repete-se ciclicamente (em um círculo)<br>§7caso contrário, repete o número especificado de os últimos quadros
 animation.hover.base.rot=Rotate the NPC as it stands in the world, or reset to 0 degrees
 animation.hover.block.size=Raio em blocos, para exibi-los na janela de configurações de animação
@@ -1654,7 +1648,6 @@ market.hover.only.currency.2=Only update item quantities<br>§7Currency and stor
 market.hover.product=§5 Item de troca:
 market.hover.reset=Somente para §1 G §6M§f <br>§7Atualize sua loja agora
 market.hover.role.list=Lista de Lojas configuradas<br>§7Você pode criar uma nova loja na aba Global
-market.hover.role.own=O NPC possui sua própria loja<br>§7Neste caso, uma cópia das configurações da loja selecionada é feita apenas para este NPC <br>Ou o NPC dá acesso a uma loja comum<br>§7Nesse caso, todos NPCs com esta configuração abrem uma loja comum selecionada em qualquer local
 market.hover.section=Current store item slot
 market.hover.section.add=Adicione uma nova seção a esta loja
 market.hover.section.del=Excluir seção da loja selecionada

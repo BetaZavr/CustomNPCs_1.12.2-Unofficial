@@ -12,6 +12,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.api.mixin.client.audio.ISoundHandlerMixin;
@@ -102,6 +103,8 @@ implements ICustomScrollListener {
 			scrollQuests.setSelect(-1);
 		}
 		if (scroll.getID() == 1) {
+			LogWriter.info("TEST: "+selectedDomain);
+			LogWriter.info("TEST: "+scroll.getSelected());
 			selectedResource = new ResourceLocation(selectedDomain, scroll.getSelected());
 		}
 		initGui();

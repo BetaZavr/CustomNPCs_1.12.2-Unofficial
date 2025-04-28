@@ -647,7 +647,7 @@ implements IEditNPC, ICustomScrollListener {
 
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
 		if (subgui instanceof GuiScreen) {
-			GuiScreenReflection.mouseClicked((GuiScreen) subgui, mouseX, mouseY, mouseButton);
+			GuiScreenReflection.mouseClicked(subgui, mouseX, mouseY, mouseButton);
 			return;
 		}
 		for (IGuiNpcMiniWindow mwin : mwindows.values()) {

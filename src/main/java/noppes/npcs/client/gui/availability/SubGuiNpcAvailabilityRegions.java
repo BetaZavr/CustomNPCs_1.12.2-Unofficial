@@ -1,4 +1,4 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.availability;
 
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.api.IPos;

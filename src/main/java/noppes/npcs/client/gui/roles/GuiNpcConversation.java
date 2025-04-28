@@ -3,7 +3,7 @@ package noppes.npcs.client.gui.roles;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.SubGuiNpcAvailability;
+import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.select.GuiQuestSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;

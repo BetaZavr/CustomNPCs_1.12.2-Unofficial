@@ -69,6 +69,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
+		GuiNpcTextField.unfocus();
 		switch (button.getID()) {
 			case 0: { // reset drop
 				drop.resetTo(drop.item);
@@ -385,6 +386,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (!scroll.hasSelected()) { return; }
+		GuiNpcTextField.unfocus();
 		switch (scroll.getID()) {
 			case 0: { // scrollEnchants
 				enchant = enchantData.get(scroll.getSelected());

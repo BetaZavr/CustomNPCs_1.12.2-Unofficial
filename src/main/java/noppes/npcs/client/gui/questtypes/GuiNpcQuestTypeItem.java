@@ -91,8 +91,9 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 					NoppesUtilServer.getEditingQuest(player).questInterface.removeTask(task);
 				} else {
 					if (((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui instanceof GuiQuestEdit) {
-						((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.setSubGui(null);
-						((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.initGui();
+						GuiQuestEdit subgui = (GuiQuestEdit) ((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui;
+						subgui.setSubGui(null);
+						subgui.initGui();
 					}
 				}
 				NoppesUtil.openGUI(player, GuiNPCManageQuest.Instance);

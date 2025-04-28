@@ -1,5 +1,6 @@
 package noppes.npcs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -78,7 +79,7 @@ public class ServerEventsHandler {
 		if (entity instanceof EntityPlayer) {
 			entityName = "Player";
 		}
-		for (QuestData data : playerdata.activeQuests.values()) {
+		for (QuestData data : new ArrayList<>(playerdata.activeQuests.values())) {
 			if (data.quest.step == 2 && data.quest.questInterface.isCompleted(player)) {
 				continue;
 			}
@@ -203,11 +204,8 @@ public class ServerEventsHandler {
 				Objects.requireNonNull(player.getServer()).futureTaskQueue.add(ListenableFutureTask.create(Executors.callable(() -> {
 					PlayerQuestData playerdata = PlayerData.get(player).questData;
 					for (QuestData data : playerdata.activeQuests.values()) {
-						for (IQuestObjective obj : data.quest
-								.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
-							if (obj.getType() != EnumQuestTask.ITEM.ordinal()) {
-								continue;
-							}
+						for (QuestObjective obj : data.quest.getObjectives(player)) {
+							if (obj.getType() != EnumQuestTask.ITEM.ordinal()) { continue; }
 							playerdata.checkQuestCompletion(player, data);
 							playerdata.updateClient = true;
 						}
@@ -216,12 +214,11 @@ public class ServerEventsHandler {
 			} catch (Exception e) {
 				LogWriter.error("Error player check quest completion:", e);
 			}
-		} else if (event.getCommand() instanceof CommandTime) {
+		}
+		else if (event.getCommand() instanceof CommandTime) {
 			try {
 				List<EntityPlayerMP> players = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
-				for (EntityPlayerMP playerMP : players) {
-					CustomNpcs.visibilityController.onUpdate(playerMP);
-				}
+				for (EntityPlayerMP playerMP : players) { CustomNpcs.visibilityController.onUpdate(playerMP); }
 			} catch (Exception e) {
 				LogWriter.error("Error player update visible NPC:", e);
 			}
@@ -443,20 +440,16 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcSavePlayer(PlayerEvent.SaveToFile event) {
-		CustomNpcs.debugData.startDebug(!event.getEntityPlayer().world.isRemote ? "Server" : "Client",
-				event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
+		CustomNpcs.debugData.startDebug(!event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
 		PlayerData.get(event.getEntityPlayer()).save(false);
-		CustomNpcs.debugData.endDebug(!event.getEntityPlayer().world.isRemote ? "Server" : "Client",
-				event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
+		CustomNpcs.debugData.endDebug(!event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
 	}
 
 	@SubscribeEvent
 	public void npcWorldUnload(net.minecraftforge.event.world.WorldEvent.Unload event) {
 		CustomNpcs.debugData.startDebug("Server", null, "ServerEventsHandler_npcWorldUnload");
 		int dimensionID = event.getWorld().provider.getDimension();
-		if (!event.getWorld().isRemote) {
-			DimensionHandler.getInstance().unload(event.getWorld(), dimensionID);
-		}
+		if (!event.getWorld().isRemote) { DimensionHandler.getInstance().unload(event.getWorld(), dimensionID); }
 		CustomNpcs.debugData.endDebug("Server", null, "ServerEventsHandler_npcWorldUnload");
 	}
 

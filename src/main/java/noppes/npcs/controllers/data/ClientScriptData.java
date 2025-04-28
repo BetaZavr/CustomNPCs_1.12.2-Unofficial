@@ -51,7 +51,7 @@ extends BaseScriptData {
 
 	@Override
 	public boolean isEnabled() {
-		return CustomNpcs.EnableForgeScripting && enabled && ScriptController.HasStart && script != null;
+		return this.enabled && ScriptController.HasStart && this.script != null;
 	}
 
 	@Override

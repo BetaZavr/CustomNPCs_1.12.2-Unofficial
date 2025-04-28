@@ -43,16 +43,12 @@ extends GuiNpcButton {
 			GlStateManager.scale(s, s, 1.0f);
 		}
 		int c;
-		int l = color;
 		if (!enabled) {
 			c = new Color(0xFF808080).getRGB();
-			l = CustomNpcs.NotEnableColor.getRGB();
 		} else if (hovered) {
 			c = new Color(0xFF48528C).getRGB();
-			l = CustomNpcs.HoverColor.getRGB();
 		} else {
 			c = new Color(0xFF707070).getRGB();
-			if (packedFGColour != 0) { l = packedFGColour; }
 		}
 		RenderHelper.enableGUIStandardItemLighting();
 		drawGradientRect(11, 0, (int) ((float) width / s - 11.0f), (int) (((float) height - 0.5f) / s), c, c);
@@ -83,11 +79,8 @@ extends GuiNpcButton {
 			text = ((char) 167) + "n" + text;
 		}
 
-		if (showShadow) {
-			drawCenteredString(mc.fontRenderer, text, x + width / 2, y + (height - 10) / 2, l);
-		} else {
-			mc.fontRenderer.drawString(text, x + (float) (width - mc.fontRenderer.getStringWidth(text)) / 2, y + (float) (height - 10) / 2, l, false);
-		}
+		renderString(mc.fontRenderer, text, x + 11, y, x + width - 11, y + height, color, showShadow, true);
+
 	}
 
 	@Override

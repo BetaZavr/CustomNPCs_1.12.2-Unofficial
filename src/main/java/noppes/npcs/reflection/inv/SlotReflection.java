@@ -67,4 +67,5 @@ public class SlotReflection {
             LogWriter.error("Error set \"slotIndex\":\"" + newSlotID + "\" in " + slot, e);
         }
     }
+
 }

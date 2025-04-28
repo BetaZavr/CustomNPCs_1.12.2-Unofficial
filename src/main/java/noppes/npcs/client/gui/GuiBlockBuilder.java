@@ -16,6 +16,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
+import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.schematics.ISchematic;

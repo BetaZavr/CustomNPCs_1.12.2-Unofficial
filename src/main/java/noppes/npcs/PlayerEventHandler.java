@@ -10,6 +10,7 @@ import net.minecraft.tileentity.TileEntityBanner;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
+import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.api.mixin.tileentity.ITileEntityBanner;
@@ -45,6 +46,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
@@ -61,6 +63,8 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.EntityPlaceEvent;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.GenericEvent;
@@ -73,6 +77,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.data.IQuestObjective;
@@ -219,8 +224,14 @@ public class PlayerEventHandler {
 			"net.minecraftforge.client.event.TextureStitchEvent"
 	};
 
-	private void doCraftQuest(ItemCraftedEvent event) {
-		EntityPlayer player = event.player;
+	public static class ForgeEventHandler {
+		@SubscribeEvent
+		public void forgeEntity(Event event) {
+			EventHooks.onForgeEvent(new ForgeEvent(event));
+		}
+	}
+
+	private void doCraftQuest(EntityPlayerMP player, ItemStack crafting) {
 		PlayerData pdata = PlayerData.get(player);
 		PlayerQuestData playerdata = pdata.questData;
 		for (QuestData data : playerdata.activeQuests.values()) {
@@ -237,9 +248,9 @@ public class PlayerEventHandler {
 					continue;
 				}
 				int size = 0;
-				if (!NoppesUtilServer.IsItemStackNull(event.crafting) && NoppesUtilPlayer.compareItems(
-						obj.getItem().getMCItemStack(), event.crafting, obj.isIgnoreDamage(), obj.isItemIgnoreNBT())) {
-					size = event.crafting.getCount();
+				if (!NoppesUtilServer.IsItemStackNull(crafting) && NoppesUtilPlayer.compareItems(
+						obj.getItem().getMCItemStack(), crafting, obj.isIgnoreDamage(), obj.isItemIgnoreNBT())) {
+					size = crafting.getCount();
 				}
 				if (size == 0) {
 					continue;
@@ -269,30 +280,30 @@ public class PlayerEventHandler {
 					compound.setInteger("QuestID", data.quest.id);
 					compound.setString("Type", "craft");
 					compound.setIntArray("Progress", new int[] { amount, obj.getMaxProgress() });
-					compound.setTag("Item", event.crafting.writeToNBT(new NBTTagCompound()));
+					compound.setTag("Item", crafting.writeToNBT(new NBTTagCompound()));
 					compound.setInteger("MessageType", 0);
-					Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
+					Server.sendData(player, EnumPacketClient.MESSAGE_DATA, compound);
 				}
 				if (data.quest.showProgressInChat) {
 					if (amount >= obj.getMaxProgress()) {
 						player.sendMessage(new TextComponentTranslation("quest.message.craft.1",
-								event.crafting.getDisplayName(), data.quest.getTitle()));
+								crafting.getDisplayName(), data.quest.getTitle()));
 					} else {
 						player.sendMessage(
-								new TextComponentTranslation("quest.message.craft.0", event.crafting.getDisplayName(),
+								new TextComponentTranslation("quest.message.craft.0", crafting.getDisplayName(),
 										"" + amount, "" + obj.getMaxProgress(), data.quest.getTitle()));
 					}
 				}
 
 				pdata.updateClient = true;
 				if (obj.isItemLeave()) {
-					boolean ch = player.inventory.getItemStack().isItemEqual(event.crafting);
-					event.crafting.splitStack(size);
+					boolean ch = player.inventory.getItemStack().isItemEqual(crafting);
+					crafting.splitStack(size);
 					player.openContainer.detectAndSendChanges();
 					if (ch) {
 						NBTTagCompound nbtStack = new NBTTagCompound();
 						player.inventory.getItemStack().writeToNBT(nbtStack);
-						Server.sendData((EntityPlayerMP) player, EnumPacketClient.DETECT_HELD_ITEM, nbtStack);
+						Server.sendData(player, EnumPacketClient.DETECT_HELD_ITEM, nbtStack);
 					}
 				}
 				playerdata.checkQuestCompletion(player, data);
@@ -365,11 +376,12 @@ public class PlayerEventHandler {
 			return;
 		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcItemCraftedEvent");
-		EventHooks.onPlayerCrafted(PlayerData.get(event.player).scriptData, event.crafting, event.craftMatrix);
-		event.player.world.getChunkFromChunkCoords(0, 0).onLoad();
-		if (!event.crafting.isEmpty()) {
-			this.doCraftQuest(event);
-		}
+		EntityPlayerMP player = (EntityPlayerMP) event.player;
+		PlayerEvent.ItemCrafted craftEvent = new PlayerEvent.ItemCrafted(PlayerData.get(event.player).scriptData.getPlayer(),
+				Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(event.crafting),
+				event.craftMatrix);
+		EventHooks.onEvent(PlayerData.get(event.player).scriptData, EnumScriptType.ITEM_CRAFTED, craftEvent);
+		if (!craftEvent.crafting.isEmpty()) { CustomNPCsScheduler.runTack(() -> doCraftQuest(player, craftEvent.crafting.getMCItemStack())); }
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcItemCraftedEvent");
 	}
 
@@ -879,12 +891,19 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcServerTick");
 	}
 
-	public PlayerEventHandler containsForgeEvents(Side side) {
-		LogWriter.info("CustomNpcs: Start contains Forge Events:");
-		CustomNpcs.debugData.startDebug("Common", "Mod", "PlayerEventHandler_containsForgeEvents");
+	public PlayerEventHandler registerForgeEvents(Side side) {
+		ForgeEventHandler handler = new ForgeEventHandler();
+		LogWriter.info("CustomNpcs: Start load Forge Events:");
+		CustomNpcs.debugData.startDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		ScriptController.forgeEventNames.clear();
 		List<Class<?>> listClasses = new ArrayList<>();
 		try {
+			// Get Maim mod Method for All Events
+			Method m = handler.getClass().getMethod("forgeEntity", Event.class);
+			// Get Registration Method for Event Methods
+			Method register = MinecraftForge.EVENT_BUS.getClass().getDeclaredMethod("register", Class.class, Object.class, Method.class, ModContainer.class);
+			register.setAccessible(true);
+
 			for (String forgeEventClassPath : pathsToForgeEventClasses) {
 				Class<?> event;
 				try { event = Class.forName(forgeEventClassPath); } catch (ClassNotFoundException e) { continue; }
@@ -968,9 +987,11 @@ public class PlayerEventHandler {
 						if (!isClient) {
 							ScriptController.forgeEventNames.put(c, eventName);
 							ScriptController.forgeClientEventNames.put(c, eventName);
+							register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
 						}
 						else {
 							ScriptController.forgeClientEventNames.put(c, eventName);
+							if (threadIsClient) { register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer()); }
 						}
 						LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event " +c.getName());
 					}
@@ -998,6 +1019,7 @@ public class PlayerEventHandler {
 							eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
 							if (ScriptController.forgeEventNames.containsValue(eventName)) { continue; }
 							// Add
+							register.invoke(PixelmonHelper.EVENT_BUS, c2, handler, m, Loader.instance().activeModContainer());
 							ScriptController.forgeEventNames.put(c2, eventName);
 							LogWriter.debug("Add Pixelmon Event[" + ScriptController.forgeEventNames.size() + "]; " + c2.getName());
 						}
@@ -1005,98 +1027,9 @@ public class PlayerEventHandler {
 				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		LogWriter.info("CustomNpcs: Found [Client:" + ScriptController.forgeClientEventNames.size() + "; Server: " + ScriptController.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
-		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_containsForgeEvents");
+		LogWriter.info("CustomNpcs: Registered [Client:" + ScriptController.forgeClientEventNames.size() + "; Server: " + ScriptController.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
+		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		return this;
-	}
-
-
-	@SubscribeEvent
-	public void npcLivingJumpEvent(net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent event) {
-		if (!(event.getEntityLiving() instanceof EntityPlayer)) {
-			return;
-		}
-		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-		noppes.npcs.util.CustomNPCsScheduler.runTack(() -> {
-			if (player instanceof EntityPlayerMP) {
-				try {
-
-				}
-				catch (Exception e) { LogWriter.error("Error:", e); }
-			}
-			else {
-				try {
-					/*
-					// Found texts
-					java.io.File dir;
-					dir = new java.io.File("D:/1.12.2/cnpcs_mixin/src/main/java"); // CustomNpcs 1.12.2
-
-					String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
-					Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
-					//found.put("System.out.println", null);
-					found.put("command.script.logs.view", null);
-
-					for (java.io.File file : Util.instance.getFiles(dir, "java")) {
-						try {
-							java.io.BufferedReader reader = com.google.common.io.Files.newReader(file, java.nio.charset.StandardCharsets.UTF_8);
-							String line;
-							int l = 1;
-							while ((line = reader.readLine()) != null) {
-								for (String key : found.keySet()) {
-									if (key.contains("&&")) {
-										String k = key.substring(0, key.indexOf("&&"));
-										String s = key.substring(key.indexOf("&&") + 2);
-										if (line.contains(k) && line.toLowerCase().contains(s.toLowerCase())) {
-											found.computeIfAbsent(key, k1 -> new TreeMap<>());
-											String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
-											if (!found.get(key).containsKey(fPath)) { found.get(key).put(fPath, new ArrayList<>()); }
-											found.get(key).get(fPath).add(l);
-										}
-									}
-									else if (key.indexOf("&") == 0) {
-										String k = key.replace("&", "");
-										if (line.contains(k)) {
-											int s = line.indexOf(k) - 1;
-											int e = line.indexOf(k) + k.length();
-											if (br.contains("" + line.charAt(s)) && br.contains("" + line.charAt(e))) {
-												found.computeIfAbsent(key, k1 -> new TreeMap<>());
-												String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
-												if (!found.get(key).containsKey(fPath)) { found.get(key).put(fPath, new ArrayList<>()); }
-												found.get(key).get(fPath).add(l);
-											}
-										}
-									}
-									else if (line.contains(key)) {
-										found.computeIfAbsent(key, k -> new TreeMap<>());
-										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
-										if (!found.get(key).containsKey(fPath)) {
-											found.get(key).put(fPath, new ArrayList<>());
-										}
-										found.get(key).get(fPath).add(l);
-									}
-								}
-								l++;
-							}
-							reader.close();
-						} catch (Exception e) { LogWriter.error(e); }
-					}
-					System.out.println("Directory: " + dir);
-					for (String key : found.keySet()) {
-						if (found.get(key) == null || found.get(key).isEmpty()) {
-							System.out.println("\"" + key + "\" not found;");
-							continue;
-						}
-						System.out.println("\"" + key + "\" found in:");
-						Map<String, List<Integer>> map = found.get(key);
-						for (String fPath : map.keySet()) {
-							System.out.println(" - " + fPath + ": lines:" + map.get(fPath));
-						}
-					}
-					/**/
-				}
-				catch (Exception e) { LogWriter.error("Error:", e); }
-			}
-		});
 	}
 
 }

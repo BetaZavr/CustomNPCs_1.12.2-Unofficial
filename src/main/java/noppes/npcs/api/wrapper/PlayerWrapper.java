@@ -37,7 +37,6 @@ import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
-import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.entity.data.IPixelmonPlayerData;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.entity.data.IPlayerMiniMap;
@@ -739,13 +738,8 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public void startQuest(int id) {
-		if (!(this.entity instanceof EntityPlayerMP)) {
-			return;
-		}
 		Quest quest = QuestController.instance.quests.get(id);
-		if (quest == null) {
-			return;
-		}
+		if (quest == null) { return; }
 		PlayerQuestController.addActiveQuest(quest, entity, true);
 	}
 

@@ -8,7 +8,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.client.gui.SubGuiColorSelector;
-import noppes.npcs.client.gui.SubGuiNpcAvailability;
+import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.player.GuiDialogInteract;
 import noppes.npcs.client.gui.select.GuiDialogSelection;
 import noppes.npcs.client.gui.util.*;

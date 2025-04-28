@@ -81,7 +81,7 @@ public class AnimationHandler {
     }
 
     public boolean hasAnim(AnimationKind type) {
-        if (!data.containsKey(type) || data.get(type).isEmpty()) { return false; }
+        if (!data.containsKey(type) || data.get(type) == null || data.get(type).isEmpty()) { return false; }
         AnimationController aData = AnimationController.getInstance();
         for (int id : data.get(type)) {
             if (aData.animations.containsKey(id)) {return true; }
@@ -271,7 +271,7 @@ public class AnimationHandler {
         checkData();
         NBTTagList allAnimations = new NBTTagList();
         for (AnimationKind type : data.keySet()) {
-            if (data.get(type).isEmpty()) { continue; }
+            if (data.get(type) == null || data.get(type).isEmpty()) { continue; }
             NBTTagCompound nbtCategory = new NBTTagCompound();
             nbtCategory.setInteger("Category", type.get());
             NBTTagList animations = new NBTTagList();
@@ -521,7 +521,7 @@ public class AnimationHandler {
     }
 
     public AnimationConfig selectAnimation(AnimationKind type) {
-        if (!CustomNpcs.ShowCustomAnimation || data.get(type).isEmpty()) { return null; }
+        if (!CustomNpcs.ShowCustomAnimation || data.get(type) == null || data.get(type).isEmpty()) { return null; }
         // get all animation settings
         List<AnimationConfig> list = AnimationController.getInstance().getAnimations(data.get(type));
         if (list.isEmpty()) { return null; }
@@ -589,8 +589,8 @@ public class AnimationHandler {
         boolean isChanged = false;
 
         for (AnimationKind ak : AnimationKind.values()) {
-            if (!ak.isMovement() || !data.containsKey(ak)) { continue; }
-            if (!data.get(ak).isEmpty()) {
+            if (!ak.isMovement()) { continue; }
+            if (data.get(ak) != null && !data.get(ak).isEmpty()) {
                 AnimationConfig anim = selectAnimation(ak);
                 if (anim != null && (!movementAnimation.containsKey(ak) || anim.id != movementAnimation.get(ak))) {
                     movementAnimation.put(ak, anim.id);
@@ -604,7 +604,7 @@ public class AnimationHandler {
 
         if (!isChanged) { return null; }
         Map<Integer, Integer> map = new HashMap<>();
-        for (AnimationKind ak : movementAnimation.keySet()) { map.put(ak.ordinal(), movementAnimation.get(ak)); }
+        for (AnimationKind ak : new ArrayList<>(movementAnimation.keySet())) { map.put(ak.ordinal(), movementAnimation.get(ak)); }
         return map;
     }
 

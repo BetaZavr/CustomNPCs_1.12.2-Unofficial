@@ -581,15 +581,6 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	public boolean isEmpty() { return false; }
 
 	@Override
-	public void setTextColor(int color) { }
-
-	@Override
-	public void setDisabledTextColour(int color) { }
-
-	@Override
-	public boolean isFocused() { return false; }
-
-	@Override
 	public long getDefault() { return 0; }
 
 	@Override

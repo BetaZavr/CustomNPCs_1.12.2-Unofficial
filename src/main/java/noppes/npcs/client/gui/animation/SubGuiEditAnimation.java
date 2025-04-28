@@ -9,6 +9,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.model.animation.*;
 import noppes.npcs.constants.EnumAnimationStages;
+import noppes.npcs.reflection.client.gui.GuiScreenReflection;
 import noppes.npcs.util.ValueUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -1578,7 +1579,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						g = 0.5f;
 						b = 0.5f;
 						s = 1.0f;
-						if (tools.getSlider(0).isHovered() || tools.getTextField(5).isHovered() || tools.getTextField(5).isFocused() || tools.getButton(30).isHovered()) {
+						if (tools.getSlider(0).isHovered() || tools.getTextField(5).isHovered() || ((GuiNpcTextField) tools.getTextField(5)).isFocused() || tools.getButton(30).isHovered()) {
 							r = 0.825f;
 							g = 0.625f;
 							b = 0.195f;
@@ -1591,7 +1592,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						g = 0.5f;
 						b = 0.5f;
 						s = 1.0f;
-						if (tools.getSlider(1).isHovered() || tools.getTextField(6).isHovered() || tools.getTextField(6).isFocused() || tools.getButton(31).isHovered()) {
+						if (tools.getSlider(1).isHovered() || tools.getTextField(6).isHovered() || ((GuiNpcTextField) tools.getTextField(6)).isFocused() || tools.getButton(31).isHovered()) {
 							r = 0.825f;
 							g = 0.625f;
 							b = 0.195f;
@@ -1605,7 +1606,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						g = 0.5f;
 						b = 0.5f;
 						s = 1.0f;
-						if (tools.getSlider(2).isHovered() || tools.getTextField(7).isHovered() || tools.getTextField(7).isFocused() || tools.getButton(32).isHovered()) {
+						if (tools.getSlider(2).isHovered() || tools.getTextField(7).isHovered() || ((GuiNpcTextField) tools.getTextField(7)).isFocused() || tools.getButton(32).isHovered()) {
 							r = 0.825f;
 							g = 0.625f;
 							b = 0.195f;
@@ -1633,7 +1634,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				float s = 2.0f;
 				if (isMotion) {
 					b = 0.5f;
-					if (tools.getSlider(0).isHovered() || tools.getTextField(5).isHovered() || tools.getTextField(5).isFocused() || tools.getButton(30).isHovered()) {
+					if (tools.getSlider(0).isHovered() || tools.getTextField(5).isHovered() || ((GuiNpcTextField) tools.getTextField(5)).isFocused() || tools.getButton(30).isHovered()) {
 						r = 0.825f;
 						g = 0.625f;
 						b = 0.195f;
@@ -1646,7 +1647,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					g = 0.5f;
 					b = 0.5f;
 					s = 1.0f;
-					if (tools.getSlider(1).isHovered() || tools.getTextField(6).isHovered() || tools.getTextField(6).isFocused() || tools.getButton(31).isHovered()) {
+					if (tools.getSlider(1).isHovered() || tools.getTextField(6).isHovered() || ((GuiNpcTextField) tools.getTextField(6)).isFocused() || tools.getButton(31).isHovered()) {
 						r = 0.825f;
 						g = 0.625f;
 						b = 0.195f;
@@ -1660,7 +1661,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					g = 0.5f;
 					b = 0.5f;
 					s = 1.0f;
-					if (tools.getSlider(2).isHovered() || tools.getTextField(7).isHovered() || tools.getTextField(7).isFocused() || tools.getButton(32).isHovered()) {
+					if (tools.getSlider(2).isHovered() || tools.getTextField(7).isHovered() || ((GuiNpcTextField) tools.getTextField(7)).isFocused() || tools.getButton(32).isHovered()) {
 						r = 0.825f;
 						g = 0.625f;
 						b = 0.195f;
@@ -2680,8 +2681,8 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (subgui != null) {
-			subgui.mouseClicked(mouseX, mouseY, mouseButton);
+		if (subgui instanceof GuiScreen) {
+			GuiScreenReflection.mouseClicked(subgui, mouseX, mouseY, mouseButton);
 			return;
 		}
 		super.mouseClicked(mouseX, mouseY, mouseButton);

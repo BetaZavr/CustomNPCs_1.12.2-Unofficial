@@ -108,16 +108,14 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 			}
 			case 16: { // up
 				this.quest.questInterface.upPos(this.tasksData.get(this.scrollTasks.getSelected()));
-				Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id,
-						this.quest.writeToNBT(new NBTTagCompound()));
-				this.initGui();
+				save();
+				initGui();
 				break;
 			}
 			case 17: { // down
 				this.quest.questInterface.downPos(this.tasksData.get(this.scrollTasks.getSelected()));
-				Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id,
-						this.quest.writeToNBT(new NBTTagCompound()));
-				this.initGui();
+				save();
+				initGui();
 				break;
 			}
 			case 18: { // type step task
@@ -132,9 +130,8 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 
 				if (this.quest.questInterface.removeTask(this.tasksData.get(this.task))) {
 					this.task = "";
-					Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id,
-							this.quest.writeToNBT(new NBTTagCompound()));
-					this.initGui();
+					save();
+					initGui();
 				}
 				break;
 			}
@@ -400,8 +397,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	@Override
 	public void save() {
 		GuiNpcTextField.unfocus();
-		Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id,
-				this.quest.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.QuestSave, quest.category.id, quest.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override

@@ -77,17 +77,17 @@ implements ITextfieldListener {
 
 		GuiNpcTextField textField = new GuiNpcTextField(0, parent, guiLeft + 4, guiTop + 16, 54, 20, "" + day);
 		textField.setMinMaxDefault(year == 2011 && month == 11 ? 18 : 1, setCal.getActualMaximum(Calendar.DAY_OF_MONTH), day);
-		textField.setHoverText("hover.data.day", "" + getTextField(0).getMax());
+		textField.setHoverText("hover.data.day", "" + textField.getMax());
 		addTextField(textField);
 
 		textField = new GuiNpcTextField(1, parent, guiLeft + 61, guiTop + 16, 54, 20, "" + (month + 1));
 		textField.setMinMaxDefault(year == 2011 ? 11 : 1, (year == cal.get(Calendar.YEAR) ? cal.get(Calendar.MONTH) + 1 : 12), (month + 1));
-		textField.setHoverText("hover.data.month", "" + getTextField(1).getMax(), new TextComponentTranslation("month." + month).getFormattedText());
+		textField.setHoverText("hover.data.month", "" + textField.getMax(), new TextComponentTranslation("month." + month).getFormattedText());
 		addTextField(textField);
 
 		textField = new GuiNpcTextField(2, parent, guiLeft + 118, guiTop + 16, 54, 20, "" + year);
 		textField.setMinMaxDefault(2011, cal.get(Calendar.YEAR), year);
-		textField.setHoverText("hover.data.year", "" + getTextField(2).getMin(), "" + getTextField(2).getMax());
+		textField.setHoverText("hover.data.year", "" + textField.getMin(), "" + textField.getMax());
 		addTextField(textField);
 
 		addButton(new GuiNpcButton(0, guiLeft + 4, guiTop + 44, 80, 20, "gui.done"));

@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.util;
 
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Mouse;
@@ -11,6 +13,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -96,6 +99,47 @@ implements IComponentGui, IGuiNpcButton {
 	public GuiNpcButton simple(boolean bo) {
 		isSimple = bo;
 		return this;
+	}
+
+	public static void renderString(@Nonnull FontRenderer font, @Nonnull String message, int left, int top, int right, int bottom, int color, boolean showShadow, boolean centered) {
+		//message += " add Test Text manu texts";
+		int textWidth = font.getStringWidth(message);
+		int height = (top + bottom - 9) / 2 + 1;
+		int width = right - left;
+		if (textWidth > width) { // moved
+			int centerX = textWidth - width;
+			double d0 = (double) System.currentTimeMillis() / 1000.0;
+			double d1 = Math.max((double) centerX * 0.5, 3.0);
+			double d2 = Math.sin(Math.PI / 2.0d * Math.cos(Math.PI * 2.0d * d0 / d1)) / 2.0 + 0.5;
+			double d3 = 0.0 + d2 * (centerX - 0.0);
+			GlStateManager.pushMatrix();
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			Minecraft mc = Minecraft.getMinecraft();
+			ScaledResolution sw = new ScaledResolution(mc);
+
+			int i = mc.displayHeight;
+			double d4 = sw.getScaledWidth() < mc.displayWidth
+					? (int) Math.round((double) mc.displayWidth / (double) sw.getScaledWidth())
+					: 1;
+			double d5 = (double) left * d4;
+			double d6 = (double)i - (double) bottom * d4;
+			double d7 = (double) (right - left) * d4;
+			double d8 = (double) (bottom - top) * d4;
+
+			GL11.glScissor((int)d5, (int)d6, Math.max(0, (int)d7), Math.max(0, (int)d8));
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			font.drawString(message, left - (int) d3, height, color, showShadow);
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+			GlStateManager.popMatrix();
+		}
+		else {
+			if (centered) {
+				width = (left + right) / 2;
+				font.drawString(message, width - (float) textWidth / 2.0f, height, color, showShadow);
+			} else {
+				font.drawString(message, left, height, color, showShadow);
+			}
+		}
 	}
 
 	@Override
@@ -191,7 +235,7 @@ implements IComponentGui, IGuiNpcButton {
 		if (packedFGColour != 0) { color = packedFGColour; }
 		else if (!enabled) { color = CustomNpcs.NotEnableColor.getRGB(); }
 		else if (hovered) { color = CustomNpcs.HoverColor.getRGB(); }
-		mc.fontRenderer.drawString(displayString, x + (float) (width - mc.fontRenderer.getStringWidth(displayString)) / 2, y + (float) (height - 8) / 2, color, dropShadow);
+		renderString(mc.fontRenderer, getDisplayString(), x + 2, y, x + getWidth() - 2, y + getHeight(), color, false, true);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		if (itemStacks != null && itemStacks.length != 0) {
 			currentStack = itemStacks[0];

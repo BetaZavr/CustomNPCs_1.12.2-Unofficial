@@ -20,12 +20,6 @@ public interface IGuiNpcTextField extends IComponentGui {
 
     boolean isEmpty();
 
-    void setTextColor(int color);
-
-    void setDisabledTextColour(int color);
-
-    boolean isFocused();
-
     long getDefault();
 
     double getDoubleDefault();

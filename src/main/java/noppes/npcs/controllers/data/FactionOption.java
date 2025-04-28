@@ -38,4 +38,5 @@ public class FactionOption {
 		compound.setInteger("Points", this.factionPoints);
 		return compound;
 	}
+
 }

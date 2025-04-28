@@ -1,4 +1,4 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.availability;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,12 +17,11 @@ public class SubGuiNpcAvailabilityDialog
 extends SubGuiInterface
 implements ICustomScrollListener, ISubGuiListener {
 
-	private final Availability availability;
-	private final String chr = "" + ((char) 167);
-	private final Map<String, EnumAvailabilityDialog> dataEnum = new HashMap<>();
-	private final Map<String, Integer> dataIDs = new HashMap<>();
-	private GuiCustomScroll scroll;
-	private String select = "";
+	protected final Availability availability;
+	protected final Map<String, EnumAvailabilityDialog> dataEnum = new HashMap<>();
+	protected final Map<String, Integer> dataIDs = new HashMap<>();
+	protected GuiCustomScroll scroll;
+	protected String select = "";
 
 	public SubGuiNpcAvailabilityDialog(Availability availability) {
 		setBackground("menubg.png");
@@ -44,9 +43,9 @@ implements ICustomScrollListener, ISubGuiListener {
 				Dialog dialog = DialogController.instance.dialogs.get(dataIDs.get(select));
 				select = "ID:" + id + " - ";
 				if (dialog == null) {
-					select += chr + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
+					select += ((char) 167) + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
 				} else {
-					select += chr + "7" + dialog.getCategory().getName() + "/" + chr + "r" + dialog.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + chr + "7)";
+					select += ((char) 167) + "7" + dialog.getCategory().getName() + "/" + ((char) 167) + "r" + dialog.getName() + ((char) 167) + "7 (" + ((char) 167) + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + ((char) 167) + "7)";
 				}
 				initGui();
 				break;
@@ -103,9 +102,9 @@ implements ICustomScrollListener, ISubGuiListener {
 			String key = "ID:" + id + " - ";
 			Dialog dialog = DialogController.instance.dialogs.get(id);
 			if (dialog == null) {
-				key += chr + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
+				key += ((char) 167) + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
 			} else {
-				key += chr + "7" + dialog.getCategory().getName() + "/" + chr + "r" + dialog.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + availability.dialogues.get(id)).toLowerCase()).getFormattedText() + chr + "7)";
+				key += ((char) 167) + "7" + dialog.getCategory().getName() + "/" + ((char) 167) + "r" + dialog.getName() + ((char) 167) + "7 (" + ((char) 167) + "9" + new TextComponentTranslation(("availability." + availability.dialogues.get(id)).toLowerCase()).getFormattedText() + ((char) 167) + "7)";
 			}
 			dataIDs.put(key, id);
 			dataEnum.put(key, availability.dialogues.get(id));
@@ -188,7 +187,7 @@ implements ICustomScrollListener, ISubGuiListener {
 		if (!select.isEmpty()) {
 			availability.dialogues.remove(dataIDs.get(select));
 		}
-		select = "ID:" + selector.selectedDialog.id + " - " + chr + "7" + selector.selectedCategory.getName() + "/" + chr + "r" + selector.selectedDialog.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation("availability.after").getFormattedText() + chr + "7)";
+		select = "ID:" + selector.selectedDialog.id + " - " + ((char) 167) + "7" + selector.selectedCategory.getName() + "/" + ((char) 167) + "r" + selector.selectedDialog.getName() + ((char) 167) + "7 (" + ((char) 167) + "9" + new TextComponentTranslation("availability.after").getFormattedText() + ((char) 167) + "7)";
 		availability.dialogues.put(selector.selectedDialog.id, EnumAvailabilityDialog.After);
 		initGui();
 	}

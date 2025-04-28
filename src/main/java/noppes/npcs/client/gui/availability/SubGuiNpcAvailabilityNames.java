@@ -1,9 +1,10 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.availability;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityPlayerName;
 import noppes.npcs.controllers.data.Availability;

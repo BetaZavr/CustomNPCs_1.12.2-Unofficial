@@ -124,11 +124,10 @@ public class NBTTags {
 		items.clear();
 		for (int i = 0; i < tagList.tagCount(); ++i) {
 			NBTTagCompound nbtStack = tagList.getCompoundTagAt(i);
-			try {
-				items.set(nbtStack.getByte("Slot") & 0xFF, new ItemStack(nbtStack));
-			} catch (ClassCastException e) {
-				items.set(nbtStack.getInteger("Slot"), new ItemStack(nbtStack));
-			}
+			int slotId;
+			try { slotId = nbtStack.getByte("Slot") & 0xFF; }
+			catch (ClassCastException e) { slotId = nbtStack.getInteger("Slot"); }
+			if (slotId > 0 && slotId < items.size()) { items.set(slotId, new ItemStack(nbtStack)); }
 		}
 	}
 

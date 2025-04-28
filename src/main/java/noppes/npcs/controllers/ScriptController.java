@@ -956,6 +956,14 @@ public class ScriptController {
 	public void tryAddErrored(ScriptContainer scriptContainer) {
 		if (errors.contains(scriptContainer)) { return; }
 		errors.add(scriptContainer);
+		/*if (CustomNpcs.Server == null) { return; }
+		PlayerList pList = CustomNpcs.Server.getPlayerList();
+		ITextComponent message = new TextComponentTranslation("command.script.logs.view");
+		for (EntityPlayer entityplayer : pList.getPlayers()) {
+			if (entityplayer.sendCommandFeedback() && pList.canSendCommands(entityplayer.getGameProfile())) {
+				entityplayer.sendMessage(message);
+			}
+		}*/
 	}
 
 	public void tryRemoveErrored(ScriptContainer scriptContainer) {

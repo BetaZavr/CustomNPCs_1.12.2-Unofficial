@@ -206,8 +206,9 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 			NoppesUtilServer.getEditingQuest(player).questInterface.removeTask(task);
 		} else {
 			if (((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui instanceof GuiQuestEdit) {
-				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.setSubGui(null);
-				((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui.initGui();
+				GuiQuestEdit subgui = (GuiQuestEdit) ((GuiNPCManageQuest) GuiNPCManageQuest.Instance).subgui;
+				subgui.setSubGui(null);
+				subgui.initGui();
 			}
 		}
 	}
@@ -236,6 +237,7 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 	public void unFocused(IGuiNpcTextField textField) {
 		if (task == null) { return; }
 		switch (textField.getID()) {
+			case 2: task.setAreaRange(textField.getInteger()); break;
 			case 9: {
 				if (!BorderController.getInstance().regions.containsKey(textField.getInteger())) {
 					textField.setFullText("" + textField.getDefault());
@@ -245,26 +247,11 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 				textField.setHoverText(new TextComponentTranslation("quest.hover.compass.reg", "" + task.regionID).appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 				break;
 			}
-			case 10: {
-				task.pos = new BlockPos(textField.getInteger(), task.pos.getY(), task.pos.getZ());
-				break;
-			}
-			case 11: {
-				task.pos = new BlockPos(task.pos.getX(), textField.getInteger(), task.pos.getZ());
-				break;
-			}
-			case 12: {
-				task.pos = new BlockPos(task.pos.getX(), task.pos.getY(), textField.getInteger());
-				break;
-			}
-			case 14: {
-				task.rangeCompass = textField.getInteger();
-				break;
-			}
-			case 15: {
-				task.entityName = textField.getFullText();
-				break;
-			}
+			case 10: task.pos = new BlockPos(textField.getInteger(), task.pos.getY(), task.pos.getZ()); break;
+			case 11: task.pos = new BlockPos(task.pos.getX(), textField.getInteger(), task.pos.getZ()); break;
+			case 12: task.pos = new BlockPos(task.pos.getX(), task.pos.getY(), textField.getInteger()); break;
+			case 14: task.rangeCompass = textField.getInteger(); break;
+			case 15: task.entityName = textField.getFullText(); break;
 		}
 	}
 

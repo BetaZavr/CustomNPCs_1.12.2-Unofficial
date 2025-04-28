@@ -107,9 +107,7 @@ public class PlayerQuestController {
 		Vector<Quest> quests = new Vector<>();
 		PlayerQuestData data = PlayerData.get(player).questData;
 		for (QuestData questdata : data.activeQuests.values()) {
-			if (questdata.quest == null) {
-				continue;
-			}
+			if (questdata.quest == null) { continue; }
 			quests.add(questdata.quest);
 		}
 		return quests;
@@ -170,8 +168,8 @@ public class PlayerQuestController {
 			data.finishedQuests.put(quest.id, player.world.getTotalWorldTime());
 		}
 		if (quest.repeat != EnumQuestRepeat.NONE) { // Change
-			for (IQuestObjective obj : quest.questInterface.getObjectives(player)) { // forget dialogues
-				if (((QuestObjective) obj).getEnumType() != EnumQuestTask.DIALOG) {
+			for (QuestObjective obj : quest.questInterface.getObjectives(player)) { // forget dialogues
+				if (obj.getEnumType() != EnumQuestTask.DIALOG) {
 					continue;
 				}
 				playerdata.dialogData.dialogsRead.remove(obj.getTargetID());

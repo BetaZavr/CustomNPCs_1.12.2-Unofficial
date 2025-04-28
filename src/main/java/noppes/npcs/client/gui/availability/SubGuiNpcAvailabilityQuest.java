@@ -1,4 +1,4 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.availability;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,22 +18,20 @@ public class SubGuiNpcAvailabilityQuest
 extends SubGuiInterface
 implements ICustomScrollListener, GuiSelectionListener {
 
-	private static final String[] types = new String[] { "availability.always", "availability.after", "availability.before", "availability.active", "availability.notactive", "availability.completed", "availability.canstart" };
-	private final Availability availability;
-	private final String chr = "" + ((char) 167);
-	private final Map<String, EnumAvailabilityQuest> dataEnum = new HashMap<>();
-	private final Map<String, Integer> dataIDs = new HashMap<>();
-	private GuiCustomScroll scroll;
-	private String select;
+	protected static final String[] types = new String[] { "availability.always", "availability.after", "availability.before", "availability.active", "availability.notactive", "availability.completed", "availability.canstart" };
+	protected final Availability availability;
+	protected final Map<String, EnumAvailabilityQuest> dataEnum = new HashMap<>();
+	protected final Map<String, Integer> dataIDs = new HashMap<>();
+	protected GuiCustomScroll scroll;
+	protected String select = "";
 
-	public SubGuiNpcAvailabilityQuest(Availability availability) {
+	public SubGuiNpcAvailabilityQuest(Availability availabilityIn) {
 		setBackground("menubg.png");
 		xSize = 316;
 		ySize = 217;
-		select = "";
 		closeOnEsc = true;
 
-		this.availability = availability;
+		availability = availabilityIn;
 	}
 
 	@Override
@@ -47,9 +45,9 @@ implements ICustomScrollListener, GuiSelectionListener {
 				Quest quest = QuestController.instance.quests.get(dataIDs.get(select));
 				select = "ID:" + id + " - ";
 				if (quest == null) {
-					select += chr + "4" + (new TextComponentTranslation("quest.found").getFormattedText());
+					select += ((char) 167) + "4" + (new TextComponentTranslation("quest.found").getFormattedText());
 				} else {
-					select += chr + "7" + quest.getCategory().getName() + "/" + chr + "r" + quest.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + chr + "7)";
+					select += ((char) 167) + "7" + quest.getCategory().getName() + "/" + ((char) 167) + "r" + quest.getName() + ((char) 167) + "7 (" + ((char) 167) + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + ((char) 167) + "7)";
 				}
 				initGui();
 				break;
@@ -105,9 +103,9 @@ implements ICustomScrollListener, GuiSelectionListener {
 			String key = "ID:" + id + " - ";
 			IQuest q = QuestController.instance.get(id);
 			if (q == null) {
-				key += chr + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
+				key += ((char) 167) + "4" + (new TextComponentTranslation("quest.notfound").getFormattedText());
 			} else {
-				key += chr + "7" + q.getCategory().getName() + "/" + chr + "r" + q.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation(("availability." + availability.quests.get(id)).toLowerCase()).getFormattedText() + chr + "7)";
+				key += ((char) 167) + "7" + q.getCategory().getName() + "/" + ((char) 167) + "r" + q.getName() + ((char) 167) + "7 (" + ((char) 167) + "9" + new TextComponentTranslation(("availability." + availability.quests.get(id)).toLowerCase()).getFormattedText() + ((char) 167) + "7)";
 			}
 			dataIDs.put(key, id);
 			dataEnum.put(key, availability.quests.get(id));
@@ -176,10 +174,9 @@ implements ICustomScrollListener, GuiSelectionListener {
 			availability.quests.remove(dataIDs.get(select));
 		}
 		Quest quest = QuestController.instance.quests.get(id);
-		select = "ID:" + id + " - " + chr + "7" + quest.category.getName() + "/" + chr + "r" + quest.getName() + chr + "7 (" + chr + "9" + new TextComponentTranslation("availability.after").getFormattedText() + chr + "7)";
+		select = "ID:" + id + " - " + ((char) 167) + "7" + quest.category.getName() + "/" + ((char) 167) + "r" + quest.getName() + ((char) 167) + "7 (" + ((char) 167) + "9" + new TextComponentTranslation("availability.after").getFormattedText() + ((char) 167) + "7)";
 		availability.quests.put(id, EnumAvailabilityQuest.After);
 		initGui();
-		updateGuiButtons();
 	}
 
 	private void updateGuiButtons() {

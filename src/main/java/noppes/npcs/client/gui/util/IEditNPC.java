@@ -5,7 +5,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.INpc;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.entity.EntityNPCInterface;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -139,8 +138,6 @@ public interface IEditNPC {
 
 	void drawNpc(int x, int y);
 
-	void initGui();
-
 	INpc getNpc();
 
 	void setNpc(INpc iNpc);
@@ -152,12 +149,6 @@ public interface IEditNPC {
 	void setWorldAndResolution(Minecraft mc, int width, int height);
 
 	boolean isMouseHover(int mX, int mY, int px, int py, int pwidth, int pheight);
-
-	void keyTyped(char c, int id);
-
-	void mouseClicked(int mouseX, int mouseY, int mouseButton);
-
-	void updateScreen();
 
 	void save();
 

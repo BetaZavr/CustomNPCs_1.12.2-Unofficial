@@ -1,20 +1,20 @@
 package noppes.npcs.client.renderer;
 
 import java.awt.Color;
-import java.io.ByteArrayInputStream;
-import java.net.URL;
+import java.io.File;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.*;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.util.GuiNpcUtil;
+import noppes.npcs.client.util.ImageBufferDownloadAlt;
+import noppes.npcs.client.util.ImageDownloadAlt;
 import noppes.npcs.reflection.client.renderer.texture.TextureManagerReflection;
-import org.apache.commons.io.IOUtils;
+import noppes.npcs.reflection.client.resources.SkinManagerReflection;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -27,7 +27,6 @@ import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderLiving;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
@@ -43,8 +42,8 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
 import javax.annotation.Nonnull;
-import javax.imageio.ImageIO;
 
+@SideOnly(Side.CLIENT)
 public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLiving<T> {
 
 	private static final Map<Integer, Integer> transparentIDs = new HashMap<>();
@@ -114,9 +113,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			if (npc.display.skinType == 0) {
 				npc.textureLocation = new ResourceLocation(npc.display.getSkinTexture());
 			} else {
-				if (RenderNPCInterface.LastTextureTick < 5) {
-					return DefaultPlayerSkin.getDefaultSkinLegacy();
-				}
+				if (RenderNPCInterface.LastTextureTick < 5) { return DefaultPlayerSkin.getDefaultSkinLegacy(); }
 				if (npc.display.skinType == 1) {
 					if (npc.display.playerProfile == null) { npc.display.loadProfile(); }
 					if (npc.display.playerProfile != null) {
@@ -133,13 +130,13 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 							}
 						}
 					}
-				} else if (npc.display.skinType == 2) {
+				}
+				else if (npc.display.skinType == 2) {
 					try {
-						MessageDigest digest = MessageDigest.getInstance("MD5");
-						byte[] hash = digest.digest(npc.display.getSkinUrl().getBytes(StandardCharsets.UTF_8));
-						StringBuilder sb = new StringBuilder(2 * hash.length);
-						for (byte b : hash) { sb.append(String.format("%02x", b & 0xFF)); }
-						RenderNPCInterface.loadSkin(npc.textureLocation = new ResourceLocation("skins/" + sb), npc.display.getSkinUrl());
+						boolean fixSkin = npc instanceof EntityCustomNpc && ((EntityCustomNpc)npc).modelData.getEntity(npc) == null;
+						File file = new File(SkinManagerReflection.getDir(Minecraft.getMinecraft().getSkinManager()), "" + (npc.display.getSkinUrl() + fixSkin).hashCode());
+						npc.textureLocation = new ResourceLocation(CustomNpcs.MODID, "skins/" + (npc.display.getSkinUrl() + fixSkin).hashCode() + (fixSkin ? "" : "32"));
+						loadSkin(file, npc.textureLocation, npc.display.getSkinUrl());
 					}
 					catch (Exception e) { LogWriter.error("Error:", e); }
 				}
@@ -177,17 +174,12 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		return super.handleRotationFloat(npc, par2);
 	}
 
-	private static void loadSkin(ResourceLocation resource, String url) {
-		TextureManager re = Minecraft.getMinecraft().getTextureManager();
-		ITextureObject iTexture = re.getTexture(resource);
-		if (iTexture == null) {
-			try {
-				byte[] imageBytes = IOUtils.toByteArray(new URL(url).openStream());
-				ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
-				iTexture = new DynamicTexture(ImageIO.read(inputStream));
-				TextureManagerReflection.getMapTextureObjects(re).put(resource, iTexture);
-			}
-			catch (Exception ignored) { }
+	private static void loadSkin(File file, ResourceLocation resource, String url) {
+		TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
+		Map<ResourceLocation, ITextureObject> mapTextureObjects = TextureManagerReflection.getMapTextureObjects(texturemanager);
+		if (!mapTextureObjects.containsKey(resource)) {
+			ITextureObject object = new ImageDownloadAlt(file, url, DefaultPlayerSkin.getDefaultSkinLegacy(), new ImageBufferDownloadAlt());
+			texturemanager.loadTexture(resource, object);
         }
     }
 

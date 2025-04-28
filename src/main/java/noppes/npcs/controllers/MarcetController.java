@@ -460,16 +460,12 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	public void update() {
-		for (Marcet m : this.markets.values()) {
-			m.update();
-		}
-		for (Deal d : this.deals.values()) {
-			d.update();
-		}
+		for (Marcet m : new ArrayList<>(markets.values())) { m.update(); }
+		for (Deal d : new ArrayList<>(deals.values())) { d.update(); }
 	}
 
 	public void updateTime() {
-		for (Marcet m : this.markets.values()) {
+		for (Marcet m : new ArrayList<>(markets.values())) {
 			m.updateTime();
 		}
 	}

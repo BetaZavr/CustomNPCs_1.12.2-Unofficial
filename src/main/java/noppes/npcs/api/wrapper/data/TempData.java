@@ -4,7 +4,6 @@ import java.util.*;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.LogWriter;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.wrapper.BlockWrapper;

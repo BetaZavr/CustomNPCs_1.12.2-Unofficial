@@ -188,11 +188,9 @@ public class NpcMiscInventory implements IInventory {
 		NBTTags.getItemStackList(nbttagcompound.getTagList("NpcMiscInv", 10), this.items);
 	}
 
-	public void setInventorySlotContents(int var1, @Nonnull ItemStack var2) {
-		if (var1 >= this.getSizeInventory()) {
-			return;
-		}
-		this.items.set(var1, var2);
+	public void setInventorySlotContents(int slotId, @Nonnull ItemStack stack) {
+		if (slotId >= getSizeInventory()) { return; }
+		items.set(slotId, stack);
 	}
 
 	public void setSize(int size) {

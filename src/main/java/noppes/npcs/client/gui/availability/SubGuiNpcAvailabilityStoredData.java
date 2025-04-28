@@ -1,4 +1,4 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.availability;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -96,11 +96,11 @@ implements ICustomScrollListener, ITextfieldListener {
 			if (getTextField(0) != null) {
 				IGuiNpcTextField textField = getTextField(0);
 				if (keyError != 0) {
-					textField.setTextColor(0xFFFF0000);
-					textField.setDisabledTextColour(0xFFFF0000);
+					((GuiNpcTextField) textField).setTextColor(0xFFFF0000);
+					((GuiNpcTextField) textField).setDisabledTextColour(0xFFFF0000);
 				} else {
-					textField.setTextColor(0xFFFFFFFF);
-					textField.setDisabledTextColour(0xFFFFFFFF);
+					((GuiNpcTextField) textField).setTextColor(0xFFFFFFFF);
+					((GuiNpcTextField) textField).setDisabledTextColour(0xFFFFFFFF);
 				}
 			}
 		}

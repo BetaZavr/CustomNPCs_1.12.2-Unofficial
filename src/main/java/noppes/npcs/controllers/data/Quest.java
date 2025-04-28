@@ -40,6 +40,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestInterface;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.Util;
+import noppes.npcs.util.ValueUtil;
 
 public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 
@@ -237,13 +238,13 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 		return (QuestController.instance == null) ? null : QuestController.instance.quests.get(this.nextQuest);
 	}
 
-	public IQuestObjective[] getObjectives(EntityPlayer player) {
+	public QuestObjective[] getObjectives(EntityPlayer player) {
 		if (player == null) {
-			return new IQuestObjective[0];
+			return new QuestObjective[0];
 		}
 		PlayerData data = PlayerData.get(player);
 		if (data == null || !data.questData.activeQuests.containsKey(this.id)) {
-			return new IQuestObjective[0];
+			return new QuestObjective[0];
 		}
 		return this.questInterface.getObjectives(player);
 	}
@@ -333,6 +334,23 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 		this.logText = compound.getString("Text");
 		this.completeText = compound.getString("CompleteText");
 		this.command = compound.getString("QuestCommand");
+		this.nextQuest = compound.getInteger("NextQuestId");
+		this.rewardExp = compound.getInteger("RewardExp");
+		this.rewardItems.setFromNBT(compound.getCompoundTag("Rewards"));
+		this.completion = EnumQuestCompletion.values()[compound.getInteger("QuestCompletion")];
+		this.repeat = EnumQuestRepeat.values()[compound.getInteger("QuestRepeat")];
+		this.questInterface.readEntityFromNBT(compound, this.id);
+		this.factionOptions.readFromNBT(compound.getCompoundTag("QuestFactionPoints"));
+		this.mail.readNBT(compound.getCompoundTag("QuestMail"));
+
+		this.rewardType = EnumRewardType.values()[compound.getInteger("RewardType")];
+		this.rewardMoney = compound.getInteger("RewardMoney");
+		this.nextQuestTitle = compound.getString("NextQuestTitle");
+		if (this.hasNewQuest()) {
+			this.nextQuestTitle = this.getNextQuest().title;
+		} else {
+			this.nextQuestTitle = "";
+		}
 		if (compound.hasKey("QuestIcon", 8)) {
 			this.icon = new ResourceLocation(compound.getString("QuestIcon"));
 		} else {
@@ -344,22 +362,6 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 			this.texture = null;
 		}
 		this.extraButtonText = compound.getString("ExtraButtonText");
-		this.nextQuest = compound.getInteger("NextQuestId");
-		this.nextQuestTitle = compound.getString("NextQuestTitle");
-		if (this.hasNewQuest()) {
-			this.nextQuestTitle = this.getNextQuest().title;
-		} else {
-			this.nextQuestTitle = "";
-		}
-		this.rewardType = EnumRewardType.values()[compound.getInteger("RewardType")];
-		this.rewardExp = compound.getInteger("RewardExp");
-		this.rewardMoney = compound.getInteger("RewardMoney");
-		this.rewardItems.setFromNBT(compound.getCompoundTag("Rewards"));
-		this.completion = EnumQuestCompletion.values()[compound.getInteger("QuestCompletion")];
-		this.repeat = EnumQuestRepeat.values()[compound.getInteger("QuestRepeat")];
-		this.questInterface.readEntityFromNBT(compound, this.id);
-		this.factionOptions.readFromNBT(compound.getCompoundTag("QuestFactionPoints"));
-		this.mail.readNBT(compound.getCompoundTag("QuestMail"));
 		this.level = compound.getInteger("QuestLevel");
 		this.cancelable = compound.getBoolean("Cancelable");
 		if (compound.hasKey("ShowProgressInChat", 1)) {
@@ -408,8 +410,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 						}
 					}
 				} else if (CustomNpcs.proxy.getPlayer() != null) {
-					for (EntityNPCInterface entity : CustomNpcs.proxy.getPlayer().world
-							.getEntities(EntityNPCInterface.class, this)) {
+					for (EntityNPCInterface entity : CustomNpcs.proxy.getPlayer().world.getEntities(EntityNPCInterface.class, this)) {
 						if (entity.getName().equals(name)) {
 							this.completer = entity;
 							if (this.completerUUID == null) {
@@ -535,8 +536,9 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 	}
 
 	@Override
-	public void setLevel(int level) {
-		this.level = level;
+	public void setLevel(int levelIn) {
+		if (levelIn < 0 ) { levelIn *= -1; }
+		level = ValueUtil.correctInt(levelIn, 1, CustomNpcs.MaxLv);
 	}
 
 	@Override
@@ -555,9 +557,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 			this.nextQuest = -1;
 			this.nextQuestTitle = "";
 		} else {
-			if (quest.getId() < 0) {
-				throw new CustomNPCsException("Quest id is lower than 0");
-			}
+			if (quest.getId() < 0) { throw new CustomNPCsException("Quest id is lower than 0"); }
 			this.nextQuest = quest.getId();
 			this.nextQuestTitle = quest.getTitle();
 		}
@@ -593,21 +593,20 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 		compound.setString("Text", this.logText);
 		compound.setString("CompleteText", this.completeText);
 		compound.setInteger("NextQuestId", this.nextQuest);
-		compound.setString("NextQuestTitle", this.nextQuestTitle);
 		compound.setInteger("RewardExp", this.rewardExp);
-		compound.setInteger("RewardMoney", this.rewardMoney);
 		compound.setTag("Rewards", this.rewardItems.getToNBT());
 		compound.setString("QuestCommand", this.command);
-		compound.setString("QuestIcon", this.icon.toString());
-		if (this.texture != null) {
-			compound.setString("QuestTexture", this.texture.toString());
-		}
-		compound.setInteger("RewardType", this.rewardType.ordinal());
 		compound.setInteger("QuestCompletion", this.completion.ordinal());
 		compound.setInteger("QuestRepeat", this.repeat.ordinal());
 		this.questInterface.writeEntityToNBT(compound);
 		compound.setTag("QuestFactionPoints", this.factionOptions.writeToNBT(new NBTTagCompound()));
 		compound.setTag("QuestMail", this.mail.writeNBT());
+
+		compound.setString("NextQuestTitle", this.nextQuestTitle);
+		compound.setInteger("RewardMoney", this.rewardMoney);
+		compound.setString("QuestIcon", this.icon.toString());
+		if (this.texture != null) { compound.setString("QuestTexture", this.texture.toString()); }
+		compound.setInteger("RewardType", this.rewardType.ordinal());
 		compound.setInteger("QuestLevel", this.level);
 		compound.setBoolean("Cancelable", this.cancelable);
 		compound.setBoolean("ShowProgressInChat", this.showProgressInChat);

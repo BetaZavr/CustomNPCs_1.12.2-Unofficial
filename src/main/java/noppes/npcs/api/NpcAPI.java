@@ -35,16 +35,21 @@ public abstract class NpcAPI {
 	private static NpcAPI instance = null;
 
 	public static NpcAPI Instance() {
-		if (NpcAPI.instance != null) { return NpcAPI.instance; }
-		if (!IsAvailable()) { return null; }
-		try { NpcAPI.instance = WrapperNpcAPI.Instance(); }
-		catch (Exception e) { LogWriter.error("Error NpcAPI instance: ", e); }
+		if (NpcAPI.instance != null) {
+			return NpcAPI.instance;
+		}
+		if (!IsAvailable()) {
+			return null;
+		}
+		try {
+			NpcAPI.instance = WrapperNpcAPI.Instance();
+		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
 		return NpcAPI.instance;
 	}
 
 	public static boolean IsAvailable() {
-		try { return Loader.isModLoaded(CustomNpcs.MODID); } catch (Throwable ignored) { }
-        return false;
+		return Loader.isModLoaded(CustomNpcs.MODID);
 	}
 
 	public abstract ICustomGui createCustomGui(int id, int width, int height, boolean pauseGame);

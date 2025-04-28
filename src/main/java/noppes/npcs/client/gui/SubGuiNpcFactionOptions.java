@@ -110,8 +110,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) { }
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> dataMap) {
@@ -155,8 +154,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void setSelected(String selected) {
-	}
+	public void setSelected(String selected) { }
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {

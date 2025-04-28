@@ -17,8 +17,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -28,7 +26,6 @@ import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.item.INPCToolItem;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -84,6 +81,7 @@ public class ItemNpcWand extends Item implements IPermission, INPCToolItem {
 				}
 				return EnumActionResult.FAIL;
 			}
+			// create new
 			EntityCustomNpc npc = new EntityCustomNpc(world);
 			npc.ais.setStartPos(pos.up());
 			npc.setLocationAndAngles((pos.getX() + 0.5f), npc.getStartYPos(), (pos.getZ() + 0.5f), player.rotationYaw, player.rotationPitch);

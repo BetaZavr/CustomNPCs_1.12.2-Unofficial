@@ -1,4 +1,4 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.availability;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,20 +15,20 @@ public class SubGuiNpcAvailabilityScoreboard
 extends SubGuiInterface
 implements ICustomScrollListener, ITextfieldListener {
 
-	private final Availability availability;
-	private final String chr = "" + ((char) 167);
-	private final Map<String, String> dataNames = new HashMap<>();
-	private final Map<String, AvailabilityScoreboardData> dataSets = new HashMap<>();
-	private GuiCustomScroll scroll;
-	private String select = "";
+	protected final Availability availability;
+	protected final String chr = "" + ((char) 167);
+	protected final Map<String, String> dataNames = new HashMap<>();
+	protected final Map<String, AvailabilityScoreboardData> dataSets = new HashMap<>();
+	protected GuiCustomScroll scroll;
+	protected String select = "";
 
-	public SubGuiNpcAvailabilityScoreboard(Availability availability) {
+	public SubGuiNpcAvailabilityScoreboard(Availability availabilityIn) {
 		setBackground("menubg.png");
 		xSize = 316;
 		ySize = 217;
 		closeOnEsc = true;
 
-		this.availability = availability;
+		availability = availabilityIn;
 	}
 
 	@Override
@@ -126,7 +126,7 @@ implements ICustomScrollListener, ITextfieldListener {
 
 	@Override
 	public void keyTyped(char c, int key) {
-		if (key == 28 && getTextField(0).isFocused()) { // Enter
+		if (key == 28 && ((GuiNpcTextField) getTextField(0)).isFocused()) { // Enter
 			getTextField(0).unFocus();
 		}
 		super.keyTyped(c, key);
@@ -151,8 +151,7 @@ implements ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
