@@ -51,9 +51,7 @@ public class TextBlockClient extends TextBlock {
 	}
 
 	public String getName() {
-		if (this.sender != null) {
-			return this.sender.getName();
-		}
+		if (this.sender != null) { return this.sender.getName(); }
 		return this.name;
 	}
 

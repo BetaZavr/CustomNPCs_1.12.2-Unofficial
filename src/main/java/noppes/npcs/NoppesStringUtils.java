@@ -31,9 +31,7 @@ public class NoppesStringUtils {
 	}
 
 	public static String formatText(String text, Object... obs) {
-		if (text == null || text.isEmpty()) {
-			return "";
-		}
+		if (text == null || text.isEmpty()) { return ""; }
 		text = translate(text);
 		for (Object ob : obs) {
 			if (ob instanceof EntityPlayer) {

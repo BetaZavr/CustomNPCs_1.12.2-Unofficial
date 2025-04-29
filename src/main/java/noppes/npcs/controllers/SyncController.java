@@ -37,135 +37,137 @@ public class SyncController {
 	@SuppressWarnings("unchecked")
 	public static void add(EnumSync synctype, NBTTagCompound compound, boolean syncEnd, EntityPlayer player) {
 		switch (synctype) {
-		case FactionsData: {
-			NBTTagList list = compound.getTagList("Data", 10);
-			for (int i = 0; i < list.tagCount(); ++i) {
-				Faction faction = new Faction();
-				faction.readNBT(list.getCompoundTagAt(i));
-				FactionController.instance.factionsSync.put(faction.id, faction);
-			}
-			if (syncEnd) {
-				FactionController fData = FactionController.instance;
-				fData.factions.clear();
-				for (int id : fData.factionsSync.keySet()) {
-					fData.factions.put(id, fData.factionsSync.get(id));
+			case FactionsData: {
+				NBTTagList list = compound.getTagList("Data", 10);
+				for (int i = 0; i < list.tagCount(); ++i) {
+					Faction faction = new Faction();
+					faction.readNBT(list.getCompoundTagAt(i));
+					FactionController.instance.factionsSync.put(faction.id, faction);
 				}
-				fData.factionsSync.clear();
-			}
-			break;
-		}
-		case QuestCategoriesData: {
-			if (!compound.getKeySet().isEmpty()) {
-				QuestCategory category = new QuestCategory();
-				category.readNBT(compound);
-				QuestController.instance.categoriesSync.put(category.id, category);
-			}
-			if (syncEnd) {
-				QuestController qData = QuestController.instance;
-				TreeMap<Integer, Quest> quests = new TreeMap<>();
-				for (QuestCategory category2 : qData.categoriesSync.values()) {
-					for (Quest quest : category2.quests.values()) {
-						quests.put(quest.id, quest);
+				if (syncEnd) {
+					FactionController fData = FactionController.instance;
+					fData.factions.clear();
+					for (int id : fData.factionsSync.keySet()) {
+						fData.factions.put(id, fData.factionsSync.get(id));
 					}
+					fData.factionsSync.clear();
 				}
-				qData.categories.clear();
-				qData.categories.putAll(qData.categoriesSync);
-				qData.quests.clear();
-				qData.quests.putAll(quests);
-				qData.categoriesSync.clear();
+				break;
 			}
-			break;
-		}
-		case DialogCategoriesData: {
-			if (!compound.getKeySet().isEmpty()) {
-				DialogCategory category3 = new DialogCategory();
-				category3.readNBT(compound);
-				DialogController.instance.categoriesSync.put(category3.id, category3);
-			}
-			if (syncEnd) {
-				DialogController dData = DialogController.instance;
-				TreeMap<Integer, Dialog> dialogs = new TreeMap<>();
-				for (DialogCategory category4 : dData.categoriesSync.values()) {
-					for (Dialog dialog : category4.dialogs.values()) {
-						dialogs.put(dialog.id, dialog);
+			case QuestCategoriesData: {
+				if (!compound.getKeySet().isEmpty()) {
+					QuestCategory category = new QuestCategory();
+					category.readNBT(compound);
+					QuestController.instance.categoriesSync.put(category.id, category);
+				}
+				if (syncEnd) {
+					QuestController qData = QuestController.instance;
+					TreeMap<Integer, Quest> quests = new TreeMap<>();
+					for (QuestCategory category2 : qData.categoriesSync.values()) {
+						for (Quest quest : category2.quests.values()) {
+							quests.put(quest.id, quest);
+						}
 					}
+					qData.categories.clear();
+					qData.categories.putAll(qData.categoriesSync);
+					qData.quests.clear();
+					qData.quests.putAll(quests);
+					qData.categoriesSync.clear();
 				}
-				dData.categories.clear();
-				dData.categories.putAll(dData.categoriesSync);
-				dData.dialogs.clear();
-				dData.dialogs.putAll(dialogs);
-				dData.categoriesSync.clear();
+				break;
 			}
-			break;
-		}
-		case ModData: {
-			if (!syncEnd) {
-				return;
-			}
-			if (compound.hasKey("ShowLR")) {
-				CustomNpcs.ShowLR = compound.getBoolean("ShowLR");
-			}
-			if (compound.hasKey("ShowMoney")) {
-				CustomNpcs.ShowMoney = compound.getBoolean("ShowMoney");
-			}
-
-			CustomNpcs.showServerQuestCompass = compound.getBoolean("ShowQuestCompass");
-			if (CustomNpcs.ShowQuestCompass && !CustomNpcs.showServerQuestCompass) {
-				CustomNpcs.ShowQuestCompass = false;
-			}
-
-			CustomNpcs.RecalculateLR = compound.getBoolean("RecalculateLR");
-			CustomNpcs.setCharCurrencies(compound.getString("CharCurrencies"));
-			CustomNpcs.MaxBuilderBlocks = compound.getInteger("MaxBuilderBlocks");
-			CustomNpcs.MaxItemInDropsNPC = compound.getInteger("MaxItemInDropsNPC");
-			CustomNpcs.ScriptMaxTabs = compound.getInteger("ScriptMaxTabs");
-			CustomNpcs.DialogShowFitsSpeed = compound.getInteger("DialogFitsSpeed");
-			CustomNpcs.MailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
-			int[] vs = compound.getIntArray("LettersBeReceived");
-            System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
-			vs = compound.getIntArray("CostSendingLetter");
-            System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
-			ScriptController.forgeEventNames.clear();
-			for (int i = 0; i < compound.getTagList("ForgeEventNames", 10).tagCount(); i++) {
-				NBTTagCompound nbt = compound.getTagList("ForgeEventNames", 10).getCompoundTagAt(i);
-				String name = nbt.getString("Name");
-				Class<?> cls = null;
-				try {
-					cls = Class.forName(nbt.getString("Class"));
+			case DialogCategoriesData: {
+				if (!compound.getKeySet().isEmpty()) {
+					DialogCategory category3 = new DialogCategory();
+					category3.readNBT(compound);
+					DialogController.instance.categoriesSync.put(category3.id, category3);
 				}
-				catch (Exception e) { LogWriter.error("Error:", e); }
-				ScriptController.forgeEventNames.put(cls, name);
+				if (syncEnd) {
+					DialogController dData = DialogController.instance;
+					TreeMap<Integer, Dialog> dialogs = new TreeMap<>();
+					for (DialogCategory category4 : dData.categoriesSync.values()) {
+						for (Dialog dialog : category4.dialogs.values()) {
+							dialogs.put(dialog.id, dialog);
+						}
+					}
+					dData.categories.clear();
+					dData.categories.putAll(dData.categoriesSync);
+					dData.dialogs.clear();
+					dData.dialogs.putAll(dialogs);
+					dData.categoriesSync.clear();
+				}
+				break;
 			}
-			break;
-		}
-		case KeysData: {
-			KeyController.getInstance().loadKeys(compound);
-			CustomNpcs.proxy.updateKeys();
-			break;
-		}
-		case TransportData: {
-			TransportController.getInstance().loadCategories(compound);
-			break;
-		}
-		case Debug: {
-			List<String> list = CustomNpcs.showDebugs();
-			for (String str : list) {
-				player.sendMessage(new TextComponentString(str));
+			case DialogGuiSettings: {
+				DialogController.instance.getGuiSettings().load(compound);
+				break;
 			}
-			try {
-				Class<?> nirn = Class.forName("nirn.betazavr.Nirn");
-				Object nirnMod = nirn.getField("instance").get(null);
-				List<String> nirnList = (List<String>) nirn.getMethod("showDebugs").invoke(nirnMod);
-				for (String str : nirnList) {
+			case ModData: {
+				if (!syncEnd) {
+					return;
+				}
+				if (compound.hasKey("ShowLR")) {
+					CustomNpcs.ShowLR = compound.getBoolean("ShowLR");
+				}
+				if (compound.hasKey("ShowMoney")) {
+					CustomNpcs.ShowMoney = compound.getBoolean("ShowMoney");
+				}
+
+				CustomNpcs.showServerQuestCompass = compound.getBoolean("ShowQuestCompass");
+				if (CustomNpcs.ShowQuestCompass && !CustomNpcs.showServerQuestCompass) {
+					CustomNpcs.ShowQuestCompass = false;
+				}
+
+				CustomNpcs.RecalculateLR = compound.getBoolean("RecalculateLR");
+				CustomNpcs.setCharCurrencies(compound.getString("CharCurrencies"));
+				CustomNpcs.MaxBuilderBlocks = compound.getInteger("MaxBuilderBlocks");
+				CustomNpcs.MaxItemInDropsNPC = compound.getInteger("MaxItemInDropsNPC");
+				CustomNpcs.ScriptMaxTabs = compound.getInteger("ScriptMaxTabs");
+				CustomNpcs.DialogShowFitsSpeed = compound.getInteger("DialogFitsSpeed");
+				CustomNpcs.MailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
+				int[] vs = compound.getIntArray("LettersBeReceived");
+				System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
+				vs = compound.getIntArray("CostSendingLetter");
+				System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
+				ScriptController.forgeEventNames.clear();
+				for (int i = 0; i < compound.getTagList("ForgeEventNames", 10).tagCount(); i++) {
+					NBTTagCompound nbt = compound.getTagList("ForgeEventNames", 10).getCompoundTagAt(i);
+					String name = nbt.getString("Name");
+					Class<?> cls = null;
+					try {
+						cls = Class.forName(nbt.getString("Class"));
+					}
+					catch (Exception e) { LogWriter.error("Error:", e); }
+					ScriptController.forgeEventNames.put(cls, name);
+				}
+				break;
+			}
+			case KeysData: {
+				KeyController.getInstance().loadKeys(compound);
+				CustomNpcs.proxy.updateKeys();
+				break;
+			}
+			case TransportData: {
+				TransportController.getInstance().loadCategories(compound);
+				break;
+			}
+			case Debug: {
+				List<String> list = CustomNpcs.showDebugs();
+				for (String str : list) {
 					player.sendMessage(new TextComponentString(str));
 				}
+				try {
+					Class<?> nirn = Class.forName("nirn.betazavr.Nirn");
+					Object nirnMod = nirn.getField("instance").get(null);
+					List<String> nirnList = (List<String>) nirn.getMethod("showDebugs").invoke(nirnMod);
+					for (String str : nirnList) {
+						player.sendMessage(new TextComponentString(str));
+					}
+				}
+				catch (Exception ignored) { }
+				break;
 			}
-			catch (Exception ignored) { }
-			break;
-		}
-		default: {
-			break;
-		}
+			default: break;
 		}
 	}
 
@@ -242,113 +244,6 @@ public class SyncController {
 		}
 	}
 
-	public static void syncAllDialogs(MinecraftServer server) {
-		for (DialogCategory category : DialogController.instance.categories.values()) {
-			Server.sendToAll(server, EnumPacketClient.SYNC_ADD, EnumSync.DialogCategoriesData,
-					category.writeNBT(new NBTTagCompound()));
-		}
-		Server.sendToAll(server, EnumPacketClient.SYNC_END, EnumSync.DialogCategoriesData, new NBTTagCompound());
-	}
-
-	public static void syncAllQuests(MinecraftServer server) {
-		for (QuestCategory category : QuestController.instance.categories.values()) {
-			Server.sendToAll(server, EnumPacketClient.SYNC_ADD, EnumSync.QuestCategoriesData,
-					category.writeNBT(new NBTTagCompound()));
-		}
-		Server.sendToAll(server, EnumPacketClient.SYNC_END, EnumSync.QuestCategoriesData, new NBTTagCompound());
-	}
-
-	public static void syncPlayer(EntityPlayerMP player) {
-		NBTTagList list = new NBTTagList();
-		NBTTagCompound compound;
-		for (Faction faction : FactionController.instance.factions.values()) {
-			list.appendTag(faction.writeNBT(new NBTTagCompound()));
-			if (list.tagCount() > 20) {
-				compound = new NBTTagCompound();
-				compound.setTag("Data", list);
-				Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.FactionsData, compound);
-				list = new NBTTagList();
-			}
-		}
-		compound = new NBTTagCompound();
-		compound.setTag("Data", list);
-		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.FactionsData, compound);
-
-		for (QuestCategory category : QuestController.instance.categories.values()) {
-			Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.QuestCategoriesData,
-					category.writeNBT(new NBTTagCompound()));
-		}
-		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.QuestCategoriesData, new NBTTagCompound());
-
-		for (DialogCategory category2 : DialogController.instance.categories.values()) {
-			Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.DialogCategoriesData,
-					category2.writeNBT(new NBTTagCompound()));
-		}
-		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.DialogCategoriesData, new NBTTagCompound());
-
-		AnimationController.getInstance().sendTo(player);
-
-		compound = new NBTTagCompound();
-		if (!CustomNpcs.ShowLR) { compound.setBoolean("ShowLR", false); }
-		if (!CustomNpcs.ShowMoney) { compound.setBoolean("ShowMoney", false); }
-		compound.setBoolean("RecalculateLR", CustomNpcs.RecalculateLR);
-		compound.setBoolean("ShowQuestCompass", CustomNpcs.ShowQuestCompass);
-		compound.setString("CharCurrencies", CustomNpcs.CharCurrencies);
-		compound.setInteger("MaxBuilderBlocks", CustomNpcs.MaxBuilderBlocks);
-		compound.setInteger("MaxItemInDropsNPC", CustomNpcs.MaxItemInDropsNPC);
-		compound.setInteger("LettersBeDeleted", CustomNpcs.MailTimeWhenLettersWillBeDeleted);
-		compound.setInteger("ScriptMaxTabs", CustomNpcs.ScriptMaxTabs);
-		compound.setInteger("DialogFitsSpeed", CustomNpcs.DialogShowFitsSpeed);
-		compound.setIntArray("LettersBeReceived", CustomNpcs.MailTimeWhenLettersWillBeReceived);
-		compound.setIntArray("CostSendingLetter", CustomNpcs.MailCostSendingLetter);
-		compound.setBoolean("SendToYourself", CustomNpcs.MailSendToYourself);
-
-		list = new NBTTagList();
-		for (Class<?> cls : ScriptController.forgeEventNames.keySet()) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setString("Name", ScriptController.forgeEventNames.get(cls));
-			nbt.setString("Class", cls.getName());
-			list.appendTag(nbt);
-		}
-		compound.setTag("ForgeEventNames", list);
-		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.ModData, compound);
-
-		PlayerData data = PlayerData.get(player);
-		if (player.getServer() != null) {
-            data.game.op = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
-        }
-		compound = data.getNBT();
-		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.PlayerData, compound);
-
-		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.KeysData, KeyController.getInstance().getNBT());
-
-		syncScriptItems(player);
-		syncScriptRecipes(player);
-
-		BorderController.getInstance().sendTo(player);
-		MarcetController.getInstance().sendTo(player, -1);
-		ScriptController.Instance.sendClientTo(player);
-	}
-
-	private static void syncScriptRecipes(EntityPlayerMP player) {
-		RecipeController.getInstance().sendTo(player);
-		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
-	}
-
-	public static void syncScriptItems(EntityPlayerMP player) {
-		NBTTagCompound comp = new NBTTagCompound();
-		comp.setTag("List", NBTTags.nbtIntegerStringMap(ItemScripted.Resources));
-		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.ItemScriptedModels, comp);
-	}
-
-	public static void syncScriptItemsEverybody() {
-		NBTTagCompound comp = new NBTTagCompound();
-		comp.setTag("List", NBTTags.nbtIntegerStringMap(ItemScripted.Resources));
-		for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
-			Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.ItemScriptedModels, comp);
-		}
-	}
-
 	// SYNC_UPDATE
 	public static void update(EnumSync synctype, NBTTagCompound compound, ByteBuf buffer, EntityPlayer player) {
 		switch (synctype) {
@@ -401,6 +296,10 @@ public class SyncController {
 				DialogCategory category = new DialogCategory();
 				category.readNBT(compound);
 				DialogController.instance.categories.put(category.id, category);
+				break;
+			}
+			case DialogGuiSettings: {
+				DialogController.instance.getGuiSettings().load(compound);
 				break;
 			}
 			case RecipesData: {
@@ -485,11 +384,11 @@ public class SyncController {
 				}
 				if (compound.hasKey("LettersBeReceived", 11)) {
 					int[] vs = compound.getIntArray("LettersBeReceived");
-	                System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
+					System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
 				}
 				if (compound.hasKey("CostSendingLetter", 11)) {
 					int[] vs = compound.getIntArray("CostSendingLetter");
-	                System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
+					System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
 				}
 				if (compound.hasKey("SendToYourself", 1)) {
 					CustomNpcs.MailSendToYourself = compound.getBoolean("SendToYourself");
@@ -510,6 +409,115 @@ public class SyncController {
 			default: {
 				break;
 			}
+		}
+	}
+
+	public static void syncAllDialogs(MinecraftServer server) {
+		for (DialogCategory category : DialogController.instance.categories.values()) {
+			Server.sendToAll(server, EnumPacketClient.SYNC_ADD, EnumSync.DialogCategoriesData,
+					category.writeNBT(new NBTTagCompound()));
+		}
+		Server.sendToAll(server, EnumPacketClient.SYNC_END, EnumSync.DialogCategoriesData, new NBTTagCompound());
+		Server.sendToAll(server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogGuiSettings, DialogController.instance.getGuiSettings().save());
+	}
+
+	public static void syncAllQuests(MinecraftServer server) {
+		for (QuestCategory category : QuestController.instance.categories.values()) {
+			Server.sendToAll(server, EnumPacketClient.SYNC_ADD, EnumSync.QuestCategoriesData,
+					category.writeNBT(new NBTTagCompound()));
+		}
+		Server.sendToAll(server, EnumPacketClient.SYNC_END, EnumSync.QuestCategoriesData, new NBTTagCompound());
+	}
+
+	public static void syncPlayer(EntityPlayerMP player) {
+		NBTTagList list = new NBTTagList();
+		NBTTagCompound compound;
+		for (Faction faction : FactionController.instance.factions.values()) {
+			list.appendTag(faction.writeNBT(new NBTTagCompound()));
+			if (list.tagCount() > 20) {
+				compound = new NBTTagCompound();
+				compound.setTag("Data", list);
+				Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.FactionsData, compound);
+				list = new NBTTagList();
+			}
+		}
+		compound = new NBTTagCompound();
+		compound.setTag("Data", list);
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.FactionsData, compound);
+
+		for (QuestCategory category : QuestController.instance.categories.values()) {
+			Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.QuestCategoriesData,
+					category.writeNBT(new NBTTagCompound()));
+		}
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.QuestCategoriesData, new NBTTagCompound());
+
+		for (DialogCategory category2 : DialogController.instance.categories.values()) {
+			Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.DialogCategoriesData,
+					category2.writeNBT(new NBTTagCompound()));
+		}
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.DialogCategoriesData, new NBTTagCompound());
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.DialogGuiSettings, DialogController.instance.getGuiSettings().save());
+
+		AnimationController.getInstance().sendTo(player);
+
+		compound = new NBTTagCompound();
+		if (!CustomNpcs.ShowLR) { compound.setBoolean("ShowLR", false); }
+		if (!CustomNpcs.ShowMoney) { compound.setBoolean("ShowMoney", false); }
+		compound.setBoolean("RecalculateLR", CustomNpcs.RecalculateLR);
+		compound.setBoolean("ShowQuestCompass", CustomNpcs.ShowQuestCompass);
+		compound.setString("CharCurrencies", CustomNpcs.CharCurrencies);
+		compound.setInteger("MaxBuilderBlocks", CustomNpcs.MaxBuilderBlocks);
+		compound.setInteger("MaxItemInDropsNPC", CustomNpcs.MaxItemInDropsNPC);
+		compound.setInteger("LettersBeDeleted", CustomNpcs.MailTimeWhenLettersWillBeDeleted);
+		compound.setInteger("ScriptMaxTabs", CustomNpcs.ScriptMaxTabs);
+		compound.setInteger("DialogFitsSpeed", CustomNpcs.DialogShowFitsSpeed);
+		compound.setIntArray("LettersBeReceived", CustomNpcs.MailTimeWhenLettersWillBeReceived);
+		compound.setIntArray("CostSendingLetter", CustomNpcs.MailCostSendingLetter);
+		compound.setBoolean("SendToYourself", CustomNpcs.MailSendToYourself);
+
+		list = new NBTTagList();
+		for (Class<?> cls : ScriptController.forgeEventNames.keySet()) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setString("Name", ScriptController.forgeEventNames.get(cls));
+			nbt.setString("Class", cls.getName());
+			list.appendTag(nbt);
+		}
+		compound.setTag("ForgeEventNames", list);
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.ModData, compound);
+
+		PlayerData data = PlayerData.get(player);
+		if (player.getServer() != null) {
+            data.game.op = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
+        }
+		compound = data.getNBT();
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.PlayerData, compound);
+
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.KeysData, KeyController.getInstance().getNBT());
+
+		syncScriptItems(player);
+		syncScriptRecipes(player);
+
+		BorderController.getInstance().sendTo(player);
+		MarcetController.getInstance().sendTo(player, -1);
+		ScriptController.Instance.sendClientTo(player);
+	}
+
+	private static void syncScriptRecipes(EntityPlayerMP player) {
+		RecipeController.getInstance().sendTo(player);
+		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
+	}
+
+	public static void syncScriptItems(EntityPlayerMP player) {
+		NBTTagCompound comp = new NBTTagCompound();
+		comp.setTag("List", NBTTags.nbtIntegerStringMap(ItemScripted.Resources));
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.ItemScriptedModels, comp);
+	}
+
+	public static void syncScriptItemsEverybody() {
+		NBTTagCompound comp = new NBTTagCompound();
+		comp.setTag("List", NBTTags.nbtIntegerStringMap(ItemScripted.Resources));
+		for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
+			Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.ItemScriptedModels, comp);
 		}
 	}
 

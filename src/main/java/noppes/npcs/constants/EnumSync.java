@@ -8,6 +8,7 @@ public enum EnumSync {
     BuilderData,
     Debug,
     DialogCategoriesData, // 5
+    DialogGuiSettings,
     DialogData, // 4
     EmotionData,
     FactionsData, // 1

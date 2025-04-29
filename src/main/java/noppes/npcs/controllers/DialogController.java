@@ -23,6 +23,7 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
+import noppes.npcs.controllers.data.DialogGuiSettings;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.NBTJsonUtil;
@@ -35,6 +36,8 @@ public class DialogController implements IDialogHandler {
 	public final TreeMap<Integer, Dialog> dialogs = new TreeMap<>();
 	private int lastUsedCatID = 0;
 	private int lastUsedDialogID = 0;
+
+	private final DialogGuiSettings guiSettings = new DialogGuiSettings();
 
 	public DialogController() {
 		DialogController.instance = this;
@@ -82,6 +85,11 @@ public class DialogController implements IDialogHandler {
 		}
 		LogWriter.info("Loading Dialogs");
 		this.loadCategories();
+		try {
+			File file = new File(CustomNpcs.getWorldSaveDirectory(), "dialog_gui_settings.dat");
+			if (file.exists()) { guiSettings.load(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()))); }
+			else { saveSettings(); }
+		} catch (Exception e) { LogWriter.except(e); }
 		LogWriter.info("Done loading Dialogs");
 		if (CustomNpcs.VerboseDebug) {
 			CustomNpcs.debugData.endDebug("Common", null, "loadDialogs");
@@ -104,14 +112,13 @@ public class DialogController implements IDialogHandler {
 				}
 				return;
 			}
-		} catch (Exception e) {
-			LogWriter.except(e);
-		}
+		} catch (Exception e) { LogWriter.except(e); }
 		File dir = this.getDir();
 		if (!dir.exists()) {
 			dir.mkdir();
 			this.loadDefaultDialogs();
-		} else {
+		}
+		else {
 			for (File file2 : Objects.requireNonNull(dir.listFiles())) {
 				if (file2.isDirectory()) {
 					DialogCategory category = this.loadCategoryDir(file2);
@@ -261,21 +268,15 @@ public class DialogController implements IDialogHandler {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
 			category.title = "default";
-			while (this.containsCategoryName(category)) {
-				category.title += "_";
-			}
+			while (this.containsCategoryName(category)) { category.title += "_"; }
 		}
 		if (this.categories.containsKey(category.id)) {
 			DialogCategory currentCategory = this.categories.get(category.id);
 			if (!currentCategory.title.equals(category.title)) {
-				while (this.containsCategoryName(category)) {
-					category.title += "_";
-				}
-				File newdir = new File(this.getDir(), category.title);
-				File olddir = new File(this.getDir(), currentCategory.title);
-				if (newdir.exists() || !olddir.renameTo(newdir)) {
-					return;
-				}
+				while (this.containsCategoryName(category)) { category.title += "_"; }
+				File newDir = new File(this.getDir(), category.title);
+				File oldDir = new File(this.getDir(), currentCategory.title);
+				if (newDir.exists() || !oldDir.renameTo(newDir)) { return; }
 			}
 			category.dialogs.clear();
 			category.dialogs.putAll(currentCategory.dialogs);
@@ -336,5 +337,23 @@ public class DialogController implements IDialogHandler {
 			LogWriter.except(e);
 		}
 	}
+
+	public void saveSettings() {
+		try {
+			File saveDir = CustomNpcs.getWorldSaveDirectory();
+			File file = new File(saveDir, "dialog_gui_settings.dat_new");
+			File file2 = new File(saveDir, "dialog_gui_settings.dat_old");
+			File file3 = new File(saveDir, "dialog_gui_settings.dat");
+			CompressedStreamTools.writeCompressed(guiSettings.save(), Files.newOutputStream(file.toPath()));
+			if (file2.exists()) { file2.delete(); }
+			file3.renameTo(file2);
+			if (file3.exists()) { file3.delete(); }
+			file.renameTo(file3);
+			if (file.exists()) { file.delete(); }
+		} catch (Exception e) { LogWriter.error("Error:", e); }
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogGuiSettings, guiSettings.save());
+	}
+
+	public DialogGuiSettings getGuiSettings() { return guiSettings; }
 
 }

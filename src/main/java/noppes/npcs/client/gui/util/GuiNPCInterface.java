@@ -348,7 +348,9 @@ implements IEditNPC, ICustomScrollListener {
 	public void doubleClicked() { }
 
 	@Override
-	public void drawDefaultBackground() { super.drawDefaultBackground(); }
+	public void drawDefaultBackground() {
+		super.drawDefaultBackground();
+	}
 
 	@Override
 	public void drawNpc(Entity entity, int x, int y, float zoomed, int rotation, int vertical, int mouseFocus) {

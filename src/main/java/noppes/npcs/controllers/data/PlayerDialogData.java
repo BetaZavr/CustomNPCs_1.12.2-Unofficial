@@ -4,6 +4,7 @@ import java.util.*;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import noppes.npcs.client.TextBlockClient;
 
 public class PlayerDialogData {
 
@@ -48,5 +49,9 @@ public class PlayerDialogData {
 		if (dialogsRead.containsKey(dialogId)) { dialogsRead.put(dialogId, new TreeSet<>()); }
 		dialogsRead.get(dialogId).add(optionId);
 	}
+
+    public void addLogs(List<TextBlockClient> lines, String texture) {
+
+    }
 
 }

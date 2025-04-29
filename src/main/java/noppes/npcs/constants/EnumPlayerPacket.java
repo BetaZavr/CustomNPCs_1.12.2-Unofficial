@@ -75,5 +75,7 @@ public enum EnumPlayerPacket
 	InGame,
     DropsData,
 	DropData,
-	AcceptScripts
+	AcceptScripts,
+	PlayerDialogData
+
 }

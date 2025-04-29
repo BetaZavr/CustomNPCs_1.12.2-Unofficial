@@ -125,9 +125,10 @@ public class NBTTags {
 		for (int i = 0; i < tagList.tagCount(); ++i) {
 			NBTTagCompound nbtStack = tagList.getCompoundTagAt(i);
 			int slotId;
-			try { slotId = nbtStack.getByte("Slot") & 0xFF; }
-			catch (ClassCastException e) { slotId = nbtStack.getInteger("Slot"); }
-			if (slotId > 0 && slotId < items.size()) { items.set(slotId, new ItemStack(nbtStack)); }
+			if (nbtStack.hasKey("Slot", 3)) { slotId = nbtStack.getInteger("Slot"); }
+			else if (nbtStack.hasKey("Slot", 1)) { slotId = nbtStack.getByte("Slot") & 0xFF; }
+			else { continue; }
+			if (slotId >= 0 && slotId < items.size()) { items.set(slotId, new ItemStack(nbtStack)); }
 		}
 	}
 
@@ -313,7 +314,7 @@ public class NBTTags {
 			ItemStack item = inventory.get(slot);
 			if (!item.isEmpty()) {
 				NBTTagCompound nbttagcompound = new NBTTagCompound();
-				nbttagcompound.setByte("Slot", (byte) slot);
+				nbttagcompound.setInteger("Slot", slot);
 				item.writeToNBT(nbttagcompound);
 				nbttaglist.appendTag(nbttagcompound);
 			}

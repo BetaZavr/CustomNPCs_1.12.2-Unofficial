@@ -371,8 +371,13 @@ public class ScriptContainer {
 				String noticeToLog = Util.instance.deleteColor(notice.getFormattedText());
 				pw.write(noticeToLog + "\n");
 				e.printStackTrace(pw);
-				String errorText = (e.getCause() == null || e.getCause().getLocalizedMessage() == null) ?
-						"" + e.getCause() : e.getCause().getLocalizedMessage().replaceAll("" + ((char) 13), "");
+				LogWriter.debug("Script error: " + e);
+				String errorText = "" + e;
+				try {
+					LogWriter.debug("Script error cause: " + e.getCause());
+					LogWriter.debug("Script error localized message: " + e.getCause().getLocalizedMessage());
+					errorText = e.getCause().getLocalizedMessage().replaceAll("" + (char) 13, "");
+				} catch (Throwable ignored) {  }
 				StringBuilder error = new StringBuilder();
 				if (errorText.contains("" + (char) 10)) {
 					for (int c = 0; c < errorText.length(); c++) {
