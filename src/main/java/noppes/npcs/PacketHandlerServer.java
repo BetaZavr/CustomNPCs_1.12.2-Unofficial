@@ -291,6 +291,10 @@ public class PacketHandlerServer {
         } else if (type == EnumPacketServer.DialogCategoryRemove) {
             DialogController.instance.removeCategory(buffer.readInt());
             Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+        } else if (type == EnumPacketServer.DialogGuiSettings) {
+            NBTTagCompound compound = Server.readNBT(buffer);
+            DialogController.instance.getGuiSettings().load(compound);
+            Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_END, EnumSync.DialogGuiSettings, compound);
         } else if (type == EnumPacketServer.DialogSave) {
             DialogCategory category = DialogController.instance.categories.get(buffer.readInt());
             if (category == null) {

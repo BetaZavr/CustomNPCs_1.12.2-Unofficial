@@ -2,6 +2,7 @@ package noppes.npcs.controllers.data;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -316,7 +317,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 				this.player.world.spawnEntity(npc);
 			}
 		}
-		for (String key : scriptStoreddata.getKeySet()) { scriptStoreddata.removeTag(key); }
+		for (String key : new ArrayList<>(scriptStoreddata.getKeySet())) { scriptStoreddata.removeTag(key); }
 		NBTTagCompound nbt = data.getCompoundTag("ScriptStoreddata");
 		for (String key : nbt.getKeySet()) { scriptStoreddata.setTag(key, nbt.getTag(key)); }
 	}

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.INpc;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
@@ -19,9 +21,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
@@ -31,6 +30,7 @@ import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.GuiBoundarySetting;
 import noppes.npcs.entity.EntityNPCInterface;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -101,6 +101,36 @@ implements IEditNPC, ICustomScrollListener {
 		itemRender = mc.getRenderItem();
 		fontRenderer = mc.fontRenderer;
 		if (this.npc == null) { this.npc = NoppesUtilServer.getEditingNpc(player); }
+	}
+
+	public static void fill(int left, int top, int right, int bottom, float zLevel, int startColor, int endColor) {
+		float alpha_0 = (float)(startColor >> 24 & 255) / 255.0F;
+		float red_0 = (float)(startColor >> 16 & 255) / 255.0F;
+		float green_0 = (float)(startColor >> 8 & 255) / 255.0F;
+		float blue_0 = (float)(startColor & 255) / 255.0F;
+
+		float alpha_1 = (float)(endColor >> 24 & 255) / 255.0F;
+		float red_1 = (float)(endColor >> 16 & 255) / 255.0F;
+		float green_1 = (float)(endColor >> 8 & 255) / 255.0F;
+		float blue_1 = (float)(endColor & 255) / 255.0F;
+
+		GlStateManager.disableTexture2D();
+		GlStateManager.enableBlend();
+		GlStateManager.disableAlpha();
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		GlStateManager.shadeModel(GL11.GL_SMOOTH);
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder bufferbuilder = tessellator.getBuffer();
+		bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+		bufferbuilder.pos(right, top, zLevel).color(red_1, green_1, blue_1, alpha_1).endVertex();
+		bufferbuilder.pos(left, top, zLevel).color(red_0, green_0, blue_0, alpha_0).endVertex();
+		bufferbuilder.pos(left, bottom, zLevel).color(red_0, green_0, blue_0, alpha_0).endVertex();
+		bufferbuilder.pos(right, bottom, zLevel).color(red_1, green_1, blue_1, alpha_1).endVertex();
+		tessellator.draw();
+		GlStateManager.shadeModel(GL11.GL_FLAT);
+		GlStateManager.disableBlend();
+		GlStateManager.enableAlpha();
+		GlStateManager.enableTexture2D();
 	}
 
 	protected List<String> getHoverText() { return hoverText; }
@@ -372,7 +402,7 @@ implements IEditNPC, ICustomScrollListener {
 		}
 		GlStateManager.scale(-30.0f * scale * zoomed, 30.0f * scale * zoomed, 30.0f * scale * zoomed);
 		GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
-		RenderHelper.enableStandardItemLighting();
+//RenderHelper.enableStandardItemLighting();
 		float f2 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).renderYawOffset
 				: entity.rotationYaw;
 		float f3 = entity.rotationYaw;
@@ -416,7 +446,7 @@ implements IEditNPC, ICustomScrollListener {
 			npc.ais.orientation = orientation;
 		}
 		GlStateManager.popMatrix();
-		RenderHelper.disableStandardItemLighting();
+//RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.disableTexture2D();
@@ -490,7 +520,7 @@ implements IEditNPC, ICustomScrollListener {
 		for (IComponentGui component : new ArrayList<>(components)) {
 			//System.out.println("CNPCs: "+component);
 			component.render(this, x, y, partialTicks);
-			RenderHelper.enableGUIStandardItemLighting();
+//RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			if (component instanceof GuiNpcMiniWindow && ((GuiNpcMiniWindow) component).hovered) { hoverMiniWin = true; }
 		}
@@ -501,7 +531,7 @@ implements IEditNPC, ICustomScrollListener {
 		if (subgui instanceof GuiScreen) { ((GuiScreen) subgui).drawScreen(mouseX, mouseY, partialTicks); }
 		else if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
 			drawHoveringText(hoverText, mouseX, mouseY, fontRenderer);
-			RenderHelper.enableGUIStandardItemLighting();
+//RenderHelper.enableGUIStandardItemLighting();
 			hoverText.clear();
 		}
 	}

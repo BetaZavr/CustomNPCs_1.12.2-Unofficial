@@ -10,7 +10,6 @@ import noppes.npcs.util.ValueUtil;
 public class DialogGuiSettings {
 
     public boolean showNPC = true;
-    public boolean showDialogNPC = true;
     public boolean npcInLeft = true;
 
     private int type = 0; // 0:right, 1:center, 2:left
@@ -42,7 +41,6 @@ public class DialogGuiSettings {
 
     public void load(NBTTagCompound compound) {
         showNPC = compound.getBoolean("ShowNPC");
-        showDialogNPC = compound.getBoolean("ShowDialogNPC");
         npcInLeft = compound.getBoolean("NPCInLeft");
 
         setType(compound.getInteger("WindowType"));
@@ -69,7 +67,6 @@ public class DialogGuiSettings {
     public NBTTagCompound save() {
         NBTTagCompound compound = new NBTTagCompound();
         compound.setBoolean("ShowNPC", showNPC);
-        compound.setBoolean("ShowDialogNPC", showDialogNPC);
         compound.setBoolean("NPCInLeft", npcInLeft);
 
         compound.setInteger("WindowType", type);
@@ -134,7 +131,7 @@ public class DialogGuiSettings {
 
     public void setWidth(double widthIn) {
         if (widthIn < 0) { widthIn *= -1; }
-        width = Math.min(Math.max(widthIn, 0.25d), 1.0d);
+        width = Math.min(Math.max(widthIn, 0.4d), 0.9d);
     }
 
     public double getOptionHeight() { return optionH; }
@@ -147,7 +144,7 @@ public class DialogGuiSettings {
     public float[] getNpcPos() { return npcPos; }
 
     public void setNpcPos(float x, float y) {
-        npcPos[0] = ValueUtil.correctFloat(x, 0.0f, 1.0f);
+        npcPos[0] = ValueUtil.correctFloat(x, -0.5f, 0.5f);
         npcPos[1] = ValueUtil.correctFloat(y, -0.25f, 0.25f);
     }
 

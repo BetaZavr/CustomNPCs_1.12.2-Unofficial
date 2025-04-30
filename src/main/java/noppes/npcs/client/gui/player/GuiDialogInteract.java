@@ -8,9 +8,6 @@ import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import noppes.npcs.*;
 import noppes.npcs.controllers.DialogController;
@@ -324,7 +321,7 @@ implements IGuiClose {
 				}
 				// select
 				if (selected == optPos) {
-					fill(left, dialogHeight + i * fontHeight + (j == 0 ? 1 : 0), endW, dialogHeight + (i + 1) * fontHeight, guiSettings.selectOptionLeftColor, guiSettings.selectOptionRightColor);
+					fill(left, dialogHeight + i * fontHeight + (j == 0 ? 1 : 0), endW, dialogHeight + (i + 1) * fontHeight, zLevel, guiSettings.selectOptionLeftColor, guiSettings.selectOptionRightColor);
 				}
 				// option
 				drawString(fontRenderer, sct, left, dialogHeight + i * fontHeight, option.optionColor);
@@ -350,10 +347,10 @@ implements IGuiClose {
 			case 0: {
 				// dialogs
 				int left = guiLeft + blurringLine;
-				if (blurringLine > 0) { fill(guiLeft, 0, left, height, guiSettings.backBorderColor, guiSettings.backWindowColor); }
-				fill(left, 0, width, height, guiSettings.backWindowColor, guiSettings.backWindowColor);
+				if (blurringLine > 0) { fill(guiLeft, 0, left, height, zLevel, guiSettings.backBorderColor, guiSettings.backWindowColor); }
+				fill(left, 0, width, height, zLevel, guiSettings.backWindowColor, guiSettings.backWindowColor);
 				// border
-				fill(0, 0, guiLeft, height, guiSettings.backBorderColor, guiSettings.backBorderColor);
+				fill(0, 0, guiLeft, height, zLevel, guiSettings.backBorderColor, guiSettings.backBorderColor);
 				// lines
 				if (vType != 0) {
 					int lX = guiLeft - 1;
@@ -379,12 +376,12 @@ implements IGuiClose {
 				// dialogs
 				int left = guiLeft + blurringLine;
 				int right = guiSettings.guiRight - blurringLine;
-				if (blurringLine > 0) { fill(guiLeft, 0, left, height, guiSettings.backBorderColor, guiSettings.backWindowColor); }
-				fill(left, 0, right, height, guiSettings.backWindowColor, guiSettings.backWindowColor);
-				if (blurringLine > 0) { fill(right, 0, guiSettings.guiRight, height, guiSettings.backWindowColor, guiSettings.backBorderColor); }
+				if (blurringLine > 0) { fill(guiLeft, 0, left, height, zLevel, guiSettings.backBorderColor, guiSettings.backWindowColor); }
+				fill(left, 0, right, height, zLevel, guiSettings.backWindowColor, guiSettings.backWindowColor);
+				if (blurringLine > 0) { fill(right, 0, guiSettings.guiRight, height, zLevel, guiSettings.backWindowColor, guiSettings.backBorderColor); }
 				// border
-				fill(0, 0, guiLeft, height, guiSettings.backBorderColor, guiSettings.backBorderColor);
-				fill(guiSettings.guiRight, 0, width, height, guiSettings.backBorderColor, guiSettings.backBorderColor);
+				fill(0, 0, guiLeft, height, zLevel, guiSettings.backBorderColor, guiSettings.backBorderColor);
+				fill(guiSettings.guiRight, 0, width, height, zLevel, guiSettings.backBorderColor, guiSettings.backBorderColor);
 				// lines
 				if (vType != 0) {
 					int lX = guiSettings.guiLeft - 1;
@@ -424,10 +421,10 @@ implements IGuiClose {
 			case 2: {
 				// dialogs
 				int right = guiSettings.guiRight - blurringLine;
-				fill(0, 0, right, height, guiSettings.backWindowColor, guiSettings.backWindowColor);
-				if (blurringLine > 0) { fill(right, 0, guiSettings.dialogWidth, height, guiSettings.backWindowColor, guiSettings.backBorderColor); }
+				fill(0, 0, right, height, zLevel, guiSettings.backWindowColor, guiSettings.backWindowColor);
+				if (blurringLine > 0) { fill(right, 0, guiSettings.dialogWidth, height, zLevel, guiSettings.backWindowColor, guiSettings.backBorderColor); }
 				// border
-				fill(guiSettings.dialogWidth, 0, width, height, guiSettings.backBorderColor, guiSettings.backBorderColor);
+				fill(guiSettings.dialogWidth, 0, width, height, zLevel, guiSettings.backBorderColor, guiSettings.backBorderColor);
 				// lines
 				if (vType != 0) {
 					int rX = guiSettings.guiRight + 1;
@@ -472,9 +469,7 @@ implements IGuiClose {
 		GlStateManager.pushMatrix();
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
 		int i = mc.displayHeight;
-		double d4 = sw.getScaledWidth() < mc.displayWidth
-				? (int) Math.round((double) mc.displayWidth / (double) sw.getScaledWidth())
-				: 1;
+		double d4 = sw.getScaledWidth() < mc.displayWidth  ? (int) Math.round((double) mc.displayWidth / (double) sw.getScaledWidth())  : 1;
 		double d5 = (double) guiLeft * d4;
 		double d6 = (double) i - (double) (dialogHeight - 3) * d4;
 		double d7 = (double) (guiSettings.dialogWidth + 1) * d4;
@@ -573,7 +568,7 @@ implements IGuiClose {
 				scrollD[4] = 1;
 				scrollD[5] = hd;
 				scrollD[6] = (int) (((float) hd - (float) sHeight) / (float) (lineTotal - lineVisibleSize));
-				fill(scrollD[0], scrollD[1], scrollD[2], scrollD[3], guiSettings.sliderColor, guiSettings.sliderColor);
+				fill(scrollD[0], scrollD[1], scrollD[2], scrollD[3], zLevel, guiSettings.sliderColor, guiSettings.sliderColor);
 				drawVerticalLine(r, 0, dialogHeight - 4, guiSettings.linesColor);
 			}
 			else { scrollD = null; }
@@ -595,7 +590,7 @@ implements IGuiClose {
 				scrollO[4] = dialogHeight + 1;
 				scrollO[5] = hd;
 				scrollO[6] = (int) (((float) hd - (float) sHeight) / (float) (selectedTotal.size() - selectedVisibleSize));
-				fill(scrollO[0], scrollO[1], scrollO[2], scrollO[3], guiSettings.sliderColor, guiSettings.sliderColor);
+				fill(scrollO[0], scrollO[1], scrollO[2], scrollO[3], zLevel, guiSettings.sliderColor, guiSettings.sliderColor);
 				drawVerticalLine(r, dialogHeight, height - 1, guiSettings.linesColor);
 			}
 			else { scrollO = null; }
@@ -871,7 +866,7 @@ implements IGuiClose {
 		sw = new ScaledResolution(mc);
 		guiSettings.init(sw.getScaledWidth_double(), sw.getScaledHeight_double());
 		// display NPC name
-		if (dialogNpc != null && guiSettings.showDialogNPC) {
+		if (dialogNpc != null && guiSettings.showNPC) {
 			boolean addDots = false;
 			String name = npc.getName();
 			while (fontRenderer.getStringWidth(name) > guiSettings.npcWidth && name.length() > 2) {
@@ -1111,36 +1106,6 @@ implements IGuiClose {
 				startLine++;
 			}
 		}
-	}
-
-	protected void fill(int left, int top, int right, int bottom, int startColor, int endColor) {
-		float alpha_0 = (float)(startColor >> 24 & 255) / 255.0F;
-		float red_0 = (float)(startColor >> 16 & 255) / 255.0F;
-		float green_0 = (float)(startColor >> 8 & 255) / 255.0F;
-		float blue_0 = (float)(startColor & 255) / 255.0F;
-
-		float alpha_1 = (float)(endColor >> 24 & 255) / 255.0F;
-		float red_1 = (float)(endColor >> 16 & 255) / 255.0F;
-		float green_1 = (float)(endColor >> 8 & 255) / 255.0F;
-		float blue_1 = (float)(endColor & 255) / 255.0F;
-
-		GlStateManager.disableTexture2D();
-		GlStateManager.enableBlend();
-		GlStateManager.disableAlpha();
-		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		GlStateManager.shadeModel(GL11.GL_SMOOTH);
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder bufferbuilder = tessellator.getBuffer();
-		bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-		bufferbuilder.pos(right, top, zLevel).color(red_1, green_1, blue_1, alpha_1).endVertex();
-		bufferbuilder.pos(left, top, zLevel).color(red_0, green_0, blue_0, alpha_0).endVertex();
-		bufferbuilder.pos(left, bottom, zLevel).color(red_0, green_0, blue_0, alpha_0).endVertex();
-		bufferbuilder.pos(right, bottom, zLevel).color(red_1, green_1, blue_1, alpha_1).endVertex();
-		tessellator.draw();
-		GlStateManager.shadeModel(GL11.GL_FLAT);
-		GlStateManager.disableBlend();
-		GlStateManager.enableAlpha();
-		GlStateManager.enableTexture2D();
 	}
 
 }

@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.mainmenu;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.NoppesUtil;
+import noppes.npcs.client.gui.global.GuiNpcDialogGuiSettings;
 import noppes.npcs.client.gui.global.GuiNpcManagePlayerData;
 import noppes.npcs.client.gui.global.GuiNpcNaturalSpawns;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
@@ -24,6 +25,7 @@ extends GuiNPCInterface2 {
 			case 2: NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks); break;
 			case 3: NoppesUtil.requestOpenGUI(EnumGuiType.ManageFactions); break;
 			case 4: NoppesUtil.requestOpenGUI(EnumGuiType.ManageDialogs); break;
+			case 5: NoppesUtil.openGUI(player, new GuiNpcDialogGuiSettings(npc)); break;
 			case 11: NoppesUtil.requestOpenGUI(EnumGuiType.ManageQuests); break;
 			case 12: NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, -1, 0, 0); break;
 			case 13: NoppesUtil.openGUI(player, new GuiNpcManagePlayerData(npc)); break;
@@ -49,6 +51,9 @@ extends GuiNPCInterface2 {
 		addButton(button);
 		button = new GuiNpcButton(4, r0, (y += 22), 110, 20, "dialog.dialogs");
 		button.setHoverText("global.hover.dialogs");
+		addButton(button);
+		button = new GuiNpcButton(5, r0 + 112, y, 20, 20, "GUI");
+		button.setHoverText("global.hover.dialogs.gui");
 		addButton(button);
 		button = new GuiNpcButton(11, r0, (y += 22), 110, 20, "quest.quests");
 		button.setHoverText("global.hover.quests");

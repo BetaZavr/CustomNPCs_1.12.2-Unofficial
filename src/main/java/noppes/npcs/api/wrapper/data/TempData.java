@@ -72,9 +72,8 @@ public class TempData implements IData {
 		Object obj = Util.instance.readObjectFromNbt(compound);
 		if (obj instanceof TreeMap) {
 			try {
-				TreeMap<String, Object> newMap = (TreeMap<String, Object>) obj;
 				map.clear();
-				map.putAll(newMap);
+				map.putAll((TreeMap<String, Object>) obj);
 			}
 			catch (Exception ignored) { }
 		}

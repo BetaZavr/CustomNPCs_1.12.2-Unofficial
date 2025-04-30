@@ -126,7 +126,6 @@ implements IComponentGui, IGuiNpcTextField {
 		drawTextBox();
 	}
 
-
 	@Override
 	public int getID() { return this.getId(); }
 
@@ -201,18 +200,12 @@ implements IComponentGui, IGuiNpcTextField {
 	}
 
 	public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (!canEdit) {
-			return false;
-		}
+		if (!canEdit) { return false; }
 		boolean isFocused = isFocused();
-		if (((IGuiTextFieldMixin) this).npcs$getCanLoseFocus()) {
-			setFocus(hovered);
-		}
+		if (((IGuiTextFieldMixin) this).npcs$getCanLoseFocus()) { setFocus(hovered); }
 		if (isFocused && hovered && mouseButton == 0) {
 			int i = mouseX - x;
-			if (((IGuiTextFieldMixin) this).npcs$getEnableBackgroundDrawing()) {
-				i -= 4;
-			}
+			if (((IGuiTextFieldMixin) this).npcs$getEnableBackgroundDrawing()) { i -= 4; }
 			FontRenderer fontRenderer = ((IGuiTextFieldMixin) this).npcs$getFontRenderer();
 			int lineScrollOffset = ((IGuiTextFieldMixin) this).npcs$getLineScrollOffset();
 			String s = fontRenderer.trimStringToWidth(getFullText().substring(lineScrollOffset), getWidth());
@@ -238,6 +231,11 @@ implements IComponentGui, IGuiNpcTextField {
 	public void setMinMaxDefault(long minValue, long maxValue, long defaultValue) {
 		numbersOnly = true;
 		doubleNumbersOnly = false;
+		if (minValue > maxValue) {
+			long i = minValue;
+			minValue = maxValue;
+			maxValue = i;
+		}
 		min = minValue;
 		max = maxValue;
 		def = defaultValue;
@@ -247,6 +245,11 @@ implements IComponentGui, IGuiNpcTextField {
 	public void setMinMaxDoubleDefault(double minValue, double maxValue, double defaultValue) {
 		numbersOnly = false;
 		doubleNumbersOnly = true;
+		if (minValue > maxValue) {
+			double i = minValue;
+			minValue = maxValue;
+			maxValue = i;
+		}
 		minD = minValue;
 		maxD = maxValue;
 		defD = defaultValue;
@@ -305,6 +308,7 @@ implements IComponentGui, IGuiNpcTextField {
 	@Override
 	public void unFocus() {
 		if (numbersOnly) {
+			if (getID() == 0) { LogWriter.info("TEST: "+getInteger()+"; "+min+"; "+max); }
 			if (isEmpty() || !isInteger()) {
 				setFullText(def + "");
 			} else if (getInteger() < min) {
@@ -322,7 +326,10 @@ implements IComponentGui, IGuiNpcTextField {
 				setFullText(maxD + "");
 			}
 		}
-		if (listener != null) { listener.unFocused(this); }
+		if (listener != null) {
+			LogWriter.info("TEST: "+getInteger());
+			listener.unFocused(this);
+		}
 		if (this == GuiNpcTextField.activeTextfield) { GuiNpcTextField.activeTextfield = null; }
 		setFocus(false);
 	}
