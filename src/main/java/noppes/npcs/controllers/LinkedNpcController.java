@@ -111,7 +111,7 @@ public class LinkedNpcController {
 			npc.advanced.readToNBT(compound);
 			npc.inventory.readEntityFromNBT(compound);
 			if (compound.hasKey("ModelData")) {
-				((EntityCustomNpc) npc).modelData.readFromNBT(compound.getCompoundTag("ModelData"));
+				((EntityCustomNpc) npc).modelData.load(compound.getCompoundTag("ModelData"));
 			}
 			npc.ais.readToNBT(compound);
 			npc.transform.readToNBT(compound);
@@ -150,7 +150,7 @@ public class LinkedNpcController {
 		npc.ais.writeToNBT(compound);
 		npc.advanced.writeToNBT(compound);
 		npc.transform.writeToNBT(compound);
-		compound.setTag("ModelData", ((EntityCustomNpc) npc).modelData.writeToNBT());
+		compound.setTag("ModelData", ((EntityCustomNpc) npc).modelData.save());
 		return compound;
 	}
 

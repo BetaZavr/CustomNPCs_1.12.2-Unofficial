@@ -478,7 +478,7 @@ implements IEditNPC, ICustomScrollListener {
 		if (hoverMiniWin) { return; }
 		if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
 			drawHoveringText(hoverText, mouseX, mouseY, fontRenderer);
-			RenderHelper.enableGUIStandardItemLighting();
+			RenderHelper.disableStandardItemLighting();
 			hoverText.clear();
 		}
 	}

@@ -18,60 +18,60 @@ public class ModelPartData {
 	public boolean playerTexture;
 	public byte type;
 
-	public ModelPartData(String name) {
-		this.color = 0xFFFFFFFF;
-		this.colorPattern = 0xFFFFFFFF;
-		this.type = 0;
-		this.pattern = 0;
-		this.playerTexture = false;
-		this.name = name;
+	public ModelPartData(String nameIn) {
+		color = 0xFFFFFFFF;
+		colorPattern = 0xFFFFFFFF;
+		type = 0;
+		pattern = 0;
+		playerTexture = false;
+		name = nameIn;
 	}
 
 	public String getColor() {
-		StringBuilder str = new StringBuilder(Integer.toHexString(this.color));
+		StringBuilder str = new StringBuilder(Integer.toHexString(color));
 		while (str.length() < 6) { str.insert(0, "0"); }
 		return str.toString();
 	}
 
 	public ResourceLocation getResource() {
-		if (this.location != null) { return this.location; }
-		String texture = this.name + "/" + this.type;
-		if ((this.location = ModelPartData.resources.get(texture)) != null) {
-			return this.location;
+		if (location != null) { return location; }
+		String texture = name + "/" + type;
+		if ((location = ModelPartData.resources.get(texture)) != null) {
+			return location;
 		}
-		this.location = new ResourceLocation("moreplayermodels:textures/" + texture + ".png");
-		ModelPartData.resources.put(texture, this.location);
-		return this.location;
+		location = new ResourceLocation("moreplayermodels:textures/" + texture + ".png");
+		ModelPartData.resources.put(texture, location);
+		return location;
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
 		if (!compound.hasKey("Type")) {
-			this.type = -1;
+			type = -1;
 			return;
 		}
-		this.type = compound.getByte("Type");
-		this.color = compound.getInteger("Color");
-		this.playerTexture = compound.getBoolean("PlayerTexture");
-		this.pattern = compound.getByte("Pattern");
-		this.location = null;
+		type = compound.getByte("Type");
+		color = compound.getInteger("Color");
+		playerTexture = compound.getBoolean("PlayerTexture");
+		pattern = compound.getByte("Pattern");
+		location = null;
 	}
 
-	public void setType(int type) {
-		this.type = (byte) type;
-		this.location = null;
+	public void setType(int typeIn) {
+		type = (byte) typeIn;
+		location = null;
 	}
 
 	@Override
 	public String toString() {
-		return "ModelPartData: {Color: " + this.color + "; Type: " + this.type + "; Location: " + location + "}";
+		return "ModelPartData: {Color: " + color + "; Type: " + type + "; Location: " + location + "}";
 	}
 
-	public NBTTagCompound writeToNBT() {
+	public NBTTagCompound save() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setByte("Type", this.type);
-		compound.setInteger("Color", this.color);
-		compound.setBoolean("PlayerTexture", this.playerTexture);
-		compound.setByte("Pattern", this.pattern);
+		compound.setByte("Type", type);
+		compound.setInteger("Color", color);
+		compound.setBoolean("PlayerTexture", playerTexture);
+		compound.setByte("Pattern", pattern);
 		return compound;
 	}
 

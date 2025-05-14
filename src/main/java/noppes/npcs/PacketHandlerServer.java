@@ -782,7 +782,7 @@ public class PacketHandlerServer {
             ((EntityVillager) entity).setRecipes(list);
         } else if (type == EnumPacketServer.ModelDataSave) {
             if (npc instanceof EntityCustomNpc) {
-                ((EntityCustomNpc) npc).modelData.readFromNBT(Server.readNBT(buffer));
+                ((EntityCustomNpc) npc).modelData.load(Server.readNBT(buffer));
             }
         } else if (type == EnumPacketServer.MailOpenSetup) {
             PlayerMail mail = new PlayerMail();

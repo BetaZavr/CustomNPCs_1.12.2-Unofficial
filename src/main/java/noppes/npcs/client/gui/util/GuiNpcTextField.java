@@ -8,6 +8,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.client.gui.IGuiTextFieldMixin;
 import noppes.npcs.util.ValueUtil;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
@@ -76,6 +77,7 @@ implements IComponentGui, IGuiNpcTextField {
 			}
 		}
 		boolean selectAll = getSelectedText().equals(getFullText());
+		//if (Keyboard.getKeyName(i).startsWith("NUMPAD"))
 		if (numbersOnly) {
 			return Character.isDigit(c) || (c == '-' && selectAll || getCursorPosition() == 0 && !getFullText().contains("" + c));
 		}
@@ -287,6 +289,9 @@ implements IComponentGui, IGuiNpcTextField {
 			}
 		}
 		if (latinAlphabetOnly && typedChar == ' ') { typedChar = '_'; }
+		if (Keyboard.getKeyName(keyCode).startsWith("NUMPAD")) {
+			typedChar = Keyboard.getKeyName(keyCode).replace("NUMPAD", "").charAt(0);
+		}
 		return charAllowed(typedChar, keyCode) && canEdit && super.textboxKeyTyped(typedChar, keyCode);
 	}
 

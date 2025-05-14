@@ -198,7 +198,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public EntityAILook lookAi;
 	public EntityAIReturn returnAi;
 	public Entity lookAt = null;
-	public float[] lookPos = new float[] { -1.0f, -1.0f };
+	public float[] lookPos = new float[] { 0.0f, 0.0f };
 	public boolean updateLook = false;
 	public EntityNPCInterface aiOwnerNPC;
 	public boolean aiIsSneak;
@@ -1729,7 +1729,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.advanced.jobInterface.readFromNBT(follower);
 		}
 		if (this instanceof EntityCustomNpc) {
-			((EntityCustomNpc) this).modelData.readFromNBT(compound.getCompoundTag("ModelData"));
+			((EntityCustomNpc) this).modelData.load(compound.getCompoundTag("ModelData"));
 		}
 		this.advanced.readToNBT(compound);
 		this.dataManager.set(EntityNPCInterface.IsDead, compound.getBoolean("IsDead"));
@@ -2319,7 +2319,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			compound.setTag("Companion", follower);
 		}
 		if (this instanceof EntityCustomNpc) {
-			compound.setTag("ModelData", ((EntityCustomNpc) this).modelData.writeToNBT());
+			compound.setTag("ModelData", ((EntityCustomNpc) this).modelData.save());
 		}
 		this.isKilled();
 		compound.setBoolean("IsDead", this.dataManager.get(EntityNPCInterface.IsDead));

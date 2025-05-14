@@ -402,7 +402,7 @@ implements IEditNPC, ICustomScrollListener {
 		}
 		GlStateManager.scale(-30.0f * scale * zoomed, 30.0f * scale * zoomed, 30.0f * scale * zoomed);
 		GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
-//RenderHelper.enableStandardItemLighting();
+		RenderHelper.enableStandardItemLighting();
 		float f2 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).renderYawOffset
 				: entity.rotationYaw;
 		float f3 = entity.rotationYaw;
@@ -446,7 +446,7 @@ implements IEditNPC, ICustomScrollListener {
 			npc.ais.orientation = orientation;
 		}
 		GlStateManager.popMatrix();
-//RenderHelper.disableStandardItemLighting();
+		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.disableTexture2D();
@@ -531,7 +531,7 @@ implements IEditNPC, ICustomScrollListener {
 		if (subgui instanceof GuiScreen) { ((GuiScreen) subgui).drawScreen(mouseX, mouseY, partialTicks); }
 		else if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
 			drawHoveringText(hoverText, mouseX, mouseY, fontRenderer);
-//RenderHelper.enableGUIStandardItemLighting();
+			RenderHelper.disableStandardItemLighting();
 			hoverText.clear();
 		}
 	}

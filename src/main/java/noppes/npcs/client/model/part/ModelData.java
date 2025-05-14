@@ -17,7 +17,7 @@ public class ModelData extends ModelDataShared {
 
 	public ModelData copy() {
 		ModelData data = new ModelData();
-		data.readFromNBT(this.writeToNBT());
+		data.load(save());
 		return data;
 	}
 

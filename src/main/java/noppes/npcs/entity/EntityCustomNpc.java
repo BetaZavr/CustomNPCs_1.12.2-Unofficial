@@ -45,7 +45,7 @@ public class EntityCustomNpc extends EntityNPCFlying {
 	@Override
 	public void readEntityFromNBT(@Nonnull NBTTagCompound compound) {
 		if (compound.hasKey("NpcModelData")) {
-			this.modelData.readFromNBT(compound.getCompoundTag("NpcModelData"));
+			this.modelData.load(compound.getCompoundTag("NpcModelData"));
 		}
 		super.readEntityFromNBT(compound);
 	}
@@ -83,7 +83,7 @@ public class EntityCustomNpc extends EntityNPCFlying {
 	@Override
 	public void writeEntityToNBT(@Nonnull NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);
-		compound.setTag("NpcModelData", this.modelData.writeToNBT());
+		compound.setTag("NpcModelData", this.modelData.save());
 	}
 
 	public boolean writeToNBTAtomically(@Nonnull NBTTagCompound compound) {

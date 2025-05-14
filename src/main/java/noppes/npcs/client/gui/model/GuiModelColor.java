@@ -16,6 +16,7 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.gui.util.*;
+import org.lwjgl.input.Keyboard;
 
 public class GuiModelColor extends SubGuiInterface implements ITextfieldListener {
 
@@ -173,17 +174,21 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 
 	@Override
 	public void keyTyped(char c, int i) {
-		String prev = this.textfield.getText();
-		super.keyTyped(c, i);
-		String newText = this.textfield.getText();
-		if (newText.equals(prev)) {
-			return;
+		if (!mc.getLanguageManager().getCurrentLanguage().getLanguageCode().equalsIgnoreCase("en_us")) {
+			boolean kase = ("" + c).toLowerCase().equals("" + c);
+			c = Keyboard.getKeyName(i).charAt(0);
+			if (kase) { c = ("" + c).toLowerCase().charAt(0); }
 		}
+		String prev = textfield.getText();
+		super.keyTyped(c, i);
+		String newText = textfield.getText();
+		if (newText.equals(prev)) { return; }
 		try {
-			this.color = Integer.parseInt(this.textfield.getText(), 16);
-			this.callback.color(this.color);
+			if (textfield.getText().isEmpty()) { color = 0; }
+			else { color = Integer.parseInt(textfield.getText(), 16); }
+			callback.color(color);
 		} catch (NumberFormatException e) {
-			this.textfield.setText(prev);
+			textfield.setText(prev);
 		}
 	}
 

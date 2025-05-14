@@ -39,7 +39,7 @@ public class DataTransform {
 	public NBTTagCompound getDisplay() {
 		NBTTagCompound compound = this.npc.display.writeToNBT(new NBTTagCompound());
 		if (this.npc instanceof EntityCustomNpc) {
-			compound.setTag("ModelData", ((EntityCustomNpc) this.npc).modelData.writeToNBT());
+			compound.setTag("ModelData", ((EntityCustomNpc) this.npc).modelData.save());
 		}
 		return compound;
 	}
@@ -143,7 +143,7 @@ public class DataTransform {
 			NBTTagCompound compound = getDisplay();
 			npc.display.readToNBT(NBTTags.NBTMerge(compound, this.display));
 			if (npc instanceof EntityCustomNpc) {
-				((EntityCustomNpc) npc).modelData.readFromNBT(NBTTags.NBTMerge(compound.getCompoundTag("ModelData"), display.getCompoundTag("ModelData")));
+				((EntityCustomNpc) npc).modelData.load(NBTTags.NBTMerge(compound.getCompoundTag("ModelData"), display.getCompoundTag("ModelData")));
 			}
 			display = compound;
 		}

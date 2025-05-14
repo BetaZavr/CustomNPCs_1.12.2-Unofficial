@@ -81,7 +81,6 @@ public class EntityAILook
 			}
 		} else if (npc.ais.getStandingType() == 2 || npc.ais.getStandingType() == 4) {
 			lookat = npc.world.getClosestPlayerToEntity(npc, 16.0);
-
 		}
 		// looking at someone
 		if (lookat != null) {

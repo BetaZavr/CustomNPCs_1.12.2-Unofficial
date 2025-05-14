@@ -93,7 +93,7 @@ implements ICustomScrollListener {
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		Preset preset = PresetController.instance.getPreset(scroll.getSelected());
-		this.playerdata.readFromNBT(preset.data.writeToNBT());
+		this.playerdata.load(preset.data.save());
 		this.initGui();
 	}
 

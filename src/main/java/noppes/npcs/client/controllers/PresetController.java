@@ -47,7 +47,7 @@ public class PresetController {
 			for (int i = 0; i < list.tagCount(); ++i) {
 				NBTTagCompound comp = list.getCompoundTagAt(i);
 				Preset preset = new Preset();
-				preset.readFromNBT(comp);
+				preset.load(comp);
 				presets.put(preset.name.toLowerCase(), preset);
 			}
 		}
@@ -90,7 +90,7 @@ public class PresetController {
 		NBTTagCompound compound = new NBTTagCompound();
 		NBTTagList list = new NBTTagList();
 		for (Preset preset : this.presets.values()) {
-			list.appendTag(preset.writeToNBT());
+			list.appendTag(preset.save());
 		}
 		compound.setTag("Presets", list);
 		this.savePreset(compound);

@@ -106,9 +106,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			npc = Util.instance.copyToGUI(npc, world, false);
 		}
 
-		public Map<Integer, List<String>> getText(int first, EntityPlayer player, FontRenderer fontRenderer) { // [listID/2,
-																												// label
-																												// texts]
+		public Map<Integer, List<String>> getText(int first, EntityPlayer player, FontRenderer fontRenderer) {
 			if (!newInstance && !map.isEmpty()) {
 				return map;
 			}
@@ -470,7 +468,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	}
 
 	public void buttonPress(int id) {
-		if (type == 0 && id > 6 && id < 15) { // quest category rows
+		if (type == 0 && id > 6 && id < 15) {
 			int catList = catRow * 8 + id - 7;
 			if (catSelect == catList && page != 0) {
 				step = 11;
@@ -487,176 +485,158 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				activeQuest = null;
 			}
 			return;
-		}
+		} // quest category rows
 		switch (id) {
-		case 0: { // inventory
-			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-			tick = 15;
-			milliTick = 15;
-			step = type + 7;
-			type = -1;
-			break;
-		}
-		case 1: { // factions
-			if (type == 1) {
-				return;
-			}
-			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-			tick = 15;
-			milliTick = 15;
-			toPrePage = false;
-			step = type + 7;
-
-			page = 0;
-			type = 1;
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.FactionsGet);
-			initGui();
-			break;
-		}
-		case 2: { // quests
-			if (type == 0) {
-				return;
-			}
-			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-			tick = 15;
-			milliTick = 15;
-			toPrePage = type == 1;
-			step = type + 7;
-
-			catRow = 0;
-			catSelect = 0;
-			page = 0;
-			activeQuest = null;
-			type = 0;
-			initGui();
-			break;
-		}
-		case 3: { // compass
-			if (type == 2 || !CustomNpcs.ShowQuestCompass) {
-				return;
-			}
-			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-			tick = 15;
-			milliTick = 15;
-			toPrePage = true;
-			step = type + 7;
-
-			page = 0;
-			type = 2;
-			initGui();
-			break;
-		}
-		case 4: { // page right
-			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-			if (type == 0) {
-				if (activeQuest == null) {
-					page++;
-					step = 10;
-					tick = 10;
-					milliTick = 10;
+			case 0: {
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+				tick = 15;
+				milliTick = 15;
+				step = type + 7;
+				type = -1;
+				break;
+			} // inventory
+			case 1: {
+				if (type == 1) {
+					return;
 				}
-			} else if (type == 1) {
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+				tick = 15;
+				milliTick = 15;
+				toPrePage = false;
+				step = type + 7;
+
+				page = 0;
+				type = 1;
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.FactionsGet);
+				initGui();
+				break;
+			} // factions
+			case 2: {
+				if (type == 0) {
+					return;
+				}
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+				tick = 15;
+				milliTick = 15;
+				toPrePage = type == 1;
+				step = type + 7;
+
+				catRow = 0;
+				catSelect = 0;
+				page = 0;
+				activeQuest = null;
+				type = 0;
+				initGui();
+				break;
+			} // quests
+			case 3: {
+				if (type == 2 || !CustomNpcs.ShowQuestCompass) {
+					return;
+				}
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+				tick = 15;
+				milliTick = 15;
+				toPrePage = true;
+				step = type + 7;
+
+				page = 0;
+				type = 2;
+				initGui();
+				break;
+			} // compass
+			case 4: {
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 				page++;
 				step = 10;
 				tick = 10;
 				milliTick = 10;
-			}
-			break;
-		}
-		case 5: { // page left
-			if (type == 0) {
-				if (activeQuest == null) {
-					page--;
-					step = 11;
-					tick = 10;
-					milliTick = 10;
-				}
-			} else if (type == 1) {
+				break;
+			} // page right
+			case 5: {
 				page--;
 				step = 11;
 				tick = 10;
 				milliTick = 10;
-			}
-			break;
-		}
-		case 6: { // quest select
-			if (hoverQuestId < 1) {
-				return;
-			}
-			String catName = "";
-			int i = 0;
-			for (String key : categories.keySet()) {
-				if (i == catSelect) {
-					catName = key;
-					break;
+				break;
+			} // page left
+			case 6: {
+				if (hoverQuestId < 1) {
+					return;
 				}
-				i++;
-			}
-			if (catName.isEmpty() || !quests.containsKey(catName) || !quests.get(catName).containsKey(hoverQuestId)) {
-				return;
-			}
-			activeQuest = new QuestInfo(quests.get(catName).get(hoverQuestId), this.mc.world);
-			step = 10;
-			tick = 10;
-			milliTick = 10;
-			break;
-		}
-		case 16: { // pre cat list
-			if (type != 0) {
-				return;
-			}
-			MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
-					(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
-					0.8f + 0.4f * this.rnd.nextFloat());
-			catRow--;
-			break;
-		}
-		case 17: { // next cat list
-			if (type != 0) {
-				return;
-			}
-			MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
-					(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
-					0.8f + 0.4f * this.rnd.nextFloat());
-			catRow++;
-			break;
-		}
-		case 30: { // extended button
-			if (hoverQuestId <= 0) {
-				return;
-			}
-			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.QUEST_LOG_BUTTON, new QuestExtraButtonEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), QuestController.instance.get(hoverQuestId)));
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestExtraButton, hoverQuestId);
-			break;
-		}
-		case 31: { // compass look
-			if (hoverQuestId <= 0) {
-				return;
-			}
-			if (ClientProxy.playerData.hud.questID == hoverQuestId) {
-				ClientProxy.playerData.hud.questID = -1;
-			} else {
-				ClientProxy.playerData.hud.questID = hoverQuestId;
-			}
-			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-			break;
-		}
-		case 32: { // cancel quest
-			if (hoverQuestId <= 0) {
-				return;
-			}
-			for (Map<Integer, QuestData> map : quests.values()) {
-				for (QuestData qd : map.values()) {
-					if (qd.quest.id == hoverQuestId) {
-						GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("drop.quest", new TextComponentTranslation(qd.quest.getTitle()).getFormattedText()).getFormattedText(), new TextComponentTranslation("quest.cancel.info").getFormattedText(), hoverQuestId);
-						displayGuiScreen(guiyesno);
+				String catName = "";
+				int i = 0;
+				for (String key : categories.keySet()) {
+					if (i == catSelect) {
+						catName = key;
 						break;
 					}
+					i++;
 				}
-			}
-			break;
-		}
+				if (catName.isEmpty() || !quests.containsKey(catName) || !quests.get(catName).containsKey(hoverQuestId)) {
+					return;
+				}
+				activeQuest = new QuestInfo(quests.get(catName).get(hoverQuestId), this.mc.world);
+				step = 10;
+				tick = 10;
+				milliTick = 10;
+				break;
+			} // quest select
+			case 16: {
+				if (type != 0) {
+					return;
+				}
+				MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
+						(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
+						0.8f + 0.4f * this.rnd.nextFloat());
+				catRow--;
+				break;
+			} // pre cat list
+			case 17: {
+				if (type != 0) {
+					return;
+				}
+				MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":book.sheet",
+						(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
+						0.8f + 0.4f * this.rnd.nextFloat());
+				catRow++;
+				break;
+			} // next cat list
+			case 30: {
+				if (hoverQuestId <= 0) {
+					return;
+				}
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.QUEST_LOG_BUTTON, new QuestExtraButtonEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), QuestController.instance.get(hoverQuestId)));
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestExtraButton, hoverQuestId);
+				break;
+			} // extended button
+			case 31: {
+				if (hoverQuestId <= 0) {
+					return;
+				}
+				if (ClientProxy.playerData.hud.questID == hoverQuestId) {
+					ClientProxy.playerData.hud.questID = -1;
+				} else {
+					ClientProxy.playerData.hud.questID = hoverQuestId;
+				}
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+				break;
+			} // compass look
+			case 32: {
+				if (hoverQuestId <= 0) {
+					return;
+				}
+				for (Map<Integer, QuestData> map : quests.values()) {
+					for (QuestData qd : map.values()) {
+						if (qd.quest.id == hoverQuestId) {
+							GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("drop.quest", new TextComponentTranslation(qd.quest.getTitle()).getFormattedText()).getFormattedText(), new TextComponentTranslation("quest.cancel.info").getFormattedText(), hoverQuestId);
+							displayGuiScreen(guiyesno);
+							break;
+						}
+					}
+				}
+				break;
+			} // cancel quest
 		}
 	}
 
@@ -781,8 +761,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			GlStateManager.popMatrix();
 			GlStateManager.pushMatrix();
 			String p = "" + (page * 2 + 2);
-			GlStateManager.translate(guiLLeft - fontRenderer.getStringWidth(p) + 205.0f * scaleW,
-					guiLTop + 153.0f * scaleH, 0.0f);
+			GlStateManager.translate(guiLLeft - fontRenderer.getStringWidth(p) + 205.0f * scaleW, guiLTop + 153.0f * scaleH, 0.0f);
 			fontRenderer.drawString(p, 0, 0, CustomNpcs.NotEnableColor.getRGB());
 			GlStateManager.popMatrix();
 		}
@@ -803,8 +782,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			return;
 		}
 
-		fontRenderer.drawString(new TextComponentTranslation("quest.screen.pos").getFormattedText(),
-				(int) (guiLLeft - 3.0f * scaleW), guiLTop, CustomNpcs.QuestLogColor.getRGB());
+		fontRenderer.drawString(new TextComponentTranslation("quest.screen.pos").getFormattedText(), (int) (guiLLeft - 3.0f * scaleW), guiLTop, CustomNpcs.QuestLogColor.getRGB());
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(guiLLeft - 3.0f * scaleW, guiLTop + 10, 0);
@@ -885,19 +863,18 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			if (page > 0) { // left
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiLLeft - 5.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
-				if (isMouseHover(mouseX, mouseY, (int) (guiLLeft - 5.0f * scaleW), (int) (guiLTop + 160.0f * scaleH),
-						18, 10)) {
+				if (isMouseHover(mouseX, mouseY, (int) (guiLLeft - 5.0f * scaleW), (int) (guiLTop + 160.0f * scaleH), 18, 10)) {
 					hoverButton = 5;
 				} // pre cat list;
 				this.mc.getTextureManager().bindTexture(GuiLog.bookGuiTextures);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
 				GlStateManager.popMatrix();
-			} else if (Math.floor(playerFactions.size() / 16.d) > page) { // right
+			}
+			if (Math.floor(playerFactions.size() / 16.d) > page) { // right
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiLeft + 230.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
-				if (isMouseHover(mouseX, mouseY, (int) (guiLeft + 230.0f * scaleW), (int) (guiLTop + 160.0f * scaleH),
-						18, 10)) {
+				if (isMouseHover(mouseX, mouseY, (int) (guiLeft + 230.0f * scaleW), (int) (guiLTop + 160.0f * scaleH), 18, 10)) {
 					hoverButton = 4;
 				} // next cat list;
 				this.mc.getTextureManager().bindTexture(GuiLog.bookGuiTextures);
@@ -970,7 +947,6 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			}
 			if (ew > 0) {
 				GlStateManager.color(h.getRed() / 255.0f, h.getGreen() / 255.0f, h.getBlue() / 255.0f, 0.65f);
-
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				this.drawTexturedModalRect(1, 12, 167, 71, ew, 3);
@@ -992,8 +968,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			}
 			this.fontRenderer.drawString(name.toString(), 3 * scaleW, 2 * scaleH, CustomNpcs.QuestLogColor.getRGB(), false);
 
-			if (isMouseHover(mouseX, mouseY, (int) (guiLLeft + (i > 4 ? 105.0f : 0) * scaleW),
-					(int) (guiLTop + (i % 8) * 19.0f * scaleH), (int) (98.0f * scaleW), (int) (16.0f * scaleH))) {
+			if (isMouseHover(mouseX, mouseY, (int) (guiLLeft + (i > 4 ? 105.0f : 0) * scaleW), (int) (guiLTop + (i % 8) * 19.0f * scaleH), (int) (98.0f * scaleW), (int) (16.0f * scaleH))) {
 				List<String> hover = new ArrayList<>();
 				// GM
 				if (f.hideFaction) {
@@ -1080,8 +1055,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		GlStateManager.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
 		this.mc.getTextureManager().bindTexture(GuiLog.ql.get(4));
 		if (catRow > 0) { // pre Cats
-			if (isMouseHover(mouseX, mouseY, guiLeft - (int) (17.0f * scaleW), (int) (guiTopLog + 7.5f * scaleH),
-					(int) (18.0f * scaleW), (int) (16.0f * scaleH))) {
+			if (isMouseHover(mouseX, mouseY, guiLeft - (int) (17.0f * scaleW), (int) (guiTopLog + 7.5f * scaleH), (int) (18.0f * scaleW), (int) (16.0f * scaleH))) {
 				hoverButton = 16;
 			} // pre cat list;
 			GlStateManager.pushMatrix();
@@ -1091,8 +1065,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			GlStateManager.popMatrix();
 		}
 		if (categories.size() - (catRow + 1) * 8 > 0) { // next Cats
-			if (isMouseHover(mouseX, mouseY, guiLeft - (int) (17.0f * scaleW), (int) (guiTopLog + 151.5f * scaleH),
-					(int) (18.0f * scaleW), (int) (16.0f * scaleH))) {
+			if (isMouseHover(mouseX, mouseY, guiLeft - (int) (17.0f * scaleW), (int) (guiTopLog + 151.5f * scaleH), (int) (18.0f * scaleW), (int) (16.0f * scaleH))) {
 				hoverButton = 17;
 			} // next cat list;
 			GlStateManager.pushMatrix();
@@ -1147,8 +1120,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				}
 				name.append(catName.charAt(j));
 			}
-			this.fontRenderer.drawString(name.toString(), 4 - catW + 10 + i, (16.0f * scaleH - 10.0f) / 2.0f + (i * 16) * scaleH,
-					CustomNpcs.QuestLogColor.getRGB(), false);
+			this.fontRenderer.drawString(name.toString(), 4 - catW + 10 + i, (16.0f * scaleH - 10.0f) / 2.0f + (i * 16.0f) * scaleH, CustomNpcs.QuestLogColor.getRGB(), false);
 			i++;
 			p++;
 			if (i >= 8) {
@@ -1171,9 +1143,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					int c = sw.getScaledWidth() < this.mc.displayWidth
 							? (int) Math.round((double) this.mc.displayWidth / (double) sw.getScaledWidth())
 							: 1;
-					GL11.glScissor(((int) (guiLLeft + 22.0f * scaleW) * c),
-							(int) (guiLTop + (12.0f * scaleH + 81.0f) * scaleH) * c, (int) (54.0f * scaleW) * c,
-							(int) (38.0f * scaleH) * c);
+					GL11.glScissor(((int) (guiLLeft + 22.0f * scaleW) * c), (int) (guiLTop + (12.0f * scaleH + 81.0f) * scaleH) * c, (int) (54.0f * scaleW) * c, (int) (38.0f * scaleH) * c);
 					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 					this.drawNpc(activeQuest.npc);
 					GL11.glDisable(GL11.GL_SCISSOR_TEST);
@@ -1265,6 +1235,25 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				}
 				GlStateManager.popMatrix();
 			}
+
+			if (page > 0) {
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(guiLLeft - 5.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
+				if (isMouseHover(mouseX, mouseY, (int) (guiLLeft - 5.0f * scaleW), (int) (guiLTop + 160.0f * scaleH), 18, 10)) { hoverButton = 5; } // pre cat list;
+				mc.getTextureManager().bindTexture(GuiLog.bookGuiTextures);
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				drawTexturedModalRect(0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
+				GlStateManager.popMatrix();
+			}
+			if (page * 2 < activeQuest.map.size()) {
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(guiLeft + 230.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
+				if (isMouseHover(mouseX, mouseY, (int) (guiLeft + 230.0f * scaleW), (int) (guiLTop + 160.0f * scaleH), 18, 10)) { hoverButton = 4; } // next cat list;
+				mc.getTextureManager().bindTexture(GuiLog.bookGuiTextures);
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				drawTexturedModalRect(0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
+				GlStateManager.popMatrix();
+			}
 		} else if (quests.containsKey(selectCat)) {
 			if (page > 0) {
 				GlStateManager.pushMatrix();
@@ -1277,7 +1266,8 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
 				GlStateManager.popMatrix();
-			} else if (Math.floor(quests.size() / 10.d) > page) {
+			}
+			if (Math.floor(quests.size() / 10.d) > page) {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiLeft + 230.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
 				if (isMouseHover(mouseX, mouseY, (int) (guiLeft + 230.0f * scaleW), (int) (guiLTop + 160.0f * scaleH),

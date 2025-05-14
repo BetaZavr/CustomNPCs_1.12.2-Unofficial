@@ -1918,7 +1918,8 @@ public class ClientGuiEventHandler extends Gui {
 				hoverText.add("" + CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney());
 				event.getGui().drawHoveringText(hoverText, xm, ym);
 			}
-		} else if (event.getGui() instanceof GuiContainerCreative && CustomNpcs.ShowMoney) {
+		}
+		else if (event.getGui() instanceof GuiContainerCreative && CustomNpcs.ShowMoney) {
 			int x;
             int y;
             try {

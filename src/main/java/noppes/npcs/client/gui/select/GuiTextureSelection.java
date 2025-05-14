@@ -150,93 +150,6 @@ implements ICustomScrollListener {
 		close();
 	}
 
-	private void addFile(ResourceLocation location) {
-		String path = location.getResourcePath();
-		if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix.toLowerCase())) {
-			return;
-		}
-		String domain = location.getResourceDomain();
-		if (!data.containsKey(domain)) {
-			data.put(domain, new TreeMap<>());
-		} else {
-			for (ResourceLocation r : data.get(domain).keySet()) {
-				if (r.getResourcePath().equals(path)) {
-					return;
-				}
-			}
-		}
-		long size = 0L;
-		try {
-			IResource res = Minecraft.getMinecraft().getResourceManager().getResource(location);
-            try (InputStream inputStream = res.getInputStream()) { // Ваш InputStream
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                int readByte;
-                while ((readByte = inputStream.read()) != -1) {
-                    byteArrayOutputStream.write(readByte);
-                }
-                byte[] bytes = byteArrayOutputStream.toByteArray();
-                size = bytes.length;
-            }
-        }
-		catch (Exception ignored) { }
-        data.get(domain).put(location, size);
-	}
-
-	private void addFile(String path, long size) {
-		if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix.toLowerCase())) {
-			return;
-		}
-		if (path == null || !path.contains("assets")) {
-			return;
-		}
-		if (path.contains("\\")) {
-			List<String> list = new ArrayList<>();
-			while (path.contains("\\")) {
-				list.add(path.substring(0, path.indexOf("\\")));
-				path = path.substring(path.indexOf("\\") + 1);
-			}
-			list.add(path);
-            StringBuilder pathBuilder = new StringBuilder();
-            for (String p : list) {
-				pathBuilder.append(p).append("/");
-			}
-            path = pathBuilder.toString();
-            path = path.substring(0, path.length() - 1);
-		}
-		path = path.substring(path.lastIndexOf("assets") + 7);
-		String domain = path.substring(0, path.indexOf("/"));
-		if (domain.isEmpty()) {
-			return;
-		}
-		path = path.substring(path.indexOf("/") + 1);
-		if (!path.startsWith("textures")) { return; }
-		ResourceLocation res = new ResourceLocation(domain, path);
-		if (!data.containsKey(domain)) {
-			data.put(domain, new TreeMap<>());
-		} else {
-			for (ResourceLocation r : data.get(domain).keySet()) {
-				if (r.getResourcePath().equals(path)) {
-					return;
-				}
-			}
-		}
-		data.get(domain).put(res, size);
-	}
-
-	private void checkFolder(File file) {
-		File[] files = file.listFiles();
-		if (files == null) {
-			return;
-		}
-		for (File f : files) {
-			if (f.isDirectory()) {
-				checkFolder(f);
-				continue;
-			}
-			addFile(f.getAbsolutePath(), f.length());
-		}
-	}
-
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -393,83 +306,6 @@ implements ICustomScrollListener {
 		getLabel(0).setColor(new Color(new Color(0xFF000000).getRGB()).getRGB());
 	}
 
-	private void progressFile(File file) {
-		try {
-			if (!file.isDirectory() && (file.getName().endsWith(".jar") || file.getName().endsWith(".zip"))) {
-				ZipFile zip = new ZipFile(file);
-				Enumeration<? extends ZipEntry> entries = zip.entries();
-				while (entries.hasMoreElements()) {
-					ZipEntry zipentry = entries.nextElement();
-					String entryName = zipentry.getName();
-					int a = entryName.indexOf("assets");
-					int t = entryName.indexOf("texture", a);
-					if (a != -1 && t != -1) {
-						addFile(entryName, zipentry.getSize());
-					}
-				}
-				zip.close();
-			} else if (file.isDirectory()) {
-				checkFolder(file);
-			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
-	}
-
-	private void resetFiles() {
-		data.clear();
-		mc = Minecraft.getMinecraft();
-		/* Texture manager data */
-		for (ResourceLocation key : TextureManagerReflection.getMapTextureObjects(mc.getTextureManager()).keySet()) {
-			addFile(key);
-		}
-		/* Texture blocks data */
-		for (String key : TextureMapReflection.getMapRegisteredSprites(mc.getTextureMapBlocks()).keySet()) {
-			addFile(new ResourceLocation(key.substring(0, key.indexOf(":")), "textures/" + key.substring(key.indexOf(":") +1) + ".png"));
-		}
-		/* Resource manager data */
-		Map<String, FallbackResourceManager> map = IResourceManagerReflection.getDomainResourceManagers(mc.getResourceManager());
-		if (map == null) { return; }
-		for (String name : map.keySet()) {
-			List<IResourcePack> list = FallbackResourceManagerReflection.getResourcePacks(map.get(name));
-			if (list == null) { return; }
-			for (IResourcePack pack : list) {
-				if (pack instanceof LegacyV2Adapter) {
-					pack = LegacyV2AdapterReflection.getIResourcePack((LegacyV2Adapter) pack);
-				}
-				if (pack instanceof DefaultResourcePack) {
-					ResourceIndex resourceIndex = DefaultResourcePackReflection.getResourceIndex((DefaultResourcePack) pack);
-					Map<String, File> resourceMap = ResourceIndexReflection.getResourceMap(resourceIndex);
-					for (String key : resourceMap.keySet()) {
-						File f = resourceMap.get(key);
-						addFile(key, f.length());
-					}
-				}
-				else if (pack instanceof AbstractResourcePack) {
-					File directory = AbstractResourcePackReflection.getResourcePackFile((AbstractResourcePack) pack);
-					if (directory == null || !directory.isDirectory()) { continue; }
-					File dir = new File(directory, "assets");
-					if (!dir.exists() || !dir.isDirectory()) { continue; }
-					checkFolder(dir);
-				}
-			}
-		}
-		/* Mod jars */
-		for (ModContainer mod : Loader.instance().getModList()) {
-			if (mod.getSource().exists()) {
-				progressFile(mod.getSource());
-			}
-		}
-		/* Resource packs */
-		ResourcePackRepository repos = Minecraft.getMinecraft().getResourcePackRepository();
-		for (ResourcePackRepository.Entry entry : repos.getRepositoryEntries()) {
-			File file = new File(repos.getDirResourcepacks(), entry.getResourcePackName());
-			if (file.exists()) {
-				progressFile(file);
-			}
-		}
-		/* Custom mod resources */
-		checkFolder(new File(CustomNpcs.Dir, "assets"));
-	}
-
 	@Override
 	public void save() {
 		if (npc != null && type >= 0 && type <= 2) {
@@ -550,6 +386,170 @@ implements ICustomScrollListener {
 			}
 			close();
 			parent.initGui();
+		}
+	}
+
+	private void progressFile(File file) {
+		try {
+			if (!file.isDirectory() && (file.getName().endsWith(".jar") || file.getName().endsWith(".zip"))) {
+				ZipFile zip = new ZipFile(file);
+				Enumeration<? extends ZipEntry> entries = zip.entries();
+				while (entries.hasMoreElements()) {
+					ZipEntry zipentry = entries.nextElement();
+					String entryName = zipentry.getName();
+					int a = entryName.indexOf("assets");
+					int t = entryName.indexOf("texture", a);
+					if (a != -1 && t != -1) {
+						addFile(entryName, zipentry.getSize());
+					}
+				}
+				zip.close();
+			} else if (file.isDirectory()) {
+				checkFolder(file);
+			}
+		} catch (Exception e) { LogWriter.error("Error:", e); }
+	}
+
+	private void resetFiles() {
+		data.clear();
+		mc = Minecraft.getMinecraft();
+		/* Texture manager data */
+		for (ResourceLocation key : TextureManagerReflection.getMapTextureObjects(mc.getTextureManager()).keySet()) {
+			addFile(key);
+		}
+		/* Texture blocks data */
+		for (String key : TextureMapReflection.getMapRegisteredSprites(mc.getTextureMapBlocks()).keySet()) {
+			addFile(new ResourceLocation(key.substring(0, key.indexOf(":")), "textures/" + key.substring(key.indexOf(":") +1) + ".png"));
+		}
+		/* Resource manager data */
+		Map<String, FallbackResourceManager> map = IResourceManagerReflection.getDomainResourceManagers(mc.getResourceManager());
+		if (map == null) { return; }
+		for (String name : map.keySet()) {
+			List<IResourcePack> list = FallbackResourceManagerReflection.getResourcePacks(map.get(name));
+			if (list == null) { return; }
+			for (IResourcePack pack : list) {
+				if (pack instanceof LegacyV2Adapter) {
+					pack = LegacyV2AdapterReflection.getIResourcePack((LegacyV2Adapter) pack);
+				}
+				if (pack instanceof DefaultResourcePack) {
+					ResourceIndex resourceIndex = DefaultResourcePackReflection.getResourceIndex((DefaultResourcePack) pack);
+					Map<String, File> resourceMap = ResourceIndexReflection.getResourceMap(resourceIndex);
+					for (String key : resourceMap.keySet()) {
+						File f = resourceMap.get(key);
+						addFile(key, f.length());
+					}
+				}
+				else if (pack instanceof AbstractResourcePack) {
+					File directory = AbstractResourcePackReflection.getResourcePackFile((AbstractResourcePack) pack);
+					if (directory == null || !directory.isDirectory()) { continue; }
+					File dir = new File(directory, "assets");
+					if (!dir.exists() || !dir.isDirectory()) { continue; }
+					checkFolder(dir);
+				}
+			}
+		}
+		/* Mod jars */
+		for (ModContainer mod : Loader.instance().getModList()) {
+			if (mod.getSource().exists()) {
+				progressFile(mod.getSource());
+			}
+		}
+		/* Resource packs */
+		ResourcePackRepository repos = Minecraft.getMinecraft().getResourcePackRepository();
+		for (ResourcePackRepository.Entry entry : repos.getRepositoryEntries()) {
+			File file = new File(repos.getDirResourcepacks(), entry.getResourcePackName());
+			if (file.exists()) {
+				progressFile(file);
+			}
+		}
+		/* Custom mod resources */
+		checkFolder(new File(CustomNpcs.Dir, "assets"));
+	}
+
+	private void addFile(ResourceLocation location) {
+		String path = location.getResourcePath();
+		if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix.toLowerCase())) {
+			return;
+		}
+		String domain = location.getResourceDomain();
+		if (!data.containsKey(domain)) {
+			data.put(domain, new TreeMap<>());
+		} else {
+			for (ResourceLocation r : data.get(domain).keySet()) {
+				if (r.getResourcePath().equals(path)) {
+					return;
+				}
+			}
+		}
+		long size = 0L;
+		try {
+			IResource res = Minecraft.getMinecraft().getResourceManager().getResource(location);
+			try (InputStream inputStream = res.getInputStream()) { // Ваш InputStream
+				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+				int readByte;
+				while ((readByte = inputStream.read()) != -1) {
+					byteArrayOutputStream.write(readByte);
+				}
+				byte[] bytes = byteArrayOutputStream.toByteArray();
+				size = bytes.length;
+			}
+		}
+		catch (Exception ignored) { }
+		data.get(domain).put(location, size);
+	}
+
+	private void addFile(String path, long size) {
+		if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix.toLowerCase())) {
+			return;
+		}
+		if (path == null || !path.contains("assets")) {
+			return;
+		}
+		if (path.contains("\\")) {
+			List<String> list = new ArrayList<>();
+			while (path.contains("\\")) {
+				list.add(path.substring(0, path.indexOf("\\")));
+				path = path.substring(path.indexOf("\\") + 1);
+			}
+			list.add(path);
+			StringBuilder pathBuilder = new StringBuilder();
+			for (String p : list) {
+				pathBuilder.append(p).append("/");
+			}
+			path = pathBuilder.toString();
+			path = path.substring(0, path.length() - 1);
+		}
+		path = path.substring(path.lastIndexOf("assets") + 7);
+		String domain = path.substring(0, path.indexOf("/"));
+		if (domain.isEmpty()) {
+			return;
+		}
+		path = path.substring(path.indexOf("/") + 1);
+		if (!path.startsWith("textures")) { return; }
+		ResourceLocation res = new ResourceLocation(domain, path);
+		if (!data.containsKey(domain)) {
+			data.put(domain, new TreeMap<>());
+		} else {
+			for (ResourceLocation r : data.get(domain).keySet()) {
+				if (r.getResourcePath().equals(path)) {
+					return;
+				}
+			}
+		}
+		data.get(domain).put(res, size);
+	}
+
+	private void checkFolder(File file) {
+		File[] files = file.listFiles();
+		if (files == null) {
+			return;
+		}
+		for (File f : files) {
+			if (f.isDirectory()) {
+				checkFolder(f);
+				continue;
+			}
+			addFile(f.getAbsolutePath(), f.length());
 		}
 	}
 

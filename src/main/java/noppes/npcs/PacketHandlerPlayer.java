@@ -946,7 +946,9 @@ public class PacketHandlerPlayer {
 							buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(),
 							buffer.readFloat()));
 		} else if (type == EnumPlayerPacket.QuestExtraButton) {
-			EventHooks.onEvent(data.scriptData, EnumScriptType.QUEST_LOG_BUTTON, new QuestExtraButtonEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), QuestController.instance.get(buffer.readInt())));
+			EventHooks.onEvent(data.scriptData,
+					EnumScriptType.QUEST_LOG_BUTTON,
+					new QuestExtraButtonEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), QuestController.instance.get(buffer.readInt())));
 		} else if (type == EnumPlayerPacket.PlayerSkinSet) {
 			PlayerSkinController pData = PlayerSkinController.getInstance();
 			pData.loadPlayerSkin(Server.readNBT(buffer));

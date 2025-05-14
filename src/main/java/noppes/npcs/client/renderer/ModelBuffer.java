@@ -27,7 +27,6 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.model.obj.OBJModel;
-import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.model.ModelOBJPlayerArmor;
 import noppes.npcs.client.renderer.data.CustomOBJState;
@@ -46,7 +45,7 @@ public class ModelBuffer {
 	private static ModelOBJPlayerArmor objModel;
 
 	/**
-	 * Actually trying to get the sheet ID:
+	 * Actually trying to get the list ID:
 	 * 
 	 * @param objModel
 	 *            - resource for the location of the OBJ model

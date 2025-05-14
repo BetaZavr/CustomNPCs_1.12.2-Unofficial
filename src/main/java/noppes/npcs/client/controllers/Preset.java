@@ -8,6 +8,7 @@ import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumParts;
 
 public class Preset {
+
 	public static void FillDefault(HashMap<String, Preset> presets) {
 		ModelData data = new ModelData();
 		Preset preset = new Preset();
@@ -158,23 +159,19 @@ public class Preset {
 		presets.put("enderchibi", preset);
 	}
 
-	public ModelData data;
+	public ModelData data = new ModelData();
 
 	public String name;
 
-	public Preset() {
-		this.data = new ModelData();
+	public void load(NBTTagCompound compound) {
+		name = compound.getString("PresetName");
+		data.load(compound.getCompoundTag("PresetData"));
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
-		this.name = compound.getString("PresetName");
-		this.data.readFromNBT(compound.getCompoundTag("PresetData"));
-	}
-
-	public NBTTagCompound writeToNBT() {
+	public NBTTagCompound save() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setString("PresetName", this.name);
-		compound.setTag("PresetData", this.data.writeToNBT());
+		compound.setString("PresetName", name);
+		compound.setTag("PresetData", data.save());
 		return compound;
 	}
 }
