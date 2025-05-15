@@ -984,8 +984,9 @@ error.failedToSpawn=NPCの作成に失敗しました
 eye.brow=眉毛
 eye.closed=閉店
 eye.color.0=目の色
-eye.color.1=瞳の色
-eye.color.2=眉毛の色
+eye.color.1=虹彩の色
+eye.color.2=瞳孔の色
+eye.color.3=眉の色
 eye.glint=輝く
 eye.lid=まぶた
 

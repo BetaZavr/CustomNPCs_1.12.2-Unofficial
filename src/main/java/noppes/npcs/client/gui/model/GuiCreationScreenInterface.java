@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.model;
 import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.api.event.ClientEvent;
 import noppes.npcs.client.gui.util.*;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 import org.lwjgl.input.Keyboard;
 
@@ -93,10 +94,12 @@ implements ISubGuiListener, ISliderListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		this.entity = this.playerdata.getEntity(this.npc);
-		this.showEntity = this.entity;
-		if (this.showEntity == null) { this.showEntity = this.npc; }
-		else { EntityUtil.Copy(this.npc, this.showEntity); }
+		entity = playerdata.getEntity(npc);
+		showEntity = entity;
+		if (showEntity == null && npc != null || (showEntity == npc)) {
+			showEntity = Util.instance.copyToGUI(npc, mc.world, false);
+		}
+		else { EntityUtil.Copy(npc, showEntity); }
 		if (this.subgui != null) { return; }
 		if (this.showEntity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) showEntity;
@@ -110,7 +113,7 @@ implements ISubGuiListener, ISliderListener {
 					if (e instanceof EntityNPCInterface) { e.readFromNBT(npcNbt); }
 				}
 				if (e instanceof EntityNPCInterface) {
-					this.showEntity = (EntityNPCInterface) e;
+					showEntity = (EntityNPCInterface) e;
 					npc = (EntityNPCInterface) e;
 				}
 			}
@@ -127,14 +130,19 @@ implements ISubGuiListener, ISliderListener {
 			npc.rotationPitch = 0;
 			npc.prevRotationPitch = 0;
 			npc.ais.orientation = 0;
-			npc.lookPos[0] = ValueUtil.correctInt(mouseX - guiLeft - 350, -45, 45);
-			npc.lookPos[1] = ValueUtil.correctInt((mouseY - guiTop - 135) * -1, -45, 45);
+			if (this instanceof GuiCreationParts && ((GuiCreationParts) this).getPart() instanceof GuiPartEyes) {
+				npc.lookPos[0] = ValueUtil.correctInt(mouseX - guiLeft - 350, -45, 45);
+				npc.lookPos[1] = ValueUtil.correctInt((mouseY - guiTop - 135) * -1, -45, 45);
+			} else {
+				npc.lookPos[0] = ValueUtil.correctInt(mouseX - guiLeft - 340, -45, 45);
+				npc.lookPos[1] = ValueUtil.correctInt((mouseY - guiTop - 100) * -1, -45, 45);
+			}
 			npc.display.setShowName(1);
 			MarkData.get(npc).marks.clear();
 		}
 		
 		if (this instanceof GuiCreationParts && ((GuiCreationParts) this).getPart() instanceof GuiPartEyes) {
-			this.showEntity.ticksExisted = this.player.ticksExisted;
+			showEntity.ticksExisted = this.player.ticksExisted;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0.0f, 0.0f, -300.0f);
 			drawNpc(showEntity, xOffset + 210, 425, 6.0f, 0, 0, 0);

@@ -9,7 +9,7 @@ public class EyeRenderData {
     public boolean isShow = true;
 
     // Eye
-    public final float[] eyeColor = new float[] { 1.0f, 1.0f, 1.0f};
+    public final float[] eyeColor = new float[] { 1.0f, 1.0f, 1.0f };
     public float eyePosX = 0.0f;
     public float eyePosY = 0.0f;
     public float eyeScaleX = 1.0f;
@@ -19,7 +19,7 @@ public class EyeRenderData {
     public float eyeHoverY;
 
     // Pupil
-    public final float[] pupilColor = new float[] { 1.0f, 1.0f, 1.0f};
+    public final float[] pupilColor = new float[] { 1.0f, 1.0f, 1.0f };
     public double pupilLeft;
     public double pupilTop;
     public double pupilRight;
@@ -28,6 +28,12 @@ public class EyeRenderData {
     public double pupilY;
     public double pupilScaleX;
     public double pupilScaleY;
+
+    // Center
+    public double centerLeft;
+    public double centerTop;
+    public double centerRight;
+    public double centerBottom;
 
     // Glint
     public boolean glintShow = true;
@@ -69,6 +75,7 @@ public class EyeRenderData {
             eyeColor[2] = (float)(eyes.eyeColor[1] & 255) / 127.5F;
         }
 
+
         // Pupil
         pupilScaleX = 1.0f;
         pupilScaleY = 1.0f;
@@ -76,42 +83,67 @@ public class EyeRenderData {
             pupilScaleX = pupilData[2];
             pupilScaleY = pupilData[3];
         }
-        if (!eyes.activeLeft || isDisableMoved) { data[4] = 0.0f; data[5] = 0.0f; }
+        float x = data[4];
+        float y = data[5];
+        if ((isLeft && !eyes.activeLeft) || (!isLeft && !eyes.activeRight) || isDisableMoved) { x = 0.0f; y = 0.0f; }
+
         pupilLeft = -0.5;
         pupilRight = 0.5;
-        pupilTop = eyes.type == 1 ? -0.85 : -0.5;
-        pupilBottom = eyes.type == 1 ? 0.85 : 0.5;
+        double ySize = eyes.type == 1 ? 0.85f : 0.5f;
+        pupilTop = -ySize;
+        pupilBottom = ySize;
         // X
-        pupilX = (isLeft ? 1.0 : -1.0) + data[4];
-        if (data[4] < -0.5 / pupilScaleX) {
+        pupilX = (isLeft ? 1.0 : -1.0) + x;
+        if (pupilX <= 0.5 * pupilScaleX - (!isLeft ? 2.0 : 0.0)) {
             if (isLeft) { pupilLeft = pupilX / -pupilScaleX; }
             else { pupilLeft = (2.0 + pupilX) / -pupilScaleX; }
         }
-        else if (data[4] > -0.5 * pupilScaleX + 1.0) {
+        if (x > 1.0 - 0.5 * pupilScaleX) {
             if (isLeft) { pupilRight = (2.0 - pupilX) / pupilScaleX; }
             else { pupilRight = pupilX / -pupilScaleX; }
         }
         // Y
-        if (eyes.type == 1) { pupilY = 0.85 + data[5]; }
-        else { pupilY = 0.5 + data[5] / 2.0; }
-        if (data[5] < 0) { pupilTop = pupilY / -pupilScaleY; }
-        else if (data[5] > 0) { pupilBottom = (pupilBottom - pupilTop - pupilY) / pupilScaleY; }
+        if (eyes.type == 1) { pupilY = 0.85 + y; }
+        else { pupilY = 0.5 + y / 2.0; }
+        if (pupilY < ySize* pupilScaleY) { pupilTop = pupilY / -pupilScaleY; }
+        double start = ySize - ySize * (pupilScaleY - 1.0);
+        if (pupilY > start) {
+            double e0 = (eyes.type == 1 ? ySize - 1.0 : ySize - 0.5) / pupilScaleY;
+            double e1 = eyes.type == 1 ? ySize + 1.0 : ySize + 0.5;
+            double a = (ySize - e0) / (start - e1) ;
+            double b = ySize - a * start;
+            pupilBottom = a * pupilY + b;
+        }
+
         if (eyes.type == 2) {
             pupilColor[0] = (float)(eyes.pupilColor[1] >> 16 & 255) / 127.5F;
             pupilColor[1] = (float)(eyes.pupilColor[1] >> 8 & 255) / 127.5F;
             pupilColor[2] = (float)(eyes.pupilColor[1] & 255) / 127.5F;
         }
 
+        // Center
+        double size = 0.2;
+        centerLeft = -size;
+        centerTop = -size;
+        centerRight = size;
+        centerBottom = size;
+        if (centerLeft < pupilLeft) { centerLeft = pupilLeft; }
+        if (centerRight > pupilRight) { centerRight = pupilRight; }
+        if (centerTop < pupilTop) { centerTop = pupilTop; }
+        if (centerBottom > pupilBottom) { centerBottom = pupilBottom; }
+
         // Glint
         if (eyes.glint) {
             net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
             glintShow = false;
             glintAlpha = 1.0f;
+            x = data[6];
+            y = data[7];
             if (mc.world != null) {
                 long time = mc.world.getWorldTime();
                 float npcRot = npc.rotationYawHead % 360.0f;
                 if (npcRot < 0) { npcRot += 360.0f; }
-
+                float height = 0.65f * (float) ySize;
                 float lightYaw;
                 if (time <= 23200 && time > 12800) { // night
                     lightYaw = Math.round(-0.017308f * (float) time + 491.538462f);
@@ -120,11 +152,11 @@ public class EyeRenderData {
                         glintShow = time < 21000 || (npcRot >= 30 && npcRot <= 150);
                         if (glintShow) {
                             if (npcRot >= 210 && npcRot <= 330) {
-                                data[6] = ValueUtil.correctFloat(0.005417f * npcRot - 0.4875f, -0.325f, 0.325f);
-                                data[7] = ValueUtil.correctFloat(-0.003611f * lightYaw + 0.325f, -0.325f, 0.0f);
+                                x = ValueUtil.correctFloat(0.005417f * npcRot - 0.4875f, -height, height);
+                                y = ValueUtil.correctFloat(-0.003611f * lightYaw + height, -height, 0.0f);
                             } else {
-                                data[6] = 0.0f;
-                                data[7] = -0.325f;
+                                x = 0.0f;
+                                y = -height;
                             }
                         }
                     }
@@ -132,11 +164,11 @@ public class EyeRenderData {
                         glintShow = time > 15200 || (npcRot >= 210 && npcRot <= 330);
                         if (glintShow) {
                             if (npcRot >= 210 && npcRot <= 330) {
-                                data[6] = ValueUtil.correctFloat(0.005417f * npcRot - 1.4625f, -0.325f, 0.325f);
-                                data[7] = ValueUtil.correctFloat(0.003611f * (lightYaw - 180.0f) - 0.325f, -0.325f, 0.0f);
+                                x = ValueUtil.correctFloat(0.005417f * npcRot - 1.4625f, -height, height);
+                                y = ValueUtil.correctFloat(0.003611f * (lightYaw - 180.0f) - height, -height, 0.0f);
                             } else {
-                                data[6] = 0.0f;
-                                data[7] = -0.325f;
+                                x = 0.0f;
+                                y = -height;
                             }
                         }
                     }
@@ -148,11 +180,11 @@ public class EyeRenderData {
                         glintShow = time < 9000 || (npcRot >= 30 && npcRot <= 150);
                         if (glintShow) {
                             if (npcRot >= 30 && npcRot <= 150) {
-                                data[6] = ValueUtil.correctFloat(0.005417f * npcRot - 0.4875f, -0.325f, 0.325f);
-                                data[7] = ValueUtil.correctFloat(-0.003611f * lightYaw + 0.325f, -0.325f, 0.0f);
+                                x = ValueUtil.correctFloat(0.005417f * npcRot - 0.4875f, -height, height);
+                                y = ValueUtil.correctFloat(-0.003611f * lightYaw + height, -height, 0.0f);
                             } else {
-                                data[6] = 0.0f;
-                                data[7] = -0.325f;
+                                x = 0.0f;
+                                y = -height;
                             }
                         }
                     }
@@ -164,22 +196,30 @@ public class EyeRenderData {
                         glintShow = time > 6000 || (npcRot >= 210 && npcRot <= 330);
                         if (glintShow) {
                             if (npcRot >= 210 && npcRot <= 330) {
-                                data[6] = ValueUtil.correctFloat(0.005417f * npcRot - 1.4625f, -0.325f, 0.325f);
-                                data[7] = ValueUtil.correctFloat(0.003611f * (lightYaw - 180.0f) - 0.325f, -0.325f, 0.0f);
+                                x = ValueUtil.correctFloat(0.005417f * npcRot - 1.4625f, -height, height);
+                                y = ValueUtil.correctFloat(0.003611f * (lightYaw - 180.0f) - height, -height, 0.0f);
                             } else {
-                                data[6] = 0.0f;
-                                data[7] = -0.325f;
+                                x = 0.0f;
+                                y = -height;
                             }
                         }
                     }
                 }
             }
-            glintLeft = -0.1 + data[6];
-            glintRight = 0.1 + data[6];
-            glintTop = -0.1 + data[7];
-            glintBottom = 0.1 + data[7];
-            if (glintShow && eyes.type != 2) {
-                glintColor = 0xFFFFFF | (int) Math.ceil(glintAlpha * 255.0F) << 24;
+            glintLeft = -0.1 + x;
+            glintRight = 0.1 + x;
+            glintTop = -0.1 + y;
+            glintBottom = 0.1 + y;
+            if (glintLeft < pupilLeft) { glintLeft = pupilLeft; }
+            if (glintRight > pupilRight) { glintRight = pupilRight; }
+            if (glintTop < pupilTop) { glintTop = pupilTop; }
+            if (glintBottom > pupilBottom) { glintBottom = pupilBottom; }
+            if (glintLeft > glintRight || glintLeft == glintRight) { glintShow = false; }
+            if (glintTop > glintBottom || glintTop == glintBottom) { glintShow = false; }
+
+            if (glintShow) {
+                if (eyes.type != 2) { glintColor = 0xFFFFFF | (int) Math.ceil(glintAlpha * 255.0F) << 24; }
+                //
             }
         }
         isUpdate = false;

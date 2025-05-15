@@ -983,9 +983,10 @@ error.failedToSpawn=No se pudo crear NPC
 
 eye.brow=Cejas
 eye.closed=Cerrado
-eye.color.0=Eye color
-eye.color.1=Pupil color
-eye.color.2=Eyebrow color
+eye.color.0=Color de ojos
+eye.color.1=Color del iris
+eye.color.2=Color de pupila
+eye.color.3=Color de cejas
 eye.glint=Brillar
 eye.lid=Párpados
 

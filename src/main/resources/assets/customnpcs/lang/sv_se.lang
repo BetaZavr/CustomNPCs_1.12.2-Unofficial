@@ -983,9 +983,10 @@ error.failedToSpawn=Det gick inte att skapa NPC
 
 eye.brow=Bryn
 eye.closed=Stängd
-eye.color.0=Eye color
-eye.color.1=Pupil color
-eye.color.2=Eyebrow color
+eye.color.0=Ögonfärg
+eye.color.1=Irisfärg
+eye.color.2=Pupillfärg
+eye.color.3=Ögonbrynsfärg
 eye.glint=Glans
 eye.lid=Ögonlock
 

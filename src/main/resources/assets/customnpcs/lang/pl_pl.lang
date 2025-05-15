@@ -984,9 +984,10 @@ error.failedToSpawn=Nie udało się utworzyć NPC
 
 eye.brow=Brwi
 eye.closed=Zamknięte
-eye.color.0=Eye color
-eye.color.1=Pupil color
-eye.color.2=Eyebrow color
+eye.color.0=Kolor oczu
+eye.color.1=Kolor tęczówki
+eye.color.2=Kolor źrenicy
+eye.color.3=Kolor brwi
 eye.glint=Świecić
 eye.lid=Powieki
 

@@ -976,9 +976,10 @@ error.failedToSpawn=创建NPC失败
 
 eye.brow=眉毛
 eye.closed=关闭
-eye.color.0=Eye color
-eye.color.1=Pupil color
-eye.color.2=Eyebrow color
+eye.color.0=眼睛颜色
+eye.color.1=虹膜颜色
+eye.color.2=瞳孔颜色
+eye.color.3=眉毛颜色
 eye.glint=闪耀
 eye.lid=眼皮
 

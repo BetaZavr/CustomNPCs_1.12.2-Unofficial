@@ -66,20 +66,22 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 
 		public int initGui() {
 			this.data = playerdata.getPartData(this.part);
+			int x0 = guiLeft + 123;
+			int x1 = guiLeft + 175;
 			int y = guiTop + 50;
 			if (this.data == null || !this.data.playerTexture || !this.noPlayerTypes) {
-				addLabel(new GuiNpcLabel(20, "gui.type", guiLeft + 102, y + 5, 0xFFFFFF));
-				addButton(new GuiButtonBiDirectional(20, guiLeft + 145, y, 100, 20, this.types, (this.data == null) ? 0 : (this.data.type + 1)));
+				addLabel(new GuiNpcLabel(20, "gui.type", x0, y + 5, 0xFFFFFF));
+				addButton(new GuiButtonBiDirectional(20, x1, y, 100, 20, this.types, (this.data == null) ? 0 : (this.data.type + 1)));
 				y += 25;
 			}
 			if (this.data != null && this.hasPlayerOption) {
-				addLabel(new GuiNpcLabel(21, "gui.playerskin", guiLeft + 102, y + 5, 0xFFFFFF));
-				addButton(new GuiNpcButtonYesNo(21, guiLeft + 170, y, this.data.playerTexture));
+				addLabel(new GuiNpcLabel(21, "gui.playerskin", x0, y + 5, 0xFFFFFF));
+				addButton(new GuiNpcButtonYesNo(21, x1, y, this.data.playerTexture));
 				y += 25;
 			}
 			if (this.data != null && !this.data.playerTexture) {
-				addLabel(new GuiNpcLabel(23, "gui.color", guiLeft + 102, y + 5, 0xFFFFFF));
-				addButton(new GuiColorButton(23, guiLeft + 170, y, data.color));
+				addLabel(new GuiNpcLabel(23, "gui.color", x0, y + 5, 0xFFFFFF));
+				addButton(new GuiColorButton(23, x1, y, data.color));
 				y += 25;
 			}
 			return y;
@@ -124,8 +126,8 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 			if (data == null) {
 				return y;
 			}
-			addLabel(new GuiNpcLabel(22, "gui.pattern", guiLeft + 102, y + 5, 0xFFFFFF));
-			addButton(new GuiButtonBiDirectional(22, guiLeft + 145, y, 100, 20, new String[] { "gui.both", "gui.left", "gui.right" }, data.pattern));
+			addLabel(new GuiNpcLabel(22, "gui.pattern", guiLeft + 123, y + 5, 0xFFFFFF));
+			addButton(new GuiButtonBiDirectional(22, guiLeft + 175, y, 100, 20, new String[] { "gui.both", "gui.left", "gui.right" }, data.pattern));
 			return y;
 		}
 	}
@@ -144,6 +146,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 
 		@Override
 		protected void actionPerformed(GuiButton btn) {
+			System.out.println("buttonID: "+btn.id);
 			switch (btn.id) {
 				case 23:
 					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.eyeColor[1], color -> eyes.eyeColor[1] = color));
@@ -206,6 +209,12 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				case 42:
 					eyes.activeLeft = ((GuiNpcButtonYesNo) btn).getBoolean();
 					break;
+				case 43:
+					eyes.activeCenter = ((GuiNpcButtonYesNo) btn).getBoolean();
+					break;
+				case 44:
+					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.centerColor, color -> eyes.centerColor = color));
+					break;
 			}
 			if (btn.id < 23) { super.actionPerformed(btn); }
 		}
@@ -213,9 +222,9 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 		@Override
 		public int initGui() {
 			int y = super.initGui(); // button IDs: 20 ... 23 
-			if (this.data != null && this.eyes.isEnabled()) {
-				int x0 = guiLeft + 102;
-				int x1 = guiLeft + 155;
+			if (data != null && eyes.isEnabled()) {
+				int x0 = guiLeft + 123;
+				int x1 = guiLeft + 175;
 				y = guiTop + 50;
 				GuiNpcLabel label = (GuiNpcLabel) getLabel(20);
 				GuiNpcButton button = (GuiNpcButton) getButton(20);
@@ -223,7 +232,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				button.x = x1;
 				button.y = y;
 				button.height = 14;
-				if (this.eyes.type != -1) {
+				if (eyes.type != -1) {
 					addButton(new GuiNpcButton(40, x1 + 104, y, 31, 14, "RND"));
 				}
 				
@@ -237,12 +246,12 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				button.y = y;
 				button.x = x1;
 				button.height = 14;
-				((GuiColorButton) button).color = this.eyes.eyeColor[1];
+				((GuiColorButton) button).color = eyes.eyeColor[1];
 				// right
-				button = new GuiColorButton(24, x1 + 52, y, this.eyes.eyeColor[0]);
+				button = new GuiColorButton(24, x1 + 52, y, eyes.eyeColor[0]);
 				button.height = 14;
 				addButton(button);
-				if (this.data.type == 2) {
+				if (data.type == 2) {
 					addButton(new GuiNpcButton(34, x1 + 104, y, 14, 14, "EL"));
 					addButton(new GuiNpcButton(35, x1 + 120, y, 14, 14, "ER"));
 				}
@@ -251,43 +260,55 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				y += 16;
 				// left
 				addLabel(new GuiNpcLabel(25, "eye.color.1", x0, y + 3, 0xFFFFFF));
-				button = new GuiColorButton(25, x1, y, this.eyes.pupilColor[0]);
+				button = new GuiColorButton(25, x1, y, eyes.pupilColor[0]);
 				button.height = 14;
 				addButton(button);
 				// right
-				button = new GuiColorButton(26, x1 + 52, y, this.eyes.pupilColor[1]);
+				button = new GuiColorButton(26, x1 + 52, y, eyes.pupilColor[1]);
 				button.height = 14;
 				addButton(button);
-				if (this.data.type == 2) {
+				if (data.type == 2) {
 					addButton(new GuiNpcButton(36, x1 + 104, y, 14, 14, "PL"));
 					addButton(new GuiNpcButton(37, x1 + 120, y, 14, 14, "PR"));
 				}
-				
+
+				// center
+				y += 16;
+				addLabel(new GuiNpcLabel(44, "eye.color.2", x0, y + 3, 0xFFFFFF));
+				button = new GuiColorButton(44, x1, y, eyes.centerColor);
+				button.width = 100;
+				button.height = 14;
+				addButton(button);
+				button = new GuiNpcButtonYesNo(43, x1 + 104, y, eyes.activeCenter);
+				button.width = 20;
+				button.height = 14;
+				addButton(button);
+
 				// brow color
 				y += 16;
 				// left
-				addLabel(new GuiNpcLabel(27, "eye.color.2", x0, y + 3, 0xFFFFFF));
-				button = new GuiColorButton(27, x1 + 52, y, this.eyes.browColor[1]);
+				addLabel(new GuiNpcLabel(27, "eye.color.3", x0, y + 3, 0xFFFFFF));
+				button = new GuiColorButton(27, x1 + 52, y, eyes.browColor[1]);
 				button.height = 14;
 				addButton(button);
 				// right
-				button = new GuiColorButton(28, x1, y, this.eyes.browColor[0]);
+				button = new GuiColorButton(28, x1, y, eyes.browColor[0]);
 				button.height = 14;
 				addButton(button);
-				if (this.data.type == 2) {
+				if (data.type == 2) {
 					addButton(new GuiNpcButton(38, x1 + 104, y, 14, 14, "BL"));
 					addButton(new GuiNpcButton(39, x1 + 120, y, 14, 14, "BR"));
 				}
-				
+
 				// brow size
 				y += 16;
 				addLabel(new GuiNpcLabel(29, "eye.brow", x0, y + 3, 0xFFFFFF));
-				addButton(new GuiNpcButton(29, x1, y, 100, 14, new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8" }, this.eyes.browThickness));
+				addButton(new GuiNpcButton(29, x1, y, 100, 14, new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8" }, eyes.browThickness));
 
 				// skin color
 				y += 16;
 				addLabel(new GuiNpcLabel(30, "eye.lid", x0, y + 3, 0xFFFFFF));
-				button = new GuiColorButton(30, x1, y, this.eyes.skinColor);
+				button = new GuiColorButton(30, x1, y, eyes.skinColor);
 				button.width = 100;
 				button.height = 14;
 				addButton(button);
@@ -295,18 +316,18 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				// both eyes
 				y += 16;
 				addLabel(new GuiNpcLabel(22, "gui.draw", x0, y + 3, 0xFFFFFF));
-				addButton(new GuiNpcButton(22, x1, y, 100, 14, new String[] { "gui.both", "gui.left", "gui.right" }, this.data.pattern));
+				addButton(new GuiNpcButton(22, x1, y, 100, 14, new String[] { "gui.both", "gui.left", "gui.right" }, data.pattern));
 
 				// closed
 				y += 16;
 				addLabel(new GuiNpcLabel(31, "eye.closed", x0, y + 3, 0xFFFFFF));
-				button = new GuiNpcButton(31, x1, y, 100, 14, new String[] { "gui.none", "gui.both", "gui.left", "gui.right" }, this.eyes.closed);
+				button = new GuiNpcButton(31, x1, y, 100, 14, new String[] { "gui.none", "gui.both", "gui.left", "gui.right" }, eyes.closed);
 				addButton(button);
-				button = new GuiNpcButtonYesNo(41, x1 + 104, y, this.eyes.activeRight);
+				button = new GuiNpcButtonYesNo(41, x1 + 104, y, eyes.activeRight);
 				button.width = 20;
 				button.height = 14;
 				addButton(button);
-				button = new GuiNpcButtonYesNo(42, x1 + 126, y, this.eyes.activeLeft);
+				button = new GuiNpcButtonYesNo(42, x1 + 126, y, eyes.activeLeft);
 				button.width = 20;
 				button.height = 14;
 				addButton(button);
@@ -314,12 +335,12 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				// vertical pos
 				y += 16;
 				addLabel(new GuiNpcLabel(32, "gui.position", x0, y + 3, 0xFFFFFF));
-				addButton(new GuiNpcButton(32, x1, y, 100, 14, new String[] { new TextComponentTranslation("gui.down").getFormattedText() + " x2", "gui.down", "gui.normal", "gui.up", new TextComponentTranslation("gui.up").getFormattedText() + " x2" }, this.eyes.eyePos + 1));
+				addButton(new GuiNpcButton(32, x1, y, 100, 14, new String[] { new TextComponentTranslation("gui.down").getFormattedText() + " x2", "gui.down", "gui.normal", "gui.up", new TextComponentTranslation("gui.up").getFormattedText() + " x2" }, eyes.eyePos + 1));
 
 				// glint
 				y += 16;
 				addLabel(new GuiNpcLabel(33, "eye.glint", x0, y + 3, 0xFFFFFF));
-				button = new GuiNpcButtonYesNo(33, x1, y, this.eyes.glint);
+				button = new GuiNpcButtonYesNo(33, x1, y, eyes.glint);
 				button.width = 100;
 				button.height = 14;
 				addButton(button);
@@ -359,10 +380,8 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 		public int initGui() {
 			int y = super.initGui();
 			if (this.data != null && this.data.type == 2) {
-				addLabel(
-						new GuiNpcLabel(22, "gui.pattern", guiLeft + 102, y + 5, 0xFFFFFF));
-				addButton(new GuiButtonBiDirectional(22, guiLeft + 145, y,
-						100, 20, new String[] { "1", "2" }, this.data.pattern));
+				addLabel(new GuiNpcLabel(22, "gui.pattern", guiLeft + 123, y + 5, 0xFFFFFF));
+				addButton(new GuiButtonBiDirectional(22, guiLeft + 175, y, 100, 20, new String[] { "1", "2" }, this.data.pattern));
 			}
 			return y;
 		}
@@ -425,10 +444,8 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 					&& (this.data.type == 0 || this.data.type == 1 || this.data.type == 6 || this.data.type == 7));
 			int y = super.initGui();
 			if (this.data != null && this.data.type == 0) {
-				addLabel(
-						new GuiNpcLabel(22, "gui.pattern", guiLeft + 102, y + 5, 0xFFFFFF));
-				addButton(new GuiButtonBiDirectional(22, guiLeft + 145, y,
-						100, 20, new String[] { "1", "2" }, this.data.pattern));
+				addLabel(new GuiNpcLabel(22, "gui.pattern", guiLeft + 123, y + 5, 0xFFFFFF));
+				addButton(new GuiButtonBiDirectional(22, guiLeft + 175, y, 100, 20, new String[] { "1", "2" }, this.data.pattern));
 			}
 			return y;
 		}
@@ -544,6 +561,8 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.rnd").getFormattedText());
 			} else if ((this.getButton(41) != null && this.getButton(41).isHovered()) || (this.getButton(42) != null && this.getButton(42).isHovered())) {
 				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.active").getFormattedText());
+			} else if (this.getButton(43) != null && this.getButton(43).isHovered()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.center.active").getFormattedText());
 			}
 		} else {
 			if (this.getButton(23) != null && this.getButton(23).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(23).getLeft(), this.getButton(23).getTop(), this.getButton(23).getWidth(), this.getButton(23).getHeight())) {
@@ -575,9 +594,9 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 			}
 			(this.scroll = new GuiCustomScroll(this, 0)).setListNotSorted(list);
 		}
-		this.scroll.guiLeft = this.guiLeft;
-		this.scroll.guiTop = this.guiTop + 46;
-		this.scroll.setSize(100, this.ySize - 74);
+		this.scroll.guiLeft = guiLeft;
+		this.scroll.guiTop = guiTop + 46;
+		this.scroll.setSize(121, ySize - 74);
 		this.addScroll(this.scroll);
 		if (this.getPart() != null) {
 			this.scroll.setSelected(new TextComponentTranslation("part." + this.getPart().part.name).getFormattedText());

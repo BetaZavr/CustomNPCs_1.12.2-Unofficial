@@ -979,8 +979,9 @@ error.failedToSpawn=Vytvoření NPC se nezdařilo
 eye.brow=Obočí
 eye.closed=ZAVŘENO
 eye.color.0=Barva očí
-eye.color.1=Barva zornice
-eye.color.2=Barva obočí
+eye.color.1=Barva duhovky
+eye.color.2=Barva zornice
+eye.color.3=Barva obočí
 eye.glint=Lesk
 eye.lid=Oční víčka
 

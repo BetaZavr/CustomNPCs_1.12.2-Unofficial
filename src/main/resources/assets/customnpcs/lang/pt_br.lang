@@ -978,9 +978,10 @@ error.failedToSpawn=Falha ao criar NPC
 
 eye.brow=Sobrancelhas
 eye.closed=Fechado
-eye.color.0=Eye color
-eye.color.1=Pupil color
-eye.color.2=Eyebrow color
+eye.color.0=Cor dos olhos
+eye.color.1=Cor da íris
+eye.color.2=Cor da pupila
+eye.color.3=Cor da sobrancelha
 eye.glint=Brilhar
 eye.lid=Pálpebras
 

@@ -983,9 +983,10 @@ error.failedToSpawn=NPC 생성 실패
 
 eye.brow=눈썹
 eye.closed=닫은
-eye.color.0=Eye color
-eye.color.1=Pupil color
-eye.color.2=Eyebrow color
+eye.color.0=눈 색깔
+eye.color.1=홍채 색상
+eye.color.2=동공 색상
+eye.color.3=눈썹 색상
 eye.glint=빛나는
 eye.lid=눈꺼풀
 

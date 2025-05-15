@@ -983,9 +983,10 @@ error.failedToSpawn=Nem sikerült létrehozni az NPC-t
 
 eye.brow=Szemöldök
 eye.closed=Zárva
-eye.color.0=Eye color
-eye.color.1=Pupil color
-eye.color.2=Eyebrow color
+eye.color.0=Szemszín
+eye.color.1=Írisz színe
+eye.color.2=Pupilla színe
+eye.color.3=Szemöldök színe
 eye.glint=Ragyog
 eye.lid=Szemhéjak
 

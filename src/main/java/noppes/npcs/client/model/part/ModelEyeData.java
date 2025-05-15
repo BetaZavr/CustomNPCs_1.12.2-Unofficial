@@ -1,5 +1,6 @@
 package noppes.npcs.client.model.part;
 
+import java.awt.*;
 import java.util.Random;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,6 +17,7 @@ extends ModelPartData {
 	
 	public final int[] eyeColor = new int [2];
 	public final int[] pupilColor = new int [2];
+	public int centerColor = 0;
 	public final int[] browColor = new int [2];
 	
 	public long blinkStart = 0L;
@@ -37,6 +39,7 @@ extends ModelPartData {
 	private final Random rnd = new Random();
 	public boolean activeLeft = true;
 	public boolean activeRight = true;
+	public boolean activeCenter = false;
 	public int ticks = -1;
 
 	public ModelEyeData() {
@@ -45,29 +48,73 @@ extends ModelPartData {
 	}
 	
 	public void reset() {
-		int[] arr = new int[] { 0xF6F6F6, 0xF0F0F0, 0xF02020, 0xF0F0F0, 0x20F020, 0xF0F0F0, 0x2020F0, 0xF0F0F0, 0x4040FF, 0xF0F0F0, 0xEFEF80, 0xF0F0F0 };
+		int[] arr = new int[] {
+				new Color(0xE6E6E6).getRGB(),
+				new Color(0xE64040).getRGB(),
+				new Color(0xE6E6E6).getRGB(),
+				new Color(0x40E640).getRGB(),
+				new Color(0xE6E6E6).getRGB(),
+				new Color(0x4040E6).getRGB(),
+				new Color(0xE6E6E6).getRGB(),
+				new Color(0x92A3A3).getRGB(),
+				new Color(0xE6E6E6).getRGB(),
+				new Color(0xDCDC80).getRGB()};
 		int v = arr[rnd.nextInt(arr.length)];
 		eyeColor[0] = v;
 		eyeColor[1] = v;
 		
-		arr = new int[] { 0x7FB238, 0xF7E9A3, 0xA0A0FF, 0xA7A7A7, 0xA4A8B8, 0x4040FF, 0xD87F33, 0xB24CD8, 0x6699D8, 0xE5E533,
-				0x7FCC19, 0xF27FA5, 0x999999, 0x4C7F99, 0x7F3FB2, 0x334CB2, 0x664C33, 0x667F33, 0x993333, 0xFAEE4D,
-				0x5CDBD5, 0x4A80FF, 0x00D93A };
+		arr = new int[] {
+				new Color(0x7FB238).getRGB(),
+				new Color(0xF7E9A3).getRGB(),
+				new Color(0xA0A0FF).getRGB(),
+				new Color(0xA7A7A7).getRGB(),
+				new Color(0xA4A8B8).getRGB(),
+				new Color(0x4040FF).getRGB(),
+				new Color(0xD87F33).getRGB(),
+				new Color(0xB24CD8).getRGB(),
+				new Color(0x6699D8).getRGB(),
+				new Color(0xE5E533).getRGB(),
+				new Color(0x7FCC19).getRGB(),
+				new Color(0xF27FA5).getRGB(),
+				new Color(0x999999).getRGB(),
+				new Color(0x4C7F99).getRGB(),
+				new Color(0x7F3FB2).getRGB(),
+				new Color(0x334CB2).getRGB(),
+				new Color(0x664C33).getRGB(),
+				new Color(0x667F33).getRGB(),
+				new Color(0x993333).getRGB(),
+				new Color(0xFAEE4D).getRGB(),
+				new Color(0x5CDBD5).getRGB(),
+				new Color(0x4A80FF).getRGB(),
+				new Color(0x00D93A).getRGB()
+		};
 		v = arr[rnd.nextInt(arr.length)];
 		pupilColor[0] = v;
 		pupilColor[1] = v;
-		
-		arr = new int[] { 0x5B4934, 0x9E9E8F, 0xF02020, 0x302010, 0x2020F0, 0xF48E10, 0xE60CCC };
+
+		centerColor = new Color(0x00000).getRGB();
+
+		arr = new int[] {
+				new Color(0x5B4934).getRGB(),
+				new Color(0x9E9E8F).getRGB(),
+				new Color(0x302010).getRGB(),
+				new Color(0xF48E10).getRGB()};
 		v = arr[rnd.nextInt(arr.length)];
 		browColor[0] = v;
 		browColor[1] = v;
 		
-		arr = new int[] { 0xB4846D, 0x5B4934, 0x9E9E8F, 0xF02020, 0x302010, 0x2020F0, 0xF48E10, 0xE60CCC };
+		arr = new int[] {
+				new Color(0xB4846D).getRGB(),
+				new Color(0x5B4934).getRGB(),
+				new Color(0x9E9E8F).getRGB(),
+				new Color(0x302010).getRGB(),
+				new Color(0xF48E10).getRGB()};
 		skinColor = arr[rnd.nextInt(arr.length)];
 		
 		glint = rnd.nextFloat() < 0.5f;
 		activeLeft = rnd.nextFloat() > 0.005f;
 		activeRight = rnd.nextFloat() > 0.005f;
+		activeCenter = rnd.nextFloat() > 0.9f;
 		
 		v = rnd.nextInt(3);
 		eyeLeft = new ResourceLocation("moreplayermodels:textures/eyes/eye_" + v + ".png");
@@ -100,6 +147,7 @@ extends ModelPartData {
 		
 		if (compound.hasKey("ActiveLeft", 1)) { activeLeft = compound.getBoolean("ActiveLeft"); }
 		if (compound.hasKey("ActiveRight", 1)) { activeRight = compound.getBoolean("ActiveRight"); }
+		if (compound.hasKey("ActiveCenter", 1)) { activeCenter = compound.getBoolean("ActiveCenter"); }
 				
 		if (compound.hasKey("EyeColor", 11) && compound.getIntArray("EyeColor").length > 1) {
 			eyeColor[0] = compound.getIntArray("EyeColor")[0];
@@ -113,6 +161,9 @@ extends ModelPartData {
 			pupilColor[0] = compound.getInteger("Color");
 			pupilColor[1] = compound.getInteger("Color");
 		}
+
+		if (compound.hasKey("CenterColor", 3)) { centerColor = compound.getInteger("CenterColor"); }
+		else { centerColor = 0x000000; }
 		
 		if (compound.hasKey("BrowColor", 3)) {
 			browColor[0] = compound.getInteger("BrowColor");
@@ -156,10 +207,12 @@ extends ModelPartData {
 		compound.setInteger("BrowThickness", browThickness);
 		compound.setIntArray("EyeColor", eyeColor);
 		compound.setIntArray("PupilColor", pupilColor);
+		compound.setInteger("CenterColor", centerColor);
 		compound.setIntArray("BrowColor", browColor);
 
 		compound.setBoolean("ActiveLeft", activeLeft);
 		compound.setBoolean("ActiveRight", activeRight);
+		compound.setBoolean("ActiveCenter", activeCenter);
 		
 		NBTTagList resources = new NBTTagList();
 		resources.appendTag(new NBTTagString(eyeLeft.toString()));

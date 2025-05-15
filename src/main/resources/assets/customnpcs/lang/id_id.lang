@@ -983,9 +983,10 @@ error.failedToSpawn=Gagal membuat NPC
 
 eye.brow=Alis
 eye.closed=Tertutup
-eye.color.0=Eye color
-eye.color.1=Pupil color
-eye.color.2=Eyebrow color
+eye.color.0=Warna mata
+eye.color.1=Warna iris
+eye.color.2=Warna pupil
+eye.color.3=Warna alis
 eye.glint=Bersinar
 eye.lid=Kelopak mata
 

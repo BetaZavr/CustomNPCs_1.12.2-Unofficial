@@ -982,9 +982,10 @@ error.failedToSpawn=NPC konnte nicht erstellt werden
 
 eye.brow=Augenbrauen
 eye.closed=Geschlossen
-eye.color.0=Eye color
-eye.color.1=Pupil color
-eye.color.2=Eyebrow color
+eye.color.0=Augenfarbe
+eye.color.1=Irisfarbe
+eye.color.2=Pupillenfarbe
+eye.color.3=Augenbrauenfarbe
 eye.glint=Scheinen
 eye.lid=Augenlider
 

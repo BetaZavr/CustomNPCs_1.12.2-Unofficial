@@ -983,9 +983,10 @@ error.failedToSpawn=NPC niet maken
 
 eye.brow=Wenkbrauwen
 eye.closed=Gesloten
-eye.color.0=Eye color
-eye.color.1=Pupil color
-eye.color.2=Eyebrow color
+eye.color.0=Oogkleur
+eye.color.1=Iriskleur
+eye.color.2=Pupilkleur
+eye.color.3=Wenkbrauwkleur
 eye.glint=Schijnen
 eye.lid=Oogleden
 
