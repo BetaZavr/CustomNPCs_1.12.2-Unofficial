@@ -46,7 +46,7 @@ extends GuiScreen {
 			GlStateManager.enableRescaleNormal();
 			if (itemToDraw != null) {
                 itemToDraw.getItem();
-                RenderHelper.enableGUIStandardItemLighting();
+				RenderHelper.enableGUIStandardItemLighting();
                 GuiCreateFlatDimension.this.itemRender.renderItemIntoGUI(itemToDraw, x + 2, z + 2);
                 RenderHelper.disableStandardItemLighting();
             }
@@ -66,6 +66,7 @@ extends GuiScreen {
 			tessellator.draw();
 		}
 
+		@SuppressWarnings("all")
 		protected void drawSlot(int entryID, int insideLeft, int yPos, int insideSlotHeight, int mouseXIn, int mouseYIn, float partialTicks) {
 			FlatLayerInfo flatlayerinfo = GuiCreateFlatDimension.this.theFlatGeneratorInfo
 					.getFlatLayers()

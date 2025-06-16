@@ -10,6 +10,7 @@ public class ShapedRecipesReflection {
 
     private static Field group;
 
+    @SuppressWarnings("all")
     public static void setGroup(ShapedRecipes recipe, String newGroupName) {
         if (recipe == null || newGroupName == null) { newGroupName = ""; }
         if (group == null) {

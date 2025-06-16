@@ -56,7 +56,8 @@ public class KeyController implements IKeyBinding {
 		return this.keybindings.get(id);
 	}
 
-	public IKeySetting getKeySetting(String name, String category, int keyId, String modifer) {
+	@SuppressWarnings("all")
+	public IKeySetting getKeySetting(String name, String category, int keyId, String modifier) {
 		for (IKeySetting kb : this.keybindings.values()) {
 			if (kb.getKeyId() != keyId) {
 				continue;
@@ -65,7 +66,7 @@ public class KeyController implements IKeyBinding {
 			if (!kc.name.equals(name) || !kc.category.equals(category)) {
 				continue;
 			}
-			switch (modifer.toLowerCase()) {
+			switch (modifier.toLowerCase()) {
 			case "shift":
 				if (kc.modifer == 1) {
 					return kc;
@@ -139,12 +140,10 @@ public class KeyController implements IKeyBinding {
 	}
 
 	private void loadKeys() {
+		CustomNpcs.debugData.start("Mod", this, "loadKeys");
 		File saveDir = CustomNpcs.Dir;
 		if (saveDir == null) {
 			return;
-		}
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadKeys");
 		}
 		this.filePath = saveDir.getName();
 		try {
@@ -157,7 +156,7 @@ public class KeyController implements IKeyBinding {
 		} catch (Exception e) {
 			this.loadDefaultKeys();
 		}
-		CustomNpcs.debugData.endDebug("Common", null, "loadKeys");
+		CustomNpcs.debugData.end("Mod", this, "loadKeys");
 	}
 
 	private void loadKeys(File file) throws IOException {
@@ -182,11 +181,11 @@ public class KeyController implements IKeyBinding {
 	}
 
 	public void save() {
-		CustomNpcs.debugData.startDebug("Common", null, "saveKeys");
+		CustomNpcs.debugData.start("Mod", this, "save");
 		try {
 			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "keys.dat").toPath()));
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		CustomNpcs.debugData.startDebug("Common", null, "saveKeys");
+		CustomNpcs.debugData.start("Mod", this, "save");
 	}
 
 	public void update(int id) {

@@ -59,7 +59,8 @@ public class ContainerNPCInv extends Container {
 				if (player.inventory.addItemStackToInventory(stackInClickSlot)) {
 					slot.putStack(ItemStack.EMPTY);
 				}
-			} else if (stackInClickSlot.getItem() instanceof ItemArmor) {
+			}
+			else if (stackInClickSlot.getItem() instanceof ItemArmor) {
 				Slot armSlot;
 				switch (((ItemArmor) stackInClickSlot.getItem()).armorType) {
 				case HEAD:

@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.dimentions;
 import java.io.IOException;
 import java.util.*;
 
+import net.minecraft.client.renderer.RenderHelper;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.block.BlockTallGrass;
@@ -13,7 +14,6 @@ import net.minecraft.client.gui.GuiSlot;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.Biomes;
@@ -105,8 +105,7 @@ extends GuiScreen {
 			this.func_148173_e(p_178054_1_ + 1, p_178054_2_ + 1);
 			GlStateManager.enableRescaleNormal();
 			RenderHelper.enableGUIStandardItemLighting();
-			GuiFlatDimensionPresets.this.itemRender.renderItemIntoGUI(new ItemStack(icon, 1, iconMetadata),
-					p_178054_1_ + 2, p_178054_2_ + 2);
+			GuiFlatDimensionPresets.this.itemRender.renderItemIntoGUI(new ItemStack(icon, 1, iconMetadata), p_178054_1_ + 2, p_178054_2_ + 2);
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.disableRescaleNormal();
 		}

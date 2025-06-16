@@ -709,7 +709,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiColorSelector && region != null) {
 			region.color = ((SubGuiColorSelector) subgui).color;
 			initGui();

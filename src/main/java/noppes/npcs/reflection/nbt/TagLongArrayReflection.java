@@ -9,6 +9,7 @@ public class TagLongArrayReflection {
 
     private static Field data;
 
+    @SuppressWarnings("all")
     public static long[] getData(NBTTagLongArray tag) {
         if (tag == null) { return new long[0]; }
         if (data == null) {

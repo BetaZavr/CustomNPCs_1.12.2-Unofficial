@@ -1,8 +1,11 @@
 package noppes.npcs.client;
 
 import java.awt.Point;
+import java.lang.reflect.Field;
 import java.util.*;
 
+import net.minecraft.client.gui.*;
+import noppes.npcs.api.mixin.client.gui.IGuiMainMenuMixin;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.constants.EnumGuiType;
@@ -15,9 +18,6 @@ import net.minecraft.block.BlockAir;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -62,7 +62,6 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.gui.IItemSlot;
-import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
@@ -273,12 +272,12 @@ public class ClientGuiEventHandler extends Gui {
 		if (npc != null) {
 			npc.ais.orientation = orientation;
 		}
-		RenderHelper.disableStandardItemLighting();
-		GlStateManager.disableRescaleNormal();
 		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.disableTexture2D();
 		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
 		GlStateManager.popMatrix();
+		RenderHelper.disableStandardItemLighting();
+		GlStateManager.disableRescaleNormal();
 	}
 
 	private void drawNpcMovingPath(EntityCustomNpc npc) {
@@ -1051,7 +1050,7 @@ public class ClientGuiEventHandler extends Gui {
 	@SubscribeEvent
 	public void npcCameraSetupEvent(EntityViewRenderEvent.CameraSetup event) {
 		if (event.getEntity() instanceof EntityLivingBase && ClientGuiEventHandler.crashes.isActive) { // camera shaking
-			CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcCameraSetupEvent");
+			CustomNpcs.debugData.start("Players", this, "npcCameraSetupEvent");
 			float amplitude = ClientGuiEventHandler.crashes
 					.get(ClientGuiEventHandler.crashes.endTime - event.getEntity().world.getTotalWorldTime());
 			if (amplitude != 0.0f) {
@@ -1086,14 +1085,15 @@ public class ClientGuiEventHandler extends Gui {
 				}
 				}
 			}
-			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcCameraSetupEvent");
+			CustomNpcs.debugData.end("Players", this, "npcCameraSetupEvent");
 		}
 	}
 
 	/** HUD Bar Interface */
+	@SuppressWarnings("all")
 	@SubscribeEvent
 	public void npcRenderOverlay(RenderGameOverlayEvent.Text event) {
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
+		CustomNpcs.debugData.start("Players", this, "npcRenderOverlay");
 		mc = Minecraft.getMinecraft();
 		sw = new ScaledResolution(mc);
 
@@ -1182,7 +1182,7 @@ public class ClientGuiEventHandler extends Gui {
 			GlStateManager.popMatrix();
 		}
 		if (mc.currentScreen != null && !(mc.currentScreen instanceof GuiChat) && !(mc.currentScreen instanceof GuiLog)) {
-			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
+			CustomNpcs.debugData.end("Players", this, "npcRenderOverlay");
 			return;
 		}
 		// Custom HUD window
@@ -1261,26 +1261,23 @@ public class ClientGuiEventHandler extends Gui {
 				if (qData != null) {
 					double minD = Double.MAX_VALUE;
 					QuestObjective select = null;
-					for (IQuestObjective io : qData.quest.questInterface.getObjectives(mc.player)) {
-						QuestObjective o = (QuestObjective) io;
-						if (o.isCompleted()) {
+					for (QuestObjective io : qData.quest.questInterface.getObjectives(mc.player)) {
+						if (io.isCompleted()) {
 							continue;
 						}
 						if (qData.quest.step != 1) {
-							if (o.rangeCompass == 0 && select == null) {
-								select = o;
-							} else if (o.rangeCompass != 0) {
-								double d = Util.instance.distanceTo(o.pos.getX() + 0.5d, o.pos.getY(),
-										o.pos.getZ() + 0.5d, mc.player.posX,
-										mc.player.posY + mc.player.eyeHeight, mc.player.posZ);
+							if (io.rangeCompass == 0 && select == null) {
+								select = io;
+							} else if (io.rangeCompass != 0) {
+								double d = Util.instance.distanceTo(io.pos.getX() + 0.5d, io.pos.getY(), io.pos.getZ() + 0.5d, mc.player.posX, mc.player.posY + mc.player.eyeHeight, mc.player.posZ);
 								if (d <= minD) {
 									minD = d;
-									select = o;
+									select = io;
 								}
 							}
 							continue;
 						}
-						select = o;
+						select = io;
 						break;
 					}
 					if (select != null) {
@@ -1627,7 +1624,7 @@ public class ClientGuiEventHandler extends Gui {
 			}
 
 		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
+		CustomNpcs.debugData.end("Players", this, "npcRenderOverlay");
 	}
 
 	private static EntityLivingBase getEntityLivingBase(double[] p, List<EntityLivingBase> ents, QuestData qData) {
@@ -1649,19 +1646,14 @@ public class ClientGuiEventHandler extends Gui {
 	/** Any Regions */
 	@SubscribeEvent
 	public void npcRenderWorldLastEvent(RenderWorldLastEvent event) {
-		if (mc == null) {
-			mc = Minecraft.getMinecraft();
-			return;
-		}
-		if (sw == null) {
-			sw = new ScaledResolution(mc);
-			return;
-		}
+		CustomNpcs.debugData.start("Players", this, "npcRenderWorldLastEvent");
+		if (mc == null) { mc = Minecraft.getMinecraft(); }
+		if (sw == null) { sw = new ScaledResolution(mc); }
         BorderController bData = BorderController.getInstance();
-		if (mc.player.world == null) {
+		if (mc.player == null || mc.player.world == null) {
+			CustomNpcs.debugData.end("Players", this, "npcRenderWorldLastEvent");
 			return;
 		}
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
 		// position
 		dx = mc.player.lastTickPosX + (mc.player.posX - mc.player.lastTickPosX) * (double) event.getPartialTicks();
 		dy = mc.player.lastTickPosY + (mc.player.posY - mc.player.lastTickPosY) * (double) event.getPartialTicks();
@@ -1715,7 +1707,7 @@ public class ClientGuiEventHandler extends Gui {
 		if (builder != null && builder.getID() > -1) {
 			if (builder.getType() == 4) {
 				drawZone(builder, null);
-				CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
+				CustomNpcs.debugData.end("Players", this, "npcRenderWorldLastEvent");
 				return;
 			}
 			Vec3d vec3d = mc.player.getPositionEyes(1.0f);
@@ -1734,10 +1726,10 @@ public class ClientGuiEventHandler extends Gui {
 			AxisAlignedBB aabb = new AxisAlignedBB(-5.0, -5.0, -5.0, 5.0, 5.0, 5.0).offset(mc.player.getPosition());
 			List<Entity> list = mc.player.world.getEntitiesWithinAABB(Entity.class, aabb);
 			list.remove(mc.player);
-			Entity rayTrE = mc.objectMouseOver.entityHit;
-			if (rayTrE == null) {
+			Entity rayTrE;
+			if (mc.objectMouseOver == null || mc.objectMouseOver.entityHit == null) {
 				rayTrE = Util.instance.getLookEntity(mc.player, (mainStack.getItem() instanceof ItemNbtBook ? ClientProxy.playerData.game.renderDistance : null), false);
-			}
+			} else { rayTrE = mc.objectMouseOver.entityHit; }
 			if (rayTrE != null && !list.contains(rayTrE)) { list.add(rayTrE); }
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
@@ -1813,7 +1805,7 @@ public class ClientGuiEventHandler extends Gui {
 			if (mc.player.capabilities.isCreativeMode) { renderRegion(reg, id); }
 			else if (reg.showInClient) { drawRegion(reg, -1); }
 		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
+		CustomNpcs.debugData.end("Players", this, "npcRenderWorldLastEvent");
 	}
 
 	private static BlockPos getPos() {
@@ -1855,17 +1847,31 @@ public class ClientGuiEventHandler extends Gui {
 	/** HUD Bar Interface Canceled */
 	@SubscribeEvent
 	public void npcScreenRenderPre(RenderGameOverlayEvent.Pre event) {
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcScreenRenderPre");
-		if (!ClientProxy.playerData.hud.isShowElementType(event.getType().ordinal())) {
-			event.setCanceled(true);
-		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcScreenRenderPre");
+		CustomNpcs.debugData.start("Players", this, "npcScreenRenderPre");
+		if (!ClientProxy.playerData.hud.isShowElementType(event.getType().ordinal())) { event.setCanceled(true); }
+		CustomNpcs.debugData.end("Players", this, "npcScreenRenderPre");
 	}
 
+	@SuppressWarnings("all")
 	@SubscribeEvent
-	public void onButtonEvent(GuiScreenEvent.ActionPerformedEvent.Post event) {
-		if (event.getGui() instanceof GuiContainerCreative) {
-			CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onButtonEvent");
+	public void npcButtonEvent(GuiScreenEvent.ActionPerformedEvent.Post event) {
+		CustomNpcs.debugData.start("Players", this, "npcButtonEvent");
+		if (event.getGui() instanceof GuiMainMenu) {
+			if (event.getButton().id == 150) {
+				int v = ((GuiNpcButton) event.getButton()).getValue() - 1;
+				try {
+					Field field = GuiMainMenu.class.getField("cnpc$variant");
+					field.setAccessible(true);
+					field.set(event.getGui(), v);
+				}  catch (Exception ignored) { }
+				ResourceLocation[] images = ((IGuiMainMenuMixin) event.getGui()).npcs$getImages();
+				for(int i = 0; i < 6; ++i) {
+					if (v < 0) { images[i] = new ResourceLocation("textures/gui/title/background/panorama_" + i + ".png"); }
+					else { images[i] = new ResourceLocation(CustomNpcs.MODID, "textures/gui/title/background/" + v + "/panorama_" + i + ".png"); }
+				}
+			}
+		}
+		else if (CustomNpcs.InventoryGuiEnabled && event.getGui() instanceof GuiContainerCreative) {
 			switch (event.getButton().id) {
 				case 150: {
 					CustomNpcs.proxy.openGui(2, 0, 0, EnumGuiType.QuestLog, mc.player);
@@ -1876,13 +1882,13 @@ public class ClientGuiEventHandler extends Gui {
 					break;
 				}
 			}
-			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_onButtonEvent");
 		}
+		CustomNpcs.debugData.end("Players", this, "npcButtonEvent");
 	}
 
 	@SubscribeEvent
-	public void onDrawScreenEvent(GuiScreenEvent.DrawScreenEvent.Post event) {
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onDrawScreenEvent");
+	public void npcDrawScreenEvent(GuiScreenEvent.DrawScreenEvent.Post event) {
+		CustomNpcs.debugData.start("Players", this, "npcDrawScreenEvent");
 		Minecraft mc = event.getGui().mc;
 		if (event.getGui() instanceof GuiInventory && CustomNpcs.ShowMoney) {
 			String text = Util.instance
@@ -1897,6 +1903,7 @@ public class ClientGuiEventHandler extends Gui {
 					y = ((GuiInventory) mc.currentScreen).getGuiTop() + 61;
 				}
 			} catch (Exception e) {
+				CustomNpcs.debugData.end("Players", this, "npcDrawScreenEvent");
 				return;
 			}
 			GlStateManager.translate(x, y, 0.0f);
@@ -1919,13 +1926,16 @@ public class ClientGuiEventHandler extends Gui {
 				event.getGui().drawHoveringText(hoverText, xm, ym);
 			}
 		}
-		else if (event.getGui() instanceof GuiContainerCreative && CustomNpcs.ShowMoney) {
+		else if (CustomNpcs.InventoryGuiEnabled && event.getGui() instanceof GuiContainerCreative) {
 			int x;
             int y;
             try {
 				x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;
 				y = ((GuiContainerCreative) event.getGui()).getGuiTop() + 4;
-			} catch (Exception e) { return; }
+			} catch (Exception e) {
+				CustomNpcs.debugData.end("Players", this, "npcDrawScreenEvent");
+				return;
+			}
 
 			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
@@ -1936,18 +1946,12 @@ public class ClientGuiEventHandler extends Gui {
 			GlStateManager.rotate(-90.0f, 0.0f, 0.0f, 1.0f);
 			int mx = event.getMouseX() - x;
 			int my = event.getMouseY() - y;
-			if (mx > 0 && mx <= 32 && my > 0 && my <= 28) {
-				drawTexturedModalRect(0, 2, 28, 32, 28, 32);
-			} else {
-				drawTexturedModalRect(0, 0, 28, 0, 28, 30);
-			}
+			if (mx > 0 && mx <= 32 && my > 0 && my <= 28) { drawTexturedModalRect(0, 2, 28, 32, 28, 32); }
+			else { drawTexturedModalRect(0, 0, 28, 0, 28, 30); }
 			GlStateManager.translate(-28.0f, 0.0f, 0.0f);
 			my -= 28;
-			if (mx > 0 && mx <= 32 && my > 0 && my <= 28) {
-				drawTexturedModalRect(0, 2, 28, 32, 28, 32);
-			} else {
-				drawTexturedModalRect(0, 0, 28, 0, 28, 30);
-			}
+			if (mx > 0 && mx <= 32 && my > 0 && my <= 28) { drawTexturedModalRect(0, 2, 28, 32, 28, 32); }
+			else { drawTexturedModalRect(0, 0, 28, 0, 28, 30); }
 			GlStateManager.popMatrix();
 
 			GlStateManager.pushMatrix();
@@ -1966,25 +1970,32 @@ public class ClientGuiEventHandler extends Gui {
 			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.popMatrix();
 		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_onDrawScreenEvent");
+		CustomNpcs.debugData.end("Players", this, "npcDrawScreenEvent");
 	}
 
+	@SuppressWarnings("all")
 	@SubscribeEvent
-	public void onInitGuiEvent(GuiScreenEvent.InitGuiEvent.Post event) {
-		if (event.getGui() instanceof GuiContainerCreative) {
-			CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onInitGuiEvent");
-			int x;
-			int y;
+	public void npcInitGuiEvent(GuiScreenEvent.InitGuiEvent.Post event) {
+		CustomNpcs.debugData.start("Players", this, "npcInitGuiEvent");
+		if (event.getGui() instanceof GuiMainMenu) {
 			try {
-				x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;
-				y = ((GuiContainerCreative) event.getGui()).getGuiTop() + 4;
+				Field field = GuiMainMenu.class.getField("cnpc$variant");
+				field.setAccessible(true);
+				event.getButtonList().add(new GuiNpcButton(150, 3, 3, 20, 16, (int) field.get(event.getGui()) + 1, "MC", "1", "2", "3", "4"));
+			} catch (Exception ignored) {}
+		}
+		else if (CustomNpcs.InventoryGuiEnabled && event.getGui() instanceof GuiContainerCreative) {
+			try {
+				int x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;
+				int y = ((GuiContainerCreative) event.getGui()).getGuiTop() + 4;
+				event.getButtonList().add(new GuiNpcButton(150, x, y, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
+				event.getButtonList().add(new GuiNpcButton(151, x, y + 28, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
 			} catch (Exception e) {
+				CustomNpcs.debugData.end("Players", this, "npcInitGuiEvent");
 				return;
 			}
-			event.getButtonList().add(new GuiNpcButton(150, x, y, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
-			event.getButtonList().add(new GuiNpcButton(151, x, y + 28, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
-			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_onInitGuiEvent");
 		}
+		CustomNpcs.debugData.end("Players", this, "npcInitGuiEvent");
 	}
 
 	/** Regions Edit -> Draw */

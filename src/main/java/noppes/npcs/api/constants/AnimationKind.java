@@ -27,9 +27,7 @@ public enum AnimationKind {
 
 	public static AnimationKind get(int type) {
 		for (AnimationKind ak : AnimationKind.values()) {
-			if (ak.type == type) {
-				return ak;
-			}
+			if (ak.type == type) { return ak; }
 		}
 		return AnimationKind.STANDING;
 	}

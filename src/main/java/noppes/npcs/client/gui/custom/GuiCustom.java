@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.ItemStack;
 import noppes.npcs.client.gui.util.*;
 import org.lwjgl.input.Mouse;
 
@@ -65,6 +67,7 @@ implements ICustomScrollListener, IGuiData {
 
 	private int stretched, bgW, bgH, bgTx, bgTy;
 	public String[] hoverText;
+	public ItemStack hoverStack;
 
 	public GuiCustom(ContainerCustomGui container) {
 		super(container);
@@ -91,49 +94,49 @@ implements ICustomScrollListener, IGuiData {
 	private void addComponent(ICustomGuiComponent component) {
 		CustomGuiComponentWrapper c = (CustomGuiComponentWrapper) component;
 		switch (c.getType()) {
-		case 0: {
-			CustomGuiButton button = CustomGuiButton.fromComponent((CustomGuiButtonWrapper) component);
-			button.setParent(this);
-			this.components.put(button.getId(), button);
-			this.addClickListener(button);
-			break;
-		}
-		case 1: {
-			CustomGuiLabel lbl = CustomGuiLabel.fromComponent((CustomGuiLabelWrapper) component);
-			lbl.setParent(this);
-			this.components.put(lbl.getId(), lbl);
-			break;
-		}
-		case 3: {
-			CustomGuiTextField textField = CustomGuiTextField.fromComponent((CustomGuiTextFieldWrapper) component);
-			textField.setParent(this);
-			this.components.put(textField.id, textField);
-			this.addDataHolder(textField);
-			this.addClickListener(textField);
-			this.addKeyListener(textField);
-			break;
-		}
-		case 2: {
-			CustomGuiTexturedRect rect = CustomGuiTexturedRect.fromComponent((CustomGuiTexturedRectWrapper) component);
-			rect.setParent(this);
-			this.components.put(rect.getId(), rect);
-			break;
-		}
-		case 4: {
-			CustomGuiScrollComponent scroll = new CustomGuiScrollComponent(this.mc, this, component.getId(), (CustomGuiScrollWrapper) component);
-			scroll.fromComponent((CustomGuiScrollWrapper) component);
-			scroll.setParent(this);
-			this.components.put(scroll.getId(), scroll);
-			this.addDataHolder(scroll);
-			this.addClickListener(scroll);
-			break;
-		}
-		case 7: {
-			CustomGuiEntity entt = CustomGuiEntity.fromComponent((CustomGuiEntityWrapper) component);
-			entt.setParent(this);
-			this.components.put(entt.getId(), entt);
-			break;
-		}
+			case 0: {
+				CustomGuiButton button = CustomGuiButton.fromComponent((CustomGuiButtonWrapper) component);
+				button.setParent(this);
+				this.components.put(button.getId(), button);
+				this.addClickListener(button);
+				break;
+			}
+			case 1: {
+				CustomGuiLabel lbl = CustomGuiLabel.fromComponent((CustomGuiLabelWrapper) component);
+				lbl.setParent(this);
+				this.components.put(lbl.getId(), lbl);
+				break;
+			}
+			case 3: {
+				CustomGuiTextField textField = CustomGuiTextField.fromComponent((CustomGuiTextFieldWrapper) component);
+				textField.setParent(this);
+				this.components.put(textField.id, textField);
+				this.addDataHolder(textField);
+				this.addClickListener(textField);
+				this.addKeyListener(textField);
+				break;
+			}
+			case 2: {
+				CustomGuiTexturedRect rect = CustomGuiTexturedRect.fromComponent((CustomGuiTexturedRectWrapper) component);
+				rect.setParent(this);
+				this.components.put(rect.getId(), rect);
+				break;
+			}
+			case 4: {
+				CustomGuiScrollComponent scroll = new CustomGuiScrollComponent(this.mc, this, component.getId(), (CustomGuiScrollWrapper) component);
+				scroll.fromComponent((CustomGuiScrollWrapper) component);
+				scroll.setParent(this);
+				this.components.put(scroll.getId(), scroll);
+				this.addDataHolder(scroll);
+				this.addClickListener(scroll);
+				break;
+			}
+			case 7: {
+				CustomGuiEntity entt = CustomGuiEntity.fromComponent((CustomGuiEntityWrapper) component);
+				entt.setParent(this);
+				this.components.put(entt.getId(), entt);
+				break;
+			}
 		}
 	}
 
@@ -245,7 +248,8 @@ implements ICustomScrollListener, IGuiData {
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		mouseWheel = Mouse.getDWheel();
-		this.hoverText = null;
+		hoverText = null;
+		hoverStack = null;
 		this.drawDefaultBackground();
 		if (this.background != null) {
 			this.drawBackgroundTexture();
@@ -268,8 +272,11 @@ implements ICustomScrollListener, IGuiData {
 			}
 			GlStateManager.popMatrix();
 		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY);
+		if (hoverStack != null) {
+			drawHoveringText(hoverStack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL), mouseX, mouseY);
+		}
+		else if (hoverText != null) {
+			drawHoveringText(Arrays.asList(hoverText), mouseX, mouseY);
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		this.renderHoveredToolTip(mouseX, mouseY);

@@ -24,26 +24,29 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
+import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class GuiNbtBook
 extends GuiNPCInterface
 implements IGuiData, ISubGuiListener {
 
-	private ItemStack blockStack;
+	protected ItemStack blockStack;
+	protected String errorMessage;
+	protected String faultyText;
+	protected String jsonCompound;
+	protected IBlockState state;
+	protected TileEntity tile;
+	protected final int x;
+	protected final int y;
+	protected final int z;
+	protected ItemStack stack;
+	protected GuiCustomScroll scroll;
+
 	public NBTTagCompound compound;
 	public Entity entity;
 	public int entityId;
-	private String errorMessage;
-	private String faultyText;
 	public NBTTagCompound originalCompound;
-	private IBlockState state;
-	private TileEntity tile;
-	private final int x;
-	private final int y;
-	private final int z;
-	private ItemStack stack;
-	private GuiCustomScroll scroll;
 
 	public GuiNbtBook(int xPos, int yPos, int zPos) {
 		setBackground("menubg.png");
@@ -62,19 +65,24 @@ implements IGuiData, ISubGuiListener {
 	public void buttonEvent(IGuiNpcButton button) {
 		switch (button.getID()) {
 			case 0: {
-				if (faultyText != null) {
-					setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound), faultyText).enableHighlighting());
-				} else {
-					setSubGui(new SubGuiNpcTextArea(NBTJsonUtil.Convert(compound)).enableHighlighting());
-				}
+				if (compound == null) { return; }
+				if (jsonCompound == null || jsonCompound.isEmpty()) { jsonCompound = compound.toString(); }
+				if (faultyText != null) { setSubGui(new SubGuiNpcTextArea(jsonCompound, faultyText).enableHighlighting()); }
+				else { setSubGui(new SubGuiNpcTextArea(jsonCompound).enableHighlighting()); }
 				break;
-			}
+			} // edit
 			case 1: {
 				if (stack != null && !stack.isEmpty()) {
 					Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound()));
 				}
 				break;
-			}
+			} // copy
+			case 2: {
+				if (compound == null) { return; }
+				if (faultyText != null) { setSubGui(new SubGuiNpcTextArea(compound.toString(), faultyText).enableHighlighting()); }
+				else { setSubGui(new SubGuiNpcTextArea(compound.toString()).enableHighlighting()); }
+				break;
+			} // edit fast
 			case 66: close(); break;
 			case 67: {
 				getLabel(0).setLabel("Saved");
@@ -85,15 +93,15 @@ implements IGuiData, ISubGuiListener {
 				originalCompound = compound.copy();
 				button.setEnabled(false);
 				break;
-			}
+			} // save
 		}
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface gui) {
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiNpcTextArea) {
 			try {
-				compound = JsonToNBT.getTagFromJson(((SubGuiNpcTextArea) gui).text);
+				setCompound(JsonToNBT.getTagFromJson(((SubGuiNpcTextArea) gui).text));
 				errorMessage = faultyText = null;
 			} catch (NBTException e) {
 				errorMessage = e.getLocalizedMessage();
@@ -169,9 +177,13 @@ implements IGuiData, ISubGuiListener {
 			addLabel(new GuiNpcLabel(12, name, guiLeft + 60, guiTop + 6));
 			setObjectToScroll(entity);
 		}
+		GuiNpcButton button;
 		addScroll(scroll);
-		addButton(new GuiNpcButton(0, guiLeft + 38, guiTop + 166, 180, 20, "nbt.edit"));
-		getButton(0).setEnabled(compound != null && !compound.getKeySet().isEmpty());
+		addLabel(new GuiNpcLabel(2, "nbt.edit", guiLeft + 4, guiTop + 172));
+		addButton(button = new GuiNpcButton(0, guiLeft + 128, guiTop + 166, 59, 20, "selectServer.edit"));
+		button.setEnabled(compound != null && !compound.getKeySet().isEmpty());
+		addButton(button = new GuiNpcButton(2, guiLeft + 189, guiTop + 166, 59, 20, "gui.fast"));
+		button.setEnabled(compound != null && !compound.getKeySet().isEmpty());
 
 		addLabel(new GuiNpcLabel(0, "", guiLeft + 4, guiTop + 167));
 		addLabel(new GuiNpcLabel(1, "", guiLeft + 4, guiTop + 177));
@@ -321,8 +333,14 @@ implements IGuiData, ISubGuiListener {
 			blockStack = state.getBlock().getItem(player.world, new BlockPos(x, y, z), state);
 		}
 		originalCompound = nbt.getCompoundTag("Data");
-		compound = originalCompound.copy();
+		setCompound(originalCompound.copy());
 		initGui();
+	}
+
+	private void setCompound(NBTTagCompound nbt) {
+		compound = nbt;
+		jsonCompound = nbt.toString();
+		CustomNPCsScheduler.runTack(() -> jsonCompound = NBTJsonUtil.Convert(nbt));
 	}
 
 }

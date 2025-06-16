@@ -152,7 +152,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface gui) {
+	public void subGuiClosed(SubGuiInterface gui) {
 		GuiNpcMobSpawnerSelector selector = (GuiNpcMobSpawnerSelector) gui;
 		if (slot < 0) { slot = (isDead ? deadScroll : aliveScroll).getList().size(); }
 		if (selector.showingClones == 2) {

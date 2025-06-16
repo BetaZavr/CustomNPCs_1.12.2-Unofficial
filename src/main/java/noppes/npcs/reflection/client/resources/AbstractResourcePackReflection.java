@@ -13,6 +13,7 @@ public class AbstractResourcePackReflection {
 
     private static Field resourcePackFile;
 
+    @SuppressWarnings("all")
     public static File getResourcePackFile(AbstractResourcePack resourcePack) {
         if (resourcePack == null) { return null; }
         if (resourcePackFile == null) {

@@ -181,7 +181,7 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 			}
 		}
 		for (ScriptContainer script : this.scripts) {
-			script.run(type, event, !this.isClient());
+			script.run(type, event);
 		}
 	}
 

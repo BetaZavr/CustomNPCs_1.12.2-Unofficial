@@ -254,16 +254,17 @@ public class NoppesUtilServer {
 		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 	}
 
-	public static void NotifyOPs(ITextComponent message) {
+	public static void NotifyOPs(ITextComponent message, boolean isError) {
 		ITextComponent component = new TextComponentString("[CustomNPCs]");
 		component.getStyle().setColor(TextFormatting.YELLOW);
 		ITextComponent doubleDot = new TextComponentString(": ");
 		doubleDot.getStyle().setColor(TextFormatting.GRAY);
 		component.appendSibling(doubleDot).appendSibling(message);
 		boolean isSend = false;
-		for (EntityPlayer entityplayer : CustomNpcs.Server.getPlayerList().getPlayers()) {
-			if (entityplayer.sendCommandFeedback() && isOp(entityplayer)) {
-				entityplayer.sendMessage(component);
+		for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
+			if (player.sendCommandFeedback() && isOp(player)) {
+				if (isError) { Server.sendData(player, EnumPacketClient.SCRIPT_ERROR, ITextComponent.Serializer.componentToJson(component)); }
+				else { player.sendMessage(component); }
 				isSend = true;
 			}
 		}
@@ -286,7 +287,12 @@ public class NoppesUtilServer {
 				CustomNpcs.Server.worlds[0] == null) {
 			return;
 		}
-		for (ITextComponent component : errorMessagesToAdmin) { player.sendMessage(component); }
+		for (ITextComponent component : errorMessagesToAdmin) {
+			if (player instanceof EntityPlayerMP) {
+				Server.sendData((EntityPlayerMP) player, EnumPacketClient.SCRIPT_ERROR, ITextComponent.Serializer.componentToJson(component));
+			}
+			else if (CustomNpcs.DisplayErrorInChat) { player.sendMessage(component); }
+		}
 		errorMessagesToAdmin.clear();
 	}
 
@@ -581,7 +587,8 @@ public class NoppesUtilServer {
 			for (String username : Objects.requireNonNull(player.getServer()).getPlayerList().getOnlinePlayerNames()) {
 				map.put(username, 1);
 			}
-		} else {
+		}
+		else {
 			PlayerData playerdata = PlayerDataController.instance.getDataFromUsername(Objects.requireNonNull(player.getServer()), name);
 			if (type == EnumPlayerData.Dialog) {
 				PlayerDialogData data = playerdata.dialogData;
@@ -590,7 +597,8 @@ public class NoppesUtilServer {
 					if (dialog == null) { continue; }
 					map.put(dialog.category.title + ": " + dialog.title, dialogId);
 				}
-			} else if (type == EnumPlayerData.Quest) {
+			}
+			else if (type == EnumPlayerData.Quest) {
 				PlayerQuestData data2 = playerdata.questData;
 				for (int questId : data2.activeQuests.keySet()) {
 					Quest quest = QuestController.instance.quests.get(questId);
@@ -606,13 +614,12 @@ public class NoppesUtilServer {
 					}
 					map.put(quest.category.title + ": " + quest.getTitle() + "(Finished quest)", questId);
 				}
-			} else if (type == EnumPlayerData.Transport) {
+			}
+			else if (type == EnumPlayerData.Transport) {
 				PlayerTransportData data3 = playerdata.transportData;
 				for (int transportId : data3.transports) {
 					TransportLocation location = TransportController.getInstance().getTransport(transportId);
-					if (location == null) {
-						continue;
-					}
+					if (location == null) { continue; }
 					map.put(location.category.title + ": " + location.name, transportId);
 				}
 				/*} else if (type == EnumPlayerData.Bank) {
@@ -621,7 +628,8 @@ public class NoppesUtilServer {
 				 * BankController.getInstance().banks.get(bankId); if (bank == null) { continue;
 				 * } map.put(bank.name, bankId); }
 				 */
-			} else if (type == EnumPlayerData.Factions) {
+			}
+			else if (type == EnumPlayerData.Factions) {
 				PlayerFactionData data5 = playerdata.factionData;
 				for (int factionId : data5.factionData.keySet()) {
 					Faction faction = FactionController.instance.factions.get(factionId);

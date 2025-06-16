@@ -137,7 +137,7 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		SubGuiEditText selector = (SubGuiEditText) subgui;
 		if (selector.cancelled) {
 			return;

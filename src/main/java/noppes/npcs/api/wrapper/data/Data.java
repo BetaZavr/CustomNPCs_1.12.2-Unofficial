@@ -6,26 +6,18 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.entity.data.IData;
-import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.util.Util;
 
-public class TempData implements IData {
+public class Data implements IData {
 
 	protected final Map<String, Object> map = new TreeMap<>();
-	protected BlockWrapper block;
 
-	public TempData() { }
-
-	public TempData(BlockWrapper wrapper) {
-		this();
-		block = wrapper;
-	}
+	public Data() { }
 
 	@Override
 	public void clear() {
 		map.clear();
-		if (block != null && block.storage != null) { block.storage.tempData.clear(); }
 	}
 
 	@Override
@@ -58,13 +50,11 @@ public class TempData implements IData {
 			return;
 		}
 		map.put(key, value);
-		if (block != null && block.storage != null) { block.storage.tempData.put(key, value); }
 	}
 
 	@Override
 	public void remove(String key) {
 		map.remove(key);
-		if (block != null && block.storage != null) { block.storage.tempData.remove(key); }
 	}
 
 	@SuppressWarnings("unchecked")
@@ -76,10 +66,6 @@ public class TempData implements IData {
 				map.putAll((TreeMap<String, Object>) obj);
 			}
 			catch (Exception ignored) { }
-		}
-		if (block != null && block.storage != null) {
-			block.storage.tempData.clear();
-			block.storage.tempData.putAll(map);
 		}
 	}
 

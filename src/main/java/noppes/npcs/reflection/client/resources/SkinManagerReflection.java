@@ -13,6 +13,7 @@ public class SkinManagerReflection {
 
     private static Field skinCacheDir;
 
+    @SuppressWarnings("all")
     public static File getDir(SkinManager parent) {
         if (parent == null) { return new File("."); }
         if (skinCacheDir == null) {

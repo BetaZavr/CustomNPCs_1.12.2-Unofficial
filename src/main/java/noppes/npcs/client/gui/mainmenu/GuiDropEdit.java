@@ -423,7 +423,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiDropEnchant) {
 			SubGuiDropEnchant gui = (SubGuiDropEnchant) subgui;
 			enchant.load(gui.enchant.getNBT());

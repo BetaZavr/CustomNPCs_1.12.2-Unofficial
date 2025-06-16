@@ -39,7 +39,9 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 	private final DataInventory inventory;
 	private DropsTemplate temp;
 	private int groupId;
-	private GuiCustomScroll scrollTemplate, scrollDrops;
+	private GuiCustomScroll scrollTemplate;
+	private GuiCustomScroll scrollDrops;
+	private final EntityNPCInterface displayNpc;
 
 	public GuiNPCInv(EntityNPCInterface npc, ContainerNPCInv cont) {
 		super(npc, cont, 3);
@@ -47,6 +49,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 		container = cont;
 		ySize = 200;
 
+		displayNpc = Util.instance.copyToGUI(npc, mc.world, false);
 		groupId = 0;
 		inventory = npc.inventory;
 		Client.sendData(EnumPacketServer.MainmenuInvGet);
@@ -203,11 +206,13 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		int showname = npc.display.getShowName();
-		npc.display.setShowName(1);
-		drawNpc(50, 84);
-		npc.display.setShowName(showname);
 		super.drawScreen(mouseX, mouseY, partialTicks);
+		for (int i = 0; i < 4; i++) { displayNpc.inventory.setArmor(i, npc.inventory.getArmor(i)); }
+		displayNpc.inventory.setRightHand(npc.inventory.getRightHand());
+		displayNpc.inventory.setProjectile(npc.inventory.getProjectile());
+		displayNpc.inventory.setLeftHand(npc.inventory.getLeftHand());
+		displayNpc.ticksExisted = npc.ticksExisted;
+		drawNpc(displayNpc, 50, 84, 1.0f, 0, 0, 1);
 	}
 
 	@Override
@@ -434,7 +439,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback, I
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).cancelled) {
 			return;
 		}

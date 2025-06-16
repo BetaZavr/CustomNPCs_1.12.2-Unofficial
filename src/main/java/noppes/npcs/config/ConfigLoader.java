@@ -5,6 +5,9 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
@@ -13,10 +16,15 @@ import net.minecraftforge.common.config.Property.Type;
 import net.minecraftforge.fml.client.config.IConfigElement;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
+import noppes.npcs.Server;
+import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumSync;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.util.Util;
 
 public class ConfigLoader {
 
+	private static final List<Field> data = new ArrayList<>();
 	public Configuration config;
 
 	public ConfigLoader(File directory) {
@@ -38,18 +46,13 @@ public class ConfigLoader {
 		}
 		config = new Configuration(file);
 		for (Field field : CustomNpcs.class.getDeclaredFields()) {
-			if (!field.isAnnotationPresent(ConfigProp.class)) {
-				continue;
-			}
-
+			if (!field.isAnnotationPresent(ConfigProp.class)) { continue; }
 			ConfigProp prop = field.getAnnotation(ConfigProp.class);
 			String name = field.getName();
 			ConfigCategory cat = config.getCategory(prop.type());
 			Property property = null;
 			String classType = field.getType().getTypeName().toLowerCase().replace("integer", "int").replace("[]", "");
-			if (classType.lastIndexOf(".") != -1) {
-				classType = classType.substring(classType.lastIndexOf(".") + 1);
-			}
+			if (classType.lastIndexOf(".") != -1) { classType = classType.substring(classType.lastIndexOf(".") + 1); }
 
 			if (cat.containsKey(name)) {
 				property = cat.get(name);
@@ -292,6 +295,80 @@ public class ConfigLoader {
 		resetData();
 	}
 
+	public static void sendTo(EntityPlayerMP player) {
+		NBTTagCompound compound = new NBTTagCompound();
+		for (Field field : data) {
+			String key = field.getName();
+			try {
+				Object value = field.get(CustomNpcs.instance);
+				if (value instanceof int[]) { compound.setIntArray(key, (int[]) value); }
+				else if (value instanceof Color[]) {
+					int[] colors = new int[((Color[]) value).length];
+					for (int i = 0; i < colors.length; i++) { colors[i] = ((Color[]) value)[i].getRGB(); }
+					compound.setIntArray(key, colors);
+				}
+				else if (value instanceof Boolean) { compound.setBoolean(key, (boolean) value); }
+				else if (value instanceof Integer) { compound.setInteger(key, (int) value); }
+				else if (value instanceof Color) { compound.setInteger(key, ((Color) value).getRGB()); }
+				else if (value instanceof String) { compound.setString(key, (String) value); }
+				else { LogWriter.warn("Custom object "+key+" = "+value.getClass()); }
+			}
+			catch (Exception ignored) { }
+		}
+		if (compound.getKeySet().isEmpty()) { return; }
+		NBTTagList list = new NBTTagList();
+		for (Class<?> cls : ScriptController.forgeEventNames.keySet()) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setString("Name", ScriptController.forgeEventNames.get(cls));
+			nbt.setString("Class", cls.getName());
+			list.appendTag(nbt);
+		}
+		compound.setTag("ForgeEventNames", list);
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.ModData, compound);
+	}
+
+	public static void load(NBTTagCompound compound) {
+		ScriptController.forgeEventNames.clear();
+		for (int i = 0; i < compound.getTagList("ForgeEventNames", 10).tagCount(); i++) {
+			NBTTagCompound nbt = compound.getTagList("ForgeEventNames", 10).getCompoundTagAt(i);
+			String name = nbt.getString("Name");
+			Class<?> cls = null;
+			try { cls = Class.forName(nbt.getString("Class")); }
+			catch (Exception e) { LogWriter.error("Error:", e); }
+			ScriptController.forgeEventNames.put(cls, name);
+		}
+		compound.removeTag("ForgeEventNames");
+		for (String key : compound.getKeySet()) {
+			Field field = null;
+			for (Field f : data) {
+				if (f.getName().equals(key)) {
+					field = f;
+					break;
+				}
+			}
+			if (field == null) { continue; }
+			int id = compound.getTag(key).getId();
+			try {
+				if (id == 1) { field.set(null, compound.getBoolean(key)); }
+				else if (id == 3) {
+					if (field.getType() == Color.class) { field.set(null, new Color(compound.getInteger(key))); }
+					else { field.set(null, compound.getInteger(key)); }
+				}
+				else if (id == 8) { field.set(null, compound.getString(key)); }
+				else if (id == 11) {
+					if (field.getType() == Color[].class) {
+						int[] arr = compound.getIntArray(key);
+						Color[] colors = new Color[arr.length];
+						for (int i = 0; i < arr.length; i++) { colors[i] = new Color(arr[i]); }
+						field.set(null, colors);
+					}
+					else { field.set(null, compound.getIntArray(key)); }
+				}
+			}
+			catch (Exception e) { LogWriter.error(e); }
+		}
+	}
+
 	public List<IConfigElement> getChildElements() {
 		Iterator<Property> pI = config.getCategory(Configuration.CATEGORY_GENERAL).getOrderedValues().iterator();
 		Map<String, ConfigElement> map = new TreeMap<>();
@@ -455,10 +532,9 @@ public class ConfigLoader {
 	public void resetData() {
 		boolean needResetConfig = false;
 		for (Field field : CustomNpcs.class.getDeclaredFields()) {
-			if (!field.isAnnotationPresent(ConfigProp.class)) {
-				continue;
-			}
-			ConfigProp prop = field.getAnnotation(ConfigProp.class);
+			if (!field.isAnnotationPresent(ConfigProp.class)) { continue; }
+            ConfigProp prop = field.getAnnotation(ConfigProp.class);
+			if (prop.type().equals(Configuration.CATEGORY_GENERAL)) { data.add(field); }
 			String name = field.getName();
 			ConfigCategory cat = config.getCategory(prop.type());
 			if (!cat.containsKey(name)) {

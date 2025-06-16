@@ -7,13 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.INpc;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.event.ClientEvent;
 import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
-import noppes.npcs.reflection.client.gui.GuiScreenReflection;
+import noppes.npcs.util.ValueUtil;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -24,7 +25,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.Container;
@@ -40,7 +40,7 @@ import javax.annotation.Nullable;
 
 public class GuiContainerNPCInterface
 extends GuiContainer
-implements IEditNPC, ICustomScrollListener {
+implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 
 	public static ResourceLocation ball = new ResourceLocation(CustomNpcs.MODID, "textures/gui/info.png");
 
@@ -54,6 +54,7 @@ implements IEditNPC, ICustomScrollListener {
 	public int mouseY;
 	public int widthTexture = 0;
 	public int heightTexture = 0;
+	public int borderTexture = 4;
 	public float bgScale = 1.0f;
 	public String title = "Npc Mainmenu";
 	protected final List<String> hoverText = new ArrayList<>();
@@ -61,7 +62,7 @@ implements IEditNPC, ICustomScrollListener {
 	public ResourceLocation background;
 	public EntityNPCInterface npc;
 	public EntityPlayerSP player;
-	public ISubGuiInterface subgui;
+	public SubGuiInterface subgui;
 
 	protected final Poses[] ps;
 	protected final List<int[]> line = new ArrayList<>(); // startX, startY, endX, endY, color, lineSize
@@ -69,10 +70,10 @@ implements IEditNPC, ICustomScrollListener {
 	protected final HashMap<Integer, IGuiNpcLabel> labels = new HashMap<>();
 	protected final HashMap<Integer, IGuiCustomScroll> scrolls = new HashMap<>();
 	protected final HashMap<Integer, IGuiNpcSlider> sliders = new HashMap<>();
-	protected final HashMap<Integer, IGuiNpcTextField> textfields = new HashMap<>();
-	protected final HashMap<Integer, IGuiMenuTopButton> topbuttons = new HashMap<>();
+	protected final HashMap<Integer, IGuiNpcTextField> textFields = new HashMap<>();
+	protected final HashMap<Integer, IGuiMenuTopButton> topButtons = new HashMap<>();
 	protected final HashMap<Integer, IGuiNpcButton> buttons = new HashMap<>();
-	protected final Map<Integer, IGuiNpcMiniWindow> mwindows = new ConcurrentHashMap<>();
+	protected final Map<Integer, IGuiNpcMiniWindow> miniWindows = new ConcurrentHashMap<>();
 
 	public GuiContainerNPCInterface(INpc npc, Container cont) {
 		this(npc instanceof EntityNPCInterface ? (EntityNPCInterface) npc : null, cont);
@@ -103,7 +104,7 @@ implements IEditNPC, ICustomScrollListener {
 		if (subgui != null) {
 			subgui.buttonEvent((IGuiNpcButton) guibutton);
 		} else {
-			for (IGuiNpcMiniWindow mwin : mwindows.values()) {
+			for (IGuiNpcMiniWindow mwin : miniWindows.values()) {
 				mwin.buttonEvent((IGuiNpcButton) guibutton);
 			}
 			if (hoverMiniWin) { return; }
@@ -277,20 +278,21 @@ implements IEditNPC, ICustomScrollListener {
 
 	@Override
 	public void addTextField(IGuiNpcTextField textField) {
-		textfields.put(textField.getID(), textField);
+		textFields.put(textField.getID(), textField);
 		add(textField);
 	}
 
 	public void addTopButton(GuiMenuTopButton button) {
-		topbuttons.put(button.id, button);
+		topButtons.put(button.id, button);
 		add(button);
 	}
 
+	@SuppressWarnings("all")
 	public void addMiniWindow(GuiNpcMiniWindow miniwindows) { addMiniWindow((IGuiNpcMiniWindow) miniwindows); }
 
 	@Override
 	public void addMiniWindow(IGuiNpcMiniWindow miniwindows) {
-		mwindows.put(miniwindows.getID(), miniwindows);
+		miniWindows.put(miniwindows.getID(), miniwindows);
 		miniwindows.resetButtons();
 		add(miniwindows);
 	}
@@ -307,9 +309,6 @@ implements IEditNPC, ICustomScrollListener {
 		mc.setIngameFocus();
 	}
 
-	@Override
-	public void closeSubGui(ISubGuiInterface gui) { subgui = null; }
-
 	public void displayGuiScreen(GuiScreen gui) {
 		ClientEvent.NextToGuiCustomNpcs event = new ClientEvent.NextToGuiCustomNpcs(npc, this, gui);
 		MinecraftForge.EVENT_BUS.post(event);
@@ -320,30 +319,38 @@ implements IEditNPC, ICustomScrollListener {
 
 	@Override
 	public void drawDefaultBackground() {
+		RenderHelper.disableStandardItemLighting();
 		if (drawDefaultBackground && subgui == null) {
 			postDrawBackground();
 			super.drawDefaultBackground();
 			if (background != null) {
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(guiLeft, guiTop, 0.0f);
 				GlStateManager.scale(bgScale, bgScale, bgScale);
 				mc.getTextureManager().bindTexture(background);
-				if (xSize > 252 || ySize > 252) {
-					if (widthTexture != 0 && heightTexture != 0) {
-						int tilesW = xSize / 2;
-						int tilesH = ySize / 2;
-						drawTexturedModalRect(0, 0, 0, 0, tilesW, tilesH);
-						drawTexturedModalRect(tilesW, 0, widthTexture - tilesW, 0, tilesW, tilesH);
-						drawTexturedModalRect(0, tilesH, 0, heightTexture - tilesH, tilesW, tilesH);
-						drawTexturedModalRect(tilesW, tilesH, widthTexture - tilesW, heightTexture - tilesH, tilesW, tilesH);
+				if (widthTexture != 0 && heightTexture != 0) {
+					int maxRow = ValueUtil.correctInt((int) Math.ceil((float) ySize / (float) (heightTexture - 2 * borderTexture)), 2, 10);
+					int maxCol = ValueUtil.correctInt((int) Math.ceil((float) xSize / (float) (widthTexture - 2 * borderTexture)), 2, 10);
+					int tileWidth = xSize / maxCol;
+					int tileHeight = ySize / maxRow;
+					int lastTileWidth = xSize - tileWidth * (maxCol - 1);
+					int lastTileHeight = ySize - tileHeight * (maxRow - 1);
+
+					int uOffset = (widthTexture - 2 * borderTexture - tileWidth) / 2;
+					int uMax = widthTexture - lastTileWidth;
+					int vOffset = (heightTexture - 2 * borderTexture - tileHeight) / 2;
+					int vMax = heightTexture - lastTileHeight;
+
+					for (int col = 0; col < maxCol; ++col) {
+						for (int row = 0; row < maxRow; ++row) {
+							drawTexturedModalRect(col * tileWidth,
+									row * tileHeight,
+									col == 0 ? 0 : col == maxCol - 1 ? uMax : uOffset,
+									row == 0 ? 0 : row == maxRow - 1 ? vMax : vOffset,
+									col == maxCol - 1 ? lastTileWidth : tileWidth,
+									row == maxRow - 1 ? lastTileHeight : tileHeight);
+						}
 					}
-					else if (ySize < 257) {
-						int tilesW = xSize / 2;
-						drawTexturedModalRect(0, 0, 0, 0, tilesW, ySize);
-						drawTexturedModalRect(tilesW, 0, 256 - tilesW, 0, tilesW, ySize);
-					}
-					else { drawTexturedModalRect(0, 0, 0, 0, xSize, ySize); }
 				}
 				else { drawTexturedModalRect(0, 0, 0, 0, xSize, ySize); }
 				GlStateManager.popMatrix();
@@ -367,7 +374,6 @@ implements IEditNPC, ICustomScrollListener {
 		hoverMiniWin = false;
 		for (IComponentGui component : new ArrayList<>(components)) {
 			component.render(this, mouseX, mouseY, partialTicks);
-			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			if (component instanceof GuiNpcMiniWindow && ((GuiNpcMiniWindow) component).hovered) { hoverMiniWin = true; }
 		}
@@ -376,15 +382,11 @@ implements IEditNPC, ICustomScrollListener {
 	@Override
     public void drawNpc(Entity entity, int x, int y, float zoomed, int rotation, int vertical, int mouseFocus) {
 		EntityNPCInterface npc = null;
-		if (entity instanceof EntityNPCInterface) {
-			npc = (EntityNPCInterface) entity;
-		}
-		if (!(entity instanceof EntityLivingBase)) {
-			mouseFocus = 0;
-		}
+		if (entity instanceof EntityNPCInterface) { npc = (EntityNPCInterface) entity; }
+		if (!(entity instanceof EntityLivingBase)) { mouseFocus = 0; }
+		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableColorMaterial();
-		GlStateManager.pushMatrix();
 
 		GlStateManager.translate((guiLeft + x), (guiTop + y), 50.0f);
 		float scale = 1.0f;
@@ -442,12 +444,12 @@ implements IEditNPC, ICustomScrollListener {
 		if (npc != null) {
 			npc.ais.orientation = orientation;
 		}
-		GlStateManager.popMatrix();
-		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.disableTexture2D();
 		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+		GlStateManager.popMatrix();
+		RenderHelper.disableStandardItemLighting();
 	}
 
 	@Override
@@ -468,10 +470,9 @@ implements IEditNPC, ICustomScrollListener {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		zLevel = 0.0f;
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		if (subgui instanceof GuiScreen) {
+		if (subgui != null) {
 			inventorySlots = container;
-			RenderHelper.disableStandardItemLighting();
-			((GuiScreen) subgui).drawScreen(mouseX, mouseY, partialTicks);
+			subgui.drawScreen(mouseX, mouseY, partialTicks);
 		} else {
 			renderHoveredToolTip(mouseX, mouseY);
 		}
@@ -537,7 +538,7 @@ implements IEditNPC, ICustomScrollListener {
 	public IGuiNpcSlider getSlider(int id) { return sliders.get(id); }
 
 	@Override
-	public ISubGuiInterface getSubGui() {
+	public SubGuiInterface getSubGui() {
 		if (hasSubGui() && subgui.hasSubGui()) {
 			return subgui.getSubGui();
 		}
@@ -546,17 +547,17 @@ implements IEditNPC, ICustomScrollListener {
 
 	@Override
 	public IGuiNpcTextField getTextField(int id) {
-		return textfields.get(id);
+		return textFields.get(id);
 	}
 
 	@Override
 	public IGuiMenuTopButton getTopButton(int id) {
-		return topbuttons.get(id);
+		return topButtons.get(id);
 	}
 
 	@Override
 	public IGuiNpcMiniWindow getMiniWindow(int id) {
-		return mwindows.get(id);
+		return miniWindows.get(id);
 	}
 
 	@Override
@@ -569,16 +570,16 @@ implements IEditNPC, ICustomScrollListener {
 		components.clear();
 		buttonList.clear();
 		buttons.clear();
-		topbuttons.clear();
+		topButtons.clear();
 		scrolls.clear();
 		sliders.clear();
 		labels.clear();
-		textfields.clear();
-		mwindows.clear();
+		textFields.clear();
+		miniWindows.clear();
 		Keyboard.enableRepeatEvents(true);
-		if (subgui instanceof GuiScreen) {
-			((GuiScreen) subgui).setWorldAndResolution(mc, width, height);
-			((GuiScreen) subgui).initGui();
+		if (subgui != null) {
+			subgui.setWorldAndResolution(mc, width, height);
+			subgui.initGui();
 		}
 		guiLeft = (width - xSize) / 2;
 		guiTop = (height - ySize) / 2;
@@ -591,14 +592,14 @@ implements IEditNPC, ICustomScrollListener {
 	public boolean isInventoryKey(int i) { return i == mc.gameSettings.keyBindInventory.getKeyCode(); }
 
 	@Override
-	public boolean isMouseHover(int mX, int mY, int px, int py, int pwidth, int pheight) { return mX >= px && mY >= py && mX < (px + pwidth) && mY < (py + pheight); }
+	public boolean isMouseHover(int mX, int mY, int px, int py, int pWidth, int pHeight) { return mX >= px && mY >= py && mX < (px + pWidth) && mY < (py + pHeight); }
 
 	public void keyTyped(char c, int i) {
-		if (subgui instanceof GuiScreen) {
-			GuiScreenReflection.keyTyped((GuiScreen) subgui, c, i);
+		if (subgui != null) {
+			subgui.keyTyped(c, i);
 			return;
 		}
-		for (IGuiNpcMiniWindow mwin : mwindows.values()) {
+		for (IGuiNpcMiniWindow mwin : miniWindows.values()) {
 			mwin.customKeyTyped(c, i);
 		}
 		if (hoverMiniWin) { return; }
@@ -611,7 +612,7 @@ implements IEditNPC, ICustomScrollListener {
 		if (helpButtons) {
 			CustomNpcs.ShowDescriptions = !CustomNpcs.ShowDescriptions;
 		}
-		for (IGuiNpcTextField tf : new ArrayList<>(textfields.values())) {
+		for (IGuiNpcTextField tf : new ArrayList<>(textFields.values())) {
 			tf.customKeyTyped(c, i);
 		}
 		if (closeOnEsc && (i == 1 || (i == mc.gameSettings.keyBindInventory.getKeyCode() && !GuiNpcTextField.isActive()))) {
@@ -623,15 +624,15 @@ implements IEditNPC, ICustomScrollListener {
 	}
 
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (subgui instanceof GuiScreen) {
-			GuiScreenReflection.mouseClicked((GuiScreen) subgui, mouseX, mouseY, mouseButton);
+		if (subgui != null) {
+			subgui.mouseClicked(mouseX, mouseY, mouseButton);
 			return;
 		}
-		for (IGuiNpcMiniWindow mwin : mwindows.values()) {
+		for (IGuiNpcMiniWindow mwin : miniWindows.values()) {
 			mwin.customMouseClicked(mouseX, mouseY, mouseButton);
 		}
 		if (hoverMiniWin) { return; }
-		for (IGuiNpcTextField tf : new ArrayList<>(textfields.values())) {
+		for (IGuiNpcTextField tf : new ArrayList<>(textFields.values())) {
 			if (tf.isEnabled()) {
 				tf.customMouseClicked(mouseX, mouseY, mouseButton);
 			}
@@ -673,7 +674,7 @@ implements IEditNPC, ICustomScrollListener {
 	}
 
 	public void mouseEvent(int mouseX, int mouseY, int mouseButton) {
-		for (IGuiNpcMiniWindow mwin : mwindows.values()) {
+		for (IGuiNpcMiniWindow mwin : miniWindows.values()) {
 			mwin.mouseEvent(mouseX, mouseY, mouseButton);
 		}
 	}
@@ -681,7 +682,47 @@ implements IEditNPC, ICustomScrollListener {
 	public void save() {}
 
 	@Override
-	public void setBackground(String texture) { background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture); }
+	public void setBackground(String texture) {
+		drawDefaultBackground = true;
+		background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture);
+		switch (texture) {
+			case "bgfilled.png": {
+				widthTexture = 256;
+				heightTexture = 256;
+				break;
+			}
+			case "companion_empty.png": {
+				widthTexture = 172;
+				heightTexture = 167;
+				break;
+			}
+			case "extrasmallbg.png": {
+				widthTexture = 176;
+				heightTexture = 71;
+				break;
+			}
+			case "largebg.png": {
+				widthTexture = 192;
+				heightTexture = 231;
+				break;
+			}
+			case "menubg.png": {
+				widthTexture = 256;
+				heightTexture = 217;
+				break;
+			}
+			case "smallbg.png": {
+				widthTexture = 176;
+				heightTexture = 222;
+				break;
+			}
+			case "standardbg.png": {
+				widthTexture = 256;
+				heightTexture = 195;
+				break;
+			}
+		}
+	}
 
 	@Override
 	public void setHoverText(@Nullable List<String> newHoverText) {
@@ -720,16 +761,12 @@ implements IEditNPC, ICustomScrollListener {
 	@Override
 	public boolean hasHoverText() { return !hoverText.isEmpty(); }
 
-	public void setSubGui(SubGuiInterface gui) { setSubGui((ISubGuiInterface) gui); }
-
 	@Override
-	public void setSubGui(ISubGuiInterface gui) {
+	public void setSubGui(SubGuiInterface gui) {
 		subgui = gui;
 		if (subgui != null) {
 			subgui.setNpc(npc);
-			if (subgui instanceof GuiScreen) {
-				((GuiScreen) subgui).setWorldAndResolution(mc, width, height);
-			}
+			((GuiScreen) subgui).setWorldAndResolution(mc, width, height);
 			subgui.setParent(this);
 			subgui.getParent().initGui();
 		}
@@ -741,7 +778,7 @@ implements IEditNPC, ICustomScrollListener {
 	}
 
 	public void updateScreen() {
-		if (subgui instanceof GuiScreen) { ((GuiScreen) subgui).updateScreen(); }
+		if (subgui != null) { subgui.updateScreen(); }
 		else {
 			for (IComponentGui component : components) {
 				if (component instanceof GuiNpcTextField) { ((GuiNpcTextField) component).updateScreen(); }
@@ -773,7 +810,7 @@ implements IEditNPC, ICustomScrollListener {
 	public void addLine(int sX, int sY, int eX, int eY, int color, int size) { line.add(new int[] { sX, sY, eX, eY, color, size }); }
 	
 	@Override
-	public void closeMiniWindow(IGuiNpcMiniWindow miniWindow) { mwindows.remove(miniWindow.getID()); }
+	public void closeMiniWindow(IGuiNpcMiniWindow miniWindow) { miniWindows.remove(miniWindow.getID()); }
 	
 	@Override
 	public void setMiniHoverText(int id, IComponentGui component) {}
@@ -801,5 +838,8 @@ implements IEditNPC, ICustomScrollListener {
 
 	@Override
 	public void setNpc(INpc iNpc) { npc = (EntityNPCInterface) iNpc; }
+
+	@Override
+	public void subGuiClosed(SubGuiInterface subgui) { }
 
 }

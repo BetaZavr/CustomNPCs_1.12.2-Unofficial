@@ -10,6 +10,7 @@ public class ShapelessRecipesReflection {
 
     private static Field group;
 
+    @SuppressWarnings("all")
     public static void setGroup(ShapelessRecipes recipe, String newGroupName) {
         if (recipe == null || newGroupName == null) { newGroupName = ""; }
         if (group == null) {

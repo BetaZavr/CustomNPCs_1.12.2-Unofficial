@@ -17,6 +17,7 @@ public class KeyBindingReflection {
     private static Field keyDescription;
     private static Field keyModifier;
 
+    @SuppressWarnings("all")
     public static void setKeyCategory(KeyBinding keyBinding, String newKeyCategory) {
         if (keyBinding == null || newKeyCategory == null || newKeyCategory.isEmpty()) { return; }
         if (keyCategory == null) {
@@ -45,6 +46,7 @@ public class KeyBindingReflection {
         }
     }
 
+    @SuppressWarnings("all")
     public static void setKeyCodeDefault(KeyBinding keyBinding, int newKeyCodeDefault) {
         if (keyBinding == null) { return; }
         if (newKeyCodeDefault < 0) { newKeyCodeDefault *= -1; }
@@ -75,6 +77,7 @@ public class KeyBindingReflection {
         }
     }
 
+    @SuppressWarnings("all")
     public static void setKeyDescription(KeyBinding keyBinding, String newKeyDescription) {
         if (keyBinding == null || newKeyDescription == null || newKeyDescription.isEmpty()) { return; }
         if (keyDescription == null) {

@@ -9,6 +9,7 @@ public class BiomeReflection {
 
     private static Field biomeName;
 
+    @SuppressWarnings("all")
     public static String getBiomeName(Biome biome) {
         if (biome == null) { return ""; }
         if (biomeName == null) {

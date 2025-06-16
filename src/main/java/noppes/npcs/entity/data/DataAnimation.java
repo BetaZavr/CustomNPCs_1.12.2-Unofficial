@@ -241,6 +241,7 @@ public class DataAnimation implements INPCAnimation {
 
 	public Map<Integer, Float[]> getEmotionData() { return emotionHandler.rotationAngles; }
 
+	@SuppressWarnings("all")
 	public void setActiveEmotion(EmotionConfig emotion) { emotionHandler.activeEmotion = emotion; }
 
 	public void tryRunEmotion(EmotionConfig emotion) {

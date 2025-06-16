@@ -69,7 +69,7 @@ public class Server {
 		Server.list.add(EnumPacketClient.MARCET_DATA);
 		Server.list.add(EnumPacketClient.SYNC_END);
 		Server.list.add(EnumPacketClient.SYNC_UPDATE);
-		Server.list.add(EnumPacketClient.NPC_MOVINGPATH);
+		Server.list.add(EnumPacketClient.NPC_MOVING_PATH);
 		Server.list.add(EnumPacketClient.VISIBLE_TRUE);
 		Server.list.add(EnumPacketClient.VISIBLE_FALSE);
 		Server.list.add(EnumPacketClient.NPC_DATA);
@@ -367,9 +367,7 @@ public class Server {
 
 	public static void sendAssociatedData(Entity entity, EnumPacketClient type, Object... obs) {
 		List<EntityPlayerMP> list = entity.world.getEntitiesWithinAABB(EntityPlayerMP.class, entity.getEntityBoundingBox().grow(160.0, 160.0, 160.0));
-		if (list.isEmpty()) {
-			return;
-		}
+		if (list.isEmpty()) { return; }
 		ByteBuf buffer = Unpooled.buffer();
 		try {
 			if (fillBuffer(buffer, type, obs)) {

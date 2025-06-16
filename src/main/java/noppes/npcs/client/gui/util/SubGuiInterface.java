@@ -4,8 +4,7 @@ import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class SubGuiInterface
-extends GuiNPCInterface
-implements ISubGuiInterface {
+extends GuiNPCInterface {
 
 	public int id;
 	public GuiScreen parent;
@@ -22,49 +21,31 @@ implements ISubGuiInterface {
 	@Override
 	public void close() {
 		save();
-		if (parent instanceof IEditNPC) {
-			((IEditNPC) parent).closeSubGui(this);
-			displayGuiScreen(parent);
+		ISubGuiListener screen = null;
+		if (parent instanceof ISubGuiListener) { screen = (ISubGuiListener) parent; }
+		else if (mc.currentScreen instanceof ISubGuiListener) { screen = (ISubGuiListener) mc.currentScreen; }
+		if (screen != null) {
+			screen.subGuiClosed(this);
+			if (screen instanceof GuiNPCInterface) { ((GuiNPCInterface) screen).setSubGui(null); }
+			else if (screen instanceof GuiContainerNPCInterface) { ((GuiContainerNPCInterface) screen).setSubGui(null); }
+			displayGuiScreen((GuiScreen) screen);
+			return;
 		}
-		if (parent instanceof ISubGuiListener) {
-			((ISubGuiListener) parent).subGuiClosed(this);
-			displayGuiScreen(parent);
-		}
-		else {
-			if (mc.currentScreen != null) {
-				if (mc.currentScreen instanceof IEditNPC) {
-					((IEditNPC) mc.currentScreen).closeSubGui(this);
-					displayGuiScreen(mc.currentScreen);
-				}
-				if (mc.currentScreen instanceof ISubGuiListener) {
-					((ISubGuiListener) mc.currentScreen).subGuiClosed(this);
-					displayGuiScreen(mc.currentScreen);
-				}
-				return;
-			}
-			super.close();
-		}
+		displayGuiScreen(null);
+		mc.setIngameFocus();
 	}
 
-	@Override
 	public int getId() { return id; }
 
-	@Override
 	public GuiScreen getParent() {
 		if (parent instanceof SubGuiInterface) { return ((SubGuiInterface) parent).getParent(); }
 		return parent;
 	}
 
-	@Override
 	public void setParent(GuiScreen gui) { parent = gui; }
 
-	@Override
 	public Object getObject() { return object; }
 
-	@Override
 	public void setObject(Object obj) { object = obj; }
-
-	@Override
-	public void save() { }
 
 }

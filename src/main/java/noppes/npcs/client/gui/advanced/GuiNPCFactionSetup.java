@@ -168,7 +168,7 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (!(subgui instanceof SubGuiNpcFactionSelect)) {
 			return;
 		}

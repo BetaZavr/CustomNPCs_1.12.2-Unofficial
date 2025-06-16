@@ -71,6 +71,7 @@ public class RangedAttributeReflection {
         }
     }
 
+    @SuppressWarnings("all")
     private static Field getMinimumValueField() {
         if (minimumValue == null) {
             Exception error = null;
@@ -88,6 +89,7 @@ public class RangedAttributeReflection {
         return minimumValue;
     }
 
+    @SuppressWarnings("all")
     private static Field getMaximumValueField() {
         if (maximumValue == null) {
             Exception error = null;

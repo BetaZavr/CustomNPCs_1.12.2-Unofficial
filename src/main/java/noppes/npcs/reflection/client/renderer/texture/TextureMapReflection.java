@@ -15,7 +15,7 @@ public class TextureMapReflection {
 
     private static Field mapRegisteredSprites;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static Map<String, TextureAtlasSprite> getMapRegisteredSprites(TextureMap textureMapBlocks) {
         if (textureMapBlocks == null) { return new HashMap<>(); }
         if (mapRegisteredSprites == null) {

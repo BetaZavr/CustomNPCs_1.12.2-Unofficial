@@ -76,7 +76,7 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
 			SubGuiNpcTextArea text = (SubGuiNpcTextArea) subgui;
 			if (slot == 0) { role.dialog = text.text; }

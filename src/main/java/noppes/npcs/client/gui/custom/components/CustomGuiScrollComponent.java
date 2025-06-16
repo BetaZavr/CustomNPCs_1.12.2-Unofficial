@@ -33,18 +33,19 @@ implements IDataHolder, IClickListener {
 	}
 
 	public void fromComponent(CustomGuiScrollWrapper component) {
-		this.guiLeft = GuiCustom.guiLeft + component.getPosX();
-		this.guiTop = GuiCustom.guiTop + component.getPosY();
-		this.setSize(component.getWidth(), component.getHeight());
-		this.setListNotSorted(Arrays.asList(component.getList()));
+		guiLeft = GuiCustom.guiLeft + component.getPosX();
+		guiTop = GuiCustom.guiTop + component.getPosY();
+		setSize(component.getWidth(), component.getHeight());
+		setListNotSorted(Arrays.asList(component.getList()));
 		if (component.getDefaultSelection() >= 0) {
 			int defaultSelect = component.getDefaultSelection();
 			if (defaultSelect < this.getList().size()) {
-				this.selected = defaultSelect;
+				selected = defaultSelect;
 			}
 		}
 		if (component.hasHoverText()) {
-			component.setHoverText(component.getHoverText());
+			this.component.setHoverText(component.getHoverText());
+			this.component.setHoverStack(component.getHoverStack());
 		}
 	}
 
@@ -96,8 +97,9 @@ implements IDataHolder, IClickListener {
 		this.hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
 		GlStateManager.translate(x - this.guiLeft, y - this.guiTop, this.id);
 		super.drawScreen(mouseX, mouseY, mouseWheel);
-		if (this.hovered && this.component.hasHoverText()) {
-			this.parent.hoverText = this.component.getHoverText();
+		if (hovered && component.hasHoverText()) {
+			if (component.getHoverText() != null && component.getHoverText().length > 0) { parent.hoverText = component.getHoverText(); }
+			if (component.getHoverStack() != null && !component.getHoverStack().isEmpty()) { parent.hoverStack = component.getHoverStack().getMCItemStack(); }
 		}
 		GlStateManager.popMatrix();
 	}

@@ -11,7 +11,6 @@ import java.util.zip.ZipFile;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.*;
 import net.minecraft.util.ResourceLocation;
@@ -34,27 +33,28 @@ public class GuiTextureSelection
 extends SubGuiInterface
 implements ICustomScrollListener {
 
-	private GuiCustomScroll scroll;
+	protected GuiCustomScroll scroll;
+	protected final Map<String, TreeMap<ResourceLocation, Long>> data = new TreeMap<>(); // (Directory, Files)
+	protected ResourceLocation selectDir;
+	protected final String suffix;
+	protected final int type;
+	protected final String back = "   " + Character.toChars(0x2190)[0] + " (" + new TextComponentTranslation("gui.back").getFormattedText() + ")";
+	protected String baseResource = "";
+	protected EntityNPCInterface displayNPC;
+
 	public ResourceLocation resource;
-	private final Map<String, TreeMap<ResourceLocation, Long>> data = new TreeMap<>(); // (Directory, Files)
-	private ResourceLocation selectDir;
-	private final String suffix;
-	private final int type;
-    private int showName = 0;
-	private final String back = "   " + Character.toChars(0x2190)[0] + " (" + new TextComponentTranslation("gui.back").getFormattedText() + ")";
-	private String baseResource = "";
+
 	public static boolean dark = false;
 
-	public GuiTextureSelection(int id, EntityNPCInterface npc, String texture, String suffix, int type) {
-		this(npc, texture, suffix, type);
+	public GuiTextureSelection(int id, EntityNPCInterface npcIn, String texture, String suffix, int type) {
+		this(npcIn, texture, suffix, type);
 		this.id = id;
 	}
 	
-	public GuiTextureSelection(EntityNPCInterface npc, @Nonnull String texture, String suffix, int type) {
-		super(npc);
-		if (this.npc != null) {
-			showName = this.npc.display.getShowName();
-			this.npc.display.setShowName(2);
+	public GuiTextureSelection(EntityNPCInterface npcIn, @Nonnull String texture, String suffix, int type) {
+		super(npcIn);
+		if (npc != null) {
+			displayNPC = Util.instance.copyToGUI(npc, mc.world, false);
 		}
 		drawDefaultBackground = false;
 		title = "";
@@ -120,32 +120,35 @@ implements ICustomScrollListener {
 		selectDir = null;
 	}
 
+
 	@Override
-	public void actionPerformed(@Nonnull GuiButton guibutton) {
-		if (guibutton.id == 3) {
-			GuiTextureSelection.dark = ((GuiNpcCheckBox) guibutton).isSelected();
+	public void buttonEvent(IGuiNpcButton button) {
+		if (button.getID() == 3) {
+			GuiTextureSelection.dark = ((GuiNpcCheckBox) button).isSelected();
 			return;
 		}
-		super.actionPerformed(guibutton);
 		String res = baseResource;
-		if (guibutton.id == 2 && resource != null) {
-			res = resource.toString();
-		}
+		if (button.getID() == 2 && resource != null) { res = resource.toString(); }
+
 		if (npc != null && type >= 0 && type <= 2) {
 			switch (type) {
 				case 1: {
 					npc.display.setCapeTexture(res);
+					displayNPC.display.setCapeTexture(res);
 					break;
 				}
 				case 2: {
 					npc.display.setOverlayTexture(res);
+					displayNPC.display.setOverlayTexture(res);
 					break;
 				}
 				default: {
 					npc.display.setSkinTexture(res);
+					displayNPC.display.setSkinTexture(res);
 				}
 			}
 			npc.textureLocation = null;
+			displayNPC.textureLocation = null;
 		}
 		close();
 	}
@@ -185,7 +188,7 @@ implements ICustomScrollListener {
 			GlStateManager.enableAlpha();
 			GlStateManager.translate(x, y, 0.0f);
 			GlStateManager.scale(scale, scale, 1.0f);
-			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			try {
 				int tX = 0;
 				int tY = 0;
@@ -210,6 +213,7 @@ implements ICustomScrollListener {
 		if (npc != null && type >= 0 && type <= 2) {
 			if (type == 0) {
 				npc.textureLocation = resource;
+				displayNPC.textureLocation = resource;
 			}
 			int rot;
 			float s = 1.25f;
@@ -224,7 +228,7 @@ implements ICustomScrollListener {
 				rot = 325;
 			}
 			if (npc.textureLocation != null) {
-				drawNpc(npc, guiLeft + 276 + x, guiTop + 155 + y, s, rot, 0, mouse);
+				drawNpc(displayNPC, guiLeft + 276 + x, guiTop + 155 + y, s, rot, 0, mouse);
 			}
 		}
 	}
@@ -306,14 +310,7 @@ implements ICustomScrollListener {
 		getLabel(0).setColor(new Color(new Color(0xFF000000).getRGB()).getRGB());
 	}
 
-	@Override
-	public void save() {
-		if (npc != null && type >= 0 && type <= 2) {
-			npc.display.setShowName(showName);
-		}
-	}
-
-	@Override
+    @Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		if (scroll.getSelected().equals(back)) {
 			if (selectDir == null) { return; }
@@ -373,14 +370,17 @@ implements ICustomScrollListener {
 				switch (type) {
 					case 1: {
 						npc.display.setCapeTexture(resource.toString());
+						displayNPC.display.setCapeTexture(resource.toString());
 						break;
 					}
 					case 2: {
 						npc.display.setOverlayTexture(resource.toString());
+						displayNPC.display.setOverlayTexture(resource.toString());
 						break;
 					}
 					default: {
 						npc.display.setSkinTexture(resource.toString());
+						displayNPC.display.setSkinTexture(resource.toString());
 					}
 				}
 			}

@@ -12,6 +12,7 @@ public class RenderPlayerReflection {
 
     private static Field smallArms;
 
+    @SuppressWarnings("all")
     public static boolean getSmallArms(RenderPlayer render) {
         if (render == null) { return false; }
         if (smallArms == null) {

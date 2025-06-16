@@ -39,7 +39,9 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -78,9 +80,9 @@ import noppes.npcs.ai.EntityAIAnimation;
 import noppes.npcs.ai.EntityAIBustDoor;
 import noppes.npcs.ai.EntityAIFindShade;
 import noppes.npcs.ai.EntityAIJob;
-import noppes.npcs.ai.EntityAILook;
-import noppes.npcs.ai.EntityAIMoveIndoors;
-import noppes.npcs.ai.EntityAIMovingPath;
+import noppes.npcs.ai.target.EntityAILook;
+import noppes.npcs.ai.movement.EntityAIMoveIndoors;
+import noppes.npcs.ai.movement.EntityAIMovingPath;
 import noppes.npcs.ai.EntityAIRole;
 import noppes.npcs.ai.EntityAITransform;
 import noppes.npcs.ai.EntityAIWander;
@@ -154,6 +156,7 @@ import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.GameProfileAlt;
+import noppes.npcs.util.ValueUtil;
 
 public abstract class EntityNPCInterface
 extends EntityCreature
@@ -186,6 +189,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public int currentAnimation = 0;
 	public float baseWidth = 0.6f;
 	public float baseHeight = 1.9f;
+	public float baseEyeHeight = 1.615f;
+	public float eyeHeight = 1.615f;
 	public BossInfoServer bossInfo;
 	public CombatHandler combatHandler;
 	public int[] dialogs = new int[0];
@@ -822,21 +827,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public int followRange() {
-		if (this.advanced.scenes.getOwner() != null) {
-			return 4;
-		}
-		if (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER
-				&& this.advanced.roleInterface.isFollowing()) {
-			return 6;
-		}
-		if (this.advanced.roleInterface.getEnumType() == RoleType.COMPANION
-				&& this.advanced.roleInterface.isFollowing()) {
-			return 4;
-		}
-		if (this.advanced.jobInterface.getEnumType() == JobType.FOLLOWER && this.advanced.jobInterface.isFollowing()) {
-			return 4;
-		}
-		return 15;
+		if (this.advanced.scenes.getOwner() != null) { return 4; }
+		if (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing()) { return 6; }
+		if (this.advanced.roleInterface.getEnumType() == RoleType.COMPANION && this.advanced.roleInterface.isFollowing()) { return 4; }
+		if (this.advanced.jobInterface.getEnumType() == JobType.FOLLOWER && this.advanced.jobInterface.isFollowing()) { return 4; }
+		return Math.max(1, stats.aggroRange - 1);
 	}
 
 	public boolean getAlwaysRenderNameTagForRender() {
@@ -1083,13 +1078,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public boolean hasOwner() {
 		if (this.ais.aiDisabled) { return false; }
-		return this.advanced.scenes.getOwner() != null
-				|| (this.advanced.roleInterface instanceof RoleFollower
-				&& ((RoleFollower) this.advanced.roleInterface).hasOwner())
-				|| (this.advanced.roleInterface instanceof RoleCompanion
-				&& ((RoleCompanion) this.advanced.roleInterface).hasOwner())
-				|| (this.advanced.jobInterface instanceof JobFollower
-				&& ((JobFollower) this.advanced.jobInterface).hasOwner());
+		return getOwner() != null;
 	}
 
 	public boolean isAttacking() {
@@ -1224,7 +1213,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	protected void collideWithEntity(@Nonnull Entity entityIn) {
-		if (canBeCollidedWith() && display.getHitboxState() == 0) { entityIn.applyEntityCollision(this); }
+		if (canBeCollidedWith() && display.getHitboxState() == 0 && ais.canBeCollide) { entityIn.applyEntityCollision(this); }
 	}
 
 	public void applyEntityCollision(@Nonnull Entity entityIn) {
@@ -1250,6 +1239,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
         }
 	}
 
+	@SuppressWarnings("all")
 	public void onDeath(@Nonnull DamageSource damagesource) {
 		this.setSprinting(false);
 		this.getNavigator().clearPath();
@@ -1358,25 +1348,19 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void onLivingUpdate() {
-		if (CustomNpcs.FreezeNPCs) {
-			return;
-		}
-		CustomNpcs.debugData.startDebug(this.isServerWorld() ? "Server" : "Client", this, "NPCLivingUpdate");
+		if (CustomNpcs.FreezeNPCs) { return; }
+		CustomNpcs.debugData.start(EntityNPCInterface.class, this, "onLivingUpdate");
 		if (isAIDisabled()) {
 			super.onLivingUpdate();
-			CustomNpcs.debugData.endDebug(this.isServerWorld() ? "Server" : "Client", this, "NPCLivingUpdate");
+			CustomNpcs.debugData.end(EntityNPCInterface.class, this, "onLivingUpdate");
 			return;
 		}
 		++this.totalTicksAlive;
 		this.updateArmSwingProgress();
-		if (this.totalTicksAlive % 20 == 0) {
-			this.faction = this.getFaction();
-		}
+		if (this.totalTicksAlive % 20 == 0) { faction = getFaction(); }
 		if (this.isServerWorld()) {
 			if (!this.ais.aiDisabled) {
-				if (this.aiAttackTarget != null) {
-					this.aiAttackTarget.update();
-				}
+				if (this.aiAttackTarget != null) { this.aiAttackTarget.update(); }
 				if (!this.isKilled() && this.totalTicksAlive % 20 == 0) {
 					this.advanced.scenes.update();
 					if (getHealth() < getMaxHealth()) {
@@ -1446,6 +1430,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				stack.getItem().onUpdate(stack, world, this, 0, true);
 			}
 			isAirBorne = this.canFly() && world.getBlockState(this.getPosition().down()).getMaterial() == Material.AIR;
+			if (getAttackTarget() != null) {
+				getLookHelper().setLookPositionWithEntity(getAttackTarget(), 3.0f, 1.5f);
+				getLookHelper().onUpdateLook();
+			}
 		}
 		if (CustomNpcs.ShowCustomAnimation) {
 			// Jump
@@ -1484,15 +1472,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			// walking or standing
 			animation.resetWalkAndStandAnimations();
 		}
-		if (this.wasKilled != this.isKilled() && this.wasKilled) {
-			this.reset();
-		}
+		if (this.wasKilled != this.isKilled() && this.wasKilled) { this.reset(); }
 		if (this.world.isDaytime() && this.isServerWorld() && this.stats.burnInSun) {
 			float f = this.getBrightness();
-			if (f > 0.5f && this.rand.nextFloat() * 30.0f < (f - 0.4f) * 2.0f
-					&& this.world.canBlockSeeSky(new BlockPos(this))) {
-				this.setFire(8);
-			}
+			if (f > 0.5f && this.rand.nextFloat() * 30.0f < (f - 0.4f) * 2.0f && this.world.canBlockSeeSky(new BlockPos(this))) { this.setFire(8); }
 		}
 		super.onLivingUpdate();
 		if (dataManager != null && isAttacking() && getAttackTarget() != null) {
@@ -1515,12 +1498,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (this.display.getBossbar() > 0) {
 			this.bossInfo.setPercent(this.getHealth() / this.getMaxHealth());
 		}
-		CustomNpcs.debugData.endDebug(this.isServerWorld() ? "Server" : "Client", this, "NPCLivingUpdate");
+		CustomNpcs.debugData.end(EntityNPCInterface.class, this, "onLivingUpdate");
 	}
 
 	@Override
 	public void onUpdate() {
-		CustomNpcs.debugData.startDebug(this.isServerWorld() ? "Server" : "Client", this, "NPCUpdate");
+		CustomNpcs.debugData.start(EntityNPCInterface.class, this, "onUpdate");
 		super.onUpdate();
 		if (animation != null) { animation.updateTime(); }
 		if (!this.ais.aiDisabled && this.ticksExisted % 10 == 0) {
@@ -1547,7 +1530,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 						navigating = path;
 						updateNavClient();
 					}
-				} else if (navigating != null) {
+				}
+				else if (navigating != null) {
 					navigating = null;
 					updateNavClient();
 				}
@@ -1561,9 +1545,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				}
 			}
 			this.startYPos = this.calculateStartYPos(this.ais.startPos()) + 1.0;
-			if ((this.startYPos < 0.0 || this.startYPos > 255.0) && this.isServerWorld()) {
-				this.setDead();
-			}
+			if ((this.startYPos < 0.0 || this.startYPos > 255.0) && this.isServerWorld()) { this.setDead(); }
 			EventHooks.onNPCTick(this);
 		}
 		if ((this.isSneaking() && !this.isOldSneaking) || (!this.isSneaking() && this.isOldSneaking)) {
@@ -1588,7 +1570,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (this.currentAnimation == 14) {
 			this.deathTime = 19;
 		}
-		CustomNpcs.debugData.endDebug(this.isServerWorld() ? "Server" : "Client", this, "NPCUpdate");
+		CustomNpcs.debugData.end(EntityNPCInterface.class, this, "onUpdate");
 	}
 
 	protected void playHurtSound(DamageSource ignoredSource, boolean isBlocked) {
@@ -1621,7 +1603,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				player.sendMessage( new TextComponentTranslation("message.pather.reg", this.getName(), stack.getDisplayName()));
 			}
             stack.setTagInfo("NPCID", new NBTTagInt(this.getEntityId()));
-            Server.sendData((EntityPlayerMP) player, EnumPacketClient.NPC_MOVINGPATH, this.getEntityId(), this.ais.writeToNBT(new NBTTagCompound()));
+            Server.sendData((EntityPlayerMP) player, EnumPacketClient.NPC_MOVING_PATH, this.getEntityId(), this.ais.writeToNBT(new NBTTagCompound()));
             return true;
         } else if (item instanceof INPCToolItem) {
             this.setAttackTarget(null);
@@ -1634,7 +1616,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			return !isAttacking();
 		}
 		this.addInteract(player);
-		if (!lookAi.fastRotation) {
+		if (lookAi == null || !lookAi.fastRotation) {
 			AnimationConfig anim = animation.tryRunAnimation(AnimationKind.INTERACT);
 			if (anim != null ) {
 				lookAi.fastRotation = true;
@@ -1734,6 +1716,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.advanced.readToNBT(compound);
 		this.dataManager.set(EntityNPCInterface.IsDead, compound.getBoolean("IsDead"));
 		this.deathTime = compound.getInteger("DeathTime");
+
+		NBTTagList lookPosList = compound.getTagList("LookPos", 5);
+		lookPos[0] = ValueUtil.correctFloat(lookPosList.getFloatAt(0), -45.0f, 45.0f);
+		lookPos[1] = ValueUtil.correctFloat(lookPosList.getFloatAt(1), -45.0f, 45.0f);
 	}
 
 	public void removeTrackingPlayer(@Nonnull EntityPlayerMP player) {
@@ -1742,6 +1728,19 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void reset() {
+		baseWidth = 0.6f;
+		baseHeight = 1.9f;
+		baseEyeHeight = 1.615f;
+		eyeHeight = 1.615f;
+		if (this instanceof EntityCustomNpc) {
+			EntityLivingBase entity = ((EntityCustomNpc) this).modelData.getEntity(this);
+			if (entity != null) {
+				baseWidth = entity.width;
+				baseHeight = entity.height;
+				baseEyeHeight = entity.getEyeHeight();
+				eyeHeight = entity.getEyeHeight();
+			}
+		}
 		if (!isServerWorld()) {
 			// Remove special death effect from specific weapons mod TechGuns
 			try	{
@@ -1826,6 +1825,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			} catch (CommandException e) { LogWriter.error("Error:", e); }
 		}
 		this.stepHeight = this.ais.stepheight;
+		lookPos[0] = 0.0f;
+		lookPos[1] = 0.0f;
 		EventHooks.onNPCInit(this);
 	}
 
@@ -1910,6 +1911,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		//LogWriter.debug("Set Attack: "+entityTarget+" // "+getAttackTarget());
 		if (entityTarget != null) {
+			if (!entityTarget.isEntityAlive()) { return; }
 			if (getAttackTarget() != null && combatHandler.priorityTarget != null) {
 				return;
 			}
@@ -2170,11 +2172,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void updateClient() {
-		NBTTagCompound compound = this.writeSpawnData();
-		compound.setInteger("EntityId", this.getEntityId());
-		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC, compound);
-		this.updateClient = false;
-		this.updateNavClient();
+		NBTTagCompound compound = writeSpawnData();
+		compound.setInteger("EntityId", getEntityId());
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.UPDATE_NPC, compound);
+		updateClient = false;
+		updateNavClient();
 	}
 
 	public void updateHitbox() {
@@ -2184,6 +2186,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		// set in setPosition();
 		float w = baseWidth;
 		float h = baseHeight;
+		float eh = baseEyeHeight;
 		if (display.width != 0.0f || display.height != 0.0f) {
 			w = display.width;
 			h = display.height;
@@ -2191,14 +2194,17 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (((currentAnimation == AnimationType.SLEEP.get() || currentAnimation == AnimationType.CRAWL.get()) && !isAttacking()) || deathTime > 0) {
 			width = w / 0.75f;
 			height = h / 4.75f;
+			eyeHeight = eh / 4.75f;
 		}
 		else if (isRiding() || isSneaking()) {
 			width = w;
 			height = h / 1.3f;
+			eyeHeight = eh / 1.3f;
 		}
 		else {
 			width = w;
 			height = h;
+			eyeHeight = eh;
 		}
 		if (display.getModel() == null && this instanceof EntityCustomNpc) {
 			ModelData modeldata = ((EntityCustomNpc) this).modelData;
@@ -2289,9 +2295,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public NBTTagCompound writeSpawnData() {
 		NBTTagCompound compound = new NBTTagCompound();
-		this.display.writeToNBT(compound);
-		this.advanced.writeToNBT(compound);
-		this.animation.save(compound);
+		display.writeToNBT(compound);
+		advanced.writeToNBT(compound);
+		animation.save(compound);
 		compound.setInteger("NPCLevel", this.stats.getLevel());
 		compound.setInteger("NPCRarity", this.stats.getRarity());
 		compound.setString("NPCRarityTitle", this.stats.getRarityTitle());
@@ -2324,6 +2330,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.isKilled();
 		compound.setBoolean("IsDead", this.dataManager.get(EntityNPCInterface.IsDead));
 		compound.setInteger("DeathTime", this.deathTime);
+
+		NBTTagList lookPosList = new NBTTagList();
+		lookPosList.appendTag(new NBTTagFloat(lookPos[0]));
+		lookPosList.appendTag(new NBTTagFloat(lookPos[1]));
+		compound.setTag("LookPos", lookPosList);
+
 		return compound;
 	}
 
@@ -2332,5 +2344,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			Server.writeNBT(buffer, this.writeSpawnData());
 		} catch (IOException e) { LogWriter.error("Error:", e); }
 	}
+
+	public float getEyeHeight() { return eyeHeight; }
 
 }

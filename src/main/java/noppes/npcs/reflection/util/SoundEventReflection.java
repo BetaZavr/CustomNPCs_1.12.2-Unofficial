@@ -10,6 +10,7 @@ public class SoundEventReflection {
 
     private static Field soundName;
 
+    @SuppressWarnings("all")
     public static ResourceLocation getSoundName(SoundEvent event) {
         if (event == null) { return new ResourceLocation(""); }
         if (soundName == null) {

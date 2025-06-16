@@ -47,8 +47,7 @@ import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.handler.capability.IItemStackWrapperHandler;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.data.StoredData;
-import noppes.npcs.api.wrapper.data.TempData;
+import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
 
@@ -102,16 +101,16 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 
 	public ItemStack item;
 
-	private final TempData tempdata;
-	private final StoredData storeddata;
+	private final Data tempdata;
+	private final Data storeddata;
 
 	protected ItemStackWrapper(ItemStack stack) {
 		if (stack.isEmpty()) {
 			tempdata = null;
 			storeddata = null;
 		} else {
-			tempdata = new TempData();
-			storeddata = new StoredData();
+			tempdata = new Data();
+			storeddata = new Data();
 		}
 		item = stack;
 	}
@@ -394,7 +393,7 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 
 	@Override
 	public boolean isEmpty() {
-		return this.item.isEmpty();
+		return item.isEmpty();
 	}
 
 	@Override

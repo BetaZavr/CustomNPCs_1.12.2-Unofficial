@@ -16,7 +16,7 @@ public class ScoreboardReflection {
     private static Field teams;
     private static Field addedObjectives;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static Map<String, ScorePlayerTeam> getTeams(Scoreboard board) {
         if (board == null) { return Collections.emptyMap(); }
         if (teams == null) {
@@ -42,7 +42,7 @@ public class ScoreboardReflection {
         return Collections.emptyMap();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static Set<ScoreObjective> getAddedObjectives(ServerScoreboard board) {
         if (board == null) { return Collections.emptySet(); }
         if (addedObjectives == null) {

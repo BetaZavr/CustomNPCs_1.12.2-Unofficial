@@ -6,7 +6,6 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -46,7 +45,7 @@ public abstract class AbstractTab extends GuiButton {
 			mc.getTextureManager().bindTexture(this.texture);
 			this.drawTexturedModalRect(this.x, yPos, xOffset, yTexPos, 28, ySize);
 
-			RenderHelper.enableGUIStandardItemLighting();
+			//RenderHelper.enableGUIStandardItemLighting();
 			this.zLevel = 100.0f;
 			this.itemRender.zLevel = 100.0f;
 			GlStateManager.enableLighting();
@@ -56,7 +55,7 @@ public abstract class AbstractTab extends GuiButton {
 			GlStateManager.disableLighting();
 			this.itemRender.zLevel = 0.0f;
 			this.zLevel = 0.0f;
-			RenderHelper.disableStandardItemLighting();
+			//RenderHelper.disableStandardItemLighting();
 		}
 	}
 

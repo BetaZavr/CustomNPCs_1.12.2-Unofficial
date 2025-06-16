@@ -12,6 +12,7 @@ public class ItemArmorReflection {
     private static Field damageReduceAmount;
     private static Field toughness;
 
+    @SuppressWarnings("all")
     public static void setDamageReduceAmount(ItemArmor item, int newDamageReduceAmount) {
         if (item == null) { return; }
         if (newDamageReduceAmount < 0) { newDamageReduceAmount *= -1; }
@@ -45,6 +46,7 @@ public class ItemArmorReflection {
         }
     }
 
+    @SuppressWarnings("all")
     public static void setToughness(ItemArmor item, float newToughness) {
         if (item == null) { return; }
         if (toughness == null) {

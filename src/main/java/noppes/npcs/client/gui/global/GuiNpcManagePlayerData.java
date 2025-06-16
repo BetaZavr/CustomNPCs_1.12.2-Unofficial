@@ -784,7 +784,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText) {
 			if (subgui.getId() == 0) { // add
 				try {

@@ -143,9 +143,7 @@ public class DataScript implements IScriptHandler {
 				EventHooks.onNPCInit(this.npc);
 			}
 		}
-		for (ScriptContainer script : this.scripts) {
-			script.run(type, event, !this.isClient());
-		}
+		for (ScriptContainer script : this.scripts) { script.run(type, event); }
 	}
 
 	@Override

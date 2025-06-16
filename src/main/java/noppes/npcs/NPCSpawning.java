@@ -36,17 +36,23 @@ public class NPCSpawning {
 	// Is called when the world has the ability to summon an entity
 	public static void performWorldGenSpawning(WorldServer world, int x, int z, Random rand) {
 		CustomNPCsScheduler.runTack(() -> {
-			CustomNpcs.debugData.startDebug("Server", "Mod", "NPCSpawning_performWorldGenSpawning");
+			CustomNpcs.debugData.start("Mod", NPCSpawning.class, "performWorldGenSpawning");
 			Biome biome = world.getBiomeForCoordsBody(new BlockPos(x + 8, 0, z + 8));
 			SpawnData data = SpawnController.instance.getRandomSpawnData(BiomeReflection.getBiomeName(biome));
-			if (data == null || data.group <= 0 || rand.nextFloat() > (float) data.itemWeight / 100.0f) { return; }
+			if (data == null || data.group <= 0 || rand.nextFloat() > (float) data.itemWeight / 100.0f) {
+				CustomNpcs.debugData.end("Mod", NPCSpawning.class, "performWorldGenSpawning");
+				return;
+			}
 			// is living
 			Entity entity = null;
 			try { entity = EntityList.createEntityFromNBT(data.compoundEntity, world); } catch (Exception e) { LogWriter.error("Error:", e); }
-			if (!(entity instanceof EntityLiving)) { return; }
+			if (!(entity instanceof EntityLiving)) {
+				CustomNpcs.debugData.end("Mod", NPCSpawning.class, "performWorldGenSpawning");
+				return;
+			}
 			Entity finalEntity = entity;
 			trySummonToPos(3, data, world, world.getTopSolidOrLiquidBlock(new BlockPos(x + rand.nextInt(16), 0, z + rand.nextInt(16))), (EntityLiving) finalEntity);
-			CustomNpcs.debugData.endDebug("Server", "Mod", "NPCSpawning_performWorldGenSpawning");
+			CustomNpcs.debugData.end("Mod", NPCSpawning.class, "performWorldGenSpawning");
 		});
 	}
 
@@ -54,7 +60,7 @@ public class NPCSpawning {
 	public static void findChunksForSpawning(WorldServer world) {
 		if (SpawnController.instance.data.isEmpty() || world.getWorldInfo().getWorldTotalTime() % 100L != 0L) { return; }
 		CustomNPCsScheduler.runTack(() -> {
-			CustomNpcs.debugData.startDebug("Server", "Mod", "NPCSpawning_findChunksForSpawning");
+			CustomNpcs.debugData.start("Mod", NPCSpawning.class, "findChunksForSpawning");
 			//long startIn = System.currentTimeMillis();
 			NPCSpawning.eligibleChunksForSpawning.clear();
 			for (int i = 0; i < world.playerEntities.size(); ++i) {
@@ -93,8 +99,7 @@ public class NPCSpawning {
 				if (!(entity instanceof EntityLiving)) { continue; }
 				trySummonToPos(1, data, world, randomPos, (EntityLiving) entity);
 			}
-			//System.out.println("CNPCs: "+(System.currentTimeMillis() - startIn)));
-			CustomNpcs.debugData.endDebug("Server", "Mod", "NPCSpawning_findChunksForSpawning");
+			CustomNpcs.debugData.end("Mod", NPCSpawning.class, "findChunksForSpawning");
 		});
 	}
 

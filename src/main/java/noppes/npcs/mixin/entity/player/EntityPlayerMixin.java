@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = EntityPlayer.class)
-public abstract class EntityPlayerMixin implements IEntityPlayerMixin {
+public class EntityPlayerMixin implements IEntityPlayerMixin {
 
     @Mutable
     @Shadow

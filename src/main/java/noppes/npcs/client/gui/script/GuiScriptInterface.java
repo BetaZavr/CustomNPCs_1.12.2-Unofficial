@@ -50,7 +50,6 @@ implements IGuiData, ITextChangeListener {
 		super();
 		drawDefaultBackground = true;
 		closeOnEsc = true;
-		xSize = 420;
 		setBackground("menubg.png");
 		activeTab = 0;
 	}
@@ -284,15 +283,10 @@ implements IGuiData, ITextChangeListener {
 		super.initGui();
 		wait = false;
 		xSize = (int) (width * 0.88);
-		ySize = (int) (xSize * 0.56);
-		if (ySize > height * 0.95) {
-			ySize = (int) (height * 0.95);
-			xSize = (int) (ySize / 0.56);
-		}
-		bgScale = xSize / 400.0f;
+		ySize = (int) (height * 0.90);
 		super.initGui();
 		guiTop += 10;
-		int yoffset = (int) (ySize * 0.02);
+		int y = guiTop + 5;
 		GuiNpcButton button;
 		GuiMenuTopButton top;
 		addTopButton(top = new GuiMenuTopButton(0, guiLeft + 4, guiTop - 17, "gui.settings"));
@@ -310,30 +304,28 @@ implements IGuiData, ITextChangeListener {
 		top.active = true;
 		if (activeTab > 0) {
 			ScriptContainer container = handler.getScripts().get(activeTab - 1);
-			GuiTextArea ta = new GuiTextArea(2, guiLeft + 1 + yoffset, guiTop + 1 + yoffset, xSize - 108 - yoffset, (int) ((ySize * 0.96) - yoffset * 2), (container == null) ? "" : container.script);
+			GuiTextArea ta = new GuiTextArea(2, guiLeft + 5, y, xSize - 132, ySize - 10, (container == null) ? "" : container.script);
 			ta.enableCodeHighlighting();
 			ta.setListener(this);
 			add(ta);
-			int left = guiLeft + xSize - 104;
-			addButton(new GuiNpcButton(102, left, guiTop + yoffset, 60, 20, "gui.clear"));
-			addButton(new GuiNpcButton(101, left + 61, guiTop + yoffset, 60, 20, "gui.paste"));
-			addButton(new GuiNpcButton(100, left, guiTop + 21 + yoffset, 60, 20, "gui.copy"));
-			addButton(new GuiNpcButton(105, left + 61, guiTop + 21 + yoffset, 60, 20, "gui.remove"));
-			addButton(new GuiNpcButton(107, left, guiTop + 66 + yoffset, 80, 20, "script.loadscript"));
-			addButton(new GuiNpcButton(115, left + 30, guiTop + 43 + yoffset, 60, 20, "gui.remove.all"));
+			int x = guiLeft + 7 + ta.width;
+			addButton(new GuiNpcButton(102, x, y, 60, 20, "gui.clear"));
+			addButton(new GuiNpcButton(101, x + 61, y, 60, 20, "gui.paste"));
+			addButton(new GuiNpcButton(100, x, y + 21, 60, 20, "gui.copy"));
+			addButton(new GuiNpcButton(105, x + 61, y + 21, 60, 20, "gui.remove"));
+			addButton(new GuiNpcButton(107, x, y + 66, 80, 20, "script.loadscript"));
+			addButton(new GuiNpcButton(115, x + 30, y + 43, 60, 20, "gui.remove.all"));
 			GuiCustomScroll scroll = (GuiCustomScroll) (new GuiCustomScroll(this, 0)).setUnSelectable();
-			scroll.setSize(100, (int) ((ySize * 0.54) - yoffset * 2) - 22);
-			scroll.guiLeft = left;
-			scroll.guiTop = guiTop + 88 + yoffset;
-			if (container != null) {
-				scroll.setList(container.scripts);
-			}
+			scroll.setSize(120, ySize - 120);
+			scroll.guiLeft = x;
+			scroll.guiTop = (y = guiTop + 93);
+			if (container != null) { scroll.setList(container.scripts); }
 			addScroll(scroll);
-			addButton(button = new GuiNpcButton(118, left, guiTop + 90 + yoffset + scroll.height, 80, 20, "gui.encrypt"));
+			addButton(button = new GuiNpcButton(118, x, y + 2 + scroll.height, 80, 20, "gui.encrypt"));
 			button.setEnabled(!(this instanceof GuiScriptClient));
 			button.setHoverText("" + button.enabled);
-		} // script
-		else { // info
+		} // scripts
+		else {
 			NavigableMap<Long, String> map = handler.getConsoleText().descendingMap();
 			String log = "";
 			if (!map.isEmpty()) {
@@ -344,17 +336,21 @@ implements IGuiData, ITextChangeListener {
 				}
 				log = new Date(selectLog) + map.get(selectLog);
 			}
-			GuiTextArea ta = new GuiTextArea(2, guiLeft + 4, guiTop + 7 + yoffset + (map.size() > 1 ? 22 : 0), xSize - 160, (int) ((ySize * 0.92f) - yoffset * 2) - (map.size() > 1 ? 22 : 0), log);
+			GuiTextArea ta = new GuiTextArea(2, guiLeft + 5, y, xSize - 175, ySize - 10, log);
+			if (!map.isEmpty()) {
+				ta.y += 24;
+				ta.height -= 24;
+			}
 			ta.enabled = false;
 			add(ta);
-			int left = guiLeft + xSize - 150;
-			addButton(button = new GuiNpcButton(100, left, guiTop + 125, 60, 20,
+			int x = guiLeft + 7 + ta.width;
+			addButton(button = new GuiNpcButton(100, x, guiTop + 125, 60, 20,
 					map.size() < 2 ? "gui.copy" :
 							new TextComponentTranslation("gui.copy").getFormattedText() + " "
 							+ new TextComponentTranslation("gui.all").getFormattedText()));
 			button.setHoverText("script.hover.log.copy.all");
 
-			addButton(button = new GuiNpcButton(102, left, guiTop + 146, 60, 20,
+			addButton(button = new GuiNpcButton(102, x, guiTop + 146, 60, 20,
 					map.size() < 2 ? "gui.clear" :
 							new TextComponentTranslation("gui.clear").getFormattedText() + " "
 									+ new TextComponentTranslation("gui.all").getFormattedText()));
@@ -371,42 +367,40 @@ implements IGuiData, ITextChangeListener {
 					selects.add((i + 1) + "/" + map.size() + ": "+new Date(key));
 					i++;
 				}
-				addButton(new GuiButtonBiDirectional(119, guiLeft + 4, guiTop + 7 + yoffset, xSize - 160, 20, selects.toArray(new String[0]), pos));
+				addButton(new GuiButtonBiDirectional(119, guiLeft + 4, guiTop + 7, ta.width, 20, selects.toArray(new String[0]), pos));
 				if (map.size() > 1) {
-					getButton(100).setLeft(left + 62);
-					getButton(102).setLeft(left + 62);
-					addButton(button = new GuiNpcButton(120, left, guiTop + 125, 60, 20, "gui.copy"));
+					getButton(100).setLeft(x + 62);
+					getButton(102).setLeft(x + 62);
+					addButton(button = new GuiNpcButton(120, x, guiTop + 125, 60, 20, "gui.copy"));
 					button.setHoverText("script.hover.log.copy");
-					addButton(button = new GuiNpcButton(121, left, guiTop + 146, 60, 20, "gui.clear"));
+					addButton(button = new GuiNpcButton(121, x, guiTop + 146, 60, 20, "gui.clear"));
 					button.setHoverText("script.hover.log.clear");
 				}
 			}
 
-			addLabel(new GuiNpcLabel(1, "script.language", left, guiTop + 15));
+			addLabel(new GuiNpcLabel(1, "script.language", x + 1, guiTop + 15));
 			String[] ls = languages.keySet().toArray(new String[0]);
-			if (ls.length < 1) { addButton(new GuiNpcButton(103, left + 60, guiTop + 10, 80, 20, ls, getScriptIndex())); }
-			else { addButton(new GuiButtonBiDirectional(103, left + 60, guiTop + 10, 80, 20, ls, getScriptIndex())); }
+			if (ls.length < 1) { addButton(new GuiNpcButton(103, x + 60, guiTop + 10, 80, 20, ls, getScriptIndex())); }
+			else { addButton(new GuiButtonBiDirectional(103, x + 60, guiTop + 10, 80, 20, ls, getScriptIndex())); }
 			getButton(103).setEnabled(!languages.isEmpty());
 
 			String[] data = getLanguageData(getButton(103).getDisplayString());
 			getButton(103).setHoverText(new TextComponentTranslation("script.hover.info." + data[0]).
 					appendSibling(new TextComponentTranslation("script.hover.info.dir", data[1], data[2])).getFormattedText());
 
-			addLabel(new GuiNpcLabel(3, "[?]", left + 145, guiTop + 15));
+			addLabel(new GuiNpcLabel(3, "[?]", x + 145, guiTop + 15));
 			getLabel(3).setHoverText("script.hover.info");
 
-			addLabel(new GuiNpcLabel(2, "gui.enabled", left, guiTop + 36));
-			addButton(new GuiNpcButton(104, left + 60, guiTop + 31, 50, 20, new String[] { "gui.no", "gui.yes" }, (handler.getEnabled() ? 1 : 0)));
+			addLabel(new GuiNpcLabel(2, "gui.enabled", x + 1, guiTop + 36));
+			addButton(new GuiNpcButton(104, x + 60, guiTop + 31, 50, 20, new String[] { "gui.no", "gui.yes" }, (handler.getEnabled() ? 1 : 0)));
 			if (player.getServer() != null) {
-				addButton(new GuiNpcButton(106, left, guiTop + 55, 150, 20, "script.openfolder"));
+				addButton(new GuiNpcButton(106, x, guiTop + 55, 150, 20, "script.openfolder"));
 			}
-			addButton(new GuiNpcButton(109, left, guiTop + 78, 80, 20, "gui.website"));
-			addButton(new GuiNpcButton(112, left + 81, guiTop + 78, 80, 20, "gui.forum"));
-			addButton(new GuiNpcButton(110, left, guiTop + 99, 80, 20, "script.apidoc"));
-			addButton(new GuiNpcButton(111, left + 81, guiTop + 99, 80, 20, "script.apisrc"));
-		}
-		xSize = 420;
-		ySize = 256;
+			addButton(new GuiNpcButton(109, x, guiTop + 78, 80, 20, "gui.website"));
+			addButton(new GuiNpcButton(112, x + 81, guiTop + 78, 80, 20, "gui.forum"));
+			addButton(new GuiNpcButton(110, x, guiTop + 99, 80, 20, "script.apidoc"));
+			addButton(new GuiNpcButton(111, x + 81, guiTop + 99, 80, 20, "script.apisrc"));
+		} // info
 		if (getButton(1) != null && getButton(1).isHovered()) { setHoverText("animation.hover.anim.del"); }
 	}
 

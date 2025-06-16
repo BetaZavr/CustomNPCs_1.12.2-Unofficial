@@ -30,4 +30,5 @@ public class EntityAIRole extends EntityAIBase {
 			this.npc.advanced.roleInterface.aiUpdateTask();
 		}
 	}
+
 }

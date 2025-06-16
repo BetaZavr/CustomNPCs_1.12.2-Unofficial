@@ -6,8 +6,8 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.ISubGuiInterface;
 import noppes.npcs.client.gui.util.ISubGuiListener;
+import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 
@@ -38,7 +38,7 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			((ItemScriptedWrapper) handler).getScriptNBT(nbt);

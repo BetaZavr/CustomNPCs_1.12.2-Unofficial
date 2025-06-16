@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.IMerchant;
 import net.minecraft.item.ItemStack;
@@ -156,7 +155,7 @@ extends GuiContainer {
 			ItemStack itemstack = merchantrecipe.getItemToBuy();
 			ItemStack itemstack2 = merchantrecipe.getSecondItemToBuy();
 			ItemStack itemstack3 = merchantrecipe.getItemToSell();
-			RenderHelper.enableGUIStandardItemLighting();
+			//RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.enableRescaleNormal();
 			GlStateManager.enableColorMaterial();
 			GlStateManager.enableLighting();
@@ -179,7 +178,7 @@ extends GuiContainer {
 			GlStateManager.popMatrix();
 			GlStateManager.enableLighting();
 			GlStateManager.enableDepth();
-			RenderHelper.enableStandardItemLighting();
+			//RenderHelper.enableStandardItemLighting();
 		}
 	}
 

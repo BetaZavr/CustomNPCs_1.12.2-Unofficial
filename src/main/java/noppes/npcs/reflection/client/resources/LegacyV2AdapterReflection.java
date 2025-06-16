@@ -13,6 +13,7 @@ public class LegacyV2AdapterReflection {
 
     private static Field pack;
 
+    @SuppressWarnings("all")
     public static IResourcePack getIResourcePack(LegacyV2Adapter resourcePack) {
         if (resourcePack == null) { return null; }
         if (pack == null) {

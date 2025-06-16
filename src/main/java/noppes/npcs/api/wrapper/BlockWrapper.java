@@ -24,8 +24,7 @@ import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.data.IData;
-import noppes.npcs.api.wrapper.data.StoredData;
-import noppes.npcs.api.wrapper.data.TempData;
+import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.blocks.BlockScripted;
 import noppes.npcs.blocks.BlockScriptedDoor;
 import noppes.npcs.blocks.tiles.TileNpcEntity;
@@ -60,194 +59,193 @@ public class BlockWrapper implements IBlock {
 	protected BlockPosWrapper bPos;
 	protected BlockPos pos;
 	public TileNpcEntity storage;
-	private final IData storeddata;
-	private final IData tempdata;
+	private IData storeddata = new Data();
+	private IData tempdata = new Data();
 	public TileEntity tile;
 
 	protected IWorld world;
 
 	@SuppressWarnings("deprecation")
-	public BlockWrapper(World world, Block block, BlockPos pos) {
-		this.tempdata = new TempData(this);
-		this.storeddata = new StoredData(this);
-
-		if (world instanceof WorldServer) {
-			this.world = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(world);
-		} else if (world != null) {
-			WorldWrapper w = WrapperNpcAPI.worldCache.get(world.provider.getDimension());
+	public BlockWrapper(World worldIn, Block blockIn, BlockPos posIn) {
+		if (worldIn instanceof WorldServer) {
+			world = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(worldIn);
+		}
+		else if (worldIn != null) {
+			WorldWrapper w = WrapperNpcAPI.worldCache.get(worldIn.provider.getDimension());
 			if (w != null) {
 				if (w.world == null) {
-					w.world = world;
+					w.world = worldIn;
 				}
 			} else {
-				w = WorldWrapper.createNew(world);
-				WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w);
+				w = WorldWrapper.createNew(worldIn);
+				WrapperNpcAPI.worldCache.put(worldIn.provider.getDimension(), w);
 			}
-			this.world = w;
+			world = w;
 		}
-		this.block = block;
-		this.pos = pos;
-		this.bPos = new BlockPosWrapper(pos);
-        if (world != null) { this.setTile(world.getTileEntity(pos)); }
+		block = blockIn;
+		pos = posIn;
+		bPos = new BlockPosWrapper(posIn);
+        if (worldIn != null) { setTile(worldIn.getTileEntity(posIn)); }
 	}
 
 	@Override
 	public void blockEvent(int type, int data) {
-		this.world.getMCWorld().addBlockEvent(this.pos, this.block, type, data);
+		world.getMCWorld().addBlockEvent(pos, block, type, data);
 	}
 
 	@Override
 	public IContainer getContainer() {
-		if (!this.isContainer()) {
+		if (!isContainer()) {
 			throw new CustomNPCsException("This block is not a container");
 		}
-		return Objects.requireNonNull(NpcAPI.Instance()).getIContainer((IInventory) this.tile);
+		return Objects.requireNonNull(NpcAPI.Instance()).getIContainer((IInventory) tile);
 	}
 
 	@Override
 	public String getDisplayName() {
-		if (this.tile == null) {
-			return this.getName();
+		if (tile == null) {
+			return getName();
 		}
-		return Objects.requireNonNull(this.tile.getDisplayName()).getUnformattedText();
+		return Objects.requireNonNull(tile.getDisplayName()).getUnformattedText();
 	}
 
 	@Override
 	public Block getMCBlock() {
-		return this.block;
+		return block;
 	}
 
 	@Override
 	public IBlockState getMCBlockState() {
-		return this.world.getMCWorld().getBlockState(this.pos);
+		return world.getMCWorld().getBlockState(pos);
 	}
 
 	@Override
 	public TileEntity getMCTileEntity() {
-		return this.tile;
+		return tile;
 	}
 
 	@Override
 	public int getMetadata() {
-		return this.block.getMetaFromState(this.world.getMCWorld().getBlockState(this.pos));
+		return block.getMetaFromState(world.getMCWorld().getBlockState(pos));
 	}
 
 	@Override
 	public String getName() {
-		return Block.REGISTRY.getNameForObject(this.block) + "";
+		return Block.REGISTRY.getNameForObject(block) + "";
 	}
 
 	@Override
 	public IPos getPos() {
-		return this.bPos;
+		return bPos;
 	}
 
 	@Override
 	public IData getStoreddata() {
-		return this.storeddata;
+		return storeddata;
 	}
 
 	@Override
 	public IData getTempdata() {
-		return this.tempdata;
+		return tempdata;
 	}
 
 	@Override
 	public INbt getTileEntityNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
-		this.tile.writeToNBT(compound);
+		tile.writeToNBT(compound);
 		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound);
 	}
 
 	@Override
 	public IWorld getWorld() {
-		return this.world;
+		return world;
 	}
 
 	@Override
 	public int getX() {
-		return this.pos.getX();
+		return pos.getX();
 	}
 
 	@Override
 	public int getY() {
-		return this.pos.getY();
+		return pos.getY();
 	}
 
 	@Override
 	public int getZ() {
-		return this.pos.getZ();
+		return pos.getZ();
 	}
 
 	@Override
 	public boolean hasTileEntity() {
-		return this.tile != null;
+		return tile != null;
 	}
 
 	@Override
 	public void interact(int side) {
 		EntityPlayer player = EntityNPCInterface.GenericPlayer;
-		World w = this.world.getMCWorld();
+		World w = world.getMCWorld();
 		player.setWorld(w);
-		player.setPosition(this.pos.getX(), this.pos.getY(), this.pos.getZ());
-		this.block.onBlockActivated(w, this.pos, w.getBlockState(this.pos),
+		player.setPosition(pos.getX(), pos.getY(), pos.getZ());
+		block.onBlockActivated(w, pos, w.getBlockState(pos),
                 EntityNPCInterface.CommandPlayer, EnumHand.MAIN_HAND, EnumFacing.values()[side], 0.0f,
 				0.0f, 0.0f);
 	}
 
 	@Override
 	public boolean isAir() {
-		return this.block.isAir(this.world.getMCWorld().getBlockState(this.pos), this.world.getMCWorld(),
-				this.pos);
+		return block.isAir(world.getMCWorld().getBlockState(pos), world.getMCWorld(), pos);
 	}
 
 	@Override
 	public boolean isContainer() {
-		return this.tile != null && this.tile instanceof IInventory && ((IInventory) this.tile).getSizeInventory() > 0;
+		return tile != null && tile instanceof IInventory && ((IInventory) tile).getSizeInventory() > 0;
 	}
 
 	@Override
 	public boolean isRemoved() {
-		return this.world.getMCWorld().getBlockState(this.pos).getBlock() != this.block;
+		return world.getMCWorld().getBlockState(pos).getBlock() != block;
 	}
 
 	@Override
 	public void remove() {
-		this.world.getMCWorld().setBlockToAir(this.pos);
+		world.getMCWorld().setBlockToAir(pos);
 	}
 
 	@Override
 	public BlockWrapper setBlock(IBlock block) {
-		this.world.getMCWorld().setBlockState(this.pos, block.getMCBlock().getDefaultState());
-		return new BlockWrapper(this.world.getMCWorld(), block.getMCBlock(), this.pos);
+		world.getMCWorld().setBlockState(pos, block.getMCBlock().getDefaultState());
+		return new BlockWrapper(world.getMCWorld(), block.getMCBlock(), pos);
 	}
 
 	@Override
 	public BlockWrapper setBlock(String name) {
 		Block block = Block.REGISTRY.getObject(new ResourceLocation(name));
-        this.world.getMCWorld().setBlockState(this.pos, block.getDefaultState());
-		return new BlockWrapper(this.world.getMCWorld(), block, this.pos);
+        world.getMCWorld().setBlockState(pos, block.getDefaultState());
+		return new BlockWrapper(world.getMCWorld(), block, pos);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void setMetadata(int i) {
-		this.world.getMCWorld().setBlockState(this.pos, this.block.getStateFromMeta(i), 3);
+		world.getMCWorld().setBlockState(pos, block.getStateFromMeta(i), 3);
 	}
 
-	public void setTile(TileEntity tile) {
-		this.tile = tile;
+	public void setTile(TileEntity tileIn) {
+		tile = tileIn;
 		if (tile instanceof TileNpcEntity) {
-			this.storage = (TileNpcEntity) tile;
+			storage = (TileNpcEntity) tile;
+			tempdata = storage.tempData;
+			storeddata = storage.storedData;
 		}
 	}
 
 	@Override
 	public void setTileEntityNBT(INbt nbt) {
-		this.tile.readFromNBT(nbt.getMCNBT());
-		this.tile.markDirty();
-		IBlockState state = this.world.getMCWorld().getBlockState(this.pos);
-		this.world.getMCWorld().notifyBlockUpdate(this.pos, state, state, 3);
+		tile.readFromNBT(nbt.getMCNBT());
+		tile.markDirty();
+		IBlockState state = world.getMCWorld().getBlockState(pos);
+		world.getMCWorld().notifyBlockUpdate(pos, state, state, 3);
 	}
 
 }

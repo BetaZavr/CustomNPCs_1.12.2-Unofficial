@@ -191,7 +191,7 @@ implements IGuiClose {
 		// Dialog texts
 		startTime = System.currentTimeMillis();
 		setStartLine();
-		StringBuilder dText = new StringBuilder(d.text);
+		StringBuilder dText = new StringBuilder(new TextComponentTranslation(d.text).getFormattedText());
 		while (dText.toString().contains("<br>")) { dText = new StringBuilder(dText.toString().replace("<br>", "" + ((char) 10))); }
 		while (dText.toString().contains("\\n")) { dText = new StringBuilder(dText.toString().replace("\\n", "" + ((char) 10))); }
 		ResourceLocation txtr = null;
@@ -768,11 +768,12 @@ implements IGuiClose {
 				color = 0x838FD8;
 			}
 
-			StringBuilder text = new StringBuilder(option.title);
+			String wTitle = new TextComponentTranslation(option.title).getFormattedText();
+			StringBuilder text = new StringBuilder(wTitle);
 			if (fontRenderer.getStringWidth(text.toString()) * corr > center - 5) {
 				text = new StringBuilder();
-				for (int c = 0; c < option.title.length(); c++) {
-					char ch = option.title.charAt(c);
+				for (int c = 0; c < wTitle.length(); c++) {
+					char ch = wTitle.charAt(c);
 					if (fontRenderer.getStringWidth(text.toString() + ch) * corr > center - 5) {
 						text.append("...");
 						break;
@@ -852,7 +853,7 @@ implements IGuiClose {
 			return;
 		}
 		DialogOption option = dialog.options.get(optionId);
-		if (option == null || option.optionType != OptionType.DIALOG_OPTION) {
+		if (option == null || !(option.optionType == OptionType.DIALOG_OPTION || option.optionType == OptionType.ROLE_OPTION)) {
 			if (closeOnEsc) { close(); }
 			return;
 		}

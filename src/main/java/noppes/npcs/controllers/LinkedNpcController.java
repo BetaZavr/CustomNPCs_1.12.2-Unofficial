@@ -16,6 +16,7 @@ import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.Util;
 
 public class LinkedNpcController {
+
 	public static class LinkedData {
 		public NBTTagCompound data;
 		public String name;
@@ -47,7 +48,7 @@ public class LinkedNpcController {
 
 	public LinkedNpcController() {
 		this.list = new ArrayList<>();
-		(LinkedNpcController.Instance = this).load();
+		(LinkedNpcController.Instance = this).loadNpcs();
 	}
 
 	public void addData(String name) {
@@ -73,20 +74,13 @@ public class LinkedNpcController {
 		return null;
 	}
 
+	@SuppressWarnings("all")
 	public File getDir() {
 		File dir = new File(CustomNpcs.getWorldSaveDirectory(), "linkednpcs");
 		if (!dir.exists()) {
 			dir.mkdir();
 		}
 		return dir;
-	}
-
-	private void load() {
-		try {
-			this.loadNpcs();
-		} catch (Exception e) {
-			LogWriter.except(e);
-		}
 	}
 
 	public void loadNpcData(EntityNPCInterface npc) {
@@ -121,6 +115,7 @@ public class LinkedNpcController {
 	}
 
 	private void loadNpcs() {
+		CustomNpcs.debugData.start("Mod", this, "loadNpcs");
 		LogWriter.info("Loading Linked Npcs");
 		File dir = this.getDir();
 		if (dir.exists()) {
@@ -140,6 +135,7 @@ public class LinkedNpcController {
 			this.list = list;
 		}
 		LogWriter.info("Done loading Linked Npcs");
+		CustomNpcs.debugData.end("Mod", this, "loadNpcs");
 	}
 
 	private NBTTagCompound readNpcData(EntityNPCInterface npc) {
@@ -160,6 +156,7 @@ public class LinkedNpcController {
 	}
 
 	public void save() {
+		CustomNpcs.debugData.start("Mod", this, "save");
 		for (LinkedData npc : this.list) {
 			try {
 				this.saveNpc(npc);
@@ -167,8 +164,10 @@ public class LinkedNpcController {
 				LogWriter.except(e);
 			}
 		}
+		CustomNpcs.debugData.end("Mod", this, "save");
 	}
 
+	@SuppressWarnings("all")
 	private void saveNpc(LinkedData npc) throws IOException {
 		File file = new File(this.getDir(), npc.name + ".json_new");
 		File file2 = new File(this.getDir(), npc.name + ".json");

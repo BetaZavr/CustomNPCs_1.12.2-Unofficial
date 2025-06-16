@@ -80,9 +80,7 @@ public class DialogController implements IDialogHandler {
 	}
 
 	public void load() {
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadDialogs");
-		}
+		CustomNpcs.debugData.start("Mod", this, "load");
 		LogWriter.info("Loading Dialogs");
 		this.loadCategories();
 		try {
@@ -91,11 +89,10 @@ public class DialogController implements IDialogHandler {
 			else { saveSettings(); }
 		} catch (Exception e) { LogWriter.except(e); }
 		LogWriter.info("Done loading Dialogs");
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.endDebug("Common", null, "loadDialogs");
-		}
+		CustomNpcs.debugData.end("Mod", this, "load");
 	}
 
+	@SuppressWarnings("all")
 	private void loadCategories() {
 		this.categories.clear();
 		this.dialogs.clear();
@@ -208,24 +205,21 @@ public class DialogController implements IDialogHandler {
 		cat.dialogs.put(dia2.id, dia2);
 		cat.dialogs.put(dia3.id, dia3);
 		DialogOption option = new DialogOption();
-		option.title = "dialog.base.1.option.1";
+		option.title = "dialog.base.1.option.0";
 		option.addDialog(2);
 		option.optionType = OptionType.DIALOG_OPTION;
 		DialogOption option2 = new DialogOption();
-		option2.title = Util.instance
-				.deleteColor(new TextComponentTranslation("dialog.base.1.option.0").getFormattedText());
+		option2.title = "dialog.base.1.option.1";
 		option2.addDialog(3);
 		option2.optionType = OptionType.DIALOG_OPTION;
 		DialogOption option3 = new DialogOption();
-		option3.title = Util.instance
-				.deleteColor(new TextComponentTranslation("dialog.base.1.option.2").getFormattedText());
+		option3.title = "dialog.base.1.option.2";
 		option3.optionType = OptionType.QUIT_OPTION;
 		dia1.options.put(0, option2);
 		dia1.options.put(1, option);
 		dia1.options.put(2, option3);
 		DialogOption option4 = new DialogOption();
-		option4.title = Util.instance
-				.deleteColor(new TextComponentTranslation("dialog.base.2.option.0").getFormattedText());
+		option4.title = Util.instance.deleteColor(new TextComponentTranslation("dialog.base.2.option.0").getFormattedText());
 		option4.addDialog(1);
 		dia2.options.put(1, option4);
 		dia3.options.put(1, option4);
@@ -264,7 +258,9 @@ public class DialogController implements IDialogHandler {
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.DialogData, dialog.id);
 	}
 
+	@SuppressWarnings("all")
 	public void saveCategory(DialogCategory category) {
+		CustomNpcs.debugData.start("Mod", this, "saveCategory");
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
 			category.title = "default";
@@ -276,7 +272,10 @@ public class DialogController implements IDialogHandler {
 				while (this.containsCategoryName(category)) { category.title += "_"; }
 				File newDir = new File(this.getDir(), category.title);
 				File oldDir = new File(this.getDir(), currentCategory.title);
-				if (newDir.exists() || !oldDir.renameTo(newDir)) { return; }
+				if (newDir.exists() || !oldDir.renameTo(newDir)) {
+					CustomNpcs.debugData.end("Mod", this, "saveCategory");
+					return;
+				}
 			}
 			category.dialogs.clear();
 			category.dialogs.putAll(currentCategory.dialogs);
@@ -299,14 +298,14 @@ public class DialogController implements IDialogHandler {
 				dialog.category = category;
 			}
 		}
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogCategoriesData,
-				category.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogCategoriesData, category.writeNBT(new NBTTagCompound()));
+		CustomNpcs.debugData.end("Mod", this, "saveCategory");
 	}
 
+	@SuppressWarnings("all")
 	public void saveDialog(DialogCategory category, Dialog dialog) {
-		if (category == null) {
-			return;
-		}
+		if (category == null) { return; }
+		CustomNpcs.debugData.start("Mod", this, "saveDialog");
 		StringBuilder title = new StringBuilder(dialog.title);
 		while (this.containsDialogName(dialog.category, dialog)) {
 			title.append("_");
@@ -333,12 +332,14 @@ public class DialogController implements IDialogHandler {
 			file.renameTo(file2);
 			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogData, compound,
 					category.id);
-		} catch (Exception e) {
-			LogWriter.except(e);
 		}
+		catch (Exception e) { LogWriter.except(e);}
+		CustomNpcs.debugData.end("Mod", this, "saveDialog");
 	}
 
+	@SuppressWarnings("all")
 	public void saveSettings() {
+		CustomNpcs.debugData.start("Mod", this, "saveSettings");
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			File file = new File(saveDir, "dialog_gui_settings.dat_new");
@@ -352,6 +353,7 @@ public class DialogController implements IDialogHandler {
 			if (file.exists()) { file.delete(); }
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogGuiSettings, guiSettings.save());
+		CustomNpcs.debugData.end("Mod", this, "saveSettings");
 	}
 
 	public DialogGuiSettings getGuiSettings() { return guiSettings; }

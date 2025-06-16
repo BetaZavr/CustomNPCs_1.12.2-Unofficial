@@ -218,7 +218,6 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 	private void pluck() {
 		BlockPos pos = ripe;
 		npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0);
-		npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f, npc.getVerticalFaceSpeed());
 		if (npc.nearPosition(pos) || walkTicks++ > 400) {
 			if (walkTicks > 400) {
 				pos = NoppesUtilServer.GetClosePos(pos, npc.world);

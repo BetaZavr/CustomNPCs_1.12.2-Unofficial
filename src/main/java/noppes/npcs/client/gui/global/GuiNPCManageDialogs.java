@@ -382,7 +382,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText && !((SubGuiEditText) subgui).cancelled) {
 			if (subgui.getId() == 1) {
 				DialogCategory category = new DialogCategory();

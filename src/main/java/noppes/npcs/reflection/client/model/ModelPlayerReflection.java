@@ -13,11 +13,12 @@ public class ModelPlayerReflection {
 
     private static Field bipedCape;
 
+    @SuppressWarnings("all")
     public static void setBipedCape(ModelPlayer parent, ModelRenderer newBipedCape) {
         if (parent == null || newBipedCape == null) { return; }
         if (bipedCape == null) {
             Exception error = null;
-            try { bipedCape = ModelPlayer.class.getDeclaredField("field_78115_e"); } catch (Exception e) { error = e; }
+            try { bipedCape = ModelPlayer.class.getDeclaredField("field_178729_w"); } catch (Exception e) { error = e; }
             if (bipedCape == null) {
                 try {
                     bipedCape = ModelPlayer.class.getDeclaredField("bipedCape");

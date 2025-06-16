@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.player;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -24,17 +23,15 @@ import noppes.npcs.util.Util;
 public class GuiNpcFollowerHire
 extends GuiContainerNPCInterface {
 
-	private static final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/followerhire.png");
-
 	private final RoleFollower role;
 	public ContainerNPCFollowerHire container;
-	public EntityNPCInterface npc;
 
 	public GuiNpcFollowerHire(EntityNPCInterface npc, ContainerNPCFollowerHire cont) {
 		super(npc, cont);
 		closeOnEsc = true;
-
 		container = cont;
+		setBackground("followerhire.png");
+
 		role = (RoleFollower) npc.advanced.roleInterface;
 	}
 
@@ -45,12 +42,8 @@ extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		mc.getTextureManager().bindTexture(resource);
-		int w = (width - xSize) / 2;
-		int h = (height - ySize) / 2;
-		drawTexturedModalRect(w, h, 0, 0, xSize, ySize);
+	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 		int index = 0;
 		for (int slot = 0; slot < role.rentalItems.items.size(); ++slot) {
 			ItemStack itemstack = role.rentalItems.items.get(slot);
@@ -124,7 +117,7 @@ extends GuiContainerNPCInterface {
 			addButton(new GuiNpcButton(i, x, y += 18, 50, 14, new TextComponentTranslation("follower.hire").getFormattedText()));
 		}
 		if (role.rates.containsKey(3) && role.rentalMoney > 0) {
-			addButton(new GuiNpcButton(3, x, y + 18, 50, 14, new TextComponentTranslation("follower.hire").getFormattedText()));
+			addButton(new GuiNpcButton(3, x, guiTop + 65, 50, 14, new TextComponentTranslation("follower.hire").getFormattedText()));
 		}
 	}
 

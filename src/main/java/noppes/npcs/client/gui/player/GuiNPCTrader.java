@@ -16,6 +16,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.api.handler.data.IDeal;
 import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.*;
@@ -37,9 +38,15 @@ implements ICustomScrollListener, IGuiData {
 	private static final ResourceLocation BUTTONS = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trader_buttons.png");
 	private static boolean isIdSort = true;
 	private static boolean isSearch = true;
+	private static int section = -1;
+	private static Marcet marcet;
+
 	private static final Comparator<TempDeal> comparator = (t1, t2) -> {
         if (isIdSort) {
-            return Integer.compare(t1.id, t2.id);
+			Map<Integer, Integer> indexMap = new HashMap<>();
+			int i = 0;
+			for (IDeal iDeal : GuiNPCTrader.marcet.getDeals(GuiNPCTrader.section)) { indexMap.put(iDeal.getId(), i++); }
+			return Integer.compare(indexMap.getOrDefault(t1.id, Integer.MAX_VALUE), indexMap.getOrDefault(t2.id, Integer.MAX_VALUE));
         } else {
             return t1.stackName.compareToIgnoreCase(t2.stackName);
         }
@@ -51,13 +58,11 @@ implements ICustomScrollListener, IGuiData {
 	private int canBuy = 0;
 	private int canSell = 0;
 	private int ceilPos = -1;
-	private int section = -1;
 	private int colorP = 0x01000000;
 	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trader.png");
 	private GuiCustomScroll scroll;
 	boolean wait = false;
 	private DealMarkup selectDealData;
-	private Marcet marcet;
 	private long money = 0L;
 
 	public GuiNPCTrader(EntityNPCInterface npc, ContainerNPCTrader container) {
@@ -275,12 +280,10 @@ implements ICustomScrollListener, IGuiData {
 					int v = py + 39 + (slot / 3) * 18;
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(u, v, 50.0f);
-					RenderHelper.enableGUIStandardItemLighting();
 					mc.getRenderItem().renderItemAndEffectIntoGUI(curr, 0, 0);
 					GlStateManager.translate(0.0f, 0.0f, 200.0f);
 					int count = selectDealData.buyItems.get(curr);
 					drawString(mc.fontRenderer, "" + count, 16 - mc.fontRenderer.getStringWidth("" + count), 9, 0xFFFFFFFF);
-					RenderHelper.disableStandardItemLighting();
 					GlStateManager.popMatrix();
 					if (isMouseHover(mouseX, mouseY, u, v, 18, 18)) {
 						List<String> list = new ArrayList<>();

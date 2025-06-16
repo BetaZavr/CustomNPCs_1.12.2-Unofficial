@@ -10,8 +10,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+@SuppressWarnings("all")
 public interface IEditNPC {
-
 
     static IEditNPC getCustomGui(INpc npc, Container container) {
         return new GuiContainerNPCInterface(npc, container);
@@ -24,7 +24,7 @@ public interface IEditNPC {
 
     int getEventButton();
 
-	ISubGuiInterface getSubGui();
+	SubGuiInterface getSubGui();
 
 	IGuiNpcTextField getTextField(int id);
 
@@ -57,8 +57,6 @@ public interface IEditNPC {
 	void setHoverText(@Nullable List<String> hoverText);
 
 	void close();
-
-	void closeSubGui(ISubGuiInterface gui);
 
 	boolean hasArea();
 
@@ -142,7 +140,7 @@ public interface IEditNPC {
 
 	void setNpc(INpc iNpc);
 
-	void setSubGui(ISubGuiInterface gui);
+	void setSubGui(SubGuiInterface gui);
 
 	boolean hasHoverText();
 

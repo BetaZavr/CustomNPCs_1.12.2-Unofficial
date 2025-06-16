@@ -14,6 +14,7 @@ public class PathReflection {
     private static Field closedSet;
     private static Field currentPathIndex;
 
+    @SuppressWarnings("all")
     public static PathPoint[] getPoints(Path path) {
         if (path == null) { return new PathPoint[0]; }
         if (points == null) {
@@ -108,6 +109,7 @@ public class PathReflection {
         }
     }
 
+    @SuppressWarnings("all")
     private static Field getOpenSetField() {
         if (openSet == null) {
             Exception error = null;
@@ -125,6 +127,7 @@ public class PathReflection {
         return openSet;
     }
 
+    @SuppressWarnings("all")
     private static Field getClosedSetField() {
         if (closedSet == null) {
             Exception error = null;
@@ -142,6 +145,7 @@ public class PathReflection {
         return closedSet;
     }
 
+    @SuppressWarnings("all")
     private static Field getCurrentPathIndexField() {
         if (currentPathIndex == null) {
             Exception error = null;

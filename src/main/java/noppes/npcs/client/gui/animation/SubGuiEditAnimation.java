@@ -4,12 +4,12 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import net.minecraft.client.renderer.*;
 import net.minecraft.util.math.Vec3d;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.model.animation.*;
 import noppes.npcs.constants.EnumAnimationStages;
-import noppes.npcs.reflection.client.gui.GuiScreenReflection;
 import noppes.npcs.util.ValueUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -24,12 +24,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -504,10 +498,10 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			} // remove sound
 			case 29: {
 				if (partNames == null) { showPartNames(); }
-				if (mwindows.containsKey(partNames.id)) { return; }
+				if (miniWindows.containsKey(partNames.id)) { return; }
 				partNames.isMoving = false;
 				partNames.visible = true;
-				mwindows.put(partNames.id, partNames);
+				miniWindows.put(partNames.id, partNames);
 				button.setEnabled(false);
 				break;
 			} // show parts
@@ -613,7 +607,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				if (tools == null) { return; }
 				tools.isMoving = false;
 				tools.visible = true;
-				mwindows.put(tools.id, tools);
+				miniWindows.put(tools.id, tools);
 				button.setEnabled(false);
 				break;
 			} // show window tools
@@ -681,7 +675,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				showHitBoxes();
 				hitboxes.isMoving = false;
 				hitboxes.visible = true;
-				mwindows.put(hitboxes.id, hitboxes);
+				miniWindows.put(hitboxes.id, hitboxes);
 				button.setEnabled(false);
 				break;
 			} // show window hitbox
@@ -1038,7 +1032,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (subgui != null) {
-			subgui.drawScreen(mouseX, mouseY, partialTicks);
+			((GuiScreen) subgui).drawScreen(mouseX, mouseY, partialTicks);
 			return;
 		}
 		if (w < 0 || h < 0) {
@@ -1123,7 +1117,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			mousePressId = -1;
 		}
 		hovered = isMouseHover(mouseX, mouseY, workU + 1, workV + 1, workS - 2, workS - 2);
-		if (hovered && !tools.hovered && !partNames.hovered) {
+		if (hovered && (tools == null || !tools.hovered) && (partNames == null || !partNames.hovered)) {
 			int dWheel = Mouse.getDWheel();
 			if (dWheel != 0) {
 				dispScale += dispScale * (dWheel < 0 ? 0.1f : -0.1f);
@@ -1391,7 +1385,6 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		// blocks
 		GlStateManager.pushMatrix();
 			postRender();
-			RenderHelper.enableGUIStandardItemLighting();
 			IBlockState state;
 			switch (blockType) {
 				case 1:
@@ -1465,15 +1458,17 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				}
 			}
 			for (BlockPos p : tiles.keySet()) {
-				TileEntity tile = tiles.get(p);
-				TileEntitySpecialRenderer<TileEntity> render = (TileEntitySpecialRenderer<TileEntity>) TileEntityRendererDispatcher.instance.renderers
-						.get(tile.getClass());
-				if (render != null) {
-					GlStateManager.pushMatrix();
-					render.render(tile, p.getX(), p.getY() - 1.0D, p.getZ() - 1, partialTicks, 0, 1.0f);
-					GlStateManager.popMatrix();
+				try {
+					TileEntity tile = tiles.get(p);
+					TileEntitySpecialRenderer<TileEntity> render = (TileEntitySpecialRenderer<TileEntity>) TileEntityRendererDispatcher.instance.renderers.get(tile.getClass());
+					if (render != null) {
+						GlStateManager.pushMatrix();
+						render.render(tile, p.getX(), p.getY() - 1.0D, p.getZ() - 1, partialTicks, 0, 1.0f);
+						GlStateManager.popMatrix();
+					}
 				}
-			}
+				catch (Exception ignored) { }
+            }
 
 			GlStateManager.pushMatrix();
 				GlStateManager.translate(0.0f, 0.0f, -1.0f);
@@ -2681,8 +2676,8 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (subgui instanceof GuiScreen) {
-			GuiScreenReflection.mouseClicked(subgui, mouseX, mouseY, mouseButton);
+		if (subgui != null) {
+			subgui.mouseClicked(mouseX, mouseY, mouseButton);
 			return;
 		}
 		super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -2921,7 +2916,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui.getId() == 0 && subgui instanceof SubGuiColorSelector) {
 			CustomNpcs.colorAnimHoverPart = ((SubGuiColorSelector) subgui).color;
 			ModelNpcAlt.editAnimDataSelect.red = (float) (CustomNpcs.colorAnimHoverPart >> 16 & 255) / 255.0F;
@@ -3248,16 +3243,16 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 
 	@Override
 	public void closeMiniWindow(IGuiNpcMiniWindow miniWindow) {
-		mwindows.remove(miniWindow.getID());
+		miniWindows.remove(miniWindow.getID());
 		if (miniWindow.getID() == 0 && getButton(29) != null) {
-			getButton(29).setEnabled(!mwindows.containsKey(0));
+			getButton(29).setEnabled(!miniWindows.containsKey(0));
 		}
 		if (miniWindow.getID() == 1 && getButton(35) != null) {
-			getButton(35).setEnabled(!mwindows.containsKey(1));
+			getButton(35).setEnabled(!miniWindows.containsKey(1));
 		}
 		else
 		if (miniWindow.getID() == 2 && getButton(45) != null) {
-			getButton(45).setEnabled(!mwindows.containsKey(2));
+			getButton(45).setEnabled(!miniWindows.containsKey(2));
 		}
 	}
 

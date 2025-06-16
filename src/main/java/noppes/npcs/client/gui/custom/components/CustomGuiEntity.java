@@ -24,6 +24,7 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.gui.ICustomGuiComponent;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.gui.CustomGuiEntityWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
@@ -41,6 +42,7 @@ implements IGuiComponent {
 		CustomGuiEntity entt = new CustomGuiEntity(component.getId(), component.getPosX(), component.getPosY(), component.getScale(), component.hasBorder(), component.isShowArmorAndItems(), component.entityNbt, component.rotType, component.rotYaw, component.rotPitch);
 		if (component.hasHoverText()) {
 			entt.hoverText = component.getHoverText();
+			entt.hoverStack = component.getHoverStack();
 		}
 		return entt;
 	}
@@ -49,6 +51,7 @@ implements IGuiComponent {
 	long initTime = System.currentTimeMillis();
 	boolean hasBorder, showArmor;
 	String[] hoverText;
+	IItemStack hoverStack;
 	GuiCustom parent;
 	float scale;
 	final int[] offsets;
@@ -289,8 +292,9 @@ implements IGuiComponent {
 			drawEntity(mc, mouseX, mouseY);
 			GlStateManager.popMatrix();
 		}
-		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
-			this.parent.hoverText = this.hoverText;
+		if (hovered) {
+			if (hoverText != null && hoverText.length > 0) { parent.hoverText = hoverText; }
+			if (hoverStack != null && !hoverStack.isEmpty()) { parent.hoverStack = hoverStack.getMCItemStack(); }
 		}
 	}
 

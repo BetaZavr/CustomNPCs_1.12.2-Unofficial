@@ -1,20 +1,24 @@
 package noppes.npcs.client.gui.util;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LineData {
 
-    public String text;
+    public final String text;
     public int start;
     public int end;
+    private final Map<List<MarkUp>, String> data = new HashMap<>();
 
-    public LineData(String text, int start, int end) {
-        this.text = text;
-        this.start = start;
-        this.end = end;
+    public LineData(String textIn, int startIn, int endIn) {
+        text = textIn;
+        start = startIn;
+        end = endIn;
     }
 
     public String getFormattedString(List<MarkUp> makeup) {
+        if (data.containsKey(makeup)) { return data.get(makeup); }
         StringBuilder builder = new StringBuilder(text);
         int found = 0;
         for (MarkUp entry : makeup) {
@@ -31,6 +35,8 @@ public class LineData {
                 ++found;
             }
         }
-        return builder.toString();
+        data.put(makeup, builder.toString());
+        return data.get(makeup);
     }
+
 }

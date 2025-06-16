@@ -35,8 +35,8 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.data.StoredData;
-import noppes.npcs.api.wrapper.data.TempData;
+import noppes.npcs.api.mixin.entity.IEntityMixin;
+import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.controllers.ServerCloneController;
 
 @SuppressWarnings("rawtypes")
@@ -68,17 +68,18 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 	}
 	
 	protected T entity;
-	protected final StoredData storeddata;
-	protected final TempData tempdata = new TempData();
+	protected final Data storeddata;
+	protected final Data tempdata = new Data();
 
 	private IWorld worldWrapper;
 
 	public EntityWrapper(T entityIn) {
 		entity = entityIn;
-		storeddata = new StoredData(this);
+		storeddata = ((IEntityMixin) entityIn).npcs$getStoredData();
 		resetWorld();
 	}
 
+	@SuppressWarnings("all")
 	private void resetWorld() {
 		if (entity.world instanceof WorldServer) {
 			this.worldWrapper = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(entity.world);

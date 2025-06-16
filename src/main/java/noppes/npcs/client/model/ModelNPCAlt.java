@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.api.mixin.entity.player.IEntityPlayerMixin;
 import noppes.npcs.api.util.IModelRenderer;
 import noppes.npcs.client.model.animation.*;
@@ -108,6 +107,7 @@ public class ModelNpcAlt extends ModelPlayer {
         }*/
     }
 
+    @SuppressWarnings("all")
     private static void addChildren(ModelRendererAlt modelRender, Map<Integer, List<ModelRendererAlt>> map) {
         List<ModelRendererAlt> children = map.get(modelRender.parentPartId);
         if (children == null || children.isEmpty()) {
@@ -337,6 +337,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 modelRenderer.render(scale);
             }
         }
+
         if (ba.get(EnumParts.HEAD) && bAW.get(EnumParts.HEAD) && bipedHead.showModel) {
             ((ModelRendererAlt) bipedHead).checkBacklightColor(r, g, b);
             if (isChild) {
@@ -586,12 +587,7 @@ public class ModelNpcAlt extends ModelPlayer {
             }
             EntityCustomNpc npc = (EntityCustomNpc) entityIn;
             animation = npc.animation;
-            if (npc.navigating != null && (netHeadYaw < -2.0f || netHeadYaw > 2.0f)) {
-                entityIn.turn(netHeadYaw / 3.0f, headPitch / 3.0f);
-                ModelPlayerReflection.setBipedCape(this, bipedCape);
-                ((IEntityLivingBaseMixin) entityIn).npcs$setInterpTargetYaw(entityIn.rotationYaw);
-                ((IEntityLivingBaseMixin) entityIn).npcs$setInterpTargetPitch(entityIn.rotationPitch);
-            }
+            ModelPlayerReflection.setBipedCape(this, bipedCape);
             if (!isRiding) { isRiding = npc.currentAnimation == 1; }
             if (npc.currentAnimation == 6 || (npc.inventory.getProjectile() != null && npc.isAttacking() && npc.stats.ranged.getHasAimAnimation())) {
                 rightArmPose = ModelBiped.ArmPose.BOW_AND_ARROW;
@@ -638,8 +634,7 @@ public class ModelNpcAlt extends ModelPlayer {
             ((ModelRendererAlt) bipedLeftLeg).setBaseData(npc.modelData.getPartConfig(EnumParts.LEG_LEFT));
             ((ModelRendererAlt) bipedRightLeg).setBaseData(npc.modelData.getPartConfig(EnumParts.LEG_RIGHT));
             boolean isAttacking = npc.isAttacking();
-            int currentAnimation = npc.currentAnimation;
-            if (!isAttacking && currentAnimation == 0) {
+            if (!isAttacking && npc.currentAnimation == 0) {
                 // Vanilla animation
                 if (npc.isPlayerSleeping()) {
                     if (bipedHead.rotateAngleX < 0.0f) {
@@ -656,28 +651,29 @@ public class ModelNpcAlt extends ModelPlayer {
                     leftStackData.partSets[4] = -0.475f;
                 }
             }
-            if (currentAnimation != 0) {
-                if (currentAnimation == 3) {
+            if (npc.currentAnimation != 0) {
+                if (npc.currentAnimation == 3) {
                     AniHug.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, this);
-                } else if (currentAnimation == 5) {
+                } else if (npc.currentAnimation == 5) {
                     AniDancing.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, this);
-                } else if (currentAnimation == 7) {
+                } else if (npc.currentAnimation == 7) {
                     AniCrawling.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, this);
-                } else if (currentAnimation == 8) {
+                } else if (npc.currentAnimation == 8) {
                     AniPoint.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, this);
-                } else if (currentAnimation == 9) {
+                } else if (npc.currentAnimation == 9) {
                     bipedHead.rotateAngleX = 0.7f;
-                } else if (currentAnimation == 10) {
+                } else if (npc.currentAnimation == 10) {
                     AniWaving.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, this);
-                } else if (currentAnimation == 11) {
+                } else if (npc.currentAnimation == 11) {
                     AniBow.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, this);
-                } else if (currentAnimation == 12) {
+                } else if (npc.currentAnimation == 12) {
                     AniNo.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, this);
-                } else if (currentAnimation == 13) {
+                } else if (npc.currentAnimation == 13) {
                     AniYes.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, this);
                 }
-            } // Mod base animation
-            if (currentAnimation != 2 && npc.ais.getStandingType() == 4 && npc.lookAt != null && !npc.isAttacking()) {
+            }
+            // Mod base animation
+            if (npc.currentAnimation != 2 && !npc.hasPath() && npc.ais.getStandingType() == 4 && npc.lookAt != null && !npc.isAttacking()) {
                 double d0 = entityIn.posX - npc.lookAt.posX;
                 double d1 = (entityIn.posY + (double) entityIn.getEyeHeight()) - (npc.lookAt.posY + (double) npc.lookAt.getEyeHeight());
                 double d2 = entityIn.posZ - npc.lookAt.posZ;

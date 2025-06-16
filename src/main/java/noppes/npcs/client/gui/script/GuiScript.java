@@ -3,8 +3,8 @@ package noppes.npcs.client.gui.script;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.ISubGuiInterface;
 import noppes.npcs.client.gui.util.ISubGuiListener;
+import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -37,7 +37,7 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			script.writeToNBT(nbt);

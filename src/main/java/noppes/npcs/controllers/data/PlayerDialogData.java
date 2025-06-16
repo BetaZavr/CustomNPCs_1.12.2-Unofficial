@@ -46,10 +46,11 @@ public class PlayerDialogData {
 	}
 
 	public void option(int dialogId, int optionId) {
-		if (dialogsRead.containsKey(dialogId)) { dialogsRead.put(dialogId, new TreeSet<>()); }
+		if (!dialogsRead.containsKey(dialogId)) { dialogsRead.put(dialogId, new TreeSet<>()); }
 		dialogsRead.get(dialogId).add(optionId);
 	}
 
+	@SuppressWarnings("all")
     public void addLogs(List<TextBlockClient> lines, String texture) {
 
     }

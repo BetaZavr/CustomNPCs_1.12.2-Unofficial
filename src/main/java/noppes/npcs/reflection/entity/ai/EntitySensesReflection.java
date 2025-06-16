@@ -13,7 +13,7 @@ public class EntitySensesReflection {
     private static Field seenEntities;
     private static Field unseenEntities;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static List<Entity> getSeenEntities(EntitySenses senses) {
         if (senses == null) { return Collections.emptyList(); }
         if (seenEntities == null) {
@@ -39,7 +39,7 @@ public class EntitySensesReflection {
         return Collections.emptyList();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static List<Entity> getUnseenEntities(EntitySenses senses) {
         if (senses == null) { return Collections.emptyList(); }
         if (unseenEntities == null) {

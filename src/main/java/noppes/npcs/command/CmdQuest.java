@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.EntitySelector;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -31,12 +30,13 @@ public class CmdQuest extends CommandNoppesBase {
 		return 2;
 	}
 
+	@SuppressWarnings("all")
 	@SubCommand(desc = "Finish a quest", usage = "<player> <quest>")
 	public void finish(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String playername = args[0];
-		int questid;
+		int questId;
 		try {
-			questid = Integer.parseInt(args[1]);
+			questId = Integer.parseInt(args[1]);
 		} catch (NumberFormatException ex) {
 			throw new CommandException("QuestID must be an integer");
 		}
@@ -44,15 +44,15 @@ public class CmdQuest extends CommandNoppesBase {
 		if (data.isEmpty()) {
 			throw new CommandException(String.format("Unknown player '%s'", playername));
 		}
-		Quest quest = QuestController.instance.quests.get(questid);
+		Quest quest = QuestController.instance.quests.get(questId);
 		if (quest == null) {
 			throw new CommandException("Unknown QuestID");
 		}
 		for (PlayerData playerdata : data) {
-			boolean hasFinishedQuest = playerdata.questData.finishedQuests.containsKey(questid);
-			playerdata.questData.finishedQuests.put(questid, System.currentTimeMillis());
-			if (playerdata.questData.activeQuests.containsKey(questid)) {
-				playerdata.questData.activeQuests.remove(questid);
+			boolean hasFinishedQuest = playerdata.questData.finishedQuests.containsKey(questId);
+			playerdata.questData.finishedQuests.put(questId, System.currentTimeMillis());
+			if (playerdata.questData.activeQuests.containsKey(questId)) {
+				playerdata.questData.activeQuests.remove(questId);
 				hasFinishedQuest = false;
 			}
 			try {
@@ -77,16 +77,17 @@ public class CmdQuest extends CommandNoppesBase {
 		return "quest";
 	}
 
+	@SuppressWarnings("all")
 	@SubCommand(desc = "get/set objectives for quests progress", usage = "<player> <quest> [objective] [value]", permission = 2)
 	public void objective(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		EntityPlayer player = CommandBase.getPlayer(server, sender, args[0]);
-		int questid;
+		int questId;
 		try {
-			questid = Integer.parseInt(args[1]);
+			questId = Integer.parseInt(args[1]);
 		} catch (NumberFormatException ex) {
 			throw new CommandException("QuestID must be an integer");
 		}
-		Quest quest = QuestController.instance.quests.get(questid);
+		Quest quest = QuestController.instance.quests.get(questId);
 		if (quest == null) {
 			throw new CommandException("Unknown QuestID");
 		}
@@ -134,12 +135,13 @@ public class CmdQuest extends CommandNoppesBase {
 		SyncController.syncAllQuests(server);
 	}
 
+	@SuppressWarnings("all")
 	@SubCommand(desc = "Removes a quest from finished and active quests", usage = "<player> <quest>", permission = 2)
 	public void remove(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String playername = args[0];
-		int questid;
+		int questId;
 		try {
-			questid = Integer.parseInt(args[1]);
+			questId = Integer.parseInt(args[1]);
 		} catch (NumberFormatException ex) {
 			throw new CommandException("QuestID must be an integer");
 		}
@@ -147,46 +149,39 @@ public class CmdQuest extends CommandNoppesBase {
 		if (data.isEmpty()) {
 			throw new CommandException(String.format("Unknown player '%s'", playername));
 		}
-		Quest quest = QuestController.instance.quests.get(questid);
+		Quest quest = QuestController.instance.quests.get(questId);
 		if (quest == null) {
 			throw new CommandException("Unknown QuestID");
 		}
 		for (PlayerData playerdata : data) {
-			playerdata.questData.activeQuests.remove(questid);
-			playerdata.questData.finishedQuests.remove(questid);
+			playerdata.questData.activeQuests.remove(questId);
+			playerdata.questData.finishedQuests.remove(questId);
 			playerdata.save(true);
 		}
 	}
 
+	@SuppressWarnings("all")
 	@SubCommand(desc = "Start a quest", usage = "<player> <quest>", permission = 2)
 	public void start(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String playername = args[0];
-		int questid;
-		try {
-			questid = Integer.parseInt(args[1]);
-		} catch (NumberFormatException ex) {
-			throw new CommandException("QuestID must be an integer");
-		}
-		List<EntityPlayerMP> players = EntitySelector.matchEntities(sender, playername,
-				EntityPlayerMP.class);
-		if (players.isEmpty()) {
-			throw new CommandException("Unknown player '%s'", playername);
-		}
-		Quest quest = QuestController.instance.quests.get(questid);
-		if (quest == null) {
-			throw new CommandException("Unknown QuestID");
-		}
-		for (EntityPlayerMP player : players) {
-			PlayerQuestController.addActiveQuest(quest, player, true);
-		}
+		int questId;
+		try { questId = Integer.parseInt(args[1]); }
+		catch (NumberFormatException ex) { throw new CommandException("QuestID must be an integer"); }
+		EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playername);
+		if (player == null) { throw new CommandException("Unknown player '%s'", playername); }
+		Quest quest = QuestController.instance.quests.get(questId);
+		if (quest == null) { throw new CommandException("Unknown QuestID"); }
+		PlayerQuestController.addActiveQuest(quest, player, true);
+		sender.sendMessage(new TextComponentString("Player \"" + player.getName() + "\" started the quest ID: " + questId));
 	}
 
+	@SuppressWarnings("all")
 	@SubCommand(desc = "Stop a started quest", usage = "<player> <quest>", permission = 2)
 	public void stop(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String playername = args[0];
-		int questid;
+		int questId;
 		try {
-			questid = Integer.parseInt(args[1]);
+			questId = Integer.parseInt(args[1]);
 		} catch (NumberFormatException ex) {
 			throw new CommandException("QuestID must be an integer");
 		}
@@ -194,12 +189,12 @@ public class CmdQuest extends CommandNoppesBase {
 		if (data.isEmpty()) {
 			throw new CommandException(String.format("Unknown player '%s'", playername));
 		}
-		Quest quest = QuestController.instance.quests.get(questid);
+		Quest quest = QuestController.instance.quests.get(questId);
 		if (quest == null) {
 			throw new CommandException("Unknown QuestID");
 		}
 		for (PlayerData playerdata : data) {
-			playerdata.questData.activeQuests.remove(questid);
+			playerdata.questData.activeQuests.remove(questId);
 			playerdata.save(true);
 		}
 	}

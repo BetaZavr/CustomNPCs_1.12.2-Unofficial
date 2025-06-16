@@ -156,7 +156,7 @@ extends BaseScriptData {
 		for (int i = 0; i < this.scripts.size(); ++i) {
 			ScriptContainer script = this.scripts.get(i);
 			if (!PlayerScriptData.errored.contains(i)) {
-				script.run(type, event, !this.isClient());
+				script.run(type, event);
 				if (script.errored) {
 					PlayerScriptData.errored.add(i);
 				}

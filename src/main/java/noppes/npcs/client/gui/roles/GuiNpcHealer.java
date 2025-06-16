@@ -282,7 +282,7 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (!(subgui instanceof SubGuiNpcJobHealerSettings) || !configured.hasSelected()) {
 			return;
 		}

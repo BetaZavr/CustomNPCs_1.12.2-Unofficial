@@ -65,9 +65,13 @@ implements ICustomScrollListener {
 	protected void actionPerformed(@Nonnull GuiButton btn) {
 		super.actionPerformed(btn);
 		if (btn.id == 10) {
-			this.playerdata.setEntityClass(null);
-			this.resetToSelected = true;
-			this.initGui();
+			playerdata.setEntityClass(null);
+			resetToSelected = true;
+			npc.display.setSkinTexture(CustomNpcs.MODID + ":textures/entity/humanmale/steve.png");
+			npc.reset();
+			npc.display.width = npc.baseWidth;
+			npc.display.height = npc.baseHeight;
+			initGui();
 		}
 	}
 
@@ -79,17 +83,23 @@ implements ICustomScrollListener {
 		}
 		if (this.getButton(1) != null && this.getButton(1).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isHovered()) {
+		}
+		else if (this.getButton(2) != null && this.getButton(2).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.extra").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isHovered()) {
+		}
+		else if (this.getButton(4) != null && this.getButton(4).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.save").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isHovered()) {
+		}
+		else if (this.getButton(5) != null && this.getButton(5).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.load").getFormattedText());
-		} else if (this.getButton(10) != null && this.getButton(10).isHovered()) {
+		}
+		else if (this.getButton(10) != null && this.getButton(10).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.reset").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isHovered()) {
+		}
+		else if (this.getButton(66) != null && this.getButton(66).isHovered()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		} else {
+		}
+		else {
 			for (GuiButton b : this.buttonList) {
 				if (b != null && b.isMouseOver()) {
 					if (b.id == 500) {
@@ -139,12 +149,15 @@ implements ICustomScrollListener {
 			@SuppressWarnings("rawtypes")
 			RenderLivingBase render = (RenderLivingBase) this.mc.getRenderManager().getEntityClassRenderObject(entity.getClass());
 			if (!NPCRendererHelper.getTexture(render, entity).equals(TextureMap.LOCATION_MISSING_TEXTURE.toString())) {
-				this.npc.display.setSkinTexture(NPCRendererHelper.getTexture(render, entity));
+				npc.display.setSkinTexture(NPCRendererHelper.getTexture(render, entity));
 			}
 		} else {
-			this.npc.display.setSkinTexture(CustomNpcs.MODID + ":textures/entity/humanmale/steve.png");
+			npc.display.setSkinTexture(CustomNpcs.MODID + ":textures/entity/humanmale/steve.png");
 		}
-		this.initGui();
+		npc.reset();
+		npc.display.width = npc.baseWidth;
+		npc.display.height = npc.baseHeight;
+		initGui();
 	}
 
 	@Override

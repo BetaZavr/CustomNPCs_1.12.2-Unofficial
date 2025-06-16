@@ -9,10 +9,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 import noppes.npcs.api.mixin.entity.IEntityMixin;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
+import noppes.npcs.api.wrapper.data.Data;
+import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = Entity.class)
 public class EntityMixin implements IEntityMixin {
@@ -40,6 +42,9 @@ public class EntityMixin implements IEntityMixin {
     @Shadow
     protected EnumFacing teleportDirection;
 
+    @Unique
+    protected final Data npcs$storeddata = new Data();
+
     @Override
     public EntityDataManager npcs$getDataManager() { return dataManager; }
 
@@ -61,7 +66,6 @@ public class EntityMixin implements IEntityMixin {
     @Override
     public EnumFacing npcs$getTeleportDirection() { return teleportDirection; }
 
-
     @Override
     public void npcs$copyDataFromOld(Entity entity) {
         NBTTagCompound nbttagcompound = entity.writeToNBT(new NBTTagCompound());
@@ -72,5 +76,21 @@ public class EntityMixin implements IEntityMixin {
         lastPortalVec = ((IEntityMixin) entity).npcs$getLastPortalVec();
         teleportDirection = ((IEntityMixin) entity).npcs$getTeleportDirection();
     }
+
+    @Inject(method = "writeToNBT", at = @At("RETURN"), cancellable = true)
+    public void npcs$writeToNBT(CallbackInfoReturnable<NBTTagCompound> cir) {
+        NBTTagCompound compound = cir.getReturnValue();
+        compound.setTag("CustomStoredData", npcs$storeddata.getNbt().getMCNBT());
+        cir.setReturnValue(compound);
+    }
+
+    @Inject(method = "readFromNBT", at = @At("RETURN"))
+    public void npcs$readFromNBT(NBTTagCompound compound, CallbackInfo ci) {
+        npcs$storeddata.setNbt(compound.getCompoundTag("CustomStoredData"));
+    }
+
+
+    @Override
+    public Data npcs$getStoredData() { return npcs$storeddata; }
 
 }

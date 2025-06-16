@@ -33,6 +33,7 @@ public class EntityItemReflection {
         }
     }
 
+    @SuppressWarnings("all")
     private static Field getAgeField() {
         if (age == null) {
             Exception error = null;

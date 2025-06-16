@@ -10,6 +10,7 @@ public class ModifiableAttributeInstanceReflection {
 
     private static Field genericAttribute;
 
+    @SuppressWarnings("all")
     public static IAttribute getGenericAttribute(ModifiableAttributeInstance attribute) {
         if (attribute == null) { return null; }
         if (genericAttribute == null) {

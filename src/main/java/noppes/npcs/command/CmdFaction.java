@@ -9,6 +9,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.PlayerDataController;
@@ -38,6 +39,7 @@ public class CmdFaction extends CommandNoppesBase {
 		for (PlayerData playerdata : this.data) {
 			PlayerFactionData playerfactiondata = playerdata.factionData;
 			playerfactiondata.increasePoints(playerdata.player, factionId, points);
+			sender.sendMessage(new TextComponentString(points + " points added to player \""+playerdata.playername+"\" Faction ID: "+factionId));
 			playerdata.save(true);
 		}
 	}
@@ -45,7 +47,8 @@ public class CmdFaction extends CommandNoppesBase {
 	@SubCommand(desc = "Drop relationship")
 	public void drop(MinecraftServer server, ICommandSender sender, String[] args) {
 		for (PlayerData playerdata : this.data) {
-			playerdata.factionData.factionData.remove(this.selectedFaction.id);
+			playerdata.factionData.factionData.remove(selectedFaction.id);
+			sender.sendMessage(new TextComponentString("Player \""+playerdata.playername+"\" has Faction ID: "+selectedFaction.id+" removed"));
 			playerdata.save(true);
 		}
 	}
@@ -120,6 +123,7 @@ public class CmdFaction extends CommandNoppesBase {
 		}
 	}
 
+	@SuppressWarnings("all")
 	@SubCommand(desc = "Subtract points", usage = "<points>")
 	public void subtract(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		int points;
@@ -135,4 +139,5 @@ public class CmdFaction extends CommandNoppesBase {
 			playerdata.save(true);
 		}
 	}
+
 }

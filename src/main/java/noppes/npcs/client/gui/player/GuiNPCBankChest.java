@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.player;
 import java.io.IOException;
 import java.util.*;
 
+import net.minecraft.client.renderer.RenderHelper;
 import noppes.npcs.client.ClientGuiEventHandler;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.data.PlayerData;
@@ -11,7 +12,6 @@ import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -134,7 +134,7 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface gui) {
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiEditBankAccess) {
 			SubGuiEditBankAccess subGui = (SubGuiEditBankAccess) gui;
 			boolean isChanged = false;

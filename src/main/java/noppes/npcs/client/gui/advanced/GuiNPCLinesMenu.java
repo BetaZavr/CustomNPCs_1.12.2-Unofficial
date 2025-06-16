@@ -93,7 +93,7 @@ implements IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (!(subgui instanceof SubGuiNPCLinesEdit)) {
 			return;
 		}

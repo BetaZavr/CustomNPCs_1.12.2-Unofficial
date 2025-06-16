@@ -144,17 +144,13 @@ public class FactionController implements IFactionHandler {
 	}
 
 	public void load() {
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadFactions");
-		}
+		CustomNpcs.debugData.start("Mod", this, "load");
 		this.factions.clear();
 		this.lastUsedID = 0;
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			if (saveDir == null) {
-				if (CustomNpcs.VerboseDebug) {
-					CustomNpcs.debugData.endDebug("Common", null, "loadFactions");
-				}
+				CustomNpcs.debugData.end("Mod", this, "load");
 				return;
 			}
 			try {
@@ -190,9 +186,7 @@ public class FactionController implements IFactionHandler {
 				this.factions.put(2, aggressive);
 			}
 		}
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.endDebug("Common", null, "loadFactions");
-		}
+		CustomNpcs.debugData.end("Mod", this, "load");
 	}
 
 	public void loadFactions(DataInputStream stream) throws IOException {
@@ -229,12 +223,13 @@ public class FactionController implements IFactionHandler {
 			}
 		}
 		this.factions.put(faction.id, faction);
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.FactionsData,
-				faction.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.FactionsData, faction.writeNBT(new NBTTagCompound()));
 		this.saveFactions();
 	}
 
+	@SuppressWarnings("all")
 	public void saveFactions() {
+		CustomNpcs.debugData.start("Mod", this, "saveFactions");
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			File file = new File(saveDir, "factions.dat_new");
@@ -252,9 +247,9 @@ public class FactionController implements IFactionHandler {
 			if (file.exists()) {
 				file.delete();
 			}
-		} catch (Exception e) {
-			LogWriter.except(e);
 		}
+		catch (Exception e) { LogWriter.except(e); }
+		CustomNpcs.debugData.end("Mod", this, "saveFactions");
 	}
 
 }

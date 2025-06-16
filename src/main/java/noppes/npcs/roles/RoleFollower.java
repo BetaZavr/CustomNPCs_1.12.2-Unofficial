@@ -131,8 +131,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 				if (entity instanceof EntityNPCInterface) {
 					fs.dimId = entity.world.provider.getDimension();
 					fs.id = entity.getUniqueID();
-					((EntityNPCInterface) entity).getNavigator().tryMoveToEntityLiving(this.owner,
-							this.npc.ais.canSprint ? 1.3 : 1.0d);
+					((EntityNPCInterface) entity).getNavigator().tryMoveToEntityLiving(this.owner, this.npc.ais.canSprint ? 1.3 : 1.0d);
 				}
 			} catch (CommandException e) { LogWriter.error("Error:", e); }
 		} else if (dist <= 2.5d) {
@@ -244,11 +243,13 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 
 	@Override
 	public void interact(EntityPlayer player) {
-		if (this.ownerUUID == null || this.ownerUUID.isEmpty()) {
-			this.npc.say(player, this.npc.advanced.getInteractLine());
-			NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerFollowerHire, this.npc, 0, 0, 0);
-		} else if (player == this.owner && !this.disableGui) {
-			NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerFollower, this.npc, 1, 0, 0);
+		if (ownerUUID == null || ownerUUID.isEmpty()) {
+			npc.say(player, npc.advanced.getInteractLine());
+			if (!rentalItems.isEmpty() || rentalMoney > 0) {
+				NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerFollowerHire, npc, 0, 0, 0);
+			}
+		} else if (player == owner && !disableGui) {
+			NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerFollower, npc, 1, 0, 0);
 		}
 	}
 

@@ -36,23 +36,23 @@ public class ModelBipedAlt extends ModelNpcAlt {
 	public final AnimationStack leftStackData = new AnimationStack(6);
 	protected EntityEquipmentSlot slot;
 
-	public ModelBipedAlt(float modelSize, boolean isArmorModel, boolean smallArmsIn, boolean isClassicPlayer) {
+	public ModelBipedAlt(float modelSize, boolean isArmorModelIn, boolean smallArmsIn, boolean isClassicPlayer) {
 		super(modelSize, smallArmsIn, isClassicPlayer);
-		this.isArmorModel = isArmorModel;
-		this.textureWidth = 64;
-		this.textureHeight = 32;
-		this.init(modelSize);
+		isArmorModel = isArmorModelIn;
+		textureWidth = 64;
+		textureHeight = 32;
+		init(modelSize);
 	}
 
 	@Override
 	protected void init(float modelSize) {
-		float handWidth = this.smallArmsIn ? 3.0f : 4.0f;
-		this.bipedHead = new ModelRendererAlt(this, EnumParts.HEAD, 0, 0, true);
-		((ModelRendererAlt) this.bipedHead).setBox(-4.0F, -8.0F, -4.0F, 8, 3 , 3, 2, 8, modelSize);
-		this.bipedHead.setRotationPoint(0.0F, 0.0F, 0.0F);
-		this.bipedHeadwear = new ModelRendererAlt(this, EnumParts.HEAD, 32, 0, true);
-		((ModelRendererAlt) this.bipedHeadwear).setBox(-4.0F, -8.0F, -4.0F, 8, 3 , 3, 2, 8, modelSize + 0.5f);
-		this.bipedHeadwear.setRotationPoint(0.0F, 0.0F, 0.0F);
+		float handWidth = smallArmsIn ? 3.0f : 4.0f;
+		bipedHead = new ModelRendererAlt(this, EnumParts.HEAD, 0, 0, true);
+		((ModelRendererAlt) bipedHead).setBox(-4.0F, -8.0F, -4.0F, 8, 3 , 3, 2, 8, modelSize);
+		bipedHead.setRotationPoint(0.0F, 0.0F, 0.0F);
+		bipedHeadwear = new ModelRendererAlt(this, EnumParts.HEAD, 32, 0, true);
+		((ModelRendererAlt) bipedHeadwear).setBox(-4.0F, -8.0F, -4.0F, 8, 3 , 3, 2, 8, modelSize + 0.5f);
+		bipedHeadwear.setRotationPoint(0.0F, 0.0F, 0.0F);
 
 		bipedHeadwear_64 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 64, false);
 		bipedHeadwear_128 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 128, false);
@@ -70,38 +70,38 @@ public class ModelBipedAlt extends ModelNpcAlt {
 		bipedHeadwear_2048_old = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 2048, true);
 		bipedHeadwear_4096_old = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 4096, true);
 
-		this.bipedBody = new ModelRendererAlt(this, EnumParts.BODY, 16, 16, false);
-		((ModelRendererAlt) this.bipedBody).setBox(-4.0F, 0.0F, -2.0F, 8, 5.5f, 4.0f, 2.5f, 4, modelSize);
-		this.bipedBody.setRotationPoint(0.0F, 0.0F, 0.0F);
+		bipedBody = new ModelRendererAlt(this, EnumParts.BODY, 16, 16, false);
+		((ModelRendererAlt) bipedBody).setBox(-4.0F, 0.0F, -2.0F, 8, 5.5f, 4.0f, 2.5f, 4, modelSize);
+		bipedBody.setRotationPoint(0.0F, 0.0F, 0.0F);
 
-		this.bipedRightArm = new ModelRendererAlt(this, EnumParts.ARM_RIGHT, 40, 16, false);
-		((ModelRendererAlt) this.bipedRightArm).setBox(this.smallArmsIn ? -2.0F : -3.0F, -2.0F, -2.0F, handWidth, 5.5f, 3.5f, 3.0f, 4, modelSize);
-		this.bipedRightArm.setRotationPoint(-5.0F, 2.0F, 0.0F);
-		((ModelRendererAlt) this.bipedRightArm).smallArms = this.smallArmsIn;
-		((ModelRendererAlt) this.bipedRightArm).isArmor = true;
-		this.bipedRightLeg = new ModelRendererAlt(this, EnumParts.LEG_RIGHT, 0, 16, false);
-		((ModelRendererAlt) this.bipedRightLeg).setBox(-2.0F, 0.0F, -2.1F, 4.0f, 5.5f, 3.5f, 3.0f, 4, modelSize);
-		this.bipedRightLeg.setRotationPoint(-2.0F, 12.0F, 0.0F);
-		((ModelRendererAlt) this.bipedRightLeg).isArmor = true;
+		bipedRightArm = new ModelRendererAlt(this, EnumParts.ARM_RIGHT, 40, 16, false);
+		((ModelRendererAlt) bipedRightArm).setBox(smallArmsIn ? -2.0F : -3.0F, -2.0F, -2.0F, handWidth, 5.5f, 3.5f, 3.0f, 4, modelSize);
+		bipedRightArm.setRotationPoint(-5.0F, 2.0F, 0.0F);
+		((ModelRendererAlt) bipedRightArm).smallArms = smallArmsIn;
+		((ModelRendererAlt) bipedRightArm).isArmor = true;
+		bipedRightLeg = new ModelRendererAlt(this, EnumParts.LEG_RIGHT, 0, 16, false);
+		((ModelRendererAlt) bipedRightLeg).setBox(-2.0F, 0.0F, -2.1F, 4.0f, 5.5f, 3.5f, 3.0f, 4, modelSize);
+		bipedRightLeg.setRotationPoint(-2.0F, 12.0F, 0.0F);
+		((ModelRendererAlt) bipedRightLeg).isArmor = true;
 
-		this.bipedLeftArm = new ModelRendererAlt(this, EnumParts.ARM_LEFT, 40, 16, false);
-		this.bipedLeftArm.mirror = true;
-		((ModelRendererAlt) this.bipedLeftArm).setBox(-1.0F, -2.0F, -2.0F, handWidth, 5.5f, 3.5f, 3.0f, 4, modelSize);
-		this.bipedLeftArm.setRotationPoint(5.0F, 2.0F, 0.0F);
-		((ModelRendererAlt) this.bipedLeftArm).smallArms = this.smallArmsIn;
-		((ModelRendererAlt) this.bipedLeftArm).isArmor = true;
-		this.bipedLeftLeg = new ModelRendererAlt(this, EnumParts.LEG_LEFT, 0, 16, false);
-		this.bipedLeftLeg.mirror = true;
-		((ModelRendererAlt) this.bipedLeftLeg).setBox(-2.2F, 0.0F, -2.1F, 4.0f, 5.5f, 3.5f, 3.0f, 4, modelSize);
-		this.bipedLeftLeg.setRotationPoint(2.0F, 12.0F, 0.0F);
-		((ModelRendererAlt) this.bipedLeftLeg).isArmor = true;
+		bipedLeftArm = new ModelRendererAlt(this, EnumParts.ARM_LEFT, 40, 16, false);
+		bipedLeftArm.mirror = true;
+		((ModelRendererAlt) bipedLeftArm).setBox(-1.0F, -2.0F, -2.0F, handWidth, 5.5f, 3.5f, 3.0f, 4, modelSize);
+		bipedLeftArm.setRotationPoint(5.0F, 2.0F, 0.0F);
+		((ModelRendererAlt) bipedLeftArm).smallArms = smallArmsIn;
+		((ModelRendererAlt) bipedLeftArm).isArmor = true;
+		bipedLeftLeg = new ModelRendererAlt(this, EnumParts.LEG_LEFT, 0, 16, false);
+		bipedLeftLeg.mirror = true;
+		((ModelRendererAlt) bipedLeftLeg).setBox(-2.2F, 0.0F, -2.1F, 4.0f, 5.5f, 3.5f, 3.0f, 4, modelSize);
+		bipedLeftLeg.setRotationPoint(2.0F, 12.0F, 0.0F);
+		((ModelRendererAlt) bipedLeftLeg).isArmor = true;
 	}
 
 	@Override
 	public void render(@Nonnull Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		if (entityIn.equals(ModelNpcAlt.editAnimDataSelect.displayNpc) && !ModelNpcAlt.editAnimDataSelect.showArmor) { return; }
 		if (entityIn.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
-		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
+		setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 		Map<EnumParts, Boolean> ba = new HashMap<>();
 		Map<EnumParts, Boolean> baArmor = new HashMap<>();
 
@@ -114,14 +114,14 @@ public class ModelBipedAlt extends ModelNpcAlt {
 		if (entityIn instanceof EntityPlayer) {
 			PlayerData data = PlayerData.get((EntityPlayer) entityIn);
 			if (data != null) {
-				ba.putAll(data.animation.showParts);
-				baArmor.putAll(data.animation.showArmorParts);
+				ba = data.animation.showParts;
+				baArmor = data.animation.showArmorParts;
 			}
 		}
 		else if (entityIn instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) entityIn;
-			ba.putAll(npc.animation.showParts);
-			baArmor.putAll(npc.animation.showArmorParts);
+			ba = npc.animation.showParts;
+			baArmor = npc.animation.showArmorParts;
 			if (!isArmorModel && npc.display.getTint() != 0xFFFFFF) {
 				r = (float)(npc.display.getTint() >> 16 & 255) / 255.0F;
 				g = (float)(npc.display.getTint() >> 8 & 255) / 255.0F;
@@ -135,9 +135,9 @@ public class ModelBipedAlt extends ModelNpcAlt {
 		GlStateManager.enableBlend();
 
 		bipedHead.showModel = ba.get(EnumParts.HEAD) && (!isArmorModel || (baArmor.get(EnumParts.HEAD) && slot == EntityEquipmentSlot.HEAD));
-		if (this.bipedHead.showModel && entityIn instanceof EntityLivingBase) {
-			((ModelRendererAlt) this.bipedHead).checkBacklightColor(r, g, b);
-			if (this.isChild) {
+		if (bipedHead.showModel && entityIn instanceof EntityLivingBase) {
+			((ModelRendererAlt) bipedHead).checkBacklightColor(r, g, b);
+			if (isChild) {
 				GlStateManager.scale(0.75F, 0.75F, 0.75F);
 				GlStateManager.translate(0.0F, 16.0F * scale, 0.0F);
 				if (renderHead((EntityLivingBase) entityIn, scale)) {
@@ -148,7 +148,8 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(0.5F, 0.5F, 0.5F);
 				GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
-			} else {
+			}
+			else {
 				if (entityIn.isSneaking()) {
 					boolean chest = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() instanceof ItemArmor;
 					boolean legs = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.LEGS).getItem() instanceof ItemArmor;
@@ -161,84 +162,84 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				}
 			}
 		}
-
 		bipedRightArm.showModel = ba.get(EnumParts.ARM_RIGHT) && (!isArmorModel || (baArmor.get(EnumParts.ARM_RIGHT) && slot == EntityEquipmentSlot.CHEST));
 		bipedLeftArm.showModel = ba.get(EnumParts.ARM_LEFT) && (!isArmorModel || (baArmor.get(EnumParts.ARM_LEFT) && slot == EntityEquipmentSlot.CHEST));
-		if (this.bipedRightArm.showModel || this.bipedLeftArm.showModel) {
-			if (this.isArmorModel && this.slot == EntityEquipmentSlot.CHEST) {
+		if (bipedRightArm.showModel || bipedLeftArm.showModel) {
+			if (isArmorModel && slot == EntityEquipmentSlot.CHEST) {
 				stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.CHEST);
-				this.bipedRightArm.showModel = stack.getItem() instanceof ItemArmor && baArmor.get(EnumParts.ARM_RIGHT);
-				this.bipedLeftArm.showModel = stack.getItem() instanceof ItemArmor && baArmor.get(EnumParts.ARM_LEFT);
-                ((ModelRendererAlt) this.bipedRightArm).clearOBJ();
-                ((ModelRendererAlt) this.bipedLeftArm).clearOBJ();
+				bipedRightArm.showModel = stack.getItem() instanceof ItemArmor && baArmor.get(EnumParts.ARM_RIGHT);
+				bipedLeftArm.showModel = stack.getItem() instanceof ItemArmor && baArmor.get(EnumParts.ARM_LEFT);
+                ((ModelRendererAlt) bipedRightArm).clearOBJ();
+                ((ModelRendererAlt) bipedLeftArm).clearOBJ();
                 if (entityIn instanceof EntityCustomNpc) {
                     String m = ((EntityCustomNpc) entityIn).display.getModel();
                     boolean smallArms = m != null && m.contains("customnpcalex");
-                    ((ModelRendererAlt) this.bipedLeftArm).smallArms = smallArms;
-                    ((ModelRendererAlt) this.bipedRightArm).smallArms = smallArms;
+					((ModelRendererAlt) bipedRightArm).smallArms = smallArms;
+                    ((ModelRendererAlt) bipedLeftArm).smallArms = smallArms;
                 }
                 if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
-                    ((ModelRendererAlt) this.bipedRightArm).setOBJModel(stack, null);
-                    ((ModelRendererAlt) this.bipedLeftArm).setOBJModel(stack, null);
+                    ((ModelRendererAlt) bipedRightArm).setOBJModel(stack, null);
+                    ((ModelRendererAlt) bipedLeftArm).setOBJModel(stack, null);
                 }
             }
             GlStateManager.pushMatrix();
             if (entityIn.isSneaking()) { GlStateManager.translate(0.0F, -0.2F, 0.0F); }
-            if (this.bipedRightArm.showModel) {
-                ((ModelRendererAlt) this.bipedRightArm).checkBacklightColor(r, g, b);
-                if (((ModelRendererAlt) this.bipedRightArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-                this.bipedRightArm.render(scale);
+            if (bipedRightArm.showModel) {
+                ((ModelRendererAlt) bipedRightArm).checkBacklightColor(r, g, b);
+                if (((ModelRendererAlt) bipedRightArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+                bipedRightArm.render(scale);
             }
-            if (this.bipedLeftArm.showModel) {
-                ((ModelRendererAlt) this.bipedLeftArm).checkBacklightColor(r, g, b);
-                if (((ModelRendererAlt) this.bipedLeftArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-                this.bipedLeftArm.render(scale);
+            if (bipedLeftArm.showModel) {
+                ((ModelRendererAlt) bipedLeftArm).checkBacklightColor(r, g, b);
+                if (((ModelRendererAlt) bipedLeftArm).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+                bipedLeftArm.render(scale);
             }
             GlStateManager.popMatrix();
         }
 
-		bipedLeftArm.showModel = ba.get(EnumParts.LEG_RIGHT) && (!isArmorModel || (baArmor.get(EnumParts.LEG_RIGHT) && (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)));
+		bipedRightLeg.showModel = ba.get(EnumParts.LEG_RIGHT) && (!isArmorModel || (baArmor.get(EnumParts.LEG_RIGHT) && (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)));
 		bipedLeftLeg.showModel = ba.get(EnumParts.LEG_LEFT) && (!isArmorModel || (baArmor.get(EnumParts.LEG_LEFT) && (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)));
-		if ((ba.get(EnumParts.LEG_RIGHT) && this.bipedRightLeg.showModel) || (ba.get(EnumParts.LEG_LEFT) && this.bipedLeftLeg.showModel)) {
+		if ((ba.get(EnumParts.LEG_RIGHT) && bipedRightLeg.showModel) || (ba.get(EnumParts.LEG_LEFT) && bipedLeftLeg.showModel)) {
 			boolean legsRender = true;
-			if (this.isArmorModel && (this.slot == EntityEquipmentSlot.LEGS || this.slot == EntityEquipmentSlot.FEET)) {
-				if (this.slot == EntityEquipmentSlot.LEGS) {
-					this.bipedRightLeg.showModel = baArmor.get(EnumParts.LEG_RIGHT);
-					this.bipedLeftLeg.showModel = baArmor.get(EnumParts.LEG_LEFT);
-				} else {
-					this.bipedRightLeg.showModel = baArmor.get(EnumParts.FEET_RIGHT);
-					this.bipedLeftLeg.showModel = baArmor.get(EnumParts.FEET_LEFT);
-					baArmor.put(EnumParts.LEG_RIGHT, this.bipedRightLeg.showModel);
-					baArmor.put(EnumParts.LEG_LEFT, this.bipedLeftLeg.showModel);
+			if (isArmorModel && (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)) {
+				if (slot == EntityEquipmentSlot.LEGS) {
+					bipedRightLeg.showModel = baArmor.get(EnumParts.LEG_RIGHT);
+					bipedLeftLeg.showModel = baArmor.get(EnumParts.LEG_LEFT);
 				}
-				legsRender = ((EntityLivingBase) entityIn).getItemStackFromSlot(this.slot).getItem() instanceof ItemArmor;
-				((ModelRendererAlt) this.bipedBody).clearOBJ();
-				((ModelRendererAlt) this.bipedRightLeg).clearOBJ();
-				((ModelRendererAlt) this.bipedLeftLeg).clearOBJ();
-				if (this.slot == EntityEquipmentSlot.FEET && legsRender) {
+				else {
+					bipedRightLeg.showModel = baArmor.get(EnumParts.FEET_RIGHT);
+					bipedLeftLeg.showModel = baArmor.get(EnumParts.FEET_LEFT);
+					baArmor.put(EnumParts.LEG_RIGHT, bipedRightLeg.showModel);
+					baArmor.put(EnumParts.LEG_LEFT, bipedLeftLeg.showModel);
+				}
+				legsRender = ((EntityLivingBase) entityIn).getItemStackFromSlot(slot).getItem() instanceof ItemArmor;
+				((ModelRendererAlt) bipedBody).clearOBJ();
+				((ModelRendererAlt) bipedRightLeg).clearOBJ();
+				((ModelRendererAlt) bipedLeftLeg).clearOBJ();
+				if (slot == EntityEquipmentSlot.FEET && legsRender) {
 					stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.FEET);
 					if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
-						if (this.bipedRightLeg.showModel) {
-							((ModelRendererAlt) this.bipedRightLeg).checkBacklightColor(r, g, b);
-							((ModelRendererAlt) this.bipedRightLeg).setOBJModel(stack, EnumParts.FEET_RIGHT);
-							this.bipedRightLeg.render(scale);
+						if (bipedRightLeg.showModel) {
+							((ModelRendererAlt) bipedRightLeg).checkBacklightColor(r, g, b);
+							((ModelRendererAlt) bipedRightLeg).setOBJModel(stack, EnumParts.FEET_RIGHT);
+							bipedRightLeg.render(scale);
 						}
-						if (this.bipedLeftLeg.showModel) {
-							((ModelRendererAlt) this.bipedLeftLeg).checkBacklightColor(r, g, b);
-							((ModelRendererAlt) this.bipedLeftLeg).setOBJModel(stack, EnumParts.FEET_LEFT);
-							this.bipedLeftLeg.render(scale);
+						if (bipedLeftLeg.showModel) {
+							((ModelRendererAlt) bipedLeftLeg).checkBacklightColor(r, g, b);
+							((ModelRendererAlt) bipedLeftLeg).setOBJModel(stack, EnumParts.FEET_LEFT);
+							bipedLeftLeg.render(scale);
 						}
 					}
 				}
-				if (this.slot == EntityEquipmentSlot.LEGS && legsRender) {
+				if (slot == EntityEquipmentSlot.LEGS && legsRender) {
 					stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.LEGS);
 					if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
-						if (this.bipedRightLeg.showModel) { ((ModelRendererAlt) this.bipedRightLeg).setOBJModel(stack, null); }
-						if (this.bipedLeftLeg.showModel) { ((ModelRendererAlt) this.bipedLeftLeg).setOBJModel(stack, null); }
-						if (ba.get(EnumParts.BODY) && this.bipedBody.showModel) {
-							((ModelRendererAlt) this.bipedBody).checkBacklightColor(r, g, b);
-							((ModelRendererAlt) this.bipedBody).setOBJModel(stack, EnumParts.BELT);
-							this.bipedBody.render(scale);
+						if (bipedRightLeg.showModel) { ((ModelRendererAlt) bipedRightLeg).setOBJModel(stack, null); }
+						if (bipedLeftLeg.showModel) { ((ModelRendererAlt) bipedLeftLeg).setOBJModel(stack, null); }
+						if (ba.get(EnumParts.BODY) && bipedBody.showModel) {
+							((ModelRendererAlt) bipedBody).checkBacklightColor(r, g, b);
+							((ModelRendererAlt) bipedBody).setOBJModel(stack, EnumParts.BELT);
+							bipedBody.render(scale);
 						}
 					}
 				}
@@ -247,36 +248,34 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				GlStateManager.pushMatrix();
 				if (entityIn.isSneaking()) {
 					GlStateManager.translate(0.0F, -0.4F, 0.0F);
-					if (this.isArmorModel && this.slot == EntityEquipmentSlot.FEET) { GlStateManager.translate(0.0F, -0.2F, 0.0F); }
+					if (isArmorModel && slot == EntityEquipmentSlot.FEET) { GlStateManager.translate(0.0F, -0.2F, 0.0F); }
 				}
-				if (this.bipedRightLeg.showModel) {
-					((ModelRendererAlt) this.bipedRightLeg).checkBacklightColor(r, g, b);
-					if (((ModelRendererAlt) this.bipedRightLeg).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-					this.bipedRightLeg.render(scale);
+				if (bipedRightLeg.showModel) {
+					((ModelRendererAlt) bipedRightLeg).checkBacklightColor(r, g, b);
+					if (((ModelRendererAlt) bipedRightLeg).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+					bipedRightLeg.render(scale);
 				}
-				if (this.bipedLeftLeg.showModel) {
-					((ModelRendererAlt) this.bipedLeftLeg).checkBacklightColor(r, g, b);
-					if (((ModelRendererAlt) this.bipedLeftLeg).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-					this.bipedLeftLeg.render(scale);
+				if (bipedLeftLeg.showModel) {
+					((ModelRendererAlt) bipedLeftLeg).checkBacklightColor(r, g, b);
+					if (((ModelRendererAlt) bipedLeftLeg).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+					bipedLeftLeg.render(scale);
 				}
 				GlStateManager.popMatrix();
 			}
 		}
 
 		bipedBody.showModel = ba.get(EnumParts.BODY) && (!isArmorModel || (baArmor.get(EnumParts.BODY) && slot == EntityEquipmentSlot.CHEST));
-		if (this.bipedBody.showModel) {
-			if (this.isArmorModel) {
-				((ModelRendererAlt) this.bipedBody).clearOBJ();
+		if (bipedBody.showModel) {
+			if (isArmorModel) {
+				((ModelRendererAlt) bipedBody).clearOBJ();
 				stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.CHEST);
-				if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
-					((ModelRendererAlt) this.bipedBody).setOBJModel(stack, null);
-				}
+				if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) { ((ModelRendererAlt) bipedBody).setOBJModel(stack, null); }
 			}
 			GlStateManager.pushMatrix();
 			if (entityIn.isSneaking()) { GlStateManager.translate(0.0F, -0.2F, 0.0F); }
-			((ModelRendererAlt) this.bipedBody).checkBacklightColor(r, g, b);
-			if (((ModelRendererAlt) this.bipedBody).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
-			this.bipedBody.render(scale);
+			((ModelRendererAlt) bipedBody).checkBacklightColor(r, g, b);
+			if (((ModelRendererAlt) bipedBody).notOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+			bipedBody.render(scale);
 			GlStateManager.popMatrix();
 		}
 		GlStateManager.popMatrix();
@@ -289,10 +288,10 @@ public class ModelBipedAlt extends ModelNpcAlt {
 			((ModelRendererAlt) bipedHead).setOBJModel(stack, null);
 		}
 		bipedHead.render(scale);
-		return ((ModelRendererAlt) this.bipedHead).notOBJModel();
+		return ((ModelRendererAlt) bipedHead).notOBJModel();
 	}
 
-	public void setSlot(EntityEquipmentSlot slotIn) { this.slot = slotIn; }
+	public void setSlot(EntityEquipmentSlot slotIn) { slot = slotIn; }
 
 	public void setArmorColor(float r, float g, float b) {
 		armorColorR = r;

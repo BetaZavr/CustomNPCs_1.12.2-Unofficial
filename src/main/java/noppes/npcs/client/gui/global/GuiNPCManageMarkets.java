@@ -88,7 +88,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 				break;
 			}
 			case 4: { // Del deal
-				if (!dataDeals.containsKey(scrollDeals.getSelected())) { return; }
+				if (!dataDeals.containsKey(scrollAllDeals.getSelected())) { return; }
 				Client.sendData(EnumPacketServer.TraderMarketDel, -1, dealId);
 				dealId = 0;
 				break;
@@ -170,15 +170,9 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 		super.initGui();
 		mData = MarcetController.getInstance();
 		int w = 120, h = ySize - 24;
-		if (scrollMarkets == null) {
-			(scrollMarkets = new GuiCustomScroll(this, 0)).setSize(w, h);
-		}
-		if (scrollDeals == null) {
-			(scrollDeals = new GuiCustomScroll(this, 1)).setSize(w, h);
-		}
-		if (scrollAllDeals == null) {
-			(scrollAllDeals = new GuiCustomScroll(this, 2)).setSize(w, h);
-		}
+		if (scrollMarkets == null) { (scrollMarkets = new GuiCustomScroll(this, 0)).setSize(w, h); }
+		if (scrollDeals == null) { (scrollDeals = new GuiCustomScroll(this, 1)).setSize(w, h); }
+		if (scrollAllDeals == null) { (scrollAllDeals = new GuiCustomScroll(this, 2)).setSize(w, h); }
 		int x0 = guiLeft + 5, x1 = x0 + w + 5, x2 = x1 + w + 45, y = guiTop + 14;
 		// Markets:
 		LinkedHashMap<Integer, List<String>> htsM = new LinkedHashMap<>();
@@ -223,16 +217,13 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 		scrollMarkets.setSelected(selectedMarcet.getSettingName());
 
 		// Deals:
-		scrollAllDeals.setListNotSorted(new ArrayList<>(dataDeals.keySet()));
 		if (!dataDeals.isEmpty()) {
+			List<String> allDeals = new ArrayList<>(dataDeals.keySet());
 			LinkedHashMap<Integer, List<String>> htsAD = new LinkedHashMap<>();
 			List<ItemStack> stacks = new ArrayList<>();
 
-			LinkedHashMap<Integer, List<String>> htsD = new LinkedHashMap<>();
-			List<String> marcetDeals = new ArrayList<>();
-			List<ItemStack> marcetStacks = new ArrayList<>();
+			Map<Integer, TempDealInfo> map = new TreeMap<>();
 			int i = 0;
-			int j = 0;
 			for (String key : dataDeals.keySet()) {
 				int dealID = dataDeals.get(key);
 				Deal deal = (Deal) mData.getDeal(dealID);
@@ -261,7 +252,8 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 									new TextComponentTranslation("market.hover.nv.deal.barter").getFormattedText());
 						}
 					}
-				} else {
+				}
+				else {
 					String section;
 					if (tab == tabSelect) {
 						section = "\"" + (new TextComponentTranslation(selectedMarcet.sections.get(tab).name).getFormattedText()) + "\"";
@@ -290,14 +282,29 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 					totalInfo.add(((char) 167) + "e" + (new TextComponentTranslation("market.deal.type." + dm.deal.getType()).getFormattedText()));
 					totalInfo.add(((char) 167) + "6" + (new TextComponentTranslation("drop.chance").getFormattedText() + ((char) 167) + "6: " + ((char) 167) + "r" + dm.deal.getChance() + "%"));
 				}
-				htsAD.put(i++, totalInfo);
-				stacks.add(stack);
 				if (tabSelect == tab) {
-					marcetDeals.add(key);
-					marcetStacks.add(stack);
-					htsD.put(j++, marcetInfo);
+					map.put(dealID, new TempDealInfo(key, stack, marcetInfo));
+					allDeals.remove(key);
+				}
+				else {
+					htsAD.put(i++, totalInfo);
+					stacks.add(stack);
 				}
 			}
+			int j = 0;
+			List<String> marcetDeals = new ArrayList<>();
+			List<ItemStack> marcetStacks = new ArrayList<>();
+			LinkedHashMap<Integer, List<String>> htsD = new LinkedHashMap<>();
+			for (IDeal deal : selectedMarcet.getDeals(tabSelect)) {
+				if (map.containsKey(deal.getId())) {
+					TempDealInfo tdi = map.get(deal.getId());
+					marcetDeals.add(tdi.key);
+					marcetStacks.add(tdi.stack);
+					htsD.put(j++, tdi.marcetInfo);
+				}
+			}
+
+			scrollAllDeals.setListNotSorted(allDeals);
 			scrollAllDeals.setHoverTexts(htsAD);
 			scrollAllDeals.setStacks(stacks);
 
@@ -334,7 +341,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 		label.setHoverText("market.hover.all.deals");
 		addLabel(label);
 
-		y += scrollMarkets.height + 2;
+		y += h + 2;
 		int bw = (w - 2) / 3;
 		// add market
 		GuiNpcButton button = new GuiNpcButton(0, x0, y, bw, 20, "gui.add");
@@ -357,7 +364,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 		addButton(button);
 		// del deal
 		button = new GuiNpcButton(4, x2 + 2 + bw, y, bw, 20, "gui.remove");
-		button.setEnabled(dealId > 0 && selectedDeal != null);
+		button.setEnabled(dealId >= 0 && selectedDeal != null && dataDeals.size() > 1);
 		button.setHoverText("market.hover.deal.del");
 		addButton(button);
 		// edit deal
@@ -492,11 +499,24 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcMarketSettings) {
 			setGuiData(null);
 		}
 		NoppesUtil.openGUI(player, this);
 	}
 
+	public static class TempDealInfo {
+
+		public final String key;
+		public final ItemStack stack;
+		public final List<String> marcetInfo;
+
+		public TempDealInfo(String keyIn, ItemStack stackIn, List<String> marcetInfoIn) {
+			key = keyIn;
+			stack = stackIn;
+			marcetInfo = marcetInfoIn;
+		}
+
+	}
 }

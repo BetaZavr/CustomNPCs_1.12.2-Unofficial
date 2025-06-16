@@ -15,7 +15,7 @@ public class ResourceIndexReflection {
 
     private static Field resourceMap;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static Map<String, File> getResourceMap(ResourceIndex resourceIndex) {
         if (resourceIndex == null) { return new HashMap<>(); }
         if (resourceMap == null) {

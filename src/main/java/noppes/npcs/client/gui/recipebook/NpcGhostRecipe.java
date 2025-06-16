@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.recipebook.GhostRecipe;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -51,7 +50,6 @@ extends GhostRecipe {
         if (recipe != null && recipe instanceof INpcRecipe && !((INpcRecipe) recipe).isGlobal()) {
             guiLeft -= 77;
         }
-        RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.disableLighting();
         for (int i = 0; i < this.ingredients.size(); ++i) {
             GhostRecipe.GhostIngredient ghostrecipe$ghostingredient = this.ingredients.get(i);
@@ -70,8 +68,6 @@ extends GhostRecipe {
             if (i == 0) { renderitem.renderItemOverlays(mc.fontRenderer, itemstack, j, k); }
             GlStateManager.enableLighting();
         }
-
-        RenderHelper.disableStandardItemLighting();
     }
 
 

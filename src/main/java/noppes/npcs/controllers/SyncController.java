@@ -13,10 +13,10 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
 import noppes.npcs.Server;
 import noppes.npcs.client.ClientProxy;
+import noppes.npcs.config.ConfigLoader;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.data.Bank;
@@ -103,43 +103,8 @@ public class SyncController {
 				break;
 			}
 			case ModData: {
-				if (!syncEnd) {
-					return;
-				}
-				if (compound.hasKey("ShowLR")) {
-					CustomNpcs.ShowLR = compound.getBoolean("ShowLR");
-				}
-				if (compound.hasKey("ShowMoney")) {
-					CustomNpcs.ShowMoney = compound.getBoolean("ShowMoney");
-				}
-
-				CustomNpcs.showServerQuestCompass = compound.getBoolean("ShowQuestCompass");
-				if (CustomNpcs.ShowQuestCompass && !CustomNpcs.showServerQuestCompass) {
-					CustomNpcs.ShowQuestCompass = false;
-				}
-
-				CustomNpcs.RecalculateLR = compound.getBoolean("RecalculateLR");
-				CustomNpcs.setCharCurrencies(compound.getString("CharCurrencies"));
-				CustomNpcs.MaxBuilderBlocks = compound.getInteger("MaxBuilderBlocks");
-				CustomNpcs.MaxItemInDropsNPC = compound.getInteger("MaxItemInDropsNPC");
-				CustomNpcs.ScriptMaxTabs = compound.getInteger("ScriptMaxTabs");
-				CustomNpcs.DialogShowFitsSpeed = compound.getInteger("DialogFitsSpeed");
-				CustomNpcs.MailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
-				int[] vs = compound.getIntArray("LettersBeReceived");
-				System.arraycopy(vs, 0, CustomNpcs.MailTimeWhenLettersWillBeReceived, 0, vs.length);
-				vs = compound.getIntArray("CostSendingLetter");
-				System.arraycopy(vs, 0, CustomNpcs.MailCostSendingLetter, 0, vs.length);
-				ScriptController.forgeEventNames.clear();
-				for (int i = 0; i < compound.getTagList("ForgeEventNames", 10).tagCount(); i++) {
-					NBTTagCompound nbt = compound.getTagList("ForgeEventNames", 10).getCompoundTagAt(i);
-					String name = nbt.getString("Name");
-					Class<?> cls = null;
-					try {
-						cls = Class.forName(nbt.getString("Class"));
-					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
-					ScriptController.forgeEventNames.put(cls, name);
-				}
+				if (!syncEnd) { return; }
+				ConfigLoader.load(compound);
 				break;
 			}
 			case KeysData: {
@@ -152,7 +117,7 @@ public class SyncController {
 				break;
 			}
 			case Debug: {
-				List<String> list = CustomNpcs.showDebugs();
+				List<String> list = CustomNpcs.debugData.logging();
 				for (String str : list) {
 					player.sendMessage(new TextComponentString(str));
 				}
@@ -430,6 +395,7 @@ public class SyncController {
 	}
 
 	public static void syncPlayer(EntityPlayerMP player) {
+		CustomNpcs.debugData.start(player, SyncController.class, "syncPlayer");
 		NBTTagList list = new NBTTagList();
 		NBTTagCompound compound;
 		for (Faction faction : FactionController.instance.factions.values()) {
@@ -460,30 +426,7 @@ public class SyncController {
 
 		AnimationController.getInstance().sendTo(player);
 
-		compound = new NBTTagCompound();
-		if (!CustomNpcs.ShowLR) { compound.setBoolean("ShowLR", false); }
-		if (!CustomNpcs.ShowMoney) { compound.setBoolean("ShowMoney", false); }
-		compound.setBoolean("RecalculateLR", CustomNpcs.RecalculateLR);
-		compound.setBoolean("ShowQuestCompass", CustomNpcs.ShowQuestCompass);
-		compound.setString("CharCurrencies", CustomNpcs.CharCurrencies);
-		compound.setInteger("MaxBuilderBlocks", CustomNpcs.MaxBuilderBlocks);
-		compound.setInteger("MaxItemInDropsNPC", CustomNpcs.MaxItemInDropsNPC);
-		compound.setInteger("LettersBeDeleted", CustomNpcs.MailTimeWhenLettersWillBeDeleted);
-		compound.setInteger("ScriptMaxTabs", CustomNpcs.ScriptMaxTabs);
-		compound.setInteger("DialogFitsSpeed", CustomNpcs.DialogShowFitsSpeed);
-		compound.setIntArray("LettersBeReceived", CustomNpcs.MailTimeWhenLettersWillBeReceived);
-		compound.setIntArray("CostSendingLetter", CustomNpcs.MailCostSendingLetter);
-		compound.setBoolean("SendToYourself", CustomNpcs.MailSendToYourself);
-
-		list = new NBTTagList();
-		for (Class<?> cls : ScriptController.forgeEventNames.keySet()) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setString("Name", ScriptController.forgeEventNames.get(cls));
-			nbt.setString("Class", cls.getName());
-			list.appendTag(nbt);
-		}
-		compound.setTag("ForgeEventNames", list);
-		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.ModData, compound);
+		ConfigLoader.sendTo(player);
 
 		PlayerData data = PlayerData.get(player);
 		if (player.getServer() != null) {
@@ -500,6 +443,7 @@ public class SyncController {
 		BorderController.getInstance().sendTo(player);
 		MarcetController.getInstance().sendTo(player, -1);
 		ScriptController.Instance.sendClientTo(player);
+		CustomNpcs.debugData.end(player, SyncController.class, "syncPlayer");
 	}
 
 	private static void syncScriptRecipes(EntityPlayerMP player) {

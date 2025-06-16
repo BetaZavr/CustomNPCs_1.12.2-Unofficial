@@ -453,7 +453,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
 			SubGuiNpcTextArea gui = (SubGuiNpcTextArea) subgui;
 			if (gui.getId() == 0) {

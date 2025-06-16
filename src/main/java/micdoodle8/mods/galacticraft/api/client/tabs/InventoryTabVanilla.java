@@ -7,7 +7,6 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -43,7 +42,7 @@ public class InventoryTabVanilla extends AbstractTab {
 			return;
 		}
 		GlStateManager.disableRescaleNormal();
-		RenderHelper.disableStandardItemLighting();
+		//RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		int k = 0;
@@ -91,7 +90,7 @@ public class InventoryTabVanilla extends AbstractTab {
 		this.itemRender.zLevel = 0.0f;
 		GlStateManager.enableLighting();
 		GlStateManager.enableDepth();
-		RenderHelper.enableStandardItemLighting();
+		//RenderHelper.enableStandardItemLighting();
 		GlStateManager.enableRescaleNormal();
 	}
 

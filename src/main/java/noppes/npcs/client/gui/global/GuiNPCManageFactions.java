@@ -390,7 +390,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof GuiTextureSelection) {
 			faction.flag = ((GuiTextureSelection) subgui).resource;
 			initGui();

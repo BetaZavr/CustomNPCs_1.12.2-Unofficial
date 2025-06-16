@@ -50,7 +50,7 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.api.wrapper.DataObject;
-import noppes.npcs.api.wrapper.data.TempData;
+import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.blocks.tiles.TileNpcEntity;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -203,7 +203,6 @@ public class ScriptContainer {
 		isClient = isClientIn;
 	}
 
-
 	public ScriptContainer copyTo(IScriptHandler scriptHandler) {
 		ScriptContainer scriptContainer = new ScriptContainer(scriptHandler, isClient);
 		scriptContainer.readFromNBT(writeToNBT(new NBTTagCompound()), isClient);
@@ -320,22 +319,20 @@ public class ScriptContainer {
 		unknownFunctions.clear();
 	}
 
-	public void run(String type, Event event, boolean side) {
+	public void run(String type, Event event) {
 		Object key = event instanceof BlockEvent ? "Block"
 				: event instanceof PlayerEvent ? "Player"
-						: event instanceof ItemEvent ? "Item" : event instanceof NpcEvent ? "Npc" : null;
-		CustomNpcs.debugData.startDebug(side ? "Server" : "Client", "Run" + key + "Script_" + type, "run");
-		run(type, event);
-		CustomNpcs.debugData.endDebug(side ? "Server" : "Client", "Run" + key + "Script_" + type, "run");
-	}
-
-	private void run(String type, Object event) {
+				: event instanceof ItemEvent ? "Item" : event instanceof NpcEvent ? "Npc" : null;
+		CustomNpcs.debugData.start(key, this, "run_" + type);
 		if (engine == null) { setEngine(handler.getLanguage()); }
 		if (errored && console.isEmpty()) {
 			errored = false;
 			fullscript = null;
 		}
-		if (errored || !hasScriptCode() || unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || engine == null) { return; }
+		if (errored || !hasScriptCode() || unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || engine == null) {
+			CustomNpcs.debugData.end(key, this, "run_" + type);
+			return;
+		}
 		if (ScriptController.Instance.lastLoaded > lastCreated) {
 			lastCreated = ScriptController.Instance.lastLoaded;
 			fullscript = null;
@@ -373,10 +370,12 @@ public class ScriptContainer {
 				e.printStackTrace(pw);
 				LogWriter.debug("Script error: " + e);
 				String errorText = "" + e;
+				String errorName = "Error";
 				try {
-					LogWriter.debug("Script error cause: " + e.getCause());
-					LogWriter.debug("Script error localized message: " + e.getCause().getLocalizedMessage());
 					errorText = e.getCause().getLocalizedMessage().replaceAll("" + (char) 13, "");
+				} catch (Throwable ignored) {  }
+				try {
+					errorName = e.getCause().getClass().getSimpleName();
 				} catch (Throwable ignored) {  }
 				StringBuilder error = new StringBuilder();
 				if (errorText.contains("" + (char) 10)) {
@@ -386,9 +385,9 @@ public class ScriptContainer {
 					}
 				}
 				else { error = new StringBuilder(((char) 167) + "8" + e); }
-				ITextComponent errInfo = new TextComponentString("Script " + e.getCause().getClass().getSimpleName() + ": " + error);
+				ITextComponent errInfo = new TextComponentString("Script " + errorName + ": " + error);
 				errInfo.getStyle().setColor(TextFormatting.DARK_GRAY);
-				NoppesUtilServer.NotifyOPs(notice.appendText("\n").appendSibling(errInfo));
+				NoppesUtilServer.NotifyOPs(notice.appendText("\n").appendSibling(errInfo), true);
 				LogWriter.error(noticeToLog + " ", e);
 			}
 			finally {
@@ -398,9 +397,10 @@ public class ScriptContainer {
 			}
 		}
 		if (!console.isEmpty()) { ScriptController.Instance.tryAddErrored(this); }
-
+		CustomNpcs.debugData.end(key, this, "run_" + type);
 	}
 
+	@SuppressWarnings("all")
 	public void runAsync(String link, String async, String sync, Object arguments) {
 		if (!async.isEmpty()) {
 			if (!link.isEmpty()) {
@@ -544,7 +544,7 @@ public class ScriptContainer {
 		try { scriptEngine.put("currentThread", Thread.currentThread().getName()); } catch (Throwable ignored) { LogWriter.error("Not put key \"currentThread\" to engine"); }
 		try { scriptEngine.put("main", scriptEngine); } catch (Throwable ignored) { LogWriter.error("Not put key \"main\" to engine"); }
 		try { scriptEngine.put("currentScriptContainer", this); } catch (Throwable ignored) { LogWriter.error("Not put key \"currentScriptContainer\" to engine"); }
-		try { scriptEngine.put("tempData", new TempData()); } catch (Throwable ignored) { LogWriter.error("Not put key \"tempData\" to engine"); }
+		try { scriptEngine.put("tempData", new Data()); } catch (Throwable ignored) { LogWriter.error("Not put key \"tempData\" to engine"); }
 		// resave constants file
 		if (needResave) { Util.instance.saveFile(ScriptController.Instance.constantScriptsFile(), constants.copy()); }
 		//LogWriter.debug("Done fill engine");

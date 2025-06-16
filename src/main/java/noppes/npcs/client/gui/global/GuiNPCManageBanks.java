@@ -119,7 +119,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface gui) {
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiEditBankAccess) {
 			SubGuiEditBankAccess subGui = (SubGuiEditBankAccess) gui;
 			if (bank.isChanging != subGui.isChanging) {

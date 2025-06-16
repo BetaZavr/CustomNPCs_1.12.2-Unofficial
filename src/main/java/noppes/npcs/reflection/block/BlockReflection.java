@@ -10,6 +10,7 @@ public class BlockReflection {
 
     private static Field blockState;
 
+    @SuppressWarnings("all")
     public static void setBlockState(Block block, BlockStateContainer newBlockState) {
         if (block == null || newBlockState == null) { return; }
         if (blockState == null) {

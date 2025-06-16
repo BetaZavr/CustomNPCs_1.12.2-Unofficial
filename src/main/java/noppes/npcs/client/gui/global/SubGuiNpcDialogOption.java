@@ -239,7 +239,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiColorSelector) {
 			DialogOption option = this.option;
 			int color = ((SubGuiColorSelector) subgui).color;

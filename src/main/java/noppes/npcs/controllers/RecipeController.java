@@ -226,11 +226,11 @@ public class RecipeController implements IRecipeHandler {
 	}
 
 	public void load() {
-		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.startDebug("Common", null, "loadRecipes"); }
+		CustomNpcs.debugData.start("Mod", this, "load");
 		LogWriter.info("Loading Recipes");
 		this.loadFile();
 		EventHooks.onGlobalRecipesLoaded(this);
-		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.endDebug("Common", null, "loadRecipes"); }
+		CustomNpcs.debugData.end("Mod", this, "load");
 	}
 
 	private void loadDefaultRecipes(int version) {
@@ -493,13 +493,13 @@ public class RecipeController implements IRecipeHandler {
 	}
 
 	public void save() {
-		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.startDebug("Common", null, "saveRecipes"); }
+		CustomNpcs.debugData.start("Mod", this, "save");
 		try {
 			CompressedStreamTools.writeCompressed(getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "recipes.dat").toPath()));
 			// Util.instance.saveFile(new File(CustomNpcs.Dir, "recipes.json"), getNBT());
 		}
 		catch (Exception e) { LogWriter.error("Error:", e); }
-		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.endDebug("Common", null, "saveRecipes"); }
+		CustomNpcs.debugData.end("Mod", this, "save");
 	}
 
 	public void clear() {

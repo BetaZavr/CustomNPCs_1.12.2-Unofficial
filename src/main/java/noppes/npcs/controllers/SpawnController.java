@@ -85,8 +85,10 @@ public class SpawnController {
 	}
 
 	private void loadData() {
+		CustomNpcs.debugData.start("Mod", this, "loadData");
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
 		if (saveDir == null) {
+			CustomNpcs.debugData.end("Mod", this, "loadData");
 			return;
 		}
 		try {
@@ -102,6 +104,7 @@ public class SpawnController {
 				}
 			} catch (Exception e1) { LogWriter.error("Error:", e1); }
 		}
+		CustomNpcs.debugData.end("Mod", this, "loadData");
 	}
 
 	public void loadData(DataInputStream stream) throws IOException {
@@ -140,7 +143,9 @@ public class SpawnController {
 		saveData();
 	}
 
+	@SuppressWarnings("all")
 	public void saveData() {
+		CustomNpcs.debugData.start("Mod", this, "saveData");
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			File file = new File(saveDir, "spawns.dat_new");
@@ -158,9 +163,9 @@ public class SpawnController {
 			if (file.exists()) {
 				file.delete();
 			}
-		} catch (Exception e) {
-			LogWriter.except(e);
 		}
+		catch (Exception e) { LogWriter.except(e); }
+		CustomNpcs.debugData.end("Mod", this, "saveData");
 	}
 
 	public void saveSpawnData(SpawnData spawn) {

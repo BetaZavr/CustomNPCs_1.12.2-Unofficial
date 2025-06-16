@@ -102,8 +102,10 @@ public class EntityAIWander extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
+		CustomNpcs.debugData.start(entity, this, "shouldExecute");
 		if (entity.getIdleTime() >= 100 || !entity.getNavigator().noPath() || entity.isInteracting()
 				|| entity.isRiding() || (entity.ais.movingPause && entity.getRNG().nextInt(80) != 0)) {
+			CustomNpcs.debugData.end(entity, this, "shouldExecute");
 			return false;
 		}
 		if (entity.ais.npcInteracting && entity.getRNG().nextInt(entity.ais.movingPause ? 6 : 16) == 1) {
@@ -117,12 +119,16 @@ public class EntityAIWander extends EntityAIBase {
 		}
 		else {
 			Vec3d vec = getVec();
-			if (vec == null) { return false; }
+			if (vec == null) {
+				CustomNpcs.debugData.end(entity, this, "shouldExecute");
+				return false;
+			}
 			x = vec.x;
 			y = vec.y;
 			if (entity.ais.movementType == 1) { y = entity.getStartYPos() + entity.getRNG().nextFloat() * 0.75 * entity.ais.walkingRange; }
 			zPosition = vec.z;
 		}
+		CustomNpcs.debugData.end(entity, this, "shouldExecute");
 		return true;
 	}
 

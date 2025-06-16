@@ -56,7 +56,6 @@ import noppes.npcs.client.gui.player.*;
 import noppes.npcs.client.gui.script.GuiScriptInterface;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.IEditNPC;
 import noppes.npcs.client.gui.util.IGuiClose;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.IGuiError;
@@ -100,7 +99,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.SEND_FILE_LIST);
 		PacketHandlerClient.list.add(EnumPacketClient.SEND_FILE_PART);
 		PacketHandlerClient.list.add(EnumPacketClient.PLAY_SOUND);
-		PacketHandlerClient.list.add(EnumPacketClient.NPC_MOVINGPATH);
+		PacketHandlerClient.list.add(EnumPacketClient.NPC_MOVING_PATH);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_ANIMATION);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_NAVIGATION);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_AI_TARGET);
@@ -127,13 +126,11 @@ public class PacketHandlerClient extends PacketHandlerServer {
 
 	@SuppressWarnings("unchecked")
 	private void client(ByteBuf buffer, EntityPlayer player, EnumPacketClient type) throws Exception {
-		CustomNpcs.debugData.startDebug("Client", type.toString(), "PacketHandlerClient_Received");
 		Minecraft mc = Minecraft.getMinecraft();
 		PlayerData data = CustomNpcs.proxy.getPlayerData(mc.player);
 		if (type == EnumPacketClient.CHAT_BUBBLE) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityNPCInterface || entity instanceof EntityPlayer)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			if (entity instanceof EntityNPCInterface) {
@@ -146,11 +143,9 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				if (buffer.readBoolean()) {
 					player.sendMessage(new TextComponentString(npc.getName() + ": " + text));
 				}
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			if (!CustomNpcs.EnableChatBubbles || !CustomNpcs.EnablePlayerChatBubbles) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			EntityPlayer pl = (EntityPlayer) entity;
@@ -169,10 +164,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		}
 		else if (type == EnumPacketClient.EYE_BLINK) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
-			if (!(entity instanceof EntityNPCInterface)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
-				return;
-			}
+			if (!(entity instanceof EntityNPCInterface)) { return; }
 			ModelData model = ((EntityCustomNpc) entity).modelData;
 			model.eyes.blinkStart = System.currentTimeMillis();
 		}
@@ -236,7 +228,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			for (UUID uID : ClientProxy.notVisibleNPC.get(player.world.provider.getDimension())) {
 				if (uuid.equals(uID)) {
 					ClientProxy.notVisibleNPC.get(player.world.provider.getDimension()).remove(uID);
-					CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 					return;
 				}
 			}
@@ -299,7 +290,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.MARK_DATA) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityLivingBase)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			MarkData mark = MarkData.get((EntityLivingBase) entity);
@@ -308,7 +298,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.DIALOG) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityNPCInterface)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			Dialog dialog = DialogController.instance.dialogs.get(buffer.readInt());
@@ -361,11 +350,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
 			if (!(entity instanceof EntityNPCInterface)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
-				return;
-			}
-			if (mc.currentScreen instanceof IEditNPC && entity.equals(((IEditNPC) mc.currentScreen).getNpc())) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			((EntityNPCInterface) entity).readSpawnData(compound);
@@ -374,7 +358,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
 			if (!(entity instanceof EntityNPCInterface)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			((EntityNPCInterface) entity).advanced.setRole(compound.getInteger("Type"));
@@ -391,7 +374,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.DELETE_ENTITY) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityLivingBase)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			if (entity instanceof EntityNPCInterface) {
@@ -422,7 +404,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				}
 			}
 			if (!(gui instanceof IScrollData)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			((IScrollData) gui).setSelected(selected);
@@ -434,13 +415,12 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.GUI_DATA) {
 			GuiScreen gui = mc.currentScreen;
 			if (gui == null) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			if (gui instanceof GuiNPCInterface && ((GuiNPCInterface) gui).hasSubGui()) {
-				gui = (GuiScreen) ((GuiNPCInterface) gui).getSubGui();
+				gui = ((GuiNPCInterface) gui).getSubGui();
 			} else if (gui instanceof GuiContainerNPCInterface && ((GuiContainerNPCInterface) gui).hasSubGui()) {
-				gui = (GuiScreen) ((GuiContainerNPCInterface) gui).getSubGui();
+				gui = ((GuiContainerNPCInterface) gui).getSubGui();
 			}
 			if (gui instanceof IGuiData) {
 				NBTTagCompound compound = Server.readNBT(buffer);
@@ -450,7 +430,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.GUI_UPDATE) {
 			GuiScreen gui = mc.currentScreen;
 			if (gui == null) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			gui.initGui();
@@ -458,7 +437,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.GUI_ERROR) {
 			GuiScreen gui = mc.currentScreen;
 			if (!(gui instanceof IGuiError)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			int i = buffer.readInt();
@@ -468,7 +446,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.GUI_CLOSE) {
 			GuiScreen gui = mc.currentScreen;
 			if (gui == null) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			if (gui instanceof IGuiClose) {
@@ -503,7 +480,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					} else {
 						player.sendMessage(new TextComponentTranslation("Current font is %s", ClientProxy.Font.getName()));
 					}
-					CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				};
 				mc.addScheduledTask(run);
 			}
@@ -527,7 +503,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			if (compound.hasKey("QuestID", 3)) {
 				IQuest quest = QuestController.instance.get(compound.getInteger("QuestID"));
 				if (quest == null) {
-					CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 					return;
 				}
 				title = new TextComponentTranslation("quest.name");
@@ -560,7 +535,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				}
 			}
 			if (visible == null) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			boolean found = false;
@@ -640,12 +614,10 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			}
 			if (!updateGui) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			GuiScreen gui = mc.currentScreen;
 			if (gui == null) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			if (gui instanceof GuiNPCTrader) {
@@ -657,7 +629,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.DETECT_HELD_ITEM) {
 			try {
 				player.inventory.setInventorySlotContents(buffer.readInt(), new ItemStack(Server.readNBT(buffer)));
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			} catch (Exception e) {
 				LogWriter.error("Error:", e);
@@ -669,14 +640,12 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			int id = buffer.readInt();
 			if (id == -1) {
 				BorderController.getInstance().regions.clear();
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			} else if (id == -2) {
 				GuiScreen gui = mc.currentScreen;
 				if (gui instanceof GuiNPCInterface) {
 					gui.initGui();
 				}
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			BorderController.getInstance().loadRegion(Server.readNBT(buffer));
@@ -691,7 +660,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		}
 		else if (type == EnumPacketClient.GET_SCHEMATIC) {
 			if (ClientEventHandler.schemaPos == null || ClientEventHandler.schema == null) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			int x = ClientEventHandler.schemaPos.getX();
@@ -710,11 +678,9 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			NBTTagCompound nbtTemplate = Server.readNBT(buffer);
 			if (nbtTemplate.getKeySet().isEmpty()) {
 				DropController.getInstance().templates.clear();
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			if (!nbtTemplate.hasKey("Name", 8)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			DropsTemplate template = new DropsTemplate(nbtTemplate.getCompoundTag("Groups"));
@@ -733,7 +699,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				if (mc.world.provider.getDimension() == buffer.readInt()) {
 					Entity entity = mc.world.getEntityByID(buffer.readInt());
 					if (!(entity instanceof EntityNPCInterface)) {
-						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 						return;
 					}
 					((EntityNPCInterface) entity).animation.load(Server.readNBT(buffer));
@@ -753,7 +718,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				if (mc.world.provider.getDimension() == buffer.readInt()) {
 					Entity entity = mc.world.getEntityByID(buffer.readInt());
 					if (!(entity instanceof EntityNPCInterface)) {
-						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 						return;
 					}
 					((EntityNPCInterface) entity).animation.stopAnimation();
@@ -771,7 +735,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				if (mc.world.provider.getDimension() == buffer.readInt()) {
 					Entity entity = mc.world.getEntityByID(buffer.readInt());
 					if (!(entity instanceof EntityNPCInterface)) {
-						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 						return;
 					}
 					((EntityNPCInterface) entity).animation.stopEmotion();
@@ -790,7 +753,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				if (mc.world.provider.getDimension() == buffer.readInt()) {
 					Entity entity = mc.world.getEntityByID(buffer.readInt());
 					if (!(entity instanceof EntityNPCInterface)) {
-						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 						return;
 					}
 					animation = ((EntityNPCInterface) entity).animation;
@@ -812,7 +774,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				if (mc.world.provider.getDimension() == buffer.readInt()) {
 					Entity entity = mc.world.getEntityByID(buffer.readInt());
 					if (!(entity instanceof EntityNPCInterface)) {
-						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 						return;
 					}
 					Map<Object, Object> map = Server.readMap(buffer);
@@ -831,7 +792,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				if (mc.world.provider.getDimension() == buffer.readInt()) {
 					Entity entity = mc.world.getEntityByID(buffer.readInt());
 					if (!(entity instanceof EntityNPCInterface)) {
-						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 						return;
 					}
 					((EntityNPCInterface) entity).animation.stopEmotion();
@@ -850,7 +810,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				if (mc.world.provider.getDimension() == buffer.readInt()) {
 					Entity entity = mc.world.getEntityByID(buffer.readInt());
 					if (!(entity instanceof EntityNPCInterface)) {
-						CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 						return;
 					}
 					animation = ((EntityNPCInterface) entity).animation;
@@ -869,12 +828,10 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		}
 		else if (type == EnumPacketClient.UPDATE_NPC_ANIMATION) {
 			if (mc.world.provider.getDimension() != buffer.readInt()) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityNPCInterface)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			((EntityNPCInterface) entity).currentAnimation = buffer.readInt();
@@ -884,7 +841,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
 			if (!(entity instanceof EntityNPCInterface)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
@@ -901,7 +857,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
 			if (!(entity instanceof EntityNPCInterface)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
@@ -914,7 +869,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			int entityId = buffer.readInt();
 			Entity entity = mc.world.getEntityByID(entityId);
 			if (!(entity instanceof EntityNPCInterface)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
@@ -947,7 +901,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			ClientTickHandler.loadFiles();
 		}
-		else if (type == EnumPacketClient.NPC_MOVINGPATH) {
+		else if (type == EnumPacketClient.NPC_MOVING_PATH) {
 			Entity entity = player.world.getEntityByID(buffer.readInt());
 			if (entity instanceof EntityCustomNpc) {
 				((EntityCustomNpc) entity).ais.readToNBT(Server.readNBT(buffer));
@@ -956,13 +910,11 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.SEND_FILE_PART) {
 			if (buffer.readBoolean()) {
 				ClientProxy.loadFiles.remove(Server.readString(buffer));
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			int part = buffer.readInt();
 			String name = Server.readString(buffer);
 			if (!ClientProxy.loadFiles.containsKey(name)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			TempFile file = ClientProxy.loadFiles.get(name);
@@ -1007,7 +959,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		}
 		else if (type == EnumPacketClient.BANK_CEIL_OPEN) {
 			if (!(player.openContainer instanceof ContainerNPCBank)) {
-				CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 				return;
 			}
 			((ContainerNPCBank) player.openContainer).dataCeil = buffer.readInt();
@@ -1345,7 +1296,14 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				((GuiScriptInterface) mc.currentScreen).addConsole(buffer.readInt(), buffer.readLong(), Server.readString(buffer));
 			}
 		}
-		CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
+		else if (type == EnumPacketClient.SCRIPT_ERROR) {
+			if (!CustomNpcs.DisplayErrorInChat) { return; }
+			String component = Server.readString(buffer);
+			if (component == null || component.isEmpty()) { return; }
+			ITextComponent message = ITextComponent.Serializer.jsonToComponent(component);
+			if (message == null || message.getFormattedText().isEmpty()) { return; }
+			player.sendMessage(message);
+		}
 	}
 
 	@SubscribeEvent
@@ -1359,10 +1317,10 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			EnumPacketClient type = null;
 			try {
 				type = EnumPacketClient.values()[buffer.readInt()];
-				if (!PacketHandlerClient.list.contains(type)) {
-					LogWriter.debug("Received: " + type);
-				}
-				this.client(buffer, player, type);
+				CustomNpcs.debugData.start(type.toString(), this, "onPacketData");
+				if (!PacketHandlerClient.list.contains(type)) { LogWriter.debug("Received: " + type); }
+				client(buffer, player, type);
+				CustomNpcs.debugData.end(type.toString(), this, "onPacketData");
 			} catch (Exception e) {
 				LogWriter.error("Error with EnumPacketClient." + type, e);
 			} finally {

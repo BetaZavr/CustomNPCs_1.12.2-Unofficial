@@ -58,22 +58,13 @@ public class CmdDebug extends CommandNoppesBase {
 
 	@SubCommand(desc = "Will display the current mod debug report")
 	public void report(MinecraftServer server, ICommandSender sender, String[] args) {
-		List<String> list = CustomNpcs.showDebugs();
+		List<String> list = CustomNpcs.debugData.logging();
 		if (sender instanceof EntityPlayerMP) {
 			CustomNPCsScheduler.runTack(() -> Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_ADD, EnumSync.Debug, new NBTTagCompound()), 500);
 		}
 		for (String str : list) {
 			sender.sendMessage(new TextComponentString(str));
 		}
-		try {
-			Class<?> nirn = Class.forName("nirn.betazavr.Nirn");
-			Object nirnMod = nirn.getField("instance").get(null);
-			List<String> nirnList = (List<String>) nirn.getMethod("showDebugs").invoke(nirnMod);
-			for (String str : nirnList) {
-				sender.sendMessage(new TextComponentString(str));
-			}
-		}
-		catch (Exception ignored) { }
         sender.sendMessage(new TextComponentTranslation("command.debug.show"));
 	}
 

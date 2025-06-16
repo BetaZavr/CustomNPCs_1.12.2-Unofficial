@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.recipebook.GuiRecipeOverlay;
 import net.minecraft.client.gui.recipebook.RecipeList;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
@@ -46,7 +45,6 @@ extends GuiRecipeOverlay {
         }
 
         public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-            RenderHelper.enableGUIStandardItemLighting();
             GlStateManager.enableAlpha();
             mc.getTextureManager().bindTexture(NpcGuiRecipeOverlay.RECIPE_BOOK_TEXTURE);
             this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
@@ -104,7 +102,6 @@ extends GuiRecipeOverlay {
                 }
             }
             GlStateManager.disableAlpha();
-            RenderHelper.disableStandardItemLighting();
             if (this.hovered) {
                 drawCenteredString(mc.fontRenderer, new TextComponentTranslation("item.craft.type."+(recipe instanceof ShapedRecipes)).getFormattedText(), x + width / 2, y - 12, 0xFFFFFFFF);
             }
@@ -207,7 +204,6 @@ extends GuiRecipeOverlay {
     public void render(int mouseX, int mouseY, float partialTicks) {
         if (!this.visible || mc == null) { return; }
         time += partialTicks;
-        RenderHelper.enableGUIStandardItemLighting();
         GlStateManager.enableBlend();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         mc.getTextureManager().bindTexture(SPRITE);
@@ -225,7 +221,6 @@ extends GuiRecipeOverlay {
         this.drawTexturedModalRect(x + rows * offset + border, y + columns * offset + border, 252, 252, 4, 4);
 
         GlStateManager.disableBlend();
-        RenderHelper.disableStandardItemLighting();
 
         for (NpcGuiRecipeOverlay.Button guirecipeoverlay$button : buttonList) {
             guirecipeoverlay$button.drawButton(mc, mouseX, mouseY, partialTicks);

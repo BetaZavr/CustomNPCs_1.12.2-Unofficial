@@ -102,7 +102,7 @@ public class ItemNpcMovingPath extends Item implements IPermission, INPCToolItem
 			}
 			player.getHeldItemMainhand().setTagInfo("NPCID", new NBTTagInt(rayTraceEntity.getEntityId()));
 			player.openContainer.detectAndSendChanges();
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.NPC_MOVINGPATH, rayTraceEntity.getEntityId(), ((EntityNPCInterface) rayTraceEntity).ais.writeToNBT(new NBTTagCompound()));
+			Server.sendData((EntityPlayerMP) player, EnumPacketClient.NPC_MOVING_PATH, rayTraceEntity.getEntityId(), ((EntityNPCInterface) rayTraceEntity).ais.writeToNBT(new NBTTagCompound()));
 			return EnumActionResult.FAIL;
 		}
 		ItemStack stack = player.getHeldItem(hand);
@@ -135,4 +135,5 @@ public class ItemNpcMovingPath extends Item implements IPermission, INPCToolItem
 		}
 		return EnumActionResult.SUCCESS;
 	}
+
 }

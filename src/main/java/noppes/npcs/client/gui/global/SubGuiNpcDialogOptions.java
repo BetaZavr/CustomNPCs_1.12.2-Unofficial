@@ -250,7 +250,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (this.parent instanceof GuiDialogEdit && ((GuiDialogEdit) this.parent).parent != null) {
 			NoppesUtil.openGUI(this.player, ((GuiDialogEdit) this.parent).parent);
 		}

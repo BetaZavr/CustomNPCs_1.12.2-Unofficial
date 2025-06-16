@@ -12,6 +12,7 @@ public class SlotReflection {
     private static Field slotIndex;
     private static Field inventory;
 
+    @SuppressWarnings("all")
     public static void setSlotIndex(Slot slot, int newSlotID) {
         if (slot == null) { return; }
         if (inventory == null) {

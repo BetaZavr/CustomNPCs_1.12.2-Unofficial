@@ -17,63 +17,52 @@ public class EntityAIWatchClosest extends EntityAIBase {
 	private final EntityNPCInterface npc;
 	private final Class<?> watchedClass;
 
-	public EntityAIWatchClosest(EntityNPCInterface par1EntityLiving, Class<?> par2Class, float par3) {
-		this.npc = par1EntityLiving;
-		this.watchedClass = par2Class;
-		this.maxDistance = par3;
-		this.chance = 0.002f;
-		this.setMutexBits(AiMutex.LOOK);
+	public EntityAIWatchClosest(EntityNPCInterface npcIn, Class<?> watchedClassIn, float maxDistanceIn) {
+		npc = npcIn;
+		watchedClass = watchedClassIn;
+		maxDistance = maxDistanceIn;
+		chance = 0.002f;
+		setMutexBits(AiMutex.LOOK);
 	}
 
 	@Override
 	public void resetTask() {
-		this.closestEntity = null;
+		closestEntity = null;
 	}
 
 	@Override
 	public boolean shouldContinueExecuting() {
-		return !this.npc.isInteracting() && !this.npc.isAttacking() && this.closestEntity.isEntityAlive()
-				&& this.npc.isEntityAlive() && this.npc.isInRange(this.closestEntity, this.maxDistance)
-				&& this.lookTime > 0;
+		return !npc.isInteracting() && !npc.isAttacking() && closestEntity.isEntityAlive()
+				&& npc.isEntityAlive() && npc.isInRange(closestEntity, maxDistance)
+				&& lookTime > 0;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean shouldExecute() {
-		if (this.npc.getAttackTarget() != null) {
-			this.closestEntity = this.npc.getAttackTarget();
-		} else if (this.npc.getRNG().nextFloat() >= this.chance || this.npc.isInteracting()) {
-			return false;
+		if (npc.getRNG().nextFloat() >= chance || npc.isInteracting()) { return false; }
+		if (npc.getAttackTarget() != null) { closestEntity = npc.getAttackTarget(); }
+		else {
+			if (npc.isMoving() || npc.ais.getStandingType() != 0 && npc.ais.getStandingType() != 2) { return false; }
+			if (watchedClass == EntityPlayer.class) { closestEntity = npc.world.getClosestPlayerToEntity(npc, maxDistance); }
+			else { closestEntity = npc.world.findNearestEntityWithinAABB((Class<Entity>) watchedClass, npc.getEntityBoundingBox().grow(maxDistance, 3.0, maxDistance), npc); }
 		}
-		if (this.npc.getAttackTarget() == null) {
-			if (this.npc.isMoving() || this.npc.ais.getStandingType() != 0 && this.npc.ais.getStandingType() != 2) {
-				return false;
-			}
-			if (this.watchedClass == EntityPlayer.class) {
-				this.closestEntity = this.npc.world.getClosestPlayerToEntity(this.npc, this.maxDistance);
-			} else {
-				this.closestEntity = this.npc.world.findNearestEntityWithinAABB((Class<Entity>) this.watchedClass, this.npc.getEntityBoundingBox().grow(this.maxDistance, 3.0, this.maxDistance), this.npc);
-			}
-		}
-		if (this.closestEntity != null) {
-			if (this.closestEntity instanceof EntityLivingBase) {
-				return Util.instance.npcCanSeeTarget(this.npc, (EntityLivingBase) this.closestEntity, false, false);
-			}
-			return this.npc.canSee(this.closestEntity);
+		if (closestEntity != null) {
+			if (closestEntity instanceof EntityLivingBase) { return Util.instance.npcCanSeeTarget(npc, (EntityLivingBase) closestEntity, false, false); }
+			return npc.canSee(closestEntity);
 		}
 		return false;
 	}
 
 	@Override
 	public void startExecuting() {
-		this.lookTime = 60 + this.npc.getRNG().nextInt(60);
+		lookTime = 60 + npc.getRNG().nextInt(60);
 	}
 
 	@Override
 	public void updateTask() {
-		this.npc.getLookHelper().setLookPosition(this.closestEntity.posX,
-				this.closestEntity.posY + this.closestEntity.getEyeHeight(), this.closestEntity.posZ, 10.0f,
-				this.npc.getVerticalFaceSpeed());
-		--this.lookTime;
+		npc.getLookHelper().setLookPosition(closestEntity.posX, closestEntity.posY + closestEntity.getEyeHeight(), closestEntity.posZ, 10.0f, npc.getVerticalFaceSpeed());
+		--lookTime;
 	}
+
 }

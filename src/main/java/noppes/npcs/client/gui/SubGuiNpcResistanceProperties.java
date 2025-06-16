@@ -80,11 +80,9 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 			slider.width = 248;
 
 			ITextComponent mes = new TextComponentTranslation("stats.hover.resist", Util.instance.deleteColor(select));
-			String damageType = data.get(select);
-			v = Math.round(resistances.get(damageType) * 120.0f - 140.0f);
-			if (v == 0.0f) { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.0")); }
-			else if (v < 0.0f) { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.1", "" + (v * -1.0f))); }
-			else { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.2", "" + v)); }
+			if (t == 0) { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.0")); }
+			else if (t < 0) { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.1", "" + t)); }
+			else { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.2", "" + t)); }
 			slider.setHoverText(mes.getFormattedText());
 			addSlider(slider);
 			
@@ -101,7 +99,17 @@ implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListen
 	@Override
 	public void mouseDragged(IGuiNpcSlider slider) {
 		float n = 5.0f / 6.0f;
-		slider.setDisplayString(slider.getSliderValue() == n ? "" : (((char) 167) + (slider.getSliderValue() < n ? "c" : "a+")) + String.valueOf(Math.round(slider.getSliderValue() * 600.0f - 500.0f)).replace(".", ",") + "%");
+		int t = Math.round(slider.getSliderValue() * 600.0f - 500.0f);
+		slider.setDisplayString(slider.getSliderValue() == n ? "" : (((char) 167) + (slider.getSliderValue() < n ? "c" : "a+")) + String.valueOf(t).replace(".", ",") + "%");
+		ITextComponent mes = new TextComponentTranslation("stats.hover.resist", Util.instance.deleteColor(select));
+		if (t == 0) { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.0")); }
+		else if (t < 0) { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.1", "" + t)); }
+		else { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.2", "" + t)); }
+		slider.setHoverText(mes.getFormattedText());
+		if (getTextField(0) != null) {
+			getTextField(0).setFullText("" + t);
+			getTextField(0).setHoverText(mes.getFormattedText());
+		}
 	}
 
 	@Override

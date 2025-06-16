@@ -12,7 +12,7 @@ public class NBTTagListReflection {
 
     private static Field tagList;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static List<NBTBase> getTagList(NBTTagList tag) {
         if (tag == null) { return Collections.emptyList(); }
         if (tagList == null) {

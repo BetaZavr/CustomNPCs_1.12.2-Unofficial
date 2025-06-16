@@ -140,17 +140,11 @@ public class EntityAIReturn extends EntityAIBase {
 			}
 		}
 		if (npc.isAttacking()) {
-			if (npc.ais.onAttack == 2) {
-				double dist = Util.instance.distanceTo(npc.posX, npc.posY, npc.posZ, npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos());
-				if (dist > npc.stats.aggroRange) {
-					return true;
-				}
-			}
 			if (!wasAttacked) {
 				wasAttacked = true;
 				preAttackPos = new double[] { npc.posX, npc.posY, npc.posZ };
 			}
-			return false;
+			return isTooFar();
 		}
 		if (!npc.isAttacking() && wasAttacked) {
 			return true;
@@ -188,9 +182,7 @@ public class EntityAIReturn extends EntityAIBase {
 			tryBackHome(endPosX, endPosY, endPosZ);
 			return;
 		}
-		if (stuckTicks > 0) {
-			--stuckTicks;
-		}
+		if (stuckTicks > 0) { --stuckTicks; }
 		else if (npc.getNavigator().noPath()) {
 			++stuckCount;
 			stuckTicks = 10;
@@ -204,10 +196,12 @@ public class EntityAIReturn extends EntityAIBase {
 		}
 	}
 
+	@SuppressWarnings("all")
 	public BlockPos getEndPositions() {
 		if (!wasAttacked) {
 			return new BlockPos(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos());
 		}
 		return new BlockPos(preAttackPos[0], preAttackPos[1], preAttackPos[2]);
 	}
+
 }

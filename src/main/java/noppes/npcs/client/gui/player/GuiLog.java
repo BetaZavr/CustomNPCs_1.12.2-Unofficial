@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.player;
 import java.awt.Color;
 import java.util.*;
 
+import net.minecraft.client.renderer.RenderHelper;
 import noppes.npcs.client.gui.util.*;
 import org.lwjgl.opengl.GL11;
 
@@ -15,7 +16,6 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.entity.Entity;
@@ -710,7 +710,6 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			this.drawTexturedModalRect(0, 0, 0, hover || offset ? 30 : 60, 28, 30);
 
 			GlStateManager.pushMatrix();
-			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.translate(6.0f, 8.0f, 0.0f);
 			zLevel = 100.0f;
 			itemRender.zLevel = 100.0f;
@@ -734,12 +733,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				stack = new ItemStack(Blocks.CRAFTING_TABLE);
 				break;
 			}
-			this.itemRender.renderItemAndEffectIntoGUI(stack, 0, 0);
-			this.itemRender.renderItemOverlayIntoGUI(this.mc.fontRenderer, stack, 6, 8, null);
+			RenderHelper.enableGUIStandardItemLighting();
+			itemRender.renderItemAndEffectIntoGUI(stack, 0, 0);
+			itemRender.renderItemOverlayIntoGUI(this.mc.fontRenderer, stack, 6, 8, null);
+			RenderHelper.disableStandardItemLighting();
 			GlStateManager.disableLighting();
 			itemRender.zLevel = 0.0f;
 			zLevel = 0.0f;
-			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
 		}
 		GlStateManager.popMatrix();
@@ -838,7 +838,6 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.enableLighting();
-		RenderHelper.enableStandardItemLighting();
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
 
 		// Body
@@ -1186,18 +1185,18 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 							GlStateManager.pushMatrix();
 							GlStateManager.translate(x - 4.0f, y - 5.5f, 0.0f);
 							GlStateManager.scale(0.65f, 0.65f, 0.65f);
-							RenderHelper.enableGUIStandardItemLighting();
 							GlStateManager.translate(6.0f, 8.0f, 0.0f);
 							zLevel = 100.0f;
 							itemRender.zLevel = 100.0f;
 							GlStateManager.enableLighting();
 							GlStateManager.enableRescaleNormal();
-							this.itemRender.renderItemAndEffectIntoGUI(stack, 0, 0);
-							this.itemRender.renderItemOverlayIntoGUI(this.mc.fontRenderer, stack, 6, 8, null);
+							RenderHelper.enableGUIStandardItemLighting();
+							itemRender.renderItemAndEffectIntoGUI(stack, 0, 0);
+							itemRender.renderItemOverlayIntoGUI(this.mc.fontRenderer, stack, 6, 8, null);
+							RenderHelper.disableStandardItemLighting();
 							GlStateManager.disableLighting();
 							itemRender.zLevel = 0.0f;
 							zLevel = 0.0f;
-							RenderHelper.disableStandardItemLighting();
 							GlStateManager.popMatrix();
 							j++;
 						}
@@ -2016,7 +2015,6 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 		if (tick < 0 && step == -1) {
 			GlStateManager.pushMatrix();
-			RenderHelper.disableStandardItemLighting();
 			super.drawScreen(mouseX, mouseY, partialTicks);
 			GlStateManager.popMatrix();
 		}

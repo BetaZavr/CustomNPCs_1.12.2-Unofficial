@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.player;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -136,15 +135,15 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 	private void drawMailBox(float u, float v) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(u, v, 0.0f);
-		this.mc.getTextureManager().bindTexture(mBox);
-		this.drawTexturedModalRect(0, 0, 0, 0, 192, 236); // Box
-		if (!this.scrollData.isEmpty()) {
-			this.mc.getTextureManager().bindTexture(mList);
-			this.drawTexturedModalRect(8, 45, 0, 0, 176, 156); // list
+		mc.getTextureManager().bindTexture(mBox);
+		drawTexturedModalRect(0, 0, 0, 0, 192, 236); // Box
+		if (!scrollData.isEmpty()) {
+			mc.getTextureManager().bindTexture(mList);
+			drawTexturedModalRect(8, 45, 0, 0, 176, 156); // list
 		}
 		if (step == 3) {
-			this.mc.getTextureManager().bindTexture(mDoor);
-			this.drawTexturedModalRect(-5, 44, 181, 0, 7, 158); // door
+			mc.getTextureManager().bindTexture(mDoor);
+			drawTexturedModalRect(-5, 44, 181, 0, 7, 158); // door
 		}
 		GlStateManager.popMatrix();
 
@@ -164,42 +163,42 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 			GuiNpcButton b = (GuiNpcButton) getButton(i);
 			b.setEnabled(step == 3);
 			switch (i) {
-			case 0: { // read
-				b.x = (int) u + 8;
-				b.y = (int) v + 202;
-				b.setEnabled(step == 3 && this.selected != null);
-				break;
-			}
-			case 1: { // write
-				b.x = (int) u + 67;
-				b.y = (int) v + 202;
-				b.setEnabled(step == 3);
-				break;
-			}
-			case 2: { // remove
-				b.x = (int) u + 126;
-				b.y = (int) v + 202;
-				b.setEnabled(step == 3 && this.selected != null);
-				break;
-			}
-			case 3: { // remove all
-				b.x = (int) u + 8;
-				b.y = (int) v + 218;
-				b.setEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
-				break;
-			}
-			case 4: { // clear
-				b.x = (int) u + 67;
-				b.y = (int) v + 218;
-				b.setEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
-				break;
-			}
-			case 5: { // exit
-				b.x = (int) u + 126;
-				b.y = (int) v + 218;
-				b.setEnabled(step == 3);
-				break;
-			}
+				case 0: { // read
+					b.x = (int) u + 8;
+					b.y = (int) v + 202;
+					b.setEnabled(step == 3 && this.selected != null);
+					break;
+				}
+				case 1: { // write
+					b.x = (int) u + 67;
+					b.y = (int) v + 202;
+					b.setEnabled(step == 3);
+					break;
+				}
+				case 2: { // remove
+					b.x = (int) u + 126;
+					b.y = (int) v + 202;
+					b.setEnabled(step == 3 && this.selected != null);
+					break;
+				}
+				case 3: { // remove all
+					b.x = (int) u + 8;
+					b.y = (int) v + 218;
+					b.setEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
+					break;
+				}
+				case 4: { // clear
+					b.x = (int) u + 67;
+					b.y = (int) v + 218;
+					b.setEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
+					break;
+				}
+				case 5: { // exit
+					b.x = (int) u + 126;
+					b.y = (int) v + 218;
+					b.setEnabled(step == 3);
+					break;
+				}
 			}
 		}
 	}
@@ -210,175 +209,169 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		if (tick >= 0) {
-			if (tick == 0) {
-				partialTicks = 0.0f;
-			}
+			if (tick == 0) { partialTicks = 0.0f; }
 			float part = (float) tick + partialTicks;
 			float cos = (float) Math.cos(90.0d * part / (double) millyTick * Math.PI / 180.0d);
-			if (cos < 0.0f) {
-				cos = 0.0f;
-			} else if (cos > 1.0f) {
-				cos = 1.0f;
-			}
+			if (cos < 0.0f) { cos = 0.0f; }
+			else if (cos > 1.0f) { cos = 1.0f; }
 			switch (step) {
-			case 0: { // box appears
-				if (tick == millyTick) {
-					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":mail.movement",
-							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
-							0.75f + 0.25f * this.rnd.nextFloat());
-				}
-				this.drawMailBox(this.guiLeft, this.guiTop + (1.0f - cos) * 236.0f);
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(this.guiLeft, this.guiTop + (1.0f - cos) * 236.0f, 2.0f);
-				this.mc.getTextureManager().bindTexture(mDoor);
-				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
-				GlStateManager.popMatrix();
-				if (tick == 0) {
-					step = 1;
-					tick = 20;
-					millyTick = 20;
-					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":mail.open.door",
-							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
-							0.75f + 0.25f * this.rnd.nextFloat());
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 1: { // opening the door
-				this.drawMailBox(this.guiLeft, this.guiTop);
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(this.guiLeft - (cos * 193.0f), this.guiTop, 2.0f);
-				this.mc.getTextureManager().bindTexture(mDoor);
-				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
-				GlStateManager.popMatrix();
-				if (tick == 0) {
-					step = 2;
-					tick = 15;
-					millyTick = 15;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 2: { // turning the door
-				this.drawMailBox(this.guiLeft, this.guiTop);
-				float s = 1.0f - cos;
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(this.guiLeft - 7.0f - (186.0f) * s, this.guiTop, 2.0f);
-				this.mc.getTextureManager().bindTexture(mDoor);
-				GlStateManager.scale(s, 1.0f, 1.0f);
-				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
-				this.drawTexturedModalRect(183, 44, 178, 0, 3, 158);
-				GlStateManager.popMatrix();
-
-				s = cos;
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(this.guiLeft - 7.0f, this.guiTop, 2.0f);
-				this.mc.getTextureManager().bindTexture(mDoor);
-				GlStateManager.scale(s, 1.0f, 1.0f);
-				this.drawTexturedModalRect(0, 44, 181, 0, 7, 158);
-				GlStateManager.popMatrix();
-				if (tick == 0) {
-					step = 3;
-					millyTick = 0;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 4: { // back turning the door
-				if (tick == millyTick) {
-					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS,
-							CustomNpcs.MODID + ":mail.close.door", (float) this.player.posX, (float) this.player.posY,
-							(float) this.player.posZ, 1.0f, 0.75f + 0.25f * this.rnd.nextFloat());
-				}
-				this.drawMailBox(this.guiLeft, this.guiTop);
-				float s = cos;
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(this.guiLeft - 7.0f - (186.0f) * s, this.guiTop, 2.0f);
-				this.mc.getTextureManager().bindTexture(mDoor);
-				GlStateManager.scale(s, 1.0f, 1.0f);
-				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
-				this.drawTexturedModalRect(183, 44, 178, 0, 3, 158);
-				GlStateManager.popMatrix();
-
-				s = 1.0f - cos;
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(this.guiLeft - 7.0f, this.guiTop, 2.0f);
-				this.mc.getTextureManager().bindTexture(mDoor);
-				GlStateManager.scale(s, 1.0f, 1.0f);
-				this.drawTexturedModalRect(0, 44, 181, 0, 7, 158);
-				GlStateManager.popMatrix();
-				if (tick == 0) {
-					step = 5;
-					tick = 20;
-					millyTick = 20;
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 5: { // close the door
-				this.drawMailBox(this.guiLeft, this.guiTop);
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(this.guiLeft - ((1.0f - cos) * 193.0f), this.guiTop, 2.0f);
-				this.mc.getTextureManager().bindTexture(mDoor);
-				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
-				GlStateManager.popMatrix();
-				if (tick == 0) {
-					step = 6;
-					tick = 30;
-					millyTick = 30;
-					MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":mail.movement",
-							(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
-							0.75f + 0.25f * this.rnd.nextFloat());
-					GlStateManager.disableBlend();
-				}
-				break;
-			}
-			case 6: { // box hidden
-				this.drawMailBox(this.guiLeft, this.guiTop + cos * 236.0f);
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(this.guiLeft, this.guiTop + cos * 236.0f, 2.0f);
-				this.mc.getTextureManager().bindTexture(mDoor);
-				this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
-				GlStateManager.popMatrix();
-				if (tick == 0) {
-					step = 0;
-					tick = 30;
-					millyTick = 30;
-					if (this.closeType == 1) {
-						NoppesUtilPlayer.sendData(EnumPlayerPacket.MailboxOpenMail, 0L, "", 1, 1);
-					} else if (this.closeType == 2 && this.selected != null) {
-						if (!this.selected.beenRead) {
-							this.selected.beenRead = true;
-							PlayerMail mail = ClientProxy.playerData.mailData.get(this.selected);
-							if (mail != null) {
-								mail.beenRead = true;
-								ClientTickHandler.checkMails = true;
-							}
-							NoppesUtilPlayer.sendData(EnumPlayerPacket.MailRead, this.selected.timeWhenReceived,
-									this.selected.sender);
-						}
-						NoppesUtilPlayer.sendData(EnumPlayerPacket.MailboxOpenMail, this.selected.timeWhenReceived,
-								this.selected.sender, 0, 0, 0);
-						this.selected = null;
-						this.scroll.setSelect(-1);
+				case 0: {
+					if (tick == millyTick) {
+						MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":mail.movement",
+								(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
+								0.75f + 0.25f * this.rnd.nextFloat());
 					}
-					GlStateManager.disableBlend();
+					this.drawMailBox(this.guiLeft, this.guiTop + (1.0f - cos) * 236.0f);
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(this.guiLeft, this.guiTop + (1.0f - cos) * 236.0f, 2.0f);
+					this.mc.getTextureManager().bindTexture(mDoor);
+					this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
 					GlStateManager.popMatrix();
-					this.close();
-					return;
-				}
-				break;
-			}
+					if (tick == 0) {
+						step = 1;
+						tick = 20;
+						millyTick = 20;
+						MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":mail.open.door",
+								(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
+								0.75f + 0.25f * this.rnd.nextFloat());
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // box appears
+				case 1: {
+					this.drawMailBox(this.guiLeft, this.guiTop);
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(this.guiLeft - (cos * 193.0f), this.guiTop, 2.0f);
+					this.mc.getTextureManager().bindTexture(mDoor);
+					this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
+					GlStateManager.popMatrix();
+					if (tick == 0) {
+						step = 2;
+						tick = 15;
+						millyTick = 15;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // opening the door
+				case 2: {
+					this.drawMailBox(this.guiLeft, this.guiTop);
+					float s = 1.0f - cos;
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(this.guiLeft - 7.0f - (186.0f) * s, this.guiTop, 2.0f);
+					this.mc.getTextureManager().bindTexture(mDoor);
+					GlStateManager.scale(s, 1.0f, 1.0f);
+					this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
+					this.drawTexturedModalRect(183, 44, 178, 0, 3, 158);
+					GlStateManager.popMatrix();
+
+					s = cos;
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(this.guiLeft - 7.0f, this.guiTop, 2.0f);
+					this.mc.getTextureManager().bindTexture(mDoor);
+					GlStateManager.scale(s, 1.0f, 1.0f);
+					this.drawTexturedModalRect(0, 44, 181, 0, 7, 158);
+					GlStateManager.popMatrix();
+					if (tick == 0) {
+						step = 3;
+						millyTick = 0;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // turning the door
+				case 4: {
+					if (tick == millyTick) {
+						MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS,
+								CustomNpcs.MODID + ":mail.close.door", (float) this.player.posX, (float) this.player.posY,
+								(float) this.player.posZ, 1.0f, 0.75f + 0.25f * this.rnd.nextFloat());
+					}
+					this.drawMailBox(this.guiLeft, this.guiTop);
+					float s = cos;
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(this.guiLeft - 7.0f - (186.0f) * s, this.guiTop, 2.0f);
+					this.mc.getTextureManager().bindTexture(mDoor);
+					GlStateManager.scale(s, 1.0f, 1.0f);
+					this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
+					this.drawTexturedModalRect(183, 44, 178, 0, 3, 158);
+					GlStateManager.popMatrix();
+
+					s = 1.0f - cos;
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(this.guiLeft - 7.0f, this.guiTop, 2.0f);
+					this.mc.getTextureManager().bindTexture(mDoor);
+					GlStateManager.scale(s, 1.0f, 1.0f);
+					this.drawTexturedModalRect(0, 44, 181, 0, 7, 158);
+					GlStateManager.popMatrix();
+					if (tick == 0) {
+						step = 5;
+						tick = 20;
+						millyTick = 20;
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // back turning the door
+				case 5: {
+					this.drawMailBox(this.guiLeft, this.guiTop);
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(this.guiLeft - ((1.0f - cos) * 193.0f), this.guiTop, 2.0f);
+					this.mc.getTextureManager().bindTexture(mDoor);
+					this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
+					GlStateManager.popMatrix();
+					if (tick == 0) {
+						step = 6;
+						tick = 30;
+						millyTick = 30;
+						MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":mail.movement",
+								(float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f,
+								0.75f + 0.25f * this.rnd.nextFloat());
+						GlStateManager.disableBlend();
+					}
+					break;
+				} // close the door
+				case 6: {
+					this.drawMailBox(this.guiLeft, this.guiTop + cos * 236.0f);
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(this.guiLeft, this.guiTop + cos * 236.0f, 2.0f);
+					this.mc.getTextureManager().bindTexture(mDoor);
+					this.drawTexturedModalRect(8, 44, 0, 0, 178, 158);
+					GlStateManager.popMatrix();
+					if (tick == 0) {
+						step = 0;
+						tick = 30;
+						millyTick = 30;
+						if (this.closeType == 1) {
+							NoppesUtilPlayer.sendData(EnumPlayerPacket.MailboxOpenMail, 0L, "", 1, 1);
+						} else if (this.closeType == 2 && this.selected != null) {
+							if (!this.selected.beenRead) {
+								this.selected.beenRead = true;
+								PlayerMail mail = ClientProxy.playerData.mailData.get(this.selected);
+								if (mail != null) {
+									mail.beenRead = true;
+									ClientTickHandler.checkMails = true;
+								}
+								NoppesUtilPlayer.sendData(EnumPlayerPacket.MailRead, this.selected.timeWhenReceived,
+										this.selected.sender);
+							}
+							NoppesUtilPlayer.sendData(EnumPlayerPacket.MailboxOpenMail, this.selected.timeWhenReceived,
+									this.selected.sender, 0, 0, 0);
+							this.selected = null;
+							this.scroll.setSelect(-1);
+						}
+						GlStateManager.disableBlend();
+						GlStateManager.popMatrix();
+						this.close();
+						return;
+					}
+					break;
+				} // box hidden
 			}
 			tick--;
-		} else {
+		}
+		else {
 			this.drawMailBox(this.guiLeft, this.guiTop);
 		}
 		GlStateManager.popMatrix();
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (step != 3 || this.hasSubGui() || !CustomNpcs.ShowDescriptions) {
-			return;
-		}
+		if (step != 3 || this.hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
 		List<String> hover = new ArrayList<>();
 		if (this.scroll != null && this.scroll.hover > -1) {
 			PlayerMail mail = this.scrollData.get(this.scroll.getList().get(this.scroll.hover));
@@ -475,11 +468,11 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 			colors.add(CustomNpcs.LableColor.getRGB());
 			i++;
 		}
-		this.scroll.clear();
-		this.scroll.setListNotSorted(list);
-		this.scroll.setPrefixes(prefixes);
-		this.scroll.setColors(colors);
-		this.scroll.colorBack = new Color(0x00000000).getRGB();
+		scroll.clear();
+		scroll.setListNotSorted(list);
+		scroll.setPrefixes(prefixes);
+		scroll.setColors(colors);
+		scroll.colorBack = 0x00000000;
 		if (select != null && !select.isEmpty()) {
 			this.scroll.setSelected(select);
 		}

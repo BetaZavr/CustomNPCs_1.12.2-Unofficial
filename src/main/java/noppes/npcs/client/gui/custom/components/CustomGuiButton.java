@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.api.gui.ICustomGuiComponent;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.gui.CustomGuiButtonWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IClickListener;
@@ -15,6 +16,7 @@ import noppes.npcs.client.gui.custom.interfaces.IClickListener;
 public class CustomGuiButton
 extends GuiButton
 implements IClickListener {
+
 
 	public static CustomGuiButton fromComponent(CustomGuiButtonWrapper component) {
 		CustomGuiButton btn;
@@ -27,6 +29,7 @@ implements IClickListener {
 		}
 		if (component.hasHoverText()) {
 			btn.hoverText = component.getHoverText();
+			btn.hoverStack = component.getHoverStack();
 		}
 		return btn;
 	}
@@ -34,6 +37,7 @@ implements IClickListener {
 	int colour;
 	boolean hovered;
 	String[] hoverText;
+	IItemStack hoverStack;
 	String label;
 	GuiCustom parent;
 	ResourceLocation texture;
@@ -153,9 +157,10 @@ implements IClickListener {
 			this.drawCenteredString(fontRenderer, this.label, this.x + this.width / 2, this.y + (this.height - 8) / 2,
 					this.colour);
         }
-        if (this.hovered && this.hoverText != null && this.hoverText.length > 0) {
-            this.parent.hoverText = this.hoverText;
-        }
+		if (hovered) {
+			if (hoverText != null && hoverText.length > 0) { parent.hoverText = hoverText; }
+			if (hoverStack != null && !hoverStack.isEmpty()) { parent.hoverStack = hoverStack.getMCItemStack(); }
+		}
         GlStateManager.popMatrix();
 	}
 

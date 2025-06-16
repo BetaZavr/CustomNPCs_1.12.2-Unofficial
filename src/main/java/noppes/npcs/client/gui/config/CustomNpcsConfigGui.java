@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import noppes.npcs.client.gui.util.ISubGuiInterface;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -239,7 +238,7 @@ implements ISubGuiListener {
 		}
 
 		@Override
-		public void subGuiClosed(ISubGuiInterface subgui) {
+		public void subGuiClosed(SubGuiInterface subgui) {
 			String color = ((SubGuiColorSelector) subgui).getColor().toUpperCase();
 			if (subgui.getObject() instanceof CustomGuiEditArrayEntries.ColorEntry) {
 				ConfigElement element = (ConfigElement) ((CustomGuiEditArrayEntries.ColorEntry) subgui.getObject()).configElement;
@@ -384,7 +383,7 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		String color = ((SubGuiColorSelector) subgui).getColor().toUpperCase();
 		if (subgui.getObject() instanceof ColorEntry) {
 			ConfigElement element = (ConfigElement) ((ColorEntry) subgui.getObject()).getConfigElement();

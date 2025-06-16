@@ -55,10 +55,10 @@ extends SubGuiInterface {
             GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
             RenderHelper.enableStandardItemLighting();
             mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 0, 0);
+            RenderHelper.disableStandardItemLighting();
             GlStateManager.translate(0.0f, 0.0f, 200.0f);
             GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
             drawString(mc.fontRenderer, "" + stack.getCount(), 16 - mc.fontRenderer.getStringWidth("" + stack.getCount()), 9, new Color(0xFFFFFFFF).getRGB());
-            RenderHelper.disableStandardItemLighting();
             GlStateManager.popMatrix();
         }
 
@@ -77,12 +77,12 @@ extends SubGuiInterface {
             GlStateManager.pushMatrix();
             GlStateManager.translate(x + 1.0f, y + 1.0f, 0.0f);
             GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-            RenderHelper.enableStandardItemLighting();
+            //RenderHelper.enableStandardItemLighting();
             mc.getRenderItem().renderItemAndEffectIntoGUI(st, 0, 0);
             GlStateManager.translate(0.0f, 0.0f, 200.0f);
             GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
             drawString(mc.fontRenderer, "" + st.getCount(), 16 - mc.fontRenderer.getStringWidth("" + st.getCount()), 9, new Color(0xFFFFFFFF).getRGB());
-            RenderHelper.disableStandardItemLighting();
+            //RenderHelper.disableStandardItemLighting();
             GlStateManager.popMatrix();
         }
         GlStateManager.popMatrix();

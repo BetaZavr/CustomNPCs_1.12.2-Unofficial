@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 
 public class PixelmonHelper {
@@ -102,9 +103,8 @@ public class PixelmonHelper {
 	}
 
 	public static void load() {
-		if (!PixelmonHelper.Enabled) {
-			return;
-		}
+		if (!PixelmonHelper.Enabled) { return; }
+		CustomNpcs.debugData.start("Mod", PixelmonHelper.class, "load");
 		try {
 			Class<?> c = Class.forName("com.pixelmonmod.pixelmon.Pixelmon");
 			PixelmonHelper.storageManager = c.getDeclaredField("storageManager").get(null);
@@ -118,6 +118,7 @@ public class PixelmonHelper {
 			LogWriter.except(e);
 			PixelmonHelper.Enabled = false;
 		}
+		CustomNpcs.debugData.end("Mod", PixelmonHelper.class, "load");
 	}
 
 	public static void loadClient() {

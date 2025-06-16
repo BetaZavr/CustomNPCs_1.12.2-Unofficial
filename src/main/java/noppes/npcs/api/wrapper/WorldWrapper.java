@@ -41,8 +41,7 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.data.StoredData;
-import noppes.npcs.api.wrapper.data.TempData;
+import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.ScriptController;
@@ -53,8 +52,8 @@ import noppes.npcs.reflection.world.biome.BiomeReflection;
 
 public class WorldWrapper implements IWorld {
 
-	private static final TempData tempdata = new TempData();
-	private static final StoredData storeddata = new StoredData(ScriptController.Instance);
+	private static final Data tempdata = new Data();
+	private static final Data storeddata = new Data();
 
 	@Deprecated
 	public static WorldWrapper createNew(World world) {

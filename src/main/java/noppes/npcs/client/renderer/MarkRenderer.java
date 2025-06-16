@@ -8,7 +8,6 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
@@ -130,7 +129,7 @@ public class MarkRenderer {
 				GlStateManager.callList(list);
 			}
 			GlStateManager.popMatrix();
-			RenderHelper.enableStandardItemLighting();
+			//RenderHelper.enableStandardItemLighting();
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
 

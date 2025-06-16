@@ -9,6 +9,7 @@ public class EntityVillagerReflection {
 
     private static Field careerId;
 
+    @SuppressWarnings("all")
     public static int getCareerID(EntityVillager villager) {
         if (villager == null) { return 0; }
         if (careerId == null) {

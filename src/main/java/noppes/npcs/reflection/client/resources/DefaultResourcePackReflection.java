@@ -13,6 +13,7 @@ public class DefaultResourcePackReflection {
 
     private static Field resourceIndex;
 
+    @SuppressWarnings("all")
     public static ResourceIndex getResourceIndex(DefaultResourcePack resourcePack) {
         if (resourcePack == null) { return null; }
         if (resourceIndex == null) {

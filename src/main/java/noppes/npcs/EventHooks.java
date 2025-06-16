@@ -179,24 +179,26 @@ public class EventHooks {
 		if (script == null || event == null || enumFunction == null) {
 			return false;
 		}
-		script.run(enumFunction.function, event, true);
+		script.run(enumFunction.function, event);
 		return WrapperNpcAPI.EVENT_BUS.post(event) && event.isCanceled();
 	}
 
-	public static void onForgeEvent(ForgeEvent ev) {
+	public static void onForgeEvent(Event event) {
+		CustomNpcs.debugData.start("Mod", EventHooks.class, "onForgeEvent");
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
 		String eventName;
 		if (!handler.isClient() && handler.isEnabled()) {
-			if (!ScriptController.forgeEventNames.containsKey(ev.event.getClass())) {
-				eventName = ev.event.getClass().getName();
+			if (!ScriptController.forgeEventNames.containsKey(event.getClass())) {
+				eventName = event.getClass().getName();
 				int i = eventName.lastIndexOf(".");
 				eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
-				ScriptController.forgeEventNames.put(ev.event.getClass(), eventName);
-				LogWriter.info("Found new Forge Event \"" + eventName + "\" to event: "+ev.event.getClass().getName());
+				ScriptController.forgeEventNames.put(event.getClass(), eventName);
+				LogWriter.info("Found new Forge Event \"" + eventName + "\" to event: "+event.getClass().getName());
 			} else {
-				eventName = ScriptController.forgeEventNames.get(ev.event.getClass());
+				eventName = ScriptController.forgeEventNames.get(event.getClass());
 			}
 			try {
+				ForgeEvent ev = new ForgeEvent(event);
 				handler.runScript(eventName, ev);
 				if (ev.isCanceled() && ev.event.isCancelable()) {
 					ev.event.setCanceled(true);
@@ -209,26 +211,32 @@ public class EventHooks {
 		}
 		if (handler.isClient()) {
 			ClientScriptData handlerClient = ScriptController.Instance.clientScripts;
-			if (!handlerClient.isClient() || !handlerClient.isEnabled()) { return; }
-			if (!ScriptController.forgeClientEventNames.containsKey(ev.event.getClass())) {
-				eventName = ev.event.getClass().getName();
+			if (!handlerClient.isClient() || !handlerClient.isEnabled()) {
+				CustomNpcs.debugData.end("Mod", EventHooks.class, "onForgeEvent");
+				return;
+			}
+			if (!ScriptController.forgeClientEventNames.containsKey(event.getClass())) {
+				eventName = event.getClass().getName();
 				int i = eventName.lastIndexOf(".");
 				eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
-				ScriptController.forgeClientEventNames.put(ev.event.getClass(), eventName);
-				LogWriter.info("Found new Forge Event \"" + eventName + "\" to event: "+ev.event.getClass().getName());
+				ScriptController.forgeClientEventNames.put(event.getClass(), eventName);
+				LogWriter.info("Found new Forge Event \"" + eventName + "\" to event: "+event.getClass().getName());
 			} else {
-				eventName = ScriptController.forgeClientEventNames.get(ev.event.getClass());
+				eventName = ScriptController.forgeClientEventNames.get(event.getClass());
 			}
 			if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName) == System.currentTimeMillis())) {
+				CustomNpcs.debugData.end("Mod", EventHooks.class, "onForgeEvent");
 				return;
 			}
 			EventHooks.clientMap.put(eventName, System.currentTimeMillis());
 			try {
+				ForgeEvent ev = new ForgeEvent(event);
 				handlerClient.runScript(eventName, ev);
 				if (ev.isCanceled() && ev.event.isCancelable()) { ev.event.setCanceled(true); }
 				WrapperNpcAPI.EVENT_BUS.post(ev.event);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
+		CustomNpcs.debugData.end("Mod", EventHooks.class, "onForgeEvent");
 	}
 
 	public static void onForgeInit(ForgeScriptData handler) {
@@ -538,7 +546,7 @@ public class EventHooks {
 	public static void onProjectileImpact(EntityProjectile projectile, ProjectileEvent.ImpactEvent event) {
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
-				script.run(EnumScriptType.PROJECTILE_IMPACT.function, event, !projectile.world.isRemote);
+				script.run(EnumScriptType.PROJECTILE_IMPACT.function, event);
 			}
 		}
 		WrapperNpcAPI.EVENT_BUS.post(event);
@@ -548,7 +556,7 @@ public class EventHooks {
 		ProjectileEvent.UpdateEvent event = new ProjectileEvent.UpdateEvent((IProjectile<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(projectile));
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
-				script.run(EnumScriptType.PROJECTILE_TICK.function, event, !projectile.world.isRemote);
+				script.run(EnumScriptType.PROJECTILE_TICK.function, event);
 			}
 		}
 		WrapperNpcAPI.EVENT_BUS.post(event);

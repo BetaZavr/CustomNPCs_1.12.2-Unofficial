@@ -18,7 +18,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.PlayerEvent;
-import noppes.npcs.api.wrapper.data.StoredData;
+import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -31,7 +31,7 @@ extends BaseScriptData {
 	public boolean loadDefault = false;
 
 	public ScriptContainer script = null;
-	public final StoredData storedData = new StoredData();
+	public final Data storedData = new Data();
 
 	public void clear() { script.clear(); }
 	
@@ -82,7 +82,7 @@ extends BaseScriptData {
 		if (this.script == null) {
 			this.createScript();
 		}
-		this.script.run(type, event, false);
+		this.script.run(type, event);
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
@@ -94,7 +94,8 @@ extends BaseScriptData {
 		compound.setBoolean("ScriptEnabled", this.enabled);
 		return compound;
 	}
-	
+
+	@SuppressWarnings("all")
 	public void loadDefaultScripts() {
 		if (this.loadDefault) { return; }
 		File saveDir = new File(CustomNpcs.Dir, "client_default");
@@ -152,6 +153,7 @@ extends BaseScriptData {
 		this.loadDefault = true;
 	}
 
+	@SuppressWarnings("all")
 	public void saveDefaultScripts() {
 		File saveDir = new File(CustomNpcs.Dir, "client_default");
 		if (!saveDir.exists()) { saveDir.mkdirs(); }

@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui.animation;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -19,7 +18,6 @@ import noppes.npcs.client.model.animation.PartConfig;
 import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.reflection.client.gui.GuiScreenReflection;
 import noppes.npcs.util.Util;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -727,8 +725,8 @@ implements ITextfieldListener {
 
     @Override
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        if (subgui instanceof GuiScreen) {
-            GuiScreenReflection.mouseClicked(subgui, mouseX, mouseY, mouseButton);
+        if (subgui != null) {
+            subgui.mouseClicked(mouseX, mouseY, mouseButton);
             return;
         }
         super.mouseClicked(mouseX, mouseY, mouseButton);

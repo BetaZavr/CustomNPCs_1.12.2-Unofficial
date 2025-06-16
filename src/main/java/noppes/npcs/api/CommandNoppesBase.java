@@ -52,12 +52,8 @@ public abstract class CommandNoppesBase extends CommandBase {
 		List<String> required = new ArrayList<>();
 		for (int i = 0; i < np.length; ++i) {
 			String command = np[i];
-			if (command.startsWith("<")) {
-				required.add(command);
-			}
-			if (command.equals("<player>") && args.length > i) {
-				CommandBase.getPlayer(server, sender, args[i]);
-			}
+			if (command.startsWith("<")) { required.add(command); }
+			if (command.equals("<player>") && args.length > i) { CommandBase.getPlayer(server, sender, args[i]); }
 		}
 		if (args.length < required.size()) {
 			throw new CommandException("Missing parameter: " + required.get(args.length));
@@ -120,6 +116,7 @@ public abstract class CommandNoppesBase extends CommandBase {
 		return sender.canUseCommand(thisPer, this.getName());
 	}
 
+	@SuppressWarnings("all")
 	protected int getPermissionLevel(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender) {
 		int per = 4;
 		if (sender instanceof EntityPlayerMP) {

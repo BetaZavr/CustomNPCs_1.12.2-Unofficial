@@ -163,7 +163,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText) {
 			SubGuiEditText sub = (SubGuiEditText) subgui;
 			if (sub.cancelled || sub.text[0].isEmpty()) {

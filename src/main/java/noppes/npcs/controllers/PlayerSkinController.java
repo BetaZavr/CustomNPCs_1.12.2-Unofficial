@@ -143,12 +143,11 @@ public class PlayerSkinController {
 	}
 
 	private void loadPlayerSkins() {
+		CustomNpcs.debugData.start("Mod", this, "loadPlayerSkins");
 		File saveDir = CustomNpcs.Dir;
 		if (saveDir == null) {
+			CustomNpcs.debugData.end("Mod", this, "loadPlayerSkins");
 			return;
-		}
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadPlayerSkins");
 		}
 		this.filePath = saveDir.getName();
 		try {
@@ -157,7 +156,7 @@ public class PlayerSkinController {
 				this.loadPlayerSkins(file);
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		CustomNpcs.debugData.endDebug("Common", null, "loadPlayerSkins");
+		CustomNpcs.debugData.end("Mod", this, "loadPlayerSkins");
 	}
 
 	private void loadPlayerSkins(File file) {
@@ -193,9 +192,11 @@ public class PlayerSkinController {
 	}
 
 	public void save() {
+		CustomNpcs.debugData.start("Mod", this, "save");
 		try {
 			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "player_skins.dat").toPath()));
 		} catch (Exception e) { LogWriter.error("Error:", e); }
+		CustomNpcs.debugData.end("Mod", this, "save");
 	}
 
 	public void sendToAll(EntityPlayerMP player) {
@@ -253,6 +254,7 @@ public class PlayerSkinController {
 		}
 	}
 
+	@SuppressWarnings("all")
 	public boolean hasData(UUID uuid) {
 		return playerTextures.containsKey(uuid);
 	}

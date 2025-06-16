@@ -10,7 +10,6 @@ import moe.plushie.armourers_workshop.api.common.skin.data.ISkin;
 import moe.plushie.armourers_workshop.api.common.skin.data.ISkinPart;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -27,7 +26,7 @@ public class CustomModelSkinChest extends ModelBiped {
 			this.isRiding = npc.isRiding();
 
 			GlStateManager.pushAttrib();
-			RenderHelper.enableGUIStandardItemLighting();
+			//RenderHelper.enableGUIStandardItemLighting();
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
 			if ((boolean) awu.hasPaintData.invoke(skin) & (boolean) awu.isShowSkinPaint.invoke(renderData)
 					& awu.getTexturePaintType.invoke(awu.clientProxy) == awu.TEXTURE_REPLACE) {

@@ -88,9 +88,10 @@ dependencies {
 processResources {
     inputs.property 'version', project.version
     inputs.property 'mcversion', minecraft_version
+    // changed mcmod.info file
     from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand  'modid'         : mod_id,
+        include('mcmod.info')
+        expand('modid'         : mod_id,
                 'name'          : mod_name,
                 'version'       : mod_version,
                 'mcversion'     : minecraft_version,
@@ -99,10 +100,11 @@ processResources {
                 'logoFile'      : mod_logoFile,
                 'authors'       : mod_authors,
                 'url'           : mod_url,
-                'updateUrl'     : mod_update_url
+                'updateUrl'     : mod_update_url)
     }
+    // copy the rest
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+        exclude('mcmod.info')
     }
 }
 
@@ -142,14 +144,12 @@ idea {
     }
 }
 
-subprojects {
-    apply plugin: 'idea'
-}
+subprojects { apply plugin: 'idea' }
 
 tasks.register('prepareAssets', Copy) {
-    group = 'build'
-    from project.file('src/main/resources')
-    into project.file('build/classes/java/main')
+    dependsOn 'processResources'
+    from("$buildDir/resources/main/")
+    into("$buildDir/classes/java/main/")
 }
 
-classes.dependsOn(prepareAssets)
+compileJava.dependsOn(prepareAssets)

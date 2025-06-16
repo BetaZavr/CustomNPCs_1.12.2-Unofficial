@@ -57,7 +57,7 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface gui) {
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiNpcTextArea) {
 			this.scene.lines = ((SubGuiNpcTextArea) gui).text;
 			this.scene = null;

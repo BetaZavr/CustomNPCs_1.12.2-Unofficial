@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.google.common.collect.Lists;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
@@ -162,17 +163,13 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 
 	@Override
 	public void save() {
-		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setBoolean("save", true);
-		Client.sendData(EnumPacketServer.EmotionChange, nbt);
 		Client.sendData(EnumPacketServer.AnimationSave, animation.save(new NBTTagCompound()));
-		CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.AnimationSave, animation.save(new NBTTagCompound())), 500);
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (subgui != null) {
-			subgui.drawScreen(mouseX, mouseY, partialTicks);
+			((GuiScreen) subgui).drawScreen(mouseX, mouseY, partialTicks);
 			return;
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -435,7 +432,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui.getId() == 4) { // create
 			displayGuiScreen(this);
 			if (!(subgui instanceof SubGuiEditAnimation) || ((SubGuiEditAnimation) subgui).anim == null) {

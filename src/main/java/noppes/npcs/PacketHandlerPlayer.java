@@ -53,24 +53,8 @@ import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.SyncController;
-import noppes.npcs.controllers.data.BankData;
-import noppes.npcs.controllers.data.Deal;
-import noppes.npcs.controllers.data.DealMarkup;
-import noppes.npcs.controllers.data.ForgeScriptData;
-import noppes.npcs.controllers.data.Marcet;
-import noppes.npcs.controllers.data.MarkData;
-import noppes.npcs.controllers.data.NpcScriptData;
-import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerFactionData;
+import noppes.npcs.controllers.data.*;
 import noppes.npcs.controllers.data.PlayerGameData.FollowerSet;
-import noppes.npcs.controllers.data.PlayerMail;
-import noppes.npcs.controllers.data.PlayerMailData;
-import noppes.npcs.controllers.data.PlayerOverlayHUD;
-import noppes.npcs.controllers.data.PlayerQuestData;
-import noppes.npcs.controllers.data.PlayerScriptData;
-import noppes.npcs.controllers.data.PotionScriptData;
-import noppes.npcs.controllers.data.Quest;
-import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAnimation;
@@ -114,10 +98,12 @@ public class PacketHandlerPlayer {
 			EnumPlayerPacket type = null;
 			try {
 				type = EnumPlayerPacket.values()[buffer.readInt()];
+				CustomNpcs.debugData.start(type.toString(), this, "onServerPacket");
 				if (!PacketHandlerPlayer.list.contains(type)) {
 					LogWriter.debug("Received: " + type);
 				}
-				this.player(buffer, player, type);
+				player(buffer, player, type);
+				CustomNpcs.debugData.end(type.toString(), this, "onServerPacket");
 			} catch (Exception e) {
 				LogWriter.error("Error with EnumPlayerPacket." + type, e);
 			} finally {
@@ -126,14 +112,12 @@ public class PacketHandlerPlayer {
 		});
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("all")
 	private void player(ByteBuf buffer, EntityPlayerMP player, EnumPlayerPacket type) throws Exception {
-		CustomNpcs.debugData.startDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 		PlayerData data = PlayerData.get(player);
 		if (type == EnumPlayerPacket.MarkData) {
 			Entity entity = Objects.requireNonNull(player.getServer()).getEntityFromUuid(Server.readUUID(buffer));
 			if (!(entity instanceof EntityLivingBase)) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			MarkData.get((EntityLivingBase) entity);
@@ -145,7 +129,6 @@ public class PacketHandlerPlayer {
 					EventHooks.onPlayerKeyPressed(player, k, false, false, false, false, false);
 				}
 				hud.keyPress.clear();
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			boolean isDown = buffer.readBoolean();
@@ -157,7 +140,6 @@ public class PacketHandlerPlayer {
 				}
 			}
 			if (!CustomNpcs.EnableScripting || ScriptController.Instance.languages.isEmpty()) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			EventHooks.onPlayerKeyPressed(player, key, isDown, buffer.readBoolean(), buffer.readBoolean(),
@@ -168,20 +150,17 @@ public class PacketHandlerPlayer {
 			int key = buffer.readInt();
 			if (key < 0) {
 				hud.mousePress.clear();
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			boolean isDown = buffer.readBoolean();
 			if (isDown) { hud.mousePress.add(key); }
 			else if (hud.hasMousePress(key)) { hud.mousePress.remove((Integer) key); }
 			if (!CustomNpcs.EnableScripting || ScriptController.Instance.languages.isEmpty()) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			EventHooks.onPlayerMousePressed(player, key, isDown, buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean());
 		} else if (type == EnumPlayerPacket.LeftClick) {
 			if (!CustomNpcs.EnableScripting || ScriptController.Instance.languages.isEmpty()) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			ItemStack item = player.getHeldItemMainhand();
@@ -214,14 +193,12 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.CompanionTalentExp) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 			if (npc == null || !(npc.advanced.roleInterface instanceof RoleCompanion) || player != npc.getOwner()) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			int id = buffer.readInt();
 			int exp = buffer.readInt();
 			RoleCompanion role = (RoleCompanion) npc.advanced.roleInterface;
 			if (exp <= 0 || !role.canAddExp(-exp) || id < 0 || id >= EnumCompanionTalent.values().length) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			EnumCompanionTalent talent = EnumCompanionTalent.values()[id];
@@ -230,21 +207,18 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.CompanionOpenInv) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 			if (npc == null || !(npc.advanced.roleInterface instanceof RoleCompanion) || player != npc.getOwner()) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.CompanionInv, npc);
 		} else if (type == EnumPlayerPacket.FollowerHire) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.FOLLOWER) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			NoppesUtilPlayer.hireFollower(player, npc, buffer.readInt());
 		} else if (type == EnumPlayerPacket.FollowerExtend) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.FOLLOWER) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			NoppesUtilPlayer.extendFollower(player, npc, buffer.readInt());
@@ -252,10 +226,7 @@ public class PacketHandlerPlayer {
 					npc.advanced.roleInterface.writeToNBT(new NBTTagCompound()));
 		} else if (type == EnumPlayerPacket.FollowerState) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.FOLLOWER) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
-				return;
-			}
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.FOLLOWER) { return; }
 			int t = buffer.readInt();
 			if (t == 0) {
 				NoppesUtilPlayer.changeFollowerState(player, npc);
@@ -265,8 +236,7 @@ public class PacketHandlerPlayer {
 				RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
 				RoleEvent.FollowerFinishedEvent event = new RoleEvent.FollowerFinishedEvent(role.owner, npc.wrappedNPC);
 				EventHooks.onNPCRole(npc, event);
-				role.owner.sendMessage(
-						new TextComponentTranslation(NoppesStringUtils.formatText(role.dialogFired, role.owner, npc)));
+				npc.say(role.owner, new Line(new TextComponentTranslation(NoppesStringUtils.formatText(role.dialogFired, role.owner, npc)).getFormattedText()));
 				if (data != null) {
 					FollowerSet fs = data.game.getFollower(role.npc);
 					if (fs != null) {
@@ -278,7 +248,6 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.RoleGet) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 			if (npc == null) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			Server.sendData(player, EnumPacketClient.GUI_DATA,
@@ -286,13 +255,11 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.Transport) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 			if (npc == null || !(npc.advanced.roleInterface instanceof RoleTransporter)) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			((RoleTransporter) npc.advanced.roleInterface).transport(player, buffer.readInt());
 		} else if (type == EnumPlayerPacket.BankUpgrade) {
 			if (!(player.openContainer instanceof ContainerNPCBank)) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			EntityNPCInterface npc;
@@ -303,13 +270,11 @@ public class PacketHandlerPlayer {
 			}
 			else { npc = NoppesUtilServer.getEditingNpc(player); }
 			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			NoppesUtilPlayer.bankUpgrade(player, npc, buffer.readBoolean(), buffer.readInt());
 		} else if (type == EnumPlayerPacket.BankRegrade) {
 			if (!(player.openContainer instanceof ContainerNPCBank)) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
@@ -322,7 +287,6 @@ public class PacketHandlerPlayer {
 			}
 			if (!player.capabilities.isCreativeMode || npc == null
 					|| npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			NoppesUtilPlayer.bankRegrade(player, npc);
@@ -337,13 +301,11 @@ public class PacketHandlerPlayer {
 			}
 			if (!(player.openContainer instanceof ContainerNPCBank) || npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			NoppesUtilPlayer.bankUnlock(player, npc, buffer.readBoolean());
 		} else if (type == EnumPlayerPacket.BankLock) {
 			if (!(player.openContainer instanceof ContainerNPCBank)) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
@@ -356,13 +318,11 @@ public class PacketHandlerPlayer {
 			}
 			if (!player.capabilities.isCreativeMode || npc == null
 					|| npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			NoppesUtilPlayer.bankLock(player, npc);
 		} else if (type == EnumPlayerPacket.BankClearCeil) {
 			if (!(player.openContainer instanceof ContainerNPCBank)) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
@@ -375,13 +335,11 @@ public class PacketHandlerPlayer {
 			}
 			if (!player.capabilities.isCreativeMode || npc == null
 					|| npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			NoppesUtilPlayer.bankClearCeil(player, npc);
 		} else if (type == EnumPlayerPacket.BankResetCeil) {
 			if (!(player.openContainer instanceof ContainerNPCBank)) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
@@ -394,7 +352,6 @@ public class PacketHandlerPlayer {
 			}
 			if (!player.capabilities.isCreativeMode || npc == null
 					|| npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			NoppesUtilPlayer.bankResetCeil(player, npc);
@@ -405,7 +362,6 @@ public class PacketHandlerPlayer {
 			data.dialogData.option(dialogId, optionId);
 			LogWriter.debug("Dialog npc: " + npc);
 			if (npc == null) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			NoppesUtilPlayer.dialogSelected(dialogId, optionId, player, npc);
@@ -478,7 +434,6 @@ public class PacketHandlerPlayer {
 				mailData.saveNBTData(compound);
 				Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData, compound);
 				Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			} else if (time == 0) { // All read letters
 				List<PlayerMail> del = Lists.newArrayList();
@@ -495,7 +450,6 @@ public class PacketHandlerPlayer {
 				mailData.saveNBTData(compound);
 				Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData, compound);
 				Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			String username = Server.readString(buffer);
@@ -514,18 +468,15 @@ public class PacketHandlerPlayer {
             assert username != null;
             if (username.equalsIgnoreCase(player.getName()) && !(CustomNpcs.MailSendToYourself || isCreative)) {
 				NoppesUtilServer.sendGuiError(player, 2);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			if (PlayerDataController.instance.hasPlayer(username).isEmpty()) {
 				NoppesUtilServer.sendGuiError(player, 0);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			long cost = buffer.readLong();
 			if (!isCreative && cost > data.game.getMoney()) {
 				NoppesUtilServer.sendGuiError(player, 3);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			PlayerMail mail = new PlayerMail();
@@ -536,7 +487,6 @@ public class PacketHandlerPlayer {
 			mail.readNBT(Server.readNBT(buffer));
 			if (mail.title.isEmpty()) {
 				NoppesUtilServer.sendGuiError(player, 1);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			mail.sender = s;
@@ -547,7 +497,6 @@ public class PacketHandlerPlayer {
 			NoppesUtilServer.sendGuiClose(player, 1, comp);
 			EntityNPCInterface npc2 = NoppesUtilServer.getEditingNpc(player);
 			if (npc2 != null && EventHooks.onNPCRole(npc2, new RoleEvent.MailmanEvent(player, npc2.wrappedNPC, mail))) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			PlayerDataController.instance.addPlayerMessage(player.getServer(), username, mail);
@@ -559,7 +508,6 @@ public class PacketHandlerPlayer {
 			player.closeContainer();
 			if (x == 1 && y == 1) {
 				player.openGui(CustomNpcs.instance, EnumGuiType.PlayerMailOpen.ordinal(), player.world, 1, 1, 0);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			PlayerMailData data4 = data.mailData;
@@ -587,7 +535,6 @@ public class PacketHandlerPlayer {
 			int id = buffer.readInt();
 			IQuest quest = QuestController.instance.get(id);
 			if (quest == null) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			boolean bo = EventHooks.onQuestCanceled(data.scriptData, (Quest) quest);
@@ -622,14 +569,12 @@ public class PacketHandlerPlayer {
 			if (marcet == null || marcet.notHasListener(player)) {
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			Deal deal = marcet.getDeal(buffer.readInt());
 			if (deal == null || deal.getType() == 1 || deal.getProduct().isEmpty()) {
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			boolean canGiveItem = deal.availability.isAvailable(player);
@@ -657,7 +602,6 @@ public class PacketHandlerPlayer {
 						new RoleEvent.TradeFailedEvent(player, npc, dm.main, dm.buyItems));
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			if (!player.capabilities.isCreativeMode) {
@@ -714,14 +658,12 @@ public class PacketHandlerPlayer {
 			if (marcet == null || marcet.notHasListener(player)) {
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			Deal deal = marcet.getDeal(buffer.readInt());
 			if (deal == null || deal.getType() == 0 || deal.getProduct().isEmpty()) {
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			DealMarkup dm = MarcetController.getInstance().getBuyData(marcet, deal,
@@ -748,7 +690,6 @@ public class PacketHandlerPlayer {
 					marcet.detectAndSendChanges();
 					Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 					Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-					CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 					return;
 				}
 			}
@@ -825,7 +766,6 @@ public class PacketHandlerPlayer {
                 assert mail != null;
                 if (data.game.getMoney() < mail.ransom) {
                     NoppesUtilServer.sendGuiError(player, 3);
-                    CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
                     return;
                 }
             }
@@ -866,7 +806,7 @@ public class PacketHandlerPlayer {
 			int id = buffer.readInt();
 			Entity entity = player.world.getEntityByID(id);
 			if (entity instanceof EntityCustomNpc) {
-				Server.sendData(player, EnumPacketClient.NPC_MOVINGPATH, id,
+				Server.sendData(player, EnumPacketClient.NPC_MOVING_PATH, id,
 						((EntityCustomNpc) entity).ais.writeToNBT(new NBTTagCompound()));
 			}
 		} else if (type == EnumPlayerPacket.KeyActive) {
@@ -889,7 +829,6 @@ public class PacketHandlerPlayer {
 			String name = Server.readString(buffer);
 			if (!CommonProxy.downloadableFiles.containsKey(name)) {
 				Server.sendData(player, EnumPacketClient.SEND_FILE_PART, true, name);
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			TempFile file = CommonProxy.downloadableFiles.get(name);
@@ -902,7 +841,6 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.CustomGuiKeyPressed) {
 			IPlayer<?> pl = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 			if (pl.getCustomGui() == null || ((CustomGuiWrapper) pl.getCustomGui()).getScriptHandler() == null) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 				return;
 			}
 			EventHooks.onEvent(((CustomGuiWrapper) pl.getCustomGui()).getScriptHandler(), EnumScriptType.KEY_GUI_UP, new CustomGuiEvent.KeyPressedEvent(pl, pl.getCustomGui(), buffer.readInt()));
@@ -927,7 +865,6 @@ public class PacketHandlerPlayer {
 			}
 		} else if (type == EnumPlayerPacket.PlaySound) {
 			if (player == null) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
 			}
 			EventHooks.onPlayerPlaySound(PlayerData.get(player).scriptData,
@@ -937,7 +874,6 @@ public class PacketHandlerPlayer {
 							buffer.readFloat()));
 		} else if (type == EnumPlayerPacket.StopSound) {
 			if (player == null) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
 			}
 			EventHooks.onPlayerStopSound(data.scriptData,
@@ -1008,7 +944,6 @@ public class PacketHandlerPlayer {
 				case 7: { // NPC
 					Entity e = player.world.getEntityByID(compound.getInteger("EntityID"));
 					if (!(e instanceof EntityNPCInterface)) {
-						CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 						return;
 					}
 					handler = ((EntityNPCInterface) e).script;
@@ -1116,7 +1051,6 @@ public class PacketHandlerPlayer {
 				}
 			}
 		}
-		CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 	}
 
 }

@@ -7,7 +7,6 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.CustomNpcs;
@@ -18,6 +17,7 @@ import noppes.npcs.util.CustomNPCsScheduler;
 import javax.annotation.Nonnull;
 
 public class InventoryTabFactions extends AbstractTab {
+
 	public InventoryTabFactions() {
 		super(0, 0, 0, new ItemStack(Items.BANNER, 1, 1));
 		this.displayString = NoppesStringUtils.translate("menu.factions");
@@ -49,7 +49,7 @@ public class InventoryTabFactions extends AbstractTab {
 			return;
 		}
 		GlStateManager.disableRescaleNormal();
-		RenderHelper.disableStandardItemLighting();
+		//RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		int k = 0;
@@ -97,7 +97,7 @@ public class InventoryTabFactions extends AbstractTab {
 		this.itemRender.zLevel = 0.0f;
 		GlStateManager.enableLighting();
 		GlStateManager.enableDepth();
-		RenderHelper.enableStandardItemLighting();
+		//RenderHelper.enableStandardItemLighting();
 		GlStateManager.enableRescaleNormal();
 	}
 

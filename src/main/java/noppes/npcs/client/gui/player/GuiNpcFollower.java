@@ -6,7 +6,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
@@ -26,7 +25,6 @@ public class GuiNpcFollower
 extends GuiContainerNPCInterface
 implements IGuiData {
 
-	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/follower.png");
 	private final RoleFollower role;
 	private EntityNPCInterface displayNPC;
 
@@ -34,6 +32,7 @@ implements IGuiData {
 		super(npc, container);
 		ySize = 224;
 		closeOnEsc = true;
+		setBackground("follower.png");
 
 		role = (RoleFollower) npc.advanced.roleInterface;
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.RoleGet);
@@ -63,14 +62,13 @@ implements IGuiData {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerExtend, button.getID());
 		} else {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerState, button.getID() - 5);
+			if (button.getID() == 6) { close(); }
 		}
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		mc.getTextureManager().bindTexture(resource);
-		drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 		int index = 0;
 		if (!role.infiniteDays) {
 			for (int slot = 0; slot < role.rentalItems.items.size(); ++slot) {
@@ -101,10 +99,10 @@ implements IGuiData {
 			}
 		}
 		int size = role.inventory.getSizeInventory();
-		if (size >= 0) {
+		if (size > 0) {
 			int s = (size == 2 || size == 4) ? 2 : 3;
 			GlStateManager.pushMatrix();
-			mc.getTextureManager().bindTexture(resource);
+			mc.getTextureManager().bindTexture(background);
 			GlStateManager.translate(guiLeft + 172, guiTop + 135, 0.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			drawTexturedModalRect(3, 0, 118, 0, 58, 1);
@@ -129,11 +127,8 @@ implements IGuiData {
 			String money = Util.instance.getTextReducedNumber(role.rentalMoney, true, true, false) + " " + CustomNpcs.displayCurrencies;
 			fontRenderer.drawString(money + " = " + daysS, guiLeft + 80, guiTop + 56, CustomNpcResourceListener.DefaultTextColor);
 		}
-		if (displayNPC != null) {
-			drawNpc(displayNPC, 33, 131, 1.0f, 0, 0, 1);
-		} else {
-			drawNpc(33, 131);
-		}
+		if (displayNPC != null) { drawNpc(displayNPC, 33, 131, 1.0f, 0, 0, 1); }
+		else { drawNpc(33, 131); }
 	}
 
 	@Override
@@ -177,7 +172,7 @@ implements IGuiData {
 			}
 		}
 		if (role.rates.containsKey(3) && role.rentalMoney > 0) {
-			button = new GuiNpcButton(3, x, y + 16, 60, 13, new TextComponentTranslation("follower.extend").getFormattedText());
+			button = new GuiNpcButton(3, x, guiTop + 53, 60, 13, new TextComponentTranslation("follower.extend").getFormattedText());
 			button.setHoverText("follower.hover.extend");
 			addButton(button);
 		}

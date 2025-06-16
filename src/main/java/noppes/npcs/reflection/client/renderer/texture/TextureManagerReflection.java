@@ -16,7 +16,7 @@ public class TextureManagerReflection {
 
     private static Field mapTextureObjects;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static Map<ResourceLocation, ITextureObject> getMapTextureObjects(TextureManager textureManager) {
         if (textureManager == null) { return new HashMap<>(); }
         if (mapTextureObjects == null) {

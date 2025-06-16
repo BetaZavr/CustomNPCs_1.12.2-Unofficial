@@ -53,7 +53,7 @@ public class LayerCustomArmor<T extends ModelBase> extends LayerArmorBase<ModelB
 		this.modelAW = new ModelBipedAW(1.0F, true, this.smallArmsIn, this.isClassicPlayer);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("all")
 	protected void renderArmorLayer(EntityLivingBase entityLivingBaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale, EntityEquipmentSlot slotIn) {
 		boolean isAWLoad = ArmourersWorkshopApi.isAvailable();
 		if (isAWLoad && entityLivingBaseIn instanceof EntityNPCInterface) {

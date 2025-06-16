@@ -28,7 +28,6 @@ import noppes.npcs.util.Util;
 public class BaseScriptData
 implements IScriptHandler {
 
-	private final boolean isClient = Thread.currentThread().getName().toLowerCase().contains("client");
 	protected boolean enabled = false;
 	public boolean hadInteract = true;
 	public long lastInited = -1L;
@@ -78,7 +77,7 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public boolean isClient() { return this.isClient; }
+	public boolean isClient() { return Thread.currentThread().getName().toLowerCase().contains("client"); }
 
 	@Override
 	public boolean getEnabled() { return this.enabled; }

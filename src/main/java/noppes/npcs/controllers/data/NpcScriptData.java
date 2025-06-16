@@ -79,7 +79,7 @@ extends BaseScriptData {
 					}
 				}
                 for (ScriptContainer script : this.scripts) {
-                    script.run(type, event, !this.isClient());
+                    script.run(type, event);
                 }
 			});
 		} catch (Exception e) { LogWriter.error("Error:", e); }

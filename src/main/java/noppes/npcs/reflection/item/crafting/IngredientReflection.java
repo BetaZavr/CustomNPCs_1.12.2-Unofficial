@@ -11,6 +11,7 @@ public class IngredientReflection {
 
     private static Field matchingStacks;
 
+    @SuppressWarnings("all")
     public static ItemStack[] getRawMatchingStacks(Ingredient ingredient) {
         if (ingredient == null) { return new ItemStack[0]; }
         if (matchingStacks == null) {

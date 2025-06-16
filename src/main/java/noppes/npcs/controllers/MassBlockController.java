@@ -7,6 +7,7 @@ import java.util.Queue;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -29,9 +30,8 @@ public class MassBlockController {
 	}
 
 	public static void Update() {
-		if (MassBlockController.Instance.queue.isEmpty()) {
-			return;
-		}
+		if (MassBlockController.Instance.queue.isEmpty()) { return; }
+		CustomNpcs.debugData.start("Mod", MassBlockController.class, "save");
 		IMassBlock imb = MassBlockController.Instance.queue.remove();
 		World world = imb.getNpc().world;
 		BlockPos pos = imb.getNpc().getPosition();
@@ -48,6 +48,7 @@ public class MassBlockController {
 			}
 		}
 		imb.processed(list);
+		CustomNpcs.debugData.end("Mod", MassBlockController.class, "save");
 	}
 
 	public Queue<IMassBlock> queue;

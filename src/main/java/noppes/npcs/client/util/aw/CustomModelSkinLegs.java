@@ -10,7 +10,6 @@ import moe.plushie.armourers_workshop.api.common.skin.data.ISkin;
 import moe.plushie.armourers_workshop.api.common.skin.data.ISkinPart;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.math.Vec3d;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -29,7 +28,7 @@ public class CustomModelSkinLegs extends ModelBiped {
 
 			GlStateManager.pushAttrib();
 //GlStateManager.translate(0.125f, 0.0f, 0.0f);
-			RenderHelper.enableGUIStandardItemLighting();
+			//RenderHelper.enableGUIStandardItemLighting();
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
 			if ((boolean) awu.hasPaintData.invoke(skin) & (boolean) awu.isShowSkinPaint.invoke(renderData) & awu.getTexturePaintType.invoke(awu.clientProxy) == awu.TEXTURE_REPLACE) {
 				Object st = awu.getTextureForSkin.invoke(awu.clientSkinPaintCache, skin, awu.getSkinDye.invoke(renderData), awu.getExtraColours.invoke(renderData));

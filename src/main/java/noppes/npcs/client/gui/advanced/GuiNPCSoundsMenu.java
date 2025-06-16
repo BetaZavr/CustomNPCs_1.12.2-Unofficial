@@ -89,7 +89,7 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		GuiSoundSelection gss = (GuiSoundSelection) subgui;
 		if (gss.selectedResource != null) {
 			this.selectedField.setText(gss.selectedResource.toString());

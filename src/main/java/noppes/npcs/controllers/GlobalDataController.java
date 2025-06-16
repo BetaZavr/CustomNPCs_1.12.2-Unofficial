@@ -19,14 +19,12 @@ public class GlobalDataController {
 
 	public int incrementItemGiverId() {
 		++this.itemGiverId;
-		this.saveData();
+		this.save();
 		return this.itemGiverId;
 	}
 
 	private void load() {
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadGlobalData");
-		}
+		CustomNpcs.debugData.start("Mod", this, "load");
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
 		try {
 			File file = new File(saveDir, "global.dat");
@@ -41,9 +39,7 @@ public class GlobalDataController {
 				}
 			} catch (Exception ee) { LogWriter.error("Error:", ee); }
 		}
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.endDebug("Common", null, "loadGlobalData");
-		}
+		CustomNpcs.debugData.end("Mod", this, "load");
 	}
 
 	private void loadData(File file) throws Exception {
@@ -51,7 +47,9 @@ public class GlobalDataController {
 		this.itemGiverId = compound.getInteger("itemGiverId");
 	}
 
-	public void saveData() {
+	@SuppressWarnings("all")
+	public void save() {
+		CustomNpcs.debugData.start("Mod", this, "save");
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			NBTTagCompound nbttagcompound = new NBTTagCompound();
@@ -71,6 +69,8 @@ public class GlobalDataController {
 			if (file.exists()) {
 				file.delete();
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
+		CustomNpcs.debugData.end("Mod", this, "save");
 	}
 }

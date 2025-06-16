@@ -313,7 +313,6 @@ implements IComponentGui, IGuiNpcTextField {
 	@Override
 	public void unFocus() {
 		if (numbersOnly) {
-			if (getID() == 0) { LogWriter.info("TEST: "+getInteger()+"; "+min+"; "+max); }
 			if (isEmpty() || !isInteger()) {
 				setFullText(def + "");
 			} else if (getInteger() < min) {
@@ -332,7 +331,6 @@ implements IComponentGui, IGuiNpcTextField {
 			}
 		}
 		if (listener != null) {
-			LogWriter.info("TEST: "+getInteger());
 			listener.unFocused(this);
 		}
 		if (this == GuiNpcTextField.activeTextfield) { GuiNpcTextField.activeTextfield = null; }

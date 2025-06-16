@@ -53,7 +53,7 @@ public class DataDisplay implements INPCDisplay {
 	private byte hitboxState = 0;
 	private byte showBossBar = 0;
 	private int markovGender = 0;
-	private int markovGeneratorId;
+	private int markovGeneratorId = new Random().nextInt(CustomNpcs.MARKOV_GENERATOR.length - 1);
 	private int modelSize = 5;
 	private int showName = 0;
 	private int skinColor = 0xFFFFFF;
@@ -65,13 +65,12 @@ public class DataDisplay implements INPCDisplay {
 	private String name;
 	private String texture = CustomNpcs.MODID + ":textures/entity/humanmale/steve.png";
 	public float shadowSize = 1.0f;
-	public float width = 0.0f;
-	public float height = 0.0f;
+	public float width = 0.6f;
+	public float height = 1.9f;
 
-	public DataDisplay(EntityNPCInterface npc) {
-		this.npc = npc;
-		this.markovGeneratorId = new Random().nextInt(CustomNpcs.MARKOV_GENERATOR.length - 1);
-		this.name = this.getRandomName();
+	public DataDisplay(EntityNPCInterface npcIn) {
+		npc = npcIn;
+		name = getRandomName();
 	}
 
 	public Availability getAvailability() {
@@ -227,6 +226,7 @@ public class DataDisplay implements INPCDisplay {
 		return this.visible;
 	}
 
+	@SuppressWarnings("all")
 	public boolean hasVisibleOptions() {
 		return CustomNpcs.EnableInvisibleNpcs && this.availability.hasOptions();
 	}
@@ -590,10 +590,8 @@ public class DataDisplay implements INPCDisplay {
 		displayNbt.setInteger("BossColor", this.bossColor.ordinal());
 		displayNbt.setBoolean("EnableInvisibleNpcs", CustomNpcs.EnableInvisibleNpcs);
 		displayNbt.setFloat("ShadowSize", this.shadowSize);
-		displayNbt.setFloat("HitBoxWidth", this.width);
-		displayNbt.setFloat("HitBoxHeight", this.height);
-		
-		
+		displayNbt.setFloat("HitBoxWidth", width);
+		displayNbt.setFloat("HitBoxHeight", height);
 		return displayNbt;
 	}
 

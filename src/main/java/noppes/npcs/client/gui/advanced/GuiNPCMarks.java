@@ -109,7 +109,10 @@ implements ISubGuiListener, ICustomScrollListener {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		GlStateManager.pushMatrix();
 		drawNpc(npcDisplay, 350, 150, 1.0f, 0, 0, 1);
+		GlStateManager.popMatrix();
+
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.0f, 1.0f);
 		Gui.drawRect(guiLeft + 319, guiTop + 30, guiLeft + 380, guiTop + 165, 0xFF808080);
@@ -216,7 +219,7 @@ implements ISubGuiListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiColorSelector) {
 			if (selectedMark == null) { return; }
 			selectedMark.color = ((SubGuiColorSelector) subgui).color;

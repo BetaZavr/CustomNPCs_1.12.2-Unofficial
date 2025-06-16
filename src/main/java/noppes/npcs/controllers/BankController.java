@@ -178,12 +178,11 @@ public class BankController {
 	}
 
 	private void loadBanks() {
+		CustomNpcs.debugData.start("Mod", this, "loadBanks");
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
 		if (saveDir == null) {
+			CustomNpcs.debugData.end("Mod", this, "loadBanks");
 			return;
-		}
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadBanks");
 		}
 		this.filePath = saveDir.getAbsolutePath();
 		try {
@@ -199,9 +198,7 @@ public class BankController {
 				}
 			} catch (Exception ex) { LogWriter.error("Error:", ex); }
 		}
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.endDebug("Common", null, "loadBanks");
-		}
+		CustomNpcs.debugData.end("Mod", this, "loadBanks");
 	}
 
 	private void loadBanks(File file) throws IOException {
@@ -274,7 +271,9 @@ public class BankController {
 		this.saveBanks();
 	}
 
+	@SuppressWarnings("all")
 	public void saveBanks() {
+		CustomNpcs.debugData.start("Mod", this, "saveBanks");
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			File file = new File(saveDir, "bank.dat_new");
@@ -292,7 +291,9 @@ public class BankController {
 			if (file.exists()) {
 				file.delete();
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
+		CustomNpcs.debugData.end("Mod", this, "saveBanks");
 	}
 
 	public void update() { // every 5 min --> ServerTickHandler.onServerTick()

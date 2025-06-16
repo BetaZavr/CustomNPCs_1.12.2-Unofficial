@@ -120,10 +120,10 @@ public class NoppesUtil {
 			return;
 		}
 		if (gui instanceof GuiNPCInterface && ((GuiNPCInterface) gui).hasSubGui()) {
-			gui = (GuiScreen) ((GuiNPCInterface) gui).getSubGui();
+			gui = ((GuiNPCInterface) gui).getSubGui();
 		}
 		if (gui instanceof GuiContainerNPCInterface && ((GuiContainerNPCInterface) gui).hasSubGui()) {
-			gui = (GuiScreen) ((GuiContainerNPCInterface) gui).getSubGui();
+			gui = ((GuiContainerNPCInterface) gui).getSubGui();
 		}
 		if (!(gui instanceof IScrollData)) {
 			return;
@@ -132,7 +132,8 @@ public class NoppesUtil {
 		for (Entry<Object, Object> entry : map.entrySet()) {
 			try {
 				NoppesUtil.data.put((String) entry.getKey(), (int) entry.getValue());
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			}
+			catch (Exception e) { LogWriter.error("Error set scroll data: "+entry.getKey()+":"+entry.getValue(), e); }
 		}
 		((IScrollData) gui).setData(new Vector<>(NoppesUtil.data.keySet()), NoppesUtil.data);
 		NoppesUtil.data.clear();
@@ -141,7 +142,7 @@ public class NoppesUtil {
 	public static void setScrollList(ByteBuf buffer) {
 		GuiScreen gui = Minecraft.getMinecraft().currentScreen;
 		if (gui instanceof GuiNPCInterface && ((GuiNPCInterface) gui).hasSubGui()) {
-			gui = (GuiScreen) ((GuiNPCInterface) gui).getSubGui();
+			gui = ((GuiNPCInterface) gui).getSubGui();
 		}
 		if (!(gui instanceof IScrollData)) {
 			return;

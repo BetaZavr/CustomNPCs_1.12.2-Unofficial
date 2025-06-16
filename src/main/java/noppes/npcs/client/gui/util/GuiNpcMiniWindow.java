@@ -108,15 +108,15 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 		for (IGuiNpcButton b : buttons.values()) { b.setLeft(b.getLeft() + x); b.setTop(b.getTop() + y); }
 		for (IGuiNpcLabel l : labels.values()) { l.setLeft(l.getLeft() + x); l.setTop(l.getTop() + y); }
 		for (IGuiCustomScroll s : scrolls.values()) { s.setLeft(s.getLeft() + x); s.setTop(s.getTop() + y); }
-		for (IGuiMenuSideButton sb : sidebuttons.values()) { sb.setLeft(sb.getLeft() + x); sb.setTop(sb.getTop() + y); }
+		for (IGuiMenuSideButton sb : sideButtons.values()) { sb.setLeft(sb.getLeft() + x); sb.setTop(sb.getTop() + y); }
 		for (IGuiNpcSlider sl : sliders.values()) { sl.setLeft(sl.getLeft() + x); sl.setTop(sl.getTop() + y); }
-		for (IGuiNpcTextField t : textfields.values()) { t.setLeft(t.getLeft() + x); t.setTop(t.getTop() + y); }
-		for (IGuiMenuTopButton tb : topbuttons.values()) { tb.setLeft(tb.getLeft() + x); tb.setTop(tb.getTop() + y); }
-		for (IGuiNpcMiniWindow mw : mwindows.values()) { mw.setLeft(mw.getLeft() + x); mw.setTop(mw.getTop() + y); }
+		for (IGuiNpcTextField t : textFields.values()) { t.setLeft(t.getLeft() + x); t.setTop(t.getTop() + y); }
+		for (IGuiMenuTopButton tb : topButtons.values()) { tb.setLeft(tb.getLeft() + x); tb.setTop(tb.getTop() + y); }
+		for (IGuiNpcMiniWindow mw : miniWindows.values()) { mw.setLeft(mw.getLeft() + x); mw.setTop(mw.getTop() + y); }
 	}
 
 	public void keyTyped(char c, int i) {
-		if (i == 15 && GuiNpcTextField.isActive() && textfields.containsValue(GuiNpcTextField.activeTextfield)) { // Tab
+		if (i == 15 && GuiNpcTextField.isActive() && textFields.containsValue(GuiNpcTextField.activeTextfield)) { // Tab
 			int id = GuiNpcTextField.activeTextfield.getID() + 1;
 			if (id > (getTextField(9) != null ? 9 : 7)) { id = 5; }
 			IGuiNpcTextField textField = getTextField(id);
@@ -193,7 +193,7 @@ implements IComponentGui, IGuiNpcMiniWindow, ITextfieldListener, ISliderListener
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		if (textfields.containsKey(textField.getID()) ) {
+		if (textFields.containsKey(textField.getID()) ) {
 			parent.unFocused(textField);
 		}
 	}

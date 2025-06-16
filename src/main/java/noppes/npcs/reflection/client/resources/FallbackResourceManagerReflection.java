@@ -15,7 +15,7 @@ public class FallbackResourceManagerReflection {
 
     private static Field resourcePacks;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static List<IResourcePack> getResourcePacks(FallbackResourceManager manager) {
         if (manager == null) { return Collections.emptyList(); }
         if (resourcePacks == null) {

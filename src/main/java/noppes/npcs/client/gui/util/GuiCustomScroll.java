@@ -3,13 +3,13 @@ package noppes.npcs.client.gui.util;
 import java.util.*;
 import java.util.function.Predicate;
 
+import net.minecraft.client.renderer.RenderHelper;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -100,7 +100,7 @@ implements IComponentGui, IGuiCustomScroll {
 	}
 
 	protected void drawItems() {
-		int xOffset = (scrollHeight < height - 2) ? 0 : 10;
+		int xOffset = (scrollHeight <= height - 6) ? 0 : 10;
 		int displayIndex = 0;
 		for (int i = 0; i < list.size(); ++i) {
 			if (!isSearched(list.get(i))) { continue; }
@@ -113,7 +113,9 @@ implements IComponentGui, IGuiCustomScroll {
 			StringBuilder text = new StringBuilder();
 			float maxWidth = width - xOffset - j - 2;
 			if ((stacks != null && !stacks.isEmpty()) || (prefixes != null && !prefixes.isEmpty())) { maxWidth -= 12; }
-			if (suffixes != null && !suffixes.get(i).isEmpty()) { maxWidth -= fontRenderer.getStringWidth(suffixes.get(i)) + 1; }
+			if (suffixes != null && i < suffixes.size() && !suffixes.get(i).isEmpty()) {
+				maxWidth -= fontRenderer.getStringWidth(suffixes.get(i)) + 1;
+			}
 			if (fontRenderer.getStringWidth(displayString) > maxWidth) {
 				for (int s = 0; s < displayString.length(); ++s) {
 					if (fontRenderer.getStringWidth(text + "...") > maxWidth) { break; }
@@ -131,10 +133,11 @@ implements IComponentGui, IGuiCustomScroll {
 			int c = CustomNpcs.MainColor.getRGB();
 			if (colors != null && i < colors.size()) { c = colors.get(i); }
 			if ((multipleSelection && Util.instance.containsDeleteColor(selectedList, text.toString(), false)) || (!multipleSelection && selected == i)) {
+				int r = j + width - 15 + xOffset + xo;
 				drawVerticalLine(j - 2, k - 4, k + 10, -1);
-				drawVerticalLine(j + width - 17 + xOffset + xo, k - 4, k + 10, -1);
-				drawHorizontalLine(j - 2, j + width - 17 + xOffset + xo, k - 3, -1);
-				drawHorizontalLine(j - 2, j + width - 17 + xOffset + xo, k + 10, -1);
+				drawVerticalLine(r, k - 4, k + 10, -1);
+				drawHorizontalLine(j - 2, r, k - 3, -1);
+				drawHorizontalLine(j - 2, r, k + 10, -1);
 				fontRenderer.drawString(text.toString(), j, k, c);
 				c = CustomNpcs.MainColor.getRGB();
 			} else if (i == hover) {
@@ -145,7 +148,7 @@ implements IComponentGui, IGuiCustomScroll {
 				c = CustomNpcs.MainColor.getRGB();
 			}
 			if (suffixes != null && i < suffixes.size() && suffixes.get(i) != null && !suffixes.get(i).isEmpty() && fontRenderer.getStringWidth(text + suffixes.get(i)) < width - 20) {
-				fontRenderer.drawString(suffixes.get(i), width - xOffset - 2 - fontRenderer.getStringWidth(suffixes.get(i)), k, c);
+				fontRenderer.drawString(suffixes.get(i), width - 11 - fontRenderer.getStringWidth(suffixes.get(i)), k, c);
 			}
 		}
 	}
@@ -197,7 +200,10 @@ implements IComponentGui, IGuiCustomScroll {
 		guiTop += textFieldHeight();
 		// background
 		if (border != 0xFF000000) { drawGradientRect(guiLeft - 1, guiTop - 1, width + guiLeft + 1, height + guiTop + 1, border, border); }
-		drawGradientRect(guiLeft, guiTop, width + guiLeft, height + guiTop , colorBack, colorBack);
+
+		if ((colorBack >> 24 & 255) > 0) {
+			drawGradientRect(guiLeft, guiTop, width + guiLeft, height + guiTop , colorBack, colorBack);
+		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// positions:
@@ -220,7 +226,7 @@ implements IComponentGui, IGuiCustomScroll {
 			// Bar
 			drawScrollBar();
 			// pos
-			mouseX -= guiLeft;
+			//mouseX -= guiLeft;
 			mouseY -= guiTop;
 			if (isScrolling) {
 				isScrolling = Mouse.isButtonDown(0);
@@ -410,8 +416,12 @@ implements IComponentGui, IGuiCustomScroll {
 		if (scrollHeight < height - 2) {
 			double x = mouseX - guiLeft;
 			double y = mouseY - guiTop;
-			isScrolling = x >= width - 10 && x < width - 1 && y >= 1 && y < height - 2;
-			if (isScrolling) { return; }
+			int h = height;
+			if (hasSearch && listener instanceof IEditNPC) { h += 19; }
+			isScrolling = x >= width - 10 && x < width - 1 && y >= 1 && y < h - 2;
+			if (isScrolling) {
+				return;
+			}
 		}
 		if (mouseButton != 0 || hover < 0) { return; }
 		if (multipleSelection) {

@@ -27,6 +27,7 @@ public class CmdConfig extends CommandNoppesBase {
 		return 4;
 	}
 
+	@SuppressWarnings("all")
 	@SubCommand(desc = "Set how many active chunkloaders you can have", usage = "<number>")
 	public void chunkloaders(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length == 0) {

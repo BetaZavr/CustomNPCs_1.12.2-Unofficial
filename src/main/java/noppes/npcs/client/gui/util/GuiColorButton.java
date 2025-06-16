@@ -9,15 +9,19 @@ public class GuiColorButton extends GuiNpcButton {
 
 	public int color;
 
-	public GuiColorButton(int id, int x, int y, int color) {
-		super(id, x, y, 50, 20, "");
+	public GuiColorButton(int id, int x, int y, int width, int height, int color) {
+		super(id, x, y, width, height, "");
 		this.color = color;
+	}
+
+	public GuiColorButton(int id, int x, int y, int color) {
+		this(id, x, y, 50, 20, color);
 	}
 
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!visible) { return; }
-		drawRect(x, y, x + 50, y + height, new Color(0x80, 0x80, 0x80, 0xFF).getRGB());
-		drawRect(x + 1, y + 1, x + 49, y + height - 1, 0xFF000000 + color);
+		drawRect(x, y, x + width, y + height, new Color(0x80, 0x80, 0x80, 0xFF).getRGB());
+		drawRect(x + 1, y + 1, x + width - 1, y + height - 1, 0xFF000000 + color);
 	}
 
 }

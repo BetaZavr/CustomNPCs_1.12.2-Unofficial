@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 
@@ -44,13 +43,12 @@ extends GuiNpcButton {
 		}
 		int c;
 		if (!enabled) {
-			c = new Color(0xFF808080).getRGB();
+			c = new Color(0xFF303030).getRGB();
 		} else if (hovered) {
 			c = new Color(0xFF48528C).getRGB();
 		} else {
 			c = new Color(0xFF707070).getRGB();
 		}
-		RenderHelper.enableGUIStandardItemLighting();
 		drawGradientRect(11, 0, (int) ((float) width / s - 11.0f), (int) (((float) height - 0.5f) / s), c, c);
 
 		c = new Color(0xFF000000).getRGB();
@@ -58,8 +56,10 @@ extends GuiNpcButton {
 		drawHorizontalLine(11, (int) ((float) width / s - 11.0f), (int) (((float) height - 0.5f) / s), c);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		mc.getTextureManager().bindTexture(GuiButtonBiDirectional.resource);
-		drawTexturedModalRect(0, 0, 0, hoverL ? 40 : 20, 11, 20);
-		drawTexturedModalRect((int) ((float) width / s - 11.0f), 0, 11, hoverR ? 40 : 20, 11, 20);
+		int state = !enabled ? 20 : hoverL ? 40 : 0;
+		drawTexturedModalRect(0, 0, 0, state, 11, 20);
+		state = !enabled ? 20 : hoverR ? 40 : 0;
+		drawTexturedModalRect((int) ((float) width / s - 11.0f), 0, 11, state, 11, 20);
 		GlStateManager.popMatrix();
 
 		String text = "";
@@ -75,31 +75,38 @@ extends GuiNpcButton {
 		} else {
 			text = displayString;
 		}
-		if (hovered) {
+		if (hovered && enabled) {
 			text = ((char) 167) + "n" + text;
 		}
 
-		renderString(mc.fontRenderer, text, x + 11, y, x + width - 11, y + height, color, showShadow, true);
+		c = color;
+		if (packedFGColour != 0) { c = packedFGColour; }
+		else if (!enabled) { c = CustomNpcs.NotEnableColor.getRGB(); }
+		else if (hovered) { c = CustomNpcs.HoverColor.getRGB(); }
+
+		renderString(mc.fontRenderer, text, x + 11, y, x + width - 11, y + height, c, showShadow, true);
 
 	}
 
 	@Override
 	public boolean mousePressed(@Nonnull Minecraft minecraft, int mouseX, int mouseY) {
 		int value = getValue();
-		boolean bo = super.mousePressed(minecraft, mouseX, mouseY);
-		if (bo && display != null && display.length != 0) {
+		boolean bo = false;
+		if (visible && enabled && display != null && display.length != 0) {
 			if (hoverR) {
 				value = (value + 1) % display.length;
+				bo = true;
 			}
 			if (hoverL) {
 				if (value <= 0) {
 					value = display.length;
 				}
 				--value;
+				bo = true;
 			}
 			setDisplay(value);
 		}
-		return bo;
+		return bo || super.mousePressed(minecraft, mouseX, mouseY);
 	}
 
 }

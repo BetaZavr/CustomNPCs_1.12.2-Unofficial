@@ -10,6 +10,7 @@ public class ItemFoodReflection {
 
     private static Field itemUseDuration;
 
+    @SuppressWarnings("all")
     public static void setItemUseDuration(ItemFood item, int newItemUseDuration) {
         if (item == null) { return; }
         if (newItemUseDuration < 0) { newItemUseDuration *= -1; }

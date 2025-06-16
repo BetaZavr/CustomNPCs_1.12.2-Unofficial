@@ -67,7 +67,9 @@ public class QuestController implements IQuestHandler {
 		return new File(CustomNpcs.getWorldSaveDirectory(), "quests");
 	}
 
+	@SuppressWarnings("all")
 	public void load() {
+		CustomNpcs.debugData.start("Mod", this, "load");
 		categories.clear();
 		quests.clear();
 		lastUsedCatID = 0;
@@ -81,6 +83,7 @@ public class QuestController implements IQuestHandler {
 				if (file.exists()) {
 					file.delete();
 				}
+				CustomNpcs.debugData.end("Mod", this, "load");
 				return;
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
@@ -111,6 +114,7 @@ public class QuestController implements IQuestHandler {
 				}
 			}
 		}
+		CustomNpcs.debugData.end("Mod", this, "load");
 	}
 
 	private void loadCategoriesOld(File file) throws Exception {
@@ -174,6 +178,7 @@ public class QuestController implements IQuestHandler {
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.QuestCategoriesData, category);
 	}
 
+	@SuppressWarnings("all")
 	public void removeQuest(Quest quest) {
 		File file = new File(new File(getDir(), quest.category.title), quest.id + ".json");
 		if (file.exists()) {
@@ -187,7 +192,9 @@ public class QuestController implements IQuestHandler {
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.QuestData, quest.id);
 	}
 
+	@SuppressWarnings("all")
 	public void saveCategory(QuestCategory category) {
+		CustomNpcs.debugData.start("Mod", this, "saveCategory");
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
 			category.title = "default";
@@ -203,6 +210,7 @@ public class QuestController implements IQuestHandler {
 				category.title += "_";
 			}
 			if (newdir.exists() || !olddir.renameTo(newdir)) {
+				CustomNpcs.debugData.end("Mod", this, "saveCategory");
 				return;
 			}
 			category.quests.clear();
@@ -226,14 +234,14 @@ public class QuestController implements IQuestHandler {
 				quest.category = category;
 			}
 		}
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData,
-				category.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData, category.writeNBT(new NBTTagCompound()));
+		CustomNpcs.debugData.end("Mod", this, "saveCategory");
 	}
 
+	@SuppressWarnings("all")
 	public void saveQuest(QuestCategory category, Quest quest) {
-		if (category == null) {
-			return;
-		}
+		if (category == null) { return; }
+		CustomNpcs.debugData.start("Mod", this, "saveQuest");
 		while (containsQuestName(quest.category, quest)) {
 			quest.setName(quest.getName() + "_");
 		}
@@ -258,6 +266,7 @@ public class QuestController implements IQuestHandler {
 			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestData,
 					quest.writeToNBT(new NBTTagCompound()), category.id);
 		} catch (Exception e) { LogWriter.error("Error:", e); }
+		CustomNpcs.debugData.end("Mod", this, "saveQuest");
 	}
 
 }

@@ -147,7 +147,7 @@ implements ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		GuiSoundSelection gss = (GuiSoundSelection) subgui;
 		if (gss.selectedResource != null) { job.song = gss.selectedResource.toString(); }
 		initGui();

@@ -15,6 +15,7 @@ public class BlockRendererDispatcherReflection {
     private static Field blockModelRenderer;
     private static Field chestRenderer;
 
+    @SuppressWarnings("all")
     public static BlockModelRenderer getBlockModelRenderer(BlockRendererDispatcher dispatcher) {
         if (dispatcher == null) { return null; }
         if (blockModelRenderer == null) {
@@ -40,6 +41,7 @@ public class BlockRendererDispatcherReflection {
         return null;
     }
 
+    @SuppressWarnings("all")
     public static ChestRenderer getChestRenderer(BlockRendererDispatcher dispatcher) {
         if (dispatcher == null) { return null; }
         if (chestRenderer == null) {

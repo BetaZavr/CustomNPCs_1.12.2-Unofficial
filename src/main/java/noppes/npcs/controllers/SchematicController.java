@@ -51,7 +51,8 @@ public class SchematicController {
 		sw.init(pos.east().south(), player.world, rotation * 90);
 		SchematicController.Instance.build(sw, player);
 	}
-	
+
+	@SuppressWarnings("all")
 	public static File getDir() {
 		File schematicDir = new File(CustomNpcs.getWorldSaveDirectory(), "schematics");
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
@@ -124,6 +125,7 @@ public class SchematicController {
 	}
 
 	public SchematicWrapper load(String name) {
+		CustomNpcs.debugData.start("Mod", this, "load");
 		InputStream stream = null;
 		if (included.contains(name)) {
 			stream = MinecraftServer.class.getResourceAsStream("/assets/" + CustomNpcs.MODID + "/schematics/" + name);
@@ -139,11 +141,13 @@ public class SchematicController {
 				}
 			}
 			if (!file.exists()) {
+				CustomNpcs.debugData.end("Mod", this, "load");
 				return null;
 			}
 			try {
 				stream = new FileInputStream(file);
 			} catch (FileNotFoundException e2) {
+				CustomNpcs.debugData.end("Mod", this, "load");
 				return null;
 			}
 		}
@@ -169,12 +173,15 @@ public class SchematicController {
 		if (schemaWr != null) {
 			this.map.put(name.toLowerCase(), schemaWr);
 		}
+		CustomNpcs.debugData.end("Mod", this, "load");
 		return schemaWr;
 	}
 
 	public void save(ICommandSender sender, String name, int type, BlockPos pos, short height, short width, short length) {
+		CustomNpcs.debugData.start("Mod", this, "save");
 		name = name.replace(" ", "_");
 		if (included.contains(name)) {
+			CustomNpcs.debugData.end("Mod", this, "save");
 			return;
 		}
 		World world = sender.getEntityWorld();
@@ -189,12 +196,13 @@ public class SchematicController {
 		}
 		ITextComponent message = new TextComponentString("Schematic " + name + " successfully created");
 		message.getStyle().setColor(TextFormatting.GRAY);
-		NoppesUtilServer.NotifyOPs(message);
+		NoppesUtilServer.NotifyOPs(message, false);
 		try {
 			if (schema != null) {
 				CompressedStreamTools.writeCompressed(schema.getNBT(), Files.newOutputStream(file.toPath()));
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
+		CustomNpcs.debugData.end("Mod", this, "save");
 	}
 
 	private void sendMessage(ICommandSender sender, String message, Object... objs) {
@@ -221,9 +229,8 @@ public class SchematicController {
 	}
 
 	public void updateBuilding() {
-		if (buildingList.isEmpty()) {
-			return;
-		}
+		if (buildingList.isEmpty()) { return; }
+		CustomNpcs.debugData.start("Mod", this, "updateBuilding");
 		List<SchematicWrapper> del = new ArrayList<>();
 		for (SchematicWrapper sm : buildingList) {
 			sm.build();
@@ -245,6 +252,7 @@ public class SchematicController {
 		for (SchematicWrapper sm : del) {
 			this.buildingList.remove(sm);
 		}
+		CustomNpcs.debugData.end("Mod", this, "updateBuilding");
 	}
 
 }

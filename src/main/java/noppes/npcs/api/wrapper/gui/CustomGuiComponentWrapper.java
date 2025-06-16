@@ -1,9 +1,14 @@
 package noppes.npcs.api.wrapper.gui;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.gui.ICustomGuiComponent;
+import noppes.npcs.api.item.IItemStack;
+
+import java.util.Objects;
 
 public abstract class CustomGuiComponentWrapper implements ICustomGuiComponent {
 
@@ -39,48 +44,52 @@ public abstract class CustomGuiComponentWrapper implements ICustomGuiComponent {
 		}
 	}
 	String[] hoverText;
+	IItemStack hoverStack;
 
 	int id, posX, posY, offsetType;
 
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
-		this.setId(nbt.getInteger("id"));
-		this.setPos(nbt.getIntArray("pos")[0], nbt.getIntArray("pos")[1]);
+		setId(nbt.getInteger("id"));
+		setPos(nbt.getIntArray("pos")[0], nbt.getIntArray("pos")[1]);
 		if (nbt.hasKey("hover")) {
 			NBTTagList list = nbt.getTagList("hover", 8);
 			String[] hoverText = new String[list.tagCount()];
 			for (int i = 0; i < list.tagCount(); ++i) {
 				hoverText[i] = ((NBTTagString) list.get(i)).getString();
 			}
-			this.setHoverText(hoverText);
+			setHoverText(hoverText);
+		}
+		if (nbt.hasKey("hoverStack")) {
+			setHoverStack(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbt.getCompoundTag("hoverStack"))));
 		}
 		return this;
 	}
 
 	@Override
 	public String[] getHoverText() {
-		return this.hoverText;
+		return hoverText;
 	}
 
 	@Override
 	public int getId() {
-		return this.id;
+		return id;
 	}
 
 	@Override
 	public int getPosX() {
-		return this.posX;
+		return posX;
 	}
 
 	@Override
 	public int getPosY() {
-		return this.posY;
+		return posY;
 	}
 
 	public abstract int getType();
 
 	@Override
 	public boolean hasHoverText() {
-		return this.hoverText != null && this.hoverText.length > 0;
+		return hoverStack != null || hoverText != null && hoverText.length > 0;
 	}
 
 	@Override
@@ -88,40 +97,49 @@ public abstract class CustomGuiComponentWrapper implements ICustomGuiComponent {
 		if (type < 0) {
 			type *= -1;
 		}
-		this.offsetType = type % 4;
+		offsetType = type % 4;
+	}
+
+	@Override
+	public IItemStack getHoverStack() { return hoverStack; }
+
+	@Override
+	public ICustomGuiComponent setHoverStack(IItemStack item) {
+		hoverStack = item;
+		return this;
 	}
 
 	@Override
 	public ICustomGuiComponent setHoverText(String text) {
-		this.hoverText = new String[] { text };
+		hoverText = new String[] { text };
 		return this;
 	}
 
 	@Override
 	public ICustomGuiComponent setHoverText(String[] text) {
-		this.hoverText = text;
+		hoverText = text;
 		return this;
 	}
 
 	@Override
-	public ICustomGuiComponent setId(int id) {
-		this.id = id;
+	public ICustomGuiComponent setId(int idIn) {
+		id = idIn;
 		return this;
 	}
 
 	@Override
 	public ICustomGuiComponent setPos(int x, int y) {
-		this.posX = x;
-		this.posY = y;
+		posX = x;
+		posY = y;
 		return this;
 	}
 
 	public NBTTagCompound toNBT(NBTTagCompound nbt) {
-		nbt.setInteger("id", this.id);
-		nbt.setIntArray("pos", new int[] { this.posX, this.posY });
-		if (this.hoverText != null) {
+		nbt.setInteger("id", id);
+		nbt.setIntArray("pos", new int[] { posX, posY });
+		if (hoverText != null) {
 			NBTTagList list = new NBTTagList();
-			for (String s : this.hoverText) {
+			for (String s : hoverText) {
 				if (s != null && !s.isEmpty()) {
 					list.appendTag(new NBTTagString(s));
 				}
@@ -130,7 +148,10 @@ public abstract class CustomGuiComponentWrapper implements ICustomGuiComponent {
 				nbt.setTag("hover", list);
 			}
 		}
-		nbt.setInteger("type", this.getType());
+		if (hoverStack != null && !hoverStack.isEmpty()) {
+			nbt.setTag("hoverStack", hoverStack.getMCItemStack().writeToNBT(new NBTTagCompound()));
+		}
+		nbt.setInteger("type", getType());
 		return nbt;
 	}
 

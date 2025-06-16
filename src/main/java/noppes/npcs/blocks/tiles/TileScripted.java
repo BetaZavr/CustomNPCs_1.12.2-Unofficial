@@ -490,7 +490,7 @@ public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlo
 			}
 		}
 		for (ScriptContainer script : this.scripts) {
-			script.run(type, event, !this.isClient());
+			script.run(type, event);
 		}
 	}
 

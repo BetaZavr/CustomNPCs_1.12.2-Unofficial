@@ -133,7 +133,9 @@ public class ServerCloneController implements ICloneHandler {
 		return dir;
 	}
 
+	@SuppressWarnings("all")
 	private void loadClones() {
+		CustomNpcs.debugData.start("Mod", this, "loadClones");
 		try {
 			File dir = new File(this.getDir(), "..");
 			File file = new File(dir, "clonednpcs.dat");
@@ -154,6 +156,7 @@ public class ServerCloneController implements ICloneHandler {
 		} catch (Exception e) {
 			LogWriter.except(e);
 		}
+		CustomNpcs.debugData.end("Mod", this, "loadClones");
 	}
 
 	private Map<Integer, Map<String, NBTTagCompound>> loadOldClones(File file) throws Exception {
@@ -185,6 +188,7 @@ public class ServerCloneController implements ICloneHandler {
 		this.removeClone(name, tab);
 	}
 
+	@SuppressWarnings("all")
 	public boolean removeClone(String name, int tab) {
 		File file = new File(new File(this.getDir(), tab + ""), name + ".json");
 		if (!file.exists()) {
@@ -195,6 +199,7 @@ public class ServerCloneController implements ICloneHandler {
 	}
 
 	public void saveClone(int tab, String name, NBTTagCompound compound) {
+		CustomNpcs.debugData.start("Mod", this, "saveClone");
 		try {
 			File dir = new File(this.getDir(), tab + "");
 			if (!dir.exists() && !dir.mkdirs()) {
@@ -211,6 +216,7 @@ public class ServerCloneController implements ICloneHandler {
 		} catch (Exception e) {
 			LogWriter.except(e);
 		}
+		CustomNpcs.debugData.end("Mod", this, "saveClone");
 	}
 
 	@Override

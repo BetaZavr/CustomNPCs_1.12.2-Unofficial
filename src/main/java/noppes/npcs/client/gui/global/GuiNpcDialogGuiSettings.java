@@ -295,7 +295,7 @@ public class GuiNpcDialogGuiSettings
         addTextField(textField = new GuiNpcTextField(4, this, x1 + 110, y, 30, 13, "" + Math.round(20.0f * guiSettings.getNpcScale())));
         textField.setMinMaxDefault(0, 100, Math.round(20.0f * guiSettings.getNpcScale()));
         textField.setHoverText("gui.settings.hover.dialog.scale");
-        addLabel(new GuiNpcLabel(lId++, "%", x1 + 142, y + 2));
+        addLabel(new GuiNpcLabel(lId, "%", x1 + 142, y + 2));
 
         y = guiTop + 128;
         addButton(button = new GuiButtonBiDirectional(100, x2, y, 60, 14, new String[] { "type.empty", "over", "nether", "end"}, screenID + 1));
@@ -375,7 +375,7 @@ public class GuiNpcDialogGuiSettings
     public void mouseReleased(IGuiNpcSlider slider) { }
 
     @Override
-    public void subGuiClosed(ISubGuiInterface subgui) {
+    public void subGuiClosed(SubGuiInterface subgui) {
 
     }
 

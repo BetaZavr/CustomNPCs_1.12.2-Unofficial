@@ -323,7 +323,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).text[0].isEmpty()) {
 			return;
 		}

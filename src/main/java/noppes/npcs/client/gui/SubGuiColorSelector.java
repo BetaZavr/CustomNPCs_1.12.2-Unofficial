@@ -8,6 +8,7 @@ import java.io.InputStream;
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.IResource;
@@ -21,17 +22,45 @@ extends SubGuiInterface
 implements ITextfieldListener {
 
 	private static final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/color.png");
+	protected final BufferedImage bufferedimage;
+
 	public int color;
 	private int colorX;
 	private int colorY;
 	private GuiNpcTextField textfield;
+	protected ColorCallback callback;
 
 	public SubGuiColorSelector(int colorInt) {
+		super();
 		xSize = 176;
 		ySize = 222;
 		setBackground("smallbg.png");
 
 		color = colorInt;
+
+		if (mc == null) { mc = Minecraft.getMinecraft(); }
+
+		InputStream stream = null;
+		BufferedImage buffer = null;
+		try {
+			IResource iresource = mc.getResourceManager().getResource(SubGuiColorSelector.resource);
+			buffer = ImageIO.read(stream = iresource.getInputStream());
+		}
+		catch (IOException e) { LogWriter.error("Error:", e); }
+		finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException ex) { LogWriter.error("Error:", ex); }
+			}
+		}
+		bufferedimage = buffer;
+	}
+
+	@SuppressWarnings("all")
+	public SubGuiColorSelector(int colorIn, ColorCallback callbackIn) {
+		this(colorIn);
+		callback = callbackIn;
 	}
 
 	@Override
@@ -89,43 +118,33 @@ implements ITextfieldListener {
 		String prev = textfield.getText();
 		super.keyTyped(c, i);
 		String newText = textfield.getText();
-		if (newText.equals(prev)) {
-			return;
-		}
-		try {
-			color = Integer.parseInt(textfield.getText(), 16);
-		} catch (NumberFormatException e) {
-			textfield.setText(prev);
+		if (!newText.equals(prev)) {
+			try { setColor(Integer.parseInt(newText, 16)); }
+			catch (NumberFormatException e) { textfield.setText(prev); }
 		}
 	}
 
 	@Override
 	public void mouseClicked(int i, int j, int k) {
 		super.mouseClicked(i, j, k);
-		if (i < colorX || i > colorX + 117 || j < colorY || j > colorY + 117) {
+		if (bufferedimage == null || i < colorX || i > colorX + 117 || j < colorY || j > colorY + 117) {
 			return;
 		}
-		InputStream stream = null;
-		try {
-			IResource iresource = mc.getResourceManager().getResource(SubGuiColorSelector.resource);
-			BufferedImage bufferedimage = ImageIO.read(stream = iresource.getInputStream());
-			color = (bufferedimage.getRGB((i - guiLeft - 30) * 4, (j - guiTop - 50) * 4) & new Color(0x00FFFFFF).getRGB());
-			textfield.setText(getColor());
-		} catch (IOException e) {
-			LogWriter.error("Error:", e);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException ex) { LogWriter.error("Error:", ex); }
-			}
-		}
+		setColor(bufferedimage.getRGB((i - guiLeft - 30) * 4, (j - guiTop - 50) * 4) & new Color(0x00FFFFFF).getRGB());
 	}
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
-		try { color = Integer.parseInt(textfield.getFullText(), 16); }
-		catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		try { setColor(Integer.parseInt(textfield.getFullText(), 16)); }
+		catch (NumberFormatException e) { textfield.setFullText(getColor()); }
 	}
+
+	private void setColor(int colorIn) {
+		color = colorIn;
+		textfield.setFullText(getColor());
+		if (callback != null) { callback.color(color); }
+	}
+
+	public interface ColorCallback {  void color(int colorIn); }
 
 }

@@ -307,6 +307,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		}
 	}
 
+	@SuppressWarnings("all")
 	@Override
 	public void initGui() {
 		super.initGui();
@@ -718,7 +719,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui.getId() == 1) { // add new
 			if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).cancelled) { return; }
 			EmotionConfig newEmtn = (EmotionConfig) aData.createNewEmtn();

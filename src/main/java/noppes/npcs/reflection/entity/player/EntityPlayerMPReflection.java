@@ -9,6 +9,7 @@ public class EntityPlayerMPReflection {
 
     private static Field language;
 
+    @SuppressWarnings("all")
     public static String getLanguage(EntityPlayerMP player) {
         if (player == null) { return "en_us"; }
         if (language == null) {

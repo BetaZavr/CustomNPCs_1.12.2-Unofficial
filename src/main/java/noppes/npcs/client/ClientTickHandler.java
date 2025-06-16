@@ -94,7 +94,7 @@ public class ClientTickHandler {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void npcClientTick(TickEvent.ClientTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) { return; }
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcClientTick");
+		CustomNpcs.debugData.start("Players", this, "npcClientTick");
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.player != null && ClientProxy.playerData.getPlayer() == null) {
 			ClientProxy.playerData.setPlayer(mc.player);
@@ -113,7 +113,7 @@ public class ClientTickHandler {
 				ClientTickHandler.inGame = false;
 				ScriptController.Instance.clientScripts.saveDefaultScripts();
 				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGOUT, new PlayerEvent.LogoutEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player)));
-				if (CustomNpcs.VerboseDebug) { CustomNpcs.showDebugs(); }
+				if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.logging(); }
 			} else if (!ScriptController.Instance.clientScripts.loadDefault) {
 				ScriptController.Instance.clientScripts.loadDefaultScripts();
 			}
@@ -253,13 +253,13 @@ public class ClientTickHandler {
 		if (mc.currentScreen instanceof GuiNPCInterface || mc.currentScreen instanceof GuiContainerNPCInterface) {
 			SubGuiInterface subGui;
 			if (mc.currentScreen instanceof GuiNPCInterface) {
-				subGui = (SubGuiInterface) ((GuiNPCInterface) mc.currentScreen).getSubGui();
+				subGui = ((GuiNPCInterface) mc.currentScreen).getSubGui();
 			} else {
-				subGui = (SubGuiInterface) ((GuiContainerNPCInterface) mc.currentScreen).getSubGui();
+				subGui = ((GuiContainerNPCInterface) mc.currentScreen).getSubGui();
 			}
 			if (subGui != null && subGui.getSubGui() != null) {
 				while (subGui.getSubGui() != null) {
-					subGui = (SubGuiInterface) subGui.getSubGui();
+					subGui = subGui.getSubGui();
 				}
 			}
 			if (ClientEventHandler.subgui != subGui) {
@@ -272,12 +272,12 @@ public class ClientTickHandler {
 				ClientEventHandler.subgui = subGui;
 			}
 		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcClientTick");
+		CustomNpcs.debugData.end("Players", this, "npcClientTick");
 	}
 
 	@SubscribeEvent
 	public void npcKeyInputEvent(InputEvent.KeyInputEvent event) {
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcKeyInputEvent");
+		CustomNpcs.debugData.start("Players", this, "npcKeyInputEvent");
 		if (CustomNpcs.SceneButtonsEnabled) {
 			if (ClientProxy.Scene1.isPressed()) {
 				Client.sendData(EnumPacketServer.SceneStart, 1);
@@ -328,37 +328,35 @@ public class ClientTickHandler {
 			ClientProxy.playerData.hud.keyPress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcKeyInputEvent");
+		CustomNpcs.debugData.end("Players", this, "npcKeyInputEvent");
 	}
 
 	@SubscribeEvent
 	public void npcLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
-		if (event.getHand() != EnumHand.MAIN_HAND) {
-			return;
-		}
+		CustomNpcs.debugData.start("Players", this, "npcLeftClickEmpty");
+		if (event.getHand() != EnumHand.MAIN_HAND) { return; }
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.LeftClick);
+		CustomNpcs.debugData.end("Players", this, "npcLeftClickEmpty");
 	}
 
 	@SubscribeEvent
 	public void npcLivingUpdate(LivingUpdateEvent event) {
-		if (!event.getEntity().world.isRemote || !(event.getEntity() instanceof EntityNPCInterface)) {
-			return;
-		}
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcLivingUpdate");
+		if (!event.getEntity().world.isRemote || !(event.getEntity() instanceof EntityNPCInterface)) { return; }
+		CustomNpcs.debugData.start("Players", this, "npcLivingUpdate");
 		int dimID = Minecraft.getMinecraft().world.provider.getDimension();
 		if (ClientProxy.notVisibleNPC.containsKey(dimID)
 				&& ClientProxy.notVisibleNPC.get(dimID).contains(event.getEntity().getUniqueID())) {
 			Minecraft.getMinecraft().world.removeEntity(event.getEntity());
 		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcLivingUpdate");
+		CustomNpcs.debugData.end("Players", this, "npcLivingUpdate");
 	}
 
 	@SubscribeEvent
 	public void npcLoadAllOBJTextures(TextureStitchEvent.Pre event) {
-		CustomNpcs.debugData.startDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
+		CustomNpcs.debugData.start("Players", this, "npcLoadAllOBJTextures");
 		File assets = new File(CustomNpcs.Dir, "assets/customnpcs");
 		if (!assets.exists()) {
-			CustomNpcs.debugData.endDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
+			CustomNpcs.debugData.end("Players", this, "npcLoadAllOBJTextures");
 			return;
 		}
 		List<ResourceLocation> objTextures = new ArrayList<>();
@@ -390,22 +388,21 @@ public class ClientTickHandler {
 			}
 			event.getMap().registerSprite(res);
 		}
-		CustomNpcs.debugData.endDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
+		CustomNpcs.debugData.end("Players", this, "npcLoadAllOBJTextures");
 	}
-
 
 	@SubscribeEvent
 	public void npcGuiScreenMouseInput(GuiScreenEvent.MouseInputEvent.Pre event) {
 		npcMouseInput(Mouse.getEventButton(), Mouse.getEventX(), Mouse.getEventY(), Mouse.getEventDX(), Mouse.getEventDY(), Mouse.getEventDWheel(), Mouse.getEventButtonState());
 	}
 
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void npcMouseInput(MouseEvent event) {
 		npcMouseInput(event.getButton(), event.getX(), event.getY(), event.getDx(), event.getDy(), event.getDwheel(), event.isButtonstate());
 	}
 
 	public void npcMouseInput(int key, int x, int y, int dx, int dy, int dWheel, boolean isDown) {
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcMouseEvent");
+		CustomNpcs.debugData.start("Players", this, "npcMouseInput");
 		boolean isCtrlPressed = GuiScreen.isCtrlKeyDown();
 		boolean isShiftPressed = GuiScreen.isShiftKeyDown();
 		boolean isAltPressed = GuiScreen.isAltKeyDown();
@@ -414,7 +411,7 @@ public class ClientTickHandler {
 		if (key < 0) {
 			Event event = new PlayerEvent.MouseMoveEvent(iPlayer, x, y, dx, dy, dWheel, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
 			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.MOUSE_MOVE, event);
-			CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
+			CustomNpcs.debugData.end("Players", this, "npcMouseInput");
 			return;
 		}
 		Event event = new PlayerEvent.KeyPressedEvent(iPlayer, key, isCtrlPressed, isAltPressed, isShiftPressed, isMetaPressed);
@@ -427,7 +424,7 @@ public class ClientTickHandler {
 				ClientProxy.playerData.hud.mousePress.remove((Integer) key);
 			}
 		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
+		CustomNpcs.debugData.end("Players", this, "npcMouseInput");
 	}
 
 }

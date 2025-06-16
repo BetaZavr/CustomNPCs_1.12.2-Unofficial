@@ -15,7 +15,7 @@ public class IResourceManagerReflection {
 
     private static Field domainResourceManagers;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static Map<String, FallbackResourceManager> getDomainResourceManagers(IResourceManager resourceManager) {
         if (resourceManager == null) { return new HashMap<>(); }
         if (domainResourceManagers == null) {

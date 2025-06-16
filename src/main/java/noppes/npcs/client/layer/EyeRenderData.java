@@ -57,6 +57,7 @@ public class EyeRenderData {
 
         // Eye
         eyePosX = isLeft ? 1.0f : -1.0f;
+        if (eyes.type == 2 && !isLeft) { eyePosX -= 2.0f; }
         eyePosY = -5.0f + data[0];
         eyeScaleX = 1.0f;
         eyeScaleY = 1.0f;
@@ -92,34 +93,56 @@ public class EyeRenderData {
         double ySize = eyes.type == 1 ? 0.85f : 0.5f;
         pupilTop = -ySize;
         pupilBottom = ySize;
-        // X
-        pupilX = (isLeft ? 1.0 : -1.0) + x;
-        if (pupilX <= 0.5 * pupilScaleX - (!isLeft ? 2.0 : 0.0)) {
-            if (isLeft) { pupilLeft = pupilX / -pupilScaleX; }
-            else { pupilLeft = (2.0 + pupilX) / -pupilScaleX; }
-        }
-        if (x > 1.0 - 0.5 * pupilScaleX) {
-            if (isLeft) { pupilRight = (2.0 - pupilX) / pupilScaleX; }
-            else { pupilRight = pupilX / -pupilScaleX; }
-        }
-        // Y
-        if (eyes.type == 1) { pupilY = 0.85 + y; }
-        else { pupilY = 0.5 + y / 2.0; }
-        if (pupilY < ySize* pupilScaleY) { pupilTop = pupilY / -pupilScaleY; }
-        double start = ySize - ySize * (pupilScaleY - 1.0);
-        if (pupilY > start) {
-            double e0 = (eyes.type == 1 ? ySize - 1.0 : ySize - 0.5) / pupilScaleY;
-            double e1 = eyes.type == 1 ? ySize + 1.0 : ySize + 0.5;
-            double a = (ySize - e0) / (start - e1) ;
-            double b = ySize - a * start;
-            pupilBottom = a * pupilY + b;
-        }
 
         if (eyes.type == 2) {
             pupilColor[0] = (float)(eyes.pupilColor[1] >> 16 & 255) / 127.5F;
             pupilColor[1] = (float)(eyes.pupilColor[1] >> 8 & 255) / 127.5F;
             pupilColor[2] = (float)(eyes.pupilColor[1] & 255) / 127.5F;
+            pupilX = 0.0;
+            pupilY = 0.0;
+            if (x != 0.0 || y != 0.0) {
+                double maxRadiusSquare = 1.0;
+                double ellipseMajorAxis = 0.45;
+                double ellipseMinorAxis = 0.3;
+                // polar coordinates
+                double radiusSquare = ValueUtil.correctDouble(Math.hypot(x, y), -1.0, 1.0);
+                double angleTheta = Math.atan2(y, x);
+                // радиус эллипса для текущего угла
+                double numerator = ellipseMajorAxis * ellipseMinorAxis;
+                double denominator = Math.sqrt(Math.pow(ellipseMinorAxis, 2) * Math.cos(angleTheta) * Math.cos(angleTheta) + Math.pow(ellipseMajorAxis, 2) * Math.sin(angleTheta) * Math.sin(angleTheta));
+                double radiusEllipse = numerator / denominator;
+                // radius correction
+                double correctedRadius = radiusEllipse * radiusSquare / maxRadiusSquare;
+                // return cartesian coordinates
+                pupilX = correctedRadius * Math.cos(angleTheta);
+                pupilY = correctedRadius * Math.sin(angleTheta);
+            }
+            //LogWriter.info("TEST: ["+x+", "+y+"]; ["+pupilX+", "+pupilY+"]");
+        } else {
+            // X
+            pupilX = (isLeft ? 1.0 : -1.0) + x;
+            if (pupilX <= 0.5 * pupilScaleX - (!isLeft ? 2.0 : 0.0)) {
+                if (isLeft) { pupilLeft = pupilX / -pupilScaleX; }
+                else { pupilLeft = (2.0 + pupilX) / -pupilScaleX; }
+            }
+            if (x > 1.0 - 0.5 * pupilScaleX) {
+                if (isLeft) { pupilRight = (2.0 - pupilX) / pupilScaleX; }
+                else { pupilRight = pupilX / -pupilScaleX; }
+            }
+            // Y
+            if (eyes.type == 1) { pupilY = 0.85 + y; }
+            else { pupilY = 0.5 + y / 2.0; }
+            if (pupilY < ySize* pupilScaleY) { pupilTop = pupilY / -pupilScaleY; }
+            double start = ySize - ySize * (pupilScaleY - 1.0);
+            if (pupilY > start) {
+                double e0 = (eyes.type == 1 ? ySize - 1.0 : ySize - 0.5) / pupilScaleY;
+                double e1 = eyes.type == 1 ? ySize + 1.0 : ySize + 0.5;
+                double a = (ySize - e0) / (start - e1) ;
+                double b = ySize - a * start;
+                pupilBottom = a * pupilY + b;
+            }
         }
+
 
         // Center
         double size = 0.2;
@@ -219,8 +242,7 @@ public class EyeRenderData {
 
             if (glintShow) {
                 if (eyes.type != 2) { glintColor = 0xFFFFFF | (int) Math.ceil(glintAlpha * 255.0F) << 24; }
-                //
-            }
+            } else if (eyes.type == 2) { glintShow = true; }
         }
         isUpdate = false;
     }

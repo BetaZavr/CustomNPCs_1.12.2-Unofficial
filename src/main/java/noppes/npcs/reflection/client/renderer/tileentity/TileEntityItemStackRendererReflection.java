@@ -14,6 +14,7 @@ public class TileEntityItemStackRendererReflection {
 
     private static Field banner;
 
+    @SuppressWarnings("all")
     public static void setBanner(TileEntityItemStackRenderer tileEntityItemStackRenderer, TileEntityBanner newTileEntityBanner) {
         if (tileEntityItemStackRenderer == null || newTileEntityBanner == null) { return; }
         if (banner == null) {

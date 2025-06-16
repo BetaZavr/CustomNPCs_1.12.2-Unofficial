@@ -46,6 +46,8 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 		boolean flag = npc.getPrimaryHand() == EnumHandSide.RIGHT;
 		ItemStack mainhand = flag ? npc.getHeldItemMainhand() : npc.getHeldItemOffhand();
 		ItemStack offhand = flag ? npc.getHeldItemOffhand() : npc.getHeldItemMainhand();
+		boolean showMain = npc.animation.showParts.get(flag ? EnumParts.ARM_RIGHT : EnumParts.ARM_LEFT);
+		boolean showOff = npc.animation.showParts.get(flag ? EnumParts.ARM_LEFT : EnumParts.ARM_RIGHT);
 		boolean isAWShow = ArmourersWorkshopApi.isAvailable();
 		if (!isAWShow && mainhand.isEmpty() && offhand.isEmpty()) { return; }
 		boolean isAnimated = npc.animation.isAnimated();
@@ -54,9 +56,13 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 			offhand = npc.animation.getCurrentHeldStack(!flag);
 		}
 		double distance = Minecraft.getMinecraft().player.getDistance(npc.posX, npc.posY, npc.posZ);
+		IEntitySkinCapability skinCapability = null;
 		if (isAWShow) {
 			try {
-				isAWShow = distance <= (double) ArmourersWorkshopUtil.getInstance().renderDistanceSkin.get(ArmourersWorkshopUtil.getInstance().configHandlerClient);
+				Object value = ArmourersWorkshopUtil.getInstance().renderDistanceSkin.get(ArmourersWorkshopUtil.getInstance().configHandlerClient);
+				if (value instanceof Integer) { isAWShow = distance <= (int) value; }
+				else { isAWShow = distance <= (double) value; }
+				if (isAWShow) { skinCapability = ArmourersWorkshopApi.getEntitySkinCapability(npc); }
 			}
 			catch (Exception ignored) { }
 		}
@@ -65,7 +71,31 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 			GlStateManager.translate(0.0F, 0.75F, 0.0F);
 			GlStateManager.scale(0.5F, 0.5F, 0.5F);
 		}
-		boolean showMain = npc.animation.showParts.get(EnumParts.ARM_RIGHT);
+		// ArmourersWorkshop add to skin
+		if (skinCapability != null) {
+			for (ISkinType skinType : skinCapability.getValidSkinTypes()) {
+				if (skinType.getName().equals("Sword") || skinType.getName().equals("bow") || skinType.getName().equals("Shield")) {
+					IInventory inv = ArmourersWorkshopUtil.getInstance().getSkinTypeInv(skinCapability.getSkinInventoryContainer(), skinType);
+					for (int j = 0; j < inv.getSizeInventory(); j++) {
+						if (ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(inv.getStackInSlot(j))) {
+							EnumHandSide side = flag ? EnumHandSide.RIGHT : EnumHandSide.LEFT;
+							boolean show;
+							if (skinType.getName().equals("Shield")) {
+								side = flag ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
+								if (flag) { showOff = false; }
+								else { showMain = false; }
+								show = !offhand.isEmpty();
+							}
+							else {
+								if (flag) { showMain = false; } else { showOff = false; }
+								show = !mainhand.isEmpty();
+							}
+							if (show) { renderHeldAWItem(ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(inv.getStackInSlot(j)), npc.isSneaking(), side, distance, scale); }
+						}
+					}
+				}
+			}
+		}
 		// mainhand
 		if (!showMain) {
 			EnumParts ep = flag ? EnumParts.ARM_RIGHT : EnumParts.ARM_LEFT;
@@ -82,7 +112,6 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 			}
 		}
 		// offhand
-		boolean showOff = npc.animation.showParts.get(EnumParts.ARM_LEFT);
 		if (!showOff) {
 			EnumParts ep = flag ? EnumParts.ARM_LEFT : EnumParts.ARM_RIGHT;
 			EnumParts es = flag ? EnumParts.LEFT_STACK : EnumParts.RIGHT_STACK;
@@ -97,38 +126,10 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 				renderHeldItem(npc, offhand, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, EnumHandSide.LEFT, scale, distance, isAWShow, isAnimated);
 			}
 		}
-		// ArmourersWorkshop add to skin
-		if (ArmourersWorkshopApi.isAvailable() && isAWShow) {
-			IEntitySkinCapability skinCapability = ArmourersWorkshopApi.getEntitySkinCapability(npc);
-			ISkinType[] skinTypes = skinCapability.getValidSkinTypes();
-			if (showMain) {
-				for (ISkinType skinType : skinTypes) {
-					if (skinType.getName().equals("Sword") || skinType.getName().equals("bow")) {
-						IInventory inv = ArmourersWorkshopUtil.getInstance().getSkinTypeInv(skinCapability.getSkinInventoryContainer(), skinType);
-						for (int j = 0; j < inv.getSizeInventory(); j++) {
-							if (ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(inv.getStackInSlot(j))) {
-								renderHeldAWItem(ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(inv.getStackInSlot(j)), npc.isSneaking(), flag ? EnumHandSide.RIGHT : EnumHandSide.LEFT, distance, scale);
-							}
-						}
-					}
-				}
-			}
-			if (showOff) {
-				for (ISkinType skinType : skinTypes) {
-					if (skinType.getName().equals("Shield")) {
-						IInventory inv = ArmourersWorkshopUtil.getInstance().getSkinTypeInv(skinCapability.getSkinInventoryContainer(), skinType);
-						for (int j = 0; j < inv.getSizeInventory(); j++) {
-							if (ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(inv.getStackInSlot(j))) {
-								renderHeldAWItem(ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(inv.getStackInSlot(j)), npc.isSneaking(), flag ? EnumHandSide.LEFT : EnumHandSide.RIGHT, distance, scale);
-							}
-						}
-					}
-				}
-			}
-		}
 		GlStateManager.popMatrix();
 	}
 
+	@SuppressWarnings("all")
 	private void renderHeldItem(EntityLivingBase entity, ItemStack stack, ItemCameraTransforms.TransformType transform, EnumHandSide handSide, float scale, double distance, boolean isAWShow, boolean isAnimated) {
 		if (stack == null || stack.isEmpty()) { return; }
 		GlStateManager.pushMatrix();

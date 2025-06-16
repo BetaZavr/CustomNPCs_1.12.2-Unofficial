@@ -5,10 +5,9 @@ import java.util.Map;
 
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.*;
-import noppes.npcs.api.util.IRayTraceRotate;
+import net.minecraft.util.math.MathHelper;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.items.ItemNpcWand;
-import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
@@ -128,7 +127,7 @@ extends LayerInterface<T> {
 		if (!leftData.isShow) { return; }
 		// Eye
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(leftData.eyePosX, leftData.eyePosY, 4.001f);
+		GlStateManager.translate(leftData.eyePosX, leftData.eyePosY, 4.01f);
 		GlStateManager.scale(leftData.eyeScaleX, leftData.eyeScaleY, 1.0f);
 		if (selectType == 1) { drawRect(-0.125d, -0.125d, 2.135, 1.125 + leftData.eyeHoverY, hoverColor, 0.0D); }
 		if (playerdata.eyes.type == 2) {
@@ -149,8 +148,8 @@ extends LayerInterface<T> {
 		if (selectType == 2) { drawRect(-0.625, -0.625, 0.625, 0.625, hoverColor, 0.0D); }
 		if (playerdata.eyes.type == 2) {
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(-0.8f, 0.1f, 0.0f);
-			GlStateManager.scale(0.003f, 0.003f, 1.0f);
+			GlStateManager.translate(0.525f, 0.375f, 0.01f);
+			GlStateManager.scale(0.004f, 0.004f, 1.0f);
 			render.bindTexture(playerdata.eyes.pupilLeft);
 			GlStateManager.color(leftData.pupilColor[0], leftData.pupilColor[1], leftData.pupilColor[2], 1.0f);
 			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, true);
@@ -169,12 +168,12 @@ extends LayerInterface<T> {
 			if (leftData.glintShow) {
 				if (playerdata.eyes.type == 2) {
 					GlStateManager.pushMatrix();
-					GlStateManager.translate(-0.8f, 0.1f, 0.0f);
+					GlStateManager.translate(0.65f, 0.475f, 0.01f);
 					GlStateManager.translate(leftData.glintLeft, leftData.glintTop, 0.0f);
 					GlStateManager.scale(0.003f, 0.003f, 1.0f);
 					GlStateManager.color(1.0f, 1.0f, 1.0f, leftData.glintAlpha);
 					render.bindTexture(playerdata.eyes.glintRes);
-					drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
+					drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, true);
 					GlStateManager.popMatrix();
 				}
 				else {
@@ -191,7 +190,7 @@ extends LayerInterface<T> {
 		if (!rightData.isShow) { return; }
 		// Eye
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(rightData.eyePosX, rightData.eyePosY, 4.001f);
+		GlStateManager.translate(rightData.eyePosX, rightData.eyePosY, 4.01f);
 		GlStateManager.scale(rightData.eyeScaleX, rightData.eyeScaleY, 1.0f);
 		if (selectType == 1) { drawRect(-0.125d, -0.125d, 2.135, 1.125 + rightData.eyeHoverY, hoverColor, 0.0D); }
 		if (playerdata.eyes.type == 2) {
@@ -200,7 +199,7 @@ extends LayerInterface<T> {
 			GlStateManager.enableBlend();
 			render.bindTexture(playerdata.eyes.eyeRight);
 			GlStateManager.color(rightData.eyeColor[0], rightData.eyeColor[1], rightData.eyeColor[2], 1.0f);
-			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, true);
+			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
 			GlStateManager.popMatrix();
 		}
 		else { drawRect(0, 0, rightData.eyeWeight, rightData.eyeHeight, playerdata.eyes.eyeColor[1], 0.0D); }
@@ -212,11 +211,11 @@ extends LayerInterface<T> {
 		if (selectType == 2) { drawRect(-0.625, -0.625, 0.625, 0.625, hoverColor, 0.0D); }
 		if (playerdata.eyes.type == 2) {
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(-0.8f, 0.1f, 0.0f);
-			GlStateManager.scale(0.003f, 0.003f, 1.0f);
+			GlStateManager.translate(0.525f, 0.375f, 0.01f);
+			GlStateManager.scale(0.004f, 0.004f, 1.0f);
 			render.bindTexture(playerdata.eyes.pupilRight);
 			GlStateManager.color(rightData.pupilColor[0], rightData.pupilColor[1], rightData.pupilColor[2], 1.0f);
-			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, true);
+			drawTexturedModalRect(0, 0, 0, 0, 0, 256, 256, false);
 			GlStateManager.popMatrix();
 		}
 		else {
@@ -232,7 +231,7 @@ extends LayerInterface<T> {
 			if (rightData.glintShow) {
 				if (playerdata.eyes.type == 2) {
 					GlStateManager.pushMatrix();
-					GlStateManager.translate(-0.8f, 0.1f, 0.0f);
+					GlStateManager.translate(0.65f, 0.475f, 0.01f);
 					GlStateManager.translate(rightData.glintLeft, rightData.glintTop, 0.0f);
 					GlStateManager.scale(0.003f, 0.003f, 1.0f);
 					GlStateManager.color(1.0f, 1.0f, 1.0f, rightData.glintAlpha);
@@ -288,6 +287,7 @@ extends LayerInterface<T> {
 			if (ModelNpcAlt.editAnimDataSelect.alpha >= 1.0f) { alpha = 1.0f; } else { alpha = 0.5f; }
 		}
 		else { alpha = 1.0f; }
+		//LogWriter.debug("TEST rtr: "+npc.rotationYawHead+"; "+npc.rotationPitch);
 
 		GlStateManager.pushMatrix();
 		model.bipedHead.postRender(0.0625f);
@@ -311,7 +311,7 @@ extends LayerInterface<T> {
 		// [ offsetEyeY, offsetEyeY2, offsetPupilY, offsetPupilY2, pupilPosX, pupilPosY, offsetGlintYStart, offsetGlintYEnd ]
 		float[] data;
 		if (playerdata.eyes.type != 0) { data = new float[] { 0.3f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.7f, 0.15f }; }
-		else { data = new float[]{ 0.0f, 0.0f, -0.4f, 0.25f, 0.0f, 0.0f, 0.0f, 0.0f}; }
+		else { data = new float[] { 0.0f, 0.0f, -0.4f, 0.25f, 0.0f, 0.0f, 0.0f, 0.0f}; }
 
         Map<Integer, Float[]> emotionData = new HashMap<>();
 		EmotionFrame frame = npc.animation.getCurrentEmotionFrame();
@@ -345,31 +345,36 @@ extends LayerInterface<T> {
 			}
 			else if (npc.lookAt != null || npc.lookPos[0] != 0 || npc.lookPos[1] != 0) {
 				if (npc.lookAt != null) {
-					float d0 = npc.rotationYawHead % 360.0f;
-					// Yaw
-					if (d0 < 0.0f) { d0 += 360.0f; }
-					if (npc.ais.getStandingType() == 4 || npc.ais.getStandingType() == 2) {
-						d0 = d0 - npc.ais.orientation;
-						if (d0 > 180.0f) { d0 -= 360.0f; }
-						if (Math.abs(d0) >= 45.0f) {
-							if (npc.ais.getStandingType() == 4) {
-								if (d0 < 0.0f) { d0 += 45.0f; }
-								else if (d0 > 0.0f) { d0 -= 45.0f; }
-								data[4] = ValueUtil.correctFloat(d0, -45.0f, 45.0f) / -45.0f;
-							}
-						}
+					double d0 = npc.posX - npc.lookAt.posX;
+					double d1 = (npc.posY + (double) npc.getEyeHeight()) - (npc.lookAt.posY + (double) npc.lookAt.getEyeHeight());
+					double d2 = npc.posZ - npc.lookAt.posZ;
+					double d3 = MathHelper.sqrt(d0 * d0 + d2 * d2);
+					float orientation = npc.rotationYawHead;
+					if (!npc.hasPath() && npc.ais.getStandingType() == 4 && npc.getAttackTarget() == null) { orientation = npc.ais.orientation; }
+					float yaw = MathHelper.wrapDegrees(orientation - (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F);
+					float pitch = MathHelper.wrapDegrees(npc.rotationPitch + (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)))) / 2.0f;
+					if (!npc.hasPath() && npc.ais.getStandingType() == 4) {
+						if (yaw > -45.0f && yaw < 45.0f) { yaw = 0.0f; }
+						if (yaw < -45.0f) { yaw += 45.0f; }
+						else if (yaw > 45.0f) { yaw -= 45.0f; }
+						if (pitch > -45.0f && pitch < 45.0f) { pitch = 0.0f; }
+						if (pitch < -45.0f) { pitch += 45.0f; }
+						else if (pitch > 45.0f) { pitch -= 45.0f; }
 					}
-					// Pitch
-					IRayTraceRotate rayTrace = Util.instance.getAngles3D(npc, npc.lookAt);
-					if (Math.abs(rayTrace.getPitch()) >= 45.0f) {
-						float d1 = npc.rotationPitch + (float) rayTrace.getPitch();
-						data[5] = ValueUtil.correctFloat(d1, -45.0f, 45.0f) / 45.0f;
-					}
+					data[4] = ValueUtil.correctFloat(yaw, -45.0f, 45.0f) / 45.0f;
+					data[5] = ValueUtil.correctFloat(pitch, -45.0f, 45.0f) / -45.0f;
 				}
 				else {
 					// 45 -> 0.5
 					data[4] = ValueUtil.correctFloat(npc.lookPos[0], -45.0f, 45.0f) / 45.0f;
 					data[5] = ValueUtil.correctFloat(npc.lookPos[1], -45.0f, 45.0f) / -45.0f;
+					if (npc.ais.getStandingType() == 0 || npc.ais.getStandingType() == 3) {
+						float f0 = 0.25f;
+						if (npc.lookPos[0] < 0.0f) { npc.lookPos[0] += f0; } else { npc.lookPos[0] -= f0; }
+						if (npc.lookPos[1] < 0.0f) { npc.lookPos[1] += f0; } else { npc.lookPos[1] -= f0; }
+						if (npc.lookPos[0] > -f0 && npc.lookPos[0] < f0) { npc.lookPos[0] = 0.0f; }
+						if (npc.lookPos[1] > -f0 && npc.lookPos[1] < f0) { npc.lookPos[1] = 0.0f; }
+					}
 				}
 			}
 		}

@@ -14,7 +14,7 @@ public class LocaleReflection {
 
     private static Field properties;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static Map<String, String> getProperties(Locale locale) {
         if (locale == null) { return new HashMap<>(); }
         if (properties == null) {

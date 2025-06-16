@@ -13,6 +13,7 @@ public class AttributeModifierReflection {
     private static Field operation;
     private static Field name;
 
+    @SuppressWarnings("all")
     public static void setOperation(AttributeModifier modifer, int newOperation) {
         if (modifer == null) { return; }
         if (operation == null) {
@@ -43,6 +44,7 @@ public class AttributeModifierReflection {
         }
     }
 
+    @SuppressWarnings("all")
     public static void setName(AttributeModifier modifer, String newName) {
         if (modifer == null || newName == null) { return; }
         if (name == null) {
@@ -73,6 +75,7 @@ public class AttributeModifierReflection {
         }
     }
 
+    @SuppressWarnings("all")
     public static void setAmount(AttributeModifier modifer, double newAmount) {
         if (modifer == null) { return; }
         if (amount == null) {

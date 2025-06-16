@@ -1,6 +1,5 @@
 package noppes.npcs.api.mixin.entity.player;
 
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.entity.data.DataAnimation;
 

@@ -45,9 +45,7 @@ implements IGuiData, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getID() != 5 && button.getID() != 8) {
-			this.save();
-		}
+		if (button.getID() != 5 && button.getID() != 8) { save(); }
 		switch (button.getID()) {
 			case 3: {
 				Client.sendData(EnumPacketServer.RoleGet);
@@ -62,7 +60,7 @@ implements IGuiData, ISubGuiListener {
 				int id = button.getValue();
 				if (id > 8) { id++; }
 				npc.advanced.setJob(id);
-				getButton(4).setEnabled(npc.advanced.jobInterface.getEnumType().hasSettings);
+				initGui();
 				break;
 			}
 			case 7: {
@@ -70,9 +68,9 @@ implements IGuiData, ISubGuiListener {
 				break;
 			}
 			case 8: {
-				this.hasChanges = true;
-				this.npc.advanced.setRole(button.getValue());
-				getButton(3).setEnabled(this.npc.advanced.roleInterface.getEnumType().hasSettings);
+				hasChanges = true;
+				npc.advanced.setRole(button.getValue());
+				initGui();
 				break;
 			}
 			case 9: {
@@ -121,11 +119,11 @@ implements IGuiData, ISubGuiListener {
 		int y = this.guiTop + 8;
 		this.addLabel(new GuiNpcLabel(0, "role.name", x, y + 5));
 		GuiNpcButton button = new GuiNpcButton(3, x + 230, y, 52, 20, "selectServer.edit");
-		button.setEnabled(!this.ais.aiDisabled && this.npc.advanced.roleInterface.getEnumType().hasSettings);
+		button.setEnabled(!ais.aiDisabled && this.npc.advanced.roleInterface.getEnumType().hasSettings);
 		if (ais.aiDisabled) { button.setHoverText("hover.ai.disabled"); }
 		addButton(button);
 		button = new GuiButtonBiDirectional(8, x + 70, y, 155, 20, RoleType.getNames(), this.npc.advanced.roleInterface.getType());
-		button.setEnabled(!this.ais.aiDisabled);
+		button.setEnabled(!ais.aiDisabled);
 		ITextComponent mess = new TextComponentTranslation("advanced.menu.hover.role." + this.npc.advanced.roleInterface.getType());
 		if (this.ais.aiDisabled) { mess.appendSibling(new TextComponentTranslation("hover.ai.disabled")); }
 		button.setHoverText(mess.getFormattedText());
@@ -194,8 +192,8 @@ implements IGuiData, ISubGuiListener {
 
 	@Override
 	public void save() {
-		if (this.hasChanges) {
-			Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.writeToNBT(new NBTTagCompound()));
+		if (hasChanges) {
+			Client.sendData(EnumPacketServer.MainmenuAdvancedSave, npc.advanced.writeToNBT(new NBTTagCompound()));
 			this.hasChanges = false;
 		}
 	}
@@ -203,9 +201,7 @@ implements IGuiData, ISubGuiListener {
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		if (compound.hasKey("RoleData")) {
-			if (this.npc.advanced.roleInterface != null) {
-				this.npc.advanced.roleInterface.readFromNBT(compound);
-			}
+			if (this.npc.advanced.roleInterface != null) { npc.advanced.roleInterface.readFromNBT(compound); }
 			if (this.npc.advanced.roleInterface != null) {
 				switch (this.npc.advanced.roleInterface.getEnumType()) {
 					case TRADER: {
@@ -238,7 +234,8 @@ implements IGuiData, ISubGuiListener {
 					}
 				}
 			}
-		} else if (compound.hasKey("JobData")) {
+		}
+		else if (compound.hasKey("JobData")) {
 			if (this.npc.advanced.jobInterface != null) {
 				this.npc.advanced.jobInterface.readFromNBT(compound);
 			}
@@ -282,19 +279,22 @@ implements IGuiData, ISubGuiListener {
 					}
 				}
 			}
-		} else if (compound.hasKey("NpcInteractLines", 10)) {
+		}
+		else if (compound.hasKey("NpcInteractLines", 10)) {
 			this.npc.advanced.readToNBT(compound);
 			this.initGui();
-		} else if (compound.hasKey("NpcInv", 9)) {
+		}
+		else if (compound.hasKey("NpcInv", 9)) {
 			this.npc.inventory.readEntityFromNBT(compound);
 			this.initGui();
-		} else if (compound.hasKey("MovementType", 3)) {
+		}
+		else if (compound.hasKey("MovementType", 3)) {
 			this.ais.readToNBT(compound);
 		}
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcSelectTrader) {
 			this.hasChanges = true;
 			RoleTrader role = (RoleTrader) this.npc.advanced.roleInterface;

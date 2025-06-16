@@ -1,4 +1,5 @@
 package noppes.npcs.client.gui.recipebook;
+
 import java.util.List;
 
 import javax.annotation.Nonnull;

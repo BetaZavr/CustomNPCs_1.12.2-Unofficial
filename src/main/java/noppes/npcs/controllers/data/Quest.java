@@ -16,7 +16,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.*;
@@ -211,21 +210,14 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 			if (this.rewardExp > 0) {
 				allTextLogs.append(ent).append(new TextComponentTranslation("questlog.rewardexp", "" + this.rewardExp).getFormattedText());
 			}
-			if (!this.rewardText.isEmpty()) {
-				allTextLogs.append(ent).append(this.rewardText.contains("%") ? this.rewardText : new TextComponentTranslation(this.rewardText).getFormattedText());
-			}
-			if (!this.logText.isEmpty()) {
-				allTextLogs.append(ent).append(ent).append((char) 167).append("l").append(new TextComponentTranslation("gui.description").getFormattedText()).append(ent).append(logText.contains("%") ? logText : new TextComponentTranslation(logText).getFormattedText());
-			}
-		} else {
-			if (!rewardText.isEmpty()) {
-				allTextLogs.append(ent).append(rewardText.contains("%") ? rewardText : new TextComponentTranslation(rewardText).getFormattedText());
-			}
-			if (!logText.isEmpty()) {
-				allTextLogs.append(ent).append(ent).append((char) 167).append("l").append(new TextComponentTranslation("gui.description").getFormattedText()).append(ent).append(logText.contains("%") ? logText : new TextComponentTranslation(logText).getFormattedText());
-			}
-		}
-		return allTextLogs.toString();
+        }
+        if (!this.rewardText.isEmpty()) {
+            allTextLogs.append(ent).append(this.rewardText.contains("%") ? this.rewardText : new TextComponentTranslation(this.rewardText).getFormattedText());
+        }
+        if (!this.logText.isEmpty()) {
+            allTextLogs.append(ent).append(ent).append((char) 167).append("l").append(new TextComponentTranslation("gui.description").getFormattedText()).append(ent).append(logText.contains("%") ? logText : new TextComponentTranslation(logText).getFormattedText());
+        }
+        return allTextLogs.toString();
 	}
 
 	@Override
@@ -387,97 +379,34 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 			this.completerPos = compound.getIntArray("CompleterPos");
 		}
 		try {
-			if (compound.hasKey("CompleterNpc", 10)) {
-				if (compound.getCompoundTag("CompleterNpc").hasKey("UUIDMost", 4)
-						&& compound.getCompoundTag("CompleterNpc").hasKey("UUIDLeast", 4)) {
-					this.completerUUID = compound.getCompoundTag("CompleterNpc").getUniqueId("UUID");
-				}
-				String name = compound.getCompoundTag("CompleterNpc").getString("Name");
-				if (CustomNpcs.Server != null) {
-					for (WorldServer w : CustomNpcs.Server.worlds) {
-						for (EntityNPCInterface entity : w.getEntities(EntityNPCInterface.class, this)) {
-							if (entity.getName().equals(name)) {
-								this.completer = entity;
-								if (this.completerUUID == null) {
-									this.completerUUID = entity.getUniqueID();
-								}
-								break;
-							}
-							break;
-						}
-						if (this.completer != null) {
-							break;
-						}
-					}
-				} else if (CustomNpcs.proxy.getPlayer() != null) {
-					for (EntityNPCInterface entity : CustomNpcs.proxy.getPlayer().world.getEntities(EntityNPCInterface.class, this)) {
-						if (entity.getName().equals(name)) {
-							this.completer = entity;
-							if (this.completerUUID == null) {
-								this.completerUUID = entity.getUniqueID();
-							}
-							break;
-						}
+			String name = compound.getCompoundTag("CompleterNpc").getString("Name");
+			if (compound.hasKey("CompleterNpc", 8)) { name = compound.getString("CompleterNpc"); } // OLD
+			else if (compound.hasKey("CompleterNpc", 10) &&
+					compound.getCompoundTag("CompleterNpc").hasKey("UUIDMost", 4) &&
+					compound.getCompoundTag("CompleterNpc").hasKey("UUIDLeast", 4)) {
+					completerUUID = compound.getCompoundTag("CompleterNpc").getUniqueId("UUID");
+			}
+			World[] worlds = new World[0];
+			if (CustomNpcs.Server != null) { worlds = CustomNpcs.Server.worlds; }
+			else if (CustomNpcs.proxy.getPlayer() != null) { worlds = new World[] { CustomNpcs.proxy.getPlayer().world }; }
+			for (World world : worlds) {
+				for (EntityNPCInterface entity : world.getEntities(EntityNPCInterface.class, this)) {
+					if (entity.getName().equals(name)) {
+						completer = entity;
+						if (completerUUID == null) { completerUUID = entity.getUniqueID(); }
 						break;
 					}
 				}
-				if (this.completer == null) {
-					World world = null;
-					if (CustomNpcs.Server != null) {
-						world = CustomNpcs.Server.getEntityWorld();
-					} else if (CustomNpcs.proxy.getPlayer() != null) {
-						world = CustomNpcs.proxy.getPlayer().world;
-					}
-					if (world != null) {
-						Entity e = EntityList.createEntityFromNBT(compound.getCompoundTag("CompleterNpc"), world);
-						if (e instanceof EntityNPCInterface) {
-							this.completer = (EntityNPCInterface) e;
-							this.completerUUID = e.getUniqueID();
-						}
-					}
-				}
-			} else if (compound.hasKey("CompleterNpc", 8)) { // OLD
-				String name = compound.getString("CompleterNpc");
-				if (CustomNpcs.Server != null) {
-					for (WorldServer w : CustomNpcs.Server.worlds) {
-						for (EntityNPCInterface entity : w.getEntities(EntityNPCInterface.class, this)) {
-							if (entity.getName().equals(name)) {
-								this.completer = entity;
-								this.completerUUID = entity.getUniqueID();
-								break;
-							}
-						}
-						if (this.completer != null) {
-							break;
-						}
-					}
-				} else if (CustomNpcs.proxy.getPlayer() != null) {
-					for (EntityNPCInterface entity : CustomNpcs.proxy.getPlayer().world
-							.getEntities(EntityNPCInterface.class, this)) {
-						if (entity.getName().equals(name)) {
-							this.completer = entity;
-							this.completerUUID = entity.getUniqueID();
-							break;
-						}
-					}
-				}
-				if (this.completer == null) {
-					World world = null;
-					if (CustomNpcs.Server != null) {
-						world = CustomNpcs.Server.getEntityWorld();
-					} else if (CustomNpcs.proxy.getPlayer() != null) {
-						world = CustomNpcs.proxy.getPlayer().world;
-					}
-					if (world != null) {
-						this.completer = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), world);
-						if (this.completer != null) {
-							this.completer.display.setName(name);
-							this.completerUUID = this.completer.getUniqueID();
-						}
-					}
+				if (completer != null) { break; }
+			}
+			if (completer == null && worlds.length > 0 && worlds[0] != null) {
+				Entity e = EntityList.createEntityFromNBT(compound.getCompoundTag("CompleterNpc"), worlds[0]);
+				if (e instanceof EntityNPCInterface) {
+					completer = (EntityNPCInterface) e;
+					completerUUID = e.getUniqueID();
 				}
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Throwable t) { LogWriter.error("Error: ", t); }
 	}
 
 	@Override

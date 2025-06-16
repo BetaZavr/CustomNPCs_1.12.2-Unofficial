@@ -45,7 +45,7 @@ implements ITextfieldListener, GuiSelectionListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface gui) {
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiNpcConversationLine) {
 			SubGuiNpcConversationLine sub = (SubGuiNpcConversationLine) gui;
 			JobConversation.ConversationLine line = job.getLine(slot);

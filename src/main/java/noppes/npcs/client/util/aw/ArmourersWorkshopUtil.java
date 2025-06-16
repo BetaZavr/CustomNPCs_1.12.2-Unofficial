@@ -29,6 +29,9 @@ public class ArmourersWorkshopUtil {
 		return new ArmourersWorkshopUtil();
 	}
 	public String MODID = "armourers_workshop";
+
+	public Method getInstance; // ArmourersWorkshop.getInstance()
+
 	public ResourceLocation slotOutfit = new ResourceLocation(MODID, "textures/items/slot/skin-outfit.png");
 
 	public ResourceLocation slotWings = new ResourceLocation(MODID, "textures/items/slot/skin-wings.png");
@@ -106,6 +109,10 @@ public class ArmourersWorkshopUtil {
 		try {
 			Class<?> lmi = Class.forName("moe.plushie.armourers_workshop.common.lib.LibModInfo");
 			MODID = (String) lmi.getField("ID").get(lmi);
+
+			Class<?> aw = Class.forName("moe.plushie.armourers_workshop.ArmourersWorkshop");
+			getInstance = aw.getDeclaredMethod("getInstance");
+
 			slotOutfit = new ResourceLocation(MODID, "textures/items/slot/skin-outfit.png");
 			slotWings = new ResourceLocation(MODID, "textures/items/slot/skin-wings.png");
 
@@ -321,6 +328,25 @@ public class ArmourersWorkshopUtil {
 				npc.animation.showAWParts.put(slot, false);
 			}
 		} catch (Exception ignored) { }
+	}
+
+	@SuppressWarnings("all")
+	public Object getAW() {
+		try { return getInstance.invoke(null); } catch (Exception ignored) {}
+        return null;
+	}
+
+	@SuppressWarnings("all")
+	public static Enum<?> getEnumGuiId(String enumName) {
+		try {
+			Class<?> egi = Class.forName("moe.plushie.armourers_workshop.common.lib.EnumGuiId");
+			if (egi.isEnum()) {
+				for (Object e : egi.getEnumConstants()) {
+					if (e.toString().equalsIgnoreCase(enumName)) { return (Enum<?>) e; }
+				}
+			}
+		} catch (Exception ignored) {}
+		return null;
 	}
 
 }

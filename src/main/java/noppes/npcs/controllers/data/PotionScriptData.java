@@ -1,7 +1,5 @@
 package noppes.npcs.controllers.data;
 
-import java.util.Iterator;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ITextComponent;
@@ -125,11 +123,7 @@ extends BaseScriptData {
 					EventHooks.onPotionInit(this);
 				}
 			}
-			Iterator<ScriptContainer> iterator = this.scripts.iterator();
-			boolean bo = !this.isClient();
-			while (iterator.hasNext()) {
-				iterator.next().run(type, event, bo);
-			}
+            for (ScriptContainer script : this.scripts) { script.run(type, event); }
 		} catch (Exception e) { LogWriter.error("Error run script:", e); }
 	}
 	

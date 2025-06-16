@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import net.minecraft.client.renderer.RenderHelper;
 import noppes.npcs.client.gui.util.*;
 import org.lwjgl.input.Keyboard;
 
@@ -12,7 +13,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.NBTTagCompound;
@@ -568,6 +568,7 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 						GlStateManager.translate(px + 4, py + 4, 0.0f);
 						RenderHelper.enableGUIStandardItemLighting();
 						this.mc.getRenderItem().renderItemAndEffectIntoGUI(slot.getStack(), 0, 0);
+						RenderHelper.disableStandardItemLighting();
 						GlStateManager.translate(0.0f, 0.0f, 200.0f);
 						int count = slot.getStack().getCount();
 						this.drawString(this.mc.fontRenderer, "" + count,

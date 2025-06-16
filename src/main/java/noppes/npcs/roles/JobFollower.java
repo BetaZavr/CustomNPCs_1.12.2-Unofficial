@@ -40,11 +40,9 @@ public class JobFollower extends JobInterface implements IJobFollower {
 					npc.getNavigator().clearPath();
 				}
 				return true;
-			} else if (dist <= getRange()) {
+			} else if (dist > getRange()) {
 				boolean bo = npc.getNavigator().tryMoveToEntityLiving(following, 1.0d);
-				if (!bo) {
-					following = null;
-				}
+				if (!bo) { following = null; }
 			} else {
 				following = null;
 			}
@@ -68,9 +66,7 @@ public class JobFollower extends JobInterface implements IJobFollower {
 
 	@Override
 	public void aiUpdateTask() {
-		npc.getLookHelper().setLookPosition(following.posX,
-				following.posY + following.getEyeHeight(), following.posZ, 10.0f,
-				npc.getVerticalFaceSpeed());
+		npc.getLookHelper().setLookPosition(following.posX, following.posY + following.getEyeHeight(), following.posZ, 10.0f, npc.getVerticalFaceSpeed());
 	}
 
 	@Override
@@ -87,12 +83,12 @@ public class JobFollower extends JobInterface implements IJobFollower {
 	}
 
 	private int getRange() {
-		if (npc.stats.aggroRange > CustomNpcs.NpcNavRange) {
-			return CustomNpcs.NpcNavRange;
-		}
-		return npc.stats.aggroRange;
+		int dist = Math.min(npc.followRange(), npc.stats.aggroRange);
+		if (dist > CustomNpcs.NpcNavRange) { return CustomNpcs.NpcNavRange; }
+		return dist;
 	}
 
+	@SuppressWarnings("all")
 	public boolean hasOwner() {
 		return !name.isEmpty() && isFollowing();
 	}
@@ -124,4 +120,5 @@ public class JobFollower extends JobInterface implements IJobFollower {
 		compound.setString("FollowingEntityName", name);
 		return compound;
 	}
+
 }

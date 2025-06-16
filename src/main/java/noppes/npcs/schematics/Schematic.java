@@ -239,7 +239,7 @@ public class Schematic implements ISchematic {
 
 		ITextComponent message = new TextComponentString("Creating schematic at: " + pos + " might lag slightly");
 		message.getStyle().setColor(TextFormatting.GRAY);
-		NoppesUtilServer.NotifyOPs(message);
+		NoppesUtilServer.NotifyOPs(message, false);
 
 		schema.tileList = new NBTTagList();
 		for (int i = 0; i < size; ++i) {

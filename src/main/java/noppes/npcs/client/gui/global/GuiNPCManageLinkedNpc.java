@@ -79,7 +79,7 @@ implements IScrollData, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (!((SubGuiEditText) subgui).cancelled) {
 			Client.sendData(EnumPacketServer.LinkedAdd, ((SubGuiEditText) subgui).text[0]);
 		}

@@ -2,7 +2,6 @@ package noppes.npcs.controllers.data;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,6 +19,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.handler.ICustomPlayerData;
 import noppes.npcs.api.handler.capability.IPlayerDataHandler;
+import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAnimation;
@@ -56,6 +56,8 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 		}
 		return data;
 	}
+
+	@SuppressWarnings("all")
 	public static NBTTagCompound loadPlayerData(String uuid, String name) {
 		File dir = CustomNpcs.getWorldSaveDirectory("playerdata");
 		File saveDir = new File(dir, uuid);
@@ -98,6 +100,8 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 		}
 		return new NBTTagCompound();
 	}
+
+	@SuppressWarnings("all")
 	public static NBTTagCompound loadPlayerDataOld(String uuid, String name) {
 		File saveDir = CustomNpcs.getWorldSaveDirectory("playerdata/" + uuid);
 		if (name.isEmpty()) {
@@ -154,7 +158,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 	public EntityPlayer player;
 	public int playerLevel;
 	public ItemStack prevHeldItem;
-	public final NBTTagCompound scriptStoreddata;
+	public final Data scriptStoreddata = new Data();
 
 	public DataTimers timers;
 
@@ -177,7 +181,6 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 		this.minimap = new PlayerMiniMapData();
 
 		this.timers = new DataTimers(this);
-		this.scriptStoreddata = new NBTTagCompound();
 		this.playername = "";
 		this.uuid = "";
 		this.activeCompanion = null;
@@ -217,7 +220,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 		if (this.animation != null) { this.animation.save(compound); }
 
 		compound.setInteger("PlayerCompanionId", this.companionID);
-		compound.setTag("ScriptStoreddata", this.scriptStoreddata);
+		compound.setTag("ScriptStoreddata", scriptStoreddata.getNbt().getMCNBT());
 		if (this.playername != null && !this.playername.isEmpty()) {
 			compound.setString("PlayerName", this.playername);
 		}
@@ -249,6 +252,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 		return this.activeCompanion != null && !this.activeCompanion.isDead;
 	}
 
+	@SuppressWarnings("all")
 	public synchronized void save(boolean update) {
 		CustomNPCsScheduler.runTack(() -> {
 			try {
@@ -317,9 +321,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 				this.player.world.spawnEntity(npc);
 			}
 		}
-		for (String key : new ArrayList<>(scriptStoreddata.getKeySet())) { scriptStoreddata.removeTag(key); }
-		NBTTagCompound nbt = data.getCompoundTag("ScriptStoreddata");
-		for (String key : nbt.getKeySet()) { scriptStoreddata.setTag(key, nbt.getTag(key)); }
+		scriptStoreddata.setNbt(data.getCompoundTag("ScriptStoreddata"));
 	}
 
 	public void updateCompanion(World world) {

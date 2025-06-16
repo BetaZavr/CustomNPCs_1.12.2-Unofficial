@@ -43,12 +43,11 @@ public class ServerTickHandler {
 		ServerTickHandler.ticks = 0;
 	}
 
+	@SuppressWarnings("all")
 	@SubscribeEvent
 	public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.side != Side.SERVER || event.phase != TickEvent.Phase.START) {
-			return;
-		}
-		CustomNpcs.debugData.startDebug("Server", "Players", "ServerTickHandler_onPlayerTick");
+		if (event.side != Side.SERVER || event.phase != TickEvent.Phase.START) { return; }
+		CustomNpcs.debugData.start("Players", this, "onPlayerTick");
 		try {
 			EntityPlayerMP player = (EntityPlayerMP) event.player;
 			if (player.getHealth() > 0 && player.getHealth() < 1.0f) {
@@ -161,8 +160,7 @@ public class ServerTickHandler {
 								if (entity instanceof EntityNPCInterface) {
 									fs.dimId = entity.world.provider.getDimension();
 									fs.id = entity.getUniqueID();
-									((EntityNPCInterface) entity).getNavigator().tryMoveToEntityLiving(player,
-											((EntityNPCInterface) entity).ais.canSprint ? 1.3 : 1.0d);
+									((EntityNPCInterface) entity).getNavigator().tryMoveToEntityLiving(player, ((EntityNPCInterface) entity).ais.canSprint ? 1.3 : 1.0d);
 								}
 							} catch (CommandException e) {
 								LogWriter.error("Error when trying to move an entity:", e);
@@ -236,7 +234,7 @@ public class ServerTickHandler {
 			data.prevHeldItem = player.getHeldItemMainhand();
 		}
 		catch (Exception ignored) { }
-		CustomNpcs.debugData.endDebug("Server", "Players", "ServerTickHandler_onPlayerTick");
+		CustomNpcs.debugData.end("Players", this, "onPlayerTick");
 	}
 
 	@SubscribeEvent
@@ -244,10 +242,10 @@ public class ServerTickHandler {
 		if (event.side == Side.CLIENT) {
 			return;
 		}
-		CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerTick");
+		CustomNpcs.debugData.start("Mod", this, "onServerTick");
 		BorderController.getInstance().update();
 		if (event.phase == TickEvent.Phase.END) {
-			CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
+			CustomNpcs.debugData.end("Mod", this, "onServerTick");
 			return;
 		}
 		if ((ServerTickHandler.ticks++) % 20 == 0) {
@@ -294,17 +292,17 @@ public class ServerTickHandler {
 		if (ServerTickHandler.ticks % 1200 == 0) {
 			BankController.getInstance().update();
 		}
-		CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
+		CustomNpcs.debugData.end("Mod", this, "onServerTick");
 	}
 
 	@SubscribeEvent
 	public void onServerWorldTick(TickEvent.WorldTickEvent event) {
 		if (event.side != Side.SERVER) { return; }
-		CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerWorldTick");
+		CustomNpcs.debugData.start("Mod", this, "onServerWorldTick");
 		if (event.phase == TickEvent.Phase.START) {
 			NPCSpawning.findChunksForSpawning((WorldServer) event.world);
 		}
-		CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerWorldTick");
+		CustomNpcs.debugData.end("Mod", this, "onServerWorldTick");
 	}
 
 }

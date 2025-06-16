@@ -112,7 +112,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface gui) {
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof GuiNpcMobSpawnerSelector) {
 			GuiNpcMobSpawnerSelector selector = (GuiNpcMobSpawnerSelector) gui;
 			NBTTagCompound compound = selector.getCompound();

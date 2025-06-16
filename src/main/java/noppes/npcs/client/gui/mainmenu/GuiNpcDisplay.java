@@ -83,7 +83,7 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		initGui();
 	}
 
@@ -238,6 +238,8 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		display.readToNBT(compound);
+		baseHitBoxWidth = npc.baseWidth;
+		baseHitBoxHeight = npc.baseHeight;
 		enableInvisibleNpcs = compound.getBoolean("EnableInvisibleNpcs");
 		initGui();
 	}

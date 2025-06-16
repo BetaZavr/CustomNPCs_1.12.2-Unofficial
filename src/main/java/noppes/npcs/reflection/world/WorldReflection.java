@@ -14,7 +14,7 @@ public class WorldReflection {
     private static Field pathListener;
     private static Field unloadedEntityList;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static List<Entity> getUnloadedEntityList(World world) {
         if (world == null) { return Collections.emptyList(); }
         if (unloadedEntityList == null) {
@@ -40,6 +40,7 @@ public class WorldReflection {
         return Collections.emptyList();
     }
 
+    @SuppressWarnings("all")
     public static PathWorldListener getPathListener(World world) {
         if (world == null) { return null; }
         if (pathListener == null) {

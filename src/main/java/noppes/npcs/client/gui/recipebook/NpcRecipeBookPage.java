@@ -12,7 +12,6 @@ import net.minecraft.client.gui.recipebook.GuiRecipeBook;
 import net.minecraft.client.gui.recipebook.IRecipeUpdateListener;
 import net.minecraft.client.gui.recipebook.RecipeBookPage;
 import net.minecraft.client.gui.recipebook.RecipeList;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
@@ -137,7 +136,6 @@ extends RecipeBookPage {
             int i = this.minecraft.fontRenderer.getStringWidth(s);
             this.minecraft.fontRenderer.drawString(s, x - i / 2 + 73, y + 141, -1);
         }
-        RenderHelper.disableStandardItemLighting();
         this.hoveredButton = null;
         for (NpcGuiButtonRecipe guibuttonrecipe : this.buttons) {
             guibuttonrecipe.drawButton(this.minecraft, mouseX, mouseY, partialTicks);

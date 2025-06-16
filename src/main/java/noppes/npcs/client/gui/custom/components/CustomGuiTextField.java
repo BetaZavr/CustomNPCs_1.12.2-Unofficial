@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.gui.ICustomGuiComponent;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.gui.CustomGuiTextFieldWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IClickListener;
@@ -20,6 +21,7 @@ implements IDataHolder, IClickListener, ICustomKeyListener {
 				component.getWidth(), component.getHeight());
 		if (component.hasHoverText()) {
 			txt.hoverText = component.getHoverText();
+			txt.hoverStack = component.getHoverStack();
 		}
 		if (component.getText() != null && !component.getText().isEmpty()) {
 			txt.setText(component.getText());
@@ -28,6 +30,7 @@ implements IDataHolder, IClickListener, ICustomKeyListener {
 	}
 
 	String[] hoverText;
+	IItemStack hoverStack;
 	public int id;
 	GuiCustom parent;
 	private final int[] offsets;
@@ -88,8 +91,9 @@ implements IDataHolder, IClickListener, ICustomKeyListener {
 		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
 		GlStateManager.translate(x - this.x, y - this.y, this.id);
 		this.drawTextBox();
-		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
-			this.parent.hoverText = this.hoverText;
+		if (hovered) {
+			if (hoverText != null && hoverText.length > 0) { parent.hoverText = hoverText; }
+			if (hoverStack != null && !hoverStack.isEmpty()) { parent.hoverStack = hoverStack.getMCItemStack(); }
 		}
 		GlStateManager.popMatrix();
 	}

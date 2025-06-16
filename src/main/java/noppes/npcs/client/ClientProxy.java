@@ -238,6 +238,7 @@ public class ClientProxy extends CommonProxy {
     private final static List<ResourceLocation> notLoadTextures = new ArrayList<>();
 	public static IMinecraft mcWrapper = null;
 
+	@SuppressWarnings("all")
 	public static void bindTexture(ResourceLocation location) {
 		try {
 			if (location == null) { return; }
@@ -1578,10 +1579,7 @@ public class ClientProxy extends CommonProxy {
 				returnGui = new GuiNPCDeadInventory(npc, (ContainerDead) container);
 				break;
 			}
-			default: {
-				returnGui = null;
-				break;
-			}
+			default: { break; }
 		}
 		ClientEvent.PostGetGuiCustomNpcs postEvent = new ClientEvent.PostGetGuiCustomNpcs(npc, gui, container, x, y, z, returnGui);
 		MinecraftForge.EVENT_BUS.post(postEvent);

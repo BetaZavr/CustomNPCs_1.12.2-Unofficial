@@ -1,6 +1,5 @@
 package noppes.npcs.ai.attack;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -83,7 +82,6 @@ public class EntityAICustom extends EntityAIBase {
 			target = npc.getAttackTarget();
 		}
 		if (target == null || !target.isEntityAlive()) {
-			CustomNpcs.debugData.endDebug("Server", npc, "EntityAICustom_shouldExecute");
 			startRangedAttack = false;
 			return false;
 		}
@@ -97,19 +95,13 @@ public class EntityAICustom extends EntityAIBase {
 	 */
 	@Override
 	public boolean shouldExecute() {
-		CustomNpcs.debugData.startDebug("Server", this.npc, "EntityAICustom_shouldExecute");
+		CustomNpcs.debugData.start(npc, this, "shouldExecute");
 		distance = -1.0d;
 		canSeeToAttack = false;
 		hasAttack = false;
 		setTarget();
-		CustomNpcs.debugData.endDebug("Server", npc, "EntityAICustom_shouldExecute");
+		CustomNpcs.debugData.end(npc, this, "shouldExecute");
 		return setTarget();
-	}
-
-	private void setLookPositionWithEntity(Entity target) {
-		if (!CustomNpcs.ShowCustomAnimation || !npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES)) {
-			npc.getLookHelper().setLookPositionWithEntity(target, 7.5f, 3.75f);
-		}
 	}
 
 	protected void tryMoveToTarget() {
@@ -151,16 +143,11 @@ public class EntityAICustom extends EntityAIBase {
 			return;
 		}
 		step++;
-		if (step >= tickRate) {
-			step = 0;
-		}
-		if (rangedTick > step) {
-			return;
-		}
+		if (step >= tickRate) { step = 0; }
+		if (rangedTick > step) { return; }
 
-		if (burstCount++ <= npc.stats.ranged.getBurst()) {
-			rangedTick = npc.stats.ranged.getBurstDelay();
-		} else {
+		if (burstCount++ <= npc.stats.ranged.getBurst()) { rangedTick = npc.stats.ranged.getBurstDelay(); }
+		else {
 			burstCount = 0;
 			hasAttack = true;
 			rangedTick = npc.stats.ranged.getDelayRNG();
@@ -190,8 +177,7 @@ public class EntityAICustom extends EntityAIBase {
 	 */
 	@Override
 	public void updateTask() {
-		CustomNpcs.debugData.startDebug("Server", npc, "EntityAICustom_updateTask");
-		setLookPositionWithEntity(target);
+		CustomNpcs.debugData.start(npc, this, "updateTask");
 		inMove = !npc.getNavigator().noPath();
 		tacticalRange = npc.ais.getTacticalRange();
 		distance = npc.getDistance(this.target.posX, this.target.getEntityBoundingBox().minY, this.target.posZ);
@@ -207,7 +193,7 @@ public class EntityAICustom extends EntityAIBase {
 				range = minRange;
 			}
 		}
-		CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_updateTask");
+		CustomNpcs.debugData.end(npc, this, "updateTask");
 	}
 
 	public void writeToClientNBT(NBTTagCompound compound) {

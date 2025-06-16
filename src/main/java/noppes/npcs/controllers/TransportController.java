@@ -82,9 +82,9 @@ public class TransportController {
 
 	private int getUniqueIdCategory() {
 		int id = 0;
-		for (int catid : this.categories.keySet()) {
-			if (catid > id) {
-				id = catid;
+		for (int catId : this.categories.keySet()) {
+			if (catId > id) {
+				id = catId;
 			}
 		}
 		return ++id;
@@ -92,9 +92,9 @@ public class TransportController {
 
 	private int getUniqueIdLocation() {
 		if (this.lastUsedID == 0) {
-			for (int catid : this.locations.keySet()) {
-				if (catid > this.lastUsedID) {
-					this.lastUsedID = catid;
+			for (int catId : this.locations.keySet()) {
+				if (catId > this.lastUsedID) {
+					this.lastUsedID = catId;
 				}
 			}
 		}
@@ -102,13 +102,16 @@ public class TransportController {
 	}
 
 	private void loadCategories() {
+		CustomNpcs.debugData.start("Mod", this, "loadCategories");
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
 		if (saveDir == null) {
+			CustomNpcs.debugData.end("Mod", this, "loadCategories");
 			return;
 		}
 		try {
 			File file = new File(saveDir, "transport.dat");
 			if (!file.exists()) {
+				CustomNpcs.debugData.end("Mod", this, "loadCategories");
 				return;
 			}
 			this.loadCategories(file);
@@ -116,11 +119,13 @@ public class TransportController {
 			try {
 				File file2 = new File(saveDir, "transport.dat_old");
 				if (!file2.exists()) {
+					CustomNpcs.debugData.end("Mod", this, "loadCategories");
 					return;
 				}
 				this.loadCategories(file2);
 			} catch (IOException ex) { LogWriter.error("Error:", e); }
 		}
+		CustomNpcs.debugData.end("Mod", this, "loadCategories");
 	}
 
 	public void loadCategories(File file) throws IOException {
@@ -176,7 +181,9 @@ public class TransportController {
 		return loc;
 	}
 
+	@SuppressWarnings("all")
 	private void saveCategories() {
+		CustomNpcs.debugData.start("Mod", this, "saveCategories");
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			File file = new File(saveDir, "transport.dat_new");
@@ -194,7 +201,9 @@ public class TransportController {
 			if (file.exists()) {
 				file.delete();
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		}
+		catch (Exception e) { LogWriter.error("Error:", e); }
+		CustomNpcs.debugData.end("Mod", this, "saveCategories");
 	}
 
 	public void saveCategory(NBTTagCompound compound) {

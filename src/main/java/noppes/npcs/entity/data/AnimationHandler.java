@@ -267,6 +267,86 @@ public class AnimationHandler {
         return value_0 + (value_1 - value_0) * progress;
     }
 
+
+    public void load(NBTTagCompound compound) {
+        if (!compound.hasKey("AllAnimations", 9) && !compound.hasKey("MovementAnimations", 9)) { return; }
+        stopAnimation();
+        data.clear();
+        movementAnimation.clear();
+        AnimationController aData = AnimationController.getInstance();
+        for (int c = 0; c < compound.getTagList("AllAnimations", 10).tagCount(); c++) {
+            NBTTagCompound nbtCategory = compound.getTagList("AllAnimations", 10).getCompoundTagAt(c);
+            int t = nbtCategory.getInteger("Category");
+            if (t < 0) { t *= -1; }
+            AnimationKind type = AnimationKind.get(t % AnimationKind.values().length);
+            if (type == null) {
+                LogWriter.warn("Try load AnimationKind ID:"+t+". Missed.");
+                continue;
+            }
+            List<Integer> list = new ArrayList<>();
+            int tagType = nbtCategory.getTag("Animations").getId();
+            if (tagType == 11) { // OLD version
+                for (int id : nbtCategory.getIntArray("Animations")) {
+                    if (!list.contains(id)) { list.add(id); }
+                }
+            }
+            else if (tagType == 9) { // NEW version
+                int listType = ((NBTTagList) nbtCategory.getTag("Animations")).getTagType();
+                if (listType == 10 && entity != null && this.entity.isServerWorld()) { // OLD in main CNPCs mod
+                    for (int i = 0; i < nbtCategory.getTagList("Animations", 10).tagCount(); i++) {
+                        NBTTagCompound nbt = nbtCategory.getTagList("Animations", 10).getCompoundTagAt(i);
+                        int id = nbt.getInteger("ID");
+                        String name = entity.getName() + "_" + nbt.getString("Name");
+                        AnimationConfig anim = (AnimationConfig) aData.getAnimation(id);
+                        if (entity.world.getEntityByID(entity.getEntityId()) != null && anim == null || !anim.getName().equals(name)) {
+                            boolean found = false;
+                            if (anim != null) {
+                                for (AnimationConfig ac : aData.animations.values()) {
+                                    if (ac.name.equals(anim.name)) {
+                                        found = true;
+                                        anim = ac;
+                                    }
+                                }
+                            }
+                            if (!found) { // Converting
+                                anim = (AnimationConfig) aData.createNewAnim();
+                                id = anim.id;
+                                if (!anim.immutable) { anim.load(nbt); }
+                                anim.name = name;
+                                anim.id = id;
+                                Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, anim.save());
+                            }
+                        }
+                        if (!list.contains(id)) { list.add(id); }
+                    }
+                }
+                else if (listType == 3) { // NOW
+                    for (int i = 0; i < nbtCategory.getTagList("Animations", 3).tagCount(); i++) {
+                        int id = nbtCategory.getTagList("Animations", 3).getIntAt(i);
+                        if (!list.contains(id)) { list.add(id); }
+                    }
+                }
+            }
+            Collections.sort(list);
+            data.put(type, list);
+        }
+        if (compound.hasKey("MovementAnimations", 9) && entity != null && (entity.world == null || entity.world.isRemote)) {
+            for (int c = 0; c < compound.getTagList("MovementAnimations", 10).tagCount(); c++) {
+                NBTTagCompound nbt = compound.getTagList("MovementAnimations", 10).getCompoundTagAt(c);
+                movementAnimation.put(AnimationKind.get(nbt.getInteger("Type")), nbt.getInteger("ID"));
+            }
+            AnimationKind base = getCurrentMovementAnimation();
+            if (base != null) {
+                IAnimation anim = AnimationController.getInstance().getAnimation(movementAnimation.get(base));
+                if (anim != null) {
+                    runAnimation((AnimationConfig) anim, base);
+                    stage = EnumAnimationStages.Run;
+                }
+            }
+        }
+        checkData();
+    }
+
     public void save(NBTTagCompound compound) {
         checkData();
         NBTTagList allAnimations = new NBTTagList();
@@ -275,13 +355,22 @@ public class AnimationHandler {
             NBTTagCompound nbtCategory = new NBTTagCompound();
             nbtCategory.setInteger("Category", type.get());
             NBTTagList animations = new NBTTagList();
-            for (int id : data.get(type)) {
-                animations.appendTag(new NBTTagInt(id));
-            }
+            for (int id : data.get(type)) { animations.appendTag(new NBTTagInt(id)); }
             nbtCategory.setTag("Animations", animations);
             allAnimations.appendTag(nbtCategory);
         }
         compound.setTag("AllAnimations", allAnimations);
+
+        if (entity != null && entity.world != null && !entity.world.isRemote && !movementAnimation.isEmpty()) {
+            NBTTagList movementAnimations = new NBTTagList();
+            for (AnimationKind ak : new ArrayList<>(movementAnimation.keySet())) {
+                NBTTagCompound nbt = new NBTTagCompound();
+                nbt.setInteger("Type", ak.ordinal());
+                nbt.setInteger("ID", movementAnimation.get(ak));
+                movementAnimations.appendTag(nbt);
+            }
+            compound.setTag("MovementAnimations", movementAnimations);
+        }
     }
 
     /**
@@ -457,69 +546,6 @@ public class AnimationHandler {
         if (handler != null) { EventHooks.onEvent(handler, event.nameEvent, event); }
     }
 
-    public void load(NBTTagCompound compound) {
-        data.clear();
-        if (!compound.hasKey("AllAnimations", 9)) { return; }
-        AnimationController aData = AnimationController.getInstance();
-        for (int c = 0; c < compound.getTagList("AllAnimations", 10).tagCount(); c++) {
-            NBTTagCompound nbtCategory = compound.getTagList("AllAnimations", 10).getCompoundTagAt(c);
-            int t = nbtCategory.getInteger("Category");
-            if (t < 0) { t *= -1; }
-            AnimationKind type = AnimationKind.get(t % AnimationKind.values().length);
-            if (type == null) {
-                LogWriter.warn("Try load AnimationKind ID:"+t+". Missed.");
-                continue;
-            }
-            List<Integer> list = new ArrayList<>();
-            int tagType = nbtCategory.getTag("Animations").getId();
-            if (tagType == 11) { // OLD version
-                for (int id : nbtCategory.getIntArray("Animations")) {
-                    if (!list.contains(id)) { list.add(id); }
-                }
-            }
-            else if (tagType == 9) { // NEW version
-                int listType = ((NBTTagList) nbtCategory.getTag("Animations")).getTagType();
-                if (listType == 10 && entity != null && this.entity.isServerWorld()) { // OLD in main CNPCs mod
-                    for (int i = 0; i < nbtCategory.getTagList("Animations", 10).tagCount(); i++) {
-                        NBTTagCompound nbt = nbtCategory.getTagList("Animations", 10).getCompoundTagAt(i);
-                        int id = nbt.getInteger("ID");
-                        String name = entity.getName() + "_" + nbt.getString("Name");
-                        AnimationConfig anim = (AnimationConfig) aData.getAnimation(id);
-                        if (entity.world.getEntityByID(entity.getEntityId()) != null && anim == null || !anim.getName().equals(name)) {
-                            boolean found = false;
-                            if (anim != null) {
-                                for (AnimationConfig ac : aData.animations.values()) {
-                                    if (ac.name.equals(anim.name)) {
-                                        found = true;
-                                        anim = ac;
-                                    }
-                                }
-                            }
-                            if (!found) { // Converting
-                                anim = (AnimationConfig) aData.createNewAnim();
-                                id = anim.id;
-                                if (!anim.immutable) { anim.load(nbt); }
-                                anim.name = name;
-                                anim.id = id;
-                                Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, anim.save());
-                            }
-                        }
-                        if (!list.contains(id)) { list.add(id); }
-                    }
-                }
-                else if (listType == 3) { // NOW
-                    for (int i = 0; i < nbtCategory.getTagList("Animations", 3).tagCount(); i++) {
-                        int id = nbtCategory.getTagList("Animations", 3).getIntAt(i);
-                        if (!list.contains(id)) { list.add(id); }
-                    }
-                }
-            }
-            Collections.sort(list);
-            data.put(type, list);
-        }
-        checkData();
-    }
-
     public AnimationConfig selectAnimation(AnimationKind type) {
         if (!CustomNpcs.ShowCustomAnimation || data.get(type) == null || data.get(type).isEmpty()) { return null; }
         // get all animation settings
@@ -619,6 +645,22 @@ public class AnimationHandler {
     }
 
     public void setRotationAngles(float ignoredLimbSwing, float ignoredLimbSwingAmount, float ignoredAgeInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScaleFactor, float partialTicks) {
+        AnimationKind base = getCurrentMovementAnimation();
+        if (base != null && (activeAnimation == null || (activeAnimation.type.isMovement() && activeAnimation.id != movementAnimation.get(base)))) {
+            IAnimation anim = AnimationController.getInstance().getAnimation(movementAnimation.get(base));
+            if (anim != null) {
+                if (!waitData.containsKey(anim.getId()) || waitData.get(anim.getId()) <= System.currentTimeMillis()) {
+                    if (anim.getChance() <= rnd.nextFloat()) {
+                        waitData.put(anim.getId(), System.currentTimeMillis() + 1000);
+                    }
+                    else { tryRunAnimation((AnimationConfig) anim, base); }
+                }
+            }
+        }
+        if (isAnimated()) { calculationAnimationData(partialTicks); }
+    }
+
+    private AnimationKind getCurrentMovementAnimation() {
         AnimationKind base = null;
         boolean isMoving = Util.instance.isMoving(entity);
         if (!movementAnimation.isEmpty() && (activeAnimation == null || isMoving)) {
@@ -685,18 +727,7 @@ public class AnimationHandler {
                 }
             }
         }
-        if (base != null && (activeAnimation == null || (activeAnimation.type.isMovement() && activeAnimation.id != movementAnimation.get(base)))) {
-            IAnimation anim = AnimationController.getInstance().getAnimation(movementAnimation.get(base));
-            if (anim != null) {
-                if (!waitData.containsKey(anim.getId()) || waitData.get(anim.getId()) <= System.currentTimeMillis()) {
-                    if (anim.getChance() <= rnd.nextFloat()) {
-                        waitData.put(anim.getId(), System.currentTimeMillis() + 1000);
-                    }
-                    else { tryRunAnimation((AnimationConfig) anim, base); }
-                }
-            }
-        }
-        if (isAnimated()) { calculationAnimationData(partialTicks); }
+        return base;
     }
 
     public void addAnimation(AnimationKind type, int id) {

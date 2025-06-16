@@ -7,14 +7,12 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.ClientProxy;
-import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.util.CustomNPCsScheduler;
 
@@ -52,7 +50,7 @@ public class InventoryTabQuests extends AbstractTab {
 			return;
 		}
 		GlStateManager.disableRescaleNormal();
-		RenderHelper.disableStandardItemLighting();
+		//RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		int k = 0;
@@ -100,7 +98,7 @@ public class InventoryTabQuests extends AbstractTab {
 		this.itemRender.zLevel = 0.0f;
 		GlStateManager.enableLighting();
 		GlStateManager.enableDepth();
-		RenderHelper.enableStandardItemLighting();
+		//RenderHelper.enableStandardItemLighting();
 		GlStateManager.enableRescaleNormal();
 	}
 

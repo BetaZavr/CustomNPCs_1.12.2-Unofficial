@@ -53,7 +53,7 @@ extends GuiContainerNPCInterface {
 		drawTexturedModalRect(guiLeft, guiTop, 0, 0, 256, 256);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		mc.getTextureManager().bindTexture(defaultBackground);
-		drawTexturedModalRect(guiLeft + xSize - 200, guiTop, 26, 0, 200, 220);
+		drawTexturedModalRect(guiLeft + xSize - 200, guiTop, 56, 0, 200, 220);
 		if (menu != null) { menu.drawElements(mouseX, mouseY, mc, partialTicks); }
 		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 	}

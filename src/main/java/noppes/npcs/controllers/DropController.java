@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.util.*;
 
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -18,13 +17,10 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.entity.IEntity;
-import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.DropsTemplate;
-import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.AttributeSet;
 import noppes.npcs.entity.data.DropSet;
 import noppes.npcs.entity.data.EnchantSet;
@@ -52,7 +48,6 @@ public class DropController {
 	public DropController() {
 		this.filePath = CustomNpcs.Dir.getAbsolutePath();
 		DropController.instance = this;
-		this.load();
 	}
 
 	public List<DropSet> getDrops(String saveDropsName) {
@@ -74,13 +69,6 @@ public class DropController {
 		}
 		nbtFile.setTag("Templates", templates);
 		return nbtFile;
-	}
-
-	public void load() {
-		CustomNpcs.debugData.startDebug("Common", null, "loadDrops");
-		LogWriter.info("Loading Drops");
-		this.loadFile();
-		CustomNpcs.debugData.endDebug("Common", null, "loadDrops");
 	}
 
 	private void loadDefaultDrops() {
@@ -137,7 +125,9 @@ public class DropController {
 		this.save();
 	}
 
-	private void loadFile() {
+	public void loadFile() {
+		CustomNpcs.debugData.start("Mod", this, "loadFile");
+		LogWriter.info("Loading Drops");
 		this.filePath = CustomNpcs.Dir.getAbsolutePath();
 		try {
 			File file = new File(CustomNpcs.Dir, "drops.dat");
@@ -166,6 +156,7 @@ public class DropController {
 				LogWriter.error("Error:", ee);
 			}
 		}
+		CustomNpcs.debugData.end("Mod", this, "loadFile");
 	}
 
 	public void loadNBTData(NBTTagCompound nbtFile) {
@@ -186,9 +177,11 @@ public class DropController {
 	}
 
 	public void save() {
+		CustomNpcs.debugData.start("Mod", this, "save");
 		try {
 			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "drops.dat").toPath()));
 		} catch (Exception e) { LogWriter.error("Error:", e); }
+		CustomNpcs.debugData.end("Mod", this, "save");
 	}
 
 	public void sendTo(EntityPlayerMP player) {

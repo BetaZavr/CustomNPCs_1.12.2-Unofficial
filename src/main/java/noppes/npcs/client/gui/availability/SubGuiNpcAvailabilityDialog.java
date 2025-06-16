@@ -179,7 +179,7 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		GuiDialogSelection selector = (GuiDialogSelection) subgui;
 		if (selector.selectedDialog == null) {
 			return;

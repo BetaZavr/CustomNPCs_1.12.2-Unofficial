@@ -28,10 +28,9 @@ public class PlayerDataController {
 
 	public static PlayerDataController instance;
 
+	@SuppressWarnings("all")
 	public PlayerDataController() {
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadPlayersData");
-		}
+		CustomNpcs.debugData.start("Mod", this, "loadPlayersData");
 		PlayerDataController.instance = this;
 		File dir = CustomNpcs.getWorldSaveDirectory("playerdata");
 		if (dir == null) { return; }
@@ -50,7 +49,10 @@ public class PlayerDataController {
 
 					// banks
 					File banksDirTemp = CustomNpcs.getWorldSaveDirectory("playerdata/" + uuid + "/banks");
-					if (banksDirTemp == null) { return; }
+					if (banksDirTemp == null) {
+						CustomNpcs.debugData.end("Mod", this, "loadPlayersData");
+						return;
+					}
                     if (!banksDirTemp.exists()) {
 						banksDirTemp.mkdirs();
 					}
@@ -123,9 +125,7 @@ public class PlayerDataController {
 				}
 			}
 		}
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.endDebug("Common", null, "loadPlayersData");
-		}
+		CustomNpcs.debugData.end("Mod", this, "loadPlayersData");
 	}
 
 	public void addPlayerMessage(MinecraftServer server, String username, PlayerMail mail) {

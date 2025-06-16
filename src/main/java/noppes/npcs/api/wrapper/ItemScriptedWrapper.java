@@ -240,7 +240,7 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
 			}
 		}
 		for (ScriptContainer script : this.scripts) {
-			script.run(type, event, !this.isClient());
+			script.run(type, event);
 		}
 	}
 

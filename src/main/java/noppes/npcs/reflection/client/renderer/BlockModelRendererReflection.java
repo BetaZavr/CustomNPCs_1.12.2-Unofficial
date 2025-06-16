@@ -14,6 +14,7 @@ public class BlockModelRendererReflection {
 
     private static Field blockColors;
 
+    @SuppressWarnings("all")
     public static BlockColors getBlockColors(BlockModelRenderer blockModelRenderer) {
         if (blockModelRenderer == null) { return null; }
         if (blockColors == null) {

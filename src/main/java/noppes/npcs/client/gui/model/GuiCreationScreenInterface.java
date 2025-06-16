@@ -96,9 +96,7 @@ implements ISubGuiListener, ISliderListener {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		entity = playerdata.getEntity(npc);
 		showEntity = entity;
-		if (showEntity == null && npc != null || (showEntity == npc)) {
-			showEntity = Util.instance.copyToGUI(npc, mc.world, false);
-		}
+		if (showEntity == null && npc != null || (showEntity == npc)) { showEntity = Util.instance.copyToGUI(npc, mc.world, false); }
 		else { EntityUtil.Copy(npc, showEntity); }
 		if (this.subgui != null) { return; }
 		if (this.showEntity instanceof EntityNPCInterface) {
@@ -140,7 +138,6 @@ implements ISubGuiListener, ISliderListener {
 			npc.display.setShowName(1);
 			MarkData.get(npc).marks.clear();
 		}
-		
 		if (this instanceof GuiCreationParts && ((GuiCreationParts) this).getPart() instanceof GuiPartEyes) {
 			showEntity.ticksExisted = this.player.ticksExisted;
 			GlStateManager.pushMatrix();
@@ -235,8 +232,8 @@ implements ISubGuiListener, ISliderListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
-		this.initGui();
+	public void subGuiClosed(SubGuiInterface subgui) {
+		initGui();
 	}
 
 }

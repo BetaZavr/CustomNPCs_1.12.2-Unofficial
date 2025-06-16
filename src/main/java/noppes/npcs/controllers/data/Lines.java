@@ -44,13 +44,12 @@ public class Lines {
 	}
 
 	public Line getLine(boolean isRandom) {
-		if (lines.isEmpty()) {
-			return null;
-		}
+		if (lines.isEmpty()) { return null; }
 		if (isRandom) {
-			int i = -1;
-			while (i == -1 && i != lastLine) {
-				i = Lines.random.nextInt(lines.size());
+			int i = lastLine;
+			if (lines.size() == 1) { i = 0; }
+			else {
+				while (i == lastLine) { i = Lines.random.nextInt(lines.size()); }
 			}
 			if (lines.containsKey(i)) {
 				lastLine = i;

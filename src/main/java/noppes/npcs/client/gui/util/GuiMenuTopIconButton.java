@@ -67,7 +67,6 @@ extends GuiMenuTopButton {
 	protected void drawHoveringText(List<?> textLines, int mouseX, int mouseY, FontRenderer font) {
 		if (!textLines.isEmpty()) {
 			GlStateManager.disableRescaleNormal();
-			RenderHelper.disableStandardItemLighting();
 			GlStateManager.disableLighting();
 			GlStateManager.disableDepth();
 			int k = 0;
@@ -115,7 +114,6 @@ extends GuiMenuTopButton {
 			itemRender.zLevel = 0.0f;
 			GlStateManager.enableLighting();
 			GlStateManager.enableDepth();
-			RenderHelper.enableStandardItemLighting();
 			GlStateManager.enableRescaleNormal();
 		}
 	}

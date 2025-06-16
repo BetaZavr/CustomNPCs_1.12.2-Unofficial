@@ -110,7 +110,6 @@ import noppes.npcs.items.ItemScripted;
 import noppes.npcs.reflection.entity.ai.attributes.RangedAttributeReflection;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.DataDebug;
-import noppes.npcs.util.DataDebug.Debug;
 
 @Mod(modid = CustomNpcs.MODID,
 		name = CustomNpcs.MODNAME,
@@ -142,6 +141,8 @@ public class CustomNpcs {
 	public static boolean EnableInvisibleNpcs = false;
 	@ConfigProp(info = "Whether scripting is enabled or not", def = "true")
 	public static boolean EnableScripting = true;
+	@ConfigProp(info = "Are scripts enabled for Forge events or not", def = "true")
+	public static boolean EnableForgeScripting = true;
 	@ConfigProp(info = "Script password. Necessary for decrypting scripts", def = "00bb7f7647ca389196fe03177d2fac78")
 	public static String ScriptPassword = UUID.randomUUID().toString().replace("-", "");
 	@ConfigProp(info = "Enables CustomNpcs startup update message", def = "true")
@@ -150,22 +151,22 @@ public class CustomNpcs {
 	public static int[] Experience = new int[] { 2, 3, 100, 115 };
 	@ConfigProp(info = "Font size for custom fonts (doesn't work with minecraft fonts)", def = "18", min = "6", max = "36")
 	public static int FontSize = 18;
-	@ConfigProp(info = "Main text color of elements in GUI modification", def = "FFFFFF", type = Configuration.CATEGORY_CLIENT)
+	@ConfigProp(info = "Main text color of elements in GUI modification", def = "FFFFFF")
 	public static Color MainColor = new Color(0xFFFFFFFF);
-	@ConfigProp(info = "Name text color in GUI modification", def = "404040", type = Configuration.CATEGORY_CLIENT)
+	@ConfigProp(info = "Name text color in GUI modification", def = "404040")
 	public static Color LableColor = new Color(0xFF404040);
-	@ConfigProp(info = "Text color for inactive elements in modification GUI", def = "A0A0A0", type = Configuration.CATEGORY_CLIENT)
+	@ConfigProp(info = "Text color for inactive elements in modification GUI", def = "A0A0A0")
 	public static Color NotEnableColor = new Color(0xFFA0A0A0);
-	@ConfigProp(info = "Text color of elements in modification GUI when the element is held down by the mouse cursor", def = "FFFFA0", type = Configuration.CATEGORY_CLIENT)
+	@ConfigProp(info = "Text color of elements in modification GUI when the element is held down by the mouse cursor", def = "FFFFA0")
 	public static Color HoverColor = new Color(0xFFFFFFA0);
-	@ConfigProp(info = "Text Color for GUI Quest Log", def = "404060", type = Configuration.CATEGORY_CLIENT)
+	@ConfigProp(info = "Text Color for GUI Quest Log", def = "404060")
 	public static Color QuestLogColor = new Color(0xFF404060);
-	@ConfigProp(info = "Color of message bubbles above NPC head [text, frame, base]", def = "000000,000000,FFFFFF", type = Configuration.CATEGORY_CLIENT)
+	@ConfigProp(info = "Color of message bubbles above NPC head [text, frame, base]", def = "000000,000000,FFFFFF")
 	public static Color[] ChatNpcColors = new Color[] {
 			new Color(0xFF000000),
 			new Color(0xFF000000),
 			new Color(0xFFFFFFFF) };
-	@ConfigProp(info = "Color of message bubbles above Player head [text, frame, base]", def = "000000,2C4C00,E0FFB0", type = Configuration.CATEGORY_CLIENT)
+	@ConfigProp(info = "Color of message bubbles above Player head [text, frame, base]", def = "000000,2C4C00,E0FFB0")
 	public static Color[] ChatPlayerColors = new Color[] {
 			new Color(0xFF000000),
 			new Color(0xFF2C4C00),
@@ -189,7 +190,7 @@ public class CustomNpcs {
 	@ConfigProp(info = "Resizes the model for rarity. (Normal, Elite, Boss)", def = "5,6,7", min = "1,2,3")
 	public static int[] ModelRaritySize = new int[] { 5, 6, 7 };
 	@ConfigProp(info = "Arguments given to the Nashorn scripting library", def = "-strict")
-	public static String NashorArguments = "-strict";
+	public static String NashornArguments = "-strict";
 	@ConfigProp(info = "Navigation search range for NPCs. Not recommended to increase if you have a slow pc or on a server", def = "32", min = "16", max = "64")
 	public static int NpcNavRange = 32;
 	@ConfigProp(info = "Set to true if you want the dialog command option to be able to use op commands like tp etc", def = "false")
@@ -256,7 +257,7 @@ public class CustomNpcs {
 	public static boolean SetPlayerHomeWhenChangingDimension = true;
 	@ConfigProp(info = "Displaying joints on an NPC model", def = "true", type = Configuration.CATEGORY_CLIENT)
 	public static boolean ShowJoints = true;
-	@ConfigProp(info = "Display custom NPC animations. Disable it if you have a weak computer", def = "true", type = Configuration.CATEGORY_CLIENT)
+	@ConfigProp(info = "Display custom NPC animations. Disable it if you have a weak computer", def = "true")
 	public static boolean ShowCustomAnimation = true;
 	@ConfigProp(info = "Send a message to the player's chat about a completed transaction", def = "false", type = Configuration.CATEGORY_CLIENT)
 	public static boolean SendMarcetInfo = false;
@@ -266,8 +267,10 @@ public class CustomNpcs {
 	public static boolean ShowRarityItem = true;
 	@ConfigProp(info = "Percentage of knockback power of all entities in the game when dealing damage or blocking", def = "10", min = "0", max = "100")
 	public static int DefaultHurtResistantTime = 10;
-	@ConfigProp(info = "When NPCs self-heal, particles will appear above their heads", def = "true", type = Configuration.CATEGORY_CLIENT)
+	@ConfigProp(info = "When NPCs self-heal, particles will appear above their heads", def = "true")
 	public static boolean ShowHealingParticles = true;
+	@ConfigProp(info = "To display script errors in chat or not", def = "true", type = Configuration.CATEGORY_CLIENT)
+	public static boolean DisplayErrorInChat= true;
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;
@@ -282,6 +285,7 @@ public class CustomNpcs {
 	public static MinecraftServer Server;
 	public static DataDebug debugData = new DataDebug();
 	public static boolean FreezeNPCs = false;
+	@SuppressWarnings("all")
 	public static boolean showServerQuestCompass = true;
 	public static File Dir;
 	public static ConfigLoader Config;
@@ -293,9 +297,7 @@ public class CustomNpcs {
 	public static int colorAnimHoverPart = new Color(0xFFFA7800).getRGB();
     public static int PanoramaNumbers = 4;
 
-    static {
-		FluidRegistry.enableUniversalBucket();
-	}
+    static { FluidRegistry.enableUniversalBucket(); }
 
 	public static File getWorldSaveDirectory() {
 		return getWorldSaveDirectory(null);
@@ -323,7 +325,7 @@ public class CustomNpcs {
 
 	@Mod.EventHandler
 	public static void postload(FMLPostInitializationEvent ev) {
-		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_postload");
+		CustomNpcs.debugData.start("Mod", CustomNpcs.class, "postload");
 
 		new Util();
 		for (ModContainer mod : Loader.instance().getModList()) {
@@ -339,67 +341,7 @@ public class CustomNpcs {
 
 		CustomNpcs.proxy.postload();
 		LogWriter.info("Mod loaded ^_^ Have a good game!");
-		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_postload");
-	}
-
-	public static List<String> showDebugs() {
-		List<String> list = new ArrayList<>();
-		String temp = CustomNpcs.MODNAME + " debug information output:";
-		list.add(temp);
-		LogWriter.debug(temp);
-		CustomNpcs.debugData.stopAll();
-		boolean start = false;
-		for (String side : CustomNpcs.debugData.data.keySet()) {
-			if (start) {
-				list.add("----   ----  ----");
-				LogWriter.debug("");
-			}
-			temp = "Showing Monitoring results for \"" + side
-					+ "\" side. |Number - EventName: { [Target name, Runs, Average time] }|:";
-			list.add(temp);
-			LogWriter.debug(temp);
-			List<String> events = new ArrayList<>(CustomNpcs.debugData.data.get(side).times.keySet());
-			Collections.sort(events);
-			int i = 0;
-			long max = Long.MIN_VALUE;
-			String[] maxName = new String[] { "", "" };
-			for (String eventName : events) {
-				Debug dd = CustomNpcs.debugData.data.get(side);
-				List<String> targets = new ArrayList<>(CustomNpcs.debugData.data.get(side).times.get(eventName).keySet());
-				Collections.sort(targets);
-				StringBuilder log = new StringBuilder();
-				for (String target : targets) {
-					Long[] time = CustomNpcs.debugData.data.get(side).times.get(eventName).get(target);
-					if (log.length() > 0) {
-						log.append("; ");
-					}
-					if (time[0] <= 0) {
-						time[0] = 1L;
-					}
-					log.append("[").append(target).append(", ").append(time[0]).append(", ").append(Util.instance.ticksToElapsedTime(time[1], true, false, false)).append("]");
-					if (time[1] == dd.max) {
-						maxName[0] = "\"" + eventName + "|" + target + "\": "
-								+ Util.instance.ticksToElapsedTime(dd.max, true, false, false);
-					}
-					if (max < time[0]) {
-						max = time[0];
-						maxName[1] = "\"" + eventName + "|" + target + "\": " + time[0] + " runs";
-					}
-				}
-				temp = "[" + (i + 1) + "/" + events.size() + "] - \"" + eventName + "\": { " + log + " }";
-				list.add(temp);
-				LogWriter.debug(temp);
-				i++;
-			}
-			temp = "\"" + side + "\" a long time [" + maxName[0] + "]";
-			list.add(temp);
-			LogWriter.debug(temp);
-			temp = "\"" + side + "\" most often: [" + maxName[1] + "]";
-			list.add(temp);
-			LogWriter.debug(temp);
-			start = true;
-		}
-		return list;
+		CustomNpcs.debugData.end("Mod", CustomNpcs.class, "postload");
 	}
 
 	public CustomNpcs() {
@@ -407,8 +349,9 @@ public class CustomNpcs {
 	}
 
 	@Mod.EventHandler
+	@SuppressWarnings("all")
 	public void load(FMLInitializationEvent ev) {
-		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_load");
+		CustomNpcs.debugData.start("Mod", CustomNpcs.class, "load");
 		PixelmonHelper.load();
 		ScriptController controller = new ScriptController();
 		if (CustomNpcs.EnableScripting && !controller.languages.isEmpty()) {
@@ -430,12 +373,12 @@ public class CustomNpcs {
 		CustomNpcs.MARKOV_GENERATOR[8] = new MarkovCustomNPCsClassic(3);
 		CustomNpcs.MARKOV_GENERATOR[9] = new MarkovSpanish(3);
 		CustomNpcs.proxy.load();
-		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_load");
+		CustomNpcs.debugData.end("Mod", CustomNpcs.class, "load");
 	}
 
 	@Mod.EventHandler
 	public void preload(FMLPreInitializationEvent ev) {
-		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_preload");
+		CustomNpcs.debugData.start("Mod", CustomNpcs.class, "preload");
 		Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(MODNAME);
 		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel("CNPCsPlayer");
 		CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), MODID);
@@ -443,9 +386,7 @@ public class CustomNpcs {
 			throw new RuntimeException("Impossible error: Failed to create sections important for the " + MODNAME + " mod!");
 		}
 		CustomNpcs.Config = new ConfigLoader(ev.getModConfigurationDirectory());
-		if (CustomNpcs.NpcNavRange < 16) {
-			CustomNpcs.NpcNavRange = 16;
-		}
+		if (CustomNpcs.NpcNavRange < 16) { CustomNpcs.NpcNavRange = 16; }
 		CustomRegisters.load();
 		// Capabilities
 		CapabilityManager.INSTANCE.register(IPlayerDataHandler.class, new PlayerDataStorage(), PlayerData::new);
@@ -465,12 +406,12 @@ public class CustomNpcs {
 		CustomNpcs.proxy.preload();
 		RangedAttributeReflection.setMaxValue((RangedAttribute) SharedMonsterAttributes.MAX_HEALTH, Double.MAX_VALUE);
 		DataObject.load();
-		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_preload");
+		CustomNpcs.debugData.start("Mod", CustomNpcs.class, "preload");
 	}
 
 	@Mod.EventHandler
-	public void serverstart(FMLServerStartingEvent event) {
-		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_serverstart");
+	public void serverStart(FMLServerStartingEvent event) {
+		CustomNpcs.debugData.start("Mod", this, "serverStart");
 		event.registerServerCommand(CustomNpcs.NoppesCommand);
 		EntityNPCInterface.ChatEventPlayer = new FakePlayer(event.getServer().getWorld(0), EntityNPCInterface.ChatEventProfile);
 		EntityNPCInterface.CommandPlayer = new FakePlayer(event.getServer().getWorld(0), EntityNPCInterface.CommandProfile);
@@ -501,19 +442,19 @@ public class CustomNpcs {
             });
 		}
 		DimensionHandler.getInstance().loadDimensions();
-
-		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_serverstart");
+		CustomNpcs.debugData.end("Mod", this, "serverStart");
 	}
 
 	@Mod.EventHandler
 	public void setAboutToStart(FMLServerAboutToStartEvent event) {
-		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_setAboutToStart");
+		LogWriter.info("CustomNpcs: setAboutToStart");
+		CustomNpcs.debugData.start("Mod", this, "setAboutToStart");
 		CustomNpcs.Server = event.getServer();
 		ChunkController.instance.clear();
 		FactionController.instance.load();
 		ScriptController.Instance.load();
-		new DropController();
-		AnimationController.getInstance();
+		DropController.getInstance().loadFile();
+		AnimationController.getInstance().loadAnimations();
 		new KeyController();
 		new TransportController();
 		new PlayerDataController();
@@ -561,12 +502,12 @@ public class CustomNpcs {
 				LogWriter.error("Error:", e);
 			}
 		}
-
-		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_setAboutToStart");
+		CustomNpcs.debugData.end("Mod", this, "setAboutToStart");
 	}
 
 	@Mod.EventHandler
 	public void started(FMLServerStartedEvent event) {
+		CustomNpcs.debugData.start("Mod", this, "started");
 		new BankController();
 		new MarcetController();
 		new BorderController();
@@ -575,10 +516,12 @@ public class CustomNpcs {
 		ScriptController.HasStart = true;
 		ServerCloneController.Instance = new ServerCloneController();
 		ScriptController.Instance.loadItemTextures();
+		CustomNpcs.debugData.end("Mod", this, "started");
 	}
 
 	@Mod.EventHandler
 	public void stopped(FMLServerStoppedEvent event) {
+		CustomNpcs.debugData.start("Mod", this, "stopped");
 		CustomNpcs.Config.config.save();
 		ServerCloneController.Instance = null;
 		PlayerSkinController.getInstance().save();
@@ -590,12 +533,12 @@ public class CustomNpcs {
 		ItemScripted.Resources.clear();
 		BankController.getInstance().update();
 		RecipeController.getInstance().checkSaves();
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.showDebugs();
-		}
+		CustomNpcs.debugData.end("Mod", this, "stopped");
+		CustomNpcs.debugData.logging();
 		CustomNpcs.Server = null;
 	}
 
+	@SuppressWarnings("all")
 	public static void setCharCurrencies(String unicode) {
 		CustomNpcs.CharCurrencies = unicode;
 		try { CustomNpcs.displayCurrencies = "" + ((char) Integer.parseInt(unicode, 16)); }

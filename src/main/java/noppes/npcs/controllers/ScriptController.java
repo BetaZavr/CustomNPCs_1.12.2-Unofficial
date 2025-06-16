@@ -85,8 +85,9 @@ public class ScriptController {
 	public NpcScriptData npcsScripts = new NpcScriptData();
 
 	public ScriptController() {
+		CustomNpcs.debugData.start("Mod", this, "constructor");
 		ScriptController.Instance = this;
-		if (!CustomNpcs.NashorArguments.isEmpty()) { System.setProperty("nashorn.args", CustomNpcs.NashorArguments); }
+		if (!CustomNpcs.NashornArguments.isEmpty()) { System.setProperty("nashorn.args", CustomNpcs.NashornArguments); }
         ScriptEngineManager manager = new ScriptEngineManager();
 		LogWriter.info("Script Engines Available:");
 		// Rhino
@@ -187,6 +188,7 @@ public class ScriptController {
 			if (isNotRegister) { manager.registerEngineExtension("js", factory); }
 		} catch (Exception e) { LogWriter.info("Nashorn JS is missed"); }
 		if (isClient) { loadAgreements(); }
+		CustomNpcs.debugData.end("Mod", this, "constructor");
 	}
 
 	public File clientScriptsFile() {
@@ -228,6 +230,7 @@ public class ScriptController {
 		return factory.getScriptEngine();
 	}
 
+	@SuppressWarnings("all")
 	private ScriptEngine getNewGraalEngine() {
 		try {
 			/*GraalJSScriptEngine.create((Engine)null, Context.newBuilder("js")
@@ -370,6 +373,7 @@ public class ScriptController {
 	}
 
 	public void load() {
+		CustomNpcs.debugData.start("Mod", this, "load");
 		ScriptController sData = ScriptController.Instance;
 		sData.loadCategories();
 		sData.loadStoredData();
@@ -381,6 +385,7 @@ public class ScriptController {
 		if (isClient) { sData.loadClientScripts(); }
 		checkExampleModules();
 		ScriptController.HasStart = true;
+		CustomNpcs.debugData.end("Mod", this, "load");
 	}
 
 	public void loadCategories() {
@@ -486,7 +491,7 @@ public class ScriptController {
 						Util.instance.saveFile(file, constants.copy());
 						ITextComponent message = new TextComponentString("Constants have been rewritten for all scripts to ");
 						message.getStyle().setColor(TextFormatting.GRAY);
-						NoppesUtilServer.NotifyOPs(message.appendText(file.getName()));
+						NoppesUtilServer.NotifyOPs(message.appendText(file.getName()), true);
 					}
 					catch (Exception e) { LogWriter.except(e); }
 				}
@@ -996,6 +1001,7 @@ public class ScriptController {
 		});
 	}
 
+	@SuppressWarnings("all")
 	public ITextComponent getElements(int type) {
 		if (!elements.containsKey(type)) { return null; }
 		List<String> list = new ArrayList<>();

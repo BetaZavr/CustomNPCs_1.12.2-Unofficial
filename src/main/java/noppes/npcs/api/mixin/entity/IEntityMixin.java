@@ -7,6 +7,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.CapabilityDispatcher;
+import noppes.npcs.api.wrapper.data.Data;
 
 public interface IEntityMixin {
 
@@ -25,4 +26,7 @@ public interface IEntityMixin {
     void npcs$setCapabilities(CapabilityDispatcher newCapabilities);
 
     void npcs$copyDataFromOld(Entity entity);
+
+    Data npcs$getStoredData();
+
 }

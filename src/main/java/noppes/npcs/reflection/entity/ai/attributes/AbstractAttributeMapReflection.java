@@ -18,8 +18,7 @@ public class AbstractAttributeMapReflection {
     private static Field attributesByName;
     private static Field descendantsByParent;
 
-
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static Map<IAttribute, IAttributeInstance> getAttributes(AbstractAttributeMap attributeMap) {
         if (attributeMap == null) { return new HashMap<>(); }
         if (attributes == null) {
@@ -45,7 +44,7 @@ public class AbstractAttributeMapReflection {
         return new HashMap<>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static Map<String, IAttributeInstance> getAttributesByName(AbstractAttributeMap attributeMap) {
         if (attributeMap == null) { return new LowerStringMap<>(); }
         if (attributesByName == null) {
@@ -71,7 +70,7 @@ public class AbstractAttributeMapReflection {
         return new LowerStringMap<>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("all")
     public static Multimap<IAttribute, IAttribute> getDescendantsByParent(AbstractAttributeMap attributeMap) {
         if (attributeMap == null) { return HashMultimap.create(); }
         if (descendantsByParent == null) {

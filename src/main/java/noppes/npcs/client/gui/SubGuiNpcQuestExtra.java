@@ -330,7 +330,7 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface subgui) {
+	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
 			if (subgui.getId() == 0) {
 				quest.rewardText = ((SubGuiNpcTextArea) subgui).text;

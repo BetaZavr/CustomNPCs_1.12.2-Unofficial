@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.api.gui.ICustomGuiComponent;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.gui.CustomGuiTexturedRectWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
@@ -29,6 +30,7 @@ implements IGuiComponent {
 		rect.scale = component.getScale();
 		if (component.hasHoverText()) {
 			rect.hoverText = component.getHoverText();
+			rect.hoverStack = component.getHoverStack();
 		}
 		rect.color = component.getColor();
 		return rect;
@@ -40,6 +42,7 @@ implements IGuiComponent {
 	ResourceLocation texture;
 	private final int[] offsets;
 	String[] hoverText;
+	IItemStack hoverStack;
 
 	public CustomGuiTexturedRect(int id, String texture, int x, int y, int width, int height) {
 		this(id, texture, x, y, width, height, 0, 0);
@@ -116,8 +119,9 @@ implements IGuiComponent {
 		bufferbuilder.pos((x + this.width * this.scale), y, pos).tex(((this.textureX + this.width) * 0.00390625f), (this.textureY * 0.00390625f)).endVertex();
 		bufferbuilder.pos(x, y, pos).tex((this.textureX * 0.00390625f), (this.textureY * 0.00390625f)).endVertex();
 		tessellator.draw();
-		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
-			this.parent.hoverText = this.hoverText;
+		if (hovered) {
+			if (hoverText != null && hoverText.length > 0) { parent.hoverText = hoverText; }
+			if (hoverStack != null && !hoverStack.isEmpty()) { parent.hoverStack = hoverStack.getMCItemStack(); }
 		}
 		GlStateManager.popMatrix();
 	}

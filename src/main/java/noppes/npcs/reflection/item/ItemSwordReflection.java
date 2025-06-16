@@ -41,6 +41,7 @@ public class ItemSwordReflection {
         return 0.0f;
     }
 
+    @SuppressWarnings("all")
     public static Item.ToolMaterial getMaterial(ItemSword item) {
         if (item == null) { return Item.ToolMaterial.IRON; }
         if (material == null) {
@@ -66,6 +67,7 @@ public class ItemSwordReflection {
         return Item.ToolMaterial.IRON;
     }
 
+    @SuppressWarnings("all")
     private static Field getAttackDamageField() {
         if (attackDamage == null) {
             Exception error = null;

@@ -21,6 +21,8 @@ implements ITextChangeListener {
 		setBackground("bgfilled.png");
 		xSize = 256;
 		ySize = 256;
+		widthTexture = 256;
+		heightTexture = 256;
 		closeOnEsc = true;
 
 		highlighting = false;
@@ -52,29 +54,20 @@ implements ITextChangeListener {
     @Override
 	public void initGui() {
 		xSize = (int) (width * 0.88);
-		ySize = (int) (xSize * 0.56);
-		if (ySize > height * 0.95) {
-			ySize = (int) (height * 0.95);
-			xSize = (int) (ySize / 0.56);
-		}
-		bgScale = xSize / 440.0f;
+		ySize = (int) (height * 0.95);
 		super.initGui();
-		if (textarea != null) {
-			text = textarea.getFullText();
-		}
-		int yoffset = (int) (ySize * 0.02);
-		(textarea = new GuiTextArea(2, guiLeft + 1 + yoffset, guiTop + yoffset, xSize - 100 - yoffset, ySize - yoffset * 2, text)).setListener(this);
-		if (highlighting) {
-			textarea.enableCodeHighlighting();
-		}
+		if (textarea != null) { text = textarea.getFullText(); }
+		textarea = new GuiTextArea(2, guiLeft + 5, guiTop + 5, xSize - 68, ySize - 10, text);
+		textarea.setListener(this);
+		if (highlighting) { textarea.enableCodeHighlighting(); }
 		add(textarea);
-		addButton(new GuiNpcButton(102, guiLeft + xSize - 90 - yoffset, guiTop + 20, 56, 20, "gui.clear"));
-		addButton(new GuiNpcButton(101, guiLeft + xSize - 90 - yoffset, guiTop + 43, 56, 20, "gui.paste"));
-		addButton(new GuiNpcButton(100, guiLeft + xSize - 90 - yoffset, guiTop + 66, 56, 20, "gui.copy"));
-		addButton(new GuiNpcButton(103, guiLeft + xSize - 90 - yoffset, guiTop + 89, 56, 20, "remote.reset"));
-		addButton(new GuiNpcButton(0, guiLeft + xSize - 90 - yoffset, guiTop + 160, 56, 20, "gui.close"));
-		xSize = 420;
-		ySize = 256;
+		int x = guiLeft + 7 + textarea.width;
+		int y = guiTop + 5;
+		addButton(new GuiNpcButton(102, x, y, 56, 20, "gui.clear"));
+		addButton(new GuiNpcButton(101, x, y += 23, 56, 20, "gui.paste"));
+		addButton(new GuiNpcButton(100, x, y += 23, 56, 20, "gui.copy"));
+		addButton(new GuiNpcButton(103, x, y + 23, 56, 20, "remote.reset"));
+		addButton(new GuiNpcButton(0, x, guiTop + ySize - 25, 56, 20, "gui.close"));
 	}
 
 	@Override

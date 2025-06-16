@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -67,7 +68,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			GlStateManager.rotate(270.0f, 0.0f, 0.0f, 1.0f);
 			GlStateManager.rotate(270.0f, 0.0f, 1.0f, 0.0f);
 		} else {
-			if (npc.ais.getStandingType() == 4 && !npc.isAttacking()) { rotationYaw = npc.ais.orientation; }
+			if (npc.ais.getStandingType() == 4 && !npc.isAttacking() && !npc.hasPath()) {rotationYaw = npc.ais.orientation; }
 			super.applyRotations(npc, handleRotation, rotationYaw, partialTicks);
 		}
 	}
@@ -83,7 +84,9 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 		try {
 			GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
+			RenderHelper.enableStandardItemLighting();
 			super.doRender(npc, x, y, z, entityYaw, partialTicks);
+			RenderHelper.enableStandardItemLighting();
 			GlStateManager.disableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 	}
@@ -365,9 +368,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			}
 			this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, npc.getName(),
 					npc.display.getTitle());
-			if (!CustomNpcs.ShowLR) {
-				return;
-			}
+			if (!CustomNpcs.ShowLR) { return; }
 			NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.NpcVisualData, npc, 5000, npc.getEntityId());
 			if (!npc.stats.getRarityTitle().isEmpty()) {
 				this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, "", npc.stats.getRarityTitle());

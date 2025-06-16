@@ -7,6 +7,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.renderer.GlStateManager;
 import noppes.npcs.api.gui.ICustomGuiComponent;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.gui.CustomGuiLabelWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
@@ -23,6 +24,7 @@ implements IGuiComponent {
 		lbl.setScale(component.getScale());
 		if (component.hasHoverText()) {
 			lbl.hoverText = component.getHoverText();
+			lbl.hoverStack = component.getHoverStack();
 		}
 		return lbl;
 	}
@@ -30,6 +32,7 @@ implements IGuiComponent {
 	int colour;
 	String fullLabel;
 	String[] hoverText;
+	IItemStack hoverStack;
 	GuiCustom parent;
 	float scale;
 	private boolean showShadow;
@@ -113,8 +116,9 @@ implements IGuiComponent {
 				}
 			}
 		}
-		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
-			this.parent.hoverText = this.hoverText;
+		if (hovered) {
+			if (hoverText != null && hoverText.length > 0) { parent.hoverText = hoverText; }
+			if (hoverStack != null && !hoverStack.isEmpty()) { parent.hoverStack = hoverStack.getMCItemStack(); }
 		}
 		GlStateManager.popMatrix();
 	}

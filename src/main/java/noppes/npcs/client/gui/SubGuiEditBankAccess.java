@@ -80,7 +80,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void subGuiClosed(ISubGuiInterface gui) {
+	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiEditText) {
 			String name = ((SubGuiEditText) gui).text[0];
 			if (name.length() < 4 || name.indexOf(' ') != -1

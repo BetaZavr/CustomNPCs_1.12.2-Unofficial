@@ -29,9 +29,6 @@ public class EntityAIJob extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-if (!npc.advanced.jobInterface.getClass().getSimpleName().equals("JobInterface")) {
-
-}
 		return !npc.isKilled() && npc.advanced.jobInterface != null && npc.advanced.jobInterface.aiShouldExecute();
 	}
 
@@ -44,4 +41,5 @@ if (!npc.advanced.jobInterface.getClass().getSimpleName().equals("JobInterface")
 			this.npc.advanced.jobInterface.aiUpdateTask();
 		}
 	}
+
 }

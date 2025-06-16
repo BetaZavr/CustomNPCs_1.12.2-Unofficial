@@ -9,6 +9,7 @@ public class EntityAITasksReflection {
 
     private static Field tickRate;
 
+    @SuppressWarnings("all")
     public static int getTickRate(EntityAITasks tasks) {
         if (tasks == null) { return 3; }
         if (tickRate == null) {

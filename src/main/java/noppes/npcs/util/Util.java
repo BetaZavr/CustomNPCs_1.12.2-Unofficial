@@ -1,5 +1,6 @@
 package noppes.npcs.util;
 
+import java.awt.*;
 import java.io.*;
 import java.lang.reflect.*;
 import java.net.SocketTimeoutException;
@@ -9,6 +10,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -28,6 +30,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import net.minecraft.nbt.*;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
+import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.*;
 
 import net.minecraft.block.state.IBlockState;
@@ -283,7 +286,7 @@ public class Util implements IMethods {
 
 	public List<IDataElement> getClassData(Object obj, boolean onlyPublic, boolean addConstructor) {
 		if (obj == null) { return new ArrayList<>(); }
-		LogWriter.info("Trying to get all fields, methods and classes from object \"" + obj + "\"");
+		LogWriter.debug("Trying to get all fields, methods and classes from object \"" + obj + "\"");
 		List<IDataElement> list = new ArrayList<>();
 		Class<?> cz = (obj instanceof Class) ? (Class<?>) obj : obj.getClass();
 		// Constructors
@@ -698,7 +701,7 @@ public class Util implements IMethods {
 		return count;
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("all")
 	public boolean npcCanSeeTarget(EntityLivingBase entity, EntityLivingBase target, boolean toShoot, boolean directLOS) {
 		if (entity == null || target == null) { return false; }
 		try {
@@ -818,7 +821,7 @@ public class Util implements IMethods {
 	@Override
 	public boolean removeFile(File directory) {
 		if (directory == null) { return false; }
-		LogWriter.info("Trying remove file \"" + directory + "\"");
+		LogWriter.debug("Trying remove file \"" + directory + "\"");
 		if (!directory.isDirectory()) {
 			return directory.delete();
 		}
@@ -1001,6 +1004,7 @@ public class Util implements IMethods {
 		return time;
 	}
 
+	@SuppressWarnings("all")
 	public Entity travelAndCopyEntity(MinecraftServer server, Entity entity, int dimension) throws CommandException {
 		if (server == null) {
 			throw new CommandException("Server cannot " + "have value Null");
@@ -1138,7 +1142,7 @@ public class Util implements IMethods {
 		} else if (obj instanceof Number) {
 			str = new StringBuilder(obj.toString());
 		} else if (obj instanceof String) {
-			str = new StringBuilder("'" + obj + "'");
+			str = new StringBuilder("\"" + obj + "\"");
 		} else if (obj instanceof Bindings) {
 			ScriptEngine engine = ScriptController.Instance.getEngineByName("ECMAScript");
 			if (engine != null) {
@@ -1156,7 +1160,7 @@ public class Util implements IMethods {
 		if (fileName == null || fileName.isEmpty() || fileName.lastIndexOf(".") == -1) {
 			return null;
 		}
-		LogWriter.info("Getting a list of mod files by key \"" + fileName + "\"");
+		LogWriter.debug("Getting a list of mod files by key \"" + fileName + "\"");
 		InputStream inputStream = null;
 		for (ModContainer mod : Loader.instance().getModList()) {
 			if (mod.getSource().exists() && (mod.getModId().equals(CustomNpcs.MODID) || mod.getSource().getName().endsWith("bin") || mod.getSource().getName().endsWith("main"))) {
@@ -1199,7 +1203,7 @@ public class Util implements IMethods {
 
 	@Override
 	public String loadFile(File file) {
-		LogWriter.info("Trying to load file \"" + file.getAbsolutePath() + "\"");
+		LogWriter.debug("Trying to load file \"" + file.getAbsolutePath() + "\"");
 		StringBuilder text = new StringBuilder();
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8));
@@ -1209,7 +1213,7 @@ public class Util implements IMethods {
 			}
 			reader.close();
 		}
-		catch (Exception e) { LogWriter.info("Error load file \"" + file.getAbsolutePath() + "\""); }
+		catch (Exception e) { LogWriter.error("Error load file \"" + file.getAbsolutePath() + "\"", e); }
 		return text.toString();
 	}
 
@@ -1218,7 +1222,7 @@ public class Util implements IMethods {
 		if (file == null || text == null) {
 			return false;
 		}
-		LogWriter.info("Trying save text to file \"" + file.getAbsolutePath() + "\"");
+		LogWriter.debug("Trying save text to file \"" + file.getAbsolutePath() + "\"");
 		if (file.getParentFile() != null && !file.getParentFile().exists() && !file.getParentFile().mkdirs()) { // create directories
 			LogWriter.debug("Error creating directories from file path \"" + file.getAbsolutePath() + "\"");
 			return false;
@@ -1241,7 +1245,7 @@ public class Util implements IMethods {
 	@Override
 	public String getDataFile(String fileName) {
 		if (fileName == null) { return ""; }
-		LogWriter.info("Trying to get text from mod data file \"" + fileName + "\"");
+		LogWriter.debug("Trying to get text from mod data file \"" + fileName + "\"");
 		InputStream inputStream = getModInputStream(fileName);
 		String text = "";
 		try {
@@ -1252,7 +1256,9 @@ public class Util implements IMethods {
 			}
 			text = result.toString("UTF-8");
 		}
-		catch (Exception e) { LogWriter.error("Error get text from mod data file: \"" + fileName + "\"; InputStream: " + inputStream, e); }
+		catch (Throwable t) {
+			LogWriter.error("Error get text from mod data file: \"" + fileName + "\"; InputStream: " + inputStream, t);
+		}
 		return text;
 	}
 
@@ -1411,7 +1417,6 @@ public class Util implements IMethods {
 	@Override
 	public Object readObjectFromNbt(NBTBase tag) {
 		if (tag == null) { return null; }
-		//LogWriter.debug("Attempt to write object from tag type: "+tag.getId());
 		if (tag instanceof NBTTagCompound) {
 			NBTTagCompound compound = (NBTTagCompound) tag;
 			if (compound.getBoolean("IsBindings")) {
@@ -1423,18 +1428,22 @@ public class Util implements IMethods {
 					Set<String> sets = ((NBTTagCompound) tag).getKeySet();
 					Map<String, Object> map = new TreeMap<>();
 					for (String k : sets) {
-						if (k.equals("IsArray")) { continue; }
-						Object v = this.readObjectFromNbt(((NBTTagCompound) tag).getTag(k));
+						if (k.equals("IsArray") || k.equals("IsBindings")) { continue; }
+						Object v = readObjectFromNbt(((NBTTagCompound) tag).getTag(k));
 						if (v != null) { map.put(k, v); }
 					}
 					for (String k : map.keySet()) {
-						String s = this.getJSONStringFromObject(map.get(k));
+						String s = getJSONStringFromObject(map.get(k));
 						if (isArray) { str.append(s).append(", "); }
 						else { str.append("\"").append(k).append("\":").append(s).append(", "); }
 					}
 					if (!map.isEmpty()) { str = new StringBuilder(str.substring(0, str.length() - 2)); }
 					str.append(isArray ? "]" : "}").append("')");
-					return engine.eval(str.toString());
+					try { return engine.eval("" +str); }
+					catch (Exception e) {
+						LogWriter.error("Error parse \""+str+"\"", e);
+					}
+                    return null;
 				} catch (Exception e) { LogWriter.error("Error:", e); }
 			}
 			else if (compound.getBoolean("IsList")) {
@@ -1453,9 +1462,12 @@ public class Util implements IMethods {
 					case 3: map = new LinkedTreeMap<>(); break;
 					default: map = new HashMap<>(); break;
 				}
-				NBTTagList tagList = compound.getTagList("Content", 10);
-				for (int i = 0; i < tagList.tagCount(); i++) {
-					NBTTagCompound nbt = tagList.getCompoundTagAt(i);
+				NBTTagCompound content = compound.getCompoundTag("Content");
+				Map<Integer, NBTTagCompound> keys = new TreeMap<>();
+				for (String key : content.getKeySet()) {
+					try	{ keys.put( Integer.parseInt(key.replace("Slot_", "")), content.getCompoundTag(key)); } catch (Exception ignored) { }
+                }
+				for (NBTTagCompound nbt : keys.values()) {
 					Object k = readObjectFromNbt(nbt.getTag("K"));
 					Object v = readObjectFromNbt(nbt.getTag("V"));
 					if (k != null && v != null) { map.put(k, v); }
@@ -1473,6 +1485,8 @@ public class Util implements IMethods {
 					return gson.fromJson(compound.getString("Content"), clss);
 				} catch (Exception ignored) { }
 			}
+			else if (compound.getBoolean("IsColor")) { return new Color(compound.getInteger("V")); }
+			else if (compound.getBoolean("IsBoolean")) { return compound.getBoolean("V"); }
 		}
 		else if (tag instanceof NBTTagEnd) { return null; }
 		else if (tag instanceof NBTTagByte) { return ((NBTTagByte) tag).getByte(); }
@@ -1486,31 +1500,12 @@ public class Util implements IMethods {
 		else if (tag instanceof NBTTagIntArray) { return ((NBTTagIntArray) tag).getIntArray(); }
 		else if (tag instanceof NBTTagLongArray) { return TagLongArrayReflection.getData((NBTTagLongArray) tag); }
 		else if (tag instanceof NBTTagList) {
-			Object[] arr = new Object[((NBTTagList) tag).tagCount()];
-			int i = 0;
-			for (NBTBase listTag : (NBTTagList) tag) {
-				arr[i] = this.readObjectFromNbt(listTag);
-				i++;
-			}
-			return arr;
+			List<Object> list = new ArrayList<>();
+			for (NBTBase listTag : (NBTTagList) tag) { list.add(readObjectFromNbt(listTag)); }
+			return list.toArray();
 		}
+		LogWriter.warn("Not read tag: \""+tag+"\" to Object");
 		return null;
-	}
-
-	@Override
-	public IEntity<?> transferEntity(IEntity<?> entity, int dimension, IPos pos) {
-		Entity e = null;
-		try {
-			if (pos != null) {
-				e = this.teleportEntity(CustomNpcs.Server, entity.getMCEntity(), dimension, pos.getMCBlockPos());
-			} else {
-				e = this.travelAndCopyEntity(CustomNpcs.Server, entity.getMCEntity(), dimension);
-			}
-		} catch (Exception ee) { LogWriter.error("Error:", ee); }
-		if (e != null) {
-			return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e);
-		}
-		return entity;
 	}
 
 	@Override
@@ -1533,12 +1528,25 @@ public class Util implements IMethods {
 			}
 			return list;
 		}
+		else if (value instanceof Boolean) {
+			NBTTagCompound compound = new NBTTagCompound();
+			compound.setBoolean("IsBoolean", true);
+			compound.setBoolean("V", (Boolean) value);
+			return compound;
+		}
 		else if (value instanceof Byte) { return new NBTTagByte((Byte) value); }
 		else if (value instanceof Short) { return new NBTTagShort((Short) value); }
 		else if (value instanceof Integer) { return new NBTTagInt((Integer) value); }
+		else if (value instanceof Color) {
+			NBTTagCompound compound = new NBTTagCompound();
+			compound.setBoolean("IsColor", true);
+			compound.setInteger("V", ((Color) value).getRGB());
+			return compound;
+		}
 		else if (value instanceof Long) { return new NBTTagLong((Long) value); }
 		else if (value instanceof Float) { return new NBTTagFloat((Float) value); }
 		else if (value instanceof Double) { return new NBTTagDouble((Double) value); }
+		else if (value instanceof Number) { return new NBTTagDouble(((Number) value).doubleValue()); }
 		else if (value instanceof String) { return new NBTTagString((String) value); }
 		else if (value instanceof Bindings) {
 			String clazz = value.toString();
@@ -1551,16 +1559,11 @@ public class Util implements IMethods {
 				Object v = scopeEntry.getValue();
 				if (v.getClass().isArray()) {
 					Object[] vs = (Object[]) v;
-					if (vs.length == 0) {
-						nbt.setTag(scopeEntry.getKey(), new NBTTagList());
-						continue;
-					}
-					if (vs[0] instanceof Byte) {
+					if (vs.length == 0) { nbt.setTag(scopeEntry.getKey(), new NBTTagList()); }
+					else if (vs[0] instanceof Byte) {
 						List<Byte> l = new ArrayList<>();
 						for (Object va : vs) {
-							if (va instanceof Byte) {
-								l.add((Byte) va);
-							}
+							if (va instanceof Byte) { l.add((Byte) va); }
 						}
 						byte[] arr = new byte[l.size()];
 						int i = 0;
@@ -1569,12 +1572,11 @@ public class Util implements IMethods {
 							i++;
 						}
 						nbt.setByteArray(scopeEntry.getKey(), arr);
-					} else if (vs[0] instanceof Integer) {
+					}
+					else if (vs[0] instanceof Integer) {
 						List<Integer> l = new ArrayList<>();
 						for (Object va : vs) {
-							if (va instanceof Integer) {
-								l.add((Integer) va);
-							}
+							if (va instanceof Integer) { l.add((Integer) va); }
 						}
 						int[] arr = new int[l.size()];
 						int i = 0;
@@ -1583,12 +1585,11 @@ public class Util implements IMethods {
 							i++;
 						}
 						nbt.setIntArray(scopeEntry.getKey(), arr);
-					} else if (vs[0] instanceof Long) {
+					}
+					else if (vs[0] instanceof Long) {
 						List<Long> l = new ArrayList<>();
 						for (Object va : vs) {
-							if (va instanceof Long) {
-								l.add((Long) va);
-							}
+							if (va instanceof Long) { l.add((Long) va); }
 						}
 						long[] arr = new long[l.size()];
 						int i = 0;
@@ -1597,42 +1598,38 @@ public class Util implements IMethods {
 							i++;
 						}
 						nbt.setTag(scopeEntry.getKey(), new NBTTagLongArray(arr));
-					} else if (vs[0] instanceof Short || vs[0] instanceof Float || vs[0] instanceof Double) {
+					}
+					else if (vs[0] instanceof String) {
+						NBTTagList list = new NBTTagList();
+						for (Object va : vs) { list.appendTag(new NBTTagString((String) va)); }
+						nbt.setTag(scopeEntry.getKey(), list);
+					}
+					else if (vs[0] instanceof Short || vs[0] instanceof Float || vs[0] instanceof Double || vs[0] instanceof Number) {
 						NBTTagList list = new NBTTagList();
 						for (Object va : vs) {
 							double d;
-							if (va instanceof Short) {
-								d = (double) (Short) va;
-							} else if (va instanceof Float) {
-								d = (double) (Float) va;
-							} else if (va instanceof Double) {
-								d = (Double) va;
-							} else {
-								continue;
-							}
+							if (va instanceof Short) { d = (double) (Short) va; }
+							else if (va instanceof Float) { d = (double) (Float) va; }
+							else if (va instanceof Double) { d = (Double) va; }
+							else if (va instanceof Number) { d = ((Number) va).doubleValue(); }
+							else { continue; }
 							list.appendTag(new NBTTagDouble(d));
 						}
 						nbt.setTag(scopeEntry.getKey(), list);
 					}
-				} else if (v instanceof Byte) {
-					nbt.setByte(scopeEntry.getKey(), (Byte) v);
-				} else if (v instanceof Short) {
-					nbt.setShort(scopeEntry.getKey(), (Short) v);
-				} else if (v instanceof Integer) {
-					nbt.setInteger(scopeEntry.getKey(), (Integer) v);
-				} else if (v instanceof Long) {
-					nbt.setLong(scopeEntry.getKey(), (Long) v);
-				} else if (v instanceof Float) {
-					nbt.setFloat(scopeEntry.getKey(), (Float) v);
-				} else if (v instanceof Double) {
-					nbt.setDouble(scopeEntry.getKey(), (Double) v);
-				} else if (v instanceof String) {
-					nbt.setString(scopeEntry.getKey(), (String) v);
-				} else {
-					NBTBase n = this.writeObjectToNbt(v);
-					if (n != null) {
-						nbt.setTag(scopeEntry.getKey(), n);
-					}
+					else { nbt.setTag(scopeEntry.getKey(), new NBTTagList()); }
+				}
+				else if (v instanceof Byte) { nbt.setByte(scopeEntry.getKey(), (Byte) v); }
+				else if (v instanceof Short) { nbt.setShort(scopeEntry.getKey(), (Short) v); }
+				else if (v instanceof Integer) { nbt.setInteger(scopeEntry.getKey(), (Integer) v); }
+				else if (v instanceof Long) { nbt.setLong(scopeEntry.getKey(), (Long) v); }
+				else if (v instanceof Float) { nbt.setFloat(scopeEntry.getKey(), (Float) v); }
+				else if (v instanceof Double) { nbt.setDouble(scopeEntry.getKey(), (Double) v); }
+				else if (v instanceof Number) {nbt.setDouble(scopeEntry.getKey(), ((Number) v).doubleValue()); }
+				else if (v instanceof String) { nbt.setString(scopeEntry.getKey(), (String) v); }
+				else {
+					NBTBase n = writeObjectToNbt(v);
+					if (n != null) { nbt.setTag(scopeEntry.getKey(), n); }
 				}
 			}
 			return nbt;
@@ -1646,7 +1643,8 @@ public class Util implements IMethods {
 				else if (value instanceof LinkedHashMap) { type = 2; }
 				else if (value instanceof LinkedTreeMap) { type = 3; }
 				compound.setInteger("IsMap", type);
-				NBTTagList tagList = new NBTTagList();
+				NBTTagCompound content = new NBTTagCompound();
+				int i = 0;
 				for (Object key : map.keySet()) {
 					NBTBase k = writeObjectToNbt(key);
 					NBTBase v = writeObjectToNbt(map.get(key));
@@ -1654,10 +1652,11 @@ public class Util implements IMethods {
 						NBTTagCompound nbt = new NBTTagCompound();
 						nbt.setTag("K", k);
 						nbt.setTag("V", v);
-						tagList.appendTag(nbt);
+						content.setTag("Slot_"+i, nbt);
 					}
+					i++;
 				}
-				compound.setTag("Content", tagList);
+				compound.setTag("Content", content);
 				return compound;
 			}
 			catch (Exception ignored) { }
@@ -1688,9 +1687,28 @@ public class Util implements IMethods {
 				compound.setString("Content", jsonString);
 				return compound;
 			}
-		} catch (Exception ignored) { }
+		}
+		catch (Exception ignored) {  }
+		LogWriter.warn("Not write object: \""+value+"\" to NBT");
 		return null;
 	}
+
+	@Override
+	public IEntity<?> transferEntity(IEntity<?> entity, int dimension, IPos pos) {
+		Entity e = null;
+		try {
+			if (pos != null) {
+				e = this.teleportEntity(CustomNpcs.Server, entity.getMCEntity(), dimension, pos.getMCBlockPos());
+			} else {
+				e = this.travelAndCopyEntity(CustomNpcs.Server, entity.getMCEntity(), dimension);
+			}
+		} catch (Exception ee) { LogWriter.error("Error:", ee); }
+		if (e != null) {
+			return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e);
+		}
+		return entity;
+	}
+
 
 	public void sort(NonNullList<ItemStack> items) {
 		Map<String, List<ItemStack>> mapArmor = new TreeMap<>();
@@ -1909,6 +1927,7 @@ public class Util implements IMethods {
 		return Math.abs(entityTo.posX - (double) pos.x) <= 1.0 && Math.abs(entityTo.posY - (double) pos.y) < 2.0d && Math.abs(entityTo.posZ - (double) pos.z) <= 1.0d;
 	}
 
+	@SuppressWarnings("all")
 	public float getCurrentXZSpeed(EntityLivingBase entity) {
 		IAttributeInstance movementAttribute = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
 		float speed = 1.0f;
@@ -1920,6 +1939,7 @@ public class Util implements IMethods {
 		return ValueUtil.correctFloat(speed, 0.25f, 1.0f);
 	}
 
+	@SuppressWarnings("all")
 	public boolean isMoving(EntityLivingBase entity) {
 		IAttributeInstance movementAttribute = entity.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
 		double speed = 0.004d;
@@ -2027,5 +2047,10 @@ public class Util implements IMethods {
 		}
 		return result;
 	}
+
+    public Side getSide() {
+		if (Thread.currentThread().getName().toLowerCase().contains("server")) { return Side.SERVER; }
+		return Side.CLIENT;
+    }
 
 }

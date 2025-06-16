@@ -170,12 +170,11 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	private void load() {
+		CustomNpcs.debugData.start("Mod", this, "load");
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
 		if (saveDir == null || saveDir.toString().equals(".")) {
+			CustomNpcs.debugData.end("Mod", this, "load");
 			return;
-		}
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadMarcets");
 		}
 		this.filePath = saveDir.getAbsolutePath();
 		try {
@@ -195,9 +194,7 @@ public class MarcetController implements IMarcetHandler {
 		if (this.markets.isEmpty() || !this.markets.containsKey(0)) {
 			this.loadDefaultMarcets();
 		}
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.endDebug("Common", null, "loadMarcets");
-		}
+		CustomNpcs.debugData.end("Mod", this, "load");
 	}
 
 	private void load(File file) throws IOException {
@@ -409,6 +406,7 @@ public class MarcetController implements IMarcetHandler {
 		this.saveMarcets();
 	}
 
+	@SuppressWarnings("all")
 	public void saveMarcets() {
 		try {
 			// Save
@@ -460,14 +458,21 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	public void update() {
-		for (Marcet m : new ArrayList<>(markets.values())) { m.update(); }
-		for (Deal d : new ArrayList<>(deals.values())) { d.update(); }
+		try {
+			for (Marcet m : new ArrayList<>(markets.values())) { m.update(); }
+		}
+		catch (Throwable ignored) { }
+		try {
+			for (Deal d : new ArrayList<>(deals.values())) { d.update(); }
+		}
+		catch (Throwable ignored) { }
 	}
 
 	public void updateTime() {
-		for (Marcet m : new ArrayList<>(markets.values())) {
-			m.updateTime();
+		try {
+			for (Marcet m : new ArrayList<>(markets.values())) { m.updateTime(); }
 		}
+		catch (Throwable ignored) { }
 	}
 
 }

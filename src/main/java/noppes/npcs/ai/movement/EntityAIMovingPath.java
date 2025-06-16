@@ -1,4 +1,4 @@
-package noppes.npcs.ai;
+package noppes.npcs.ai.movement;
 
 import java.util.List;
 

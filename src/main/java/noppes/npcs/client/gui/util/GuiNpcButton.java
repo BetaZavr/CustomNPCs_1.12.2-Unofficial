@@ -153,7 +153,6 @@ implements IComponentGui, IGuiNpcButton {
 		if (!visible) { return; }
 		hovered = (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height);
 		int state = getHoverState(hovered);
-		RenderHelper.enableGUIStandardItemLighting();
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.enableBlend();
 		GlStateManager.enableAlpha();
