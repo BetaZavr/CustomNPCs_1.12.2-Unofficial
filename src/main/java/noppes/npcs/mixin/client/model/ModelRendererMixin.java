@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(value = ModelRenderer.class)
+@Mixin(value = ModelRenderer.class, priority = 499)
 public class ModelRendererMixin implements IModelRendererMixin {
 
     @Final

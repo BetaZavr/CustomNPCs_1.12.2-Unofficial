@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.LogWriter;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.gui.Gui;
@@ -199,7 +198,6 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 					GuiTextArea.font.draw(data.getFormattedString(container.makeup), (x + 1), yPos, 0xFFE0E0E0); // draw text
 
 					if (active && isEnabled() && cursorCounter / 6 % 2 == 0) {
-						LogWriter.debug("TEST: "+cursorPosition+"; "+data.start+"<>"+data.end+" // "+text.length()+"; "+j+"/"+list.size());
 						if (cursorPosition >= data.start && cursorPosition < data.end) {
 							int posX = x + GuiTextArea.font.width(line.substring(0, cursorPosition - data.start));
 							drawRect(posX + 1, yPos, posX + 2, yPos + 1 + container.lineHeight, 0xFFD0D0D0);
@@ -323,7 +321,6 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	@Override
 	public boolean isHovered() { return hovered; }
 
-	@Override
 	public void keyTyped(char c, int i) {
 		if (!active) { return; }
 		if (GuiScreen.isKeyComboCtrlA(i)) {
@@ -518,7 +515,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		container = new TextContainer(newText, GuiTextArea.font, width, height, enableCodeHighlighting);
 		container.init();
 		if (scrolledLine > container.linesCount - container.visibleLines) { scrolledLine = Math.max(0, container.linesCount - container.visibleLines); }
-		CustomNpcs.debugData.start("Player", this, "setFullText");
+		CustomNpcs.debugData.end("Player", this, "setFullText");
 	}
 
 	@Override

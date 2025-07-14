@@ -12,6 +12,7 @@
     "inv.ContainerMixin",
     "inv.SlotCraftingMixin",
     "network.NetworkManagerMixin",
+    "server.MinecraftServerMixin",
     "stats.RecipeBookMixin",
     "stats.RecipeBookServerMixin",
     "tileentity.TileEntityBannerMixin",

@@ -24,7 +24,7 @@ public class CmdSchematics extends CommandNoppesBase {
 		return 2;
 	}
 
-	@SubCommand(desc = "Build the schematic", usage = "<name> [rotation] [[world:]x,y,z]]")
+	@SubCommand(desc = "Build the schematic", usage = "<name> [rotation] [[world:]x,y,z]]", permission = 2)
 	public void build(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String name = args[0];
 		SchematicWrapper schem = SchematicController.Instance.load(name);
@@ -96,12 +96,12 @@ public class CmdSchematics extends CommandNoppesBase {
 		return null;
 	}
 
-	@SubCommand(desc = "Gives info about the current build")
+	@SubCommand(desc = "Gives info about the current build", permission = 2)
 	public void info(MinecraftServer server, ICommandSender sender, String[] args) {
 		SchematicController.Instance.info(sender);
 	}
 
-	@SubCommand(desc = "Lists available schematics")
+	@SubCommand(desc = "Lists available schematics", permission = 2)
 	public void list(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		List<String> list = SchematicController.Instance.list();
 		if (list.isEmpty()) {
@@ -114,7 +114,7 @@ public class CmdSchematics extends CommandNoppesBase {
 		this.sendMessage(sender, s.toString());
 	}
 
-	@SubCommand(desc = "Stops the current build")
+	@SubCommand(desc = "Stops the current build", permission = 2)
 	public void stop(MinecraftServer server, ICommandSender sender, String[] args) {
 		SchematicController.Instance.stop(sender);
 	}

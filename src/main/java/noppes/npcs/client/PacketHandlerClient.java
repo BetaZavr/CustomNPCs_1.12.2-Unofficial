@@ -122,6 +122,11 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.ANIMATION_DATA_RUN_ANIMATION);
 		PacketHandlerClient.list.add(EnumPacketClient.ANIMATION_DATA_STOP_ANIMATION);
 		PacketHandlerClient.list.add(EnumPacketClient.ANIMATION_DATA_STOP_EMOTION);
+		PacketHandlerClient.list.add(EnumPacketClient.GUI);
+		PacketHandlerClient.list.add(EnumPacketClient.GUI_DATA);
+		PacketHandlerClient.list.add(EnumPacketClient.SCROLL_DATA);
+		PacketHandlerClient.list.add(EnumPacketClient.SCROLL_SELECTED);
+		PacketHandlerClient.list.add(EnumPacketClient.EDIT_NPC);
 	}
 
 	@SuppressWarnings("unchecked")

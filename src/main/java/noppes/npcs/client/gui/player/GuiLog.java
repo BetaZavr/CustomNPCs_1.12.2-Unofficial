@@ -107,9 +107,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		}
 
 		public Map<Integer, List<String>> getText(int first, EntityPlayer player, FontRenderer fontRenderer) {
-			if (!newInstance && !map.isEmpty()) {
-				return map;
-			}
+			if (!newInstance && !map.isEmpty()) { return map; }
 			map.clear();
 			stacks.clear();
 			entitys.clear();
@@ -128,7 +126,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						stacks.add(((QuestObjective) allObj[i]).getItemStack());
 						text.append(" " + ((char) 0xffff) + " ");
 					}
-					if (((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.KILL
+					else if (((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.KILL
 							|| ((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.AREAKILL) {
 						text.append(" " + ((char) 0xfffe) + " ");
 						if (allObj[i].isNotShowLogEntity()) {
@@ -141,9 +139,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 								if (pos.getY() >= 0 && (pos.getX() != 0 || pos.getZ() != 0)
 										&& world.provider.getDimension() == allObj[i].getCompassDimension()) {
 									int r = allObj[i].getCompassRange();
-									List<Entity> list = world.getEntitiesWithinAABB(Entity.class,
-											new AxisAlignedBB(pos.getX() - r, pos.getY() - r, pos.getZ() - r,
-													pos.getX() + r, pos.getY() + r, pos.getZ() + r));
+									List<Entity> list = new ArrayList<>();
+									try {
+										list = world.getEntitiesWithinAABB(Entity.class,
+												new AxisAlignedBB(pos.getX() - r, pos.getY() - r, pos.getZ() - r,
+														pos.getX() + r, pos.getY() + r, pos.getZ() + r));
+									}
+									catch (Exception ignored) { }
 									for (Entity en : list) {
 										if (en.getName().equals(target)) {
 											NBTTagCompound compound = new NBTTagCompound();
@@ -207,10 +209,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					}
 				}
 			}
-			if (!line.isEmpty()) {
-				lines.add(color + line);
-			}
-
+			if (!line.isEmpty()) { lines.add(color + line); }
 			List<String> list = new ArrayList<>();
 			float height = (3.57143f * GuiLog.scaleH + 116.42857f) * GuiLog.scaleH; // 1.0 - 120; 2.4 - 125
 			for (String l : lines) {
@@ -221,17 +220,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				}
 				list.add(l);
 			}
-			if (!list.isEmpty()) {
-				map.put(currentList, list);
-			}
+			if (!list.isEmpty()) { map.put(currentList, list); }
 			newInstance = false;
 
 			List<ItemStack> rewarList = new ArrayList<>();
 			for (int i = 0; i < qData.quest.rewardItems.getSizeInventory(); i++) {
 				ItemStack stack = qData.quest.rewardItems.getStackInSlot(i);
-				if (stack.isEmpty()) {
-					continue;
-				}
+				if (stack.isEmpty()) { continue; }
 				boolean has = false;
 				if (qData.quest.rewardType == EnumRewardType.ALL) {
 					for (ItemStack it : rewarList) {
@@ -241,13 +236,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						}
 					}
 				}
-				if (!has) {
-					rewarList.add(stack);
-				}
+				if (!has) { rewarList.add(stack); }
 			}
-			if (!rewarList.isEmpty()) {
-				stacks.addAll(rewarList);
-			}
+			if (!rewarList.isEmpty()) { stacks.addAll(rewarList); }
 			return map;
 		}
 
@@ -1173,8 +1164,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				for (String line : list) {
 					if (line.contains(" " + ((char) 0xffff) + " ") || line.contains(((char) 0xffff) + " ")) {
 						if (j < stacks.length) {
-							int pos = fontRenderer
-									.getStringWidth(line.substring(0, line.indexOf("" + ((char) 0xffff)) - 1));
+							int pos = fontRenderer.getStringWidth(line.substring(0, line.indexOf("" + ((char) 0xffff)) - 1));
 							ItemStack stack = stacks[j];
 							float x = pos + (l == 1 ? 105.0f : 0.0f) * scaleW;
 							float y = (page == 0 && l == 0 ? first : 0.0f) + h * 12.0f;
@@ -1192,7 +1182,6 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 							GlStateManager.enableRescaleNormal();
 							RenderHelper.enableGUIStandardItemLighting();
 							itemRender.renderItemAndEffectIntoGUI(stack, 0, 0);
-							itemRender.renderItemOverlayIntoGUI(this.mc.fontRenderer, stack, 6, 8, null);
 							RenderHelper.disableStandardItemLighting();
 							GlStateManager.disableLighting();
 							itemRender.zLevel = 0.0f;
@@ -1200,13 +1189,11 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 							GlStateManager.popMatrix();
 							j++;
 						}
-						line = line.replace("" + ((char) 0xffff),
-								" " + (!line.contains(" " + ((char) 0xffff) + " ") ? " " : ""));
+						line = line.replace("" + ((char) 0xffff), " " + (!line.contains(" " + ((char) 0xffff) + " ") ? " " : ""));
 					}
 					if (line.indexOf(((char) 0xfffe)) != -1) {
 						if (activeQuest.entitys.containsKey(k)) {
-							int pos = fontRenderer
-									.getStringWidth(line.substring(0, line.indexOf("" + ((char) 0xfffe)) - 1));
+							int pos = fontRenderer.getStringWidth(line.substring(0, line.indexOf("" + ((char) 0xfffe)) - 1));
 							float x = pos + (l == 1 ? 105.0f : 0.0f) * scaleW;
 							float y = (page == 0 && l == 0 ? first : 0.0f) + h * 12.0f;
 							if (isMouseHover(mouseX, mouseY, guiLLeft + (int) x, guiLTop + (int) y, 10, 10)) {
@@ -1228,8 +1215,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						line = line.replace("" + ((char) 0xfffe), " ");
 						k++;
 					}
-					this.fontRenderer.drawString(line, (l == 1 ? 105.0f : 0.0f) * scaleW,
-							(page == 0 && l == 0 ? first : 0) + h * 12, CustomNpcs.QuestLogColor.getRGB(), false);
+					this.fontRenderer.drawString(line, (l == 1 ? 105.0f : 0.0f) * scaleW, (page == 0 && l == 0 ? first : 0) + h * 12, CustomNpcs.QuestLogColor.getRGB(), false);
 					h++;
 				}
 				GlStateManager.popMatrix();

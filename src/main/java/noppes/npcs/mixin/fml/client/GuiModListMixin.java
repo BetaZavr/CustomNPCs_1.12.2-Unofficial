@@ -36,10 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static net.minecraft.util.text.TextFormatting.RED;
-import static net.minecraft.util.text.TextFormatting.WHITE;
-
-@Mixin(value = GuiModList.class, remap = false)
+@Mixin(value = GuiModList.class, remap = false, priority = 499)
 public class GuiModListMixin {
 
     @Shadow
@@ -57,6 +54,7 @@ public class GuiModListMixin {
     private Constructor<?> npsc$infoConstructor;
 
     @Inject(method = "updateCache", at = @At("HEAD"), cancellable = true)
+    @SuppressWarnings("all")
     public void npcs$updateCache(CallbackInfo ci) {
         try {
             Minecraft mc = Minecraft.getMinecraft();

@@ -94,9 +94,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 				break;
 			}
 			case 5: { // Deal settings
-				if (scrollAllDeals.getSelect() < 0 || dealId < 0) {
-					return;
-				}
+				if (dealId < 0) { return; }
 				SubGuiNPCManageDeal.parent = this;
 				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, marcetId, dealId, 0);
 				close();

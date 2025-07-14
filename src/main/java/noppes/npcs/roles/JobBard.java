@@ -1,5 +1,6 @@
 package noppes.npcs.roles;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -83,7 +84,11 @@ public class JobBard extends JobInterface implements IJobBard {
 			} else {
 				aabb = new AxisAlignedBB(aabb.minX - this.minPos[0], aabb.minY - this.minPos[1], aabb.minZ - this.minPos[2], aabb.maxX + this.minPos[0], aabb.maxY + this.minPos[1], aabb.maxZ + this.minPos[2]);
 			}
-			List<EntityPlayer> list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
+			List<EntityPlayer> list = new ArrayList<>();
+			try {
+				list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
+			}
+			catch (Exception ignored) { }
 			if (!list.contains(CustomNpcs.proxy.getPlayer())) {
 				return;
 			}
@@ -110,7 +115,11 @@ public class JobBard extends JobInterface implements IJobBard {
 							aabb.minZ - this.minPos[2], aabb.maxX + this.minPos[0], aabb.maxY + this.minPos[1],
 							aabb.maxZ + this.minPos[2]);
 				}
-				List<EntityPlayer> list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
+				List<EntityPlayer> list = new ArrayList<>();
+				try {
+					list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
+				}
+				catch (Exception ignored) { }
 				if (list.contains(CustomNpcs.proxy.getPlayer())) {
 					String mSong = this.isStreamer ? mData.song : mData.music;
 					if (mSong.equals(this.song)) {
@@ -140,7 +149,11 @@ public class JobBard extends JobInterface implements IJobBard {
 						aabb.minZ - this.maxPos[2], aabb.maxX + this.maxPos[0], aabb.maxY + this.maxPos[1],
 						aabb.maxZ + this.maxPos[2]);
 			}
-			List<EntityPlayer> list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
+			List<EntityPlayer> list = new ArrayList<>();
+			try {
+				list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
+			}
+			catch (Exception ignored) { }
 			if (!list.contains(CustomNpcs.proxy.getPlayer())) {
 				mData.stopSound(this.song, this.isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
 			}

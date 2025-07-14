@@ -3,9 +3,14 @@ package noppes.npcs.util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
+import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
+import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.api.wrapper.BlockWrapper;
+import noppes.npcs.api.wrapper.WrapperNpcAPI;
 import noppes.npcs.entity.EntityNPCInterface;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -26,8 +31,8 @@ public class DataDebug {
 			Long[] arr = times.get(eventName).get(eventTarget);
 			arr[0]++;
 			long r = System.currentTimeMillis() - starters.get(key);
-			arr[1] += r;
-			if (max < arr[1]) { max = arr[1]; }
+			if (arr[1] < r) { arr[1] = r; }
+			if (max < r) { max = r; }
 			times.get(eventName).put(eventTarget, arr);
 			starters.put(key, 0L);
 		}
@@ -55,9 +60,11 @@ public class DataDebug {
 	private final Map<Side, Debug> data = new HashMap<>();
 
 	public void end(Object target, Object obj, String methodName) {
-		if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.FreezesDebug) { return; }
 		try {
-			Side side = Util.instance.getSide();
+			Side side = methodName.equals("findChunksForSpawning") || methodName.equals("performWorldGenSpawning") ?
+					Side.SERVER :
+					Util.instance.getSide();
 			if (!data.containsKey(side)) { return; }
 			data.get(side).end(getKey(obj), (methodName.isEmpty() ? "" : methodName + "_") + getKey(target));
 		}
@@ -65,9 +72,11 @@ public class DataDebug {
 	}
 
 	public void start(Object target, Object obj, String methodName) {
-		if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.FreezesDebug) { return; }
 		try {
-			Side side = Util.instance.getSide();
+			Side side = methodName.equals("findChunksForSpawning") || methodName.equals("performWorldGenSpawning") ?
+					Side.SERVER :
+					Util.instance.getSide();
 			if (!data.containsKey(side)) { data.put(side, new Debug()); }
 			data.get(side).start(getKey(obj), (methodName.isEmpty() ? "" : methodName + "_") + getKey(target));
 		}
@@ -75,7 +84,7 @@ public class DataDebug {
 	}
 
 	public void stop() {
-		if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.FreezesDebug) { return; }
 		for (Side side : data.keySet()) {
 			for (String k : data.get(side).starters.keySet()) {
 				data.get(side).end(k.substring(0, k.indexOf(':')), k.substring(k.indexOf(':') + 1));
@@ -88,21 +97,20 @@ public class DataDebug {
 		data.clear();
 	}
 
-	public List<String> logging() {
-		List<String> list = new ArrayList<>();
-		if (!CustomNpcs.VerboseDebug) { return list; }
+	public List<String> logging(Logger logger) {
+		if (!CustomNpcs.FreezesDebug || data.isEmpty()) { return new ArrayList<>(); }
 		String temp = CustomNpcs.MODNAME + " debug information output:";
-		list.add(temp);
+		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
 		stop();
 		boolean start = false;
+		List<String> list = new ArrayList<>();
 		for (Side side : data.keySet()) {
 			if (start) {
-				list.add("----   ----  ----");
-				LogWriter.info("");
+				temp = "----   ----   ----";
+				if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
 			}
-			temp += "\nShowing Monitoring results for \"" + side.name()
-					+ "\" side. |Number - EventName: { [Target name, Runs, Average time] }|:";
-			list.add(temp);
+			temp = "Showing Monitoring results for \"" + side.name() + "\" side. |Number - EventName: { [Target name, Runs, Average time] }|:";
+			if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
 			List<String> events = new ArrayList<>(data.get(side).times.keySet());
 			Collections.sort(events);
 			int i = 0;
@@ -117,10 +125,14 @@ public class DataDebug {
 				int s = 0;
 				for (String target : targets) {
 					Long[] time = data.get(side).times.get(eventName).get(target);
-					if (time[0] <= 0) {
-						time[0] = 1L;
-					}
-					log.append("  [").append(target).append(", ").append(time[0]).append(", ").append(Util.instance.ticksToElapsedTime(time[1], true, false, false)).append("]");
+					if (time[0] <= 0) { time[0] = 1L; }
+					log.append("  [")
+							.append(target)
+							.append(", ")
+							.append(time[0])
+							.append(", ")
+							.append(Util.instance.ticksToElapsedTime(time[1], true, false, false))
+							.append("]");
 					if (s < targets.size() - 1) { log.append(";\n"); }
 					if (time[1] == dd.max) {
 						maxName[0] = "\"" + eventName + "|" + target + "\": " + time[0] + " runs; time \"" + Util.instance.ticksToElapsedTime(time[1], true, false, false)+"\"";
@@ -131,17 +143,34 @@ public class DataDebug {
 					}
 					s++;
 				}
-				temp += "\n [" + (i + 1) + "/" + events.size() + "] - \"" + eventName + "\": " + log;
-				list.add(temp);
+				temp = " ["+ (i + 1) + "/" + events.size() + "] - \"" + eventName + "\": " + log;
+				if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
 				i++;
 			}
-			temp += "\n \"" + side.name() + "\" a long time [" + maxName[0] + "]";
+			temp = " \"" + side.name() + "\" a long time [" + maxName[0] + "]";
 			list.add(temp);
-			temp += "\n \"" + side.name() + "\" most often: [" + maxName[1] + "]";
+			if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+			temp = " \"" + side.name() + "\" most often: [" + maxName[1] + "]";
 			list.add(temp);
+			if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
 			start = true;
 		}
-		LogWriter.info(temp);
+		temp = "BlockWrapper.blockCache: " + BlockWrapper.blockCache.size();
+		list.add(temp);
+		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+		temp = "WrapperNpcAPI.worldCache: " + WrapperNpcAPI.worldCache.size();
+		list.add(temp);
+		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+		temp = "CommonProxy.downloadableFiles: " + CommonProxy.downloadableFiles.size();
+		list.add(temp);
+		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+		temp = "CommonProxy.availabilityStacks: " + CommonProxy.availabilityStacks.size();
+		list.add(temp);
+		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+		temp = "NoppesUtilPlayer.delaySendMap: " + NoppesUtilPlayer.delaySendMap.size();
+		list.add(temp);
+		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+
 		return list;
 	}
 

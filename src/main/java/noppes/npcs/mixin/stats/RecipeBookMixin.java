@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.BitSet;
 
-@Mixin(value = RecipeBook.class)
+@Mixin(value = RecipeBook.class, priority = 499)
 public class RecipeBookMixin implements IRecipeBookMixin {
 
     @Mutable

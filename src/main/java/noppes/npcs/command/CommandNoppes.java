@@ -1,6 +1,5 @@
 package noppes.npcs.command;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 import net.minecraft.command.CommandBase;
@@ -22,48 +21,52 @@ import javax.annotation.Nonnull;
 public class CommandNoppes extends CommandBase {
 
 	public CmdHelp help;
-	public Map<String, CommandNoppesBase> map;
+	public final Map<String, CommandNoppesBase> map = new HashMap<>();
 
 	public CommandNoppes() {
-		this.map = new HashMap<>();
-		this.help = new CmdHelp(this);
-		this.registerCommand(this.help);
-		this.registerCommand(new CmdScript());
-		this.registerCommand(new CmdScene());
-		this.registerCommand(new CmdSlay());
-		this.registerCommand(new CmdQuest());
-		this.registerCommand(new CmdDialog());
-		this.registerCommand(new CmdSchematics());
-		this.registerCommand(new CmdFaction());
-		this.registerCommand(new CmdNPC());
-		this.registerCommand(new CmdClone());
-		this.registerCommand(new CmdConfig());
-		this.registerCommand(new CmdMark());
-		this.registerCommand(new CmdDimensions());
-		this.registerCommand(new CmdPlayers());
-		this.registerCommand(new CmdDebug());
+		help = new CmdHelp(this);
+		registerCommand(help);
+		registerCommand(new CmdScript());
+		registerCommand(new CmdScene());
+		registerCommand(new CmdSlay());
+		registerCommand(new CmdQuest());
+		registerCommand(new CmdDialog());
+		registerCommand(new CmdSchematics());
+		registerCommand(new CmdFaction());
+		registerCommand(new CmdNPC());
+		registerCommand(new CmdClone());
+		registerCommand(new CmdConfig());
+		registerCommand(new CmdMark());
+		registerCommand(new CmdDimensions());
+		registerCommand(new CmdPlayers());
 	}
+
+	@Override
+	public @Nonnull String getName() { return "noppes"; }
+
+	@Override
+	public int getRequiredPermissionLevel() { return 0; }
 
 	@Override
 	public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args) throws CommandException {
 		if (args.length == 0) {
-			this.help.execute(server, sender, args);
+			help.execute(server, sender, args);
 			return;
 		}
 		CommandNoppesBase command = getCommand(args);
-		if (command == null) {
-			throw new CommandException("Unknown command " + args[0]);
-		}
+		if (command == null) { throw new CommandException("Unknown command " + args[0]); }
+
 		args = Arrays.copyOfRange(args, 1, args.length);
 		if (command.subcommands.isEmpty() || !command.runSubCommands()) {
-			if (command.getRequiredPermissionLevel() > this.getPermissionLevel(server, sender)) {
+			if (command.getRequiredPermissionLevel() > getPermissionLevel(server, sender)) {
+				LogWriter.debug("TEST: ");
 				throw new CommandException("You are not allowed to use \""+command.getName().toLowerCase()+"\" command");
 			}
 			command.canRun(server, sender, command.getUsage(), args);
 			command.execute(server, sender, args);
 		} else {
 			if (args.length == 0) {
-				this.help.execute(server, sender, new String[] { command.getName() });
+				help.execute(server, sender, new String[] { command.getName() });
 				return;
 			}
 			command.executeSub(server, sender, args[0], Arrays.copyOfRange(args, 1, args.length));
@@ -76,46 +79,43 @@ public class CommandNoppes extends CommandBase {
 	}
 
 	@Override
-	public @Nonnull String getName() {
-		return "noppes";
-	}
-
-	@Override
-	public int getRequiredPermissionLevel()
-	{
-		return 0;
-	}
-
-	@Override
 	public @Nonnull List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, BlockPos pos) {
+		int per = getPermissionLevel(server, sender);
 		if (args.length == 1) {
-			int per = this.getPermissionLevel(server, sender);
 			List<String> list = new ArrayList<>();
-			for (Map.Entry<String, CommandNoppesBase> entry : this.map.entrySet()) {
+			for (Map.Entry<String, CommandNoppesBase> entry : map.entrySet()) {
 				if (entry.getValue().getRequiredPermissionLevel() > per) { continue; }
 				list.add(entry.getKey());
 			}
-			return list;
+			return CommandBase.getListOfStringsMatchingLastWord(args, list);
 		}
+
 		CommandNoppesBase command = getCommand(args);
 		if (command == null) { return new ArrayList<>(); }
+
 		if (args.length == 2 && command.runSubCommands()) {
-			return CommandBase.getListOfStringsMatchingLastWord(args, command.subcommands.keySet());
+			List<String> list = new ArrayList<>();
+			for (String name : command.subcommands.keySet()) {
+				CommandNoppesBase.SubCommand sc = command.subcommands.get(name).getAnnotation(CommandNoppesBase.SubCommand.class);
+				if (sc == null || sc.permission() > per) { continue; }
+				list.add(name);
+			}
+			return CommandBase.getListOfStringsMatchingLastWord(args, list);
 		}
+
 		String[] useArgs = command.getUsage().split(" ");
 		if (command.runSubCommands()) {
-			Method m = command.subcommands.get(args[1].toLowerCase());
-			if (m != null) {
-				useArgs = m.getAnnotation(CommandNoppesBase.SubCommand.class).usage().split(" ");
+			CommandNoppesBase.SubCommand sc = command.subcommands.get(args[1].toLowerCase()).getAnnotation(CommandNoppesBase.SubCommand.class);
+			if (sc != null) {
+				useArgs = sc.usage().split(" ");
 			}
 		}
 		int s = 3;
 		if (command.getName().equals("faction")) { s = 2; }
+
 		int p = args.length - s;
-		LogWriter.debug("TEST: "+p+"; "+Arrays.toString(useArgs));
 		if (p >= 0 && p < useArgs.length) {
 			String usage = useArgs[p];
-			LogWriter.debug("TEST: "+usage);
             switch (usage) {
                 case "<player>":
                 case "[player]":
@@ -156,17 +156,15 @@ public class CommandNoppes extends CommandBase {
 
 	public void registerCommand(CommandNoppesBase command) {
 		String name = command.getName().toLowerCase();
-		if (this.map.containsKey(name)) { throw new CustomNPCsException("Already a subcommand with the name: " + name); }
-		this.map.put(name, command);
+		if (map.containsKey(name)) { throw new CustomNPCsException("Already a subcommand with the name: " + name); }
+		map.put(name, command);
 	}
 
 	@Override
 	public boolean checkPermission(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender) {
-		int thisPer = this.getRequiredPermissionLevel();
-		if (sender instanceof EntityPlayerMP) {
-			return thisPer <= this.getPermissionLevel(server, sender);
-		}
-		return sender.canUseCommand(thisPer, this.getName());
+		int thisPer = getRequiredPermissionLevel();
+		if (sender instanceof EntityPlayerMP) { return thisPer <= getPermissionLevel(server, sender); }
+		return sender.canUseCommand(thisPer, getName());
 	}
 
 	@SuppressWarnings("all")
@@ -174,11 +172,9 @@ public class CommandNoppes extends CommandBase {
 		int per = 4;
 		if (sender instanceof EntityPlayerMP) {
 			per = 0;
-			if (((EntityPlayerMP) sender).isCreative()) { per = server.isSinglePlayer() ? 4 : 2; }
-			else {
-				UserListOpsEntry util = server.getPlayerList().getOppedPlayers().getEntry(((EntityPlayerMP) sender).getGameProfile());
-				if (util != null) { per = util.getPermissionLevel(); }
-			}
+			UserListOpsEntry util = server.getPlayerList().getOppedPlayers().getEntry(((EntityPlayerMP) sender).getGameProfile());
+			if (util != null) { per = util.getPermissionLevel(); }
+			if (((EntityPlayerMP) sender).isCreative()) { per = Math.max(server.isSinglePlayer() ? 4 : 2, per); }
 		}
 		return per;
 	}

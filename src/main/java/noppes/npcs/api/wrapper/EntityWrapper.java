@@ -43,7 +43,11 @@ import noppes.npcs.controllers.ServerCloneController;
 public class EntityWrapper<T extends Entity> implements IEntity {
 
 	public static IEntity[] findEntityOnPath(Entity entity, double distance, Vec3d vec3d, Vec3d vec3d1) {
-		List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, entity.getEntityBoundingBox().grow(distance));
+		List<Entity> list = new ArrayList<>();
+		try {
+			list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, entity.getEntityBoundingBox().grow(distance));
+		}
+		catch (Exception ignored) { }
 		List<IEntity> result = new ArrayList<>();
 		for (Entity entity1 : list) {
 			if (entity1.canBeCollidedWith() && entity1 != entity) {

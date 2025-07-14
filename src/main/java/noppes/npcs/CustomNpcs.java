@@ -293,6 +293,8 @@ public class CustomNpcs {
 	public static DimensionType customDimensionType;
 	public static ModContainer mod;
 	public static final VisibilityController visibilityController = new VisibilityController();
+
+	public static final boolean FreezesDebug = true;
 	
 	public static int colorAnimHoverPart = new Color(0xFFFA7800).getRGB();
     public static int PanoramaNumbers = 4;
@@ -406,7 +408,7 @@ public class CustomNpcs {
 		CustomNpcs.proxy.preload();
 		RangedAttributeReflection.setMaxValue((RangedAttribute) SharedMonsterAttributes.MAX_HEALTH, Double.MAX_VALUE);
 		DataObject.load();
-		CustomNpcs.debugData.start("Mod", CustomNpcs.class, "preload");
+		CustomNpcs.debugData.end("Mod", CustomNpcs.class, "preload");
 	}
 
 	@Mod.EventHandler
@@ -534,7 +536,6 @@ public class CustomNpcs {
 		BankController.getInstance().update();
 		RecipeController.getInstance().checkSaves();
 		CustomNpcs.debugData.end("Mod", this, "stopped");
-		CustomNpcs.debugData.logging();
 		CustomNpcs.Server = null;
 	}
 

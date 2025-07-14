@@ -204,7 +204,6 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
-//System.out.println("buttonID: "+button.id);
 		switch (button.getID()) {
 			case 0: {
 				blockType = button.getValue();
@@ -771,7 +770,6 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	public void confirmClicked(boolean result, int id) {
 		displayGuiScreen(parent);
 		if (!result) { return; }
-//System.out.println("buttonID: "+id);
 		switch (id) {
 			case 0: {
 				if (anim == null || frame == null || anim.frames.size() <= 1) {
@@ -2889,7 +2887,11 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				}
 			}
 		}
-		List<Entity> entities = npc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(npc.getPosition()).grow(4.55d, 4.55d, 4.55d));
+		List<Entity> entities = new ArrayList<>();
+		try {
+			entities = npc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(npc.getPosition()).grow(4.55d, 4.55d, 4.55d));
+		}
+		catch (Exception ignored) { }
 		for (Entity e : entities) {
 			if (e.equals(npc)) {
 				continue;

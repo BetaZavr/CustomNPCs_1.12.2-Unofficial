@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
@@ -40,17 +41,29 @@ public class EntityAIWatchClosest extends EntityAIBase {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean shouldExecute() {
-		if (npc.getRNG().nextFloat() >= chance || npc.isInteracting()) { return false; }
+		CustomNpcs.debugData.start(npc, this, "shouldExecute");
+		if (npc.getRNG().nextFloat() >= chance || npc.isInteracting()) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
+			return false;
+		}
 		if (npc.getAttackTarget() != null) { closestEntity = npc.getAttackTarget(); }
 		else {
-			if (npc.isMoving() || npc.ais.getStandingType() != 0 && npc.ais.getStandingType() != 2) { return false; }
+			if (npc.isMoving() || npc.ais.getStandingType() != 0 && npc.ais.getStandingType() != 2) {
+				CustomNpcs.debugData.end(npc, this, "shouldExecute");
+				return false;
+			}
 			if (watchedClass == EntityPlayer.class) { closestEntity = npc.world.getClosestPlayerToEntity(npc, maxDistance); }
 			else { closestEntity = npc.world.findNearestEntityWithinAABB((Class<Entity>) watchedClass, npc.getEntityBoundingBox().grow(maxDistance, 3.0, maxDistance), npc); }
 		}
 		if (closestEntity != null) {
-			if (closestEntity instanceof EntityLivingBase) { return Util.instance.npcCanSeeTarget(npc, (EntityLivingBase) closestEntity, false, false); }
+			if (closestEntity instanceof EntityLivingBase) {
+				CustomNpcs.debugData.end(npc, this, "shouldExecute");
+				return Util.instance.npcCanSeeTarget(npc, (EntityLivingBase) closestEntity, false, false);
+			}
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return npc.canSee(closestEntity);
 		}
+		CustomNpcs.debugData.end(npc, this, "shouldExecute");
 		return false;
 	}
 
@@ -61,8 +74,10 @@ public class EntityAIWatchClosest extends EntityAIBase {
 
 	@Override
 	public void updateTask() {
+		CustomNpcs.debugData.start(npc, this, "updateTask");
 		npc.getLookHelper().setLookPosition(closestEntity.posX, closestEntity.posY + closestEntity.getEyeHeight(), closestEntity.posZ, 10.0f, npc.getVerticalFaceSpeed());
 		--lookTime;
+		CustomNpcs.debugData.end(npc, this, "updateTask");
 	}
 
 }

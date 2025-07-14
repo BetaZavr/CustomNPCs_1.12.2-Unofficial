@@ -1,6 +1,7 @@
 package noppes.npcs.ai;
 
 import net.minecraft.entity.ai.EntityAIBase;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIJob extends EntityAIBase {
@@ -37,9 +38,11 @@ public class EntityAIJob extends EntityAIBase {
 	}
 
 	public void updateTask() {
+		CustomNpcs.debugData.start(npc, this, "updateTask");
 		if (this.npc.advanced.jobInterface != null) {
 			this.npc.advanced.jobInterface.aiUpdateTask();
 		}
+		CustomNpcs.debugData.end(npc, this, "updateTask");
 	}
 
 }

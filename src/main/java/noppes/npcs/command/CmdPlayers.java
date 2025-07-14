@@ -30,7 +30,7 @@ public class CmdPlayers extends CommandNoppesBase {
 		return 2;
 	}
 
-	@SubCommand(desc = "Change the player's virtual currency balance", usage = "<playername> <value>")
+	@SubCommand(desc = "Change the player's virtual currency balance", usage = "<playername> <value>", permission = 2)
 	public void addmoney(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		Object[] objs = this.getPlayerData(server, sender, args[0]);
 		PlayerData playerdata = (PlayerData) objs[0];
@@ -52,7 +52,7 @@ public class CmdPlayers extends CommandNoppesBase {
 		return "Player mod data";
 	}
 
-	@SubCommand(desc = "Shows the player's virtual currency balance", usage = "<playername>")
+	@SubCommand(desc = "Shows the player's virtual currency balance", usage = "<playername>", permission = 2)
 	public void getmoney(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		Object[] objs = this.getPlayerData(server, sender, args[0]);
 		PlayerData playerdata = (PlayerData) objs[0];
@@ -98,7 +98,7 @@ public class CmdPlayers extends CommandNoppesBase {
 		return list;
 	}
 
-	@SubCommand(desc = "Show the store window to the player", usage = "<playername> <marcetID>")
+	@SubCommand(desc = "Show the store window to the player", usage = "<playername> <marcetID>", permission = 2)
 	public void openmarcet(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		EntityPlayerMP player;
 		try {

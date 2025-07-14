@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(value = PositionedSound.class)
+@Mixin(value = PositionedSound.class, priority = 499)
 public class PositionedSoundMixin implements IPositionedSoundMixin {
 
     @Mutable

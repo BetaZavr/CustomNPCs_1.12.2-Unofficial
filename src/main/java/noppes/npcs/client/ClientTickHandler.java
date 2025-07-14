@@ -113,7 +113,6 @@ public class ClientTickHandler {
 				ClientTickHandler.inGame = false;
 				ScriptController.Instance.clientScripts.saveDefaultScripts();
 				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGOUT, new PlayerEvent.LogoutEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player)));
-				if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.logging(); }
 			} else if (!ScriptController.Instance.clientScripts.loadDefault) {
 				ScriptController.Instance.clientScripts.loadDefaultScripts();
 			}

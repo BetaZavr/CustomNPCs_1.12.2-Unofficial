@@ -365,7 +365,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 			else { // custom targets
 				for (AxisAlignedBB aabb : aabbs) {
-                    entityList.addAll(world.getEntitiesWithinAABB(Entity.class, aabb));
+					List<Entity> list = new ArrayList<>();
+					try {
+						list = world.getEntitiesWithinAABB(Entity.class, aabb);
+					}
+					catch (Exception ignored) { }
+                    entityList.addAll(list);
 				}
 				entityList.remove(this);
 			}
@@ -499,7 +504,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				boolean check = false;
 				if (!(attackingEntity instanceof EntityPlayer) || !((EntityPlayer) attackingEntity).capabilities.disableDamage) {
 					if (damage > 0.0f) {
-						List<EntityNPCInterface> inRange = this.world.getEntitiesWithinAABB(EntityNPCInterface.class, this.getEntityBoundingBox().grow(32.0, 16.0, 32.0));
+						List<EntityNPCInterface> inRange = new ArrayList<>();
+						try {
+							inRange = world.getEntitiesWithinAABB(EntityNPCInterface.class, this.getEntityBoundingBox().grow(32.0, 16.0, 32.0));
+						}
+						catch (Exception ignored) { }
 						for (EntityNPCInterface npc : inRange) {
 							if (npc.equals(this)) { continue; }
 							npc.advanced.tryDefendFaction(this.faction.id, this, attackingEntity);
@@ -1231,7 +1240,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		} else {
 			axisalignedbb = this.getEntityBoundingBox().grow(1.0, 0.5, 1.0);
 		}
-		List<EntityLivingBase> list = this.world.getEntitiesWithinAABB(EntityLivingBase.class, axisalignedbb);
+		List<EntityLivingBase> list = new ArrayList<>();
+		try {
+			list = world.getEntitiesWithinAABB(EntityLivingBase.class, axisalignedbb);
+		}
+		catch (Exception ignored) { }
         for (Entity entity : list) {
             if (entity != this && entity.isEntityAlive()) {
                 EventHooks.onNPCCollide(this, entity);
@@ -1349,10 +1362,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public void onLivingUpdate() {
 		if (CustomNpcs.FreezeNPCs) { return; }
-		CustomNpcs.debugData.start(EntityNPCInterface.class, this, "onLivingUpdate");
 		if (isAIDisabled()) {
 			super.onLivingUpdate();
-			CustomNpcs.debugData.end(EntityNPCInterface.class, this, "onLivingUpdate");
 			return;
 		}
 		++this.totalTicksAlive;
@@ -1378,7 +1389,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 						}
 					}
 					if (this.faction.getsAttacked && !this.isAttacking()) {
-						List<EntityMob> list = this.world.getEntitiesWithinAABB(EntityMob.class, this.getEntityBoundingBox().grow(16.0, 16.0, 16.0));
+						List<EntityMob> list = new ArrayList<>();
+						try {
+							list = this.world.getEntitiesWithinAABB(EntityMob.class, this.getEntityBoundingBox().grow(16.0, 16.0, 16.0));
+						}
+						catch (Exception ignored) { }
 						for (EntityMob mob : list) {
 							if (mob.getAttackTarget() == null && this.canSee(mob)) {
 								mob.setAttackTarget(this);
@@ -1498,7 +1513,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (this.display.getBossbar() > 0) {
 			this.bossInfo.setPercent(this.getHealth() / this.getMaxHealth());
 		}
-		CustomNpcs.debugData.end(EntityNPCInterface.class, this, "onLivingUpdate");
 	}
 
 	@Override
@@ -1567,9 +1581,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 		}
 		this.wasKilled = this.isKilled();
-		if (this.currentAnimation == 14) {
-			this.deathTime = 19;
-		}
+		if (currentAnimation == 14) { deathTime = 19; }
 		CustomNpcs.debugData.end(EntityNPCInterface.class, this, "onUpdate");
 	}
 
@@ -1868,7 +1880,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 			line.setText(event.getComponent().getUnformattedText().replace("%%", "%"));
 		}
-		List<EntityPlayer> inRange = this.world.getEntitiesWithinAABB(EntityPlayer.class, this.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
+		List<EntityPlayer> inRange = new ArrayList<>();
+		try {
+			inRange = this.world.getEntitiesWithinAABB(EntityPlayer.class, this.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
+		}
+		catch (Exception ignored) { }
 		for (EntityPlayer player : inRange) {
 			this.say(player, line);
 		}
@@ -2158,12 +2174,14 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public void updateAiClient() {
 		if (!isServerWorld() || aiAttackTarget == null) { return; }
+		CustomNpcs.debugData.start(this, "EntityNPCInterface", "updateAiClient");
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("EntityId", this.getEntityId());
 		aiAttackTarget.writeToClientNBT(compound);
 		if (compound.getKeySet().size() > 1) {
 			Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_AI_TARGET, compound);
 		}
+		CustomNpcs.debugData.end(this, "EntityNPCInterface", "updateAiClient");
 	}
 
 	public void updateAnimationClient() {
@@ -2234,7 +2252,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public void updateTargetClient() {
 		if (!isServerWorld()) { return; }
+		CustomNpcs.debugData.start(this, "EntityNPCInterface", "updateTargetClient");
 		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_TARGET, getEntityId(), getAttackTarget() != null ? getAttackTarget().getEntityId() : -1);
+		CustomNpcs.debugData.end(this, "EntityNPCInterface", "updateTargetClient");
 	}
 
 	private void updateTasks() {

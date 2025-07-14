@@ -35,11 +35,19 @@ public class RolePostman extends RoleInterface implements IRolePostman {
 			return false;
 		}
         List<EntityPlayer> toCheck;
-        (toCheck = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
-				this.npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0))).removeAll(this.recentlyChecked);
+		List<EntityPlayer> list = new ArrayList<>();
+		try {
+			list = npc.world.getEntitiesWithinAABB(EntityPlayer.class, npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0));
+		}
+		catch (Exception ignored) { }
+        (toCheck = list).removeAll(this.recentlyChecked);
 
-		List<EntityPlayer> listMax = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
-				this.npc.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
+		List<EntityPlayer> listMax = new ArrayList<>();
+		try {
+			listMax = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
+					this.npc.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
+		}
+		catch (Exception ignored) { }
 		this.recentlyChecked.retainAll(listMax);
 		this.recentlyChecked.addAll(toCheck);
 		for (EntityPlayer player : toCheck) {

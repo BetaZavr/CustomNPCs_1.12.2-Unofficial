@@ -271,7 +271,7 @@ public class TrueTypeFont {
 			}
 			cache.height = Math.max(cache.height, g2.height);
 		}
-		this.textcache.put(text, cache);
+		textcache.put(text, cache);
 		return cache;
 	}
 
@@ -307,7 +307,7 @@ public class TrueTypeFont {
 		cache.g.drawString(c + "", g.x, g.y + metrics.getAscent());
 		g.texture = cache.textureId;
 		TextureUtil.uploadTextureImage(cache.textureId, cache.bufferedImage);
-		this.glyphcache.put(c, g);
+		glyphcache.put(c, g);
 		return g;
 	}
 

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.Map;
 import java.util.UUID;
 
-@Mixin(value = NetHandlerPlayClient.class)
+@Mixin(value = NetHandlerPlayClient.class, priority = 499)
 public class NetHandlerPlayClientMixin implements INetHandlerPlayClientMixin {
 
     @Final

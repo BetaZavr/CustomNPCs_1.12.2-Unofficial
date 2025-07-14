@@ -84,6 +84,11 @@ public class Server {
 		Server.list.add(EnumPacketClient.ANIMATION_DATA_STOP_EMOTION);
 		Server.list.add(EnumPacketClient.SCRIPT_CONSOLE);
 		Server.list.add(EnumPacketClient.SCRIPT_CODE);
+		Server.list.add(EnumPacketClient.GUI);
+		Server.list.add(EnumPacketClient.GUI_DATA);
+		Server.list.add(EnumPacketClient.SCROLL_DATA);
+		Server.list.add(EnumPacketClient.SCROLL_SELECTED);
+		Server.list.add(EnumPacketClient.EDIT_NPC);
 	}
 
 	public static boolean fillBuffer(ByteBuf buffer, Enum<?> type, Object... obs) throws Exception {
@@ -366,7 +371,11 @@ public class Server {
 	}
 
 	public static void sendAssociatedData(Entity entity, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = entity.world.getEntitiesWithinAABB(EntityPlayerMP.class, entity.getEntityBoundingBox().grow(160.0, 160.0, 160.0));
+		List<EntityPlayerMP> list = new ArrayList<>();
+		try {
+			list = entity.world.getEntitiesWithinAABB(EntityPlayerMP.class, entity.getEntityBoundingBox().grow(160.0, 160.0, 160.0));
+		}
+		catch (Exception ignored) { }
 		if (list.isEmpty()) { return; }
 		ByteBuf buffer = Unpooled.buffer();
 		try {

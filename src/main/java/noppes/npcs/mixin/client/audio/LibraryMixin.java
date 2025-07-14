@@ -8,7 +8,7 @@ import paulscode.sound.Source;
 
 import java.util.HashMap;
 
-@Mixin(value = Library.class, remap = false)
+@Mixin(value = Library.class, remap = false, priority = 499)
 public class LibraryMixin implements ILibraryMixin {
 
     @Shadow

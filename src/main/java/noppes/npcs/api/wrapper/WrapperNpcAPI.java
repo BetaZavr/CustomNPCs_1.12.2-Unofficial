@@ -73,7 +73,7 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	public static EventBus EVENT_BUS = new EventBus();
 	private static NpcAPI instance = null;
-	static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<>(10);
+	public static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<>(10);
 	private final List<World> worlds = Lists.newArrayList();
 
 	public static void clearCache() {
@@ -360,6 +360,7 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
+	@SuppressWarnings("all")
 	public INbt getRawPlayerData(String uuid, String name) {
 		if  (CustomNpcs.Server != null) {
 			UUID uuidMC;

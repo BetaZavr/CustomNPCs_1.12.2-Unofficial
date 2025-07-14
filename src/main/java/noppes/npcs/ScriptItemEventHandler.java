@@ -19,7 +19,7 @@ public class ScriptItemEventHandler {
 		if (!stack.isEmpty() && (stack.getItem() == CustomRegisters.scripted_item)) {
 			EventHooks.onScriptItemPickedUp(ItemScripted.GetWrapper(stack), event.getEntityPlayer(), entity);
 		}
-		CustomNpcs.debugData.start("Mod", this, "npcItemPickup");
+		CustomNpcs.debugData.end("Mod", this, "npcItemPickup");
 	}
 
 	@SubscribeEvent

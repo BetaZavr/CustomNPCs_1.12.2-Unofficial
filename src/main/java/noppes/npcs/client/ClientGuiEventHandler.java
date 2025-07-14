@@ -1344,7 +1344,11 @@ public class ClientGuiEventHandler extends Gui {
 							type = 7;
 						} else {
 							AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(64.0d, 128.0d, 64.0d);
-							List<EntityLivingBase> ents = mc.world.getEntitiesWithinAABB(EntityNPCInterface.class, bb);
+							List<EntityLivingBase> ents = new ArrayList<>();
+							try {
+								ents = mc.world.getEntitiesWithinAABB(EntityNPCInterface.class, bb);
+							}
+							catch (Exception ignored) { }
 							final EntityLivingBase et = getEntityLivingBase(p, ents, qData);
 							if (et != null) {
 								p[0] = et.posX;
@@ -1360,7 +1364,11 @@ public class ClientGuiEventHandler extends Gui {
 				EntityLivingBase e = null;
 				AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(range,
 						1.5d, range);
-				List<EntityLivingBase> ents = mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+				List<EntityLivingBase> ents = new ArrayList<>();
+				try {
+					ents = mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+				}
+				catch (Exception ignored) { }
 				if (n.equals("Player")) {
 					EntityPlayer pl = mc.world.getClosestPlayerToEntity(mc.player, 32.0d);
 					if (pl != null && pl.getActivePotionEffect(  Objects.requireNonNull(Potion.getPotionFromResourceLocation("minecraft:invisibility"))) == null) {
@@ -1387,7 +1395,11 @@ public class ClientGuiEventHandler extends Gui {
                     }
 					if (et == null) {
 						bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(range, range, range);
-						ents = mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+						ents.clear();
+						try {
+							ents = mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+						}
+						catch (Exception ignored) { }
 						d = range * range * range;
 						for (EntityLivingBase el : ents) {
 							if (!el.getName().equals(n)) {
@@ -1724,7 +1736,11 @@ public class ClientGuiEventHandler extends Gui {
 		ItemStack offStack = mc.player.getHeldItemOffhand();
 		if (CustomNpcs.ShowHitboxWhenHoldTools && mainStack.getItem() instanceof INPCToolItem || offStack.getItem() instanceof INPCToolItem) {
 			AxisAlignedBB aabb = new AxisAlignedBB(-5.0, -5.0, -5.0, 5.0, 5.0, 5.0).offset(mc.player.getPosition());
-			List<Entity> list = mc.player.world.getEntitiesWithinAABB(Entity.class, aabb);
+			List<Entity> list = new ArrayList<>();
+			try {
+				list = mc.player.world.getEntitiesWithinAABB(Entity.class, aabb);
+			}
+			catch (Exception ignored) { }
 			list.remove(mc.player);
 			Entity rayTrE;
 			if (mc.objectMouseOver == null || mc.objectMouseOver.entityHit == null) {
@@ -1737,6 +1753,7 @@ public class ClientGuiEventHandler extends Gui {
 			GlStateManager.glLineWidth(2.0F);
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
+
 			GlStateManager.translate(-dx, -dy, -dz);
 			for (Entity e : list) {
 				float w = e.width / 2;

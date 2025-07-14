@@ -10,7 +10,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.ForgeChunkManager;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobChunkLoader;
-import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.controllers.ChunkController;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -42,7 +41,11 @@ public class JobChunkLoader extends JobInterface implements IJobChunkLoader {
 			return false;
 		}
 		ticks = 20;
-		List<EntityPlayer> players = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, npc.getEntityBoundingBox().grow(48.0, 48.0, 48.0));
+		List<EntityPlayer> players = new ArrayList<>();
+		try {
+			players = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, npc.getEntityBoundingBox().grow(48.0, 48.0, 48.0));
+		}
+		catch (Exception ignored) { }
 		if (!players.isEmpty()) {
 			playerLastSeen = System.currentTimeMillis();
 		}

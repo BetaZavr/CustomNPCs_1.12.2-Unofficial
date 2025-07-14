@@ -7,6 +7,7 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.constants.AiMutex;
 
 public class EntityAIFindShade extends EntityAIBase {
@@ -18,18 +19,17 @@ public class EntityAIFindShade extends EntityAIBase {
 	private final World world;
 
 	public EntityAIFindShade(EntityCreature par1EntityCreature) {
-		this.theCreature = par1EntityCreature;
-		this.world = par1EntityCreature.world;
-		this.setMutexBits(AiMutex.PASSIVE);
+		theCreature = par1EntityCreature;
+		world = par1EntityCreature.world;
+		setMutexBits(AiMutex.PASSIVE);
 	}
 
 	private Vec3d findPossibleShelter() {
-		Random random = this.theCreature.getRNG();
-		BlockPos blockpos = new BlockPos(this.theCreature.posX, this.theCreature.getEntityBoundingBox().minY,
-				this.theCreature.posZ);
+		Random random = theCreature.getRNG();
+		BlockPos blockpos = new BlockPos(theCreature.posX, theCreature.getEntityBoundingBox().minY, theCreature.posZ);
 		for (int i = 0; i < 10; ++i) {
 			BlockPos blockpos2 = blockpos.add(random.nextInt(20) - 10, random.nextInt(6) - 3, random.nextInt(20) - 10);
-			if (!this.world.canSeeSky(blockpos2) && this.theCreature.getBlockPathWeight(blockpos2) < 0.0f) {
+			if (!world.canSeeSky(blockpos2) && theCreature.getBlockPathWeight(blockpos2) < 0.0f) {
 				return new Vec3d(blockpos2.getX(), blockpos2.getY(), blockpos2.getZ());
 			}
 		}
@@ -37,28 +37,32 @@ public class EntityAIFindShade extends EntityAIBase {
 	}
 
 	public boolean shouldContinueExecuting() {
-		return !this.theCreature.getNavigator().noPath();
+		return !theCreature.getNavigator().noPath();
 	}
 
 	public boolean shouldExecute() {
-		if (!this.world.isDaytime()) {
+		CustomNpcs.debugData.start(theCreature, this, "shouldExecute");
+		if (!world.isDaytime()) {
+			CustomNpcs.debugData.end(theCreature, this, "shouldExecute");
 			return false;
 		}
-		if (!this.world.canSeeSky(new BlockPos(this.theCreature.posX, this.theCreature.getEntityBoundingBox().minY,
-				this.theCreature.posZ))) {
+		if (!world.canSeeSky(new BlockPos(theCreature.posX, theCreature.getEntityBoundingBox().minY, theCreature.posZ))) {
+			CustomNpcs.debugData.end(theCreature, this, "shouldExecute");
 			return false;
 		}
-		Vec3d var1 = this.findPossibleShelter();
+		Vec3d var1 = findPossibleShelter();
 		if (var1 == null) {
+			CustomNpcs.debugData.end(theCreature, this, "shouldExecute");
 			return false;
 		}
-		this.shelterX = var1.x;
-		this.shelterY = var1.y;
-		this.shelterZ = var1.z;
+		shelterX = var1.x;
+		shelterY = var1.y;
+		shelterZ = var1.z;
+		CustomNpcs.debugData.end(theCreature, this, "shouldExecute");
 		return true;
 	}
 
 	public void startExecuting() {
-		this.theCreature.getNavigator().tryMoveToXYZ(this.shelterX, this.shelterY, this.shelterZ, 1.0);
+		theCreature.getNavigator().tryMoveToXYZ(shelterX, shelterY, shelterZ, 1.0);
 	}
 }

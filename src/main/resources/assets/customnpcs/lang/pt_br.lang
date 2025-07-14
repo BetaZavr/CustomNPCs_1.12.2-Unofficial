@@ -552,7 +552,7 @@ color.yellow=Amarelo
 
 command.debug.clear=§7Removidos dados de monitoramento para depuração do mod CustomNpcs Não oficial
 command.debug.false=§7Depurando o mod CustomNpcs Não oficial -§f desativado
-command.debug.show=informações de depuração do mod CustomNpcs Não oficial está localizado no console...
+command.debug.show=§7Informações completas de depuração para o mod CustomNpcs Unofficial estão disponíveis no console...
 command.debug.true=§7Depurando o mod CustomNpcs Não oficial -§f incluído
 command.hover.text=O texto do comando <br> §6/§7 no início da equipe não é obrigatório <br> §6@dp§7 - uma tentativa de se aplicar ao jogador que ativou este evento <br> §7Maximal Comprimento em símbolos: %s
 command.player.addmoney=§7Jogador "%s§7", §cuma moeda %s§7 adicionada . Agora o saldo dele é: %s %s 

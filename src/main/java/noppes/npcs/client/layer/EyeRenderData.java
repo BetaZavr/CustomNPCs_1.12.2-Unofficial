@@ -117,7 +117,6 @@ public class EyeRenderData {
                 pupilX = correctedRadius * Math.cos(angleTheta);
                 pupilY = correctedRadius * Math.sin(angleTheta);
             }
-            //LogWriter.info("TEST: ["+x+", "+y+"]; ["+pupilX+", "+pupilY+"]");
         } else {
             // X
             pupilX = (isLeft ? 1.0 : -1.0) + x;

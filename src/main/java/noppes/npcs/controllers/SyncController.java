@@ -117,7 +117,7 @@ public class SyncController {
 				break;
 			}
 			case Debug: {
-				List<String> list = CustomNpcs.debugData.logging();
+				List<String> list = CustomNpcs.debugData.logging(null);
 				for (String str : list) {
 					player.sendMessage(new TextComponentString(str));
 				}

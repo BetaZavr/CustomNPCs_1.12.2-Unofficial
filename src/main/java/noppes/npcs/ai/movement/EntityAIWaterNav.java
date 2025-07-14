@@ -2,6 +2,7 @@ package noppes.npcs.ai.movement;
 
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.pathfinding.PathNavigateGround;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIWaterNav extends EntityAIBase {
@@ -19,8 +20,10 @@ public class EntityAIWaterNav extends EntityAIBase {
 	}
 
 	public void updateTask() {
+		CustomNpcs.debugData.start(entity, this, "updateTask");
 		if (this.entity.getRNG().nextFloat() < 0.8f) {
 			this.entity.getJumpHelper().setJumping();
 		}
+		CustomNpcs.debugData.end(entity, this, "updateTask");
 	}
 }

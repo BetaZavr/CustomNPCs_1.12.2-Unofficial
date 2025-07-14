@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiMailmanSendSetup;
@@ -318,7 +317,6 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 
 	@Override
 	public void unFocused(IGuiNpcTextField textField) {
-		LogWriter.debug("TEST: "+textField.getID());
 		switch (textField.getID()) {
 			case 1: {
 				StringBuilder t = new StringBuilder(textField.getFullText());

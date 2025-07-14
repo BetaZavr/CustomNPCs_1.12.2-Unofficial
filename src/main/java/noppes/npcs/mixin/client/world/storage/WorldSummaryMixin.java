@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(WorldSummary.class)
+@Mixin(value = WorldSummary.class, priority = 499)
 public class WorldSummaryMixin implements IWorldSummaryMixin {
 
     @Unique

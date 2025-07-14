@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Map;
 
-@Mixin(value = SoundManager.class)
+@Mixin(value = SoundManager.class, priority = 499)
 public class SoundManagerMixin implements ISoundManagerMixin {
 
     @Final

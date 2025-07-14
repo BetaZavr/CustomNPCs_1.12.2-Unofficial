@@ -567,8 +567,13 @@ public class BuilderData {
 		}
 		// remove Entity
 		if (world != null) {
-			for (Entity e : world.getEntitiesWithinAABB(Entity.class,
-					new AxisAlignedBB(mx - 0.5d, my - 0.5d, mz - 0.5d, nx + 0.5d, ny + 1.5d, nz + 1.5d))) {
+			List<Entity> list = new ArrayList<>();
+			try {
+				list = world.getEntitiesWithinAABB(Entity.class,
+						new AxisAlignedBB(mx - 0.5d, my - 0.5d, mz - 0.5d, nx + 0.5d, ny + 1.5d, nz + 1.5d));
+			}
+			catch (Exception ignored) { }
+			for (Entity e : list) {
 				if (e instanceof EntityThrowable || e instanceof EntityArrow || e instanceof EntityPlayer) {
 					continue;
 				}
@@ -666,8 +671,13 @@ public class BuilderData {
 		List<SchematicBlockData> listB = new ArrayList<>();
 		List<Entity> listE = new ArrayList<>();
 		// remove Entity
-		for (Entity e : player.world.getEntitiesWithinAABB(Entity.class,
-				new AxisAlignedBB(d[0] - 0.25d, d[1] - 0.25d, d[2] - 0.25d, d[3] + 0.25d, d[4] + 0.25d, d[5] + 0.25d).offset(pos))) {
+		List<Entity> list = new ArrayList<>();
+		try {
+			list = player.world.getEntitiesWithinAABB(Entity.class,
+					new AxisAlignedBB(d[0] - 0.25d, d[1] - 0.25d, d[2] - 0.25d, d[3] + 0.25d, d[4] + 0.25d, d[5] + 0.25d).offset(pos));
+		}
+		catch (Exception ignored) { }
+		for (Entity e : list) {
 			if (e instanceof EntityThrowable || e instanceof EntityArrow || e instanceof EntityPlayer) {
 				continue;
 			}
@@ -871,7 +881,12 @@ public class BuilderData {
 		}
 		// remove Entity
 		if (world != null) {
-			for (Entity e : world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(mx - 0.5d, my - 0.5d, mz - 0.5d, nx + 0.5d, ny + 1.5d, nz + 1.5d))) {
+			List<Entity> list = new ArrayList<>();
+			try {
+				list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(mx - 0.5d, my - 0.5d, mz - 0.5d, nx + 0.5d, ny + 1.5d, nz + 1.5d));
+			}
+			catch (Exception ignored) { }
+			for (Entity e : list) {
 				if (e instanceof EntityThrowable || e instanceof EntityArrow || e instanceof EntityPlayer) {
 					continue;
 				}

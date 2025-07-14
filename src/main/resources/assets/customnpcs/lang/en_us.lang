@@ -552,7 +552,7 @@ color.yellow=Yellow
 
 command.debug.clear=§7Removed monitoring data for CustomNpcs Unofficial mod debugging
 command.debug.false=§7Debugging of CustomNpcs Unofficial mod -§f off
-command.debug.show=§7Debugging information for the CustomNpcs Unofficial mod is located in the console...
+command.debug.show=§7Full debug information for the CustomNpcs Unofficial mod is available in the console...
 command.debug.true=§7Debugging the CustomNpcs Unofficial mod - §fincluded
 command.hover.text=Command text<br>§6/§7 at the beginning of the command is optional<br>§6@dp§7 - attempt to apply to the player who activated this event<br>§7max length in characters: %s
 command.player.addmoney=§7The player "%s§7", §added %s§7 currency. His balance is now: %s%s 

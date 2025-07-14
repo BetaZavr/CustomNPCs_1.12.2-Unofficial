@@ -96,6 +96,7 @@ public class EntityProjectile extends EntityThrowable {
 
 	private BlockPos tilePos = BlockPos.ORIGIN;
 
+	@SuppressWarnings("all")
 	public EntityProjectile(World world) {
 		super(world);
 		this.setSize(0.25f, 0.25f);
@@ -393,13 +394,17 @@ public class EntityProjectile extends EntityThrowable {
 			}
 		}
 		if (this.explosiveRadius > 0) {
-			boolean terraindamage = this.world.getGameRules().getBoolean("mobGriefing") && this.explosiveDamage;
+			boolean terrainDamage = this.world.getGameRules().getBoolean("mobGriefing") && this.explosiveDamage;
 			this.world.newExplosion(((this.getThrower() == null) ? this : this.getThrower()), this.posX, this.posY,
-					this.posZ, this.explosiveRadius, this.effect == 1, terraindamage);
+					this.posZ, this.explosiveRadius, this.effect == 1, terrainDamage);
 			if (this.effect != 0) {
 				AxisAlignedBB axisalignedbb = this.getEntityBoundingBox().grow((this.explosiveRadius * 2),
 						(this.explosiveRadius * 2), (this.explosiveRadius * 2));
-				List<EntityLivingBase> list1 = this.world.getEntitiesWithinAABB(EntityLivingBase.class, axisalignedbb);
+				List<EntityLivingBase> list1 = new ArrayList<>();
+				try {
+					list1 = this.world.getEntitiesWithinAABB(EntityLivingBase.class, axisalignedbb);
+				}
+				catch (Exception ignored) { }
 				for (EntityLivingBase entity : list1) {
 					if (this.effect != 1) {
 						Potion p2 = PotionEffectType.getMCType(this.effect);
@@ -470,15 +475,19 @@ public class EntityProjectile extends EntityThrowable {
 			}
 			if (!this.world.isRemote) {
 				Entity entity = null;
-				List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(this,
-						this.getEntityBoundingBox().grow(this.motionX, this.motionY, this.motionZ).grow(1.0, 1.0, 1.0));
+				List<Entity> list = new ArrayList<>();
+				try {
+					list = this.world.getEntitiesWithinAABBExcludingEntity(this,
+							this.getEntityBoundingBox().grow(this.motionX, this.motionY, this.motionZ).grow(1.0, 1.0, 1.0));
+				}
+				catch (Exception ignored) { }
 				double d0 = 0.0;
                 for (Entity entity2 : list) {
                     if (entity2.canBeCollidedWith()
                             && (!entity2.isEntityEqual(this.thrower) || this.ticksInAir >= 25)) {
                         float f = 0.3f;
-                        AxisAlignedBB axisalignedbb2 = entity2.getEntityBoundingBox().grow(f, f, f);
-                        RayTraceResult movingobjectposition2 = axisalignedbb2.calculateIntercept(vec3, vec4);
+                        AxisAlignedBB axisAlignedBB = entity2.getEntityBoundingBox().grow(f, f, f);
+                        RayTraceResult movingobjectposition2 = axisAlignedBB.calculateIntercept(vec3, vec4);
                         if (movingobjectposition2 != null) {
                             double d2 = vec3.distanceTo(movingobjectposition2.hitVec);
                             if (d2 < d0 || d0 == 0.0) {

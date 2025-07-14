@@ -45,7 +45,7 @@ import noppes.npcs.util.Util;
 
 public class NoppesUtilPlayer {
 
-	private static final Map<Object, Long> delaySendMap = new HashMap<>();
+	public static final Map<Object, Long> delaySendMap = new HashMap<>();
 
     public static void bankClearCeil(EntityPlayerMP player, EntityNPCInterface npc) {
 		if (!player.capabilities.isCreativeMode || !(player.openContainer instanceof ContainerNPCBank)) {
@@ -312,9 +312,7 @@ public class NoppesUtilPlayer {
 	}
 
 	private static void followerBuy(RoleFollower role, int pos, EntityPlayerMP player, EntityNPCInterface npc) {
-		if (pos < 0 || pos > 3 || !role.rates.containsKey(pos)) {
-			return;
-		}
+		if (pos < 0 || pos > 3 || !role.rates.containsKey(pos)) { return; }
 		if (pos == 3) {
 			if (!player.capabilities.isCreativeMode) {
 				if (PlayerData.get(player).game.getMoney() < role.rentalMoney) {
@@ -323,10 +321,8 @@ public class NoppesUtilPlayer {
 				PlayerData.get(player).game.addMoney(role.rentalMoney * -1);
 			}
 		} else {
-			ItemStack currency = role.rentalItems.getStackInSlot(0);
-			if (currency.isEmpty()) {
-				return;
-			}
+			ItemStack currency = role.rentalItems.getStackInSlot(pos);
+			if (currency.isEmpty()) { return; }
 			if (!player.capabilities.isCreativeMode) {
 				Map<ItemStack, Integer> map = new HashMap<>();
 				map.put(currency, currency.getCount());
@@ -352,13 +348,9 @@ public class NoppesUtilPlayer {
 	}
 
 	public static void hireFollower(EntityPlayerMP player, EntityNPCInterface npc, int pos) {
-		if (!(npc.advanced.roleInterface instanceof RoleFollower)) {
-			return;
-		}
+		if (!(npc.advanced.roleInterface instanceof RoleFollower)) { return; }
 		Container con = player.openContainer;
-		if (!(con instanceof ContainerNPCFollowerHire)) {
-			return;
-		}
+		if (!(con instanceof ContainerNPCFollowerHire)) { return; }
 		RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
 		followerBuy(role, pos, player, npc);
 	}
@@ -484,6 +476,7 @@ public class NoppesUtilPlayer {
 		}
 	}
 
+	@SuppressWarnings("all")
 	public static void teleportPlayer(EntityPlayerMP player, double x, double y, double z, int dimension, float yaw, float pitch) {
 		if (player.dimension != dimension) {
 			MinecraftServer server = player.getServer();

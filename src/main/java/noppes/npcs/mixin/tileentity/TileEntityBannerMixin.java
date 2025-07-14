@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = TileEntityBanner.class)
+@Mixin(value = TileEntityBanner.class, priority = 499)
 public class TileEntityBannerMixin implements ITileEntityBanner {
 
     @Unique

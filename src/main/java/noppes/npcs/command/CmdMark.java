@@ -19,7 +19,7 @@ public class CmdMark extends CommandNoppesBase {
 		return 2;
 	}
 
-	@SubCommand(desc = "Clear mark", usage = "<@e>")
+	@SubCommand(desc = "Clear mark", usage = "<@e>", permission = 2)
 	public void clear(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		List<Entity> list = getEntityList(server, sender, args[0]);
 		for (Entity e : list) {
@@ -42,7 +42,7 @@ public class CmdMark extends CommandNoppesBase {
 		return "mark";
 	}
 
-	@SubCommand(desc = "Set mark (warning overrides existing marks)", usage = "<@e> <type> [color]")
+	@SubCommand(desc = "Set mark (warning overrides existing marks)", usage = "<@e> <type> [color]", permission = 2)
 	public void set(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		List<Entity> list = getEntityList(server, sender, args[0]);
 		int type = 0;

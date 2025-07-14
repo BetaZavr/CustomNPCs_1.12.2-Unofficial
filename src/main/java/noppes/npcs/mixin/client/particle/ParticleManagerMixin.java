@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Map;
 
-@Mixin(value = ParticleManager.class)
+@Mixin(value = ParticleManager.class, priority = 499)
 public class ParticleManagerMixin implements IParticleManagerMixin {
 
     @Final

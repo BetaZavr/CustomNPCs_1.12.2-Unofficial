@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Map;
 
-@Mixin(value = NetworkPlayerInfo.class)
+@Mixin(value = NetworkPlayerInfo.class, priority = 499)
 public class NetworkPlayerInfoMixin implements INetworkPlayerInfoMixin {
 
     @Shadow

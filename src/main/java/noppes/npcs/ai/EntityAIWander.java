@@ -82,6 +82,7 @@ public class EntityAIWander extends EntityAIBase {
 	}
 
 	public void resetTask() {
+		CustomNpcs.debugData.start(entity, this, "resetTask");
 		if (nearbyNPC != null && entity.isInRange(nearbyNPC, 3.5)) {
 			EntityNPCInterface talk = entity;
 			if (entity.getRNG().nextBoolean()) { talk = nearbyNPC; }
@@ -93,6 +94,7 @@ public class EntityAIWander extends EntityAIBase {
 			nearbyNPC.addInteract(entity);
 		}
 		nearbyNPC = null;
+		CustomNpcs.debugData.end(entity, this, "resetTask");
 	}
 
 	public boolean shouldContinueExecuting() {

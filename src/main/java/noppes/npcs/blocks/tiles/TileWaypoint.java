@@ -36,7 +36,12 @@ implements ITickable {
 	private int ticks = 10;
 
 	private List<EntityPlayer> getPlayerList(int x, int y, int z) {
-		return world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB(pos, pos.add(1, 1, 1)).grow(x, y, z));
+		List<EntityPlayer> list = new ArrayList<>();
+		try {
+			list = world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB(pos, pos.add(1, 1, 1)).grow(x, y, z));
+		}
+		catch (Exception ignored) { }
+		return list;
 	}
 
 	public @Nonnull NBTTagCompound getUpdateTag() {

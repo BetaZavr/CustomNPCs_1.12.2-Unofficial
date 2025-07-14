@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.List;
 
-@Mixin(value = RenderLivingBase.class)
+@Mixin(value = RenderLivingBase.class, priority = 499)
 public class RenderLivingBaseMixin implements IRenderLivingBaseMixin {
 
     @Shadow

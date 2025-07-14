@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(value = ParticleSmokeNormal.class)
+@Mixin(value = ParticleSmokeNormal.class, priority = 499)
 public class ParticleSmokeNormalMixin implements IParticleSmokeNormalMixin {
 
     @Mutable

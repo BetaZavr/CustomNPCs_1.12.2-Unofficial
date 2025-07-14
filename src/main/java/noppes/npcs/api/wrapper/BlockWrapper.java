@@ -55,6 +55,7 @@ public class BlockWrapper implements IBlock {
         b.setTile(world.getTileEntity(pos));
         return b;
 	}
+
 	protected Block block;
 	protected BlockPosWrapper bPos;
 	protected BlockPos pos;

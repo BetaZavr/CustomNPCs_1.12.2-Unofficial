@@ -671,7 +671,7 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 		}
 		for (IComponentGui component : components) {
 			if (component instanceof IKeyListener) {
-				((IKeyListener) component).keyTyped(c, i);
+				((IKeyListener) component).customKeyTyped(c, i);
 			}
 		}
 		if (hasSubGui()) {

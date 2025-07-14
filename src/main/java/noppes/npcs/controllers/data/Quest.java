@@ -1,9 +1,6 @@
 package noppes.npcs.controllers.data;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import com.google.common.base.Predicate;
 
@@ -169,12 +166,10 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 	public String getLogText() {
 		StringBuilder allTextLogs = new StringBuilder();
 		String ent = "" + ((char) 10);
-		Map<ItemStack, Integer> rewardMap = new HashMap<>();
+		Map<ItemStack, Integer> rewardMap = new LinkedHashMap<>();
 		for (int i = 0; i < this.rewardItems.getSizeInventory(); i++) {
 			ItemStack item = this.rewardItems.getStackInSlot(i);
-			if (item.isEmpty()) {
-				continue;
-			}
+			if (item.isEmpty()) { continue; }
 			boolean has = false;
 			if (this.rewardType == EnumRewardType.ALL) {
 				for (ItemStack it : rewardMap.keySet()) {

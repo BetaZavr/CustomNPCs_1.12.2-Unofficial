@@ -32,14 +32,19 @@ import javax.annotation.Nonnull;
 public class NPCSpawning {
 
 	private static final Set<ChunkPos> eligibleChunksForSpawning = new HashSet<>();
+	private static boolean pWGS = false;
+	private static boolean fCFS = false;
 
 	// Is called when the world has the ability to summon an entity
 	public static void performWorldGenSpawning(WorldServer world, int x, int z, Random rand) {
 		CustomNPCsScheduler.runTack(() -> {
+			if (pWGS || world == null) { return;}
 			CustomNpcs.debugData.start("Mod", NPCSpawning.class, "performWorldGenSpawning");
+			pWGS = true;
 			Biome biome = world.getBiomeForCoordsBody(new BlockPos(x + 8, 0, z + 8));
 			SpawnData data = SpawnController.instance.getRandomSpawnData(BiomeReflection.getBiomeName(biome));
 			if (data == null || data.group <= 0 || rand.nextFloat() > (float) data.itemWeight / 100.0f) {
+				pWGS = false;
 				CustomNpcs.debugData.end("Mod", NPCSpawning.class, "performWorldGenSpawning");
 				return;
 			}
@@ -47,58 +52,64 @@ public class NPCSpawning {
 			Entity entity = null;
 			try { entity = EntityList.createEntityFromNBT(data.compoundEntity, world); } catch (Exception e) { LogWriter.error("Error:", e); }
 			if (!(entity instanceof EntityLiving)) {
+				pWGS = false;
 				CustomNpcs.debugData.end("Mod", NPCSpawning.class, "performWorldGenSpawning");
 				return;
 			}
 			Entity finalEntity = entity;
 			trySummonToPos(3, data, world, world.getTopSolidOrLiquidBlock(new BlockPos(x + rand.nextInt(16), 0, z + rand.nextInt(16))), (EntityLiving) finalEntity);
+			pWGS = false;
 			CustomNpcs.debugData.end("Mod", NPCSpawning.class, "performWorldGenSpawning");
 		});
 	}
 
 	// Called every tick
 	public static void findChunksForSpawning(WorldServer world) {
-		if (SpawnController.instance.data.isEmpty() || world.getWorldInfo().getWorldTotalTime() % 100L != 0L) { return; }
 		CustomNPCsScheduler.runTack(() -> {
+			if (fCFS || SpawnController.instance.data.isEmpty() || world.getWorldInfo().getWorldTotalTime() % 100L != 0L) { return; }
 			CustomNpcs.debugData.start("Mod", NPCSpawning.class, "findChunksForSpawning");
-			//long startIn = System.currentTimeMillis();
-			NPCSpawning.eligibleChunksForSpawning.clear();
-			for (int i = 0; i < world.playerEntities.size(); ++i) {
-				EntityPlayer entityplayer = world.playerEntities.get(i);
-				if (!entityplayer.isSpectator()) {
-					int j = MathHelper.floor(entityplayer.posX / 16.0);
-					int k = MathHelper.floor(entityplayer.posZ / 16.0);
-					byte size = 7;
-					for (int x = -size; x <= size; ++x) {
-						for (int z = -size; z <= size; ++z) {
-							ChunkPos chunkcoordintpair = new ChunkPos(x + j, z + k);
-							if (!NPCSpawning.eligibleChunksForSpawning.contains(chunkcoordintpair) && world.getWorldBorder().contains(chunkcoordintpair)) {
-								PlayerChunkMapEntry playerinstance = world.getPlayerChunkMap().getEntry(chunkcoordintpair.x, chunkcoordintpair.z);
-								if (playerinstance != null && playerinstance.isSentToPlayers()) {
-									NPCSpawning.eligibleChunksForSpawning.add(chunkcoordintpair);
+			fCFS = true;
+			try {
+				NPCSpawning.eligibleChunksForSpawning.clear();
+				for (int i = 0; i < world.playerEntities.size(); ++i) {
+					EntityPlayer entityplayer = world.playerEntities.get(i);
+					if (!entityplayer.isSpectator()) {
+						int j = MathHelper.floor(entityplayer.posX / 16.0);
+						int k = MathHelper.floor(entityplayer.posZ / 16.0);
+						byte size = 7;
+						for (int x = -size; x <= size; ++x) {
+							for (int z = -size; z <= size; ++z) {
+								ChunkPos chunkcoordintpair = new ChunkPos(x + j, z + k);
+								if (!NPCSpawning.eligibleChunksForSpawning.contains(chunkcoordintpair) && world.getWorldBorder().contains(chunkcoordintpair)) {
+									PlayerChunkMapEntry playerinstance = world.getPlayerChunkMap().getEntry(chunkcoordintpair.x, chunkcoordintpair.z);
+									if (playerinstance != null && playerinstance.isSentToPlayers()) {
+										NPCSpawning.eligibleChunksForSpawning.add(chunkcoordintpair);
+									}
 								}
 							}
 						}
 					}
 				}
+				ArrayList<ChunkPos> tmp = new ArrayList<>(NPCSpawning.eligibleChunksForSpawning);
+				Collections.shuffle(tmp);
+				for (ChunkPos chunkcoordintpair2 : tmp) {
+					BlockPos chunkposition = getChunk(world, chunkcoordintpair2.x, chunkcoordintpair2.z);
+					byte range = 6;
+					int posX = chunkposition.getX() + world.rand.nextInt(range) - world.rand.nextInt(range);
+					int posZ = chunkposition.getZ() + world.rand.nextInt(range) - world.rand.nextInt(range);
+					BlockPos randomPos = new BlockPos(posX, chunkposition.getY(), posZ);
+					String name = BiomeReflection.getBiomeName(world.getBiomeForCoordsBody(randomPos));
+					SpawnData data = SpawnController.instance.getRandomSpawnData(name);
+					if (data == null || data.group <= 0 || world.rand.nextFloat() > (float) data.itemWeight / 100.0f) { continue; }
+					// is living
+					Entity entity = null;
+					try { entity = EntityList.createEntityFromNBT(data.compoundEntity, world); } catch (Exception e) { LogWriter.error("Error:", e); }
+					if (!(entity instanceof EntityLiving)) { continue; }
+					trySummonToPos(1, data, world, randomPos, (EntityLiving) entity);
+				}
 			}
-			ArrayList<ChunkPos> tmp = new ArrayList<>(NPCSpawning.eligibleChunksForSpawning);
-			Collections.shuffle(tmp);
-			for (ChunkPos chunkcoordintpair2 : tmp) {
-				BlockPos chunkposition = getChunk(world, chunkcoordintpair2.x, chunkcoordintpair2.z);
-				byte range = 6;
-				int posX = chunkposition.getX() + world.rand.nextInt(range) - world.rand.nextInt(range);
-				int posZ = chunkposition.getZ() + world.rand.nextInt(range) - world.rand.nextInt(range);
-				BlockPos randomPos = new BlockPos(posX, chunkposition.getY(), posZ);
-				String name = BiomeReflection.getBiomeName(world.getBiomeForCoordsBody(randomPos));
-				SpawnData data = SpawnController.instance.getRandomSpawnData(name);
-				if (data == null || data.group <= 0 || world.rand.nextFloat() > (float) data.itemWeight / 100.0f) { continue; }
-				// is living
-				Entity entity = null;
-				try { entity = EntityList.createEntityFromNBT(data.compoundEntity, world); } catch (Exception e) { LogWriter.error("Error:", e); }
-				if (!(entity instanceof EntityLiving)) { continue; }
-				trySummonToPos(1, data, world, randomPos, (EntityLiving) entity);
-			}
+			catch (Exception ignored) {}
+            fCFS = false;
 			CustomNpcs.debugData.end("Mod", NPCSpawning.class, "findChunksForSpawning");
 		});
 	}
@@ -190,7 +201,11 @@ public class NPCSpawning {
 							}
 							// range
 							AxisAlignedBB aabb = new AxisAlignedBB(0, 0, 0, 1, 1, 1).offset(checkPos).grow(144.0d);
-							List<? extends EntityLiving> list = world.getEntitiesWithinAABB(entity.getClass(), aabb);
+							List<? extends EntityLiving> list = new ArrayList<>();
+							try {
+								list = world.getEntitiesWithinAABB(entity.getClass(), aabb);
+							}
+							catch (Exception ignored) { }
 							int count = list.size();
 							if (entity instanceof EntityNPCInterface) {
 								count = 0;
@@ -216,7 +231,11 @@ public class NPCSpawning {
 	private static boolean checkEntitySize(WorldServer world, Entity entity, BlockPos pos, @Nonnull SpawnData data) {
 		AxisAlignedBB aabb = new AxisAlignedBB(0, 0, 0, 1, 1, 1).offset(pos);
 		// Range
-		List<Entity> list = world.getEntitiesWithinAABB(entity.getClass(), aabb.grow(data.range));
+		List<Entity> list = new ArrayList<>();
+		try {
+			list = world.getEntitiesWithinAABB(entity.getClass(), aabb.grow(data.range));
+		}
+		catch (Exception ignored) { }
 		int count = list.size();
 		if (entity instanceof EntityNPCInterface) {
 			count = 0;

@@ -287,7 +287,6 @@ extends LayerInterface<T> {
 			if (ModelNpcAlt.editAnimDataSelect.alpha >= 1.0f) { alpha = 1.0f; } else { alpha = 0.5f; }
 		}
 		else { alpha = 1.0f; }
-		//LogWriter.debug("TEST rtr: "+npc.rotationYawHead+"; "+npc.rotationPitch);
 
 		GlStateManager.pushMatrix();
 		model.bipedHead.postRender(0.0625f);

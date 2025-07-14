@@ -245,8 +245,12 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 
 	private List<EntityLivingBase> getNearbySpawned(boolean isDead) {
 		List<EntityLivingBase> spawnList = new ArrayList<>();
-		List<EntityLivingBase> list = this.npc.world.getEntitiesWithinAABB(EntityLivingBase.class,
-				this.npc.getEntityBoundingBox().grow(60.0, 60.0, 60.0));
+		List<EntityLivingBase> list = new ArrayList<>();
+		try {
+			list = this.npc.world.getEntitiesWithinAABB(EntityLivingBase.class,
+					this.npc.getEntityBoundingBox().grow(60.0, 60.0, 60.0));
+		}
+		catch (Exception ignored) { }
 		for (EntityLivingBase entity : list) {
 			if (!entity.isDead && entity.getEntityData().getString("NpcSpawnerId").equals(this.id)
 					&& entity.getEntityData().getBoolean("NpcSpawnerDead") == isDead) {

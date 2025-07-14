@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.EntityDataManager;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.ai.attack.EntityAIHitAndRun;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -29,6 +30,7 @@ public class EntityAISprintToTarget extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
+		CustomNpcs.debugData.start(npc, this, "shouldExecute");
         EntityLivingBase target = this.npc.getAttackTarget();
 		if (target != null && target.isEntityAlive() && this.npc.hurtTime <= 0 && !this.npc.getNavigator().noPath()) {
 			this.startExecuting();
@@ -39,6 +41,7 @@ public class EntityAISprintToTarget extends EntityAIBase {
 				this.npc.setSprinting(false);
 			}
 		}
+		CustomNpcs.debugData.end(npc, this, "shouldExecute");
 		return false;
 	}
 

@@ -99,7 +99,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 	@SuppressWarnings("unchecked")
 	@Override
 	public void doRender(@Nonnull T npc, double d, double d1, double d2, float f, float partialTicks) {
-		partialTicks = partialTicks;
+		this.partialTicks = partialTicks;
 		entity = npc.modelData.getEntity(npc);
 		if (entity != null) {
 			Render<?> render = renderManager.getEntityRenderObject(this.entity);
@@ -163,17 +163,17 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 		}
 	}
 
-	protected void renderLayers(@Nonnull T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
+	protected void renderLayers(@Nonnull T entityLivingBaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
 		if (this.entity != null && this.renderEntity != null) {
 			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, this.renderEntity);
 		} else {
-			Map<EnumParts, Boolean> sp = entitylivingbaseIn.animation.showParts;
+			Map<EnumParts, Boolean> sp = entityLivingBaseIn.animation.showParts;
 			for (LayerRenderer<T> layerrenderer : this.layerRenderers) {
 				if ((layerrenderer instanceof LayerEyes || layerrenderer instanceof LayerHead
 						|| layerrenderer.getClass().getSimpleName().equals("LayerCustomHead")) && !sp.get(EnumParts.HEAD)) {
 					continue;
 				}
-				if (ArmourersWorkshopApi.isAvailable() && layerrenderer.getClass().getSimpleName().equals("LayerCustomHead") && ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(entitylivingbaseIn.getItemStackFromSlot(EntityEquipmentSlot.HEAD))) {
+				if (ArmourersWorkshopApi.isAvailable() && layerrenderer.getClass().getSimpleName().equals("LayerCustomHead") && ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(entityLivingBaseIn.getItemStackFromSlot(EntityEquipmentSlot.HEAD))) {
 					continue;
 				}
 				if ((layerrenderer instanceof LayerBody || layerrenderer instanceof LayerNpcCloak) && !sp.get(EnumParts.BODY)) {
@@ -182,8 +182,8 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 				if (layerrenderer.getClass().getSimpleName().equals("SkinLayerRendererCustomNPC")) {
 					continue;
 				}
-				boolean flag = this.setBrightness(entitylivingbaseIn, partialTicks, layerrenderer.shouldCombineTextures());
-				layerrenderer.doRenderLayer(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
+				boolean flag = this.setBrightness(entityLivingBaseIn, partialTicks, layerrenderer.shouldCombineTextures());
+				layerrenderer.doRenderLayer(entityLivingBaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
 				if (flag) {
 					this.unsetBrightness();
 				}

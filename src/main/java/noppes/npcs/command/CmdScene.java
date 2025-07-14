@@ -40,6 +40,7 @@ public class CmdScene extends CommandNoppesBase {
 		DataScenes.Start(args[0]);
 	}
 
+	@SuppressWarnings("all")
 	@SubCommand(desc = "Get/Set scene time", usage = "[time] [name]", permission = 2)
 	public void time(ICommandSender sender, String[] args) throws CommandException {
 		if (args.length == 0) {

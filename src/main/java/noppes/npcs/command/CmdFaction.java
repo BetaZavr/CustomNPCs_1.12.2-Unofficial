@@ -27,7 +27,7 @@ public class CmdFaction extends CommandNoppesBase {
 		return 2;
 	}
 
-	@SubCommand(desc = "Add points", usage = "<points>")
+	@SubCommand(desc = "Add points", usage = "<points>", permission = 2)
 	public void add(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		int points;
 		try {
@@ -44,7 +44,7 @@ public class CmdFaction extends CommandNoppesBase {
 		}
 	}
 
-	@SubCommand(desc = "Drop relationship")
+	@SubCommand(desc = "Drop relationship", permission = 2)
 	public void drop(MinecraftServer server, ICommandSender sender, String[] args) {
 		for (PlayerData playerdata : this.data) {
 			playerdata.factionData.factionData.remove(selectedFaction.id);
@@ -95,7 +95,7 @@ public class CmdFaction extends CommandNoppesBase {
 		return "<player> <faction> <command>";
 	}
 
-	@SubCommand(desc = "Reset points to default")
+	@SubCommand(desc = "Reset points to default", permission = 2)
 	public void reset(MinecraftServer server, ICommandSender sender, String[] args) {
 		for (PlayerData playerdata : this.data) {
 			playerdata.factionData.factionData.put(this.selectedFaction.id, this.selectedFaction.defaultPoints);
@@ -108,7 +108,7 @@ public class CmdFaction extends CommandNoppesBase {
 		return false;
 	}
 
-	@SubCommand(desc = "Set points", usage = "<points>")
+	@SubCommand(desc = "Set points", usage = "<points>", permission = 2)
 	public void set(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		int points;
 		try {
@@ -124,7 +124,7 @@ public class CmdFaction extends CommandNoppesBase {
 	}
 
 	@SuppressWarnings("all")
-	@SubCommand(desc = "Subtract points", usage = "<points>")
+	@SubCommand(desc = "Subtract points", usage = "<points>", permission = 2)
 	public void subtract(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		int points;
 		try {

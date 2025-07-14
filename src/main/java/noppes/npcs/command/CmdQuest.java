@@ -31,7 +31,7 @@ public class CmdQuest extends CommandNoppesBase {
 	}
 
 	@SuppressWarnings("all")
-	@SubCommand(desc = "Finish a quest", usage = "<player> <quest>")
+	@SubCommand(desc = "Finish a quest", usage = "<player> <quest>", permission = 2)
 	public void finish(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String playername = args[0];
 		int questId;
@@ -129,7 +129,7 @@ public class CmdQuest extends CommandNoppesBase {
 		object.setProgress(value);
 	}
 
-	@SubCommand(desc = "reload quests from disk")
+	@SubCommand(desc = "reload quests from disk", permission = 2)
 	public void reload(MinecraftServer server, ICommandSender sender, String[] args) {
 		new QuestController().load();
 		SyncController.syncAllQuests(server);

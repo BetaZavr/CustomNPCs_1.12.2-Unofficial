@@ -2,6 +2,7 @@ package noppes.npcs.ai.movement;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -40,6 +41,7 @@ extends EntityAIBase {
 	}
 
 	public void updateTask() {
+		CustomNpcs.debugData.start(npc, this, "updateTask");
 		++updateTick;
 		if (updateTick < 10) { return; }
 		updateTick = 0;
@@ -52,5 +54,6 @@ extends EntityAIBase {
 		if (owner.isSprinting()) { speed += 0.5; }
 		if (npc.getNavigator().tryMoveToEntityLiving(owner, speed) || npc.isInRange(owner, 16.0)) { return; }
 		npc.tpTo(owner);
+		CustomNpcs.debugData.end(npc, this, "updateTask");
 	}
 }

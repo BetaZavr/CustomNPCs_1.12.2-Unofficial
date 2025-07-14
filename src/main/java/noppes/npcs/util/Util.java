@@ -787,9 +787,8 @@ public class Util implements IMethods {
 				if (unseenEntities != null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
 			}
 			return canSee;
-		} catch (Exception e) {
-			LogWriter.error(e);
 		}
+		catch (Exception e) { }
 		return false;
 	}
 
@@ -999,7 +998,9 @@ public class Util implements IMethods {
 		}
 		time += (colored ? chr + "r" : "") + mins + ":" + secs;
 		if (isMilliSeconds) {
-			time += (colored ? chr + "8" : "") + "." + ms;
+			StringBuilder mss = new StringBuilder("" + ms);
+			while (mss.length() < 3) { mss.insert(0, "0"); }
+			time += (colored ? chr + "8" : "") + "." + mss;
 		}
 		return time;
 	}
@@ -1203,7 +1204,7 @@ public class Util implements IMethods {
 
 	@Override
 	public String loadFile(File file) {
-		LogWriter.debug("Trying to load file \"" + file.getAbsolutePath() + "\"");
+		//LogWriter.debug("Trying to load file \"" + file.getAbsolutePath() + "\"");
 		StringBuilder text = new StringBuilder();
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8));
@@ -1222,7 +1223,7 @@ public class Util implements IMethods {
 		if (file == null || text == null) {
 			return false;
 		}
-		LogWriter.debug("Trying save text to file \"" + file.getAbsolutePath() + "\"");
+		//LogWriter.debug("Trying save text to file \"" + file.getAbsolutePath() + "\"");
 		if (file.getParentFile() != null && !file.getParentFile().exists() && !file.getParentFile().mkdirs()) { // create directories
 			LogWriter.debug("Error creating directories from file path \"" + file.getAbsolutePath() + "\"");
 			return false;
@@ -1419,6 +1420,7 @@ public class Util implements IMethods {
 		if (tag == null) { return null; }
 		if (tag instanceof NBTTagCompound) {
 			NBTTagCompound compound = (NBTTagCompound) tag;
+			if (compound.getKeySet().isEmpty()) { return null; }
 			if (compound.getBoolean("IsBindings")) {
 				ScriptEngine engine = ScriptController.Instance.getEngineByName("ECMAScript");
 				if (engine == null) { return null; }
@@ -1771,7 +1773,11 @@ public class Util implements IMethods {
 		Vec3d vec3d1 = entity.getLook(1.0F);
 		Vec3d vec3d = entity.getPositionEyes(1.0f);
         Vec3d vec3d2 = vec3d.addVector(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
-        List<Entity> list = entity.world.getEntitiesWithinAABB(Entity.class, entity.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).grow(1.0D, 1.0D, 1.0D));
+		List<Entity> list = new ArrayList<>();
+		try {
+			list = entity.world.getEntitiesWithinAABB(Entity.class, entity.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).grow(1.0D, 1.0D, 1.0D));
+		}
+		catch (Exception ignored) { }
         list.remove(entity);
         double d2 = d0;
         Vec3d vec3d3 = null;

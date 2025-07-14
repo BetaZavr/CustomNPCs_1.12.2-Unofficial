@@ -95,7 +95,12 @@ public class EntityAICommanderTarget extends EntityAICustom {
 			if (this.npcs.isEmpty()) {
 				AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(this.npc.getPosition())
 						.grow(this.tacticalRange, this.tacticalRange, this.tacticalRange);
-				for (EntityNPCInterface n : this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class, bb)) {
+				List<EntityNPCInterface> list = new ArrayList<>();
+				try {
+					list = npc.world.getEntitiesWithinAABB(EntityNPCInterface.class, bb);
+				}
+				catch (Exception ignored) { }
+				for (EntityNPCInterface n : list) {
 					if (this.npc.equals(n)) {
 						continue;
 					}

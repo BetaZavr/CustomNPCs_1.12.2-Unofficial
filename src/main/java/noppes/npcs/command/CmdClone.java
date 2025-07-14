@@ -1,5 +1,6 @@
 package noppes.npcs.command;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.state.IBlockState;
@@ -28,7 +29,8 @@ public class CmdClone extends CommandNoppesBase {
 		return 2;
 	}
 
-	@SubCommand(desc = "Add NPC(s) to clone storage", usage = "<npc> <tab> [clonedname]")
+	@SuppressWarnings("all")
+	@SubCommand(desc = "Add NPC(s) to clone storage", usage = "<npc> <tab> [clonedname]", permission = 2)
 	public void add(MinecraftServer server, ICommandSender sender, String[] args) {
 		int tab = 0;
 		try {
@@ -51,7 +53,8 @@ public class CmdClone extends CommandNoppesBase {
 		}
 	}
 
-	@SubCommand(desc = "Remove NPC from clone storage", usage = "<name> <tab>")
+	@SuppressWarnings("all")
+	@SubCommand(desc = "Remove NPC from clone storage", usage = "<name> <tab>", permission = 2)
 	public void del(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String nameModel = args[0];
 		int tab = 0;
@@ -75,7 +78,12 @@ public class CmdClone extends CommandNoppesBase {
 	}
 
 	public <T extends Entity> List<T> getEntities(Class<? extends T> cls, World world, BlockPos pos, int range) {
-		return world.getEntitiesWithinAABB(cls, new AxisAlignedBB(pos, pos.add(1, 1, 1)).grow(range, range, range));
+		List<T> list = new ArrayList<>();
+		try {
+			list = world.getEntitiesWithinAABB(cls, new AxisAlignedBB(pos, pos.add(1, 1, 1)).grow(range, range, range));
+		}
+		catch (Exception ignored) { }
+		return list;
 	}
 
 	@Nonnull
@@ -94,6 +102,7 @@ public class CmdClone extends CommandNoppesBase {
 		return null;
 	}
 
+	@SuppressWarnings("all")
 	@SubCommand(desc = "Spawn multiple cloned NPC in a grid", usage = "<name> <tab> <length> <width> [[world:]x,y,z]] [newname]", permission = 2)
 	public boolean grid(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String name = args[0].replaceAll("%", " ");
@@ -189,6 +198,7 @@ public class CmdClone extends CommandNoppesBase {
 		this.sendMessage(sender, "------------------------------------");
 	}
 
+	@SuppressWarnings("all")
 	@SubCommand(desc = "Spawn cloned NPC", usage = "<name> <tab> [[world:]x,y,z]] [newname]", permission = 2)
 	public void spawn(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String name = args[0].replaceAll("%", " ");

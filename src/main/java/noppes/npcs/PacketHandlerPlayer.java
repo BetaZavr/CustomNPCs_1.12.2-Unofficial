@@ -88,6 +88,7 @@ public class PacketHandlerPlayer {
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.StopSound);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MiniMapData);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetBuildData);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.OpenGui);
 	}
 
 	@SubscribeEvent
@@ -212,9 +213,7 @@ public class PacketHandlerPlayer {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.CompanionInv, npc);
 		} else if (type == EnumPlayerPacket.FollowerHire) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.FOLLOWER) {
-				return;
-			}
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.FOLLOWER) { return; }
 			NoppesUtilPlayer.hireFollower(player, npc, buffer.readInt());
 		} else if (type == EnumPlayerPacket.FollowerExtend) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(value = ParticleFlame.class)
+@Mixin(value = ParticleFlame.class, priority = 499)
 public class ParticleFlameMixin implements IParticleFlameMixin {
 
     @Mutable

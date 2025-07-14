@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 public class CmdNPC extends CommandNoppesBase {
 	public EntityNPCInterface selectedNpc;
 
-	@SubCommand(desc = "Creates an NPC", usage = "[name]")
+	@SubCommand(desc = "Creates an NPC", usage = "[name]", permission = 2)
 	public void create(MinecraftServer server, ICommandSender sender, String[] args) {
 		World pw = sender.getEntityWorld();
 		EntityCustomNpc npc = new EntityCustomNpc(pw);
@@ -42,7 +42,7 @@ public class CmdNPC extends CommandNoppesBase {
 		npc.setHealth(npc.getMaxHealth());
 	}
 
-	@SubCommand(desc = "Delete an NPC")
+	@SubCommand(desc = "Delete an NPC", permission = 2)
 	public void delete(MinecraftServer server, ICommandSender sender, String[] args) {
 		this.selectedNpc.delete();
 	}
@@ -80,7 +80,12 @@ public class CmdNPC extends CommandNoppesBase {
 	}
 
 	public <T extends Entity> List<T> getEntities(Class<? extends T> cls, World world, BlockPos pos, int range) {
-		return world.getEntitiesWithinAABB(cls, new AxisAlignedBB(pos, pos.add(1, 1, 1)).grow(range, range, range));
+		List<T> list = new ArrayList<>();
+		try {
+			list = world.getEntitiesWithinAABB(cls, new AxisAlignedBB(pos, pos.add(1, 1, 1)).grow(range, range, range));
+		}
+		catch (Exception ignored) { }
+		return list;
 	}
 
 	@Nonnull

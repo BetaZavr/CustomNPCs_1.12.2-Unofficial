@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Random;
 
-@Mixin(value = EntityLivingBase.class)
+@Mixin(value = EntityLivingBase.class, priority = 499)
 public class EntityLivingBaseMixin implements IEntityLivingBaseMixin {
 
     @Final

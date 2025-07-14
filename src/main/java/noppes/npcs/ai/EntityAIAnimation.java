@@ -1,6 +1,7 @@
 package noppes.npcs.ai;
 
 import net.minecraft.entity.ai.EntityAIBase;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIAnimation extends EntityAIBase {
@@ -58,11 +59,14 @@ public class EntityAIAnimation extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
+		CustomNpcs.debugData.start(npc, this, "shouldExecute");
 		isDead = !npc.isEntityAlive();
 		if (isDead) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return npc.currentAnimation != 2;
 		}
 		if (npc.stats.ranged.getHasAimAnimation() && npc.isAttacking()) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return npc.currentAnimation != 6;
 		}
 		hasPath = !npc.getNavigator().noPath();
@@ -70,17 +74,21 @@ public class EntityAIAnimation extends EntityAIBase {
 		isAtStartPoint = (npc.ais.shouldReturnHome() && this.npc.isVeryNearAssignedPlace());
 		if (tempAnimation != 0) {
 			if (!hasNavigation()) {
+				CustomNpcs.debugData.end(npc, this, "shouldExecute");
 				return npc.currentAnimation != tempAnimation;
 			}
 			tempAnimation = 0;
 		}
 		if (hasNavigation() && notWalkingAnimation(npc.currentAnimation)) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return npc.currentAnimation != 0;
 		}
+		CustomNpcs.debugData.end(npc, this, "shouldExecute");
 		return npc.currentAnimation != npc.ais.animationType;
 	}
 
 	public void updateTask() {
+		CustomNpcs.debugData.start(npc, this, "updateTask");
 		int type = npc.ais.animationType;
 		if (isDead) {
 			type = 2;
@@ -94,6 +102,7 @@ public class EntityAIAnimation extends EntityAIBase {
 			}
 		}
 		// if (this.npc.stats.ranged.getHasAimAnimation() && this.npc.isAttacking()) { type = 6; } // <- AI target
+		CustomNpcs.debugData.end(npc, this, "updateTask");
 		setAnimation(type);
 	}
 }

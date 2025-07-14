@@ -1,9 +1,6 @@
 package noppes.npcs.roles;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -51,7 +48,12 @@ public class JobHealer extends JobInterface implements IJobHealer {
 			if (npc.totalTicksAlive % effects.get(id).speed < 3) {
 				canAdd = true;
 				int r = effects.get(id).range;
-				affected.put(id, npc.world.getEntitiesWithinAABB(EntityLivingBase.class, npc.getEntityBoundingBox().grow(r, r / 2.0d, r)));
+				List<EntityLivingBase> list = new ArrayList<>();
+				try {
+					list = npc.world.getEntitiesWithinAABB(EntityLivingBase.class, npc.getEntityBoundingBox().grow(r, r / 2.0d, r));
+				}
+				catch (Exception ignored) { }
+				affected.put(id, list);
 				if (!effects.get(id).onHimself) {
 					affected.get(id).remove(npc);
 				}

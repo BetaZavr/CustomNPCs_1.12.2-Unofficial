@@ -184,7 +184,9 @@ public class EventHooks {
 	}
 
 	public static void onForgeEvent(Event event) {
-		CustomNpcs.debugData.start("Mod", EventHooks.class, "onForgeEvent");
+		if (event == null) { return; }
+		String key = event.getClass().getSimpleName();
+		CustomNpcs.debugData.start(key, EventHooks.class, "onForgeEvent");
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
 		String eventName;
 		if (!handler.isClient() && handler.isEnabled()) {
@@ -212,7 +214,7 @@ public class EventHooks {
 		if (handler.isClient()) {
 			ClientScriptData handlerClient = ScriptController.Instance.clientScripts;
 			if (!handlerClient.isClient() || !handlerClient.isEnabled()) {
-				CustomNpcs.debugData.end("Mod", EventHooks.class, "onForgeEvent");
+				CustomNpcs.debugData.end(key, EventHooks.class, "onForgeEvent");
 				return;
 			}
 			if (!ScriptController.forgeClientEventNames.containsKey(event.getClass())) {
@@ -225,7 +227,7 @@ public class EventHooks {
 				eventName = ScriptController.forgeClientEventNames.get(event.getClass());
 			}
 			if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName) == System.currentTimeMillis())) {
-				CustomNpcs.debugData.end("Mod", EventHooks.class, "onForgeEvent");
+				CustomNpcs.debugData.end(key, EventHooks.class, "onForgeEvent");
 				return;
 			}
 			EventHooks.clientMap.put(eventName, System.currentTimeMillis());
@@ -236,7 +238,7 @@ public class EventHooks {
 				WrapperNpcAPI.EVENT_BUS.post(ev.event);
 			} catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		CustomNpcs.debugData.end("Mod", EventHooks.class, "onForgeEvent");
+		CustomNpcs.debugData.end(key, EventHooks.class, "onForgeEvent");
 	}
 
 	public static void onForgeInit(ForgeScriptData handler) {

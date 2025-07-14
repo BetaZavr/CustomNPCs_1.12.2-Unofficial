@@ -419,7 +419,10 @@ implements ICustomScrollListener {
 		}
 		/* Texture blocks data */
 		for (String key : TextureMapReflection.getMapRegisteredSprites(mc.getTextureMapBlocks()).keySet()) {
-			addFile(new ResourceLocation(key.substring(0, key.indexOf(":")), "textures/" + key.substring(key.indexOf(":") +1) + ".png"));
+			try {
+				addFile(new ResourceLocation(key.substring(0, key.indexOf(":")), "textures/" + key.substring(key.indexOf(":") +1) + ".png"));
+			}
+			catch (Exception ignored) { }
 		}
 		/* Resource manager data */
 		Map<String, FallbackResourceManager> map = IResourceManagerReflection.getDomainResourceManagers(mc.getResourceManager());

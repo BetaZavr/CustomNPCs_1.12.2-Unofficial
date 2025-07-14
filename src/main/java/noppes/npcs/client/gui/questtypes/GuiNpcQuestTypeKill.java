@@ -128,7 +128,11 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 		int i = 1;
 		list.add(0, ((char) 167) + "bPlayer");
 		hts.put(0, Collections.singletonList(((char) 167) + "7Any player"));
-		List<EntityNPCInterface> npcs = player.world.getEntitiesWithinAABB(EntityNPCInterface.class, new AxisAlignedBB(player.getPosition()).grow(32));
+		List<EntityNPCInterface> npcs = new ArrayList<>();
+		try {
+			npcs = player.world.getEntitiesWithinAABB(EntityNPCInterface.class, new AxisAlignedBB(player.getPosition()).grow(32));
+		}
+		catch (Exception ignored) { }
 		TreeMap<Float, EntityNPCInterface> map = new TreeMap<>();
 		for (EntityNPCInterface npc : npcs) {
 			float distance = player.getDistance(npc);
@@ -161,7 +165,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 		Collections.sort(regNames);
 
 		list.addAll(regNames);
-		for (String name : regNames) {
+		for (int j = 0; j < regNames.size(); j++) {
 			hts.put(i++, Collections.singletonList(((char) 167) + "7Normal entity name"));
 		}
 

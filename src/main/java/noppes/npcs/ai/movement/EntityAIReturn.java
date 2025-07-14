@@ -110,18 +110,22 @@ public class EntityAIReturn extends EntityAIBase {
 
 	@Override
 	public boolean shouldExecute() {
+		CustomNpcs.debugData.start(npc, this, "shouldExecute");
 		if (npc.hasOwner() || npc.isRiding() || !npc.ais.shouldReturnHome() || npc.isKilled() || !npc.getNavigator().noPath() || npc.isMoving() || npc.isInteracting()) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return false;
 		}
 		// AI Attack
 		if (npc.aiOwnerNPC != null && !npc.getNavigator().noPath()) {
 			totalTicks = 0;
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return false;
 		}
 		// AI Panic
 		if (npc.ais.onAttack == 1) {
 			if (npc.isBurning() || npc.getAttackTarget() != null) {
 				totalTicks = 0;
+				CustomNpcs.debugData.end(npc, this, "shouldExecute");
 				return false;
 			}
 		}
@@ -129,6 +133,7 @@ public class EntityAIReturn extends EntityAIBase {
 		if (npc.ais.findShelter == 0 && (!npc.world.isDaytime() || npc.world.isRaining()) && !npc.world.provider.hasSkyLight()) {
 			BlockPos pos = new BlockPos(npc.getStartXPos(), npc.getStartYPos(), this.npc.getStartZPos());
 			if (npc.world.canSeeSky(pos) || npc.world.getLight(pos) <= 8) {
+				CustomNpcs.debugData.end(npc, this, "shouldExecute");
 				return false;
 			}
 		}
@@ -136,6 +141,7 @@ public class EntityAIReturn extends EntityAIBase {
 		else if (npc.ais.findShelter == 1 && npc.world.isDaytime()) {
 			BlockPos pos = new BlockPos(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos());
 			if (npc.world.canSeeSky(pos)) {
+				CustomNpcs.debugData.end(npc, this, "shouldExecute");
 				return false;
 			}
 		}
@@ -144,26 +150,32 @@ public class EntityAIReturn extends EntityAIBase {
 				wasAttacked = true;
 				preAttackPos = new double[] { npc.posX, npc.posY, npc.posZ };
 			}
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return isTooFar();
 		}
 		if (!npc.isAttacking() && wasAttacked) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return true;
 		}
 		if (npc.homeDimensionId != npc.world.provider.getDimension()) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return true;
 		}
 		switch (npc.ais.getMovingType()) {
 			case 1: {
+				CustomNpcs.debugData.end(npc, this, "shouldExecute");
 				return !npc.isInRange(npc.getStartXPos(), -1.0, npc.getStartZPos(),
 						npc.ais.walkingRange);
 			}
 			case 2: {
 				if (npc.ais.getDistanceSqToPathPoint() < CustomNpcs.NpcNavRange * CustomNpcs.NpcNavRange) {
+					CustomNpcs.debugData.end(npc, this, "shouldExecute");
 					return false;
 				}
 				break;
 			}
 		}
+		CustomNpcs.debugData.end(npc, this, "shouldExecute");
 		return !npc.isVeryNearAssignedPlace();
 	}
 
@@ -177,9 +189,11 @@ public class EntityAIReturn extends EntityAIBase {
 
 	@Override
 	public void updateTask() {
+		CustomNpcs.debugData.start(npc, this, "updateTask");
 		++totalTicks;
 		if (totalTicks > EntityAIReturn.MaxTotalTicks) {
 			tryBackHome(endPosX, endPosY, endPosZ);
+			CustomNpcs.debugData.end(npc, this, "updateTask");
 			return;
 		}
 		if (stuckTicks > 0) { --stuckTicks; }
@@ -194,6 +208,7 @@ public class EntityAIReturn extends EntityAIBase {
 		} else {
 			stuckCount = 0;
 		}
+		CustomNpcs.debugData.end(npc, this, "updateTask");
 	}
 
 	@SuppressWarnings("all")

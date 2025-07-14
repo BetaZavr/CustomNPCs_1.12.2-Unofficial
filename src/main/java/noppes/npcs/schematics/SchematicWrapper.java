@@ -296,8 +296,13 @@ public class SchematicWrapper {
 				this.listE = new ArrayList<>();
 				BlockPos ps = this.start;
 				BlockPos pe = this.start.add(this.rotation % 2 == 0 ? this.schema.getWidth() : this.schema.getLength(), this.schema.getHeight(), this.rotation % 2 == 0 ? this.schema.getLength() : this.schema.getWidth());
-				for (Entity e : this.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(ps.getX() - 0.5d,
-						ps.getY() - 0.5d, ps.getZ() - 0.5d, pe.getX() + 0.5d, pe.getY() + 0.5d, pe.getZ() + 0.5d))) {
+				List<Entity> list = new ArrayList<>();
+				try {
+					list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(ps.getX() - 0.5d,
+							ps.getY() - 0.5d, ps.getZ() - 0.5d, pe.getX() + 0.5d, pe.getY() + 0.5d, pe.getZ() + 0.5d));
+				}
+				catch (Exception ignored) { }
+				for (Entity e : list) {
 					if (e instanceof EntityThrowable || e instanceof EntityArrow || e instanceof EntityPlayer) {
 						continue;
 					}

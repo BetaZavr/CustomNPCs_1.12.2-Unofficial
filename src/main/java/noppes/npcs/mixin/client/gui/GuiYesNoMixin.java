@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 // Used by custom GUI
-@Mixin(value = GuiYesNo.class)
+@Mixin(value = GuiYesNo.class, priority = 499)
 public class GuiYesNoMixin implements IGuiYesNoMixin {
 
     @Shadow

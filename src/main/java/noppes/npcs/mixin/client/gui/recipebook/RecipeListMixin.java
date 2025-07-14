@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.List;
 import java.util.Objects;
 
-@Mixin(value = RecipeList.class)
+@Mixin(value = RecipeList.class, priority = 499)
 public class RecipeListMixin implements IRecipeListMixin {
 
     @Unique

@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-@Mixin(value = GuiRecipeBook.class)
+@Mixin(value = GuiRecipeBook.class, priority = 499)
 public class GuiRecipeBookMixin {
 
     @Mutable

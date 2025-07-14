@@ -51,11 +51,17 @@ public class CmdHelp extends CommandNoppesBase {
 		if (m == null) {
 			this.sendMessage(sender, "------" + command.getName() + " SubCommands------");
 			for (Map.Entry<String, Method> entry2 : command.subcommands.entrySet()) {
-				sender.sendMessage(new TextComponentTranslation(((char) 167) + "e" + entry2.getKey() + ((char) 167) + "r: " + entry2.getValue().getAnnotation(SubCommand.class).desc()));
+				SubCommand sc = entry2.getValue().getAnnotation(SubCommand.class);
+				if (sc == null || sc.permission() > per) { continue; }
+				sender.sendMessage(new TextComponentTranslation(((char) 167) + "e" + entry2.getKey() + ((char) 167) + "r: " + sc.desc()));
 			}
-		} else {
-			this.sendMessage(sender, "------" + command.getName() + "." + args[1].toLowerCase() + " Command------");
+		}
+		else {
 			SubCommand sc = m.getAnnotation(SubCommand.class);
+			if (sc == null || sc.permission() > per) {
+				throw new CommandException("You are not allowed to use \""+command.getName().toLowerCase()+"\" command");
+			}
+			this.sendMessage(sender, "------" + command.getName() + "." + args[1].toLowerCase() + " Command------");
 			sender.sendMessage(new TextComponentTranslation(sc.desc()));
 			if (!sc.usage().isEmpty()) {
 				sender.sendMessage(new TextComponentTranslation("Usage: " + sc.usage()));

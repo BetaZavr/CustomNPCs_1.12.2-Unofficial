@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Random;
 
-@Mixin(value = GuiMainMenu.class)
+@Mixin(value = GuiMainMenu.class, priority = 499)
 public class GuiMainMenuMixin implements IGuiMainMenuMixin {
 
     @Shadow

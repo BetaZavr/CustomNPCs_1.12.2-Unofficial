@@ -553,7 +553,7 @@ color.yellow=Жёлтый
 
 command.debug.clear=§7Удалены данные мониторинга для отладки мода CustomNpcs Unofficial
 command.debug.false=§7Отладка мода CustomNpcs Unofficial - §fотключено
-command.debug.show=§7Отладка информация отладки мода CustomNpcs Unofficial размещена в консоли...
+command.debug.show=§7Полная информация отладки мода CustomNpcs Unofficial размещена в консоли...
 command.debug.true=§7Отладка мода CustomNpcs Unofficial - §fвключено
 command.hover.text=Текст команды<br>§6/§7 в начале команды не обязателен<br>§6@dp§7 - попытка применить на игрока, который активировал это событие<br>§7максимальная длина в символах: %s
 command.player.addmoney=§7Игрок "%s§7", §aдобавлено %s§7 валюты. Теперь его баланс составляет: %s%s 

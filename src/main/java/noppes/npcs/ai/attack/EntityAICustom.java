@@ -137,9 +137,11 @@ public class EntityAICustom extends EntityAIBase {
 	}
 
 	public void update() {
+		CustomNpcs.debugData.start(npc, this, "update");
 		if (!startRangedAttack || target == null || !target.isEntityAlive() || !npc.isEntityAlive()) {
 			startRangedAttack = false;
 			//this.step = 0; this.burstCount = 0;
+			CustomNpcs.debugData.end(npc, this, "update");
 			return;
 		}
 		step++;
@@ -170,6 +172,7 @@ public class EntityAICustom extends EntityAIBase {
 			}
 			step = 0;
 		}
+		CustomNpcs.debugData.end(npc, this, "update");
 	}
 
 	/**

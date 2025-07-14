@@ -1,6 +1,7 @@
 package noppes.npcs.command;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import net.minecraft.block.Block;
@@ -10,25 +11,40 @@ import net.minecraft.block.BlockVine;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.ChunkController;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 import javax.annotation.Nonnull;
 
 public class CmdConfig extends CommandNoppesBase {
 
 	public int getRequiredPermissionLevel() {
-		return 4;
+		return 2;
+	}
+
+	@Override
+	public String getDescription() {
+		return "Some config things you can set";
+	}
+
+	@Nonnull
+	public String getName() {
+		return "config";
 	}
 
 	@SuppressWarnings("all")
-	@SubCommand(desc = "Set how many active chunkloaders you can have", usage = "<number>")
+	@SubCommand(desc = "Set how many active chunkloaders you can have", usage = "<number>", permission = 4)
 	public void chunkloaders(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length == 0) {
 			this.sendMessage(sender, "ChunkLoaders: " + ChunkController.instance.size() + "/" + CustomNpcs.ChuckLoaders);
@@ -48,10 +64,32 @@ public class CmdConfig extends CommandNoppesBase {
 		}
 	}
 
-	@SubCommand(desc = "Add debug info to log", usage = "<true/false>")
+	@SubCommand(desc = "Add debug info to log", usage = "<true/false>", permission = 4)
 	public void debug(MinecraftServer server, ICommandSender sender, String[] args) {
 		CustomNpcs.VerboseDebug = Boolean.parseBoolean(args[0]);
-		this.sendMessage(sender, "Verbose debug is now " + CustomNpcs.VerboseDebug);
+		sender.sendMessage(new TextComponentTranslation("command.debug." + CustomNpcs.VerboseDebug));
+	}
+
+	@SubCommand(desc = "Delete monitoring data", permission = 4)
+	public void clear(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		CustomNpcs.debugData.clear();
+		if (sender instanceof EntityPlayerMP) {
+			Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_REMOVE, EnumSync.Debug,
+					new NBTTagCompound());
+		}
+		sender.sendMessage(new TextComponentTranslation("command.debug.clear"));
+	}
+
+	@SubCommand(desc = "Will display the current mod debug report", permission = 2)
+	public void report(MinecraftServer server, ICommandSender sender, String[] args) {
+		List<String> list = CustomNpcs.debugData.logging(null);
+		if (sender instanceof EntityPlayerMP) {
+			CustomNPCsScheduler.runTack(() -> Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_ADD, EnumSync.Debug, new NBTTagCompound()), 500);
+		}
+		for (String str : list) {
+			sender.sendMessage(new TextComponentString(str));
+		}
+		sender.sendMessage(new TextComponentTranslation("command.debug.show"));
 	}
 
 	@SubCommand(desc = "Get/Set font", usage = "[type] [size]", permission = 2)
@@ -73,7 +111,7 @@ public class CmdConfig extends CommandNoppesBase {
 		Server.sendData((EntityPlayerMP) sender, EnumPacketClient.CONFIG_FONT, 0, font.toString().trim(), size);
 	}
 
-	@SubCommand(desc = "Freezes/Unfreezes npcs", usage = "[true/false]")
+	@SubCommand(desc = "Freezes/Unfreezes npcs", usage = "[true/false]", permission = 4)
 	public void freezenpcs(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length == 0) {
 			this.sendMessage(sender, "Frozen NPCs: " + CustomNpcs.FreezeNPCs);
@@ -83,17 +121,7 @@ public class CmdConfig extends CommandNoppesBase {
 		}
 	}
 
-	@Override
-	public String getDescription() {
-		return "Some config things you can set";
-	}
-
-	@Nonnull
-	public String getName() {
-		return "config";
-	}
-
-	@SubCommand(desc = "Disable/Enable the ice melting", usage = "[true/false]")
+	@SubCommand(desc = "Disable/Enable the ice melting", usage = "[true/false]", permission = 4)
 	public void icemelts(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length == 0) {
 			this.sendMessage(sender, "IceMelts: " + CustomNpcs.IceMeltsEnabled);
@@ -111,7 +139,7 @@ public class CmdConfig extends CommandNoppesBase {
 		}
 	}
 
-	@SubCommand(desc = "Disable/Enable the natural leaves decay", usage = "[true/false]")
+	@SubCommand(desc = "Disable/Enable the natural leaves decay", usage = "[true/false]", permission = 4)
 	public void leavesdecay(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length == 0) {
 			this.sendMessage(sender, "LeavesDecay: " + CustomNpcs.LeavesDecayEnabled);
@@ -129,7 +157,7 @@ public class CmdConfig extends CommandNoppesBase {
 		}
 	}
 
-	@SubCommand(desc = "Enables/Disables scripting", usage = "[true/false]")
+	@SubCommand(desc = "Enables/Disables scripting", usage = "[true/false]", permission = 4)
 	public void scripting(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length == 0) {
 			this.sendMessage(sender, "Scripting: " + CustomNpcs.EnableScripting);
@@ -140,7 +168,7 @@ public class CmdConfig extends CommandNoppesBase {
 		}
 	}
 
-	@SubCommand(desc = "Disable/Enable the vines growing", usage = "[true/false]")
+	@SubCommand(desc = "Disable/Enable the vines growing", usage = "[true/false]", permission = 4)
 	public void vinegrowth(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length == 0) {
 			this.sendMessage(sender, "VineGrowth: " + CustomNpcs.VineGrowthEnabled);
@@ -157,4 +185,5 @@ public class CmdConfig extends CommandNoppesBase {
 			this.sendMessage(sender, "VineGrowth is now " + CustomNpcs.VineGrowthEnabled);
 		}
 	}
+
 }

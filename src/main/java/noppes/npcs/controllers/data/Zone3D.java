@@ -6,11 +6,8 @@ import java.util.*;
 
 import com.google.common.base.Predicate;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderPearl;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
@@ -32,7 +29,6 @@ import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.controllers.BorderController;
-import noppes.npcs.util.RayTraceVec;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 
@@ -925,7 +921,11 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		if (points.isEmpty() || dimensionID != world.provider.getDimension()) {
 			return;
 		}
-		List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, getAxisAlignedBB().grow(1.0d), this);
+		List<Entity> entities = new ArrayList<>();
+		try {
+			entities = world.getEntitiesWithinAABB(Entity.class, getAxisAlignedBB().grow(1.0d), this);
+		}
+		catch (Exception ignored) { }
 		for (Entity entity : entities) {
 			if (!entitiesWithinRegion.contains(entity)) {
 				if (tryEntityEnter(entity)) { continue; }

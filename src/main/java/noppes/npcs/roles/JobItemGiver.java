@@ -63,10 +63,18 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 			return false;
 		}
 		this.ticks = 10;
-		(this.toCheck = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
-				this.npc.getEntityBoundingBox().grow(3.0, 3.0, 3.0))).removeAll(this.recentlyChecked);
-		List<EntityPlayer> listMax = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
-				this.npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0));
+		List<EntityPlayer> list = new ArrayList<>();
+		try {
+			list = npc.world.getEntitiesWithinAABB(EntityPlayer.class, npc.getEntityBoundingBox().grow(3.0, 3.0, 3.0));
+		}
+		catch (Exception ignored) { }
+		(this.toCheck = list).removeAll(this.recentlyChecked);
+		List<EntityPlayer> listMax = new ArrayList<>();
+		try {
+			listMax = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
+					this.npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0));
+		}
+		catch (Exception ignored) { }
 		this.recentlyChecked.retainAll(listMax);
 		this.recentlyChecked.addAll(this.toCheck);
 		return !this.toCheck.isEmpty();

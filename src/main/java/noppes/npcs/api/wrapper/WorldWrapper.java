@@ -213,11 +213,15 @@ public class WorldWrapper implements IWorld {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public IEntity<?> getClosestEntity(IPos pos, int range, int type) {
 		AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(pos.getMCBlockPos()).grow(range,
 				range, range);
-		@SuppressWarnings("unchecked")
-		List<Entity> entities = this.world.getEntitiesWithinAABB(this.getClassForType(type), bb);
+		List<Entity> entities = new ArrayList<>();
+		try {
+			entities = world.getEntitiesWithinAABB(this.getClassForType(type), bb);
+		}
+		catch (Exception ignored) { }
 		double distance = range * range * range;
 		Entity entity = null;
 		for (Entity e : entities) {
@@ -314,11 +318,15 @@ public class WorldWrapper implements IWorld {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public IEntity<?>[] getNearbyEntities(IPos pos, int range, int type) {
 		AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(pos.getMCBlockPos()).grow(range,
 				range, range);
-		@SuppressWarnings("unchecked")
-		List<Entity> entities = this.world.getEntitiesWithinAABB(this.getClassForType(type), bb);
+		List<Entity> entities = new ArrayList<>();
+		try {
+			entities = world.getEntitiesWithinAABB(this.getClassForType(type), bb);
+		}
+		catch (Exception ignored) { }
 		List<IEntity<?>> list = new ArrayList<>();
 		for (Entity living : entities) {
 			list.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(living));

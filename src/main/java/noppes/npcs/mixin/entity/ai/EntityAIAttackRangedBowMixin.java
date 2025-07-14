@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = EntityAIAttackRangedBow.class)
+@Mixin(value = EntityAIAttackRangedBow.class, priority = 499)
 public class EntityAIAttackRangedBowMixin<T extends EntityMob & IRangedAttackMob> {
 
     @Final

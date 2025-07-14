@@ -554,11 +554,9 @@ public class AnimationHandler {
         // check waits
         List<AnimationConfig> selectList = new ArrayList<>();
         for (AnimationConfig ac : list) {
-            if (waitData.containsKey(ac.id) && waitData.get(ac.id) > System.currentTimeMillis()) {
-                continue;
-            }
+            if (waitData.containsKey(ac.id) && waitData.get(ac.id) > System.currentTimeMillis()) { continue; }
             if (ac.chance <= rnd.nextFloat()) {
-                if (!type.isQuickStart()) { waitData.put(ac.id, System.currentTimeMillis() + 1000); }
+                if (!type.isQuickStart()) { waitData.put(ac.id, System.currentTimeMillis() + (long) ((1.0f - ac.chance) * 10000.0f)); }
                 continue;
             }
             selectList.add(ac);

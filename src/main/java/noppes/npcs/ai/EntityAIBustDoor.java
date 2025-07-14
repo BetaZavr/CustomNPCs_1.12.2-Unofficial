@@ -5,6 +5,7 @@ import net.minecraft.block.BlockDoor;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIDoorInteract;
 import net.minecraft.util.EnumHand;
+import noppes.npcs.CustomNpcs;
 
 public class EntityAIBustDoor extends EntityAIDoorInteract {
 
@@ -37,6 +38,7 @@ public class EntityAIBustDoor extends EntityAIDoorInteract {
 	}
 
 	public void updateTask() {
+		CustomNpcs.debugData.start(entity, this, "updateTask");
 		super.updateTask();
 		if (this.entity.getRNG().nextInt(20) == 0) {
 			this.entity.world.playEvent(null, 1010, this.doorPosition, 0);
@@ -54,5 +56,6 @@ public class EntityAIBustDoor extends EntityAIDoorInteract {
 			this.entity.world.playEvent(null, 2001, this.doorPosition,
 					Block.getIdFromBlock(this.doorBlock));
 		}
+		CustomNpcs.debugData.end(entity, this, "updateTask");
 	}
 }

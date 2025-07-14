@@ -90,7 +90,12 @@ public class JobConversation extends JobInterface implements IJobConversation {
 				return false;
 			}
 			startedTicks = 10;
-			if (npc.world.getEntitiesWithinAABB(EntityPlayer.class, npc.getEntityBoundingBox().grow(range, range, range)).isEmpty()) {
+			List<EntityPlayer> list = new ArrayList<>();
+			try {
+				list = npc.world.getEntitiesWithinAABB(EntityPlayer.class, npc.getEntityBoundingBox().grow(range, range, range));
+			}
+			catch (Exception ignored) { }
+			if (list.isEmpty()) {
 				return false;
 			}
 		}
@@ -138,8 +143,12 @@ public class JobConversation extends JobInterface implements IJobConversation {
 		if (this.nextLine != null) {
 			this.ticks = this.nextLine.delay;
 		} else if (this.hasQuest()) {
-			List<EntityPlayer> inRange = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
-					this.npc.getEntityBoundingBox().grow(this.range, this.range, this.range));
+			List<EntityPlayer> inRange = new ArrayList<>();
+			try {
+				inRange = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
+						this.npc.getEntityBoundingBox().grow(this.range, this.range, this.range));
+			}
+			catch (Exception ignored) { }
 			for (EntityPlayer player : inRange) {
 				if (this.availability.isAvailable(player)) {
 					PlayerQuestController.addActiveQuest(this.getQuest(), player, false);
@@ -213,8 +222,12 @@ public class JobConversation extends JobInterface implements IJobConversation {
 	}
 
 	private void say(ConversationLine line) {
-		List<EntityPlayer> inRange = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
-				this.npc.getEntityBoundingBox().grow(this.range, this.range, this.range));
+		List<EntityPlayer> inRange = new ArrayList<>();
+		try {
+			inRange = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
+					this.npc.getEntityBoundingBox().grow(this.range, this.range, this.range));
+		}
+		catch (Exception ignored) { }
 		EntityNPCInterface npc = this.npcs.get(line.npc.toLowerCase());
 		if (npc == null) {
 			return;
@@ -232,8 +245,12 @@ public class JobConversation extends JobInterface implements IJobConversation {
 			return false;
 		}
 		this.npcs.clear();
-		List<EntityNPCInterface> list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
-				this.npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0));
+		List<EntityNPCInterface> list = new ArrayList<>();
+		try {
+			list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
+					this.npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0));
+		}
+		catch (Exception ignored) { }
 		for (EntityNPCInterface npc : list) {
 			if (!npc.isKilled() && !npc.isAttacking() && this.names.contains(npc.getName().toLowerCase())) {
 				this.npcs.put(npc.getName().toLowerCase(), npc);

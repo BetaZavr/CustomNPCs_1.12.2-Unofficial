@@ -37,7 +37,7 @@ public class CmdScript extends CommandNoppesBase {
 		return 4;
 	}
 
-	@SubCommand(desc = "List of available event names from all APIs in mod")
+	@SubCommand(desc = "List of available event names from all APIs in mod", permission = 4)
 	public Boolean apilist(MinecraftServer server, ICommandSender sender, String[] args) {
 		StringBuilder list = new StringBuilder();
 		List<String> g = new ArrayList<>();
@@ -57,7 +57,7 @@ public class CmdScript extends CommandNoppesBase {
 		return true;
 	}
 
-	@SubCommand(desc = "List of available Forge event names")
+	@SubCommand(desc = "List of available Forge event names", permission = 4)
 	public Boolean clientlist(MinecraftServer server, ICommandSender sender, String[] args) {
 		StringBuilder list = new StringBuilder();
 		List<String> g = new ArrayList<>(ScriptController.forgeClientEventNames.values());
@@ -76,7 +76,7 @@ public class CmdScript extends CommandNoppesBase {
 		return true;
 	}
 
-	@SubCommand(desc = "List of available Forge event names")
+	@SubCommand(desc = "List of available Forge event names", permission = 4)
 	public Boolean forgelist(MinecraftServer server, ICommandSender sender, String[] args) {
 		StringBuilder list = new StringBuilder();
 		List<String> g = new ArrayList<>(ScriptController.forgeEventNames.values());
@@ -95,7 +95,7 @@ public class CmdScript extends CommandNoppesBase {
 		return true;
 	}
 
-	@SubCommand(desc = "Displays all script owners that have logs.")
+	@SubCommand(desc = "Displays all script owners that have logs.", permission = 4)
 	public Boolean logs(MinecraftServer server, ICommandSender sender, String[] args) {
 		Map<String, ITextComponent> map = new LinkedHashMap<>();
 	 	for (ScriptContainer container : ScriptController.Instance.getErrored()) {
@@ -114,7 +114,7 @@ public class CmdScript extends CommandNoppesBase {
 		return true;
 	}
 
-	@SubCommand(desc = "Reload scripts and saved data from disks script folder.")
+	@SubCommand(desc = "Reload scripts and saved data from disks script folder.", permission = 4)
 	public Boolean reload(MinecraftServer server, ICommandSender sender, String[] args) {
 		ScriptController.Instance.loadCategories();
 		if (ScriptController.Instance.loadPlayerScripts()) {
@@ -160,7 +160,7 @@ public class CmdScript extends CommandNoppesBase {
 		return true;
 	}
 
-	@SubCommand(desc = "Runs scriptCommand in the players scripts", usage = "[args]")
+	@SubCommand(desc = "Runs scriptCommand in the players scripts", usage = "[args]", permission = 4)
 	public Boolean run(MinecraftServer server, ICommandSender sender, String[] args) {
 		IWorld world = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(sender.getEntityWorld());
 		BlockPos bpos = sender.getPosition();
@@ -170,7 +170,7 @@ public class CmdScript extends CommandNoppesBase {
 		return true;
 	}
 
-	@SubCommand(desc = "Attempts to execute on the specified object", usage = "<dimensionID> <x> <y> <z> <entity> <triggerID> [Strings]")
+	@SubCommand(desc = "Attempts to execute on the specified object", usage = "<dimensionID> <x> <y> <z> <entity> <triggerID> [Strings]", permission = 4)
 	public Boolean trigger(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		IWorld world;
 		IPos pos = null;
@@ -217,7 +217,7 @@ public class CmdScript extends CommandNoppesBase {
 		return true;
 	}
 
-	@SubCommand(desc = "Display a list of all load script elements positions in chat")
+	@SubCommand(desc = "Display a list of all load script elements positions in chat", permission = 4)
 	public Boolean list(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		ITextComponent positions;
 		String key = args.length > 0 ? args[0] : "all";

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.List;
 
 // Used by custom GUI
-@Mixin(value = GuiLabel.class)
+@Mixin(value = GuiLabel.class, priority = 499)
 public class GuiLabelMixin implements IGuiLabelMixin {
 
     @Final

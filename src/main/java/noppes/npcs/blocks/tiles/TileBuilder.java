@@ -112,9 +112,14 @@ public class TileBuilder extends TileEntity implements ITickable {
 	}
 
 	private List<EntityPlayer> getPlayerList() {
-		return this.world.getEntitiesWithinAABB(EntityPlayer.class,
-				new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), (this.pos.getX() + 1),
-						(this.pos.getY() + 1), (this.pos.getZ() + 1)).grow(10.0, 10.0, 10.0));
+		List<EntityPlayer> list = new ArrayList<>();
+		try {
+			list = world.getEntitiesWithinAABB(EntityPlayer.class,
+					new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), (this.pos.getX() + 1),
+							(this.pos.getY() + 1), (this.pos.getZ() + 1)).grow(10.0, 10.0, 10.0));
+		}
+		catch (Exception ignored) { }
+		return list;
 	}
 
 	public SchematicWrapper getSchematic() {
@@ -197,8 +202,12 @@ public class TileBuilder extends TileEntity implements ITickable {
 				return;
 			}
 		}
-		List<EntityNPCInterface> list = this.world.getEntitiesWithinAABB(EntityNPCInterface.class,
-				new AxisAlignedBB(this.getPos(), this.getPos()).grow(32.0, 32.0, 32.0));
+		List<EntityNPCInterface> list = new ArrayList<>();
+		try {
+			list = this.world.getEntitiesWithinAABB(EntityNPCInterface.class,
+					new AxisAlignedBB(this.getPos(), this.getPos()).grow(32.0, 32.0, 32.0));
+		}
+		catch (Exception ignored) { }
 		for (EntityNPCInterface npc : list) {
 			if (npc.advanced.jobInterface instanceof JobBuilder) {
 				JobBuilder job = (JobBuilder) npc.advanced.jobInterface;

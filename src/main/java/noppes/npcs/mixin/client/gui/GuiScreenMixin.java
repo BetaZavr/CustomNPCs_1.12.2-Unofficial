@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.List;
 
 // Used by NPC GUI
-@Mixin(value = GuiScreen.class)
+@Mixin(value = GuiScreen.class, priority = 499)
 public class GuiScreenMixin implements IGuiScreenMixin {
 
     @Shadow

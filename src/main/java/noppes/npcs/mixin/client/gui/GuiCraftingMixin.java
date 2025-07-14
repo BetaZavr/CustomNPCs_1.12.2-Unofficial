@@ -2,7 +2,6 @@ package noppes.npcs.mixin.client.gui;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiButtonImage;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiCrafting;
 import noppes.npcs.api.mixin.client.gui.IGuiScreenMixin;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-@Mixin(value = GuiCrafting.class)
+@Mixin(value = GuiCrafting.class, priority = 499)
 public class GuiCraftingMixin {
 
     @Shadow

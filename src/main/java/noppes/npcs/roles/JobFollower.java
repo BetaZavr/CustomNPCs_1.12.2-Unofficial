@@ -1,5 +1,6 @@
 package noppes.npcs.roles;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -50,8 +51,12 @@ public class JobFollower extends JobInterface implements IJobFollower {
 				return true;
 			}
 		}
-        List<EntityNPCInterface> list = npc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
-				npc.getEntityBoundingBox().grow(getRange(), getRange(), getRange()));
+		List<EntityNPCInterface> list = new ArrayList<>();
+		try {
+			list = npc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
+					npc.getEntityBoundingBox().grow(getRange(), getRange(), getRange()));
+		}
+		catch (Exception ignored) { }
 		for (EntityNPCInterface entity : list) {
 			if (entity == npc || entity.isKilled()) {
 				continue;

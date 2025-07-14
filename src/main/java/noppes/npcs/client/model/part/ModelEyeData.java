@@ -131,7 +131,6 @@ extends ModelPartData {
 
 	@Override
 	public void load(NBTTagCompound compound) {
-//System.out.println("TEST: "+compound);
 		if (compound.getKeySet().isEmpty()) { return; }
 		super.load(compound);
 		glint = compound.getBoolean("Glint");
@@ -223,7 +222,6 @@ extends ModelPartData {
 		resources.appendTag(new NBTTagString(browRight.toString()));
 		compound.setTag("EyeResources", resources);
 
-//System.out.println("TEST: "+compound);
 		return compound;
 	}
 }

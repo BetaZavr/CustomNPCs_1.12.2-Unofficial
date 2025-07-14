@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 // methods are mixed, as there are now recipes with more than 1 count ingredient
-@Mixin(value = SlotCrafting.class)
+@Mixin(value = SlotCrafting.class, priority = 499)
 public class SlotCraftingMixin {
 
     @Final

@@ -1,6 +1,7 @@
 package noppes.npcs.ai;
 
 import net.minecraft.entity.ai.EntityAIBase;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIRole extends EntityAIBase {
@@ -26,9 +27,11 @@ public class EntityAIRole extends EntityAIBase {
 	}
 
 	public void updateTask() {
+		CustomNpcs.debugData.start(npc, this, "updateTask");
 		if (this.npc.advanced.roleInterface != null) {
 			this.npc.advanced.roleInterface.aiUpdateTask();
 		}
+		CustomNpcs.debugData.end(npc, this, "updateTask");
 	}
 
 }

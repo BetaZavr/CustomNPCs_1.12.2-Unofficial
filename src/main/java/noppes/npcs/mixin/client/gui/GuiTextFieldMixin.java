@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
 // Used by custom GUI
-@Mixin(value = GuiTextField.class)
+@Mixin(value = GuiTextField.class, priority = 499)
 public class GuiTextFieldMixin implements IGuiTextFieldMixin {
 
     @Final

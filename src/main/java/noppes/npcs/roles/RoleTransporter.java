@@ -1,5 +1,6 @@
 package noppes.npcs.roles;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,8 +56,12 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 		if (loc.type != 0) {
 			return false;
 		}
-		List<EntityPlayer> inRange = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
-				this.npc.getEntityBoundingBox().grow(6.0, 6.0, 6.0));
+		List<EntityPlayer> inRange = new ArrayList<>();
+		try {
+			inRange = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
+					this.npc.getEntityBoundingBox().grow(6.0, 6.0, 6.0));
+		}
+		catch (Exception ignored) { }
 		for (EntityPlayer player : inRange) {
 			if (!this.npc.canSee(player)) {
 				continue;

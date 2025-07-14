@@ -132,8 +132,12 @@ public class ServerEventsHandler {
 					continue;
 				}
 				if (obj.getType() == EnumQuestTask.AREAKILL.ordinal() && forAll) {
-					List<EntityPlayer> list = player.world.getEntitiesWithinAABB(EntityPlayer.class, entity
-							.getEntityBoundingBox().grow(obj.getAreaRange(), obj.getAreaRange(), obj.getAreaRange()));
+					List<EntityPlayer> list = new ArrayList<>();
+					try {
+						list = player.world.getEntitiesWithinAABB(EntityPlayer.class, entity
+								.getEntityBoundingBox().grow(obj.getAreaRange(), obj.getAreaRange(), obj.getAreaRange()));
+					}
+					catch (Exception ignored) { }
 					for (EntityPlayer pl : list) {
 						if (pl != player) {
 							this.doKillQuest(pl, entity, false);
@@ -292,9 +296,9 @@ public class ServerEventsHandler {
 	@SubscribeEvent
 	public void npcItemCapabilities(AttachCapabilitiesEvent<ItemStack> event) {
 		if (event.getObject().getItem() instanceof UniversalBucket) { return; }
-		CustomNpcs.debugData.start("Mod", this, "npcItemCapabilities");
+		CustomNpcs.debugData.start("Item", this, "npcItemCapabilities");
 		ItemStackWrapper.register(event);
-		CustomNpcs.debugData.end("Mod", this, "npcItemCapabilities");
+		CustomNpcs.debugData.end("Item", this, "npcItemCapabilities");
 	}
 
 	@SubscribeEvent
@@ -435,13 +439,24 @@ public class ServerEventsHandler {
 	public void npcGetCollisionBoxes(GetCollisionBoxesEvent event) {
 		if (event.getEntity() == null || event.getEntity().world == null) { return; }
 		CustomNpcs.debugData.start("Mod", this, "npcGetCollisionBoxes");
-		List<EntityNPCInterface> npcs = event.getEntity().world.getEntitiesWithinAABB(EntityNPCInterface.class, event.getAabb());
-		AxisAlignedBB mainAABB = event.getEntity().getEntityBoundingBox();
-		for (EntityNPCInterface npc : npcs) {
-			if (npc.isEntityAlive() && npc.display.getHitboxState() == (byte) 2) {
-				AxisAlignedBB aabb = npc.getEntityBoundingBox();
-				if (!aabb.equals(mainAABB)) { event.getCollisionBoxesList().add(npc.getEntityBoundingBox()); }
-			}
+		double x0 = event.getAabb().maxX - event.getAabb().minX;
+		double y0 = event.getAabb().maxY - event.getAabb().minY;
+		double z0 = event.getAabb().maxZ - event.getAabb().minZ;
+		double d0 = x0 > z0 ? x0 > y0 ? x0 * x0 : y0 * y0 : z0 > y0 ? z0 * z0 : y0 * y0;
+		for (Entity npc : new ArrayList<>(event.getEntity().world.loadedEntityList)) {
+			if (!(npc instanceof EntityNPCInterface) ||
+					npc == event.getEntity() ||
+					!npc.isEntityAlive() ||
+					((EntityNPCInterface) npc).display.getHitboxState() != 2) { continue; }
+			double dist = npc.getDistanceSq(event.getEntity());
+			if (dist > 4096) { continue; }
+			AxisAlignedBB aabb = npc.getEntityBoundingBox();
+			double x1 = aabb.maxX - aabb.minX;
+			double y1 = aabb.maxY - aabb.minY;
+			double z1 = aabb.maxZ - aabb.minZ;
+			double d1 = x1 > z1 ? x1 > y1 ? x1 * x1 : y1 * y1 : z1 > y1 ? z1 * z1 : y1 * y1;
+			if (dist > d0 + d1) { continue; }
+			event.getCollisionBoxesList().add(npc.getEntityBoundingBox());
 		}
 		CustomNpcs.debugData.end("Mod", this, "npcGetCollisionBoxes");
 	}

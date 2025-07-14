@@ -57,7 +57,7 @@ public class CmdDimensions extends CommandNoppesBase {
 		return list;
 	}
 
-	@SubCommand(desc = "Set spawn block in dimension")
+	@SubCommand(desc = "Set spawn block in dimension", permission = 2)
 	public void setspawn(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (sender == null) {
 			return;
@@ -96,7 +96,7 @@ public class CmdDimensions extends CommandNoppesBase {
 				new TextComponentString("Set new spawn pos: [" + x + ", " + y + ", " + z + "] in dimension ID: " + id));
 	}
 
-	@SubCommand(desc = "Transfer player to dimension", usage = "<player> <dimensionID>")
+	@SubCommand(desc = "Transfer player to dimension", usage = "<player> <dimensionID>", permission = 2)
 	public void tp(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		EntityPlayerMP player = CommandBase.getPlayer(server, sender, args[0]);
 		int id;

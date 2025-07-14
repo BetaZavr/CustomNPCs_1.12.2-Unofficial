@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemShield;
 import net.minecraft.util.DamageSource;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.ability.AbstractAbility;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
@@ -51,12 +52,19 @@ public class CombatHandler {
 	}
 
 	public void damage(DamageSource source, double damageAmount) {
+		CustomNpcs.debugData.start(npc, this, "damage");
 		combatResetTimer = 0;
 		Entity e = NoppesUtilServer.GetDamageSource(source);
-		if (!(e instanceof EntityLivingBase)) { return; }
+		if (!(e instanceof EntityLivingBase)) {
+			CustomNpcs.debugData.end(npc, this, "damage");
+			return;
+		}
 		EntityLivingBase attackingEntity = (EntityLivingBase) e;
 		if (attackingEntity instanceof EntityPlayer) {
-			if (((EntityPlayer) attackingEntity).capabilities.isCreativeMode) { return; }
+			if (((EntityPlayer) attackingEntity).capabilities.isCreativeMode) {
+				CustomNpcs.debugData.end(npc, this, "damage");
+				return;
+			}
 			onlyPlayers = true;
 		}
 		// Minimum
@@ -83,6 +91,7 @@ public class CombatHandler {
 		aggressors.put(attackingEntity, oldValue + newValue);
 		lastDamages.put(attackingEntity, npc.world.getTotalWorldTime());
 		if (priorityTarget == null) { priorityTarget = attackingEntity; }
+		CustomNpcs.debugData.end(npc, this, "damage");
 	}
 
 	public boolean isValidTarget(EntityLivingBase target) {
@@ -115,22 +124,29 @@ public class CombatHandler {
 	}
 
 	public void update() {
+		CustomNpcs.debugData.start(npc, this, "update");
 		if (npc.isKilled()) {
 			if (npc.isAttacking()) { reset(); }
+			CustomNpcs.debugData.end(npc, this, "update");
 			return;
 		}
 		if (npc.getAttackTarget() != null && !npc.isAttacking()) { start(); }
 		if (!shouldCombatContinue()) {
 			if (combatResetTimer++ > 40) { reset(); }
+			CustomNpcs.debugData.end(npc, this, "update");
 			return;
 		}
 		combatResetTimer = 0;
 		if (aggressors.isEmpty()) {
 			delay = 10;
+			CustomNpcs.debugData.end(npc, this, "update");
 			return;
 		}
 		delay--;
-		if (delay > 0) { return; }
+		if (delay > 0) {
+			CustomNpcs.debugData.end(npc, this, "update");
+			return;
+		}
 		delay = 10;
 		List<EntityLivingBase> del = new ArrayList<>();
 		double maxValue = Double.MIN_VALUE;
@@ -156,6 +172,7 @@ public class CombatHandler {
 			npc.getNavigator().tryMoveToEntityLiving(priorityTarget, 1.5);
 			delay = 60;
 		}
+		CustomNpcs.debugData.end(npc, this, "update");
 	}
 
 	public boolean canDamage(DamageSource damagesource, float amount) {

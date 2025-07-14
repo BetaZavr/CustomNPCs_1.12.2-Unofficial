@@ -6,7 +6,6 @@ import net.minecraft.entity.EntityTrackerEntry;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.IntHashMap;
 import net.minecraft.world.WorldServer;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.entity.IEntityTrackerMixin;
 import org.spongepowered.asm.mixin.Final;
@@ -19,7 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Mixin(value = EntityTracker.class)
+@Mixin(value = EntityTracker.class, priority = 499)
 public class EntityTrackerMixin implements IEntityTrackerMixin {
 
     @Final

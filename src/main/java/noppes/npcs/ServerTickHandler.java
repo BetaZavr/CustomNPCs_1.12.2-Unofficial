@@ -239,9 +239,7 @@ public class ServerTickHandler {
 
 	@SubscribeEvent
 	public void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.side == Side.CLIENT) {
-			return;
-		}
+		if (event.side == Side.CLIENT) { return; }
 		CustomNpcs.debugData.start("Mod", this, "onServerTick");
 		BorderController.getInstance().update();
 		if (event.phase == TickEvent.Phase.END) {

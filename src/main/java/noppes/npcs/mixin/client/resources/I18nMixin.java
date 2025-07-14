@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = I18n.class)
+@Mixin(value = I18n.class, priority = 499)
 public class I18nMixin {
 
     @Inject(method = "format", at = @At("TAIL"), cancellable = true)

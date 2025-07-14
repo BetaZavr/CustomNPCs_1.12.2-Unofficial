@@ -6,7 +6,7 @@ import noppes.npcs.api.mixin.client.config.IGuiEditArrayMixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(value = GuiEditArray.class, remap = false)
+@Mixin(value = GuiEditArray.class, remap = false, priority = 499)
 public class GuiEditArrayMixin implements IGuiEditArrayMixin {
 
     @Shadow

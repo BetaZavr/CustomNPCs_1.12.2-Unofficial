@@ -1,5 +1,6 @@
 package noppes.npcs.ai.target;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Predicate;
@@ -9,6 +10,7 @@ import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAITarget;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.util.math.MathHelper;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -32,29 +34,40 @@ public class EntityAIClosestTarget extends EntityAITarget {
 	}
 
 	public boolean shouldExecute() {
+		CustomNpcs.debugData.start(npc, this, "shouldExecute");
 		if (this.targetChance > 0 && this.taskOwner.getRNG().nextInt(this.targetChance) != 0) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return false;
 		}
 		try {
 			double dist = this.getTargetDistance();
-			List<EntityLivingBase> list = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass,
-					this.taskOwner.getEntityBoundingBox().grow(dist, MathHelper.ceil(dist / 2.0), dist),
-					this.targetEntitySelector);
-			list.sort(this.theNearestAttackableTargetSorter);
+			List<EntityLivingBase> list = new ArrayList<>();
+			try {
+				list = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass,
+						this.taskOwner.getEntityBoundingBox().grow(dist, MathHelper.ceil(dist / 2.0), dist),
+						this.targetEntitySelector);
+			}
+			catch (Exception ignored) { }
+            list.sort(this.theNearestAttackableTargetSorter);
 			if (list.isEmpty()) {
+				CustomNpcs.debugData.end(npc, this, "shouldExecute");
 				return false;
 			}
 			this.targetEntity = list.get(0);
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return true;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
+		CustomNpcs.debugData.end(npc, this, "shouldExecute");
 		return false;
 	}
 
 	public void startExecuting() {
+		CustomNpcs.debugData.start(npc, this, "startExecuting");
 		this.taskOwner.setAttackTarget(this.targetEntity);
 		if (this.targetEntity instanceof EntityMob && ((EntityMob) this.targetEntity).getAttackTarget() == null) {
 			((EntityMob) this.targetEntity).setAttackTarget(this.taskOwner);
 		}
 		super.startExecuting();
+		CustomNpcs.debugData.end(npc, this, "startExecuting");
 	}
 }

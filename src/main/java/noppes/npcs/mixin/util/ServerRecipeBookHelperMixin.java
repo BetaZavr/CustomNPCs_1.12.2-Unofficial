@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
-@Mixin(value = ServerRecipeBookHelper.class, remap = false)
+@Mixin(value = ServerRecipeBookHelper.class, remap = false, priority = 499)
 public class ServerRecipeBookHelperMixin {
 
     // (LOGGER) field_194330_a

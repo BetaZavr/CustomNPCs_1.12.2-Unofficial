@@ -98,7 +98,11 @@ public class CmdSlay extends CommandNoppesBase {
 		catch (Exception e) { LogWriter.error("Error:", e); }
 
 		AxisAlignedBB box = new AxisAlignedBB(sender.getPosition(), sender.getPosition().add(1, 1, 1)).grow(range, range, range);
-		List<? extends Entity> list = sender.getEntityWorld().getEntitiesWithinAABB(EntityLivingBase.class, box);
+		List<? extends Entity> list = new ArrayList<>();
+		try {
+			list = sender.getEntityWorld().getEntitiesWithinAABB(EntityLivingBase.class, box);
+		}
+		catch (Exception ignored) { }
 		for (Entity entity : list) {
 			if (entity instanceof EntityPlayer) {
 				continue;
@@ -115,14 +119,22 @@ public class CmdSlay extends CommandNoppesBase {
 			++count;
 		}
 		if (toDelete.contains(EntityXPOrb.class)) {
-			list = sender.getEntityWorld().getEntitiesWithinAABB(EntityXPOrb.class, box);
+			list.clear();
+			try {
+				list = sender.getEntityWorld().getEntitiesWithinAABB(EntityXPOrb.class, box);
+			}
+			catch (Exception ignored) { }
 			for (Entity entity : list) {
 				entity.isDead = true;
 				++count;
 			}
 		}
 		if (toDelete.contains(EntityItem.class)) {
-			list = sender.getEntityWorld().getEntitiesWithinAABB(EntityItem.class, box);
+			list.clear();
+			try {
+				list = sender.getEntityWorld().getEntitiesWithinAABB(EntityItem.class, box);
+			}
+			catch (Exception ignored) { }
 			for (Entity entity : list) {
 				entity.isDead = true;
 				++count;

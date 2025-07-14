@@ -3,6 +3,7 @@ package noppes.npcs.ai.movement;
 import java.util.List;
 
 import net.minecraft.entity.ai.EntityAIBase;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -38,22 +39,28 @@ public class EntityAIMovingPath extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
+		CustomNpcs.debugData.start(npc, this, "shouldExecute");
 		if ((this.npc.isAttacking() && this.npc.ais.getRetaliateType() != 3) || this.npc.isInteracting()
 				|| (this.npc.getRNG().nextInt(40) != 0 && this.npc.ais.movingPause)
 				|| !this.npc.getNavigator().noPath()) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return false;
 		}
 		List<int[]> list = this.npc.ais.getMovingPath();
 		if (list.size() < 2) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
 			return false;
 		}
 		this.npc.ais.incrementMovingPath();
 		this.pos = this.npc.ais.getCurrentMovingPath();
 		this.retries = 0;
+		CustomNpcs.debugData.end(npc, this, "shouldExecute");
 		return true;
 	}
 
 	public void startExecuting() {
+		CustomNpcs.debugData.start(npc, this, "startExecuting");
 		this.npc.getNavigator().tryMoveToXYZ(this.pos[0] + 0.5, this.pos[1], this.pos[2] + 0.5, 1.0d);
+		CustomNpcs.debugData.end(npc, this, "startExecuting");
 	}
 }

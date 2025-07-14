@@ -34,7 +34,11 @@ implements ICustomScrollListener {
 		scroll.guiTop = guiTop + 4;
 		addScroll(scroll);
 		List<String> names = new ArrayList<>();
-		List<EntityNPCInterface> list = npc.world.getEntitiesWithinAABB(EntityNPCInterface.class, npc.getEntityBoundingBox().grow(40.0, 40.0, 40.0));
+		List<EntityNPCInterface> list = new ArrayList<>();
+		try {
+			list = npc.world.getEntitiesWithinAABB(EntityNPCInterface.class, npc.getEntityBoundingBox().grow(40.0, 40.0, 40.0));
+		}
+		catch (Exception ignored) { }
 		for (EntityNPCInterface npcEntity : list) {
 			if (npcEntity.equals(npc) || names.contains(npcEntity.display.getName())) { continue; }
 			names.add(npcEntity.display.getName());

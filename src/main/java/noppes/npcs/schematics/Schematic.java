@@ -2,6 +2,7 @@ package noppes.npcs.schematics;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -140,7 +141,11 @@ public class Schematic implements ISchematic {
 		schema.entityList = new NBTTagList();
 		AxisAlignedBB bbE = new AxisAlignedBB(bb.minX - 0.25d, bb.minY - 0.25d, bb.minZ - 0.25d, bb.maxX + 0.25d,
 				bb.maxY + 0.25d, bb.maxZ + 0.25d);
-		List<Entity> list = world.getEntitiesWithinAABB(Entity.class, bbE);
+		List<Entity> list = new ArrayList<>();
+		try {
+			list = world.getEntitiesWithinAABB(Entity.class, bbE);
+		}
+		catch (Exception ignored) { }
 		for (Entity e : list) {
 			if (e instanceof EntityThrowable || e instanceof EntityArrow || e instanceof EntityPlayer) {
 				continue;

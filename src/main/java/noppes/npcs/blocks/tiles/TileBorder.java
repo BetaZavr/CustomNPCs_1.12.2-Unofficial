@@ -1,5 +1,6 @@
 package noppes.npcs.blocks.tiles;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Predicate;
@@ -105,7 +106,7 @@ implements Predicate, ITickable {
 			world.setBlockState(pos, CustomRegisters.border.getDefaultState().withProperty(BlockBorder.ROTATION, rotation));
 		}
     }
-
+	@SuppressWarnings("unchecked")
 	public void update() {
 		if (world.isRemote) { return; }
 		for (int i = 1; i < height && i < 3; i++) {
@@ -114,8 +115,11 @@ implements Predicate, ITickable {
 			}
 		}
 		AxisAlignedBB box = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), (pos.getX() + 1), (pos.getY() + height + 1), (pos.getZ() + 1));
-		@SuppressWarnings("unchecked")
-		List<Entity> list = world.getEntitiesWithinAABB(Entity.class, box, this);
+		List<Entity> list = new ArrayList<>();
+		try {
+			list = world.getEntitiesWithinAABB(Entity.class, box, this);
+		}
+		catch (Exception ignored) { }
 		for (Entity entity : list) {
 			if (entity instanceof EntityEnderPearl) {
 				EntityEnderPearl pearl = (EntityEnderPearl) entity;

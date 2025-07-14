@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mixin(value = GuiListWorldSelectionEntry.class)
+@Mixin(value = GuiListWorldSelectionEntry.class, priority = 499)
 public class GuiListWorldSelectionEntryMixin {
 
     @Final

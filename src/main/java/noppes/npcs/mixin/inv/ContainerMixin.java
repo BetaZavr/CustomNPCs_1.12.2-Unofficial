@@ -17,14 +17,13 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /*
  * Since custom recipes can contain more than 1 count ingredient,
  * it is necessary to check the recipes whenever the inventory changes.
  */
-@Mixin(value = Container.class)
+@Mixin(value = Container.class, priority = 499)
 public class ContainerMixin {
 
     @Shadow

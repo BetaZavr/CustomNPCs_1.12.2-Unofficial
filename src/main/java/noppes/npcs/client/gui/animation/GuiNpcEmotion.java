@@ -363,7 +363,6 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 		int xx = sw.getScaledWidth() / 2 - wX;
 		int yy = sw.getScaledHeight() / 2 - wY;
-//System.out.println("CNPCs: ["+sw.getScaledWidth()+", "+sw.getScaledHeight()+"]; ["+wX+", "+wY+"]; ["+xx+", "+yy+"]");
 
 		/*button = new GuiNpcButton(21, workU + workS / 2 - 11, workV + workS - 12, 18, 10, "");
 		button.texture = ANIMATION_BUTTONS;

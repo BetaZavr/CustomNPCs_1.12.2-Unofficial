@@ -1,5 +1,6 @@
 package noppes.npcs.items;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -81,7 +82,11 @@ public class ItemTeleporter extends Item implements IPermission {
 		Vec3d vec5 = par3EntityPlayer.getLook(f);
 		boolean flag = false;
 		float f10 = 1.0f;
-		List<Entity> list = par3EntityPlayer.world.getEntitiesWithinAABBExcludingEntity(par3EntityPlayer, par3EntityPlayer.getEntityBoundingBox().grow(vec5.x * d4, vec5.y * d4, vec5.z * d4).grow(f10, f10, f10));
+		List<Entity> list = new ArrayList<>();
+		try {
+			list = par3EntityPlayer.world.getEntitiesWithinAABBExcludingEntity(par3EntityPlayer, par3EntityPlayer.getEntityBoundingBox().grow(vec5.x * d4, vec5.y * d4, vec5.z * d4).grow(f10, f10, f10));
+		}
+		catch (Exception ignored) { }
         for (Entity entity : list) {
             if (entity.canBeCollidedWith()) {
                 float f11 = entity.getCollisionBorderSize();
