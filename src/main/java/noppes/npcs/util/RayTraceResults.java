@@ -1,49 +1,52 @@
 package noppes.npcs.util;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.util.IRayTraceResults;
-import noppes.npcs.api.wrapper.BlockWrapper;
-import noppes.npcs.api.wrapper.EntityWrapper;
+import noppes.npcs.api.wrapper.*;
 
 public class RayTraceResults implements IRayTraceResults {
 
 	public static RayTraceResults EMPTY = new RayTraceResults();
 
-	private IBlock[] blocks;
-	private IEntity<?>[] entitys;
-
-	public RayTraceResults() {
-		this.blocks = new IBlock[0];
-		this.entitys = new IEntity<?>[0];
-	}
+	private final LRUHashMap<BlockPos, IBlock> blocks = new LRUHashMap<>(128);
+	private List<Entity> entitys = new ArrayList<>();
 
 	public void add(Entity entity, double distance, Vec3d vecStart, Vec3d vecEnd) {
-		this.entitys = EntityWrapper.findEntityOnPath(entity, distance, vecStart, vecEnd);
+		entitys = EntityWrapper.findEntityOnPath(entity, distance, vecStart, vecEnd);
 	}
 
-	@SuppressWarnings("deprecation")
 	public void add(World world, BlockPos pos, IBlockState state) {
-		for (IBlock bi : this.blocks) {
-			if (bi.getPos().getMCBlockPos().equals(pos)) { return; }
-		}
-		int currentSize = blocks.length;
-		IBlock[] newArray = Arrays.copyOf(blocks, currentSize + 1);
-		newArray[currentSize] = BlockWrapper.createNew(world, pos, state);
-		blocks = newArray;
+		if (blocks.containsKey(pos)) { return; }
+		blocks.put(pos, BlockWrapper.createNew(world, pos, state));
 	}
 
 	@Override
-	public IBlock[] getBlocks() { return blocks; }
+	public IBlock[] getBlocks() { return blocks.values().toArray(new IBlock[0]); }
 
 	@Override
-	public IEntity<?>[] getEntitys() { return entitys; }
+	public IEntity<?>[] getEntitys() {
+		List<IEntity<?>> result = new ArrayList<>();
+		for (Entity e : entitys) {
+			result.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e));
+		}
+		return result.toArray(new IEntity[0]);
+	}
+
+	@Override
+	public void clear() {
+		blocks.clear();
+		entitys.clear();
+	}
 
 }

@@ -293,8 +293,6 @@ public class CustomNpcs {
 	public static DimensionType customDimensionType;
 	public static ModContainer mod;
 	public static final VisibilityController visibilityController = new VisibilityController();
-
-	public static final boolean FreezesDebug = true;
 	
 	public static int colorAnimHoverPart = new Color(0xFFFA7800).getRGB();
     public static int PanoramaNumbers = 4;
@@ -327,8 +325,6 @@ public class CustomNpcs {
 
 	@Mod.EventHandler
 	public static void postload(FMLPostInitializationEvent ev) {
-		CustomNpcs.debugData.start("Mod", CustomNpcs.class, "postload");
-
 		new Util();
 		for (ModContainer mod : Loader.instance().getModList()) {
 			if (mod.getModId().equals(CustomNpcs.MODID)) {
@@ -343,7 +339,6 @@ public class CustomNpcs {
 
 		CustomNpcs.proxy.postload();
 		LogWriter.info("Mod loaded ^_^ Have a good game!");
-		CustomNpcs.debugData.end("Mod", CustomNpcs.class, "postload");
 	}
 
 	public CustomNpcs() {
@@ -353,7 +348,6 @@ public class CustomNpcs {
 	@Mod.EventHandler
 	@SuppressWarnings("all")
 	public void load(FMLInitializationEvent ev) {
-		CustomNpcs.debugData.start("Mod", CustomNpcs.class, "load");
 		PixelmonHelper.load();
 		ScriptController controller = new ScriptController();
 		if (CustomNpcs.EnableScripting && !controller.languages.isEmpty()) {
@@ -375,12 +369,10 @@ public class CustomNpcs {
 		CustomNpcs.MARKOV_GENERATOR[8] = new MarkovCustomNPCsClassic(3);
 		CustomNpcs.MARKOV_GENERATOR[9] = new MarkovSpanish(3);
 		CustomNpcs.proxy.load();
-		CustomNpcs.debugData.end("Mod", CustomNpcs.class, "load");
 	}
 
 	@Mod.EventHandler
 	public void preload(FMLPreInitializationEvent ev) {
-		CustomNpcs.debugData.start("Mod", CustomNpcs.class, "preload");
 		Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(MODNAME);
 		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel("CNPCsPlayer");
 		CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), MODID);
@@ -408,12 +400,10 @@ public class CustomNpcs {
 		CustomNpcs.proxy.preload();
 		RangedAttributeReflection.setMaxValue((RangedAttribute) SharedMonsterAttributes.MAX_HEALTH, Double.MAX_VALUE);
 		DataObject.load();
-		CustomNpcs.debugData.end("Mod", CustomNpcs.class, "preload");
 	}
 
 	@Mod.EventHandler
 	public void serverStart(FMLServerStartingEvent event) {
-		CustomNpcs.debugData.start("Mod", this, "serverStart");
 		event.registerServerCommand(CustomNpcs.NoppesCommand);
 		EntityNPCInterface.ChatEventPlayer = new FakePlayer(event.getServer().getWorld(0), EntityNPCInterface.ChatEventProfile);
 		EntityNPCInterface.CommandPlayer = new FakePlayer(event.getServer().getWorld(0), EntityNPCInterface.CommandProfile);
@@ -444,13 +434,11 @@ public class CustomNpcs {
             });
 		}
 		DimensionHandler.getInstance().loadDimensions();
-		CustomNpcs.debugData.end("Mod", this, "serverStart");
 	}
 
 	@Mod.EventHandler
 	public void setAboutToStart(FMLServerAboutToStartEvent event) {
 		LogWriter.info("CustomNpcs: setAboutToStart");
-		CustomNpcs.debugData.start("Mod", this, "setAboutToStart");
 		CustomNpcs.Server = event.getServer();
 		ChunkController.instance.clear();
 		FactionController.instance.load();
@@ -504,12 +492,10 @@ public class CustomNpcs {
 				LogWriter.error("Error:", e);
 			}
 		}
-		CustomNpcs.debugData.end("Mod", this, "setAboutToStart");
 	}
 
 	@Mod.EventHandler
 	public void started(FMLServerStartedEvent event) {
-		CustomNpcs.debugData.start("Mod", this, "started");
 		new BankController();
 		new MarcetController();
 		new BorderController();
@@ -518,12 +504,10 @@ public class CustomNpcs {
 		ScriptController.HasStart = true;
 		ServerCloneController.Instance = new ServerCloneController();
 		ScriptController.Instance.loadItemTextures();
-		CustomNpcs.debugData.end("Mod", this, "started");
 	}
 
 	@Mod.EventHandler
 	public void stopped(FMLServerStoppedEvent event) {
-		CustomNpcs.debugData.start("Mod", this, "stopped");
 		CustomNpcs.Config.config.save();
 		ServerCloneController.Instance = null;
 		PlayerSkinController.getInstance().save();
@@ -535,7 +519,6 @@ public class CustomNpcs {
 		ItemScripted.Resources.clear();
 		BankController.getInstance().update();
 		RecipeController.getInstance().checkSaves();
-		CustomNpcs.debugData.end("Mod", this, "stopped");
 		CustomNpcs.Server = null;
 	}
 

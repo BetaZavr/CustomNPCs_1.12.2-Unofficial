@@ -9,7 +9,6 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.management.PlayerChunkMapEntry;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
@@ -200,12 +199,7 @@ public class NPCSpawning {
 								break;
 							}
 							// range
-							AxisAlignedBB aabb = new AxisAlignedBB(0, 0, 0, 1, 1, 1).offset(checkPos).grow(144.0d);
-							List<? extends EntityLiving> list = new ArrayList<>();
-							try {
-								list = world.getEntitiesWithinAABB(entity.getClass(), aabb);
-							}
-							catch (Exception ignored) { }
+							List<EntityLiving> list = Util.instance.getEntitiesWithinDist(EntityLiving.class, world, checkPos, 160.0d);
 							int count = list.size();
 							if (entity instanceof EntityNPCInterface) {
 								count = 0;
@@ -229,13 +223,8 @@ public class NPCSpawning {
 	}
 
 	private static boolean checkEntitySize(WorldServer world, Entity entity, BlockPos pos, @Nonnull SpawnData data) {
-		AxisAlignedBB aabb = new AxisAlignedBB(0, 0, 0, 1, 1, 1).offset(pos);
 		// Range
-		List<Entity> list = new ArrayList<>();
-		try {
-			list = world.getEntitiesWithinAABB(entity.getClass(), aabb.grow(data.range));
-		}
-		catch (Exception ignored) { }
+		List<? extends Entity> list = Util.instance.getEntitiesWithinDist(entity.getClass(), world, pos, data.range);
 		int count = list.size();
 		if (entity instanceof EntityNPCInterface) {
 			count = 0;

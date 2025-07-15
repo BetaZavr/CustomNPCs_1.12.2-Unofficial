@@ -3,7 +3,6 @@ package noppes.npcs.api.wrapper;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
@@ -25,7 +24,6 @@ import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.api.CustomNPCsException;
@@ -65,15 +63,16 @@ import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.Util;
 import noppes.npcs.util.LRUHashMap;
+import noppes.npcs.util.Util;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class WrapperNpcAPI extends NpcAPI {
 
+	public static volatile LRUHashMap<Integer, WorldWrapper> worldCache = new LRUHashMap<>(300);
+
 	public static EventBus EVENT_BUS = new EventBus();
 	private static NpcAPI instance = null;
-	public static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<>(10);
 	private final List<World> worlds = Lists.newArrayList();
 
 	public static void clearCache() {
@@ -188,17 +187,10 @@ public class WrapperNpcAPI extends NpcAPI {
 		return new AttributeWrapper(mcAttribute);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public IBlock getIBlock(World world, BlockPos pos) {
-		if (world == null) {
-			return null;
-		}
-		try {
-			return BlockWrapper.createNew(world, pos, world.getBlockState(pos));
-		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
-		return null;
+		if (world == null) { return null; }
+		return BlockWrapper.createNew(world, pos, world.getBlockState(pos));
 	}
 
 	@Override

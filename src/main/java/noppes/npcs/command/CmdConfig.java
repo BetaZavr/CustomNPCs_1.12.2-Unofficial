@@ -83,13 +83,15 @@ public class CmdConfig extends CommandNoppesBase {
 	@SubCommand(desc = "Will display the current mod debug report", permission = 2)
 	public void report(MinecraftServer server, ICommandSender sender, String[] args) {
 		List<String> list = CustomNpcs.debugData.logging(null);
-		if (sender instanceof EntityPlayerMP) {
-			CustomNPCsScheduler.runTack(() -> Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_ADD, EnumSync.Debug, new NBTTagCompound()), 500);
+		if (!list.isEmpty()) {
+			sender.sendMessage(new TextComponentTranslation("Server info:"));
+			for (String str : list) { sender.sendMessage(new TextComponentString(str)); }
 		}
-		for (String str : list) {
-			sender.sendMessage(new TextComponentString(str));
+		if (sender instanceof EntityPlayerMP && (CustomNpcs.Server == null || !CustomNpcs.Server.isSinglePlayer())) {
+			sender.sendMessage(new TextComponentString("Client info:"));
+			Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_ADD, EnumSync.Debug, new NBTTagCompound());
 		}
-		sender.sendMessage(new TextComponentTranslation("command.debug.show"));
+		CustomNPCsScheduler.runTack(() -> sender.sendMessage(new TextComponentTranslation("command.debug.show")), 1000);
 	}
 
 	@SubCommand(desc = "Get/Set font", usage = "[type] [size]", permission = 2)

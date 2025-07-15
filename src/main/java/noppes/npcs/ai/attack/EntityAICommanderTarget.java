@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.pathfinding.Path;
-import net.minecraft.util.math.AxisAlignedBB;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
@@ -93,14 +92,7 @@ public class EntityAICommanderTarget extends EntityAICustom {
 			}
 			// collect npc
 			if (this.npcs.isEmpty()) {
-				AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(this.npc.getPosition())
-						.grow(this.tacticalRange, this.tacticalRange, this.tacticalRange);
-				List<EntityNPCInterface> list = new ArrayList<>();
-				try {
-					list = npc.world.getEntitiesWithinAABB(EntityNPCInterface.class, bb);
-				}
-				catch (Exception ignored) { }
-				for (EntityNPCInterface n : list) {
+				for (EntityNPCInterface n : Util.instance.getEntitiesWithinDist(EntityNPCInterface.class, npc.world, npc, tacticalRange)) {
 					if (this.npc.equals(n)) {
 						continue;
 					}

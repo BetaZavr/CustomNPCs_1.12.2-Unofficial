@@ -185,8 +185,6 @@ public class EventHooks {
 
 	public static void onForgeEvent(Event event) {
 		if (event == null) { return; }
-		String key = event.getClass().getSimpleName();
-		CustomNpcs.debugData.start(key, EventHooks.class, "onForgeEvent");
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
 		String eventName;
 		if (!handler.isClient() && handler.isEnabled()) {
@@ -213,10 +211,7 @@ public class EventHooks {
 		}
 		if (handler.isClient()) {
 			ClientScriptData handlerClient = ScriptController.Instance.clientScripts;
-			if (!handlerClient.isClient() || !handlerClient.isEnabled()) {
-				CustomNpcs.debugData.end(key, EventHooks.class, "onForgeEvent");
-				return;
-			}
+			if (!handlerClient.isClient() || !handlerClient.isEnabled()) { return; }
 			if (!ScriptController.forgeClientEventNames.containsKey(event.getClass())) {
 				eventName = event.getClass().getName();
 				int i = eventName.lastIndexOf(".");
@@ -226,19 +221,16 @@ public class EventHooks {
 			} else {
 				eventName = ScriptController.forgeClientEventNames.get(event.getClass());
 			}
-			if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName) == System.currentTimeMillis())) {
-				CustomNpcs.debugData.end(key, EventHooks.class, "onForgeEvent");
-				return;
-			}
+			if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName) == System.currentTimeMillis())) { return; }
 			EventHooks.clientMap.put(eventName, System.currentTimeMillis());
 			try {
 				ForgeEvent ev = new ForgeEvent(event);
 				handlerClient.runScript(eventName, ev);
 				if (ev.isCanceled() && ev.event.isCancelable()) { ev.event.setCanceled(true); }
 				WrapperNpcAPI.EVENT_BUS.post(ev.event);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			}
+			catch (Exception e) { LogWriter.error("Error:", e); }
 		}
-		CustomNpcs.debugData.end(key, EventHooks.class, "onForgeEvent");
 	}
 
 	public static void onForgeInit(ForgeScriptData handler) {

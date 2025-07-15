@@ -366,10 +366,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			else { // custom targets
 				for (AxisAlignedBB aabb : aabbs) {
 					List<Entity> list = new ArrayList<>();
-					try {
-						list = world.getEntitiesWithinAABB(Entity.class, aabb);
-					}
-					catch (Exception ignored) { }
+					try { list = world.getEntitiesWithinAABB(Entity.class, aabb); } catch (Exception ignored) { }
                     entityList.addAll(list);
 				}
 				entityList.remove(this);
@@ -1389,12 +1386,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 						}
 					}
 					if (this.faction.getsAttacked && !this.isAttacking()) {
-						List<EntityMob> list = new ArrayList<>();
-						try {
-							list = this.world.getEntitiesWithinAABB(EntityMob.class, this.getEntityBoundingBox().grow(16.0, 16.0, 16.0));
-						}
-						catch (Exception ignored) { }
-						for (EntityMob mob : list) {
+						for (EntityMob mob : Util.instance.getEntitiesWithinDist(EntityMob.class, world, this, 16.0d)) {
 							if (mob.getAttackTarget() == null && this.canSee(mob)) {
 								mob.setAttackTarget(this);
 							}
@@ -1880,12 +1872,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 			line.setText(event.getComponent().getUnformattedText().replace("%%", "%"));
 		}
-		List<EntityPlayer> inRange = new ArrayList<>();
-		try {
-			inRange = this.world.getEntitiesWithinAABB(EntityPlayer.class, this.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
-		}
-		catch (Exception ignored) { }
-		for (EntityPlayer player : inRange) {
+		for (EntityPlayer player : Util.instance.getEntitiesWithinDist(EntityPlayer.class, world, this, 20.0d)) {
 			this.say(player, line);
 		}
 	}
@@ -1917,14 +1904,14 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	 * dataManager.set(EntityNPCInterface.Attacking, boolean); in to CombatHandler
 	 */
     public void setAttackTarget(EntityLivingBase entityTarget) {
+		if (entityTarget != null && (entityTarget.isDead || world.getEntityByID(entityTarget.getEntityId()) == null)) { entityTarget = null; }
 		if (!isEntityAlive() ||
 				getAttackTarget() == entityTarget ||
 				(entityTarget instanceof EntityPlayer && ((EntityPlayer) entityTarget).capabilities.disableDamage) ||
 				(entityTarget != null && entityTarget == getOwner()) ||
 				(entityTarget instanceof EntityNPCInterface && isFriend(entityTarget))
-		) {
-			return;
-		}
+		)
+		{ return; }
 		//LogWriter.debug("Set Attack: "+entityTarget+" // "+getAttackTarget());
 		if (entityTarget != null) {
 			if (!entityTarget.isEntityAlive()) { return; }

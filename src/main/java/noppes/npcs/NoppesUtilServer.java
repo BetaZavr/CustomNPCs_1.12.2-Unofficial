@@ -19,6 +19,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.rcon.RConConsoleSource;
 import net.minecraft.server.MinecraftServer;
@@ -61,6 +62,7 @@ import noppes.npcs.controllers.data.TransportCategory;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.reflection.world.WorldReflection;
 import noppes.npcs.roles.JobSpawner;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.util.Util;
@@ -503,31 +505,33 @@ public class NoppesUtilServer {
 		List<Float> nlist = new ArrayList<>();
 		NBTTagCompound compound = new NBTTagCompound();
 		NBTTagList list = new NBTTagList();
-		for (Entity entity : player.world.loadedEntityList) {
-			if (entity.isDead || (!all && !(entity instanceof EntityNPCInterface))) {
-				continue;
-			}
-			if (entity instanceof EntityPlayer && entity.getName().equals(player.getName())) {
-				continue;
-			}
+		List<Entity> entitys = new ArrayList<>(player.world.loadedEntityList);
+		for (Entity e : WorldReflection.getUnloadedEntityList(player.world)) {
+			if (!entitys.contains(e)) { entitys.add(e); }
+		}
+
+		for (Entity entity : entitys) {
+			if (entity.isDead || (!all && !(entity instanceof EntityNPCInterface))) { continue; }
+			if (entity instanceof EntityPlayer && entity.getName().equals(player.getName())) { continue; }
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setInteger("Id", entity.getEntityId());
+			nbt.setString("Name", entity.getName());
+			nbt.setString("Class", entity.getClass().getSimpleName());
+			NBTTagList posList = new NBTTagList();
+			posList.appendTag(new NBTTagDouble(entity.posX));
+			posList.appendTag(new NBTTagDouble(entity.posY));
+			posList.appendTag(new NBTTagDouble(entity.posZ));
+			nbt.setTag("Pos", posList);
 			float distance = player.getDistance(entity);
-			if (entity instanceof EntityNPCInterface) {
-				nlist.add(distance);
-			} else {
-				alist.add(distance);
-			}
+			nbt.setFloat("Distance", distance);
+			if (entity instanceof EntityNPCInterface) { nlist.add(distance); }
+			else { alist.add(distance); }
 			map.put(distance, nbt);
 		}
 		Collections.sort(alist);
 		Collections.sort(nlist);
-		for (float d : nlist) {
-			list.appendTag(map.get(d));
-		}
-		for (float d : alist) {
-			list.appendTag(map.get(d));
-		}
+		for (float d : nlist) { list.appendTag(map.get(d)); }
+		for (float d : alist) { list.appendTag(map.get(d)); }
 		compound.setTag("Data", list);
 		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 	}

@@ -41,6 +41,8 @@ minecraft {
 
     runs {
         client {
+            String id = "" + (new Random()).nextInt(10)
+            if (id == "0") { id = "" }
             workingDirectory project.file('run/client')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
@@ -48,7 +50,7 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
-            args '--username=BetaZavr', '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_id + ".mixins.json"
+            args '--username=BetaZavr' + id, '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_id + ".mixins.json"
         }
         server {
             workingDirectory project.file('run/server')

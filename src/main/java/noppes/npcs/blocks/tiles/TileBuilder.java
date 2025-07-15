@@ -12,7 +12,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -23,6 +22,7 @@ import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobBuilder;
 import noppes.npcs.schematics.SchematicWrapper;
+import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 
@@ -111,17 +111,6 @@ public class TileBuilder extends TileEntity implements ITickable {
 		return list;
 	}
 
-	private List<EntityPlayer> getPlayerList() {
-		List<EntityPlayer> list = new ArrayList<>();
-		try {
-			list = world.getEntitiesWithinAABB(EntityPlayer.class,
-					new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), (this.pos.getX() + 1),
-							(this.pos.getY() + 1), (this.pos.getZ() + 1)).grow(10.0, 10.0, 10.0));
-		}
-		catch (Exception ignored) { }
-		return list;
-	}
-
 	public SchematicWrapper getSchematic() {
 		return this.schematic;
 	}
@@ -192,7 +181,7 @@ public class TileBuilder extends TileEntity implements ITickable {
 			return;
 		}
 		if (!this.started) {
-			for (EntityPlayer player : this.getPlayerList()) {
+			for (EntityPlayer player : Util.instance.getEntitiesWithinDist(EntityPlayer.class, world, pos, 10.0d)) {
 				if (this.availability.isAvailable(player)) {
 					this.started = true;
 					break;
@@ -202,13 +191,7 @@ public class TileBuilder extends TileEntity implements ITickable {
 				return;
 			}
 		}
-		List<EntityNPCInterface> list = new ArrayList<>();
-		try {
-			list = this.world.getEntitiesWithinAABB(EntityNPCInterface.class,
-					new AxisAlignedBB(this.getPos(), this.getPos()).grow(32.0, 32.0, 32.0));
-		}
-		catch (Exception ignored) { }
-		for (EntityNPCInterface npc : list) {
+		for (EntityNPCInterface npc : Util.instance.getEntitiesWithinDist(EntityNPCInterface.class, world, getPos(), 32.0d)) {
 			if (npc.advanced.jobInterface instanceof JobBuilder) {
 				JobBuilder job = (JobBuilder) npc.advanced.jobInterface;
 				if (job.build != null) {

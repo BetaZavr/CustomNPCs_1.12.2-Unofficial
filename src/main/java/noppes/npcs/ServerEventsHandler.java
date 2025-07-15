@@ -58,6 +58,7 @@ import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemSoulstoneEmpty;
 import noppes.npcs.quests.QuestObjective;
+import noppes.npcs.util.Util;
 
 public class ServerEventsHandler {
 
@@ -132,16 +133,8 @@ public class ServerEventsHandler {
 					continue;
 				}
 				if (obj.getType() == EnumQuestTask.AREAKILL.ordinal() && forAll) {
-					List<EntityPlayer> list = new ArrayList<>();
-					try {
-						list = player.world.getEntitiesWithinAABB(EntityPlayer.class, entity
-								.getEntityBoundingBox().grow(obj.getAreaRange(), obj.getAreaRange(), obj.getAreaRange()));
-					}
-					catch (Exception ignored) { }
-					for (EntityPlayer pl : list) {
-						if (pl != player) {
-							this.doKillQuest(pl, entity, false);
-						}
+					for (EntityPlayer pl : Util.instance.getEntitiesWithinDist(EntityPlayer.class, player.world, player, obj.getAreaRange())) {
+						if (pl != player) { doKillQuest(pl, entity, false); }
 					}
 				}
 				HashMap<String, Integer> killed = ((QuestObjective) obj).getKilled(data); // in Data
@@ -268,18 +261,11 @@ public class ServerEventsHandler {
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void npcEntityCapabilities(AttachCapabilitiesEvent<Entity> event) {
 		CustomNpcs.debugData.start(event.getObject(), this, "npcEntityCapabilities");
-		if (event.getObject() instanceof EntityPlayer) {
-			PlayerData.register(event);
-		}
-		if (event.getObject() instanceof EntityLivingBase) {
-			MarkData.register(event);
-		}
+		if (event.getObject() instanceof EntityPlayer) { PlayerData.register(event); }
+		if (event.getObject() instanceof EntityLivingBase) { MarkData.register(event); }
 		if (event.getObject().world != null) {
-			try {
-				WrapperEntityData.register(event);
-			} catch (Exception e) {
-				LogWriter.error("Error register wrapper entity:", e);
-			}
+			try { WrapperEntityData.register(event); }
+			catch (Exception e) { LogWriter.error("Error register wrapper entity:", e); }
 		}
 		CustomNpcs.debugData.end(event.getObject(), this, "npcEntityCapabilities");
 	}

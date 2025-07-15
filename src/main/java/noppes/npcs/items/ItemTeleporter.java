@@ -84,9 +84,11 @@ public class ItemTeleporter extends Item implements IPermission {
 		float f10 = 1.0f;
 		List<Entity> list = new ArrayList<>();
 		try {
-			list = par3EntityPlayer.world.getEntitiesWithinAABBExcludingEntity(par3EntityPlayer, par3EntityPlayer.getEntityBoundingBox().grow(vec5.x * d4, vec5.y * d4, vec5.z * d4).grow(f10, f10, f10));
-		}
-		catch (Exception ignored) { }
+			list = par3EntityPlayer.world.getEntitiesWithinAABBExcludingEntity(par3EntityPlayer,
+					par3EntityPlayer.getEntityBoundingBox()
+							.grow(vec5.x * d4, vec5.y * d4, vec5.z * d4)
+							.grow(f10, f10, f10));
+		}  catch (Exception ignored) { }
         for (Entity entity : list) {
             if (entity.canBeCollidedWith()) {
                 float f11 = entity.getCollisionBorderSize();

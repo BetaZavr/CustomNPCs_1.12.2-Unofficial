@@ -34,7 +34,6 @@ import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
@@ -371,11 +370,7 @@ public class Server {
 	}
 
 	public static void sendAssociatedData(Entity entity, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = new ArrayList<>();
-		try {
-			list = entity.world.getEntitiesWithinAABB(EntityPlayerMP.class, entity.getEntityBoundingBox().grow(160.0, 160.0, 160.0));
-		}
-		catch (Exception ignored) { }
+		List<EntityPlayerMP> list = Util.instance.getEntitiesWithinDist(EntityPlayerMP.class, entity.world, entity, 160.0d);
 		if (list.isEmpty()) { return; }
 		ByteBuf buffer = Unpooled.buffer();
 		try {
@@ -435,11 +430,8 @@ public class Server {
 	}
 
 	public static void sendRangedData(Entity entity, int range, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = entity.world.getEntitiesWithinAABB(EntityPlayerMP.class,
-				entity.getEntityBoundingBox().grow(range, range, range));
-		if (list.isEmpty()) {
-			return;
-		}
+		List<EntityPlayerMP> list = Util.instance.getEntitiesWithinDist(EntityPlayerMP.class, entity.world, entity, range);
+		if (list.isEmpty()) { return; }
 		ByteBuf buffer = Unpooled.buffer();
 		try {
 			if (fillBuffer(buffer, type, obs)) {
@@ -455,7 +447,7 @@ public class Server {
 	}
 
 	public static void sendRangedData(World world, BlockPos pos, int range, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = world.getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(pos).grow(range, range, range));
+		List<EntityPlayerMP> list = Util.instance.getEntitiesWithinDist(EntityPlayerMP.class, world, pos, range);
 		if (list.isEmpty()) { return; }
 		ByteBuf buffer = Unpooled.buffer();
 		try {

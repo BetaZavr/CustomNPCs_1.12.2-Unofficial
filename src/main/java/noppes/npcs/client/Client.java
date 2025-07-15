@@ -1,6 +1,5 @@
 package noppes.npcs.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,9 +37,7 @@ public class Client {
 	public static void sendDirectData(EnumPacketServer type, Object... obs) {
 		PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 		try {
-			if (!Server.fillBuffer(buffer, type, obs)) {
-				return;
-			}
+			if (!Server.fillBuffer(buffer, type, obs)) { return; }
 			LogWriter.debug("Send: " + type);
 			CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, CustomNpcs.MODNAME));
 		}

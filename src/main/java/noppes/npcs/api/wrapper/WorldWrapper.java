@@ -20,7 +20,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
@@ -49,6 +48,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.reflection.world.WorldReflection;
 import noppes.npcs.reflection.world.biome.BiomeReflection;
+import noppes.npcs.util.Util;
 
 public class WorldWrapper implements IWorld {
 
@@ -215,22 +215,12 @@ public class WorldWrapper implements IWorld {
 	@Override
 	@SuppressWarnings("unchecked")
 	public IEntity<?> getClosestEntity(IPos pos, int range, int type) {
-		AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(pos.getMCBlockPos()).grow(range,
-				range, range);
-		List<Entity> entities = new ArrayList<>();
-		try {
-			entities = world.getEntitiesWithinAABB(this.getClassForType(type), bb);
-		}
-		catch (Exception ignored) { }
-		double distance = range * range * range;
+		List<? extends Entity> list = Util.instance.getEntitiesWithinDist(getClassForType(type), world, pos.getX(), pos.getY(), pos.getZ(), range);
+		double distance = 0.0d;
 		Entity entity = null;
-		for (Entity e : entities) {
+		for (Entity e : list) {
 			double r = pos.getMCBlockPos().distanceSq(e.getPosition());
-            if (entity != null) {
-                if (r >= distance) {
-                    continue;
-                }
-            }
+            if (entity != null && r >= distance) {  continue; }
             distance = r;
             entity = e;
         }
@@ -320,16 +310,10 @@ public class WorldWrapper implements IWorld {
 	@Override
 	@SuppressWarnings("unchecked")
 	public IEntity<?>[] getNearbyEntities(IPos pos, int range, int type) {
-		AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(pos.getMCBlockPos()).grow(range,
-				range, range);
-		List<Entity> entities = new ArrayList<>();
-		try {
-			entities = world.getEntitiesWithinAABB(this.getClassForType(type), bb);
-		}
-		catch (Exception ignored) { }
+		List<? extends Entity> entities = Util.instance.getEntitiesWithinDist(getClassForType(type), world, pos.getX(), pos.getY(), pos.getZ(), range);
 		List<IEntity<?>> list = new ArrayList<>();
-		for (Entity living : entities) {
-			list.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(living));
+		for (Entity e : entities) {
+			list.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e));
 		}
 		return list.toArray(new IEntity[0]);
 	}

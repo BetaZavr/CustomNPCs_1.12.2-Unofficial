@@ -38,36 +38,38 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.mixin.entity.IEntityMixin;
 import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.controllers.ServerCloneController;
+import noppes.npcs.util.Util;
 
 @SuppressWarnings("rawtypes")
 public class EntityWrapper<T extends Entity> implements IEntity {
 
-	public static IEntity[] findEntityOnPath(Entity entity, double distance, Vec3d vec3d, Vec3d vec3d1) {
-		List<Entity> list = new ArrayList<>();
-		try {
-			list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, entity.getEntityBoundingBox().grow(distance));
-		}
-		catch (Exception ignored) { }
-		List<IEntity> result = new ArrayList<>();
-		for (Entity entity1 : list) {
+	public static List<Entity> findEntityOnPath(Entity entity, double distance, Vec3d vec3d, Vec3d vec3d1) {
+		List<Entity> result = new ArrayList<>();
+		for (Entity entity1 : Util.instance.getEntitiesWithinDist(Entity.class, entity.world, entity, distance)) {
 			if (entity1.canBeCollidedWith() && entity1 != entity) {
 				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
 				RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d1);
-				if (raytraceresult == null) {
-					continue;
-				}
-				result.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity1));
+				if (raytraceresult == null) { continue; }
+				result.add(entity1);
 			}
 		}
 		result.sort((o1, o2) -> {
-			double d1 = entity.getDistance(o1.getMCEntity());
-			double d2 = entity.getDistance(o2.getMCEntity());
+			double d1 = entity.getDistance(o1);
+			double d2 = entity.getDistance(o2);
 			if (d1 == d2) {
 				return 0;
 			} else {
 				return (d1 > d2) ? 1 : -1;
 			}
 		});
+		return result;
+	}
+
+	public static IEntity[] findIEntityOnPath(Entity entity, double distance, Vec3d vec3d, Vec3d vec3d1) {
+		List<IEntity<?>> result = new ArrayList<>();
+		for (Entity e : findEntityOnPath(entity, distance, vec3d, vec3d1)) {
+			result.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e));
+		}
 		return result.toArray(new IEntity[0]);
 	}
 	
@@ -434,7 +436,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * distance, vec3d2.y * distance, vec3d2.z * distance);
 		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, false);
 		if (result != null) { vec3d3 = new Vec3d(result.hitVec.x, result.hitVec.y, result.hitVec.z); }
-		return EntityWrapper.findEntityOnPath(this.entity, distance, vec3d, vec3d3);
+		return EntityWrapper.findIEntityOnPath(this.entity, distance, vec3d, vec3d3);
 	}
 
 	@Override

@@ -2,19 +2,22 @@ package noppes.npcs.util;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
 import noppes.npcs.entity.EntityNPCInterface;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
 public class DataDebug {
+
+	private static final Logger LOGGER = LogManager.getLogger(DataDebug.class);
 
 	public static class Debug {
 
@@ -60,31 +63,31 @@ public class DataDebug {
 	private final Map<Side, Debug> data = new HashMap<>();
 
 	public void end(Object target, Object obj, String methodName) {
-		if (!CustomNpcs.FreezesDebug) { return; }
+		if (!CustomNpcs.VerboseDebug) { return; }
 		try {
 			Side side = methodName.equals("findChunksForSpawning") || methodName.equals("performWorldGenSpawning") ?
 					Side.SERVER :
 					Util.instance.getSide();
 			if (!data.containsKey(side)) { return; }
-			data.get(side).end(getKey(obj), (methodName.isEmpty() ? "" : methodName + "_") + getKey(target));
+			data.get(side).end(getKey(obj), (methodName.isEmpty() ? "" : methodName + "()") + "_" + getKey(target));
 		}
-		catch (Exception e) { LogWriter.error("Error end debug method:", e); }
+		catch (Exception e) { LOGGER.error("Error end debug method:", e); }
 	}
 
 	public void start(Object target, Object obj, String methodName) {
-		if (!CustomNpcs.FreezesDebug) { return; }
+		if (!CustomNpcs.VerboseDebug) { return; }
 		try {
 			Side side = methodName.equals("findChunksForSpawning") || methodName.equals("performWorldGenSpawning") ?
 					Side.SERVER :
 					Util.instance.getSide();
 			if (!data.containsKey(side)) { data.put(side, new Debug()); }
-			data.get(side).start(getKey(obj), (methodName.isEmpty() ? "" : methodName + "_") + getKey(target));
+			data.get(side).start(getKey(obj), (methodName.isEmpty() ? "" : methodName + "()") + "_" + getKey(target));
 		}
-		catch (Exception e) { LogWriter.error("Error start debug method:", e); }
+		catch (Exception e) { LOGGER.error("Error start debug method:", e); }
 	}
 
 	public void stop() {
-		if (!CustomNpcs.FreezesDebug) { return; }
+		if (!CustomNpcs.VerboseDebug) { return; }
 		for (Side side : data.keySet()) {
 			for (String k : data.get(side).starters.keySet()) {
 				data.get(side).end(k.substring(0, k.indexOf(':')), k.substring(k.indexOf(':') + 1));
@@ -98,24 +101,23 @@ public class DataDebug {
 	}
 
 	public List<String> logging(Logger logger) {
-		if (!CustomNpcs.FreezesDebug || data.isEmpty()) { return new ArrayList<>(); }
-		String temp = CustomNpcs.MODNAME + " debug information output:";
-		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+		if (!CustomNpcs.VerboseDebug || data.isEmpty()) { return new ArrayList<>(); }
+		StringBuilder tempInfo;
+		String temp;
+		StringBuilder fullInfo = new StringBuilder("Output full debug info ").append(CustomNpcs.MODNAME).append(":");
+		StringBuilder maxInfo = new StringBuilder("Output maximums from debug info ").append(CustomNpcs.MODNAME).append(":");
+		fullInfo.append("\nShowing Monitoring results for ANY side. { Side: [Target.Method names; Runs; Average time] }:");
 		stop();
 		boolean start = false;
 		List<String> list = new ArrayList<>();
 		for (Side side : data.keySet()) {
-			if (start) {
-				temp = "----   ----   ----";
-				if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
-			}
-			temp = "Showing Monitoring results for \"" + side.name() + "\" side. |Number - EventName: { [Target name, Runs, Average time] }|:";
-			if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+			if (start) { fullInfo.append("\n----   ----   ----"); }
+			fullInfo.append("\n").append("Side: ").append(side.name());
 			List<String> events = new ArrayList<>(data.get(side).times.keySet());
 			Collections.sort(events);
 			int i = 0;
 			long max = Long.MIN_VALUE;
-			String[] maxName = new String[] { "", "", "", "" };
+			Object[][] maxInSide = new Object[2][4];
 			for (String eventName : events) {
 				DataDebug.Debug dd = data.get(side);
 				List<String> targets = new ArrayList<>(data.get(side).times.get(eventName).keySet());
@@ -135,42 +137,106 @@ public class DataDebug {
 							.append("]");
 					if (s < targets.size() - 1) { log.append(";\n"); }
 					if (time[1] == dd.max) {
-						maxName[0] = "\"" + eventName + "|" + target + "\": " + time[0] + " runs; time \"" + Util.instance.ticksToElapsedTime(time[1], true, false, false)+"\"";
+						maxInSide[0][0] = eventName;
+						maxInSide[0][1] = target;
+						maxInSide[0][2] = time[0];
+						maxInSide[0][3] = time[1];
 					}
 					if (max < time[0]) {
 						max = time[0];
-						maxName[1] = "\"" + eventName + "|" + target + "\": " + time[0] + " runs; time \"" + Util.instance.ticksToElapsedTime(time[1], true, false, false)+"\"";
+						maxInSide[1][0] = eventName;
+						maxInSide[1][1] = target;
+						maxInSide[1][2] = time[0];
+						maxInSide[1][3] = time[1];
 					}
 					s++;
 				}
-				temp = " ["+ (i + 1) + "/" + events.size() + "] - \"" + eventName + "\": " + log;
-				if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+				fullInfo.append("\n [").append(i + 1).append("/").append(events.size()).append("] - \"").append(eventName).append("\": ").append(log);
 				i++;
 			}
-			temp = " \"" + side.name() + "\" a long time [" + maxName[0] + "]";
-			list.add(temp);
-			if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
-			temp = " \"" + side.name() + "\" most often: [" + maxName[1] + "]";
-			list.add(temp);
-			if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+			// long time
+			if (maxInSide[0][0] != null) {
+				tempInfo = new StringBuilder(TextFormatting.GRAY.toString())
+						.append(" \"")
+						.append(TextFormatting.RESET)
+						.append(side.name())
+						.append(TextFormatting.GRAY)
+						.append("\" a long time [")
+						.append(TextFormatting.BLUE)
+						.append(maxInSide[0][0])
+						.append(TextFormatting.GRAY)
+						.append(".")
+						.append(TextFormatting.DARK_GREEN)
+						.append(maxInSide[0][1])
+						.append(TextFormatting.GRAY)
+						.append("; runs: ")
+						.append(TextFormatting.GOLD)
+						.append(maxInSide[0][2])
+						.append(TextFormatting.GRAY)
+						.append("; time = ")
+						.append(TextFormatting.RESET)
+						.append(Util.instance.ticksToElapsedTime((long) maxInSide[0][3], true, true, false))
+						.append(TextFormatting.GRAY)
+						.append("]");
+				temp = "\n" + Util.instance.deleteColor(tempInfo.toString());
+				maxInfo.append(temp);
+				list.add(tempInfo.toString());
+			}
+			// max count
+			if (maxInSide[1][0] != null) {
+				tempInfo = new StringBuilder(TextFormatting.DARK_GRAY.toString())
+						.append(" \"")
+						.append(TextFormatting.RESET)
+						.append(side.name())
+						.append(TextFormatting.GRAY)
+						.append("\" most often [")
+						.append(TextFormatting.BLUE)
+						.append(maxInSide[1][0])
+						.append(TextFormatting.GRAY)
+						.append(".")
+						.append(TextFormatting.DARK_GREEN)
+						.append(maxInSide[1][1])
+						.append(TextFormatting.GRAY)
+						.append("; runs: ")
+						.append(TextFormatting.GOLD)
+						.append(maxInSide[1][2])
+						.append(TextFormatting.GRAY)
+						.append("; time = ")
+						.append(TextFormatting.RESET)
+						.append(Util.instance.ticksToElapsedTime((long) maxInSide[1][3], true, true, false))
+						.append(TextFormatting.GRAY)
+						.append("]");
+				temp = "\n" + Util.instance.deleteColor(tempInfo.toString());
+				maxInfo.append(temp);
+				list.add(tempInfo.toString());
+			}
 			start = true;
 		}
-		temp = "BlockWrapper.blockCache: " + BlockWrapper.blockCache.size();
-		list.add(temp);
-		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
-		temp = "WrapperNpcAPI.worldCache: " + WrapperNpcAPI.worldCache.size();
-		list.add(temp);
-		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
-		temp = "CommonProxy.downloadableFiles: " + CommonProxy.downloadableFiles.size();
-		list.add(temp);
-		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
-		temp = "CommonProxy.availabilityStacks: " + CommonProxy.availabilityStacks.size();
-		list.add(temp);
-		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
-		temp = "NoppesUtilPlayer.delaySendMap: " + NoppesUtilPlayer.delaySendMap.size();
-		list.add(temp);
-		if (logger != null) { logger.info(temp); } else { LogWriter.info(temp);}
+		// Caches
+		list.add("Caches:");
+		tempInfo = new StringBuilder(TextFormatting.GRAY.toString()).append("BlockWrapper.blockCache: ").append(TextFormatting.GOLD).append(BlockWrapper.blockCache.size());
+		list.add(tempInfo.toString());
+		fullInfo.append("\n").append(Util.instance.deleteColor(tempInfo.toString()));
+		tempInfo = new StringBuilder(TextFormatting.GRAY.toString()).append("WrapperNpcAPI.worldCache: ").append(TextFormatting.GOLD).append(WrapperNpcAPI.worldCache.size());
+		list.add(tempInfo.toString());
+		fullInfo.append("\n").append(Util.instance.deleteColor(tempInfo.toString()));
+		tempInfo = new StringBuilder(TextFormatting.GRAY.toString()).append("CommonProxy.downloadableFiles: ").append(TextFormatting.GOLD).append(CommonProxy.downloadableFiles.size());
+		list.add(tempInfo.toString());
+		fullInfo.append("\n").append(Util.instance.deleteColor(tempInfo.toString()));
+		tempInfo = new StringBuilder(TextFormatting.GRAY.toString()).append("CommonProxy.availabilityStacks: ").append(TextFormatting.GOLD).append(CommonProxy.availabilityStacks.size());
+		list.add(tempInfo.toString());
+		fullInfo.append("\n").append(Util.instance.deleteColor(tempInfo.toString()));
+		tempInfo = new StringBuilder(TextFormatting.GRAY.toString()).append("NoppesUtilPlayer.delaySendMap: ").append(TextFormatting.GOLD).append(NoppesUtilPlayer.delaySendMap.size());
+		list.add(tempInfo.toString());
+		fullInfo.append("\n").append(Util.instance.deleteColor(tempInfo.toString()));
 
+		if (logger != null) {
+			logger.info(fullInfo);
+			logger.info(maxInfo);
+		} else {
+			LOGGER.info(fullInfo);
+			LOGGER.info(maxInfo);
+		}
 		return list;
 	}
 

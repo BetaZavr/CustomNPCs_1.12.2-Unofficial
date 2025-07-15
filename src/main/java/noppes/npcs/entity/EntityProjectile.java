@@ -400,12 +400,9 @@ public class EntityProjectile extends EntityThrowable {
 			if (this.effect != 0) {
 				AxisAlignedBB axisalignedbb = this.getEntityBoundingBox().grow((this.explosiveRadius * 2),
 						(this.explosiveRadius * 2), (this.explosiveRadius * 2));
-				List<EntityLivingBase> list1 = new ArrayList<>();
-				try {
-					list1 = this.world.getEntitiesWithinAABB(EntityLivingBase.class, axisalignedbb);
-				}
-				catch (Exception ignored) { }
-				for (EntityLivingBase entity : list1) {
+				List<EntityLivingBase> list = new ArrayList<>();
+				try { list = this.world.getEntitiesWithinAABB(EntityLivingBase.class, axisalignedbb); }  catch (Exception ignored) { }
+				for (EntityLivingBase entity : list) {
 					if (this.effect != 1) {
 						Potion p2 = PotionEffectType.getMCType(this.effect);
 						if (p2 == null) {

@@ -18,6 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.api.event.WorldEvent;
+import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerNPCBank;
@@ -290,6 +291,7 @@ public class ServerTickHandler {
 		if (ServerTickHandler.ticks % 1200 == 0) {
 			BankController.getInstance().update();
 		}
+		if (CustomNpcs.ticks % 60 == 0) { BlockWrapper.checkClearCache(); }
 		CustomNpcs.debugData.end("Mod", this, "onServerTick");
 	}
 

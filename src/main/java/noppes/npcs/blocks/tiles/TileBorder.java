@@ -114,12 +114,8 @@ implements Predicate, ITickable {
 				return;
 			}
 		}
-		AxisAlignedBB box = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), (pos.getX() + 1), (pos.getY() + height + 1), (pos.getZ() + 1));
 		List<Entity> list = new ArrayList<>();
-		try {
-			list = world.getEntitiesWithinAABB(Entity.class, box, this);
-		}
-		catch (Exception ignored) { }
+		try { list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), (pos.getX() + 1), (pos.getY() + height + 1), (pos.getZ() + 1)), this); } catch (Exception ignored) { }
 		for (Entity entity : list) {
 			if (entity instanceof EntityEnderPearl) {
 				EntityEnderPearl pearl = (EntityEnderPearl) entity;

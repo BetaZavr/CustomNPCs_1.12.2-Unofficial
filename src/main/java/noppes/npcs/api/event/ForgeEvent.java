@@ -14,7 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
@@ -27,12 +26,7 @@ import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.BlockFluidContainerWrapper;
-import noppes.npcs.api.wrapper.BlockScriptedDoorWrapper;
-import noppes.npcs.api.wrapper.BlockScriptedWrapper;
 import noppes.npcs.api.wrapper.BlockWrapper;
-import noppes.npcs.blocks.BlockScripted;
-import noppes.npcs.blocks.BlockScriptedDoor;
 import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -302,33 +296,11 @@ public class ForgeEvent extends CustomNPCsEvent {
 	}
 
 	private void getBlock(Block block, IBlockState state) {
-		if ((block == null && state == null) || this.pos == null || this.pos.getMCBlockPos() == null
-				|| this.world == null || this.world.getMCWorld() == null) {
+		if ((block == null && state == null) || pos == null || pos.getMCBlockPos() == null || world == null || world.getMCWorld() == null) {
 			return;
 		}
-		String key;
-		BlockPos p = this.pos.getMCBlockPos();
-		World w = this.world.getMCWorld();
 		if (state != null) {
-			block = state.getBlock();
-			key = state + p.toString();
-		} else {
-			key = block.getDefaultState() + p.toString();
-		}
-		if (!BlockWrapper.blockCache.containsKey(key)) {
-			if (block instanceof BlockScripted) {
-				this.block = new BlockScriptedWrapper(w, block, p);
-			} else if (block instanceof BlockScriptedDoor) {
-				this.block = new BlockScriptedDoorWrapper(w, block, p);
-			} else if (block instanceof BlockFluidBase) {
-				this.block = new BlockFluidContainerWrapper(w, block, p);
-			} else {
-				this.block = new BlockWrapper(this.world.getMCWorld(), block, p);
-			}
-			BlockWrapper.blockCache.put(key, (BlockWrapper) this.block);
-		}
-		if (this.block != null) {
-			((BlockWrapper) this.block).setTile(w.getTileEntity(p));
+			this.block = BlockWrapper.createNew(world.getMCWorld(), pos.getMCBlockPos(), state);
 		}
 	}
 

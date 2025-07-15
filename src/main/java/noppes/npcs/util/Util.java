@@ -30,6 +30,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import net.minecraft.nbt.*;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.*;
 
@@ -764,6 +765,7 @@ public class Util implements IMethods {
 						return false;
 					}
 				}
+				rtrs.clear();
 			}
 			if (directLOS && !toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS)) {
 				double yaw = (entity.rotationYawHead - rtr.getYaw()) % 360.0d;
@@ -1325,9 +1327,7 @@ public class Util implements IMethods {
 
 		int k1 = 200;
 		while (k1-- >= 0) {
-			if (x0 == x1 && y0 == y1 && z0 == z1) {
-				return rtrs;
-			}
+			if (x0 == x1 && y0 == y1 && z0 == z1) { return rtrs; }
 
 			boolean butEqualX = true;
 			boolean butEqualY = true;
@@ -2054,9 +2054,26 @@ public class Util implements IMethods {
 		return result;
 	}
 
-    public Side getSide() {
-		if (Thread.currentThread().getName().toLowerCase().contains("server")) { return Side.SERVER; }
-		return Side.CLIENT;
-    }
+	public Side getSide() {
+		if (FMLCommonHandler.instance().getSide().isClient() || Thread.currentThread().getName().toLowerCase().contains("client")) { return Side.CLIENT; }
+		return Side.SERVER;
+	}
+
+	public <T extends Entity> List<T> getEntitiesWithinDist(Class<T> entityClass, World world, BlockPos pos, double range) {
+		return getEntitiesWithinDist(entityClass, world, pos.getX() + 0.5d, pos.getY(), pos.getZ() + 0.5d, range);
+	}
+
+	public <T extends Entity> List<T> getEntitiesWithinDist(Class<T> entityClass, World world, Entity e, double range) {
+		return getEntitiesWithinDist(entityClass, world, e.posX, e.posY, e.posZ, range - e.width);
+	}
+
+	public <T extends Entity> List<T> getEntitiesWithinDist(Class<T> entityClass, World world, double x, double y, double z, double range) {
+		List<T> list = new ArrayList<>();
+		if (entityClass == null || world == null) { return list; }
+		for (Entity e : world.loadedEntityList) {
+			if (entityClass.isInstance(e) && e.getDistance(x, y, z) - e.width <= range) { list.add(entityClass.cast(e)); }
+		}
+		return list;
+	}
 
 }

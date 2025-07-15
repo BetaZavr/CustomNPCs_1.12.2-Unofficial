@@ -236,11 +236,14 @@ public class PacketHandlerServer {
             npc = (EntityNPCInterface) entity;
             npc.reset();
         } else if (type == EnumPacketServer.RemoteTpToNpc) {
-            Entity entity = player.world.getEntityByID(buffer.readInt());
-            if (entity == null) {
-                return;
+            if (buffer.readBoolean()) {
+                Entity entity = player.world.getEntityByID(buffer.readInt());
+                if (entity == null) { return; }
+                player.connection.setPlayerLocation(entity.posX, entity.posY, entity.posZ, 0.0f, 0.0f);
+            } else {
+                BlockPos pos = BlockPos.fromLong(buffer.readLong());
+                player.connection.setPlayerLocation(pos.getX(), pos.getY(), pos.getZ(), 0.0f, 0.0f);
             }
-            player.connection.setPlayerLocation(entity.posX, entity.posY, entity.posZ, 0.0f, 0.0f);
         } else if (type == EnumPacketServer.Gui) {
             EnumGuiType gui = EnumGuiType.values()[buffer.readInt()];
             int x = buffer.readInt();

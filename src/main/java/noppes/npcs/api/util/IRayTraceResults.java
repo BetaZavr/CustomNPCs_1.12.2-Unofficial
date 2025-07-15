@@ -9,4 +9,6 @@ public interface IRayTraceResults {
 
     IEntity<?>[] getEntitys();
 
+    void clear();
+
 }

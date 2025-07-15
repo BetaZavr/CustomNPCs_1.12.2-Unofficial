@@ -1,5 +1,6 @@
 package noppes.npcs.roles;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobBard extends JobInterface implements IJobBard {
 
+	private transient volatile WeakReference<Boolean> cachedInRange = new WeakReference<>(false);
+	private transient volatile long checkTime = 0L;
+
 	public boolean hasOffRange = true;
 	public boolean isStreamer = true;
 	public boolean isRange = true;
@@ -25,7 +29,7 @@ public class JobBard extends JobInterface implements IJobBard {
 
 	public JobBard(EntityNPCInterface npc) {
 		super(npc);
-		this.type = JobType.BARD;
+		type = JobType.BARD;
 	}
 
 	@Override
@@ -39,13 +43,13 @@ public class JobBard extends JobInterface implements IJobBard {
 
 	@Override
 	public String getSong() {
-		return this.song;
+		return song;
 	}
 
 	@Override
 	public void killed() {
-		if (npc.world.isRemote && this.isStreamer && this.hasOffRange && MusicController.Instance.isPlaying(this.song)) {
-			MusicController.Instance.stopSound(this.song, isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
+		if (npc.world.isRemote && isStreamer && hasOffRange && MusicController.Instance.isPlaying(song)) {
+			MusicController.Instance.stopSound(song, isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
 		}
 	}
 
@@ -78,135 +82,114 @@ public class JobBard extends JobInterface implements IJobBard {
 			}
 		}
 		if (!mData.isBardPlaying(song, isStreamer)) { // not bard play song
-			AxisAlignedBB aabb = npc.getEntityBoundingBox();
-			if (this.isRange) {
-				aabb = aabb.grow(this.range[0], this.range[0], this.range[0]);
-			} else {
-				aabb = new AxisAlignedBB(aabb.minX - this.minPos[0], aabb.minY - this.minPos[1], aabb.minZ - this.minPos[2], aabb.maxX + this.minPos[0], aabb.maxY + this.minPos[1], aabb.maxZ + this.minPos[2]);
-			}
-			List<EntityPlayer> list = new ArrayList<>();
-			try {
-				list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
-			}
-			catch (Exception ignored) { }
-			if (!list.contains(CustomNpcs.proxy.getPlayer())) {
-				return;
-			}
-			mData.bardPlaySound(this.song, this.isStreamer, this.npc);
-		} else if (this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard) && !this.song.equals(this.isStreamer ? mData.song : mData.music)) {
-			if (!mData.song.isEmpty() && this.npc.equals(mData.songBard)) {
+			if (!getPlayerInRange()) { return; }
+			mData.bardPlaySound(song, isStreamer, npc);
+		}
+		else if (npc.equals(isStreamer ? mData.songBard : mData.musicBard) && !song.equals(isStreamer ? mData.song : mData.music)) {
+			if (!mData.song.isEmpty() && npc.equals(mData.songBard)) {
 				mData.stopSound(mData.song, SoundCategory.AMBIENT);
 			}
-			if (!mData.music.isEmpty() && this.npc.equals(mData.musicBard)) {
+			if (!mData.music.isEmpty() && npc.equals(mData.musicBard)) {
 				mData.stopSound(mData.music, SoundCategory.MUSIC);
 			}
-		} else if (!this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard)) { // check main NPC
+		}
+		else if (!npc.equals(isStreamer ? mData.songBard : mData.musicBard)) {
 			EntityPlayer player = CustomNpcs.proxy.getPlayer();
-			if (player == null) {
-				return;
-			}
-			EntityNPCInterface oldNPC = this.isStreamer ? mData.songBard : mData.musicBard;
-			if (oldNPC == null || this.npc.getDistance(player) < oldNPC.getDistance(player)) {
-				AxisAlignedBB aabb = this.npc.getEntityBoundingBox();
-				if (this.isRange) {
-					aabb = aabb.grow(this.range[0], this.range[0], this.range[0]);
-				} else {
-					aabb = new AxisAlignedBB(aabb.minX - this.minPos[0], aabb.minY - this.minPos[1],
-							aabb.minZ - this.minPos[2], aabb.maxX + this.minPos[0], aabb.maxY + this.minPos[1],
-							aabb.maxZ + this.minPos[2]);
-				}
-				List<EntityPlayer> list = new ArrayList<>();
-				try {
-					list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
-				}
-				catch (Exception ignored) { }
-				if (list.contains(CustomNpcs.proxy.getPlayer())) {
-					String mSong = this.isStreamer ? mData.song : mData.music;
-					if (mSong.equals(this.song)) {
-						if (this.isStreamer) {
-							mData.songBard = this.npc;
+			if (player == null) { return; }
+			EntityNPCInterface oldNPC = isStreamer ? mData.songBard : mData.musicBard;
+			if (oldNPC == null || npc.getDistance(player) < oldNPC.getDistance(player)) {
+				if (getPlayerInRange()) {
+					String mSong = isStreamer ? mData.song : mData.music;
+					if (mSong.equals(song)) {
+						if (isStreamer) {
+							mData.songBard = npc;
 							mData.music = "";
 							mData.musicBard = null;
 						} else {
 							mData.song = "";
 							mData.songBard = null;
-							mData.musicBard = this.npc;
+							mData.musicBard = npc;
 						}
-						mData.setNewPosSong(mSong, (float) this.npc.posX, (float) this.npc.posY, (float) this.npc.posZ);
+						mData.setNewPosSong(mSong, (float) npc.posX, (float) npc.posY, (float) npc.posZ);
 					} else {
-						mData.stopSound(mSong, this.isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
-						mData.bardPlaySound(this.song, this.isStreamer, this.npc);
+						mData.stopSound(mSong, isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
+						mData.bardPlaySound(song, isStreamer, npc);
 					}
 				}
 			}
-		} else if (this.hasOffRange && this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard)) { // check
-			// Distance
-			AxisAlignedBB aabb = this.npc.getEntityBoundingBox();
-			if (this.isRange) {
-				aabb = aabb.grow(this.range[1], this.range[1], this.range[1]);
-			} else {
-				aabb = new AxisAlignedBB(aabb.minX - this.maxPos[0], aabb.minY - this.maxPos[1],
-						aabb.minZ - this.maxPos[2], aabb.maxX + this.maxPos[0], aabb.maxY + this.maxPos[1],
-						aabb.maxZ + this.maxPos[2]);
-			}
-			List<EntityPlayer> list = new ArrayList<>();
-			try {
-				list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
-			}
-			catch (Exception ignored) { }
-			if (!list.contains(CustomNpcs.proxy.getPlayer())) {
-				mData.stopSound(this.song, this.isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
-			}
+		} // check main NPC
+		else if (hasOffRange && npc.equals(isStreamer ? mData.songBard : mData.musicBard)) {
+			if (!getPlayerInRange()) { mData.stopSound(song, isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC); }
+		} // check Distance
+	}
+
+	private boolean getPlayerInRange() {
+		EntityPlayer player = CustomNpcs.proxy.getPlayer();
+		if (player == null) { return false; }
+		long now = System.currentTimeMillis();
+		if (now < checkTime) { return Boolean.TRUE.equals(cachedInRange.get()); }
+		AxisAlignedBB aabb = npc.getEntityBoundingBox();
+		if (isRange) { aabb = aabb.grow(range[0], range[0], range[0]); }
+		else {
+			aabb = new AxisAlignedBB(aabb.minX - minPos[0], aabb.minY - minPos[1], aabb.minZ - minPos[2],
+					aabb.maxX + minPos[0], aabb.maxY + minPos[1], aabb.maxZ + minPos[2]);
 		}
+		List<EntityPlayer> list = new ArrayList<>();
+		try { list = npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb); } catch (Exception ignored) { }
+		boolean result = list.contains(CustomNpcs.proxy.getPlayer());
+		cachedInRange = new WeakReference<>(result);
+		checkTime = now + 500L;
+		return result;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		this.type = JobType.BARD;
-		this.song = compound.getString("BardSong");
-		this.isStreamer = compound.getBoolean("BardStreamer");
-		this.hasOffRange = compound.getBoolean("BardHasOff");
+		type = JobType.BARD;
+		song = compound.getString("BardSong");
+		isStreamer = compound.getBoolean("BardStreamer");
+		hasOffRange = compound.getBoolean("BardHasOff");
 
 		if (compound.hasKey("BardRangeData", 7) && compound.hasKey("BardIsRange", 1)) {
-			this.isRange = compound.getBoolean("BardIsRange");
+			isRange = compound.getBoolean("BardIsRange");
 			byte[] data = compound.getByteArray("BardRangeData");
 			if (data.length > 1) {
-				this.range = new int[] { getIntInByte(data[0]), getIntInByte(data[1]) };
+				range = new int[] { getIntInByte(data[0]), getIntInByte(data[1]) };
 			}
 			if (data.length > 4) {
-				this.minPos = new int[] { getIntInByte(data[2]), getIntInByte(data[3]), getIntInByte(data[4]) };
+				minPos = new int[] { getIntInByte(data[2]), getIntInByte(data[3]), getIntInByte(data[4]) };
 			} else {
-				this.maxPos = new int[] { this.range[0], this.range[0], this.range[0] };
+				maxPos = new int[] { range[0], range[0], range[0] };
 			}
 			if (data.length > 7) {
-				this.maxPos = new int[] { getIntInByte(data[5]), getIntInByte(data[6]), getIntInByte(data[7]) };
+				maxPos = new int[] { getIntInByte(data[5]), getIntInByte(data[6]), getIntInByte(data[7]) };
 			} else {
-				this.maxPos = new int[] { this.range[1], this.range[1], this.range[1] };
+				maxPos = new int[] { range[1], range[1], range[1] };
 			}
-		} else if (compound.hasKey("BardMinRange", 3) && compound.hasKey("BardMaxRange", 3)) {
-			this.range = new int[] { compound.getInteger("BardMinRange"), compound.getInteger("BardMaxRange") };
-			this.isRange = true;
-			this.minPos = new int[] { this.range[0], this.range[0], this.range[0] };
-			this.maxPos = new int[] { this.range[1], this.range[1], this.range[1] };
+		}
+		else if (compound.hasKey("BardMinRange", 3) && compound.hasKey("BardMaxRange", 3)) {
+			range = new int[] { compound.getInteger("BardMinRange"), compound.getInteger("BardMaxRange") };
+			isRange = true;
+			minPos = new int[] { range[0], range[0], range[0] };
+			maxPos = new int[] { range[1], range[1], range[1] };
 		}
 	}
 
 	@Override
-	public void setSong(String song) {
-		this.song = song;
-		this.npc.updateClient = true;
+	public void setSong(String newSong) {
+		song = newSong;
+		npc.updateClient = true;
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Type", JobType.BARD.get());
-		compound.setString("BardSong", this.song);
-		compound.setBoolean("BardStreamer", this.isStreamer);
-		compound.setBoolean("BardHasOff", this.hasOffRange);
-		compound.setBoolean("BardIsRange", this.isRange);
+		compound.setString("BardSong", song);
+		compound.setBoolean("BardStreamer", isStreamer);
+		compound.setBoolean("BardHasOff", hasOffRange);
+		compound.setBoolean("BardIsRange", isRange);
 		compound.setByteArray("BardRangeData",
-				new byte[] { (byte) this.range[0], (byte) this.range[1], (byte) this.minPos[0], (byte) this.minPos[1],
-						(byte) this.minPos[2], (byte) this.maxPos[0], (byte) this.maxPos[1], (byte) this.maxPos[2] });
+				new byte[] { (byte) range[0], (byte) range[1], (byte) minPos[0], (byte) minPos[1],
+						(byte) minPos[2], (byte) maxPos[0], (byte) maxPos[1], (byte) maxPos[2] });
 		return compound;
 	}
 

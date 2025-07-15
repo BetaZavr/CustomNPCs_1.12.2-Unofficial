@@ -12,6 +12,7 @@ import noppes.npcs.*;
 import noppes.npcs.api.mixin.client.audio.ISoundHandlerMixin;
 import noppes.npcs.api.mixin.client.audio.ISoundManagerMixin;
 import noppes.npcs.api.mixin.client.gui.IGuiYesNoMixin;
+import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.constants.*;
 import org.lwjgl.input.Keyboard;
 
@@ -221,6 +222,7 @@ public class ClientTickHandler {
 				}
 			}
 		}
+		if (CustomNpcs.ticks % 60 == 0) { BlockWrapper.checkClearCache(); }
 		if (ScriptController.Instance.clientScripts.isEnabled()) {
 			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new PlayerEvent.UpdateEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player)));
 		}

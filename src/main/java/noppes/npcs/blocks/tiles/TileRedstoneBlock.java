@@ -39,7 +39,9 @@ implements ITickable {
 	private List<EntityPlayer> getPlayerList(int x, int y, int z) {
 		List<EntityPlayer> list = new ArrayList<>();
 		try {
-			list = world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), (pos.getX() + 1), (pos.getY() + 1), (pos.getZ() + 1)).grow(x, y, z));
+			list = world.getEntitiesWithinAABB(EntityPlayer.class,
+					new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), (pos.getX() + 1), (pos.getY() + 1), (pos.getZ() + 1))
+							.grow(x, y, z));
 		}
 		catch (Exception ignored) { }
 		return list;

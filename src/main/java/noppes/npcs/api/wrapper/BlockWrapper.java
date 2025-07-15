@@ -1,7 +1,7 @@
 package noppes.npcs.api.wrapper;
 
-import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -29,31 +29,51 @@ import noppes.npcs.blocks.BlockScripted;
 import noppes.npcs.blocks.BlockScriptedDoor;
 import noppes.npcs.blocks.tiles.TileNpcEntity;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.LRUHashMap;
 
 public class BlockWrapper implements IBlock {
 
-	public static Map<String, BlockWrapper> blockCache = new LRUHashMap<>(400);
+	/*
+	 * Used in:
+	 * A large number of Forge events
+	 * When checking vision when an NPC is looking at a target
+	 * Mod events and scripts
+	 */
+	public static volatile ConcurrentHashMap<Long, BlockWrapper> blockCache = new ConcurrentHashMap<>(25000);
 
-	public static void clearCache() {
-		BlockWrapper.blockCache.clear();
+	public static void clearCache() { blockCache.clear(); }
+
+	public static void checkClearCache() {
+		if (blockCache.size() > 25000) {
+			blockCache.keySet().stream()
+					.limit(blockCache.size() - 25000)
+					.forEach(blockCache::remove);
+		}
 	}
 
 	/** Need convert to BlockState */
-	@Deprecated
 	public static IBlock createNew(World world, BlockPos pos, IBlockState state) {
-		Block block = state.getBlock();
-		String key = state + pos.toString();
-		BlockWrapper b = BlockWrapper.blockCache.get(key);
-		if (b == null) {
-			if (block instanceof BlockScripted) { b = new BlockScriptedWrapper(world, block, pos); }
-			else if (block instanceof BlockScriptedDoor) { b = new BlockScriptedDoorWrapper(world, block, pos); }
-			else if (block instanceof BlockFluidBase) { b = new BlockFluidContainerWrapper(world, block, pos); }
-			else { b = new BlockWrapper(world, block, pos); }
-			BlockWrapper.blockCache.put(key, b);
+		Long key = makeKey(state, pos);
+		BlockWrapper wrapper = blockCache.get(key);
+		if (wrapper == null) {
+			wrapper = createBlockWrapper(world, state, pos);
+			blockCache.put(key, wrapper);
 		}
-        b.setTile(world.getTileEntity(pos));
-        return b;
+        return wrapper;
+	}
+
+	private static Long makeKey(IBlockState state, BlockPos pos) {
+		return (pos.toLong() << 32) | Objects.requireNonNull(state.getBlock().getRegistryName()).hashCode();
+	}
+
+	private static BlockWrapper createBlockWrapper(World world, IBlockState state, BlockPos pos) {
+		Block block = state.getBlock();
+		BlockWrapper wrapper;
+		if (block instanceof BlockScripted) { wrapper = new BlockScriptedWrapper(world, block, pos); }
+		else if (block instanceof BlockScriptedDoor) { wrapper = new BlockScriptedDoorWrapper(world, block, pos); }
+		else if (block instanceof BlockFluidBase) { wrapper = new BlockFluidContainerWrapper(world, block, pos); }
+		else { wrapper = new BlockWrapper(world, block, pos); }
+		wrapper.setTile(world.getTileEntity(pos));
+		return wrapper;
 	}
 
 	protected Block block;

@@ -91,11 +91,10 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 				break;
 			}
 			case 4: { // tp
-				if (!dataIDs.containsKey(scroll.getSelected())) {
-					return;
+				if (dataIDs.containsKey(scroll.getSelected())) {
+					Client.sendData(EnumPacketServer.RemoteTpToNpc, true, dataIDs.get(scroll.getSelected()));
+					CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all), 250);
 				}
-				Client.sendData(EnumPacketServer.RemoteTpToNpc, dataIDs.get(scroll.getSelected()));
-				CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all), 250);
 				break;
 			}
 			case 5: {
@@ -206,7 +205,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 		addButton(button);
 		// tp
 		button = new GuiNpcButton(4, guiLeft + 170, guiTop + 64, 82, 20, "remote.tp");
-		button.setEnabled(selectEntity != null);
+		button.setEnabled(scroll.hasSelected());
 		button.setHoverText("wand.hover.tp");
 		addButton(button);
 		// reset all
@@ -246,10 +245,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 		selectEntity = null;
 		if (dataIDs.containsKey(scroll.getSelected())) {
 			Entity entity = mc.world.getEntityByID(dataIDs.get(scroll.getSelected()));
-			if (entity == null) {
-				Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
-				return;
-			}
+			if (entity == null) { return; }
 			selectEntity = entity;
 		}
 	}
@@ -272,24 +268,35 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 		for (int i = 0; i < nbtList.tagCount(); ++i) {
 			NBTTagCompound nbt = nbtList.getCompoundTagAt(i);
 			Entity entity = mc.world.getEntityByID(nbt.getInteger("Id"));
-			if (entity == null) {
-				continue;
-			}
 			String type = ((char) 167) + "7";
-			if (entity instanceof EntityNPCInterface) {
-				type = ((char) 167) + "a";
-			} else if (entity instanceof EntityPlayer) {
-				type = ((char) 167) + "c";
-			} else if (entity instanceof EntityAnimal) {
-				type = ((char) 167) + "e";
-			} else if (entity instanceof EntityMob) {
-				type = ((char) 167) + "b";
+			if (entity == null) { type = ((char) 167) + "4"; }
+			else if (entity instanceof EntityNPCInterface) { type = ((char) 167) + "a"; }
+			else if (entity instanceof EntityPlayer) { type = ((char) 167) + "c"; }
+			else if (entity instanceof EntityAnimal) { type = ((char) 167) + "e"; }
+			else if (entity instanceof EntityMob) { type = ((char) 167) + "b"; }
+			float distance;
+			String name;
+			if (entity != null) {
+				distance = player.getDistance(entity);
+				name = new TextComponentTranslation(entity.getName()).getFormattedText();
+				hts.put(i, Collections.singletonList(((char) 167) + "7Distance Of: " + ((char) 167) + "6" + df.format(distance)));
 			}
-			float distance = player.getDistance(entity);
-			String key = type + "ID:" + nbt.getInteger("Id") + " " + ((char) 167) + "r" + (new TextComponentTranslation(entity.getName()).getFormattedText()) + " " + ((char) 167) + "7" + df.format(distance);
+			else {
+				distance = nbt.getFloat("Distance");
+				name = new TextComponentTranslation(nbt.getString("Name")).getFormattedText();
+				List<String> hl = new ArrayList<>();
+				hl.add(((char) 167) + "cNot load in client world");
+				NBTTagList posList = nbt.getTagList("Pos", 6);
+				hl.add(((char) 167) + "7Distance to: " + ((char) 167) + "6" + df.format(distance));
+				hl.add(((char) 167) + "7Position X:" + ((char) 167) + "6" + (df.format(posList.getDoubleAt(0))) +
+						((char) 167) + "7, Y:" + ((char) 167) + "6" + (df.format(posList.getDoubleAt(1))) +
+						((char) 167) + "7, Z:" + ((char) 167) + "6" + (df.format(posList.getDoubleAt(2))));
+				hl.add(((char) 167) + "7Class Type: " + ((char) 167) + "f" + nbt.getString("Class"));
+				hts.put(i, hl);
+			}
+			String key = type + "ID:" + nbt.getInteger("Id") + " " + ((char) 167) + "r" + (name) + " " + ((char) 167) + "7" + df.format(distance);
 			list.add(key);
 			dataIDs.put(key, nbt.getInteger("Id"));
-			hts.put(i, Collections.singletonList(((char) 167) + "7Distance Of: " + ((char) 167) + "6" + df.format(distance)));
 		}
 		scroll.setListNotSorted(list);
 		scroll.setHoverTexts(hts);
@@ -306,12 +313,13 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 				float distance = player.getDistance(entity);
 				for (int i = 0; i < scroll.getList().size(); i++) {
 					if (scroll.getList().get(i).contains("ID:" + id + " ")) {
-						List<String> l = new ArrayList<>();
-						l.add(((char) 167) + "7Name: " + ((char) 167) + "r");
-						l.add(new TextComponentTranslation(entity.getName()).getFormattedText());
-						l.add(((char) 167) + "7Distance Of: " + ((char) 167) + "6" + df.format(distance));
-						l.add(((char) 167) + "7Class Type: " + ((char) 167) + "f" + entity.getClass().getSimpleName());
-						scroll.getHoversTexts().put(i, l);
+						List<String> hl = new ArrayList<>();
+						hl.add(((char) 167) + "7Distance to: " + ((char) 167) + "6" + df.format(distance));
+						hl.add(((char) 167) + "7Position X:" + ((char) 167) + "6" + (df.format(entity.posX)) +
+								((char) 167) + "7, Y:" + ((char) 167) + "6" + (df.format(entity.posY)) +
+								((char) 167) + "7, Z:" + ((char) 167) + "6" + (df.format(entity.posZ)));
+						hl.add(((char) 167) + "7Class Type: " + ((char) 167) + "f" + entity.getClass().getSimpleName());
+						scroll.getHoversTexts().put(i, hl);
 						break;
 					}
 				}
