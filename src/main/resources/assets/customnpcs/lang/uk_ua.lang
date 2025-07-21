@@ -1915,7 +1915,9 @@ property.showhitboxblocktools.hover=Відображення хітбоксів 
 property.defaulthurtresistanttime.hover=Час безсмертя після того, як NPC отримає шкоду (у тиках, за замовчуванням)
 property.showhealingparticles.hover=При самолікуванні NPC над головою з'являтиметься частинки
 property.showcustomanimation.hover=Виводити помилки скриптів у чат чи ні
+property.displayerrorinchat.hover=Виводити помилки скриптів у чат чи ні
 property.enableforgescripting.hover=Чи ввімкнено скрипти для подій Forge чи ні?
+property.showbuttonsinguimenu.hover=Відображати додаткові кнопки у ГУІ меню чи ні
 
 puppet.aim=§9§lЦілиться
 puppet.animation=Анімація

@@ -832,12 +832,12 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
 
 		// Body
+		RenderHelper.enableStandardItemLighting();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, new ArrayList<>(Arrays.asList("body", "dial", "arrow_1", "arrow_20", "fase")), null));
 		GlStateManager.rotate((System.currentTimeMillis() % 3500L) / (3500.0f / 360.0f), 0.0f, 1.0f, 0.0f);
 		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_0"), null));
 		GlStateManager.popMatrix();
-
 	}
 
 	protected void drawFaction(int mouseX, int mouseY) {
@@ -2006,13 +2006,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		}
 		if (type == 2) {
 			if (this.getTextField(0) != null && this.getTextField(0).isHovered()) {
-				this.setHoverText("quest.hover.compass.edit.ups");
+				this.setHoverText("quest.hover.compass.edit.upos");
 			} else if (this.getTextField(1) != null && this.getTextField(1).isHovered()) {
 				this.setHoverText("quest.hover.compass.edit.vpos");
 			} else if (this.getButton(0) != null && this.getButton(0).isHovered()) {
-				this.setHoverText("quest.hover.compass.edit.show name");
+				this.setHoverText("quest.hover.compass.edit.showname");
 			} else if (this.getButton(1) != null && this.getButton(1).isHovered()) {
-				this.setHoverText("quest.hover.compass.edit.showcase");
+				this.setHoverText("quest.hover.compass.edit.showtask");
 			} else if (this.getSlider(0) != null && this.getSlider(0).isHovered()) {
 				this.setHoverText("quest.hover.compass.edit.scale");
 			} else if (this.getSlider(1) != null && this.getSlider(1).isHovered()) {

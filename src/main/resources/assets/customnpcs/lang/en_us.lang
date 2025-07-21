@@ -1926,6 +1926,7 @@ property.showhealingparticles.hover=When NPCs self-heal, particles will appear a
 property.showcustomanimation.hover=Use custom animation mod for NPCs
 property.displayerrorinchat.hover=To display script errors in chat or not
 property.enableforgescripting.hover=Are scripts enabled for Forge events or not
+property.showbuttonsinguimenu.hover=Show additional buttons in the GUI menu or not
 
 
 puppet.aim=§9§lAims

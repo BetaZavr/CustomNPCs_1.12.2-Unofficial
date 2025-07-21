@@ -39,6 +39,8 @@
     "client.gui.GuiScreenMixin",
     "client.gui.GuiTextFieldMixin",
     "client.gui.GuiYesNoMixin",
+    "client.gui.inventory.GuiContainerCreativeMixin",
+    "client.gui.inventory.GuiInventoryMixin",
     "client.gui.recipebook.RecipeListMixin",
     "client.model.ModelBoxMixin",
     "client.model.ModelRendererMixin",

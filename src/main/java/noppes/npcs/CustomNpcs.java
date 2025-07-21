@@ -271,6 +271,8 @@ public class CustomNpcs {
 	public static boolean ShowHealingParticles = true;
 	@ConfigProp(info = "To display script errors in chat or not", def = "true", type = Configuration.CATEGORY_CLIENT)
 	public static boolean DisplayErrorInChat= true;
+	@ConfigProp(info = "Show additional buttons in the GUI menu or not", def = "false", type = Configuration.CATEGORY_CLIENT)
+	public static boolean ShowButtonsInGuiMenu = false;
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;

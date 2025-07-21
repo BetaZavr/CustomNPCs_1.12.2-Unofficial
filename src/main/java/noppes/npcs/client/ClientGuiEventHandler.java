@@ -1,14 +1,11 @@
 package noppes.npcs.client;
 
 import java.awt.Point;
-import java.lang.reflect.Field;
 import java.util.*;
 
 import net.minecraft.client.gui.*;
-import noppes.npcs.api.mixin.client.gui.IGuiMainMenuMixin;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
-import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.reflection.pathfinding.PathReflection;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -18,8 +15,6 @@ import net.minecraft.block.BlockAir;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiContainerCreative;
-import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -51,7 +46,6 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -68,7 +62,6 @@ import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.player.GuiMailmanWrite;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.client.util.CrashesData;
 import noppes.npcs.constants.EnumPlayerPacket;
@@ -96,7 +89,6 @@ import noppes.npcs.util.ValueUtil;
 @SideOnly(Side.CLIENT)
 public class ClientGuiEventHandler extends Gui {
 
-	private static final ResourceLocation CREATIVE_TABS = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
 	private static final ResourceLocation[] BORDER;
 
 	public static final ResourceLocation COIN_NPC = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
@@ -1867,152 +1859,6 @@ public class ClientGuiEventHandler extends Gui {
 		CustomNpcs.debugData.start("Players", this, "npcScreenRenderPre");
 		if (!ClientProxy.playerData.hud.isShowElementType(event.getType().ordinal())) { event.setCanceled(true); }
 		CustomNpcs.debugData.end("Players", this, "npcScreenRenderPre");
-	}
-
-	@SuppressWarnings("all")
-	@SubscribeEvent
-	public void npcButtonEvent(GuiScreenEvent.ActionPerformedEvent.Post event) {
-		CustomNpcs.debugData.start("Players", this, "npcButtonEvent");
-		if (event.getGui() instanceof GuiMainMenu) {
-			if (event.getButton().id == 150) {
-				int v = ((GuiNpcButton) event.getButton()).getValue() - 1;
-				try {
-					Field field = GuiMainMenu.class.getField("cnpc$variant");
-					field.setAccessible(true);
-					field.set(event.getGui(), v);
-				}  catch (Exception ignored) { }
-				ResourceLocation[] images = ((IGuiMainMenuMixin) event.getGui()).npcs$getImages();
-				for(int i = 0; i < 6; ++i) {
-					if (v < 0) { images[i] = new ResourceLocation("textures/gui/title/background/panorama_" + i + ".png"); }
-					else { images[i] = new ResourceLocation(CustomNpcs.MODID, "textures/gui/title/background/" + v + "/panorama_" + i + ".png"); }
-				}
-			}
-		}
-		else if (CustomNpcs.InventoryGuiEnabled && event.getGui() instanceof GuiContainerCreative) {
-			switch (event.getButton().id) {
-				case 150: {
-					CustomNpcs.proxy.openGui(2, 0, 0, EnumGuiType.QuestLog, mc.player);
-					break;
-				}
-				case 151: {
-					CustomNpcs.proxy.openGui(0, 0, 0, EnumGuiType.QuestLog, mc.player);
-					break;
-				}
-			}
-		}
-		CustomNpcs.debugData.end("Players", this, "npcButtonEvent");
-	}
-
-	@SubscribeEvent
-	public void npcDrawScreenEvent(GuiScreenEvent.DrawScreenEvent.Post event) {
-		CustomNpcs.debugData.start("Players", this, "npcDrawScreenEvent");
-		Minecraft mc = event.getGui().mc;
-		if (event.getGui() instanceof GuiInventory && CustomNpcs.ShowMoney) {
-			String text = Util.instance
-					.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney(), true, true, false)
-					+ CustomNpcs.displayCurrencies;
-			GlStateManager.pushMatrix();
-			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-			int x = 0, y = 0;
-			try {
-				if (mc.currentScreen != null) {
-					x = ((GuiInventory) mc.currentScreen).getGuiLeft() + 122;
-					y = ((GuiInventory) mc.currentScreen).getGuiTop() + 61;
-				}
-			} catch (Exception e) {
-				CustomNpcs.debugData.end("Players", this, "npcDrawScreenEvent");
-				return;
-			}
-			GlStateManager.translate(x, y, 0.0f);
-			mc.getTextureManager().bindTexture(ClientGuiEventHandler.COIN_NPC);
-			float s = 16.0f / 250.f;
-			GlStateManager.scale(s, s, s);
-			GlStateManager.enableBlend();
-			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
-			GlStateManager.popMatrix();
-
-			GlStateManager.pushMatrix();
-			mc.fontRenderer.drawString(text, x + 15, y + 8.0f / 2.0f, CustomNpcs.LableColor.getRGB(), false);
-			GlStateManager.popMatrix();
-			int xm = event.getMouseX(), ym = event.getMouseY();
-			if (xm > x && ym > y && xm < x + 50 && ym < y + 12) {
-				List<String> hoverText = new ArrayList<>();
-				hoverText.add(new TextComponentTranslation("inventory.hover.currency").getFormattedText());
-				hoverText.add("" + CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney());
-				event.getGui().drawHoveringText(hoverText, xm, ym);
-			}
-		}
-		else if (CustomNpcs.InventoryGuiEnabled && event.getGui() instanceof GuiContainerCreative) {
-			int x;
-            int y;
-            try {
-				x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;
-				y = ((GuiContainerCreative) event.getGui()).getGuiTop() + 4;
-			} catch (Exception e) {
-				CustomNpcs.debugData.end("Players", this, "npcDrawScreenEvent");
-				return;
-			}
-
-			RenderHelper.enableGUIStandardItemLighting();
-			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-
-			GlStateManager.pushMatrix();
-			mc.getTextureManager().bindTexture(CREATIVE_TABS);
-			GlStateManager.translate(x, y + 28, 0.0f);
-			GlStateManager.rotate(-90.0f, 0.0f, 0.0f, 1.0f);
-			int mx = event.getMouseX() - x;
-			int my = event.getMouseY() - y;
-			if (mx > 0 && mx <= 32 && my > 0 && my <= 28) { drawTexturedModalRect(0, 2, 28, 32, 28, 32); }
-			else { drawTexturedModalRect(0, 0, 28, 0, 28, 30); }
-			GlStateManager.translate(-28.0f, 0.0f, 0.0f);
-			my -= 28;
-			if (mx > 0 && mx <= 32 && my > 0 && my <= 28) { drawTexturedModalRect(0, 2, 28, 32, 28, 32); }
-			else { drawTexturedModalRect(0, 0, 28, 0, 28, 30); }
-			GlStateManager.popMatrix();
-
-			GlStateManager.pushMatrix();
-			RenderHelper.enableGUIStandardItemLighting();
-			String i = String.valueOf(31L - (System.currentTimeMillis() / 100L) % 32L);
-			if (i.length() < 2) {
-				i = "0" + i;
-			}
-			mc.getTextureManager().bindTexture(new ResourceLocation("textures/items/compass_" + i + ".png"));
-			GlStateManager.translate(x + 10, y + 6, 0.0f);
-			float s = 16.0f / 256.0f;
-			GlStateManager.scale(s, s, s);
-			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
-			GlStateManager.translate(0.0f, 28.0f / s, 0.0f);
-			mc.getTextureManager().bindTexture(new ResourceLocation("textures/items/book_normal.png"));
-			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
-			GlStateManager.popMatrix();
-		}
-		CustomNpcs.debugData.end("Players", this, "npcDrawScreenEvent");
-	}
-
-	@SuppressWarnings("all")
-	@SubscribeEvent
-	public void npcInitGuiEvent(GuiScreenEvent.InitGuiEvent.Post event) {
-		CustomNpcs.debugData.start("Players", this, "npcInitGuiEvent");
-		if (event.getGui() instanceof GuiMainMenu) {
-			try {
-				Field field = GuiMainMenu.class.getField("cnpc$variant");
-				field.setAccessible(true);
-				event.getButtonList().add(new GuiNpcButton(150, 3, 3, 20, 16, (int) field.get(event.getGui()) + 1, "MC", "1", "2", "3", "4"));
-			} catch (Exception ignored) {}
-		}
-		else if (CustomNpcs.InventoryGuiEnabled && event.getGui() instanceof GuiContainerCreative) {
-			try {
-				int x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;
-				int y = ((GuiContainerCreative) event.getGui()).getGuiTop() + 4;
-				event.getButtonList().add(new GuiNpcButton(150, x, y, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
-				event.getButtonList().add(new GuiNpcButton(151, x, y + 28, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
-			} catch (Exception e) {
-				CustomNpcs.debugData.end("Players", this, "npcInitGuiEvent");
-				return;
-			}
-		}
-		CustomNpcs.debugData.end("Players", this, "npcInitGuiEvent");
 	}
 
 	/** Regions Edit -> Draw */

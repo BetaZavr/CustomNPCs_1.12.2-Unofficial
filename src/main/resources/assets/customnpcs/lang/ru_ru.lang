@@ -1917,6 +1917,7 @@ property.showhealingparticles.hover=При самолечении NPC над г�
 property.showcustomanimation.hover=Использовать кастомную анимацию мода для NPC
 property.displayerrorinchat.hover=Выводить ошибки скриптов в чат или нет
 property.enableforgescripting.hover=Включены ли скрипты для событий Forge или нет?
+property.showbuttonsinguimenu.hover=Отображать дополнительные кнопки в ГУИ меню или нет
 
 puppet.aim=§9§lПрицеливается
 puppet.animation=Анимация
