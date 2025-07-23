@@ -179,7 +179,7 @@ implements ICustomScrollListener {
 
     @Override
     public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-        cont.slot.setSlotIndex(scroll.getSelect());
+        cont.slot.setSlotIndex(scroll.getSelect(), true);
         scroll.setSelect(cont.slot.getSlotIndex());
         Client.sendData(EnumPacketServer.AvailabilitySlot, cont.slot.getSlotIndex());
         initGui();

@@ -641,7 +641,7 @@ implements ICompatibilty, IAvailability {
 
 		stacks.clear();
 		if (compound.hasKey("NpcMiscInv", 9)) {
-			stacks.setFromNBT(compound);
+			stacks.load(compound);
 		}
 		stacksData.clear();
 		if (compound.hasKey("AvailabilityMiscInv", 9)) {

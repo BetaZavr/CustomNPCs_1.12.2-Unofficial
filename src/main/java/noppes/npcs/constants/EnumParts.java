@@ -32,7 +32,8 @@ public enum EnumParts
 	BELT("belt", -1), 
 	FEET_LEFT("bootleft", 4), 
 	FEET_RIGHT("bootright", 5),
-	CUSTOM("custom", -1);
+	CUSTOM("custom", -1),
+	CUSTOM_LAYERS("layers", -1);
 	
 	public final String name;
 	public final int patterns;
@@ -53,11 +54,21 @@ public enum EnumParts
 
 	public static EnumParts get(int part) {
 		for (EnumParts e : values()) {
-			if (e.patterns == part) {
-				return e;
-			}
+			if (e.patterns == part) { return e; }
 		}
 		return EnumParts.CUSTOM;
 	}
 
+	public static EnumParts getMainModel(int ordinal) {
+		EnumParts[] set = EnumParts.values();
+		if (ordinal < 0) { ordinal *= -1; }
+		EnumParts ep = set[ordinal % set.length];
+		if (ep == EnumParts.HEAD || ep == EnumParts.BODY ||
+				ep == EnumParts.ARM_LEFT || ep == EnumParts.ARM_RIGHT ||
+				ep == EnumParts.LEG_LEFT || ep == EnumParts.LEG_RIGHT ||
+				ep == EnumParts.WRIST_LEFT || ep == EnumParts.WRIST_RIGHT ||
+				ep == EnumParts.FOOT_LEFT || ep == EnumParts.FOOT_RIGHT)
+		{ return ep; }
+		return EnumParts.HEAD;
+	}
 }

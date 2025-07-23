@@ -258,7 +258,7 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 		this.givingMethod = compound.getInteger("igGivingMethod");
 		this.cooldown = compound.getInteger("igCooldown");
 		this.lines = NBTTags.getStringList(compound.getTagList("igLines", 10));
-		this.inventory.setFromNBT(compound.getCompoundTag("igJobInventory"));
+		this.inventory.load(compound.getCompoundTag("igJobInventory"));
 		if (this.itemGiverId == 0 && GlobalDataController.instance != null) {
 			this.itemGiverId = GlobalDataController.instance.incrementItemGiverId();
 		}
@@ -273,7 +273,7 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 		compound.setInteger("igCooldown", this.cooldown);
 		compound.setInteger("ItemGiverId", this.itemGiverId);
 		compound.setTag("igLines", NBTTags.nbtStringList(this.lines));
-		compound.setTag("igJobInventory", this.inventory.getToNBT());
+		compound.setTag("igJobInventory", this.inventory.save());
 		compound.setTag("igAvailability", this.availability.writeToNBT(new NBTTagCompound()));
 		return compound;
 	}

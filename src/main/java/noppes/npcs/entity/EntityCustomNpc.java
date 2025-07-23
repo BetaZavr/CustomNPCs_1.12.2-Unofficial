@@ -68,15 +68,12 @@ public class EntityCustomNpc extends EntityNPCFlying {
 			super.updateHitbox();
 		} else {
 			if (entity instanceof EntityNPCInterface) { ((EntityNPCInterface) entity).updateHitbox(); }
-			width = entity.width / 5.0f * display.getSize();
-			height = entity.height / 5.0f * display.getSize();
-			if (width < 0.1f) { width = 0.1f; }
-			if (height < 0.1f) { height = 0.1f; }
+			width = Math.max(0.1f, entity.width / 5.0f * display.getSize());
+			height = Math.max(0.1f, entity.height / 5.0f * display.getSize());
+			eyeHeight = Math.max(0.1f, entity.getEyeHeight() / 5.0f * display.getSize());
 			double n = width / 2.0f;
-			if (n > World.MAX_ENTITY_RADIUS) {
-				World.MAX_ENTITY_RADIUS = width / 2.0f;
-			}
-			this.setPosition(posX, posY, posZ);
+			if (n > World.MAX_ENTITY_RADIUS) { World.MAX_ENTITY_RADIUS = width / 2.0f; }
+			setPosition(posX, posY, posZ);
 		}
 	}
 

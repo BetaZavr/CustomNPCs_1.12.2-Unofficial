@@ -389,9 +389,7 @@ public class PlayerEventHandler {
 		if (event.getEntityPlayer().world.isRemote) { return; }
 		CustomNpcs.debugData.start(event.getEntityPlayer(), this, "npcItemPickupEvent");
 		PlayerData pd = PlayerData.get(event.getEntityPlayer());
-		for (QuestData qd : pd.questData.activeQuests.values()) {
-			pd.questData.checkQuestCompletion(event.getEntityPlayer(), qd);
-		}
+		for (QuestData qd : pd.questData.activeQuests.values()) { pd.questData.checkQuestCompletion(event.getEntityPlayer(), qd); }
 		pd.questData.updateClient = true;
 		event.setCanceled(EventHooks.onPlayerPickUp(pd.scriptData, event.getItem()));
 		CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcItemPickupEvent");

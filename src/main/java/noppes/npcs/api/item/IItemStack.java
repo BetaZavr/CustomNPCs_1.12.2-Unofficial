@@ -5,6 +5,7 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IData;
 
+@SuppressWarnings("all")
 public interface IItemStack {
 
 	void addEnchantment(int id, int level);

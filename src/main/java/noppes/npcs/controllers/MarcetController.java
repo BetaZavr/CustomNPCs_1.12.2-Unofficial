@@ -347,8 +347,8 @@ public class MarcetController implements IMarcetHandler {
 		boolean ignoreNBT = nbttagcompound.getBoolean("TraderIgnoreNBT");
 		NpcMiscInventory inventoryCurrency = new NpcMiscInventory(36);
 		NpcMiscInventory inventorySold = new NpcMiscInventory(18);
-		inventoryCurrency.setFromNBT(nbttagcompound.getCompoundTag("TraderCurrency"));
-		inventorySold.setFromNBT(nbttagcompound.getCompoundTag("TraderSold"));
+		inventoryCurrency.load(nbttagcompound.getCompoundTag("TraderCurrency"));
+		inventorySold.load(nbttagcompound.getCompoundTag("TraderSold"));
 
 		for (int i = 0; i < 18; i++) {
 			if (inventorySold.getStackInSlot(i).isEmpty()) {

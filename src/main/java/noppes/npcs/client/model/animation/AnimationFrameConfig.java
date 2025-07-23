@@ -185,7 +185,7 @@ public class AnimationFrameConfig implements IAnimationFrame {
 			PartConfig pc;
 			if (nbt.hasKey("Part", 3) && this.parts.containsKey(nbt.getInteger("Part"))) { pc = this.parts.get(nbt.getInteger("Part")); }
 			else { pc = new PartConfig(i, AnimationFrameConfig.getPartType(i)); }
-			pc.readNBT(nbt);
+			pc.load(nbt);
 			if (pc.type == EnumParts.WRIST_RIGHT || pc.type == EnumParts.WRIST_LEFT || pc.type == EnumParts.FOOT_RIGHT || pc.type == EnumParts.FOOT_LEFT) { continue; }
 			this.parts.put(pc.id, pc);
 		}
@@ -225,6 +225,7 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		}
 	}
 
+	@SuppressWarnings("all")
 	public void removePart(PartConfig part) {
 		if (part == null || this.parts.size() <= 8) {
 			return;
@@ -276,7 +277,7 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		compound.setInteger("EndDelay", this.delay);
 		NBTTagList list = new NBTTagList();
 		for (int id : this.parts.keySet()) {
-			list.appendTag(this.parts.get(id).writeNBT());
+			list.appendTag(this.parts.get(id).save());
 		}
 		compound.setTag("PartConfigs", list);
 		NBTTagList listM = new NBTTagList();

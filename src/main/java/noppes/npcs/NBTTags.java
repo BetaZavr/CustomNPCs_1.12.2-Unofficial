@@ -280,7 +280,7 @@ public class NBTTags {
 		return nbttaglist;
 	}
 
-	public static NBTBase nbtIntegerStringMap(Map<Integer, String> map) {
+	public static NBTTagList nbtIntegerStringMap(Map<Integer, String> map) {
 		NBTTagList nbttaglist = new NBTTagList();
 		if (map == null) {
 			return nbttaglist;

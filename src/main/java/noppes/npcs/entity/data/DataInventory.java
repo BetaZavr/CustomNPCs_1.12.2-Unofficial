@@ -29,7 +29,6 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.ICustomDrop;
 import noppes.npcs.api.entity.data.INPCInventory;
 import noppes.npcs.api.event.NpcEvent;
-import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.constants.EnumQuestTask;
@@ -66,29 +65,29 @@ public class DataInventory implements IInventory, INPCInventory {
 	public InventoryBasic deadLoot; // <- PlayerInteractEvent.RightClickBlock
 	public Map<EntityLivingBase, InventoryBasic> deadLoots;
 
-	public DataInventory(EntityNPCInterface npc) { this.npc = npc; }
+	public DataInventory(EntityNPCInterface npcIn) { npc = npcIn; }
 
 	@Override
 	public ICustomDrop addDropItem(IItemStack item, double chance) {
-		if (this.drops.size() >= CustomNpcs.MaxItemInDropsNPC) {
-			throw new CustomNPCsException("Bad maximum size: " + this.drops.size() + " (" + CustomNpcs.MaxItemInDropsNPC + " slots maximum)");
+		if (drops.size() >= CustomNpcs.MaxItemInDropsNPC) {
+			throw new CustomNPCsException("Bad maximum size: " + drops.size() + " (" + CustomNpcs.MaxItemInDropsNPC + " slots maximum)");
 		}
 		chance = ValueUtil.correctDouble(chance, 0.0001d, 100.0d);
 		DropSet ds = new DropSet(this);
 		ds.item = item;
 		ds.chance = chance;
-		ds.pos = this.drops.size();
-		this.drops.put(ds.pos, ds);
+		ds.pos = drops.size();
+		drops.put(ds.pos, ds);
 		return ds;
 	}
 
 	public void clear() {
-		this.armor.clear();
-		this.drops.clear();
-		this.weapons.clear();
-		this.awItems.clear();
-		this.minExp = 0;
-		this.maxExp = 0;
+		armor.clear();
+		drops.clear();
+		weapons.clear();
+		awItems.clear();
+		minExp = 0;
+		maxExp = 0;
 	}
 
 	public void closeInventory(@Nonnull EntityPlayer player) {}
@@ -98,7 +97,7 @@ public class DataInventory implements IInventory, INPCInventory {
 	 * 1: drop under player feet
 	 * 2: into inventory
 	 * @param baseChance 0 <> 1.0
-	 * @return
+	 * @return inventories map
 	 */
 	@Override
 	public Map<IEntity<?>, List<IItemStack>> createDrops(int lootType, double baseChance) {
@@ -122,9 +121,9 @@ public class DataInventory implements IInventory, INPCInventory {
 					Quest quest = QuestController.instance.quests.get(qID);
 					if (quest == null) { continue; }
 					boolean needAdd = true;
-					for (IQuestObjective objQ : quest.getObjectives((EntityPlayer) attacking)) {
-						if (((QuestObjective) objQ).getEnumType() != EnumQuestTask.ITEM) { continue; }
-						if (((QuestObjective) objQ).getItemStack().isItemEqual(iStack.getMCItemStack()) && objQ.isCompleted()) {
+					for (QuestObjective objQ : quest.getObjectives((EntityPlayer) attacking)) {
+						if (objQ.getEnumType() != EnumQuestTask.ITEM) { continue; }
+						if (objQ.getItemStack().isItemEqual(iStack.getMCItemStack()) && objQ.isCompleted()) {
 							needAdd = false;
 							break;
 						}
@@ -192,38 +191,38 @@ public class DataInventory implements IInventory, INPCInventory {
 
 	public @Nonnull ItemStack decrStackSize(int slot0, int slot1) {
 		int i;
-		Map<Integer, IItemStack> var3;
+		Map<Integer, IItemStack> map;
 		ItemStack var4 = null;
 		if (slot0 >= 7) {
-			var3 = this.awItems;
+			map = awItems;
 			slot0 -= 7;
 			i = 3;
 		} else if (slot0 >= 4) {
-			var3 = this.weapons;
+			map = weapons;
 			slot0 -= 4;
 			i = 1;
 		} else {
-			var3 = this.armor;
+			map = armor;
 			i = 2;
 		}
 
-		if (var3.get(slot0) != null) {
-			if (var3.get(slot0).getMCItemStack().getCount() <= slot1) {
-				var4 = var3.get(slot0).getMCItemStack();
-				var3.put(slot0, null);
+		if (map.get(slot0) != null) {
+			if (map.get(slot0).getMCItemStack().getCount() <= slot1) {
+				var4 = map.get(slot0).getMCItemStack();
+				map.put(slot0, null);
 			} else {
-				var4 = var3.get(slot0).getMCItemStack().splitStack(slot1);
-				if (var3.get(slot0).getMCItemStack().getCount() == 0) {
-					var3.put(slot0, null);
+				var4 = map.get(slot0).getMCItemStack().splitStack(slot1);
+				if (map.get(slot0).getMCItemStack().getCount() == 0) {
+					map.put(slot0, null);
 				}
 			}
 		}
 		if (i == 1) {
-			this.weapons = var3;
+			weapons = map;
 		} else if (i == 2) {
-			this.armor = var3;
-		} else {
-			this.awItems = var3;
+			armor = map;
+		} else  {
+			awItems = map;
 		}
 		if (var4 == null) {
 			return ItemStack.EMPTY;
@@ -322,7 +321,7 @@ public class DataInventory implements IInventory, INPCInventory {
 					while (exp > 0) {
 						int currentValue = EntityXPOrb.getXPSplit(exp);
 						exp -= currentValue;
-						this.npc.world.spawnEntity(new EntityXPOrb(player.world, player.posX, player.posY, player.posZ, currentValue));
+						npc.world.spawnEntity(new EntityXPOrb(player.world, player.posX, player.posY, player.posZ, currentValue));
 					}
 				}
 			}
@@ -330,7 +329,7 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public IItemStack getArmor(int slot) {
-		return this.armor.get(slot);
+		return armor.get(slot);
 	}
 
 	public @Nonnull ITextComponent getDisplayName() {
@@ -338,24 +337,24 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public ICustomDrop getDrop(int slot) {
-		if (slot < 0 || slot >= this.drops.size()) {
-			throw new CustomNPCsException("Bad slot number: " + slot + " in " + this.drops.size() + " maximum");
+		if (slot < 0 || slot >= drops.size()) {
+			throw new CustomNPCsException("Bad slot number: " + slot + " in " + drops.size() + " maximum");
 		}
-        return this.drops.get(slot);
+        return drops.get(slot);
 	}
 
 	public IItemStack getDropItem(int slot) {
-		if (slot < 0 || slot >= this.drops.size()) {
-			throw new CustomNPCsException("Bad slot number: " + slot + " in " + this.drops.size() + " maximum");
+		if (slot < 0 || slot >= drops.size()) {
+			throw new CustomNPCsException("Bad slot number: " + slot + " in " + drops.size() + " maximum");
 		}
-		DropSet g = this.drops.get(slot);
+		DropSet g = drops.get(slot);
 		return g.getItem();
 	}
 
 	public ICustomDrop[] getDrops() {
-		ICustomDrop[] dss = new ICustomDrop[this.drops.size()];
+		ICustomDrop[] dss = new ICustomDrop[drops.size()];
 		int i = 0;
-		for (DropSet ds : this.drops.values()) {
+		for (DropSet ds : drops.values()) {
 			dss[i] = ds;
 			i++;
 		}
@@ -377,17 +376,17 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public int getExpMax() {
-		return this.npc.inventory.maxExp;
+		return npc.inventory.maxExp;
 	}
 
 	public int getExpMin() {
-		return this.npc.inventory.minExp;
+		return npc.inventory.minExp;
 	}
 
 	public int getExpRNG() {
-		int exp = this.minExp;
-		if (this.maxExp - this.minExp > 0) {
-			exp += this.npc.world.rand.nextInt(this.maxExp - this.minExp);
+		int exp = minExp;
+		if (maxExp - minExp > 0) {
+			exp += npc.world.rand.nextInt(maxExp - minExp);
 		}
 		return exp;
 	}
@@ -405,7 +404,7 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public IItemStack getLeftHand() {
-		return this.weapons.get(2);
+		return weapons.get(2);
 	}
 
 	public @Nonnull String getName() {
@@ -413,32 +412,32 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public IItemStack getProjectile() {
-		return this.weapons.get(1);
+		return weapons.get(1);
 	}
 
 	public IItemStack getRightHand() {
-		return this.weapons.get(0);
+		return weapons.get(0);
 	}
 
 	public int getSizeInventory() {
-		return 7 + this.drops.size();
+		return 7 + drops.size();
 	}
 
 	public @Nonnull ItemStack getStackInSlot(int slot) {
 		if (slot < 4) {
-			return ItemStackWrapper.MCItem(this.getArmor(slot));
+			return ItemStackWrapper.MCItem(getArmor(slot));
 		}
 		if (slot < 7) {
-			return ItemStackWrapper.MCItem(this.weapons.get(slot - 4));
+			return ItemStackWrapper.MCItem(weapons.get(slot - 4));
 		}
 		if (slot < 9) {
-			return ItemStackWrapper.MCItem(this.awItems.get(slot - 7));
+			return ItemStackWrapper.MCItem(awItems.get(slot - 7));
 		}
 		return ItemStack.EMPTY;
 	}
 
 	public boolean getXPLootMode() {
-		return this.lootMode;
+		return lootMode;
 	}
 
 	public boolean hasCustomName() {
@@ -446,8 +445,8 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public boolean isEmpty() {
-		for (int slot = 0; slot < this.getSizeInventory(); ++slot) {
-			ItemStack item = this.getStackInSlot(slot);
+		for (int slot = 0; slot < getSizeInventory(); ++slot) {
+			ItemStack item = getStackInSlot(slot);
 			if (!NoppesUtilServer.IsItemStackNull(item) && !item.isEmpty()) {
 				return false;
 			}
@@ -470,11 +469,11 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public void readEntityFromNBT(NBTTagCompound compound) {
-		this.minExp = compound.getInteger("MinExp");
-		this.maxExp = compound.getInteger("MaxExp");
-		this.armor = NBTTags.getIItemStackMap(compound.getTagList("Armor", 10));
-		this.weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
-		this.awItems = NBTTags.getIItemStackMap(compound.getTagList("AWModItems", 10));
+		minExp = compound.getInteger("MinExp");
+		maxExp = compound.getInteger("MaxExp");
+		armor = NBTTags.getIItemStackMap(compound.getTagList("Armor", 10));
+		weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
+		awItems = NBTTags.getIItemStackMap(compound.getTagList("AWModItems", 10));
 
 		Map<Integer, DropSet> drs = new HashMap<>();
 		if (compound.hasKey("DropChance", 9)) { // if old items
@@ -501,55 +500,51 @@ public class DataInventory implements IInventory, INPCInventory {
 				drs.put(ds.pos, ds);
 			}
 		}
-		this.drops.clear();
-		this.drops.putAll(drs);
-		this.lootMode = compound.getBoolean("LootMode");
-		this.saveDropsName = compound.getString("SaveDropsName");
-		this.dropType = compound.getInteger("DropType");
-		this.limitation = compound.getInteger("Limitation");
-		if (this.dropType < 0) {
-			this.dropType *= -1;
-		}
-		if (this.dropType > 2) {
-			this.dropType %= 3;
-		}
+		drops.clear();
+		drops.putAll(drs);
+		lootMode = compound.getBoolean("LootMode");
+		saveDropsName = compound.getString("SaveDropsName");
+		dropType = compound.getInteger("DropType");
+		limitation = compound.getInteger("Limitation");
+		if (dropType < 0) { dropType *= -1; }
+		if (dropType > 2) { dropType %= 3; }
 	}
 
 	public boolean removeDrop(ICustomDrop drop) {
 		Map<Integer, DropSet> newDrop = new TreeMap<>();
 		boolean del = false;
 		int j = 0;
-		for (int slot : this.drops.keySet()) {
-			if (this.drops.get(slot) == drop) {
+		for (int slot : drops.keySet()) {
+			if (drops.get(slot) == drop) {
 				del = true;
 				continue;
 			}
-			newDrop.put(j, this.drops.get(slot));
+			newDrop.put(j, drops.get(slot));
 			newDrop.get(j).pos = j;
 			j++;
 		}
 		if (del) {
-			this.drops.clear();
-			this.drops.putAll(newDrop);
+			drops.clear();
+			drops.putAll(newDrop);
 		}
 		return del;
 	}
 
 	public boolean removeDrop(int slot) {
-		if (this.drops.containsKey(slot)) {
-			this.drops.remove(slot);
+		if (drops.containsKey(slot)) {
+			drops.remove(slot);
 			Map<Integer, DropSet> newDrop = new TreeMap<>();
 			int j = 0;
-			for (int s : this.drops.keySet()) {
+			for (int s : drops.keySet()) {
 				if (s == slot) {
 					continue;
 				}
-				newDrop.put(j, this.drops.get(s));
+				newDrop.put(j, drops.get(s));
 				newDrop.get(j).pos = j;
 				j++;
 			}
-			this.drops.clear();
-			this.drops.putAll(newDrop);
+			drops.clear();
+			drops.putAll(newDrop);
 			return true;
 		}
 		return false;
@@ -557,28 +552,28 @@ public class DataInventory implements IInventory, INPCInventory {
 
 	public @Nonnull ItemStack removeStackFromSlot(int slot) {
 		int i;
-		Map<Integer, IItemStack> var2;
+		Map<Integer, IItemStack> map;
 		if (slot >= 7) {
-			var2 = this.awItems;
+			map = awItems;
 			slot -= 7;
 			i = 3;
 		} else if (slot >= 4) {
-			var2 = this.weapons;
+			map = weapons;
 			slot -= 4;
 			i = 1;
 		} else {
-			var2 = this.armor;
+			map = armor;
 			i = 2;
 		}
-		if (var2.get(slot) != null) {
-			ItemStack var3 = var2.get(slot).getMCItemStack();
-			var2.put(slot, null);
+		if (map.get(slot) != null) {
+			ItemStack var3 = map.get(slot).getMCItemStack();
+			map.put(slot, null);
 			if (i == 1) {
-				this.weapons = var2;
+				weapons = map;
 			} else if (i == 2) {
-				this.armor = var2;
+				armor = map;
 			} else {
-				this.awItems = var2;
+				awItems = map;
 			}
 			return var3;
 		}
@@ -586,14 +581,14 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public void setArmor(int slot, IItemStack item) {
-		this.armor.put(slot, item);
-		this.npc.updateClient = true;
+		armor.put(slot, item);
+		npc.updateClient = true;
 	}
 
 	public void setExp(int min, int max) {
 		min = Math.min(min, max);
-		this.npc.inventory.minExp = min;
-		this.npc.inventory.maxExp = max;
+		npc.inventory.minExp = min;
+		npc.inventory.maxExp = max;
 	}
 
 	public void setField(int id, int value) {
@@ -603,69 +598,69 @@ public class DataInventory implements IInventory, INPCInventory {
 		int i;
 		Map<Integer, IItemStack> var3;
 		if (slot >= 7) {
-			var3 = this.awItems;
+			var3 = awItems;
 			slot -= 7;
 			i = 3;
 		} else if (slot >= 4) {
-			var3 = this.weapons;
+			var3 = weapons;
 			slot -= 4;
 			i = 1;
 		} else {
-			var3 = this.armor;
+			var3 = armor;
 			i = 2;
 		}
 		var3.put(slot, Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(item));
 		if (i == 1) {
-			this.weapons = var3;
+			weapons = var3;
 		} else if (i == 2) {
-			this.armor = var3;
+			armor = var3;
 		} else {
-			this.awItems = var3;
+			awItems = var3;
 		}
 	}
 
 	public void setLeftHand(IItemStack item) {
-		this.weapons.put(2, item);
-		this.npc.updateClient = true;
+		weapons.put(2, item);
+		npc.updateClient = true;
 	}
 
 	public void setProjectile(IItemStack item) {
-		this.weapons.put(1, item);
-		this.npc.updateAI = true;
+		weapons.put(1, item);
+		npc.updateAI = true;
 	}
 
 	public void setRightHand(IItemStack item) {
-		this.weapons.put(0, item);
-		this.npc.updateClient = true;
+		weapons.put(0, item);
+		npc.updateClient = true;
 	}
 
 	public void setXPLootMode(boolean mode) {
-		this.lootMode = mode;
+		lootMode = mode;
 	}
 
 	public NBTTagCompound writeEntityToNBT(NBTTagCompound compound) {
-		compound.setInteger("MinExp", this.minExp);
-		compound.setInteger("MaxExp", this.maxExp);
-		compound.setTag("Armor", NBTTags.nbtIItemStackMap(this.armor));
-		compound.setTag("Weapons", NBTTags.nbtIItemStackMap(this.weapons));
-		compound.setTag("AWModItems", NBTTags.nbtIItemStackMap(this.awItems));
+		compound.setInteger("MinExp", minExp);
+		compound.setInteger("MaxExp", maxExp);
+		compound.setTag("Armor", NBTTags.nbtIItemStackMap(armor));
+		compound.setTag("Weapons", NBTTags.nbtIItemStackMap(weapons));
+		compound.setTag("AWModItems", NBTTags.nbtIItemStackMap(awItems));
 		NBTTagList dropList = new NBTTagList();
 		int s = 0;
-		for (int slot : this.drops.keySet()) {
-			if (this.drops.get(slot) == null) {
+		for (int slot : drops.keySet()) {
+			if (drops.get(slot) == null) {
 				continue;
 			}
-			if (this.drops.get(slot).pos != s) {
-				this.drops.get(slot).pos = s;
+			if (drops.get(slot).pos != s) {
+				drops.get(slot).pos = s;
 			}
-			dropList.appendTag(this.drops.get(slot).getNBT());
+			dropList.appendTag(drops.get(slot).getNBT());
 			s++;
 		}
 		compound.setTag("NpcInv", dropList);
-		compound.setBoolean("LootMode", this.lootMode);
-		compound.setString("SaveDropsName", this.saveDropsName);
-		compound.setInteger("DropType", this.dropType);
-		compound.setInteger("Limitation", this.limitation);
+		compound.setBoolean("LootMode", lootMode);
+		compound.setString("SaveDropsName", saveDropsName);
+		compound.setInteger("DropType", dropType);
+		compound.setInteger("Limitation", limitation);
 		return compound;
 	}
 

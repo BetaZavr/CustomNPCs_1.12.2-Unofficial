@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.inventory.Slot;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.ModelPartConfig;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumParts;
+import noppes.npcs.containers.ContainerLayer;
 import noppes.npcs.entity.EntityNPCInterface;
 
 import javax.annotation.Nonnull;
@@ -19,8 +21,8 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 	private final List<EnumParts> data = new ArrayList<>();
 	private GuiCustomScroll scroll;
 
-	public GuiCreationScale(EntityNPCInterface npc) {
-		super(npc);
+	public GuiCreationScale(EntityNPCInterface npc, ContainerLayer container) {
+		super(npc, container);
 		this.active = 3;
 		this.xOffset = 140;
 	}
@@ -118,6 +120,10 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 			y += 22;
 			this.addLabel(new GuiNpcLabel(13, "scale.shared", this.guiLeft + 102, y + 5, 16777215));
 			this.addButton(new GuiNpcButton(13, this.guiLeft + 150, y, 50, 20, new String[] { "gui.no", "gui.yes" }, (config2.notShared ? 0 : 1)));
+		}
+		for (Slot slot : inventorySlots.inventorySlots) {
+			slot.xPos = -5000;
+			slot.yPos = -5000;
 		}
 	}
 

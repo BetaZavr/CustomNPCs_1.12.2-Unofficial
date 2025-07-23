@@ -1724,6 +1724,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		NBTTagList lookPosList = compound.getTagList("LookPos", 5);
 		lookPos[0] = ValueUtil.correctFloat(lookPosList.getFloatAt(0), -45.0f, 45.0f);
 		lookPos[1] = ValueUtil.correctFloat(lookPosList.getFloatAt(1), -45.0f, 45.0f);
+		baseWidth = compound.getFloat("BaseWidth");
+		baseHeight = compound.getFloat("BaseHeight");
+		width = compound.getFloat("Width");
+		height = compound.getFloat("Height");
 	}
 
 	public void removeTrackingPlayer(@Nonnull EntityPlayerMP player) {
@@ -1912,12 +1916,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				(entityTarget instanceof EntityNPCInterface && isFriend(entityTarget))
 		)
 		{ return; }
-		//LogWriter.debug("Set Attack: "+entityTarget+" // "+getAttackTarget());
+		//LogWriter.debug("TEST: setAttackTarget: "+entityTarget+" // "+getAttackTarget());
 		if (entityTarget != null) {
 			if (!entityTarget.isEntityAlive()) { return; }
-			if (getAttackTarget() != null && combatHandler.priorityTarget != null) {
-				return;
-			}
+			if (getAttackTarget() != null && combatHandler.priorityTarget != null) { return; }
 			NpcEvent.TargetEvent event = new NpcEvent.TargetEvent(this.wrappedNPC, entityTarget);
 			if (EventHooks.onNPCTarget(this, event)) { return; }
 			if (event.entity == null) { entityTarget = null; }
@@ -2220,6 +2222,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			width *= Math.max(scaleHead, scaleBody);
 			width = width / 5.0f * display.getSize();
 			height = height / 5.0f * display.getSize();
+			eyeHeight = eyeHeight / 5.0f * display.getSize();
 		}
 		double n = width / 2.0f;
 		if (n > World.MAX_ENTITY_RADIUS) { World.MAX_ENTITY_RADIUS = n; }
@@ -2342,6 +2345,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		lookPosList.appendTag(new NBTTagFloat(lookPos[0]));
 		lookPosList.appendTag(new NBTTagFloat(lookPos[1]));
 		compound.setTag("LookPos", lookPosList);
+
+		updateHitbox();
+		compound.setFloat("BaseWidth", baseWidth);
+		compound.setFloat("BaseHeight", baseHeight);
+		compound.setFloat("Width", width);
+		compound.setFloat("Height", height);
 
 		return compound;
 	}

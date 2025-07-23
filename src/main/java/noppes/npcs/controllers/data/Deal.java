@@ -167,8 +167,8 @@ public class Deal implements IDeal {
 		this.availability.readFromNBT(compound.getCompoundTag("Availability"));
 		this.ignoreDamage = compound.getBoolean("IgnoreDamage");
 		this.ignoreNBT = compound.getBoolean("IgnoreNBT");
-		this.inventoryCurrency.setFromNBT(compound.getCompoundTag("Currency"));
-		this.inventoryProduct.setFromNBT(compound.getCompoundTag("Product"));
+		this.inventoryCurrency.load(compound.getCompoundTag("Currency"));
+		this.inventoryProduct.load(compound.getCompoundTag("Product"));
 		this.type = compound.getInteger("Type");
 		this.money = compound.getInteger("Money");
 		this.count = compound.getIntArray("Count");
@@ -349,8 +349,8 @@ public class Deal implements IDeal {
 		compound.setTag("Availability", this.availability.writeToNBT(new NBTTagCompound()));
 		compound.setBoolean("IgnoreDamage", this.ignoreDamage);
 		compound.setBoolean("IgnoreNBT", this.ignoreNBT);
-		compound.setTag("Currency", this.inventoryCurrency.getToNBT());
-		compound.setTag("Product", this.inventoryProduct.getToNBT());
+		compound.setTag("Currency", this.inventoryCurrency.save());
+		compound.setTag("Product", this.inventoryProduct.save());
 		compound.setInteger("Type", this.type);
 		compound.setIntArray("Count", this.count);
 		compound.setFloat("Chance", this.chance);

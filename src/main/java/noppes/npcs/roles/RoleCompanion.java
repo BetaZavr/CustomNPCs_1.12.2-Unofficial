@@ -440,6 +440,7 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 				|| this.hasTalent(EnumCompanionTalent.ARMOR) || this.hasTalent(EnumCompanionTalent.SWORD));
 	}
 
+	@SuppressWarnings("all")
 	public boolean hasOwner() {
 		return !this.uuid.isEmpty();
 	}
@@ -536,7 +537,7 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		this.type = RoleType.COMPANION;
-		this.inventory.setFromNBT(compound.getCompoundTag("CompanionInventory"));
+		this.inventory.load(compound.getCompoundTag("CompanionInventory"));
 		this.uuid = compound.getString("CompanionOwner");
 		this.ownerName = compound.getString("CompanionOwnerName");
 		this.companionID = compound.getInteger("CompanionID");
@@ -621,7 +622,7 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Type", RoleType.COMPANION.get());
-		compound.setTag("CompanionInventory", this.inventory.getToNBT());
+		compound.setTag("CompanionInventory", this.inventory.save());
 		compound.setString("CompanionOwner", this.uuid);
 		compound.setString("CompanionOwnerName", this.ownerName);
 		compound.setInteger("CompanionID", this.companionID);

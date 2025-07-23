@@ -1840,6 +1840,16 @@ part.skirt=Спідниця
 part.snout=Рило
 part.tail=Хвіст
 part.wings=Крила
+part.layers=Шари
+part.wristleft=Лів. Кисть
+part.wristright=Пр. Кисть
+part.footleft=Лів. Стопа
+part.footright=Пр. Стопа
+
+part.layers.true=Доповнювальні шари
+part.layers.false=Налаштувати шари
+part.layers.info.0=Кастомні шари:
+part.layers.info.1=Відключити шари:
 
 playerdata.players=Гравці
 

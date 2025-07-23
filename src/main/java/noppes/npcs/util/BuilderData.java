@@ -473,7 +473,7 @@ public class BuilderData {
 		}
 		nbtData.setTag("Chances", chList);
 		if (this.type < 3) {
-			nbtData.setTag("Inventory", this.inv.getToNBT());
+			nbtData.setTag("Inventory", this.inv.save());
 		}
 		nbtData.setString("PlayerName", this.player == null ? "null" : this.player.getName());
 		return nbtData;
@@ -522,7 +522,7 @@ public class BuilderData {
 			}
 		}
 		if (nbtData.hasKey("Inventory", 10)) {
-			this.inv.setFromNBT(nbtData.getCompoundTag("Inventory"));
+			this.inv.load(nbtData.getCompoundTag("Inventory"));
 		}
 	}
 

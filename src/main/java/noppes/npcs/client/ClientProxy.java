@@ -102,6 +102,7 @@ import noppes.npcs.client.gui.mainmenu.GuiNpcAI;
 import noppes.npcs.client.gui.mainmenu.GuiNpcAdvanced;
 import noppes.npcs.client.gui.mainmenu.GuiNpcDisplay;
 import noppes.npcs.client.gui.mainmenu.GuiNpcStats;
+import noppes.npcs.client.gui.model.GuiCreationParts;
 import noppes.npcs.client.gui.player.*;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionInv;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionStats;
@@ -1577,6 +1578,10 @@ public class ClientProxy extends CommonProxy {
 			}
 			case DeadInventory: {
 				returnGui = new GuiNPCDeadInventory(npc, (ContainerDead) container);
+				break;
+			}
+			case CreationParts: {
+				returnGui = new GuiCreationParts(npc, (ContainerLayer) container);
 				break;
 			}
 			default: { break; }

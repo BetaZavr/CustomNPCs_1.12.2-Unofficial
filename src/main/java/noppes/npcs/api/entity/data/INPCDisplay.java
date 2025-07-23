@@ -2,6 +2,7 @@ package noppes.npcs.api.entity.data;
 
 import noppes.npcs.api.entity.IPlayer;
 
+@SuppressWarnings("all")
 public interface INPCDisplay {
 
 	int getBossbar();
@@ -82,4 +83,7 @@ public interface INPCDisplay {
 
 	void setNormalModel(boolean bo);
 
+	String[] getDisableLayers();
+
+	void setDisableLayers(String[] newLayers);
 }

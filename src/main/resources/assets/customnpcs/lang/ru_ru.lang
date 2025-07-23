@@ -1840,6 +1840,17 @@ part.skirt=Юбка
 part.snout=Рыло
 part.tail=Хвост
 part.wings=Крылья
+part.layers=Слои
+part.wristleft=Лев. Кисть
+part.wristright=Пр. Кисть
+part.footleft=Лев. Стопа
+part.footright=Пр. Стопа
+
+
+part.layers.true=Дополнительные слои
+part.layers.false=Настроить слои
+part.layers.info.0=Кастомные слои:
+part.layers.info.1=Отключить слои:
 
 playerdata.players=Игроки
 

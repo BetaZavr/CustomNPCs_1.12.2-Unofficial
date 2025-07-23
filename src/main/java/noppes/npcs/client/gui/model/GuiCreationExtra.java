@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.entity.NPCRendererHelper;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,6 +16,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.util.*;
+import noppes.npcs.containers.ContainerLayer;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityFakeLiving;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -166,8 +168,8 @@ implements ICustomScrollListener {
 
 	private GuiType selected;
 
-	public GuiCreationExtra(EntityNPCInterface npc) {
-		super(npc);
+	public GuiCreationExtra(EntityNPCInterface npc, ContainerLayer container) {
+		super(npc, container);
 		this.ignoredTags = new String[] { "CanBreakDoors", "Bred", "PlayerCreated", "HasReproduced" };
 		this.booleanTags = new String[0];
 		this.data = new HashMap<>();
@@ -272,7 +274,7 @@ implements ICustomScrollListener {
 	public void initGui() {
 		super.initGui();
 		if (this.entity == null) {
-			this.openGui(new GuiCreationParts(this.npc));
+			this.openGui(new GuiCreationParts(npc, (ContainerLayer) inventorySlots));
 			return;
 		}
 		if (this.scroll == null) {
@@ -294,6 +296,10 @@ implements ICustomScrollListener {
 		this.scroll.setSize(100, this.ySize - 74);
 		this.addScroll(this.scroll);
 		this.selected.initGui();
+		for (Slot slot : inventorySlots.inventorySlots) {
+			slot.xPos = -5000;
+			slot.yPos = -5000;
+		}
 	}
 
 	private boolean isIgnored(String tag) {

@@ -177,6 +177,7 @@ public class Bank {
 		this.lastBank = null;
 	} // BankController.update()
 
+	@SuppressWarnings("all")
 	public BankData getBankData() {
 		if (this.lastBank != null) {
 			return this.lastBank;
@@ -226,8 +227,8 @@ public class Bank {
 			int maxCells = nbtBank.getInteger("MaxSlots");
 			NpcMiscInventory oldCInv = new NpcMiscInventory(maxCells);
 			NpcMiscInventory oldUInv = new NpcMiscInventory(maxCells);
-			oldCInv.setFromNBT(nbtBank.getCompoundTag("BankCurrency"));
-			oldUInv.setFromNBT(nbtBank.getCompoundTag("BankUpgrade"));
+			oldCInv.load(nbtBank.getCompoundTag("BankCurrency"));
+			oldUInv.load(nbtBank.getCompoundTag("BankUpgrade"));
 			for (int ceil = 0; ceil < oldCInv.getSizeInventory(); ceil++) {
 				CeilSettings cs = new CeilSettings();
 				cs.ceil = ceil;

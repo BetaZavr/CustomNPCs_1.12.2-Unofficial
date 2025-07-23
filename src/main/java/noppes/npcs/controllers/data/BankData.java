@@ -59,7 +59,7 @@ public class BankData {
 			NBTTagCompound nbtCeil = new NBTTagCompound();
 			nbtCeil.setInteger("ceil", ceil);
 			nbtCeil.setInteger("slots", this.cells.get(ceil).getSizeInventory());
-			NBTTagCompound invNbt = this.cells.get(ceil).getToNBT();
+			NBTTagCompound invNbt = this.cells.get(ceil).save();
 			nbtCeil.setTag("NpcMiscInv", invNbt.getTag("NpcMiscInv"));
 			list.appendTag(nbtCeil);
 		}
@@ -97,11 +97,12 @@ public class BankData {
 		for (int ceil = 0; ceil < list.tagCount(); ceil++) {
 			NBTTagCompound nbtCeil = list.getCompoundTagAt(ceil);
 			NpcMiscInventory inv = new NpcMiscInventory(nbtCeil.getInteger("slots"));
-			inv.setFromNBT(nbtCeil);
+			inv.load(nbtCeil);
 			this.cells.put(nbtCeil.getInteger("ceil"), inv);
 		}
 	}
 
+	@SuppressWarnings("all")
 	public void save() {
 		File bankFile;
         File dir;
@@ -128,7 +129,7 @@ public class BankData {
 		for (int ceil = 0; ceil < list.tagCount(); ceil++) {
 			NBTTagCompound nbtCeil = list.getCompoundTagAt(ceil);
 			NpcMiscInventory inv = new NpcMiscInventory(nbtCeil.getInteger("slots"));
-			inv.setFromNBT(nbtCeil);
+			inv.load(nbtCeil);
 			this.cells.put(nbtCeil.getInteger("ceil"), inv);
 		}
 	}

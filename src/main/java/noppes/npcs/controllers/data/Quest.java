@@ -323,7 +323,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 		this.command = compound.getString("QuestCommand");
 		this.nextQuest = compound.getInteger("NextQuestId");
 		this.rewardExp = compound.getInteger("RewardExp");
-		this.rewardItems.setFromNBT(compound.getCompoundTag("Rewards"));
+		this.rewardItems.load(compound.getCompoundTag("Rewards"));
 		this.completion = EnumQuestCompletion.values()[compound.getInteger("QuestCompletion")];
 		this.repeat = EnumQuestRepeat.values()[compound.getInteger("QuestRepeat")];
 		this.questInterface.readEntityFromNBT(compound, this.id);
@@ -518,7 +518,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 		compound.setString("CompleteText", this.completeText);
 		compound.setInteger("NextQuestId", this.nextQuest);
 		compound.setInteger("RewardExp", this.rewardExp);
-		compound.setTag("Rewards", this.rewardItems.getToNBT());
+		compound.setTag("Rewards", this.rewardItems.save());
 		compound.setString("QuestCommand", this.command);
 		compound.setInteger("QuestCompletion", this.completion.ordinal());
 		compound.setInteger("QuestRepeat", this.repeat.ordinal());

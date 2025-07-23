@@ -56,7 +56,7 @@ public class CmdQuest extends CommandNoppesBase {
 				hasFinishedQuest = false;
 			}
 			try {
-				EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playername);
+				EntityPlayerMP player = CommandBase.getPlayer(server, sender, playername);
 				if (!hasFinishedQuest && player != null) {
 					Server.sendData(player, EnumPacketClient.MESSAGE, "quest.completed", quest.getTitle(), 2);
 					Server.sendData(player, EnumPacketClient.CHAT, "quest.completed", ": ", quest.getTitle());
@@ -167,7 +167,7 @@ public class CmdQuest extends CommandNoppesBase {
 		int questId;
 		try { questId = Integer.parseInt(args[1]); }
 		catch (NumberFormatException ex) { throw new CommandException("QuestID must be an integer"); }
-		EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playername);
+		EntityPlayerMP player = CommandBase.getPlayer(server, sender, playername);
 		if (player == null) { throw new CommandException("Unknown player '%s'", playername); }
 		Quest quest = QuestController.instance.quests.get(questId);
 		if (quest == null) { throw new CommandException("Unknown QuestID"); }

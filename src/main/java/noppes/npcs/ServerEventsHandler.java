@@ -20,7 +20,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ClassInheritanceMultiMap;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -425,10 +424,6 @@ public class ServerEventsHandler {
 	public void npcGetCollisionBoxes(GetCollisionBoxesEvent event) {
 		if (event.getEntity() == null || event.getEntity().world == null) { return; }
 		CustomNpcs.debugData.start("Mod", this, "npcGetCollisionBoxes");
-		double x0 = event.getAabb().maxX - event.getAabb().minX;
-		double y0 = event.getAabb().maxY - event.getAabb().minY;
-		double z0 = event.getAabb().maxZ - event.getAabb().minZ;
-		double d0 = x0 > z0 ? x0 > y0 ? x0 * x0 : y0 * y0 : z0 > y0 ? z0 * z0 : y0 * y0;
 		for (Entity npc : new ArrayList<>(event.getEntity().world.loadedEntityList)) {
 			if (!(npc instanceof EntityNPCInterface) ||
 					npc == event.getEntity() ||
@@ -436,12 +431,7 @@ public class ServerEventsHandler {
 					((EntityNPCInterface) npc).display.getHitboxState() != 2) { continue; }
 			double dist = npc.getDistanceSq(event.getEntity());
 			if (dist > 4096) { continue; }
-			AxisAlignedBB aabb = npc.getEntityBoundingBox();
-			double x1 = aabb.maxX - aabb.minX;
-			double y1 = aabb.maxY - aabb.minY;
-			double z1 = aabb.maxZ - aabb.minZ;
-			double d1 = x1 > z1 ? x1 > y1 ? x1 * x1 : y1 * y1 : z1 > y1 ? z1 * z1 : y1 * y1;
-			if (dist > d0 + d1) { continue; }
+			if (!event.getAabb().intersects(npc.getEntityBoundingBox())) { continue; }
 			event.getCollisionBoxesList().add(npc.getEntityBoundingBox());
 		}
 		CustomNpcs.debugData.end("Mod", this, "npcGetCollisionBoxes");

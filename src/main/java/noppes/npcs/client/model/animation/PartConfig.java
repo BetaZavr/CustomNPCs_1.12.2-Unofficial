@@ -69,7 +69,7 @@ public class PartConfig implements IAnimationPart {
 
 	public PartConfig copy() {
 		PartConfig pc = new PartConfig();
-		pc.readNBT(writeNBT());
+		pc.load(save());
 		return pc;
 	}
 
@@ -103,7 +103,7 @@ public class PartConfig implements IAnimationPart {
 		return this.show;
 	}
 
-	public void readNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
 		int v = compound.getInteger("v");
 		float pi = (float) Math.PI;
 		for (int i = 0; i < 5; i++) {
@@ -186,7 +186,7 @@ public class PartConfig implements IAnimationPart {
 		this.show = bo;
 	}
 
-	public NBTTagCompound writeNBT() {
+	public NBTTagCompound save() {
 		NBTTagCompound compound = new NBTTagCompound();
 		NBTTagList listRot = new NBTTagList();
 		NBTTagList listOff = new NBTTagList();

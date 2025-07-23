@@ -69,6 +69,7 @@ public enum EnumGuiType
 	AvailabilityStack,
 	CustomContainer,
 	DeadInventory,
-	QuestLog
+	QuestLog,
+	CreationParts
 
 }

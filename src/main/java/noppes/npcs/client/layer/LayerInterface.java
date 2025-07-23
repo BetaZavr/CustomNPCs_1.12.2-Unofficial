@@ -23,9 +23,9 @@ implements LayerRenderer<T> {
 	protected ModelData playerdata;
 	protected RenderLiving<?> render;
 
-	public LayerInterface(RenderLiving<?> render) {
-		this.render = render;
-		this.model = (ModelBiped) render.getMainModel();
+	public LayerInterface(RenderLiving<?> renderIn) {
+		render = renderIn;
+		model = (ModelBiped) render.getMainModel();
 	}
 
 	private int blend(int color1, int color2) {
@@ -42,14 +42,12 @@ implements LayerRenderer<T> {
 	}
 
 	public void doRenderLayer(@Nonnull EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-		this.npc = (EntityCustomNpc) entity;
-		if (this.npc.isInvisibleToPlayer(Minecraft.getMinecraft().player)) {
-			return;
-		}
-		this.playerdata = this.npc.modelData;
+		npc = (EntityCustomNpc) entity;
+		if (npc.isInvisibleToPlayer(Minecraft.getMinecraft().player)) { return; }
+		playerdata = npc.modelData;
 		if (!(render.getMainModel() instanceof ModelBiped)) { return; }
-		this.model = (ModelBiped) render.getMainModel();
-		this.rotate(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+		model = (ModelBiped) render.getMainModel();
+		rotate(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 		GlStateManager.pushMatrix();
 		if (entity.isInvisible()) {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
@@ -57,14 +55,12 @@ implements LayerRenderer<T> {
 			GlStateManager.blendFunc(770, 771);
 			GlStateManager.alphaFunc(516, 0.003921569f);
 		}
-		if (this.npc.hurtTime > 0 || this.npc.deathTime > 0) {
+		if (npc.hurtTime > 0 || npc.deathTime > 0) {
 			GlStateManager.color(1.0f, 0.0f, 0.0f, 0.3f);
 		}
-		if (this.npc.isSneaking()) {
-			GlStateManager.translate(0.0f, 0.2f, 0.0f);
-		}
+		if (npc.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
 		GlStateManager.enableRescaleNormal();
-		this.render(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+		render(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 		GlStateManager.disableRescaleNormal();
 		if (entity.isInvisible()) {
 			GlStateManager.disableBlend();
@@ -76,31 +72,20 @@ implements LayerRenderer<T> {
 
 	public void preRender(ModelPartData data) {
 		if (data == null) { return; }
-		if (data.playerTexture) {
-			ClientProxy.bindTexture(this.npc.textureLocation);
-		} else {
-			ClientProxy.bindTexture(data.getResource());
-		}
-		if (this.npc.hurtTime > 0 || this.npc.deathTime > 0) {
-			return;
-		}
+		if (data.playerTexture) { ClientProxy.bindTexture(npc.textureLocation); }
+		else { ClientProxy.bindTexture(data.getResource()); }
+		if (npc.hurtTime > 0 || npc.deathTime > 0) { return; }
 		int color = data.color;
-		if (this.npc.display.getTint() != 16777215) {
-			if (data.color != 16777215) {
-				color = this.blend(data.color, this.npc.display.getTint());
-			} else {
-				color = this.npc.display.getTint();
-			}
+		if (npc.display.getTint() != 16777215) {
+			if (data.color != 16777215) { color = blend(data.color, npc.display.getTint()); }
+			else { color = npc.display.getTint(); }
 		}
 		float red = (color >> 16 & 0xFF) / 255.0f;
 		float green = (color >> 8 & 0xFF) / 255.0f;
 		float blue = (color & 0xFF) / 255.0f;
 		boolean isInvisible = false;
-		if (this.npc.display.getVisible() == 1) {
-			isInvisible = this.npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player);
-		} else if (this.npc.display.getVisible() == 2) {
-			isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand;
-		}
+		if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
+		else if (npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
 		if (isInvisible) {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
 			GlStateManager.enableBlend();

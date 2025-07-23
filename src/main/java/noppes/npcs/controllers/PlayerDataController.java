@@ -83,10 +83,10 @@ public class PlayerDataController {
 									}
 								}
 								NpcMiscInventory inv = new NpcMiscInventory(slots);
-								inv.setFromNBT(nbtOldCeil.getCompoundTag("BankItems"));
+								inv.load(nbtOldCeil.getCompoundTag("BankItems"));
 								nbtCeil.setInteger("ceil", ceilID);
 								nbtCeil.setInteger("slots", slots);
-								NBTTagCompound invNbt = inv.getToNBT();
+								NBTTagCompound invNbt = inv.save();
 								nbtCeil.setTag("NpcMiscInv", invNbt.getTag("NpcMiscInv"));
 								list.appendTag(nbtCeil);
 							}

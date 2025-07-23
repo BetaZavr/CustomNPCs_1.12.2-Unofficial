@@ -38,6 +38,7 @@ import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.*;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.items.CustomArmor;
@@ -481,6 +482,9 @@ public class CommonProxy implements IGuiHandler {
             case SaverSetting:
             case RemoverSetting: {
 				return new ContainerBuilderSettings(player, x, y);
+			}
+			case CreationParts: {
+				if (npc instanceof EntityCustomNpc) { return new ContainerLayer(player, (EntityCustomNpc) npc); }
 			}
             default: {
 				return null;

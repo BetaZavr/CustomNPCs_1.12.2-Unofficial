@@ -12,6 +12,7 @@ import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiCustomScroll;
+import noppes.npcs.containers.ContainerLayer;
 import noppes.npcs.entity.EntityNPCInterface;
 
 import javax.annotation.Nonnull;
@@ -23,8 +24,8 @@ implements ICustomScrollListener {
 	private final List<String> list;
 	private GuiCustomScroll scroll;
 
-	public GuiCreationLoad(EntityNPCInterface npc) {
-		super(npc);
+	public GuiCreationLoad(EntityNPCInterface npc, ContainerLayer container) {
+		super(npc, container);
 		this.list = new ArrayList<>();
 		this.active = 5;
 		this.xOffset = 60;

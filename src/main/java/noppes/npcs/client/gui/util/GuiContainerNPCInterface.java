@@ -120,14 +120,14 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public IComponentGui get(int id) {
-		for (IComponentGui component : components) {
+		for (IComponentGui component : new ArrayList<>(components)) {
 			if (component.getID() == id) { return component; }
 		}
 		return id < components.size() ? components.get(id) : null;
 	}
 
 	public IComponentGui get(int id, Class<?> classType) {
-		for (IComponentGui component : components) {
+		for (IComponentGui component : new ArrayList<>(components)) {
 			if (component.getID() == id && component.getClass().isAssignableFrom(classType)) { return component; }
 		}
 		return id < components.size() ? components.get(id) : null;
@@ -507,7 +507,7 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public IGuiTextArea getTextArea(int id) {
-		for (IComponentGui component : components) {
+		for (IComponentGui component : new ArrayList<>(components)) {
 			if (component instanceof IGuiTextArea && component.getID() == id) { return (IGuiTextArea) component; }
 		}
 		return null;
@@ -641,18 +641,19 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 			for (IGuiCustomScroll scroll : new ArrayList<>(scrolls.values())) {
 				scroll.customMouseClicked(mouseX, mouseY, mouseButton);
 			}
-		} else {
-			for (IGuiNpcButton button : buttons.values()) {
-				if (button.isHovered()) {
-					buttonEvent(button, mouseButton);
-					break;
-				}
-			}
 		}
+        for (IGuiNpcButton button : buttons.values()) {
+            if (button.isHovered()) {
+                buttonEvent(button, mouseButton);
+                break;
+            }
+        }
 		mouseEvent(mouseX, mouseY, mouseButton);
 		List<GuiButton> allButtons = new ArrayList<>();
-		for (IComponentGui component : components) {
-			if (component instanceof GuiButton) { allButtons.add((GuiButton) component); }
+		for (IComponentGui component : new ArrayList<>(components)) {
+			if (component instanceof GuiButton) {
+                allButtons.add((GuiButton) component);
+            }
 		}
 		for (GuiButton button : allButtons) {
 			if (button.mousePressed(mc, mouseX, mouseY)) {
@@ -780,7 +781,7 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 	public void updateScreen() {
 		if (subgui != null) { subgui.updateScreen(); }
 		else {
-			for (IComponentGui component : components) {
+			for (IComponentGui component : new ArrayList<>(components)) {
 				if (component instanceof GuiNpcTextField) { ((GuiNpcTextField) component).updateScreen(); }
 				if (component instanceof GuiTextArea) { ((GuiTextArea) component).updateScreen(); }
 			}

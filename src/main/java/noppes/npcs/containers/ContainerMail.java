@@ -82,7 +82,7 @@ public class ContainerMail extends ContainerNpcInterface {
 			ItemStack slotStack = slot.getStack();
 			stack = slotStack.copy();
 			if (slotId < 4) {
-				if (!this.mergeItemStack(slotStack, 4, this.inventorySlots.size(), true)) {
+				if (!mergeItemStack(slotStack, 4, this.inventorySlots.size(), true)) {
 					return ItemStack.EMPTY;
 				}
 			} else if (!this.canEdit || !this.mergeItemStack(slotStack, 0, 4, false)) {

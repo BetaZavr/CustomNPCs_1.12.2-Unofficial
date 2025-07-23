@@ -215,6 +215,7 @@ public class ModelNpcAlt extends ModelPlayer {
         editAnimDataSelect.isNPC = entityIn.equals(editAnimDataSelect.displayNpc);
         float r = 1.0f, g = 1.0f, b = 1.0f;
         int animID = -1;
+        boolean showWear = true;
         if (entityIn instanceof EntityPlayer) {
             PlayerData data = PlayerData.get((EntityPlayer) entityIn);
             if (data != null) { ba.putAll(data.animation.showParts); }
@@ -225,6 +226,7 @@ public class ModelNpcAlt extends ModelPlayer {
         }
         else if (entityIn instanceof EntityCustomNpc) {
             EntityCustomNpc npc = (EntityCustomNpc) entityIn;
+            showWear = !npc.display.isDisableLayer("LayerWear");
             ba.putAll(npc.animation.showParts);
             EnumParts ep = EnumParts.get(editAnimDataSelect.part);
             if (editAnimDataSelect.isNPC && ba.containsKey(ep) && !ba.get(ep)) {
@@ -357,7 +359,7 @@ public class ModelNpcAlt extends ModelPlayer {
                     for (ModelRendererAlt child : list) { bipedHead.childModels.remove(child); }
                 }
 
-                if (((ModelRendererAlt) bipedHead).notOBJModel()) {
+                if (((ModelRendererAlt) bipedHead).notOBJModel() && showWear) {
                     GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                     renderHeadWear(scale);
                 }
@@ -380,7 +382,7 @@ public class ModelNpcAlt extends ModelPlayer {
                     for (ModelRendererAlt child : list) { bipedHead.childModels.remove(child); }
                 }
 
-                if (((ModelRendererAlt) bipedHead).notOBJModel()) {
+                if (((ModelRendererAlt) bipedHead).notOBJModel() && showWear) {
                     GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                     renderHeadWear(scale);
                 }
@@ -403,7 +405,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 for (ModelRendererAlt child : list) { bipedBody.childModels.remove(child); }
             }
 
-            if (bipedBodyWear != null && ((ModelRendererAlt) bipedBody).notOBJModel()) {
+            if (bipedBodyWear != null && ((ModelRendererAlt) bipedBody).notOBJModel() && showWear) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 bipedBodyWear.render(scale);
             }
@@ -424,7 +426,7 @@ public class ModelNpcAlt extends ModelPlayer {
             if (list != null) {
                 for (ModelRendererAlt child : list) { bipedRightArm.childModels.remove(child); }
             }
-            if (bipedRightArmwear != null && ((ModelRendererAlt) bipedLeftArm).notOBJModel()) {
+            if (bipedRightArmwear != null && ((ModelRendererAlt) bipedLeftArm).notOBJModel() && showWear) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 bipedRightArmwear.render(scale);
             }
@@ -445,7 +447,7 @@ public class ModelNpcAlt extends ModelPlayer {
             if (list != null) {
                 for (ModelRendererAlt child : list) { bipedLeftArm.childModels.remove(child); }
             }
-            if (bipedLeftArmwear != null && ((ModelRendererAlt) bipedLeftArm).notOBJModel()) {
+            if (bipedLeftArmwear != null && ((ModelRendererAlt) bipedLeftArm).notOBJModel() && showWear) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 bipedLeftArmwear.render(scale);
             }
@@ -467,7 +469,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 for (ModelRendererAlt child : list) { bipedRightLeg.childModels.remove(child); }
             }
 
-            if (bipedRightLegwear != null) {
+            if (bipedRightLegwear != null && ((ModelRendererAlt) bipedRightLeg).notOBJModel() && showWear) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 bipedRightLegwear.render(scale);
             }
@@ -489,7 +491,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 for (ModelRendererAlt child : list) { bipedLeftLeg.childModels.remove(child); }
             }
 
-            if (bipedLeftLegwear != null) {
+            if (bipedLeftLegwear != null && ((ModelRendererAlt) bipedLeftLeg).notOBJModel() && showWear) {
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                 bipedLeftLegwear.render(scale);
             }
@@ -783,22 +785,17 @@ public class ModelNpcAlt extends ModelPlayer {
     @Override
     public void postRenderArm(float scale, @Nonnull EnumHandSide side) { // for ItemStacks
         super.postRenderArm(scale, side);
-        ModelRendererAlt modelRenderer = (ModelRendererAlt) bipedRightArm;
-        AnimationStack hundData = rightStackData;
-        if (side == EnumHandSide.LEFT) {
-            modelRenderer = (ModelRendererAlt) bipedLeftArm;
-            hundData = leftStackData;
-        }
-        if (!hundData.showModel) { return; }
+        ModelRendererAlt modelRenderer = (ModelRendererAlt) (side == EnumHandSide.LEFT ? bipedLeftArm : bipedRightArm);
+        AnimationStack hundData = side == EnumHandSide.LEFT ? leftStackData : rightStackData;
+        if (!hundData.showModel || modelRenderer.isHidden || !modelRenderer.showModel) { return; }
         if (!modelRenderer.isNormal) {
             if (modelRenderer.rotateAngleX1 != 0.0f) {
                 float ofsY = modelRenderer.dy2 - modelRenderer.dy0;
-                GlStateManager.translate(0.0f, 0.625f, 0.0f);
                 float ofsZ = modelRenderer.rotateAngleX1 * (modelRenderer.dz / -2.0f) / (float) -Math.PI;
-                GlStateManager.translate(0.0f, ofsY * -0.0625f, ofsZ * 0.0625f);
+                float f = 0.0625f;
+                GlStateManager.translate(0.0f, 0.725f - ofsY * f, ofsZ * f);
                 GlStateManager.rotate(modelRenderer.rotateAngleX1 * 180.0f / (float) Math.PI, 1.0f, 0.0f, 0.0f);
-                GlStateManager.translate(0.0f, ofsY * 0.0625f, ofsZ * -0.0625f);
-                GlStateManager.translate(0.0f, -0.625f, 0.0f);
+                GlStateManager.translate(0.0f, ofsY * f - 0.725f, ofsZ * -f - f / 10.0f);
             }
             if (modelRenderer.rotateAngleY1 != 0.0f) {
                 float ofs = (side == EnumHandSide.RIGHT ? -1.0f : 1.0f) * 0.0625f;
@@ -822,6 +819,33 @@ public class ModelNpcAlt extends ModelPlayer {
         }
         if (hundData.partSets[6] != 1.0f || hundData.partSets[7] != 1.0f || hundData.partSets[8] != 1.0f) {
             GlStateManager.scale(hundData.partSets[6], hundData.partSets[7], hundData.partSets[7]);
+        }
+    }
+
+    public void postRenderLeg(float scale, @Nonnull EnumHandSide side) {
+        ModelRendererAlt modelRenderer = (ModelRendererAlt) (side == EnumHandSide.LEFT ? bipedLeftLeg : bipedRightLeg);
+        if (smallArmsIn)  {
+            float f = 0.5F * (float)(side == EnumHandSide.RIGHT ? 1 : -1);
+            modelRenderer.rotationPointX += f;
+            modelRenderer.postRender(scale);
+            modelRenderer.rotationPointX -= f;
+        }  else  { modelRenderer.postRender(scale); }
+        if (modelRenderer.isHidden || !modelRenderer.showModel) { return; }
+        if (!modelRenderer.isNormal) {
+            if (modelRenderer.rotateAngleX1 != 0.0f) {
+                float ofsY = modelRenderer.dy2 - modelRenderer.dy0;
+                float ofsZ = modelRenderer.rotateAngleX1 * (modelRenderer.dz / -2.0f) / (float) -Math.PI;
+                float f = 0.0625f;
+                GlStateManager.translate(0.0f, 0.725f - ofsY * f, ofsZ * f);
+                GlStateManager.rotate(modelRenderer.rotateAngleX1 * 180.0f / (float) Math.PI, 1.0f, 0.0f, 0.0f);
+                GlStateManager.translate(0.0f, ofsY * f - 0.725f, ofsZ * -f - f / 10.0f);
+            }
+            if (modelRenderer.rotateAngleY1 != 0.0f) {
+                float ofs = (side == EnumHandSide.RIGHT ? -1.0f : 1.0f) * 0.0625f;
+                GlStateManager.translate(ofs, 0.0f, 0.0f);
+                GlStateManager.rotate(modelRenderer.rotateAngleY1 * -180.0f / (float) Math.PI, 0.0f, 1.0f, 0.0f);
+                GlStateManager.translate(-ofs, 0.0f, 0.0f);
+            }
         }
     }
 

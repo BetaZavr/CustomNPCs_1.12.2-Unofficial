@@ -496,6 +496,8 @@ implements IComponentGui, IGuiCustomScroll {
 		newList.sort(new NaturalOrderComparator());
 		list.clear();
 		list.addAll(newList);
+		searchString = "";
+		listSize = list.size();
 		reset();
 	}
 
@@ -505,6 +507,8 @@ implements IComponentGui, IGuiCustomScroll {
 		scrollY = 0;
 		list.clear();
 		list.addAll(newList);
+		searchString = "";
+		listSize = list.size();
 		isSorted = false;
 		reset();
 	}
@@ -542,7 +546,10 @@ implements IComponentGui, IGuiCustomScroll {
 	}
 
 	@Override
-	public void setSelectedList(HashSet<String> newSelectedList) { selectedList = newSelectedList; }
+	public void setSelectedList(HashSet<String> newSelectedList) {
+        newSelectedList.removeIf(line -> !list.contains(line));
+		selectedList = newSelectedList;
+	}
 
 	@Override
 	public void setSize(int w, int h) {

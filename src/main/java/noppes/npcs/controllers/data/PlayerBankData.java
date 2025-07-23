@@ -22,6 +22,7 @@ public class PlayerBankData {
 	private String uuid; // playerUUID
 	private int delay;
 
+	@SuppressWarnings("all")
 	public BankData get(int bankId) {
 		if (this.lastBank != null && this.lastBank.bank.id == bankId) {
 			return this.lastBank;
@@ -61,6 +62,7 @@ public class PlayerBankData {
 		return this.lastBank;
 	}
 
+	@SuppressWarnings("all")
 	public void loadNBTData(NBTTagCompound compound, String uuid) {
 		this.uuid = uuid;
 		// load old data
@@ -83,7 +85,7 @@ public class PlayerBankData {
 						break;
 					}
 					NpcMiscInventory inv = new NpcMiscInventory(upgradedSlots.get(c) ? 54 : 27);
-					inv.setFromNBT(nbtCeils.getCompoundTag("BankItems"));
+					inv.load(nbtCeils.getCompoundTag("BankItems"));
 					bd.cells.put(c, inv);
 				}
 				// save has new data
@@ -101,6 +103,7 @@ public class PlayerBankData {
 		}
 	}
 
+	@SuppressWarnings("all")
 	public void remove(int bankId) {
 		File dir = CustomNpcs.getWorldSaveDirectory("playerdata/" + this.uuid + "/banks");
 		File file = new File(dir, bankId + ".dat");

@@ -67,13 +67,13 @@ public class RolePostman extends RoleInterface implements IRolePostman {
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		this.type = RoleType.POSTMAN;
-		this.inventory.setFromNBT(compound.getCompoundTag("PostInv"));
+		this.inventory.load(compound.getCompoundTag("PostInv"));
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Type", RoleType.POSTMAN.get());
-		compound.setTag("PostInv", this.inventory.getToNBT());
+		compound.setTag("PostInv", this.inventory.save());
 		return compound;
 	}
 

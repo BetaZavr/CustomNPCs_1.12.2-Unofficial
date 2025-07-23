@@ -65,10 +65,12 @@ public class DataAI
 		this.npc = npc;
 	}
 
+	@SuppressWarnings("all")
 	public void appendMovingPath(int[] pos) {
 		this.movingPath.add(pos);
 	}
 
+	@SuppressWarnings("all")
 	public void clearMovingPath() {
 		this.movingPath.clear();
 		this.movingPos = 0;
@@ -180,10 +182,12 @@ public class DataAI
 		return this.movingPause;
 	}
 
+	@SuppressWarnings("all")
 	public int[] getMovingPathPos(int m_pos) {
 		return this.movingPath.get(m_pos);
 	}
 
+	@SuppressWarnings("all")
 	public int getMovingPathSize() {
 		return this.movingPath.size();
 	}
@@ -193,6 +197,7 @@ public class DataAI
 		return this.movingPattern;
 	}
 
+	@SuppressWarnings("all")
 	public int getMovingPos() {
 		return this.movingPos;
 	}
@@ -395,6 +400,7 @@ public class DataAI
 		}
 	}
 
+	@SuppressWarnings("all")
 	public void setMovingPathPos(int m_pos, int[] pos) {
 		if (m_pos < 0) {
 			m_pos = 0;
@@ -411,6 +417,7 @@ public class DataAI
 		this.movingPause = pauses;
 	}
 
+	@SuppressWarnings("all")
 	public void setMovingPos(int pos) {
 		this.movingPos = pos;
 	}

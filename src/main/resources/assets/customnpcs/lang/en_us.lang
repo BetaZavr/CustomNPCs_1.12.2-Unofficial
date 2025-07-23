@@ -1828,8 +1828,8 @@ parameter.posz=Z-axis position
 parameter.sound.name=registered sound name
 parameter.world=world or dimension
 
-part.armleft=Lion. Arm
-part.armright=Pr. Arm
+part.armleft=L. Arm
+part.armright=R. Arm
 part.beard=Beard
 part.body=Body
 part.breasts=Chest
@@ -1840,8 +1840,8 @@ part.fin=fin
 part.hair=Hair
 part.head=Head
 part.horns=Horns
-part.legleft=Lion. Leg
-part.legright=Pr. Leg
+part.legleft=L. Leg
+part.legright=R. Leg
 part.legs=Legs
 part.mohawk=Iroquois
 part.particles=Particles
@@ -1849,6 +1849,16 @@ part.skirt=Skirt
 part.snout=Snout
 part.tail=Tail
 part.wings=Wings
+part.layers=Layers
+part.wristleft=L. Wrist
+part.wristright=R. Wrist
+part.footleft=L. Foot
+part.footright=R. Foot
+
+part.layers.true=Additional layers
+part.layers.false=Configure layers
+part.layers.info.0=Custom layers:
+part.layers.info.1=Disable layers:
 
 playerdata.players=Players
 

@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.inventory.Slot;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -20,6 +21,7 @@ import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiCustomScroll;
+import noppes.npcs.containers.ContainerLayer;
 import noppes.npcs.entity.EntityNPC64x32;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityNpcAlex;
@@ -36,8 +38,8 @@ implements ICustomScrollListener {
 	private boolean resetToSelected = true;
 	private GuiCustomScroll scroll;
 
-	public GuiCreationEntities(EntityNPCInterface npc) {
-		super(npc);
+	public GuiCreationEntities(EntityNPCInterface npc, ContainerLayer container) {
+		super(npc, container);
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			String name = ent.getName();
 			Class<? extends Entity> c = ent.getEntityClass();
@@ -138,6 +140,10 @@ implements ICustomScrollListener {
 			this.resetToSelected = false;
 		}
 		this.addScroll(this.scroll);
+		for (Slot slot : inventorySlots.inventorySlots) {
+			slot.xPos = -5000;
+			slot.yPos = -5000;
+		}
 	}
 
 	@SuppressWarnings("unchecked")

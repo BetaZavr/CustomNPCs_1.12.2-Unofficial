@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.model;
 import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.api.event.ClientEvent;
 import noppes.npcs.client.gui.util.*;
+import noppes.npcs.containers.ContainerLayer;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 import org.lwjgl.input.Keyboard;
@@ -32,7 +33,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import javax.annotation.Nonnull;
 
 public abstract class GuiCreationScreenInterface
-extends GuiNPCInterface
+extends GuiContainerNPCInterface
 implements ISubGuiListener, ISliderListener {
 
 	public static String Message = "";
@@ -47,8 +48,8 @@ implements ISubGuiListener, ISliderListener {
 	public int xOffset;
 	public EntityLivingBase showEntity;
 
-	public GuiCreationScreenInterface(EntityNPCInterface npc) {
-		super(npc);
+	public GuiCreationScreenInterface(EntityNPCInterface npc, ContainerLayer container) {
+		super(npc, container);
 		this.saving = false;
 		this.hasSaving = true;
 		this.active = 0;
@@ -67,23 +68,23 @@ implements ISubGuiListener, ISliderListener {
 	protected void actionPerformed(@Nonnull GuiButton btn) {
 		super.actionPerformed(btn);
 		if (btn.id == 1) {
-			this.openGui(new GuiCreationEntities(this.npc));
+			this.openGui(new GuiCreationEntities(npc, (ContainerLayer) inventorySlots));
 		}
 		if (btn.id == 2) {
 			if (this.entity == null) {
-				this.openGui(new GuiCreationParts(this.npc));
+				this.openGui(new GuiCreationParts(npc, (ContainerLayer) inventorySlots));
 			} else {
-				this.openGui(new GuiCreationExtra(this.npc));
+				this.openGui(new GuiCreationExtra(npc, (ContainerLayer) inventorySlots));
 			}
 		}
 		if (btn.id == 3) {
-			this.openGui(new GuiCreationScale(this.npc));
+			this.openGui(new GuiCreationScale(this.npc, (ContainerLayer) inventorySlots));
 		}
 		if (btn.id == 4) {
 			this.setSubGui(new GuiPresetSave(this, this.playerdata));
 		}
 		if (btn.id == 5) {
-			this.openGui(new GuiCreationLoad(this.npc));
+			this.openGui(new GuiCreationLoad(this.npc, (ContainerLayer) inventorySlots));
 		}
 		if (btn.id == 66) {
 			this.save();
@@ -96,7 +97,10 @@ implements ISubGuiListener, ISliderListener {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		entity = playerdata.getEntity(npc);
 		showEntity = entity;
-		if (showEntity == null && npc != null || (showEntity == npc)) { showEntity = Util.instance.copyToGUI(npc, mc.world, false); }
+		if (showEntity == null && npc != null || (showEntity == npc)) {
+			showEntity = Util.instance.copyToGUI(npc, mc.world, false);
+			((EntityNPCInterface) showEntity).display.setSize(5);
+		}
 		else { EntityUtil.Copy(npc, showEntity); }
 		if (this.subgui != null) { return; }
 		if (this.showEntity instanceof EntityNPCInterface) {
@@ -159,17 +163,17 @@ implements ISubGuiListener, ISliderListener {
 
 		if (this.entity == null) {
 			this.addButton(new GuiNpcButton(2, this.guiLeft, this.guiTop + 23, 60, 20, "gui.parts"));
-		} else if (!(this.entity instanceof EntityNPCInterface)) {
-			GuiCreationExtra gui = new GuiCreationExtra(this.npc);
+		}
+		else if (!(this.entity instanceof EntityNPCInterface)) {
+			GuiCreationExtra gui = new GuiCreationExtra(this.npc, (ContainerLayer) inventorySlots);
 			gui.playerdata = this.playerdata;
 			if (!gui.getData(this.entity).isEmpty()) {
 				this.addButton(new GuiNpcButton(2, this.guiLeft, this.guiTop + 23, 60, 20, "gui.extra"));
 			} else if (this.active == 2) {
-				openGui(new GuiCreationEntities(this.npc));
+				openGui(new GuiCreationEntities(npc, (ContainerLayer) inventorySlots));
 				return;
 			}
 		}
-		
 		if (this.entity == null) {
 			this.addButton(new GuiNpcButton(3, this.guiLeft + 62, this.guiTop + 23, 60, 20, "gui.scale"));
 		}
@@ -178,7 +182,7 @@ implements ISubGuiListener, ISliderListener {
 			this.addButton(new GuiNpcButton(5, this.guiLeft + 62, this.guiTop + this.ySize - 24, 60, 20, "gui.load"));
 		}
 		if (this.getButton(this.active) == null) {
-			this.openGui(new GuiCreationEntities(this.npc));
+			this.openGui(new GuiCreationEntities(npc, (ContainerLayer) inventorySlots));
 			return;
 		}
 		this.getButton(this.active).setEnabled(false);
@@ -186,6 +190,9 @@ implements ISubGuiListener, ISliderListener {
 		this.addLabel(new GuiNpcLabel(0, GuiCreationScreenInterface.Message, this.guiLeft + 120, this.guiTop + this.ySize - 10, 16711680));
 		this.getLabel(0).setCenter(this.xSize - 120);
 		this.addSlider(new GuiNpcSlider(this, 500, this.guiLeft + this.xOffset + 142, this.guiTop + 210, 120, 20, GuiCreationScreenInterface.rotation));
+		if (showEntity instanceof EntityCustomNpc && playerdata != null){
+			((EntityCustomNpc) showEntity).modelData.load(playerdata.save());
+		}
 	}
 
 	@Override

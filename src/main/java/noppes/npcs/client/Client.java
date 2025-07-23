@@ -19,6 +19,7 @@ public class Client {
 	static {
 		Client.notDebugShow = new ArrayList<>();
 		Client.notDebugShow.add(EnumPacketServer.RemoteReset);
+		Client.notDebugShow.add(EnumPacketServer.AvailabilitySlot);
 	}
 
 	public static void sendData(EnumPacketServer type, Object... obs) {

@@ -47,37 +47,31 @@ public class ContainerNPCInv extends Container {
 	@Override
 	public @Nonnull ItemStack slotClick(int slotId, int dragType, @Nonnull ClickType clickTypeIn, @Nonnull EntityPlayer player) {
 		if (clickTypeIn == ClickType.QUICK_MOVE && dragType == 0) { // shift + LMB
-			if (slotId < 0) {
-				return ItemStack.EMPTY;
-			}
+			if (slotId < 0) { return ItemStack.EMPTY; }
 			Slot slot = this.inventorySlots.get(slotId);
-			if (slot == null || !slot.canTakeStack(player) || !slot.getHasStack()) {
-				return ItemStack.EMPTY;
-			}
+			if (slot == null || !slot.canTakeStack(player) || !slot.getHasStack()) { return ItemStack.EMPTY; }
 			ItemStack stackInClickSlot = slot.getStack();
 			if (slotId < 7) { // take off your equipment
-				if (player.inventory.addItemStackToInventory(stackInClickSlot)) {
-					slot.putStack(ItemStack.EMPTY);
-				}
+				if (player.inventory.addItemStackToInventory(stackInClickSlot)) { slot.putStack(ItemStack.EMPTY); }
 			}
 			else if (stackInClickSlot.getItem() instanceof ItemArmor) {
 				Slot armSlot;
 				switch (((ItemArmor) stackInClickSlot.getItem()).armorType) {
-				case HEAD:
-					armSlot = this.inventorySlots.get(0);
-					break;
-				case CHEST:
-					armSlot = this.inventorySlots.get(1);
-					break;
-				case LEGS:
-					armSlot = this.inventorySlots.get(2);
-					break;
-				case FEET:
-					armSlot = this.inventorySlots.get(3);
-					break;
-				default:
-					armSlot = null;
-					break;
+					case HEAD:
+						armSlot = this.inventorySlots.get(0);
+						break;
+					case CHEST:
+						armSlot = this.inventorySlots.get(1);
+						break;
+					case LEGS:
+						armSlot = this.inventorySlots.get(2);
+						break;
+					case FEET:
+						armSlot = this.inventorySlots.get(3);
+						break;
+					default:
+						armSlot = null;
+						break;
 				}
 				if (armSlot != null) {
 					ItemStack stackInArmSlot = armSlot.getStack().copy();

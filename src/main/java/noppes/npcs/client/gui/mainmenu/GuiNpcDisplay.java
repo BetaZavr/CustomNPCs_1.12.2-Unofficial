@@ -8,10 +8,10 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.SubGuiNpcName;
-import noppes.npcs.client.gui.model.GuiCreationParts;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.model.part.ModelData;
+import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -50,7 +50,7 @@ implements ITextfieldListener, IGuiData, ISubGuiListener {
 	public void buttonEvent(IGuiNpcButton button) {
 		switch (button.getID()) {
 			case 0: display.setShowName(button.getValue()); break;
-			case 1: NoppesUtil.openGUI(player, new GuiCreationParts(npc)); break;
+			case 1: NoppesUtil.requestOpenGUI(EnumGuiType.CreationParts); break;
 			case 2: {
 				display.setSkinUrl("");
 				display.setSkinPlayer(null);

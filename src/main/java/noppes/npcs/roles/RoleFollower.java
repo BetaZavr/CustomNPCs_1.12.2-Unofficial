@@ -304,11 +304,11 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 			this.dialogFired = compound.getString("MercenaryDialogFired");
 		}
 		this.rates = NBTTags.getIntegerIntegerMap(compound.getTagList("MercenaryDayRates", 10));
-		this.rentalItems.setFromNBT(compound.getCompoundTag("MercenaryInv"));
+		this.rentalItems.load(compound.getCompoundTag("MercenaryInv"));
 		if (compound.hasKey("MercenaryInventory", 10)) {
 			int size = compound.getCompoundTag("MercenaryInventory").getInteger("NpcMiscInvSize");
 			this.inventory = new NpcMiscInventory(size);
-			this.inventory.setFromNBT(compound.getCompoundTag("MercenaryInventory"));
+			this.inventory.load(compound.getCompoundTag("MercenaryInventory"));
 		}
 		this.rentalMoney = compound.getInteger("MercenaryMoney");
 		this.isFollowing = compound.getBoolean("MercenaryIsFollowing");
@@ -366,8 +366,8 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 			compound.setString("MercenaryOwner", this.ownerUUID);
 		}
 		compound.setTag("MercenaryDayRates", NBTTags.nbtIntegerIntegerMap(this.rates));
-		compound.setTag("MercenaryInv", this.rentalItems.getToNBT());
-		compound.setTag("MercenaryInventory", this.inventory.getToNBT());
+		compound.setTag("MercenaryInv", this.rentalItems.save());
+		compound.setTag("MercenaryInventory", this.inventory.save());
 		compound.setInteger("MercenaryMoney", this.rentalMoney);
 		compound.setBoolean("MercenaryIsFollowing", this.isFollowing);
 		compound.setBoolean("MercenaryDisableGui", this.disableGui);

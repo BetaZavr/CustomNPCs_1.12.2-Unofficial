@@ -78,6 +78,7 @@ public class PacketHandlerServer {
     static {
         PacketHandlerServer.list = new ArrayList<>();
         PacketHandlerServer.list.add(EnumPacketServer.RemoteReset);
+        PacketHandlerServer.list.add(EnumPacketServer.AvailabilitySlot);
     }
 
     private boolean allowItem(ItemStack stack, EnumPacketServer type) {
@@ -1537,7 +1538,7 @@ public class PacketHandlerServer {
             CommonProxy.availabilityStacks.put(player, availability);
         } else if (type == EnumPacketServer.AvailabilitySlot) {
             if (player.openContainer instanceof ContainerAvailabilityInv) {
-                ((ContainerAvailabilityInv) player.openContainer).slot.setSlotIndex(buffer.readInt());
+                ((ContainerAvailabilityInv) player.openContainer).slot.setSlotIndex(buffer.readInt(), true);
             }
         }
     }

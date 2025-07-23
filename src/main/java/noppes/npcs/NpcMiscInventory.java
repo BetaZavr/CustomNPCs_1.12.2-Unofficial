@@ -17,13 +17,13 @@ public class NpcMiscInventory implements IInventory {
 	public int stackLimit;
 
 	public NpcMiscInventory(int size) {
-		this.stackLimit = 64;
-		this.items = NonNullList.withSize(size, ItemStack.EMPTY);
+		stackLimit = 64;
+		items = NonNullList.withSize(size, ItemStack.EMPTY);
 	}
 
 	public void addItemStack(ItemStack item) {
         ItemStack mergable;
-		while (!(mergable = this.getMergableItem(item)).isEmpty() && mergable.getCount() > 0) {
+		while (!(mergable = getMergableItem(item)).isEmpty() && mergable.getCount() > 0) {
 			int size = mergable.getMaxStackSize() - mergable.getCount();
 			if (size > item.getCount()) {
 				mergable.setCount(mergable.getMaxStackSize());
@@ -36,32 +36,27 @@ public class NpcMiscInventory implements IInventory {
 		if (item.getCount() <= 0) {
 			return;
 		}
-		int slot = this.firstFreeSlot();
+		int slot = firstFreeSlot();
 		if (slot >= 0) {
-			this.items.set(slot, item.copy());
+			items.set(slot, item.copy());
 			item.setCount(0);
 		}
 	}
 
 	public void clear() {
-		this.items.clear();
+		items.clear();
 	}
 
-	public void closeInventory(@Nonnull EntityPlayer player) {
-	}
+	public void closeInventory(@Nonnull EntityPlayer player) { }
 
-	public @Nonnull ItemStack decrStackSize(int index, int count) {
-		return ItemStackHelper.getAndSplit(this.items, index, count);
-	}
+	public @Nonnull ItemStack decrStackSize(int index, int count) { return ItemStackHelper.getAndSplit(items, index, count); }
 
 	public boolean decrStackSize(ItemStack eating, int decrease) {
-		for (int slot = 0; slot < this.items.size(); ++slot) {
-			ItemStack item = this.items.get(slot);
+		for (int slot = 0; slot < items.size(); ++slot) {
+			ItemStack item = items.get(slot);
 			if (!item.isEmpty() && eating == item && item.getCount() >= decrease) {
 				item.splitStack(decrease);
-				if (item.getCount() <= 0) {
-					this.items.set(slot, ItemStack.EMPTY);
-				}
+				if (item.getCount() <= 0) { items.set(slot, ItemStack.EMPTY); }
 				return true;
 			}
 		}
@@ -69,28 +64,22 @@ public class NpcMiscInventory implements IInventory {
 	}
 
 	public NpcMiscInventory fill(NpcMiscInventory inv) {
-		this.items.clear();
-		for (int i = 0; i < this.getSizeInventory() && i < inv.getSizeInventory(); i++) {
-			this.items.set(i, inv.items.get(i));
-		}
+		items.clear();
+		for (int i = 0; i < getSizeInventory() && i < inv.getSizeInventory(); i++) { items.set(i, inv.items.get(i)); }
 		return this;
 	}
 
 	public int firstFreeSlot() {
-		for (int i = 0; i < this.getSizeInventory(); ++i) {
-			if ((this.items.get(i)).isEmpty()) {
-				return i;
-			}
+		for (int i = 0; i < getSizeInventory(); ++i) {
+			if ((items.get(i)).isEmpty()) { return i; }
 		}
 		return -1;
 	}
 
 	public int getCountEmpty() {
 		int c = 0;
-		for (int s = 0; s < this.getSizeInventory(); ++s) {
-			if (this.items.get(s).isEmpty()) {
-				c++;
-			}
+		for (int s = 0; s < getSizeInventory(); ++s) {
+			if (items.get(s).isEmpty()) { c++; }
 		}
 		return c;
 	}
@@ -108,11 +97,11 @@ public class NpcMiscInventory implements IInventory {
 	}
 
 	public int getInventoryStackLimit() {
-		return this.stackLimit;
+		return stackLimit;
 	}
 
 	public ItemStack getMergableItem(ItemStack item) {
-		for (ItemStack is : this.items) {
+		for (ItemStack is : items) {
 			if (NoppesUtilPlayer.compareItems(item, is, false, false) && is.getCount() < is.getMaxStackSize()) {
 				return is;
 			}
@@ -124,20 +113,18 @@ public class NpcMiscInventory implements IInventory {
 		return "Npc Misc Inventory";
 	}
 
-	public int getSizeInventory() {
-		return this.items.size();
-	}
+	public int getSizeInventory() { return items.size(); }
 
 	public @Nonnull ItemStack getStackInSlot(int index) {
-		if (index < 0 || index >= this.items.size()) { return ItemStack.EMPTY; }
-		return this.items.get(index);
+		if (index < 0 || index >= items.size()) { return ItemStack.EMPTY; }
+		return items.get(index);
 	}
 
-	public NBTTagCompound getToNBT() {
-		NBTTagCompound nbttagcompound = new NBTTagCompound();
-		nbttagcompound.setTag("NpcMiscInv", NBTTags.nbtItemStackList(this.items));
-		nbttagcompound.setInteger("NpcMiscInvSize", this.items.size());
-		return nbttagcompound;
+	public NBTTagCompound save() {
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setTag("NpcMiscInv", NBTTags.nbtItemStackList(items));
+		compound.setInteger("NpcMiscInvSize", items.size());
+		return compound;
 	}
 
 	public boolean hasCustomName() {
@@ -145,8 +132,8 @@ public class NpcMiscInventory implements IInventory {
 	}
 
 	public boolean isEmpty() {
-		for (int slot = 0; slot < this.getSizeInventory(); ++slot) {
-			ItemStack item = this.getStackInSlot(slot);
+		for (int slot = 0; slot < getSizeInventory(); ++slot) {
+			ItemStack item = getStackInSlot(slot);
 			if (!NoppesUtilServer.IsItemStackNull(item) && !item.isEmpty()) {
 				return false;
 			}
@@ -155,8 +142,8 @@ public class NpcMiscInventory implements IInventory {
 	}
 
 	public boolean isFull() {
-		for (int slot = 0; slot < this.getSizeInventory(); ++slot) {
-			if (this.getStackInSlot(slot).isEmpty()) {
+		for (int slot = 0; slot < getSizeInventory(); ++slot) {
+			if (getStackInSlot(slot).isEmpty()) {
 				return false;
 			}
 		}
@@ -171,22 +158,17 @@ public class NpcMiscInventory implements IInventory {
 		return true;
 	}
 
-	public void markDirty() {
-	}
+	public void markDirty() { }
 
-	public void openInventory(@Nonnull EntityPlayer player) {
-	}
+	public void openInventory(@Nonnull EntityPlayer player) { }
 
 	public @Nonnull ItemStack removeStackFromSlot(int slotId) {
-		return this.items.set(slotId, ItemStack.EMPTY);
+		return items.set(slotId, ItemStack.EMPTY);
 	}
 
-	public void setField(int id, int value) {
-	}
+	public void setField(int id, int value) { }
 
-	public void setFromNBT(NBTTagCompound nbttagcompound) {
-		NBTTags.getItemStackList(nbttagcompound.getTagList("NpcMiscInv", 10), this.items);
-	}
+	public void load(NBTTagCompound compound) { NBTTags.getItemStackList(compound.getTagList("NpcMiscInv", 10), items); }
 
 	public void setInventorySlotContents(int slotId, @Nonnull ItemStack stack) {
 		if (slotId >= getSizeInventory()) { return; }
@@ -194,17 +176,24 @@ public class NpcMiscInventory implements IInventory {
 	}
 
 	public void setSize(int size) {
-		if (this.items.size() == size) {
-			return;
-		}
+		if (items.size() == size) { return; }
 		NonNullList<ItemStack> newItems = NonNullList.withSize(size, ItemStack.EMPTY);
-		for (int slot = 0; slot < this.items.size() && slot < size; ++slot) {
-			if (this.items.get(slot).isEmpty()) {
-				continue;
-			}
-			newItems.add(slot, this.items.get(slot));
+		for (int slot = 0; slot < items.size() && slot < size; ++slot) {
+			if (items.get(slot).isEmpty()) { continue; }
+			newItems.set(slot, items.get(slot));
 		}
-		this.items = newItems;
+		items = newItems;
+	}
+
+	public boolean remove(int slotID) {
+		if (slotID < 0 || slotID >= items.size()) { return false; }
+		NonNullList<ItemStack> newItems = NonNullList.withSize(items.size() - 1, ItemStack.EMPTY);
+		for (int slot = 0; slot < items.size(); ++slot) {
+			if (items.get(slot).isEmpty() || slotID == slot) { continue; }
+			newItems.set(slot - (slot > slotID ? 1 : 0), items.get(slot));
+		}
+		items = newItems;
+		return true;
 	}
 
 }

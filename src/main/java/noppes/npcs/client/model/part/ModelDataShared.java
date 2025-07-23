@@ -1,9 +1,10 @@
 package noppes.npcs.client.model.part;
 
-import java.util.HashMap;
+import java.util.*;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -11,7 +12,10 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.LogWriter;
 import noppes.npcs.ModelPartConfig;
 import noppes.npcs.ModelPartData;
+import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.constants.EnumParts;
+
+import javax.annotation.Nonnull;
 
 public class ModelDataShared {
 
@@ -27,6 +31,8 @@ public class ModelDataShared {
 	protected ModelPartConfig leg4 = new ModelPartConfig();
 	protected ModelPartData legParts = new ModelPartData("legs");
 	protected HashMap<EnumParts, ModelPartData> parts = new HashMap<>();
+
+	protected final Map<EnumParts, List<LayerModel>> layersData = new TreeMap<>();
 
 	public EntityLivingBase entity;
 	public Class<? extends EntityLivingBase> entityClass;
@@ -118,6 +124,19 @@ public class ModelDataShared {
 			EnumParts e = EnumParts.FromName(name);
 			if (e != null) { parts.put(e, part); }
 		}
+		layersData.clear();
+		if (compound.hasKey("LayersData", 9)) {
+			NBTTagList listLD = compound.getTagList("LayersData", 10);
+			for (int i = 0; i < listLD.tagCount(); i++) {
+				NBTTagCompound nbt = listLD.getCompoundTagAt(i);
+				EnumParts part = EnumParts.getMainModel(nbt.getInteger("Part"));
+				if (!layersData.containsKey(part)) { layersData.put(part, new ArrayList<>()); }
+				NBTTagList listLM = nbt.getTagList("Layers", 10);
+				for (int j = 0; j < listLM.tagCount(); j++) {
+					layersData.get(part).add(new LayerModel(listLM.getCompoundTagAt(j)));
+				}
+			}
+		}
 		updateTranslate();
 	}
 
@@ -203,14 +222,116 @@ public class ModelDataShared {
 		compound.setTag("LegParts", legParts.save());
 		compound.setTag("Eyes", eyes.save());
 		compound.setTag("ExtraData", extra);
-		NBTTagList list = new NBTTagList();
+		NBTTagList listP = new NBTTagList();
 		for (EnumParts e : parts.keySet()) {
 			NBTTagCompound item = parts.get(e).save();
 			item.setString("PartName", e.name);
-			list.appendTag(item);
+			listP.appendTag(item);
 		}
-		compound.setTag("Parts", list);
+		compound.setTag("Parts", listP);
+		NBTTagList listLD = new NBTTagList();
+		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setInteger("Part", part.ordinal());
+			NBTTagList listLM = new NBTTagList();
+			for (LayerModel lm : new ArrayList<>(layersData.get(part))) { listLM.appendTag(lm.save()); }
+			nbt.setTag("Layers", listLM);
+			listLD.appendTag(nbt);
+		}
+		compound.setTag("LayersData", listLD);
 		return compound;
 	}
+
+	public IInventory getLayerInventory() {
+		int max = 0;
+		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
+			for (LayerModel lm : new ArrayList<>(layersData.get(part))) {
+				if (max < lm.slotID) { max = lm.slotID; }
+			}
+		}
+		NpcMiscInventory layerInventory = new NpcMiscInventory(max + 1);
+		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
+			for (LayerModel lm : new ArrayList<>(layersData.get(part))) {
+				if (lm.getStack().isEmpty()) { continue; }
+				layerInventory.setInventorySlotContents(lm.slotID, lm.getStack());
+			}
+		}
+		return layerInventory;
+	}
+
+	public int addNewLayer(NpcMiscInventory layerInventory) {
+		int slotID = layerInventory.getSizeInventory();
+		layerInventory.setSize(slotID);
+		if (!layersData.containsKey(EnumParts.HEAD)) { layersData.put(EnumParts.HEAD, new ArrayList<>()); }
+		LayerModel lm = new LayerModel();
+		lm.slotID = slotID;
+		layersData.get(EnumParts.HEAD).add(lm);
+		return slotID;
+	}
+
+	public void moveLayerTo(int slotID, EnumParts newPart) {
+		LayerModel lModel = null;
+		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
+			if (part.equals(newPart)) { continue; }
+			for (LayerModel lm: new ArrayList<>(layersData.get(part))) {
+				if (lm.slotID == slotID) {
+					lModel = lm;
+					layersData.get(part).remove(lm);
+					if (layersData.get(part).isEmpty()) { layersData.remove(part); }
+					break;
+				}
+			}
+			if (lModel != null) { break; }
+		}
+		if (lModel != null) {
+			if (!layersData.containsKey(newPart)) { layersData.put(newPart, new ArrayList<>()); }
+			layersData.get(newPart).add(lModel);
+		}
+	}
+
+	public int removeLayer(int slotID) {
+		boolean isRemoved = false;
+		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
+			for (LayerModel lm: new ArrayList<>(layersData.get(part))) {
+				if (lm.slotID == slotID) {
+					layersData.get(part).remove(lm);
+					if (layersData.get(part).isEmpty()) { layersData.remove(part); }
+					isRemoved = true;
+				}
+				if (lm.slotID > slotID) { lm.slotID--; }
+			}
+			if (isRemoved) { break; }
+		}
+		return isRemoved ? Math.max(-1, slotID - 1) : slotID;
+	}
+
+	public @Nonnull List<String> getLayerKeys() {
+		Map <Integer, String> map = new TreeMap<>();
+		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
+			for (LayerModel lm: new ArrayList<>(layersData.get(part))) {
+				map.put(lm.slotID, (lm.slotID + 1) + ": " + lm.getStack().getDisplayName());
+			}
+		}
+		return new ArrayList<>(map.values());
+	}
+
+	public @Nonnull LayerModel getLayerModel(int slotID) {
+		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
+			for (LayerModel lm: new ArrayList<>(layersData.get(part))) {
+				if (lm.slotID == slotID) {
+					lm.part = part;
+					return lm;
+				}
+			}
+		}
+		if (!layersData.containsKey(EnumParts.HEAD)) { layersData.put(EnumParts.HEAD, new ArrayList<>()); }
+		LayerModel lm = new LayerModel();
+		lm.slotID = slotID;
+		layersData.get(EnumParts.HEAD).add(lm);
+		lm.part = EnumParts.HEAD;
+		return lm;
+	}
+
+	public Map<EnumParts, List<LayerModel>> getRenderLayers() { return layersData; }
 
 }

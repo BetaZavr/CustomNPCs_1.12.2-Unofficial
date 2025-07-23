@@ -107,7 +107,7 @@ public class TransportLocation implements ITransportLocation {
 		}
 		this.money = compound.getLong("Cost");
 		if (compound.hasKey("CostInv", 10)) {
-			this.inventory.setFromNBT(compound.getCompoundTag("CostInv"));
+			this.inventory.load(compound.getCompoundTag("CostInv"));
 			while (this.inventory.items.size() < 9) {
 				this.inventory.items.add(ItemStack.EMPTY);
 			}
@@ -146,7 +146,7 @@ public class TransportLocation implements ITransportLocation {
 			compound.setUniqueId("NpcUUID", this.npc);
 		}
 		compound.setLong("Cost", this.money);
-		compound.setTag("CostInv", this.inventory.getToNBT());
+		compound.setTag("CostInv", this.inventory.save());
 		compound.setFloat("PlayerYaw", this.yaw);
 		compound.setFloat("PlayerPitch", this.pitch);
 		return compound;

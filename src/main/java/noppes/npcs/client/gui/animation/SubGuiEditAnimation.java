@@ -2443,7 +2443,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				}
 			}
 			GuiNpcSlider slider = new GuiNpcSlider(tools, i, x + 9, y + i * f, 75, 8, sliderValues[i]);
-			slider.setHoverText("animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"), i == 0 ? "X" : i == 1 ? "y" : "Z");
+			slider.setHoverText("animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"), i == 0 ? "X" : i == 1 ? "Y" : "Z");
 			tools.addSlider(slider);
 			textField = new GuiNpcTextField(i + 5, tools, x + 86, y + i * f, 42, 8, "" + textToFields[i]);
 			double m = -180.0d, n = 180.0d;
@@ -2476,7 +2476,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				n = 5.0d;
 			}
             textField.setMinMaxDoubleDefault(m, n, textToFields[i]);
-			textField.setHoverText("animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"), i == 0 ? "X" : i == 1 ? "y" : "Z");
+			textField.setHoverText("animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale"), i == 0 ? "X" : i == 1 ? "Y" : "Z");
             tools.addTextField(textField);
 			button = new GuiNpcButton(30 + i, x + 130, y + i * f, 8, 8, "X");
 			button.texture = ANIMATION_BUTTONS;
@@ -2485,9 +2485,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			button.txrY = 96;
 			button.dropShadow = false;
 			button.setTextColor(0xFFDC0000);
-			if (i == 0) { button.setHoverText("animation.hover.reset." + toolType, "X"); }
-			else if (i == 1) { button.setHoverText("animation.hover.reset." + toolType, "Y"); }
-			else { button.setHoverText("animation.hover.reset." + toolType, "Z"); }
+			button.setHoverText("animation.hover.reset." + toolType, i == 0 ? "X" : i == 1 ? "Y" : "Z");
 			tools.addButton(button);
 		}
 		if (!isHitbox && notNormal) {
