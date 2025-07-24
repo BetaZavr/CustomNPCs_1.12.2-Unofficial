@@ -69,7 +69,6 @@ ai.hover.back.home=NPC가 전투에 참여하지 않으면 원래 위치로 돌�
 ai.hover.can.be.collide=어떤 생물 도이 NPC를 밀 수 없습니다.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=문이 있는 블록에 있을 때 NPC 의 행동
-ai.hover.found.refuge=피난처를 찾을 때<br>§7밤에는 문<br>§7낮에는 머리 위 블록
 ai.hover.found.target=공격 대상을 결정하기 위해 NPC는 검토 +/- 60도를 고려하여 <br> § eli-inclusive §7을 살펴 봐야합니다.
 ai.hover.hurt.resistant.time=Time in ticks, immortality after taking damage<br>§7Applies to everyone who deals damage individually!
 ai.hover.if.see=NPC가 목표를 발견했을 때 의 행동
@@ -1768,8 +1767,6 @@ model.rleg.2=R. Leg 2
 model.rstack=R. Item
 model.save=모델 저장
 model.scale=규모
-
-month.0=month.1=month.10=month.11=month.2=month.3=month.4=month.5=month.6=month.7=month.8=month.9=
 
 movement.aiming=조준
 movement.animation=생기

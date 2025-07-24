@@ -11,13 +11,15 @@ import javax.annotation.Nonnull;
 
 public class LayerModel {
 
+    // Model
     private ResourceLocation obj;
+    private ItemStack stack = ItemStack.EMPTY;
+    // settings
+    public int slotID = 0;
+    public EnumParts part = EnumParts.HEAD;
     public final float[] offset = new float[] { 0.0f, 0.0f, 0.0f };
     public final float[] rotation = new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     public final float[] scale = new float[] { 1.0f, 1.0f, 1.0f };
-    public int slotID;
-    private @Nonnull ItemStack stack = ItemStack.EMPTY;
-    public EnumParts part; // temp, to in gui
 
     public LayerModel() { }
 
@@ -26,7 +28,8 @@ public class LayerModel {
     public void load(NBTTagCompound compound) {
         obj = null;
         if (compound.hasKey("OBJ", 8)) { obj = new ResourceLocation(compound.getString("OBJ")); }
-        slotID = compound.getInteger("slotID");
+        slotID = compound.getInteger("SlotID");
+        part = EnumParts.getMainModel(compound.getInteger("PartID"));
         for (int i = 0; i < 3; i++) {
             offset[i] = compound.getTagList("Offset", 5).getFloatAt(i);
             rotation[i] = compound.getTagList("Rotation", 5).getFloatAt(i);
@@ -40,7 +43,8 @@ public class LayerModel {
     public NBTTagCompound save() {
         NBTTagCompound compound = new NBTTagCompound();
         if (obj != null) { compound.setString("OBJ", obj.toString()); }
-        compound.setInteger("slotID", slotID);
+        compound.setInteger("SlotID", slotID);
+        compound.setInteger("PartID", part.ordinal());
         NBTTagList listRot = new NBTTagList();
         NBTTagList listOff = new NBTTagList();
         NBTTagList listSc = new NBTTagList();
@@ -59,8 +63,8 @@ public class LayerModel {
     public ResourceLocation getOBJ() { return obj; }
 
     public void setOBJ(String newOBJ) {
-        if (newOBJ == null) { obj = null; }
-        else { obj = new ResourceLocation(newOBJ); }
+        if (newOBJ == null || newOBJ.isEmpty()) { obj = null; }
+        else { obj = new ResourceLocation(newOBJ.replaceAll("\\\\", "/")); }
     }
 
     public @Nonnull ItemStack getStack() { return stack; }

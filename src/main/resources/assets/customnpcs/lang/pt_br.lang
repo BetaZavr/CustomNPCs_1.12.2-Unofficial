@@ -69,7 +69,6 @@ ai.hover.back.home=Se o NPC não estiver em combate, ele retornará à sua posi�
 ai.hover.can.be.collide=Nenhuma criatura pode empurrar este NPC.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=Ações de um NPC quando ele se encontra em um bloco com porta
-ai.hover.found.refuge=Procura abrigo e quando<br>§7À noite - uma porta<br>§7Durante o dia - um bloco acima de sua cabeça
 ai.hover.found.target=Para determinar o alvo para o ataque, o NPC deve analisá-lo <br> § Eli-Inclusive §7: Levado em consideração a revisão +/- 60 graus.
 ai.hover.hurt.resistant.time=Time in ticks, immortality after taking damage<br>§7Applies to everyone who deals damage individually!
 ai.hover.if.see=Ações do NPC ao ver o alvo
@@ -1768,8 +1767,6 @@ model.rleg.2=R. Leg 2
 model.rstack=R. Item
 model.save=Salvar modelo
 model.scale=Escala
-
-month.0=month.1=month.10=month.11=month.2=month.3=month.4=month.5=month.6=month.7=month.8=month.9=
 
 movement.aiming=Mirando
 movement.animation=Animação

@@ -69,7 +69,6 @@ ai.hover.back.home=Si le PNJ n’est pas engagé dans le combat, il retournera �
 ai.hover.can.be.collide=Aucune créature ne peut pousser ce PNJ.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=Actions d' un PNJ lorsqu'il se retrouve dans un bloc avec une porte
-ai.hover.found.refuge=Cherche un abri et quand<br>§7La nuit - une porte<br>§7Pendant la journée - un bloc au-dessus de votre tête
 ai.hover.found.target=Pour déterminer l'objectif de l'attaque, le NPC doit l'examiner <br> § Eli-inclusif §7: pris en compte l'examen +/- 60 degrés.
 ai.hover.hurt.resistant.time=Time in ticks, immortality after taking damage<br>§7Applies to everyone who deals damage individually!
 ai.hover.if.see=Actions du PNJ lorsqu'il voit la cible
@@ -1768,8 +1767,6 @@ model.rleg.2=R. Leg 2
 model.rstack=R. Item
 model.save=Enregistrer le modèle
 model.scale=Échelle
-
-month.0=month.1=month.10=month.11=month.2=month.3=month.4=month.5=month.6=month.7=month.8=month.9=
 
 movement.aiming=Viser
 movement.animation=Animation

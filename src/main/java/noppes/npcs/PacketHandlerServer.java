@@ -79,6 +79,7 @@ public class PacketHandlerServer {
         PacketHandlerServer.list = new ArrayList<>();
         PacketHandlerServer.list.add(EnumPacketServer.RemoteReset);
         PacketHandlerServer.list.add(EnumPacketServer.AvailabilitySlot);
+        PacketHandlerServer.list.add(EnumPacketServer.ChangeItemInSlot);
     }
 
     private boolean allowItem(ItemStack stack, EnumPacketServer type) {
@@ -774,15 +775,7 @@ public class PacketHandlerServer {
         } else if (type == EnumPacketServer.TransformGet) {
             Server.sendData(player, EnumPacketClient.GUI_DATA, npc.transform.writeOptions(new NBTTagCompound()));
         } else if (type == EnumPacketServer.TransformLoad) {
-            if (npc.transform.isValid()) {
-                boolean isDay = buffer.readBoolean();
-                npc.transform.transform(isDay);
-                if (CustomNpcs.Server != null) {
-                    CustomNPCsScheduler.runTack(() -> {
-                        for (WorldServer world : CustomNpcs.Server.worlds) { world.setWorldTime(isDay ? 1000 : 13000); }
-                    }, 500);
-                }
-            }
+            if (npc.transform.isValid()) { npc.transform.transform(buffer.readBoolean()); }
         } else if (type == EnumPacketServer.MovingPathGet) {
             NBTTagCompound compound = new NBTTagCompound();
             compound.setTag("MovingPathNew", NBTTags.nbtIntegerArraySet(npc.ais.getMovingPath()));
@@ -1539,6 +1532,11 @@ public class PacketHandlerServer {
         } else if (type == EnumPacketServer.AvailabilitySlot) {
             if (player.openContainer instanceof ContainerAvailabilityInv) {
                 ((ContainerAvailabilityInv) player.openContainer).slot.setSlotIndex(buffer.readInt(), true);
+            }
+        } else if (type == EnumPacketServer.ChangeItemInSlot) {
+            if (player.openContainer.getClass().getSimpleName().equals(Server.readString(buffer))) {
+                player.openContainer.putStackInSlot(buffer.readInt(), new ItemStack(Server.readNBT(buffer)));
+                player.openContainer.detectAndSendChanges();
             }
         }
     }

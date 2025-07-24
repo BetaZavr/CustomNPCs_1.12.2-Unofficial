@@ -69,7 +69,6 @@ ai.hover.back.home=Als de NPC niet in gevecht is, keert hij terug naar zijn thui
 ai.hover.can.be.collide=Geen enkel wezen kan deze NPC pushen.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=Acties van een NPC wanneer hij zich in een blok met een deur bevindt
-ai.hover.found.refuge=Zoekt beschutting en wanneer<br>§7's Nachts - een deur<br>§7Overdag - een blok boven je hoofd
 ai.hover.found.target=Om het doel voor de aanval te bepalen, moet de NPC ernaar kijken <br> § Eli-inclusive §7: rekening houdend met de beoordeling +/- 60 graden.
 ai.hover.hurt.resistant.time=Time in ticks, immortality after taking damage<br>§7Applies to everyone who deals damage individually!
 ai.hover.if.see=Acties van de NPC wanneer hij het doelwit ziet
@@ -1768,8 +1767,6 @@ model.rleg.2=R. Leg 2
 model.rstack=R. Item
 model.save=Model opslaan
 model.scale=Schaal
-
-month.0=month.1=month.10=month.11=month.2=month.3=month.4=month.5=month.6=month.7=month.8=month.9=
 
 movement.aiming=Richten
 movement.animation=Animatie

@@ -41,7 +41,7 @@ advanced.menu.hover.role.7=Shows dialogs<br>§7Simplified version show a series 
 advanced.menu.hover.says=Phrases that NPCs report to the world<br>§7Bubble message overhead
 advanced.menu.hover.scenes=Executing a Scenario<br>§7Scenarios consist of a set of simple actions and are executed one by one
 advanced.menu.hover.sounds=The sounds this NPC uses
-advanced.night=Night
+advanced.night=State (Day / Night)
 advanced.scenes=Scenes
 advanced.sounds=Sounds
 advanced.stepsound=The sound of footsteps
@@ -69,7 +69,7 @@ ai.hover.back.home=If the NPC is not in combat, it will return to its home posit
 ai.hover.can.be.collide=No creature can push this NPC.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=NPC actions when he finds himself in a block with a door
-ai.hover.found.refuge=Seeks shelter and when<br>§7Night is the door<br>§7Day is the block over his head
+ai.hover.found.refuge=Goes to home position when:<br>At night§7: If there is not enough light around and during rain or at night for worlds with sky<br>During the day: §7during the day and if the sky is visible overhead
 ai.hover.found.target=The NPC must look at the target to detect it<br>§eIf enabled§7: Considered view +/- 60 degrees. And if the target is behind you, then the chance of detection is up to 10~~~§7 of the distance to the target<br>§eIf disabled§7: can see in any direction, regardless of head rotation<br>§7Additional reduced chance if the target is invisible.
 ai.hover.hurt.resistant.time=Time of immortality after NPC takes damage (in ticks)<br>§7Applies to everyone who deals damage individually!
 ai.hover.if.see=NPC actions when it sees the target
@@ -705,6 +705,8 @@ display.hover.group.name=Select a group of names
 display.hover.hitbox.height=NPC height<br>§7Current model value:<br>§7Base: %s§7; Current: %s<br>§7Used to determine HitBox<br>§7Set to §6-1§7 to use default HitBox<br>§7Maximum §615.0
 display.hover.hitbox.width=NPC width and length<br>§7Current model value:<br>§7Base: %s§7; Current: %s<br>§7Used to determine HitBox<br>§7Set to §6-1§7 to use default HitBox<br>§7Maximum §67.5
 display.hover.interactable=Ability to collide and interact with this NPC<br>§eYes§7 - normal, the entity will bounce off this NPC<br>§eNo§7 - transparent, the entity freely passes through this NPC<br>§eSolid§7 - like a block, the entity does not pass on this NPC and can even stand on it
+display.hover.layer.obj=Path to OBJ model
+display.hover.layer.type=To which body part is it attached
 display.hover.menu.advanced=This NPC's extra features window<br>§7Work, role, dialogs, faction, etc.
 display.hover.menu.ai=This NPC's behavior setting window<br>§7Walking, attack, life, movement speed and type, etc.
 display.hover.menu.display=Display customization window for this NPC<br>§7Name, Model, Textures, etc.
@@ -1784,7 +1786,6 @@ model.rstack=R. Item
 model.save=Save Model
 model.scale=Scale
 
-month.0=month.1=month.10=month.11=month.2=month.3=month.4=month.5=month.6=month.7=month.8=month.9=
 
 movement.aiming=Aiming
 movement.animation=Animation
@@ -2562,12 +2563,13 @@ trader.trade=Deal
 trader.waiting=Wait to make the transaction
 
 transform.hover.edit=Enable changing NPC state<br>§7Daytime one state, nighttime another<br>§7Usually daytime lasts from§6 0§7 to§6 12000§7 ticks, and nighttime lasts from§6 12000§7 to§6 24000§7 ticks
+transform.hover.animation=Change configured animations
 transform.hover.tab=Change state of "%s" tab settings
 transform.hover.role=Change role<br>§7Changes in any case when changing is enabled for the entire "%s§7" tab
 transform.hover.job=Change job<br>§7Changes in any case when changing is enabled for the entire "%s§7" tab
-transform.hover.loadday=Sets the current state of the NPC to daytime<br>§7Sets the current time in all worlds to daytime (§61000§7 ticks)
-transform.hover.loadnight=Sets the current state of the NPC to nighttime<br>§7Sets the current time in all worlds to nighttime (§613000§7 ticks)
-transform.hover.state=<br>§7After this, any change to this NPC at the current time will be applied to this state<br>§7If you are going to make a lot of changes, it is recommended to stop the flow of time with the command§a /gamerule doDaylightCycle§c false
+transform.hover.loadday=Set daytime settings to current state<br>§7(Time of day starts at §61000§7 ticks)
+transform.hover.loadnight=Set nighttime settings to current state<br>§7(Time of day starts at §61000§7 ticks)
+transform.hover.state=<br>§7If you are going to make a lot of changes, it is recommended to set a specific time of day with the command§a /time set§7 and stop the flow of time with the command§a /gamerule doDaylightCycle§c false
 
 transporter.discovered=Available if you see an NPC
 transporter.hover.not.item=§sYou don't have enough items to pay for the move

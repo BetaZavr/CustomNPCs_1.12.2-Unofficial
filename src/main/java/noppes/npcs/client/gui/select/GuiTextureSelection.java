@@ -51,7 +51,7 @@ implements ICustomScrollListener {
 		this.id = id;
 	}
 	
-	public GuiTextureSelection(EntityNPCInterface npcIn, @Nonnull String texture, String suffix, int type) {
+	public GuiTextureSelection(EntityNPCInterface npcIn, @Nonnull String texture, String suffixIn, int typeIn) {
 		super(npcIn);
 		if (npc != null) {
 			displayNPC = Util.instance.copyToGUI(npc, mc.world, false);
@@ -62,9 +62,9 @@ implements ICustomScrollListener {
 		xSize = 366;
 		ySize = 226;
 
-		this.type = type;
+		this.type = typeIn;
 		selectDir = null;
-		this.suffix = suffix.toLowerCase();
+		suffix = suffixIn.toLowerCase();
 		if (ClientProxy.texturesData.containsKey(suffix)) {
 			data.putAll(ClientProxy.texturesData.get(suffix));
 		}
@@ -119,7 +119,6 @@ implements ICustomScrollListener {
 		}
 		selectDir = null;
 	}
-
 
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
@@ -471,9 +470,7 @@ implements ICustomScrollListener {
 
 	private void addFile(ResourceLocation location) {
 		String path = location.getResourcePath();
-		if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix.toLowerCase())) {
-			return;
-		}
+		if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix)) { return; }
 		String domain = location.getResourceDomain();
 		if (!data.containsKey(domain)) {
 			data.put(domain, new TreeMap<>());
@@ -502,12 +499,8 @@ implements ICustomScrollListener {
 	}
 
 	private void addFile(String path, long size) {
-		if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix.toLowerCase())) {
-			return;
-		}
-		if (path == null || !path.contains("assets")) {
-			return;
-		}
+		if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix)) { return; }
+		if (path == null || !path.contains("assets")) { return; }
 		if (path.contains("\\")) {
 			List<String> list = new ArrayList<>();
 			while (path.contains("\\")) {
@@ -524,9 +517,7 @@ implements ICustomScrollListener {
 		}
 		path = path.substring(path.lastIndexOf("assets") + 7);
 		String domain = path.substring(0, path.indexOf("/"));
-		if (domain.isEmpty()) {
-			return;
-		}
+		if (domain.isEmpty()) { return; }
 		path = path.substring(path.indexOf("/") + 1);
 		if (!path.startsWith("textures")) { return; }
 		ResourceLocation res = new ResourceLocation(domain, path);
@@ -534,9 +525,7 @@ implements ICustomScrollListener {
 			data.put(domain, new TreeMap<>());
 		} else {
 			for (ResourceLocation r : data.get(domain).keySet()) {
-				if (r.getResourcePath().equals(path)) {
-					return;
-				}
+				if (r.getResourcePath().equals(path)) { return; }
 			}
 		}
 		data.get(domain).put(res, size);

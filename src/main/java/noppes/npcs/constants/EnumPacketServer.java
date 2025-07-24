@@ -166,7 +166,8 @@ public enum EnumPacketServer
 	DimensionDelete(CustomNpcsPermissions.TOOL_TELEPORTER),
 	DimensionSettings(CustomNpcsPermissions.TOOL_TELEPORTER),
 	AvailabilityStacks(false),
-	AvailabilitySlot(false);
+	AvailabilitySlot(false),
+	ChangeItemInSlot(false);
 	
 	public CustomNpcsPermissions.Permission permission;
 	public boolean needsNpc;

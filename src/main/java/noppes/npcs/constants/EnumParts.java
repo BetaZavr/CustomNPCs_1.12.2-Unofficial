@@ -63,7 +63,7 @@ public enum EnumParts
 		EnumParts[] set = EnumParts.values();
 		if (ordinal < 0) { ordinal *= -1; }
 		EnumParts ep = set[ordinal % set.length];
-		if (ep == EnumParts.HEAD || ep == EnumParts.BODY ||
+		if (ep == EnumParts.HEAD || ep == EnumParts.BODY ||  ep == EnumParts.BELT ||
 				ep == EnumParts.ARM_LEFT || ep == EnumParts.ARM_RIGHT ||
 				ep == EnumParts.LEG_LEFT || ep == EnumParts.LEG_RIGHT ||
 				ep == EnumParts.WRIST_LEFT || ep == EnumParts.WRIST_RIGHT ||

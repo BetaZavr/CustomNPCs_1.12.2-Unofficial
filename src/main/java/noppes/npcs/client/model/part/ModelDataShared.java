@@ -4,15 +4,14 @@ import java.util.*;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.LogWriter;
 import noppes.npcs.ModelPartConfig;
 import noppes.npcs.ModelPartData;
-import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.constants.EnumParts;
 
 import javax.annotation.Nonnull;
@@ -31,8 +30,8 @@ public class ModelDataShared {
 	protected ModelPartConfig leg4 = new ModelPartConfig();
 	protected ModelPartData legParts = new ModelPartData("legs");
 	protected HashMap<EnumParts, ModelPartData> parts = new HashMap<>();
-
-	protected final Map<EnumParts, List<LayerModel>> layersData = new TreeMap<>();
+	protected final Map<Integer, LayerModel> layersData = new TreeMap<>();
+	private final List<String> disableLayers = new ArrayList<>();
 
 	public EntityLivingBase entity;
 	public Class<? extends EntityLivingBase> entityClass;
@@ -115,9 +114,9 @@ public class ModelDataShared {
 		eyes.load(compound.getCompoundTag("Eyes"));
 		extra = compound.getCompoundTag("ExtraData");
 		parts.clear();
-		NBTTagList list = compound.getTagList("Parts", 10);
-		for (int i = 0; i < list.tagCount(); ++i) {
-			NBTTagCompound item = list.getCompoundTagAt(i);
+		NBTTagList listP = compound.getTagList("Parts", 10);
+		for (int i = 0; i < listP.tagCount(); ++i) {
+			NBTTagCompound item = listP.getCompoundTagAt(i);
 			String name = item.getString("PartName");
 			ModelPartData part = new ModelPartData(name);
 			part.load(item);
@@ -128,14 +127,14 @@ public class ModelDataShared {
 		if (compound.hasKey("LayersData", 9)) {
 			NBTTagList listLD = compound.getTagList("LayersData", 10);
 			for (int i = 0; i < listLD.tagCount(); i++) {
-				NBTTagCompound nbt = listLD.getCompoundTagAt(i);
-				EnumParts part = EnumParts.getMainModel(nbt.getInteger("Part"));
-				if (!layersData.containsKey(part)) { layersData.put(part, new ArrayList<>()); }
-				NBTTagList listLM = nbt.getTagList("Layers", 10);
-				for (int j = 0; j < listLM.tagCount(); j++) {
-					layersData.get(part).add(new LayerModel(listLM.getCompoundTagAt(j)));
-				}
+				LayerModel lm = new LayerModel(listLD.getCompoundTagAt(i));
+				layersData.put(lm.slotID, lm);
 			}
+		}
+		disableLayers.clear();
+		if (compound.hasKey("DisableLayers", 9)) {
+			NBTTagList listDL = compound.getTagList("DisableLayers", 8);
+			for (int i = 0; i < listDL.tagCount(); i++) { disableLayers.add(listDL.getStringTagAt(i)); }
 		}
 		updateTranslate();
 	}
@@ -230,108 +229,91 @@ public class ModelDataShared {
 		}
 		compound.setTag("Parts", listP);
 		NBTTagList listLD = new NBTTagList();
-		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setInteger("Part", part.ordinal());
-			NBTTagList listLM = new NBTTagList();
-			for (LayerModel lm : new ArrayList<>(layersData.get(part))) { listLM.appendTag(lm.save()); }
-			nbt.setTag("Layers", listLM);
-			listLD.appendTag(nbt);
-		}
+		for (LayerModel lm : new ArrayList<>(layersData.values())) { listLD.appendTag(lm.save()); }
 		compound.setTag("LayersData", listLD);
+		NBTTagList listDL = new NBTTagList();
+		for (String layer : disableLayers) { listDL.appendTag(new NBTTagString(layer)); }
+		compound.setTag("DisableLayers", listDL);
 		return compound;
 	}
 
-	public IInventory getLayerInventory() {
-		int max = 0;
-		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
-			for (LayerModel lm : new ArrayList<>(layersData.get(part))) {
-				if (max < lm.slotID) { max = lm.slotID; }
-			}
-		}
-		NpcMiscInventory layerInventory = new NpcMiscInventory(max + 1);
-		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
-			for (LayerModel lm : new ArrayList<>(layersData.get(part))) {
-				if (lm.getStack().isEmpty()) { continue; }
-				layerInventory.setInventorySlotContents(lm.slotID, lm.getStack());
-			}
-		}
-		return layerInventory;
-	}
-
-	public int addNewLayer(NpcMiscInventory layerInventory) {
-		int slotID = layerInventory.getSizeInventory();
-		layerInventory.setSize(slotID);
-		if (!layersData.containsKey(EnumParts.HEAD)) { layersData.put(EnumParts.HEAD, new ArrayList<>()); }
+	public int addNewLayer() {
+		int slotID = layersData.size();
 		LayerModel lm = new LayerModel();
 		lm.slotID = slotID;
-		layersData.get(EnumParts.HEAD).add(lm);
+		layersData.put(slotID, lm);
 		return slotID;
 	}
 
-	public void moveLayerTo(int slotID, EnumParts newPart) {
-		LayerModel lModel = null;
-		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
-			if (part.equals(newPart)) { continue; }
-			for (LayerModel lm: new ArrayList<>(layersData.get(part))) {
-				if (lm.slotID == slotID) {
-					lModel = lm;
-					layersData.get(part).remove(lm);
-					if (layersData.get(part).isEmpty()) { layersData.remove(part); }
-					break;
-				}
-			}
-			if (lModel != null) { break; }
-		}
-		if (lModel != null) {
-			if (!layersData.containsKey(newPart)) { layersData.put(newPart, new ArrayList<>()); }
-			layersData.get(newPart).add(lModel);
-		}
-	}
-
 	public int removeLayer(int slotID) {
-		boolean isRemoved = false;
-		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
-			for (LayerModel lm: new ArrayList<>(layersData.get(part))) {
-				if (lm.slotID == slotID) {
-					layersData.get(part).remove(lm);
-					if (layersData.get(part).isEmpty()) { layersData.remove(part); }
-					isRemoved = true;
-				}
-				if (lm.slotID > slotID) { lm.slotID--; }
-			}
-			if (isRemoved) { break; }
+		Map<Integer, LayerModel> newLayersData = new TreeMap<>();
+		int id = 0;
+		for (LayerModel lm : new ArrayList<>(layersData.values())) {
+			if (lm.slotID == slotID) { continue; }
+			lm.slotID = id;
+			newLayersData.put(lm.slotID, lm);
+			id++;
 		}
-		return isRemoved ? Math.max(-1, slotID - 1) : slotID;
+		if (newLayersData.size() != layersData.size()) {
+			layersData.clear();
+			layersData.putAll(newLayersData);
+			return Math.max(-1, slotID - 1);
+		}
+		return slotID;
 	}
 
 	public @Nonnull List<String> getLayerKeys() {
-		Map <Integer, String> map = new TreeMap<>();
-		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
-			for (LayerModel lm: new ArrayList<>(layersData.get(part))) {
-				map.put(lm.slotID, (lm.slotID + 1) + ": " + lm.getStack().getDisplayName());
-			}
-		}
-		return new ArrayList<>(map.values());
-	}
-
-	public @Nonnull LayerModel getLayerModel(int slotID) {
-		for (EnumParts part : new ArrayList<>(layersData.keySet())) {
-			for (LayerModel lm: new ArrayList<>(layersData.get(part))) {
-				if (lm.slotID == slotID) {
-					lm.part = part;
-					return lm;
+		List<String> list = new ArrayList<>();
+		for (LayerModel lm: new ArrayList<>(layersData.values())) {
+			String key = (lm.slotID + 1) + ": ";
+			if (lm.getOBJ() != null) {
+				String k = lm.getOBJ().getResourcePath();
+				if (k.lastIndexOf("/") != -1) {
+					key += k.substring(k.lastIndexOf("/")+1);
+				} else if (k.lastIndexOf(":") != -1) {
+					key += k.substring(k.lastIndexOf(":")+1);
+				} else {
+					key += k;
 				}
 			}
+			else { key += lm.getStack().getDisplayName(); }
+			list.add(key);
 		}
-		if (!layersData.containsKey(EnumParts.HEAD)) { layersData.put(EnumParts.HEAD, new ArrayList<>()); }
-		LayerModel lm = new LayerModel();
-		lm.slotID = slotID;
-		layersData.get(EnumParts.HEAD).add(lm);
-		lm.part = EnumParts.HEAD;
-		return lm;
+		return list;
 	}
 
-	public Map<EnumParts, List<LayerModel>> getRenderLayers() { return layersData; }
+	public LayerModel getLayerModel(int slotID) {
+		if (layersData.containsKey(slotID)) { return layersData.get(slotID); }
+		if (slotID == layersData.size()) { return layersData.get(addNewLayer()); }
+		return null;
+	}
+
+	public List<LayerModel> getRenderLayers(EnumParts part) {
+		List<LayerModel> list = new ArrayList<>();
+		for (LayerModel lm : new ArrayList<>(layersData.values())) {
+			if (lm.part == part) { list.add(lm); }
+		}
+		return list;
+	}
+
+	public boolean isNoEmptyLayer() {
+		for (LayerModel lm : new ArrayList<>(layersData.values())) {
+			if (lm.getStack().isEmpty() && lm.getOBJ() == null) { return false; }
+		}
+		return true;
+	}
+
+	public boolean isDisableLayer(String layerName) {
+		return disableLayers.contains(layerName);
+	}
+
+	public String[] getDisableLayers() {
+		return disableLayers.toArray(new String[0]);
+	}
+
+	public void setDisableLayers(String[] newLayers) {
+		disableLayers.clear();
+		if (newLayers != null && newLayers.length != 0) { disableLayers.addAll(Arrays.asList(newLayers)); }
+	}
 
 }

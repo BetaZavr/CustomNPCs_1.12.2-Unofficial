@@ -3,8 +3,6 @@ package noppes.npcs.entity.data;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
 import noppes.npcs.LogWriter;
 import org.apache.commons.codec.binary.Base64;
 
@@ -67,7 +65,6 @@ public class DataDisplay implements INPCDisplay {
 	public float shadowSize = 1.0f;
 	public float width = 0.6f;
 	public float height = 1.9f;
-	private final List<String> disableLayers = new ArrayList<>();
 
 	public DataDisplay(EntityNPCInterface npcIn) {
 		npc = npcIn;
@@ -321,11 +318,6 @@ public class DataDisplay implements INPCDisplay {
         	npc.baseWidth = width;
         	npc.baseHeight = height;
         	npc.updateHitbox();
-		}
-		disableLayers.clear();
-		if (displayNbt.hasKey("DisableLayers", 9)) {
-			NBTTagList list = displayNbt.getTagList("DisableLayers", 8);
-			for (int i = 0; i < list.tagCount(); i++) { disableLayers.add(list.getStringTagAt(i)); }
 		}
 		CustomNpcs.visibilityController.trackNpc(npc);
 	}
@@ -591,30 +583,7 @@ public class DataDisplay implements INPCDisplay {
 		displayNbt.setFloat("ShadowSize", shadowSize);
 		displayNbt.setFloat("HitBoxWidth", width);
 		displayNbt.setFloat("HitBoxHeight", height);
-
-		NBTTagList list = new NBTTagList();
-		for (String layer : disableLayers) { list.appendTag(new NBTTagString(layer)); }
-		displayNbt.setTag("DisableLayers", list);
-
 		return displayNbt;
-	}
-
-    public boolean isDisableLayer(String layerName) {
-		return disableLayers.contains(layerName);
-    }
-
-	@Override
-	public String[] getDisableLayers() {
-		return disableLayers.toArray(new String[0]);
-	}
-
-	@Override
-	public void setDisableLayers(String[] newLayers) {
-		disableLayers.clear();
-		if (newLayers != null && newLayers.length != 0) {
-			disableLayers.addAll(Arrays.asList(newLayers));
-		}
-		npc.updateClient = true;
 	}
 
 }

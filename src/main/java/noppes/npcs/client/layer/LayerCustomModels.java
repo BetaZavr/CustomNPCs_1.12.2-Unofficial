@@ -1,9 +1,11 @@
 package noppes.npcs.client.layer;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.RenderLiving;
@@ -19,9 +21,10 @@ import noppes.npcs.entity.EntityCustomNpc;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Map;
 
 public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterface<T> {
+
+    private static BlockRendererDispatcher dispatcher;
 
     public LayerCustomModels(RenderLiving<?> render) { super(render); }
 
@@ -33,7 +36,6 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
         if (!(render.getMainModel() instanceof ModelBiped)) { return; }
         model = (ModelBiped) render.getMainModel();
 
-        Map<EnumParts, List<LayerModel>> map = playerdata.getRenderLayers();
         Minecraft mc = Minecraft.getMinecraft();
         boolean isInvisible = false;
         if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
@@ -50,16 +52,17 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
             GlStateManager.blendFunc(770, 771);
             GlStateManager.alphaFunc(516, 0.003921569f);
         }
-        if (map.containsKey(EnumParts.HEAD)) { renderPart(model.bipedHead, map.get(EnumParts.HEAD), mc, red, green, blue); }
-        if (map.containsKey(EnumParts.BODY)) { renderPart(model.bipedBody, map.get(EnumParts.BODY), mc, red, green, blue); }
-        if (map.containsKey(EnumParts.ARM_RIGHT)) { renderPart(model.bipedRightArm, map.get(EnumParts.ARM_RIGHT), mc, red, green, blue); }
-        if (map.containsKey(EnumParts.ARM_LEFT)) { renderPart(model.bipedLeftArm, map.get(EnumParts.ARM_LEFT), mc, red, green, blue); }
-        if (map.containsKey(EnumParts.LEG_RIGHT)) { renderPart(model.bipedRightLeg, map.get(EnumParts.LEG_RIGHT), mc, red, green, blue); }
-        if (map.containsKey(EnumParts.LEG_LEFT)) { renderPart(model.bipedLeftLeg, map.get(EnumParts.LEG_LEFT), mc, red, green, blue); }
-        if (map.containsKey(EnumParts.WRIST_RIGHT)) { renderPartNext(true, EnumHandSide.RIGHT, map.get(EnumParts.WRIST_RIGHT), mc, red, green, blue); }
-        if (map.containsKey(EnumParts.WRIST_LEFT)) { renderPartNext(true, EnumHandSide.LEFT, map.get(EnumParts.WRIST_LEFT), mc, red, green, blue); }
-        if (map.containsKey(EnumParts.FOOT_RIGHT)) { renderPartNext(false, EnumHandSide.RIGHT, map.get(EnumParts.FOOT_RIGHT), mc, red, green, blue); }
-        if (map.containsKey(EnumParts.FOOT_LEFT)) { renderPartNext(false, EnumHandSide.LEFT, map.get(EnumParts.FOOT_LEFT), mc, red, green, blue); }
+        renderPart(model.bipedHead, playerdata.getRenderLayers(EnumParts.HEAD), mc, red, green, blue);
+        renderPart(model.bipedBody, playerdata.getRenderLayers(EnumParts.BODY), mc, red, green, blue);
+        renderPart(model.bipedRightArm, playerdata.getRenderLayers(EnumParts.ARM_RIGHT), mc, red, green, blue);
+        renderPart(model.bipedLeftArm, playerdata.getRenderLayers(EnumParts.ARM_LEFT), mc, red, green, blue);
+        renderPart(model.bipedRightLeg, playerdata.getRenderLayers(EnumParts.LEG_RIGHT), mc, red, green, blue);
+        renderPart(model.bipedLeftLeg, playerdata.getRenderLayers(EnumParts.LEG_LEFT), mc, red, green, blue);
+        renderPartNext(2, null, playerdata.getRenderLayers(EnumParts.BELT), mc, red, green, blue);
+        renderPartNext(0, EnumHandSide.RIGHT, playerdata.getRenderLayers(EnumParts.WRIST_RIGHT), mc, red, green, blue);
+        renderPartNext(0, EnumHandSide.LEFT, playerdata.getRenderLayers(EnumParts.WRIST_LEFT), mc, red, green, blue);
+        renderPartNext(1, EnumHandSide.RIGHT, playerdata.getRenderLayers(EnumParts.FOOT_RIGHT), mc, red, green, blue);
+        renderPartNext(1, EnumHandSide.LEFT, playerdata.getRenderLayers(EnumParts.FOOT_LEFT), mc, red, green, blue);
         if (isInvisible) {
             GlStateManager.disableBlend();
             GlStateManager.alphaFunc(516, 0.1f);
@@ -79,18 +82,22 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
         if (npc.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
         if (npc.hurtTime > 0 || npc.deathTime > 0) { return; }
         GlStateManager.color(red, green, blue, 1.0f);
+        if (dispatcher == null) { dispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher(); }
     }
 
+    @SuppressWarnings("all")
     private void renderPart(ModelRenderer modelRenderer, List<LayerModel> layers, Minecraft mc, float red, float green, float blue) {
+        if (layers.isEmpty()) { return; }
         GlStateManager.pushMatrix();
         modelRenderer.postRender(0.0625f);
         for (LayerModel lm : layers) {
             GlStateManager.pushMatrix();
             // rotate
             GlStateManager.translate(lm.offset[0], lm.offset[1], lm.offset[2]);
-            if (lm.rotation[2] != 0.0f) { GlStateManager.rotate(lm.rotation[2], 0.0f, 0.0f, 1.0f); }
+            GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
             if (lm.rotation[1] != 0.0f) { GlStateManager.rotate(lm.rotation[1], 0.0f, 1.0f, 0.0f); }
-            GlStateManager.rotate(lm.rotation[0] + 180.0f, 1.0f, 0.0f, 0.0f);
+            if (lm.rotation[0] != 0.0f) { GlStateManager.rotate(lm.rotation[0], 1.0f, 0.0f, 0.0f); }
+            if (lm.rotation[2] != 0.0f) { GlStateManager.rotate(lm.rotation[2], 0.0f, 0.0f, 1.0f); }
             if (lm.scale[0] != 0.0f || lm.scale[1] != 0.0f || lm.scale[2] != 0.0f) {
                 GlStateManager.scale(lm.scale[0], lm.scale[1], lm.scale[2]);
             }
@@ -98,14 +105,22 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
             preRender(red, green, blue);
             GlStateManager.enableRescaleNormal();
             if (lm.getOBJ() != null) {
-                GlStateManager.scale(0.5f, 0.5f, 0.5f);
                 GlStateManager.callList(ModelBuffer.getDisplayList(lm.getOBJ(), null, null));
             }
             else {
-                if (Block.getBlockFromItem(lm.getStack().getItem()) == Blocks.AIR) {
-                    GlStateManager.scale(0.5f, 0.5f, 0.5f);
+                boolean isRender = true;
+                Block block = Block.getBlockFromItem(lm.getStack().getItem());
+                if (block != Blocks.AIR) {
+                    GlStateManager.scale(0.5f, 0.5f,0.5f);
+                    IBlockState state = block.getStateFromMeta(lm.getStack().getMetadata());
+                    if (!block.hasTileEntity(state)) {
+                        dispatcher.renderBlockBrightness(state, 1.0f);
+                        isRender = false;
+                    }
                 }
-                mc.getRenderItem().renderItem(lm.getStack(), ItemCameraTransforms.TransformType.FIXED);
+                if (isRender) {
+                    mc.getRenderItem().renderItem(lm.getStack(), ItemCameraTransforms.TransformType.FIXED);
+                }
             }
             GlStateManager.disableRescaleNormal();
             GlStateManager.popMatrix();
@@ -113,26 +128,33 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
         GlStateManager.popMatrix();
     }
 
-    private void renderPartNext(boolean isArm, EnumHandSide handSide, List<LayerModel> layers, Minecraft mc, float red, float green, float blue) {
+    @SuppressWarnings("all")
+    private void renderPartNext(int modelType, EnumHandSide handSide, List<LayerModel> layers, Minecraft mc, float red, float green, float blue) {
+        if (layers.isEmpty()) { return; }
         GlStateManager.pushMatrix();
-        if (isArm) {
-            model.postRenderArm(0.0625f, handSide);
-        }
-        else {
+        if (modelType == 1) {
             if (model instanceof ModelNpcAlt) { ((ModelNpcAlt) model).postRenderLeg(0.0625f, handSide); }
             else { (handSide == EnumHandSide.LEFT ? model.bipedLeftLeg : model.bipedRightLeg).postRender(0.0625f); }
+        } // Legs
+        else if (modelType == 2) {
+            if (model instanceof ModelNpcAlt) { ((ModelNpcAlt) model).postRenderBelt(0.0625f); }
+            else { model.bipedBody.postRender(0.0625f); }
+        } // Belt
+        else {
+            model.postRenderArm(0.0625f, handSide);
         }
         GlStateManager.rotate(-90.0F, 1.0F, 0.0F, 0.0F);
         GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.translate((handSide == EnumHandSide.LEFT ? -1.0F : 1.0F) / 16.0F, 0.125f, -0.625f);
+        GlStateManager.translate(handSide == null ? 0.0f : (handSide == EnumHandSide.LEFT ? -0.0625f : 0.0625f), 0.125f, -0.625f);
 
         for (LayerModel lm : layers) {
             GlStateManager.pushMatrix();
             // rotate
             GlStateManager.translate(lm.offset[0], lm.offset[1], lm.offset[2]);
-            if (lm.rotation[2] != 0.0f) { GlStateManager.rotate(lm.rotation[2], 0.0f, 0.0f, 1.0f); }
+            GlStateManager.rotate(90.0f, 1.0f, 0.0f, 0.0f);
             if (lm.rotation[1] != 0.0f) { GlStateManager.rotate(lm.rotation[1], 0.0f, 1.0f, 0.0f); }
-            GlStateManager.rotate(lm.rotation[0] + 90.0f, 1.0f, 0.0f, 0.0f);
+            if (lm.rotation[0] != 0.0f) { GlStateManager.rotate(lm.rotation[0], 1.0f, 0.0f, 0.0f); }
+            if (lm.rotation[2] != 0.0f) { GlStateManager.rotate(lm.rotation[2], 0.0f, 0.0f, 1.0f); }
 
             if (lm.scale[0] != 0.0f || lm.scale[1] != 0.0f || lm.scale[2] != 0.0f) {
                 GlStateManager.scale(lm.scale[0], lm.scale[1], lm.scale[2]);
@@ -141,14 +163,17 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
             preRender(red, green, blue);
             GlStateManager.enableRescaleNormal();
             if (lm.getOBJ() != null) {
-                GlStateManager.scale(0.5f, 0.5f, 0.5f);
                 GlStateManager.callList(ModelBuffer.getDisplayList(lm.getOBJ(), null, null));
             }
             else {
-                if (Block.getBlockFromItem(lm.getStack().getItem()) == Blocks.AIR) {
-                    GlStateManager.scale(0.5f, 0.5f, 0.5f);
+                Block block = Block.getBlockFromItem(lm.getStack().getItem());
+                if (block != Blocks.AIR) {
+                    GlStateManager.scale(0.5f, 0.5f,0.5f);
+                    dispatcher.renderBlockBrightness(block.getStateFromMeta(lm.getStack().getMetadata()), 1.0f);
                 }
-                mc.getRenderItem().renderItem(lm.getStack(), ItemCameraTransforms.TransformType.FIXED);
+                else {
+                    mc.getRenderItem().renderItem(lm.getStack(), ItemCameraTransforms.TransformType.FIXED);
+                }
             }
             GlStateManager.disableRescaleNormal();
             GlStateManager.popMatrix();

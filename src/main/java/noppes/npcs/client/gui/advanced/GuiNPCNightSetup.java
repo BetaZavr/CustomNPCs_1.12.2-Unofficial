@@ -46,6 +46,9 @@ implements IGuiData {
 			case 6:
 				data.hasJob = button.getValue() == 1;
 				break;
+			case 7:
+				data.hasAnimations = button.getValue() == 1;
+				break;
 			case 10: {
 				data.editingModus = button.getValue() == 1;
 				save();
@@ -70,7 +73,7 @@ implements IGuiData {
 	@Override
 	public void initGui() {
 		super.initGui();
-		int xL = guiLeft + 4;
+		int xL = guiLeft + 6;
 		int xB = guiLeft + 74;
 		int y = guiTop + 5;
 		GuiNpcButton button;
@@ -88,8 +91,7 @@ implements IGuiData {
 
 		if (data.editingModus) {
 			addButton(button = new GuiNpcButton(11, guiLeft + 170, y, 120, 20, "advanced.loadday"));
-			button.setHoverText(new TextComponentTranslation("transform.hover.loadday")
-					.appendSibling(new TextComponentTranslation("transform.hover.state")).getFormattedText());
+			button.setHoverText(new TextComponentTranslation("transform.hover.loadday").appendSibling(new TextComponentTranslation("transform.hover.state")).getFormattedText());
 		}
 
 		addLabel(new GuiNpcLabel(2, "menu.ai", xL, (y += 22) + 5));
@@ -98,18 +100,24 @@ implements IGuiData {
 
 		if (data.editingModus) {
 			addButton(button = new GuiNpcButton(12, guiLeft + 170, y, 120, 20, "advanced.loadnight"));
-			button.setHoverText(new TextComponentTranslation("transform.hover.loadnight")
-					.appendSibling(new TextComponentTranslation("transform.hover.state")).getFormattedText());
+			button.setHoverText(new TextComponentTranslation("transform.hover.loadnight").appendSibling(new TextComponentTranslation("transform.hover.state")).getFormattedText());
 		}
 
 		addLabel(new GuiNpcLabel(3, "menu.inventory", xL, (y += 22) + 5));
 		addButton(button = new GuiNpcButton(3, xB, y, 50, 20, new String[] { "gui.no", "gui.yes" }, (data.hasInv ? 1 : 0)));
 		button.setHoverText("transform.hover.tab", new TextComponentTranslation("menu.inventory").getFormattedText());
 
+
+		addLabel(new GuiNpcLabel(7, "movement.animation", xL, (y += 22) + 5));
+		addButton(button = new GuiNpcButton(7, xB, y, 50, 20, new String[] { "gui.no", "gui.yes" }, (data.hasJob ? 1 : 0)));
+		button.setHoverText("transform.hover.animation", new TextComponentTranslation("menu.advanced").getFormattedText());
+
 		addLabel(new GuiNpcLabel(4, "menu.advanced", xL, (y += 22) + 5));
 		addButton(button = new GuiNpcButton(4, xB, y, 50, 20, new String[] { "gui.no", "gui.yes" }, (data.hasAdvanced ? 1 : 0)));
 		button.setHoverText("transform.hover.tab", new TextComponentTranslation("menu.advanced").getFormattedText());
 
+		xL += 15;
+		xB += 15;
 		addLabel(new GuiNpcLabel(5, "role.name", xL, (y += 22) + 5));
 		addButton(button = new GuiNpcButton(5, xB, y, 50, 20, new String[] { "gui.no", "gui.yes" }, (data.hasRole ? 1 : 0)));
 		button.setHoverText("transform.hover.role", new TextComponentTranslation("menu.advanced").getFormattedText());

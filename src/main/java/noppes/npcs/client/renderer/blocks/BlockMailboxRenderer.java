@@ -39,15 +39,15 @@ public class BlockMailboxRenderer<T extends TileEntity> extends TileEntitySpecia
 		GlStateManager.rotate((90 * meta), 0.0f, 1.0f, 0.0f);
 		if (type == 0) {
 			this.bindTexture(BlockMailboxRenderer.text1);
-			this.model.render(0.0625f);
+			model.render(0.0625f);
 		}
 		if (type == 1) {
 			this.bindTexture(BlockMailboxRenderer.text2);
-			this.model2.render(0.0625f);
+			model2.render(0.0625f);
 		}
 		if (type == 2) {
 			this.bindTexture(BlockMailboxRenderer.text3);
-			this.model2.render(0.0625f);
+			model2.render(0.0625f);
 		}
 		GlStateManager.popMatrix();
 	}

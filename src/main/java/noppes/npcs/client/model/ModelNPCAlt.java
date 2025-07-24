@@ -99,12 +99,6 @@ public class ModelNpcAlt extends ModelPlayer {
             }
         }
         // put children
-        /*Map<Integer, List<ModelRendererAlt>> map = animAddedChildren.get(animation.id);
-        for (List<ModelRendererAlt> list : map.values()) {
-            for (ModelRendererAlt modelRender : list) {
-                addChildren(modelRender, map);
-            }
-        }*/
     }
 
     @SuppressWarnings("all")
@@ -226,7 +220,7 @@ public class ModelNpcAlt extends ModelPlayer {
         }
         else if (entityIn instanceof EntityCustomNpc) {
             EntityCustomNpc npc = (EntityCustomNpc) entityIn;
-            showWear = !npc.display.isDisableLayer("LayerWear");
+            showWear = !npc.modelData.isDisableLayer("LayerWear");
             ba.putAll(npc.animation.showParts);
             EnumParts ep = EnumParts.get(editAnimDataSelect.part);
             if (editAnimDataSelect.isNPC && ba.containsKey(ep) && !ba.get(ep)) {
@@ -785,17 +779,22 @@ public class ModelNpcAlt extends ModelPlayer {
     @Override
     public void postRenderArm(float scale, @Nonnull EnumHandSide side) { // for ItemStacks
         super.postRenderArm(scale, side);
-        ModelRendererAlt modelRenderer = (ModelRendererAlt) (side == EnumHandSide.LEFT ? bipedLeftArm : bipedRightArm);
-        AnimationStack hundData = side == EnumHandSide.LEFT ? leftStackData : rightStackData;
-        if (!hundData.showModel || modelRenderer.isHidden || !modelRenderer.showModel) { return; }
+        ModelRendererAlt modelRenderer = (ModelRendererAlt) this.bipedRightArm;
+        AnimationStack hundData = this.rightStackData;
+        if (side == EnumHandSide.LEFT) {
+            modelRenderer = (ModelRendererAlt) this.bipedLeftArm;
+            hundData = this.leftStackData;
+        }
+        if (!hundData.showModel) { return; }
         if (!modelRenderer.isNormal) {
             if (modelRenderer.rotateAngleX1 != 0.0f) {
                 float ofsY = modelRenderer.dy2 - modelRenderer.dy0;
+                GlStateManager.translate(0.0f, 0.625f, 0.0f);
                 float ofsZ = modelRenderer.rotateAngleX1 * (modelRenderer.dz / -2.0f) / (float) -Math.PI;
-                float f = 0.0625f;
-                GlStateManager.translate(0.0f, 0.725f - ofsY * f, ofsZ * f);
+                GlStateManager.translate(0.0f, ofsY * -0.0625f, ofsZ * 0.0625f);
                 GlStateManager.rotate(modelRenderer.rotateAngleX1 * 180.0f / (float) Math.PI, 1.0f, 0.0f, 0.0f);
-                GlStateManager.translate(0.0f, ofsY * f - 0.725f, ofsZ * -f - f / 10.0f);
+                GlStateManager.translate(0.0f, ofsY * 0.0625f, ofsZ * -0.0625f);
+                GlStateManager.translate(0.0f, -0.625f, 0.0f);
             }
             if (modelRenderer.rotateAngleY1 != 0.0f) {
                 float ofs = (side == EnumHandSide.RIGHT ? -1.0f : 1.0f) * 0.0625f;
@@ -824,28 +823,41 @@ public class ModelNpcAlt extends ModelPlayer {
 
     public void postRenderLeg(float scale, @Nonnull EnumHandSide side) {
         ModelRendererAlt modelRenderer = (ModelRendererAlt) (side == EnumHandSide.LEFT ? bipedLeftLeg : bipedRightLeg);
+        if (modelRenderer.isHidden || !modelRenderer.showModel) { return; }
         if (smallArmsIn)  {
             float f = 0.5F * (float)(side == EnumHandSide.RIGHT ? 1 : -1);
             modelRenderer.rotationPointX += f;
             modelRenderer.postRender(scale);
             modelRenderer.rotationPointX -= f;
         }  else  { modelRenderer.postRender(scale); }
-        if (modelRenderer.isHidden || !modelRenderer.showModel) { return; }
         if (!modelRenderer.isNormal) {
-            if (modelRenderer.rotateAngleX1 != 0.0f) {
-                float ofsY = modelRenderer.dy2 - modelRenderer.dy0;
-                float ofsZ = modelRenderer.rotateAngleX1 * (modelRenderer.dz / -2.0f) / (float) -Math.PI;
-                float f = 0.0625f;
-                GlStateManager.translate(0.0f, 0.725f - ofsY * f, ofsZ * f);
-                GlStateManager.rotate(modelRenderer.rotateAngleX1 * 180.0f / (float) Math.PI, 1.0f, 0.0f, 0.0f);
-                GlStateManager.translate(0.0f, ofsY * f - 0.725f, ofsZ * -f - f / 10.0f);
-            }
-            if (modelRenderer.rotateAngleY1 != 0.0f) {
-                float ofs = (side == EnumHandSide.RIGHT ? -1.0f : 1.0f) * 0.0625f;
-                GlStateManager.translate(ofs, 0.0f, 0.0f);
-                GlStateManager.rotate(modelRenderer.rotateAngleY1 * -180.0f / (float) Math.PI, 0.0f, 1.0f, 0.0f);
-                GlStateManager.translate(-ofs, 0.0f, 0.0f);
-            }
+            rotateExtraPart(modelRenderer, side);
+        }
+    }
+
+    public void postRenderBelt(float scale) {
+        ModelRendererAlt modelRenderer = (ModelRendererAlt) bipedBody;
+        if (modelRenderer.isHidden || !modelRenderer.showModel) { return; }
+        modelRenderer.postRender(scale);
+        if (!modelRenderer.isNormal) {
+            rotateExtraPart(modelRenderer, null);
+        }
+    }
+
+    private void rotateExtraPart(ModelRendererAlt modelRenderer, EnumHandSide side) {
+        if (modelRenderer.rotateAngleX1 != 0.0f) {
+            float ofsY = modelRenderer.dy2 - modelRenderer.dy0;
+            float ofsZ = modelRenderer.rotateAngleX1 * (modelRenderer.dz / -2.0f) / (float) -Math.PI;
+            float f = 0.0625f;
+            GlStateManager.translate(0.0f, 0.725f - ofsY * f, ofsZ * f);
+            GlStateManager.rotate(modelRenderer.rotateAngleX1 * 180.0f / (float) Math.PI, 1.0f, 0.0f, 0.0f);
+            GlStateManager.translate(0.0f, ofsY * f - 0.725f, ofsZ * -f - f / 10.0f);
+        }
+        if (modelRenderer.rotateAngleY1 != 0.0f) {
+            float ofs = side == null ? 0.0f : (side == EnumHandSide.RIGHT ? -1.0f : 1.0f) * 0.0625f;
+            GlStateManager.translate(ofs, 0.0f, 0.0f);
+            GlStateManager.rotate(modelRenderer.rotateAngleY1 * -180.0f / (float) Math.PI, 0.0f, 1.0f, 0.0f);
+            GlStateManager.translate(-ofs, 0.0f, 0.0f);
         }
     }
 

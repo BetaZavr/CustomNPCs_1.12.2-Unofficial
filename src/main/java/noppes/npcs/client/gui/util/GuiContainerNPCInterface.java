@@ -478,7 +478,7 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 		}
 		if (hoverMiniWin) { return; }
 		if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
-			drawHoveringText(hoverText, mouseX, mouseY, fontRenderer);
+			drawHoveringText(new ArrayList<>(hoverText), mouseX, mouseY, fontRenderer);
 			RenderHelper.disableStandardItemLighting();
 			hoverText.clear();
 		}
@@ -748,13 +748,13 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 	public void drawHoverText(String text, Object... args) {
 		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (text == null) {
-			if (!hoverText.isEmpty()) { drawHoveringText(hoverText, mouseX, mouseY, fontRenderer); }
+			if (!hoverText.isEmpty()) { drawHoveringText(new ArrayList<>(hoverText), mouseX, mouseY, fontRenderer); }
 			hoverText.clear();
 			return;
 		}
 		setHoverText(text, args);
 		if (!hoverText.isEmpty()) {
-			drawHoveringText(hoverText, mouseX, mouseY, fontRenderer);
+			drawHoveringText(new ArrayList<>(hoverText), mouseX, mouseY, fontRenderer);
 			hoverText.clear();
 		}
 	}

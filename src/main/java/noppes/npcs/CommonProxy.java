@@ -484,7 +484,7 @@ public class CommonProxy implements IGuiHandler {
 				return new ContainerBuilderSettings(player, x, y);
 			}
 			case CreationParts: {
-				if (npc instanceof EntityCustomNpc) { return new ContainerLayer(player, (EntityCustomNpc) npc); }
+				if (npc instanceof EntityCustomNpc) { return new ContainerLayer(player); }
 			}
             default: {
 				return null;

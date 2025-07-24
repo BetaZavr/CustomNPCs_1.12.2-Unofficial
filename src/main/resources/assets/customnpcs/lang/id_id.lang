@@ -69,7 +69,6 @@ ai.hover.back.home=Jika NPC tidak terlibat dalam pertempuran, dia akan kembali k
 ai.hover.can.be.collide=Tidak ada makhluk yang bisa mendorong NPC ini.
 ai.hover.disabled=§6Attention§r! - by disabling AI, the NPC will have most of its capabilities reduced.<br>§7Used to reduce the loss of FPS on the server side<br>§7Becomes inactive: §fRole, Job, Combat Tactics, Scenes, Scripts
 ai.hover.door=Tindakan NPC ketika dia menemukan dirinya berada di blok dengan pintu
-ai.hover.found.refuge=Mencari tempat berlindung dan ketika<br>§7Di malam hari - sebuah pintu<br>§7Siang hari - satu blok di atas kepala Anda
 ai.hover.found.target=Untuk menentukan target serangan itu, NPC harus melihatnya <br> § eli-inklusif §7: dengan mempertimbangkan ulasan +/- 60 derajat.
 ai.hover.hurt.resistant.time=Time in ticks, immortality after taking damage<br>§7Applies to everyone who deals damage individually!
 ai.hover.if.see=Tindakan NPC saat melihat target
@@ -1768,8 +1767,6 @@ model.rleg.2=R. Leg 2
 model.rstack=R. Item
 model.save=Simpan Model
 model.scale=Skala
-
-month.0=month.1=month.10=month.11=month.2=month.3=month.4=month.5=month.6=month.7=month.8=month.9=
 
 movement.aiming=Membidik
 movement.animation=Animasi

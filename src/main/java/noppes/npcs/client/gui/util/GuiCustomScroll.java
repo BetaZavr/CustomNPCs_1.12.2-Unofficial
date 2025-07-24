@@ -492,7 +492,6 @@ implements IComponentGui, IGuiCustomScroll {
 		if (newList == null) { newList = new ArrayList<>(); }
 		if (isSameList(newList)) { return; }
 		isSorted = true;
-		scrollY = 0;
 		newList.sort(new NaturalOrderComparator());
 		list.clear();
 		list.addAll(newList);
@@ -504,7 +503,6 @@ implements IComponentGui, IGuiCustomScroll {
 	@Override
 	public void setListNotSorted(List<String> newList) {
 		if (isSameList(newList)) { return; }
-		scrollY = 0;
 		list.clear();
 		list.addAll(newList);
 		searchString = "";

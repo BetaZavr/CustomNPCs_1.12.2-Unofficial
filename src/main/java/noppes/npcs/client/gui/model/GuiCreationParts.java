@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.model;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.List;
 
@@ -12,10 +13,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.ModelPartData;
-import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.gui.util.*;
@@ -25,10 +26,10 @@ import noppes.npcs.client.renderer.RenderCustomNpc;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.containers.ContainerLayer;
-import noppes.npcs.containers.SlotAvailability;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.CustomNPCsScheduler;
+import noppes.npcs.util.ValueUtil;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nonnull;
@@ -485,15 +486,17 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 
 	class GuiPartLayers extends GuiPart {
 
-		public boolean isCustomLayers = false;
 		private final GuiCreationParts parent;
+		private final ContainerLayer cont;
+
+		public boolean isCustomLayers = false;
 		public GuiCustomScroll scrollIn;
 		public int selectPos = 0;
-		public HashSet<String> selectedList = new HashSet<>();
 		public Map<Integer, EnumParts> partNames = new LinkedHashMap<>();
 
         public GuiPartLayers(GuiCreationParts parentIn) {
 			super(EnumParts.CUSTOM_LAYERS);
+			cont = (ContainerLayer) inventorySlots;
 			parent = parentIn;
 			partNames.put(0, EnumParts.HEAD);
 			partNames.put(1, EnumParts.BODY);
@@ -501,10 +504,13 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 			partNames.put(3, EnumParts.ARM_LEFT);
 			partNames.put(4, EnumParts.LEG_RIGHT);
 			partNames.put(5, EnumParts.LEG_LEFT);
-			partNames.put(6, EnumParts.WRIST_RIGHT);
-			partNames.put(7, EnumParts.WRIST_LEFT);
-			partNames.put(8, EnumParts.FOOT_RIGHT);
-			partNames.put(9, EnumParts.FOOT_LEFT);
+			partNames.put(6, EnumParts.BELT);
+			partNames.put(7, EnumParts.WRIST_RIGHT);
+			partNames.put(8, EnumParts.WRIST_LEFT);
+			partNames.put(9, EnumParts.FOOT_RIGHT);
+			partNames.put(10, EnumParts.FOOT_LEFT);
+			LayerModel lm = playerdata.getLayerModel(selectPos);
+			if (lm != null) { Client.sendData(EnumPacketServer.ChangeItemInSlot, "ContainerLayer", 0, lm.getStack().writeToNBT(new NBTTagCompound())); }
 		}
 
 		@Override
@@ -516,17 +522,26 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 					break;
 				} // change isCustomLayers
 				case 21: {
-					SlotAvailability slot = ((ContainerLayer) inventorySlots).slot;
-					if (slot == null) { return; }
-					selectPos = playerdata.addNewLayer((NpcMiscInventory) ((ContainerLayer) inventorySlots).slot.inventory);
-					parent.initGui();
+					if (cont == null) { return; }
+					selectPos = playerdata.addNewLayer();
+					cont.getSlot(0).putStack(ItemStack.EMPTY);
+					Client.sendData(EnumPacketServer.ChangeItemInSlot, "ContainerLayer", 0, ItemStack.EMPTY.writeToNBT(new NBTTagCompound()));
 					break;
 				} // add new item layer
 				case 22: {
-					SlotAvailability slot = ((ContainerLayer) inventorySlots).slot;
-					if (slot == null) { return; }
 					selectPos = playerdata.removeLayer(selectPos);
-					parent.initGui();
+					NBTTagCompound compound = new NBTTagCompound();
+					LayerModel lm = playerdata.getLayerModel(selectPos);
+					if (lm == null) {
+						ItemStack.EMPTY.writeToNBT(compound);
+						cont.getSlot(0).putStack(ItemStack.EMPTY);
+					}
+					else {
+						lm.getStack().writeToNBT(compound);
+						cont.getSlot(0).putStack(lm.getStack());
+					}
+					Client.sendData(EnumPacketServer.ChangeItemInSlot, "ContainerLayer", 0, compound);
+					initGui();
 					break;
 				} // remove item layer
 				case 23: {
@@ -572,12 +587,10 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 					break;
 				} // reset Z
 				case 29: {
-					SlotAvailability slot = ((ContainerLayer) inventorySlots).slot;
-					if (slot == null || !partNames.containsKey(((GuiNpcButton) btn).getValue())) { return; }
-					playerdata.moveLayerTo(selectPos, partNames.get(((GuiNpcButton) btn).getValue()) );
-					if (showEntity instanceof EntityCustomNpc && playerdata != null){
-						((EntityCustomNpc) showEntity).modelData.load(playerdata.save());
-					}
+					LayerModel lm = playerdata.getLayerModel(selectPos);
+					if (lm == null) { return; }
+					lm.part = partNames.get(((GuiNpcButton) btn).getValue());
+					if (showEntity instanceof EntityCustomNpc && playerdata != null) { ((EntityCustomNpc) showEntity).modelData.load(playerdata.save()); }
 					break;
 				} // reset part
 				default: super.actionPerformed(btn); break;
@@ -605,135 +618,155 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 			y += 25;
 			GuiNpcButton button;
             if (isCustomLayers) {
-				LayerModel lm = playerdata.getLayerModel(selectPos);
-				SlotAvailability slot = ((ContainerLayer) inventorySlots).slot;
 				GuiNpcSlider slider;
 				GuiNpcTextField textField;
 				scrollIn = new GuiCustomScroll(parent, 1);
 				scrollIn.setSize(100, 102);
-				slot.setInventory(playerdata.getLayerInventory());
-				slot.setSlotIndex(selectPos, false);
-				selectPos = slot.getSlotIndex();
+
+				NBTTagCompound compound = new NBTTagCompound();
+				LayerModel lm = playerdata.getLayerModel(selectPos);
+				if (lm == null) {
+					ItemStack stack = cont.getSlot(0).getStack();
+					if (!stack.isEmpty()) {
+						selectPos = playerdata.addNewLayer();
+						lm = playerdata.getLayerModel(selectPos);
+						lm.setStack(stack);
+						stack.writeToNBT(compound);
+					} else {
+						selectPos = -1;
+						ItemStack.EMPTY.writeToNBT(compound);
+					}
+				}
+				else { lm.getStack().writeToNBT(compound); }
+				Client.sendData(EnumPacketServer.ChangeItemInSlot, "ContainerLayer", 0, compound);
+
 				scrollIn.setListNotSorted(playerdata.getLayerKeys());
 				scrollIn.setSelect(selectPos);
-				Client.sendData(EnumPacketServer.AvailabilitySlot, selectPos);
+
 				addLabel(new GuiNpcLabel(20, "part.layers.info.0", x0, y));
 				getLabel(20).setColor(CustomNpcs.MainColor.getRGB());
 				int y1 = y + 116;
 				addButton(button = new GuiNpcButton(21, x0, y1, 49, 20, "gui.add"));
-				button.setEnabled(slot.inventory.getSizeInventory() == scrollIn.getList().size());
+				button.setEnabled(playerdata.isNoEmptyLayer());
 				addButton(button = new GuiNpcButton(22, x0 + 51, y1, 49, 20, "gui.remove"));
-				button.setEnabled(scrollIn.hasSelected());
-				int x1 = x0 + 104;
+				button.setEnabled(selectPos != -1);
 
-				String objModel = lm.getOBJ() == null ? "" : lm.getOBJ().toString();
-				y1 = y - 21;
-				addLabel(new GuiNpcLabel(19, "OBJ Model path:", x1 + 1, y1));
-				getLabel(19).setColor(CustomNpcs.MainColor.getRGB());
-				addTextField(new GuiNpcTextField(0, parent, x1, y1 += 12, 140, 16, objModel));
-				addLabel(new GuiNpcLabel(22, "Tool type:", x1 + 1, (y1 += 19) + 2));
-				getLabel(22).setColor(CustomNpcs.MainColor.getRGB());
+				if (lm != null) {
+					int x1 = x0 + 104;
 
-				// tool pos
-				button = new GuiNpcButton(23,x1 + 50, y1, 14, 14, "");
-				button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
-				button.hasDefBack = false;
-				button.isAnim = true;
-				button.txrW = 24;
-				button.txrH = 24;
-				button.layerColor = toolType == 1 ?
-						new Color(0xFFFF4040).getRGB() :
-						new Color(0xFFFFFFFF).getRGB();
-				button.setHoverText("animation.hover.tool.0");
-				addButton(button);
-				// tool rot
-				button = new GuiNpcButton(24, x1 + 66, y1, 14, 14, "");
-				button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
-				button.hasDefBack = false;
-				button.isAnim = true;
-				button.txrX = 24;
-				button.txrW = 24;
-				button.txrH = 24;
-				button.layerColor = toolType == 0 ?
-						new Color(0xFF40FF40).getRGB() :
-						new Color(0xFFFFFFFF).getRGB();
-				button.setHoverText("animation.hover.tool.1");
-				addButton(button);
-				// tool scale
-				button = new GuiNpcButton(25, x1 + 82, y1, 14, 14, "");
-				button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
-				button.hasDefBack = false;
-				button.isAnim = true;
-				button.txrX = 48;
-				button.txrW = 24;
-				button.txrH = 24;
-				button.layerColor = toolType == 2 ?
-						new Color(0xFF4040FF).getRGB() :
-						new Color(0xFFFFFFFF).getRGB();
-				button.setHoverText("animation.hover.tool.2");
-				addButton(button);
+					String objModel = lm.getOBJ() == null ? "" : lm.getOBJ().toString();
+					y1 = y - 21;
+					addLabel(new GuiNpcLabel(19, "OBJ Model path:", x1 + 1, y1));
+					getLabel(19).setColor(CustomNpcs.MainColor.getRGB());
+					addTextField(textField = new GuiNpcTextField(25, parent, x1, y1 += 12, 150, 16, objModel));
+					textField.setHoverText("display.hover.layer.obj");
+					addLabel(new GuiNpcLabel(22, "Tool type:", x1 + 1, (y1 += 19) + 2));
+					getLabel(22).setColor(CustomNpcs.MainColor.getRGB());
 
-				int f = 11;
-				int id;
-				y1 += 16;
-				for (int i = 0; i < 3; i++) { // 26 ... 28
-					id = i + 26;
-					addLabel(new GuiNpcLabel(id, i == 0 ? "X:" : i == 1 ? "Y:" : "Z:", x1 + 1, y1 + i * f));
-					getLabel(id).setColor(CustomNpcs.MainColor.getRGB());
+					if (!lm.getStack().isEmpty() || lm.getOBJ() != null) {
+						// tool pos
+						button = new GuiNpcButton(23,x1 + 50, y1, 14, 14, "");
+						button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
+						button.hasDefBack = false;
+						button.isAnim = true;
+						button.txrW = 24;
+						button.txrH = 24;
+						button.layerColor = toolType == 1 ?
+								new Color(0xFFFF4040).getRGB() :
+								new Color(0xFFFFFFFF).getRGB();
+						button.setHoverText("animation.hover.tool.0");
+						addButton(button);
+						// tool rot
+						button = new GuiNpcButton(24, x1 + 66, y1, 14, 14, "");
+						button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
+						button.hasDefBack = false;
+						button.isAnim = true;
+						button.txrX = 24;
+						button.txrW = 24;
+						button.txrH = 24;
+						button.layerColor = toolType == 0 ?
+								new Color(0xFF40FF40).getRGB() :
+								new Color(0xFFFFFFFF).getRGB();
+						button.setHoverText("animation.hover.tool.1");
+						addButton(button);
+						// tool scale
+						button = new GuiNpcButton(25, x1 + 82, y1, 14, 14, "");
+						button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
+						button.hasDefBack = false;
+						button.isAnim = true;
+						button.txrX = 48;
+						button.txrW = 24;
+						button.txrH = 24;
+						button.layerColor = toolType == 2 ?
+								new Color(0xFF4040FF).getRGB() :
+								new Color(0xFFFFFFFF).getRGB();
+						button.setHoverText("animation.hover.tool.2");
+						addButton(button);
 
-					float v;
-					float s;
-					float max;
-					float min;
-					switch (toolType) {
-						case 0: {
-							v = Math.round(lm.rotation[i] * 1000.0f) / 1000.0f;
-							s = 0.002778f * lm.rotation[i] + 0.5f;
-							min = -180.0f;
-							max = 180.0f;
-							break;
-						}
-						case 1: {
-							v = Math.round(lm.offset[i] * 2000.0f) / 1000.0f;
-							s = 0.2f * lm.offset[i] + 0.5f;
-							min = -10.0f;
-							max = 10.0f;
-							break;
-						}
-						default: {
-							v = Math.round(lm.scale[i] * 1000.0f) / 1000.0f;
-							s = 0.2f *lm.scale[i];
-							min = 0.0f;
-							max = 5.0f;
-							break;
-						}
+						int f = 11;
+						int id;
+						y1 += 16;
+						for (int i = 0; i < 3; i++) { // 26 ... 28
+							id = i + 26;
+							addLabel(new GuiNpcLabel(id, i == 0 ? "X:" : i == 1 ? "Y:" : "Z:", x1 + 1, y1 + i * f));
+							getLabel(id).setColor(CustomNpcs.MainColor.getRGB());
+
+							float v;
+							float s;
+							float max;
+							float min;
+							switch (toolType) {
+								case 0: {
+									v = lm.rotation[i];
+									s = 0.002778f * lm.rotation[i] + 0.5f;
+									min = -180.0f;
+									max = 180.0f;
+									break;
+								}
+								case 1: {
+									v = lm.offset[i];
+									s = 0.2f * lm.offset[i] + 0.5f;
+									min = -10.0f;
+									max = 10.0f;
+									break;
+								}
+								default: {
+									v = lm.scale[i];
+									s = 0.2f * lm.scale[i];
+									min = 0.0f;
+									max = 5.0f;
+									break;
+								}
+							}
+							slider = new GuiNpcSlider(parent, id, x1 + 9, y1 + i * f, 78, 8, s);
+							String hover = "animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale");
+							slider.setHoverText(hover, i == 0 ? "X" : i == 1 ? "Y" : "Z");
+							addSlider(slider);
+							textField = new GuiNpcTextField(id, parent, x1 + 89, y1 + i * f, 42, 8, df.format(v));
+							textField.setMinMaxDoubleDefault(min, max, v);
+							textField.setHoverText(hover, i == 0 ? "X" : i == 1 ? "Y" : "Z");
+							addTextField(textField);
+							button = new GuiNpcButton(id, x1 + 133, y1 + i * f, 8, 8, "X");
+							button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
+							button.hasDefBack = false;
+							button.isAnim = true;
+							button.txrY = 96;
+							button.dropShadow = false;
+							button.setTextColor(0xFFDC0000);
+							button.setHoverText("animation.hover.reset." + toolType, i == 0 ? "X" : i == 1 ? "Y" : "Z");
+							addButton(button);
+						}  // 26 ... 28
+						y1 += f * 3 + 2;
 					}
-					slider = new GuiNpcSlider(parent, id, x1 + 9, y1 + i * f, 78, 8, s);
-					String hover = "animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale");
-					slider.setHoverText(hover, i == 0 ? "X" : i == 1 ? "Y" : "Z");
-					addSlider(slider);
-					textField = new GuiNpcTextField(id, parent, x1 + 89, y1 + i * f, 42, 8, "" + v);
-					textField.setMinMaxDoubleDefault(min, max, v);
-					textField.setHoverText(hover, i == 0 ? "X" : i == 1 ? "Y" : "Z");
-					addTextField(textField);
-					button = new GuiNpcButton(id, x1 + 133, y1 + i * f, 8, 8, "X");
-					button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
-					button.hasDefBack = false;
-					button.isAnim = true;
-					button.txrY = 96;
-					button.dropShadow = false;
-					button.setTextColor(0xFFDC0000);
-					button.setHoverText("animation.hover.reset." + toolType, i == 0 ? "X" : i == 1 ? "Y" : "Z");
-					addButton(button);
-				}  // 26 ... 28
-				y1 += f * 3 + 2;
-				int pos = 0;
-				String[] names = new String[partNames.size()];
-				for (int i : partNames.keySet()) {
-					if (partNames.get(i) == lm.part) { pos = i; }
-					names[i] = "part." + partNames.get(i).name;
+					int pos = 0;
+					String[] names = new String[partNames.size()];
+					for (int i : partNames.keySet()) {
+						if (partNames.get(i) == lm.part) { pos = i; }
+						names[i] = "part." + partNames.get(i).name;
+					}
+					addButton(button = new GuiButtonBiDirectional(29, x1, y1, 78, 14, names, pos));
+					button.setHoverText("display.hover.layer.type");
 				}
-				addButton(new GuiButtonBiDirectional(29, x1, y1, 78, 14, names, pos));
 			}
 			else {
 				scrollIn = new GuiCustomScroll(parent, 1, true);
@@ -745,8 +778,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 				if (render instanceof RenderCustomNpc) {
 					scrollIn.setList(((RenderCustomNpc<?>) render).getLayerRendererNames());
 				}
-				scrollIn.setSelectedList(selectedList);
-				selectedList = scrollIn.getSelectedList();
+				scrollIn.setSelectedList(new HashSet<>(Arrays.asList(playerdata.getDisableLayers())));
 			}
 			y += 12;
 			scrollIn.guiLeft = x0;
@@ -760,6 +792,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 
 	}
 
+	private static final DecimalFormat df = new DecimalFormat("#.####");
 	private static int selected = 0;
 	private final GuiPart[] parts;
 	private GuiCustomScroll scroll;
@@ -815,14 +848,14 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 			mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			int x;
 			int y;
-			for (Slot slot : inventorySlots.inventorySlots) {
-				if (slot instanceof SlotAvailability) {
+			for (Slot slot : ((GuiPartLayers) part).cont.inventorySlots) {
+				if (slot.slotNumber == 0) {
 					x = 164;
 					y = 0;
 				}
 				else {
-					x = (slot.getSlotIndex() % 9) * 18;
-					y = (slot.getSlotIndex() / 9) * 18;
+					x = ((slot.slotNumber - 1) % 9) * 18;
+					y = ((slot.slotNumber - 1) / 9) * 18;
 				}
 				drawTexturedModalRect(x, y, 0, 0, 18, 18);
 			}
@@ -835,24 +868,20 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (waitKey != 0) { waitKey--; }
 		GuiPart part = getPart();
-		if (!isCheck && part instanceof GuiPartLayers && inventorySlots instanceof ContainerLayer && getButton(21) != null) {
+		if (!isCheck && part instanceof GuiPartLayers && getButton(21) != null) {
 			CustomNPCsScheduler.runTack(() -> {
 				isCheck = true;
-				List<String> scrollList = ((GuiPartLayers) part).scrollIn.getList();
-				Slot slot = ((ContainerLayer) inventorySlots).slot;
-				NpcMiscInventory inv = (NpcMiscInventory) slot.inventory;
-				boolean bo = true;
-				boolean isInit = false;
-				for (int i = 0; i < scrollList.size(); ++i) {
-					ItemStack stack = i == slot.getSlotIndex() ? slot.getStack() : inv.getStackInSlot(i);
-					if (i >= scrollList.size() || !((i + 1) + ": " + stack.getDisplayName()).equals(scrollList.get(i))) {
-						playerdata.getLayerModel(i).setStack(stack);
-						isInit = true;
-					}
-					if (stack.isEmpty()) { bo = false; }
+				getButton(21).setEnabled(playerdata.isNoEmptyLayer()); // add
+				LayerModel lm = playerdata.getLayerModel(((GuiPartLayers) getPart()).selectPos);
+				GuiCustomScroll scrollIn = ((GuiPartLayers) part).scrollIn;
+				ItemStack stack = ((GuiPartLayers) part).cont.getSlot(0).getStack();
+				if (lm == null) {
+					if (scrollIn.hasSelected() || !stack.isEmpty()) { initGui(); }
 				}
-				getButton(21).setEnabled(bo);
-				if (isInit) { initGui(); }
+				else if (lm.getStack() != stack) {
+					lm.setStack(((GuiPartLayers) part).cont.getSlot(0).getStack());
+					initGui();
+				}
 				isCheck = false;
 			});
 		}
@@ -965,19 +994,17 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 		}
 		if (inventorySlots instanceof ContainerLayer) {
 			boolean bo = getPart() instanceof GuiPartLayers && ((GuiPartLayers) getPart()).isCustomLayers;
-			int i;
 			int x;
 			int y;
 			for (Slot slot : inventorySlots.inventorySlots) {
-				if (slot instanceof SlotAvailability) {
+				if (slot.slotNumber == 0) {
 					x = 164;
 					y = 0;
 				}
 				else {
-					i = slot.getSlotIndex();
-					x = (i % 9) * 18;
-					y = (i / 9) * 18;
-					if (i < 9) { y += 54;} else if (i != 36) { y -= 18;}
+					x = ((slot.slotNumber - 1) % 9) * 18;
+					y = ((slot.slotNumber - 1) / 9) * 18;
+					if ((slot.slotNumber - 1) < 9) { y += 54;} else if ((slot.slotNumber - 1) != 36) { y -= 18;}
 				}
 				slot.xPos = bo ? 122 + x : -5000;
 				slot.yPos = bo ? 164 + y : -5000;
@@ -994,10 +1021,12 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 		if (scroll.getID() == 1 && getPart() instanceof GuiPartLayers) {
 			GuiPartLayers part = (GuiPartLayers) getPart();
 			if (part.isCustomLayers) {
-				((GuiPartLayers) getPart()).selectPos = scroll.getSelect();
+				part.selectPos = scroll.getSelect();
+				LayerModel lm = playerdata.getLayerModel(scroll.getSelect());
+				if (lm == null) { part.cont.getSlot(0).putStack(ItemStack.EMPTY); }
+				else { part.cont.getSlot(0).putStack(lm.getStack()); }
 			} else {
-				((GuiPartLayers) getPart()).selectedList = scroll.getSelectedList();
-				npc.display.setDisableLayers(scroll.getSelectedList().toArray(new String[0]));
+				playerdata.setDisableLayers(scroll.getSelectedList().toArray(new String[0]));
 			}
 			part.initGui();
 		}
@@ -1094,16 +1123,24 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 	public void unFocused(IGuiNpcTextField textField) {
 		if (getPart() instanceof GuiPartLayers) {
 			switch (textField.getID()) {
+				case 25: {
+					LayerModel lm = playerdata.getLayerModel(((GuiPartLayers) getPart()).selectPos);
+					if (lm == null) { return; }
+					lm.setOBJ(textField.getFullText());
+					if (lm.getOBJ() != null) { textField.setFullText(lm.getOBJ().toString()); }
+					getPart().initGui();
+					break;
+				} // objModel
 				case 26: {
-					textFieldChanged(0, (float) textField.getDouble());
+					textField.setFullText(textFieldChanged(0, (float) textField.getDouble()));
 					break;
 				} // X
 				case 27: {
-					textFieldChanged(1, (float) textField.getDouble());
+					textField.setFullText(textFieldChanged(1, (float) textField.getDouble()));
 					break;
 				} // Y
 				case 28: {
-					textFieldChanged(2, (float) textField.getDouble());
+					textField.setFullText(textFieldChanged(2, (float) textField.getDouble()));
 					break;
 				} // Z
 			}
@@ -1117,64 +1154,74 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 
 	private void sliderMoved(int id, float sliderValue) {
 		LayerModel lm = playerdata.getLayerModel(((GuiPartLayers) getPart()).selectPos);
+		if (lm == null) { return; }
 		switch (toolType) {
 			case 0: {
 				lm.rotation[id] = 360.0f * sliderValue - 180.0f;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("" + (Math.round(lm.rotation[id] * 1000.0f) / 1000.0f)); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText(df.format(lm.rotation[id])); }
 				break;
 			} // rotation
 			case 1: {
 				lm.offset[id] = 5.0f * sliderValue - 2.5f;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("" + (Math.round(lm.offset[id] * 2000.0f) / 1000.0f)); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText(df.format(lm.offset[id])); }
 				break;
 			} // offset
 			default: {
 				lm.scale[id] = 5.0f * sliderValue;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("" + (Math.round(lm.scale[id] * 1000.0f) / 1000.0f)); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText(df.format(lm.scale[id])); }
 				break;
 			} // scale
 		}
 	}
 
-	private void textFieldChanged(int id, float textValue) {
+	private String textFieldChanged(int id, float textValue) {
 		LayerModel lm = playerdata.getLayerModel(((GuiPartLayers) getPart()).selectPos);
+		String text = "" + textValue;
+		if (lm == null) { return text; }
 		switch (toolType) {
 			case 0: {
+				while (textValue < -180.0f) { textValue += 180.0f; }
+				while (textValue > 180.0f) { textValue -= 180.0f; }
 				lm.rotation[id] = textValue;
 				if (getSlider(26 + id) != null) { getSlider(26 + id).setSliderValue(0.002778f * lm.rotation[id] + 0.5f); }
+				text = df.format(lm.rotation[id]);
 				break;
 			} // rotation
 			case 1: {
-				lm.offset[id] = textValue / 2.0f;
+				lm.offset[id] = ValueUtil.correctFloat(textValue, -10.0f, 10.0f);
 				if (getSlider(26 + id) != null) { getSlider(26 + id).setSliderValue(0.2f * lm.offset[id] + 0.5f); }
+				text = df.format(lm.offset[id]);
 				break;
 			} // offset
 			default: {
-				lm.scale[id] = textValue;
+				lm.scale[id] = ValueUtil.correctFloat(textValue, 0.0f, 5.0f);
 				if (getSlider(26 + id) != null) { getSlider(26 + id).setSliderValue(0.2f * lm.scale[id]); }
+				text = df.format(lm.scale[id]);
 				break;
 			} // scale
 		}
+		return text;
 	}
 
 	private void resetAxis(int id) {
 		LayerModel lm = playerdata.getLayerModel(((GuiPartLayers) getPart()).selectPos);
+		if (lm == null) { return; }
 		switch (toolType) {
 			case 0: {
 				lm.rotation[id] = 0.0f;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("0.0"); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("0"); }
 				if (getSlider(26 + id) != null) { getSlider(26 + id).setSliderValue(0.002778f * lm.rotation[id] + 0.5f); }
 				break;
 			} // rotation
 			case 1: {
 				lm.offset[id] = 0.0f;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("0.0"); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("0"); }
 				if (getSlider(26 + id) != null) { getSlider(26 + id).setSliderValue(0.2f * lm.offset[id] + 0.5f); }
 				break;
 			} // offset
 			default: {
 				lm.scale[id] = 1.0f;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("1.0"); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("1"); }
 				if (getSlider(26 + id) != null) { getSlider(26 + id).setSliderValue(0.2f * lm.scale[id]); }
 				break;
 			} // scale

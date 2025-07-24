@@ -162,7 +162,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			Map<EnumParts, Boolean> sp = npc.animation.showParts;
 			for (LayerRenderer<T> layerrenderer : layerRenderers) {
 				String layerName = layerrenderer.getClass().getSimpleName();
-				if (npc.display.isDisableLayer(layerName)) { continue; }
+				if (npc.modelData.isDisableLayer(layerName)) { continue; }
 				if ((layerrenderer instanceof LayerEyes || layerrenderer instanceof LayerHead
 						|| layerName.equals("LayerCustomHead")) && !sp.get(EnumParts.HEAD)) {
 					continue;

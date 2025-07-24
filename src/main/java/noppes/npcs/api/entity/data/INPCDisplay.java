@@ -83,7 +83,4 @@ public interface INPCDisplay {
 
 	void setNormalModel(boolean bo);
 
-	String[] getDisableLayers();
-
-	void setDisableLayers(String[] newLayers);
 }

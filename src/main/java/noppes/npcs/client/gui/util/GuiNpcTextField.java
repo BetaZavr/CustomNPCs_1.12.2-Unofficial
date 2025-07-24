@@ -129,7 +129,7 @@ implements IComponentGui, IGuiNpcTextField {
 	}
 
 	@Override
-	public int getID() { return this.getId(); }
+	public int getID() { return getId(); }
 
 	@Override
 	public double getDouble() {
@@ -282,6 +282,7 @@ implements IComponentGui, IGuiNpcTextField {
 	public void setLatinAlphabetOnly(boolean isLatinAlphabetOnly) { latinAlphabetOnly = isLatinAlphabetOnly; }
 
 	public boolean textboxKeyTyped(char typedChar, int keyCode) {
+		if (!isFocused())  { return false; }
 		if (keyCode == 28 && !(this instanceof GuiNpcTextArea)) { // Enter
 			if (listener != null) {
 				listener.unFocused(this);
@@ -292,7 +293,98 @@ implements IComponentGui, IGuiNpcTextField {
 		if (Keyboard.getKeyName(keyCode).startsWith("NUMPAD")) {
 			typedChar = Keyboard.getKeyName(keyCode).replace("NUMPAD", "").charAt(0);
 		}
-		return charAllowed(typedChar, keyCode) && canEdit && super.textboxKeyTyped(typedChar, keyCode);
+		if (GuiScreen.isKeyComboCtrlA(keyCode)) {
+			setCursorPositionEnd();
+			setSelectionPos(0);
+			return true;
+		}
+		else if (GuiScreen.isKeyComboCtrlC(keyCode)) {
+			GuiScreen.setClipboardString(getSelectedText());
+			return true;
+		}
+		else if (GuiScreen.isKeyComboCtrlV(keyCode) && canEdit) {
+			if (isEnabled()) { writeText(GuiScreen.getClipboardString()); }
+			return true;
+		}
+		else if (GuiScreen.isKeyComboCtrlX(keyCode)) {
+			GuiScreen.setClipboardString(getSelectedText());
+			if (canEdit && isEnabled()) { writeText(""); }
+			return true;
+		}
+		if (!canEdit) { return false; }
+		switch (keyCode) {
+			case 14: {
+				if (GuiScreen.isCtrlKeyDown()) {
+					if (isEnabled()) {
+						deleteWords(-1);
+					}
+				} else if (isEnabled()) {
+					deleteFromCursor(-1);
+				}
+				return true;
+			} // backspace
+			case 199: {
+				if (GuiScreen.isShiftKeyDown()) {
+					setSelectionPos(0);
+				} else {
+					setCursorPositionZero();
+				}
+				return true;
+			} // home
+			case 203: {
+				if (GuiScreen.isShiftKeyDown()) {
+					if (GuiScreen.isCtrlKeyDown()) {
+						setSelectionPos(getNthWordFromPos(-1, getSelectionEnd()));
+					} else {
+						setSelectionPos(getSelectionEnd() - 1);
+					}
+				} else if (GuiScreen.isCtrlKeyDown()) {
+					setCursorPosition(getNthWordFromCursor(-1));
+				} else {
+					moveCursorBy(-1);
+				}
+				return true;
+			} // left
+			case 205: {
+				if (GuiScreen.isShiftKeyDown()) {
+					if (GuiScreen.isCtrlKeyDown()) {
+						setSelectionPos(getNthWordFromPos(1, getSelectionEnd()));
+					} else {
+						setSelectionPos(getSelectionEnd() + 1);
+					}
+				} else if (GuiScreen.isCtrlKeyDown()) {
+					setCursorPosition(getNthWordFromCursor(1));
+				} else {
+					moveCursorBy(1);
+				}
+				return true;
+			} // right
+			case 207: {
+				if (GuiScreen.isShiftKeyDown()) {
+					setSelectionPos(getFullText().length());
+				} else {
+					setCursorPositionEnd();
+				}
+				return true;
+			} // end
+			case 211: {
+				if (GuiScreen.isCtrlKeyDown()) {
+					if (isEnabled()) {
+						deleteWords(1);
+					}
+				} else if (isEnabled()) {
+					deleteFromCursor(1);
+				}
+				return true;
+			} // delete
+			default: {
+				if (charAllowed(typedChar, keyCode)) {
+					if (isEnabled()) { writeText(Character.toString(typedChar)); }
+					return true;
+				}
+				return false;
+			} // any symbol
+		}
 	}
 
 	@Override

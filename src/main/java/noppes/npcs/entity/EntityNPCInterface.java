@@ -1659,7 +1659,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.advanced.readToNBT(compound);
 		this.animation.load(compound);
 		this.inventory.readEntityFromNBT(compound);
-		this.transform.readToNBT(compound);
+		this.transform.load(compound);
 		this.killedTime = compound.getLong("KilledTime");
 		this.totalTicksAlive = compound.getLong("TotalTicksAlive");
 		this.linkedName = compound.getString("LinkedNpcName");
@@ -2294,7 +2294,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.timers.writeToNBT(compound);
 		this.advanced.writeToNBT(compound);
 		this.inventory.writeEntityToNBT(compound);
-		this.transform.writeToNBT(compound);
+		this.transform.save(compound);
 		this.animation.save(compound);
 		compound.setLong("KilledTime", this.killedTime);
 		compound.setLong("TotalTicksAlive", this.totalTicksAlive);

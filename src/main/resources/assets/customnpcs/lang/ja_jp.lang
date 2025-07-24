@@ -69,7 +69,6 @@ ai.hover.back.home=NPC が戦闘中でない場合、ホームポジションに
 ai.hover.can.be.collide=このNPCをプッシュするクリーチャーはありません。
 ai.hover.disabled=§6注意§r! 
 ai.hover.door=ドアのあるブロックにいることに気づいたときの NPC の行動
-ai.hover.found.refuge=避難所を求めますが、そのとき<br>§7 夜が扉です<br>§7 昼が頭上のブロックです
 ai.hover.found.target=攻撃のターゲットを決定するには、NPCはそれを調べなければなりません<br>§eLi-inclusive§7：レビュー+/- 60度を考慮してください。
 ai.hover.hurt.resistant.time=時間刻み、ダメージを受けた後の不死性<br>§7個別にダメージを与える全員に適用！
 ai.hover.if.see=ターゲットを見つけたときのNPCのアクション
@@ -1768,8 +1767,6 @@ model.rleg.2=R.レッグ2
 model.rstack=R.アイテム
 model.save=モデルの保存
 model.scale=規模
-
-month.0=month.1=month.10=month.11=month.2=month.3=month.4=month.5=month.6=month.7=month.8=month.9=
 
 movement.aiming=狙う
 movement.animation=アニメーション

@@ -130,20 +130,16 @@ public class EntityAIReturn extends EntityAIBase {
 			}
 		}
 		// Shelter at Night
-		if (npc.ais.findShelter == 0 && (!npc.world.isDaytime() || npc.world.isRaining()) && !npc.world.provider.hasSkyLight()) {
-			BlockPos pos = new BlockPos(npc.getStartXPos(), npc.getStartYPos(), this.npc.getStartZPos());
-			if (npc.world.canSeeSky(pos) || npc.world.getLight(pos) <= 8) {
+		if (npc.ais.findShelter == 0 && (!npc.world.isDaytime() || npc.world.isRaining()) && npc.world.provider.hasSkyLight()) {
+			if (npc.world.getLight(npc.getPosition()) < 10) {
 				CustomNpcs.debugData.end(npc, this, "shouldExecute");
-				return false;
+				return true;
 			}
 		}
 		// Shelter at Day
-		else if (npc.ais.findShelter == 1 && npc.world.isDaytime()) {
-			BlockPos pos = new BlockPos(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos());
-			if (npc.world.canSeeSky(pos)) {
-				CustomNpcs.debugData.end(npc, this, "shouldExecute");
-				return false;
-			}
+		else if (npc.ais.findShelter == 1 && npc.world.isDaytime() && npc.world.canSeeSky(npc.getPosition())) {
+			CustomNpcs.debugData.end(npc, this, "shouldExecute");
+			return true;
 		}
 		if (npc.isAttacking()) {
 			if (!wasAttacked) {
