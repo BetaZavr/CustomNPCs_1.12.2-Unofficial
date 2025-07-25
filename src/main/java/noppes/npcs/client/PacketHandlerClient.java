@@ -169,9 +169,10 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		}
 		else if (type == EnumPacketClient.EYE_BLINK) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
-			if (!(entity instanceof EntityNPCInterface)) { return; }
-			ModelData model = ((EntityCustomNpc) entity).modelData;
-			model.eyes.blinkStart = System.currentTimeMillis();
+			if (entity instanceof EntityNPCInterface) {
+				ModelData model = ((EntityCustomNpc) entity).modelData;
+				model.eyes.blinkStart = System.currentTimeMillis();
+			}
 		}
 		else if (type == EnumPacketClient.MESSAGE) {
 			TextComponentTranslation title = new TextComponentTranslation(Objects.requireNonNull(Server.readString(buffer)));
@@ -571,8 +572,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 		}
 		else if (type == EnumPacketClient.NPC_VISUAL_DATA) {
-			int entityID = buffer.readInt();
-			Entity entity = player.world.getEntityByID(entityID);
+			Entity entity = player.world.getEntityByID(buffer.readInt());
 			if (entity instanceof EntityNPCInterface) {
 				NBTTagCompound compound = Server.readNBT(buffer);
 				EntityNPCInterface npcData = (EntityNPCInterface) entity;
@@ -845,17 +845,16 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.UPDATE_NPC_NAVIGATION) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
-			if (!(entity instanceof EntityNPCInterface)) {
-				return;
-			}
-			EntityNPCInterface npc = (EntityNPCInterface) entity;
-			if (compound.hasKey("Navigating", 10)) {
-				Path path = Server.readPathToNBT(compound.getCompoundTag("Navigating"));
-				npc.navigating = path;
-				npc.getNavigator().setPath(path, 1.0d);
-			} else {
-				npc.navigating = null;
-				npc.getNavigator().setPath(null, 1.0d);
+			if (entity instanceof EntityNPCInterface) {
+				EntityNPCInterface npc = (EntityNPCInterface) entity;
+				if (compound.hasKey("Navigating", 10)) {
+					Path path = Server.readPathToNBT(compound.getCompoundTag("Navigating"));
+					npc.navigating = path;
+					npc.getNavigator().setPath(path, 1.0d);
+				} else {
+					npc.navigating = null;
+					npc.getNavigator().setPath(null, 1.0d);
+				}
 			}
 		}
 		else if (type == EnumPacketClient.UPDATE_NPC_AI_TARGET) {
@@ -1322,10 +1321,10 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			EnumPacketClient type = null;
 			try {
 				type = EnumPacketClient.values()[buffer.readInt()];
-				CustomNpcs.debugData.start(type.toString(), this, "onPacketData");
+				CustomNpcs.debugData.start(null, type.toString());
 				if (!PacketHandlerClient.list.contains(type)) { LogWriter.debug("Received: " + type); }
 				client(buffer, player, type);
-				CustomNpcs.debugData.end(type.toString(), this, "onPacketData");
+				CustomNpcs.debugData.end(null, type.toString());
 			} catch (Exception e) {
 				LogWriter.error("Error with EnumPacketClient." + type, e);
 			} finally {

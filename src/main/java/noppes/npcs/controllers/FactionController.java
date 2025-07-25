@@ -144,13 +144,13 @@ public class FactionController implements IFactionHandler {
 	}
 
 	public void load() {
-		CustomNpcs.debugData.start("Mod", this, "load");
+		CustomNpcs.debugData.start(null);
 		this.factions.clear();
 		this.lastUsedID = 0;
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			if (saveDir == null) {
-				CustomNpcs.debugData.end("Mod", this, "load");
+				CustomNpcs.debugData.end(null);
 				return;
 			}
 			try {
@@ -186,7 +186,7 @@ public class FactionController implements IFactionHandler {
 				this.factions.put(2, aggressive);
 			}
 		}
-		CustomNpcs.debugData.end("Mod", this, "load");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public void loadFactions(DataInputStream stream) throws IOException {
@@ -229,7 +229,7 @@ public class FactionController implements IFactionHandler {
 
 	@SuppressWarnings("all")
 	public void saveFactions() {
-		CustomNpcs.debugData.start("Mod", this, "saveFactions");
+		CustomNpcs.debugData.start(null);
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			File file = new File(saveDir, "factions.dat_new");
@@ -249,7 +249,7 @@ public class FactionController implements IFactionHandler {
 			}
 		}
 		catch (Exception e) { LogWriter.except(e); }
-		CustomNpcs.debugData.end("Mod", this, "saveFactions");
+		CustomNpcs.debugData.end(null);
 	}
 
 }

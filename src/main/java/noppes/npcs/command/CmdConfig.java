@@ -82,7 +82,7 @@ public class CmdConfig extends CommandNoppesBase {
 
 	@SubCommand(desc = "Will display the current mod debug report", permission = 2)
 	public void report(MinecraftServer server, ICommandSender sender, String[] args) {
-		List<String> list = CustomNpcs.debugData.logging(null);
+		List<String> list = CustomNpcs.debugData.logging();
 		if (!list.isEmpty()) {
 			sender.sendMessage(new TextComponentTranslation("Server info:"));
 			for (String str : list) { sender.sendMessage(new TextComponentString(str)); }

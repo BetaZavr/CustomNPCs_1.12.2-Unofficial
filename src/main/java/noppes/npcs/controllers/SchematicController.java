@@ -125,7 +125,7 @@ public class SchematicController {
 	}
 
 	public SchematicWrapper load(String name) {
-		CustomNpcs.debugData.start("Mod", this, "load");
+		CustomNpcs.debugData.start(null);
 		InputStream stream = null;
 		if (included.contains(name)) {
 			stream = MinecraftServer.class.getResourceAsStream("/assets/" + CustomNpcs.MODID + "/schematics/" + name);
@@ -141,13 +141,13 @@ public class SchematicController {
 				}
 			}
 			if (!file.exists()) {
-				CustomNpcs.debugData.end("Mod", this, "load");
+				CustomNpcs.debugData.end(null);
 				return null;
 			}
 			try {
 				stream = new FileInputStream(file);
 			} catch (FileNotFoundException e2) {
-				CustomNpcs.debugData.end("Mod", this, "load");
+				CustomNpcs.debugData.end(null);
 				return null;
 			}
 		}
@@ -173,15 +173,15 @@ public class SchematicController {
 		if (schemaWr != null) {
 			this.map.put(name.toLowerCase(), schemaWr);
 		}
-		CustomNpcs.debugData.end("Mod", this, "load");
+		CustomNpcs.debugData.end(null);
 		return schemaWr;
 	}
 
 	public void save(ICommandSender sender, String name, int type, BlockPos pos, short height, short width, short length) {
-		CustomNpcs.debugData.start("Mod", this, "save");
+		CustomNpcs.debugData.start(null);
 		name = name.replace(" ", "_");
 		if (included.contains(name)) {
-			CustomNpcs.debugData.end("Mod", this, "save");
+			CustomNpcs.debugData.end(null);
 			return;
 		}
 		World world = sender.getEntityWorld();
@@ -202,7 +202,7 @@ public class SchematicController {
 				CompressedStreamTools.writeCompressed(schema.getNBT(), Files.newOutputStream(file.toPath()));
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		CustomNpcs.debugData.end("Mod", this, "save");
+		CustomNpcs.debugData.end(null);
 	}
 
 	private void sendMessage(ICommandSender sender, String message, Object... objs) {
@@ -230,7 +230,7 @@ public class SchematicController {
 
 	public void updateBuilding() {
 		if (buildingList.isEmpty()) { return; }
-		CustomNpcs.debugData.start("Mod", this, "updateBuilding");
+		CustomNpcs.debugData.start(null);
 		List<SchematicWrapper> del = new ArrayList<>();
 		for (SchematicWrapper sm : buildingList) {
 			sm.build();
@@ -252,7 +252,7 @@ public class SchematicController {
 		for (SchematicWrapper sm : del) {
 			this.buildingList.remove(sm);
 		}
-		CustomNpcs.debugData.end("Mod", this, "updateBuilding");
+		CustomNpcs.debugData.end(null);
 	}
 
 }

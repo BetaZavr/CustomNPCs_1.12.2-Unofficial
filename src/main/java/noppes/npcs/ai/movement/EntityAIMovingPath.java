@@ -39,28 +39,28 @@ public class EntityAIMovingPath extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-		CustomNpcs.debugData.start(npc, this, "shouldExecute");
+		CustomNpcs.debugData.start(npc);
 		if ((this.npc.isAttacking() && this.npc.ais.getRetaliateType() != 3) || this.npc.isInteracting()
 				|| (this.npc.getRNG().nextInt(40) != 0 && this.npc.ais.movingPause)
 				|| !this.npc.getNavigator().noPath()) {
-			CustomNpcs.debugData.end(npc, this, "shouldExecute");
+			CustomNpcs.debugData.end(npc);
 			return false;
 		}
 		List<int[]> list = this.npc.ais.getMovingPath();
 		if (list.size() < 2) {
-			CustomNpcs.debugData.end(npc, this, "shouldExecute");
+			CustomNpcs.debugData.end(npc);
 			return false;
 		}
 		this.npc.ais.incrementMovingPath();
 		this.pos = this.npc.ais.getCurrentMovingPath();
 		this.retries = 0;
-		CustomNpcs.debugData.end(npc, this, "shouldExecute");
+		CustomNpcs.debugData.end(npc);
 		return true;
 	}
 
 	public void startExecuting() {
-		CustomNpcs.debugData.start(npc, this, "startExecuting");
+		CustomNpcs.debugData.start(npc);
 		this.npc.getNavigator().tryMoveToXYZ(this.pos[0] + 0.5, this.pos[1], this.pos[2] + 0.5, 1.0d);
-		CustomNpcs.debugData.end(npc, this, "startExecuting");
+		CustomNpcs.debugData.end(npc);
 	}
 }

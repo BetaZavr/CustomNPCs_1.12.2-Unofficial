@@ -323,14 +323,14 @@ public class ScriptContainer {
 		Object key = event instanceof BlockEvent ? "Block"
 				: event instanceof PlayerEvent ? "Player"
 				: event instanceof ItemEvent ? "Item" : event instanceof NpcEvent ? "Npc" : null;
-		CustomNpcs.debugData.start(key, this, "run_" + type);
+		CustomNpcs.debugData.start(key, type);
 		if (engine == null) { setEngine(handler.getLanguage()); }
 		if (errored && console.isEmpty()) {
 			errored = false;
 			fullscript = null;
 		}
 		if (errored || !hasScriptCode() || unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || engine == null) {
-			CustomNpcs.debugData.end(key, this, "run_" + type);
+			CustomNpcs.debugData.end(key, type);
 			return;
 		}
 		if (ScriptController.Instance.lastLoaded > lastCreated) {
@@ -397,7 +397,7 @@ public class ScriptContainer {
 			}
 		}
 		if (!console.isEmpty()) { ScriptController.Instance.tryAddErrored(this); }
-		CustomNpcs.debugData.end(key, this, "run_" + type);
+		CustomNpcs.debugData.end(key, type);
 	}
 
 	@SuppressWarnings("all")

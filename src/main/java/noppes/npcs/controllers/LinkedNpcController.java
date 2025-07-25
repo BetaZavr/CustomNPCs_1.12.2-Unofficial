@@ -115,7 +115,7 @@ public class LinkedNpcController {
 	}
 
 	private void loadNpcs() {
-		CustomNpcs.debugData.start("Mod", this, "loadNpcs");
+		CustomNpcs.debugData.start(null);
 		LogWriter.info("Loading Linked Npcs");
 		File dir = this.getDir();
 		if (dir.exists()) {
@@ -135,7 +135,7 @@ public class LinkedNpcController {
 			this.list = list;
 		}
 		LogWriter.info("Done loading Linked Npcs");
-		CustomNpcs.debugData.end("Mod", this, "loadNpcs");
+		CustomNpcs.debugData.end(null);
 	}
 
 	private NBTTagCompound readNpcData(EntityNPCInterface npc) {
@@ -156,7 +156,7 @@ public class LinkedNpcController {
 	}
 
 	public void save() {
-		CustomNpcs.debugData.start("Mod", this, "save");
+		CustomNpcs.debugData.start(null);
 		for (LinkedData npc : this.list) {
 			try {
 				this.saveNpc(npc);
@@ -164,7 +164,7 @@ public class LinkedNpcController {
 				LogWriter.except(e);
 			}
 		}
-		CustomNpcs.debugData.end("Mod", this, "save");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SuppressWarnings("all")

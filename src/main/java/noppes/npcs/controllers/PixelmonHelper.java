@@ -104,7 +104,7 @@ public class PixelmonHelper {
 
 	public static void load() {
 		if (!PixelmonHelper.Enabled) { return; }
-		CustomNpcs.debugData.start("Mod", PixelmonHelper.class, "load");
+		CustomNpcs.debugData.start(null);
 		try {
 			Class<?> c = Class.forName("com.pixelmonmod.pixelmon.Pixelmon");
 			PixelmonHelper.storageManager = c.getDeclaredField("storageManager").get(null);
@@ -118,7 +118,7 @@ public class PixelmonHelper {
 			LogWriter.except(e);
 			PixelmonHelper.Enabled = false;
 		}
-		CustomNpcs.debugData.end("Mod", PixelmonHelper.class, "load");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public static void loadClient() {

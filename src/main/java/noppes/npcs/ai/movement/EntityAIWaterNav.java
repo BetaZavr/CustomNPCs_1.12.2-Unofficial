@@ -20,10 +20,10 @@ public class EntityAIWaterNav extends EntityAIBase {
 	}
 
 	public void updateTask() {
-		CustomNpcs.debugData.start(entity, this, "updateTask");
+		CustomNpcs.debugData.start(entity);
 		if (this.entity.getRNG().nextFloat() < 0.8f) {
 			this.entity.getJumpHelper().setJumping();
 		}
-		CustomNpcs.debugData.end(entity, this, "updateTask");
+		CustomNpcs.debugData.end(entity);
 	}
 }

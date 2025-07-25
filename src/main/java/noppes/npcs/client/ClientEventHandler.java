@@ -97,7 +97,7 @@ public class ClientEventHandler {
 
 	@SubscribeEvent
 	public void npcOpenGUIEvent(GuiOpenEvent event) {
-		CustomNpcs.debugData.start("Players", this, "npcOpenGUIEvent");
+		CustomNpcs.debugData.start(null);
 		Minecraft mc = Minecraft.getMinecraft();
 		ClientEventHandler.subgui = null;
 		LogWriter.debug(((event.getGui() == null ? "Close GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
@@ -127,7 +127,7 @@ public class ClientEventHandler {
                 } else {
                     CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.Gui, item.getGUIType(), id, type, 0), 100);
                 }
-				CustomNpcs.debugData.end("Players", this, "npcOpenGUIEvent");
+				CustomNpcs.debugData.end(null);
                 return;
 			}
 		}
@@ -146,12 +146,12 @@ public class ClientEventHandler {
 			}
 			ClientProxy.playerData.hud.clearGuiComponents();
 		}
-		CustomNpcs.debugData.end("Players", this, "npcOpenGUIEvent");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SubscribeEvent
 	public void npcPostLivingEvent(RenderLivingEvent.Post<EntityLivingBase> event) {
-		CustomNpcs.debugData.start("Players", this, "npcPostLivingEvent");
+		CustomNpcs.debugData.start(null);
 		MarkData data = MarkData.get(event.getEntity());
 		for (MarkData.Mark m : data.marks) {
 			if (m.getType() != 0 && m.availability.isAvailable(Minecraft.getMinecraft().player)) {
@@ -164,16 +164,18 @@ public class ClientEventHandler {
 			float height = event.getEntity().height + 0.9f;
 			ClientEventHandler.chatMessages.get(player).renderPlayerMessages(event.getX(), event.getY() + height, event.getZ(), 0.666667f * height, this.isInRange(Minecraft.getMinecraft().player, event.getX(), event.getY() + 1.2d, event.getZ()));
 		}
-		CustomNpcs.debugData.end("Players", this, "npcPostLivingEvent");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SubscribeEvent
 	public void npcRenderWorldLastEvent(RenderWorldLastEvent event) {
 		EntityPlayer player = Minecraft.getMinecraft().player;
-		CustomNpcs.debugData.start(player, this, "npcRenderWorldLastEvent");
+		CustomNpcs.debugData.start(player);
 		ClientEventHandler.schema = null;
 		ClientEventHandler.schemaPos = null;
 		if (!ClientTickHandler.inGame) {
+			CustomNpcs.debugData.started = System.currentTimeMillis();
+			CustomNpcs.debugData.startedTicks = ClientTickHandler.ticks;
 			ClientTickHandler.inGame = true;
 			this.miniMapLoaded = false;
 			this.updateMiniMaps(true);
@@ -247,7 +249,7 @@ public class ClientEventHandler {
 			this.updateMiniMaps(false);
 		}
 		if (TileBuilder.DrawPoses.isEmpty()) {
-			CustomNpcs.debugData.end(player, this, "npcRenderWorldLastEvent");
+			CustomNpcs.debugData.end(player);
 			return;
 		}
 		for (BlockPos pos : TileBuilder.DrawPoses) {
@@ -261,7 +263,7 @@ public class ClientEventHandler {
 			this.drawSchematic(pos, ((TileBuilder) te).getSchematic(), ((TileBuilder) te).yOffset,
 					((TileBuilder) te).rotation);
 		}
-		CustomNpcs.debugData.end(player, this, "npcRenderWorldLastEvent");
+		CustomNpcs.debugData.end(player);
 	}
 
 	private void drawSchematic(BlockPos pos, SchematicWrapper schem, int yOffset, int rotation) {
@@ -372,9 +374,9 @@ public class ClientEventHandler {
 	@SubscribeEvent
 	public void npcPlayerLoginEvent(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
 		if (!event.player.world.isRemote) { return; }
-		CustomNpcs.debugData.start(event.player, this, "npcPlayerLoginEvent");
+		CustomNpcs.debugData.start(event.player);
 		ClientProxy.playerData.hud.clear();
-		CustomNpcs.debugData.end(event.player, this, "npcPlayerLoginEvent");
+		CustomNpcs.debugData.end(event.player);
 	}
 
 	private void renderBlock(IBlockState state) {

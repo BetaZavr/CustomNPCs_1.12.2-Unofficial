@@ -140,7 +140,7 @@ public class KeyController implements IKeyBinding {
 	}
 
 	private void loadKeys() {
-		CustomNpcs.debugData.start("Mod", this, "loadKeys");
+		CustomNpcs.debugData.start(null);
 		File saveDir = CustomNpcs.Dir;
 		if (saveDir == null) {
 			return;
@@ -156,7 +156,7 @@ public class KeyController implements IKeyBinding {
 		} catch (Exception e) {
 			this.loadDefaultKeys();
 		}
-		CustomNpcs.debugData.end("Mod", this, "loadKeys");
+		CustomNpcs.debugData.end(null);
 	}
 
 	private void loadKeys(File file) throws IOException {
@@ -181,11 +181,11 @@ public class KeyController implements IKeyBinding {
 	}
 
 	public void save() {
-		CustomNpcs.debugData.start("Mod", this, "save");
+		CustomNpcs.debugData.start(null);
 		try {
 			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "keys.dat").toPath()));
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		CustomNpcs.debugData.end("Mod", this, "save");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public void update(int id) {

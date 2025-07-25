@@ -91,11 +91,12 @@ public class ClientTickHandler {
 	private boolean otherContainer = false;
 	private World prevWorld;
 	public final Map<String, ISound> nowPlayingSounds = new HashMap<>();
+	public static long ticks = 0L;
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void npcClientTick(TickEvent.ClientTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) { return; }
-		CustomNpcs.debugData.start("Players", this, "npcClientTick");
+		CustomNpcs.debugData.start(null);
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.player != null && ClientProxy.playerData.getPlayer() == null) {
 			ClientProxy.playerData.setPlayer(mc.player);
@@ -105,9 +106,8 @@ public class ClientTickHandler {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
 				this.otherContainer = false;
 			}
-		} else {
-			this.otherContainer = true;
 		}
+		else { this.otherContainer = true; }
 		if (mc.player == null) {
 			if (ClientTickHandler.inGame) {
 				LogWriter.debug("Client Player: Exit game");
@@ -132,7 +132,7 @@ public class ClientTickHandler {
         		}
         	}
         }
-		++CustomNpcs.ticks;
+		++ticks;
 		++RenderNPCInterface.LastTextureTick;
 		if (this.prevWorld != mc.world) {
 			this.prevWorld = mc.world;
@@ -194,7 +194,7 @@ public class ClientTickHandler {
 						md.createEvent(CustomNpcs.proxy.getPlayer()));
 			}
 		}
-		if (CustomNpcs.ticks % 10 == 0) {
+		if (ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
 			ClientTickHandler.loadFiles();
 			if (mc.playerController != null) {
@@ -222,11 +222,11 @@ public class ClientTickHandler {
 				}
 			}
 		}
-		if (CustomNpcs.ticks % 60 == 0) { BlockWrapper.checkClearCache(); }
+		if (ticks % 60 == 0) { BlockWrapper.checkClearCache(); }
 		if (ScriptController.Instance.clientScripts.isEnabled()) {
 			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new PlayerEvent.UpdateEvent((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(mc.player)));
 		}
-		if (ClientTickHandler.checkMails || CustomNpcs.MailWindow != -1 && CustomNpcs.ticks % 100 == 0) {
+		if (ClientTickHandler.checkMails || CustomNpcs.MailWindow != -1 && ticks % 100 == 0) {
 			boolean hasNewMail = false;
 			long time = System.currentTimeMillis();
 			for (PlayerMail mail : ClientProxy.playerData.mailData.playerMails) {
@@ -273,12 +273,12 @@ public class ClientTickHandler {
 				ClientEventHandler.subgui = subGui;
 			}
 		}
-		CustomNpcs.debugData.end("Players", this, "npcClientTick");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SubscribeEvent
 	public void npcKeyInputEvent(InputEvent.KeyInputEvent event) {
-		CustomNpcs.debugData.start("Players", this, "npcKeyInputEvent");
+		CustomNpcs.debugData.start(null);
 		if (CustomNpcs.SceneButtonsEnabled) {
 			if (ClientProxy.Scene1.isPressed()) {
 				Client.sendData(EnumPacketServer.SceneStart, 1);
@@ -329,35 +329,35 @@ public class ClientTickHandler {
 			ClientProxy.playerData.hud.keyPress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 		}
-		CustomNpcs.debugData.end("Players", this, "npcKeyInputEvent");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SubscribeEvent
 	public void npcLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
-		CustomNpcs.debugData.start("Players", this, "npcLeftClickEmpty");
+		CustomNpcs.debugData.start(null);
 		if (event.getHand() != EnumHand.MAIN_HAND) { return; }
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.LeftClick);
-		CustomNpcs.debugData.end("Players", this, "npcLeftClickEmpty");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SubscribeEvent
 	public void npcLivingUpdate(LivingUpdateEvent event) {
 		if (!event.getEntity().world.isRemote || !(event.getEntity() instanceof EntityNPCInterface)) { return; }
-		CustomNpcs.debugData.start("Players", this, "npcLivingUpdate");
+		CustomNpcs.debugData.start(null);
 		int dimID = Minecraft.getMinecraft().world.provider.getDimension();
 		if (ClientProxy.notVisibleNPC.containsKey(dimID)
 				&& ClientProxy.notVisibleNPC.get(dimID).contains(event.getEntity().getUniqueID())) {
 			Minecraft.getMinecraft().world.removeEntity(event.getEntity());
 		}
-		CustomNpcs.debugData.end("Players", this, "npcLivingUpdate");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SubscribeEvent
 	public void npcLoadAllOBJTextures(TextureStitchEvent.Pre event) {
-		CustomNpcs.debugData.start("Players", this, "npcLoadAllOBJTextures");
+		CustomNpcs.debugData.start(null);
 		File assets = new File(CustomNpcs.Dir, "assets/customnpcs");
 		if (!assets.exists()) {
-			CustomNpcs.debugData.end("Players", this, "npcLoadAllOBJTextures");
+			CustomNpcs.debugData.end(null);
 			return;
 		}
 		List<ResourceLocation> objTextures = new ArrayList<>();
@@ -389,7 +389,7 @@ public class ClientTickHandler {
 			}
 			event.getMap().registerSprite(res);
 		}
-		CustomNpcs.debugData.end("Players", this, "npcLoadAllOBJTextures");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SubscribeEvent
@@ -403,7 +403,7 @@ public class ClientTickHandler {
 	}
 
 	public void npcMouseInput(int key, int x, int y, int dx, int dy, int dWheel, boolean isDown) {
-		CustomNpcs.debugData.start("Players", this, "npcMouseInput");
+		CustomNpcs.debugData.start(null);
 		boolean isCtrlPressed = GuiScreen.isCtrlKeyDown();
 		boolean isShiftPressed = GuiScreen.isShiftKeyDown();
 		boolean isAltPressed = GuiScreen.isAltKeyDown();
@@ -412,7 +412,7 @@ public class ClientTickHandler {
 		if (key < 0) {
 			Event event = new PlayerEvent.MouseMoveEvent(iPlayer, x, y, dx, dy, dWheel, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
 			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.MOUSE_MOVE, event);
-			CustomNpcs.debugData.end("Players", this, "npcMouseInput");
+			CustomNpcs.debugData.end(null);
 			return;
 		}
 		Event event = new PlayerEvent.KeyPressedEvent(iPlayer, key, isCtrlPressed, isAltPressed, isShiftPressed, isMetaPressed);
@@ -425,7 +425,7 @@ public class ClientTickHandler {
 				ClientProxy.playerData.hud.mousePress.remove((Integer) key);
 			}
 		}
-		CustomNpcs.debugData.end("Players", this, "npcMouseInput");
+		CustomNpcs.debugData.end(null);
 	}
 
 }

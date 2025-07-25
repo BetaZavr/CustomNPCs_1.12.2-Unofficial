@@ -41,15 +41,15 @@ public class EntityAIWatchClosest extends EntityAIBase {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean shouldExecute() {
-		CustomNpcs.debugData.start(npc, this, "shouldExecute");
+		CustomNpcs.debugData.start(npc);
 		if (npc.getRNG().nextFloat() >= chance || npc.isInteracting()) {
-			CustomNpcs.debugData.end(npc, this, "shouldExecute");
+			CustomNpcs.debugData.end(npc);
 			return false;
 		}
 		if (npc.getAttackTarget() != null) { closestEntity = npc.getAttackTarget(); }
 		else {
 			if (npc.isMoving() || npc.ais.getStandingType() != 0 && npc.ais.getStandingType() != 2) {
-				CustomNpcs.debugData.end(npc, this, "shouldExecute");
+				CustomNpcs.debugData.end(npc);
 				return false;
 			}
 			if (watchedClass == EntityPlayer.class) { closestEntity = npc.world.getClosestPlayerToEntity(npc, maxDistance); }
@@ -57,13 +57,13 @@ public class EntityAIWatchClosest extends EntityAIBase {
 		}
 		if (closestEntity != null) {
 			if (closestEntity instanceof EntityLivingBase) {
-				CustomNpcs.debugData.end(npc, this, "shouldExecute");
+				CustomNpcs.debugData.end(npc);
 				return Util.instance.npcCanSeeTarget(npc, (EntityLivingBase) closestEntity, false, false);
 			}
-			CustomNpcs.debugData.end(npc, this, "shouldExecute");
+			CustomNpcs.debugData.end(npc);
 			return npc.canSee(closestEntity);
 		}
-		CustomNpcs.debugData.end(npc, this, "shouldExecute");
+		CustomNpcs.debugData.end(npc);
 		return false;
 	}
 
@@ -74,10 +74,10 @@ public class EntityAIWatchClosest extends EntityAIBase {
 
 	@Override
 	public void updateTask() {
-		CustomNpcs.debugData.start(npc, this, "updateTask");
+		CustomNpcs.debugData.start(npc);
 		npc.getLookHelper().setLookPosition(closestEntity.posX, closestEntity.posY + closestEntity.getEyeHeight(), closestEntity.posZ, 10.0f, npc.getVerticalFaceSpeed());
 		--lookTime;
-		CustomNpcs.debugData.end(npc, this, "updateTask");
+		CustomNpcs.debugData.end(npc);
 	}
 
 }

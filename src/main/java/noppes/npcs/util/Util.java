@@ -577,7 +577,8 @@ public class Util implements IMethods {
 		}
 		if (value < Math.pow(10, 3)) { // xxxx,x hecto
 			corr = Math.round(value * 10.0d) / 10.0d;
-		} else if (value < Math.pow(10, 6)) { // xxx,xxK kilo
+		}
+		else if (value < Math.pow(10, 6)) { // xxx,xxK kilo
 			corr = Math.round(value / 100.0d) / 10.0d;
 			if (color) {
 				type = chr + "e";
@@ -586,8 +587,9 @@ public class Util implements IMethods {
 			if (corr * Math.pow(10, 3) != value) {
 				sufc = chrPR;
 			}
-		} else if (value < Math.pow(10, 9)) { // xxx,xxM mega
-			corr = Math.round(value / Math.pow(10, 3)) / 10.0d;
+		}
+		else if (value < Math.pow(10, 9)) { // xxx,xxM mega
+			corr = Math.round(value / Math.pow(10, 5)) / 10.0d;
 			if (color) {
 				type = chr + "a";
 			}
@@ -596,7 +598,7 @@ public class Util implements IMethods {
 				sufc = chrPR;
 			}
 		} else if (value < Math.pow(10, 12)) { // xxx,xxG giga
-			corr = Math.round(value / Math.pow(10, 6)) / 10.0d;
+			corr = Math.round(value / Math.pow(10, 8)) / 10.0d;
 			if (color) {
 				type = chr + "2";
 			}
@@ -605,7 +607,7 @@ public class Util implements IMethods {
 				sufc = chrPR;
 			}
 		} else if (value < Math.pow(10, 15)) { // xxx,xxT tera
-			corr = Math.round(value / Math.pow(10, 9)) / 10.0d;
+			corr = Math.round(value / Math.pow(10, 11)) / 10.0d;
 			if (color) {
 				type = chr + "b";
 			}
@@ -614,7 +616,7 @@ public class Util implements IMethods {
 				sufc = chrPR;
 			}
 		} else if (value < Math.pow(10, 18)) { // xxx, xxP peta
-			corr = Math.round(value / Math.pow(10, 12)) / 10.0d;
+			corr = Math.round(value / Math.pow(10, 14)) / 10.0d;
 			if (color) {
 				type = chr + "3";
 			}
@@ -623,7 +625,7 @@ public class Util implements IMethods {
 				sufc = chrPR;
 			}
 		} else if (value < Math.pow(10, 21)) { // xxx, xxE hexa
-			corr = Math.round(value / Math.pow(10, 15)) / 10.0d;
+			corr = Math.round(value / Math.pow(10, 17)) / 10.0d;
 			if (color) {
 				type = chr + "9";
 			}
@@ -632,7 +634,7 @@ public class Util implements IMethods {
 				sufc = chrPR;
 			}
 		} else if (value < Math.pow(10, 24)) { // xxx, xxZ zetta
-			corr = Math.round(value / Math.pow(10, 18)) / 10.0d;
+			corr = Math.round(value / Math.pow(10, 20)) / 10.0d;
 			if (color) {
 				type = chr + "d";
 			}
@@ -641,7 +643,7 @@ public class Util implements IMethods {
 				sufc = chrPR;
 			}
 		} else if (value < Math.pow(10, 27)) { // xxx, xxY yotta
-			corr = Math.round(value / Math.pow(10, 21)) / 10.0d;
+			corr = Math.round(value / Math.pow(10, 23)) / 10.0d;
 			if (color) {
 				type = chr + "5";
 			}
@@ -656,10 +658,7 @@ public class Util implements IMethods {
 					index = "E+";
 				}
 				exp = Integer.parseInt(String.valueOf(value).substring(String.valueOf(value).indexOf(index) + 2));
-				corr = Math
-						.round(Integer.parseInt(String.valueOf(value).substring(0, String.valueOf(value).indexOf(index)))
-								* 1000.0d)
-						/ 1000.0d;
+				corr = Math.round(Integer.parseInt(String.valueOf(value).substring(0, String.valueOf(value).indexOf(index))) * 1000.0d) / 1000.0d;
 			} else {
 				exp = String.valueOf(corr).length();
 				corr = value;
@@ -2055,7 +2054,8 @@ public class Util implements IMethods {
 	}
 
 	public Side getSide() {
-		if (FMLCommonHandler.instance().getSide().isClient() || Thread.currentThread().getName().toLowerCase().contains("client")) { return Side.CLIENT; }
+		if ((FMLCommonHandler.instance().getSidedDelegate() != null && FMLCommonHandler.instance().getSide().isClient())
+				|| Thread.currentThread().getName().toLowerCase().contains("client")) { return Side.CLIENT; }
 		return Side.SERVER;
 	}
 

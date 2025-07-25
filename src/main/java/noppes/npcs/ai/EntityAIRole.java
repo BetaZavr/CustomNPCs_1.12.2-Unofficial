@@ -27,11 +27,11 @@ public class EntityAIRole extends EntityAIBase {
 	}
 
 	public void updateTask() {
-		CustomNpcs.debugData.start(npc, this, "updateTask");
+		CustomNpcs.debugData.start(npc);
 		if (this.npc.advanced.roleInterface != null) {
 			this.npc.advanced.roleInterface.aiUpdateTask();
 		}
-		CustomNpcs.debugData.end(npc, this, "updateTask");
+		CustomNpcs.debugData.end(npc);
 	}
 
 }

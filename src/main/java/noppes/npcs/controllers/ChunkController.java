@@ -62,7 +62,7 @@ public class ChunkController implements ForgeChunkManager.LoadingCallback {
 	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public void ticketsLoaded(List<ForgeChunkManager.Ticket> tickets, World world) {
-		CustomNpcs.debugData.start("Mod", this, "ticketsLoaded");
+		CustomNpcs.debugData.start(null);
 		for (ForgeChunkManager.Ticket ticket : tickets) {
 			if (!(ticket.getEntity() instanceof EntityNPCInterface)) {
 				continue;
@@ -81,7 +81,7 @@ public class ChunkController implements ForgeChunkManager.LoadingCallback {
 				}
 			}
 		}
-		CustomNpcs.debugData.end("Mod", this, "ticketsLoaded");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public void unload(int toRemove) {

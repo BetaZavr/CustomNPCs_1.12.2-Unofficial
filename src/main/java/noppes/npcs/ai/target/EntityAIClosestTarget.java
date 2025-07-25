@@ -34,9 +34,9 @@ public class EntityAIClosestTarget extends EntityAITarget {
 	}
 
 	public boolean shouldExecute() {
-		CustomNpcs.debugData.start(npc, this, "shouldExecute");
+		CustomNpcs.debugData.start(npc);
 		if (this.targetChance > 0 && this.taskOwner.getRNG().nextInt(this.targetChance) != 0) {
-			CustomNpcs.debugData.end(npc, this, "shouldExecute");
+			CustomNpcs.debugData.end(npc);
 			return false;
 		}
 		try {
@@ -50,24 +50,24 @@ public class EntityAIClosestTarget extends EntityAITarget {
 			catch (Exception ignored) { }
             list.sort(this.theNearestAttackableTargetSorter);
 			if (list.isEmpty()) {
-				CustomNpcs.debugData.end(npc, this, "shouldExecute");
+				CustomNpcs.debugData.end(npc);
 				return false;
 			}
 			this.targetEntity = list.get(0);
-			CustomNpcs.debugData.end(npc, this, "shouldExecute");
+			CustomNpcs.debugData.end(npc);
 			return true;
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		CustomNpcs.debugData.end(npc, this, "shouldExecute");
+		CustomNpcs.debugData.end(npc);
 		return false;
 	}
 
 	public void startExecuting() {
-		CustomNpcs.debugData.start(npc, this, "startExecuting");
+		CustomNpcs.debugData.start(npc);
 		this.taskOwner.setAttackTarget(this.targetEntity);
 		if (this.targetEntity instanceof EntityMob && ((EntityMob) this.targetEntity).getAttackTarget() == null) {
 			((EntityMob) this.targetEntity).setAttackTarget(this.taskOwner);
 		}
 		super.startExecuting();
-		CustomNpcs.debugData.end(npc, this, "startExecuting");
+		CustomNpcs.debugData.end(npc);
 	}
 }

@@ -4,31 +4,31 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
-import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.api.wrapper.BlockWrapper;
-import noppes.npcs.api.wrapper.WrapperNpcAPI;
+import noppes.npcs.LogWriter;
+import noppes.npcs.client.ClientTickHandler;
 import noppes.npcs.entity.EntityNPCInterface;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nonnull;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.*;
 
 public class DataDebug {
 
-	private static final Logger LOGGER = LogManager.getLogger(DataDebug.class);
-
 	public static class Debug {
 
-		public long max = 0L;
-		Map<String, Long> starters = new HashMap<>(); // temp time [Name, start time]
-		public Map<String, Map<String, Long[]>> times = new HashMap<>(); // Name, [count, all time in work]
+		private long max = 0L;
+		private final Map<String, Long> starters = new HashMap<>(); // temp time [unique key, start time]
+		private final Map<String, Map<String, Long[]>> times = new HashMap<>(); // Name, [count, all time in work]
 
 		public void end(String eventName, String eventTarget) {
 			if (eventName == null || eventTarget == null) { return; }
-			String key = eventName + ":" + eventTarget;
-			if (!starters.containsKey(key) || starters.get(key) <= 0L) { return; }
+			String key = Thread.currentThread().getId() + ":" + eventName + ":" + eventTarget;
+			if (!starters.containsKey(key)) {
+				//LogWriter.debug("Double ending debug \""+key+"\"");
+				return;
+			}
 			if (!times.containsKey(eventName)) { times.put(eventName, new HashMap<>()); }
 			if (!times.get(eventName).containsKey(eventTarget)) { times.get(eventName).put(eventTarget, new Long[] { 0L, 0L }); }
 			Long[] arr = times.get(eventName).get(eventTarget);
@@ -37,21 +37,24 @@ public class DataDebug {
 			if (arr[1] < r) { arr[1] = r; }
 			if (max < r) { max = r; }
 			times.get(eventName).put(eventTarget, arr);
-			starters.put(key, 0L);
+			starters.remove(key);
 		}
 
 		public void start(String eventName, String eventTarget) {
 			if (eventName == null || eventTarget == null) { return; }
-			String key = eventName + ":" + eventTarget;
-			if (!starters.containsKey(key)) { starters.put(key, 0L); }
-			if (starters.get(key) > 0L) { return; }
+			String key = Thread.currentThread().getId() + ":" + eventName + ":" + eventTarget;
+			//if (starters.containsKey(key)) { LogWriter.debug("Double starting debug \""+key+"\""); }
 			starters.put(key, System.currentTimeMillis());
 		}
 
 	}
 
-	private static String getKey(Object target) {
-		if (target == null) { return "Mod"; }
+	public long started = 0L;
+	public long startedTicks = 0L;
+	private final Map<Side, Debug> data = new HashMap<>();
+
+	private static @Nonnull String getKey(Object target) {
+		if (target == null) { return ""; }
 		if (target instanceof String) { return (String) target; }
 		if (target instanceof EntityPlayer) { return "Players"; }
 		if (target instanceof EntityNPCInterface) { return "NPC"; }
@@ -60,34 +63,94 @@ public class DataDebug {
 		return target.getClass().getSimpleName();
 	}
 
-	private final Map<Side, Debug> data = new HashMap<>();
-
-	public void end(Object target, Object obj, String methodName) {
-		if (!CustomNpcs.VerboseDebug) { return; }
-		try {
-			Side side = methodName.equals("findChunksForSpawning") || methodName.equals("performWorldGenSpawning") ?
-					Side.SERVER :
-					Util.instance.getSide();
-			if (!data.containsKey(side)) { return; }
-			data.get(side).end(getKey(obj), (methodName.isEmpty() ? "" : methodName + "()") + "_" + getKey(target));
+	public void end(Object target) {
+		//if (!CustomNpcs.VerboseDebug) { return; }
+		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
+		String obj = caller.getClassName();
+		String methodName = caller.getMethodName() + "()";
+		if (methodName.startsWith("lambda$")) {
+			methodName = methodName.substring(methodName.indexOf("$") + 1);
+			if (methodName.contains("$")) {
+				methodName = methodName.substring(0, methodName.indexOf("$"));
+			}
 		}
-		catch (Exception e) { LOGGER.error("Error end debug method:", e); }
+		int dotPos = obj.lastIndexOf(".") + 1;
+		if (dotPos > 0) { obj = obj.substring(dotPos); }
+		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
+				Side.SERVER :
+				Util.instance.getSide();
+		String trg = getKey(target);
+		if (!trg.isEmpty()) { trg = "_" + trg; }
+		data.get(side).end(getKey(obj), methodName + trg);
 	}
 
-	public void start(Object target, Object obj, String methodName) {
-		if (!CustomNpcs.VerboseDebug) { return; }
-		try {
-			Side side = methodName.equals("findChunksForSpawning") || methodName.equals("performWorldGenSpawning") ?
-					Side.SERVER :
-					Util.instance.getSide();
-			if (!data.containsKey(side)) { data.put(side, new Debug()); }
-			data.get(side).start(getKey(obj), (methodName.isEmpty() ? "" : methodName + "()") + "_" + getKey(target));
+	public void end(Object target, String addedToMethodName) {
+		//if (!CustomNpcs.VerboseDebug) { return; }
+		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
+		String obj = caller.getClassName();
+		String methodName = caller.getMethodName() + "(" + addedToMethodName + ")";
+		if (methodName.startsWith("lambda$")) {
+			methodName = methodName.substring(methodName.indexOf("$") + 1);
+			if (methodName.contains("$")) {
+				methodName = methodName.substring(0, methodName.indexOf("$"));
+			}
 		}
-		catch (Exception e) { LOGGER.error("Error start debug method:", e); }
+		int dotPos = obj.lastIndexOf(".") + 1;
+		if (dotPos > 0) { obj = obj.substring(dotPos); }
+		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
+				Side.SERVER :
+				Util.instance.getSide();
+		String trg = getKey(target);
+		if (!trg.isEmpty()) { trg = "_" + trg; }
+		data.get(side).end(getKey(obj), methodName + trg);
 	}
+
+	public void start(Object target) {
+		//if (!CustomNpcs.VerboseDebug) { return; }
+		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
+		String obj = caller.getClassName();
+		String methodName = caller.getMethodName() + "()";
+		if (methodName.startsWith("lambda$")) {
+			methodName = methodName.substring(methodName.indexOf("$") + 1);
+			if (methodName.contains("$")) {
+				methodName = methodName.substring(0, methodName.indexOf("$"));
+			}
+		}
+		int dotPos = obj.lastIndexOf(".") + 1;
+		if (dotPos > 0) { obj = obj.substring(dotPos); }
+		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
+				Side.SERVER :
+				Util.instance.getSide();
+		String trg = getKey(target);
+		if (!trg.isEmpty()) { trg = "_" + trg; }
+		data.get(side).start(getKey(obj), methodName + trg);
+	}
+
+	public void start(Object target, String addedToMethodName) {
+		//if (!CustomNpcs.VerboseDebug) { return; }
+		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
+		String obj = caller.getClassName();
+		String methodName = caller.getMethodName() + "(" + addedToMethodName + ")";
+		if (methodName.startsWith("lambda$")) {
+			methodName = methodName.substring(methodName.indexOf("$") + 1);
+			if (methodName.contains("$")) {
+				methodName = methodName.substring(0, methodName.indexOf("$"));
+			}
+		}
+		int dotPos = obj.lastIndexOf(".") + 1;
+		if (dotPos > 0) { obj = obj.substring(dotPos); }
+		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
+				Side.SERVER :
+				Util.instance.getSide();
+		String trg = getKey(target);
+		if (!trg.isEmpty()) { trg = "_" + trg; }
+		data.get(side).start(getKey(obj), methodName + trg);
+	}
+
+	public DataDebug() { clear(); }
 
 	public void stop() {
-		if (!CustomNpcs.VerboseDebug) { return; }
+		//if (!CustomNpcs.VerboseDebug) { return; }
 		for (Side side : data.keySet()) {
 			for (String k : data.get(side).starters.keySet()) {
 				data.get(side).end(k.substring(0, k.indexOf(':')), k.substring(k.indexOf(':') + 1));
@@ -97,22 +160,22 @@ public class DataDebug {
 
 	public void clear() {
 		stop();
-		data.clear();
+		data.put(Side.SERVER, new Debug());
+		data.put(Side.CLIENT, new Debug());
 	}
 
-	public List<String> logging(Logger logger) {
-		if (!CustomNpcs.VerboseDebug || data.isEmpty()) { return new ArrayList<>(); }
+	public List<String> logging() {
 		StringBuilder tempInfo;
 		String temp;
-		StringBuilder fullInfo = new StringBuilder("Output full debug info ").append(CustomNpcs.MODNAME).append(":");
+		LogWriter.info("Output full debug info " + CustomNpcs.MODNAME + ":");
+		LogWriter.info("Showing Monitoring results for ANY side. { Side: [Target.Method names; Runs; Average time] }:");
 		StringBuilder maxInfo = new StringBuilder("Output maximums from debug info ").append(CustomNpcs.MODNAME).append(":");
-		fullInfo.append("\nShowing Monitoring results for ANY side. { Side: [Target.Method names; Runs; Average time] }:");
 		stop();
 		boolean start = false;
 		List<String> list = new ArrayList<>();
 		for (Side side : data.keySet()) {
-			if (start) { fullInfo.append("\n----   ----   ----"); }
-			fullInfo.append("\n").append("Side: ").append(side.name());
+			if (start) { LogWriter.info("----   ----   ----"); }
+			LogWriter.info("Side: " + side.name());
 			List<String> events = new ArrayList<>(data.get(side).times.keySet());
 			Collections.sort(events);
 			int i = 0;
@@ -128,9 +191,12 @@ public class DataDebug {
 				for (String target : targets) {
 					Long[] time = data.get(side).times.get(eventName).get(target);
 					if (time[0] <= 0) { time[0] = 1L; }
-					log.append("  [")
-							.append(target)
-							.append(", ")
+					if (target.lastIndexOf("_") != -1) {
+						log.append("  [").append(target, 0, target.lastIndexOf("_"))
+								.append(", ").append(target.substring(target.lastIndexOf("_") + 1));
+					}
+					else { log.append("  [").append(target); }
+					log.append(", ")
 							.append(time[0])
 							.append(", ")
 							.append(Util.instance.ticksToElapsedTime(time[1], true, false, false))
@@ -151,7 +217,7 @@ public class DataDebug {
 					}
 					s++;
 				}
-				fullInfo.append("\n [").append(i + 1).append("/").append(events.size()).append("] - \"").append(eventName).append("\": ").append(log);
+				LogWriter.info(" [" + (i + 1) + "/" + events.size() + "] - \"" + eventName + "\": " + log);
 				i++;
 			}
 			// long time
@@ -214,29 +280,50 @@ public class DataDebug {
 		}
 		// Caches
 		list.add("Caches:");
-		tempInfo = new StringBuilder(TextFormatting.GRAY.toString()).append("BlockWrapper.blockCache: ").append(TextFormatting.GOLD).append(BlockWrapper.blockCache.size());
-		list.add(tempInfo.toString());
-		fullInfo.append("\n").append(Util.instance.deleteColor(tempInfo.toString()));
-		tempInfo = new StringBuilder(TextFormatting.GRAY.toString()).append("WrapperNpcAPI.worldCache: ").append(TextFormatting.GOLD).append(WrapperNpcAPI.worldCache.size());
-		list.add(tempInfo.toString());
-		fullInfo.append("\n").append(Util.instance.deleteColor(tempInfo.toString()));
-		tempInfo = new StringBuilder(TextFormatting.GRAY.toString()).append("CommonProxy.downloadableFiles: ").append(TextFormatting.GOLD).append(CommonProxy.downloadableFiles.size());
-		list.add(tempInfo.toString());
-		fullInfo.append("\n").append(Util.instance.deleteColor(tempInfo.toString()));
-		tempInfo = new StringBuilder(TextFormatting.GRAY.toString()).append("CommonProxy.availabilityStacks: ").append(TextFormatting.GOLD).append(CommonProxy.availabilityStacks.size());
-		list.add(tempInfo.toString());
-		fullInfo.append("\n").append(Util.instance.deleteColor(tempInfo.toString()));
-		tempInfo = new StringBuilder(TextFormatting.GRAY.toString()).append("NoppesUtilPlayer.delaySendMap: ").append(TextFormatting.GOLD).append(NoppesUtilPlayer.delaySendMap.size());
-		list.add(tempInfo.toString());
-		fullInfo.append("\n").append(Util.instance.deleteColor(tempInfo.toString()));
-
-		if (logger != null) {
-			logger.info(fullInfo);
-			logger.info(maxInfo);
-		} else {
-			LOGGER.info(fullInfo);
-			LOGGER.info(maxInfo);
+		LogWriter.info("Caches:");
+		if (started != 0) {
+			long time = (System.currentTimeMillis() - started) / 50L;
+			long ticks;
+			String side;
+			if (CustomNpcs.Server != null) {
+				side = "Server";
+				ticks = CustomNpcs.Server.getWorld(0).getTotalWorldTime() - startedTicks;
+			} else {
+				side = "Client";
+				ticks = ClientTickHandler.ticks - startedTicks;
+			}
+			tempInfo = new StringBuilder(TextFormatting.GRAY.toString())
+					.append(side)
+					.append(" system running time ")
+					.append(Util.instance.ticksToElapsedTime(time, false, true, false))
+					.append(TextFormatting.GRAY)
+					.append(", game running time ")
+					.append(Util.instance.ticksToElapsedTime(ticks, false, true, false))
+					.append(TextFormatting.GRAY)
+					.append(" (")
+					.append(TextFormatting.BLUE)
+					.append(Math.round((double) Math.abs(time - ticks) / (double) time * 1000.0d) /1000.0d)
+					.append(TextFormatting.GRAY)
+					.append("%)");
+			list.add(tempInfo.toString());
+			LogWriter.info(Util.instance.deleteColor(tempInfo.toString()));
 		}
+
+		MemoryUsage memUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
+		tempInfo = new StringBuilder(TextFormatting.GRAY.toString())
+				.append("Current total memory: ")
+				.append(TextFormatting.RESET)
+				.append(Util.instance.getTextReducedNumber(memUsage.getUsed(), false, true, true))
+				.append(TextFormatting.GRAY)
+				.append(" / ")
+				.append(TextFormatting.RESET)
+				.append(Util.instance.getTextReducedNumber(memUsage.getMax(), false, true, true))
+				.append(TextFormatting.GRAY)
+				.append(" byte");
+		list.add(tempInfo.toString());
+		LogWriter.info(Util.instance.deleteColor(tempInfo.toString()));
+
+		LogWriter.info(maxInfo);
 		return list;
 	}
 

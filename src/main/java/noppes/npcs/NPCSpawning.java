@@ -38,13 +38,13 @@ public class NPCSpawning {
 	public static void performWorldGenSpawning(WorldServer world, int x, int z, Random rand) {
 		CustomNPCsScheduler.runTack(() -> {
 			if (pWGS || world == null) { return;}
-			CustomNpcs.debugData.start("Mod", NPCSpawning.class, "performWorldGenSpawning");
+			CustomNpcs.debugData.start(null);
 			pWGS = true;
 			Biome biome = world.getBiomeForCoordsBody(new BlockPos(x + 8, 0, z + 8));
 			SpawnData data = SpawnController.instance.getRandomSpawnData(BiomeReflection.getBiomeName(biome));
 			if (data == null || data.group <= 0 || rand.nextFloat() > (float) data.itemWeight / 100.0f) {
 				pWGS = false;
-				CustomNpcs.debugData.end("Mod", NPCSpawning.class, "performWorldGenSpawning");
+				CustomNpcs.debugData.end(null);
 				return;
 			}
 			// is living
@@ -52,13 +52,13 @@ public class NPCSpawning {
 			try { entity = EntityList.createEntityFromNBT(data.compoundEntity, world); } catch (Exception e) { LogWriter.error("Error:", e); }
 			if (!(entity instanceof EntityLiving)) {
 				pWGS = false;
-				CustomNpcs.debugData.end("Mod", NPCSpawning.class, "performWorldGenSpawning");
+				CustomNpcs.debugData.end(null);
 				return;
 			}
 			Entity finalEntity = entity;
 			trySummonToPos(3, data, world, world.getTopSolidOrLiquidBlock(new BlockPos(x + rand.nextInt(16), 0, z + rand.nextInt(16))), (EntityLiving) finalEntity);
 			pWGS = false;
-			CustomNpcs.debugData.end("Mod", NPCSpawning.class, "performWorldGenSpawning");
+			CustomNpcs.debugData.end(null);
 		});
 	}
 
@@ -66,7 +66,7 @@ public class NPCSpawning {
 	public static void findChunksForSpawning(WorldServer world) {
 		CustomNPCsScheduler.runTack(() -> {
 			if (fCFS || SpawnController.instance.data.isEmpty() || world.getWorldInfo().getWorldTotalTime() % 100L != 0L) { return; }
-			CustomNpcs.debugData.start("Mod", NPCSpawning.class, "findChunksForSpawning");
+			CustomNpcs.debugData.start(null);
 			fCFS = true;
 			try {
 				NPCSpawning.eligibleChunksForSpawning.clear();
@@ -109,7 +109,7 @@ public class NPCSpawning {
 			}
 			catch (Exception ignored) {}
             fCFS = false;
-			CustomNpcs.debugData.end("Mod", NPCSpawning.class, "findChunksForSpawning");
+			CustomNpcs.debugData.end(null);
 		});
 	}
 

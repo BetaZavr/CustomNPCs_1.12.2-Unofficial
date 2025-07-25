@@ -1509,7 +1509,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	@Override
 	public void onUpdate() {
-		CustomNpcs.debugData.start(EntityNPCInterface.class, this, "onUpdate");
+		CustomNpcs.debugData.start(this);
 		super.onUpdate();
 		if (animation != null) { animation.updateTime(); }
 		if (!this.ais.aiDisabled && this.ticksExisted % 10 == 0) {
@@ -1574,7 +1574,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		this.wasKilled = this.isKilled();
 		if (currentAnimation == 14) { deathTime = 19; }
-		CustomNpcs.debugData.end(EntityNPCInterface.class, this, "onUpdate");
+		CustomNpcs.debugData.end(this);
 	}
 
 	protected void playHurtSound(DamageSource ignoredSource, boolean isBlocked) {
@@ -2163,14 +2163,14 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public void updateAiClient() {
 		if (!isServerWorld() || aiAttackTarget == null) { return; }
-		CustomNpcs.debugData.start(this, "EntityNPCInterface", "updateAiClient");
+		CustomNpcs.debugData.start(this);
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("EntityId", this.getEntityId());
 		aiAttackTarget.writeToClientNBT(compound);
 		if (compound.getKeySet().size() > 1) {
 			Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_AI_TARGET, compound);
 		}
-		CustomNpcs.debugData.end(this, "EntityNPCInterface", "updateAiClient");
+		CustomNpcs.debugData.end(this);
 	}
 
 	public void updateAnimationClient() {
@@ -2242,9 +2242,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public void updateTargetClient() {
 		if (!isServerWorld()) { return; }
-		CustomNpcs.debugData.start(this, "EntityNPCInterface", "updateTargetClient");
+		CustomNpcs.debugData.start(this);
 		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_TARGET, getEntityId(), getAttackTarget() != null ? getAttackTarget().getEntityId() : -1);
-		CustomNpcs.debugData.end(this, "EntityNPCInterface", "updateTargetClient");
+		CustomNpcs.debugData.end(this);
 	}
 
 	private void updateTasks() {

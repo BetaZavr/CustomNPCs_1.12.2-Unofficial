@@ -99,12 +99,12 @@ public class PacketHandlerPlayer {
 			EnumPlayerPacket type = null;
 			try {
 				type = EnumPlayerPacket.values()[buffer.readInt()];
-				CustomNpcs.debugData.start(type.toString(), this, "onServerPacket");
+				CustomNpcs.debugData.start(type.toString());
 				if (!PacketHandlerPlayer.list.contains(type)) {
 					LogWriter.debug("Received: " + type);
 				}
 				player(buffer, player, type);
-				CustomNpcs.debugData.end(type.toString(), this, "onServerPacket");
+				CustomNpcs.debugData.end(type.toString());
 			} catch (Exception e) {
 				LogWriter.error("Error with EnumPlayerPacket." + type, e);
 			} finally {

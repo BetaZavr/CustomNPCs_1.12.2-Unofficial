@@ -1042,7 +1042,7 @@ public class ClientGuiEventHandler extends Gui {
 	@SubscribeEvent
 	public void npcCameraSetupEvent(EntityViewRenderEvent.CameraSetup event) {
 		if (event.getEntity() instanceof EntityLivingBase && ClientGuiEventHandler.crashes.isActive) { // camera shaking
-			CustomNpcs.debugData.start("Players", this, "npcCameraSetupEvent");
+			CustomNpcs.debugData.start(null);
 			float amplitude = ClientGuiEventHandler.crashes
 					.get(ClientGuiEventHandler.crashes.endTime - event.getEntity().world.getTotalWorldTime());
 			if (amplitude != 0.0f) {
@@ -1077,7 +1077,7 @@ public class ClientGuiEventHandler extends Gui {
 				}
 				}
 			}
-			CustomNpcs.debugData.end("Players", this, "npcCameraSetupEvent");
+			CustomNpcs.debugData.end(null);
 		}
 	}
 
@@ -1085,7 +1085,7 @@ public class ClientGuiEventHandler extends Gui {
 	@SuppressWarnings("all")
 	@SubscribeEvent
 	public void npcRenderOverlay(RenderGameOverlayEvent.Text event) {
-		CustomNpcs.debugData.start("Players", this, "npcRenderOverlay");
+		CustomNpcs.debugData.start(null);
 		mc = Minecraft.getMinecraft();
 		sw = new ScaledResolution(mc);
 
@@ -1174,7 +1174,7 @@ public class ClientGuiEventHandler extends Gui {
 			GlStateManager.popMatrix();
 		}
 		if (mc.currentScreen != null && !(mc.currentScreen instanceof GuiChat) && !(mc.currentScreen instanceof GuiLog)) {
-			CustomNpcs.debugData.end("Players", this, "npcRenderOverlay");
+			CustomNpcs.debugData.end(null);
 			return;
 		}
 		// Custom HUD window
@@ -1361,7 +1361,7 @@ public class ClientGuiEventHandler extends Gui {
 					ents = mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
 				}
 				catch (Exception ignored) { }
-				if (n.equals("Player")) {
+				if (n.equals(null)) {
 					EntityPlayer pl = mc.world.getClosestPlayerToEntity(mc.player, 32.0d);
 					if (pl != null && pl.getActivePotionEffect(  Objects.requireNonNull(Potion.getPotionFromResourceLocation("minecraft:invisibility"))) == null) {
 						e = pl;
@@ -1628,7 +1628,7 @@ public class ClientGuiEventHandler extends Gui {
 			}
 
 		}
-		CustomNpcs.debugData.end("Players", this, "npcRenderOverlay");
+		CustomNpcs.debugData.end(null);
 	}
 
 	private static EntityLivingBase getEntityLivingBase(double[] p, List<EntityLivingBase> ents, QuestData qData) {
@@ -1650,12 +1650,12 @@ public class ClientGuiEventHandler extends Gui {
 	/** Any Regions */
 	@SubscribeEvent
 	public void npcRenderWorldLastEvent(RenderWorldLastEvent event) {
-		CustomNpcs.debugData.start("Players", this, "npcRenderWorldLastEvent");
+		CustomNpcs.debugData.start(null);
 		if (mc == null) { mc = Minecraft.getMinecraft(); }
 		if (sw == null) { sw = new ScaledResolution(mc); }
         BorderController bData = BorderController.getInstance();
 		if (mc.player == null || mc.player.world == null) {
-			CustomNpcs.debugData.end("Players", this, "npcRenderWorldLastEvent");
+			CustomNpcs.debugData.end(null);
 			return;
 		}
 		// position
@@ -1711,7 +1711,7 @@ public class ClientGuiEventHandler extends Gui {
 		if (builder != null && builder.getID() > -1) {
 			if (builder.getType() == 4) {
 				drawZone(builder, null);
-				CustomNpcs.debugData.end("Players", this, "npcRenderWorldLastEvent");
+				CustomNpcs.debugData.end(null);
 				return;
 			}
 			Vec3d vec3d = mc.player.getPositionEyes(1.0f);
@@ -1814,7 +1814,7 @@ public class ClientGuiEventHandler extends Gui {
 			if (mc.player.capabilities.isCreativeMode) { renderRegion(reg, id); }
 			else if (reg.showInClient) { drawRegion(reg, -1); }
 		}
-		CustomNpcs.debugData.end("Players", this, "npcRenderWorldLastEvent");
+		CustomNpcs.debugData.end(null);
 	}
 
 	private static BlockPos getPos() {
@@ -1856,9 +1856,9 @@ public class ClientGuiEventHandler extends Gui {
 	/** HUD Bar Interface Canceled */
 	@SubscribeEvent
 	public void npcScreenRenderPre(RenderGameOverlayEvent.Pre event) {
-		CustomNpcs.debugData.start("Players", this, "npcScreenRenderPre");
+		CustomNpcs.debugData.start(null);
 		if (!ClientProxy.playerData.hud.isShowElementType(event.getType().ordinal())) { event.setCanceled(true); }
-		CustomNpcs.debugData.end("Players", this, "npcScreenRenderPre");
+		CustomNpcs.debugData.end(null);
 	}
 
 	/** Regions Edit -> Draw */

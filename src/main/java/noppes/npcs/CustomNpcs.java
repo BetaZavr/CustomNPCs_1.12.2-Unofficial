@@ -276,7 +276,6 @@ public class CustomNpcs {
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;
-	public static long ticks;
 	public static final String MODID = "customnpcs";
 	public static final String MODNAME = "CustomNpcs";
 	public static FMLEventChannel Channel;
@@ -406,6 +405,7 @@ public class CustomNpcs {
 
 	@Mod.EventHandler
 	public void serverStart(FMLServerStartingEvent event) {
+		LogWriter.info("Mod starting");
 		event.registerServerCommand(CustomNpcs.NoppesCommand);
 		EntityNPCInterface.ChatEventPlayer = new FakePlayer(event.getServer().getWorld(0), EntityNPCInterface.ChatEventProfile);
 		EntityNPCInterface.CommandPlayer = new FakePlayer(event.getServer().getWorld(0), EntityNPCInterface.CommandProfile);
@@ -440,7 +440,7 @@ public class CustomNpcs {
 
 	@Mod.EventHandler
 	public void setAboutToStart(FMLServerAboutToStartEvent event) {
-		LogWriter.info("CustomNpcs: setAboutToStart");
+		LogWriter.info("Load map_world datas");
 		CustomNpcs.Server = event.getServer();
 		ChunkController.instance.clear();
 		FactionController.instance.load();
@@ -498,6 +498,10 @@ public class CustomNpcs {
 
 	@Mod.EventHandler
 	public void started(FMLServerStartedEvent event) {
+		if (CustomNpcs.Server != null) {
+			debugData.started = System.currentTimeMillis();
+			debugData.startedTicks = CustomNpcs.Server.getWorld(0).getTotalWorldTime();
+		}
 		new BankController();
 		new MarcetController();
 		new BorderController();

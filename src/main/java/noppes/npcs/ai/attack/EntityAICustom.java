@@ -95,12 +95,12 @@ public class EntityAICustom extends EntityAIBase {
 	 */
 	@Override
 	public boolean shouldExecute() {
-		CustomNpcs.debugData.start(npc, this, "shouldExecute");
+		CustomNpcs.debugData.start(npc);
 		distance = -1.0d;
 		canSeeToAttack = false;
 		hasAttack = false;
 		setTarget();
-		CustomNpcs.debugData.end(npc, this, "shouldExecute");
+		CustomNpcs.debugData.end(npc);
 		return setTarget();
 	}
 
@@ -137,11 +137,11 @@ public class EntityAICustom extends EntityAIBase {
 	}
 
 	public void update() {
-		CustomNpcs.debugData.start(npc, this, "update");
+		CustomNpcs.debugData.start(npc);
 		if (!startRangedAttack || target == null || !target.isEntityAlive() || !npc.isEntityAlive()) {
 			startRangedAttack = false;
 			//this.step = 0; this.burstCount = 0;
-			CustomNpcs.debugData.end(npc, this, "update");
+			CustomNpcs.debugData.end(npc);
 			return;
 		}
 		step++;
@@ -172,7 +172,7 @@ public class EntityAICustom extends EntityAIBase {
 			}
 			step = 0;
 		}
-		CustomNpcs.debugData.end(npc, this, "update");
+		CustomNpcs.debugData.end(npc);
 	}
 
 	/**
@@ -180,7 +180,7 @@ public class EntityAICustom extends EntityAIBase {
 	 */
 	@Override
 	public void updateTask() {
-		CustomNpcs.debugData.start(npc, this, "updateTask");
+		CustomNpcs.debugData.start(npc);
 		inMove = !npc.getNavigator().noPath();
 		tacticalRange = npc.ais.getTacticalRange();
 		distance = npc.getDistance(this.target.posX, this.target.getEntityBoundingBox().minY, this.target.posZ);
@@ -196,7 +196,7 @@ public class EntityAICustom extends EntityAIBase {
 				range = minRange;
 			}
 		}
-		CustomNpcs.debugData.end(npc, this, "updateTask");
+		CustomNpcs.debugData.end(npc);
 	}
 
 	public void writeToClientNBT(NBTTagCompound compound) {

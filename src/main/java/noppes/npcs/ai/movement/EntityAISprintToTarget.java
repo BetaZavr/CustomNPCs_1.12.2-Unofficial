@@ -30,7 +30,7 @@ public class EntityAISprintToTarget extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-		CustomNpcs.debugData.start(npc, this, "shouldExecute");
+		CustomNpcs.debugData.start(npc);
         EntityLivingBase target = this.npc.getAttackTarget();
 		if (target != null && target.isEntityAlive() && this.npc.hurtTime <= 0 && !this.npc.getNavigator().noPath()) {
 			this.startExecuting();
@@ -41,7 +41,7 @@ public class EntityAISprintToTarget extends EntityAIBase {
 				this.npc.setSprinting(false);
 			}
 		}
-		CustomNpcs.debugData.end(npc, this, "shouldExecute");
+		CustomNpcs.debugData.end(npc);
 		return false;
 	}
 

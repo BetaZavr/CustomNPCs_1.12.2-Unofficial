@@ -18,31 +18,31 @@ public class EntityAIOwnerHurtTarget extends EntityAITarget {
 	}
 
 	public boolean shouldExecute() {
-		CustomNpcs.debugData.start(npc, this, "shouldExecute");
+		CustomNpcs.debugData.start(npc);
 		if (!this.npc.isFollower() || this.npc.advanced.roleInterface == null
 				|| this.npc.advanced.roleInterface.defendOwner()) {
-			CustomNpcs.debugData.end(npc, this, "shouldExecute");
+			CustomNpcs.debugData.end(npc);
 			return false;
 		}
 		EntityLivingBase entitylivingbase = this.npc.getOwner();
 		if (entitylivingbase == null) {
-			CustomNpcs.debugData.end(npc, this, "shouldExecute");
+			CustomNpcs.debugData.end(npc);
 			return false;
 		}
 		this.theTarget = entitylivingbase.getLastAttackedEntity();
 		int i = entitylivingbase.getLastAttackedEntityTime();
-		CustomNpcs.debugData.end(npc, this, "shouldExecute");
+		CustomNpcs.debugData.end(npc);
 		return i != this.timestamp && this.isSuitableTarget(this.theTarget, false);
 	}
 
 	public void startExecuting() {
-		CustomNpcs.debugData.start(npc, this, "startExecuting");
+		CustomNpcs.debugData.start(npc);
 		this.npc.setAttackTarget(this.theTarget);
 		EntityLivingBase entitylivingbase = this.npc.getOwner();
 		if (entitylivingbase != null) {
 			this.timestamp = entitylivingbase.getLastAttackedEntityTime();
 		}
 		super.startExecuting();
-		CustomNpcs.debugData.end(npc, this, "startExecuting");
+		CustomNpcs.debugData.end(npc);
 	}
 }

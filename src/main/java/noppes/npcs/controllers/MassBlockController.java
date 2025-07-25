@@ -31,7 +31,7 @@ public class MassBlockController {
 
 	public static void Update() {
 		if (MassBlockController.Instance.queue.isEmpty()) { return; }
-		CustomNpcs.debugData.start("Mod", MassBlockController.class, "save");
+		CustomNpcs.debugData.start(null);
 		IMassBlock imb = MassBlockController.Instance.queue.remove();
 		World world = imb.getNpc().world;
 		BlockPos pos = imb.getNpc().getPosition();
@@ -48,7 +48,7 @@ public class MassBlockController {
 			}
 		}
 		imb.processed(list);
-		CustomNpcs.debugData.end("Mod", MassBlockController.class, "save");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public Queue<IMassBlock> queue;

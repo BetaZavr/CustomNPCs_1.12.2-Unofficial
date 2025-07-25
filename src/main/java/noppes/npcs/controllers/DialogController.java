@@ -80,7 +80,7 @@ public class DialogController implements IDialogHandler {
 	}
 
 	public void load() {
-		CustomNpcs.debugData.start("Mod", this, "load");
+		CustomNpcs.debugData.start(null);
 		LogWriter.info("Loading Dialogs");
 		this.loadCategories();
 		try {
@@ -89,7 +89,7 @@ public class DialogController implements IDialogHandler {
 			else { saveSettings(); }
 		} catch (Exception e) { LogWriter.except(e); }
 		LogWriter.info("Done loading Dialogs");
-		CustomNpcs.debugData.end("Mod", this, "load");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SuppressWarnings("all")
@@ -260,7 +260,7 @@ public class DialogController implements IDialogHandler {
 
 	@SuppressWarnings("all")
 	public void saveCategory(DialogCategory category) {
-		CustomNpcs.debugData.start("Mod", this, "saveCategory");
+		CustomNpcs.debugData.start(null);
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
 			category.title = "default";
@@ -273,7 +273,7 @@ public class DialogController implements IDialogHandler {
 				File newDir = new File(this.getDir(), category.title);
 				File oldDir = new File(this.getDir(), currentCategory.title);
 				if (newDir.exists() || !oldDir.renameTo(newDir)) {
-					CustomNpcs.debugData.end("Mod", this, "saveCategory");
+					CustomNpcs.debugData.end(null);
 					return;
 				}
 			}
@@ -299,13 +299,13 @@ public class DialogController implements IDialogHandler {
 			}
 		}
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogCategoriesData, category.writeNBT(new NBTTagCompound()));
-		CustomNpcs.debugData.end("Mod", this, "saveCategory");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SuppressWarnings("all")
 	public void saveDialog(DialogCategory category, Dialog dialog) {
 		if (category == null) { return; }
-		CustomNpcs.debugData.start("Mod", this, "saveDialog");
+		CustomNpcs.debugData.start(null);
 		StringBuilder title = new StringBuilder(dialog.title);
 		while (this.containsDialogName(dialog.category, dialog)) {
 			title.append("_");
@@ -334,12 +334,12 @@ public class DialogController implements IDialogHandler {
 					category.id);
 		}
 		catch (Exception e) { LogWriter.except(e);}
-		CustomNpcs.debugData.end("Mod", this, "saveDialog");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@SuppressWarnings("all")
 	public void saveSettings() {
-		CustomNpcs.debugData.start("Mod", this, "saveSettings");
+		CustomNpcs.debugData.start(null);
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			File file = new File(saveDir, "dialog_gui_settings.dat_new");
@@ -353,7 +353,7 @@ public class DialogController implements IDialogHandler {
 			if (file.exists()) { file.delete(); }
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogGuiSettings, guiSettings.save());
-		CustomNpcs.debugData.end("Mod", this, "saveSettings");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public DialogGuiSettings getGuiSettings() { return guiSettings; }

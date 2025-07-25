@@ -307,28 +307,24 @@ public class PlayerEventHandler {
 
     @SubscribeEvent
 	public void npcArrowLooseEvent(ArrowLooseEvent event) {
-		if (event.getEntityPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
-			return;
-		}
-		CustomNpcs.debugData.start(event.getEntityPlayer(), this, "npcArrowLooseEvent");
+		if (event.getEntityPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) { return; }
+		CustomNpcs.debugData.start(event.getEntityPlayer());
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
 		PlayerEvent.RangedLaunchedEvent ev = new PlayerEvent.RangedLaunchedEvent(handler.getPlayer());
 		event.setCanceled(EventHooks.onPlayerRanged(handler, ev));
-		CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcArrowLooseEvent");
+		CustomNpcs.debugData.end(event.getEntityPlayer());
 	}
 
 	@SubscribeEvent
 	public void npcBlockBreakEvent(BreakEvent event) {
-		if (event.getPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
-			return;
-		}
-		CustomNpcs.debugData.start(event.getPlayer(), this, "npcBlockBreakEvent");
+		if (event.getPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) { return; }
+		CustomNpcs.debugData.start(event.getPlayer());
 		PlayerScriptData handler = PlayerData.get(event.getPlayer()).scriptData;
 		PlayerEvent.BreakEvent ev = new PlayerEvent.BreakEvent(handler.getPlayer(),
 				Objects.requireNonNull(NpcAPI.Instance()).getIBlock(event.getWorld(), event.getPos()), event.getExpToDrop());
 		event.setCanceled(EventHooks.onPlayerBreak(handler, ev));
 		event.setExpToDrop(ev.exp);
-		CustomNpcs.debugData.end(event.getPlayer(), this, "npcBlockBreakEvent");
+		CustomNpcs.debugData.end(event.getPlayer());
 	}
 
 	@SubscribeEvent
@@ -337,7 +333,7 @@ public class PlayerEventHandler {
 				|| !(event.getEntity() instanceof EntityPlayer)) {
 			return;
 		}
-		CustomNpcs.debugData.start(event.getEntity(), this, "npcBlockPlaceEvent");
+		CustomNpcs.debugData.start(event.getEntity());
 		EntityPlayer player = (EntityPlayer) event.getEntity();
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
 		if (event.getPlacedBlock().getBlock() instanceof BlockBanner && player.getHeldItemMainhand().getItem() instanceof ItemBanner) {
@@ -358,60 +354,58 @@ public class PlayerEventHandler {
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.DETECT_HELD_ITEM, player.inventory.currentItem,
 					nbt);
 		}
-		CustomNpcs.debugData.end(event.getEntity(), this, "npcBlockPlaceEvent");
+		CustomNpcs.debugData.end(event.getEntity());
 	}
 
 	@SubscribeEvent
 	public void npcItemCraftedEvent(ItemCraftedEvent event) {
-		if (event.player.world.isRemote) {
-			return;
-		}
-		CustomNpcs.debugData.start(event.player, this, "npcItemCraftedEvent");
+		if (event.player.world.isRemote) { return; }
+		CustomNpcs.debugData.start(event.player);
 		EntityPlayerMP player = (EntityPlayerMP) event.player;
 		PlayerEvent.ItemCrafted craftEvent = new PlayerEvent.ItemCrafted(PlayerData.get(event.player).scriptData.getPlayer(),
 				Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(event.crafting),
 				event.craftMatrix);
 		EventHooks.onEvent(PlayerData.get(event.player).scriptData, EnumScriptType.ITEM_CRAFTED, craftEvent);
 		if (!craftEvent.crafting.isEmpty()) { CustomNPCsScheduler.runTack(() -> doCraftQuest(player, craftEvent.crafting.getMCItemStack())); }
-		CustomNpcs.debugData.end(event.player, this, "npcItemCraftedEvent");
+		CustomNpcs.debugData.end(event.player);
 	}
 
 	@SubscribeEvent
 	public void npcItemFishedEvent(ItemFishedEvent event) {
 		if (event.getEntityPlayer().world.isRemote) { return; }
-		CustomNpcs.debugData.start(event.getEntityPlayer(), this, "npcItemFishedEvent");
+		CustomNpcs.debugData.start(event.getEntityPlayer());
 		event.setCanceled(EventHooks.onPlayerFished(PlayerData.get(event.getEntityPlayer()).scriptData, event.getDrops(), event.getRodDamage()));
-		CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcItemFishedEvent");
+		CustomNpcs.debugData.end(event.getEntityPlayer());
 	}
 
 	@SubscribeEvent
 	public void npcItemPickupEvent(EntityItemPickupEvent event) {
 		if (event.getEntityPlayer().world.isRemote) { return; }
-		CustomNpcs.debugData.start(event.getEntityPlayer(), this, "npcItemPickupEvent");
+		CustomNpcs.debugData.start(event.getEntityPlayer());
 		PlayerData pd = PlayerData.get(event.getEntityPlayer());
 		for (QuestData qd : pd.questData.activeQuests.values()) { pd.questData.checkQuestCompletion(event.getEntityPlayer(), qd); }
 		pd.questData.updateClient = true;
 		event.setCanceled(EventHooks.onPlayerPickUp(pd.scriptData, event.getItem()));
-		CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcItemPickupEvent");
+		CustomNpcs.debugData.end(event.getEntityPlayer());
 	}
 
 	@SubscribeEvent
 	public void npcItemTossEvent(ItemTossEvent event) {
 		if (event.getPlayer().world.isRemote) { return; }
-		CustomNpcs.debugData.start(event.getPlayer(), this, "npcItemTossEvent");
+		CustomNpcs.debugData.start(event.getPlayer());
 		PlayerData pd = PlayerData.get(event.getPlayer());
 		for (QuestData qd : pd.questData.activeQuests.values()) {
 			pd.questData.checkQuestCompletion(event.getPlayer(), qd);
 		}
 		pd.questData.updateClient = true;
 		event.setCanceled(EventHooks.onPlayerToss(pd.scriptData, event.getEntityItem()));
-		CustomNpcs.debugData.end(event.getPlayer(), this, "npcItemTossEvent");
+		CustomNpcs.debugData.end(event.getPlayer());
 	}
 
 	@SubscribeEvent
 	public void npcLivingAttackEvent(LivingAttackEvent event) {
 		if (event.getEntityLiving().world.isRemote) { return; }
-		CustomNpcs.debugData.start(event.getEntityLiving(), this, "npcLivingAttackEvent");
+		CustomNpcs.debugData.start(event.getEntityLiving());
 		Entity source = NoppesUtilServer.GetDamageSource(event.getSource());
 		String damageType = event.getSource() != null ? event.getSource().damageType : "null";
 		Resistances.addDamageName(damageType);
@@ -448,13 +442,13 @@ public class PlayerEventHandler {
 				}
 			}
 		}
-		CustomNpcs.debugData.end(event.getEntityLiving(), this, "npcLivingAttackEvent");
+		CustomNpcs.debugData.end(event.getEntityLiving());
 	}
 
 	@SubscribeEvent
 	public void npcLivingDeathEvent(LivingDeathEvent event) {
 		if (event.getEntityLiving().world.isRemote) { return; }
-		CustomNpcs.debugData.start(event.getEntityLiving(), this, "npcLivingDeathEvent");
+		CustomNpcs.debugData.start(event.getEntityLiving());
 		Entity source = NoppesUtilServer.GetDamageSource(event.getSource());
 		if (event.getEntityLiving() instanceof EntityPlayer) {
 			PlayerScriptData handler = PlayerData.get((EntityPlayer) event.getEntityLiving()).scriptData;
@@ -464,13 +458,13 @@ public class PlayerEventHandler {
 			PlayerScriptData handler = PlayerData.get((EntityPlayer) source).scriptData;
 			EventHooks.onPlayerKills(handler, event.getEntityLiving());
 		}
-		CustomNpcs.debugData.end(event.getEntityLiving(), this, "npcLivingDeathEvent");
+		CustomNpcs.debugData.end(event.getEntityLiving());
 	}
 
 	@SubscribeEvent
 	public void npcLivingHurtEvent(LivingHurtEvent event) {
 		if (event.getEntityLiving().world.isRemote) { return; }
-		CustomNpcs.debugData.start(event.getEntityLiving(), this, "npcLivingHurtEvent");
+		CustomNpcs.debugData.start(event.getEntityLiving());
 		Entity source = NoppesUtilServer.GetDamageSource(event.getSource());
 		if (event.getEntityLiving() instanceof EntityPlayer) {
 			PlayerScriptData handler = PlayerData.get((EntityPlayer) event.getEntityLiving()).scriptData;
@@ -491,16 +485,16 @@ public class PlayerEventHandler {
 			event.setCanceled(EventHooks.onPlayerDamagedEntity(handler, pevent2));
 			event.setAmount(pevent2.damage);
 		}
-		CustomNpcs.debugData.end(event.getEntityLiving(), this, "npcLivingHurtEvent");
+		CustomNpcs.debugData.end(event.getEntityLiving());
 	}
 
 	@SubscribeEvent
 	public void npcPlayerContainerCloseEvent(PlayerContainerEvent.Close event) {
 		if (event.getEntityPlayer().world.isRemote) { return; }
-		CustomNpcs.debugData.start(event.getEntityPlayer(), this, "npcPlayerContainerCloseEvent");
+		CustomNpcs.debugData.start(event.getEntityPlayer());
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
 		EventHooks.onPlayerContainerClose(handler, event.getContainer());
-		CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerContainerCloseEvent");
+		CustomNpcs.debugData.end(event.getEntityPlayer());
 	}
 
 	@SubscribeEvent
@@ -508,15 +502,15 @@ public class PlayerEventHandler {
 		if (event.getEntityPlayer().world.isRemote) {
 			return;
 		}
-		CustomNpcs.debugData.start(event.getEntityPlayer(), this, "npcPlayerContainerOpenEvent");
+		CustomNpcs.debugData.start(event.getEntityPlayer());
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
 		EventHooks.onPlayerContainerOpen(handler, event.getContainer());
-		CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerContainerOpenEvent");
+		CustomNpcs.debugData.end(event.getEntityPlayer());
 	}
 	
 	@SubscribeEvent
 	public void npcPlayerEntityInteractEvent(PlayerInteractEvent.EntityInteract event) {
-		CustomNpcs.debugData.start(event.getEntityPlayer(), this, "npcPlayerEntityInteractEvent");
+		CustomNpcs.debugData.start(event.getEntityPlayer());
 		if (event.getEntityPlayer().world.isRemote || event.getHand() != EnumHand.MAIN_HAND || event.getWorld().isRemote) {
 			if (event.getHand() == EnumHand.MAIN_HAND &&
 					event.getItemStack().getItem() == CustomRegisters.nbt_book &&
@@ -525,13 +519,13 @@ public class PlayerEventHandler {
                     !event.getTarget().getClass().getName().contains("noppes")) {
 				ClientEventHandler.entityClientEvent(event);
 			}
-			CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerEntityInteractEvent");
+			CustomNpcs.debugData.end(event.getEntityPlayer());
 			return;
 		}
 		if (event.getItemStack().getItem() == CustomRegisters.nbt_book) {
 			((ItemNbtBook) event.getItemStack().getItem()).entityEvent((EntityPlayerMP) event.getEntityPlayer(), event.getTarget());
 			event.setCanceled(true);
-			CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerEntityInteractEvent");
+			CustomNpcs.debugData.end(event.getEntityPlayer());
 			return;
 		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
@@ -542,23 +536,23 @@ public class PlayerEventHandler {
 			ItemEvent.InteractEvent eve = new ItemEvent.InteractEvent(isw, handler.getPlayer(), 1, Objects.requireNonNull(NpcAPI.Instance()).getIEntity(event.getTarget()));
 			event.setCanceled(EventHooks.onScriptItemInteract(isw, eve));
 		}
-		CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerEntityInteractEvent");
+		CustomNpcs.debugData.end(event.getEntityPlayer());
 	}
 
 	@SubscribeEvent
 	public void npcPlayerLeftClickBlockEvent(PlayerInteractEvent.LeftClickBlock event) {
 		if (event.getHand() != EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || event.getWorld().isRemote) { return; }
-		CustomNpcs.debugData.start(event.getEntityPlayer(), this, "npcPlayerLeftClickBlockEvent");
+		CustomNpcs.debugData.start(event.getEntityPlayer());
 		if (event.getItemStack().getItem() == CustomRegisters.npcboundary) {
 			((ItemBoundary) event.getItemStack().getItem()).leftClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
 			event.setCanceled(true);
-			CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerLeftClickBlockEvent");
+			CustomNpcs.debugData.end(event.getEntityPlayer());
 			return;
 		}
 		if (event.getItemStack().getItem() instanceof ISpecBuilder) {
 			((ISpecBuilder) event.getItemStack().getItem()).leftClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer(), event.getPos());
 			event.setCanceled(true);
-			CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerLeftClickBlockEvent");
+			CustomNpcs.debugData.end(event.getEntityPlayer());
 			return;
 		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
@@ -570,7 +564,7 @@ public class PlayerEventHandler {
 			eve.setCanceled(event.isCanceled());
 			event.setCanceled(EventHooks.onScriptItemAttack(isw, eve));
 		}
-		CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerLeftClickBlockEvent");
+		CustomNpcs.debugData.end(event.getEntityPlayer());
 	}
 
 	@SubscribeEvent
@@ -580,7 +574,7 @@ public class PlayerEventHandler {
 		if (!ScriptController.Instance.getErrored().isEmpty()) {
 			CustomNPCsScheduler.runTack(() -> event.player.sendMessage(new TextComponentTranslation("command.script.logs.view")), 2500);
 		}
-		CustomNpcs.debugData.start(event.player, this, "npcPlayerLoginEvent");
+		CustomNpcs.debugData.start(event.player);
 		PlayerData data = PlayerData.get(event.player);
 		EventHooks.onPlayerLogin(data.scriptData);
 		EntityPlayerMP player = (EntityPlayerMP) event.player;
@@ -626,15 +620,15 @@ public class PlayerEventHandler {
 					event.player.rotationPitch);
 		}
 		data.game.dimID = player.world.provider.getDimension();
-		CustomNpcs.debugData.end(event.player, this, "npcPlayerLoginEvent");
+		CustomNpcs.debugData.end(event.player);
 	}
 
 	@SubscribeEvent
 	public void npcPlayerLogoutEvent(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent event) {
-		CustomNpcs.debugData.start(event.player, this, "npcPlayerLogoutEvent");
+		CustomNpcs.debugData.start(event.player);
 		if (event.player.world.isRemote) {
 			KeyController.getInstance().save();
-			CustomNpcs.debugData.end(event.player, this, "npcPlayerLogoutEvent");
+			CustomNpcs.debugData.end(event.player);
 			return;
 		}
 		PlayerData data = PlayerData.get(event.player);
@@ -671,13 +665,13 @@ public class PlayerEventHandler {
 			data.game.logPos = null;
 		}
 		data.save(false);
-		CustomNpcs.debugData.end(event.player, this, "npcPlayerLogoutEvent");
+		CustomNpcs.debugData.end(event.player);
 	}
 
 	@SubscribeEvent
 	public void npcPlayerRightClickBlockEvent(PlayerInteractEvent.RightClickBlock event) {
 		if (event.getHand() != EnumHand.MAIN_HAND || event.getWorld().isRemote) { return; }
-		CustomNpcs.debugData.start(event.getEntityPlayer(), this, "npcPlayerRightClickBlockEvent");
+		CustomNpcs.debugData.start(event.getEntityPlayer());
 		// NPC dead inventory
 		if (!(event.getItemStack().getItem() instanceof INPCToolItem)) {
 			Entity deadTarget = Util.instance.getLookEntity(event.getEntityPlayer(), 4.0d, false);
@@ -688,7 +682,7 @@ public class PlayerEventHandler {
 				if (deadInventory != null) {
 					NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.DeadInventory, (EntityNPCInterface) deadTarget, deadInventory.getSizeInventory(), -1, 0);
 					event.setCanceled(true);
-					CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerRightClickBlockEvent");
+					CustomNpcs.debugData.end(event.getEntityPlayer());
 					return;
 				}
 			}
@@ -698,18 +692,18 @@ public class PlayerEventHandler {
 			if (target != null) { ((ItemNbtBook) event.getItemStack().getItem()).entityEvent((EntityPlayerMP) event.getEntityPlayer(), target); }
 			else { ((ItemNbtBook) event.getItemStack().getItem()).blockEvent((EntityPlayerMP) event.getEntityPlayer(), event.getPos()); }
 			event.setCanceled(true);
-			CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerRightClickBlockEvent");
+			CustomNpcs.debugData.end(event.getEntityPlayer());
 			return;
 		}
 		if (event.getItemStack().getItem() == CustomRegisters.npcboundary) {
 			((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
-			CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerRightClickBlockEvent");
+			CustomNpcs.debugData.end(event.getEntityPlayer());
 			event.setCanceled(true);
 			return;
 		}
 		if (event.getItemStack().getItem() instanceof ISpecBuilder) {
 			((ISpecBuilder) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer(), event.getPos());
-			CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerRightClickBlockEvent");
+			CustomNpcs.debugData.end(event.getEntityPlayer());
 			event.setCanceled(true);
 			return;
 		}
@@ -722,17 +716,17 @@ public class PlayerEventHandler {
 			ItemEvent.InteractEvent eve = new ItemEvent.InteractEvent(isw, handler.getPlayer(), 2, Objects.requireNonNull(NpcAPI.Instance()).getIBlock(event.getWorld(), event.getPos()));
 			event.setCanceled(EventHooks.onScriptItemInteract(isw, eve));
 		}
-		CustomNpcs.debugData.end(event.getEntityPlayer(), this, "npcPlayerRightClickBlockEvent");
+		CustomNpcs.debugData.end(event.getEntityPlayer());
 	}
 
 	@SubscribeEvent
 	public void npcPlayerRightClickItemEvent(PlayerInteractEvent.RightClickItem event) {
 		if (event.getHand() != EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || event.getWorld().isRemote) { return; }
 		EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
-		CustomNpcs.debugData.start(player, this, "npcPlayerRightClickItemEvent");
+		CustomNpcs.debugData.start(player);
 		if (event.getEntityPlayer().isCreative() && event.getEntityPlayer().isSneaking() && event.getItemStack().getItem() == CustomRegisters.scripted_item) {
 			NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.ScriptItem, null);
-			CustomNpcs.debugData.end(player, this, "npcPlayerRightClickItemEvent");
+			CustomNpcs.debugData.end(player);
 			return;
 		}
 		if (!(event.getItemStack().getItem() instanceof INPCToolItem)) {
@@ -744,7 +738,7 @@ public class PlayerEventHandler {
 				if (deadInventory != null) {
 					NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.DeadInventory, (EntityNPCInterface) deadTarget, deadInventory.getSizeInventory(), -1, 0);
 					event.setCanceled(true);
-					CustomNpcs.debugData.end(player, this, "npcPlayerRightClickItemEvent");
+					CustomNpcs.debugData.end(player);
 					return;
 				}
 			}
@@ -756,12 +750,12 @@ public class PlayerEventHandler {
 			Entity target = Util.instance.getLookEntity(player, d0, false);
 			if (target != null) {
 				((ItemNbtBook) event.getItemStack().getItem()).entityEvent(player, target);
-				CustomNpcs.debugData.end(player, this, "npcPlayerRightClickItemEvent");
+				CustomNpcs.debugData.end(player);
 				return;
 			}
 			else if (!player.getHeldItemOffhand().isEmpty()) {
 				((ItemNbtBook) event.getItemStack().getItem()).itemEvent(player);
-				CustomNpcs.debugData.end(player, this, "npcPlayerRightClickItemEvent");
+				CustomNpcs.debugData.end(player);
 				return;
 			}
 			Vec3d vec3d = player.getPositionEyes(1.0f);
@@ -770,25 +764,25 @@ public class PlayerEventHandler {
 			RayTraceResult result = player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
 			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK) {
 				((ItemNbtBook) event.getItemStack().getItem()).blockEvent(player, result.getBlockPos());
-				CustomNpcs.debugData.end(player, this, "npcPlayerRightClickItemEvent");
+				CustomNpcs.debugData.end(player);
 				return;
 			}
 		}
 		if (event.getItemStack().getItem() instanceof ItemBoundary) {
 			((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
-			CustomNpcs.debugData.end(player, this, "npcPlayerRightClickItemEvent");
+			CustomNpcs.debugData.end(player);
 			return;
 		}
 		if (event.getItemStack().getItem() instanceof ISpecBuilder) {
 			((ISpecBuilder) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer(), event.getPos());
-			CustomNpcs.debugData.end(player, this, "npcPlayerRightClickItemEvent");
+			CustomNpcs.debugData.end(player);
 			event.setCanceled(true);
 			return;
 		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
 		if (handler.hadInteract) {
 			handler.hadInteract = false;
-			CustomNpcs.debugData.end(player, this, "npcPlayerRightClickItemEvent");
+			CustomNpcs.debugData.end(player);
 			return;
 		}
 		PlayerEvent.InteractEvent ev = new PlayerEvent.InteractEvent(handler.getPlayer(), 0, null);
@@ -798,13 +792,13 @@ public class PlayerEventHandler {
 			ItemEvent.InteractEvent eve = new ItemEvent.InteractEvent(isw, handler.getPlayer(), 0, null);
 			event.setCanceled(EventHooks.onScriptItemInteract(isw, eve));
 		}
-		CustomNpcs.debugData.end(player, this, "npcPlayerRightClickItemEvent");
+		CustomNpcs.debugData.end(player);
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void npcServerChatEvent(ServerChatEvent event) {
 		if (event.getPlayer().world.isRemote || event.getPlayer() == EntityNPCInterface.ChatEventPlayer) { return; }
-		CustomNpcs.debugData.start(event.getPlayer(), this, "npcServerChatEvent");
+		CustomNpcs.debugData.start(event.getPlayer());
 		PlayerScriptData handler = PlayerData.get(event.getPlayer()).scriptData;
 		String message = event.getMessage();
 		PlayerEvent.ChatEvent ev = new PlayerEvent.ChatEvent(handler.getPlayer(), event.getMessage());
@@ -816,13 +810,13 @@ public class PlayerEventHandler {
 			event.setComponent(chat);
 		}
 		Server.sendRangedData(event.getPlayer().world, event.getPlayer().getPosition(), 32, EnumPacketClient.CHAT_BUBBLE, event.getPlayer().getEntityId(), event.getMessage(), true);
-		CustomNpcs.debugData.end(event.getPlayer(), this, "npcServerChatEvent");
+		CustomNpcs.debugData.end(event.getPlayer());
 	}
 
 	@SubscribeEvent
 	public void npcServerTick(TickEvent.PlayerTickEvent event) {
 		if (event.side != Side.SERVER || event.phase != TickEvent.Phase.START) { return; }
-		CustomNpcs.debugData.start(event.player, this, "npcServerTick");
+		CustomNpcs.debugData.start(event.player);
 		EntityPlayer player = event.player;
 		PlayerData data = PlayerData.get(player);
 		if (player.ticksExisted % 10 == 0) {
@@ -855,14 +849,14 @@ public class PlayerEventHandler {
 			}
 			data.game.dimID = event.player.world.provider.getDimension();
 		}
-		CustomNpcs.debugData.end(event.player, this, "npcServerTick");
+		CustomNpcs.debugData.end(event.player);
 	}
 
 	@SuppressWarnings("all")
 	public PlayerEventHandler registerForgeEvents(Side side) {
 		ForgeEventHandler handler = new ForgeEventHandler();
 		LogWriter.info("CustomNpcs: Start load Forge Events:");
-		CustomNpcs.debugData.start("Mod", this, "registerForgeEvents");
+		CustomNpcs.debugData.start(null);
 		ScriptController.forgeEventNames.clear();
 		List<Class<?>> listClasses = new ArrayList<>();
 		try {
@@ -996,7 +990,7 @@ public class PlayerEventHandler {
 			}
 		} catch (Exception e) { LogWriter.error("Error:", e); }
 		LogWriter.info("CustomNpcs: Registered [Client:" + ScriptController.forgeClientEventNames.size() + "; Server: " + ScriptController.forgeEventNames.size() + "] Forge Events out of [" + listClasses.size() + "] classes");
-		CustomNpcs.debugData.end("Mod", this, "registerForgeEvents");
+		CustomNpcs.debugData.end(null);
 		return this;
 	}
 

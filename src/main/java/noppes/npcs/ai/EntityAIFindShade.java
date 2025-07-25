@@ -41,24 +41,24 @@ public class EntityAIFindShade extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-		CustomNpcs.debugData.start(theCreature, this, "shouldExecute");
+		CustomNpcs.debugData.start(theCreature);
 		if (!world.isDaytime()) {
-			CustomNpcs.debugData.end(theCreature, this, "shouldExecute");
+			CustomNpcs.debugData.end(theCreature);
 			return false;
 		}
 		if (!world.canSeeSky(new BlockPos(theCreature.posX, theCreature.getEntityBoundingBox().minY, theCreature.posZ))) {
-			CustomNpcs.debugData.end(theCreature, this, "shouldExecute");
+			CustomNpcs.debugData.end(theCreature);
 			return false;
 		}
 		Vec3d var1 = findPossibleShelter();
 		if (var1 == null) {
-			CustomNpcs.debugData.end(theCreature, this, "shouldExecute");
+			CustomNpcs.debugData.end(theCreature);
 			return false;
 		}
 		shelterX = var1.x;
 		shelterY = var1.y;
 		shelterZ = var1.z;
-		CustomNpcs.debugData.end(theCreature, this, "shouldExecute");
+		CustomNpcs.debugData.end(theCreature);
 		return true;
 	}
 

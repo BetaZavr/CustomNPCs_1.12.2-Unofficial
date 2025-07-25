@@ -102,16 +102,16 @@ public class TransportController {
 	}
 
 	private void loadCategories() {
-		CustomNpcs.debugData.start("Mod", this, "loadCategories");
+		CustomNpcs.debugData.start(null);
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
 		if (saveDir == null) {
-			CustomNpcs.debugData.end("Mod", this, "loadCategories");
+			CustomNpcs.debugData.end(null);
 			return;
 		}
 		try {
 			File file = new File(saveDir, "transport.dat");
 			if (!file.exists()) {
-				CustomNpcs.debugData.end("Mod", this, "loadCategories");
+				CustomNpcs.debugData.end(null);
 				return;
 			}
 			this.loadCategories(file);
@@ -119,13 +119,13 @@ public class TransportController {
 			try {
 				File file2 = new File(saveDir, "transport.dat_old");
 				if (!file2.exists()) {
-					CustomNpcs.debugData.end("Mod", this, "loadCategories");
+					CustomNpcs.debugData.end(null);
 					return;
 				}
 				this.loadCategories(file2);
 			} catch (IOException ex) { LogWriter.error("Error:", e); }
 		}
-		CustomNpcs.debugData.end("Mod", this, "loadCategories");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public void loadCategories(File file) throws IOException {
@@ -183,7 +183,7 @@ public class TransportController {
 
 	@SuppressWarnings("all")
 	private void saveCategories() {
-		CustomNpcs.debugData.start("Mod", this, "saveCategories");
+		CustomNpcs.debugData.start(null);
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			File file = new File(saveDir, "transport.dat_new");
@@ -203,7 +203,7 @@ public class TransportController {
 			}
 		}
 		catch (Exception e) { LogWriter.error("Error:", e); }
-		CustomNpcs.debugData.end("Mod", this, "saveCategories");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public void saveCategory(NBTTagCompound compound) {

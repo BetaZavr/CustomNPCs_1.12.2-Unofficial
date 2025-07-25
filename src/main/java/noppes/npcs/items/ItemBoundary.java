@@ -118,7 +118,7 @@ public class ItemBoundary extends Item implements IPermission {
 		// Shift + LMB = New Region
 		if (data.hud.hasOrKeysPressed(42, 54)) {
 			Zone3D reg = bData.createNew(player.world.provider.getDimension(), pos);
-			bData.saveRegions();
+			bData.save();
 			bData.update(reg.getId());
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.BoundarySetting, null, reg.getId(), 0, 0);
 			NBTTagCompound compound = stack.getTagCompound();
@@ -142,7 +142,7 @@ public class ItemBoundary extends Item implements IPermission {
 				reg.toString()));
 		if (remove) {
 			reg.fix();
-			bData.saveRegions();
+			bData.save();
 			bData.update(id);
 		}
 	}
@@ -230,7 +230,7 @@ public class ItemBoundary extends Item implements IPermission {
 			}
 			if (add) {
 				reg.fix();
-				bData.saveRegions();
+				bData.save();
 				bData.update(reg.getId());
 			}
 		}

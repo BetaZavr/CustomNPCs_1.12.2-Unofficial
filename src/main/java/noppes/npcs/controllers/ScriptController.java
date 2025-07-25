@@ -85,7 +85,7 @@ public class ScriptController {
 	public NpcScriptData npcsScripts = new NpcScriptData();
 
 	public ScriptController() {
-		CustomNpcs.debugData.start("Mod", this, "constructor");
+		CustomNpcs.debugData.start(null);
 		ScriptController.Instance = this;
 		if (!CustomNpcs.NashornArguments.isEmpty()) { System.setProperty("nashorn.args", CustomNpcs.NashornArguments); }
         ScriptEngineManager manager = new ScriptEngineManager();
@@ -188,7 +188,7 @@ public class ScriptController {
 			if (isNotRegister) { manager.registerEngineExtension("js", factory); }
 		} catch (Exception e) { LogWriter.info("Nashorn JS is missed"); }
 		if (isClient) { loadAgreements(); }
-		CustomNpcs.debugData.end("Mod", this, "constructor");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public File clientScriptsFile() {
@@ -373,7 +373,7 @@ public class ScriptController {
 	}
 
 	public void load() {
-		CustomNpcs.debugData.start("Mod", this, "load");
+		CustomNpcs.debugData.start(null);
 		ScriptController sData = ScriptController.Instance;
 		sData.loadCategories();
 		sData.loadStoredData();
@@ -385,7 +385,7 @@ public class ScriptController {
 		if (isClient) { sData.loadClientScripts(); }
 		checkExampleModules();
 		ScriptController.HasStart = true;
-		CustomNpcs.debugData.end("Mod", this, "load");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public void loadCategories() {

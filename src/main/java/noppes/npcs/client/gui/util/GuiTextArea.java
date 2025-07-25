@@ -505,7 +505,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 
 	@Override
 	public void setFullText(String newText) {
-		CustomNpcs.debugData.start("Player", this, "setFullText");
+		CustomNpcs.debugData.start(null);
 		newText = newText.replace("\r", "");
 		if (text != null && text.equals(newText)) { return; }
 		if (listener != null) { listener.textUpdate(newText); }
@@ -515,7 +515,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		container = new TextContainer(newText, GuiTextArea.font, width, height, enableCodeHighlighting);
 		container.init();
 		if (scrolledLine > container.linesCount - container.visibleLines) { scrolledLine = Math.max(0, container.linesCount - container.visibleLines); }
-		CustomNpcs.debugData.end("Player", this, "setFullText");
+		CustomNpcs.debugData.end(null);
 	}
 
 	@Override

@@ -117,7 +117,7 @@ public class SyncController {
 				break;
 			}
 			case Debug: {
-				List<String> list = CustomNpcs.debugData.logging(null);
+				List<String> list = CustomNpcs.debugData.logging();
 				for (String str : list) {
 					player.sendMessage(new TextComponentString(str));
 				}
@@ -395,7 +395,7 @@ public class SyncController {
 	}
 
 	public static void syncPlayer(EntityPlayerMP player) {
-		CustomNpcs.debugData.start(player, SyncController.class, "syncPlayer");
+		CustomNpcs.debugData.start(player);
 		NBTTagList list = new NBTTagList();
 		NBTTagCompound compound;
 		for (Faction faction : FactionController.instance.factions.values()) {
@@ -443,7 +443,7 @@ public class SyncController {
 		BorderController.getInstance().sendTo(player);
 		MarcetController.getInstance().sendTo(player, -1);
 		ScriptController.Instance.sendClientTo(player);
-		CustomNpcs.debugData.end(player, SyncController.class, "syncPlayer");
+		CustomNpcs.debugData.end(player);
 	}
 
 	private static void syncScriptRecipes(EntityPlayerMP player) {

@@ -24,7 +24,7 @@ public class GlobalDataController {
 	}
 
 	private void load() {
-		CustomNpcs.debugData.start("Mod", this, "load");
+		CustomNpcs.debugData.start(null);
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
 		try {
 			File file = new File(saveDir, "global.dat");
@@ -39,7 +39,7 @@ public class GlobalDataController {
 				}
 			} catch (Exception ee) { LogWriter.error("Error:", ee); }
 		}
-		CustomNpcs.debugData.end("Mod", this, "load");
+		CustomNpcs.debugData.end(null);
 	}
 
 	private void loadData(File file) throws Exception {
@@ -49,7 +49,7 @@ public class GlobalDataController {
 
 	@SuppressWarnings("all")
 	public void save() {
-		CustomNpcs.debugData.start("Mod", this, "save");
+		CustomNpcs.debugData.start(null);
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			NBTTagCompound nbttagcompound = new NBTTagCompound();
@@ -71,6 +71,6 @@ public class GlobalDataController {
 			}
 		}
 		catch (Exception e) { LogWriter.error("Error:", e); }
-		CustomNpcs.debugData.end("Mod", this, "save");
+		CustomNpcs.debugData.end(null);
 	}
 }

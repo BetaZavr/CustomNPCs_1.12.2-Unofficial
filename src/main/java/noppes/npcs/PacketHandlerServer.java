@@ -1225,7 +1225,7 @@ public class PacketHandlerServer {
             if (t == 2) {
                 Zone3D reg = bData.loadRegion(Server.readNBT(buffer));
                 if (reg != null) {
-                    bData.saveRegions();
+                    bData.save();
                     bData.update(reg.getId());
                 }
             }
@@ -1566,10 +1566,10 @@ public class PacketHandlerServer {
             EnumPacketServer type = null;
             try {
                 type = EnumPacketServer.values()[buffer.readInt()];
-                CustomNpcs.debugData.start(type.toString(), this, "onServerPacket");
+                CustomNpcs.debugData.start(null, type.toString());
                 if (CustomNpcs.OpsOnly && !NoppesUtilServer.isOp(player)) {
                     warn(player, "tried to use custom npcs without being an op TypePacket: " + type);
-                    CustomNpcs.debugData.end(type.toString(), this, "onServerPacket");
+                    CustomNpcs.debugData.end(null, type.toString());
                     return;
                 }
                 if (!PacketHandlerServer.list.contains(type)) { LogWriter.debug("Received: " + type); }
@@ -1585,7 +1585,7 @@ public class PacketHandlerServer {
                     }
                 }
                 else { LogWriter.error("Error with EnumPacketServer." + type + ". Not found Editing Npc"); }
-                CustomNpcs.debugData.end(type.toString(), this, "onServerPacket");
+                CustomNpcs.debugData.end(null, type.toString());
             } catch (Exception e) {
                 LogWriter.error("Error with EnumPacketServer." + type, e);
             } finally {

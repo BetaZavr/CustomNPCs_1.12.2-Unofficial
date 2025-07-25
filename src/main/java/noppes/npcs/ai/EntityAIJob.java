@@ -38,11 +38,11 @@ public class EntityAIJob extends EntityAIBase {
 	}
 
 	public void updateTask() {
-		CustomNpcs.debugData.start(npc, this, "updateTask");
+		CustomNpcs.debugData.start(npc);
 		if (this.npc.advanced.jobInterface != null) {
 			this.npc.advanced.jobInterface.aiUpdateTask();
 		}
-		CustomNpcs.debugData.end(npc, this, "updateTask");
+		CustomNpcs.debugData.end(npc);
 	}
 
 }

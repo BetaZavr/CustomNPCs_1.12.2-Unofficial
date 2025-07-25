@@ -52,17 +52,17 @@ public class CombatHandler {
 	}
 
 	public void damage(DamageSource source, double damageAmount) {
-		CustomNpcs.debugData.start(npc, this, "damage");
+		CustomNpcs.debugData.start(npc);
 		combatResetTimer = 0;
 		Entity e = NoppesUtilServer.GetDamageSource(source);
 		if (!(e instanceof EntityLivingBase)) {
-			CustomNpcs.debugData.end(npc, this, "damage");
+			CustomNpcs.debugData.end(npc);
 			return;
 		}
 		EntityLivingBase attackingEntity = (EntityLivingBase) e;
 		if (attackingEntity instanceof EntityPlayer) {
 			if (((EntityPlayer) attackingEntity).capabilities.isCreativeMode) {
-				CustomNpcs.debugData.end(npc, this, "damage");
+				CustomNpcs.debugData.end(npc);
 				return;
 			}
 			onlyPlayers = true;
@@ -91,7 +91,7 @@ public class CombatHandler {
 		aggressors.put(attackingEntity, oldValue + newValue);
 		lastDamages.put(attackingEntity, npc.world.getTotalWorldTime());
 		if (priorityTarget == null) { priorityTarget = attackingEntity; }
-		CustomNpcs.debugData.end(npc, this, "damage");
+		CustomNpcs.debugData.end(npc);
 	}
 
 	public boolean isValidTarget(EntityLivingBase target) {
@@ -124,27 +124,27 @@ public class CombatHandler {
 	}
 
 	public void update() {
-		CustomNpcs.debugData.start(npc, this, "update");
+		CustomNpcs.debugData.start(npc);
 		if (npc.isKilled()) {
 			if (npc.isAttacking()) { reset(); }
-			CustomNpcs.debugData.end(npc, this, "update");
+			CustomNpcs.debugData.end(npc);
 			return;
 		}
 		if (npc.getAttackTarget() != null && !npc.isAttacking()) { start(); }
 		if (!shouldCombatContinue()) {
 			if (combatResetTimer++ > 40) { reset(); }
-			CustomNpcs.debugData.end(npc, this, "update");
+			CustomNpcs.debugData.end(npc);
 			return;
 		}
 		combatResetTimer = 0;
 		if (aggressors.isEmpty()) {
 			delay = 10;
-			CustomNpcs.debugData.end(npc, this, "update");
+			CustomNpcs.debugData.end(npc);
 			return;
 		}
 		delay--;
 		if (delay > 0) {
-			CustomNpcs.debugData.end(npc, this, "update");
+			CustomNpcs.debugData.end(npc);
 			return;
 		}
 		delay = 10;
@@ -172,7 +172,7 @@ public class CombatHandler {
 			npc.getNavigator().tryMoveToEntityLiving(priorityTarget, 1.5);
 			delay = 60;
 		}
-		CustomNpcs.debugData.end(npc, this, "update");
+		CustomNpcs.debugData.end(npc);
 	}
 
 	public boolean canDamage(DamageSource damagesource, float amount) {

@@ -26,12 +26,12 @@ public class EntityAIClearTarget extends EntityAIBase {
 	}
 
 	public void startExecuting() {
-		CustomNpcs.debugData.start(npc, this, "startExecuting");
+		CustomNpcs.debugData.start(npc);
 		this.npc.setAttackTarget(null);
 		if (this.target == this.npc.getRevengeTarget()) {
 			this.npc.setRevengeTarget(null);
 		}
 		super.startExecuting();
-		CustomNpcs.debugData.end(npc, this, "startExecuting");
+		CustomNpcs.debugData.end(npc);
 	}
 }

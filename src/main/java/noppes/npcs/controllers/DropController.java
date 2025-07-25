@@ -126,7 +126,7 @@ public class DropController {
 	}
 
 	public void loadFile() {
-		CustomNpcs.debugData.start("Mod", this, "loadFile");
+		CustomNpcs.debugData.start(null);
 		LogWriter.info("Loading Drops");
 		this.filePath = CustomNpcs.Dir.getAbsolutePath();
 		try {
@@ -156,7 +156,7 @@ public class DropController {
 				LogWriter.error("Error:", ee);
 			}
 		}
-		CustomNpcs.debugData.end("Mod", this, "loadFile");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public void loadNBTData(NBTTagCompound nbtFile) {
@@ -177,11 +177,11 @@ public class DropController {
 	}
 
 	public void save() {
-		CustomNpcs.debugData.start("Mod", this, "save");
+		CustomNpcs.debugData.start(null);
 		try {
 			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "drops.dat").toPath()));
 		} catch (Exception e) { LogWriter.error("Error:", e); }
-		CustomNpcs.debugData.end("Mod", this, "save");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public void sendTo(EntityPlayerMP player) {

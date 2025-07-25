@@ -170,10 +170,10 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	private void load() {
-		CustomNpcs.debugData.start("Mod", this, "load");
+		CustomNpcs.debugData.start(null);
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
 		if (saveDir == null || saveDir.toString().equals(".")) {
-			CustomNpcs.debugData.end("Mod", this, "load");
+			CustomNpcs.debugData.end(null);
 			return;
 		}
 		this.filePath = saveDir.getAbsolutePath();
@@ -194,7 +194,7 @@ public class MarcetController implements IMarcetHandler {
 		if (this.markets.isEmpty() || !this.markets.containsKey(0)) {
 			this.loadDefaultMarcets();
 		}
-		CustomNpcs.debugData.end("Mod", this, "load");
+		CustomNpcs.debugData.end(null);
 	}
 
 	private void load(File file) throws IOException {

@@ -34,7 +34,7 @@ public class BorderController implements IBorderHandler {
 
 	public BorderController() {
 		BorderController.instance = this;
-		loadRegions();
+		load();
 	}
 
 	public Zone3D createNew(int dimensionID, BlockPos pos) {
@@ -133,11 +133,11 @@ public class BorderController implements IBorderHandler {
 		return regions.get(region.getId());
 	}
 
-	private void loadRegions() {
-		CustomNpcs.debugData.start("Mod", this, "loadRegions");
+	private void load() {
+		CustomNpcs.debugData.start(null);
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
 		if (saveDir == null) {
-			CustomNpcs.debugData.end("Mod", this, "loadRegions");
+			CustomNpcs.debugData.end(null);
 			return;
 		}
 		try {
@@ -154,7 +154,7 @@ public class BorderController implements IBorderHandler {
 				}
 			} catch (Exception ex) { LogWriter.error("Error:", ex); }
 		}
-		CustomNpcs.debugData.end("Mod", this, "loadRegions");
+		CustomNpcs.debugData.end(null);
 	}
 
 	private void loadRegions(File file) throws IOException {
@@ -176,13 +176,13 @@ public class BorderController implements IBorderHandler {
 			return false;
 		}
 		regions.remove(region);
-		saveRegions();
+		save();
 		return true;
 	}
 
 	@SuppressWarnings("all")
-	public void saveRegions() {
-		CustomNpcs.debugData.start("Mod", this, "saveRegions");
+	public void save() {
+		CustomNpcs.debugData.start(null);
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			File file = new File(saveDir, "borders.dat_new");
@@ -202,7 +202,7 @@ public class BorderController implements IBorderHandler {
 			}
 		}
 		catch (Exception e) { LogWriter.error("Error:", e); }
-		CustomNpcs.debugData.end("Mod", this, "saveRegions");
+		CustomNpcs.debugData.end(null);
 	}
 
 	public void sendTo(EntityPlayerMP player) {

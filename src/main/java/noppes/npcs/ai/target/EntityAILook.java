@@ -60,7 +60,7 @@ public class EntityAILook extends EntityAIBase {
 	}
 
 	public void updateTask() {
-		CustomNpcs.debugData.start(npc, this, "updateTask");
+		CustomNpcs.debugData.start(npc);
 		Entity lookat = null;
 		// has Target Entity
 		if (forced && forcedEntity != null) { lookat = forcedEntity; }
@@ -92,7 +92,7 @@ public class EntityAILook extends EntityAIBase {
 			if (lookat instanceof EntityLivingBase) { posY = lookat.posY + (double) lookat.getEyeHeight(); }
 			else { posY = (lookat.getEntityBoundingBox().minY + lookat.getEntityBoundingBox().maxY) / 2.0D; }
 			setLookPosition(lookat.posX, posY, lookat.posZ, npc.getVerticalFaceSpeed());
-			CustomNpcs.debugData.end(npc, this, "updateTask");
+			CustomNpcs.debugData.end(npc);
 			return;
 		}
 		// looks in a random direction
@@ -129,7 +129,7 @@ public class EntityAILook extends EntityAIBase {
 			npc.rotationYaw = npc.ais.orientation;
 			npc.rotationYawHead = npc.ais.orientation;
 		}
-		CustomNpcs.debugData.end(npc, this, "updateTask");
+		CustomNpcs.debugData.end(npc);
 	}
 
 	private void setLookPosition(double x, double y, double z, int verticalFaceSpeed) {
