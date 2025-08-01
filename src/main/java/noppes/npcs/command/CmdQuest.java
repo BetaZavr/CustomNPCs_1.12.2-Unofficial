@@ -61,7 +61,7 @@ public class CmdQuest extends CommandNoppesBase {
 					Server.sendData(player, EnumPacketClient.MESSAGE, "quest.completed", quest.getTitle(), 2);
 					Server.sendData(player, EnumPacketClient.CHAT, "quest.completed", ": ", quest.getTitle());
 				}
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			playerdata.updateClient = true;
 			playerdata.save(true);
 		}

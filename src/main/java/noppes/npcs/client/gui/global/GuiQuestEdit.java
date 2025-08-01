@@ -478,7 +478,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 					if (!vdt.contains(id)) {
 						vdt.add(id);
 					}
-				} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+				} catch (NumberFormatException e) { LogWriter.error(e); }
 			}
 			Collections.sort(vdt);
 			this.quest.forgetDialogues = new int[vdt.size()];
@@ -495,7 +495,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 					if (!vqt.contains(id)) {
 						vqt.add(id);
 					}
-				} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+				} catch (NumberFormatException e) { LogWriter.error(e); }
 			}
 			Collections.sort(vqt);
 			this.quest.forgetQuests = new int[vqt.size()];

@@ -147,6 +147,7 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 	}
 
 	@Override
+	@SuppressWarnings("all")
 	public float getRotationY() {
         return this.particleAngleX;
 	}
@@ -312,7 +313,7 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 					.tex(f, f3)
 					.color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k)
 					.endVertex();
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	@Override

@@ -351,7 +351,7 @@ public class DialogController implements IDialogHandler {
 			if (file3.exists()) { file3.delete(); }
 			file.renameTo(file3);
 			if (file.exists()) { file.delete(); }
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogGuiSettings, guiSettings.save());
 		CustomNpcs.debugData.end(null);
 	}

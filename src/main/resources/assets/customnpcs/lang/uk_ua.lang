@@ -2103,6 +2103,7 @@ quest.rlweekly=Реальний Тиждень
 quest.screen.pos=Розташування на екрані:
 quest.screen.show.quest=Показувати ім'я Квесту
 quest.screen.show.task=Показувати Завдання
+quest.screen.show.compass=Показувати компас
 quest.set.minimap.point=Ставити мітку на карті
 quest.setts.q.name=Назва квесту
 quest.setts.q.tasks=Ім'я завдання

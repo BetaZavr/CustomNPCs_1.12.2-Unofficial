@@ -102,7 +102,7 @@ implements ICustomScrollListener, ITextfieldListener {
 				Schematic schema = new Schematic(name);
 				schema.load(compound);
 				GuiBuilderSetting.baseFiles.put(name, new SchematicWrapper(schema));
-			} catch (IOException e) { LogWriter.error("Error:", e); }
+			} catch (IOException e) { LogWriter.error(e); }
 		}
 		files.putAll(GuiBuilderSetting.baseFiles);
 		File schematicDir = SchematicController.getDir();
@@ -125,7 +125,7 @@ implements ICustomScrollListener, ITextfieldListener {
 					Schematic schema = new Schematic(f.getName());
 					schema.load(compound);
 					files.put(f.getName(), new SchematicWrapper(schema));
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 		}
 	}

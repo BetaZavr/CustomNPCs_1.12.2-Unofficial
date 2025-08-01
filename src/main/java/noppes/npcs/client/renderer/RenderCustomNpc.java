@@ -160,6 +160,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			NPCRendererHelper.drawLayers(entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, renderEntity);
 		} else {
 			Map<EnumParts, Boolean> sp = npc.animation.showParts;
+			//LogWriter.debug("TEST: ");
 			for (LayerRenderer<T> layerrenderer : layerRenderers) {
 				String layerName = layerrenderer.getClass().getSimpleName();
 				if (npc.modelData.isDisableLayer(layerName)) { continue; }
@@ -177,8 +178,6 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 					continue;
 				}
 				boolean flag = setBrightness(npc, partialTicks, layerrenderer.shouldCombineTextures());
-				GlStateManager.enableBlend();
-				GlStateManager.enableAlpha();
 				layerrenderer.doRenderLayer(npc, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
 				if (flag) { unsetBrightness(); }
 			}
@@ -234,7 +233,8 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			if (isInvisible) {
 				GlStateManager.disableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL);
 			}
-		} else {
+		}
+		else {
 			super.renderModel(npc, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
 		}
 	}

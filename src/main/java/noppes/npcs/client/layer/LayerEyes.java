@@ -423,6 +423,11 @@ extends LayerInterface<T> {
 	@Override
 	public void rotate(float par1, float par2, float par3, float par4, float par5, float par6) { }
 
+	@Override
+	public boolean shouldCombineTextures() {
+		return true;
+	}
+
 	public void drawTexturedModalRect(double x, double y, double z, int textureX, int textureY, int width, int height, boolean rev) {
 		float f = 0.00390625F;
 		GlStateManager.enableBlend();

@@ -760,7 +760,7 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 			Class<?> oclass = Class.forName("java.awt.Desktop");
 			Object object = oclass.getMethod("getDesktop", new Class[0]).invoke(null);
 			oclass.getMethod("browse", URI.class).invoke(object, new URI(link));
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void save() {}

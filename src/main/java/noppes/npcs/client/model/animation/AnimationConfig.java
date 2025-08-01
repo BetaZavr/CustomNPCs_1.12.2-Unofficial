@@ -282,7 +282,7 @@ public class AnimationConfig implements IAnimation {
 				listFC.appendTag(afc.writeNBT());
 			}
 			catch (Exception e) {
-				LogWriter.error("Error:", e);
+				LogWriter.error(e);
 				break;
 			}
 		}

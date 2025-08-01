@@ -190,7 +190,7 @@ public class CmdScript extends CommandNoppesBase {
 			double dy = parseCoordinate(sender.getPosition().getY(), args[2], 0, 255, false).getResult();
 			double dz = parseCoordinate(sender.getPosition().getZ(), args[3], true).getResult();
 			pos = Objects.requireNonNull(NpcAPI.Instance()).getIPos(dx, dy, dz);
-		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException e) { LogWriter.error(e); }
 		IEntity<?>[] entitys = world.getNearbyEntities(pos, 2, 0);
 		for (IEntity<?> e : entitys) {
 			if (args[4].equalsIgnoreCase("player") && e.getType() == 1 || e.getName().equalsIgnoreCase(args[4])) {

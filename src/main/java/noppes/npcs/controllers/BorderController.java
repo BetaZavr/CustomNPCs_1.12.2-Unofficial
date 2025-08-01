@@ -152,7 +152,7 @@ public class BorderController implements IBorderHandler {
 				if (file2.exists()) {
 					loadRegions(file2);
 				}
-			} catch (Exception ex) { LogWriter.error("Error:", ex); }
+			} catch (Exception ex) { LogWriter.error(ex); }
 		}
 		CustomNpcs.debugData.end(null);
 	}
@@ -201,7 +201,7 @@ public class BorderController implements IBorderHandler {
 				file.delete();
 			}
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}
 

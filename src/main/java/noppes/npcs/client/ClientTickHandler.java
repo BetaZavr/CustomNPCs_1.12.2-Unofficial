@@ -381,7 +381,7 @@ public class ClientTickHandler {
 					}
 					objTextures.add(new ResourceLocation(domain, path));
 				}
-			} catch (IOException e) { LogWriter.error("Error:", e); }
+			} catch (IOException e) { LogWriter.error(e); }
 		}
 		for (ResourceLocation res : objTextures) {
 			if (event.getMap().getTextureExtry(res.toString()) != null) {

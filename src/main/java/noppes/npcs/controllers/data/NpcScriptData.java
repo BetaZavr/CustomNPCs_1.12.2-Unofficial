@@ -82,7 +82,7 @@ extends BaseScriptData {
                     script.run(type, event);
                 }
 			});
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 

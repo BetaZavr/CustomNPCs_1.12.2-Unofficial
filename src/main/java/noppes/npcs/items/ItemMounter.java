@@ -14,10 +14,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
+import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
-public class ItemMounter extends Item implements IPermission {
+public class ItemMounter extends Item implements IPermission, INPCToolItem {
 
 	public ItemMounter() {
 		this.setRegistryName(CustomNpcs.MODID, "npcmounter");

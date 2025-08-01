@@ -45,7 +45,6 @@ public abstract class AbstractTab extends GuiButton {
 			mc.getTextureManager().bindTexture(this.texture);
 			this.drawTexturedModalRect(this.x, yPos, xOffset, yTexPos, 28, ySize);
 
-			//RenderHelper.enableGUIStandardItemLighting();
 			this.zLevel = 100.0f;
 			this.itemRender.zLevel = 100.0f;
 			GlStateManager.enableLighting();
@@ -55,7 +54,6 @@ public abstract class AbstractTab extends GuiButton {
 			GlStateManager.disableLighting();
 			this.itemRender.zLevel = 0.0f;
 			this.zLevel = 0.0f;
-			//RenderHelper.disableStandardItemLighting();
 		}
 	}
 

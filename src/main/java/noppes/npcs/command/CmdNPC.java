@@ -119,7 +119,7 @@ public class CmdNPC extends CommandNoppesBase {
 		if (args.length == 3) {
 			try {
 				pos = CommandBase.parseBlockPos(sender, args, 0, false);
-			} catch (NumberInvalidException e) { LogWriter.error("Error:", e); }
+			} catch (NumberInvalidException e) { LogWriter.error(e); }
 		}
 		this.selectedNpc.ais.setStartPos(pos);
 	}
@@ -157,7 +157,7 @@ public class CmdNPC extends CommandNoppesBase {
 		} else {
 			try {
 				player = CommandBase.getPlayer(server, sender, args[0]);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			if (player != null) {
 				if (this.selectedNpc.advanced.roleInterface instanceof RoleFollower) {
 					((RoleFollower) this.selectedNpc.advanced.roleInterface).setOwner(player);

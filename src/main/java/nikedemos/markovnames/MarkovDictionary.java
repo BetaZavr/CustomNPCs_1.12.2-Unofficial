@@ -36,7 +36,7 @@ public class MarkovDictionary {
 		this.rng = rng;
 		try {
 			this.applyDictionary(dictionary, seqlen);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public MarkovDictionary(String dictionary, Random rng) {
@@ -142,7 +142,7 @@ public class MarkovDictionary {
 		InputStream resourceAsStream = null;
 		try {
 			resourceAsStream = container.getMod().getClass().getResourceAsStream(resourcePath);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		if (resourceAsStream != null) {
 			return resourceAsStream;
 		}

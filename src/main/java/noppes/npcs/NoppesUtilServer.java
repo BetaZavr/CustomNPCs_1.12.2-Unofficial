@@ -578,7 +578,7 @@ public class NoppesUtilServer {
 					sendScrollData((EntityPlayerMP) player, map);
 				}
 			}
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			catch (Exception e) { LogWriter.error(e); }
 		}, 100);
 	}
 

@@ -19,9 +19,10 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityNpcPony;
 
 public class ModelPony extends ModelBase {
+
 	public boolean aimedBow;
 	public ModelRenderer Body;
-	public ModelPlaneRenderer[] Bodypiece;
+	public ModelPlaneRenderer[] BodyPiece;
 	public ModelRenderer Head;
 	public ModelRenderer[] Headpiece;
 	public int heldItemRight;
@@ -67,35 +68,35 @@ public class ModelPony extends ModelBase {
 		float f7 = 0.0f;
 		(this.Body = new ModelRenderer(this, 16, 16)).addBox(-4.0f, 4.0f, -2.0f, 8, 8, 4, scale);
 		this.Body.setRotationPoint(f5, f6 + f, f7);
-		this.Bodypiece = new ModelPlaneRenderer[13];
-		(this.Bodypiece[0] = new ModelPlaneRenderer(this, 24, 0)).addSidePlane(-4.0f, 4.0f, 2.0f, 8, 8, scale);
-		this.Bodypiece[0].setRotationPoint(f5, f6 + f, f7);
-		(this.Bodypiece[1] = new ModelPlaneRenderer(this, 24, 0)).addSidePlane(4.0f, 4.0f, 2.0f, 8, 8, scale);
-		this.Bodypiece[1].setRotationPoint(f5, f6 + f, f7);
-		(this.Bodypiece[2] = new ModelPlaneRenderer(this, 24, 0)).addTopPlane(-4.0f, 4.0f, 2.0f, 8, 8, scale);
-		this.Bodypiece[2].setRotationPoint(f2, f3 + f, f4);
-		(this.Bodypiece[3] = new ModelPlaneRenderer(this, 24, 0)).addTopPlane(-4.0f, 12.0f, 2.0f, 8, 8, scale);
-		this.Bodypiece[3].setRotationPoint(f2, f3 + f, f4);
-		(this.Bodypiece[4] = new ModelPlaneRenderer(this, 0, 20)).addSidePlane(-4.0f, 4.0f, 10.0f, 8, 4, scale);
-		this.Bodypiece[4].setRotationPoint(f5, f6 + f, f7);
-		(this.Bodypiece[5] = new ModelPlaneRenderer(this, 0, 20)).addSidePlane(4.0f, 4.0f, 10.0f, 8, 4, scale);
-		this.Bodypiece[5].setRotationPoint(f5, f6 + f, f7);
-		(this.Bodypiece[6] = new ModelPlaneRenderer(this, 24, 0)).addTopPlane(-4.0f, 4.0f, 10.0f, 8, 4, scale);
-		this.Bodypiece[6].setRotationPoint(f2, f3 + f, f4);
-		(this.Bodypiece[7] = new ModelPlaneRenderer(this, 24, 0)).addTopPlane(-4.0f, 12.0f, 10.0f, 8, 4, scale);
-		this.Bodypiece[7].setRotationPoint(f2, f3 + f, f4);
-		(this.Bodypiece[8] = new ModelPlaneRenderer(this, 24, 0)).addBackPlane(-4.0f, 4.0f, 14.0f, 8, 8, scale);
-		this.Bodypiece[8].setRotationPoint(f2, f3 + f, f4);
-		(this.Bodypiece[9] = new ModelPlaneRenderer(this, 32, 0)).addTopPlane(-1.0f, 10.0f, 8.0f, 2, 6, scale);
-		this.Bodypiece[9].setRotationPoint(f2, f3 + f, f4);
-		(this.Bodypiece[10] = new ModelPlaneRenderer(this, 32, 0)).addTopPlane(-1.0f, 12.0f, 8.0f, 2, 6, scale);
-		this.Bodypiece[10].setRotationPoint(f2, f3 + f, f4);
-		this.Bodypiece[11] = new ModelPlaneRenderer(this, 32, 0);
-		this.Bodypiece[11].mirror = true;
-		this.Bodypiece[11].addSidePlane(-1.0f, 10.0f, 8.0f, 2, 6, scale);
-		this.Bodypiece[11].setRotationPoint(f2, f3 + f, f4);
-		(this.Bodypiece[12] = new ModelPlaneRenderer(this, 32, 0)).addSidePlane(1.0f, 10.0f, 8.0f, 2, 6, scale);
-		this.Bodypiece[12].setRotationPoint(f2, f3 + f, f4);
+		this.BodyPiece = new ModelPlaneRenderer[13];
+		(this.BodyPiece[0] = new ModelPlaneRenderer(this, 24, 0)).addSidePlane(-4.0f, 4.0f, 2.0f, 8, 8, scale);
+		this.BodyPiece[0].setRotationPoint(f5, f6 + f, f7);
+		(this.BodyPiece[1] = new ModelPlaneRenderer(this, 24, 0)).addSidePlane(4.0f, 4.0f, 2.0f, 8, 8, scale);
+		this.BodyPiece[1].setRotationPoint(f5, f6 + f, f7);
+		(this.BodyPiece[2] = new ModelPlaneRenderer(this, 24, 0)).addTopPlane(-4.0f, 4.0f, 2.0f, 8, 8, scale);
+		this.BodyPiece[2].setRotationPoint(f2, f3 + f, f4);
+		(this.BodyPiece[3] = new ModelPlaneRenderer(this, 24, 0)).addTopPlane(-4.0f, 12.0f, 2.0f, 8, 8, scale);
+		this.BodyPiece[3].setRotationPoint(f2, f3 + f, f4);
+		(this.BodyPiece[4] = new ModelPlaneRenderer(this, 0, 20)).addSidePlane(-4.0f, 4.0f, 10.0f, 8, 4, scale);
+		this.BodyPiece[4].setRotationPoint(f5, f6 + f, f7);
+		(this.BodyPiece[5] = new ModelPlaneRenderer(this, 0, 20)).addSidePlane(4.0f, 4.0f, 10.0f, 8, 4, scale);
+		this.BodyPiece[5].setRotationPoint(f5, f6 + f, f7);
+		(this.BodyPiece[6] = new ModelPlaneRenderer(this, 24, 0)).addTopPlane(-4.0f, 4.0f, 10.0f, 8, 4, scale);
+		this.BodyPiece[6].setRotationPoint(f2, f3 + f, f4);
+		(this.BodyPiece[7] = new ModelPlaneRenderer(this, 24, 0)).addTopPlane(-4.0f, 12.0f, 10.0f, 8, 4, scale);
+		this.BodyPiece[7].setRotationPoint(f2, f3 + f, f4);
+		(this.BodyPiece[8] = new ModelPlaneRenderer(this, 24, 0)).addBackPlane(-4.0f, 4.0f, 14.0f, 8, 8, scale);
+		this.BodyPiece[8].setRotationPoint(f2, f3 + f, f4);
+		(this.BodyPiece[9] = new ModelPlaneRenderer(this, 32, 0)).addTopPlane(-1.0f, 10.0f, 8.0f, 2, 6, scale);
+		this.BodyPiece[9].setRotationPoint(f2, f3 + f, f4);
+		(this.BodyPiece[10] = new ModelPlaneRenderer(this, 32, 0)).addTopPlane(-1.0f, 12.0f, 8.0f, 2, 6, scale);
+		this.BodyPiece[10].setRotationPoint(f2, f3 + f, f4);
+		this.BodyPiece[11] = new ModelPlaneRenderer(this, 32, 0);
+		this.BodyPiece[11].mirror = true;
+		this.BodyPiece[11].addSidePlane(-1.0f, 10.0f, 8.0f, 2, 6, scale);
+		this.BodyPiece[11].setRotationPoint(f2, f3 + f, f4);
+		(this.BodyPiece[12] = new ModelPlaneRenderer(this, 32, 0)).addSidePlane(1.0f, 10.0f, 8.0f, 2, 6, scale);
+		this.BodyPiece[12].setRotationPoint(f2, f3 + f, f4);
 		(this.RightArm = new ModelRenderer(this, 40, 16)).addBox(-2.0f, 4.0f, -2.0f, 4, 12, 4, scale);
 		this.RightArm.setRotationPoint(-3.0f, 8.0f + f, 0.0f);
 		this.LeftArm = new ModelRenderer(this, 40, 16);
@@ -259,7 +260,7 @@ public class ModelPony extends ModelBase {
 					pony.isUnicorn = true;
 				}
 				pony.checked = pony.textureLocation;
-			} catch (IOException e) { LogWriter.error("Error:", e); }
+			} catch (IOException e) { LogWriter.error(e); }
 		}
 		this.isSleeping = pony.isPlayerSleeping();
 		this.isUnicorn = pony.isUnicorn;
@@ -281,7 +282,7 @@ public class ModelPony extends ModelBase {
 		}
 		this.Helmet.render(f5);
 		this.Body.render(f5);
-        for (ModelPlaneRenderer planeRenderer : this.Bodypiece) {
+        for (ModelPlaneRenderer planeRenderer : this.BodyPiece) {
             planeRenderer.render(f5);
         }
 		this.LeftArm.render(f5);
@@ -399,7 +400,7 @@ public class ModelPony extends ModelBase {
 			f12 = MathHelper.sin(MathHelper.sqrt(f5) * 3.141593f * 2.0f) * 0.2f;
 		}
 		this.Body.rotateAngleY = f12 * 0.2f;
-        for (ModelPlaneRenderer planeRenderer : this.Bodypiece) {
+        for (ModelPlaneRenderer planeRenderer : this.BodyPiece) {
             planeRenderer.rotateAngleY = f12 * 0.2f;
         }
         for (ModelRenderer modelRenderer : this.LeftWing) {
@@ -457,7 +458,7 @@ public class ModelPony extends ModelBase {
 			this.Body.rotateAngleX = f20;
 			this.Body.rotationPointY = f21;
 			this.Body.rotationPointZ = f22;
-            for (ModelPlaneRenderer modelPlaneRenderer : this.Bodypiece) {
+            for (ModelPlaneRenderer modelPlaneRenderer : this.BodyPiece) {
                 modelPlaneRenderer.rotateAngleX = f20;
                 modelPlaneRenderer.rotationPointY = f21;
                 modelPlaneRenderer.rotationPointZ = f22;
@@ -536,7 +537,7 @@ public class ModelPony extends ModelBase {
 			this.Body.rotateAngleX = f37;
 			this.Body.rotationPointY = f38;
 			this.Body.rotationPointZ = f39;
-            for (ModelPlaneRenderer planeRenderer : this.Bodypiece) {
+            for (ModelPlaneRenderer planeRenderer : this.BodyPiece) {
                 planeRenderer.rotateAngleX = f37;
                 planeRenderer.rotationPointY = f38;
                 planeRenderer.rotationPointZ = f39;
@@ -647,10 +648,10 @@ public class ModelPony extends ModelBase {
 		this.RightWingExt[3].rotateAngleX -= 0.75f;
 		this.RightWingExt[4].rotateAngleX -= 0.5f;
 		this.RightWingExt[6].rotateAngleX -= 0.85f;
-		this.Bodypiece[9].rotateAngleX += 0.5f;
-		this.Bodypiece[10].rotateAngleX += 0.5f;
-		this.Bodypiece[11].rotateAngleX += 0.5f;
-		this.Bodypiece[12].rotateAngleX += 0.5f;
+		this.BodyPiece[9].rotateAngleX += 0.5f;
+		this.BodyPiece[10].rotateAngleX += 0.5f;
+		this.BodyPiece[11].rotateAngleX += 0.5f;
+		this.BodyPiece[12].rotateAngleX += 0.5f;
 		if (rainboom) {
             for (ModelPlaneRenderer modelPlaneRenderer : this.Tail) {
                 modelPlaneRenderer.rotationPointY += 6.0f;

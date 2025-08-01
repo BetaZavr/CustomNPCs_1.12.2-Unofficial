@@ -38,7 +38,7 @@ public class CmdSchematics extends CommandNoppesBase {
 		if (args.length > 1) {
 			try {
 				rotation = Integer.parseInt(args[1]);
-			} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+			} catch (NumberFormatException e) { LogWriter.error(e); }
 		}
 		if (args.length > 2) {
 			String location = args[2];

@@ -31,6 +31,7 @@ import noppes.npcs.util.Util;
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
+@SuppressWarnings("all")
 public abstract class CustomBlockSlab extends BlockSlab implements ICustomElement {
 
 	public static class CustomBlockSlabDouble extends CustomBlockSlab {
@@ -182,7 +183,7 @@ public abstract class CustomBlockSlab extends BlockSlab implements ICustomElemen
 		IBlockState iblockstate = getDefaultState();
 		try {
 			iblockstate = iblockstate.withProperty(VARIANT, CustomBlockTypes.TreeType.values()[meta & CustomBlockTypes.TreeType.values().length]);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		if (!isDouble()) {
 			iblockstate = iblockstate.withProperty(HALF,
 					(meta & 8) == 0 ? BlockSlab.EnumBlockHalf.BOTTOM : BlockSlab.EnumBlockHalf.TOP);

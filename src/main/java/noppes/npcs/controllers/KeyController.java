@@ -184,7 +184,7 @@ public class KeyController implements IKeyBinding {
 		CustomNpcs.debugData.start(null);
 		try {
 			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "keys.dat").toPath()));
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}
 

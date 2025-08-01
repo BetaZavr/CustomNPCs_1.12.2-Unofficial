@@ -62,7 +62,7 @@ public enum RoleType {
 		try {
 			npc.advanced.roleInterface = (RoleInterface) parent.getConstructor(EntityNPCInterface.class).newInstance(npc);
 		} catch (Exception e) {
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 		}
 	}
 

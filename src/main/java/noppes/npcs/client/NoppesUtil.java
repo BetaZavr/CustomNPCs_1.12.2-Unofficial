@@ -82,7 +82,7 @@ public class NoppesUtil {
 				try {
 					Runtime.getRuntime().exec(s2);
 					return;
-				} catch (IOException e) { LogWriter.error("Error:", e); }
+				} catch (IOException e) { LogWriter.error(e); }
 			}
 		}
 		boolean flag = false;
@@ -152,7 +152,7 @@ public class NoppesUtil {
 			for (int size = buffer.readInt(), i = 0; i < size; ++i) {
 				data.add(Server.readString(buffer));
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		((IScrollData) gui).setData(data, null);
 	}
 

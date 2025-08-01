@@ -37,7 +37,7 @@ public class GlobalDataController {
 				if (file2.exists()) {
 					this.loadData(file2);
 				}
-			} catch (Exception ee) { LogWriter.error("Error:", ee); }
+			} catch (Exception ee) { LogWriter.error(ee); }
 		}
 		CustomNpcs.debugData.end(null);
 	}
@@ -70,7 +70,7 @@ public class GlobalDataController {
 				file.delete();
 			}
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}
 }

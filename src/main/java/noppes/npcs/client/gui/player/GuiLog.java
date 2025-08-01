@@ -455,6 +455,10 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				compassData.showTaskProgress = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
+			case 2: {
+				CustomNpcs.ShowQuestCompass = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			}
 		}
 	}
 
@@ -2155,11 +2159,14 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 			// Rotation
 			v = this.compassData.rot * 0.016667f + 0.5f;
-			this.addSlider(new GuiNpcSlider(this, 2, x0, y += (int) (16.0f * scaleH), (int) (96.0f * scaleW),
-					(int) (12.0f * scaleH), v));
+			this.addSlider(new GuiNpcSlider(this, 2, x0, y += (int) (16.0f * scaleH), (int) (96.0f * scaleW), (int) (12.0f * scaleH), v));
 			this.getSlider(2).setString(("" + this.compassData.rot).replace(".", ","));
 			addButton(new GuiNpcCheckBox(1, x1, y - (int) scaleH, (int) (100.0f * scaleW), (int) (12.0f * scaleH), "quest.screen.show.task", null, compassData.showTaskProgress));
 			getButton(1).setTextColor(CustomNpcs.QuestLogColor.getRGB());
+
+			y += (int) (16.0f * scaleH);
+			addButton(new GuiNpcCheckBox(2, x1, y - (int) scaleH, (int) (100.0f * scaleW), (int) (12.0f * scaleH), "quest.screen.show.compass", null, CustomNpcs.ShowQuestCompass));
+			getButton(2).setTextColor(CustomNpcs.QuestLogColor.getRGB());
 		}
 	}
 

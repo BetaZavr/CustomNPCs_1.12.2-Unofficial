@@ -137,7 +137,7 @@ public class ConfigLoader {
 			Object object = null;
 			try {
 				object = field.get(null);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 
 			Type type = Type.STRING;
 			if (field.getType().isArray()) {
@@ -334,7 +334,7 @@ public class ConfigLoader {
 			String name = nbt.getString("Name");
 			Class<?> cls = null;
 			try { cls = Class.forName(nbt.getString("Class")); }
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			catch (Exception e) { LogWriter.error(e); }
 			ScriptController.forgeEventNames.put(cls, name);
 		}
 		compound.removeTag("ForgeEventNames");
@@ -401,7 +401,7 @@ public class ConfigLoader {
 			Object object = null;
 			try {
 				object = field.get(null);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			Type type = Type.STRING;
 			if (field.getType().isArray()) {
 				String[] values = null;

@@ -546,7 +546,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 					break;
 				}
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		if (el != null) {
 			LogWriter.debug("Error summoning: " + this.entity.getName());
 			throw new CustomNPCsException("Entity is already spawned");
@@ -556,7 +556,7 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 		try {
 			boolean bo = this.worldWrapper.getMCWorld().spawnEntity(this.entity);
 			LogWriter.debug("Is summoning: " + bo + "; World: " + this.entity.world.getClass().getSimpleName());
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	@Override

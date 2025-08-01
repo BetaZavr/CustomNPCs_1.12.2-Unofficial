@@ -355,10 +355,9 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.UPDATE_NPC) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
-			if (!(entity instanceof EntityNPCInterface)) {
-				return;
+			if (entity instanceof EntityNPCInterface) {
+				((EntityNPCInterface) entity).readSpawnData(compound);
 			}
-			((EntityNPCInterface) entity).readSpawnData(compound);
 		}
 		else if (type == EnumPacketClient.ROLE) {
 			NBTTagCompound compound = Server.readNBT(buffer);
@@ -636,7 +635,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				player.inventory.setInventorySlotContents(buffer.readInt(), new ItemStack(Server.readNBT(buffer)));
 				return;
 			} catch (Exception e) {
-				LogWriter.error("Error:", e);
+				LogWriter.error(e);
 			}
 			ItemStack held = new ItemStack(Server.readNBT(buffer));
 			player.inventory.setItemStack(held);
@@ -1187,7 +1186,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
                     assert loadWaypointsFromAllSources != null;
                     loadWaypointsFromAllSources.invoke(settings, waypointsManager);
 				} catch (Exception e) {
-					LogWriter.error("Error:", e);
+					LogWriter.error(e);
 					isChanged = 2;
 				}
 			} else if (modName.endsWith("voxelmap")) {
@@ -1236,7 +1235,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					med.setAccessible(true);
 					med.invoke(waypointManager, player.world.provider.getDimension());
 				} catch (Exception e) {
-					LogWriter.error("Error:", e);
+					LogWriter.error(e);
 					isChanged = 2;
 				}
 			}

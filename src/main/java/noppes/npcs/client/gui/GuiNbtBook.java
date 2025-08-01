@@ -237,7 +237,7 @@ implements IGuiData, ISubGuiListener {
 			}
 			catch (Exception e) {
 				hts.put(i, Collections.singletonList(""));
-				LogWriter.error("Error:", e);
+				LogWriter.error(e);
 			}
 			i++;
 		}
@@ -253,7 +253,7 @@ implements IGuiData, ISubGuiListener {
 			}
 			catch (Exception e) {
 				hts.put(i, Collections.singletonList(""));
-				LogWriter.error("Error:", e);
+				LogWriter.error(e);
 			}
 			i++;
 		}

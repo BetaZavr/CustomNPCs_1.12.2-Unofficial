@@ -90,13 +90,13 @@ public class CustomModelSkinFeet extends ModelBiped {
             }
 			GlStateManager.popAttrib();
 			GlStateManager.color(1F, 1F, 1F, 1F);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	private void renderPart(Object partRenderData) {
 		try {
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
 			awu.renderPart.invoke(awu.skinPartRenderer, partRenderData);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 }

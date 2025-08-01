@@ -31,7 +31,7 @@ implements ISubGuiListener {
 		try {
 			BlockPos pos = script.getPos();
 			Client.sendData(EnumPacketServer.ScriptBlockDataSave, pos.getX(), pos.getY(), pos.getZ(), script.getNBT(new NBTTagCompound()));
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	@Override

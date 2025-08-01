@@ -10,6 +10,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 import noppes.npcs.api.mixin.entity.IEntityMixin;
 import noppes.npcs.api.wrapper.data.Data;
+import noppes.npcs.entity.EntityNPCInterface;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -89,6 +90,13 @@ public class EntityMixin implements IEntityMixin {
         npcs$storeddata.setNbt(compound.getCompoundTag("CustomStoredData"));
     }
 
+    @Inject(method = "applyEntityCollision", at = @At("RETURN"), cancellable = true)
+    public void npcs$applyEntityCollision(Entity entityIn, CallbackInfo ci) {
+        if (entityIn instanceof EntityNPCInterface && ((EntityNPCInterface) entityIn).display.getHitboxState() == 2) {
+            Entity parent = (Entity) (Object) this;
+            if (!(parent instanceof EntityNPCInterface) || ((EntityNPCInterface) parent).display.getHitboxState() != 2) { ci.cancel(); }
+        }
+    }
 
     @Override
     public Data npcs$getStoredData() { return npcs$storeddata; }

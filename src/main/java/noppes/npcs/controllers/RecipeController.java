@@ -339,14 +339,14 @@ public class RecipeController implements IRecipeHandler {
 				try {
 					NBTTagCompound nbtFile = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
 					this.loadNBTData(nbtFile);
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			} else {
 				this.globalList.clear();
 				this.modList.clear();
 				this.loadDefaultRecipes(-1);
 			}
 		} catch (Exception e) {
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 			try {
 				File file2 = new File(CustomNpcs.Dir, "recipes.dat_old");
 				if (file2.exists()) {
@@ -354,11 +354,11 @@ public class RecipeController implements IRecipeHandler {
 						NBTTagCompound nbtFile = CompressedStreamTools.readCompressed(Files.newInputStream(file2.toPath()));
 						this.loadNBTData(nbtFile);
 					} catch (Exception err) {
-						LogWriter.error("Error:", err);
+						LogWriter.error(err);
 					}
 				}
 			} catch (Exception ee) {
-				LogWriter.error("Error:", ee);
+				LogWriter.error(ee);
 			}
 		}
 	}
@@ -498,7 +498,7 @@ public class RecipeController implements IRecipeHandler {
 			CompressedStreamTools.writeCompressed(getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "recipes.dat").toPath()));
 			// Util.instance.saveFile(new File(CustomNpcs.Dir, "recipes.json"), getNBT());
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}
 

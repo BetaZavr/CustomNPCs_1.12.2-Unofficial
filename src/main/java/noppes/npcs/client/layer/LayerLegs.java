@@ -253,4 +253,10 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 		this.tail.rotateAngleY = rotateAngleY;
 		this.fox.rotateAngleY = rotateAngleY;
 	}
+
+	@Override
+	public boolean shouldCombineTextures() {
+		return true;
+	}
+
 }

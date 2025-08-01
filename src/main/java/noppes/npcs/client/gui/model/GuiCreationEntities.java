@@ -52,7 +52,7 @@ implements ICustomScrollListener {
 					continue;
 				}
 				this.data.put(name, c.asSubclass(EntityLivingBase.class));
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		this.data.put("NPC 64x32", EntityNPC64x32.class);
 		this.data.put("NPC Alex Arms", EntityNpcAlex.class);

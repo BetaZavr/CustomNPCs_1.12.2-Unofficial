@@ -50,6 +50,7 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
+            jvmArgs '-Xms2G', '-Xmx4G'
             args '--username=BetaZavr' + id, '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_id + ".mixins.json"
         }
         server {
@@ -60,7 +61,8 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
-            args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_id + ".mixins.json", 'nogui'
+            jvmArgs '-Xms2G', '-Xmx4G'
+            args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_id + ".mixins.json"//, 'nogui'
         }
     }
 }

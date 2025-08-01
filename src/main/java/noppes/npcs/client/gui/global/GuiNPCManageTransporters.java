@@ -247,7 +247,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 				this.getTextField(7).getInteger());
 		try {
 			this.container.location.npc = UUID.fromString(this.getTextField(3).getFullText());
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		this.container.location.type = this.getButton(3).getValue();
 		Client.sendData(EnumPacketServer.TransportCategorySave, this.container.saveTransport(cat));
 	}
@@ -339,7 +339,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 		}
 		try {
 			Client.sendData(EnumPacketServer.TeleportTo, loc.dimension, loc.pos.getX(), loc.pos.getY(), loc.pos.getZ());
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	@Override

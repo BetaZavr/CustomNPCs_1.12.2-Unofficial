@@ -50,4 +50,9 @@ public class LayerArms<T extends EntityLivingBase> extends LayerInterface<T> {
 	public void rotate(float par2, float par3, float par4, float par5, float par6, float par7) {
 	}
 
+	@Override
+	public boolean shouldCombineTextures() {
+		return true;
+	}
+
 }

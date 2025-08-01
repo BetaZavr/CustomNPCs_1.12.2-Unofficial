@@ -14,6 +14,7 @@ import noppes.npcs.api.constants.JobType;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class ChunkController implements ForgeChunkManager.LoadingCallback {
+
 	public static ChunkController instance;
 	private final HashMap<Entity, ForgeChunkManager.Ticket> tickets = new HashMap<>();
 

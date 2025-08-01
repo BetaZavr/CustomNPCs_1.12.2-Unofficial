@@ -182,4 +182,9 @@ public class LayerHead<T extends EntityLivingBase> extends LayerInterface<T> {
 		}
 	}
 
+	@Override
+	public boolean shouldCombineTextures() {
+		return true;
+	}
+
 }

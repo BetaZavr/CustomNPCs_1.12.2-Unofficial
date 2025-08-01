@@ -246,7 +246,7 @@ public class EntityProjectile extends EntityThrowable {
 			if (this.thrower == null) {
 				this.thrower = this.world.getPlayerEntityByUUID(uuid);
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		return this.thrower;
 	}
 

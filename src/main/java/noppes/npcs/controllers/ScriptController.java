@@ -352,7 +352,7 @@ public class ScriptController {
                 return (ScriptEngine) create.invoke(graal, null, contextBuilder);
 			}
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 		return null;
 	}
 
@@ -789,7 +789,7 @@ public class ScriptController {
 			try {
 				if (!file.createNewFile()) { return; }
 			}
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			catch (Exception e) { LogWriter.error(e); }
 		}
 		if (!file.exists()) {
 			return;
@@ -853,7 +853,7 @@ public class ScriptController {
 			compound.removeTag("WorldName");
 			Util.instance.saveFile(file, compound);
 			clientScripts.lastInited = -1L;
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void setNPCsScripts(NBTTagCompound compound) {
@@ -862,7 +862,7 @@ public class ScriptController {
 		try {
 			Util.instance.saveFile(file, compound);
 			npcsScripts.lastInited = -1L;
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 	
 	public void setForgeScripts(NBTTagCompound compound) {
@@ -871,7 +871,7 @@ public class ScriptController {
 		try {
 			Util.instance.saveFile(file, compound);
 			forgeScripts.lastInited = -1L;
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void setPlayerScripts(NBTTagCompound compound) {
@@ -887,7 +887,7 @@ public class ScriptController {
 		try {
 			Util.instance.saveFile(playerScriptsFile(), compound);
 			lastPlayerUpdate = System.currentTimeMillis();
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void setPotionScripts(NBTTagCompound compound) {
@@ -896,7 +896,7 @@ public class ScriptController {
 		try {
 			Util.instance.saveFile(file, compound);
 			potionScripts.lastInited = -1L;
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	private void loadAgreements() {

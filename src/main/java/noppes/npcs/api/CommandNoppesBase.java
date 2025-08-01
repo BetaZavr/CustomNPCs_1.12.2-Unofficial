@@ -70,17 +70,14 @@ public abstract class CommandNoppesBase extends CommandBase {
 		}
 		SubCommand sc = m.getAnnotation(SubCommand.class);
 		if (sc.permission() > getPermissionLevel(server, sender)) {
-			LogWriter.debug("TEST: "+sc.permission()+" / "+getPermissionLevel(server, sender));
 			throw new CommandException("You are not allowed to use \""+Objects.requireNonNull(getName()).toLowerCase() + "." + command.toLowerCase()+"\" command");
 		}
 		canRun(server, sender, sc.usage(), args);
 		try {
 			m.invoke(this, server, sender, args);
 		} catch (Exception e) {
-			if (e.getCause() instanceof CommandException) {
-				throw (CommandException) e.getCause();
-			}
-			LogWriter.error("Error:", e);
+			if (e.getCause() instanceof CommandException) { throw (CommandException) e.getCause(); }
+			LogWriter.error(e);
 		}
 	}
 

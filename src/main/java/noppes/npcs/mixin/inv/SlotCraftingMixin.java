@@ -152,16 +152,17 @@ public class SlotCraftingMixin {
                 for (int h = 0; h <= craftMatrix.getHeight() - recipeH; ++h) {
                     for (int w = 0; w <= craftMatrix.getWidth() - recipeW; ++w) {
                         int index = h * recipeW + (r == 1 ? recipeW - w - 1 : w);
-                        if (index >= ingredients.size()) {
-                            continue;
-                        }
+                        if (index >= ingredients.size()) { continue; }
                         int slotIndex = (h + startH) * craftMatrix.getWidth() + (w + startW);
-                        Ingredient ingredient = ingredients.get(index);
-                        ItemStack ingStack = npcs$apply(ingredient, craftMatrix.getStackInSlot(slotIndex), ignoreDamage, ignoreNBT);
-                        if (ingStack != null) {
-                            ings--;
-                            slotToCount.put(slotIndex, ingStack.getCount());
+                        try {
+                            Ingredient ingredient = ingredients.get(index);
+                            ItemStack ingStack = npcs$apply(ingredient, craftMatrix.getStackInSlot(slotIndex), ignoreDamage, ignoreNBT);
+                            if (ingStack != null) {
+                                ings--;
+                                slotToCount.put(slotIndex, ingStack.getCount());
+                            }
                         }
+                        catch (Exception e) { throw new RuntimeException(e); }
                     }
                 }
                 if (ings == 0) { return slotToCount; }

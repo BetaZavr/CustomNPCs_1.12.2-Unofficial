@@ -73,7 +73,7 @@ public class DropsTemplate {
 			if (groupId.indexOf("Group_") != 0) { continue; }
 			int id = -1;
 			try { id = Integer.parseInt(groupId.replace("Group_", "")); }
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			catch (Exception e) { LogWriter.error(e); }
 			if (id < 0) { continue; }
 			for (int j = 0; j < nbtTemplate.getTagList(groupId, 10).tagCount(); j++) {
 				DropSet ds = new DropSet(null);

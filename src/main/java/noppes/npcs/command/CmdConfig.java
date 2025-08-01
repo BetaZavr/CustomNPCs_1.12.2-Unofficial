@@ -104,7 +104,7 @@ public class CmdConfig extends CommandNoppesBase {
 			try {
 				size = Integer.parseInt(args[args.length - 1]);
 				args = Arrays.copyOfRange(args, 0, args.length - 1);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		StringBuilder font = new StringBuilder();
         for (String arg : args) {

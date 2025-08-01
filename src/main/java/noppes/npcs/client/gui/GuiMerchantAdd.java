@@ -155,7 +155,6 @@ extends GuiContainer {
 			ItemStack itemstack = merchantrecipe.getItemToBuy();
 			ItemStack itemstack2 = merchantrecipe.getSecondItemToBuy();
 			ItemStack itemstack3 = merchantrecipe.getItemToSell();
-			//RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.enableRescaleNormal();
 			GlStateManager.enableColorMaterial();
 			GlStateManager.enableLighting();
@@ -178,7 +177,6 @@ extends GuiContainer {
 			GlStateManager.popMatrix();
 			GlStateManager.enableLighting();
 			GlStateManager.enableDepth();
-			//RenderHelper.enableStandardItemLighting();
 		}
 	}
 

@@ -284,7 +284,7 @@ implements ICustomScrollListener {
 		String file = "";
 		try {
 			file = scroll.getHoversTexts().get(scroll.getSelect()).get(0);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		if (file.isEmpty()) {
 			return;
 		}

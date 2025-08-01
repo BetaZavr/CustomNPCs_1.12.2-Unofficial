@@ -15,6 +15,7 @@ import noppes.npcs.NoppesStringUtils;
 import javax.annotation.Nonnull;
 
 public class InventoryTabVanilla extends AbstractTab {
+
 	public InventoryTabVanilla() {
 		super(0, 0, 0, new ItemStack(Blocks.CRAFTING_TABLE));
 		this.displayString = NoppesStringUtils.translate("stats.rarity.normal") + " (" + GameSettings.getKeyDisplayString(Minecraft.getMinecraft().gameSettings.keyBindInventory.getKeyCode()) + ")";
@@ -42,7 +43,6 @@ public class InventoryTabVanilla extends AbstractTab {
 			return;
 		}
 		GlStateManager.disableRescaleNormal();
-		//RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		int k = 0;
@@ -90,7 +90,6 @@ public class InventoryTabVanilla extends AbstractTab {
 		this.itemRender.zLevel = 0.0f;
 		GlStateManager.enableLighting();
 		GlStateManager.enableDepth();
-		//RenderHelper.enableStandardItemLighting();
 		GlStateManager.enableRescaleNormal();
 	}
 

@@ -14,6 +14,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 
 public class PixelmonHelper {
+
 	public static boolean Enabled = Loader.isModLoaded("pixelmon");
 	public static EventBus EVENT_BUS;
 	private static Method getPartyStorage;
@@ -51,7 +52,7 @@ public class PixelmonHelper {
 		try {
 			return PixelmonHelper.getPartyStorage.invoke(PixelmonHelper.storageManager, player);
 		} catch (Exception e) {
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 			return null;
 		}
 	}

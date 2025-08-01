@@ -173,22 +173,22 @@ public class AnimationController implements IAnimationHandler {
 		if (CustomNpcs.Dir != null) {
 			File oldFile = new File(CustomNpcs.Dir, "animations.dat");
 			if (oldFile.exists()) {
-				try { this.loadOldAnimations(CompressedStreamTools.readCompressed(Files.newInputStream(oldFile.toPath()))); } catch (Exception e) { LogWriter.error("Error:", e); }
+				try { this.loadOldAnimations(CompressedStreamTools.readCompressed(Files.newInputStream(oldFile.toPath()))); } catch (Exception e) { LogWriter.error(e); }
 				Util.instance.removeFile(oldFile);
 			}
 			animDir = new File (CustomNpcs.Dir,  "animations");
-			if (animDir.exists()) { try { loadAnimations(animDir); } catch (Exception e) { LogWriter.error("Error:", e); } }
+			if (animDir.exists()) { try { loadAnimations(animDir); } catch (Exception e) { LogWriter.error(e); } }
 			emtnDir = new File (CustomNpcs.Dir,  "emotions");
-			if (emtnDir.exists()) { try { loadEmotions(emtnDir); } catch (Exception e) { LogWriter.error("Error:", e); } }
+			if (emtnDir.exists()) { try { loadEmotions(emtnDir); } catch (Exception e) { LogWriter.error(e); } }
 		}
 		animDir = new File (CustomNpcs.getWorldSaveDirectory(),  "animations");
 		if (animDir.exists()) {
-			try { loadAnimations(animDir); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { loadAnimations(animDir); } catch (Exception e) { LogWriter.error(e); }
 		}
 		else { needSave = true; }
 
 		emtnDir = new File (CustomNpcs.getWorldSaveDirectory(),  "emotions");
-		if (emtnDir.exists()) { try { loadEmotions(emtnDir); } catch (Exception e) { LogWriter.error("Error:", e); } }
+		if (emtnDir.exists()) { try { loadEmotions(emtnDir); } catch (Exception e) { LogWriter.error(e); } }
 		else { needSave = true; }
 		loadDefaultAnimations();
 		if (needSave) { save(); }
@@ -217,11 +217,11 @@ public class AnimationController implements IAnimationHandler {
 			try {
 				NBTTagCompound nbt = CompressedStreamTools.readCompressed(Files.newInputStream(f.toPath()));
 				int id = -1;
-				try { id = Integer.parseInt(f.getName().toLowerCase().replace(".dat", "")); } catch (Exception e) { LogWriter.error("Error:", e); }
+				try { id = Integer.parseInt(f.getName().toLowerCase().replace(".dat", "")); } catch (Exception e) { LogWriter.error(e); }
 				if (id != -1 && this.animations.containsKey(id)) { nbt.setInteger("ID", this.getUnusedAnimId()); }
 				else { nbt.setInteger("ID", id); }
 				loadAnimation(nbt);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 	}
 
@@ -231,12 +231,12 @@ public class AnimationController implements IAnimationHandler {
 				try {
 					NBTTagCompound nbt = CompressedStreamTools.readCompressed(Files.newInputStream(f.toPath()));
 					int id = -1;
-					try { id = Integer.parseInt(f.getName().toLowerCase().replace(".dat", "")); } catch (Exception e) { LogWriter.error("Error:", e); }
+					try { id = Integer.parseInt(f.getName().toLowerCase().replace(".dat", "")); } catch (Exception e) { LogWriter.error(e); }
 					if (id != -1 && this.animations.containsKey(id)) { nbt.setInteger("ID", this.getUnusedAnimId()); }
 					else { nbt.setInteger("ID", id); }
 					this.loadEmotion(nbt);
-				} catch (Exception e) { LogWriter.error("Error:", e); }
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 	}
 
@@ -244,7 +244,7 @@ public class AnimationController implements IAnimationHandler {
 		InputStream inputStream = Util.instance.getModInputStream("a_def.dat");
 		if (inputStream == null) { return; }
 		NBTTagCompound compound = new NBTTagCompound();
-		try { compound = CompressedStreamTools.readCompressed(inputStream); } catch (Exception e) { LogWriter.error("Error:", e); }
+		try { compound = CompressedStreamTools.readCompressed(inputStream); } catch (Exception e) { LogWriter.error(e); }
 		NBTTagList listA = compound.getTagList("Animations", 10);
 		if (listA.tagCount() != 0) {
 			for (int i = 0; i < listA.tagCount(); ++i) {
@@ -349,7 +349,7 @@ public class AnimationController implements IAnimationHandler {
 		if (!animDir.exists()) { animDir.mkdirs(); }
 		for (int id : animations.keySet()) {
 			if (animations.get(id).immutable) { continue; }
-			try { CompressedStreamTools.writeCompressed(animations.get(id).save(), Files.newOutputStream(new File(animDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { CompressedStreamTools.writeCompressed(animations.get(id).save(), Files.newOutputStream(new File(animDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error(e); }
 		}
 		File emtnDir = CustomNpcs.getWorldSaveDirectory("emotions");
 		if (emtnDir == null) {
@@ -358,7 +358,7 @@ public class AnimationController implements IAnimationHandler {
 		}
 		if (!emtnDir.exists()) { emtnDir.mkdirs(); }
 		for (int id : emotions.keySet()) {
-			try { CompressedStreamTools.writeCompressed(this.emotions.get(id).save(), Files.newOutputStream(new File(emtnDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { CompressedStreamTools.writeCompressed(this.emotions.get(id).save(), Files.newOutputStream(new File(emtnDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error(e); }
 		}
 		CustomNpcs.debugData.end(null);
 	}

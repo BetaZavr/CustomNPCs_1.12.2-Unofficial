@@ -252,7 +252,7 @@ public class ClientProxy extends CommonProxy {
 			}
 			if (ob != null) { GlStateManager.bindTexture(ob.getGlTextureId()); }
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 	}
 
 	// Apply changes to your localizations without disabling processes
@@ -411,7 +411,7 @@ public class ClientProxy extends CommonProxy {
 					SimpleTexture texture = new SimpleTexture(skin);
 					TextureUtil.uploadTextureImageAllocate(texture.getGlTextureId(), skinImage, false, false);
 					mapTextureObjects.put(skin, texture);
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 			return skin;
 		}
@@ -426,7 +426,7 @@ public class ClientProxy extends CommonProxy {
 			int id = -1;
 			try {
 				id = Integer.parseInt(path[i]);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 
 			switch (i) {
 				case 0: {
@@ -445,7 +445,7 @@ public class ClientProxy extends CommonProxy {
 					try {
 						bodyImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 					break;
 				}
 				case 2: { // create body
@@ -455,7 +455,7 @@ public class ClientProxy extends CommonProxy {
 							bodyImage = colorTexture(bodyImage, new Color(c), false);
 						}
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 					break;
 				}
 				case 3: { // hair skin
@@ -468,7 +468,7 @@ public class ClientProxy extends CommonProxy {
 					try {
 						hairImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 					break;
 				}
 				case 4: { // create hair
@@ -478,7 +478,7 @@ public class ClientProxy extends CommonProxy {
 							hairImage = colorTexture(hairImage, new Color(c), false);
 						}
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 					break;
 				}
 				case 5: { // fase
@@ -491,7 +491,7 @@ public class ClientProxy extends CommonProxy {
 					try {
 						faseImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 					break;
 				}
 				case 6: { // create fase
@@ -501,7 +501,7 @@ public class ClientProxy extends CommonProxy {
 							faseImage = colorTexture(faseImage, new Color(c), true);
 						}
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 					break;
 				}
 				case 7: { // legs
@@ -514,7 +514,7 @@ public class ClientProxy extends CommonProxy {
 					try {
 						legsImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 					break;
 				}
 				case 8: { // jacket
@@ -527,7 +527,7 @@ public class ClientProxy extends CommonProxy {
 					try {
 						jacketsImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 					break;
 				}
 				case 9: { // shoes
@@ -540,7 +540,7 @@ public class ClientProxy extends CommonProxy {
 					try {
 						shoesImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream());
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 					break;
 				}
 				default: {
@@ -553,7 +553,7 @@ public class ClientProxy extends CommonProxy {
 					try {
 						listBuffers.add(TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream()));
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 					break;
 				}
 			}
@@ -576,7 +576,7 @@ public class ClientProxy extends CommonProxy {
 			skinImage = combineTextures(skinImage, faseImage);
 			skinImage = combineTextures(skinImage, hairImage);
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 
 		try {
 			if (skinImage != null) {
@@ -585,7 +585,7 @@ public class ClientProxy extends CommonProxy {
 				LogWriter.debug("Create new player skin: " + file.getAbsolutePath());
 			}
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 		SimpleTexture texture = new SimpleTexture(skin);
 		if (skinImage != null) {
 			TextureUtil.uploadTextureImageAllocate(texture.getGlTextureId(), skinImage, false, false);
@@ -895,7 +895,7 @@ public class ClientProxy extends CommonProxy {
 					}
 				}
 			}
-			catch (IOException e) { LogWriter.error("Error:", e); }
+			catch (IOException e) { LogWriter.error(e); }
 		}
 	}
 
@@ -978,7 +978,7 @@ public class ClientProxy extends CommonProxy {
 					break;
 				}
 				reader.close();
-			} catch (IOException e) { LogWriter.error("Error:", e); }
+			} catch (IOException e) { LogWriter.error(e); }
 		}
 
 		// textures
@@ -1067,7 +1067,7 @@ public class ClientProxy extends CommonProxy {
 				}
 				return;
 			}
-		} catch (IOException e) { LogWriter.error("Error:", e); }
+		} catch (IOException e) { LogWriter.error(e); }
 
 		// simple
 		if (parentName == null) {
@@ -1090,7 +1090,7 @@ public class ClientProxy extends CommonProxy {
 				if (ImageIO.write(this.getBufferImageOffset(bi, 0, 0.0f, 40, 0, 40, 255), "png", texture)) {
 					LogWriter.debug("Create Default Texture for \"" + name + "\" item");
 				}
-			} catch (IOException e) { LogWriter.error("Error:", e); }
+			} catch (IOException e) { LogWriter.error(e); }
 		}
 	}
 
@@ -1159,13 +1159,13 @@ public class ClientProxy extends CommonProxy {
 					}
 					ImageIO.write(particlesImage, "png", texture);
 					has = true;
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 				if (!has) {
 					try {
 						BufferedImage bufferedImage = new BufferedImage(128, 128, 6);
 						ImageIO.write(bufferedImage, "png", texture);
 						has = true;
-					} catch (Exception e) { LogWriter.error("Error:", e); }
+					} catch (Exception e) { LogWriter.error(e); }
 				}
 				if (has) {
 					LogWriter.debug("Create Default Texture for \"" + name + "\" particle");
@@ -1221,13 +1221,13 @@ public class ClientProxy extends CommonProxy {
 				ImageIO.write(potionImage, "png", texture);
 				LogWriter.debug("Create Default Texture for \"" + name + "\" potion");
 				has = true;
-			} catch (IOException e) { LogWriter.error("Error:", e); }
+			} catch (IOException e) { LogWriter.error(e); }
 			if (!has) {
 				try {
 					BufferedImage bufferedImage = new BufferedImage(18, 18, 6);
 					ImageIO.write(bufferedImage, "png", texture);
 					LogWriter.debug("Create Default Texture for \"" + name + "\" potion");
-				} catch (IOException e) { LogWriter.error("Error:", e); }
+				} catch (IOException e) { LogWriter.error(e); }
 			}
 		}
 	}
@@ -1256,7 +1256,7 @@ public class ClientProxy extends CommonProxy {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(json));
 				writer.write("{\n\n}");
 				writer.close();
-			} catch (IOException e) { LogWriter.error("Error:", e); }
+			} catch (IOException e) { LogWriter.error(e); }
 		}
 		File textures = new File(dir, "textures");
 		if (!textures.exists() && !textures.mkdirs()) { LogWriter.error("Failed to create directory " + textures.getAbsolutePath()); }
@@ -1291,7 +1291,7 @@ public class ClientProxy extends CommonProxy {
 					bufferedImage.setRGB(u, v, c.getRGB());
 				}
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		return bufferedImage;
 	}
 
@@ -1822,7 +1822,7 @@ public class ClientProxy extends CommonProxy {
 			if (!lang.exists()) {
 				try {
 					writer = Files.newBufferedWriter(lang.toPath());
-				} catch (IOException e) { LogWriter.error("Error:", e); }
+				} catch (IOException e) { LogWriter.error(e); }
 			} else {
 				try {
 					BufferedReader reader = Files.newBufferedReader(lang.toPath());
@@ -1842,7 +1842,7 @@ public class ClientProxy extends CommonProxy {
 					}
 					reader.close();
 					writer = Files.newBufferedWriter(lang.toPath());
-				} catch (IOException e) { LogWriter.error("Error:", e); }
+				} catch (IOException e) { LogWriter.error(e); }
 			}
 			if (writer != null && !jsonMap.isEmpty()) {
 				try {
@@ -1859,7 +1859,7 @@ public class ClientProxy extends CommonProxy {
 					writer.write(jsonStr.toString());
 					writer.close();
 					write = true;
-				} catch (IOException e) { LogWriter.error("Error:", e); }
+				} catch (IOException e) { LogWriter.error(e); }
 			}
 		}
 		if (write) {

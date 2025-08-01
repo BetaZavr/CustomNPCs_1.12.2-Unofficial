@@ -27,8 +27,10 @@ implements ISubGuiListener {
 	@Override
 	public void save() {
 		super.save();
-		BlockPos pos = script.getPos();
-		Client.sendData(EnumPacketServer.ScriptDoorDataSave, pos.getX(), pos.getY(), pos.getZ(), script.getNBT(new NBTTagCompound()));
+		if (script != null) {
+			BlockPos pos = script.getPos();
+			Client.sendData(EnumPacketServer.ScriptDoorDataSave, pos.getX(), pos.getY(), pos.getZ(), script.getNBT(new NBTTagCompound()));
+		}
 	}
 
 	@Override

@@ -152,11 +152,13 @@ public class ClientEventHandler {
 	@SubscribeEvent
 	public void npcPostLivingEvent(RenderLivingEvent.Post<EntityLivingBase> event) {
 		CustomNpcs.debugData.start(null);
-		MarkData data = MarkData.get(event.getEntity());
-		for (MarkData.Mark m : data.marks) {
-			if (m.getType() != 0 && m.availability.isAvailable(Minecraft.getMinecraft().player)) {
-				MarkRenderer.render(event.getEntity(), event.getX(), event.getY(), event.getZ(), m);
-				break;
+		if (event.getEntity().isEntityAlive()) {
+			MarkData data = MarkData.get(event.getEntity());
+			for (MarkData.Mark m : data.marks) {
+				if (m.getType() != 0 && m.availability.isAvailable(Minecraft.getMinecraft().player)) {
+					MarkRenderer.render(event.getEntity(), event.getX(), event.getY(), event.getZ(), m);
+					break;
+				}
 			}
 		}
 		if (event.getEntity() instanceof EntityPlayer && ClientEventHandler.chatMessages.containsKey((EntityPlayer) event.getEntity())) {
@@ -278,11 +280,9 @@ public class ClientEventHandler {
 		GlStateManager.translate(1.0f, yOffset, 1.0f);
 		// Bound
 		if (rotation % 2 == 0) {
-			this.drawSelectionBox(
-					new BlockPos(schem.schema.getWidth(), schem.schema.getHeight(), schem.schema.getLength()));
+			this.drawSelectionBox(new BlockPos(schem.schema.getWidth(), schem.schema.getHeight(), schem.schema.getLength()));
 		} else {
-			this.drawSelectionBox(
-					new BlockPos(schem.schema.getLength(), schem.schema.getHeight(), schem.schema.getWidth()));
+			this.drawSelectionBox(new BlockPos(schem.schema.getLength(), schem.schema.getHeight(), schem.schema.getWidth()));
 		}
 		if (!ClientEventHandler.displayMap.containsKey(schem.schema)) {
 			ClientEventHandler.displayMap.put(schem.schema, GLAllocation.generateDisplayLists(1));
@@ -308,7 +308,7 @@ public class ClientEventHandler {
 								break;
 							}
 						} catch (Exception e) {
-							LogWriter.error("Error:", e);
+							LogWriter.error(e);
 						} finally {
 							GlStateManager.popAttrib();
 							GlStateManager.disableRescaleNormal();
@@ -316,13 +316,13 @@ public class ClientEventHandler {
 						}
 					}
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				LogWriter.error("Error preview builder block", e);
-			} finally {
+			}
+			finally {
 				GL11.glEndList();
-				if (GL11.glGetError() != 0) {
-					ClientEventHandler.displayMap.remove(schem.schema);
-				}
+				if (GL11.glGetError() != 0) { ClientEventHandler.displayMap.remove(schem.schema); }
 			}
 		}
 		if (ClientEventHandler.displayMap.containsKey(schem.schema)) {

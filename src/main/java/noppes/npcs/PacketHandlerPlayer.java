@@ -651,7 +651,8 @@ public class PacketHandlerPlayer {
                 EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TradeFailedEvent(player, npc, dm.main, dm.buyItems));
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 			}
-			CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 150);
+			//CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 150);
+			Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 		} else if (type == EnumPlayerPacket.TraderMarketSell) {
 			Marcet marcet = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (marcet == null || marcet.notHasListener(player)) {
@@ -734,7 +735,8 @@ public class PacketHandlerPlayer {
 						new RoleEvent.TradeFailedEvent(player, npc, dm.main, dm.sellItems));
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 			}
-			CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 150);
+			//CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 150);
+			Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 		} else if (type == EnumPlayerPacket.TraderMarketReset) {
 			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (m != null) {

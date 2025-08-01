@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -70,9 +71,16 @@ import noppes.npcs.util.NBTJsonUtil;
 public class WrapperNpcAPI extends NpcAPI {
 
 	public static volatile LRUHashMap<Integer, WorldWrapper> worldCache = new LRUHashMap<>(300);
+	private static NpcAPI instance = null;
+	private static final Comparator<World> sorter = (w_0, w_1) -> {
+        String dimName0 = w_0.provider.getDimensionType().getName();
+        String dimName1 = w_1.provider.getDimensionType().getName();
+        if ("overworld".equals(dimName0)) { return -1; }
+        if ("overworld".equals(dimName1)) { return 1; }
+        return Integer.compare(w_0.provider.getDimension(), w_1.provider.getDimension());
+    };
 
 	public static EventBus EVENT_BUS = new EventBus();
-	private static NpcAPI instance = null;
 	private final List<World> worlds = Lists.newArrayList();
 
 	public static void clearCache() {
@@ -269,14 +277,8 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	@Override
 	public IWorld getIWorld(String dimension) {
-		if (CustomNpcs.Server == null) {
-			EntityPlayer player = CustomNpcs.proxy.getPlayer();
-			if (!this.worlds.contains(player.world)) { this.worlds.add(player.world); }
-		} else {
-			this.worlds.clear();
-			this.worlds.addAll(Arrays.asList(CustomNpcs.Server.worlds));
-		}
-		for (World world : this.worlds) {
+		resetWorlds();
+		for (World world : worlds) {
 			if (world.provider.getDimensionType().getName().equals(dimension)) {
 				return getIWorld(world);
 			}
@@ -289,12 +291,7 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	@Override
 	public IWorld getIWorld(int dimensionId) {
-		if (CustomNpcs.Server != null) {
-			worlds.clear();
-            worlds.addAll(Arrays.asList(CustomNpcs.Server.worlds));
-		}
-		EntityPlayer player = CustomNpcs.proxy.getPlayer();
-		if (player != null && !worlds.contains(player.world)) { worlds.add(player.world); }
+		resetWorlds();
 		for (World world : worlds) {
 			if (world.provider.getDimension() == dimensionId) {
 				return getIWorld(world);
@@ -304,6 +301,20 @@ public class WrapperNpcAPI extends NpcAPI {
 			throw new CustomNPCsException("Unknown dimension: \"" + dimensionId + "\"");
 		}
 		return null;
+	}
+
+	private void resetWorlds() {
+		checkWorld();
+		if (CustomNpcs.Server != null) {
+			worlds.clear();
+			worlds.addAll(Arrays.asList(CustomNpcs.Server.worlds));
+			worlds.sort(sorter);
+		}
+		EntityPlayer player = CustomNpcs.proxy.getPlayer();
+		if (player != null && !worlds.contains(player.world)) {
+			worlds.add(player.world);
+			worlds.sort(sorter);
+		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -322,12 +333,10 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	@Override
 	public IWorld[] getIWorlds() {
-		this.checkWorld();
-		IWorld[] worlds = new IWorld[CustomNpcs.Server.worlds.length];
-		for (int i = 0; i < CustomNpcs.Server.worlds.length; ++i) {
-			worlds[i] = this.getIWorld(CustomNpcs.Server.worlds[i]);
-		}
-		return worlds;
+		resetWorlds();
+		IWorld[] iWorlds = new IWorld[worlds.size()];
+		for (int i = 0; i < worlds.size(); i++) { iWorlds[i] = getIWorld(worlds.get(i)); }
+		return iWorlds;
 	}
 
 	@Override

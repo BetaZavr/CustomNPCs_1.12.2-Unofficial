@@ -190,4 +190,9 @@ public class LayerBody<T extends EntityLivingBase> extends LayerInterface<T> {
 		skirt.rotateAngleZ -= MathHelper.cos(par3 * 0.09f) * 0.04f - 0.05f;
 	}
 
+	@Override
+	public boolean shouldCombineTextures() {
+		return true;
+	}
+
 }

@@ -95,7 +95,7 @@ public class CmdSlay extends CommandNoppesBase {
 		int count = 0;
 		int range = 120;
 		try { range = Integer.parseInt(args[args.length - 1]); }
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 
 		AxisAlignedBB box = new AxisAlignedBB(sender.getPosition(), sender.getPosition().add(1, 1, 1)).grow(range, range, range);
 		List<? extends Entity> list = new ArrayList<>();

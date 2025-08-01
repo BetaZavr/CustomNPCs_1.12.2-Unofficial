@@ -1729,10 +1729,7 @@ public class ClientGuiEventHandler extends Gui {
 		if (CustomNpcs.ShowHitboxWhenHoldTools && mainStack.getItem() instanceof INPCToolItem || offStack.getItem() instanceof INPCToolItem) {
 			AxisAlignedBB aabb = new AxisAlignedBB(-5.0, -5.0, -5.0, 5.0, 5.0, 5.0).offset(mc.player.getPosition());
 			List<Entity> list = new ArrayList<>();
-			try {
-				list = mc.player.world.getEntitiesWithinAABB(Entity.class, aabb);
-			}
-			catch (Exception ignored) { }
+			try { list = mc.player.world.getEntitiesWithinAABB(Entity.class, aabb); } catch (Exception ignored) { }
 			list.remove(mc.player);
 			Entity rayTrE;
 			if (mc.objectMouseOver == null || mc.objectMouseOver.entityHit == null) {
@@ -1849,7 +1846,7 @@ public class ClientGuiEventHandler extends Gui {
 				}
 			}
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
         return new BlockPos(x, y, z);
 	}
 

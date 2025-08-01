@@ -23,7 +23,7 @@ public class EntitySpawnMessageHelper {
 		FMLMessage.EntitySpawnMessage msg = new FMLMessage.EntitySpawnMessage();
 		msg.fromBytes(buffer);
 		try { EntitySpawnMessageHelper.spawn.invoke(EntitySpawnMessageHelper.handler, msg); }
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public static void toBytes(FMLMessage.EntitySpawnMessage m, ByteBuf buf) {

@@ -159,7 +159,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 			try {
 				if (!EntityLivingBase.class.isAssignableFrom(c) || EntityNPCInterface.class.isAssignableFrom(c) || Modifier.isAbstract(c.getModifiers())) { continue; }
 				regNames.add(name);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		if (scroll == null) { scroll = new GuiCustomScroll(this, 0); }
 		Collections.sort(regNames);

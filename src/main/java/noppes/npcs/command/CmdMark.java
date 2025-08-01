@@ -48,12 +48,12 @@ public class CmdMark extends CommandNoppesBase {
 		int type = 0;
 		try {
 			type = Integer.parseInt(args[1]);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		int color = 16777215;
 		if (args.length > 2) {
 			try {
 				color = Integer.parseInt(args[2], 16);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		for (Entity e : list) {
 			if (!(e instanceof EntityLivingBase)) {

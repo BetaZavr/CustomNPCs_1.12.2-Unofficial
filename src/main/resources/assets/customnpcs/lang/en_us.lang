@@ -2117,6 +2117,7 @@ quest.screen.show.task=Show Task
 quest.set.minimap.point=Put a mark on the map
 quest.setts.q.name=Quest name
 quest.setts.q.tasks=Task name
+quest.screen.show.compass=Show compass
 quest.show.progress.in.chat=Show quest progress in player chat
 quest.show.progress.in.window=Show quest progress in a pop-up window
 quest.take.log= [§1take§r]

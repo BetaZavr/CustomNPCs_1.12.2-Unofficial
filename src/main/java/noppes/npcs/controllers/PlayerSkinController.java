@@ -155,14 +155,14 @@ public class PlayerSkinController {
 			if (file.exists()) {
 				this.loadPlayerSkins(file);
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}
 
 	private void loadPlayerSkins(File file) {
 		try {
 			loadPlayerSkins(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath())));
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void loadPlayerSkins(NBTTagCompound compound) {
@@ -195,7 +195,7 @@ public class PlayerSkinController {
 		CustomNpcs.debugData.start(null);
 		try {
 			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "player_skins.dat").toPath()));
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}
 

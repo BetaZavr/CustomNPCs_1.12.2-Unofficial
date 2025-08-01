@@ -168,7 +168,7 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 					AttributeModifier mod = (AttributeModifier) entry.getValue();
 					damage = mod.getAmount();
 				}
-				catch (Exception e) { LogWriter.error("Error:", e); }
+				catch (Exception e) { LogWriter.error(e); }
 			}
 		}
 		damage += EnchantmentHelper.getModifierForCreature(this.item, EnumCreatureAttribute.UNDEFINED);

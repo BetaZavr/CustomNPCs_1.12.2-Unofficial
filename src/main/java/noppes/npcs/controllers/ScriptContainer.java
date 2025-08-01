@@ -121,7 +121,7 @@ public class ScriptContainer {
 					continue;
 				}
 				ScriptContainer.Data.put(c.getSimpleName() + "_" + ((Enum<?>) e).name(), m.invoke(e));
-			} catch (Throwable error) { LogWriter.error("Error:", error); }
+			} catch (Throwable error) { LogWriter.error(error); }
 		}
 	}
 

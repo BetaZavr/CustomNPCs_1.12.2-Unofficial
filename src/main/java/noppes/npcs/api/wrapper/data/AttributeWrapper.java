@@ -131,7 +131,7 @@ public class AttributeWrapper implements INpcAttribute {
 		try {
 			UUID uuid = UUID.fromString(uuidOrName);
 			modifier = this.attribute.getModifier(uuid);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		if (modifier == null) {
 			for (AttributeModifier am : this.attribute.getModifiers()) {
 				if (am.getName().equals(uuidOrName)) {
@@ -212,7 +212,7 @@ public class AttributeWrapper implements INpcAttribute {
 		try {
 			UUID uuid = UUID.fromString(uuidOrName);
 			has = this.attribute.getModifier(uuid) != null;
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		if (has) {
 			return true;
 		}

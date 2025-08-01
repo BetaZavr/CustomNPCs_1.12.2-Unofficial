@@ -301,7 +301,7 @@ implements IGuiData, ICustomScrollListener {
 				}
 				list.add(name);
 				classes.add(c);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		scroll.setList(list);
 		scroll.setSelect(sel);

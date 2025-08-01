@@ -59,7 +59,7 @@ implements GuiSlider.FormatHelper, GuiPageButtonList.GuiResponder {
 		public boolean tryParseValidFloat(String p_178956_1_) {
 			Float f = null;
 			try { f = Float.parseFloat(p_178956_1_); }
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			catch (Exception e) { LogWriter.error(e); }
 			return p_178956_1_.isEmpty() || f != null && Floats.isFinite(f) && f >= 0.0F;
 		}
 	};
@@ -613,7 +613,7 @@ implements GuiSlider.FormatHelper, GuiPageButtonList.GuiResponder {
 			}
 			GuiTextField guitextfield = (GuiTextField) gui;
 			Float f2 = null;
-			try { f2 = Float.parseFloat(guitextfield.getText()); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { f2 = Float.parseFloat(guitextfield.getText()); } catch (Exception e) { LogWriter.error(e); }
 			if (f2 != null) {
 				f2 = f2 + f1;
 				int i = guitextfield.getId();
@@ -1116,7 +1116,7 @@ implements GuiSlider.FormatHelper, GuiPageButtonList.GuiResponder {
 		float f = 0.0F;
 		try {
 			f = Float.parseFloat(p_175319_2_);
-		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException e) { LogWriter.error(e); }
 		float f1 = 0.0F;
 		switch (p_175319_1_) {
 			case 132:

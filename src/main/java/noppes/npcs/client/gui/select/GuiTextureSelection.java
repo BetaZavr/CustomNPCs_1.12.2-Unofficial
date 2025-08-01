@@ -203,7 +203,7 @@ implements ICustomScrollListener {
 					tH = 128;
 				}
 				GuiNpcUtil.drawTexturedModalRect(resource, tX, tY, tW, tH, tS);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			GlStateManager.depthMask(true);
 			GlStateManager.enableTexture2D();
 			GlStateManager.disableBlend();
@@ -406,7 +406,7 @@ implements ICustomScrollListener {
 			} else if (file.isDirectory()) {
 				checkFolder(file);
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	private void resetFiles() {

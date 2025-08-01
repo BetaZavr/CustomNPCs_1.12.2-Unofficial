@@ -49,7 +49,7 @@ public class NPCSpawning {
 			}
 			// is living
 			Entity entity = null;
-			try { entity = EntityList.createEntityFromNBT(data.compoundEntity, world); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { entity = EntityList.createEntityFromNBT(data.compoundEntity, world); } catch (Exception e) { LogWriter.error(e); }
 			if (!(entity instanceof EntityLiving)) {
 				pWGS = false;
 				CustomNpcs.debugData.end(null);
@@ -102,7 +102,7 @@ public class NPCSpawning {
 					if (data == null || data.group <= 0 || world.rand.nextFloat() > (float) data.itemWeight / 100.0f) { continue; }
 					// is living
 					Entity entity = null;
-					try { entity = EntityList.createEntityFromNBT(data.compoundEntity, world); } catch (Exception e) { LogWriter.error("Error:", e); }
+					try { entity = EntityList.createEntityFromNBT(data.compoundEntity, world); } catch (Exception e) { LogWriter.error(e); }
 					if (!(entity instanceof EntityLiving)) { continue; }
 					trySummonToPos(1, data, world, randomPos, (EntityLiving) entity);
 				}
@@ -203,7 +203,9 @@ public class NPCSpawning {
 							int count = list.size();
 							if (entity instanceof EntityNPCInterface) {
 								count = 0;
-								for (Entity e : list) { if (((EntityNPCInterface) e).stats.spawnCycle == 4) { count++; } }
+								for (Entity e : list) {
+									if (e instanceof EntityNPCInterface && ((EntityNPCInterface) e).stats.spawnCycle == 4) { count++; }
+								}
 							}
 							if (count >= data.maxNearPlayer) {
 								isSpawnPos = false;
@@ -229,7 +231,7 @@ public class NPCSpawning {
 		if (entity instanceof EntityNPCInterface) {
 			count = 0;
 			for (Entity e : list) {
-				if (((EntityNPCInterface) e).stats.spawnCycle == 4) { count++; }
+				if (e instanceof EntityNPCInterface && ((EntityNPCInterface) e).stats.spawnCycle == 4) { count++; }
 			}
 		}
         return count <= data.group;

@@ -26,6 +26,7 @@ public class AddedPartConfig {
 		clear();
 	}
 
+	@SuppressWarnings("all")
 	public AddedPartConfig(int parentPartId) {
 		parentPart = parentPartId;
 		clear();
@@ -55,10 +56,10 @@ public class AddedPartConfig {
 		if (compound.hasKey("OBJUpLocation", 8)) { objUp = new ResourceLocation(compound.getString("OBJUpLocation")); }
 		if (compound.hasKey("OBJDownLocation", 8)) { objUp = new ResourceLocation(compound.getString("OBJDownLocation")); }
 		for (int i = 0; i < 5; i++) {
-			try { size[i] = ValueUtil.correctFloat(compound.getTagList("BaseSize", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { size[i] = ValueUtil.correctFloat(compound.getTagList("BaseSize", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error(e); }
 			if (i > 2) { continue; }
-			try { pos[i] = ValueUtil.correctFloat(compound.getTagList("BasePosition", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
-			try { rot[i] = ValueUtil.correctFloat(compound.getTagList("BaseRotation", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { LogWriter.error("Error:", e); }
+			try { pos[i] = ValueUtil.correctFloat(compound.getTagList("BasePosition", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { LogWriter.error(e); }
+			try { rot[i] = ValueUtil.correctFloat(compound.getTagList("BaseRotation", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { LogWriter.error(e); }
 		}
 	}
 

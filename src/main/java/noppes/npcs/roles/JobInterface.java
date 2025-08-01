@@ -101,7 +101,7 @@ public class JobInterface implements INPCJob {
 			if (split.length == 2) {
 				try {
 					damage = Integer.parseInt(split[1]);
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 				s = split[0];
 			}
 		}

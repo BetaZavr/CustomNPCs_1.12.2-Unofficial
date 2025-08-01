@@ -1,13 +1,11 @@
 package noppes.npcs;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executors;
 
 import com.google.common.util.concurrent.ListenableFutureTask;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandGive;
 import net.minecraft.command.CommandTime;
@@ -20,6 +18,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ClassInheritanceMultiMap;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -60,6 +59,10 @@ import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.Util;
 
 public class ServerEventsHandler {
+
+	private final Map<Entity, List<AxisAlignedBB>> cacheAABB = new HashMap<>();
+	private final List<EntityNPCInterface> cacheNPChb = new ArrayList<>();
+	private long currentTick = 0;
 
 	public static EntityVillager Merchant;
 	public static Entity mounted;
@@ -422,19 +425,49 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcGetCollisionBoxes(GetCollisionBoxesEvent event) {
-		if (event.getEntity() == null || event.getEntity().world == null) { return; }
-		CustomNpcs.debugData.start(event.getEntity());
-		for (Entity npc : new ArrayList<>(event.getEntity().world.loadedEntityList)) {
-			if (!(npc instanceof EntityNPCInterface) ||
-					npc == event.getEntity() ||
-					!npc.isEntityAlive() ||
-					((EntityNPCInterface) npc).display.getHitboxState() != 2) { continue; }
-			double dist = npc.getDistanceSq(event.getEntity());
-			if (dist > 4096) { continue; }
-			if (!event.getAabb().intersects(npc.getEntityBoundingBox())) { continue; }
-			event.getCollisionBoxesList().add(npc.getEntityBoundingBox());
+		Entity entity = event.getEntity();
+		if (entity == null || entity.world == null) { return; }
+		CustomNpcs.debugData.start(entity);
+		long tick;
+		if (entity.world.isRemote) { tick = Minecraft.getMinecraft().world.getTotalWorldTime(); }
+		else {
+			if (entity.getServer() == null) { return; }
+			tick = entity.getServer().getWorld(0).getTotalWorldTime();
 		}
-		CustomNpcs.debugData.end(event.getEntity());
+		if (tick != currentTick) {
+			cacheAABB.clear();
+			cacheNPChb.clear();
+			currentTick = tick;
+		}
+		if (cacheAABB.get(entity) instanceof ArrayList && event.getCollisionBoxesList() != null) {
+			try { event.getCollisionBoxesList().addAll(cacheAABB.get(entity)); }
+			catch (Exception e) { LogWriter.error(e); }
+		}
+		else {
+			if (cacheNPChb.isEmpty()) {
+				for (Entity e : new ArrayList<>(entity.world.loadedEntityList)) {
+					if (e instanceof EntityNPCInterface && e.isEntityAlive() && ((EntityNPCInterface) e).display.getHitboxState() == 2) {
+						cacheNPChb.add((EntityNPCInterface) e);
+					}
+				}
+			}
+			for (EntityNPCInterface npc : cacheNPChb) {
+				try {
+					if (npc == entity) { continue; }
+					double dist = npc.getDistanceSq(entity);
+					if (dist > 450) { continue; }
+					AxisAlignedBB aabb = npc.getEntityBoundingBox();
+					if (!event.getAabb().intersects(aabb)) { continue; }
+					if (!cacheAABB.containsKey(entity)) { cacheAABB.put(entity, new ArrayList<>()); }
+					if (!npc.getNavigator().noPath()) { aabb = aabb.grow(npc.width * 0.25, 0.0, npc.width * 0.25); }
+					cacheAABB.get(entity).add(aabb);
+					event.getCollisionBoxesList().add(aabb);
+					npc.addRidingEntity(entity);
+				}
+				catch (Exception e) { LogWriter.error(e); }
+            }
+		}
+		CustomNpcs.debugData.end(entity);
 	}
 
 }

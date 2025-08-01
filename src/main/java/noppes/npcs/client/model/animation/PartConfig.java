@@ -114,17 +114,17 @@ public class PartConfig implements IAnimationPart {
 				float corr = (float) Math.PI / (i == 4 ? 2.0f : 1.0f);
 				if (v == 0) { rotation[i] = ValueUtil.correctFloat((2.0f * pi * valueR - pi) / (i == 4 ? 2.0f : 1.0f), -corr, corr); }
 				else { rotation[i] = ValueUtil.correctFloat(valueR, -corr, corr); }
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			if (i > 2) {
 				continue; }
 			try {
 				if (v == 0) { offset[i] = ValueUtil.correctFloat(valueO * 10.0f - 5.0f, -5.0f, 5.0f); }
 				else { offset[i] = ValueUtil.correctFloat(valueO, -5.0f, 5.0f); }
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			try {
 				if (v == 0) { scale[i] = ValueUtil.correctFloat(valueS * 5.0f, 0.0f, 5.0f); }
 				else { scale[i] = ValueUtil.correctFloat(valueS, 0.0f, 5.0f); }
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		id = compound.getInteger("Part");
 		if (compound.hasKey("Disabled", 1)) { disable = compound.getBoolean("Disabled"); }

@@ -118,7 +118,6 @@ import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemMounter;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemNpcBlock;
-import noppes.npcs.items.ItemNpcBlockDoor;
 import noppes.npcs.items.ItemNpcCloner;
 import noppes.npcs.items.ItemNpcMovingPath;
 import noppes.npcs.items.ItemNpcScripter;
@@ -267,7 +266,7 @@ public class CustomRegisters {
 			}
 			try {
 				Util.instance.saveFile(blocksFile, nbtBlocks);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		for (int i = 0; i < nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
 			NBTTagCompound nbtBlock = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i);
@@ -333,7 +332,7 @@ public class CustomRegisters {
 			}
 			try {
 				Util.instance.saveFile(prtcsFile, nbtParticles);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		// delete this bug
 		if (resave) {
@@ -381,10 +380,10 @@ public class CustomRegisters {
 						}
 						break;
 					}
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 		} catch (ClassNotFoundException e) {
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 		}
 
 		for (int i = 0; i < nbtParticles.getTagList("Particles", 10).tagCount(); i++) {
@@ -420,7 +419,7 @@ public class CustomRegisters {
 		if (resave) {
 			try {
 				Util.instance.saveFile(prtcsFile, nbtParticles);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 	}
 
@@ -654,7 +653,7 @@ public class CustomRegisters {
 		if (resave) {
 			try {
 				Util.instance.saveFile(blocksFile, nbtBlocks);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		event.getRegistry().registerAll(blocks.toArray(new Block[0]));
 	}
@@ -702,7 +701,6 @@ public class CustomRegisters {
 		items.add(new ItemNpcBlock(CustomRegisters.redstoneBlock));
 		items.add(new ItemNpcBlock(CustomRegisters.waypoint));
 		items.add(new ItemNpcBlock(CustomRegisters.border));
-		items.add(new ItemNpcBlockDoor(CustomRegisters.scriptedDoor));
 		items.add(new ItemNpcBlock(CustomRegisters.builder));
 		items.add(new ItemNpcBlock(CustomRegisters.copy));
 		items.add(CustomRegisters.itemCarpentyBench);
@@ -907,7 +905,7 @@ public class CustomRegisters {
 
 		if (resave) {
 			try { Util.instance.saveFile(itemsFile, nbtItems); }
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			catch (Exception e) { LogWriter.error(e); }
 		}
 		event.getRegistry().registerAll(items.toArray(new Item[0]));
 		CustomRegisters.tab.item = CustomRegisters.wand;
@@ -1036,7 +1034,7 @@ public class CustomRegisters {
 				}
 				try {
 					Util.instance.saveFile(itemsFile, nbtItems);
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 		}
 		boolean resave = false;
@@ -1089,7 +1087,7 @@ public class CustomRegisters {
 		if (resave) {
 			try {
 				Util.instance.saveFile(itemsFile, nbtItems);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		if (CustomRegisters.custompotions.isEmpty()) {
 			return;

@@ -9,7 +9,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.UserListOpsEntry;
 import net.minecraft.util.math.BlockPos;
-import noppes.npcs.LogWriter;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.controllers.DialogController;
@@ -59,7 +58,6 @@ public class CommandNoppes extends CommandBase {
 		args = Arrays.copyOfRange(args, 1, args.length);
 		if (command.subcommands.isEmpty() || !command.runSubCommands()) {
 			if (command.getRequiredPermissionLevel() > getPermissionLevel(server, sender)) {
-				LogWriter.debug("TEST: ");
 				throw new CommandException("You are not allowed to use \""+command.getName().toLowerCase()+"\" command");
 			}
 			command.canRun(server, sender, command.getUsage(), args);

@@ -206,7 +206,7 @@ public class EventHooks {
 				WrapperNpcAPI.EVENT_BUS.post(ev.event);
 				if (ev.isCancelable()) { ev.setCanceled(ev.event.isCanceled()); }
 			} catch (Exception e) {
-				LogWriter.error("Error:", e);
+				LogWriter.error(e);
 			}
 		}
 		if (handler.isClient()) {
@@ -229,7 +229,7 @@ public class EventHooks {
 				if (ev.isCanceled() && ev.event.isCancelable()) { ev.event.setCanceled(true); }
 				WrapperNpcAPI.EVENT_BUS.post(ev.event);
 			}
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			catch (Exception e) { LogWriter.error(e); }
 		}
 	}
 

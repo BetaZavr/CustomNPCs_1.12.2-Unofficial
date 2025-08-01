@@ -102,7 +102,7 @@ public class SpawnController {
 				if (oldFile.exists()) {
 					this.loadDataFile(oldFile);
 				}
-			} catch (Exception e1) { LogWriter.error("Error:", e1); }
+			} catch (Exception e1) { LogWriter.error(e1); }
 		}
 		CustomNpcs.debugData.end(null);
 	}

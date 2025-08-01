@@ -18,7 +18,9 @@
     "tileentity.TileEntityBannerMixin",
     "tileentity.TileEntityMixin",
     "util.ServerRecipeBookHelperMixin",
-    "util.text.translation.LanguageMapMixin"
+    "util.text.translation.LanguageMapMixin",
+    "world.WorldMixin",
+    "world.WorldServerMixin"
   ],
   "client": [
     "client.audio.LibraryMixin",
@@ -52,7 +54,8 @@
     "client.renderer.entity.RenderLivingBaseMixin",
     "client.resources.I18nMixin",
     "client.world.storage.WorldSummaryMixin",
-    "fml.client.GuiModListMixin"
+    "fml.client.GuiModListMixin",
+    "world.WorldClientMixin"
   ],
   "server": [],
   "injectors": {

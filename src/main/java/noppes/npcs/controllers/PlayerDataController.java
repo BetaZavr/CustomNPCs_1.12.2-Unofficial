@@ -95,11 +95,11 @@ public class PlayerDataController {
 							if (!bankFile.exists()) {
 								try {
 									bankFile.createNewFile();
-								} catch (Exception e) { LogWriter.error("Error:", e); }
+								} catch (Exception e) { LogWriter.error(e); }
 							}
 							try {
 								CompressedStreamTools.writeCompressed(nbtBD, Files.newOutputStream(bankFile.toPath()));
-							} catch (Exception e) { LogWriter.error("Error:", e); }
+							} catch (Exception e) { LogWriter.error(e); }
 						}
 					}
 
@@ -112,12 +112,12 @@ public class PlayerDataController {
 					if (!tempFile.exists()) {
 						try {
 							tempFile.createNewFile();
-						} catch (Exception e) { LogWriter.error("Error:", e); }
+						} catch (Exception e) { LogWriter.error(e); }
 					}
 					try {
 						nbt.removeTag("BankData");
 						Util.instance.saveFile(tempFile, nbt);
-					} catch (Exception e) { LogWriter.error("Error:", e); }
+					} catch (Exception e) { LogWriter.error(e); }
 
 					Util.instance.removeFile(playerDir);
 				} catch (Exception e) {
@@ -160,7 +160,7 @@ public class PlayerDataController {
 							if (data.playername == null || data.playername.isEmpty()) {
 								data.playername = f.getName().substring(0, f.getName().lastIndexOf("."));
 							}
-						} catch (Exception e) { LogWriter.error("Error:", e); }
+						} catch (Exception e) { LogWriter.error(e); }
 					}
 				}
 			}

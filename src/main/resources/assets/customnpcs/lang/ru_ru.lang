@@ -2104,6 +2104,7 @@ quest.rlweekly=Реальная Неделя
 quest.screen.pos=Положение на экране:
 quest.screen.show.quest=Показывать имя Квеста
 quest.screen.show.task=Показывать Задачу
+quest.screen.show.compass=Показывать компас
 quest.set.minimap.point=Ставить метку на карте
 quest.setts.q.name=Название квеста
 quest.setts.q.tasks=Имя задачи

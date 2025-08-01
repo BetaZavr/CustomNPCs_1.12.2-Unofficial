@@ -86,7 +86,7 @@ public class QuestController implements IQuestHandler {
 				CustomNpcs.debugData.end(null);
 				return;
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		File dir = getDir();
 		if (!dir.exists()) {
 			dir.mkdir();
@@ -265,7 +265,7 @@ public class QuestController implements IQuestHandler {
 			file.renameTo(file2);
 			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestData,
 					quest.writeToNBT(new NBTTagCompound()), category.id);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}
 

@@ -69,7 +69,7 @@ public class VisibilityController {
 			LogWriter.debug("CNPCs: npc: "+npc);
 			LogWriter.debug("CNPCs: npc.world: "+(npc != null ? npc.world : "n/a"));
 			LogWriter.debug("CNPCs: npc.getEntityId(): "+(npc != null ? npc.getEntityId() : "n/a"));
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 		}
 	}
 

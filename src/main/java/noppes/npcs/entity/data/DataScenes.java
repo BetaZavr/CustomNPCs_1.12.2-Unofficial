@@ -226,7 +226,7 @@ public class DataScenes {
 				}
 				try {
 					this.handle(event);
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 			this.ticks = this.state.ticks;
 		}

@@ -1051,7 +1051,7 @@ public class Util implements IMethods {
 			worldserverStart.resetUpdateEntityTick();
 			worldserverEnd.resetUpdateEntityTick();
 			entity.world.profiler.endSection();
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		return newEntity;
 	}
 
@@ -1088,7 +1088,7 @@ public class Util implements IMethods {
 					int p = str.indexOf(chr);
 					str = (p > 0 ? str.substring(0, p) : "") + (p + 2 == str.length() ? "" : str.substring(p + 2));
 				}
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		return str;
 	}
@@ -1152,7 +1152,7 @@ public class Util implements IMethods {
 				try {
 					str = new StringBuilder((String) engine.eval("JSON.stringify(temp)"));
 				}
-				catch (ScriptException e) { LogWriter.error("Error:", e); }
+				catch (ScriptException e) { LogWriter.error(e); }
 			}
 		}
 		return str.toString();
@@ -1185,7 +1185,7 @@ public class Util implements IMethods {
 							inputStream = copyStream;
 						}
 						zip.close();
-					} catch (Exception e) { LogWriter.error("Error:", e); }
+					} catch (Exception e) { LogWriter.error(e); }
 				} else {
 					List<File> list = this.getFiles(mod.getSource(), fileName.substring(fileName.lastIndexOf(".")));
 					for (File file : list) {
@@ -1193,7 +1193,7 @@ public class Util implements IMethods {
 						try {
 							inputStream = Files.newInputStream(file.toPath());
 						}
-						catch (Exception e) { LogWriter.error("Error:", e); }
+						catch (Exception e) { LogWriter.error(e); }
 						break;
 					}
 				}
@@ -1445,7 +1445,7 @@ public class Util implements IMethods {
 						LogWriter.error("Error parse \""+str+"\"", e);
 					}
                     return null;
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 			else if (compound.getBoolean("IsList")) {
 				Map<Integer, Object> map = new TreeMap<>();
@@ -1703,7 +1703,7 @@ public class Util implements IMethods {
 			} else {
 				e = this.travelAndCopyEntity(CustomNpcs.Server, entity.getMCEntity(), dimension);
 			}
-		} catch (Exception ee) { LogWriter.error("Error:", ee); }
+		} catch (Exception ee) { LogWriter.error(ee); }
 		if (e != null) {
 			return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e);
 		}

@@ -34,13 +34,13 @@ public class ModelData extends ModelDataShared {
 				try {
 					this.entity.readEntityFromNBT(this.extra);
 				}
-				catch (Exception e) { LogWriter.error("Error:", e); }
+				catch (Exception e) { LogWriter.error(e); }
 				this.entity.setEntityInvulnerable(true);
 				this.entity.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(npc.getMaxHealth());
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
 					this.entity.setItemStackToSlot(slot, npc.getItemStackFromSlot(slot));
 				}
-			} catch (Exception ex) { LogWriter.error("Error:", ex); }
+			} catch (Exception ex) { LogWriter.error(ex); }
 		}
 		return this.entity;
 	}
@@ -56,7 +56,7 @@ public class ModelData extends ModelDataShared {
 				NBTTagCompound comp = new NBTTagCompound();
 				entity.writeEntityToNBT(comp);
 				this.extra.setString("EntityData21", comp.getString("EntityData21"));
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		if (key.equalsIgnoreCase("name") && PixelmonHelper.isPixelmon(entity)) {
 			this.extra.setString("Name", value);

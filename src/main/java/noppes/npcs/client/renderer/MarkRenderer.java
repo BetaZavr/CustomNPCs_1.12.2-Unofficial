@@ -129,8 +129,7 @@ public class MarkRenderer {
 				GlStateManager.callList(list);
 			}
 			GlStateManager.popMatrix();
-			//RenderHelper.enableStandardItemLighting();
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	private static FloatBuffer setColorBuffer(float red, float green, float blue, float alpha) {

@@ -472,7 +472,7 @@ public class Schematic implements ISchematic {
 				file = new File(SchematicController.getDir(), this.name.replace(".schematic", "") + ".json");
 				Util.instance.saveFile(file, this.getNBT());
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void setBlockBytes(byte[] blockId, byte[] addId) {

@@ -237,7 +237,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 									}
 								}
 							}
-						} catch (Exception e) { LogWriter.error("Error:", e); }
+						} catch (Exception e) { LogWriter.error(e); }
 						if (!activationDialogs.isEmpty()) {
 							h.add(new TextComponentTranslation("dialog.hover.act.1").getFormattedText());
 							h.addAll(activationDialogs);

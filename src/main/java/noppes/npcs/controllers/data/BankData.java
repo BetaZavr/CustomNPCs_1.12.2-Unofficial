@@ -115,12 +115,12 @@ public class BankData {
         if (!bankFile.exists()) {
 			try {
 				bankFile.createNewFile();
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		LogWriter.debug("Bank ID: " + this.bank.id + " save " + (this.bank.isPublic ? "Public" : "Player \"" + this.uuid + "\"") + " Inventory's");
 		try {
 			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(bankFile.toPath()));
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void setNBT(NBTTagCompound nbtBD) {

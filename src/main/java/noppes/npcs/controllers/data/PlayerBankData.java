@@ -43,7 +43,7 @@ public class PlayerBankData {
 				file.createNewFile();
 				CompressedStreamTools.writeCompressed(this.lastBank.getNBT(), Files.newOutputStream(file.toPath()));
 			} catch (Exception e) {
-				LogWriter.error("Error:", e);
+				LogWriter.error(e);
 				this.lastBank = null;
 				return null;
 			}
@@ -52,7 +52,7 @@ public class PlayerBankData {
 		try {
 			this.lastBank.setNBT(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath())));
 		} catch (IOException e) {
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 			this.lastBank = null;
 			return null;
 		}
@@ -93,11 +93,11 @@ public class PlayerBankData {
 				if (!file.exists()) {
 					try {
 						file.createNewFile();
-					} catch (IOException e) { LogWriter.error("Error:", e); }
+					} catch (IOException e) { LogWriter.error(e); }
 				}
 				try {
 					CompressedStreamTools.writeCompressed(bd.getNBT(), Files.newOutputStream(file.toPath()));
-				} catch (IOException e) { LogWriter.error("Error:", e); }
+				} catch (IOException e) { LogWriter.error(e); }
 			}
 
 		}

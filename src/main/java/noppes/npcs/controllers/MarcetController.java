@@ -188,7 +188,7 @@ public class MarcetController implements IMarcetHandler {
 				if (file2.exists()) {
 					this.load(file2);
 				}
-			} catch (Exception er) { LogWriter.error("Error:", er); }
+			} catch (Exception er) { LogWriter.error(er); }
 		}
 
 		if (this.markets.isEmpty() || !this.markets.containsKey(0)) {
@@ -430,7 +430,7 @@ public class MarcetController implements IMarcetHandler {
 			if (file.exists()) {
 				file.delete();
 			}
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void sendTo(EntityPlayerMP player, int marcetID) {

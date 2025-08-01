@@ -97,7 +97,7 @@ public class CustomGuiController {
 			}
 			return selection;
 		} catch (IOException e) {
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 			return null;
 		}
 	}

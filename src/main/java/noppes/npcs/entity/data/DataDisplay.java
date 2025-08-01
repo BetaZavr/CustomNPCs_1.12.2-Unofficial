@@ -278,7 +278,7 @@ public class DataDisplay implements INPCDisplay {
 				MinecraftProfileTexture mpt = mtp.getTextures().get(MinecraftProfileTexture.Type.SKIN);
 				if (!mpt.getUrl().isEmpty()) { url = mpt.getUrl(); }
 			}
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			catch (Exception e) { LogWriter.error(e); }
 		}
 		if (skinType == 1) {
 			if (displayNbt.hasKey("SkinUsername", 10)) {

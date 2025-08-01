@@ -61,7 +61,7 @@ public enum JobType {
 		try {
 			npc.advanced.jobInterface = (JobInterface) parent.getConstructor(EntityNPCInterface.class).newInstance(npc);
 		} catch (Exception e) {
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 		}
 	}
 

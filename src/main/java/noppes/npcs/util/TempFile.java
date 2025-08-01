@@ -46,7 +46,7 @@ public class TempFile {
 		}
 		try {
 			return NBTJsonUtil.Convert(this.getDataText());
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		return null;
 	}
 
@@ -107,14 +107,14 @@ public class TempFile {
 			this.fileType = 2;
 			this.reset(NBTJsonUtil.Convert(nbt));
 			return;
-		} catch (IOException e) { LogWriter.error("Error:", e); }
+		} catch (IOException e) { LogWriter.error(e); }
 
 		String text = Util.instance.loadFile(file);
 
 		try {
 			NBTJsonUtil.Convert(text);
 			this.fileType = 1;
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		this.reset(text);
 	}
 

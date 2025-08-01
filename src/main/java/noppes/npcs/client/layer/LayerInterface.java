@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.ModelPartData;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -55,7 +56,7 @@ implements LayerRenderer<T> {
 			GlStateManager.blendFunc(770, 771);
 			GlStateManager.alphaFunc(516, 0.003921569f);
 		}
-		if (npc.hurtTime > 0 || npc.deathTime > 0) {
+		if (!npc.animation.isAnimated(AnimationKind.DIES) && npc.hurtTime > 0 || npc.deathTime > 0) {
 			GlStateManager.color(1.0f, 0.0f, 0.0f, 0.3f);
 		}
 		if (npc.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
@@ -74,7 +75,8 @@ implements LayerRenderer<T> {
 		if (data == null) { return; }
 		if (data.playerTexture) { ClientProxy.bindTexture(npc.textureLocation); }
 		else { ClientProxy.bindTexture(data.getResource()); }
-		if (npc.hurtTime > 0 || npc.deathTime > 0) { return; }
+		if (!npc.animation.isAnimated(AnimationKind.DIES) && npc.hurtTime > 0 || npc.deathTime > 0) { return; }
+
 		int color = data.color;
 		if (npc.display.getTint() != 16777215) {
 			if (data.color != 16777215) { color = blend(data.color, npc.display.getTint()); }
@@ -83,11 +85,12 @@ implements LayerRenderer<T> {
 		float red = (color >> 16 & 0xFF) / 255.0f;
 		float green = (color >> 8 & 0xFF) / 255.0f;
 		float blue = (color & 0xFF) / 255.0f;
+
 		boolean isInvisible = false;
 		if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
 		else if (npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
 		if (isInvisible) {
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
+			GlStateManager.color(red, green, blue, 0.15f);
 			GlStateManager.enableBlend();
 		} else {
 			GlStateManager.color(red, green, blue, 1.0f);
@@ -108,8 +111,6 @@ implements LayerRenderer<T> {
 		model.rotateAngleZ = z;
 	}
 
-	public boolean shouldCombineTextures() {
-		return false;
-	}
+	public boolean shouldCombineTextures() { return false; }
 
 }

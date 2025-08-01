@@ -43,7 +43,8 @@ import javax.annotation.Nonnull;
 public class DimensionHandler extends WorldSavedData implements IDimensionHandler {
 
 	static String NAME = "CustomNpcsHandler";
-	
+
+	@SuppressWarnings("all")
 	public DimensionHandler(String mapName) {
 		super(mapName);
 	}
@@ -286,7 +287,7 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 			try {
 				FileUtils.deleteDirectory(dimensionFolder);
 			} catch (IOException e) {
-				LogWriter.error("Error:", e);
+				LogWriter.error(e);
 				if (player != null) {
 					player.sendMessage(new TextComponentTranslation("message.dimensions.err.notmod", "" + dimensionID));
 				}

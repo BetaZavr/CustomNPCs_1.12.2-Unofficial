@@ -48,14 +48,12 @@ extends SubGuiInterface {
         for (int i = 0 ; i < stacks.length; i++) {
             if (stacks[i] == null || stacks[i].isEmpty()) { continue; }
             GlStateManager.pushMatrix();
-            //RenderHelper.enableGUIStandardItemLighting();
             int x = (int) (guiLeft + 8.0d + (i % 9) * 18.0d);
             int y = (int) (guiTop + 17.0d + Math.floor(i / 9.0d) * 18.0d);
             GlStateManager.translate(x, y, 0.0f);
             mc.getRenderItem().renderItemAndEffectIntoGUI(stacks[i], 0, 0);
             GlStateManager.translate(0.0f, 0.0f, 200.0f);
             drawString(mc.fontRenderer, "" + stacks[i].getCount(), 16 - mc.fontRenderer.getStringWidth("" + stacks[i].getCount()), 9, new Color(0xFFFFFFFF).getRGB());
-            //RenderHelper.disableStandardItemLighting();
             if (isMouseHover(mouseX, mouseY, x, y, 18, 18)) {
                 GlStateManager.translate(-x, -y + 32.0f, 0.0f);
                 drawHoveringText(stacks[i].getTooltip(player, player.capabilities.isCreativeMode ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL), mouseX, mouseY, fontRenderer);

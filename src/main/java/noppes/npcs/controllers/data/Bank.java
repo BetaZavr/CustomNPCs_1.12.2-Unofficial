@@ -141,7 +141,7 @@ public class Bank {
 				BankData bd = new BankData(this, "");
 				try {
 					bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
-				} catch (IOException e) { LogWriter.error("Error:", e); }
+				} catch (IOException e) { LogWriter.error(e); }
 				if (!bd.cells.containsKey(cs.ceil)) {
 					bd.cells.put(cs.ceil, new NpcMiscInventory(0));
 					bd.save();
@@ -161,7 +161,7 @@ public class Bank {
 						BankData bd = new BankData(this, playerDir.getName());
 						try {
 							bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
-						} catch (IOException e) { LogWriter.error("Error:", e); }
+						} catch (IOException e) { LogWriter.error(e); }
 						if (!bd.cells.containsKey(cs.ceil)) {
 							bd.cells.put(cs.ceil, new NpcMiscInventory(0));
 							bd.save();
@@ -190,7 +190,7 @@ public class Bank {
 				file.createNewFile();
 				CompressedStreamTools.writeCompressed(this.lastBank.getNBT(), Files.newOutputStream(file.toPath()));
 			} catch (Exception e) {
-				LogWriter.error("Error:", e);
+				LogWriter.error(e);
 				this.lastBank = null;
 				return null;
 			}
@@ -199,7 +199,7 @@ public class Bank {
 		try {
 			this.lastBank.setNBT(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath())));
 		} catch (IOException e) {
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 			this.lastBank = null;
 			return null;
 		}
@@ -332,7 +332,7 @@ public class Bank {
 				BankData bd = new BankData(this, "");
 				try {
 					bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
-				} catch (IOException e) { LogWriter.error("Error:", e); }
+				} catch (IOException e) { LogWriter.error(e); }
 				Map<Integer, NpcMiscInventory> newCells = new TreeMap<>();
 				int i = 0;
 				for (NpcMiscInventory inv : bd.cells.values()) {
@@ -360,7 +360,7 @@ public class Bank {
 						BankData bd = new BankData(this, playerDir.getName());
 						try {
 							bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
-						} catch (IOException e) { LogWriter.error("Error:", e); }
+						} catch (IOException e) { LogWriter.error(e); }
 						Map<Integer, NpcMiscInventory> newCells = new TreeMap<>();
 						int i = 0;
 						for (int c : bd.cells.keySet()) {

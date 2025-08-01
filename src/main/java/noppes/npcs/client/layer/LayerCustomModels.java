@@ -13,6 +13,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumHandSide;
 import noppes.npcs.CustomRegisters;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.client.model.part.LayerModel;
 import noppes.npcs.client.renderer.ModelBuffer;
@@ -40,10 +41,18 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
         boolean isInvisible = false;
         if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
         else if (npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
-        int color = npc.display.getTint();
-        float red = (color >> 16 & 0xFF) / 255.0f;
-        float green = (color >> 8 & 0xFF) / 255.0f;
-        float blue = (color & 0xFF) / 255.0f;
+        float red, green, blue;
+        if (!npc.animation.isAnimated(AnimationKind.DIES) && npc.hurtTime > 0 || npc.deathTime > 0) {
+            red = 1.0f;
+            green = 0.0f;
+            blue = 0.0f;
+        }
+        else {
+            int color = npc.display.getTint();
+            red = (color >> 16 & 0xFF) / 255.0f;
+            green = (color >> 8 & 0xFF) / 255.0f;
+            blue = (color & 0xFF) / 255.0f;
+        }
         GlStateManager.pushMatrix();
         GlStateManager.enableAlpha();
         GlStateManager.enableBlend();
@@ -52,6 +61,7 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
             GlStateManager.blendFunc(770, 771);
             GlStateManager.alphaFunc(516, 0.003921569f);
         }
+
         renderPart(model.bipedHead, playerdata.getRenderLayers(EnumParts.HEAD), mc, red, green, blue);
         renderPart(model.bipedBody, playerdata.getRenderLayers(EnumParts.BODY), mc, red, green, blue);
         renderPart(model.bipedRightArm, playerdata.getRenderLayers(EnumParts.ARM_RIGHT), mc, red, green, blue);
@@ -63,11 +73,13 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
         renderPartNext(0, EnumHandSide.LEFT, playerdata.getRenderLayers(EnumParts.WRIST_LEFT), mc, red, green, blue);
         renderPartNext(1, EnumHandSide.RIGHT, playerdata.getRenderLayers(EnumParts.FOOT_RIGHT), mc, red, green, blue);
         renderPartNext(1, EnumHandSide.LEFT, playerdata.getRenderLayers(EnumParts.FOOT_LEFT), mc, red, green, blue);
+
         if (isInvisible) {
             GlStateManager.disableBlend();
             GlStateManager.alphaFunc(516, 0.1f);
             GlStateManager.depthMask(true);
         }
+
         GlStateManager.popMatrix();
     }
 
@@ -77,12 +89,27 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
     @Override
     public void rotate(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) { }
 
+    @Override
+    public boolean shouldCombineTextures() {
+        return true;
+    }
+
     public void preRender(float red, float green, float blue) {
-        if (npc.hurtTime > 0 || npc.deathTime > 0) { GlStateManager.color(1.0f, 0.0f, 0.0f, 0.3f); }
         if (npc.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
-        if (npc.hurtTime > 0 || npc.deathTime > 0) { return; }
-        GlStateManager.color(red, green, blue, 1.0f);
         if (dispatcher == null) { dispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher(); }
+
+        if (!npc.animation.isAnimated(AnimationKind.DIES) && npc.hurtTime > 0 || npc.deathTime > 0) { return; }
+
+        boolean isInvisible = false;
+        if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
+        else if (npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
+        if (isInvisible) {
+            GlStateManager.color(red, green, blue, 0.15f);
+            GlStateManager.enableBlend();
+        } else {
+            GlStateManager.color(red, green, blue, 1.0f);
+            GlStateManager.disableBlend();
+        }
     }
 
     @SuppressWarnings("all")
@@ -90,6 +117,7 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
         if (layers.isEmpty()) { return; }
         GlStateManager.pushMatrix();
         modelRenderer.postRender(0.0625f);
+
         for (LayerModel lm : layers) {
             GlStateManager.pushMatrix();
             // rotate

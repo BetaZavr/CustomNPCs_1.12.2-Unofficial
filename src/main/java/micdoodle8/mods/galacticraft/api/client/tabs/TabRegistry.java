@@ -61,7 +61,7 @@ public class TabRegistry {
 					}
 					return -60;
 				}
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		return 0;
 	}
@@ -77,7 +77,7 @@ public class TabRegistry {
 					}
 					return -60;
 				}
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		return 0;
 	}

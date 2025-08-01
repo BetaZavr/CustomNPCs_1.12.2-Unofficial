@@ -123,7 +123,7 @@ implements ICustomScrollListener {
 			try {
 				Method method = GuiCreationExtra.this.entity.getClass().getMethod("getBreedID", Class[].class);
 				breed = (Enum<?>) method.invoke(GuiCreationExtra.this.entity, (Object) new Class[0]);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
             if (breed != null) {
 				GuiCreationExtra.this.addButton(new GuiButtonBiDirectional(11, GuiCreationExtra.this.guiLeft + 120,
 								GuiCreationExtra.this.guiTop + 45, 50, 20,
@@ -262,7 +262,7 @@ implements ICustomScrollListener {
 		NBTTagCompound compound = new NBTTagCompound();
 		try {
 			entity.writeEntityToNBT(compound);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		Set<String> keys = fake.getKeySet();
 		for (String name : keys) {
 			compound.removeTag(name);

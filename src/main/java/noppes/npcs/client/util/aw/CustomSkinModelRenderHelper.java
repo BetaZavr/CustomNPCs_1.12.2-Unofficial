@@ -74,7 +74,7 @@ public class CustomSkinModelRenderHelper {
 				}
 			}
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void renderEquipmentPart(ISkin skin, Object renderData, EntityNPCInterface npc, ModelBiped modelBiped, float scale, Map<EnumParts, Boolean> ba) {
@@ -127,7 +127,7 @@ public class CustomSkinModelRenderHelper {
 			GlStateManager.disableCull();
 			GlStateManager.popAttrib();
 			GlStateManager.popMatrix();
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 }

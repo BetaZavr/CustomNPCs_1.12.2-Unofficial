@@ -164,7 +164,7 @@ public class FactionController implements IFactionHandler {
 					if (file2.exists()) {
 						this.loadFactionsFile(file2);
 					}
-				} catch (Exception ex) { LogWriter.error("Error:", ex); }
+				} catch (Exception ex) { LogWriter.error(ex); }
 			}
 		} finally {
 			EventHooks.onGlobalFactionsLoaded(this);

@@ -79,7 +79,7 @@ public class BankController {
 			BankData bd = new BankData(bank, "");
 			try {
 				bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
-			} catch (IOException e) { LogWriter.error("Error:", e); }
+			} catch (IOException e) { LogWriter.error(e); }
 			boolean isChange = false;
 			for (int c : bd.cells.keySet()) {
 				if (!bank.ceilSettings.containsKey(c)) {
@@ -99,7 +99,7 @@ public class BankController {
 			if (isChange) {
 				try {
 					CompressedStreamTools.writeCompressed(bd.getNBT(), Files.newOutputStream(fileBank.toPath()));
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 		} else {
 			File datasDir = CustomNpcs.getWorldSaveDirectory("playerdata");
@@ -117,7 +117,7 @@ public class BankController {
 						BankData bd = new BankData(bank, "");
 						try {
 							bd.readNBT(CompressedStreamTools.readCompressed(Files.newInputStream(fileBank.toPath())));
-						} catch (IOException e) { LogWriter.error("Error:", e); }
+						} catch (IOException e) { LogWriter.error(e); }
 						boolean isChange = false;
 						for (int c : bd.cells.keySet()) {
 							if (!bank.ceilSettings.containsKey(c)) {
@@ -139,7 +139,7 @@ public class BankController {
 						if (isChange) {
 							try {
 								CompressedStreamTools.writeCompressed(bd.getNBT(), Files.newOutputStream(fileBank.toPath()));
-							} catch (Exception e) { LogWriter.error("Error:", e); }
+							} catch (Exception e) { LogWriter.error(e); }
 						}
 					}
 				}
@@ -196,7 +196,7 @@ public class BankController {
 				if (file2.exists()) {
 					this.loadBanks(file2);
 				}
-			} catch (Exception ex) { LogWriter.error("Error:", ex); }
+			} catch (Exception ex) { LogWriter.error(ex); }
 		}
 		CustomNpcs.debugData.end(null);
 	}
@@ -292,7 +292,7 @@ public class BankController {
 				file.delete();
 			}
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}
 

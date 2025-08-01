@@ -46,12 +46,12 @@ implements ITextfieldListener {
 			IResource iresource = mc.getResourceManager().getResource(SubGuiColorSelector.resource);
 			buffer = ImageIO.read(stream = iresource.getInputStream());
 		}
-		catch (IOException e) { LogWriter.error("Error:", e); }
+		catch (IOException e) { LogWriter.error(e); }
 		finally {
 			if (stream != null) {
 				try {
 					stream.close();
-				} catch (IOException ex) { LogWriter.error("Error:", ex); }
+				} catch (IOException ex) { LogWriter.error(ex); }
 			}
 		}
 		bufferedimage = buffer;

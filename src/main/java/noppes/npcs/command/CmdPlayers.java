@@ -44,7 +44,7 @@ public class CmdPlayers extends CommandNoppesBase {
 			sender.sendMessage(new TextComponentTranslation("command.player." + (money >= 0 ? "add" : "del") + "money",
 					playerdata.playername, "" + money, "" + playerdata.game.getMoney(), CustomNpcs.displayCurrencies)
 							.appendSibling(new TextComponentTranslation(isOnline ? "gui.online" : "gui.offline")));
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class CmdPlayers extends CommandNoppesBase {
 		EntityPlayerMP player = null;
 		try {
 			player = CommandBase.getPlayer(server, sender, playername);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		PlayerData playerdata;
 		if (player != null) {
 			playerdata = PlayerData.get(player);

@@ -124,6 +124,7 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 	}
 
 	@Override
+	@SuppressWarnings("all")
 	public @Nonnull IBlockState getStateFromMeta(int meta) {
 		return this.getDefaultState().withProperty(CustomBlockPortal.TYPE, meta % 3);
 	}

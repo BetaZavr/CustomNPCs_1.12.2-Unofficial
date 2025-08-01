@@ -123,7 +123,7 @@ public class TransportController {
 					return;
 				}
 				this.loadCategories(file2);
-			} catch (IOException ex) { LogWriter.error("Error:", e); }
+			} catch (IOException ex) { LogWriter.error(e); }
 		}
 		CustomNpcs.debugData.end(null);
 	}
@@ -131,7 +131,7 @@ public class TransportController {
 	public void loadCategories(File file) throws IOException {
 		try {
 			this.loadCategories(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath())));
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void loadCategories(NBTTagCompound compound) {
@@ -202,7 +202,7 @@ public class TransportController {
 				file.delete();
 			}
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}
 

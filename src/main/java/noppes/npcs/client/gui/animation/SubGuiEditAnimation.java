@@ -2974,7 +2974,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					frame = (AnimationFrameConfig) anim.addFrame(pos, frame);
 					setPart(frame.parts.get(part.id));
 					initGui();
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 		}
 		if (subgui instanceof SubGuiSelectItemStack) {

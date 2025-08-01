@@ -233,6 +233,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public Path navigating;
 	private long initTime;
 	private boolean isOldSneaking;
+	public final Map<Entity, double[]> hitboxRiding = new HashMap<>();
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public EntityNPCInterface(World world) {
@@ -724,7 +725,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		for (EntityAITasks.EntityAITaskEntry entityaitaskentry : list) {
 			try {
 				tasks.removeTask(entityaitaskentry.action);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		tasks.taskEntries.clear();
 	}
@@ -778,9 +779,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	protected int decreaseAirSupply(int par1) {
-		if (!this.stats.canDrown) {
-			return par1;
-		}
+		if (!this.stats.canDrown) { return par1; }
 		return super.decreaseAirSupply(par1);
 	}
 
@@ -822,14 +821,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.dataManager.register(EntityNPCInterface.IsDead, false);
 		this.dataManager.register(EntityNPCInterface.Attacking, false);
 		this.dataManager.register(EntityNPCInterface.AimRotationYaw, 361.0f);
-	}
-
-	public void fall(float distance, float modifier) {
-		if (!this.stats.noFallDamage || (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER
-				&& this.advanced.roleInterface.isFollowing())) {
-			return;
-		}
-		super.fall(distance, modifier);
 	}
 
 	public int followRange() {
@@ -1219,18 +1210,18 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	protected void collideWithEntity(@Nonnull Entity entityIn) {
-		if (canBeCollidedWith() && display.getHitboxState() == 0 && ais.canBeCollide) { entityIn.applyEntityCollision(this); }
+		if (canBeCollidedWith() && display.getHitboxState() != 1 && ais.canBeCollide && !hitboxRiding.containsKey(entityIn)) {
+			entityIn.applyEntityCollision(this);
+		}
 	}
 
 	public void applyEntityCollision(@Nonnull Entity entityIn) {
-		if (!canBeCollidedWith() || !ais.canBeCollide) { return; }
+		if (!canBeCollidedWith() || !ais.canBeCollide || hitboxRiding.containsKey(entityIn)) { return; }
 		super.applyEntityCollision(entityIn);
 	}
 
 	public void onCollide() {
-		if (this.ais.aiDisabled || !this.isEntityAlive() || this.ticksExisted % 4 != 0 || !this.isServerWorld()) {
-			return;
-		}
+		if (this.ais.aiDisabled || !this.isEntityAlive() || this.ticksExisted % 4 != 0 || !this.isServerWorld()) { return; }
 		AxisAlignedBB axisalignedbb;
 		if (this.getRidingEntity() != null && this.getRidingEntity().isEntityAlive()) {
 			axisalignedbb = this.getEntityBoundingBox().union(this.getRidingEntity().getEntityBoundingBox()).grow(1.0, 0.0, 1.0);
@@ -1357,8 +1348,50 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 	}
 
+	@SuppressWarnings("all")
 	public void onLivingUpdate() {
 		if (CustomNpcs.FreezeNPCs) { return; }
+		if (!hitboxRiding.isEmpty()) {
+			if (display.getHitboxState() != 2 || isKilled()) { hitboxRiding.clear(); }
+			else {
+				for (Map.Entry<Entity, double[]> entry : new ArrayList<>(hitboxRiding.entrySet())) {
+					Entity entity = entry.getKey();
+					if (entity instanceof EntityPlayer && isServerWorld()) { continue; }
+					double[] addPos = entry.getValue();
+					AxisAlignedBB npcBB = getEntityBoundingBox();
+					AxisAlignedBB entityBB = entity.getEntityBoundingBox();
+					if (!getNavigator().noPath()) { npcBB = npcBB.grow(width * 0.25, 0.0, width * 0.25); }
+					if (!isPassenger(entity) && entity.motionY < 0.0f && entity.motionY < 0.0f &&
+							npcBB.minX < entityBB.maxX &&
+							npcBB.maxX > entityBB.minX &&
+							npcBB.minZ < entityBB.maxZ &&
+							npcBB.maxZ > entityBB.minZ) {
+						if (motionY <= 0.0f) {
+							addPos[0] -= entity.motionX * 1.5;
+							addPos[1] -= entity.motionZ * 1.5;
+							if (motionX != 0.0f || motionZ != 0.0f) {
+								entity.motionX *= 0.75;
+								entity.motionZ *= 0.75;
+							}
+						}
+						double x = posX - addPos[0];
+						double y = posY + height;/*  + 0.05+ // on up
+								(motionY > 0.0 ? motionY : 0.0) + // jump
+								(entity.posY + 0.5 < posY ? 0.15 : 0.0); // high jump*/
+						double z = posZ - addPos[1];
+
+						entity.setPosition(x, y, z);
+						entity.velocityChanged = true;
+					}
+					else {
+						entity.motionX += motionX * 1.1;
+						entity.motionY += motionY;
+						entity.motionZ += motionZ * 1.1;
+						hitboxRiding.remove(entity);
+					}
+				}
+			}
+		}
 		if (isAIDisabled()) {
 			super.onLivingUpdate();
 			return;
@@ -1366,11 +1399,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		++this.totalTicksAlive;
 		this.updateArmSwingProgress();
 		if (this.totalTicksAlive % 20 == 0) { faction = getFaction(); }
-		if (this.isServerWorld()) {
-			if (!this.ais.aiDisabled) {
-				if (this.aiAttackTarget != null) { this.aiAttackTarget.update(); }
-				if (!this.isKilled() && this.totalTicksAlive % 20 == 0) {
-					this.advanced.scenes.update();
+		if (isServerWorld()) {
+			if (!ais.aiDisabled) {
+				if (aiAttackTarget != null) { aiAttackTarget.update(); }
+				if (!isKilled() && totalTicksAlive % 20 == 0) {
+					advanced.scenes.update();
+					// heal
 					if (getHealth() < getMaxHealth()) {
 						if (stats.healthRegen > 0 && !isAttacking()) {
 							heal(stats.healthRegen);
@@ -1385,22 +1419,23 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 							}
 						}
 					}
-					if (this.faction.getsAttacked && !this.isAttacking()) {
-						for (EntityMob mob : Util.instance.getEntitiesWithinDist(EntityMob.class, world, this, 16.0d)) {
-							if (mob.getAttackTarget() == null && this.canSee(mob)) {
+					// mob attaking
+					if (faction.getsAttacked) {
+						IAttributeInstance iattributeinstance = this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+						for (EntityMob mob : Util.instance.getEntitiesWithinDist(EntityMob.class, world, this, iattributeinstance == null ? 16.0d : iattributeinstance.getAttributeValue())) {
+							if (mob.getAttackTarget() == null && mob.canEntityBeSeen(this)) {
 								mob.setAttackTarget(this);
 							}
 						}
 					}
-					if (this.linkedData != null && this.linkedData.time > this.linkedLast) {
+					// linked NPC
+					if (linkedData != null && linkedData.time > linkedLast) {
 						LinkedNpcController.Instance.loadNpcData(this);
 					}
-					if (this.updateClient) {
-						this.updateClient();
-					}
-					if (this.updateAI) {
-						this.updateTasks();
-						this.updateAI = false;
+					if (updateClient) { updateClient(); }
+					if (updateAI) {
+						updateTasks();
+						updateAI = false;
 					}
 				}
 			}
@@ -1443,41 +1478,43 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 		}
 		if (CustomNpcs.ShowCustomAnimation) {
-			// Jump
-			if (!animation.getJump() && !isKilled() && getHealth() > 0.0f && world != null && !(isInWater() || isInLava()) && ais.getNavigationType() == 0 && !onGround && motionY > 0.0d) {
-				BlockPos posUnderfoot = getPosition().down();
-				BlockPos posAhead = getPosition().add(motionX, 0, motionZ).down();
-				boolean canJumpHere = !(world.getBlockState(posUnderfoot).getBlock() instanceof BlockStairs);
-				boolean canLandThere = !(world.getBlockState(posAhead).getBlock() instanceof BlockStairs);
-				if (canJumpHere && canLandThere) {
-					animation.setJump(true);
-					animation.tryRunAnimation(AnimationKind.JUMP);
-				}
-			}
-			else if (animation.getJump() && onGround && animation.getAnimationStage() != EnumAnimationStages.Started) {
-				animation.setJump(false);
-				if (animation.isAnimated(AnimationKind.JUMP)) {
-					animation.stopAnimation();
-				}
-			}
-			// Swing
-			if (!animation.getSwing() && swingProgress > 0.0f) {
-				animation.setSwing(true);
-				if (!animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.AIM, AnimationKind.SHOOT)) {
-					AnimationConfig anim = animation.tryRunAnimation(AnimationKind.SWING);
-					if (anim != null) {
-						swingProgress = 0.0f;
-						swingProgressInt = 0;
-						prevSwingProgress = 0.0f;
-						isSwingInProgress = false;
+			CustomNPCsScheduler.runTack(() -> {
+				// Jump
+				if (!animation.getJump() && !isKilled() && getHealth() > 0.0f && world != null && !(isInWater() || isInLava()) && ais.getNavigationType() == 0 && !onGround && motionY > 0.0d) {
+					BlockPos posUnderfoot = getPosition().down();
+					BlockPos posAhead = getPosition().add(motionX, 0, motionZ).down();
+					boolean canJumpHere = !(world.getBlockState(posUnderfoot).getBlock() instanceof BlockStairs);
+					boolean canLandThere = !(world.getBlockState(posAhead).getBlock() instanceof BlockStairs);
+					if (canJumpHere && canLandThere) {
+						animation.setJump(true);
+						animation.tryRunAnimation(AnimationKind.JUMP);
 					}
 				}
-			}
-			else if (animation.getSwing() && swingProgress == 0.0f) {
-				animation.setSwing(false);
-			}
-			// walking or standing
-			animation.resetWalkAndStandAnimations();
+				else if (animation.getJump() && onGround && animation.getAnimationStage() != EnumAnimationStages.Started) {
+					animation.setJump(false);
+					if (animation.isAnimated(AnimationKind.JUMP)) {
+						animation.stopAnimation();
+					}
+				}
+				// Swing
+				if (!animation.getSwing() && swingProgress > 0.0f) {
+					animation.setSwing(true);
+					if (!animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.AIM, AnimationKind.SHOOT)) {
+						AnimationConfig anim = animation.tryRunAnimation(AnimationKind.SWING);
+						if (anim != null) {
+							swingProgress = 0.0f;
+							swingProgressInt = 0;
+							prevSwingProgress = 0.0f;
+							isSwingInProgress = false;
+						}
+					}
+				}
+				else if (animation.getSwing() && swingProgress == 0.0f) {
+					animation.setSwing(false);
+				}
+				// walking or standing
+				animation.resetWalkAndStandAnimations();
+			});
 		}
 		if (this.wasKilled != this.isKilled() && this.wasKilled) { this.reset(); }
 		if (this.world.isDaytime() && this.isServerWorld() && this.stats.burnInSun) {
@@ -1676,7 +1713,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public void readSpawnData(ByteBuf buf) {
 		try {
 			this.readSpawnData(Server.readNBT(buf));
-		} catch (IOException e) { LogWriter.error("Error:", e); }
+		} catch (IOException e) { LogWriter.error(e); }
 	}
 
 	public void readSpawnData(NBTTagCompound compound) {
@@ -1830,7 +1867,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (this.ais.returnToStart && this.homeDimensionId != this.world.provider.getDimension() && !(this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing())) {
 			try {
 				Util.instance.teleportEntity(this.world.getMinecraftServer(), this, homeDimensionId, this.posX, this.posY, this.posZ);
-			} catch (CommandException e) { LogWriter.error("Error:", e); }
+			} catch (CommandException e) { LogWriter.error(e); }
 		}
 		this.stepHeight = this.ais.stepheight;
 		lookPos[0] = 0.0f;
@@ -1916,7 +1953,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				(entityTarget instanceof EntityNPCInterface && isFriend(entityTarget))
 		)
 		{ return; }
-		//LogWriter.debug("TEST: setAttackTarget: "+entityTarget+" // "+getAttackTarget());
 		if (entityTarget != null) {
 			if (!entityTarget.isEntityAlive()) { return; }
 			if (getAttackTarget() != null && combatHandler.priorityTarget != null) { return; }
@@ -2027,11 +2063,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void setMoveType() {
-		if (this.ais.getMovingType() == 1) {
-			this.tasks.addTask(this.taskCount++, new EntityAIWander(this));
+		if (ais.getMovingType() == 1) {
+			tasks.addTask(taskCount++, new EntityAIWander(this));
 		}
-		if (this.ais.getMovingType() == 2) {
-			this.tasks.addTask(this.taskCount++, new EntityAIMovingPath(this));
+		if (ais.getMovingType() == 2) {
+			tasks.addTask(taskCount++, new EntityAIMovingPath(this));
 		}
 	}
 
@@ -2259,7 +2295,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		Predicate<EntityLivingBase> attackEntitySelector = new NPCAttackSelector(this);
 		this.targetTasks.addTask(0, new EntityAIClearTarget(this));
 		this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false));
-		this.targetTasks.addTask(2, new EntityAIClosestTarget(this, EntityLivingBase.class, 4, this.ais.directLOS, false, attackEntitySelector));
+		this.targetTasks.addTask(2, new EntityAIClosestTarget(this,4, this.ais.directLOS, false, attackEntitySelector));
 		this.targetTasks.addTask(3, new EntityAIOwnerHurtByTarget(this));
 		this.targetTasks.addTask(4, new EntityAIOwnerHurtTarget(this));
 
@@ -2358,9 +2394,23 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public void writeSpawnData(ByteBuf buffer) {
 		try {
 			Server.writeNBT(buffer, this.writeSpawnData());
-		} catch (IOException e) { LogWriter.error("Error:", e); }
+		} catch (IOException e) { LogWriter.error(e); }
 	}
 
 	public float getEyeHeight() { return eyeHeight; }
+
+	public void addRidingEntity(Entity entity) {
+		if (!hitboxRiding.containsKey(entity) && display.getHitboxState() == 2 && !isPassenger(entity)) {
+			if (Math.abs(entity.getEntityBoundingBox().minY - getEntityBoundingBox().maxY) < 0.1) {
+				hitboxRiding.put(entity, new double[] { posX - entity.posX, posZ - entity.posZ});
+			}
+		}
+	}
+
+	public void fall(float distance, float modifier) {
+		for (Entity entity : hitboxRiding.keySet()) { entity.fall(distance, modifier); }
+		if (!stats.noFallDamage || (advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && advanced.roleInterface.isFollowing())) { return; }
+		super.fall(distance, modifier);
+	}
 
 }

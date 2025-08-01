@@ -72,7 +72,7 @@ public class CmdDimensions extends CommandNoppesBase {
 				x = (int) dx;
 				y = (int) dy;
 				z = (int) dz;
-			} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+			} catch (NumberFormatException e) { LogWriter.error(e); }
 		}
 		if (args.length == 4) {
 			try {
@@ -83,7 +83,7 @@ public class CmdDimensions extends CommandNoppesBase {
 				x = (int) dx;
 				y = (int) dy;
 				z = (int) dz;
-			} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+			} catch (NumberFormatException e) { LogWriter.error(e); }
 		}
 		if (!DimensionManager.isDimensionRegistered(id)) {
 			throw new CommandException("DimensionID: " + id + " - not found");
@@ -136,7 +136,7 @@ public class CmdDimensions extends CommandNoppesBase {
 				x = dx;
 				y = dy;
 				z = dz;
-			} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+			} catch (NumberFormatException e) { LogWriter.error(e); }
 		}
 		NoppesUtilPlayer.teleportPlayer(player, x, y, z, id, player.rotationYaw, player.rotationPitch);
 	}

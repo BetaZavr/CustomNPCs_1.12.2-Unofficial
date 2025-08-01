@@ -255,7 +255,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 				int value = -1;
 				try {
 					value = Integer.parseInt(v.substring(v.indexOf(((char) 167) + "3") + 2));
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 				if (f != null) {
 					subgui.numbersOnly = new int[] { 0, f.friendlyPoints * 2, value };
 				} else {
@@ -663,7 +663,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 					int value = -1;
 					try {
 						value = Integer.parseInt(l[1]);
-					} catch (Exception e) { LogWriter.error("Error:", e); }
+					} catch (Exception e) { LogWriter.error(e); }
 					scrollData.put(key, str);
 
 					int color = 0xFFFFFF;
@@ -789,11 +789,11 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			if (subgui.getId() == 0) { // add
 				try {
 					Client.sendData(EnumPacketServer.PlayerDataSet, selection.ordinal(), selectedPlayer, 0, Integer.parseInt(((SubGuiEditText) subgui).text[0]));
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			} else if (subgui.getId() == 1) { // set
 				try {
 					Client.sendData(EnumPacketServer.PlayerDataSet, selection.ordinal(), selectedPlayer, 2, data.get(scrollData.get(scroll.getSelected())), Integer.parseInt(((SubGuiEditText) subgui).text[0]));
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			} else if (subgui.getId() == 2) { // change market slot
 				if (gameData == null || !data.containsKey(scroll.getSelected())) {
 					return;

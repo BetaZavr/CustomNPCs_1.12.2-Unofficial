@@ -135,13 +135,13 @@ public class DropController {
 				try {
 					NBTTagCompound nbtFile = CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()));
 					this.loadNBTData(nbtFile);
-				} catch (IOException e) { LogWriter.error("Error:", e); }
+				} catch (IOException e) { LogWriter.error(e); }
 			} else {
 				this.templates.clear();
 				this.loadDefaultDrops();
 			}
 		} catch (Exception e) {
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 			try {
 				File file2 = new File(CustomNpcs.Dir, "recipes.dat_old");
 				if (file2.exists()) {
@@ -149,11 +149,11 @@ public class DropController {
 						NBTTagCompound nbtFile = CompressedStreamTools.readCompressed(Files.newInputStream(file2.toPath()));
 						this.loadNBTData(nbtFile);
 					} catch (IOException err) {
-						LogWriter.error("Error:", err);
+						LogWriter.error(err);
 					}
 				}
 			} catch (Exception ee) {
-				LogWriter.error("Error:", ee);
+				LogWriter.error(ee);
 			}
 		}
 		CustomNpcs.debugData.end(null);
@@ -180,7 +180,7 @@ public class DropController {
 		CustomNpcs.debugData.start(null);
 		try {
 			CompressedStreamTools.writeCompressed(this.getNBT(), Files.newOutputStream(new File(CustomNpcs.Dir, "drops.dat").toPath()));
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}
 

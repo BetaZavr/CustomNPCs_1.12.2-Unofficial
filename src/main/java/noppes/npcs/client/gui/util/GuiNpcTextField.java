@@ -192,7 +192,7 @@ implements IComponentGui, IGuiNpcTextField {
 		try {
 			Long.parseLong(getFullText());
 			return true;
-		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException e) { LogWriter.error(e); }
 		return false;
 	}
 

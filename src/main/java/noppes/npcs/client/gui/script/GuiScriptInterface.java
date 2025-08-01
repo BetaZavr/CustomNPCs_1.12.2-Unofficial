@@ -232,7 +232,7 @@ implements IGuiData, ITextChangeListener {
 						if (getButton(101).isEnabled() && !e) { getButton(101).setEnabled(false); }
 						else if (!getButton(101).isEnabled() && e) { getButton(101).setEnabled(true); }
 					}
-					catch (Exception ee) { LogWriter.error("Error:", ee); }
+					catch (Exception ee) { LogWriter.error(ee); }
 				}
 			} else {
 				boolean e = handler == null || handler.getConsoleText().isEmpty();

@@ -3,7 +3,6 @@ package noppes.npcs.controllers.data;
 import java.util.Set;
 
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -157,7 +156,6 @@ public class DataTransform {
 			NBTTagCompound compound = npc.animation.save(new NBTTagCompound());
 			npc.animation.load(NBTTags.NBTMerge(compound, animation));
 			animation = compound;
-			LogWriter.debug("TEST: ");
 		}
 		npc.updateAI = true;
 		isDay = isDayIn;

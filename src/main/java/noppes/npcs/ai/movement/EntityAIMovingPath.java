@@ -60,7 +60,7 @@ public class EntityAIMovingPath extends EntityAIBase {
 
 	public void startExecuting() {
 		CustomNpcs.debugData.start(npc);
-		this.npc.getNavigator().tryMoveToXYZ(this.pos[0] + 0.5, this.pos[1], this.pos[2] + 0.5, 1.0d);
+		npc.getNavigator().tryMoveToXYZ(pos[0] + 0.5, pos[1], pos[2] + 0.5, 1.0d);
 		CustomNpcs.debugData.end(npc);
 	}
 }

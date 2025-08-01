@@ -32,7 +32,6 @@ public class ModelBipedAW extends ModelBipedAlt {
         super(modelSize, isArmorModel, smallArmsIn, isClassicPlayer);
     }
 
-
     @Override
     public void render(@Nonnull Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
         if (!ArmourersWorkshopApi.isAvailable()) { return; }
@@ -42,7 +41,7 @@ public class ModelBipedAW extends ModelBipedAlt {
         double d = 0.0d;
         double distance = Minecraft.getMinecraft().player.getDistance(entityIn.posX, entityIn.posY, entityIn.posZ);
         try { d = (int) awu.renderDistanceSkin.get(awu.configHandlerClient); }
-        catch (Exception e) { LogWriter.error("Error:", e); }
+        catch (Exception e) { LogWriter.error(e); }
         if (distance > d) { return; }
 
         if (entityIn.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }

@@ -30,7 +30,7 @@ public class Resistances {
 				if (name.equals("generic") || name.equals("outOfWorld")) { continue; }
 				allDamageNames.add(name);
 			}
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			catch (Exception e) { LogWriter.error(e); }
 		}
 	}
 
@@ -85,7 +85,8 @@ public class Resistances {
 
 	public static void addDamageName(String damageType) {
 		if (damageType == null || damageType.isEmpty() || allDamageNames.contains(damageType) ||
-				damageType.equals("thrown") || damageType.equals("player") || damageType.equals("explosion.player") ||
+				damageType.equals("null") || damageType.equals("thrown") ||
+				damageType.equals("player") ||damageType.equals("explosion.player") ||
 				damageType.equals("generic") || damageType.equals("outOfWorld")) { return; }
 		allDamageNames.add(damageType);
 		Collections.sort(allDamageNames);

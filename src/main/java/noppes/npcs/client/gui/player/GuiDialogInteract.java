@@ -158,7 +158,7 @@ implements IGuiClose {
 					boolean fixSkin = npc instanceof EntityCustomNpc && ((EntityCustomNpc)npc).modelData.getEntity(npc) == null;
 					skin = new ResourceLocation(CustomNpcs.MODID, "skins/" + (npc.display.getSkinUrl() + fixSkin).hashCode() + (fixSkin ? "" : "32"));
 				}
-				catch (Exception e) { LogWriter.error("Error:", e); }
+				catch (Exception e) { LogWriter.error(e); }
 			}
 			npcSkin = skin;
 		}
@@ -204,7 +204,7 @@ implements IGuiClose {
 				BufferedImage buffer = ImageIO.read(res.getInputStream());
 				txtrSize = new int[] { buffer.getWidth(), buffer.getHeight(),
 						(int) Math.ceil((double) buffer.getHeight() / (double) fontHeight / 2.0d) };
-			} catch (IOException e) { LogWriter.error("Error:", e); }
+			} catch (IOException e) { LogWriter.error(e); }
 		}
 		if (txtrSize != null) {
 			for (int i = 0; i < txtrSize[2]; i++) {

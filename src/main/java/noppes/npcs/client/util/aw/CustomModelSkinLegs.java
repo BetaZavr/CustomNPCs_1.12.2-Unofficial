@@ -27,7 +27,7 @@ public class CustomModelSkinLegs extends ModelBiped {
 			this.isRiding = npc.isRiding();
 
 			GlStateManager.pushAttrib();
-//GlStateManager.translate(0.125f, 0.0f, 0.0f);
+			//GlStateManager.translate(0.125f, 0.0f, 0.0f);
 			//RenderHelper.enableGUIStandardItemLighting();
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
 			if ((boolean) awu.hasPaintData.invoke(skin) & (boolean) awu.isShowSkinPaint.invoke(renderData) & awu.getTexturePaintType.invoke(awu.clientProxy) == awu.TEXTURE_REPLACE) {
@@ -162,7 +162,7 @@ public class CustomModelSkinLegs extends ModelBiped {
 			}
 			GlStateManager.popAttrib();
 			GlStateManager.color(1F, 1F, 1F, 1F);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	private void renderAdvancedSkin(ISkin skin, Object renderData, EntityNPCInterface npc, Object advancedData,
@@ -170,14 +170,14 @@ public class CustomModelSkinLegs extends ModelBiped {
 		try {
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
 			awu.renderAdvancedSkin.invoke(awu.advancedPartRenderer, skin, renderData, npc, advancedData, base);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	private void renderPart(Object partRenderData) {
 		try {
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
 			awu.renderPart.invoke(awu.skinPartRenderer, partRenderData);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 }

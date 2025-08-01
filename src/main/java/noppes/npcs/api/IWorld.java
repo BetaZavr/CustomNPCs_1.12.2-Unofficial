@@ -8,6 +8,7 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface IWorld {
 
 	void broadcast(String message);
@@ -110,5 +111,7 @@ public interface IWorld {
 	void thunderStrike(double x, double y, double z);
 
 	void trigger(int id, Object... arguments);
+
+	String getId();
 
 }

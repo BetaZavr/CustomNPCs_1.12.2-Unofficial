@@ -210,7 +210,7 @@ public class CustomNpcs {
 	@ConfigProp(info = "Display player balance in inventory", def = "true")
 	public static boolean ShowMoney = true;
 	@ConfigProp(info = "Display player Quest Compass", def = "true")
-	public static boolean ShowQuestCompass = true;
+	public static boolean ShowQuestCompass = false;
 	@ConfigProp(info = "Display hitbox of nearby NPCs when holding mod tools", def = "true")
 	public static boolean ShowHitboxWhenHoldTools = true;
 	@ConfigProp(info = "Normal players can use soulstone on animals", def = "true")
@@ -491,7 +491,7 @@ public class CustomNpcs {
 					CompressedStreamTools.writeCompressed(nbt, Files.newOutputStream(level.toPath()));
 				}
 			} catch (Exception e) {
-				LogWriter.error("Error:", e);
+				LogWriter.error(e);
 			}
 		}
 	}

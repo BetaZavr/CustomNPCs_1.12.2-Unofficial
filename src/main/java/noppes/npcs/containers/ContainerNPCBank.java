@@ -48,7 +48,7 @@ public class ContainerNPCBank extends ContainerNpcInterface {
 					if (!list.isEmpty()) {
 						pd = list.get(0);
 					}
-				} catch (CommandException e) { LogWriter.error("Error:", e); }
+				} catch (CommandException e) { LogWriter.error(e); }
 			}
 			if (pd == null) {
 				ContainerNPCBank.editPlayerBankData = null;

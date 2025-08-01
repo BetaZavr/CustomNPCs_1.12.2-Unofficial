@@ -35,7 +35,7 @@ public class CmdClone extends CommandNoppesBase {
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[1]);
-		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException e) { LogWriter.error(e); }
 		List<EntityNPCInterface> list = this.getEntities(EntityNPCInterface.class,
 				sender.getEntityWorld(), sender.getPosition(), 80);
 		for (EntityNPCInterface npc : list) {
@@ -60,7 +60,7 @@ public class CmdClone extends CommandNoppesBase {
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[1]);
-		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException e) { LogWriter.error(e); }
 		for (String name : ServerCloneController.Instance.getClones(tab)) {
 			if (nameModel.equalsIgnoreCase(name)) {
 				ServerCloneController.Instance.removeClone(name, tab);
@@ -109,7 +109,7 @@ public class CmdClone extends CommandNoppesBase {
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[1]);
-		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException e) { LogWriter.error(e); }
 		int width;
 		int height;
 		try {
@@ -191,7 +191,7 @@ public class CmdClone extends CommandNoppesBase {
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[0]);
-		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException e) { LogWriter.error(e); }
 		for (String name : ServerCloneController.Instance.getClones(tab)) {
 			this.sendMessage(sender, name);
 		}
@@ -205,7 +205,7 @@ public class CmdClone extends CommandNoppesBase {
 		int tab = 0;
 		try {
 			tab = Integer.parseInt(args[1]);
-		} catch (NumberFormatException e) { LogWriter.error("Error:", e); }
+		} catch (NumberFormatException e) { LogWriter.error(e); }
 		String newname = null;
 		NBTTagCompound compound = ServerCloneController.Instance.getCloneData(sender, name, tab);
 		if (compound == null) {

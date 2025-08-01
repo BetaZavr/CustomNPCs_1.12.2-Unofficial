@@ -192,7 +192,7 @@ public class DataObject implements IDataObject {
 		int pos = -1;
 		try {
 			pos = Integer.parseInt(name);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		int i = 0;
 		for (IDataElement de : this.data) {
 			if (i == pos || de.getObject() instanceof Field && de.getName().equals(name)) {
@@ -304,7 +304,7 @@ public class DataObject implements IDataObject {
 		int pos = -1;
 		try {
 			pos = Integer.parseInt(name);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		int i = 0;
 		for (IDataElement de : this.data) {
 			if (i == pos || de.getObject() instanceof Method && de.getName().equals(name)) {

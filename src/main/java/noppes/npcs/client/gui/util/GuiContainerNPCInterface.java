@@ -671,7 +671,7 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 		}
 		try {
 			super.mouseClicked(mouseX, mouseY, mouseButton);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void mouseEvent(int mouseX, int mouseY, int mouseButton) {

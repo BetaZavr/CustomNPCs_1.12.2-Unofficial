@@ -237,7 +237,7 @@ public class WorldWrapper implements IWorld {
 		UUID id = null;
 		try {
 			id = UUID.fromString(uuid);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		if (id == null) {
 			throw new CustomNPCsException("Given uuid was invalid " + uuid);
 		}
@@ -479,6 +479,14 @@ public class WorldWrapper implements IWorld {
 	@Override
 	public void trigger(int id, Object... arguments) {
 		EventHooks.onScriptTriggerEvent(ScriptController.Instance.forgeScripts, id, this, this.getBlock(0, 0, 0).getPos(), null, arguments);
+	}
+
+	@Override
+	public String getId() {
+		if (world.provider != null) {
+            return world.provider.getDimensionType().getName();
+        }
+		return "nothing";
 	}
 
 }

@@ -78,7 +78,7 @@ public class JobHealer extends JobInterface implements IJobHealer {
 				EntityLivingBase entity = null;
 				try {
 					entity = affected.get(id).get(rnd.nextInt(affected.get(id).size()));
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 				if (entity != null) {
 					boolean isEnemy = isEnemy(entity);
 					boolean canAdd = true;

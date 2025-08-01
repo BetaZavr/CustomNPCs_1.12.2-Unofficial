@@ -166,7 +166,7 @@ public class DataElement implements IDataElement {
 	public Class<?> getParent() {
 		try {
 			return parent != null ? parent : Class.forName("java.lang.Object");
-		} catch (ClassNotFoundException e) { LogWriter.error("Error:", e); }
+		} catch (ClassNotFoundException e) { LogWriter.error(e); }
 		return null;
 	}
 
@@ -209,7 +209,7 @@ public class DataElement implements IDataElement {
 					return Util.getAgrName(obj.getClass()) + value;
 				}
 				return value;
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		return this.object;
 	}
@@ -220,7 +220,7 @@ public class DataElement implements IDataElement {
 			((Method) this.object).setAccessible(true);
 			try {
 				((Method) this.object).invoke(this.data, values);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 		}
 		return null;
 	}
@@ -247,7 +247,7 @@ public class DataElement implements IDataElement {
 					return true;
 				}
 				catch (Exception e) {
-					LogWriter.error("Error:", e);
+					LogWriter.error(e);
 					return false;
 				}
 			}

@@ -307,7 +307,7 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 				modelRenderer.renderEquipmentPart(skin, renderData, this.npc, (ModelBiped) this.render.getMainModel(), scale, null);
 			}
 		} catch (Exception e) {
-			LogWriter.error("Error:", e);
+			LogWriter.error(e);
 			GlStateManager.popMatrix();
 			return;
 		}

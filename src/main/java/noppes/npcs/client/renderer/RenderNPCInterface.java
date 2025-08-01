@@ -59,7 +59,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	protected void applyRotations(@Nonnull T npc, float handleRotation, float rotationYaw, float partialTicks) {
 		if (npc.isPlayerSleeping()) {
 			GlStateManager.rotate(npc.ais.orientation, 0.0f, 1.0f, 0.0f);
-			GlStateManager.rotate(this.getDeathMaxRotation(npc), 0.0f, 0.0f, 1.0f);
+			GlStateManager.rotate(getDeathMaxRotation(npc), 0.0f, 0.0f, 1.0f);
 			GlStateManager.rotate(270.0f, 0.0f, 1.0f, 0.0f);
 		} else if (npc.currentAnimation == 7) {
 			GlStateManager.rotate(270.0f - rotationYaw, 0.0f, 1.0f, 0.0f);
@@ -88,19 +88,19 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			super.doRender(npc, x, y, z, entityYaw, partialTicks);
 			RenderHelper.enableStandardItemLighting();
 			GlStateManager.disableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 	}
 
 	public void doRenderShadowAndFire(@Nonnull Entity entity, double par2, double par4, double par6, float par8, float par9) {
 		EntityNPCInterface npc = (EntityNPCInterface) entity;
-		this.shadowSize = npc.width / 1.25f * npc.display.shadowSize;
+		shadowSize = npc.width / 1.25f * npc.display.shadowSize;
 		if (!npc.isKilled()) {
 			if (npc.display.getVisible() == 1 && npc.isInvisibleToPlayer(Minecraft.getMinecraft().player)) {
-				this.shadowOpaque = 0.0f;
+				shadowOpaque = 0.0f;
 			} else if (npc.display.getVisible() == 2 && Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand) {
-				this.shadowOpaque = 0.3f;
+				shadowOpaque = 0.3f;
 			} else {
-				this.shadowOpaque = 1.0f;
+				shadowOpaque = 1.0f;
 			}
 			super.doRenderShadowAndFire(entity, par2, par4, par6, par8, par9);
 		}
@@ -141,7 +141,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 						npc.textureLocation = new ResourceLocation(CustomNpcs.MODID, "skins/" + (npc.display.getSkinUrl() + fixSkin).hashCode() + (fixSkin ? "" : "32"));
 						loadSkin(file, npc.textureLocation, npc.display.getSkinUrl());
 					}
-					catch (Exception e) { LogWriter.error("Error:", e); }
+					catch (Exception e) { LogWriter.error(e); }
 				}
 			}
 		}
@@ -187,13 +187,13 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
     }
 
 	protected void preRenderCallback(@Nonnull T npc, float f) {
-		this.renderColor(npc);
+		renderColor(npc);
 		int size = npc.display.getSize();
 		GlStateManager.scale(npc.scaleX / 5.0f * size, npc.scaleY / 5.0f * size, npc.scaleZ / 5.0f * size);
 	}
 
 	protected void renderColor(EntityNPCInterface npc) {
-		if (npc.hurtTime <= 0 && npc.deathTime <= 0 && npc.animation.isAnimated(AnimationKind.DIES)) {
+		if (npc.animation.isAnimated(AnimationKind.DIES) && npc.hurtTime <= 0 && npc.deathTime <= 0) {
 			float red = (npc.display.getTint() >> 16 & 0xFF) / 255.0f;
 			float green = (npc.display.getTint() >> 8 & 0xFF) / 255.0f;
 			float blue = (npc.display.getTint() & 0xFF) / 255.0f;
@@ -202,7 +202,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	protected void renderLivingAt(@Nonnull T npc, double d, double d1, double d2) {
-		this.shadowSize = npc.display.getSize() / 10.0f;
+		shadowSize = npc.display.getSize() / 10.0f;
 		float xOffset = 0.0f;
 		float yOffset = (npc.currentAnimation == 0) ? (npc.ais.bodyOffsetY / 10.0f - 0.5f) : 0.0f;
 		float zOffset = 0.0f;
@@ -222,14 +222,14 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	protected void renderLivingLabel(EntityNPCInterface npc, double x, double y, double z, String name, String title) {
-		FontRenderer fontrenderer = this.getFontRendererFromRenderManager();
+		FontRenderer fontrenderer = getFontRendererFromRenderManager();
 		float f1 = npc.baseHeight / 5.0f * npc.display.getSize();
 		float f2 = 0.01666667f * f1;
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 		GL11.glNormal3f(0.0f, 1.0f, 0.0f);
-		GlStateManager.rotate(-this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
-		GlStateManager.rotate(this.renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
+		GlStateManager.rotate(-renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
+		GlStateManager.rotate(renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
 
 		ModelData modeldata = ((EntityCustomNpc) npc).modelData;
 		float height = (f1 + (modeldata != null
@@ -274,10 +274,9 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			GlStateManager.translate(0.0f, f1 / 6.5f * 0.85f, 0.0f);
 		}
 		GlStateManager.scale(-f2, -f2, f2);
-		if (npc.isInRange(this.renderManager.renderViewEntity, 4.0) && !name.isEmpty()) {
+		if (npc.isInRange(renderManager.renderViewEntity, 4.0) && !name.isEmpty()) {
 			GlStateManager.disableDepth();
-			c = new Color(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f,
-					isInvisible ? 0.225f : 1.0f);
+			c = new Color(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f, isInvisible ? 0.225f : 1.0f);
 			fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, 0, c.getRGB());
 			GlStateManager.enableDepth();
 		}
@@ -299,10 +298,10 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		} else if (npc.display.getVisible() == 2) {
 			isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand;
 		}
-		if (this.bindEntityTexture(npc)) {
+		if (bindEntityTexture(npc)) {
 			if (isInvisible) {
 				// GlStateManager.Profile.TRANSPARENT_MODEL - turns the model inside out,
-				// GL20 shaders are too much for this. Just made a copy of the texture
+				// GL20 shaders are too much for this Just made a copy of the texture
 				int textureId = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
 				if (!transparentIDs.containsKey(textureId)) {
 					int width = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
@@ -330,7 +329,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			if (npc.textureGlowLocation == null) {
 				npc.textureGlowLocation = new ResourceLocation(npc.display.getOverlayTexture());
 			}
-			this.bindTexture(npc.textureGlowLocation);
+			bindTexture(npc.textureGlowLocation);
 			float f1 = 1.0f;
 			GlStateManager.enableBlend();
 			GlStateManager.blendFunc(1, 1);
@@ -339,7 +338,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(1.001f, 1.001f, 1.001f);
-			this.mainModel.render(npc, par2, par3, par4, par5, par6, par7);
+			mainModel.render(npc, par2, par3, par4, par5, par6, par7);
 			GlStateManager.popMatrix();
 			GlStateManager.enableLighting();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, f1);
@@ -349,103 +348,92 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	public void renderName(@Nonnull T npc, double d, double d1, double d2) {
-		if (!this.canRenderName(npc) || this.renderManager.renderViewEntity == null) {
+		if (!canRenderName(npc) || renderManager.renderViewEntity == null) {
 			return;
 		}
-		double d3 = npc.getDistance(this.renderManager.renderViewEntity);
+		double d3 = npc.getDistance(renderManager.renderViewEntity);
 		if (d3 > 512.0) {
 			return;
 		}
 		if (npc.messages != null) {
 			float height = npc.baseHeight / 5.0f * npc.display.getSize();
 			float offset = npc.height * (1.2f + (npc.display.showName() ? (npc.display.getTitle().isEmpty() ? 0.15f : 0.25f) : 0.0f));
-			npc.messages.renderMessages(d, d1 + offset, d2, 0.666667f * height, npc.isInRange(this.renderManager.renderViewEntity, 4.0));
+			npc.messages.renderMessages(d, d1 + offset, d2, 0.666667f * height, npc.isInRange(renderManager.renderViewEntity, 4.0));
 		}
 		float scale = npc.baseHeight / 5.0f * npc.display.getSize();
 		if (npc.display.showName()) {
 			if (npc.currentAnimation == 1) {
 				d1 -= 0.35f;
 			}
-			this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, npc.getName(),
-					npc.display.getTitle());
+			renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, npc.getName(), npc.display.getTitle());
 			if (!CustomNpcs.ShowLR) { return; }
 			NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.NpcVisualData, npc, 5000, npc.getEntityId());
 			if (!npc.stats.getRarityTitle().isEmpty()) {
-				this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, "", npc.stats.getRarityTitle());
+				renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, "", npc.stats.getRarityTitle());
 			}
 		}
 	}
 
 	protected boolean setBrightness(@Nonnull T npc, float partialTicks, boolean combineTextures) {
 		float f = npc.getBrightness();
-		int i = this.getColorMultiplier(npc, f, partialTicks);
-		boolean flag = (i >> 24 & 255) > 0;
-		boolean flag1 = npc.hurtTime > 0 || npc.deathTime > 0;
-		if (flag1 && npc.animation.isAnimated(AnimationKind.DIES)) {
-			flag1 = false; // cancel red death color
+		int color = getColorMultiplier(npc, f, partialTicks);
+		boolean hasColor = (color >> 24 & 255) > 0;
+		boolean isHurt = !npc.animation.isAnimated(AnimationKind.DIES) && npc.hurtTime > 0 || npc.deathTime > 0;
+		if (!hasColor && !isHurt) { return false; }
+		else if (!hasColor && !combineTextures)  { return false; }
+		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+		GlStateManager.enableTexture2D();
+		GlStateManager.glTexEnvi(8960, 8704, OpenGlHelper.GL_COMBINE);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_RGB, 8448);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_RGB, OpenGlHelper.defaultTexUnit);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE1_RGB, OpenGlHelper.GL_PRIMARY_COLOR);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_RGB, 768);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND1_RGB, 768);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_ALPHA, 7681);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_ALPHA, OpenGlHelper.defaultTexUnit);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_ALPHA, 770);
+		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+		GlStateManager.enableTexture2D();
+		GlStateManager.glTexEnvi(8960, 8704, OpenGlHelper.GL_COMBINE);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_RGB, OpenGlHelper.GL_INTERPOLATE);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_RGB, OpenGlHelper.GL_CONSTANT);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE1_RGB, OpenGlHelper.GL_PREVIOUS);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE2_RGB, OpenGlHelper.GL_CONSTANT);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_RGB, 768);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND1_RGB, 768);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND2_RGB, 770);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_ALPHA, 7681);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_ALPHA, OpenGlHelper.GL_PREVIOUS);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_ALPHA, 770);
+		brightnessBuffer.position(0);
+		if (isHurt) {
+			brightnessBuffer.put(1.0F);
+			brightnessBuffer.put(0.0F);
+			brightnessBuffer.put(0.0F);
+			brightnessBuffer.put(0.3F);
 		}
-		if (!flag && !flag1) {
-			return false;
-		} else if (!flag && !combineTextures) {
-			return false;
-		} else {
-			GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-			GlStateManager.enableTexture2D();
-			GlStateManager.glTexEnvi(8960, 8704, OpenGlHelper.GL_COMBINE);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_RGB, 8448);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_RGB, OpenGlHelper.defaultTexUnit);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE1_RGB, OpenGlHelper.GL_PRIMARY_COLOR);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_RGB, 768);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND1_RGB, 768);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_ALPHA, 7681);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_ALPHA, OpenGlHelper.defaultTexUnit);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_ALPHA, 770);
-			GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-			GlStateManager.enableTexture2D();
-			GlStateManager.glTexEnvi(8960, 8704, OpenGlHelper.GL_COMBINE);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_RGB, OpenGlHelper.GL_INTERPOLATE);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_RGB, OpenGlHelper.GL_CONSTANT);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE1_RGB, OpenGlHelper.GL_PREVIOUS);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE2_RGB, OpenGlHelper.GL_CONSTANT);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_RGB, 768);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND1_RGB, 768);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND2_RGB, 770);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_ALPHA, 7681);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_ALPHA, OpenGlHelper.GL_PREVIOUS);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_ALPHA, 770);
-			this.brightnessBuffer.position(0);
-			if (flag1) {
-				this.brightnessBuffer.put(1.0F);
-				this.brightnessBuffer.put(0.0F);
-				this.brightnessBuffer.put(0.0F);
-				this.brightnessBuffer.put(0.3F);
-			} else {
-				float f1 = (float) (i >> 24 & 255) / 255.0F;
-				float f2 = (float) (i >> 16 & 255) / 255.0F;
-				float f3 = (float) (i >> 8 & 255) / 255.0F;
-				float f4 = (float) (i & 255) / 255.0F;
-				this.brightnessBuffer.put(f2);
-				this.brightnessBuffer.put(f3);
-				this.brightnessBuffer.put(f4);
-				this.brightnessBuffer.put(1.0F - f1);
-			}
-			this.brightnessBuffer.flip();
-			GlStateManager.glTexEnv(8960, 8705, this.brightnessBuffer);
-			GlStateManager.setActiveTexture(OpenGlHelper.GL_TEXTURE2);
-			GlStateManager.enableTexture2D();
-			GlStateManager.bindTexture(TEXTURE_BRIGHTNESS.getGlTextureId());
-			GlStateManager.glTexEnvi(8960, 8704, OpenGlHelper.GL_COMBINE);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_RGB, 8448);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_RGB, OpenGlHelper.GL_PREVIOUS);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE1_RGB, OpenGlHelper.lightmapTexUnit);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_RGB, 768);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND1_RGB, 768);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_ALPHA, 7681);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_ALPHA, OpenGlHelper.GL_PREVIOUS);
-			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_ALPHA, 770);
-			GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-			return true;
+		else {
+			brightnessBuffer.put((float) (color >> 16 & 255) / 255.0F);
+			brightnessBuffer.put((float) (color >> 8 & 255) / 255.0F);
+			brightnessBuffer.put((float) (color & 255) / 255.0F);
+			brightnessBuffer.put(1.0F - (float) (color >> 24 & 255) / 255.0F);
 		}
+		brightnessBuffer.flip();
+		GlStateManager.glTexEnv(8960, 8705, brightnessBuffer);
+		GlStateManager.setActiveTexture(OpenGlHelper.GL_TEXTURE2);
+		GlStateManager.enableTexture2D();
+		GlStateManager.bindTexture(TEXTURE_BRIGHTNESS.getGlTextureId());
+		GlStateManager.glTexEnvi(8960, 8704, OpenGlHelper.GL_COMBINE);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_RGB, 8448);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_RGB, OpenGlHelper.GL_PREVIOUS);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE1_RGB, OpenGlHelper.lightmapTexUnit);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_RGB, 768);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND1_RGB, 768);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_ALPHA, 7681);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_ALPHA, OpenGlHelper.GL_PREVIOUS);
+		GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_ALPHA, 770);
+		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+		return true;
 	}
 
 }

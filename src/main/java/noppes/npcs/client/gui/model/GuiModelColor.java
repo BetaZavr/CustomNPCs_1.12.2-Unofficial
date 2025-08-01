@@ -94,12 +94,12 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 				IResource resource = this.mc.getResourceManager().getResource(this.npcSkin);
 				this.bufferSkin = ImageIO.read(stream = resource.getInputStream());
 			} catch (IOException e) {
-				LogWriter.error("Error:", e);
+				LogWriter.error(e);
 			} finally {
 				if (stream != null) {
 					try {
 						stream.close();
-					} catch (IOException ex) { LogWriter.error("Error:", ex); }
+					} catch (IOException ex) { LogWriter.error(ex); }
 				}
 			}
 		}
@@ -110,11 +110,11 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 				IResource resource = this.mc.getResourceManager().getResource(GuiModelColor.colorPicker);
 				this.bufferColor = ImageIO.read(stream = resource.getInputStream());
 			}
-			catch (IOException e) { LogWriter.error("Error:", e); }
+			catch (IOException e) { LogWriter.error(e); }
 			finally {
 				if (stream != null) {
 					try { stream.close(); }
-					catch (IOException ex) { LogWriter.error("Error:", ex); }
+					catch (IOException ex) { LogWriter.error(ex); }
 				}
 			}
 		}
@@ -140,7 +140,7 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 				float w = 256.0f / (float) this.bufferSkin.getWidth();
 				float h = 256.0f / (float) this.bufferSkin.getHeight();
 				try { this.hover = this.bufferSkin.getRGB((int) (xb / w), (int) (yb / h)) & 0xFFFFFF; }
-				catch (Exception e) { LogWriter.error("Error:", e); }
+				catch (Exception e) { LogWriter.error(e); }
 				this.hovered = true;
 			}
 		}

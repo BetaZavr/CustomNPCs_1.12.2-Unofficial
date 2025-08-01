@@ -26,7 +26,7 @@ public class DataDebug {
 			if (eventName == null || eventTarget == null) { return; }
 			String key = Thread.currentThread().getId() + ":" + eventName + ":" + eventTarget;
 			if (!starters.containsKey(key)) {
-				//LogWriter.debug("Double ending debug \""+key+"\"");
+				LogWriter.debug("Double ending debug \""+key+"\"");
 				return;
 			}
 			if (!times.containsKey(eventName)) { times.put(eventName, new HashMap<>()); }
@@ -35,7 +35,10 @@ public class DataDebug {
 			arr[0]++;
 			long r = System.currentTimeMillis() - starters.get(key);
 			if (arr[1] < r) { arr[1] = r; }
-			if (max < r) { max = r; }
+			if (max < r  &&
+					!key.toLowerCase().contains("register") &&
+					!key.toLowerCase().contains("load") &&
+					!key.toLowerCase().contains("<init>")) { max = r; }
 			times.get(eventName).put(eventTarget, arr);
 			starters.remove(key);
 		}
@@ -43,10 +46,12 @@ public class DataDebug {
 		public void start(String eventName, String eventTarget) {
 			if (eventName == null || eventTarget == null) { return; }
 			String key = Thread.currentThread().getId() + ":" + eventName + ":" + eventTarget;
-			//if (starters.containsKey(key)) { LogWriter.debug("Double starting debug \""+key+"\""); }
+			if (starters.containsKey(key)) {
+				if (eventName.startsWith("World")) { end(eventName, eventTarget); }
+				else { LogWriter.debug("Double starting debug \"" + key + "\""); }
+			}
 			starters.put(key, System.currentTimeMillis());
 		}
-
 	}
 
 	public long started = 0L;
@@ -64,16 +69,10 @@ public class DataDebug {
 	}
 
 	public void end(Object target) {
-		//if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.VerboseDebug) { return; }
 		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
 		String obj = caller.getClassName();
-		String methodName = caller.getMethodName() + "()";
-		if (methodName.startsWith("lambda$")) {
-			methodName = methodName.substring(methodName.indexOf("$") + 1);
-			if (methodName.contains("$")) {
-				methodName = methodName.substring(0, methodName.indexOf("$"));
-			}
-		}
+		String methodName = getMethodName(caller.getMethodName(), "");
 		int dotPos = obj.lastIndexOf(".") + 1;
 		if (dotPos > 0) { obj = obj.substring(dotPos); }
 		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
@@ -85,16 +84,10 @@ public class DataDebug {
 	}
 
 	public void end(Object target, String addedToMethodName) {
-		//if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.VerboseDebug) { return; }
 		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
 		String obj = caller.getClassName();
-		String methodName = caller.getMethodName() + "(" + addedToMethodName + ")";
-		if (methodName.startsWith("lambda$")) {
-			methodName = methodName.substring(methodName.indexOf("$") + 1);
-			if (methodName.contains("$")) {
-				methodName = methodName.substring(0, methodName.indexOf("$"));
-			}
-		}
+		String methodName = getMethodName(caller.getMethodName(), addedToMethodName);
 		int dotPos = obj.lastIndexOf(".") + 1;
 		if (dotPos > 0) { obj = obj.substring(dotPos); }
 		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
@@ -106,16 +99,10 @@ public class DataDebug {
 	}
 
 	public void start(Object target) {
-		//if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.VerboseDebug) { return; }
 		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
 		String obj = caller.getClassName();
-		String methodName = caller.getMethodName() + "()";
-		if (methodName.startsWith("lambda$")) {
-			methodName = methodName.substring(methodName.indexOf("$") + 1);
-			if (methodName.contains("$")) {
-				methodName = methodName.substring(0, methodName.indexOf("$"));
-			}
-		}
+		String methodName = getMethodName(caller.getMethodName(), "");
 		int dotPos = obj.lastIndexOf(".") + 1;
 		if (dotPos > 0) { obj = obj.substring(dotPos); }
 		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
@@ -127,16 +114,10 @@ public class DataDebug {
 	}
 
 	public void start(Object target, String addedToMethodName) {
-		//if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.VerboseDebug) { return; }
 		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
 		String obj = caller.getClassName();
-		String methodName = caller.getMethodName() + "(" + addedToMethodName + ")";
-		if (methodName.startsWith("lambda$")) {
-			methodName = methodName.substring(methodName.indexOf("$") + 1);
-			if (methodName.contains("$")) {
-				methodName = methodName.substring(0, methodName.indexOf("$"));
-			}
-		}
+		String methodName = getMethodName(caller.getMethodName(), addedToMethodName);
 		int dotPos = obj.lastIndexOf(".") + 1;
 		if (dotPos > 0) { obj = obj.substring(dotPos); }
 		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
@@ -147,10 +128,23 @@ public class DataDebug {
 		data.get(side).start(getKey(obj), methodName + trg);
 	}
 
+	private String getMethodName(String method, String added) {
+		if (method.startsWith("lambda$")) {
+			method = method.substring(method.indexOf("$") + 1);
+			if (method.contains("$")) { method = method.substring(0, method.indexOf("$")); }
+		}
+		if (method.contains("npcs$")) {
+			method = method.substring(method.lastIndexOf("npcs$") + 5);
+			if (method.lastIndexOf("Start") != -1) { method = method.substring(0, method.lastIndexOf("Start")); }
+			if (method.lastIndexOf("End") != -1) { method = method.substring(0, method.lastIndexOf("End")); }
+		}
+		return method + "(" + added + ")";
+	}
+
 	public DataDebug() { clear(); }
 
 	public void stop() {
-		//if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.VerboseDebug) { return; }
 		for (Side side : data.keySet()) {
 			for (String k : data.get(side).starters.keySet()) {
 				data.get(side).end(k.substring(0, k.indexOf(':')), k.substring(k.indexOf(':') + 1));

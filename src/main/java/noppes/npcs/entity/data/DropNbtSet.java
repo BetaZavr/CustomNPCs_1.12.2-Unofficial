@@ -41,49 +41,49 @@ public class DropNbtSet implements IDropNbtSet {
 				boolean b = Boolean.parseBoolean(value);
 				return String.valueOf(b);
 			}
-			catch (Exception e) { LogWriter.error("Error:", e); }
+			catch (Exception e) { LogWriter.error(e); }
 			break;
 		}
 		case 1: { // byte
 			try {
 				byte b = Byte.parseByte(value);
 				return String.valueOf(b);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			break;
 		}
 		case 2: { // short
 			try {
 				short s = Short.parseShort(value);
 				return String.valueOf(s);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			break;
 		}
 		case 3: { // integer
 			try {
 				int b = Integer.parseInt(value);
 				return String.valueOf(b);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			break;
 		}
 		case 4: { // long
 			try {
 				long l = Long.parseLong(value);
 				return String.valueOf(l);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			break;
 		}
 		case 5: { // float
 			try {
 				float f = Float.parseFloat(value);
 				return String.valueOf(f);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			break;
 		}
 		case 6: { // double
 			try {
 				double d = Double.parseDouble(value);
 				return String.valueOf(d);
-			} catch (Exception e) { LogWriter.error("Error:", e); }
+			} catch (Exception e) { LogWriter.error(e); }
 			break;
 		}
 		case 7: { // byte array
@@ -96,7 +96,7 @@ public class DropNbtSet implements IDropNbtSet {
 						text.append(",");
 					}
 					text.append(String.valueOf(b));
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 			if (text.length() > 0) {
 				return text.toString();
@@ -118,7 +118,7 @@ public class DropNbtSet implements IDropNbtSet {
 						}
 						text.append(sc);
 					}
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 			if (text.length() > 0) {
 				return text.toString();
@@ -140,7 +140,7 @@ public class DropNbtSet implements IDropNbtSet {
 						}
 					}
 					text.append(i);
-				} catch (Exception e) { LogWriter.error("Error:", e); }
+				} catch (Exception e) { LogWriter.error(e); }
 			}
 			if (text.length() > 0) {
 				return text.toString();

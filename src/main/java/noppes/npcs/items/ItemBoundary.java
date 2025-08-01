@@ -105,7 +105,7 @@ public class ItemBoundary extends Item implements IPermission {
                         break;
                     }
                 }
-            } catch (Exception e) { LogWriter.error("Error:", e); }
+            } catch (Exception e) { LogWriter.error(e); }
             pos = new BlockPos(x, y, z);
         }
 		if (pos == null) {
@@ -190,7 +190,7 @@ public class ItemBoundary extends Item implements IPermission {
                         break;
                     }
                 }
-            } catch (Exception e) { LogWriter.error("Error:", e); }
+            } catch (Exception e) { LogWriter.error(e); }
             pos = new BlockPos(x, y, z);
         }
 		if (stack.hasTagCompound() && stack.getTagCompound() != null && stack.getTagCompound().hasKey("RegionID", 3)) {

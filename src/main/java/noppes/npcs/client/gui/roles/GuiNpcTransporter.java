@@ -88,7 +88,7 @@ implements IScrollData, IGuiData {
 		location.pos = new BlockPos(player);
 		location.dimension = player.dimension;
 		try { location.npc = npc.getUniqueID(); }
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 		int cat = data.get(scroll.getSelected());
 		Client.sendData(EnumPacketServer.TransportSave, cat, location.writeNBT());
 	}

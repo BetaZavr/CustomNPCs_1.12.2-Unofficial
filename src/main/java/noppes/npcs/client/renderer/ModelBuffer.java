@@ -132,7 +132,7 @@ public class ModelBuffer {
                 }
                 return new ResourceLocation(domain, path);
             }
-        } catch (IOException e) { LogWriter.error("Error:", e); }
+        } catch (IOException e) { LogWriter.error(e); }
 		return null;
 	}
 
@@ -182,7 +182,7 @@ public class ModelBuffer {
 				return sprite;
 			};
 			return iModel.bake(new CustomOBJState(ImmutableList.copyOf(visibleMeshes), true, armor), DefaultVertexFormats.ITEM, spriteFunction);
-		} catch (Exception e) { LogWriter.error("Error:", e); }
+		} catch (Exception e) { LogWriter.error(e); }
 		return null;
 	}
 	

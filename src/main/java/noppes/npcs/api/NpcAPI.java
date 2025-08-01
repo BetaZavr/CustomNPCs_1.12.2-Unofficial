@@ -30,6 +30,7 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
 import noppes.npcs.client.gui.util.IResourceData;
 
+@SuppressWarnings("all")
 public abstract class NpcAPI {
 
 	private static NpcAPI instance = null;
@@ -44,7 +45,7 @@ public abstract class NpcAPI {
 		try {
 			NpcAPI.instance = WrapperNpcAPI.Instance();
 		}
-		catch (Exception e) { LogWriter.error("Error:", e); }
+		catch (Exception e) { LogWriter.error(e); }
 		return NpcAPI.instance;
 	}
 

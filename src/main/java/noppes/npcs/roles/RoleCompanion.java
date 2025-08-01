@@ -383,7 +383,7 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 		try {
 			UUID id = UUID.fromString(this.uuid);
             return NoppesUtilServer.getPlayer(Objects.requireNonNull(this.npc.getServer()), id);
-        } catch (Exception e) { LogWriter.error("Error:", e); }
+        } catch (Exception e) { LogWriter.error(e); }
 		return null;
 	}
 

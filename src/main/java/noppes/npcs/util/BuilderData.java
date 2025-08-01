@@ -817,7 +817,7 @@ public class BuilderData {
 								if (state.getBlock() instanceof BlockSlab) {
 									bd.state.withProperty(BlockSlab.HALF, state.getValue(BlockSlab.HALF));
 								}
-							} catch (Exception e) { LogWriter.error("Error:", e); }
+							} catch (Exception e) { LogWriter.error(e); }
 							bd.set(bd.pos);
 						} else {
 							SchematicBlockData bd = new SchematicBlockData(player.world, ItemStack.EMPTY);

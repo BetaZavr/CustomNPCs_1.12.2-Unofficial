@@ -80,7 +80,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 				Util.instance.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
 						this.npc.homeDimensionId, this.npc.getStartXPos(), this.npc.getStartYPos(),
 						this.npc.getStartZPos());
-			} catch (CommandException e) { LogWriter.error("Error:", e); }
+			} catch (CommandException e) { LogWriter.error(e); }
 			return false;
 		}
 		PlayerData plData = this.getOwnerData();
@@ -133,7 +133,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 					fs.id = entity.getUniqueID();
 					((EntityNPCInterface) entity).getNavigator().tryMoveToEntityLiving(this.owner, this.npc.ais.canSprint ? 1.3 : 1.0d);
 				}
-			} catch (CommandException e) { LogWriter.error("Error:", e); }
+			} catch (CommandException e) { LogWriter.error(e); }
 		} else if (dist <= 2.5d) {
 			if (!this.npc.getNavigator().noPath()) {
 				this.npc.getNavigator().clearPath();
@@ -211,7 +211,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
             if (server != null) {
                 return server.getPlayerList().getPlayerByUUID(uuid);
             }
-        } catch (Exception e) { LogWriter.error("Error:", e); }
+        } catch (Exception e) { LogWriter.error(e); }
         assert this.npc.world != null;
         return this.npc.world.getPlayerEntityByName(this.ownerUUID);
 	}

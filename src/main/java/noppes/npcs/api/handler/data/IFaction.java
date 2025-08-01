@@ -3,6 +3,7 @@ package noppes.npcs.api.handler.data;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IPlayer;
 
+@SuppressWarnings("all")
 public interface IFaction {
 
 	void addHostile(int id);
