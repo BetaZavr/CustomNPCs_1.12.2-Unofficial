@@ -230,8 +230,6 @@ public class CustomNpcs {
 	@ConfigProp(info = "Maximum number of items in one Drop group", def = "32", min = "1", max = "64")
 	public static int MaxItemInDropsNPC = 32;
 	@ConfigProp(info = "Cancel the creation of variables in each Forge event (saves FPS)", def = "false")
-	public static boolean SimplifiedForgeEvents = false;
-	@ConfigProp(info = "NPC scenes can be activated using special keys", def = "true")
 	public static boolean SceneButtonsEnabled = true;
 	@ConfigProp(info = "NPC speech can trigger a chat event", def = "false")
 	public static boolean NpcSpeachTriggersChatEvent = false;

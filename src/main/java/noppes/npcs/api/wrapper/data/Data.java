@@ -4,6 +4,7 @@ import java.util.*;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.wrapper.NBTWrapper;
@@ -11,9 +12,9 @@ import noppes.npcs.util.Util;
 
 public class Data implements IData {
 
+	private static final NBTWrapper NBT_EMPTY = new NBTWrapper(new NBTTagCompound());
 	protected final Map<String, Object> map = new TreeMap<>();
-
-	public Data() { }
+	protected NBTWrapper cacheNbt = NBT_EMPTY;
 
 	@Override
 	public void clear() {
@@ -33,9 +34,16 @@ public class Data implements IData {
 
 	@Override
 	public INbt getNbt() {
-		NBTBase tag = Util.instance.writeObjectToNbt(map);
-		if (tag instanceof NBTTagCompound) { return new NBTWrapper((NBTTagCompound) tag); }
-		return new NBTWrapper(new NBTTagCompound());
+		CustomNpcs.debugData.start(this);
+		if (cacheNbt == null) {
+			cacheNbt = NBT_EMPTY;
+			NBTBase tag = Util.instance.writeObjectToNbt(map);
+			if (tag instanceof NBTTagCompound) {
+				cacheNbt = new NBTWrapper((NBTTagCompound) tag);
+			}
+		}
+		CustomNpcs.debugData.end(this);
+		return cacheNbt;
 	}
 
 	@Override
@@ -45,6 +53,7 @@ public class Data implements IData {
 
 	@Override
 	public void put(String key, Object value) {
+		cacheNbt = null;
 		if (value == null) {
 			remove(key);
 			return;
@@ -59,14 +68,17 @@ public class Data implements IData {
 
 	@SuppressWarnings("unchecked")
 	public void setNbt(NBTTagCompound compound) {
+		CustomNpcs.debugData.start(this);
 		Object obj = Util.instance.readObjectFromNbt(compound);
 		if (obj instanceof TreeMap) {
 			try {
 				map.clear();
 				map.putAll((TreeMap<String, Object>) obj);
+				cacheNbt = null;
 			}
 			catch (Exception ignored) { }
 		}
+		CustomNpcs.debugData.end(this);
 	}
 
 	@Override

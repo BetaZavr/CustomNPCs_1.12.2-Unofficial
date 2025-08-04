@@ -1917,7 +1917,6 @@ property.showlr.hover=Отображать ли уровень и редкост
 property.showmoney.hover=Отображать баланс игрока в инвентаре
 property.showquestcompass.hover=Показать плеер Quest Compass
 property.showrarityitem.hover=Отображать позади цветной слой редкости предмета в слотах
-property.simplifiedforgeevents.hover=Отменить создание переменных для каждого событии Forge. Не рекомендуется включать, если у вас медленный компьютер или сервер
 property.soulstoneanimals.hover=Обычные игроки могут использовать камень души на животных
 property.soulstonenpcs.hover=Обычные игроки могут использовать камень души на всех НПС
 property.verbosedebug.hover=Показать отладку

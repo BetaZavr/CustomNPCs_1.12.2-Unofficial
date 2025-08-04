@@ -66,7 +66,6 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import noppes.npcs.api.*;
-import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IDataElement;
@@ -75,6 +74,7 @@ import noppes.npcs.api.util.IRayTraceResults;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.api.wrapper.NBTWrapper;
+import noppes.npcs.api.wrapper.data.DataBlock;
 import noppes.npcs.api.wrapper.data.DataElement;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Availability;
@@ -745,8 +745,8 @@ public class Util implements IMethods {
 					}
 				}
 				boolean shoot = toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).stats.ranged.getFireType() != 2);
-				for (IBlock bi : rtrs.getBlocks()) {
-					if (shoot && !bi.getMCBlock().isPassable(entity.world, bi.getPos().getMCBlockPos())) {
+				for (DataBlock db : rtrs.getMCBlocks()) {
+					if (shoot && !db.state.getBlock().isPassable(entity.world, db.pos)) {
 						if (seenEntities != null) {
 							seenEntities.remove(target);
 						}
@@ -754,7 +754,7 @@ public class Util implements IMethods {
 							unseenEntities.add(target);
 						}
 						return false;
-					} else if (bi.getMCBlock().isOpaqueCube(entity.world.getBlockState(bi.getPos().getMCBlockPos()))) {
+					} else if (db.state.getBlock().isOpaqueCube(entity.world.getBlockState(db.pos))) {
 						if (seenEntities != null) {
 							seenEntities.remove(target);
 						}

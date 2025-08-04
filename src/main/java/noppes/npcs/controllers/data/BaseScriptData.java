@@ -105,13 +105,6 @@ implements IScriptHandler {
 		IEntity<?> iEntity = null;
 		IBlock iBlock = null;
 		if (event instanceof Event && !(event instanceof CustomNPCsEvent)) { event = new ForgeEvent((Event) event); }
-		if (event instanceof ForgeEvent) {
-			((ForgeEvent) event).createData();
-			if (((ForgeEvent) event).player != null) { iEntity = ((ForgeEvent) event).player; }
-			else if (((ForgeEvent) event).npc != null) { iEntity = ((ForgeEvent) event).npc; }
-			else if (((ForgeEvent) event).entity != null) { iEntity = ((ForgeEvent) event).entity; }
-			else if (((ForgeEvent) event).block != null) { iBlock = ((ForgeEvent) event).block; }
-		}
 		if (event instanceof PlayerEvent) {
 			if (((PlayerEvent) event).player != null) { iEntity =  ((PlayerEvent) event).player; }
 			else {

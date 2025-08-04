@@ -1881,7 +1881,6 @@ property.showlr.hover=是否顯示等級和稀有度。如果設定為 1，則�
 property.showmoney.hover=在物品欄中顯示玩家餘額
 property.showquestcompass.hover=顯示任務指南針玩家
 property.showrarityitem.hover=在插槽后面显示项目稀有度颜色层
-property.simplifiedforgeevents.hover=停止為每個 Forge 事件建立變數。如果您的電腦或伺服器速度較慢，不建議啟用此功能。
 property.soulstoneanimals.hover=一般玩家可以對動物使用靈魂石。
 property.soulstonenpcs.hover=一般玩家可以對所有 NPC 使用靈魂石。
 property.verbosedebug.hover=顯示偵錯資訊。

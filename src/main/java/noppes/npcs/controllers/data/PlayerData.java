@@ -202,6 +202,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 
 	@Override
 	public NBTTagCompound getNBT() {
+		CustomNpcs.debugData.start(this);
 		if (this.player != null) {
 			this.playername = this.player.getName();
 			this.uuid = this.player.getPersistentID().toString();
@@ -233,6 +234,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 				compound.setTag("PlayerCompanion", nbt);
 			}
 		}
+		CustomNpcs.debugData.end(this);
 		return compound;
 	}
 

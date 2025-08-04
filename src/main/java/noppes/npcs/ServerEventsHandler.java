@@ -439,15 +439,18 @@ public class ServerEventsHandler {
 			cacheNPChb.clear();
 			currentTick = tick;
 		}
-		if (cacheAABB.get(entity) instanceof ArrayList && event.getCollisionBoxesList() != null) {
-			try { event.getCollisionBoxesList().addAll(cacheAABB.get(entity)); }
-			catch (Exception e) { LogWriter.error(e); }
+		if (cacheAABB.containsKey(entity)) {
+			event.getCollisionBoxesList().addAll(cacheAABB.get(entity));
 		}
 		else {
 			if (cacheNPChb.isEmpty()) {
-				for (Entity e : new ArrayList<>(entity.world.loadedEntityList)) {
-					if (e instanceof EntityNPCInterface && e.isEntityAlive() && ((EntityNPCInterface) e).display.getHitboxState() == 2) {
-						cacheNPChb.add((EntityNPCInterface) e);
+				synchronized (cacheNPChb) {
+					if (cacheNPChb.isEmpty()) {
+						for (Entity e : new ArrayList<>(entity.world.loadedEntityList)) {
+							if (e instanceof EntityNPCInterface && e.isEntityAlive() && ((EntityNPCInterface) e).display.getHitboxState() == 2) {
+								cacheNPChb.add((EntityNPCInterface) e);
+							}
+						}
 					}
 				}
 			}

@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketAnimation;
@@ -38,6 +39,7 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.mixin.entity.IEntityMixin;
 import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.controllers.ServerCloneController;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.util.Util;
 
 @SuppressWarnings("rawtypes")
@@ -81,7 +83,8 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	public EntityWrapper(T entityIn) {
 		entity = entityIn;
-		storeddata = ((IEntityMixin) entityIn).npcs$getStoredData();
+		if (entityIn instanceof EntityPlayer) { storeddata = PlayerData.get((EntityPlayer) entityIn).scriptStoreddata; }
+		else { storeddata = ((IEntityMixin) entityIn).npcs$getStoredData(); }
 		resetWorld();
 	}
 

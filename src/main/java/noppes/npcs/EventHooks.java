@@ -1,7 +1,5 @@
 package noppes.npcs;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -84,8 +82,6 @@ import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.entity.data.DataScript;
 
 public class EventHooks {
-
-	private static final Map<String, Long> clientMap = new HashMap<>();
 
 	public static void onClientInit(ClientScriptData handler) {
 		if (!handler.isClient()) { return; }
@@ -198,13 +194,7 @@ public class EventHooks {
 				eventName = ScriptController.forgeEventNames.get(event.getClass());
 			}
 			try {
-				ForgeEvent ev = new ForgeEvent(event);
-				handler.runScript(eventName, ev);
-				if (ev.isCanceled() && ev.event.isCancelable()) {
-					ev.event.setCanceled(true);
-				}
-				WrapperNpcAPI.EVENT_BUS.post(ev.event);
-				if (ev.isCancelable()) { ev.setCanceled(ev.event.isCanceled()); }
+				handler.runScript(eventName, event);
 			} catch (Exception e) {
 				LogWriter.error(e);
 			}
@@ -221,13 +211,8 @@ public class EventHooks {
 			} else {
 				eventName = ScriptController.forgeClientEventNames.get(event.getClass());
 			}
-			if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName) == System.currentTimeMillis())) { return; }
-			EventHooks.clientMap.put(eventName, System.currentTimeMillis());
 			try {
-				ForgeEvent ev = new ForgeEvent(event);
-				handlerClient.runScript(eventName, ev);
-				if (ev.isCanceled() && ev.event.isCancelable()) { ev.event.setCanceled(true); }
-				WrapperNpcAPI.EVENT_BUS.post(ev.event);
+				handlerClient.runScript(eventName, event);
 			}
 			catch (Exception e) { LogWriter.error(e); }
 		}

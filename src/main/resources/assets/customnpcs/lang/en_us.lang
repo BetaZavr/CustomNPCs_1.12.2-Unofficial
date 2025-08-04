@@ -1926,7 +1926,6 @@ property.showlr.hover=Whether to display level and rarity. If 1, then it will be
 property.showmoney.hover=Show player balance in inventory
 property.showquestcompass.hover=Show Quest Compass player
 property.showrarityitem.hover=Show item rarity color layer behind in slots
-property.simplifiedforgeevents.hover=Stop creating variables for each Forge event. It is not recommended to enable it if you have a slow computer or server
 property.soulstoneanimals.hover=Regular players can use the Soulstone on animals
 property.soulstonenpcs.hover=Regular players can use the soul stone on all NPCs
 property.verbosedebug.hover=Show debug

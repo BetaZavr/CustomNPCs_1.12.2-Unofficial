@@ -15,8 +15,7 @@ public class ItemStackWrapperStorage implements Capability.IStorage<IItemStackWr
 	}
 
 	@Override
-	public NBTBase writeNBT(Capability<IItemStackWrapperHandler> capability, IItemStackWrapperHandler instance,
-			EnumFacing side) {
+	public NBTBase writeNBT(Capability<IItemStackWrapperHandler> capability, IItemStackWrapperHandler instance, EnumFacing side) {
 		return instance.getMCNbt();
 	}
 

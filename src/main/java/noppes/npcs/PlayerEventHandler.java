@@ -329,8 +329,7 @@ public class PlayerEventHandler {
 
 	@SubscribeEvent
 	public void npcBlockPlaceEvent(EntityPlaceEvent event) {
-		if (event.getWorld().isRemote || !(event.getWorld() instanceof WorldServer)
-				|| !(event.getEntity() instanceof EntityPlayer)) {
+		if (event.getWorld().isRemote || !(event.getWorld() instanceof WorldServer) || !(event.getEntity() instanceof EntityPlayer)) {
 			return;
 		}
 		CustomNpcs.debugData.start(event.getEntity());

@@ -1,8 +1,6 @@
 package noppes.npcs.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -14,12 +12,13 @@ import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.util.IRayTraceResults;
 import noppes.npcs.api.wrapper.*;
+import noppes.npcs.api.wrapper.data.DataBlock;
 
 public class RayTraceResults implements IRayTraceResults {
 
 	public static RayTraceResults EMPTY = new RayTraceResults();
 
-	private final LRUHashMap<BlockPos, IBlock> blocks = new LRUHashMap<>(128);
+	private final Map<BlockPos, DataBlock> blocks = new HashMap<>();
 	private List<Entity> entitys = new ArrayList<>();
 
 	public void add(Entity entity, double distance, Vec3d vecStart, Vec3d vecEnd) {
@@ -28,11 +27,15 @@ public class RayTraceResults implements IRayTraceResults {
 
 	public void add(World world, BlockPos pos, IBlockState state) {
 		if (blocks.containsKey(pos)) { return; }
-		blocks.put(pos, BlockWrapper.createNew(world, pos, state));
+		blocks.put(pos, new DataBlock(world, pos, state));
 	}
 
 	@Override
-	public IBlock[] getBlocks() { return blocks.values().toArray(new IBlock[0]); }
+	public IBlock[] getBlocks() {
+		List<IBlock> data = new ArrayList<>();
+		for (DataBlock db : blocks.values()) { data.add(db.getIBlock()); }
+		return data.toArray(new IBlock[0]);
+	}
 
 	@Override
 	public IEntity<?>[] getEntitys() {
@@ -47,6 +50,16 @@ public class RayTraceResults implements IRayTraceResults {
 	public void clear() {
 		blocks.clear();
 		entitys.clear();
+	}
+
+	@Override
+	public List<DataBlock> getMCBlocks() {
+		return new ArrayList<>(blocks.values());
+	}
+
+	@Override
+	public List<Entity> getMCEntitys() {
+		return entitys;
 	}
 
 }

@@ -1897,7 +1897,6 @@ property.showlr.hover=レベルとレアリティを表示するかどうか。
 property.showmoney.hover=インベントリ内のプレイヤーの残高を表示する
 property.showquestcompass.hover=クエスト コンパス プレーヤーを表示
 property.showrarityitem.hover=スロットの背後にあるアイテムのレアリティカラーレイヤーを表示します
-property.simplifiedforgeevents.hover=Forge イベントごとに変数を作成するのをやめます。
 property.soulstoneanimals.hover=通常のプレイヤーは動物にソウルストーンを使用できます
 property.soulstonenpcs.hover=通常のプレイヤーはすべてのNPCに魂石を使用できます
 property.verbosedebug.hover=デバッグを表示

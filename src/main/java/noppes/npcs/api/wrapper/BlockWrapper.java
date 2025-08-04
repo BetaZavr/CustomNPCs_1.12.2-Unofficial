@@ -16,6 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fluids.BlockFluidBase;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.INbt;
@@ -52,17 +53,19 @@ public class BlockWrapper implements IBlock {
 
 	/** Need convert to BlockState */
 	public static IBlock createNew(World world, BlockPos pos, IBlockState state) {
-		Long key = makeKey(state, pos);
+		CustomNpcs.debugData.start(BlockWrapper.class);
+		Long key = makeKey(world, state, pos);
 		BlockWrapper wrapper = blockCache.get(key);
 		if (wrapper == null) {
 			wrapper = createBlockWrapper(world, state, pos);
 			blockCache.put(key, wrapper);
 		}
+		CustomNpcs.debugData.end(BlockWrapper.class);
         return wrapper;
 	}
 
-	private static Long makeKey(IBlockState state, BlockPos pos) {
-		return (pos.toLong() << 32) | Objects.requireNonNull(state.getBlock().getRegistryName()).hashCode();
+	private static Long makeKey(World world, IBlockState state, BlockPos pos) {
+		return (pos.toLong() << 32) | (world == null ? 0 : world.provider.getDimension()) | (state.getBlock().getRegistryName() == null ? 0 : state.getBlock().getRegistryName().hashCode());
 	}
 
 	private static BlockWrapper createBlockWrapper(World world, IBlockState state, BlockPos pos) {

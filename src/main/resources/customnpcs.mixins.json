@@ -8,6 +8,7 @@
     "entity.EntityTrackerMixin",
     "entity.ai.EntityAIAttackRangedBowMixin",
     "entity.player.EntityPlayerMixin",
+    "fml.common.eventhandler.EventMixin",
     "init.ItemsMixin",
     "inv.ContainerMixin",
     "inv.SlotCraftingMixin",
@@ -18,9 +19,7 @@
     "tileentity.TileEntityBannerMixin",
     "tileentity.TileEntityMixin",
     "util.ServerRecipeBookHelperMixin",
-    "util.text.translation.LanguageMapMixin",
-    "world.WorldMixin",
-    "world.WorldServerMixin"
+    "util.text.translation.LanguageMapMixin"
   ],
   "client": [
     "client.audio.LibraryMixin",
@@ -54,8 +53,7 @@
     "client.renderer.entity.RenderLivingBaseMixin",
     "client.resources.I18nMixin",
     "client.world.storage.WorldSummaryMixin",
-    "fml.client.GuiModListMixin",
-    "world.WorldClientMixin"
+    "fml.client.GuiModListMixin"
   ],
   "server": [],
   "injectors": {

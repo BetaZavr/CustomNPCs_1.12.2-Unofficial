@@ -1916,7 +1916,6 @@ property.showlr.hover=Відображати чи рівень і рідкіст
 property.showmoney.hover=Відображати баланс гравця в інвентарі
 property.showquestcompass.hover=Показати Quest Compass
 property.showrarityitem.hover=Відображати позаду кольоровий шар рідкості предмета у слотах
-property.simplifiedforgeevents.hover=Скасувати створення змінних для кожної події Forge. Не рекомендується вмикати, якщо у вас повільний комп'ютер або сервер
 property.soulstoneanimals.hover=Звичайні гравці можуть використовувати камінь душі на тваринах
 property.soulstonenpcs.hover=Звичайні гравці можуть використовувати камінь душі на всіх NPC
 property.verbosedebug.hover=Показати налагодження
