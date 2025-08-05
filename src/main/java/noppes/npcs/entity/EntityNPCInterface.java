@@ -1357,15 +1357,18 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				for (Map.Entry<Entity, double[]> entry : new ArrayList<>(hitboxRiding.entrySet())) {
 					Entity entity = entry.getKey();
 					if (entity instanceof EntityPlayer && isServerWorld()) { continue; }
-					double[] addPos = entry.getValue();
-					AxisAlignedBB npcBB = getEntityBoundingBox();
-					AxisAlignedBB entityBB = entity.getEntityBoundingBox();
-					if (!getNavigator().noPath()) { npcBB = npcBB.grow(width * 0.25, 0.0, width * 0.25); }
-					if (!isPassenger(entity) && entity.motionY < 0.0f && entity.motionY < 0.0f &&
-							npcBB.minX < entityBB.maxX &&
-							npcBB.maxX > entityBB.minX &&
-							npcBB.minZ < entityBB.maxZ &&
-							npcBB.maxZ > entityBB.minZ) {
+					boolean isSetPos = !isPassenger(entity) && entity.motionY <= 0.0f;
+					if (isSetPos) {
+						AxisAlignedBB npcBB = getEntityBoundingBox();
+						AxisAlignedBB entityBB = entity.getEntityBoundingBox();
+						if (!getNavigator().noPath()) { npcBB = npcBB.grow(width * 0.25, 0.0, width * 0.25); }
+						isSetPos = npcBB.minX < entityBB.maxX &&
+								npcBB.maxX > entityBB.minX &&
+								npcBB.minZ < entityBB.maxZ &&
+								npcBB.maxZ > entityBB.minZ;
+					}
+					if (isSetPos) {
+						double[] addPos = entry.getValue();
 						if (motionY <= 0.0f) {
 							addPos[0] -= entity.motionX * 1.5;
 							addPos[1] -= entity.motionZ * 1.5;
@@ -1375,13 +1378,14 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 							}
 						}
 						double x = posX - addPos[0];
-						double y = posY + height;/*  + 0.05+ // on up
-								(motionY > 0.0 ? motionY : 0.0) + // jump
-								(entity.posY + 0.5 < posY ? 0.15 : 0.0); // high jump*/
+						double y = posY + height * 1.025;
 						double z = posZ - addPos[1];
-
+						entity.onGround = true;
 						entity.setPosition(x, y, z);
 						entity.velocityChanged = true;
+						if (entity instanceof EntityPlayer) {
+							CustomNpcs.proxy.updatePlayerPos();
+						}
 					}
 					else {
 						entity.motionX += motionX * 1.1;
@@ -2402,7 +2406,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public void addRidingEntity(Entity entity) {
 		if (!hitboxRiding.containsKey(entity) && display.getHitboxState() == 2 && !isPassenger(entity)) {
 			if (Math.abs(entity.getEntityBoundingBox().minY - getEntityBoundingBox().maxY) < 0.1) {
-				hitboxRiding.put(entity, new double[] { posX - entity.posX, posZ - entity.posZ});
+				hitboxRiding.put(entity, new double[] { posX - entity.posX, posZ - entity.posZ });
 			}
 		}
 	}

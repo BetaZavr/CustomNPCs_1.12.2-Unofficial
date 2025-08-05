@@ -444,30 +444,29 @@ public class ServerEventsHandler {
 		}
 		else {
 			if (cacheNPChb.isEmpty()) {
-				synchronized (cacheNPChb) {
-					if (cacheNPChb.isEmpty()) {
-						for (Entity e : new ArrayList<>(entity.world.loadedEntityList)) {
-							if (e instanceof EntityNPCInterface && e.isEntityAlive() && ((EntityNPCInterface) e).display.getHitboxState() == 2) {
-								cacheNPChb.add((EntityNPCInterface) e);
-							}
-						}
+				for (Entity e : new ArrayList<>(entity.world.loadedEntityList)) {
+					if (e instanceof EntityNPCInterface && ((EntityNPCInterface) e).display.getHitboxState() == 2) {
+						cacheNPChb.add((EntityNPCInterface) e);
 					}
 				}
 			}
-			for (EntityNPCInterface npc : cacheNPChb) {
+			for (EntityNPCInterface npc : new ArrayList<>(cacheNPChb)) {
+				if (npc == null || npc.isKilled()) { continue; }
+				List<AxisAlignedBB> list = cacheAABB.get(entity);
+				if (list == null) { list = new ArrayList<>(); }
 				try {
 					if (npc == entity) { continue; }
 					double dist = npc.getDistanceSq(entity);
 					if (dist > 450) { continue; }
 					AxisAlignedBB aabb = npc.getEntityBoundingBox();
 					if (!event.getAabb().intersects(aabb)) { continue; }
-					if (!cacheAABB.containsKey(entity)) { cacheAABB.put(entity, new ArrayList<>()); }
 					if (!npc.getNavigator().noPath()) { aabb = aabb.grow(npc.width * 0.25, 0.0, npc.width * 0.25); }
-					cacheAABB.get(entity).add(aabb);
+					list.add(aabb);
 					event.getCollisionBoxesList().add(aabb);
 					npc.addRidingEntity(entity);
 				}
 				catch (Exception e) { LogWriter.error(e); }
+				cacheAABB.put(entity, list);
             }
 		}
 		CustomNpcs.debugData.end(entity);

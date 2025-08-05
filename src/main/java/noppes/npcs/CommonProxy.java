@@ -573,4 +573,6 @@ public class CommonProxy implements IGuiHandler {
     public void loadAnimationModel(AnimationConfig animation) {
     }
 
+    public void updatePlayerPos() {
+    }
 }

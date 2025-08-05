@@ -21,6 +21,7 @@ import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.recipebook.RecipeList;
@@ -53,6 +54,7 @@ import net.minecraft.item.ItemShield;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityBanner;
@@ -2037,6 +2039,14 @@ public class ClientProxy extends CommonProxy {
 
 	public void loadAnimationModel(AnimationConfig animation) {
 		ModelNpcAlt.loadAnimationModel(animation);
+	}
+
+	@Override
+	public void updatePlayerPos() {
+		EntityPlayerSP player = Minecraft.getMinecraft().player;
+		if (player != null) {
+			player.connection.sendPacket(new CPacketPlayer.PositionRotation(player.posX, player.getEntityBoundingBox().minY, player.posZ, player.rotationYaw, player.rotationPitch, player.onGround));
+		}
 	}
 
 }

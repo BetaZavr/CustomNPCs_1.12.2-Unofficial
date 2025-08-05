@@ -21,10 +21,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
-import noppes.npcs.CustomNpcs;
-import noppes.npcs.NBTTags;
-import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.*;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IAvailability;
@@ -470,18 +467,39 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		int recipeW = (int) objs[0];
 		int recipeH = (int) objs[1];
 		NonNullList<Ingredient> ingredients = (NonNullList<Ingredient>) objs[2];
-		for (int r = 0; r < 2; ++r) {
-			int ings = recipeW * recipeH;
-			for (int h = 0; h < recipeH; ++h) {
-				for (int w = 0; w < recipeW; ++w) {
-					int index = h * recipeW + (r == 1 ? recipeW - w - 1 : w);
-					if (index >= ingredients.size()) { continue; }
-					int slotIndex = (h + startH) * inv.getWidth() + (w + startW);
-					Ingredient ingredient = ingredients.get(index);
-					if (apply(ingredient, inv.getStackInSlot(slotIndex))) { ings--; }
+
+		int ings;
+		for (int r = 0; r < 2; r++) {
+			for (int slotW = 0; slotW <= inv.getWidth() - recipeW; ++slotW) {
+				for (int slotH = 0; slotH <= inv.getHeight() - recipeH; ++slotH) {
+					ings = recipeW * recipeH;
+					for (int i = 0; i < inv.getWidth(); ++i) {
+						for (int j = 0; j < inv.getHeight(); ++j) {
+							int k = i - slotW;
+							int l = j - slotH;
+							Ingredient ingredient = Ingredient.EMPTY;
+							if (k >= 0 && l >= 0 && k < recipeW && l < recipeH) {
+								if (r == 1) { ingredient = ingredients.get(recipeWidth - k - 1 + l * recipeWidth); }
+								else { ingredient = ingredients.get(k + l * recipeWidth); }
+							}
+							if (ingredient.apply(inv.getStackInRowAndColumn(i, j))) {
+								ItemStack stack = inv.getStackInRowAndColumn(i, j);
+								ItemStack[] stacks = ingredient.getMatchingStacks();
+								if (stacks.length > 0 && !stack.isEmpty()) {
+									for (ItemStack ingStack : stacks) {
+										if (ingStack.getItem() != stack.getItem() || ingStack.isEmpty() || stack.isEmpty()) { continue; }
+										if (NoppesUtilPlayer.compareItems(stack, ingStack, ignoreDamage, ignoreNBT) && ingStack.getCount() <= stack.getCount()) {
+											ings--;
+											if (ings == 0) { return true; }
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
-			if (ings == 0) { return true; }
 		}
 		return false;
 	}

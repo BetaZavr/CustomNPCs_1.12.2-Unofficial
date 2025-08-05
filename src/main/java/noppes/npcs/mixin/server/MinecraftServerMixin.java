@@ -13,10 +13,4 @@ public class MinecraftServerMixin {
     @Inject(method = "stopServer", at = @At("HEAD"))
     private void npcs$stopServer(CallbackInfo ci) { CustomNpcs.debugData.logging(); }
 
-    @Inject(method = "tick", at = @At("HEAD"))
-    public void npcs$tickStart(CallbackInfo ci) { CustomNpcs.debugData.start(null); }
-
-    @Inject(method = "tick", at = @At("TAIL"))
-    public void npcs$tickEnd(CallbackInfo ci) { CustomNpcs.debugData.end(null); }
-
 }

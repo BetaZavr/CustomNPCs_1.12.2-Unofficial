@@ -57,10 +57,12 @@ public class NetHandlerPlayClientMixin implements INetHandlerPlayClientMixin {
         boolean onNPC = false;
         if (doneLoadingTerrain) {
             for (Entity entity : player.world.loadedEntityList) {
-                if (entity instanceof EntityNPCInterface && ((EntityNPCInterface) entity).hitboxRiding.containsKey(player) // stands on NPC
-                    && Math.abs(d0 - player.posX) < 2.0 && Math.abs(d1 - player.posY) < 2.0 && Math.abs(d2 - player.posZ) < 2.0) { // and it's not teleportation
-                    onNPC = true;
-                    break;
+                if (entity instanceof EntityNPCInterface) {
+                    EntityNPCInterface npc = (EntityNPCInterface) entity;
+                    if (npc.display.getHitboxState() == 2 && !npc.isKilled() && npc.hitboxRiding.containsKey(player)) {
+                        onNPC = true;
+                        break;
+                    }
                 }
             }
         }

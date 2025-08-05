@@ -44,13 +44,13 @@ public class SlotCraftingMixin {
      * @reason Custom recipes contain more than 1 item in the ingredients and special settings
      */
     @Inject(method = "onTake", at = @At("HEAD"), cancellable = true)
-    public void npcs$onTake(EntityPlayer thePlayer, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
+    public void npcs$onTake(EntityPlayer player, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
         cir.cancel();
 
         InventoryCraftResult inventorycraftresult = (InventoryCraftResult) ((Slot) (Object) this).inventory;
         IRecipe recipe = inventorycraftresult.getRecipeUsed();
         if (recipe == null) {
-            recipe = CraftingManager.findMatchingRecipe(craftMatrix, thePlayer.world);
+            recipe = CraftingManager.findMatchingRecipe(craftMatrix, player.world);
             if (recipe != null) { inventorycraftresult.setRecipeUsed(recipe); }
         }
 
@@ -72,8 +72,8 @@ public class SlotCraftingMixin {
         }
 
         npcs$onCrafting(stack);
-        ForgeHooks.setCraftingPlayer(thePlayer);
-        NonNullList<ItemStack> nonnulllist = CraftingManager.getRemainingItems(craftMatrix, thePlayer.world);
+        ForgeHooks.setCraftingPlayer(player);
+        NonNullList<ItemStack> nonnulllist = CraftingManager.getRemainingItems(craftMatrix, player.world);
         ForgeHooks.setCraftingPlayer(null);
 
         Map<Integer, Integer> slotToCount = new HashMap<>();
@@ -82,28 +82,28 @@ public class SlotCraftingMixin {
         } else if (recipe instanceof ShapelessRecipes ) {
             slotToCount = npcs$processShapelessRecipe((ShapelessRecipes) recipe, ignoreDamage, ignoreNBT);
         }
-
         for (int i = 0; i < nonnulllist.size(); ++i) {
-            ItemStack craftStack = this.craftMatrix.getStackInSlot(i);
+            ItemStack craftStack = craftMatrix.getStackInSlot(i);
             ItemStack extraStack = nonnulllist.get(i);
             int count = 1;
             if (slotToCount.containsKey(i)) {
                 count = slotToCount.get(i);
             }
             if (!craftStack.isEmpty()) {
-                this.craftMatrix.decrStackSize(i, count);
-                craftStack = this.craftMatrix.getStackInSlot(i);
+                craftMatrix.decrStackSize(i, count);
+                craftStack = craftMatrix.getStackInSlot(i);
             }
             if (!extraStack.isEmpty()) {
-                if (craftStack.isEmpty()) { this.craftMatrix.setInventorySlotContents(i, extraStack); }
+                if (craftStack.isEmpty()) { craftMatrix.setInventorySlotContents(i, extraStack); }
                 else if (ItemStack.areItemsEqual(craftStack, extraStack) && ItemStack.areItemStackTagsEqual(craftStack, extraStack)) {
                     extraStack.grow(craftStack.getCount());
-                    this.craftMatrix.setInventorySlotContents(i, extraStack);
+                    craftMatrix.setInventorySlotContents(i, extraStack);
                 }
-                else if (!this.player.inventory.addItemStackToInventory(extraStack)) { this.player.dropItem(extraStack, false); }
+                else if (!player.inventory.addItemStackToInventory(extraStack)) { player.dropItem(extraStack, false); }
             }
         }
-        thePlayer.openContainer.detectAndSendChanges();
+        player.openContainer.detectAndSendChanges();
+
         cir.setReturnValue(stack);
     }
 
@@ -126,64 +126,48 @@ public class SlotCraftingMixin {
     @Unique
     public Map<Integer, Integer> npcs$processShapedRecipe(ShapedRecipes recipe, boolean ignoreDamage, boolean ignoreNBT) {
         Map<Integer, Integer> slotToCount = new HashMap<>();
-        int recipeW = recipe.getWidth();
-        int recipeH = recipe.getHeight();
+        int recipeWidth = recipe.getWidth();
+        int recipeHeight = recipe.getHeight();
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
         if (recipe instanceof NpcShapedRecipes) {
             Object[] objs = ((NpcShapedRecipes) recipe).getGrid();
-            recipeW = (int) objs[0];
-            recipeH = (int) objs[1];
+            recipeWidth = (int) objs[0];
+            recipeHeight = (int) objs[1];
             ingredients = (NonNullList<Ingredient>) objs[2];
         }
-        // First non-empty slot in the crafting grid
-        int startW = -1;
-        int startH = -1;
-        for (int i = 0; i < craftMatrix.getSizeInventory(); i++) {
-            if (!craftMatrix.getStackInSlot(i).isEmpty()) {
-                startW = i % craftMatrix.getWidth();
-                startH = i / craftMatrix.getHeight();
-                break;
-            }
-        }
-        if (startW >= 0 && startH >= 0) {
-            for (int r = 0; r < 2; ++r) { // 0: normal; 1: reverse
-                int ings = recipeW * recipeH;
-                slotToCount.clear();
-                for (int h = 0; h <= craftMatrix.getHeight() - recipeH; ++h) {
-                    for (int w = 0; w <= craftMatrix.getWidth() - recipeW; ++w) {
-                        int index = h * recipeW + (r == 1 ? recipeW - w - 1 : w);
-                        if (index >= ingredients.size()) { continue; }
-                        int slotIndex = (h + startH) * craftMatrix.getWidth() + (w + startW);
-                        try {
-                            Ingredient ingredient = ingredients.get(index);
-                            ItemStack ingStack = npcs$apply(ingredient, craftMatrix.getStackInSlot(slotIndex), ignoreDamage, ignoreNBT);
-                            if (ingStack != null) {
-                                ings--;
-                                slotToCount.put(slotIndex, ingStack.getCount());
+        int ings = -1;
+        for (int r = 0; r < 2; r++) {
+            for (int slotW = 0; slotW <= craftMatrix.getWidth() - recipeWidth; ++slotW) {
+                for (int slotH = 0; slotH <= craftMatrix.getHeight() - recipeHeight; ++slotH) {
+                    ings = recipeWidth * recipeHeight;
+                    for (int i = 0; i < craftMatrix.getWidth(); ++i) {
+                        for (int j = 0; j < craftMatrix.getHeight(); ++j) {
+                            int k = i - slotW;
+                            int l = j - slotH;
+                            Ingredient ingredient = Ingredient.EMPTY;
+                            if (k >= 0 && l >= 0 && k < recipeWidth && l < recipeHeight) {
+                                if (r == 1) { ingredient = ingredients.get(recipeWidth - k - 1 + l * recipeWidth); }
+                                else { ingredient = ingredients.get(k + l * recipeWidth); }
                             }
+                            if (ingredient.apply(craftMatrix.getStackInRowAndColumn(i, j))) {
+                                ItemStack ingStack = npcs$apply(ingredient, craftMatrix.getStackInRowAndColumn(i, j), ignoreDamage, ignoreNBT);
+                                if (ingStack != null) {
+                                    ings--;
+                                    slotToCount.put(i + j * craftMatrix.getWidth(), ingStack.getCount());
+                                }
+                            }
+                            if (ings == 0) { break; }
                         }
-                        catch (Exception e) { throw new RuntimeException(e); }
+                        if (ings == 0) { break; }
                     }
+                    if (ings == 0) { break; }
                 }
-                if (ings == 0) { return slotToCount; }
+                if (ings == 0) { break; }
             }
+            if (ings == 0) { break; }
         }
-        slotToCount.clear();
+        if (ings != 0) { slotToCount.clear(); }
         return slotToCount;
-    }
-
-    @Unique
-    public ItemStack npcs$apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
-        if (stack == null || ingredient == null) { return null; }
-        ItemStack[] stacks = ingredient.getMatchingStacks();
-        if (stacks.length == 0 && stack.isEmpty()) { return ItemStack.EMPTY; }
-        for (ItemStack ingStack : stacks) {
-            if (ingStack.getItem() != stack.getItem() || ingStack.isEmpty() || stack.isEmpty()) { continue; }
-            if (NoppesUtilPlayer.compareItems(stack, ingStack, ignoreDamage, ignoreNBT) && ingStack.getCount() <= stack.getCount()) {
-                return ingStack;
-            }
-        }
-        return null;
     }
 
     @Unique
@@ -233,6 +217,20 @@ public class SlotCraftingMixin {
             }
         }
         return slotToCount;
+    }
+
+    @Unique
+    public ItemStack npcs$apply(@Nullable Ingredient ingredient, @Nullable ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
+        if (stack == null || ingredient == null) { return null; }
+        ItemStack[] stacks = ingredient.getMatchingStacks();
+        if (stacks.length == 0 && stack.isEmpty()) { return ItemStack.EMPTY; }
+        for (ItemStack ingStack : stacks) {
+            if (ingStack.getItem() != stack.getItem() || ingStack.isEmpty() || stack.isEmpty()) { continue; }
+            if (NoppesUtilPlayer.compareItems(stack, ingStack, ignoreDamage, ignoreNBT) && ingStack.getCount() <= stack.getCount()) {
+                return ingStack;
+            }
+        }
+        return null;
     }
 
 }
